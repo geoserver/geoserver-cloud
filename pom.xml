@@ -17,7 +17,7 @@
     <fmt.skip>false</fmt.skip>
 
     <dockerfile-maven-plugin.version>1.4.10</dockerfile-maven-plugin.version>
-    <docker.image.prefix>${project.groupId}</docker.image.prefix>
+    <docker.image.prefix>geoserver-microservices</docker.image.prefix>
     <dockerfile.build.pullNewerImage>false</dockerfile.build.pullNewerImage>
   </properties>
 
@@ -192,4 +192,7 @@
       </plugin>
     </plugins>
   </build>
+  <modules>
+    <module>docker-base-java</module>
+  </modules>
 </project>
