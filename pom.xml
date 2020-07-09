@@ -194,5 +194,6 @@
   </build>
   <modules>
     <module>docker-base-java</module>
+    <module>support-services</module>
   </modules>
 </project>
