@@ -37,3 +37,16 @@ services:
       - "8762:8762"
     networks:
       - gs-cloud-network
+
+
+  # Spring Cloud Config service, provides centralized configuration to all
+  # microservices. Being a Discovery First Bootstrap configuration, it'll
+  # register itself with the Eureka discovery service and can be scaled
+  config-service:
+    image: geoserver-microservices/gs-config:latest
+    depends_on:
+      - discovery1
+    environment:
+      EUREKA_SERVER_URL: http://discovery1:8761/eureka, http://discovery2:8762/eureka
+    networks:
+      - gs-cloud-network

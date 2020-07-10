@@ -8,7 +8,7 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
 
-  <artifactId>gs-microservices-docker-base-java</artifactId>
+  <artifactId>java-base-image</artifactId>
   <name>Docker base image for Spring Boot apps</name>
 
   <packaging>pom</packaging>

@@ -1,0 +1,20 @@
+server:
+   port: ${PORT:0}
+spring:
+   main:
+      banner-mode: "off"
+   application:
+      name: config-service
+   profiles:
+      active: native #use native filesystem config by default instead of git. REVISIT.
+eureka:
+   instance:
+      hostname: ${spring.application.name}
+      preferIpAddress: true
+      instance-id: ${spring.cloud.client.hostname}:${spring.application.name}:${spring.application.instance_id:${random.int[1,999999]}}
+   client:
+      enabled: true
+      serviceUrl:
+         defaultZone: ${eureka.server.url:http://localhost:8761/eureka}
+      healthcheck:
+         enabled: true
