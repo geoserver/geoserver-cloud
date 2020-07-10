@@ -1,0 +1,68 @@
+version: "3"
+
+#volumes:
+
+networks:
+  gs-cloud-network:
+    driver: bridge
+        
+services:
+  # Eureka service discovery. This is a Discovery First Bootstrap configuration.
+  # Since the discovery service are fixed entry points, we're setting up two peer aware eureka instances for HA.
+  # Browse to http://localhost:8761 and http://localhost:8762 to verify they see each
+  # other and all services are registered at both eureka instances.
+  # See http://cloud.spring.io/spring-cloud-static/spring-cloud.html#_peer_awareness
+  discovery1:
+    image: geoserver-microservices/gs-discovery:latest
+    environment:
+      PORT: 8761
+      EUREKA_INSTANCE_HOSTNAME: discovery1
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery2:8762/eureka
+    expose: 
+      - 8761
+    ports:
+      - "8761:8761"
+    networks:
+      - gs-cloud-network
+
+  discovery2:
+    image: geoserver-microservices/gs-discovery:latest
+    environment:
+      PORT: 8762
+      EUREKA_INSTANCE_HOSTNAME: discovery2
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery1:8761/eureka
+    expose: 
+      - 8762
+    ports:
+      - "8762:8762"
+    networks:
+      - gs-cloud-network
+
+
+  # Spring Cloud Config service, provides centralized configuration to all
+  # microservices. Being a Discovery First Bootstrap configuration, it'll
+  # register itself with the Eureka discovery service and can be scaled
+  config:
+    image: geoserver-microservices/gs-config:latest
+    depends_on:
+      - discovery1
+    environment:
+      EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
+    networks:
+      - gs-cloud-network
+
+  # Application facade, provides a single entry point routing to all
+  # microservices (e.g. http://localhost:9090/geoserver/wms, http://localhost:9090/geoserver/wfs, etc)
+  api-gateway:
+    image: geoserver-microservices/gs-api-gateway:latest
+    depends_on:
+      - config
+    environment:
+      PORT: 9090
+      EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
+    expose: 
+      - 9090
+    ports:
+      - "9090:9090"
+    networks:
+      - gs-cloud-network

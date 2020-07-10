@@ -1,0 +1,25 @@
+server:
+   port: ${PORT:8761} 
+spring:
+   application:
+      name: discovery-service
+   main:
+      banner-mode: "off"
+eureka:
+   server:
+      enableSelfPreservation: true
+      eviction-interval-timer-in-ms: 5000
+   instance:
+      hostname: localhost
+      preferIpAddress: true
+   client:
+      registerWithEureka: false
+      fetchRegistry: false
+      serviceUrl:
+         defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+
+logging:
+  level:
+    root: ERROR
+    com.netflix.discovery: WARN
+    com.netflix.eureka: WARN
