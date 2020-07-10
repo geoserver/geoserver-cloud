@@ -10,7 +10,7 @@
   <properties>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
-    <spring-boot.version>2.2.3.RELEASE</spring-boot.version>
+    <spring-boot.version>2.2.8.RELEASE</spring-boot.version>
     <spring-cloud.version>Hoxton.SR6</spring-cloud.version>
     <gs.version>2.18-SNAPSHOT</gs.version>
     <fmt.action>format</fmt.action>
