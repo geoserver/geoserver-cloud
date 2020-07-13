@@ -7,8 +7,9 @@ spring:
       banner-mode: "off"
 eureka:
    server:
+      peer-node-read-timeout-ms: 60000
       enableSelfPreservation: true
-      eviction-interval-timer-in-ms: 5000
+      eviction-interval-timer-in-ms: 10000
    instance:
       hostname: localhost
       preferIpAddress: true

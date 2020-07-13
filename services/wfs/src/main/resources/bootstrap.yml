@@ -2,7 +2,7 @@ spring:
    main:
       banner-mode: "off"
    application:
-      name: gateway-service
+      name: wfs-service
    cloud:
       config:
          fail-fast: true
@@ -16,12 +16,8 @@ eureka:
       hostname: ${spring.application.name}
       preferIpAddress: true
       instance-id: ${spring.cloud.client.hostname}:${spring.application.name}:${spring.application.instance_id:${random.int[1,999999]}}
-      leaseRenewalIntervalInSeconds: 5
-      lease-expiration-duration-in-seconds: 5
    client:
       enabled: true
-      fetchRegistry: true
-      registryFetchIntervalSeconds: 5
       serviceUrl:
          defaultZone: ${eureka.server.url:http://localhost:8761/eureka}
       healthcheck:

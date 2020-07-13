@@ -1,4 +1,4 @@
-FROM geoserver-microservices/java-base-image:latest
+FROM org.geoserver.cloud/gs-cloud-docker-base-java:latest
 
 ARG JAR_FILE=dummy
 

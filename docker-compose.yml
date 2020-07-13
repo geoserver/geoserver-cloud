@@ -13,7 +13,7 @@ services:
   # other and all services are registered at both eureka instances.
   # See http://cloud.spring.io/spring-cloud-static/spring-cloud.html#_peer_awareness
   discovery1:
-    image: geoserver-microservices/gs-discovery:latest
+    image: org.geoserver.cloud/gs-cloud-discovery-service:latest
     environment:
       PORT: 8761
       EUREKA_INSTANCE_HOSTNAME: discovery1
@@ -26,7 +26,7 @@ services:
       - gs-cloud-network
 
   discovery2:
-    image: geoserver-microservices/gs-discovery:latest
+    image: org.geoserver.cloud/gs-cloud-discovery-service:latest
     environment:
       PORT: 8762
       EUREKA_INSTANCE_HOSTNAME: discovery2
@@ -42,8 +42,8 @@ services:
   # Spring Cloud Config service, provides centralized configuration to all
   # microservices. Being a Discovery First Bootstrap configuration, it'll
   # register itself with the Eureka discovery service and can be scaled
-  config:
-    image: geoserver-microservices/gs-config:latest
+  config-service:
+    image: org.geoserver.cloud/gs-cloud-config-service:latest
     depends_on:
       - discovery1
     environment:
@@ -53,10 +53,11 @@ services:
 
   # Application facade, provides a single entry point routing to all
   # microservices (e.g. http://localhost:9090/geoserver/wms, http://localhost:9090/geoserver/wfs, etc)
-  api-gateway:
-    image: geoserver-microservices/gs-api-gateway:latest
+  gateway-service:
+    image: org.geoserver.cloud/gs-cloud-gateway:latest
     depends_on:
-      - config
+      - discovery1
+      - config-service
     environment:
       PORT: 9090
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
@@ -64,5 +65,16 @@ services:
       - 9090
     ports:
       - "9090:9090"
+    networks:
+      - gs-cloud-network
+
+
+  # WFS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wfs-service=5)
+  wfs-service:
+    image: org.geoserver.cloud/gs-wfs-service:latest
+    depends_on:
+      - gateway-service
+    environment:
+      EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
     networks:
       - gs-cloud-network

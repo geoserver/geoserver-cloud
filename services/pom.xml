@@ -8,13 +8,12 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
 
-  <artifactId>gs-support-services</artifactId>
-  <name>Parent pom for support services</name>
+  <artifactId>gs-microservices</artifactId>
+  <name>Parent pom for GeoServer microservices</name>
   <packaging>pom</packaging>
 
   <modules>
-    <module>discovery</module>
-    <module>config</module>
-    <module>api-gateway</module>
+    <module>core</module>
+    <module>wfs</module>
   </modules>
 </project>

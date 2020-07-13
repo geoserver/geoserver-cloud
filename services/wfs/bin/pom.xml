@@ -4,16 +4,16 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.geoserver.cloud</groupId>
-    <artifactId>gs-support-services</artifactId>
+    <artifactId>gs-cloud-parent</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <relativePath>..</relativePath>
   </parent>
-  <artifactId>gs-cloud-gateway</artifactId>
-  <name>API gateway service</name>
+  <artifactId>gs-cloud-wfs-service</artifactId>
+  <name>wfs</name>
   <packaging>jar</packaging>
-
   <properties>
+    <start-class>org.geoserver.cloud.wfs.WfsApplication</start-class>
   </properties>
-
   <dependencies>
     <dependency>
       <groupId>org.springframework.cloud</groupId>
@@ -33,12 +33,19 @@
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-actuator</artifactId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <!-- <dependency> <groupId>org.springframework.boot</groupId> <artifactId>spring-boot-starter-actuator</artifactId> </dependency> -->
+    <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-core</artifactId>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-starter-gateway</artifactId>
+      <groupId>org.geoserver</groupId>
+      <artifactId>gs-wfs</artifactId>
     </dependency>
+
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>

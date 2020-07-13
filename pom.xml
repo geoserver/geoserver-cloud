@@ -2,8 +2,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.geoserver.microservices</groupId>
-  <artifactId>gs-microservices-parent</artifactId>
+  <groupId>org.geoserver.cloud</groupId>
+  <artifactId>gs-cloud-parent</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
@@ -11,17 +11,27 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <spring-boot.version>2.2.8.RELEASE</spring-boot.version>
-    <spring-cloud.version>Hoxton.SR6</spring-cloud.version>
+    <spring-cloud.version>Hoxton.RELEASE</spring-cloud.version>
     <gs.version>2.18-SNAPSHOT</gs.version>
     <fmt.action>format</fmt.action>
     <fmt.skip>false</fmt.skip>
 
     <dockerfile-maven-plugin.version>1.4.10</dockerfile-maven-plugin.version>
-    <docker.image.prefix>geoserver-microservices</docker.image.prefix>
+    <docker.image.prefix>${project.groupId}</docker.image.prefix>
     <dockerfile.build.pullNewerImage>false</dockerfile.build.pullNewerImage>
   </properties>
 
   <repositories>
+    <repository>
+      <id>spring-repo</id>
+      <name>Spring Repository</name>
+      <url>https://repo.spring.io/release</url>
+    </repository>
+    <repository>
+      <id>spring-milestone</id>
+      <name>Spring Milestone Repository</name>
+      <url>https://repo.spring.io/milestone</url>
+    </repository>
     <repository>
       <id>osgeo-releases</id>
       <name>OSGeo Nexus Release Repository</name>
@@ -62,6 +72,7 @@
       </releases>
     </repository>
   </repositories>
+
 
   <dependencyManagement>
     <dependencies>
@@ -117,11 +128,6 @@
       <dependency>
         <groupId>org.geoserver</groupId>
         <artifactId>gs-restconfig</artifactId>
-        <version>${gs.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.geoserver.web</groupId>
-        <artifactId>gs-web-app</artifactId>
         <version>${gs.version}</version>
       </dependency>
     </dependencies>
@@ -195,5 +201,6 @@
   <modules>
     <module>docker-base-java</module>
     <module>support-services</module>
+    <module>services</module>
   </modules>
 </project>
