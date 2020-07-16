@@ -13,7 +13,7 @@ services:
   # other and all services are registered at both eureka instances.
   # See http://cloud.spring.io/spring-cloud-static/spring-cloud.html#_peer_awareness
   discovery1:
-    image: org.geoserver.cloud/gs-cloud-discovery-service:latest
+    image: org.geoserver.cloud/gs-cloud-discovery-service:${TAG}
     environment:
       PORT: 8761
       EUREKA_INSTANCE_HOSTNAME: discovery1
@@ -26,7 +26,7 @@ services:
       - gs-cloud-network
 
   discovery2:
-    image: org.geoserver.cloud/gs-cloud-discovery-service:latest
+    image: org.geoserver.cloud/gs-cloud-discovery-service:${TAG}
     environment:
       PORT: 8762
       EUREKA_INSTANCE_HOSTNAME: discovery2
@@ -43,7 +43,7 @@ services:
   # microservices. Being a Discovery First Bootstrap configuration, it'll
   # register itself with the Eureka discovery service and can be scaled
   config-service:
-    image: org.geoserver.cloud/gs-cloud-config-service:latest
+    image: org.geoserver.cloud/gs-cloud-config-service:${TAG}
     depends_on:
       - discovery1
     environment:
@@ -54,7 +54,7 @@ services:
   # Application facade, provides a single entry point routing to all
   # microservices (e.g. http://localhost:9090/geoserver/wms, http://localhost:9090/geoserver/wfs, etc)
   gateway-service:
-    image: org.geoserver.cloud/gs-cloud-gateway:latest
+    image: org.geoserver.cloud/gs-cloud-gateway:${TAG}
     depends_on:
       - discovery1
       - config-service
@@ -69,9 +69,19 @@ services:
       - gs-cloud-network
 
 
-  # WFS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wfs-service=5)
-  wfs-service:
-    image: org.geoserver.cloud/gs-wfs-service:latest
+  # WFS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wfs=5)
+  wfs:
+    image: org.geoserver.cloud/gs-cloud-wfs:${TAG}
+    depends_on:
+      - gateway-service
+    environment:
+      EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
+    networks:
+      - gs-cloud-network
+
+  # WMS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wms=5)
+  wms:
+    image: org.geoserver.cloud/gs-could-wms:${TAG}
     depends_on:
       - gateway-service
     environment:
