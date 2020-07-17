@@ -4,4 +4,4 @@ ARG JAR_FILE=dummy
 
 ADD target/${JAR_FILE} /opt/wms-service.jar
 
-CMD ["java", "-jar", "/opt/wms-service.jar"]
+ENTRYPOINT exec java $JAVA_OPTS -jar /opt/wms-service.jar

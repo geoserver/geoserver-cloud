@@ -18,6 +18,7 @@ services:
       PORT: 8761
       EUREKA_INSTANCE_HOSTNAME: discovery1
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery2:8762/eureka
+      JAVA_OPTS: -Xmx256m
     expose: 
       - 8761
     ports:
@@ -31,6 +32,7 @@ services:
       PORT: 8762
       EUREKA_INSTANCE_HOSTNAME: discovery2
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery1:8761/eureka
+      JAVA_OPTS: -Xmx256m
     expose: 
       - 8762
     ports:
@@ -48,6 +50,7 @@ services:
       - discovery1
     environment:
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
+      JAVA_OPTS: -Xmx256m
     networks:
       - gs-cloud-network
 
@@ -61,6 +64,7 @@ services:
     environment:
       PORT: 9090
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
+      JAVA_OPTS: -Xmx256m
     expose: 
       - 9090
     ports:
@@ -76,6 +80,7 @@ services:
       - gateway-service
     environment:
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
+      JAVA_OPTS: -Xmx512m
     networks:
       - gs-cloud-network
 
@@ -86,5 +91,6 @@ services:
       - gateway-service
     environment:
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
+      JAVA_OPTS: -Xmx512m
     networks:
       - gs-cloud-network
