@@ -7,11 +7,11 @@
     <artifactId>gs-microservices</artifactId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
-  <artifactId>gs-cloud-wms</artifactId>
-  <name>wms-service</name>
+  <artifactId>gs-cloud-wcs</artifactId>
+  <name>wcs-service</name>
   <packaging>jar</packaging>
   <properties>
-    <start-class>org.geoserver.cloud.wms.WmsApplication</start-class>
+    <start-class>org.geoserver.cloud.wcs.WcsApplication</start-class>
   </properties>
   <dependencies>
     <dependency>
@@ -44,7 +44,19 @@
     </dependency>
     <dependency>
       <groupId>org.geoserver</groupId>
-      <artifactId>gs-wms</artifactId>
+      <artifactId>gs-wcs</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver</groupId>
+      <artifactId>gs-wcs1_0</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver</groupId>
+      <artifactId>gs-wcs1_1</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver</groupId>
+      <artifactId>gs-wcs2_0</artifactId>
     </dependency>
 
     <dependency>
@@ -59,13 +71,6 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>build-info</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
       <plugin>
         <groupId>com.spotify</groupId>

@@ -4,11 +4,10 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.geoserver.cloud</groupId>
-    <artifactId>gs-cloud-parent</artifactId>
+    <artifactId>gs-microservices</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <relativePath>..</relativePath>
   </parent>
-  <artifactId>gs-cloud-core</artifactId>
+  <artifactId>gs-cloud-common</artifactId>
   <name>Base GeoServer cloud project configuration</name>
   <packaging>jar</packaging>
   <dependencies>

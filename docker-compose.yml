@@ -86,7 +86,18 @@ services:
 
   # WMS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wms=5)
   wms:
-    image: org.geoserver.cloud/gs-could-wms:${TAG}
+    image: org.geoserver.cloud/gs-cloud-wms:${TAG}
+    depends_on:
+      - gateway-service
+    environment:
+      EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
+      JAVA_OPTS: -Xmx512m
+    networks:
+      - gs-cloud-network
+
+  # WCS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wcs=5)
+  wcs:
+    image: org.geoserver.cloud/gs-cloud-wcs:${TAG}
     depends_on:
       - gateway-service
     environment:

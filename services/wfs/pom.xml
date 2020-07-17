@@ -40,8 +40,7 @@
     </dependency>
     <dependency>
       <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-core</artifactId>
-      <version>${project.version}</version>
+      <artifactId>gs-cloud-common</artifactId>
     </dependency>
     <dependency>
       <groupId>org.geoserver</groupId>

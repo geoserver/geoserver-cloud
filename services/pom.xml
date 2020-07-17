@@ -12,9 +12,19 @@
   <name>Parent pom for GeoServer microservices</name>
   <packaging>pom</packaging>
 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.geoserver.cloud</groupId>
+        <artifactId>gs-cloud-common</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
   <modules>
-    <module>core</module>
+    <module>common</module>
     <module>wfs</module>
     <module>wms</module>
+    <module>wcs</module>
   </modules>
 </project>
