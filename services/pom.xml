@@ -26,5 +26,6 @@
     <module>wfs</module>
     <module>wms</module>
     <module>wcs</module>
+    <module>wps</module>
   </modules>
 </project>
