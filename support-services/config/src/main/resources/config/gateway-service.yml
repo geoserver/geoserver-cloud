@@ -23,16 +23,16 @@ spring:
       # Configure routes to services. See https://cloud.spring.io/spring-cloud-gateway/single/spring-cloud-gateway.html
       routes:
       # WFS routes
-      - id: wfs # proxies requests to api-gateway:/wfs to wfs-service:/wfs
-        uri: lb://wfs #load balanced to the wfs service instances
+      - id: wfs # proxies requests to gateway-service:/wfs to wfs-service:/wfs
+        uri: lb://wfs-service #load balanced to the wfs-service instances
         predicates:
         - Path=/wfs
         - Path=/wfs/**
         filters:
         - RewritePath=/(?<wfs>.*), /$\{wfs}
       # WMS routes
-      - id: wms # proxies requests to api-gateway:/wms to wms:/wms
-        uri: lb://wms #load balanced to the wms service instances
+      - id: wms # proxies requests to gateway-service:/wms to wms-service:/wms
+        uri: lb://wms-service #load balanced to the wms-service instances
         predicates:
         - Path=/wms
         - Path=/wms/**
@@ -40,21 +40,13 @@ spring:
         - RewritePath=/(?<wms>.*), /$\{wms}
 #        - AddResponseHeader=X-Some-Header, aboullaite.me
       # WCS routes
-      - id: wcs # proxies requests to api-gateway:/wfs to wfs:/wfs
-        uri: lb://wcs #load balanced to the wcs instances
+      - id: wcs # proxies requests to gateway-service:/wfs to wfs-service:/wfs
+        uri: lb://wcs-service #load balanced to the wfs-service instances
         predicates:
         - Path=/wcs
         - Path=/wcs/**
         filters:
         - RewritePath=/(?<wcs>.*), /$\{wcs}
-      # WPS routes
-      - id: wps # proxies requests to api-gateway:/wps to wps:/wps
-        uri: lb://wps #load balanced to the wps instances
-        predicates:
-        - Path=/wps
-        - Path=/wps/**
-        filters:
-        - RewritePath=/(?<wps>.*), /$\{wps}
       # REST configuration routes
       - id: restconfig
         uri: lb://restconfig-v1 #load balanced to the restconfig-v1 instances

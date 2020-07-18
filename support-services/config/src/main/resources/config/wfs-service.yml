@@ -1,0 +1,8 @@
+server:
+   port: ${PORT:0}
+   servlet:
+      context-path: /
+
+logging:
+   level:
+      org.springframework: ERROR

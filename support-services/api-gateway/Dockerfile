@@ -1,7 +1,7 @@
-FROM geoserver-microservices/java-base-image:latest
+FROM org.geoserver.cloud/gs-cloud-docker-base-java:latest
 
 ARG JAR_FILE=dummy
 
-ADD target/${JAR_FILE} /opt/service.jar
+ADD target/${JAR_FILE} /opt/gateway-service.jar
 
-CMD ["java", "-jar", "/opt/service.jar"]
+ENTRYPOINT exec java $JAVA_OPTS -jar /opt/gateway-service.jar

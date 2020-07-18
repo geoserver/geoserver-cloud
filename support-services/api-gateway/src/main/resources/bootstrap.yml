@@ -2,7 +2,7 @@ spring:
    main:
       banner-mode: "off"
    application:
-      name: api-gateway
+      name: gateway-service
    cloud:
       config:
          fail-fast: true

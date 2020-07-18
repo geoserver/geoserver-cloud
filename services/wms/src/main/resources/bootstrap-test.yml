@@ -1,0 +1,12 @@
+spring:
+   application:
+      name: wms-service
+   cloud:
+      config:
+         enabled: false
+         discovery:
+            enabled: false
+server:
+   port: 9091
+   servlet:
+      context-path: /

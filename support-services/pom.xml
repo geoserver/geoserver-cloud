@@ -3,15 +3,15 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.geoserver.microservices</groupId>
-    <artifactId>gs-microservices-parent</artifactId>
+    <groupId>org.geoserver.cloud</groupId>
+    <artifactId>gs-cloud-parent</artifactId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
 
-  <artifactId>gs-microservices-support-parent</artifactId>
+  <artifactId>gs-support-services</artifactId>
   <name>Parent pom for support services</name>
   <packaging>pom</packaging>
-  
+
   <modules>
     <module>discovery</module>
     <module>config</module>
