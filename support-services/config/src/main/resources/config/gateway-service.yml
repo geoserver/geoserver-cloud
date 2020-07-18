@@ -40,13 +40,21 @@ spring:
         - RewritePath=/(?<wms>.*), /$\{wms}
 #        - AddResponseHeader=X-Some-Header, aboullaite.me
       # WCS routes
-      - id: wcs # proxies requests to gateway-service:/wfs to wfs-service:/wfs
-        uri: lb://wcs-service #load balanced to the wfs-service instances
+      - id: wcs # proxies requests to gateway-service:/wcs to wcs-service:/wcs
+        uri: lb://wcs-service #load balanced to the wps-service instances
         predicates:
         - Path=/wcs
         - Path=/wcs/**
         filters:
         - RewritePath=/(?<wcs>.*), /$\{wcs}
+      # WPS routes
+      - id: wps # proxies requests to gateway-service:/wps to wfs-service:/wps
+        uri: lb://wps-service #load balanced to the wps-service instances
+        predicates:
+        - Path=/wps
+        - Path=/wps/**
+        filters:
+        - RewritePath=/(?<wps>.*), /$\{wps}
       # REST configuration routes
       - id: restconfig
         uri: lb://restconfig-v1 #load balanced to the restconfig-v1 instances

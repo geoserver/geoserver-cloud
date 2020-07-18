@@ -42,6 +42,17 @@
       <groupId>org.geoserver.cloud</groupId>
       <artifactId>gs-cloud-common</artifactId>
     </dependency>
+
+    <dependency>
+      <!-- REVISIT: for some reason, the WPS service won't start up without the web components. A bean creation exception 
+        will be reported: "Error creating bean with name 'wpsInitializer' ... -->
+      <!-- Error creating bean with name 'executionManager': Requested bean is currently in creation: Is there an unresolvable 
+        circular reference?" "Error creating bean with name 'executionManager': Requested bean is currently in creation: Is there 
+        an unresolvable circular reference?" -->
+      <groupId>org.geoserver.extension</groupId>
+      <artifactId>gs-web-wps</artifactId>
+      <version>${gs.version}</version>
+    </dependency>
     <dependency>
       <groupId>org.geoserver.extension</groupId>
       <artifactId>gs-wps-core</artifactId>
