@@ -27,5 +27,6 @@
     <module>wms</module>
     <module>wcs</module>
     <module>wps</module>
+    <module>restconfig</module>
   </modules>
 </project>
