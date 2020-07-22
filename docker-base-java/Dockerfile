@@ -1,3 +1,3 @@
-FROM adoptopenjdk/openjdk11:alpine-slim
+FROM adoptopenjdk/openjdk11:slim
 
 MAINTAINER GeoServer PSC <geoserver-users@lists.sourceforge.net>
