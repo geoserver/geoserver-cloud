@@ -11,7 +11,7 @@ eureka:
    instance:
       hostname: ${spring.application.name}
       preferIpAddress: true
-      instance-id: ${spring.cloud.client.hostname}:${spring.application.name}:${spring.application.instance_id:${random.int[1,999999]}}
+      instance-id: ${spring.application.name}@${spring.application.instance_id:${spring.cloud.client.ip-address}}
    client:
       enabled: true
       serviceUrl:
