@@ -1,0 +1,43 @@
+version: "3.8"
+
+services:
+  # Eureka service discovery. This is a Discovery First Bootstrap configuration.
+  # Since the discovery service are fixed entry points, we're setting up two peer aware eureka instances for HA.
+  # Browse to http://localhost:8761 and http://localhost:8762 to verify they see each
+  # other and all services are registered at both eureka instances.
+  # See http://cloud.spring.io/spring-cloud-static/spring-cloud.html#_peer_awareness
+  discovery:
+    environment:
+      EUREKA_INSTANCE_HOSTNAME: discovery-1
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-2:8762/eureka
+
+  discovery2:
+    image: org.geoserver.cloud/gs-cloud-discovery-service:${TAG}
+    container_name: discovery-2
+    environment:
+      PORT: 8762
+      EUREKA_INSTANCE_HOSTNAME: discovery-2
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-1:8761/eureka
+      JAVA_OPTS: -Xmx256m
+    expose: 
+      - 8762
+    ports:
+      - "8762:8762"
+    networks:
+      - gs-cloud-network
+
+  gateway-service:
+    environment:
+      EUREKA_SERVER_URL: http://discovery-1:8761/eureka, http://discovery-2:8762/eureka
+  wfs:
+    environment:
+      EUREKA_SERVER_URL: http://discovery-1:8761/eureka, http://discovery-2:8762/eureka
+  wms:
+    environment:
+      EUREKA_SERVER_URL: http://discovery-1:8761/eureka, http://discovery-2:8762/eureka
+  wcs:
+    environment:
+      EUREKA_SERVER_URL: http://discovery-1:8761/eureka, http://discovery-2:8762/eureka
+  wps:
+    environment:
+      EUREKA_SERVER_URL: http://discovery-1:8761/eureka, http://discovery-2:8762/eureka

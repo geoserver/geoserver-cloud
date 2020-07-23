@@ -1,5 +1,5 @@
-version: "3"
-
+version: "3.8"
+#
 #volumes:
 
 networks:
@@ -8,16 +8,15 @@ networks:
         
 services:
   # Eureka service discovery. This is a Discovery First Bootstrap configuration.
-  # Since the discovery service are fixed entry points, we're setting up two peer aware eureka instances for HA.
-  # Browse to http://localhost:8761 and http://localhost:8762 to verify they see each
-  # other and all services are registered at both eureka instances.
-  # See http://cloud.spring.io/spring-cloud-static/spring-cloud.html#_peer_awareness
-  discovery1:
+  # The discovery service is the only fixed entry point.
+  # Browse to http://localhost:8761 to check all services are registered.
+  # Run docker-compose -f docker-compose.yml -f docker-compose-discovery-ha.yml to run extra discovery service instances for HA
+  discovery:
     image: org.geoserver.cloud/gs-cloud-discovery-service:${TAG}
+    container_name: discovery-1
     environment:
       PORT: 8761
-      EUREKA_INSTANCE_HOSTNAME: discovery1
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery2:8762/eureka
+      EUREKA_INSTANCE_HOSTNAME: discovery
       JAVA_OPTS: -Xmx256m
     expose: 
       - 8761
@@ -26,28 +25,13 @@ services:
     networks:
       - gs-cloud-network
 
-  discovery2:
-    image: org.geoserver.cloud/gs-cloud-discovery-service:${TAG}
-    environment:
-      PORT: 8762
-      EUREKA_INSTANCE_HOSTNAME: discovery2
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery1:8761/eureka
-      JAVA_OPTS: -Xmx256m
-    expose: 
-      - 8762
-    ports:
-      - "8762:8762"
-    networks:
-      - gs-cloud-network
-
-
   # Spring Cloud Config service, provides centralized configuration to all
   # microservices. Being a Discovery First Bootstrap configuration, it'll
   # register itself with the Eureka discovery service and can be scaled
   config-service:
     image: org.geoserver.cloud/gs-cloud-config-service:${TAG}
     depends_on:
-      - discovery1
+      - discovery
     environment:
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: -Xmx256m
@@ -59,7 +43,6 @@ services:
   gateway-service:
     image: org.geoserver.cloud/gs-cloud-gateway:${TAG}
     depends_on:
-      - discovery1
       - config-service
     environment:
       PORT: 9090
@@ -77,7 +60,7 @@ services:
   wfs:
     image: org.geoserver.cloud/gs-cloud-wfs:${TAG}
     depends_on:
-      - gateway-service
+      - config-service
     environment:
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: -Xmx512m
@@ -88,7 +71,7 @@ services:
   wms:
     image: org.geoserver.cloud/gs-cloud-wms:${TAG}
     depends_on:
-      - gateway-service
+      - config-service
     environment:
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: -Xmx512m
@@ -99,7 +82,7 @@ services:
   wcs:
     image: org.geoserver.cloud/gs-cloud-wcs:${TAG}
     depends_on:
-      - gateway-service
+      - config-service
     environment:
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: -Xmx512m
@@ -110,7 +93,7 @@ services:
   wps:
     image: org.geoserver.cloud/gs-cloud-wps:${TAG}
     depends_on:
-      - gateway-service
+      - config-service
     environment:
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: -Xmx512m
