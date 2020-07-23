@@ -99,3 +99,14 @@ services:
       JAVA_OPTS: -Xmx512m
     networks:
       - gs-cloud-network
+
+  # WPS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wps=5)
+  rest:
+    image: org.geoserver.cloud/gs-cloud-restconfig-v1:${TAG}
+    depends_on:
+      - config-service
+    environment:
+      EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
+      JAVA_OPTS: -Xmx256m
+    networks:
+      - gs-cloud-network

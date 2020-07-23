@@ -59,10 +59,9 @@ spring:
       - id: restconfig
         uri: lb://restconfig-v1 #load balanced to the restconfig-v1 instances
         predicates:
-        - Path=/rest
         - Path=/rest/**
         filters:
-        - RewritePath=/(?<rest>.*), /$\{rest}
+         - RewritePath=/rest/(?<segment>.*), /rest/$\{segment}
 
 logging:
   level:
