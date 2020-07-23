@@ -6,3 +6,4 @@ server:
 logging:
    level:
       org.springframework: ERROR
+      oshi.hardware.platform.linux: OFF
