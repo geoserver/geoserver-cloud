@@ -13,7 +13,6 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerA
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
-import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Import;
 
 @SpringBootApplication(
@@ -27,7 +26,6 @@ import org.springframework.context.annotation.Import;
     }
 )
 @Import(GeoServerServletConfig.class)
-@EnableDiscoveryClient
 public class WcsApplication {
 
     public static void main(String[] args) {
