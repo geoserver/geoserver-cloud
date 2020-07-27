@@ -46,7 +46,24 @@
       <groupId>org.geoserver</groupId>
       <artifactId>gs-restconfig</artifactId>
     </dependency>
-
+    <dependency>
+      <groupId>org.geoserver</groupId>
+      <artifactId>gs-restconfig-wcs</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver</groupId>
+      <artifactId>gs-restconfig-wfs</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver</groupId>
+      <artifactId>gs-restconfig-wms</artifactId>
+    </dependency>
+    <!--
+    <dependency>
+      <groupId>org.geoserver</groupId>
+      <artifactId>gs-restconfig-wmts</artifactId>
+    </dependency>
+    -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>

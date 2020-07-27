@@ -135,6 +135,26 @@
         <artifactId>gs-restconfig</artifactId>
         <version>${gs.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.geoserver</groupId>
+        <artifactId>gs-restconfig-wcs</artifactId>
+        <version>${gs.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver</groupId>
+        <artifactId>gs-restconfig-wfs</artifactId>
+        <version>${gs.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver</groupId>
+        <artifactId>gs-restconfig-wms</artifactId>
+        <version>${gs.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver</groupId>
+        <artifactId>gs-restconfig-wmts</artifactId>
+        <version>${gs.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 

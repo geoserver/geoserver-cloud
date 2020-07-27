@@ -1,6 +1,7 @@
 spring:
    main:
       banner-mode: 'off'
+      allow-bean-definition-overriding: true
    application:
       name: restconfig-v1
    cloud:
