@@ -17,7 +17,6 @@ eureka:
       preferIpAddress: true
       instance-id: ${spring.application.name}@${spring.application.instance_id:${spring.cloud.client.ip-address}}
       leaseRenewalIntervalInSeconds: 5
-      lease-expiration-duration-in-seconds: 5
    client:
       enabled: true
       fetchRegistry: true

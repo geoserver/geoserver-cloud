@@ -42,6 +42,7 @@ services:
   # microservices (e.g. http://localhost:9090/geoserver/wms, http://localhost:9090/geoserver/wfs, etc)
   gateway-service:
     image: org.geoserver.cloud/gs-cloud-gateway:${TAG}
+    container_name: gateway
     depends_on:
       - config-service
     environment:
