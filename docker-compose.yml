@@ -24,6 +24,12 @@ services:
       - "8761:8761"
     networks:
       - gs-cloud-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+      interval: "5s"
+      timeout: "3s"
+      start_period: "1s"
+      retries: "5"
 
   # Spring Cloud Config service, provides centralized configuration to all
   # microservices. Being a Discovery First Bootstrap configuration, it'll
@@ -33,10 +39,19 @@ services:
     depends_on:
       - discovery
     environment:
+      PORT: ${CONFIG_PORT}
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: -Xmx256m
+    expose:
+      - ${CONFIG_PORT}
     networks:
       - gs-cloud-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${CONFIG_PORT}/actuator/health"]
+      interval: "5s"
+      timeout: "3s"
+      start_period: "1s"
+      retries: "15"
 
   # Application facade, provides a single entry point routing to all
   # microservices (e.g. http://localhost:9090/geoserver/wms, http://localhost:9090/geoserver/wfs, etc)
@@ -46,16 +61,22 @@ services:
     depends_on:
       - config-service
     environment:
-      PORT: 9090
+      PORT: ${GATEWAY_PORT}
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: -Xmx256m
     expose: 
-      - 9090
+      - ${GATEWAY_PORT}
     ports:
-      - "9090:9090"
+      - "${GATEWAY_PORT}:${GATEWAY_PORT}"
     networks:
       - gs-cloud-network
-
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9090/actuator/health"]
+      interval: "5s"
+      timeout: "3s"
+      start_period: "1s"
+      retries: "15"
+    command: dockerize -wait http://config-service:${CONFIG_PORT}/gateway-service/deafult --timeout 15s java $JAVA_OPTS -jar /opt/gateway-service.jar
 
   # WFS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wfs=5)
   wfs:
@@ -63,10 +84,18 @@ services:
     depends_on:
       - config-service
     environment:
+      PORT: ${WFS_PORT}
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: -Xmx512m
     networks:
       - gs-cloud-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${WFS_PORT}/actuator/health"]
+      interval: "5s"
+      timeout: "3s"
+      start_period: "1s"
+      retries: "15"
+    command: dockerize -wait http://config-service:${CONFIG_PORT}/wfs-service/deafult --timeout 15s java $JAVA_OPTS -jar /opt/wfs-service.jar
 
   # WMS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wms=5)
   wms:
@@ -74,10 +103,18 @@ services:
     depends_on:
       - config-service
     environment:
+      PORT: ${WMS_PORT}
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: -Xmx512m
     networks:
       - gs-cloud-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${WMS_PORT}/actuator/health"]
+      interval: "5s"
+      timeout: "3s"
+      start_period: "1s"
+      retries: "15"
+    command: dockerize -wait http://config-service:${CONFIG_PORT}/wms-service/deafult --timeout 15s java $JAVA_OPTS -jar /opt/wms-service.jar
 
   # WCS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wcs=5)
   wcs:
@@ -85,10 +122,18 @@ services:
     depends_on:
       - config-service
     environment:
+      PORT: ${WCS_PORT}
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: -Xmx512m
     networks:
       - gs-cloud-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${WCS_PORT}/actuator/health"]
+      interval: "5s"
+      timeout: "3s"
+      start_period: "1s"
+      retries: "15"
+    command: dockerize -wait http://config-service:${CONFIG_PORT}/wcs-service/deafult --timeout 15s java $JAVA_OPTS -jar /opt/wcs-service.jar
 
   # WPS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wps=5)
   wps:
@@ -96,10 +141,18 @@ services:
     depends_on:
       - config-service
     environment:
+      PORT: ${WPS_PORT}
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: -Xmx512m
     networks:
       - gs-cloud-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${WPS_PORT}/actuator/health"]
+      interval: "5s"
+      timeout: "3s"
+      start_period: "1s"
+      retries: "15"
+    command: dockerize -wait http://config-service:${CONFIG_PORT}/wps-service/deafult --timeout 15s java $JAVA_OPTS -jar /opt/wps-service.jar
 
   # WPS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wps=5)
   rest:
@@ -107,7 +160,15 @@ services:
     depends_on:
       - config-service
     environment:
+      PORT: ${REST_PORT}
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: -Xmx256m
     networks:
       - gs-cloud-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${REST_PORT}/actuator/health"]
+      interval: "5s"
+      timeout: "3s"
+      start_period: "1s"
+      retries: "15"
+    command: dockerize -wait http://config-service:${CONFIG_PORT}/restconfig-service/deafult --timeout 15s java $JAVA_OPTS -jar /opt/restconfig-service.jar

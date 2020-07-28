@@ -4,4 +4,4 @@ ARG JAR_FILE=dummy
 
 ADD target/${JAR_FILE} /opt/discovery-service.jar
 
-ENTRYPOINT exec java $JAVA_OPTS -jar /opt/discovery-service.jar
+CMD exec java $JAVA_OPTS -jar /opt/discovery-service.jar

@@ -4,4 +4,4 @@ ARG JAR_FILE=dummy
 
 ADD target/${JAR_FILE} /opt/restconfig-service.jar
 
-ENTRYPOINT exec java $JAVA_OPTS -jar /opt/restconfig-service.jar
+CMD exec java $JAVA_OPTS -jar /opt/restconfig-service.jar
