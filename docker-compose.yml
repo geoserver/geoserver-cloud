@@ -13,7 +13,6 @@ services:
   # Run docker-compose -f docker-compose.yml -f docker-compose-discovery-ha.yml to run extra discovery service instances for HA
   discovery:
     image: org.geoserver.cloud/gs-cloud-discovery-service:${TAG}
-    container_name: discovery-1
     environment:
       PORT: 8761
       EUREKA_INSTANCE_HOSTNAME: discovery
@@ -21,20 +20,16 @@ services:
     expose: 
       - 8761
     ports:
-      - "8761:8761"
+      - "8761:8761" # for development, so services can be run from localhost and find the discovery service running on docker
     networks:
       - gs-cloud-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
-      interval: "5s"
-      timeout: "3s"
-      start_period: "1s"
-      retries: "5"
 
   # Spring Cloud Config service, provides centralized configuration to all
   # microservices. Being a Discovery First Bootstrap configuration, it'll
   # register itself with the Eureka discovery service and can be scaled
-  config-service:
+  config:
     image: org.geoserver.cloud/gs-cloud-config-service:${TAG}
     depends_on:
       - discovery
@@ -48,18 +43,16 @@ services:
       - gs-cloud-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:${CONFIG_PORT}/actuator/health"]
-      interval: "5s"
-      timeout: "3s"
-      start_period: "1s"
-      retries: "15"
+    # wait until discovery service is available
+    command: dockerize -wait http://discovery:8761/actuator/health --timeout 15s java $JAVA_OPTS -jar /opt/config-service.jar
 
   # Application facade, provides a single entry point routing to all
   # microservices (e.g. http://localhost:9090/geoserver/wms, http://localhost:9090/geoserver/wfs, etc)
-  gateway-service:
+  gateway:
     image: org.geoserver.cloud/gs-cloud-gateway:${TAG}
-    container_name: gateway
     depends_on:
-      - config-service
+      - discovery
+      - config
     environment:
       PORT: ${GATEWAY_PORT}
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
@@ -72,17 +65,15 @@ services:
       - gs-cloud-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9090/actuator/health"]
-      interval: "5s"
-      timeout: "3s"
-      start_period: "1s"
-      retries: "15"
-    command: dockerize -wait http://config-service:${CONFIG_PORT}/gateway-service/deafult --timeout 15s java $JAVA_OPTS -jar /opt/gateway-service.jar
+    # wait until config service is available
+    command: dockerize -wait http://config:${CONFIG_PORT}/gateway-service/deafult --timeout 15s java $JAVA_OPTS -jar /opt/gateway-service.jar
 
   # WFS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wfs=5)
   wfs:
     image: org.geoserver.cloud/gs-cloud-wfs:${TAG}
     depends_on:
-      - config-service
+      - discovery
+      - config
     environment:
       PORT: ${WFS_PORT}
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
@@ -91,17 +82,15 @@ services:
       - gs-cloud-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:${WFS_PORT}/actuator/health"]
-      interval: "5s"
-      timeout: "3s"
-      start_period: "1s"
-      retries: "15"
-    command: dockerize -wait http://config-service:${CONFIG_PORT}/wfs-service/deafult --timeout 15s java $JAVA_OPTS -jar /opt/wfs-service.jar
+    # wait until config service is available
+    command: dockerize -wait http://config:${CONFIG_PORT}/wfs-service/deafult --timeout 15s java $JAVA_OPTS -jar /opt/wfs-service.jar
 
   # WMS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wms=5)
   wms:
     image: org.geoserver.cloud/gs-cloud-wms:${TAG}
     depends_on:
-      - config-service
+      - discovery
+      - config
     environment:
       PORT: ${WMS_PORT}
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
@@ -110,17 +99,15 @@ services:
       - gs-cloud-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:${WMS_PORT}/actuator/health"]
-      interval: "5s"
-      timeout: "3s"
-      start_period: "1s"
-      retries: "15"
-    command: dockerize -wait http://config-service:${CONFIG_PORT}/wms-service/deafult --timeout 15s java $JAVA_OPTS -jar /opt/wms-service.jar
+    # wait until config service is available
+    command: dockerize -wait http://config:${CONFIG_PORT}/wms-service/deafult --timeout 15s java $JAVA_OPTS -jar /opt/wms-service.jar
 
   # WCS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wcs=5)
   wcs:
     image: org.geoserver.cloud/gs-cloud-wcs:${TAG}
     depends_on:
-      - config-service
+      - discovery
+      - config
     environment:
       PORT: ${WCS_PORT}
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
@@ -129,17 +116,15 @@ services:
       - gs-cloud-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:${WCS_PORT}/actuator/health"]
-      interval: "5s"
-      timeout: "3s"
-      start_period: "1s"
-      retries: "15"
-    command: dockerize -wait http://config-service:${CONFIG_PORT}/wcs-service/deafult --timeout 15s java $JAVA_OPTS -jar /opt/wcs-service.jar
+    # wait until config service is available
+    command: dockerize -wait http://config:${CONFIG_PORT}/wcs-service/deafult --timeout 15s java $JAVA_OPTS -jar /opt/wcs-service.jar
 
   # WPS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wps=5)
   wps:
     image: org.geoserver.cloud/gs-cloud-wps:${TAG}
     depends_on:
-      - config-service
+      - discovery
+      - config
     environment:
       PORT: ${WPS_PORT}
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
@@ -148,17 +133,15 @@ services:
       - gs-cloud-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:${WPS_PORT}/actuator/health"]
-      interval: "5s"
-      timeout: "3s"
-      start_period: "1s"
-      retries: "15"
-    command: dockerize -wait http://config-service:${CONFIG_PORT}/wps-service/deafult --timeout 15s java $JAVA_OPTS -jar /opt/wps-service.jar
+    # wait until config service is available
+    command: dockerize -wait http://config:${CONFIG_PORT}/wps-service/deafult --timeout 15s java $JAVA_OPTS -jar /opt/wps-service.jar
 
   # WPS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wps=5)
   rest:
     image: org.geoserver.cloud/gs-cloud-restconfig-v1:${TAG}
     depends_on:
-      - config-service
+      - discovery
+      - config
     environment:
       PORT: ${REST_PORT}
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
@@ -167,8 +150,5 @@ services:
       - gs-cloud-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:${REST_PORT}/actuator/health"]
-      interval: "5s"
-      timeout: "3s"
-      start_period: "1s"
-      retries: "15"
-    command: dockerize -wait http://config-service:${CONFIG_PORT}/restconfig-service/deafult --timeout 15s java $JAVA_OPTS -jar /opt/restconfig-service.jar
+    # wait until config service is available
+    command: dockerize -wait http://config:${CONFIG_PORT}/restconfig-service/deafult --timeout 15s java $JAVA_OPTS -jar /opt/restconfig-service.jar
