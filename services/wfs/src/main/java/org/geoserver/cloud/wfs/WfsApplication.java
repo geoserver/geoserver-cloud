@@ -5,6 +5,7 @@
 package org.geoserver.cloud.wfs;
 
 import org.geoserver.cloud.core.GeoServerServletConfig;
+import org.geoserver.cloud.core.UrlProxifyingConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -25,7 +26,7 @@ import org.springframework.context.annotation.Import;
         ManagementWebSecurityAutoConfiguration.class
     }
 )
-@Import(GeoServerServletConfig.class)
+@Import({GeoServerServletConfig.class, UrlProxifyingConfiguration.class})
 public class WfsApplication {
 
     public static void main(String[] args) {
