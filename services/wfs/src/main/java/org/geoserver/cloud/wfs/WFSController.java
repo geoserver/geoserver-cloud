@@ -4,6 +4,9 @@
  */
 package org.geoserver.cloud.wfs;
 
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
+import static org.springframework.web.bind.annotation.RequestMethod.POST;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.geoserver.ows.Dispatcher;
@@ -13,7 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 @RequestMapping("/")
-public @Controller class WFSController {
+@Controller
+public class WFSController {
 
     private @Autowired Dispatcher geoserverDispatcher;
 
@@ -26,7 +30,10 @@ public @Controller class WFSController {
         classPathPublisher.handleRequest(request, response);
     }
 
-    @RequestMapping(method = RequestMethod.GET, path = "/wfs")
+    @RequestMapping(
+        method = {GET, POST},
+        path = {"/wfs", "/{workspace}/wfs", "/ows", "/{workspace}/ows"}
+    )
     public void serviceRequest(HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         geoserverDispatcher.handleRequest(request, response);

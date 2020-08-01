@@ -26,31 +26,47 @@ spring:
       - id: wfs # proxies requests to gateway-service:/wfs to wfs-service:/wfs
         uri: lb://wfs-service #load balanced to the wfs-service instances
         predicates:
-        - Path=/wfs,/schemas/wfs/**
-        #filters:
-        #- RewritePath=/(?<wfs>.*), /$\{wfs}
+        - Path=/wfs,/{segment}/wfs,/schemas/wfs/**
+        # proxy [/{workspace}]/ows?SERVICE=wfs to wfs-service:[/{workspace}]/ows?SERVICE=wfs. Param value is case insensitive, name is not.
+      - id: wfs_ows
+        uri: lb://wfs-service
+        predicates:
+        - Path=/ows,/{segment}/ows
+        - Query=SERVICE, (?i:WFS)
+
       # WMS routes
       - id: wms # proxies requests to gateway-service:/wms to wms-service:/wms
         uri: lb://wms-service #load balanced to the wms-service instances
         predicates:
-        - Path=/wms,/schemas/wms/**,/openlayers/**,/openlayers3/**
-#        filters:
-#        - RewritePath=/(?<wms>.*), /$\{wms}
-#        - AddResponseHeader=X-Some-Header, aboullaite.me
+        - Path=/wms,/{segment}/wms,/schemas/wms/**,/openlayers/**,/openlayers3/**
+      - id: wms_ows # proxy [/{workspace}]/ows?SERVICE=wms to wms-service:[/{workspace}]/ows?SERVICE=wms. Param value is case insensitive, name is not.
+        uri: lb://wms-service
+        predicates:
+        - Path=/ows,/{segment}/ows
+        - Query=SERVICE, (?i:WMS)
+
       # WCS routes
       - id: wcs # proxies requests to gateway-service:/wcs to wcs-service:/wcs
         uri: lb://wcs-service #load balanced to the wps-service instances
         predicates:
-        - Path=/wcs,/schemas/wcs/**
-#        filters:
-#        - RewritePath=/(?<wcs>.*), /$\{wcs}
+        - Path=/wcs,/{segment}/wcs,/schemas/wcs/**
+      - id: wcs_ows # proxy [/{workspace}]/ows?SERVICE=wcs to wcs-service:[/{workspace}]/ows?SERVICE=wcs. Param value is case insensitive, name is not.
+        uri: lb://wcs-service
+        predicates:
+        - Path=/ows,/{segment}/ows
+        - Query=SERVICE, (?i:WCS)
+
       # WPS routes
       - id: wps # proxies requests to gateway-service:/wps to wfs-service:/wps
         uri: lb://wps-service #load balanced to the wps-service instances
         predicates:
-        - Path=/wps,/schemas/wps/**
-#        filters:
-#        - RewritePath=/(?<wps>.*), /$\{wps}
+        - Path=/wps,/{segment}/wps,/schemas/wps/**
+      - id: wps_ows # proxy [/{workspace}]/ows?SERVICE=wps to wps-service:[/{workspace}]/ows?SERVICE=wps. Param value is case insensitive, name is not.
+        uri: lb://wps-service
+        predicates:
+        - Path=/ows,/{segment}/ows
+        - Query=SERVICE, (?i:WPS)
+
       # REST configuration routes
       - id: restconfig
         uri: lb://restconfig-v1 #load balanced to the restconfig-v1 instances

@@ -4,6 +4,8 @@
  */
 package org.geoserver.cloud.wcs;
 
+import static org.springframework.web.bind.annotation.RequestMethod.*;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.geoserver.ows.Dispatcher;
@@ -25,7 +27,10 @@ public @Controller class WPSController {
         classPathPublisher.handleRequest(request, response);
     }
 
-    @RequestMapping(method = RequestMethod.GET, path = "/wps")
+    @RequestMapping(
+        method = {GET, POST},
+        path = {"/wps", "/{workspace}/wps", "/ows", "/{workspace}/ows"}
+    )
     public void handle(HttpServletRequest request, HttpServletResponse response) throws Exception {
         geoserverDispatcher.handleRequest(request, response);
     }
