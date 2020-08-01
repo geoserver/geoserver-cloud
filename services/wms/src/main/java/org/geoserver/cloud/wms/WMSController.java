@@ -16,6 +16,29 @@ public @Controller class WMSController {
 
     private @Autowired Dispatcher geoserverDispatcher;
 
+    private @Autowired org.geoserver.ows.ClasspathPublisher classPathPublisher;
+
+    /**
+     * Serve only WMS schemas and related resources from classpath.
+     *
+     * <p>E.g.:
+     *
+     * <ul>
+     *   <li>{@code /schemas/wms/1.3.0/capabilities_1_3_0.xsd}
+     *   <li>{@code /schemas/wms/1.1.1/WMS_MS_Capabilities.dtd}
+     *   <li>{@code /openlayers/**}
+     *   <li>{@code /openlayers3/**}
+     * </ul>
+     */
+    @RequestMapping(
+        method = RequestMethod.GET,
+        path = {"/schemas/wms/**", "/openlayers/**", "/openlayers3/**"}
+    )
+    public void getStaticResource(HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
+        classPathPublisher.handleRequest(request, response);
+    }
+
     @RequestMapping(method = RequestMethod.GET, path = "/wms")
     public void handle(HttpServletRequest request, HttpServletResponse response) throws Exception {
         geoserverDispatcher.handleRequest(request, response);

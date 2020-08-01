@@ -17,8 +17,18 @@ public @Controller class WFSController {
 
     private @Autowired Dispatcher geoserverDispatcher;
 
+    private @Autowired org.geoserver.ows.ClasspathPublisher classPathPublisher;
+
+    /** Serve only WFS schemas from classpath (e.g. {@code /schemas/wfs/2.0/wfs.xsd}) */
+    @RequestMapping(method = RequestMethod.GET, path = "/schemas/wfs/**")
+    public void getSchema(HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
+        classPathPublisher.handleRequest(request, response);
+    }
+
     @RequestMapping(method = RequestMethod.GET, path = "/wfs")
-    public void handle(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public void serviceRequest(HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
         geoserverDispatcher.handleRequest(request, response);
     }
 }

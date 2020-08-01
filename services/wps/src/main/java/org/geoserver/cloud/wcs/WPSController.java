@@ -16,6 +16,15 @@ public @Controller class WPSController {
 
     private @Autowired Dispatcher geoserverDispatcher;
 
+    private @Autowired org.geoserver.ows.ClasspathPublisher classPathPublisher;
+
+    /** Serve only WPS schemas from classpath (e.g. {@code /schemas/wps/1.0.0/wpsAll.xsd}) */
+    @RequestMapping(method = RequestMethod.GET, path = "/schemas/wps/**")
+    public void getSchema(HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
+        classPathPublisher.handleRequest(request, response);
+    }
+
     @RequestMapping(method = RequestMethod.GET, path = "/wps")
     public void handle(HttpServletRequest request, HttpServletResponse response) throws Exception {
         geoserverDispatcher.handleRequest(request, response);
