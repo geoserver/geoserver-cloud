@@ -4,6 +4,9 @@
  */
 package org.geoserver.cloud.wfs;
 
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
+import static org.springframework.web.bind.annotation.RequestMethod.POST;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.geoserver.ows.Dispatcher;
@@ -13,12 +16,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 @RequestMapping("/")
-public @Controller class WFSController {
+@Controller
+public class WFSController {
 
     private @Autowired Dispatcher geoserverDispatcher;
 
-    @RequestMapping(method = RequestMethod.GET, path = "/wfs")
-    public void handle(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    private @Autowired org.geoserver.ows.ClasspathPublisher classPathPublisher;
+
+    /** Serve only WFS schemas from classpath (e.g. {@code /schemas/wfs/2.0/wfs.xsd}) */
+    @RequestMapping(method = RequestMethod.GET, path = "/schemas/wfs/**")
+    public void getSchema(HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
+        classPathPublisher.handleRequest(request, response);
+    }
+
+    @RequestMapping(
+        method = {GET, POST},
+        path = {"/wfs", "/{workspace}/wfs", "/ows", "/{workspace}/ows"}
+    )
+    public void serviceRequest(HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
         geoserverDispatcher.handleRequest(request, response);
     }
 }

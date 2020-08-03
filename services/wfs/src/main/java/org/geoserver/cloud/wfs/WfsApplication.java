@@ -5,6 +5,7 @@
 package org.geoserver.cloud.wfs;
 
 import org.geoserver.cloud.core.GeoServerServletConfig;
+import org.geoserver.cloud.core.UrlProxifyingConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -13,7 +14,9 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerA
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 @SpringBootApplication(
     exclude = { //
@@ -25,7 +28,7 @@ import org.springframework.context.annotation.Import;
         ManagementWebSecurityAutoConfiguration.class
     }
 )
-@Import(GeoServerServletConfig.class)
+@Import({GeoServerServletConfig.class, UrlProxifyingConfiguration.class})
 public class WfsApplication {
 
     public static void main(String[] args) {
@@ -35,5 +38,11 @@ public class WfsApplication {
             e.printStackTrace();
             throw e;
         }
+    }
+
+    // @ConditionalOnMissingBean(RequestMappingHandlerMapping.class)
+    public @Bean RequestMappingHandlerMapping requestMappingHandlerMapping() {
+        RequestMappingHandlerMapping mapping = new RequestMappingHandlerMapping();
+        return mapping;
     }
 }

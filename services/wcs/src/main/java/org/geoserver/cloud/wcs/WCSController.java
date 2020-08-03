@@ -4,6 +4,9 @@
  */
 package org.geoserver.cloud.wcs;
 
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
+import static org.springframework.web.bind.annotation.RequestMethod.POST;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.geoserver.ows.Dispatcher;
@@ -16,7 +19,19 @@ public @Controller class WCSController {
 
     private @Autowired Dispatcher geoserverDispatcher;
 
-    @RequestMapping(method = RequestMethod.GET, path = "/wcs")
+    private @Autowired org.geoserver.ows.ClasspathPublisher classPathPublisher;
+
+    /** Serve only WCS schemas from classpath (e.g. {@code /schemas/wcs/1.1.1/wcsAll.xsd}) */
+    @RequestMapping(method = RequestMethod.GET, path = "/schemas/wcs/**")
+    public void getSchema(HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
+        classPathPublisher.handleRequest(request, response);
+    }
+
+    @RequestMapping(
+        method = {GET, POST},
+        path = {"/wcs", "/{workspace}/wcs", "/ows", "/{workspace}/ows"}
+    )
     public void handle(HttpServletRequest request, HttpServletResponse response) throws Exception {
         geoserverDispatcher.handleRequest(request, response);
     }
