@@ -1,11 +1,17 @@
 server:
   port: 8080
   instance-id: ${spring.application.name}:${spring.application.instance_id:${spring.cloud.client.ip-address}}:${server.port}
+  servlet:
+    context-path: /
+  session:
+    tracking-modes: COOKIE
+    
 spring:
   main:
     banner-mode: off
+    allow-bean-definition-overriding: true
   application:
-    name: gateway-service
+    name: web-ui
   cloud:
     loadbalancer.ribbon.enabled: false # ribbon is in maintenance mode and should be replaced by spring-cloud-loadbalancer
     config:
@@ -26,7 +32,7 @@ eureka:
     enabled: true
     registerWithEureka: true
     fetchRegistry: true
-    registry-fetch-interval-seconds: 5
+    registry-fetch-interval-seconds: 30
     serviceUrl:
       defaultZone: ${eureka.server.url:http://localhost:8761/eureka}
     healthcheck:

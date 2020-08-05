@@ -68,7 +68,12 @@ spring:
         uri: lb://restconfig-v1 #load balanced to the restconfig-v1 instances
         predicates:
         - Path=/rest/**
-#        filters:
+# Web UI configuration routes
+      - id: restconfig
+        uri: lb://web-ui
+        predicates:
+        - Path=/,/index.html,/web,/web/**,/j_spring_security_check,/j_spring_security_logout
+
 logging:
   level:
 #    root: ERROR

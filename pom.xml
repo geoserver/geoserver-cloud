@@ -149,6 +149,11 @@
         <version>${gs.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.geoserver.extension</groupId>
+        <artifactId>gs-web-wps</artifactId>
+        <version>${gs.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.geoserver</groupId>
         <artifactId>gs-restconfig</artifactId>
         <version>${gs.version}</version>
@@ -183,6 +188,11 @@
         <artifactId>gs-jdbcstore</artifactId>
         <version>${gs.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.geoserver</groupId>
+        <artifactId>gs-gwc</artifactId>
+        <version>${gs.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -206,7 +216,7 @@
           </executions>
           <configuration>
             <repository>${docker.image.prefix}/${project.artifactId}</repository>
-            <!--tag>${project.version}</tag -->
+            <tag>${project.version}</tag>
             <buildArgs>
               <JAR_FILE>${project.build.finalName}-bin.jar</JAR_FILE>
             </buildArgs>

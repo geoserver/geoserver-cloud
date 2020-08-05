@@ -34,5 +34,6 @@
     <module>wcs</module>
     <module>wps</module>
     <module>restconfig</module>
+    <module>web-ui</module>
   </modules>
 </project>

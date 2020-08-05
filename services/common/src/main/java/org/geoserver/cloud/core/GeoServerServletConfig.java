@@ -1,6 +1,6 @@
-/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
- * This code is licensed under the GPL 2.0 license, available at the root
- * application directory.
+/*
+ * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
+ * GPL 2.0 license, available at the root application directory.
  */
 package org.geoserver.cloud.core;
 
@@ -22,6 +22,18 @@ import org.springframework.web.context.request.RequestContextListener;
 @Configuration
 @Import(GeoServerMainConfiguration.class)
 public class GeoServerServletConfig {
+
+//    public @Bean DispatcherServletRegistrationBean dispatcherServletRegistration(
+//            DispatcherServlet dispatcherServlet,
+//            ObjectProvider<MultipartConfigElement> multipartConfig) {
+//        DispatcherServletRegistrationBean registration =
+//                new DispatcherServletRegistrationBean(dispatcherServlet, "/*");
+//        registration
+//                .setName(DispatcherServletAutoConfiguration.DEFAULT_DISPATCHER_SERVLET_BEAN_NAME);
+//        registration.setLoadOnStartup(-1);
+//        multipartConfig.ifAvailable(registration::setMultipartConfig);
+//        return registration;
+//    }
 
     // Listeners
     public @Bean GeoserverInitStartupListener initStartupListener() {
@@ -46,9 +58,9 @@ public class GeoServerServletConfig {
         return new FlushSafeFilter();
     }
 
-    public @Bean SessionDebugFilter sessionDebugFilter() {
-        return new SessionDebugFilter();
-    }
+//    public @Bean SessionDebugFilter sessionDebugFilter() {
+//        return new SessionDebugFilter();
+//    }
 
     /**
      * Allows for a single mapping ({@code /*}) for all requests to the spring dispatcher. It
@@ -56,7 +68,8 @@ public class GeoServerServletConfig {
      * make it look like the mapping was created in web.xml when in actuality it was created in
      * spring.
      *
-     * <p>This is useful, for instance, for the rest api's {@code RequestInfo} object to build URLs
+     * <p>
+     * This is useful, for instance, for the rest api's {@code RequestInfo} object to build URLs
      * properly, instead of getting {@code null} from {@code
      * HttpServletRequest.request.getPathInfo()}
      */
@@ -82,9 +95,9 @@ public class GeoServerServletConfig {
         return newRegistration(flushSafeFilter(), 1);
     }
 
-    public @Bean FilterRegistrationBean<SessionDebugFilter> sessionDebugFilterFilterReg() {
-        return newRegistration(sessionDebugFilter(), 2);
-    }
+//    public @Bean FilterRegistrationBean<SessionDebugFilter> sessionDebugFilterFilterReg() {
+//        return newRegistration(sessionDebugFilter(), 2);
+//    }
 
     public @Bean FilterRegistrationBean<AdvancedDispatchFilter> advancedDispatchFilterReg() {
         return newRegistration(advancedDispatchFilter(), 4);

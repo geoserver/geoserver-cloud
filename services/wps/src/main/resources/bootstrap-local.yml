@@ -1,4 +1,4 @@
-server.port: 9101
+server.port: 9104
 jdbcconfig.url: jdbc:postgresql://database:5432/geoserver_config
 jdbcconfig.username: geoserver
 jdbcconfig.password: geo$erver
