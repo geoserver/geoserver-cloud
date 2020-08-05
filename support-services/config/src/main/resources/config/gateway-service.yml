@@ -1,5 +1,7 @@
 server:
-   port: ${PORT:9090}
+  port: ${PORT:9090}
+  compression:
+    enabled: true
 
 management:
   endpoint:
