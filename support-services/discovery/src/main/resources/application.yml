@@ -23,6 +23,6 @@ eureka:
 
 logging:
   level:
-    root: ERROR
+    root: INFO
     com.netflix.discovery: WARN
     com.netflix.eureka: WARN
