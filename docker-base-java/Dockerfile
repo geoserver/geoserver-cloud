@@ -27,3 +27,5 @@ RUN groupadd -r -g 630 geo && \
     echo "geo ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 USER geo
+
+ENV JAVA_OPTS=
