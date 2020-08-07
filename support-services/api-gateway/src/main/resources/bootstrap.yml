@@ -16,11 +16,12 @@ eureka:
       hostname: ${spring.application.name}
       preferIpAddress: true
       instance-id: ${spring.application.name}@${spring.application.instance_id:${spring.cloud.client.ip-address}}
-      leaseRenewalIntervalInSeconds: 5
+      lease-expiration-duration-in-seconds: 5
+      lease-renewal-interval-in-seconds: 30
    client:
       enabled: true
       fetchRegistry: true
-      registryFetchIntervalSeconds: 5
+      registry-fetch-interval-seconds: 30
       serviceUrl:
          defaultZone: ${eureka.server.url:http://localhost:8761/eureka}
       healthcheck:
