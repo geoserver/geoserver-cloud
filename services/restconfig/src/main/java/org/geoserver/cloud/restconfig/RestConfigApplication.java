@@ -4,7 +4,11 @@
  */
 package org.geoserver.cloud.restconfig;
 
+import org.geoserver.cloud.catalog.GeoServerCatalogConfig;
+import org.geoserver.cloud.config.main.GeoServerSecurityConfiguration;
 import org.geoserver.cloud.core.GeoServerServletConfig;
+import org.geoserver.cloud.core.UrlProxifyingConfiguration;
+import org.geoserver.rest.security.RestConfigXStreamPersister;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -13,6 +17,8 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerA
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 
 @SpringBootApplication(
@@ -26,9 +32,12 @@ import org.springframework.context.annotation.Import;
     }
 )
 @Import({ //
-    GeoServerServletConfig.class,
-    org.geoserver.rest.RestConfiguration.class //
+    GeoServerCatalogConfig.class, //
+    GeoServerSecurityConfiguration.class, //
+    GeoServerServletConfig.class, //
+    UrlProxifyingConfiguration.class //
 })
+@ComponentScan(basePackageClasses = org.geoserver.rest.AbstractGeoServerController.class)
 public class RestConfigApplication {
 
     public static void main(String[] args) {
@@ -40,9 +49,9 @@ public class RestConfigApplication {
         }
     }
 
-    // @ConditionalOnMissingBean(RequestMappingHandlerMapping.class)
-    // public @Bean RequestMappingHandlerMapping requestMappingHandlerMapping() {
-    // RequestMappingHandlerMapping mapping = new RequestMappingHandlerMapping();
-    // return mapping;
-    // }
+    //	  <bean id="restConfigXStreamPersister"
+    // class="org.geoserver.rest.security.RestConfigXStreamPersister" />
+    public @Bean RestConfigXStreamPersister restConfigXStreamPersister() {
+        return new RestConfigXStreamPersister();
+    }
 }

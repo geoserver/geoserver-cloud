@@ -4,6 +4,8 @@
  */
 package org.geoserver.cloud.wcs;
 
+import org.geoserver.cloud.catalog.GeoServerCatalogConfig;
+import org.geoserver.cloud.core.FilteringXmlBeanDefinitionReader;
 import org.geoserver.cloud.core.GeoServerServletConfig;
 import org.geoserver.cloud.core.UrlProxifyingConfiguration;
 import org.springframework.boot.SpringApplication;
@@ -15,6 +17,7 @@ import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfigurat
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.ImportResource;
 
 @SpringBootApplication(
     exclude = { //
@@ -26,7 +29,20 @@ import org.springframework.context.annotation.Import;
         ManagementWebSecurityAutoConfiguration.class
     }
 )
-@Import({GeoServerServletConfig.class, UrlProxifyingConfiguration.class})
+@Import({
+    GeoServerCatalogConfig.class,
+    GeoServerServletConfig.class,
+    UrlProxifyingConfiguration.class
+})
+@ImportResource( //
+    reader = FilteringXmlBeanDefinitionReader.class, //
+    locations = { //
+        "jar:gs-wps-.*!/applicationContext.xml", //
+        // REVISIT: wps won't start without the web components! see note in pom.xml
+        "jar:gs-web-core-.*!/applicationContext.xml", //
+        "jar:gs-web-wps-.*!/applicationContext.xml", //
+    }
+)
 public class WpsApplication {
 
     public static void main(String[] args) {

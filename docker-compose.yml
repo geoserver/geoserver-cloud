@@ -74,12 +74,24 @@ services:
     # wait until config service is available
     command: dockerize -wait http://discovery:${DISCOVERY_PORT}/actuator/health --timeout 15s java ${GATEWAY_JAVA_OPTS} -jar /opt/app/gateway-service.jar
 
+  database:
+    image: org.geoserver.cloud/gs-cloud-database:${TAG}
+    environment:
+      POSTGRES_DB: "geoserver_config"
+      POSTGRES_USER: "geoserver"
+      POSTGRES_PASSWORD: "geo$$erver"
+    ports:
+      - 5432:5432
+    networks:
+      - gs-cloud-network
+
   # WFS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wfs=5)
   wfs:
     image: org.geoserver.cloud/gs-cloud-wfs:${TAG}
     depends_on:
       - discovery
       - config
+      - database
     environment:
       PORT: ${WFS_PORT}
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}

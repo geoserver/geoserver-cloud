@@ -6,6 +6,7 @@ package org.geoserver.cloud.core;
 
 import javax.servlet.Filter;
 import org.geoserver.GeoserverInitStartupListener;
+import org.geoserver.cloud.config.main.GeoServerMainConfiguration;
 import org.geoserver.filters.FlushSafeFilter;
 import org.geoserver.filters.SessionDebugFilter;
 import org.geoserver.filters.SpringDelegatingFilter;
@@ -15,14 +16,11 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportResource;
+import org.springframework.context.annotation.Import;
 import org.springframework.web.context.request.RequestContextListener;
 
 @Configuration
-@ImportResource({
-    "classpath*:/applicationContext.xml",
-    "classpath*:/applicationSecurityContext.xml"
-})
+@Import(GeoServerMainConfiguration.class)
 public class GeoServerServletConfig {
 
     // Listeners

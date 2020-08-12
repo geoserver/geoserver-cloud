@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+org.geoserver.cloud.autoconfigure.jdbcconfig.JDBCConfigAutoConfiguration,\
+org.geoserver.cloud.autoconfigure.jdbcconfig.JDBCStoreAutoConfiguration
