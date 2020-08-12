@@ -4,10 +4,9 @@
  */
 package org.geoserver.cloud.catalog;
 
-import org.geoserver.cloud.autoconfigure.jdbcconfig.JDBCConfigAutoConfiguration;
+import org.geoserver.cloud.autoconfigure.EnableJdbcConfig;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 
 @Configuration
-@Import(JDBCConfigAutoConfiguration.class)
+@EnableJdbcConfig
 public class GeoServerCatalogConfig {}
