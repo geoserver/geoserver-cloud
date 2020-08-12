@@ -3,7 +3,18 @@ server:
    servlet:
       context-path: /
 
+geoserver:
+  jdbcconfig:
+    enabled: true
+    datasource:
+      jdbcUrl: "jdbc:postgresql://database:5432/geoserver_config"
+      username: geoserver
+      password: "geo$erver"
+      driverClassname: org.postgresql.Driver
+
 logging:
    level:
       org.springframework: ERROR
       oshi.hardware.platform.linux: OFF
+      org.geoserver.jdbcconfig: INFO
+      org.geoserver.jdbcconfig.internal: INFO
