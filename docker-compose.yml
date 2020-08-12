@@ -1,7 +1,8 @@
 version: "3.8"
-#
-#volumes:
 
+volumes:
+  postgresql_config_data:
+  
 networks:
   gs-cloud-network:
     driver: bridge
@@ -84,6 +85,8 @@ services:
       - 5432:5432
     networks:
       - gs-cloud-network
+    volumes:
+      - postgresql_config_data:/var/lib/postgresql/data
 
   # WFS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wfs=5)
   wfs:
