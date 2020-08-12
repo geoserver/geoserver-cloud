@@ -19,10 +19,16 @@
         <artifactId>gs-cloud-common</artifactId>
         <version>${project.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud</groupId>
+        <artifactId>gs-cloud-catalog</artifactId>
+        <version>${project.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
   <modules>
     <module>common</module>
+    <module>catalog</module>
     <module>wfs</module>
     <module>wms</module>
     <module>wcs</module>

@@ -1,0 +1,9 @@
+geoserver:
+  jdbcconfig:
+    enabled: true
+    datasource:
+      url: "jdbc:h2:file:/tmp_datadirectory/jdbcconfig/catalog;AUTO_SERVER=TRUE"
+      username: sa
+      password:
+      driverClassname: org.h2.Driver
+      

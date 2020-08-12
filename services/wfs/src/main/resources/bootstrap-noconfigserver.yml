@@ -1,12 +1,6 @@
 spring:
-   application:
-      name: wfs-service
    cloud:
       config:
          enabled: false
          discovery:
             enabled: false
-server:
-   port: 9091
-   servlet:
-      context-path: /

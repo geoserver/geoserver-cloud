@@ -91,6 +91,12 @@
         <scope>import</scope>
       </dependency>
       <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <version>1.18.12</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
         <groupId>org.geoserver</groupId>
         <artifactId>gs-main</artifactId>
         <version>${gs.version}</version>
@@ -153,6 +159,16 @@
       <dependency>
         <groupId>org.geoserver</groupId>
         <artifactId>gs-restconfig-wmts</artifactId>
+        <version>${gs.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.community</groupId>
+        <artifactId>gs-jdbcconfig</artifactId>
+        <version>${gs.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.community</groupId>
+        <artifactId>gs-jdbcstore</artifactId>
         <version>${gs.version}</version>
       </dependency>
     </dependencies>
