@@ -8,6 +8,31 @@ networks:
     driver: bridge
         
 services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "guest"
+    networks:
+      - gs-cloud-network
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  database:
+    image: org.geoserver.cloud/gs-cloud-database:${TAG}
+    environment:
+      POSTGRES_DB: "${JDBCCONFIG_DBNAME}"
+      POSTGRES_USER: "${JDBCCONFIG_USERNAME}"
+      POSTGRES_PASSWORD: "${JDBCCONFIG_PASSWORD}"
+    ports:
+      - 5432:5432
+    networks:
+      - gs-cloud-network
+    volumes:
+      - postgresql_config_data:/var/lib/postgresql/data
+
   # Eureka service discovery. This is a Discovery First Bootstrap configuration.
   # The discovery service is the only fixed entry point.
   # Browse to http://localhost:8761 to check all services are registered.
@@ -38,6 +63,7 @@ services:
     environment:
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: ${CONFIG_JAVA_OPTS}
+      RABBITMQ_HOST: rabbitmq
     networks:
       - gs-cloud-network
     healthcheck:
@@ -67,19 +93,6 @@ services:
     # wait until config service is available
     command: dockerize -wait http://config:8080/gateway-service/deafult --timeout 15s java ${GATEWAY_JAVA_OPTS} -jar /opt/app/gateway-service.jar
 
-  database:
-    image: org.geoserver.cloud/gs-cloud-database:${TAG}
-    environment:
-      POSTGRES_DB: "${JDBCCONFIG_DBNAME}"
-      POSTGRES_USER: "${JDBCCONFIG_USERNAME}"
-      POSTGRES_PASSWORD: "${JDBCCONFIG_PASSWORD}"
-    ports:
-      - 5432:5432
-    networks:
-      - gs-cloud-network
-    volumes:
-      - postgresql_config_data:/var/lib/postgresql/data
-
   # WFS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wfs=5)
   wfs:
     image: org.geoserver.cloud/gs-cloud-wfs:${TAG}
@@ -87,9 +100,11 @@ services:
       - discovery
       - config
       - database
+      - rabbitmq
     environment:
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: ${WFS_JAVA_OPTS}
+      RABBITMQ_HOST: rabbitmq
       JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
       JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
       JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
@@ -107,9 +122,12 @@ services:
     depends_on:
       - discovery
       - config
+      - database
+      - rabbitmq
     environment:
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: ${WMS_JAVA_OPTS}
+      RABBITMQ_HOST: rabbitmq
       JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
       JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
       JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
@@ -126,9 +144,12 @@ services:
     depends_on:
       - discovery
       - config
+      - database
+      - rabbitmq
     environment:
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: ${WCS_JAVA_OPTS}
+      RABBITMQ_HOST: rabbitmq
       JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
       JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
       JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
@@ -145,9 +166,12 @@ services:
     depends_on:
       - discovery
       - config
+      - database
+      - rabbitmq
     environment:
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: ${WPS_JAVA_OPTS}
+      RABBITMQ_HOST: rabbitmq
       JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
       JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
       JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
@@ -164,9 +188,12 @@ services:
     depends_on:
       - discovery
       - config
+      - database
+      - rabbitmq
     environment:
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: ${REST_JAVA_OPTS}
+      RABBITMQ_HOST: rabbitmq
       JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
       JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
       JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
