@@ -1,10 +1,9 @@
-FROM adoptopenjdk/openjdk11:slim
+FROM adoptopenjdk/openjdk11:jre
 
 LABEL maintainer="GeoServer PSC <geoserver-users@lists.sourceforge.net>"
 
 # Add dockerize tool -------------------
 RUN apt-get update && apt-get install -y \
-    wget \
     sudo \
 && chmod u+s /usr/bin/sudo
 
@@ -15,10 +14,9 @@ RUN apt-get update && apt-get install -y \
 # For example, my docker graph (/etc/docker/daemon.json) is `{"graph": "/data2/docker_files"}`, and `/data2` is a nosuid filesystem.
 # If that happens, you can remount the host filesystem with `sudo mount -n -o remount,suid /data2` (replace /data2 by your mount point)
 
-ENV DOCKERIZE_VERSION v0.6.1
-RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
-    && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
-    && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+RUN DOCKERIZE_VERSION=v0.6.1; curl -kLs -o dockerize.tgz https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+    && tar -C /usr/local/bin -xzvf dockerize.tgz \
+    && rm dockerize.tgz
 
 RUN groupadd -r -g 630 geo && \
     useradd -r -g geo -G sudo -u 630 geo&& \
