@@ -1,24 +1,25 @@
 server:
-   port: ${PORT:0}
+  port: 8080
 spring:
-   main:
-      banner-mode: "off"
-   application:
-      name: config-service
-   profiles:
-      active: native #use native filesystem config by default instead of git. REVISIT.
+  main:
+    banner-mode: off
+  application:
+    name: config-service
+  profiles:
+    active: native #use native filesystem config by default instead of git. REVISIT.
 eureka:
-   instance:
-      hostname: ${spring.application.name}
-      preferIpAddress: true
-      instance-id: ${spring.application.name}@${spring.application.instance_id:${spring.cloud.client.ip-address}}
-      lease-expiration-duration-in-seconds: 5
-      lease-renewal-interval-in-seconds: 30
-   client:
-      enabled: true
-      fetchRegistry: true
-      registry-fetch-interval-seconds: 30
-      serviceUrl:
-         defaultZone: ${eureka.server.url:http://localhost:8761/eureka}
-      healthcheck:
-         enabled: false
+  instance:
+    hostname: ${spring.application.name}
+    preferIpAddress: true
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${spring.cloud.client.ip-address}}:${server.port}
+    lease-expiration-duration-in-seconds: 30
+    lease-renewal-interval-in-seconds: 30
+  client:
+    enabled: true
+    registerWithEureka: true
+    fetchRegistry: true
+    registry-fetch-interval-seconds: 30
+    serviceUrl:
+      defaultZone: ${eureka.server.url:http://localhost:8761/eureka}
+    healthcheck:
+      enabled: false

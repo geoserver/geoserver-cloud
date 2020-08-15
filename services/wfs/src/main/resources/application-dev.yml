@@ -1,4 +1,4 @@
 server:
-   port: 9092
-   servlet:
-      context-path: /
+  port: 9092
+  servlet:
+    context-path: /

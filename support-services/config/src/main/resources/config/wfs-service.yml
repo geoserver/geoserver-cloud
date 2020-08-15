@@ -1,20 +1,14 @@
-server:
-   port: ${PORT:0}
-   servlet:
-      context-path: /
-
 geoserver:
   jdbcconfig:
     enabled: true
     datasource:
-      jdbcUrl: "jdbc:postgresql://database:5432/geoserver_config"
-      username: geoserver
-      password: "geo$erver"
-      driverClassname: org.postgresql.Driver
-
+      jdbcUrl: ${jdbcconfig.url:"jdbc:postgresql://localhost:5432/geoserver_config"}
+      username: ${jdbcconfig.username:postgres}
+      password: ${jdbcconfig.password:s3cr3t}
+      driverClassname: ${jdbcconfig.driverClassname:org.postgresql.Driver}
 logging:
-   level:
-      org.springframework: ERROR
-      oshi.hardware.platform.linux: OFF
-      org.geoserver.jdbcconfig: INFO
-      org.geoserver.jdbcconfig.internal: INFO
+  level:
+    org.springframework: ERROR
+    oshi.hardware.platform.linux: OFF
+    org.geoserver.jdbcconfig: INFO
+    org.geoserver.jdbcconfig.internal: INFO

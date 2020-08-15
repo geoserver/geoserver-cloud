@@ -1,26 +1,25 @@
 server:
-   port: ${PORT:8761} 
+  port: 8761
 spring:
-   application:
-      name: discovery-service
-   main:
-      banner-mode: "off"
+  application:
+    name: discovery-service
+  main:
+    banner-mode: off
 eureka:
-   server:
-      peer-node-read-timeout-ms: 60000
-      enableSelfPreservation: true
-      eviction-interval-timer-in-ms: 10000
-   instance:
-      hostname: localhost
-      preferIpAddress: true
-      lease-renewal-interval-in-seconds: 5
-      lease-expiration-duration-in-seconds: 15
-   client:
-      registerWithEureka: false
-      fetchRegistry: false
-      serviceUrl:
-         defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
-
+  server:
+    peer-node-read-timeout-ms: 60000
+    enableSelfPreservation: true
+    eviction-interval-timer-in-ms: 10000
+  instance:
+    hostname: localhost
+    preferIpAddress: true
+    lease-renewal-interval-in-seconds: 5
+    lease-expiration-duration-in-seconds: 15
+  client:
+    registerWithEureka: false
+    fetchRegistry: false
+    serviceUrl:
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
 logging:
   level:
     root: INFO

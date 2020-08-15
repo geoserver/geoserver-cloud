@@ -15,17 +15,15 @@ services:
   discovery:
     image: org.geoserver.cloud/gs-cloud-discovery-service:${TAG}
     environment:
-      PORT: ${DISCOVERY_PORT}
+      SERVER_PORT: 8761
       EUREKA_INSTANCE_HOSTNAME: discovery
       JAVA_OPTS: ${DISCOVERY_JAVA_OPTS}
-    expose: 
-      - ${DISCOVERY_PORT} #8761
     ports:
-      - "${DISCOVERY_PORT}:${DISCOVERY_PORT}" # for development, so services can be run from localhost and find the discovery service running on docker
+      - 8761:8761 # for development, so services can be run from localhost and find the discovery service running on docker
     networks:
       - gs-cloud-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "-m", "1", "http://localhost:${DISCOVERY_PORT}/actuator/health"]
+      test: ["CMD", "curl", "-f", "-m", "1", "http://localhost:8761/actuator/health"]
       interval: 1s
       timeout: 1s
       retries: 15
@@ -38,20 +36,17 @@ services:
     depends_on:
       - discovery
     environment:
-      PORT: ${CONFIG_PORT}
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: ${CONFIG_JAVA_OPTS}
-    expose:
-      - ${CONFIG_PORT}
     networks:
       - gs-cloud-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "-m", "1", "http://localhost:${CONFIG_PORT}/actuator/health"]
+      test: ["CMD", "curl", "-f", "-m", "1", "http://localhost:8080/actuator/health"]
       interval: 1s
       timeout: 1s
       retries: 15
     # wait until discovery service is available
-    command: dockerize -wait http://discovery:${DISCOVERY_PORT}/actuator/health --timeout 15s java ${CONFIG_JAVA_OPTS} -jar /opt/app/config-service.jar
+    command: dockerize -wait http://discovery:8761/actuator/health --timeout 15s java ${CONFIG_JAVA_OPTS} -jar /opt/app/config-service.jar
 
   # Application facade, provides a single entry point routing to all
   # microservices (e.g. http://localhost:9090/geoserver/wms, http://localhost:9090/geoserver/wfs, etc)
@@ -61,26 +56,23 @@ services:
       - discovery
       - config
     environment:
-      PORT: ${GATEWAY_PORT}
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: ${GATEWAY_JAVA_OPTS}
-    expose: 
-      - ${GATEWAY_PORT}
     ports:
-      - "${GATEWAY_PORT}:${GATEWAY_PORT}"
+      - 9090:8080
     networks:
       - gs-cloud-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9090/actuator/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
     # wait until config service is available
-    command: dockerize -wait http://discovery:${DISCOVERY_PORT}/actuator/health --timeout 15s java ${GATEWAY_JAVA_OPTS} -jar /opt/app/gateway-service.jar
+    command: dockerize -wait http://config:8080/gateway-service/deafult --timeout 15s java ${GATEWAY_JAVA_OPTS} -jar /opt/app/gateway-service.jar
 
   database:
     image: org.geoserver.cloud/gs-cloud-database:${TAG}
     environment:
-      POSTGRES_DB: "geoserver_config"
-      POSTGRES_USER: "geoserver"
-      POSTGRES_PASSWORD: "geo$$erver"
+      POSTGRES_DB: "${JDBCCONFIG_DBNAME}"
+      POSTGRES_USER: "${JDBCCONFIG_USERNAME}"
+      POSTGRES_PASSWORD: "${JDBCCONFIG_PASSWORD}"
     ports:
       - 5432:5432
     networks:
@@ -96,16 +88,18 @@ services:
       - config
       - database
     environment:
-      PORT: ${WFS_PORT}
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: ${WFS_JAVA_OPTS}
+      JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
+      JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
+      JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
     networks:
       - gs-cloud-network
     #tmpfs: #TODO: avoid runs creating volumes at all
     #  - /tmp
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:${WFS_PORT}/actuator/health"]
-    command: dockerize -wait http://discovery:${DISCOVERY_PORT}/actuator/health --timeout 15s java ${WFS_JAVA_OPTS} -jar /opt/app/wfs-service.jar
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+    command: dockerize -wait http://config:8080/wfs-service/deafult --timeout 15s java ${WFS_JAVA_OPTS} -jar /opt/app/wfs-service.jar
 
   # WMS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wms=5)
   wms:
@@ -114,15 +108,17 @@ services:
       - discovery
       - config
     environment:
-      PORT: ${WMS_PORT}
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: ${WMS_JAVA_OPTS}
+      JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
+      JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
+      JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
     networks:
       - gs-cloud-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:${WMS_PORT}/actuator/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
     # wait until config service is available
-    command: dockerize -wait http://config:${CONFIG_PORT}/wms-service/deafult --timeout 15s java ${WMS_JAVA_OPTS} -jar /opt/app/wms-service.jar
+    command: dockerize -wait http://config:8080/wms-service/deafult --timeout 15s java ${WMS_JAVA_OPTS} -jar /opt/app/wms-service.jar
 
   # WCS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wcs=5)
   wcs:
@@ -131,15 +127,17 @@ services:
       - discovery
       - config
     environment:
-      PORT: ${WCS_PORT}
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: ${WCS_JAVA_OPTS}
+      JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
+      JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
+      JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
     networks:
       - gs-cloud-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:${WCS_PORT}/actuator/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
     # wait until config service is available
-    command: dockerize -wait http://config:${CONFIG_PORT}/wcs-service/deafult --timeout 15s java ${WCS_JAVA_OPTS} -jar /opt/app/wcs-service.jar
+    command: dockerize -wait http://config:8080/wcs-service/deafult --timeout 15s java ${WCS_JAVA_OPTS} -jar /opt/app/wcs-service.jar
 
   # WPS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wps=5)
   wps:
@@ -148,15 +146,17 @@ services:
       - discovery
       - config
     environment:
-      PORT: ${WPS_PORT}
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: ${WPS_JAVA_OPTS}
+      JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
+      JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
+      JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
     networks:
       - gs-cloud-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:${WPS_PORT}/actuator/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
     # wait until config service is available
-    command: dockerize -wait http://config:${CONFIG_PORT}/wps-service/deafult --timeout 15s java ${WPS_JAVA_OPTS} -jar /opt/app/wps-service.jar
+    command: dockerize -wait http://config:8080/wps-service/deafult --timeout 15s java ${WPS_JAVA_OPTS} -jar /opt/app/wps-service.jar
 
   # WPS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wps=5)
   rest:
@@ -165,12 +165,14 @@ services:
       - discovery
       - config
     environment:
-      PORT: ${REST_PORT}
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: ${REST_JAVA_OPTS}
+      JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
+      JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
+      JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
     networks:
       - gs-cloud-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:${REST_PORT}/actuator/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
     # wait until config service is available
-    command: dockerize -wait http://config:${CONFIG_PORT}/restconfig-service/deafult --timeout 15s java ${REST_JAVA_OPTS} -jar /opt/app/restconfig-service.jar
+    command: dockerize -wait http://config:8080/restconfig-service/deafult --timeout 15s java ${REST_JAVA_OPTS} -jar /opt/app/restconfig-service.jar

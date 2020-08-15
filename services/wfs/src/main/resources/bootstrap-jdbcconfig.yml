@@ -2,12 +2,11 @@ geoserver:
   jdbcconfig:
     enabled: true
     datasource:
-      #jdbcUrl: "jdbc:h2:file:/tmp/data_directory/jdbcconfig/catalog;AUTO_SERVER=TRUE"
-      jdbcUrl: "jdbc:postgresql://localhost:5432/geoserver_config"
+#jdbcUrl: "jdbc:h2:file:/tmp/data_directory/jdbcconfig/catalog;AUTO_SERVER=TRUE"
+      jdbcUrl: jdbc:postgresql://localhost:5432/geoserver_config
       username: geoserver
-      password: "geo$erver"
+      password: geo$erver
       driverClassname: org.postgresql.Driver
-
 logging:
-   level:
-      org.geoserver.jdbcconfig.internal: DEBUG
+  level:
+    org.geoserver.jdbcconfig.internal: DEBUG

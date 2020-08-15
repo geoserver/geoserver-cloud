@@ -7,37 +7,50 @@ services:
   # other and all services are registered at both eureka instances.
   # See http://cloud.spring.io/spring-cloud-static/spring-cloud.html#_peer_awareness
   discovery:
+    container_name: discovery-1
     environment:
       EUREKA_INSTANCE_HOSTNAME: discovery-1
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-2:8762/eureka
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-2:8761/eureka
 
   discovery2:
     image: org.geoserver.cloud/gs-cloud-discovery-service:${TAG}
     container_name: discovery-2
     environment:
-      PORT: 8762
+      SERVER_PORT: 8761
       EUREKA_INSTANCE_HOSTNAME: discovery-2
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-1:8761/eureka
-      JAVA_OPTS: -Xmx256m
-    expose: 
-      - 8762
+      JAVA_OPTS: ${DISCOVERY_JAVA_OPTS}
     ports:
-      - "8762:8762"
+      - 8762:8761
     networks:
       - gs-cloud-network
 
-  gateway-service:
+  config:
+    image: org.geoserver.cloud/gs-cloud-config-service:${TAG}
+    depends_on:
+      - discovery
+      - discovery2
     environment:
-      EUREKA_SERVER_URL: http://discovery-1:8761/eureka, http://discovery-2:8762/eureka
+      EUREKA_SERVER_URL: http://discovery-1:8761/eureka, http://discovery-2:8761/eureka
+    # wait until both discovery services are available
+    command: dockerize -wait http://discovery-1:8761/actuator/health -wait http://discovery-2:8761/actuator/health --timeout 15s java ${CONFIG_JAVA_OPTS} -jar /opt/app/config-service.jar
+
+  gateway:
+    environment:
+      EUREKA_SERVER_URL: http://discovery-1:8761/eureka, http://discovery-2:8761/eureka
   wfs:
     environment:
-      EUREKA_SERVER_URL: http://discovery-1:8761/eureka, http://discovery-2:8762/eureka
+      EUREKA_SERVER_URL: http://discovery-1:8761/eureka, http://discovery-2:8761/eureka
   wms:
     environment:
-      EUREKA_SERVER_URL: http://discovery-1:8761/eureka, http://discovery-2:8762/eureka
+      EUREKA_SERVER_URL: http://discovery-1:8761/eureka, http://discovery-2:8761/eureka
   wcs:
     environment:
-      EUREKA_SERVER_URL: http://discovery-1:8761/eureka, http://discovery-2:8762/eureka
+      EUREKA_SERVER_URL: http://discovery-1:8761/eureka, http://discovery-2:8761/eureka
   wps:
     environment:
-      EUREKA_SERVER_URL: http://discovery-1:8761/eureka, http://discovery-2:8762/eureka
+      EUREKA_SERVER_URL: http://discovery-1:8761/eureka, http://discovery-2:8761/eureka
+  rest:
+    environment:
+      EUREKA_SERVER_URL: http://discovery-1:8761/eureka, http://discovery-2:8761/eureka
+      
