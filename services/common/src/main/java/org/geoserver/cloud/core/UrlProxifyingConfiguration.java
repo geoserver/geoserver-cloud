@@ -1,15 +1,15 @@
 package org.geoserver.cloud.core;
 
 import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.ows.Dispatcher;
 import org.geoserver.ows.ProxifyingURLMangler;
-import org.geoserver.ows.Request;
 import org.geoserver.ows.URLMangler;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.web.context.request.NativeWebRequest;
 
 @Configuration
 public class UrlProxifyingConfiguration {
@@ -26,20 +26,27 @@ public class UrlProxifyingConfiguration {
         return new CloudProxifyingURLMangler();
     }
 
+    /**
+     * {@link URLMangler} similar to {@link ProxifyingURLMangler} that doesn't depend on {@link
+     * GeoServerInfo#isUseHeadersProxyURL()}, since we expect to have an api-gateway service in
+     * front providing the required {@code X-Forwarded-*} request headers.
+     */
     private static class CloudProxifyingURLMangler implements URLMangler {
+
+        /**
+         * Provides access to the current http request so we can get the {@code X-Forwarded-**}
+         * request headers sent by the gateway service regardless of {@link Dispatcher#REQUEST}
+         * being set or not (i.e. also works for the restconfig api)
+         */
+        private @Autowired NativeWebRequest nativeRequest;
 
         @Override
         public void mangleURL(
                 StringBuilder baseURL, StringBuilder path, Map<String, String> kvp, URLType type) {
-            // If the request is not an OWS request, does not proxy the URL
-            Request request = Dispatcher.REQUEST.get();
-            if (request == null) {
-                return;
-            }
-            HttpServletRequest httpRequest = request.getHttpRequest();
-            String fproto = httpRequest.getHeader("X-Forwarded-Proto");
-            String fhost = httpRequest.getHeader("X-Forwarded-Host");
-            String fpath = httpRequest.getHeader("X-Forwarded-Path");
+
+            String fproto = nativeRequest.getHeader("X-Forwarded-Proto");
+            String fhost = nativeRequest.getHeader("X-Forwarded-Host");
+            String fpath = nativeRequest.getHeader("X-Forwarded-Path");
             if (fproto == null || fhost == null) {
                 return;
             }
