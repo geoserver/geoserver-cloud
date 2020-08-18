@@ -1,5 +1,6 @@
 server:
   port: 8080
+  instance-id: ${spring.application.name}:${spring.application.instance_id:${spring.cloud.client.ip-address}}:${server.port}
   servlet:
     context-path: /
 spring:
@@ -16,11 +17,12 @@ spring:
       discovery:
         enabled: true
         service-id: config-service
+
 eureka:
   instance:
     hostname: ${spring.application.name}
+    instance-id: ${server.instance-id}
     preferIpAddress: true
-    instance-id: ${spring.application.name}:${spring.application.instance_id:${spring.cloud.client.ip-address}}:${server.port}
     lease-expiration-duration-in-seconds: 30
     lease-renewal-interval-in-seconds: 30
   client:

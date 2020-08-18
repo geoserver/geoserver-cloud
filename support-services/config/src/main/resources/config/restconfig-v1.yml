@@ -6,9 +6,30 @@ geoserver:
       username: ${jdbcconfig.username:postgres}
       password: ${jdbcconfig.password:s3cr3t}
       driverClassname: ${jdbcconfig.driverClassname:org.postgresql.Driver}
+
+spring:
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_URSER:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+  cloud:
+    bus:
+      enabled: true
+      id: ${server.instance-id} # use the same instance id for eureka (see service's' bootstrap.yml) and cloud-bus' rabbitmq instance id
+      trace.enabled: true #switch on tracing of acks (default off).
+    stream:
+      bindings:
+        springCloudBusOutput:
+          destination: geoserver
+        springCloudBusInput:
+          destination: geoserver
+          group: catalog-event-queue
+
 logging:
   level:
-    org.springframework: ERROR
+#      org.springframework: ERROR
+    org.geoserver.cloud: DEBUG
     oshi.hardware.platform.linux: OFF
     org.geoserver.jdbcconfig: INFO
     org.geoserver.jdbcconfig.internal: INFO
