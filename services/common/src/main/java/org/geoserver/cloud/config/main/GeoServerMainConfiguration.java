@@ -13,7 +13,6 @@ import org.geoserver.ManifestLoader;
 import org.geoserver.catalog.CascadedStoredQueryCallback;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogRepository;
-import org.geoserver.catalog.CoverageReaderFileConverter;
 import org.geoserver.catalog.LayerGroupVisibilityPolicy;
 import org.geoserver.catalog.NamespaceWorkspaceConsistencyListener;
 import org.geoserver.catalog.ResourcePoolInitializer;
@@ -752,8 +751,9 @@ public class GeoServerMainConfiguration {
     // class="org.geoserver.catalog.CoverageReaderFileConverter">
     // <constructor-arg ref="catalog"/>
     // </bean>
-    public @Bean CoverageReaderFileConverter coverageReaderFileConverter(
-            @Qualifier("catalog") Catalog catalog) {
-        return new CoverageReaderFileConverter(catalog);
-    }
+    // TODO: restore for geoserver 2.18.x
+    //    public @Bean CoverageReaderFileConverter coverageReaderFileConverter(
+    //            @Qualifier("catalog") Catalog catalog) {
+    //        return new CoverageReaderFileConverter(catalog);
+    //    }
 }
