@@ -4,6 +4,7 @@
  */
 package org.geoserver.cloud.core;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -60,12 +61,18 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
                             "Loading bean definitions from {}, matches pattern {}",
                             resourceURI,
                             jarNameExpression);
-                    int c = super.loadBeanDefinitions(resourceURI, actualResources);
-                    log.info("Loaded {} bean definitions from {}", c, uri);
-                    if (actualResources != null) {
-                        actualResources.add(root);
+                    try {
+                        int c = super.loadBeanDefinitions(resourceURI, actualResources);
+                        log.info("Loaded {} bean definitions from {}", c, uri);
+                        if (actualResources != null) {
+                            actualResources.add(root);
+                        }
+                        count += c;
+                    } catch (BeanDefinitionStoreException fnf) {
+                        if (fnf.getCause() instanceof FileNotFoundException) {
+                            log.info("No {} in {}, skipping.", resourcePattern, uri);
+                        }
                     }
-                    count += c;
                 }
             }
             return count;
