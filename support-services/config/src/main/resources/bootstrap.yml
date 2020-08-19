@@ -9,6 +9,8 @@ spring:
     name: config-service
   profiles:
     active: native #use native filesystem config by default instead of git. REVISIT.
+  cloud:
+    loadbalancer.ribbon.enabled: false # ribbon is in maintenance mode and should be replaced by spring-cloud-loadbalancer
 eureka:
   instance:
     hostname: ${spring.application.name}

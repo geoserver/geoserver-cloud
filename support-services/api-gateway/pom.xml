@@ -18,6 +18,17 @@
     <dependency>
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+      <exclusions>
+        <!-- exclude ribbon dependencies in favor of spring-cloud-loadbalancer -->
+        <exclusion>
+          <groupId>org.springframework.cloud</groupId>
+          <artifactId>spring-cloud-starter-netflix-ribbon</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.netflix.ribbon</groupId>
+          <artifactId>ribbon-eureka</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.springframework.cloud</groupId>

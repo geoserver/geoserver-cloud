@@ -16,6 +16,7 @@ management:
         include: gateway, info, health
 spring:
   cloud:
+#    loadbalancer.ribbon.enabled: false # ribbon is in maintenance mode and should be replaced by spring-cloud-loadbalancer
     gateway:
       actuator:
         verbose:
@@ -70,7 +71,7 @@ spring:
 #        filters:
 logging:
   level:
-    root: ERROR
+#    root: ERROR
     com.netflix.discovery: WARN
     com.netflix.eureka: WARN
 # ----------------
