@@ -8,7 +8,6 @@ import javax.servlet.Filter;
 import org.geoserver.GeoserverInitStartupListener;
 import org.geoserver.cloud.config.main.GeoServerMainConfiguration;
 import org.geoserver.filters.FlushSafeFilter;
-import org.geoserver.filters.SessionDebugFilter;
 import org.geoserver.filters.SpringDelegatingFilter;
 import org.geoserver.filters.ThreadLocalsCleanupFilter;
 import org.geoserver.platform.AdvancedDispatchFilter;
@@ -22,18 +21,6 @@ import org.springframework.web.context.request.RequestContextListener;
 @Configuration
 @Import(GeoServerMainConfiguration.class)
 public class GeoServerServletConfig {
-
-//    public @Bean DispatcherServletRegistrationBean dispatcherServletRegistration(
-//            DispatcherServlet dispatcherServlet,
-//            ObjectProvider<MultipartConfigElement> multipartConfig) {
-//        DispatcherServletRegistrationBean registration =
-//                new DispatcherServletRegistrationBean(dispatcherServlet, "/*");
-//        registration
-//                .setName(DispatcherServletAutoConfiguration.DEFAULT_DISPATCHER_SERVLET_BEAN_NAME);
-//        registration.setLoadOnStartup(-1);
-//        multipartConfig.ifAvailable(registration::setMultipartConfig);
-//        return registration;
-//    }
 
     // Listeners
     public @Bean GeoserverInitStartupListener initStartupListener() {
@@ -58,9 +45,9 @@ public class GeoServerServletConfig {
         return new FlushSafeFilter();
     }
 
-//    public @Bean SessionDebugFilter sessionDebugFilter() {
-//        return new SessionDebugFilter();
-//    }
+    //    public @Bean SessionDebugFilter sessionDebugFilter() {
+    //        return new SessionDebugFilter();
+    //    }
 
     /**
      * Allows for a single mapping ({@code /*}) for all requests to the spring dispatcher. It
@@ -68,8 +55,7 @@ public class GeoServerServletConfig {
      * make it look like the mapping was created in web.xml when in actuality it was created in
      * spring.
      *
-     * <p>
-     * This is useful, for instance, for the rest api's {@code RequestInfo} object to build URLs
+     * <p>This is useful, for instance, for the rest api's {@code RequestInfo} object to build URLs
      * properly, instead of getting {@code null} from {@code
      * HttpServletRequest.request.getPathInfo()}
      */
@@ -95,9 +81,9 @@ public class GeoServerServletConfig {
         return newRegistration(flushSafeFilter(), 1);
     }
 
-//    public @Bean FilterRegistrationBean<SessionDebugFilter> sessionDebugFilterFilterReg() {
-//        return newRegistration(sessionDebugFilter(), 2);
-//    }
+    //    public @Bean FilterRegistrationBean<SessionDebugFilter> sessionDebugFilterFilterReg() {
+    //        return newRegistration(sessionDebugFilter(), 2);
+    //    }
 
     public @Bean FilterRegistrationBean<AdvancedDispatchFilter> advancedDispatchFilterReg() {
         return newRegistration(advancedDispatchFilter(), 4);

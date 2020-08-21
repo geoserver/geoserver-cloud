@@ -9,5 +9,4 @@ import org.springframework.context.annotation.ImportResource;
 
 @Configuration
 @ImportResource({"classpath*:/applicationSecurityContext.xml"})
-public class GeoServerSecurityConfiguration {
-}
+public class GeoServerSecurityConfiguration {}

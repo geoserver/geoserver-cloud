@@ -20,13 +20,11 @@ import org.springframework.context.annotation.ImportResource;
 @Configuration
 @Import(UrlProxifyingConfiguration.class)
 @ImportResource( //
-        reader = FilteringXmlBeanDefinitionReader.class, //
-        locations = "jar:gs-main-.*!/applicationContext.xml" //
+    reader = FilteringXmlBeanDefinitionReader.class, //
+    locations = "jar:gs-main-.*!/applicationContext.xml" //
 )
 public class GeoServerMainConfiguration {
-    /**
-     * Required when {@link GeoServerSecurityConfiguration} is not included
-     */
+    /** Required when {@link GeoServerSecurityConfiguration} is not included */
     @Bean(name = "secureCatalog")
     @ConditionalOnMissingBean(org.geoserver.security.GeoServerSecurityManager.class)
     @DependsOn({"extensions"})
@@ -35,13 +33,12 @@ public class GeoServerMainConfiguration {
         return new SecureCatalogImpl(rawCatalog);
     }
 
-    /**
-     * Required when {@link GeoServerSecurityConfiguration} is not included
-     */
+    /** Required when {@link GeoServerSecurityConfiguration} is not included */
     @ConditionalOnMissingBean(org.geoserver.security.GeoServerSecurityManager.class)
     @DependsOn({"extensions"})
-    public DataAccessRuleDAO accessRulesDao(GeoServerDataDirectory dd,
-            @Qualifier("rawCatalog") Catalog rawCatalog) throws Exception {
+    public DataAccessRuleDAO accessRulesDao(
+            GeoServerDataDirectory dd, @Qualifier("rawCatalog") Catalog rawCatalog)
+            throws Exception {
         return new DataAccessRuleDAO(dd, rawCatalog);
     }
 }

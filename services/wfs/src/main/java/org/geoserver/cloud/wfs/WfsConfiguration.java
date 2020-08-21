@@ -14,10 +14,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportResource;
 
 @Configuration
-@Import({
-    GeoServerCatalogConfig.class,
-    GeoServerServletConfig.class
-})
+@Import({GeoServerCatalogConfig.class, GeoServerServletConfig.class})
 @ConditionalOnClass(value = WFSInfoImpl.class)
 @ImportResource( //
     reader = FilteringXmlBeanDefinitionReader.class, //

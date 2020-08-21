@@ -16,5 +16,4 @@ import org.springframework.context.annotation.Import;
 @EnableAutoConfiguration
 @EnableJdbcConfig
 @EnableBusEventHandling
-public class GeoServerCatalogConfig {
-}
+public class GeoServerCatalogConfig {}

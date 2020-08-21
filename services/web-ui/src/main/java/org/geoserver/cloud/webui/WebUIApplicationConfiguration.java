@@ -20,12 +20,13 @@ import org.springframework.context.annotation.ImportResource;
 @Import({GeoServerCatalogConfig.class, GeoServerServletConfig.class})
 @ConditionalOnClass(value = GeoServerWicketServlet.class)
 @ImportResource( //
-        reader = FilteringXmlBeanDefinitionReader.class, //
-        locations = {"jar:gs-web-.*!/applicationContext.xml", //
-                "jar:gs-wms-.*!/applicationContext.xml",//
-                "jar:gs-wfs-.*!/applicationContext.xml",//
-                "jar:gs-wcs-.*!/applicationContext.xml"//
-        } //
+    reader = FilteringXmlBeanDefinitionReader.class, //
+    locations = {
+        "jar:gs-web-.*!/applicationContext.xml", //
+        "jar:gs-wms-.*!/applicationContext.xml", //
+        "jar:gs-wfs-.*!/applicationContext.xml", //
+        "jar:gs-wcs-.*!/applicationContext.xml" //
+    } //
 )
 public class WebUIApplicationConfiguration {
 
@@ -33,10 +34,9 @@ public class WebUIApplicationConfiguration {
         return new GeoServerWicketServlet();
     }
 
-    /**
-     * Register the {@link WicketServlet}
-     */
-    public @Bean ServletRegistrationBean<GeoServerWicketServlet> geoServerWicketServletRegistration() {
+    /** Register the {@link WicketServlet} */
+    public @Bean ServletRegistrationBean<GeoServerWicketServlet>
+            geoServerWicketServletRegistration() {
         GeoServerWicketServlet servlet = geoServerWicketServlet();
         ServletRegistrationBean<GeoServerWicketServlet> registration;
         registration =

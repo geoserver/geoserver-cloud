@@ -15,14 +15,17 @@ import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfigurat
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
 
-@EnableAutoConfiguration(exclude = { //
+@EnableAutoConfiguration(
+    exclude = { //
         DataSourceAutoConfiguration.class, //
         DataSourceTransactionManagerAutoConfiguration.class, //
         HibernateJpaAutoConfiguration.class, //
         SecurityAutoConfiguration.class, //
         UserDetailsServiceAutoConfiguration.class, //
         ManagementWebSecurityAutoConfiguration.class, //
-        LdapAutoConfiguration.class})
+        LdapAutoConfiguration.class
+    }
+)
 @SpringBootApplication
 public class WebUIApplication {
 

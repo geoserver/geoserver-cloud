@@ -15,14 +15,14 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfi
 import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
 
 @EnableAutoConfiguration(
-        exclude = { //
-                DataSourceAutoConfiguration.class, //
-                DataSourceTransactionManagerAutoConfiguration.class, //
-                HibernateJpaAutoConfiguration.class, //
-                SecurityAutoConfiguration.class, //
-                UserDetailsServiceAutoConfiguration.class, //
-                ManagementWebSecurityAutoConfiguration.class
-            }
+    exclude = { //
+        DataSourceAutoConfiguration.class, //
+        DataSourceTransactionManagerAutoConfiguration.class, //
+        HibernateJpaAutoConfiguration.class, //
+        SecurityAutoConfiguration.class, //
+        UserDetailsServiceAutoConfiguration.class, //
+        ManagementWebSecurityAutoConfiguration.class
+    }
 )
 @SpringBootApplication
 public class WmsApplication {
