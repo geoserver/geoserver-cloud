@@ -2,7 +2,7 @@
  * This code is licensed under the GPL 2.0 license, available at the root
  * application directory.
  */
-package org.geoserver.cloud.core;
+package org.geoserver.cloud.config.main;
 
 import java.util.Map;
 import org.geoserver.config.GeoServerInfo;

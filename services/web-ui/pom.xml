@@ -7,11 +7,11 @@
     <artifactId>gs-microservices</artifactId>
     <version>0.1-SNAPSHOT</version>
   </parent>
-  <artifactId>gs-cloud-wps</artifactId>
-  <name>wps-service</name>
+  <artifactId>gs-cloud-web-ui</artifactId>
+  <name>web-ui-service</name>
   <packaging>jar</packaging>
   <properties>
-    <start-class>org.geoserver.cloud.wcs.WpsApplication</start-class>
+    <start-class>org.geoserver.cloud.webui.WebUIApplication</start-class>
   </properties>
   <dependencies>
     <dependency>
@@ -57,26 +57,54 @@
       <groupId>org.geoserver.cloud</groupId>
       <artifactId>gs-cloud-catalog</artifactId>
     </dependency>
-
     <dependency>
-      <!-- REVISIT: for some reason, the WPS service won't start up without the web components. A bean creation exception 
-        will be reported: "Error creating bean with name 'wpsInitializer' ... -->
-      <!-- Error creating bean with name 'executionManager': Requested bean is currently in creation: Is there an unresolvable 
-        circular reference?" "Error creating bean with name 'executionManager': Requested bean is currently in creation: Is there 
-        an unresolvable circular reference?" -->
+      <groupId>org.geoserver.web</groupId>
+      <artifactId>gs-web-app</artifactId>
+      <version>${gs.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.geoserver</groupId>
+          <artifactId>gs-rest</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.geoserver</groupId>
+          <artifactId>gs-restconfig</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.geoserver</groupId>
+          <artifactId>gs-restconfig</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.geoserver</groupId>
+          <artifactId>gs-restconfig-wms</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.geoserver</groupId>
+          <artifactId>gs-restconfig-wfs</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.geoserver</groupId>
+          <artifactId>gs-restconfig-wcs</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.geoserver</groupId>
+          <artifactId>gs-restconfig-wmts</artifactId>
+        </exclusion>
+        <!-- exclude GWC web -->
+        <exclusion>
+          <groupId>org.geoserver.web</groupId>
+          <artifactId>gs-web-gwc</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver</groupId>
+      <artifactId>gs-gwc</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.geoserver.extension</groupId>
       <artifactId>gs-web-wps</artifactId>
-      <version>${gs.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.geoserver.extension</groupId>
-      <artifactId>gs-wps-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-    </dependency>
-
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
@@ -125,34 +153,5 @@
       </plugin>
     </plugins>
   </build>
-  <profiles>
-    <profile>
-      <!-- temporary measure to include dependencies not really needed for this service but whose absence make the jdbcconfig 
-        catalog fail exceptions like "com.thoughtworks.xstream.mapper.CannotResolveClassException: org.geoserver.gwc.wmts.WMTSInfoImpl". 
-        Nonetheless, the spring configuration for these extra dependencies won't be loaded at all -->
-      <id>jdbcconfig</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>org.geoserver</groupId>
-          <artifactId>gs-wms</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.geoserver</groupId>
-          <artifactId>gs-wfs</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.geoserver</groupId>
-          <artifactId>gs-wcs</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.geoserver</groupId>
-          <artifactId>gs-gwc</artifactId>
-          <version>${gs.version}</version>
-        </dependency>
-      </dependencies>
-    </profile>
-  </profiles>
+
 </project>

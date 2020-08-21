@@ -6,8 +6,8 @@ package org.geoserver.cloud.restconfig;
 
 import org.geoserver.cloud.catalog.GeoServerCatalogConfig;
 import org.geoserver.cloud.config.main.GeoServerSecurityConfiguration;
+import org.geoserver.cloud.config.main.UrlProxifyingConfiguration;
 import org.geoserver.cloud.core.GeoServerServletConfig;
-import org.geoserver.cloud.core.UrlProxifyingConfiguration;
 import org.geoserver.rest.security.RestConfigXStreamPersister;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration;
