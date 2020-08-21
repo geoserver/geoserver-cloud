@@ -1,7 +1,8 @@
 version: "3.8"
 
 volumes:
-  postgresql_config_data:
+  postgresql_config_data: # volume for postgresql data, used to store the geoserver config through jdbcconfig
+  rabbitmq_data: # volume for rabbitmq data, so it doesn't create an anonymous one on each container
   
 networks:
   gs-cloud-network:
@@ -14,6 +15,8 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: "guest"
       RABBITMQ_DEFAULT_PASS: "guest"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
     networks:
       - gs-cloud-network
     ports:
