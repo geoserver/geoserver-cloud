@@ -66,7 +66,6 @@
         an unresolvable circular reference?" -->
       <groupId>org.geoserver.extension</groupId>
       <artifactId>gs-web-wps</artifactId>
-      <version>${gs.version}</version>
     </dependency>
     <dependency>
       <groupId>org.geoserver.extension</groupId>
@@ -102,7 +101,7 @@
         <artifactId>dockerfile-maven-plugin</artifactId>
       </plugin>
       <plugin>
-        <!-- data directory, remove once we get rid of it -->
+        <!-- test data, remove once we get rid of it -->
         <artifactId>maven-resources-plugin</artifactId>
         <executions>
           <execution>
@@ -115,8 +114,8 @@
               <outputDirectory>${project.build.directory}</outputDirectory>
               <resources>
                 <resource>
-                  <directory>${project.basedir}/../data</directory>
-                  <includes>release.tar.gz</includes>
+                  <directory>${maven.multiModuleProjectDirectory}/services/data</directory>
+                  <includes>test_data.tar.gz</includes>
                 </resource>
               </resources>
             </configuration>
