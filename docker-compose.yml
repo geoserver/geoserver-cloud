@@ -69,6 +69,8 @@ services:
       RABBITMQ_HOST: rabbitmq
     networks:
       - gs-cloud-network
+    volumes:
+      - ./config:/opt/app/config
     healthcheck:
       test: ["CMD", "curl", "-f", "-m", "1", "http://localhost:8080/actuator/health"]
       interval: 1s
