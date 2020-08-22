@@ -165,29 +165,29 @@ services:
     # wait until config service is available
     command: dockerize -wait http://config:8080/wcs-service/default --timeout 30s java ${WCS_JAVA_OPTS} -jar /opt/app/wcs-service.jar
 
-  # WPS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wps=5)
-  wps:
-    image: org.geoserver.cloud/gs-cloud-wps:${TAG}
-    depends_on:
-      - discovery
-      - config
-      - database
-      - rabbitmq
-    environment:
-      EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
-      JAVA_OPTS: ${WPS_JAVA_OPTS}
-      RABBITMQ_HOST: rabbitmq
-      JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
-      JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
-      JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
-    networks:
-      - gs-cloud-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
-    # wait until config service is available
-    command: dockerize -wait http://config:8080/wps-service/default --timeout 30s java ${WPS_JAVA_OPTS} -jar /opt/app/wps-service.jar
+#  # WPS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wps=5)
+#  wps:
+#    image: org.geoserver.cloud/gs-cloud-wps:${TAG}
+#    depends_on:
+#      - discovery
+#      - config
+#      - database
+#      - rabbitmq
+#    environment:
+#      EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
+#      JAVA_OPTS: ${WPS_JAVA_OPTS}
+#      RABBITMQ_HOST: rabbitmq
+#      JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
+#      JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
+#      JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
+#    networks:
+#      - gs-cloud-network
+#    healthcheck:
+#      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+#    # wait until config service is available
+#    command: dockerize -wait http://config:8080/wps-service/default --timeout 30s java ${WPS_JAVA_OPTS} -jar /opt/app/wps-service.jar
 
-  # WPS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wps=5)
+  # REST config microservice, port dynamically allocated to allow scaling (e.g docker-compose scale rest=5)
   rest:
     image: org.geoserver.cloud/gs-cloud-restconfig-v1:${TAG}
     depends_on:

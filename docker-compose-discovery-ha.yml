@@ -47,9 +47,9 @@ services:
   wcs:
     environment:
       EUREKA_SERVER_URL: http://discovery-1:8761/eureka, http://discovery-2:8761/eureka
-  wps:
-    environment:
-      EUREKA_SERVER_URL: http://discovery-1:8761/eureka, http://discovery-2:8761/eureka
+#  wps:
+#    environment:
+#      EUREKA_SERVER_URL: http://discovery-1:8761/eureka, http://discovery-2:8761/eureka
   rest:
     environment:
       EUREKA_SERVER_URL: http://discovery-1:8761/eureka, http://discovery-2:8761/eureka
