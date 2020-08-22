@@ -9,8 +9,8 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import org.geoserver.cloud.catalog.bus.BusDisabledLogger;
-import org.geoserver.cloud.catalog.bus.CatalogBusAutoConfiguration;
+import org.geoserver.cloud.bus.catalog.BusDisabledLogger;
+import org.geoserver.cloud.bus.catalog.CatalogBusAutoConfiguration;
 import org.springframework.context.annotation.Import;
 
 @Retention(RetentionPolicy.RUNTIME)

@@ -1,8 +1,8 @@
-/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
- * This code is licensed under the GPL 2.0 license, available at the root
- * application directory.
+/*
+ * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
+ * GPL 2.0 license, available at the root application directory.
  */
-package org.geoserver.cloud.catalog.bus;
+package org.geoserver.cloud.bus.catalog;
 
 import java.lang.reflect.Proxy;
 import lombok.extern.slf4j.Slf4j;
@@ -16,10 +16,6 @@ import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WMSStoreInfo;
 import org.geoserver.catalog.WMTSStoreInfo;
 import org.geoserver.catalog.impl.ClassMappings;
-import org.geoserver.cloud.catalog.bus.events.CatalogRemoteAddEvent;
-import org.geoserver.cloud.catalog.bus.events.CatalogRemoteEvent;
-import org.geoserver.cloud.catalog.bus.events.CatalogRemoteModifyEvent;
-import org.geoserver.cloud.catalog.bus.events.CatalogRemoteRemoveEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.bus.BusAutoConfiguration;
 import org.springframework.cloud.bus.ServiceMatcher;
@@ -35,14 +31,14 @@ import org.springframework.context.event.EventListener;
  *     handling. See {@link BusAutoConfiguration}, it sets up the bus configuration and makes sure
  *     {@link RemoteApplicationEvent}s are not published to the same instance that broadcast them.
  */
-@Slf4j
-public class CatalogRemoteEventProcessor {
+@Slf4j(topic = "org.geoserver.cloud.catalog.bus.incoming")
+public class ResourcePoolRemoteEventProcessor {
 
     private Catalog rawCatalog;
 
     private @Autowired ServiceMatcher busServiceMatcher;
 
-    public @Autowired CatalogRemoteEventProcessor(Catalog rawCatalog) {
+    public @Autowired ResourcePoolRemoteEventProcessor(Catalog rawCatalog) {
         this.rawCatalog = rawCatalog;
     }
 
@@ -56,7 +52,7 @@ public class CatalogRemoteEventProcessor {
     public @EventListener(AckRemoteApplicationEvent.class) void ackReceived(
             AckRemoteApplicationEvent event) {
         if (!busServiceMatcher.isFromSelf(event)) {
-            log.debug("Received event ack {}", event); // TODO improve log statement
+            log.trace("Received event ack {}", event); // TODO improve log statement
         }
     }
 
@@ -67,7 +63,7 @@ public class CatalogRemoteEventProcessor {
     @EventListener(CatalogRemoteAddEvent.class)
     public void onCatalogRemoteAddEvent(CatalogRemoteAddEvent event) {
         if (busServiceMatcher.isFromSelf(event)) {
-            log.debug("Ignoring remote event from self: {}", event);
+            log.trace("Ignoring remote event from self: {}", event);
         } else {
             log.debug("remote add event, nothing to do. {}", event);
         }
@@ -85,11 +81,9 @@ public class CatalogRemoteEventProcessor {
 
     private void evictFromResourcePool(CatalogRemoteEvent event) {
         if (busServiceMatcher.isFromSelf(event)) {
-            log.debug("Ignoring remote event from self: {}", event);
+            log.trace("Ignoring event from self: {}", event);
             return;
         }
-        log.debug("handling remote event: {}", event);
-
         final String id = event.getCatalogInfoId();
         final ClassMappings catalogInfoEnumType = event.getCatalogInfoEnumType();
         switch (catalogInfoEnumType) {
@@ -99,10 +93,11 @@ public class CatalogRemoteEventProcessor {
             case STYLE:
             case WMSSTORE:
             case WMTSSTORE:
+                log.debug("Evict ResourcePool cache for {}", event);
                 doEvict(id, catalogInfoEnumType);
                 break;
             default:
-                log.debug(
+                log.trace(
                         "no need to clear resource pool cache entry for object of type {}",
                         catalogInfoEnumType);
                 break;
@@ -110,7 +105,6 @@ public class CatalogRemoteEventProcessor {
     }
 
     private void doEvict(String id, ClassMappings catalogInfoEnumType) {
-        log.debug("Evicting resource pool cache entry id: {}, type: {}", id, catalogInfoEnumType);
         final Class<? extends CatalogInfo> catalogInfoType = catalogInfoEnumType.getInterface();
         ResourcePool resourcePool = rawCatalog.getResourcePool();
         CatalogInfo catalogInfo = proxyInstanceOf(id, catalogInfoType);
@@ -125,7 +119,11 @@ public class CatalogRemoteEventProcessor {
                 resourcePool.clear((FeatureTypeInfo) catalogInfo);
                 break;
             case STYLE:
-                resourcePool.clear((StyleInfo) catalogInfo);
+                // HACK: resourcePool.clear(StyleInfo) is key'ed by the object not the id
+                StyleInfo style = rawCatalog.getStyle(catalogInfo.getId());
+                if (style != null) {
+                    resourcePool.clear(style);
+                }
                 break;
             case WMSSTORE:
                 resourcePool.clear((WMSStoreInfo) catalogInfo);

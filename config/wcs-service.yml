@@ -21,10 +21,9 @@ spring:
     stream:
       bindings:
         springCloudBusOutput:
-          destination: geoserver
+          destination: gscatalog
         springCloudBusInput:
-          destination: geoserver
-          group: catalog-event-queue
+          destination: gscatalog
 
 logging:
   level:

@@ -1,19 +1,17 @@
-/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
- * This code is licensed under the GPL 2.0 license, available at the root
- * application directory.
+/*
+ * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
+ * GPL 2.0 license, available at the root application directory.
  */
-package org.geoserver.cloud.catalog.bus.events;
+package org.geoserver.cloud.bus.catalog;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.ToString;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.springframework.cloud.bus.event.RemoteApplicationEvent;
 
 @EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
 public abstract class CatalogRemoteEvent extends RemoteApplicationEvent {
     private static final long serialVersionUID = 1L;
 
@@ -35,5 +33,26 @@ public abstract class CatalogRemoteEvent extends RemoteApplicationEvent {
         super(source, originService, destinationService);
         this.catalogInfoId = catalogInfoId;
         this.catalogInfoEnumType = catalogInfoEnumType;
+    }
+
+    public @Override String toString() {
+        return String.format(
+                "%s(%s: %s)[event id: %s, from: %s, to: %s, ts: %d]",
+                getClass().getSimpleName(),
+                this.getCatalogInfoEnumType(),
+                this.getCatalogInfoId(),
+                super.getId(),
+                super.getOriginService(),
+                super.getDestinationService(),
+                super.getTimestamp());
+    }
+
+    public static @FunctionalInterface interface CatalogRemoteEventFactory {
+        CatalogRemoteEvent create(
+                Object source,
+                String originService,
+                String destinationService,
+                @NonNull String catalogInfoId,
+                @NonNull ClassMappings catalogInfoEnumType);
     }
 }
