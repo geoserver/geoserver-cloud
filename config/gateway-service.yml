@@ -32,7 +32,7 @@ spring:
         uri: lb://wfs-service
         predicates:
         - Path=/ows,/{segment}/ows
-        - Query=SERVICE, (?i:WFS)
+        - RegExpQuery=(?i:service),(?i:wfs) # match service=wfs case insensitively 
 # WMS routes
       - id: wms # proxies requests to gateway-service:/wms to wms-service:/wms
         uri: lb://wms-service #load balanced to the wms-service instances
@@ -42,7 +42,7 @@ spring:
         uri: lb://wms-service
         predicates:
         - Path=/ows,/{segment}/ows
-        - Query=SERVICE, (?i:WMS)
+        - RegExpQuery=(?i:service),(?i:wms) # match service=wms case insensitively 
 # WCS routes
       - id: wcs # proxies requests to gateway-service:/wcs to wcs-service:/wcs
         uri: lb://wcs-service #load balanced to the wps-service instances
@@ -52,7 +52,7 @@ spring:
         uri: lb://wcs-service
         predicates:
         - Path=/ows,/{segment}/ows
-        - Query=SERVICE, (?i:WCS)
+        - RegExpQuery=(?i:service),(?i:wcs) # match service=wcs case insensitively 
 # WPS routes
       - id: wps # proxies requests to gateway-service:/wps to wfs-service:/wps
         uri: lb://wps-service #load balanced to the wps-service instances
@@ -62,7 +62,7 @@ spring:
         uri: lb://wps-service
         predicates:
         - Path=/ows,/{segment}/ows
-        - Query=SERVICE, (?i:WPS)
+        - RegExpQuery=(?i:service),(?i:wps) # match service=wps case insensitively 
 # REST configuration routes
       - id: restconfig
         uri: lb://restconfig-v1 #load balanced to the restconfig-v1 instances
@@ -79,10 +79,3 @@ logging:
 #    root: ERROR
     com.netflix.discovery: WARN
     com.netflix.eureka: WARN
-# ----------------
-# ----------------
-# Orphan comments:
-# ----------------
-# Was at begin of line:78 :# Orphan comments:
-# Was at begin of line:79 :# ----------------
-# Was at begin of line:80 :# Was at begin of line:78 :#         - RewritePath=/rest/(?<segment>.*), /rest/$\{segment}
