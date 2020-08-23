@@ -2,13 +2,12 @@
  * This code is licensed under the GPL 2.0 license, available at the root
  * application directory.
  */
-package org.geoserver.cloud.catalog.bus;
+package org.geoserver.cloud.bus.catalog;
 
 import javax.annotation.PostConstruct;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.catalog.Catalog;
-import org.geoserver.cloud.catalog.bus.events.CatalogRemoteEvent;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.cloud.bus.BusAutoConfiguration;
@@ -38,8 +37,8 @@ public class CatalogBusAutoConfiguration {
         return broadcaster;
     }
 
-    public @Bean CatalogRemoteEventProcessor catalogRemoteEventProcessor(
+    public @Bean ResourcePoolRemoteEventProcessor catalogRemoteEventProcessor(
             @Qualifier("rawCatalog") Catalog rawCatalog) {
-        return new CatalogRemoteEventProcessor(rawCatalog);
+        return new ResourcePoolRemoteEventProcessor(rawCatalog);
     }
 }

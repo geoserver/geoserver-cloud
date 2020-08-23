@@ -1,6 +1,6 @@
-/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
- * This code is licensed under the GPL 2.0 license, available at the root
- * application directory.
+/*
+ * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
+ * GPL 2.0 license, available at the root application directory.
  */
 package org.geoserver.cloud.autoconfigure.jdbcconfig;
 
@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.cloud.bus.ConditionalOnBusEnabled;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -29,6 +30,12 @@ import org.springframework.context.annotation.Import;
 @ConditionalOnProperty(prefix = "geoserver.jdbcconfig", name = "enabled", matchIfMissing = true)
 @Import({JDBCDataSourceConfiguration.class, JDBCConfigWebAutoConfiguration.class})
 public class JDBCConfigAutoConfiguration {
+
+    @Bean
+    @ConditionalOnBusEnabled
+    public JdbcConfigRemoteEventProcessor jdbcConfigRemoteEventProcessor() {
+        return new JdbcConfigRemoteEventProcessor();
+    }
 
     // <!-- main configuration, loaded via factory bean -->
     // <bean id="jdbcConfigProperties"

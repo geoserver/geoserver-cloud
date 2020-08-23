@@ -1,9 +1,10 @@
-/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
- * This code is licensed under the GPL 2.0 license, available at the root
- * application directory.
+/*
+ * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
+ * GPL 2.0 license, available at the root application directory.
  */
-package org.geoserver.cloud.catalog.bus;
+package org.geoserver.cloud.bus.catalog;
 
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogException;
@@ -16,10 +17,7 @@ import org.geoserver.catalog.event.CatalogPostModifyEvent;
 import org.geoserver.catalog.event.CatalogRemoveEvent;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.impl.ModificationProxy;
-import org.geoserver.cloud.catalog.bus.events.CatalogRemoteAddEvent;
-import org.geoserver.cloud.catalog.bus.events.CatalogRemoteEvent;
-import org.geoserver.cloud.catalog.bus.events.CatalogRemoteModifyEvent;
-import org.geoserver.cloud.catalog.bus.events.CatalogRemoteRemoveEvent;
+import org.geoserver.cloud.bus.catalog.CatalogRemoteEvent.CatalogRemoteEventFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.bus.BusAutoConfiguration;
 import org.springframework.cloud.bus.BusProperties;
@@ -37,7 +35,7 @@ import org.springframework.context.ApplicationEventPublisher;
  * CatalogListener} takes those events when changes to the catalog are performed on this instance
  * and publishes them to the cluster event bus.
  */
-@Slf4j
+@Slf4j(topic = "org.geoserver.cloud.catalog.bus.outgoing")
 public class CatalogRemoteEventBroadcaster implements CatalogListener {
 
     /** The event publisher, usually the {@link ApplicationContext} itself */
@@ -51,55 +49,47 @@ public class CatalogRemoteEventBroadcaster implements CatalogListener {
      */
     private @Autowired BusProperties busProperties;
 
-    private void publishRemoteEvent(CatalogRemoteEvent remoteEvent) {
-        log.info("broadcasting remote event {}", remoteEvent);
-        eventPublisher.publishEvent(remoteEvent);
+    public @Override String toString() {
+        return String.format("%s(%s)", getClass().getSimpleName(), busProperties.getId());
     }
 
     public @Override void handleAddEvent(CatalogAddEvent event) throws CatalogException {
-        String originService = busProperties.getId();
-        String destinationService = null; // all services
-        String catalogInfoId = event.getSource().getId();
-        ClassMappings catalogInfoEnumType = interfaceOf(event.getSource());
-        publishRemoteEvent(
-                new CatalogRemoteAddEvent(
-                        this,
-                        originService,
-                        destinationService,
-                        catalogInfoId,
-                        catalogInfoEnumType));
+        publishRemoteEvent(event, CatalogRemoteAddEvent::new);
     }
 
     public @Override void handleRemoveEvent(CatalogRemoveEvent event) throws CatalogException {
-        String originService = busProperties.getId();
-        String destinationService = null; // all services
-        String catalogInfoId = event.getSource().getId();
-        ClassMappings catalogInfoEnumType = interfaceOf(event.getSource());
-        publishRemoteEvent(
-                new CatalogRemoteRemoveEvent(
-                        this,
-                        originService,
-                        destinationService,
-                        catalogInfoId,
-                        catalogInfoEnumType));
+        publishRemoteEvent(event, CatalogRemoteRemoveEvent::new);
     }
 
     public @Override void handlePostModifyEvent(CatalogPostModifyEvent event)
             throws CatalogException {
-        String originService = busProperties.getId();
-        String destinationService = null; // all services
-        String catalogInfoId = event.getSource().getId();
-        ClassMappings catalogInfoEnumType = interfaceOf(event.getSource());
-        publishRemoteEvent(
-                new CatalogRemoteModifyEvent(
-                        this,
-                        originService,
-                        destinationService,
-                        catalogInfoId,
-                        catalogInfoEnumType));
+        publishRemoteEvent(event, CatalogRemoteModifyEvent::new);
     }
 
-    private ClassMappings interfaceOf(CatalogInfo source) {
+    private void publishRemoteEvent(
+            CatalogEvent localEvent, CatalogRemoteEventFactory remoteEventFactory) {
+        final CatalogInfo catalogInfo = localEvent.getSource();
+        if (catalogInfo instanceof Catalog) {
+            log.trace("ignoring CatalogImpl change event");
+        } else {
+            String originService = busProperties.getId();
+            String destinationService = null; // all services
+            String catalogInfoId = catalogInfo.getId();
+            ClassMappings catalogInfoEnumType = interfaceOf(catalogInfo);
+
+            CatalogRemoteEvent remoteEvent =
+                    remoteEventFactory.create(
+                            this,
+                            originService,
+                            destinationService,
+                            catalogInfoId,
+                            catalogInfoEnumType);
+            log.info("broadcasting {} upon {}", remoteEvent, localEvent.getClass().getSimpleName());
+            eventPublisher.publishEvent(remoteEvent);
+        }
+    }
+
+    private @NonNull ClassMappings interfaceOf(@NonNull CatalogInfo source) {
         source = ModificationProxy.unwrap(source);
         ClassMappings mappings = ClassMappings.fromImpl(source.getClass());
         return mappings;
