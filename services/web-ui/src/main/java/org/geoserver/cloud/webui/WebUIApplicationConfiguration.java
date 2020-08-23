@@ -38,8 +38,17 @@ import org.springframework.context.annotation.ImportResource;
 @Import({GeoServerCatalogConfig.class, GeoServerServletConfig.class})
 @ImportResource( //
     reader = FilteringXmlBeanDefinitionReader.class, //
-    locations = {
-        "jar:gs-web-.*!/applicationContext.xml", //
+    locations = { //
+        "jar:gs-web-core-.*!/applicationContext.xml", //
+        "jar:gs-web-sec-core-.*!/applicationContext.xml", //
+        "jar:gs-web-sec-jdbc-.*!/applicationContext.xml", //
+        "jar:gs-web-sec-ldap-.*!/applicationContext.xml", //
+        "jar:gs-web-rest-.*!/applicationContext.xml", //
+        "jar:gs-web-wps-.*!/applicationContext.xml", //
+        "jar:gs-web-demo-.*!/applicationContext.xml", //
+        "jar:gs-web-wcs-.*!/applicationContext.xml", //
+        "jar:gs-web-wfs-.*!/applicationContext.xml", //
+        "jar:gs-web-wms-.*!/applicationContext.xml", //
         "jar:gs-wms-.*!/applicationContext.xml", //
         "jar:gs-wfs-.*!/applicationContext.xml", //
         "jar:gs-wcs-.*!/applicationContext.xml" //

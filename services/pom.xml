@@ -24,8 +24,19 @@
         <artifactId>gs-cloud-catalog</artifactId>
         <version>${project.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.geoserver.extension</groupId>
+        <artifactId>gs-web-resource</artifactId>
+        <version>${gs.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
+  <dependencies>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+    </dependency>
+  </dependencies>
   <modules>
     <module>common</module>
     <module>catalog</module>

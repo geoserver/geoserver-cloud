@@ -20,10 +20,6 @@
       <groupId>org.geoserver</groupId>
       <artifactId>gs-main</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-    </dependency>
 
     <dependency>
       <groupId>org.springframework.boot</groupId>
