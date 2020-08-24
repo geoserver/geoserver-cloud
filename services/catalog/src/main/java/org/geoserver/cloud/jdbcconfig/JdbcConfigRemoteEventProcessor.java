@@ -2,7 +2,7 @@
  * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
  * GPL 2.0 license, available at the root application directory.
  */
-package org.geoserver.cloud.autoconfigure.jdbcconfig;
+package org.geoserver.cloud.jdbcconfig;
 
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.catalog.CatalogInfo;

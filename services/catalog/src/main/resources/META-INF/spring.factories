@@ -1,5 +1,4 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 org.geoserver.cloud.autoconfigure.jdbcconfig.JDBCConfigAutoConfiguration,\
 org.geoserver.cloud.autoconfigure.jdbcconfig.JDBCStoreAutoConfiguration,\
-org.geoserver.cloud.bus.catalog.CatalogBusAutoConfiguration,\
-org.geoserver.cloud.bus.catalog.BusDisabledLogger
+org.geoserver.cloud.autoconfigure.bus.CatalogBusAutoConfiguration

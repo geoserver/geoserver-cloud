@@ -2,6 +2,7 @@ geoserver:
   web.resource-browser.enabled: true # flag to turn off web resource browser tool in the UI
   jdbcconfig:
     enabled: true
+    web.enabled: true
     datasource:
       jdbcUrl: ${jdbcconfig.url:"jdbc:postgresql://localhost:5432/geoserver_config"}
       username: ${jdbcconfig.username:postgres}

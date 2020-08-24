@@ -2,7 +2,7 @@
  * This code is licensed under the GPL 2.0 license, available at the root
  * application directory.
  */
-package org.geoserver.cloud.autoconfigure.jdbcconfig;
+package org.geoserver.cloud.jdbcconfig;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -21,7 +21,7 @@ import org.geoserver.platform.resource.Resource;
  * Extends {@link JDBCResourceStoreProperties} to not need a {@link
  * JDBCResourceStorePropertiesFactoryBean}
  */
-class CloudJdbcStoreProperties extends JDBCResourceStoreProperties {
+public class CloudJdbcStoreProperties extends JDBCResourceStoreProperties {
     private static final long serialVersionUID = 1L;
     private DataSource dataSource;
 

@@ -4,16 +4,12 @@
  */
 package org.geoserver.cloud.catalog;
 
-import org.geoserver.cloud.autoconfigure.EnableBusEventHandling;
-import org.geoserver.cloud.autoconfigure.EnableJdbcConfig;
 import org.geoserver.cloud.config.main.GeoServerSecurityConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 @Configuration
-@Import(GeoServerSecurityConfiguration.class)
 @EnableAutoConfiguration
-@EnableJdbcConfig
-@EnableBusEventHandling
+@Import(GeoServerSecurityConfiguration.class)
 public class GeoServerCatalogConfig {}
