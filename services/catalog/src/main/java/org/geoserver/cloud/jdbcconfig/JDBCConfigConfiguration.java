@@ -18,6 +18,7 @@ import org.geoserver.jdbcconfig.internal.XStreamInfoSerialBinding;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.DataDirectoryResourceStore;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -53,6 +54,8 @@ import org.springframework.context.annotation.Import;
 @Import({JDBCDataSourceConfiguration.class, JDBCConfigWebConfiguration.class})
 public class JDBCConfigConfiguration {
 
+    private @Value("${geoserver.jdbcconfig.datasource.jdbcUrl}") String jdbcUrl;
+
     @Bean
     @ConditionalOnBusEnabled
     public JdbcConfigRemoteEventProcessor jdbcConfigRemoteEventProcessor() {
@@ -67,7 +70,10 @@ public class JDBCConfigConfiguration {
     @ConfigurationProperties(prefix = "geoserver.jdbcconfig")
     public @Bean("JDBCConfigProperties") JDBCConfigProperties jdbcConfigProperties(
             @Qualifier("jdbcConfigDataSource") DataSource dataSource) {
-        return new CloudJdbcConfigProperties(dataSource);
+        CloudJdbcConfigProperties configProperties = new CloudJdbcConfigProperties(dataSource);
+        // dataSourceId shows up in geoserver's home page so set it here
+        configProperties.setDatasourceId(jdbcUrl);
+        return configProperties;
     }
 
     // <bean id="jdbcPersistenceBinding"
