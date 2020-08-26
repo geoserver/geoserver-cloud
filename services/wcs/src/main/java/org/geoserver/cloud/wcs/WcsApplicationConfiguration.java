@@ -4,9 +4,7 @@
  */
 package org.geoserver.cloud.wcs;
 
-import org.geoserver.cloud.catalog.GeoServerCatalogConfig;
-import org.geoserver.cloud.core.FilteringXmlBeanDefinitionReader;
-import org.geoserver.cloud.core.GeoServerServletConfig;
+import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
@@ -15,7 +13,6 @@ import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfigurat
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportResource;
 
 @Configuration
@@ -29,7 +26,6 @@ import org.springframework.context.annotation.ImportResource;
         ManagementWebSecurityAutoConfiguration.class
     }
 )
-@Import({GeoServerCatalogConfig.class, GeoServerServletConfig.class})
 @ImportResource( //
     reader = FilteringXmlBeanDefinitionReader.class, //
     locations = { //

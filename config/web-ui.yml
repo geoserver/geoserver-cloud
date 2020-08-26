@@ -1,4 +1,5 @@
 geoserver:
+  servlet.filter.session-debug.enabled: false # until the NPE is fixed
   web.resource-browser.enabled: true # flag to turn off web resource browser tool in the UI
   jdbcconfig:
     enabled: true
@@ -31,6 +32,8 @@ logging:
   level:
 #      org.springframework: ERROR
     org.geoserver.cloud: DEBUG
+    org.geoserver.cloud.autoconfigure: DEBUG
     oshi.hardware.platform.linux: OFF
     org.geoserver.jdbcconfig: INFO
     org.geoserver.jdbcconfig.internal: INFO
+    org.springframework.context.support.PostProcessorRegistrationDelegate: WARN

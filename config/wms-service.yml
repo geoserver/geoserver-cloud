@@ -1,4 +1,5 @@
 geoserver:
+  servlet.filter.session-debug.enabled: false # until the NPE is fixed
   jdbcconfig:
     enabled: true
     datasource:
@@ -29,6 +30,8 @@ logging:
   level:
 #    org.springframework: ERROR
     org.geoserver.cloud: DEBUG
+    org.geoserver.cloud.autoconfigure: DEBUG
     oshi.hardware.platform.linux: OFF
     org.geoserver.jdbcconfig: INFO
     org.geoserver.jdbcconfig.internal: INFO
+    org.springframework.context.support.PostProcessorRegistrationDelegate: WARN

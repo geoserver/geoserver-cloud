@@ -2,16 +2,18 @@
  * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
  * GPL 2.0 license, available at the root application directory.
  */
-package org.geoserver.cloud.core;
+package org.geoserver.cloud.config.servlet;
 
 import javax.servlet.Filter;
 import org.geoserver.GeoserverInitStartupListener;
 import org.geoserver.cloud.config.main.GeoServerMainConfiguration;
 import org.geoserver.filters.FlushSafeFilter;
+import org.geoserver.filters.SessionDebugFilter;
 import org.geoserver.filters.SpringDelegatingFilter;
 import org.geoserver.filters.ThreadLocalsCleanupFilter;
 import org.geoserver.platform.AdvancedDispatchFilter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +22,13 @@ import org.springframework.web.context.request.RequestContextListener;
 
 @Configuration
 @Import(GeoServerMainConfiguration.class)
-public class GeoServerServletConfig {
+public class GeoServerServletContextConfiguration {
+
+    private static final int FLUSH_SAFE_FILTER_ORDER = 1;
+    private static final int SESSION_DEBUG_FILTER_ORDER = 2;
+    private static final int SPRING_DELEGATING_FILTER_ORDER = 3;
+    private static final int ADVANCED_DISPATCH_FILTER_ORDER = 4;
+    private static final int THREAD_LOCALS_CLEANUP_FILTER_ORDER = 5;
 
     // Listeners
     public @Bean GeoserverInitStartupListener initStartupListener() {
@@ -41,13 +49,45 @@ public class GeoServerServletConfig {
      * A servlet filter making sure we cannot end up calling flush() on the response output stream
      * after close() has been called (https://osgeo-org.atlassian.net/browse/GEOS-5985)
      */
+    @ConditionalOnProperty(
+        prefix = "geoserver.servlet.filter.flush-safe",
+        name = "enabled",
+        havingValue = "true",
+        matchIfMissing = true
+    )
     public @Bean FlushSafeFilter flushSafeFilter() {
         return new FlushSafeFilter();
     }
 
-    //    public @Bean SessionDebugFilter sessionDebugFilter() {
-    //        return new SessionDebugFilter();
-    //    }
+    @ConditionalOnProperty(
+        prefix = "geoserver.servlet.filter.flush-safe",
+        name = "enabled",
+        havingValue = "true",
+        matchIfMissing = true
+    )
+    public @Bean FilterRegistrationBean<FlushSafeFilter> flushSafeFilterReg() {
+        return newRegistration(flushSafeFilter(), FLUSH_SAFE_FILTER_ORDER);
+    }
+
+    @ConditionalOnProperty(
+        prefix = "geoserver.servlet.filter.session-debug",
+        name = "enabled",
+        havingValue = "true",
+        matchIfMissing = true
+    )
+    public @Bean SessionDebugFilter sessionDebugFilter() {
+        return new SessionDebugFilter();
+    }
+
+    @ConditionalOnProperty(
+        prefix = "geoserver.servlet.filter.session-debug",
+        name = "enabled",
+        havingValue = "true",
+        matchIfMissing = true
+    )
+    public @Bean FilterRegistrationBean<SessionDebugFilter> sessionDebugFilterFilterReg() {
+        return newRegistration(sessionDebugFilter(), SESSION_DEBUG_FILTER_ORDER);
+    }
 
     /**
      * Allows for a single mapping ({@code /*}) for all requests to the spring dispatcher. It
@@ -63,6 +103,10 @@ public class GeoServerServletConfig {
         return new AdvancedDispatchFilter();
     }
 
+    public @Bean FilterRegistrationBean<AdvancedDispatchFilter> advancedDispatchFilterReg() {
+        return newRegistration(advancedDispatchFilter(), ADVANCED_DISPATCH_FILTER_ORDER);
+    }
+
     /**
      * Allows for filters to be loaded via spring rather than registered here in web.xml. One thing
      * to note is that for such filters init() is not called. INstead any initialization is
@@ -72,29 +116,17 @@ public class GeoServerServletConfig {
         return new SpringDelegatingFilter();
     }
 
-    /** Cleans up thread locals Geotools is setting up for concurrency and performance reasons */
+    public @Bean FilterRegistrationBean<SpringDelegatingFilter> springDelegatingFilterReg() {
+        return newRegistration(springDelegatingFilter(), SPRING_DELEGATING_FILTER_ORDER);
+    }
+
+    /** Cleans up thread locals GeoTools is setting up for concurrency and performance reasons */
     public @Bean ThreadLocalsCleanupFilter threadLocalsCleanupFilter() {
         return new ThreadLocalsCleanupFilter();
     }
 
-    public @Bean FilterRegistrationBean<FlushSafeFilter> flushSafeFilterReg() {
-        return newRegistration(flushSafeFilter(), 1);
-    }
-
-    //    public @Bean FilterRegistrationBean<SessionDebugFilter> sessionDebugFilterFilterReg() {
-    //        return newRegistration(sessionDebugFilter(), 2);
-    //    }
-
-    public @Bean FilterRegistrationBean<AdvancedDispatchFilter> advancedDispatchFilterReg() {
-        return newRegistration(advancedDispatchFilter(), 4);
-    }
-
-    public @Bean FilterRegistrationBean<SpringDelegatingFilter> springDelegatingFilterReg() {
-        return newRegistration(springDelegatingFilter(), 3);
-    }
-
     public @Bean FilterRegistrationBean<ThreadLocalsCleanupFilter> threadLocalsCleanupFilterReg() {
-        return newRegistration(threadLocalsCleanupFilter(), 5);
+        return newRegistration(threadLocalsCleanupFilter(), THREAD_LOCALS_CLEANUP_FILTER_ORDER);
     }
 
     private <T extends Filter> FilterRegistrationBean<T> newRegistration(T filter, int order) {

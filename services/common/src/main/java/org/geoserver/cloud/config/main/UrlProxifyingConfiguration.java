@@ -1,6 +1,6 @@
-/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
- * This code is licensed under the GPL 2.0 license, available at the root
- * application directory.
+/*
+ * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
+ * GPL 2.0 license, available at the root application directory.
  */
 package org.geoserver.cloud.config.main;
 
@@ -10,12 +10,19 @@ import org.geoserver.ows.Dispatcher;
 import org.geoserver.ows.ProxifyingURLMangler;
 import org.geoserver.ows.URLMangler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.web.context.request.NativeWebRequest;
 
 @Configuration
+@ConditionalOnProperty(
+    prefix = "geoserver.proxy-urls",
+    name = "enabled",
+    havingValue = "true",
+    matchIfMissing = true
+)
 public class UrlProxifyingConfiguration {
 
     /**

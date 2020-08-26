@@ -4,9 +4,7 @@
  */
 package org.geoserver.cloud.wms;
 
-import org.geoserver.cloud.catalog.GeoServerCatalogConfig;
-import org.geoserver.cloud.core.FilteringXmlBeanDefinitionReader;
-import org.geoserver.cloud.core.GeoServerServletConfig;
+import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
 import org.geoserver.config.GeoServer;
 import org.geoserver.wfs.xml.FeatureTypeSchemaBuilder;
 import org.geoserver.wfs.xml.GML3OutputFormat;
@@ -21,7 +19,6 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfi
 import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportResource;
 
 @Configuration
@@ -35,7 +32,6 @@ import org.springframework.context.annotation.ImportResource;
         ManagementWebSecurityAutoConfiguration.class
     }
 )
-@Import({GeoServerCatalogConfig.class, GeoServerServletConfig.class})
 @ImportResource( //
     reader = FilteringXmlBeanDefinitionReader.class, //
     locations = "jar:gs-wms-.*!/applicationContext.xml" //

@@ -5,9 +5,7 @@
 package org.geoserver.cloud.webui;
 
 import org.apache.wicket.protocol.http.WicketServlet;
-import org.geoserver.cloud.catalog.GeoServerCatalogConfig;
-import org.geoserver.cloud.core.FilteringXmlBeanDefinitionReader;
-import org.geoserver.cloud.core.GeoServerServletConfig;
+import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
 import org.geoserver.web.GeoServerWicketServlet;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -20,7 +18,6 @@ import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServic
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportResource;
 
 @Configuration
@@ -35,7 +32,6 @@ import org.springframework.context.annotation.ImportResource;
         LdapAutoConfiguration.class
     }
 )
-@Import({GeoServerCatalogConfig.class, GeoServerServletConfig.class})
 @ImportResource( //
     reader = FilteringXmlBeanDefinitionReader.class, //
     locations = { //

@@ -5,7 +5,7 @@
 package org.geoserver.cloud.config.main;
 
 import org.geoserver.catalog.Catalog;
-import org.geoserver.cloud.core.FilteringXmlBeanDefinitionReader;
+import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
 import org.geoserver.config.GeoServerDataDirectory;
 import org.geoserver.security.SecureCatalogImpl;
 import org.geoserver.security.impl.DataAccessRuleDAO;
@@ -24,21 +24,23 @@ import org.springframework.context.annotation.ImportResource;
     locations = "jar:gs-main-.*!/applicationContext.xml" //
 )
 public class GeoServerMainConfiguration {
-    /** Required when {@link GeoServerSecurityConfiguration} is not included */
-    @Bean(name = "secureCatalog")
-    @ConditionalOnMissingBean(org.geoserver.security.GeoServerSecurityManager.class)
-    @DependsOn({"extensions"})
-    public SecureCatalogImpl secureCatalog(@Qualifier("rawCatalog") Catalog rawCatalog)
-            throws Exception {
-        return new SecureCatalogImpl(rawCatalog);
-    }
 
-    /** Required when {@link GeoServerSecurityConfiguration} is not included */
+    /** Required when {@link GeoServerSecurityDisabledAutoConfiguration} is not included */
+    @Bean(name = "accessRulesDao")
     @ConditionalOnMissingBean(org.geoserver.security.GeoServerSecurityManager.class)
     @DependsOn({"extensions"})
     public DataAccessRuleDAO accessRulesDao(
             GeoServerDataDirectory dd, @Qualifier("rawCatalog") Catalog rawCatalog)
             throws Exception {
         return new DataAccessRuleDAO(dd, rawCatalog);
+    }
+
+    /** Required when {@link GeoServerSecurityDisabledAutoConfiguration} is not included */
+    @Bean(name = "secureCatalog")
+    @ConditionalOnMissingBean(org.geoserver.security.GeoServerSecurityManager.class)
+    @DependsOn({"extensions"})
+    public SecureCatalogImpl secureCatalog(@Qualifier("rawCatalog") Catalog rawCatalog)
+            throws Exception {
+        return new SecureCatalogImpl(rawCatalog);
     }
 }

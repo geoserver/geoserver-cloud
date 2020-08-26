@@ -5,7 +5,7 @@
 package org.geoserver.cloud.configuration.webui;
 
 import org.geoserver.cloud.autoconfigure.web.resource.WebResourceBrowserAutoConfiguration;
-import org.geoserver.cloud.core.FilteringXmlBeanDefinitionReader;
+import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 

@@ -2,7 +2,7 @@
  * This code is licensed under the GPL 2.0 license, available at the root
  * application directory.
  */
-package org.geoserver.cloud.core;
+package org.geoserver.cloud.config.factory;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -71,6 +71,8 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
                     } catch (BeanDefinitionStoreException fnf) {
                         if (fnf.getCause() instanceof FileNotFoundException) {
                             log.info("No {} in {}, skipping.", resourcePattern, uri);
+                        } else {
+                            throw fnf;
                         }
                     }
                 }

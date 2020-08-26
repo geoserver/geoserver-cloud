@@ -1,8 +1,8 @@
-/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
- * This code is licensed under the GPL 2.0 license, available at the root
- * application directory.
+/*
+ * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
+ * GPL 2.0 license, available at the root application directory.
  */
-package org.geoserver.cloud.core;
+package org.geoserver.cloud.config.servlet;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -13,7 +13,6 @@ import org.geoserver.platform.resource.DataDirectoryResourceStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Component;
 
 /**
  * Replaces the {@link GeoServerContextLoaderListener} listener in web.xml that otherwise would
@@ -25,7 +24,6 @@ import org.springframework.stereotype.Component;
  * DataDirectoryResourceStore}, for some reason they will not being set automatically, and hence the
  * data directory won't be initialized
  */
-@Component
 public class GeoServerServletInitializer implements ServletContextInitializer {
 
     private @Autowired ApplicationContext context;
@@ -33,9 +31,6 @@ public class GeoServerServletInitializer implements ServletContextInitializer {
     private @Autowired GeoServerResourceLoader resourceLoader;
 
     private @Autowired DataDirectoryResourceStore resourceStore;
-
-    //    public @Override void contextInitialized(ServletContextEvent sce) {
-    //    }
 
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
