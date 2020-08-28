@@ -93,10 +93,6 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>com.spotify</groupId>
-        <artifactId>dockerfile-maven-plugin</artifactId>
-      </plugin>
-      <plugin>
         <!-- test data, remove once we get rid of it -->
         <artifactId>maven-resources-plugin</artifactId>
         <executions>
@@ -122,8 +118,22 @@
   </build>
   <profiles>
     <profile>
+      <id>docker</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.spotify</groupId>
+            <artifactId>dockerfile-maven-plugin</artifactId>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
       <!-- temporary measure to include dependencies not really needed for this service but whose absence make the jdbcconfig 
-        catalog fail exceptions like "com.thoughtworks.xstream.mapper.CannotResolveClassException: org.geoserver.gwc.wmts.WMTSInfoImpl". 
+        catalog fail with exceptions like "com.thoughtworks.xstream.mapper.CannotResolveClassException: org.geoserver.gwc.wmts.WMTSInfoImpl". 
         Nonetheless, the spring configuration for these extra dependencies won't be loaded at all -->
       <id>jdbcconfig</id>
       <activation>
@@ -145,7 +155,6 @@
         <dependency>
           <groupId>org.geoserver</groupId>
           <artifactId>gs-gwc</artifactId>
-          <version>${gs.version}</version>
         </dependency>
       </dependencies>
     </profile>
