@@ -1,4 +1,5 @@
-FROM org.geoserver.cloud/gs-cloud-docker-base-java:latest
+ARG TAG
+FROM org.geoserver.cloud/gs-cloud-docker-base-java:${TAG}
 
 ARG JAR_FILE=dummy
 ADD target/${JAR_FILE} /opt/app/restconfig-service.jar

@@ -60,10 +60,6 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>com.spotify</groupId>
-        <artifactId>dockerfile-maven-plugin</artifactId>
-      </plugin>
-      <plugin>
         <!-- copy the config directory to the classpath -->
         <artifactId>maven-resources-plugin</artifactId>
         <executions>
@@ -88,4 +84,20 @@
     </plugins>
   </build>
 
+  <profiles>
+    <profile>
+      <id>docker</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.spotify</groupId>
+            <artifactId>dockerfile-maven-plugin</artifactId>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>

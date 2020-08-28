@@ -228,6 +228,7 @@
             <repository>${docker.image.prefix}/${project.artifactId}</repository>
             <tag>${project.version}</tag>
             <buildArgs>
+              <TAG>${project.version}</TAG>
               <JAR_FILE>${project.build.finalName}-bin.jar</JAR_FILE>
             </buildArgs>
           </configuration>
