@@ -1,0 +1,6 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+org.geoserver.cloud.autoconfigure.core.GeoServerWebMvcMainAutoConfiguration,\
+org.geoserver.cloud.autoconfigure.security.GeoServerSecurityAutoConfiguration,\
+org.geoserver.cloud.autoconfigure.security.GeoServerSecurityAutoConfiguration$Disabled,\
+org.geoserver.cloud.autoconfigure.servlet.GeoServerServletContextAutoConfiguration,\
+org.geoserver.cloud.autoconfigure.servlet.GeoServerServletContextAutoConfiguration$Disabled

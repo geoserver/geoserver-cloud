@@ -1,0 +1,8 @@
+geoserver.jdbcconfig.enabled: false
+spring:
+  main:
+    banner-mode: off
+    allow-bean-definition-overriding: true
+  cloud.config.enabled: false
+  cloud.config.discovery.enabled: false
+eureka.client.enabled: false

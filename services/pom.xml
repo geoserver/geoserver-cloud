@@ -8,38 +8,11 @@
     <version>0.1-SNAPSHOT</version>
   </parent>
 
-  <artifactId>gs-microservices</artifactId>
+  <artifactId>gs-cloud-services-parent</artifactId>
   <name>Parent pom for GeoServer microservices</name>
   <packaging>pom</packaging>
 
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.geoserver.cloud</groupId>
-        <artifactId>gs-cloud-common</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.geoserver.cloud</groupId>
-        <artifactId>gs-cloud-catalog</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.geoserver.extension</groupId>
-        <artifactId>gs-web-resource</artifactId>
-        <version>${gs.version}</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
-  <dependencies>
-    <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-    </dependency>
-  </dependencies>
   <modules>
-    <module>common</module>
-    <module>catalog</module>
     <module>wfs</module>
     <module>wms</module>
     <module>wcs</module>
@@ -47,4 +20,12 @@
     <module>restconfig</module>
     <module>web-ui</module>
   </modules>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 </project>

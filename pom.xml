@@ -75,7 +75,6 @@
     </repository>
   </repositories>
 
-
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -91,6 +90,36 @@
         <version>${spring-boot.version}</version>
         <type>pom</type>
         <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud</groupId>
+        <artifactId>gs-cloud-starter-webmvc</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud</groupId>
+        <artifactId>gs-cloud-starter-reactive</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud</groupId>
+        <artifactId>gs-cloud-pluggable-catalog-support</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud</groupId>
+        <artifactId>gs-cloud-catalog-event-bus</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud</groupId>
+        <artifactId>gs-cloud-catalog-cache</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud</groupId>
+        <artifactId>gs-cloud-catalog-backend-starter</artifactId>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <!-- originally transitive from spring-cloud-starter-netflix-eureka-server, adding explicitly to exclude ribbon in 
@@ -114,6 +143,16 @@
         <groupId>org.geoserver</groupId>
         <artifactId>gs-main</artifactId>
         <version>${gs.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.geoserver</groupId>
@@ -184,23 +223,59 @@
         <groupId>org.geoserver.community</groupId>
         <artifactId>gs-jdbcconfig</artifactId>
         <version>${gs.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.geoserver.community</groupId>
         <artifactId>gs-jdbcstore</artifactId>
         <version>${gs.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.geoserver</groupId>
         <artifactId>gs-gwc</artifactId>
         <version>${gs.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.geoserver.extension</groupId>
+        <artifactId>gs-web-resource</artifactId>
+        <version>${gs.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
-
+  <dependencies>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
   <build>
     <pluginManagement>
       <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.8.1</version>
+        </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-resources-plugin</artifactId>
@@ -208,6 +283,11 @@
           <configuration>
             <encoding>UTF-8</encoding>
           </configuration>
+        </plugin>
+        <plugin>
+          <groupId>com.coveo</groupId>
+          <artifactId>fmt-maven-plugin</artifactId>
+          <version>2.4.0</version>
         </plugin>
         <plugin>
           <!-- https://github.com/spotify/dockerfile-maven -->
@@ -249,13 +329,31 @@
             <classifier>bin</classifier>
           </configuration>
         </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-failsafe-plugin</artifactId>
+          <dependencies>
+            <dependency>
+              <groupId>org.apache.maven.surefire</groupId>
+              <artifactId>surefire-junit47</artifactId>
+              <version>3.0.0-M5</version>
+            </dependency>
+          </dependencies>
+          <executions>
+            <execution>
+              <goals>
+                <goal>integration-test</goal>
+                <goal>verify</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
       </plugins>
     </pluginManagement>
     <plugins>
       <plugin>
         <groupId>com.coveo</groupId>
         <artifactId>fmt-maven-plugin</artifactId>
-        <version>2.4.0</version>
         <configuration>
           <verbose>false</verbose>
           <filesNamePattern>.*\.java</filesNamePattern>
@@ -273,7 +371,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.1</version>
         <configuration>
           <release>11</release>
           <debug>true</debug>
@@ -282,11 +379,17 @@
           <maxmem>${javac.maxHeapSize}</maxmem>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+      </plugin>
     </plugins>
   </build>
   <modules>
     <module>docker-base-java</module>
     <module>support-services</module>
+    <module>catalog-support</module>
+    <module>starters</module>
     <module>services</module>
   </modules>
 </project>

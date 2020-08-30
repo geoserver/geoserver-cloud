@@ -1,5 +1,0 @@
-server.servlet.context-parameters.GEOSERVER_DATA_DIR: target/test_data_directory
-spring:
-  main:
-    banner-mode: off
-    allow-bean-definition-overriding: true

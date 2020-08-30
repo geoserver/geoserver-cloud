@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.geoserver.cloud</groupId>
-    <artifactId>gs-microservices</artifactId>
+    <artifactId>gs-cloud-services-parent</artifactId>
     <version>0.1-SNAPSHOT</version>
   </parent>
   <artifactId>gs-cloud-web-ui</artifactId>
@@ -15,53 +15,18 @@
   </properties>
   <dependencies>
     <dependency>
-      <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-      <exclusions>
-        <!-- exclude ribbon dependencies in favor of spring-cloud-loadbalancer -->
-        <exclusion>
-          <groupId>org.springframework.cloud</groupId>
-          <artifactId>spring-cloud-starter-netflix-ribbon</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.netflix.ribbon</groupId>
-          <artifactId>ribbon-eureka</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-config-client</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.retry</groupId>
-      <artifactId>spring-retry</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-aop</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-actuator</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-common</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-catalog</artifactId>
+      <artifactId>gs-cloud-starter-webmvc</artifactId>
     </dependency>
     <dependency>
       <groupId>org.geoserver.web</groupId>
       <artifactId>gs-web-app</artifactId>
       <version>${gs.version}</version>
       <exclusions>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-log4j12</artifactId>
+        </exclusion>
         <exclusion>
           <groupId>org.geoserver</groupId>
           <artifactId>gs-rest</artifactId>
@@ -108,12 +73,6 @@
     <dependency>
       <groupId>org.geoserver.extension</groupId>
       <artifactId>gs-web-resource</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-test</artifactId>
-      <scope>test</scope>
     </dependency>
   </dependencies>
 
