@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.geoserver.cloud</groupId>
     <artifactId>gs-support-services</artifactId>
-    <version>0.1.0</version>
+    <version>0.2-SNAPSHOT</version>
   </parent>
   <artifactId>gs-cloud-database</artifactId>
   <name>Database service</name>
