@@ -1,0 +1,69 @@
+geoserver:
+  security.enabled: false
+  catalog:
+    # Disable advertised catalog, it checks the org.geoserver.ows.Dispatcher.REQUEST to check if an OWS is in progress,
+    # which can never be the case, and causes a java.lang.NoClassDefFoundError on org.springframework.web.servlet.mvc.AbstractController
+    advertised: false
+    # Disable LocalWorkspaceCatalog decorator, this service exposes a "raw catalog" backend, there's no concept of local workspaces
+    localWorkspace: false
+    secure: false
+  catalog-service:
+    worker-threads:
+      max-size: 8
+      max-queued: 10000
+  backend:
+    data-directory:
+      enabled: false
+      location: ${GEOSERVER_DATA_DIR:${java.io.tmpdir}/default_data_directory} 
+    jdbcconfig:
+      enabled: true
+      initdb: false
+      web.enabled: false
+      cache-directory: ${jdbcconfig.cachedir:${java.io.tmpdir}/geoserver-jdbcconfig-cache}
+      datasource:
+        jdbcUrl: ${jdbcconfig.url:"jdbc:postgresql://database:5432/geoserver_config"}
+        username: ${jdbcconfig.username:geoserver}
+        password: ${jdbcconfig.password:geo$erver}
+        driverClassname: ${jdbcconfig.driverClassname:org.postgresql.Driver}
+        # optional:
+        schema: public
+        minimumIdle: 2
+        maximumPoolSize: 8
+
+spring:
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_URSER:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+  cloud:
+    bus:
+      enabled: true
+      id: ${server.instance-id} # use the same instance id for eureka (see service's' bootstrap.yml) and cloud-bus' rabbitmq instance id
+      trace.enabled: true #switch on tracing of acks (default off).
+    stream:
+      bindings:
+        springCloudBusOutput:
+          destination: gscatalog
+        springCloudBusInput:
+          destination: gscatalog
+
+logging:
+  level:
+    root: WARN
+    org.springframework: ERROR
+    org.springframework.cloud.bus: INFO
+    # geoserver roots
+    org.geoserver: INFO
+    org.geoserver.platform: ERROR
+    org.geoserver.jdbcconfig: INFO
+    oshi.hardware.platform.linux: ERROR
+    oshi.software.os: ERROR
+    # gs-cloud roots
+    org.geoserver.cloud: INFO
+    org.geoserver.cloud.autoconfigure: INFO
+    org.geoserver.cloud.config.factory: INFO
+    # bus debugging
+    org.geoserver.cloud.bus: INFO
+    org.springframework.cloud.bus.BusAutoConfiguration: INFO
+    org.springframework.cloud.bus.DefaultBusPathMatcher: INFO

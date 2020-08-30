@@ -1,0 +1,15 @@
+# Profile to run standalone, disabling config and eureka clients
+geoserver:
+  jdbcconfig.enabled: false
+  catalog:
+    data-directory: ${java.io.tmpdir}/geoserver_data_directory_it
+
+spring:
+  main:
+    banner-mode: off
+    allow-bean-definition-overriding: true
+  cloud.config.enabled: false
+  cloud.config.discovery.enabled: false
+eureka.client.enabled: false
+
+    

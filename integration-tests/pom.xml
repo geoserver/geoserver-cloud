@@ -8,18 +8,12 @@
     <version>0.2-SNAPSHOT</version>
   </parent>
 
-  <artifactId>gs-cloud-services-parent</artifactId>
-  <name>Parent pom for GeoServer microservices</name>
+  <artifactId>integration-tests</artifactId>
+  <name>Integration tests parent</name>
   <packaging>pom</packaging>
 
   <modules>
-    <module>catalog</module>
-    <module>wfs</module>
-    <module>wms</module>
-    <module>wcs</module>
-    <module>wps</module>
-    <module>restconfig</module>
-    <module>web-ui</module>
+    <module>catalog-service-it</module>
   </modules>
 
   <dependencies>

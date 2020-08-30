@@ -133,6 +133,11 @@
       </dependency>
       <dependency>
         <groupId>org.geoserver.cloud</groupId>
+        <artifactId>gs-cloud-catalog-client</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud</groupId>
         <artifactId>gs-cloud-catalog</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -722,6 +727,7 @@
     <module>catalog-support</module>
     <module>starters</module>
     <module>services</module>
+    <module>integration-tests</module>
   </modules>
   <profiles>
     <profile>

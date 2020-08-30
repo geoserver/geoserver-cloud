@@ -14,13 +14,15 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
-@EnableAutoConfiguration(
+@EnableAutoConfiguration(exclude = {ReactiveSecurityAutoConfiguration.class,
     exclude = {
         ReactiveSecurityAutoConfiguration.class,
         ReactiveManagementWebSecurityAutoConfiguration.class,
         ReactiveUserDetailsServiceAutoConfiguration.class
+    public WebClient.Builder loadBalancedWebClientBuilder() {
+        return WebClient.builder();
     }
-)
+}
 public class TestConfiguration {
 
     @Bean

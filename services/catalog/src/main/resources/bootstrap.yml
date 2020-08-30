@@ -1,0 +1,54 @@
+geoserver:
+  security.enabled: false
+  catalog:
+    # Disable advertised catalog, it checks the org.geoserver.ows.Dispatcher.REQUEST to check if an OWS is in progress,
+    # which can never be the case, and causes a java.lang.NoClassDefFoundError on org.springframework.web.servlet.mvc.AbstractController
+    advertised: false
+    # Disable LocalWorkspaceCatalog decorator, this service exposes a "raw catalog" backend, there's no concept of local workspaces
+    localWorkspace: false
+    secure: false
+  catalog-service:
+    worker-threads:
+      max-size: 16
+      max-queued: 10000
+server:
+  port: 8080
+  instance-id: ${spring.application.name}:${spring.application.instance_id:${spring.cloud.client.ip-address}}:${server.port}
+spring:
+  main:
+    banner-mode: off
+    web-application-type: REACTIVE
+    allow-bean-definition-overriding: true
+  application:
+    name: catalog-service
+  cloud:
+    loadbalancer.ribbon.enabled: false # ribbon is in maintenance mode and should be replaced by spring-cloud-loadbalancer
+    config:
+      fail-fast: true
+      retry:
+        max-attempts: 20
+      discovery:
+        enabled: true
+        service-id: config-service
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration
+      - org.springframework.boot.autoconfigure.security.reactive.ReactiveUserDetailsServiceAutoConfiguration
+      - org.springframework.boot.actuate.autoconfigure.security.reactive.ReactiveManagementWebSecurityAutoConfiguration
+
+eureka:
+  instance:
+    hostname: ${spring.application.name}
+    instance-id: ${server.instance-id}
+    preferIpAddress: true
+    lease-expiration-duration-in-seconds: 30
+    lease-renewal-interval-in-seconds: 30
+  client:
+    enabled: true
+    registerWithEureka: true
+    fetchRegistry: true
+    registry-fetch-interval-seconds: 30
+    serviceUrl:
+      defaultZone: ${eureka.server.url:http://localhost:8761/eureka}
+    healthcheck:
+      enabled: false
