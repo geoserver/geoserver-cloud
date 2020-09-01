@@ -2,7 +2,7 @@
  * This code is licensed under the GPL 2.0 license, available at the root
  * application directory.
  */
-package org.geoserver.cloud.wcs;
+package org.geoserver.cloud.wps;
 
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
