@@ -13,7 +13,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @ActiveProfiles("test")
-public class WcsApplicationTests {
+public class WcsApplicationTest {
 
     @Test
     public void contextLoads() {}

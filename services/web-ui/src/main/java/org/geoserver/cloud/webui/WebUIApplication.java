@@ -14,7 +14,6 @@ public class WebUIApplication {
         try {
             SpringApplication.run(WebUIApplication.class, args);
         } catch (RuntimeException e) {
-            e.printStackTrace();
             System.exit(-1);
         }
     }

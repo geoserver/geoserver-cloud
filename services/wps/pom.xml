@@ -11,7 +11,7 @@
   <name>wps-service</name>
   <packaging>jar</packaging>
   <properties>
-    <start-class>org.geoserver.cloud.wcs.WpsApplication</start-class>
+    <start-class>org.geoserver.cloud.wps.WpsApplication</start-class>
   </properties>
   <dependencies>
     <dependency>
