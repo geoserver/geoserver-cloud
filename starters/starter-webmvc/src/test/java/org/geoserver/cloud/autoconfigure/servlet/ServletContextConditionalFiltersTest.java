@@ -23,18 +23,19 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfi
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.context.request.RequestContextListener;
 
-@SpringBootTest(
-    classes = TestConfiguration.class,
+@SpringBootTest(classes = TestConfiguration.class)
+@EnableAutoConfiguration(exclude = SecurityAutoConfiguration.class)
+@RunWith(SpringRunner.class)
+@TestPropertySource(
     properties = {
         "geoserver.servlet.filter.session-debug.enabled=false",
         "geoserver.servlet.filter.flush-safe.enabled=false"
     }
 )
-@EnableAutoConfiguration(exclude = SecurityAutoConfiguration.class)
-@RunWith(SpringRunner.class)
 @ActiveProfiles("test")
 public class ServletContextConditionalFiltersTest {
 

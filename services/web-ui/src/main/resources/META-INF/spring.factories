@@ -1,2 +1,3 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-org.geoserver.cloud.autoconfigure.web.resource.WebResourceBrowserAutoConfiguration
+org.geoserver.cloud.autoconfigure.web.WebUIApplicationAutoConfiguration,\
+org.geoserver.cloud.autoconfigure.web.WebResourceBrowserAutoConfiguration

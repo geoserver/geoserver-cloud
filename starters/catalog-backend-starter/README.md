@@ -31,7 +31,7 @@ Note, however, the following differences apply against the regular `jdbcconfig` 
 
 * The catalog and resource store configuration is provided through Spring properties (i.e. in `application.properties` or `application.yml`), 
 instead of through `.properties` files in the data directory, or environment variables indicating the location of such files;
-* The configuration settings for the catalog and the resource store are merged into a single set of properties under the `geoserver.jdbcconfig` namespace;
+* The configuration settings for the catalog and the resource store are merged into a single set of properties under the `geoserver.backend.jdbcconfig` namespace;
 * There's a single `java.sql.DataSource` configured for both the catalog and the resource store, instead of separate ones;
 * If using the H2 embedded database (should be the case only for testing), the JDBC driver version is `1.4.200` as opposed to the `1.1.119` version that
 comes as a transitive dependency with GeoServer;
@@ -49,23 +49,26 @@ The following are the possible configuration properties:
 
 ```yaml
 geoserver:
-  jdbcconfig:
-    enabled: true
-    initdb: false
-    datasource:
-      jdbcUrl: "jdbc:postgresql://database:5432/geoserver_config"
-      username: geoserver
-      password:
-      driverClassname: org.postgresql.Driver
+  backend:
+    jdbcconfig:
+      enabled: true
+      initdb: false
+      cache-directory: /tmp/geoserver-jdbcconfig-cache
+      datasource:
+        jdbcUrl: "jdbc:postgresql://database:5432/geoserver_config"
+        username: geoserver
+        password:
+        driverClassname: org.postgresql.Driver
 ```
 
 `application.properties`:
 
 ```properties
-geoserver.jdbcconfig.enabled=true
-geoserver.jdbcconfig.initdb=false
-geoserver.jdbcconfig.datasource.jdbc-url=jdbc\:postgresql\://database\:5432/geoserver_config
-geoserver.jdbcconfig.datasource.username=sa
-geoserver.jdbcconfig.datasource.password=
-geoserver.jdbcconfig.datasource.driverClassname=org.postgresql.Driver
+geoserver.backend.jdbcconfig.enabled=true
+geoserver.backend.jdbcconfig.initdb=false
+geoserver.backend.jdbcconfig.cache-directory:/tmp/geoserver-jdbcconfig-cache
+geoserver.backend.jdbcconfig.datasource.jdbc-url=jdbc\:postgresql\://database\:5432/geoserver_config
+geoserver.backend.jdbcconfig.datasource.username=sa
+geoserver.backend.jdbcconfig.datasource.password=
+geoserver.backend.jdbcconfig.datasource.driverClassname=org.postgresql.Driver
 ```

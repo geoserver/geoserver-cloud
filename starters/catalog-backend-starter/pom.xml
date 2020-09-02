@@ -31,6 +31,13 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter</artifactId>
     </dependency>
+    <dependency>
+      <!-- test scoped to enable testing autoconfiguration of web components (e.g. jdbc-config's home page contribution)-->
+      <groupId>org.geoserver.web</groupId>
+      <artifactId>gs-web-core</artifactId>
+      <version>${gs.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <profiles>

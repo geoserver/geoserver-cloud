@@ -19,7 +19,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.context.request.RequestContextListener;
 
 @Configuration
-// @Import(GeoServerMainConfiguration.class)
 public class GeoServerServletContextConfiguration {
 
     private static final int FLUSH_SAFE_FILTER_ORDER = 1;

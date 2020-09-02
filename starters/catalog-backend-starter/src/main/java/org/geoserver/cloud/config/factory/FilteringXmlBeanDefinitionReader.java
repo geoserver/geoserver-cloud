@@ -88,14 +88,14 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
                             jarNameExpression);
                     try {
                         int c = super.loadBeanDefinitions(resourceURI, actualResources);
-                        log.info("Loaded {} bean definitions from {}", c, uri);
+                        log.debug("Loaded {} bean definitions from {}", c, uri);
                         if (actualResources != null) {
                             actualResources.add(root);
                         }
                         count += c;
                     } catch (BeanDefinitionStoreException fnf) {
                         if (fnf.getCause() instanceof FileNotFoundException) {
-                            log.info("No {} in {}, skipping.", resourcePattern, uri);
+                            log.debug("No {} in {}, skipping.", resourcePattern, uri);
                         } else {
                             throw fnf;
                         }
@@ -229,7 +229,9 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
                 Element ele, BeanDefinitionParserDelegate delegate) {
             if (isFiltering()) {
                 BeanDefinitionHolder bdHolder = delegate.parseBeanDefinitionElement(ele);
-                if (bdHolder == null) return;
+                if (bdHolder == null) {
+                    return;
+                }
                 if (exclude(bdHolder)) {
                     logFilteredBeanMessage(bdHolder);
                 } else {
@@ -245,7 +247,7 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
             if (log.isTraceEnabled()) {
                 log.trace(msgFormat, bdHolder.getLongDescription());
             } else {
-                log.info(msgFormat, bdHolder.getShortDescription());
+                log.debug(msgFormat, bdHolder.getShortDescription());
             }
         }
 

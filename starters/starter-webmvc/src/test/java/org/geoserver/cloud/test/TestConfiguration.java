@@ -13,6 +13,7 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfi
 import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.test.context.TestPropertySource;
 
 /**
  * Simple test configuration to refer to in {@link SpringBootTest @SpringBootTest} annotations, does
@@ -30,4 +31,5 @@ import org.springframework.context.annotation.Configuration;
         ManagementWebSecurityAutoConfiguration.class
     }
 )
+@TestPropertySource(properties = {"geoserver.backend.data-directory.enabled=true"})
 public class TestConfiguration {}

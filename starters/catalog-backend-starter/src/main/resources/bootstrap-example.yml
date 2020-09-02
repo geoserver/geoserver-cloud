@@ -1,0 +1,16 @@
+# Example configuration for all available backends
+geoserver:
+  backend:
+    data-directory:
+      enabled: ${data_directory.enabled:false}
+      location: ${data_directory:${java.io.tmpdir}/geoserver_cloud_data_directory}
+    jdbcconfig:
+      enabled: false
+      web.enabled: false
+      cache-directory: ${jdbcconfig.cachedir:${java.io.tmpdir}/geoserver-jdbcconfig-cache}
+      datasource:
+        driverClassname: ${jdbcconfig.driverClassname:org.postgresql.Driver}
+        jdbcUrl: ${jdbcconfig.url:"jdbc:postgresql://localhost:5432/geoserver_config"}
+        username: ${jdbcconfig.username:postgres}
+        password: ${jdbcconfig.password:secret}
+      
