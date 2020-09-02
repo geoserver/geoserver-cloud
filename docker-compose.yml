@@ -67,6 +67,7 @@ services:
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: ${CONFIG_JAVA_OPTS}
       RABBITMQ_HOST: rabbitmq
+      CONFIG_PATH: /opt/app/config
     networks:
       - gs-cloud-network
     volumes:

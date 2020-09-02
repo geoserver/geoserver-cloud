@@ -54,28 +54,6 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
-        <!-- copy the config directory to the classpath -->
-        <artifactId>maven-resources-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>copy-resources</id>
-            <phase>validate</phase>
-            <goals>
-              <goal>copy-resources</goal>
-            </goals>
-            <configuration>
-              <outputDirectory>${project.build.directory}/classes/config</outputDirectory>
-              <resources>
-                <resource>
-                  <directory>${maven.multiModuleProjectDirectory}/config</directory>
-                  <includes>*</includes>
-                </resource>
-              </resources>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
     </plugins>
   </build>
 
