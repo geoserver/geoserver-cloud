@@ -1,12 +1,24 @@
 geoserver:
+  security.enabled: true
   servlet.filter.session-debug.enabled: false # until the NPE is fixed
-  jdbcconfig:
-    enabled: true
-    datasource:
-      jdbcUrl: ${jdbcconfig.url:"jdbc:postgresql://localhost:5432/geoserver_config"}
-      username: ${jdbcconfig.username:postgres}
-      password: ${jdbcconfig.password:s3cr3t}
-      driverClassname: ${jdbcconfig.driverClassname:org.postgresql.Driver}
+  backend:
+    data-directory:
+      enabled: false
+      location: ${GEOSERVER_DATA_DIR:${java.io.tmpdir}/default_data_directory} 
+    jdbcconfig:
+      enabled: true
+      initdb: false
+      web.enabled: false
+      cache-directory: ${jdbcconfig.cachedir:${java.io.tmpdir}/geoserver-jdbcconfig-cache}
+      datasource:
+        jdbcUrl: ${jdbcconfig.url:"jdbc:postgresql://database:5432/geoserver_config"}
+        username: ${jdbcconfig.username:geoserver}
+        password: ${jdbcconfig.password:geo$erver}
+        driverClassname: ${jdbcconfig.driverClassname:org.postgresql.Driver}
+        # optional:
+        schema: public
+        minimumIdle: 2
+        maximumPoolSize: 8
 
 spring:
   rabbitmq:
@@ -28,10 +40,12 @@ spring:
  
 logging:
   level:
-#      org.springframework: ERROR
-    org.geoserver.cloud: DEBUG
-    org.geoserver.cloud.autoconfigure: DEBUG
-    oshi.hardware.platform.linux: OFF
+    root: WARN
+    org.springframework: ERROR
+    org.geoserver: WARN
+    org.geoserver.platform: ERROR
+    org.geoserver.cloud: INFO
+    org.geoserver.cloud.autoconfigure: INFO
     org.geoserver.jdbcconfig: INFO
     org.geoserver.jdbcconfig.internal: INFO
-    org.springframework.context.support.PostProcessorRegistrationDelegate: WARN
+    oshi.hardware.platform.linux: OFF

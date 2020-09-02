@@ -1,4 +1,3 @@
-geoserver.jdbcconfig.enabled: false
 spring:
   main:
     banner-mode: off
@@ -6,3 +5,28 @@ spring:
   cloud.config.enabled: false
   cloud.config.discovery.enabled: false
 eureka.client.enabled: false
+
+geoserver:
+  security.enabled: true
+  backend:
+    data-directory:
+      enabled: true
+      location: ${data_directory:${java.io.tmpdir}/geoserver_cloud_data_directory}
+    jdbcconfig:
+      enabled: false
+      web.enabled: false
+      initdb: true
+      cache-directory: ${java.io.tmpdir}/geoserver-jdbcconfig-cache
+      datasource:
+        driverClassname: org.h2.Driver
+        jdbcUrl: jdbc:h2:mem:test;DB_CLOSE_DELAY=-1
+        username: sa
+        password:
+
+logging:
+  level:
+    root: WARN
+    org.geoserver.platform: ERROR
+    org.geoserver.cloud: DEBUG
+    org.geoserver.cloud.config.factory: TRACE
+    org.springframework.test: ERROR

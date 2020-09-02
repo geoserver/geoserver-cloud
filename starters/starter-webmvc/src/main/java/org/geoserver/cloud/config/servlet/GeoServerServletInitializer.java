@@ -30,11 +30,8 @@ public class GeoServerServletInitializer implements ServletContextInitializer {
 
     private @Autowired GeoServerResourceLoader resourceLoader;
 
-    private @Autowired DataDirectoryResourceStore resourceStore;
-
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
-        resourceStore.setServletContext(servletContext);
         resourceLoader.setServletContext(servletContext);
         context.publishEvent(new ContextLoadedEvent(context));
     }

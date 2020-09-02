@@ -4,44 +4,41 @@
  */
 package org.geoserver.cloud.config.main;
 
-import org.geoserver.catalog.Catalog;
+import org.geoserver.cloud.config.catalog.GeoServerBackendConfigurer;
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
-import org.geoserver.config.GeoServerDataDirectory;
-import org.geoserver.security.SecureCatalogImpl;
-import org.geoserver.security.impl.DataAccessRuleDAO;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportResource;
 
-@Configuration
+/**
+ * Loads bean definitions from {@code jar:gs-main-.*!/applicationContext.xml}, excluding the ones
+ * that shall be provided by the enabled {@link GeoServerBackendConfigurer}, as defined in {@code
+ * gs-cloud-catalog-backend-starter}.
+ *
+ * <p>For instance:
+ *
+ * <ul>
+ *   <li>{@link GeoServerBackendConfigurer#accessRulesDao}
+ *   <li>{@link GeoServerBackendConfigurer#catalogFacade}
+ *   <li>{@link GeoServerBackendConfigurer#dataDirectory}
+ *   <li>{@link GeoServerBackendConfigurer#extensions}
+ *   <li>{@link GeoServerBackendConfigurer#geoServer}
+ *   <li>{@link GeoServerBackendConfigurer#geoserverFacade}
+ *   <li>{@link GeoServerBackendConfigurer#geoServerLoader}
+ *   <li>{@link GeoServerBackendConfigurer#geoServerSecurityManager}
+ *   <li>{@link GeoServerBackendConfigurer#rawCatalog}
+ *   <li>{@link GeoServerBackendConfigurer#resourceLoader}
+ *   <li>{@link GeoServerBackendConfigurer#resourceStoreImpl}
+ *   <li>{@link GeoServerBackendConfigurer#secureCatalog}
+ *   <li>{@link GeoServerBackendConfigurer#xstreamPersisterFactory}
+ * </ul>
+ */
+@Configuration(proxyBeanMethods = true)
 @Import({UrlProxifyingConfiguration.class})
 @ImportResource( //
     reader = FilteringXmlBeanDefinitionReader.class, //
-    // exclude rawCatalog, provided by auto-configuration in catalog-backend-starter
-    locations = "jar:gs-main-.*!/applicationContext.xml#!name=rawCatalog" //
+    // exclude beans
+    locations =
+            "jar:gs-main-.*!/applicationContext.xml#!name=rawCatalog|secureCatalog|localWorkspaceCatalog|catalog|advertisedCatalog|accessRulesDao|catalogFacade|dataDirectory|extensions|geoServer|geoserverFacade|geoServerLoader|geoServerSecurityManager|resourceLoader|resourceStoreImpl|secureCatalog|xstreamPersisterFactory" //
 )
-public class GeoServerMainConfiguration {
-
-    /** Required when {@link GeoServerSecurityDisabledAutoConfiguration} is not included */
-    @Bean(name = "accessRulesDao")
-    @ConditionalOnMissingBean(org.geoserver.security.GeoServerSecurityManager.class)
-    @DependsOn({"extensions"})
-    public DataAccessRuleDAO accessRulesDao(
-            GeoServerDataDirectory dd, @Qualifier("rawCatalog") Catalog rawCatalog)
-            throws Exception {
-        return new DataAccessRuleDAO(dd, rawCatalog);
-    }
-
-    /** Required when {@link GeoServerSecurityDisabledAutoConfiguration} is not included */
-    @Bean(name = "secureCatalog")
-    @ConditionalOnMissingBean(org.geoserver.security.GeoServerSecurityManager.class)
-    @DependsOn({"extensions"})
-    public SecureCatalogImpl secureCatalog(@Qualifier("rawCatalog") Catalog rawCatalog)
-            throws Exception {
-        return new SecureCatalogImpl(rawCatalog);
-    }
-}
+public class GeoServerMainConfiguration {}

@@ -97,10 +97,70 @@
         <dependency>
           <groupId>org.geoserver.extension</groupId>
           <artifactId>gs-wps-core</artifactId>
+          <exclusions>
+            <exclusion>
+              <groupId>org.geoserver</groupId>
+              <artifactId>gs-gwc</artifactId>
+            </exclusion>
+          </exclusions>
         </dependency>
         <dependency>
           <groupId>org.geoserver</groupId>
           <artifactId>gs-gwc</artifactId>
+          <exclusions>
+            <exclusion>
+              <groupId>org.geowebcache</groupId>
+              <artifactId>gwc-core</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>org.geowebcache</groupId>
+              <artifactId>gwc-georss</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>org.geowebcache</groupId>
+              <artifactId>gwc-gmaps</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>org.geowebcache</groupId>
+              <artifactId>gwc-kml</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>org.geowebcache</groupId>
+              <artifactId>gwc-tms</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>org.geowebcache</groupId>
+              <artifactId>gwc-ve</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>org.geowebcache</groupId>
+              <artifactId>gwc-wms</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>org.geowebcache</groupId>
+              <artifactId>gwc-wmts</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>org.geowebcache</groupId>
+              <artifactId>gwc-diskquota</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>org.geowebcache</groupId>
+              <artifactId>gwc-diskquota-jdbc</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>org.geowebcache</groupId>
+              <artifactId>gwc-rest</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>com.fasterxml.jackson.core</groupId>
+              <artifactId>jackson-core</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>org.geoserver</groupId>
+              <artifactId>gs-rest</artifactId>
+            </exclusion>
+          </exclusions>
         </dependency>
       </dependencies>
     </profile>

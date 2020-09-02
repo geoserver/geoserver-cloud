@@ -11,7 +11,7 @@
   <name>web-ui-service</name>
   <packaging>jar</packaging>
   <properties>
-    <start-class>org.geoserver.cloud.webui.WebUIApplication</start-class>
+    <start-class>org.geoserver.cloud.webui.app.WebUIApplication</start-class>
   </properties>
   <dependencies>
     <dependency>
