@@ -1,36 +1,58 @@
-# GeoServer Microservices
+# Cloud Native GeoServer
 
-This project splits GeoServer components into microservices.
+*Cloud Native GeoServer* is GeoServer ready to use in the cloud through dockerized microservices.
 
-OWS microservices:
+This project is an opinionated approach over how to split [GeoServer](http://geoserver.org/)'s services and API offerings into
+a microservices based architecture.
 
-- WFS
-- WMS
-- WCS
+## Services Architecture
 
-Configuration:
+* Discovery
+* Config
+* Event bus
+* Gateway
+* config
+* OWS services
+* REST API service
+* Web-UI service
 
-- REST API
 
-others: TBD
+Only a curated list of the [vast amount](http://geoserver.org/release/stable/) of GeoServer extensions will be supported, as they are verified to work with this project's architecture, or adapted to do so.
+
+## License
+
+*CN GeoServer* licensed under the [GPL](LICENSE.txt).
+
+## Building
+
+### Requirements
+ * Java 11 JDK
+ * Maven `3.6.3`+ (included through the `mvnw` wrapper in the root folder)
+ * Docker version `19.03.3`+
+ * docker-compose version `1.26.2`+
+ 
+ 
+*CN GeoServer* uses [Apache Maven](http://maven.apache.org/) (included) for a build system.
+
+You need to have [docker](https://www.docker.com/) and [docker-compose](https://docs.docker.com/compose/install/) installed, the maven build uses the `com.spotify:dockerfile-maven-plugin` maven plugin to build the microservice docker images.
+
+To build the application run maven from the root project directory run
+
+    ./mvnw clean install
+
+The main branch follows GeoServer's main branch, currently `2.18-SNAPSHOT`. It's also possible to build against the latest stable version, as follows:
+
+    ./mvnw clean install -Dgs.version=2.17.2
+
+## Bugs
+
+*CN GeoServer*'s issue tracking is at this [GitHub](https://github.com/camptocamp/geoserver-microservices/issues) repository.
+
+## Roadmap
+
+Follow the development progress on these [GitHub Kanban boards](https://github.com/camptocamp/geoserver-microservices/projects)
 
 
-# Common configuration properties
-The following configuration properties apply to all *GeoServer* microservices (i.e. not edge services):
+## Contributing
 
-```
-geoserver.security.enabled=true #flag to turn off geoserver security auto-configuration
-geoserver.proxy-urls.enabled=true #flag to turn off proxyfing respose URL's based on gateway's provided HTTP request headers (X-Forwarded-*)
-geoserver.web.resource-browser.enabed=true
-geoserver.servlet.enabled=true #flag to turn off auto-configuration of geoserver servlet context
-geoserver.servlet.filter.session-debug.enabled=true #flag to disable the session debug servlet filter
-geoserver.servlet.filter.flush-safe.enabled=true #flag to disable the flush-safe servlet filter
-
-geoserver.jdbcconfig.enabled=true
-geoserver.jdbcconfig.web.enabled=true
-geoserver.jdbcconfig.initdb=false
-geoserver.jdbcconfig.datasource.jdbc-url=jdbc\:postgresql\://database\:5432/geoserver_config
-geoserver.jdbcconfig.datasource.username=sa
-geoserver.jdbcconfig.datasource.password=
-geoserver.jdbcconfig.datasource.driverClassname=org.postgresql.Driver
-```
+Please read [the contribution guidelines](CONTRIBUTING.md) before contributing pull requests to the CN GeoServer project.
