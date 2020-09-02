@@ -144,6 +144,10 @@
         <version>${gs.version}</version>
         <exclusions>
           <exclusion>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+          </exclusion>
+          <exclusion>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
           </exclusion>
@@ -167,31 +171,67 @@
         <groupId>org.geoserver</groupId>
         <artifactId>gs-wcs</artifactId>
         <version>${gs.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.geoserver</groupId>
         <artifactId>gs-wcs1_0</artifactId>
         <version>${gs.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.geoserver</groupId>
         <artifactId>gs-wcs1_1</artifactId>
         <version>${gs.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.geoserver</groupId>
         <artifactId>gs-wcs2_0</artifactId>
         <version>${gs.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.geoserver.extension</groupId>
         <artifactId>gs-wps-core</artifactId>
         <version>${gs.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.geoserver.extension</groupId>
         <artifactId>gs-web-wps</artifactId>
         <version>${gs.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.geoserver</groupId>
