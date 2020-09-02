@@ -18,7 +18,6 @@
     <fork.javac>false</fork.javac>
     <javac.maxHeapSize>256M</javac.maxHeapSize>
 
-    <dockerfile-maven-plugin.version>1.4.10</dockerfile-maven-plugin.version>
     <docker.image.prefix>${project.groupId}</docker.image.prefix>
     <dockerfile.build.pullNewerImage>false</dockerfile.build.pullNewerImage>
   </properties>
@@ -293,7 +292,7 @@
           <!-- https://github.com/spotify/dockerfile-maven -->
           <groupId>com.spotify</groupId>
           <artifactId>dockerfile-maven-plugin</artifactId>
-          <version>${dockerfile-maven-plugin.version}</version>
+          <version>1.4.13</version>
           <inherited>true</inherited>
           <executions>
             <execution>
@@ -316,6 +315,7 @@
         <plugin>
           <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-maven-plugin</artifactId>
+          <version>${spring-boot.version}</version>
           <inherited>true</inherited>
           <executions>
             <execution>
@@ -332,6 +332,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-failsafe-plugin</artifactId>
+          <version>3.0.0-M5</version>
           <dependencies>
             <dependency>
               <groupId>org.apache.maven.surefire</groupId>
@@ -351,6 +352,26 @@
       </plugins>
     </pluginManagement>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>3.0.0-M3</version>
+        <executions>
+          <execution>
+            <id>enforce-maven</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireMavenVersion>
+                  <version>3.6.3</version>
+                </requireMavenVersion>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>com.coveo</groupId>
         <artifactId>fmt-maven-plugin</artifactId>
