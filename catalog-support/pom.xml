@@ -8,7 +8,7 @@
     <version>0.2-SNAPSHOT</version>
   </parent>
 
-  <artifactId>gs-catalog-support</artifactId>
+  <artifactId>gs-cloud-catalog-support</artifactId>
   <name>Parent pom for GeoServer Catalog modules</name>
   <packaging>pom</packaging>
 
