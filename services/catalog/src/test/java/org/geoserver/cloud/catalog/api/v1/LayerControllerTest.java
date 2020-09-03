@@ -28,18 +28,18 @@ public class LayerControllerTest extends AbstractCatalogInfoControllerTest<Layer
     public @Before void removeExisitng() {
         // can't create the layer with testData.ft as its resource otherwise, it's a 1:1
         // relationship
-        catalog.remove(testData.layerGroup);
-        catalog.remove(testData.layer);
+        catalog.remove(testData.layerGroup1);
+        catalog.remove(testData.layerFeatureTypeA);
     }
 
     public @Test void layerCRUD() {
         LayerInfo layer =
                 testData.createLayer(
                         "layerCRUD_id",
-                        testData.ft,
+                        testData.featureTypeA,
                         "layerCRUD title",
                         true,
-                        testData.style,
+                        testData.style1,
                         testData.style2);
         crudTest(
                 layer,
@@ -47,7 +47,7 @@ public class LayerControllerTest extends AbstractCatalogInfoControllerTest<Layer
                     l.setTitle("changed title");
                     l.setDefaultStyle(testData.style2);
                     l.getStyles().clear();
-                    l.getStyles().add(testData.style);
+                    l.getStyles().add(testData.style1);
                 },
                 catalog::getLayer);
     }

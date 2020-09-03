@@ -33,7 +33,7 @@ public class LayerGroupControllerTest extends AbstractCatalogInfoControllerTest<
                         "layerGroupCRUD_NoWorkspace",
                         workspace,
                         "layerGroupCRUD_NoWorkspace_name",
-                        testData.layer,
+                        testData.layerFeatureTypeA,
                         testData.style2);
         crudTest(
                 layerGroup,
@@ -47,13 +47,13 @@ public class LayerGroupControllerTest extends AbstractCatalogInfoControllerTest<
     }
 
     public @Test void layerGroupCRUD_Workspace() {
-        WorkspaceInfo workspace = testData.ws;
+        WorkspaceInfo workspace = testData.workspaceA;
         LayerGroupInfo layerGroup =
                 testData.createLayerGroup(
                         "layerGroupCRUD_NoWorkspace",
                         workspace,
                         "layerGroupCRUD_NoWorkspace_name",
-                        testData.layer,
+                        testData.layerFeatureTypeA,
                         testData.style2);
         crudTest(
                 layerGroup,

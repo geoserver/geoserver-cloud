@@ -68,14 +68,14 @@ public class StyleControllerTest extends AbstractCatalogInfoControllerTest<Style
         StyleInfo style =
                 testData.createStyle(
                         "styleCRUD_Workspace",
-                        testData.wsA,
+                        testData.workspaceB,
                         "styleCRUD_Workspace",
                         "styleCRUD_Workspace.sld");
 
         crudTest(
                 style,
                 s -> {
-                    s.setWorkspace(testData.wsB);
+                    s.setWorkspace(testData.workspaceC);
                 },
                 catalog::getStyle);
     }

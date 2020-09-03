@@ -23,9 +23,9 @@ public class WorkspaceControllerTest extends AbstractCatalogInfoControllerTest<W
     }
 
     public @Test void findWorkspaceById() {
-        testFindById(testData.ws);
-        testFindById(testData.wsA);
-        testFindById(testData.wsB);
+        testFindById(testData.workspaceA);
+        testFindById(testData.workspaceB);
+        testFindById(testData.workspaceC);
     }
 
     public @Test void workspaceCRUD() {

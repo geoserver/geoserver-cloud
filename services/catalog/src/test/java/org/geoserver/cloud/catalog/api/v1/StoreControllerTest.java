@@ -58,7 +58,7 @@ public class StoreControllerTest extends AbstractCatalogInfoControllerTest<Store
         DataStoreInfo store =
                 testData.createDataStore(
                         "dataStoreCRUD-id",
-                        testData.wsA,
+                        testData.workspaceB,
                         "dataStoreCRUD",
                         "dataStoreCRUD description",
                         true);
@@ -78,7 +78,7 @@ public class StoreControllerTest extends AbstractCatalogInfoControllerTest<Store
         CoverageStoreInfo store =
                 testData.createCoverageStore(
                         "coverageStoreCRUD",
-                        testData.wsB,
+                        testData.workspaceC,
                         "coverageStoreCRUD name",
                         "GeoTIFF",
                         "file:/test/coverageStoreCRUD.tiff");
@@ -97,7 +97,11 @@ public class StoreControllerTest extends AbstractCatalogInfoControllerTest<Store
     public @Test void wmsStoreCRUD() {
         WMSStoreInfo store =
                 testData.createWebMapServer(
-                        "wmsStoreCRUD", testData.ws, "wmsStoreCRUD_name", "http://test.com", true);
+                        "wmsStoreCRUD",
+                        testData.workspaceA,
+                        "wmsStoreCRUD_name",
+                        "http://test.com",
+                        true);
         crudTest(
                 store,
                 s -> {
@@ -113,7 +117,11 @@ public class StoreControllerTest extends AbstractCatalogInfoControllerTest<Store
     public @Test void wmtsStoreCRUD() {
         WMTSStoreInfo store =
                 testData.createWebMapTileServer(
-                        "wmsStoreCRUD", testData.ws, "wmtsStoreCRUD_name", "http://test.com", true);
+                        "wmsStoreCRUD",
+                        testData.workspaceA,
+                        "wmtsStoreCRUD_name",
+                        "http://test.com",
+                        true);
         crudTest(
                 store,
                 s -> {
@@ -127,26 +135,32 @@ public class StoreControllerTest extends AbstractCatalogInfoControllerTest<Store
     }
 
     public @Test void findStoreById() throws IOException {
-        testFindById(testData.cs);
-        testFindById(testData.ds);
-        testFindById(testData.dsA);
-        testFindById(testData.wms);
-        testFindById(testData.wmtss);
+        testFindById(testData.coverageStoreA);
+        testFindById(testData.dataStoreA);
+        testFindById(testData.dataStoreB);
+        testFindById(testData.wmsStoreA);
+        testFindById(testData.wmtsStoreA);
     }
 
     public @Test void findStoreById_SubtypeMismatch() throws IOException {
         CatalogTestClient<StoreInfo> client = client();
-        client.findById(testData.cs.getId(), DataStoreInfo.class).expectStatus().isNotFound();
-        client.findById(testData.ds.getId(), CoverageStoreInfo.class).expectStatus().isNotFound();
-        client.findById(testData.dsA.getId(), CoverageStoreInfo.class).expectStatus().isNotFound();
+        client.findById(testData.coverageStoreA.getId(), DataStoreInfo.class)
+                .expectStatus()
+                .isNotFound();
+        client.findById(testData.dataStoreA.getId(), CoverageStoreInfo.class)
+                .expectStatus()
+                .isNotFound();
+        client.findById(testData.dataStoreB.getId(), CoverageStoreInfo.class)
+                .expectStatus()
+                .isNotFound();
     }
 
     public @Test void findStoreByName() throws IOException {
-        findStoreByName(testData.cs);
-        findStoreByName(testData.ds);
-        findStoreByName(testData.dsA);
-        findStoreByName(testData.wms);
-        findStoreByName(testData.wmtss);
+        findStoreByName(testData.coverageStoreA);
+        findStoreByName(testData.dataStoreA);
+        findStoreByName(testData.dataStoreB);
+        findStoreByName(testData.wmsStoreA);
+        findStoreByName(testData.wmtsStoreA);
     }
 
     private void findStoreByName(StoreInfo store) {
@@ -161,11 +175,11 @@ public class StoreControllerTest extends AbstractCatalogInfoControllerTest<Store
     }
 
     public @Test void findStoreByWorkspaceAndName() throws IOException {
-        findStoreByWorkspaceAndName(testData.cs);
-        findStoreByWorkspaceAndName(testData.ds);
-        findStoreByWorkspaceAndName(testData.dsA);
-        findStoreByWorkspaceAndName(testData.wms);
-        findStoreByWorkspaceAndName(testData.wmtss);
+        findStoreByWorkspaceAndName(testData.coverageStoreA);
+        findStoreByWorkspaceAndName(testData.dataStoreA);
+        findStoreByWorkspaceAndName(testData.dataStoreB);
+        findStoreByWorkspaceAndName(testData.wmsStoreA);
+        findStoreByWorkspaceAndName(testData.wmtsStoreA);
     }
 
     private void findStoreByWorkspaceAndName(StoreInfo store) {
@@ -182,11 +196,11 @@ public class StoreControllerTest extends AbstractCatalogInfoControllerTest<Store
     }
 
     public @Test void findStoreByName_WrongWorkspace() throws IOException {
-        findStoreByName_WrongWorkspace(testData.cs, testData.wsB.getName());
-        findStoreByName_WrongWorkspace(testData.ds, testData.wsB.getName());
-        findStoreByName_WrongWorkspace(testData.dsA, testData.wsB.getName());
-        findStoreByName_WrongWorkspace(testData.wms, testData.wsB.getName());
-        findStoreByName_WrongWorkspace(testData.wmtss, testData.wsB.getName());
+        findStoreByName_WrongWorkspace(testData.coverageStoreA, testData.workspaceC.getName());
+        findStoreByName_WrongWorkspace(testData.dataStoreA, testData.workspaceC.getName());
+        findStoreByName_WrongWorkspace(testData.dataStoreB, testData.workspaceC.getName());
+        findStoreByName_WrongWorkspace(testData.wmsStoreA, testData.workspaceC.getName());
+        findStoreByName_WrongWorkspace(testData.wmtsStoreA, testData.workspaceC.getName());
     }
 
     private void findStoreByName_WrongWorkspace(StoreInfo store, String workspaceName) {

@@ -39,8 +39,8 @@ public class ResourceInfoControllerTest extends AbstractCatalogInfoControllerTes
         FeatureTypeInfo resource =
                 testData.createFeatureType(
                         "featureTypeCRUD",
-                        testData.dsB,
-                        testData.nsB,
+                        testData.dataStoreC,
+                        testData.namespaceC,
                         "featureTypeCRUD_name",
                         "featureTypeCRUD abs",
                         "featureTypeCRUD desc",
@@ -57,7 +57,8 @@ public class ResourceInfoControllerTest extends AbstractCatalogInfoControllerTes
 
     public @Test void coverageCRUD() {
         CoverageInfo resource =
-                testData.createCoverage("coverageCRUD", testData.cs, "coverageCRUD_name");
+                testData.createCoverage(
+                        "coverageCRUD", testData.coverageStoreA, "coverageCRUD_name");
         crudTest(
                 resource,
                 r -> {
@@ -81,7 +82,11 @@ public class ResourceInfoControllerTest extends AbstractCatalogInfoControllerTes
     public @Test void wmsLayerCRUD() {
         WMSLayerInfo resource =
                 testData.createWMSLayer(
-                        "wmsLayerCRUD", testData.wms, testData.ns, "wmsLayerCRUD_name", false);
+                        "wmsLayerCRUD",
+                        testData.wmsStoreA,
+                        testData.namespaceA,
+                        "wmsLayerCRUD_name",
+                        false);
         crudTest(
                 resource,
                 r -> {
@@ -95,7 +100,11 @@ public class ResourceInfoControllerTest extends AbstractCatalogInfoControllerTes
     public @Test void wmtsLayerCRUD() {
         WMTSLayerInfo resource =
                 testData.createWMTSLayer(
-                        "wmtsLayerCRUD", testData.wmtss, testData.ns, "wmtsLayerCRUD_name", false);
+                        "wmtsLayerCRUD",
+                        testData.wmtsStoreA,
+                        testData.namespaceA,
+                        "wmtsLayerCRUD_name",
+                        false);
         crudTest(
                 resource,
                 r -> {
@@ -107,17 +116,25 @@ public class ResourceInfoControllerTest extends AbstractCatalogInfoControllerTes
     }
 
     public @Test void findResourceInfoById() {
-        testFindById(testData.ft);
-        testFindById(testData.cv);
-        testFindById(testData.wl);
-        testFindById(testData.wmtsl);
+        testFindById(testData.featureTypeA);
+        testFindById(testData.coverageA);
+        testFindById(testData.wmsLayerA);
+        testFindById(testData.wmtsLayerA);
     }
 
     public @Test void findResourceInfoById_SubtypeMismatch() throws IOException {
         CatalogTestClient<ResourceInfo> client = client();
-        client.findById(testData.ft.getId(), CoverageInfo.class).expectStatus().isNotFound();
-        client.findById(testData.cv.getId(), FeatureTypeInfo.class).expectStatus().isNotFound();
-        client.findById(testData.wl.getId(), WMTSLayerInfo.class).expectStatus().isNotFound();
-        client.findById(testData.wmtsl.getId(), WMSLayerInfo.class).expectStatus().isNotFound();
+        client.findById(testData.featureTypeA.getId(), CoverageInfo.class)
+                .expectStatus()
+                .isNotFound();
+        client.findById(testData.coverageA.getId(), FeatureTypeInfo.class)
+                .expectStatus()
+                .isNotFound();
+        client.findById(testData.wmsLayerA.getId(), WMTSLayerInfo.class)
+                .expectStatus()
+                .isNotFound();
+        client.findById(testData.wmtsLayerA.getId(), WMSLayerInfo.class)
+                .expectStatus()
+                .isNotFound();
     }
 }

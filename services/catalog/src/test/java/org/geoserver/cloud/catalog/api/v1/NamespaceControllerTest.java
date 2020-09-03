@@ -25,9 +25,9 @@ public class NamespaceControllerTest extends AbstractCatalogInfoControllerTest<N
     }
 
     public @Test void findNamespaceById() {
-        testFindById(testData.ns);
-        testFindById(testData.nsA);
-        testFindById(testData.nsB);
+        testFindById(testData.namespaceA);
+        testFindById(testData.namespaceB);
+        testFindById(testData.namespaceC);
     }
 
     public @Test void namespaceCRUD() throws IOException {
