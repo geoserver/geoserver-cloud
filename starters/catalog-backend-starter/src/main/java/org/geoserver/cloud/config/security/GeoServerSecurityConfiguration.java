@@ -39,9 +39,7 @@ import org.springframework.context.annotation.ImportResource;
 @Configuration
 @ImportResource(
     reader = FilteringXmlBeanDefinitionReader.class, //
-    locations = {
-        "classpath*:/applicationSecurityContext.xml#name=^(accessRulesDao|authenticationManager|geoServerSecurityManager)$"
-    }
+    locations = {"classpath*:/applicationSecurityContext.xml"}
 )
 @Slf4j
 @ConditionalOnGeoServerSecurityEnabled

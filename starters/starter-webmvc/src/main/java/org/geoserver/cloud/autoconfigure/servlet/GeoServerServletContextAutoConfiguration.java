@@ -6,12 +6,15 @@ package org.geoserver.cloud.autoconfigure.servlet;
 
 import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.geoserver.cloud.autoconfigure.core.GeoServerWebMvcMainAutoConfiguration;
 import org.geoserver.cloud.config.servlet.GeoServerServletContextConfiguration;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 @Configuration
+@AutoConfigureAfter(GeoServerWebMvcMainAutoConfiguration.class)
 @ConditionalOnProperty(
     prefix = "geoserver.servlet",
     name = "enabled",

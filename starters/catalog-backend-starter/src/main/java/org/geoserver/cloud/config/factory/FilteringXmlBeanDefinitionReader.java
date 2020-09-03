@@ -4,16 +4,23 @@
  */
 package org.geoserver.cloud.config.factory;
 
+import static org.springframework.util.StringUtils.hasLength;
+import static org.springframework.util.StringUtils.hasText;
+import static org.springframework.util.StringUtils.isEmpty;
+import static org.springframework.util.StringUtils.tokenizeToStringArray;
+
 import com.google.common.base.Splitter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.xml.BeanDefinitionParserDelegate;
 import org.springframework.beans.factory.xml.DefaultBeanDefinitionDocumentReader;
@@ -23,7 +30,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.lang.Nullable;
-import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
 
 /**
@@ -139,7 +145,7 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
     private void parseAndSetBeanFilters(String location) {
         if (location.contains(".xml#")) {
             String rawFilters = location.substring(".xml#".length() + location.indexOf(".xml#"));
-            if (!StringUtils.isEmpty(rawFilters)) {
+            if (!isEmpty(rawFilters)) {
                 Splitter.on(",")
                         .omitEmptyStrings()
                         .splitToList(rawFilters)
@@ -207,19 +213,30 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
             return !FILTERS.get().isEmpty();
         }
 
+        private Set<String> blackListedBeanNames = new HashSet<String>();
+
         protected @Override void processBeanDefinition(
                 Element ele, BeanDefinitionParserDelegate delegate) {
-
             if (isFiltering()) {
-                String name = ele.getAttribute(NAME_ATTRIBUTE);
-                if (StringUtils.hasText(name) && exclude(name)) {
-                    logFilteredBeanMessage(name);
+                String nameAtt = ele.getAttribute(NAME_ATTRIBUTE);
+                if (!hasText(nameAtt)) {
+                    nameAtt = ele.getAttribute("id"); // old style
+                }
+                if (blackListedBeanNames.contains(nameAtt)) {
+                    // in case the <alias/> element came before the bean definition
                     return;
                 }
-                if (StringUtils.hasLength(name)) {
+                String aliasAtt = ele.getAttribute(ALIAS_ATTRIBUTE);
+                if (!hasText(aliasAtt)) aliasAtt = nameAtt; // name can be a comma separated list
+
+                if (hasText(nameAtt) && exclude(nameAtt)) {
+                    logFilteredBeanMessage(nameAtt);
+                    return;
+                }
+                if (hasLength(aliasAtt)) {
                     String[] aliases =
-                            StringUtils.tokenizeToStringArray(
-                                    name,
+                            tokenizeToStringArray(
+                                    nameAtt,
                                     BeanDefinitionParserDelegate.MULTI_VALUE_ATTRIBUTE_DELIMITERS);
                     for (String alias : aliases) {
                         if (exclude(alias)) {
@@ -236,9 +253,17 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
             if (isFiltering()) {
                 String name = ele.getAttribute(NAME_ATTRIBUTE);
                 String alias = ele.getAttribute(ALIAS_ATTRIBUTE);
-                if ((StringUtils.hasText(name) && exclude(name))
-                        || (StringUtils.hasText(alias) && exclude(alias))) {
-                    logFilteredBeanMessage(name);
+                if (exclude(alias)) {
+                    try {
+                        getReaderContext().getRegistry().removeBeanDefinition(name);
+                    } catch (NoSuchBeanDefinitionException ok) {
+                        log.trace(
+                                "Blacklisted bean {}, alias {} comes first in the xml file",
+                                name,
+                                alias);
+                        blackListedBeanNames.add(name);
+                    }
+                    logFilteredBeanMessage(String.format("alias: %s, name: %s", alias, name));
                     return;
                 }
             }
@@ -247,7 +272,7 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
 
         private void logFilteredBeanMessage(String beanName) {
             String msgFormat = "Excluded by one of the configured filter expressions: {}";
-            log.trace(msgFormat, beanName);
+            log.info(msgFormat, beanName);
         }
     }
 }

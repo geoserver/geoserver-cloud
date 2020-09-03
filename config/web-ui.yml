@@ -50,7 +50,7 @@ logging:
     org.geoserver.platform: ERROR
     org.geoserver.cloud: INFO
     org.geoserver.cloud.catalog.bus: DEBUG
-    org.geoserver.cloud.autoconfigure: INFO
+    org.geoserver.cloud.autoconfigure: DEBUG
     org.geoserver.jdbcconfig: INFO
     org.geoserver.jdbcconfig.internal: INFO
     oshi.hardware.platform.linux: OFF
