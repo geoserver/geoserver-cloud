@@ -1,15 +1,15 @@
 package org.geoserver.cloud.autoconfigure.test.backend;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 
 import org.geoserver.cloud.autoconfigure.catalog.DataDirectoryAutoConfiguration;
 import org.geoserver.cloud.autoconfigure.testconfiguration.AutoConfigurationTestConfiguration;
+import org.geoserver.cloud.config.catalog.GeoServerBackendProperties;
 import org.geoserver.cloud.config.datadirectory.DataDirectoryBackendConfigurer;
-import org.geoserver.cloud.config.datadirectory.DataDirectoryProperties;
 import org.geoserver.cloud.config.datadirectory.NoServletContextDataDirectoryResourceStore;
 import org.geoserver.config.DefaultGeoServerLoader;
 import org.geoserver.platform.GeoServerResourceLoader;
@@ -30,13 +30,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 )
 public class DataDirectoryAutoConfigurationTest extends GeoServerBackendConfigurerTest {
 
-    private @Autowired DataDirectoryProperties configProperties;
+    private @Autowired GeoServerBackendProperties configProperties;
 
     public @Test void testProperties() {
         assertNotNull(configProperties);
-        assertNotNull(configProperties.getLocation());
+        assertNotNull(configProperties.getDataDirectory().getLocation());
         assertEquals(
-                "/tmp/data_dir_autoconfiguration_test", configProperties.getLocation().toString());
+                "/tmp/data_dir_autoconfiguration_test",
+                configProperties.getDataDirectory().getLocation().toString());
     }
 
     public @Test void testCatalog() {
@@ -63,7 +64,9 @@ public class DataDirectoryAutoConfigurationTest extends GeoServerBackendConfigur
     }
 
     public @Test void testGeoserverFacade() {
-        assertThat(geoserverFacade, nullValue());
+        assertThat(
+                geoserverFacade,
+                instanceOf(org.geoserver.catalog.plugin.DefaultGeoServerFacade.class));
     }
 
     public @Test void testGeoserverLoader() {

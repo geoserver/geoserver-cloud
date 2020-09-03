@@ -1,6 +1,10 @@
 geoserver:
   security.enabled: true
   servlet.filter.session-debug.enabled: false # until the NPE is fixed
+  catalog:
+    advertised: true
+    localWorkspace: true
+    secure: true
   backend:
     data-directory:
       enabled: false
@@ -8,7 +12,7 @@ geoserver:
     jdbcconfig:
       enabled: true
       initdb: false
-      web.enabled: true
+      web.enabled: false
       cache-directory: ${jdbcconfig.cachedir:${java.io.tmpdir}/geoserver-jdbcconfig-cache}
       datasource:
         jdbcUrl: ${jdbcconfig.url:"jdbc:postgresql://database:5432/geoserver_config"}
@@ -42,9 +46,10 @@ logging:
   level:
     root: WARN
     org.springframework: ERROR
-    org.geoserver: WARN
+    org.springframework.cloud.bus: INFO
     org.geoserver.platform: ERROR
     org.geoserver.cloud: INFO
+    org.geoserver.cloud.catalog.bus: DEBUG
     org.geoserver.cloud.autoconfigure: INFO
     org.geoserver.jdbcconfig: INFO
     org.geoserver.jdbcconfig.internal: INFO

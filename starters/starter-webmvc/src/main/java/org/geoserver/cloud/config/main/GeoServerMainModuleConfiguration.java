@@ -32,6 +32,8 @@ import org.springframework.context.annotation.ImportResource;
  *   <li>{@link GeoServerBackendConfigurer#secureCatalog}
  *   <li>{@link GeoServerBackendConfigurer#xstreamPersisterFactory}
  * </ul>
+ *
+ * <p>
  */
 @Configuration(proxyBeanMethods = true)
 @Import({UrlProxifyingConfiguration.class})
@@ -39,6 +41,6 @@ import org.springframework.context.annotation.ImportResource;
     reader = FilteringXmlBeanDefinitionReader.class, //
     // exclude beans
     locations =
-            "jar:gs-main-.*!/applicationContext.xml#!name=rawCatalog|secureCatalog|localWorkspaceCatalog|catalog|advertisedCatalog|accessRulesDao|catalogFacade|dataDirectory|extensions|geoServer|geoserverFacade|geoServerLoader|geoServerSecurityManager|resourceLoader|resourceStoreImpl|secureCatalog|xstreamPersisterFactory" //
+            "jar:gs-main-.*!/applicationContext.xml#name=^(rawCatalog|secureCatalog|localWorkspaceCatalog|catalog|advertisedCatalog|accessRulesDao|catalogFacade|dataDirectory|extensions|geoServer|geoserverFacade|geoServerLoader|geoServerSecurityManager|resourceLoader|resourceStoreImpl|secureCatalog|xstreamPersisterFactory)$" //
 )
-public class GeoServerMainConfiguration {}
+public class GeoServerMainModuleConfiguration {}

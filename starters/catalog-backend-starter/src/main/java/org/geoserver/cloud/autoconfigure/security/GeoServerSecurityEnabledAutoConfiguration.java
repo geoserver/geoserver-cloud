@@ -6,14 +6,13 @@ package org.geoserver.cloud.autoconfigure.security;
 
 import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import org.geoserver.cloud.config.security.GeoServerSecurityEnabledConfiguration;
+import org.geoserver.cloud.config.security.GeoServerSecurityConfiguration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 @ConditionalOnGeoServerSecurityEnabled
-// @AutoConfigureAfter({GeoSeverBackendAutoConfiguration.class})
-@Import(GeoServerSecurityEnabledConfiguration.class)
+@Import(GeoServerSecurityConfiguration.class)
 @Slf4j
 public @Configuration class GeoServerSecurityEnabledAutoConfiguration {
 

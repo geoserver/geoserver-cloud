@@ -5,6 +5,7 @@
 package org.geoserver.cloud.autoconfigure.catalog;
 
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
@@ -18,6 +19,7 @@ import org.springframework.context.annotation.Import;
  * (provided their configs are included in this class' {@code @Import} list)
  */
 @Configuration
+@EnableConfigurationProperties
 @Import({
     DataDirectoryAutoConfiguration.class,
     JDBCConfigAutoConfiguration.class,

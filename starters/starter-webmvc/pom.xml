@@ -8,7 +8,6 @@
     <version>0.2-SNAPSHOT</version>
   </parent>
   <artifactId>gs-cloud-starter-webmvc</artifactId>
-  <name>Servlet based GeoServer microservices autoconfiguration</name>
   <description>Provides auto-configuration for servlet/webmvc GeoServer microservices</description>
   <packaging>jar</packaging>
   <dependencies>

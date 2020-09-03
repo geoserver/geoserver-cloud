@@ -11,7 +11,6 @@ import org.geoserver.cloud.autoconfigure.security.ConditionalOnGeoServerSecurity
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
 import org.geoserver.config.GeoServerDataDirectory;
 import org.geoserver.security.GeoServerSecurityManager;
-import org.geoserver.security.SecureCatalogImpl;
 import org.geoserver.security.impl.DataAccessRuleDAO;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,25 +40,18 @@ import org.springframework.context.annotation.ImportResource;
 @ImportResource(
     reader = FilteringXmlBeanDefinitionReader.class, //
     locations = {
-        "classpath*:/applicationSecurityContext.xml#!name=accessRulesDao|authenticationManager|geoServerSecurityManager"
+        "classpath*:/applicationSecurityContext.xml#name=^(accessRulesDao|authenticationManager|geoServerSecurityManager)$"
     }
 )
 @Slf4j
 @ConditionalOnGeoServerSecurityEnabled
-public class GeoServerSecurityEnabledConfiguration {
+public class GeoServerSecurityConfiguration {
 
     private @Value("${geoserver.security.enabled:#{null}}") Boolean enabled;
 
     public @PostConstruct void log() {
         log.info(
                 "GeoServer security being configured through classpath*:/applicationSecurityContext.xml");
-    }
-
-    @Bean("secureCatalog")
-    @DependsOn({"accessRulesDao", "extensions"})
-    public SecureCatalogImpl secureCatalog(@Qualifier("rawCatalog") Catalog rawCatalog)
-            throws Exception {
-        return new SecureCatalogImpl(rawCatalog);
     }
 
     @Bean(name = "accessRulesDao")

@@ -9,7 +9,15 @@ import java.util.Objects;
 import javax.servlet.ServletContext;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.platform.resource.DataDirectoryResourceStore;
+import org.geoserver.platform.resource.FileSystemResourceStore;
 
+/**
+ * {@link DataDirectoryResourceStore} that works both for webmvc (servlet) and reactive (WebFlux)
+ * configurations.
+ *
+ * <p>Works just like a {@link FileSystemResourceStore}, without needing a {@code ServletContext} to
+ * resolve the base directory, which shall be given to the constructor instead.
+ */
 @Slf4j
 @SuppressWarnings("serial")
 public class NoServletContextDataDirectoryResourceStore extends DataDirectoryResourceStore {

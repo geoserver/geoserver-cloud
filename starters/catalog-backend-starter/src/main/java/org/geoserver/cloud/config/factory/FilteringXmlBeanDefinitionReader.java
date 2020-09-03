@@ -14,13 +14,11 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
-import org.springframework.beans.factory.config.BeanDefinitionHolder;
-import org.springframework.beans.factory.parsing.BeanComponentDefinition;
-import org.springframework.beans.factory.support.BeanDefinitionReaderUtils;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.xml.BeanDefinitionParserDelegate;
 import org.springframework.beans.factory.xml.DefaultBeanDefinitionDocumentReader;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
+import org.springframework.context.annotation.ImportResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -28,6 +26,28 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
 
+/**
+ * Spring xml bean definition reader that uses a regular expression to include or exclude beans by
+ * name and alias.
+ *
+ * <p>It overloads the {@link ImportResource @ImportResource} {@code locations} attribute allowing
+ * to append a {@code #name=<regex>}, for example {@code servlet-context.xml#name=<regex>}
+ *
+ * <p>Examples:
+ *
+ * <p>Load all beans from a specific xml file on a specific jar file, except those named {@code foo}
+ * or {@code bar}:
+ *
+ * <pre>
+ * <code>
+ *  &#64;ImportResource(
+ *  reader = FilteringXmlBeanDefinitionReader.class,
+ *  // exclude beans named foo and bar:
+ *  locations = "jar:gs-main-.*!/applicationContext.xml#name=^(foo|bar)$"
+ *  )
+ * </code>
+ * </pre>
+ */
 @Slf4j
 public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
 
@@ -130,66 +150,28 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
 
     private void parseAndSetFilter(final String expression, final String resourceLocation) {
         String actualExpression = expression;
-        final boolean exclude = expression.startsWith("!");
-        if (exclude) actualExpression = expression.substring(1);
         String[] split = actualExpression.split("=");
         if (split.length != 2) {
             throw throwInvalidExpression(resourceLocation, actualExpression, null);
         }
         String filterType = split[0];
-        Predicate<String> matchPredicate;
+        if (!"name".equals(filterType)) {
+            throw throwInvalidExpression(resourceLocation, actualExpression, null);
+        }
         try {
             String regex = split[1];
-            matchPredicate = Pattern.compile(regex).asMatchPredicate();
+            Predicate<String> filter = Pattern.compile(regex).asMatchPredicate();
+            FilteringBeanDefinitionDocumentReader.addFitler(filter);
         } catch (RuntimeException e) {
             throw throwInvalidExpression(resourceLocation, actualExpression, e);
         }
-        if (exclude) {
-            matchPredicate = Predicate.not(matchPredicate);
-        }
-        Predicate<BeanDefinitionHolder> beanDefFilter;
-        if ("name".equals(filterType)) {
-            beanDefFilter = createBeanNameFilter(matchPredicate);
-        } else if ("type".equals(filterType)) {
-            beanDefFilter = createBeanTypeFilter(matchPredicate);
-        } else {
-            throw throwInvalidExpression(resourceLocation, actualExpression, null);
-        }
-        FilteringBeanDefinitionDocumentReader.addFitler(beanDefFilter);
-    }
-
-    private Predicate<BeanDefinitionHolder> createBeanNameFilter(Predicate<String> nameMatcher) {
-        return beanDef -> {
-            String name = beanDef.getBeanName();
-            if (nameMatcher.test(name)) {
-                return false; // register
-            }
-            for (int i = 0; beanDef.getAliases() != null && i < beanDef.getAliases().length; i++) {
-                String alias = beanDef.getAliases()[i];
-                if (nameMatcher.test(alias)) {
-                    return false; // register
-                }
-            }
-            return true; // do not register bean
-        };
-    }
-
-    private Predicate<BeanDefinitionHolder> createBeanTypeFilter(
-            Predicate<String> typeNamePredicate) {
-        return beanDef -> {
-            String beanClassName = beanDef.getBeanDefinition().getBeanClassName();
-            if (typeNamePredicate.test(beanClassName)) {
-                return false; // register, do not filter
-            }
-            return true; // filter out this bean
-        };
     }
 
     private IllegalArgumentException throwInvalidExpression(
             final String resourceLocation, String regex, Throwable cause) {
         String msg =
                 String.format(
-                        "Invalid bean filter expression (%s), expected <[!][name|type]=<regex>>, resource: %s",
+                        "Invalid bean filter expression (%s), expected name=<regex>>, resource: %s",
                         regex, resourceLocation);
         throw new IllegalArgumentException(msg);
     }
@@ -197,10 +179,10 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
     public static class FilteringBeanDefinitionDocumentReader
             extends DefaultBeanDefinitionDocumentReader {
 
-        private static ThreadLocal<List<Predicate<BeanDefinitionHolder>>> FILTERS =
+        private static ThreadLocal<List<Predicate<String>>> FILTERS =
                 ThreadLocal.withInitial(ArrayList::new);
 
-        public static void addFitler(Predicate<BeanDefinitionHolder> beanDefFilter) {
+        public static void addFitler(Predicate<String> beanDefFilter) {
             FILTERS.get().add(beanDefFilter);
         }
 
@@ -211,9 +193,10 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
         /**
          * @return {@code true) if any of the filters apply to the bean definition
          */
-        private boolean exclude(BeanDefinitionHolder bdHolder) {
-            for (Predicate<BeanDefinitionHolder> filter : FILTERS.get()) {
-                if (filter.test(bdHolder)) {
+        private boolean exclude(String name) {
+            List<Predicate<String>> filters = FILTERS.get();
+            for (Predicate<String> filter : filters) {
+                if (filter.test(name)) {
                     return true;
                 }
             }
@@ -221,82 +204,50 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
         }
 
         private boolean isFiltering() {
-            List<Predicate<BeanDefinitionHolder>> filters = FILTERS.get();
-            return !filters.isEmpty();
+            return !FILTERS.get().isEmpty();
         }
 
         protected @Override void processBeanDefinition(
                 Element ele, BeanDefinitionParserDelegate delegate) {
+
             if (isFiltering()) {
-                BeanDefinitionHolder bdHolder = delegate.parseBeanDefinitionElement(ele);
-                if (bdHolder == null) {
+                String name = ele.getAttribute(NAME_ATTRIBUTE);
+                if (StringUtils.hasText(name) && exclude(name)) {
+                    logFilteredBeanMessage(name);
                     return;
                 }
-                if (exclude(bdHolder)) {
-                    logFilteredBeanMessage(bdHolder);
-                } else {
-                    proceedWithBeanRegistration(ele, delegate, bdHolder);
+                if (StringUtils.hasLength(name)) {
+                    String[] aliases =
+                            StringUtils.tokenizeToStringArray(
+                                    name,
+                                    BeanDefinitionParserDelegate.MULTI_VALUE_ATTRIBUTE_DELIMITERS);
+                    for (String alias : aliases) {
+                        if (exclude(alias)) {
+                            logFilteredBeanMessage(alias);
+                            return;
+                        }
+                    }
                 }
-            } else {
-                super.processBeanDefinition(ele, delegate);
             }
+            super.processBeanDefinition(ele, delegate);
         }
 
-        private void logFilteredBeanMessage(BeanDefinitionHolder bdHolder) {
+        protected @Override void processAliasRegistration(Element ele) {
+            if (isFiltering()) {
+                String name = ele.getAttribute(NAME_ATTRIBUTE);
+                String alias = ele.getAttribute(ALIAS_ATTRIBUTE);
+                if ((StringUtils.hasText(name) && exclude(name))
+                        || (StringUtils.hasText(alias) && exclude(alias))) {
+                    logFilteredBeanMessage(name);
+                    return;
+                }
+            }
+            super.processAliasRegistration(ele);
+        }
+
+        private void logFilteredBeanMessage(String beanName) {
             String msgFormat = "Excluded by one of the configured filter expressions: {}";
-            if (log.isTraceEnabled()) {
-                log.trace(msgFormat, bdHolder.getLongDescription());
-            } else {
-                log.debug(msgFormat, bdHolder.getShortDescription());
-            }
-        }
-
-        /**
-         * This method is a verbatim copy of {@link
-         * DefaultBeanDefinitionDocumentReader#processBeanDefinition} from {@code
-         * spring-beans-5.2.8.RELEASE.jar}, and is reproduced here because calling {@code
-         * super.processBeanDefinition(Element, BeanDefinitionParserDelegate)} would result in a
-         * "BeanDefinitionParsingException: Configuration problem: Bean name '{bean name here}' is
-         * already used in this <beans> element" error, as {@code
-         * delegate.parseBeanDefinitionElement(ele)} has already been called to apply the bean
-         * filters.
-         *
-         * <p>Original license holds, copied bellow:
-         *
-         * <pre>
-         * <code>
-         * Copyright 2002-2018 the original author or authors.
-         *
-         * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
-         * except in compliance with the License. You may obtain a copy of the License at
-         *
-         * https://www.apache.org/licenses/LICENSE-2.0
-         *
-         * Unless required by applicable law or agreed to in writing, software distributed under the
-         * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-         * either express or implied. See the License for the specific language governing
-         * permissions and limitations under the License.
-         * </code>
-         * </pre>
-         */
-        private void proceedWithBeanRegistration(
-                Element ele, BeanDefinitionParserDelegate delegate, BeanDefinitionHolder bdHolder) {
-            bdHolder = delegate.decorateBeanDefinitionIfRequired(ele, bdHolder);
-            try {
-                // Register the final decorated instance.
-                BeanDefinitionReaderUtils.registerBeanDefinition(
-                        bdHolder, getReaderContext().getRegistry());
-            } catch (BeanDefinitionStoreException ex) {
-                getReaderContext()
-                        .error(
-                                "Failed to register bean definition with name '"
-                                        + bdHolder.getBeanName()
-                                        + "'",
-                                ele,
-                                ex);
-            }
-            // Send registration event.
-            getReaderContext().fireComponentRegistered(new BeanComponentDefinition(bdHolder));
+            log.trace(msgFormat, beanName);
         }
     }
 }

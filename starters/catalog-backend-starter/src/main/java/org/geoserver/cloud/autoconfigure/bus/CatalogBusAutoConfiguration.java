@@ -4,7 +4,6 @@
  */
 package org.geoserver.cloud.autoconfigure.bus;
 
-import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.bus.catalog.CatalogBusConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -18,5 +17,4 @@ import org.springframework.context.annotation.Import;
 @ConditionalOnBusEnabled
 @AutoConfigureAfter(BusAutoConfiguration.class)
 @Import({CatalogBusConfiguration.class})
-@Slf4j
 public class CatalogBusAutoConfiguration {}

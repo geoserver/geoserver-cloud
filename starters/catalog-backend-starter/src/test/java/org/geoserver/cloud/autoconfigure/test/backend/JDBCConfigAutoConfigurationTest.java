@@ -10,6 +10,7 @@ import org.geoserver.catalog.impl.CatalogImpl;
 import org.geoserver.catalog.impl.WorkspaceInfoImpl;
 import org.geoserver.cloud.autoconfigure.catalog.JDBCConfigAutoConfiguration;
 import org.geoserver.cloud.autoconfigure.testconfiguration.AutoConfigurationTestConfiguration;
+import org.geoserver.cloud.config.catalog.GeoServerBackendProperties;
 import org.geoserver.cloud.config.jdbcconfig.CloudJdbcGeoserverFacade;
 import org.geoserver.cloud.config.jdbcconfig.JDBCConfigBackendConfigurer;
 import org.geoserver.jdbcconfig.JDBCGeoServerLoader;
@@ -31,6 +32,8 @@ public class JDBCConfigAutoConfigurationTest extends JDBCConfigTest {
 
     public @Test void testCatalog() {
         assertThat(rawCatalog, instanceOf(CatalogImpl.class));
+        GeoServerBackendProperties props = context.getBean(GeoServerBackendProperties.class);
+        System.err.println(props);
     }
 
     public @Test void testCatalogFacade() {

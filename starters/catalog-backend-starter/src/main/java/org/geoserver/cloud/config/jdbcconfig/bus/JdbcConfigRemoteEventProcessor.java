@@ -18,7 +18,7 @@ import org.springframework.context.event.EventListener;
  * Listens to {@link CatalogRemoteEvent}s and evicts the modified or deleted {@link CatalogInfo }
  * from the {@link ConfigDatabase} cache
  */
-@Slf4j(topic = "org.geoserver.cloud.jdbcconfig.bus")
+@Slf4j(topic = "org.geoserver.cloud.catalog.bus.incoming.jdbcconfig")
 public class JdbcConfigRemoteEventProcessor {
     private @Autowired ServiceMatcher busServiceMatcher;
 

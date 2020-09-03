@@ -5,11 +5,15 @@ import java.nio.file.Path;
 import javax.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.cloud.config.catalog.GeoServerBackendConfigurer;
+import org.geoserver.cloud.config.catalog.GeoServerBackendProperties;
+import org.geoserver.config.DefaultGeoServerLoader;
+import org.geoserver.config.GeoServerFacade;
+import org.geoserver.config.GeoServerLoader;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.ResourceStore;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,31 +24,37 @@ import org.springframework.context.annotation.Configuration;
 public class DataDirectoryBackendConfigurer implements GeoServerBackendConfigurer {
 
     private @Autowired @Getter ApplicationContext context;
+    private @Autowired GeoServerBackendProperties configProperties;
 
     public @PostConstruct void log() {
         log.info("Loading geoserver config backend with {}", getClass().getSimpleName());
     }
 
-    @ConfigurationProperties(prefix = "geoserver.backend.data-directory")
-    public @Bean DataDirectoryProperties dataDirectoryProperties() {
-        DataDirectoryProperties dataDirectoryProperties = new DataDirectoryProperties();
-        return dataDirectoryProperties;
+    public @Override @Bean CatalogFacade catalogFacade() {
+        return new org.geoserver.catalog.plugin.DefaultCatalogFacade();
+    }
+
+    public @Override @Bean GeoServerFacade geoserverFacade() {
+        return new org.geoserver.catalog.plugin.DefaultGeoServerFacade();
+    }
+
+    public @Override @Bean GeoServerLoader geoServerLoaderImpl() {
+        GeoServerResourceLoader resourceLoader = resourceLoader();
+        return new DefaultGeoServerLoader(resourceLoader);
     }
 
     public @Override @Bean GeoServerResourceLoader resourceLoader() {
         ResourceStore resourceStore = resourceStoreImpl();
         GeoServerResourceLoader resourceLoader = new GeoServerResourceLoader(resourceStore);
-        DataDirectoryProperties props = dataDirectoryProperties();
-        log.debug("geoserver.backend.data-directory.location:" + props.getLocation());
-        Path path = props.getLocation();
-        File dataDirectory = path.toFile();
+        Path location = configProperties.getDataDirectory().getLocation();
+        log.debug("geoserver.backend.data-directory.location:" + location);
+        File dataDirectory = location.toFile();
         resourceLoader.setBaseDirectory(dataDirectory);
         return resourceLoader;
     }
 
     public @Override @Bean ResourceStore resourceStoreImpl() {
-        DataDirectoryProperties props = dataDirectoryProperties();
-        Path path = props.getLocation();
+        Path path = configProperties.getDataDirectory().getLocation();
         File dataDirectory = path.toFile();
         return new NoServletContextDataDirectoryResourceStore(dataDirectory);
     }

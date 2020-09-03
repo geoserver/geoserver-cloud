@@ -16,7 +16,6 @@ import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.cloud.config.catalog.GeoServerBackendConfigurer;
 import org.geoserver.cloud.config.jdbcconfig.bus.JdbcConfigRemoteEventProcessor;
 import org.geoserver.config.GeoServerFacade;
-import org.geoserver.config.GeoServerLoader;
 import org.geoserver.config.util.XStreamPersisterFactory;
 import org.geoserver.jdbcconfig.JDBCGeoServerLoader;
 import org.geoserver.jdbcconfig.catalog.JDBCCatalogFacade;
@@ -150,7 +149,7 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
     }
 
     @Bean(name = {"geoserverFacade", "JDBCGeoServerFacade"})
-    public @Override GeoServerFacade geoserverFacade() throws Exception {
+    public @Override GeoServerFacade geoserverFacade() {
         initDbSchema(jdbcConfigProperties(), jdbcStoreProperties(), jdbcConfigDB());
         ConfigDatabase configDB = jdbcConfigDB();
         CloudJdbcGeoserverFacade facade = new CloudJdbcGeoserverFacade(configDB);
@@ -159,13 +158,13 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
 
     @Bean(name = {"geoServerLoaderImpl", "JDBCGeoServerLoader"})
     @DependsOn({"catalogFacade", "geoserverFacade"})
-    public @Override GeoServerLoader geoServerLoaderImpl() {
+    public @Override CloudJdbcGeoServerLoader geoServerLoaderImpl() {
         JDBCConfigProperties config = jdbcConfigProperties();
-        JDBCGeoServerLoader loader;
+        CloudJdbcGeoServerLoader loader;
         try {
-            loader = new JDBCGeoServerLoader(resourceLoader(), config);
+            loader = new CloudJdbcGeoServerLoader(resourceLoader(), config);
             loader.setCatalogFacade(catalogFacade());
-            loader.setGeoServerFacade(geoserverFacade());
+            loader.setGeoServerFacade(getContext().getBean(CloudJdbcGeoserverFacade.class));
             return loader;
         } catch (Exception e) {
             throw new BeanInstantiationException(JDBCGeoServerLoader.class, e.getMessage(), e);

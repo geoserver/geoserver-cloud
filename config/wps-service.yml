@@ -1,6 +1,10 @@
 geoserver:
   security.enabled: true
   servlet.filter.session-debug.enabled: false # until the NPE is fixed
+  catalog:
+    advertised: true
+    localWorkspace: true
+    secure: true
   backend:
     data-directory:
       enabled: false
@@ -42,9 +46,9 @@ logging:
   level:
     root: WARN
     org.springframework: ERROR
-    org.geoserver: WARN
-    org.geoserver.platform: ERROR
+    org.springframework.cloud.bus: INFO
     org.geoserver.cloud: INFO
+    org.geoserver.cloud.catalog.bus: DEBUG
     org.geoserver.cloud.autoconfigure: INFO
     org.geoserver.jdbcconfig: INFO
     org.geoserver.jdbcconfig.internal: INFO
