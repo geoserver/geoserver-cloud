@@ -12,7 +12,7 @@ geoserver:
     jdbcconfig:
       enabled: true
       initdb: false
-      web.enabled: false
+      web.enabled: true
       cache-directory: ${jdbcconfig.cachedir:${java.io.tmpdir}/geoserver-jdbcconfig-cache}
       datasource:
         jdbcUrl: ${jdbcconfig.url:"jdbc:postgresql://database:5432/geoserver_config"}
@@ -23,7 +23,32 @@ geoserver:
         schema: public
         minimumIdle: 2
         maximumPoolSize: 8
-
+  web-ui:
+    # Theese are all default values, here just for reference. You can omit them and add only the ones to disable or further configure
+    security.enabled: true
+    wfs.enabled: true
+    wms.enabled: true
+    wcs.enabled: true
+    wps.enabled: true
+    gwc.enabled: false # not ready yet
+    demos:
+      enabled: true
+      wps-request-builder: true
+      wcs-request-builder: true
+      demo-requests: true
+      srs-list: true
+      reprojection-console: true
+      layer-preview-page:
+        enabled: true
+        common-formats:
+          open-layers: true
+          gml: true
+          kml: true
+    tools:
+      enabled: true
+      resource-browser: true
+      catalog-bulk-load: true
+    
 spring:
   rabbitmq:
     host: ${RABBITMQ_HOST:localhost}
@@ -41,7 +66,6 @@ spring:
           destination: gscatalog
         springCloudBusInput:
           destination: gscatalog
-
 logging:
   level:
     root: WARN
@@ -49,8 +73,10 @@ logging:
     org.springframework.cloud.bus: INFO
     org.geoserver.platform: ERROR
     org.geoserver.cloud: INFO
-    org.geoserver.cloud.catalog.bus: DEBUG
-    org.geoserver.cloud.autoconfigure: DEBUG
+    org.geoserver.cloud.catalog.bus: INFO
+    org.geoserver.cloud.autoconfigure: INFO
+    org.geoserver.cloud.config.factory: INFO
     org.geoserver.jdbcconfig: INFO
     org.geoserver.jdbcconfig.internal: INFO
-    oshi.hardware.platform.linux: OFF
+    oshi.hardware.platform.linux: ERROR
+    oshi.software.os: ERROR

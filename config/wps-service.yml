@@ -47,10 +47,12 @@ logging:
     root: WARN
     org.springframework: ERROR
     org.springframework.cloud.bus: INFO
+    org.geoserver.platform: ERROR
     org.geoserver.cloud: INFO
-    org.geoserver.cloud.config.factory: DEBUG
-    org.geoserver.cloud.catalog.bus: DEBUG
+    org.geoserver.cloud.catalog.bus: INFO
     org.geoserver.cloud.autoconfigure: INFO
+    org.geoserver.cloud.config.factory: INFO
     org.geoserver.jdbcconfig: INFO
     org.geoserver.jdbcconfig.internal: INFO
-    oshi.hardware.platform.linux: OFF
+    oshi.hardware.platform.linux: ERROR
+    oshi.software.os: ERROR
