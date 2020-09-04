@@ -1,5 +1,6 @@
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
+name: GeoServer latest stable release
 on:
   push:
     branches: [ master ]
@@ -11,11 +12,12 @@ jobs:
     name: Build and Test 
     runs-on: [ubuntu-latest]
     timeout-minutes: 60
+    env:
+      GS_VERSION: 2.17.2
     steps:
-    
     - name: Checkout project
       uses: actions/checkout@v1
-    
+
     - name: Set up Java 11
       uses: actions/setup-java@v1
       with:
@@ -25,19 +27,19 @@ jobs:
       uses: actions/cache@v1.1.0
       with:
         path: ~/.m2/repository
-        key: gscloud-${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        key: gscloud-gs-stable-${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
-          gscloud-${{ runner.os }}-maven-
+          gscloud-gs-stable-${{ runner.os }}-maven-
 
     - name: Update maven dependencies
-      run: ./mvnw -P\!docker de.qaware.maven:go-offline-maven-plugin:resolve-dependencies --no-transfer-progress
+      run: ./mvnw -Dgs.version=${GS_VERSION} -P\!docker de.qaware.maven:go-offline-maven-plugin:resolve-dependencies --no-transfer-progress
 
     - name: Build without tests
-      run: ./mvnw -P\!docker -ntp -Dfmt.action=check install -T1C -DskipTests
+      run: ./mvnw -Dgs.version=${GS_VERSION} -P\!docker -ntp -Dfmt.action=check install -T1C -DskipTests
 
     - name: Test
-      run: ./mvnw -P\!docker -ntp verify -T1C -fae
+      run: ./mvnw -Dgs.version=${GS_VERSION} -P\!docker -ntp verify -T1C -fae
 
-    - name: Remove SNAPSHOT jars from repository
+    - name: Remove project jars from cached repository
       run: |
-        find .m2/repository/org/geoserver/cloud -name "*SNAPSHOT*" -type d | xargs rm -rf {}
+        rm -rf .m2/repository/org/geoserver/cloud
