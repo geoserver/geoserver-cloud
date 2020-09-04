@@ -4,17 +4,17 @@
  */
 package org.geoserver.cloud.config.factory;
 
-import static org.springframework.util.StringUtils.hasLength;
 import static org.springframework.util.StringUtils.hasText;
-import static org.springframework.util.StringUtils.isEmpty;
 import static org.springframework.util.StringUtils.tokenizeToStringArray;
 
-import com.google.common.base.Splitter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
@@ -30,14 +30,21 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.lang.Nullable;
+import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
 
 /**
  * Spring xml bean definition reader that uses a regular expression to include or exclude beans by
- * name and alias.
+ * name and alias using a regular expression.
  *
  * <p>It overloads the {@link ImportResource @ImportResource} {@code locations} attribute allowing
- * to append a {@code #name=<regex>}, for example {@code servlet-context.xml#name=<regex>}
+ * to append an <b>inclusion</b> filter in the form {@code #name=<regex>}, for example {@code
+ * servlet-context.xml#name=<regex>}. That is, if the regular expression applied to the bean name
+ * matches, then the bean will be registered, otherwise it'll be discarded.
+ *
+ * <p>Note, as a compromis, the regular expressions are evaluated against bean names, not aliases.
+ * Alias registration is deferred to after all beans matching the regular expression are registered,
+ * discarding the alias of beans that were not registered.
  *
  * <p>Examples:
  *
@@ -49,12 +56,25 @@ import org.w3c.dom.Element;
  *  &#64;ImportResource(
  *  reader = FilteringXmlBeanDefinitionReader.class,
  *  // exclude beans named foo and bar:
- *  locations = "jar:gs-main-.*!/applicationContext.xml#name=^(foo|bar)$"
+ *  locations = "jar:gs-main-.*!/applicationContext.xml#name=^(?!foo|bar).*$"
+ *  )
+ * </code>
+ * </pre>
+ *
+ * <p>Load only {@code foo}, {@code bar}, and any bean called "gml*OutputFormat" {@code
+ * gml.*OutputFormat}
+ *
+ * <pre>
+ * <code>
+ *  &#64;ImportResource(
+ *  reader = FilteringXmlBeanDefinitionReader.class,
+ *  // exclude beans named foo and bar:
+ *  locations = "jar:gs-main-.*!/applicationContext.xml#name=^(foo|bar|gml.*OutputFormat).*$"
  *  )
  * </code>
  * </pre>
  */
-@Slf4j
+@Slf4j(topic = "org.geoserver.cloud.config.factory")
 public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
 
     public FilteringXmlBeanDefinitionReader(BeanDefinitionRegistry registry) {
@@ -66,7 +86,7 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
             throws BeanDefinitionStoreException {
 
         super.setDocumentReaderClass(FilteringBeanDefinitionDocumentReader.class);
-        parseAndSetBeanFilters(location);
+        parseAndSetBeanInclusionFilters(location);
         location = removeBeanFilterExpressions(location);
         try {
             return loadBeanDefinitionsApplyingFilters(location, actualResources);
@@ -142,34 +162,31 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
         return location;
     }
 
-    private void parseAndSetBeanFilters(String location) {
+    private void parseAndSetBeanInclusionFilters(String location) {
         if (location.contains(".xml#")) {
-            String rawFilters = location.substring(".xml#".length() + location.indexOf(".xml#"));
-            if (!isEmpty(rawFilters)) {
-                Splitter.on(",")
-                        .omitEmptyStrings()
-                        .splitToList(rawFilters)
-                        .forEach(expr -> parseAndSetFilter(expr, location));
+            String filterTypeAndRegularExpression =
+                    location.substring(".xml#".length() + location.indexOf(".xml#"));
+            if (hasText(filterTypeAndRegularExpression)) {
+                String[] split = filterTypeAndRegularExpression.split("=");
+                if (split.length != 2) {
+                    throw throwInvalidExpression(location, filterTypeAndRegularExpression, null);
+                }
+                String filterType = split[0];
+                if (!"name".equals(filterType)) {
+                    throw throwInvalidExpression(location, filterTypeAndRegularExpression, null);
+                }
+                String regex = split[1];
+                addBeanNameIncludeFilter(regex, location);
             }
         }
     }
 
-    private void parseAndSetFilter(final String expression, final String resourceLocation) {
-        String actualExpression = expression;
-        String[] split = actualExpression.split("=");
-        if (split.length != 2) {
-            throw throwInvalidExpression(resourceLocation, actualExpression, null);
-        }
-        String filterType = split[0];
-        if (!"name".equals(filterType)) {
-            throw throwInvalidExpression(resourceLocation, actualExpression, null);
-        }
+    private void addBeanNameIncludeFilter(final String regex, final String resourceLocation) {
         try {
-            String regex = split[1];
-            Predicate<String> filter = Pattern.compile(regex).asMatchPredicate();
-            FilteringBeanDefinitionDocumentReader.addFitler(filter);
+            Predicate<String> matcher = Pattern.compile(regex).asMatchPredicate();
+            FilteringBeanDefinitionDocumentReader.addMatcher(matcher);
         } catch (RuntimeException e) {
-            throw throwInvalidExpression(resourceLocation, actualExpression, e);
+            throw throwInvalidExpression(resourceLocation, regex, e);
         }
     }
 
@@ -185,24 +202,25 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
     public static class FilteringBeanDefinitionDocumentReader
             extends DefaultBeanDefinitionDocumentReader {
 
-        private static ThreadLocal<List<Predicate<String>>> FILTERS =
+        private static ThreadLocal<List<Predicate<String>>> MATCHERS =
                 ThreadLocal.withInitial(ArrayList::new);
 
-        public static void addFitler(Predicate<String> beanDefFilter) {
-            FILTERS.get().add(beanDefFilter);
+        public static void addMatcher(Predicate<String> beanDefFilter) {
+            MATCHERS.get().add(beanDefFilter);
         }
 
         public static void releaseFiltersThreadLocals() {
-            FILTERS.remove();
+            MATCHERS.remove();
         }
 
         /**
-         * @return {@code true) if any of the filters apply to the bean definition
+         * @return {@code true) if any of the filters apply to the bean definition, meaning the bean
+         *         shall be registered; {@code false} if the bean shall be discarded
          */
-        private boolean exclude(String name) {
-            List<Predicate<String>> filters = FILTERS.get();
-            for (Predicate<String> filter : filters) {
-                if (filter.test(name)) {
+        private boolean include(String name) {
+            List<Predicate<String>> matchers = MATCHERS.get();
+            for (Predicate<String> matcher : matchers) {
+                if (matcher.test(name)) {
                     return true;
                 }
             }
@@ -210,69 +228,121 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
         }
 
         private boolean isFiltering() {
-            return !FILTERS.get().isEmpty();
+            return !MATCHERS.get().isEmpty();
         }
 
         private Set<String> blackListedBeanNames = new HashSet<String>();
+        private Map<String, String> deferredNameToAlias = new HashMap<String, String>();
 
-        protected @Override void processBeanDefinition(
-                Element ele, BeanDefinitionParserDelegate delegate) {
-            if (isFiltering()) {
-                String nameAtt = ele.getAttribute(NAME_ATTRIBUTE);
-                if (!hasText(nameAtt)) {
-                    nameAtt = ele.getAttribute("id"); // old style
-                }
-                if (blackListedBeanNames.contains(nameAtt)) {
-                    // in case the <alias/> element came before the bean definition
-                    return;
-                }
-                String aliasAtt = ele.getAttribute(ALIAS_ATTRIBUTE);
-                if (!hasText(aliasAtt)) aliasAtt = nameAtt; // name can be a comma separated list
-
-                if (hasText(nameAtt) && exclude(nameAtt)) {
-                    logFilteredBeanMessage(nameAtt);
-                    return;
-                }
-                if (hasLength(aliasAtt)) {
-                    String[] aliases =
-                            tokenizeToStringArray(
-                                    nameAtt,
-                                    BeanDefinitionParserDelegate.MULTI_VALUE_ATTRIBUTE_DELIMITERS);
-                    for (String alias : aliases) {
-                        if (exclude(alias)) {
-                            logFilteredBeanMessage(alias);
-                            return;
-                        }
-                    }
-                }
+        protected @Override void doRegisterBeanDefinitions(Element root) {
+            super.doRegisterBeanDefinitions(root);
+            blackListedBeanNames.forEach(deferredNameToAlias::remove);
+            for (Entry<String, String> e : deferredNameToAlias.entrySet()) {
+                String name = e.getKey();
+                String alias = e.getValue();
+                registerDeferredAlias(name, alias);
             }
-            super.processBeanDefinition(ele, delegate);
+        }
+
+        private void registerDeferredAlias(String name, String alias) {
+            String msgFormat = "Registering   '{}' alias for '{}'";
+            log.debug(msgFormat, alias, name);
+            try {
+                getReaderContext().getRegistry().registerAlias(name, alias);
+            } catch (Exception ex) {
+                getReaderContext()
+                        .error(
+                                "Failed to register alias '"
+                                        + alias
+                                        + "' for bean with name '"
+                                        + name
+                                        + "'",
+                                null,
+                                ex);
+            }
+            getReaderContext().fireAliasRegistered(name, alias, null);
         }
 
         protected @Override void processAliasRegistration(Element ele) {
-            if (isFiltering()) {
-                String name = ele.getAttribute(NAME_ATTRIBUTE);
-                String alias = ele.getAttribute(ALIAS_ATTRIBUTE);
-                if (exclude(alias)) {
-                    try {
-                        getReaderContext().getRegistry().removeBeanDefinition(name);
-                    } catch (NoSuchBeanDefinitionException ok) {
-                        log.trace(
-                                "Blacklisted bean {}, alias {} comes first in the xml file",
-                                name,
-                                alias);
-                        blackListedBeanNames.add(name);
-                    }
-                    logFilteredBeanMessage(String.format("alias: %s, name: %s", alias, name));
-                    return;
-                }
+            if (!isFiltering()) {
+                super.processAliasRegistration(ele);
+                return;
             }
-            super.processAliasRegistration(ele);
+            final String name = ele.getAttribute(NAME_ATTRIBUTE);
+            final String alias = ele.getAttribute(ALIAS_ATTRIBUTE);
+            if (!StringUtils.hasText(name)) {
+                getReaderContext().error("Name must not be empty", ele);
+                return;
+            }
+            if (!StringUtils.hasText(alias)) {
+                getReaderContext().error("Alias must not be empty", ele);
+                return;
+            }
+            deferredNameToAlias.put(name, alias);
         }
 
-        private void logFilteredBeanMessage(String beanName) {
-            String msgFormat = "Excluded by one of the configured filter expressions: {}";
-            log.info(msgFormat, beanName);
+        private void tryUnregister(String name, String alias) {
+            try {
+                getReaderContext().getRegistry().removeBeanDefinition(name);
+            } catch (NoSuchBeanDefinitionException ok) {
+                log.trace("Blacklisted bean {}, alias {} comes first in the xml file", name, alias);
+            }
+        }
+
+        protected @Override void processBeanDefinition(
+                Element ele, BeanDefinitionParserDelegate delegate) {
+            if (!isFiltering()) {
+                super.processBeanDefinition(ele, delegate);
+                return;
+            }
+
+            final String beanNameOrId = getBeanNameOrId(ele);
+            if (shallInclude(beanNameOrId, ele)) {
+                if (hasText(beanNameOrId)) {
+                    logIncludingBeanMessage(beanNameOrId);
+                }
+                super.processBeanDefinition(ele, delegate);
+            } else if (hasText(beanNameOrId)) {
+                blackListedBeanNames.add(beanNameOrId);
+                logExcludedBeanMessage(beanNameOrId);
+            }
+        }
+
+        private boolean shallInclude(String nameAtt, Element ele) {
+            if (!hasText(nameAtt) || include(nameAtt)) {
+                return true;
+            }
+
+            String aliasAtt = ele.getAttribute(ALIAS_ATTRIBUTE);
+            if (!hasText(aliasAtt)) aliasAtt = nameAtt; // name can be a comma separated list
+
+            String[] aliases =
+                    tokenizeToStringArray(
+                            nameAtt, BeanDefinitionParserDelegate.MULTI_VALUE_ATTRIBUTE_DELIMITERS);
+            for (String alias : aliases) {
+                if (include(alias)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private String getBeanNameOrId(Element ele) {
+            String nameAtt = ele.getAttribute(NAME_ATTRIBUTE);
+            if (!hasText(nameAtt)) {
+                nameAtt = ele.getAttribute("id"); // old style
+            }
+            return nameAtt;
+        }
+
+        private void logIncludingBeanMessage(String beanName) {
+            String msgFormat = "Registering   '{}', matches regular expression";
+            log.debug(msgFormat, beanName);
+        }
+
+        private void logExcludedBeanMessage(String beanName) {
+            String msgFormat = "Excluded bean '{}', no regular expression matches";
+            log.debug(msgFormat, beanName);
         }
     }
 }

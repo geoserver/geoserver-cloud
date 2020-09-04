@@ -41,6 +41,11 @@ import org.springframework.context.annotation.ImportResource;
     reader = FilteringXmlBeanDefinitionReader.class, //
     // exclude beans
     locations =
-            "jar:gs-main-.*!/applicationContext.xml#name=^(rawCatalog|secureCatalog|localWorkspaceCatalog|catalog|advertisedCatalog|accessRulesDao|catalogFacade|dataDirectory|extensions|geoServer|geoserverFacade|geoServerLoader|geoServerSecurityManager|resourceLoader|resourceStoreImpl|secureCatalog|xstreamPersisterFactory)$" //
+            "jar:gs-main-.*!/applicationContext.xml#name="
+                    + GeoServerMainModuleConfiguration.EXCLUDE_BEANS_REGEX
 )
-public class GeoServerMainModuleConfiguration {}
+public class GeoServerMainModuleConfiguration {
+
+    static final String EXCLUDE_BEANS_REGEX =
+            "^(?!rawCatalog|secureCatalog|localWorkspaceCatalog|catalog|advertisedCatalog|accessRulesDao|catalogFacade|dataDirectory|extensions|geoServer|geoserverFacade|geoServerLoader|geoServerSecurityManager|resourceLoader|resourceStoreImpl|secureCatalog|xstreamPersisterFactory).*$";
+}
