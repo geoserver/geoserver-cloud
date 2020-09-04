@@ -49,6 +49,7 @@ logging:
     org.springframework.cloud.bus: INFO
     org.geoserver.platform: ERROR
     org.geoserver.cloud: INFO
+    org.geoserver.cloud.config.factory: DEBUG
     org.geoserver.cloud.catalog.bus: DEBUG
     org.geoserver.cloud.autoconfigure: INFO
     org.geoserver.jdbcconfig: INFO

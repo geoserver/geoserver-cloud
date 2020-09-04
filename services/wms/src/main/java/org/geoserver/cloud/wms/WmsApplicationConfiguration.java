@@ -7,7 +7,6 @@ package org.geoserver.cloud.wms;
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
 import org.geoserver.config.GeoServer;
 import org.geoserver.wfs.xml.FeatureTypeSchemaBuilder;
-import org.geoserver.wfs.xml.GML3OutputFormat;
 import org.geoserver.wfs.xml.v1_1_0.WFS;
 import org.geoserver.wfs.xml.v1_1_0.WFSConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -17,17 +16,18 @@ import org.springframework.context.annotation.ImportResource;
 @Configuration
 @ImportResource( //
     reader = FilteringXmlBeanDefinitionReader.class, //
-    locations = "jar:gs-wms-.*!/applicationContext.xml" //
+    locations = { //
+        "jar:gs-wms-.*!/applicationContext.xml", //
+        "jar:gs-wfs-.*!/applicationContext.xml#name=" + WmsApplicationConfiguration.WFS_BEANS_REGEX
+    }
 )
 public class WmsApplicationConfiguration {
+
+    static final String WFS_BEANS_REGEX =
+            "^(gml.*OutputFormat|bboxKvpParser|xmlConfiguration.*|gml[1-9]*SchemaBuilder|wfsXsd.*|wfsSqlViewKvpParser).*$";
 
     public @Bean WFSConfiguration wfsConfiguration(GeoServer geoServer) {
         FeatureTypeSchemaBuilder schemaBuilder = new FeatureTypeSchemaBuilder.GML3(geoServer);
         return new WFSConfiguration(geoServer, schemaBuilder, new WFS(schemaBuilder));
-    }
-
-    public @Bean GML3OutputFormat gml3OutputFormat(
-            GeoServer geoServer, WFSConfiguration configuration) {
-        return new GML3OutputFormat(geoServer, configuration);
     }
 }
