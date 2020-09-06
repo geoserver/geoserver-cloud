@@ -26,16 +26,40 @@ Browse to [http://localhost:9090/web](http://localhost:9090/web)
 
 ## Services Architecture
 
-TODO: explain
+![Cloud Native GeoServer Architecture Diagram](gs_cloud_architecture_diagram.svg  "Architecture Diagram")
+*Cloud Native GeoServer Architecture Diagram*
 
-* Discovery
-* Config
-* Event bus
-* Gateway
-* Catalog
-* OWS services
-* REST API service
-* Web-UI service
+The above diagram depicts the overall system's architecture. This is not a deployment diagram. Deployment involves choice of platforms, configurations, and more; without affecting the general architecture.
+
+- Hexagons represent microservice components;
+- lines connecting a group to another component: connector applies to all services of the outgoing end, to all components of the incoming end; 
+- coloured rectangles, logical groupings of components;
+- white rectangles, components that are platform/deployment choices. For example:
+    - "Event bus" could be a cloud provider's native service (event queue), or a microservice implementing a distributed event broker;
+    - "Catalog/Config backend" is the software compoent used to access the catalog and configuration. Might be a microservice itself, a shared "data directory" or database, a "per instance" data directory or database, and so on, depending on the available catalog/config backend implementations;
+    - "Catalog/Config storage" is the storage mechanism that backs the catalog/config software component. 
+    - "Geospatial data sources" is whatever method is used to access the actual data served up by the microservices.
+    
+Note: so "Discovery" and "Config" could be cloud provider's native services or microservices. Might need updating the diagram...
+
+TODO: provide more detail?
+
+* Front services:
+    * Gateway
+    * Monitoring
+* Infrastructure:
+    * Discovery
+    * Config
+    * Event bus
+    * Logging
+    * Tracing
+    * Cache
+* GeoServer:
+     * Catalog
+     * OWS services
+     * REST API service
+     * Web-UI service
+     * GWC service
 
 ## Building
 
