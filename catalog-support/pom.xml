@@ -16,6 +16,7 @@
     <module>pluggable-catalog-support</module>
     <module>catalog-cache</module>
     <module>catalog-event-bus</module>
+    <module>catalog-event-bus-amqp</module>
   </modules>
   <dependencies>
     <dependency>

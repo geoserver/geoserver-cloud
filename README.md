@@ -153,7 +153,7 @@ We're currently using GeoServer's `jdbcconfig` and `jdbcstore` community modules
 
 The use `jdbcconfig` and `jdbcstore` has been customized to allow for spring-boot style configuration through `application.yml` or `application.properties` files, served up by the `config-service` from the `config/` directory. That said, it is envisioned to develop alternate, more scalable, catalog backend plugins.
 
-We're using [spring-cloud-bus](https://cloud.spring.io/spring-cloud-static/spring-cloud-bus/3.0.0.M1/reference/html/) to coordinate
+We're using [spring-cloud-bus](https://cloud.spring.io/spring-cloud-static/spring-cloud-bus/3.0.0.M1/reference/html/) to coordinate configuration changes across services in the cluster.
 
 By [1.0.0](https://github.com/camptocamp/geoserver-microservices/milestone/2) at the end of September 2020 we should be able to deploying to Kubernetes using Kubernetes native services for service discovery and externalized configuration.
 
