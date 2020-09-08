@@ -58,6 +58,8 @@ geoserver:
     wcs.enabled: true
     wps.enabled: true
     gwc.enabled: false # not ready yet
+    extensions:
+      importer.enabled: true
     demos:
       enabled: true
       wps-request-builder: true
