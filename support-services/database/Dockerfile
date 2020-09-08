@@ -1,4 +1,4 @@
-FROM postgres:12-alpine
+FROM postgis/postgis:latest
 LABEL maintainer="GeoServer PSC <geoserver-users@lists.sourceforge.net>"
 
 VOLUME [ "/var/lib/postgresql/data" ]
