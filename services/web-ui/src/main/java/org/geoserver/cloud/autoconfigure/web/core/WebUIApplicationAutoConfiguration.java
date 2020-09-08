@@ -6,6 +6,7 @@ package org.geoserver.cloud.autoconfigure.web.core;
 
 import org.geoserver.cloud.autoconfigure.core.GeoServerWebMvcMainAutoConfiguration;
 import org.geoserver.cloud.autoconfigure.web.demo.DemosAutoConfiguration;
+import org.geoserver.cloud.autoconfigure.web.extension.ExtensionsAutoConfiguration;
 import org.geoserver.cloud.autoconfigure.web.security.SecurityAutoConfiguration;
 import org.geoserver.cloud.autoconfigure.web.tools.ToolsAutoConfiguration;
 import org.geoserver.cloud.autoconfigure.web.wcs.WcsAutoConfiguration;
@@ -25,6 +26,7 @@ import org.springframework.context.annotation.Import;
     WmsAutoConfiguration.class,
     WcsAutoConfiguration.class,
     WpsAutoConfiguration.class,
+    ExtensionsAutoConfiguration.class,
     DemosAutoConfiguration.class,
     ToolsAutoConfiguration.class
 })

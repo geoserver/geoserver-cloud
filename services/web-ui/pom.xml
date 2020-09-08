@@ -247,5 +247,21 @@
         </dependency>
       </dependencies>
     </profile>
+    <profile>
+      <id>importer</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>org.geoserver.importer</groupId>
+          <artifactId>gs-importer-web</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.geoserver.importer</groupId>
+          <artifactId>gs-importer-rest</artifactId>
+        </dependency>
+      </dependencies>
+    </profile>
   </profiles>
 </project>
