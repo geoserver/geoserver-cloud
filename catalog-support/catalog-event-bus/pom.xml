@@ -7,7 +7,7 @@
     <artifactId>gs-cloud-catalog-support</artifactId>
     <version>0.2-SNAPSHOT</version>
   </parent>
-  <artifactId>gs-cloud-catalog-event-bus</artifactId>
+  <artifactId>gs-cloud-event-bus</artifactId>
   <description>Event bus catalog notification support</description>
   <packaging>jar</packaging>
 
@@ -18,7 +18,24 @@
     </dependency>
     <dependency>
       <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-starter-bus-amqp</artifactId>
+      <artifactId>spring-cloud-bus</artifactId>
+    </dependency>
+    <dependency>
+      <!-- test scope just to being able of instantiating WMSServiceImpl which's on this jar -->
+      <groupId>org.geoserver</groupId>
+      <artifactId>gs-wms</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-stream-test-support</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>

@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Configuration;
     havingValue = "false"
 )
 @Slf4j
-public class CatalogBusDisabledAutoConfiguration {
+public class RemoteApplicationEventsDisabledAutoConfiguration {
 
     public @PostConstruct void logBusDisabled() {
         log.warn("GeoServer Catalog and configuration event-bus is disabled");

@@ -5,43 +5,45 @@
 package org.geoserver.cloud.config.jdbcconfig.bus;
 
 import lombok.extern.slf4j.Slf4j;
+import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
-import org.geoserver.cloud.bus.catalog.CatalogRemoteEvent;
-import org.geoserver.cloud.bus.catalog.CatalogRemoteModifyEvent;
-import org.geoserver.cloud.bus.catalog.CatalogRemoteRemoveEvent;
+import org.geoserver.cloud.bus.event.RemoteInfoEvent;
+import org.geoserver.cloud.bus.event.catalog.RemoteCatalogEvent;
+import org.geoserver.cloud.bus.event.catalog.RemoteCatalogModifyEvent;
+import org.geoserver.cloud.bus.event.catalog.RemoteCatalogRemoveEvent;
 import org.geoserver.jdbcconfig.internal.ConfigDatabase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.bus.ServiceMatcher;
 import org.springframework.context.event.EventListener;
 
 /**
- * Listens to {@link CatalogRemoteEvent}s and evicts the modified or deleted {@link CatalogInfo }
+ * Listens to {@link RemoteCatalogEvent}s and evicts the modified or deleted {@link CatalogInfo }
  * from the {@link ConfigDatabase} cache
  */
-@Slf4j(topic = "org.geoserver.cloud.catalog.bus.incoming.jdbcconfig")
+@Slf4j(topic = "org.geoserver.cloud.bus.incoming.jdbcconfig")
 public class JdbcConfigRemoteEventProcessor {
     private @Autowired ServiceMatcher busServiceMatcher;
 
     private @Autowired ConfigDatabase jdbcConfigDatabase;
 
-    @EventListener(CatalogRemoteRemoveEvent.class)
-    public void onCatalogRemoteRemoveEvent(CatalogRemoteRemoveEvent event) {
+    @EventListener(RemoteCatalogRemoveEvent.class)
+    public void onCatalogRemoteRemoveEvent(RemoteCatalogRemoveEvent event) {
         if (!busServiceMatcher.isFromSelf(event)) {
             evictConfigDatabaseEntry(event);
         }
     }
 
-    @EventListener(CatalogRemoteModifyEvent.class)
-    public void onCatalogRemoteModifyEvent(CatalogRemoteModifyEvent event) {
+    @EventListener(RemoteCatalogModifyEvent.class)
+    public void onCatalogRemoteModifyEvent(RemoteCatalogModifyEvent event) {
         if (!busServiceMatcher.isFromSelf(event)) {
             evictConfigDatabaseEntry(event);
         }
     }
 
-    private void evictConfigDatabaseEntry(CatalogRemoteEvent event) {
+    private void evictConfigDatabaseEntry(RemoteInfoEvent<Catalog, CatalogInfo> event) {
         if (!busServiceMatcher.isFromSelf(event)) {
             log.debug("Evict JDBCConfig cache for {}", event);
-            String catalogInfoId = event.getCatalogInfoId();
+            String catalogInfoId = event.getObjectId();
             jdbcConfigDatabase.clearCacheIfPresent(catalogInfoId);
         }
     }

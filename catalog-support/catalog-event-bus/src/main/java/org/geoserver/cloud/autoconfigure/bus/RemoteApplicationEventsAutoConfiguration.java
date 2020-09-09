@@ -4,7 +4,7 @@
  */
 package org.geoserver.cloud.autoconfigure.bus;
 
-import org.geoserver.cloud.bus.catalog.CatalogBusConfiguration;
+import org.geoserver.cloud.bus.RemoteApplicationEventsConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.cloud.bus.BusAutoConfiguration;
@@ -12,9 +12,12 @@ import org.springframework.cloud.bus.ConditionalOnBusEnabled;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-/** {@link EnableAutoConfiguration auto-configuration} for {@link CatalogBusConfiguration} */
+/**
+ * {@link EnableAutoConfiguration auto-configuration} for {@link
+ * RemoteApplicationEventsConfiguration}
+ */
 @Configuration
 @ConditionalOnBusEnabled
 @AutoConfigureAfter(BusAutoConfiguration.class)
-@Import({CatalogBusConfiguration.class})
-public class CatalogBusAutoConfiguration {}
+@Import({RemoteApplicationEventsConfiguration.class})
+public class RemoteApplicationEventsAutoConfiguration {}

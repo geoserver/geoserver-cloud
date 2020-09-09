@@ -108,7 +108,12 @@
       </dependency>
       <dependency>
         <groupId>org.geoserver.cloud</groupId>
-        <artifactId>gs-cloud-catalog-event-bus</artifactId>
+        <artifactId>gs-cloud-event-bus</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud</groupId>
+        <artifactId>gs-cloud-event-bus-amqp</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
