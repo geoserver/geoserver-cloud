@@ -6,6 +6,7 @@ package org.geoserver.cloud.event;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -130,8 +131,31 @@ public class LocalApplicationEventPublisher {
         private final LocalApplicationEventPublisher publisher;
         private final GeoServer geoServer;
 
-        private static final ThreadLocal<Map<String, PropertyDiff>> PRE_CHANGE_DIFF =
+        /**
+         * A given object may get multiple pre-modify events, hence the stack by id. For instance,
+         * {@code UpdateSequenceListener} changes {@code GeoServerInfo} while {@code
+         * GeoServer.save(GeoServerInfo)} is being processed
+         */
+        private static final ThreadLocal<Map<String, LinkedList<PropertyDiff>>> PRE_CHANGE_DIFF =
                 ThreadLocal.withInitial(HashMap::new);
+
+        private void push(String objectId, PropertyDiff diff) {
+            Map<String, LinkedList<PropertyDiff>> map = PRE_CHANGE_DIFF.get();
+            map.computeIfAbsent(objectId, k -> new LinkedList<>()).addFirst(diff);
+        }
+
+        private PropertyDiff pop(String objectId) {
+            Map<String, LinkedList<PropertyDiff>> map = PRE_CHANGE_DIFF.get();
+            LinkedList<PropertyDiff> stack = map.get(objectId);
+            PropertyDiff diff = stack == null || stack.isEmpty() ? null : stack.removeFirst();
+            if (stack != null && stack.isEmpty()) {
+                map.remove(objectId);
+            }
+            if (map.isEmpty()) {
+                PRE_CHANGE_DIFF.remove();
+            }
+            return diff;
+        }
 
         private void publishPreModify(
                 @NonNull String id,
@@ -141,16 +165,12 @@ public class LocalApplicationEventPublisher {
                 List<Object> newValues) {
 
             PropertyDiff diff = PropertyDiff.valueOf(propertyNames, oldValues, newValues);
-            PRE_CHANGE_DIFF.get().put(id, diff);
+            push(id, diff);
             publisher.publish(LocalConfigPreModifyEvent.of(geoServer, info, diff));
         }
 
         private void publishPostModify(@NonNull String id, Info info) {
-            Map<String, PropertyDiff> perObjectDiffs = PRE_CHANGE_DIFF.get();
-            PropertyDiff diff = perObjectDiffs.remove(id);
-            if (perObjectDiffs.isEmpty()) {
-                PRE_CHANGE_DIFF.remove();
-            }
+            PropertyDiff diff = pop(id);
             publisher.publish(LocalConfigPostModifyEvent.of(geoServer, info, diff));
         }
 
@@ -227,14 +247,14 @@ public class LocalApplicationEventPublisher {
          * {@link LocalConfigAddEvent} instead of a {@link LocalConfigPostModifyEvent}.
          */
         public @Override void handlePostServiceChange(ServiceInfo service) {
-            Map<String, PropertyDiff> perObjectDiffs = PRE_CHANGE_DIFF.get();
-            PropertyDiff diff = perObjectDiffs.remove(service.getId());
+            PropertyDiff diff = pop(service.getId());
             if (diff == null) {
                 // means there was no handleServiceChange() call and this is an add instead, shame's
                 // on GeoServerImpl
                 publisher.publish(LocalConfigAddEvent.of(geoServer, service));
             } else {
-                publishPostModify(service.getId(), service);
+                // already called pop()
+                publisher.publish(LocalConfigPostModifyEvent.of(geoServer, service, diff));
             }
         }
 
