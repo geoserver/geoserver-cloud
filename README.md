@@ -84,6 +84,8 @@ The main branch follows GeoServer's main branch, currently `2.18-SNAPSHOT`. It's
 
 ## Running
 
+### docker-compose
+
 The simple build command above created the docker images:
 
 ```bash
@@ -125,6 +127,27 @@ gscloud_wms_1         dockerize -wait http://con ...   Up (healthy)
 ```
 
 Now you can access all front-services (`wms`, `wfs`, `wcs`, `rest`, and `webui`) through the `gateway` service at [http://localhost:9090](http://localhost:9090)
+
+### Development/debug
+
+Running a single service in "local" mode can be done either through the command line or through the IDE.
+
+First, make sure the essential infrastructure services are running:
+
+```bash
+$ docker-compose up -d config database discovery rabbitmq gateway
+```
+
+The `gateway` service is not essential, but useful to check it's correctly proxy'ing requests to your locally running service.
+
+There's a "local" spring profile for each service under the `services/` folder you need to enable. The config file is on each service's `src/main/resources/bootstrap-local.yml` file, and the only thing it does is to hardcode the environment variables that othwerwise would be passed on to the docker container, located in the `.env` file, and assign a stable port (e.g. `9100` for `webui-service`, `9101` for `wfs-service`, and so on).
+
+To run a specific service through the command line, for example, `wfs-service`, run:
+
+```bash
+$ ./mvnw -o spring-boot:run -Dspring-boot.run.profiles=local -f services/wfs
+```
+To run a service through the IDE, execute the specific application class (for example, `org.geoserver.cloud.wfs.app.WfsApplication`), which is a regular Java class with a `main()` method, passing the JVM argument `-Dspring.profiles.active=local`.
 
 ## Bugs
 

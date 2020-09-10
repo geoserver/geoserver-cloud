@@ -2,7 +2,3 @@ server.port: 9101
 jdbcconfig.url: jdbc:postgresql://localhost:5432/geoserver_config
 jdbcconfig.username: geoserver
 jdbcconfig.password: geo$erver
-
-logging:
-  level:
-    org.geoserver.cloud.catalog.bus: DEBUG
