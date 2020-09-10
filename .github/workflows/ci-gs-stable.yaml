@@ -14,6 +14,7 @@ jobs:
     timeout-minutes: 60
     env:
       GS_VERSION: 2.17.2
+      GT_VERSION: 23.2
     steps:
     - name: Checkout project
       uses: actions/checkout@v1
@@ -32,13 +33,13 @@ jobs:
           gscloud-gs-stable-${{ runner.os }}-maven-
 
     - name: Update maven dependencies
-      run: ./mvnw -Dgs.version=${GS_VERSION} -P\!docker de.qaware.maven:go-offline-maven-plugin:resolve-dependencies --no-transfer-progress
+      run: ./mvnw -Dgs.version=${GS_VERSION} -Dgt.version=${GT_VERSION} -P\!docker de.qaware.maven:go-offline-maven-plugin:resolve-dependencies --no-transfer-progress
 
     - name: Build without tests
-      run: ./mvnw -Dgs.version=${GS_VERSION} -P\!docker -ntp -Dfmt.action=check install -T1C -DskipTests
+      run: ./mvnw -Dgs.version=${GS_VERSION} -Dgt.version=${GT_VERSION} -P\!docker -ntp -Dfmt.action=check install -T1C -DskipTests
 
     - name: Test
-      run: ./mvnw -Dgs.version=${GS_VERSION} -P\!docker -ntp verify -T1C -fae
+      run: ./mvnw -Dgs.version=${GS_VERSION} -Dgt.version=${GT_VERSION} -P\!docker -ntp verify -T1C -fae
 
     - name: Remove project jars from cached repository
       run: |
