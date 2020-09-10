@@ -19,6 +19,10 @@
       <artifactId>gs-cloud-starter-webmvc</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-starter-vector-formats</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.geoserver</groupId>
       <artifactId>gs-wfs</artifactId>
     </dependency>

@@ -29,6 +29,14 @@
       <artifactId>gs-cloud-starter-webmvc</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-starter-vector-formats</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-starter-raster-formats</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.geoserver.web</groupId>
       <artifactId>gs-web-core</artifactId>
     </dependency>

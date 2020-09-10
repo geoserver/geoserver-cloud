@@ -18,6 +18,14 @@
       <groupId>org.geoserver.cloud</groupId>
       <artifactId>gs-cloud-starter-webmvc</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-starter-vector-formats</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-starter-raster-formats</artifactId>
+    </dependency>
 
     <dependency>
       <!-- REVISIT: for some reason, the WPS service won't start up without the web components. A bean creation exception 
