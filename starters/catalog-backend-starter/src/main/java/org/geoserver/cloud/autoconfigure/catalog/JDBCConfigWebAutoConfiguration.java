@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Import;
 
 /** Auto configuration for the wicket ui components of the jdbcconfig extension */
 @ConditionalOnClass(name = "org.geoserver.web.GeoServerHomePageContentProvider")
+@ConditionalOnJdbcConfigEnabled
 @ConditionalOnProperty(
     prefix = "geoserver.backend.jdbcconfig.web",
     name = "enabled",
