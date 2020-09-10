@@ -141,6 +141,30 @@
       </build>
     </profile>
     <profile>
+      <id>xstreamPersisterDependencies</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>org.geotools</groupId>
+          <artifactId>gt-process</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.geotools</groupId>
+          <artifactId>gt-process-geometry</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.geotools</groupId>
+          <artifactId>gt-process-raster</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.geotools</groupId>
+          <artifactId>gt-process-feature</artifactId>
+        </dependency>
+      </dependencies>
+    </profile>
+    <profile>
       <id>wms</id>
       <activation>
         <activeByDefault>true</activeByDefault>
