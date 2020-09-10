@@ -45,7 +45,7 @@
 
   <profiles>
     <profile>
-      <id>jdbcconfig</id>
+      <id>jdbcconfigDependencies</id>
       <activation>
         <activeByDefault>true</activeByDefault>
       </activation>

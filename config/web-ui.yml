@@ -78,6 +78,7 @@ logging:
     org.springframework: ERROR
     org.springframework.cloud.bus: INFO
     # geoserver roots
+    org.geoserver: INFO
     org.geoserver.platform: ERROR
     org.geoserver.jdbcconfig: INFO
     oshi.hardware.platform.linux: ERROR

@@ -1,0 +1,6 @@
+geoserver:
+  backend:
+    jdbcconfig.enabled: false
+    data-directory:
+      enabled: true
+      location: ${GEOSERVER_DATA_DIR:${java.io.tmpdir}/default_data_directory} 

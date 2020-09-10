@@ -19,8 +19,17 @@
       <artifactId>gs-cloud-starter-webmvc</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-starter-vector-formats</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.geoserver</groupId>
       <artifactId>gs-wfs</artifactId>
+    </dependency>
+    <dependency>
+      <!-- required by org.geoserver.wfs.response.ShapeZipOutputFormat -->
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-shapefile</artifactId>
     </dependency>
   </dependencies>
 
@@ -78,89 +87,73 @@
       </build>
     </profile>
     <profile>
-      <!-- temporary measure to include dependencies not really needed for this service but whose absence make the jdbcconfig 
-        catalog fail exceptions like "com.thoughtworks.xstream.mapper.CannotResolveClassException: org.geoserver.gwc.wmts.WMTSInfoImpl". 
-        Nonetheless, the spring configuration for these extra dependencies won't be loaded at all -->
-      <id>jdbcconfig</id>
+      <!-- measure to include dependencies not really needed for this service but whose absence make the catalog fail with 
+        exceptions like "com.thoughtworks.xstream.mapper.CannotResolveClassException: org.geoserver.gwc.wmts.WMTSInfoImpl". Nonetheless, 
+        the spring configuration for these extra dependencies won't be loaded at all -->
+      <id>xstreamPersisterDependencies</id>
       <activation>
         <activeByDefault>true</activeByDefault>
       </activation>
       <dependencies>
         <dependency>
+          <!-- just to avoid a com.thoughtworks.xstream.mapper.CannotResolveClassException: org.geoserver.wms.WMSInfoImpl -->
           <groupId>org.geoserver</groupId>
           <artifactId>gs-wms</artifactId>
+          <exclusions>
+            <exclusion>
+              <groupId>*</groupId>
+              <artifactId>*</artifactId>
+            </exclusion>
+          </exclusions>
         </dependency>
         <dependency>
+          <!-- just to avoid a com.thoughtworks.xstream.mapper.CannotResolveClassException: org.geoserver.wcs.WCSInfoImpl -->
           <groupId>org.geoserver</groupId>
           <artifactId>gs-wcs</artifactId>
+          <exclusions>
+            <exclusion>
+              <groupId>*</groupId>
+              <artifactId>*</artifactId>
+            </exclusion>
+          </exclusions>
         </dependency>
         <dependency>
+          <!-- just to avoid a com.thoughtworks.xstream.mapper.CannotResolveClassException: org.geoserver.wps.WPSInfoImpl -->
           <groupId>org.geoserver.extension</groupId>
           <artifactId>gs-wps-core</artifactId>
           <exclusions>
             <exclusion>
-              <groupId>org.geoserver</groupId>
-              <artifactId>gs-gwc</artifactId>
+              <groupId>*</groupId>
+              <artifactId>*</artifactId>
             </exclusion>
           </exclusions>
         </dependency>
         <dependency>
+          <!-- just to avoid a com.thoughtworks.xstream.mapper.CannotResolveClassException: org.geoserver.gwc.WMTSInfoImpl -->
           <groupId>org.geoserver</groupId>
           <artifactId>gs-gwc</artifactId>
           <exclusions>
             <exclusion>
-              <groupId>org.geowebcache</groupId>
-              <artifactId>gwc-core</artifactId>
-            </exclusion>
-            <exclusion>
-              <groupId>org.geowebcache</groupId>
-              <artifactId>gwc-georss</artifactId>
-            </exclusion>
-            <exclusion>
-              <groupId>org.geowebcache</groupId>
-              <artifactId>gwc-gmaps</artifactId>
-            </exclusion>
-            <exclusion>
-              <groupId>org.geowebcache</groupId>
-              <artifactId>gwc-kml</artifactId>
-            </exclusion>
-            <exclusion>
-              <groupId>org.geowebcache</groupId>
-              <artifactId>gwc-tms</artifactId>
-            </exclusion>
-            <exclusion>
-              <groupId>org.geowebcache</groupId>
-              <artifactId>gwc-ve</artifactId>
-            </exclusion>
-            <exclusion>
-              <groupId>org.geowebcache</groupId>
-              <artifactId>gwc-wms</artifactId>
-            </exclusion>
-            <exclusion>
-              <groupId>org.geowebcache</groupId>
-              <artifactId>gwc-wmts</artifactId>
-            </exclusion>
-            <exclusion>
-              <groupId>org.geowebcache</groupId>
-              <artifactId>gwc-diskquota</artifactId>
-            </exclusion>
-            <exclusion>
-              <groupId>org.geowebcache</groupId>
-              <artifactId>gwc-diskquota-jdbc</artifactId>
-            </exclusion>
-            <exclusion>
-              <groupId>org.geowebcache</groupId>
-              <artifactId>gwc-rest</artifactId>
-            </exclusion>
-            <exclusion>
-              <groupId>com.fasterxml.jackson.core</groupId>
-              <artifactId>jackson-core</artifactId>
-            </exclusion>
-            <exclusion>
-              <groupId>org.geoserver</groupId>
-              <artifactId>gs-rest</artifactId>
+              <groupId>*</groupId>
+              <artifactId>*</artifactId>
             </exclusion>
           </exclusions>
+        </dependency>
+        <dependency>
+          <groupId>org.geotools</groupId>
+          <artifactId>gt-process</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.geotools</groupId>
+          <artifactId>gt-process-geometry</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.geotools</groupId>
+          <artifactId>gt-process-raster</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.geotools</groupId>
+          <artifactId>gt-process-feature</artifactId>
         </dependency>
       </dependencies>
     </profile>
