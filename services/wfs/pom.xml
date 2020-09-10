@@ -22,6 +22,11 @@
       <groupId>org.geoserver</groupId>
       <artifactId>gs-wfs</artifactId>
     </dependency>
+    <dependency>
+      <!-- required by org.geoserver.wfs.response.ShapeZipOutputFormat -->
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-shapefile</artifactId>
+    </dependency>
   </dependencies>
 
   <build>

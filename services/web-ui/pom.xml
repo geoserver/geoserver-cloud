@@ -33,6 +33,36 @@
       <artifactId>gs-web-core</artifactId>
     </dependency>
     <dependency>
+      <!-- explicitly required by wicket component 'geotiffStorePanel' in web-core, should be optional -->
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-geotiff</artifactId>
+    </dependency>
+    <dependency>
+      <!-- explicitly required by wicket component 'imageMosaicStorePanel' in web-core, should be optional -->
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-imagemosaic</artifactId>
+    </dependency>
+    <dependency>
+      <!-- explicitly required by wicket component 'arcGridStorePanel' in web-core, should be optional -->
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-arcgrid</artifactId>
+    </dependency>
+    <dependency>
+      <!-- explicitly required by wicket component 'geopkgStorePanel' in web-core, should be optional -->
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-geopkg</artifactId>
+    </dependency>
+    <dependency>
+      <!-- explicitly required by wicket component 'postgisDataStorePanel' in web-core, should be optional -->
+      <groupId>org.geotools.jdbc</groupId>
+      <artifactId>gt-jdbc-postgis</artifactId>
+    </dependency>
+    <dependency>
+      <!-- explicitly required by wicket component 'propertyDataStorePanel' in web-core, should be optional -->
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-property</artifactId>
+    </dependency>
+    <dependency>
       <!-- just to avoid a com.thoughtworks.xstream.mapper.CannotResolveClassException: org.geoserver.wfs.WFSInfoImpl -->
       <groupId>org.geoserver</groupId>
       <artifactId>gs-wfs</artifactId>
@@ -280,10 +310,6 @@
         <dependency>
           <groupId>org.geoserver.importer</groupId>
           <artifactId>gs-importer-web</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.geoserver.importer</groupId>
-          <artifactId>gs-importer-rest</artifactId>
         </dependency>
       </dependencies>
     </profile>

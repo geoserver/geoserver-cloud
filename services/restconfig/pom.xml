@@ -181,6 +181,25 @@
         <dependency>
           <groupId>org.geoserver.importer</groupId>
           <artifactId>gs-importer-rest</artifactId>
+          <!-- exclude data formats, let them be managed by the ones explicitly imported by this module -->
+          <exclusions>
+            <exclusion>
+              <groupId>org.geotools</groupId>
+              <artifactId>gt-shapefile</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>org.geotools.jdbc</groupId>
+              <artifactId>gt-jdbc-h2</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>org.geotools.jdbc</groupId>
+              <artifactId>gt-jdbc-oracle</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>org.geotools.jdbc</groupId>
+              <artifactId>gt-jdbc-sqlserver</artifactId>
+            </exclusion>
+          </exclusions>
         </dependency>
       </dependencies>
     </profile>
