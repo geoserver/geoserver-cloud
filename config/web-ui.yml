@@ -48,7 +48,7 @@ geoserver:
         common-formats:
           open-layers: true
           gml: true
-          kml: true
+          kml: false #kml links are broken
     tools:
       enabled: true
       resource-browser: true
