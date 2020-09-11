@@ -78,9 +78,9 @@ To build the application run maven from the root project directory run
 
     ./mvnw clean install
 
-The main branch follows GeoServer's main branch, currently `2.18-SNAPSHOT`. It's also possible to build against the latest stable version, as follows:
+The main branch follows GeoServer's main branch, currently `2.18-SNAPSHOT`. It's also possible to build against the latest stable version, activate the `geoserver_stable_version` profile as follows:
 
-    ./mvnw clean install -Dgs.version=2.17.2
+    ./mvnw clean install -P geoserver_stable_version
 
 ## Running
 

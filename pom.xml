@@ -723,4 +723,13 @@
     <module>starters</module>
     <module>services</module>
   </modules>
+  <profiles>
+    <profile>
+      <id>geoserver_stable_version</id>
+      <properties>
+        <gs.version>2.17.2</gs.version>
+        <gt.version>23.2</gt.version>
+      </properties>
+    </profile>
+  </profiles>
 </project>
