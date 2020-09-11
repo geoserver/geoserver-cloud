@@ -102,47 +102,47 @@ public class LocalApplicationEventsAutoConfigurationTest {
 
     public @Test void testCatalogSetDefaultWorkspace() {
         listener.stop();
-        catalog.add(testData.ws);
-        catalog.add(testData.wsA);
-        catalog.add(testData.wsB);
+        catalog.add(testData.workspaceA);
+        catalog.add(testData.workspaceB);
+        catalog.add(testData.workspaceC);
         listener.start();
 
         listener.clear();
-        catalog.setDefaultWorkspace(testData.wsB);
-        testPrePostModify(catalog, "defaultWorkspace", testData.ws, testData.wsB);
+        catalog.setDefaultWorkspace(testData.workspaceC);
+        testPrePostModify(catalog, "defaultWorkspace", testData.workspaceA, testData.workspaceC);
 
         listener.clear();
-        catalog.setDefaultWorkspace(testData.wsA);
-        testPrePostModify(catalog, "defaultWorkspace", testData.wsB, testData.wsA);
+        catalog.setDefaultWorkspace(testData.workspaceB);
+        testPrePostModify(catalog, "defaultWorkspace", testData.workspaceC, testData.workspaceB);
     }
 
     public @Test void testCatalogSetDefaultNamespace() {
         listener.stop();
-        catalog.add(testData.ns);
-        catalog.add(testData.nsA);
-        catalog.add(testData.nsB);
+        catalog.add(testData.namespaceA);
+        catalog.add(testData.namespaceB);
+        catalog.add(testData.namespaceC);
         listener.start();
 
         listener.clear();
-        catalog.setDefaultNamespace(testData.nsB);
-        testPrePostModify(catalog, "defaultNamespace", testData.ns, testData.nsB);
+        catalog.setDefaultNamespace(testData.namespaceC);
+        testPrePostModify(catalog, "defaultNamespace", testData.namespaceA, testData.namespaceC);
 
         listener.clear();
-        catalog.setDefaultNamespace(testData.nsA);
-        testPrePostModify(catalog, "defaultNamespace", testData.nsB, testData.nsA);
+        catalog.setDefaultNamespace(testData.namespaceB);
+        testPrePostModify(catalog, "defaultNamespace", testData.namespaceC, testData.namespaceB);
     }
 
     public @Test void testCatalogAddedEvents() {
         Class<LocalCatalogAddEvent> eventType = LocalCatalogAddEvent.class;
-        testAddEvent(testData.ws, catalog::add, eventType);
-        testAddEvent(testData.ns, catalog::add, eventType);
-        testAddEvent(testData.cs, catalog::add, eventType);
-        testAddEvent(testData.ds, catalog::add, eventType);
-        testAddEvent(testData.cv, catalog::add, eventType);
-        testAddEvent(testData.ft, catalog::add, eventType);
-        testAddEvent(testData.layer, catalog::add, eventType);
-        testAddEvent(testData.layerGroup, catalog::add, eventType);
-        testAddEvent(testData.style, catalog::add, eventType);
+        testAddEvent(testData.workspaceA, catalog::add, eventType);
+        testAddEvent(testData.namespaceA, catalog::add, eventType);
+        testAddEvent(testData.coverageStoreA, catalog::add, eventType);
+        testAddEvent(testData.dataStoreA, catalog::add, eventType);
+        testAddEvent(testData.coverageA, catalog::add, eventType);
+        testAddEvent(testData.featureTypeA, catalog::add, eventType);
+        testAddEvent(testData.layerFeatureTypeA, catalog::add, eventType);
+        testAddEvent(testData.layerGroup1, catalog::add, eventType);
+        testAddEvent(testData.style1, catalog::add, eventType);
     }
 
     public @Test void testCatalogPrePostModifyEvents() {
@@ -153,7 +153,7 @@ public class LocalApplicationEventsAutoConfigurationTest {
         Class<LocalCatalogPreModifyEvent> preEventType = LocalCatalogPreModifyEvent.class;
         Class<LocalCatalogPostModifyEvent> postEventType = LocalCatalogPostModifyEvent.class;
         testModify(
-                testData.ws,
+                testData.workspaceA,
                 ws -> {
                     ws.setName("newName");
                     ws.setIsolated(true);
@@ -163,11 +163,11 @@ public class LocalApplicationEventsAutoConfigurationTest {
                 postEventType);
 
         testModify(
-                testData.cs,
+                testData.coverageStoreA,
                 cs -> {
                     cs.setName("newCoverageStoreName");
                     cs.setDescription("new description");
-                    cs.setWorkspace(testData.wsB);
+                    cs.setWorkspace(testData.workspaceC);
                 },
                 catalog::save,
                 preEventType,
@@ -179,11 +179,11 @@ public class LocalApplicationEventsAutoConfigurationTest {
         testData.addObjects();
         listener.start();
 
-        testRemove(testData.layerGroup, catalog::remove, LocalCatalogRemoveEvent.class);
+        testRemove(testData.layerGroup1, catalog::remove, LocalCatalogRemoveEvent.class);
     }
 
     public @Test void testConfigAddEvents() {
-        catalog.add(testData.wsA);
+        catalog.add(testData.workspaceB);
 
         Class<LocalConfigAddEvent> eventType = LocalConfigAddEvent.class;
 
@@ -193,17 +193,17 @@ public class LocalApplicationEventsAutoConfigurationTest {
 
         WMSInfoImpl workspaceService = new WMSInfoImpl();
         workspaceService.setName("WMS");
-        workspaceService.setWorkspace(testData.wsA);
+        workspaceService.setWorkspace(testData.workspaceB);
         testAddEvent(workspaceService, geoserver::add, eventType);
 
         SettingsInfoImpl workspaceSettings = new SettingsInfoImpl();
-        workspaceSettings.setWorkspace(testData.wsA);
+        workspaceSettings.setWorkspace(testData.workspaceB);
         testAddEvent(workspaceSettings, geoserver::add, eventType);
     }
 
     public @Test void testConfigPrePostModifyEvents_GeoServerInfo() {
-        catalog.add(testData.ws);
-        catalog.add(testData.wsA);
+        catalog.add(testData.workspaceA);
+        catalog.add(testData.workspaceB);
 
         GeoServerInfo global = geoserver.getGlobal();
 
@@ -227,8 +227,8 @@ public class LocalApplicationEventsAutoConfigurationTest {
     }
 
     public @Test void testConfigPrePostModifyEvents_SettingsInfo() {
-        catalog.add(testData.ws);
-        catalog.add(testData.wsA);
+        catalog.add(testData.workspaceA);
+        catalog.add(testData.workspaceB);
 
         Class<LocalConfigPreModifyEvent> preEventType = LocalConfigPreModifyEvent.class;
         Class<LocalConfigPostModifyEvent> postEventType = LocalConfigPostModifyEvent.class;
@@ -247,15 +247,15 @@ public class LocalApplicationEventsAutoConfigurationTest {
                 postEventType);
 
         SettingsInfo workspaceSettings = new SettingsInfoImpl();
-        workspaceSettings.setWorkspace(testData.ws);
+        workspaceSettings.setWorkspace(testData.workspaceA);
         geoserver.add(workspaceSettings);
-        workspaceSettings = geoserver.getSettings(testData.ws);
+        workspaceSettings = geoserver.getSettings(testData.workspaceA);
 
         testModify(
                 workspaceSettings,
                 s -> {
                     s.setCharset("ISO-8869-1");
-                    s.setWorkspace(testData.wsA);
+                    s.setWorkspace(testData.workspaceB);
                 },
                 geoserver::save,
                 preEventType,
@@ -263,8 +263,8 @@ public class LocalApplicationEventsAutoConfigurationTest {
     }
 
     public @Test void testConfigPrePostModifyEvents_LoggingInfo() {
-        catalog.add(testData.ws);
-        catalog.add(testData.wsA);
+        catalog.add(testData.workspaceA);
+        catalog.add(testData.workspaceB);
 
         Class<LocalConfigPreModifyEvent> preEventType = LocalConfigPreModifyEvent.class;
         Class<LocalConfigPostModifyEvent> postEventType = LocalConfigPostModifyEvent.class;

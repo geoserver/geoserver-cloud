@@ -16,6 +16,7 @@ import org.geoserver.cloud.test.TestConfiguration;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.reactive.context.ReactiveWebApplicationContext;
 import org.springframework.context.ApplicationContext;
@@ -24,6 +25,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.context.WebApplicationContext;
 
 @SpringBootTest(classes = TestConfiguration.class)
+@EnableAutoConfiguration
 @RunWith(SpringRunner.class)
 @ActiveProfiles("test") // see bootstrap-test.yml
 public class GeoServerMainAutoConfigurationTest {

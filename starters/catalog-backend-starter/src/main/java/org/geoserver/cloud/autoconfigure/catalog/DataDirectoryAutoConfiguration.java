@@ -4,8 +4,6 @@
  */
 package org.geoserver.cloud.autoconfigure.catalog;
 
-import javax.annotation.PostConstruct;
-import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.config.datadirectory.DataDirectoryBackendConfigurer;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -13,10 +11,4 @@ import org.springframework.context.annotation.Import;
 @Configuration
 @ConditionalOnDataDirectoryEnabled
 @Import(DataDirectoryBackendConfigurer.class)
-@Slf4j
-public class DataDirectoryAutoConfiguration {
-
-    public @PostConstruct void log() {
-        log.info("Processing geoserver config backend with {}", getClass().getSimpleName());
-    }
-}
+public class DataDirectoryAutoConfiguration extends AbstractBackendAutoConfiguration {}

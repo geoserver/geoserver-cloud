@@ -1,18 +1,21 @@
-/* (c) 2014 - 2015 Open Source Geospatial Foundation - all rights reserved
- * (c) 2001 - 2013 OpenPlans
- * This code is licensed under the GPL 2.0 license, available at the root
- * application directory.
+/*
+ * (c) 2014 - 2015 Open Source Geospatial Foundation - all rights reserved (c) 2001 - 2013 OpenPlans
+ * This code is licensed under the GPL 2.0 license, available at the root application directory.
  */
 package org.geoserver.catalog.plugin;
 
 import java.util.Objects;
 import lombok.Getter;
 import lombok.NonNull;
+import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.catalog.CatalogFacade;
+import org.geoserver.catalog.LockingCatalogFacade;
+import org.geoserver.platform.GeoServerExtensions;
 
 /**
  * Extends {@link org.geoserver.catalog.impl.CatalogImpl} to allow decorating the {@link
- * CatalogFacade} with an {@link IsolatedCatalogFacade}
+ * CatalogFacade} with an {@link IsolatedCatalogFacade}, and use {@link
+ * org.geoserver.catalog.plugin.DefaultCatalogFacade} as the default facade implementation.
  */
 @SuppressWarnings("serial")
 public class CatalogImpl extends org.geoserver.catalog.impl.CatalogImpl {
@@ -24,17 +27,24 @@ public class CatalogImpl extends org.geoserver.catalog.impl.CatalogImpl {
     }
 
     public CatalogImpl(CatalogFacade rawCatalogFacade) {
+        Objects.requireNonNull(rawCatalogFacade);
+        setFacade(rawCatalogFacade);
         // just to stress out the parent's default constructor is called nonetheless and we need to
         // completely replace its facade
-        super();
-        init(rawCatalogFacade);
+        Objects.requireNonNull(super.resourcePool);
     }
 
-    private void init(@NonNull CatalogFacade rawCatalogFacade) {
-        this.rawCatalogFacade = rawCatalogFacade;
+    public @Override void setFacade(CatalogFacade facade) {
+        Objects.requireNonNull(facade);
+        this.rawCatalogFacade = facade;
+        final GeoServerConfigurationLock configurationLock =
+                GeoServerExtensions.bean(GeoServerConfigurationLock.class);
+        if (configurationLock != null) {
+            facade = LockingCatalogFacade.create(facade, configurationLock);
+        }
         // wrap the default catalog facade with the facade capable of handling isolated workspaces
         // behavior
-        setFacade(new IsolatedCatalogFacade(rawCatalogFacade));
-        Objects.requireNonNull(super.resourcePool);
+        this.facade = new IsolatedCatalogFacade(rawCatalogFacade);
+        facade.setCatalog(this);
     }
 }

@@ -11,13 +11,13 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import lombok.NonNull;
+import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CoverageStoreInfo;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.WorkspaceInfo;
-import org.geoserver.catalog.impl.CatalogImpl;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.cloud.bus.GeoServerBusProperties;
 import org.geoserver.cloud.event.PropertyDiff;
@@ -32,22 +32,24 @@ import org.geoserver.ows.util.OwsUtils;
 import org.geotools.referencing.CRS;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 public class RemoteEventPayloadCodecTest {
 
-    private final CatalogImpl catalog = new CatalogImpl();
+    private Catalog catalog;
     private GeoServer geoServer;
     private GeoServerBusProperties geoServerBusProperties;
     private RemoteEventPayloadCodec codec;
 
     private final PropertyDiffTestSupport support = new PropertyDiffTestSupport();
 
-    public @Rule CatalogTestData catalogTestSupport = CatalogTestData.initialized(() -> catalog);
+    public CatalogTestData catalogTestSupport;
 
-    public @Before void before() {
+    public @Before void before() throws Exception {
+        catalog = new org.geoserver.catalog.impl.CatalogImpl();
+        catalogTestSupport =
+                CatalogTestData.initialized(() -> catalog).createObjects().addObjects();
         geoServerBusProperties = new GeoServerBusProperties();
         geoServer = new GeoServerImpl();
         codec = new RemoteEventPayloadCodec();
@@ -96,8 +98,8 @@ public class RemoteEventPayloadCodecTest {
     }
 
     public @Test void propertyDiff_Workspace() throws Exception {
-        WorkspaceInfo wsA = catalog.getWorkspace(catalogTestSupport.wsA.getId());
-        WorkspaceInfo wsB = catalog.getWorkspace(catalogTestSupport.wsB.getId());
+        WorkspaceInfo wsA = catalog.getWorkspace(catalogTestSupport.workspaceB.getId());
+        WorkspaceInfo wsB = catalog.getWorkspace(catalogTestSupport.workspaceC.getId());
         assertNotNull(wsA);
         assertNotNull(wsB);
         PropertyDiff diff = support.createTestDiff("ws", wsA, wsB);
@@ -106,23 +108,23 @@ public class RemoteEventPayloadCodecTest {
     }
 
     public @Test void propertyDiff_DataStore() throws Exception {
-        DataStoreInfo ds1 = catalog.getDataStore(catalogTestSupport.ds.getId());
-        DataStoreInfo ds2 = catalog.getDataStore(catalogTestSupport.dsA.getId());
+        DataStoreInfo ds1 = catalog.getDataStore(catalogTestSupport.dataStoreA.getId());
+        DataStoreInfo ds2 = catalog.getDataStore(catalogTestSupport.dataStoreB.getId());
         testPropertyDiff_InfoObject(ds1, ds2);
     }
 
     public @Test void propertyDiff_CoverageStore() throws Exception {
-        CoverageStoreInfo cs1 = catalog.getCoverageStore(catalogTestSupport.cs.getId());
+        CoverageStoreInfo cs1 = catalog.getCoverageStore(catalogTestSupport.coverageStoreA.getId());
         testPropertyDiff_InfoObject(null, cs1);
     }
 
     public @Test void propertyDiff_Layer() throws Exception {
-        LayerInfo l = catalog.getLayer(catalogTestSupport.layer.getId());
+        LayerInfo l = catalog.getLayer(catalogTestSupport.layerFeatureTypeA.getId());
         testPropertyDiff_InfoObject(null, l);
     }
 
     public @Test void propertyDiff_LayerGroup() throws Exception {
-        LayerGroupInfo lg = catalog.getLayerGroup(catalogTestSupport.layerGroup.getId());
+        LayerGroupInfo lg = catalog.getLayerGroup(catalogTestSupport.layerGroup1.getId());
         testPropertyDiff_InfoObject(null, lg);
     }
 
@@ -138,19 +140,19 @@ public class RemoteEventPayloadCodecTest {
     }
 
     public @Test void object_CatalogInfo() throws IOException {
-        testInfoObject(catalogTestSupport.ws);
-        testInfoObject(catalogTestSupport.cs);
-        testInfoObject(catalogTestSupport.cv);
-        testInfoObject(catalogTestSupport.ds);
-        testInfoObject(catalogTestSupport.ft);
-        testInfoObject(catalogTestSupport.layer);
-        testInfoObject(catalogTestSupport.layerGroup);
-        testInfoObject(catalogTestSupport.ns);
-        testInfoObject(catalogTestSupport.style);
-        testInfoObject(catalogTestSupport.wl);
-        testInfoObject(catalogTestSupport.wms);
-        testInfoObject(catalogTestSupport.wmtss);
-        testInfoObject(catalogTestSupport.wmtsl);
+        testInfoObject(catalogTestSupport.workspaceA);
+        testInfoObject(catalogTestSupport.coverageStoreA);
+        testInfoObject(catalogTestSupport.coverageA);
+        testInfoObject(catalogTestSupport.dataStoreA);
+        testInfoObject(catalogTestSupport.featureTypeA);
+        testInfoObject(catalogTestSupport.layerFeatureTypeA);
+        testInfoObject(catalogTestSupport.layerGroup1);
+        testInfoObject(catalogTestSupport.namespaceA);
+        testInfoObject(catalogTestSupport.style1);
+        testInfoObject(catalogTestSupport.wmsLayerA);
+        testInfoObject(catalogTestSupport.wmsStoreA);
+        testInfoObject(catalogTestSupport.wmtsStoreA);
+        testInfoObject(catalogTestSupport.wmtsLayerA);
     }
 
     public @Test void object_GeoServerInfo() throws IOException {
@@ -164,7 +166,7 @@ public class RemoteEventPayloadCodecTest {
     public @Test void object_Settings() throws IOException {
         SettingsInfo settings = geoServer.getSettings();
         testInfoObject(settings);
-        settings.setWorkspace(catalogTestSupport.wsB);
+        settings.setWorkspace(catalogTestSupport.workspaceC);
         testInfoObject(settings);
     }
 
