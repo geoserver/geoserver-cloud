@@ -17,10 +17,12 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.context.request.RequestContextListener;
+import org.springframework.web.filter.ForwardedHeaderFilter;
 
 @Configuration
 public class GeoServerServletContextConfiguration {
 
+    private static final int FORWARDED_HEADER_FILTER_ORDER = 0;
     private static final int FLUSH_SAFE_FILTER_ORDER = 1;
     private static final int SESSION_DEBUG_FILTER_ORDER = 2;
     private static final int SPRING_DELEGATING_FILTER_ORDER = 3;
@@ -41,6 +43,18 @@ public class GeoServerServletContextConfiguration {
         return new RequestContextListener();
     }
     // Filters
+
+    /**
+     * Extract values from "Forwarded" and "X-Forwarded-*" headers, wrap the request and response,
+     * and make they reflect the client-originated protocol and address.
+     */
+    public @Bean ForwardedHeaderFilter forwardedHeaderFilter() {
+        return new ForwardedHeaderFilter();
+    }
+
+    public @Bean FilterRegistrationBean<ForwardedHeaderFilter> forwardedHeaderFilterReg() {
+        return newRegistration(forwardedHeaderFilter(), FORWARDED_HEADER_FILTER_ORDER);
+    }
 
     /**
      * A servlet filter making sure we cannot end up calling flush() on the response output stream
