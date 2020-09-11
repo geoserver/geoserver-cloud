@@ -10,14 +10,7 @@
   <artifactId>gs-cloud-starter-reactive</artifactId>
   <description>Provides auto-configuration for WebFlux based reactive GeoServer microservices</description>
   <packaging>jar</packaging>
-  <properties>
-    <start-class>org.geoserver.cloud.catalog.app.CatalogServiceApplication</start-class>
-  </properties>
   <dependencies>
-    <dependency>
-      <groupId>org.geoserver</groupId>
-      <artifactId>gs-main</artifactId>
-    </dependency>
     <dependency>
       <groupId>org.geoserver.cloud</groupId>
       <artifactId>gs-cloud-catalog-backend-starter</artifactId>
@@ -25,6 +18,41 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-webflux</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+      <exclusions>
+        <!-- exclude ribbon dependencies in favor of spring-cloud-loadbalancer -->
+        <exclusion>
+          <groupId>org.springframework.cloud</groupId>
+          <artifactId>spring-cloud-starter-netflix-ribbon</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.netflix.ribbon</groupId>
+          <artifactId>ribbon-eureka</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-loadbalancer</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-config-client</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.retry</groupId>
+      <artifactId>spring-retry</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-aop</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
     </dependency>
     <dependency>
       <!-- need it on the classpath just to avoid ClassNotFoundExceptions when loading some GeoServer bean definitions -->

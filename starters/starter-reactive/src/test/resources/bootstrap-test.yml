@@ -12,16 +12,7 @@ geoserver:
     data-directory:
       enabled: true
       location: ${data_directory:${java.io.tmpdir}/geoserver_cloud_data_directory}
-    jdbcconfig:
-      enabled: false
-      web.enabled: false
-      initdb: true
-      cache-directory: ${java.io.tmpdir}/geoserver-jdbcconfig-cache
-      datasource:
-        driverClassname: org.h2.Driver
-        jdbcUrl: jdbc:h2:mem:test;DB_CLOSE_DELAY=-1
-        username: sa
-        password:
+    jdbcconfig.enabled: false
 
 logging:
   level:

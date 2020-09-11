@@ -7,6 +7,8 @@ package org.geoserver.cloud.config.catalog;
 import java.nio.file.Path;
 import java.util.Properties;
 import lombok.Data;
+import org.geoserver.cloud.autoconfigure.catalog.DataDirectoryAutoConfiguration;
+import org.geoserver.cloud.autoconfigure.catalog.JDBCConfigAutoConfiguration;
 
 public @Data class GeoServerBackendProperties {
 
@@ -14,11 +16,21 @@ public @Data class GeoServerBackendProperties {
 
     private JdbcconfigProperties jdbcconfig = new JdbcconfigProperties();
 
+    /**
+     * Configuration properties to use GeoServer's traditiona, file-system based data-directory as
+     * the {@link GeoServerBackendConfigurer catalog and configuration backend} through the {@link
+     * DataDirectoryAutoConfiguration} auto-configuration.
+     */
     public static @Data class DataDirectoryProperties {
         private boolean enabled;
         private Path location;
     }
 
+    /**
+     * Configuration properties to use GeoServer's {@code jdbcconfig} and {@code jdbcstore}
+     * community modules as the {@link GeoServerBackendConfigurer catalog and configuration backend}
+     * through the {@link JDBCConfigAutoConfiguration} auto-configuration.
+     */
     public static @Data class JdbcconfigProperties {
         private boolean enabled;
         private boolean initdb;

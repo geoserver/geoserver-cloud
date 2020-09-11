@@ -70,7 +70,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * streams testing</a> docs for reference.
  */
 @SpringBootTest(
-    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    webEnvironment = SpringBootTest.WebEnvironment.NONE,
     classes = {TestConfigurationAutoConfiguration.class, ApplicationEventCapturingListener.class}
 )
 @RunWith(SpringRunner.class)
@@ -145,195 +145,201 @@ public class RemoteApplicationEventsAutoConfigurationTest {
     }
 
     public @Test void testCatalogSetDefaultWorkspace() {
-        catalog.add(testData.ws);
-        catalog.add(testData.wsB);
+        catalog.add(testData.workspaceA);
+        catalog.add(testData.workspaceC);
 
         disablePayload();
         PropertyDiff expected = PropertyDiff.empty();
-        testCatalogModifiedEvent(catalog, c -> c.setDefaultWorkspace(testData.wsB), expected);
+        testCatalogModifiedEvent(
+                catalog, c -> c.setDefaultWorkspace(testData.workspaceC), expected);
     }
 
     public @Test void testCatalogSetDefaultWorkspace_Payload() {
-        catalog.add(testData.ws);
-        catalog.add(testData.wsB);
+        catalog.add(testData.workspaceA);
+        catalog.add(testData.workspaceC);
 
         PropertyDiff expected =
                 new PropertyDiffTestSupport()
-                        .createTestDiff("defaultWorkspace", testData.ws, testData.wsB);
+                        .createTestDiff(
+                                "defaultWorkspace", testData.workspaceA, testData.workspaceC);
 
         enablePayload();
-        testCatalogModifiedEvent(catalog, c -> c.setDefaultWorkspace(testData.wsB), expected);
+        testCatalogModifiedEvent(
+                catalog, c -> c.setDefaultWorkspace(testData.workspaceC), expected);
     }
 
     public @Test void testCatalogSetDefaultNamespace() {
-        catalog.add(testData.ns);
-        catalog.add(testData.nsA);
+        catalog.add(testData.namespaceA);
+        catalog.add(testData.namespaceB);
 
         PropertyDiff expected = PropertyDiff.empty();
         disablePayload();
-        testCatalogModifiedEvent(catalog, c -> c.setDefaultNamespace(testData.nsA), expected);
+        testCatalogModifiedEvent(
+                catalog, c -> c.setDefaultNamespace(testData.namespaceB), expected);
     }
 
     public @Test void testCatalogSetDefaultNamespace_Payload() {
-        catalog.add(testData.ns);
-        catalog.add(testData.nsA);
+        catalog.add(testData.namespaceA);
+        catalog.add(testData.namespaceB);
 
         PropertyDiff expected =
                 new PropertyDiffTestSupport()
-                        .createTestDiff("defaultNamespace", testData.ns, testData.nsA);
+                        .createTestDiff(
+                                "defaultNamespace", testData.namespaceA, testData.namespaceB);
         enablePayload();
-        testCatalogModifiedEvent(catalog, c -> c.setDefaultNamespace(testData.nsA), expected);
+        testCatalogModifiedEvent(
+                catalog, c -> c.setDefaultNamespace(testData.namespaceB), expected);
     }
 
     public @Test void testCatalogAddedEvents_Workspace() {
         disablePayload();
         Class<RemoteCatalogAddEvent> eventType = RemoteCatalogAddEvent.class;
-        testRemoteAddEvent(testData.ws, catalog::add, eventType);
+        testRemoteAddEvent(testData.workspaceA, catalog::add, eventType);
     }
 
     public @Test void testCatalogAddedEvents_Workspace_Payload() {
         enablePayload();
         Class<RemoteCatalogAddEvent> eventType = RemoteCatalogAddEvent.class;
-        testRemoteAddEvent(testData.ws, catalog::add, eventType);
+        testRemoteAddEvent(testData.workspaceA, catalog::add, eventType);
     }
 
     public @Test void testCatalogAddedEvents_Namespace() {
         disablePayload();
         Class<RemoteCatalogAddEvent> eventType = RemoteCatalogAddEvent.class;
-        testRemoteAddEvent(testData.ns, catalog::add, eventType);
+        testRemoteAddEvent(testData.namespaceA, catalog::add, eventType);
     }
 
     public @Test void testCatalogAddedEvents_Namespace_Payload() {
         enablePayload();
         Class<RemoteCatalogAddEvent> eventType = RemoteCatalogAddEvent.class;
-        testRemoteAddEvent(testData.ns, catalog::add, eventType);
+        testRemoteAddEvent(testData.namespaceA, catalog::add, eventType);
     }
 
     public @Test void testCatalogAddedEvents_CoverageStore() {
-        catalog.add(testData.ws);
-        catalog.add(testData.ns);
+        catalog.add(testData.workspaceA);
+        catalog.add(testData.namespaceA);
         disablePayload();
         Class<RemoteCatalogAddEvent> eventType = RemoteCatalogAddEvent.class;
-        testRemoteAddEvent(testData.cs, catalog::add, eventType);
+        testRemoteAddEvent(testData.coverageStoreA, catalog::add, eventType);
     }
 
     public @Test void testCatalogAddedEvents_CoverageStore_Payload() {
-        catalog.add(testData.ws);
-        catalog.add(testData.ns);
+        catalog.add(testData.workspaceA);
+        catalog.add(testData.namespaceA);
         enablePayload();
         Class<RemoteCatalogAddEvent> eventType = RemoteCatalogAddEvent.class;
-        testRemoteAddEvent(testData.cs, catalog::add, eventType);
+        testRemoteAddEvent(testData.coverageStoreA, catalog::add, eventType);
     }
 
     public @Test void testCatalogAddedEvents_DataStore() {
-        catalog.add(testData.ws);
-        catalog.add(testData.ns);
+        catalog.add(testData.workspaceA);
+        catalog.add(testData.namespaceA);
         disablePayload();
         Class<RemoteCatalogAddEvent> eventType = RemoteCatalogAddEvent.class;
-        testRemoteAddEvent(testData.ds, catalog::add, eventType);
+        testRemoteAddEvent(testData.dataStoreA, catalog::add, eventType);
     }
 
     public @Test void testCatalogAddedEvents_DataStore_Payload() {
-        catalog.add(testData.ws);
-        catalog.add(testData.ns);
+        catalog.add(testData.workspaceA);
+        catalog.add(testData.namespaceA);
         enablePayload();
         Class<RemoteCatalogAddEvent> eventType = RemoteCatalogAddEvent.class;
-        testRemoteAddEvent(testData.ds, catalog::add, eventType);
+        testRemoteAddEvent(testData.dataStoreA, catalog::add, eventType);
     }
 
     public @Test void testCatalogAddedEvents_Coverage() {
-        catalog.add(testData.ws);
-        catalog.add(testData.ns);
-        catalog.add(testData.cs);
+        catalog.add(testData.workspaceA);
+        catalog.add(testData.namespaceA);
+        catalog.add(testData.coverageStoreA);
         disablePayload();
         Class<RemoteCatalogAddEvent> eventType = RemoteCatalogAddEvent.class;
-        testRemoteAddEvent(testData.cv, catalog::add, eventType);
+        testRemoteAddEvent(testData.coverageA, catalog::add, eventType);
     }
 
     public @Test void testCatalogAddedEvents_Coverage_Payload() {
-        catalog.add(testData.ws);
-        catalog.add(testData.ns);
-        catalog.add(testData.nsA);
-        catalog.add(testData.cs);
+        catalog.add(testData.workspaceA);
+        catalog.add(testData.namespaceA);
+        catalog.add(testData.namespaceB);
+        catalog.add(testData.coverageStoreA);
         enablePayload();
         Class<RemoteCatalogAddEvent> eventType = RemoteCatalogAddEvent.class;
-        testRemoteAddEvent(testData.cv, catalog::add, eventType);
+        testRemoteAddEvent(testData.coverageA, catalog::add, eventType);
     }
 
     public @Test void testCatalogAddedEvents_FeatureType() {
-        catalog.add(testData.ws);
-        catalog.add(testData.ns);
-        catalog.add(testData.ds);
+        catalog.add(testData.workspaceA);
+        catalog.add(testData.namespaceA);
+        catalog.add(testData.dataStoreA);
         disablePayload();
         Class<RemoteCatalogAddEvent> eventType = RemoteCatalogAddEvent.class;
-        testRemoteAddEvent(testData.ft, catalog::add, eventType);
+        testRemoteAddEvent(testData.featureTypeA, catalog::add, eventType);
     }
 
     public @Test void testCatalogAddedEvents_FeatureType_Payload() {
-        catalog.add(testData.ws);
-        catalog.add(testData.ns);
-        catalog.add(testData.ds);
+        catalog.add(testData.workspaceA);
+        catalog.add(testData.namespaceA);
+        catalog.add(testData.dataStoreA);
         enablePayload();
         Class<RemoteCatalogAddEvent> eventType = RemoteCatalogAddEvent.class;
-        testRemoteAddEvent(testData.ft, catalog::add, eventType);
+        testRemoteAddEvent(testData.featureTypeA, catalog::add, eventType);
     }
 
     public @Test void testCatalogAddedEvents_Layer() {
-        catalog.add(testData.ws);
-        catalog.add(testData.ns);
-        catalog.add(testData.ds);
-        catalog.add(testData.ft);
-        catalog.add(testData.style);
+        catalog.add(testData.workspaceA);
+        catalog.add(testData.namespaceA);
+        catalog.add(testData.dataStoreA);
+        catalog.add(testData.featureTypeA);
+        catalog.add(testData.style1);
         disablePayload();
         Class<RemoteCatalogAddEvent> eventType = RemoteCatalogAddEvent.class;
-        testRemoteAddEvent(testData.layer, catalog::add, eventType);
+        testRemoteAddEvent(testData.layerFeatureTypeA, catalog::add, eventType);
     }
 
     public @Test void testCatalogAddedEvents_Layer_Payload() {
-        catalog.add(testData.ws);
-        catalog.add(testData.ns);
-        catalog.add(testData.ds);
-        catalog.add(testData.ft);
-        catalog.add(testData.style);
+        catalog.add(testData.workspaceA);
+        catalog.add(testData.namespaceA);
+        catalog.add(testData.dataStoreA);
+        catalog.add(testData.featureTypeA);
+        catalog.add(testData.style1);
         enablePayload();
         Class<RemoteCatalogAddEvent> eventType = RemoteCatalogAddEvent.class;
-        testRemoteAddEvent(testData.layer, catalog::add, eventType);
+        testRemoteAddEvent(testData.layerFeatureTypeA, catalog::add, eventType);
     }
 
     public @Test void testCatalogAddedEvents_LayerGropup() {
-        catalog.add(testData.ws);
-        catalog.add(testData.ns);
-        catalog.add(testData.ds);
-        catalog.add(testData.ft);
-        catalog.add(testData.layer);
-        catalog.add(testData.style);
+        catalog.add(testData.workspaceA);
+        catalog.add(testData.namespaceA);
+        catalog.add(testData.dataStoreA);
+        catalog.add(testData.featureTypeA);
+        catalog.add(testData.layerFeatureTypeA);
+        catalog.add(testData.style1);
         disablePayload();
         Class<RemoteCatalogAddEvent> eventType = RemoteCatalogAddEvent.class;
-        testRemoteAddEvent(testData.layerGroup, catalog::add, eventType);
+        testRemoteAddEvent(testData.layerGroup1, catalog::add, eventType);
     }
 
     public @Test void testCatalogAddedEvents_LayerGropup_Payload() {
-        catalog.add(testData.ws);
-        catalog.add(testData.ns);
-        catalog.add(testData.ds);
-        catalog.add(testData.ft);
-        catalog.add(testData.layer);
-        catalog.add(testData.style);
+        catalog.add(testData.workspaceA);
+        catalog.add(testData.namespaceA);
+        catalog.add(testData.dataStoreA);
+        catalog.add(testData.featureTypeA);
+        catalog.add(testData.layerFeatureTypeA);
+        catalog.add(testData.style1);
         enablePayload();
         Class<RemoteCatalogAddEvent> eventType = RemoteCatalogAddEvent.class;
-        testRemoteAddEvent(testData.layerGroup, catalog::add, eventType);
+        testRemoteAddEvent(testData.layerGroup1, catalog::add, eventType);
     }
 
     public @Test void testCatalogAddedEvents_Style() {
         disablePayload();
         Class<RemoteCatalogAddEvent> eventType = RemoteCatalogAddEvent.class;
-        testRemoteAddEvent(testData.style, catalog::add, eventType);
+        testRemoteAddEvent(testData.style1, catalog::add, eventType);
     }
 
     public @Test void testCatalogAddedEvents_Style_Payload() {
         enablePayload();
         Class<RemoteCatalogAddEvent> eventType = RemoteCatalogAddEvent.class;
-        testRemoteAddEvent(testData.style, catalog::add, eventType);
+        testRemoteAddEvent(testData.style1, catalog::add, eventType);
     }
 
     public @Test void testCatalogRemoteModifyEvents() {
@@ -343,7 +349,7 @@ public class RemoteApplicationEventsAutoConfigurationTest {
 
         Class<RemoteCatalogModifyEvent> eventType = RemoteCatalogModifyEvent.class;
         testRemoteModifyEvent(
-                testData.ws,
+                testData.workspaceA,
                 ws -> {
                     ws.setName("newName");
                     ws.setIsolated(true);
@@ -359,19 +365,19 @@ public class RemoteApplicationEventsAutoConfigurationTest {
 
         Class<RemoteCatalogRemoveEvent> eventType = RemoteCatalogRemoveEvent.class;
 
-        testRemoteRemoveEvent(testData.layerGroup, catalog::remove, eventType);
-        testRemoteRemoveEvent(testData.layer, catalog::remove, eventType);
-        testRemoteRemoveEvent(testData.ft, catalog::remove, eventType);
-        testRemoteRemoveEvent(testData.cv, catalog::remove, eventType);
-        testRemoteRemoveEvent(testData.style, catalog::remove, eventType);
-        testRemoteRemoveEvent(testData.ds, catalog::remove, eventType);
-        testRemoteRemoveEvent(testData.cs, catalog::remove, eventType);
-        testRemoteRemoveEvent(testData.wl, catalog::remove, eventType);
-        testRemoteRemoveEvent(testData.wms, catalog::remove, eventType);
-        testRemoteRemoveEvent(testData.wmtsl, catalog::remove, eventType);
-        testRemoteRemoveEvent(testData.wmtss, catalog::remove, eventType);
-        testRemoteRemoveEvent(testData.ns, catalog::remove, eventType);
-        testRemoteRemoveEvent(testData.ws, catalog::remove, eventType);
+        testRemoteRemoveEvent(testData.layerGroup1, catalog::remove, eventType);
+        testRemoteRemoveEvent(testData.layerFeatureTypeA, catalog::remove, eventType);
+        testRemoteRemoveEvent(testData.featureTypeA, catalog::remove, eventType);
+        testRemoteRemoveEvent(testData.coverageA, catalog::remove, eventType);
+        testRemoteRemoveEvent(testData.style1, catalog::remove, eventType);
+        testRemoteRemoveEvent(testData.dataStoreA, catalog::remove, eventType);
+        testRemoteRemoveEvent(testData.coverageStoreA, catalog::remove, eventType);
+        testRemoteRemoveEvent(testData.wmsLayerA, catalog::remove, eventType);
+        testRemoteRemoveEvent(testData.wmsStoreA, catalog::remove, eventType);
+        testRemoteRemoveEvent(testData.wmtsLayerA, catalog::remove, eventType);
+        testRemoteRemoveEvent(testData.wmtsStoreA, catalog::remove, eventType);
+        testRemoteRemoveEvent(testData.namespaceA, catalog::remove, eventType);
+        testRemoteRemoveEvent(testData.workspaceA, catalog::remove, eventType);
     }
 
     public @Test void testConfigAddEvent_ServiceInfo() {
@@ -385,26 +391,26 @@ public class RemoteApplicationEventsAutoConfigurationTest {
     public @Test void testConfigAddEvent_ServiceInfo_Workspace() {
         Class<RemoteConfigAddEvent> eventType = RemoteConfigAddEvent.class;
 
-        catalog.add(testData.wsA);
+        catalog.add(testData.workspaceB);
         WMSInfoImpl workspaceService = new WMSInfoImpl();
         workspaceService.setName("WMS");
-        workspaceService.setWorkspace(testData.wsA);
+        workspaceService.setWorkspace(testData.workspaceB);
         testRemoteAddEvent(workspaceService, geoserver::add, eventType);
     }
 
     public @Test void testConfigAddEvent_SettingsInfo() {
         Class<RemoteConfigAddEvent> eventType = RemoteConfigAddEvent.class;
 
-        catalog.add(testData.wsA);
+        catalog.add(testData.workspaceB);
 
         SettingsInfoImpl workspaceSettings = new SettingsInfoImpl();
-        workspaceSettings.setWorkspace(testData.wsA);
+        workspaceSettings.setWorkspace(testData.workspaceB);
         testRemoteAddEvent(workspaceSettings, geoserver::add, eventType);
     }
 
     public @Test void testConfigRemoteModifyEvents_GeoServerInfo() {
-        catalog.add(testData.ws);
-        catalog.add(testData.wsA);
+        catalog.add(testData.workspaceA);
+        catalog.add(testData.workspaceB);
 
         GeoServerInfo global = geoserver.getGlobal();
 
@@ -444,27 +450,27 @@ public class RemoteApplicationEventsAutoConfigurationTest {
     public @Test void testConfigRemotetModifyEvents_SettingsInfo() {
         Class<RemoteConfigModifyEvent> eventType = RemoteConfigModifyEvent.class;
 
-        catalog.add(testData.ws);
-        catalog.add(testData.wsA);
+        catalog.add(testData.workspaceA);
+        catalog.add(testData.workspaceB);
 
         SettingsInfo workspaceSettings = new SettingsInfoImpl();
-        workspaceSettings.setWorkspace(testData.ws);
+        workspaceSettings.setWorkspace(testData.workspaceA);
         geoserver.add(workspaceSettings);
-        workspaceSettings = geoserver.getSettings(testData.ws);
+        workspaceSettings = geoserver.getSettings(testData.workspaceA);
 
         testRemoteModifyEvent(
                 workspaceSettings,
                 s -> {
                     s.setCharset("ISO-8869-1");
-                    s.setWorkspace(testData.wsA);
+                    s.setWorkspace(testData.workspaceB);
                 },
                 geoserver::save,
                 eventType);
     }
 
     public @Test void testConfigRemoteModifyEvents_LoggingInfo() {
-        catalog.add(testData.ws);
-        catalog.add(testData.wsA);
+        catalog.add(testData.workspaceA);
+        catalog.add(testData.workspaceB);
 
         Class<RemoteConfigModifyEvent> eventType = RemoteConfigModifyEvent.class;
 
@@ -482,9 +488,9 @@ public class RemoteApplicationEventsAutoConfigurationTest {
     public @Test void testConfigRemoteRemoveEvent_SettingsInfo() {
         localRemoteEventsListener.stop();
 
-        catalog.add(testData.wsB);
+        catalog.add(testData.workspaceC);
         SettingsInfo settings = new SettingsInfoImpl();
-        settings.setWorkspace(testData.wsB);
+        settings.setWorkspace(testData.workspaceC);
         geoserver.add(settings);
 
         localRemoteEventsListener.start();

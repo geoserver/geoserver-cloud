@@ -36,6 +36,13 @@ import org.geoserver.ows.util.OwsUtils;
 import org.geotools.util.Converters;
 import org.junit.rules.ExternalResource;
 
+/**
+ * Junit {@code @Rule} to provide or populate a catalog; use {@link CatalogTestData#empty
+ * CatalogTestData.empty(Supplier<Catalog>)} to start up with an empty catalog but having the test
+ * data {@link #createObjects() ready to be used}, or {@link CatalogTestData#initialized
+ * CatalogTestData.initialized(Supplier<Catalog>)} to pre-populate the catalog with the {@link
+ * #createObjects() test objects} before running the tests.
+ */
 public class CatalogTestData extends ExternalResource {
 
     private Supplier<Catalog> catalog;
@@ -70,97 +77,111 @@ public class CatalogTestData extends ExternalResource {
 
     private void deleteAll() {
         CascadeDeleteVisitor deleteVisitor = new CascadeDeleteVisitor(catalog.get());
-        ws.accept(deleteVisitor);
-        wsA.accept(deleteVisitor);
-        wsB.accept(deleteVisitor);
-        style.accept(deleteVisitor);
+        workspaceA.accept(deleteVisitor);
+        workspaceB.accept(deleteVisitor);
+        workspaceC.accept(deleteVisitor);
+        style1.accept(deleteVisitor);
         style2.accept(deleteVisitor);
-        layerGroup.accept(deleteVisitor);
+        layerGroup1.accept(deleteVisitor);
     }
 
-    public WorkspaceInfo ws;
-    public WorkspaceInfo wsA;
-    public WorkspaceInfo wsB;
+    public WorkspaceInfo workspaceA;
+    public WorkspaceInfo workspaceB;
+    public WorkspaceInfo workspaceC;
 
-    public NamespaceInfo ns;
-    public NamespaceInfo nsA;
-    public NamespaceInfo nsB;
+    public NamespaceInfo namespaceA;
+    public NamespaceInfo namespaceB;
+    public NamespaceInfo namespaceC;
 
-    public DataStoreInfo ds;
-    public DataStoreInfo dsA;
-    public DataStoreInfo dsB;
+    public DataStoreInfo dataStoreA;
+    public DataStoreInfo dataStoreB;
+    public DataStoreInfo dataStoreC;
 
-    public CoverageStoreInfo cs;
-    public WMSStoreInfo wms;
-    public WMTSStoreInfo wmtss;
-    public FeatureTypeInfo ft;
-    public CoverageInfo cv;
-    public WMSLayerInfo wl;
-    public WMTSLayerInfo wmtsl;
-    public LayerInfo layer;
-    public StyleInfo style;
+    public CoverageStoreInfo coverageStoreA;
+    public WMSStoreInfo wmsStoreA;
+    public WMTSStoreInfo wmtsStoreA;
+    public FeatureTypeInfo featureTypeA;
+    public CoverageInfo coverageA;
+    public WMSLayerInfo wmsLayerA;
+    public WMTSLayerInfo wmtsLayerA;
+    public LayerInfo layerFeatureTypeA;
+    public StyleInfo style1;
     public StyleInfo style2;
-    public LayerGroupInfo layerGroup;
+    public LayerGroupInfo layerGroup1;
 
-    public void addObjects() {
+    public CatalogTestData addObjects() {
         Catalog catalog = this.catalog.get();
-        catalog.add(ws);
-        catalog.add(wsA);
-        catalog.add(wsB);
+        catalog.add(workspaceA);
+        catalog.add(workspaceB);
+        catalog.add(workspaceC);
 
-        catalog.add(ns);
-        catalog.add(nsA);
-        catalog.add(nsB);
+        catalog.add(namespaceA);
+        catalog.add(namespaceB);
+        catalog.add(namespaceC);
 
-        catalog.add(ds);
-        catalog.add(dsA);
-        catalog.add(dsB);
+        catalog.add(dataStoreA);
+        catalog.add(dataStoreB);
+        catalog.add(dataStoreC);
 
-        catalog.add(cs);
-        catalog.add(wms);
-        catalog.add(wmtss);
-        catalog.add(ft);
-        catalog.add(cv);
-        catalog.add(wl);
-        catalog.add(wmtsl);
-        catalog.add(style);
+        catalog.add(coverageStoreA);
+        catalog.add(wmsStoreA);
+        catalog.add(wmtsStoreA);
+        catalog.add(featureTypeA);
+        catalog.add(coverageA);
+        catalog.add(wmsLayerA);
+        catalog.add(wmtsLayerA);
+        catalog.add(style1);
         catalog.add(style2);
-        catalog.add(layer);
-        catalog.add(layerGroup);
+        catalog.add(layerFeatureTypeA);
+        catalog.add(layerGroup1);
+        return this;
     }
 
-    public void createObjects() throws Exception {
-        ns = createNamespace("ns1", "wsName", "nsURI");
-        nsA = createNamespace("ns2", "aaa", "nsURIaaa");
-        nsB = createNamespace("ns3", "bbb", "nsURIbbb");
-        ws = createWorkspace("ws1", "wsName");
-        wsA = createWorkspace("ws2", "aaa");
-        wsB = createWorkspace("ws3", "bbb");
+    public CatalogTestData createObjects() throws Exception {
+        namespaceA = createNamespace("ns1", "wsName", "nsURI");
+        namespaceB = createNamespace("ns2", "aaa", "nsURIaaa");
+        namespaceC = createNamespace("ns3", "bbb", "nsURIbbb");
+        workspaceA = createWorkspace("ws1", "wsName");
+        workspaceB = createWorkspace("ws2", "aaa");
+        workspaceC = createWorkspace("ws3", "bbb");
 
-        ds = createDataStore("ds1", ws, "dsName", "dsDescription", true);
-        dsA = createDataStore("ds2", wsA, "dsNameA", "dsDescription", true);
-        dsB = createDataStore("ds3", wsB, "dsNameB", "dsDescription", true);
+        dataStoreA = createDataStore("ds1", workspaceA, "dsName", "dsDescription", true);
+        dataStoreB = createDataStore("ds2", workspaceB, "dsNameA", "dsDescription", true);
+        dataStoreC = createDataStore("ds3", workspaceC, "dsNameB", "dsDescription", true);
 
-        ft = createFeatureType("ft1", ds, ns, "ftName", "ftAbstract", "ftDescription", true);
+        featureTypeA =
+                createFeatureType(
+                        "ft1",
+                        dataStoreA,
+                        namespaceA,
+                        "ftName",
+                        "ftAbstract",
+                        "ftDescription",
+                        true);
 
-        cs = createCoverageStore("cs1", ws, "csName", "fakeCoverageType", "file://fake");
-        cv = createCoverage("cov1", cs, "cvName");
+        coverageStoreA =
+                createCoverageStore("cs1", workspaceA, "csName", "fakeCoverageType", "file://fake");
+        coverageA = createCoverage("cov1", coverageStoreA, "cvName");
 
-        wms = createWebMapServer("wms1", ws, "wmsName", "http://fake.url", true);
+        wmsStoreA = createWebMapServer("wms1", workspaceA, "wmsName", "http://fake.url", true);
 
-        wl = createWMSLayer("wmsl-1", wms, ns, "wmsLayer1", true);
+        wmsLayerA = createWMSLayer("wmsl-1", wmsStoreA, namespaceA, "wmsLayer1", true);
 
-        wmtss = createWebMapTileServer("wmts1", ws, "wmtsName", "http://fake.wmts.url", true);
+        wmtsStoreA =
+                createWebMapTileServer(
+                        "wmts1", workspaceA, "wmtsName", "http://fake.wmts.url", true);
 
-        wmtsl = createWMTSLayer("wmtsl1", wmtss, ns, "wmtsLayer", true);
+        wmtsLayerA = createWMTSLayer("wmtsl1", wmtsStoreA, namespaceA, "wmtsLayer", true);
 
-        style = createStyle("style1", null, "styleName", "styleFilename");
+        style1 = createStyle("style1", null, "styleName", "styleFilename");
 
-        style2 = createStyle("style2", null, "style2", StyleInfo.DEFAULT_LINE + ".sld");
+        style2 = createStyle("style2", null, "style2", "style2.sld");
 
-        layer = createLayer("layer1", ft, "Layer1", true, style);
+        layerFeatureTypeA = createLayer("layer1", featureTypeA, "Layer1", true, style1);
 
-        layerGroup = createLayerGroup("lg1", null, "layerGroup", layer, style);
+        layerGroup1 = createLayerGroup("lg1", null, "layerGroup", layerFeatureTypeA, style1);
+
+        return this;
     }
 
     public LayerGroupInfo createLayerGroup(
@@ -193,6 +214,10 @@ public class CatalogTestData extends ExternalResource {
             lyr.getStyles().add(additionalStyles[i]);
         }
         return lyr;
+    }
+
+    public StyleInfo createStyle(String name) {
+        return createStyle(name + "-id", null, name, name + ".sld");
     }
 
     public StyleInfo createStyle(String id, WorkspaceInfo workspace, String name, String fileName) {

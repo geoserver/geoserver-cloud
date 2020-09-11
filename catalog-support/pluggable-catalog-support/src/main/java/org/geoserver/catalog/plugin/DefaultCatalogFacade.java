@@ -6,6 +6,8 @@ package org.geoserver.catalog.plugin;
 
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogFacade;
+import org.geoserver.catalog.CatalogInfo;
+import org.geoserver.catalog.CatalogRepository;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.MapInfo;
@@ -24,10 +26,8 @@ import org.geoserver.catalog.plugin.CatalogInfoLookup.StyleInfoLookup;
 import org.geoserver.catalog.plugin.CatalogInfoLookup.WorkspaceInfoLookup;
 
 /**
- * Default catalog facade implementation in which all objects are stored in memory.
- *
- * @author Justin Deoliveira, OpenGeo
- *     <p>TODO: look for any exceptions, move them back to catalog as they indicate logic
+ * Default catalog facade implementation using in-memory {@link CatalogRepository repositories} to
+ * store the {@link CatalogInfo}
  */
 public class DefaultCatalogFacade extends AbstractCatalogFacade implements CatalogFacade {
 
