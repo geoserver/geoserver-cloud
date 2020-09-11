@@ -32,7 +32,7 @@ geoserver:
     wfs.enabled: true
     wms.enabled: true
     wcs.enabled: true
-    wps.enabled: true
+    wps.enabled: false # not working yet
     gwc.enabled: false # not ready yet
     extensions:
       importer.enabled: true
