@@ -5,21 +5,21 @@
 package org.geoserver.catalog.plugin.forwarding;
 
 import org.geoserver.catalog.WorkspaceInfo;
-import org.geoserver.catalog.plugin.CatalogInfoRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.WorkspaceRepository;
 
-public class ForwardingWorkspaceRepository extends ForwardingCatalogRepository<WorkspaceInfo>
+public class ForwardingWorkspaceRepository
+        extends ForwardingCatalogRepository<WorkspaceInfo, WorkspaceRepository>
         implements WorkspaceRepository {
 
-    public ForwardingWorkspaceRepository(CatalogInfoRepository<WorkspaceInfo> subject) {
+    public ForwardingWorkspaceRepository(WorkspaceRepository subject) {
         super(subject);
     }
 
     public @Override void setDefaultWorkspace(WorkspaceInfo workspace) {
-        ((WorkspaceRepository) subject).setDefaultWorkspace(workspace);
+        subject.setDefaultWorkspace(workspace);
     }
 
     public @Override WorkspaceInfo getDefaultWorkspace() {
-        return ((WorkspaceRepository) subject).getDefaultWorkspace();
+        return subject.getDefaultWorkspace();
     }
 }

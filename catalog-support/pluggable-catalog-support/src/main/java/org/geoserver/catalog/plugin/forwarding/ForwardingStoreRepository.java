@@ -10,35 +10,36 @@ import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.StoreRepository;
 
-public class ForwardingStoreRepository extends ForwardingCatalogRepository<StoreInfo>
-        implements StoreRepository {
+public class ForwardingStoreRepository
+        extends ForwardingCatalogRepository<StoreInfo, StoreRepository> implements StoreRepository {
 
     public ForwardingStoreRepository(StoreRepository subject) {
         super(subject);
     }
 
     public @Override void setDefaultDataStore(WorkspaceInfo workspace, DataStoreInfo dataStore) {
-        ((StoreRepository) subject).setDefaultDataStore(workspace, dataStore);
+        subject.setDefaultDataStore(workspace, dataStore);
     }
 
     public @Override DataStoreInfo getDefaultDataStore(WorkspaceInfo workspace) {
-        return ((StoreRepository) subject).getDefaultDataStore(workspace);
+        return subject.getDefaultDataStore(workspace);
     }
 
     public @Override List<DataStoreInfo> getDefaultDataStores() {
-        return ((StoreRepository) subject).getDefaultDataStores();
-    }
-
-    public @Override <T extends StoreInfo> T findOneByName(String name, Class<T> clazz) {
-        return ((StoreRepository) subject).findOneByName(name, clazz);
+        return subject.getDefaultDataStores();
     }
 
     public @Override <T extends StoreInfo> List<T> findAllByWorkspace(
             WorkspaceInfo workspace, Class<T> clazz) {
-        return ((StoreRepository) subject).findAllByWorkspace(workspace, clazz);
+        return subject.findAllByWorkspace(workspace, clazz);
     }
 
     public @Override <T extends StoreInfo> List<T> findAllByType(Class<T> clazz) {
-        return ((StoreRepository) subject).findAllByType(clazz);
+        return subject.findAllByType(clazz);
+    }
+
+    public @Override <T extends StoreInfo> T findByNameAndWorkspace(
+            String name, WorkspaceInfo workspace, Class<T> clazz) {
+        return subject.findByNameAndWorkspace(name, workspace, clazz);
     }
 }

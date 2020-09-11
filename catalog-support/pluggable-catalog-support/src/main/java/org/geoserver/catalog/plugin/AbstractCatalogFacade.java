@@ -10,7 +10,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.rmi.server.UID;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -52,9 +52,7 @@ import org.geoserver.catalog.plugin.CatalogInfoRepository.WorkspaceRepository;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.catalog.util.CloseableIteratorAdapter;
 import org.geoserver.ows.util.OwsUtils;
-import org.geotools.feature.NameImpl;
 import org.geotools.util.logging.Logging;
-import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
@@ -73,6 +71,8 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     protected MapRepository maps;
     protected StyleRepository styles;
     protected CatalogImpl catalog;
+
+    public AbstractCatalogFacade() {}
 
     public AbstractCatalogFacade(Catalog catalog) {
         setCatalog(catalog);
@@ -176,11 +176,10 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
             WorkspaceInfo workspace, String name, Class<T> clazz) {
 
         T result;
-        if (workspace == ANY_WORKSPACE) {
-            result = stores.findOneByName(name, clazz);
+        if (workspace == ANY_WORKSPACE || workspace == null) {
+            result = stores.findFirstByName(name, clazz);
         } else {
-            Name qname = new NameImpl((workspace != null) ? workspace.getId() : null, name);
-            result = stores.findByName(qname, clazz);
+            result = stores.findByNameAndWorkspace(name, workspace, clazz);
         }
 
         return wrapInModificationProxy(result, clazz);
@@ -216,20 +215,12 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
         }
 
         // fire modify event before change
-        catalog.fireModified(
-                catalog,
-                Arrays.asList("defaultDataStore"),
-                Arrays.asList(old),
-                Arrays.asList(store));
+        catalog.fireModified(catalog, asList("defaultDataStore"), asList(old), asList(store));
 
         stores.setDefaultDataStore(workspace, store);
 
         // fire postmodify event after change
-        catalog.firePostModified(
-                catalog,
-                Arrays.asList("defaultDataStore"),
-                Arrays.asList(old),
-                Arrays.asList(store));
+        catalog.firePostModified(catalog, asList("defaultDataStore"), asList(old), asList(store));
     }
 
     //
@@ -262,10 +253,9 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
             NamespaceInfo namespace, String name, Class<T> clazz) {
         T result;
         if (namespace == ANY_NAMESPACE) {
-            result = resources.findOneByName(name, clazz);
+            result = resources.findFirstByName(name, clazz);
         } else {
-            Name qname = new NameImpl(namespace != null ? namespace.getId() : null, name);
-            result = resources.findByName(qname, clazz);
+            result = resources.findByNameAndNamespace(name, namespace, clazz);
         }
 
         return wrapInModificationProxy(result, clazz);
@@ -290,7 +280,8 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
         if (store.getWorkspace() != null
                 && store.getWorkspace().getName() != null
                 && (ns = getNamespaceByPrefix(store.getWorkspace().getName())) != null) {
-            resource = resources.findByName(new NameImpl(ns.getId(), name), clazz);
+
+            resource = resources.findByNameAndNamespace(name, ns, clazz);
             if (resource != null && !(store.equals(resource.getStore()))) {
                 return null;
             }
@@ -381,8 +372,7 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     }
 
     public @Override MapInfo getMapByName(String name) {
-        return wrapInModificationProxy(
-                maps.findByName(new NameImpl(null, name), MapInfo.class), MapInfo.class);
+        return wrapInModificationProxy(maps.findFirstByName(name, MapInfo.class), MapInfo.class);
     }
 
     public @Override List<MapInfo> getMaps() {
@@ -444,13 +434,11 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     public @Override LayerGroupInfo getLayerGroupByName(WorkspaceInfo workspace, String name) {
         LayerGroupInfo match;
         if (workspace == NO_WORKSPACE) {
-            match = layerGroups.findByName(new NameImpl(null, name), LayerGroupInfo.class);
+            match = layerGroups.findByNameAndWorkspaceIsNull(name);
         } else if (ANY_WORKSPACE == workspace) {
-            match = layerGroups.findOneByName(name);
+            match = layerGroups.findFirstByName(name, LayerGroupInfo.class);
         } else {
-            match =
-                    layerGroups.findByName(
-                            new NameImpl(workspace.getId(), name), LayerGroupInfo.class);
+            match = layerGroups.findByNameAndWorkspace(name, workspace);
         }
         return wrapInModificationProxy(match, LayerGroupInfo.class);
     }
@@ -489,19 +477,17 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
         NamespaceInfo old = getDefaultNamespace();
         // fire modify event before change
         catalog.fireModified(
-                catalog,
-                Arrays.asList("defaultNamespace"),
-                Arrays.asList(old),
-                Arrays.asList(defaultNamespace));
+                catalog, asList("defaultNamespace"), asList(old), asList(defaultNamespace));
 
         namespaces.setDefaultNamespace(unwrap(defaultNamespace));
 
         // fire postmodify event after change
         catalog.firePostModified(
-                catalog,
-                Arrays.asList("defaultNamespace"),
-                Arrays.asList(old),
-                Arrays.asList(defaultNamespace));
+                catalog, asList("defaultNamespace"), asList(old), asList(defaultNamespace));
+    }
+
+    private <T> List<T> asList(@Nullable T value) {
+        return value == null ? Collections.emptyList() : Collections.singletonList(value);
     }
 
     public @Override NamespaceInfo getNamespace(String id) {
@@ -510,7 +496,7 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     }
 
     public @Override NamespaceInfo getNamespaceByPrefix(String prefix) {
-        NamespaceInfo ns = namespaces.findByName(new NameImpl(prefix), NamespaceInfo.class);
+        NamespaceInfo ns = namespaces.findFirstByName(prefix, NamespaceInfo.class);
         return wrapInModificationProxy(ns, NamespaceInfo.class);
     }
 
@@ -559,20 +545,13 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     public @Override void setDefaultWorkspace(WorkspaceInfo workspace) {
         WorkspaceInfo old = getDefaultWorkspace();
         // fire modify event before change
-        catalog.fireModified(
-                catalog,
-                Arrays.asList("defaultWorkspace"),
-                Arrays.asList(old),
-                Arrays.asList(workspace));
+        catalog.fireModified(catalog, asList("defaultWorkspace"), asList(old), asList(workspace));
 
         workspaces.setDefaultWorkspace(unwrap(workspace));
 
         // fire postmodify event after change
         catalog.firePostModified(
-                catalog,
-                Arrays.asList("defaultWorkspace"),
-                Arrays.asList(old),
-                Arrays.asList(workspace));
+                catalog, asList("defaultWorkspace"), asList(old), asList(workspace));
     }
 
     public @Override List<WorkspaceInfo> getWorkspaces() {
@@ -585,7 +564,7 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     }
 
     public @Override WorkspaceInfo getWorkspaceByName(String name) {
-        WorkspaceInfo ws = workspaces.findByName(new NameImpl(name), WorkspaceInfo.class);
+        WorkspaceInfo ws = workspaces.findFirstByName(name, WorkspaceInfo.class);
         return wrapInModificationProxy(ws, WorkspaceInfo.class);
     }
 
@@ -616,27 +595,22 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     }
 
     public @Override StyleInfo getStyleByName(String name) {
-        StyleInfo match = styles.findByName(new NameImpl(null, name), StyleInfo.class);
+        StyleInfo match = styles.findByNameAndWordkspaceNull(name);
         if (match == null) {
-            match = styles.findOneByName(name);
+            match = styles.findFirstByName(name, StyleInfo.class);
         }
         return wrapInModificationProxy(match, StyleInfo.class);
     }
 
     public @Override StyleInfo getStyleByName(WorkspaceInfo workspace, String name) {
-        if (null == workspace) {
-            throw new NullPointerException("workspace");
-        }
-        if (null == name) {
-            throw new NullPointerException("name");
-        }
+        Objects.requireNonNull(workspace, "workspace");
+        Objects.requireNonNull(name, "name");
+
         if (workspace == ANY_WORKSPACE) {
             return getStyleByName(name);
-        } else {
-            Name sn = new NameImpl(workspace == null ? null : workspace.getId(), name);
-            StyleInfo match = styles.findByName(sn, StyleInfo.class);
-            return wrapInModificationProxy(match, StyleInfo.class);
         }
+        StyleInfo match = styles.findByNameAndWordkspace(name, workspace);
+        return wrapInModificationProxy(match, StyleInfo.class);
     }
 
     public @Override List<StyleInfo> getStyles() {

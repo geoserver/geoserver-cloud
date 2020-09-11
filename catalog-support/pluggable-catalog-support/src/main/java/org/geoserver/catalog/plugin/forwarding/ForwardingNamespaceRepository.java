@@ -8,7 +8,8 @@ import java.util.List;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.NamespaceRepository;
 
-public class ForwardingNamespaceRepository extends ForwardingCatalogRepository<NamespaceInfo>
+public class ForwardingNamespaceRepository
+        extends ForwardingCatalogRepository<NamespaceInfo, NamespaceRepository>
         implements NamespaceRepository {
 
     public ForwardingNamespaceRepository(NamespaceRepository subject) {
@@ -16,18 +17,18 @@ public class ForwardingNamespaceRepository extends ForwardingCatalogRepository<N
     }
 
     public @Override void setDefaultNamespace(NamespaceInfo namespace) {
-        ((NamespaceRepository) subject).setDefaultNamespace(namespace);
+        subject.setDefaultNamespace(namespace);
     }
 
     public @Override NamespaceInfo getDefaultNamespace() {
-        return ((NamespaceRepository) subject).getDefaultNamespace();
+        return subject.getDefaultNamespace();
     }
 
     public @Override NamespaceInfo findOneByURI(String uri) {
-        return ((NamespaceRepository) subject).findOneByURI(uri);
+        return subject.findOneByURI(uri);
     }
 
     public @Override List<NamespaceInfo> findAllByURI(String uri) {
-        return ((NamespaceRepository) subject).findAllByURI(uri);
+        return subject.findAllByURI(uri);
     }
 }

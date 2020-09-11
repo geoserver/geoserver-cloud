@@ -5,14 +5,13 @@
 package org.geoserver.cloud.catalog.repository.caching;
 
 import org.geoserver.catalog.WorkspaceInfo;
-import org.geoserver.catalog.plugin.CatalogInfoRepository.WorkspaceRepository;
+import org.geoserver.catalog.plugin.forwarding.ForwardingWorkspaceRepository;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 
 @CacheConfig(cacheNames = CacheNames.WORKSPACE_CACHE)
-public class CachingWorkspaceRepository extends CachingCatalogRepository<WorkspaceInfo>
-        implements WorkspaceRepository {
+public class CachingWorkspaceRepository extends ForwardingWorkspaceRepository {
 
     public CachingWorkspaceRepository(WorkspaceRepository subject) {
         super(subject);
@@ -20,11 +19,11 @@ public class CachingWorkspaceRepository extends CachingCatalogRepository<Workspa
 
     @CachePut(key = "defaultWorkspace")
     public @Override void setDefaultWorkspace(WorkspaceInfo workspace) {
-        ((WorkspaceRepository) subject).setDefaultWorkspace(workspace);
+        super.setDefaultWorkspace(workspace);
     }
 
     @Cacheable(key = "defaultWorkspace")
     public @Override WorkspaceInfo getDefaultWorkspace() {
-        return ((WorkspaceRepository) subject).getDefaultWorkspace();
+        return super.getDefaultWorkspace();
     }
 }

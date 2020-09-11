@@ -15,7 +15,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Documented
-@ConditionalOnClass(org.geoserver.cloud.catalog.client.CloudCatalogFacade.class)
+@ConditionalOnClass(
+        org.geoserver.cloud.catalog.client.repository.CatalogServiceClientRepository.class)
 @ConditionalOnProperty(
     prefix = "geoserver.backend.catalog-service",
     name = "enabled",

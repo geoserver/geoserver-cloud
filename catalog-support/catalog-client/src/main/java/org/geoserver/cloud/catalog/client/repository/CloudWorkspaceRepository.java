@@ -2,12 +2,16 @@
  * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
  * GPL 2.0 license, available at the root application directory.
  */
-package org.geoserver.cloud.catalog.client;
+package org.geoserver.cloud.catalog.client.repository;
 
+import java.util.Objects;
 import lombok.Getter;
+import lombok.NonNull;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.WorkspaceRepository;
 import org.geoserver.cloud.catalog.client.feign.WorkspaceClient;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 
 public class CloudWorkspaceRepository
         extends CatalogServiceClientRepository<WorkspaceInfo, WorkspaceClient>
@@ -15,15 +19,16 @@ public class CloudWorkspaceRepository
 
     private final @Getter Class<WorkspaceInfo> infoType = WorkspaceInfo.class;
 
-    public CloudWorkspaceRepository(WorkspaceClient client) {
+    public @Autowired CloudWorkspaceRepository(WorkspaceClient client) {
         super(client);
     }
 
-    public @Override void setDefaultWorkspace(WorkspaceInfo workspace) {
-        throw new UnsupportedOperationException("not yet implemented");
+    public @Override void setDefaultWorkspace(@NonNull WorkspaceInfo workspace) {
+        Objects.requireNonNull(workspace.getId(), "workspace id can't be null");
+        client().setDefault(workspace);
     }
 
-    public @Override WorkspaceInfo getDefaultWorkspace() {
-        throw new UnsupportedOperationException("not yet implemented");
+    public @Override @Nullable WorkspaceInfo getDefaultWorkspace() {
+        return client().getDefault();
     }
 }

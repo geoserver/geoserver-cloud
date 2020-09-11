@@ -24,10 +24,18 @@ public interface GeoServerCatalogConfigurer {
 
     @DependsOn({"resourceLoader", "catalogFacade"})
     default @Bean Catalog rawCatalog(
-            GeoServerResourceLoader resourceLoader, CatalogFacade catalogFacadeImpl) {
-        CatalogImpl catalog = new org.geoserver.catalog.plugin.CatalogImpl(catalogFacadeImpl);
-        catalog.setResourceLoader(resourceLoader);
-        return catalog;
+            GeoServerResourceLoader resourceLoader,
+            @Qualifier("catalogFacade") CatalogFacade catalogFacade,
+            CatalogProperties properties) {
+
+        CatalogImpl rawCatalog;
+        if (properties.isIsolated()) {
+            rawCatalog = org.geoserver.catalog.plugin.CatalogImpl.isoLated(catalogFacade);
+        } else {
+            rawCatalog = org.geoserver.catalog.plugin.CatalogImpl.nonIsolated(catalogFacade);
+        }
+        rawCatalog.setResourceLoader(resourceLoader);
+        return rawCatalog;
     }
 
     /**

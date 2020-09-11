@@ -1,6 +1,6 @@
-/* (c) 2017 Open Source Geospatial Foundation - all rights reserved
- * This code is licensed under the GPL 2.0 license, available at the root
- * application directory.
+/*
+ * (c) 2017 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
+ * GPL 2.0 license, available at the root application directory.
  */
 package org.geoserver.catalog.plugin;
 
@@ -21,6 +21,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import lombok.NonNull;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.DataStoreInfo;
@@ -38,6 +39,7 @@ import org.geotools.feature.NameImpl;
 import org.geotools.util.logging.Logging;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
+import org.springframework.lang.Nullable;
 
 /**
  * A support index for {@link DefaultCatalogFacade}, can perform fast lookups of {@link CatalogInfo}
@@ -134,8 +136,7 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
         }
     }
 
-    @Override
-    public void add(T value) {
+    public @Override void add(T value) {
         checkNotAProxy(value);
         Map<String, T> idMap = getMapForValue(idMultiMap, value);
         Map<Name, T> nameMap = getMapForValue(nameMultiMap, value);
@@ -149,8 +150,7 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
         }
     }
 
-    @Override
-    public List<T> findAll() {
+    public @Override List<T> findAll() {
         List<T> result = new ArrayList<>();
         for (Map<String, T> v : idMultiMap.values()) {
             result.addAll(v.values());
@@ -159,8 +159,7 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
         return result;
     }
 
-    @Override
-    public void remove(T value) {
+    public @Override void remove(T value) {
         checkNotAProxy(value);
         Map<String, T> idMap = getMapForValue(idMultiMap, value);
         synchronized (idMap) {
@@ -173,8 +172,7 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
     }
 
     /** Updates the value in the name map. */
-    @Override
-    public void update(T value) {
+    public @Override void update(T value) {
         checkNotAProxy(value);
         Map<String, T> idMap = getMapForValue(idMultiMap, value);
         synchronized (idMap) {
@@ -198,8 +196,7 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
         }
     }
 
-    @Override
-    public void dispose() {
+    public @Override void dispose() {
         clear();
     }
 
@@ -209,13 +206,11 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
         idToMameMultiMap.clear();
     }
 
-    @Override
-    public <U extends T> List<U> findAll(Filter filter) {
+    public @Override List<T> findAll(Filter filter) {
         return list(null, toPredicate(filter));
     }
 
-    @Override
-    public <U extends T> List<U> findAll(Filter filter, Class<U> infoType) {
+    public @Override <U extends T> List<U> findAll(Filter filter, Class<U> infoType) {
         return list(infoType, toPredicate(filter));
     }
 
@@ -242,13 +237,11 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
         }
         for (Class<T> key : nameMultiMap.keySet()) {
             if (clazz.isAssignableFrom(key)) {
-                Map<Name, T> valueMap = nameMultiMap.get(key);
-                if (valueMap != null) {
-                    for (T v : valueMap.values()) {
-                        final U u = clazz.cast(v);
-                        if (predicate.test(u)) {
-                            result.add(u);
-                        }
+                Map<Name, T> valueMap = getMapForType(nameMultiMap, key);
+                for (T v : valueMap.values()) {
+                    final U u = clazz.cast(v);
+                    if (predicate.test(u)) {
+                        result.add(u);
                     }
                 }
             }
@@ -258,16 +251,13 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
     }
 
     /** Looks up a CatalogInfo by class and identifier */
-    @Override
-    public <U extends T> U findById(String id, Class<U> clazz) {
+    public @Override <U extends T> U findById(String id, Class<U> clazz) {
         for (Class<T> key : idMultiMap.keySet()) {
             if (clazz.isAssignableFrom(key)) {
-                Map<String, T> valueMap = idMultiMap.get(key);
-                if (valueMap != null) {
-                    T t = valueMap.get(id);
-                    if (t != null) {
-                        return clazz.cast(t);
-                    }
+                Map<String, T> valueMap = getMapForType(idMultiMap, key);
+                T t = valueMap.get(id);
+                if (t != null) {
+                    return clazz.cast(t);
                 }
             }
         }
@@ -276,16 +266,17 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
     }
 
     /** Looks up a CatalogInfo by class and name */
-    @Override
-    public <U extends T> U findByName(Name name, Class<U> clazz) {
+    public @Override <U extends T> U findFirstByName(String name, @Nullable Class<U> clazz) {
+        return findFirst(clazz, i -> name.equals(nameMapper.apply(i).getLocalPart()));
+    }
+
+    protected <U extends T> U findFirstByName(Name name, @Nullable Class<U> clazz) {
         for (Class<T> key : nameMultiMap.keySet()) {
             if (clazz.isAssignableFrom(key)) {
-                Map<Name, T> valueMap = nameMultiMap.get(key);
-                if (valueMap != null) {
-                    T t = valueMap.get(name);
-                    if (t != null) {
-                        return clazz.cast(t);
-                    }
+                Map<Name, T> valueMap = getMapForType(nameMultiMap, key);
+                T t = valueMap.get(name);
+                if (t != null) {
+                    return clazz.cast(t);
                 }
             }
         }
@@ -304,13 +295,11 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
     <U extends CatalogInfo> U findFirst(Class<U> clazz, Predicate<U> predicate) {
         for (Class<T> key : nameMultiMap.keySet()) {
             if (clazz.isAssignableFrom(key)) {
-                Map<Name, T> valueMap = nameMultiMap.get(key);
-                if (valueMap != null) {
-                    for (T v : valueMap.values()) {
-                        final U u = clazz.cast(v);
-                        if (predicate.test(u)) {
-                            return u;
-                        }
+                Map<Name, T> valueMap = getMapForType(nameMultiMap, key);
+                for (T v : valueMap.values()) {
+                    final U u = clazz.cast(v);
+                    if (predicate.test(u)) {
+                        return u;
                     }
                 }
             }
@@ -319,8 +308,7 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
         return null;
     }
 
-    @Override
-    public void syncTo(CatalogInfoRepository<T> target) {
+    public @Override void syncTo(CatalogInfoRepository<T> target) {
         if (target instanceof CatalogInfoLookup) {
             CatalogInfoLookup<T> other = (CatalogInfoLookup<T>) target;
             other.clear();
@@ -333,8 +321,7 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
     }
 
     /** Sets the specified catalog into all CatalogInfo objects contained in this lookup */
-    @Override
-    public void setCatalog(Catalog catalog) {
+    public @Override void setCatalog(Catalog catalog) {
         for (Map<Name, T> valueMap : nameMultiMap.values()) {
             if (valueMap != null) {
                 for (T v : valueMap.values()) {
@@ -434,10 +421,6 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
             defaultStores.clear();
         }
 
-        public @Override <T extends StoreInfo> T findOneByName(String name, Class<T> clazz) {
-            return findFirst(clazz, s -> name.equals(s.getName()));
-        }
-
         public @Override <T extends StoreInfo> List<T> findAllByWorkspace(
                 WorkspaceInfo workspace, Class<T> clazz) {
             return list(clazz, s -> workspace.getId().equals(s.getWorkspace().getId()));
@@ -446,16 +429,17 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
         public @Override <T extends StoreInfo> List<T> findAllByType(Class<T> clazz) {
             return list(clazz, CatalogInfoLookup.alwaysTrue());
         }
+
+        public @Override <T extends StoreInfo> T findByNameAndWorkspace(
+                String name, WorkspaceInfo workspace, Class<T> clazz) {
+            return findFirstByName(new NameImpl(workspace.getId(), name), clazz);
+        }
     }
 
     static class LayerGroupInfoLookup extends CatalogInfoLookup<LayerGroupInfo>
             implements LayerGroupRepository {
         public LayerGroupInfoLookup() {
             super(LAYERGROUP_NAME_MAPPER);
-        }
-
-        public @Override LayerGroupInfo findOneByName(String name) {
-            return findFirst(LayerGroupInfo.class, lg -> name.equals(lg.getName()));
         }
 
         public @Override List<LayerGroupInfo> findAllByWorkspaceIsNull() {
@@ -468,6 +452,15 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
                     lg ->
                             lg.getWorkspace() != null
                                     && lg.getWorkspace().getId().equals(workspace.getId()));
+        }
+
+        public @Override LayerGroupInfo findByNameAndWorkspaceIsNull(@NonNull String name) {
+            return findFirstByName(new NameImpl(null, name), LayerGroupInfo.class);
+        }
+
+        public @Override LayerGroupInfo findByNameAndWorkspace(
+                String name, WorkspaceInfo workspace) {
+            return findFirstByName(new NameImpl(workspace.getId(), name), LayerGroupInfo.class);
         }
     }
 
@@ -500,10 +493,6 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
             }
         }
 
-        public @Override <T extends ResourceInfo> T findOneByName(String name, Class<T> clazz) {
-            return findFirst(clazz, r -> name.equals(r.getName()));
-        }
-
         public @Override <T extends ResourceInfo> List<T> findAllByType(Class<T> clazz) {
             return list(clazz, CatalogInfoLookup.alwaysTrue());
         }
@@ -520,9 +509,14 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
                     r -> name.equals(r.getName()) && store.getId().equals(r.getStore().getId()));
         }
 
-        @Override
-        public <T extends ResourceInfo> List<T> findAllByStore(StoreInfo store, Class<T> clazz) {
+        public @Override <T extends ResourceInfo> List<T> findAllByStore(
+                StoreInfo store, Class<T> clazz) {
             return list(clazz, r -> store.equals(r.getStore()));
+        }
+
+        public @Override <T extends ResourceInfo> T findByNameAndNamespace(
+                @NonNull String name, @NonNull NamespaceInfo namespace, Class<T> clazz) {
+            return findFirstByName(new NameImpl(namespace.getId(), name), clazz);
         }
     }
 
@@ -544,8 +538,7 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
         }
 
         /** Override to remove by name instead of by id */
-        @Override
-        public void remove(LayerInfo value) {
+        public @Override void remove(LayerInfo value) {
             checkNotAProxy(value);
             ConcurrentMap<Name, LayerInfo> nameMap = getMapForValue(nameMultiMap, value);
             synchronized (nameMap) {
@@ -573,7 +566,7 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
             // resource, as they would all share the same name (the one of the resource) so
             // a direct lookup becomes possible
             Name name = RESOURCE_NAME_MAPPER.apply(resource);
-            LayerInfo layer = findByName(name, LayerInfo.class);
+            LayerInfo layer = findFirstByName(name, LayerInfo.class);
             return layer == null ? emptyList() : singletonList(layer);
         }
     }
@@ -581,10 +574,6 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
     static class StyleInfoLookup extends CatalogInfoLookup<StyleInfo> implements StyleRepository {
         public StyleInfoLookup() {
             super(STYLE_NAME_MAPPER);
-        }
-
-        public @Override StyleInfo findOneByName(String name) {
-            return findFirst(StyleInfo.class, s -> name.equals(s.getName()));
         }
 
         public @Override List<StyleInfo> findAllByNullWorkspace() {
@@ -595,6 +584,14 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
             return list(
                     StyleInfo.class,
                     s -> s.getWorkspace() != null && s.getWorkspace().getId().equals(ws.getId()));
+        }
+
+        public @Override StyleInfo findByNameAndWordkspaceNull(String name) {
+            return findFirstByName(new NameImpl(null, name), StyleInfo.class);
+        }
+
+        public @Override StyleInfo findByNameAndWordkspace(String name, WorkspaceInfo workspace) {
+            return findFirstByName(new NameImpl(workspace.getId(), name), StyleInfo.class);
         }
     }
 }

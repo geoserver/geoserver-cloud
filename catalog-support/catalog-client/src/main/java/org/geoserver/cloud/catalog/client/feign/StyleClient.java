@@ -4,8 +4,24 @@
  */
 package org.geoserver.cloud.catalog.client.feign;
 
+import java.util.List;
 import org.geoserver.catalog.StyleInfo;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(name = "catalog-styles", path = "/api/v1/catalog/styles")
-public interface StyleClient extends CatalogApiClient<StyleInfo> {}
+@FeignClient(name = "catalog-service", contextId = "styleClient", path = "/api/v1/catalog/styles")
+public interface StyleClient extends CatalogApiClient<StyleInfo> {
+
+    @GetMapping(path = "/query/noworkspace", consumes = XML)
+    List<StyleInfo> findAllByNullWorkspace();
+
+    @GetMapping(path = "/query/workspace", consumes = XML)
+    List<StyleInfo> findAllByWorkspaceId(@RequestParam(name = "workspaceId") String workspaceId);
+
+    @GetMapping(path = "/find/name/{name}", consumes = XML)
+    StyleInfo findByNameAndWorkspaceId(
+            @PathVariable("name") String name,
+            @RequestParam(name = "workspaceId", required = false) String workspaceId);
+}

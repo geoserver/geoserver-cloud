@@ -4,31 +4,27 @@
  */
 package org.geoserver.cloud.catalog.repository.caching;
 
-import java.util.List;
+import lombok.NonNull;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.WorkspaceInfo;
-import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerGroupRepository;
+import org.geoserver.catalog.plugin.forwarding.ForwardingLayerGroupRepository;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
 
 @CacheConfig(cacheNames = CacheNames.LAYER_GROUP_CACHE)
-public class CachingLayerGroupRepository extends CachingCatalogRepository<LayerGroupInfo>
-        implements LayerGroupRepository {
+public class CachingLayerGroupRepository extends ForwardingLayerGroupRepository {
 
     public CachingLayerGroupRepository(LayerGroupRepository subject) {
         super(subject);
     }
 
     @Cacheable
-    public @Override LayerGroupInfo findOneByName(String name) {
-        throw new UnsupportedOperationException("not yet implemented");
+    public @Override LayerGroupInfo findByNameAndWorkspaceIsNull(@NonNull String name) {
+        return super.findByNameAndWorkspaceIsNull(name);
     }
 
-    public @Override List<LayerGroupInfo> findAllByWorkspaceIsNull() {
-        return ((LayerGroupRepository) subject).findAllByWorkspaceIsNull();
-    }
-
-    public @Override List<LayerGroupInfo> findAllByWorkspace(WorkspaceInfo workspace) {
-        return ((LayerGroupRepository) subject).findAllByWorkspace(workspace);
+    @Cacheable
+    public @Override LayerGroupInfo findByNameAndWorkspace(String name, WorkspaceInfo workspace) {
+        return super.findByNameAndWorkspace(name, workspace);
     }
 }

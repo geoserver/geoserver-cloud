@@ -5,7 +5,22 @@
 package org.geoserver.cloud.catalog.client.feign;
 
 import org.geoserver.catalog.ResourceInfo;
+import org.geoserver.catalog.impl.ClassMappings;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(name = "catalog-resources", path = "/api/v1/catalog/resources")
-public interface ResourceClient extends CatalogApiClient<ResourceInfo> {}
+@FeignClient(
+    name = "catalog-service",
+    contextId = "resourceClient",
+    path = "/api/v1/catalog/resources"
+)
+public interface ResourceClient extends CatalogApiClient<ResourceInfo> {
+
+    @GetMapping(path = "/find/name/{name}", consumes = XML)
+    ResourceInfo findByNameAndNamespaceId(
+            @PathVariable("name") String name,
+            @RequestParam(name = "namespaceId") String namespaceId,
+            @RequestParam(name = "type", required = false) ClassMappings typeEnum);
+}

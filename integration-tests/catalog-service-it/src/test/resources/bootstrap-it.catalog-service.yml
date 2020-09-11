@@ -1,0 +1,44 @@
+server.port: 15555
+geoserver:
+  # WebFlux catalog-service configuration
+  security.enabled: false
+  catalog:
+    isolated: false
+    # Disable advertised catalog, it checks the org.geoserver.ows.Dispatcher.REQUEST to check if an OWS is in progress,
+    # which can never be the case, and causes a java.lang.NoClassDefFoundError on org.springframework.web.servlet.mvc.AbstractController
+    advertised: false
+    # Disable LocalWorkspaceCatalog decorator, this service exposes a "raw catalog" backend, there's no concept of local workspaces
+    localWorkspace: false
+    secure: false
+  catalog-service:
+    worker-threads:
+      max-size: 4
+      max-queued: 10000
+  backend.data-directory.enabled: true
+  backend.jdbcconfig.enabled: false
+
+# Feign debug levels:  
+# NONE, No logging (DEFAULT).
+# BASIC, Log only the request method and URL and the response status code and execution time.
+# HEADERS, Log the basic information along with request and response headers.
+# FULL, Log the headers, body, and metadata for both requests and responses.
+feign.logger.level: full
+#feign:
+#  client:
+#    config:
+#      catalog-service:
+#        connectTimeout: 5000
+#        readTimeout: 5000
+#        loggerLevel: full
+
+spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration
+      - org.springframework.boot.autoconfigure.security.reactive.ReactiveUserDetailsServiceAutoConfiguration
+      - org.springframework.boot.actuate.autoconfigure.security.reactive.ReactiveManagementWebSecurityAutoConfiguration
+
+
+logging:
+  level:
+    org.geoserver.cloud.catalog.client: DEBUG

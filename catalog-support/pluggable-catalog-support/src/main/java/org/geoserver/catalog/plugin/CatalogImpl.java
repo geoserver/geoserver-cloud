@@ -21,13 +21,28 @@ import org.geoserver.platform.GeoServerExtensions;
 public class CatalogImpl extends org.geoserver.catalog.impl.CatalogImpl {
 
     private @Getter @NonNull CatalogFacade rawCatalogFacade;
+    private final boolean isolated;
+
+    public static org.geoserver.catalog.impl.CatalogImpl nonIsolated(
+            CatalogFacade catalogFacadeImpl) {
+        return new CatalogImpl(catalogFacadeImpl, false);
+    }
+
+    public static org.geoserver.catalog.impl.CatalogImpl isoLated(CatalogFacade catalogFacadeImpl) {
+        return new CatalogImpl(catalogFacadeImpl, true);
+    }
 
     public CatalogImpl() {
         this(new org.geoserver.catalog.plugin.DefaultCatalogFacade());
     }
 
     public CatalogImpl(CatalogFacade rawCatalogFacade) {
+        this(rawCatalogFacade, true);
+    }
+
+    private CatalogImpl(CatalogFacade rawCatalogFacade, boolean isolated) {
         Objects.requireNonNull(rawCatalogFacade);
+        this.isolated = isolated;
         setFacade(rawCatalogFacade);
         // just to stress out the parent's default constructor is called nonetheless and we need to
         // completely replace its facade
@@ -44,7 +59,7 @@ public class CatalogImpl extends org.geoserver.catalog.impl.CatalogImpl {
         }
         // wrap the default catalog facade with the facade capable of handling isolated workspaces
         // behavior
-        this.facade = new IsolatedCatalogFacade(rawCatalogFacade);
+        this.facade = isolated ? new IsolatedCatalogFacade(facade) : facade;
         facade.setCatalog(this);
     }
 }

@@ -5,26 +5,32 @@
 package org.geoserver.catalog.plugin.forwarding;
 
 import java.util.List;
+import lombok.NonNull;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerGroupRepository;
 
-public class ForwardingLayerGroupRepository extends ForwardingCatalogRepository<LayerGroupInfo>
+public class ForwardingLayerGroupRepository
+        extends ForwardingCatalogRepository<LayerGroupInfo, LayerGroupRepository>
         implements LayerGroupRepository {
 
     public ForwardingLayerGroupRepository(LayerGroupRepository subject) {
         super(subject);
     }
 
-    public @Override LayerGroupInfo findOneByName(String name) {
-        return ((LayerGroupRepository) subject).findOneByName(name);
-    }
-
     public @Override List<LayerGroupInfo> findAllByWorkspaceIsNull() {
-        return ((LayerGroupRepository) subject).findAllByWorkspaceIsNull();
+        return subject.findAllByWorkspaceIsNull();
     }
 
     public @Override List<LayerGroupInfo> findAllByWorkspace(WorkspaceInfo workspace) {
-        return ((LayerGroupRepository) subject).findAllByWorkspace(workspace);
+        return subject.findAllByWorkspace(workspace);
+    }
+
+    public @Override LayerGroupInfo findByNameAndWorkspaceIsNull(@NonNull String name) {
+        return subject.findByNameAndWorkspaceIsNull(name);
+    }
+
+    public @Override LayerGroupInfo findByNameAndWorkspace(String name, WorkspaceInfo workspace) {
+        return subject.findByNameAndWorkspace(name, workspace);
     }
 }

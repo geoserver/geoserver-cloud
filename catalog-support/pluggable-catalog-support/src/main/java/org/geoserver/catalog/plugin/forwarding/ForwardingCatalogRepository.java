@@ -5,18 +5,19 @@
 package org.geoserver.catalog.plugin.forwarding;
 
 import java.util.List;
+import lombok.NonNull;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository;
-import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
 
-public abstract class ForwardingCatalogRepository<I extends CatalogInfo>
+public abstract class ForwardingCatalogRepository<
+                I extends CatalogInfo, S extends CatalogInfoRepository<I>>
         implements CatalogInfoRepository<I> {
 
-    protected CatalogInfoRepository<I> subject;
+    protected S subject;
 
-    public ForwardingCatalogRepository(CatalogInfoRepository<I> subject) {
+    public ForwardingCatalogRepository(S subject) {
         this.subject = subject;
     }
 
@@ -44,7 +45,7 @@ public abstract class ForwardingCatalogRepository<I extends CatalogInfo>
         return subject.findAll();
     }
 
-    public @Override <U extends I> List<U> findAll(Filter filter) {
+    public @Override List<I> findAll(Filter filter) {
         return subject.findAll(filter);
     }
 
@@ -56,8 +57,8 @@ public abstract class ForwardingCatalogRepository<I extends CatalogInfo>
         return subject.findById(id, clazz);
     }
 
-    public @Override <U extends I> U findByName(Name name, Class<U> clazz) {
-        return subject.findByName(name, clazz);
+    public @Override <U extends I> U findFirstByName(@NonNull String name, Class<U> clazz) {
+        return subject.findFirstByName(name, clazz);
     }
 
     public @Override void syncTo(CatalogInfoRepository<I> target) {

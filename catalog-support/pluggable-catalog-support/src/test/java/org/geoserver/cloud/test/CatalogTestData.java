@@ -75,14 +75,17 @@ public class CatalogTestData extends ExternalResource {
         }
     }
 
-    private void deleteAll() {
-        CascadeDeleteVisitor deleteVisitor = new CascadeDeleteVisitor(catalog.get());
-        workspaceA.accept(deleteVisitor);
-        workspaceB.accept(deleteVisitor);
-        workspaceC.accept(deleteVisitor);
-        style1.accept(deleteVisitor);
-        style2.accept(deleteVisitor);
-        layerGroup1.accept(deleteVisitor);
+    public void deleteAll() {
+        deleteAll(catalog.get());
+    }
+
+    public void deleteAll(Catalog catalog) {
+        CascadeDeleteVisitor deleteVisitor = new CascadeDeleteVisitor(catalog);
+        catalog.getLayerGroups().forEach(lg -> lg.accept(deleteVisitor));
+        catalog.getWorkspaces().forEach(ws -> ws.accept(deleteVisitor));
+        catalog.getNamespaces().forEach(ws -> ws.accept(deleteVisitor));
+        // bypass catalog's check for default style
+        catalog.getStyles().forEach(catalog.getFacade()::remove);
     }
 
     public WorkspaceInfo workspaceA;
@@ -173,7 +176,7 @@ public class CatalogTestData extends ExternalResource {
 
         wmtsLayerA = createWMTSLayer("wmtsl1", wmtsStoreA, namespaceA, "wmtsLayer", true);
 
-        style1 = createStyle("style1", null, "styleName", "styleFilename");
+        style1 = createStyle("style1", null, "style1", "styleFilename");
 
         style2 = createStyle("style2", null, "style2", "style2.sld");
 
@@ -194,6 +197,7 @@ public class CatalogTestData extends ExternalResource {
         lg.setWorkspace(workspace);
         lg.getLayers().add(layer);
         lg.getStyles().add(style);
+        OwsUtils.resolveCollections(lg);
         return lg;
     }
 
@@ -213,6 +217,7 @@ public class CatalogTestData extends ExternalResource {
         for (int i = 0; null != additionalStyles && i < additionalStyles.length; i++) {
             lyr.getStyles().add(additionalStyles[i]);
         }
+        OwsUtils.resolveCollections(lyr);
         return lyr;
     }
 
@@ -226,6 +231,7 @@ public class CatalogTestData extends ExternalResource {
         st.setWorkspace(workspace);
         st.setName(name);
         st.setFilename(fileName);
+        OwsUtils.resolveCollections(st);
         return st;
     }
 
@@ -237,6 +243,7 @@ public class CatalogTestData extends ExternalResource {
         wmtsl.setNamespace(namespace);
         wmtsl.setName(name);
         wmtsl.setEnabled(enabled);
+        OwsUtils.resolveCollections(wmtsl);
         return wmtsl;
     }
 
@@ -249,6 +256,7 @@ public class CatalogTestData extends ExternalResource {
         wmtss.setType("WMTS");
         wmtss.setCapabilitiesURL(url);
         wmtss.setEnabled(enabled);
+        OwsUtils.resolveCollections(wmtss);
         return wmtss;
     }
 
@@ -260,6 +268,7 @@ public class CatalogTestData extends ExternalResource {
         wmsl.setNamespace(namespace);
         wmsl.setName(name);
         wmsl.setEnabled(enabled);
+        OwsUtils.resolveCollections(wmsl);
         return wmsl;
     }
 
@@ -272,6 +281,7 @@ public class CatalogTestData extends ExternalResource {
         wms.setCapabilitiesURL(url);
         wms.setWorkspace(wspace);
         wms.setEnabled(enabled);
+        OwsUtils.resolveCollections(wms);
         return wms;
     }
 
@@ -280,6 +290,7 @@ public class CatalogTestData extends ExternalResource {
         OwsUtils.set(coverage, "id", id);
         coverage.setName(name);
         coverage.setStore(cstore);
+        OwsUtils.resolveCollections(coverage);
         return coverage;
     }
 
@@ -291,6 +302,7 @@ public class CatalogTestData extends ExternalResource {
         cstore.setType(coverageType);
         cstore.setURL(uri);
         cstore.setWorkspace(ws);
+        OwsUtils.resolveCollections(cstore);
         return cstore;
     }
 
@@ -310,6 +322,7 @@ public class CatalogTestData extends ExternalResource {
         fttype.setDescription(ftDescription);
         fttype.setStore(ds);
         fttype.setNamespace(ns);
+        OwsUtils.resolveCollections(fttype);
         return fttype;
     }
 
@@ -345,6 +358,7 @@ public class CatalogTestData extends ExternalResource {
         dstore.setConnectionParameters(new HashMap<>());
         dstore.getConnectionParameters().put("param1", "test value");
         dstore.getConnectionParameters().put("param2", Integer.valueOf(1000));
+        OwsUtils.resolveCollections(dstore);
         return dstore;
     }
 
@@ -356,6 +370,7 @@ public class CatalogTestData extends ExternalResource {
         WorkspaceInfo workspace = catalog.get().getFactory().createWorkspace();
         OwsUtils.set(workspace, "id", id);
         workspace.setName(name);
+        OwsUtils.resolveCollections(workspace);
         return workspace;
     }
 
@@ -370,6 +385,7 @@ public class CatalogTestData extends ExternalResource {
         OwsUtils.set(namesapce, "id", id);
         namesapce.setPrefix(name);
         namesapce.setURI(uri);
+        OwsUtils.resolveCollections(namesapce);
         return namesapce;
     }
 }

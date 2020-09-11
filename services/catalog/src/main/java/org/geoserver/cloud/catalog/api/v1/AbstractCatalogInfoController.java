@@ -10,12 +10,14 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 
 import javax.annotation.Nullable;
+import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.cloud.catalog.service.ReactiveCatalogService;
 import org.geotools.feature.NameImpl;
 import org.opengis.feature.type.Name;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,12 +29,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
 
 public abstract class AbstractCatalogInfoController<T extends CatalogInfo> {
 
     public static final String BASE_API_URI = "/api/v1/catalog";
 
-    private @Autowired ReactiveCatalogService service;
+    protected @Autowired ReactiveCatalogService service;
+
+    protected @Autowired Catalog catalog;
+    protected @Autowired @Qualifier("catalogScheduler") Scheduler catalogScheduler;
 
     protected abstract Class<T> getInfoType();
 

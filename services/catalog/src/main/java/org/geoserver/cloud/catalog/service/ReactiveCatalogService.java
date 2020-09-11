@@ -104,6 +104,7 @@ public class ReactiveCatalogService {
         private final @NonNull BiConsumer<Catalog, T> remover;
 
         public @Override T add(T info) {
+            System.err.println("Adding in " + Thread.currentThread().getName());
             final String providedId = info.getId();
             Class<T> type = ClassMappings.fromImpl(info.getClass()).getInterface();
             try {

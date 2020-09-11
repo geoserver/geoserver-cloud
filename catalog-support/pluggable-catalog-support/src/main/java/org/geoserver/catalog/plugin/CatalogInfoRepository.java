@@ -1,11 +1,11 @@
-/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
- * This code is licensed under the GPL 2.0 license, available at the root
- * application directory.
+/*
+ * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
+ * GPL 2.0 license, available at the root application directory.
  */
 package org.geoserver.catalog.plugin;
 
 import java.util.List;
-import javax.annotation.Nullable;
+import lombok.NonNull;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.DataStoreInfo;
@@ -17,90 +17,113 @@ import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
-import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
+import org.springframework.lang.Nullable;
 
 public interface CatalogInfoRepository<T extends CatalogInfo> {
 
     void setCatalog(@Nullable Catalog catalog);
 
-    void add(T value);
+    void add(@NonNull T value);
 
-    void remove(T value);
+    void remove(@NonNull T value);
 
-    void update(T value);
+    void update(@NonNull T value);
 
     void dispose();
 
     List<T> findAll();
 
-    <U extends T> List<U> findAll(Filter filter);
+    List<T> findAll(Filter filter);
 
     <U extends T> List<U> findAll(Filter filter, Class<U> infoType);
 
     /** Looks up a CatalogInfo by class and identifier */
-    <U extends T> U findById(String id, Class<U> clazz);
+    @Nullable
+    <U extends T> U findById(@NonNull String id, @Nullable Class<U> clazz);
 
-    /** Looks up a CatalogInfo by class and name */
-    <U extends T> U findByName(Name name, Class<U> clazz);
+    /**
+     * Looks up a CatalogInfo by class and name
+     *
+     * @param name
+     * @return the first match found based on {@code name}, or {@code null}
+     */
+    @Nullable
+    <U extends T> U findFirstByName(@NonNull String name, Class<U> clazz);
 
-    void syncTo(CatalogInfoRepository<T> target);
+    // revisit: some sort of progress listener/cancel flag would be nice
+    void syncTo(@NonNull CatalogInfoRepository<T> target);
 
     public interface NamespaceRepository extends CatalogInfoRepository<NamespaceInfo> {
-        void setDefaultNamespace(NamespaceInfo namespace);
+        void setDefaultNamespace(@NonNull NamespaceInfo namespace);
 
+        @Nullable
         NamespaceInfo getDefaultNamespace();
 
-        NamespaceInfo findOneByURI(String uri);
+        @Nullable
+        NamespaceInfo findOneByURI(@NonNull String uri);
 
-        List<NamespaceInfo> findAllByURI(String uri);
+        List<NamespaceInfo> findAllByURI(@NonNull String uri);
     }
 
     public interface WorkspaceRepository extends CatalogInfoRepository<WorkspaceInfo> {
-        void setDefaultWorkspace(WorkspaceInfo workspace);
+        void setDefaultWorkspace(@NonNull WorkspaceInfo workspace);
 
+        @Nullable
         WorkspaceInfo getDefaultWorkspace();
     }
 
     public interface StoreRepository extends CatalogInfoRepository<StoreInfo> {
         void setDefaultDataStore(WorkspaceInfo workspace, DataStoreInfo dataStore);
 
-        DataStoreInfo getDefaultDataStore(WorkspaceInfo workspace);
+        @Nullable
+        DataStoreInfo getDefaultDataStore(@NonNull WorkspaceInfo workspace);
 
         List<DataStoreInfo> getDefaultDataStores();
 
-        <T extends StoreInfo> T findOneByName(String name, Class<T> clazz);
+        <T extends StoreInfo> List<T> findAllByWorkspace(
+                @NonNull WorkspaceInfo workspace, @Nullable Class<T> clazz);
 
-        <T extends StoreInfo> List<T> findAllByWorkspace(WorkspaceInfo workspace, Class<T> clazz);
+        <T extends StoreInfo> List<T> findAllByType(@Nullable Class<T> clazz);
 
-        <T extends StoreInfo> List<T> findAllByType(Class<T> clazz);
+        <T extends StoreInfo> T findByNameAndWorkspace(
+                String name, WorkspaceInfo workspace, Class<T> clazz);
     }
 
     public interface ResourceRepository extends CatalogInfoRepository<ResourceInfo> {
 
-        <T extends ResourceInfo> T findOneByName(String name, Class<T> clazz);
+        @Nullable
+        <T extends ResourceInfo> T findByNameAndNamespace(
+                @NonNull String name, @NonNull NamespaceInfo namespace, @Nullable Class<T> clazz);
 
-        <T extends ResourceInfo> List<T> findAllByType(Class<T> clazz);
+        <T extends ResourceInfo> List<T> findAllByType(@Nullable Class<T> clazz);
 
-        <T extends ResourceInfo> List<T> findAllByNamespace(NamespaceInfo ns, Class<T> clazz);
+        <T extends ResourceInfo> List<T> findAllByNamespace(
+                @NonNull NamespaceInfo ns, @Nullable Class<T> clazz);
 
-        <T extends ResourceInfo> T findByStoreAndName(StoreInfo store, String name, Class<T> clazz);
+        @Nullable
+        <T extends ResourceInfo> T findByStoreAndName(
+                @NonNull StoreInfo store, @NonNull String name, @Nullable Class<T> clazz);
 
         <T extends ResourceInfo> List<T> findAllByStore(StoreInfo store, Class<T> clazz);
     }
 
     public interface LayerRepository extends CatalogInfoRepository<LayerInfo> {
 
-        LayerInfo findOneByName(String name);
+        @Nullable
+        LayerInfo findOneByName(@NonNull String possiblyPrefixedName);
 
-        List<LayerInfo> findAllByDefaultStyleOrStyles(StyleInfo style);
+        List<LayerInfo> findAllByDefaultStyleOrStyles(@NonNull StyleInfo style);
 
-        List<LayerInfo> findAllByResource(ResourceInfo resource);
+        List<LayerInfo> findAllByResource(@NonNull ResourceInfo resource);
     }
 
     public interface LayerGroupRepository extends CatalogInfoRepository<LayerGroupInfo> {
 
-        LayerGroupInfo findOneByName(String name);
+        @Nullable
+        LayerGroupInfo findByNameAndWorkspaceIsNull(@NonNull String name);
+
+        LayerGroupInfo findByNameAndWorkspace(String name, WorkspaceInfo workspace);
 
         List<LayerGroupInfo> findAllByWorkspaceIsNull();
 
@@ -109,11 +132,13 @@ public interface CatalogInfoRepository<T extends CatalogInfo> {
 
     public interface StyleRepository extends CatalogInfoRepository<StyleInfo> {
 
-        StyleInfo findOneByName(String name);
-
         List<StyleInfo> findAllByNullWorkspace();
 
-        List<StyleInfo> findAllByWorkspace(WorkspaceInfo ws);
+        List<StyleInfo> findAllByWorkspace(@NonNull WorkspaceInfo ws);
+
+        StyleInfo findByNameAndWordkspaceNull(String name);
+
+        StyleInfo findByNameAndWordkspace(String name, WorkspaceInfo workspace);
     }
 
     public interface MapRepository extends CatalogInfoRepository<MapInfo> {}

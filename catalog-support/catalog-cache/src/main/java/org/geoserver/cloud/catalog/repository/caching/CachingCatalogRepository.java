@@ -7,17 +7,17 @@ package org.geoserver.cloud.catalog.repository.caching;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository;
 import org.geoserver.catalog.plugin.forwarding.ForwardingCatalogRepository;
-import org.opengis.feature.type.Name;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 
 @CacheConfig(keyGenerator = CacheNames.DEFAULT_KEY_GENERATOR_BEAN_NAME)
-public abstract class CachingCatalogRepository<I extends CatalogInfo>
-        extends ForwardingCatalogRepository<I> {
+public abstract class CachingCatalogRepository<
+                I extends CatalogInfo, S extends CatalogInfoRepository<I>>
+        extends ForwardingCatalogRepository<I, S> {
 
-    public CachingCatalogRepository(CatalogInfoRepository<I> subject) {
+    public CachingCatalogRepository(S subject) {
         super(subject);
     }
 
@@ -42,7 +42,7 @@ public abstract class CachingCatalogRepository<I extends CatalogInfo>
     }
 
     @Cacheable
-    public @Override <U extends I> U findByName(Name name, Class<U> clazz) {
-        return super.findByName(name, clazz);
+    public @Override <U extends I> U findFirstByName(String name, Class<U> clazz) {
+        return super.findFirstByName(name, clazz);
     }
 }

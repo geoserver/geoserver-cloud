@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -88,6 +89,7 @@ import org.geoserver.security.impl.DataAccessRule;
 import org.geoserver.security.impl.DataAccessRuleDAO;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.util.logging.Logging;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -132,7 +134,7 @@ public abstract class CatalogConformanceTest {
     protected abstract Catalog createCatalog();
 
     public static @BeforeClass void oneTimeSetup() {
-        GeoServerExtensionsHelper.setIsSpringContext(false);
+        // GeoServerExtensionsHelper.setIsSpringContext(false);
         GeoServerExtensionsHelper.singleton("sldHandler", new SLDHandler(), StyleHandler.class);
     }
 
@@ -145,6 +147,17 @@ public abstract class CatalogConformanceTest {
         dataAccessRuleDAO.reload();
 
         data = CatalogTestData.empty(() -> rawCatalog).createObjects();
+    }
+
+    @After
+    public void deleteAll() {
+        Catalog catalog = this.rawCatalog;
+        Collection<CatalogListener> listeners = new ArrayList<>(catalog.getListeners());
+        for (CatalogListener listener : listeners) {
+            if (listener instanceof TestListener || listener instanceof ExceptionThrowingListener)
+                catalog.removeListener(listener);
+        }
+        data.deleteAll(catalog);
     }
 
     protected void addWorkspace() {
@@ -323,7 +336,7 @@ public abstract class CatalogConformanceTest {
         NamespaceInfo ns2 = rawCatalog.getNamespace(data.namespaceA.getId());
 
         assertNotNull(ns2);
-        assertFalse(data.namespaceA == ns2);
+        assertNotSame(data.namespaceA, ns2);
         assertEquals(data.namespaceA, ns2);
     }
 
@@ -333,17 +346,17 @@ public abstract class CatalogConformanceTest {
 
         NamespaceInfo ns2 = rawCatalog.getNamespaceByPrefix(data.namespaceA.getPrefix());
         assertNotNull(ns2);
-        assertFalse(data.namespaceA == ns2);
+        assertNotSame(data.namespaceA, ns2);
         assertEquals(data.namespaceA, ns2);
 
         NamespaceInfo ns3 = rawCatalog.getNamespaceByPrefix(null);
         assertNotNull(ns3);
-        assertFalse(data.namespaceA == ns3);
+        assertNotSame(data.namespaceA, ns3);
         assertEquals(data.namespaceA, ns3);
 
         NamespaceInfo ns4 = rawCatalog.getNamespaceByPrefix(Catalog.DEFAULT);
         assertNotNull(ns4);
-        assertFalse(data.namespaceA == ns4);
+        assertNotSame(data.namespaceA, ns4);
         assertEquals(data.namespaceA, ns4);
     }
 
@@ -353,7 +366,7 @@ public abstract class CatalogConformanceTest {
         NamespaceInfo ns2 = rawCatalog.getNamespaceByURI(data.namespaceA.getURI());
 
         assertNotNull(ns2);
-        assertFalse(data.namespaceA == ns2);
+        assertNotSame(data.namespaceA, ns2);
         assertEquals(data.namespaceA, ns2);
     }
 
@@ -583,7 +596,7 @@ public abstract class CatalogConformanceTest {
         WorkspaceInfo ws2 = rawCatalog.getWorkspace(data.workspaceA.getId());
 
         assertNotNull(ws2);
-        assertFalse(data.workspaceA == ws2);
+        assertNotSame(data.workspaceA, ws2);
         assertEquals(data.workspaceA, ws2);
     }
 
@@ -593,17 +606,17 @@ public abstract class CatalogConformanceTest {
         WorkspaceInfo ws2 = rawCatalog.getWorkspaceByName(data.workspaceA.getName());
 
         assertNotNull(ws2);
-        assertFalse(data.workspaceA == ws2);
+        assertNotSame(data.workspaceA, ws2);
         assertEquals(data.workspaceA, ws2);
 
         WorkspaceInfo ws3 = rawCatalog.getWorkspaceByName(null);
         assertNotNull(ws3);
-        assertFalse(data.workspaceA == ws3);
+        assertNotSame(data.workspaceA, ws3);
         assertEquals(data.workspaceA, ws3);
 
         WorkspaceInfo ws4 = rawCatalog.getWorkspaceByName(Catalog.DEFAULT);
         assertNotNull(ws4);
-        assertFalse(data.workspaceA == ws4);
+        assertNotSame(data.workspaceA, ws4);
         assertEquals(data.workspaceA, ws4);
     }
 
@@ -749,7 +762,7 @@ public abstract class CatalogConformanceTest {
 
         DataStoreInfo ds2 = rawCatalog.getDataStore(data.dataStoreA.getId());
         assertNotNull(ds2);
-        assertFalse(data.dataStoreA == ds2);
+        assertNotSame(data.dataStoreA, ds2);
         assertEquals(data.dataStoreA, ds2);
     }
 
@@ -759,22 +772,22 @@ public abstract class CatalogConformanceTest {
 
         DataStoreInfo ds2 = rawCatalog.getDataStoreByName(data.dataStoreA.getName());
         assertNotNull(ds2);
-        assertFalse(data.dataStoreA == ds2);
+        assertNotSame(data.dataStoreA, ds2);
         assertEquals(data.dataStoreA, ds2);
 
         DataStoreInfo ds3 = rawCatalog.getDataStoreByName(data.workspaceA, null);
         assertNotNull(ds3);
-        assertFalse(data.dataStoreA == ds3);
+        assertNotSame(data.dataStoreA, ds3);
         assertEquals(data.dataStoreA, ds3);
 
         DataStoreInfo ds4 = rawCatalog.getDataStoreByName(data.workspaceA, Catalog.DEFAULT);
         assertNotNull(ds4);
-        assertFalse(data.dataStoreA == ds4);
+        assertNotSame(data.dataStoreA, ds4);
         assertEquals(data.dataStoreA, ds4);
 
         DataStoreInfo ds5 = rawCatalog.getDataStoreByName(Catalog.DEFAULT, Catalog.DEFAULT);
         assertNotNull(ds5);
-        assertFalse(data.dataStoreA == ds5);
+        assertNotSame(data.dataStoreA, ds5);
         assertEquals(data.dataStoreA, ds5);
     }
 
@@ -784,35 +797,35 @@ public abstract class CatalogConformanceTest {
 
         StoreInfo ds2 = rawCatalog.getStoreByName(data.dataStoreA.getName(), StoreInfo.class);
         assertNotNull(ds2);
-        assertFalse(data.dataStoreA == ds2);
+        assertNotSame(data.dataStoreA, ds2);
         assertEquals(data.dataStoreA, ds2);
 
         StoreInfo ds3 = rawCatalog.getStoreByName(data.workspaceA, null, StoreInfo.class);
         assertNotNull(ds3);
-        assertFalse(data.dataStoreA == ds3);
+        assertNotSame(data.dataStoreA, ds3);
         assertEquals(data.dataStoreA, ds3);
 
         StoreInfo ds4 =
                 rawCatalog.getStoreByName(data.workspaceA, Catalog.DEFAULT, StoreInfo.class);
         assertNotNull(ds4);
-        assertFalse(data.dataStoreA == ds4);
+        assertNotSame(data.dataStoreA, ds4);
         assertEquals(data.dataStoreA, ds4);
 
         StoreInfo ds5 =
                 rawCatalog.getStoreByName(Catalog.DEFAULT, Catalog.DEFAULT, StoreInfo.class);
         assertNotNull(ds5);
-        assertFalse(data.dataStoreA == ds5);
+        assertNotSame(data.dataStoreA, ds5);
         assertEquals(data.dataStoreA, ds5);
 
         StoreInfo ds6 = rawCatalog.getStoreByName((String) null, null, StoreInfo.class);
         assertNotNull(ds6);
-        assertFalse(data.dataStoreA == ds6);
+        assertNotSame(data.dataStoreA, ds6);
         assertEquals(data.dataStoreA, ds3);
 
         StoreInfo ds7 =
                 rawCatalog.getStoreByName(Catalog.DEFAULT, Catalog.DEFAULT, StoreInfo.class);
         assertNotNull(ds7);
-        assertFalse(data.dataStoreA == ds7);
+        assertNotSame(data.dataStoreA, ds7);
         assertEquals(ds6, ds7);
     }
 
@@ -1035,7 +1048,7 @@ public abstract class CatalogConformanceTest {
         FeatureTypeInfo ft2 = rawCatalog.getFeatureType(data.featureTypeA.getId());
 
         assertNotNull(ft2);
-        assertFalse(data.featureTypeA == ft2);
+        assertNotSame(data.featureTypeA, ft2);
         assertEquals(data.featureTypeA, ft2);
     }
 
@@ -1045,7 +1058,7 @@ public abstract class CatalogConformanceTest {
         FeatureTypeInfo ft2 = rawCatalog.getFeatureTypeByName(data.featureTypeA.getName());
 
         assertNotNull(ft2);
-        assertFalse(data.featureTypeA == ft2);
+        assertNotSame(data.featureTypeA, ft2);
         assertEquals(data.featureTypeA, ft2);
 
         NamespaceInfo ns2 = rawCatalog.getFactory().createNamespace();
@@ -1061,12 +1074,12 @@ public abstract class CatalogConformanceTest {
 
         FeatureTypeInfo ft4 = rawCatalog.getFeatureTypeByName(ns2.getPrefix(), ft3.getName());
         assertNotNull(ft4);
-        assertFalse(ft4 == ft3);
+        assertNotSame(ft4, ft3);
         assertEquals(ft3, ft4);
 
         ft4 = rawCatalog.getFeatureTypeByName(ns2.getURI(), ft3.getName());
         assertNotNull(ft4);
-        assertFalse(ft4 == ft3);
+        assertNotSame(ft4, ft3);
         assertEquals(ft3, ft4);
     }
 
@@ -1703,9 +1716,9 @@ public abstract class CatalogConformanceTest {
         assertNotNull(rawCatalog.getStyleByName(data.workspaceA, "styleNameWithWorkspace"));
         assertNull(rawCatalog.getStyleByName((WorkspaceInfo) null, "styleNameWithWorkspace"));
 
-        assertNull(rawCatalog.getStyleByName(data.workspaceA.getName(), "styleName"));
-        assertNull(rawCatalog.getStyleByName(data.workspaceA, "styleName"));
-        assertNotNull(rawCatalog.getStyleByName((WorkspaceInfo) null, "styleName"));
+        assertNull(rawCatalog.getStyleByName(data.workspaceA.getName(), "style1"));
+        assertNull(rawCatalog.getStyleByName(data.workspaceA, "style1"));
+        assertNotNull(rawCatalog.getStyleByName((WorkspaceInfo) null, "style1"));
     }
 
     @Test
@@ -1788,7 +1801,7 @@ public abstract class CatalogConformanceTest {
         s2.setFilename("s2Name.sld");
         rawCatalog.save(s2);
 
-        s3 = rawCatalog.getStyleByName("styleName");
+        s3 = rawCatalog.getStyleByName("style1");
         assertNull(s3);
 
         s3 = rawCatalog.getStyleByName(s2.getName());
@@ -2195,7 +2208,7 @@ public abstract class CatalogConformanceTest {
         rawCatalog.add(ft2);
 
         StyleInfo s2 = factory.createStyle();
-        s2.setName("styleName");
+        s2.setName("style1");
         s2.setFilename("styleFilename");
         s2.setWorkspace(ws2);
         rawCatalog.add(s2);
@@ -2485,7 +2498,7 @@ public abstract class CatalogConformanceTest {
         rawCatalog.remove(data.layerGroup1);
     }
 
-    static class TestListener implements CatalogListener {
+    protected static class TestListener implements CatalogListener {
         public List<CatalogAddEvent> added = new CopyOnWriteArrayList<>();
         public List<CatalogModifyEvent> modified = new CopyOnWriteArrayList<>();
         public List<CatalogPostModifyEvent> postModified = new CopyOnWriteArrayList<>();
@@ -2510,15 +2523,15 @@ public abstract class CatalogConformanceTest {
         public void reloaded() {}
     }
 
-    static class ExceptionThrowingListener implements CatalogListener {
+    protected static class ExceptionThrowingListener implements CatalogListener {
 
         public boolean throwCatalogException;
 
         public void handleAddEvent(CatalogAddEvent event) throws CatalogException {
             if (throwCatalogException) {
-                throw new CatalogException();
+                throw new CatalogException("expected");
             } else {
-                throw new RuntimeException();
+                throw new RuntimeException("expected");
             }
         }
 

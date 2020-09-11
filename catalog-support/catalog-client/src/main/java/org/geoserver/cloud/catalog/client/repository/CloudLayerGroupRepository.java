@@ -2,7 +2,7 @@
  * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
  * GPL 2.0 license, available at the root application directory.
  */
-package org.geoserver.cloud.catalog.client;
+package org.geoserver.cloud.catalog.client.repository;
 
 import java.util.List;
 import lombok.Getter;
@@ -22,15 +22,21 @@ public class CloudLayerGroupRepository
         super(client);
     }
 
-    public @Override LayerGroupInfo findOneByName(String name) {
-        throw new UnsupportedOperationException("not yet implemented");
-    }
-
     public @Override List<LayerGroupInfo> findAllByWorkspaceIsNull() {
-        throw new UnsupportedOperationException("not yet implemented");
+        return client().findAllByWoskspaceIsNull();
     }
 
-    public @Override List<LayerGroupInfo> findAllByWorkspace(WorkspaceInfo workspace) {
-        throw new UnsupportedOperationException("not yet implemented");
+    public @Override List<LayerGroupInfo> findAllByWorkspace(@NonNull WorkspaceInfo workspace) {
+        return client().findAllByWoskspaceId(workspace.getId());
+    }
+
+    @Override
+    public LayerGroupInfo findByNameAndWorkspaceIsNull(@NonNull String name) {
+        return client().findByNameAndWorkspaceId(name, null);
+    }
+
+    @Override
+    public LayerGroupInfo findByNameAndWorkspace(String name, WorkspaceInfo workspace) {
+        return client().findByNameAndWorkspaceId(name, workspace.getId());
     }
 }

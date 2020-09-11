@@ -29,18 +29,21 @@ public interface CatalogApiClient<CI extends CatalogInfo> {
     @DeleteMapping(path = "/", consumes = XML, produces = XML)
     void delete(CI value);
 
-    @GetMapping(path = "/{id}", consumes = XML)
+    @GetMapping(path = "/find/id/{id}", consumes = XML)
     <U extends CI> U findById(
             @PathVariable("id") String id,
             @RequestParam(name = "subtype", required = false) ClassMappings subType);
 
-    @GetMapping(path = "/name/{name}", consumes = XML)
-    <U extends CI> U findByName(
+    @GetMapping(path = "find/name/{name}", consumes = XML)
+    <U extends CI> U findByFirstByName(
             @PathVariable(name = "name", required = true) String name,
-            @RequestParam(name = "namespace", required = false) String namespace,
             @RequestParam(name = "subtype", required = false) ClassMappings subType);
 
-    @PostMapping(path = "/filter", consumes = XML)
+    @GetMapping(path = "/query/all", consumes = XML)
+    <U extends CI> List<U> findAll(
+            @RequestParam(name = "subtype", required = false) ClassMappings subType);
+
+    @PostMapping(path = "/query/filter", consumes = XML)
     <U extends CI> List<U> query(
             @RequestParam(name = "subtype", required = false) ClassMappings subType,
             @RequestBody Filter filter);

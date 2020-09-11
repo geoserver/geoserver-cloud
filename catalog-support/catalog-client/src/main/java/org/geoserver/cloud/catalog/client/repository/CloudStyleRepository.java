@@ -2,7 +2,7 @@
  * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
  * GPL 2.0 license, available at the root application directory.
  */
-package org.geoserver.cloud.catalog.client;
+package org.geoserver.cloud.catalog.client.repository;
 
 import java.util.List;
 import lombok.Getter;
@@ -21,15 +21,19 @@ public class CloudStyleRepository extends CatalogServiceClientRepository<StyleIn
         super(client);
     }
 
-    public @Override StyleInfo findOneByName(String name) {
-        throw new UnsupportedOperationException("not yet implemented");
-    }
-
     public @Override List<StyleInfo> findAllByNullWorkspace() {
-        throw new UnsupportedOperationException("not yet implemented");
+        return client().findAllByNullWorkspace();
     }
 
-    public @Override List<StyleInfo> findAllByWorkspace(WorkspaceInfo ws) {
-        throw new UnsupportedOperationException("not yet implemented");
+    public @Override List<StyleInfo> findAllByWorkspace(@NonNull WorkspaceInfo ws) {
+        return client().findAllByWorkspaceId(ws.getId());
+    }
+
+    public @Override StyleInfo findByNameAndWordkspaceNull(String name) {
+        return client().findByNameAndWorkspaceId(name, null);
+    }
+
+    public @Override StyleInfo findByNameAndWordkspace(String name, WorkspaceInfo workspace) {
+        return client().findByNameAndWorkspaceId(name, workspace.getName());
     }
 }

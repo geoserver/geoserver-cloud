@@ -4,14 +4,7 @@
  */
 package org.geoserver.cloud.catalog.client;
 
-import org.geoserver.catalog.Catalog;
-import org.geoserver.catalog.impl.DefaultCatalogFacade;
-
-public class CloudCatalogFacade extends DefaultCatalogFacade {
-
-    public CloudCatalogFacade(Catalog rawCatalog) {
-        super(rawCatalog);
-    }
+public class CloudCatalogFacade extends org.geoserver.catalog.plugin.AbstractCatalogFacade {
 
     public @Override void resolve() {
         // no-op

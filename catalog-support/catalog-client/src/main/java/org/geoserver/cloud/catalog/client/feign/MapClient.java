@@ -7,5 +7,5 @@ package org.geoserver.cloud.catalog.client.feign;
 import org.geoserver.catalog.MapInfo;
 import org.springframework.cloud.openfeign.FeignClient;
 
-@FeignClient(name = "catalog-maps", path = "/api/v1/catalog/maps")
+@FeignClient(name = "catalog-service", contextId = "mapClient", path = "/api/v1/catalog/maps")
 public interface MapClient extends CatalogApiClient<MapInfo> {}

@@ -7,7 +7,7 @@ package org.geoserver.catalog.plugin.forwarding;
 import org.geoserver.catalog.MapInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.MapRepository;
 
-public class ForwardingMapRepository extends ForwardingCatalogRepository<MapInfo>
+public class ForwardingMapRepository extends ForwardingCatalogRepository<MapInfo, MapRepository>
         implements MapRepository {
 
     public ForwardingMapRepository(MapRepository subject) {

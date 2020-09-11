@@ -4,8 +4,33 @@
  */
 package org.geoserver.cloud.catalog.client.feign;
 
+import java.util.List;
 import org.geoserver.catalog.NamespaceInfo;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.lang.Nullable;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(name = "catalog-namespaces", path = "/api/v1/catalog/namespaces")
-public interface NamespaceClient extends CatalogApiClient<NamespaceInfo> {}
+@FeignClient(
+    name = "catalog-service",
+    contextId = "namespaceClient",
+    path = "/api/v1/catalog/namespaces"
+)
+public interface NamespaceClient extends CatalogApiClient<NamespaceInfo> {
+
+    @PostMapping(path = "/default", produces = XML)
+    void setDefault(@RequestBody NamespaceInfo namespace);
+
+    @Nullable
+    @GetMapping(path = "/default", consumes = XML)
+    NamespaceInfo getDefault();
+
+    @Nullable
+    @GetMapping(path = "/find/uri", consumes = XML)
+    NamespaceInfo findFirstByURI(@RequestParam(name = "uri") String uri);
+
+    @GetMapping(path = "/query/uri", consumes = XML)
+    List<NamespaceInfo> findAllByURI(@RequestParam(name = "uri") String uri);
+}

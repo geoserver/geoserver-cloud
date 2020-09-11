@@ -10,22 +10,22 @@ import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerRepository;
 
-public class ForwardingLayerRepository extends ForwardingCatalogRepository<LayerInfo>
-        implements LayerRepository {
+public class ForwardingLayerRepository
+        extends ForwardingCatalogRepository<LayerInfo, LayerRepository> implements LayerRepository {
 
     public ForwardingLayerRepository(LayerRepository subject) {
         super(subject);
     }
 
     public @Override LayerInfo findOneByName(String name) {
-        return ((LayerRepository) subject).findOneByName(name);
+        return subject.findOneByName(name);
     }
 
     public @Override List<LayerInfo> findAllByDefaultStyleOrStyles(StyleInfo style) {
-        return ((LayerRepository) subject).findAllByDefaultStyleOrStyles(style);
+        return subject.findAllByDefaultStyleOrStyles(style);
     }
 
     public @Override List<LayerInfo> findAllByResource(ResourceInfo resource) {
-        return ((LayerRepository) subject).findAllByResource(resource);
+        return subject.findAllByResource(resource);
     }
 }
