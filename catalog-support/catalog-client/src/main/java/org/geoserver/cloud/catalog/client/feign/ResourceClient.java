@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 )
 public interface ResourceClient extends CatalogApiClient<ResourceInfo> {
 
-    @GetMapping(path = "/find/name/{name}", consumes = XML)
+    @GetMapping(path = "/find/name/{name}")
     ResourceInfo findByNameAndNamespaceId(
             @PathVariable("name") String name,
             @RequestParam(name = "namespaceId") String namespaceId,

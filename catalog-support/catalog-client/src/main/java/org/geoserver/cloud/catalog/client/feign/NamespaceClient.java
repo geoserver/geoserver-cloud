@@ -20,17 +20,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 )
 public interface NamespaceClient extends CatalogApiClient<NamespaceInfo> {
 
-    @PostMapping(path = "/default", produces = XML)
+    @PostMapping(path = "/default")
     void setDefault(@RequestBody NamespaceInfo namespace);
 
     @Nullable
-    @GetMapping(path = "/default", consumes = XML)
+    @GetMapping(path = "/default")
     NamespaceInfo getDefault();
 
     @Nullable
-    @GetMapping(path = "/find/uri", consumes = XML)
+    @GetMapping(path = "/find/uri")
     NamespaceInfo findFirstByURI(@RequestParam(name = "uri") String uri);
 
-    @GetMapping(path = "/query/uri", consumes = XML)
+    @GetMapping(path = "/query/uri", consumes = "application/stream+json")
     List<NamespaceInfo> findAllByURI(@RequestParam(name = "uri") String uri);
 }

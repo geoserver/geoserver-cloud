@@ -19,10 +19,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 )
 public interface WorkspaceClient extends CatalogApiClient<WorkspaceInfo> {
 
-    @PostMapping(path = "/default", produces = XML)
+    @PostMapping(path = "/default")
     void setDefault(@RequestBody WorkspaceInfo workspace);
 
     @Nullable
-    @GetMapping(path = "/default", consumes = XML)
+    @GetMapping(path = "/default")
     WorkspaceInfo getDefault();
 }

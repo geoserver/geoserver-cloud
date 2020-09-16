@@ -18,32 +18,30 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 public interface CatalogApiClient<CI extends CatalogInfo> {
 
-    public static final String XML = "application/xml";
-
-    @PostMapping(path = "/", consumes = XML, produces = XML)
+    @PostMapping(path = "/")
     CI create(CI info);
 
-    @PutMapping(path = "/", consumes = XML, produces = XML)
+    @PutMapping(path = "/")
     CI update(CI info);
 
-    @DeleteMapping(path = "/", consumes = XML, produces = XML)
+    @DeleteMapping(path = "/")
     void delete(CI value);
 
-    @GetMapping(path = "/find/id/{id}", consumes = XML)
+    @GetMapping(path = "/find/id/{id}")
     <U extends CI> U findById(
             @PathVariable("id") String id,
             @RequestParam(name = "subtype", required = false) ClassMappings subType);
 
-    @GetMapping(path = "find/name/{name}", consumes = XML)
+    @GetMapping(path = "find/name/{name}")
     <U extends CI> U findByFirstByName(
             @PathVariable(name = "name", required = true) String name,
             @RequestParam(name = "subtype", required = false) ClassMappings subType);
 
-    @GetMapping(path = "/query/all", consumes = XML)
+    @GetMapping(path = "", consumes = "application/stream+json")
     <U extends CI> List<U> findAll(
             @RequestParam(name = "subtype", required = false) ClassMappings subType);
 
-    @PostMapping(path = "/query/filter", consumes = XML)
+    @PostMapping(path = "/query/filter")
     <U extends CI> List<U> query(
             @RequestParam(name = "subtype", required = false) ClassMappings subType,
             @RequestBody Filter filter);

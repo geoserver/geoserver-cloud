@@ -18,29 +18,30 @@ import org.springframework.web.bind.annotation.RequestParam;
 @FeignClient(name = "catalog-service", contextId = "storeClient", path = "/api/v1/catalog/stores")
 public interface StoreClient extends CatalogApiClient<StoreInfo> {
 
-    @PostMapping(path = "/default", produces = XML)
+    @PostMapping(path = "/default")
     void setDefaultDataStoreByWorkspaceId(
             @RequestParam(name = "workspaceId") String workspaceId,
             @RequestParam(name = "dataStoreId") String dataStoreId);
 
     @Nullable
-    @GetMapping(path = "/default/{workspace}", consumes = XML)
+    @GetMapping(path = "/default/{workspace}")
     DataStoreInfo findDefaultDataStoreByWorkspaceId(
             @PathVariable("workspace") String workspaceName);
 
-    @GetMapping(path = "/query/defaults", consumes = XML)
+    @GetMapping(path = "/query/defaults")
     List<DataStoreInfo> getDefaultDataStores();
 
-    @GetMapping(path = "/query/workspace/{workspaceId}", consumes = XML)
+    @GetMapping(path = "/query/workspace/{workspaceId}", consumes = "application/stream+json")
     List<StoreInfo> findAllByWorkspaceId(
             @PathVariable("workspaceId") String workspaceId,
             @RequestParam(name = "type", required = false) ClassMappings subType);
 
-    @GetMapping(path = "/query/all", consumes = XML)
+    /** TODO: remove, super's findAll is good */
+    @GetMapping(path = "/query/all", consumes = "application/stream+json")
     List<StoreInfo> findAllByType(
             @RequestParam(name = "type", required = false) ClassMappings subType);
 
-    @GetMapping(path = "/find/{name}", consumes = XML)
+    @GetMapping(path = "/find/{name}")
     StoreInfo findByNameAndWorkspaceId(
             @PathVariable("name") String name,
             @RequestParam("workspaceId") String workspaceId,

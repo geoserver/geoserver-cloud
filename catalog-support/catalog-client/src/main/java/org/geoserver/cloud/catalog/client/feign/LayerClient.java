@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 @FeignClient(name = "catalog-service", contextId = "layerClient", path = "/api/v1/catalog/layers")
 public interface LayerClient extends CatalogApiClient<LayerInfo> {
 
-    @GetMapping(path = "/query/styles")
+    @GetMapping(path = "/query/styles", consumes = "application/stream+json")
     List<LayerInfo> findAllByDefaultStyleOrStyles(@RequestParam("styleId") String styleId);
 
-    @GetMapping(path = "/query/resource")
+    @GetMapping(path = "/query/resource", consumes = "application/stream+json")
     List<LayerInfo> findAllByResourceId(@RequestParam("resourceId") String resourceId);
 }

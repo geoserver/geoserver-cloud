@@ -95,6 +95,11 @@
       </dependency>
       <dependency>
         <groupId>org.geoserver.cloud</groupId>
+        <artifactId>gt-jackson-bindings</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud</groupId>
         <artifactId>gs-cloud-starter-vector-formats</artifactId>
         <version>${project.version}</version>
       </dependency>

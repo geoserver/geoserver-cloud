@@ -18,10 +18,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 )
 public interface LayerGroupClient extends CatalogApiClient<LayerGroupInfo> {
 
-    @GetMapping(path = "/query/noworkspace")
+    @GetMapping(path = "/query/noworkspace", consumes = "application/stream+json")
     List<LayerGroupInfo> findAllByWoskspaceIsNull();
 
-    @GetMapping(path = "/query/workspace")
+    @GetMapping(path = "/query/workspace", consumes = "application/stream+json")
     List<LayerGroupInfo> findAllByWoskspaceId(@RequestParam("workspaceId") String workspaceId);
 
     @GetMapping(path = "/find/name/{name}")

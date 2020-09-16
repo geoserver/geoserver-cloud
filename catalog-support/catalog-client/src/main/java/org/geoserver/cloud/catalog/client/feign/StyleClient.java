@@ -14,13 +14,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 @FeignClient(name = "catalog-service", contextId = "styleClient", path = "/api/v1/catalog/styles")
 public interface StyleClient extends CatalogApiClient<StyleInfo> {
 
-    @GetMapping(path = "/query/noworkspace", consumes = XML)
+    @GetMapping(path = "/query/noworkspace", consumes = "application/stream+json")
     List<StyleInfo> findAllByNullWorkspace();
 
-    @GetMapping(path = "/query/workspace", consumes = XML)
+    @GetMapping(path = "/query/workspace", consumes = "application/stream+json")
     List<StyleInfo> findAllByWorkspaceId(@RequestParam(name = "workspaceId") String workspaceId);
 
-    @GetMapping(path = "/find/name/{name}", consumes = XML)
+    @GetMapping(path = "/find/name/{name}")
     StyleInfo findByNameAndWorkspaceId(
             @PathVariable("name") String name,
             @RequestParam(name = "workspaceId", required = false) String workspaceId);

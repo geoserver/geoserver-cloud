@@ -20,6 +20,10 @@
     </dependency>
     <dependency>
       <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gt-jackson-bindings</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.cloud</groupId>
       <artifactId>gs-cloud-pluggable-catalog-support</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
