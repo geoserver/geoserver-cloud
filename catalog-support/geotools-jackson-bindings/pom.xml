@@ -17,16 +17,8 @@
       <artifactId>spring-boot-starter-json</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.geoserver</groupId>
-      <artifactId>gs-main</artifactId>
-    </dependency>
-    <dependency>
-      <!-- contains CatalogTestData support class -->
-      <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-pluggable-catalog-support</artifactId>
-      <version>${project.version}</version>
-      <type>test-jar</type>
-      <scope>test</scope>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-main</artifactId>
     </dependency>
     <dependency>
       <groupId>org.mapstruct</groupId>
