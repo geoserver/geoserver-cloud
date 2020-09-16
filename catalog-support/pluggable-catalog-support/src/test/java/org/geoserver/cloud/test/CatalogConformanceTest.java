@@ -146,7 +146,7 @@ public abstract class CatalogConformanceTest {
         dataAccessRuleDAO = new DataAccessRuleDAO(dd, rawCatalog);
         dataAccessRuleDAO.reload();
 
-        data = CatalogTestData.empty(() -> rawCatalog).createObjects();
+        data = CatalogTestData.empty(() -> rawCatalog).createCatalogObjects();
     }
 
     @After

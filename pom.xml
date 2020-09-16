@@ -599,7 +599,6 @@
         <groupId>org.mapstruct</groupId>
         <artifactId>mapstruct</artifactId>
         <version>${mapstruct.version}</version>
-        <scope>provided</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>

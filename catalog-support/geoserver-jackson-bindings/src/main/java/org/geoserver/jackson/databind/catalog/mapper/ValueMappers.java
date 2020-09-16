@@ -62,19 +62,6 @@ public interface ValueMappers {
         return null;
     }
 
-    default String classToCanonicalName(Class<?> value) {
-        return value == null ? null : value.getCanonicalName();
-    }
-
-    @SuppressWarnings("rawtypes")
-    default Class canonicalNameToClass(String value) {
-        try {
-            return value == null ? null : Class.forName(value);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     AttributeType map(AttributeTypeInfo o);
 
     @Mapping(target = "featureType", ignore = true)

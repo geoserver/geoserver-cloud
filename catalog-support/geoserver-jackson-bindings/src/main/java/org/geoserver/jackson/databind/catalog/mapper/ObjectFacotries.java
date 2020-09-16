@@ -7,7 +7,6 @@ package org.geoserver.jackson.databind.catalog.mapper;
 import java.util.function.Supplier;
 import org.geoserver.catalog.AttributeTypeInfo;
 import org.geoserver.catalog.AttributionInfo;
-import org.geoserver.catalog.AuthorityURLInfo;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CoverageDimensionInfo;
 import org.geoserver.catalog.CoverageInfo;
@@ -16,13 +15,10 @@ import org.geoserver.catalog.DataLinkInfo;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.Info;
-import org.geoserver.catalog.KeywordInfo;
 import org.geoserver.catalog.LayerGroupInfo;
-import org.geoserver.catalog.LayerIdentifierInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.LegendInfo;
 import org.geoserver.catalog.MapInfo;
-import org.geoserver.catalog.MetadataLinkInfo;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WMSLayerInfo;
@@ -32,8 +28,6 @@ import org.geoserver.catalog.WMTSStoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.AttributeTypeInfoImpl;
 import org.geoserver.catalog.impl.AttributionInfoImpl;
-import org.geoserver.catalog.impl.AuthorityURL;
-import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.impl.CoverageDimensionImpl;
 import org.geoserver.catalog.impl.CoverageInfoImpl;
 import org.geoserver.catalog.impl.CoverageStoreInfoImpl;
@@ -41,14 +35,10 @@ import org.geoserver.catalog.impl.DataLinkInfoImpl;
 import org.geoserver.catalog.impl.DataStoreInfoImpl;
 import org.geoserver.catalog.impl.FeatureTypeInfoImpl;
 import org.geoserver.catalog.impl.LayerGroupInfoImpl;
-import org.geoserver.catalog.impl.LayerIdentifier;
 import org.geoserver.catalog.impl.LayerInfoImpl;
 import org.geoserver.catalog.impl.LegendInfoImpl;
 import org.geoserver.catalog.impl.MapInfoImpl;
-import org.geoserver.catalog.impl.MetadataLinkInfoImpl;
-import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.impl.NamespaceInfoImpl;
-import org.geoserver.catalog.impl.ResolvingProxy;
 import org.geoserver.catalog.impl.StyleInfoImpl;
 import org.geoserver.catalog.impl.WMSLayerInfoImpl;
 import org.geoserver.catalog.impl.WMSStoreInfoImpl;
@@ -60,7 +50,6 @@ import org.geoserver.jackson.databind.catalog.dto.CoverageStore;
 import org.geoserver.jackson.databind.catalog.dto.DataStore;
 import org.geoserver.jackson.databind.catalog.dto.FeatureType;
 import org.geoserver.jackson.databind.catalog.dto.GridGeometryDto;
-import org.geoserver.jackson.databind.catalog.dto.InfoReference;
 import org.geoserver.jackson.databind.catalog.dto.Layer;
 import org.geoserver.jackson.databind.catalog.dto.LayerGroup;
 import org.geoserver.jackson.databind.catalog.dto.Map;
@@ -77,6 +66,10 @@ import org.mapstruct.TargetType;
 import org.opengis.coverage.grid.GridGeometry;
 import org.springframework.stereotype.Component;
 
+/**
+ * Auto-wired object factory for Catalog info interfaces, so the mapstruct code-generated mappers
+ * know how to instantiate them
+ */
 @Component
 public class ObjectFacotries {
 
@@ -153,47 +146,12 @@ public class ObjectFacotries {
         return info;
     }
 
-    public <T extends Info> InfoReference reference(
-            T info, @TargetType Class<InfoReference> target) {
-        if (info == null) return null;
-
-        InfoReference ref = new InfoReference();
-        ref.setId(info.getId());
-        ClassMappings type = ClassMappings.fromImpl(ModificationProxy.unwrap(info).getClass());
-        ref.setType(type);
-        return ref;
-    }
-
-    public <T extends Info> T proxy(InfoReference ref, @TargetType Class<T> target) {
-        if (ref == null) return null;
-        String id = ref.getId();
-        Class<? extends Info> type = ref.getType().getInterface();
-        T proxy = ResolvingProxy.create(id, target);
-        return proxy;
-    }
-
     public @ObjectFactory LegendInfo legendInfo() {
         return new LegendInfoImpl();
     }
 
-    public @ObjectFactory AuthorityURLInfo authorityURLInfo() {
-        return new AuthorityURL();
-    }
-
-    public @ObjectFactory LayerIdentifierInfo layerIdentifierInfo() {
-        return new LayerIdentifier();
-    }
-
-    public @ObjectFactory MetadataLinkInfo metadataLinkInfo() {
-        return new MetadataLinkInfoImpl();
-    }
-
     public @ObjectFactory DataLinkInfo dataLinkInfo() {
         return new DataLinkInfoImpl();
-    }
-
-    public @ObjectFactory KeywordInfo keywordInfo() {
-        return new org.geoserver.catalog.Keyword(""); // let the setters do their work
     }
 
     public @ObjectFactory AttributionInfo attributionInfo() {

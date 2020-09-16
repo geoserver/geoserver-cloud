@@ -9,7 +9,7 @@ import lombok.Data;
 import org.geoserver.config.JAIInfo;
 
 /** DTO for {@link JAIInfo} */
-public @Data class JAI {
+public @Data class JaiDto {
     public static enum PngEncoderType {
         JDK,
         NATIVE,

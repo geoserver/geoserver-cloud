@@ -4,12 +4,21 @@
  */
 package org.geoserver.jackson.databind.catalog.dto;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = Coverage.class, name = "CoverageInfo"),
+    @JsonSubTypes.Type(value = FeatureType.class, name = "FeatureTypeInfo"),
+    @JsonSubTypes.Type(value = WMSLayer.class, name = "WMSLayerInfo"),
+    @JsonSubTypes.Type(value = WMTSLayer.class, name = "WMTSLayerInfo")
+})
 @Data
 @EqualsAndHashCode(callSuper = true)
 public abstract class Resource extends CatalogInfoDto {

@@ -4,13 +4,16 @@
  */
 package org.geoserver.jackson.databind.config.dto;
 
+import java.io.Serializable;
 import java.util.Map;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.geoserver.config.SettingsInfo;
 import org.geoserver.jackson.databind.catalog.dto.InfoReference;
 
 /** DTO for {@link SettingsInfo} */
-public @Data class Settings {
+@EqualsAndHashCode(callSuper = true)
+public @Data class Settings extends ConfigInfoDto {
     private InfoReference workspace;
     private String title;
     private Contact contact;
@@ -21,7 +24,7 @@ public @Data class Settings {
     private String schemaBaseUrl;
     private boolean verbose;
     private boolean verboseExceptions;
-    private Map<String, Object> metadata;
+    private Map<String, Serializable> metadata;
     // seems not to be used at all in geoserver
     // Map<Object, Object> clientProperties;
     private boolean localWorkspaceIncludesPrefix;

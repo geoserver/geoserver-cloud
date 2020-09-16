@@ -7,7 +7,10 @@ package org.geoserver.cloud.test;
 import static org.junit.Assert.assertEquals;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 import org.geoserver.catalog.CascadeDeleteVisitor;
@@ -18,8 +21,11 @@ import org.geoserver.catalog.CoverageStoreInfo;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.Info;
+import org.geoserver.catalog.Keyword;
+import org.geoserver.catalog.KeywordInfo;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
+import org.geoserver.catalog.MetadataMap;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.catalog.ResourceInfo;
@@ -32,16 +38,52 @@ import org.geoserver.catalog.WMTSStoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.DataStoreInfoImpl;
 import org.geoserver.catalog.impl.LayerGroupInfoImpl;
+import org.geoserver.catalog.impl.MetadataLinkInfoImpl;
+import org.geoserver.config.ContactInfo;
+import org.geoserver.config.CoverageAccessInfo;
+import org.geoserver.config.CoverageAccessInfo.QueueType;
+import org.geoserver.config.GeoServerInfo;
+import org.geoserver.config.GeoServerInfo.WebUIMode;
+import org.geoserver.config.JAIInfo;
+import org.geoserver.config.JAIInfo.PngEncoderType;
+import org.geoserver.config.LoggingInfo;
+import org.geoserver.config.ResourceErrorHandling;
+import org.geoserver.config.SettingsInfo;
+import org.geoserver.config.impl.ContactInfoImpl;
+import org.geoserver.config.impl.CoverageAccessInfoImpl;
+import org.geoserver.config.impl.GeoServerInfoImpl;
+import org.geoserver.config.impl.JAIEXTInfoImpl;
+import org.geoserver.config.impl.JAIInfoImpl;
+import org.geoserver.config.impl.LoggingInfoImpl;
+import org.geoserver.config.impl.ServiceInfoImpl;
+import org.geoserver.config.impl.SettingsInfoImpl;
 import org.geoserver.ows.util.OwsUtils;
+import org.geoserver.security.CatalogMode;
+import org.geoserver.wcs.WCSInfo;
+import org.geoserver.wcs.WCSInfoImpl;
+import org.geoserver.wfs.WFSInfo;
+import org.geoserver.wfs.WFSInfo.ServiceLevel;
+import org.geoserver.wfs.WFSInfoImpl;
+import org.geoserver.wms.CacheConfiguration;
+import org.geoserver.wms.WMSInfo;
+import org.geoserver.wms.WMSInfoImpl;
+import org.geoserver.wps.ProcessGroupInfo;
+import org.geoserver.wps.ProcessGroupInfoImpl;
+import org.geoserver.wps.WPSInfo;
+import org.geoserver.wps.WPSInfoImpl;
+import org.geotools.coverage.grid.io.OverviewPolicy;
+import org.geotools.process.factory.AnnotationDrivenProcessFactory;
 import org.geotools.util.Converters;
+import org.geotools.util.Version;
 import org.junit.rules.ExternalResource;
+import org.springframework.util.Assert;
 
 /**
  * Junit {@code @Rule} to provide or populate a catalog; use {@link CatalogTestData#empty
  * CatalogTestData.empty(Supplier<Catalog>)} to start up with an empty catalog but having the test
- * data {@link #createObjects() ready to be used}, or {@link CatalogTestData#initialized
+ * data {@link #createCatalogObjects() ready to be used}, or {@link CatalogTestData#initialized
  * CatalogTestData.initialized(Supplier<Catalog>)} to pre-populate the catalog with the {@link
- * #createObjects() test objects} before running the tests.
+ * #createCatalogObjects() test objects} before running the tests.
  */
 public class CatalogTestData extends ExternalResource {
 
@@ -61,12 +103,17 @@ public class CatalogTestData extends ExternalResource {
         return new CatalogTestData(catalog, true);
     }
 
-    protected @Override void before() throws Throwable {
-        createObjects();
+    protected @Override void before() {
+        initCatalog();
+    }
+
+    public CatalogTestData initCatalog() {
+        createCatalogObjects();
         if (initialize) {
             deleteAll();
             addObjects();
         }
+        return this;
     }
 
     protected @Override void after() {
@@ -87,6 +134,14 @@ public class CatalogTestData extends ExternalResource {
         // bypass catalog's check for default style
         catalog.getStyles().forEach(catalog.getFacade()::remove);
     }
+
+    public GeoServerInfo global;
+    public LoggingInfo logging;
+    public SettingsInfo workspaceASettings;
+    public WMSInfo wmsService;
+    public WFSInfo wfsService;
+    public WCSInfo wcsService;
+    public WPSInfo wpsService;
 
     public WorkspaceInfo workspaceA;
     public WorkspaceInfo workspaceB;
@@ -140,7 +195,7 @@ public class CatalogTestData extends ExternalResource {
         return this;
     }
 
-    public CatalogTestData createObjects() throws Exception {
+    public CatalogTestData createCatalogObjects() {
         namespaceA = createNamespace("ns1", "wsName", "nsURI");
         namespaceB = createNamespace("ns2", "aaa", "nsURIaaa");
         namespaceC = createNamespace("ns3", "bbb", "nsURIbbb");
@@ -184,6 +239,44 @@ public class CatalogTestData extends ExternalResource {
 
         layerGroup1 = createLayerGroup("lg1", null, "layerGroup", layerFeatureTypeA, style1);
 
+        return this;
+    }
+
+    public CatalogTestData createConfigObjects() {
+        global = createGlobal();
+        logging = createLogging();
+        workspaceASettings = createSettings(workspaceA);
+        wmsService = createService("wms", WMSInfoImpl::new);
+        wfsService = createService("wfs", WFSInfoImpl::new);
+        wcsService = createService("wcs", WCSInfoImpl::new);
+        wpsService = createService("wps", WPSInfoImpl::new);
+
+        // ignore simple boolean properties
+
+        wmsService.setCacheConfiguration(new CacheConfiguration());
+        wmsService.setRemoteStyleMaxRequestTime(2000);
+        wmsService.setRemoteStyleTimeout(500);
+
+        wfsService.setMaxFeatures(50);
+        wfsService.setServiceLevel(ServiceLevel.COMPLETE);
+        wfsService.setMaxNumberOfFeaturesForPreview(10);
+
+        wcsService.setOverviewPolicy(OverviewPolicy.QUALITY);
+
+        wpsService.setConnectionTimeout(1000);
+        wpsService.setResourceExpirationTimeout(2000);
+        wpsService.setMaxSynchronousProcesses(4);
+        wpsService.setMaxAsynchronousProcesses(16);
+        ProcessGroupInfo pgi = new ProcessGroupInfoImpl();
+        pgi.setEnabled(true);
+        pgi.setFactoryClass(AnnotationDrivenProcessFactory.class);
+        wpsService.getProcessGroups().add(pgi);
+        wpsService.setCatalogMode(CatalogMode.CHALLENGE);
+        wpsService.setMaxComplexInputSize(1024);
+        wpsService.setMaxAsynchronousExecutionTime(1);
+        wpsService.setMaxAsynchronousTotalTime(2);
+        wpsService.setMaxSynchronousExecutionTime(3);
+        wpsService.setMaxSynchronousTotalTime(4);
         return this;
     }
 
@@ -387,5 +480,145 @@ public class CatalogTestData extends ExternalResource {
         namesapce.setURI(uri);
         OwsUtils.resolveCollections(namesapce);
         return namesapce;
+    }
+
+    public GeoServerInfo createGlobal() {
+        GeoServerInfoImpl g = new GeoServerInfoImpl();
+        g.setId("GeoServer.global");
+
+        g.setAdminPassword("geoserver");
+        g.setAdminUsername("admin");
+        g.setAllowStoredQueriesPerWorkspace(true);
+        g.setCoverageAccess(createCoverageAccessInfo());
+        g.setFeatureTypeCacheSize(1000);
+        g.setGlobalServices(true);
+        g.setId("GeoServer.global");
+        g.setJAI(creteJAI());
+        g.setLockProviderName("testLockProvider");
+        g.setMetadata(createMetadata("k1", Integer.valueOf(1), "k2", "2", "k3", Boolean.FALSE));
+        g.setResourceErrorHandling(ResourceErrorHandling.OGC_EXCEPTION_REPORT);
+        g.setSettings(createSettings(null));
+        g.setUpdateSequence(999);
+        g.setUseHeadersProxyURL(true);
+        g.setWebUIMode(WebUIMode.DO_NOT_REDIRECT);
+        g.setXmlExternalEntitiesEnabled(Boolean.TRUE);
+        g.setXmlPostRequestLogBufferSize(1024);
+        return g;
+    }
+
+    public MetadataMap createMetadata(Serializable... kvps) {
+        Assert.isTrue(kvps == null || kvps.length % 2 == 0, "expected even number");
+        MetadataMap m = new MetadataMap();
+        if (kvps != null) {
+            for (int i = 0; i < kvps.length; i += 2) {
+                m.put((String) kvps[i], kvps[i + 1]);
+            }
+        }
+        return m;
+    }
+
+    private JAIInfo creteJAI() {
+        JAIInfoImpl jai = new JAIInfoImpl();
+        jai.setAllowInterpolation(true);
+        jai.setAllowNativeMosaic(true);
+        jai.setAllowNativeWarp(true);
+        jai.setImageIOCache(true);
+        JAIEXTInfoImpl jaiext = new JAIEXTInfoImpl();
+        jaiext.setJAIEXTOperations(Collections.singleton("categorize"));
+        jaiext.setJAIOperations(Collections.singleton("band"));
+        jai.setJAIEXTInfo(jaiext);
+        jai.setJpegAcceleration(true);
+        jai.setMemoryCapacity(4096);
+        jai.setMemoryThreshold(0.75);
+        jai.setPngAcceleration(true);
+        jai.setPngEncoderType(PngEncoderType.PNGJ);
+        jai.setRecycling(true);
+        jai.setTilePriority(1);
+        jai.setTileThreads(7);
+        return jai;
+    }
+
+    private CoverageAccessInfo createCoverageAccessInfo() {
+        CoverageAccessInfoImpl c = new CoverageAccessInfoImpl();
+        c.setCorePoolSize(9);
+        c.setImageIOCacheThreshold(11);
+        c.setKeepAliveTime(1000);
+        c.setMaxPoolSize(18);
+        c.setQueueType(QueueType.UNBOUNDED);
+        return c;
+    }
+
+    public ContactInfo createContact() {
+        ContactInfoImpl c = new ContactInfoImpl();
+        c.setId("cinfo-id");
+        c.setAddress("right here");
+        c.setAddressCity("Sin City");
+        c.setAddressCountry("USA");
+        c.setContactPerson("myself");
+        c.setContactVoice("yes please");
+        return c;
+    }
+
+    public LoggingInfo createLogging() {
+        LoggingInfoImpl l = new LoggingInfoImpl();
+        l.setId("weird-this-has-id");
+        l.setLevel("super");
+        l.setLocation("there");
+        l.setStdOutLogging(true);
+        return l;
+    }
+
+    public SettingsInfo createSettings(WorkspaceInfo workspace) {
+        SettingsInfoImpl s = new SettingsInfoImpl();
+        s.setWorkspace(workspace);
+        s.setId(workspace == null ? "global-settings-id" : workspace.getName() + "-settings-id");
+        s.setTitle(workspace == null ? "Global Settings" : workspace.getName() + " Settings");
+        s.setCharset("UTF-8");
+        s.setContact(createContact());
+        s.setMetadata(createMetadata("k1", Integer.valueOf(1), "k2", "2", "k3", Boolean.FALSE));
+        s.setNumDecimals(9);
+        s.setOnlineResource("http://geoserver.org");
+        s.setProxyBaseUrl("http://test.geoserver.org");
+        s.setSchemaBaseUrl("file:data/schemas");
+        s.setVerbose(true);
+        s.setVerboseExceptions(true);
+        return s;
+    }
+
+    public <S extends ServiceInfoImpl> S createService(String name, Supplier<S> factory) {
+        S s = factory.get();
+        s.setId(name + "-id");
+        s.setName(name);
+        s.setTitle(name + " Title");
+        s.setAbstract(name + " Abstract");
+        s.setAccessConstraints("NONE");
+        s.setCiteCompliant(true);
+        s.setEnabled(true);
+        s.setExceptionFormats(Collections.singletonList("fake-" + name + "-exception-format"));
+        s.setFees("NONE");
+        s.setKeywords(createKeywords(name));
+        s.setMaintainer("Claudious whatever");
+        s.setMetadata(createMetadata(name, "something"));
+        MetadataLinkInfoImpl metadataLink = new MetadataLinkInfoImpl();
+        metadataLink.setAbout("about");
+        metadataLink.setContent("content");
+        metadataLink.setId("medatata-link-" + name);
+        metadataLink.setMetadataType("fake");
+        metadataLink.setType("void");
+        s.setMetadataLink(metadataLink);
+        s.setOnlineResource("http://geoserver.org/" + name);
+        s.setOutputStrategy("SPEED");
+        s.setSchemaBaseURL("file:data/" + name);
+        s.setVerbose(true);
+        s.setVersions(Arrays.asList(new Version("1.0.0"), new Version("2.0.0")));
+        return s;
+    }
+
+    private List<KeywordInfo> createKeywords(String name) {
+        Keyword k1 = new Keyword("GeoServer");
+        Keyword k2 = new Keyword(name);
+        k2.setLanguage("eng");
+        k2.setVocabulary("watchit");
+        return Arrays.asList(k1, k2);
     }
 }

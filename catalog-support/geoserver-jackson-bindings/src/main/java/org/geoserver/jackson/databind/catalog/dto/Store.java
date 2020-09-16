@@ -4,11 +4,19 @@
  */
 package org.geoserver.jackson.databind.catalog.dto;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.io.Serializable;
 import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = CoverageStore.class, name = "CoverageStoreInfo"),
+    @JsonSubTypes.Type(value = DataStore.class, name = "DataStoreInfo"),
+    @JsonSubTypes.Type(value = HTTPStore.class)
+})
 @Data
 @EqualsAndHashCode(callSuper = true)
 public abstract class Store extends CatalogInfoDto {

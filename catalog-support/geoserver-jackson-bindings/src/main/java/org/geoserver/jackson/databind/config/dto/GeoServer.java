@@ -4,12 +4,15 @@
  */
 package org.geoserver.jackson.databind.config.dto;
 
+import java.io.Serializable;
 import java.util.Map;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.geoserver.config.GeoServerInfo;
 
 /** DTO for {@link GeoServerInfo} */
-public @Data class GeoServer {
+@EqualsAndHashCode(callSuper = true)
+public @Data class GeoServer extends ConfigInfoDto {
     public static enum ResourceErrorHandling {
         OGC_EXCEPTION_REPORT,
         SKIP_MISCONFIGURED_LAYERS
@@ -21,11 +24,10 @@ public @Data class GeoServer {
         DO_NOT_REDIRECT
     };
 
-    private String id;
     private Settings settings;
-    private JAI jai;
+    private JaiDto JAI;
     private CoverageAccess coverageAccess;
-    private Map<String, Object> metadata;
+    private Map<String, Serializable> metadata;
     // not used
     // private Map<Object, Object> clientProperties;
     private long updateSequence;

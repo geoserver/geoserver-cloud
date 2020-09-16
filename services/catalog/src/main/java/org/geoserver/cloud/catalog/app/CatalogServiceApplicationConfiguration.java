@@ -4,20 +4,22 @@
  */
 package org.geoserver.cloud.catalog.app;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.extern.slf4j.Slf4j;
-import org.geoserver.catalog.Catalog;
 import org.geoserver.cloud.catalog.api.v1.AbstractCatalogInfoController;
 import org.geoserver.cloud.catalog.app.CatalogServiceApplicationProperties.SchedulerConfig;
 import org.geoserver.cloud.catalog.service.ReactiveCatalogService;
-import org.geoserver.config.util.XStreamPersisterFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.codec.ServerCodecConfigurer;
+import org.springframework.http.codec.json.Jackson2JsonDecoder;
+import org.springframework.http.codec.json.Jackson2JsonEncoder;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
@@ -30,9 +32,8 @@ import reactor.core.scheduler.Schedulers;
 @Slf4j
 public class CatalogServiceApplicationConfiguration implements WebFluxConfigurer {
 
-    private @Autowired(required = true) @Qualifier("rawCatalog") Catalog rawCatalog;
-    private @Autowired(required = true) @Qualifier("xstreamPersisterFactory")
-    XStreamPersisterFactory xstreamPersisterFactory;
+    /** Global Jackson ObjectMapper, configured in {@link #configureHttpMessageCodecs} */
+    private @Autowired ObjectMapper objectMapper;
 
     @ConfigurationProperties(prefix = "geoserver.catalog-service")
     public @Bean CatalogServiceApplicationProperties applicationConfig() {
@@ -60,7 +61,23 @@ public class CatalogServiceApplicationConfiguration implements WebFluxConfigurer
         return Schedulers.newBoundedElastic(maxThreads, maxQueued, "catalogScheduler");
     }
 
+    /**
+     * Configures the {@link ObjectMapper} used by {@link Jackson2JsonEncoder} and {@link
+     * Jackson2JsonDecoder} to handle http message payloads, especially in order to set {@link
+     * SerializationFeature#WRAP_ROOT_VALUE} to {@code false}, or the responses are like <code>
+     * {"WorkspaceInfoImpl" : {"Workspace" : {"WorkspaceInfo" : {...}}}}
+     * </code> instead of like <code>
+     * {"WorkspaceInfo" : {...}}
+     * </code>
+     */
     public @Override void configureHttpMessageCodecs(ServerCodecConfigurer configurer) {
-        //
+        objectMapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
+        objectMapper.configure(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED, false);
+        objectMapper.configure(DeserializationFeature.UNWRAP_ROOT_VALUE, false);
+        objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+        objectMapper.findAndRegisterModules();
+
+        configurer.defaultCodecs().jackson2JsonEncoder(new Jackson2JsonEncoder(objectMapper));
+        configurer.defaultCodecs().jackson2JsonDecoder(new Jackson2JsonDecoder(objectMapper));
     }
 }

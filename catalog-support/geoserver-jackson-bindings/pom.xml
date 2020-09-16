@@ -27,8 +27,63 @@
     <dependency>
       <groupId>org.mapstruct</groupId>
       <artifactId>mapstruct</artifactId>
-      <scope>provided</scope>
     </dependency>
+    <dependency>
+      <!-- all deps excluded to use WMSInfo/Impl -->
+      <groupId>org.geoserver</groupId>
+      <artifactId>gs-wms</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <!-- all deps excluded to use WMFSInfo/Impl -->
+      <groupId>org.geoserver</groupId>
+      <artifactId>gs-wfs</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <!-- all deps excluded to use WCSInfo/Impl -->
+      <groupId>org.geoserver</groupId>
+      <artifactId>gs-wcs</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <!-- all deps excluded to use WPSInfo/Impl -->
+      <groupId>org.geoserver.extension</groupId>
+      <artifactId>gs-wps-core</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <!-- all deps excluded to use ProcessFactory -->
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-process</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
     <dependency>
       <!-- contains CatalogTestData support class -->
       <groupId>org.geoserver.cloud</groupId>
@@ -37,8 +92,20 @@
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
-
+    <dependency>
+      <groupId>org.geoserver</groupId>
+      <artifactId>gs-main</artifactId>
+      <version>${gs.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-pluggable-catalog-support</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
+
   <build>
     <plugins>
       <plugin>
