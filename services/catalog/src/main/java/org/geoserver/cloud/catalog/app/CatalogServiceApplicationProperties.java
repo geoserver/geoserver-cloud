@@ -12,7 +12,7 @@ import lombok.Data;
  */
 public @Data class CatalogServiceApplicationProperties {
 
-    private SchedulerConfig workerThreads = new SchedulerConfig();
+    private SchedulerConfig ioThreads = new SchedulerConfig();
 
     public static @Data class SchedulerConfig {
         public static final int DEFAULT_MAX_SIZE =
@@ -32,13 +32,13 @@ public @Data class CatalogServiceApplicationProperties {
 
         public static String buildInvalidMaxSizeMessage(int providedMaxThreadsValue) {
             return String.format(
-                    "Ivalid value for geoserver.catalog-service.worker-threads.max-size=%d, using default value of 4*cores (%d)",
+                    "Ivalid value for geoserver.catalog-service.io-threads.max-size=%d, using default value of 4*cores (%d)",
                     providedMaxThreadsValue, SchedulerConfig.DEFAULT_MAX_SIZE);
         }
 
         public static String buildInvalidMaxQueuedMessage(int maxQueued) {
             return String.format(
-                    "Ivalid value for geoserver.catalog-service.worker-threads.max-queued=%d, using default unbounded queue",
+                    "Ivalid value for geoserver.catalog-service.io-threads.max-queued=%d, using default unbounded queue",
                     maxQueued);
         }
     }

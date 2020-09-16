@@ -10,6 +10,7 @@ import org.geoserver.cloud.catalog.api.v1.WorkspaceController;
 import org.geoserver.cloud.catalog.app.CatalogServiceApplicationProperties.SchedulerConfig;
 import org.geoserver.cloud.catalog.http.codec.CatalogInfoXmlDecoder;
 import org.geoserver.cloud.catalog.http.codec.CatalogInfoXmlEncoder;
+import org.geoserver.cloud.catalog.modelmapper.SpringCatalogInfoMapperConfig;
 import org.geoserver.cloud.catalog.service.ReactiveCatalogService;
 import org.geoserver.config.util.XStreamPersisterFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +31,8 @@ import reactor.core.scheduler.Schedulers;
     basePackageClasses = {
         ReactiveCatalogService.class,
         WorkspaceController.class,
-        CatalogInfoXmlEncoder.class
+        CatalogInfoXmlEncoder.class,
+        SpringCatalogInfoMapperConfig.class,
     }
 )
 @Slf4j
@@ -51,7 +53,7 @@ public class CatalogServiceApplicationConfiguration implements WebFluxConfigurer
      */
     public @Bean Scheduler catalogScheduler() {
         CatalogServiceApplicationProperties config = applicationConfig();
-        SchedulerConfig schedulerConfig = config.getWorkerThreads();
+        SchedulerConfig schedulerConfig = config.getIoThreads();
         int maxThreads = schedulerConfig.getMaxSize();
         int maxQueued = schedulerConfig.getMaxQueued();
         if (maxThreads <= 0) {

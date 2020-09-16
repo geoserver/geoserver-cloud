@@ -6,7 +6,7 @@ geoserver:
     localWorkspace: true
     secure: true
   catalog-service:
-    worker-threads:
+    io-threads:
       max-size: 4
       max-queued: 10000
   backend:

@@ -11,7 +11,7 @@ geoserver:
     localWorkspace: false
     secure: false
   catalog-service:
-    worker-threads:
+    io-threads:
       max-size: 4
       max-queued: 10000
   backend.data-directory.enabled: true

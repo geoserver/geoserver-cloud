@@ -9,13 +9,19 @@ geoserver:
     localWorkspace: false
     secure: false
   catalog-service:
-    worker-threads:
-      max-size: 16
+    io-threads:
+      # if using jdbcconfig, make io-size be half the size of geoserver.backend.jdbcconfig.datasource.maximumPoolSize, 
+      # it has the tendency to use more than one jdbc connection for some requests
+      max-size: 8
       max-queued: 10000
 server:
   port: 8080
   instance-id: ${spring.application.name}:${spring.application.instance_id:${spring.cloud.client.ip-address}}:${server.port}
+  # one of never, always, on_trace_param (deprecated), on_param
+  error.includeStacktrace: on_trace_param
 spring:
+  jackson.default-property-inclusion: non_empty
+  jackson.serialization.indent_output: true
   main:
     banner-mode: off
     web-application-type: REACTIVE

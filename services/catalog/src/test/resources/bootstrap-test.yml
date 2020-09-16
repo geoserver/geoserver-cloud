@@ -1,4 +1,5 @@
 spring:
+  jackson.serialization.indent_output: true
   main:
     banner-mode: off
     allow-bean-definition-overriding: true

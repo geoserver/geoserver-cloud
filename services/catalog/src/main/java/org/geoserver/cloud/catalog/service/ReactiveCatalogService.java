@@ -4,9 +4,20 @@
  */
 package org.geoserver.cloud.catalog.service;
 
+import static java.util.Spliterator.DISTINCT;
+import static java.util.Spliterator.IMMUTABLE;
+import static java.util.Spliterator.NONNULL;
+import static java.util.Spliterator.ORDERED;
+import static java.util.Spliterators.spliteratorUnknownSize;
+
 import com.google.common.base.Objects;
+import java.util.Iterator;
+import java.util.Spliterator;
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -21,12 +32,16 @@ import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ClassMappings;
+import org.geoserver.catalog.util.CloseableIterator;
+import org.geoserver.catalog.util.CloseableIteratorAdapter;
 import org.geoserver.ows.util.OwsUtils;
 import org.opengis.feature.type.Name;
+import org.opengis.filter.Filter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
@@ -64,6 +79,51 @@ public class ReactiveCatalogService {
 
     public <T extends CatalogInfo> Mono<T> findByName(Name name, Class<T> type) {
         return async(() -> workerFor(type).getByName(name, type));
+    }
+
+    public <T extends CatalogInfo> Flux<T> findAll(@NonNull Class<T> infoType) {
+        return Flux.fromStream(() -> iterable(infoType))
+                .publishOn(scheduler)
+                .subscribeOn(scheduler);
+    }
+
+    private static final AtomicLong iteratorSequence = new AtomicLong();
+
+    private static class IdentifiedIterator<T> extends CloseableIteratorAdapter<T> {
+        private final long id;
+
+        public IdentifiedIterator(Iterator<T> wrapped) {
+            super(wrapped);
+            this.id = iteratorSequence.incrementAndGet();
+        }
+
+        public @Override String toString() {
+            return getClass().getSimpleName() + "-" + id;
+        }
+    }
+
+    private <T extends CatalogInfo> Stream<T> iterable(Class<T> infoType) {
+        final String threadName = Thread.currentThread().getName();
+        log.trace("opening iterator on {}", threadName);
+        final CloseableIterator<T> iterator;
+        try {
+            iterator = new IdentifiedIterator<>(catalog.list(infoType, Filter.INCLUDE));
+        } catch (RuntimeException e) {
+            throw e;
+        }
+        log.trace("{} open on {}", iterator, threadName);
+        final int characteristics = NONNULL | DISTINCT | IMMUTABLE | ORDERED;
+        final Spliterator<T> spliterator = spliteratorUnknownSize(iterator, characteristics);
+        final boolean parallel = false;
+        final Stream<T> stream = StreamSupport.stream(spliterator, parallel);
+        // the Flux closes the stream, make the stream close() call close the iterator to release
+        // resources
+        stream.onClose(
+                () -> {
+                    log.trace("{} closing on {}", iterator, threadName);
+                    iterator.close();
+                });
+        return stream;
     }
 
     private <T> Mono<T> async(Callable<T> callable) {
@@ -104,7 +164,7 @@ public class ReactiveCatalogService {
         private final @NonNull BiConsumer<Catalog, T> remover;
 
         public @Override T add(T info) {
-            System.err.println("Adding in " + Thread.currentThread().getName());
+            log.trace("Adding {} in {}", info, Thread.currentThread().getName());
             final String providedId = info.getId();
             Class<T> type = ClassMappings.fromImpl(info.getClass()).getInterface();
             try {
@@ -123,7 +183,14 @@ public class ReactiveCatalogService {
             // kind of a race condition here, if someone changed this very same object after it was
             // just added; yet it's important to return the stored version and not the one gotten as
             // argument, as it may have been populated with default values for some properties
-            return getById(info.getId(), type);
+            T created = getById(info.getId(), type);
+            if (null == created) {
+                throw new IllegalStateException(
+                        String.format(
+                                "%s[%s] not found once created",
+                                type.getSimpleName(), info.getId()));
+            }
+            return created;
         }
 
         public @Override T update(T info) {
