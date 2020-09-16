@@ -20,7 +20,15 @@
     </dependency>
     <dependency>
       <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-starter-jackson</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.cloud</groupId>
       <artifactId>gt-jackson-bindings</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-jackson-bindings</artifactId>
     </dependency>
     <dependency>
       <groupId>org.geoserver.cloud</groupId>

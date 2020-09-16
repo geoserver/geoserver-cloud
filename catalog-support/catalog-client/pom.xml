@@ -18,6 +18,10 @@
     </dependency>
     <dependency>
       <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-jackson-bindings</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.cloud</groupId>
       <artifactId>gs-cloud-pluggable-catalog-support</artifactId>
     </dependency>
     <dependency>
@@ -55,15 +59,6 @@
       <artifactId>spring-boot-starter-web</artifactId>
       <scope>test</scope>
     </dependency>
-
-
-    <dependency>
-      <groupId>org.mapstruct</groupId>
-      <artifactId>mapstruct</artifactId>
-      <version>1.4.0.CR1</version>
-      <scope>provided</scope>
-    </dependency>
-
   </dependencies>
   <build>
     <plugins>

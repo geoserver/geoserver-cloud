@@ -13,7 +13,6 @@ import javax.annotation.Nullable;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.impl.ClassMappings;
-import org.geoserver.cloud.catalog.dto.CatalogInfoDto;
 import org.geoserver.cloud.catalog.service.ReactiveCatalogService;
 import org.geotools.feature.NameImpl;
 import org.opengis.feature.type.Name;
@@ -34,8 +33,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
-public abstract class AbstractCatalogInfoController<
-        I extends CatalogInfo, DTO extends CatalogInfoDto> {
+public abstract class AbstractCatalogInfoController<I extends CatalogInfo> {
 
     public static final String BASE_API_URI = "/api/v1/catalog";
 
@@ -45,10 +43,6 @@ public abstract class AbstractCatalogInfoController<
     protected @Autowired @Qualifier("catalogScheduler") Scheduler catalogScheduler;
 
     protected abstract Class<I> getInfoType();
-
-    protected abstract I toInfo(DTO dto);
-
-    protected abstract DTO toDto(I info);
 
     @SuppressWarnings("unchecked")
     protected <S extends I> Class<S> getInfoType(@Nullable ClassMappings subType) {
@@ -89,16 +83,14 @@ public abstract class AbstractCatalogInfoController<
      */
     @PostMapping(path = "")
     @ResponseStatus(CREATED)
-    public Mono<DTO> create(@RequestBody(required = true) DTO dto) {
-        I catalogInfo = toInfo(dto);
+    public Mono<I> create(@RequestBody(required = true) I info) {
         Class<I> baseType = getInfoType();
-        return service.create(catalogInfo, baseType).map(this::toDto);
+        return service.create(info, baseType);
     }
 
     @PutMapping(path = "")
-    public Mono<DTO> update(@RequestBody(required = true) DTO info) {
-        return service.update(toInfo(info), getInfoType())
-                .map(this::toDto)
+    public Mono<I> update(@RequestBody(required = true) I info) {
+        return service.update(info, getInfoType())
                 .switchIfEmpty(
                         notFound(
                                 "%s '%s' does not exist",
@@ -107,9 +99,8 @@ public abstract class AbstractCatalogInfoController<
 
     @DeleteMapping(path = "/{id}")
     @ResponseStatus(OK)
-    public Mono<DTO> delete(@PathVariable(name = "id", required = true) String id) {
+    public Mono<I> delete(@PathVariable(name = "id", required = true) String id) {
         return service.delete(id, getInfoType())
-                .map(this::toDto)
                 .switchIfEmpty(
                         notFound("%s '%s' does not exist", getInfoType().getSimpleName(), id));
     }
@@ -118,31 +109,29 @@ public abstract class AbstractCatalogInfoController<
         path = "",
         produces = {MediaType.APPLICATION_STREAM_JSON_VALUE}
     )
-    public Flux<DTO> findAll(
+    public Flux<I> findAll(
             @RequestParam(name = "subtype", required = false) ClassMappings subType) {
-        return service.findAll(getInfoType(subType)).map(this::toDto);
+        return service.findAll(getInfoType(subType));
     }
 
     @GetMapping(path = "/{id}")
-    public Mono<DTO> findById(
+    public Mono<I> findById(
             @PathVariable("id") String id,
             @RequestParam(name = "subtype", required = false) ClassMappings subType) {
 
         return service.findById(id, getInfoType(subType))
-                .map(this::toDto)
                 .switchIfEmpty(
                         notFound("%s '%s' does not exist", getInfoType().getSimpleName(), id));
     }
 
     @GetMapping(path = "/name/{name}")
-    public Mono<DTO> findByName(
+    public Mono<I> findByName(
             @PathVariable(name = "name", required = true) String name,
             @RequestParam(name = "namespace", required = false) String namespace,
             @RequestParam(name = "subtype", required = false) ClassMappings subType) {
 
         Name qualifiedName = new NameImpl(namespace, name);
         return service.findByName(qualifiedName, getInfoType(subType))
-                .map(this::toDto)
                 .switchIfEmpty(
                         notFound(
                                 "%s '%s:%s' does not exist",

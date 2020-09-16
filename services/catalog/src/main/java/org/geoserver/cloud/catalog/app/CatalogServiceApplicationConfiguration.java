@@ -6,11 +6,8 @@ package org.geoserver.cloud.catalog.app;
 
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.catalog.Catalog;
-import org.geoserver.cloud.catalog.api.v1.WorkspaceController;
+import org.geoserver.cloud.catalog.api.v1.AbstractCatalogInfoController;
 import org.geoserver.cloud.catalog.app.CatalogServiceApplicationProperties.SchedulerConfig;
-import org.geoserver.cloud.catalog.http.codec.CatalogInfoXmlDecoder;
-import org.geoserver.cloud.catalog.http.codec.CatalogInfoXmlEncoder;
-import org.geoserver.cloud.catalog.modelmapper.SpringCatalogInfoMapperConfig;
 import org.geoserver.cloud.catalog.service.ReactiveCatalogService;
 import org.geoserver.config.util.XStreamPersisterFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,12 +25,7 @@ import reactor.core.scheduler.Schedulers;
 @Configuration
 @EnableAutoConfiguration
 @ComponentScan(
-    basePackageClasses = {
-        ReactiveCatalogService.class,
-        WorkspaceController.class,
-        CatalogInfoXmlEncoder.class,
-        SpringCatalogInfoMapperConfig.class,
-    }
+    basePackageClasses = {ReactiveCatalogService.class, AbstractCatalogInfoController.class}
 )
 @Slf4j
 public class CatalogServiceApplicationConfiguration implements WebFluxConfigurer {
@@ -68,16 +60,7 @@ public class CatalogServiceApplicationConfiguration implements WebFluxConfigurer
         return Schedulers.newBoundedElastic(maxThreads, maxQueued, "catalogScheduler");
     }
 
-    public @Bean CatalogInfoXmlEncoder catalogInfoXmlEncoder() {
-        return new CatalogInfoXmlEncoder(xstreamPersisterFactory);
-    }
-
-    public @Bean CatalogInfoXmlDecoder catalogInfoXmlDecoder() {
-        return new CatalogInfoXmlDecoder(xstreamPersisterFactory, rawCatalog);
-    }
-
     public @Override void configureHttpMessageCodecs(ServerCodecConfigurer configurer) {
-        configurer.customCodecs().registerWithDefaultConfig(catalogInfoXmlEncoder());
-        configurer.customCodecs().registerWithDefaultConfig(catalogInfoXmlDecoder());
+        //
     }
 }

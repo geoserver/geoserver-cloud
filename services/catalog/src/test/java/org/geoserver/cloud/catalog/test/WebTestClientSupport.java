@@ -1,6 +1,6 @@
-/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
- * This code is licensed under the GPL 2.0 license, available at the root
- * application directory.
+/*
+ * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
+ * GPL 2.0 license, available at the root application directory.
  */
 package org.geoserver.cloud.catalog.test;
 
@@ -22,8 +22,6 @@ import org.geoserver.cloud.catalog.api.v1.ResourceController;
 import org.geoserver.cloud.catalog.api.v1.StoreController;
 import org.geoserver.cloud.catalog.api.v1.StyleController;
 import org.geoserver.cloud.catalog.api.v1.WorkspaceController;
-import org.geoserver.cloud.catalog.http.codec.CatalogInfoXmlDecoder;
-import org.geoserver.cloud.catalog.http.codec.CatalogInfoXmlEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
@@ -34,18 +32,16 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 public class WebTestClientSupport implements Supplier<WebTestClient> {
 
     protected @Autowired WebTestClient client;
-    private @Autowired CatalogInfoXmlEncoder encoder;
-    private @Autowired CatalogInfoXmlDecoder decoder;
 
     protected @PostConstruct void setup() {
-        client =
-                client.mutate()
-                        .codecs(
-                                configurer -> {
-                                    configurer.customCodecs().registerWithDefaultConfig(encoder);
-                                    configurer.customCodecs().registerWithDefaultConfig(decoder);
-                                })
-                        .build();
+        // client =
+        // client.mutate()
+        // .codecs(
+        // configurer -> {
+        // configurer.customCodecs().registerWithDefaultConfig(encoder);
+        // configurer.customCodecs().registerWithDefaultConfig(decoder);
+        // })
+        // .build();
     }
 
     public @Override WebTestClient get() {

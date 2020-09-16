@@ -20,5 +20,10 @@
       <artifactId>gt-jackson-bindings</artifactId>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-jackson-bindings</artifactId>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
 </project>
