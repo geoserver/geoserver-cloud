@@ -14,6 +14,8 @@
     <spring-boot.version>2.3.3.RELEASE</spring-boot.version>
     <gs.version>2.18-SNAPSHOT</gs.version>
     <gt.version>24-SNAPSHOT</gt.version>
+    <lombok.version>1.18.12</lombok.version>
+    <mapstruct.version>1.4.0.CR1</mapstruct.version>
     <fmt.action>format</fmt.action>
     <fmt.skip>false</fmt.skip>
     <fork.javac>true</fork.javac>
@@ -161,7 +163,7 @@
       <dependency>
         <groupId>org.projectlombok</groupId>
         <artifactId>lombok</artifactId>
-        <version>1.18.12</version>
+        <version>${lombok.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -572,6 +574,12 @@
         <groupId>org.geotools</groupId>
         <artifactId>gt-property</artifactId>
         <version>${gt.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mapstruct</groupId>
+        <artifactId>mapstruct</artifactId>
+        <version>${mapstruct.version}</version>
+        <scope>provided</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>

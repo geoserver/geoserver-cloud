@@ -13,6 +13,7 @@
   <packaging>pom</packaging>
 
   <modules>
+    <module>geotools-jackson-bindings</module>
     <module>pluggable-catalog-support</module>
     <module>catalog-cache</module>
     <module>catalog-event-bus</module>
