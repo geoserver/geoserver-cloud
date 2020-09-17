@@ -4,6 +4,8 @@
  */
 package org.geoserver.jackson.databind.catalog;
 
+import static org.junit.Assert.assertNotNull;
+
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import java.util.Date;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
+import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.plugin.CatalogImpl;
 import org.geoserver.cloud.test.CatalogTestData;
 import org.geoserver.platform.GeoServerExtensionsHelper;
@@ -43,13 +46,18 @@ public class GeoServerCatalogModuleTest {
         objectMapper.findAndRegisterModules();
     }
 
-    private void roundtripTest(CatalogInfo orig) throws JsonProcessingException {
+    private <T extends CatalogInfo> void roundtripTest(T orig) throws JsonProcessingException {
         ObjectWriter writer = objectMapper.writer();
         writer = writer.withDefaultPrettyPrinter();
 
+        Class<T> abstractType = ClassMappings.fromImpl(orig.getClass()).getInterface();
+
         String encoded = writer.writeValueAsString(orig);
         System.out.println(encoded);
-        CatalogInfo decoded = objectMapper.readValue(encoded, CatalogInfo.class);
+        T decoded = objectMapper.readValue(encoded, abstractType);
+        // assert it can also be parsed using the generic CatalogInfo class
+        CatalogInfo asCatalogInfo = objectMapper.readValue(encoded, CatalogInfo.class);
+        assertNotNull(asCatalogInfo);
 
         // This is the client code's responsibility, the Deserializer returns "resolving proxy"
         // proxies for Info references

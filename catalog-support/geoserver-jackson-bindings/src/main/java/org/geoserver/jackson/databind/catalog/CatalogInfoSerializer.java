@@ -13,17 +13,18 @@ import org.geoserver.jackson.databind.catalog.dto.CatalogInfoDto;
 import org.geoserver.jackson.databind.catalog.mapper.CatalogInfoMapper;
 import org.mapstruct.factory.Mappers;
 
-public class CatalogInfoSerializer extends StdSerializer<CatalogInfo> {
+public class CatalogInfoSerializer<I extends CatalogInfo> extends StdSerializer<I> {
     private static final long serialVersionUID = -4772839273787523779L;
 
-    protected CatalogInfoSerializer() {
-        super(CatalogInfo.class);
+    private static final CatalogInfoMapper mapper = Mappers.getMapper(CatalogInfoMapper.class);
+
+    protected CatalogInfoSerializer(Class<I> infoType) {
+        super(infoType);
     }
 
     public @Override void serialize(
             CatalogInfo info, JsonGenerator gen, SerializerProvider provider) throws IOException {
 
-        CatalogInfoMapper mapper = Mappers.getMapper(CatalogInfoMapper.class);
         CatalogInfoDto dto = mapper.map(info);
         gen.writeObject(dto);
     }

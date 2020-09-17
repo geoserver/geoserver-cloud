@@ -7,11 +7,14 @@ package org.geoserver.jackson.databind.config;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import lombok.extern.slf4j.Slf4j;
+import org.geoserver.catalog.Info;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
 import org.geoserver.jackson.databind.catalog.GeoServerCatalogModule;
+import org.geoserver.jackson.databind.config.dto.ConfigInfoDto;
 import org.geoserver.jackson.databind.config.dto.GeoServer;
 import org.geoserver.jackson.databind.config.dto.Logging;
 import org.geoserver.jackson.databind.config.dto.Service;
@@ -42,26 +45,41 @@ import org.geoserver.jackson.databind.config.dto.Settings;
  * </code>
  * </pre>
  */
+@Slf4j
 public class GeoServerConfigModule extends SimpleModule {
     private static final long serialVersionUID = -8756800180255446679L;
 
     public GeoServerConfigModule() {
         super(GeoServerConfigModule.class.getSimpleName(), new Version(1, 0, 0, null, null, null));
 
-        addSerializer(new ConfigInfoSerializer<>(GeoServerInfo.class));
-        addSerializer(new ConfigInfoSerializer<>(SettingsInfo.class));
-        addSerializer(new ConfigInfoSerializer<>(LoggingInfo.class));
-        addSerializer(new ConfigInfoSerializer<>(ServiceInfo.class));
+        addSerializer(GeoServerInfo.class);
+        addSerializer(SettingsInfo.class);
+        addSerializer(LoggingInfo.class);
+        addSerializer(ServiceInfo.class);
 
-        addDeserializer(
-                GeoServerInfo.class,
-                new ConfigInfoDeserializer<GeoServerInfo, GeoServer>(GeoServer.class));
-        addDeserializer(
-                SettingsInfo.class,
-                new ConfigInfoDeserializer<SettingsInfo, Settings>(Settings.class));
-        addDeserializer(
-                LoggingInfo.class, new ConfigInfoDeserializer<LoggingInfo, Logging>(Logging.class));
-        addDeserializer(
-                ServiceInfo.class, new ConfigInfoDeserializer<ServiceInfo, Service>(Service.class));
+        addDeserializer(GeoServerInfo.class, GeoServer.class);
+        addDeserializer(SettingsInfo.class, Settings.class);
+        addDeserializer(LoggingInfo.class, Logging.class);
+        addDeserializer(ServiceInfo.class, Service.class);
+    }
+
+    private <I extends Info> void addSerializer(Class<I> configInfoType) {
+        log.debug("registering serializer for {}", configInfoType.getSimpleName());
+        super.addSerializer(configInfoType, serializer(configInfoType));
+    }
+
+    private <I extends Info, D extends ConfigInfoDto> void addDeserializer(
+            Class<I> infoType, Class<D> dtoType) {
+        log.debug("registering deserializer for {}", infoType.getSimpleName());
+        super.addDeserializer(infoType, deserializer(dtoType));
+    }
+
+    private <I extends Info> ConfigInfoSerializer<I> serializer(Class<I> configInfoType) {
+        return new ConfigInfoSerializer<>(configInfoType);
+    }
+
+    private <I extends Info, D extends ConfigInfoDto> ConfigInfoDeserializer<I, D> deserializer(
+            Class<D> dtoType) {
+        return new ConfigInfoDeserializer<>(dtoType);
     }
 }

@@ -14,14 +14,15 @@ import org.geoserver.jackson.databind.catalog.dto.CatalogInfoDto;
 import org.geoserver.jackson.databind.catalog.mapper.CatalogInfoMapper;
 import org.mapstruct.factory.Mappers;
 
-public class CatalogInfoDeserializer extends JsonDeserializer<CatalogInfo> {
+public class CatalogInfoDeserializer<I extends CatalogInfo> extends JsonDeserializer<I> {
 
-    public @Override CatalogInfo deserialize(JsonParser parser, DeserializationContext ctxt)
+    private static final CatalogInfoMapper mapper = Mappers.getMapper(CatalogInfoMapper.class);
+
+    public @Override I deserialize(JsonParser parser, DeserializationContext ctxt)
             throws IOException, JsonProcessingException {
 
         CatalogInfoDto dto = parser.readValueAs(CatalogInfoDto.class);
-        CatalogInfoMapper mapper = Mappers.getMapper(CatalogInfoMapper.class);
-        CatalogInfo info = mapper.map(dto);
+        I info = mapper.map(dto);
         return info;
     }
 }

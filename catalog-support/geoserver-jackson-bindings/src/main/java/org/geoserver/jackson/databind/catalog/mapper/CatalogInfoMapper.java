@@ -26,19 +26,20 @@ import org.mapstruct.factory.Mappers;
 @Mapper(config = SpringCatalogInfoMapperConfig.class)
 public interface CatalogInfoMapper {
 
-    default CatalogInfo map(CatalogInfoDto dto) {
+    @SuppressWarnings("unchecked")
+    default <I extends CatalogInfo> I map(CatalogInfoDto dto) {
         if (dto == null) return null;
         if (dto instanceof Workspace)
-            return Mappers.getMapper(WorkspaceMapper.class).map((Workspace) dto);
+            return (I) Mappers.getMapper(WorkspaceMapper.class).map((Workspace) dto);
         if (dto instanceof Namespace)
-            return Mappers.getMapper(NamespaceMapper.class).map((Namespace) dto);
-        if (dto instanceof Store) return Mappers.getMapper(StoreMapper.class).map((Store) dto);
+            return (I) Mappers.getMapper(NamespaceMapper.class).map((Namespace) dto);
+        if (dto instanceof Store) return (I) Mappers.getMapper(StoreMapper.class).map((Store) dto);
         if (dto instanceof Resource)
-            return Mappers.getMapper(ResourceMapper.class).map((Resource) dto);
+            return (I) Mappers.getMapper(ResourceMapper.class).map((Resource) dto);
         if (dto instanceof Published)
-            return Mappers.getMapper(PublishedMapper.class).map((Published) dto);
-        if (dto instanceof Style) return Mappers.getMapper(StyleMapper.class).map((Style) dto);
-        if (dto instanceof Map) return Mappers.getMapper(MapMapper.class).map((Map) dto);
+            return (I) Mappers.getMapper(PublishedMapper.class).map((Published) dto);
+        if (dto instanceof Style) return (I) Mappers.getMapper(StyleMapper.class).map((Style) dto);
+        if (dto instanceof Map) return (I) Mappers.getMapper(MapMapper.class).map((Map) dto);
 
         throw new IllegalArgumentException(
                 "Unknown CatalogInfoDto type: " + dto.getClass().getCanonicalName());
