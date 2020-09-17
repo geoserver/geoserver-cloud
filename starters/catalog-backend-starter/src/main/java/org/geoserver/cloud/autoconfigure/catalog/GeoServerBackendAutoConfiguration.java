@@ -26,4 +26,4 @@ import org.springframework.context.annotation.Import;
     JDBCConfigWebAutoConfiguration.class
     //    CatalogServiceBackendAutoConfiguration.class
 })
-public class GeoSeverBackendAutoConfiguration {}
+public class GeoServerBackendAutoConfiguration {}
