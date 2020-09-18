@@ -52,6 +52,8 @@ public class GeoServerConfigModule extends SimpleModule {
     public GeoServerConfigModule() {
         super(GeoServerConfigModule.class.getSimpleName(), new Version(1, 0, 0, null, null, null));
 
+        log.trace("registering de/serializers for all config Info types");
+
         addSerializer(GeoServerInfo.class);
         addSerializer(SettingsInfo.class);
         addSerializer(LoggingInfo.class);
@@ -64,13 +66,13 @@ public class GeoServerConfigModule extends SimpleModule {
     }
 
     private <I extends Info> void addSerializer(Class<I> configInfoType) {
-        log.debug("registering serializer for {}", configInfoType.getSimpleName());
+        log.trace("registering serializer for {}", configInfoType.getSimpleName());
         super.addSerializer(configInfoType, serializer(configInfoType));
     }
 
     private <I extends Info, D extends ConfigInfoDto> void addDeserializer(
             Class<I> infoType, Class<D> dtoType) {
-        log.debug("registering deserializer for {}", infoType.getSimpleName());
+        log.trace("registering deserializer for {}", infoType.getSimpleName());
         super.addDeserializer(infoType, deserializer(dtoType));
     }
 

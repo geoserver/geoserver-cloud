@@ -13,6 +13,9 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import java.util.Date;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
+import org.geoserver.catalog.PublishedInfo;
+import org.geoserver.catalog.ResourceInfo;
+import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.plugin.CatalogImpl;
 import org.geoserver.cloud.test.CatalogTestData;
@@ -50,14 +53,21 @@ public class GeoServerCatalogModuleTest {
         ObjectWriter writer = objectMapper.writer();
         writer = writer.withDefaultPrettyPrinter();
 
-        Class<T> abstractType = ClassMappings.fromImpl(orig.getClass()).getInterface();
+        ClassMappings classMappings = ClassMappings.fromImpl(orig.getClass());
+        Class<T> abstractType = classMappings.getInterface();
 
         String encoded = writer.writeValueAsString(orig);
         System.out.println(encoded);
         T decoded = objectMapper.readValue(encoded, abstractType);
         // assert it can also be parsed using the generic CatalogInfo class
         CatalogInfo asCatalogInfo = objectMapper.readValue(encoded, CatalogInfo.class);
-        assertNotNull(asCatalogInfo);
+        // and also as its direct super-type, if it not CatalogInfo
+        if (orig instanceof StoreInfo)
+            assertNotNull(objectMapper.readValue(encoded, StoreInfo.class));
+        if (orig instanceof ResourceInfo)
+            assertNotNull(objectMapper.readValue(encoded, ResourceInfo.class));
+        if (orig instanceof PublishedInfo)
+            assertNotNull(objectMapper.readValue(encoded, PublishedInfo.class));
 
         // This is the client code's responsibility, the Deserializer returns "resolving proxy"
         // proxies for Info references

@@ -47,15 +47,19 @@ public class GeoServerCatalogModule extends SimpleModule {
     private final CatalogInfoDeserializer<CatalogInfo> deserializer =
             new CatalogInfoDeserializer<>();
 
-    @SuppressWarnings("unchecked")
     public GeoServerCatalogModule() {
         super(GeoServerCatalogModule.class.getSimpleName(), new Version(1, 0, 0, null, null, null));
+
+        log.trace("registering de/serializers for all CatalogInfo types");
 
         this.addSerializer(CatalogInfo.class);
         this.addDeserializer(CatalogInfo.class);
         Arrays.stream(ClassMappings.values())
-                .map(ClassMappings::concreteInterfaces)
-                .flatMap(Arrays::stream)
+                .map(
+                        c -> {
+                            Class<CatalogInfo> ci = c.getInterface();
+                            return ci;
+                        })
                 .filter(CatalogInfo.class::isAssignableFrom)
                 .distinct()
                 .sorted((c1, c2) -> c1.getSimpleName().compareTo(c2.getSimpleName()))
@@ -67,13 +71,13 @@ public class GeoServerCatalogModule extends SimpleModule {
     }
 
     private <T extends CatalogInfo> void addSerializer(Class<T> clazz) {
-        log.debug("registering serializer for {}", clazz.getSimpleName());
+        log.trace("registering serializer for {}", clazz.getSimpleName());
         super.addSerializer(new CatalogInfoSerializer<>(clazz));
     }
 
     @SuppressWarnings("unchecked")
     private <T extends CatalogInfo> void addDeserializer(Class<T> clazz) {
-        log.debug("registering deserializer for {}", clazz.getSimpleName());
+        log.trace("registering deserializer for {}", clazz.getSimpleName());
         super.addDeserializer(clazz, (CatalogInfoDeserializer<T>) deserializer);
     }
 }
