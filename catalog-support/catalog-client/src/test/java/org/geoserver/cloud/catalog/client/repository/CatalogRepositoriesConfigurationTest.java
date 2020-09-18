@@ -144,9 +144,9 @@ public class CatalogRepositoriesConfigurationTest {
     // @NonNull WorkspaceInfo workspace, @Nullable Class<T> clazz);
     // <T extends StoreInfo> List<T> findAllByType(@Nullable Class<T> clazz);
     public @Test void storeRepository_GetDefaultDataStore() {
-        when(storeClient.findDefaultDataStoreByWorkspaceId(eq(testData.workspaceA.getName())))
+        when(storeClient.findDefaultDataStoreByWorkspaceId(eq(testData.workspaceA.getId())))
                 .thenReturn(testData.dataStoreA);
-        when(storeClient.findDefaultDataStoreByWorkspaceId(eq(testData.workspaceB.getName())))
+        when(storeClient.findDefaultDataStoreByWorkspaceId(eq(testData.workspaceB.getId())))
                 .thenReturn(testData.dataStoreB);
 
         assertSame(testData.dataStoreA, storeRepository.getDefaultDataStore(testData.workspaceA));
@@ -158,7 +158,7 @@ public class CatalogRepositoriesConfigurationTest {
         storeRepository.setDefaultDataStore(testData.workspaceC, testData.dataStoreA);
         verify(storeClient, times(1))
                 .setDefaultDataStoreByWorkspaceId(
-                        eq(testData.workspaceC.getName()), eq(testData.dataStoreA.getId()));
+                        eq(testData.workspaceC.getId()), eq(testData.dataStoreA.getId()));
         assertThrows(
                 NullPointerException.class,
                 () -> storeRepository.setDefaultDataStore(null, testData.dataStoreA));
@@ -289,7 +289,7 @@ public class CatalogRepositoriesConfigurationTest {
         final @NonNull ClassMappings genericType = genericType(info);
 
         repo.findAll();
-        verify(mockClient, times(1)).query(same(genericType), same(Filter.INCLUDE));
+        verify(mockClient, times(1)).findAll(same(genericType));
 
         repo.findAll(Filter.EXCLUDE);
         verify(mockClient, times(1)).query(same(genericType), same(Filter.EXCLUDE));

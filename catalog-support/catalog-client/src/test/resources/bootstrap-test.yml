@@ -1,3 +1,13 @@
+spring:
+  main:
+    banner-mode: off
+    allow-bean-definition-overriding: true
+  cloud.config.enabled: false
+  cloud.config.discovery.enabled: false
+  cloud.bus.enabled: false
+eureka.client.enabled: false
+feign.logger.level: full
+
 geoserver:
   security.enabled: false
   catalog:
@@ -20,18 +30,6 @@ geoserver:
         jdbcUrl: jdbc:h2:mem:test;
         username: sa
         password:
-
-
-spring:
-  main:
-    banner-mode: off
-    allow-bean-definition-overriding: true
-  cloud.config.enabled: false
-  cloud.config.discovery.enabled: false
-  cloud.bus.enabled: false
-eureka.client.enabled: false
-
-feign.logger.level: full
 
 logging:
   level:
