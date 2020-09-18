@@ -486,8 +486,9 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
                 catalog, asList("defaultNamespace"), asList(old), asList(defaultNamespace));
     }
 
+    // if value is null, the list is a singleton list with a null member
     private <T> List<T> asList(@Nullable T value) {
-        return value == null ? Collections.emptyList() : Collections.singletonList(value);
+        return Collections.singletonList(value);
     }
 
     public @Override NamespaceInfo getNamespace(String id) {
