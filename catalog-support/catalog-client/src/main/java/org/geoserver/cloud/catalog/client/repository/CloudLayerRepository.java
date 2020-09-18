@@ -5,29 +5,29 @@
 package org.geoserver.cloud.catalog.client.repository;
 
 import java.util.List;
-import lombok.Getter;
-import lombok.NonNull;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerRepository;
-import org.geoserver.cloud.catalog.client.feign.LayerClient;
+import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveCatalogClient;
+import lombok.Getter;
+import lombok.NonNull;
 
-public class CloudLayerRepository extends CatalogServiceClientRepository<LayerInfo, LayerClient>
+public class CloudLayerRepository extends CatalogServiceClientRepository<LayerInfo>
         implements LayerRepository {
 
     private final @Getter Class<LayerInfo> infoType = LayerInfo.class;
 
-    protected CloudLayerRepository(@NonNull LayerClient client) {
+    protected CloudLayerRepository(@NonNull ReactiveCatalogClient client) {
         super(client);
     }
 
     public @Override List<LayerInfo> findAllByDefaultStyleOrStyles(StyleInfo style) {
-        return client().findAllByDefaultStyleOrStyles(style.getId());
+        return client().findLayersWithStyle(style.getId());
     }
 
     public @Override List<LayerInfo> findAllByResource(ResourceInfo resource) {
-        return client().findAllByResourceId(resource.getId());
+        return client().findLayersByResourceId(resource.getId());
     }
 
     public @Override LayerInfo findOneByName(

@@ -4,14 +4,7 @@
  */
 package org.geoserver.cloud.catalog.client.repository;
 
-import org.geoserver.cloud.catalog.client.feign.LayerClient;
-import org.geoserver.cloud.catalog.client.feign.LayerGroupClient;
-import org.geoserver.cloud.catalog.client.feign.MapClient;
-import org.geoserver.cloud.catalog.client.feign.NamespaceClient;
-import org.geoserver.cloud.catalog.client.feign.ResourceClient;
-import org.geoserver.cloud.catalog.client.feign.StoreClient;
-import org.geoserver.cloud.catalog.client.feign.StyleClient;
-import org.geoserver.cloud.catalog.client.feign.WorkspaceClient;
+import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveCatalogClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,44 +12,37 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class CatalogRepositoriesConfiguration {
 
-    private @Autowired WorkspaceClient workspaceClient;
-    private @Autowired NamespaceClient namespaceClient;
-    private @Autowired StoreClient storeClient;
-    private @Autowired ResourceClient resourceClient;
-    private @Autowired LayerClient layerClient;
-    private @Autowired LayerGroupClient layerGroupClient;
-    private @Autowired StyleClient styleClient;
-    private @Autowired MapClient mapClient;
+    private @Autowired ReactiveCatalogClient client;
 
     public @Bean CloudWorkspaceRepository cloudWorkspaceRepository() {
-        return new CloudWorkspaceRepository(workspaceClient);
+        return new CloudWorkspaceRepository(client);
     }
 
     public @Bean CloudNamespaceRepository cloudNamespaceRepository() {
-        return new CloudNamespaceRepository(namespaceClient);
+        return new CloudNamespaceRepository(client);
     }
 
     public @Bean CloudStoreRepository cloudStoreRepository() {
-        return new CloudStoreRepository(storeClient);
+        return new CloudStoreRepository(client);
     }
 
     public @Bean CloudResourceRepository cloudResourceRepository() {
-        return new CloudResourceRepository(resourceClient);
+        return new CloudResourceRepository(client);
     }
 
     public @Bean CloudLayerRepository cloudLayerRepository() {
-        return new CloudLayerRepository(layerClient);
+        return new CloudLayerRepository(client);
     }
 
     public @Bean CloudLayerGroupRepository cloudLayerGroupRepository() {
-        return new CloudLayerGroupRepository(layerGroupClient);
+        return new CloudLayerGroupRepository(client);
     }
 
     public @Bean CloudStyleRepository cloudStyleRepository() {
-        return new CloudStyleRepository(styleClient);
+        return new CloudStyleRepository(client);
     }
 
     public @Bean CloudMapRepository cloudMapRepository() {
-        return new CloudMapRepository(mapClient);
+        return new CloudMapRepository(client);
     }
 }

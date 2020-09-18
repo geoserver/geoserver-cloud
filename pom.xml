@@ -12,6 +12,7 @@
     <maven.compiler.target>1.8</maven.compiler.target>
     <spring-cloud.version>Hoxton.SR8</spring-cloud.version>
     <spring-boot.version>2.3.3.RELEASE</spring-boot.version>
+    <feign-reactor.version>2.0.22</feign-reactor.version>
     <gs.version>2.18-SNAPSHOT</gs.version>
     <gt.version>24-SNAPSHOT</gt.version>
     <lombok.version>1.18.12</lombok.version>
@@ -92,6 +93,16 @@
         <version>${spring-boot.version}</version>
         <type>pom</type>
         <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.playtika.reactivefeign</groupId>
+        <artifactId>feign-reactor-cloud</artifactId>
+        <version>${feign-reactor.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.playtika.reactivefeign</groupId>
+        <artifactId>feign-reactor-spring-configuration</artifactId>
+        <version>${feign-reactor.version}</version>
       </dependency>
       <dependency>
         <groupId>org.geoserver.cloud</groupId>

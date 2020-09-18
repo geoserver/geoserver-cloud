@@ -7,6 +7,7 @@ package org.geotools.jackson.databind.geojson;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import lombok.extern.slf4j.Slf4j;
 import org.geotools.jackson.databind.geojson.geometry.GeometryDeserializer;
 import org.geotools.jackson.databind.geojson.geometry.GeometrySerializer;
 import org.locationtech.jts.geom.Geometry;
@@ -47,11 +48,14 @@ import org.locationtech.jts.geom.Polygon;
  *
  * TODO: supply an alternate, user defined, {@link GeometryFactory}
  */
+@Slf4j
 public class GeoToolsGeoJsonModule extends SimpleModule {
     private static final long serialVersionUID = 4898575169880138758L;
 
     public GeoToolsGeoJsonModule() {
         super(GeoToolsGeoJsonModule.class.getSimpleName(), new Version(1, 0, 0, null, null, null));
+
+        log.debug("registering de/serializers for all JTS Geometry types");
 
         addSerializer(new GeometrySerializer());
 

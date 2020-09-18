@@ -50,7 +50,7 @@ public class GeoServerCatalogModule extends SimpleModule {
     public GeoServerCatalogModule() {
         super(GeoServerCatalogModule.class.getSimpleName(), new Version(1, 0, 0, null, null, null));
 
-        log.trace("registering de/serializers for all CatalogInfo types");
+        log.debug("registering jackson de/serializers for all GeoServer CatalogInfo types");
 
         this.addSerializer(CatalogInfo.class);
         this.addDeserializer(CatalogInfo.class);

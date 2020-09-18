@@ -12,7 +12,7 @@ import org.geoserver.catalog.plugin.CatalogInfoRepository.ResourceRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.StoreRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.StyleRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.WorkspaceRepository;
-import org.geoserver.cloud.catalog.client.feign.CatalogApiClientConfiguration;
+import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveCatalogApiClientConfiguration;
 import org.geoserver.cloud.catalog.client.repository.CatalogRepositoriesConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -20,7 +20,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 @Configuration
-@Import({CatalogApiClientConfiguration.class, CatalogRepositoriesConfiguration.class})
+@Import({ReactiveCatalogApiClientConfiguration.class, CatalogRepositoriesConfiguration.class})
 public class CatalogClientConfiguration {
 
     private @Autowired WorkspaceRepository cloudWorkspaceRepository;

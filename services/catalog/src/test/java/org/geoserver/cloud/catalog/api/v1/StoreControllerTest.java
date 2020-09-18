@@ -165,7 +165,7 @@ public class StoreControllerTest extends AbstractCatalogInfoControllerTest<Store
 
     private void findStoreByName(StoreInfo store) {
         StoreInfo responseBody =
-                client().findByName(store.getName(), store)
+                client().findByName(store.getName())
                         .expectStatus()
                         .isOk()
                         .expectBody(infoType)
@@ -185,7 +185,7 @@ public class StoreControllerTest extends AbstractCatalogInfoControllerTest<Store
     private void findStoreByWorkspaceAndName(StoreInfo store) {
         String workspaceName = store.getWorkspace().getName();
         StoreInfo responseBody =
-                client().findByName(store.getName(), workspaceName, store, infoType)
+                client().findByName(store.getName(), workspaceName, infoType)
                         .expectStatus()
                         .isOk()
                         .expectBody(infoType)
@@ -205,8 +205,6 @@ public class StoreControllerTest extends AbstractCatalogInfoControllerTest<Store
 
     private void findStoreByName_WrongWorkspace(StoreInfo store, String workspaceName) {
         assertNotEquals(store.getWorkspace().getName(), workspaceName);
-        client().findByName(store.getName(), workspaceName, null, infoType)
-                .expectStatus()
-                .isNotFound();
+        client().findByName(store.getName(), workspaceName, infoType).expectStatus().isNotFound();
     }
 }

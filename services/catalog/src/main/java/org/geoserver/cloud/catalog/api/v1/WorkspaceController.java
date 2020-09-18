@@ -4,11 +4,12 @@
  */
 package org.geoserver.cloud.catalog.api.v1;
 
+import java.util.NoSuchElementException;
 import lombok.Getter;
 import org.geoserver.catalog.WorkspaceInfo;
-import org.geoserver.catalog.impl.WorkspaceInfoImpl;
-import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
@@ -21,12 +22,18 @@ public class WorkspaceController extends AbstractCatalogInfoController<Workspace
 
     private final @Getter Class<WorkspaceInfo> infoType = WorkspaceInfo.class;
 
-    @Nullable
     @GetMapping(path = "/default")
     public Mono<WorkspaceInfo> getDefault() {
-        WorkspaceInfoImpl fake = new WorkspaceInfoImpl();
-        fake.setId("fake-ws-id");
-        fake.setName("fakse-ws");
-        return Mono.just(fake);
+        return Mono.just(catalog.getDefaultWorkspace())
+                .switchIfEmpty(notFound("No default Workspace exists"));
+    }
+
+    @PutMapping(path = "/default/{id}")
+    public Mono<WorkspaceInfo> setDefaultById(@PathVariable("id") String workspaceId) {
+        WorkspaceInfo ws = catalog.getWorkspace(workspaceId);
+        if (ws == null)
+            throw new NoSuchElementException("Workspace " + workspaceId + " does not exist");
+        catalog.setDefaultWorkspace(ws);
+        return Mono.just(ws);
     }
 }

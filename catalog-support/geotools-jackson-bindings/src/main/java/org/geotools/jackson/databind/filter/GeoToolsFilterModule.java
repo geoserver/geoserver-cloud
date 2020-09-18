@@ -7,6 +7,7 @@ package org.geotools.jackson.databind.filter;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import lombok.extern.slf4j.Slf4j;
 import org.geotools.jackson.databind.geojson.GeoToolsGeoJsonModule;
 import org.locationtech.jts.geom.Geometry;
 import org.opengis.filter.Filter;
@@ -42,11 +43,14 @@ import org.opengis.filter.expression.Expression;
  * </code>
  * </pre>
  */
+@Slf4j
 public class GeoToolsFilterModule extends SimpleModule {
     private static final long serialVersionUID = 4898575169880138758L;
 
     public GeoToolsFilterModule() {
         super(GeoToolsFilterModule.class.getSimpleName(), new Version(1, 0, 0, null, null, null));
+
+        log.debug("registering jackson de/serializers for geotools Filter and Expression");
 
         addSerializer(new ExpressionSerializer());
         addSerializer(new FilterSerializer());

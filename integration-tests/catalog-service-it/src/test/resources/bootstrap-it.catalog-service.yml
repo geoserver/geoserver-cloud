@@ -42,3 +42,5 @@ spring:
 logging:
   level:
     org.geoserver.cloud.catalog.client: DEBUG
+    org.geoserver.jackson.databind: DEBUG
+    org.geotools.jackson.databind: DEBUG

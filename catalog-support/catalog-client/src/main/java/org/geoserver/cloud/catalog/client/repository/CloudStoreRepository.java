@@ -5,51 +5,50 @@
 package org.geoserver.cloud.catalog.client.repository;
 
 import java.util.List;
-import lombok.Getter;
-import lombok.NonNull;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.StoreRepository;
-import org.geoserver.cloud.catalog.client.feign.StoreClient;
+import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveCatalogClient;
 import org.springframework.lang.Nullable;
+import lombok.Getter;
+import lombok.NonNull;
 
-public class CloudStoreRepository extends CatalogServiceClientRepository<StoreInfo, StoreClient>
+public class CloudStoreRepository extends CatalogServiceClientRepository<StoreInfo>
         implements StoreRepository {
 
     private final @Getter Class<StoreInfo> infoType = StoreInfo.class;
 
-    protected CloudStoreRepository(@NonNull StoreClient client) {
+    protected CloudStoreRepository(@NonNull ReactiveCatalogClient client) {
         super(client);
     }
 
-    public @Override void setDefaultDataStore(
-            @NonNull WorkspaceInfo workspace, @NonNull DataStoreInfo dataStore) {
+    public @Override void setDefaultDataStore(@NonNull WorkspaceInfo workspace,
+            @NonNull DataStoreInfo dataStore) {
         client().setDefaultDataStoreByWorkspaceId(workspace.getId(), dataStore.getId());
     }
 
     public @Override @Nullable DataStoreInfo getDefaultDataStore(@NonNull WorkspaceInfo workspace) {
-        return client().findDefaultDataStoreByWorkspaceId(workspace.getId());
+        return client().findDefaultDataStoreByWorkspaceId(workspace.getId()).block();
     }
 
     public @Override List<DataStoreInfo> getDefaultDataStores() {
-        return client().getDefaultDataStores();
+        return client().getDefaultDataStores().collectList().block();
     }
 
     @SuppressWarnings("unchecked")
     public @Override <T extends StoreInfo> List<T> findAllByWorkspace(
             @NonNull WorkspaceInfo workspace, @Nullable Class<T> clazz) {
-        return (List<T>) client().findAllByWorkspaceId(workspace.getId(), typeEnum(clazz));
+        return (List<T>) client().findStoresByWorkspaceId(workspace.getId(), typeEnum(clazz));
     }
 
-    @SuppressWarnings("unchecked")
-    public @Override <T extends StoreInfo> List<T> findAllByType(@Nullable Class<T> clazz) {
-        return (List<T>) client().findAllByType(typeEnum(clazz));
+    public @Override <T extends StoreInfo> List<T> findAllByType(@NonNull Class<T> clazz) {
+        return client().findAll(typeEnum(clazz)).map(clazz::cast).collectList().block();
     }
 
-    public @Override <T extends StoreInfo> T findByNameAndWorkspace(
-            @NonNull String name, @NonNull WorkspaceInfo workspace, @NonNull Class<T> clazz) {
-        return clazz.cast(
-                client().findByNameAndWorkspaceId(name, workspace.getId(), typeEnum(clazz)));
+    public @Override <T extends StoreInfo> T findByNameAndWorkspace(@NonNull String name,
+            @NonNull WorkspaceInfo workspace, @NonNull Class<T> clazz) {
+        return client().findStoreByWorkspaceIdAndName(name, workspace.getId(), typeEnum(clazz))
+                .map(clazz::cast).block();
     }
 }

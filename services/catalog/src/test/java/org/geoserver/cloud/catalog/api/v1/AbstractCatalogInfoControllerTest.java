@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import lombok.NonNull;
@@ -80,11 +81,7 @@ public abstract class AbstractCatalogInfoControllerTest<C extends CatalogInfo> {
     }
 
     public @Test void findByIdNotFound() throws IOException {
-        client().findById("non-existent-ws-id", infoType)
-                .expectStatus()
-                .isNotFound()
-                .expectBody()
-                .isEmpty();
+        client().findById("non-existent-ws-id", infoType).expectStatus().isNotFound();
     }
 
     protected void testFindById(C expected) {
@@ -96,6 +93,15 @@ public abstract class AbstractCatalogInfoControllerTest<C extends CatalogInfo> {
                         .returnResult()
                         .getResponseBody();
         assertCatalogInfoEquals(expected, responseBody);
+    }
+
+    public List<C> findAll() {
+        return client().getRelative("")
+                .expectStatus()
+                .isOk()
+                .expectBodyList(infoType)
+                .returnResult()
+                .getResponseBody();
     }
 
     public void crudTest(

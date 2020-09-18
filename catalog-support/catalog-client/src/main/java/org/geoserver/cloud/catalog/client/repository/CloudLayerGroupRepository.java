@@ -5,38 +5,33 @@
 package org.geoserver.cloud.catalog.client.repository;
 
 import java.util.List;
-import lombok.Getter;
-import lombok.NonNull;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerGroupRepository;
-import org.geoserver.cloud.catalog.client.feign.LayerGroupClient;
+import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveCatalogClient;
+import lombok.Getter;
+import lombok.NonNull;
 
-public class CloudLayerGroupRepository
-        extends CatalogServiceClientRepository<LayerGroupInfo, LayerGroupClient>
+public class CloudLayerGroupRepository extends CatalogServiceClientRepository<LayerGroupInfo>
         implements LayerGroupRepository {
 
     private final @Getter Class<LayerGroupInfo> infoType = LayerGroupInfo.class;
 
-    protected CloudLayerGroupRepository(@NonNull LayerGroupClient client) {
+    protected CloudLayerGroupRepository(@NonNull ReactiveCatalogClient client) {
         super(client);
     }
 
     public @Override List<LayerGroupInfo> findAllByWorkspaceIsNull() {
-        return client().findAllByWoskspaceIsNull();
+        return client().findLayerGroupsByNullWoskspace();
     }
 
     public @Override List<LayerGroupInfo> findAllByWorkspace(@NonNull WorkspaceInfo workspace) {
-        return client().findAllByWoskspaceId(workspace.getId());
+        return client().findLayerGroupsByWoskspaceId(workspace.getId());
     }
 
     @Override
-    public LayerGroupInfo findByNameAndWorkspaceIsNull(@NonNull String name) {
-        return client().findByNameAndWorkspaceId(name, null);
-    }
+    public LayerGroupInfo findByNameAndWorkspaceIsNull(@NonNull String name) {}
 
     @Override
-    public LayerGroupInfo findByNameAndWorkspace(String name, WorkspaceInfo workspace) {
-        return client().findByNameAndWorkspaceId(name, workspace.getId());
-    }
+    public LayerGroupInfo findByNameAndWorkspace(String name, WorkspaceInfo workspace) {}
 }

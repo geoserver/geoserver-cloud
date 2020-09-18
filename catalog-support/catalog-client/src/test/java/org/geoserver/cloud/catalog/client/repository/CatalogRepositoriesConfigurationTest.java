@@ -44,14 +44,14 @@ import org.geoserver.catalog.plugin.CatalogInfoRepository.StoreRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.StyleRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.WorkspaceRepository;
 import org.geoserver.cloud.catalog.client.feign.CatalogApiClient;
-import org.geoserver.cloud.catalog.client.feign.LayerClient;
-import org.geoserver.cloud.catalog.client.feign.LayerGroupClient;
-import org.geoserver.cloud.catalog.client.feign.MapClient;
-import org.geoserver.cloud.catalog.client.feign.NamespaceClient;
-import org.geoserver.cloud.catalog.client.feign.ResourceClient;
-import org.geoserver.cloud.catalog.client.feign.StoreClient;
-import org.geoserver.cloud.catalog.client.feign.StyleClient;
-import org.geoserver.cloud.catalog.client.feign.WorkspaceClient;
+import org.geoserver.cloud.catalog.client.reactivefeign.LayerClient;
+import org.geoserver.cloud.catalog.client.reactivefeign.LayerGroupClient;
+import org.geoserver.cloud.catalog.client.reactivefeign.MapClient;
+import org.geoserver.cloud.catalog.client.reactivefeign.NamespaceClient;
+import org.geoserver.cloud.catalog.client.reactivefeign.ResourceClient;
+import org.geoserver.cloud.catalog.client.reactivefeign.StoreClient;
+import org.geoserver.cloud.catalog.client.reactivefeign.StyleClient;
+import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveCatalogClient;
 import org.geoserver.cloud.test.CatalogTestData;
 import org.geoserver.ows.util.OwsUtils;
 import org.geotools.filter.text.cql2.CQLException;
@@ -71,7 +71,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @ActiveProfiles("test")
 public class CatalogRepositoriesConfigurationTest {
 
-    private @MockBean WorkspaceClient workspaceClient;
+    private @MockBean ReactiveCatalogClient workspaceClient;
     private @MockBean NamespaceClient namespaceClient;
     private @MockBean StoreClient storeClient;
     private @MockBean ResourceClient resourceClient;
@@ -99,12 +99,12 @@ public class CatalogRepositoriesConfigurationTest {
 
     public @Test void workspaceRepository_DefaultWorkspace() {
 
-        when(workspaceClient.getDefault()).thenReturn(testData.workspaceB);
+        when(workspaceClient.getDefaultWorkspace()).thenReturn(testData.workspaceB);
         assertSame(testData.workspaceB, workspaceRepository.getDefaultWorkspace());
-        verify(workspaceClient, times(1)).getDefault();
+        verify(workspaceClient, times(1)).getDefaultWorkspace();
 
         workspaceRepository.setDefaultWorkspace(testData.workspaceA);
-        verify(workspaceClient, times(1)).setDefault(same(testData.workspaceA));
+        verify(workspaceClient, times(1)).setDefaultWorkspace(eq(testData.workspaceA.getId()));
 
         verifyNoMoreInteractions(workspaceClient);
         assertThrows(
@@ -117,12 +117,12 @@ public class CatalogRepositoriesConfigurationTest {
     }
 
     public @Test void namespaceRepository_DefaultNamespace() {
-        when(namespaceClient.getDefault()).thenReturn(testData.namespaceB);
+        when(namespaceClient.getDefaultNamespace()).thenReturn(testData.namespaceB);
         assertSame(testData.namespaceB, namespaceRepository.getDefaultNamespace());
-        verify(namespaceClient, times(1)).getDefault();
+        verify(namespaceClient, times(1)).getDefaultNamespace();
 
         namespaceRepository.setDefaultNamespace(testData.namespaceA);
-        verify(namespaceClient, times(1)).setDefault(same(testData.namespaceA));
+        verify(namespaceClient, times(1)).setDefaultNamespace(same(testData.namespaceA));
 
         verifyNoMoreInteractions(namespaceClient);
         assertThrows(

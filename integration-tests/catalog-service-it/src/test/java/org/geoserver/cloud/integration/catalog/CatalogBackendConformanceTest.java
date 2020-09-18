@@ -6,7 +6,6 @@ package org.geoserver.cloud.integration.catalog;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -26,7 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -44,8 +42,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 )
 @RunWith(SpringRunner.class)
 @ActiveProfiles("it.catalog-service")
-@EnableFeignClients
-public class CatalogBackendIntegrationTest extends CatalogConformanceTest {
+public class CatalogBackendConformanceTest extends CatalogConformanceTest {
 
     /**
      * WebFlux catalog-service catalog with backend as configured by

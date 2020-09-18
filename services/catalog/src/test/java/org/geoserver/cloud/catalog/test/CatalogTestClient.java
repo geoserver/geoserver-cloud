@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.test.web.reactive.server.WebTestClient.RequestBodySpec;
 import org.springframework.test.web.reactive.server.WebTestClient.ResponseSpec;
 
 @RequiredArgsConstructor
@@ -28,7 +29,7 @@ public class CatalogTestClient<C extends CatalogInfo> {
     }
 
     public ResponseSpec update(C info) {
-        return doPut(info, baseUri);
+        return putAbsoluteURI(info, baseUri);
     }
 
     public ResponseSpec delete(C info) {
@@ -55,18 +56,26 @@ public class CatalogTestClient<C extends CatalogInfo> {
             subType = ClassMappings.fromInterface(requestedType);
         }
 
-        return doGet(requestedType, uri, id, subType);
+        return getWithAbsolutePath(uri, id, subType);
     }
 
-    public ResponseSpec findByName(String name, @Nullable C expected) {
-        return findByName(name, expected, infoType);
+    public C getByName(String name) {
+        return findByName(name, infoType)
+                .expectStatus()
+                .isOk()
+                .expectBody(infoType)
+                .returnResult()
+                .getResponseBody();
+    }
+
+    public ResponseSpec findByName(String name) {
+        return findByName(name, infoType);
     }
 
     public ResponseSpec findByName( //
             String name, //
-            @Nullable C expected, //
             @NonNull Class<? extends C> requestedType) {
-        return findByName(name, null, expected, requestedType);
+        return findByName(name, null, requestedType);
     }
 
     /**
@@ -76,7 +85,6 @@ public class CatalogTestClient<C extends CatalogInfo> {
     public ResponseSpec findByName( //
             String localName, //
             @Nullable String namespaceContext, //
-            @Nullable C expected, //
             @NonNull Class<? extends C> requestedType) {
 
         String uri = baseUri + "/name/{name}?namespace={namespace}&subtype={subtype}";
@@ -85,13 +93,17 @@ public class CatalogTestClient<C extends CatalogInfo> {
             subType = ClassMappings.fromInterface(requestedType);
         }
 
-        return doGet(requestedType, uri, localName, namespaceContext, subType);
+        return getWithAbsolutePath(uri, localName, namespaceContext, subType);
     }
 
-    public <T extends CatalogInfo> ResponseSpec doGet(
-            Class<T> expectedType, String uri, Object... uriVariables) {
+    public <T extends CatalogInfo> ResponseSpec getRelative(String uri, Object... uriVariables) {
+        uri = baseUri + uri;
+        return client.get().uri(uri, uriVariables).exchange();
+    }
 
-        return client.get().uri(uri, uriVariables).accept(APPLICATION_JSON).exchange();
+    public <T extends CatalogInfo> ResponseSpec getWithAbsolutePath(
+            String uri, Object... uriVariables) {
+        return client.get().uri(uri, uriVariables).exchange();
     }
 
     public ResponseSpec doPost(
@@ -106,16 +118,25 @@ public class CatalogTestClient<C extends CatalogInfo> {
                 .exchange();
     }
 
-    public ResponseSpec doPut(
-            @NonNull Object requestBody, //
+    public ResponseSpec put(@NonNull String uri, Object... uriVariables) {
+        return putAbsoluteURI(null, baseUri + uri, uriVariables);
+    }
+
+    public ResponseSpec putWithBody(
+            @NonNull Object requestBody, @NonNull String uri, Object... uriVariables) {
+        return putAbsoluteURI(requestBody, baseUri + uri, uriVariables);
+    }
+
+    public ResponseSpec putAbsoluteURI(
+            @Nullable Object requestBody, //
             @NonNull String uri,
             Object... uriVariables) {
 
-        return client.put()
-                .uri(uri, uriVariables)
-                .contentType(APPLICATION_JSON)
-                .bodyValue(requestBody)
-                .exchange();
+        RequestBodySpec bodySpec =
+                client.put().uri(uri, uriVariables).contentType(APPLICATION_JSON);
+        if (requestBody != null) return bodySpec.bodyValue(requestBody).exchange();
+
+        return bodySpec.exchange();
     }
 
     public ResponseSpec doDelete(

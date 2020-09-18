@@ -5,36 +5,37 @@
 package org.geoserver.cloud.catalog.client.repository;
 
 import java.util.List;
-import lombok.Getter;
-import lombok.NonNull;
+import java.util.Objects;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.NamespaceRepository;
-import org.geoserver.cloud.catalog.client.feign.NamespaceClient;
+import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveCatalogClient;
 import org.springframework.lang.Nullable;
+import lombok.Getter;
+import lombok.NonNull;
 
-public class CloudNamespaceRepository
-        extends CatalogServiceClientRepository<NamespaceInfo, NamespaceClient>
+public class CloudNamespaceRepository extends CatalogServiceClientRepository<NamespaceInfo>
         implements NamespaceRepository {
 
     private final @Getter Class<NamespaceInfo> infoType = NamespaceInfo.class;
 
-    protected CloudNamespaceRepository(@NonNull NamespaceClient client) {
+    protected CloudNamespaceRepository(@NonNull ReactiveCatalogClient client) {
         super(client);
     }
 
     public @Override void setDefaultNamespace(@NonNull NamespaceInfo namespace) {
-        client().setDefault(namespace);
+        Objects.requireNonNull(namespace.getId(), "provided null namespace id");
+        client().setDefaultNamespace(namespace.getId());
     }
 
     public @Override @Nullable NamespaceInfo getDefaultNamespace() {
-        return client().getDefault();
+        return client().getDefaultNamespace().block();
     }
 
     public @Override @Nullable NamespaceInfo findOneByURI(@NonNull String uri) {
-        return client().findFirstByURI(uri);
+        return client().findOneNamespaceByURI(uri).block();
     }
 
     public @Override List<NamespaceInfo> findAllByURI(@NonNull String uri) {
-        return client().findAllByURI(uri);
+        return client().findAllNamespacesByURI(uri).collectList().block();
     }
 }

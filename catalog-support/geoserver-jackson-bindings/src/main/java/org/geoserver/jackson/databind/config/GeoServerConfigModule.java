@@ -52,7 +52,7 @@ public class GeoServerConfigModule extends SimpleModule {
     public GeoServerConfigModule() {
         super(GeoServerConfigModule.class.getSimpleName(), new Version(1, 0, 0, null, null, null));
 
-        log.trace("registering de/serializers for all config Info types");
+        log.debug("registering jackson de/serializers for all GeoServer config Info types");
 
         addSerializer(GeoServerInfo.class);
         addSerializer(SettingsInfo.class);
