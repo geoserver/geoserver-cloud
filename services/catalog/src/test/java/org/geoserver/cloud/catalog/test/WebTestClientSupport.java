@@ -27,7 +27,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 /**
  * Configures the {@link WebTestClient} to be able of encoding and decoding {@link CatalogInfo}
- * obejcts using {@link CatalogInfoXmlEncoder} and {@link CatalogInfoXmlDecoder}
+ * obejcts
  */
 public class WebTestClientSupport implements Supplier<WebTestClient> {
 

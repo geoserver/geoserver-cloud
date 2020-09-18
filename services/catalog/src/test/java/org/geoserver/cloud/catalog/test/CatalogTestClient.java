@@ -4,7 +4,7 @@
  */
 package org.geoserver.cloud.catalog.test;
 
-import static org.springframework.http.MediaType.APPLICATION_XML;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 import javax.annotation.Nullable;
 import lombok.NonNull;
@@ -91,7 +91,7 @@ public class CatalogTestClient<C extends CatalogInfo> {
     public <T extends CatalogInfo> ResponseSpec doGet(
             Class<T> expectedType, String uri, Object... uriVariables) {
 
-        return client.get().uri(uri, uriVariables).accept(APPLICATION_XML).exchange();
+        return client.get().uri(uri, uriVariables).accept(APPLICATION_JSON).exchange();
     }
 
     public ResponseSpec doPost(
@@ -100,8 +100,8 @@ public class CatalogTestClient<C extends CatalogInfo> {
             Object... uriVariables) {
 
         return client.post()
-                .uri(uri, uriVariables) // .accept(APPLICATION_XML)
-                .contentType(APPLICATION_XML)
+                .uri(uri, uriVariables)
+                .contentType(APPLICATION_JSON)
                 .bodyValue(requestBody)
                 .exchange();
     }
@@ -112,8 +112,8 @@ public class CatalogTestClient<C extends CatalogInfo> {
             Object... uriVariables) {
 
         return client.put()
-                .uri(uri, uriVariables) // .accept(APPLICATION_XML)
-                .contentType(APPLICATION_XML)
+                .uri(uri, uriVariables)
+                .contentType(APPLICATION_JSON)
                 .bodyValue(requestBody)
                 .exchange();
     }
@@ -123,6 +123,6 @@ public class CatalogTestClient<C extends CatalogInfo> {
             @NonNull String uri,
             Object... uriVariables) {
 
-        return client.delete().uri(uri, uriVariables).accept(APPLICATION_XML).exchange();
+        return client.delete().uri(uri, uriVariables).accept(APPLICATION_JSON).exchange();
     }
 }
