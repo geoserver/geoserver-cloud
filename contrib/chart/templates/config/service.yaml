@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "geoserver.fullname" . }}-config
+  labels:
+    {{- include "geoserver.labels" . | nindent 4 }}
+    gs-service: config
+spec:
+  type: {{ .Values.config.service.type }}
+  ports:
+    - port: {{ .Values.config.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "geoserver.selectorLabels" . | nindent 4 }}
+    gs-service: config

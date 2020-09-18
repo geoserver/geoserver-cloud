@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "geoserver.fullname" . }}-wfs
+  labels:
+    {{- include "geoserver.labels" . | nindent 4 }}
+    gs-service: wfs
+spec:
+  replicas: {{ .Values.wfs.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "geoserver.selectorLabels" . | nindent 6 }}
+      gs-service: wfs
+  template:
+    metadata:
+    {{- with .Values.wfs.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      labels:
+        {{- include "geoserver.selectorLabels" . | nindent 8 }}
+        gs-service: wfs
+    spec:
+      serviceAccountName: {{ include "geoserver.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.wfs.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}-wfs
+          securityContext:
+            {{- toYaml .Values.wfs.securityContext | nindent 12 }}
+          image: "{{ .Values.wfs.image.repository }}:{{ .Values.wfs.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.wfs.image.pullPolicy }}
+          command:
+          {{- range $cmd := .Values.wfs.command }}
+            - {{ $cmd }}
+          {{- end }}
+          env:
+            - name: JDBCCONFIG_URL
+              value: {{ .Values.jdbcconfig.url }}
+            - name: JDBCCONFIG_USERNAME
+              value: {{ .Values.jdbcconfig.username }}
+            - name: JDBCCONFIG_PASSWORD
+              value: {{ .Values.jdbcconfig.password }}
+{{ toYaml .Values.wfs.env | indent 12 }}
+
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 5
+
+          resources:
+            {{- toYaml .Values.wfs.resources | nindent 12 }}
+      {{- with .Values.wfs.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.wfs.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.wfs.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

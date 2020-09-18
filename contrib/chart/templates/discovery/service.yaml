@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "geoserver.fullname" . }}-discovery
+  labels:
+    {{- include "geoserver.labels" . | nindent 4 }}
+    gs-service: discovery
+spec:
+  type: {{ .Values.discovery.service.type }}
+  ports:
+    - port: {{ .Values.discovery.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "geoserver.selectorLabels" . | nindent 4 }}
+    gs-service: discovery

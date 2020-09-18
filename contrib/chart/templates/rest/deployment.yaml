@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "geoserver.fullname" . }}-rest
+  labels:
+    {{- include "geoserver.labels" . | nindent 4 }}
+    gs-service: rest
+spec:
+  replicas: {{ .Values.rest.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "geoserver.selectorLabels" . | nindent 6 }}
+      gs-service: rest
+  template:
+    metadata:
+    {{- with .Values.rest.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      labels:
+        {{- include "geoserver.selectorLabels" . | nindent 8 }}
+        gs-service: rest
+    spec:
+      serviceAccountName: {{ include "geoserver.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.rest.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}-rest
+          securityContext:
+            {{- toYaml .Values.rest.securityContext | nindent 12 }}
+          image: "{{ .Values.rest.image.repository }}:{{ .Values.rest.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.rest.image.pullPolicy }}
+          command:
+          {{- range $cmd := .Values.config.command }}
+            - {{ $cmd }}
+          {{- end }}
+          env:
+            - name: JDBCCONFIG_URL
+              value: {{ .Values.jdbcconfig.url }}
+            - name: JDBCCONFIG_USERNAME
+              value: {{ .Values.jdbcconfig.username }}
+            - name: JDBCCONFIG_PASSWORD
+              value: {{ .Values.jdbcconfig.password }}
+{{ toYaml .Values.rest.env | indent 12 }}
+
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 5
+
+          resources:
+            {{- toYaml .Values.rest.resources | nindent 12 }}
+      {{- with .Values.rest.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.rest.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.rest.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

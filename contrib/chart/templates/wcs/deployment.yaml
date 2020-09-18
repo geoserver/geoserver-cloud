@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "geoserver.fullname" . }}-wcs
+  labels:
+    {{- include "geoserver.labels" . | nindent 4 }}
+    gs-service: wcs
+spec:
+  replicas: {{ .Values.wcs.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "geoserver.selectorLabels" . | nindent 6 }}
+      gs-service: wcs
+  template:
+    metadata:
+    {{- with .Values.wcs.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      labels:
+        {{- include "geoserver.selectorLabels" . | nindent 8 }}
+        gs-service: wcs
+    spec:
+      serviceAccountName: {{ include "geoserver.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.wcs.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}-wcs
+          securityContext:
+            {{- toYaml .Values.wcs.securityContext | nindent 12 }}
+          image: "{{ .Values.wcs.image.repository }}:{{ .Values.wcs.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.wcs.image.pullPolicy }}
+          command:
+          {{- range $cmd := .Values.wcs.command }}
+            - {{ $cmd }}
+          {{- end }}
+          env:
+            - name: JDBCCONFIG_URL
+              value: {{ .Values.jdbcconfig.url }}
+            - name: JDBCCONFIG_USERNAME
+              value: {{ .Values.jdbcconfig.username }}
+            - name: JDBCCONFIG_PASSWORD
+              value: {{ .Values.jdbcconfig.password }}
+{{ toYaml .Values.wcs.env | indent 12 }}
+
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 5
+
+          resources:
+            {{- toYaml .Values.wcs.resources | nindent 12 }}
+      {{- with .Values.wcs.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.wcs.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.wcs.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
