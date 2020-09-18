@@ -4,7 +4,7 @@
  */
 package org.geoserver.catalog.plugin.forwarding;
 
-import java.util.List;
+import java.util.stream.Stream;
 import lombok.NonNull;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.ResourceInfo;
@@ -19,11 +19,11 @@ public class ForwardingResourceRepository
         super(subject);
     }
 
-    public @Override <T extends ResourceInfo> List<T> findAllByType(Class<T> clazz) {
+    public @Override <T extends ResourceInfo> Stream<T> findAllByType(Class<T> clazz) {
         return subject.findAllByType(clazz);
     }
 
-    public @Override <T extends ResourceInfo> List<T> findAllByNamespace(
+    public @Override <T extends ResourceInfo> Stream<T> findAllByNamespace(
             NamespaceInfo ns, Class<T> clazz) {
         return subject.findAllByNamespace(ns, clazz);
     }
@@ -33,7 +33,7 @@ public class ForwardingResourceRepository
         return subject.findByStoreAndName(store, name, clazz);
     }
 
-    public @Override <T extends ResourceInfo> List<T> findAllByStore(
+    public @Override <T extends ResourceInfo> Stream<T> findAllByStore(
             StoreInfo store, Class<T> clazz) {
         return subject.findAllByStore(store, clazz);
     }

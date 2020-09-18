@@ -4,7 +4,7 @@
  */
 package org.geoserver.catalog.plugin.forwarding;
 
-import java.util.List;
+import java.util.stream.Stream;
 import lombok.NonNull;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
@@ -41,15 +41,15 @@ public abstract class ForwardingCatalogRepository<
         subject.dispose();
     }
 
-    public @Override List<I> findAll() {
+    public @Override Stream<I> findAll() {
         return subject.findAll();
     }
 
-    public @Override List<I> findAll(Filter filter) {
+    public @Override Stream<I> findAll(Filter filter) {
         return subject.findAll(filter);
     }
 
-    public @Override <U extends I> List<U> findAll(Filter filter, Class<U> infoType) {
+    public @Override <U extends I> Stream<U> findAll(Filter filter, Class<U> infoType) {
         return subject.findAll(filter, infoType);
     }
 

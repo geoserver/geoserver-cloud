@@ -4,20 +4,22 @@
  */
 package org.geoserver.catalog.plugin;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
+import java.io.Closeable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.rmi.server.UID;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogFacade;
@@ -188,17 +190,19 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     public @Override <T extends StoreInfo> List<T> getStoresByWorkspace(
             WorkspaceInfo workspace, Class<T> clazz) {
         // TODO: support ANY_WORKSPACE?
-        WorkspaceInfo ws = workspace;
+        final WorkspaceInfo ws;
         if (workspace == null) {
             ws = getDefaultWorkspace();
+        } else {
+            ws = workspace;
         }
 
-        List<T> matches = stores.findAllByWorkspace(ws, clazz);
+        List<T> matches = toList(() -> stores.findAllByWorkspace(ws, clazz));
         return wrapInModificationProxy(matches, clazz);
     }
 
     public @Override <T extends StoreInfo> List<T> getStores(Class<T> clazz) {
-        return wrapInModificationProxy(stores.findAllByType(clazz), clazz);
+        return wrapInModificationProxy(toList(() -> stores.findAllByType(clazz)), clazz);
     }
 
     public @Override DataStoreInfo getDefaultDataStore(WorkspaceInfo workspace) {
@@ -262,14 +266,14 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     }
 
     public @Override <T extends ResourceInfo> List<T> getResources(Class<T> clazz) {
-        return wrapInModificationProxy(resources.findAllByType(clazz), clazz);
+        return wrapInModificationProxy(toList(() -> resources.findAllByType(clazz)), clazz);
     }
 
     public @Override <T extends ResourceInfo> List<T> getResourcesByNamespace(
             NamespaceInfo namespace, Class<T> clazz) {
         // TODO: support ANY_NAMESPACE?
         NamespaceInfo ns = namespace == null ? getDefaultNamespace() : namespace;
-        List<T> matches = resources.findAllByNamespace(ns, clazz);
+        List<T> matches = toList(() -> resources.findAllByNamespace(ns, clazz));
         return wrapInModificationProxy(matches, clazz);
     }
 
@@ -296,7 +300,7 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
 
     public @Override <T extends ResourceInfo> List<T> getResourcesByStore(
             StoreInfo store, Class<T> clazz) {
-        List<T> matches = resources.findAllByStore(store, clazz);
+        List<T> matches = toList(() -> resources.findAllByStore(store, clazz));
         return wrapInModificationProxy(matches, clazz);
     }
 
@@ -333,17 +337,17 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     }
 
     public @Override List<LayerInfo> getLayers(ResourceInfo resource) {
-        List<LayerInfo> matches = layers.findAllByResource(resource);
+        List<LayerInfo> matches = toList(() -> layers.findAllByResource(resource));
         return wrapInModificationProxy(matches, LayerInfo.class);
     }
 
     public @Override List<LayerInfo> getLayers(StyleInfo style) {
-        List<LayerInfo> matches = layers.findAllByDefaultStyleOrStyles(style);
+        List<LayerInfo> matches = toList(() -> layers.findAllByDefaultStyleOrStyles(style));
         return wrapInModificationProxy(matches, LayerInfo.class);
     }
 
     public @Override List<LayerInfo> getLayers() {
-        return wrapInModificationProxy(layers.findAll(), LayerInfo.class);
+        return wrapInModificationProxy(toList(layers::findAll), LayerInfo.class);
     }
 
     //
@@ -376,7 +380,7 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     }
 
     public @Override List<MapInfo> getMaps() {
-        return wrapInModificationProxy(maps.findAll(), MapInfo.class);
+        return wrapInModificationProxy(toList(maps::findAll), MapInfo.class);
     }
 
     //
@@ -401,7 +405,7 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     }
 
     public @Override List<LayerGroupInfo> getLayerGroups() {
-        return wrapInModificationProxy(layerGroups.findAll(), LayerGroupInfo.class);
+        return wrapInModificationProxy(toList(layerGroups::findAll), LayerGroupInfo.class);
     }
 
     public @Override List<LayerGroupInfo> getLayerGroupsByWorkspace(WorkspaceInfo workspace) {
@@ -413,13 +417,13 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
         } else {
             ws = workspace;
         }
-        List<LayerGroupInfo> matches;
+        Stream<LayerGroupInfo> matches;
         if (workspace == NO_WORKSPACE) {
             matches = layerGroups.findAllByWorkspaceIsNull();
         } else {
             matches = layerGroups.findAllByWorkspace(ws);
         }
-        return wrapInModificationProxy(matches, LayerGroupInfo.class);
+        return wrapInModificationProxy(toList(() -> matches), LayerGroupInfo.class);
     }
 
     public @Override LayerGroupInfo getLayerGroup(String id) {
@@ -506,11 +510,12 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     }
 
     public @Override List<NamespaceInfo> getNamespacesByURI(String uri) {
-        return wrapInModificationProxy(namespaces.findAllByURI(uri), NamespaceInfo.class);
+        return wrapInModificationProxy(
+                toList(() -> namespaces.findAllByURI(uri)), NamespaceInfo.class);
     }
 
     public @Override List<NamespaceInfo> getNamespaces() {
-        return wrapInModificationProxy(namespaces.findAll(), NamespaceInfo.class);
+        return wrapInModificationProxy(toList(namespaces::findAll), NamespaceInfo.class);
     }
 
     //
@@ -556,7 +561,7 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     }
 
     public @Override List<WorkspaceInfo> getWorkspaces() {
-        return wrapInModificationProxy(workspaces.findAll(), WorkspaceInfo.class);
+        return wrapInModificationProxy(toList(workspaces::findAll), WorkspaceInfo.class);
     }
 
     public @Override WorkspaceInfo getWorkspace(String id) {
@@ -615,12 +620,12 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     }
 
     public @Override List<StyleInfo> getStyles() {
-        return wrapInModificationProxy(styles.findAll(), StyleInfo.class);
+        return wrapInModificationProxy(toList(styles::findAll), StyleInfo.class);
     }
 
     public @Override List<StyleInfo> getStylesByWorkspace(WorkspaceInfo workspace) {
         // TODO: support ANY_WORKSPACE?
-        List<StyleInfo> matches;
+        Stream<StyleInfo> matches;
         if (workspace == NO_WORKSPACE) {
             matches = styles.findAllByNullWorkspace();
         } else {
@@ -633,8 +638,13 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
 
             matches = styles.findAllByWorkspace(ws);
         }
+        return wrapInModificationProxy(toList(() -> matches), StyleInfo.class);
+    }
 
-        return wrapInModificationProxy(matches, StyleInfo.class);
+    protected <T extends CatalogInfo> List<T> toList(Supplier<Stream<T>> supplier) {
+        try (Stream<T> stream = supplier.get()) {
+            return stream.collect(Collectors.toList());
+        }
     }
 
     public @Override void dispose() {
@@ -652,67 +662,49 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
         if (repository != null) repository.dispose();
     }
 
-    public @Override void syncTo(CatalogFacade dao) {
-        dao = ProxyUtils.unwrap(dao, LockingCatalogFacade.class);
+    public @Override void syncTo(CatalogFacade to) {
+        final CatalogFacade dao = ProxyUtils.unwrap(to, LockingCatalogFacade.class);
         if (dao instanceof AbstractCatalogFacade) {
             // do an optimized sync
             AbstractCatalogFacade other = (AbstractCatalogFacade) dao;
             this.workspaces.syncTo(other.workspaces);
-            other.workspaces.setDefaultWorkspace(this.workspaces.getDefaultWorkspace());
-
             this.namespaces.syncTo(other.namespaces);
-            other.namespaces.setDefaultNamespace(this.namespaces.getDefaultNamespace());
-
             this.stores.syncTo(other.stores);
-            List<DataStoreInfo> defaultDataStores = this.stores.getDefaultDataStores();
-            for (DataStoreInfo defaultDataStore : defaultDataStores) {
-                other.stores.setDefaultDataStore(defaultDataStore.getWorkspace(), defaultDataStore);
-            }
             this.resources.syncTo(other.resources);
             this.layers.syncTo(other.layers);
-
             this.layerGroups.syncTo(other.layerGroups);
             this.styles.syncTo(other.styles);
             this.maps.syncTo(other.maps);
             other.setCatalog(catalog);
         } else {
             // do a manual import
-            for (WorkspaceInfo ws : workspaces.findAll()) {
-                dao.add(ws);
-            }
-            for (NamespaceInfo ns : namespaces.findAll()) {
-                dao.add(ns);
-            }
-            for (StoreInfo store : stores.findAll()) {
-                dao.add(store);
-            }
-            for (ResourceInfo resource : resources.findAll()) {
-                dao.add(resource);
-            }
-            for (StyleInfo s : styles.findAll()) {
-                dao.add(s);
-            }
-            for (LayerInfo l : layers.findAll()) {
-                dao.add(l);
-            }
-            for (LayerGroupInfo lg : layerGroups.findAll()) {
-                dao.add(lg);
-            }
-            for (MapInfo m : maps.findAll()) {
-                dao.add(m);
-            }
+            sync(workspaces::findAll, dao::add);
+            sync(stores::findAll, dao::add);
+            sync(resources::findAll, dao::add);
+            sync(styles::findAll, dao::add);
+            sync(layers::findAll, dao::add);
+            sync(layerGroups::findAll, dao::add);
+            sync(maps::findAll, dao::add);
+        }
 
-            dao.setDefaultWorkspace(getDefaultWorkspace());
-            dao.setDefaultNamespace(getDefaultNamespace());
-            List<DataStoreInfo> defaultDataStores = stores.getDefaultDataStores();
-            for (DataStoreInfo dds : defaultDataStores) {
-                dao.setDefaultDataStore(dds.getWorkspace(), dds);
-            }
+        dao.setDefaultWorkspace(getDefaultWorkspace());
+        dao.setDefaultNamespace(getDefaultNamespace());
+        try (Stream<DataStoreInfo> defaultDataStores = stores.getDefaultDataStores()) {
+            defaultDataStores.forEach(d -> dao.setDefaultDataStore(d.getWorkspace(), d));
+        }
+    }
+
+    private <T extends CatalogInfo> void sync(Supplier<Stream<T>> from, Consumer<T> to) {
+        try (Stream<T> all = from.get()) {
+            all.forEach(to::accept);
         }
     }
 
     public @Override <T extends CatalogInfo> int count(final Class<T> of, final Filter filter) {
-        return Iterables.size(iterable(of, filter, null));
+        try (Stream<T> matches = iterable(of, filter, (SortBy[]) null)) {
+            long count = matches.count();
+            return count > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) count;
+        }
     }
 
     /**
@@ -765,46 +757,45 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
             }
         }
 
-        Iterable<T> iterable = iterable(of, filter, sortOrder);
+        Stream<T> stream = iterable(of, filter, sortOrder);
 
         if (offset != null && offset.intValue() > 0) {
-            iterable = Iterables.skip(iterable, offset.intValue());
+            stream = stream.skip(offset.longValue());
         }
 
         if (count != null && count.intValue() >= 0) {
-            iterable = Iterables.limit(iterable, count.intValue());
+            stream = stream.limit(count.longValue());
         }
 
-        Iterator<T> iterator = iterable.iterator();
-
-        return new CloseableIteratorAdapter<T>(iterator);
+        final Closeable closeable = stream::close;
+        return new CloseableIteratorAdapter<T>(stream.iterator(), closeable);
     }
 
     @SuppressWarnings("unchecked")
-    protected <T extends CatalogInfo> Iterable<T> iterable(
+    protected <T extends CatalogInfo> Stream<T> iterable(
             final Class<T> of, final Filter filter, final SortBy[] sortByList) {
-        List<T> all;
+        Stream<T> all;
 
         if (NamespaceInfo.class.isAssignableFrom(of)) {
-            all = (List<T>) namespaces.findAll(filter);
+            all = namespaces.findAll(filter).map(of::cast);
         } else if (WorkspaceInfo.class.isAssignableFrom(of)) {
-            all = (List<T>) workspaces.findAll(filter);
+            all = workspaces.findAll(filter).map(of::cast);
         } else if (StoreInfo.class.isAssignableFrom(of)) {
-            all = (List<T>) stores.findAll(filter, (Class<StoreInfo>) of);
+            all = stores.findAll(filter, (Class<StoreInfo>) of).map(of::cast);
         } else if (ResourceInfo.class.isAssignableFrom(of)) {
-            all = (List<T>) resources.findAll(filter, (Class<ResourceInfo>) of);
+            all = resources.findAll(filter, (Class<ResourceInfo>) of).map(of::cast);
         } else if (LayerInfo.class.isAssignableFrom(of)) {
-            all = (List<T>) layers.findAll(filter);
+            all = layers.findAll(filter).map(of::cast);
         } else if (LayerGroupInfo.class.isAssignableFrom(of)) {
-            all = (List<T>) layerGroups.findAll(filter);
+            all = layerGroups.findAll(filter).map(of::cast);
         } else if (PublishedInfo.class.isAssignableFrom(of)) {
-            all = new ArrayList<>();
-            all.addAll((List<T>) layers.findAll(filter));
-            all.addAll((List<T>) layerGroups.findAll(filter));
+            Stream<T> ls = layers.findAll(filter).map(of::cast);
+            Stream<T> lgs = layerGroups.findAll(filter).map(of::cast);
+            all = Stream.concat(ls, lgs);
         } else if (StyleInfo.class.isAssignableFrom(of)) {
-            all = (List<T>) styles.findAll(filter);
+            all = styles.findAll(filter).map(of::cast);
         } else if (MapInfo.class.isAssignableFrom(of)) {
-            all = (List<T>) maps.findAll(filter);
+            all = maps.findAll(filter).map(of::cast);
         } else {
             throw new IllegalArgumentException("Unknown type: " + of);
         }
@@ -816,11 +807,11 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
                 if (SortOrder.DESCENDING.equals(sortBy.getSortOrder())) {
                     ordering = ordering.reverse();
                 }
-                all = ordering.sortedCopy(all);
+                all = all.sorted(ordering);
             }
         }
 
-        return wrapInModificationProxy(all, of);
+        return all;
     }
 
     private Comparator<Object> comparator(final SortBy sortOrder) {

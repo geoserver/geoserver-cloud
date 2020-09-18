@@ -4,7 +4,7 @@
  */
 package org.geoserver.catalog.plugin.forwarding;
 
-import java.util.List;
+import java.util.stream.Stream;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
@@ -25,16 +25,16 @@ public class ForwardingStoreRepository
         return subject.getDefaultDataStore(workspace);
     }
 
-    public @Override List<DataStoreInfo> getDefaultDataStores() {
+    public @Override Stream<DataStoreInfo> getDefaultDataStores() {
         return subject.getDefaultDataStores();
     }
 
-    public @Override <T extends StoreInfo> List<T> findAllByWorkspace(
+    public @Override <T extends StoreInfo> Stream<T> findAllByWorkspace(
             WorkspaceInfo workspace, Class<T> clazz) {
         return subject.findAllByWorkspace(workspace, clazz);
     }
 
-    public @Override <T extends StoreInfo> List<T> findAllByType(Class<T> clazz) {
+    public @Override <T extends StoreInfo> Stream<T> findAllByType(Class<T> clazz) {
         return subject.findAllByType(clazz);
     }
 

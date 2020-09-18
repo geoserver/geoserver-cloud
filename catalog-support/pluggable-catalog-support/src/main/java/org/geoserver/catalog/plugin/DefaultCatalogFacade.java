@@ -4,18 +4,11 @@
  */
 package org.geoserver.catalog.plugin;
 
+import java.util.function.Supplier;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.CatalogRepository;
-import org.geoserver.catalog.LayerGroupInfo;
-import org.geoserver.catalog.LayerInfo;
-import org.geoserver.catalog.MapInfo;
-import org.geoserver.catalog.NamespaceInfo;
-import org.geoserver.catalog.ResourceInfo;
-import org.geoserver.catalog.StyleInfo;
-import org.geoserver.catalog.WorkspaceInfo;
-import org.geoserver.catalog.impl.StoreInfoImpl;
 import org.geoserver.catalog.plugin.CatalogInfoLookup.LayerGroupInfoLookup;
 import org.geoserver.catalog.plugin.CatalogInfoLookup.LayerInfoLookup;
 import org.geoserver.catalog.plugin.CatalogInfoLookup.MapInfoLookup;
@@ -51,69 +44,27 @@ public class DefaultCatalogFacade extends AbstractCatalogFacade implements Catal
         // JD creation checks are done here b/c when xstream depersists
         // some members may be left null
 
-        // workspaces
-        if (workspaces == null) {
-            workspaces = new WorkspaceInfoLookup();
-        }
-        for (WorkspaceInfo ws : workspaces.findAll()) {
-            resolve(ws);
-        }
+        workspaces = resolve(workspaces, WorkspaceInfoLookup::new);
+        namespaces = resolve(namespaces, NamespaceInfoLookup::new);
+        stores = resolve(stores, StoreInfoLookup::new);
+        styles = resolve(styles, StyleInfoLookup::new);
+        layers = resolve(layers, LayerInfoLookup::new);
+        resources = resolve(resources, () -> new ResourceInfoLookup((LayerInfoLookup) layers));
+        layerGroups = resolve(layerGroups, LayerGroupInfoLookup::new);
+        maps = resolve(maps, MapInfoLookup::new);
 
-        // namespaces
-        if (namespaces == null) {
-            namespaces = new NamespaceInfoLookup();
-        }
-        for (NamespaceInfo ns : namespaces.findAll()) {
-            resolve(ns);
-        }
+        workspaces.findAll().forEach(this::resolve);
+        namespaces.findAll().forEach(this::resolve);
+        stores.findAll().forEach(this::resolve);
+        styles.findAll().forEach(this::resolve);
+        resources.findAll().forEach(this::resolve);
+        layers.findAll().forEach(this::resolve);
+        layerGroups.findAll().forEach(this::resolve);
+        maps.findAll().forEach(this::resolve);
+    }
 
-        // stores
-        if (stores == null) {
-            stores = new StoreInfoLookup();
-        }
-        for (Object o : stores.findAll()) {
-            resolve((StoreInfoImpl) o);
-        }
-
-        // styles
-        if (styles == null) {
-            styles = new StyleInfoLookup();
-        }
-        for (StyleInfo s : styles.findAll()) {
-            resolve(s);
-        }
-
-        // layers
-        if (layers == null) {
-            layers = new LayerInfoLookup();
-        }
-
-        // resources
-        if (resources == null) {
-            resources = new ResourceInfoLookup((LayerInfoLookup) layers);
-        }
-
-        for (Object o : resources.findAll()) {
-            resolve((ResourceInfo) o);
-        }
-        for (LayerInfo l : layers.findAll()) {
-            resolve(l);
-        }
-
-        // layer groups
-        if (layerGroups == null) {
-            layerGroups = new LayerGroupInfoLookup();
-        }
-        for (LayerGroupInfo lg : layerGroups.findAll()) {
-            resolve(lg);
-        }
-
-        // maps
-        if (maps == null) {
-            maps = new MapInfoLookup();
-        }
-        for (MapInfo m : maps.findAll()) {
-            resolve(m);
-        }
+    private <I extends CatalogInfo, R extends CatalogInfoRepository<I>> R resolve(
+            R current, Supplier<R> factory) {
+        return current == null ? factory.get() : current;
     }
 }

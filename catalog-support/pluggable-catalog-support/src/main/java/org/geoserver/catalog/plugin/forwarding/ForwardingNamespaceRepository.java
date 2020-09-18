@@ -4,7 +4,7 @@
  */
 package org.geoserver.catalog.plugin.forwarding;
 
-import java.util.List;
+import java.util.stream.Stream;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.NamespaceRepository;
 
@@ -28,7 +28,7 @@ public class ForwardingNamespaceRepository
         return subject.findOneByURI(uri);
     }
 
-    public @Override List<NamespaceInfo> findAllByURI(String uri) {
+    public @Override Stream<NamespaceInfo> findAllByURI(String uri) {
         return subject.findAllByURI(uri);
     }
 }

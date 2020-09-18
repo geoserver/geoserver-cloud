@@ -4,7 +4,7 @@
  */
 package org.geoserver.catalog.plugin.forwarding;
 
-import java.util.List;
+import java.util.stream.Stream;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.StyleRepository;
@@ -16,11 +16,11 @@ public class ForwardingStyleRepository
         super(subject);
     }
 
-    public @Override List<StyleInfo> findAllByNullWorkspace() {
+    public @Override Stream<StyleInfo> findAllByNullWorkspace() {
         return subject.findAllByNullWorkspace();
     }
 
-    public @Override List<StyleInfo> findAllByWorkspace(WorkspaceInfo ws) {
+    public @Override Stream<StyleInfo> findAllByWorkspace(WorkspaceInfo ws) {
         return subject.findAllByWorkspace(ws);
     }
 

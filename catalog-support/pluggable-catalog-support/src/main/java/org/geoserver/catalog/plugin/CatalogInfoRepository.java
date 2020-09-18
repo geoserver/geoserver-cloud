@@ -4,7 +4,7 @@
  */
 package org.geoserver.catalog.plugin;
 
-import java.util.List;
+import java.util.stream.Stream;
 import lombok.NonNull;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
@@ -32,11 +32,11 @@ public interface CatalogInfoRepository<T extends CatalogInfo> {
 
     void dispose();
 
-    List<T> findAll();
+    Stream<T> findAll();
 
-    List<T> findAll(Filter filter);
+    Stream<T> findAll(Filter filter);
 
-    <U extends T> List<U> findAll(Filter filter, Class<U> infoType);
+    <U extends T> Stream<U> findAll(Filter filter, Class<U> infoType);
 
     /** Looks up a CatalogInfo by class and identifier */
     @Nullable
@@ -63,7 +63,7 @@ public interface CatalogInfoRepository<T extends CatalogInfo> {
         @Nullable
         NamespaceInfo findOneByURI(@NonNull String uri);
 
-        List<NamespaceInfo> findAllByURI(@NonNull String uri);
+        Stream<NamespaceInfo> findAllByURI(@NonNull String uri);
     }
 
     public interface WorkspaceRepository extends CatalogInfoRepository<WorkspaceInfo> {
@@ -79,12 +79,12 @@ public interface CatalogInfoRepository<T extends CatalogInfo> {
         @Nullable
         DataStoreInfo getDefaultDataStore(@NonNull WorkspaceInfo workspace);
 
-        List<DataStoreInfo> getDefaultDataStores();
+        Stream<DataStoreInfo> getDefaultDataStores();
 
-        <T extends StoreInfo> List<T> findAllByWorkspace(
+        <T extends StoreInfo> Stream<T> findAllByWorkspace(
                 @NonNull WorkspaceInfo workspace, @Nullable Class<T> clazz);
 
-        <T extends StoreInfo> List<T> findAllByType(@Nullable Class<T> clazz);
+        <T extends StoreInfo> Stream<T> findAllByType(@Nullable Class<T> clazz);
 
         <T extends StoreInfo> T findByNameAndWorkspace(
                 String name, WorkspaceInfo workspace, Class<T> clazz);
@@ -96,16 +96,16 @@ public interface CatalogInfoRepository<T extends CatalogInfo> {
         <T extends ResourceInfo> T findByNameAndNamespace(
                 @NonNull String name, @NonNull NamespaceInfo namespace, @Nullable Class<T> clazz);
 
-        <T extends ResourceInfo> List<T> findAllByType(@Nullable Class<T> clazz);
+        <T extends ResourceInfo> Stream<T> findAllByType(@Nullable Class<T> clazz);
 
-        <T extends ResourceInfo> List<T> findAllByNamespace(
+        <T extends ResourceInfo> Stream<T> findAllByNamespace(
                 @NonNull NamespaceInfo ns, @Nullable Class<T> clazz);
 
         @Nullable
         <T extends ResourceInfo> T findByStoreAndName(
                 @NonNull StoreInfo store, @NonNull String name, @Nullable Class<T> clazz);
 
-        <T extends ResourceInfo> List<T> findAllByStore(StoreInfo store, Class<T> clazz);
+        <T extends ResourceInfo> Stream<T> findAllByStore(StoreInfo store, Class<T> clazz);
     }
 
     public interface LayerRepository extends CatalogInfoRepository<LayerInfo> {
@@ -113,9 +113,9 @@ public interface CatalogInfoRepository<T extends CatalogInfo> {
         @Nullable
         LayerInfo findOneByName(@NonNull String possiblyPrefixedName);
 
-        List<LayerInfo> findAllByDefaultStyleOrStyles(@NonNull StyleInfo style);
+        Stream<LayerInfo> findAllByDefaultStyleOrStyles(@NonNull StyleInfo style);
 
-        List<LayerInfo> findAllByResource(@NonNull ResourceInfo resource);
+        Stream<LayerInfo> findAllByResource(@NonNull ResourceInfo resource);
     }
 
     public interface LayerGroupRepository extends CatalogInfoRepository<LayerGroupInfo> {
@@ -125,16 +125,16 @@ public interface CatalogInfoRepository<T extends CatalogInfo> {
 
         LayerGroupInfo findByNameAndWorkspace(String name, WorkspaceInfo workspace);
 
-        List<LayerGroupInfo> findAllByWorkspaceIsNull();
+        Stream<LayerGroupInfo> findAllByWorkspaceIsNull();
 
-        List<LayerGroupInfo> findAllByWorkspace(WorkspaceInfo workspace);
+        Stream<LayerGroupInfo> findAllByWorkspace(WorkspaceInfo workspace);
     }
 
     public interface StyleRepository extends CatalogInfoRepository<StyleInfo> {
 
-        List<StyleInfo> findAllByNullWorkspace();
+        Stream<StyleInfo> findAllByNullWorkspace();
 
-        List<StyleInfo> findAllByWorkspace(@NonNull WorkspaceInfo ws);
+        Stream<StyleInfo> findAllByWorkspace(@NonNull WorkspaceInfo ws);
 
         StyleInfo findByNameAndWordkspaceNull(String name);
 
