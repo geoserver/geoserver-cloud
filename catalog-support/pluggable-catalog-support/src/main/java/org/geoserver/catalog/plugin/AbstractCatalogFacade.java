@@ -4,6 +4,15 @@
  */
 package org.geoserver.catalog.plugin;
 
+import static org.geoserver.catalog.impl.ClassMappings.LAYER;
+import static org.geoserver.catalog.impl.ClassMappings.LAYERGROUP;
+import static org.geoserver.catalog.impl.ClassMappings.MAP;
+import static org.geoserver.catalog.impl.ClassMappings.NAMESPACE;
+import static org.geoserver.catalog.impl.ClassMappings.RESOURCE;
+import static org.geoserver.catalog.impl.ClassMappings.STORE;
+import static org.geoserver.catalog.impl.ClassMappings.STYLE;
+import static org.geoserver.catalog.impl.ClassMappings.WORKSPACE;
+
 import com.google.common.collect.Ordering;
 import java.io.Closeable;
 import java.lang.reflect.Method;
@@ -11,6 +20,7 @@ import java.lang.reflect.Proxy;
 import java.rmi.server.UID;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
@@ -25,6 +35,7 @@ import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.DataStoreInfo;
+import org.geoserver.catalog.Info;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.LockingCatalogFacade;
@@ -72,9 +83,30 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     protected StyleRepository styles;
     protected Catalog catalog;
 
-    public AbstractCatalogFacade() {}
+    private final EnumMap<ClassMappings, Supplier<CatalogInfoRepository<?>>> repos;
+
+    private void registerRepository(ClassMappings cm, Supplier<CatalogInfoRepository<?>> repo) {
+        repos.put(cm, repo);
+        for (Class<? extends Info> c : cm.concreteInterfaces()) {
+            ClassMappings i = ClassMappings.fromInterface(c);
+            if (!cm.getInterface().equals(i.getInterface())) repos.put(i, repo);
+        }
+    }
+
+    public AbstractCatalogFacade() {
+        repos = new EnumMap<>(ClassMappings.class);
+        registerRepository(WORKSPACE, () -> workspaces);
+        registerRepository(NAMESPACE, () -> namespaces);
+        registerRepository(STORE, () -> stores);
+        registerRepository(RESOURCE, () -> resources);
+        registerRepository(LAYER, () -> layers);
+        registerRepository(LAYERGROUP, () -> layerGroups);
+        registerRepository(STYLE, () -> styles);
+        registerRepository(MAP, () -> maps);
+    }
 
     public AbstractCatalogFacade(Catalog catalog) {
+        this();
         setCatalog(catalog);
     }
 
@@ -129,27 +161,6 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
         return wrapInModificationProxy(info, type);
     }
 
-    protected <I extends CatalogInfo> void doSave(I info, CatalogInfoRepository<I> repository) {
-        ModificationProxy h = (ModificationProxy) Proxy.getInvocationHandler(info);
-        // figure out what changed
-        List<String> propertyNames = h.getPropertyNames();
-        List<Object> newValues = h.getNewValues();
-        List<Object> oldValues = h.getOldValues();
-
-        // this could be the event's payload instead of three separate lists
-        PropertyDiff diff = PropertyDiff.valueOf(propertyNames, oldValues, newValues);
-        Patch patch = diff.toPatch();
-
-        beforeSaved(info, propertyNames, oldValues, newValues);
-
-        info = unwrap(info);
-        info = repository.update(info, patch);
-
-        Class<I> type = ClassMappings.fromImpl(info.getClass()).getInterface();
-        info = wrapInModificationProxy(info, type);
-        afterSaved(info, propertyNames, oldValues, newValues);
-    }
-
     //
     // Stores
     //
@@ -161,8 +172,9 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
         stores.remove(unwrap(store));
     }
 
+    /** Throws {@link UnsupportedOperationException}, use {@link #update(CatalogInfo, Patch)} */
     public @Override void save(StoreInfo store) {
-        doSave(store, stores);
+        throw new UnsupportedOperationException("Expected use of update(CatalogInfo, Patch)");
     }
 
     public @Override <T extends StoreInfo> T detach(T store) {
@@ -237,8 +249,9 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
         resources.remove(unwrap(resource));
     }
 
+    /** Throws {@link UnsupportedOperationException}, use {@link #update(CatalogInfo, Patch)} */
     public @Override void save(ResourceInfo resource) {
-        doSave(resource, resources);
+        throw new UnsupportedOperationException("Expected use of update(CatalogInfo, Patch)");
     }
 
     public @Override <T extends ResourceInfo> T detach(T resource) {
@@ -312,8 +325,9 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
         layers.remove(unwrap(layer));
     }
 
+    /** Throws {@link UnsupportedOperationException}, use {@link #update(CatalogInfo, Patch)} */
     public @Override void save(LayerInfo layer) {
-        doSave(layer, layers);
+        throw new UnsupportedOperationException("Expected use of update(CatalogInfo, Patch)");
     }
 
     public @Override LayerInfo detach(LayerInfo layer) {
@@ -355,8 +369,9 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
         maps.remove(unwrap(map));
     }
 
+    /** Throws {@link UnsupportedOperationException}, use {@link #update(CatalogInfo, Patch)} */
     public @Override void save(MapInfo map) {
-        doSave(map, maps);
+        throw new UnsupportedOperationException("Expected use of update(CatalogInfo, Patch)");
     }
 
     public @Override MapInfo detach(MapInfo map) {
@@ -386,8 +401,9 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
         layerGroups.remove(unwrap(layerGroup));
     }
 
+    /** Throws {@link UnsupportedOperationException}, use {@link #update(CatalogInfo, Patch)} */
     public @Override void save(LayerGroupInfo layerGroup) {
-        doSave(layerGroup, layerGroups);
+        throw new UnsupportedOperationException("Expected use of update(CatalogInfo, Patch)");
     }
 
     public @Override LayerGroupInfo detach(LayerGroupInfo layerGroup) {
@@ -451,8 +467,9 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
         namespaces.remove(unwrap(namespace));
     }
 
+    /** Throws {@link UnsupportedOperationException}, use {@link #update(CatalogInfo, Patch)} */
     public @Override void save(NamespaceInfo namespace) {
-        doSave(namespace, namespaces);
+        throw new UnsupportedOperationException("Expected use of update(CatalogInfo, Patch)");
     }
 
     public @Override NamespaceInfo detach(NamespaceInfo namespace) {
@@ -519,8 +536,9 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
         workspaces.remove(unwrap(workspace));
     }
 
+    /** Throws {@link UnsupportedOperationException}, use {@link #update(CatalogInfo, Patch)} */
     public @Override void save(WorkspaceInfo workspace) {
-        doSave(workspace, workspaces);
+        throw new UnsupportedOperationException("Expected use of update(CatalogInfo, Patch)");
     }
 
     public @Override WorkspaceInfo detach(WorkspaceInfo workspace) {
@@ -568,8 +586,9 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
         styles.remove(unwrap(style));
     }
 
+    /** Throws {@link UnsupportedOperationException}, use {@link #update(CatalogInfo, Patch)} */
     public @Override void save(StyleInfo style) {
-        doSave(style, styles);
+        throw new UnsupportedOperationException("Expected use of update(CatalogInfo, Patch)");
     }
 
     public @Override StyleInfo detach(StyleInfo style) {
@@ -838,36 +857,6 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
         return ModificationProxy.createList(proxyList, clazz);
     }
 
-    protected void beforeSaved(
-            CatalogInfo object, List<String> propertyNames, List<?> oldValues, List<?> newValues) {
-        CatalogInfo real = ModificationProxy.unwrap(object);
-
-        // TODO: protect this original object, perhaps with another proxy
-        getCatalog().fireModified(real, propertyNames, oldValues, newValues);
-    }
-
-    protected <T extends CatalogInfo> T commitProxy(T object) {
-        // this object is a proxy
-        ModificationProxy h = (ModificationProxy) Proxy.getInvocationHandler(object);
-
-        // get the real object
-        @SuppressWarnings("unchecked")
-        T real = (T) h.getProxyObject();
-
-        // commit to the original object
-        h.commit();
-
-        return real;
-    }
-
-    protected void afterSaved(
-            CatalogInfo object, List<String> propertyNames, List<?> oldValues, List<?> newValues) {
-        CatalogInfo real = ModificationProxy.unwrap(object);
-
-        // fire the post modify event
-        getCatalog().firePostModified(real, propertyNames, oldValues, newValues);
-    }
-
     @SuppressWarnings("unchecked")
     protected <I extends CatalogInfo> I resolve(I info) {
         if (info instanceof LayerGroupInfo) {
@@ -1024,6 +1013,27 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
         if (OwsUtils.get(o, "id") == null) {
             String uid = new UID().toString();
             OwsUtils.set(o, "id", o.getClass().getSimpleName() + "-" + uid);
+        }
+    }
+
+    public <I extends CatalogInfo> I update(I info, Patch patch) {
+        checkNotAProxy(info);
+        CatalogInfoRepository<I> repo = repo(info.getClass());
+        return repo.update(info, patch);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected <I extends CatalogInfo, R extends CatalogInfoRepository<I>> R repo(
+            Class<? extends CatalogInfo> type) {
+        ClassMappings cm = ClassMappings.fromImpl(type);
+        if (cm == null) cm = ClassMappings.fromInterface(type);
+        return (R) repos.get(cm).get();
+    }
+
+    private static void checkNotAProxy(CatalogInfo value) {
+        if (Proxy.isProxyClass(value.getClass())) {
+            throw new IllegalArgumentException(
+                    "Proxy values shall not be passed to CatalogInfoLookup");
         }
     }
 }

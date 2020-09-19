@@ -29,7 +29,7 @@ public abstract class ForwardingCatalogRepository<
         subject.remove(value);
     }
 
-    public @Override I update(I value, Patch patch) {
+    public @Override <T extends I> T update(T value, Patch patch) {
         return subject.update(value, patch);
     }
 

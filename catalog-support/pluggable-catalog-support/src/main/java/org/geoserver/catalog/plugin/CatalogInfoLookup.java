@@ -174,7 +174,7 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
         }
     }
 
-    public @Override T update(final T value, @NonNull Patch patch) {
+    public @Override <I extends T> I update(final I value, @NonNull Patch patch) {
         checkNotAProxy(value);
         Map<String, T> idMap = getMapForValue(idMultiMap, value);
         // for the sake of correctness, get the stored value, contract does not force the supplied
@@ -200,7 +200,7 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
                 idToName.put(value.getId(), newName);
             }
         }
-        return storedValue;
+        return (I) storedValue;
     }
 
     public @Override void dispose() {

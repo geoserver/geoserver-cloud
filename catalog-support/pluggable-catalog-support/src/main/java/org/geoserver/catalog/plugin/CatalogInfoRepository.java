@@ -25,7 +25,7 @@ public interface CatalogInfoRepository<T extends CatalogInfo> {
 
     void remove(@NonNull T value);
 
-    T update(@NonNull T value, @NonNull Patch patch);
+    <I extends T> I update(@NonNull I value, @NonNull Patch patch);
 
     void dispose();
 
