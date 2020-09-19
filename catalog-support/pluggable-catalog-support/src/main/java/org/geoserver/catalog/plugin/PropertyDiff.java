@@ -46,7 +46,7 @@ public @Data class PropertyDiff implements Serializable {
         return this;
     }
 
-    public Patch asPatch() {
+    public Patch toPatch() {
         Patch patch = new Patch();
         changes.stream()
                 .map(c -> new Patch.Property(c.getPropertyName(), c.getNewValue()))

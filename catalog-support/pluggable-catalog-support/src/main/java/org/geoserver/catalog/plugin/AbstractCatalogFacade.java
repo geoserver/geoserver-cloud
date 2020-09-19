@@ -35,6 +35,7 @@ import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
+import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.impl.LayerInfoImpl;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.impl.ProxyUtils;
@@ -135,9 +136,17 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
         List<Object> newValues = h.getNewValues();
         List<Object> oldValues = h.getOldValues();
 
+        // this could be the event's payload instead of three separate lists
+        PropertyDiff diff = PropertyDiff.valueOf(propertyNames, oldValues, newValues);
+        Patch patch = diff.toPatch();
+
         beforeSaved(info, propertyNames, oldValues, newValues);
-        info = commitProxy(info);
-        repository.update(info);
+
+        info = unwrap(info);
+        info = repository.update(info, patch);
+
+        Class<I> type = ClassMappings.fromImpl(info.getClass()).getInterface();
+        info = wrapInModificationProxy(info, type);
         afterSaved(info, propertyNames, oldValues, newValues);
     }
 

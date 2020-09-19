@@ -29,6 +29,7 @@ import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
+import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.impl.LayerInfoImpl;
 import org.geotools.feature.NameImpl;
 import org.geotools.util.logging.Logging;
@@ -93,12 +94,12 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
                             s.getWorkspace() != null ? s.getWorkspace().getId() : null,
                             s.getName());
 
-    protected ConcurrentMap<Class<T>, ConcurrentNavigableMap<String, T>> idMultiMap =
+    protected ConcurrentMap<Class<? extends T>, ConcurrentNavigableMap<String, T>> idMultiMap =
             new ConcurrentHashMap<>();
-    protected ConcurrentMap<Class<T>, ConcurrentNavigableMap<Name, T>> nameMultiMap =
+    protected ConcurrentMap<Class<? extends T>, ConcurrentNavigableMap<Name, T>> nameMultiMap =
             new ConcurrentHashMap<>();
-    protected ConcurrentMap<Class<T>, ConcurrentNavigableMap<String, Name>> idToMameMultiMap =
-            new ConcurrentHashMap<>();
+    protected ConcurrentMap<Class<? extends T>, ConcurrentNavigableMap<String, Name>>
+            idToMameMultiMap = new ConcurrentHashMap<>();
 
     Function<T, Name> nameMapper;
 
@@ -112,15 +113,15 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
     }
 
     <K, V> ConcurrentMap<K, V> getMapForValue(
-            ConcurrentMap<Class<T>, ConcurrentNavigableMap<K, V>> maps, T value) {
+            ConcurrentMap<Class<? extends T>, ConcurrentNavigableMap<K, V>> maps, T value) {
         @SuppressWarnings("unchecked")
         Class<T> vc = (Class<T>) value.getClass();
         return getMapForType(maps, vc);
     }
 
-    @SuppressWarnings("unchecked")
     protected <K, V> ConcurrentMap<K, V> getMapForType(
-            ConcurrentMap<Class<T>, ConcurrentNavigableMap<K, V>> maps, Class vc) {
+            ConcurrentMap<Class<? extends T>, ConcurrentNavigableMap<K, V>> maps,
+            Class<? extends T> vc) {
         return maps.computeIfAbsent(vc, k -> new ConcurrentSkipListMap<K, V>());
     }
 
@@ -137,11 +138,17 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
         Map<Name, T> nameMap = getMapForValue(nameMultiMap, value);
         Map<String, Name> idToName = getMapForValue(idToMameMultiMap, value);
 
+        // TODO: improve concurrency with lock sharding instead of blocking the whole ConcurrentMaps
         synchronized (idMap) {
+            if (null != idMap.putIfAbsent(value.getId(), value)) {
+                throw new IllegalArgumentException(
+                        String.format(
+                                "%s with id %s already exists",
+                                ClassMappings.fromImpl(value.getClass()), value.getId()));
+            }
             Name name = nameMapper.apply(value);
             nameMap.put(name, value);
             idToName.put(value.getId(), name);
-            idMap.put(value.getId(), value);
         }
     }
 
@@ -157,6 +164,7 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
     public @Override void remove(T value) {
         checkNotAProxy(value);
         Map<String, T> idMap = getMapForValue(idMultiMap, value);
+        // TODO: improve concurrency with lock sharding instead of blocking the whole ConcurrentMaps
         synchronized (idMap) {
             T removed = idMap.remove(value.getId());
             if (removed != null) {
@@ -166,22 +174,25 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
         }
     }
 
-    /** Updates the value in the name map. */
-    public @Override void update(T value) {
+    public @Override T update(final T value, @NonNull Patch patch) {
         checkNotAProxy(value);
         Map<String, T> idMap = getMapForValue(idMultiMap, value);
+        // for the sake of correctness, get the stored value, contract does not force the supplied
+        // value to be attached
+        T storedValue = idMap.get(value.getId());
+        if (storedValue == null) {
+            throw new NoSuchElementException(
+                    value.getClass().getSimpleName()
+                            + " with id "
+                            + value.getId()
+                            + " does not exist");
+        }
+        // TODO: improve concurrency with lock sharding instead of blocking the whole ConcurrentMaps
         synchronized (idMap) {
-            CatalogInfo oldValue = idMap.get(value.getId());
-            if (oldValue == null) {
-                throw new NoSuchElementException(
-                        value.getClass().getSimpleName()
-                                + " with id "
-                                + value.getId()
-                                + " does not exist");
-            }
+            patch.applyTo(storedValue);
             ConcurrentMap<String, Name> idToName = getMapForValue(idToMameMultiMap, value);
             Name oldName = idToName.get(value.getId());
-            Name newName = nameMapper.apply(value);
+            Name newName = nameMapper.apply(storedValue);
             if (!Objects.equals(oldName, newName)) {
                 Map<Name, T> nameMap = getMapForValue(nameMultiMap, value);
                 nameMap.remove(oldName);
@@ -189,6 +200,7 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
                 idToName.put(value.getId(), newName);
             }
         }
+        return storedValue;
     }
 
     public @Override void dispose() {
@@ -230,7 +242,7 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
         if (clazz == null) {
             clazz = (Class<U>) CatalogInfo.class;
         }
-        for (Class<T> key : nameMultiMap.keySet()) {
+        for (Class<? extends T> key : nameMultiMap.keySet()) {
             if (clazz.isAssignableFrom(key)) {
                 Map<Name, T> valueMap = getMapForType(nameMultiMap, key);
                 for (T v : valueMap.values()) {
@@ -247,7 +259,7 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
 
     /** Looks up a CatalogInfo by class and identifier */
     public @Override <U extends T> U findById(String id, Class<U> clazz) {
-        for (Class<T> key : idMultiMap.keySet()) {
+        for (Class<? extends T> key : idMultiMap.keySet()) {
             if (clazz.isAssignableFrom(key)) {
                 Map<String, T> valueMap = getMapForType(idMultiMap, key);
                 T t = valueMap.get(id);
@@ -266,7 +278,7 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
     }
 
     protected <U extends T> U findFirstByName(Name name, @Nullable Class<U> clazz) {
-        for (Class<T> key : nameMultiMap.keySet()) {
+        for (Class<? extends T> key : nameMultiMap.keySet()) {
             if (clazz.isAssignableFrom(key)) {
                 Map<Name, T> valueMap = getMapForType(nameMultiMap, key);
                 T t = valueMap.get(name);
@@ -288,7 +300,7 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
      * things going on)
      */
     <U extends CatalogInfo> U findFirst(Class<U> clazz, Predicate<U> predicate) {
-        for (Class<T> key : nameMultiMap.keySet()) {
+        for (Class<? extends T> key : nameMultiMap.keySet()) {
             if (clazz.isAssignableFrom(key)) {
                 Map<Name, T> valueMap = getMapForType(nameMultiMap, key);
                 for (T v : valueMap.values()) {
@@ -456,13 +468,14 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
             this.layers = layers;
         }
 
-        public @Override void update(ResourceInfo value) {
+        public @Override ResourceInfo update(ResourceInfo value, @NonNull Patch patch) {
             Name oldName = getMapForValue(idToMameMultiMap, value).get(value.getId());
+            ResourceInfo updated = super.update(value, patch);
             Name newName = nameMapper.apply(value);
-            super.update(value);
             if (!newName.equals(oldName)) {
                 layers.updateName(oldName, newName);
             }
+            return updated;
         }
 
         public @Override <T extends ResourceInfo> Stream<T> findAllByType(Class<T> clazz) {

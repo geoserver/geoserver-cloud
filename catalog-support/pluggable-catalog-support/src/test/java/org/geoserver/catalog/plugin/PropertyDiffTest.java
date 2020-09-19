@@ -139,7 +139,7 @@ public class PropertyDiffTest {
         copy.setName(ws.getName());
 
         PropertyDiff diff = PropertyDiff.builder(ws).with("name", "newname").build();
-        diff.asPatch().applyTo(copy);
+        diff.toPatch().applyTo(copy);
         assertEquals("newname", copy.getName());
         assertNotEquals(ws.getName(), copy.getName());
 
@@ -159,7 +159,7 @@ public class PropertyDiffTest {
                         .with("metadata", metadata)
                         .build();
 
-        diff.asPatch().applyTo(copy);
+        diff.toPatch().applyTo(copy);
 
         assertEquals("newname2", copy.getName());
         assertTrue(copy.isIsolated());
