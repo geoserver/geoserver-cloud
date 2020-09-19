@@ -5,6 +5,7 @@
 package org.geoserver.catalog.plugin;
 
 import java.io.Serializable;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -18,11 +19,19 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import org.geoserver.catalog.Info;
+import org.geoserver.catalog.impl.ClassMappings;
+import org.geoserver.ows.util.ClassProperties;
+import org.geoserver.ows.util.OwsUtils;
 
 public @Data class PropertyDiff implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private List<Change> changes;
+
+    public static <T extends Info> PropertyDiffBuilder<T> builder(T info) {
+        return new PropertyDiffBuilder<>(info);
+    }
 
     public PropertyDiff() {
         this(Collections.emptyList());
@@ -35,6 +44,14 @@ public @Data class PropertyDiff implements Serializable {
     private Object readResolve() {
         if (changes == null) changes = new ArrayList<>();
         return this;
+    }
+
+    public Patch asPatch() {
+        Patch patch = new Patch();
+        changes.stream()
+                .map(c -> new Patch.Property(c.getPropertyName(), c.getNewValue()))
+                .forEach(patch::add);
+        return patch;
     }
 
     public int size() {
@@ -125,5 +142,67 @@ public @Data class PropertyDiff implements Serializable {
 
     public static PropertyDiff empty() {
         return new PropertyDiff();
+    }
+
+    public static class PropertyDiffBuilder<T extends Info> {
+
+        private T info;
+        private List<String> propertyNames = new ArrayList<>();
+        private List<Object> newValues = new ArrayList<>();
+        private List<Object> oldValues = new ArrayList<>();
+
+        PropertyDiffBuilder(T info) {
+            Objects.requireNonNull(info);
+            if (Proxy.isProxyClass(info.getClass())) {
+                throw new IllegalArgumentException("No proxies allowed");
+            }
+            this.info = info;
+            ClassMappings classMappings = ClassMappings.fromImpl(info.getClass());
+            Objects.requireNonNull(
+                    classMappings, "Unknown info class: " + info.getClass().getCanonicalName());
+        }
+
+        public PropertyDiff build() {
+            return PropertyDiff.valueOf(propertyNames, oldValues, newValues).clean();
+        }
+
+        public PropertyDiffBuilder<T> with(String property, Object newValue) {
+            property = fixCase(property);
+            Class<? extends Info> type = info.getClass();
+            ClassProperties classProperties = OwsUtils.getClassProperties(type);
+            if (null
+                    == classProperties.getter(
+                            property, newValue == null ? null : newValue.getClass())) {
+                throw new IllegalArgumentException("No such property: " + property);
+            }
+
+            remove(property);
+            Object oldValue = OwsUtils.get(info, property);
+            propertyNames.add(property);
+            oldValues.add(oldValue);
+            newValues.add(newValue);
+            return this;
+        }
+
+        public PropertyDiffBuilder<T> remove(String property) {
+            int i = propertyNames.indexOf(property);
+            if (i > -1) {
+                propertyNames.remove(i);
+                oldValues.remove(i);
+                oldValues.remove(i);
+            }
+            return this;
+        }
+
+        private static String fixCase(String propertyName) {
+            if (propertyName.length() > 1) {
+                char first = propertyName.charAt(0);
+                char second = propertyName.charAt(1);
+                if (!Character.isUpperCase(second)) {
+                    propertyName = Character.toLowerCase(first) + propertyName.substring(1);
+                }
+            }
+            return propertyName;
+        }
     }
 }

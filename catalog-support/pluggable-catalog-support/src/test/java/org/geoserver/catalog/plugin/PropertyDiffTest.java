@@ -9,17 +9,32 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import org.geoserver.catalog.Catalog;
+import org.geoserver.catalog.MetadataMap;
+import org.geoserver.catalog.WorkspaceInfo;
+import org.geoserver.catalog.impl.WorkspaceInfoImpl;
 import org.geoserver.catalog.plugin.PropertyDiff.Change;
+import org.geoserver.cloud.test.CatalogTestData;
+import org.junit.Before;
 import org.junit.Test;
 
 public class PropertyDiffTest {
     private PropertyDiffTestSupport support = new PropertyDiffTestSupport();
+
+    public CatalogTestData data;
+
+    public @Before void setup() {
+        Catalog catalog = new CatalogImpl();
+        data = CatalogTestData.empty(() -> catalog).createCatalogObjects().createConfigObjects();
+    }
 
     public @Test void empty() {
         PropertyDiff diff = support.createTestDiff();
@@ -99,5 +114,63 @@ public class PropertyDiffTest {
         assertEquals("prop4", clean.get(1).getPropertyName());
         assertEquals("val1", clean.get(1).getOldValue());
         assertEquals(Integer.valueOf(2), clean.get(1).getNewValue());
+    }
+
+    public @Test void builderToEmpty() {
+        WorkspaceInfo ws = data.workspaceA;
+        ws.setDateCreated(new Date());
+
+        PropertyDiff diff =
+                PropertyDiff.builder(ws)
+                        .with("name", ws.getName())
+                        .with("isolated", ws.isIsolated())
+                        .with("dateCreated", ws.getDateCreated())
+                        .with("dateModified", ws.getDateModified())
+                        .build();
+        assertTrue(diff.isEmpty());
+    }
+
+    public @Test void applyWorkspace() {
+        WorkspaceInfo ws = data.workspaceA;
+        ws.setDateCreated(null);
+        ws.setDateModified(null);
+
+        WorkspaceInfo copy = new WorkspaceInfoImpl();
+        copy.setName(ws.getName());
+
+        PropertyDiff diff = PropertyDiff.builder(ws).with("name", "newname").build();
+        diff.asPatch().applyTo(copy);
+        assertEquals("newname", copy.getName());
+        assertNotEquals(ws.getName(), copy.getName());
+
+        Date created = new Date(10000);
+        Date modified = new Date(10001);
+
+        MetadataMap metadata = new MetadataMap();
+        metadata.put("k1", "v1");
+        metadata.put("k2", Long.MAX_VALUE);
+
+        diff =
+                PropertyDiff.builder(ws)
+                        .with("name", "newname2")
+                        .with("isolated", true)
+                        .with("dateCreated", created)
+                        .with("dateModified", modified)
+                        .with("metadata", metadata)
+                        .build();
+
+        diff.asPatch().applyTo(copy);
+
+        assertEquals("newname2", copy.getName());
+        assertTrue(copy.isIsolated());
+        assertEquals(created, copy.getDateCreated());
+        assertEquals(modified, copy.getDateModified());
+        assertEquals(metadata, copy.getMetadata());
+
+        assertNotEquals(ws.getName(), copy.getName());
+        assertNotEquals(ws.isIsolated(), copy.getName());
+        assertNotEquals(ws.getDateCreated(), copy.getDateCreated());
+        assertNotEquals(ws.getDateModified(), copy.getDateModified());
+        assertNotEquals(ws.getMetadata(), copy.getMetadata());
     }
 }
