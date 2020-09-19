@@ -33,6 +33,7 @@ import org.geoserver.catalog.plugin.CatalogInfoRepository.ResourceRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.StoreRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.StyleRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.WorkspaceRepository;
+import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveCatalogClient;
 import org.geoserver.cloud.test.CatalogTestData;
 import org.geoserver.ows.util.OwsUtils;
@@ -196,9 +197,12 @@ public class CatalogServiceClientRepositoryIntegrationTest {
     }
 
     private <T extends CatalogInfo> void assertUpdate(CatalogInfoRepository<T> repo, T info) {
-        when(mockClient.update(same(info))).thenReturn(Mono.just(info));
-        repo.update(info);
-        verify(mockClient, times(1)).update(same(info));
+        Patch patch = new Patch();
+        patch.add(new Patch.Property("name", "newName"));
+
+        when(mockClient.update(eq(info.getId()), eq(patch))).thenReturn(Mono.just(info));
+        repo.update(info, patch);
+        verify(mockClient, times(1)).update(eq(info.getId()), eq(patch));
     }
 
     private <T extends CatalogInfo> void assertCreate(CatalogInfoRepository<T> repo, T info) {

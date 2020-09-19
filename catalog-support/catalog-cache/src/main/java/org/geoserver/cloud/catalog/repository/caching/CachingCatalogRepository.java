@@ -6,6 +6,7 @@ package org.geoserver.cloud.catalog.repository.caching;
 
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository;
+import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.forwarding.ForwardingCatalogRepository;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
@@ -31,9 +32,9 @@ public abstract class CachingCatalogRepository<
         super.remove(value);
     }
 
-    @CacheEvict
-    public @Override void update(I value) {
-        super.update(value);
+    @CacheEvict(key = "value.id")
+    public @Override <T extends I> T update(T value, Patch patch) {
+        return super.update(value, patch);
     }
 
     @Cacheable

@@ -15,9 +15,11 @@ import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ClassMappings;
+import org.geoserver.catalog.plugin.Patch;
 import org.opengis.filter.Filter;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -39,8 +41,8 @@ public interface ReactiveCatalogClient {
     @PostMapping(path = "")
     Mono<CatalogInfo> create(CatalogInfo info);
 
-    @PutMapping(path = "")
-    Mono<CatalogInfo> update(CatalogInfo info);
+    @PatchMapping(path = "/id/{id}")
+    Mono<CatalogInfo> update(@PathVariable("id") String id, @NonNull @RequestBody Patch patch);
 
     @DeleteMapping(path = "")
     Mono<CatalogInfo> delete(CatalogInfo value);

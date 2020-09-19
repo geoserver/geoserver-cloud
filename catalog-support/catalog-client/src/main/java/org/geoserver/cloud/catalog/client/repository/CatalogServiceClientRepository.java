@@ -10,6 +10,7 @@ import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.plugin.CatalogInfoRepository;
+import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveCatalogClient;
 import org.opengis.filter.Filter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,8 +35,9 @@ public abstract class CatalogServiceClientRepository<CI extends CatalogInfo>
         client.delete(value).block();
     }
 
-    public @Override void update(@NonNull CI value) {
-        client.update(value).block();
+    @SuppressWarnings("unchecked")
+    public @Override <T extends CI> T update(@NonNull T value, @NonNull Patch patch) {
+        return client.update(value.getId(), patch).map(r -> (T) r).block();
     }
 
     public @Override void dispose() {
