@@ -4,7 +4,6 @@
  */
 package org.geoserver.catalog.plugin;
 
-import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,11 +16,9 @@ import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 import lombok.NonNull;
-import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.LayerGroupInfo;
@@ -33,7 +30,6 @@ import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.LayerInfoImpl;
-import org.geoserver.ows.util.OwsUtils;
 import org.geotools.feature.NameImpl;
 import org.geotools.util.logging.Logging;
 import org.opengis.feature.type.Name;
@@ -316,29 +312,6 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
             other.idToMameMultiMap.putAll(this.idToMameMultiMap);
         } else {
             this.idMultiMap.values().forEach(typeMap -> typeMap.values().forEach(target::add));
-        }
-    }
-
-    /** Sets the specified catalog into all CatalogInfo objects contained in this lookup */
-    public @Override void setCatalog(Catalog catalog) {
-        for (Map<Name, T> valueMap : nameMultiMap.values()) {
-            if (valueMap != null) {
-                for (T v : valueMap.values()) {
-                    if (v instanceof CatalogInfo) {
-                        Method setter = OwsUtils.setter(v.getClass(), "catalog", Catalog.class);
-                        if (setter != null) {
-                            try {
-                                setter.invoke(v, catalog);
-                            } catch (Exception e) {
-                                LOGGER.log(
-                                        Level.FINE,
-                                        "Failed to switch CatalogInfo to new catalog impl",
-                                        e);
-                            }
-                        }
-                    }
-                }
-            }
         }
     }
 

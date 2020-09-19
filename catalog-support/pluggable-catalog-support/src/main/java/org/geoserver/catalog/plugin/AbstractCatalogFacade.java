@@ -35,13 +35,10 @@ import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
-import org.geoserver.catalog.impl.CatalogImpl;
-import org.geoserver.catalog.impl.LayerGroupInfoImpl;
 import org.geoserver.catalog.impl.LayerInfoImpl;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.impl.ProxyUtils;
 import org.geoserver.catalog.impl.ResolvingProxy;
-import org.geoserver.catalog.impl.ResourceInfoImpl;
 import org.geoserver.catalog.impl.StoreInfoImpl;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerGroupRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerRepository;
@@ -72,7 +69,7 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     protected LayerGroupRepository layerGroups;
     protected MapRepository maps;
     protected StyleRepository styles;
-    protected CatalogImpl catalog;
+    protected Catalog catalog;
 
     public AbstractCatalogFacade() {}
 
@@ -81,60 +78,55 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     }
 
     public @Override void setCatalog(Catalog catalog) {
-        this.catalog = (CatalogImpl) catalog;
-        setCatalog(workspaces);
-        setCatalog(workspaces);
-        setCatalog(namespaces);
-        setCatalog(stores);
-        setCatalog(resources);
-        setCatalog(layers);
-        setCatalog(layerGroups);
-        setCatalog(styles);
-        setCatalog(maps);
+        this.catalog = catalog;
     }
 
     public @Override Catalog getCatalog() {
         return catalog;
     }
 
-    private <R extends CatalogInfoRepository<?>> R setCatalog(R repo) {
-        if (repo != null) repo.setCatalog(getCatalog());
-        return repo;
-    }
-
     public void setNamespaces(NamespaceRepository namespaces) {
-        this.namespaces = setCatalog(namespaces);
+        this.namespaces = namespaces;
     }
 
     public void setWorkspaces(WorkspaceRepository workspaces) {
-        this.workspaces = setCatalog(workspaces);
+        this.workspaces = workspaces;
     }
 
     public void setStores(StoreRepository stores) {
-        this.stores = setCatalog(stores);
+        this.stores = stores;
     }
 
     public void setResources(ResourceRepository resources) {
-        this.resources = setCatalog(resources);
+        this.resources = resources;
     }
 
     public void setLayers(LayerRepository layers) {
-        this.layers = setCatalog(layers);
+        this.layers = layers;
     }
 
     public void setLayerGroups(LayerGroupRepository layerGroups) {
-        this.layerGroups = setCatalog(layerGroups);
+        this.layerGroups = layerGroups;
     }
 
     public void setStyles(StyleRepository styles) {
-        this.styles = setCatalog(styles);
+        this.styles = styles;
     }
 
     public void setMaps(MapRepository maps) {
-        this.maps = setCatalog(maps);
+        this.maps = maps;
     }
 
     public @Override abstract void resolve();
+
+    protected <I extends CatalogInfo> I add(
+            I info, Class<I> type, CatalogInfoRepository<I> repository) {
+        info = unwrap(info);
+        setId(info);
+        info = resolve(info);
+        repository.add(info);
+        return wrapInModificationProxy(info, type);
+    }
 
     protected <I extends CatalogInfo> void doSave(I info, CatalogInfoRepository<I> repository) {
         ModificationProxy h = (ModificationProxy) Proxy.getInvocationHandler(info);
@@ -153,9 +145,7 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     // Stores
     //
     public @Override StoreInfo add(StoreInfo store) {
-        resolve(store);
-        stores.add(store);
-        return ModificationProxy.create(store, StoreInfo.class);
+        return add(store, StoreInfo.class, stores);
     }
 
     public @Override void remove(StoreInfo store) {
@@ -231,9 +221,7 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     // Resources
     //
     public @Override ResourceInfo add(ResourceInfo resource) {
-        resolve(resource);
-        resources.add(resource);
-        return ModificationProxy.create(resource, ResourceInfo.class);
+        return add(resource, ResourceInfo.class, resources);
     }
 
     public @Override void remove(ResourceInfo resource) {
@@ -308,10 +296,7 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     // Layers
     //
     public @Override LayerInfo add(LayerInfo layer) {
-        resolve(layer);
-        layers.add(layer);
-
-        return ModificationProxy.create(layer, LayerInfo.class);
+        return add(layer, LayerInfo.class, layers);
     }
 
     public @Override void remove(LayerInfo layer) {
@@ -354,9 +339,7 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     // Maps
     //
     public @Override MapInfo add(MapInfo map) {
-        resolve(map);
-        maps.add(map);
-        return ModificationProxy.create(map, MapInfo.class);
+        return add(map, MapInfo.class, maps);
     }
 
     public @Override void remove(MapInfo map) {
@@ -387,9 +370,7 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     // Layer groups
     //
     public @Override LayerGroupInfo add(LayerGroupInfo layerGroup) {
-        resolve(layerGroup);
-        layerGroups.add(layerGroup);
-        return ModificationProxy.create(layerGroup, LayerGroupInfo.class);
+        return add(layerGroup, LayerGroupInfo.class, layerGroups);
     }
 
     public @Override void remove(LayerGroupInfo layerGroup) {
@@ -451,11 +432,7 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     // Namespaces
     //
     public @Override NamespaceInfo add(NamespaceInfo namespace) {
-        resolve(namespace);
-        NamespaceInfo unwrapped = unwrap(namespace);
-        namespaces.add(unwrapped);
-
-        return ModificationProxy.create(unwrapped, NamespaceInfo.class);
+        return add(namespace, NamespaceInfo.class, namespaces);
     }
 
     public @Override void remove(NamespaceInfo namespace) {
@@ -523,10 +500,7 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     //
     // Workspace methods
     public @Override WorkspaceInfo add(WorkspaceInfo workspace) {
-        resolve(workspace);
-        WorkspaceInfo unwrapped = unwrap(workspace);
-        workspaces.add(unwrapped);
-        return ModificationProxy.create(unwrapped, WorkspaceInfo.class);
+        return add(workspace, WorkspaceInfo.class, workspaces);
     }
 
     public @Override void remove(WorkspaceInfo workspace) {
@@ -578,9 +552,7 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     // Styles
     //
     public @Override StyleInfo add(StyleInfo style) {
-        resolve(style);
-        styles.add(style);
-        return ModificationProxy.create(style, StyleInfo.class);
+        return add(style, StyleInfo.class, styles);
     }
 
     public @Override void remove(StyleInfo style) {
@@ -846,7 +818,10 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     }
 
     protected <T extends CatalogInfo> T wrapInModificationProxy(T ci, Class<T> clazz) {
-        return ci == null ? null : ModificationProxy.create(ci, clazz);
+        if (ci == null) return null;
+        if (ci instanceof StoreInfoImpl) ((StoreInfoImpl) ci).setCatalog(catalog);
+        if (ci instanceof ResourceInfo) ((ResourceInfo) ci).setCatalog(catalog);
+        return ModificationProxy.create(ci, clazz);
     }
 
     protected <T extends CatalogInfo> List<T> wrapInModificationProxy(
@@ -884,9 +859,29 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
         getCatalog().firePostModified(real, propertyNames, oldValues, newValues);
     }
 
-    protected void resolve(LayerInfo layer) {
-        setId(layer);
+    @SuppressWarnings("unchecked")
+    protected <I extends CatalogInfo> I resolve(I info) {
+        if (info instanceof LayerGroupInfo) {
+            return (I) resolve((LayerGroupInfo) info);
+        } else if (info instanceof LayerInfo) {
+            return (I) resolve((LayerInfo) info);
+        } else if (info instanceof MapInfo) {
+            return (I) resolve((MapInfo) info);
+        } else if (info instanceof NamespaceInfo) {
+            return (I) resolve((NamespaceInfo) info);
+        } else if (info instanceof ResourceInfo) {
+            return (I) resolve((ResourceInfo) info);
+        } else if (info instanceof StoreInfo) {
+            return (I) resolve((StoreInfo) info);
+        } else if (info instanceof StyleInfo) {
+            return (I) resolve((StyleInfo) info);
+        } else if (info instanceof WorkspaceInfo) {
+            return (I) resolve((WorkspaceInfo) info);
+        }
+        throw new IllegalArgumentException("Unknown resource type: " + info);
+    }
 
+    protected LayerInfo resolve(LayerInfo layer) {
         ResourceInfo resource = ResolvingProxy.resolve(getCatalog(), layer.getResource());
         if (resource != null) {
             resource = unwrap(resource);
@@ -905,14 +900,16 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
             s = unwrap(s);
             styles.add(s);
         }
-        ((LayerInfoImpl) layer).setStyles(styles);
+        if (layer instanceof LayerInfoImpl) {
+            ((LayerInfoImpl) layer).setStyles(styles);
+        } else {
+            layer.getStyles().clear();
+            layer.getStyles().addAll(styles);
+        }
+        return layer;
     }
 
-    protected void resolve(LayerGroupInfo layerGroup) {
-        setId(layerGroup);
-
-        LayerGroupInfoImpl lg = (LayerGroupInfoImpl) layerGroup;
-
+    protected LayerGroupInfo resolve(LayerGroupInfo lg) {
         for (int i = 0; i < lg.getLayers().size(); i++) {
             PublishedInfo l = lg.getLayers().get(i);
 
@@ -947,11 +944,10 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
                 lg.getStyles().set(i, resolved);
             }
         }
+        return lg;
     }
 
-    protected void resolve(StyleInfo style) {
-        setId(style);
-
+    protected StyleInfo resolve(StyleInfo style) {
         // resolve the workspace
         WorkspaceInfo ws = style.getWorkspace();
         if (ws != null) {
@@ -967,29 +963,27 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
                                 + "\". This means the workspace has not yet been added to the catalog, keep the proxy around");
             }
         }
+        return style;
     }
 
-    protected void resolve(MapInfo map) {
-        setId(map);
+    protected MapInfo resolve(MapInfo map) {
+        return map;
     }
 
-    protected void resolve(WorkspaceInfo workspace) {
-        setId(workspace);
+    protected WorkspaceInfo resolve(WorkspaceInfo workspace) {
+        return workspace;
     }
 
-    protected void resolve(NamespaceInfo namespace) {
-        setId(namespace);
+    protected NamespaceInfo resolve(NamespaceInfo namespace) {
+        return namespace;
     }
 
-    protected void resolve(StoreInfo store) {
-        setId(store);
-        StoreInfoImpl s = (StoreInfoImpl) store;
-
+    protected StoreInfo resolve(StoreInfo store) {
         // resolve the workspace
-        WorkspaceInfo resolved = ResolvingProxy.resolve(getCatalog(), s.getWorkspace());
+        WorkspaceInfo resolved = ResolvingProxy.resolve(getCatalog(), store.getWorkspace());
         if (resolved != null) {
             resolved = unwrap(resolved);
-            s.setWorkspace(resolved);
+            store.setWorkspace(resolved);
         } else {
             LOGGER.log(
                     Level.INFO,
@@ -997,28 +991,27 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
                             + store.getName()
                             + "\". This means the workspace has not yet been added to the catalog, keep the proxy around");
         }
+        return store;
     }
 
-    protected void resolve(ResourceInfo resource) {
-        setId(resource);
-        ResourceInfoImpl r = (ResourceInfoImpl) resource;
-
+    protected <R extends ResourceInfo> R resolve(R resource) {
         // resolve the store
-        StoreInfo store = ResolvingProxy.resolve(getCatalog(), r.getStore());
+        StoreInfo store = ResolvingProxy.resolve(getCatalog(), resource.getStore());
         if (store != null) {
             store = unwrap(store);
-            r.setStore(store);
+            resource.setStore(store);
         }
 
         // resolve the namespace
-        NamespaceInfo namespace = ResolvingProxy.resolve(getCatalog(), r.getNamespace());
+        NamespaceInfo namespace = ResolvingProxy.resolve(getCatalog(), resource.getNamespace());
         if (namespace != null) {
             namespace = unwrap(namespace);
-            r.setNamespace(namespace);
+            resource.setNamespace(namespace);
         }
+        return resource;
     }
 
-    protected void setId(Object o) {
+    protected void setId(CatalogInfo o) {
         if (OwsUtils.get(o, "id") == null) {
             String uid = new UID().toString();
             OwsUtils.set(o, "id", o.getClass().getSimpleName() + "-" + uid);

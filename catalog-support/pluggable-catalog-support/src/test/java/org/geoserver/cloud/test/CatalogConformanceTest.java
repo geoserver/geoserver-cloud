@@ -19,6 +19,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -708,6 +709,7 @@ public abstract class CatalogConformanceTest {
 
         DataStoreInfo retrieved = rawCatalog.getDataStore(data.dataStoreA.getId());
         assertNotNull(retrieved);
+        assertSame(rawCatalog, retrieved.getCatalog());
 
         DataStoreInfo ds2 = rawCatalog.getFactory().createDataStore();
         try {
@@ -764,6 +766,7 @@ public abstract class CatalogConformanceTest {
         assertNotNull(ds2);
         assertNotSame(data.dataStoreA, ds2);
         assertEquals(data.dataStoreA, ds2);
+        assertSame(rawCatalog, ds2.getCatalog());
     }
 
     @Test
@@ -774,6 +777,7 @@ public abstract class CatalogConformanceTest {
         assertNotNull(ds2);
         assertNotSame(data.dataStoreA, ds2);
         assertEquals(data.dataStoreA, ds2);
+        assertSame(rawCatalog, ds2.getCatalog());
 
         DataStoreInfo ds3 = rawCatalog.getDataStoreByName(data.workspaceA, null);
         assertNotNull(ds3);
@@ -799,6 +803,7 @@ public abstract class CatalogConformanceTest {
         assertNotNull(ds2);
         assertNotSame(data.dataStoreA, ds2);
         assertEquals(data.dataStoreA, ds2);
+        assertSame(rawCatalog, ds2.getCatalog());
 
         StoreInfo ds3 = rawCatalog.getStoreByName(data.workspaceA, null, StoreInfo.class);
         assertNotNull(ds3);
@@ -943,6 +948,8 @@ public abstract class CatalogConformanceTest {
         ft2.getKeywords().add(new Keyword("keyword"));
 
         rawCatalog.add(ft2);
+        FeatureTypeInfo retrieved = rawCatalog.getFeatureTypeByName("ft2Name");
+        assertSame(rawCatalog, retrieved.getCatalog());
 
         FeatureTypeInfo ft3 = rawCatalog.getFactory().createFeatureType();
         ft3.setName("ft3Name");
@@ -982,6 +989,7 @@ public abstract class CatalogConformanceTest {
 
         CoverageInfo fromCatalog = rawCatalog.getCoverageByName("cv2Name");
         assertNotNull(fromCatalog);
+        assertSame(rawCatalog, fromCatalog.getCatalog());
         // ensure the collection properties are set to NullObjects and not to null
         assertNotNull(fromCatalog.getParameters());
 
@@ -1050,6 +1058,7 @@ public abstract class CatalogConformanceTest {
         assertNotNull(ft2);
         assertNotSame(data.featureTypeA, ft2);
         assertEquals(data.featureTypeA, ft2);
+        assertSame(rawCatalog, ft2.getCatalog());
     }
 
     @Test
@@ -1060,6 +1069,7 @@ public abstract class CatalogConformanceTest {
         assertNotNull(ft2);
         assertNotSame(data.featureTypeA, ft2);
         assertEquals(data.featureTypeA, ft2);
+        assertSame(rawCatalog, ft2.getCatalog());
 
         NamespaceInfo ns2 = rawCatalog.getFactory().createNamespace();
         ns2.setPrefix("ns2Prefix");
@@ -1118,6 +1128,8 @@ public abstract class CatalogConformanceTest {
         assertEquals(2, r.size());
         assertTrue(r.contains(ft1));
         assertTrue(r.contains(ft2));
+        assertSame(rawCatalog, r.get(0).getCatalog());
+        assertSame(rawCatalog, r.get(1).getCatalog());
     }
 
     @Test
@@ -1318,6 +1330,7 @@ public abstract class CatalogConformanceTest {
         assertNotNull(l2);
         assertNotSame(data.layerFeatureTypeA, l2);
         assertEquals(data.layerFeatureTypeA, l2);
+        assertSame(rawCatalog, l2.getResource().getCatalog());
     }
 
     @Test
@@ -1974,6 +1987,7 @@ public abstract class CatalogConformanceTest {
 
         WMSStoreInfo retrieved = rawCatalog.getStore(data.wmsStoreA.getId(), WMSStoreInfo.class);
         assertNotNull(retrieved);
+        assertSame(rawCatalog, retrieved.getCatalog());
 
         WMSStoreInfo wms2 = rawCatalog.getFactory().createWebMapServer();
         wms2.setName("wms2Name");
@@ -1991,6 +2005,7 @@ public abstract class CatalogConformanceTest {
 
         WMTSStoreInfo retrieved = rawCatalog.getStore(data.wmtsStoreA.getId(), WMTSStoreInfo.class);
         assertNotNull(retrieved);
+        assertSame(rawCatalog, retrieved.getCatalog());
 
         WMTSStoreInfo wmts2 = rawCatalog.getFactory().createWebMapTileServer();
         wmts2.setName("wmts2Name");
@@ -2626,6 +2641,7 @@ public abstract class CatalogConformanceTest {
         filter = equal("id", ft1.getId());
         FeatureTypeInfo featureTypeInfo = rawCatalog.get(FeatureTypeInfo.class, filter);
         assertEquals(ft1.getId(), featureTypeInfo.getId());
+        assertSame(rawCatalog, featureTypeInfo.getCatalog());
 
         filter = equal("name", ft2.getName());
         assertEquals(ft2.getName(), rawCatalog.get(ResourceInfo.class, filter).getName());
@@ -3357,5 +3373,49 @@ public abstract class CatalogConformanceTest {
         LayerGroupInfo g1 = rawCatalog.getFacade().getLayerGroupByName(data.layerGroup1.getName());
         LayerGroupInfo g2 = rawCatalog.getFacade().getLayerGroupByName(data.layerGroup1.getName());
         assertTrue(LayerGroupInfo.equals(g1, g2));
+    }
+
+    @Test
+    public void testIterablesHaveCatalogSet() {
+        data.addObjects();
+        {
+            CloseableIterator<StoreInfo> stores = rawCatalog.list(StoreInfo.class, acceptAll());
+            assertTrue(stores.hasNext());
+            stores.forEachRemaining(s -> assertSame(rawCatalog, s.getCatalog()));
+        }
+        {
+            CloseableIterator<ResourceInfo> resources =
+                    rawCatalog.list(ResourceInfo.class, acceptAll());
+            assertTrue(resources.hasNext());
+            resources.forEachRemaining(r -> assertSame(rawCatalog, r.getCatalog()));
+        }
+        {
+            CloseableIterator<LayerInfo> layers = rawCatalog.list(LayerInfo.class, acceptAll());
+            assertTrue(layers.hasNext());
+            layers.forEachRemaining(
+                    r -> {
+                        assertSame(rawCatalog, r.getResource().getCatalog());
+                        assertSame(rawCatalog, r.getResource().getStore().getCatalog());
+                    });
+        }
+        {
+            CloseableIterator<LayerGroupInfo> groups =
+                    rawCatalog.list(LayerGroupInfo.class, acceptAll());
+            assertTrue(groups.hasNext());
+            groups.forEachRemaining(
+                    g -> {
+                        List<PublishedInfo> layers = g.getLayers();
+                        layers.forEach(
+                                p -> {
+                                    if (p instanceof LayerInfo) {
+                                        LayerInfo l = (LayerInfo) p;
+                                        assertSame(rawCatalog, l.getResource().getCatalog());
+                                        assertSame(
+                                                rawCatalog,
+                                                l.getResource().getStore().getCatalog());
+                                    }
+                                });
+                    });
+        }
     }
 }

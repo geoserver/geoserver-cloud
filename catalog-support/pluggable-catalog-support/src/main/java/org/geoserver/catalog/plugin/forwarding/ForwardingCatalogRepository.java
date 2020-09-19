@@ -6,7 +6,6 @@ package org.geoserver.catalog.plugin.forwarding;
 
 import java.util.stream.Stream;
 import lombok.NonNull;
-import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository;
 import org.opengis.filter.Filter;
@@ -19,10 +18,6 @@ public abstract class ForwardingCatalogRepository<
 
     public ForwardingCatalogRepository(S subject) {
         this.subject = subject;
-    }
-
-    public @Override void setCatalog(Catalog catalog) {
-        subject.setCatalog(catalog);
     }
 
     public @Override void add(I value) {

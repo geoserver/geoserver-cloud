@@ -6,7 +6,6 @@ package org.geoserver.catalog.plugin;
 
 import java.util.stream.Stream;
 import lombok.NonNull;
-import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.LayerGroupInfo;
@@ -21,8 +20,6 @@ import org.opengis.filter.Filter;
 import org.springframework.lang.Nullable;
 
 public interface CatalogInfoRepository<T extends CatalogInfo> {
-
-    void setCatalog(@Nullable Catalog catalog);
 
     void add(@NonNull T value);
 
