@@ -4,7 +4,7 @@
  */
 package org.geoserver.cloud.catalog.client.repository;
 
-import java.util.List;
+import java.util.stream.Stream;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
@@ -23,11 +23,11 @@ public class CloudResourceRepository extends CatalogServiceClientRepository<Reso
         super(client);
     }
 
-    public @Override <T extends ResourceInfo> List<T> findAllByType(@Nullable Class<T> clazz) {
+    public @Override <T extends ResourceInfo> Stream<T> findAllByType(@Nullable Class<T> clazz) {
         throw new UnsupportedOperationException("not yet implemented");
     }
 
-    public @Override <T extends ResourceInfo> List<T> findAllByNamespace(@NonNull NamespaceInfo ns,
+    public @Override <T extends ResourceInfo> Stream<T> findAllByNamespace(@NonNull NamespaceInfo ns,
             @Nullable Class<T> clazz) {
         throw new UnsupportedOperationException("not yet implemented");
     }
@@ -37,7 +37,7 @@ public class CloudResourceRepository extends CatalogServiceClientRepository<Reso
         throw new UnsupportedOperationException("not yet implemented");
     }
 
-    public @Override <T extends ResourceInfo> List<T> findAllByStore(StoreInfo store,
+    public @Override <T extends ResourceInfo> Stream<T> findAllByStore(StoreInfo store,
             Class<T> clazz) {
         throw new UnsupportedOperationException("not yet implemented");
     }

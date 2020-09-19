@@ -4,7 +4,7 @@
  */
 package org.geoserver.cloud.catalog.client.repository;
 
-import java.util.List;
+import java.util.stream.Stream;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StyleInfo;
@@ -22,12 +22,12 @@ public class CloudLayerRepository extends CatalogServiceClientRepository<LayerIn
         super(client);
     }
 
-    public @Override List<LayerInfo> findAllByDefaultStyleOrStyles(StyleInfo style) {
-        return client().findLayersWithStyle(style.getId());
+    public @Override Stream<LayerInfo> findAllByDefaultStyleOrStyles(StyleInfo style) {
+        return client().findLayersWithStyle(style.getId()).toStream();
     }
 
-    public @Override List<LayerInfo> findAllByResource(ResourceInfo resource) {
-        return client().findLayersByResourceId(resource.getId());
+    public @Override Stream<LayerInfo> findAllByResource(ResourceInfo resource) {
+        return client().findLayersByResourceId(resource.getId()).toStream();
     }
 
     public @Override LayerInfo findOneByName(

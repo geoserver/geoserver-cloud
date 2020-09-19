@@ -4,8 +4,8 @@
  */
 package org.geoserver.cloud.catalog.client.repository;
 
-import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.NamespaceRepository;
 import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveCatalogClient;
@@ -35,7 +35,7 @@ public class CloudNamespaceRepository extends CatalogServiceClientRepository<Nam
         return client().findOneNamespaceByURI(uri).block();
     }
 
-    public @Override List<NamespaceInfo> findAllByURI(@NonNull String uri) {
-        return client().findAllNamespacesByURI(uri).collectList().block();
+    public @Override Stream<NamespaceInfo> findAllByURI(@NonNull String uri) {
+        return client().findAllNamespacesByURI(uri).toStream();
     }
 }

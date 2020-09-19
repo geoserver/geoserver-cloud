@@ -4,7 +4,7 @@
  */
 package org.geoserver.cloud.catalog.client.repository;
 
-import java.util.List;
+import java.util.stream.Stream;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
@@ -32,18 +32,18 @@ public class CloudStoreRepository extends CatalogServiceClientRepository<StoreIn
         return client().findDefaultDataStoreByWorkspaceId(workspace.getId()).block();
     }
 
-    public @Override List<DataStoreInfo> getDefaultDataStores() {
-        return client().getDefaultDataStores().collectList().block();
+    public @Override Stream<DataStoreInfo> getDefaultDataStores() {
+        return client().getDefaultDataStores().toStream();
     }
 
     @SuppressWarnings("unchecked")
-    public @Override <T extends StoreInfo> List<T> findAllByWorkspace(
+    public @Override <T extends StoreInfo> Stream<T> findAllByWorkspace(
             @NonNull WorkspaceInfo workspace, @Nullable Class<T> clazz) {
-        return (List<T>) client().findStoresByWorkspaceId(workspace.getId(), typeEnum(clazz));
+        return (Stream<T>) client().findStoresByWorkspaceId(workspace.getId(), typeEnum(clazz));
     }
 
-    public @Override <T extends StoreInfo> List<T> findAllByType(@NonNull Class<T> clazz) {
-        return client().findAll(typeEnum(clazz)).map(clazz::cast).collectList().block();
+    public @Override <T extends StoreInfo> Stream<T> findAllByType(@NonNull Class<T> clazz) {
+        return client().findAll(typeEnum(clazz)).map(clazz::cast).toStream();
     }
 
     public @Override <T extends StoreInfo> T findByNameAndWorkspace(@NonNull String name,

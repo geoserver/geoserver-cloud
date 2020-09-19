@@ -4,8 +4,7 @@
  */
 package org.geoserver.cloud.catalog.client.repository;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.Info;
@@ -19,8 +18,6 @@ import lombok.NonNull;
 public abstract class CatalogServiceClientRepository<CI extends CatalogInfo>
         implements CatalogInfoRepository<CI> {
 
-    private Catalog catalog;
-
     private ReactiveCatalogClient client;
 
     protected CatalogServiceClientRepository(@NonNull ReactiveCatalogClient client) {
@@ -31,10 +28,6 @@ public abstract class CatalogServiceClientRepository<CI extends CatalogInfo>
 
     protected ReactiveCatalogClient client() {
         return client;
-    }
-
-    public @Override void setCatalog(Catalog catalog) {
-        this.catalog = catalog;
     }
 
     public @Override void add(CI value) {
@@ -58,32 +51,27 @@ public abstract class CatalogServiceClientRepository<CI extends CatalogInfo>
         return infoType.cast(client.findByFirstByName(name, typeEnum(infoType)));
     }
 
-    public @Override List<CI> findAll() {
-        return client.findAll(typeEnum(getInfoType())).map(i -> (CI) i).toStream()
-                .collect(Collectors.toList());
+    public @Override Stream<CI> findAll() {
+        return client.findAll(typeEnum(getInfoType())).map(i -> (CI) i).toStream();
     }
 
-    public @Override List<CI> findAll(Filter filter) {
-        return client.query(typeEnum(getInfoType()), filter).map(i -> (CI) i).toStream()
-                .collect(Collectors.toList());
+    public @Override Stream<CI> findAll(Filter filter) {
+        return client.query(typeEnum(getInfoType()), filter).map(i -> (CI) i).toStream();
     }
 
-    public @Override <U extends CI> List<U> findAll(Filter filter, Class<U> infoType) {
-        return client.query(typeEnum(infoType), filter).map(infoType::cast).toStream()
-                .collect(Collectors.toList());
+    public @Override <U extends CI> Stream<U> findAll(Filter filter, Class<U> infoType) {
+        return client.query(typeEnum(infoType), filter).map(infoType::cast).toStream();
     }
 
     public @Override <U extends CI> U findById(@NonNull String id, @NonNull Class<U> clazz) {
-        return clazz.cast(client.findById(id, typeEnum(clazz)));
+        return client.findById(id, typeEnum(clazz)).map(clazz::cast).block();
     }
 
     public @Override void syncTo(CatalogInfoRepository<CI> target) {
         throw new UnsupportedOperationException("not yet implemented");
     }
 
-    protected @Nullable ClassMappings typeEnum(@Nullable Class<? extends Info> infoType) {
-        if (infoType == null)
-            return null;
+    protected @NonNull ClassMappings typeEnum(@NonNull Class<? extends Info> infoType) {
         ClassMappings enumVal = ClassMappings.fromInterface(infoType);
         if (enumVal == null) {
             enumVal = ClassMappings.fromImpl(infoType);

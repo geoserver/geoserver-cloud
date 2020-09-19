@@ -4,7 +4,8 @@
  */
 package org.geoserver.cloud.catalog.client.repository;
 
-import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerGroupRepository;
@@ -21,17 +22,23 @@ public class CloudLayerGroupRepository extends CatalogServiceClientRepository<La
         super(client);
     }
 
-    public @Override List<LayerGroupInfo> findAllByWorkspaceIsNull() {
-        return client().findLayerGroupsByNullWoskspace();
+    public @Override Stream<LayerGroupInfo> findAllByWorkspaceIsNull() {
+        return client().findLayerGroupsByNullWoskspace().toStream();
     }
 
-    public @Override List<LayerGroupInfo> findAllByWorkspace(@NonNull WorkspaceInfo workspace) {
-        return client().findLayerGroupsByWoskspaceId(workspace.getId());
+    public @Override Stream<LayerGroupInfo> findAllByWorkspace(@NonNull WorkspaceInfo workspace) {
+        return client().findLayerGroupsByWoskspaceId(workspace.getId()).toStream();
     }
 
     @Override
-    public LayerGroupInfo findByNameAndWorkspaceIsNull(@NonNull String name) {}
+    public LayerGroupInfo findByNameAndWorkspaceIsNull(@NonNull String name) {
+        return client().findLayerGropuByNameAndNullWorkspace(name).block();
+    }
 
     @Override
-    public LayerGroupInfo findByNameAndWorkspace(String name, WorkspaceInfo workspace) {}
+    public LayerGroupInfo findByNameAndWorkspace(@NonNull String name,
+            @NonNull WorkspaceInfo workspace) {
+        Objects.requireNonNull(workspace.getId());
+        return client().findLayerGropuByNameAndWorkspaceId(name, workspace.getId()).block();
+    }
 }

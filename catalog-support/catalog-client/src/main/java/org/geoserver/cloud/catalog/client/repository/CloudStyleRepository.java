@@ -4,7 +4,7 @@
  */
 package org.geoserver.cloud.catalog.client.repository;
 
-import java.util.List;
+import java.util.stream.Stream;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.StyleRepository;
@@ -21,12 +21,12 @@ public class CloudStyleRepository extends CatalogServiceClientRepository<StyleIn
         super(client);
     }
 
-    public @Override List<StyleInfo> findAllByNullWorkspace() {
-        return client().findStylesByNullWorkspace().collectList().block();
+    public @Override Stream<StyleInfo> findAllByNullWorkspace() {
+        return client().findStylesByNullWorkspace().toStream();
     }
 
-    public @Override List<StyleInfo> findAllByWorkspace(@NonNull WorkspaceInfo ws) {
-        return client().findStylesByWorkspaceId(ws.getId()).collectList().block();
+    public @Override Stream<StyleInfo> findAllByWorkspace(@NonNull WorkspaceInfo ws) {
+        return client().findStylesByWorkspaceId(ws.getId()).toStream();
     }
 
     public @Override StyleInfo findByNameAndWordkspaceNull(@NonNull String name) {

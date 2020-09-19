@@ -7,6 +7,7 @@ package org.geoserver.cloud.catalog.client.repository;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
@@ -17,10 +18,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-
 import java.util.Collections;
 import java.util.List;
-import lombok.NonNull;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.DataStoreInfo;
@@ -43,14 +42,6 @@ import org.geoserver.catalog.plugin.CatalogInfoRepository.ResourceRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.StoreRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.StyleRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.WorkspaceRepository;
-import org.geoserver.cloud.catalog.client.feign.CatalogApiClient;
-import org.geoserver.cloud.catalog.client.reactivefeign.LayerClient;
-import org.geoserver.cloud.catalog.client.reactivefeign.LayerGroupClient;
-import org.geoserver.cloud.catalog.client.reactivefeign.MapClient;
-import org.geoserver.cloud.catalog.client.reactivefeign.NamespaceClient;
-import org.geoserver.cloud.catalog.client.reactivefeign.ResourceClient;
-import org.geoserver.cloud.catalog.client.reactivefeign.StoreClient;
-import org.geoserver.cloud.catalog.client.reactivefeign.StyleClient;
 import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveCatalogClient;
 import org.geoserver.cloud.test.CatalogTestData;
 import org.geoserver.ows.util.OwsUtils;
@@ -65,20 +56,16 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import lombok.NonNull;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @SpringBootTest(classes = CatalogRepositoriesConfiguration.class)
 @RunWith(SpringRunner.class)
 @ActiveProfiles("test")
 public class CatalogRepositoriesConfigurationTest {
 
-    private @MockBean ReactiveCatalogClient workspaceClient;
-    private @MockBean NamespaceClient namespaceClient;
-    private @MockBean StoreClient storeClient;
-    private @MockBean ResourceClient resourceClient;
-    private @MockBean LayerClient layerClient;
-    private @MockBean LayerGroupClient layerGroupClient;
-    private @MockBean StyleClient styleClient;
-    private @MockBean MapClient mapClient;
+    private @MockBean ReactiveCatalogClient mockClient;
 
     private @Autowired WorkspaceRepository workspaceRepository;
     private @Autowired NamespaceRepository namespaceRepository;
@@ -93,61 +80,55 @@ public class CatalogRepositoriesConfigurationTest {
     public @Rule CatalogTestData testData = CatalogTestData.empty(() -> fakeCatalog);
 
     public @Test void workspaceRepository_CRUD() {
-        assertWiring(workspaceRepository, workspaceClient, WorkspaceInfo.class);
-        crudTest(workspaceRepository, workspaceClient, testData.workspaceA);
+        assertWiring(workspaceRepository, WorkspaceInfo.class);
+        crudTest(workspaceRepository, testData.workspaceA);
     }
 
     public @Test void workspaceRepository_DefaultWorkspace() {
 
-        when(workspaceClient.getDefaultWorkspace()).thenReturn(testData.workspaceB);
+        when(mockClient.getDefaultWorkspace()).thenReturn(Mono.just(testData.workspaceB));
         assertSame(testData.workspaceB, workspaceRepository.getDefaultWorkspace());
-        verify(workspaceClient, times(1)).getDefaultWorkspace();
+        verify(mockClient, times(1)).getDefaultWorkspace();
 
         workspaceRepository.setDefaultWorkspace(testData.workspaceA);
-        verify(workspaceClient, times(1)).setDefaultWorkspace(eq(testData.workspaceA.getId()));
+        verify(mockClient, times(1)).setDefaultWorkspace(eq(testData.workspaceA.getId()));
 
-        verifyNoMoreInteractions(workspaceClient);
-        assertThrows(
-                NullPointerException.class, () -> workspaceRepository.setDefaultWorkspace(null));
+        verifyNoMoreInteractions(mockClient);
+        assertThrows(NullPointerException.class,
+                () -> workspaceRepository.setDefaultWorkspace(null));
     }
 
     public @Test void namespaceRepository_CRUD() {
-        assertWiring(namespaceRepository, namespaceClient, NamespaceInfo.class);
-        crudTest(namespaceRepository, namespaceClient, testData.namespaceA);
+        assertWiring(namespaceRepository, NamespaceInfo.class);
+        crudTest(namespaceRepository, testData.namespaceA);
     }
 
     public @Test void namespaceRepository_DefaultNamespace() {
-        when(namespaceClient.getDefaultNamespace()).thenReturn(testData.namespaceB);
+        when(mockClient.getDefaultNamespace()).thenReturn(Mono.just(testData.namespaceB));
         assertSame(testData.namespaceB, namespaceRepository.getDefaultNamespace());
-        verify(namespaceClient, times(1)).getDefaultNamespace();
+        verify(mockClient, times(1)).getDefaultNamespace();
 
         namespaceRepository.setDefaultNamespace(testData.namespaceA);
-        verify(namespaceClient, times(1)).setDefaultNamespace(same(testData.namespaceA));
+        verify(mockClient, times(1)).setDefaultNamespace(eq(testData.namespaceA.getId()));
 
-        verifyNoMoreInteractions(namespaceClient);
-        assertThrows(
-                NullPointerException.class, () -> namespaceRepository.setDefaultNamespace(null));
+        verifyNoMoreInteractions(mockClient);
+        assertThrows(NullPointerException.class,
+                () -> namespaceRepository.setDefaultNamespace(null));
     }
 
     public @Test void storeRepository_CRUD() {
-        assertWiring(storeRepository, storeClient, StoreInfo.class);
-        crudTest(storeRepository, storeClient, testData.coverageStoreA);
-        crudTest(storeRepository, storeClient, testData.dataStoreA);
-        crudTest(storeRepository, storeClient, testData.wmsStoreA);
-        crudTest(storeRepository, storeClient, testData.wmtsStoreA);
+        assertWiring(storeRepository, StoreInfo.class);
+        crudTest(storeRepository, testData.coverageStoreA);
+        crudTest(storeRepository, testData.dataStoreA);
+        crudTest(storeRepository, testData.wmsStoreA);
+        crudTest(storeRepository, testData.wmtsStoreA);
     }
 
-    // List<DataStoreInfo> getDefaultDataStores();
-    // @Nullable
-    // <T extends StoreInfo> T findOneByName(@NonNull String name, @Nullable Class<T> clazz);
-    // <T extends StoreInfo> List<T> findAllByWorkspace(
-    // @NonNull WorkspaceInfo workspace, @Nullable Class<T> clazz);
-    // <T extends StoreInfo> List<T> findAllByType(@Nullable Class<T> clazz);
     public @Test void storeRepository_GetDefaultDataStore() {
-        when(storeClient.findDefaultDataStoreByWorkspaceId(eq(testData.workspaceA.getId())))
-                .thenReturn(testData.dataStoreA);
-        when(storeClient.findDefaultDataStoreByWorkspaceId(eq(testData.workspaceB.getId())))
-                .thenReturn(testData.dataStoreB);
+        when(mockClient.findDefaultDataStoreByWorkspaceId(eq(testData.workspaceA.getId())))
+                .thenReturn(Mono.just(testData.dataStoreA));
+        when(mockClient.findDefaultDataStoreByWorkspaceId(eq(testData.workspaceB.getId())))
+                .thenReturn(Mono.just(testData.dataStoreB));
 
         assertSame(testData.dataStoreA, storeRepository.getDefaultDataStore(testData.workspaceA));
         assertSame(testData.dataStoreB, storeRepository.getDefaultDataStore(testData.workspaceB));
@@ -156,124 +137,121 @@ public class CatalogRepositoriesConfigurationTest {
 
     public @Test void storeRepository_SetDefaultDataStore() {
         storeRepository.setDefaultDataStore(testData.workspaceC, testData.dataStoreA);
-        verify(storeClient, times(1))
-                .setDefaultDataStoreByWorkspaceId(
-                        eq(testData.workspaceC.getId()), eq(testData.dataStoreA.getId()));
-        assertThrows(
-                NullPointerException.class,
+        verify(mockClient, times(1)).setDefaultDataStoreByWorkspaceId(
+                eq(testData.workspaceC.getId()), eq(testData.dataStoreA.getId()));
+        assertThrows(NullPointerException.class,
                 () -> storeRepository.setDefaultDataStore(null, testData.dataStoreA));
-        assertThrows(
-                NullPointerException.class,
+        assertThrows(NullPointerException.class,
                 () -> storeRepository.setDefaultDataStore(testData.workspaceC, null));
-        verifyNoMoreInteractions(storeClient);
+        verifyNoMoreInteractions(mockClient);
     }
 
     public @Test void storeRepository_GetDefaultDataStores() {
         List<DataStoreInfo> expected = Collections.emptyList();
-        when(storeClient.getDefaultDataStores()).thenReturn(expected);
+        when(mockClient.getDefaultDataStores()).thenReturn(Flux.empty());
         assertSame(expected, storeRepository.getDefaultDataStores());
-        verify(storeClient, times(1)).getDefaultDataStores();
-        verifyNoMoreInteractions(storeClient);
+        verify(mockClient, times(1)).getDefaultDataStores();
+        verifyNoMoreInteractions(mockClient);
     }
 
     public @Test void resourceRepository_CRUD() {
-        assertWiring(resourceRepository, resourceClient, ResourceInfo.class);
-        crudTest(resourceRepository, resourceClient, testData.coverageA);
-        crudTest(resourceRepository, resourceClient, testData.featureTypeA);
-        crudTest(resourceRepository, resourceClient, testData.wmsLayerA);
-        crudTest(resourceRepository, resourceClient, testData.wmtsLayerA);
+        assertWiring(resourceRepository, ResourceInfo.class);
+        crudTest(resourceRepository, testData.coverageA);
+        crudTest(resourceRepository, testData.featureTypeA);
+        crudTest(resourceRepository, testData.wmsLayerA);
+        crudTest(resourceRepository, testData.wmtsLayerA);
     }
 
     public @Test void layerRepository_CRUD() {
-        assertWiring(layerRepository, layerClient, LayerInfo.class);
-        crudTest(layerRepository, layerClient, testData.layerFeatureTypeA);
+        assertWiring(layerRepository, LayerInfo.class);
+        crudTest(layerRepository, testData.layerFeatureTypeA);
     }
 
     public @Test void layerGroupRepository_CRUD() {
-        assertWiring(layerGroupRepository, layerGroupClient, LayerGroupInfo.class);
-        crudTest(layerGroupRepository, layerGroupClient, testData.layerGroup1);
+        assertWiring(layerGroupRepository, LayerGroupInfo.class);
+        crudTest(layerGroupRepository, testData.layerGroup1);
     }
 
     public @Test void styleRepository_CRUD() {
-        assertWiring(styleRepository, styleClient, StyleInfo.class);
-        crudTest(styleRepository, styleClient, testData.style1);
+        assertWiring(styleRepository, StyleInfo.class);
+        crudTest(styleRepository, testData.style1);
     }
 
     public @Test void mapRepository_Wiring() {
-        assertWiring(mapRepository, mapClient, MapInfo.class);
+        assertWiring(mapRepository, MapInfo.class);
     }
 
-    private <T extends CatalogInfo> void assertWiring(
-            CatalogInfoRepository<T> repository, CatalogApiClient<T> client, Class<T> infoType) {
+    private <T extends CatalogInfo> void assertWiring(CatalogInfoRepository<T> repository,
+            Class<T> infoType) {
 
         assertThat(repository, instanceOf(CatalogServiceClientRepository.class));
-        assertEquals(infoType, ((CatalogServiceClientRepository<?, ?>) repository).getInfoType());
-        assertSame(client, ((CatalogServiceClientRepository<?, ?>) repository).client());
+        assertEquals(infoType, ((CatalogServiceClientRepository<?>) repository).getInfoType());
+        assertSame(mockClient, ((CatalogServiceClientRepository<?>) repository).client());
     }
 
-    private <T extends CatalogInfo> void crudTest(
-            CatalogInfoRepository<T> repo, CatalogApiClient<T> mockClient, T info) {
+    private <T extends CatalogInfo> void crudTest(CatalogInfoRepository<T> repo, T info) {
 
-        assertCreate(repo, mockClient, info);
+        assertCreate(repo, info);
 
-        assertFindById(repo, mockClient, info);
-        assertFindByName(repo, mockClient, info);
-        assertFindAll(repo, mockClient, info);
+        assertFindById(repo, info);
+        assertFindByName(repo, info);
+        assertFindAll(repo, info);
 
-        assertUpdate(repo, mockClient, info);
+        assertUpdate(repo, info);
 
-        assertDelete(repo, mockClient, info);
+        assertDelete(repo, info);
 
         verifyNoMoreInteractions(mockClient);
         clearInvocations(mockClient);
     }
 
-    private <T extends CatalogInfo> void assertDelete(
-            CatalogInfoRepository<T> repo, CatalogApiClient<T> mockClient, T info) {
+    private <T extends CatalogInfo> void assertDelete(CatalogInfoRepository<T> repo, T info) {
         repo.remove(info);
         verify(mockClient, times(1)).delete(same(info));
     }
 
-    private <T extends CatalogInfo> void assertUpdate(
-            CatalogInfoRepository<T> repo, CatalogApiClient<T> mockClient, T info) {
+    private <T extends CatalogInfo> void assertUpdate(CatalogInfoRepository<T> repo, T info) {
         repo.update(info);
         verify(mockClient, times(1)).update(same(info));
     }
 
-    private <T extends CatalogInfo> void assertCreate(
-            CatalogInfoRepository<T> repo, CatalogApiClient<T> mockClient, T info) {
+    private <T extends CatalogInfo> void assertCreate(CatalogInfoRepository<T> repo, T info) {
         repo.add(info);
         verify(mockClient, times(1)).create(same(info));
     }
 
-    private <T extends CatalogInfo> void assertFindById(
-            CatalogInfoRepository<T> repo, CatalogApiClient<T> mockClient, T info) {
-        when(mockClient.findById(eq(info.getId()), isNull())).thenReturn(info);
-        assertSame(info, repo.findById(info.getId(), null));
-        verify(mockClient, times(1)).findById(eq(info.getId()), isNull());
+    private <T extends CatalogInfo> void assertFindById(CatalogInfoRepository<T> repo, T info) {
+        @SuppressWarnings("unchecked")
+        Class<T> clazz = (Class<T>) info.getClass();
+        ClassMappings classMappings = ClassMappings.fromImpl(clazz);
+        assertNotNull(classMappings);
+
+        final String id = info.getId();
+        when(mockClient.findById(eq(id), same(classMappings))).thenReturn(Mono.just(info));
+        assertSame(info, repo.findById(id, clazz));
+        verify(mockClient, times(1)).findById(eq(id), isNull());
 
         final @NonNull ClassMappings expectedEnumType = ClassMappings.fromImpl(info.getClass());
         final @NonNull Class<T> actualInterfaceArg =
                 ClassMappings.fromImpl(info.getClass()).getInterface();
 
-        when(mockClient.findById(eq(info.getId()), eq(expectedEnumType))).thenReturn(info);
-        assertSame(info, repo.findById(info.getId(), actualInterfaceArg));
-        verify(mockClient, times(1)).findById(eq(info.getId()), same(expectedEnumType));
+        when(mockClient.findById(eq(id), eq(expectedEnumType))).thenReturn(Mono.just(info));
+        assertSame(info, repo.findById(id, actualInterfaceArg));
+        verify(mockClient, times(1)).findById(eq(id), same(expectedEnumType));
     }
 
-    private <T extends CatalogInfo> void assertFindByName(
-            CatalogInfoRepository<T> repo, CatalogApiClient<T> mockClient, T info) {
+    private <T extends CatalogInfo> void assertFindByName(CatalogInfoRepository<T> repo, T info) {
 
         final @NonNull String name = simpleName(info);
         final @NonNull ClassMappings subType = ClassMappings.fromImpl(info.getClass());
 
         // null subtype
-        when(mockClient.findByFirstByName(eq(name), isNull())).thenReturn(info);
+        when(mockClient.findByFirstByName(eq(name), isNull())).thenReturn(Mono.just(info));
         assertSame(info, repo.findFirstByName(name, (Class<T>) null));
         verify(mockClient, times(1)).findByFirstByName(eq(name), isNull());
 
         // non-null subtype
-        when(mockClient.findByFirstByName(eq(name), eq(subType))).thenReturn(info);
+        when(mockClient.findByFirstByName(eq(name), eq(subType))).thenReturn(Mono.just(info));
         assertSame(info, repo.findFirstByName(name, (Class<T>) info.getClass()));
         verify(mockClient, times(1)).findByFirstByName(eq(name), eq(subType));
     }
@@ -283,8 +261,7 @@ public class CatalogRepositoriesConfigurationTest {
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends CatalogInfo> void assertFindAll(
-            CatalogInfoRepository<T> repo, CatalogApiClient<T> mockClient, T info) {
+    private <T extends CatalogInfo> void assertFindAll(CatalogInfoRepository<T> repo, T info) {
 
         final @NonNull ClassMappings genericType = genericType(info);
 
