@@ -4,45 +4,42 @@
  */
 package org.geoserver.cloud.catalog.client.repository;
 
-import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveCatalogClient;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 
 @Configuration
 public class CatalogRepositoriesConfiguration {
 
-    private @Autowired ReactiveCatalogClient client;
-
-    public @Bean CloudWorkspaceRepository cloudWorkspaceRepository() {
-        return new CloudWorkspaceRepository(client);
+    public @Lazy @Bean CloudWorkspaceRepository cloudWorkspaceRepository() {
+        return new CloudWorkspaceRepository();
     }
 
-    public @Bean CloudNamespaceRepository cloudNamespaceRepository() {
-        return new CloudNamespaceRepository(client);
+    public @Lazy @Bean CloudNamespaceRepository cloudNamespaceRepository() {
+        return new CloudNamespaceRepository();
     }
 
-    public @Bean CloudStoreRepository cloudStoreRepository() {
-        return new CloudStoreRepository(client);
+    public @Lazy @Bean CloudStoreRepository cloudStoreRepository() {
+        return new CloudStoreRepository();
     }
 
-    public @Bean CloudResourceRepository cloudResourceRepository() {
-        return new CloudResourceRepository(client);
+    public @Lazy @Bean CloudResourceRepository cloudResourceRepository() {
+        return new CloudResourceRepository();
     }
 
-    public @Bean CloudLayerRepository cloudLayerRepository() {
-        return new CloudLayerRepository(client);
+    public @Lazy @Bean CloudLayerRepository cloudLayerRepository() {
+        return new CloudLayerRepository();
     }
 
-    public @Bean CloudLayerGroupRepository cloudLayerGroupRepository() {
-        return new CloudLayerGroupRepository(client);
+    public @Lazy @Bean CloudLayerGroupRepository cloudLayerGroupRepository() {
+        return new CloudLayerGroupRepository();
     }
 
-    public @Bean CloudStyleRepository cloudStyleRepository() {
-        return new CloudStyleRepository(client);
+    public @Lazy @Bean CloudStyleRepository cloudStyleRepository() {
+        return new CloudStyleRepository();
     }
 
-    public @Bean CloudMapRepository cloudMapRepository() {
-        return new CloudMapRepository(client);
+    public @Lazy @Bean CloudMapRepository cloudMapRepository() {
+        return new CloudMapRepository();
     }
 }

@@ -7,9 +7,12 @@ import java.util.List;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.WorkspaceInfo;
+import org.geoserver.catalog.plugin.CatalogImpl;
+import org.geoserver.catalog.plugin.CatalogInfoRepository;
 import org.geoserver.cloud.catalog.app.CatalogServiceApplication;
-import org.geoserver.cloud.catalog.client.CatalogClientConfiguration;
-import org.geoserver.cloud.catalog.client.CloudCatalogFacade;
+import org.geoserver.cloud.catalog.client.impl.CatalogClientConfiguration;
+import org.geoserver.cloud.catalog.client.impl.CloudCatalogFacade;
+import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveCatalogApiClientConfiguration;
 import org.geoserver.cloud.catalog.client.repository.CatalogServiceClientRepository;
 import org.geoserver.cloud.test.CatalogTestData;
 import org.junit.Before;
@@ -21,27 +24,32 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import reactivefeign.spring.config.EnableReactiveFeignClients;
 
 /**
- * Integration tests for a {@link CatalogFacade} running off catalog-service's client {@link
- * CatalogServiceClientRepository repositories} hitting a real backend service.
+ * Integration tests for a {@link CatalogFacade} running off catalog-service's client
+ * {@link CatalogServiceClientRepository repositories} hitting a real backend service.
+ * <p>
+ * A {@link Catalog} using the {@code catalog-service} as its backend is a regular
+ * {@link CatalogImpl} with an injected {@link CatalogFacade} whose {@link CatalogInfoRepository
+ * repositories} talk to the {@code catalog-service}, hence this integration test suite verifies the
+ * functioning of such {@code CatalogFacade} against a live {@code catalog-service} instance through HTTP.
  */
-@SpringBootTest(
-    classes = { //
+@SpringBootTest(classes = { //
         CatalogServiceApplication.class, //
+        ReactiveCatalogApiClientConfiguration.class, //
         CatalogClientConfiguration.class //
-    },
-    webEnvironment = WebEnvironment.DEFINED_PORT,
-    properties = {
-        "spring.main.web-application-type=reactive",
-        "geoserver.backend.catalog-service.uri=http://localhost:${server.port}"
-    }
-)
+}, webEnvironment = WebEnvironment.DEFINED_PORT,
+        properties = {"spring.main.web-application-type=reactive",
+                "geoserver.backend.catalog-service.uri=http://localhost:${server.port}"})
 @RunWith(SpringRunner.class)
 @ActiveProfiles("it.catalog-service")
 @EnableAutoConfiguration
+@EnableReactiveFeignClients
+@EnableFeignClients
 public class CloudCatalogFacadeIntegrationTest {
 
     /**

@@ -17,4 +17,3 @@ public interface WorkspaceClient {
     @GetMapping(path = "/workspaces/default")
     Mono<WorkspaceInfo> getDefaultWorkspace();
 }
-

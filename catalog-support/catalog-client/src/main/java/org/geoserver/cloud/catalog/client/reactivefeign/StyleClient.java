@@ -4,11 +4,11 @@
  */
 package org.geoserver.cloud.catalog.client.reactivefeign;
 
+import lombok.NonNull;
 import org.geoserver.catalog.StyleInfo;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
-import lombok.NonNull;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

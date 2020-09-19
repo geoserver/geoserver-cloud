@@ -25,6 +25,5 @@ public interface LayerGroupClient {
     @GetMapping(path = "/workspaces/{workspaceId}/layergropus/{name}")
     Mono<LayerGroupInfo> findLayerGropuByNameAndWorkspaceId(
             @PathVariable(required = false, name = "workspaceId") String workspaceId,
-            @PathVariable("name") String name
-            );
+            @PathVariable("name") String name);
 }

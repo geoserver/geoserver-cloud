@@ -4,12 +4,12 @@
  */
 package org.geoserver.cloud.catalog.client.reactivefeign;
 
+import lombok.NonNull;
 import org.geoserver.catalog.NamespaceInfo;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import lombok.NonNull;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -27,4 +27,3 @@ public interface NamespaceClient {
     @GetMapping(path = "namespaces/uri/all")
     Flux<NamespaceInfo> findAllNamespacesByURI(@NonNull @RequestParam("uri") String uri);
 }
-

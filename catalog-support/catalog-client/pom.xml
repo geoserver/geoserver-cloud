@@ -32,20 +32,6 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-json</artifactId>
     </dependency>
-<!--     <dependency> -->
-<!--       <groupId>org.springframework.cloud</groupId> -->
-<!--       <artifactId>spring-cloud-starter-openfeign</artifactId> -->
-<!--       <exclusions> -->
-<!--       <exclusion> -->
-<!--       <groupId>org.springframework.cloud</groupId> -->
-<!--       <artifactId>spring-cloud-netflix-ribbon</artifactId> -->
-<!--       </exclusion> -->
-<!--       </exclusions> -->
-<!--     </dependency> -->
-<!--     <dependency> -->
-<!--       <groupId>org.springframework.cloud</groupId> -->
-<!--       <artifactId>spring-cloud-loadbalancer</artifactId> -->
-<!--     </dependency> -->
     <dependency>
       <groupId>com.playtika.reactivefeign</groupId>
       <artifactId>feign-reactor-cloud</artifactId>
@@ -53,6 +39,11 @@
     <dependency>
       <groupId>com.playtika.reactivefeign</groupId>
       <artifactId>feign-reactor-spring-configuration</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.playtika.reactivefeign</groupId>
+      <artifactId>feign-reactor-webclient</artifactId>
+      <version>${feign-reactor.version}</version>
     </dependency>
     <dependency>
       <!-- contains CatalogTestData support class -->

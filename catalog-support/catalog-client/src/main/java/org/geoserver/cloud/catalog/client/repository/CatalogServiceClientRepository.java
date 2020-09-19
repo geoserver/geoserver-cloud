@@ -5,24 +5,20 @@
 package org.geoserver.cloud.catalog.client.repository;
 
 import java.util.stream.Stream;
-import org.geoserver.catalog.Catalog;
+import lombok.NonNull;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.plugin.CatalogInfoRepository;
 import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveCatalogClient;
 import org.opengis.filter.Filter;
-import org.springframework.lang.Nullable;
-import lombok.NonNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 
 public abstract class CatalogServiceClientRepository<CI extends CatalogInfo>
         implements CatalogInfoRepository<CI> {
 
-    private ReactiveCatalogClient client;
-
-    protected CatalogServiceClientRepository(@NonNull ReactiveCatalogClient client) {
-        this.client = client;
-    }
+    private @Lazy @Autowired ReactiveCatalogClient client;
 
     protected abstract Class<CI> getInfoType();
 
@@ -30,41 +26,50 @@ public abstract class CatalogServiceClientRepository<CI extends CatalogInfo>
         return client;
     }
 
-    public @Override void add(CI value) {
-        client.create(value);
+    public @Override void add(@NonNull CI value) {
+        client.create(value).block();
     }
 
-    public @Override void remove(CI value) {
-        client.delete(value);
+    public @Override void remove(@NonNull CI value) {
+        client.delete(value).block();
     }
 
-    public @Override void update(CI value) {
-        client.update(value);
+    public @Override void update(@NonNull CI value) {
+        client.update(value).block();
     }
 
     public @Override void dispose() {
         // no-op...?
     }
 
-    public @Override <U extends CI> U findFirstByName(@NonNull String name,
-            @NonNull Class<U> infoType) {
-        return infoType.cast(client.findByFirstByName(name, typeEnum(infoType)));
+    public @Override <U extends CI> U findFirstByName(
+            @NonNull String name, @NonNull Class<U> infoType) {
+        ClassMappings typeArg = typeEnum(infoType);
+        Class<U> type = typeArg.getInterface();
+        return client.findByFirstByName(name, typeArg).map(type::cast).block();
     }
 
     public @Override Stream<CI> findAll() {
-        return client.findAll(typeEnum(getInfoType())).map(i -> (CI) i).toStream();
+        ClassMappings typeArg = typeEnum(getInfoType());
+        Class<CI> type = typeArg.getInterface();
+        return client.findAll(typeArg).map(type::cast).toStream();
     }
 
     public @Override Stream<CI> findAll(Filter filter) {
-        return client.query(typeEnum(getInfoType()), filter).map(i -> (CI) i).toStream();
+        ClassMappings typeArg = typeEnum(getInfoType());
+        Class<CI> type = typeArg.getInterface();
+        return client.query(typeArg, filter).map(type::cast).toStream();
     }
 
-    public @Override <U extends CI> Stream<U> findAll(Filter filter, Class<U> infoType) {
-        return client.query(typeEnum(infoType), filter).map(infoType::cast).toStream();
+    public @Override <U extends CI> Stream<U> findAll(
+            @NonNull Filter filter, @NonNull Class<U> infoType) {
+        ClassMappings typeArg = typeEnum(infoType);
+        return client.query(typeArg, filter).map(infoType::cast).toStream();
     }
 
     public @Override <U extends CI> U findById(@NonNull String id, @NonNull Class<U> clazz) {
-        return client.findById(id, typeEnum(clazz)).map(clazz::cast).block();
+        ClassMappings typeArg = typeEnum(clazz);
+        return client.findById(id, typeArg).map(clazz::cast).block();
     }
 
     public @Override void syncTo(CatalogInfoRepository<CI> target) {

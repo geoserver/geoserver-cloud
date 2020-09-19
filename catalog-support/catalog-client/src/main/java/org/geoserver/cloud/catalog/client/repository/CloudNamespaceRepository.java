@@ -6,21 +6,16 @@ package org.geoserver.cloud.catalog.client.repository;
 
 import java.util.Objects;
 import java.util.stream.Stream;
-import org.geoserver.catalog.NamespaceInfo;
-import org.geoserver.catalog.plugin.CatalogInfoRepository.NamespaceRepository;
-import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveCatalogClient;
-import org.springframework.lang.Nullable;
 import lombok.Getter;
 import lombok.NonNull;
+import org.geoserver.catalog.NamespaceInfo;
+import org.geoserver.catalog.plugin.CatalogInfoRepository.NamespaceRepository;
+import org.springframework.lang.Nullable;
 
 public class CloudNamespaceRepository extends CatalogServiceClientRepository<NamespaceInfo>
         implements NamespaceRepository {
 
     private final @Getter Class<NamespaceInfo> infoType = NamespaceInfo.class;
-
-    protected CloudNamespaceRepository(@NonNull ReactiveCatalogClient client) {
-        super(client);
-    }
 
     public @Override void setDefaultNamespace(@NonNull NamespaceInfo namespace) {
         Objects.requireNonNull(namespace.getId(), "provided null namespace id");
