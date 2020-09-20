@@ -32,5 +32,4 @@ public class DataDirectoryCatalogConformanceTest extends CatalogConformanceTest 
         catalog.setResourceLoader(resourceLoader);
         return catalog;
     }
-
 }

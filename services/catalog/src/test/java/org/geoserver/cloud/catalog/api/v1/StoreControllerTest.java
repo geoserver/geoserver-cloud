@@ -18,9 +18,11 @@ import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.WMSStoreInfo;
 import org.geoserver.catalog.WMTSStoreInfo;
 import org.geoserver.cloud.catalog.test.CatalogTestClient;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 
+@Ignore
 @AutoConfigureWebTestClient(timeout = "360000")
 public class StoreControllerTest extends AbstractCatalogInfoControllerTest<StoreInfo> {
 

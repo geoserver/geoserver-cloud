@@ -6,6 +6,7 @@ package org.geoserver.cloud.integration.catalog;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;

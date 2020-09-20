@@ -19,6 +19,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 
+@Ignore
 @AutoConfigureWebTestClient(timeout = "360000")
 public class ResourceInfoControllerTest extends AbstractCatalogInfoControllerTest<ResourceInfo> {
 

@@ -8,9 +8,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.WorkspaceInfo;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 
+@Ignore
 @AutoConfigureWebTestClient(timeout = "360000")
 public class LayerGroupControllerTest extends AbstractCatalogInfoControllerTest<LayerGroupInfo> {
 

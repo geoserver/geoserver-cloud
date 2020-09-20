@@ -11,9 +11,11 @@ import org.geoserver.catalog.SLDHandler;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.impl.LegendInfoImpl;
 import org.geoserver.catalog.impl.StyleInfoImpl;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 
+@Ignore
 @AutoConfigureWebTestClient(timeout = "360000")
 public class StyleControllerTest extends AbstractCatalogInfoControllerTest<StyleInfo> {
 
