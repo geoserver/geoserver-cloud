@@ -137,14 +137,17 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
         Map<String, T> idMap = getMapForValue(idMultiMap, value);
         Map<Name, T> nameMap = getMapForValue(nameMultiMap, value);
         Map<String, Name> idToName = getMapForValue(idToMameMultiMap, value);
-
         // TODO: improve concurrency with lock sharding instead of blocking the whole ConcurrentMaps
         synchronized (idMap) {
             if (null != idMap.putIfAbsent(value.getId(), value)) {
-                throw new IllegalArgumentException(
+                String msg =
                         String.format(
-                                "%s with id %s already exists",
-                                ClassMappings.fromImpl(value.getClass()), value.getId()));
+                                "%s:%s(%s) already exists",
+                                ClassMappings.fromImpl(value.getClass()),
+                                value.getId(),
+                                nameMapper.apply(value).getLocalPart());
+                LOGGER.warning(msg);
+                // throw new IllegalArgumentException(msg);
             }
             Name name = nameMapper.apply(value);
             nameMap.put(name, value);
