@@ -19,7 +19,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 @Configuration
-@Import({CatalogRepositoriesConfiguration.class})
+@Import(CatalogRepositoriesConfiguration.class)
 public class CatalogClientConfiguration {
 
     private @Autowired WorkspaceRepository cloudWorkspaceRepository;
@@ -31,8 +31,8 @@ public class CatalogClientConfiguration {
     private @Autowired StyleRepository cloudStyleRepository;
     private @Autowired MapRepository cloudMapRepository;
 
-    public @Bean CloudCatalogFacade cloudCatalogFacade() {
-        CloudCatalogFacade facade = new CloudCatalogFacade();
+    public @Bean CatalogServiceCatalogFacade cloudCatalogFacade() {
+        CatalogServiceCatalogFacade facade = new CatalogServiceCatalogFacade();
         facade.setWorkspaces(cloudWorkspaceRepository);
         facade.setNamespaces(cloudNamespaceRepository);
         facade.setStores(cloudStoreRepository);

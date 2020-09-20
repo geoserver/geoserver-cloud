@@ -4,11 +4,14 @@
  */
 package org.geoserver.cloud.catalog.client.repository;
 
+import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveCatalogApiClientConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Lazy;
 
 @Configuration
+@Import(ReactiveCatalogApiClientConfiguration.class)
 public class CatalogRepositoriesConfiguration {
 
     public @Lazy @Bean CloudWorkspaceRepository cloudWorkspaceRepository() {

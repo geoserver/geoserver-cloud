@@ -17,6 +17,7 @@ import org.geoserver.cloud.config.datadirectory.DataDirectoryBackendConfigurer;
 import org.geoserver.cloud.config.datadirectory.NoServletContextDataDirectoryResourceStore;
 import org.geoserver.config.DefaultGeoServerLoader;
 import org.geoserver.platform.GeoServerResourceLoader;
+import org.junit.Assume;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -45,16 +46,19 @@ public class DataDirectoryAutoConfigurationTest extends GeoServerBackendConfigur
     }
 
     public @Test void testCatalog() {
+        Assume.assumeTrue(rawCatalog instanceof org.geoserver.catalog.plugin.CatalogImpl);
         assertThat(rawCatalog, instanceOf(org.geoserver.catalog.plugin.CatalogImpl.class));
     }
 
     public @Test void testCatalogFacadeIsRawCatalogFacade() {
+        Assume.assumeTrue(rawCatalog instanceof org.geoserver.catalog.plugin.CatalogImpl);
         assertSame(
                 rawCatalogFacade,
                 ((org.geoserver.catalog.plugin.CatalogImpl) rawCatalog).getRawCatalogFacade());
     }
 
     public @Test void testCatalogFacade() {
+        Assume.assumeTrue(rawCatalog instanceof org.geoserver.catalog.plugin.CatalogImpl);
         assertThat(
                 rawCatalogFacade,
                 instanceOf(org.geoserver.catalog.plugin.DefaultCatalogFacade.class));

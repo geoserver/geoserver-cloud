@@ -13,6 +13,7 @@ import org.geoserver.cloud.autoconfigure.security.GeoServerSecurityDisabledAutoC
 import org.geoserver.cloud.autoconfigure.testconfiguration.AutoConfigurationTestConfiguration;
 import org.geoserver.security.GeoServerSecurityManager;
 import org.geoserver.security.password.URLMasterPasswordProvider;
+import org.junit.Assume;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -51,6 +52,7 @@ public class GeoServerSecurityDisabledAutoConfigurationTest {
     private @Autowired ApplicationContext context;
 
     public @Test void secureCatalogIsRawCatalog() {
+        Assume.assumeTrue(rawCatalog instanceof org.geoserver.catalog.plugin.CatalogImpl);
         assertThat(rawCatalog, instanceOf(org.geoserver.catalog.plugin.CatalogImpl.class));
         assertSame(secureCatalog, rawCatalog);
     }

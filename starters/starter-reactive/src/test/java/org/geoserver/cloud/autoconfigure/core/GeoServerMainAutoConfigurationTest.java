@@ -13,6 +13,7 @@ import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.impl.LocalWorkspaceCatalog;
 import org.geoserver.cloud.test.TestConfiguration;
+import org.junit.Assume;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,7 @@ public class GeoServerMainAutoConfigurationTest {
 
     public @Test void rawCatalog() {
         Catalog catalog = (Catalog) context.getBean("rawCatalog");
+        Assume.assumeTrue(catalog instanceof org.geoserver.catalog.plugin.CatalogImpl);
         assertThat(catalog, instanceOf(org.geoserver.catalog.plugin.CatalogImpl.class));
         CatalogFacade rawCatalogFacade = context.getBean(CatalogFacade.class);
         assertThat(

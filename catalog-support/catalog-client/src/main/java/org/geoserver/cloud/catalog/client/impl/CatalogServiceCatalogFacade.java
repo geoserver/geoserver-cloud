@@ -4,7 +4,8 @@
  */
 package org.geoserver.cloud.catalog.client.impl;
 
-public class CloudCatalogFacade extends org.geoserver.catalog.plugin.AbstractCatalogFacade {
+public class CatalogServiceCatalogFacade
+        extends org.geoserver.catalog.plugin.AbstractCatalogFacade {
 
     public @Override void resolve() {
         // no-op

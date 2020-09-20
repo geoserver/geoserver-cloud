@@ -30,7 +30,10 @@ public interface GeoServerCatalogConfigurer {
 
         CatalogImpl rawCatalog;
         if (properties.isIsolated()) {
-            rawCatalog = org.geoserver.catalog.plugin.CatalogImpl.isoLated(catalogFacade);
+            // rawCatalog = org.geoserver.catalog.plugin.CatalogImpl.isoLated(catalogFacade);
+            // plugin.CatalogImpl now requires a plugin.AbstractCatalogFacade
+            rawCatalog = new org.geoserver.catalog.impl.CatalogImpl();
+            rawCatalog.setFacade(catalogFacade);
         } else {
             rawCatalog = org.geoserver.catalog.plugin.CatalogImpl.nonIsolated(catalogFacade);
         }

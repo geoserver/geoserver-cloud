@@ -18,7 +18,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @ActiveProfiles("test")
 public class CatalogClientConfigurationTest {
 
-    private @Autowired CloudCatalogFacade cloudCatalogFacade;
+    private @Autowired CatalogServiceCatalogFacade cloudCatalogFacade;
 
     @Test
     public void smokeTest() {
