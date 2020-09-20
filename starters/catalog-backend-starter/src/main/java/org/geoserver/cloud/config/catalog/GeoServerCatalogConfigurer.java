@@ -29,13 +29,16 @@ public interface GeoServerCatalogConfigurer {
             CatalogProperties properties) {
 
         CatalogImpl rawCatalog;
-        if (properties.isIsolated()) {
-            // rawCatalog = org.geoserver.catalog.plugin.CatalogImpl.isoLated(catalogFacade);
-            // plugin.CatalogImpl now requires a plugin.AbstractCatalogFacade
+        if ((catalogFacade instanceof org.geoserver.catalog.plugin.AbstractCatalogFacade)) {
+            if (properties.isIsolated()) {
+                rawCatalog = org.geoserver.catalog.plugin.CatalogImpl.isoLated(catalogFacade);
+                rawCatalog.setFacade(catalogFacade);
+            } else {
+                rawCatalog = org.geoserver.catalog.plugin.CatalogImpl.nonIsolated(catalogFacade);
+            }
+        } else {
             rawCatalog = new org.geoserver.catalog.impl.CatalogImpl();
             rawCatalog.setFacade(catalogFacade);
-        } else {
-            rawCatalog = org.geoserver.catalog.plugin.CatalogImpl.nonIsolated(catalogFacade);
         }
         rawCatalog.setResourceLoader(resourceLoader);
         return rawCatalog;
