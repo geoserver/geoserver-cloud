@@ -16,9 +16,10 @@ import org.geoserver.catalog.impl.WorkspaceInfoImpl;
 import org.geoserver.catalog.plugin.CatalogImpl;
 import org.geoserver.cloud.catalog.app.CatalogServiceApplication;
 import org.geoserver.cloud.catalog.client.impl.CatalogClientConfiguration;
-import org.geoserver.cloud.catalog.client.impl.CloudCatalogFacade;
+import org.geoserver.cloud.catalog.client.impl.CatalogServiceCatalogFacade;
 import org.geoserver.cloud.test.CatalogConformanceTest;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,11 +38,13 @@ import org.springframework.test.context.junit4.SpringRunner;
     webEnvironment = WebEnvironment.DEFINED_PORT,
     properties = {
         "spring.main.web-application-type=reactive",
+        "server.port=15555",
         "geoserver.backend.catalog-service.uri=http://localhost:${server.port}"
     }
 )
 @RunWith(SpringRunner.class)
 @ActiveProfiles("it.catalog-service")
+@Ignore("re-enable once working on integration")
 public class CatalogBackendConformanceTest extends CatalogConformanceTest {
 
     /**
@@ -50,7 +53,7 @@ public class CatalogBackendConformanceTest extends CatalogConformanceTest {
      */
     private @Autowired @Qualifier("catalog") Catalog serverCatalog;
 
-    private @Autowired CloudCatalogFacade cloudCatalogFacade;
+    private @Autowired CatalogServiceCatalogFacade cloudCatalogFacade;
 
     /** Client catalog through which to hit the server catalog */
     private Catalog clientCatalog;

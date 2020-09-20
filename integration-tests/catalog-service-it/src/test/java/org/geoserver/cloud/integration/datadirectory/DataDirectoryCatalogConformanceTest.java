@@ -28,18 +28,9 @@ public class DataDirectoryCatalogConformanceTest extends CatalogConformanceTest 
 
     @Override
     protected Catalog createCatalog() {
-        // org.geoserver.catalog.plugin.CatalogImpl perTestCaseRawCatalog =
-        // new org.geoserver.catalog.plugin.CatalogImpl();
-        // perTestCaseRawCatalog.setFacade(rawCatalogFacade);
-        // perTestCaseRawCatalog.setResourceLoader(resourceLoader);
         CatalogImpl catalog = new CatalogImpl(rawCatalogFacade);
         catalog.setResourceLoader(resourceLoader);
         return catalog;
     }
-
-    // public @Override void deleteAll() {
-    // // super.deleteAll();
-    // // ((HikariDataSource) dataSource).close();
-    // }
 
 }
