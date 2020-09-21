@@ -31,7 +31,10 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import lombok.Getter;
+import lombok.experimental.Accessors;
 import org.geoserver.catalog.Catalog;
+import org.geoserver.catalog.CatalogCapabilities;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.DataStoreInfo;
@@ -69,21 +72,24 @@ import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 import org.springframework.util.Assert;
 
+@Accessors(fluent = true)
 public abstract class AbstractCatalogFacade implements CatalogFacade {
 
     private static final Logger LOGGER = Logging.getLogger(AbstractCatalogFacade.class);
 
-    protected NamespaceRepository namespaces;
-    protected WorkspaceRepository workspaces;
-    protected StoreRepository stores;
-    protected ResourceRepository resources;
-    protected LayerRepository layers;
-    protected LayerGroupRepository layerGroups;
-    protected MapRepository maps;
-    protected StyleRepository styles;
+    protected @Getter NamespaceRepository namespaces;
+    protected @Getter WorkspaceRepository workspaces;
+    protected @Getter StoreRepository stores;
+    protected @Getter ResourceRepository resources;
+    protected @Getter LayerRepository layers;
+    protected @Getter LayerGroupRepository layerGroups;
+    protected @Getter MapRepository maps;
+    protected @Getter StyleRepository styles;
     protected Catalog catalog;
 
     private final EnumMap<ClassMappings, Supplier<CatalogInfoRepository<?>>> repos;
+
+    protected final CatalogCapabilities capabilities = new CatalogCapabilities();
 
     private void registerRepository(ClassMappings cm, Supplier<CatalogInfoRepository<?>> repo) {
         repos.put(cm, repo);
@@ -108,6 +114,10 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     public AbstractCatalogFacade(Catalog catalog) {
         this();
         setCatalog(catalog);
+    }
+
+    public @Override CatalogCapabilities getCatalogCapabilities() {
+        return capabilities;
     }
 
     public @Override void setCatalog(Catalog catalog) {

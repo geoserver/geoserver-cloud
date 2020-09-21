@@ -6,13 +6,14 @@ package org.geoserver.jackson.databind.catalog.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import java.util.Map;
+import java.util.TreeMap;
 import lombok.Data;
-import org.geoserver.catalog.impl.ClassMappings;
+import org.geotools.jackson.databind.filter.dto.Expression.Literal;
 
-@Data
+/** DTO for {@link org.geoserver.catalog.plugin.Patch} */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
-@JsonTypeName("Ref")
-public class InfoReference {
-    private ClassMappings type;
-    private String id;
+@JsonTypeName("Patch")
+public @Data class PatchDto {
+    private Map<String, Literal> patches = new TreeMap<>();
 }

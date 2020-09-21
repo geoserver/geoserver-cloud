@@ -85,13 +85,15 @@ public abstract class ExpressionMapper {
                 "Unrecognized expression type " + source.getClass().getName() + ": " + source);
     }
 
-    protected abstract PropertyName map(org.opengis.filter.expression.PropertyName expression);
+    public abstract PropertyName map(org.opengis.filter.expression.PropertyName expression);
 
-    protected abstract org.opengis.filter.expression.PropertyName map(PropertyName dto);
+    public abstract org.opengis.filter.expression.PropertyName map(PropertyName dto);
 
-    protected abstract org.opengis.filter.expression.Literal map(Literal dto);
+    public abstract org.opengis.filter.expression.Literal map(Literal dto);
 
-    protected abstract Literal map(org.opengis.filter.expression.Literal expression);
+    @Mapping(target = "list", ignore = true)
+    @Mapping(target = "set", ignore = true)
+    public abstract Literal map(org.opengis.filter.expression.Literal expression);
 
     protected org.opengis.filter.expression.Function map(Function dto) {
         if (dto == null) return null;

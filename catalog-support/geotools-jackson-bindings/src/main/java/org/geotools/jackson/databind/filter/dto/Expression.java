@@ -7,8 +7,11 @@ package org.geotools.jackson.databind.filter.dto;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -36,6 +39,36 @@ public @Data abstract class Expression {
             property = "@type"
         )
         private Object value;
+
+        private List<Literal> list;
+        private Set<Literal> set;
+
+        public Literal setValue(Object value) {
+            if (value instanceof List)
+                list =
+                        ((List<?>) value)
+                                .stream()
+                                .map(v -> new Literal().setValue(v))
+                                .collect(Collectors.toList());
+            else if (value instanceof Set)
+                set =
+                        ((Set<?>) value)
+                                .stream()
+                                .map(v -> new Literal().setValue(v))
+                                .collect(Collectors.toCollection(LinkedHashSet::new));
+            else this.value = value;
+            return this;
+        }
+
+        public Object resolveValue() {
+            if (set != null)
+                return set.stream()
+                        .map(Literal::resolveValue)
+                        .collect(Collectors.toCollection(LinkedHashSet::new));
+            if (list != null)
+                return list.stream().map(Literal::resolveValue).collect(Collectors.toList());
+            return value;
+        }
     }
 
     @EqualsAndHashCode(callSuper = true)

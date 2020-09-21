@@ -19,7 +19,6 @@ import org.geoserver.config.ServiceInfo;
 import org.geoserver.jackson.databind.catalog.dto.InfoReference;
 import org.geoserver.jackson.databind.catalog.dto.Keyword;
 import org.geoserver.jackson.databind.catalog.dto.MetadataLink;
-import org.geoserver.jackson.databind.mapper.NameDto;
 import org.geoserver.security.CatalogMode;
 import org.geoserver.wfs.GMLInfoImpl;
 import org.geoserver.wfs.WFSInfo.ServiceLevel;

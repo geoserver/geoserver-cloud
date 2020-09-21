@@ -10,6 +10,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.TreeMap;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.Value;
 import org.geoserver.ows.util.OwsUtils;
 
@@ -21,14 +26,27 @@ public @Value class Patch implements Serializable {
         private final Object value;
     }
 
-    private final List<Property> patches = new ArrayList<>();
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
+    private final Map<String, Property> patches = new TreeMap<>();
+
+    public List<Property> getPatches() {
+        return new ArrayList<Patch.Property>(patches.values());
+    }
 
     public void add(Property prop) {
-        patches.add(prop);
+        patches.put(prop.getName(), prop);
+    }
+
+    public Property add(String name, Object value) {
+        Objects.requireNonNull(name, "name");
+        Property p = new Property(name, value);
+        add(p);
+        return p;
     }
 
     public void applyTo(Object target) {
-        patches.forEach(p -> apply(target, p));
+        patches.values().forEach(p -> apply(target, p));
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})

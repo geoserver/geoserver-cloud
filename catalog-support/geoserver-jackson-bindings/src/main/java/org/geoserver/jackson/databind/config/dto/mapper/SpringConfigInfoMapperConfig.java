@@ -11,6 +11,6 @@ import org.mapstruct.ReportingPolicy;
 @MapperConfig(
     componentModel = "default",
     unmappedTargetPolicy = ReportingPolicy.ERROR,
-    uses = {SharedMappers.class, ObjectFacotries.class, ValueMappers.class, WPSMapper.class}
+    uses = {SharedMappers.class, ObjectFacotries.class, WPSMapper.class}
 )
 public class SpringConfigInfoMapperConfig {}

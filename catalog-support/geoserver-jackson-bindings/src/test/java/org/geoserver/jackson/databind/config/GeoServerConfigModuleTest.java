@@ -15,6 +15,7 @@ import org.geoserver.catalog.Info;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.plugin.CatalogImpl;
 import org.geoserver.cloud.test.CatalogTestData;
+import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.SettingsInfo;
 import org.geoserver.jackson.databind.catalog.ProxyUtils;
@@ -34,6 +35,8 @@ public class GeoServerConfigModuleTest {
     private Catalog catalog;
     private CatalogTestData testData;
     private ObjectMapper objectMapper;
+    private GeoServer geoserver;
+    private ProxyUtils proxyResolver;
 
     public static @BeforeClass void oneTimeSetup() {
         // avoid the chatty warning logs due to catalog looking up a bean of type
@@ -44,6 +47,8 @@ public class GeoServerConfigModuleTest {
     public @Before void before() {
         catalog = new CatalogImpl();
         testData = CatalogTestData.initialized(() -> catalog).initCatalog().createConfigObjects();
+        geoserver = testData.initConfig().getConfigCatalog();
+        proxyResolver = new ProxyUtils(catalog, geoserver);
 
         objectMapper = new ObjectMapper();
         objectMapper.setDefaultPropertyInclusion(Include.NON_EMPTY);
@@ -60,7 +65,7 @@ public class GeoServerConfigModuleTest {
         T decoded = objectMapper.readValue(encoded, type);
         // This is the client code's responsibility, the Deserializer returns "resolving proxy"
         // proxies for Info references
-        decoded = new ProxyUtils(catalog).resolve(decoded);
+        decoded = proxyResolver.resolve(decoded);
 
         OwsUtils.resolveCollections(orig);
         OwsUtils.resolveCollections(decoded);

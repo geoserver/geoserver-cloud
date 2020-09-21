@@ -27,13 +27,13 @@ public class CloudLayerGroupRepository extends CatalogServiceClientRepository<La
 
     @Override
     public LayerGroupInfo findByNameAndWorkspaceIsNull(@NonNull String name) {
-        return client().findLayerGropuByNameAndNullWorkspace(name).block();
+        return client().findLayerGroupByNameAndNullWorkspace(name).block();
     }
 
     @Override
     public LayerGroupInfo findByNameAndWorkspace(
             @NonNull String name, @NonNull WorkspaceInfo workspace) {
         Objects.requireNonNull(workspace.getId());
-        return client().findLayerGropuByNameAndWorkspaceId(name, workspace.getId()).block();
+        return client().findLayerGroupByNameAndWorkspaceId(name, workspace.getId()).block();
     }
 }

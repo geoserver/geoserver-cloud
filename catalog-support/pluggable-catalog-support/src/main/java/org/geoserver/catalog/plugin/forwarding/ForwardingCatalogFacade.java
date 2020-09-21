@@ -379,9 +379,6 @@ public class ForwardingCatalogFacade implements CatalogFacade {
     }
 
     public @Override CatalogCapabilities getCatalogCapabilities() {
-        CatalogCapabilities capabilities = facade.getCatalogCapabilities();
-        // this wrapper adds support for isolated workspaces
-        capabilities.setIsolatedWorkspacesSupport(true);
-        return capabilities;
+        return facade.getCatalogCapabilities();
     }
 }

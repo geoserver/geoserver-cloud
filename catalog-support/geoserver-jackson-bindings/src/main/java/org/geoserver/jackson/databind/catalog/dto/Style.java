@@ -15,8 +15,8 @@ public class Style extends CatalogInfoDto {
 
     private String name;
     private InfoReference workspace;
-    private String format = "sld";
-    private String formatVersion = "1.0.0";
+    private String format;
+    private VersionDto formatVersion;
     private String filename;
     private Legend legend;
     private Map<String, Serializable> metadata;

@@ -11,6 +11,7 @@ import java.util.Arrays;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.impl.ClassMappings;
+import org.geoserver.catalog.plugin.Patch;
 import org.geotools.jackson.databind.filter.GeoToolsFilterModule;
 import org.geotools.jackson.databind.geojson.GeoToolsGeoJsonModule;
 
@@ -51,6 +52,11 @@ public class GeoServerCatalogModule extends SimpleModule {
         super(GeoServerCatalogModule.class.getSimpleName(), new Version(1, 0, 0, null, null, null));
 
         log.debug("registering jackson de/serializers for all GeoServer CatalogInfo types");
+
+        super.addSerializer(new PatchSerializer());
+        super.addDeserializer(Patch.class, new PatchDeserializer());
+        super.addSerializer(new VersionSerializer());
+        super.addDeserializer(org.geotools.util.Version.class, new VersionDeserializer());
 
         this.addSerializer(CatalogInfo.class);
         this.addDeserializer(CatalogInfo.class);

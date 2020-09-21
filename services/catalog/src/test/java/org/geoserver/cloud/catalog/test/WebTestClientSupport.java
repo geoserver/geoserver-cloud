@@ -15,13 +15,7 @@ import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
-import org.geoserver.cloud.catalog.api.v1.LayerController;
-import org.geoserver.cloud.catalog.api.v1.LayerGroupController;
-import org.geoserver.cloud.catalog.api.v1.NamespaceController;
-import org.geoserver.cloud.catalog.api.v1.ResourceController;
-import org.geoserver.cloud.catalog.api.v1.StoreController;
-import org.geoserver.cloud.catalog.api.v1.StyleController;
-import org.geoserver.cloud.catalog.api.v1.WorkspaceController;
+import org.geoserver.cloud.catalog.api.v1.ReactiveCatalogController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
@@ -48,36 +42,35 @@ public class WebTestClientSupport implements Supplier<WebTestClient> {
         return client;
     }
 
-    public <C extends CatalogInfo> CatalogTestClient<C> clientFor(
-            @NonNull Class<C> infoType, @NonNull String baseUri) {
-        return new CatalogTestClient<C>(client, infoType, baseUri);
+    public <C extends CatalogInfo> CatalogTestClient<C> clientFor(@NonNull Class<C> infoType) {
+        return new CatalogTestClient<C>(client, infoType, ReactiveCatalogController.BASE_URI);
     }
 
     public CatalogTestClient<WorkspaceInfo> workspaces() {
-        return clientFor(WorkspaceInfo.class, WorkspaceController.BASE_URI);
+        return clientFor(WorkspaceInfo.class);
     }
 
     public CatalogTestClient<NamespaceInfo> namespaces() {
-        return clientFor(NamespaceInfo.class, NamespaceController.BASE_URI);
+        return clientFor(NamespaceInfo.class);
     }
 
     public CatalogTestClient<StoreInfo> stores() {
-        return clientFor(StoreInfo.class, StoreController.BASE_URI);
+        return clientFor(StoreInfo.class);
     }
 
     public CatalogTestClient<ResourceInfo> resources() {
-        return clientFor(ResourceInfo.class, ResourceController.BASE_URI);
+        return clientFor(ResourceInfo.class);
     }
 
     public CatalogTestClient<LayerInfo> layers() {
-        return clientFor(LayerInfo.class, LayerController.BASE_URI);
+        return clientFor(LayerInfo.class);
     }
 
     public CatalogTestClient<LayerGroupInfo> layerGroups() {
-        return clientFor(LayerGroupInfo.class, LayerGroupController.BASE_URI);
+        return clientFor(LayerGroupInfo.class);
     }
 
     public CatalogTestClient<StyleInfo> styles() {
-        return clientFor(StyleInfo.class, StyleController.BASE_URI);
+        return clientFor(StyleInfo.class);
     }
 }

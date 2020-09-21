@@ -13,6 +13,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Setter;
 import org.geoserver.catalog.CascadeDeleteVisitor;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogFactory;
@@ -42,6 +45,7 @@ import org.geoserver.catalog.impl.MetadataLinkInfoImpl;
 import org.geoserver.config.ContactInfo;
 import org.geoserver.config.CoverageAccessInfo;
 import org.geoserver.config.CoverageAccessInfo.QueueType;
+import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.GeoServerInfo.WebUIMode;
 import org.geoserver.config.JAIInfo;
@@ -51,6 +55,7 @@ import org.geoserver.config.ResourceErrorHandling;
 import org.geoserver.config.SettingsInfo;
 import org.geoserver.config.impl.ContactInfoImpl;
 import org.geoserver.config.impl.CoverageAccessInfoImpl;
+import org.geoserver.config.impl.GeoServerImpl;
 import org.geoserver.config.impl.GeoServerInfoImpl;
 import org.geoserver.config.impl.JAIEXTInfoImpl;
 import org.geoserver.config.impl.JAIInfoImpl;
@@ -88,6 +93,8 @@ import org.springframework.util.Assert;
 public class CatalogTestData extends ExternalResource {
 
     private Supplier<Catalog> catalog;
+    private @Setter @Getter GeoServer configCatalog;
+
     private boolean initialize;
 
     private CatalogTestData(Supplier<Catalog> catalog, boolean initialize) {
@@ -242,6 +249,22 @@ public class CatalogTestData extends ExternalResource {
         return this;
     }
 
+    public CatalogTestData initConfig() {
+        createConfigObjects();
+        if (configCatalog == null) {
+            configCatalog = new GeoServerImpl();
+        }
+        configCatalog.setGlobal(global);
+        configCatalog.setLogging(logging);
+        configCatalog.add(wmsService);
+        configCatalog.add(wfsService);
+        configCatalog.add(wpsService);
+        configCatalog.add(wcsService);
+
+        configCatalog.add(workspaceASettings);
+        return this;
+    }
+
     public CatalogTestData createConfigObjects() {
         global = createGlobal();
         logging = createLogging();
@@ -314,8 +337,12 @@ public class CatalogTestData extends ExternalResource {
         return lyr;
     }
 
-    public StyleInfo createStyle(String name) {
-        return createStyle(name + "-id", null, name, name + ".sld");
+    public StyleInfo createStyle(@NonNull String name) {
+        return createStyle(name, (WorkspaceInfo) null);
+    }
+
+    public StyleInfo createStyle(@NonNull String name, WorkspaceInfo workspace) {
+        return createStyle(name + "-id", workspace, name, name + ".sld");
     }
 
     public StyleInfo createStyle(String id, WorkspaceInfo workspace, String name, String fileName) {
@@ -397,6 +424,17 @@ public class CatalogTestData extends ExternalResource {
         cstore.setWorkspace(ws);
         OwsUtils.resolveCollections(cstore);
         return cstore;
+    }
+
+    public FeatureTypeInfo createFeatureType(String name) {
+        return createFeatureType(
+                name + "-id",
+                dataStoreA,
+                namespaceA,
+                name,
+                name + " abstract",
+                name + " description",
+                true);
     }
 
     public FeatureTypeInfo createFeatureType(
@@ -484,8 +522,8 @@ public class CatalogTestData extends ExternalResource {
 
     public GeoServerInfo createGlobal() {
         GeoServerInfoImpl g = new GeoServerInfoImpl();
-        g.setId("GeoServer.global");
 
+        g.setId("GeoServer.global");
         g.setAdminPassword("geoserver");
         g.setAdminUsername("admin");
         g.setAllowStoredQueriesPerWorkspace(true);
@@ -503,6 +541,7 @@ public class CatalogTestData extends ExternalResource {
         g.setWebUIMode(WebUIMode.DO_NOT_REDIRECT);
         g.setXmlExternalEntitiesEnabled(Boolean.TRUE);
         g.setXmlPostRequestLogBufferSize(1024);
+
         return g;
     }
 

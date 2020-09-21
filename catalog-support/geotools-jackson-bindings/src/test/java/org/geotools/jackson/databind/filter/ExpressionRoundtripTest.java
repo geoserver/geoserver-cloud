@@ -168,6 +168,14 @@ public abstract class ExpressionRoundtripTest {
         roundtripTest(literal(SI.ASTRONOMICAL_UNIT));
     }
 
+    public @Test void literalList() throws Exception {
+        List<Object> l1 = Arrays.asList(1, 2, 3, 4);
+        roundtripTest(literal(l1));
+
+        List<Object> l2 = Arrays.asList(new Date(1), new Date(2), new Date(3));
+        roundtripTest(literal(l2));
+    }
+
     private Literal literal(Object value) {
         return new Literal().setValue(value);
     }

@@ -1,6 +1,8 @@
 geoserver:
   security.enabled: false
   catalog:
+    # Disable isolated catalog, it checks the org.geoserver.ows.Dispatcher.REQUEST to check if an OWS is in progress,
+    # which can never be the case, and causes a java.lang.NoClassDefFoundError on org.springframework.web.servlet.mvc.AbstractController
     isolated: false
     # Disable advertised catalog, it checks the org.geoserver.ows.Dispatcher.REQUEST to check if an OWS is in progress,
     # which can never be the case, and causes a java.lang.NoClassDefFoundError on org.springframework.web.servlet.mvc.AbstractController

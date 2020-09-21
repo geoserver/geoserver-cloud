@@ -21,6 +21,7 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.impl.ClassMappings;
+import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.ows.util.ClassProperties;
 import org.geoserver.ows.util.OwsUtils;
 
@@ -29,8 +30,8 @@ public @Data class PropertyDiff implements Serializable {
 
     private List<Change> changes;
 
-    public static <T extends Info> PropertyDiffBuilder<T> builder(T info) {
-        return new PropertyDiffBuilder<>(info);
+    public static <T extends Info> PropertyDiffBuilder<T> builder(T oldValueHolder) {
+        return new PropertyDiffBuilder<>(oldValueHolder);
     }
 
     public PropertyDiff() {
@@ -123,6 +124,10 @@ public @Data class PropertyDiff implements Serializable {
         public @Override String toString() {
             return String.format("%s: {old: %s, new: %s}", propertyName, oldValue, newValue);
         }
+    }
+
+    public static PropertyDiff valueOf(ModificationProxy proxy) {
+        return valueOf(proxy.getPropertyNames(), proxy.getOldValues(), proxy.getNewValues());
     }
 
     public static PropertyDiff valueOf(

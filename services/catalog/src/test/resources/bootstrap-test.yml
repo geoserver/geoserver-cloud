@@ -1,3 +1,5 @@
+server.error.includeStacktrace: always
+
 spring:
   jackson.serialization.indent_output: true
   main:
@@ -28,6 +30,10 @@ logging:
   level:
     root: WARN
     org.geoserver.platform: ERROR
+    org.geoserver.jackson: DEBUG
+    org.geotools.jackson: DEBUG
     org.geoserver.cloud: DEBUG
     org.geoserver.cloud.config.factory: TRACE
     org.springframework.test: ERROR
+    o.s.integration.handler.LoggingHandler: OFF
+    

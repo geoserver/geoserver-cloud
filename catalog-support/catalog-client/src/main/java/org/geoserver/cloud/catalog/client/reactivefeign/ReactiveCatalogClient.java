@@ -119,18 +119,18 @@ public interface ReactiveCatalogClient {
     @GetMapping(path = "/layers/resource/{resourceId}")
     Flux<LayerInfo> findLayersByResourceId(@RequestParam("resourceId") String resourceId);
 
-    @GetMapping(path = "/layergropus")
+    @GetMapping(path = "/layergroups")
     Flux<LayerGroupInfo> findLayerGroupsByNullWoskspace();
 
-    @GetMapping(path = "/workspaces/{workspaceId}/layergropus")
+    @GetMapping(path = "/workspaces/{workspaceId}/layergroups")
     Flux<LayerGroupInfo> findLayerGroupsByWoskspaceId(
             @PathVariable("workspaceId") String workspaceId);
 
-    @GetMapping(path = "/layergropus/name/{name}")
-    Mono<LayerGroupInfo> findLayerGropuByNameAndNullWorkspace(@PathVariable("name") String name);
+    @GetMapping(path = "/layergroups/name/{name}")
+    Mono<LayerGroupInfo> findLayerGroupByNameAndNullWorkspace(@PathVariable("name") String name);
 
-    @GetMapping(path = "/workspaces/{workspaceId}/layergropus/{name}")
-    Mono<LayerGroupInfo> findLayerGropuByNameAndWorkspaceId(
+    @GetMapping(path = "/workspaces/{workspaceId}/layergroups/{name}")
+    Mono<LayerGroupInfo> findLayerGroupByNameAndWorkspaceId(
             @PathVariable(required = false, name = "workspaceId") String workspaceId,
             @PathVariable("name") String name);
 

@@ -4,21 +4,22 @@
  */
 package org.geoserver.cloud.catalog.api.v1;
 
+import static java.lang.String.format;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import java.util.List;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.junit.Test;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.http.MediaType;
 
 @AutoConfigureWebTestClient(timeout = "360000")
-public class WorkspaceControllerTest extends AbstractCatalogInfoControllerTest<WorkspaceInfo> {
+public class WorkspaceControllerTest extends AbstractReactiveCatalogControllerTest<WorkspaceInfo> {
 
     public WorkspaceControllerTest() {
-        super(WorkspaceController.BASE_URI, WorkspaceInfo.class);
+        super(WorkspaceInfo.class);
     }
 
     protected @Override void assertPropertriesEqual(WorkspaceInfo expected, WorkspaceInfo actual) {
@@ -26,32 +27,61 @@ public class WorkspaceControllerTest extends AbstractCatalogInfoControllerTest<W
         assertEquals(expected.isIsolated(), actual.isIsolated());
     }
 
-    public @Test void findWorkspaceById() {
+    public @Override @Test void testFindById() {
         testFindById(testData.workspaceA);
         testFindById(testData.workspaceB);
         testFindById(testData.workspaceC);
     }
 
-    public @Test void workspaceCRUD() {
-        WorkspaceInfo ws = testData.createWorkspace("workspaceCRUD");
-        crudTest(ws, w -> w.setName("modified_name"), catalog::getWorkspace);
+    public @Override @Test void testFindAll() {
+        super.testFindAll(testData.workspaceA, testData.workspaceB, testData.workspaceC);
     }
 
-    public @Test void testFindAll() {
-        List<WorkspaceInfo> all = super.findAll();
-        assertEquals(3, all.size());
+    public @Override @Test void testFindAllByType() {
+        super.testFindAll(
+                WorkspaceInfo.class, testData.workspaceA, testData.workspaceB, testData.workspaceC);
     }
 
     public @Test void testFindByName() {
         WorkspaceInfo ws1 = testData.workspaceA;
-        assertEquals(ws1, client().getByName(ws1.getName()));
+        assertEquals(ws1, client().getFirstByName(ws1.getName()));
     }
 
-    public @Test void getDefaultWorkspace() {
+    public @Override @Test void testQueryFilter() {
+        WorkspaceInfo wsA = catalog.getWorkspace(testData.workspaceA.getId());
+        WorkspaceInfo wsB = catalog.getWorkspace(testData.workspaceB.getId());
+        WorkspaceInfo wsC = catalog.getWorkspace(testData.workspaceC.getId());
+
+        wsB.setIsolated(true);
+        wsC.setIsolated(true);
+        catalog.save(wsB);
+        catalog.save(wsC);
+
+        super.testQueryFilter("isolated = true", wsB, wsC);
+        super.testQueryFilter("isolated = false", wsA);
+        super.testQueryFilter(format("\"id\" = '%s'", wsA.getId()), wsA);
+    }
+
+    public @Test void testWorkspaceCRUD() {
+        WorkspaceInfo ws = testData.createWorkspace("workspaceCRUD");
+        crudTest(
+                ws,
+                catalog::getWorkspace,
+                w -> {
+                    w.setName("modified_name");
+                    w.setIsolated(true);
+                },
+                (orig, updated) -> {
+                    assertEquals("modified_name", updated.getName());
+                    assertTrue(updated.isIsolated());
+                });
+    }
+
+    public @Test void testGetDefaultWorkspace() {
         WorkspaceInfo expected = catalog.getDefaultWorkspace();
         assertNotNull(expected);
         WorkspaceInfo actual =
-                client().getRelative("/default")
+                client().getRelative("/workspaces/default")
                         .expectStatus()
                         .isOk()
                         .expectHeader()
@@ -62,18 +92,18 @@ public class WorkspaceControllerTest extends AbstractCatalogInfoControllerTest<W
         assertEquals(expected, actual);
     }
 
-    public @Test void getDefaultWorkspaceIsNullOnEmptyCatalog() {
+    public @Test void testGetDefaultWorkspaceIsNullOnEmptyCatalog() {
         testData.deleteAll();
         assertNull(catalog.getDefaultWorkspace());
 
-        client().getWithAbsolutePath("/default")
+        client().getWithAbsolutePath("/workspaces/default")
                 .expectStatus()
                 .isNotFound()
                 .expectHeader()
                 .contentType(MediaType.APPLICATION_JSON);
     }
 
-    public @Test void setDefaultWorkspace() {
+    public @Test void testSetDefaultWorkspace() {
         WorkspaceInfo current = catalog.getDefaultWorkspace();
         assertNotNull(current);
         assertEquals(testData.workspaceA.getId(), current.getId());
@@ -81,7 +111,7 @@ public class WorkspaceControllerTest extends AbstractCatalogInfoControllerTest<W
         WorkspaceInfo expected = catalog.getWorkspace(testData.workspaceB.getId());
 
         WorkspaceInfo actual =
-                client().put("/default/{id}", expected.getId())
+                client().put("/workspaces/default/{id}", expected.getId())
                         .expectStatus()
                         .isOk()
                         .expectHeader()

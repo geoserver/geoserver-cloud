@@ -6,11 +6,17 @@ package org.geoserver.cloud.catalog.test;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
+import java.lang.reflect.Proxy;
+import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.impl.ClassMappings;
+import org.geoserver.catalog.impl.ModificationProxy;
+import org.geoserver.catalog.plugin.Patch;
+import org.geoserver.catalog.plugin.PropertyDiff;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.reactive.server.WebTestClient.RequestBodySpec;
 import org.springframework.test.web.reactive.server.WebTestClient.ResponseSpec;
@@ -25,15 +31,25 @@ public class CatalogTestClient<C extends CatalogInfo> {
     protected final @NonNull String baseUri;
 
     public ResponseSpec create(C info) {
-        return doPost(info, baseUri);
+        return doPost(info, "/{endpoint}", endpoint());
     }
 
-    public ResponseSpec update(C info) {
-        return putAbsoluteURI(info, baseUri);
+    /** Calls update with {@link Patch} on the server, does not modify {@code info} */
+    public ResponseSpec update(C info, Consumer<C> modifyingConsumer) {
+        C real = ModificationProxy.unwrap(info);
+        Class<? extends CatalogInfo> clazz = real.getClass();
+        ClassMappings classMappings = ClassMappings.fromImpl(clazz);
+        C proxied = ModificationProxy.create(info, classMappings.getInterface());
+
+        modifyingConsumer.accept(proxied);
+        ModificationProxy proxy = (ModificationProxy) Proxy.getInvocationHandler(proxied);
+        Patch patch = PropertyDiff.valueOf(proxy).toPatch();
+
+        return patchAbsoluteURI(patch, baseUri + "/{endpoint}/{id}", endpoint(), info.getId());
     }
 
     public ResponseSpec delete(C info) {
-        return doDelete(info, baseUri + "/{id}", info.getId());
+        return doDelete(info, baseUri + "/{endpoint}/{id}", endpoint(), info.getId());
     }
 
     public ResponseSpec findById(@NonNull C expected) {
@@ -50,17 +66,22 @@ public class CatalogTestClient<C extends CatalogInfo> {
      * requested subtype, if provided.
      */
     public ResponseSpec findById(String id, @NonNull Class<? extends C> requestedType) {
-        String uri = baseUri + "/{id}?subtype={subtype}";
+        String endpoint = endpoint();
+        String uri = baseUri + "/{endpoint}/{id}?type={subtype}";
         ClassMappings subType = null;
         if (!infoType.equals(requestedType)) {
             subType = ClassMappings.fromInterface(requestedType);
         }
-
-        return getWithAbsolutePath(uri, id, subType);
+        return getWithAbsolutePath(uri, endpoint, id, subType);
     }
 
-    public C getByName(String name) {
-        return findByName(name, infoType)
+    private String endpoint() {
+        String endpoint = ClassMappings.fromInterface(infoType).toString().toLowerCase() + "s";
+        return endpoint;
+    }
+
+    public C getFirstByName(String name) {
+        return findFirstByName(name, infoType)
                 .expectStatus()
                 .isOk()
                 .expectBody(infoType)
@@ -68,37 +89,21 @@ public class CatalogTestClient<C extends CatalogInfo> {
                 .getResponseBody();
     }
 
-    public ResponseSpec findByName(String name) {
-        return findByName(name, infoType);
-    }
-
-    public ResponseSpec findByName( //
-            String name, //
-            @NonNull Class<? extends C> requestedType) {
-        return findByName(name, null, requestedType);
-    }
-
-    /**
-     * Calls {@link #findByName(String, String, ClassMappings)} on the controller under test and for
-     * the requested subtype, if provided.
-     */
-    public ResponseSpec findByName( //
+    public ResponseSpec findFirstByName( //
             String localName, //
-            @Nullable String namespaceContext, //
             @NonNull Class<? extends C> requestedType) {
 
-        String uri = baseUri + "/name/{name}?namespace={namespace}&subtype={subtype}";
-        ClassMappings subType = null;
-        if (!infoType.equals(requestedType)) {
-            subType = ClassMappings.fromInterface(requestedType);
-        }
-
-        return getWithAbsolutePath(uri, localName, namespaceContext, subType);
+        String uri = baseUri + "/{endpoint}/name/{name}/first?type={type}";
+        ClassMappings subType = ClassMappings.fromInterface(requestedType);
+        return getWithAbsolutePath(uri, endpoint(), localName, subType);
     }
 
     public <T extends CatalogInfo> ResponseSpec getRelative(String uri, Object... uriVariables) {
         uri = baseUri + uri;
-        return client.get().uri(uri, uriVariables).exchange();
+        return client.get()
+                .uri(uri, uriVariables)
+                .accept(MediaType.APPLICATION_JSON, MediaType.APPLICATION_STREAM_JSON)
+                .exchange();
     }
 
     public <T extends CatalogInfo> ResponseSpec getWithAbsolutePath(
@@ -111,6 +116,7 @@ public class CatalogTestClient<C extends CatalogInfo> {
             @NonNull String uri,
             Object... uriVariables) {
 
+        uri = baseUri + uri;
         return client.post()
                 .uri(uri, uriVariables)
                 .contentType(APPLICATION_JSON)
@@ -127,6 +133,11 @@ public class CatalogTestClient<C extends CatalogInfo> {
         return putAbsoluteURI(requestBody, baseUri + uri, uriVariables);
     }
 
+    public ResponseSpec patchWithBody(
+            @NonNull Object requestBody, @NonNull String uri, Object... uriVariables) {
+        return patchAbsoluteURI(requestBody, baseUri + uri, uriVariables);
+    }
+
     public ResponseSpec putAbsoluteURI(
             @Nullable Object requestBody, //
             @NonNull String uri,
@@ -134,6 +145,18 @@ public class CatalogTestClient<C extends CatalogInfo> {
 
         RequestBodySpec bodySpec =
                 client.put().uri(uri, uriVariables).contentType(APPLICATION_JSON);
+        if (requestBody != null) return bodySpec.bodyValue(requestBody).exchange();
+
+        return bodySpec.exchange();
+    }
+
+    public ResponseSpec patchAbsoluteURI(
+            @Nullable Object requestBody, //
+            @NonNull String uri,
+            Object... uriVariables) {
+
+        RequestBodySpec bodySpec =
+                client.patch().uri(uri, uriVariables).contentType(APPLICATION_JSON);
         if (requestBody != null) return bodySpec.bodyValue(requestBody).exchange();
 
         return bodySpec.exchange();

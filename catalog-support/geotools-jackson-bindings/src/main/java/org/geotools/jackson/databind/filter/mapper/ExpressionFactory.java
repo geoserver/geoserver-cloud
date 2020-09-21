@@ -25,6 +25,6 @@ public class ExpressionFactory {
     }
 
     public @ObjectFactory org.opengis.filter.expression.Literal literal(Literal source) {
-        return factory.literal(source.getValue());
+        return factory.literal(source.resolveValue());
     }
 }

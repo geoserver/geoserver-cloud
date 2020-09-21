@@ -306,7 +306,7 @@ public class RemoteApplicationEventsAutoConfigurationTest {
         testRemoteAddEvent(testData.layerFeatureTypeA, catalog::add, eventType);
     }
 
-    public @Test void testCatalogAddedEvents_LayerGropup() {
+    public @Test void testCatalogAddedEvents_LayerGroup() {
         catalog.add(testData.workspaceA);
         catalog.add(testData.namespaceA);
         catalog.add(testData.dataStoreA);
@@ -318,7 +318,7 @@ public class RemoteApplicationEventsAutoConfigurationTest {
         testRemoteAddEvent(testData.layerGroup1, catalog::add, eventType);
     }
 
-    public @Test void testCatalogAddedEvents_LayerGropup_Payload() {
+    public @Test void testCatalogAddedEvents_LayerGroup_Payload() {
         catalog.add(testData.workspaceA);
         catalog.add(testData.namespaceA);
         catalog.add(testData.dataStoreA);

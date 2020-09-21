@@ -40,3 +40,4 @@ logging:
     org.geoserver.cloud: DEBUG
     org.geoserver.cloud.config.factory: TRACE
     org.springframework.test: ERROR
+    org.springframework.integration.handler.LoggingHandler: OFF #spurious "Could Not Convert Output" stack traces during tests

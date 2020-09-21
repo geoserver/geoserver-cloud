@@ -17,6 +17,10 @@
       <artifactId>gt-jackson-bindings</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-pluggable-catalog-support</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.geoserver</groupId>
       <artifactId>gs-main</artifactId>
     </dependency>
@@ -97,11 +101,6 @@
       <artifactId>gs-main</artifactId>
       <version>${gs.version}</version>
       <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-pluggable-catalog-support</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
