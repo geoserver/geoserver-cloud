@@ -103,7 +103,7 @@ public class NamespaceControllerTest extends AbstractReactiveCatalogControllerTe
 
         client().put("/namespaces/default/{id}", "non-existent-id")
                 .expectStatus()
-                .isNotFound()
+                .isNoContent()
                 .expectHeader()
                 .contentType(APPLICATION_JSON);
     }
@@ -139,7 +139,7 @@ public class NamespaceControllerTest extends AbstractReactiveCatalogControllerTe
         testData.deleteAll();
         client().getRelative("/namespaces/default")
                 .expectStatus()
-                .isNotFound()
+                .isNoContent()
                 .expectHeader()
                 .contentType(APPLICATION_JSON);
     }

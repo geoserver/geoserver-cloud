@@ -96,9 +96,9 @@ public class WorkspaceControllerTest extends AbstractReactiveCatalogControllerTe
         testData.deleteAll();
         assertNull(catalog.getDefaultWorkspace());
 
-        client().getWithAbsolutePath("/workspaces/default")
+        client().getRelative("/workspaces/default")
                 .expectStatus()
-                .isNotFound()
+                .isNoContent()
                 .expectHeader()
                 .contentType(MediaType.APPLICATION_JSON);
     }

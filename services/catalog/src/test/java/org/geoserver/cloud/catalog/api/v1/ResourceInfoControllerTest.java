@@ -198,16 +198,16 @@ public class ResourceInfoControllerTest
         CatalogTestClient<ResourceInfo> client = client();
         client.findById(testData.featureTypeA.getId(), CoverageInfo.class)
                 .expectStatus()
-                .isNotFound();
+                .isNoContent();
         client.findById(testData.coverageA.getId(), FeatureTypeInfo.class)
                 .expectStatus()
-                .isNotFound();
+                .isNoContent();
         client.findById(testData.wmsLayerA.getId(), WMTSLayerInfo.class)
                 .expectStatus()
-                .isNotFound();
+                .isNoContent();
         client.findById(testData.wmtsLayerA.getId(), WMSLayerInfo.class)
                 .expectStatus()
-                .isNotFound();
+                .isNoContent();
     }
 
     public @Test void testFindResourceByNamespaceIdAndName() {

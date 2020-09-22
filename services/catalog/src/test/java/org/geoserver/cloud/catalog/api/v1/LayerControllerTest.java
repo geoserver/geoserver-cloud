@@ -160,7 +160,7 @@ public class LayerControllerTest extends AbstractReactiveCatalogControllerTest<L
     public @Test void testFindLayersByResource_NonExistentResourceId() {
         client().getRelative("/layers/resource/{id}", "bad-resource-id")
                 .expectStatus()
-                .isNotFound();
+                .isNoContent();
     }
 
     public @Test void testFindLayersWithStyle() {

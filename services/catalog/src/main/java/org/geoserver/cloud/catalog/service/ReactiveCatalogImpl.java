@@ -69,7 +69,7 @@ public class ReactiveCatalogImpl implements ReactiveCatalog {
         return async(() -> blockingCatalog.get(id, type));
     }
 
-    public @Override <C extends CatalogInfo> Mono<C> getByFirstByName(
+    public @Override <C extends CatalogInfo> Mono<C> getFirstByName(
             @NonNull String name, @NonNull Class<C> type) {
 
         return async(() -> blockingCatalog.getByName(name, type));

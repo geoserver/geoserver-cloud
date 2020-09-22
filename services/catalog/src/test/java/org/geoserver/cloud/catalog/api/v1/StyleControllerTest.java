@@ -164,7 +164,7 @@ public class StyleControllerTest extends AbstractReactiveCatalogControllerTest<S
 
         client().getRelative("/styles/noworkspace/{name}", ws1s1.getName())
                 .expectStatus()
-                .isNotFound();
+                .isNoContent();
     }
 
     private void testFindStyleByNameAndNullWorkspace(StyleInfo style) {
@@ -191,7 +191,7 @@ public class StyleControllerTest extends AbstractReactiveCatalogControllerTest<S
         client().getRelative(
                         "/workspaces/{workspaceId}/styles/{name}", ws1.getId(), ws2s1.getName())
                 .expectStatus()
-                .isNotFound();
+                .isNoContent();
     }
 
     private void testfindStyleByWorkspaceIdAndName(WorkspaceInfo ws, StyleInfo style) {

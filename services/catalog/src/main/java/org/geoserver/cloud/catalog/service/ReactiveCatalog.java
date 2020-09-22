@@ -31,7 +31,7 @@ public interface ReactiveCatalog {
 
     <C extends CatalogInfo> Mono<C> getById(@NonNull String id, @NonNull Class<C> type);
 
-    <C extends CatalogInfo> Mono<C> getByFirstByName(@NonNull String name, @NonNull Class<C> type);
+    <C extends CatalogInfo> Mono<C> getFirstByName(@NonNull String name, @NonNull Class<C> type);
 
     <C extends CatalogInfo> Flux<C> query(@NonNull Class<C> type, @NonNull Filter filter);
 

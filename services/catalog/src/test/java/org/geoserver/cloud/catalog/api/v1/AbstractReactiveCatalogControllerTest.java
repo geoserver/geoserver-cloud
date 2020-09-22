@@ -184,7 +184,7 @@ public abstract class AbstractReactiveCatalogControllerTest<C extends CatalogInf
     }
 
     public @Test void testFindByIdNotFound() throws IOException {
-        client().findById("non-existent-ws-id", infoType).expectStatus().isNotFound();
+        client().findById("non-existent-ws-id", infoType).expectStatus().isNoContent();
     }
 
     protected String endpoint() {
@@ -308,9 +308,9 @@ public abstract class AbstractReactiveCatalogControllerTest<C extends CatalogInf
         assertNull(
                 "object not deleted from backend catalog", catalogLookup.apply(toDelete.getId()));
 
-        client().findById(deleted).expectStatus().isNotFound();
+        client().findById(deleted).expectStatus().isNoContent();
 
-        client().delete(toDelete).expectStatus().isNotFound();
+        client().delete(toDelete).expectStatus().isNoContent();
 
         return deleted;
     }

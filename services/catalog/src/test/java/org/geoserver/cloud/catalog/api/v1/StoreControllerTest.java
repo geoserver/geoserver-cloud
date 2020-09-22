@@ -243,13 +243,13 @@ public class StoreControllerTest extends AbstractReactiveCatalogControllerTest<S
         CatalogTestClient<StoreInfo> client = client();
         client.findById(testData.coverageStoreA.getId(), DataStoreInfo.class)
                 .expectStatus()
-                .isNotFound();
+                .isNoContent();
         client.findById(testData.dataStoreA.getId(), CoverageStoreInfo.class)
                 .expectStatus()
-                .isNotFound();
+                .isNoContent();
         client.findById(testData.dataStoreB.getId(), CoverageStoreInfo.class)
                 .expectStatus()
-                .isNotFound();
+                .isNoContent();
     }
 
     public @Test void testFindStoreByName() throws IOException {
@@ -314,12 +314,12 @@ public class StoreControllerTest extends AbstractReactiveCatalogControllerTest<S
         String name = store.getName();
         ClassMappings subType = null;
         client().getRelative(
-                        "/workspaces/{workspaceId}/stores/{name}?type={subType}",
+                        "/workspaces/{workspaceId}/stores/name/{name}?type={subType}",
                         workspaceId,
                         name,
                         subType)
                 .expectStatus()
-                .isNotFound();
+                .isNoContent();
     }
 
     public @Test void testFindStoresByWorkspace() {
