@@ -2,6 +2,7 @@ package org.geoserver.cloud.integration.catalog;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 
 import java.util.List;
@@ -52,7 +53,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @ActiveProfiles("it.catalog-service")
 @EnableAutoConfiguration
-@Ignore("re-enable once working on integration")
 public class CloudCatalogFacadeIntegrationTest {
 
     /**
@@ -91,7 +91,11 @@ public class CloudCatalogFacadeIntegrationTest {
         assertEquals(3, workspaces.size());
     }
 
-    public @Ignore("to be implemented") @Test void testAddWorkspaceInfo() {}
+    public @Test void testAddWorkspaceInfo() {
+        WorkspaceInfo ws = data.createWorkspace("nonisolated");
+        WorkspaceInfo add = clientFacade.add(ws);
+        assertNotSame(ws, add);
+    }
 
     public @Ignore("to be implemented") @Test void testRemoveWorkspaceInfo() {}
 

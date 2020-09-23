@@ -17,21 +17,28 @@ geoserver:
   backend.data-directory.enabled: true
   backend.jdbcconfig.enabled: false
 
+# disable hyxtrix to allow debugging without timeouts
+feign.hystrix.enabled: false
+hystrix.command.default.execution.timeout.enabled: false
+hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds: 50000
+
 # Feign debug levels:  
 # NONE, No logging (DEFAULT).
 # BASIC, Log only the request method and URL and the response status code and execution time.
 # HEADERS, Log the basic information along with request and response headers.
 # FULL, Log the headers, body, and metadata for both requests and responses.
-feign.logger.level: full
+#feign.logger.level: full
 #feign:
 #  client:
 #    config:
 #      catalog-service:
-#        connectTimeout: 5000
+#        connectTimeout: 500
 #        readTimeout: 5000
 #        loggerLevel: full
 
 spring:
+  jackson.default-property-inclusion: non_empty
+  jackson.serialization.indent_output: true
   autoconfigure:
     exclude:
       - org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration
@@ -41,6 +48,15 @@ spring:
 
 logging:
   level:
-    org.geoserver.cloud.catalog.client: DEBUG
+    root: WARN
+    reactivefeign.client.log: DEBUG
+    org.geoserver.cloud: TRACE
     org.geoserver.jackson.databind: DEBUG
     org.geotools.jackson.databind: DEBUG
+    org.geoserver.jackson: DEBUG
+    org.geotools.jackson: DEBUG
+    org.geoserver.cloud.config.factory: TRACE
+    org.geoserver.platform: ERROR
+    org.springframework.test: ERROR
+    o.s.integration.handler.LoggingHandler: OFF
+    

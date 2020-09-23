@@ -9,6 +9,7 @@ import static org.geoserver.catalog.impl.ClassMappings.STORE;
 import static org.springframework.http.MediaType.APPLICATION_STREAM_JSON_VALUE;
 
 import lombok.NonNull;
+import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.LayerGroupInfo;
@@ -64,12 +65,12 @@ public class ReactiveCatalogController {
     }
 
     @PatchMapping(path = "/{endpoint}/{id}")
-    public Mono<CatalogInfo> update(
+    public Mono<? extends CatalogInfo> update(
             @PathVariable("endpoint") String endpoint,
             @PathVariable("id") String id,
             @RequestBody Patch patch) {
 
-        Mono<Patch> resolvedPatch = Mono.just(patch).flatMap(proxyResolver::resolve);
+        Mono<Patch> resolvedPatch = proxyResolver.resolve(patch);
 
         ClassMappings type = endpointToType(endpoint);
 
@@ -80,12 +81,17 @@ public class ReactiveCatalogController {
                                         "%s with id '%s' does not exist",
                                         type.getInterface().getSimpleName(), id));
 
-        return object.flatMap(c -> catalog.update(c, resolvedPatch));
+        try {
+            return object.flatMap(c -> catalog.update(c, resolvedPatch));
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     @DeleteMapping(path = "/{endpoint}")
-    public Mono<CatalogInfo> delete(
-            @PathVariable("endpoint") String endpoint, @NonNull CatalogInfo value) {
+    public <C extends CatalogInfo> Mono<C> delete(
+            @PathVariable("endpoint") String endpoint, @NonNull C value) {
 
         ClassMappings type = endpointToType(endpoint);
         return catalog.delete(value)
@@ -96,15 +102,15 @@ public class ReactiveCatalogController {
     }
 
     @DeleteMapping(path = "/{endpoint}/{id}")
-    public Mono<CatalogInfo> deleteById(
+    public Mono<? extends CatalogInfo> deleteById(
             @PathVariable("endpoint") String endpoint, @PathVariable("id") String id) {
         ClassMappings type = endpointToType(endpoint, null);
         return catalog.getById(id, type.getInterface())
+                .flatMap(i -> catalog.delete(i))
                 .switchIfEmpty(
                         noContent(
                                 "%s with id '%s' does not exist",
-                                type.getInterface().getSimpleName(), id))
-                .flatMap(i -> catalog.delete(i));
+                                type.getInterface().getSimpleName(), id));
     }
 
     @GetMapping(path = "/{endpoint}", produces = APPLICATION_STREAM_JSON_VALUE)
@@ -198,16 +204,23 @@ public class ReactiveCatalogController {
         return catalog.getDefaultDataStores();
     }
 
-    @PutMapping(path = "/workspaces/{workspaceId}/stores/defaults/{dataStoreId}")
+    @PutMapping(path = "/workspaces/{workspaceId}/stores/default/{dataStoreId}")
     public Mono<DataStoreInfo> setDefaultDataStoreByWorkspaceId( //
             @PathVariable("workspaceId") String workspaceId,
-            @RequestParam(name = "dataStoreId") String dataStoreId) {
+            @PathVariable("dataStoreId") String dataStoreId) {
 
-        // return catalog.setDefaultDataStore(workspace, dataStore);
-        throw new UnsupportedOperationException();
+        Mono<WorkspaceInfo> ws =
+                catalog.getById(workspaceId, WorkspaceInfo.class)
+                        .switchIfEmpty(noContent("workspace not found"));
+        Mono<DataStoreInfo> ds =
+                catalog.getById(dataStoreId, DataStoreInfo.class)
+                        .switchIfEmpty(noContent("data store not found"));
+
+        return ws.zipWith(ds)
+                .flatMap(tuple -> catalog.setDefaultDataStore(tuple.getT1(), tuple.getT2()));
     }
 
-    @GetMapping(path = "/workspaces/{workspaceId}/stores/defaults")
+    @GetMapping(path = "/workspaces/{workspaceId}/stores/default")
     public Mono<DataStoreInfo> findDefaultDataStoreByWorkspaceId( //
             @PathVariable("workspaceId") String workspaceId) {
 
@@ -217,7 +230,7 @@ public class ReactiveCatalogController {
     }
 
     @GetMapping(path = "/workspaces/{workspaceId}/stores", produces = APPLICATION_STREAM_JSON_VALUE)
-    public Flux<StoreInfo> findStoresByWorkspaceId( //
+    public Flux<? extends StoreInfo> findStoresByWorkspaceId( //
             @PathVariable("workspaceId") String workspaceId,
             @RequestParam(name = "type", required = false) ClassMappings subType) {
 
@@ -228,19 +241,19 @@ public class ReactiveCatalogController {
     }
 
     @GetMapping(path = "/workspaces/{workspaceId}/stores/name/{name}")
-    public Mono<StoreInfo> findStoreByWorkspaceIdAndName( //
+    public Mono<? extends StoreInfo> findStoreByWorkspaceIdAndName( //
             @PathVariable("workspaceId") String workspaceId,
             @PathVariable("name") String name,
             @RequestParam(name = "type", required = false) ClassMappings subType) {
 
         final Class<? extends StoreInfo> type = (subType == null ? STORE : subType).getInterface();
         return catalog.getById(workspaceId, WorkspaceInfo.class)
-                .switchIfEmpty(noContent("Workspace does not exist: %s", workspaceId))
-                .flatMap(w -> catalog.getStoreByName(w, name, type));
+                .flatMap(w -> catalog.getStoreByName(w, name, type))
+                .switchIfEmpty(noContent("Workspace does not exist: %s", workspaceId));
     }
 
     @GetMapping(path = "/namespaces/{namespaceId}/resources/name/{name}")
-    public Mono<ResourceInfo> findResourceByNamespaceIdAndName(
+    public Mono<? extends ResourceInfo> findResourceByNamespaceIdAndName(
             @PathVariable("namespaceId") String namespaceId,
             @PathVariable("name") String name,
             @RequestParam(name = "type", required = false) ClassMappings subType) {
@@ -249,8 +262,8 @@ public class ReactiveCatalogController {
                 (subType == null ? RESOURCE : subType).getInterface();
 
         return catalog.getById(namespaceId, NamespaceInfo.class)
-                .switchIfEmpty(noContent("Namesapce does not exist: %s", namespaceId))
-                .flatMap(n -> catalog.getResourceByName(n, name, type));
+                .flatMap(n -> catalog.getResourceByName(n, name, type))
+                .switchIfEmpty(noContent("Namesapce does not exist: %s", namespaceId));
     }
 
     @GetMapping(path = "/layers/style/{styleId}", produces = APPLICATION_STREAM_JSON_VALUE)
@@ -289,12 +302,14 @@ public class ReactiveCatalogController {
     public Mono<LayerGroupInfo> findLayerGroupByNameAndNullWorkspace(
             @PathVariable("name") String name) {
 
-        return catalog.getLayerGroupByName(name)
+        // gotta use NO_WORKSPACE to bypass all the magic in catalog, better to have well defined
+        // contracts
+        return catalog.getLayerGroupByName(CatalogFacade.NO_WORKSPACE, name)
                 .switchIfEmpty(noContent("LayerGroup named '%s' does not exist", name));
     }
 
     @GetMapping(path = "/workspaces/{workspaceId}/layergroups/{name}")
-    public Mono<LayerGroupInfo> findLayerGroupByNameAndWorkspaceId(
+    public Mono<LayerGroupInfo> findLayerGroupByWorkspaceIdAndName(
             @PathVariable(required = false, name = "workspaceId") String workspaceId,
             @PathVariable("name") String name) {
 

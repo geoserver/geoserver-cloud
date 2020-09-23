@@ -64,13 +64,11 @@ import org.geoserver.ows.util.OwsUtils;
 import org.mapstruct.ObjectFactory;
 import org.mapstruct.TargetType;
 import org.opengis.coverage.grid.GridGeometry;
-import org.springframework.stereotype.Component;
 
 /**
  * Auto-wired object factory for Catalog info interfaces, so the mapstruct code-generated mappers
  * know how to instantiate them
  */
-@Component
 public class ObjectFacotries {
 
     public @ObjectFactory WorkspaceInfo workspaceInfo(

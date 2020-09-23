@@ -18,10 +18,10 @@ public class CloudWorkspaceRepository extends CatalogServiceClientRepository<Wor
 
     public @Override void setDefaultWorkspace(@NonNull WorkspaceInfo workspace) {
         Objects.requireNonNull(workspace.getId(), "workspace id can't be null");
-        client().setDefaultWorkspace(workspace.getId());
+        callAndBlock(() -> client().setDefaultWorkspace(workspace.getId()));
     }
 
     public @Override @Nullable WorkspaceInfo getDefaultWorkspace() {
-        return client().getDefaultWorkspace().block();
+        return callAndReturn(client()::getDefaultWorkspace);
     }
 }

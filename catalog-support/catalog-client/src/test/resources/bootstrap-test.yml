@@ -6,8 +6,18 @@ spring:
   cloud.config.discovery.enabled: false
   cloud.bus.enabled: false
 eureka.client.enabled: false
-feign.logger.level: full
 
+
+feign:
+  logger.level: full
+  client:
+    config:
+      catalog-service:
+        connectTimeout: 5000
+        readTimeout: 5000
+        loggerLevel: full
+        decode404: true
+        
 geoserver:
   security.enabled: false
   catalog:

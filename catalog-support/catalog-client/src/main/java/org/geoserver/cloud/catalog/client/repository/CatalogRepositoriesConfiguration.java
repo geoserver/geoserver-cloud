@@ -8,41 +8,40 @@ import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveCatalogApiClient
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Lazy;
 
 @Configuration
 @Import(ReactiveCatalogApiClientConfiguration.class)
 public class CatalogRepositoriesConfiguration {
 
-    public @Lazy @Bean CloudWorkspaceRepository cloudWorkspaceRepository() {
+    public @Bean CloudWorkspaceRepository cloudWorkspaceRepository() {
         return new CloudWorkspaceRepository();
     }
 
-    public @Lazy @Bean CloudNamespaceRepository cloudNamespaceRepository() {
+    public @Bean CloudNamespaceRepository cloudNamespaceRepository() {
         return new CloudNamespaceRepository();
     }
 
-    public @Lazy @Bean CloudStoreRepository cloudStoreRepository() {
+    public @Bean CloudStoreRepository cloudStoreRepository() {
         return new CloudStoreRepository();
     }
 
-    public @Lazy @Bean CloudResourceRepository cloudResourceRepository() {
+    public @Bean CloudResourceRepository cloudResourceRepository() {
         return new CloudResourceRepository();
     }
 
-    public @Lazy @Bean CloudLayerRepository cloudLayerRepository() {
+    public @Bean CloudLayerRepository cloudLayerRepository() {
         return new CloudLayerRepository();
     }
 
-    public @Lazy @Bean CloudLayerGroupRepository cloudLayerGroupRepository() {
+    public @Bean CloudLayerGroupRepository cloudLayerGroupRepository() {
         return new CloudLayerGroupRepository();
     }
 
-    public @Lazy @Bean CloudStyleRepository cloudStyleRepository() {
+    public @Bean CloudStyleRepository cloudStyleRepository() {
         return new CloudStyleRepository();
     }
 
-    public @Lazy @Bean CloudMapRepository cloudMapRepository() {
+    public @Bean CloudMapRepository cloudMapRepository() {
         return new CloudMapRepository();
     }
 }

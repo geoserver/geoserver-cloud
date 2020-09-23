@@ -119,9 +119,7 @@ public class ReactiveCatalogImpl implements ReactiveCatalog {
     }
 
     public @Override Mono<DataStoreInfo> getDefaultDataStore(@NonNull WorkspaceInfo workspace) {
-        return Mono.just(workspace)
-                .subscribeOn(catalogScheduler)
-                .map(blockingCatalog::getDefaultDataStore);
+        return async(() -> blockingCatalog.getDefaultDataStore(workspace));
     }
 
     public @Override <S extends StoreInfo> Flux<S> getStoresByWorkspace(

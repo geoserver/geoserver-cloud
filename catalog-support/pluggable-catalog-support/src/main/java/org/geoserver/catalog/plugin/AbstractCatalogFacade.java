@@ -168,7 +168,7 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
         setId(info);
         info = resolve(info);
         repository.add(info);
-        return wrapInModificationProxy(info, type);
+        return verifyBeforeReturning(info, type);
     }
 
     //
@@ -192,7 +192,7 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     }
 
     public @Override <T extends StoreInfo> T getStore(String id, Class<T> clazz) {
-        return wrapInModificationProxy(stores.findById(id, clazz), clazz);
+        return verifyBeforeReturning(stores.findById(id, clazz), clazz);
     }
 
     public @Override <T extends StoreInfo> T getStoreByName(
@@ -205,7 +205,7 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
             result = stores.findByNameAndWorkspace(name, workspace, clazz);
         }
 
-        return wrapInModificationProxy(result, clazz);
+        return verifyBeforeReturning(result, clazz);
     }
 
     public @Override <T extends StoreInfo> List<T> getStoresByWorkspace(
@@ -219,15 +219,15 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
         }
 
         List<T> matches = toList(() -> stores.findAllByWorkspace(ws, clazz));
-        return wrapInModificationProxy(matches, clazz);
+        return verifyBeforeReturning(matches, clazz);
     }
 
     public @Override <T extends StoreInfo> List<T> getStores(Class<T> clazz) {
-        return wrapInModificationProxy(toList(() -> stores.findAllByType(clazz)), clazz);
+        return verifyBeforeReturning(toList(() -> stores.findAllByType(clazz)), clazz);
     }
 
     public @Override DataStoreInfo getDefaultDataStore(WorkspaceInfo workspace) {
-        return wrapInModificationProxy(stores.getDefaultDataStore(workspace), DataStoreInfo.class);
+        return verifyBeforeReturning(stores.getDefaultDataStore(workspace), DataStoreInfo.class);
     }
 
     public @Override void setDefaultDataStore(WorkspaceInfo workspace, DataStoreInfo store) {
@@ -270,7 +270,7 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
 
     public @Override <T extends ResourceInfo> T getResource(String id, Class<T> clazz) {
         T result = resources.findById(id, clazz);
-        return wrapInModificationProxy(result, clazz);
+        return verifyBeforeReturning(result, clazz);
     }
 
     public @Override <T extends ResourceInfo> T getResourceByName(
@@ -282,11 +282,11 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
             result = resources.findByNameAndNamespace(name, namespace, clazz);
         }
 
-        return wrapInModificationProxy(result, clazz);
+        return verifyBeforeReturning(result, clazz);
     }
 
     public @Override <T extends ResourceInfo> List<T> getResources(Class<T> clazz) {
-        return wrapInModificationProxy(toList(() -> resources.findAllByType(clazz)), clazz);
+        return verifyBeforeReturning(toList(() -> resources.findAllByType(clazz)), clazz);
     }
 
     public @Override <T extends ResourceInfo> List<T> getResourcesByNamespace(
@@ -294,7 +294,7 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
         // TODO: support ANY_NAMESPACE?
         NamespaceInfo ns = namespace == null ? getDefaultNamespace() : namespace;
         List<T> matches = toList(() -> resources.findAllByNamespace(ns, clazz));
-        return wrapInModificationProxy(matches, clazz);
+        return verifyBeforeReturning(matches, clazz);
     }
 
     public @Override <T extends ResourceInfo> T getResourceByStore(
@@ -315,13 +315,13 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
             // or stores without workspaces
             resource = resources.findByStoreAndName(store, name, clazz);
         }
-        return wrapInModificationProxy(resource, clazz);
+        return verifyBeforeReturning(resource, clazz);
     }
 
     public @Override <T extends ResourceInfo> List<T> getResourcesByStore(
             StoreInfo store, Class<T> clazz) {
         List<T> matches = toList(() -> resources.findAllByStore(store, clazz));
-        return wrapInModificationProxy(matches, clazz);
+        return verifyBeforeReturning(matches, clazz);
     }
 
     //
@@ -346,26 +346,26 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
 
     public @Override LayerInfo getLayer(String id) {
         LayerInfo li = layers.findById(id, LayerInfo.class);
-        return wrapInModificationProxy(li, LayerInfo.class);
+        return verifyBeforeReturning(li, LayerInfo.class);
     }
 
     public @Override LayerInfo getLayerByName(String name) {
         LayerInfo result = layers.findOneByName(name);
-        return wrapInModificationProxy(result, LayerInfo.class);
+        return verifyBeforeReturning(result, LayerInfo.class);
     }
 
     public @Override List<LayerInfo> getLayers(ResourceInfo resource) {
         List<LayerInfo> matches = toList(() -> layers.findAllByResource(resource));
-        return wrapInModificationProxy(matches, LayerInfo.class);
+        return verifyBeforeReturning(matches, LayerInfo.class);
     }
 
     public @Override List<LayerInfo> getLayers(StyleInfo style) {
         List<LayerInfo> matches = toList(() -> layers.findAllByDefaultStyleOrStyles(style));
-        return wrapInModificationProxy(matches, LayerInfo.class);
+        return verifyBeforeReturning(matches, LayerInfo.class);
     }
 
     public @Override List<LayerInfo> getLayers() {
-        return wrapInModificationProxy(toList(layers::findAll), LayerInfo.class);
+        return verifyBeforeReturning(toList(layers::findAll), LayerInfo.class);
     }
 
     //
@@ -389,15 +389,15 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     }
 
     public @Override MapInfo getMap(String id) {
-        return wrapInModificationProxy(maps.findById(id, MapInfo.class), MapInfo.class);
+        return verifyBeforeReturning(maps.findById(id, MapInfo.class), MapInfo.class);
     }
 
     public @Override MapInfo getMapByName(String name) {
-        return wrapInModificationProxy(maps.findFirstByName(name, MapInfo.class), MapInfo.class);
+        return verifyBeforeReturning(maps.findFirstByName(name, MapInfo.class), MapInfo.class);
     }
 
     public @Override List<MapInfo> getMaps() {
-        return wrapInModificationProxy(toList(maps::findAll), MapInfo.class);
+        return verifyBeforeReturning(toList(maps::findAll), MapInfo.class);
     }
 
     //
@@ -421,7 +421,7 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     }
 
     public @Override List<LayerGroupInfo> getLayerGroups() {
-        return wrapInModificationProxy(toList(layerGroups::findAll), LayerGroupInfo.class);
+        return verifyBeforeReturning(toList(layerGroups::findAll), LayerGroupInfo.class);
     }
 
     public @Override List<LayerGroupInfo> getLayerGroupsByWorkspace(WorkspaceInfo workspace) {
@@ -439,12 +439,12 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
         } else {
             matches = layerGroups.findAllByWorkspace(ws);
         }
-        return wrapInModificationProxy(toList(() -> matches), LayerGroupInfo.class);
+        return verifyBeforeReturning(toList(() -> matches), LayerGroupInfo.class);
     }
 
     public @Override LayerGroupInfo getLayerGroup(String id) {
         LayerGroupInfo result = layerGroups.findById(id, LayerGroupInfo.class);
-        return wrapInModificationProxy(result, LayerGroupInfo.class);
+        return verifyBeforeReturning(result, LayerGroupInfo.class);
     }
 
     public @Override LayerGroupInfo getLayerGroupByName(String name) {
@@ -460,7 +460,7 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
         } else {
             match = layerGroups.findByNameAndWorkspace(name, workspace);
         }
-        return wrapInModificationProxy(match, LayerGroupInfo.class);
+        return verifyBeforeReturning(match, LayerGroupInfo.class);
     }
 
     //
@@ -487,7 +487,7 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     }
 
     public @Override NamespaceInfo getDefaultNamespace() {
-        return wrapInModificationProxy(namespaces.getDefaultNamespace(), NamespaceInfo.class);
+        return verifyBeforeReturning(namespaces.getDefaultNamespace(), NamespaceInfo.class);
     }
 
     public @Override void setDefaultNamespace(NamespaceInfo defaultNamespace) {
@@ -510,25 +510,25 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
 
     public @Override NamespaceInfo getNamespace(String id) {
         NamespaceInfo ns = namespaces.findById(id, NamespaceInfo.class);
-        return wrapInModificationProxy(ns, NamespaceInfo.class);
+        return verifyBeforeReturning(ns, NamespaceInfo.class);
     }
 
     public @Override NamespaceInfo getNamespaceByPrefix(String prefix) {
         NamespaceInfo ns = namespaces.findFirstByName(prefix, NamespaceInfo.class);
-        return wrapInModificationProxy(ns, NamespaceInfo.class);
+        return verifyBeforeReturning(ns, NamespaceInfo.class);
     }
 
     public @Override NamespaceInfo getNamespaceByURI(String uri) {
-        return wrapInModificationProxy(namespaces.findOneByURI(uri), NamespaceInfo.class);
+        return verifyBeforeReturning(namespaces.findOneByURI(uri), NamespaceInfo.class);
     }
 
     public @Override List<NamespaceInfo> getNamespacesByURI(String uri) {
-        return wrapInModificationProxy(
+        return verifyBeforeReturning(
                 toList(() -> namespaces.findAllByURI(uri)), NamespaceInfo.class);
     }
 
     public @Override List<NamespaceInfo> getNamespaces() {
-        return wrapInModificationProxy(toList(namespaces::findAll), NamespaceInfo.class);
+        return verifyBeforeReturning(toList(namespaces::findAll), NamespaceInfo.class);
     }
 
     //
@@ -556,7 +556,7 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     }
 
     public @Override WorkspaceInfo getDefaultWorkspace() {
-        return wrapInModificationProxy(workspaces.getDefaultWorkspace(), WorkspaceInfo.class);
+        return verifyBeforeReturning(workspaces.getDefaultWorkspace(), WorkspaceInfo.class);
     }
 
     public @Override void setDefaultWorkspace(WorkspaceInfo workspace) {
@@ -572,17 +572,17 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     }
 
     public @Override List<WorkspaceInfo> getWorkspaces() {
-        return wrapInModificationProxy(toList(workspaces::findAll), WorkspaceInfo.class);
+        return verifyBeforeReturning(toList(workspaces::findAll), WorkspaceInfo.class);
     }
 
     public @Override WorkspaceInfo getWorkspace(String id) {
         WorkspaceInfo ws = workspaces.findById(id, WorkspaceInfo.class);
-        return wrapInModificationProxy(ws, WorkspaceInfo.class);
+        return verifyBeforeReturning(ws, WorkspaceInfo.class);
     }
 
     public @Override WorkspaceInfo getWorkspaceByName(String name) {
         WorkspaceInfo ws = workspaces.findFirstByName(name, WorkspaceInfo.class);
-        return wrapInModificationProxy(ws, WorkspaceInfo.class);
+        return verifyBeforeReturning(ws, WorkspaceInfo.class);
     }
 
     //
@@ -607,7 +607,7 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
 
     public @Override StyleInfo getStyle(String id) {
         StyleInfo match = styles.findById(id, StyleInfo.class);
-        return wrapInModificationProxy(match, StyleInfo.class);
+        return verifyBeforeReturning(match, StyleInfo.class);
     }
 
     public @Override StyleInfo getStyleByName(String name) {
@@ -615,7 +615,7 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
         if (match == null) {
             match = styles.findFirstByName(name, StyleInfo.class);
         }
-        return wrapInModificationProxy(match, StyleInfo.class);
+        return verifyBeforeReturning(match, StyleInfo.class);
     }
 
     public @Override StyleInfo getStyleByName(WorkspaceInfo workspace, String name) {
@@ -625,12 +625,17 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
         if (workspace == ANY_WORKSPACE) {
             return getStyleByName(name);
         }
-        StyleInfo match = styles.findByNameAndWordkspace(name, workspace);
-        return wrapInModificationProxy(match, StyleInfo.class);
+        StyleInfo match;
+        if (workspace == NO_WORKSPACE) {
+            match = styles.findByNameAndWordkspaceNull(name);
+        } else {
+            match = styles.findByNameAndWordkspace(name, workspace);
+        }
+        return verifyBeforeReturning(match, StyleInfo.class);
     }
 
     public @Override List<StyleInfo> getStyles() {
-        return wrapInModificationProxy(toList(styles::findAll), StyleInfo.class);
+        return verifyBeforeReturning(toList(styles::findAll), StyleInfo.class);
     }
 
     public @Override List<StyleInfo> getStylesByWorkspace(WorkspaceInfo workspace) {
@@ -648,7 +653,7 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
 
             matches = styles.findAllByWorkspace(ws);
         }
-        return wrapInModificationProxy(toList(() -> matches), StyleInfo.class);
+        return verifyBeforeReturning(toList(() -> matches), StyleInfo.class);
     }
 
     protected <T extends CatalogInfo> List<T> toList(Supplier<Stream<T>> supplier) {
@@ -777,6 +782,7 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
             stream = stream.limit(count.longValue());
         }
 
+        stream = verifyBeforeReturning(stream, of);
         final Closeable closeable = stream::close;
         return new CloseableIteratorAdapter<T>(stream.iterator(), closeable);
     }
@@ -855,16 +861,20 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
         return ModificationProxy.unwrap(obj);
     }
 
-    protected <T extends CatalogInfo> T wrapInModificationProxy(T ci, Class<T> clazz) {
+    protected <T extends CatalogInfo> T verifyBeforeReturning(T ci, Class<T> clazz) {
         if (ci == null) return null;
         if (ci instanceof StoreInfoImpl) ((StoreInfoImpl) ci).setCatalog(catalog);
         if (ci instanceof ResourceInfo) ((ResourceInfo) ci).setCatalog(catalog);
         return ModificationProxy.create(ci, clazz);
     }
 
-    protected <T extends CatalogInfo> List<T> wrapInModificationProxy(
-            List<T> proxyList, Class<T> clazz) {
-        return ModificationProxy.createList(proxyList, clazz);
+    protected <T extends CatalogInfo> List<T> verifyBeforeReturning(List<T> list, Class<T> clazz) {
+        return ModificationProxy.createList(list, clazz);
+    }
+
+    protected <T extends CatalogInfo> Stream<T> verifyBeforeReturning(
+            Stream<T> stream, Class<T> clazz) {
+        return stream.map(i -> verifyBeforeReturning(i, clazz));
     }
 
     @SuppressWarnings("unchecked")

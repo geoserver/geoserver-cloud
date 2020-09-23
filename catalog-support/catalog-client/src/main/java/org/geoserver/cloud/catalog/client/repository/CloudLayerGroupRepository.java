@@ -18,22 +18,26 @@ public class CloudLayerGroupRepository extends CatalogServiceClientRepository<La
     private final @Getter Class<LayerGroupInfo> infoType = LayerGroupInfo.class;
 
     public @Override Stream<LayerGroupInfo> findAllByWorkspaceIsNull() {
-        return client().findLayerGroupsByNullWoskspace().toStream();
+        return client().findLayerGroupsByNullWoskspace().map(this::resolve).toStream();
     }
 
     public @Override Stream<LayerGroupInfo> findAllByWorkspace(@NonNull WorkspaceInfo workspace) {
-        return client().findLayerGroupsByWoskspaceId(workspace.getId()).toStream();
+        return client().findLayerGroupsByWoskspaceId(workspace.getId())
+                .map(this::resolve)
+                .toStream();
     }
 
-    @Override
-    public LayerGroupInfo findByNameAndWorkspaceIsNull(@NonNull String name) {
-        return client().findLayerGroupByNameAndNullWorkspace(name).block();
+    public @Override LayerGroupInfo findByNameAndWorkspaceIsNull(@NonNull String name) {
+        return callAndReturn(
+                () -> client().findLayerGroupByNameAndNullWorkspace(name).map(this::resolve));
     }
 
-    @Override
-    public LayerGroupInfo findByNameAndWorkspace(
+    public @Override LayerGroupInfo findByNameAndWorkspace(
             @NonNull String name, @NonNull WorkspaceInfo workspace) {
         Objects.requireNonNull(workspace.getId());
-        return client().findLayerGroupByNameAndWorkspaceId(name, workspace.getId()).block();
+        return callAndReturn(
+                () ->
+                        client().findLayerGroupByWorkspaceIdAndName(workspace.getId(), name)
+                                .map(this::resolve));
     }
 }

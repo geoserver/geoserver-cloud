@@ -5,11 +5,12 @@
 package org.geoserver.cloud.catalog.client.repository;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.clearInvocations;
@@ -54,7 +55,7 @@ import reactor.core.publisher.Mono;
 @SpringBootTest(classes = CatalogRepositoriesConfiguration.class)
 @RunWith(SpringRunner.class)
 @ActiveProfiles("test")
-public class CatalogServiceClientRepositoryIntegrationTest {
+public class CatalogServiceClientRepositoryTest {
 
     private @MockBean ReactiveCatalogClient mockClient;
 
@@ -79,6 +80,8 @@ public class CatalogServiceClientRepositoryIntegrationTest {
         assertSame(testData.workspaceB, workspaceRepository.getDefaultWorkspace());
         verify(mockClient, times(1)).getDefaultWorkspace();
 
+        when(mockClient.setDefaultWorkspace(eq(testData.workspaceA.getId())))
+                .thenReturn(Mono.just(testData.workspaceA));
         workspaceRepository.setDefaultWorkspace(testData.workspaceA);
         verify(mockClient, times(1)).setDefaultWorkspace(eq(testData.workspaceA.getId()));
 
@@ -96,6 +99,8 @@ public class CatalogServiceClientRepositoryIntegrationTest {
         assertSame(testData.namespaceB, namespaceRepository.getDefaultNamespace());
         verify(mockClient, times(1)).getDefaultNamespace();
 
+        when(mockClient.setDefaultNamespace(eq(testData.namespaceA.getId())))
+                .thenReturn(Mono.just(testData.namespaceA));
         namespaceRepository.setDefaultNamespace(testData.namespaceA);
         verify(mockClient, times(1)).setDefaultNamespace(eq(testData.namespaceA.getId()));
 
@@ -191,24 +196,26 @@ public class CatalogServiceClientRepositoryIntegrationTest {
     }
 
     private <T extends CatalogInfo> void assertDelete(CatalogInfoRepository<T> repo, T info) {
-        when(mockClient.delete(same(info))).thenReturn(Mono.just(info));
+        when(mockClient.deleteById(any(String.class), eq(info.getId())))
+                .thenReturn(Mono.just(info));
         repo.remove(info);
-        verify(mockClient, times(1)).delete(same(info));
+        verify(mockClient, times(1)).deleteById(any(String.class), eq(info.getId()));
     }
 
     private <T extends CatalogInfo> void assertUpdate(CatalogInfoRepository<T> repo, T info) {
         Patch patch = new Patch();
         patch.add(new Patch.Property("name", "newName"));
 
-        when(mockClient.update(eq(info.getId()), eq(patch))).thenReturn(Mono.just(info));
+        when(mockClient.update(any(String.class), eq(info.getId()), eq(patch)))
+                .thenReturn(Mono.just(info));
         repo.update(info, patch);
-        verify(mockClient, times(1)).update(eq(info.getId()), eq(patch));
+        verify(mockClient, times(1)).update(any(String.class), eq(info.getId()), eq(patch));
     }
 
     private <T extends CatalogInfo> void assertCreate(CatalogInfoRepository<T> repo, T info) {
-        when(mockClient.create(same(info))).thenReturn(Mono.just(info));
+        when(mockClient.create(any(String.class), same(info))).thenReturn(Mono.just(info));
         repo.add(info);
-        verify(mockClient, times(1)).create(same(info));
+        verify(mockClient, times(1)).create(any(String.class), same(info));
     }
 
     private <T extends CatalogInfo> void assertFindById(CatalogInfoRepository<T> repo, T info) {
@@ -218,10 +225,11 @@ public class CatalogServiceClientRepositoryIntegrationTest {
         assertNotNull(expectedEnumType);
 
         final String id = info.getId();
-        when(mockClient.findById(eq(id), eq(expectedEnumType))).thenReturn(Mono.just(info));
+        when(mockClient.findById(any(String.class), eq(id), eq(expectedEnumType)))
+                .thenReturn(Mono.just(info));
         T retrieved = repo.findById(id, clazz);
         assertSame(info, retrieved);
-        verify(mockClient, times(1)).findById(eq(id), eq(expectedEnumType));
+        verify(mockClient, times(1)).findById(any(String.class), eq(id), eq(expectedEnumType));
     }
 
     private <T extends CatalogInfo> void assertFindByName(CatalogInfoRepository<T> repo, T info) {
@@ -230,9 +238,10 @@ public class CatalogServiceClientRepositoryIntegrationTest {
         final @NonNull ClassMappings subType = ClassMappings.fromImpl(info.getClass());
         Class<T> type = subType.getInterface();
 
-        when(mockClient.findByFirstByName(eq(name), eq(subType))).thenReturn(Mono.just(info));
+        when(mockClient.findFirstByName(any(String.class), eq(name), eq(subType)))
+                .thenReturn(Mono.just(info));
         assertSame(info, repo.findFirstByName(name, type));
-        verify(mockClient, times(1)).findByFirstByName(eq(name), eq(subType));
+        verify(mockClient, times(1)).findFirstByName(any(String.class), eq(name), eq(subType));
     }
 
     public @Test void testFindByNameNullType() {
@@ -259,13 +268,16 @@ public class CatalogServiceClientRepositoryIntegrationTest {
 
         final @NonNull ClassMappings genericType = genericType(info);
 
-        when(mockClient.findAll(same(genericType))).thenReturn(Flux.just(info, info));
+        when(mockClient.findAll(any(String.class), same(genericType)))
+                .thenReturn(Flux.just(info, info));
         assertThat(repo.findAll().count(), equalTo(2L));
-        verify(mockClient, times(1)).findAll(same(genericType));
+        verify(mockClient, times(1)).findAll(any(String.class), same(genericType));
 
-        when(mockClient.query(same(genericType), same(Filter.EXCLUDE))).thenReturn(Flux.just(info));
+        when(mockClient.query(any(String.class), same(genericType), same(Filter.EXCLUDE)))
+                .thenReturn(Flux.just(info));
         assertThat(repo.findAll(Filter.EXCLUDE).count(), equalTo(1L));
-        verify(mockClient, times(1)).query(same(genericType), same(Filter.EXCLUDE));
+        verify(mockClient, times(1))
+                .query(any(String.class), same(genericType), same(Filter.EXCLUDE));
 
         final @NonNull ClassMappings subType = ClassMappings.fromImpl(info.getClass());
         Filter someFilter;
@@ -274,9 +286,10 @@ public class CatalogServiceClientRepositoryIntegrationTest {
         } catch (CQLException e) {
             throw new RuntimeException();
         }
-        when(mockClient.query(same(subType), same(someFilter))).thenReturn(Flux.just(info));
+        when(mockClient.query(any(String.class), same(subType), same(someFilter)))
+                .thenReturn(Flux.just(info));
         assertThat(repo.findAll(someFilter, (Class<T>) info.getClass()).count(), equalTo(1L));
-        verify(mockClient, times(1)).query(same(subType), same(someFilter));
+        verify(mockClient, times(1)).query(any(String.class), same(subType), same(someFilter));
     }
 
     private @NonNull ClassMappings genericType(CatalogInfo info) {

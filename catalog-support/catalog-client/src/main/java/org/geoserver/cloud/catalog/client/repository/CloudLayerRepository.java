@@ -18,16 +18,14 @@ public class CloudLayerRepository extends CatalogServiceClientRepository<LayerIn
     private final @Getter Class<LayerInfo> infoType = LayerInfo.class;
 
     public @Override Stream<LayerInfo> findAllByDefaultStyleOrStyles(StyleInfo style) {
-        return client().findLayersWithStyle(style.getId()).toStream();
+        return client().findLayersWithStyle(style.getId()).map(this::resolve).toStream();
     }
 
     public @Override Stream<LayerInfo> findAllByResource(ResourceInfo resource) {
-        return client().findLayersByResourceId(resource.getId()).toStream();
+        return client().findLayersByResourceId(resource.getId()).map(this::resolve).toStream();
     }
 
-    public @Override LayerInfo findOneByName(
-            @NonNull String possiblyPrefixedNameMostProbablyDeadCodeFromCatalogImpl) {
-        throw new UnsupportedOperationException(
-                "looks like it wasn't dead code from CatalogImpl.getLayerByName(String)");
+    public @Override LayerInfo findOneByName(@NonNull String name) {
+        return findFirstByName(name, LayerInfo.class);
     }
 }

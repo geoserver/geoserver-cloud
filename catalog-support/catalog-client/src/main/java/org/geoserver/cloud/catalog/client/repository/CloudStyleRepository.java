@@ -17,19 +17,19 @@ public class CloudStyleRepository extends CatalogServiceClientRepository<StyleIn
     private final @Getter Class<StyleInfo> infoType = StyleInfo.class;
 
     public @Override Stream<StyleInfo> findAllByNullWorkspace() {
-        return client().findStylesByNullWorkspace().toStream();
+        return client().findStylesByNullWorkspace().map(this::resolve).toStream();
     }
 
     public @Override Stream<StyleInfo> findAllByWorkspace(@NonNull WorkspaceInfo ws) {
-        return client().findStylesByWorkspaceId(ws.getId()).toStream();
+        return client().findStylesByWorkspaceId(ws.getId()).map(this::resolve).toStream();
     }
 
     public @Override StyleInfo findByNameAndWordkspaceNull(@NonNull String name) {
-        return client().findStyleByNameAndNullWorkspace(name).block();
+        return callAndReturn(() -> client().findStyleByNameAndNullWorkspace(name));
     }
 
     public @Override StyleInfo findByNameAndWordkspace(
             @NonNull String name, @NonNull WorkspaceInfo workspace) {
-        return client().findStyleByWorkspaceIdAndName(workspace.getId(), name).block();
+        return callAndReturn(() -> client().findStyleByWorkspaceIdAndName(workspace.getId(), name));
     }
 }

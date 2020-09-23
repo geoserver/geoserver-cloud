@@ -9,6 +9,7 @@ import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogCapabilities;
 import org.geoserver.catalog.CatalogFacade;
@@ -33,6 +34,7 @@ import org.springframework.stereotype.Component;
 
 /** */
 @Component
+@Slf4j
 @SuppressWarnings("serial")
 public class BlockingCatalog extends AbstractCatalogDecorator {
 
@@ -105,21 +107,32 @@ public class BlockingCatalog extends AbstractCatalogDecorator {
 
     public <C extends CatalogInfo> C update(@NonNull C info, @NonNull Patch patch) {
 
-        patch.applyTo(info);
-
+        try {
+            patch.applyTo(info);
+        } catch (RuntimeException e) {
+            log.error("Error applying patch to {}: {}", info, patch, e);
+            throw e;
+        }
         // need to make it work with old catalogs too, jdbcconfig has not been upgraded for example
         Class<? extends CatalogInfo> type = info.getClass();
-        if (WorkspaceInfo.class.isAssignableFrom(type)) delegate.save((WorkspaceInfo) info);
-        else if (NamespaceInfo.class.isAssignableFrom(type)) delegate.save((NamespaceInfo) info);
-        else if (StoreInfo.class.isAssignableFrom(type)) delegate.save((StoreInfo) info);
-        else if (ResourceInfo.class.isAssignableFrom(type)) delegate.save((ResourceInfo) info);
-        else if (LayerInfo.class.isAssignableFrom(type)) delegate.save((LayerInfo) info);
-        else if (LayerGroupInfo.class.isAssignableFrom(type)) delegate.save((LayerGroupInfo) info);
-        else if (StyleInfo.class.isAssignableFrom(type)) delegate.save((StyleInfo) info);
-        else if (MapInfo.class.isAssignableFrom(type)) delegate.save((MapInfo) info);
-        else
-            throw new IllegalArgumentException(
-                    "Uknown CatalogInfo type: " + type.getCanonicalName());
+        try {
+            if (WorkspaceInfo.class.isAssignableFrom(type)) delegate.save((WorkspaceInfo) info);
+            else if (NamespaceInfo.class.isAssignableFrom(type))
+                delegate.save((NamespaceInfo) info);
+            else if (StoreInfo.class.isAssignableFrom(type)) delegate.save((StoreInfo) info);
+            else if (ResourceInfo.class.isAssignableFrom(type)) delegate.save((ResourceInfo) info);
+            else if (LayerInfo.class.isAssignableFrom(type)) delegate.save((LayerInfo) info);
+            else if (LayerGroupInfo.class.isAssignableFrom(type))
+                delegate.save((LayerGroupInfo) info);
+            else if (StyleInfo.class.isAssignableFrom(type)) delegate.save((StyleInfo) info);
+            else if (MapInfo.class.isAssignableFrom(type)) delegate.save((MapInfo) info);
+            else
+                throw new IllegalArgumentException(
+                        "Uknown CatalogInfo type: " + type.getCanonicalName());
+        } catch (RuntimeException e) {
+            log.error("Error saving {} with patch {}", info, patch, e);
+            throw e;
+        }
         return info;
     }
 

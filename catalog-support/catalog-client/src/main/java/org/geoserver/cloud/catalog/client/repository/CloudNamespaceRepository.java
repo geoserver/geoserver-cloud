@@ -19,18 +19,18 @@ public class CloudNamespaceRepository extends CatalogServiceClientRepository<Nam
 
     public @Override void setDefaultNamespace(@NonNull NamespaceInfo namespace) {
         Objects.requireNonNull(namespace.getId(), "provided null namespace id");
-        client().setDefaultNamespace(namespace.getId());
+        callAndBlock(() -> client().setDefaultNamespace(namespace.getId()));
     }
 
     public @Override @Nullable NamespaceInfo getDefaultNamespace() {
-        return client().getDefaultNamespace().block();
+        return callAndReturn(client()::getDefaultNamespace);
     }
 
     public @Override @Nullable NamespaceInfo findOneByURI(@NonNull String uri) {
-        return client().findOneNamespaceByURI(uri).block();
+        return callAndReturn(() -> client().findOneNamespaceByURI(uri));
     }
 
     public @Override Stream<NamespaceInfo> findAllByURI(@NonNull String uri) {
-        return client().findAllNamespacesByURI(uri).toStream();
+        return client().findAllNamespacesByURI(uri).map(this::resolve).toStream();
     }
 }

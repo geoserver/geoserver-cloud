@@ -13,6 +13,14 @@
 
   <dependencies>
     <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-json</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-starter-jackson</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.geoserver.cloud</groupId>
       <artifactId>gt-jackson-bindings</artifactId>
     </dependency>
@@ -27,10 +35,6 @@
     <dependency>
       <groupId>org.geoserver</groupId>
       <artifactId>gs-main</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-json</artifactId>
     </dependency>
     <dependency>
       <groupId>com.playtika.reactivefeign</groupId>

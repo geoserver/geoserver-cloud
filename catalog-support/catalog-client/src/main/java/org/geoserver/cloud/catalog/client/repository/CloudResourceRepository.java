@@ -11,6 +11,9 @@ import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.ResourceRepository;
+import org.geotools.factory.CommonFactoryFinder;
+import org.opengis.filter.Filter;
+import org.opengis.filter.FilterFactory2;
 import org.springframework.lang.Nullable;
 
 public class CloudResourceRepository extends CatalogServiceClientRepository<ResourceInfo>
@@ -18,29 +21,61 @@ public class CloudResourceRepository extends CatalogServiceClientRepository<Reso
 
     private final @Getter Class<ResourceInfo> infoType = ResourceInfo.class;
 
+    // REVISIT: used to build filters on methods that miss a counterpart on ReactiveCatalogClient
+    private final FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2();
+
     public @Override <T extends ResourceInfo> Stream<T> findAllByType(@Nullable Class<T> clazz) {
-        throw new UnsupportedOperationException("not yet implemented");
+        return client().findAll(endpoint(), typeEnum(clazz))
+                .map(clazz::cast)
+                .map(this::resolve)
+                .toStream();
     }
 
     public @Override <T extends ResourceInfo> Stream<T> findAllByNamespace(
             @NonNull NamespaceInfo ns, @Nullable Class<T> clazz) {
-        throw new UnsupportedOperationException("not yet implemented");
+
+        // REVISIT: missed custom method on ReactiveCatalogClient
+        Filter filter = ff.equals(ff.property("namespace.id"), ff.literal(ns.getId()));
+        return client().query(endpoint(), typeEnum(clazz), filter)
+                .map(clazz::cast)
+                .map(this::resolve)
+                .toStream();
     }
 
     public @Override @Nullable <T extends ResourceInfo> T findByStoreAndName(
             @NonNull StoreInfo store, @NonNull String name, @Nullable Class<T> clazz) {
-        throw new UnsupportedOperationException("not yet implemented");
+        // REVISIT: missed custom method on ReactiveCatalogClient
+        Filter filter =
+                ff.and(
+                        ff.equals(ff.property("store.id"), ff.literal(store.getId())),
+                        ff.equals(ff.property("name"), ff.literal(name)));
+        return client().query(endpoint(), typeEnum(clazz), filter)
+                .map(clazz::cast)
+                .map(this::resolve)
+                .toStream()
+                .findAny()
+                .orElse(null);
     }
 
     public @Override <T extends ResourceInfo> Stream<T> findAllByStore(
             StoreInfo store, Class<T> clazz) {
-        throw new UnsupportedOperationException("not yet implemented");
+
+        // REVISIT: missed custom method on ReactiveCatalogClient
+        Filter filter = ff.equals(ff.property("store.id"), ff.literal(store.getId()));
+        return client().query(endpoint(), typeEnum(clazz), filter)
+                .map(clazz::cast)
+                .map(this::resolve)
+                .toStream();
     }
 
     public @Override <T extends ResourceInfo> T findByNameAndNamespace(
             @NonNull String name, @NonNull NamespaceInfo namespace, @NonNull Class<T> clazz) {
-        return clazz.cast(
-                client().findResourceByNamespaceIdAndName(
-                                name, namespace.getId(), typeEnum(clazz)));
+
+        return callAndReturn(
+                () ->
+                        client().findResourceByNamespaceIdAndName(
+                                        namespace.getId(), name, typeEnum(clazz))
+                                .map(clazz::cast)
+                                .map(this::resolve));
     }
 }

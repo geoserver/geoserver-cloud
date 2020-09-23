@@ -317,6 +317,16 @@ public class CatalogTestData extends ExternalResource {
         return lg;
     }
 
+    public LayerInfo createLayer(ResourceInfo resource, StyleInfo defaultStyle) {
+
+        return createLayer(
+                resource.getName() + "-layer-id",
+                resource,
+                resource.getName() + " title",
+                true,
+                defaultStyle);
+    }
+
     public LayerInfo createLayer(
             String id,
             ResourceInfo resource,
@@ -405,6 +415,10 @@ public class CatalogTestData extends ExternalResource {
         return wms;
     }
 
+    public CoverageInfo createCoverage(String name) {
+        return createCoverage(name + "-id", coverageStoreA, name);
+    }
+
     public CoverageInfo createCoverage(String id, CoverageStoreInfo cstore, String name) {
         CoverageInfo coverage = catalog.get().getFactory().createCoverage();
         OwsUtils.set(coverage, "id", id);
@@ -476,6 +490,10 @@ public class CatalogTestData extends ExternalResource {
             }
         }
         assertEquals(info1, info2);
+    }
+
+    public DataStoreInfo createDataStore(String name, WorkspaceInfo ws) {
+        return createDataStore(name + "-id", ws, name, name + " description", true);
     }
 
     public DataStoreInfo createDataStore(

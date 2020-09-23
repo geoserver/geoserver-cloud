@@ -4,15 +4,15 @@
  */
 package org.geoserver.cloud.catalog.client.impl;
 
-import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerGroupRepository;
-import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerRepository;
-import org.geoserver.catalog.plugin.CatalogInfoRepository.MapRepository;
-import org.geoserver.catalog.plugin.CatalogInfoRepository.NamespaceRepository;
-import org.geoserver.catalog.plugin.CatalogInfoRepository.ResourceRepository;
-import org.geoserver.catalog.plugin.CatalogInfoRepository.StoreRepository;
-import org.geoserver.catalog.plugin.CatalogInfoRepository.StyleRepository;
-import org.geoserver.catalog.plugin.CatalogInfoRepository.WorkspaceRepository;
 import org.geoserver.cloud.catalog.client.repository.CatalogRepositoriesConfiguration;
+import org.geoserver.cloud.catalog.client.repository.CloudLayerGroupRepository;
+import org.geoserver.cloud.catalog.client.repository.CloudLayerRepository;
+import org.geoserver.cloud.catalog.client.repository.CloudMapRepository;
+import org.geoserver.cloud.catalog.client.repository.CloudNamespaceRepository;
+import org.geoserver.cloud.catalog.client.repository.CloudResourceRepository;
+import org.geoserver.cloud.catalog.client.repository.CloudStoreRepository;
+import org.geoserver.cloud.catalog.client.repository.CloudStyleRepository;
+import org.geoserver.cloud.catalog.client.repository.CloudWorkspaceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,16 +22,16 @@ import org.springframework.context.annotation.Import;
 @Import(CatalogRepositoriesConfiguration.class)
 public class CatalogClientConfiguration {
 
-    private @Autowired WorkspaceRepository cloudWorkspaceRepository;
-    private @Autowired NamespaceRepository cloudNamespaceRepository;
-    private @Autowired StoreRepository cloudStoreRepository;
-    private @Autowired ResourceRepository cloudResourceRepository;
-    private @Autowired LayerRepository cloudLayerRepository;
-    private @Autowired LayerGroupRepository cloudLayerGroupRepository;
-    private @Autowired StyleRepository cloudStyleRepository;
-    private @Autowired MapRepository cloudMapRepository;
+    private @Autowired CloudWorkspaceRepository cloudWorkspaceRepository;
+    private @Autowired CloudNamespaceRepository cloudNamespaceRepository;
+    private @Autowired CloudStoreRepository cloudStoreRepository;
+    private @Autowired CloudResourceRepository cloudResourceRepository;
+    private @Autowired CloudLayerRepository cloudLayerRepository;
+    private @Autowired CloudLayerGroupRepository cloudLayerGroupRepository;
+    private @Autowired CloudStyleRepository cloudStyleRepository;
+    private @Autowired CloudMapRepository cloudMapRepository;
 
-    public @Bean CatalogServiceCatalogFacade cloudCatalogFacade() {
+    public @Bean CatalogServiceCatalogFacade rawCatalogServiceFacade() {
         CatalogServiceCatalogFacade facade = new CatalogServiceCatalogFacade();
         facade.setWorkspaces(cloudWorkspaceRepository);
         facade.setNamespaces(cloudNamespaceRepository);
@@ -41,6 +41,8 @@ public class CatalogClientConfiguration {
         facade.setLayerGroups(cloudLayerGroupRepository);
         facade.setStyles(cloudStyleRepository);
         facade.setMaps(cloudMapRepository);
+        InnerResolvingProxy resolver = new InnerResolvingProxy(facade, null);
+        facade.setObjectResolver(resolver::resolve);
         return facade;
     }
 }

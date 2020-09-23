@@ -11,6 +11,7 @@ import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveCatalogApiClient
 import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveCatalogClient;
 import org.junit.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
+import org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientAutoConfiguration;
 import org.springframework.boot.context.annotation.UserConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import reactivefeign.spring.config.ReactiveFeignAutoConfiguration;
@@ -19,7 +20,10 @@ public class CatalogRepositoriesConfigurationTest {
 
     private final ApplicationContextRunner contextRunner =
             new ApplicationContextRunner()
-                    .withConfiguration(AutoConfigurations.of(ReactiveFeignAutoConfiguration.class))
+                    .withConfiguration(
+                            AutoConfigurations.of(
+                                    ReactiveFeignAutoConfiguration.class,
+                                    WebClientAutoConfiguration.class))
                     .withConfiguration(
                             UserConfigurations.of(
                                     ReactiveCatalogApiClientConfiguration.class,

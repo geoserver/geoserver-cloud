@@ -190,13 +190,7 @@ public abstract class SharedMappers {
 
     private Object patchPropertyValueToDto(Object value) {
         if (value instanceof Info) {
-            ClassMappings cm = ClassMappings.fromImpl(value.getClass());
-            boolean useReference =
-                    cm != null; // && !(ClassMappings.GLOBAL == cm || ClassMappings.LOGGING == cm);
-            if (useReference) {
-                value = this.infoToReference((Info) value);
-                return value;
-            }
+            return resolveReferenceOrValueObject((Info) value);
         } else if (value instanceof Collection) {
             @SuppressWarnings("unchecked")
             Collection<Object> col = (Collection<Object>) newCollectionInstance(value.getClass());
@@ -206,6 +200,17 @@ public abstract class SharedMappers {
             return col;
         }
 
+        return value;
+    }
+
+    private Object resolveReferenceOrValueObject(Info value) {
+        value = ModificationProxy.unwrap(value);
+        ClassMappings cm = ClassMappings.fromImpl(value.getClass());
+        boolean useReference =
+                cm != null; // && !(ClassMappings.GLOBAL == cm || ClassMappings.LOGGING == cm);
+        if (useReference) {
+            return this.infoToReference((Info) value);
+        }
         return value;
     };
 }
