@@ -4,6 +4,7 @@
  */
 package org.geoserver.catalog.plugin.forwarding;
 
+import java.util.Optional;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.WorkspaceRepository;
 
@@ -19,7 +20,11 @@ public class ForwardingWorkspaceRepository
         subject.setDefaultWorkspace(workspace);
     }
 
-    public @Override WorkspaceInfo getDefaultWorkspace() {
+    public @Override Optional<WorkspaceInfo> getDefaultWorkspace() {
         return subject.getDefaultWorkspace();
+    }
+
+    public @Override void unsetDefaultWorkspace() {
+        subject.unsetDefaultWorkspace();
     }
 }

@@ -4,6 +4,7 @@
  */
 package org.geoserver.catalog.plugin;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 import lombok.NonNull;
 import org.geoserver.catalog.CatalogInfo;
@@ -36,8 +37,7 @@ public interface CatalogInfoRepository<T extends CatalogInfo> {
     <U extends T> Stream<U> findAll(Filter filter, Class<U> infoType);
 
     /** Looks up a CatalogInfo by class and identifier */
-    @Nullable
-    <U extends T> U findById(@NonNull String id, @Nullable Class<U> clazz);
+    <U extends T> Optional<U> findById(@NonNull String id, @Nullable Class<U> clazz);
 
     /**
      * Looks up a CatalogInfo by class and name
@@ -45,70 +45,74 @@ public interface CatalogInfoRepository<T extends CatalogInfo> {
      * @param name
      * @return the first match found based on {@code name}, or {@code null}
      */
-    @Nullable
-    <U extends T> U findFirstByName(@NonNull String name, Class<U> clazz);
+    <U extends T> Optional<U> findFirstByName(@NonNull String name, Class<U> clazz);
 
     // revisit: some sort of progress listener/cancel flag would be nice
     void syncTo(@NonNull CatalogInfoRepository<T> target);
 
     public interface NamespaceRepository extends CatalogInfoRepository<NamespaceInfo> {
+        /** Establishes {@code namespace} as the {@link #getDefaultNamespace() default} on */
         void setDefaultNamespace(@NonNull NamespaceInfo namespace);
 
-        @Nullable
-        NamespaceInfo getDefaultNamespace();
+        /** Unlinks the current default namespace, leaving no default */
+        void unsetDefaultNamesapce();
 
-        @Nullable
-        NamespaceInfo findOneByURI(@NonNull String uri);
+        Optional<NamespaceInfo> getDefaultNamespace();
+
+        Optional<NamespaceInfo> findOneByURI(@NonNull String uri);
 
         Stream<NamespaceInfo> findAllByURI(@NonNull String uri);
     }
 
     public interface WorkspaceRepository extends CatalogInfoRepository<WorkspaceInfo> {
+        /** Unlinks the current default workspace, leaving no default */
+        void unsetDefaultWorkspace();
+
+        /** Establishes {@code workspace} as the {@link #getDefaultWorkspace() default} on */
         void setDefaultWorkspace(@NonNull WorkspaceInfo workspace);
 
-        @Nullable
-        WorkspaceInfo getDefaultWorkspace();
+        Optional<WorkspaceInfo> getDefaultWorkspace();
     }
 
     public interface StoreRepository extends CatalogInfoRepository<StoreInfo> {
-        void setDefaultDataStore(WorkspaceInfo workspace, DataStoreInfo dataStore);
 
-        @Nullable
-        DataStoreInfo getDefaultDataStore(@NonNull WorkspaceInfo workspace);
+        void setDefaultDataStore(
+                @NonNull WorkspaceInfo workspace, @NonNull DataStoreInfo dataStore);
+
+        void unsetDefaultDataStore(@NonNull WorkspaceInfo workspace);
+
+        Optional<DataStoreInfo> getDefaultDataStore(@NonNull WorkspaceInfo workspace);
 
         Stream<DataStoreInfo> getDefaultDataStores();
 
         <T extends StoreInfo> Stream<T> findAllByWorkspace(
-                @NonNull WorkspaceInfo workspace, @Nullable Class<T> clazz);
+                @NonNull WorkspaceInfo workspace, @NonNull Class<T> clazz);
 
-        <T extends StoreInfo> Stream<T> findAllByType(@Nullable Class<T> clazz);
+        <T extends StoreInfo> Stream<T> findAllByType(@NonNull Class<T> clazz);
 
-        <T extends StoreInfo> T findByNameAndWorkspace(
-                String name, WorkspaceInfo workspace, Class<T> clazz);
+        <T extends StoreInfo> Optional<T> findByNameAndWorkspace(
+                @NonNull String name, @NonNull WorkspaceInfo workspace, @NonNull Class<T> clazz);
     }
 
     public interface ResourceRepository extends CatalogInfoRepository<ResourceInfo> {
 
-        @Nullable
-        <T extends ResourceInfo> T findByNameAndNamespace(
-                @NonNull String name, @NonNull NamespaceInfo namespace, @Nullable Class<T> clazz);
+        <T extends ResourceInfo> Optional<T> findByNameAndNamespace(
+                @NonNull String name, @NonNull NamespaceInfo namespace, @NonNull Class<T> clazz);
 
-        <T extends ResourceInfo> Stream<T> findAllByType(@Nullable Class<T> clazz);
+        <T extends ResourceInfo> Stream<T> findAllByType(@NonNull Class<T> clazz);
 
         <T extends ResourceInfo> Stream<T> findAllByNamespace(
-                @NonNull NamespaceInfo ns, @Nullable Class<T> clazz);
+                @NonNull NamespaceInfo ns, @NonNull Class<T> clazz);
 
-        @Nullable
-        <T extends ResourceInfo> T findByStoreAndName(
-                @NonNull StoreInfo store, @NonNull String name, @Nullable Class<T> clazz);
+        <T extends ResourceInfo> Optional<T> findByStoreAndName(
+                @NonNull StoreInfo store, @NonNull String name, @NonNull Class<T> clazz);
 
         <T extends ResourceInfo> Stream<T> findAllByStore(StoreInfo store, Class<T> clazz);
     }
 
     public interface LayerRepository extends CatalogInfoRepository<LayerInfo> {
 
-        @Nullable
-        LayerInfo findOneByName(@NonNull String possiblyPrefixedName);
+        Optional<LayerInfo> findOneByName(@NonNull String possiblyPrefixedName);
 
         Stream<LayerInfo> findAllByDefaultStyleOrStyles(@NonNull StyleInfo style);
 
@@ -117,10 +121,10 @@ public interface CatalogInfoRepository<T extends CatalogInfo> {
 
     public interface LayerGroupRepository extends CatalogInfoRepository<LayerGroupInfo> {
 
-        @Nullable
-        LayerGroupInfo findByNameAndWorkspaceIsNull(@NonNull String name);
+        Optional<LayerGroupInfo> findByNameAndWorkspaceIsNull(@NonNull String name);
 
-        LayerGroupInfo findByNameAndWorkspace(String name, WorkspaceInfo workspace);
+        Optional<LayerGroupInfo> findByNameAndWorkspace(
+                @NonNull String name, @NonNull WorkspaceInfo workspace);
 
         Stream<LayerGroupInfo> findAllByWorkspaceIsNull();
 
@@ -133,9 +137,10 @@ public interface CatalogInfoRepository<T extends CatalogInfo> {
 
         Stream<StyleInfo> findAllByWorkspace(@NonNull WorkspaceInfo ws);
 
-        StyleInfo findByNameAndWordkspaceNull(String name);
+        Optional<StyleInfo> findByNameAndWordkspaceNull(@NonNull String name);
 
-        StyleInfo findByNameAndWordkspace(String name, WorkspaceInfo workspace);
+        Optional<StyleInfo> findByNameAndWordkspace(
+                @NonNull String name, @NonNull WorkspaceInfo workspace);
     }
 
     public interface MapRepository extends CatalogInfoRepository<MapInfo> {}

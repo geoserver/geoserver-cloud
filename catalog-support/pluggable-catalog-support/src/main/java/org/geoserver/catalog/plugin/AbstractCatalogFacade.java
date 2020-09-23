@@ -24,6 +24,7 @@ import java.util.EnumMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.logging.Level;
@@ -198,7 +199,7 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     public @Override <T extends StoreInfo> T getStoreByName(
             WorkspaceInfo workspace, String name, Class<T> clazz) {
 
-        T result;
+        Optional<T> result;
         if (workspace == ANY_WORKSPACE || workspace == null) {
             result = stores.findFirstByName(name, clazz);
         } else {
@@ -231,7 +232,7 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     }
 
     public @Override void setDefaultDataStore(WorkspaceInfo workspace, DataStoreInfo store) {
-        DataStoreInfo old = stores.getDefaultDataStore(workspace);
+        DataStoreInfo old = stores.getDefaultDataStore(workspace).orElse(null);
         if (store != null) {
             Objects.requireNonNull(store.getWorkspace());
             Assert.isTrue(
@@ -242,7 +243,8 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
         // fire modify event before change
         catalog.fireModified(catalog, asList("defaultDataStore"), asList(old), asList(store));
 
-        stores.setDefaultDataStore(workspace, store);
+        if (store == null) stores.unsetDefaultDataStore(workspace);
+        else stores.setDefaultDataStore(workspace, store);
 
         // fire postmodify event after change
         catalog.firePostModified(catalog, asList("defaultDataStore"), asList(old), asList(store));
@@ -269,13 +271,13 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     }
 
     public @Override <T extends ResourceInfo> T getResource(String id, Class<T> clazz) {
-        T result = resources.findById(id, clazz);
+        Optional<T> result = resources.findById(id, clazz);
         return verifyBeforeReturning(result, clazz);
     }
 
     public @Override <T extends ResourceInfo> T getResourceByName(
             NamespaceInfo namespace, String name, Class<T> clazz) {
-        T result;
+        Optional<T> result;
         if (namespace == ANY_NAMESPACE) {
             result = resources.findFirstByName(name, clazz);
         } else {
@@ -299,14 +301,14 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
 
     public @Override <T extends ResourceInfo> T getResourceByStore(
             StoreInfo store, String name, Class<T> clazz) {
-        T resource = null;
+        Optional<T> resource = null;
         NamespaceInfo ns = null;
         if (store.getWorkspace() != null
                 && store.getWorkspace().getName() != null
                 && (ns = getNamespaceByPrefix(store.getWorkspace().getName())) != null) {
 
             resource = resources.findByNameAndNamespace(name, ns, clazz);
-            if (resource != null && !(store.equals(resource.getStore()))) {
+            if (resource.isPresent() && !(store.equals(resource.get().getStore()))) {
                 return null;
             }
         } else {
@@ -345,12 +347,12 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     }
 
     public @Override LayerInfo getLayer(String id) {
-        LayerInfo li = layers.findById(id, LayerInfo.class);
+        Optional<LayerInfo> li = layers.findById(id, LayerInfo.class);
         return verifyBeforeReturning(li, LayerInfo.class);
     }
 
     public @Override LayerInfo getLayerByName(String name) {
-        LayerInfo result = layers.findOneByName(name);
+        Optional<LayerInfo> result = layers.findOneByName(name);
         return verifyBeforeReturning(result, LayerInfo.class);
     }
 
@@ -443,7 +445,7 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     }
 
     public @Override LayerGroupInfo getLayerGroup(String id) {
-        LayerGroupInfo result = layerGroups.findById(id, LayerGroupInfo.class);
+        Optional<LayerGroupInfo> result = layerGroups.findById(id, LayerGroupInfo.class);
         return verifyBeforeReturning(result, LayerGroupInfo.class);
     }
 
@@ -452,7 +454,7 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     }
 
     public @Override LayerGroupInfo getLayerGroupByName(WorkspaceInfo workspace, String name) {
-        LayerGroupInfo match;
+        Optional<LayerGroupInfo> match;
         if (workspace == NO_WORKSPACE) {
             match = layerGroups.findByNameAndWorkspaceIsNull(name);
         } else if (ANY_WORKSPACE == workspace) {
@@ -496,7 +498,9 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
         catalog.fireModified(
                 catalog, asList("defaultNamespace"), asList(old), asList(defaultNamespace));
 
-        namespaces.setDefaultNamespace(unwrap(defaultNamespace));
+        NamespaceInfo ns = unwrap(defaultNamespace);
+        if (ns == null) namespaces.unsetDefaultNamesapce();
+        else namespaces.setDefaultNamespace(ns);
 
         // fire postmodify event after change
         catalog.firePostModified(
@@ -509,12 +513,12 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     }
 
     public @Override NamespaceInfo getNamespace(String id) {
-        NamespaceInfo ns = namespaces.findById(id, NamespaceInfo.class);
+        Optional<NamespaceInfo> ns = namespaces.findById(id, NamespaceInfo.class);
         return verifyBeforeReturning(ns, NamespaceInfo.class);
     }
 
     public @Override NamespaceInfo getNamespaceByPrefix(String prefix) {
-        NamespaceInfo ns = namespaces.findFirstByName(prefix, NamespaceInfo.class);
+        Optional<NamespaceInfo> ns = namespaces.findFirstByName(prefix, NamespaceInfo.class);
         return verifyBeforeReturning(ns, NamespaceInfo.class);
     }
 
@@ -541,7 +545,7 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
 
     public @Override void remove(WorkspaceInfo workspace) {
         if (workspace.equals(getDefaultWorkspace())) {
-            workspaces.setDefaultWorkspace(null);
+            workspaces.unsetDefaultWorkspace();
         }
         workspaces.remove(unwrap(workspace));
     }
@@ -564,7 +568,9 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
         // fire modify event before change
         catalog.fireModified(catalog, asList("defaultWorkspace"), asList(old), asList(workspace));
 
-        workspaces.setDefaultWorkspace(unwrap(workspace));
+        WorkspaceInfo ws = unwrap(workspace);
+        if (ws == null) workspaces.unsetDefaultWorkspace();
+        else workspaces.setDefaultWorkspace(ws);
 
         // fire postmodify event after change
         catalog.firePostModified(
@@ -576,12 +582,12 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     }
 
     public @Override WorkspaceInfo getWorkspace(String id) {
-        WorkspaceInfo ws = workspaces.findById(id, WorkspaceInfo.class);
+        Optional<WorkspaceInfo> ws = workspaces.findById(id, WorkspaceInfo.class);
         return verifyBeforeReturning(ws, WorkspaceInfo.class);
     }
 
     public @Override WorkspaceInfo getWorkspaceByName(String name) {
-        WorkspaceInfo ws = workspaces.findFirstByName(name, WorkspaceInfo.class);
+        Optional<WorkspaceInfo> ws = workspaces.findFirstByName(name, WorkspaceInfo.class);
         return verifyBeforeReturning(ws, WorkspaceInfo.class);
     }
 
@@ -606,12 +612,12 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     }
 
     public @Override StyleInfo getStyle(String id) {
-        StyleInfo match = styles.findById(id, StyleInfo.class);
+        Optional<StyleInfo> match = styles.findById(id, StyleInfo.class);
         return verifyBeforeReturning(match, StyleInfo.class);
     }
 
     public @Override StyleInfo getStyleByName(String name) {
-        StyleInfo match = styles.findByNameAndWordkspaceNull(name);
+        Optional<StyleInfo> match = styles.findByNameAndWordkspaceNull(name);
         if (match == null) {
             match = styles.findFirstByName(name, StyleInfo.class);
         }
@@ -625,7 +631,7 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
         if (workspace == ANY_WORKSPACE) {
             return getStyleByName(name);
         }
-        StyleInfo match;
+        Optional<StyleInfo> match;
         if (workspace == NO_WORKSPACE) {
             match = styles.findByNameAndWordkspaceNull(name);
         } else {
@@ -859,6 +865,10 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     //
     public static <T> T unwrap(T obj) {
         return ModificationProxy.unwrap(obj);
+    }
+
+    protected <T extends CatalogInfo> T verifyBeforeReturning(Optional<T> ci, Class<T> clazz) {
+        return verifyBeforeReturning(ci.orElse(null), clazz);
     }
 
     protected <T extends CatalogInfo> T verifyBeforeReturning(T ci, Class<T> clazz) {

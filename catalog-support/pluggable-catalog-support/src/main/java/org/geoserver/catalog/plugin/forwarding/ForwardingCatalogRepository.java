@@ -4,6 +4,7 @@
  */
 package org.geoserver.catalog.plugin.forwarding;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 import lombok.NonNull;
 import org.geoserver.catalog.CatalogInfo;
@@ -49,11 +50,12 @@ public abstract class ForwardingCatalogRepository<
         return subject.findAll(filter, infoType);
     }
 
-    public @Override <U extends I> U findById(String id, Class<U> clazz) {
+    public @Override <U extends I> Optional<U> findById(String id, Class<U> clazz) {
         return subject.findById(id, clazz);
     }
 
-    public @Override <U extends I> U findFirstByName(@NonNull String name, Class<U> clazz) {
+    public @Override <U extends I> Optional<U> findFirstByName(
+            @NonNull String name, Class<U> clazz) {
         return subject.findFirstByName(name, clazz);
     }
 

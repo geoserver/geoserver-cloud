@@ -4,6 +4,7 @@
  */
 package org.geoserver.catalog.plugin.forwarding;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.ResourceInfo;
@@ -17,7 +18,7 @@ public class ForwardingLayerRepository
         super(subject);
     }
 
-    public @Override LayerInfo findOneByName(String name) {
+    public @Override Optional<LayerInfo> findOneByName(String name) {
         return subject.findOneByName(name);
     }
 

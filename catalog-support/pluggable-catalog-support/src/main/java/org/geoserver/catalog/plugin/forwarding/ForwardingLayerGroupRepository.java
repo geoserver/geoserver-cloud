@@ -4,6 +4,7 @@
  */
 package org.geoserver.catalog.plugin.forwarding;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 import lombok.NonNull;
 import org.geoserver.catalog.LayerGroupInfo;
@@ -26,11 +27,12 @@ public class ForwardingLayerGroupRepository
         return subject.findAllByWorkspace(workspace);
     }
 
-    public @Override LayerGroupInfo findByNameAndWorkspaceIsNull(@NonNull String name) {
+    public @Override Optional<LayerGroupInfo> findByNameAndWorkspaceIsNull(@NonNull String name) {
         return subject.findByNameAndWorkspaceIsNull(name);
     }
 
-    public @Override LayerGroupInfo findByNameAndWorkspace(String name, WorkspaceInfo workspace) {
+    public @Override Optional<LayerGroupInfo> findByNameAndWorkspace(
+            String name, WorkspaceInfo workspace) {
         return subject.findByNameAndWorkspace(name, workspace);
     }
 }

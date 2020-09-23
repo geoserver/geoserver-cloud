@@ -4,7 +4,9 @@
  */
 package org.geoserver.catalog.plugin.forwarding;
 
+import java.util.Optional;
 import java.util.stream.Stream;
+import lombok.NonNull;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
@@ -21,7 +23,7 @@ public class ForwardingStoreRepository
         subject.setDefaultDataStore(workspace, dataStore);
     }
 
-    public @Override DataStoreInfo getDefaultDataStore(WorkspaceInfo workspace) {
+    public @Override Optional<DataStoreInfo> getDefaultDataStore(WorkspaceInfo workspace) {
         return subject.getDefaultDataStore(workspace);
     }
 
@@ -38,8 +40,12 @@ public class ForwardingStoreRepository
         return subject.findAllByType(clazz);
     }
 
-    public @Override <T extends StoreInfo> T findByNameAndWorkspace(
+    public @Override <T extends StoreInfo> Optional<T> findByNameAndWorkspace(
             String name, WorkspaceInfo workspace, Class<T> clazz) {
         return subject.findByNameAndWorkspace(name, workspace, clazz);
+    }
+
+    public @Override void unsetDefaultDataStore(@NonNull WorkspaceInfo workspace) {
+        subject.unsetDefaultDataStore(workspace);
     }
 }
