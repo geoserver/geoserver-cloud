@@ -5,6 +5,7 @@
 package org.geoserver.cloud.catalog.client.repository;
 
 import java.util.Objects;
+import java.util.Optional;
 import lombok.Getter;
 import lombok.NonNull;
 import org.geoserver.catalog.WorkspaceInfo;
@@ -18,10 +19,14 @@ public class CloudWorkspaceRepository extends CatalogServiceClientRepository<Wor
 
     public @Override void setDefaultWorkspace(@NonNull WorkspaceInfo workspace) {
         Objects.requireNonNull(workspace.getId(), "workspace id can't be null");
-        callAndBlock(() -> client().setDefaultWorkspace(workspace.getId()));
+        blockAndReturn(client().setDefaultWorkspace(workspace.getId()));
     }
 
-    public @Override @Nullable WorkspaceInfo getDefaultWorkspace() {
-        return callAndReturn(client()::getDefaultWorkspace);
+    public @Override void unsetDefaultWorkspace() {
+        client().unsetDefaultWorkspace().block();
+    }
+
+    public @Override @Nullable Optional<WorkspaceInfo> getDefaultWorkspace() {
+        return blockAndReturn(client().getDefaultWorkspace());
     }
 }

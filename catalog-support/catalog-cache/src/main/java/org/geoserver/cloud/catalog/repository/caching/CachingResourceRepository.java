@@ -4,6 +4,7 @@
  */
 package org.geoserver.cloud.catalog.repository.caching;
 
+import java.util.Optional;
 import lombok.NonNull;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.ResourceInfo;
@@ -20,13 +21,13 @@ public class CachingResourceRepository extends ForwardingResourceRepository {
     }
 
     @Cacheable
-    public @Override <T extends ResourceInfo> T findByStoreAndName(
+    public @Override <T extends ResourceInfo> Optional<T> findByStoreAndName(
             StoreInfo store, String name, Class<T> clazz) {
         return super.findByStoreAndName(store, name, clazz);
     }
 
     @Cacheable
-    public @Override <T extends ResourceInfo> T findByNameAndNamespace(
+    public @Override <T extends ResourceInfo> Optional<T> findByNameAndNamespace(
             @NonNull String name, @NonNull NamespaceInfo namespace, Class<T> clazz) {
         return super.findByNameAndNamespace(name, namespace, clazz);
     }

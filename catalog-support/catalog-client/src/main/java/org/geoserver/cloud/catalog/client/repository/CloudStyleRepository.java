@@ -4,6 +4,7 @@
  */
 package org.geoserver.cloud.catalog.client.repository;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.NonNull;
@@ -24,12 +25,14 @@ public class CloudStyleRepository extends CatalogServiceClientRepository<StyleIn
         return client().findStylesByWorkspaceId(ws.getId()).map(this::resolve).toStream();
     }
 
-    public @Override StyleInfo findByNameAndWordkspaceNull(@NonNull String name) {
-        return callAndReturn(() -> client().findStyleByNameAndNullWorkspace(name));
+    public @Override Optional<StyleInfo> findByNameAndWordkspaceNull(@NonNull String name) {
+        return blockAndReturn(client().findStyleByNameAndNullWorkspace(name));
     }
 
-    public @Override StyleInfo findByNameAndWordkspace(
+    public @Override Optional<StyleInfo> findByNameAndWordkspace(
             @NonNull String name, @NonNull WorkspaceInfo workspace) {
-        return callAndReturn(() -> client().findStyleByWorkspaceIdAndName(workspace.getId(), name));
+
+        String workspaceId = workspace.getId();
+        return blockAndReturn(client().findStyleByWorkspaceIdAndName(workspaceId, name));
     }
 }

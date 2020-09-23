@@ -5,6 +5,7 @@
 package org.geoserver.cloud.catalog.client.repository;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.NonNull;
@@ -27,17 +28,13 @@ public class CloudLayerGroupRepository extends CatalogServiceClientRepository<La
                 .toStream();
     }
 
-    public @Override LayerGroupInfo findByNameAndWorkspaceIsNull(@NonNull String name) {
-        return callAndReturn(
-                () -> client().findLayerGroupByNameAndNullWorkspace(name).map(this::resolve));
+    public @Override Optional<LayerGroupInfo> findByNameAndWorkspaceIsNull(@NonNull String name) {
+        return blockAndReturn(client().findLayerGroupByNameAndNullWorkspace(name));
     }
 
-    public @Override LayerGroupInfo findByNameAndWorkspace(
+    public @Override Optional<LayerGroupInfo> findByNameAndWorkspace(
             @NonNull String name, @NonNull WorkspaceInfo workspace) {
         Objects.requireNonNull(workspace.getId());
-        return callAndReturn(
-                () ->
-                        client().findLayerGroupByWorkspaceIdAndName(workspace.getId(), name)
-                                .map(this::resolve));
+        return blockAndReturn(client().findLayerGroupByWorkspaceIdAndName(workspace.getId(), name));
     }
 }

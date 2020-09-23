@@ -4,9 +4,11 @@
  */
 package org.geoserver.cloud.catalog.repository.caching;
 
+import java.util.Optional;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.plugin.forwarding.ForwardingNamespaceRepository;
 import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 
@@ -22,13 +24,18 @@ public class CachingNamespaceRepository extends ForwardingNamespaceRepository {
         super.setDefaultNamespace(namespace);
     }
 
+    @CacheEvict(key = "defaultNamespace")
+    public @Override void unsetDefaultNamesapce() {
+        super.unsetDefaultNamesapce();
+    }
+
     @Cacheable(key = "defaultNamespace")
-    public @Override NamespaceInfo getDefaultNamespace() {
+    public @Override Optional<NamespaceInfo> getDefaultNamespace() {
         return super.getDefaultNamespace();
     }
 
     @Cacheable
-    public @Override NamespaceInfo findOneByURI(String uri) {
+    public @Override Optional<NamespaceInfo> findOneByURI(String uri) {
         return super.findOneByURI(uri);
     }
 }

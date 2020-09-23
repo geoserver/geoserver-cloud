@@ -6,7 +6,6 @@ package org.geoserver.cloud.catalog.client.repository;
 
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 import lombok.NonNull;
 import org.geoserver.catalog.CatalogInfo;
@@ -65,69 +64,49 @@ public abstract class CatalogServiceClientRepository<CI extends CatalogInfo>
      * coming from the wire has all properties that are subtypes of {@link Info} "proxified" and
      * need to be resolved to the real ones before leaving this class
      */
+    protected <C extends CI> Optional<C> resolve(Optional<C> incoming) {
+        return incoming.map(this::resolve);
+    }
+
     protected <C extends CI> C resolve(C incoming) {
         Function<C, C> pr = proxyResolver();
         return pr.apply(incoming);
     }
 
-    protected <C extends CI> Flux<C> resolve(Flux<? extends C> incoming) {
-        Function<C, C> pr = proxyResolver();
-        return incoming.map(pr::apply);
-    }
-
-    protected @Nullable <U extends CatalogInfo> U callAndBlock(Supplier<Mono<U>> callable) {
-        Mono<U> call = callable.get();
-        Mono<Optional<U>> mono = call.map(Optional::of).switchIfEmpty(Mono.just(Optional.empty()));
+    protected @Nullable <U extends CI> Optional<U> blockAndReturn(Mono<U> call) {
         // Stopwatch sw = Stopwatch.createStarted();
-        U value = mono.block().orElse(null);
+        Optional<U> value = call.blockOptional();
         // System.err.printf("blocked for %s, got %s %n", sw.stop(), value);
         return value;
     }
 
-    protected @Nullable <U extends CI> U callAndReturn(Supplier<Mono<U>> callable) {
-        return resolve(callAndBlock(callable));
-    }
-
     public @Override void add(@NonNull CI value) {
-        callAndBlock(() -> client.create(endpoint(), value));
+        blockAndReturn(client.create(endpoint(), value));
     }
 
     public @Override void remove(@NonNull CI value) {
-        callAndBlock(() -> client.deleteById(endpoint(), value.getId()));
+        blockAndReturn(client.deleteById(endpoint(), value.getId()));
     }
 
-    @SuppressWarnings("unchecked")
     public @Override <T extends CI> T update(@NonNull T value, @NonNull Patch patch) {
-        return callAndReturn(
-                () ->
-                        client.update(endpoint(), value.getId(), patch)
-                                .map(r -> (T) r)
-                                .map(this::resolve));
+        Mono<T> updated = client.update(endpoint(), value.getId(), patch);
+        return blockAndReturn(updated).get();
     }
 
-    public @Override void dispose() {
-        // no-op...?
-    }
-
-    public @Override <U extends CI> U findFirstByName(
+    public @Override <U extends CI> Optional<U> findFirstByName(
             @NonNull String name, @NonNull Class<U> infoType) {
         ClassMappings typeArg = typeEnum(infoType);
-        Class<U> type = typeArg.getInterface();
-
-        return callAndReturn(
-                () ->
-                        client.findFirstByName(endpoint(), name, typeArg)
-                                .map(type::cast)
-                                .map(this::resolve));
+        Mono<U> found = client.findFirstByName(endpoint(), name, typeArg);
+        return blockAndReturn(found);
     }
 
     public @Override Stream<CI> findAll() {
         ClassMappings typeArg = typeEnum(getInfoType());
-        Class<CI> type = typeArg.getInterface();
-        return client.findAll(endpoint(), typeArg).map(type::cast).map(this::resolve).toStream();
+        Flux<CI> all = client.findAll(endpoint(), typeArg);
+        return all.toStream().map(this::resolve);
     }
 
-    public @Override Stream<CI> findAll(Filter filter) {
+    public @Override Stream<CI> findAll(@NonNull Filter filter) {
         ClassMappings typeArg = typeEnum(getInfoType());
         Class<CI> type = typeArg.getInterface();
         return client.query(endpoint(), typeArg, filter)
@@ -145,14 +124,18 @@ public abstract class CatalogServiceClientRepository<CI extends CatalogInfo>
                 .toStream();
     }
 
-    public @Override <U extends CI> U findById(@NonNull String id, @NonNull Class<U> clazz) {
+    public @Override <U extends CI> Optional<U> findById(
+            @NonNull String id, @NonNull Class<U> clazz) {
         ClassMappings typeArg = typeEnum(clazz);
 
-        return callAndReturn(
-                () -> client.findById(endpoint(), id, typeArg).map(clazz::cast).map(this::resolve));
+        return blockAndReturn(client.findById(endpoint(), id, typeArg));
     }
 
-    public @Override void syncTo(CatalogInfoRepository<CI> target) {
+    public @Override void dispose() {
+        // no-op...?
+    }
+
+    public @Override void syncTo(@NonNull CatalogInfoRepository<CI> target) {
         throw new UnsupportedOperationException("not yet implemented");
     }
 

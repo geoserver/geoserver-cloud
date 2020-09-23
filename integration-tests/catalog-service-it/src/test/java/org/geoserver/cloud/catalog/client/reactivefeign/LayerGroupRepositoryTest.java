@@ -7,6 +7,7 @@ package org.geoserver.cloud.catalog.client.reactivefeign;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import lombok.Getter;
 import lombok.experimental.Accessors;
@@ -174,36 +175,35 @@ public class LayerGroupRepositoryTest
     }
 
     public @Test void testFindAllByWorkspaceIsNull() {
-        testFind(() -> repository().findAllByWorkspaceIsNull(), testData.layerGroup1);
+        testFind(() -> repository.findAllByWorkspaceIsNull(), testData.layerGroup1);
         serverCatalog.add(lg1WorkspaceA);
-        testFind(() -> repository().findAllByWorkspaceIsNull(), testData.layerGroup1);
+        testFind(() -> repository.findAllByWorkspaceIsNull(), testData.layerGroup1);
         LayerGroupInfo lg2 =
                 testData.createLayerGroup(
                         "lg2", null, "lg2", testData.layerFeatureTypeA, (StyleInfo) null);
         serverCatalog.add(lg2);
-        testFind(() -> repository().findAllByWorkspaceIsNull(), testData.layerGroup1, lg2);
+        testFind(() -> repository.findAllByWorkspaceIsNull(), testData.layerGroup1, lg2);
     }
 
     public @Test void testFindAllByWorkspace() {
         WorkspaceInfo workspace = testData.workspaceA;
-        testFind(() -> repository().findAllByWorkspace(testData.workspaceA));
+        testFind(() -> repository.findAllByWorkspace(testData.workspaceA));
         serverCatalog.add(lg1WorkspaceA);
-        testFind(() -> repository().findAllByWorkspace(workspace), lg1WorkspaceA);
+        testFind(() -> repository.findAllByWorkspace(workspace), lg1WorkspaceA);
         LayerGroupInfo lg2WorkspaceA =
                 testData.createLayerGroup(
                         "lg2", workspace, "lg2", testData.layerFeatureTypeA, (StyleInfo) null);
         serverCatalog.add(lg2WorkspaceA);
-        testFind(() -> repository().findAllByWorkspace(workspace), lg1WorkspaceA, lg2WorkspaceA);
+        testFind(() -> repository.findAllByWorkspace(workspace), lg1WorkspaceA, lg2WorkspaceA);
     }
 
     public @Test void testFindByNameAndWorkspaceIsNull() {
-        LayerGroupRepository repository = repository();
-
         LayerGroupInfo global = testData.layerGroup1;
         assertEquals(
-                global.getId(), repository.findByNameAndWorkspaceIsNull(global.getName()).getId());
+                global.getId(),
+                repository.findByNameAndWorkspaceIsNull(global.getName()).get().getId());
         serverCatalog.add(lg1WorkspaceA);
-        assertNull(repository.findByNameAndWorkspaceIsNull(lg1WorkspaceA.getName()));
+        assertTrue(repository.findByNameAndWorkspaceIsNull(lg1WorkspaceA.getName()).isEmpty());
     }
 
     public @Test void testFindByNameAndWorkspace() {
@@ -212,22 +212,26 @@ public class LayerGroupRepositoryTest
         serverCatalog.add(lg1WorkspaceA);
         serverCatalog.add(lg2WorkspaceA);
 
-        LayerGroupRepository repository = repository();
-
-        assertNull(repository.findByNameAndWorkspace(globalGroup.getName(), workspace));
+        assertTrue(repository.findByNameAndWorkspace(globalGroup.getName(), workspace).isEmpty());
 
         assertEquals(
                 lg1WorkspaceA.getId(),
-                repository.findByNameAndWorkspace(lg1WorkspaceA.getName(), workspace).getId());
+                repository
+                        .findByNameAndWorkspace(lg1WorkspaceA.getName(), workspace)
+                        .get()
+                        .getId());
         assertEquals(
                 lg2WorkspaceA.getId(),
-                repository.findByNameAndWorkspace(lg2WorkspaceA.getName(), workspace).getId());
+                repository
+                        .findByNameAndWorkspace(lg2WorkspaceA.getName(), workspace)
+                        .get()
+                        .getId());
 
         // workspace and root groups with the same name
         globalGroup.setName(lg1WorkspaceA.getName());
         serverCatalog.save(globalGroup);
         assertEquals(
                 lg1WorkspaceA.getId(),
-                repository.findByNameAndWorkspace(globalGroup.getName(), workspace).getId());
+                repository.findByNameAndWorkspace(globalGroup.getName(), workspace).get().getId());
     }
 }

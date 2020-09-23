@@ -4,17 +4,20 @@
  */
 package org.geoserver.cloud.catalog.client.repository;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.NonNull;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
+import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.ResourceRepository;
 import org.geotools.factory.CommonFactoryFinder;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory2;
 import org.springframework.lang.Nullable;
+import reactor.core.publisher.Flux;
 
 public class CloudResourceRepository extends CatalogServiceClientRepository<ResourceInfo>
         implements ResourceRepository {
@@ -42,19 +45,16 @@ public class CloudResourceRepository extends CatalogServiceClientRepository<Reso
                 .toStream();
     }
 
-    public @Override @Nullable <T extends ResourceInfo> T findByStoreAndName(
+    public @Override @Nullable <T extends ResourceInfo> Optional<T> findByStoreAndName(
             @NonNull StoreInfo store, @NonNull String name, @Nullable Class<T> clazz) {
         // REVISIT: missed custom method on ReactiveCatalogClient
         Filter filter =
                 ff.and(
                         ff.equals(ff.property("store.id"), ff.literal(store.getId())),
                         ff.equals(ff.property("name"), ff.literal(name)));
-        return client().query(endpoint(), typeEnum(clazz), filter)
-                .map(clazz::cast)
-                .map(this::resolve)
-                .toStream()
-                .findAny()
-                .orElse(null);
+
+        Flux<T> query = client().query(endpoint(), typeEnum(clazz), filter);
+        return query.toStream().findFirst().map(this::resolve);
     }
 
     public @Override <T extends ResourceInfo> Stream<T> findAllByStore(
@@ -62,20 +62,15 @@ public class CloudResourceRepository extends CatalogServiceClientRepository<Reso
 
         // REVISIT: missed custom method on ReactiveCatalogClient
         Filter filter = ff.equals(ff.property("store.id"), ff.literal(store.getId()));
-        return client().query(endpoint(), typeEnum(clazz), filter)
-                .map(clazz::cast)
-                .map(this::resolve)
-                .toStream();
+        Flux<T> query = client().query(endpoint(), typeEnum(clazz), filter);
+        return query.toStream().map(this::resolve);
     }
 
-    public @Override <T extends ResourceInfo> T findByNameAndNamespace(
+    public @Override <T extends ResourceInfo> Optional<T> findByNameAndNamespace(
             @NonNull String name, @NonNull NamespaceInfo namespace, @NonNull Class<T> clazz) {
 
-        return callAndReturn(
-                () ->
-                        client().findResourceByNamespaceIdAndName(
-                                        namespace.getId(), name, typeEnum(clazz))
-                                .map(clazz::cast)
-                                .map(this::resolve));
+        String namespaceId = namespace.getId();
+        ClassMappings type = typeEnum(clazz);
+        return blockAndReturn(client().findResourceByNamespaceIdAndName(namespaceId, name, type));
     }
 }

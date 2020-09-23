@@ -10,6 +10,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
@@ -19,6 +20,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
 import lombok.NonNull;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
@@ -77,7 +79,7 @@ public class CatalogServiceClientRepositoryTest {
     public @Test void workspaceRepository_DefaultWorkspace() {
 
         when(mockClient.getDefaultWorkspace()).thenReturn(Mono.just(testData.workspaceB));
-        assertSame(testData.workspaceB, workspaceRepository.getDefaultWorkspace());
+        assertSame(testData.workspaceB, workspaceRepository.getDefaultWorkspace().get());
         verify(mockClient, times(1)).getDefaultWorkspace();
 
         when(mockClient.setDefaultWorkspace(eq(testData.workspaceA.getId())))
@@ -96,7 +98,7 @@ public class CatalogServiceClientRepositoryTest {
 
     public @Test void namespaceRepository_DefaultNamespace() {
         when(mockClient.getDefaultNamespace()).thenReturn(Mono.just(testData.namespaceB));
-        assertSame(testData.namespaceB, namespaceRepository.getDefaultNamespace());
+        assertSame(testData.namespaceB, namespaceRepository.getDefaultNamespace().get());
         verify(mockClient, times(1)).getDefaultNamespace();
 
         when(mockClient.setDefaultNamespace(eq(testData.namespaceA.getId())))
@@ -122,8 +124,12 @@ public class CatalogServiceClientRepositoryTest {
         when(mockClient.findDefaultDataStoreByWorkspaceId(eq(testData.workspaceB.getId())))
                 .thenReturn(Mono.just(testData.dataStoreB));
 
-        assertSame(testData.dataStoreA, storeRepository.getDefaultDataStore(testData.workspaceA));
-        assertSame(testData.dataStoreB, storeRepository.getDefaultDataStore(testData.workspaceB));
+        assertSame(
+                testData.dataStoreA,
+                storeRepository.getDefaultDataStore(testData.workspaceA).get());
+        assertSame(
+                testData.dataStoreB,
+                storeRepository.getDefaultDataStore(testData.workspaceB).get());
         assertThrows(NullPointerException.class, () -> storeRepository.getDefaultDataStore(null));
     }
 
@@ -227,8 +233,9 @@ public class CatalogServiceClientRepositoryTest {
         final String id = info.getId();
         when(mockClient.findById(any(String.class), eq(id), eq(expectedEnumType)))
                 .thenReturn(Mono.just(info));
-        T retrieved = repo.findById(id, clazz);
-        assertSame(info, retrieved);
+        Optional<T> retrieved = repo.findById(id, clazz);
+        assertTrue(retrieved.isPresent());
+        assertSame(info, retrieved.get());
         verify(mockClient, times(1)).findById(any(String.class), eq(id), eq(expectedEnumType));
     }
 
@@ -240,7 +247,10 @@ public class CatalogServiceClientRepositoryTest {
 
         when(mockClient.findFirstByName(any(String.class), eq(name), eq(subType)))
                 .thenReturn(Mono.just(info));
-        assertSame(info, repo.findFirstByName(name, type));
+
+        Optional<T> found = repo.findFirstByName(name, type);
+        assertTrue(found.isPresent());
+        assertSame(info, found.get());
         verify(mockClient, times(1)).findFirstByName(any(String.class), eq(name), eq(subType));
     }
 

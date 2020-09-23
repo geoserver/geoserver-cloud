@@ -4,14 +4,17 @@
  */
 package org.geoserver.cloud.catalog.client.repository;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.NonNull;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
+import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.StoreRepository;
 import org.springframework.lang.Nullable;
+import reactor.core.publisher.Flux;
 
 public class CloudStoreRepository extends CatalogServiceClientRepository<StoreInfo>
         implements StoreRepository {
@@ -21,42 +24,48 @@ public class CloudStoreRepository extends CatalogServiceClientRepository<StoreIn
     public @Override void setDefaultDataStore(
             @NonNull WorkspaceInfo workspace, @NonNull DataStoreInfo dataStore) {
 
-        callAndBlock(
-                () ->
-                        client().setDefaultDataStoreByWorkspaceId(
-                                        workspace.getId(), dataStore.getId()));
+        String workspaceId = workspace.getId();
+        String dataStoreId = dataStore.getId();
+        blockAndReturn(client().setDefaultDataStoreByWorkspaceId(workspaceId, dataStoreId));
     }
 
-    public @Override @Nullable DataStoreInfo getDefaultDataStore(@NonNull WorkspaceInfo workspace) {
-        return callAndReturn(() -> client().findDefaultDataStoreByWorkspaceId(workspace.getId()));
+    public @Override void unsetDefaultDataStore(@NonNull WorkspaceInfo workspace) {
+        String workspaceId = workspace.getId();
+        client().unsetDefaultDataStore(workspaceId).block();
+    }
+
+    public @Override Optional<DataStoreInfo> getDefaultDataStore(@NonNull WorkspaceInfo workspace) {
+        String workspaceId = workspace.getId();
+        return blockAndReturn(client().findDefaultDataStoreByWorkspaceId(workspaceId));
     }
 
     public @Override Stream<DataStoreInfo> getDefaultDataStores() {
-        return client().getDefaultDataStores().map(this::resolve).toStream();
+        return client().getDefaultDataStores().toStream().map(this::resolve);
     }
 
     public @Override <T extends StoreInfo> Stream<T> findAllByWorkspace(
             @NonNull WorkspaceInfo workspace, @Nullable Class<T> clazz) {
 
-        return client().findStoresByWorkspaceId(workspace.getId(), typeEnum(clazz))
-                .map(clazz::cast)
-                .map(this::resolve)
-                .toStream();
+        String workspaceId = workspace.getId();
+        ClassMappings type = typeEnum(clazz);
+
+        Flux<T> flux = client().findStoresByWorkspaceId(workspaceId, type);
+        return flux.toStream().map(this::resolve);
     }
 
     public @Override <T extends StoreInfo> Stream<T> findAllByType(@NonNull Class<T> clazz) {
+
         return client().findAll(endpoint(), typeEnum(clazz))
                 .map(clazz::cast)
                 .map(this::resolve)
                 .toStream();
     }
 
-    public @Override <T extends StoreInfo> T findByNameAndWorkspace(
+    public @Override <T extends StoreInfo> Optional<T> findByNameAndWorkspace(
             @NonNull String name, @NonNull WorkspaceInfo workspace, @NonNull Class<T> clazz) {
-        return callAndReturn(
-                () ->
-                        client().findStoreByWorkspaceIdAndName(
-                                        workspace.getId(), name, typeEnum(clazz))
-                                .map(clazz::cast));
+
+        String workspaceId = workspace.getId();
+        ClassMappings type = typeEnum(clazz);
+        return blockAndReturn(client().findStoreByWorkspaceIdAndName(workspaceId, name, type));
     }
 }

@@ -50,24 +50,24 @@ public interface ReactiveCatalogClient {
             @PathVariable("endpoint") String endpoint, @PathVariable("id") String id);
 
     @GetMapping(path = "/{endpoint}")
-    public Flux<CatalogInfo> findAll(
+    public <C extends CatalogInfo> Flux<C> findAll(
             @PathVariable("endpoint") String endpoint,
             @RequestParam(name = "type", required = false) ClassMappings subType);
 
     @GetMapping(path = {"/{endpoint}/{id}"})
-    public Mono<CatalogInfo> findById( //
+    <C extends CatalogInfo> Mono<C> findById( //
             @PathVariable("endpoint") String endpoint,
             @PathVariable("id") String id,
             @RequestParam(name = "type", required = false) ClassMappings subType);
 
     @GetMapping(path = "/{endpoint}/name/{name}/first")
-    Mono<CatalogInfo> findFirstByName( //
+    <C extends CatalogInfo> Mono<C> findFirstByName( //
             @PathVariable("endpoint") String endpoint,
             @PathVariable(name = "name") String name,
             @RequestParam(name = "type", required = false) ClassMappings subType);
 
     @PostMapping(path = "/{endpoint}/query")
-    public Flux<CatalogInfo> query( //
+    <C extends CatalogInfo> Flux<C> query( //
             @PathVariable("endpoint") String endpoint,
             @RequestParam(name = "type", required = false) ClassMappings subType,
             @RequestBody Filter filter);
@@ -75,11 +75,17 @@ public interface ReactiveCatalogClient {
     @PutMapping(path = "/workspaces/default/{workspaceId}")
     Mono<WorkspaceInfo> setDefaultWorkspace(@PathVariable("workspaceId") String workspaceId);
 
+    @DeleteMapping(path = "workspaces/default")
+    Mono<Void> unsetDefaultWorkspace();
+
     @GetMapping(path = "/workspaces/default")
     Mono<WorkspaceInfo> getDefaultWorkspace();
 
     @PutMapping(path = "namespaces/default/{namespaceId}")
     public Mono<NamespaceInfo> setDefaultNamespace(@PathVariable("namespaceId") String namespaceId);
+
+    @DeleteMapping(path = "namespaces/default")
+    Mono<Void> unsetDefaultNamespace();
 
     @GetMapping(path = "namespaces/default")
     Mono<NamespaceInfo> getDefaultNamespace();
@@ -98,17 +104,21 @@ public interface ReactiveCatalogClient {
             @PathVariable("workspaceId") String workspaceId,
             @PathVariable(name = "dataStoreId") String dataStoreId);
 
+    @DeleteMapping(path = "/workspaces/{workspaceId}/stores/default")
+    Mono<DataStoreInfo> unsetDefaultDataStore( //
+            @PathVariable("workspaceId") String workspaceId);
+
     @GetMapping(path = "/workspaces/{workspaceId}/stores/default")
     public Mono<DataStoreInfo> findDefaultDataStoreByWorkspaceId( //
             @PathVariable("workspaceId") String workspaceId);
 
     @GetMapping(path = "/workspaces/{workspaceId}/stores")
-    public Flux<StoreInfo> findStoresByWorkspaceId( //
+    public <S extends StoreInfo> Flux<S> findStoresByWorkspaceId( //
             @PathVariable("workspaceId") String workspaceId,
             @RequestParam(name = "type", required = false) ClassMappings subType);
 
     @GetMapping(path = "/workspaces/{workspaceId}/stores/name/{name}")
-    public Mono<StoreInfo> findStoreByWorkspaceIdAndName( //
+    public <S extends StoreInfo> Mono<S> findStoreByWorkspaceIdAndName( //
             @PathVariable("workspaceId") String workspaceId,
             @PathVariable("name") String name,
             @RequestParam(name = "type", required = false) ClassMappings subType);

@@ -4,6 +4,7 @@
  */
 package org.geoserver.cloud.catalog.client.repository;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.NonNull;
@@ -25,7 +26,7 @@ public class CloudLayerRepository extends CatalogServiceClientRepository<LayerIn
         return client().findLayersByResourceId(resource.getId()).map(this::resolve).toStream();
     }
 
-    public @Override LayerInfo findOneByName(@NonNull String name) {
+    public @Override Optional<LayerInfo> findOneByName(@NonNull String name) {
         return findFirstByName(name, LayerInfo.class);
     }
 }

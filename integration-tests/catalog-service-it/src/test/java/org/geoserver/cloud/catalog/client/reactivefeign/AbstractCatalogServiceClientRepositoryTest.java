@@ -4,9 +4,11 @@
  */
 package org.geoserver.cloud.catalog.client.reactivefeign;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
@@ -153,7 +155,7 @@ public abstract class AbstractCatalogServiceClientRepositoryTest<
 
     protected void testFindById(C expected) {
         assertNotNull(expected.getId());
-        C responseBody = repository().findById(expected.getId(), infoType);
+        C responseBody = repository().findById(expected.getId(), infoType).get();
         C resolved = resolveProxies(responseBody);
         assertCatalogInfoEquals(expected, resolved);
     }
@@ -174,7 +176,7 @@ public abstract class AbstractCatalogServiceClientRepositoryTest<
     protected abstract void assertPropertriesEqual(C expected, C actual);
 
     public @Test void testFindByIdNotFound() throws IOException {
-        assertNull(repository().findById("non-existent-ws-id", infoType));
+        assertTrue(repository().findById("non-existent-ws-id", infoType).isEmpty());
     }
 
     protected void crudTest(
@@ -199,7 +201,7 @@ public abstract class AbstractCatalogServiceClientRepositoryTest<
         updated = resolveProxies(updated);
         updateVerifier.accept(created, updated);
 
-        C foundAfterUpdate = repository().findById(updated.getId(), infoType);
+        C foundAfterUpdate = repository().findById(updated.getId(), infoType).get();
         foundAfterUpdate = resolveProxies(foundAfterUpdate);
         updateVerifier.accept(created, foundAfterUpdate);
 
@@ -226,7 +228,7 @@ public abstract class AbstractCatalogServiceClientRepositoryTest<
                 catalogLookup.apply(toCreate.getId()));
 
         repository().add(toCreate);
-        C created = repository().findById(providedId, infoType);
+        C created = repository().findById(providedId, infoType).get();
         assertNotNull("Object not found after added: " + toCreate, created);
         created = resolveProxies(created);
         assertCatalogInfoEquals(toCreate, created);
@@ -235,13 +237,13 @@ public abstract class AbstractCatalogServiceClientRepositoryTest<
 
     protected C testDelete(final C toDelete, Function<String, C> catalogLookup) {
 
-        C foundBeforeDelete = repository().findById(toDelete.getId(), infoType);
+        C foundBeforeDelete = repository().findById(toDelete.getId(), infoType).get();
 
         assertNotNull(foundBeforeDelete);
         repository().remove(toDelete);
-        assertNull(
+        assertFalse(
                 "object not deleted from backend catalog",
-                repository().findById(toDelete.getId(), infoType));
+                repository().findById(toDelete.getId(), infoType).isPresent());
 
         return foundBeforeDelete;
     }

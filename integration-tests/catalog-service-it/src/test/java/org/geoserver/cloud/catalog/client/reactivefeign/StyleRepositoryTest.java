@@ -5,7 +5,7 @@
 package org.geoserver.cloud.catalog.client.reactivefeign;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import lombok.Getter;
 import lombok.experimental.Accessors;
@@ -165,10 +165,11 @@ public class StyleRepositoryTest
 
         StyleInfo s1 = testData.style1;
         StyleInfo s2 = testData.style2;
-        StyleRepository repository = repository();
-        assertEquals(s1.getId(), repository.findByNameAndWordkspaceNull(s1.getName()).getId());
-        assertEquals(s2.getId(), repository.findByNameAndWordkspaceNull(s2.getName()).getId());
-        assertNull(repository.findByNameAndWordkspaceNull(ws1s1.getName()));
+        assertEquals(
+                s1.getId(), repository.findByNameAndWordkspaceNull(s1.getName()).get().getId());
+        assertEquals(
+                s2.getId(), repository.findByNameAndWordkspaceNull(s2.getName()).get().getId());
+        assertTrue(repository.findByNameAndWordkspaceNull(ws1s1.getName()).isEmpty());
     }
 
     public @Test void testfindStyleByWorkspaceIdAndName() {
@@ -180,19 +181,20 @@ public class StyleRepositoryTest
         serverCatalog.add(ws2s1);
 
         assertEquals(
-                ws1s1.getId(), repository.findByNameAndWordkspace(ws1s1.getName(), ws1).getId());
+                ws1s1.getId(),
+                repository.findByNameAndWordkspace(ws1s1.getName(), ws1).get().getId());
         assertEquals(
-                ws2s1.getId(), repository.findByNameAndWordkspace(ws2s1.getName(), ws2).getId());
+                ws2s1.getId(),
+                repository.findByNameAndWordkspace(ws2s1.getName(), ws2).get().getId());
 
-        assertNull(repository.findByNameAndWordkspace(ws1s1.getName(), ws2));
-        assertNull(repository.findByNameAndWordkspace(ws2s1.getName(), ws1));
+        assertTrue(repository.findByNameAndWordkspace(ws1s1.getName(), ws2).isEmpty());
+        assertTrue(repository.findByNameAndWordkspace(ws2s1.getName(), ws1).isEmpty());
     }
 
     public @Test void testFindStylesByNullWorkspace() {
         StyleInfo ws1s1 = testData.createStyle("s1ws1", testData.workspaceA);
         serverCatalog.add(ws1s1);
 
-        StyleRepository repository = repository();
         testFind(() -> repository.findAllByNullWorkspace(), testData.style1, testData.style2);
     }
 
@@ -209,7 +211,6 @@ public class StyleRepositoryTest
         serverCatalog.add(ws2s1);
         serverCatalog.add(ws2s2);
 
-        StyleRepository repository = repository();
         testFind(() -> repository.findAllByWorkspace(ws1), ws1s1, ws1s2);
         testFind(() -> repository.findAllByWorkspace(ws2), ws2s1, ws2s2);
         testFind(() -> repository.findAllByWorkspace(testData.workspaceC));

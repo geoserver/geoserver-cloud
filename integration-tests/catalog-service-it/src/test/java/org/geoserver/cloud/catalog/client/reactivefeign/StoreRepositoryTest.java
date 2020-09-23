@@ -8,6 +8,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -131,10 +132,10 @@ public class StoreRepositoryTest
         DataStoreInfo ds1 = testData.dataStoreA;
         DataStoreInfo ds2 = testData.createDataStore("wsA-ds2", ws);
         serverCatalog.add(ds2);
-        assertEquals(ds1.getId(), repository().getDefaultDataStore(ws).getId());
+        assertEquals(ds1.getId(), repository().getDefaultDataStore(ws).get().getId());
 
         repository().setDefaultDataStore(ws, ds2);
-        assertEquals(ds2.getId(), repository().getDefaultDataStore(ws).getId());
+        assertEquals(ds2.getId(), repository().getDefaultDataStore(ws).get().getId());
         assertEquals(ds2.getId(), serverCatalog.getDefaultDataStore(ws).getId());
     }
 
@@ -149,20 +150,22 @@ public class StoreRepositoryTest
 
         StoreRepository repository = repository();
 
-        assertEquals(testData.dataStoreA.getId(), repository.getDefaultDataStore(wsA).getId());
-        assertEquals(testData.dataStoreB.getId(), repository.getDefaultDataStore(wsB).getId());
+        assertEquals(
+                testData.dataStoreA.getId(), repository.getDefaultDataStore(wsA).get().getId());
+        assertEquals(
+                testData.dataStoreB.getId(), repository.getDefaultDataStore(wsB).get().getId());
 
         serverCatalog.setDefaultDataStore(wsA, dsA2);
         serverCatalog.setDefaultDataStore(wsB, dsB2);
 
-        assertEquals(dsA2.getId(), repository.getDefaultDataStore(wsA).getId());
-        assertEquals(dsB2.getId(), repository.getDefaultDataStore(wsB).getId());
+        assertEquals(dsA2.getId(), repository.getDefaultDataStore(wsA).get().getId());
+        assertEquals(dsB2.getId(), repository.getDefaultDataStore(wsB).get().getId());
 
         CascadeDeleteVisitor cascadeDeleteVisitor = new CascadeDeleteVisitor(serverCatalog);
         serverCatalog.getDataStore(testData.dataStoreA.getId()).accept(cascadeDeleteVisitor);
         serverCatalog.getDataStore(dsA2.getId()).accept(cascadeDeleteVisitor);
         assertNull(serverCatalog.getDefaultDataStore(wsA));
-        assertNull(repository.getDefaultDataStore(wsA));
+        assertTrue(repository.getDefaultDataStore(wsA).isEmpty());
     }
 
     public @Test void testGetDefaultDataStores() {
@@ -329,9 +332,9 @@ public class StoreRepositoryTest
 
     public @Test void testFindStoreById_SubtypeMismatch() throws IOException {
         StoreRepository client = repository();
-        assertNull(client.findById(testData.coverageStoreA.getId(), DataStoreInfo.class));
-        assertNull(client.findById(testData.dataStoreA.getId(), CoverageStoreInfo.class));
-        assertNull(client.findById(testData.dataStoreB.getId(), CoverageStoreInfo.class));
+        assertTrue(client.findById(testData.coverageStoreA.getId(), DataStoreInfo.class).isEmpty());
+        assertTrue(client.findById(testData.dataStoreA.getId(), CoverageStoreInfo.class).isEmpty());
+        assertTrue(client.findById(testData.dataStoreB.getId(), CoverageStoreInfo.class).isEmpty());
     }
 
     public @Test void testFindStoreByName() throws IOException {
@@ -343,7 +346,7 @@ public class StoreRepositoryTest
     }
 
     private void findStoreByName(StoreInfo store) {
-        StoreInfo responseBody = repository().findFirstByName(store.getName(), StoreInfo.class);
+        StoreInfo responseBody = repository.findFirstByName(store.getName(), StoreInfo.class).get();
         StoreInfo resolved = resolveProxies(responseBody);
         assertCatalogInfoEquals(store, resolved);
     }
@@ -369,7 +372,7 @@ public class StoreRepositoryTest
         WorkspaceInfo workspace = store.getWorkspace();
         String name = store.getName();
 
-        StoreInfo found = repository().findByNameAndWorkspace(name, workspace, type);
+        StoreInfo found = repository().findByNameAndWorkspace(name, workspace, type).get();
         assertNotNull(found);
         assertEquals(store.getId(), found.getId());
         assertEquals(store.getName(), found.getName());
@@ -385,8 +388,7 @@ public class StoreRepositoryTest
 
     private void testFindStoreByName_WrongWorkspace(StoreInfo store, WorkspaceInfo workspace) {
         String name = store.getName();
-        StoreInfo found = repository().findByNameAndWorkspace(name, workspace, StoreInfo.class);
-        assertNull(found);
+        assertTrue(repository().findByNameAndWorkspace(name, workspace, StoreInfo.class).isEmpty());
     }
 
     public @Test void testFindStoresByWorkspace() {

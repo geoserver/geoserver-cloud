@@ -6,8 +6,7 @@ package org.geoserver.cloud.catalog.client.reactivefeign;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.List;
@@ -78,7 +77,7 @@ public class ResourceRepositoryTest
 
     public @Test void testFindAllByNamespace() {
         testFind(
-                () -> repository().findAllByNamespace(testData.namespaceA, ResourceInfo.class),
+                () -> repository.findAllByNamespace(testData.namespaceA, ResourceInfo.class),
                 testData.featureTypeA,
                 testData.coverageA,
                 testData.wmsLayerA,
@@ -90,20 +89,30 @@ public class ResourceRepositoryTest
     }
 
     public @Test void testFindByStoreAndName() {
-        ResourceRepository repository = repository();
-
         DataStoreInfo ds = testData.dataStoreA;
         FeatureTypeInfo ft = testData.featureTypeA;
         CoverageStoreInfo cs = testData.coverageStoreA;
         CoverageInfo cv = testData.coverageA;
 
-        assertNotNull(repository.findByStoreAndName(ds, ft.getName(), ResourceInfo.class));
-        assertNotNull(repository.findByStoreAndName(ds, ft.getName(), FeatureTypeInfo.class));
-        assertNull(repository.findByStoreAndName(ds, ft.getName(), CoverageInfo.class));
+        assertEquals(
+                ft.getId(),
+                repository.findByStoreAndName(ds, ft.getName(), ResourceInfo.class).get().getId());
+        assertEquals(
+                ft.getId(),
+                repository
+                        .findByStoreAndName(ds, ft.getName(), FeatureTypeInfo.class)
+                        .get()
+                        .getId());
+        assertTrue(repository.findByStoreAndName(ds, ft.getName(), CoverageInfo.class).isEmpty());
 
-        assertNotNull(repository.findByStoreAndName(cs, cv.getName(), ResourceInfo.class));
-        assertNotNull(repository.findByStoreAndName(cs, cv.getName(), CoverageInfo.class));
-        assertNull(repository.findByStoreAndName(cs, cv.getName(), FeatureTypeInfo.class));
+        assertEquals(
+                cv.getId(),
+                repository.findByStoreAndName(cs, cv.getName(), ResourceInfo.class).get().getId());
+        assertEquals(
+                cv.getId(),
+                repository.findByStoreAndName(cs, cv.getName(), CoverageInfo.class).get().getId());
+        assertTrue(
+                repository.findByStoreAndName(cs, cv.getName(), FeatureTypeInfo.class).isEmpty());
     }
 
     public @Test void testFindAllByStore() {
@@ -113,16 +122,16 @@ public class ResourceRepositoryTest
         serverCatalog.add(cvA2);
 
         testFind(
-                () -> repository().findAllByStore(testData.dataStoreA, FeatureTypeInfo.class),
+                () -> repository.findAllByStore(testData.dataStoreA, FeatureTypeInfo.class),
                 testData.featureTypeA,
                 ftA2);
-        testFind(() -> repository().findAllByStore(testData.dataStoreA, CoverageInfo.class));
+        testFind(() -> repository.findAllByStore(testData.dataStoreA, CoverageInfo.class));
 
         testFind(
-                () -> repository().findAllByStore(testData.coverageStoreA, CoverageInfo.class),
+                () -> repository.findAllByStore(testData.coverageStoreA, CoverageInfo.class),
                 testData.coverageA,
                 cvA2);
-        testFind(() -> repository().findAllByStore(testData.coverageStoreA, FeatureTypeInfo.class));
+        testFind(() -> repository.findAllByStore(testData.coverageStoreA, FeatureTypeInfo.class));
     }
 
     public @Override @Test void testQueryFilter() {
@@ -254,27 +263,31 @@ public class ResourceRepositoryTest
     }
 
     public @Test void testFindResourceInfoById_SubtypeMismatch() throws IOException {
-        ResourceRepository client = repository();
-        assertNull(client.findById(testData.featureTypeA.getId(), CoverageInfo.class));
-        assertNull(client.findById(testData.coverageA.getId(), FeatureTypeInfo.class));
-        assertNull(client.findById(testData.wmsLayerA.getId(), WMTSLayerInfo.class));
-        assertNull(client.findById(testData.wmtsLayerA.getId(), WMSLayerInfo.class));
+        ResourceRepository client = repository;
+        assertTrue(client.findById(testData.featureTypeA.getId(), CoverageInfo.class).isEmpty());
+        assertTrue(client.findById(testData.coverageA.getId(), FeatureTypeInfo.class).isEmpty());
+        assertTrue(client.findById(testData.wmsLayerA.getId(), WMTSLayerInfo.class).isEmpty());
+        assertTrue(client.findById(testData.wmtsLayerA.getId(), WMSLayerInfo.class).isEmpty());
     }
 
     public @Test void testFindResourceByNamespaceIdAndName() {
         NamespaceInfo ns = testData.namespaceA;
         ResourceInfo ftA = testData.featureTypeA;
 
-        ResourceRepository client = repository();
+        ResourceRepository client = repository;
         String name = ftA.getName();
 
-        assertNotNull(client.findByNameAndNamespace(name, ns, ResourceInfo.class));
-        assertNotNull(client.findByNameAndNamespace(name, ns, FeatureTypeInfo.class));
-        assertNull(client.findByNameAndNamespace(name, ns, CoverageInfo.class));
+        assertEquals(
+                ftA.getId(),
+                client.findByNameAndNamespace(name, ns, ResourceInfo.class).get().getId());
+        assertEquals(
+                ftA.getId(),
+                client.findByNameAndNamespace(name, ns, FeatureTypeInfo.class).get().getId());
+        assertTrue(client.findByNameAndNamespace(name, ns, CoverageInfo.class).isEmpty());
     }
 
     public @Test void testFindAllBySubtype() {
-        ResourceRepository client = repository();
+        ResourceRepository client = repository;
 
         List<ResourceInfo> all =
                 client.findAll(Filter.INCLUDE, FeatureTypeInfo.class).collect(Collectors.toList());

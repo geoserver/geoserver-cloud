@@ -61,7 +61,7 @@ public class LayerRepositoryTest
     }
 
     public @Override @Test void testFindAll() {
-        assertEquals(0, repository().findAll().count());
+        assertEquals(0, repository.findAll().count());
         addLayers();
         super.testFindAll(layerFTA, layerWMTSA, layerCVA);
     }
@@ -151,15 +151,15 @@ public class LayerRepositoryTest
     public @Test void testFindLayersByResource() {
         addLayers();
 
-        testFind(() -> repository().findAllByResource(layerFTA.getResource()), layerFTA);
-        testFind(() -> repository().findAllByResource(layerCVA.getResource()), layerCVA);
-        testFind(() -> repository().findAllByResource(layerWMTSA.getResource()), layerWMTSA);
+        testFind(() -> repository.findAllByResource(layerFTA.getResource()), layerFTA);
+        testFind(() -> repository.findAllByResource(layerCVA.getResource()), layerCVA);
+        testFind(() -> repository.findAllByResource(layerWMTSA.getResource()), layerWMTSA);
     }
 
     public @Test void testFindLayersByResource_NonExistentResource() {
         FeatureTypeInfo missingResource = testData.createFeatureType("not-added-to-catalog");
 
-        assertEquals(0, repository().findAllByResource(missingResource).count());
+        assertEquals(0, repository.findAllByResource(missingResource).count());
     }
 
     public @Test void testFindLayersWithStyle() {
@@ -191,11 +191,11 @@ public class LayerRepositoryTest
 
     private void testFindLayersWithStyle(StyleInfo style, LayerInfo... expectedLayers) {
 
-        testFind(() -> repository().findAllByDefaultStyleOrStyles(style), expectedLayers);
+        testFind(() -> repository.findAllByDefaultStyleOrStyles(style), expectedLayers);
     }
 
     public @Test void testFindOneByName() {
         addLayers();
-        assertEquals(layerFTA.getId(), repository().findOneByName(layerFTA.getName()).getId());
+        assertEquals(layerFTA.getId(), repository.findOneByName(layerFTA.getName()).get().getId());
     }
 }

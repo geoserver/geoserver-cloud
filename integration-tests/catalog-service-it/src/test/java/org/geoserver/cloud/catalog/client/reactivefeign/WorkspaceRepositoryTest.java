@@ -6,6 +6,7 @@ package org.geoserver.cloud.catalog.client.reactivefeign;
 
 import static java.lang.String.format;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -66,7 +67,7 @@ public class WorkspaceRepositoryTest
 
     public @Test void testFindByName() {
         WorkspaceInfo ws1 = testData.workspaceA;
-        assertEquals(ws1, repository().findFirstByName(ws1.getName(), infoType));
+        assertEquals(ws1, repository.findFirstByName(ws1.getName(), infoType).get());
     }
 
     public @Test void testWorkspaceCRUD() {
@@ -87,26 +88,26 @@ public class WorkspaceRepositoryTest
     public @Test void testGetDefaultWorkspace() {
         WorkspaceInfo expected = serverCatalog.getDefaultWorkspace();
         assertNotNull(expected);
-        WorkspaceInfo actual = repository().getDefaultWorkspace();
+        WorkspaceInfo actual = repository.getDefaultWorkspace().get();
         assertEquals(expected, actual);
     }
 
     public @Test void testGetDefaultWorkspaceIsNullOnEmptyCatalog() {
         testData.deleteAll();
         assertNull(serverCatalog.getDefaultWorkspace());
-        assertNull(repository().getDefaultWorkspace());
+        assertFalse(repository.getDefaultWorkspace().isPresent());
     }
 
     public @Test void testSetDefaultWorkspace() {
         WorkspaceInfo current = serverCatalog.getDefaultWorkspace();
         assertNotNull(current);
         assertEquals(testData.workspaceA.getId(), current.getId());
-        assertEquals(testData.workspaceA, repository().getDefaultWorkspace());
+        assertEquals(testData.workspaceA, repository.getDefaultWorkspace().get());
 
         WorkspaceInfo expected = testData.workspaceB;
 
-        repository().setDefaultWorkspace(expected);
+        repository.setDefaultWorkspace(expected);
         assertEquals(expected, serverCatalog.getDefaultWorkspace());
-        assertEquals(expected, repository().getDefaultWorkspace());
+        assertEquals(expected, repository.getDefaultWorkspace().get());
     }
 }

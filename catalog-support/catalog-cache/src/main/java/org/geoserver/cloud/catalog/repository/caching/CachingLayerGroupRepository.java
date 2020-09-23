@@ -4,6 +4,7 @@
  */
 package org.geoserver.cloud.catalog.repository.caching;
 
+import java.util.Optional;
 import lombok.NonNull;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.WorkspaceInfo;
@@ -19,12 +20,13 @@ public class CachingLayerGroupRepository extends ForwardingLayerGroupRepository 
     }
 
     @Cacheable
-    public @Override LayerGroupInfo findByNameAndWorkspaceIsNull(@NonNull String name) {
+    public @Override Optional<LayerGroupInfo> findByNameAndWorkspaceIsNull(@NonNull String name) {
         return super.findByNameAndWorkspaceIsNull(name);
     }
 
     @Cacheable
-    public @Override LayerGroupInfo findByNameAndWorkspace(String name, WorkspaceInfo workspace) {
+    public @Override Optional<LayerGroupInfo> findByNameAndWorkspace(
+            String name, WorkspaceInfo workspace) {
         return super.findByNameAndWorkspace(name, workspace);
     }
 }

@@ -4,6 +4,7 @@
  */
 package org.geoserver.cloud.catalog.repository.caching;
 
+import java.util.Optional;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.forwarding.ForwardingStyleRepository;
@@ -18,12 +19,13 @@ public class CachingStyleRepository extends ForwardingStyleRepository {
     }
 
     @Cacheable
-    public @Override StyleInfo findByNameAndWordkspaceNull(String name) {
+    public @Override Optional<StyleInfo> findByNameAndWordkspaceNull(String name) {
         return super.findByNameAndWordkspaceNull(name);
     }
 
     @Cacheable
-    public @Override StyleInfo findByNameAndWordkspace(String name, WorkspaceInfo workspace) {
+    public @Override Optional<StyleInfo> findByNameAndWordkspace(
+            String name, WorkspaceInfo workspace) {
         return super.findByNameAndWordkspace(name, workspace);
     }
 }

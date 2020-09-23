@@ -80,7 +80,8 @@ public class NamespaceRepositoryTest
 
     private void testFindByPrefix(NamespaceInfo expected) {
         assertEquals(
-                expected, repository().findFirstByName(expected.getPrefix(), NamespaceInfo.class));
+                expected,
+                repository.findFirstByName(expected.getPrefix(), NamespaceInfo.class).get());
     }
 
     public @Test void testNamespaceInfo_CRUD() throws IOException {
@@ -93,22 +94,22 @@ public class NamespaceRepositoryTest
     }
 
     public @Test void testGetDefaultNamespace() {
-        assertEquals(testData.namespaceA, repository().getDefaultNamespace());
+        assertEquals(testData.namespaceA, repository.getDefaultNamespace().get());
         serverCatalog.setDefaultNamespace(testData.namespaceB);
-        assertEquals(testData.namespaceB, repository().getDefaultNamespace());
+        assertEquals(testData.namespaceB, repository.getDefaultNamespace().get());
     }
 
     public @Test void testGetDefaultNamespaceNoDefaultExists() {
         testData.deleteAll();
         assertNull(serverCatalog.getDefaultNamespace());
-        assertNull(repository().getDefaultNamespace());
+        assertTrue(repository.getDefaultNamespace().isEmpty());
     }
 
     public @Test void testSetDefaultNamespace() {
         assertEquals(testData.namespaceA, serverCatalog.getDefaultNamespace());
 
-        repository().setDefaultNamespace(testData.namespaceB);
-        NamespaceInfo returned = repository().getDefaultNamespace();
+        repository.setDefaultNamespace(testData.namespaceB);
+        NamespaceInfo returned = repository.getDefaultNamespace().get();
         assertEquals(testData.namespaceB, returned);
         assertEquals(testData.namespaceB, serverCatalog.getDefaultNamespace());
     }
@@ -117,8 +118,8 @@ public class NamespaceRepositoryTest
         assertEquals(testData.namespaceA, serverCatalog.getDefaultNamespace());
 
         NamespaceInfo nonExistent = testData.createNamespace("invalid", "nonExistentURI");
-        repository().setDefaultNamespace(nonExistent);
-        assertEquals(testData.namespaceA, repository().getDefaultNamespace());
+        repository.setDefaultNamespace(nonExistent);
+        assertEquals(testData.namespaceA, repository.getDefaultNamespace().get());
         assertEquals(testData.namespaceA, serverCatalog.getDefaultNamespace());
     }
 
@@ -129,7 +130,7 @@ public class NamespaceRepositoryTest
         ns2.setIsolated(true);
         serverCatalog.add(ns2);
 
-        NamespaceInfo found = repository().findOneByURI(ns1.getURI());
+        NamespaceInfo found = repository.findOneByURI(ns1.getURI()).get();
         // serverCatalog.getNamespaceByURI() contract says it returns the first found with that
         // uri...
         assertTrue(found.getId().equals(ns1.getId()) || found.getId().equals(ns2.getId()));
@@ -143,7 +144,7 @@ public class NamespaceRepositoryTest
         serverCatalog.add(ns2);
 
         List<NamespaceInfo> found =
-                repository().findAllByURI(ns1.getURI()).collect(Collectors.toList());
+                repository.findAllByURI(ns1.getURI()).collect(Collectors.toList());
         assertTrue(found.contains(ns1));
         assertTrue(found.contains(ns2));
         assertEquals(2, found.size());
@@ -154,14 +155,14 @@ public class NamespaceRepositoryTest
         NamespaceInfo ns2 =
                 testData.createNamespace("second-ns-with-duplicate-uri", "prefix2", ns1.getURI());
         try {
-            repository().add(ns2);
+            repository.add(ns2);
             fail("expected exception");
         } catch (RuntimeException expected) {
             expected.printStackTrace();
         }
 
         ns2.setIsolated(true);
-        repository().add(ns2);
-        assertEquals(ns2, repository().findById(ns2.getId(), NamespaceInfo.class));
+        repository.add(ns2);
+        assertEquals(ns2, repository.findById(ns2.getId(), NamespaceInfo.class).get());
     }
 }

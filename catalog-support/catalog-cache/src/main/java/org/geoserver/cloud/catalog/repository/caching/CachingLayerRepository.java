@@ -4,6 +4,7 @@
  */
 package org.geoserver.cloud.catalog.repository.caching;
 
+import java.util.Optional;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.plugin.forwarding.ForwardingLayerRepository;
 import org.springframework.cache.annotation.CacheConfig;
@@ -17,7 +18,7 @@ public class CachingLayerRepository extends ForwardingLayerRepository {
     }
 
     @Cacheable
-    public @Override LayerInfo findOneByName(String name) {
+    public @Override Optional<LayerInfo> findOneByName(String name) {
         return super.findOneByName(name);
     }
 }

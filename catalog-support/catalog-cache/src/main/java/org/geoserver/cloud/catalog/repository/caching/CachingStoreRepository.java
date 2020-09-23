@@ -4,6 +4,7 @@
  */
 package org.geoserver.cloud.catalog.repository.caching;
 
+import java.util.Optional;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
@@ -25,12 +26,12 @@ public class CachingStoreRepository extends ForwardingStoreRepository {
     }
 
     @Cacheable
-    public @Override DataStoreInfo getDefaultDataStore(WorkspaceInfo workspace) {
+    public @Override Optional<DataStoreInfo> getDefaultDataStore(WorkspaceInfo workspace) {
         return super.getDefaultDataStore(workspace);
     }
 
     @Cacheable
-    public @Override <T extends StoreInfo> T findByNameAndWorkspace(
+    public @Override <T extends StoreInfo> Optional<T> findByNameAndWorkspace(
             String name, WorkspaceInfo workspace, Class<T> clazz) {
         return super.findByNameAndWorkspace(name, workspace, clazz);
     }

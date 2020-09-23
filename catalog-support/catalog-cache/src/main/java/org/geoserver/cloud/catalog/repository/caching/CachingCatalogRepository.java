@@ -4,6 +4,7 @@
  */
 package org.geoserver.cloud.catalog.repository.caching;
 
+import java.util.Optional;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository;
 import org.geoserver.catalog.plugin.Patch;
@@ -38,12 +39,12 @@ public abstract class CachingCatalogRepository<
     }
 
     @Cacheable
-    public @Override <U extends I> U findById(String id, Class<U> clazz) {
+    public @Override <U extends I> Optional<U> findById(String id, Class<U> clazz) {
         return super.findById(id, clazz);
     }
 
     @Cacheable
-    public @Override <U extends I> U findFirstByName(String name, Class<U> clazz) {
+    public @Override <U extends I> Optional<U> findFirstByName(String name, Class<U> clazz) {
         return super.findFirstByName(name, clazz);
     }
 }
