@@ -766,7 +766,8 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
             @Nullable Integer offset,
             @Nullable Integer count,
             @Nullable SortBy... sortOrder) {
-
+        Objects.requireNonNull(of, "query Info class not provided");
+        Objects.requireNonNull(filter, "filter not provided");
         if (sortOrder != null) {
             for (SortBy so : sortOrder) {
                 if (sortOrder != null && !canSort(of, so.getPropertyName().getPropertyName())) {
@@ -779,8 +780,13 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
             }
         }
 
-        Stream<T> stream = iterable(of, filter, sortOrder);
-
+        Stream<T> stream;
+        try {
+            stream = iterable(of, filter, sortOrder);
+        }catch(RuntimeException e) {
+            LOGGER.log(Level.SEVERE, "Error obtaining stream. Filter: " + filter, e);
+            throw e;
+        }
         if (offset != null && offset.intValue() > 0) {
             stream = stream.skip(offset.longValue());
         }
@@ -791,7 +797,14 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
 
         stream = verifyBeforeReturning(stream, of);
         final Closeable closeable = stream::close;
-        return new CloseableIteratorAdapter<T>(stream.iterator(), closeable);
+        CloseableIteratorAdapter<T> iterator = new CloseableIteratorAdapter<T>(stream.iterator(), closeable);
+        try {
+            iterator.hasNext();
+        }catch(RuntimeException e) {
+            LOGGER.log(Level.SEVERE, "Error accessing iterator", e);
+            throw e;
+        }
+        return iterator;
     }
 
     @SuppressWarnings("unchecked")
