@@ -33,7 +33,7 @@ public class ForwardingNamespaceRepository
         return subject.findAllByURI(uri);
     }
 
-    public @Override void unsetDefaultNamesapce() {
-        subject.unsetDefaultNamesapce();
+    public @Override void unsetDefaultNamespace() {
+        subject.unsetDefaultNamespace();
     }
 }

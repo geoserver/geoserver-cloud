@@ -372,7 +372,7 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
             return list(NamespaceInfo.class, ns -> ns.getURI().equals(uri));
         }
 
-        public @Override void unsetDefaultNamesapce() {
+        public @Override void unsetDefaultNamespace() {
             defaultNamespace = null;
         }
     }

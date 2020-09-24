@@ -169,6 +169,11 @@ public class ReactiveCatalogController {
                 .flatMap(catalog::setDefaultWorkspace);
     }
 
+    @DeleteMapping(path = "workspaces/default")
+    public Mono<WorkspaceInfo> unsetDefaultWorkspace() {
+        return catalog.unsetDefaultWorkspace();
+    }
+
     @GetMapping(path = "/workspaces/default")
     public Mono<WorkspaceInfo> getDefaultWorkspace() {
         return catalog.getDefaultWorkspace().switchIfEmpty(noContent("No default workspace"));
@@ -181,6 +186,11 @@ public class ReactiveCatalogController {
         return catalog.getById(namespaceId, NamespaceInfo.class)
                 .switchIfEmpty(noContent("Namespace %s does not exist", namespaceId))
                 .flatMap(catalog::setDefaultNamespace);
+    }
+
+    @DeleteMapping(path = "namespaces/default")
+    public Mono<NamespaceInfo> unsetDefaultNamespace() {
+        return catalog.unsetDefaultNamespace();
     }
 
     @GetMapping(path = "namespaces/default")
@@ -218,6 +228,15 @@ public class ReactiveCatalogController {
 
         return ws.zipWith(ds)
                 .flatMap(tuple -> catalog.setDefaultDataStore(tuple.getT1(), tuple.getT2()));
+    }
+
+    @DeleteMapping(path = "/workspaces/{workspaceId}/stores/default")
+    public Mono<DataStoreInfo> unsetDefaultDataStore(
+            @PathVariable("workspaceId") String workspaceId) {
+
+        return catalog.getById(workspaceId, WorkspaceInfo.class)
+                .flatMap(w -> catalog.unsetDefaultDataStore(w))
+                .switchIfEmpty(noContent("Workspace does not exist: %s", workspaceId));
     }
 
     @GetMapping(path = "/workspaces/{workspaceId}/stores/default")

@@ -37,9 +37,13 @@ public interface ReactiveCatalog {
 
     Mono<WorkspaceInfo> setDefaultWorkspace(@NonNull WorkspaceInfo workspace);
 
+    Mono<WorkspaceInfo> unsetDefaultWorkspace();
+
     Mono<WorkspaceInfo> getDefaultWorkspace();
 
     Mono<NamespaceInfo> setDefaultNamespace(@NonNull NamespaceInfo namespace);
+
+    Mono<NamespaceInfo> unsetDefaultNamespace();
 
     Mono<NamespaceInfo> getDefaultNamespace();
 
@@ -51,6 +55,8 @@ public interface ReactiveCatalog {
 
     Mono<DataStoreInfo> setDefaultDataStore(
             @NonNull WorkspaceInfo workspace, @NonNull DataStoreInfo dataStore);
+
+    Mono<DataStoreInfo> unsetDefaultDataStore(@NonNull WorkspaceInfo workspace);
 
     Mono<DataStoreInfo> getDefaultDataStore(@NonNull WorkspaceInfo workspace);
 

@@ -86,6 +86,19 @@ public class ReactiveCatalogImpl implements ReactiveCatalog {
         return async(() -> blockingCatalog.setDefaultWorkspace(workspace), workspace);
     }
 
+    public @Override Mono<WorkspaceInfo> unsetDefaultWorkspace() {
+        return getDefaultWorkspace().doOnSuccess(ns -> blockingCatalog.setDefaultWorkspace(null));
+    }
+
+    public @Override Mono<NamespaceInfo> unsetDefaultNamespace() {
+        return getDefaultNamespace().doOnSuccess(ns -> blockingCatalog.setDefaultNamespace(null));
+    }
+
+    public @Override Mono<DataStoreInfo> unsetDefaultDataStore(@NonNull WorkspaceInfo workspace) {
+        return getDefaultDataStore(workspace)
+                .doOnSuccess(ds -> blockingCatalog.setDefaultDataStore(workspace, null));
+    }
+
     public @Override Mono<WorkspaceInfo> getDefaultWorkspace() {
         return async(blockingCatalog::getDefaultWorkspace);
     }

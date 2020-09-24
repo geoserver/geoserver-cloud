@@ -12,6 +12,7 @@ import static org.geoserver.catalog.impl.ClassMappings.RESOURCE;
 import static org.geoserver.catalog.impl.ClassMappings.STORE;
 import static org.geoserver.catalog.impl.ClassMappings.STYLE;
 import static org.geoserver.catalog.impl.ClassMappings.WORKSPACE;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import java.io.Closeable;
@@ -499,7 +500,7 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
                 catalog, asList("defaultNamespace"), asList(old), asList(defaultNamespace));
 
         NamespaceInfo ns = unwrap(defaultNamespace);
-        if (ns == null) namespaces.unsetDefaultNamesapce();
+        if (ns == null) namespaces.unsetDefaultNamespace();
         else namespaces.setDefaultNamespace(ns);
 
         // fire postmodify event after change
@@ -879,7 +880,7 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     }
 
     protected <T extends CatalogInfo> List<T> verifyBeforeReturning(List<T> list, Class<T> clazz) {
-        List<T> verified = Lists.transform(list, i-> this.verifyBeforeReturning(i, clazz));
+        List<T> verified = Lists.transform(list, i -> this.verifyBeforeReturning(i, clazz));
         return ModificationProxy.createList(verified, clazz);
     }
 

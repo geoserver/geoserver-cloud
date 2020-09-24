@@ -24,7 +24,7 @@ public class CloudNamespaceRepository extends CatalogServiceClientRepository<Nam
         blockAndReturn(client().setDefaultNamespace(namespace.getId()));
     }
 
-    public @Override void unsetDefaultNamesapce() {
+    public @Override void unsetDefaultNamespace() {
         Mono<Void> call = client().unsetDefaultNamespace();
         call.block();
     }

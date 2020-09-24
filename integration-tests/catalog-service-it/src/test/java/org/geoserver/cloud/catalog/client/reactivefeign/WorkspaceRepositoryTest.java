@@ -110,4 +110,28 @@ public class WorkspaceRepositoryTest
         assertEquals(expected, serverCatalog.getDefaultWorkspace());
         assertEquals(expected, repository.getDefaultWorkspace().get());
     }
+
+    public @Test void testUnsetDefaultWorkspace() {
+        WorkspaceInfo ws2 = testData.workspaceB;
+        // preflight check
+        serverCatalog.setDefaultWorkspace(null);
+        assertNull(serverCatalog.getDefaultWorkspace());
+        serverCatalog.setDefaultWorkspace(ws2);
+        assertEquals(ws2, serverCatalog.getDefaultWorkspace());
+
+        WorkspaceInfo current = serverCatalog.getDefaultWorkspace();
+        assertNotNull(current);
+        assertEquals(ws2.getId(), current.getId());
+
+        repository.unsetDefaultWorkspace();
+
+        assertNull(serverCatalog.getDefaultWorkspace());
+        assertTrue(repository.getDefaultWorkspace().isEmpty());
+
+        // check idempotency
+        repository.unsetDefaultWorkspace();
+
+        assertNull(serverCatalog.getDefaultWorkspace());
+        assertTrue(repository.getDefaultWorkspace().isEmpty());
+    }
 }

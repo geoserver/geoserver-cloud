@@ -5,6 +5,7 @@
 package org.geoserver.cloud.catalog.client.reactivefeign;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -121,6 +122,30 @@ public class NamespaceRepositoryTest
         repository.setDefaultNamespace(nonExistent);
         assertEquals(testData.namespaceA, repository.getDefaultNamespace().get());
         assertEquals(testData.namespaceA, serverCatalog.getDefaultNamespace());
+    }
+
+    public @Test void testUnsetDefaultNamespace() {
+        NamespaceInfo ns = testData.namespaceA;
+        // preflight check
+        serverCatalog.setDefaultNamespace(null);
+        assertNull(serverCatalog.getDefaultNamespace());
+        serverCatalog.setDefaultNamespace(ns);
+        assertEquals(ns, serverCatalog.getDefaultNamespace());
+
+        NamespaceInfo current = serverCatalog.getDefaultNamespace();
+        assertNotNull(current);
+        assertEquals(ns.getId(), current.getId());
+
+        repository.unsetDefaultNamespace();
+
+        assertNull(serverCatalog.getDefaultNamespace());
+        assertTrue(repository.getDefaultNamespace().isEmpty());
+
+        // check idempotency
+        repository.unsetDefaultNamespace();
+
+        assertNull(serverCatalog.getDefaultNamespace());
+        assertTrue(repository.getDefaultNamespace().isEmpty());
     }
 
     public @Test void testFindOneNamespaceByURI() {

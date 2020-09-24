@@ -55,7 +55,7 @@ public interface CatalogInfoRepository<T extends CatalogInfo> {
         void setDefaultNamespace(@NonNull NamespaceInfo namespace);
 
         /** Unlinks the current default namespace, leaving no default */
-        void unsetDefaultNamesapce();
+        void unsetDefaultNamespace();
 
         Optional<NamespaceInfo> getDefaultNamespace();
 

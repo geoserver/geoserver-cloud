@@ -139,6 +139,31 @@ public class StoreRepositoryTest
         assertEquals(ds2.getId(), serverCatalog.getDefaultDataStore(ws).getId());
     }
 
+    public @Test void testUnsetDefaultDataStore() {
+        WorkspaceInfo ws = testData.workspaceA;
+        DataStoreInfo store = testData.dataStoreA;
+        // preflight check
+        serverCatalog.setDefaultDataStore(ws, null);
+        assertNull(serverCatalog.getDefaultDataStore(ws));
+        serverCatalog.setDefaultDataStore(ws, store);
+        assertEquals(store, serverCatalog.getDefaultDataStore(ws));
+
+        DataStoreInfo current = serverCatalog.getDefaultDataStore(ws);
+        assertNotNull(current);
+        assertEquals(store.getId(), current.getId());
+
+        repository.unsetDefaultDataStore(ws);
+
+        assertNull(serverCatalog.getDefaultDataStore(ws));
+        assertTrue(repository.getDefaultDataStore(ws).isEmpty());
+
+        // check idempotency
+        repository.unsetDefaultDataStore(ws);
+
+        assertNull(serverCatalog.getDefaultDataStore(ws));
+        assertTrue(repository.getDefaultDataStore(ws).isEmpty());
+    }
+
     public @Test void getDefaultDataStore() {
         WorkspaceInfo wsA = testData.workspaceA;
         WorkspaceInfo wsB = testData.workspaceB;

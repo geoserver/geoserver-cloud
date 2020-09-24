@@ -25,8 +25,8 @@ public class CachingNamespaceRepository extends ForwardingNamespaceRepository {
     }
 
     @CacheEvict(key = "defaultNamespace")
-    public @Override void unsetDefaultNamesapce() {
-        super.unsetDefaultNamesapce();
+    public @Override void unsetDefaultNamespace() {
+        super.unsetDefaultNamespace();
     }
 
     @Cacheable(key = "defaultNamespace")
