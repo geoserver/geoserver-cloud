@@ -10,8 +10,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import lombok.NonNull;
 import org.geoserver.catalog.AuthorityURLInfo;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.KeywordInfo;
@@ -58,19 +60,19 @@ public abstract class SharedMappers {
         return v == null ? null : new Version(v.getValue());
     }
 
-    public <T extends Info> InfoReference infoToReference(T info) {
+    public <T extends Info> InfoReference infoToReference(final T info) {
         if (info == null) return null;
-
-        InfoReference ref = new InfoReference();
-        ref.setId(info.getId());
-        ClassMappings type = ClassMappings.fromImpl(ModificationProxy.unwrap(info).getClass());
-        ref.setType(type);
-        return ref;
+        final String id = info.getId();
+        ClassMappings type = resolveType(info);
+        Objects.requireNonNull(id, () -> "Object has no id: " + info);
+        Objects.requireNonNull(type, "Bad info class: " + info.getClass());
+        return new InfoReference(type, id);
     }
 
     public <T extends Info> T referenceToInfo(InfoReference ref) {
         if (ref == null) return null;
         String id = ref.getId();
+        Objects.requireNonNull(id, () -> "Object Reference has no id: " + ref);
         Class<T> type = ref.getType().getInterface();
         T proxy = ResolvingProxy.create(id, type);
         return proxy;
@@ -206,11 +208,30 @@ public abstract class SharedMappers {
     private Object resolveReferenceOrValueObject(Info value) {
         value = ModificationProxy.unwrap(value);
         ClassMappings cm = ClassMappings.fromImpl(value.getClass());
-        boolean useReference =
-                cm != null; // && !(ClassMappings.GLOBAL == cm || ClassMappings.LOGGING == cm);
+        boolean useReference = cm != null; // && !(ClassMappings.GLOBAL == cm ||
+        // ClassMappings.LOGGING == cm);
         if (useReference) {
             return this.infoToReference((Info) value);
         }
         return value;
     };
+
+    private ClassMappings resolveType(@NonNull Info value) {
+        value = ModificationProxy.unwrap(value);
+        ClassMappings type = ClassMappings.fromImpl(value.getClass());
+        if (type == null) {
+            Class<?>[] interfaces = value.getClass().getInterfaces();
+            for (Class<?> i : interfaces) {
+                if (Info.class.isAssignableFrom(i)) {
+                    @SuppressWarnings("unchecked")
+                    Class<? extends Info> infoClass = (Class<? extends Info>) i;
+                    type = ClassMappings.fromInterface(infoClass);
+                    if (type != null) {
+                        break;
+                    }
+                }
+            }
+        }
+        return type;
+    }
 }

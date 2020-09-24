@@ -6,13 +6,18 @@ package org.geoserver.jackson.databind.catalog.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import org.geoserver.catalog.impl.ClassMappings;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("Ref")
 public class InfoReference {
-    private ClassMappings type;
-    private String id;
+    private @NonNull ClassMappings type;
+    private @NonNull String id;
 }
