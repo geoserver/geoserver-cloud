@@ -13,6 +13,7 @@ import org.geoserver.catalog.CoverageInfo;
 import org.geoserver.catalog.CoverageStoreInfo;
 import org.geoserver.catalog.DataLinkInfo;
 import org.geoserver.catalog.DataStoreInfo;
+import org.geoserver.catalog.DimensionInfo;
 import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.LayerGroupInfo;
@@ -33,6 +34,7 @@ import org.geoserver.catalog.impl.CoverageInfoImpl;
 import org.geoserver.catalog.impl.CoverageStoreInfoImpl;
 import org.geoserver.catalog.impl.DataLinkInfoImpl;
 import org.geoserver.catalog.impl.DataStoreInfoImpl;
+import org.geoserver.catalog.impl.DimensionInfoImpl;
 import org.geoserver.catalog.impl.FeatureTypeInfoImpl;
 import org.geoserver.catalog.impl.LayerGroupInfoImpl;
 import org.geoserver.catalog.impl.LayerInfoImpl;
@@ -46,12 +48,14 @@ import org.geoserver.catalog.impl.WMTSLayerInfoImpl;
 import org.geoserver.catalog.impl.WMTSStoreInfoImpl;
 import org.geoserver.catalog.impl.WorkspaceInfoImpl;
 import org.geoserver.jackson.databind.catalog.dto.Coverage;
+import org.geoserver.jackson.databind.catalog.dto.CoverageDimension;
 import org.geoserver.jackson.databind.catalog.dto.CoverageStore;
 import org.geoserver.jackson.databind.catalog.dto.DataStore;
 import org.geoserver.jackson.databind.catalog.dto.FeatureType;
 import org.geoserver.jackson.databind.catalog.dto.GridGeometryDto;
 import org.geoserver.jackson.databind.catalog.dto.Layer;
 import org.geoserver.jackson.databind.catalog.dto.LayerGroup;
+import org.geoserver.jackson.databind.catalog.dto.Legend;
 import org.geoserver.jackson.databind.catalog.dto.Map;
 import org.geoserver.jackson.databind.catalog.dto.Namespace;
 import org.geoserver.jackson.databind.catalog.dto.Style;
@@ -144,8 +148,10 @@ public class ObjectFacotries {
         return info;
     }
 
-    public @ObjectFactory LegendInfo legendInfo() {
-        return new LegendInfoImpl();
+    public @ObjectFactory LegendInfo legendInfo(Legend source) {
+        LegendInfoImpl l = new LegendInfoImpl();
+        l.setId(source.getId());
+        return l;
     }
 
     public @ObjectFactory DataLinkInfo dataLinkInfo() {
@@ -160,11 +166,17 @@ public class ObjectFacotries {
         return new AttributeTypeInfoImpl();
     }
 
-    public @ObjectFactory CoverageDimensionInfo coverageDimensionInfo() {
-        return new CoverageDimensionImpl();
+    public @ObjectFactory CoverageDimensionInfo coverageDimensionInfo(CoverageDimension dto) {
+        CoverageDimensionImpl impl = new CoverageDimensionImpl();
+        impl.setId(dto.getId());
+        return impl;
     }
 
     public @ObjectFactory GridGeometry gridGeometry(GridGeometryDto source) {
-        return null;
+        throw new UnsupportedOperationException("implement!");
+    }
+
+    public @ObjectFactory DimensionInfo dimensionInfo() {
+        return new DimensionInfoImpl();
     }
 }

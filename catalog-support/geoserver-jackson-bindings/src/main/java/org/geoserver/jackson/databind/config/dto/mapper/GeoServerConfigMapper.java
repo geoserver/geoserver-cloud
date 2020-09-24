@@ -36,7 +36,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 /** Mapper to/from GeoServer config objects and their respective DTO representations */
-@Mapper(config = SpringConfigInfoMapperConfig.class)
+@Mapper(config = ConfigInfoMapperConfig.class)
 public interface GeoServerConfigMapper {
 
     @SuppressWarnings("unchecked")

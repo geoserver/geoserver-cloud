@@ -23,7 +23,7 @@ import org.geoserver.jackson.databind.catalog.dto.Workspace;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(config = SpringCatalogInfoMapperConfig.class)
+@Mapper(config = CatalogInfoMapperConfig.class)
 public interface CatalogInfoMapper {
 
     @SuppressWarnings("unchecked")

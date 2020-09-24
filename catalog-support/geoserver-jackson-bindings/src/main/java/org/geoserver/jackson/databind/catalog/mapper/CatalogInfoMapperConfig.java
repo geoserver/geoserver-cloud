@@ -13,4 +13,4 @@ import org.mapstruct.ReportingPolicy;
     unmappedTargetPolicy = ReportingPolicy.ERROR,
     uses = {SharedMappers.class, ObjectFacotries.class, ValueMappers.class}
 )
-public class SpringCatalogInfoMapperConfig {}
+public class CatalogInfoMapperConfig {}

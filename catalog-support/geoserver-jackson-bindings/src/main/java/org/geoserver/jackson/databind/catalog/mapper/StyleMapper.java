@@ -8,7 +8,7 @@ import org.geoserver.catalog.StyleInfo;
 import org.geoserver.jackson.databind.catalog.dto.Style;
 import org.mapstruct.Mapper;
 
-@Mapper(config = SpringCatalogInfoMapperConfig.class)
+@Mapper(config = CatalogInfoMapperConfig.class)
 public interface StyleMapper {
 
     StyleInfo map(Style o);

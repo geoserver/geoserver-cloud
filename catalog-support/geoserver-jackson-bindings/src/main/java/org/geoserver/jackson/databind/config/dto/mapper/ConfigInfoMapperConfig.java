@@ -13,4 +13,4 @@ import org.mapstruct.ReportingPolicy;
     unmappedTargetPolicy = ReportingPolicy.ERROR,
     uses = {SharedMappers.class, ObjectFacotries.class, WPSMapper.class}
 )
-public class SpringConfigInfoMapperConfig {}
+public class ConfigInfoMapperConfig {}

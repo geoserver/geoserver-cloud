@@ -18,11 +18,15 @@ public class FilterDeserializer extends JsonDeserializer<Filter> {
     public @Override Filter deserialize(JsonParser parser, DeserializationContext ctxt)
             throws IOException, JsonProcessingException {
 
-        org.geotools.jackson.databind.filter.dto.Filter pojo;
-        pojo = parser.readValueAs(org.geotools.jackson.databind.filter.dto.Filter.class);
-
-        FilterMapper mapper = Mappers.getMapper(FilterMapper.class);
-        org.opengis.filter.Filter filter = mapper.map(pojo);
-        return filter;
+        try {
+            org.geotools.jackson.databind.filter.dto.Filter pojo;
+            pojo = parser.readValueAs(org.geotools.jackson.databind.filter.dto.Filter.class);
+            FilterMapper mapper = Mappers.getMapper(FilterMapper.class);
+            org.opengis.filter.Filter filter = mapper.map(pojo);
+            return filter;
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            throw e;
+        }
     }
 }

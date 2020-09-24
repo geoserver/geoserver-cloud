@@ -783,7 +783,7 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
         Stream<T> stream;
         try {
             stream = iterable(of, filter, sortOrder);
-        }catch(RuntimeException e) {
+        } catch (RuntimeException e) {
             LOGGER.log(Level.SEVERE, "Error obtaining stream. Filter: " + filter, e);
             throw e;
         }
@@ -797,10 +797,11 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
 
         stream = verifyBeforeReturning(stream, of);
         final Closeable closeable = stream::close;
-        CloseableIteratorAdapter<T> iterator = new CloseableIteratorAdapter<T>(stream.iterator(), closeable);
+        CloseableIteratorAdapter<T> iterator =
+                new CloseableIteratorAdapter<T>(stream.iterator(), closeable);
         try {
             iterator.hasNext();
-        }catch(RuntimeException e) {
+        } catch (RuntimeException e) {
             LOGGER.log(Level.SEVERE, "Error accessing iterator", e);
             throw e;
         }

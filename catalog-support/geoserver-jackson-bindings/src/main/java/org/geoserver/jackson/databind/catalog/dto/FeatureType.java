@@ -25,5 +25,5 @@ public class FeatureType extends Resource {
     private boolean skipNumberMatched;
     private boolean circularArcPresent;
     private boolean encodeMeasures;
-    private MeasureDto linearizationTolerance;
+    private String linearizationTolerance;
 }

@@ -13,7 +13,7 @@ import org.geoserver.jackson.databind.catalog.dto.Published;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(config = SpringCatalogInfoMapperConfig.class)
+@Mapper(config = CatalogInfoMapperConfig.class)
 public interface PublishedMapper {
 
     default PublishedInfo map(Published dto) {

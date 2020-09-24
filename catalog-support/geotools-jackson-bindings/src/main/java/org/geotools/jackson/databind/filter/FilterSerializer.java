@@ -21,9 +21,13 @@ public class FilterSerializer extends StdSerializer<Filter> {
 
     public @Override void serialize(Filter filter, JsonGenerator gen, SerializerProvider provider)
             throws IOException {
-
-        FilterMapper mapper = Mappers.getMapper(FilterMapper.class);
-        org.geotools.jackson.databind.filter.dto.Filter pojo = mapper.map(filter);
-        gen.writeObject(pojo);
+        try {
+            FilterMapper mapper = Mappers.getMapper(FilterMapper.class);
+            org.geotools.jackson.databind.filter.dto.Filter pojo = mapper.map(filter);
+            gen.writeObject(pojo);
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            throw e;
+        }
     }
 }

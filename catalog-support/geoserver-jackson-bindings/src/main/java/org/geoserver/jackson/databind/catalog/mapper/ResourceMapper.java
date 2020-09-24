@@ -17,7 +17,7 @@ import org.geoserver.jackson.databind.catalog.dto.WMTSLayer;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(config = SpringCatalogInfoMapperConfig.class)
+@Mapper(config = CatalogInfoMapperConfig.class)
 public interface ResourceMapper {
 
     default Resource map(ResourceInfo o) {

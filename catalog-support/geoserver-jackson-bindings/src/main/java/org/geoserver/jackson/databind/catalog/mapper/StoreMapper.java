@@ -17,7 +17,7 @@ import org.geoserver.jackson.databind.catalog.dto.WMTSStore;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(config = SpringCatalogInfoMapperConfig.class)
+@Mapper(config = CatalogInfoMapperConfig.class)
 public interface StoreMapper {
 
     default Store map(StoreInfo o) {

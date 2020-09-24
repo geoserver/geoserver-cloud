@@ -4,7 +4,13 @@
  */
 package org.geoserver.jackson.databind.catalog.dto;
 
-import org.geotools.measure.Measure;
+import lombok.Data;
+import org.geotools.jdbc.VirtualTable;
 
-/** @see Measure */
-public class MeasureDto {}
+/** DTO type for {@link VirtualTable} */
+public @Data class VirtualTableDto {
+
+    private String name;
+    private String sql;
+    private boolean escapeSql;
+}

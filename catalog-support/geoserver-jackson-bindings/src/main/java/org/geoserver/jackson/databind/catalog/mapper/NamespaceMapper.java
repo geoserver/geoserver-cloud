@@ -8,7 +8,7 @@ import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.jackson.databind.catalog.dto.Namespace;
 import org.mapstruct.Mapper;
 
-@Mapper(config = SpringCatalogInfoMapperConfig.class)
+@Mapper(config = CatalogInfoMapperConfig.class)
 public interface NamespaceMapper {
     NamespaceInfo map(Namespace o);
 

@@ -8,7 +8,7 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.jackson.databind.catalog.dto.Workspace;
 import org.mapstruct.Mapper;
 
-@Mapper(config = SpringCatalogInfoMapperConfig.class)
+@Mapper(config = CatalogInfoMapperConfig.class)
 public interface WorkspaceMapper {
 
     WorkspaceInfo map(Workspace o);

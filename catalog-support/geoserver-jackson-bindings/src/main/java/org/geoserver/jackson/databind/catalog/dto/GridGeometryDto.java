@@ -14,11 +14,8 @@ import org.geotools.coverage.grid.GridGeometry2D;
  * @see XStreamPersister#GridGeometry2DConverter
  */
 public @Data class GridGeometryDto {
-
-    // String.valueOf(g.getGridRange().getDimension())
-    private String dimension;
-    private String low;
-    private String high;
+    private int[] low;
+    private int[] high;
     private double[] transform;
     private CRS crs;
 }

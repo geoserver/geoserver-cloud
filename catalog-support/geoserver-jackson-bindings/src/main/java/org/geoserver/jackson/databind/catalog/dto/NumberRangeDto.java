@@ -14,6 +14,8 @@ import org.geotools.util.NumberRange;
  */
 public @Data class NumberRangeDto {
 
-    private Double min;
-    private Double max;
+    private Number min;
+    private Number max;
+    private boolean minIncluded;
+    private boolean maxIncluded;
 }
