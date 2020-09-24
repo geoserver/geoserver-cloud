@@ -12,7 +12,7 @@ import static org.geoserver.catalog.impl.ClassMappings.RESOURCE;
 import static org.geoserver.catalog.impl.ClassMappings.STORE;
 import static org.geoserver.catalog.impl.ClassMappings.STYLE;
 import static org.geoserver.catalog.impl.ClassMappings.WORKSPACE;
-
+import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import java.io.Closeable;
 import java.lang.reflect.Method;
@@ -879,7 +879,8 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     }
 
     protected <T extends CatalogInfo> List<T> verifyBeforeReturning(List<T> list, Class<T> clazz) {
-        return ModificationProxy.createList(list, clazz);
+        List<T> verified = Lists.transform(list, i-> this.verifyBeforeReturning(i, clazz));
+        return ModificationProxy.createList(verified, clazz);
     }
 
     protected <T extends CatalogInfo> Stream<T> verifyBeforeReturning(

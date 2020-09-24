@@ -46,7 +46,7 @@ public abstract class ResolvingCatalogFacade extends AbstractCatalogFacade
 
     @Override
     protected <T extends CatalogInfo> T verifyBeforeReturning(T ci, Class<T> clazz) {
-        return ci == null ? null : super.verifyBeforeReturning(resolveProxyReferences(ci), clazz);
+        return super.verifyBeforeReturning(resolveProxyReferences(ci), clazz);
     }
 
     @Override

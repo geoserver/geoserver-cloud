@@ -56,7 +56,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 )
 @RunWith(SpringRunner.class)
 @ActiveProfiles("it.catalog-service")
-@Ignore
 public class CatalogServiceBackendConformanceTest extends CatalogConformanceTest {
     /**
      * WebFlux catalog-service catalog with backend as configured by

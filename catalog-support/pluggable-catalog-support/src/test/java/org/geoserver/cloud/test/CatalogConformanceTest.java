@@ -1128,8 +1128,12 @@ public abstract class CatalogConformanceTest {
         assertEquals(2, r.size());
         assertTrue(r.contains(ft1));
         assertTrue(r.contains(ft2));
-        assertSame(rawCatalog, r.get(0).getCatalog());
-        assertSame(rawCatalog, r.get(1).getCatalog());
+        Catalog resourceCatalog = r.get(0).getCatalog();
+        assertNotNull(resourceCatalog);
+        assertSame(rawCatalog, resourceCatalog);
+        resourceCatalog = r.get(1).getCatalog();
+        assertNotNull(resourceCatalog);
+        assertSame(rawCatalog, resourceCatalog);
     }
 
     @Test
