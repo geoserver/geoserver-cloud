@@ -143,6 +143,10 @@ public class CatalogImpl extends org.geoserver.catalog.impl.CatalogImpl {
         I real = ModificationProxy.unwrap(proxy);
         real = rawCatalogFacade.update(real, patch);
 
+        // commit proxy, making effective the change in the provided object. Has no effect in what's
+        // been passed to the facade
+        h.commit();
+        
         Class<I> type = ClassMappings.fromImpl(real.getClass()).getInterface();
         firePostModified(ModificationProxy.create(real, type), propertyNames, oldValues, newValues);
     }
