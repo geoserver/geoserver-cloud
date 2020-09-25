@@ -249,18 +249,4 @@ public class CatalogImpl extends org.geoserver.catalog.impl.CatalogImpl {
             LOGGER.log(Level.SEVERE, "Failed to rename style file along with name.", e);
         }
     }
-
-    public <C extends CatalogInfo> C get(String id, Class<? extends C> type) {
-        if (WorkspaceInfo.class.isAssignableFrom(type)) return type.cast(getWorkspace(id));
-        if (NamespaceInfo.class.isAssignableFrom(type)) return type.cast(getNamespace(id));
-        if (StoreInfo.class.isAssignableFrom(type))
-            return type.cast(getStore(id, (Class<? extends StoreInfo>) type));
-        if (ResourceInfo.class.isAssignableFrom(type))
-            return type.cast(getResource(id, (Class<? extends ResourceInfo>) type));
-        if (LayerInfo.class.isAssignableFrom(type)) return type.cast(getLayer(id));
-        if (LayerGroupInfo.class.isAssignableFrom(type)) return type.cast(getLayerGroup(id));
-        if (StyleInfo.class.isAssignableFrom(type)) return type.cast(getStyle(id));
-        if (MapInfo.class.isAssignableFrom(type)) return type.cast(getMap(id));
-        throw new IllegalArgumentException("unknown CatalogInfo class: " + type.getCanonicalName());
-    }
 }

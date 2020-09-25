@@ -6,8 +6,12 @@ package org.geoserver.catalog.plugin;
 
 import static java.util.Objects.requireNonNull;
 
+import com.google.common.collect.Ordering;
+import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -33,10 +37,13 @@ import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.impl.LayerInfoImpl;
+import org.geoserver.ows.util.OwsUtils;
 import org.geotools.feature.NameImpl;
 import org.geotools.util.logging.Logging;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
+import org.opengis.filter.sort.SortBy;
+import org.opengis.filter.sort.SortOrder;
 import org.springframework.lang.Nullable;
 
 /**
@@ -48,9 +55,11 @@ import org.springframework.lang.Nullable;
  *
  * @param <T>
  */
-class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<T> {
+abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<T> {
     static final Logger LOGGER = Logging.getLogger(CatalogInfoLookup.class);
 
+    /** constant no-op Comparator for {@link #providedOrder()} */
+    private static final Ordering<?> PROVIDED_ORDER = Ordering.allEqual();
     /**
      * Name mapper for {@link MapInfo}, uses simple name mapping on {@link MapInfo#getName()} as it
      * doesn't have a namespace component
@@ -103,15 +112,22 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
     protected ConcurrentMap<Class<? extends T>, ConcurrentNavigableMap<String, Name>>
             idToMameMultiMap = new ConcurrentHashMap<>();
 
-    Function<T, Name> nameMapper;
+    protected final Function<T, Name> nameMapper;
+
+    protected final Class<T> infoType;
 
     static final <T> Predicate<T> alwaysTrue() {
         return x -> true;
     }
 
-    public CatalogInfoLookup(Function<T, Name> nameMapper) {
+    protected CatalogInfoLookup(Class<T> type, Function<T, Name> nameMapper) {
         super();
         this.nameMapper = nameMapper;
+        this.infoType = type;
+    }
+
+    public @Override Class<T> getContentType() {
+        return infoType;
     }
 
     <K, V> ConcurrentMap<K, V> getMapForValue(
@@ -156,15 +172,6 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
             nameMap.put(name, value);
             idToName.put(value.getId(), name);
         }
-    }
-
-    public @Override Stream<T> findAll() {
-        List<T> result = new ArrayList<>();
-        for (Map<String, T> v : idMultiMap.values()) {
-            result.addAll(v.values());
-        }
-
-        return result.stream();
     }
 
     public @Override void remove(T value) {
@@ -223,19 +230,101 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
         idToMameMultiMap.clear();
     }
 
-    public @Override Stream<T> findAll(Filter filter) {
-        requireNonNull(filter);
-        return list(null, toPredicate(filter));
+    /**
+     * This default implementation supports sorting against properties (could be nested) that are
+     * either of a primitive type or implement {@link Comparable}.
+     *
+     * @param propertyName the property name of the objects of type {@code type} to sort by
+     * @see org.geoserver.catalog.CatalogFacade#canSort(java.lang.Class, java.lang.String)
+     */
+    public @Override boolean canSortBy(String propertyName) {
+        final String[] path = propertyName.split("\\.");
+        Class<?> clazz = infoType;
+        for (int i = 0; i < path.length; i++) {
+            String property = path[i];
+            Method getter;
+            try {
+                getter = OwsUtils.getter(clazz, property, null);
+            } catch (RuntimeException e) {
+                return false;
+            }
+            clazz = getter.getReturnType();
+            if (i == path.length - 1) {
+                boolean primitive = clazz.isPrimitive();
+                boolean comparable = Comparable.class.isAssignableFrom(clazz);
+                boolean canSort = primitive || comparable;
+                return canSort;
+            }
+        }
+        throw new IllegalStateException("empty property name");
     }
 
-    public @Override <U extends T> Stream<U> findAll(Filter filter, Class<U> infoType) {
-        requireNonNull(filter);
-        requireNonNull(infoType);
-        return list(infoType, toPredicate(filter));
+    @Override
+    public <U extends T> Stream<U> findAll(Query<U> query) {
+        requireNonNull(query);
+
+        Comparator<U> comparator = toComparator(query);
+        Stream<U> stream = list(query.getType(), toPredicate(query.getFilter()), comparator);
+
+        if (query.offset().isPresent()) {
+            stream = stream.skip(query.offset().getAsInt());
+        }
+        if (query.count().isPresent()) {
+            stream = stream.limit(query.count().getAsInt());
+        }
+        return stream;
+    }
+
+    public static <U extends CatalogInfo> Comparator<U> toComparator(Query<?> query) {
+        Comparator<U> comparator = providedOrder();
+        for (SortBy sortBy : query.getSortBy()) {
+            comparator =
+                    (comparator == PROVIDED_ORDER)
+                            ? comparator(sortBy)
+                            : comparator.thenComparing(comparator(sortBy));
+        }
+        return comparator;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <U extends CatalogInfo> Comparator<U> providedOrder() {
+        return (Comparator<U>) PROVIDED_ORDER;
     }
 
     protected <V> Predicate<V> toPredicate(Filter filter) {
         return o -> filter.evaluate(o);
+    }
+
+    private static <U extends CatalogInfo> Comparator<U> comparator(final SortBy sortOrder) {
+        Comparator<U> comparator =
+                new Comparator<>() {
+                    public @Override int compare(U o1, U o2) {
+                        Object v1 = OwsUtils.get(o1, sortOrder.getPropertyName().getPropertyName());
+                        Object v2 = OwsUtils.get(o2, sortOrder.getPropertyName().getPropertyName());
+                        if (v1 == null) {
+                            if (v2 == null) {
+                                return 0;
+                            } else {
+                                return -1;
+                            }
+                        } else if (v2 == null) {
+                            return 1;
+                        }
+                        @SuppressWarnings({"rawtypes", "unchecked"})
+                        Comparable<Object> c1 = (Comparable) v1;
+                        @SuppressWarnings({"rawtypes", "unchecked"})
+                        Comparable<Object> c2 = (Comparable) v2;
+                        return c1.compareTo(c2);
+                    }
+                };
+        if (SortOrder.DESCENDING.equals(sortOrder.getSortOrder())) {
+            comparator = comparator.reversed();
+        }
+        return comparator;
+    }
+
+    <U extends CatalogInfo> Stream<U> list(Class<U> clazz, Predicate<U> predicate) {
+        return list(clazz, predicate, CatalogInfoLookup.providedOrder());
     }
 
     /**
@@ -246,12 +335,12 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
      * with 20k layers go down from 50s to 44s (which is a lot, considering there is a lot of other
      * things going on)
      */
-    @SuppressWarnings("unchecked")
-    <U extends CatalogInfo> Stream<U> list(Class<U> clazz, Predicate<U> predicate) {
-        ArrayList<U> result = new ArrayList<U>();
-        if (clazz == null) {
-            clazz = (Class<U>) CatalogInfo.class;
-        }
+    <U extends CatalogInfo> Stream<U> list(
+            Class<U> clazz, Predicate<U> predicate, Comparator<U> comparator) {
+        requireNonNull(clazz);
+        requireNonNull(predicate);
+        requireNonNull(comparator);
+        List<U> result = new ArrayList<U>();
         for (Class<? extends T> key : nameMultiMap.keySet()) {
             if (clazz.isAssignableFrom(key)) {
                 Map<Name, T> valueMap = getMapForType(nameMultiMap, key);
@@ -264,6 +353,9 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
             }
         }
 
+        if (comparator != CatalogInfoLookup.PROVIDED_ORDER) {
+            Collections.sort(result, comparator);
+        }
         return result.stream();
     }
 
@@ -348,7 +440,7 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
         private NamespaceInfo defaultNamespace;
 
         public NamespaceInfoLookup() {
-            super(NAMESPACE_NAME_MAPPER);
+            super(NamespaceInfo.class, NAMESPACE_NAME_MAPPER);
         }
 
         public @Override void setDefaultNamespace(NamespaceInfo namespace) {
@@ -383,7 +475,7 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
         private WorkspaceInfo defaultWorkspace;
 
         public WorkspaceInfoLookup() {
-            super(WORKSPACE_NAME_MAPPER);
+            super(WorkspaceInfo.class, WORKSPACE_NAME_MAPPER);
         }
 
         public @Override void setDefaultWorkspace(WorkspaceInfo workspace) {
@@ -406,7 +498,7 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
         protected ConcurrentMap<String, DataStoreInfo> defaultStores = new ConcurrentHashMap<>();
 
         public StoreInfoLookup() {
-            super(STORE_NAME_MAPPER);
+            super(StoreInfo.class, STORE_NAME_MAPPER);
         }
 
         public @Override void setDefaultDataStore(WorkspaceInfo workspace, DataStoreInfo store) {
@@ -461,7 +553,7 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
     static class LayerGroupInfoLookup extends CatalogInfoLookup<LayerGroupInfo>
             implements LayerGroupRepository {
         public LayerGroupInfoLookup() {
-            super(LAYERGROUP_NAME_MAPPER);
+            super(LayerGroupInfo.class, LAYERGROUP_NAME_MAPPER);
         }
 
         public @Override Stream<LayerGroupInfo> findAllByWorkspaceIsNull() {
@@ -492,7 +584,7 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
 
     static class MapInfoLookup extends CatalogInfoLookup<MapInfo> implements MapRepository {
         public MapInfoLookup() {
-            super(MAP_NAME_MAPPER);
+            super(MapInfo.class, MAP_NAME_MAPPER);
         }
     }
 
@@ -506,7 +598,7 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
         private final LayerInfoLookup layers;
 
         public ResourceInfoLookup(LayerInfoLookup layers) {
-            super(RESOURCE_NAME_MAPPER);
+            super(ResourceInfo.class, RESOURCE_NAME_MAPPER);
             this.layers = layers;
         }
 
@@ -564,7 +656,7 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
             implements LayerRepository {
 
         public LayerInfoLookup() {
-            super(LAYER_NAME_MAPPER);
+            super(LayerInfo.class, LAYER_NAME_MAPPER);
         }
 
         void updateName(Name oldName, Name newName) {
@@ -618,7 +710,7 @@ class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<
 
     static class StyleInfoLookup extends CatalogInfoLookup<StyleInfo> implements StyleRepository {
         public StyleInfoLookup() {
-            super(STYLE_NAME_MAPPER);
+            super(StyleInfo.class, STYLE_NAME_MAPPER);
         }
 
         public @Override Stream<StyleInfo> findAllByNullWorkspace() {

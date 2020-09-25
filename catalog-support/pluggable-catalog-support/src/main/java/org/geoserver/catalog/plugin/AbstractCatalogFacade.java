@@ -4,6 +4,7 @@
  */
 package org.geoserver.catalog.plugin;
 
+import static java.lang.String.format;
 import static org.geoserver.catalog.impl.ClassMappings.LAYER;
 import static org.geoserver.catalog.impl.ClassMappings.LAYERGROUP;
 import static org.geoserver.catalog.impl.ClassMappings.MAP;
@@ -14,9 +15,7 @@ import static org.geoserver.catalog.impl.ClassMappings.STYLE;
 import static org.geoserver.catalog.impl.ClassMappings.WORKSPACE;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Ordering;
 import java.io.Closeable;
-import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.rmi.server.UID;
 import java.util.Collections;
@@ -71,7 +70,6 @@ import org.geoserver.ows.util.OwsUtils;
 import org.geotools.util.logging.Logging;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
-import org.opengis.filter.sort.SortOrder;
 import org.springframework.util.Assert;
 
 @Accessors(fluent = true)
@@ -723,7 +721,7 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
     }
 
     public @Override <T extends CatalogInfo> int count(final Class<T> of, final Filter filter) {
-        try (Stream<T> matches = iterable(of, filter, (SortBy[]) null)) {
+        try (Stream<T> matches = query(Query.valueOf(of, filter))) {
             long count = matches.count();
             return count > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) count;
         }
@@ -735,29 +733,24 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
      *
      * @param type the type of object to sort
      * @param propertyName the property name of the objects of type {@code type} to sort by
-     * @see org.geoserver.catalog.CatalogFacade#canSort(java.lang.Class, java.lang.String)
+     * @see CatalogInfoRepository#canSortBy(String)
      */
     public @Override boolean canSort(
             final Class<? extends CatalogInfo> type, final String propertyName) {
-        final String[] path = propertyName.split("\\.");
-        Class<?> clazz = type;
-        for (int i = 0; i < path.length; i++) {
-            String property = path[i];
-            Method getter;
-            try {
-                getter = OwsUtils.getter(clazz, property, null);
-            } catch (RuntimeException e) {
-                return false;
-            }
-            clazz = getter.getReturnType();
-            if (i == path.length - 1) {
-                boolean primitive = clazz.isPrimitive();
-                boolean comparable = Comparable.class.isAssignableFrom(clazz);
-                boolean canSort = primitive || comparable;
-                return canSort;
-            }
+        return repository(type).canSortBy(propertyName);
+    }
+
+    private <T extends CatalogInfo> void checkCanSort(final Query<T> query) {
+        query.getSortBy().forEach(sb -> checkCanSort(query.getType(), sb));
+    }
+
+    private <T extends CatalogInfo> void checkCanSort(final Class<T> type, SortBy order) {
+        if (!canSort(type, order.getPropertyName().getPropertyName())) {
+            throw new IllegalArgumentException(
+                    format(
+                            "Can't sort objects of type %s by %s",
+                            type.getName(), order.getPropertyName()));
         }
-        throw new IllegalStateException("empty property name");
     }
 
     public @Override <T extends CatalogInfo> CloseableIterator<T> list(
@@ -766,113 +759,38 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
             @Nullable Integer offset,
             @Nullable Integer count,
             @Nullable SortBy... sortOrder) {
+
         Objects.requireNonNull(of, "query Info class not provided");
         Objects.requireNonNull(filter, "filter not provided");
-        if (sortOrder != null) {
-            for (SortBy so : sortOrder) {
-                if (sortOrder != null && !canSort(of, so.getPropertyName().getPropertyName())) {
-                    throw new IllegalArgumentException(
-                            "Can't sort objects of type "
-                                    + of.getName()
-                                    + " by "
-                                    + so.getPropertyName());
-                }
-            }
-        }
 
-        Stream<T> stream;
-        try {
-            stream = iterable(of, filter, sortOrder);
-        } catch (RuntimeException e) {
-            LOGGER.log(Level.SEVERE, "Error obtaining stream. Filter: " + filter, e);
-            throw e;
-        }
-        if (offset != null && offset.intValue() > 0) {
-            stream = stream.skip(offset.longValue());
-        }
+        Query<T> query = Query.valueOf(of, filter, offset, count, sortOrder);
+        Stream<T> stream = query(query);
 
-        if (count != null && count.intValue() >= 0) {
-            stream = stream.limit(count.longValue());
-        }
-
-        stream = verifyBeforeReturning(stream, of);
         final Closeable closeable = stream::close;
-        CloseableIteratorAdapter<T> iterator =
-                new CloseableIteratorAdapter<T>(stream.iterator(), closeable);
-        try {
-            iterator.hasNext();
-        } catch (RuntimeException e) {
-            LOGGER.log(Level.SEVERE, "Error accessing iterator", e);
-            throw e;
-        }
+        CloseableIteratorAdapter<T> iterator;
+        iterator = new CloseableIteratorAdapter<T>(stream.iterator(), closeable);
         return iterator;
     }
 
-    @SuppressWarnings("unchecked")
-    protected <T extends CatalogInfo> Stream<T> iterable(
-            final Class<T> of, final Filter filter, final SortBy[] sortByList) {
-        Stream<T> all;
-
-        if (NamespaceInfo.class.isAssignableFrom(of)) {
-            all = namespaces.findAll(filter).map(of::cast);
-        } else if (WorkspaceInfo.class.isAssignableFrom(of)) {
-            all = workspaces.findAll(filter).map(of::cast);
-        } else if (StoreInfo.class.isAssignableFrom(of)) {
-            all = stores.findAll(filter, (Class<StoreInfo>) of).map(of::cast);
-        } else if (ResourceInfo.class.isAssignableFrom(of)) {
-            all = resources.findAll(filter, (Class<ResourceInfo>) of).map(of::cast);
-        } else if (LayerInfo.class.isAssignableFrom(of)) {
-            all = layers.findAll(filter).map(of::cast);
-        } else if (LayerGroupInfo.class.isAssignableFrom(of)) {
-            all = layerGroups.findAll(filter).map(of::cast);
-        } else if (PublishedInfo.class.isAssignableFrom(of)) {
-            Stream<T> ls = layers.findAll(filter).map(of::cast);
-            Stream<T> lgs = layerGroups.findAll(filter).map(of::cast);
-            all = Stream.concat(ls, lgs);
-        } else if (StyleInfo.class.isAssignableFrom(of)) {
-            all = styles.findAll(filter).map(of::cast);
-        } else if (MapInfo.class.isAssignableFrom(of)) {
-            all = maps.findAll(filter).map(of::cast);
+    public <T extends CatalogInfo> Stream<T> query(Query<T> query) {
+        Stream<T> stream;
+        if (PublishedInfo.class.equals(query.getType())) {
+            Query<LayerInfo> lq = new Query<>(LayerInfo.class, query);
+            Query<LayerGroupInfo> lgq = new Query<>(LayerGroupInfo.class, query);
+            Stream<LayerInfo> layers = query(lq);
+            Stream<LayerGroupInfo> groups = query(lgq);
+            Comparator<CatalogInfo> comparator = CatalogInfoLookup.toComparator(query);
+            stream = Stream.concat(layers, groups).sorted(comparator).map(query.getType()::cast);
         } else {
-            throw new IllegalArgumentException("Unknown type: " + of);
-        }
-
-        if (null != sortByList) {
-            for (int i = sortByList.length - 1; i >= 0; i--) {
-                SortBy sortBy = sortByList[i];
-                Ordering<Object> ordering = Ordering.from(comparator(sortBy));
-                if (SortOrder.DESCENDING.equals(sortBy.getSortOrder())) {
-                    ordering = ordering.reverse();
-                }
-                all = all.sorted(ordering);
+            try {
+                checkCanSort(query);
+                stream = repository(query.getType()).findAll(query);
+            } catch (RuntimeException e) {
+                LOGGER.log(Level.SEVERE, "Error obtaining stream: " + query, e);
+                throw e;
             }
         }
-
-        return all;
-    }
-
-    private Comparator<Object> comparator(final SortBy sortOrder) {
-        return new Comparator<Object>() {
-            @Override
-            public int compare(Object o1, Object o2) {
-                Object v1 = OwsUtils.get(o1, sortOrder.getPropertyName().getPropertyName());
-                Object v2 = OwsUtils.get(o2, sortOrder.getPropertyName().getPropertyName());
-                if (v1 == null) {
-                    if (v2 == null) {
-                        return 0;
-                    } else {
-                        return -1;
-                    }
-                } else if (v2 == null) {
-                    return 1;
-                }
-                @SuppressWarnings({"rawtypes", "unchecked"})
-                Comparable<Object> c1 = (Comparable) v1;
-                @SuppressWarnings({"rawtypes", "unchecked"})
-                Comparable<Object> c2 = (Comparable) v2;
-                return c1.compareTo(c2);
-            }
-        };
+        return verifyBeforeReturning(stream, query.getType());
     }
 
     //
@@ -1064,16 +982,18 @@ public abstract class AbstractCatalogFacade implements CatalogFacade {
 
     public <I extends CatalogInfo> I update(I info, Patch patch) {
         checkNotAProxy(info);
-        CatalogInfoRepository<I> repo = repo(info.getClass());
+        CatalogInfoRepository<I> repo = repository(info.getClass());
         return repo.update(info, patch);
     }
 
     @SuppressWarnings("unchecked")
-    protected <I extends CatalogInfo, R extends CatalogInfoRepository<I>> R repo(
-            Class<? extends CatalogInfo> type) {
-        ClassMappings cm = ClassMappings.fromImpl(type);
-        if (cm == null) cm = ClassMappings.fromInterface(type);
-        return (R) repos.get(cm).get();
+    protected <I extends CatalogInfo, R extends CatalogInfoRepository<I>> R repository(
+            Class<? extends CatalogInfo> of) {
+        ClassMappings cm = ClassMappings.fromImpl(of);
+        if (cm == null) cm = ClassMappings.fromInterface(of);
+        R repo = (R) repos.get(cm).get();
+        if (repo == null) throw new IllegalArgumentException("Unknown type: " + of);
+        return repo;
     }
 
     private static void checkNotAProxy(CatalogInfo value) {

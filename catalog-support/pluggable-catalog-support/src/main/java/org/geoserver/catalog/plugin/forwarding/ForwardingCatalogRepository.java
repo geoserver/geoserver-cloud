@@ -10,7 +10,7 @@ import lombok.NonNull;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository;
 import org.geoserver.catalog.plugin.Patch;
-import org.opengis.filter.Filter;
+import org.geoserver.catalog.plugin.Query;
 
 public abstract class ForwardingCatalogRepository<
                 I extends CatalogInfo, S extends CatalogInfoRepository<I>>
@@ -20,6 +20,14 @@ public abstract class ForwardingCatalogRepository<
 
     public ForwardingCatalogRepository(S subject) {
         this.subject = subject;
+    }
+
+    public @Override Class<I> getContentType() {
+        return subject.getContentType();
+    }
+
+    public @Override boolean canSortBy(@NonNull String propertyName) {
+        return subject.canSortBy(propertyName);
     }
 
     public @Override void add(I value) {
@@ -42,12 +50,8 @@ public abstract class ForwardingCatalogRepository<
         return subject.findAll();
     }
 
-    public @Override Stream<I> findAll(Filter filter) {
-        return subject.findAll(filter);
-    }
-
-    public @Override <U extends I> Stream<U> findAll(Filter filter, Class<U> infoType) {
-        return subject.findAll(filter, infoType);
+    public @Override <U extends I> Stream<U> findAll(Query<U> query) {
+        return subject.findAll(query);
     }
 
     public @Override <U extends I> Optional<U> findById(String id, Class<U> clazz) {

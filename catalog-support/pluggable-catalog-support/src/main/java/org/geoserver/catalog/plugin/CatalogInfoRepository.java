@@ -17,10 +17,11 @@ import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
-import org.opengis.filter.Filter;
 import org.springframework.lang.Nullable;
 
 public interface CatalogInfoRepository<T extends CatalogInfo> {
+
+    Class<T> getContentType();
 
     void add(@NonNull T value);
 
@@ -30,11 +31,11 @@ public interface CatalogInfoRepository<T extends CatalogInfo> {
 
     void dispose();
 
-    Stream<T> findAll();
+    default Stream<T> findAll() {
+        return findAll(Query.all(getContentType()));
+    }
 
-    Stream<T> findAll(Filter filter);
-
-    <U extends T> Stream<U> findAll(Filter filter, Class<U> infoType);
+    <U extends T> Stream<U> findAll(Query<U> query);
 
     /** Looks up a CatalogInfo by class and identifier */
     <U extends T> Optional<U> findById(@NonNull String id, @Nullable Class<U> clazz);
@@ -46,6 +47,8 @@ public interface CatalogInfoRepository<T extends CatalogInfo> {
      * @return the first match found based on {@code name}, or {@code null}
      */
     <U extends T> Optional<U> findFirstByName(@NonNull String name, Class<U> clazz);
+
+    public boolean canSortBy(@NonNull String propertyName);
 
     // revisit: some sort of progress listener/cancel flag would be nice
     void syncTo(@NonNull CatalogInfoRepository<T> target);
