@@ -22,6 +22,7 @@ import org.geotools.jackson.databind.filter.dto.Filter.Id.FeatureId;
 import org.geotools.jackson.databind.filter.dto.Filter.MultiValuedFilter;
 import org.geotools.jackson.databind.filter.dto.Filter.MultiValuedFilter.MatchAction;
 import org.geotools.jackson.databind.filter.dto.Filter.PropertyIsNull;
+import org.geotools.jackson.databind.filter.dto.SortBy;
 import org.junit.Test;
 import org.locationtech.jts.geom.CoordinateSequenceFactory;
 import org.locationtech.jts.geom.Geometry;
@@ -37,6 +38,9 @@ import org.locationtech.jts.io.WKTReader;
 public abstract class FilterRoundtripTest {
 
     protected abstract <F extends Filter> F roundtripTest(F dto) throws Exception;
+
+    protected abstract void roundtripTest(org.geotools.jackson.databind.filter.dto.SortBy dto)
+            throws Exception;
 
     public @Test void include() throws Exception {
         Filter filter = Filter.INCLUDE;
@@ -99,6 +103,13 @@ public abstract class FilterRoundtripTest {
     public @Test void propertyIsNul() throws Exception {
         Filter filter = isNullFilter();
         roundtripTest(filter);
+    }
+
+    public @Test void sortBy() throws Exception {
+        SortBy dto = new SortBy(propertyName("some.property.name"), SortBy.SortOrder.ASCENDING);
+        roundtripTest(dto);
+        dto = new SortBy(propertyName("collprop[1]"), SortBy.SortOrder.DESCENDING);
+        roundtripTest(dto);
     }
 
     private PropertyIsNull isNullFilter() {
@@ -250,7 +261,7 @@ public abstract class FilterRoundtripTest {
         return literal(geometry);
     }
 
-    private Expression propertyName(String name) {
+    private Expression.PropertyName propertyName(String name) {
         return new Expression.PropertyName().setPropertyName(name);
     }
 

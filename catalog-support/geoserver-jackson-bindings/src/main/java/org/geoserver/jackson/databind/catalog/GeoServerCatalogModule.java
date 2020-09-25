@@ -21,6 +21,7 @@ import org.geoserver.catalog.LegendInfo;
 import org.geoserver.catalog.MetadataLinkInfo;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.plugin.Patch;
+import org.geoserver.catalog.plugin.Query;
 import org.geoserver.jackson.databind.catalog.dto.AuthorityURL;
 import org.geoserver.jackson.databind.catalog.dto.CRS;
 import org.geoserver.jackson.databind.catalog.dto.CoverageDimension;
@@ -34,6 +35,7 @@ import org.geoserver.jackson.databind.catalog.dto.Legend;
 import org.geoserver.jackson.databind.catalog.dto.MetadataLink;
 import org.geoserver.jackson.databind.catalog.dto.NumberRangeDto;
 import org.geoserver.jackson.databind.catalog.dto.PatchDto;
+import org.geoserver.jackson.databind.catalog.dto.QueryDto;
 import org.geoserver.jackson.databind.catalog.dto.VersionDto;
 import org.geoserver.jackson.databind.catalog.dto.VirtualTableDto;
 import org.geoserver.jackson.databind.catalog.mapper.ValueMappers;
@@ -41,6 +43,8 @@ import org.geoserver.jackson.databind.mapper.SharedMappers;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.jackson.databind.filter.GeoToolsFilterModule;
 import org.geotools.jackson.databind.geojson.GeoToolsGeoJsonModule;
+import org.geotools.jackson.databind.util.MapperDeserializer;
+import org.geotools.jackson.databind.util.MapperSerializer;
 import org.geotools.jdbc.VirtualTable;
 import org.geotools.measure.Measure;
 import org.geotools.util.NumberRange;
@@ -195,6 +199,9 @@ public class GeoServerCatalogModule extends SimpleModule {
                 VALUE_MAPPER::gridGeometry2DToDto,
                 GridGeometryDto.class,
                 VALUE_MAPPER::dtoToGridGeometry2D);
+
+        addMapperSerializer(
+                Query.class, VALUE_MAPPER::queryToDto, QueryDto.class, VALUE_MAPPER::dtoToQuery);
     }
 
     private void registerSharedMappers() {

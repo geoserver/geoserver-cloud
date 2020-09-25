@@ -9,6 +9,7 @@ import static org.junit.Assert.assertEquals;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.geotools.jackson.databind.filter.dto.Filter;
+import org.geotools.jackson.databind.filter.dto.SortBy;
 import org.geotools.jackson.databind.filter.mapper.FilterMapper;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -40,6 +41,15 @@ public class GeoToolsFilterModuleFiltersTest extends FilterRoundtripTest {
         deserialized = objectMapper.readValue(serialized, org.opengis.filter.Filter.class);
         assertEquals(expected, deserialized);
         return dto;
+    }
+
+    protected @Override void roundtripTest(SortBy dto) throws Exception {
+        final org.opengis.filter.sort.SortBy expected = filterMapper.map(dto);
+        String serialized = objectMapper.writeValueAsString(expected);
+        System.err.println(serialized);
+        org.opengis.filter.sort.SortBy deserialized;
+        deserialized = objectMapper.readValue(serialized, org.opengis.filter.sort.SortBy.class);
+        assertEquals(expected, deserialized);
     }
 
     @Ignore("revisit, ResourceIdImpl equals issue")

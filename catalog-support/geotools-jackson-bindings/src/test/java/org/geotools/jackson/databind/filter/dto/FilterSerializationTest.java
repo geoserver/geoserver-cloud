@@ -29,4 +29,11 @@ public class FilterSerializationTest extends FilterRoundtripTest {
         assertEquals(dto, deserialized);
         return (F) deserialized;
     }
+
+    protected @Override void roundtripTest(SortBy dto) throws Exception {
+        String serialized = objectMapper.writeValueAsString(dto);
+        System.err.println(serialized);
+        SortBy deserialized = objectMapper.readValue(serialized, SortBy.class);
+        assertEquals(dto, deserialized);
+    }
 }

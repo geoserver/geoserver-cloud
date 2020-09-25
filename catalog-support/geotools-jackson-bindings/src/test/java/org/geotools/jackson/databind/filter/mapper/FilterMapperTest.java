@@ -9,6 +9,7 @@ import static org.junit.Assert.assertNotNull;
 
 import org.geotools.jackson.databind.filter.FilterRoundtripTest;
 import org.geotools.jackson.databind.filter.dto.Filter;
+import org.geotools.jackson.databind.filter.dto.SortBy;
 import org.junit.Before;
 import org.mapstruct.factory.Mappers;
 
@@ -28,5 +29,13 @@ public class FilterMapperTest extends FilterRoundtripTest {
         Filter roundTrippedDto = filterMapper.map(ogcFilter);
         assertEquals(dto, roundTrippedDto);
         return (F) roundTrippedDto;
+    }
+
+    protected @Override void roundtripTest(SortBy dto) throws Exception {
+        org.opengis.filter.sort.SortBy ogcSortBy = filterMapper.map(dto);
+        assertNotNull(ogcSortBy);
+
+        SortBy roundTrippedDto = filterMapper.map(ogcSortBy);
+        assertEquals(dto, roundTrippedDto);
     }
 }

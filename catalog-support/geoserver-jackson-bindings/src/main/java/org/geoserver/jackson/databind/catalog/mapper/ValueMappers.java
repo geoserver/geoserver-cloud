@@ -15,6 +15,8 @@ import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.LayerIdentifierInfo;
 import org.geoserver.catalog.LegendInfo;
 import org.geoserver.catalog.MetadataLinkInfo;
+import org.geoserver.catalog.impl.ClassMappings;
+import org.geoserver.catalog.plugin.Query;
 import org.geoserver.config.util.XStreamPersister;
 import org.geoserver.jackson.databind.catalog.dto.AttributeType;
 import org.geoserver.jackson.databind.catalog.dto.Attribution;
@@ -28,6 +30,7 @@ import org.geoserver.jackson.databind.catalog.dto.LayerIdentifier;
 import org.geoserver.jackson.databind.catalog.dto.Legend;
 import org.geoserver.jackson.databind.catalog.dto.MetadataLink;
 import org.geoserver.jackson.databind.catalog.dto.NumberRangeDto;
+import org.geoserver.jackson.databind.catalog.dto.QueryDto;
 import org.geoserver.jackson.databind.catalog.dto.VirtualTableDto;
 import org.geoserver.jackson.databind.mapper.SharedMappers;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
@@ -54,6 +57,21 @@ public interface ValueMappers {
             new MeasureConverterFactory().createConverter(String.class, Measure.class, null);
     org.geotools.util.Converter measure2Str =
             new MeasureConverterFactory().createConverter(Measure.class, String.class, null);
+
+    @SuppressWarnings("rawtypes")
+    Query dtoToQuery(QueryDto dto);
+
+    QueryDto queryToDto(@SuppressWarnings("rawtypes") Query query);
+
+    @SuppressWarnings("rawtypes")
+    default Class classMappings(ClassMappings mappings) {
+        return mappings == null ? null : mappings.getInterface();
+    }
+
+    @SuppressWarnings("unchecked")
+    default ClassMappings classMappings(Class type) {
+        return type == null ? null : ClassMappings.fromInterface(type);
+    }
 
     default NumberRangeDto numberRangeToDto(NumberRange<?> source) {
         if (source == null) return null;

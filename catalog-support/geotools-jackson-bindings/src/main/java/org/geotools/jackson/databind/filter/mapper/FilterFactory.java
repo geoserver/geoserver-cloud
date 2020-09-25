@@ -4,16 +4,19 @@
  */
 package org.geotools.jackson.databind.filter.mapper;
 
+import org.mapstruct.ObjectFactory;
 import org.opengis.filter.ExcludeFilter;
 import org.opengis.filter.Filter;
 import org.opengis.filter.IncludeFilter;
 
 public class FilterFactory {
 
+    @ObjectFactory
     public IncludeFilter include() {
         return Filter.INCLUDE;
     }
 
+    @ObjectFactory
     public ExcludeFilter exclude() {
         return Filter.EXCLUDE;
     }

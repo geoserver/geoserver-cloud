@@ -11,6 +11,7 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -57,6 +58,7 @@ import org.geoserver.catalog.impl.LegendInfoImpl;
 import org.geoserver.catalog.impl.MetadataLinkInfoImpl;
 import org.geoserver.catalog.plugin.CatalogImpl;
 import org.geoserver.catalog.plugin.Patch;
+import org.geoserver.catalog.plugin.Query;
 import org.geoserver.cloud.test.CatalogTestData;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.ServiceInfo;
@@ -84,6 +86,7 @@ import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.PropertyIsEqualTo;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Literal;
+import org.opengis.filter.sort.SortOrder;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import si.uom.SI;
 
@@ -92,6 +95,8 @@ import si.uom.SI;
  * thanks to {@link GeoServerCatalogModule} jackcon-databind module
  */
 public class GeoServerCatalogModuleTest {
+
+    private FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2();
 
     private Catalog catalog;
     private CatalogTestData testData;
@@ -390,7 +395,6 @@ public class GeoServerCatalogModuleTest {
     }
 
     private PropertyIsEqualTo equals(String propertyName, Object literal) {
-        FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2();
         return ff.equals(ff.property(propertyName), ff.literal(literal));
     }
 
@@ -606,5 +610,57 @@ public class GeoServerCatalogModuleTest {
     public @Test void testValueVirtualTable() throws Exception {
         VirtualTable vt = new VirtualTable("testvt", "select * from test;", true);
         testValueWithEquals(vt, VirtualTable.class);
+    }
+
+    public @Test void testQuery() throws Exception {
+        Arrays.stream(ClassMappings.values())
+                .map(ClassMappings::getInterface)
+                .filter(CatalogInfo.class::isAssignableFrom)
+                .forEach(this::testQuery);
+    }
+
+    @SuppressWarnings("unchecked")
+    private void testQuery(Class<?> clazz) {
+        Class<? extends CatalogInfo> type = (Class<? extends CatalogInfo>) clazz;
+        try {
+            Query<?> query = Query.all(type);
+            Query<?> parsed = testValue(query, Query.class);
+            assertNotNull(parsed);
+            assertQueryEquals(query, parsed);
+            Filter filter =
+                    equals("some.property.name", Arrays.asList("some literal 1", "some literal 2"));
+            query =
+                    Query.valueOf(
+                            type,
+                            filter,
+                            2000,
+                            1000,
+                            ff.sort("name", SortOrder.ASCENDING),
+                            ff.sort("type", SortOrder.DESCENDING));
+            parsed = testValue(query, Query.class);
+            assertNotNull(parsed);
+            assertQueryEquals(query, parsed);
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
+
+    // needed instead of Query.equals(query), no equals() implementation in
+    // org.geotools.filter.SortByImpl nor Filter...
+    private void assertQueryEquals(Query<?> query, Query<?> parsed) {
+        assertEquals(query.getType(), parsed.getType());
+        assertEquals(query.getCount(), parsed.getCount());
+        assertEquals(query.getOffset(), parsed.getOffset());
+
+        Filter f1 = query.getFilter();
+        Filter f2 = parsed.getFilter();
+        if (f1 == Filter.INCLUDE) assertEquals(Filter.INCLUDE, f2);
+        else {
+            PropertyIsEqualTo p1 = (PropertyIsEqualTo) f1;
+            PropertyIsEqualTo p2 = (PropertyIsEqualTo) f2;
+            assertEquals(p1.getExpression1(), p2.getExpression1());
+            assertEquals(p1.getExpression2(), p2.getExpression2());
+        }
+        assertEquals(query.getSortBy(), parsed.getSortBy());
     }
 }
