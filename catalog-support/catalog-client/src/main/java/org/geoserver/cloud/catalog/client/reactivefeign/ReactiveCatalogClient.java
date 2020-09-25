@@ -15,7 +15,7 @@ import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.plugin.Patch;
-import org.opengis.filter.Filter;
+import org.geoserver.catalog.plugin.Query;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -66,11 +66,14 @@ public interface ReactiveCatalogClient {
             @PathVariable(name = "name") String name,
             @RequestParam(name = "type", required = false) ClassMappings subType);
 
+    @GetMapping(path = "/{endpoint}/query/cansortby/{propertyName}")
+    Mono<Boolean> canSortBy(
+            @PathVariable("endpoint") String endpoint,
+            @PathVariable("propertyName") String propertyName);
+
     @PostMapping(path = "/{endpoint}/query")
     <C extends CatalogInfo> Flux<C> query( //
-            @PathVariable("endpoint") String endpoint,
-            @RequestParam(name = "type", required = false) ClassMappings subType,
-            @RequestBody Filter filter);
+            @PathVariable("endpoint") String endpoint, @RequestBody Query<C> query);
 
     @PutMapping(path = "/workspaces/default/{workspaceId}")
     Mono<WorkspaceInfo> setDefaultWorkspace(@PathVariable("workspaceId") String workspaceId);

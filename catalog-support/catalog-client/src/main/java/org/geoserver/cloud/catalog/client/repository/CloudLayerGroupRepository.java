@@ -16,7 +16,7 @@ import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerGroupRepository;
 public class CloudLayerGroupRepository extends CatalogServiceClientRepository<LayerGroupInfo>
         implements LayerGroupRepository {
 
-    private final @Getter Class<LayerGroupInfo> infoType = LayerGroupInfo.class;
+    private final @Getter Class<LayerGroupInfo> contentType = LayerGroupInfo.class;
 
     public @Override Stream<LayerGroupInfo> findAllByWorkspaceIsNull() {
         return client().findLayerGroupsByNullWoskspace().map(this::resolve).toStream();

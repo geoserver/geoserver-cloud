@@ -15,7 +15,7 @@ import org.geoserver.catalog.plugin.CatalogInfoRepository.StyleRepository;
 public class CloudStyleRepository extends CatalogServiceClientRepository<StyleInfo>
         implements StyleRepository {
 
-    private final @Getter Class<StyleInfo> infoType = StyleInfo.class;
+    private final @Getter Class<StyleInfo> contentType = StyleInfo.class;
 
     public @Override Stream<StyleInfo> findAllByNullWorkspace() {
         return client().findStylesByNullWorkspace().map(this::resolve).toStream();

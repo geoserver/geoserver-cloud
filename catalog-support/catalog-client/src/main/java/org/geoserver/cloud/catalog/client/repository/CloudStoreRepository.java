@@ -19,7 +19,7 @@ import reactor.core.publisher.Flux;
 public class CloudStoreRepository extends CatalogServiceClientRepository<StoreInfo>
         implements StoreRepository {
 
-    private final @Getter Class<StoreInfo> infoType = StoreInfo.class;
+    private final @Getter Class<StoreInfo> contentType = StoreInfo.class;
 
     public @Override void setDefaultDataStore(
             @NonNull WorkspaceInfo workspace, @NonNull DataStoreInfo dataStore) {

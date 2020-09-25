@@ -26,9 +26,11 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.AbstractCatalogDecorator;
 import org.geoserver.catalog.plugin.CatalogImpl;
 import org.geoserver.catalog.plugin.Patch;
+import org.geoserver.catalog.plugin.Query;
 import org.geoserver.catalog.plugin.forwarding.ForwardingCatalogFacade;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.opengis.filter.Filter;
+import org.opengis.filter.sort.SortBy;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -171,10 +173,16 @@ public class BlockingCatalog extends AbstractCatalogDecorator {
         throw new IllegalArgumentException("Uknown CatalogInfo type: " + type.getCanonicalName());
     }
 
-    public <C extends org.geoserver.catalog.CatalogInfo> Stream<C> query(
-            @NonNull Class<? extends C> type, @NonNull Filter filter) {
+    public <C extends org.geoserver.catalog.CatalogInfo> Stream<C> query(@NonNull Query<C> query) {
 
-        CloseableIterator<? extends C> iterator = delegate.list(type, filter);
+        Class<C> type = query.getType();
+        Filter filter = query.getFilter();
+        Integer offset = query.getOffset();
+        Integer count = query.getCount();
+        SortBy sortBy = query.getSortBy().isEmpty() ? null : query.getSortBy().get(0);
+
+        CloseableIterator<? extends C> iterator =
+                delegate.list(type, filter, offset, count, sortBy);
         int characteristics = Spliterator.DISTINCT | Spliterator.NONNULL;
         Spliterator<C> spliterator = Spliterators.spliteratorUnknownSize(iterator, characteristics);
         boolean parallel = false;
@@ -188,7 +196,7 @@ public class BlockingCatalog extends AbstractCatalogDecorator {
     }
 
     public Stream<DataStoreInfo> getDefaultDataStores() {
-        return query(WorkspaceInfo.class, Filter.INCLUDE)
+        return query(Query.all(WorkspaceInfo.class))
                 .map(delegate::getDefaultDataStore)
                 .filter(d -> d != null);
     }

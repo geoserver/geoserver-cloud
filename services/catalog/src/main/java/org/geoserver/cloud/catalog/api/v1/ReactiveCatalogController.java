@@ -21,9 +21,9 @@ import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.plugin.Patch;
+import org.geoserver.catalog.plugin.Query;
 import org.geoserver.cloud.catalog.service.ProxyResolver;
 import org.geoserver.cloud.catalog.service.ReactiveCatalog;
-import org.opengis.filter.Filter;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -150,14 +150,20 @@ public class ReactiveCatalogController {
                                 type.getInterface().getSimpleName(), name));
     }
 
-    @PostMapping(path = "/{endpoint}/query", produces = APPLICATION_STREAM_JSON_VALUE)
-    public Flux<CatalogInfo> query( //
+    @GetMapping(path = "/{endpoint}/query/cansortby/{propertyName}")
+    public Mono<Boolean> canSortBy(
             @PathVariable("endpoint") String endpoint,
-            @RequestParam(name = "type", required = false) ClassMappings subType,
-            @RequestBody Filter filter) {
+            @PathVariable("propertyName") String propertyName) {
 
-        ClassMappings type = endpointToType(endpoint, subType);
-        return catalog.query(type.getInterface(), filter);
+        ClassMappings type = endpointToType(endpoint);
+        return catalog.canSortBy(type.getInterface(), propertyName);
+    }
+
+    @PostMapping(path = "/{endpoint}/query", produces = APPLICATION_STREAM_JSON_VALUE)
+    public <C extends CatalogInfo> Flux<C> query( //
+            @PathVariable("endpoint") String endpoint, @RequestBody Query<C> query) {
+
+        return catalog.query(query);
     }
 
     @PutMapping(path = "/workspaces/default/{workspaceId}")

@@ -17,7 +17,7 @@ import reactor.core.publisher.Mono;
 public class CloudNamespaceRepository extends CatalogServiceClientRepository<NamespaceInfo>
         implements NamespaceRepository {
 
-    private final @Getter Class<NamespaceInfo> infoType = NamespaceInfo.class;
+    private final @Getter Class<NamespaceInfo> contentType = NamespaceInfo.class;
 
     public @Override void setDefaultNamespace(@NonNull NamespaceInfo namespace) {
         Objects.requireNonNull(namespace.getId(), "provided null namespace id");

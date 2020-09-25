@@ -13,6 +13,7 @@ import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.ResourceRepository;
+import org.geoserver.catalog.plugin.Query;
 import org.geotools.factory.CommonFactoryFinder;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory2;
@@ -22,7 +23,7 @@ import reactor.core.publisher.Flux;
 public class CloudResourceRepository extends CatalogServiceClientRepository<ResourceInfo>
         implements ResourceRepository {
 
-    private final @Getter Class<ResourceInfo> infoType = ResourceInfo.class;
+    private final @Getter Class<ResourceInfo> contentType = ResourceInfo.class;
 
     // REVISIT: used to build filters on methods that miss a counterpart on ReactiveCatalogClient
     private final FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2();
@@ -39,10 +40,8 @@ public class CloudResourceRepository extends CatalogServiceClientRepository<Reso
 
         // REVISIT: missed custom method on ReactiveCatalogClient
         Filter filter = ff.equals(ff.property("namespace.id"), ff.literal(ns.getId()));
-        return client().query(endpoint(), typeEnum(clazz), filter)
-                .map(clazz::cast)
-                .map(this::resolve)
-                .toStream();
+        Query<T> query = Query.valueOf(clazz, filter);
+        return client().query(endpoint(), query).map(clazz::cast).map(this::resolve).toStream();
     }
 
     public @Override @Nullable <T extends ResourceInfo> Optional<T> findByStoreAndName(
@@ -53,8 +52,9 @@ public class CloudResourceRepository extends CatalogServiceClientRepository<Reso
                         ff.equals(ff.property("store.id"), ff.literal(store.getId())),
                         ff.equals(ff.property("name"), ff.literal(name)));
 
-        Flux<T> query = client().query(endpoint(), typeEnum(clazz), filter);
-        return query.toStream().findFirst().map(this::resolve);
+        Query<T> query = Query.valueOf(clazz, filter);
+        Flux<T> flux = client().query(endpoint(), query);
+        return flux.toStream().findFirst().map(this::resolve);
     }
 
     public @Override <T extends ResourceInfo> Stream<T> findAllByStore(
@@ -62,8 +62,9 @@ public class CloudResourceRepository extends CatalogServiceClientRepository<Reso
 
         // REVISIT: missed custom method on ReactiveCatalogClient
         Filter filter = ff.equals(ff.property("store.id"), ff.literal(store.getId()));
-        Flux<T> query = client().query(endpoint(), typeEnum(clazz), filter);
-        return query.toStream().map(this::resolve);
+        Query<T> query = Query.valueOf(clazz, filter);
+        Flux<T> flux = client().query(endpoint(), query);
+        return flux.toStream().map(this::resolve);
     }
 
     public @Override <T extends ResourceInfo> Optional<T> findByNameAndNamespace(

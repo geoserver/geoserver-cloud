@@ -4,16 +4,11 @@
  */
 package org.geoserver.cloud.integration.catalog;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogFacade;
-import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.event.CatalogListener;
-import org.geoserver.catalog.impl.WorkspaceInfoImpl;
 import org.geoserver.catalog.plugin.CatalogImpl;
 import org.geoserver.catalog.plugin.CatalogInfoRepository;
 import org.geoserver.cloud.catalog.app.CatalogServiceApplication;
@@ -21,6 +16,7 @@ import org.geoserver.cloud.catalog.client.impl.CatalogClientConfiguration;
 import org.geoserver.cloud.catalog.client.repository.CatalogServiceClientRepository;
 import org.geoserver.cloud.test.CatalogConformanceTest;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,16 +79,21 @@ public class CatalogServiceBackendConformanceTest extends CatalogConformanceTest
         super.data.deleteAll(serverCatalog);
     }
 
-    public @Test void smokeClientServerTest() {
-        WorkspaceInfo ws = new WorkspaceInfoImpl();
-        ws.setName("testWs");
-        clientFacade.add(ws);
+    @Ignore(
+            "The events are generated in the server, and we're not capturing RemoteCatalogEvents here")
+    public @Override @Test void testDataStoreEvents() {
+        super.testDataStoreEvents();
+    }
 
-        WorkspaceInfo workspace = clientCatalog.getDefaultWorkspace();
-        assertNotNull(workspace);
-        workspace.setName("changed");
-        clientCatalog.save(workspace);
-        WorkspaceInfo updated = clientCatalog.getDefaultWorkspace();
-        assertEquals("changed", updated.getName());
+    @Ignore(
+            "The events are generated in the server, and we're not capturing RemoteCatalogEvents here")
+    public @Override @Test void testWorkspaceEvents() {
+        super.testWorkspaceEvents();
+    }
+
+    @Ignore(
+            "The events are generated in the server, and we're not capturing RemoteCatalogEvents here")
+    public @Override @Test void testNamespaceEvents() {
+        super.testNamespaceEvents();
     }
 }

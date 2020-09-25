@@ -17,7 +17,7 @@ import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.Patch;
-import org.opengis.filter.Filter;
+import org.geoserver.catalog.plugin.Query;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -60,7 +60,7 @@ public class ReactiveCatalogImpl implements ReactiveCatalog {
     }
 
     public @Override <C extends CatalogInfo> Flux<C> getAll(@NonNull Class<C> type) {
-        return query(type, Filter.INCLUDE);
+        return query(Query.all(type));
     }
 
     public @Override <C extends CatalogInfo> Mono<C> getById(
@@ -75,11 +75,13 @@ public class ReactiveCatalogImpl implements ReactiveCatalog {
         return async(() -> blockingCatalog.getByName(name, type));
     }
 
-    public @Override <C extends CatalogInfo> Flux<C> query(
-            @NonNull Class<C> type, @NonNull Filter filter) {
+    public @Override Mono<Boolean> canSortBy(
+            Class<? extends CatalogInfo> type, String propertyName) {
+        return async(() -> blockingCatalog.getFacade().canSort(type, propertyName));
+    }
 
-        return Flux.fromStream(() -> blockingCatalog.query(type, filter))
-                .subscribeOn(catalogScheduler);
+    public @Override <C extends CatalogInfo> Flux<C> query(@NonNull Query<C> query) {
+        return Flux.fromStream(() -> blockingCatalog.query(query)).subscribeOn(catalogScheduler);
     }
 
     public @Override Mono<WorkspaceInfo> setDefaultWorkspace(@NonNull WorkspaceInfo workspace) {

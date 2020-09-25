@@ -37,6 +37,7 @@ import org.geoserver.catalog.plugin.CatalogInfoRepository.StoreRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.StyleRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.WorkspaceRepository;
 import org.geoserver.catalog.plugin.Patch;
+import org.geoserver.catalog.plugin.Query;
 import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveCatalogClient;
 import org.geoserver.cloud.test.CatalogTestData;
 import org.geoserver.ows.util.OwsUtils;
@@ -273,7 +274,6 @@ public class CatalogServiceClientRepositoryTest {
         return (@NonNull String) OwsUtils.get(info, "name");
     }
 
-    @SuppressWarnings("unchecked")
     private <T extends CatalogInfo> void assertFindAll(CatalogInfoRepository<T> repo, T info) {
 
         final @NonNull ClassMappings genericType = genericType(info);
@@ -283,11 +283,11 @@ public class CatalogServiceClientRepositoryTest {
         assertThat(repo.findAll().count(), equalTo(2L));
         verify(mockClient, times(1)).findAll(any(String.class), same(genericType));
 
-        when(mockClient.query(any(String.class), same(genericType), same(Filter.EXCLUDE)))
-                .thenReturn(Flux.just(info));
-        assertThat(repo.findAll(Filter.EXCLUDE).count(), equalTo(1L));
-        verify(mockClient, times(1))
-                .query(any(String.class), same(genericType), same(Filter.EXCLUDE));
+        Query<T> query = Query.all(genericType.getInterface());
+
+        when(mockClient.query(any(String.class), same(query))).thenReturn(Flux.just(info));
+        assertThat(repo.findAll(query).count(), equalTo(1L));
+        verify(mockClient, times(1)).query(any(String.class), same(query));
 
         final @NonNull ClassMappings subType = ClassMappings.fromImpl(info.getClass());
         Filter someFilter;
@@ -296,10 +296,10 @@ public class CatalogServiceClientRepositoryTest {
         } catch (CQLException e) {
             throw new RuntimeException();
         }
-        when(mockClient.query(any(String.class), same(subType), same(someFilter)))
-                .thenReturn(Flux.just(info));
-        assertThat(repo.findAll(someFilter, (Class<T>) info.getClass()).count(), equalTo(1L));
-        verify(mockClient, times(1)).query(any(String.class), same(subType), same(someFilter));
+        query = Query.valueOf(subType.getInterface(), someFilter);
+        when(mockClient.query(any(String.class), same(query))).thenReturn(Flux.just(info));
+        assertThat(repo.findAll(query).count(), equalTo(1L));
+        verify(mockClient, times(1)).query(any(String.class), same(query));
     }
 
     private @NonNull ClassMappings genericType(CatalogInfo info) {

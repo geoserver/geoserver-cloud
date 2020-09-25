@@ -15,7 +15,7 @@ import org.springframework.lang.Nullable;
 public class CloudWorkspaceRepository extends CatalogServiceClientRepository<WorkspaceInfo>
         implements WorkspaceRepository {
 
-    private final @Getter Class<WorkspaceInfo> infoType = WorkspaceInfo.class;
+    private final @Getter Class<WorkspaceInfo> contentType = WorkspaceInfo.class;
 
     public @Override void setDefaultWorkspace(@NonNull WorkspaceInfo workspace) {
         Objects.requireNonNull(workspace.getId(), "workspace id can't be null");

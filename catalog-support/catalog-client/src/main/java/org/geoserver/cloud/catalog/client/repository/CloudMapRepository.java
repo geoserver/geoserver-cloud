@@ -11,5 +11,5 @@ import org.geoserver.catalog.plugin.CatalogInfoRepository.MapRepository;
 public class CloudMapRepository extends CatalogServiceClientRepository<MapInfo>
         implements MapRepository {
 
-    private final @Getter Class<MapInfo> infoType = MapInfo.class;
+    private final @Getter Class<MapInfo> contentType = MapInfo.class;
 }

@@ -22,6 +22,7 @@ import lombok.NonNull;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.impl.ClassMappings;
+import org.geoserver.catalog.plugin.Query;
 import org.geoserver.cloud.catalog.app.CatalogServiceApplicationConfiguration;
 import org.geoserver.cloud.catalog.test.CatalogTestClient;
 import org.geoserver.cloud.catalog.test.WebTestClientSupport;
@@ -120,12 +121,12 @@ public abstract class AbstractReactiveCatalogControllerTest<C extends CatalogInf
     }
 
     protected <S extends C> void testQueryFilter(
-            Class<S> type, Filter filter, @SuppressWarnings("unchecked") S... expected) {
+            @NonNull Class<S> type, Filter filter, @SuppressWarnings("unchecked") S... expected) {
         String endpoint = endpoint();
-        ClassMappings subtype =
-                this.infoType.equals(type) ? null : ClassMappings.fromInterface(type);
 
-        client().doPost(filter, "/{endpoint}/query?type={subtype}", endpoint, subtype)
+        Query<S> query = Query.valueOf(type, filter);
+
+        client().doPost(query, "/{endpoint}/query", endpoint)
                 .expectStatus()
                 .isOk()
                 .expectHeader()

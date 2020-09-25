@@ -23,6 +23,7 @@ import org.geoserver.catalog.WMSLayerInfo;
 import org.geoserver.catalog.WMTSLayerInfo;
 import org.geoserver.catalog.impl.WMSLayerInfoImpl;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.ResourceRepository;
+import org.geoserver.catalog.plugin.Query;
 import org.geoserver.ows.util.OwsUtils;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -290,16 +291,16 @@ public class ResourceRepositoryTest
         ResourceRepository client = repository;
 
         List<ResourceInfo> all =
-                client.findAll(Filter.INCLUDE, FeatureTypeInfo.class).collect(Collectors.toList());
+                client.findAll(Query.all(FeatureTypeInfo.class)).collect(Collectors.toList());
         assertEquals(serverCatalog.getResources(FeatureTypeInfo.class).size(), all.size());
 
-        all = client.findAll(Filter.INCLUDE, CoverageInfo.class).collect(Collectors.toList());
+        all = client.findAll(Query.all(CoverageInfo.class)).collect(Collectors.toList());
         assertEquals(serverCatalog.getResources(CoverageInfo.class).size(), all.size());
 
-        all = client.findAll(Filter.INCLUDE, WMSLayerInfo.class).collect(Collectors.toList());
+        all = client.findAll(Query.all(WMSLayerInfo.class)).collect(Collectors.toList());
         assertEquals(serverCatalog.getResources(WMSLayerInfo.class).size(), all.size());
 
-        all = client.findAll(Filter.INCLUDE, WMTSLayerInfo.class).collect(Collectors.toList());
+        all = client.findAll(Query.all(WMTSLayerInfo.class)).collect(Collectors.toList());
         assertEquals(serverCatalog.getResources(WMTSLayerInfo.class).size(), all.size());
     }
 }

@@ -16,7 +16,7 @@ import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerRepository;
 public class CloudLayerRepository extends CatalogServiceClientRepository<LayerInfo>
         implements LayerRepository {
 
-    private final @Getter Class<LayerInfo> infoType = LayerInfo.class;
+    private final @Getter Class<LayerInfo> contentType = LayerInfo.class;
 
     public @Override Stream<LayerInfo> findAllByDefaultStyleOrStyles(StyleInfo style) {
         return client().findLayersWithStyle(style.getId()).map(this::resolve).toStream();

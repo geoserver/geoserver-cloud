@@ -29,6 +29,7 @@ import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.plugin.CatalogInfoRepository;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.PropertyDiff;
+import org.geoserver.catalog.plugin.Query;
 import org.geoserver.cloud.catalog.app.CatalogServiceApplication;
 import org.geoserver.cloud.catalog.client.impl.CatalogClientConfiguration;
 import org.geoserver.cloud.catalog.client.impl.CatalogServiceCatalogFacade;
@@ -123,7 +124,7 @@ public abstract class AbstractCatalogServiceClientRepositoryTest<
     protected <S extends C> void testFindAllIncludeFilter(
             Class<S> type, @SuppressWarnings("unchecked") S... expected) {
 
-        testFind(() -> repository().findAll(Filter.INCLUDE, type), expected);
+        testFind(() -> repository().findAll(Query.all(type)), expected);
     }
 
     protected <S extends C> void testQueryFilter(
@@ -145,7 +146,8 @@ public abstract class AbstractCatalogServiceClientRepositoryTest<
     protected <S extends C> void testQueryFilter(
             Class<S> type, Filter filter, @SuppressWarnings("unchecked") S... expected) {
 
-        Stream<S> found = repository().findAll(filter, type);
+        Query<S> query = Query.valueOf(type, filter);
+        Stream<S> found = repository().findAll(query);
 
         Set<String> expectedIds =
                 Arrays.stream(expected).map(CatalogInfo::getId).collect(Collectors.toSet());

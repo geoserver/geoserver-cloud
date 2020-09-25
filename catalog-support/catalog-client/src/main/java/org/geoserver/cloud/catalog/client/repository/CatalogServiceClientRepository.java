@@ -5,6 +5,8 @@
 package org.geoserver.cloud.catalog.client.repository;
 
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import lombok.NonNull;
@@ -14,8 +16,8 @@ import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.impl.ResolvingProxy;
 import org.geoserver.catalog.plugin.CatalogInfoRepository;
 import org.geoserver.catalog.plugin.Patch;
+import org.geoserver.catalog.plugin.Query;
 import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveCatalogClient;
-import org.opengis.filter.Filter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
 import reactor.core.publisher.Flux;
@@ -32,15 +34,14 @@ public abstract class CatalogServiceClientRepository<CI extends CatalogInfo>
     /** Don't use but through {@link #endpoint()} */
     private String _endpoint;
 
-    protected abstract Class<CI> getInfoType();
-
     protected ReactiveCatalogClient client() {
         return client;
     }
 
     protected String endpoint() {
         if (_endpoint == null) {
-            this._endpoint = ClassMappings.fromInterface(getInfoType()).name().toLowerCase() + "s";
+            this._endpoint =
+                    ClassMappings.fromInterface(getContentType()).name().toLowerCase() + "s";
         }
         return _endpoint;
     }
@@ -80,6 +81,19 @@ public abstract class CatalogServiceClientRepository<CI extends CatalogInfo>
         return value;
     }
 
+    private final ConcurrentMap<String, Boolean> positiveCanSortByCache = new ConcurrentHashMap<>();
+
+    public @Override boolean canSortBy(@NonNull String propertyName) {
+        Boolean canSort = positiveCanSortByCache.computeIfAbsent(propertyName, this::callCanSort);
+        return canSort == null ? false : canSort.booleanValue();
+    }
+
+    private @Nullable Boolean callCanSort(String propertyName) {
+        String endpoint = endpoint();
+        Boolean canSort = client().canSortBy(endpoint, propertyName).blockOptional().orElse(false);
+        return canSort.booleanValue() ? Boolean.TRUE : null;
+    }
+
     public @Override void add(@NonNull CI value) {
         blockAndReturn(client.create(endpoint(), value));
     }
@@ -101,27 +115,13 @@ public abstract class CatalogServiceClientRepository<CI extends CatalogInfo>
     }
 
     public @Override Stream<CI> findAll() {
-        ClassMappings typeArg = typeEnum(getInfoType());
-        Flux<CI> all = client.findAll(endpoint(), typeArg);
-        return all.toStream().map(this::resolve);
+        ClassMappings typeArg = typeEnum(getContentType());
+        Flux<CI> flux = client.findAll(endpoint(), typeArg);
+        return flux.toStream();
     }
 
-    public @Override Stream<CI> findAll(@NonNull Filter filter) {
-        ClassMappings typeArg = typeEnum(getInfoType());
-        Class<CI> type = typeArg.getInterface();
-        return client.query(endpoint(), typeArg, filter)
-                .map(type::cast)
-                .map(this::resolve)
-                .toStream();
-    }
-
-    public @Override <U extends CI> Stream<U> findAll(
-            @NonNull Filter filter, @NonNull Class<U> infoType) {
-        ClassMappings typeArg = typeEnum(infoType);
-        return client.query(endpoint(), typeArg, filter)
-                .map(infoType::cast)
-                .map(this::resolve)
-                .toStream();
+    public @Override <U extends CI> Stream<U> findAll(Query<U> query) {
+        return client.query(endpoint(), query).map(this::resolve).toStream();
     }
 
     public @Override <U extends CI> Optional<U> findById(
