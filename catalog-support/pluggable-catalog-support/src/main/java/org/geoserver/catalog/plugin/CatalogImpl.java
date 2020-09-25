@@ -17,6 +17,7 @@ import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogInfo;
+import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.LockingCatalogFacade;
@@ -149,6 +150,82 @@ public class CatalogImpl extends org.geoserver.catalog.impl.CatalogImpl {
 
         Class<I> type = ClassMappings.fromImpl(real.getClass()).getInterface();
         firePostModified(ModificationProxy.create(real, type), propertyNames, oldValues, newValues);
+    }
+
+    /**
+     * Override to fix two issues:
+     *
+     * <ul>
+     *   <li>sets the default namespace after issueing the post-add event, so the chain of events is
+     *       {@code pre-add->post-add->catalog default-namespace} and not {@code pre-add -> catalog
+     *       default-namespace -> post-add}
+     *   <li>race condition on multiple catalogs (e.g. distributed system) may result in this method
+     *       not setting the default namespace if another one won it; now it checks if it needs to
+     *       set it beforehand. Hence removed the {@code synchronize(facade)} clause.
+     * </ul>
+     */
+    public @Override void add(NamespaceInfo namespace) {
+        validate(namespace, true);
+        NamespaceInfo added;
+        final NamespaceInfo resolved = resolve(namespace);
+        final boolean setDefault = getDefaultNamespace() == null;
+        beforeadded(namespace);
+        added = facade.add(resolved);
+        if (setDefault) {
+            setDefaultNamespace(resolved);
+        }
+
+        added(added);
+    }
+
+    /**
+     * Override to fix two issues:
+     *
+     * <ul>
+     *   <li>sets the default workspace after issueing the post-add event, so the chain of events is
+     *       {@code pre-add->post-add->catalog default-workspace} and not {@code pre-add -> catalog
+     *       default-workspace -> post-add}
+     *   <li>race condition on multiple catalogs (e.g. distributed system) may result in this method
+     *       not setting the default workspace if another one won it; now it checks if it needs to
+     *       set it beforehand. Hence removed the {@code synchronize(facade)} clause.
+     * </ul>
+     */
+    public @Override void add(WorkspaceInfo workspace) {
+        workspace = resolve(workspace);
+        validate(workspace, true);
+
+        if (getWorkspaceByName(workspace.getName()) != null) {
+            throw new IllegalArgumentException(
+                    "Workspace with name '" + workspace.getName() + "' already exists.");
+        }
+        // if there is no default workspace use this one as the default
+        final boolean setDefault = getDefaultWorkspace() == null;
+        beforeadded(workspace);
+        WorkspaceInfo added = facade.add(workspace);
+        added(added);
+        if (setDefault) {
+            setDefaultWorkspace(workspace);
+        }
+    }
+
+    public void add(StoreInfo store) {
+        if (store.getWorkspace() == null) {
+            store.setWorkspace(getDefaultWorkspace());
+        }
+
+        validate(store, true);
+
+        // if there is no default store use this one as the default
+        boolean setDefault =
+                store instanceof DataStoreInfo && getDefaultDataStore(store.getWorkspace()) == null;
+        StoreInfo resolved = resolve(store);
+        beforeadded(resolved);
+        StoreInfo added = facade.add(resolved);
+        added(added);
+
+        if (setDefault) {
+            setDefaultDataStore(store.getWorkspace(), (DataStoreInfo) store);
+        }
     }
 
     public @Override void save(LayerGroupInfo layerGroup) {

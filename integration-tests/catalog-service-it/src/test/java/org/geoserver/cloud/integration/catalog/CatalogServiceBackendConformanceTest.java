@@ -16,8 +16,6 @@ import org.geoserver.cloud.catalog.client.impl.CatalogClientConfiguration;
 import org.geoserver.cloud.catalog.client.repository.CatalogServiceClientRepository;
 import org.geoserver.cloud.test.CatalogConformanceTest;
 import org.junit.After;
-import org.junit.Ignore;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -77,23 +75,5 @@ public class CatalogServiceBackendConformanceTest extends CatalogConformanceTest
                 serverCatalog.removeListener(listener);
         }
         super.data.deleteAll(serverCatalog);
-    }
-
-    @Ignore(
-            "The events are generated in the server, and we're not capturing RemoteCatalogEvents here")
-    public @Override @Test void testDataStoreEvents() {
-        super.testDataStoreEvents();
-    }
-
-    @Ignore(
-            "The events are generated in the server, and we're not capturing RemoteCatalogEvents here")
-    public @Override @Test void testWorkspaceEvents() {
-        super.testWorkspaceEvents();
-    }
-
-    @Ignore(
-            "The events are generated in the server, and we're not capturing RemoteCatalogEvents here")
-    public @Override @Test void testNamespaceEvents() {
-        super.testNamespaceEvents();
     }
 }
