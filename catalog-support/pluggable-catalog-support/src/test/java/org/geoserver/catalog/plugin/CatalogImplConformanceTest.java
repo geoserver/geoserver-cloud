@@ -5,7 +5,7 @@
 package org.geoserver.catalog.plugin;
 
 import org.geoserver.catalog.Catalog;
-import org.geoserver.cloud.test.CatalogConformanceTest;
+import org.geoserver.catalog.CatalogConformanceTest;
 
 public class CatalogImplConformanceTest extends CatalogConformanceTest {
 

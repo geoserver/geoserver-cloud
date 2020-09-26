@@ -2,7 +2,7 @@
  * (c) 2014 - 2015 Open Source Geospatial Foundation - all rights reserved (c) 2001 - 2013 OpenPlans
  * This code is licensed under the GPL 2.0 license, available at the root application directory.
  */
-package org.geoserver.cloud.test;
+package org.geoserver.catalog;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static org.geoserver.catalog.Predicates.acceptAll;
@@ -43,32 +43,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.geoserver.catalog.Catalog;
-import org.geoserver.catalog.CatalogException;
-import org.geoserver.catalog.CatalogFactory;
-import org.geoserver.catalog.CatalogInfo;
-import org.geoserver.catalog.CoverageInfo;
-import org.geoserver.catalog.DataLinkInfo;
-import org.geoserver.catalog.DataStoreInfo;
-import org.geoserver.catalog.FeatureTypeInfo;
-import org.geoserver.catalog.Keyword;
-import org.geoserver.catalog.LayerGroupInfo;
-import org.geoserver.catalog.LayerInfo;
-import org.geoserver.catalog.MetadataLinkInfo;
-import org.geoserver.catalog.MetadataMap;
-import org.geoserver.catalog.NamespaceInfo;
-import org.geoserver.catalog.Predicates;
-import org.geoserver.catalog.PublishedInfo;
-import org.geoserver.catalog.ResourceInfo;
-import org.geoserver.catalog.SLDHandler;
-import org.geoserver.catalog.StoreInfo;
-import org.geoserver.catalog.StyleHandler;
-import org.geoserver.catalog.StyleInfo;
-import org.geoserver.catalog.WMSLayerInfo;
-import org.geoserver.catalog.WMSStoreInfo;
-import org.geoserver.catalog.WMTSLayerInfo;
-import org.geoserver.catalog.WMTSStoreInfo;
-import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.event.CatalogAddEvent;
 import org.geoserver.catalog.event.CatalogListener;
 import org.geoserver.catalog.event.CatalogModifyEvent;
@@ -82,6 +56,7 @@ import org.geoserver.catalog.impl.RunnerBase;
 import org.geoserver.catalog.impl.WorkspaceInfoImpl;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.config.GeoServerDataDirectory;
+import org.geoserver.platform.GeoServerExtensions;
 import org.geoserver.platform.GeoServerExtensionsHelper;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.security.AccessMode;
@@ -135,8 +110,9 @@ public abstract class CatalogConformanceTest {
     protected abstract Catalog createCatalog();
 
     public static @BeforeClass void oneTimeSetup() {
-        // GeoServerExtensionsHelper.setIsSpringContext(false);
-        GeoServerExtensionsHelper.singleton("sldHandler", new SLDHandler(), StyleHandler.class);
+        GeoServerExtensionsHelper.setIsSpringContext(false);
+        if (null == GeoServerExtensions.bean("sldHandler"))
+            GeoServerExtensionsHelper.singleton("sldHandler", new SLDHandler(), StyleHandler.class);
     }
 
     @Before

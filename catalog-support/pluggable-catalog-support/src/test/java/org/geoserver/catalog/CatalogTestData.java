@@ -2,7 +2,7 @@
  * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
  * GPL 2.0 license, available at the root application directory.
  */
-package org.geoserver.cloud.test;
+package org.geoserver.catalog;
 
 import static org.junit.Assert.assertEquals;
 
@@ -16,29 +16,6 @@ import java.util.function.Supplier;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
-import org.geoserver.catalog.CascadeDeleteVisitor;
-import org.geoserver.catalog.Catalog;
-import org.geoserver.catalog.CatalogFactory;
-import org.geoserver.catalog.CoverageInfo;
-import org.geoserver.catalog.CoverageStoreInfo;
-import org.geoserver.catalog.DataStoreInfo;
-import org.geoserver.catalog.FeatureTypeInfo;
-import org.geoserver.catalog.Info;
-import org.geoserver.catalog.Keyword;
-import org.geoserver.catalog.KeywordInfo;
-import org.geoserver.catalog.LayerGroupInfo;
-import org.geoserver.catalog.LayerInfo;
-import org.geoserver.catalog.MetadataMap;
-import org.geoserver.catalog.NamespaceInfo;
-import org.geoserver.catalog.PublishedInfo;
-import org.geoserver.catalog.ResourceInfo;
-import org.geoserver.catalog.StoreInfo;
-import org.geoserver.catalog.StyleInfo;
-import org.geoserver.catalog.WMSLayerInfo;
-import org.geoserver.catalog.WMSStoreInfo;
-import org.geoserver.catalog.WMTSLayerInfo;
-import org.geoserver.catalog.WMTSStoreInfo;
-import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.DataStoreInfoImpl;
 import org.geoserver.catalog.impl.LayerGroupInfoImpl;
 import org.geoserver.catalog.impl.MetadataLinkInfoImpl;
@@ -505,8 +482,10 @@ public class CatalogTestData extends ExternalResource {
         dstore.setDescription(description);
         dstore.setWorkspace(ws);
         dstore.setConnectionParameters(new HashMap<>());
+        // note: using only string param values to avoid assertEquals() failures due to
+        // serialization/deserialization losing type of parameter values
         dstore.getConnectionParameters().put("param1", "test value");
-        dstore.getConnectionParameters().put("param2", Integer.valueOf(1000));
+        dstore.getConnectionParameters().put("param2", "1000");
         OwsUtils.resolveCollections(dstore);
         return dstore;
     }

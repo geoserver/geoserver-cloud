@@ -18,11 +18,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import org.geoserver.catalog.Catalog;
+import org.geoserver.catalog.CatalogTestData;
 import org.geoserver.catalog.MetadataMap;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.WorkspaceInfoImpl;
 import org.geoserver.catalog.plugin.PropertyDiff.Change;
-import org.geoserver.cloud.test.CatalogTestData;
 import org.junit.Before;
 import org.junit.Test;
 

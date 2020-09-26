@@ -59,7 +59,7 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
     static final Logger LOGGER = Logging.getLogger(CatalogInfoLookup.class);
 
     /** constant no-op Comparator for {@link #providedOrder()} */
-    private static final Ordering<?> PROVIDED_ORDER = Ordering.allEqual();
+    static final Ordering<?> PROVIDED_ORDER = Ordering.allEqual();
     /**
      * Name mapper for {@link MapInfo}, uses simple name mapping on {@link MapInfo#getName()} as it
      * doesn't have a namespace component
@@ -238,8 +238,12 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
      * @see org.geoserver.catalog.CatalogFacade#canSort(java.lang.Class, java.lang.String)
      */
     public @Override boolean canSortBy(String propertyName) {
+        return CatalogInfoLookup.canSort(propertyName, getContentType());
+    }
+
+    public static boolean canSort(String propertyName, Class<? extends CatalogInfo> type) {
         final String[] path = propertyName.split("\\.");
-        Class<?> clazz = infoType;
+        Class<?> clazz = type;
         for (int i = 0; i < path.length; i++) {
             String property = path[i];
             Method getter;
