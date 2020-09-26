@@ -5,10 +5,10 @@
 package org.geoserver.cloud.config.catalog;
 
 import org.geoserver.catalog.Catalog;
-import org.geoserver.catalog.plugin.GeoServerImpl;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerDataDirectory;
 import org.geoserver.config.GeoServerFacade;
+import org.geoserver.config.plugin.GeoServerImpl;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.ResourceStore;
 import org.geoserver.platform.resource.ResourceStoreFactory;

@@ -5,9 +5,9 @@
 package org.geoserver.cloud.integration.datadirectory;
 
 import org.geoserver.catalog.Catalog;
+import org.geoserver.catalog.CatalogConformanceTest;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.plugin.CatalogImpl;
-import org.geoserver.cloud.test.CatalogConformanceTest;
 import org.geoserver.cloud.testconfiguration.AutoConfigurationTestConfiguration;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.junit.runner.RunWith;

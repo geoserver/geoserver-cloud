@@ -1,10 +1,5 @@
 geoserver:
   security.enabled: false
-  backend:
-    data-directory:
-      enabled: false
-    jdbcconfig:
-      enabled: true
   catalog:
     # Disable advertised catalog, it checks the org.geoserver.ows.Dispatcher.REQUEST to check if an OWS is in progress,
     # which can never be the case, and causes a java.lang.NoClassDefFoundError on org.springframework.web.servlet.mvc.AbstractController
@@ -20,6 +15,15 @@ geoserver:
       max-size: 8
       # maximum number of queued requests per worker thread before rejecting new requests 
       max-queued: 1000
+  bus:
+    send-events: true
+    receive-events: true
+    send-object: false
+    send-diff: false
+  backend:
+    # decide which catalog backend to use on this service.
+    data-directory.enabled: false
+    jdbcconfig.enabled: true
 
 spring:
   error.includeStacktrace: on_trace_param

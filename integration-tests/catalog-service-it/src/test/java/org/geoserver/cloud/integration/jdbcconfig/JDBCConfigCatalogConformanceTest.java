@@ -5,7 +5,7 @@
 package org.geoserver.cloud.integration.jdbcconfig;
 
 import org.geoserver.catalog.Catalog;
-import org.geoserver.cloud.test.CatalogConformanceTest;
+import org.geoserver.catalog.CatalogConformanceTest;
 import org.geoserver.cloud.testconfiguration.AutoConfigurationTestConfiguration;
 import org.geoserver.jdbcconfig.catalog.JDBCCatalogFacade;
 import org.geoserver.platform.GeoServerResourceLoader;

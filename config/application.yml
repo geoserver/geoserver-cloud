@@ -6,9 +6,19 @@ geoserver:
     localWorkspace: true
     secure: true
   bus:
+    # whether to send distributed events (i.e. acts as master)
+    send-events: true
+    # whether to receive and process distributed events (i.e. acts as slave)
+    receive-events: true
+    # whether to send the object (CatalogInfo/config info) as payload with the event
     send-object: false
+    # whether to send a diff of changes as payload with the event
     send-diff: false
   backend:
+    # configure catalog backends and decide which backend to use on this service.
+    catalog-service:
+      enabled: false
+      uri: catalog-service
     data-directory:
       enabled: false
       location: ${GEOSERVER_DATA_DIR:${java.io.tmpdir}/default_data_directory} 
