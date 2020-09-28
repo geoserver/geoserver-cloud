@@ -6,6 +6,7 @@ package org.geoserver.catalog.plugin;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -16,6 +17,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.Value;
+import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.ows.util.OwsUtils;
 
 public @Value class Patch implements Serializable {
@@ -46,12 +48,25 @@ public @Value class Patch implements Serializable {
     }
 
     public void applyTo(Object target) {
-        patches.values().forEach(p -> apply(target, p));
+        Objects.requireNonNull(target);
+        Class<?> targetType = target.getClass();
+        if (Proxy.isProxyClass(targetType)) {
+            Class<?> subject = ModificationProxy.unwrap(target).getClass();
+            if (Proxy.isProxyClass(subject)) {
+                throw new IllegalArgumentException(
+                        "Argument object is a dynamic proxy and couldn't determine it's surrogate type, use applyTo(Object, Class) instead");
+            }
+        }
+        applyTo(target, targetType);
+    }
+
+    public void applyTo(Object target, Class<?> objectType) {
+        patches.values().forEach(p -> apply(target, objectType, p));
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    private static void apply(Object target, Property change) {
-        Method getter = OwsUtils.getter(target.getClass(), change.getName(), null);
+    private static void apply(Object target, Class<?> objectType, Property change) {
+        Method getter = OwsUtils.getter(objectType, change.getName(), null);
         if (getter == null) {
             throw new IllegalArgumentException(
                     "No such property in target object: " + change.getName());

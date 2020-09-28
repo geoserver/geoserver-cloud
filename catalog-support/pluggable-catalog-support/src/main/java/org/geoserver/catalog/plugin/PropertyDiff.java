@@ -127,6 +127,7 @@ public @Data class PropertyDiff implements Serializable {
     }
 
     public static PropertyDiff valueOf(ModificationProxy proxy) {
+        Objects.requireNonNull(proxy);
         return valueOf(proxy.getPropertyNames(), proxy.getOldValues(), proxy.getNewValues());
     }
 

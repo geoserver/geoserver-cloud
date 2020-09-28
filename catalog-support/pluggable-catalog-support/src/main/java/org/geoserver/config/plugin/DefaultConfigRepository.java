@@ -73,7 +73,7 @@ public class DefaultConfigRepository implements ConfigRepository {
     public @Override void remove(SettingsInfo settings) {
         requireNonNull(settings);
         requireNonNull(settings.getId());
-        this.services.remove(settings.getId());
+        this.settings.remove(settings.getId());
     }
 
     public @Override Optional<LoggingInfo> getLogging() {

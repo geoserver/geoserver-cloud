@@ -253,6 +253,7 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
                     "service with id '" + service.getId() + "' already exists");
         }
 
+        validate(service);
         resolve(service);
         WorkspaceInfo workspace = service.getWorkspace();
         if (workspace != null) {
