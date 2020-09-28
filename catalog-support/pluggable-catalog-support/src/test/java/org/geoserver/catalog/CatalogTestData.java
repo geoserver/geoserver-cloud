@@ -7,6 +7,7 @@ package org.geoserver.catalog;
 import static org.junit.Assert.assertEquals;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -646,7 +647,8 @@ public class CatalogTestData extends ExternalResource {
         s.setOutputStrategy("SPEED");
         s.setSchemaBaseURL("file:data/" + name);
         s.setVerbose(true);
-        s.setVersions(Arrays.asList(new Version("1.0.0"), new Version("2.0.0")));
+        List<Version> versions = Arrays.asList(new Version("1.0.0"), new Version("2.0.0"));
+        s.getVersions().addAll(versions);
         return s;
     }
 
@@ -655,6 +657,6 @@ public class CatalogTestData extends ExternalResource {
         Keyword k2 = new Keyword(name);
         k2.setLanguage("eng");
         k2.setVocabulary("watchit");
-        return Arrays.asList(k1, k2);
+        return new ArrayList<>(Arrays.asList(k1, k2));
     }
 }
