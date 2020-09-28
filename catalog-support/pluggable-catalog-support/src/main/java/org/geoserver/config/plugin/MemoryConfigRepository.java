@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Stream;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.WorkspaceInfo;
+import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
@@ -22,7 +23,7 @@ import org.geoserver.config.SettingsInfo;
  * Purely in-memory {@link ConfigRepository} implementation holding live-objects (no serialization
  * nor {@link Proxy proxying} involved)
  */
-public class DefaultConfigRepository implements ConfigRepository {
+public class MemoryConfigRepository implements ConfigRepository {
 
     protected GeoServerInfo global;
     protected LoggingInfo logging;
@@ -62,12 +63,18 @@ public class DefaultConfigRepository implements ConfigRepository {
         this.settings.put(settings.getId(), settings);
     }
 
-    public @Override void save(SettingsInfo settings) {
+    public @Override SettingsInfo update(SettingsInfo settings, Patch patch) {
         requireNonNull(settings);
+        requireNonNull(patch);
         requireNonNull(settings.getId());
         requireNonNull(settings.getWorkspace());
         checkNotAProxy(settings);
-        this.settings.put(settings.getId(), settings);
+
+        SettingsInfo localCopy = this.settings.get(settings.getId());
+        synchronized (localCopy) {
+            patch.applyTo(localCopy, SettingsInfo.class);
+        }
+        return localCopy;
     }
 
     public @Override void remove(SettingsInfo settings) {
@@ -100,12 +107,18 @@ public class DefaultConfigRepository implements ConfigRepository {
         this.services.remove(service.getId());
     }
 
-    public @Override void save(ServiceInfo service) {
+    public @Override <S extends ServiceInfo> S update(S service, Patch patch) {
         requireNonNull(service);
         requireNonNull(service.getId());
         checkNotAProxy(service);
+        requireNonNull(patch);
 
-        this.services.put(service.getId(), service);
+        @SuppressWarnings("unchecked")
+        S localCopy = (S) this.services.get(service.getId());
+        synchronized (localCopy) {
+            patch.applyTo(localCopy);
+        }
+        return localCopy;
     }
 
     public @Override Stream<? extends ServiceInfo> getGlobalServices() {

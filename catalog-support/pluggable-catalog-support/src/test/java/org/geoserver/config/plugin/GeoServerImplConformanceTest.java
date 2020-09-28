@@ -10,7 +10,7 @@ import org.geoserver.config.GeoServerConfigConformanceTest;
 
 /**
  * {@link GeoServerConfigConformanceTest} for {@link GeoServerImpl} with {@link
- * DefaultGeoServerFacade} backed by {@link DefaultConfigRepository} and a {@link CatalogImpl}
+ * RepositoryGeoServerFacade} backed by {@link MemoryConfigRepository} and a {@link CatalogImpl}
  */
 public class GeoServerImplConformanceTest extends GeoServerConfigConformanceTest {
 

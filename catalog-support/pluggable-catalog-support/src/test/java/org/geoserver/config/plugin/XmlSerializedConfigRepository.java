@@ -4,8 +4,6 @@
  */
 package org.geoserver.config.plugin;
 
-import static java.util.Objects.requireNonNull;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -18,6 +16,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Stream;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.WorkspaceInfo;
+import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
@@ -87,14 +86,11 @@ class XmlSerializedConfigRepository implements ConfigRepository {
     }
 
     public @Override void setGlobal(GeoServerInfo global) {
-        requireNonNull(global);
         checkNotAProxy(global);
         this.global = serialize(global);
     }
 
     public @Override Optional<SettingsInfo> getSettingsByWorkspace(WorkspaceInfo workspace) {
-        requireNonNull(workspace);
-        requireNonNull(workspace.getId());
         return settings.values()
                 .stream()
                 .map(this::toSettings)
@@ -103,25 +99,24 @@ class XmlSerializedConfigRepository implements ConfigRepository {
     }
 
     public @Override void add(SettingsInfo settings) {
-        requireNonNull(settings);
-        requireNonNull(settings.getId());
         checkNotAProxy(settings);
         String serialized = serialize(settings);
         this.settings.put(settings.getId(), serialized);
     }
 
-    public @Override void save(SettingsInfo settings) {
-        requireNonNull(settings);
-        requireNonNull(settings.getId());
-        requireNonNull(settings.getWorkspace());
+    public @Override SettingsInfo update(SettingsInfo settings, Patch patch) {
         checkNotAProxy(settings);
-        String serialized = serialize(settings);
-        this.settings.put(settings.getId(), serialized);
+
+        String localCopy = this.settings.get(settings.getId());
+        synchronized (localCopy) {
+            SettingsInfo local = deserialize(localCopy, SettingsInfo.class);
+            patch.applyTo(local);
+            this.settings.put(settings.getId(), serialize(local));
+            return local;
+        }
     }
 
     public @Override void remove(SettingsInfo settings) {
-        requireNonNull(settings);
-        requireNonNull(settings.getId());
         this.services.remove(settings.getId());
     }
 
@@ -130,14 +125,10 @@ class XmlSerializedConfigRepository implements ConfigRepository {
     }
 
     public @Override void setLogging(LoggingInfo logging) {
-        requireNonNull(logging);
-        checkNotAProxy(logging);
         this.logging = serialize(logging);
     }
 
     public @Override void add(ServiceInfo service) {
-        requireNonNull(service);
-        requireNonNull(service.getId());
         checkNotAProxy(service);
 
         String serialized = serialize(service);
@@ -145,18 +136,20 @@ class XmlSerializedConfigRepository implements ConfigRepository {
     }
 
     public @Override void remove(ServiceInfo service) {
-        requireNonNull(service);
-        requireNonNull(service.getId());
         this.services.remove(service.getId());
     }
 
-    public @Override void save(ServiceInfo service) {
-        requireNonNull(service);
-        requireNonNull(service.getId());
+    @SuppressWarnings("unchecked")
+    public @Override <S extends ServiceInfo> S update(S service, Patch patch) {
         checkNotAProxy(service);
 
-        String serialized = serialize(service);
-        this.services.put(service.getId(), serialized);
+        String localCopy = services.get(service.getId());
+        synchronized (localCopy) {
+            ServiceInfo local = deserialize(localCopy, service.getClass());
+            patch.applyTo(local);
+            this.services.put(service.getId(), serialize(local));
+            return (S) local;
+        }
     }
 
     public @Override Stream<? extends ServiceInfo> getGlobalServices() {
@@ -164,8 +157,6 @@ class XmlSerializedConfigRepository implements ConfigRepository {
     }
 
     public @Override Stream<? extends ServiceInfo> getServicesByWorkspace(WorkspaceInfo workspace) {
-        requireNonNull(workspace);
-        requireNonNull(workspace.getId());
         return services()
                 .filter(
                         s ->
@@ -174,7 +165,6 @@ class XmlSerializedConfigRepository implements ConfigRepository {
     }
 
     public @Override <T extends ServiceInfo> Optional<T> getGlobalService(Class<T> clazz) {
-        requireNonNull(clazz);
         return services()
                 .filter(clazz::isInstance)
                 .filter(s -> s.getWorkspace() == null)
@@ -184,9 +174,7 @@ class XmlSerializedConfigRepository implements ConfigRepository {
 
     public @Override <T extends ServiceInfo> Optional<T> getServiceByWorkspace(
             WorkspaceInfo workspace, Class<T> clazz) {
-        requireNonNull(workspace);
-        requireNonNull(workspace.getId());
-        requireNonNull(clazz);
+
         return services()
                 .filter(clazz::isInstance)
                 .filter(
@@ -198,16 +186,14 @@ class XmlSerializedConfigRepository implements ConfigRepository {
     }
 
     public @Override <T extends ServiceInfo> Optional<T> getServiceById(String id, Class<T> clazz) {
-        requireNonNull(id);
-        requireNonNull(clazz);
+
         ServiceInfo service = toService(services.get(id));
         return clazz.isInstance(service) ? Optional.of(clazz.cast(service)) : Optional.empty();
     }
 
     public @Override <T extends ServiceInfo> Optional<T> getServiceByName(
             String name, Class<T> clazz) {
-        requireNonNull(name);
-        requireNonNull(clazz);
+
         return services()
                 .filter(clazz::isInstance)
                 .filter(s -> name.equals(s.getName()))
@@ -217,10 +203,7 @@ class XmlSerializedConfigRepository implements ConfigRepository {
 
     public @Override <T extends ServiceInfo> Optional<T> getServiceByNameAndWorkspace(
             String name, WorkspaceInfo workspace, Class<T> clazz) {
-        requireNonNull(name);
-        requireNonNull(workspace);
-        requireNonNull(workspace.getId());
-        requireNonNull(clazz);
+
         return services()
                 .filter(clazz::isInstance)
                 .filter(

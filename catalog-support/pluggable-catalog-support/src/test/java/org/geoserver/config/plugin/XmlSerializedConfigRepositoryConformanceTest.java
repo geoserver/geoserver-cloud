@@ -22,7 +22,7 @@ public class XmlSerializedConfigRepositoryConformanceTest extends GeoServerConfi
         codec.setCatalog(catalog);
         XmlSerializedConfigRepository repository = new XmlSerializedConfigRepository(codec);
 
-        DefaultGeoServerFacade facade = new DefaultGeoServerFacade();
+        RepositoryGeoServerFacade facade = new RepositoryGeoServerFacade();
         facade.setRepository(repository);
         gs.setFacade(facade);
 

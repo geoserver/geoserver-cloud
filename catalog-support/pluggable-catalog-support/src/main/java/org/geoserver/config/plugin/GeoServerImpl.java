@@ -77,7 +77,7 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
     private List<ConfigurationListener> listeners = new ArrayList<ConfigurationListener>();
 
     public GeoServerImpl() {
-        this(new DefaultGeoServerFacade());
+        this(new RepositoryGeoServerFacade());
     }
 
     public GeoServerImpl(GeoServerFacade facade) {
@@ -277,7 +277,7 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
     }
 
     public static <T> T unwrap(T obj) {
-        return DefaultGeoServerFacade.unwrap(obj);
+        return RepositoryGeoServerFacade.unwrap(obj);
     }
 
     public @Override <T extends ServiceInfo> T getService(Class<T> clazz) {
@@ -349,16 +349,17 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
         fireLoggingPostModified();
     }
 
-    void fireGlobalPostModified() {
-        for (ConfigurationListener l : listeners) {
-            try {
-                l.handlePostGlobalChange(facade.getGlobal());
-            } catch (Exception e) {
-                LOGGER.log(
-                        Level.SEVERE,
-                        "Error occurred processing a configuration change listener",
-                        e);
-            }
+    protected void fireGlobalPostModified() {
+        GeoServerInfo global = getGlobal();
+        listeners.forEach(l -> notifyPost(l, global));
+    }
+
+    private void notifyPost(ConfigurationListener l, GeoServerInfo global) {
+        try {
+            l.handlePostGlobalChange(global);
+        } catch (Exception e) {
+            LOGGER.log(
+                    Level.SEVERE, "Error occurred processing a configuration change listener", e);
         }
     }
 
@@ -395,15 +396,16 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
     }
 
     void fireLoggingPostModified() {
-        for (ConfigurationListener l : listeners) {
-            try {
-                l.handlePostLoggingChange(facade.getLogging());
-            } catch (Exception e) {
-                LOGGER.log(
-                        Level.SEVERE,
-                        "Error occurred processing a configuration change listener",
-                        e);
-            }
+        LoggingInfo logging = getLogging();
+        listeners.forEach(l -> notifyPost(logging, l));
+    }
+
+    protected void notifyPost(LoggingInfo logging, ConfigurationListener l) {
+        try {
+            l.handlePostLoggingChange(logging);
+        } catch (Exception e) {
+            LOGGER.log(
+                    Level.SEVERE, "Error occurred processing a configuration change listener", e);
         }
     }
 

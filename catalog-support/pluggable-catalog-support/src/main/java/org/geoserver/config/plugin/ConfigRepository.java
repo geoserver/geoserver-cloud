@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.WorkspaceInfo;
+import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
@@ -48,7 +49,7 @@ public interface ConfigRepository {
     void add(SettingsInfo settings);
 
     /** Saves the settings configuration for the specified workspace. */
-    void save(SettingsInfo settings);
+    SettingsInfo update(SettingsInfo settings, Patch patch);
 
     /** Removes the settings configuration for the specified workspace. */
     void remove(SettingsInfo settings);
@@ -66,7 +67,7 @@ public interface ConfigRepository {
     void remove(ServiceInfo service);
 
     /** Saves a service that has been modified. */
-    void save(ServiceInfo service);
+    <S extends ServiceInfo> S update(S service, Patch patch);
 
     /** GeoServer global services (not attached to any Workspace) */
     Stream<? extends ServiceInfo> getGlobalServices();

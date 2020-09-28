@@ -11,6 +11,7 @@ import java.rmi.server.UID;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,6 +21,8 @@ import org.geoserver.catalog.MetadataMap;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.impl.ResolvingProxy;
+import org.geoserver.catalog.plugin.Patch;
+import org.geoserver.catalog.plugin.PropertyDiff;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerFacade;
 import org.geoserver.config.GeoServerInfo;
@@ -36,18 +39,23 @@ import org.geotools.util.logging.Logging;
  *
  * <p>
  *
- * @see DefaultConfigRepository
+ * @see MemoryConfigRepository
  */
-public class DefaultGeoServerFacade implements GeoServerFacade {
+public class RepositoryGeoServerFacade implements GeoServerFacade {
 
-    static final Logger LOGGER = Logging.getLogger(DefaultGeoServerFacade.class);
+    static final Logger LOGGER = Logging.getLogger(RepositoryGeoServerFacade.class);
 
     protected ConfigRepository repository;
 
     protected GeoServer geoServer;
 
-    public DefaultGeoServerFacade() {
-        repository = new DefaultConfigRepository();
+    public RepositoryGeoServerFacade() {
+        this(new MemoryConfigRepository());
+    }
+
+    public RepositoryGeoServerFacade(ConfigRepository repository) {
+        Objects.requireNonNull(repository);
+        this.repository = repository;
     }
 
     public void setRepository(ConfigRepository repository) {
@@ -117,8 +125,10 @@ public class DefaultGeoServerFacade implements GeoServerFacade {
         settings = (SettingsInfo) proxy.getProxyObject();
         geoServer.fireSettingsModified(settings, propertyNames, oldValues, newValues);
 
+        Patch patch = PropertyDiff.valueOf(proxy).clean().toPatch();
+        repository.update(ModificationProxy.unwrap(settings), patch);
+
         proxy.commit();
-        repository.save(settings);
     }
 
     public @Override void remove(SettingsInfo s) {
@@ -158,16 +168,17 @@ public class DefaultGeoServerFacade implements GeoServerFacade {
     }
 
     public @Override void save(ServiceInfo service) {
-        ModificationProxy proxy = (ModificationProxy) Proxy.getInvocationHandler(service);
+        ModificationProxy proxy = ModificationProxy.handler(service);
 
         List<String> propertyNames = proxy.getPropertyNames();
         List<?> oldValues = proxy.getOldValues();
         List<?> newValues = proxy.getNewValues();
 
         geoServer.fireServiceModified(service, propertyNames, oldValues, newValues);
+        Patch patch = PropertyDiff.valueOf(proxy).clean().toPatch();
+        repository.update(ModificationProxy.unwrap(service), patch);
 
         proxy.commit();
-        repository.save(unwrap(service));
     }
 
     public @Override void remove(ServiceInfo service) {

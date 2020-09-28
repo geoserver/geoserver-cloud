@@ -13,6 +13,7 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -42,6 +43,16 @@ public abstract class GeoServerConfigConformanceTest {
 
     /** Subclasses shall override to conformance-test their implementation, */
     protected abstract GeoServer createGeoServer();
+
+    /**
+     * Subclasses may override to create a real service instead of a generic ServiceInfo, in case
+     * they're performing an integration test where the generic ServiceInfoImpl won't work (for
+     * example, if using a real data-directory, it would fail because there's no
+     * XStreamServiceLoader for it)
+     */
+    protected ServiceInfo createService() {
+        return geoServer.getFactory().createService();
+    }
 
     @Test
     public void testGlobal() throws Exception {
@@ -83,11 +94,13 @@ public abstract class GeoServerConfigConformanceTest {
 
     @Test
     public void testAddService() throws Exception {
-        ServiceInfo service = geoServer.getFactory().createService();
-        service.setName("foo");
+        ServiceInfo service = createService();
+        service.setName("wms");
         geoServer.add(service);
+        // fetch it, ServiceInfo implementations suck at implementing equals
+        service = geoServer.getService(service.getId(), ServiceInfo.class);
 
-        ServiceInfo s2 = geoServer.getFactory().createService();
+        ServiceInfo s2 = createService();
         ((ServiceInfoImpl) s2).setId(service.getId());
 
         try {
@@ -96,8 +109,8 @@ public abstract class GeoServerConfigConformanceTest {
         } catch (Exception e) {
         }
 
-        ServiceInfo s = geoServer.getServiceByName("foo", ServiceInfo.class);
-        assertTrue(s != service);
+        ServiceInfo s = geoServer.getServiceByName("wms", ServiceInfo.class);
+        assertNotSame(service, s);
         assertTrue(Proxy.isProxyClass(s.getClass()));
         s = GeoServerImpl.unwrap(s);
         assertEquals(service, s);
@@ -105,21 +118,21 @@ public abstract class GeoServerConfigConformanceTest {
 
     @Test
     public void testModifyService() throws Exception {
-        ServiceInfo service = geoServer.getFactory().createService();
+        ServiceInfo service = createService();
         ((ServiceInfoImpl) service).setId("id");
-        service.setName("foo");
+        service.setName("wms");
         service.setTitle("bar");
 
         geoServer.add(service);
 
-        ServiceInfo s1 = geoServer.getServiceByName("foo", ServiceInfo.class);
+        ServiceInfo s1 = geoServer.getServiceByName("wms", ServiceInfo.class);
         s1.setTitle("changed");
 
-        ServiceInfo s2 = geoServer.getServiceByName("foo", ServiceInfo.class);
+        ServiceInfo s2 = geoServer.getServiceByName("wms", ServiceInfo.class);
         assertEquals("bar", s2.getTitle());
 
         geoServer.save(s1);
-        s2 = geoServer.getServiceByName("foo", ServiceInfo.class);
+        s2 = geoServer.getServiceByName("wms", ServiceInfo.class);
         assertEquals("changed", s2.getTitle());
     }
 
@@ -220,6 +233,30 @@ public abstract class GeoServerConfigConformanceTest {
         }
     }
 
+    @Test
+    public void testModifySettings() throws Exception {
+        WorkspaceInfo ws = geoServer.getCatalog().getFactory().createWorkspace();
+        ws.setName("acme");
+        geoServer.getCatalog().add(ws);
+
+        SettingsInfo t = geoServer.getFactory().createSettings();
+        t.setNumDecimals(7);
+        t.setWorkspace(ws);
+        geoServer.add(t);
+
+        SettingsInfo settings = geoServer.getSettings(ws);
+        settings.setCharset("ISO-8859-1");
+        settings.setLocalWorkspaceIncludesPrefix(true);
+        settings.setProxyBaseUrl("https://geoserver.org/test");
+
+        geoServer.save(settings);
+
+        SettingsInfo updated = geoServer.getSettings(ws);
+        assertEquals("ISO-8859-1", updated.getCharset());
+        assertTrue(updated.isLocalWorkspaceIncludesPrefix());
+        assertEquals("https://geoserver.org/test", updated.getProxyBaseUrl());
+    }
+
     @SuppressWarnings("unchecked")
     @Test
     public void testServiceWithWorkspace() throws Exception {
@@ -229,17 +266,19 @@ public abstract class GeoServerConfigConformanceTest {
         geoServer.getCatalog().add(ws1);
 
         // Make a service for that workspace
-        ServiceInfo newService1 = geoServer.getFactory().createService();
+        ServiceInfo newService1 = createService();
         newService1.setWorkspace(ws1);
         newService1.setName("SERVICE-1-WS-1");
         newService1.setTitle("Service for WS1");
         geoServer.add(newService1);
+        newService1 = geoServer.getService(newService1.getId(), ServiceInfo.class);
 
         // Make sure we have a global service
-        ServiceInfo globalService = geoServer.getFactory().createService();
+        ServiceInfo globalService = createService();
         globalService.setName("SERVICE-2-GLOBAL");
         globalService.setTitle("Global Service");
         geoServer.add(globalService);
+        globalService = geoServer.getService(globalService.getId(), ServiceInfo.class);
 
         // Make another workspace
         WorkspaceInfo ws2 = geoServer.getCatalog().getFactory().createWorkspace();
@@ -247,14 +286,17 @@ public abstract class GeoServerConfigConformanceTest {
         geoServer.getCatalog().add(ws2);
 
         // Make a service for that workspace
-        ServiceInfo newService2 = geoServer.getFactory().createService();
+        ServiceInfo newService2 = createService();
         newService2.setWorkspace(ws2);
         newService2.setName("SERVICE-3-WS-2");
         newService2.setTitle("Service for WS2");
         geoServer.add(newService2);
+        newService2 = geoServer.getService(newService2.getId(), ServiceInfo.class);
 
         // Check that we get the services we expect to
-        assertThat(geoServer.getService(ServiceInfo.class), equalTo(globalService));
+        assertThat(
+                geoServer.getServiceByName(globalService.getName(), ServiceInfo.class),
+                equalTo(globalService));
         assertThat(geoServer.getService(ws1, ServiceInfo.class), equalTo(newService1));
         assertThat(geoServer.getService(ws2, ServiceInfo.class), equalTo(newService2));
         assertThat(
