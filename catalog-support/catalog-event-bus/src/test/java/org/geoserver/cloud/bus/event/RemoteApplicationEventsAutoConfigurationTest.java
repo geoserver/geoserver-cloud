@@ -103,7 +103,7 @@ public class RemoteApplicationEventsAutoConfigurationTest {
 
     private @Autowired RemoteEventPayloadCodec remoteEventPayloadCodec;
 
-    public @Rule CatalogTestData testData = CatalogTestData.empty(() -> catalog);
+    public @Rule CatalogTestData testData = CatalogTestData.empty(() -> catalog, () -> geoserver);
 
     private BusChannelEventCollector outBoundEvents;
 

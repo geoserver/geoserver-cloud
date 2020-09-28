@@ -8,6 +8,7 @@ import org.geoserver.catalog.plugin.CatalogImpl;
 import org.geoserver.cloud.catalog.app.CatalogServiceApplication;
 import org.geoserver.cloud.catalog.client.impl.CatalogClientConfiguration;
 import org.geoserver.cloud.catalog.client.impl.CatalogServiceGeoServerFacade;
+import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveConfigClient;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerConfigConformanceTest;
 import org.geoserver.config.plugin.GeoServerImpl;
@@ -18,6 +19,11 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
+/**
+ * API {@link GeoServerConfigConformanceTest conformance test} for a {@link GeoServer} configuration
+ * manager backed by a {@link CatalogServiceGeoServerFacade} (which in turn is backed by a {@link
+ * ReactiveConfigClient}), hitting a live {@code catalog-service} instance.
+ */
 @SpringBootTest(
     classes = { //
         CatalogServiceApplication.class, //

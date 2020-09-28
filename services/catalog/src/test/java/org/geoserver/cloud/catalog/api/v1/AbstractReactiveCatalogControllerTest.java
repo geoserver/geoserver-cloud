@@ -61,7 +61,8 @@ public abstract class AbstractReactiveCatalogControllerTest<C extends CatalogInf
     protected @Autowired @Qualifier("catalog") Catalog catalog;
     protected @Autowired @Qualifier("geoServer") GeoServer geoServer;
 
-    public @Rule CatalogTestData testData = CatalogTestData.initialized(() -> catalog);
+    public @Rule CatalogTestData testData =
+            CatalogTestData.initialized(() -> catalog, () -> null).initConfig(false);
 
     protected final @NonNull Class<C> infoType;
 

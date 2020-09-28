@@ -14,9 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
-import lombok.Getter;
 import lombok.NonNull;
-import lombok.Setter;
 import org.geoserver.catalog.impl.DataStoreInfoImpl;
 import org.geoserver.catalog.impl.LayerGroupInfoImpl;
 import org.geoserver.catalog.impl.MetadataLinkInfoImpl;
@@ -33,7 +31,6 @@ import org.geoserver.config.ResourceErrorHandling;
 import org.geoserver.config.SettingsInfo;
 import org.geoserver.config.impl.ContactInfoImpl;
 import org.geoserver.config.impl.CoverageAccessInfoImpl;
-import org.geoserver.config.impl.GeoServerImpl;
 import org.geoserver.config.impl.GeoServerInfoImpl;
 import org.geoserver.config.impl.JAIEXTInfoImpl;
 import org.geoserver.config.impl.JAIInfoImpl;
@@ -71,30 +68,54 @@ import org.springframework.util.Assert;
 public class CatalogTestData extends ExternalResource {
 
     private Supplier<Catalog> catalog;
-    private @Setter @Getter GeoServer configCatalog;
+    private Supplier<GeoServer> configCatalog = () -> null;
 
-    private boolean initialize;
+    private boolean initializeCatalog;
+    private boolean initializeConfig;
 
-    private CatalogTestData(Supplier<Catalog> catalog, boolean initialize) {
+    private CatalogTestData(
+            Supplier<Catalog> catalog,
+            Supplier<GeoServer> config,
+            boolean initCatalog,
+            boolean initConfig) {
         this.catalog = catalog;
-        this.initialize = initialize;
+        this.configCatalog = config;
+        this.initializeCatalog = initCatalog;
+        this.initializeConfig = initConfig;
     }
 
-    public static CatalogTestData empty(Supplier<Catalog> catalog) {
-        return new CatalogTestData(catalog, false);
+    public static CatalogTestData empty(Supplier<Catalog> catalog, Supplier<GeoServer> config) {
+        return new CatalogTestData(catalog, config, false, false);
     }
 
-    public static CatalogTestData initialized(Supplier<Catalog> catalog) {
-        return new CatalogTestData(catalog, true);
+    public static CatalogTestData initialized(
+            Supplier<Catalog> catalog, Supplier<GeoServer> config) {
+        return new CatalogTestData(catalog, config, true, true);
+    }
+
+    public CatalogTestData initCatalog(boolean addData) {
+        this.initializeCatalog = addData;
+        return this;
+    }
+
+    public CatalogTestData initConfig(boolean addData) {
+        this.initializeConfig = addData;
+        return this;
     }
 
     protected @Override void before() {
+        initialize();
+    }
+
+    public CatalogTestData initialize() {
         initCatalog();
+        initConfig();
+        return this;
     }
 
     public CatalogTestData initCatalog() {
         createCatalogObjects();
-        if (initialize) {
+        if (initializeCatalog) {
             deleteAll();
             addObjects();
         }
@@ -102,13 +123,28 @@ public class CatalogTestData extends ExternalResource {
     }
 
     protected @Override void after() {
-        if (initialize) {
+        if (initializeCatalog) {
             deleteAll();
         }
     }
 
     public void deleteAll() {
+        deleteAll(configCatalog.get());
         deleteAll(catalog.get());
+    }
+
+    public void deleteAll(GeoServer gs) {
+        if (gs != null) {
+            gs.getServices().forEach(gs::remove);
+            catalog.get()
+                    .getWorkspaces()
+                    .forEach(
+                            ws -> {
+                                SettingsInfo settings = gs.getSettings(ws);
+                                if (settings != null) gs.remove(settings);
+                                gs.getServices(ws).forEach(gs::remove);
+                            });
+        }
     }
 
     public void deleteAll(Catalog catalog) {
@@ -229,17 +265,21 @@ public class CatalogTestData extends ExternalResource {
 
     public CatalogTestData initConfig() {
         createConfigObjects();
-        if (configCatalog == null) {
-            configCatalog = new GeoServerImpl();
-        }
-        configCatalog.setGlobal(global);
-        configCatalog.setLogging(logging);
-        configCatalog.add(wmsService);
-        configCatalog.add(wfsService);
-        configCatalog.add(wpsService);
-        configCatalog.add(wcsService);
+        if (initializeConfig) {
+            GeoServer geoServer = configCatalog.get();
+            if (geoServer == null) {
+                throw new IllegalStateException(
+                        "No GeoServer provided, either disable config initialization or provide a GeoServer instance");
+            }
+            geoServer.setGlobal(global);
+            geoServer.setLogging(logging);
+            geoServer.add(wmsService);
+            geoServer.add(wfsService);
+            geoServer.add(wpsService);
+            geoServer.add(wcsService);
 
-        configCatalog.add(workspaceASettings);
+            geoServer.add(workspaceASettings);
+        }
         return this;
     }
 

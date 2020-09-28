@@ -63,6 +63,7 @@ import org.geoserver.catalog.plugin.Query;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.impl.ContactInfoImpl;
+import org.geoserver.config.plugin.GeoServerImpl;
 import org.geoserver.platform.GeoServerExtensionsHelper;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
@@ -112,8 +113,8 @@ public class GeoServerCatalogModuleTest {
 
     public @Before void before() {
         catalog = new CatalogImpl();
-        testData = CatalogTestData.initialized(() -> catalog).initCatalog();
-        geoserver = testData.initConfig().getConfigCatalog();
+        geoserver = new GeoServerImpl();
+        testData = CatalogTestData.initialized(() -> catalog, () -> geoserver).initialize();
         proxyResolver = new ProxyUtils(catalog, geoserver);
 
         objectMapper = new ObjectMapper();

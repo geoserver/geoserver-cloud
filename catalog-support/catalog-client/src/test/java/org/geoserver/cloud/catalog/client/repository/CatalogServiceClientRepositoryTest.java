@@ -71,7 +71,8 @@ public class CatalogServiceClientRepositoryTest {
     private @Autowired StyleRepository styleRepository;
 
     private static final Catalog fakeCatalog = new CatalogImpl();
-    public @Rule CatalogTestData testData = CatalogTestData.empty(() -> fakeCatalog);
+    public @Rule CatalogTestData testData =
+            CatalogTestData.empty(() -> fakeCatalog, () -> null).initConfig(false);
 
     public @Test void workspaceRepository_CRUD() {
         crudTest(workspaceRepository, testData.workspaceA);

@@ -87,7 +87,10 @@ public abstract class AbstractCatalogServiceClientRepositoryTest<
     }
 
     public @Before void setup() {
-        testData = CatalogTestData.initialized(() -> serverCatalog).initCatalog();
+        testData =
+                CatalogTestData.initialized(() -> serverCatalog, () -> null)
+                        .initConfig(false)
+                        .initialize();
         this.proxyResolver = new InnerResolvingProxy(rawCatalogServiceFacade, null);
         // proxyResolver = new ProxyUtils(catalog, geoServer).failOnMissingReference(true);
         // clientCatalog = new CatalogImpl(clientFacade);

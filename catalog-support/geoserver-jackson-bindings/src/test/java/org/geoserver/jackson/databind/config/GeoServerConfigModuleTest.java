@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import lombok.NonNull;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogTestData;
 import org.geoserver.catalog.Info;
@@ -18,6 +19,7 @@ import org.geoserver.catalog.plugin.CatalogImpl;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.SettingsInfo;
+import org.geoserver.config.plugin.GeoServerImpl;
 import org.geoserver.jackson.databind.catalog.ProxyUtils;
 import org.geoserver.ows.util.OwsUtils;
 import org.geoserver.platform.GeoServerExtensionsHelper;
@@ -46,8 +48,11 @@ public class GeoServerConfigModuleTest {
 
     public @Before void before() {
         catalog = new CatalogImpl();
-        testData = CatalogTestData.initialized(() -> catalog).initCatalog().createConfigObjects();
-        geoserver = testData.initConfig().getConfigCatalog();
+        geoserver = new GeoServerImpl();
+        testData =
+                CatalogTestData.initialized(() -> catalog, () -> geoserver)
+                        .initConfig(false)
+                        .initialize();
         proxyResolver = new ProxyUtils(catalog, geoserver);
 
         objectMapper = new ObjectMapper();
@@ -55,7 +60,7 @@ public class GeoServerConfigModuleTest {
         objectMapper.findAndRegisterModules();
     }
 
-    private <T extends Info> void roundtripTest(T orig) throws JsonProcessingException {
+    private <T extends Info> void roundtripTest(@NonNull T orig) throws JsonProcessingException {
         ObjectWriter writer = objectMapper.writer();
         writer = writer.withDefaultPrettyPrinter();
         String encoded = writer.writeValueAsString(orig);

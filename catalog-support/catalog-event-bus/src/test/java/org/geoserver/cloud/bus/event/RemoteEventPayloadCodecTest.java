@@ -48,10 +48,13 @@ public class RemoteEventPayloadCodecTest {
 
     public @Before void before() throws Exception {
         catalog = new org.geoserver.catalog.impl.CatalogImpl();
-        catalogTestSupport =
-                CatalogTestData.initialized(() -> catalog).createCatalogObjects().addObjects();
-        geoServerBusProperties = new GeoServerBusProperties();
         geoServer = new GeoServerImpl();
+        geoServer.setCatalog(catalog);
+        catalogTestSupport =
+                CatalogTestData.initialized(() -> catalog, () -> geoServer)
+                        .initConfig(false)
+                        .initialize();
+        geoServerBusProperties = new GeoServerBusProperties();
         codec = new RemoteEventPayloadCodec();
         codec.setGeoServer(geoServer);
         codec.setRawCatalog(catalog);

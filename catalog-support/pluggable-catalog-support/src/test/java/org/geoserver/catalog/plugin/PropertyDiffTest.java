@@ -33,7 +33,7 @@ public class PropertyDiffTest {
 
     public @Before void setup() {
         Catalog catalog = new CatalogImpl();
-        data = CatalogTestData.empty(() -> catalog).createCatalogObjects().createConfigObjects();
+        data = CatalogTestData.empty(() -> catalog, () -> null).initConfig(false).initialize();
     }
 
     public @Test void empty() {

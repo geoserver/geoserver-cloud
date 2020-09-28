@@ -63,7 +63,7 @@ public class LocalApplicationEventsAutoConfigurationTest {
 
     private @Autowired ApplicationEventCapturingListener listener;
 
-    public @Rule CatalogTestData testData = CatalogTestData.empty(() -> catalog);
+    public @Rule CatalogTestData testData = CatalogTestData.empty(() -> catalog, () -> geoserver);
 
     public @Before void before() {
         listener.setCapureEventsOf(LocalInfoEvent.class);
@@ -280,6 +280,7 @@ public class LocalApplicationEventsAutoConfigurationTest {
                 preEventType,
                 postEventType);
     }
+
 
     public @Test void testConfigRemoveEvents() {
         listener.stop();

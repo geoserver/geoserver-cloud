@@ -74,9 +74,7 @@ public class ReactiveConfigControllerTest {
 
     public @Before void before() {
         testData =
-                CatalogTestData.empty(() -> geoServer.getCatalog())
-                        .createCatalogObjects()
-                        .createConfigObjects();
+                CatalogTestData.empty(() -> geoServer.getCatalog(), () -> geoServer).initialize();
         geoServer.getCatalog().add(testData.workspaceA);
         geoServer.getCatalog().add(testData.workspaceB);
     }
