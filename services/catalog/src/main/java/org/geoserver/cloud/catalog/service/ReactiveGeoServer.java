@@ -78,12 +78,12 @@ public class ReactiveGeoServer {
         return async(() -> blockingConfig.add(service));
     }
 
-    public Mono<Void> save(SettingsInfo settings) {
+    public Mono<SettingsInfo> update(SettingsInfo settings, Patch patch) {
         return async(
                 () -> {
-                    SettingsInfo proxied = blockingConfig.getSettings(settings.getWorkspace());
-                    OwsUtils.copy(settings, proxied, SettingsInfo.class);
-                    blockingConfig.save(proxied);
+                    patch.applyTo(settings, SettingsInfo.class);
+                    blockingConfig.save(settings);
+                    return settings;
                 });
     }
 

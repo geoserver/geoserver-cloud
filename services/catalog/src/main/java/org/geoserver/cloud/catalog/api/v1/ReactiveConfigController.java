@@ -6,6 +6,7 @@ package org.geoserver.cloud.catalog.api.v1;
 
 import static org.springframework.http.MediaType.APPLICATION_STREAM_JSON_VALUE;
 
+import lombok.extern.slf4j.Slf4j;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.cloud.catalog.service.ReactiveCatalog;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -29,6 +31,7 @@ import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @RestController
 @RequestMapping(path = ReactiveConfigController.BASE_URI)
 public class ReactiveConfigController {
@@ -58,7 +61,8 @@ public class ReactiveConfigController {
             @PathVariable("workspaceId") String workspaceId) {
 
         return catalog.getById(workspaceId, WorkspaceInfo.class)
-                .switchIfEmpty(badRequest("workspace not found"))
+                .switchIfEmpty(
+                        badRequest("getSettingsByWorkspace: workspace %s not found", workspaceId))
                 .flatMap(config::getSettingsByWorkspace)
                 .switchIfEmpty(noContent());
     }
@@ -70,7 +74,7 @@ public class ReactiveConfigController {
             @PathVariable("workspaceId") String workspaceId, @RequestBody SettingsInfo settings) {
 
         return catalog.getById(workspaceId, WorkspaceInfo.class)
-                .switchIfEmpty(badRequest("workspace not found"))
+                .switchIfEmpty(badRequest("createSettings: workspace %s not found", workspaceId))
                 .flatMap(
                         ws -> {
                             settings.setWorkspace(ws);
@@ -79,17 +83,15 @@ public class ReactiveConfigController {
     }
 
     /** Saves the settings configuration for the specified workspace. */
-    @PutMapping("/workspaces/{workspaceId}/settings")
-    public Mono<Void> saveSettings(
-            @PathVariable("workspaceId") String workspaceId, @RequestBody SettingsInfo settings) {
+    @PatchMapping("/workspaces/{workspaceId}/settings")
+    Mono<SettingsInfo> updateSettings(
+            @PathVariable("workspaceId") String workspaceId, @RequestBody Patch patch) {
 
         return catalog.getById(workspaceId, WorkspaceInfo.class)
-                .switchIfEmpty(badRequest("workspace not found"))
-                .flatMap(
-                        ws -> {
-                            settings.setWorkspace(ws);
-                            return config.save(settings);
-                        });
+                .switchIfEmpty(badRequest("updateSettings: workspace %s not found", workspaceId))
+                .flatMap(config::getSettingsByWorkspace)
+                .switchIfEmpty(badRequest("Workspace has no settings"))
+                .flatMap(settings -> config.update(settings, patch));
     }
 
     /** Removes the settings configuration for the specified workspace. */
@@ -97,7 +99,7 @@ public class ReactiveConfigController {
     public Mono<Void> deleteSettings(@PathVariable("workspaceId") String workspaceId) {
 
         return catalog.getById(workspaceId, WorkspaceInfo.class)
-                .switchIfEmpty(badRequest("workspace not found"))
+                .switchIfEmpty(badRequest("deleteSettings: workspace %s not found", workspaceId))
                 .flatMap(config::getSettings)
                 .switchIfEmpty(noContent())
                 .flatMap(config::remove);
@@ -132,7 +134,7 @@ public class ReactiveConfigController {
             @PathVariable("workspaceId") String workspaceId, @RequestBody ServiceInfo service) {
 
         return catalog.getById(workspaceId, WorkspaceInfo.class)
-                .switchIfEmpty(badRequest("workspace not found"))
+                .switchIfEmpty(badRequest("createService: workspace %s not found", workspaceId))
                 .flatMap(
                         ws -> {
                             service.setWorkspace(ws);
@@ -153,8 +155,8 @@ public class ReactiveConfigController {
     }
 
     /** Saves a service that has been modified. */
-    @PutMapping("/services/{serviceId}")
-    public Mono<ServiceInfo> updateService(
+    @PatchMapping("/services/{serviceId}")
+    Mono<ServiceInfo> updateService(
             @PathVariable("serviceId") String serviceId, @RequestBody Patch patch) {
 
         return config.getServiceById(serviceId)
@@ -171,7 +173,8 @@ public class ReactiveConfigController {
             @PathVariable("workspaceId") String workspaceId) {
 
         return catalog.getById(workspaceId, WorkspaceInfo.class)
-                .switchIfEmpty(badRequest("Workspace not found"))
+                .switchIfEmpty(
+                        badRequest("getServicesByWorkspace: Workspace %s not found", workspaceId))
                 .flatMapMany(config::getServicesByWorkspace);
     }
 
@@ -211,7 +214,10 @@ public class ReactiveConfigController {
         final Class<T> type = this.asSericeType(clazz);
 
         return catalog.getById(workspaceId, WorkspaceInfo.class)
-                .switchIfEmpty(badRequest("Workspace not found"))
+                .switchIfEmpty(
+                        badRequest(
+                                "getServiceByWorkspaceAndType: Workspace %s not found",
+                                workspaceId))
                 .flatMap(w -> config.getServiceByWorkspaceAndType(w, type))
                 .switchIfEmpty(noContent());
     }
@@ -229,7 +235,10 @@ public class ReactiveConfigController {
             @PathVariable("workspaceId") String workspaceId, @PathVariable("name") String name) {
 
         return catalog.getById(workspaceId, WorkspaceInfo.class)
-                .switchIfEmpty(badRequest("Workspace not found"))
+                .switchIfEmpty(
+                        badRequest(
+                                "getServiceByWorkspaceAndName: Workspace %s not found",
+                                workspaceId))
                 .flatMap(ws -> config.getServiceByWorkspaceAndName(ws, name))
                 .switchIfEmpty(noContent());
     }
@@ -240,12 +249,11 @@ public class ReactiveConfigController {
     }
 
     protected <T> Mono<T> badRequest(String messageFormat, Object... messageArgs) {
-        return Mono.defer(
-                () ->
-                        Mono.error(
-                                () ->
-                                        new ResponseStatusException(
-                                                HttpStatus.BAD_REQUEST,
-                                                String.format(messageFormat, messageArgs))));
+        return Mono.error(
+                () -> {
+                    String msg = String.format(messageFormat, messageArgs);
+                    log.warn(msg);
+                    return new ResponseStatusException(HttpStatus.BAD_REQUEST, msg);
+                });
     }
 }

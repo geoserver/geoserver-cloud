@@ -155,19 +155,22 @@ public class ReactiveConfigControllerTest {
         assertNotNull(geoServer.getSettings(workspace));
     }
 
-    // PUT /workspaces/{workspaceId}/settings
-    public @Test void saveSettings() {
+    // PATCH /workspaces/{workspaceId}/settings
+    public @Test void updateSettings() {
         WorkspaceInfo workspace = testData.workspaceA;
         SettingsInfo settings = testData.workspaceASettings;
         settings.setWorkspace(workspace);
         geoServer.add(settings);
+        settings = geoServer.getSettings(workspace);
 
         settings.setTitle("new title set through api");
-        put(settings, "/workspaces/{workspaceId}/settings", workspace.getId())
+        Patch patch = PropertyDiff.valueOf(ModificationProxy.handler(settings)).toPatch();
+
+        patch(patch, "/workspaces/{workspaceId}/settings", workspace.getId())
                 .expectStatus()
                 .isOk()
-                .expectBody()
-                .isEmpty();
+                .expectBody(SettingsInfo.class)
+                .value(s -> s.getTitle(), equalTo("new title set through api"));
         assertEquals(settings.getTitle(), geoServer.getSettings(workspace).getTitle());
     }
 
@@ -305,7 +308,7 @@ public class ReactiveConfigControllerTest {
                 .value(s -> s.getId(), Matchers.equalTo(wpsService.getId()));
     }
 
-    // PUT /services
+    // PATCH /services/{id}
     public @Test void updateService() {
         geoServer.add(testData.wmsService);
         geoServer.add(testData.wcsService);
@@ -321,7 +324,7 @@ public class ReactiveConfigControllerTest {
         testUpdateService(wpsService);
     }
 
-    // PUT /workspaces/{workspaceId}/services
+    // PATCH /services/{id}
     public @Test void updateServiceByWorkspace() {
         addServicesToWorkspaceA();
         WorkspaceInfo ws = testData.workspaceA;
@@ -349,7 +352,7 @@ public class ReactiveConfigControllerTest {
 
         Patch patch = asPatch(service);
         ServiceInfo returned =
-                put(patch, "/services/{id}", service.getId())
+                patch(patch, "/services/{id}", service.getId())
                         .expectStatus()
                         .isOk()
                         .expectBody(ServiceInfo.class)
@@ -628,10 +631,12 @@ public class ReactiveConfigControllerTest {
                 .exchange();
     }
 
-    private <T extends Info> ResponseSpec post(String uri, Object... uriVariables) {
+    private <T extends Info> ResponseSpec patch(
+            Object requestBody, String uri, Object... uriVariables) {
         return testClient
-                .post()
+                .patch()
                 .uri(toAbsoluteURI(uri), uriVariables)
+                .bodyValue(requestBody)
                 .accept(APPLICATION_JSON, APPLICATION_STREAM_JSON)
                 .exchange();
     }

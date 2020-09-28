@@ -4,16 +4,24 @@
  */
 package org.geoserver.cloud.integration.catalogservice;
 
+import org.geoserver.catalog.Catalog;
+import org.geoserver.catalog.CatalogFacade;
+import org.geoserver.catalog.CatalogTestData;
 import org.geoserver.catalog.plugin.CatalogImpl;
 import org.geoserver.cloud.catalog.app.CatalogServiceApplication;
 import org.geoserver.cloud.catalog.client.impl.CatalogClientConfiguration;
 import org.geoserver.cloud.catalog.client.impl.CatalogServiceGeoServerFacade;
 import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveConfigClient;
+import org.geoserver.cloud.catalog.client.repository.CatalogClientConfigRepository;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerConfigConformanceTest;
+import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.plugin.GeoServerImpl;
+import org.geoserver.wms.WMSInfoImpl;
+import org.junit.After;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.context.ActiveProfiles;
@@ -22,7 +30,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 /**
  * API {@link GeoServerConfigConformanceTest conformance test} for a {@link GeoServer} configuration
  * manager backed by a {@link CatalogServiceGeoServerFacade} (which in turn is backed by a {@link
- * ReactiveConfigClient}), hitting a live {@code catalog-service} instance.
+ * CatalogClientConfigRepository}), which in turn is backed by a {@link ReactiveConfigClient},
+ * hitting a live {@code catalog-service} instance.
  */
 @SpringBootTest(
     classes = { //
@@ -40,13 +49,33 @@ import org.springframework.test.context.junit4.SpringRunner;
 @ActiveProfiles("it.catalog-service")
 public class CatalogServiceGeoServerFacadeConformanceTest extends GeoServerConfigConformanceTest {
 
+    /**
+     * WebFlux catalog-service catalog with backend as configured by
+     * bootstrap-it.catalog-service.yml
+     */
+    private @Autowired @Qualifier("catalog") Catalog serverCatalog;
+
+    private @Autowired @Qualifier("geoServer") GeoServer serverConfig;
+
     private @Autowired CatalogServiceGeoServerFacade facade;
+    private @Autowired @Qualifier("rawCatalogServiceFacade") CatalogFacade clientFacade;
 
     protected @Override GeoServer createGeoServer() {
+        Catalog catalog = new CatalogImpl(clientFacade);
 
         GeoServerImpl gs = new GeoServerImpl();
-        gs.setCatalog(new CatalogImpl());
+        gs.setCatalog(catalog);
         gs.setFacade(facade);
         return gs;
+    }
+
+    protected @Override ServiceInfo createService() {
+        return new WMSInfoImpl();
+    }
+
+    /** prune the server catalog */
+    @After
+    public void deleteAll() {
+        CatalogTestData.empty(() -> serverCatalog, () -> serverConfig).deleteAll();
     }
 }
