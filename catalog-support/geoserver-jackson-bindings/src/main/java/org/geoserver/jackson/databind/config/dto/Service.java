@@ -38,7 +38,7 @@ import org.geotools.coverage.grid.io.OverviewPolicy;
     @JsonSubTypes.Type(value = Service.WpsService.class, name = "WPSInfo")
 })
 @EqualsAndHashCode(callSuper = true)
-public abstract @Data class Service extends ConfigInfoDto {
+public @Data class Service extends ConfigInfoDto {
     private String name;
     private InfoReference workspace;
     private boolean citeCompliant;

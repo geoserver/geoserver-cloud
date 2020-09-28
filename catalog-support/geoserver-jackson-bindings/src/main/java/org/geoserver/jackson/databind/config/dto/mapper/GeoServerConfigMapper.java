@@ -15,6 +15,7 @@ import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
 import org.geoserver.config.impl.ContactInfoImpl;
+import org.geoserver.config.impl.ServiceInfoImpl;
 import org.geoserver.jackson.databind.config.dto.ConfigInfoDto;
 import org.geoserver.jackson.databind.config.dto.Contact;
 import org.geoserver.jackson.databind.config.dto.CoverageAccess;
@@ -58,7 +59,7 @@ public interface GeoServerConfigMapper {
         if (configInfo instanceof SettingsInfo) return (T) toDto((SettingsInfo) configInfo);
         if (configInfo instanceof LoggingInfo) return (T) toDto((LoggingInfo) configInfo);
         if (configInfo instanceof ServiceInfo) return (T) toDto((ServiceInfo) configInfo);
-
+        if (configInfo instanceof ServiceInfoImpl) return (T) toDto((ServiceInfo) configInfo);
         throw new IllegalArgumentException(
                 "Unknown config info type: " + configInfo.getClass().getCanonicalName());
     }
@@ -112,6 +113,7 @@ public interface GeoServerConfigMapper {
         if (info instanceof WFSInfo) return toDto((WFSInfo) info);
         if (info instanceof WCSInfo) return toDto((WCSInfo) info);
         if (info instanceof WPSInfo) return toDto((WPSInfo) info);
+        if (info instanceof ServiceInfoImpl) return toDto((ServiceInfoImpl) info);
         throw new IllegalArgumentException(
                 "Unknown ServiceInfo type: " + info.getClass().getCanonicalName());
     }
@@ -151,4 +153,12 @@ public interface GeoServerConfigMapper {
     WPSInfoImpl toInfo(Service.WpsService dto);
 
     Service.WpsService toDto(WPSInfo info);
+
+    // generic ServiceInfo
+    Service toDto(ServiceInfoImpl info);
+
+    // generic ServiceInfo
+    @Mapping(target = "clientProperties", ignore = true)
+    @Mapping(target = "geoServer", ignore = true)
+    ServiceInfoImpl toDto(Service info);
 }

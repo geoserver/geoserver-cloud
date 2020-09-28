@@ -19,6 +19,10 @@ import org.geoserver.jackson.databind.config.dto.GeoServer;
 import org.geoserver.jackson.databind.config.dto.Logging;
 import org.geoserver.jackson.databind.config.dto.Service;
 import org.geoserver.jackson.databind.config.dto.Settings;
+import org.geoserver.wcs.WCSInfo;
+import org.geoserver.wfs.WFSInfo;
+import org.geoserver.wms.WMSInfo;
+import org.geoserver.wps.WPSInfo;
 
 /**
  * Jackson {@link com.fasterxml.jackson.databind.Module} to handle GeoServer configuration objects
@@ -63,6 +67,10 @@ public class GeoServerConfigModule extends SimpleModule {
         addDeserializer(SettingsInfo.class, Settings.class);
         addDeserializer(LoggingInfo.class, Logging.class);
         addDeserializer(ServiceInfo.class, Service.class);
+        addDeserializer(WMSInfo.class, Service.WmsService.class);
+        addDeserializer(WFSInfo.class, Service.WfsService.class);
+        addDeserializer(WCSInfo.class, Service.WcsService.class);
+        addDeserializer(WPSInfo.class, Service.WpsService.class);
     }
 
     private <I extends Info> void addSerializer(Class<I> configInfoType) {
