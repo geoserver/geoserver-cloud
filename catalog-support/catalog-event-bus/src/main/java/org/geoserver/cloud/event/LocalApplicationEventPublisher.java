@@ -23,6 +23,7 @@ import org.geoserver.catalog.event.CatalogListener;
 import org.geoserver.catalog.event.CatalogModifyEvent;
 import org.geoserver.catalog.event.CatalogPostModifyEvent;
 import org.geoserver.catalog.event.CatalogRemoveEvent;
+import org.geoserver.catalog.plugin.PropertyDiff;
 import org.geoserver.cloud.event.catalog.LocalCatalogAddEvent;
 import org.geoserver.cloud.event.catalog.LocalCatalogPostModifyEvent;
 import org.geoserver.cloud.event.catalog.LocalCatalogPreModifyEvent;

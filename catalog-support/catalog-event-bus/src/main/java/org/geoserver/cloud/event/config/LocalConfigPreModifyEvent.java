@@ -6,8 +6,8 @@ package org.geoserver.cloud.event.config;
 
 import lombok.NonNull;
 import org.geoserver.catalog.Info;
+import org.geoserver.catalog.plugin.PropertyDiff;
 import org.geoserver.cloud.event.LocalPreModifyEvent;
-import org.geoserver.cloud.event.PropertyDiff;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.LoggingInfo;

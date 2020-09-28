@@ -6,8 +6,8 @@ package org.geoserver.cloud.bus.event.config;
 
 import lombok.EqualsAndHashCode;
 import org.geoserver.catalog.Info;
+import org.geoserver.catalog.plugin.PropertyDiff;
 import org.geoserver.cloud.bus.event.RemoteModifyEvent;
-import org.geoserver.cloud.event.PropertyDiff;
 import org.geoserver.config.GeoServer;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
