@@ -4,27 +4,19 @@
  */
 package org.geoserver.jackson.databind.config;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import java.io.IOException;
 import org.geoserver.catalog.Info;
 import org.geoserver.jackson.databind.config.dto.ConfigInfoDto;
 import org.geoserver.jackson.databind.config.dto.mapper.GeoServerConfigMapper;
+import org.geotools.jackson.databind.util.MapperSerializer;
 import org.mapstruct.factory.Mappers;
 
-public class ConfigInfoSerializer<T extends Info> extends StdSerializer<T> {
+public class ConfigInfoSerializer<T extends Info> extends MapperSerializer<T, ConfigInfoDto> {
     private static final long serialVersionUID = -4772839273787523779L;
 
-    protected ConfigInfoSerializer(Class<T> infoType) {
-        super(infoType);
-    }
+    private static final GeoServerConfigMapper mapper =
+            Mappers.getMapper(GeoServerConfigMapper.class);
 
-    public @Override void serialize(T info, JsonGenerator gen, SerializerProvider provider)
-            throws IOException {
-
-        GeoServerConfigMapper mapper = Mappers.getMapper(GeoServerConfigMapper.class);
-        ConfigInfoDto dto = mapper.toDto(info);
-        gen.writeObject(dto);
+    public ConfigInfoSerializer(Class<T> type) {
+        super(type, mapper::toDto);
     }
 }

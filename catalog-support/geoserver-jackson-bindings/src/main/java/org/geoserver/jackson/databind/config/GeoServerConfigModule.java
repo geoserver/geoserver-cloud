@@ -59,17 +59,27 @@ public class GeoServerConfigModule extends SimpleModule {
         log.debug("registering jackson de/serializers for all GeoServer config Info types");
 
         addSerializer(GeoServerInfo.class);
+        addDeserializer(GeoServerInfo.class, GeoServer.class);
+
         addSerializer(SettingsInfo.class);
+        addDeserializer(SettingsInfo.class, Settings.class);
+
         addSerializer(LoggingInfo.class);
+        addDeserializer(LoggingInfo.class, Logging.class);
+
+        addDeserializer(ServiceInfo.class, Service.class);
         addSerializer(ServiceInfo.class);
 
-        addDeserializer(GeoServerInfo.class, GeoServer.class);
-        addDeserializer(SettingsInfo.class, Settings.class);
-        addDeserializer(LoggingInfo.class, Logging.class);
-        addDeserializer(ServiceInfo.class, Service.class);
+        addSerializer(WMSInfo.class);
         addDeserializer(WMSInfo.class, Service.WmsService.class);
+
+        addSerializer(WFSInfo.class);
         addDeserializer(WFSInfo.class, Service.WfsService.class);
+
+        addSerializer(WCSInfo.class);
         addDeserializer(WCSInfo.class, Service.WcsService.class);
+
+        addSerializer(WPSInfo.class);
         addDeserializer(WPSInfo.class, Service.WpsService.class);
     }
 
