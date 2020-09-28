@@ -4,7 +4,6 @@
  */
 package org.geoserver.cloud.config.catalogclient;
 
-import lombok.Getter;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.cloud.catalog.client.impl.CatalogClientConfiguration;
 import org.geoserver.cloud.catalog.client.impl.CatalogServiceCatalogFacade;
@@ -12,6 +11,7 @@ import org.geoserver.cloud.config.catalog.GeoServerBackendConfigurer;
 import org.geoserver.config.DefaultGeoServerLoader;
 import org.geoserver.config.GeoServerFacade;
 import org.geoserver.config.GeoServerLoader;
+import org.geoserver.config.plugin.RepositoryGeoServerFacade;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.ResourceStore;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +19,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import lombok.Getter;
 
 @Configuration
 @Import(CatalogClientConfiguration.class)
@@ -31,7 +32,7 @@ public class CatalogServiceBackendConfigurer implements GeoServerBackendConfigur
     }
 
     public @Override @Bean GeoServerFacade geoserverFacade() {
-        return new org.geoserver.config.plugin.DefaultGeoServerFacade();
+        return new RepositoryGeoServerFacade();
     }
 
     public @Override @Bean GeoServerLoader geoServerLoaderImpl() {

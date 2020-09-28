@@ -5,6 +5,7 @@
 package org.geoserver.cloud.catalog.client.impl;
 
 import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveConfigClient;
+import org.geoserver.cloud.catalog.client.repository.CatalogClientConfigRepository;
 import org.geoserver.cloud.catalog.client.repository.CatalogRepositoriesConfiguration;
 import org.geoserver.cloud.catalog.client.repository.CloudLayerGroupRepository;
 import org.geoserver.cloud.catalog.client.repository.CloudLayerRepository;
@@ -48,9 +49,11 @@ public class CatalogClientConfiguration {
         return facade;
     }
 
+    public @Bean CatalogClientConfigRepository catalogServiceConfigRepository() {
+        return new CatalogClientConfigRepository(configClient);
+    }
+
     public @Bean CatalogServiceGeoServerFacade catalogServiceGeoServerFacade() {
-        CatalogServiceGeoServerFacade facade = new CatalogServiceGeoServerFacade();
-        facade.setClient(configClient);
-        return facade;
+        return new CatalogServiceGeoServerFacade(catalogServiceConfigRepository());
     }
 }

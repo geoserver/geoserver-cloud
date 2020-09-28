@@ -74,7 +74,7 @@ public class DataDirectoryAutoConfigurationTest extends GeoServerBackendConfigur
     public @Test void testGeoserverFacade() {
         assertThat(
                 geoserverFacade,
-                instanceOf(org.geoserver.config.plugin.DefaultGeoServerFacade.class));
+                instanceOf(org.geoserver.config.plugin.RepositoryGeoServerFacade.class));
     }
 
     public @Test void testGeoserverLoader() {

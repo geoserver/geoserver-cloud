@@ -4,15 +4,18 @@
  */
 package org.geoserver.cloud.catalog.client.reactivefeign;
 
+import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import reactivefeign.spring.config.ReactiveFeignClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -30,7 +33,7 @@ public interface ReactiveConfigClient {
 
     /** Sets the global configuration. */
     @PutMapping("/global")
-    Mono<Void> setGlobal(GeoServerInfo global);
+    Mono<Void> setGlobal(@RequestBody GeoServerInfo global);
 
     /**
      * The settings configuration for the specified workspace, or <code>null</code> if non exists.
@@ -41,11 +44,12 @@ public interface ReactiveConfigClient {
     /** Adds a settings configuration for the specified workspace. */
     @PostMapping("/workspaces/{workspaceId}/settings")
     Mono<Void> createSettings(
-            @PathVariable("workspaceId") String workspaceId, SettingsInfo settings);
+            @PathVariable("workspaceId") String workspaceId, @RequestBody SettingsInfo settings);
 
     /** Saves the settings configuration for the specified workspace. */
-    @PutMapping("/workspaces/{workspaceId}/settings")
-    Mono<Void> saveSettings(@PathVariable("workspaceId") String workspaceId, SettingsInfo settings);
+    @PatchMapping("/workspaces/{workspaceId}/settings")
+    Mono<SettingsInfo> updateSettings(
+            @PathVariable("workspaceId") String workspaceId, @RequestBody Patch patch);
 
     /** Removes the settings configuration for the specified workspace. */
     @DeleteMapping("/workspaces/{workspaceId}/settings")
@@ -57,14 +61,15 @@ public interface ReactiveConfigClient {
 
     /** Sets logging configuration. */
     @PutMapping("/logging")
-    Mono<Void> setLogging(LoggingInfo logging);
+    Mono<Void> setLogging(@RequestBody LoggingInfo logging);
 
     /** Adds a service to the configuration. */
     @PostMapping("/services")
-    Mono<Void> createService(ServiceInfo service);
+    Mono<Void> createService(@RequestBody ServiceInfo service);
 
     @PostMapping("/workspaces/{workspaceId}/services")
-    Mono<Void> createService(@PathVariable("workspaceId") String workspaceId, ServiceInfo service);
+    Mono<Void> createService(
+            @PathVariable("workspaceId") String workspaceId, @RequestBody ServiceInfo service);
 
     /** Removes a service from the configuration. */
     @DeleteMapping("/services/{serviceId}")
@@ -72,39 +77,36 @@ public interface ReactiveConfigClient {
 
     /** Looks up a global service by id. */
     @GetMapping("/services/{serviceId}")
-    <T extends ServiceInfo> Mono<T> getServiceById(@PathVariable("serviceId") String id);
+    Mono<ServiceInfo> getServiceById(@PathVariable("serviceId") String id);
 
     /** Saves a service that has been modified. */
-    @PutMapping("/services")
-    Mono<Void> updateService(ServiceInfo service);
-
-    @PutMapping("/workspaces/{workspaceId}/services")
-    Mono<Void> updateService(@PathVariable("workspaceId") String workspaceId, ServiceInfo service);
-
-    /** GeoServer services. */
-    @GetMapping("/services")
-    Flux<? extends ServiceInfo> getGlobalServices();
+    @PatchMapping("/services/{serviceId}")
+    <S extends ServiceInfo> Mono<S> updateService(
+            @PathVariable("serviceId") String serviceId, @RequestBody Patch patch);
 
     /** GeoServer services specific to the specified workspace. */
     @GetMapping("/workspaces/{workspaceId}/services")
-    Flux<? extends ServiceInfo> getServicesByWorkspace(
-            @PathVariable("workspaceId") String workspaceId);
+    Flux<ServiceInfo> getServicesByWorkspace(@PathVariable("workspaceId") String workspaceId);
+
+    /** Global (no-workspace) services. */
+    @GetMapping("/services")
+    Flux<? extends ServiceInfo> getGlobalServices();
 
     /** GeoServer global service filtered by class. */
     @GetMapping("/services/type/{type}")
-    <T extends ServiceInfo> Mono<T> getGlobalService(@PathVariable("type") Class<T> clazz);
+    Mono<? extends ServiceInfo> getGlobalServiceByType(@PathVariable("type") String clazz);
 
     /** GeoServer service specific to the specified workspace and filtered by class. */
     @GetMapping("/workspaces/{workspaceId}/services/type/{type}")
     <T extends ServiceInfo> Mono<T> getServiceByWorkspaceAndType(
-            @PathVariable("workspaceId") String workspaceId, @PathVariable("type") Class<T> clazz);
+            @PathVariable("workspaceId") String workspaceId, @PathVariable("type") String clazz);
 
     /** Looks up a service by name. */
     @GetMapping("/services/name/{name}")
-    <T extends ServiceInfo> Mono<T> getServiceByName(@PathVariable("name") String name);
+    Mono<ServiceInfo> getGlobalServiceByName(@PathVariable("name") String name);
 
     /** Looks up a service by name, specific to the specified workspace. */
     @GetMapping("/workspaces/{workspaceId}/services/name/{name}")
-    <T extends ServiceInfo> Mono<T> getServiceByWorkspaceAndName(
+    Mono<ServiceInfo> getServiceByWorkspaceAndName(
             @PathVariable("workspaceId") String workspaceId, @PathVariable("name") String name);
 }
