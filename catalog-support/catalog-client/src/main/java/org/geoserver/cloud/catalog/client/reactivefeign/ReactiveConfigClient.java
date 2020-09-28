@@ -8,109 +8,103 @@ import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import reactivefeign.spring.config.ReactiveFeignClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @ReactiveFeignClient( //
-    name = "catalog-service", //
+    name = "config-service-client", //
     url = "${geoserver.backend.catalog-service.uri:catalog-service}", //
-    qualifier = "catalogClient", //
     path = "/api/v1/config"
 )
 public interface ReactiveConfigClient {
 
     /** The global geoserver configuration. */
+    @GetMapping("/global")
     Mono<GeoServerInfo> getGlobal();
 
     /** Sets the global configuration. */
+    @PutMapping("/global")
     Mono<Void> setGlobal(GeoServerInfo global);
-
-    /** Saves the global geoserver configuration after modification. */
-    Mono<Void> save(GeoServerInfo geoServer);
 
     /**
      * The settings configuration for the specified workspace, or <code>null</code> if non exists.
      */
-    Mono<SettingsInfo> getSettingsByWorkspace(String workspaceId);
+    @GetMapping("/workspaces/{workspaceId}/settings")
+    Mono<SettingsInfo> getSettingsByWorkspace(@PathVariable("workspaceId") String workspaceId);
 
     /** Adds a settings configuration for the specified workspace. */
-    Mono<Void> add(SettingsInfo settings);
+    @PostMapping("/workspaces/{workspaceId}/settings")
+    Mono<Void> createSettings(
+            @PathVariable("workspaceId") String workspaceId, SettingsInfo settings);
 
     /** Saves the settings configuration for the specified workspace. */
-    Mono<Void> save(SettingsInfo settings);
+    @PutMapping("/workspaces/{workspaceId}/settings")
+    Mono<Void> saveSettings(@PathVariable("workspaceId") String workspaceId, SettingsInfo settings);
 
     /** Removes the settings configuration for the specified workspace. */
-    Mono<Void> removeSettings(String settingsId);
+    @DeleteMapping("/workspaces/{workspaceId}/settings")
+    Mono<Void> deleteSettings(@PathVariable("workspaceId") String workspaceId);
 
     /** The logging configuration. */
+    @GetMapping("/logging")
     Mono<LoggingInfo> getLogging();
 
     /** Sets logging configuration. */
+    @PutMapping("/logging")
     Mono<Void> setLogging(LoggingInfo logging);
 
-    /** Saves the logging configuration. */
-    Mono<Void> save(LoggingInfo logging);
-
     /** Adds a service to the configuration. */
-    Mono<Void> add(ServiceInfo service);
+    @PostMapping("/services")
+    Mono<Void> createService(ServiceInfo service);
+
+    @PostMapping("/workspaces/{workspaceId}/services")
+    Mono<Void> createService(@PathVariable("workspaceId") String workspaceId, ServiceInfo service);
 
     /** Removes a service from the configuration. */
-    Mono<Void> removeService(String serviceId);
+    @DeleteMapping("/services/{serviceId}")
+    Mono<Void> deleteService(@PathVariable("serviceId") String serviceId);
+
+    /** Looks up a global service by id. */
+    @GetMapping("/services/{serviceId}")
+    <T extends ServiceInfo> Mono<T> getServiceById(@PathVariable("serviceId") String id);
 
     /** Saves a service that has been modified. */
-    Mono<Void> save(ServiceInfo service);
+    @PutMapping("/services")
+    Mono<Void> updateService(ServiceInfo service);
+
+    @PutMapping("/workspaces/{workspaceId}/services")
+    Mono<Void> updateService(@PathVariable("workspaceId") String workspaceId, ServiceInfo service);
 
     /** GeoServer services. */
-    Flux<? extends ServiceInfo> getServices();
+    @GetMapping("/services")
+    Flux<? extends ServiceInfo> getGlobalServices();
 
     /** GeoServer services specific to the specified workspace. */
-    Flux<? extends ServiceInfo> getServicesByWorkspace(String workspaceId);
+    @GetMapping("/workspaces/{workspaceId}/services")
+    Flux<? extends ServiceInfo> getServicesByWorkspace(
+            @PathVariable("workspaceId") String workspaceId);
 
-    /**
-     * GeoServer global service filtered by class.
-     *
-     * @param clazz The class of the service to return.
-     */
-    <T extends ServiceInfo> Mono<T> getGlobalService(Class<T> clazz);
+    /** GeoServer global service filtered by class. */
+    @GetMapping("/services/type/{type}")
+    <T extends ServiceInfo> Mono<T> getGlobalService(@PathVariable("type") Class<T> clazz);
 
-    /**
-     * GeoServer service specific to the specified workspace and filtered by class.
-     *
-     * @param workspaceId The workspace the service is specific to.
-     * @param clazz The class of the service to return.
-     */
-    <T extends ServiceInfo> Mono<T> getServiceByWorkspace(String workspaceId, Class<T> clazz);
+    /** GeoServer service specific to the specified workspace and filtered by class. */
+    @GetMapping("/workspaces/{workspaceId}/services/type/{type}")
+    <T extends ServiceInfo> Mono<T> getServiceByWorkspaceAndType(
+            @PathVariable("workspaceId") String workspaceId, @PathVariable("type") Class<T> clazz);
 
-    /**
-     * Looks up a service by id.
-     *
-     * @param id The id of the service.
-     * @param clazz The type of the service.
-     * @return The service with the specified id, or <code>null</code> if no such service coud be
-     *     found.
-     */
-    <T extends ServiceInfo> Mono<T> getServiceById(String id, Class<T> clazz);
+    /** Looks up a service by name. */
+    @GetMapping("/services/name/{name}")
+    <T extends ServiceInfo> Mono<T> getServiceByName(@PathVariable("name") String name);
 
-    /**
-     * Looks up a service by name.
-     *
-     * @param name The name of the service.
-     * @param clazz The type of the service.
-     * @return The service with the specified name or <code>null</code> if no such service could be
-     *     found.
-     */
-    <T extends ServiceInfo> Mono<T> getServiceByName(String name, Class<T> clazz);
-
-    /**
-     * Looks up a service by name, specific to the specified workspace.
-     *
-     * @param name The name of the service.
-     * @param workspaceId The workspace the service is specific to.
-     * @param clazz The type of the service.
-     * @return The service with the specified name or <code>null</code> if no such service could be
-     *     found.
-     */
-    <T extends ServiceInfo> Mono<T> getServiceByNameAndWorkspace(
-            String name, String workspaceId, Class<T> clazz);
+    /** Looks up a service by name, specific to the specified workspace. */
+    @GetMapping("/workspaces/{workspaceId}/services/name/{name}")
+    <T extends ServiceInfo> Mono<T> getServiceByWorkspaceAndName(
+            @PathVariable("workspaceId") String workspaceId, @PathVariable("name") String name);
 }

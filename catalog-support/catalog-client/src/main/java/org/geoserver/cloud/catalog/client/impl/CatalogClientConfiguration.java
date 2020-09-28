@@ -4,6 +4,7 @@
  */
 package org.geoserver.cloud.catalog.client.impl;
 
+import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveConfigClient;
 import org.geoserver.cloud.catalog.client.repository.CatalogRepositoriesConfiguration;
 import org.geoserver.cloud.catalog.client.repository.CloudLayerGroupRepository;
 import org.geoserver.cloud.catalog.client.repository.CloudLayerRepository;
@@ -30,6 +31,7 @@ public class CatalogClientConfiguration {
     private @Autowired CloudLayerGroupRepository cloudLayerGroupRepository;
     private @Autowired CloudStyleRepository cloudStyleRepository;
     private @Autowired CloudMapRepository cloudMapRepository;
+    private @Autowired ReactiveConfigClient configClient;
 
     public @Bean CatalogServiceCatalogFacade rawCatalogServiceFacade() {
         CatalogServiceCatalogFacade facade = new CatalogServiceCatalogFacade();
@@ -43,6 +45,12 @@ public class CatalogClientConfiguration {
         facade.setMaps(cloudMapRepository);
         InnerResolvingProxy resolver = new InnerResolvingProxy(facade, null);
         facade.setObjectResolver(resolver::resolve);
+        return facade;
+    }
+
+    public @Bean CatalogServiceGeoServerFacade catalogServiceGeoServerFacade() {
+        CatalogServiceGeoServerFacade facade = new CatalogServiceGeoServerFacade();
+        facade.setClient(configClient);
         return facade;
     }
 }

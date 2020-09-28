@@ -33,4 +33,23 @@ public class ReactiveCatalogApiClientConfigurationTest {
                     assertNotNull(client);
                 });
     }
+
+    public @Test void testReactiveConfigClientIsLoaded() {
+        this.contextRunner.run(
+                context -> {
+                    assertThat(context).hasSingleBean(ReactiveConfigClient.class);
+                    ReactiveConfigClient client = context.getBean(ReactiveConfigClient.class);
+                    assertNotNull(client);
+                });
+    }
+
+    public @Test void testReactiveResourceStoreClientIsLoaded() {
+        this.contextRunner.run(
+                context -> {
+                    assertThat(context).hasSingleBean(ReactiveResourceStoreClient.class);
+                    ReactiveResourceStoreClient client =
+                            context.getBean(ReactiveResourceStoreClient.class);
+                    assertNotNull(client);
+                });
+    }
 }

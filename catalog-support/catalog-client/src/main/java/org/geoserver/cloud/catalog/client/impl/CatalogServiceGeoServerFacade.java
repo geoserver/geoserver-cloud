@@ -31,8 +31,8 @@ public class CatalogServiceGeoServerFacade implements GeoServerFacade {
         client.setGlobal(global).block();
     }
 
-    public @Override void save(GeoServerInfo geoServer) {
-        client.save(geoServer).block();
+    public @Override void save(GeoServerInfo global) {
+        client.setGlobal(global).block();
     }
 
     public @Override SettingsInfo getSettings(WorkspaceInfo workspace) {
@@ -40,15 +40,15 @@ public class CatalogServiceGeoServerFacade implements GeoServerFacade {
     }
 
     public @Override void add(SettingsInfo settings) {
-        client.add(settings).block();
+        client.createSettings(settings.getWorkspace().getId(), settings).block();
     }
 
     public @Override void save(SettingsInfo settings) {
-        client.save(settings).block();
+        client.saveSettings(settings.getWorkspace().getId(), settings).block();
     }
 
     public @Override void remove(SettingsInfo settings) {
-        client.removeSettings(settings.getId()).block();
+        client.deleteSettings(settings.getWorkspace().getId()).block();
     }
 
     public @Override LoggingInfo getLogging() {
@@ -60,23 +60,26 @@ public class CatalogServiceGeoServerFacade implements GeoServerFacade {
     }
 
     public @Override void save(LoggingInfo logging) {
-        client.save(logging).block();
+        client.setLogging(logging).block();
     }
 
     public @Override void add(ServiceInfo service) {
-        client.add(service).block();
+        WorkspaceInfo workspace = service.getWorkspace();
+        if (workspace == null) client.createService(service).block();
+        else client.createService(workspace.getId(), service).block();
     }
 
     public @Override void remove(ServiceInfo service) {
-        client.removeService(service.getId()).block();
+        client.deleteService(service.getId()).block();
     }
 
     public @Override void save(ServiceInfo service) {
-        client.save(service).block();
+        if (service.getWorkspace() == null) client.updateService(service).block();
+        else client.updateService(service.getWorkspace().getId(), service).block();
     }
 
     public @Override Collection<? extends ServiceInfo> getServices() {
-        return client.getServices().toStream().collect(Collectors.toList());
+        return client.getGlobalServices().toStream().collect(Collectors.toList());
     }
 
     public @Override Collection<? extends ServiceInfo> getServices(WorkspaceInfo workspace) {
@@ -90,20 +93,23 @@ public class CatalogServiceGeoServerFacade implements GeoServerFacade {
     }
 
     public @Override <T extends ServiceInfo> T getService(WorkspaceInfo workspace, Class<T> clazz) {
-        return client.getServiceByWorkspace(workspace.getId(), clazz).block();
+        return client.getServiceByWorkspaceAndType(workspace.getId(), clazz).block();
     }
 
     public @Override <T extends ServiceInfo> T getService(String id, Class<T> clazz) {
-        return client.getServiceById(id, clazz).block();
+        ServiceInfo service = client.getServiceById(id).block();
+        return clazz.isInstance(service) ? clazz.cast(service) : null;
     }
 
     public @Override <T extends ServiceInfo> T getServiceByName(String name, Class<T> clazz) {
-        return client.getServiceByName(name, clazz).block();
+        ServiceInfo service = client.getServiceByName(name).block();
+        return clazz.isInstance(service) ? clazz.cast(service) : null;
     }
 
     public @Override <T extends ServiceInfo> T getServiceByName(
             String name, WorkspaceInfo workspace, Class<T> clazz) {
-        return client.getServiceByNameAndWorkspace(name, workspace.getId(), clazz).block();
+        ServiceInfo service = client.getServiceByWorkspaceAndName(workspace.getId(), name).block();
+        return clazz.isInstance(service) ? clazz.cast(service) : null;
     }
 
     /** no-op */

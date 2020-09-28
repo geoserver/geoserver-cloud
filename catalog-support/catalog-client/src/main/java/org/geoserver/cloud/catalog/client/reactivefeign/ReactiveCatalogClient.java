@@ -29,9 +29,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @ReactiveFeignClient( //
-    name = "catalog-service", //
+    name = "catalog-service-client", //
     url = "${geoserver.backend.catalog-service.uri:catalog-service}", //
-    qualifier = "catalogClient", //
     path = "/api/v1/catalog"
 )
 public interface ReactiveCatalogClient {

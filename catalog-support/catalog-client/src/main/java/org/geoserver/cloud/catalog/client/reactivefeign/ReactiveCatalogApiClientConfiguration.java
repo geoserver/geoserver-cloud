@@ -8,5 +8,11 @@ import org.springframework.context.annotation.Configuration;
 import reactivefeign.spring.config.EnableReactiveFeignClients;
 
 @Configuration
-@EnableReactiveFeignClients(clients = ReactiveCatalogClient.class)
+@EnableReactiveFeignClients( //
+    clients = { //
+        ReactiveCatalogClient.class, //
+        ReactiveConfigClient.class, //
+        ReactiveResourceStoreClient.class
+    }
+)
 public class ReactiveCatalogApiClientConfiguration {}
