@@ -2,7 +2,7 @@
  * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
  * GPL 2.0 license, available at the root application directory.
  */
-package org.geoserver.cloud.integration.catalog;
+package org.geoserver.cloud.integration.catalogservice;
 
 import org.geoserver.catalog.plugin.CatalogImpl;
 import org.geoserver.cloud.catalog.app.CatalogServiceApplication;

@@ -9,8 +9,12 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfi
 import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Simple configuration to be referred to by integration tests that relied on auto-configuration to
+ * set up the context
+ */
 @Configuration
 @EnableAutoConfiguration(
     exclude = {SecurityAutoConfiguration.class, UserDetailsServiceAutoConfiguration.class}
 )
-public class AutoConfigurationTestConfiguration {}
+public class IntegrationTestConfiguration {}

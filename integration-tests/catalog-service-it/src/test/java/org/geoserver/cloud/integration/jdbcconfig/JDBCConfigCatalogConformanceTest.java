@@ -6,7 +6,7 @@ package org.geoserver.cloud.integration.jdbcconfig;
 
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogConformanceTest;
-import org.geoserver.cloud.testconfiguration.AutoConfigurationTestConfiguration;
+import org.geoserver.cloud.testconfiguration.IntegrationTestConfiguration;
 import org.geoserver.jdbcconfig.catalog.JDBCCatalogFacade;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.junit.Ignore;
@@ -18,7 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @SpringBootTest(
-    classes = AutoConfigurationTestConfiguration.class,
+    classes = IntegrationTestConfiguration.class,
     properties = {"geoserver.backend.jdbcconfig.enabled=true"}
 )
 @RunWith(SpringRunner.class)

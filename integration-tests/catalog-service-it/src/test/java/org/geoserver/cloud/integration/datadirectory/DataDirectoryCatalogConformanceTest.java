@@ -8,7 +8,7 @@ import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogConformanceTest;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.plugin.CatalogImpl;
-import org.geoserver.cloud.testconfiguration.AutoConfigurationTestConfiguration;
+import org.geoserver.cloud.testconfiguration.IntegrationTestConfiguration;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @SpringBootTest(
-    classes = AutoConfigurationTestConfiguration.class,
+    classes = IntegrationTestConfiguration.class,
     properties = {"geoserver.backend.data-directory.enabled=true"}
 )
 @RunWith(SpringRunner.class)
