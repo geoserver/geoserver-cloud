@@ -9,6 +9,8 @@ spring:
   cloud.config.discovery.enabled: false
   cloud.bus.enabled: false
 eureka.client.enabled: false
+hystrix.command.default.execution.timeout.enabled: false
+hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds: 50000
 
 geoserver:
   backend:

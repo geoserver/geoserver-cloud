@@ -4,8 +4,7 @@
  */
 package org.geoserver.cloud.catalog.service;
 
-import org.geoserver.platform.resource.Resource;
-import org.geoserver.platform.resource.ResourceNotificationDispatcher;
+import reactor.core.publisher.Mono;
 
 /** */
 public interface ReactiveResourceStore {
@@ -21,7 +20,7 @@ public interface ReactiveResourceStore {
      *     UNDEFINED).
      * @throws IllegalArgumentException If path is invalid
      */
-    Resource get(String path);
+    Mono<byte[]> get(String path);
 
     /**
      * Remove resource at indicated path (including individual resources or directories).
@@ -33,7 +32,7 @@ public interface ReactiveResourceStore {
      * @param path Path of resource to remove (using unix conventions, forward slash as separator)
      * @return <code>false</code> if doesn't exist or unable to remove
      */
-    boolean remove(String path);
+    Mono<Boolean> remove(String path);
 
     /**
      * Move resource at indicated path (including individual resources or directories).
@@ -42,12 +41,12 @@ public interface ReactiveResourceStore {
      * @param target path for moved resource
      * @return true if resource was moved target path
      */
-    boolean move(String path, String target);
+    Mono<Boolean> move(String path, String target);
 
     /**
      * The Resource Notification Dispatcher
      *
      * @return resource notification dispatcher
      */
-    ResourceNotificationDispatcher getResourceNotificationDispatcher();
+    // ResourceNotificationDispatcher getResourceNotificationDispatcher();
 }

@@ -410,10 +410,7 @@ public class ReactiveCatalogController {
     protected <T> Mono<T> noContent(String messageFormat, Object... messageArgs) {
         // revisit whether and now to return a reason message as header for debugging purposes
         // ex.getResponseHeaders().add("x-debug-reason", reason);
-        return Mono.error(() -> new ResponseStatusException(HttpStatus.NO_CONTENT));
-    }
-
-    protected <T> Mono<T> internalError(String messageFormat, Object... messageArgs) {
-        return error(HttpStatus.INTERNAL_SERVER_ERROR, messageFormat, messageArgs);
+        return Mono.defer(
+                () -> Mono.error(() -> new ResponseStatusException(HttpStatus.NO_CONTENT)));
     }
 }
