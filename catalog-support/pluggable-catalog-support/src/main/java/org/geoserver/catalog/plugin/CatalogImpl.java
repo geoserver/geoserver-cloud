@@ -244,11 +244,6 @@ public class CatalogImpl implements Catalog {
     }
 
     public @Override void save(StoreInfo store) {
-        if (store.getId() == null) {
-            // add it instead of saving
-            add(store);
-            return;
-        }
         validate(store, false);
         facade.save(store);
     }
