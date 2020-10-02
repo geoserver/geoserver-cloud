@@ -4,6 +4,8 @@
  */
 package org.geoserver.catalog.plugin;
 
+import static java.util.Collections.unmodifiableList;
+
 import java.io.IOException;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
@@ -12,11 +14,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.io.FilenameUtils;
-import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogCapabilities;
 import org.geoserver.catalog.CatalogException;
@@ -31,7 +34,6 @@ import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
-import org.geoserver.catalog.LockingCatalogFacade;
 import org.geoserver.catalog.MapInfo;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.PublishedType;
@@ -64,17 +66,19 @@ import org.geoserver.catalog.impl.CoverageInfoImpl;
 import org.geoserver.catalog.impl.DefaultCatalogFacade;
 import org.geoserver.catalog.impl.FeatureTypeInfoImpl;
 import org.geoserver.catalog.impl.ModificationProxy;
+import org.geoserver.catalog.impl.ProxyUtils;
 import org.geoserver.catalog.impl.ResolvingProxy;
 import org.geoserver.catalog.impl.ResourceInfoImpl;
 import org.geoserver.catalog.impl.StoreInfoImpl;
 import org.geoserver.catalog.impl.StyleInfoImpl;
 import org.geoserver.catalog.impl.WMSLayerInfoImpl;
 import org.geoserver.catalog.impl.WMTSLayerInfoImpl;
+import org.geoserver.catalog.plugin.resolving.ModificationProxyDecorator;
+import org.geoserver.catalog.plugin.resolving.ResolvingCatalogFacade;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.config.GeoServerDataDirectory;
 import org.geoserver.ows.util.OwsUtils;
 import org.geoserver.platform.ExtensionPriority;
-import org.geoserver.platform.GeoServerExtensions;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.Resource.Type;
@@ -85,15 +89,57 @@ import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 
-/** */
+/**
+ * Alternative to {@link org.geoserver.catalog.impl.CatalogImpl} to improve separation of concerns
+ * between levels of abstractions and favor plug-ability of the underlying object store.
+ *
+ * <p>
+ *
+ * <ul>
+ *   <li>Allows decorating the {@link CatalogFacade} with an {@link IsolatedCatalogFacade} when
+ *       {@link #setFacade} is called, instead of only in the default constructor
+ *   <li>Requires the {@code CatalogFacade} to derive from {@link ExtendedCatalogFacade}, to make
+ *       use of {@link ExtendedCatalogFacade#query query(Query&lt;T&gt;):Stream&lt;T&gt;} and {@link
+ *       ExtendedCatalogFacade#update update(CatalogInfo, Patch)}
+ *   <li>Enables setting a {@link RepositoryCatalogFacade}, which allows to easily abstract out the
+ *       underlying backend storage using {@link CatalogInfoRepository} implemenatations
+ *   <li>Uses {@link DefaultMemoryCatalogFacade} as the default facade implementation for attached,
+ *       on-heap {@link CatalogInfo} storage
+ *   <li>Implements all business-logic, like event handling and ensuring no {@link CatalogInfo}
+ *       instance gets in or out of the {@link Catalog} without being decorated with a {@link
+ *       ModificationProxy}, relieving the lower-level {@link CatalogFacade} abstraction of such
+ *       concerns. Hence {@link ExtendedCatalogFacade} works on plain POJOS, or whatever is supplied
+ *       by its {@link CatalogInfoRepository repositories}, though in practice it can only be
+ *       implementations of {@code org.geoserver.catalog.impl.*InfoImpl} due to coupling in other
+ *       areas.
+ *   <li>Of special interest is the use of {@link PropertyDiff} and {@link Patch} on all the {@link
+ *       #save} methods, delegating to {@link ExtendedCatalogFacade#update(CatalogInfo, Patch)} , in
+ *       order to keep the {@code ModificationProxy} logic local to this catalog implementation, and
+ *       let the backend (facade) implement atomic updates as it fits it better.
+ * </ul>
+ */
 @SuppressWarnings("serial")
 public class CatalogImpl implements Catalog {
 
     /** logger */
     private static final Logger LOGGER = Logging.getLogger(CatalogImpl.class);
 
-    /** data access facade */
-    protected CatalogFacade facade;
+    /**
+     * Original data access facade provided at {@link #setFacade(CatalogFacade)}, may or may be not
+     * a {@link ResolvingCatalogFacade}. If not, {@link #facade} will be a resolving decorator to
+     * allow traits to be added.
+     */
+    protected CatalogFacade rawFacade;
+
+    /**
+     * Resolving catalog facade to use inside this catalog. The {@link #rawFacade} will be wrapped
+     * on a resolving decorator if it's not already a {@link ResolvingCatalogFacade}.
+     *
+     * <p>This catalog will add inbound and outbound traits to make sure no {@link CatalogInfo}
+     * leaves the facade without being decorated with a {@link ModificationProxy}, nor gets into the
+     * facade without its {@link ModificationProxy} decorator being removed.
+     */
+    protected ResolvingCatalogFacade facade;
 
     /** listeners */
     protected List<CatalogListener> listeners = new CopyOnWriteArrayList<>();
@@ -106,11 +152,23 @@ public class CatalogImpl implements Catalog {
     /** Handles {@link CatalogInfo} validation rules before adding or updating an object */
     protected final CatalogValidationRules validationSupport;
 
+    protected final boolean isolated;
+
     public CatalogImpl() {
-        facade = new DefaultCatalogFacade(this);
-        // wrap the default catalog facade with the facade capable of handling isolated workspaces
-        // behavior
-        facade = new IsolatedCatalogFacade(facade);
+        this(true);
+    }
+
+    public CatalogImpl(boolean isolated) {
+        this(new DefaultMemoryCatalogFacade(), isolated);
+    }
+
+    public CatalogImpl(CatalogFacade facade) {
+        this(facade, true);
+    }
+
+    public CatalogImpl(CatalogFacade facade, boolean isolated) {
+        Objects.requireNonNull(facade);
+        this.isolated = isolated;
         setFacade(facade);
         resourcePool = ResourcePool.create(this);
         validationSupport = new CatalogValidationRules(this);
@@ -135,13 +193,32 @@ public class CatalogImpl implements Catalog {
     }
 
     public void setFacade(CatalogFacade facade) {
-        final GeoServerConfigurationLock configurationLock =
-                GeoServerExtensions.bean(GeoServerConfigurationLock.class);
-        if (configurationLock != null) {
-            facade = LockingCatalogFacade.create(facade, configurationLock);
+        // final GeoServerConfigurationLock configurationLock;
+        // configurationLock = GeoServerExtensions.bean(GeoServerConfigurationLock.class);
+        // if (configurationLock != null) {
+        // facade = LockingCatalogFacade.create(facade, configurationLock);
+        // }
+        ExtendedCatalogFacade efacade;
+        Function<CatalogInfo, CatalogInfo> outboundResolver = Function.identity();
+        if (facade instanceof ExtendedCatalogFacade) {
+            efacade = (ExtendedCatalogFacade) facade;
+        } else {
+            efacade = new CatalogFacadeExtensionAdapter(facade);
+            outboundResolver = ModificationProxyDecorator.unwrap();
         }
-        this.facade = facade;
-        facade.setCatalog(this);
+        // decorate the default catalog facade with one capable of handling isolated workspaces
+        // behavior
+        if (this.isolated) {
+            efacade = new IsolatedCatalogFacade(efacade);
+        }
+        ResolvingCatalogFacade resolving = new ResolvingCatalogFacade(efacade);
+        // make sure no object leaves without being proxies, nor enters the facade as a proxy. Note
+        // it is ok if the provided facade is already a ResolvingCatalogFacade. This catalog doesn't
+        // care which object resolution chain the provided facade needs to perform.
+        resolving.setOutboundResolver(outboundResolver.andThen(ModificationProxyDecorator.wrap()));
+        resolving.setInboundResolver(ModificationProxyDecorator::unwrap);
+        this.facade = resolving;
+        this.facade.setCatalog(this);
     }
 
     public @Override String getId() {
@@ -207,7 +284,7 @@ public class CatalogImpl implements Catalog {
 
     public @Override void save(StoreInfo store) {
         validate(store, false);
-        facade.save(store);
+        doSave(store);
     }
 
     public @Override <T extends StoreInfo> T detach(T store) {
@@ -272,11 +349,11 @@ public class CatalogImpl implements Catalog {
     public @Override <T extends StoreInfo> List<T> getStoresByWorkspace(
             WorkspaceInfo workspace, Class<T> clazz) {
 
-        return facade.getStoresByWorkspace(workspace, clazz);
+        return unmodifiableList(facade.getStoresByWorkspace(workspace, clazz));
     }
 
     public @Override <T extends StoreInfo> List<T> getStores(Class<T> clazz) {
-        return facade.getStores(clazz);
+        return unmodifiableList(facade.getStores(clazz));
     }
 
     public @Override DataStoreInfo getDataStore(String id) {
@@ -388,7 +465,7 @@ public class CatalogImpl implements Catalog {
 
     public @Override void save(ResourceInfo resource) {
         validate(resource, false);
-        facade.save(resource);
+        doSave(resource);
     }
 
     public @Override <T extends ResourceInfo> T detach(T resource) {
@@ -455,12 +532,12 @@ public class CatalogImpl implements Catalog {
     }
 
     public @Override <T extends ResourceInfo> List<T> getResources(Class<T> clazz) {
-        return facade.getResources(clazz);
+        return unmodifiableList(facade.getResources(clazz));
     }
 
     public @Override <T extends ResourceInfo> List<T> getResourcesByNamespace(
             NamespaceInfo namespace, Class<T> clazz) {
-        return facade.getResourcesByNamespace(namespace, clazz);
+        return unmodifiableList(facade.getResourcesByNamespace(namespace, clazz));
     }
 
     public @Override <T extends ResourceInfo> List<T> getResourcesByNamespace(
@@ -487,7 +564,7 @@ public class CatalogImpl implements Catalog {
 
     public @Override <T extends ResourceInfo> List<T> getResourcesByStore(
             StoreInfo store, Class<T> clazz) {
-        return facade.getResourcesByStore(store, clazz);
+        return unmodifiableList(facade.getResourcesByStore(store, clazz));
     }
 
     public @Override FeatureTypeInfo getFeatureType(String id) {
@@ -604,7 +681,7 @@ public class CatalogImpl implements Catalog {
 
     public @Override void save(LayerInfo layer) {
         validate(layer, false);
-        facade.save(layer);
+        doSave(layer);
     }
 
     public @Override LayerInfo detach(LayerInfo layer) {
@@ -664,15 +741,15 @@ public class CatalogImpl implements Catalog {
     }
 
     public @Override List<LayerInfo> getLayers(ResourceInfo resource) {
-        return facade.getLayers(resource);
+        return unmodifiableList(facade.getLayers(resource));
     }
 
     public @Override List<LayerInfo> getLayers(StyleInfo style) {
-        return facade.getLayers(style);
+        return unmodifiableList(facade.getLayers(style));
     }
 
     public @Override List<LayerInfo> getLayers() {
-        return facade.getLayers();
+        return unmodifiableList(facade.getLayers());
     }
 
     // Map methods
@@ -685,7 +762,7 @@ public class CatalogImpl implements Catalog {
     }
 
     public @Override List<MapInfo> getMaps() {
-        return facade.getMaps();
+        return unmodifiableList(facade.getMaps());
     }
 
     public @Override void add(LayerGroupInfo layerGroup) {
@@ -713,7 +790,7 @@ public class CatalogImpl implements Catalog {
 
     public @Override void save(LayerGroupInfo layerGroup) {
         validate(layerGroup, false);
-        facade.save(layerGroup);
+        doSave(layerGroup);
     }
 
     public @Override LayerGroupInfo detach(LayerGroupInfo layerGroup) {
@@ -721,7 +798,7 @@ public class CatalogImpl implements Catalog {
     }
 
     public @Override List<LayerGroupInfo> getLayerGroups() {
-        return facade.getLayerGroups();
+        return unmodifiableList(facade.getLayerGroups());
     }
 
     public @Override List<LayerGroupInfo> getLayerGroupsByWorkspace(String workspaceName) {
@@ -737,7 +814,7 @@ public class CatalogImpl implements Catalog {
     }
 
     public @Override List<LayerGroupInfo> getLayerGroupsByWorkspace(WorkspaceInfo workspace) {
-        return facade.getLayerGroupsByWorkspace(workspace);
+        return unmodifiableList(facade.getLayerGroupsByWorkspace(workspace));
     }
 
     public @Override LayerGroupInfo getLayerGroup(String id) {
@@ -805,7 +882,7 @@ public class CatalogImpl implements Catalog {
     }
 
     public @Override void save(MapInfo map) {
-        facade.save(map);
+        doSave(map);
     }
 
     public @Override MapInfo detach(MapInfo map) {
@@ -833,7 +910,7 @@ public class CatalogImpl implements Catalog {
     }
 
     public @Override List<NamespaceInfo> getNamespaces() {
-        return facade.getNamespaces();
+        return unmodifiableList(facade.getNamespaces());
     }
 
     public @Override void add(NamespaceInfo namespace) {
@@ -887,8 +964,7 @@ public class CatalogImpl implements Catalog {
 
     public @Override void save(NamespaceInfo namespace) {
         validate(namespace, false);
-
-        facade.save(namespace);
+        doSave(namespace);
     }
 
     public @Override NamespaceInfo detach(NamespaceInfo namespace) {
@@ -971,8 +1047,7 @@ public class CatalogImpl implements Catalog {
 
     public @Override void save(WorkspaceInfo workspace) {
         validate(workspace, false);
-
-        facade.save(workspace);
+        doSave(workspace);
     }
 
     public @Override WorkspaceInfo detach(WorkspaceInfo workspace) {
@@ -997,7 +1072,7 @@ public class CatalogImpl implements Catalog {
     }
 
     public @Override List<WorkspaceInfo> getWorkspaces() {
-        return facade.getWorkspaces();
+        return unmodifiableList(facade.getWorkspaces());
     }
 
     public @Override WorkspaceInfo getWorkspace(String id) {
@@ -1063,7 +1138,7 @@ public class CatalogImpl implements Catalog {
     }
 
     public @Override List<StyleInfo> getStyles() {
-        return facade.getStyles();
+        return unmodifiableList(facade.getStyles());
     }
 
     public @Override List<StyleInfo> getStylesByWorkspace(String workspaceName) {
@@ -1079,7 +1154,7 @@ public class CatalogImpl implements Catalog {
     }
 
     public @Override List<StyleInfo> getStylesByWorkspace(WorkspaceInfo workspace) {
-        return facade.getStylesByWorkspace(workspace);
+        return unmodifiableList(facade.getStylesByWorkspace(workspace));
     }
 
     public @Override void add(StyleInfo style) {
@@ -1116,7 +1191,7 @@ public class CatalogImpl implements Catalog {
             }
         }
 
-        facade.save(style);
+        doSave(style);
     }
 
     private void renameStyle(StyleInfo s, String newName) throws IOException {
@@ -1411,17 +1486,22 @@ public class CatalogImpl implements Catalog {
         return detached != null ? detached : original;
     }
 
-    public void sync(CatalogImpl other) {
-        other.facade.syncTo(facade);
-        listeners = other.listeners;
+    public void sync(Catalog other) {
+        other.getFacade().syncTo(facade);
+        listeners.clear();
+        listeners.addAll(other.getListeners());
 
-        if (resourcePool != other.resourcePool) {
-            resourcePool.dispose();
-            resourcePool = other.resourcePool;
-            resourcePool.setCatalog(this);
+        ResourcePool resourcePool = other.getResourcePool();
+        // REVISIT: this still sounds wrong... looks like an old assumption that both catalogs are
+        // in-memory catalogs and the argument one is to be disposed, which in the end means this
+        // method
+        // does not belong here but to whom's calling (DefaultGeoServerLoader?)
+        if (this.resourcePool != resourcePool) {
+            this.resourcePool.dispose();
         }
-
-        resourceLoader = other.resourceLoader;
+        setResourcePool(resourcePool);
+        resourcePool.setCatalog(this);
+        resourceLoader = other.getResourceLoader();
     }
 
     public @Override void accept(CatalogVisitor visitor) {
@@ -1486,9 +1566,8 @@ public class CatalogImpl implements Catalog {
             throws IllegalArgumentException {
 
         final Integer limit = Integer.valueOf(2);
-        CloseableIterator<T> it = list(type, filter, null, limit, null);
         T result = null;
-        try {
+        try (CloseableIterator<T> it = list(type, filter, null, limit, null)) {
             if (it.hasNext()) {
                 result = it.next();
                 if (it.hasNext()) {
@@ -1496,13 +1575,49 @@ public class CatalogImpl implements Catalog {
                             "Specified query predicate resulted in more than one object");
                 }
             }
-        } finally {
-            it.close();
         }
         return result;
     }
 
     public @Override CatalogCapabilities getCatalogCapabilities() {
         return facade.getCatalogCapabilities();
+    }
+
+    /**
+     * Called by all {@code save(...)} methods, creates a {@link Patch} out of the {@code info}
+     * {@link ModificationProxy} and calls {@link ExtendedCatalogFacade#update
+     * facade.update(CatalogInfo, Patch)} with the real object and the patch, for the facade to
+     * apply the changeset to its backend storage as appropriate.
+     *
+     * <p>Handles {@link #fireModified pre} and {@link #firePostModified post} modify events
+     * publishing. It is no longer {@link CatalogFacade}s responsibility to publish the post-modify
+     * events
+     *
+     * @param info a {@link ModificationProxy} holding the actual, unchanged object and the changed
+     *     properties
+     */
+    protected <I extends CatalogInfo> void doSave(final I info) {
+        ModificationProxy proxy = ProxyUtils.handler(info, ModificationProxy.class);
+        // figure out what changed
+        List<String> propertyNames = proxy.getPropertyNames();
+        List<Object> newValues = proxy.getNewValues();
+        List<Object> oldValues = proxy.getOldValues();
+
+        // this could be the event's payload instead of three separate lists
+        PropertyDiff diff = PropertyDiff.valueOf(proxy);
+        Patch patch = diff.toPatch();
+
+        // use the proxied object, may some listener change it
+        fireModified(info, propertyNames, oldValues, newValues);
+
+        // note info will be unwrapped before being given to the raw facade by the inbound resolving
+        // function set at #setFacade
+        I updated = facade.update(info, patch);
+
+        // commit proxy, making effective the change in the provided object. Has no effect in what's
+        // been passed to the facade
+        proxy.commit();
+
+        firePostModified(updated, propertyNames, oldValues, newValues);
     }
 }

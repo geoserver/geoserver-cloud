@@ -203,15 +203,6 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade {
         stores.remove(store);
     }
 
-    /** Throws {@link UnsupportedOperationException}, use {@link #update(CatalogInfo, Patch)} */
-    public @Override void save(StoreInfo store) {
-        throw new UnsupportedOperationException("Expected use of update(CatalogInfo, Patch)");
-    }
-
-    public @Override <T extends StoreInfo> T detach(T store) {
-        return store;
-    }
-
     public @Override <T extends StoreInfo> T getStore(String id, Class<T> clazz) {
         return stores.findById(id, clazz).orElse(null);
     }
@@ -279,15 +270,6 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade {
         resources.remove(resource);
     }
 
-    /** Throws {@link UnsupportedOperationException}, use {@link #update(CatalogInfo, Patch)} */
-    public @Override void save(ResourceInfo resource) {
-        throw new UnsupportedOperationException("Expected use of update(CatalogInfo, Patch)");
-    }
-
-    public @Override <T extends ResourceInfo> T detach(T resource) {
-        return resource;
-    }
-
     public @Override <T extends ResourceInfo> T getResource(String id, Class<T> clazz) {
         return resources.findById(id, clazz).orElse(null);
     }
@@ -352,15 +334,6 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade {
         layers.remove(layer);
     }
 
-    /** Throws {@link UnsupportedOperationException}, use {@link #update(CatalogInfo, Patch)} */
-    public @Override void save(LayerInfo layer) {
-        throw new UnsupportedOperationException("Expected use of update(CatalogInfo, Patch)");
-    }
-
-    public @Override LayerInfo detach(LayerInfo layer) {
-        return layer;
-    }
-
     public @Override LayerInfo getLayer(String id) {
         return layers.findById(id, LayerInfo.class).orElse(null);
     }
@@ -392,15 +365,6 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade {
         maps.remove(map);
     }
 
-    /** Throws {@link UnsupportedOperationException}, use {@link #update(CatalogInfo, Patch)} */
-    public @Override void save(MapInfo map) {
-        throw new UnsupportedOperationException("Expected use of update(CatalogInfo, Patch)");
-    }
-
-    public @Override MapInfo detach(MapInfo map) {
-        return map;
-    }
-
     public @Override MapInfo getMap(String id) {
         return maps.findById(id, MapInfo.class).orElse(null);
     }
@@ -422,15 +386,6 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade {
 
     public @Override void remove(LayerGroupInfo layerGroup) {
         layerGroups.remove(layerGroup);
-    }
-
-    /** Throws {@link UnsupportedOperationException}, use {@link #update(CatalogInfo, Patch)} */
-    public @Override void save(LayerGroupInfo layerGroup) {
-        throw new UnsupportedOperationException("Expected use of update(CatalogInfo, Patch)");
-    }
-
-    public @Override LayerGroupInfo detach(LayerGroupInfo layerGroup) {
-        return layerGroup;
     }
 
     public @Override List<LayerGroupInfo> getLayerGroups() {
@@ -486,15 +441,6 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade {
             setDefaultNamespace(null);
         }
         namespaces.remove(namespace);
-    }
-
-    /** Throws {@link UnsupportedOperationException}, use {@link #update(CatalogInfo, Patch)} */
-    public @Override void save(NamespaceInfo namespace) {
-        throw new UnsupportedOperationException("Expected use of update(CatalogInfo, Patch)");
-    }
-
-    public @Override NamespaceInfo detach(NamespaceInfo namespace) {
-        return namespace;
     }
 
     public @Override NamespaceInfo getDefaultNamespace() {
@@ -556,15 +502,6 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade {
         workspaces.remove(workspace);
     }
 
-    /** Throws {@link UnsupportedOperationException}, use {@link #update(CatalogInfo, Patch)} */
-    public @Override void save(WorkspaceInfo workspace) {
-        throw new UnsupportedOperationException("Expected use of update(CatalogInfo, Patch)");
-    }
-
-    public @Override WorkspaceInfo detach(WorkspaceInfo workspace) {
-        return workspace;
-    }
-
     public @Override WorkspaceInfo getDefaultWorkspace() {
         return workspaces.getDefaultWorkspace().orElse(null);
     }
@@ -604,15 +541,6 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade {
 
     public @Override void remove(StyleInfo style) {
         styles.remove(style);
-    }
-
-    /** Throws {@link UnsupportedOperationException}, use {@link #update(CatalogInfo, Patch)} */
-    public @Override void save(StyleInfo style) {
-        throw new UnsupportedOperationException("Expected use of update(CatalogInfo, Patch)");
-    }
-
-    public @Override StyleInfo detach(StyleInfo style) {
-        return style;
     }
 
     public @Override StyleInfo getStyle(String id) {

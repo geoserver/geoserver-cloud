@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.geoserver.catalog.CatalogCapabilities;
 import org.geoserver.catalog.CatalogFacade;
@@ -23,7 +24,7 @@ import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ModificationProxy;
-import org.geoserver.catalog.plugin.forwarding.ForwardingCatalogFacade;
+import org.geoserver.catalog.plugin.forwarding.ForwardingExtendedCatalogFacade;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.catalog.util.CloseableIteratorAdapter;
 import org.geoserver.ows.Dispatcher;
@@ -32,9 +33,9 @@ import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 
 /** Copy of package private {@code org.geoserver.catalog.impl.IsolatedCatalogFacade} */
-public final class IsolatedCatalogFacade extends ForwardingCatalogFacade {
+public final class IsolatedCatalogFacade extends ForwardingExtendedCatalogFacade {
 
-    IsolatedCatalogFacade(CatalogFacade facade) {
+    IsolatedCatalogFacade(ExtendedCatalogFacade facade) {
         super(facade);
     }
 
@@ -240,6 +241,13 @@ public final class IsolatedCatalogFacade extends ForwardingCatalogFacade {
         return filterIsolated(of, facade.list(of, filter, offset, count, sortOrder));
     }
 
+    public @Override <T extends CatalogInfo> Stream<T> query(Query<T> query) {
+        return ((ExtendedCatalogFacade) facade)
+                .query(query)
+                .map(this::enforceIsolation)
+                .filter(i -> i != null);
+    }
+
     @Override
     public CatalogCapabilities getCatalogCapabilities() {
         CatalogCapabilities capabilities = facade.getCatalogCapabilities();
@@ -257,6 +265,18 @@ public final class IsolatedCatalogFacade extends ForwardingCatalogFacade {
         return LocalWorkspace.get();
     }
 
+    @SuppressWarnings("unchecked")
+    private <T extends CatalogInfo> T enforceIsolation(T info) {
+        if (StoreInfo.class.isInstance(info)) return (T) enforceStoreIsolation((StoreInfo) info);
+        if (ResourceInfo.class.isInstance(info))
+            return (T) enforceResourceIsolation((ResourceInfo) info);
+        if (LayerInfo.class.isInstance(info)) return (T) enforceLayerIsolation((LayerInfo) info);
+        if (LayerGroupInfo.class.isInstance(info))
+            return (T) enforceLayerGroupIsolation((LayerGroupInfo) info);
+        if (StyleInfo.class.isInstance(info)) return (T) enforceStyleIsolation((StyleInfo) info);
+
+        return info;
+    }
     /**
      * Checks if the provided store is visible in the current context.
      *

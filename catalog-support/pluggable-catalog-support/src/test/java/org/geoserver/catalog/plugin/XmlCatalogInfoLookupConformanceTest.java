@@ -6,29 +6,39 @@ package org.geoserver.catalog.plugin;
 
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogConformanceTest;
+import org.geoserver.catalog.plugin.resolving.CatalogPropertyResolver;
+import org.geoserver.catalog.plugin.resolving.CollectionPropertiesInitializer;
+import org.geoserver.catalog.plugin.resolving.ResolvingCatalogFacade;
+import org.geoserver.catalog.plugin.resolving.ResolvingProxyResolver;
 import org.geoserver.config.util.XStreamPersister;
 import org.geoserver.config.util.XStreamPersisterFactory;
 
 public class XmlCatalogInfoLookupConformanceTest extends CatalogConformanceTest {
 
     protected @Override Catalog createCatalog() {
-        CatalogPlugin catalog = new org.geoserver.catalog.plugin.CatalogPlugin();
+        CatalogImpl catalog = new org.geoserver.catalog.plugin.CatalogImpl();
         XStreamPersisterFactory xpf = new XStreamPersisterFactory();
         XStreamPersister codec = xpf.createXMLPersister();
         codec.setCatalog(catalog);
 
-        DefaultMemoryCatalogFacade facade = new DefaultMemoryCatalogFacade();
+        DefaultMemoryCatalogFacade rawFacade = new DefaultMemoryCatalogFacade();
 
-        facade.setWorkspaceRepository(new XmlCatalogInfoLookup.WorkspaceInfoLookup(codec));
-        facade.setNamespaceRepository(new XmlCatalogInfoLookup.NamespaceInfoLookup(codec));
-        facade.setStoreRepository(new XmlCatalogInfoLookup.StoreInfoLookup(codec));
-        facade.setResourceRepository(new XmlCatalogInfoLookup.ResourceInfoLookup(codec));
-        facade.setLayerRepository(new XmlCatalogInfoLookup.LayerInfoLookup(codec));
-        facade.setLayerGroupRepository(new XmlCatalogInfoLookup.LayerGroupInfoLookup(codec));
-        facade.setStyleRepository(new XmlCatalogInfoLookup.StyleInfoLookup(codec));
-        facade.setMapRepository(new XmlCatalogInfoLookup.MapInfoLookup(codec));
+        rawFacade.setWorkspaceRepository(new XmlCatalogInfoLookup.WorkspaceInfoLookup(codec));
+        rawFacade.setNamespaceRepository(new XmlCatalogInfoLookup.NamespaceInfoLookup(codec));
+        rawFacade.setStoreRepository(new XmlCatalogInfoLookup.StoreInfoLookup(codec));
+        rawFacade.setResourceRepository(new XmlCatalogInfoLookup.ResourceInfoLookup(codec));
+        rawFacade.setLayerRepository(new XmlCatalogInfoLookup.LayerInfoLookup(codec));
+        rawFacade.setLayerGroupRepository(new XmlCatalogInfoLookup.LayerGroupInfoLookup(codec));
+        rawFacade.setStyleRepository(new XmlCatalogInfoLookup.StyleInfoLookup(codec));
+        rawFacade.setMapRepository(new XmlCatalogInfoLookup.MapInfoLookup(codec));
 
-        catalog.setFacade(facade);
+        ResolvingCatalogFacade resolving = new ResolvingCatalogFacade(rawFacade);
+
+        resolving.setOutboundResolver( //
+                CatalogPropertyResolver.of(catalog) //
+                        .andThen(ResolvingProxyResolver.of(catalog)) //
+                        .andThen(CollectionPropertiesInitializer.instance()));
+        catalog.setFacade(resolving);
         return catalog;
     }
 }

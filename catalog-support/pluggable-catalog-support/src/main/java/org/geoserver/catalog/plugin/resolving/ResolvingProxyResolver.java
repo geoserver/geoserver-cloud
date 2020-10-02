@@ -22,11 +22,7 @@ import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
-import org.geoserver.catalog.impl.LayerGroupInfoImpl;
-import org.geoserver.catalog.impl.LayerInfoImpl;
 import org.geoserver.catalog.impl.ResolvingProxy;
-import org.geoserver.catalog.impl.ResourceInfoImpl;
-import org.geoserver.catalog.impl.StoreInfoImpl;
 
 /**
  * {@link ResolvingCatalogFacade#setObjectResolver resolving function} that resolves {@link
@@ -134,19 +130,13 @@ public class ResolvingProxyResolver implements Function<CatalogInfo, CatalogInfo
                             .map(this::resolve)
                             .collect(Collectors.toCollection(LinkedHashSet::new));
 
-            if (layer instanceof LayerInfoImpl) {
-                ((LayerInfoImpl) layer).setStyles(resolvedStyles);
-            } else {
-                layer.getStyles().clear();
-                layer.getStyles().addAll(resolvedStyles);
-            }
+            layer.getStyles().clear();
+            layer.getStyles().addAll(resolvedStyles);
         }
         return layer;
     }
 
-    protected LayerGroupInfo resolveInternal(LayerGroupInfo layerGroup) {
-        LayerGroupInfoImpl lg = (LayerGroupInfoImpl) layerGroup;
-
+    protected LayerGroupInfo resolveInternal(LayerGroupInfo lg) {
         for (int i = 0; i < lg.getLayers().size(); i++) {
             PublishedInfo l = lg.getLayers().get(i);
             if (l != null) {
@@ -161,7 +151,7 @@ public class ResolvingProxyResolver implements Function<CatalogInfo, CatalogInfo
             }
         }
         lg.setWorkspace(resolve(lg.getWorkspace()));
-        return layerGroup;
+        return lg;
     }
 
     protected StyleInfo resolveInternal(StyleInfo style) {
@@ -174,30 +164,26 @@ public class ResolvingProxyResolver implements Function<CatalogInfo, CatalogInfo
     }
 
     protected StoreInfo resolveInternal(StoreInfo store) {
-        StoreInfoImpl s = (StoreInfoImpl) store;
-
         // resolve the workspace
         WorkspaceInfo ws = store.getWorkspace();
         if (isResolvingProxy(ws)) {
-            s.setWorkspace(resolve(ws));
+            store.setWorkspace(resolve(ws));
         }
-        return s;
+        return store;
     }
 
     protected ResourceInfo resolveInternal(ResourceInfo resource) {
-        ResourceInfoImpl r = (ResourceInfoImpl) resource;
-
         // resolve the store
         StoreInfo store = resource.getStore();
         if (isResolvingProxy(store)) {
-            r.setStore(resolve(store));
+            resource.setStore(resolve(store));
         }
 
         // resolve the namespace
         NamespaceInfo namespace = resource.getNamespace();
         if (isResolvingProxy(namespace)) {
-            r.setNamespace(resolve(namespace));
+            resource.setNamespace(resolve(namespace));
         }
-        return r;
+        return resource;
     }
 }

@@ -13,7 +13,6 @@ import org.geoserver.catalog.plugin.CatalogInfoRepository.ResourceRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.StoreRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.StyleRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.WorkspaceRepository;
-import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.catalog.plugin.RepositoryCatalogFacade;
 
 /**
@@ -26,7 +25,7 @@ import org.geoserver.catalog.plugin.RepositoryCatalogFacade;
 public class ForwardingRepositoryCatalogFacade extends ForwardingExtendedCatalogFacade
         implements RepositoryCatalogFacade {
 
-    public ForwardingRepositoryCatalogFacade(ExtendedCatalogFacade facade) {
+    public ForwardingRepositoryCatalogFacade(RepositoryCatalogFacade facade) {
         super(facade);
     }
 

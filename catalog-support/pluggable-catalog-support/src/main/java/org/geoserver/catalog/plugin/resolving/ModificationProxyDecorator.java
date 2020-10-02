@@ -8,6 +8,7 @@ import java.util.function.Function;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.impl.ModificationProxy;
+import org.geoserver.catalog.impl.ProxyUtils;
 
 /**
  * {@link ResolvingCatalogFacade#setObjectResolver resolving function} that returns the incoming
@@ -25,8 +26,8 @@ public class ModificationProxyDecorator {
         return ModificationProxyDecorator::unwrap;
     }
 
-    static CatalogInfo wrap(CatalogInfo i) {
-        if (i != null) {
+    public static CatalogInfo wrap(CatalogInfo i) {
+        if (i != null && null == ProxyUtils.handler(i, ModificationProxy.class)) {
             ClassMappings mappings = ClassMappings.fromImpl(i.getClass());
             if (mappings == null) {
                 throw new IllegalArgumentException(
@@ -38,7 +39,7 @@ public class ModificationProxyDecorator {
         return i;
     }
 
-    static CatalogInfo unwrap(CatalogInfo i) {
+    public static CatalogInfo unwrap(CatalogInfo i) {
         return i == null ? null : ModificationProxy.unwrap(i);
     }
 }

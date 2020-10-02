@@ -9,10 +9,12 @@ import static java.util.Spliterator.IMMUTABLE;
 import static java.util.Spliterator.NONNULL;
 import static java.util.Spliterator.ORDERED;
 
+import java.util.List;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.LayerGroupInfo;
@@ -23,13 +25,21 @@ import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
+import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.impl.ModificationProxy;
+import org.geoserver.catalog.plugin.forwarding.ForwardingCatalog;
 import org.geoserver.catalog.plugin.forwarding.ForwardingCatalogFacade;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 
-/** Adapts a regular {@link CatalogFacade} to a {@link ExtendedCatalogFacade} */
+/**
+ * Adapts a regular {@link CatalogFacade} to a {@link ExtendedCatalogFacade}
+ *
+ * <p>Overrides {@link #setCatalog} with a catalog decorator that doesn't publish events, further
+ * adapting a legacy {@link CatalogFacade} implementation, that mixes up responsibilities with the
+ * catalog itself.
+ */
 public class CatalogFacadeExtensionAdapter extends ForwardingCatalogFacade
         implements ExtendedCatalogFacade {
 
@@ -45,13 +55,10 @@ public class CatalogFacadeExtensionAdapter extends ForwardingCatalogFacade
             return ((ExtendedCatalogFacade) facade).update(info, patch);
         }
 
-        ModificationProxy proxy = ModificationProxy.handler(info);
-        if (proxy == null) {
-            proxy = ModificationProxy.handler(info);
-        }
-        patch.applyTo(proxy);
-        save(info);
-        proxy.commit();
+        Class<I> clazz = ClassMappings.fromImpl(info.getClass()).getInterface();
+        I proxied = ModificationProxy.create(info, clazz);
+        patch.applyTo(proxied);
+        save(proxied);
         return info;
     }
 
@@ -84,5 +91,29 @@ public class CatalogFacadeExtensionAdapter extends ForwardingCatalogFacade
         Stream<T> stream = StreamSupport.stream(spliterator, false);
         stream.onClose(iterator::close);
         return stream;
+    }
+
+    public @Override void setCatalog(Catalog catalog) {
+        super.setCatalog(new QuietCatalog(catalog));
+    }
+
+    private static class QuietCatalog extends ForwardingCatalog {
+        private static final long serialVersionUID = 1L;
+
+        public QuietCatalog(Catalog catalog) {
+            super(catalog);
+        }
+
+        public @Override void fireAdded(CatalogInfo object) {}
+
+        @SuppressWarnings("rawtypes")
+        public @Override void fireModified(
+                CatalogInfo object, List<String> propertyNames, List oldValues, List newValues) {}
+
+        @SuppressWarnings("rawtypes")
+        public @Override void firePostModified(
+                CatalogInfo object, List<String> propertyNames, List oldValues, List newValues) {}
+
+        public @Override void fireRemoved(CatalogInfo object) {}
     }
 }

@@ -26,11 +26,15 @@ import org.geoserver.catalog.impl.ResolvingProxy;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.Query;
-import org.geoserver.catalog.plugin.forwarding.ForwardingRepositoryCatalogFacade;
+import org.geoserver.catalog.plugin.forwarding.ForwardingExtendedCatalogFacade;
+import org.geoserver.catalog.util.CloseableIterator;
+import org.geoserver.catalog.util.CloseableIteratorAdapter;
+import org.opengis.filter.Filter;
+import org.opengis.filter.sort.SortBy;
 
 /**
- * {@link CatalogFacade} that applies a possibly side-effect producing {@link Function} to each
- * {@link CatalogInfo} right before returning it.
+ * {@link ExtendedCatalogFacade} decorator that applies a possibly side-effect producing
+ * {@link Function} to each {@link CatalogInfo} right before returning it.
  *
  * <p>
  * By default the function applied is the {@link Function#identity() identity} function, use
@@ -71,7 +75,7 @@ import org.geoserver.catalog.plugin.forwarding.ForwardingRepositoryCatalogFacade
  * {@link Catalog}, may some of the functions in the chain require one; {@link #setOutboundResolver}
  * is agnostic of such concerns.
  */
-public class ResolvingCatalogFacade extends ForwardingRepositoryCatalogFacade {
+public class ResolvingCatalogFacade extends ForwardingExtendedCatalogFacade {
 
     private Function<CatalogInfo, CatalogInfo> outboundResolver = Function.identity();
     private Function<CatalogInfo, CatalogInfo> inboundResolver = Function.identity();
@@ -92,13 +96,33 @@ public class ResolvingCatalogFacade extends ForwardingRepositoryCatalogFacade {
     /**
      * Function applied to all incoming {@link CatalogInfo} objects before deferring to the
      * decorated facade
+     *
+     * <p>Use {@code facade.setOutboundResolver(facade.getOutboundResolver().andThen(myFunction))}
+     * to add traits to the current resolver; for example, a filtering trait could be added this way
+     * to filter out objects based on some externally defined conditions, returning {@code null} if
+     * an object is to be discarded from the final outcome
+     */
+    public Function<CatalogInfo, CatalogInfo> getOutboundResolver() {
+        return this.outboundResolver;
+    }
+
+    /**
+     * Function applied to all incoming {@link CatalogInfo} objects before deferring to the
+     * decorated facade
      */
     public void setInboundResolver(Function<CatalogInfo, CatalogInfo> resolvingFunction) {
         Objects.requireNonNull(resolvingFunction);
         this.inboundResolver = resolvingFunction;
     }
 
-    public Function<CatalogInfo, CatalogInfo> getObjectResolver() {
+    /**
+     * Function applied to all incoming {@link CatalogInfo} objects before deferring to the
+     * decorated facade.
+     *
+     * <p>Use {@code facade.setInboundResolver(facade.getInboundResolver().andThen(myFunction))} to
+     * add traits to the current resolver
+     */
+    public Function<CatalogInfo, CatalogInfo> getInboundResolver() {
         return this.outboundResolver;
     }
 
@@ -392,27 +416,14 @@ public class ResolvingCatalogFacade extends ForwardingRepositoryCatalogFacade {
         super.remove(resolveInbound(info));
     }
 
-    // no need to override list, RepositoryCatalogFacade.list() already calls query()
-    // public @Override <T extends CatalogInfo> CloseableIterator<T> list(
-    // Class<T> of, Filter filter, Integer offset, Integer count, SortBy... sortOrder) {
-    //
-    // final CloseableIterator<T> orig = facade().list(of, filter, offset, count, sortOrder);
-    // final Function<T, T> resolver = resolver();
-    //
-    // return CloseableIteratorAdapter.transform(orig, resolver::apply);
-    // }
+    public @Override <T extends CatalogInfo> CloseableIterator<T> list(
+            Class<T> of, Filter filter, Integer offset, Integer count, SortBy... sortOrder) {
 
-    public @Override <T extends CatalogInfo> Stream<T> query(Query<T> query) {
-        return super.query(query).map(this::resolveOutbound);
+        final CloseableIterator<T> orig = facade().list(of, filter, offset, count, sortOrder);
+        return CloseableIteratorAdapter.transform(orig, this::resolveOutbound);
     }
 
-    // public @Override <T extends StoreInfo> T detach(T resource) {}
-    // public @Override <T extends ResourceInfo> T detach(T resource) {}
-    // public @Override LayerInfo detach(LayerInfo layer) {}
-    // public @Override MapInfo detach(MapInfo map) {}
-    // public @Override LayerGroupInfo detach(LayerGroupInfo layerGroup) {}
-    // public @Override NamespaceInfo detach(NamespaceInfo namespace) {}
-    // public @Override WorkspaceInfo detach(WorkspaceInfo workspace) {}
-    // public @Override StyleInfo detach(StyleInfo style) {}
-
+    public @Override <T extends CatalogInfo> Stream<T> query(Query<T> query) {
+        return super.query(query).map(this::resolveOutbound).filter(i -> i != null);
+    }
 }

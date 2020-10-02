@@ -124,7 +124,7 @@ public class CatalogPlugin extends org.geoserver.catalog.impl.CatalogImpl {
         }
         // wrap the default catalog facade with the facade capable of handling isolated workspaces
         // behavior
-        this.facade = isolated ? new IsolatedCatalogFacade(facade) : facade;
+        this.facade = isolated ? new IsolatedCatalogFacade((ExtendedCatalogFacade) facade) : facade;
         facade.setCatalog(this);
     }
 
