@@ -6,57 +6,45 @@ package org.geoserver.catalog.plugin;
 
 import java.io.IOException;
 import java.lang.reflect.Proxy;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-import java.util.Stack;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
 import org.apache.commons.io.FilenameUtils;
 import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.catalog.Catalog;
-import org.geoserver.catalog.CatalogBuilder;
 import org.geoserver.catalog.CatalogCapabilities;
 import org.geoserver.catalog.CatalogException;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogFactory;
 import org.geoserver.catalog.CatalogInfo;
-import org.geoserver.catalog.CatalogValidator;
 import org.geoserver.catalog.CatalogVisitor;
 import org.geoserver.catalog.CoverageDimensionInfo;
 import org.geoserver.catalog.CoverageInfo;
 import org.geoserver.catalog.CoverageStoreInfo;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.FeatureTypeInfo;
-import org.geoserver.catalog.KeywordInfo;
-import org.geoserver.catalog.LayerGroupHelper;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.LockingCatalogFacade;
 import org.geoserver.catalog.MapInfo;
 import org.geoserver.catalog.NamespaceInfo;
-import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.catalog.PublishedType;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.ResourcePool;
 import org.geoserver.catalog.SLDHandler;
-import org.geoserver.catalog.SLDNamedLayerValidator;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleHandler;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.Styles;
 import org.geoserver.catalog.ValidationResult;
 import org.geoserver.catalog.WMSLayerInfo;
-import org.geoserver.catalog.WMSStoreInfo;
 import org.geoserver.catalog.WMTSLayerInfo;
-import org.geoserver.catalog.WMTSStoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.event.CatalogAddEvent;
 import org.geoserver.catalog.event.CatalogBeforeAddEvent;
@@ -91,7 +79,6 @@ import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.Resource.Type;
 import org.geoserver.platform.resource.Resources;
-import org.geotools.styling.StyledLayerDescriptor;
 import org.geotools.util.SuppressFBWarnings;
 import org.geotools.util.logging.Logging;
 import org.opengis.feature.type.Name;
@@ -116,8 +103,8 @@ public class CatalogImpl implements Catalog {
 
     protected GeoServerResourceLoader resourceLoader;
 
-    /** extended validation switch */
-    protected boolean extendedValidation = true;
+    /** Handles {@link CatalogInfo} validation rules before adding or updating an object */
+    protected final CatalogValidationRules validationSupport;
 
     public CatalogImpl() {
         facade = new DefaultCatalogFacade(this);
@@ -126,6 +113,7 @@ public class CatalogImpl implements Catalog {
         facade = new IsolatedCatalogFacade(facade);
         setFacade(facade);
         resourcePool = ResourcePool.create(this);
+        validationSupport = new CatalogValidationRules(this);
     }
 
     public @Override CatalogFacade getFacade() {
@@ -139,15 +127,11 @@ public class CatalogImpl implements Catalog {
      * bootstrap catalog contents.
      */
     public void setExtendedValidation(boolean extendedValidation) {
-        this.extendedValidation = extendedValidation;
+        validationSupport.setExtendedValidation(extendedValidation);
     }
 
     public boolean isExtendedValidation() {
-        return extendedValidation;
-    }
-
-    public Iterable<CatalogValidator> getValidators() {
-        return GeoServerExtensions.extensions(CatalogValidator.class);
+        return validationSupport.isExtendedValidation();
     }
 
     public void setFacade(CatalogFacade facade) {
@@ -193,35 +177,13 @@ public class CatalogImpl implements Catalog {
         added(added);
     }
 
-    public ValidationResult validate(StoreInfo store, boolean isNew) {
-        if (isNull(store.getName())) {
-            throw new IllegalArgumentException("Store name must not be null");
-        }
-        if (store.getWorkspace() == null) {
-            throw new IllegalArgumentException("Store must be part of a workspace");
-        }
-
-        WorkspaceInfo workspace = store.getWorkspace();
-        StoreInfo existing = getStoreByName(workspace, store.getName(), StoreInfo.class);
-        if (existing != null && (isNew || !existing.getId().equals(store.getId()))) {
-            String msg =
-                    "Store '"
-                            + store.getName()
-                            + "' already exists in workspace '"
-                            + workspace.getName()
-                            + "'";
-            throw new IllegalArgumentException(msg);
-        }
-
-        return postValidate(store, isNew);
+    public @Override ValidationResult validate(StoreInfo store, boolean isNew) {
+        return validationSupport.validate(store, isNew);
     }
 
     @SuppressFBWarnings("NP_NONNULL_PARAM_VIOLATION") // setDefaultDataStore allows for null store
     public @Override void remove(StoreInfo store) {
-        if (!getResourcesByStore(store, ResourceInfo.class).isEmpty()) {
-            throw new IllegalArgumentException("Unable to delete non-empty store.");
-        }
-
+        validationSupport.beforeRemove(store);
         // TODO: remove synchronized block, need transactions
         synchronized (facade) {
             facade.remove(store);
@@ -414,56 +376,12 @@ public class CatalogImpl implements Catalog {
         added(added);
     }
 
-    public ValidationResult validate(ResourceInfo resource, boolean isNew) {
-        if (isNull(resource.getName())) {
-            throw new NullPointerException("Resource name must not be null");
-        }
-
-        if (isNull(resource.getNativeName())
-                && !(resource instanceof CoverageInfo
-                        && ((CoverageInfo) resource).getNativeCoverageName() != null)) {
-            throw new NullPointerException("Resource native name must not be null");
-        }
-        if (resource.getStore() == null) {
-            throw new IllegalArgumentException("Resource must be part of a store");
-        }
-        if (resource.getNamespace() == null) {
-            throw new IllegalArgumentException("Resource must be part of a namespace");
-        }
-
-        StoreInfo store = resource.getStore();
-        ResourceInfo existing = getResourceByStore(store, resource.getName(), ResourceInfo.class);
-        if (existing != null && !existing.getId().equals(resource.getId())) {
-            String msg =
-                    "Resource named '"
-                            + resource.getName()
-                            + "' already exists in store: '"
-                            + store.getName()
-                            + "'";
-            throw new IllegalArgumentException(msg);
-        }
-
-        NamespaceInfo namespace = resource.getNamespace();
-        existing = getResourceByName(namespace, resource.getName(), ResourceInfo.class);
-        if (existing != null && !existing.getId().equals(resource.getId())) {
-            String msg =
-                    "Resource named '"
-                            + resource.getName()
-                            + "' already exists in namespace: '"
-                            + namespace.getPrefix()
-                            + "'";
-            throw new IllegalArgumentException(msg);
-        }
-
-        validateKeywords(resource.getKeywords());
-        return postValidate(resource, isNew);
+    public @Override ValidationResult validate(ResourceInfo resource, boolean isNew) {
+        return validationSupport.validate(resource, isNew);
     }
 
     public @Override void remove(ResourceInfo resource) {
-        // ensure no references to the resource
-        if (!getLayers(resource).isEmpty()) {
-            throw new IllegalArgumentException("Unable to delete resource referenced by layer");
-        }
+        validationSupport.beforeRemove(resource);
         facade.remove(resource);
         removed(resource);
     }
@@ -674,80 +592,12 @@ public class CatalogImpl implements Catalog {
         added(added);
     }
 
-    @SuppressFBWarnings("RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE")
-    public ValidationResult validate(LayerInfo layer, boolean isNew) {
-        // TODO: bring back when the layer/publishing split is in act
-        //        if ( isNull(layer.getName()) ) {
-        //            throw new NullPointerException( "Layer name must not be null" );
-        //        }
-
-        if (layer.getResource() == null) {
-            throw new NullPointerException("Layer resource must not be null");
-        }
-
-        // calling LayerInfo.setName(String) updates the resource (until the layer/publishing split
-        // is in act), but that doesn't mean the resource was saved previously, which can leave the
-        // catalog in an inconsistent state
-        final NamespaceInfo ns = layer.getResource().getNamespace();
-        if (null == getResourceByName(ns, layer.getResource().getName(), ResourceInfo.class)) {
-            throw new IllegalStateException(
-                    "Found no resource named "
-                            + layer.prefixedName()
-                            + " , Layer with that name can't be added");
-        }
-        final String prefix = ns != null ? ns.getPrefix() : null;
-        LayerInfo existing = getLayerByName(prefix, layer.getName());
-        if (existing != null && !existing.getId().equals(layer.getId())) {
-            throw new IllegalArgumentException(
-                    "Layer named '"
-                            + layer.getName()
-                            + "' in workspace '"
-                            + prefix
-                            + "' already exists.");
-        }
-
-        // if the style is missing associate a default one, to avoid breaking WMS
-        if (layer.getDefaultStyle() == null) {
-            try {
-                LOGGER.log(
-                        Level.INFO,
-                        "Layer "
-                                + layer.prefixedName()
-                                + " is missing the default style, assigning one automatically");
-                StyleInfo style = new CatalogBuilder(this).getDefaultStyle(layer.getResource());
-                layer.setDefaultStyle(style);
-            } catch (IOException e) {
-                LOGGER.log(
-                        Level.WARNING,
-                        "Layer "
-                                + layer.prefixedName()
-                                + " is missing the default style, "
-                                + "failed to associate one automatically",
-                        e);
-            }
-        }
-
-        // clean up eventual dangling references to missing alternate styles
-        Set<StyleInfo> styles = layer.getStyles();
-        for (Iterator<StyleInfo> it = styles.iterator(); it.hasNext(); ) {
-            StyleInfo styleInfo = (StyleInfo) it.next();
-            if (styleInfo == null) {
-                it.remove();
-            }
-        }
-
-        return postValidate(layer, isNew);
+    public @Override ValidationResult validate(LayerInfo layer, boolean isNew) {
+        return validationSupport.validate(layer, isNew);
     }
 
     public @Override void remove(LayerInfo layer) {
-        // ensure no references to the layer
-        for (LayerGroupInfo lg : facade.getLayerGroups()) {
-            if (lg.getLayers().contains(layer) || layer.equals(lg.getRootLayer())) {
-                String msg =
-                        "Unable to delete layer referenced by layer group '" + lg.getName() + "'";
-                throw new IllegalArgumentException(msg);
-            }
-        }
+        validationSupport.beforeRemove(layer);
         facade.remove(layer);
         removed(layer);
     }
@@ -784,12 +634,12 @@ public class CatalogImpl implements Catalog {
             String prefix = name.substring(0, colon);
             String resource = name.substring(colon + 1);
 
-            result = getLayerByName(prefix, resource);
+            result = getLayerByName(this, prefix, resource);
         } else {
             // search in default workspace first
             WorkspaceInfo ws = getDefaultWorkspace();
             if (ws != null) {
-                result = getLayerByName(ws.getName(), name);
+                result = getLayerByName(this, ws.getName(), name);
             }
         }
 
@@ -800,12 +650,12 @@ public class CatalogImpl implements Catalog {
         return result;
     }
 
-    private LayerInfo getLayerByName(String workspace, String resourceName) {
-        ResourceInfo r = getResourceByName(workspace, resourceName, ResourceInfo.class);
+    static LayerInfo getLayerByName(Catalog catalog, String workspace, String resourceName) {
+        ResourceInfo r = catalog.getResourceByName(workspace, resourceName, ResourceInfo.class);
         if (r == null) {
             return null;
         }
-        List<LayerInfo> layers = getLayers(r);
+        List<LayerInfo> layers = catalog.getLayers(r);
         if (layers.size() == 1) {
             return layers.get(0);
         } else {
@@ -851,184 +701,12 @@ public class CatalogImpl implements Catalog {
         added(added);
     }
 
-    @SuppressFBWarnings("RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE")
-    public ValidationResult validate(LayerGroupInfo layerGroup, boolean isNew) {
-        if (isNull(layerGroup.getName())) {
-            throw new NullPointerException("Layer group name must not be null");
-        }
-
-        WorkspaceInfo ws = layerGroup.getWorkspace();
-        LayerGroupInfo existing = getLayerGroupByName(ws, layerGroup.getName());
-        if (existing != null && !existing.getId().equals(layerGroup.getId())) {
-            // null workspace can cause layer group in any workspace to be returned, check that
-            // workspaces match
-            WorkspaceInfo ews = existing.getWorkspace();
-            if ((ws == null && ews == null) || (ws != null && ws.equals(ews))) {
-                String msg = "Layer group named '" + layerGroup.getName() + "' already exists";
-                if (ws != null) {
-                    msg += " in workspace " + ws.getName();
-                }
-                throw new IllegalArgumentException(msg);
-            }
-        }
-
-        // sanitize a bit broken layer references
-        List<PublishedInfo> layers = layerGroup.getLayers();
-        List<StyleInfo> styles = layerGroup.getStyles();
-        for (int i = 0; i < layers.size(); ) {
-            if (layers != null
-                    && styles != null
-                    && layers.get(i) == null
-                    && styles.get(i) == null) {
-                layers.remove(i);
-                styles.remove(i);
-            } else {
-                // Validate style group
-                if (layers.get(i) == null) {
-                    try {
-                        // validate style groups
-                        StyledLayerDescriptor sld = styles.get(i).getSLD();
-                        List<Exception> errors = SLDNamedLayerValidator.validate(this, sld);
-                        if (errors.size() > 0) {
-                            throw new IllegalArgumentException(
-                                    "Invalid style group: " + errors.get(0).getMessage(),
-                                    errors.get(0));
-                        }
-                    } catch (IOException e) {
-                        throw new IllegalArgumentException(
-                                "Error validating style group: " + e.getMessage(), e);
-                    }
-                }
-                i++;
-            }
-        }
-
-        if (layerGroup.getLayers() == null || layerGroup.getLayers().isEmpty()) {
-            throw new IllegalArgumentException("Layer group must not be empty");
-        }
-
-        if (layerGroup.getStyles() != null
-                && !layerGroup.getStyles().isEmpty()
-                && !(layerGroup.getStyles().size() == layerGroup.getLayers().size())) {
-            throw new IllegalArgumentException(
-                    "Layer group has different number of styles than layers");
-        }
-
-        LayerGroupHelper helper = new LayerGroupHelper(layerGroup);
-        Stack<LayerGroupInfo> loopPath = helper.checkLoops();
-        if (loopPath != null) {
-            throw new IllegalArgumentException(
-                    "Layer group is in a loop: " + helper.getLoopAsString(loopPath));
-        }
-
-        // if the layer group has a workspace assigned, ensure that every resource in that layer
-        // group lives within the same workspace
-        if (ws != null) {
-            checkLayerGroupResourceIsInWorkspace(layerGroup, ws);
-        }
-
-        if (layerGroup.getMode() == null) {
-            throw new IllegalArgumentException("Layer group mode must not be null");
-        } else if (LayerGroupInfo.Mode.EO.equals(layerGroup.getMode())) {
-            if (layerGroup.getRootLayer() == null) {
-                throw new IllegalArgumentException(
-                        "Layer group in mode "
-                                + LayerGroupInfo.Mode.EO.getName()
-                                + " must have a root layer");
-            }
-
-            if (layerGroup.getRootLayerStyle() == null) {
-                throw new IllegalArgumentException(
-                        "Layer group in mode "
-                                + LayerGroupInfo.Mode.EO.getName()
-                                + " must have a root layer style");
-            }
-        } else {
-            if (layerGroup.getRootLayer() != null) {
-                throw new IllegalArgumentException(
-                        "Layer group in mode "
-                                + layerGroup.getMode().getName()
-                                + " must not have a root layer");
-            }
-
-            if (layerGroup.getRootLayerStyle() != null) {
-                throw new IllegalArgumentException(
-                        "Layer group in mode "
-                                + layerGroup.getMode().getName()
-                                + " must not have a root layer style");
-            }
-        }
-
-        return postValidate(layerGroup, isNew);
-    }
-
-    private void checkLayerGroupResourceIsInWorkspace(LayerGroupInfo layerGroup, WorkspaceInfo ws) {
-        if (layerGroup == null) return;
-
-        if (layerGroup.getWorkspace() != null && !ws.equals(layerGroup.getWorkspace())) {
-            throw new IllegalArgumentException(
-                    "Layer group within a workspace ("
-                            + ws.getName()
-                            + ") can not contain resources from other workspace: "
-                            + layerGroup.getWorkspace().getName());
-        }
-
-        checkLayerGroupResourceIsInWorkspace(layerGroup.getRootLayer(), ws);
-        checkLayerGroupResourceIsInWorkspace(layerGroup.getRootLayerStyle(), ws);
-        if (layerGroup.getLayers() != null) {
-            for (PublishedInfo p : layerGroup.getLayers()) {
-                if (p instanceof LayerGroupInfo) {
-                    checkLayerGroupResourceIsInWorkspace((LayerGroupInfo) p, ws);
-                } else if (p instanceof LayerInfo) {
-                    checkLayerGroupResourceIsInWorkspace((LayerInfo) p, ws);
-                }
-            }
-        }
-
-        if (layerGroup.getStyles() != null) {
-            for (StyleInfo s : layerGroup.getStyles()) {
-                checkLayerGroupResourceIsInWorkspace(s, ws);
-            }
-        }
-    }
-
-    private void checkLayerGroupResourceIsInWorkspace(StyleInfo style, WorkspaceInfo ws) {
-        if (style == null) return;
-
-        if (style.getWorkspace() != null && !ws.equals(style.getWorkspace())) {
-            throw new IllegalArgumentException(
-                    "Layer group within a workspace ("
-                            + ws.getName()
-                            + ") can not contain styles from other workspace: "
-                            + style.getWorkspace());
-        }
-    }
-
-    private void checkLayerGroupResourceIsInWorkspace(LayerInfo layer, WorkspaceInfo ws) {
-        if (layer == null) return;
-
-        ResourceInfo r = layer.getResource();
-        if (r.getStore().getWorkspace() != null && !ws.equals(r.getStore().getWorkspace())) {
-            throw new IllegalArgumentException(
-                    "Layer group within a workspace ("
-                            + ws.getName()
-                            + ") can not contain resources from other workspace: "
-                            + r.getStore().getWorkspace().getName());
-        }
+    public @Override ValidationResult validate(LayerGroupInfo layerGroup, boolean isNew) {
+        return validationSupport.validate(layerGroup, isNew);
     }
 
     public @Override void remove(LayerGroupInfo layerGroup) {
-        // ensure no references to the layer group
-        for (LayerGroupInfo lg : facade.getLayerGroups()) {
-            if (lg.getLayers().contains(layerGroup)) {
-                String msg =
-                        "Unable to delete layer group referenced by layer group '"
-                                + lg.getName()
-                                + "'";
-                throw new IllegalArgumentException(msg);
-            }
-        }
-
+        validationSupport.beforeRemove(layerGroup);
         facade.remove(layerGroup);
         removed(layerGroup);
     }
@@ -1121,6 +799,7 @@ public class CatalogImpl implements Catalog {
     }
 
     public @Override void remove(MapInfo map) {
+        validationSupport.beforeRemove(map);
         facade.remove(map);
         removed(map);
     }
@@ -1173,64 +852,13 @@ public class CatalogImpl implements Catalog {
         added(added);
     }
 
-    public ValidationResult validate(NamespaceInfo namespace, boolean isNew) {
-
-        if (namespace.isIsolated() && !getCatalogCapabilities().supportsIsolatedWorkspaces()) {
-            // isolated namespaces \ workspaces are not supported by this catalog
-            throw new IllegalArgumentException(
-                    String.format(
-                            "Namespace '%s:%s' is isolated but isolated workspaces are not supported by this catalog.",
-                            namespace.getPrefix(), namespace.getURI()));
-        }
-
-        if (isNull(namespace.getPrefix())) {
-            throw new NullPointerException("Namespace prefix must not be null");
-        }
-
-        if (namespace.getPrefix().equals(DEFAULT)) {
-            throw new IllegalArgumentException(
-                    DEFAULT + " is a reserved keyword, can't be used as the namespace prefix");
-        }
-
-        NamespaceInfo existing = getNamespaceByPrefix(namespace.getPrefix());
-        if (existing != null && !existing.getId().equals(namespace.getId())) {
-            throw new IllegalArgumentException(
-                    "Namespace with prefix '" + namespace.getPrefix() + "' already exists.");
-        }
-
-        if (!namespace.isIsolated()) {
-            // not an isolated namespace \ workplace so we need to check for duplicates
-            existing = getNamespaceByURI(namespace.getURI());
-            if (existing != null && !existing.getId().equals(namespace.getId())) {
-                throw new IllegalArgumentException(
-                        "Namespace with URI '" + namespace.getURI() + "' already exists.");
-            }
-        }
-
-        if (isNull(namespace.getURI())) {
-            throw new NullPointerException("Namespace uri must not be null");
-        }
-
-        try {
-            new URI(namespace.getURI());
-        } catch (Exception e) {
-            throw new IllegalArgumentException(
-                    "Invalid URI syntax for '"
-                            + namespace.getURI()
-                            + "' in namespace '"
-                            + namespace.getPrefix()
-                            + "'");
-        }
-
-        return postValidate(namespace, isNew);
+    public @Override ValidationResult validate(NamespaceInfo namespace, boolean isNew) {
+        return validationSupport.validate(namespace, isNew);
     }
 
     @SuppressFBWarnings("NP_NULL_PARAM_DEREF") // I don't see this happening...
     public @Override void remove(NamespaceInfo namespace) {
-        if (!getResourcesByNamespace(namespace, ResourceInfo.class).isEmpty()) {
-            throw new IllegalArgumentException("Unable to delete non-empty namespace.");
-        }
-
+        validationSupport.beforeRemove(namespace);
         // TODO: remove synchronized block, need transactions
         synchronized (facade) {
             facade.remove(namespace);
@@ -1307,45 +935,13 @@ public class CatalogImpl implements Catalog {
         added(added);
     }
 
-    public ValidationResult validate(WorkspaceInfo workspace, boolean isNew) {
-
-        if (workspace.isIsolated() && !getCatalogCapabilities().supportsIsolatedWorkspaces()) {
-            // isolated namespaces \ workspaces are not supported by this catalog
-            throw new IllegalArgumentException(
-                    String.format(
-                            "Workspace '%s' is isolated but isolated workspaces are not supported by this catalog.",
-                            workspace.getName()));
-        }
-
-        if (isNull(workspace.getName())) {
-            throw new NullPointerException("workspace name must not be null");
-        }
-
-        if (workspace.getName().equals(DEFAULT)) {
-            throw new IllegalArgumentException(
-                    DEFAULT + " is a reserved keyword, can't be used as the workspace name");
-        }
-
-        WorkspaceInfo existing = getWorkspaceByName(workspace.getName());
-        if (existing != null && !existing.getId().equals(workspace.getId())) {
-            throw new IllegalArgumentException(
-                    "Workspace named '" + workspace.getName() + "' already exists.");
-        }
-
-        return postValidate(workspace, isNew);
+    public @Override ValidationResult validate(WorkspaceInfo workspace, boolean isNew) {
+        return validationSupport.validate(workspace, isNew);
     }
 
     @SuppressFBWarnings("NP_NULL_PARAM_DEREF") // I don't see this happening...
     public @Override void remove(WorkspaceInfo workspace) {
-        // JD: maintain the link between namespace and workspace, remove this when this is no
-        // longer necessary
-        if (getNamespaceByPrefix(workspace.getName()) != null) {
-            throw new IllegalArgumentException("Cannot delete workspace with linked namespace");
-        }
-        if (!getStoresByWorkspace(workspace, StoreInfo.class).isEmpty()) {
-            throw new IllegalArgumentException("Cannot delete non-empty workspace.");
-        }
-
+        validationSupport.beforeRemove(workspace);
         // TODO: remove synchronized block, need transactions
         synchronized (facade) {
             facade.remove(workspace);
@@ -1495,76 +1091,14 @@ public class CatalogImpl implements Catalog {
         added(added);
     }
 
-    public ValidationResult validate(StyleInfo style, boolean isNew) {
-        if (isNull(style.getName())) {
-            throw new NullPointerException("Style name must not be null");
-        }
-        if (isNull(style.getFilename())) {
-            throw new NullPointerException("Style fileName must not be null");
-        }
-
-        WorkspaceInfo ws = style.getWorkspace();
-        StyleInfo existing = getStyleByName(ws, style.getName());
-        if (existing != null && (isNew || !existing.getId().equals(style.getId()))) {
-            // null workspace can cause style in any workspace to be returned, check that
-            // workspaces match
-            WorkspaceInfo ews = existing.getWorkspace();
-            String msg = "Style named '" + style.getName() + "' already exists";
-            if (ews != null) {
-                msg += " in workspace " + ews.getName();
-            }
-            throw new IllegalArgumentException(msg);
-        }
-
-        if (!isNew) {
-            StyleInfo current = getStyle(style.getId());
-
-            // Default style validation
-            if (isDefaultStyle(current)) {
-
-                if (!current.getName().equals(style.getName())) {
-                    throw new IllegalArgumentException("Cannot rename default styles");
-                }
-                if (null != style.getWorkspace()) {
-                    throw new IllegalArgumentException(
-                            "Cannot change the workspace of default styles");
-                }
-            }
-        }
-
-        return postValidate(style, isNew);
+    public @Override ValidationResult validate(StyleInfo style, boolean isNew) {
+        return validationSupport.validate(style, isNew);
     }
 
     public @Override void remove(StyleInfo style) {
-        // ensure no references to the style
-        for (LayerInfo l : facade.getLayers(style)) {
-            throw new IllegalArgumentException(
-                    "Unable to delete style referenced by '" + l.getName() + "'");
-        }
-
-        for (LayerGroupInfo lg : facade.getLayerGroups()) {
-            if (lg.getStyles().contains(style) || style.equals(lg.getRootLayerStyle())) {
-                String msg =
-                        "Unable to delete style referenced by layer group '" + lg.getName() + "'";
-                throw new IllegalArgumentException(msg);
-            }
-        }
-
-        if (isDefaultStyle(style)) {
-            throw new IllegalArgumentException("Unable to delete a default style");
-        }
-
+        validationSupport.beforeRemove(style);
         facade.remove(style);
         removed(style);
-    }
-
-    private boolean isDefaultStyle(StyleInfo s) {
-        return s.getWorkspace() == null
-                && (StyleInfo.DEFAULT_POINT.equals(s.getName())
-                        || StyleInfo.DEFAULT_LINE.equals(s.getName())
-                        || StyleInfo.DEFAULT_POLYGON.equals(s.getName())
-                        || StyleInfo.DEFAULT_RASTER.equals(s.getName())
-                        || StyleInfo.DEFAULT_GENERIC.equals(s.getName()));
     }
 
     public @Override void save(StyleInfo style) {
@@ -1752,28 +1286,6 @@ public class CatalogImpl implements Catalog {
         return obj;
     }
 
-    public static void validateKeywords(List<KeywordInfo> keywords) {
-        if (keywords != null) {
-            for (KeywordInfo kw : keywords) {
-                Matcher m = KeywordInfo.RE.matcher(kw.getValue());
-                if (!m.matches()) {
-                    throw new IllegalArgumentException(
-                            "Illegal keyword '"
-                                    + kw
-                                    + "'. "
-                                    + "Keywords must not be empty and must not contain the '\\' character");
-                }
-                if (kw.getVocabulary() != null) {
-                    m = KeywordInfo.RE.matcher(kw.getVocabulary());
-                    if (!m.matches()) {
-                        throw new IllegalArgumentException(
-                                "Keyword vocbulary must not contain the '\\' character");
-                    }
-                }
-            }
-        }
-    }
-
     /** Implementation method for resolving all {@link ResolvingProxy} instances. */
     public void resolve() {
         facade.setCatalog(this);
@@ -1897,88 +1409,6 @@ public class CatalogImpl implements Catalog {
 
     <T extends CatalogInfo> T detached(T original, T detached) {
         return detached != null ? detached : original;
-    }
-
-    protected ValidationResult postValidate(CatalogInfo info, boolean isNew) {
-        List<RuntimeException> errors = new ArrayList<RuntimeException>();
-
-        if (!extendedValidation) {
-            return new ValidationResult(null);
-        }
-
-        for (CatalogValidator constraint : getValidators()) {
-            try {
-                info.accept(new CatalogValidatorVisitor(constraint, isNew));
-            } catch (RuntimeException e) {
-                errors.add(e);
-            }
-        }
-        return new ValidationResult(errors);
-    }
-
-    static class CatalogValidatorVisitor implements CatalogVisitor {
-
-        CatalogValidator validator;
-        boolean isNew;
-
-        CatalogValidatorVisitor(CatalogValidator validator, boolean isNew) {
-            this.validator = validator;
-            this.isNew = isNew;
-        }
-
-        public @Override void visit(Catalog catalog) {}
-
-        public @Override void visit(WorkspaceInfo workspace) {
-            validator.validate(workspace, isNew);
-        }
-
-        public @Override void visit(NamespaceInfo namespace) {
-            validator.validate(namespace, isNew);
-        }
-
-        public @Override void visit(DataStoreInfo dataStore) {
-            validator.validate(dataStore, isNew);
-        }
-
-        public @Override void visit(CoverageStoreInfo coverageStore) {
-            validator.validate(coverageStore, isNew);
-        }
-
-        public @Override void visit(WMSStoreInfo wmsStore) {
-            validator.validate(wmsStore, isNew);
-        }
-
-        public @Override void visit(WMTSStoreInfo wmtsStore) {
-            validator.validate(wmtsStore, isNew);
-        }
-
-        public @Override void visit(FeatureTypeInfo featureType) {
-            validator.validate(featureType, isNew);
-        }
-
-        public @Override void visit(CoverageInfo coverage) {
-            validator.validate(coverage, isNew);
-        }
-
-        public @Override void visit(LayerInfo layer) {
-            validator.validate(layer, isNew);
-        }
-
-        public @Override void visit(StyleInfo style) {
-            validator.validate(style, isNew);
-        }
-
-        public @Override void visit(LayerGroupInfo layerGroup) {
-            validator.validate(layerGroup, isNew);
-        }
-
-        public @Override void visit(WMSLayerInfo wmsLayer) {
-            validator.validate(wmsLayer, isNew);
-        }
-
-        public @Override void visit(WMTSLayerInfo wmtsLayer) {
-            validator.validate(wmtsLayer, isNew);
-        }
     }
 
     public void sync(CatalogImpl other) {
