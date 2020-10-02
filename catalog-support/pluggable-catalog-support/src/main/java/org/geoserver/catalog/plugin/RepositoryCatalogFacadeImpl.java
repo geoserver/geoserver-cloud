@@ -13,6 +13,7 @@ import static org.geoserver.catalog.impl.ClassMappings.RESOURCE;
 import static org.geoserver.catalog.impl.ClassMappings.STORE;
 import static org.geoserver.catalog.impl.ClassMappings.STYLE;
 import static org.geoserver.catalog.impl.ClassMappings.WORKSPACE;
+
 import java.lang.reflect.Proxy;
 import java.rmi.server.UID;
 import java.util.Collections;
@@ -82,8 +83,7 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade {
         repos.put(cm, repo);
         for (Class<? extends Info> c : cm.concreteInterfaces()) {
             ClassMappings i = ClassMappings.fromInterface(c);
-            if (!cm.getInterface().equals(i.getInterface()))
-                repos.put(i, repo);
+            if (!cm.getInterface().equals(i.getInterface())) repos.put(i, repo);
         }
     }
 
@@ -184,8 +184,8 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade {
         // no-op, override as appropriate
     };
 
-    protected <I extends CatalogInfo> I add(I info, Class<I> type,
-            CatalogInfoRepository<I> repository) {
+    protected <I extends CatalogInfo> I add(
+            I info, Class<I> type, CatalogInfoRepository<I> repository) {
         checkNotAProxy(info);
         setId(info);
         repository.add(info);
@@ -216,8 +216,8 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade {
         return stores.findById(id, clazz).orElse(null);
     }
 
-    public @Override <T extends StoreInfo> T getStoreByName(WorkspaceInfo workspace, String name,
-            Class<T> clazz) {
+    public @Override <T extends StoreInfo> T getStoreByName(
+            WorkspaceInfo workspace, String name, Class<T> clazz) {
 
         Optional<T> result;
         if (workspace == ANY_WORKSPACE || workspace == null) {
@@ -228,8 +228,8 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade {
         return result.orElse(null);
     }
 
-    public @Override <T extends StoreInfo> List<T> getStoresByWorkspace(WorkspaceInfo workspace,
-            Class<T> clazz) {
+    public @Override <T extends StoreInfo> List<T> getStoresByWorkspace(
+            WorkspaceInfo workspace, Class<T> clazz) {
         // TODO: support ANY_WORKSPACE?
         final WorkspaceInfo ws;
         if (workspace == null) {
@@ -253,17 +253,16 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade {
         DataStoreInfo old = stores.getDefaultDataStore(workspace).orElse(null);
         if (store != null) {
             Objects.requireNonNull(store.getWorkspace());
-            Assert.isTrue(workspace.getId().equals(store.getWorkspace().getId()),
+            Assert.isTrue(
+                    workspace.getId().equals(store.getWorkspace().getId()),
                     "Store workspace mismatch");
         }
 
         // fire modify event before change
         catalog.fireModified(catalog, asList("defaultDataStore"), asList(old), asList(store));
 
-        if (store == null)
-            stores.unsetDefaultDataStore(workspace);
-        else
-            stores.setDefaultDataStore(workspace, store);
+        if (store == null) stores.unsetDefaultDataStore(workspace);
+        else stores.setDefaultDataStore(workspace, store);
 
         // fire postmodify event after change
         catalog.firePostModified(catalog, asList("defaultDataStore"), asList(old), asList(store));
@@ -293,8 +292,8 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade {
         return resources.findById(id, clazz).orElse(null);
     }
 
-    public @Override <T extends ResourceInfo> T getResourceByName(NamespaceInfo namespace,
-            String name, Class<T> clazz) {
+    public @Override <T extends ResourceInfo> T getResourceByName(
+            NamespaceInfo namespace, String name, Class<T> clazz) {
         Optional<T> result;
         if (namespace == ANY_NAMESPACE) {
             result = resources.findFirstByName(name, clazz);
@@ -316,11 +315,12 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade {
         return toList(() -> resources.findAllByNamespace(ns, clazz));
     }
 
-    public @Override <T extends ResourceInfo> T getResourceByStore(StoreInfo store, String name,
-            Class<T> clazz) {
+    public @Override <T extends ResourceInfo> T getResourceByStore(
+            StoreInfo store, String name, Class<T> clazz) {
         Optional<T> resource = null;
         NamespaceInfo ns = null;
-        if (store.getWorkspace() != null && store.getWorkspace().getName() != null
+        if (store.getWorkspace() != null
+                && store.getWorkspace().getName() != null
                 && (ns = getNamespaceByPrefix(store.getWorkspace().getName())) != null) {
 
             resource = resources.findByNameAndNamespace(name, ns, clazz);
@@ -336,8 +336,8 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade {
         return resource.orElse(null);
     }
 
-    public @Override <T extends ResourceInfo> List<T> getResourcesByStore(StoreInfo store,
-            Class<T> clazz) {
+    public @Override <T extends ResourceInfo> List<T> getResourcesByStore(
+            StoreInfo store, Class<T> clazz) {
         return toList(() -> resources.findAllByStore(store, clazz));
     }
 
@@ -504,18 +504,16 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade {
     public @Override void setDefaultNamespace(NamespaceInfo defaultNamespace) {
         NamespaceInfo old = getDefaultNamespace();
         // fire modify event before change
-        catalog.fireModified(catalog, asList("defaultNamespace"), asList(old),
-                asList(defaultNamespace));
+        catalog.fireModified(
+                catalog, asList("defaultNamespace"), asList(old), asList(defaultNamespace));
 
         NamespaceInfo ns = defaultNamespace;
-        if (ns == null)
-            namespaces.unsetDefaultNamespace();
-        else
-            namespaces.setDefaultNamespace(ns);
+        if (ns == null) namespaces.unsetDefaultNamespace();
+        else namespaces.setDefaultNamespace(ns);
 
         // fire postmodify event after change
-        catalog.firePostModified(catalog, asList("defaultNamespace"), asList(old),
-                asList(defaultNamespace));
+        catalog.firePostModified(
+                catalog, asList("defaultNamespace"), asList(old), asList(defaultNamespace));
     }
 
     // if value is null, the list is a singleton list with a null member
@@ -577,14 +575,12 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade {
         catalog.fireModified(catalog, asList("defaultWorkspace"), asList(old), asList(workspace));
 
         WorkspaceInfo ws = workspace;
-        if (ws == null)
-            workspaces.unsetDefaultWorkspace();
-        else
-            workspaces.setDefaultWorkspace(ws);
+        if (ws == null) workspaces.unsetDefaultWorkspace();
+        else workspaces.setDefaultWorkspace(ws);
 
         // fire postmodify event after change
-        catalog.firePostModified(catalog, asList("defaultWorkspace"), asList(old),
-                asList(workspace));
+        catalog.firePostModified(
+                catalog, asList("defaultWorkspace"), asList(old), asList(workspace));
     }
 
     public @Override List<WorkspaceInfo> getWorkspaces() {
@@ -687,8 +683,7 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade {
     }
 
     private void dispose(CatalogInfoRepository<?> repository) {
-        if (repository != null)
-            repository.dispose();
+        if (repository != null) repository.dispose();
     }
 
     public @Override void syncTo(CatalogFacade to) {
@@ -745,8 +740,8 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade {
      * @param propertyName the property name of the objects of type {@code type} to sort by
      * @see CatalogInfoRepository#canSortBy(String)
      */
-    public @Override boolean canSort(final Class<? extends CatalogInfo> type,
-            final String propertyName) {
+    public @Override boolean canSort(
+            final Class<? extends CatalogInfo> type, final String propertyName) {
         return repository(type).canSortBy(propertyName);
     }
 
@@ -756,8 +751,10 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade {
 
     private <T extends CatalogInfo> void checkCanSort(final Class<T> type, SortBy order) {
         if (!canSort(type, order.getPropertyName().getPropertyName())) {
-            throw new IllegalArgumentException(format("Can't sort objects of type %s by %s",
-                    type.getName(), order.getPropertyName()));
+            throw new IllegalArgumentException(
+                    format(
+                            "Can't sort objects of type %s by %s",
+                            type.getName(), order.getPropertyName()));
         }
     }
 
@@ -781,7 +778,6 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade {
         }
         return stream;
     }
-
 
     @SuppressWarnings("unchecked")
     protected <I extends CatalogInfo> I resolve(I info) {
@@ -822,11 +818,9 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade {
     protected <I extends CatalogInfo, R extends CatalogInfoRepository<I>> R repository(
             Class<? extends CatalogInfo> of) {
         ClassMappings cm = ClassMappings.fromImpl(of);
-        if (cm == null)
-            cm = ClassMappings.fromInterface(of);
+        if (cm == null) cm = ClassMappings.fromInterface(of);
         R repo = (R) repos.get(cm).get();
-        if (repo == null)
-            throw new IllegalArgumentException("Unknown type: " + of);
+        if (repo == null) throw new IllegalArgumentException("Unknown type: " + of);
         return repo;
     }
 

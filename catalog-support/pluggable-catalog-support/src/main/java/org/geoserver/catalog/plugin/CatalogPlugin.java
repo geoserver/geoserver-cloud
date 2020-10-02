@@ -56,14 +56,14 @@ import org.geotools.util.logging.Logging;
  *   <li>Implements all business-logic, like event handling and ensuring no {@link CatalogInfo}
  *       instance gets in or out of the {@link Catalog} without being decorated with a {@link
  *       ModificationProxy}, relieving the lower-level {@link CatalogFacade} abstraction of such
- *       concerns. Hence {@link ExtendedCatalogFacade} works on plain POJOS, or whatever is
- *       supplied by its {@link CatalogInfoRepository repositories}, though in practice it can only
- *       be implementations of {@code org.geoserver.catalog.impl.*InfoImpl} due to coupling in other
+ *       concerns. Hence {@link ExtendedCatalogFacade} works on plain POJOS, or whatever is supplied
+ *       by its {@link CatalogInfoRepository repositories}, though in practice it can only be
+ *       implementations of {@code org.geoserver.catalog.impl.*InfoImpl} due to coupling in other
  *       areas.
  *   <li>Of special interest is the use of {@link PropertyDiff} and {@link Patch} on all the {@link
- *       #save} methods, delegating to {@link ExtendedCatalogFacade#update(CatalogInfo, Patch)} ,
- *       in order to keep the {@code ModificationProxy} logic local to this catalog implementation,
- *       and let the backend (facade) implement atomic updates as it fits it better.
+ *       #save} methods, delegating to {@link ExtendedCatalogFacade#update(CatalogInfo, Patch)} , in
+ *       order to keep the {@code ModificationProxy} logic local to this catalog implementation, and
+ *       let the backend (facade) implement atomic updates as it fits it better.
  * </ul>
  */
 @SuppressWarnings("serial")

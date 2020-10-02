@@ -11,9 +11,7 @@ import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.Query;
 
-/**
- * Adapts a regular {@link CatalogFacade} to a {@link ExtendedCatalogFacade}
- */
+/** Adapts a regular {@link CatalogFacade} to a {@link ExtendedCatalogFacade} */
 public class ForwardingExtendedCatalogFacade extends ForwardingCatalogFacade
         implements ExtendedCatalogFacade {
 

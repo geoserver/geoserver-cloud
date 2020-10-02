@@ -13,7 +13,7 @@ import org.geoserver.catalog.plugin.CatalogInfoRepository.StoreRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.StyleRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.WorkspaceRepository;
 
-public interface CatalogInfoRepositoryHolder{
+public interface CatalogInfoRepositoryHolder {
 
     void setNamespaceRepository(NamespaceRepository namespaces);
 

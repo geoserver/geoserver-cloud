@@ -23,9 +23,9 @@ import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.impl.ResolvingProxy;
+import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.Query;
-import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.catalog.plugin.forwarding.ForwardingRepositoryCatalogFacade;
 
 /**

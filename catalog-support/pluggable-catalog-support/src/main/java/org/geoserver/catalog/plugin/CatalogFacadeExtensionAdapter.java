@@ -8,6 +8,7 @@ import static java.util.Spliterator.DISTINCT;
 import static java.util.Spliterator.IMMUTABLE;
 import static java.util.Spliterator.NONNULL;
 import static java.util.Spliterator.ORDERED;
+
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.Stream;
@@ -28,10 +29,9 @@ import org.geoserver.catalog.util.CloseableIterator;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 
-/**
- * Adapts a regular {@link CatalogFacade} to a {@link ExtendedCatalogFacade}
- */
-public class CatalogFacadeExtensionAdapter extends ForwardingCatalogFacade implements ExtendedCatalogFacade{
+/** Adapts a regular {@link CatalogFacade} to a {@link ExtendedCatalogFacade} */
+public class CatalogFacadeExtensionAdapter extends ForwardingCatalogFacade
+        implements ExtendedCatalogFacade {
 
     private final boolean adapt;
 
@@ -56,15 +56,15 @@ public class CatalogFacadeExtensionAdapter extends ForwardingCatalogFacade imple
     }
 
     private void save(CatalogInfo info) {
-        if (info instanceof WorkspaceInfo)facade.save((WorkspaceInfo) info);
-        else if (info instanceof NamespaceInfo)facade.save((NamespaceInfo) info);
-        else if (info instanceof StoreInfo)facade.save((StoreInfo) info);
-        else if (info instanceof ResourceInfo)facade.save((ResourceInfo) info);
-        else if (info instanceof LayerInfo)facade.save((LayerInfo) info);
-        else if (info instanceof LayerGroupInfo)facade.save((LayerGroupInfo) info);
-        else if (info instanceof StyleInfo)facade.save((StyleInfo) info);
-        else if (info instanceof MapInfo)facade.save((MapInfo) info);
-        
+        if (info instanceof WorkspaceInfo) facade.save((WorkspaceInfo) info);
+        else if (info instanceof NamespaceInfo) facade.save((NamespaceInfo) info);
+        else if (info instanceof StoreInfo) facade.save((StoreInfo) info);
+        else if (info instanceof ResourceInfo) facade.save((ResourceInfo) info);
+        else if (info instanceof LayerInfo) facade.save((LayerInfo) info);
+        else if (info instanceof LayerGroupInfo) facade.save((LayerGroupInfo) info);
+        else if (info instanceof StyleInfo) facade.save((StyleInfo) info);
+        else if (info instanceof MapInfo) facade.save((MapInfo) info);
+
         throw new IllegalArgumentException("Unknown CatalogInfo type:" + info);
     }
 
@@ -85,5 +85,4 @@ public class CatalogFacadeExtensionAdapter extends ForwardingCatalogFacade imple
         stream.onClose(iterator::close);
         return stream;
     }
-
 }

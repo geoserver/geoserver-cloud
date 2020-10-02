@@ -17,8 +17,8 @@ import org.opengis.filter.sort.SortBy;
 
 /**
  * {@link CatalogFacade} with additional methods
- * <p>
- * If this were going to be merged into geoserver's main module, the new methods could be added
+ *
+ * <p>If this were going to be merged into geoserver's main module, the new methods could be added
  * directly to {@link CatalogFacade}
  */
 public interface ExtendedCatalogFacade extends CatalogFacade {
@@ -27,8 +27,11 @@ public interface ExtendedCatalogFacade extends CatalogFacade {
 
     /** @deprecated use {@link #query(Query)} instead */
     @Deprecated
-    default @Override <T extends CatalogInfo> CloseableIterator<T> list(final Class<T> of,
-            final Filter filter, @Nullable Integer offset, @Nullable Integer count,
+    default @Override <T extends CatalogInfo> CloseableIterator<T> list(
+            final Class<T> of,
+            final Filter filter,
+            @Nullable Integer offset,
+            @Nullable Integer count,
             @Nullable SortBy... sortOrder) {
 
         Objects.requireNonNull(of, "query Info class not provided");
@@ -45,10 +48,9 @@ public interface ExtendedCatalogFacade extends CatalogFacade {
      * Returns all objects in this that satisfy the query criteria (type and filter), and additional
      * restrictions such as paging and order.
      *
-     * <p>
-     * Be sure to {@link Stream#close} close the returned stream once consumed or before discarding.
-     * Since {@link Stream} implements {@link AutoCloseable} it can be used in a try-with-resources
-     * block, and eliminates the need to return {@link CloseableIterator}
+     * <p>Be sure to {@link Stream#close} close the returned stream once consumed or before
+     * discarding. Since {@link Stream} implements {@link AutoCloseable} it can be used in a
+     * try-with-resources block, and eliminates the need to return {@link CloseableIterator}
      *
      * @see Query
      */

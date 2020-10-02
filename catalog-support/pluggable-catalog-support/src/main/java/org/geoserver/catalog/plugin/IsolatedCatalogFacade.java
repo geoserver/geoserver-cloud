@@ -32,7 +32,7 @@ import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 
 /** Copy of package private {@code org.geoserver.catalog.impl.IsolatedCatalogFacade} */
-public final class IsolatedCatalogFacade extends ForwardingCatalogFacade{
+public final class IsolatedCatalogFacade extends ForwardingCatalogFacade {
 
     IsolatedCatalogFacade(CatalogFacade facade) {
         super(facade);

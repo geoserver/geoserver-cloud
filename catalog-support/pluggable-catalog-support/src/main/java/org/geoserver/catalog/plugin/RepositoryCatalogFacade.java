@@ -8,5 +8,4 @@ import org.geoserver.catalog.CatalogFacade;
 
 /** {@link CatalogFacade} extension backed by {@link CatalogInfoRepository} repositories */
 public interface RepositoryCatalogFacade
-        extends ExtendedCatalogFacade, CatalogInfoRepositoryHolder {
-}
+        extends ExtendedCatalogFacade, CatalogInfoRepositoryHolder {}
