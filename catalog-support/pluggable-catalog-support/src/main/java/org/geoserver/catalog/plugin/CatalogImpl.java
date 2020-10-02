@@ -843,16 +843,13 @@ public class CatalogImpl implements Catalog {
         return facade.getMaps();
     }
 
-    @SuppressWarnings("PMD.UnusedLocalVariable")
     public @Override void add(LayerGroupInfo layerGroup) {
         layerGroup = resolve(layerGroup);
         validate(layerGroup, true);
 
-        if (layerGroup.getStyles().isEmpty()) {
-            for (PublishedInfo l : layerGroup.getLayers()) {
-                // default style
-                layerGroup.getStyles().add(null);
-            }
+        List<StyleInfo> styles = layerGroup.getStyles();
+        if (styles.isEmpty()) {
+            layerGroup.getLayers().forEach(l -> styles.add(null));
         }
         beforeadded(layerGroup);
         LayerGroupInfo added = facade.add(layerGroup);
