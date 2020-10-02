@@ -10,6 +10,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -232,7 +233,7 @@ public class CatalogImpl implements Catalog {
                 setDefaultDataStore(workspace, null);
 
                 // default removed, choose another store to become default if possible
-                List dstores = getStoresByWorkspace(workspace, DataStoreInfo.class);
+                List<DataStoreInfo> dstores = getStoresByWorkspace(workspace, DataStoreInfo.class);
                 if (!dstores.isEmpty()) {
                     setDefaultDataStore(workspace, (DataStoreInfo) dstores.get(0));
                 }
@@ -277,7 +278,7 @@ public class CatalogImpl implements Catalog {
         if (clazz != null
                 && clazz.isAssignableFrom(DataStoreInfo.class)
                 && (name == null || name.equals(Catalog.DEFAULT))) {
-            return (T) getDefaultDataStore(workspace);
+            return clazz.cast(getDefaultDataStore(workspace));
         }
 
         T store = facade.getStoreByName(ws, name, clazz);
@@ -304,7 +305,7 @@ public class CatalogImpl implements Catalog {
         if (workspaceName != null) {
             workspace = getWorkspaceByName(workspaceName);
             if (workspace == null) {
-                return Collections.EMPTY_LIST;
+                return Collections.emptyList();
             }
         }
 
@@ -345,7 +346,7 @@ public class CatalogImpl implements Catalog {
         return getStoresByWorkspace(workspace, DataStoreInfo.class);
     }
 
-    public @Override List getDataStores() {
+    public @Override List<DataStoreInfo> getDataStores() {
         return getStores(DataStoreInfo.class);
     }
 
@@ -398,7 +399,7 @@ public class CatalogImpl implements Catalog {
         return getStoresByWorkspace(workspace, CoverageStoreInfo.class);
     }
 
-    public @Override List getCoverageStores() {
+    public @Override List<CoverageStoreInfo> getCoverageStores() {
         return getStores(CoverageStoreInfo.class);
     }
 
@@ -540,11 +541,12 @@ public class CatalogImpl implements Catalog {
         }
     }
 
-    public @Override List getResources(Class clazz) {
+    public @Override <T extends ResourceInfo> List<T> getResources(Class<T> clazz) {
         return facade.getResources(clazz);
     }
 
-    public @Override List getResourcesByNamespace(NamespaceInfo namespace, Class clazz) {
+    public @Override <T extends ResourceInfo> List<T> getResourcesByNamespace(
+            NamespaceInfo namespace, Class<T> clazz) {
         return facade.getResourcesByNamespace(namespace, clazz);
     }
 
@@ -559,7 +561,7 @@ public class CatalogImpl implements Catalog {
             ns = getNamespaceByURI(namespace);
         }
         if (ns == null) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
         return getResourcesByNamespace(ns, clazz);
@@ -595,11 +597,11 @@ public class CatalogImpl implements Catalog {
         return (FeatureTypeInfo) getResourceByName(name, FeatureTypeInfo.class);
     }
 
-    public @Override List getFeatureTypes() {
+    public @Override List<FeatureTypeInfo> getFeatureTypes() {
         return getResources(FeatureTypeInfo.class);
     }
 
-    public @Override List getFeatureTypesByNamespace(NamespaceInfo namespace) {
+    public @Override List<FeatureTypeInfo> getFeatureTypesByNamespace(NamespaceInfo namespace) {
         return getResourcesByNamespace(namespace, FeatureTypeInfo.class);
     }
 
@@ -632,11 +634,11 @@ public class CatalogImpl implements Catalog {
         return (CoverageInfo) getResourceByName(name, CoverageInfo.class);
     }
 
-    public @Override List getCoverages() {
+    public @Override List<CoverageInfo> getCoverages() {
         return getResources(CoverageInfo.class);
     }
 
-    public @Override List getCoveragesByNamespace(NamespaceInfo namespace) {
+    public @Override List<CoverageInfo> getCoveragesByNamespace(NamespaceInfo namespace) {
         return getResourcesByNamespace(namespace, CoverageInfo.class);
     }
 
@@ -732,7 +734,7 @@ public class CatalogImpl implements Catalog {
 
         // clean up eventual dangling references to missing alternate styles
         Set<StyleInfo> styles = layer.getStyles();
-        for (Iterator it = styles.iterator(); it.hasNext(); ) {
+        for (Iterator<StyleInfo> it = styles.iterator(); it.hasNext(); ) {
             StyleInfo styleInfo = (StyleInfo) it.next();
             if (styleInfo == null) {
                 it.remove();
@@ -1057,7 +1059,7 @@ public class CatalogImpl implements Catalog {
         if (workspaceName != null) {
             workspace = getWorkspaceByName(workspaceName);
             if (workspace == null) {
-                return Collections.EMPTY_LIST;
+                return Collections.emptyList();
             }
         }
 
@@ -1472,7 +1474,7 @@ public class CatalogImpl implements Catalog {
         return style;
     }
 
-    public @Override List getStyles() {
+    public @Override List<StyleInfo> getStyles() {
         return facade.getStyles();
     }
 
@@ -1481,7 +1483,7 @@ public class CatalogImpl implements Catalog {
         if (workspaceName != null) {
             workspace = getWorkspaceByName(workspaceName);
             if (workspace == null) {
-                return Collections.EMPTY_LIST;
+                return Collections.emptyList();
             }
         }
 
@@ -1617,20 +1619,22 @@ public class CatalogImpl implements Catalog {
     }
 
     // Event methods
-    public @Override Collection getListeners() {
+    public @Override Collection<CatalogListener> getListeners() {
         return Collections.unmodifiableCollection(listeners);
     }
 
     public @Override void addListener(CatalogListener listener) {
         listeners.add(listener);
-        Collections.sort(listeners, ExtensionPriority.COMPARATOR);
+        @SuppressWarnings("unchecked")
+        Comparator<CatalogListener> comparator = ExtensionPriority.COMPARATOR;
+        Collections.sort(listeners, comparator);
     }
 
     public @Override void removeListener(CatalogListener listener) {
         listeners.remove(listener);
     }
 
-    public @Override void removeListeners(Class listenerClass) {
+    public @Override void removeListeners(@SuppressWarnings("rawtypes") Class listenerClass) {
         new ArrayList<>(listeners)
                 .stream()
                 .filter(l -> listenerClass.isInstance(l))
@@ -1690,7 +1694,10 @@ public class CatalogImpl implements Catalog {
     }
 
     public @Override void fireModified(
-            CatalogInfo object, List propertyNames, List oldValues, List newValues) {
+            CatalogInfo object,
+            List<String> propertyNames,
+            @SuppressWarnings("rawtypes") List oldValues,
+            @SuppressWarnings("rawtypes") List newValues) {
         CatalogModifyEventImpl event = new CatalogModifyEventImpl();
 
         event.setSource(object);
@@ -1702,7 +1709,10 @@ public class CatalogImpl implements Catalog {
     }
 
     public @Override void firePostModified(
-            CatalogInfo object, List propertyNames, List oldValues, List newValues) {
+            CatalogInfo object,
+            List<String> propertyNames,
+            @SuppressWarnings("rawtypes") List oldValues,
+            @SuppressWarnings("rawtypes") List newValues) {
         CatalogPostModifyEventImpl event = new CatalogPostModifyEventImpl();
         event.setSource(object);
         event.setPropertyNames(propertyNames);
@@ -1721,7 +1731,7 @@ public class CatalogImpl implements Catalog {
     protected void event(CatalogEvent event) {
         CatalogException toThrow = null;
 
-        for (Iterator l = listeners.iterator(); l.hasNext(); ) {
+        for (Iterator<CatalogListener> l = listeners.iterator(); l.hasNext(); ) {
             try {
                 CatalogListener listener = (CatalogListener) l.next();
 
