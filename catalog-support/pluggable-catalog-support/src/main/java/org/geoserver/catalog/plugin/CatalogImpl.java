@@ -1641,11 +1641,6 @@ public class CatalogImpl implements Catalog {
                 .forEach(l -> listeners.remove(l));
     }
 
-    public Iterator search(String cql) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
     public @Override ResourcePool getResourcePool() {
         return resourcePool;
     }
