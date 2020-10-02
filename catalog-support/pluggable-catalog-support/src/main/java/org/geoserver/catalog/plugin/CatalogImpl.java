@@ -88,8 +88,8 @@ import org.geoserver.platform.ExtensionPriority;
 import org.geoserver.platform.GeoServerExtensions;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.Resource;
-import org.geoserver.platform.resource.Resources;
 import org.geoserver.platform.resource.Resource.Type;
+import org.geoserver.platform.resource.Resources;
 import org.geotools.styling.StyledLayerDescriptor;
 import org.geotools.util.SuppressFBWarnings;
 import org.geotools.util.logging.Logging;
@@ -97,11 +97,9 @@ import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 
-/**
- * 
- */
+/** */
 @SuppressWarnings("serial")
-public class CatalogImpl implements Catalog{
+public class CatalogImpl implements Catalog {
 
     /** logger */
     private static final Logger LOGGER = Logging.getLogger(CatalogImpl.class);
@@ -110,7 +108,7 @@ public class CatalogImpl implements Catalog{
     protected CatalogFacade facade;
 
     /** listeners */
-    protected List listeners = new CopyOnWriteArrayList<>();
+    protected List<CatalogListener> listeners = new CopyOnWriteArrayList<>();
 
     /** resources */
     protected ResourcePool resourcePool;
@@ -129,7 +127,7 @@ public class CatalogImpl implements Catalog{
         resourcePool = ResourcePool.create(this);
     }
 
-    public CatalogFacade getFacade() {
+    public @Override CatalogFacade getFacade() {
         return facade;
     }
 
@@ -161,16 +159,16 @@ public class CatalogImpl implements Catalog{
         facade.setCatalog(this);
     }
 
-    public String getId() {
+    public @Override String getId() {
         return "catalog";
     }
 
-    public CatalogFactory getFactory() {
+    public @Override CatalogFactory getFactory() {
         return new CatalogFactoryImpl(this);
     }
 
     // Store methods
-    public void add(StoreInfo store) {
+    public @Override void add(StoreInfo store) {
 
         if (store.getWorkspace() == null) {
             store.setWorkspace(getDefaultWorkspace());
@@ -218,7 +216,7 @@ public class CatalogImpl implements Catalog{
     }
 
     @SuppressFBWarnings("NP_NONNULL_PARAM_VIOLATION") // setDefaultDataStore allows for null store
-    public void remove(StoreInfo store) {
+    public @Override void remove(StoreInfo store) {
         if (!getResourcesByStore(store, ResourceInfo.class).isEmpty()) {
             throw new IllegalArgumentException("Unable to delete non-empty store.");
         }
@@ -244,7 +242,7 @@ public class CatalogImpl implements Catalog{
         removed(store);
     }
 
-    public void save(StoreInfo store) {
+    public @Override void save(StoreInfo store) {
         if (store.getId() == null) {
             // add it instead of saving
             add(store);
@@ -254,21 +252,21 @@ public class CatalogImpl implements Catalog{
         facade.save(store);
     }
 
-    public <T extends StoreInfo> T detach(T store) {
+    public @Override <T extends StoreInfo> T detach(T store) {
         return detached(store, facade.detach(store));
     }
 
-    public <T extends StoreInfo> T getStore(String id, Class<T> clazz) {
+    public @Override <T extends StoreInfo> T getStore(String id, Class<T> clazz) {
         return facade.getStore(id, clazz);
     }
 
     @SuppressFBWarnings("NP_NONNULL_PARAM_VIOLATION")
-    public <T extends StoreInfo> T getStoreByName(String name, Class<T> clazz) {
+    public @Override <T extends StoreInfo> T getStoreByName(String name, Class<T> clazz) {
         return getStoreByName((WorkspaceInfo) null, name, clazz);
     }
 
     @SuppressFBWarnings("NP_NONNULL_PARAM_VIOLATION")
-    public <T extends StoreInfo> T getStoreByName(
+    public @Override <T extends StoreInfo> T getStoreByName(
             WorkspaceInfo workspace, String name, Class<T> clazz) {
 
         WorkspaceInfo ws = workspace;
@@ -289,7 +287,7 @@ public class CatalogImpl implements Catalog{
         return store;
     }
 
-    public <T extends StoreInfo> T getStoreByName(
+    public @Override <T extends StoreInfo> T getStoreByName(
             String workspaceName, String name, Class<T> clazz) {
 
         WorkspaceInfo workspace = getWorkspaceByName(workspaceName);
@@ -299,7 +297,7 @@ public class CatalogImpl implements Catalog{
         return null;
     }
 
-    public <T extends StoreInfo> List<T> getStoresByWorkspace(
+    public @Override <T extends StoreInfo> List<T> getStoresByWorkspace(
             String workspaceName, Class<T> clazz) {
 
         WorkspaceInfo workspace = null;
@@ -313,49 +311,49 @@ public class CatalogImpl implements Catalog{
         return getStoresByWorkspace(workspace, clazz);
     }
 
-    public <T extends StoreInfo> List<T> getStoresByWorkspace(
+    public @Override <T extends StoreInfo> List<T> getStoresByWorkspace(
             WorkspaceInfo workspace, Class<T> clazz) {
 
         return facade.getStoresByWorkspace(workspace, clazz);
     }
 
-    public List getStores(Class clazz) {
+    public @Override <T extends StoreInfo> List<T> getStores(Class<T> clazz) {
         return facade.getStores(clazz);
     }
 
-    public DataStoreInfo getDataStore(String id) {
+    public @Override DataStoreInfo getDataStore(String id) {
         return (DataStoreInfo) getStore(id, DataStoreInfo.class);
     }
 
-    public DataStoreInfo getDataStoreByName(String name) {
+    public @Override DataStoreInfo getDataStoreByName(String name) {
         return (DataStoreInfo) getStoreByName(name, DataStoreInfo.class);
     }
 
-    public DataStoreInfo getDataStoreByName(String workspaceName, String name) {
+    public @Override DataStoreInfo getDataStoreByName(String workspaceName, String name) {
         return (DataStoreInfo) getStoreByName(workspaceName, name, DataStoreInfo.class);
     }
 
-    public DataStoreInfo getDataStoreByName(WorkspaceInfo workspace, String name) {
+    public @Override DataStoreInfo getDataStoreByName(WorkspaceInfo workspace, String name) {
         return (DataStoreInfo) getStoreByName(workspace, name, DataStoreInfo.class);
     }
 
-    public List<DataStoreInfo> getDataStoresByWorkspace(String workspaceName) {
+    public @Override List<DataStoreInfo> getDataStoresByWorkspace(String workspaceName) {
         return getStoresByWorkspace(workspaceName, DataStoreInfo.class);
     }
 
-    public List<DataStoreInfo> getDataStoresByWorkspace(WorkspaceInfo workspace) {
+    public @Override List<DataStoreInfo> getDataStoresByWorkspace(WorkspaceInfo workspace) {
         return getStoresByWorkspace(workspace, DataStoreInfo.class);
     }
 
-    public List getDataStores() {
+    public @Override List getDataStores() {
         return getStores(DataStoreInfo.class);
     }
 
-    public DataStoreInfo getDefaultDataStore(WorkspaceInfo workspace) {
+    public @Override DataStoreInfo getDefaultDataStore(WorkspaceInfo workspace) {
         return facade.getDefaultDataStore(workspace);
     }
 
-    public void setDefaultDataStore(WorkspaceInfo workspace, DataStoreInfo store) {
+    public @Override void setDefaultDataStore(WorkspaceInfo workspace, DataStoreInfo store) {
         if (store != null) {
             // basic sanity check
             if (store.getWorkspace() == null) {
@@ -375,36 +373,37 @@ public class CatalogImpl implements Catalog{
         facade.setDefaultDataStore(workspace, store);
     }
 
-    public CoverageStoreInfo getCoverageStore(String id) {
+    public @Override CoverageStoreInfo getCoverageStore(String id) {
         return (CoverageStoreInfo) getStore(id, CoverageStoreInfo.class);
     }
 
-    public CoverageStoreInfo getCoverageStoreByName(String name) {
+    public @Override CoverageStoreInfo getCoverageStoreByName(String name) {
         return (CoverageStoreInfo) getStoreByName(name, CoverageStoreInfo.class);
     }
 
-    public CoverageStoreInfo getCoverageStoreByName(String workspaceName, String name) {
+    public @Override CoverageStoreInfo getCoverageStoreByName(String workspaceName, String name) {
         return getStoreByName(workspaceName, name, CoverageStoreInfo.class);
     }
 
-    public CoverageStoreInfo getCoverageStoreByName(WorkspaceInfo workspace, String name) {
+    public @Override CoverageStoreInfo getCoverageStoreByName(
+            WorkspaceInfo workspace, String name) {
         return getStoreByName(workspace, name, CoverageStoreInfo.class);
     }
 
-    public List<CoverageStoreInfo> getCoverageStoresByWorkspace(String workspaceName) {
+    public @Override List<CoverageStoreInfo> getCoverageStoresByWorkspace(String workspaceName) {
         return getStoresByWorkspace(workspaceName, CoverageStoreInfo.class);
     }
 
-    public List<CoverageStoreInfo> getCoverageStoresByWorkspace(WorkspaceInfo workspace) {
+    public @Override List<CoverageStoreInfo> getCoverageStoresByWorkspace(WorkspaceInfo workspace) {
         return getStoresByWorkspace(workspace, CoverageStoreInfo.class);
     }
 
-    public List getCoverageStores() {
+    public @Override List getCoverageStores() {
         return getStores(CoverageStoreInfo.class);
     }
 
     // Resource methods
-    public void add(ResourceInfo resource) {
+    public @Override void add(ResourceInfo resource) {
         if (resource.getNamespace() == null) {
             // default to default namespace
             resource.setNamespace(getDefaultNamespace());
@@ -464,7 +463,7 @@ public class CatalogImpl implements Catalog{
         return postValidate(resource, isNew);
     }
 
-    public void remove(ResourceInfo resource) {
+    public @Override void remove(ResourceInfo resource) {
         // ensure no references to the resource
         if (!getLayers(resource).isEmpty()) {
             throw new IllegalArgumentException("Unable to delete resource referenced by layer");
@@ -473,21 +472,22 @@ public class CatalogImpl implements Catalog{
         removed(resource);
     }
 
-    public void save(ResourceInfo resource) {
+    public @Override void save(ResourceInfo resource) {
         validate(resource, false);
         facade.save(resource);
     }
 
-    public <T extends ResourceInfo> T detach(T resource) {
+    public @Override <T extends ResourceInfo> T detach(T resource) {
         return detached(resource, facade.detach(resource));
     }
 
-    public <T extends ResourceInfo> T getResource(String id, Class<T> clazz) {
+    public @Override <T extends ResourceInfo> T getResource(String id, Class<T> clazz) {
         return facade.getResource(id, clazz);
     }
 
     @SuppressFBWarnings("NP_NONNULL_PARAM_VIOLATION")
-    public <T extends ResourceInfo> T getResourceByName(String ns, String name, Class<T> clazz) {
+    public @Override <T extends ResourceInfo> T getResourceByName(
+            String ns, String name, Class<T> clazz) {
         if ("".equals(ns)) {
             ns = null;
         }
@@ -509,7 +509,7 @@ public class CatalogImpl implements Catalog{
     }
 
     @SuppressFBWarnings("NP_NONNULL_PARAM_VIOLATION")
-    public <T extends ResourceInfo> T getResourceByName(
+    public @Override <T extends ResourceInfo> T getResourceByName(
             NamespaceInfo ns, String name, Class<T> clazz) {
 
         NamespaceInfo namespace = ns;
@@ -523,12 +523,12 @@ public class CatalogImpl implements Catalog{
         return resource;
     }
 
-    public <T extends ResourceInfo> T getResourceByName(Name name, Class<T> clazz) {
+    public @Override <T extends ResourceInfo> T getResourceByName(Name name, Class<T> clazz) {
         return getResourceByName(name.getNamespaceURI(), name.getLocalPart(), clazz);
     }
 
     @SuppressFBWarnings("NP_NONNULL_PARAM_VIOLATION")
-    public <T extends ResourceInfo> T getResourceByName(String name, Class<T> clazz) {
+    public @Override <T extends ResourceInfo> T getResourceByName(String name, Class<T> clazz) {
         // check is the name is a fully qualified one
         int colon = name.indexOf(':');
         if (colon != -1) {
@@ -540,15 +540,15 @@ public class CatalogImpl implements Catalog{
         }
     }
 
-    public List getResources(Class clazz) {
+    public @Override List getResources(Class clazz) {
         return facade.getResources(clazz);
     }
 
-    public List getResourcesByNamespace(NamespaceInfo namespace, Class clazz) {
+    public @Override List getResourcesByNamespace(NamespaceInfo namespace, Class clazz) {
         return facade.getResourcesByNamespace(namespace, clazz);
     }
 
-    public <T extends ResourceInfo> List<T> getResourcesByNamespace(
+    public @Override <T extends ResourceInfo> List<T> getResourcesByNamespace(
             String namespace, Class<T> clazz) {
         if (namespace == null) {
             return getResourcesByNamespace((NamespaceInfo) null, clazz);
@@ -565,101 +565,96 @@ public class CatalogImpl implements Catalog{
         return getResourcesByNamespace(ns, clazz);
     }
 
-    public <T extends ResourceInfo> T getResourceByStore(
+    public @Override <T extends ResourceInfo> T getResourceByStore(
             StoreInfo store, String name, Class<T> clazz) {
         return facade.getResourceByStore(store, name, clazz);
     }
 
-    public <T extends ResourceInfo> List<T> getResourcesByStore(StoreInfo store, Class<T> clazz) {
+    public @Override <T extends ResourceInfo> List<T> getResourcesByStore(
+            StoreInfo store, Class<T> clazz) {
         return facade.getResourcesByStore(store, clazz);
     }
 
-    public FeatureTypeInfo getFeatureType(String id) {
+    public @Override FeatureTypeInfo getFeatureType(String id) {
         return (FeatureTypeInfo) getResource(id, FeatureTypeInfo.class);
     }
 
-    public FeatureTypeInfo getFeatureTypeByName(String ns, String name) {
+    public @Override FeatureTypeInfo getFeatureTypeByName(String ns, String name) {
         return (FeatureTypeInfo) getResourceByName(ns, name, FeatureTypeInfo.class);
     }
 
-    public FeatureTypeInfo getFeatureTypeByName(NamespaceInfo ns, String name) {
+    public @Override FeatureTypeInfo getFeatureTypeByName(NamespaceInfo ns, String name) {
         return getResourceByName(ns, name, FeatureTypeInfo.class);
     }
 
-    public FeatureTypeInfo getFeatureTypeByName(Name name) {
+    public @Override FeatureTypeInfo getFeatureTypeByName(Name name) {
         return getResourceByName(name, FeatureTypeInfo.class);
     }
 
-    public FeatureTypeInfo getFeatureTypeByName(String name) {
+    public @Override FeatureTypeInfo getFeatureTypeByName(String name) {
         return (FeatureTypeInfo) getResourceByName(name, FeatureTypeInfo.class);
     }
 
-    public List getFeatureTypes() {
+    public @Override List getFeatureTypes() {
         return getResources(FeatureTypeInfo.class);
     }
 
-    public List getFeatureTypesByNamespace(NamespaceInfo namespace) {
+    public @Override List getFeatureTypesByNamespace(NamespaceInfo namespace) {
         return getResourcesByNamespace(namespace, FeatureTypeInfo.class);
     }
 
-    public FeatureTypeInfo getFeatureTypeByStore(DataStoreInfo dataStore, String name) {
-        return getFeatureTypeByDataStore(dataStore, name);
-    }
-
-    public FeatureTypeInfo getFeatureTypeByDataStore(DataStoreInfo dataStore, String name) {
+    public @Override FeatureTypeInfo getFeatureTypeByDataStore(
+            DataStoreInfo dataStore, String name) {
         return getResourceByStore(dataStore, name, FeatureTypeInfo.class);
     }
 
-    public List<FeatureTypeInfo> getFeatureTypesByStore(DataStoreInfo store) {
-        return getFeatureTypesByDataStore(store);
-    }
-
-    public List<FeatureTypeInfo> getFeatureTypesByDataStore(DataStoreInfo store) {
+    public @Override List<FeatureTypeInfo> getFeatureTypesByDataStore(DataStoreInfo store) {
         return getResourcesByStore(store, FeatureTypeInfo.class);
     }
 
-    public CoverageInfo getCoverage(String id) {
+    public @Override CoverageInfo getCoverage(String id) {
         return (CoverageInfo) getResource(id, CoverageInfo.class);
     }
 
-    public CoverageInfo getCoverageByName(String ns, String name) {
+    public @Override CoverageInfo getCoverageByName(String ns, String name) {
         return (CoverageInfo) getResourceByName(ns, name, CoverageInfo.class);
     }
 
-    public CoverageInfo getCoverageByName(NamespaceInfo ns, String name) {
+    public @Override CoverageInfo getCoverageByName(NamespaceInfo ns, String name) {
         return (CoverageInfo) getResourceByName(ns, name, CoverageInfo.class);
     }
 
-    public CoverageInfo getCoverageByName(Name name) {
+    public @Override CoverageInfo getCoverageByName(Name name) {
         return getResourceByName(name, CoverageInfo.class);
     }
 
-    public CoverageInfo getCoverageByName(String name) {
+    public @Override CoverageInfo getCoverageByName(String name) {
         return (CoverageInfo) getResourceByName(name, CoverageInfo.class);
     }
 
-    public List getCoverages() {
+    public @Override List getCoverages() {
         return getResources(CoverageInfo.class);
     }
 
-    public List getCoveragesByNamespace(NamespaceInfo namespace) {
+    public @Override List getCoveragesByNamespace(NamespaceInfo namespace) {
         return getResourcesByNamespace(namespace, CoverageInfo.class);
     }
 
-    public List<CoverageInfo> getCoveragesByStore(CoverageStoreInfo store) {
+    public @Override List<CoverageInfo> getCoveragesByStore(CoverageStoreInfo store) {
         return getResourcesByStore(store, CoverageInfo.class);
     }
 
-    public CoverageInfo getCoverageByCoverageStore(CoverageStoreInfo coverageStore, String name) {
+    public @Override CoverageInfo getCoverageByCoverageStore(
+            CoverageStoreInfo coverageStore, String name) {
         return getResourceByStore(coverageStore, name, CoverageInfo.class);
     }
 
-    public List<CoverageInfo> getCoveragesByCoverageStore(CoverageStoreInfo store) {
+    public @Override List<CoverageInfo> getCoveragesByCoverageStore(CoverageStoreInfo store) {
         return getResourcesByStore(store, CoverageInfo.class);
     }
 
     // Layer methods
-    public void add(LayerInfo layer) {
+    public @Override void add(LayerInfo layer) {
         layer = resolve(layer);
         validate(layer, true);
 
@@ -747,7 +742,7 @@ public class CatalogImpl implements Catalog{
         return postValidate(layer, isNew);
     }
 
-    public void remove(LayerInfo layer) {
+    public @Override void remove(LayerInfo layer) {
         // ensure no references to the layer
         for (LayerGroupInfo lg : facade.getLayerGroups()) {
             if (lg.getLayers().contains(layer) || layer.equals(lg.getRootLayer())) {
@@ -760,20 +755,20 @@ public class CatalogImpl implements Catalog{
         removed(layer);
     }
 
-    public void save(LayerInfo layer) {
+    public @Override void save(LayerInfo layer) {
         validate(layer, false);
         facade.save(layer);
     }
 
-    public LayerInfo detach(LayerInfo layer) {
+    public @Override LayerInfo detach(LayerInfo layer) {
         return detached(layer, facade.detach(layer));
     }
 
-    public LayerInfo getLayer(String id) {
+    public @Override LayerInfo getLayer(String id) {
         return facade.getLayer(id);
     }
 
-    public LayerInfo getLayerByName(Name name) {
+    public @Override LayerInfo getLayerByName(Name name) {
         if (name.getNamespaceURI() != null) {
             NamespaceInfo ns = getNamespaceByURI(name.getNamespaceURI());
             if (ns != null) {
@@ -784,7 +779,7 @@ public class CatalogImpl implements Catalog{
         return getLayerByName(name.getLocalPart());
     }
 
-    public LayerInfo getLayerByName(String name) {
+    public @Override LayerInfo getLayerByName(String name) {
         LayerInfo result = null;
         int colon = name.indexOf(':');
         if (colon != -1) {
@@ -821,33 +816,33 @@ public class CatalogImpl implements Catalog{
         }
     }
 
-    public List<LayerInfo> getLayers(ResourceInfo resource) {
+    public @Override List<LayerInfo> getLayers(ResourceInfo resource) {
         return facade.getLayers(resource);
     }
 
-    public List<LayerInfo> getLayers(StyleInfo style) {
+    public @Override List<LayerInfo> getLayers(StyleInfo style) {
         return facade.getLayers(style);
     }
 
-    public List<LayerInfo> getLayers() {
+    public @Override List<LayerInfo> getLayers() {
         return facade.getLayers();
     }
 
     // Map methods
-    public MapInfo getMap(String id) {
+    public @Override MapInfo getMap(String id) {
         return facade.getMap(id);
     }
 
-    public MapInfo getMapByName(String name) {
+    public @Override MapInfo getMapByName(String name) {
         return facade.getMapByName(name);
     }
 
-    public List<MapInfo> getMaps() {
+    public @Override List<MapInfo> getMaps() {
         return facade.getMaps();
     }
 
     @SuppressWarnings("PMD.UnusedLocalVariable")
-    public void add(LayerGroupInfo layerGroup) {
+    public @Override void add(LayerGroupInfo layerGroup) {
         layerGroup = resolve(layerGroup);
         validate(layerGroup, true);
 
@@ -1028,7 +1023,7 @@ public class CatalogImpl implements Catalog{
         }
     }
 
-    public void remove(LayerGroupInfo layerGroup) {
+    public @Override void remove(LayerGroupInfo layerGroup) {
         // ensure no references to the layer group
         for (LayerGroupInfo lg : facade.getLayerGroups()) {
             if (lg.getLayers().contains(layerGroup)) {
@@ -1044,20 +1039,20 @@ public class CatalogImpl implements Catalog{
         removed(layerGroup);
     }
 
-    public void save(LayerGroupInfo layerGroup) {
+    public @Override void save(LayerGroupInfo layerGroup) {
         validate(layerGroup, false);
         facade.save(layerGroup);
     }
 
-    public LayerGroupInfo detach(LayerGroupInfo layerGroup) {
+    public @Override LayerGroupInfo detach(LayerGroupInfo layerGroup) {
         return detached(layerGroup, facade.detach(layerGroup));
     }
 
-    public List<LayerGroupInfo> getLayerGroups() {
+    public @Override List<LayerGroupInfo> getLayerGroups() {
         return facade.getLayerGroups();
     }
 
-    public List<LayerGroupInfo> getLayerGroupsByWorkspace(String workspaceName) {
+    public @Override List<LayerGroupInfo> getLayerGroupsByWorkspace(String workspaceName) {
         WorkspaceInfo workspace = null;
         if (workspaceName != null) {
             workspace = getWorkspaceByName(workspaceName);
@@ -1069,17 +1064,16 @@ public class CatalogImpl implements Catalog{
         return getLayerGroupsByWorkspace(workspace);
     }
 
-    public List<LayerGroupInfo> getLayerGroupsByWorkspace(WorkspaceInfo workspace) {
+    public @Override List<LayerGroupInfo> getLayerGroupsByWorkspace(WorkspaceInfo workspace) {
         return facade.getLayerGroupsByWorkspace(workspace);
     }
 
-    public LayerGroupInfo getLayerGroup(String id) {
+    public @Override LayerGroupInfo getLayerGroup(String id) {
         return facade.getLayerGroup(id);
     }
 
-    @Override
     @SuppressFBWarnings("NP_NONNULL_PARAM_VIOLATION")
-    public LayerGroupInfo getLayerGroupByName(String name) {
+    public @Override LayerGroupInfo getLayerGroupByName(String name) {
 
         final LayerGroupInfo layerGroup = getLayerGroupByName((String) null, name);
 
@@ -1104,8 +1098,7 @@ public class CatalogImpl implements Catalog{
         return getLayerGroupByName(workspaceName, layerGroupName);
     }
 
-    @Override
-    public LayerGroupInfo getLayerGroupByName(String workspaceName, String name) {
+    public @Override LayerGroupInfo getLayerGroupByName(String workspaceName, String name) {
         WorkspaceInfo workspace = null;
         if (workspaceName != null) {
             workspace = getWorkspaceByName(workspaceName);
@@ -1117,8 +1110,7 @@ public class CatalogImpl implements Catalog{
         return getLayerGroupByName(workspace, name);
     }
 
-    @Override
-    public LayerGroupInfo getLayerGroupByName(WorkspaceInfo workspace, String name) {
+    public @Override LayerGroupInfo getLayerGroupByName(WorkspaceInfo workspace, String name) {
 
         if (null == workspace) {
             workspace = DefaultCatalogFacade.NO_WORKSPACE;
@@ -1128,31 +1120,31 @@ public class CatalogImpl implements Catalog{
         return layerGroup;
     }
 
-    public void add(MapInfo map) {
+    public @Override void add(MapInfo map) {
         beforeadded(map);
         MapInfo added = facade.add(resolve(map));
         added(added);
     }
 
-    public void remove(MapInfo map) {
+    public @Override void remove(MapInfo map) {
         facade.remove(map);
         removed(map);
     }
 
-    public void save(MapInfo map) {
+    public @Override void save(MapInfo map) {
         facade.save(map);
     }
 
-    public MapInfo detach(MapInfo map) {
+    public @Override MapInfo detach(MapInfo map) {
         return detached(map, facade.detach(map));
     }
 
     // Namespace methods
-    public NamespaceInfo getNamespace(String id) {
+    public @Override NamespaceInfo getNamespace(String id) {
         return facade.getNamespace(id);
     }
 
-    public NamespaceInfo getNamespaceByPrefix(String prefix) {
+    public @Override NamespaceInfo getNamespaceByPrefix(String prefix) {
         if (prefix == null || Catalog.DEFAULT.equals(prefix)) {
             NamespaceInfo ns = getDefaultNamespace();
             if (ns != null) {
@@ -1163,15 +1155,15 @@ public class CatalogImpl implements Catalog{
         return facade.getNamespaceByPrefix(prefix);
     }
 
-    public NamespaceInfo getNamespaceByURI(String uri) {
+    public @Override NamespaceInfo getNamespaceByURI(String uri) {
         return facade.getNamespaceByURI(uri);
     }
 
-    public List getNamespaces() {
+    public @Override List<NamespaceInfo> getNamespaces() {
         return facade.getNamespaces();
     }
 
-    public void add(NamespaceInfo namespace) {
+    public @Override void add(NamespaceInfo namespace) {
         validate(namespace, true);
 
         NamespaceInfo added;
@@ -1240,7 +1232,7 @@ public class CatalogImpl implements Catalog{
     }
 
     @SuppressFBWarnings("NP_NULL_PARAM_DEREF") // I don't see this happening...
-    public void remove(NamespaceInfo namespace) {
+    public @Override void remove(NamespaceInfo namespace) {
         if (!getResourcesByNamespace(namespace, ResourceInfo.class).isEmpty()) {
             throw new IllegalArgumentException("Unable to delete non-empty namespace.");
         }
@@ -1271,21 +1263,21 @@ public class CatalogImpl implements Catalog{
         removed(namespace);
     }
 
-    public void save(NamespaceInfo namespace) {
+    public @Override void save(NamespaceInfo namespace) {
         validate(namespace, false);
 
         facade.save(namespace);
     }
 
-    public NamespaceInfo detach(NamespaceInfo namespace) {
+    public @Override NamespaceInfo detach(NamespaceInfo namespace) {
         return detached(namespace, facade.detach(namespace));
     }
 
-    public NamespaceInfo getDefaultNamespace() {
+    public @Override NamespaceInfo getDefaultNamespace() {
         return facade.getDefaultNamespace();
     }
 
-    public void setDefaultNamespace(NamespaceInfo defaultNamespace) {
+    public @Override void setDefaultNamespace(NamespaceInfo defaultNamespace) {
         if (defaultNamespace != null) {
             NamespaceInfo ns = getNamespaceByPrefix(defaultNamespace.getPrefix());
             if (ns == null) {
@@ -1299,7 +1291,7 @@ public class CatalogImpl implements Catalog{
     }
 
     // Workspace methods
-    public void add(WorkspaceInfo workspace) {
+    public @Override void add(WorkspaceInfo workspace) {
         workspace = resolve(workspace);
         validate(workspace, true);
 
@@ -1350,7 +1342,7 @@ public class CatalogImpl implements Catalog{
     }
 
     @SuppressFBWarnings("NP_NULL_PARAM_DEREF") // I don't see this happening...
-    public void remove(WorkspaceInfo workspace) {
+    public @Override void remove(WorkspaceInfo workspace) {
         // JD: maintain the link between namespace and workspace, remove this when this is no
         // longer necessary
         if (getNamespaceByPrefix(workspace.getName()) != null) {
@@ -1387,21 +1379,21 @@ public class CatalogImpl implements Catalog{
         removed(workspace);
     }
 
-    public void save(WorkspaceInfo workspace) {
+    public @Override void save(WorkspaceInfo workspace) {
         validate(workspace, false);
 
         facade.save(workspace);
     }
 
-    public WorkspaceInfo detach(WorkspaceInfo workspace) {
+    public @Override WorkspaceInfo detach(WorkspaceInfo workspace) {
         return detached(workspace, facade.detach(workspace));
     }
 
-    public WorkspaceInfo getDefaultWorkspace() {
+    public @Override WorkspaceInfo getDefaultWorkspace() {
         return facade.getDefaultWorkspace();
     }
 
-    public void setDefaultWorkspace(WorkspaceInfo defaultWorkspace) {
+    public @Override void setDefaultWorkspace(WorkspaceInfo defaultWorkspace) {
         if (defaultWorkspace != null) {
             WorkspaceInfo ws = facade.getWorkspaceByName(defaultWorkspace.getName());
             if (ws == null) {
@@ -1414,15 +1406,15 @@ public class CatalogImpl implements Catalog{
         facade.setDefaultWorkspace(defaultWorkspace);
     }
 
-    public List<WorkspaceInfo> getWorkspaces() {
+    public @Override List<WorkspaceInfo> getWorkspaces() {
         return facade.getWorkspaces();
     }
 
-    public WorkspaceInfo getWorkspace(String id) {
+    public @Override WorkspaceInfo getWorkspace(String id) {
         return facade.getWorkspace(id);
     }
 
-    public WorkspaceInfo getWorkspaceByName(String name) {
+    public @Override WorkspaceInfo getWorkspaceByName(String name) {
         if (name == null || Catalog.DEFAULT.equals(name)) {
             WorkspaceInfo ws = getDefaultWorkspace();
             if (ws != null) {
@@ -1433,11 +1425,11 @@ public class CatalogImpl implements Catalog{
     }
 
     // Style methods
-    public StyleInfo getStyle(String id) {
+    public @Override StyleInfo getStyle(String id) {
         return facade.getStyle(id);
     }
 
-    public StyleInfo getStyleByName(String name) {
+    public @Override StyleInfo getStyleByName(String name) {
         StyleInfo result = null;
         int colon = name.indexOf(':');
         if (colon != -1) {
@@ -1460,7 +1452,7 @@ public class CatalogImpl implements Catalog{
         return result;
     }
 
-    public StyleInfo getStyleByName(String workspaceName, String name) {
+    public @Override StyleInfo getStyleByName(String workspaceName, String name) {
         if (workspaceName == null) {
             return getStyleByName((WorkspaceInfo) null, name);
         }
@@ -1472,7 +1464,7 @@ public class CatalogImpl implements Catalog{
         return null;
     }
 
-    public StyleInfo getStyleByName(WorkspaceInfo workspace, String name) {
+    public @Override StyleInfo getStyleByName(WorkspaceInfo workspace, String name) {
         if (workspace == null) {
             workspace = DefaultCatalogFacade.NO_WORKSPACE;
         }
@@ -1480,11 +1472,11 @@ public class CatalogImpl implements Catalog{
         return style;
     }
 
-    public List getStyles() {
+    public @Override List getStyles() {
         return facade.getStyles();
     }
 
-    public List<StyleInfo> getStylesByWorkspace(String workspaceName) {
+    public @Override List<StyleInfo> getStylesByWorkspace(String workspaceName) {
         WorkspaceInfo workspace = null;
         if (workspaceName != null) {
             workspace = getWorkspaceByName(workspaceName);
@@ -1496,11 +1488,11 @@ public class CatalogImpl implements Catalog{
         return getStylesByWorkspace(workspace);
     }
 
-    public List<StyleInfo> getStylesByWorkspace(WorkspaceInfo workspace) {
+    public @Override List<StyleInfo> getStylesByWorkspace(WorkspaceInfo workspace) {
         return facade.getStylesByWorkspace(workspace);
     }
 
-    public void add(StyleInfo style) {
+    public @Override void add(StyleInfo style) {
         style = resolve(style);
         validate(style, true);
         // set creation time before persisting
@@ -1549,7 +1541,7 @@ public class CatalogImpl implements Catalog{
         return postValidate(style, isNew);
     }
 
-    public void remove(StyleInfo style) {
+    public @Override void remove(StyleInfo style) {
         // ensure no references to the style
         for (LayerInfo l : facade.getLayers(style)) {
             throw new IllegalArgumentException(
@@ -1581,7 +1573,7 @@ public class CatalogImpl implements Catalog{
                         || StyleInfo.DEFAULT_GENERIC.equals(s.getName()));
     }
 
-    public void save(StyleInfo style) {
+    public @Override void save(StyleInfo style) {
         ModificationProxy h = (ModificationProxy) Proxy.getInvocationHandler(style);
         validate(style, false);
 
@@ -1620,26 +1612,25 @@ public class CatalogImpl implements Catalog{
         }
     }
 
-    public StyleInfo detach(StyleInfo style) {
+    public @Override StyleInfo detach(StyleInfo style) {
         return detached(style, facade.detach(style));
     }
 
     // Event methods
-    public Collection getListeners() {
+    public @Override Collection getListeners() {
         return Collections.unmodifiableCollection(listeners);
     }
 
-    public void addListener(CatalogListener listener) {
+    public @Override void addListener(CatalogListener listener) {
         listeners.add(listener);
         Collections.sort(listeners, ExtensionPriority.COMPARATOR);
     }
 
-    public void removeListener(CatalogListener listener) {
+    public @Override void removeListener(CatalogListener listener) {
         listeners.remove(listener);
     }
 
-    @Override
-    public void removeListeners(Class listenerClass) {
+    public @Override void removeListeners(Class listenerClass) {
         new ArrayList<>(listeners)
                 .stream()
                 .filter(l -> listenerClass.isInstance(l))
@@ -1651,23 +1642,23 @@ public class CatalogImpl implements Catalog{
         return null;
     }
 
-    public ResourcePool getResourcePool() {
+    public @Override ResourcePool getResourcePool() {
         return resourcePool;
     }
 
-    public void setResourcePool(ResourcePool resourcePool) {
+    public @Override void setResourcePool(ResourcePool resourcePool) {
         this.resourcePool = resourcePool;
     }
 
-    public GeoServerResourceLoader getResourceLoader() {
+    public @Override GeoServerResourceLoader getResourceLoader() {
         return resourceLoader;
     }
 
-    public void setResourceLoader(GeoServerResourceLoader resourceLoader) {
+    public @Override void setResourceLoader(GeoServerResourceLoader resourceLoader) {
         this.resourceLoader = resourceLoader;
     }
 
-    public void dispose() {
+    public @Override void dispose() {
         if (resourcePool != null) resourcePool.dispose();
         facade.dispose();
     }
@@ -1684,20 +1675,21 @@ public class CatalogImpl implements Catalog{
         fireRemoved(object);
     }
 
+    // @Override TODO: add to the interface
     public void fireBeforeAdded(CatalogInfo object) {
         CatalogBeforeAddEventImpl event = new CatalogBeforeAddEventImpl();
         event.setSource(object);
         event(event);
     }
 
-    public void fireAdded(CatalogInfo object) {
+    public @Override void fireAdded(CatalogInfo object) {
         CatalogAddEventImpl event = new CatalogAddEventImpl();
         event.setSource(object);
 
         event(event);
     }
 
-    public void fireModified(
+    public @Override void fireModified(
             CatalogInfo object, List propertyNames, List oldValues, List newValues) {
         CatalogModifyEventImpl event = new CatalogModifyEventImpl();
 
@@ -1709,7 +1701,7 @@ public class CatalogImpl implements Catalog{
         event(event);
     }
 
-    public void firePostModified(
+    public @Override void firePostModified(
             CatalogInfo object, List propertyNames, List oldValues, List newValues) {
         CatalogPostModifyEventImpl event = new CatalogPostModifyEventImpl();
         event.setSource(object);
@@ -1719,7 +1711,7 @@ public class CatalogImpl implements Catalog{
         event(event);
     }
 
-    public void fireRemoved(CatalogInfo object) {
+    public @Override void fireRemoved(CatalogInfo object) {
         CatalogRemoveEventImpl event = new CatalogRemoveEventImpl();
         event.setSource(object);
 
@@ -1937,58 +1929,57 @@ public class CatalogImpl implements Catalog{
             this.isNew = isNew;
         }
 
-        public void visit(Catalog catalog) {}
+        public @Override void visit(Catalog catalog) {}
 
-        public void visit(WorkspaceInfo workspace) {
+        public @Override void visit(WorkspaceInfo workspace) {
             validator.validate(workspace, isNew);
         }
 
-        public void visit(NamespaceInfo namespace) {
+        public @Override void visit(NamespaceInfo namespace) {
             validator.validate(namespace, isNew);
         }
 
-        public void visit(DataStoreInfo dataStore) {
+        public @Override void visit(DataStoreInfo dataStore) {
             validator.validate(dataStore, isNew);
         }
 
-        public void visit(CoverageStoreInfo coverageStore) {
+        public @Override void visit(CoverageStoreInfo coverageStore) {
             validator.validate(coverageStore, isNew);
         }
 
-        public void visit(WMSStoreInfo wmsStore) {
+        public @Override void visit(WMSStoreInfo wmsStore) {
             validator.validate(wmsStore, isNew);
         }
 
-        public void visit(WMTSStoreInfo wmtsStore) {
+        public @Override void visit(WMTSStoreInfo wmtsStore) {
             validator.validate(wmtsStore, isNew);
         }
 
-        public void visit(FeatureTypeInfo featureType) {
+        public @Override void visit(FeatureTypeInfo featureType) {
             validator.validate(featureType, isNew);
         }
 
-        public void visit(CoverageInfo coverage) {
+        public @Override void visit(CoverageInfo coverage) {
             validator.validate(coverage, isNew);
         }
 
-        public void visit(LayerInfo layer) {
+        public @Override void visit(LayerInfo layer) {
             validator.validate(layer, isNew);
         }
 
-        public void visit(StyleInfo style) {
+        public @Override void visit(StyleInfo style) {
             validator.validate(style, isNew);
         }
 
-        public void visit(LayerGroupInfo layerGroup) {
+        public @Override void visit(LayerGroupInfo layerGroup) {
             validator.validate(layerGroup, isNew);
         }
 
-        public void visit(WMSLayerInfo wmsLayer) {
+        public @Override void visit(WMSLayerInfo wmsLayer) {
             validator.validate(wmsLayer, isNew);
         }
 
-        @Override
-        public void visit(WMTSLayerInfo wmtsLayer) {
+        public @Override void visit(WMTSLayerInfo wmtsLayer) {
             validator.validate(wmtsLayer, isNew);
         }
     }
@@ -2006,7 +1997,7 @@ public class CatalogImpl implements Catalog{
         resourceLoader = other.resourceLoader;
     }
 
-    public void accept(CatalogVisitor visitor) {
+    public @Override void accept(CatalogVisitor visitor) {
         visitor.visit(this);
     }
 
@@ -2032,20 +2023,17 @@ public class CatalogImpl implements Catalog{
         }
     }
 
-    @Override
-    public <T extends CatalogInfo> int count(final Class<T> of, final Filter filter) {
+    public @Override <T extends CatalogInfo> int count(final Class<T> of, final Filter filter) {
         final CatalogFacade facade = getFacade();
         return facade.count(of, filter);
     }
 
-    @Override
-    public <T extends CatalogInfo> CloseableIterator<T> list(
+    public @Override <T extends CatalogInfo> CloseableIterator<T> list(
             final Class<T> of, final Filter filter) {
         return list(of, filter, null, null, null);
     }
 
-    @Override
-    public <T extends CatalogInfo> CloseableIterator<T> list(
+    public @Override <T extends CatalogInfo> CloseableIterator<T> list(
             final Class<T> of,
             final Filter filter,
             Integer offset,
@@ -2067,8 +2055,7 @@ public class CatalogImpl implements Catalog{
         }
     }
 
-    @Override
-    public <T extends CatalogInfo> T get(Class<T> type, Filter filter)
+    public @Override <T extends CatalogInfo> T get(Class<T> type, Filter filter)
             throws IllegalArgumentException {
 
         final Integer limit = Integer.valueOf(2);
@@ -2088,9 +2075,7 @@ public class CatalogImpl implements Catalog{
         return result;
     }
 
-    @Override
-    public CatalogCapabilities getCatalogCapabilities() {
+    public @Override CatalogCapabilities getCatalogCapabilities() {
         return facade.getCatalogCapabilities();
     }
-
 }
