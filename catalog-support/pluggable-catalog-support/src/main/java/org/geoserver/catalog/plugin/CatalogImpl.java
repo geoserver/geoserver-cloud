@@ -1256,13 +1256,13 @@ public class CatalogImpl implements Catalog {
         List<Object> newValues = proxy.getNewValues();
         List<Object> oldValues = proxy.getOldValues();
 
+        // use the proxied object, may some listener change it
+        fireModified(info, propertyNames, oldValues, newValues);
+
         // this could be the event's payload instead of three separate lists
         PropertyDiff diff = PropertyDiff.valueOf(proxy).clean();
         Patch patch = diff.toPatch();
-
         businessRules.onBeforeSave(info, diff);
-        // use the proxied object, may some listener change it
-        fireModified(info, propertyNames, oldValues, newValues);
         try {
             // note info will be unwrapped before being given to the raw facade by the inbound
             // resolving function set at #setFacade
@@ -1271,7 +1271,7 @@ public class CatalogImpl implements Catalog {
             // commit proxy, making effective the change in the provided object. Has no effect in
             // what's been passed to the facade
             proxy.commit();
-            businessRules.onAfterSave(info, diff);
+            businessRules.onAfterSave(updated, diff);
             firePostModified(updated, propertyNames, oldValues, newValues);
         } catch (RuntimeException error) {
             businessRules.onSaveError(info, diff, error);
