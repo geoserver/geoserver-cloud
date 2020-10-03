@@ -6,8 +6,6 @@ package org.geoserver.catalog.plugin;
 
 import static java.util.Collections.unmodifiableList;
 
-import java.io.IOException;
-import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -19,7 +17,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.commons.io.FilenameUtils;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogCapabilities;
 import org.geoserver.catalog.CatalogException;
@@ -37,11 +34,8 @@ import org.geoserver.catalog.MapInfo;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.ResourcePool;
-import org.geoserver.catalog.SLDHandler;
 import org.geoserver.catalog.StoreInfo;
-import org.geoserver.catalog.StyleHandler;
 import org.geoserver.catalog.StyleInfo;
-import org.geoserver.catalog.Styles;
 import org.geoserver.catalog.ValidationResult;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.event.CatalogAddEvent;
@@ -63,13 +57,10 @@ import org.geoserver.catalog.impl.ProxyUtils;
 import org.geoserver.catalog.impl.ResolvingProxy;
 import org.geoserver.catalog.plugin.resolving.ModificationProxyDecorator;
 import org.geoserver.catalog.plugin.resolving.ResolvingCatalogFacade;
+import org.geoserver.catalog.plugin.rules.CatalogBusinessRules;
 import org.geoserver.catalog.util.CloseableIterator;
-import org.geoserver.config.GeoServerDataDirectory;
 import org.geoserver.platform.ExtensionPriority;
 import org.geoserver.platform.GeoServerResourceLoader;
-import org.geoserver.platform.resource.Resource;
-import org.geoserver.platform.resource.Resource.Type;
-import org.geoserver.platform.resource.Resources;
 import org.geotools.util.SuppressFBWarnings;
 import org.geotools.util.logging.Logging;
 import org.opengis.feature.type.Name;
@@ -139,6 +130,8 @@ public class CatalogImpl implements Catalog {
     /** Handles {@link CatalogInfo} validation rules before adding or updating an object */
     protected final CatalogValidationRules validationSupport;
 
+    private CatalogBusinessRules businessRules;
+
     protected final boolean isolated;
 
     public CatalogImpl() {
@@ -159,6 +152,7 @@ public class CatalogImpl implements Catalog {
         setFacade(facade);
         resourcePool = ResourcePool.create(this);
         validationSupport = new CatalogValidationRules(this);
+        businessRules = new CatalogBusinessRules(this);
     }
 
     public @Override CatalogFacade getFacade() {
@@ -225,12 +219,7 @@ public class CatalogImpl implements Catalog {
         synchronized (facade) {
             beforeadded(store);
             added = facade.add(store);
-
-            // if there is no default store use this one as the default
-            if (getDefaultDataStore(store.getWorkspace()) == null
-                    && store instanceof DataStoreInfo) {
-                setDefaultDataStore(store.getWorkspace(), (DataStoreInfo) store);
-            }
+            businessRules.onAfterAdd(added);
         }
         added(added);
     }
@@ -252,19 +241,7 @@ public class CatalogImpl implements Catalog {
         // TODO: remove synchronized block, need transactions
         synchronized (facade) {
             facade.remove(store);
-
-            WorkspaceInfo workspace = store.getWorkspace();
-            DataStoreInfo defaultStore = getDefaultDataStore(workspace);
-            if (store.equals(defaultStore) || defaultStore == null) {
-                // TODO: this will fire multiple events, we want to fire only one
-                setDefaultDataStore(workspace, null);
-
-                // default removed, choose another store to become default if possible
-                List<DataStoreInfo> dstores = getStoresByWorkspace(workspace, DataStoreInfo.class);
-                if (!dstores.isEmpty()) {
-                    setDefaultDataStore(workspace, (DataStoreInfo) dstores.get(0));
-                }
-            }
+            businessRules.onRemoved(store);
         }
 
         removed(store);
@@ -430,6 +407,7 @@ public class CatalogImpl implements Catalog {
         validate(resource, true);
         beforeadded(resource);
         ResourceInfo added = facade.add(resource);
+        businessRules.onAfterAdd(added);
         added(added);
     }
 
@@ -440,6 +418,7 @@ public class CatalogImpl implements Catalog {
     public @Override void remove(ResourceInfo resource) {
         validationSupport.beforeRemove(resource);
         facade.remove(resource);
+        businessRules.onRemoved(resource);
         removed(resource);
     }
 
@@ -630,6 +609,7 @@ public class CatalogImpl implements Catalog {
         validate(layer, true);
         beforeadded(layer);
         LayerInfo added = facade.add(layer);
+        businessRules.onAfterAdd(added);
         added(added);
     }
 
@@ -640,6 +620,7 @@ public class CatalogImpl implements Catalog {
     public @Override void remove(LayerInfo layer) {
         validationSupport.beforeRemove(layer);
         facade.remove(layer);
+        businessRules.onRemoved(layer);
         removed(layer);
     }
 
@@ -733,6 +714,7 @@ public class CatalogImpl implements Catalog {
         validate(layerGroup, true);
         beforeadded(layerGroup);
         LayerGroupInfo added = facade.add(layerGroup);
+        businessRules.onAfterAdd(added);
         added(added);
     }
 
@@ -743,6 +725,7 @@ public class CatalogImpl implements Catalog {
     public @Override void remove(LayerGroupInfo layerGroup) {
         validationSupport.beforeRemove(layerGroup);
         facade.remove(layerGroup);
+        businessRules.onRemoved(layerGroup);
         removed(layerGroup);
     }
 
@@ -831,12 +814,14 @@ public class CatalogImpl implements Catalog {
         validate(map, true);
         beforeadded(map);
         MapInfo added = facade.add(map);
+        businessRules.onAfterAdd(added);
         added(added);
     }
 
     public @Override void remove(MapInfo map) {
         validationSupport.beforeRemove(map);
         facade.remove(map);
+        businessRules.onRemoved(map);
         removed(map);
     }
 
@@ -880,11 +865,8 @@ public class CatalogImpl implements Catalog {
         synchronized (facade) {
             beforeadded(namespace);
             added = facade.add(namespace);
-            if (getDefaultNamespace() == null) {
-                setDefaultNamespace(added);
-            }
+            businessRules.onAfterAdd(added);
         }
-
         added(added);
     }
 
@@ -892,31 +874,12 @@ public class CatalogImpl implements Catalog {
         return validationSupport.validate(namespace, isNew);
     }
 
-    @SuppressFBWarnings("NP_NULL_PARAM_DEREF") // I don't see this happening...
     public @Override void remove(NamespaceInfo namespace) {
         validationSupport.beforeRemove(namespace);
         // TODO: remove synchronized block, need transactions
         synchronized (facade) {
             facade.remove(namespace);
-
-            NamespaceInfo defaultNamespace = getDefaultNamespace();
-            if (namespace.equals(defaultNamespace) || defaultNamespace == null) {
-                List<NamespaceInfo> namespaces = facade.getNamespaces();
-
-                defaultNamespace = null;
-                if (!namespaces.isEmpty()) {
-                    defaultNamespace = namespaces.get(0);
-                }
-
-                setDefaultNamespace(defaultNamespace);
-                if (defaultNamespace != null) {
-                    WorkspaceInfo defaultWorkspace =
-                            getWorkspaceByName(defaultNamespace.getPrefix());
-                    if (defaultWorkspace != null) {
-                        setDefaultWorkspace(defaultWorkspace);
-                    }
-                }
-            }
+            businessRules.onRemoved(namespace);
         }
         removed(namespace);
     }
@@ -955,10 +918,7 @@ public class CatalogImpl implements Catalog {
         synchronized (facade) {
             beforeadded(workspace);
             added = facade.add(workspace);
-            // if there is no default workspace use this one as the default
-            if (getDefaultWorkspace() == null) {
-                setDefaultWorkspace(workspace);
-            }
+            businessRules.onAfterAdd(added);
         }
 
         added(added);
@@ -968,31 +928,12 @@ public class CatalogImpl implements Catalog {
         return validationSupport.validate(workspace, isNew);
     }
 
-    @SuppressFBWarnings("NP_NULL_PARAM_DEREF") // I don't see this happening...
     public @Override void remove(WorkspaceInfo workspace) {
         validationSupport.beforeRemove(workspace);
         // TODO: remove synchronized block, need transactions
         synchronized (facade) {
             facade.remove(workspace);
-
-            WorkspaceInfo defaultWorkspace = getDefaultWorkspace();
-            if (workspace.equals(defaultWorkspace) || defaultWorkspace == null) {
-                List<WorkspaceInfo> workspaces = facade.getWorkspaces();
-
-                defaultWorkspace = null;
-                if (!workspaces.isEmpty()) {
-                    defaultWorkspace = workspaces.get(0);
-                }
-
-                setDefaultWorkspace(defaultWorkspace);
-                if (defaultWorkspace != null) {
-                    NamespaceInfo defaultNamespace =
-                            getNamespaceByPrefix(defaultWorkspace.getName());
-                    if (defaultNamespace != null) {
-                        setDefaultNamespace(defaultNamespace);
-                    }
-                }
-            }
+            businessRules.onRemoved(workspace);
         }
 
         removed(workspace);
@@ -1114,6 +1055,7 @@ public class CatalogImpl implements Catalog {
         validate(style, true);
         beforeadded(style);
         StyleInfo added = facade.add(style);
+        businessRules.onAfterAdd(added);
         added(added);
     }
 
@@ -1124,46 +1066,13 @@ public class CatalogImpl implements Catalog {
     public @Override void remove(StyleInfo style) {
         validationSupport.beforeRemove(style);
         facade.remove(style);
+        businessRules.onRemoved(style);
         removed(style);
     }
 
     public @Override void save(StyleInfo style) {
         validate(style, false);
-
-        ModificationProxy h = (ModificationProxy) Proxy.getInvocationHandler(style);
-        // here we handle name changes
-        int i = h.getPropertyNames().indexOf("name");
-        if (i > -1 && !h.getNewValues().get(i).equals(h.getOldValues().get(i))) {
-            String newName = (String) h.getNewValues().get(i);
-            try {
-                renameStyle(style, newName);
-            } catch (IOException e) {
-                LOGGER.log(Level.SEVERE, "Failed to rename style file along with name.", e);
-            }
-        }
-
         doSave(style);
-    }
-
-    private void renameStyle(StyleInfo s, String newName) throws IOException {
-        // rename style definition file
-        Resource style = new GeoServerDataDirectory(resourceLoader).style(s);
-        StyleHandler format = Styles.handler(s.getFormat());
-
-        Resource target = Resources.uniqueResource(style, newName, format.getFileExtension());
-        style.renameTo(target);
-        s.setFilename(target.name());
-
-        // rename generated sld if appropriate
-        if (!SLDHandler.FORMAT.equals(format.getFormat())) {
-            Resource sld = style.parent().get(FilenameUtils.getBaseName(style.name()) + ".sld");
-            if (sld.getType() == Type.RESOURCE) {
-                LOGGER.fine("Renaming style resource " + s.getName() + " to " + newName);
-
-                Resource generated = Resources.uniqueResource(sld, newName, "sld");
-                sld.renameTo(generated);
-            }
-        }
     }
 
     public @Override StyleInfo detach(StyleInfo style) {
@@ -1434,20 +1343,25 @@ public class CatalogImpl implements Catalog {
         List<Object> oldValues = proxy.getOldValues();
 
         // this could be the event's payload instead of three separate lists
-        PropertyDiff diff = PropertyDiff.valueOf(proxy);
+        PropertyDiff diff = PropertyDiff.valueOf(proxy).clean();
         Patch patch = diff.toPatch();
 
+        businessRules.onBeforeSave(info, diff);
         // use the proxied object, may some listener change it
         fireModified(info, propertyNames, oldValues, newValues);
+        try {
+            // note info will be unwrapped before being given to the raw facade by the inbound
+            // resolving function set at #setFacade
+            I updated = facade.update(info, patch);
 
-        // note info will be unwrapped before being given to the raw facade by the inbound resolving
-        // function set at #setFacade
-        I updated = facade.update(info, patch);
-
-        // commit proxy, making effective the change in the provided object. Has no effect in what's
-        // been passed to the facade
-        proxy.commit();
-
-        firePostModified(updated, propertyNames, oldValues, newValues);
+            // commit proxy, making effective the change in the provided object. Has no effect in
+            // what's been passed to the facade
+            proxy.commit();
+            businessRules.onAfterSave(info, diff);
+            firePostModified(updated, propertyNames, oldValues, newValues);
+        } catch (RuntimeException error) {
+            businessRules.onSaveError(info, diff, error);
+            throw error;
+        }
     }
 }

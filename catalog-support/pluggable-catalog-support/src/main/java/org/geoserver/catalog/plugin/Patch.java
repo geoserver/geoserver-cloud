@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.TreeMap;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -45,6 +46,11 @@ public @Value class Patch implements Serializable {
         Property p = new Property(name, value);
         add(p);
         return p;
+    }
+
+    public Optional<Property> get(String propertyName) {
+        Property property = this.patches.get(propertyName);
+        return Optional.ofNullable(property);
     }
 
     public void applyTo(Object target) {

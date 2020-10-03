@@ -419,6 +419,7 @@ public class ResolvingCatalogFacade extends ForwardingExtendedCatalogFacade {
     public @Override <T extends CatalogInfo> CloseableIterator<T> list(
             Class<T> of, Filter filter, Integer offset, Integer count, SortBy... sortOrder) {
 
+        @SuppressWarnings("deprecation")
         final CloseableIterator<T> orig = facade().list(of, filter, offset, count, sortOrder);
         return CloseableIteratorAdapter.transform(orig, this::resolveOutbound);
     }
