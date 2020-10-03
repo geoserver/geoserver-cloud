@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -58,6 +59,7 @@ import org.geoserver.catalog.impl.ResolvingProxy;
 import org.geoserver.catalog.plugin.resolving.ModificationProxyDecorator;
 import org.geoserver.catalog.plugin.resolving.ResolvingCatalogFacade;
 import org.geoserver.catalog.plugin.rules.CatalogBusinessRules;
+import org.geoserver.catalog.plugin.validation.CatalogValidationRules;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.platform.ExtensionPriority;
 import org.geoserver.platform.GeoServerResourceLoader;
@@ -212,16 +214,7 @@ public class CatalogImpl implements Catalog {
 
     // Store methods
     public @Override void add(StoreInfo store) {
-        validate(store, true);
-
-        // TODO: remove synchronized block, need transactions
-        StoreInfo added;
-        synchronized (facade) {
-            beforeadded(store);
-            added = facade.add(store);
-            businessRules.onAfterAdd(added);
-        }
-        added(added);
+        doAdd(store, facade::add);
     }
 
     public @Override ValidationResult validate(StoreInfo store, boolean isNew) {
@@ -235,20 +228,11 @@ public class CatalogImpl implements Catalog {
         return validationSupport.validate(map, isNew);
     }
 
-    @SuppressFBWarnings("NP_NONNULL_PARAM_VIOLATION") // setDefaultDataStore allows for null store
     public @Override void remove(StoreInfo store) {
-        validationSupport.beforeRemove(store);
-        // TODO: remove synchronized block, need transactions
-        synchronized (facade) {
-            facade.remove(store);
-            businessRules.onRemoved(store);
-        }
-
-        removed(store);
+        doRemove(store, facade::remove);
     }
 
     public @Override void save(StoreInfo store) {
-        validate(store, false);
         doSave(store);
     }
 
@@ -404,11 +388,7 @@ public class CatalogImpl implements Catalog {
 
     // Resource methods
     public @Override void add(ResourceInfo resource) {
-        validate(resource, true);
-        beforeadded(resource);
-        ResourceInfo added = facade.add(resource);
-        businessRules.onAfterAdd(added);
-        added(added);
+        doAdd(resource, facade::add);
     }
 
     public @Override ValidationResult validate(ResourceInfo resource, boolean isNew) {
@@ -416,14 +396,10 @@ public class CatalogImpl implements Catalog {
     }
 
     public @Override void remove(ResourceInfo resource) {
-        validationSupport.beforeRemove(resource);
-        facade.remove(resource);
-        businessRules.onRemoved(resource);
-        removed(resource);
+        doRemove(resource, facade::remove);
     }
 
     public @Override void save(ResourceInfo resource) {
-        validate(resource, false);
         doSave(resource);
     }
 
@@ -606,11 +582,7 @@ public class CatalogImpl implements Catalog {
 
     // Layer methods
     public @Override void add(LayerInfo layer) {
-        validate(layer, true);
-        beforeadded(layer);
-        LayerInfo added = facade.add(layer);
-        businessRules.onAfterAdd(added);
-        added(added);
+        doAdd(layer, facade::add);
     }
 
     public @Override ValidationResult validate(LayerInfo layer, boolean isNew) {
@@ -618,14 +590,10 @@ public class CatalogImpl implements Catalog {
     }
 
     public @Override void remove(LayerInfo layer) {
-        validationSupport.beforeRemove(layer);
-        facade.remove(layer);
-        businessRules.onRemoved(layer);
-        removed(layer);
+        doRemove(layer, facade::remove);
     }
 
     public @Override void save(LayerInfo layer) {
-        validate(layer, false);
         doSave(layer);
     }
 
@@ -672,7 +640,7 @@ public class CatalogImpl implements Catalog {
         return result;
     }
 
-    static LayerInfo getLayerByName(Catalog catalog, String workspace, String resourceName) {
+    public static LayerInfo getLayerByName(Catalog catalog, String workspace, String resourceName) {
         ResourceInfo r = catalog.getResourceByName(workspace, resourceName, ResourceInfo.class);
         if (r == null) {
             return null;
@@ -711,11 +679,7 @@ public class CatalogImpl implements Catalog {
     }
 
     public @Override void add(LayerGroupInfo layerGroup) {
-        validate(layerGroup, true);
-        beforeadded(layerGroup);
-        LayerGroupInfo added = facade.add(layerGroup);
-        businessRules.onAfterAdd(added);
-        added(added);
+        doAdd(layerGroup, facade::add);
     }
 
     public @Override ValidationResult validate(LayerGroupInfo layerGroup, boolean isNew) {
@@ -723,14 +687,10 @@ public class CatalogImpl implements Catalog {
     }
 
     public @Override void remove(LayerGroupInfo layerGroup) {
-        validationSupport.beforeRemove(layerGroup);
-        facade.remove(layerGroup);
-        businessRules.onRemoved(layerGroup);
-        removed(layerGroup);
+        doRemove(layerGroup, facade::remove);
     }
 
     public @Override void save(LayerGroupInfo layerGroup) {
-        validate(layerGroup, false);
         doSave(layerGroup);
     }
 
@@ -811,22 +771,14 @@ public class CatalogImpl implements Catalog {
     }
 
     public @Override void add(MapInfo map) {
-        validate(map, true);
-        beforeadded(map);
-        MapInfo added = facade.add(map);
-        businessRules.onAfterAdd(added);
-        added(added);
+        doAdd(map, facade::add);
     }
 
     public @Override void remove(MapInfo map) {
-        validationSupport.beforeRemove(map);
-        facade.remove(map);
-        businessRules.onRemoved(map);
-        removed(map);
+        doRemove(map, facade::remove);
     }
 
     public @Override void save(MapInfo map) {
-        validate(map, false);
         doSave(map);
     }
 
@@ -859,15 +811,7 @@ public class CatalogImpl implements Catalog {
     }
 
     public @Override void add(NamespaceInfo namespace) {
-        validate(namespace, true);
-
-        NamespaceInfo added;
-        synchronized (facade) {
-            beforeadded(namespace);
-            added = facade.add(namespace);
-            businessRules.onAfterAdd(added);
-        }
-        added(added);
+        doAdd(namespace, facade::add);
     }
 
     public @Override ValidationResult validate(NamespaceInfo namespace, boolean isNew) {
@@ -875,17 +819,10 @@ public class CatalogImpl implements Catalog {
     }
 
     public @Override void remove(NamespaceInfo namespace) {
-        validationSupport.beforeRemove(namespace);
-        // TODO: remove synchronized block, need transactions
-        synchronized (facade) {
-            facade.remove(namespace);
-            businessRules.onRemoved(namespace);
-        }
-        removed(namespace);
+        doRemove(namespace, facade::remove);
     }
 
     public @Override void save(NamespaceInfo namespace) {
-        validate(namespace, false);
         doSave(namespace);
     }
 
@@ -912,16 +849,7 @@ public class CatalogImpl implements Catalog {
 
     // Workspace methods
     public @Override void add(WorkspaceInfo workspace) {
-        validate(workspace, true);
-
-        WorkspaceInfo added;
-        synchronized (facade) {
-            beforeadded(workspace);
-            added = facade.add(workspace);
-            businessRules.onAfterAdd(added);
-        }
-
-        added(added);
+        doAdd(workspace, facade::add);
     }
 
     public @Override ValidationResult validate(WorkspaceInfo workspace, boolean isNew) {
@@ -929,18 +857,10 @@ public class CatalogImpl implements Catalog {
     }
 
     public @Override void remove(WorkspaceInfo workspace) {
-        validationSupport.beforeRemove(workspace);
-        // TODO: remove synchronized block, need transactions
-        synchronized (facade) {
-            facade.remove(workspace);
-            businessRules.onRemoved(workspace);
-        }
-
-        removed(workspace);
+        doRemove(workspace, facade::remove);
     }
 
     public @Override void save(WorkspaceInfo workspace) {
-        validate(workspace, false);
         doSave(workspace);
     }
 
@@ -1052,11 +972,7 @@ public class CatalogImpl implements Catalog {
     }
 
     public @Override void add(StyleInfo style) {
-        validate(style, true);
-        beforeadded(style);
-        StyleInfo added = facade.add(style);
-        businessRules.onAfterAdd(added);
-        added(added);
+        doAdd(style, facade::add);
     }
 
     public @Override ValidationResult validate(StyleInfo style, boolean isNew) {
@@ -1064,14 +980,10 @@ public class CatalogImpl implements Catalog {
     }
 
     public @Override void remove(StyleInfo style) {
-        validationSupport.beforeRemove(style);
-        facade.remove(style);
-        businessRules.onRemoved(style);
-        removed(style);
+        doRemove(style, facade::remove);
     }
 
     public @Override void save(StyleInfo style) {
-        validate(style, false);
         doSave(style);
     }
 
@@ -1121,18 +1033,6 @@ public class CatalogImpl implements Catalog {
     public @Override void dispose() {
         if (resourcePool != null) resourcePool.dispose();
         facade.dispose();
-    }
-
-    protected void added(CatalogInfo object) {
-        fireAdded(object);
-    }
-
-    protected void beforeadded(CatalogInfo object) {
-        fireBeforeAdded(object);
-    }
-
-    protected void removed(CatalogInfo object) {
-        fireRemoved(object);
     }
 
     // @Override TODO: add to the interface
@@ -1322,6 +1222,19 @@ public class CatalogImpl implements Catalog {
         return facade.getCatalogCapabilities();
     }
 
+    protected <T extends CatalogInfo> void doAdd(T object, Function<T, T> inserter) {
+        validationSupport.validate(object, true);
+        T added;
+        // TODO: remove synchronized block, we need transactions. Besides, it means nothing in
+        // multi-process scenarios.
+        synchronized (facade) {
+            fireBeforeAdded(object);
+            added = inserter.apply(object);
+            businessRules.onAfterAdd(added);
+        }
+        fireAdded(added);
+    }
+
     /**
      * Called by all {@code save(...)} methods, creates a {@link Patch} out of the {@code info}
      * {@link ModificationProxy} and calls {@link ExtendedCatalogFacade#update
@@ -1336,6 +1249,7 @@ public class CatalogImpl implements Catalog {
      *     properties
      */
     protected <I extends CatalogInfo> void doSave(final I info) {
+        validationSupport.validate(info, false);
         ModificationProxy proxy = ProxyUtils.handler(info, ModificationProxy.class);
         // figure out what changed
         List<String> propertyNames = proxy.getPropertyNames();
@@ -1363,5 +1277,15 @@ public class CatalogImpl implements Catalog {
             businessRules.onSaveError(info, diff, error);
             throw error;
         }
+    }
+
+    protected <T extends CatalogInfo> void doRemove(T object, Consumer<T> remover) {
+        validationSupport.beforeRemove(object);
+        // TODO: remove synchronized block, need transactions
+        synchronized (facade) {
+            remover.accept(object);
+            businessRules.onRemoved(object);
+        }
+        fireRemoved(object);
     }
 }
