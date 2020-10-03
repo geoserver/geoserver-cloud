@@ -55,10 +55,9 @@ class XmlSerializedConfigRepository implements ConfigRepository {
         if (serialized == null) return null;
         I loaded;
         try {
-            loaded =
-                    codec.load(
-                            new ByteArrayInputStream(serialized.getBytes(StandardCharsets.UTF_8)),
-                            type);
+            ByteArrayInputStream in =
+                    new ByteArrayInputStream(serialized.getBytes(StandardCharsets.UTF_8));
+            loaded = codec.load(in, type);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -158,10 +157,8 @@ class XmlSerializedConfigRepository implements ConfigRepository {
 
     public @Override Stream<? extends ServiceInfo> getServicesByWorkspace(WorkspaceInfo workspace) {
         return services()
-                .filter(
-                        s ->
-                                s.getWorkspace() != null
-                                        && workspace.getId().equals(s.getWorkspace().getId()));
+                .filter(s -> s.getWorkspace() != null)
+                .filter(s -> workspace.getId().equals(s.getWorkspace().getId()));
     }
 
     public @Override <T extends ServiceInfo> Optional<T> getGlobalService(Class<T> clazz) {
@@ -175,12 +172,8 @@ class XmlSerializedConfigRepository implements ConfigRepository {
     public @Override <T extends ServiceInfo> Optional<T> getServiceByWorkspace(
             WorkspaceInfo workspace, Class<T> clazz) {
 
-        return services()
+        return getServicesByWorkspace(workspace)
                 .filter(clazz::isInstance)
-                .filter(
-                        s ->
-                                s.getWorkspace() != null
-                                        && s.getWorkspace().getId().equals(workspace.getId()))
                 .map(clazz::cast)
                 .findFirst();
     }
@@ -194,7 +187,7 @@ class XmlSerializedConfigRepository implements ConfigRepository {
     public @Override <T extends ServiceInfo> Optional<T> getServiceByName(
             String name, Class<T> clazz) {
 
-        return services()
+        return getGlobalServices()
                 .filter(clazz::isInstance)
                 .filter(s -> name.equals(s.getName()))
                 .map(clazz::cast)
@@ -204,13 +197,9 @@ class XmlSerializedConfigRepository implements ConfigRepository {
     public @Override <T extends ServiceInfo> Optional<T> getServiceByNameAndWorkspace(
             String name, WorkspaceInfo workspace, Class<T> clazz) {
 
-        return services()
+        return getServicesByWorkspace(workspace)
                 .filter(clazz::isInstance)
-                .filter(
-                        s ->
-                                s.getWorkspace() != null
-                                        && s.getWorkspace().getId().equals(workspace.getId())
-                                        && name.equals(s.getName()))
+                .filter(s -> name.equals(s.getName()))
                 .map(clazz::cast)
                 .findFirst();
     }
