@@ -27,7 +27,6 @@ import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogFactory;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.CatalogVisitor;
-import org.geoserver.catalog.CoverageDimensionInfo;
 import org.geoserver.catalog.CoverageInfo;
 import org.geoserver.catalog.CoverageStoreInfo;
 import org.geoserver.catalog.DataStoreInfo;
@@ -36,7 +35,6 @@ import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.MapInfo;
 import org.geoserver.catalog.NamespaceInfo;
-import org.geoserver.catalog.PublishedType;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.ResourcePool;
 import org.geoserver.catalog.SLDHandler;
@@ -45,8 +43,6 @@ import org.geoserver.catalog.StyleHandler;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.Styles;
 import org.geoserver.catalog.ValidationResult;
-import org.geoserver.catalog.WMSLayerInfo;
-import org.geoserver.catalog.WMTSLayerInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.event.CatalogAddEvent;
 import org.geoserver.catalog.event.CatalogBeforeAddEvent;
@@ -61,23 +57,14 @@ import org.geoserver.catalog.event.impl.CatalogModifyEventImpl;
 import org.geoserver.catalog.event.impl.CatalogPostModifyEventImpl;
 import org.geoserver.catalog.event.impl.CatalogRemoveEventImpl;
 import org.geoserver.catalog.impl.CatalogFactoryImpl;
-import org.geoserver.catalog.impl.CoverageDimensionImpl;
-import org.geoserver.catalog.impl.CoverageInfoImpl;
 import org.geoserver.catalog.impl.DefaultCatalogFacade;
-import org.geoserver.catalog.impl.FeatureTypeInfoImpl;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.impl.ProxyUtils;
 import org.geoserver.catalog.impl.ResolvingProxy;
-import org.geoserver.catalog.impl.ResourceInfoImpl;
-import org.geoserver.catalog.impl.StoreInfoImpl;
-import org.geoserver.catalog.impl.StyleInfoImpl;
-import org.geoserver.catalog.impl.WMSLayerInfoImpl;
-import org.geoserver.catalog.impl.WMTSLayerInfoImpl;
 import org.geoserver.catalog.plugin.resolving.ModificationProxyDecorator;
 import org.geoserver.catalog.plugin.resolving.ResolvingCatalogFacade;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.config.GeoServerDataDirectory;
-import org.geoserver.ows.util.OwsUtils;
 import org.geoserver.platform.ExtensionPriority;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.Resource;
@@ -231,19 +218,13 @@ public class CatalogImpl implements Catalog {
 
     // Store methods
     public @Override void add(StoreInfo store) {
-
-        if (store.getWorkspace() == null) {
-            store.setWorkspace(getDefaultWorkspace());
-        }
-
         validate(store, true);
 
         // TODO: remove synchronized block, need transactions
         StoreInfo added;
         synchronized (facade) {
-            StoreInfo resolved = resolve(store);
-            beforeadded(resolved);
-            added = facade.add(resolved);
+            beforeadded(store);
+            added = facade.add(store);
 
             // if there is no default store use this one as the default
             if (getDefaultDataStore(store.getWorkspace()) == null
@@ -256,6 +237,13 @@ public class CatalogImpl implements Catalog {
 
     public @Override ValidationResult validate(StoreInfo store, boolean isNew) {
         return validationSupport.validate(store, isNew);
+    }
+
+    /**
+     * This is not API but we need to decide if MapInfo is deprecated/removed or further developed
+     */
+    public ValidationResult validate(MapInfo map, boolean isNew) {
+        return validationSupport.validate(map, isNew);
     }
 
     @SuppressFBWarnings("NP_NONNULL_PARAM_VIOLATION") // setDefaultDataStore allows for null store
@@ -439,17 +427,9 @@ public class CatalogImpl implements Catalog {
 
     // Resource methods
     public @Override void add(ResourceInfo resource) {
-        if (resource.getNamespace() == null) {
-            // default to default namespace
-            resource.setNamespace(getDefaultNamespace());
-        }
-        if (resource.getNativeName() == null) {
-            resource.setNativeName(resource.getName());
-        }
-        ResourceInfo resolved = resolve(resource);
-        validate(resolved, true);
-        beforeadded(resolved);
-        ResourceInfo added = facade.add(resolved);
+        validate(resource, true);
+        beforeadded(resource);
+        ResourceInfo added = facade.add(resource);
         added(added);
     }
 
@@ -647,23 +627,7 @@ public class CatalogImpl implements Catalog {
 
     // Layer methods
     public @Override void add(LayerInfo layer) {
-        layer = resolve(layer);
         validate(layer, true);
-
-        if (layer.getType() == null) {
-            if (layer.getResource() instanceof FeatureTypeInfo) {
-                layer.setType(PublishedType.VECTOR);
-            } else if (layer.getResource() instanceof CoverageInfo) {
-                layer.setType(PublishedType.RASTER);
-            } else if (layer.getResource() instanceof WMTSLayerInfo) {
-                layer.setType(PublishedType.WMTS);
-            } else if (layer.getResource() instanceof WMSLayerInfo) {
-                layer.setType(PublishedType.WMS);
-            } else {
-                String msg = "Layer type not set and can't be derived from resource";
-                throw new IllegalArgumentException(msg);
-            }
-        }
         beforeadded(layer);
         LayerInfo added = facade.add(layer);
         added(added);
@@ -766,13 +730,7 @@ public class CatalogImpl implements Catalog {
     }
 
     public @Override void add(LayerGroupInfo layerGroup) {
-        layerGroup = resolve(layerGroup);
         validate(layerGroup, true);
-
-        List<StyleInfo> styles = layerGroup.getStyles();
-        if (styles.isEmpty()) {
-            layerGroup.getLayers().forEach(l -> styles.add(null));
-        }
         beforeadded(layerGroup);
         LayerGroupInfo added = facade.add(layerGroup);
         added(added);
@@ -870,8 +828,9 @@ public class CatalogImpl implements Catalog {
     }
 
     public @Override void add(MapInfo map) {
+        validate(map, true);
         beforeadded(map);
-        MapInfo added = facade.add(resolve(map));
+        MapInfo added = facade.add(map);
         added(added);
     }
 
@@ -882,6 +841,7 @@ public class CatalogImpl implements Catalog {
     }
 
     public @Override void save(MapInfo map) {
+        validate(map, false);
         doSave(map);
     }
 
@@ -918,11 +878,10 @@ public class CatalogImpl implements Catalog {
 
         NamespaceInfo added;
         synchronized (facade) {
-            final NamespaceInfo resolved = resolve(namespace);
             beforeadded(namespace);
-            added = facade.add(resolved);
+            added = facade.add(namespace);
             if (getDefaultNamespace() == null) {
-                setDefaultNamespace(resolved);
+                setDefaultNamespace(added);
             }
         }
 
@@ -990,13 +949,7 @@ public class CatalogImpl implements Catalog {
 
     // Workspace methods
     public @Override void add(WorkspaceInfo workspace) {
-        workspace = resolve(workspace);
         validate(workspace, true);
-
-        if (getWorkspaceByName(workspace.getName()) != null) {
-            throw new IllegalArgumentException(
-                    "Workspace with name '" + workspace.getName() + "' already exists.");
-        }
 
         WorkspaceInfo added;
         synchronized (facade) {
@@ -1158,9 +1111,7 @@ public class CatalogImpl implements Catalog {
     }
 
     public @Override void add(StyleInfo style) {
-        style = resolve(style);
         validate(style, true);
-        // set creation time before persisting
         beforeadded(style);
         StyleInfo added = facade.add(style);
         added(added);
@@ -1177,9 +1128,9 @@ public class CatalogImpl implements Catalog {
     }
 
     public @Override void save(StyleInfo style) {
-        ModificationProxy h = (ModificationProxy) Proxy.getInvocationHandler(style);
         validate(style, false);
 
+        ModificationProxy h = (ModificationProxy) Proxy.getInvocationHandler(style);
         // here we handle name changes
         int i = h.getPropertyNames().indexOf("name");
         if (i > -1 && !h.getNewValues().get(i).equals(h.getOldValues().get(i))) {
@@ -1361,7 +1312,15 @@ public class CatalogImpl implements Catalog {
         return obj;
     }
 
-    /** Implementation method for resolving all {@link ResolvingProxy} instances. */
+    /**
+     * Implementation method for resolving all {@link ResolvingProxy} instances.
+     *
+     * <p>(GR)REVISIT: what do ResolvingProxy instances have to do with a default catalog
+     * implementation? this is not even API. It's up to the calling code to resolve objects and
+     * provide valid input. The {@link ResolvingCatalogFacade} can be of good use for the default
+     * geoserver loader here, while it should load in order to guarantee presence of dependent
+     * objects.
+     */
     public void resolve() {
         facade.setCatalog(this);
         facade.resolve();
@@ -1373,113 +1332,6 @@ public class CatalogImpl implements Catalog {
         if (resourcePool == null) {
             resourcePool = ResourcePool.create(this);
         }
-    }
-
-    protected WorkspaceInfo resolve(WorkspaceInfo workspace) {
-        resolveCollections(workspace);
-        return workspace;
-    }
-
-    protected NamespaceInfo resolve(NamespaceInfo namespace) {
-        resolveCollections(namespace);
-        return namespace;
-    }
-
-    protected StoreInfo resolve(StoreInfo store) {
-        resolveCollections(store);
-
-        StoreInfoImpl s = (StoreInfoImpl) store;
-        s.setCatalog(this);
-
-        return store;
-    }
-
-    protected ResourceInfo resolve(ResourceInfo resource) {
-
-        ResourceInfoImpl r = (ResourceInfoImpl) resource;
-        r.setCatalog(this);
-
-        if (resource instanceof FeatureTypeInfo) {
-            resolve((FeatureTypeInfo) resource);
-        }
-        if (r instanceof CoverageInfo) {
-            resolve((CoverageInfo) resource);
-        }
-        if (r instanceof WMSLayerInfo) {
-            resolve((WMSLayerInfo) resource);
-        }
-        if (r instanceof WMTSLayerInfo) {
-            resolve((WMTSLayerInfo) resource);
-        }
-
-        return resource;
-    }
-
-    private CoverageInfo resolve(CoverageInfo r) {
-        CoverageInfoImpl c = (CoverageInfoImpl) r;
-        if (c.getDimensions() != null) {
-            for (CoverageDimensionInfo dim : c.getDimensions()) {
-                if (dim.getNullValues() == null) {
-                    ((CoverageDimensionImpl) dim).setNullValues(new ArrayList<Double>());
-                }
-            }
-        }
-        resolveCollections(r);
-        return r;
-    }
-
-    /**
-     * We don't want the world to be able and call this without going trough {@link
-     * #resolve(ResourceInfo)}
-     */
-    private FeatureTypeInfo resolve(FeatureTypeInfo featureType) {
-        FeatureTypeInfoImpl ft = (FeatureTypeInfoImpl) featureType;
-        resolveCollections(ft);
-        return ft;
-    }
-
-    private WMSLayerInfo resolve(WMSLayerInfo wmsLayer) {
-        WMSLayerInfoImpl impl = (WMSLayerInfoImpl) wmsLayer;
-        resolveCollections(impl);
-        return wmsLayer;
-    }
-
-    private WMTSLayerInfo resolve(WMTSLayerInfo wmtsLayer) {
-        WMTSLayerInfoImpl impl = (WMTSLayerInfoImpl) wmtsLayer;
-        resolveCollections(impl);
-        return wmtsLayer;
-    }
-
-    protected LayerInfo resolve(LayerInfo layer) {
-        if (layer.getAttribution() == null) {
-            layer.setAttribution(getFactory().createAttribution());
-        }
-        resolveCollections(layer);
-        return layer;
-    }
-
-    protected LayerGroupInfo resolve(LayerGroupInfo layerGroup) {
-        resolveCollections(layerGroup);
-        return layerGroup;
-    }
-
-    protected StyleInfo resolve(StyleInfo style) {
-        ((StyleInfoImpl) style).setCatalog(this);
-        return style;
-    }
-
-    protected MapInfo resolve(MapInfo map) {
-        resolveCollections(map);
-        return map;
-    }
-
-    /** Method which reflectively sets all collections when they are null. */
-    protected void resolveCollections(Object object) {
-        OwsUtils.resolveCollections(object);
-    }
-
-    protected boolean isNull(String string) {
-        return string == null || "".equals(string.trim());
     }
 
     <T extends CatalogInfo> T detached(T original, T detached) {
@@ -1506,28 +1358,6 @@ public class CatalogImpl implements Catalog {
 
     public @Override void accept(CatalogVisitor visitor) {
         visitor.visit(this);
-    }
-
-    public void resolve(CatalogInfo info) {
-        if (info instanceof LayerGroupInfo) {
-            resolve((LayerGroupInfo) info);
-        } else if (info instanceof LayerInfo) {
-            resolve((LayerInfo) info);
-        } else if (info instanceof MapInfo) {
-            resolve((MapInfo) info);
-        } else if (info instanceof NamespaceInfo) {
-            resolve((NamespaceInfo) info);
-        } else if (info instanceof ResourceInfo) {
-            resolve((ResourceInfo) info);
-        } else if (info instanceof StoreInfo) {
-            resolve((StoreInfo) info);
-        } else if (info instanceof StyleInfo) {
-            resolve((StyleInfo) info);
-        } else if (info instanceof WorkspaceInfo) {
-            resolve((WorkspaceInfo) info);
-        } else {
-            throw new IllegalArgumentException("Unknown resource type: " + info);
-        }
     }
 
     public @Override <T extends CatalogInfo> int count(final Class<T> of, final Filter filter) {

@@ -23,6 +23,7 @@ import org.geoserver.catalog.CatalogBuilder;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.CatalogValidator;
 import org.geoserver.catalog.CatalogVisitor;
+import org.geoserver.catalog.CoverageDimensionInfo;
 import org.geoserver.catalog.CoverageInfo;
 import org.geoserver.catalog.CoverageStoreInfo;
 import org.geoserver.catalog.DataStoreInfo;
@@ -35,6 +36,7 @@ import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.MapInfo;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.PublishedInfo;
+import org.geoserver.catalog.PublishedType;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.SLDNamedLayerValidator;
 import org.geoserver.catalog.StoreInfo;
@@ -45,6 +47,15 @@ import org.geoserver.catalog.WMSStoreInfo;
 import org.geoserver.catalog.WMTSLayerInfo;
 import org.geoserver.catalog.WMTSStoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
+import org.geoserver.catalog.impl.CoverageDimensionImpl;
+import org.geoserver.catalog.impl.CoverageInfoImpl;
+import org.geoserver.catalog.impl.FeatureTypeInfoImpl;
+import org.geoserver.catalog.impl.ResourceInfoImpl;
+import org.geoserver.catalog.impl.StoreInfoImpl;
+import org.geoserver.catalog.impl.StyleInfoImpl;
+import org.geoserver.catalog.impl.WMSLayerInfoImpl;
+import org.geoserver.catalog.impl.WMTSLayerInfoImpl;
+import org.geoserver.ows.util.OwsUtils;
 import org.geoserver.platform.GeoServerExtensions;
 import org.geotools.styling.StyledLayerDescriptor;
 import org.geotools.util.SuppressFBWarnings;
@@ -86,7 +97,18 @@ public class CatalogValidationRules {
         return GeoServerExtensions.extensions(CatalogValidator.class);
     }
 
+    public ValidationResult validate(MapInfo map, boolean isNew) {
+        if (isNew) {
+            resolve(map);
+        }
+        // there's no visitor method of MapInfo
+        return new ValidationResult(null);
+    }
+
     public ValidationResult validate(StoreInfo store, boolean isNew) {
+        if (isNew) {
+            resolve(store);
+        }
         checkNotEmpty(store.getName(), "Store name must not be null");
         checkNotNull(store.getWorkspace(), "Store must be part of a workspace");
 
@@ -107,7 +129,9 @@ public class CatalogValidationRules {
 
     public ValidationResult validate(ResourceInfo resource, boolean isNew) {
         checkNotEmpty(resource.getName(), "Resource name must not be null");
-
+        if (isNew) {
+            resolve(resource);
+        }
         if (isNullOrEmpty(resource.getNativeName())
                 && !(resource instanceof CoverageInfo
                         && ((CoverageInfo) resource).getNativeCoverageName() != null)) {
@@ -145,7 +169,9 @@ public class CatalogValidationRules {
         // }
         final ResourceInfo resource = layer.getResource();
         checkNotNull(resource, "Layer resource must not be null");
-
+        if (isNew) {
+            resolve(layer);
+        }
         // calling LayerInfo.setName(String) updates the resource (until the layer/publishing split
         // is in act), but that doesn't mean the resource was saved previously, which can leave the
         // catalog in an inconsistent state
@@ -199,6 +225,9 @@ public class CatalogValidationRules {
     @SuppressFBWarnings("RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE")
     public ValidationResult validate(LayerGroupInfo layerGroup, boolean isNew) {
         checkNotEmpty(layerGroup.getName(), "Layer group name must not be null");
+        if (isNew) {
+            resolve(layerGroup);
+        }
 
         WorkspaceInfo ws = layerGroup.getWorkspace();
         LayerGroupInfo existing = catalog.getLayerGroupByName(ws, layerGroup.getName());
@@ -343,7 +372,11 @@ public class CatalogValidationRules {
     }
 
     public ValidationResult validate(NamespaceInfo namespace, boolean isNew) {
-
+        checkNotEmpty(namespace.getPrefix(), "Namespace prefix must not be null");
+        checkNotEmpty(namespace.getURI(), "Namespace uri must not be null");
+        if (isNew) {
+            resolve(namespace);
+        }
         if (namespace.isIsolated()
                 && !catalog.getCatalogCapabilities().supportsIsolatedWorkspaces()) {
             // isolated namespaces \ workspaces are not supported by this catalog
@@ -352,10 +385,6 @@ public class CatalogValidationRules {
                             "Namespace '%s:%s' is isolated but isolated workspaces are not supported by this catalog.",
                             namespace.getPrefix(), namespace.getURI()));
         }
-
-        checkNotEmpty(namespace.getPrefix(), "Namespace prefix must not be null");
-        checkNotEmpty(namespace.getURI(), "Namespace uri must not be null");
-
         checkArgument(
                 !namespace.getPrefix().equals(Catalog.DEFAULT),
                 "%s is a reserved keyword, can't be used as the namespace prefix",
@@ -396,6 +425,9 @@ public class CatalogValidationRules {
                 "%s is a reserved keyword, can't be used as the workspace name",
                 Catalog.DEFAULT);
 
+        if (isNew) {
+            resolve(workspace);
+        }
         checkArgument(
                 !workspace.isIsolated()
                         || catalog.getCatalogCapabilities().supportsIsolatedWorkspaces(),
@@ -412,6 +444,9 @@ public class CatalogValidationRules {
     }
 
     public ValidationResult validate(StyleInfo style, boolean isNew) {
+        if (isNew) {
+            resolve(style);
+        }
         checkNotEmpty(style.getName(), "Style name must not be null");
         checkNotEmpty(style.getFilename(), "Style fileName must not be null");
 
@@ -655,5 +690,153 @@ public class CatalogValidationRules {
         public @Override void visit(WMTSLayerInfo wmtsLayer) {
             validator.validate(wmtsLayer, isNew);
         }
+    }
+
+    protected WorkspaceInfo resolve(WorkspaceInfo workspace) {
+        if (catalog.getWorkspaceByName(workspace.getName()) != null) {
+            throw new IllegalArgumentException(
+                    "Workspace with name '" + workspace.getName() + "' already exists.");
+        }
+
+        resolveCollections(workspace);
+        return workspace;
+    }
+
+    private void resolve(NamespaceInfo namespace) {
+        resolveCollections(namespace);
+    }
+
+    private void resolve(StoreInfo store) {
+        if (store.getWorkspace() == null) {
+            store.setWorkspace(catalog.getDefaultWorkspace());
+        }
+
+        resolveCollections(store);
+        StoreInfoImpl s = (StoreInfoImpl) store;
+        s.setCatalog(catalog);
+    }
+
+    public void resolve(CatalogInfo info) {
+        if (info instanceof LayerGroupInfo) {
+            resolve((LayerGroupInfo) info);
+        } else if (info instanceof LayerInfo) {
+            resolve((LayerInfo) info);
+        } else if (info instanceof MapInfo) {
+            resolve((MapInfo) info);
+        } else if (info instanceof NamespaceInfo) {
+            resolve((NamespaceInfo) info);
+        } else if (info instanceof ResourceInfo) {
+            resolve((ResourceInfo) info);
+        } else if (info instanceof StoreInfo) {
+            resolve((StoreInfo) info);
+        } else if (info instanceof StyleInfo) {
+            resolve((StyleInfo) info);
+        } else if (info instanceof WorkspaceInfo) {
+            resolve((WorkspaceInfo) info);
+        } else {
+            throw new IllegalArgumentException("Unknown resource type: " + info);
+        }
+    }
+
+    private void resolve(ResourceInfo resource) {
+        ResourceInfoImpl r = (ResourceInfoImpl) resource;
+        r.setCatalog(catalog);
+
+        if (resource.getNamespace() == null) {
+            // default to default namespace
+            resource.setNamespace(catalog.getDefaultNamespace());
+        }
+        if (resource.getNativeName() == null) {
+            resource.setNativeName(resource.getName());
+        }
+
+        if (resource instanceof FeatureTypeInfo) {
+            resolve((FeatureTypeInfo) resource);
+        }
+        if (r instanceof CoverageInfo) {
+            resolve((CoverageInfo) resource);
+        }
+        if (r instanceof WMSLayerInfo) {
+            resolve((WMSLayerInfo) resource);
+        }
+        if (r instanceof WMTSLayerInfo) {
+            resolve((WMTSLayerInfo) resource);
+        }
+    }
+
+    private CoverageInfo resolve(CoverageInfo r) {
+        CoverageInfoImpl c = (CoverageInfoImpl) r;
+        if (c.getDimensions() != null) {
+            for (CoverageDimensionInfo dim : c.getDimensions()) {
+                if (dim.getNullValues() == null) {
+                    ((CoverageDimensionImpl) dim).setNullValues(new ArrayList<Double>());
+                }
+            }
+        }
+        resolveCollections(r);
+        return r;
+    }
+
+    /**
+     * We don't want the world to be able and call this without going trough {@link
+     * #resolve(ResourceInfo)}
+     */
+    private void resolve(FeatureTypeInfo featureType) {
+        FeatureTypeInfoImpl ft = (FeatureTypeInfoImpl) featureType;
+        resolveCollections(ft);
+    }
+
+    private WMSLayerInfo resolve(WMSLayerInfo wmsLayer) {
+        WMSLayerInfoImpl impl = (WMSLayerInfoImpl) wmsLayer;
+        resolveCollections(impl);
+        return wmsLayer;
+    }
+
+    private WMTSLayerInfo resolve(WMTSLayerInfo wmtsLayer) {
+        WMTSLayerInfoImpl impl = (WMTSLayerInfoImpl) wmtsLayer;
+        resolveCollections(impl);
+        return wmtsLayer;
+    }
+
+    private void resolve(LayerInfo layer) {
+        if (layer.getAttribution() == null) {
+            layer.setAttribution(catalog.getFactory().createAttribution());
+        }
+        if (layer.getType() == null) {
+            if (layer.getResource() instanceof FeatureTypeInfo) {
+                layer.setType(PublishedType.VECTOR);
+            } else if (layer.getResource() instanceof CoverageInfo) {
+                layer.setType(PublishedType.RASTER);
+            } else if (layer.getResource() instanceof WMTSLayerInfo) {
+                layer.setType(PublishedType.WMTS);
+            } else if (layer.getResource() instanceof WMSLayerInfo) {
+                layer.setType(PublishedType.WMS);
+            } else {
+                String msg = "Layer type not set and can't be derived from resource";
+                throw new IllegalArgumentException(msg);
+            }
+        }
+        resolveCollections(layer);
+    }
+
+    private void resolve(LayerGroupInfo layerGroup) {
+        List<StyleInfo> styles = layerGroup.getStyles();
+        if (styles.isEmpty()) {
+            layerGroup.getLayers().forEach(l -> styles.add(null));
+        }
+        resolveCollections(layerGroup);
+    }
+
+    private void resolve(StyleInfo style) {
+        ((StyleInfoImpl) style).setCatalog(catalog);
+    }
+
+    private void resolve(MapInfo map) {
+        resolveCollections(map);
+    }
+
+    /** Method which reflectively sets all collections when they are null. */
+    protected void resolveCollections(Object object) {
+        OwsUtils.resolveCollections(object);
     }
 }
