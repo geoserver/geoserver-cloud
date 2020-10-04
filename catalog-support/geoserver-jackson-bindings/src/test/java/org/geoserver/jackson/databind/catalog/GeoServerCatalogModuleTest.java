@@ -57,7 +57,7 @@ import org.geoserver.catalog.impl.DimensionInfoImpl;
 import org.geoserver.catalog.impl.LayerIdentifier;
 import org.geoserver.catalog.impl.LegendInfoImpl;
 import org.geoserver.catalog.impl.MetadataLinkInfoImpl;
-import org.geoserver.catalog.plugin.CatalogImpl;
+import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.Query;
 import org.geoserver.config.GeoServer;
@@ -112,7 +112,7 @@ public class GeoServerCatalogModuleTest {
     }
 
     public @Before void before() {
-        catalog = new CatalogImpl();
+        catalog = new CatalogPlugin();
         geoserver = new GeoServerImpl();
         testData = CatalogTestData.initialized(() -> catalog, () -> geoserver).initialize();
         proxyResolver = new ProxyUtils(catalog, geoserver);
@@ -202,7 +202,7 @@ public class GeoServerCatalogModuleTest {
         String typeSpec =
                 "name:string,id:String,polygonProperty:Polygon:srid=32615,centroid:Point,url:java.net.URL,uuid:UUID";
         SimpleFeatureType ft = DataUtilities.createType("TestType", typeSpec);
-        return new CatalogBuilder(new CatalogImpl()).getAttributes(ft, info);
+        return new CatalogBuilder(new CatalogPlugin()).getAttributes(ft, info);
     }
 
     public @Test void testCoverage() throws Exception {
@@ -218,7 +218,10 @@ public class GeoServerCatalogModuleTest {
     }
 
     public @Test void testLayer() throws Exception {
-        catalogInfoRoundtripTest(testData.layerFeatureTypeA);
+        LayerInfo layer = testData.layerFeatureTypeA;
+        layer.getStyles().add(testData.style1);
+        layer.getStyles().add(testData.style2);
+        catalogInfoRoundtripTest(layer);
     }
 
     public @Test void testLayerGroup() throws Exception {

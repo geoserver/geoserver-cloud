@@ -15,11 +15,13 @@ import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogTestData;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.impl.ClassMappings;
-import org.geoserver.catalog.plugin.CatalogImpl;
+import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.SettingsInfo;
 import org.geoserver.config.plugin.GeoServerImpl;
+import org.geoserver.gwc.wmts.WMTSInfo;
+import org.geoserver.gwc.wmts.WMTSInfoImpl;
 import org.geoserver.jackson.databind.catalog.ProxyUtils;
 import org.geoserver.ows.util.OwsUtils;
 import org.geoserver.platform.GeoServerExtensionsHelper;
@@ -47,7 +49,7 @@ public class GeoServerConfigModuleTest {
     }
 
     public @Before void before() {
-        catalog = new CatalogImpl();
+        catalog = new CatalogPlugin();
         geoserver = new GeoServerImpl();
         testData =
                 CatalogTestData.initialized(() -> catalog, () -> geoserver)
@@ -108,5 +110,10 @@ public class GeoServerConfigModuleTest {
 
     public @Test void wpsServiceInfo() throws Exception {
         roundtripTest(testData.wpsService);
+    }
+
+    public @Test void wmtsServiceInfo() throws Exception {
+        WMTSInfo wmtsService = new WMTSInfoImpl();
+        roundtripTest(wmtsService);
     }
 }

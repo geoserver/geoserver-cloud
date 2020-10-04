@@ -15,6 +15,8 @@ import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
 import org.geoserver.config.impl.ContactInfoImpl;
+import org.geoserver.gwc.wmts.WMTSInfo;
+import org.geoserver.gwc.wmts.WMTSInfoImpl;
 import org.geoserver.jackson.databind.config.dto.ConfigInfoDto;
 import org.geoserver.jackson.databind.config.dto.Contact;
 import org.geoserver.jackson.databind.config.dto.CoverageAccess;
@@ -101,6 +103,7 @@ public interface GeoServerConfigMapper {
         if (dto instanceof Service.WfsService) return toInfo((Service.WfsService) dto);
         if (dto instanceof Service.WcsService) return toInfo((Service.WcsService) dto);
         if (dto instanceof Service.WpsService) return toInfo((Service.WpsService) dto);
+        if (dto instanceof Service.WmtsService) return toInfo((Service.WmtsService) dto);
 
         throw new IllegalArgumentException(
                 "Unknown ServiceInfo type: " + dto.getClass().getCanonicalName());
@@ -112,6 +115,7 @@ public interface GeoServerConfigMapper {
         if (info instanceof WFSInfo) return toDto((WFSInfo) info);
         if (info instanceof WCSInfo) return toDto((WCSInfo) info);
         if (info instanceof WPSInfo) return toDto((WPSInfo) info);
+        if (info instanceof WMTSInfo) return toDto((WMTSInfo) info);
 
         throw new IllegalArgumentException(
                 "Unknown ServiceInfo type: " + info.getClass().getCanonicalName());
@@ -152,4 +156,11 @@ public interface GeoServerConfigMapper {
     WPSInfoImpl toInfo(Service.WpsService dto);
 
     Service.WpsService toDto(WPSInfo info);
+
+    @Mapping(target = "clientProperties", ignore = true)
+    @Mapping(target = "geoServer", ignore = true)
+    @Mapping(target = "versions", expression = "java(stringListToVersionList(dto.getVersions()))")
+    WMTSInfoImpl toInfo(Service.WmtsService dto);
+
+    Service.WmtsService toDto(WMTSInfo info);
 }

@@ -16,6 +16,7 @@ import org.geoserver.catalog.LayerInfo.WMSInterpolation;
 import org.geoserver.catalog.impl.AuthorityURL;
 import org.geoserver.catalog.impl.LayerIdentifier;
 import org.geoserver.config.ServiceInfo;
+import org.geoserver.gwc.wmts.WMTSInfo;
 import org.geoserver.jackson.databind.catalog.dto.InfoReference;
 import org.geoserver.jackson.databind.catalog.dto.Keyword;
 import org.geoserver.jackson.databind.catalog.dto.MetadataLink;
@@ -35,7 +36,8 @@ import org.geotools.coverage.grid.io.OverviewPolicy;
     @JsonSubTypes.Type(value = Service.WmsService.class, name = "WMSInfo"),
     @JsonSubTypes.Type(value = Service.WfsService.class, name = "WFSInfo"),
     @JsonSubTypes.Type(value = Service.WcsService.class, name = "WCSInfo"),
-    @JsonSubTypes.Type(value = Service.WpsService.class, name = "WPSInfo")
+    @JsonSubTypes.Type(value = Service.WpsService.class, name = "WPSInfo"),
+    @JsonSubTypes.Type(value = Service.WmtsService.class, name = "WMTSInfo")
 })
 @EqualsAndHashCode(callSuper = true)
 public abstract @Data class Service extends ConfigInfoDto {
@@ -146,4 +148,8 @@ public abstract @Data class Service extends ConfigInfoDto {
             private List<String> roles;
         }
     }
+
+    /** DTO for {@link WMTSInfo} */
+    @EqualsAndHashCode(callSuper = true)
+    public static @Data class WmtsService extends Service {}
 }

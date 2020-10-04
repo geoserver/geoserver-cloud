@@ -13,6 +13,7 @@ import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
+import org.geoserver.gwc.wmts.WMTSInfo;
 import org.geoserver.jackson.databind.catalog.GeoServerCatalogModule;
 import org.geoserver.jackson.databind.config.dto.ConfigInfoDto;
 import org.geoserver.jackson.databind.config.dto.GeoServer;
@@ -81,6 +82,9 @@ public class GeoServerConfigModule extends SimpleModule {
 
         addSerializer(WPSInfo.class);
         addDeserializer(WPSInfo.class, Service.WpsService.class);
+
+        addSerializer(WMTSInfo.class);
+        addDeserializer(WMTSInfo.class, Service.WmtsService.class);
     }
 
     private <I extends Info> void addSerializer(Class<I> configInfoType) {
