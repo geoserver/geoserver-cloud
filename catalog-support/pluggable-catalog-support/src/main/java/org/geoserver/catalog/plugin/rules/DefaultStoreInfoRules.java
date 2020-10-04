@@ -13,15 +13,26 @@ import org.geoserver.catalog.WorkspaceInfo;
 /** Encapsulates default {@link Catalog} business rules for {@link StoreInfo} objects */
 public class DefaultStoreInfoRules implements CatalogInfoBusinessRules<StoreInfo> {
 
-    public @Override void onAfterAdd(Catalog catalog, StoreInfo store) {
-        if (store instanceof DataStoreInfo) {
-            setAsDefaultIfThereIsNoDefaultForItsWorkspace(catalog, (DataStoreInfo) store);
+    /**
+     * If the context object is a {@link DataStoreInfo} and its workspace has no default datastore,
+     * sets it as the workspace's default data store.
+     */
+    public @Override void afterAdd(CatalogOpContext<StoreInfo> context) {
+        if (context.isSuccess() && context.getObject() instanceof DataStoreInfo) {
+            setAsDefaultIfThereIsNoDefaultForItsWorkspace(
+                    context.getCatalog(), (DataStoreInfo) context.getObject());
         }
     }
 
-    public @Override void onRemoved(Catalog catalog, StoreInfo store) {
-        if (store instanceof DataStoreInfo) {
-            selectNewDefaultDataStoreIfRemoved(catalog, (DataStoreInfo) store);
+    /**
+     * If the operation was successful and as result the store's workspace ends up with no default
+     * datastore, establishes a new default datastore for that workspace, if there's some datastore
+     * remaining, otherwise sets the workspace's default datastore to {@code null}
+     */
+    public @Override void afterRemove(CatalogOpContext<StoreInfo> context) {
+        if (context.isSuccess() && context.getObject() instanceof DataStoreInfo) {
+            selectNewDefaultDataStoreIfRemoved(
+                    context.getCatalog(), (DataStoreInfo) context.getObject());
         }
     }
 
@@ -39,12 +50,11 @@ public class DefaultStoreInfoRules implements CatalogInfoBusinessRules<StoreInfo
         WorkspaceInfo workspace = store.getWorkspace();
         DataStoreInfo defaultStore = catalog.getDefaultDataStore(workspace);
         if (defaultStore == null || store.getId().equals(defaultStore.getId())) {
-            // TODO: this will fire multiple events, we want to fire only one
-            catalog.setDefaultDataStore(workspace, null);
-
             // default removed, choose another store to become default if possible
             List<DataStoreInfo> dstores = catalog.getDataStoresByWorkspace(workspace);
-            if (!dstores.isEmpty()) {
+            if (dstores.isEmpty()) {
+                catalog.setDefaultDataStore(workspace, null);
+            } else {
                 DataStoreInfo newDefault = dstores.get(0);
                 catalog.setDefaultDataStore(workspace, newDefault);
             }

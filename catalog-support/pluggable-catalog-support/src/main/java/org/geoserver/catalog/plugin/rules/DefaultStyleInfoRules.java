@@ -27,25 +27,41 @@ import org.geotools.util.logging.Logging;
 public class DefaultStyleInfoRules implements CatalogInfoBusinessRules<StyleInfo> {
     private static final Logger LOGGER = Logging.getLogger(DefaultStyleInfoRules.class);
 
-    public @Override void onBeforeSave(Catalog catalog, StyleInfo style, PropertyDiff diff) {
+    /**
+     * Checks the {@link CatalogOpContext#getDiff() diff} to see of the style's name is going to be
+     * changed, and renames it's {@link StyleInfo#getFilename() file name} to match the new style
+     * name.
+     */
+    public @Override void beforeSave(CatalogOpContext<StyleInfo> context) {
+        PropertyDiff diff = context.getDiff();
         Optional<Change> nameChange = diff.get("name");
         nameChange.ifPresent(
                 change -> {
                     try {
-                        renameStyle(catalog, style, (String) nameChange.get().getNewValue());
+                        renameStyle(
+                                context.getCatalog(),
+                                context.getObject(),
+                                (String) nameChange.get().getNewValue());
                     } catch (IOException e) {
                         LOGGER.log(Level.SEVERE, "Failed to rename style file along with name.", e);
                     }
                 });
     }
 
-    public @Override void onSaveError(
-            Catalog catalog, StyleInfo style, PropertyDiff diff, Throwable error) {
+    /** Reverts the style file rename performed in {@link #beforeAdd} if the operation has failed */
+    public @Override void afterSave(CatalogOpContext<StyleInfo> context) {
+        if (context.isSuccess()) {
+            return;
+        }
+        PropertyDiff diff = context.getDiff();
         Optional<Change> nameChange = diff.get("name");
         nameChange.ifPresent(
                 change -> {
                     try {
-                        revertRenameStyle(catalog, style, (String) change.getOldValue());
+                        revertRenameStyle(
+                                context.getCatalog(),
+                                context.getObject(),
+                                (String) change.getOldValue());
                     } catch (IOException e) {
                         LOGGER.log(Level.SEVERE, "Failed to revert style rename.", e);
                     }

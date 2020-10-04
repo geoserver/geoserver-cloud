@@ -6,23 +6,19 @@ package org.geoserver.catalog.plugin.rules;
 
 import java.util.EnumMap;
 import java.util.Objects;
-import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.MapInfo;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.impl.ModificationProxy;
-import org.geoserver.catalog.plugin.PropertyDiff;
 
 /** */
 public class CatalogBusinessRules {
-    private Catalog catalog;
 
     private EnumMap<ClassMappings, CatalogInfoBusinessRules<?>> rulesByType =
             new EnumMap<>(ClassMappings.class);
 
-    public CatalogBusinessRules(Catalog catalog) {
-        this.catalog = catalog;
+    public CatalogBusinessRules() {
         register(ClassMappings.WORKSPACE, new DefaultWorkspaceInfoRules());
         register(ClassMappings.NAMESPACE, new DefaultNamespaceInfoRules());
         register(ClassMappings.STORE, new DefaultStoreInfoRules());
@@ -65,23 +61,27 @@ public class CatalogBusinessRules {
         return rules;
     }
 
-    public <T extends CatalogInfo> void onAfterAdd(T info) {
-        rulesFor(info).onAfterAdd(catalog, info);
+    public <T extends CatalogInfo> void onBeforeAdd(CatalogOpContext<T> context) {
+        rulesFor(context.getObject()).beforeAdd(context);
     }
 
-    public <T extends CatalogInfo> void onBeforeSave(T info, PropertyDiff diff) {
-        rulesFor(info).onBeforeSave(catalog, info, diff);
+    public <T extends CatalogInfo> void onAfterAdd(CatalogOpContext<T> context) {
+        rulesFor(context.getObject()).afterAdd(context);
     }
 
-    public <T extends CatalogInfo> void onAfterSave(T info, PropertyDiff diff) {
-        rulesFor(info).onAfterSave(catalog, info, diff);
+    public <T extends CatalogInfo> void onBeforeSave(CatalogOpContext<T> context) {
+        rulesFor(context.getObject()).beforeSave(context);
     }
 
-    public <T extends CatalogInfo> void onSaveError(T info, PropertyDiff diff, Throwable error) {
-        rulesFor(info).onSaveError(catalog, info, diff, error);
+    public <T extends CatalogInfo> void onAfterSave(CatalogOpContext<T> context) {
+        rulesFor(context.getObject()).afterSave(context);
     }
 
-    public <T extends CatalogInfo> void onRemoved(T info) {
-        rulesFor(info).onRemoved(catalog, info);
+    public <T extends CatalogInfo> void onBeforeRemove(CatalogOpContext<T> context) {
+        rulesFor(context.getObject()).beforeRemove(context);
+    }
+
+    public <T extends CatalogInfo> void onRemoved(CatalogOpContext<T> context) {
+        rulesFor(context.getObject()).afterRemove(context);
     }
 }

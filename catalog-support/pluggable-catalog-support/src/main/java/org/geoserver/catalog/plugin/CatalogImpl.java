@@ -59,6 +59,7 @@ import org.geoserver.catalog.impl.ResolvingProxy;
 import org.geoserver.catalog.plugin.resolving.ModificationProxyDecorator;
 import org.geoserver.catalog.plugin.resolving.ResolvingCatalogFacade;
 import org.geoserver.catalog.plugin.rules.CatalogBusinessRules;
+import org.geoserver.catalog.plugin.rules.CatalogOpContext;
 import org.geoserver.catalog.plugin.validation.CatalogValidationRules;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.platform.ExtensionPriority;
@@ -154,7 +155,7 @@ public class CatalogImpl implements Catalog {
         setFacade(facade);
         resourcePool = ResourcePool.create(this);
         validationSupport = new CatalogValidationRules(this);
-        businessRules = new CatalogBusinessRules(this);
+        businessRules = new CatalogBusinessRules();
     }
 
     public @Override CatalogFacade getFacade() {
@@ -1227,10 +1228,17 @@ public class CatalogImpl implements Catalog {
         T added;
         // TODO: remove synchronized block, we need transactions. Besides, it means nothing in
         // multi-process scenarios.
+        CatalogOpContext<T> context = new CatalogOpContext<>(this, object);
         synchronized (facade) {
+            businessRules.onBeforeAdd(context);
             fireBeforeAdded(object);
-            added = inserter.apply(object);
-            businessRules.onAfterAdd(added);
+            try {
+                added = inserter.apply(object);
+                businessRules.onAfterAdd(context.setObject(added));
+            } catch (RuntimeException error) {
+                businessRules.onAfterAdd(context.setError(error));
+                throw error;
+            }
         }
         fireAdded(added);
     }
@@ -1262,7 +1270,8 @@ public class CatalogImpl implements Catalog {
         // this could be the event's payload instead of three separate lists
         PropertyDiff diff = PropertyDiff.valueOf(proxy).clean();
         Patch patch = diff.toPatch();
-        businessRules.onBeforeSave(info, diff);
+        CatalogOpContext<I> context = new CatalogOpContext<>(this, info, diff);
+        businessRules.onBeforeSave(context);
         try {
             // note info will be unwrapped before being given to the raw facade by the inbound
             // resolving function set at #setFacade
@@ -1271,20 +1280,27 @@ public class CatalogImpl implements Catalog {
             // commit proxy, making effective the change in the provided object. Has no effect in
             // what's been passed to the facade
             proxy.commit();
-            businessRules.onAfterSave(updated, diff);
+            businessRules.onAfterSave(context.setObject(updated));
             firePostModified(updated, propertyNames, oldValues, newValues);
         } catch (RuntimeException error) {
-            businessRules.onSaveError(info, diff, error);
+            businessRules.onAfterSave(context.setError(error));
             throw error;
         }
     }
 
     protected <T extends CatalogInfo> void doRemove(T object, Consumer<T> remover) {
         validationSupport.beforeRemove(object);
+        CatalogOpContext<T> context = new CatalogOpContext<>(this, object);
         // TODO: remove synchronized block, need transactions
         synchronized (facade) {
-            remover.accept(object);
-            businessRules.onRemoved(object);
+            businessRules.onBeforeRemove(context);
+            try {
+                remover.accept(object);
+                businessRules.onRemoved(context);
+            } catch (RuntimeException error) {
+                businessRules.onRemoved(context.setError(error));
+                throw error;
+            }
         }
         fireRemoved(object);
     }

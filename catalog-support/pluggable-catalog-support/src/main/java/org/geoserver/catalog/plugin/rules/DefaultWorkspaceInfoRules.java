@@ -12,12 +12,42 @@ import org.geoserver.catalog.WorkspaceInfo;
 /** Encapsulates default {@link Catalog} business rules for {@link WorkspaceInfo} objects */
 public class DefaultWorkspaceInfoRules implements CatalogInfoBusinessRules<WorkspaceInfo> {
 
-    public @Override void onAfterAdd(Catalog catalog, WorkspaceInfo workspace) {
-        setAsDefaultIfThereIsNoDefaultWorkspace(catalog, workspace);
+    private static final String SET_DEFAULT = "set_default_workspace";
+
+    /**
+     * Determines whether there's no current default workspace and stores it as a flag in {@code
+     * context} for {@link #afterAdd} to proceed if so. This allows to improve consistency for
+     * {@code Catalog.add(WorkspaceInfo)} in situations where there are multiple catalogs: if there
+     * was no default workspace when the method was entered, then the created one is set as the
+     * default when the method returns.
+     */
+    public @Override void beforeAdd(CatalogOpContext<WorkspaceInfo> context) {
+        WorkspaceInfo defaultWorkspace = context.getCatalog().getDefaultWorkspace();
+        Boolean needsSetDefault = defaultWorkspace == null;
+        context.setContextOption(SET_DEFAULT, needsSetDefault);
     }
 
-    public @Override void onRemoved(Catalog catalog, WorkspaceInfo workspace) {
-        selectNewDefaultWorkspaceIfRemoved(catalog, workspace);
+    /**
+     * Sets the created workspace as the catalog's default workspace if so determined in {@link
+     * #beforeAdd} and the operation was successful.
+     */
+    public @Override void afterAdd(CatalogOpContext<WorkspaceInfo> context) {
+        if (context.isSuccess()) {
+            Boolean needsSetDefault = context.getContextOption(SET_DEFAULT);
+            if (needsSetDefault.booleanValue()) {
+                setAsDefaultIfThereIsNoDefaultWorkspace(context.getCatalog(), context.getObject());
+            }
+        }
+    }
+
+    /**
+     * Selects a new catalog default workspace if as the result of removing the workspace refered to
+     * by {@code context.getObject()}, the catalog has no default workspace.
+     */
+    public @Override void afterRemove(CatalogOpContext<WorkspaceInfo> context) {
+        if (context.isSuccess()) {
+            selectNewDefaultWorkspaceIfRemoved(context.getCatalog(), context.getObject());
+        }
     }
 
     private void setAsDefaultIfThereIsNoDefaultWorkspace(Catalog catalog, WorkspaceInfo workspace) {
