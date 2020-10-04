@@ -51,6 +51,7 @@ import org.springframework.lang.Nullable;
  */
 @Slf4j
 @RequiredArgsConstructor
+@Deprecated
 public class InnerResolvingProxy {
 
     private final @NonNull CatalogFacade catalog;

@@ -6,19 +6,12 @@ package org.geoserver.cloud.config.security;
 
 import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import org.geoserver.catalog.Catalog;
 import org.geoserver.cloud.autoconfigure.security.ConditionalOnGeoServerSecurityEnabled;
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
-import org.geoserver.config.GeoServerDataDirectory;
-import org.geoserver.security.GeoServerSecurityManager;
-import org.geoserver.security.impl.DataAccessRuleDAO;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.ImportResource;
 
 /**
@@ -52,22 +45,23 @@ public class GeoServerSecurityConfiguration {
                 "GeoServer security being configured through classpath*:/applicationSecurityContext.xml");
     }
 
-    @Bean(name = "accessRulesDao")
-    @DependsOn({"extensions", "rawCatalog"})
-    public DataAccessRuleDAO accessRulesDao(
-            GeoServerDataDirectory dataDirectory, @Qualifier("rawCatalog") Catalog rawCatalog)
-            throws Exception {
-        return new DataAccessRuleDAO(dataDirectory, rawCatalog);
-    }
+    //    @Bean(name = "accessRulesDao")
+    //    @DependsOn({"extensions", "rawCatalog"})
+    //    public DataAccessRuleDAO accessRulesDao(
+    //            GeoServerDataDirectory dataDirectory, @Qualifier("rawCatalog") Catalog rawCatalog)
+    //            throws Exception {
+    //        return new DataAccessRuleDAO(dataDirectory, rawCatalog);
+    //    }
 
     // // <bean id="authenticationManager" class="org.geoserver.security.GeoServerSecurityManager"
     // // depends-on="extensions">
     // // <constructor-arg ref="dataDirectory"/>
     // // </bean>
     // // <alias name="authenticationManager" alias="geoServerSecurityManager"/>
-    @Bean(name = {"authenticationManager", "geoServerSecurityManager"})
-    public GeoServerSecurityManager geoServerSecurityManager(GeoServerDataDirectory dataDirectory)
-            throws Exception {
-        return new GeoServerSecurityManager(dataDirectory);
-    }
+    //    @Bean(name = {"authenticationManager", "geoServerSecurityManager"})
+    //    public GeoServerSecurityManager geoServerSecurityManager(GeoServerDataDirectory
+    // dataDirectory)
+    //            throws Exception {
+    //        return new GeoServerSecurityManager(dataDirectory);
+    //    }
 }

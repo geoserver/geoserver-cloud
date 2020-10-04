@@ -28,7 +28,6 @@ import org.geoserver.catalog.CatalogTestData;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ClassMappings;
-import org.geoserver.catalog.plugin.CatalogImpl;
 import org.geoserver.catalog.plugin.CatalogInfoRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerGroupRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerRepository;
@@ -37,6 +36,7 @@ import org.geoserver.catalog.plugin.CatalogInfoRepository.ResourceRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.StoreRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.StyleRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.WorkspaceRepository;
+import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.Query;
 import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveCatalogClient;
@@ -70,7 +70,7 @@ public class CatalogServiceClientRepositoryTest {
     private @Autowired LayerGroupRepository layerGroupRepository;
     private @Autowired StyleRepository styleRepository;
 
-    private static final Catalog fakeCatalog = new CatalogImpl();
+    private static final Catalog fakeCatalog = new CatalogPlugin();
     public @Rule CatalogTestData testData =
             CatalogTestData.empty(() -> fakeCatalog, () -> null).initConfig(false);
 

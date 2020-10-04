@@ -42,10 +42,6 @@ public class ReactiveGeoServer {
         return Mono.fromCallable(callable).subscribeOn(catalogScheduler);
     }
 
-    private <T> Mono<T> async(Runnable runnable, T returnValue) {
-        return Mono.fromRunnable(runnable).subscribeOn(catalogScheduler).thenReturn(returnValue);
-    }
-
     private Mono<Void> async(Runnable runnable) {
         return Mono.fromRunnable(runnable).subscribeOn(catalogScheduler).then();
     }

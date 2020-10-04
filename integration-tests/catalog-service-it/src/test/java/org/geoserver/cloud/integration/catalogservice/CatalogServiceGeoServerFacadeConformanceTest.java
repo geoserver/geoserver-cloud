@@ -7,7 +7,7 @@ package org.geoserver.cloud.integration.catalogservice;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogTestData;
-import org.geoserver.catalog.plugin.CatalogImpl;
+import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.cloud.catalog.app.CatalogServiceApplication;
 import org.geoserver.cloud.catalog.client.impl.CatalogClientConfiguration;
 import org.geoserver.cloud.catalog.client.impl.CatalogServiceGeoServerFacade;
@@ -61,7 +61,7 @@ public class CatalogServiceGeoServerFacadeConformanceTest extends GeoServerConfi
     private @Autowired @Qualifier("rawCatalogServiceFacade") CatalogFacade clientFacade;
 
     protected @Override GeoServer createGeoServer() {
-        Catalog catalog = new CatalogImpl(clientFacade);
+        Catalog catalog = new CatalogPlugin(clientFacade);
 
         GeoServerImpl gs = new GeoServerImpl();
         gs.setCatalog(catalog);

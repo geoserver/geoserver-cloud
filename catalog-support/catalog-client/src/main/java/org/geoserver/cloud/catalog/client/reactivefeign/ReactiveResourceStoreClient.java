@@ -4,72 +4,92 @@
  */
 package org.geoserver.cloud.catalog.client.reactivefeign;
 
+import feign.Contract;
+import feign.Headers;
+import feign.Param;
+import feign.RequestLine;
 import java.nio.ByteBuffer;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveResourceStoreClient.ReactiveResourceStoreFeignConfiguration;
+import org.geoserver.platform.resource.Paths;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.Resource.Type;
 import org.geoserver.platform.resource.ResourceStore;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.cloud.openfeign.support.SpringMvcContract;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import reactivefeign.spring.config.ReactiveFeignClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /** Catalog-service client to support {@link ResourceStore} */
 @ReactiveFeignClient( //
-    name = "resources-service-client", //
+    name = "resources-client", //
     url = "${geoserver.backend.catalog-service.uri:catalog-service}", //
-    path = "/api/v1/resources"
+    path = "/api/v1/resources",
+    fallbackFactory = ResourceStoreFallbackFactory.class,
+    configuration = {ReactiveResourceStoreFeignConfiguration.class}
 )
 public interface ReactiveResourceStoreClient {
+
+    @Data
+    @NoArgsConstructor
+    class ResourceDescriptor {
+        private String path = Paths.BASE;
+        private Resource.Type type = Type.UNDEFINED;
+        private long lastModified;
+
+        public static ResourceDescriptor valueOf(Resource resource) {
+            ResourceDescriptor d = new ResourceDescriptor();
+            d.setType(resource.getType());
+            d.setPath(resource.path());
+            d.setLastModified(resource.lastmodified());
+            return d;
+        }
+
+        public void setPath(String path) {
+            this.path = path == null ? Paths.BASE : path;
+        }
+    }
+
+    @RequestLine(value = "GET /{path}", decodeSlash = false)
+    @Headers({"Accept: application/json"})
+    Mono<ResourceDescriptor> describe(@Param("path") String path);
+
+    @RequestLine(value = "GET /{path}", decodeSlash = false)
+    @Headers("Accept: application/stream+json")
+    Flux<ResourceDescriptor> list(@Param("path") String path);
+
+    @RequestLine(value = "GET /{path}", decodeSlash = false)
+    @Headers("Accept: application/octet-stream")
+    Mono<org.springframework.core.io.Resource> getFileContent(@Param("path") String path);
+
+    @RequestLine(value = "PUT /{path}", decodeSlash = false)
+    @Headers({"Content-Type: application/octet-stream", "Accept: application/json"})
+    Mono<ResourceDescriptor> put(@Param("path") String path, ByteBuffer contents);
+
+    @RequestLine(value = "POST /{path}", decodeSlash = false)
+    @Headers({"Content-Type: application/json", "Accept: application/json"})
+    Mono<ResourceDescriptor> create(@Param("path") String path, ResourceDescriptor resource);
+
+    @RequestLine(value = "DELETE /{path}", decodeSlash = false)
+    @Headers({"Accept: application/json"})
+    Mono<Boolean> delete(@Param("path") String path);
+
+    @RequestLine(value = "POST /move/{path}?to={target}", decodeSlash = false)
+    @Headers("Accept: application/json")
+    Mono<ResourceDescriptor> move(@Param("path") String path, @Param("target") String target);
+
     /**
-     * Path based resource access.
-     *
-     * <p>The returned Resource acts as a handle, and may be UNDEFINED. In general Resources are
-     * created in a lazy fashion when used for the first time.
-     *
-     * @param path Path (using unix conventions, forward slash as separator) of requested resource
-     * @return Resource at the indicated location (null is never returned although Resource may be
-     *     UNDEFINED).
-     * @throws IllegalArgumentException If path is invalid
+     * {@code Configuration @Configuration} for the resource store client to use feign's default
+     * {@link Contract} instead of spring default's {@link SpringMvcContract}, cause with the later
+     * I couldn't find a way to use the same path with different {@code Accept:} headers that works
      */
-    @GetMapping("")
-    Mono<ByteBuffer> get(@RequestParam("path") String path);
+    public static @Configuration class ReactiveResourceStoreFeignConfiguration {
 
-    @PutMapping("")
-    Mono<Void> put(@RequestParam("path") String path, @RequestBody ByteBuffer contents);
-
-    /**
-     * Remove resource at indicated path (including individual resources or directories).
-     *
-     * <p>Returns <code>true</code> if Resource existed and was successfully removed. For read-only
-     * content (or if a security check) prevents the resource from being removed <code>false</code>
-     * is returned.
-     *
-     * @param path Path of resource to remove (using unix conventions, forward slash as separator)
-     * @return <code>false</code> if doesn't exist or unable to remove
-     */
-    @DeleteMapping("")
-    Mono<Boolean> delete(@RequestParam("path") String path);
-
-    /**
-     * Move resource at indicated path (including individual resources or directories).
-     *
-     * @param path Path of resource to move (using unix conventions, forward slash as separator)
-     * @param target path for moved resource
-     * @return true if resource was moved target path
-     */
-    @PutMapping("")
-    Mono<Boolean> move(@RequestParam("path") String path, @RequestParam("target") String target);
-
-    @GetMapping("")
-    Mono<Type> getType(@RequestParam("path") String path);
-
-    @GetMapping("")
-    Flux<Resource> list(@RequestParam("path") String path);
-
-    @GetMapping("")
-    Mono<Long> lastModified(@RequestParam("path") String string);
+        public @Bean Contract feignContract() {
+            return new Contract.Default();
+        }
+    }
 }

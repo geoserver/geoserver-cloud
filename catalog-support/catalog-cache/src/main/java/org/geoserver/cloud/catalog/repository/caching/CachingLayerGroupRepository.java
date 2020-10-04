@@ -10,7 +10,6 @@ import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.forwarding.ForwardingLayerGroupRepository;
 import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.Cacheable;
 
 @CacheConfig(cacheNames = CacheNames.LAYER_GROUP_CACHE)
 public class CachingLayerGroupRepository extends ForwardingLayerGroupRepository {
@@ -19,12 +18,10 @@ public class CachingLayerGroupRepository extends ForwardingLayerGroupRepository 
         super(subject);
     }
 
-    @Cacheable
     public @Override Optional<LayerGroupInfo> findByNameAndWorkspaceIsNull(@NonNull String name) {
         return super.findByNameAndWorkspaceIsNull(name);
     }
 
-    @Cacheable
     public @Override Optional<LayerGroupInfo> findByNameAndWorkspace(
             String name, WorkspaceInfo workspace) {
         return super.findByNameAndWorkspace(name, workspace);

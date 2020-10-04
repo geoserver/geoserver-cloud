@@ -6,6 +6,7 @@ package org.geoserver.cloud.catalog.client.repository;
 
 import java.lang.reflect.Proxy;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,6 +19,8 @@ import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
 import org.geoserver.config.plugin.ConfigRepository;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 /** */
 public class CatalogClientConfigRepository implements ConfigRepository {
@@ -30,48 +33,63 @@ public class CatalogClientConfigRepository implements ConfigRepository {
         this.client = configClient;
     }
 
+    protected void block(Mono<Void> call) {
+        if (Schedulers.isInNonBlockingThread()) {
+            CompletableFuture.supplyAsync(call::block).join();
+        }
+        call.block();
+    }
+
+    protected <U> Optional<U> blockAndReturn(Mono<U> call) {
+        if (Schedulers.isInNonBlockingThread()) {
+            return CompletableFuture.supplyAsync(call::blockOptional).join();
+        }
+        return call.blockOptional();
+    }
+
     public @Override Optional<GeoServerInfo> getGlobal() {
-        return client.getGlobal().blockOptional();
+        return blockAndReturn(client.getGlobal());
     }
 
     public @Override void setGlobal(GeoServerInfo global) {
         checkNotAProxy(global);
-        client.setGlobal(global).block();
+        blockAndReturn(client.setGlobal(global));
     }
 
     public @Override Optional<SettingsInfo> getSettingsByWorkspace(WorkspaceInfo workspace) {
-        return client.getSettingsByWorkspace(workspace.getId()).blockOptional();
+        return blockAndReturn(client.getSettingsByWorkspace(workspace.getId()));
     }
 
     public @Override void add(SettingsInfo settings) {
         checkNotAProxy(settings);
-        client.createSettings(settings.getWorkspace().getId(), settings).block();
+        blockAndReturn(client.createSettings(settings.getWorkspace().getId(), settings));
     }
 
     public @Override SettingsInfo update(SettingsInfo settings, Patch patch) {
-        return client.updateSettings(settings.getWorkspace().getId(), patch).block();
+        return blockAndReturn(client.updateSettings(settings.getWorkspace().getId(), patch))
+                .orElseThrow(() -> new IllegalStateException());
     }
 
     public @Override void remove(SettingsInfo settings) {
-        client.deleteSettings(settings.getWorkspace().getId()).block();
+        blockAndReturn(client.deleteSettings(settings.getWorkspace().getId()));
     }
 
     public @Override Optional<LoggingInfo> getLogging() {
-        return client.getLogging().blockOptional();
+        return blockAndReturn(client.getLogging());
     }
 
     public @Override void setLogging(LoggingInfo logging) {
         checkNotAProxy(logging);
-        client.setLogging(logging).block();
+        blockAndReturn(client.setLogging(logging));
     }
 
     public @Override void add(ServiceInfo service) {
         checkNotAProxy(service);
         WorkspaceInfo workspace = service.getWorkspace();
         if (workspace == null) {
-            client.createService(service).block();
+            blockAndReturn(client.createService(service));
         } else {
-            client.createService(workspace.getId(), service).block();
+            blockAndReturn(client.createService(workspace.getId(), service));
         }
     }
 
@@ -81,7 +99,9 @@ public class CatalogClientConfigRepository implements ConfigRepository {
 
     @SuppressWarnings("unchecked")
     public @Override <S extends ServiceInfo> S update(S service, Patch patch) {
-        return (S) client.updateService(service.getId(), patch).block();
+        Optional<ServiceInfo> updated =
+                blockAndReturn(client.updateService(service.getId(), patch));
+        return updated.map(u -> (S) u).orElseThrow(() -> new IllegalStateException());
     }
 
     public @Override Stream<? extends ServiceInfo> getGlobalServices() {
@@ -94,35 +114,32 @@ public class CatalogClientConfigRepository implements ConfigRepository {
 
     public @Override <T extends ServiceInfo> Optional<T> getGlobalService(Class<T> clazz) {
         String typeName = interfaceName(clazz);
-        return client.getGlobalServiceByType(typeName).blockOptional().map(clazz::cast);
+        return blockAndReturn(client.getGlobalServiceByType(typeName).map(clazz::cast));
     }
 
     public @Override <T extends ServiceInfo> Optional<T> getServiceByWorkspace(
             WorkspaceInfo workspace, Class<T> clazz) {
         String typeName = interfaceName(clazz);
-        return client.getServiceByWorkspaceAndType(workspace.getId(), typeName)
-                .blockOptional()
-                .map(clazz::cast);
+        return blockAndReturn(
+                client.getServiceByWorkspaceAndType(workspace.getId(), typeName).map(clazz::cast));
     }
 
     public @Override <T extends ServiceInfo> Optional<T> getServiceById(String id, Class<T> clazz) {
-        return client.getServiceById(id).blockOptional().filter(clazz::isInstance).map(clazz::cast);
+        return blockAndReturn(client.getServiceById(id).filter(clazz::isInstance).map(clazz::cast));
     }
 
     public @Override <T extends ServiceInfo> Optional<T> getServiceByName(
             String name, Class<T> clazz) {
-        return client.getGlobalServiceByName(name)
-                .blockOptional()
-                .filter(clazz::isInstance)
-                .map(clazz::cast);
+        return blockAndReturn(
+                client.getGlobalServiceByName(name).filter(clazz::isInstance).map(clazz::cast));
     }
 
     public @Override <T extends ServiceInfo> Optional<T> getServiceByNameAndWorkspace(
             String name, WorkspaceInfo workspace, Class<T> clazz) {
-        return client.getServiceByWorkspaceAndName(workspace.getId(), name)
-                .blockOptional()
-                .filter(clazz::isInstance)
-                .map(clazz::cast);
+        return blockAndReturn(
+                client.getServiceByWorkspaceAndName(workspace.getId(), name)
+                        .filter(clazz::isInstance)
+                        .map(clazz::cast));
     }
 
     /** no-op */

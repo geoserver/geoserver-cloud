@@ -12,7 +12,6 @@ import lombok.NonNull;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.NamespaceRepository;
 import org.springframework.lang.Nullable;
-import reactor.core.publisher.Mono;
 
 public class CloudNamespaceRepository extends CatalogServiceClientRepository<NamespaceInfo>
         implements NamespaceRepository {
@@ -24,9 +23,17 @@ public class CloudNamespaceRepository extends CatalogServiceClientRepository<Nam
         blockAndReturn(client().setDefaultNamespace(namespace.getId()));
     }
 
+    public @Override <U extends NamespaceInfo> Optional<U> findFirstByName(
+            @NonNull String name, @NonNull Class<U> infoType) {
+        // geoserver has this tendency to loose method contracts...
+        if (name.indexOf(':') > -1) {
+            return Optional.empty();
+        }
+        return super.findFirstByName(name, infoType);
+    }
+
     public @Override void unsetDefaultNamespace() {
-        Mono<Void> call = client().unsetDefaultNamespace();
-        call.block();
+        block(client().unsetDefaultNamespace());
     }
 
     public @Override @Nullable Optional<NamespaceInfo> getDefaultNamespace() {

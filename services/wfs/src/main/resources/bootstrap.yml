@@ -7,6 +7,7 @@ spring:
   main:
     banner-mode: off
     allow-bean-definition-overriding: true
+    web-application-type: SERVLET
   application:
     name: wfs-service
   cloud:

@@ -46,25 +46,25 @@ public class DataDirectoryAutoConfigurationTest extends GeoServerBackendConfigur
     }
 
     public @Test void testCatalog() {
-        Assume.assumeTrue(rawCatalog instanceof org.geoserver.catalog.plugin.CatalogImpl);
-        assertThat(rawCatalog, instanceOf(org.geoserver.catalog.plugin.CatalogImpl.class));
+        Assume.assumeTrue(rawCatalog instanceof org.geoserver.catalog.plugin.CatalogPlugin);
+        assertThat(rawCatalog, instanceOf(org.geoserver.catalog.plugin.CatalogPlugin.class));
     }
 
     public @Test void testCatalogFacadeIsRawCatalogFacade() {
-        Assume.assumeTrue(rawCatalog instanceof org.geoserver.catalog.plugin.CatalogImpl);
+        Assume.assumeTrue(rawCatalog instanceof org.geoserver.catalog.plugin.CatalogPlugin);
         assertSame(
                 rawCatalogFacade,
-                ((org.geoserver.catalog.plugin.CatalogImpl) rawCatalog).getRawCatalogFacade());
+                ((org.geoserver.catalog.plugin.CatalogPlugin) rawCatalog).getRawCatalogFacade());
     }
 
     public @Test void testCatalogFacade() {
-        Assume.assumeTrue(rawCatalog instanceof org.geoserver.catalog.plugin.CatalogImpl);
+        Assume.assumeTrue(rawCatalog instanceof org.geoserver.catalog.plugin.CatalogPlugin);
         assertThat(
                 rawCatalogFacade,
-                instanceOf(org.geoserver.catalog.plugin.DefaultCatalogFacade.class));
+                instanceOf(org.geoserver.catalog.plugin.DefaultMemoryCatalogFacade.class));
         assertSame(
                 rawCatalogFacade,
-                ((org.geoserver.catalog.plugin.CatalogImpl) rawCatalog).getRawCatalogFacade());
+                ((org.geoserver.catalog.plugin.CatalogPlugin) rawCatalog).getRawCatalogFacade());
     }
 
     public @Test void testResourceLoader() {

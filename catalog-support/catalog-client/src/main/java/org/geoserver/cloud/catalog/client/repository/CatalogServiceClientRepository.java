@@ -5,6 +5,7 @@
 package org.geoserver.cloud.catalog.client.repository;
 
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
@@ -22,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 public abstract class CatalogServiceClientRepository<CI extends CatalogInfo>
         implements CatalogInfoRepository<CI> {
@@ -74,11 +76,18 @@ public abstract class CatalogServiceClientRepository<CI extends CatalogInfo>
         return pr.apply(incoming);
     }
 
-    protected @Nullable <U extends CI> Optional<U> blockAndReturn(Mono<U> call) {
-        // Stopwatch sw = Stopwatch.createStarted();
-        Optional<U> value = call.blockOptional();
-        // System.err.printf("blocked for %s, got %s %n", sw.stop(), value);
-        return value;
+    protected void block(Mono<Void> call) {
+        if (Schedulers.isInNonBlockingThread()) {
+            CompletableFuture.supplyAsync(call::block).join();
+        }
+        call.block();
+    }
+
+    protected <U extends CI> Optional<U> blockAndReturn(Mono<U> call) {
+        if (Schedulers.isInNonBlockingThread()) {
+            return CompletableFuture.supplyAsync(call::blockOptional).join();
+        }
+        return call.blockOptional();
     }
 
     private final ConcurrentMap<String, Boolean> positiveCanSortByCache = new ConcurrentHashMap<>();
@@ -90,7 +99,7 @@ public abstract class CatalogServiceClientRepository<CI extends CatalogInfo>
 
     private @Nullable Boolean callCanSort(String propertyName) {
         String endpoint = endpoint();
-        Boolean canSort = client().canSortBy(endpoint, propertyName).blockOptional().orElse(false);
+        Boolean canSort = client().canSortBy(endpoint, propertyName).toFuture().join();
         return canSort.booleanValue() ? Boolean.TRUE : null;
     }
 
@@ -128,7 +137,8 @@ public abstract class CatalogServiceClientRepository<CI extends CatalogInfo>
             @NonNull String id, @NonNull Class<U> clazz) {
         ClassMappings typeArg = typeEnum(clazz);
 
-        return blockAndReturn(client.findById(endpoint(), id, typeArg));
+        Optional<U> ret = blockAndReturn(client.findById(endpoint(), id, typeArg));
+        return ret;
     }
 
     public @Override void dispose() {
@@ -136,7 +146,7 @@ public abstract class CatalogServiceClientRepository<CI extends CatalogInfo>
     }
 
     public @Override void syncTo(@NonNull CatalogInfoRepository<CI> target) {
-        throw new UnsupportedOperationException("not yet implemented");
+        findAll().forEach(target::add);
     }
 
     protected @NonNull ClassMappings typeEnum(@NonNull Class<? extends Info> infoType) {

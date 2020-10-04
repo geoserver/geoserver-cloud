@@ -43,16 +43,26 @@
     </dependency>
     <dependency>
       <groupId>com.playtika.reactivefeign</groupId>
-      <artifactId>feign-reactor-cloud</artifactId>
+      <artifactId>feign-reactor-spring-configuration</artifactId>
     </dependency>
     <dependency>
       <groupId>com.playtika.reactivefeign</groupId>
-      <artifactId>feign-reactor-spring-configuration</artifactId>
+      <artifactId>feign-reactor-cloud</artifactId>
     </dependency>
     <dependency>
       <groupId>com.playtika.reactivefeign</groupId>
       <artifactId>feign-reactor-webclient</artifactId>
     </dependency>
+<!--     <dependency> -->
+<!--       <groupId>com.playtika.reactivefeign</groupId> -->
+<!--       <artifactId>feign-reactor-jetty</artifactId> -->
+<!--       <version>2.0.22</version> -->
+<!--     </dependency> -->
+<!--     <dependency> -->
+<!--       <groupId>com.playtika.reactivefeign</groupId> -->
+<!--       <artifactId>feign-reactor-java11</artifactId> -->
+<!--       <version>2.0.22</version> -->
+<!--     </dependency> -->
     <dependency>
       <!-- contains CatalogTestData support class -->
       <groupId>org.geoserver.cloud</groupId>

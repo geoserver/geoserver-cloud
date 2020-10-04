@@ -23,7 +23,7 @@ import org.springframework.context.annotation.Import;
 @Import({
     DataDirectoryAutoConfiguration.class,
     JDBCConfigAutoConfiguration.class,
-    JDBCConfigWebAutoConfiguration.class
-    //    CatalogServiceBackendAutoConfiguration.class
+    JDBCConfigWebAutoConfiguration.class,
+    CatalogServiceBackendAutoConfiguration.class
 })
 public class GeoServerBackendAutoConfiguration {}

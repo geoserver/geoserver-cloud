@@ -24,7 +24,7 @@ import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.AbstractCatalogDecorator;
-import org.geoserver.catalog.plugin.CatalogImpl;
+import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.Query;
 import org.geoserver.catalog.plugin.forwarding.ForwardingCatalogFacade;
@@ -43,7 +43,7 @@ public class BlockingCatalog extends AbstractCatalogDecorator {
     private static class AllowAllCatalogFacade extends ForwardingCatalogFacade {
         /**
          * {@link CatalogCapabilities#supportsIsolatedWorkspaces()} is {@code true} to allow
-         * bypassing the workspace validation check in {@link CatalogImpl#validate(WorkspaceInfo,
+         * bypassing the workspace validation check in {@link CatalogPlugin#validate(WorkspaceInfo,
          * boolean)}, that otherwise would throw an {@link IllegalArgumentException} when creating
          * or updating an isolated workspace, but this service has to work as a raw catalog.
          */
@@ -65,8 +65,8 @@ public class BlockingCatalog extends AbstractCatalogDecorator {
     public BlockingCatalog(@Qualifier("rawCatalog") Catalog rawCatalog) {
         super(rawCatalog);
         // Make sure isolated workspaces can be created/updated
-        if (rawCatalog instanceof org.geoserver.catalog.plugin.CatalogImpl) {
-            CatalogImpl impl = ((org.geoserver.catalog.plugin.CatalogImpl) rawCatalog);
+        if (rawCatalog instanceof org.geoserver.catalog.plugin.CatalogPlugin) {
+            CatalogPlugin impl = ((org.geoserver.catalog.plugin.CatalogPlugin) rawCatalog);
             impl.getRawCatalogFacade().getCatalogCapabilities().setIsolatedWorkspacesSupport(true);
         } else if (rawCatalog instanceof org.geoserver.catalog.impl.CatalogImpl) {
             org.geoserver.catalog.impl.CatalogImpl impl =

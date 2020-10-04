@@ -4,6 +4,7 @@
  */
 package org.geoserver.cloud.catalog.client.reactivefeign;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import reactivefeign.spring.config.EnableReactiveFeignClients;
 
@@ -15,4 +16,9 @@ import reactivefeign.spring.config.EnableReactiveFeignClients;
         ReactiveResourceStoreClient.class
     }
 )
-public class ReactiveCatalogApiClientConfiguration {}
+public class ReactiveCatalogApiClientConfiguration {
+
+    public @Bean ResourceStoreFallbackFactory resourceStoreFallbackFactory() {
+        return new ResourceStoreFallbackFactory();
+    }
+}

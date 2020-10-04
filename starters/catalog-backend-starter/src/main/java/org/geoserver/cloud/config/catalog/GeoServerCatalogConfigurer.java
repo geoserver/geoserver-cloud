@@ -10,10 +10,13 @@ import org.geoserver.catalog.LayerGroupVisibilityPolicy;
 import org.geoserver.catalog.impl.AdvertisedCatalog;
 import org.geoserver.catalog.impl.CatalogImpl;
 import org.geoserver.catalog.impl.LocalWorkspaceCatalog;
+import org.geoserver.catalog.plugin.CatalogPlugin;
+import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
+import org.geoserver.cloud.autoconfigure.security.ConditionalOnGeoServerSecurityDisabled;
+import org.geoserver.cloud.autoconfigure.security.ConditionalOnGeoServerSecurityEnabled;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.security.SecureCatalogImpl;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.DependsOn;
 
@@ -29,12 +32,12 @@ public interface GeoServerCatalogConfigurer {
             CatalogProperties properties) {
 
         CatalogImpl rawCatalog;
-        if ((catalogFacade instanceof org.geoserver.catalog.plugin.AbstractCatalogFacade)) {
+        if ((catalogFacade instanceof ExtendedCatalogFacade)) {
             if (properties.isIsolated()) {
-                rawCatalog = org.geoserver.catalog.plugin.CatalogImpl.isoLated(catalogFacade);
+                rawCatalog = CatalogPlugin.isoLated(catalogFacade);
                 rawCatalog.setFacade(catalogFacade);
             } else {
-                rawCatalog = org.geoserver.catalog.plugin.CatalogImpl.nonIsolated(catalogFacade);
+                rawCatalog = CatalogPlugin.nonIsolated(catalogFacade);
             }
         } else {
             rawCatalog = new org.geoserver.catalog.impl.CatalogImpl();
@@ -48,12 +51,18 @@ public interface GeoServerCatalogConfigurer {
      * @return {@link SecureCatalogImpl} decorator if {@code properties.isSecure() == true}, {@code
      *     rawCatalog} otherwise.
      */
+    @DependsOn({"extensions", "dataDirectory", "accessRulesDao"})
+    @ConditionalOnGeoServerSecurityEnabled
     default @Bean Catalog secureCatalog(
-            @Qualifier("rawCatalog") Catalog rawCatalog,
-            CatalogProperties properties,
-            @Value("${geoserver.security.enabled:true}") boolean securityEnabled)
+            @Qualifier("rawCatalog") Catalog rawCatalog, CatalogProperties properties)
             throws Exception {
-        if (securityEnabled && properties.isSecure()) return new SecureCatalogImpl(rawCatalog);
+        if (properties.isSecure()) return new SecureCatalogImpl(rawCatalog);
+        return rawCatalog;
+    }
+
+    @ConditionalOnGeoServerSecurityDisabled
+    @Bean(name = {"catalog", "secureCatalog"})
+    default Catalog secureCatalogDisabled(@Qualifier("rawCatalog") Catalog rawCatalog) {
         return rawCatalog;
     }
 

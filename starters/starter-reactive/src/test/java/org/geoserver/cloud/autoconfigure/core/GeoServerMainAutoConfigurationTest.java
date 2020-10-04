@@ -40,12 +40,12 @@ public class GeoServerMainAutoConfigurationTest {
 
     public @Test void rawCatalog() {
         Catalog catalog = (Catalog) context.getBean("rawCatalog");
-        Assume.assumeTrue(catalog instanceof org.geoserver.catalog.plugin.CatalogImpl);
-        assertThat(catalog, instanceOf(org.geoserver.catalog.plugin.CatalogImpl.class));
+        Assume.assumeTrue(catalog instanceof org.geoserver.catalog.plugin.CatalogPlugin);
+        assertThat(catalog, instanceOf(org.geoserver.catalog.plugin.CatalogPlugin.class));
         CatalogFacade rawCatalogFacade = context.getBean(CatalogFacade.class);
         assertThat(
                 rawCatalogFacade,
-                instanceOf(org.geoserver.catalog.plugin.DefaultCatalogFacade.class));
+                instanceOf(org.geoserver.catalog.plugin.DefaultMemoryCatalogFacade.class));
     }
 
     public @Test void catalog() {

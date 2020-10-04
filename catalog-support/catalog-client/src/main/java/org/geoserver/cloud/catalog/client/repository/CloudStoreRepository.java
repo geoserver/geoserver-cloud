@@ -31,7 +31,7 @@ public class CloudStoreRepository extends CatalogServiceClientRepository<StoreIn
 
     public @Override void unsetDefaultDataStore(@NonNull WorkspaceInfo workspace) {
         String workspaceId = workspace.getId();
-        client().unsetDefaultDataStore(workspaceId).block();
+        blockAndReturn(client().unsetDefaultDataStore(workspaceId));
     }
 
     public @Override Optional<DataStoreInfo> getDefaultDataStore(@NonNull WorkspaceInfo workspace) {

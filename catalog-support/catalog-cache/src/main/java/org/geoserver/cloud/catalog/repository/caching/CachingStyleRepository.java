@@ -9,7 +9,6 @@ import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.forwarding.ForwardingStyleRepository;
 import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.Cacheable;
 
 @CacheConfig(cacheNames = CacheNames.STYLE_CACHE)
 public class CachingStyleRepository extends ForwardingStyleRepository {
@@ -18,12 +17,10 @@ public class CachingStyleRepository extends ForwardingStyleRepository {
         super(subject);
     }
 
-    @Cacheable
     public @Override Optional<StyleInfo> findByNameAndWordkspaceNull(String name) {
         return super.findByNameAndWordkspaceNull(name);
     }
 
-    @Cacheable
     public @Override Optional<StyleInfo> findByNameAndWordkspace(
             String name, WorkspaceInfo workspace) {
         return super.findByNameAndWordkspace(name, workspace);

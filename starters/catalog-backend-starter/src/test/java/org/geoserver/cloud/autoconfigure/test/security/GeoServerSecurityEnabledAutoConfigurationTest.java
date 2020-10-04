@@ -50,8 +50,8 @@ public class GeoServerSecurityEnabledAutoConfigurationTest {
 
     @Test
     public void secureCatalogIsSecureCatalogImpl() {
-        Assume.assumeTrue(rawCatalog instanceof org.geoserver.catalog.plugin.CatalogImpl);
-        assertThat(rawCatalog, instanceOf(org.geoserver.catalog.plugin.CatalogImpl.class));
+        Assume.assumeTrue(rawCatalog instanceof org.geoserver.catalog.plugin.CatalogPlugin);
+        assertThat(rawCatalog, instanceOf(org.geoserver.catalog.plugin.CatalogPlugin.class));
         assertThat(secureCatalog, instanceOf(SecureCatalogImpl.class));
     }
 

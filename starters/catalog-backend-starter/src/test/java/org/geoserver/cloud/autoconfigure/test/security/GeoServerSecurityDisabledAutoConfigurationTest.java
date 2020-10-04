@@ -6,12 +6,14 @@ package org.geoserver.cloud.autoconfigure.test.security;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 
 import org.geoserver.catalog.Catalog;
 import org.geoserver.cloud.autoconfigure.security.GeoServerSecurityDisabledAutoConfiguration;
 import org.geoserver.cloud.autoconfigure.testconfiguration.AutoConfigurationTestConfiguration;
 import org.geoserver.security.GeoServerSecurityManager;
+import org.geoserver.security.impl.DataAccessRuleDAO;
 import org.geoserver.security.password.URLMasterPasswordProvider;
 import org.junit.Assume;
 import org.junit.Test;
@@ -52,9 +54,14 @@ public class GeoServerSecurityDisabledAutoConfigurationTest {
     private @Autowired ApplicationContext context;
 
     public @Test void secureCatalogIsRawCatalog() {
-        Assume.assumeTrue(rawCatalog instanceof org.geoserver.catalog.plugin.CatalogImpl);
-        assertThat(rawCatalog, instanceOf(org.geoserver.catalog.plugin.CatalogImpl.class));
+        Assume.assumeTrue(rawCatalog instanceof org.geoserver.catalog.plugin.CatalogPlugin);
+        assertThat(rawCatalog, instanceOf(org.geoserver.catalog.plugin.CatalogPlugin.class));
         assertSame(secureCatalog, rawCatalog);
+    }
+
+    @Test(expected = NoSuchBeanDefinitionException.class)
+    public void accessRuleDAO() {
+        assertNotNull(context.getBean(DataAccessRuleDAO.class));
     }
 
     @Test(expected = NoSuchBeanDefinitionException.class)

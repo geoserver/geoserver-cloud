@@ -4,7 +4,11 @@
  */
 package org.geoserver.cloud.catalog.client.impl;
 
+import org.geoserver.catalog.plugin.RepositoryCatalogFacade;
+import org.geoserver.catalog.plugin.RepositoryCatalogFacadeImpl;
+import org.geoserver.cloud.catalog.client.reactivefeign.BlockingResourceStoreClient;
 import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveConfigClient;
+import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveResourceStoreClient;
 import org.geoserver.cloud.catalog.client.repository.CatalogClientConfigRepository;
 import org.geoserver.cloud.catalog.client.repository.CatalogRepositoriesConfiguration;
 import org.geoserver.cloud.catalog.client.repository.CloudLayerGroupRepository;
@@ -32,20 +36,22 @@ public class CatalogClientConfiguration {
     private @Autowired CloudLayerGroupRepository cloudLayerGroupRepository;
     private @Autowired CloudStyleRepository cloudStyleRepository;
     private @Autowired CloudMapRepository cloudMapRepository;
+
     private @Autowired ReactiveConfigClient configClient;
+    private @Autowired ReactiveResourceStoreClient resourceStoreClient;
 
     public @Bean CatalogServiceCatalogFacade rawCatalogServiceFacade() {
-        CatalogServiceCatalogFacade facade = new CatalogServiceCatalogFacade();
-        facade.setWorkspaces(cloudWorkspaceRepository);
-        facade.setNamespaces(cloudNamespaceRepository);
-        facade.setStores(cloudStoreRepository);
-        facade.setResources(cloudResourceRepository);
-        facade.setLayers(cloudLayerRepository);
-        facade.setLayerGroups(cloudLayerGroupRepository);
-        facade.setStyles(cloudStyleRepository);
-        facade.setMaps(cloudMapRepository);
-        InnerResolvingProxy resolver = new InnerResolvingProxy(facade, null);
-        facade.setObjectResolver(resolver::resolve);
+        RepositoryCatalogFacade rawFacade = new RepositoryCatalogFacadeImpl();
+        rawFacade.setWorkspaceRepository(cloudWorkspaceRepository);
+        rawFacade.setNamespaceRepository(cloudNamespaceRepository);
+        rawFacade.setStoreRepository(cloudStoreRepository);
+        rawFacade.setResourceRepository(cloudResourceRepository);
+        rawFacade.setLayerRepository(cloudLayerRepository);
+        rawFacade.setLayerGroupRepository(cloudLayerGroupRepository);
+        rawFacade.setStyleRepository(cloudStyleRepository);
+        rawFacade.setMapRepository(cloudMapRepository);
+        
+        CatalogServiceCatalogFacade facade = new CatalogServiceCatalogFacade(rawFacade);
         return facade;
     }
 
@@ -56,4 +62,28 @@ public class CatalogClientConfiguration {
     public @Bean CatalogServiceGeoServerFacade catalogServiceGeoServerFacade() {
         return new CatalogServiceGeoServerFacade(catalogServiceConfigRepository());
     }
+
+    public @Bean CatalogServiceResourceStore catalogServiceResourceStore() {
+        BlockingResourceStoreClient blockingClient =
+                new BlockingResourceStoreClient(resourceStoreClient);
+        return new CatalogServiceResourceStore(blockingClient);
+    }
+
+    // @ConditionalOnProperty(name = "reactive.feign.jetty", havingValue = "true")
+    // public @Bean JettyHttpClientFactory jettyHttpClientFactory() {
+    // return new JettyHttpClientFactory() {
+    //
+    // @Override
+    // public HttpClient build(boolean useHttp2) {
+    // HttpClient httpClient = new HttpClient();
+    // try {
+    // httpClient.start();
+    // } catch (Exception e) {
+    // e.printStackTrace();
+    // throw new RuntimeException(e);
+    // }
+    // return httpClient;
+    // }
+    // };
+    // }
 }

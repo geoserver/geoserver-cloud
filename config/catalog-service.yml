@@ -1,31 +1,28 @@
 geoserver:
   security.enabled: false
-  catalog:
-    # Disable advertised catalog, it checks the org.geoserver.ows.Dispatcher.REQUEST to check if an OWS is in progress,
-    # which can never be the case, and causes a java.lang.NoClassDefFoundError on org.springframework.web.servlet.mvc.AbstractController
-    advertised: false
-    # Disable LocalWorkspaceCatalog decorator, this service exposes a "raw catalog" backend, there's no concept of local workspaces
-    localWorkspace: false
-    secure: false
+  # Disable advertised catalog, it checks the org.geoserver.ows.Dispatcher.REQUEST to check if an OWS is in progress,
+  # which can never be the case, and causes a java.lang.NoClassDefFoundError on org.springframework.web.servlet.mvc.AbstractController
+  catalog.advertised: false
+  # Disable LocalWorkspaceCatalog decorator, this service exposes a "raw catalog" backend, there's no concept of local workspaces
+  catalog.localWorkspace: false
+  catalog.secure: false
   catalog-service:
     io-threads:
-      # if using jdbcconfig, make io-size be half the size of geoserver.backend.jdbcconfig.datasource.maximumPoolSize, 
-      # it has the tendency to use more than one jdbc connection for some requests. 
-      # If unset, the default value is 4 * number of cores.
-      max-size: 8
+      # Number of back-end threads to hit the actual catalog with. Defaults 4 * number of cores if unset.
+      # If using jdbcconfig, let io-threads be about half the size of geoserver.backend.jdbcconfig.datasource.maximumPoolSize, 
+      # it has the tendency to use more than one jdbc connection for some requests.
+      max-size: 32
       # maximum number of queued requests per worker thread before rejecting new requests 
-      max-queued: 1000
+      max-queued: 10000
   bus:
-    send-events: true
-    receive-events: true
-    send-object: false
-    send-diff: false
+    # receive events but don't publish, it's the front catalogs that publish events to better track where the changes come from
+    send-events: false
   backend:
     # decide which catalog backend to use on this service.
-    data-directory.enabled: false
     jdbcconfig.enabled: true
+    jdbcconfig.datasource.minimumIdle: 10
+    jdbcconfig.datasource.maximumPoolSize: 50
 
-spring:
-  error.includeStacktrace: on_trace_param
-  jackson.serialization.indent_output: true
-  jackson.serialization.WRAP_ROOT_VALUE: false
+#spring:
+#  error.includeStacktrace: on_trace_param
+#  jackson.serialization.WRAP_ROOT_VALUE: false

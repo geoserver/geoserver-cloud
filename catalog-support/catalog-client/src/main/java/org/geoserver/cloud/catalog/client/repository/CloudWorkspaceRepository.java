@@ -23,7 +23,7 @@ public class CloudWorkspaceRepository extends CatalogServiceClientRepository<Wor
     }
 
     public @Override void unsetDefaultWorkspace() {
-        client().unsetDefaultWorkspace().block();
+        block(client().unsetDefaultWorkspace());
     }
 
     public @Override @Nullable Optional<WorkspaceInfo> getDefaultWorkspace() {

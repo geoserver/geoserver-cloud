@@ -5,8 +5,13 @@ spring:
 
 geoserver:
   backend:
+    catalog-service:
+      enabled: false
+      url: catalog-service
+#      resource-store.fallback.enabled: ${java.io.tmpdir}/gs_cloud/catalog_client_resource_store_fallback
+#      resource-store.fallback: ${java.io.tmpdir}/gs_cloud/catalog_client_resource_store_fallback
     data-directory:
-      enabled: true
+      enabled: false
       location: ${data_directory:${java.io.tmpdir}/geoserver_cloud_data_directory}
     jdbcconfig:
       enabled: false

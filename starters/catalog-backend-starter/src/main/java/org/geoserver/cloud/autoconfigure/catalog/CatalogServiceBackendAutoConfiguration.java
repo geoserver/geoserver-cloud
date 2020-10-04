@@ -5,10 +5,10 @@
 package org.geoserver.cloud.autoconfigure.catalog;
 
 import org.geoserver.cloud.config.catalog.GeoServerBackendConfigurer;
-import org.geoserver.cloud.config.catalog.GeoServerBackendProperties.CatalogService;
 import org.geoserver.cloud.config.catalogclient.CatalogServiceBackendConfigurer;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 /**
  * {@link EnableAutoConfiguration @EnableAutoConfiguration} auto-configuration to use the {@code
@@ -22,5 +22,5 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnCatalogServiceClientEnabled
-// @Import(CatalogServiceBackendConfigurer.class)
+@Import(CatalogServiceBackendConfigurer.class)
 public class CatalogServiceBackendAutoConfiguration extends AbstractBackendAutoConfiguration {}

@@ -7,7 +7,7 @@ package org.geoserver.cloud.integration.datadirectory;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogConformanceTest;
 import org.geoserver.catalog.CatalogFacade;
-import org.geoserver.catalog.plugin.CatalogImpl;
+import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.cloud.testconfiguration.IntegrationTestConfiguration;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.junit.runner.RunWith;
@@ -28,7 +28,7 @@ public class DataDirectoryCatalogConformanceTest extends CatalogConformanceTest 
 
     @Override
     protected Catalog createCatalog() {
-        CatalogImpl catalog = new CatalogImpl(rawCatalogFacade);
+        CatalogPlugin catalog = new CatalogPlugin(rawCatalogFacade);
         catalog.setResourceLoader(resourceLoader);
         return catalog;
     }

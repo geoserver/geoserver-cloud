@@ -1,4 +1,8 @@
-server.port: 9101
+server.port: 9102
 jdbcconfig.url: jdbc:postgresql://localhost:5432/geoserver_config
 jdbcconfig.username: geoserver
 jdbcconfig.password: geo$erver
+geoserver:
+  backend:
+    catalog-service:
+      uri: http://localhost:9107

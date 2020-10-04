@@ -8,7 +8,6 @@ import java.util.Optional;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.plugin.forwarding.ForwardingLayerRepository;
 import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.Cacheable;
 
 @CacheConfig(cacheNames = CacheNames.LAYER_CACHE)
 public class CachingLayerRepository extends ForwardingLayerRepository {
@@ -17,7 +16,6 @@ public class CachingLayerRepository extends ForwardingLayerRepository {
         super(subject);
     }
 
-    @Cacheable
     public @Override Optional<LayerInfo> findOneByName(String name) {
         return super.findOneByName(name);
     }

@@ -30,7 +30,6 @@ import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
-import org.geoserver.config.impl.LoggingInfoImpl;
 import org.geoserver.wcs.WCSInfo;
 import org.geoserver.wfs.WFSInfo;
 import org.geoserver.wms.WMSInfo;
@@ -194,6 +193,7 @@ public class ReactiveConfigControllerTest {
 
     // get /logging
     public @Test void getLogging() {
+        geoServer.setLogging(testData.logging);
         LoggingInfo logging = geoServer.getLogging();
         assertNotNull(logging);
         LoggingInfo responseBody =
@@ -209,7 +209,6 @@ public class ReactiveConfigControllerTest {
     // PUT /logging
     public @Test void setLogging() {
         LoggingInfo logging = testData.logging;
-        ((LoggingInfoImpl) logging).setId(geoServer.getLogging().getId());
         logging.setLevel("apiLevel");
         logging.setLocation("/right/there");
         logging.setStdOutLogging(false);

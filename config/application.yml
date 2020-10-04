@@ -16,17 +16,26 @@ geoserver:
     send-diff: false
   backend:
     # configure catalog backends and decide which backend to use on this service.
+    # All backends are disabled, enable the required one on each service. For example, the catalog microservice 
+    # will enable one backend type, and the front services the catalog-service backend.
+    # revisit: Could be split into profiles
     catalog-service:
       enabled: false
-      uri: catalog-service
+      #uri: http://catalog:8080
+      uri: http://172.20.0.6:8080
+      cache-directory: ${java.io.tmpdir}/cngs/catalog-client/resource_store
+      io-threads:
+        max-size: 16
+        max-queued:
+      fallback-resource-directory: ${java.io.tmpdir}/cngs/catalog-client/fallback_resource_store
     data-directory:
       enabled: false
-      location: ${GEOSERVER_DATA_DIR:${java.io.tmpdir}/default_data_directory} 
+      location: ${GEOSERVER_DATA_DIR:${java.io.tmpdir}/cngs/data_directory} 
     jdbcconfig:
-      enabled: true
+      enabled: false
       initdb: false
       web.enabled: false
-      cache-directory: ${jdbcconfig.cachedir:${java.io.tmpdir}/geoserver-jdbcconfig-cache}
+      cache-directory: ${jdbcconfig.cachedir:${java.io.tmpdir}/cngs/jdbcconfig/cache}
       datasource:
         jdbcUrl: ${jdbcconfig.url:"jdbc:postgresql://database:5432/geoserver_config"}
         username: ${jdbcconfig.username:geoserver}
@@ -53,13 +62,22 @@ spring:
           destination: gscatalog
         springCloudBusInput:
           destination: gscatalog
+  jackson:
+    default-property-inclusion: non_empty
+    serialization.indent_output: false #set to true if doing manual testing and want formatted output
+
+reactive.feign.cloud.enabled: true
+reactive.feign.hystrix.enabled: false
+
 logging:
   level:
     root: WARN
     org.springframework: ERROR
-    org.springframework.cloud.bus: TRACE
+    org.springframework.cloud.bus: INFO
     # geoserver roots
     org.geoserver: INFO
+    org.geoserver.jackson: INFO
+    org.geotools.jackson: INFO
     org.geoserver.platform: ERROR
     org.geoserver.jdbcconfig: INFO
     oshi.hardware.platform.linux: ERROR
@@ -69,6 +87,34 @@ logging:
     org.geoserver.cloud.autoconfigure: INFO
     org.geoserver.cloud.config.factory: INFO
     # bus debugging
+    org.geoserver.cloud.bus: INFO
+    org.springframework.cloud.bus.BusAutoConfiguration: INFO
+    org.springframework.cloud.bus.DefaultBusPathMatcher: INFO
+    # reactivefeign:
+    reactivefeign.client.log: INFO
+
+---
+
+spring:
+  profiles.active: debug
+
+logging:
+  level:
+    org.springframework: INFO
+    org.springframework.cloud.bus: DEBUG
+    # geoserver roots
+    org.geoserver: DEBUG
+    org.geoserver.jackson: DEBUG
+    org.geotools.jackson: DEBUG
+    org.geoserver.platform: ERROR
+    org.geoserver.jdbcconfig: DEBUG
+    # gs-cloud roots
+    org.geoserver.cloud: DEBUG
+    org.geoserver.cloud.autoconfigure: DEBUG
+    org.geoserver.cloud.config.factory: DEBUG
+    # bus debugging
     org.geoserver.cloud.bus: TRACE
-    org.springframework.cloud.bus.BusAutoConfiguration: TRACE
-    org.springframework.cloud.bus.DefaultBusPathMatcher: TRACE
+    org.springframework.cloud.bus.BusAutoConfiguration: DEBUG
+    org.springframework.cloud.bus.DefaultBusPathMatcher: DEBUG
+    # reactivefeign:
+    reactivefeign.client.log: TRACE

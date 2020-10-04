@@ -34,7 +34,6 @@ public class CachingNamespaceRepository extends ForwardingNamespaceRepository {
         return super.getDefaultNamespace();
     }
 
-    @Cacheable
     public @Override Optional<NamespaceInfo> findOneByURI(String uri) {
         return super.findOneByURI(uri);
     }

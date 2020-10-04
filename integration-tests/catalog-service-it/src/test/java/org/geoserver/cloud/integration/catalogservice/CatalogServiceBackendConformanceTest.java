@@ -10,8 +10,8 @@ import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogConformanceTest;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.event.CatalogListener;
-import org.geoserver.catalog.plugin.CatalogImpl;
 import org.geoserver.catalog.plugin.CatalogInfoRepository;
+import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.cloud.catalog.app.CatalogServiceApplication;
 import org.geoserver.cloud.catalog.client.impl.CatalogClientConfiguration;
 import org.geoserver.cloud.catalog.client.repository.CatalogServiceClientRepository;
@@ -30,7 +30,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  * back-end catalog-service.
  *
  * <p>A {@link Catalog} using the {@code catalog-service} as its back-end is a regular {@link
- * CatalogImpl} with an injected {@link CatalogFacade} whose {@link CatalogInfoRepository
+ * CatalogPlugin} with an injected {@link CatalogFacade} whose {@link CatalogInfoRepository
  * repositories} talk to the {@code catalog-service}, hence this integration test suite verifies the
  * functioning of such {@code CatalogFacade} against a live {@code catalog-service} instance through
  * HTTP.
@@ -62,7 +62,7 @@ public class CatalogServiceBackendConformanceTest extends CatalogConformanceTest
     private Catalog clientCatalog;
 
     protected @Override Catalog createCatalog() {
-        clientCatalog = new CatalogImpl(clientFacade);
+        clientCatalog = new CatalogPlugin(clientFacade);
         return clientCatalog;
     }
 
