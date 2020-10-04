@@ -47,8 +47,9 @@ import org.opengis.filter.sort.SortOrder;
 import org.springframework.lang.Nullable;
 
 /**
- * A support index for {@link DefaultCatalogFacade}, can perform fast lookups of {@link CatalogInfo}
- * objects by id or by "name", where the name is defined by a a user provided mapping function.
+ * A support index for {@link DefaultMemoryCatalogFacade}, can perform fast lookups of {@link
+ * CatalogInfo} objects by id or by "name", where the name is defined by a a user provided mapping
+ * function.
  *
  * <p>The lookups by predicate have been tested and optimized for performance, in particular the
  * current for loops turned out to be significantly faster than building and returning streams

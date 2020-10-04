@@ -312,6 +312,8 @@ public abstract class GeoServerConfigConformanceTest {
 
     @Test
     public void testModifyLogging() {
+        geoServer.setLogging(geoServer.getFactory().createLogging());
+
         LoggingInfo logging = geoServer.getLogging();
         logging.setLevel("VERBOSE_LOGGING.properties");
         geoServer.save(logging);

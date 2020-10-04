@@ -32,6 +32,7 @@ import org.geoserver.catalog.Styles;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.impl.ModificationProxy;
+import org.geoserver.catalog.impl.ProxyUtils;
 import org.geoserver.config.GeoServerDataDirectory;
 import org.geoserver.platform.GeoServerExtensions;
 import org.geoserver.platform.resource.Resource;
@@ -48,28 +49,29 @@ import org.geotools.util.logging.Logging;
  * <ul>
  *   <li>Allows decorating the {@link CatalogFacade} with an {@link IsolatedCatalogFacade} when
  *       {@link #setFacade} is called, instead of only on the default constructor
- *   <li>Requires the {@code CatalogFacade} to derive from {@link
- *       org.geoserver.catalog.plugin.AbstractCatalogFacade}, whose underlying storage is abstracted
- *       out to {@link CatalogInfoRepository}
- *   <li>Uses {@link org.geoserver.catalog.plugin.DefaultCatalogFacade} as the default facade
- *       implementation.
+ *   <li>Requires the {@code CatalogFacade} to derive from {@link ExtendedCatalogFacade}, whose
+ *       underlying storage is abstracted out to {@link CatalogInfoRepository}
+ *   <li>Uses {@link DefaultMemoryCatalogFacade} as the default facade implementation for attached,
+ *       on-heap {@link CatalogInfo} storage
  *   <li>Implements all business-logic, like event handling and ensuring no {@link CatalogInfo}
  *       instance gets in or out of the {@link Catalog} without being decorated with a {@link
- *       ModificationProxy}, releaving the lower-level {@link CatalogFacade} abstraction of such
- *       things. Hence {@link AbstractCatalogFacade} works on plain POJOS, or whatever is supplied
- *       by its {@link CatalogInfoRepository repositories}, though in practice it can only be
- *       implementations of {@code org.geoserver.catalog.impl} due to coupling in other areas. Of
- *       special interest is the use of {@link PropertyDiff} and {@link Patch} on all the {@link
- *       #save} methods, in order to keep the {@code ModificationProxy} logic local to this catalog
- *       implementation, and call {@link AbstractCatalogFacade#update(CatalogInfo, Patch)} instead
+ *       ModificationProxy}, relieving the lower-level {@link CatalogFacade} abstraction of such
+ *       concerns. Hence {@link ExtendedCatalogFacade} works on plain POJOS, or whatever is
+ *       supplied by its {@link CatalogInfoRepository repositories}, though in practice it can only
+ *       be implementations of {@code org.geoserver.catalog.impl.*InfoImpl} due to coupling in other
+ *       areas.
+ *   <li>Of special interest is the use of {@link PropertyDiff} and {@link Patch} on all the {@link
+ *       #save} methods, delegating to {@link ExtendedCatalogFacade#update(CatalogInfo, Patch)} ,
+ *       in order to keep the {@code ModificationProxy} logic local to this catalog implementation,
+ *       and let the backend (facade) implement atomic updates as it fits it better.
  * </ul>
  */
 @SuppressWarnings("serial")
-public class CatalogImpl extends org.geoserver.catalog.impl.CatalogImpl {
-    private static final Logger LOGGER = Logging.getLogger(CatalogImpl.class);
+public class CatalogPlugin extends org.geoserver.catalog.impl.CatalogImpl {
+    private static final Logger LOGGER = Logging.getLogger(CatalogPlugin.class);
 
     /** Hold on to the raw facade */
-    private @Getter @NonNull AbstractCatalogFacade rawCatalogFacade;
+    private @Getter @NonNull ExtendedCatalogFacade rawCatalogFacade;
 
     private final boolean isolated;
 
@@ -81,22 +83,22 @@ public class CatalogImpl extends org.geoserver.catalog.impl.CatalogImpl {
 
     public static org.geoserver.catalog.impl.CatalogImpl nonIsolated(
             CatalogFacade catalogFacadeImpl) {
-        return new CatalogImpl(catalogFacadeImpl, false);
+        return new CatalogPlugin(catalogFacadeImpl, false);
     }
 
     public static org.geoserver.catalog.impl.CatalogImpl isoLated(CatalogFacade catalogFacadeImpl) {
-        return new CatalogImpl(catalogFacadeImpl, true);
+        return new CatalogPlugin(catalogFacadeImpl, true);
     }
 
-    public CatalogImpl() {
-        this(new org.geoserver.catalog.plugin.DefaultCatalogFacade());
+    public CatalogPlugin() {
+        this(new org.geoserver.catalog.plugin.DefaultMemoryCatalogFacade());
     }
 
-    public CatalogImpl(CatalogFacade rawCatalogFacade) {
+    public CatalogPlugin(CatalogFacade rawCatalogFacade) {
         this(rawCatalogFacade, true);
     }
 
-    private CatalogImpl(CatalogFacade rawCatalogFacade, boolean isolated) {
+    private CatalogPlugin(CatalogFacade rawCatalogFacade, boolean isolated) {
         Objects.requireNonNull(rawCatalogFacade);
         this.checkFacadeImplementation = true;
         this.isolated = isolated;
@@ -109,11 +111,11 @@ public class CatalogImpl extends org.geoserver.catalog.impl.CatalogImpl {
     public @Override void setFacade(CatalogFacade facade) {
         Objects.requireNonNull(facade);
         if (checkFacadeImplementation) {
-            if (!(facade instanceof AbstractCatalogFacade)) {
+            if (!(facade instanceof ExtendedCatalogFacade)) {
                 throw new IllegalArgumentException(
                         "This implementation requires a subclass of org.geoserver.catalog.plugin.AbstractCatalogFacade");
             }
-            this.rawCatalogFacade = (AbstractCatalogFacade) facade;
+            this.rawCatalogFacade = (ExtendedCatalogFacade) facade;
         }
         final GeoServerConfigurationLock configurationLock =
                 GeoServerExtensions.bean(GeoServerConfigurationLock.class);
@@ -127,7 +129,7 @@ public class CatalogImpl extends org.geoserver.catalog.impl.CatalogImpl {
     }
 
     protected <I extends CatalogInfo> void doSave(final I proxy) {
-        ModificationProxy h = (ModificationProxy) Proxy.getInvocationHandler(proxy);
+        ModificationProxy h = ProxyUtils.handler(proxy, ModificationProxy.class);
         // figure out what changed
         List<String> propertyNames = h.getPropertyNames();
         List<Object> newValues = h.getNewValues();

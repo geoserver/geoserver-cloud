@@ -12,21 +12,21 @@ import org.geoserver.config.util.XStreamPersisterFactory;
 public class XmlCatalogInfoLookupConformanceTest extends CatalogConformanceTest {
 
     protected @Override Catalog createCatalog() {
-        CatalogImpl catalog = new org.geoserver.catalog.plugin.CatalogImpl();
+        CatalogPlugin catalog = new org.geoserver.catalog.plugin.CatalogPlugin();
         XStreamPersisterFactory xpf = new XStreamPersisterFactory();
         XStreamPersister codec = xpf.createXMLPersister();
         codec.setCatalog(catalog);
 
-        DefaultCatalogFacade facade = new DefaultCatalogFacade();
+        DefaultMemoryCatalogFacade facade = new DefaultMemoryCatalogFacade();
 
-        facade.setWorkspaces(new XmlCatalogInfoLookup.WorkspaceInfoLookup(codec));
-        facade.setNamespaces(new XmlCatalogInfoLookup.NamespaceInfoLookup(codec));
-        facade.setStores(new XmlCatalogInfoLookup.StoreInfoLookup(codec));
-        facade.setResources(new XmlCatalogInfoLookup.ResourceInfoLookup(codec));
-        facade.setLayers(new XmlCatalogInfoLookup.LayerInfoLookup(codec));
-        facade.setLayerGroups(new XmlCatalogInfoLookup.LayerGroupInfoLookup(codec));
-        facade.setStyles(new XmlCatalogInfoLookup.StyleInfoLookup(codec));
-        facade.setMaps(new XmlCatalogInfoLookup.MapInfoLookup(codec));
+        facade.setWorkspaceRepository(new XmlCatalogInfoLookup.WorkspaceInfoLookup(codec));
+        facade.setNamespaceRepository(new XmlCatalogInfoLookup.NamespaceInfoLookup(codec));
+        facade.setStoreRepository(new XmlCatalogInfoLookup.StoreInfoLookup(codec));
+        facade.setResourceRepository(new XmlCatalogInfoLookup.ResourceInfoLookup(codec));
+        facade.setLayerRepository(new XmlCatalogInfoLookup.LayerInfoLookup(codec));
+        facade.setLayerGroupRepository(new XmlCatalogInfoLookup.LayerGroupInfoLookup(codec));
+        facade.setStyleRepository(new XmlCatalogInfoLookup.StyleInfoLookup(codec));
+        facade.setMapRepository(new XmlCatalogInfoLookup.MapInfoLookup(codec));
 
         catalog.setFacade(facade);
         return catalog;

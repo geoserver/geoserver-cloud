@@ -19,8 +19,6 @@ import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
-import org.geoserver.catalog.plugin.AbstractCatalogFacade;
-import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
@@ -32,13 +30,17 @@ import org.opengis.filter.sort.SortBy;
  * <p>Subclasses should override one or more methods to modify the behavior of the backing facade as
  * needed.
  */
-public class ForwardingCatalogFacade extends AbstractCatalogFacade implements CatalogFacade {
+public class ForwardingCatalogFacade implements CatalogFacade {
 
     // wrapped catalog facade
-    private final CatalogFacade facade;
+    protected final CatalogFacade facade;
 
     public ForwardingCatalogFacade(CatalogFacade facade) {
         this.facade = facade;
+    }
+
+    public CatalogFacade getFacade() {
+        return facade;
     }
 
     public @Override Catalog getCatalog() {
@@ -59,13 +61,6 @@ public class ForwardingCatalogFacade extends AbstractCatalogFacade implements Ca
 
     public @Override void save(StoreInfo store) {
         facade.save(store);
-    }
-
-    public @Override <I extends CatalogInfo> I update(I info, Patch patch) {
-        if (facade instanceof AbstractCatalogFacade) {
-            return ((AbstractCatalogFacade) facade).update(info, patch);
-        }
-        throw new UnsupportedOperationException();
     }
 
     public @Override <T extends StoreInfo> T detach(T store) {

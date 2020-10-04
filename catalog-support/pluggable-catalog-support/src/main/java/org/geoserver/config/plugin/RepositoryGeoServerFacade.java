@@ -17,6 +17,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.MetadataMap;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ModificationProxy;
@@ -65,14 +66,6 @@ public class RepositoryGeoServerFacade implements GeoServerFacade {
 
     public @Override void setGeoServer(GeoServer geoServer) {
         this.geoServer = geoServer;
-        Optional<GeoServerInfo> global = repository.getGlobal();
-        Optional<LoggingInfo> logging = repository.getLogging();
-        if (global.isEmpty()) {
-            repository.setGlobal(geoServer.getFactory().createGlobal());
-        }
-        if (logging.isEmpty()) {
-            repository.setLogging(geoServer.getFactory().createLogging());
-        }
     }
 
     public @Override GeoServer getGeoServer() {
@@ -80,7 +73,7 @@ public class RepositoryGeoServerFacade implements GeoServerFacade {
     }
 
     public @Override GeoServerInfo getGlobal() {
-        return wrap(repository.getGlobal().orElse(null), GeoServerInfo.class);
+        return wrap(resolve(repository.getGlobal().orElse(null)), GeoServerInfo.class);
     }
 
     public @Override void setGlobal(GeoServerInfo global) {
@@ -105,7 +98,7 @@ public class RepositoryGeoServerFacade implements GeoServerFacade {
     public @Override SettingsInfo getSettings(WorkspaceInfo workspace) {
         requireNonNull(workspace);
         return wrap(
-                resolveProxies(repository.getSettingsByWorkspace(workspace).orElse(null)),
+                resolve(repository.getSettingsByWorkspace(workspace).orElse(null)),
                 SettingsInfo.class);
     }
 
@@ -200,7 +193,7 @@ public class RepositoryGeoServerFacade implements GeoServerFacade {
         if (service.isEmpty() && LOGGER.isLoggable(Level.FINE)) {
             LOGGER.fine("Could not locate service of type " + type + " and id '" + id);
         }
-        return wrap(resolveProxies(service.orElse(null)), type);
+        return wrap(resolve(service.orElse(null)), type);
     }
 
     public @Override <T extends ServiceInfo> T getServiceByName(String name, Class<T> clazz) {
@@ -214,10 +207,7 @@ public class RepositoryGeoServerFacade implements GeoServerFacade {
 
     public @Override Collection<? extends ServiceInfo> getServices() {
         List<ServiceInfo> all =
-                repository
-                        .getGlobalServices()
-                        .map(this::resolveProxies)
-                        .collect(Collectors.toList());
+                repository.getGlobalServices().map(this::resolve).collect(Collectors.toList());
         return ModificationProxy.createList(all, ServiceInfo.class);
     }
 
@@ -225,7 +215,7 @@ public class RepositoryGeoServerFacade implements GeoServerFacade {
         List<ServiceInfo> services =
                 repository
                         .getServicesByWorkspace(workspace)
-                        .map(this::resolveProxies)
+                        .map(this::resolve)
                         .collect(Collectors.toList());
         return ModificationProxy.createList(services, ServiceInfo.class);
     }
@@ -242,7 +232,8 @@ public class RepositoryGeoServerFacade implements GeoServerFacade {
         return ModificationProxy.unwrap(obj);
     }
 
-    protected void resolve(GeoServerInfo info) {
+    protected GeoServerInfo resolve(GeoServerInfo info) {
+        if (info == null) return null;
         GeoServerInfoImpl global = (GeoServerInfoImpl) info;
         if (global.getMetadata() == null) {
             global.setMetadata(new MetadataMap());
@@ -253,6 +244,7 @@ public class RepositoryGeoServerFacade implements GeoServerFacade {
         if (global.getCoverageAccess() == null) {
             global.setCoverageAccess(new CoverageAccessInfoImpl());
         }
+        return info;
     }
 
     protected <T extends ServiceInfo> T find(Class<T> type, @Nullable WorkspaceInfo workspace) {
@@ -267,7 +259,7 @@ public class RepositoryGeoServerFacade implements GeoServerFacade {
             LOGGER.fine("Could not locate service of type " + type + " in workspace " + workspace);
         }
 
-        return wrap(resolveProxies(service.orElse(null)), type);
+        return wrap(resolve(service.orElse(null)), type);
     }
 
     protected <T extends ServiceInfo> T findByName(
@@ -289,7 +281,7 @@ public class RepositoryGeoServerFacade implements GeoServerFacade {
                             + name
                             + "'");
         }
-        return wrap(resolveProxies(service.orElse(null)), type);
+        return wrap(resolve(service.orElse(null)), type);
     }
 
     protected void setId(Object o) {
@@ -299,21 +291,26 @@ public class RepositoryGeoServerFacade implements GeoServerFacade {
         }
     }
 
-    protected <S extends ServiceInfo> S resolveProxies(S service) {
+    protected <S extends ServiceInfo> S resolve(S service) {
         if (service == null) return null;
         WorkspaceInfo workspace = service.getWorkspace();
+        GeoServer gs = getGeoServer();
         if (workspace instanceof Proxy) {
-            WorkspaceInfo resolved = ResolvingProxy.resolve(geoServer.getCatalog(), workspace);
+            Catalog catalog = gs.getCatalog();
+            WorkspaceInfo resolved = ResolvingProxy.resolve(catalog, workspace);
             service.setWorkspace(resolved);
         }
+        service.setGeoServer(gs);
         return service;
     }
 
-    protected SettingsInfo resolveProxies(SettingsInfo settings) {
+    protected SettingsInfo resolve(SettingsInfo settings) {
         if (settings == null) return null;
         WorkspaceInfo workspace = settings.getWorkspace();
         if (workspace instanceof Proxy) {
-            WorkspaceInfo resolved = ResolvingProxy.resolve(geoServer.getCatalog(), workspace);
+            GeoServer gs = getGeoServer();
+            Catalog catalog = gs.getCatalog();
+            WorkspaceInfo resolved = ResolvingProxy.resolve(catalog, workspace);
             settings.setWorkspace(resolved);
         }
         return settings;

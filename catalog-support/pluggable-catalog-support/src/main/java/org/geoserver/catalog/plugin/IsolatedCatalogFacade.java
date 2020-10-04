@@ -11,20 +11,19 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogCapabilities;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
-import org.geoserver.catalog.MapInfo;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ModificationProxy;
+import org.geoserver.catalog.plugin.forwarding.ForwardingCatalogFacade;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.catalog.util.CloseableIteratorAdapter;
 import org.geoserver.ows.Dispatcher;
@@ -33,43 +32,10 @@ import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 
 /** Copy of package private {@code org.geoserver.catalog.impl.IsolatedCatalogFacade} */
-public final class IsolatedCatalogFacade implements CatalogFacade {
-
-    // wrapped catalog facade
-    private final CatalogFacade facade;
+public final class IsolatedCatalogFacade extends ForwardingCatalogFacade{
 
     IsolatedCatalogFacade(CatalogFacade facade) {
-        this.facade = facade;
-    }
-
-    @Override
-    public Catalog getCatalog() {
-        return facade.getCatalog();
-    }
-
-    @Override
-    public void setCatalog(Catalog catalog) {
-        facade.setCatalog(catalog);
-    }
-
-    @Override
-    public StoreInfo add(StoreInfo store) {
-        return facade.add(store);
-    }
-
-    @Override
-    public void remove(StoreInfo store) {
-        facade.remove(store);
-    }
-
-    @Override
-    public void save(StoreInfo store) {
-        facade.save(store);
-    }
-
-    @Override
-    public <T extends StoreInfo> T detach(T store) {
-        return facade.detach(store);
+        super(facade);
     }
 
     @Override
@@ -99,31 +65,6 @@ public final class IsolatedCatalogFacade implements CatalogFacade {
     @Override
     public DataStoreInfo getDefaultDataStore(WorkspaceInfo workspace) {
         return enforceStoreIsolation(facade.getDefaultDataStore(workspace));
-    }
-
-    @Override
-    public void setDefaultDataStore(WorkspaceInfo workspace, DataStoreInfo store) {
-        facade.setDefaultDataStore(workspace, store);
-    }
-
-    @Override
-    public ResourceInfo add(ResourceInfo resource) {
-        return facade.add(resource);
-    }
-
-    @Override
-    public void remove(ResourceInfo resource) {
-        facade.remove(resource);
-    }
-
-    @Override
-    public void save(ResourceInfo resource) {
-        facade.save(resource);
-    }
-
-    @Override
-    public <T extends ResourceInfo> T detach(T resource) {
-        return facade.detach(resource);
     }
 
     @Override
@@ -174,26 +115,6 @@ public final class IsolatedCatalogFacade implements CatalogFacade {
     }
 
     @Override
-    public LayerInfo add(LayerInfo layer) {
-        return facade.add(layer);
-    }
-
-    @Override
-    public void remove(LayerInfo layer) {
-        facade.remove(layer);
-    }
-
-    @Override
-    public void save(LayerInfo layer) {
-        facade.save(layer);
-    }
-
-    @Override
-    public LayerInfo detach(LayerInfo layer) {
-        return facade.detach(layer);
-    }
-
-    @Override
     public LayerInfo getLayer(String id) {
         return enforceLayerIsolation(facade.getLayer(id));
     }
@@ -218,61 +139,6 @@ public final class IsolatedCatalogFacade implements CatalogFacade {
     @Override
     public List<LayerInfo> getLayers() {
         return filterIsolated(facade.getLayers(), LayerInfo.class, this::enforceLayerIsolation);
-    }
-
-    @Override
-    public MapInfo add(MapInfo map) {
-        return facade.add(map);
-    }
-
-    @Override
-    public void remove(MapInfo map) {
-        facade.remove(map);
-    }
-
-    @Override
-    public void save(MapInfo map) {
-        facade.save(map);
-    }
-
-    @Override
-    public MapInfo detach(MapInfo map) {
-        return facade.detach(map);
-    }
-
-    @Override
-    public MapInfo getMap(String id) {
-        return facade.getMap(id);
-    }
-
-    @Override
-    public MapInfo getMapByName(String name) {
-        return facade.getMapByName(name);
-    }
-
-    @Override
-    public List<MapInfo> getMaps() {
-        return facade.getMaps();
-    }
-
-    @Override
-    public LayerGroupInfo add(LayerGroupInfo layerGroup) {
-        return facade.add(layerGroup);
-    }
-
-    @Override
-    public void remove(LayerGroupInfo layerGroup) {
-        facade.remove(layerGroup);
-    }
-
-    @Override
-    public void save(LayerGroupInfo layerGroup) {
-        facade.save(layerGroup);
-    }
-
-    @Override
-    public LayerGroupInfo detach(LayerGroupInfo layerGroup) {
-        return facade.detach(layerGroup);
     }
 
     @Override
@@ -305,46 +171,6 @@ public final class IsolatedCatalogFacade implements CatalogFacade {
     }
 
     @Override
-    public NamespaceInfo add(NamespaceInfo namespace) {
-        return facade.add(namespace);
-    }
-
-    @Override
-    public void remove(NamespaceInfo namespace) {
-        facade.remove(namespace);
-    }
-
-    @Override
-    public void save(NamespaceInfo namespace) {
-        facade.save(namespace);
-    }
-
-    @Override
-    public NamespaceInfo detach(NamespaceInfo namespace) {
-        return facade.detach(namespace);
-    }
-
-    @Override
-    public NamespaceInfo getDefaultNamespace() {
-        return facade.getDefaultNamespace();
-    }
-
-    @Override
-    public void setDefaultNamespace(NamespaceInfo defaultNamespace) {
-        facade.setDefaultNamespace(defaultNamespace);
-    }
-
-    @Override
-    public NamespaceInfo getNamespace(String id) {
-        return facade.getNamespace(id);
-    }
-
-    @Override
-    public NamespaceInfo getNamespaceByPrefix(String prefix) {
-        return facade.getNamespaceByPrefix(prefix);
-    }
-
-    @Override
     public NamespaceInfo getNamespaceByURI(String uri) {
         NamespaceInfo localNamespace = getLocalNamespace();
         if (localNamespace != null && Objects.equals(localNamespace.getURI(), uri)) {
@@ -360,81 +186,6 @@ public final class IsolatedCatalogFacade implements CatalogFacade {
         }
         // no global namespace found
         return null;
-    }
-
-    @Override
-    public List<NamespaceInfo> getNamespacesByURI(String uri) {
-        return facade.getNamespacesByURI(uri);
-    }
-
-    @Override
-    public List<NamespaceInfo> getNamespaces() {
-        return facade.getNamespaces();
-    }
-
-    @Override
-    public WorkspaceInfo add(WorkspaceInfo workspace) {
-        return facade.add(workspace);
-    }
-
-    @Override
-    public void remove(WorkspaceInfo workspace) {
-        facade.remove(workspace);
-    }
-
-    @Override
-    public void save(WorkspaceInfo workspace) {
-        facade.save(workspace);
-    }
-
-    @Override
-    public WorkspaceInfo detach(WorkspaceInfo workspace) {
-        return facade.detach(workspace);
-    }
-
-    @Override
-    public WorkspaceInfo getDefaultWorkspace() {
-        return facade.getDefaultWorkspace();
-    }
-
-    @Override
-    public void setDefaultWorkspace(WorkspaceInfo workspace) {
-        facade.setDefaultWorkspace(workspace);
-    }
-
-    @Override
-    public WorkspaceInfo getWorkspace(String id) {
-        return facade.getWorkspace(id);
-    }
-
-    @Override
-    public WorkspaceInfo getWorkspaceByName(String name) {
-        return facade.getWorkspaceByName(name);
-    }
-
-    @Override
-    public List<WorkspaceInfo> getWorkspaces() {
-        return facade.getWorkspaces();
-    }
-
-    @Override
-    public StyleInfo add(StyleInfo style) {
-        return facade.add(style);
-    }
-
-    @Override
-    public void remove(StyleInfo style) {
-        facade.remove(style);
-    }
-
-    @Override
-    public void save(StyleInfo style) {
-        facade.save(style);
-    }
-
-    @Override
-    public StyleInfo detach(StyleInfo style) {
-        return facade.detach(style);
     }
 
     @Override
@@ -466,23 +217,9 @@ public final class IsolatedCatalogFacade implements CatalogFacade {
     }
 
     @Override
-    public void dispose() {
-        facade.dispose();
-    }
-
-    @Override
-    public void resolve() {
-        facade.resolve();
-    }
-
-    @Override
-    public void syncTo(CatalogFacade other) {
-        facade.syncTo(other);
-    }
-
-    @Override
     public <T extends CatalogInfo> int count(Class<T> of, Filter filter) {
         CloseableIterator<T> found = facade.list(of, filter, null, null);
+
         try (CloseableIterator<T> filtered = filterIsolated(of, found)) {
             int count = 0;
             while (filtered.hasNext()) {
@@ -491,11 +228,6 @@ public final class IsolatedCatalogFacade implements CatalogFacade {
             }
             return count;
         }
-    }
-
-    @Override
-    public boolean canSort(Class<? extends CatalogInfo> type, String propertyName) {
-        return facade.canSort(type, propertyName);
     }
 
     @Override
@@ -514,10 +246,6 @@ public final class IsolatedCatalogFacade implements CatalogFacade {
         // this wrapper adds support for isolated workspaces
         capabilities.setIsolatedWorkspacesSupport(true);
         return capabilities;
-    }
-
-    public static <T extends CatalogInfo> T any(Class<T> clazz) {
-        return CatalogFacade.any(clazz);
     }
 
     /**

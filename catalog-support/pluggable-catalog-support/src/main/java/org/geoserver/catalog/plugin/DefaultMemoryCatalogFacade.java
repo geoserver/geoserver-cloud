@@ -22,22 +22,23 @@ import org.geoserver.catalog.plugin.CatalogInfoLookup.WorkspaceInfoLookup;
  * Default catalog facade implementation using in-memory {@link CatalogRepository repositories} to
  * store the {@link CatalogInfo}
  */
-public class DefaultCatalogFacade extends AbstractCatalogFacade implements CatalogFacade {
+public class DefaultMemoryCatalogFacade extends RepositoryCatalogFacadeImpl
+        implements CatalogFacade {
 
-    public DefaultCatalogFacade() {
+    public DefaultMemoryCatalogFacade() {
         this(null);
     }
 
-    public DefaultCatalogFacade(Catalog catalog) {
+    public DefaultMemoryCatalogFacade(Catalog catalog) {
         super(catalog);
-        setNamespaces(new NamespaceInfoLookup());
-        setWorkspaces(new WorkspaceInfoLookup());
-        setStores(new StoreInfoLookup());
-        setLayers(new LayerInfoLookup());
-        setResources(new ResourceInfoLookup((LayerInfoLookup) layers));
-        setLayerGroups(new LayerGroupInfoLookup());
-        setMaps(new MapInfoLookup());
-        setStyles(new StyleInfoLookup());
+        setNamespaceRepository(new NamespaceInfoLookup());
+        setWorkspaceRepository(new WorkspaceInfoLookup());
+        setStoreRepository(new StoreInfoLookup());
+        setLayerRepository(new LayerInfoLookup());
+        setResourceRepository(new ResourceInfoLookup((LayerInfoLookup) layers));
+        setLayerGroupRepository(new LayerGroupInfoLookup());
+        setMapRepository(new MapInfoLookup());
+        setStyleRepository(new StyleInfoLookup());
     }
 
     public @Override void resolve() {

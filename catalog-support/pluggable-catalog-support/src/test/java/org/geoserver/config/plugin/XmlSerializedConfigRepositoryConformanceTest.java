@@ -4,7 +4,7 @@
  */
 package org.geoserver.config.plugin;
 
-import org.geoserver.catalog.plugin.CatalogImpl;
+import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerConfigConformanceTest;
 import org.geoserver.config.util.XStreamPersister;
@@ -13,7 +13,7 @@ import org.geoserver.config.util.XStreamPersisterFactory;
 public class XmlSerializedConfigRepositoryConformanceTest extends GeoServerConfigConformanceTest {
 
     protected @Override GeoServer createGeoServer() {
-        CatalogImpl catalog = new CatalogImpl();
+        CatalogPlugin catalog = new CatalogPlugin();
         GeoServerImpl gs = new GeoServerImpl();
         gs.setCatalog(catalog);
 

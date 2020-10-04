@@ -7,9 +7,9 @@ package org.geoserver.catalog.plugin;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogConformanceTest;
 
-public class CatalogImplConformanceTest extends CatalogConformanceTest {
+public class CatalogPluginConformanceTest extends CatalogConformanceTest {
 
     protected @Override Catalog createCatalog() {
-        return new org.geoserver.catalog.plugin.CatalogImpl();
+        return new org.geoserver.catalog.plugin.CatalogPlugin();
     }
 }
