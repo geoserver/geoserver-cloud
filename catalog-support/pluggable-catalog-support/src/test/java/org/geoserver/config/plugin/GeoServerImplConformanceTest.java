@@ -4,7 +4,6 @@
  */
 package org.geoserver.config.plugin;
 
-import org.geoserver.catalog.plugin.CatalogImpl;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerConfigConformanceTest;
@@ -17,7 +16,7 @@ public class GeoServerImplConformanceTest extends GeoServerConfigConformanceTest
 
     protected @Override GeoServer createGeoServer() {
         GeoServerImpl gs = new GeoServerImpl();
-        gs.setCatalog(new CatalogImpl());
+        gs.setCatalog(new CatalogPlugin());
         return gs;
     }
 }

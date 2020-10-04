@@ -16,7 +16,7 @@ import org.geoserver.config.util.XStreamPersisterFactory;
 public class XmlCatalogInfoLookupConformanceTest extends CatalogConformanceTest {
 
     protected @Override Catalog createCatalog() {
-        CatalogImpl catalog = new org.geoserver.catalog.plugin.CatalogImpl();
+        CatalogPlugin catalog = new org.geoserver.catalog.plugin.CatalogPlugin();
         XStreamPersisterFactory xpf = new XStreamPersisterFactory();
         XStreamPersister codec = xpf.createXMLPersister();
         codec.setCatalog(catalog);

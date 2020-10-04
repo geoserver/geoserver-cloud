@@ -32,7 +32,7 @@ public class PropertyDiffTest {
     public CatalogTestData data;
 
     public @Before void setup() {
-        Catalog catalog = new CatalogImpl();
+        Catalog catalog = new CatalogPlugin();
         data = CatalogTestData.empty(() -> catalog, () -> null).initConfig(false).initialize();
     }
 

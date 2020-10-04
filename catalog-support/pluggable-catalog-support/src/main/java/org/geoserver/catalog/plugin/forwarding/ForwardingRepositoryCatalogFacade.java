@@ -5,6 +5,8 @@
 package org.geoserver.catalog.plugin.forwarding;
 
 import org.geoserver.catalog.CatalogFacade;
+import org.geoserver.catalog.CatalogInfo;
+import org.geoserver.catalog.plugin.CatalogInfoRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerGroupRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.MapRepository;
@@ -95,5 +97,15 @@ public class ForwardingRepositoryCatalogFacade extends ForwardingExtendedCatalog
 
     protected RepositoryCatalogFacade facade() {
         return (RepositoryCatalogFacade) facade;
+    }
+
+    public @Override <T extends CatalogInfo, R extends CatalogInfoRepository<T>> R repository(
+            Class<T> of) {
+        return facade().repository(of);
+    }
+
+    public @Override <T extends CatalogInfo, R extends CatalogInfoRepository<T>> R repositoryFor(
+            T info) {
+        return facade().repositoryFor(info);
     }
 }

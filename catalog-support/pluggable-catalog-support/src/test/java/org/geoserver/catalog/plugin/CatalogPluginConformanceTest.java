@@ -10,6 +10,6 @@ import org.geoserver.catalog.CatalogConformanceTest;
 public class CatalogPluginConformanceTest extends CatalogConformanceTest {
 
     protected @Override Catalog createCatalog() {
-        return new org.geoserver.catalog.plugin.CatalogImpl();
+        return new org.geoserver.catalog.plugin.CatalogPlugin();
     }
 }

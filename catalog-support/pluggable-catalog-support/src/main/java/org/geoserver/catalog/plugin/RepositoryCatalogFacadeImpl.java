@@ -5,20 +5,11 @@
 package org.geoserver.catalog.plugin;
 
 import static java.lang.String.format;
-import static org.geoserver.catalog.impl.ClassMappings.LAYER;
-import static org.geoserver.catalog.impl.ClassMappings.LAYERGROUP;
-import static org.geoserver.catalog.impl.ClassMappings.MAP;
-import static org.geoserver.catalog.impl.ClassMappings.NAMESPACE;
-import static org.geoserver.catalog.impl.ClassMappings.RESOURCE;
-import static org.geoserver.catalog.impl.ClassMappings.STORE;
-import static org.geoserver.catalog.impl.ClassMappings.STYLE;
-import static org.geoserver.catalog.impl.ClassMappings.WORKSPACE;
 
 import java.lang.reflect.Proxy;
 import java.rmi.server.UID;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.EnumMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -34,7 +25,6 @@ import org.geoserver.catalog.CatalogCapabilities;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.DataStoreInfo;
-import org.geoserver.catalog.Info;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.LockingCatalogFacade;
@@ -45,59 +35,23 @@ import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
-import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.impl.ProxyUtils;
-import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerGroupRepository;
-import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerRepository;
-import org.geoserver.catalog.plugin.CatalogInfoRepository.MapRepository;
-import org.geoserver.catalog.plugin.CatalogInfoRepository.NamespaceRepository;
-import org.geoserver.catalog.plugin.CatalogInfoRepository.ResourceRepository;
-import org.geoserver.catalog.plugin.CatalogInfoRepository.StoreRepository;
-import org.geoserver.catalog.plugin.CatalogInfoRepository.StyleRepository;
-import org.geoserver.catalog.plugin.CatalogInfoRepository.WorkspaceRepository;
 import org.geoserver.ows.util.OwsUtils;
 import org.geotools.util.logging.Logging;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 import org.springframework.util.Assert;
 
-public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade {
+public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
+        implements RepositoryCatalogFacade {
 
     private static final Logger LOGGER = Logging.getLogger(RepositoryCatalogFacadeImpl.class);
 
-    protected NamespaceRepository namespaces;
-    protected WorkspaceRepository workspaces;
-    protected StoreRepository stores;
-    protected ResourceRepository resources;
-    protected LayerRepository layers;
-    protected LayerGroupRepository layerGroups;
-    protected MapRepository maps;
-    protected StyleRepository styles;
     protected Catalog catalog;
-
-    private final EnumMap<ClassMappings, Supplier<CatalogInfoRepository<?>>> repos;
 
     protected final CatalogCapabilities capabilities = new CatalogCapabilities();
 
-    private void registerRepository(ClassMappings cm, Supplier<CatalogInfoRepository<?>> repo) {
-        repos.put(cm, repo);
-        for (Class<? extends Info> c : cm.concreteInterfaces()) {
-            ClassMappings i = ClassMappings.fromInterface(c);
-            if (!cm.getInterface().equals(i.getInterface())) repos.put(i, repo);
-        }
-    }
-
-    public RepositoryCatalogFacadeImpl() {
-        repos = new EnumMap<>(ClassMappings.class);
-        registerRepository(WORKSPACE, () -> workspaces);
-        registerRepository(NAMESPACE, () -> namespaces);
-        registerRepository(STORE, () -> stores);
-        registerRepository(RESOURCE, () -> resources);
-        registerRepository(LAYER, () -> layers);
-        registerRepository(LAYERGROUP, () -> layerGroups);
-        registerRepository(STYLE, () -> styles);
-        registerRepository(MAP, () -> maps);
-    }
+    public RepositoryCatalogFacadeImpl() {}
 
     public RepositoryCatalogFacadeImpl(Catalog catalog) {
         this();
@@ -114,70 +68,6 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade {
 
     public @Override Catalog getCatalog() {
         return catalog;
-    }
-
-    public void setNamespaceRepository(NamespaceRepository namespaces) {
-        this.namespaces = namespaces;
-    }
-
-    public void setWorkspaceRepository(WorkspaceRepository workspaces) {
-        this.workspaces = workspaces;
-    }
-
-    public void setStoreRepository(StoreRepository stores) {
-        this.stores = stores;
-    }
-
-    public void setResourceRepository(ResourceRepository resources) {
-        this.resources = resources;
-    }
-
-    public void setLayerRepository(LayerRepository layers) {
-        this.layers = layers;
-    }
-
-    public void setLayerGroupRepository(LayerGroupRepository layerGroups) {
-        this.layerGroups = layerGroups;
-    }
-
-    public void setStyleRepository(StyleRepository styles) {
-        this.styles = styles;
-    }
-
-    public void setMapRepository(MapRepository maps) {
-        this.maps = maps;
-    }
-
-    public @Override NamespaceRepository getNamespaceRepository() {
-        return namespaces;
-    }
-
-    public @Override WorkspaceRepository getWorkspaceRepository() {
-        return workspaces;
-    }
-
-    public @Override StoreRepository getStoreRepository() {
-        return stores;
-    }
-
-    public @Override ResourceRepository getResourceRepository() {
-        return resources;
-    }
-
-    public @Override LayerRepository getLayerRepository() {
-        return layers;
-    }
-
-    public @Override LayerGroupRepository getLayerGroupRepository() {
-        return layerGroups;
-    }
-
-    public @Override StyleRepository getStyleRepository() {
-        return styles;
-    }
-
-    public @Override MapRepository getMapRepository() {
-        return maps;
     }
 
     public @Override void resolve() {
@@ -381,15 +271,15 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade {
     // Layer groups
     //
     public @Override LayerGroupInfo add(LayerGroupInfo layerGroup) {
-        return add(layerGroup, LayerGroupInfo.class, layerGroups);
+        return add(layerGroup, LayerGroupInfo.class, getLayerGroupRepository());
     }
 
     public @Override void remove(LayerGroupInfo layerGroup) {
-        layerGroups.remove(layerGroup);
+        getLayerGroupRepository().remove(layerGroup);
     }
 
     public @Override List<LayerGroupInfo> getLayerGroups() {
-        return toList(layerGroups::findAll);
+        return toList(getLayerGroupRepository()::findAll);
     }
 
     public @Override List<LayerGroupInfo> getLayerGroupsByWorkspace(WorkspaceInfo workspace) {
@@ -403,15 +293,15 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade {
         }
         Stream<LayerGroupInfo> matches;
         if (workspace == NO_WORKSPACE) {
-            matches = layerGroups.findAllByWorkspaceIsNull();
+            matches = getLayerGroupRepository().findAllByWorkspaceIsNull();
         } else {
-            matches = layerGroups.findAllByWorkspace(ws);
+            matches = getLayerGroupRepository().findAllByWorkspace(ws);
         }
         return toList(() -> matches);
     }
 
     public @Override LayerGroupInfo getLayerGroup(String id) {
-        return layerGroups.findById(id, LayerGroupInfo.class).orElse(null);
+        return getLayerGroupRepository().findById(id, LayerGroupInfo.class).orElse(null);
     }
 
     public @Override LayerGroupInfo getLayerGroupByName(String name) {
@@ -421,12 +311,14 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade {
     public @Override LayerGroupInfo getLayerGroupByName(WorkspaceInfo workspace, String name) {
 
         if (workspace == NO_WORKSPACE)
-            return layerGroups.findByNameAndWorkspaceIsNull(name).orElse(null);
+            return getLayerGroupRepository().findByNameAndWorkspaceIsNull(name).orElse(null);
 
         if (ANY_WORKSPACE == workspace)
-            return layerGroups.findFirstByName(name, LayerGroupInfo.class).orElse(null);
+            return getLayerGroupRepository()
+                    .findFirstByName(name, LayerGroupInfo.class)
+                    .orElse(null);
 
-        return layerGroups.findByNameAndWorkspace(name, workspace).orElse(null);
+        return getLayerGroupRepository().findByNameAndWorkspace(name, workspace).orElse(null);
     }
 
     //
@@ -738,18 +630,8 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade {
 
     public @Override <I extends CatalogInfo> I update(I info, Patch patch) {
         checkNotAProxy(info);
-        CatalogInfoRepository<I> repo = repository(info.getClass());
+        CatalogInfoRepository<I> repo = repositoryFor(info);
         return repo.update(info, patch);
-    }
-
-    @SuppressWarnings("unchecked")
-    protected <I extends CatalogInfo, R extends CatalogInfoRepository<I>> R repository(
-            Class<? extends CatalogInfo> of) {
-        ClassMappings cm = ClassMappings.fromImpl(of);
-        if (cm == null) cm = ClassMappings.fromInterface(of);
-        R repo = (R) repos.get(cm).get();
-        if (repo == null) throw new IllegalArgumentException("Unknown type: " + of);
-        return repo;
     }
 
     private static void checkNotAProxy(CatalogInfo value) {

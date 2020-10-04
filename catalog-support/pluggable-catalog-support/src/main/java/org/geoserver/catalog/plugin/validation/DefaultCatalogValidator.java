@@ -34,7 +34,7 @@ import org.geoserver.catalog.SLDNamedLayerValidator;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
-import org.geoserver.catalog.plugin.CatalogImpl;
+import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geotools.styling.StyledLayerDescriptor;
 import org.geotools.util.logging.Logging;
 
@@ -192,7 +192,7 @@ public class DefaultCatalogValidator implements CatalogValidator {
                 layer.prefixedName());
 
         final String prefix = ns != null ? ns.getPrefix() : null;
-        LayerInfo existing = CatalogImpl.getLayerByName(catalog, prefix, layer.getName());
+        LayerInfo existing = CatalogPlugin.getLayerByName(catalog, prefix, layer.getName());
         checkArgument(
                 existing == null || existing.getId().equals(layer.getId()),
                 "Layer named '%s' in workspace '%s' already exists.",

@@ -4,6 +4,7 @@
  */
 package org.geoserver.catalog.plugin;
 
+import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerGroupRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.MapRepository;
@@ -14,6 +15,10 @@ import org.geoserver.catalog.plugin.CatalogInfoRepository.StyleRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.WorkspaceRepository;
 
 public interface CatalogInfoRepositoryHolder {
+
+    <T extends CatalogInfo, R extends CatalogInfoRepository<T>> R repository(Class<T> of);
+
+    <T extends CatalogInfo, R extends CatalogInfoRepository<T>> R repositoryFor(T info);
 
     void setNamespaceRepository(NamespaceRepository namespaces);
 
