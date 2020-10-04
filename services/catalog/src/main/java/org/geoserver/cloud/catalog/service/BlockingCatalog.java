@@ -67,7 +67,7 @@ public class BlockingCatalog extends AbstractCatalogDecorator {
         // Make sure isolated workspaces can be created/updated
         if (rawCatalog instanceof org.geoserver.catalog.plugin.CatalogPlugin) {
             CatalogPlugin impl = ((org.geoserver.catalog.plugin.CatalogPlugin) rawCatalog);
-            impl.getRawCatalogFacade().getCatalogCapabilities().setIsolatedWorkspacesSupport(true);
+            impl.getRawFacade().getCatalogCapabilities().setIsolatedWorkspacesSupport(true);
         } else if (rawCatalog instanceof org.geoserver.catalog.impl.CatalogImpl) {
             org.geoserver.catalog.impl.CatalogImpl impl =
                     ((org.geoserver.catalog.impl.CatalogImpl) rawCatalog);

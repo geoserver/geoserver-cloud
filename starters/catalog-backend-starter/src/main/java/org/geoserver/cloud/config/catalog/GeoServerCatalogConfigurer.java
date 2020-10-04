@@ -8,7 +8,6 @@ import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.LayerGroupVisibilityPolicy;
 import org.geoserver.catalog.impl.AdvertisedCatalog;
-import org.geoserver.catalog.impl.CatalogImpl;
 import org.geoserver.catalog.impl.LocalWorkspaceCatalog;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
@@ -31,17 +30,13 @@ public interface GeoServerCatalogConfigurer {
             @Qualifier("catalogFacade") CatalogFacade catalogFacade,
             CatalogProperties properties) {
 
-        CatalogImpl rawCatalog;
+        Catalog rawCatalog;
         if ((catalogFacade instanceof ExtendedCatalogFacade)) {
-            if (properties.isIsolated()) {
-                rawCatalog = CatalogPlugin.isoLated(catalogFacade);
-                rawCatalog.setFacade(catalogFacade);
-            } else {
-                rawCatalog = CatalogPlugin.nonIsolated(catalogFacade);
-            }
+            boolean isolated = properties.isIsolated();
+            rawCatalog = new CatalogPlugin(catalogFacade, isolated);
         } else {
             rawCatalog = new org.geoserver.catalog.impl.CatalogImpl();
-            rawCatalog.setFacade(catalogFacade);
+            ((org.geoserver.catalog.impl.CatalogImpl) rawCatalog).setFacade(catalogFacade);
         }
         rawCatalog.setResourceLoader(resourceLoader);
         return rawCatalog;

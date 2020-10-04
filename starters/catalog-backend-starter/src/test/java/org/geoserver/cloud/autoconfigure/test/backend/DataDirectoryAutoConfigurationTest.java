@@ -54,7 +54,7 @@ public class DataDirectoryAutoConfigurationTest extends GeoServerBackendConfigur
         Assume.assumeTrue(rawCatalog instanceof org.geoserver.catalog.plugin.CatalogPlugin);
         assertSame(
                 rawCatalogFacade,
-                ((org.geoserver.catalog.plugin.CatalogPlugin) rawCatalog).getRawCatalogFacade());
+                ((org.geoserver.catalog.plugin.CatalogPlugin) rawCatalog).getRawFacade());
     }
 
     public @Test void testCatalogFacade() {
@@ -64,7 +64,7 @@ public class DataDirectoryAutoConfigurationTest extends GeoServerBackendConfigur
                 instanceOf(org.geoserver.catalog.plugin.DefaultMemoryCatalogFacade.class));
         assertSame(
                 rawCatalogFacade,
-                ((org.geoserver.catalog.plugin.CatalogPlugin) rawCatalog).getRawCatalogFacade());
+                ((org.geoserver.catalog.plugin.CatalogPlugin) rawCatalog).getRawFacade());
     }
 
     public @Test void testResourceLoader() {

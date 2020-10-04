@@ -65,7 +65,7 @@ public class CatalogServiceBackendAutoConfigurationTest {
                     CatalogPlugin catalog = context.getBean("rawCatalog", CatalogPlugin.class);
                     CatalogFacade rawCatalogFacade =
                             context.getBean("catalogFacade", CatalogFacade.class);
-                    assertSame(rawCatalogFacade, catalog.getRawCatalogFacade());
+                    assertSame(rawCatalogFacade, catalog.getRawFacade());
                 });
     }
 

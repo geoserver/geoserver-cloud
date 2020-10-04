@@ -50,7 +50,7 @@ public class CatalogClientConfiguration {
         rawFacade.setLayerGroupRepository(cloudLayerGroupRepository);
         rawFacade.setStyleRepository(cloudStyleRepository);
         rawFacade.setMapRepository(cloudMapRepository);
-        
+
         CatalogServiceCatalogFacade facade = new CatalogServiceCatalogFacade(rawFacade);
         return facade;
     }
