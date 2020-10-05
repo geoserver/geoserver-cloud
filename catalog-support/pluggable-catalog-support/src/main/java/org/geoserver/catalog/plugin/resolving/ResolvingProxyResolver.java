@@ -23,9 +23,10 @@ import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ResolvingProxy;
+import org.geoserver.catalog.plugin.forwarding.ResolvingCatalogFacadeDecorator;
 
 /**
- * {@link ResolvingCatalogFacade#setObjectResolver resolving function} that resolves {@link
+ * {@link ResolvingCatalogFacadeDecorator#setObjectResolver resolving function} that resolves {@link
  * CatalogInfo} properties that are proxied through {@link ResolvingProxy} before returning the
  * object from the facade.
  *

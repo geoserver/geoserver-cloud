@@ -9,13 +9,13 @@ import lombok.NonNull;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
+import org.geoserver.catalog.plugin.forwarding.ResolvingCatalogFacadeDecorator;
 import org.geoserver.catalog.plugin.resolving.CatalogPropertyResolver;
 import org.geoserver.catalog.plugin.resolving.CollectionPropertiesInitializer;
 import org.geoserver.catalog.plugin.resolving.ModificationProxyDecorator;
-import org.geoserver.catalog.plugin.resolving.ResolvingCatalogFacade;
 import org.geoserver.catalog.plugin.resolving.ResolvingProxyResolver;
 
-public class CatalogServiceCatalogFacade extends ResolvingCatalogFacade {
+public class CatalogServiceCatalogFacade extends ResolvingCatalogFacadeDecorator {
 
     public CatalogServiceCatalogFacade(@NonNull ExtendedCatalogFacade rawFacade) {
         super(rawFacade);

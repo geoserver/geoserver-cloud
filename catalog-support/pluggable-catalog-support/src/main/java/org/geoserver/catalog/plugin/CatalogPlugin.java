@@ -57,8 +57,8 @@ import org.geoserver.catalog.impl.DefaultCatalogFacade;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.impl.ProxyUtils;
 import org.geoserver.catalog.impl.ResolvingProxy;
+import org.geoserver.catalog.plugin.forwarding.ResolvingCatalogFacadeDecorator;
 import org.geoserver.catalog.plugin.resolving.ModificationProxyDecorator;
-import org.geoserver.catalog.plugin.resolving.ResolvingCatalogFacade;
 import org.geoserver.catalog.plugin.rules.CatalogBusinessRules;
 import org.geoserver.catalog.plugin.rules.CatalogOpContext;
 import org.geoserver.catalog.plugin.validation.CatalogValidationRules;
@@ -121,8 +121,8 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
 
     /**
      * Original data access facade provided at {@link #setFacade(CatalogFacade)}, may or may be not
-     * a {@link ResolvingCatalogFacade}. If not, {@link #facade} will be a resolving decorator to
-     * allow traits to be added.
+     * a {@link ResolvingCatalogFacadeDecorator}. If not, {@link #facade} will be a resolving
+     * decorator to allow traits to be added.
      */
     protected CatalogFacade rawFacade;
 
@@ -216,7 +216,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
         if (this.isolated) {
             efacade = new IsolatedCatalogFacade(efacade);
         }
-        ResolvingCatalogFacade resolving = new ResolvingCatalogFacade(efacade);
+        ResolvingCatalogFacadeDecorator resolving = new ResolvingCatalogFacadeDecorator(efacade);
         // make sure no object leaves without being proxies, nor enters the facade as a proxy. Note
         // it is ok if the provided facade is already a ResolvingCatalogFacade. This catalog doesn't
         // care which object resolution chain the provided facade needs to perform.
@@ -1142,9 +1142,9 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
      *
      * <p>(GR)REVISIT: what do ResolvingProxy instances have to do with a default catalog
      * implementation? this is not even API. It's up to the calling code to resolve objects and
-     * provide valid input. The {@link ResolvingCatalogFacade} can be of good use for the default
-     * geoserver loader here, while it should load in order to guarantee presence of dependent
-     * objects.
+     * provide valid input. The {@link ResolvingCatalogFacadeDecorator} can be of good use for the
+     * default geoserver loader here, while it should load in order to guarantee presence of
+     * dependent objects.
      */
     public void resolve() {
         facade.setCatalog(this);
@@ -1287,7 +1287,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
         try {
             // note info will be unwrapped before being given to the raw facade by the inbound
             // resolving function set at #setFacade
-            I updated = ((ResolvingCatalogFacade) facade).update(info, patch);
+            I updated = ((ResolvingCatalogFacadeDecorator) facade).update(info, patch);
 
             // commit proxy, making effective the change in the provided object. Has no effect in
             // what's been passed to the facade

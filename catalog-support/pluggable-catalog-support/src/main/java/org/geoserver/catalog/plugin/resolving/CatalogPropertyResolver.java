@@ -13,10 +13,12 @@ import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.impl.StoreInfoImpl;
 import org.geoserver.catalog.impl.StyleInfoImpl;
+import org.geoserver.catalog.plugin.forwarding.ResolvingCatalogFacadeDecorator;
 
 /**
- * {@link ResolvingCatalogFacade#setObjectResolver resolving function} to set the {@link Catalog}
- * property on {@link CatalogInfo} objects that require it before returning them from the facade.
+ * {@link ResolvingCatalogFacadeDecorator#setObjectResolver resolving function} to set the {@link
+ * Catalog} property on {@link CatalogInfo} objects that require it before returning them from the
+ * facade.
  *
  * @see StoreInfo#getCatalog()
  * @see ResourceInfo#getCatalog()

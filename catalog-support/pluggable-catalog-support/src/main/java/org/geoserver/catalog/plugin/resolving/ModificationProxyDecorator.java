@@ -9,10 +9,11 @@ import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.impl.ProxyUtils;
+import org.geoserver.catalog.plugin.forwarding.ResolvingCatalogFacadeDecorator;
 
 /**
- * {@link ResolvingCatalogFacade#setObjectResolver resolving function} that returns the incoming
- * object decorated with a {@link ModificationProxy}
+ * {@link ResolvingCatalogFacadeDecorator#setObjectResolver resolving function} that returns the
+ * incoming object decorated with a {@link ModificationProxy}
  *
  * @see ModificationProxy#create(Object, Class)
  */

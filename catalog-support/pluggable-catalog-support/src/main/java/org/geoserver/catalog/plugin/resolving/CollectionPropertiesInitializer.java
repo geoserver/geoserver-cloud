@@ -6,11 +6,12 @@ package org.geoserver.catalog.plugin.resolving;
 
 import java.util.function.Function;
 import org.geoserver.catalog.impl.ModificationProxy;
+import org.geoserver.catalog.plugin.forwarding.ResolvingCatalogFacadeDecorator;
 import org.geoserver.ows.util.OwsUtils;
 
 /**
- * {@link ResolvingCatalogFacade#setObjectResolver resolving function} that returns the incoming
- * object decorated with a {@link ModificationProxy}
+ * {@link ResolvingCatalogFacadeDecorator#setObjectResolver resolving function} that returns the
+ * incoming object decorated with a {@link ModificationProxy}
  *
  * @see OwsUtils#resolveCollections
  */
