@@ -32,12 +32,8 @@ public class DefaultWorkspaceInfoRules implements CatalogInfoBusinessRules<Works
      * #beforeAdd} and the operation was successful.
      */
     public @Override void afterAdd(CatalogOpContext<WorkspaceInfo> context) {
-        if (context.isSuccess()) {
-            Boolean needsSetDefault = context.getContextOption(SET_DEFAULT);
-            if (needsSetDefault.booleanValue()) {
-                setAsDefaultIfThereIsNoDefaultWorkspace(context.getCatalog(), context.getObject());
-            }
-        }
+        // there's only this rule so far:
+        setAsDefaultIfThereWasNoDefaultWorkspace(context);
     }
 
     /**
@@ -50,11 +46,12 @@ public class DefaultWorkspaceInfoRules implements CatalogInfoBusinessRules<Works
         }
     }
 
-    private void setAsDefaultIfThereIsNoDefaultWorkspace(Catalog catalog, WorkspaceInfo workspace) {
-        // if there is no default workspace use this one as the default
-        WorkspaceInfo defaultWorkspace = catalog.getDefaultWorkspace();
-        if (defaultWorkspace == null) {
-            catalog.setDefaultWorkspace(workspace);
+    private void setAsDefaultIfThereWasNoDefaultWorkspace(CatalogOpContext<WorkspaceInfo> context) {
+        if (context.isSuccess()) {
+            Boolean needsSetDefault = context.getContextOption(SET_DEFAULT);
+            if (needsSetDefault.booleanValue()) {
+                context.getCatalog().setDefaultWorkspace(context.getObject());
+            }
         }
     }
 

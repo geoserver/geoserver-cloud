@@ -2001,6 +2001,9 @@ public abstract class CatalogConformanceTest {
     /**
      * This test cannot work, the catalog subsystem is not thread safe, that's why we have the
      * configuration locks. Re-enable when the catalog subsystem is made thread safe.
+     *
+     * <p><b>NOTE</b> this actually runs now, it just takes an awful amount of time to execute.
+     * Revisit.
      */
     @Test
     @Ignore

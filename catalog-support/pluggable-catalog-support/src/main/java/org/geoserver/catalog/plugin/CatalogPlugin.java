@@ -1277,7 +1277,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
         fireModified(info, propertyNames, oldValues, newValues);
 
         // this could be the event's payload instead of three separate lists
-        PropertyDiff diff = PropertyDiff.valueOf(proxy).clean();
+        PropertyDiff diff = PropertyDiff.valueOf(proxy);
         Patch patch = diff.toPatch();
         CatalogOpContext<I> context = new CatalogOpContext<>(this, info, diff);
         businessRules.onBeforeSave(context);

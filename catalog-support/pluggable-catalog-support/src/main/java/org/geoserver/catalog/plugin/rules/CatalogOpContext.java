@@ -8,8 +8,10 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BooleanSupplier;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
+import org.geoserver.catalog.plugin.CatalogInfoTypeRegistry;
 import org.geoserver.catalog.plugin.PropertyDiff;
 
 /**
@@ -102,5 +104,27 @@ public class CatalogOpContext<T extends CatalogInfo> {
             operationContext = new HashMap<>();
         }
         operationContext.put(key, value);
+    }
+
+    public void set(String key, BooleanSupplier condition) {
+        boolean value = condition.getAsBoolean();
+        setContextOption(key, Boolean.valueOf(value));
+    }
+
+    public boolean is(String key) {
+        Boolean value = getContextOption(key);
+        return value == null ? false : value;
+    }
+
+    /** @return {@code this} type narrowed to a sub type of {@code <T>} */
+    @SuppressWarnings("unchecked")
+    public <S extends T> CatalogOpContext<S> as(Class<S> subtype) {
+        if (subtype.isInstance(object)) return (CatalogOpContext<S>) this;
+        throw new IllegalArgumentException(
+                String.format(
+                        "%s<%s> can't be type narrowed to <%s>",
+                        getClass().getSimpleName(),
+                        CatalogInfoTypeRegistry.determineKey(object.getClass()),
+                        subtype.getSimpleName()));
     }
 }

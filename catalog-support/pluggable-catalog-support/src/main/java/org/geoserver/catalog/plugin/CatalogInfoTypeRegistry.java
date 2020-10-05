@@ -89,7 +89,7 @@ public class CatalogInfoTypeRegistry<R> {
         return mappings.get(key);
     }
 
-    private <T extends CatalogInfo> ClassMappings determineKey(Class<T> type) {
+    public static <T extends CatalogInfo> ClassMappings determineKey(Class<T> type) {
         ClassMappings cm =
                 type.isInterface()
                         ? ClassMappings.fromInterface(type)

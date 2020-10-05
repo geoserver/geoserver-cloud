@@ -32,6 +32,11 @@ public class DefaultNamespaceInfoRules implements CatalogInfoBusinessRules<Names
      * #beforeAdd} and the operation was successful.
      */
     public @Override void afterAdd(CatalogOpContext<NamespaceInfo> context) {
+        setAsDefaultIfThereWasNoDefaultNamespace(context);
+    }
+
+    protected void setAsDefaultIfThereWasNoDefaultNamespace(
+            CatalogOpContext<NamespaceInfo> context) {
         if (context.isSuccess()) {
             Boolean needsSetDefault = context.getContextOption(SET_DEFAULT);
             if (needsSetDefault.booleanValue()) {
