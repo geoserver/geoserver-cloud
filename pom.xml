@@ -12,8 +12,8 @@
     <maven.compiler.target>1.8</maven.compiler.target>
     <spring-cloud.version>Hoxton.SR8</spring-cloud.version>
     <spring-boot.version>2.3.3.RELEASE</spring-boot.version>
-    <gs.version>2.18-SNAPSHOT</gs.version>
-    <gt.version>24-SNAPSHOT</gt.version>
+    <gs.version>2.19-SNAPSHOT</gs.version>
+    <gt.version>25-SNAPSHOT</gt.version>
     <fmt.action>format</fmt.action>
     <fmt.skip>false</fmt.skip>
     <fork.javac>true</fork.javac>
@@ -727,8 +727,8 @@
     <profile>
       <id>geoserver_stable_version</id>
       <properties>
-        <gs.version>2.17.2</gs.version>
-        <gt.version>23.2</gt.version>
+        <gs.version>2.18.0</gs.version>
+        <gt.version>24.0</gt.version>
       </properties>
     </profile>
   </profiles>
