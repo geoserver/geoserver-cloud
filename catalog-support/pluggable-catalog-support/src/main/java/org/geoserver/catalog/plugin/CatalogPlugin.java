@@ -13,7 +13,6 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.logging.Level;
@@ -52,6 +51,7 @@ import org.geoserver.catalog.event.impl.CatalogModifyEventImpl;
 import org.geoserver.catalog.event.impl.CatalogPostModifyEventImpl;
 import org.geoserver.catalog.event.impl.CatalogRemoveEventImpl;
 import org.geoserver.catalog.impl.CatalogFactoryImpl;
+import org.geoserver.catalog.impl.CatalogImpl;
 import org.geoserver.catalog.impl.DefaultCatalogFacade;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.impl.ProxyUtils;
@@ -62,6 +62,9 @@ import org.geoserver.catalog.plugin.rules.CatalogBusinessRules;
 import org.geoserver.catalog.plugin.rules.CatalogOpContext;
 import org.geoserver.catalog.plugin.validation.CatalogValidationRules;
 import org.geoserver.catalog.util.CloseableIterator;
+import org.geoserver.config.GeoServerLoader;
+import org.geoserver.config.impl.GeoServerImpl;
+import org.geoserver.config.util.XStreamPersister;
 import org.geoserver.platform.ExtensionPriority;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geotools.util.SuppressFBWarnings;
@@ -98,9 +101,18 @@ import org.opengis.filter.sort.SortBy;
  *       order to keep the {@code ModificationProxy} logic local to this catalog implementation, and
  *       let the backend (facade) implement atomic updates as it fits it better.
  * </ul>
+ *
+ * <p>NOTE: subclass of {@link CatalogImpl} due to several unchecked casts in {@link
+ * GeoServerLoader}, {@link GeoServerImpl}, {@link XStreamPersister}, {@link DefaultCatalogFacade}
+ * and others. We should really code to the interface and leave non API code out of CatalogImpl and
+ * into helper classes!
  */
-@SuppressWarnings("serial")
-public class CatalogPlugin implements Catalog {
+@SuppressWarnings({
+    "serial",
+    "rawtypes",
+    "unchecked"
+}) // REMOVE once we can not inherit from CatalogImpl
+public class CatalogPlugin extends CatalogImpl implements Catalog {
 
     /** logger */
     private static final Logger LOGGER = Logging.getLogger(CatalogPlugin.class);
@@ -120,15 +132,15 @@ public class CatalogPlugin implements Catalog {
      * leaves the facade without being decorated with a {@link ModificationProxy}, nor gets into the
      * facade without its {@link ModificationProxy} decorator being removed.
      */
-    protected ResolvingCatalogFacade facade;
+    //    protected ResolvingCatalogFacade facade;
 
     /** listeners */
-    protected List<CatalogListener> listeners = new CopyOnWriteArrayList<>();
+    //    protected List<CatalogListener> listeners = new CopyOnWriteArrayList<>();
 
     /** resources */
-    protected ResourcePool resourcePool;
+    //    protected ResourcePool resourcePool;
 
-    protected GeoServerResourceLoader resourceLoader;
+    //    protected GeoServerResourceLoader resourceLoader;
 
     /** Handles {@link CatalogInfo} validation rules before adding or updating an object */
     protected final CatalogValidationRules validationSupport;
@@ -186,13 +198,16 @@ public class CatalogPlugin implements Catalog {
         // if (configurationLock != null) {
         // facade = LockingCatalogFacade.create(facade, configurationLock);
         // }
+        this.rawFacade = facade;
         ExtendedCatalogFacade efacade;
         Function<CatalogInfo, CatalogInfo> outboundResolver = Function.identity();
+        Function<CatalogInfo, CatalogInfo> inboundResolver = Function.identity();
         if (facade instanceof ExtendedCatalogFacade) {
             efacade = (ExtendedCatalogFacade) facade;
+            outboundResolver = ModificationProxyDecorator.wrap();
+            inboundResolver = ModificationProxyDecorator.unwrap();
         } else {
             efacade = new CatalogFacadeExtensionAdapter(facade);
-            outboundResolver = ModificationProxyDecorator.unwrap();
         }
         // decorate the default catalog facade with one capable of handling isolated workspaces
         // behavior
@@ -203,8 +218,8 @@ public class CatalogPlugin implements Catalog {
         // make sure no object leaves without being proxies, nor enters the facade as a proxy. Note
         // it is ok if the provided facade is already a ResolvingCatalogFacade. This catalog doesn't
         // care which object resolution chain the provided facade needs to perform.
-        resolving.setOutboundResolver(outboundResolver.andThen(ModificationProxyDecorator.wrap()));
-        resolving.setInboundResolver(ModificationProxyDecorator::unwrap);
+        resolving.setOutboundResolver(outboundResolver);
+        resolving.setInboundResolver(inboundResolver);
         this.facade = resolving;
         this.facade.setCatalog(this);
     }
@@ -306,7 +321,7 @@ public class CatalogPlugin implements Catalog {
         return unmodifiableList(facade.getStoresByWorkspace(workspace, clazz));
     }
 
-    public @Override <T extends StoreInfo> List<T> getStores(Class<T> clazz) {
+    public @Override /*<T extends StoreInfo> List<T>*/ List getStores(Class /*<T>*/ clazz) {
         return unmodifiableList(facade.getStores(clazz));
     }
 
@@ -471,12 +486,12 @@ public class CatalogPlugin implements Catalog {
         }
     }
 
-    public @Override <T extends ResourceInfo> List<T> getResources(Class<T> clazz) {
+    public @Override /*<T extends ResourceInfo> List<T>*/ List getResources(Class /*<T>*/ clazz) {
         return unmodifiableList(facade.getResources(clazz));
     }
 
-    public @Override <T extends ResourceInfo> List<T> getResourcesByNamespace(
-            NamespaceInfo namespace, Class<T> clazz) {
+    public @Override /*<T extends ResourceInfo> List<T>*/ List getResourcesByNamespace(
+            NamespaceInfo namespace, Class /*<T>*/ clazz) {
         return unmodifiableList(facade.getResourcesByNamespace(namespace, clazz));
     }
 
@@ -1012,7 +1027,7 @@ public class CatalogPlugin implements Catalog {
         listeners.remove(listener);
     }
 
-    public @Override void removeListeners(@SuppressWarnings("rawtypes") Class listenerClass) {
+    public @Override void removeListeners(Class listenerClass) {
         new ArrayList<>(listeners)
                 .stream()
                 .filter(l -> listenerClass.isInstance(l))
@@ -1055,10 +1070,7 @@ public class CatalogPlugin implements Catalog {
     }
 
     public @Override void fireModified(
-            CatalogInfo object,
-            List<String> propertyNames,
-            @SuppressWarnings("rawtypes") List oldValues,
-            @SuppressWarnings("rawtypes") List newValues) {
+            CatalogInfo object, List propertyNames, List oldValues, List newValues) {
         CatalogModifyEventImpl event = new CatalogModifyEventImpl();
 
         event.setSource(object);
@@ -1070,10 +1082,7 @@ public class CatalogPlugin implements Catalog {
     }
 
     public @Override void firePostModified(
-            CatalogInfo object,
-            List<String> propertyNames,
-            @SuppressWarnings("rawtypes") List oldValues,
-            @SuppressWarnings("rawtypes") List newValues) {
+            CatalogInfo object, List propertyNames, List oldValues, List newValues) {
         CatalogPostModifyEventImpl event = new CatalogPostModifyEventImpl();
         event.setSource(object);
         event.setPropertyNames(propertyNames);
@@ -1146,10 +1155,6 @@ public class CatalogPlugin implements Catalog {
         if (resourcePool == null) {
             resourcePool = ResourcePool.create(this);
         }
-    }
-
-    <T extends CatalogInfo> T detached(T original, T detached) {
-        return detached != null ? detached : original;
     }
 
     public void sync(Catalog other) {
@@ -1279,7 +1284,7 @@ public class CatalogPlugin implements Catalog {
         try {
             // note info will be unwrapped before being given to the raw facade by the inbound
             // resolving function set at #setFacade
-            I updated = facade.update(info, patch);
+            I updated = ((ResolvingCatalogFacade) facade).update(info, patch);
 
             // commit proxy, making effective the change in the provided object. Has no effect in
             // what's been passed to the facade
@@ -1307,5 +1312,9 @@ public class CatalogPlugin implements Catalog {
             }
         }
         fireRemoved(object);
+    }
+
+    <T extends CatalogInfo> T detached(T original, T detached) {
+        return detached != null ? detached : original;
     }
 }
