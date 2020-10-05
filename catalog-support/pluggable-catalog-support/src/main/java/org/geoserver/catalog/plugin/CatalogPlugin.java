@@ -109,11 +109,8 @@ import org.opengis.filter.sort.SortBy;
  * and others. We should really code to the interface and leave non API code out of CatalogImpl and
  * into helper classes!
  */
-@SuppressWarnings({
-    "serial",
-    "rawtypes",
-    "unchecked"
-}) // REMOVE once we can not inherit from CatalogImpl
+@SuppressWarnings({"serial", "rawtypes", "unchecked"}) // REMOVE once we can not inherit from
+// CatalogImpl
 public class CatalogPlugin extends CatalogImpl implements Catalog {
 
     /** logger */
@@ -134,15 +131,15 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
      * leaves the facade without being decorated with a {@link ModificationProxy}, nor gets into the
      * facade without its {@link ModificationProxy} decorator being removed.
      */
-    //    protected ResolvingCatalogFacade facade;
+    // protected ResolvingCatalogFacade facade;
 
     /** listeners */
-    //    protected List<CatalogListener> listeners = new CopyOnWriteArrayList<>();
+    // protected List<CatalogListener> listeners = new CopyOnWriteArrayList<>();
 
     /** resources */
-    //    protected ResourcePool resourcePool;
+    // protected ResourcePool resourcePool;
 
-    //    protected GeoServerResourceLoader resourceLoader;
+    // protected GeoServerResourceLoader resourceLoader;
 
     /** Handles {@link CatalogInfo} validation rules before adding or updating an object */
     protected final CatalogValidationRules validationSupport;
@@ -323,7 +320,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
         return unmodifiableList(facade.getStoresByWorkspace(workspace, clazz));
     }
 
-    public @Override /*<T extends StoreInfo> List<T>*/ List getStores(Class /*<T>*/ clazz) {
+    public @Override /* <T extends StoreInfo> List<T> */ List getStores(Class /* <T> */ clazz) {
         return unmodifiableList(facade.getStores(clazz));
     }
 
@@ -488,12 +485,13 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
         }
     }
 
-    public @Override /*<T extends ResourceInfo> List<T>*/ List getResources(Class /*<T>*/ clazz) {
+    public @Override /* <T extends ResourceInfo> List<T> */ List getResources(
+            Class /* <T> */ clazz) {
         return unmodifiableList(facade.getResources(clazz));
     }
 
-    public @Override /*<T extends ResourceInfo> List<T>*/ List getResourcesByNamespace(
-            NamespaceInfo namespace, Class /*<T>*/ clazz) {
+    public @Override /* <T extends ResourceInfo> List<T> */ List getResourcesByNamespace(
+            NamespaceInfo namespace, Class /* <T> */ clazz) {
         return unmodifiableList(facade.getResourcesByNamespace(namespace, clazz));
     }
 
@@ -1322,11 +1320,12 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
     }
 
     protected void setId(CatalogInfo o) {
-        if (null != o.getId()) {
+        if (null == o.getId()) {
+            String uid = UUID.randomUUID().toString();
+            String id = o.getClass().getSimpleName() + "-" + uid;
+            OwsUtils.set(o, "id", id);
+        } else {
             LOGGER.fine(String.format("Using user provided id %s", o.getId()));
         }
-        String uid = UUID.randomUUID().toString();
-        String id = o.getClass().getSimpleName() + "-" + uid;
-        OwsUtils.set(o, "id", id);
     }
 }
