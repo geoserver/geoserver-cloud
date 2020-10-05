@@ -22,7 +22,6 @@ geoserver:
     catalog-service:
       enabled: false
       uri: http://catalog:8080
-      #uri: http://172.20.0.6:8080
       cache-directory: ${java.io.tmpdir}/cngs/catalog-client/resource_store
       io-threads:
         max-size: 16
@@ -93,10 +92,24 @@ logging:
     # reactivefeign:
     reactivefeign.client.log: INFO
     org.springframework.cloud.config.server.environment.NativeEnvironmentRepository: WARN
----
 
-spring:
-  profiles: debug
+---
+spring.profiles: local
+geoserver.backend.catalog-service.uri: http://localhost:9100
+# provide environment variables that otherwise would be given by docker-compose.yml
+jdbcconfig.url: jdbc:postgresql://localhost:5432/geoserver_config
+jdbcconfig.username: geoserver
+jdbcconfig.password: geo$erver
+---
+spring.profiles: datadir
+geoserver:
+  backend:
+    data-directory:
+      enabled: true
+      location: ${GEOSERVER_DATA_DIR:${java.io.tmpdir}/cngs/default_data_directory} 
+
+---
+spring.profiles: debug
 
 logging:
   level:
@@ -104,7 +117,7 @@ logging:
     org.springframework: INFO
     org.springframework.cloud.bus: DEBUG
     # geoserver roots
-    org.geoserver: DEBUG
+    org.geoserver: INFO
     org.geoserver.jackson: DEBUG
     org.geotools.jackson: DEBUG
     org.geoserver.platform: ERROR
@@ -118,4 +131,4 @@ logging:
     org.springframework.cloud.bus.BusAutoConfiguration: DEBUG
     org.springframework.cloud.bus.DefaultBusPathMatcher: DEBUG
     # reactivefeign:
-    reactivefeign.client.log: TRACE
+    reactivefeign.client.log: DEBUG

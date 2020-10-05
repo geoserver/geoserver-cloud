@@ -27,3 +27,6 @@ geoserver:
       enabled: true
       resource-browser: true
       catalog-bulk-load: true
+---
+spring.profiles: local
+server.port: 9106

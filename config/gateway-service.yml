@@ -77,6 +77,5 @@ spring:
 logging:
   level:
     root: WARN
-    org.geoserver.cloud.autoconfigure: DEBUG
     com.netflix.discovery: WARN
     com.netflix.eureka: WARN

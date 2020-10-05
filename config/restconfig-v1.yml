@@ -1,2 +1,5 @@
 geoserver:
   backend.catalog-service.enabled: true
+---
+spring.profiles: local
+server.port: 9105
