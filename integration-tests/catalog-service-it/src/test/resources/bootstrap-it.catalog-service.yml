@@ -53,7 +53,7 @@ logging:
     org.geotools.jackson.databind: DEBUG
     org.geoserver.jackson: DEBUG
     org.geotools.jackson: DEBUG
-    org.geoserver.cloud.config.factory: TRACE
+    org.geoserver.cloud.config.factory: DEBUG
     org.geoserver.platform: ERROR
     org.springframework.test: ERROR
     o.s.integration.handler.LoggingHandler: OFF

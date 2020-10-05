@@ -18,7 +18,6 @@ import org.geotools.factory.CommonFactoryFinder;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory2;
 import org.springframework.lang.Nullable;
-import reactor.core.publisher.Flux;
 
 public class CloudResourceRepository extends CatalogServiceClientRepository<ResourceInfo>
         implements ResourceRepository {
@@ -41,7 +40,7 @@ public class CloudResourceRepository extends CatalogServiceClientRepository<Reso
         // REVISIT: missed custom method on ReactiveCatalogClient
         Filter filter = ff.equals(ff.property("namespace.id"), ff.literal(ns.getId()));
         Query<T> query = Query.valueOf(clazz, filter);
-        return client().query(endpoint(), query).map(clazz::cast).map(this::resolve).toStream();
+        return findAll(query);
     }
 
     public @Override @Nullable <T extends ResourceInfo> Optional<T> findByStoreAndName(
@@ -52,9 +51,10 @@ public class CloudResourceRepository extends CatalogServiceClientRepository<Reso
                         ff.equals(ff.property("store.id"), ff.literal(store.getId())),
                         ff.equals(ff.property("name"), ff.literal(name)));
 
-        Query<T> query = Query.valueOf(clazz, filter);
-        Flux<T> flux = client().query(endpoint(), query);
-        return flux.toStream().findFirst().map(this::resolve);
+        Query<T> query = Query.valueOf(clazz, filter).setCount(1);
+        try (Stream<T> flux = findAll(query)) {
+            return flux.findFirst();
+        }
     }
 
     public @Override <T extends ResourceInfo> Stream<T> findAllByStore(
@@ -63,8 +63,7 @@ public class CloudResourceRepository extends CatalogServiceClientRepository<Reso
         // REVISIT: missed custom method on ReactiveCatalogClient
         Filter filter = ff.equals(ff.property("store.id"), ff.literal(store.getId()));
         Query<T> query = Query.valueOf(clazz, filter);
-        Flux<T> flux = client().query(endpoint(), query);
-        return flux.toStream().map(this::resolve);
+        return findAll(query);
     }
 
     public @Override <T extends ResourceInfo> Optional<T> findByNameAndNamespace(
