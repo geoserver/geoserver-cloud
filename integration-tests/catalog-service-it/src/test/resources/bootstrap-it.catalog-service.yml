@@ -47,13 +47,13 @@ spring:
 logging:
   level:
     root: WARN
-    reactivefeign.client.log: DEBUG
-    org.geoserver.cloud: TRACE
-    org.geoserver.jackson.databind: DEBUG
-    org.geotools.jackson.databind: DEBUG
-    org.geoserver.jackson: DEBUG
-    org.geotools.jackson: DEBUG
-    org.geoserver.cloud.config.factory: DEBUG
+    reactivefeign.client.log: INFO
+    org.geoserver.cloud: INFO
+    org.geoserver.jackson.databind: INFO
+    org.geotools.jackson.databind: INFO
+    org.geoserver.jackson: INFO
+    org.geotools.jackson: INFO
+    org.geoserver.cloud.config.factory: INFO
     org.geoserver.platform: ERROR
     org.springframework.test: ERROR
     o.s.integration.handler.LoggingHandler: OFF

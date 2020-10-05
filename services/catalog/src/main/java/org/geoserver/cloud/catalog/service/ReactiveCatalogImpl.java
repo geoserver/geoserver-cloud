@@ -4,8 +4,14 @@
  */
 package org.geoserver.cloud.catalog.service;
 
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.DataStoreInfo;
@@ -18,6 +24,12 @@ import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.Query;
+import org.geotools.filter.FunctionFinder;
+import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.locationtech.jts.geom.Geometry;
+import org.opengis.filter.capability.FunctionName;
+import org.opengis.parameter.Parameter;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -26,11 +38,15 @@ import reactor.core.scheduler.Scheduler;
 
 /** */
 @Service
+@Slf4j
 public class ReactiveCatalogImpl implements ReactiveCatalog {
 
     private Scheduler catalogScheduler;
 
     private BlockingCatalog blockingCatalog;
+
+    /** @see #getSupportedFunctionNames() */
+    private List<FunctionName> supportedFilterFunctionNames;
 
     public ReactiveCatalogImpl(
             BlockingCatalog blockingCatalog,
@@ -82,6 +98,62 @@ public class ReactiveCatalogImpl implements ReactiveCatalog {
 
     public @Override <C extends CatalogInfo> Flux<C> query(@NonNull Query<C> query) {
         return Flux.fromStream(() -> blockingCatalog.query(query)).subscribeOn(catalogScheduler);
+    }
+
+    public @Override Flux<FunctionName> getSupportedFunctionNames() {
+        return Flux.fromStream(this::supportedFunctionNames).subscribeOn(catalogScheduler);
+    }
+
+    private Stream<FunctionName> supportedFunctionNames() {
+        if (supportedFilterFunctionNames == null) {
+            List<FunctionName> names =
+                    new FunctionFinder(null)
+                            .getAllFunctionDescriptions()
+                            .stream()
+                            .filter(this::supportsdArgumentTypes)
+                            .sorted((f1, f2) -> f1.getName().compareTo(f2.getName()))
+                            .collect(Collectors.toList());
+            supportedFilterFunctionNames = names;
+        }
+        return supportedFilterFunctionNames.stream();
+    }
+
+    private boolean supportsdArgumentTypes(FunctionName fn) {
+        try {
+            List<Parameter<?>> args = fn.getArguments();
+            for (Parameter<?> p : args) {
+                Class<?> type = p.getType();
+                if (!isCommonParamType(type)) {
+                    log.debug(
+                            "FunctionName {} not supported, parameter type {} is not considered safe",
+                            fn.getName(),
+                            type.getCanonicalName());
+                    return false;
+                }
+            }
+            return true;
+        } catch (RuntimeException e) {
+            log.warn(
+                    "Error figuring out of function {} is supported: {}",
+                    fn.getName(),
+                    e.getMessage());
+            return false;
+        }
+    }
+
+    /** Does it look like something we could send/receive over the wire? */
+    private boolean isCommonParamType(Class<?> type) {
+        if (type.isPrimitive()) return true;
+        return Arrays.asList(
+                        Number.class,
+                        Boolean.class,
+                        CharSequence.class,
+                        Date.class,
+                        Geometry.class,
+                        ReferencedEnvelope.class,
+                        CoordinateReferenceSystem.class)
+                .stream()
+                .anyMatch(c -> c.isAssignableFrom(type));
     }
 
     public @Override Mono<WorkspaceInfo> setDefaultWorkspace(@NonNull WorkspaceInfo workspace) {

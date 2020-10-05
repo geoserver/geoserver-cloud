@@ -58,6 +58,7 @@ public interface ValueMappers {
     org.geotools.util.Converter measure2Str =
             new MeasureConverterFactory().createConverter(Measure.class, String.class, null);
 
+    @Mapping(target = "withFilter", ignore = true)
     @SuppressWarnings("rawtypes")
     Query dtoToQuery(QueryDto dto);
 
@@ -69,7 +70,7 @@ public interface ValueMappers {
     }
 
     @SuppressWarnings("unchecked")
-    default ClassMappings classMappings(Class type) {
+    default ClassMappings classMappings(@SuppressWarnings("rawtypes") Class type) {
         return type == null ? null : ClassMappings.fromInterface(type);
     }
 

@@ -16,6 +16,7 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.Query;
+import org.opengis.filter.capability.FunctionName;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -73,6 +74,9 @@ public interface ReactiveCatalogClient {
     @PostMapping(path = "/{endpoint}/query")
     <C extends CatalogInfo> Flux<C> query( //
             @PathVariable("endpoint") String endpoint, @RequestBody Query<C> query);
+
+    @GetMapping(path = "/query/capabilities/functions")
+    public Flux<FunctionName> getSupportedFilterFunctionNames();
 
     @PutMapping(path = "/workspaces/default/{workspaceId}")
     Mono<WorkspaceInfo> setDefaultWorkspace(@PathVariable("workspaceId") String workspaceId);

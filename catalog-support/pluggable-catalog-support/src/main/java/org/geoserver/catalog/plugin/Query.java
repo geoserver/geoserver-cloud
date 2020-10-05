@@ -30,8 +30,18 @@ public @Data class Query<T extends CatalogInfo> {
     private Integer offset;
     private Integer count;
 
-    public Query(Class<T> type, Query<?> query) {
+    /** retype constructor */
+    public Query(@NonNull Class<T> type, @NonNull Query<?> query) {
         this.type = type;
+        this.filter = query.getFilter();
+        this.sortBy = new ArrayList<>(query.getSortBy());
+        this.offset = query.getOffset();
+        this.count = query.getCount();
+    }
+
+    /** Copy constructor */
+    public Query(@NonNull Query<T> query) {
+        this.type = query.getType();
         this.filter = query.getFilter();
         this.sortBy = new ArrayList<>(query.getSortBy());
         this.offset = query.getOffset();
@@ -70,5 +80,13 @@ public @Data class Query<T extends CatalogInfo> {
                 .setOffset(offset)
                 .setCount(count)
                 .setSortBy(sortBy);
+    }
+
+    /**
+     * @return {@code this} if {@code filter} equals {@link #getFilter()}, a copy of this query with
+     *     the provided filter otherwise
+     */
+    public Query<T> withFilter(Filter filter) {
+        return filter.equals(this.filter) ? this : new Query<>(this).setFilter(filter);
     }
 }

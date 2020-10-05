@@ -16,6 +16,7 @@ import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.Query;
+import org.opengis.filter.capability.FunctionName;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -91,4 +92,6 @@ public interface ReactiveCatalog {
     Mono<StyleInfo> getStyleByName(@NonNull WorkspaceInfo workspace, @NonNull String name);
 
     Mono<StyleInfo> getStyleByName(@NonNull String name);
+
+    Flux<FunctionName> getSupportedFunctionNames();
 }

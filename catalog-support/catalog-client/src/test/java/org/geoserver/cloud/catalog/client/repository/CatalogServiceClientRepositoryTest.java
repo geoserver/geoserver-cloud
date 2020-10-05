@@ -14,12 +14,14 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
+import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.clearInvocations;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import lombok.NonNull;
 import org.geoserver.catalog.Catalog;
@@ -40,13 +42,19 @@ import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.Query;
 import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveCatalogClient;
+import org.geoserver.function.IsInstanceOf;
 import org.geoserver.ows.util.OwsUtils;
+import org.geotools.filter.function.FilterFunction_toWKT;
+import org.geotools.filter.function.math.FilterFunction_abs;
+import org.geotools.filter.function.math.FilterFunction_acos;
 import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.filter.text.ecql.ECQL;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opengis.filter.Filter;
+import org.opengis.filter.capability.FunctionName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -73,6 +81,16 @@ public class CatalogServiceClientRepositoryTest {
     private static final Catalog fakeCatalog = new CatalogPlugin();
     public @Rule CatalogTestData testData =
             CatalogTestData.empty(() -> fakeCatalog, () -> null).initConfig(false);
+
+    public @Before void before() {
+        List<FunctionName> functions =
+                Arrays.asList(
+                        IsInstanceOf.NAME,
+                        FilterFunction_abs.NAME,
+                        FilterFunction_acos.NAME,
+                        FilterFunction_toWKT.NAME);
+        when(mockClient.getSupportedFilterFunctionNames()).thenReturn(Flux.fromIterable(functions));
+    }
 
     public @Test void workspaceRepository_CRUD() {
         crudTest(workspaceRepository, testData.workspaceA);
@@ -199,6 +217,7 @@ public class CatalogServiceClientRepositoryTest {
 
         assertDelete(repo, info);
 
+        verify(mockClient, atMostOnce()).getSupportedFilterFunctionNames();
         verifyNoMoreInteractions(mockClient);
         clearInvocations(mockClient);
     }

@@ -24,6 +24,7 @@ import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.Query;
 import org.geoserver.cloud.catalog.service.ProxyResolver;
 import org.geoserver.cloud.catalog.service.ReactiveCatalog;
+import org.opengis.filter.capability.FunctionName;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -157,6 +158,11 @@ public class ReactiveCatalogController {
 
         ClassMappings type = endpointToType(endpoint);
         return catalog.canSortBy(type.getInterface(), propertyName);
+    }
+
+    @GetMapping(path = "/query/capabilities/functions", produces = APPLICATION_STREAM_JSON_VALUE)
+    public Flux<FunctionName> getSupportedFilterFunctionNames() {
+        return catalog.getSupportedFunctionNames();
     }
 
     @PostMapping(path = "/{endpoint}/query", produces = APPLICATION_STREAM_JSON_VALUE)

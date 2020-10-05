@@ -4,13 +4,20 @@
  */
 package org.geoserver.cloud.catalog.client.repository;
 
+import static org.geotools.filter.visitor.SimplifyingFilterVisitor.simplify;
+
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.impl.ClassMappings;
@@ -19,12 +26,16 @@ import org.geoserver.catalog.plugin.CatalogInfoRepository;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.Query;
 import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveCatalogClient;
+import org.geotools.filter.visitor.CapabilitiesFilterSplitter;
+import org.opengis.filter.Filter;
+import org.opengis.filter.capability.FunctionName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+@Slf4j
 public abstract class CatalogServiceClientRepository<CI extends CatalogInfo>
         implements CatalogInfoRepository<CI> {
 
@@ -35,6 +46,12 @@ public abstract class CatalogServiceClientRepository<CI extends CatalogInfo>
 
     /** Don't use but through {@link #endpoint()} */
     private String _endpoint;
+
+    /**
+     * Splits {@link Query} filters into server-side supported and client-side post-processing
+     * filters. Used and created lazily by {@link #findAll(Query)}
+     */
+    private CatalogClientFilterSupport filterSupport;
 
     protected ReactiveCatalogClient client() {
         return client;
@@ -130,7 +147,44 @@ public abstract class CatalogServiceClientRepository<CI extends CatalogInfo>
     }
 
     public @Override <U extends CI> Stream<U> findAll(Query<U> query) {
-        return client.query(endpoint(), query).map(this::resolve).toStream();
+        final Filter rawFilter = query.getFilter();
+        if (Filter.EXCLUDE.equals(rawFilter)) {
+            return Stream.empty(); // don't even bother
+        }
+        CapabilitiesFilterSplitter splitter = getFilterSupport().split(rawFilter);
+        Filter supportedFilter = simplify(splitter.getFilterPre());
+        Filter unsupportedFilter = simplify(splitter.getFilterPost());
+
+        query = query.withFilter(supportedFilter);
+        Stream<U> stream = client.query(endpoint(), query).map(this::resolve).toStream();
+        if (!Filter.INCLUDE.equals(unsupportedFilter)) {
+            log.debug("Post-filtering with {}", unsupportedFilter);
+            Predicate<? super U> predicate = info -> unsupportedFilter.evaluate(info);
+            stream = stream.filter(predicate);
+        }
+        return stream;
+    }
+
+    private CatalogClientFilterSupport getFilterSupport() {
+        if (this.filterSupport == null) {
+            List<FunctionName> serverFuncions = getServerSupportedFunctions();
+            this.filterSupport = new CatalogClientFilterSupport(serverFuncions);
+        }
+        return this.filterSupport;
+    }
+
+    private List<FunctionName> getServerSupportedFunctions() {
+        try {
+            ReactiveCatalogClient client = client();
+            Flux<FunctionName> functionNames = client.getSupportedFilterFunctionNames();
+            List<FunctionName> list = functionNames.toStream().collect(Collectors.toList());
+            return list;
+        } catch (Exception e) {
+            log.warn(
+                    "Error getting server-side supported filter function names. Won't use functions.",
+                    e);
+            return Collections.emptyList();
+        }
     }
 
     public @Override <U extends CI> Optional<U> findById(
