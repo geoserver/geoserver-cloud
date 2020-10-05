@@ -597,28 +597,6 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
         return stream;
     }
 
-    @SuppressWarnings("unchecked")
-    protected <I extends CatalogInfo> I resolve(I info) {
-        if (info instanceof LayerGroupInfo) {
-            return (I) resolve((LayerGroupInfo) info);
-        } else if (info instanceof LayerInfo) {
-            return (I) resolve((LayerInfo) info);
-        } else if (info instanceof MapInfo) {
-            return (I) resolve((MapInfo) info);
-        } else if (info instanceof NamespaceInfo) {
-            return (I) resolve((NamespaceInfo) info);
-        } else if (info instanceof ResourceInfo) {
-            return (I) resolve((ResourceInfo) info);
-        } else if (info instanceof StoreInfo) {
-            return (I) resolve((StoreInfo) info);
-        } else if (info instanceof StyleInfo) {
-            return (I) resolve((StyleInfo) info);
-        } else if (info instanceof WorkspaceInfo) {
-            return (I) resolve((WorkspaceInfo) info);
-        }
-        throw new IllegalArgumentException("Unknown resource type: " + info);
-    }
-
     public @Override <I extends CatalogInfo> I update(I info, Patch patch) {
         checkNotAProxy(info);
         CatalogInfoRepository<I> repo = repositoryFor(info);

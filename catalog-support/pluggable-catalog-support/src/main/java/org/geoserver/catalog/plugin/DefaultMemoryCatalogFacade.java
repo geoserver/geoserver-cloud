@@ -44,7 +44,6 @@ public class DefaultMemoryCatalogFacade extends RepositoryCatalogFacadeImpl
     public @Override void resolve() {
         // JD creation checks are done here b/c when xstream depersists
         // some members may be left null
-
         workspaces = resolve(workspaces, WorkspaceInfoLookup::new);
         namespaces = resolve(namespaces, NamespaceInfoLookup::new);
         stores = resolve(stores, StoreInfoLookup::new);
@@ -53,15 +52,6 @@ public class DefaultMemoryCatalogFacade extends RepositoryCatalogFacadeImpl
         resources = resolve(resources, () -> new ResourceInfoLookup((LayerInfoLookup) layers));
         layerGroups = resolve(layerGroups, LayerGroupInfoLookup::new);
         maps = resolve(maps, MapInfoLookup::new);
-
-        workspaces.findAll().forEach(this::resolve);
-        namespaces.findAll().forEach(this::resolve);
-        stores.findAll().forEach(this::resolve);
-        styles.findAll().forEach(this::resolve);
-        resources.findAll().forEach(this::resolve);
-        layers.findAll().forEach(this::resolve);
-        layerGroups.findAll().forEach(this::resolve);
-        maps.findAll().forEach(this::resolve);
     }
 
     private <I extends CatalogInfo, R extends CatalogInfoRepository<I>> R resolve(
