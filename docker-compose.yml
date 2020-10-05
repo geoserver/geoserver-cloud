@@ -99,6 +99,27 @@ services:
     # wait until config service is available
     command: dockerize -wait http://config:8080/gateway-service/default --timeout 30s java ${GATEWAY_JAVA_OPTS} -jar /opt/app/gateway-service.jar
 
+  # catalog microservice, provides a unified catalog backend to all services
+  catalog:
+    image: org.geoserver.cloud/gs-cloud-catalog:${TAG}
+    depends_on:
+      - discovery
+      - config
+      - database
+      - rabbitmq
+    environment:
+      EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
+      JAVA_OPTS: ${CATALOG_JAVA_OPTS}
+      RABBITMQ_HOST: rabbitmq
+      JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
+      JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
+      JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
+    networks:
+      - gs-cloud-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+    command: dockerize -wait http://config:8080/catalog-service/default --timeout 30s java ${WFS_JAVA_OPTS} -jar /opt/app/catalog-service.jar
+
   # WFS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wfs=5)
   wfs:
     image: org.geoserver.cloud/gs-cloud-wfs:${TAG}
