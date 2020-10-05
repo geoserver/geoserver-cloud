@@ -21,4 +21,6 @@ public interface ReactiveResourceStore {
     Mono<Resource> move(String path, String target);
 
     Flux<Resource> list(Resource resource);
+
+    Mono<Resource> setContents(String path, ByteBuffer contents);
 }

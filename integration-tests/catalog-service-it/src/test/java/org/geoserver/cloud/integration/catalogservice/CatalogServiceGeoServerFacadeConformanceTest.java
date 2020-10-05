@@ -19,6 +19,8 @@ import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.plugin.GeoServerImpl;
 import org.geoserver.wms.WMSInfoImpl;
 import org.junit.After;
+import org.junit.Assume;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -77,5 +79,21 @@ public class CatalogServiceGeoServerFacadeConformanceTest extends GeoServerConfi
     @After
     public void deleteAll() {
         CatalogTestData.empty(() -> serverCatalog, () -> serverConfig).deleteAll();
+    }
+
+    /**
+     * Test works if run alone, but not if it runs after other tests cause server config is not null
+     */
+    public @Override @Test void testGlobal() throws Exception {
+        Assume.assumeTrue(serverConfig.getGlobal() == null);
+        super.testGlobal();
+    }
+
+    /**
+     * Test works if run alone, but not if it runs after other tests cause server config is not null
+     */
+    public @Override @Test void testModifyGlobal() throws Exception {
+        Assume.assumeTrue(serverConfig.getGlobal() == null);
+        super.testModifyGlobal();
     }
 }

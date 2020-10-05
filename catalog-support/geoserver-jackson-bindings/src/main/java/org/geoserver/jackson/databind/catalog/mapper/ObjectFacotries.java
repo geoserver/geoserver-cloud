@@ -52,7 +52,6 @@ import org.geoserver.jackson.databind.catalog.dto.CoverageDimension;
 import org.geoserver.jackson.databind.catalog.dto.CoverageStore;
 import org.geoserver.jackson.databind.catalog.dto.DataStore;
 import org.geoserver.jackson.databind.catalog.dto.FeatureType;
-import org.geoserver.jackson.databind.catalog.dto.GridGeometryDto;
 import org.geoserver.jackson.databind.catalog.dto.Layer;
 import org.geoserver.jackson.databind.catalog.dto.LayerGroup;
 import org.geoserver.jackson.databind.catalog.dto.Legend;
@@ -67,7 +66,6 @@ import org.geoserver.jackson.databind.catalog.dto.Workspace;
 import org.geoserver.ows.util.OwsUtils;
 import org.mapstruct.ObjectFactory;
 import org.mapstruct.TargetType;
-import org.opengis.coverage.grid.GridGeometry;
 
 /**
  * Auto-wired object factory for Catalog info interfaces, so the mapstruct code-generated mappers
@@ -170,10 +168,6 @@ public class ObjectFacotries {
         CoverageDimensionImpl impl = new CoverageDimensionImpl();
         impl.setId(dto.getId());
         return impl;
-    }
-
-    public @ObjectFactory GridGeometry gridGeometry(GridGeometryDto source) {
-        throw new UnsupportedOperationException("implement!");
     }
 
     public @ObjectFactory DimensionInfo dimensionInfo() {

@@ -49,7 +49,7 @@ public class ReactiveConfigController {
 
     /** Sets the global configuration. */
     @PutMapping("/global")
-    public Mono<Void> setGlobal(@RequestBody GeoServerInfo global) {
+    public Mono<GeoServerInfo> setGlobal(@RequestBody GeoServerInfo global) {
         return config.setGlobal(global);
     }
 
@@ -113,7 +113,7 @@ public class ReactiveConfigController {
 
     /** Sets logging configuration. */
     @PutMapping("/logging")
-    public Mono<Void> setLogging(@RequestBody LoggingInfo logging) {
+    public Mono<LoggingInfo> setLogging(@RequestBody LoggingInfo logging) {
         return config.setLogging(logging);
     }
 

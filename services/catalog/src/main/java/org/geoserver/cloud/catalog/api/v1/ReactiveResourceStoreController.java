@@ -10,10 +10,13 @@ import static org.springframework.http.MediaType.APPLICATION_STREAM_JSON_VALUE;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.Objects;
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.catalog.service.ReactiveResourceStore;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.Resource.Type;
@@ -36,6 +39,7 @@ import reactor.core.publisher.Mono;
 /** */
 @RestController
 @RequestMapping(path = ReactiveResourceStoreController.BASE_URI)
+@Slf4j
 public class ReactiveResourceStoreController {
 
     public static final String BASE_URI = "/api/v1/resources";
@@ -43,23 +47,40 @@ public class ReactiveResourceStoreController {
     private @Autowired ReactiveResourceStore store;
 
     @Data
-    @AllArgsConstructor
+    @NoArgsConstructor
     public static class WebResource {
-        @JsonIgnore private final Resource resource;
 
-        @JsonProperty
-        public String getPath() {
-            return resource.path();
+        private @JsonIgnore Resource resource;
+        private @JsonIgnore String incomingPath;
+        private @JsonIgnore Resource.Type incomingType;
+        private @JsonIgnore long incomingLastModified;
+
+        public WebResource(@NonNull Resource resource) {
+            this.resource = resource;
         }
 
-        @JsonProperty
-        public Resource.Type getType() {
-            return resource.getType();
+        public @JsonProperty @NonNull String getPath() {
+            return resource == null ? incomingPath : resource.path();
         }
 
-        @JsonProperty
-        public long getLastModified() {
-            return resource.lastmodified();
+        public @JsonProperty @NonNull Resource.Type getType() {
+            return resource == null ? incomingType : resource.getType();
+        }
+
+        public @JsonProperty long getLastModified() {
+            return resource == null ? incomingLastModified : resource.lastmodified();
+        }
+
+        public void setPath(@NonNull String path) {
+            this.incomingPath = path;
+        }
+
+        public void setLastModified(long lastModified) {
+            this.incomingLastModified = lastModified;
+        }
+
+        public void setType(@NonNull Type type) {
+            this.incomingType = type;
         }
     }
 
@@ -87,7 +108,8 @@ public class ReactiveResourceStoreController {
     )
     public Mono<WebResource> put(
             @PathVariable("path") String path, @RequestBody ByteBuffer contents) {
-        throw new UnsupportedOperationException();
+
+        return this.store.setContents(path, contents).map(this::toWebResource);
     }
 
     @GetMapping(
@@ -130,7 +152,21 @@ public class ReactiveResourceStoreController {
     @PostMapping("/{*path}")
     public Mono<WebResource> create(
             @PathVariable("path") String path, @RequestBody WebResource resource) {
-        throw new UnsupportedOperationException();
+
+        return store.get(path)
+                .map(
+                        r -> {
+                            Type requestedType = resource.getType();
+                            File file;
+                            if (requestedType == Type.DIRECTORY) {
+                                file = r.dir();
+                            } else {
+                                file = r.file();
+                            }
+                            log.info("Created " + file);
+                            return r;
+                        })
+                .map(this::toWebResource);
     }
 
     @PutMapping("/{*path}")

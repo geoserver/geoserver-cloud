@@ -115,7 +115,7 @@ public class ReactiveConfigControllerTest {
         newGlobal.getSettings().setCharset("ISO-8859-1");
         newGlobal.getSettings().setTitle("title set through api");
 
-        put(newGlobal, "/global").expectStatus().isOk();
+        put(newGlobal, "/global").expectStatus().isOk().expectBody(GeoServerInfo.class);
 
         GeoServerInfo returned = geoServer.getGlobal();
         assertEquals("testme", returned.getAdminPassword());
@@ -213,7 +213,7 @@ public class ReactiveConfigControllerTest {
         logging.setLocation("/right/there");
         logging.setStdOutLogging(false);
 
-        put(logging, "/logging").expectStatus().isOk().expectBody().isEmpty();
+        put(logging, "/logging").expectStatus().isOk().expectBody(LoggingInfo.class);
         assertEquals(logging, geoServer.getLogging());
     }
 

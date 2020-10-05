@@ -59,9 +59,13 @@ public abstract class GeoServerConfigConformanceTest {
         GeoServerInfo global = geoServer.getFactory().createGlobal();
         geoServer.setGlobal(global);
 
-        assertEquals(global, geoServer.getGlobal());
+        GeoServerInfo returned = geoServer.getGlobal();
+        assertEquals(global, returned);
+    }
 
-        // GEOS-7890
+    // GEOS-7890
+    @Test
+    public void testEquals() throws Exception {
         GeoServerInfo global1 = geoServer.getFactory().createGlobal();
         GeoServerInfo global2 = geoServer.getFactory().createGlobal();
         global1.setGlobalServices(Boolean.valueOf(true));

@@ -54,12 +54,32 @@ public class ReactiveGeoServer {
         return async(blockingConfig::getLogging);
     }
 
-    public Mono<Void> setGlobal(GeoServerInfo global) {
-        return async(() -> blockingConfig.setGlobal(global));
+    public Mono<GeoServerInfo> setGlobal(GeoServerInfo global) {
+        return async(
+                () -> {
+                    GeoServerInfo local = blockingConfig.getGlobal();
+                    if (local == null) {
+                        blockingConfig.setGlobal(global);
+                    } else {
+                        OwsUtils.copy(global, local, GeoServerInfo.class);
+                        blockingConfig.save(local);
+                    }
+                    return blockingConfig.getGlobal();
+                });
     }
 
-    public Mono<Void> setLogging(LoggingInfo logging) {
-        return async(() -> blockingConfig.setLogging(logging));
+    public Mono<LoggingInfo> setLogging(LoggingInfo logging) {
+        return async(
+                () -> {
+                    LoggingInfo local = blockingConfig.getLogging();
+                    if (local == null) {
+                        blockingConfig.setLogging(logging);
+                    } else {
+                        OwsUtils.copy(logging, local, LoggingInfo.class);
+                        blockingConfig.save(local);
+                    }
+                    return blockingConfig.getLogging();
+                });
     }
 
     public Mono<SettingsInfo> getSettingsByWorkspace(WorkspaceInfo workspace) {

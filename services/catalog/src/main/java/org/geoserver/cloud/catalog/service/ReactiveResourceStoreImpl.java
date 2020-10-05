@@ -41,6 +41,21 @@ public class ReactiveResourceStoreImpl implements ReactiveResourceStore {
                 .map(ByteBuffer::wrap);
     }
 
+    public @Override Mono<Resource> setContents(String path, ByteBuffer contents) {
+        return get(path)
+                .map(
+                        resource -> {
+                            byte[] byteArray = new byte[contents.remaining()];
+                            contents.get(byteArray);
+                            try {
+                                resource.setContents(byteArray);
+                            } catch (IOException e) {
+                                throw new UncheckedIOException(e);
+                            }
+                            return resource;
+                        });
+    }
+
     public @Override Mono<Boolean> remove(String path) {
         return Mono.just(path).subscribeOn(catalogScheduler).map(blockingStore::remove);
     }

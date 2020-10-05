@@ -180,6 +180,36 @@ public class CatalogServiceResourceStore implements ResourceStore {
         }
     }
 
+    File dir(@NonNull CatalogServiceResource resource) {
+        final Resource local = localStore.get(resource.path());
+        final CatalogServiceResource remote = get(resource.path());
+        if (!remote.exists()) {
+            ResourceDescriptor descriptor = resource.getDescriptor();
+            descriptor.setType(Type.DIRECTORY);
+            ResourceDescriptor created = remoteStore.create(resource.path(), descriptor);
+            resource = toResource(created);
+        }
+        if (remote.isFile()) {
+            throw new IllegalStateException(remote.path() + " is a file, not a directory");
+        }
+        Lock lock = local.lock();
+        try {
+            boolean localIsDirectory = Type.DIRECTORY.equals(local.getType());
+            if (localIsDirectory && !local.delete()) {
+                throw new IllegalStateException(
+                        "Unable to delte local copy of directory " + resource.path());
+            }
+            File localDirectory = local.dir();
+            boolean localAndRemoteUpToDate = resource.lastmodified() == local.lastmodified();
+            if (!localAndRemoteUpToDate) {
+                localDirectory.setLastModified(remote.lastmodified());
+            }
+            return localDirectory;
+        } finally {
+            lock.release();
+        }
+    }
+
     private File updateLocalFile(Resource local, CatalogServiceResource remote) {
         boolean localExists = local.getType() != Type.UNDEFINED;
         if (localExists && !local.delete()) {
@@ -221,9 +251,5 @@ public class CatalogServiceResourceStore implements ResourceStore {
         }
 
         return file;
-    }
-
-    File dir(@NonNull CatalogServiceResource resource) {
-        throw new UnsupportedOperationException("not implemented");
     }
 }
