@@ -9,6 +9,7 @@ import static org.junit.Assert.assertNotNull;
 
 import org.geotools.jackson.databind.filter.ExpressionRoundtripTest;
 import org.geotools.jackson.databind.filter.dto.Expression;
+import org.geotools.jackson.databind.filter.dto.Expression.FunctionName;
 import org.junit.Before;
 import org.mapstruct.factory.Mappers;
 
@@ -28,5 +29,17 @@ public class ExpressionMapperTest extends ExpressionRoundtripTest {
         Expression roundTripped = expressions.map(expression);
         assertEquals(dto, roundTripped);
         return (E) roundTripped;
+    }
+
+    protected @Override FunctionName roundtripTest(FunctionName dto) throws Exception {
+        org.opengis.filter.capability.FunctionName functionName = expressions.map(dto);
+        assertNotNull(functionName);
+        assertEquals(dto.getName(), functionName.getName());
+        assertEquals(dto.getArgumentCount(), functionName.getArgumentCount());
+        assertEquals(dto.getArgumentNames(), functionName.getArgumentNames());
+
+        FunctionName roundTripped = expressions.map(functionName);
+        assertEquals(dto, roundTripped);
+        return roundTripped;
     }
 }

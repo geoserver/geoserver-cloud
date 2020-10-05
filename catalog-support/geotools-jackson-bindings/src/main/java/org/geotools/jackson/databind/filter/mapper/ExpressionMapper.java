@@ -6,6 +6,8 @@ package org.geotools.jackson.databind.filter.mapper;
 
 import java.util.List;
 import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.filter.FunctionFinder;
+import org.geotools.filter.capability.FunctionNameImpl;
 import org.geotools.jackson.databind.filter.dto.Expression;
 import org.geotools.jackson.databind.filter.dto.Expression.Add;
 import org.geotools.jackson.databind.filter.dto.Expression.Divide;
@@ -16,6 +18,7 @@ import org.geotools.jackson.databind.filter.dto.Expression.PropertyName;
 import org.geotools.jackson.databind.filter.dto.Expression.Subtract;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.ObjectFactory;
 import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.expression.ExpressionVisitor;
 import org.opengis.filter.expression.NilExpression;
@@ -83,6 +86,36 @@ public abstract class ExpressionMapper {
         if (source instanceof Function) return map((Function) source);
         throw new IllegalArgumentException(
                 "Unrecognized expression type " + source.getClass().getName() + ": " + source);
+    }
+
+    public @ObjectFactory org.opengis.filter.capability.FunctionName functionName(
+            Expression.FunctionName dto) {
+        FunctionFinder finder = new FunctionFinder(null);
+        String functionName = dto.getName();
+        org.opengis.filter.capability.FunctionName name =
+                finder.findFunctionDescription(functionName);
+        if (name == null) {
+            int argumentCount = dto.getArgumentCount();
+            List<String> argumentNames = dto.getArgumentNames();
+            if (argumentNames != null) {
+                name = new FunctionNameImpl(functionName, argumentCount, argumentNames);
+            } else {
+                name = new FunctionNameImpl(functionName, argumentCount);
+            }
+        }
+        return name;
+    }
+
+    public org.opengis.filter.capability.FunctionName map(Expression.FunctionName dto) {
+        return functionName(dto);
+    }
+
+    public Expression.FunctionName map(org.opengis.filter.capability.FunctionName value) {
+        Expression.FunctionName dto = new Expression.FunctionName();
+        dto.setName(value.getName())
+                .setArgumentCount(value.getArgumentCount())
+                .setArgumentNames(value.getArgumentNames());
+        return dto;
     }
 
     public abstract PropertyName map(org.opengis.filter.expression.PropertyName expression);

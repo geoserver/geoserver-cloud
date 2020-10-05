@@ -6,6 +6,7 @@ package org.geotools.jackson.databind.filter.dto;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -110,5 +111,12 @@ public @Data abstract class Expression {
     public static @Data class Function extends Expression {
         private String name;
         private List<Expression> parameters = new ArrayList<>();
+    }
+
+    @JsonTypeName("FunctionName")
+    public static @Data class FunctionName {
+        private String name;
+        private int argumentCount;
+        private List<String> argumentNames = new ArrayList<>();
     }
 }

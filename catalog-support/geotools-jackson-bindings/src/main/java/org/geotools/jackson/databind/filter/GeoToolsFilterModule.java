@@ -16,6 +16,7 @@ import org.geotools.jackson.databind.util.MapperSerializer;
 import org.locationtech.jts.geom.Geometry;
 import org.mapstruct.factory.Mappers;
 import org.opengis.filter.Filter;
+import org.opengis.filter.capability.FunctionName;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.sort.SortBy;
 
@@ -79,5 +80,13 @@ public class GeoToolsFilterModule extends SimpleModule {
                 SortBy.class,
                 new MapperDeserializer<>(
                         org.geotools.jackson.databind.filter.dto.SortBy.class, FILTERS::map));
+
+        addSerializer(
+                FunctionName.class, new MapperSerializer<>(FunctionName.class, EXPRESSIONS::map));
+        addDeserializer(
+                FunctionName.class,
+                new MapperDeserializer<>(
+                        org.geotools.jackson.databind.filter.dto.Expression.FunctionName.class,
+                        EXPRESSIONS::map));
     }
 }

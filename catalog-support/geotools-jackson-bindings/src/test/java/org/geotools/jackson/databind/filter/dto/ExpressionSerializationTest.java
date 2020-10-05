@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.geotools.jackson.databind.filter.ExpressionRoundtripTest;
+import org.geotools.jackson.databind.filter.dto.Expression.FunctionName;
 import org.junit.Before;
 
 public class ExpressionSerializationTest extends ExpressionRoundtripTest {
@@ -31,5 +32,14 @@ public class ExpressionSerializationTest extends ExpressionRoundtripTest {
         Expression deserialized = objectMapper.readValue(serialized, Expression.class);
         assertEquals(dto, deserialized);
         return (E) deserialized;
+    }
+
+    protected @Override FunctionName roundtripTest(FunctionName dto) throws Exception {
+        String serialized = objectMapper.writeValueAsString(dto);
+        System.err.println(serialized);
+        FunctionName deserialized =
+                objectMapper.readValue(serialized, Expression.FunctionName.class);
+        assertEquals(dto, deserialized);
+        return deserialized;
     }
 }

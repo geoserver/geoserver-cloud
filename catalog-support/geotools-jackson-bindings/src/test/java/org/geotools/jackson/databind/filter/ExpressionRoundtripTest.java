@@ -56,6 +56,9 @@ public abstract class ExpressionRoundtripTest {
 
     protected abstract <E extends Expression> E roundtripTest(E dto) throws Exception;
 
+    protected abstract Expression.FunctionName roundtripTest(Expression.FunctionName dto)
+            throws Exception;
+
     public @Test void propertySimple() throws Exception {
         PropertyName dto = propertyName("states");
         roundtripTest(dto);
@@ -235,6 +238,18 @@ public abstract class ExpressionRoundtripTest {
         }
     }
 
+    public @Test void allAvailableFunctionNames() throws Exception {
+        FunctionFinder finder = new FunctionFinder(null);
+        List<FunctionName> allFunctionDescriptions =
+                finder.getAllFunctionDescriptions()
+                        .stream()
+                        .sorted((f1, f2) -> f1.getName().compareTo(f2.getName()))
+                        .collect(Collectors.toList());
+        for (FunctionName functionName : allFunctionDescriptions) {
+            testFunctionNameRoundtrip(functionName);
+        }
+    }
+
     private void testFunctionRoundtrip(FunctionName functionDescriptor) throws Exception {
         log.debug("Testing function {}", functionDescriptor);
 
@@ -264,6 +279,23 @@ public abstract class ExpressionRoundtripTest {
         dto.setName(name);
         dto.setParameters(parameters);
 
+        roundtripTest(dto);
+    }
+
+    private void testFunctionNameRoundtrip(FunctionName functionName) throws Exception {
+        String name = functionName.getName();
+        int argumentCount = functionName.getArgumentCount();
+        List<String> argumentNames = functionName.getArgumentNames();
+        assertNotNull(name);
+        assertNotNull(functionName);
+        assertNotNull(argumentNames);
+
+        Expression.FunctionName dto = new Expression.FunctionName();
+        dto.setName(name);
+        dto.setArgumentCount(argumentCount);
+        dto.getArgumentNames().addAll(argumentNames);
+
+        log.debug("Testing FunctionName {}", dto);
         roundtripTest(dto);
     }
 

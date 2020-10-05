@@ -10,6 +10,7 @@ import static org.junit.Assert.assertTrue;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.geotools.jackson.databind.filter.dto.Expression;
+import org.geotools.jackson.databind.filter.dto.Expression.FunctionName;
 import org.geotools.jackson.databind.filter.mapper.ExpressionMapper;
 import org.junit.Before;
 import org.mapstruct.factory.Mappers;
@@ -48,6 +49,19 @@ public class GeoToolsFilterModuleExpressionsTest extends ExpressionRoundtripTest
         } else {
             assertEquals(expected, deserialized);
         }
+        return dto;
+    }
+
+    protected @Override FunctionName roundtripTest(FunctionName dto) throws Exception {
+        org.opengis.filter.capability.FunctionName expected = expressionMapper.map(dto);
+        String serialized = objectMapper.writeValueAsString(expected);
+        System.err.println(serialized);
+        org.opengis.filter.capability.FunctionName deserialized =
+                objectMapper.readValue(
+                        serialized, org.opengis.filter.capability.FunctionName.class);
+        assertEquals(dto.getName(), deserialized.getName());
+        assertEquals(dto.getArgumentCount(), deserialized.getArgumentCount());
+        assertEquals(dto.getArgumentNames(), deserialized.getArgumentNames());
         return dto;
     }
 }
