@@ -6,4 +6,4 @@ spring:
 logging:
   level:
     root: WARN
-    o.s.c.c.s.e.NativeEnvironmentRepository: WARN
+    org.springframework.cloud.config.server.environment.NativeEnvironmentRepository: WARN

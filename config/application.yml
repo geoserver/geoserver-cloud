@@ -21,8 +21,8 @@ geoserver:
     # revisit: Could be split into profiles
     catalog-service:
       enabled: false
-      #uri: http://catalog:8080
-      uri: http://172.20.0.6:8080
+      uri: http://catalog:8080
+      #uri: http://172.20.0.6:8080
       cache-directory: ${java.io.tmpdir}/cngs/catalog-client/resource_store
       io-threads:
         max-size: 16
@@ -92,14 +92,15 @@ logging:
     org.springframework.cloud.bus.DefaultBusPathMatcher: INFO
     # reactivefeign:
     reactivefeign.client.log: INFO
-
+    org.springframework.cloud.config.server.environment.NativeEnvironmentRepository: WARN
 ---
 
 spring:
-  profiles.active: debug
+  profiles: debug
 
 logging:
   level:
+    root: WARN
     org.springframework: INFO
     org.springframework.cloud.bus: DEBUG
     # geoserver roots
