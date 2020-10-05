@@ -7,7 +7,6 @@ package org.geoserver.catalog.plugin;
 import static java.lang.String.format;
 
 import java.lang.reflect.Proxy;
-import java.rmi.server.UID;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -36,7 +35,6 @@ import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ProxyUtils;
-import org.geoserver.ows.util.OwsUtils;
 import org.geotools.util.logging.Logging;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
@@ -77,7 +75,7 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
     protected <I extends CatalogInfo> I add(
             I info, Class<I> type, CatalogInfoRepository<I> repository) {
         checkNotAProxy(info);
-        setId(info);
+        Objects.requireNonNull(info.getId(), "Object id not provided");
         repository.add(info);
         return repository.findById(info.getId(), type).orElse(null);
     }
@@ -619,13 +617,6 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
             return (I) resolve((WorkspaceInfo) info);
         }
         throw new IllegalArgumentException("Unknown resource type: " + info);
-    }
-
-    protected void setId(CatalogInfo o) {
-        if (OwsUtils.get(o, "id") == null) {
-            String uid = new UID().toString();
-            OwsUtils.set(o, "id", o.getClass().getSimpleName() + "-" + uid);
-        }
     }
 
     public @Override <I extends CatalogInfo> I update(I info, Patch patch) {

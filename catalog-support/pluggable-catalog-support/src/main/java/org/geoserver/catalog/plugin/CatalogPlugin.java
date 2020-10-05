@@ -13,6 +13,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.logging.Level;
@@ -65,6 +66,7 @@ import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.config.GeoServerLoader;
 import org.geoserver.config.impl.GeoServerImpl;
 import org.geoserver.config.util.XStreamPersister;
+import org.geoserver.ows.util.OwsUtils;
 import org.geoserver.platform.ExtensionPriority;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geotools.util.SuppressFBWarnings;
@@ -1233,6 +1235,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
     }
 
     protected <T extends CatalogInfo> void doAdd(T object, Function<T, T> inserter) {
+        setId(object);
         validationSupport.validate(object, true);
         T added;
         // TODO: remove synchronized block, we need transactions. Besides, it means nothing in
@@ -1316,5 +1319,14 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
 
     <T extends CatalogInfo> T detached(T original, T detached) {
         return detached != null ? detached : original;
+    }
+
+    protected void setId(CatalogInfo o) {
+        if (null != o.getId()) {
+            LOGGER.fine(String.format("Using user provided id %s", o.getId()));
+        }
+        String uid = UUID.randomUUID().toString();
+        String id = o.getClass().getSimpleName() + "-" + uid;
+        OwsUtils.set(o, "id", id);
     }
 }
