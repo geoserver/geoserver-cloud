@@ -219,6 +219,9 @@ public final class IsolatedCatalogFacade extends ForwardingExtendedCatalogFacade
 
     @Override
     public <T extends CatalogInfo> int count(Class<T> of, Filter filter) {
+        if (Dispatcher.REQUEST.get() == null) {
+            return super.count(of, filter);
+        }
         CloseableIterator<T> found = facade.list(of, filter, null, null);
 
         try (CloseableIterator<T> filtered = filterIsolated(of, found)) {
@@ -238,6 +241,7 @@ public final class IsolatedCatalogFacade extends ForwardingExtendedCatalogFacade
             @Nullable Integer offset,
             @Nullable Integer count,
             @Nullable SortBy... sortOrder) {
+
         return filterIsolated(of, facade.list(of, filter, offset, count, sortOrder));
     }
 
@@ -437,6 +441,9 @@ public final class IsolatedCatalogFacade extends ForwardingExtendedCatalogFacade
      */
     private <T extends CatalogInfo> CloseableIterator<T> filterIsolated(
             CloseableIterator<T> objects, Function<T, T> filter) {
+        if (Dispatcher.REQUEST.get() == null) {
+            return objects;
+        }
         List<T> iterable = new ArrayList<>();
         // consume the iterator
         while (objects.hasNext()) {
