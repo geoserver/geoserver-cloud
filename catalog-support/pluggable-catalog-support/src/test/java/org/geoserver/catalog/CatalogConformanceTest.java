@@ -3015,6 +3015,7 @@ public abstract class CatalogConformanceTest {
         filter = acceptAll();
         sortOrder = asc("resource.name");
         expected = Lists.newArrayList(l1, l2, l3);
+        assertEquals(3, rawCatalog.count(LayerInfo.class, filter));
 
         testOrderBy(LayerInfo.class, filter, null, null, sortOrder, expected);
 
@@ -3043,6 +3044,7 @@ public abstract class CatalogConformanceTest {
         filter = equal("styles.name", s3.getName());
         expected = Lists.newArrayList(l2);
         testOrderBy(LayerInfo.class, filter, 0, 10, sortOrder, expected);
+        assertEquals(1, rawCatalog.count(LayerInfo.class, filter));
     }
 
     private <T extends CatalogInfo> void testOrderBy(
@@ -3100,6 +3102,9 @@ public abstract class CatalogConformanceTest {
         assertEquals(
                 newHashSet(data.featureTypeA, data.coverageA),
                 asSet(rawCatalog.list(ResourceInfo.class, filter)));
+        assertEquals(2, rawCatalog.count(ResourceInfo.class, filter));
+        assertEquals(1, rawCatalog.count(CoverageInfo.class, filter));
+
         assertEquals(
                 newHashSet(data.featureTypeA),
                 asSet(rawCatalog.list(FeatureTypeInfo.class, filter)));
@@ -3413,5 +3418,44 @@ public abstract class CatalogConformanceTest {
                                 });
                     });
         }
+    }
+
+    public @Test void testCountIncludeFilter() {
+        data.addObjects();
+        Filter filter = acceptAll();
+        assertEquals(3, rawCatalog.count(WorkspaceInfo.class, filter));
+        assertEquals(3, rawCatalog.count(NamespaceInfo.class, filter));
+
+        assertEquals(6, rawCatalog.count(StoreInfo.class, filter));
+        assertEquals(3, rawCatalog.count(DataStoreInfo.class, filter));
+        assertEquals(1, rawCatalog.count(CoverageStoreInfo.class, filter));
+        assertEquals(1, rawCatalog.count(WMSStoreInfo.class, filter));
+        assertEquals(1, rawCatalog.count(WMTSStoreInfo.class, filter));
+
+        assertEquals(4, rawCatalog.count(ResourceInfo.class, filter));
+        assertEquals(1, rawCatalog.count(FeatureTypeInfo.class, filter));
+        assertEquals(1, rawCatalog.count(CoverageInfo.class, filter));
+        assertEquals(1, rawCatalog.count(WMSLayerInfo.class, filter));
+        assertEquals(1, rawCatalog.count(WMTSLayerInfo.class, filter));
+
+        assertEquals(2, rawCatalog.count(PublishedInfo.class, filter));
+        assertEquals(1, rawCatalog.count(LayerInfo.class, filter));
+        assertEquals(1, rawCatalog.count(LayerGroupInfo.class, filter));
+
+        assertEquals(2, rawCatalog.count(StyleInfo.class, filter));
+    }
+
+    public @Test void testCountIdFilter() {
+        data.addObjects();
+        assertEquals(
+                1, rawCatalog.count(WorkspaceInfo.class, equal("id", data.workspaceA.getId())));
+        assertEquals(
+                0, rawCatalog.count(NamespaceInfo.class, equal("id", data.workspaceA.getId())));
+
+        assertEquals(1, rawCatalog.count(StoreInfo.class, equal("id", data.dataStoreB.getId())));
+        assertEquals(
+                1, rawCatalog.count(DataStoreInfo.class, equal("id", data.dataStoreB.getId())));
+        assertEquals(
+                0, rawCatalog.count(CoverageStoreInfo.class, equal("id", data.dataStoreB.getId())));
     }
 }

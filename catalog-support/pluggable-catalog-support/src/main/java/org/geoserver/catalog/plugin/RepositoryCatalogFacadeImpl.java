@@ -544,10 +544,25 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
     }
 
     public @Override <T extends CatalogInfo> int count(final Class<T> of, final Filter filter) {
-        try (Stream<T> matches = query(Query.valueOf(of, filter))) {
-            long count = matches.count();
-            return count > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) count;
+        long count;
+        if (PublishedInfo.class.equals(of)) {
+            long layers = count(LayerInfo.class, filter);
+            long groups = count(LayerGroupInfo.class, filter);
+            count = layers + groups;
+        } else {
+            try {
+                count = repository(of).count(of, filter);
+            } catch (RuntimeException e) {
+                LOGGER.log(
+                        Level.SEVERE,
+                        "Error obtaining count of "
+                                + of.getSimpleName()
+                                + " with filter "
+                                + filter);
+                throw e;
+            }
         }
+        return count > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) count;
     }
 
     /**

@@ -280,6 +280,18 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
         return stream;
     }
 
+    public @Override <U extends T> long count(Class<U> type, Filter filter) {
+        return Filter.INCLUDE.equals(filter)
+                ? idMultiMap
+                        .entrySet()
+                        .stream()
+                        .filter(k -> type.isAssignableFrom(k.getKey()))
+                        .map(Map.Entry::getValue)
+                        .mapToLong(Map::size)
+                        .sum()
+                : findAll(Query.valueOf(type, filter)).count();
+    }
+
     public static <U extends CatalogInfo> Comparator<U> toComparator(Query<?> query) {
         Comparator<U> comparator = providedOrder();
         for (SortBy sortBy : query.getSortBy()) {

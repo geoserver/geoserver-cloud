@@ -17,6 +17,7 @@ import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
+import org.opengis.filter.Filter;
 import org.springframework.lang.Nullable;
 
 /**
@@ -91,6 +92,8 @@ public interface CatalogInfoRepository<T extends CatalogInfo> {
      * @see Query
      */
     <U extends T> Stream<U> findAll(Query<U> query);
+
+    <U extends T> long count(Class<U> of, Filter filter);
 
     /** Looks up a CatalogInfo by class and identifier */
     <U extends T> Optional<U> findById(@NonNull String id, @Nullable Class<U> clazz);

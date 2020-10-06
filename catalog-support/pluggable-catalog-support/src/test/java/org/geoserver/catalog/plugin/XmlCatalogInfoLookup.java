@@ -170,6 +170,12 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
         return stream;
     }
 
+    public @Override <U extends T> long count(Class<U> type, Filter filter) {
+        return Filter.INCLUDE.equals(filter) && getContentType().equals(type)
+                ? idMap.size()
+                : findAll(Query.valueOf(type, filter)).count();
+    }
+
     public static <U extends CatalogInfo> Comparator<U> toComparator(Query<?> query) {
         Comparator<U> comparator = providedOrder();
         for (SortBy sortBy : query.getSortBy()) {

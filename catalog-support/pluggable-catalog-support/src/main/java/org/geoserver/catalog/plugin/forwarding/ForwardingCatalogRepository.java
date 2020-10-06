@@ -11,6 +11,7 @@ import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.Query;
+import org.opengis.filter.Filter;
 
 public abstract class ForwardingCatalogRepository<
                 I extends CatalogInfo, S extends CatalogInfoRepository<I>>
@@ -52,6 +53,10 @@ public abstract class ForwardingCatalogRepository<
 
     public @Override <U extends I> Stream<U> findAll(Query<U> query) {
         return subject.findAll(query);
+    }
+
+    public @Override <U extends I> long count(final Class<U> of, final Filter filter) {
+        return subject.count(of, filter);
     }
 
     public @Override <U extends I> Optional<U> findById(String id, Class<U> clazz) {
