@@ -4,19 +4,30 @@
  */
 package org.geoserver.cloud.integration.catalogservice;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.junit.Assert.assertEquals;
+
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
-import java.util.Collection;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogConformanceTest;
 import org.geoserver.catalog.CatalogFacade;
-import org.geoserver.catalog.event.CatalogListener;
+import org.geoserver.catalog.CoverageStoreInfo;
+import org.geoserver.catalog.DataStoreInfo;
+import org.geoserver.catalog.Predicates;
+import org.geoserver.catalog.StoreInfo;
+import org.geoserver.catalog.WMSStoreInfo;
+import org.geoserver.catalog.WMTSStoreInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.cloud.catalog.app.CatalogServiceApplication;
 import org.geoserver.cloud.catalog.client.impl.CatalogClientConfiguration;
 import org.geoserver.cloud.catalog.client.repository.CatalogServiceClientRepository;
-import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.opengis.filter.Filter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -66,14 +77,35 @@ public class CatalogServiceBackendConformanceTest extends CatalogConformanceTest
         return clientCatalog;
     }
 
-    /** Override to prune the server catalog instead of the client one */
-    @After
-    public @Override void deleteAll() {
-        Collection<CatalogListener> listeners = new ArrayList<>(serverCatalog.getListeners());
-        for (CatalogListener listener : listeners) {
-            if (listener instanceof TestListener || listener instanceof ExceptionThrowingListener)
-                serverCatalog.removeListener(listener);
-        }
+    public @Before void purgeServerCatalog() {
+        serverCatalog.removeListeners(TestListener.class);
+        serverCatalog.removeListeners(ExceptionThrowingListener.class);
         super.data.deleteAll(serverCatalog);
+    }
+
+    public @Test void testQueryFilterInstanceOf() {
+        super.data.addObjects();
+        int expected = serverCatalog.getDataStores().size();
+        assertThat(expected, greaterThan(0));
+
+        Filter filter = Predicates.isInstanceOf(DataStoreInfo.class);
+        ArrayList<StoreInfo> list = Lists.newArrayList(rawCatalog.list(StoreInfo.class, filter));
+        assertEquals(3, list.size());
+
+        filter = Predicates.isInstanceOf(CoverageStoreInfo.class);
+        list = Lists.newArrayList(rawCatalog.list(StoreInfo.class, filter));
+        assertEquals(1, list.size());
+
+        filter = Predicates.isInstanceOf(WMSStoreInfo.class);
+        list = Lists.newArrayList(rawCatalog.list(StoreInfo.class, filter));
+        assertEquals(1, list.size());
+
+        filter = Predicates.isInstanceOf(WMTSStoreInfo.class);
+        list = Lists.newArrayList(rawCatalog.list(StoreInfo.class, filter));
+        assertEquals(1, list.size());
+
+        filter = Predicates.isInstanceOf(StoreInfo.class);
+        list = Lists.newArrayList(rawCatalog.list(StoreInfo.class, filter));
+        assertEquals(6, list.size());
     }
 }

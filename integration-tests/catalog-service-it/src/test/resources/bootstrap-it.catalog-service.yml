@@ -47,12 +47,10 @@ spring:
 logging:
   level:
     root: WARN
-    reactivefeign.client.log: INFO
-    org.geoserver.cloud: INFO
-    org.geoserver.jackson.databind: INFO
-    org.geotools.jackson.databind: INFO
-    org.geoserver.jackson: INFO
-    org.geotools.jackson: INFO
+    reactivefeign.client.log: TRACE
+    org.geoserver.cloud: DEBUG
+    org.geoserver.jackson: DEBUG
+    org.geotools.jackson: DEBUG
     org.geoserver.cloud.config.factory: INFO
     org.geoserver.platform: ERROR
     org.springframework.test: ERROR

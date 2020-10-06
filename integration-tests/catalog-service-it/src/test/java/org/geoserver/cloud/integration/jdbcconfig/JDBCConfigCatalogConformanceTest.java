@@ -9,6 +9,7 @@ import org.geoserver.catalog.CatalogConformanceTest;
 import org.geoserver.cloud.testconfiguration.IntegrationTestConfiguration;
 import org.geoserver.jdbcconfig.catalog.JDBCCatalogFacade;
 import org.geoserver.platform.GeoServerResourceLoader;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,8 +37,8 @@ public class JDBCConfigCatalogConformanceTest extends CatalogConformanceTest {
         return catalog;
     }
 
-    public @Override void deleteAll() {
-        super.deleteAll();
+    public @Before void deleteAll() {
+        data.deleteAll(rawCatalog);
         jdbcCatalogFacade.dispose();
     }
 

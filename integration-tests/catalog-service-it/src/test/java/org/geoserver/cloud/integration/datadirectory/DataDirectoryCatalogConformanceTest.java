@@ -10,6 +10,7 @@ import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.cloud.testconfiguration.IntegrationTestConfiguration;
 import org.geoserver.platform.GeoServerResourceLoader;
+import org.junit.After;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -31,5 +32,9 @@ public class DataDirectoryCatalogConformanceTest extends CatalogConformanceTest 
         CatalogPlugin catalog = new CatalogPlugin(rawCatalogFacade);
         catalog.setResourceLoader(resourceLoader);
         return catalog;
+    }
+
+    public @After void deleteAll() {
+        data.deleteAll(rawCatalog);
     }
 }
