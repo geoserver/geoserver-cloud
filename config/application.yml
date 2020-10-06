@@ -75,6 +75,8 @@ logging:
     org.springframework.cloud.bus: INFO
     # geoserver roots
     org.geoserver: INFO
+    org.geoserver.wms: WARN #don't flud the logs with every request details
+    org.geoserver.wfs: WARN
     org.geoserver.jackson: INFO
     org.geotools.jackson: INFO
     org.geoserver.platform: ERROR
@@ -118,6 +120,8 @@ logging:
     org.springframework.cloud.bus: DEBUG
     # geoserver roots
     org.geoserver: INFO
+    org.geoserver.wms: WARN
+    org.geoserver.wfs: WARN
     org.geoserver.jackson: DEBUG
     org.geotools.jackson: DEBUG
     org.geoserver.platform: ERROR

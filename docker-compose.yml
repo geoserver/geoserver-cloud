@@ -141,7 +141,7 @@ services:
     #  - /tmp
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
-    command: dockerize -wait http://config:8080/wfs-service/default --timeout 30s java ${WFS_JAVA_OPTS} -jar /opt/app/wfs-service.jar
+    command: dockerize --timeout 30s -wait http://config:8080/wfs-service/default -wait http://catalog:8080/actuator/health java ${WFS_JAVA_OPTS} -jar /opt/app/wfs-service.jar
 
   # WMS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wms=5)
   wms:
@@ -163,7 +163,7 @@ services:
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
     # wait until config service is available
-    command: dockerize -wait http://config:8080/wms-service/default --timeout 30s java ${WMS_JAVA_OPTS} -jar /opt/app/wms-service.jar
+    command: dockerize -wait http://config:8080/wms-service/default -wait http://catalog:8080/actuator/health --timeout 30s java ${WMS_JAVA_OPTS} -jar /opt/app/wms-service.jar
 
   # WCS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wcs=5)
   wcs:
@@ -185,7 +185,7 @@ services:
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
     # wait until config service is available
-    command: dockerize -wait http://config:8080/wcs-service/default --timeout 30s java ${WCS_JAVA_OPTS} -jar /opt/app/wcs-service.jar
+    command: dockerize -wait http://config:8080/wcs-service/default -wait http://catalog:8080/actuator/health --timeout 30s java ${WCS_JAVA_OPTS} -jar /opt/app/wcs-service.jar
 
 #  # WPS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wps=5)
 #  wps:
@@ -207,7 +207,7 @@ services:
 #    healthcheck:
 #      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
 #    # wait until config service is available
-#    command: dockerize -wait http://config:8080/wps-service/default --timeout 30s java ${WPS_JAVA_OPTS} -jar /opt/app/wps-service.jar
+#    command: dockerize -wait http://config:8080/wps-service/default -wait http://catalog:8080/actuator/health --timeout 30s java ${WPS_JAVA_OPTS} -jar /opt/app/wps-service.jar
 
   # REST config microservice, port dynamically allocated to allow scaling (e.g docker-compose scale rest=5)
   rest:
@@ -229,7 +229,7 @@ services:
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
     # wait until config service is available
-    command: dockerize -wait http://config:8080/restconfig-service/default --timeout 30s java ${REST_JAVA_OPTS} -jar /opt/app/restconfig-service.jar
+    command: dockerize -wait http://config:8080/restconfig-service/default -wait http://catalog:8080/actuator/health --timeout 30s java ${REST_JAVA_OPTS} -jar /opt/app/restconfig-service.jar
 
   # WEB UI microservice
   webui:
@@ -251,5 +251,5 @@ services:
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
     # wait until config service is available
-    command: dockerize -wait http://config:8080/web-ui/default --timeout 30s java ${WEBUI_JAVA_OPTS} -jar /opt/app/web-ui-service.jar
+    command: dockerize -wait http://config:8080/web-ui/default -wait http://catalog:8080/actuator/health --timeout 30s java ${WEBUI_JAVA_OPTS} -jar /opt/app/web-ui-service.jar
     
