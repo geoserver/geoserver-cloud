@@ -8,7 +8,6 @@ import java.util.List;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
-import org.geoserver.function.IsInstanceOf;
 import org.geotools.filter.Capabilities;
 import org.geotools.filter.visitor.CapabilitiesFilterSplitter;
 import org.opengis.filter.Filter;
@@ -97,8 +96,6 @@ public class CatalogClientFilterSupport {
         builder.addType(TContains.class);
         builder.addType(TEquals.class);
         builder.addType(TOverlaps.class);
-
-        builder.addName(IsInstanceOf.NAME.getName());
 
         CAPABILITIES = builder.getContents();
     }

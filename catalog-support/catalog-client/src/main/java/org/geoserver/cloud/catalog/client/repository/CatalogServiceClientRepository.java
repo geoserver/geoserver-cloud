@@ -42,7 +42,7 @@ public abstract class CatalogServiceClientRepository<CI extends CatalogInfo>
     private ReactiveCatalogClient client;
 
     /** */
-    private Function<CI, CI> proxyResolver = c -> c;
+    private Function<CI, CI> proxyResolver = Function.identity();
 
     /** Don't use but through {@link #endpoint()} */
     private String _endpoint;
@@ -84,10 +84,6 @@ public abstract class CatalogServiceClientRepository<CI extends CatalogInfo>
      * coming from the wire has all properties that are subtypes of {@link Info} "proxified" and
      * need to be resolved to the real ones before leaving this class
      */
-    protected <C extends CI> Optional<C> resolve(Optional<C> incoming) {
-        return incoming.map(this::resolve);
-    }
-
     protected <C extends CI> C resolve(C incoming) {
         Function<C, C> pr = proxyResolver();
         return pr.apply(incoming);
@@ -101,10 +97,13 @@ public abstract class CatalogServiceClientRepository<CI extends CatalogInfo>
     }
 
     protected <U extends CI> Optional<U> blockAndReturn(Mono<U> call) {
+        Optional<U> object;
         if (Schedulers.isInNonBlockingThread()) {
-            return CompletableFuture.supplyAsync(call::blockOptional).join();
+            object = CompletableFuture.supplyAsync(call::blockOptional).join();
+        } else {
+            object = call.blockOptional();
         }
-        return call.blockOptional();
+        return object.map(this::resolve);
     }
 
     private final ConcurrentMap<String, Boolean> positiveCanSortByCache = new ConcurrentHashMap<>();
@@ -143,7 +142,7 @@ public abstract class CatalogServiceClientRepository<CI extends CatalogInfo>
     public @Override Stream<CI> findAll() {
         ClassMappings typeArg = typeEnum(getContentType());
         Flux<CI> flux = client.findAll(endpoint(), typeArg);
-        return flux.toStream();
+        return flux.toStream().map(this::resolve);
     }
 
     public @Override <U extends CI> Stream<U> findAll(Query<U> query) {
@@ -155,8 +154,14 @@ public abstract class CatalogServiceClientRepository<CI extends CatalogInfo>
         Filter supportedFilter = simplify(splitter.getFilterPre());
         Filter unsupportedFilter = simplify(splitter.getFilterPost());
 
+        if (!Filter.INCLUDE.equals(supportedFilter)) {
+            log.debug(
+                    "Querying {}'s with filter {}",
+                    query.getType().getSimpleName(),
+                    supportedFilter);
+        }
         query = query.withFilter(supportedFilter);
-        Stream<U> stream = client.query(endpoint(), query).map(this::resolve).toStream();
+        Stream<U> stream = client.query(endpoint(), query).toStream().map(this::resolve);
         if (!Filter.INCLUDE.equals(unsupportedFilter)) {
             log.debug("Post-filtering with {}", unsupportedFilter);
             Predicate<? super U> predicate = info -> unsupportedFilter.evaluate(info);

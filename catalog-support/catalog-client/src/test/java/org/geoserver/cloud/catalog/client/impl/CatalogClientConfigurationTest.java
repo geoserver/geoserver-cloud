@@ -25,13 +25,13 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class CatalogClientConfigurationTest {
 
     private @Autowired CatalogServiceCatalogFacade rawCatalogServiceFacade;
+
     private @Autowired GeoServerCatalogModule catalogJacksonModule;
     private @Autowired GeoServerConfigModule configJacksonModule;
     private @Autowired GeoToolsFilterModule geotoolsFilterModule;
     private @Autowired GeoToolsGeoJsonModule geotoolsGeoJSONModule;
 
-    @Test
-    public void smokeTest() {
+    public @Test void smokeTest() {
         assertNotNull(rawCatalogServiceFacade);
         assertNotNull(catalogJacksonModule);
         assertNotNull(configJacksonModule);

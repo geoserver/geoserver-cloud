@@ -48,3 +48,4 @@ logging:
     org.geoserver.cloud: DEBUG
     org.geoserver.cloud.config.factory: TRACE
     org.springframework.test: ERROR
+    
