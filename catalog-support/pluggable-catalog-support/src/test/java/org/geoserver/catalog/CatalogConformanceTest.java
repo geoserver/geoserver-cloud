@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -41,6 +40,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.geoserver.catalog.event.CatalogAddEvent;
@@ -56,6 +57,7 @@ import org.geoserver.catalog.impl.RunnerBase;
 import org.geoserver.catalog.impl.WorkspaceInfoImpl;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.config.GeoServerDataDirectory;
+import org.geoserver.ows.util.OwsUtils;
 import org.geoserver.platform.GeoServerExtensions;
 import org.geoserver.platform.GeoServerExtensionsHelper;
 import org.geoserver.platform.GeoServerResourceLoader;
@@ -65,7 +67,6 @@ import org.geoserver.security.impl.DataAccessRule;
 import org.geoserver.security.impl.DataAccessRuleDAO;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.util.logging.Logging;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -123,90 +124,102 @@ public abstract class CatalogConformanceTest {
         dataAccessRuleDAO = new DataAccessRuleDAO(dd, rawCatalog);
         dataAccessRuleDAO.reload();
 
-        data = CatalogTestData.empty(() -> rawCatalog, () -> null).initialize();
+        data = CatalogTestData.empty(() -> rawCatalog, () -> null).createCatalogObjects();
     }
 
-    @After
-    public void deleteAll() {
-        Catalog catalog = this.rawCatalog;
-        Collection<CatalogListener> listeners = new ArrayList<>(catalog.getListeners());
-        for (CatalogListener listener : listeners) {
-            if (listener instanceof TestListener || listener instanceof ExceptionThrowingListener)
-                catalog.removeListener(listener);
-        }
-        data.deleteAll(catalog);
+    private <T extends CatalogInfo> T add(T info, Consumer<T> adder, Function<String, T> query) {
+        OwsUtils.set(info, "id", null);
+        assertNull(info.getId());
+        adder.accept(info);
+        assertNotNull(info.getId());
+        String id = info.getId();
+        T created = query.apply(id);
+        assertNotNull(created);
+        assertEquals(id, created.getId());
+        return created;
     }
 
-    protected void addWorkspace() {
-        rawCatalog.add(data.workspaceA);
+    protected WorkspaceInfo addWorkspace() {
+        return add(data.workspaceA, rawCatalog::add, rawCatalog::getWorkspace);
     }
 
-    protected void addNamespace() {
-        rawCatalog.add(data.namespaceA);
+    protected NamespaceInfo addNamespace() {
+        return add(data.namespaceA, rawCatalog::add, rawCatalog::getNamespace);
     }
 
-    protected void addDataStore() {
-        addWorkspace();
-        rawCatalog.add(data.dataStoreA);
+    protected DataStoreInfo addDataStore() {
+        DataStoreInfo store = data.dataStoreA;
+        store.setWorkspace(addWorkspace());
+        return add(store, rawCatalog::add, rawCatalog::getDataStore);
     }
 
-    protected void addCoverageStore() {
-        addWorkspace();
-        rawCatalog.add(data.coverageStoreA);
+    protected CoverageStoreInfo addCoverageStore() {
+        CoverageStoreInfo store = data.coverageStoreA;
+        store.setWorkspace(addWorkspace());
+        return add(store, rawCatalog::add, rawCatalog::getCoverageStore);
     }
 
-    protected void addWMSStore() {
-        addWorkspace();
-        rawCatalog.add(data.wmsStoreA);
+    protected WMSStoreInfo addWMSStore() {
+        WMSStoreInfo store = data.wmsStoreA;
+        store.setWorkspace(addWorkspace());
+        return add(store, rawCatalog::add, id -> rawCatalog.getStore(id, WMSStoreInfo.class));
     }
 
-    protected void addWMTSStore() {
-        addWorkspace();
-        rawCatalog.add(data.wmtsStoreA);
+    protected WMTSStoreInfo addWMTSStore() {
+        WMTSStoreInfo store = data.wmtsStoreA;
+        store.setWorkspace(addWorkspace());
+        return add(store, rawCatalog::add, id -> rawCatalog.getStore(id, WMTSStoreInfo.class));
     }
 
-    protected void addFeatureType() {
-        addDataStore();
-        addNamespace();
-        rawCatalog.add(data.featureTypeA);
+    protected FeatureTypeInfo addFeatureType() {
+        FeatureTypeInfo ft = data.featureTypeA;
+        ft.setStore(addDataStore());
+        ft.setNamespace(addNamespace());
+        return add(ft, rawCatalog::add, rawCatalog::getFeatureType);
     }
 
-    protected void addCoverage() {
-        addCoverageStore();
-        addNamespace();
-        rawCatalog.add(data.coverageA);
+    protected CoverageInfo addCoverage() {
+        CoverageInfo coverage = data.coverageA;
+        coverage.setStore(addCoverageStore());
+        coverage.setNamespace(addNamespace());
+        return add(coverage, rawCatalog::add, rawCatalog::getCoverage);
     }
 
-    protected void addWMSLayer() {
-        addWMSStore();
-        addNamespace();
-        rawCatalog.add(data.wmsLayerA);
+    protected WMSLayerInfo addWMSLayer() {
+        WMSLayerInfo l = data.wmsLayerA;
+        l.setStore(addWMSStore());
+        l.setNamespace(addNamespace());
+        return add(l, rawCatalog::add, id -> rawCatalog.getResource(id, WMSLayerInfo.class));
     }
 
-    protected void addWMTSLayer() {
-        addWMTSStore();
-        addNamespace();
-        rawCatalog.add(data.wmtsLayerA);
+    protected WMTSLayerInfo addWMTSLayer() {
+        WMTSLayerInfo l = data.wmtsLayerA;
+        l.setStore(addWMTSStore());
+        l.setNamespace(addNamespace());
+        return add(l, rawCatalog::add, id -> rawCatalog.getResource(id, WMTSLayerInfo.class));
     }
 
-    protected void addStyle() {
-        rawCatalog.add(data.style1);
+    protected StyleInfo addStyle() {
+        return add(data.style1, rawCatalog::add, rawCatalog::getStyle);
     }
 
-    protected void addDefaultStyle() {
+    protected StyleInfo addDefaultStyle() {
         StyleInfo defaultStyle = data.createStyle(StyleInfo.DEFAULT_LINE);
-        rawCatalog.add(defaultStyle);
+        return add(defaultStyle, rawCatalog::add, rawCatalog::getStyle);
     }
 
-    protected void addLayer() {
-        addFeatureType();
-        addStyle();
-        rawCatalog.add(data.layerFeatureTypeA);
+    protected LayerInfo addLayer() {
+        LayerInfo layer = data.layerFeatureTypeA;
+        layer.setResource(addFeatureType());
+        layer.setDefaultStyle(addStyle());
+        return add(layer, rawCatalog::add, rawCatalog::getLayer);
     }
 
-    protected void addLayerGroup() {
-        addLayer();
-        rawCatalog.add(data.layerGroup1);
+    protected LayerGroupInfo addLayerGroup() {
+        LayerGroupInfo lg = data.layerGroup1;
+        lg.getLayers().clear();
+        lg.getLayers().add(addLayer());
+        return add(lg, rawCatalog::add, rawCatalog::getLayerGroup);
     }
 
     @Test

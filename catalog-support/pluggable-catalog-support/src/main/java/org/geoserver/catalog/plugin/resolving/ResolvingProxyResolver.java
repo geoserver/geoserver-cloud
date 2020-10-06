@@ -49,6 +49,11 @@ public class ResolvingProxyResolver implements Function<CatalogInfo, CatalogInfo
         this.onNotFound = onNotFound;
     }
 
+    public static ResolvingProxyResolver of(
+            Catalog catalog, BiConsumer<CatalogInfo, ResolvingProxy> onNotFound) {
+        return new ResolvingProxyResolver(catalog, onNotFound);
+    }
+
     public static ResolvingProxyResolver of(Catalog catalog) {
         return new ResolvingProxyResolver(catalog);
     }
@@ -67,13 +72,13 @@ public class ResolvingProxyResolver implements Function<CatalogInfo, CatalogInfo
         final boolean isResolvingProxy = null != resolvingProxy;
         if (isResolvingProxy) {
             // may the object itself be a resolving proxy
-            T info = ResolvingProxy.resolve(catalog, orig);
-            if (info == null) {
+            T resolved = ResolvingProxy.resolve(catalog, orig);
+            if (resolved == null) {
                 onNotFound.accept(orig, resolvingProxy);
                 // return the proxied value if the consumer didn't throw an exception
                 return orig;
             }
-            return info;
+            return resolved;
         }
 
         if (orig instanceof StyleInfo) return (T) resolveInternal((StyleInfo) orig);

@@ -244,6 +244,7 @@ public class RepositoryGeoServerFacade implements GeoServerFacade {
         if (global.getCoverageAccess() == null) {
             global.setCoverageAccess(new CoverageAccessInfoImpl());
         }
+        OwsUtils.resolveCollections(global);
         return info;
     }
 
@@ -301,6 +302,7 @@ public class RepositoryGeoServerFacade implements GeoServerFacade {
             service.setWorkspace(resolved);
         }
         service.setGeoServer(gs);
+        OwsUtils.resolveCollections(service);
         return service;
     }
 
