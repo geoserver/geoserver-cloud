@@ -75,6 +75,10 @@ public interface ReactiveCatalogClient {
     <C extends CatalogInfo> Flux<C> query( //
             @PathVariable("endpoint") String endpoint, @RequestBody Query<C> query);
 
+    @PostMapping(path = "/{endpoint}/query/count")
+    <C extends CatalogInfo> Mono<Long> count(
+            @PathVariable("endpoint") String endpoint, @RequestBody Query<C> query);
+
     @GetMapping(path = "/query/capabilities/functions")
     public Flux<FunctionName> getSupportedFilterFunctionNames();
 

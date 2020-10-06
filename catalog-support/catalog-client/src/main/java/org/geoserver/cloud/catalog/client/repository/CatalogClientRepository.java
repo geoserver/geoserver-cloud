@@ -108,13 +108,18 @@ public abstract class CatalogClientRepository<CI extends CatalogInfo>
         call.block();
     }
 
-    protected <U extends CI> Optional<U> blockAndReturn(Mono<U> call) {
+    protected <U> Optional<U> blockOptional(Mono<U> call) {
         Optional<U> object;
         if (Schedulers.isInNonBlockingThread()) {
             object = CompletableFuture.supplyAsync(call::blockOptional).join();
         } else {
             object = call.blockOptional();
         }
+        return object;
+    }
+
+    protected <U extends CI> Optional<U> blockAndReturn(Mono<U> call) {
+        Optional<U> object = blockOptional(call);
         return object.map(this::resolve);
     }
 
@@ -165,7 +170,6 @@ public abstract class CatalogClientRepository<CI extends CatalogInfo>
         CapabilitiesFilterSplitter splitter = getFilterSupport().split(rawFilter);
         Filter supportedFilter = simplify(splitter.getFilterPre());
         Filter unsupportedFilter = simplify(splitter.getFilterPost());
-
         if (!Filter.INCLUDE.equals(supportedFilter)) {
             log.debug(
                     "Querying {}'s with filter {}",
@@ -173,6 +177,10 @@ public abstract class CatalogClientRepository<CI extends CatalogInfo>
                     supportedFilter);
         }
         query = query.withFilter(supportedFilter);
+        return query(query, unsupportedFilter);
+    }
+
+    protected <U extends CI> Stream<U> query(Query<U> query, Filter unsupportedFilter) {
         Stream<U> stream = toStream(client.query(endpoint(), query));
         if (!Filter.INCLUDE.equals(unsupportedFilter)) {
             log.debug("Post-filtering with {}", unsupportedFilter);
@@ -180,6 +188,20 @@ public abstract class CatalogClientRepository<CI extends CatalogInfo>
             stream = stream.filter(predicate);
         }
         return stream;
+    }
+
+    public @Override <U extends CI> long count(@NonNull Class<U> of, @NonNull Filter rawFilter) {
+        if (Filter.EXCLUDE.equals(rawFilter)) {
+            return 0L;
+        }
+        CapabilitiesFilterSplitter splitter = getFilterSupport().split(rawFilter);
+        Filter supportedFilter = simplify(splitter.getFilterPre());
+        Filter unsupportedFilter = simplify(splitter.getFilterPost());
+        Query<U> query = Query.valueOf(of, supportedFilter);
+        if (Filter.INCLUDE.equals(unsupportedFilter)) {
+            return blockOptional(client().count(endpoint(), query)).orElse(Long.valueOf(0));
+        }
+        return query(query, unsupportedFilter).count();
     }
 
     private CatalogClientFilterSupport getFilterSupport() {

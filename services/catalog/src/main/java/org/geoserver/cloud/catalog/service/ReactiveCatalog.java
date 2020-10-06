@@ -16,6 +16,7 @@ import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.Query;
+import org.opengis.filter.Filter;
 import org.opengis.filter.capability.FunctionName;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -37,6 +38,8 @@ public interface ReactiveCatalog {
     Mono<Boolean> canSortBy(Class<? extends CatalogInfo> type, String propertyName);
 
     <C extends CatalogInfo> Flux<C> query(@NonNull Query<C> query);
+
+    <C extends CatalogInfo> Mono<Long> count(@NonNull Class<C> type, @NonNull Filter filter);
 
     Mono<WorkspaceInfo> setDefaultWorkspace(@NonNull WorkspaceInfo workspace);
 

@@ -27,6 +27,7 @@ import org.geoserver.catalog.plugin.Query;
 import org.geotools.filter.FunctionFinder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.locationtech.jts.geom.Geometry;
+import org.opengis.filter.Filter;
 import org.opengis.filter.capability.FunctionName;
 import org.opengis.parameter.Parameter;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -102,6 +103,12 @@ public class ReactiveCatalogImpl implements ReactiveCatalog {
                 query.getType().getSimpleName(),
                 query.getFilter());
         return Flux.fromStream(() -> blockingCatalog.query(query)).subscribeOn(catalogScheduler);
+    }
+
+    public @Override <C extends CatalogInfo> Mono<Long> count(
+            @NonNull Class<C> type, @NonNull Filter filter) {
+
+        return async(() -> (long) blockingCatalog.count(type, filter));
     }
 
     public @Override Flux<FunctionName> getSupportedFunctionNames() {

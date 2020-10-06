@@ -172,6 +172,12 @@ public class ReactiveCatalogController {
         return catalog.query(query);
     }
 
+    @PostMapping(path = "/{endpoint}/query/count")
+    public <C extends CatalogInfo> Mono<Long> count(
+            @PathVariable("endpoint") String endpoint, @RequestBody Query<C> query) {
+        return catalog.count(query.getType(), query.getFilter());
+    }
+
     @PutMapping(path = "/workspaces/default/{workspaceId}")
     public Mono<WorkspaceInfo> setDefaultWorkspace(
             @PathVariable("workspaceId") String workspaceId) {
