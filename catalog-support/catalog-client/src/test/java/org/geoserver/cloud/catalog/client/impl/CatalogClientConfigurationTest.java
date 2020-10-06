@@ -24,7 +24,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @ActiveProfiles("test")
 public class CatalogClientConfigurationTest {
 
-    private @Autowired CatalogServiceCatalogFacade rawCatalogServiceFacade;
+    private @Autowired CatalogClientCatalogFacade rawCatalogServiceFacade;
 
     private @Autowired GeoServerCatalogModule catalogJacksonModule;
     private @Autowired GeoServerConfigModule configJacksonModule;

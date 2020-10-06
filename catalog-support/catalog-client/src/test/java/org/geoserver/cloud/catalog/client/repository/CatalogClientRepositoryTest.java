@@ -63,10 +63,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@SpringBootTest(classes = CatalogRepositoriesConfiguration.class)
+@SpringBootTest(classes = CatalogClientRepositoryConfiguration.class)
 @RunWith(SpringRunner.class)
 @ActiveProfiles("test")
-public class CatalogServiceClientRepositoryTest {
+public class CatalogClientRepositoryTest {
 
     private @MockBean ReactiveCatalogClient mockClient;
 

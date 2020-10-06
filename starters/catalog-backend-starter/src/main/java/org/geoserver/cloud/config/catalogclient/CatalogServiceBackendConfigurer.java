@@ -8,10 +8,10 @@ import java.io.File;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.catalog.CatalogFacade;
+import org.geoserver.cloud.catalog.client.impl.CatalogClientCatalogFacade;
 import org.geoserver.cloud.catalog.client.impl.CatalogClientConfiguration;
-import org.geoserver.cloud.catalog.client.impl.CatalogServiceCatalogFacade;
-import org.geoserver.cloud.catalog.client.impl.CatalogServiceGeoServerFacade;
-import org.geoserver.cloud.catalog.client.impl.CatalogServiceResourceStore;
+import org.geoserver.cloud.catalog.client.impl.CatalogClientGeoServerFacade;
+import org.geoserver.cloud.catalog.client.impl.CatalogClientResourceStore;
 import org.geoserver.cloud.catalog.client.reactivefeign.ResourceStoreFallbackFactory;
 import org.geoserver.cloud.config.catalog.GeoServerBackendConfigurer;
 import org.geoserver.cloud.config.catalog.GeoServerBackendProperties;
@@ -33,9 +33,9 @@ public class CatalogServiceBackendConfigurer implements GeoServerBackendConfigur
 
     private @Autowired @Getter ApplicationContext context;
 
-    private @Autowired CatalogServiceCatalogFacade catalogClientFacade;
-    private @Autowired CatalogServiceGeoServerFacade configClientFacade;
-    private @Autowired CatalogServiceResourceStore catalogServiceResourceStore;
+    private @Autowired CatalogClientCatalogFacade catalogClientFacade;
+    private @Autowired CatalogClientGeoServerFacade configClientFacade;
+    private @Autowired CatalogClientResourceStore catalogServiceResourceStore;
     private @Autowired ResourceStoreFallbackFactory resourceStoreFallbackFactory;
 
     private @Autowired GeoServerBackendProperties configProps;
@@ -48,8 +48,8 @@ public class CatalogServiceBackendConfigurer implements GeoServerBackendConfigur
         return configClientFacade;
     }
 
-    public @Override @Bean CatalogServiceResourceStore resourceStoreImpl() {
-        CatalogServiceResourceStore store = catalogServiceResourceStore;
+    public @Override @Bean CatalogClientResourceStore resourceStoreImpl() {
+        CatalogClientResourceStore store = catalogServiceResourceStore;
         File cacheDirectory = configProps.getCatalogService().getCacheDirectory();
         if (null != cacheDirectory) {
             store.setLocalCacheDirectory(cacheDirectory);
@@ -69,7 +69,7 @@ public class CatalogServiceBackendConfigurer implements GeoServerBackendConfigur
                     fallbackResourceStore.getClass().getCanonicalName());
             resourceStoreFallbackFactory.setFallback(fallbackResourceStore);
         }
-        CatalogServiceResourceStore resourceStore = resourceStoreImpl();
+        CatalogClientResourceStore resourceStore = resourceStoreImpl();
         GeoServerResourceLoader resourceLoader = new GeoServerResourceLoader(resourceStore);
         File cacheDirectory = configProps.getCatalogService().getCacheDirectory();
         if (null != cacheDirectory) {

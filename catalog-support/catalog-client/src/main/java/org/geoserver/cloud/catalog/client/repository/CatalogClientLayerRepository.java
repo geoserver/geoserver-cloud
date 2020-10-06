@@ -13,17 +13,17 @@ import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerRepository;
 
-public class CloudLayerRepository extends CatalogServiceClientRepository<LayerInfo>
+public class CatalogClientLayerRepository extends CatalogClientRepository<LayerInfo>
         implements LayerRepository {
 
     private final @Getter Class<LayerInfo> contentType = LayerInfo.class;
 
     public @Override Stream<LayerInfo> findAllByDefaultStyleOrStyles(StyleInfo style) {
-        return client().findLayersWithStyle(style.getId()).map(this::resolve).toStream();
+        return toStream(client().findLayersWithStyle(style.getId()));
     }
 
     public @Override Stream<LayerInfo> findAllByResource(ResourceInfo resource) {
-        return client().findLayersByResourceId(resource.getId()).map(this::resolve).toStream();
+        return toStream(client().findLayersByResourceId(resource.getId()));
     }
 
     public @Override Optional<LayerInfo> findOneByName(@NonNull String name) {

@@ -97,7 +97,7 @@ logging:
 
 ---
 spring.profiles: local
-geoserver.backend.catalog-service.uri: http://localhost:9100
+geoserver.backend.catalog-service.uri: http://172.24.0.11:8080
 # provide environment variables that otherwise would be given by docker-compose.yml
 jdbcconfig.url: jdbc:postgresql://localhost:5432/geoserver_config
 jdbcconfig.username: geoserver

@@ -16,7 +16,7 @@ import org.springframework.boot.context.annotation.UserConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import reactivefeign.spring.config.ReactiveFeignAutoConfiguration;
 
-public class CatalogRepositoriesConfigurationTest {
+public class CatalogClientRepositoryConfigurationTest {
 
     private final ApplicationContextRunner contextRunner =
             new ApplicationContextRunner()
@@ -27,9 +27,9 @@ public class CatalogRepositoriesConfigurationTest {
                     .withConfiguration(
                             UserConfigurations.of(
                                     ReactiveCatalogApiClientConfiguration.class,
-                                    CatalogRepositoriesConfiguration.class));
+                                    CatalogClientRepositoryConfiguration.class));
 
-    void verify(Class<? extends CatalogServiceClientRepository<?>> repoType) {
+    void verify(Class<? extends CatalogClientRepository<?>> repoType) {
         this.contextRunner.run(context -> assertThat(context).hasSingleBean(repoType));
 
         this.contextRunner.run(
@@ -44,34 +44,34 @@ public class CatalogRepositoriesConfigurationTest {
     }
 
     public @Test void workspaceRepository() {
-        verify(CloudWorkspaceRepository.class);
+        verify(CatalogClientWorkspaceRepository.class);
     }
 
     public @Test void namespaceRepository() {
-        verify(CloudNamespaceRepository.class);
+        verify(CatalogClientNamespaceRepository.class);
     }
 
     public @Test void storeRepository() {
-        verify(CloudStoreRepository.class);
+        verify(CatalogClientStoreRepository.class);
     }
 
     public @Test void resourceRepository() {
-        verify(CloudResourceRepository.class);
+        verify(CatalogClientResourceRepository.class);
     }
 
     public @Test void layerRepository() {
-        verify(CloudLayerRepository.class);
+        verify(CatalogClientLayerRepository.class);
     }
 
     public @Test void layerGroupRepository() {
-        verify(CloudLayerGroupRepository.class);
+        verify(CatalogClientLayerGroupRepository.class);
     }
 
     public @Test void styleRepository() {
-        verify(CloudNamespaceRepository.class);
+        verify(CatalogClientNamespaceRepository.class);
     }
 
     public @Test void mapRepository() {
-        verify(CloudMapRepository.class);
+        verify(CatalogClientMapRepository.class);
     }
 }

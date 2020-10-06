@@ -27,10 +27,10 @@ import org.geoserver.platform.resource.ResourceListener;
 
 /** */
 @AllArgsConstructor
-class CatalogServiceResource implements Resource {
+class CatalogClientResource implements Resource {
 
     private @NonNull ReactiveResourceStoreClient.ResourceDescriptor descriptor;
-    private @NonNull CatalogServiceResourceStore store;
+    private @NonNull CatalogClientResourceStore store;
 
     public @Override String path() {
         return descriptor.getPath();

@@ -35,7 +35,7 @@ import org.springframework.util.Assert;
 
 /** */
 @Slf4j
-public class CatalogServiceResourceStore implements ResourceStore {
+public class CatalogClientResourceStore implements ResourceStore {
     private static final NullLockProvider NULL_LOCK_PROVIDER = new NullLockProvider();
 
     /** LockProvider used to secure resources for exclusive access */
@@ -51,7 +51,7 @@ public class CatalogServiceResourceStore implements ResourceStore {
     private ResourceNotificationDispatcher resourceNotificationDispatcher =
             NullResourceNotificationDispatcher.INSTANCE;
 
-    public CatalogServiceResourceStore(@NonNull BlockingResourceStoreClient client) {
+    public CatalogClientResourceStore(@NonNull BlockingResourceStoreClient client) {
         this.remoteStore = client;
         Path localCache = getOrCreateDefaultLocalCacheDirectory();
         setLocalCacheDirectory(localCache.toFile());
@@ -73,7 +73,7 @@ public class CatalogServiceResourceStore implements ResourceStore {
         return localCache;
     }
 
-    public CatalogServiceResourceStore(
+    public CatalogClientResourceStore(
             @NonNull BlockingResourceStoreClient client, @NonNull File localCache) {
         this.remoteStore = client;
         setLocalCacheDirectory(localCache);
@@ -95,7 +95,7 @@ public class CatalogServiceResourceStore implements ResourceStore {
         return local;
     }
 
-    public @Override CatalogServiceResource get(String path) {
+    public @Override CatalogClientResource get(String path) {
         try {
             ResourceDescriptor descriptor = remoteStore.describe(path);
             return toResource(descriptor);
@@ -146,21 +146,21 @@ public class CatalogServiceResourceStore implements ResourceStore {
         remoteStore.put(path, contents);
     }
 
-    Stream<CatalogServiceResource> list(String path) {
+    Stream<CatalogClientResource> list(String path) {
         return remoteStore.list(path).map(this::toResource);
     }
 
-    CatalogServiceResource toResource(ResourceDescriptor descriptor) {
-        return new CatalogServiceResource(descriptor, this);
+    CatalogClientResource toResource(ResourceDescriptor descriptor) {
+        return new CatalogClientResource(descriptor, this);
     }
 
     /**
      * @param catalogServiceResource
      * @return
      */
-    File file(@NonNull CatalogServiceResource resource) {
+    File file(@NonNull CatalogClientResource resource) {
         final Resource local = localStore.get(resource.path());
-        final CatalogServiceResource remote = get(resource.path());
+        final CatalogClientResource remote = get(resource.path());
 
         if (remote.isDirectory()) {
             throw new IllegalStateException(remote.path() + " is a directory");
@@ -180,9 +180,9 @@ public class CatalogServiceResourceStore implements ResourceStore {
         }
     }
 
-    File dir(@NonNull CatalogServiceResource resource) {
+    File dir(@NonNull CatalogClientResource resource) {
         final Resource local = localStore.get(resource.path());
-        final CatalogServiceResource remote = get(resource.path());
+        final CatalogClientResource remote = get(resource.path());
         if (!remote.exists()) {
             ResourceDescriptor descriptor = resource.getDescriptor();
             descriptor.setType(Type.DIRECTORY);
@@ -210,7 +210,7 @@ public class CatalogServiceResourceStore implements ResourceStore {
         }
     }
 
-    private File updateLocalFile(Resource local, CatalogServiceResource remote) {
+    private File updateLocalFile(Resource local, CatalogClientResource remote) {
         boolean localExists = local.getType() != Type.UNDEFINED;
         if (localExists && !local.delete()) {
             throw new IllegalStateException(

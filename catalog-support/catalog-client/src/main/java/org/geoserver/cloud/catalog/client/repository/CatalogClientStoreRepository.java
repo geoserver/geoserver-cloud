@@ -16,7 +16,7 @@ import org.geoserver.catalog.plugin.CatalogInfoRepository.StoreRepository;
 import org.springframework.lang.Nullable;
 import reactor.core.publisher.Flux;
 
-public class CloudStoreRepository extends CatalogServiceClientRepository<StoreInfo>
+public class CatalogClientStoreRepository extends CatalogClientRepository<StoreInfo>
         implements StoreRepository {
 
     private final @Getter Class<StoreInfo> contentType = StoreInfo.class;
@@ -40,7 +40,7 @@ public class CloudStoreRepository extends CatalogServiceClientRepository<StoreIn
     }
 
     public @Override Stream<DataStoreInfo> getDefaultDataStores() {
-        return client().getDefaultDataStores().toStream().map(this::resolve);
+        return toStream(client().getDefaultDataStores());
     }
 
     public @Override <T extends StoreInfo> Stream<T> findAllByWorkspace(
@@ -50,15 +50,12 @@ public class CloudStoreRepository extends CatalogServiceClientRepository<StoreIn
         ClassMappings type = typeEnum(clazz);
 
         Flux<T> flux = client().findStoresByWorkspaceId(workspaceId, type);
-        return flux.toStream().map(this::resolve);
+        return toStream(flux);
     }
 
     public @Override <T extends StoreInfo> Stream<T> findAllByType(@NonNull Class<T> clazz) {
 
-        return client().findAll(endpoint(), typeEnum(clazz))
-                .map(clazz::cast)
-                .map(this::resolve)
-                .toStream();
+        return toStream(client().findAll(endpoint(), typeEnum(clazz)).map(clazz::cast));
     }
 
     public @Override <T extends StoreInfo> Optional<T> findByNameAndWorkspace(

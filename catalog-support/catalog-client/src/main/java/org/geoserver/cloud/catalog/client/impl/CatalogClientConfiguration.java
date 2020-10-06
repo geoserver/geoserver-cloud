@@ -10,37 +10,37 @@ import org.geoserver.cloud.catalog.client.reactivefeign.BlockingResourceStoreCli
 import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveConfigClient;
 import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveResourceStoreClient;
 import org.geoserver.cloud.catalog.client.repository.CatalogClientConfigRepository;
-import org.geoserver.cloud.catalog.client.repository.CatalogRepositoriesConfiguration;
-import org.geoserver.cloud.catalog.client.repository.CloudLayerGroupRepository;
-import org.geoserver.cloud.catalog.client.repository.CloudLayerRepository;
-import org.geoserver.cloud.catalog.client.repository.CloudMapRepository;
-import org.geoserver.cloud.catalog.client.repository.CloudNamespaceRepository;
-import org.geoserver.cloud.catalog.client.repository.CloudResourceRepository;
-import org.geoserver.cloud.catalog.client.repository.CloudStoreRepository;
-import org.geoserver.cloud.catalog.client.repository.CloudStyleRepository;
-import org.geoserver.cloud.catalog.client.repository.CloudWorkspaceRepository;
+import org.geoserver.cloud.catalog.client.repository.CatalogClientLayerGroupRepository;
+import org.geoserver.cloud.catalog.client.repository.CatalogClientLayerRepository;
+import org.geoserver.cloud.catalog.client.repository.CatalogClientMapRepository;
+import org.geoserver.cloud.catalog.client.repository.CatalogClientNamespaceRepository;
+import org.geoserver.cloud.catalog.client.repository.CatalogClientRepositoryConfiguration;
+import org.geoserver.cloud.catalog.client.repository.CatalogClientResourceRepository;
+import org.geoserver.cloud.catalog.client.repository.CatalogClientStoreRepository;
+import org.geoserver.cloud.catalog.client.repository.CatalogClientStyleRepository;
+import org.geoserver.cloud.catalog.client.repository.CatalogClientWorkspaceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 @Configuration
-@Import(CatalogRepositoriesConfiguration.class)
+@Import(CatalogClientRepositoryConfiguration.class)
 public class CatalogClientConfiguration {
 
-    private @Autowired CloudWorkspaceRepository cloudWorkspaceRepository;
-    private @Autowired CloudNamespaceRepository cloudNamespaceRepository;
-    private @Autowired CloudStoreRepository cloudStoreRepository;
-    private @Autowired CloudResourceRepository cloudResourceRepository;
-    private @Autowired CloudLayerRepository cloudLayerRepository;
-    private @Autowired CloudLayerGroupRepository cloudLayerGroupRepository;
-    private @Autowired CloudStyleRepository cloudStyleRepository;
-    private @Autowired CloudMapRepository cloudMapRepository;
+    private @Autowired CatalogClientWorkspaceRepository cloudWorkspaceRepository;
+    private @Autowired CatalogClientNamespaceRepository cloudNamespaceRepository;
+    private @Autowired CatalogClientStoreRepository cloudStoreRepository;
+    private @Autowired CatalogClientResourceRepository cloudResourceRepository;
+    private @Autowired CatalogClientLayerRepository cloudLayerRepository;
+    private @Autowired CatalogClientLayerGroupRepository cloudLayerGroupRepository;
+    private @Autowired CatalogClientStyleRepository cloudStyleRepository;
+    private @Autowired CatalogClientMapRepository cloudMapRepository;
 
     private @Autowired ReactiveConfigClient configClient;
     private @Autowired ReactiveResourceStoreClient resourceStoreClient;
 
-    public @Bean CatalogServiceCatalogFacade rawCatalogServiceFacade() {
+    public @Bean CatalogClientCatalogFacade rawCatalogServiceFacade() {
         RepositoryCatalogFacade rawFacade = new RepositoryCatalogFacadeImpl();
         rawFacade.setWorkspaceRepository(cloudWorkspaceRepository);
         rawFacade.setNamespaceRepository(cloudNamespaceRepository);
@@ -51,7 +51,7 @@ public class CatalogClientConfiguration {
         rawFacade.setStyleRepository(cloudStyleRepository);
         rawFacade.setMapRepository(cloudMapRepository);
 
-        CatalogServiceCatalogFacade facade = new CatalogServiceCatalogFacade(rawFacade);
+        CatalogClientCatalogFacade facade = new CatalogClientCatalogFacade(rawFacade);
         return facade;
     }
 
@@ -59,14 +59,14 @@ public class CatalogClientConfiguration {
         return new CatalogClientConfigRepository(configClient);
     }
 
-    public @Bean CatalogServiceGeoServerFacade catalogServiceGeoServerFacade() {
-        return new CatalogServiceGeoServerFacade(catalogServiceConfigRepository());
+    public @Bean CatalogClientGeoServerFacade catalogServiceGeoServerFacade() {
+        return new CatalogClientGeoServerFacade(catalogServiceConfigRepository());
     }
 
-    public @Bean CatalogServiceResourceStore catalogServiceResourceStore() {
+    public @Bean CatalogClientResourceStore catalogServiceResourceStore() {
         BlockingResourceStoreClient blockingClient =
                 new BlockingResourceStoreClient(resourceStoreClient);
-        return new CatalogServiceResourceStore(blockingClient);
+        return new CatalogClientResourceStore(blockingClient);
     }
 
     // @ConditionalOnProperty(name = "reactive.feign.jetty", havingValue = "true")

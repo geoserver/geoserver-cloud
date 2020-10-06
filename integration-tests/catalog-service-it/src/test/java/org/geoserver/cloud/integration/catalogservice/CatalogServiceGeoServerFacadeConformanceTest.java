@@ -10,7 +10,7 @@ import org.geoserver.catalog.CatalogTestData;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.cloud.catalog.app.CatalogServiceApplication;
 import org.geoserver.cloud.catalog.client.impl.CatalogClientConfiguration;
-import org.geoserver.cloud.catalog.client.impl.CatalogServiceGeoServerFacade;
+import org.geoserver.cloud.catalog.client.impl.CatalogClientGeoServerFacade;
 import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveConfigClient;
 import org.geoserver.cloud.catalog.client.repository.CatalogClientConfigRepository;
 import org.geoserver.config.GeoServer;
@@ -31,7 +31,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 /**
  * API {@link GeoServerConfigConformanceTest conformance test} for a {@link GeoServer} configuration
- * manager backed by a {@link CatalogServiceGeoServerFacade} (which in turn is backed by a {@link
+ * manager backed by a {@link CatalogClientGeoServerFacade} (which in turn is backed by a {@link
  * CatalogClientConfigRepository}), which in turn is backed by a {@link ReactiveConfigClient},
  * hitting a live {@code catalog-service} instance.
  */
@@ -59,7 +59,7 @@ public class CatalogServiceGeoServerFacadeConformanceTest extends GeoServerConfi
 
     private @Autowired @Qualifier("geoServer") GeoServer serverConfig;
 
-    private @Autowired CatalogServiceGeoServerFacade facade;
+    private @Autowired CatalogClientGeoServerFacade facade;
     private @Autowired @Qualifier("rawCatalogServiceFacade") CatalogFacade clientFacade;
 
     protected @Override GeoServer createGeoServer() {

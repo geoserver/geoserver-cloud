@@ -8,9 +8,9 @@ import org.geoserver.cloud.catalog.client.repository.CatalogClientConfigReposito
 import org.geoserver.config.plugin.RepositoryGeoServerFacade;
 
 /** */
-public class CatalogServiceGeoServerFacade extends RepositoryGeoServerFacade {
+public class CatalogClientGeoServerFacade extends RepositoryGeoServerFacade {
 
-    public CatalogServiceGeoServerFacade(CatalogClientConfigRepository repository) {
+    public CatalogClientGeoServerFacade(CatalogClientConfigRepository repository) {
         super(repository);
     }
 }

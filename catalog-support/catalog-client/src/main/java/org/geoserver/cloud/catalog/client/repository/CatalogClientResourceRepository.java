@@ -19,7 +19,7 @@ import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory2;
 import org.springframework.lang.Nullable;
 
-public class CloudResourceRepository extends CatalogServiceClientRepository<ResourceInfo>
+public class CatalogClientResourceRepository extends CatalogClientRepository<ResourceInfo>
         implements ResourceRepository {
 
     private final @Getter Class<ResourceInfo> contentType = ResourceInfo.class;
@@ -28,10 +28,7 @@ public class CloudResourceRepository extends CatalogServiceClientRepository<Reso
     private final FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2();
 
     public @Override <T extends ResourceInfo> Stream<T> findAllByType(@Nullable Class<T> clazz) {
-        return client().findAll(endpoint(), typeEnum(clazz))
-                .map(clazz::cast)
-                .map(this::resolve)
-                .toStream();
+        return toStream(client().findAll(endpoint(), typeEnum(clazz)).map(clazz::cast));
     }
 
     public @Override <T extends ResourceInfo> Stream<T> findAllByNamespace(

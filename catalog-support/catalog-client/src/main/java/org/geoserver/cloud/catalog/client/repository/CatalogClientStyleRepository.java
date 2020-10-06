@@ -12,17 +12,17 @@ import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.StyleRepository;
 
-public class CloudStyleRepository extends CatalogServiceClientRepository<StyleInfo>
+public class CatalogClientStyleRepository extends CatalogClientRepository<StyleInfo>
         implements StyleRepository {
 
     private final @Getter Class<StyleInfo> contentType = StyleInfo.class;
 
     public @Override Stream<StyleInfo> findAllByNullWorkspace() {
-        return client().findStylesByNullWorkspace().map(this::resolve).toStream();
+        return toStream(client().findStylesByNullWorkspace());
     }
 
     public @Override Stream<StyleInfo> findAllByWorkspace(@NonNull WorkspaceInfo ws) {
-        return client().findStylesByWorkspaceId(ws.getId()).map(this::resolve).toStream();
+        return toStream(client().findStylesByWorkspaceId(ws.getId()));
     }
 
     public @Override Optional<StyleInfo> findByNameAndWordkspaceNull(@NonNull String name) {

@@ -13,19 +13,17 @@ import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerGroupRepository;
 
-public class CloudLayerGroupRepository extends CatalogServiceClientRepository<LayerGroupInfo>
+public class CatalogClientLayerGroupRepository extends CatalogClientRepository<LayerGroupInfo>
         implements LayerGroupRepository {
 
     private final @Getter Class<LayerGroupInfo> contentType = LayerGroupInfo.class;
 
     public @Override Stream<LayerGroupInfo> findAllByWorkspaceIsNull() {
-        return client().findLayerGroupsByNullWoskspace().map(this::resolve).toStream();
+        return toStream(client().findLayerGroupsByNullWoskspace());
     }
 
     public @Override Stream<LayerGroupInfo> findAllByWorkspace(@NonNull WorkspaceInfo workspace) {
-        return client().findLayerGroupsByWoskspaceId(workspace.getId())
-                .map(this::resolve)
-                .toStream();
+        return toStream(client().findLayerGroupsByWoskspaceId(workspace.getId()));
     }
 
     public @Override Optional<LayerGroupInfo> findByNameAndWorkspaceIsNull(@NonNull String name) {

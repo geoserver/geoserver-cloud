@@ -12,7 +12,7 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.WorkspaceRepository;
 import org.springframework.lang.Nullable;
 
-public class CloudWorkspaceRepository extends CatalogServiceClientRepository<WorkspaceInfo>
+public class CatalogClientWorkspaceRepository extends CatalogClientRepository<WorkspaceInfo>
         implements WorkspaceRepository {
 
     private final @Getter Class<WorkspaceInfo> contentType = WorkspaceInfo.class;

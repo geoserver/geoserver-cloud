@@ -13,7 +13,7 @@ import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.NamespaceRepository;
 import org.springframework.lang.Nullable;
 
-public class CloudNamespaceRepository extends CatalogServiceClientRepository<NamespaceInfo>
+public class CatalogClientNamespaceRepository extends CatalogClientRepository<NamespaceInfo>
         implements NamespaceRepository {
 
     private final @Getter Class<NamespaceInfo> contentType = NamespaceInfo.class;
@@ -45,6 +45,6 @@ public class CloudNamespaceRepository extends CatalogServiceClientRepository<Nam
     }
 
     public @Override Stream<NamespaceInfo> findAllByURI(@NonNull String uri) {
-        return client().findAllNamespacesByURI(uri).map(this::resolve).toStream();
+        return toStream(client().findAllNamespacesByURI(uri));
     }
 }

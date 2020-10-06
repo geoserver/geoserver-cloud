@@ -23,7 +23,7 @@ import org.geoserver.catalog.plugin.CatalogInfoRepository;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.cloud.catalog.app.CatalogServiceApplication;
 import org.geoserver.cloud.catalog.client.impl.CatalogClientConfiguration;
-import org.geoserver.cloud.catalog.client.repository.CatalogServiceClientRepository;
+import org.geoserver.cloud.catalog.client.repository.CatalogClientRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,8 +37,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 /**
  * {@link Catalog} integration and conformance tests for a {@link CatalogFacade} running off
- * catalog-service's client {@link CatalogServiceClientRepository repositories} hitting a real
- * back-end catalog-service.
+ * catalog-service's client {@link CatalogClientRepository repositories} hitting a real back-end
+ * catalog-service.
  *
  * <p>A {@link Catalog} using the {@code catalog-service} as its back-end is a regular {@link
  * CatalogPlugin} with an injected {@link CatalogFacade} whose {@link CatalogInfoRepository

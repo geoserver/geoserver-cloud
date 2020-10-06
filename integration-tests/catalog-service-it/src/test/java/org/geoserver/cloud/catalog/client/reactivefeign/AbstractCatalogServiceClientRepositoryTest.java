@@ -32,8 +32,8 @@ import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.PropertyDiff;
 import org.geoserver.catalog.plugin.Query;
 import org.geoserver.cloud.catalog.app.CatalogServiceApplication;
+import org.geoserver.cloud.catalog.client.impl.CatalogClientCatalogFacade;
 import org.geoserver.cloud.catalog.client.impl.CatalogClientConfiguration;
-import org.geoserver.cloud.catalog.client.impl.CatalogServiceCatalogFacade;
 import org.geoserver.cloud.catalog.client.impl.InnerResolvingProxy;
 import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.filter.text.ecql.ECQL;
@@ -74,7 +74,7 @@ public abstract class AbstractCatalogServiceClientRepositoryTest<
      */
     protected @Autowired @Qualifier("catalog") Catalog serverCatalog;
 
-    private @Autowired CatalogServiceCatalogFacade rawCatalogServiceFacade;
+    private @Autowired CatalogClientCatalogFacade rawCatalogServiceFacade;
 
     protected CatalogTestData testData;
 

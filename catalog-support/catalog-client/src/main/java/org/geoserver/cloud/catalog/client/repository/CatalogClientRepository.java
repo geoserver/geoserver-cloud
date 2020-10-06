@@ -14,9 +14,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.NonNull;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.Info;
@@ -36,13 +38,14 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 @Slf4j
-public abstract class CatalogServiceClientRepository<CI extends CatalogInfo>
+public abstract class CatalogClientRepository<CI extends CatalogInfo>
         implements CatalogInfoRepository<CI> {
 
     private ReactiveCatalogClient client;
 
-    /** */
-    private Function<CI, CI> proxyResolver = Function.identity();
+    private @Setter Function<CI, CI> objectResolver = Function.identity();
+    private @Setter Supplier<Function<CatalogInfo, CatalogInfo>> streamResolver =
+            () -> Function.identity();
 
     /** Don't use but through {@link #endpoint()} */
     private String _endpoint;
@@ -70,13 +73,9 @@ public abstract class CatalogServiceClientRepository<CI extends CatalogInfo>
         this.client = client;
     }
 
-    public void setProxyResolver(Function<CI, CI> proxyResolver) {
-        this.proxyResolver = proxyResolver;
-    }
-
     @SuppressWarnings("unchecked")
     protected <C extends CI> Function<C, C> proxyResolver() {
-        return (Function<C, C>) this.proxyResolver;
+        return (Function<C, C>) this.objectResolver;
     }
 
     /**
@@ -86,7 +85,20 @@ public abstract class CatalogServiceClientRepository<CI extends CatalogInfo>
      */
     protected <C extends CI> C resolve(C incoming) {
         Function<C, C> pr = proxyResolver();
-        return pr.apply(incoming);
+        C resolved = pr.apply(incoming);
+        return resolved;
+    }
+
+    /**
+     * Converts the Flux to a stream and applies {@link #proxyResolver()} function to each element
+     * using a {@link MemoizingResolver} so the same reference is not requested multiple times to
+     * the backend service while the stream is consumed
+     */
+    protected <I extends CI> Stream<I> toStream(Flux<I> flux) {
+        @SuppressWarnings("unchecked")
+        Function<I, I> resolver = (Function<I, I>) this.streamResolver.get();
+        Stream<I> resolvingStream = flux.toStream().map(resolver::apply);
+        return resolvingStream;
     }
 
     protected void block(Mono<Void> call) {
@@ -142,7 +154,7 @@ public abstract class CatalogServiceClientRepository<CI extends CatalogInfo>
     public @Override Stream<CI> findAll() {
         ClassMappings typeArg = typeEnum(getContentType());
         Flux<CI> flux = client.findAll(endpoint(), typeArg);
-        return flux.toStream().map(this::resolve);
+        return toStream(flux);
     }
 
     public @Override <U extends CI> Stream<U> findAll(Query<U> query) {
@@ -161,7 +173,7 @@ public abstract class CatalogServiceClientRepository<CI extends CatalogInfo>
                     supportedFilter);
         }
         query = query.withFilter(supportedFilter);
-        Stream<U> stream = client.query(endpoint(), query).toStream().map(this::resolve);
+        Stream<U> stream = toStream(client.query(endpoint(), query));
         if (!Filter.INCLUDE.equals(unsupportedFilter)) {
             log.debug("Post-filtering with {}", unsupportedFilter);
             Predicate<? super U> predicate = info -> unsupportedFilter.evaluate(info);

@@ -8,7 +8,7 @@ import lombok.Getter;
 import org.geoserver.catalog.MapInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.MapRepository;
 
-public class CloudMapRepository extends CatalogServiceClientRepository<MapInfo>
+public class CatalogClientMapRepository extends CatalogClientRepository<MapInfo>
         implements MapRepository {
 
     private final @Getter Class<MapInfo> contentType = MapInfo.class;

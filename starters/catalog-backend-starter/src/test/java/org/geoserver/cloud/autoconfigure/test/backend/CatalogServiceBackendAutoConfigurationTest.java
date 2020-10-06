@@ -13,9 +13,9 @@ import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.cloud.autoconfigure.catalog.CatalogServiceBackendAutoConfiguration;
 import org.geoserver.cloud.autoconfigure.catalog.GeoServerBackendAutoConfiguration;
 import org.geoserver.cloud.autoconfigure.security.GeoServerSecurityAutoConfiguration;
-import org.geoserver.cloud.catalog.client.impl.CatalogServiceCatalogFacade;
-import org.geoserver.cloud.catalog.client.impl.CatalogServiceGeoServerFacade;
-import org.geoserver.cloud.catalog.client.impl.CatalogServiceResourceStore;
+import org.geoserver.cloud.catalog.client.impl.CatalogClientCatalogFacade;
+import org.geoserver.cloud.catalog.client.impl.CatalogClientGeoServerFacade;
+import org.geoserver.cloud.catalog.client.impl.CatalogClientResourceStore;
 import org.geoserver.cloud.config.catalogclient.CatalogServiceBackendConfigurer;
 import org.geoserver.cloud.config.catalogclient.CatalogServiceGeoServerLoader;
 import org.geoserver.platform.GeoServerResourceLoader;
@@ -56,7 +56,7 @@ public class CatalogServiceBackendAutoConfigurationTest {
 
     public @Test void testCatalogFacade() {
         contextRunner.run(
-                context -> context.isTypeMatch("catalogFacade", CatalogServiceCatalogFacade.class));
+                context -> context.isTypeMatch("catalogFacade", CatalogClientCatalogFacade.class));
     }
 
     public @Test void testCatalogFacadeIsRawCatalogFacade() {
@@ -72,8 +72,7 @@ public class CatalogServiceBackendAutoConfigurationTest {
     public @Test void testResourceStore() {
         contextRunner.run(
                 context ->
-                        context.isTypeMatch(
-                                "resourceStoreImpl", CatalogServiceResourceStore.class));
+                        context.isTypeMatch("resourceStoreImpl", CatalogClientResourceStore.class));
     }
 
     public @Test void testResourceLoadersResourceStore() {
@@ -83,15 +82,14 @@ public class CatalogServiceBackendAutoConfigurationTest {
                             context.getBean(GeoServerResourceLoader.class);
                     assertThat(
                             resourceLoader.getResourceStore(),
-                            instanceOf(CatalogServiceResourceStore.class));
+                            instanceOf(CatalogClientResourceStore.class));
                 });
     }
 
     public @Test void testGeoserverFacade() {
         contextRunner.run(
                 context ->
-                        context.isTypeMatch(
-                                "geoserverFacade", CatalogServiceGeoServerFacade.class));
+                        context.isTypeMatch("geoserverFacade", CatalogClientGeoServerFacade.class));
     }
 
     public @Test void testGeoserverLoader() {
