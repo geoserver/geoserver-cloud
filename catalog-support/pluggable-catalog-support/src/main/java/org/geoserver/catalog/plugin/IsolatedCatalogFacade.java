@@ -4,7 +4,6 @@
  */
 package org.geoserver.catalog.plugin;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -281,6 +280,7 @@ public final class IsolatedCatalogFacade extends ForwardingExtendedCatalogFacade
 
         return info;
     }
+
     /**
      * Checks if the provided store is visible in the current context.
      *
@@ -444,17 +444,8 @@ public final class IsolatedCatalogFacade extends ForwardingExtendedCatalogFacade
         if (Dispatcher.REQUEST.get() == null) {
             return objects;
         }
-        List<T> iterable = new ArrayList<>();
-        // consume the iterator
-        while (objects.hasNext()) {
-            T object = objects.next();
-            if (filter.apply(object) != null) {
-                // this catalog object is visible in the current context
-                iterable.add(object);
-            }
-        }
-        // create an iterator for the visible catalog objects
-        return new CloseableIteratorAdapter<>(iterable.iterator());
+
+        return CloseableIteratorAdapter.filter(objects, o -> filter.apply(o) != null);
     }
 
     /**
