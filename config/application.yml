@@ -75,6 +75,7 @@ logging:
     org.springframework.cloud.bus: INFO
     # geoserver roots
     org.geoserver: INFO
+    org.geoserver.catalog.plugin: INFO
     org.geoserver.wms: WARN #don't flud the logs with every request details
     org.geoserver.wfs: WARN
     org.geoserver.jackson: INFO
@@ -97,7 +98,7 @@ logging:
 
 ---
 spring.profiles: local
-geoserver.backend.catalog-service.uri: http://172.24.0.11:8080
+geoserver.backend.catalog-service.uri: http://localhost:9100
 # provide environment variables that otherwise would be given by docker-compose.yml
 jdbcconfig.url: jdbc:postgresql://localhost:5432/geoserver_config
 jdbcconfig.username: geoserver
@@ -120,6 +121,7 @@ logging:
     org.springframework.cloud.bus: DEBUG
     # geoserver roots
     org.geoserver: INFO
+    org.geoserver.catalog.plugin: DEBUG
     org.geoserver.wms: WARN
     org.geoserver.wfs: WARN
     org.geoserver.jackson: DEBUG
