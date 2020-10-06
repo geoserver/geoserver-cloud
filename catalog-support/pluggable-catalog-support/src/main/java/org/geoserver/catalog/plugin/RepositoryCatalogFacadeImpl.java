@@ -560,6 +560,10 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
      */
     public @Override boolean canSort(
             final Class<? extends CatalogInfo> type, final String propertyName) {
+        if (PublishedInfo.class.equals(type)) {
+            return canSort(LayerInfo.class, propertyName)
+                    || canSort(LayerGroupInfo.class, propertyName);
+        }
         return repository(type).canSortBy(propertyName);
     }
 
