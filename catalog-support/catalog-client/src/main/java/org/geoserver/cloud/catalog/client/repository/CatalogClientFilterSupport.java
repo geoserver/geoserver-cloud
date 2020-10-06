@@ -7,9 +7,10 @@ package org.geoserver.cloud.catalog.client.repository;
 import java.util.List;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import lombok.experimental.Accessors;
+import org.geoserver.catalog.util.CapabilitiesFilterSplitterFix;
 import org.geotools.filter.Capabilities;
-import org.geotools.filter.visitor.CapabilitiesFilterSplitter;
 import org.opengis.filter.Filter;
 import org.opengis.filter.Id;
 import org.opengis.filter.PropertyIsBetween;
@@ -106,11 +107,16 @@ public class CatalogClientFilterSupport {
         capabilities = createCapabilities(supportedServerFunctions);
     }
 
-    public CapabilitiesFilterSplitter split(@NonNull Filter filter) {
-        CapabilitiesFilterSplitter splitter =
-                new CapabilitiesFilterSplitter(capabilities, null, null);
+    public static @Value class PrePostFilterTuple {
+        private final @NonNull Filter pre;
+        private final @NonNull Filter post;
+    }
+
+    public PrePostFilterTuple split(@NonNull Filter filter) {
+        CapabilitiesFilterSplitterFix splitter =
+                new CapabilitiesFilterSplitterFix(capabilities, null, null);
         filter.accept(splitter, null);
-        return splitter;
+        return new PrePostFilterTuple(splitter.getFilterPre(), splitter.getFilterPost());
     }
 
     private static Capabilities createCapabilities(List<FunctionName> supportedFunctionNames) {

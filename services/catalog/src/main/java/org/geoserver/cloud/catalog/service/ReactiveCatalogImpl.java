@@ -6,6 +6,7 @@ package org.geoserver.cloud.catalog.service;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
@@ -24,6 +25,7 @@ import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.Query;
+import org.geoserver.function.IsInstanceOf;
 import org.geotools.filter.FunctionFinder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.locationtech.jts.geom.Geometry;
@@ -117,18 +119,16 @@ public class ReactiveCatalogImpl implements ReactiveCatalog {
 
     private Stream<FunctionName> supportedFunctionNames() {
         if (supportedFilterFunctionNames == null) {
-            // Disable functions until https://osgeo-org.atlassian.net/browse/GEOT-6717 is
-            // resolved!!!
-            boolean freakingBug = true;
-            if (freakingBug) return Stream.empty();
-
             List<FunctionName> names =
                     new FunctionFinder(null)
                             .getAllFunctionDescriptions()
                             .stream()
                             .filter(this::supportsdArgumentTypes)
                             .sorted((f1, f2) -> f1.getName().compareTo(f2.getName()))
-                            .collect(Collectors.toList());
+                            .collect(Collectors.toCollection(LinkedList::new));
+            if (!names.contains(IsInstanceOf.NAME)) {
+                names.add(0, IsInstanceOf.NAME);
+            }
             supportedFilterFunctionNames = names;
         }
         return supportedFilterFunctionNames.stream();

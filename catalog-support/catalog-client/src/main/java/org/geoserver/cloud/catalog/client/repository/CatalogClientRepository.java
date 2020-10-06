@@ -28,7 +28,7 @@ import org.geoserver.catalog.plugin.CatalogInfoRepository;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.Query;
 import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveCatalogClient;
-import org.geotools.filter.visitor.CapabilitiesFilterSplitter;
+import org.geoserver.cloud.catalog.client.repository.CatalogClientFilterSupport.PrePostFilterTuple;
 import org.opengis.filter.Filter;
 import org.opengis.filter.capability.FunctionName;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -167,9 +167,9 @@ public abstract class CatalogClientRepository<CI extends CatalogInfo>
         if (Filter.EXCLUDE.equals(rawFilter)) {
             return Stream.empty(); // don't even bother
         }
-        CapabilitiesFilterSplitter splitter = getFilterSupport().split(rawFilter);
-        Filter supportedFilter = simplify(splitter.getFilterPre());
-        Filter unsupportedFilter = simplify(splitter.getFilterPost());
+        PrePostFilterTuple filters = getFilterSupport().split(rawFilter);
+        Filter supportedFilter = simplify(filters.pre());
+        Filter unsupportedFilter = simplify(filters.post());
         if (!Filter.INCLUDE.equals(supportedFilter)) {
             log.debug(
                     "Querying {}'s with filter {}",
@@ -194,9 +194,9 @@ public abstract class CatalogClientRepository<CI extends CatalogInfo>
         if (Filter.EXCLUDE.equals(rawFilter)) {
             return 0L;
         }
-        CapabilitiesFilterSplitter splitter = getFilterSupport().split(rawFilter);
-        Filter supportedFilter = simplify(splitter.getFilterPre());
-        Filter unsupportedFilter = simplify(splitter.getFilterPost());
+        PrePostFilterTuple filters = getFilterSupport().split(rawFilter);
+        Filter supportedFilter = simplify(filters.pre());
+        Filter unsupportedFilter = simplify(filters.post());
         Query<U> query = Query.valueOf(of, supportedFilter);
         if (Filter.INCLUDE.equals(unsupportedFilter)) {
             return blockOptional(client().count(endpoint(), query)).orElse(Long.valueOf(0));
