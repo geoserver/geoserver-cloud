@@ -181,13 +181,22 @@ public class BlockingCatalog extends AbstractCatalogDecorator {
         Integer count = query.getCount();
         SortBy sortBy = query.getSortBy().isEmpty() ? null : query.getSortBy().get(0);
 
-        CloseableIterator<? extends C> iterator =
-                delegate.list(type, filter, offset, count, sortBy);
+        CloseableIterator<? extends C> iterator;
+        try {
+            iterator = delegate.list(type, filter, offset, count, sortBy);
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            throw e;
+            //            if(!Filter.INCLUDE.equals(filter)) {
+            //                iterator = delegate.list(type, Filter.INCLUDE, null, null, sortBy);
+            //            }
+        }
         int characteristics = Spliterator.DISTINCT | Spliterator.NONNULL;
         Spliterator<C> spliterator = Spliterators.spliteratorUnknownSize(iterator, characteristics);
         boolean parallel = false;
         Stream<C> stream = StreamSupport.stream(spliterator, parallel);
         stream.onClose(iterator::close);
+
         return stream;
     }
 

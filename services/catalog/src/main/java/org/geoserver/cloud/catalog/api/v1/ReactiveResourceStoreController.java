@@ -10,13 +10,11 @@ import static org.springframework.http.MediaType.APPLICATION_STREAM_JSON_VALUE;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.Objects;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.catalog.service.ReactiveResourceStore;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.Resource.Type;
@@ -39,7 +37,6 @@ import reactor.core.publisher.Mono;
 /** */
 @RestController
 @RequestMapping(path = ReactiveResourceStoreController.BASE_URI)
-@Slf4j
 public class ReactiveResourceStoreController {
 
     public static final String BASE_URI = "/api/v1/resources";
@@ -153,20 +150,7 @@ public class ReactiveResourceStoreController {
     public Mono<WebResource> create(
             @PathVariable("path") String path, @RequestBody WebResource resource) {
 
-        return store.get(path)
-                .map(
-                        r -> {
-                            Type requestedType = resource.getType();
-                            File file;
-                            if (requestedType == Type.DIRECTORY) {
-                                file = r.dir();
-                            } else {
-                                file = r.file();
-                            }
-                            log.info("Created " + file);
-                            return r;
-                        })
-                .map(this::toWebResource);
+        return store.create(path, resource.getType()).map(this::toWebResource);
     }
 
     @PutMapping("/{*path}")

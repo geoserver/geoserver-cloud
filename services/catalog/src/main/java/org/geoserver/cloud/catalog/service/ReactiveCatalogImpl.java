@@ -97,6 +97,10 @@ public class ReactiveCatalogImpl implements ReactiveCatalog {
     }
 
     public @Override <C extends CatalogInfo> Flux<C> query(@NonNull Query<C> query) {
+        log.debug(
+                "Processing request query of {} with filter {}",
+                query.getType().getSimpleName(),
+                query.getFilter());
         return Flux.fromStream(() -> blockingCatalog.query(query)).subscribeOn(catalogScheduler);
     }
 
@@ -106,6 +110,11 @@ public class ReactiveCatalogImpl implements ReactiveCatalog {
 
     private Stream<FunctionName> supportedFunctionNames() {
         if (supportedFilterFunctionNames == null) {
+            // Disable functions until https://osgeo-org.atlassian.net/browse/GEOT-6717 is
+            // resolved!!!
+            boolean freakingBug = true;
+            if (freakingBug) return Stream.empty();
+
             List<FunctionName> names =
                     new FunctionFinder(null)
                             .getAllFunctionDescriptions()
@@ -151,7 +160,8 @@ public class ReactiveCatalogImpl implements ReactiveCatalog {
                         Date.class,
                         Geometry.class,
                         ReferencedEnvelope.class,
-                        CoordinateReferenceSystem.class)
+                        CoordinateReferenceSystem.class,
+                        Class.class)
                 .stream()
                 .anyMatch(c -> c.isAssignableFrom(type));
     }

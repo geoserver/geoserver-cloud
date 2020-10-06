@@ -7,7 +7,9 @@ package org.geoserver.cloud.catalog.service;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
+import lombok.NonNull;
 import org.geoserver.platform.resource.Resource;
+import org.geoserver.platform.resource.Resource.Type;
 import org.geoserver.platform.resource.ResourceStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -74,5 +76,21 @@ public class ReactiveResourceStoreImpl implements ReactiveResourceStore {
                 .subscribeOn(catalogScheduler)
                 .map(Resource::list)
                 .flatMapMany(l -> Flux.fromStream(l.stream()));
+    }
+
+    @Override
+    public Mono<Resource> create(String path, @NonNull Resource.Type type) {
+        return get(path)
+                .map(
+                        r -> {
+                            if (type == Type.DIRECTORY) {
+                                r.dir();
+                            } else {
+                                r.file();
+                            }
+                            return r;
+                        })
+                .map(Resource::path)
+                .flatMap(this::get);
     }
 }
