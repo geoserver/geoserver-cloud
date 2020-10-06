@@ -71,9 +71,10 @@ public class CatalogServiceBackendConfigurer implements GeoServerBackendConfigur
         }
         CatalogServiceResourceStore resourceStore = resourceStoreImpl();
         GeoServerResourceLoader resourceLoader = new GeoServerResourceLoader(resourceStore);
-        // Path location = configProperties.getDataDirectory().getLocation();
-        // File dataDirectory = location.toFile();
-        // resourceLoader.setBaseDirectory(dataDirectory);
+        File cacheDirectory = configProps.getCatalogService().getCacheDirectory();
+        if (null != cacheDirectory) {
+            resourceLoader.setBaseDirectory(cacheDirectory);
+        }
         return resourceLoader;
     }
 
