@@ -77,7 +77,7 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
     private List<ConfigurationListener> listeners = new ArrayList<ConfigurationListener>();
 
     public GeoServerImpl() {
-        this(new RepositoryGeoServerFacade());
+        this(new RepositoryGeoServerFacadeImpl());
     }
 
     public GeoServerImpl(GeoServerFacade facade) {
@@ -285,7 +285,7 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
     }
 
     public static <T> T unwrap(T obj) {
-        return RepositoryGeoServerFacade.unwrap(obj);
+        return RepositoryGeoServerFacadeImpl.unwrap(obj);
     }
 
     public @Override <T extends ServiceInfo> T getService(Class<T> clazz) {

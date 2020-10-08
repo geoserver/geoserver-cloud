@@ -37,6 +37,12 @@ import org.geoserver.config.SettingsInfo;
  * CatalogInfo} properties that are proxied through {@link ResolvingProxy} before returning the
  * object from the facade.
  *
+ * <p>When resolving object references from a stream of objects, it's convenient to use the {@link
+ * #memoizing() memoizing} supplier, which will keep a local cache during the lifetime of the stream
+ * to avoid querying the catalog over repeated occurrences. Note though, this may not be necessary
+ * at if the catalog can do very fast id lookups. For example, if it has its own caching mechanism
+ * or is a purely in-memory catalog.
+ *
  * @see ResolvingProxy
  */
 @Slf4j
@@ -257,10 +263,10 @@ public class ResolvingProxyResolver<T extends Info> implements UnaryOperator<T> 
             String id = orig.getId();
             I resolved = (I) this.resolved.get(id);
             if (null == resolved) {
-                log.debug("Memoized cache miss, resolving proxy reference {}", id);
+                log.trace("Memoized cache miss, resolving proxy reference {}", id);
                 resolved = (I) this.resolved.computeIfAbsent(id, key -> super.doResolveProxy(orig));
             } else {
-                log.debug("Memoized cache hit for {}", resolved.getId());
+                log.trace("Memoized cache hit for {}", resolved.getId());
             }
             return resolved;
         }

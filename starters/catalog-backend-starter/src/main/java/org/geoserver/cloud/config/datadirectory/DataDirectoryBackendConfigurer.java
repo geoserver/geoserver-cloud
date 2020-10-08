@@ -44,7 +44,7 @@ public class DataDirectoryBackendConfigurer implements GeoServerBackendConfigure
     }
 
     public @Override @Bean GeoServerFacade geoserverFacade() {
-        return new org.geoserver.config.plugin.RepositoryGeoServerFacade();
+        return new org.geoserver.config.plugin.RepositoryGeoServerFacadeImpl();
     }
 
     @DependsOn({
