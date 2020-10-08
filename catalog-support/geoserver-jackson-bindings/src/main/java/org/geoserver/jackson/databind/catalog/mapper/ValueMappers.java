@@ -190,16 +190,15 @@ public interface ValueMappers {
 
     AuthorityURLInfo dtoToInfo(AuthorityURL authorityURL);
 
-    @Mapping(target = "dimensionType", expression = "java(info.getDimensionType().name())")
     CoverageDimension infoToDto(CoverageDimensionInfo info);
 
     CoverageDimensionInfo dtoToInfo(CoverageDimension info);
 
-    default SampleDimensionType fromString(String value) {
+    default SampleDimensionType stringToSampleDimensionType(String value) {
         return value == null ? null : SampleDimensionType.valueOf(value);
     }
 
-    default String toString(SampleDimensionType type) {
+    default String sampleDimensionTypeToString(SampleDimensionType type) {
         return type == null ? null : type.name();
     }
 
