@@ -109,8 +109,11 @@ import org.opengis.filter.sort.SortBy;
  * and others. We should really code to the interface and leave non API code out of CatalogImpl and
  * into helper classes!
  */
-@SuppressWarnings({"serial", "rawtypes", "unchecked"}) // REMOVE once we can not inherit from
-// CatalogImpl
+@SuppressWarnings({
+    "serial",
+    "rawtypes",
+    "unchecked"
+}) // REMOVE once we can stop inheriting from CatalogImpl
 public class CatalogPlugin extends CatalogImpl implements Catalog {
 
     /** logger */
@@ -199,24 +202,26 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
         // }
         this.rawFacade = facade;
         ExtendedCatalogFacade efacade;
-        Function<CatalogInfo, CatalogInfo> outboundResolver = Function.identity();
-        Function<CatalogInfo, CatalogInfo> inboundResolver = Function.identity();
+        Function<CatalogInfo, CatalogInfo> outboundResolver;
+        Function<CatalogInfo, CatalogInfo> inboundResolver;
         if (facade instanceof ExtendedCatalogFacade) {
-            efacade = (ExtendedCatalogFacade) facade;
-            outboundResolver = ModificationProxyDecorator.wrap();
-            inboundResolver = ModificationProxyDecorator.unwrap();
+            efacade = (ExtendedCatalogFacade) rawFacade;
+            // make sure no object leaves the catalog without being proxied, nor enters the facade
+            // as a proxy. Note it is ok if the provided facade is already a ResolvingCatalogFacade.
+            // This catalog doesn't care which object resolution chain the provided facade needs to
+            // perform.
+            outboundResolver = ModificationProxyDecorator::wrap;
+            inboundResolver = ModificationProxyDecorator::unwrap;
         } else {
             efacade = new CatalogFacadeExtensionAdapter(facade);
+            outboundResolver = Function.identity();
+            inboundResolver = Function.identity();
         }
         // decorate the default catalog facade with one capable of handling isolated workspaces
-        // behavior
         if (this.isolated) {
             efacade = new IsolatedCatalogFacade(efacade);
         }
         ResolvingCatalogFacadeDecorator resolving = new ResolvingCatalogFacadeDecorator(efacade);
-        // make sure no object leaves without being proxies, nor enters the facade as a proxy. Note
-        // it is ok if the provided facade is already a ResolvingCatalogFacade. This catalog doesn't
-        // care which object resolution chain the provided facade needs to perform.
         resolving.setOutboundResolver(outboundResolver);
         resolving.setInboundResolver(inboundResolver);
         this.facade = resolving;
