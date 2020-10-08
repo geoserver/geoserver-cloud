@@ -127,10 +127,8 @@ services:
   wfs:
     image: org.geoserver.cloud/gs-cloud-wfs:${TAG}
     depends_on:
-      - discovery
-      - config
-      - database
       - rabbitmq
+      - catalog
     environment:
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: ${WFS_JAVA_OPTS}
@@ -150,10 +148,8 @@ services:
   wms:
     image: org.geoserver.cloud/gs-cloud-wms:${TAG}
     depends_on:
-      - discovery
-      - config
-      - database
       - rabbitmq
+      - catalog
     environment:
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: ${WMS_JAVA_OPTS}
@@ -172,10 +168,8 @@ services:
   wcs:
     image: org.geoserver.cloud/gs-cloud-wcs:${TAG}
     depends_on:
-      - discovery
-      - config
-      - database
       - rabbitmq
+      - catalog
     environment:
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: ${WCS_JAVA_OPTS}
@@ -194,10 +188,8 @@ services:
 #  wps:
 #    image: org.geoserver.cloud/gs-cloud-wps:${TAG}
 #    depends_on:
-#      - discovery
-#      - config
-#      - database
 #      - rabbitmq
+#      - catalog
 #    environment:
 #      EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
 #      JAVA_OPTS: ${WPS_JAVA_OPTS}
@@ -216,10 +208,8 @@ services:
   rest:
     image: org.geoserver.cloud/gs-cloud-restconfig-v1:${TAG}
     depends_on:
-      - discovery
-      - config
-      - database
       - rabbitmq
+      - catalog
     environment:
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: ${REST_JAVA_OPTS}
@@ -238,10 +228,8 @@ services:
   webui:
     image: org.geoserver.cloud/gs-cloud-web-ui:${TAG}
     depends_on:
-      - discovery
-      - config
-      - database
       - rabbitmq
+      - catalog
     environment:
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: ${WEBUI_JAVA_OPTS}
