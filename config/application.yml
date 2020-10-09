@@ -5,6 +5,7 @@ geoserver:
     advertised: true
     localWorkspace: true
     secure: true
+    caching.enabled: ${geoserver.backend.catalog-service.enabled}
   bus:
     # whether to send distributed events (i.e. acts as master). All instances receive remote events.
     send-events: true
@@ -42,6 +43,16 @@ geoserver:
         schema: public
         minimumIdle: 2
         maximumPoolSize: 8
+
+management:
+  endpoint:
+    shutdown.enabled: true
+    info.enabled: true
+    health.enabled: true
+  endpoints:
+    enabled-by-default: true
+    web.exposure.include: "*"
+
 spring:
   rabbitmq:
     host: ${RABBITMQ_HOST:localhost}
