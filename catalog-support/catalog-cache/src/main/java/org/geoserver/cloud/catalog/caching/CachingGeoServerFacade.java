@@ -11,17 +11,32 @@ import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
 import org.geoserver.config.plugin.forwarding.ForwardingGeoServerFacade;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 
 /** */
-@CacheConfig(cacheNames = {"config"})
+@CacheConfig(cacheNames = CachingGeoServerFacade.CACHE_NAME)
 public class CachingGeoServerFacade extends ForwardingGeoServerFacade {
+
+    public static final String CACHE_NAME = "config";
+
+    private Cache cache;
 
     public CachingGeoServerFacade(GeoServerFacade facade) {
         super(facade);
+    }
+
+    public @Autowired void setCacheManager(CacheManager cacheManager) {
+        cache = cacheManager.getCache(CACHE_NAME);
+    }
+
+    public boolean evict(String key) {
+        return cache != null && cache.evictIfPresent(key);
     }
 
     @Cacheable(key = "'global_geoserver'")
@@ -89,25 +104,25 @@ public class CachingGeoServerFacade extends ForwardingGeoServerFacade {
         super.save(service);
     }
 
-    //    public @Override <T extends ServiceInfo> T getService(Class<T> clazz) {
-    //        return super.getService(clazz);
-    //    }
+    // public @Override <T extends ServiceInfo> T getService(Class<T> clazz) {
+    // return super.getService(clazz);
+    // }
     //
-    //    public @Override <T extends ServiceInfo> T getService(WorkspaceInfo workspace, Class<T>
+    // public @Override <T extends ServiceInfo> T getService(WorkspaceInfo workspace, Class<T>
     // clazz) {
-    //        return super.getService(workspace, clazz);
-    //    }
+    // return super.getService(workspace, clazz);
+    // }
     //
-    //    public @Override <T extends ServiceInfo> T getService(String id, Class<T> clazz) {
-    //        return super.getService(id, clazz);
-    //    }
+    // public @Override <T extends ServiceInfo> T getService(String id, Class<T> clazz) {
+    // return super.getService(id, clazz);
+    // }
     //
-    //    public @Override <T extends ServiceInfo> T getServiceByName(String name, Class<T> clazz) {
-    //        return super.getServiceByName(name, clazz);
-    //    }
+    // public @Override <T extends ServiceInfo> T getServiceByName(String name, Class<T> clazz) {
+    // return super.getServiceByName(name, clazz);
+    // }
     //
-    //    public @Override <T extends ServiceInfo> T getServiceByName(
-    //            String name, WorkspaceInfo workspace, Class<T> clazz) {
-    //        return super.getServiceByName(name, workspace, clazz);
-    //    }
+    // public @Override <T extends ServiceInfo> T getServiceByName(
+    // String name, WorkspaceInfo workspace, Class<T> clazz) {
+    // return super.getServiceByName(name, workspace, clazz);
+    // }
 }

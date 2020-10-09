@@ -29,7 +29,7 @@ import org.springframework.context.annotation.Import;
 @Configuration
 @Import(CatalogClientConfiguration.class)
 @Slf4j
-public class CatalogServiceBackendConfigurer implements GeoServerBackendConfigurer {
+public class CatalogClientBackendConfigurer implements GeoServerBackendConfigurer {
 
     private @Autowired @Getter ApplicationContext context;
 
@@ -58,7 +58,7 @@ public class CatalogServiceBackendConfigurer implements GeoServerBackendConfigur
     }
 
     public @Override @Bean GeoServerLoader geoServerLoaderImpl() {
-        return new CatalogServiceGeoServerLoader(resourceLoader());
+        return new CatalogClientGeoServerLoader(resourceLoader());
     }
 
     public @Override @Bean GeoServerResourceLoader resourceLoader() {

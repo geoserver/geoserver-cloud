@@ -11,6 +11,7 @@ import static java.util.Spliterator.ORDERED;
 
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import org.geoserver.catalog.CatalogFacade;
@@ -42,35 +43,48 @@ public class CatalogFacadeExtensionAdapter extends ForwardingCatalogFacade
 
     private final boolean adapt;
 
+    private CatalogInfoTypeRegistry<?, Consumer<?>> updateToSaveBridge =
+            new CatalogInfoTypeRegistry<>();
+
     public CatalogFacadeExtensionAdapter(CatalogFacade facade) {
         super(facade);
         adapt = !(facade instanceof ExtendedCatalogFacade);
+        if (adapt) {
+            updateToSaveBridge.consume(WorkspaceInfo.class, facade::save);
+            updateToSaveBridge.consume(NamespaceInfo.class, facade::save);
+            updateToSaveBridge.consume(StoreInfo.class, facade::save);
+            updateToSaveBridge.consume(ResourceInfo.class, facade::save);
+            updateToSaveBridge.consume(LayerInfo.class, facade::save);
+            updateToSaveBridge.consume(LayerGroupInfo.class, facade::save);
+            updateToSaveBridge.consume(StyleInfo.class, facade::save);
+            updateToSaveBridge.consume(MapInfo.class, facade::save);
+        }
     }
 
+    /**
+     * Bridges the new {@link ExtendedCatalogFacade#update(CatalogInfo, Patch)} method to the
+     * corresponding {@link CatalogFacade#save} method in the decorated old style {@link
+     * CatalogFacade}.
+     *
+     * <p>This would be unnecessary if {@link ExtendedCatalogFacade}'s {@code update()} is
+     * incorporated to the official {@link CatalogFacade} interface.
+     */
     public @Override <I extends CatalogInfo> I update(final I info, final Patch patch) {
         if (!adapt) {
             return ((ExtendedCatalogFacade) facade).update(info, patch);
         }
 
-        @SuppressWarnings("unchecked")
-        Class<I> clazz = (Class<I>) ClassMappings.fromImpl(info.getClass()).getInterface();
-        I proxied = ModificationProxy.create(info, clazz);
-        patch.applyTo(proxied);
-        save(proxied);
-        return info;
+        final I orig = ModificationProxy.unwrap(info);
+        ClassMappings cm = CatalogInfoTypeRegistry.determineKey(orig.getClass());
+        I proxied = ModificationProxy.create(orig, cm.getInterface());
+        patch.applyTo(proxied, cm.getInterface());
+        saving(cm).accept(proxied);
+        return proxied;
     }
 
-    private void save(CatalogInfo info) {
-        if (info instanceof WorkspaceInfo) facade.save((WorkspaceInfo) info);
-        else if (info instanceof NamespaceInfo) facade.save((NamespaceInfo) info);
-        else if (info instanceof StoreInfo) facade.save((StoreInfo) info);
-        else if (info instanceof ResourceInfo) facade.save((ResourceInfo) info);
-        else if (info instanceof LayerInfo) facade.save((LayerInfo) info);
-        else if (info instanceof LayerGroupInfo) facade.save((LayerGroupInfo) info);
-        else if (info instanceof StyleInfo) facade.save((StyleInfo) info);
-        else if (info instanceof MapInfo) facade.save((MapInfo) info);
-
-        throw new IllegalArgumentException("Unknown CatalogInfo type:" + info);
+    @SuppressWarnings("unchecked")
+    private <T extends CatalogInfo> Consumer<T> saving(ClassMappings cm) {
+        return (Consumer<T>) updateToSaveBridge.of(cm);
     }
 
     public @Override <T extends CatalogInfo> Stream<T> query(Query<T> query) {

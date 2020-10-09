@@ -17,9 +17,9 @@ import org.opengis.filter.Filter;
 
 /** */
 @Slf4j
-public class CatalogServiceGeoServerLoader extends GeoServerLoader {
+public class CatalogClientGeoServerLoader extends GeoServerLoader {
 
-    public CatalogServiceGeoServerLoader(GeoServerResourceLoader resourceLoader) {
+    public CatalogClientGeoServerLoader(GeoServerResourceLoader resourceLoader) {
         super(resourceLoader);
     }
 

@@ -16,17 +16,35 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.forwarding.ForwardingExtendedCatalogFacade;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 
 /** */
-@CacheConfig(cacheNames = {"catalog"})
+@CacheConfig(cacheNames = {CachingCatalogFacade.CACHE_NAME})
 public class CachingCatalogFacade extends ForwardingExtendedCatalogFacade {
+
+    public static final String CACHE_NAME = "catalog";
+    public static final String DEFAULT_NAMESPACE_CACHE_KEY = "defaultNamespace";
+    public static final String DEFAULT_WORKSPACE_CACHE_KEY = "defaultWorkspace";
+    public static final String DEFAULT_DATASTORE_CACHE_KEY_PREFIX = "defaultDataStore.";
+
+    private Cache cache;
 
     public CachingCatalogFacade(ExtendedCatalogFacade facade) {
         super(facade);
+    }
+
+    public @Autowired void setCacheManager(CacheManager cacheManager) {
+        cache = cacheManager.getCache(CACHE_NAME);
+    }
+
+    public boolean evict(String key) {
+        return cache != null && cache.evictIfPresent(key);
     }
 
     public @Override @CachePut(key = "#p0.id") StoreInfo add(StoreInfo store) {
@@ -148,32 +166,32 @@ public class CachingCatalogFacade extends ForwardingExtendedCatalogFacade {
         return super.getLayerGroup(id);
     }
 
-    @Cacheable(key = "'defaultWorkspace'")
+    @Cacheable(key = "'" + DEFAULT_WORKSPACE_CACHE_KEY + "'")
     public @Override WorkspaceInfo getDefaultWorkspace() {
         return super.getDefaultWorkspace();
     }
 
-    @CachePut(key = "'defaultWorkspace'")
+    @CachePut(key = "'" + DEFAULT_WORKSPACE_CACHE_KEY + "'")
     public @Override void setDefaultWorkspace(WorkspaceInfo workspace) {
         super.setDefaultWorkspace(workspace);
     }
 
-    @Cacheable(key = "'defaultNamespace'")
+    @Cacheable(key = "'" + DEFAULT_NAMESPACE_CACHE_KEY + "'")
     public @Override NamespaceInfo getDefaultNamespace() {
         return super.getDefaultNamespace();
     }
 
-    @CachePut(key = "'defaultNamespace'")
+    @CachePut(key = "'" + DEFAULT_NAMESPACE_CACHE_KEY + "'")
     public @Override void setDefaultNamespace(NamespaceInfo defaultNamespace) {
         super.setDefaultNamespace(defaultNamespace);
     }
 
-    @Cacheable(key = "'defaultDataStore.' + #p0.id")
+    @Cacheable(key = "'" + DEFAULT_DATASTORE_CACHE_KEY_PREFIX + "' + #p0.id")
     public @Override DataStoreInfo getDefaultDataStore(WorkspaceInfo workspace) {
         return super.getDefaultDataStore(workspace);
     }
 
-    @CacheEvict(key = "'defaultDataStore.' + #p0.id")
+    @CacheEvict(key = "'" + DEFAULT_DATASTORE_CACHE_KEY_PREFIX + "' + #p0.id")
     public @Override void setDefaultDataStore(WorkspaceInfo workspace, DataStoreInfo store) {
         super.setDefaultDataStore(workspace, store);
     }

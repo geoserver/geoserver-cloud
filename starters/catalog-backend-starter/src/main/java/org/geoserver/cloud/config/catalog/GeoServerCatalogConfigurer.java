@@ -10,7 +10,6 @@ import org.geoserver.catalog.LayerGroupVisibilityPolicy;
 import org.geoserver.catalog.impl.AdvertisedCatalog;
 import org.geoserver.catalog.impl.LocalWorkspaceCatalog;
 import org.geoserver.catalog.plugin.CatalogPlugin;
-import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.cloud.autoconfigure.security.ConditionalOnGeoServerSecurityDisabled;
 import org.geoserver.cloud.autoconfigure.security.ConditionalOnGeoServerSecurityEnabled;
 import org.geoserver.platform.GeoServerResourceLoader;
@@ -25,19 +24,13 @@ public interface GeoServerCatalogConfigurer {
     public @Bean CatalogFacade catalogFacade();
 
     @DependsOn({"resourceLoader", "catalogFacade"})
-    default @Bean Catalog rawCatalog(
+    default @Bean CatalogPlugin rawCatalog(
             GeoServerResourceLoader resourceLoader,
             @Qualifier("catalogFacade") CatalogFacade catalogFacade,
             CatalogProperties properties) {
 
-        Catalog rawCatalog;
-        if ((catalogFacade instanceof ExtendedCatalogFacade)) {
-            boolean isolated = properties.isIsolated();
-            rawCatalog = new CatalogPlugin(catalogFacade, isolated);
-        } else {
-            rawCatalog = new org.geoserver.catalog.impl.CatalogImpl();
-            ((org.geoserver.catalog.impl.CatalogImpl) rawCatalog).setFacade(catalogFacade);
-        }
+        boolean isolated = properties.isIsolated();
+        CatalogPlugin rawCatalog = new CatalogPlugin(catalogFacade, isolated);
         rawCatalog.setResourceLoader(resourceLoader);
         return rawCatalog;
     }

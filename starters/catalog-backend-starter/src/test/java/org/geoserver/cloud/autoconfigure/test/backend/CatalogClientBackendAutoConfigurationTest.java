@@ -10,27 +10,27 @@ import static org.junit.Assert.assertSame;
 
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.plugin.CatalogPlugin;
-import org.geoserver.cloud.autoconfigure.catalog.CatalogServiceBackendAutoConfiguration;
+import org.geoserver.cloud.autoconfigure.catalog.CatalogClientBackendAutoConfiguration;
 import org.geoserver.cloud.autoconfigure.catalog.GeoServerBackendAutoConfiguration;
 import org.geoserver.cloud.autoconfigure.security.GeoServerSecurityAutoConfiguration;
 import org.geoserver.cloud.catalog.client.impl.CatalogClientCatalogFacade;
 import org.geoserver.cloud.catalog.client.impl.CatalogClientGeoServerFacade;
 import org.geoserver.cloud.catalog.client.impl.CatalogClientResourceStore;
-import org.geoserver.cloud.config.catalogclient.CatalogServiceBackendConfigurer;
-import org.geoserver.cloud.config.catalogclient.CatalogServiceGeoServerLoader;
+import org.geoserver.cloud.config.catalogclient.CatalogClientBackendConfigurer;
+import org.geoserver.cloud.config.catalogclient.CatalogClientGeoServerLoader;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.junit.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
+import org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientAutoConfiguration;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import reactivefeign.spring.config.ReactiveFeignAutoConfiguration;
 
 /**
- * Test {@link CatalogServiceBackendConfigurer} through {@link
- * CatalogServiceBackendAutoConfiguration} when {@code
- * geoserver.backend.catalog-service.enabled=true}
+ * Test {@link CatalogClientBackendConfigurer} through {@link CatalogClientBackendAutoConfiguration}
+ * when {@code geoserver.backend.catalog-service.enabled=true}
  */
-public class CatalogServiceBackendAutoConfigurationTest {
+public class CatalogClientBackendAutoConfigurationTest {
 
     // geoserver.security.enabled=false to avoid calling the catalog during bean initialization,
     // since there's no backend service to connect to
@@ -45,7 +45,8 @@ public class CatalogServiceBackendAutoConfigurationTest {
                                     GeoServerBackendAutoConfiguration.class,
                                     GeoServerSecurityAutoConfiguration.class,
                                     ReactiveFeignAutoConfiguration.class,
-                                    WebClientAutoConfiguration.class));
+                                    WebClientAutoConfiguration.class,
+                                    CacheAutoConfiguration.class));
 
     public @Test void testCatalog() {
         contextRunner.run(
@@ -96,6 +97,6 @@ public class CatalogServiceBackendAutoConfigurationTest {
         contextRunner.run(
                 context ->
                         context.isTypeMatch(
-                                "geoServerLoaderImpl", CatalogServiceGeoServerLoader.class));
+                                "geoServerLoaderImpl", CatalogClientGeoServerLoader.class));
     }
 }

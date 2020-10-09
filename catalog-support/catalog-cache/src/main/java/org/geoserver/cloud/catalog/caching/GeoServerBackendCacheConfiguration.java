@@ -5,6 +5,7 @@
 package org.geoserver.cloud.catalog.caching;
 
 import javax.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.plugin.CatalogPlugin;
@@ -24,9 +25,13 @@ import org.springframework.context.annotation.Configuration;
  * interfere with decorators such as {@code SecureCatalogImpl}, which need to hide objects at
  * runtime, and if a caching decorator sits on top of it, those resources might not be hidden for a
  * given user when they should.
+ *
+ * @see CachingCatalogFacade
+ * @see CachingGeoServerFacade
  */
 @Configuration
 @EnableCaching
+@Slf4j
 public class GeoServerBackendCacheConfiguration {
 
     private @Autowired @Qualifier("rawCatalog") CatalogPlugin rawCatalog;
@@ -35,20 +40,21 @@ public class GeoServerBackendCacheConfiguration {
     private @Autowired @Qualifier("catalogFacade") CatalogFacade rawCatalogFacade;
     private @Autowired @Qualifier("geoserverFacade") GeoServerFacade rawGeoServerFacade;
 
-    public @Bean ExtendedCatalogFacade cachingCatalogFacade() {
+    public @PostConstruct void decorateFacades() {
+        CachingCatalogFacade cachingCatalogFacade = cachingCatalogFacade();
+        CachingGeoServerFacade cachingGeoServerFacade = cachingGeoServerFacade();
+
+        rawCatalog.setFacade(cachingCatalogFacade);
+        rawGeoServer.setFacade(cachingGeoServerFacade);
+        log.info("Caching for catalog and geoserver config enabled");
+    }
+
+    public @Bean CachingCatalogFacade cachingCatalogFacade() {
         ExtendedCatalogFacade facade = (ExtendedCatalogFacade) rawCatalogFacade;
         return new CachingCatalogFacade(facade);
     }
 
-    public @Bean GeoServerFacade cachingGeoServerFacade() {
+    public @Bean CachingGeoServerFacade cachingGeoServerFacade() {
         return new CachingGeoServerFacade(rawGeoServerFacade);
-    }
-
-    public @PostConstruct void decorateFacades() {
-        ExtendedCatalogFacade cachingCatalogFacade = cachingCatalogFacade();
-        GeoServerFacade cachingGeoServerFacade = cachingGeoServerFacade();
-
-        rawCatalog.setFacade(cachingCatalogFacade);
-        rawGeoServer.setFacade(cachingGeoServerFacade);
     }
 }

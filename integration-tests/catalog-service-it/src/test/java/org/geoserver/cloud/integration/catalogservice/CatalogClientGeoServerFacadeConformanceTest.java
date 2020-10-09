@@ -49,7 +49,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 )
 @RunWith(SpringRunner.class)
 @ActiveProfiles("it.catalog-service")
-public class CatalogServiceGeoServerFacadeConformanceTest extends GeoServerConfigConformanceTest {
+public class CatalogClientGeoServerFacadeConformanceTest extends GeoServerConfigConformanceTest {
 
     /**
      * WebFlux catalog-service catalog with backend as configured by

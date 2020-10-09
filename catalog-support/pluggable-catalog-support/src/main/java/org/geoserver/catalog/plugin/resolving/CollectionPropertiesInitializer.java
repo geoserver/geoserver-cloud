@@ -4,7 +4,7 @@
  */
 package org.geoserver.catalog.plugin.resolving;
 
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.plugin.forwarding.ResolvingCatalogFacadeDecorator;
 import org.geoserver.ows.util.OwsUtils;
@@ -15,7 +15,7 @@ import org.geoserver.ows.util.OwsUtils;
  *
  * @see OwsUtils#resolveCollections
  */
-public class CollectionPropertiesInitializer<T> implements Function<T, T> {
+public class CollectionPropertiesInitializer<T> implements UnaryOperator<T> {
 
     private static CollectionPropertiesInitializer<?> INSTANCE =
             new CollectionPropertiesInitializer<>();
