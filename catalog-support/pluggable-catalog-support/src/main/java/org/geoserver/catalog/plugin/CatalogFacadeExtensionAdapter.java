@@ -76,7 +76,8 @@ public class CatalogFacadeExtensionAdapter extends ForwardingCatalogFacade
 
         final I orig = ModificationProxy.unwrap(info);
         ClassMappings cm = CatalogInfoTypeRegistry.determineKey(orig.getClass());
-        I proxied = ModificationProxy.create(orig, cm.getInterface());
+        @SuppressWarnings("unchecked")
+        I proxied = (I) ModificationProxy.create(orig, cm.getInterface());
         patch.applyTo(proxied, cm.getInterface());
         saving(cm).accept(proxied);
         return proxied;

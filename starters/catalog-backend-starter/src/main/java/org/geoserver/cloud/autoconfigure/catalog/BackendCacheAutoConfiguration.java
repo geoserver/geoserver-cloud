@@ -10,7 +10,6 @@ import org.geoserver.cloud.catalog.caching.GeoServerBackendCacheConfiguration;
 import org.geoserver.cloud.config.caching.RemoteEventCacheEvictor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,11 +25,7 @@ import org.springframework.context.annotation.Import;
  * @see GeoServerBackendCacheConfiguration
  */
 @Configuration
-@ConditionalOnProperty(
-    name = "geoserver.catalog.caching.enabled",
-    havingValue = "true",
-    matchIfMissing = false
-)
+@ConditionalOnBackendCacheEnabled
 @Import(GeoServerBackendCacheConfiguration.class)
 public class BackendCacheAutoConfiguration {
 

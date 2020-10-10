@@ -56,6 +56,13 @@ public class ForwardingCatalog implements Catalog {
         this.catalog = catalog;
     }
 
+    /** @return this decorator's subject */
+    public Catalog getSubject() {
+        // if you're wondering, I refuse to derive from org.geotools.util.decorate.AbstractDecorator
+        // and by extension from java.sql.Wrapper
+        return catalog;
+    }
+
     public @Override String getId() {
         return catalog.getId();
     }

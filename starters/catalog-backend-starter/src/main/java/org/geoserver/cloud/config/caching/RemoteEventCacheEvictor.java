@@ -7,6 +7,9 @@ package org.geoserver.cloud.config.caching;
 import com.google.common.base.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.geoserver.catalog.CatalogInfo;
+import org.geoserver.catalog.Info;
+import org.geoserver.catalog.impl.ResolvingProxy;
 import org.geoserver.cloud.bus.event.RemoteInfoEvent;
 import org.geoserver.cloud.bus.event.catalog.RemoteCatalogModifyEvent;
 import org.geoserver.cloud.bus.event.catalog.RemoteCatalogRemoveEvent;
@@ -14,6 +17,7 @@ import org.geoserver.cloud.bus.event.config.RemoteConfigModifyEvent;
 import org.geoserver.cloud.bus.event.config.RemoteConfigRemoveEvent;
 import org.geoserver.cloud.catalog.caching.CachingCatalogFacade;
 import org.geoserver.cloud.catalog.caching.CachingGeoServerFacade;
+import org.geoserver.cloud.event.ConfigInfoInfoType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.bus.ServiceMatcher;
 import org.springframework.context.event.EventListener;
@@ -38,7 +42,9 @@ public @Service class RemoteEventCacheEvictor {
         if (!busServiceMatcher.isFromSelf(event)) {
             // TODO: evict defaultns/ws/datastore
             String objectId = event.getObjectId();
-            evictEntry(objectId, catalog::evict);
+            ConfigInfoInfoType infoType = event.getInfoType();
+            CatalogInfo info = (CatalogInfo) ResolvingProxy.create(objectId, infoType.getType());
+            catalog.evict(info);
         }
     }
 
@@ -46,7 +52,9 @@ public @Service class RemoteEventCacheEvictor {
     public void evictConfigInfo(RemoteInfoEvent<?, ?> event) {
         if (!busServiceMatcher.isFromSelf(event)) {
             String objectId = event.getObjectId();
-            evictEntry(objectId, config::evict);
+            ConfigInfoInfoType infoType = event.getInfoType();
+            Info info = ResolvingProxy.create(objectId, infoType.getType());
+            config.evict(info);
         }
     }
 

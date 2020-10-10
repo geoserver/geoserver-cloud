@@ -41,8 +41,8 @@ public class GeoServerBackendCacheConfiguration {
     private @Autowired @Qualifier("geoserverFacade") GeoServerFacade rawGeoServerFacade;
 
     public @PostConstruct void decorateFacades() {
-        CachingCatalogFacade cachingCatalogFacade = cachingCatalogFacade();
-        CachingGeoServerFacade cachingGeoServerFacade = cachingGeoServerFacade();
+        CatalogFacade cachingCatalogFacade = cachingCatalogFacade();
+        GeoServerFacade cachingGeoServerFacade = cachingGeoServerFacade();
 
         rawCatalog.setFacade(cachingCatalogFacade);
         rawGeoServer.setFacade(cachingGeoServerFacade);
@@ -51,10 +51,10 @@ public class GeoServerBackendCacheConfiguration {
 
     public @Bean CachingCatalogFacade cachingCatalogFacade() {
         ExtendedCatalogFacade facade = (ExtendedCatalogFacade) rawCatalogFacade;
-        return new CachingCatalogFacade(facade);
+        return new CachingCatalogFacadeImpl(facade);
     }
 
     public @Bean CachingGeoServerFacade cachingGeoServerFacade() {
-        return new CachingGeoServerFacade(rawGeoServerFacade);
+        return new CachingGeoServerFacadeImpl(rawGeoServerFacade);
     }
 }

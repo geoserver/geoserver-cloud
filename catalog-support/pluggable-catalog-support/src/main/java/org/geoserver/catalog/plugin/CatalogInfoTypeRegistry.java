@@ -102,11 +102,11 @@ public class CatalogInfoTypeRegistry<I extends CatalogInfo, R> {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends CatalogInfo> Class<T> resolveType(T object) {
+    public static <T extends Info> Class<T> resolveType(T object) {
         return (Class<T>) determineKey(object.getClass()).getInterface();
     }
 
-    public static <T extends CatalogInfo> ClassMappings determineKey(Class<T> type) {
+    public static <T extends Info> ClassMappings determineKey(Class<T> type) {
         ClassMappings cm =
                 type.isInterface()
                         ? ClassMappings.fromInterface(type)
