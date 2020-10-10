@@ -17,10 +17,15 @@ import org.geoserver.config.GeoServerFacade;
 import org.geoserver.config.GeoServerLoader;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.ResourceStore;
+import org.geoserver.wcs.WCSXStreamLoader;
+import org.geoserver.wfs.WFSXStreamLoader;
+import org.geoserver.wms.WMSXStreamLoader;
+import org.geoserver.wps.WPSXStreamLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 
 /** */
 @Configuration(proxyBeanMethods = true)
@@ -35,13 +40,20 @@ public class DataDirectoryBackendConfigurer implements GeoServerBackendConfigure
     }
 
     public @Override @Bean CatalogFacade catalogFacade() {
-        return new org.geoserver.catalog.plugin.DefaultCatalogFacade();
+        return new org.geoserver.catalog.plugin.DefaultMemoryCatalogFacade();
     }
 
     public @Override @Bean GeoServerFacade geoserverFacade() {
-        return new org.geoserver.catalog.plugin.DefaultGeoServerFacade();
+        return new org.geoserver.config.plugin.RepositoryGeoServerFacade();
     }
 
+    @DependsOn({
+        "extensions",
+        "wmsxStreamLoader",
+        "wfsxStreamLoader",
+        "wcsxStreamLoader",
+        "wpsxStreamLoader"
+    })
     public @Override @Bean GeoServerLoader geoServerLoaderImpl() {
         GeoServerResourceLoader resourceLoader = resourceLoader();
         return new DefaultGeoServerLoader(resourceLoader);
@@ -61,5 +73,21 @@ public class DataDirectoryBackendConfigurer implements GeoServerBackendConfigure
         Path path = configProperties.getDataDirectory().getLocation();
         File dataDirectory = path.toFile();
         return new NoServletContextDataDirectoryResourceStore(dataDirectory);
+    }
+
+    public @Bean WMSXStreamLoader wmsxStreamLoader() {
+        return new WMSXStreamLoader(resourceLoader());
+    }
+
+    public @Bean WFSXStreamLoader wfsxStreamLoader() {
+        return new WFSXStreamLoader(resourceLoader());
+    }
+
+    public @Bean WCSXStreamLoader wcsxStreamLoader() {
+        return new WCSXStreamLoader(resourceLoader());
+    }
+
+    public @Bean WPSXStreamLoader wpsxStreamLoader() {
+        return new WPSXStreamLoader(resourceLoader());
     }
 }

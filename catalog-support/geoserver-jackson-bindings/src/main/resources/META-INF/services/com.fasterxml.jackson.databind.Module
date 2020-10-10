@@ -1,0 +1,2 @@
+org.geoserver.jackson.databind.catalog.GeoServerCatalogModule
+org.geoserver.jackson.databind.config.GeoServerConfigModule

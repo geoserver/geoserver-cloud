@@ -1,0 +1,2 @@
+org.geotools.jackson.databind.geojson.GeoToolsGeoJsonModule
+org.geotools.jackson.databind.filter.GeoToolsFilterModule

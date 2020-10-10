@@ -1,0 +1,43 @@
+geoserver:
+  security.enabled: false
+  catalog:
+    isolated: true
+    advertised: true
+    localWorkspace: true
+    secure: true
+  backend:
+    catalog-service:
+      uri: catalog-service
+    data-directory:
+      enabled: false
+      location: ${java.io.tmpdir}/gscloud_tests/data_directory_${random.uuid}
+    jdbcconfig:
+      enabled: false
+      initdb: true
+      cache-directory: ${java.io.tmpdir}/gscloud_tests/jdbcconfig_cache_${random.uuid}
+      datasource:
+        driverClassname: org.h2.Driver
+        jdbcUrl: jdbc:h2:mem:test;
+        username: sa
+        password:
+
+
+spring:
+  main:
+    banner-mode: off
+    allow-bean-definition-overriding: true
+  cloud.config.enabled: false
+  cloud.config.discovery.enabled: false
+  cloud.bus.enabled: false
+eureka.client.enabled: false
+
+feign.logger.level: full
+
+logging:
+  level:
+    root: WARN
+    org.geoserver.platform: ERROR
+    org.geoserver.cloud: DEBUG
+    org.geoserver.cloud.config.factory: TRACE
+    org.springframework.test: ERROR
+    org.springframework.integration.handler.LoggingHandler: OFF #spurious "Could Not Convert Output" stack traces during tests

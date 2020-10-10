@@ -7,6 +7,7 @@ package org.geoserver.cloud.event;
 import java.util.List;
 import lombok.NonNull;
 import org.geoserver.catalog.Info;
+import org.geoserver.catalog.plugin.PropertyDiff;
 
 public abstract class LocalPostModifyEvent<S, I extends Info> extends LocalModifyEvent<S, I> {
 

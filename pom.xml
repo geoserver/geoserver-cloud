@@ -12,8 +12,11 @@
     <maven.compiler.target>1.8</maven.compiler.target>
     <spring-cloud.version>Hoxton.SR8</spring-cloud.version>
     <spring-boot.version>2.3.3.RELEASE</spring-boot.version>
+    <feign-reactor.version>2.0.22</feign-reactor.version>
     <gs.version>2.19-SNAPSHOT</gs.version>
     <gt.version>25-SNAPSHOT</gt.version>
+    <lombok.version>1.18.12</lombok.version>
+    <mapstruct.version>1.4.0.CR1</mapstruct.version>
     <fmt.action>format</fmt.action>
     <fmt.skip>false</fmt.skip>
     <fork.javac>true</fork.javac>
@@ -92,6 +95,36 @@
         <scope>import</scope>
       </dependency>
       <dependency>
+        <groupId>com.playtika.reactivefeign</groupId>
+        <artifactId>feign-reactor-cloud</artifactId>
+        <version>${feign-reactor.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.playtika.reactivefeign</groupId>
+        <artifactId>feign-reactor-spring-configuration</artifactId>
+        <version>${feign-reactor.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.playtika.reactivefeign</groupId>
+        <artifactId>feign-reactor-webclient</artifactId>
+        <version>${feign-reactor.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud</groupId>
+        <artifactId>gt-jackson-bindings</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud</groupId>
+        <artifactId>gs-jackson-bindings</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud</groupId>
+        <artifactId>gs-cloud-starter-jackson</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.geoserver.cloud</groupId>
         <artifactId>gs-cloud-starter-vector-formats</artifactId>
         <version>${project.version}</version>
@@ -133,6 +166,11 @@
       </dependency>
       <dependency>
         <groupId>org.geoserver.cloud</groupId>
+        <artifactId>gs-cloud-catalog-client</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud</groupId>
         <artifactId>gs-cloud-catalog</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -156,7 +194,7 @@
       <dependency>
         <groupId>org.projectlombok</groupId>
         <artifactId>lombok</artifactId>
-        <version>1.18.12</version>
+        <version>${lombok.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -505,6 +543,11 @@
       </dependency>
       <dependency>
         <groupId>org.geotools</groupId>
+        <artifactId>gt-main</artifactId>
+        <version>${gt.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geotools</groupId>
         <artifactId>gt-process</artifactId>
         <version>${gt.version}</version>
       </dependency>
@@ -567,6 +610,11 @@
         <groupId>org.geotools</groupId>
         <artifactId>gt-property</artifactId>
         <version>${gt.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mapstruct</groupId>
+        <artifactId>mapstruct</artifactId>
+        <version>${mapstruct.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -722,6 +770,7 @@
     <module>catalog-support</module>
     <module>starters</module>
     <module>services</module>
+    <module>integration-tests</module>
   </modules>
   <profiles>
     <profile>

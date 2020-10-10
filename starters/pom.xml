@@ -13,6 +13,7 @@
 
   <modules>
     <module>catalog-backend-starter</module>
+    <module>starter-jackson</module>
     <module>starter-vector-formats</module>
     <module>starter-raster-formats</module>
     <module>starter-webmvc</module>

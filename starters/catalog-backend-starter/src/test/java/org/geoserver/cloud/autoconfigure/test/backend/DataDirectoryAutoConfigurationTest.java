@@ -17,6 +17,7 @@ import org.geoserver.cloud.config.datadirectory.DataDirectoryBackendConfigurer;
 import org.geoserver.cloud.config.datadirectory.NoServletContextDataDirectoryResourceStore;
 import org.geoserver.config.DefaultGeoServerLoader;
 import org.geoserver.platform.GeoServerResourceLoader;
+import org.junit.Assume;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -45,22 +46,25 @@ public class DataDirectoryAutoConfigurationTest extends GeoServerBackendConfigur
     }
 
     public @Test void testCatalog() {
-        assertThat(rawCatalog, instanceOf(org.geoserver.catalog.plugin.CatalogImpl.class));
+        Assume.assumeTrue(rawCatalog instanceof org.geoserver.catalog.plugin.CatalogPlugin);
+        assertThat(rawCatalog, instanceOf(org.geoserver.catalog.plugin.CatalogPlugin.class));
     }
 
     public @Test void testCatalogFacadeIsRawCatalogFacade() {
+        Assume.assumeTrue(rawCatalog instanceof org.geoserver.catalog.plugin.CatalogPlugin);
         assertSame(
                 rawCatalogFacade,
-                ((org.geoserver.catalog.plugin.CatalogImpl) rawCatalog).getRawCatalogFacade());
+                ((org.geoserver.catalog.plugin.CatalogPlugin) rawCatalog).getRawFacade());
     }
 
     public @Test void testCatalogFacade() {
+        Assume.assumeTrue(rawCatalog instanceof org.geoserver.catalog.plugin.CatalogPlugin);
         assertThat(
                 rawCatalogFacade,
-                instanceOf(org.geoserver.catalog.plugin.DefaultCatalogFacade.class));
+                instanceOf(org.geoserver.catalog.plugin.DefaultMemoryCatalogFacade.class));
         assertSame(
                 rawCatalogFacade,
-                ((org.geoserver.catalog.plugin.CatalogImpl) rawCatalog).getRawCatalogFacade());
+                ((org.geoserver.catalog.plugin.CatalogPlugin) rawCatalog).getRawFacade());
     }
 
     public @Test void testResourceLoader() {
@@ -70,7 +74,7 @@ public class DataDirectoryAutoConfigurationTest extends GeoServerBackendConfigur
     public @Test void testGeoserverFacade() {
         assertThat(
                 geoserverFacade,
-                instanceOf(org.geoserver.catalog.plugin.DefaultGeoServerFacade.class));
+                instanceOf(org.geoserver.config.plugin.RepositoryGeoServerFacade.class));
     }
 
     public @Test void testGeoserverLoader() {

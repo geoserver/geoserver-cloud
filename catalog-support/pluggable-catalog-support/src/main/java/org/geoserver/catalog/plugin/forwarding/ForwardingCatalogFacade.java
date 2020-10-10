@@ -33,10 +33,14 @@ import org.opengis.filter.sort.SortBy;
 public class ForwardingCatalogFacade implements CatalogFacade {
 
     // wrapped catalog facade
-    private final CatalogFacade facade;
+    protected final CatalogFacade facade;
 
     public ForwardingCatalogFacade(CatalogFacade facade) {
         this.facade = facade;
+    }
+
+    public CatalogFacade getFacade() {
+        return facade;
     }
 
     public @Override Catalog getCatalog() {
@@ -379,9 +383,6 @@ public class ForwardingCatalogFacade implements CatalogFacade {
     }
 
     public @Override CatalogCapabilities getCatalogCapabilities() {
-        CatalogCapabilities capabilities = facade.getCatalogCapabilities();
-        // this wrapper adds support for isolated workspaces
-        capabilities.setIsolatedWorkspacesSupport(true);
-        return capabilities;
+        return facade.getCatalogCapabilities();
     }
 }

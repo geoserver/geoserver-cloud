@@ -1,0 +1,140 @@
+geoserver:
+  security.enabled: true
+  servlet.filter.session-debug.enabled: false # until the NPE is fixed
+  catalog:
+    advertised: true
+    localWorkspace: true
+    secure: true
+  bus:
+    # whether to send distributed events (i.e. acts as master)
+    send-events: true
+    # whether to receive and process distributed events (i.e. acts as slave)
+    receive-events: true
+    # whether to send the object (CatalogInfo/config info) as payload with the event
+    send-object: false
+    # whether to send a diff of changes as payload with the event
+    send-diff: false
+  backend:
+    # configure catalog backends and decide which backend to use on this service.
+    # All backends are disabled, enable the required one on each service. For example, the catalog microservice 
+    # will enable one backend type, and the front services the catalog-service backend.
+    # revisit: Could be split into profiles
+    catalog-service:
+      enabled: false
+      uri: http://catalog:8080
+      cache-directory: ${java.io.tmpdir}/cngs/catalog-client/resource_store
+      io-threads:
+        max-size: 16
+        max-queued:
+      fallback-resource-directory: ${java.io.tmpdir}/cngs/catalog-client/fallback_resource_store
+    data-directory:
+      enabled: false
+      location: ${GEOSERVER_DATA_DIR:${java.io.tmpdir}/cngs/data_directory} 
+    jdbcconfig:
+      enabled: false
+      initdb: false
+      web.enabled: false
+      cache-directory: ${jdbcconfig.cachedir:${java.io.tmpdir}/cngs/jdbcconfig/cache}
+      datasource:
+        jdbcUrl: ${jdbcconfig.url:"jdbc:postgresql://database:5432/geoserver_config"}
+        username: ${jdbcconfig.username:geoserver}
+        password: ${jdbcconfig.password:geo$erver}
+        driverClassname: ${jdbcconfig.driverClassname:org.postgresql.Driver}
+        # optional:
+        schema: public
+        minimumIdle: 2
+        maximumPoolSize: 8
+spring:
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_URSER:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+  cloud:
+    bus:
+      enabled: true
+      id: ${server.instance-id} # use the same instance id for eureka (see service's' bootstrap.yml) and cloud-bus' rabbitmq instance id
+      trace.enabled: false #switch on tracing of acks (default off).
+    stream:
+      bindings:
+        springCloudBusOutput:
+          destination: gscatalog
+        springCloudBusInput:
+          destination: gscatalog
+  jackson:
+    default-property-inclusion: non_empty
+    serialization.indent_output: false #set to true if doing manual testing and want formatted output
+
+reactive.feign.cloud.enabled: true
+reactive.feign.hystrix.enabled: false
+
+logging:
+  level:
+    root: WARN
+    org.springframework: ERROR
+    org.springframework.cloud.bus: INFO
+    # geoserver roots
+    org.geoserver: INFO
+    org.geoserver.catalog.plugin: INFO
+    org.geoserver.wms: WARN #don't flud the logs with every request details
+    org.geoserver.wfs: WARN
+    org.geoserver.jackson: INFO
+    org.geotools.jackson: INFO
+    org.geoserver.platform: ERROR
+    org.geoserver.jdbcconfig: INFO
+    oshi.hardware.platform.linux: ERROR
+    oshi.software.os: ERROR
+    # gs-cloud roots
+    org.geoserver.cloud: INFO
+    org.geoserver.cloud.autoconfigure: INFO
+    org.geoserver.cloud.config.factory: INFO
+    # bus debugging
+    org.geoserver.cloud.bus: INFO
+    org.springframework.cloud.bus.BusAutoConfiguration: INFO
+    org.springframework.cloud.bus.DefaultBusPathMatcher: INFO
+    # reactivefeign:
+    reactivefeign.client.log: INFO
+    org.springframework.cloud.config.server.environment.NativeEnvironmentRepository: WARN
+
+---
+spring.profiles: local
+geoserver.backend.catalog-service.uri: http://localhost:9100
+# provide environment variables that otherwise would be given by docker-compose.yml
+jdbcconfig.url: jdbc:postgresql://localhost:5432/geoserver_config
+jdbcconfig.username: geoserver
+jdbcconfig.password: geo$erver
+---
+spring.profiles: datadir
+geoserver:
+  backend:
+    data-directory:
+      enabled: true
+      location: ${GEOSERVER_DATA_DIR:${java.io.tmpdir}/cngs/default_data_directory} 
+
+---
+spring.profiles: debug
+
+logging:
+  level:
+    root: WARN
+    org.springframework: INFO
+    org.springframework.cloud.bus: DEBUG
+    # geoserver roots
+    org.geoserver: INFO
+    org.geoserver.catalog.plugin: DEBUG
+    org.geoserver.wms: WARN
+    org.geoserver.wfs: WARN
+    org.geoserver.jackson: DEBUG
+    org.geotools.jackson: DEBUG
+    org.geoserver.platform: ERROR
+    org.geoserver.jdbcconfig: DEBUG
+    # gs-cloud roots
+    org.geoserver.cloud: DEBUG
+    org.geoserver.cloud.autoconfigure: DEBUG
+    org.geoserver.cloud.config.factory: DEBUG
+    # bus debugging
+    org.geoserver.cloud.bus: TRACE
+    org.springframework.cloud.bus.BusAutoConfiguration: DEBUG
+    org.springframework.cloud.bus.DefaultBusPathMatcher: DEBUG
+    # reactivefeign:
+    reactivefeign.client.log: DEBUG

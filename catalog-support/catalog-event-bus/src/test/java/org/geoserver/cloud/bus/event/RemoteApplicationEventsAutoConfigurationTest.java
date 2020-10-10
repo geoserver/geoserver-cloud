@@ -19,10 +19,12 @@ import java.util.concurrent.BlockingQueue;
 import java.util.function.Consumer;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
+import org.geoserver.catalog.CatalogTestData;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.impl.ModificationProxy;
+import org.geoserver.catalog.plugin.PropertyDiff;
 import org.geoserver.cloud.bus.GeoServerBusProperties;
 import org.geoserver.cloud.bus.event.catalog.RemoteCatalogAddEvent;
 import org.geoserver.cloud.bus.event.catalog.RemoteCatalogModifyEvent;
@@ -30,10 +32,8 @@ import org.geoserver.cloud.bus.event.catalog.RemoteCatalogRemoveEvent;
 import org.geoserver.cloud.bus.event.config.RemoteConfigAddEvent;
 import org.geoserver.cloud.bus.event.config.RemoteConfigModifyEvent;
 import org.geoserver.cloud.bus.event.config.RemoteConfigRemoveEvent;
-import org.geoserver.cloud.event.PropertyDiff;
 import org.geoserver.cloud.event.PropertyDiffTestSupport;
 import org.geoserver.cloud.test.ApplicationEventCapturingListener;
-import org.geoserver.cloud.test.CatalogTestData;
 import org.geoserver.cloud.test.TestConfigurationAutoConfiguration;
 import org.geoserver.config.CoverageAccessInfo;
 import org.geoserver.config.CoverageAccessInfo.QueueType;
@@ -103,7 +103,7 @@ public class RemoteApplicationEventsAutoConfigurationTest {
 
     private @Autowired RemoteEventPayloadCodec remoteEventPayloadCodec;
 
-    public @Rule CatalogTestData testData = CatalogTestData.empty(() -> catalog);
+    public @Rule CatalogTestData testData = CatalogTestData.empty(() -> catalog, () -> geoserver);
 
     private BusChannelEventCollector outBoundEvents;
 
@@ -306,7 +306,7 @@ public class RemoteApplicationEventsAutoConfigurationTest {
         testRemoteAddEvent(testData.layerFeatureTypeA, catalog::add, eventType);
     }
 
-    public @Test void testCatalogAddedEvents_LayerGropup() {
+    public @Test void testCatalogAddedEvents_LayerGroup() {
         catalog.add(testData.workspaceA);
         catalog.add(testData.namespaceA);
         catalog.add(testData.dataStoreA);
@@ -318,7 +318,7 @@ public class RemoteApplicationEventsAutoConfigurationTest {
         testRemoteAddEvent(testData.layerGroup1, catalog::add, eventType);
     }
 
-    public @Test void testCatalogAddedEvents_LayerGropup_Payload() {
+    public @Test void testCatalogAddedEvents_LayerGroup_Payload() {
         catalog.add(testData.workspaceA);
         catalog.add(testData.namespaceA);
         catalog.add(testData.dataStoreA);

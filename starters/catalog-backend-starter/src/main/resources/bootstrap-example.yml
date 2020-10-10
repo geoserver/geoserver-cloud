@@ -1,6 +1,9 @@
 # Example configuration for all available backends
 geoserver:
   backend:
+    catalog-service:
+      enabled: ${catalog_client.enabled:false}
+      uri: {$catalog_service.uri:catalog-service}
     data-directory:
       enabled: ${data_directory.enabled:false}
       location: ${data_directory:${java.io.tmpdir}/geoserver_cloud_data_directory}

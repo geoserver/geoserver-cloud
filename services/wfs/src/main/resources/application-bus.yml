@@ -1,9 +1,0 @@
-spring:
-   cloud:
-      bus:
-        enabled: true
-      rabbitmq:
-        host: ${RABBITMQ_HOST:localhost}
-        port: ${RABBITMQ_PORT:5672}
-        username: ${RABBITMQ_URSER:guest}
-        password: ${RABBITMQ_PASSWORD:guest}

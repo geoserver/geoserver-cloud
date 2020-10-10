@@ -7,7 +7,6 @@ package org.geoserver.cloud.catalog.repository.caching;
 import javax.annotation.PostConstruct;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogFacade;
-import org.geoserver.catalog.plugin.AbstractCatalogFacade;
 import org.geoserver.catalog.plugin.CatalogInfoRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerGroupRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerRepository;
@@ -17,6 +16,7 @@ import org.geoserver.catalog.plugin.CatalogInfoRepository.ResourceRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.StoreRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.StyleRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.WorkspaceRepository;
+import org.geoserver.catalog.plugin.RepositoryCatalogFacade;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -55,18 +55,18 @@ public class CachingRepositoryConfiguration {
     public @PostConstruct void decorateCatalogFacade() {
         CatalogFacade facade = rawCatalog.getFacade();
 
-        if (!(facade instanceof AbstractCatalogFacade)) {
+        if (!(facade instanceof RepositoryCatalogFacade)) {
             throw new IllegalStateException();
         }
-        AbstractCatalogFacade fc = (AbstractCatalogFacade) facade;
-        if (workspaces != null) fc.setWorkspaces(cachingWorkspaceRepository());
-        if (namespaces != null) fc.setNamespaces(cachingNamespaceRepository());
-        if (stores != null) fc.setStores(cachingStoreRepository());
-        if (resources != null) fc.setResources(cachingResourceRepository());
-        if (layers != null) fc.setLayers(cachingLayerRepository());
-        if (layerGroups != null) fc.setLayerGroups(cachingLayerGroupRepository());
-        if (styles != null) fc.setStyles(cachingStyleRepository());
-        if (maps != null) fc.setMaps(cachingMapRepository());
+        RepositoryCatalogFacade fc = (RepositoryCatalogFacade) facade;
+        if (workspaces != null) fc.setWorkspaceRepository(cachingWorkspaceRepository());
+        if (namespaces != null) fc.setNamespaceRepository(cachingNamespaceRepository());
+        if (stores != null) fc.setStoreRepository(cachingStoreRepository());
+        if (resources != null) fc.setResourceRepository(cachingResourceRepository());
+        if (layers != null) fc.setLayerRepository(cachingLayerRepository());
+        if (layerGroups != null) fc.setLayerGroupRepository(cachingLayerGroupRepository());
+        if (styles != null) fc.setStyleRepository(cachingStyleRepository());
+        if (maps != null) fc.setMapRepository(cachingMapRepository());
     }
 
     @ConditionalOnBean(value = WorkspaceRepository.class)

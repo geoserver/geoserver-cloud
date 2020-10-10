@@ -28,3 +28,4 @@ logging:
     root: INFO
     com.netflix.discovery: WARN
     com.netflix.eureka: WARN
+    c.n.e.registry.AbstractInstanceRegistry: ERROR # ignore WARN No remote registry available for the remote region us-east-1

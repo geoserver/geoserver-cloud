@@ -9,17 +9,19 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.lang.reflect.Proxy;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
+import org.geoserver.catalog.CatalogTestData;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.event.CatalogListener;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.impl.ModificationProxy;
-import org.geoserver.cloud.event.PropertyDiff.Change;
+import org.geoserver.catalog.plugin.PropertyDiff;
+import org.geoserver.catalog.plugin.PropertyDiff.Change;
 import org.geoserver.cloud.event.catalog.LocalCatalogAddEvent;
 import org.geoserver.cloud.event.catalog.LocalCatalogPostModifyEvent;
 import org.geoserver.cloud.event.catalog.LocalCatalogPreModifyEvent;
@@ -29,7 +31,6 @@ import org.geoserver.cloud.event.config.LocalConfigPostModifyEvent;
 import org.geoserver.cloud.event.config.LocalConfigPreModifyEvent;
 import org.geoserver.cloud.event.config.LocalConfigRemoveEvent;
 import org.geoserver.cloud.test.ApplicationEventCapturingListener;
-import org.geoserver.cloud.test.CatalogTestData;
 import org.geoserver.cloud.test.TestConfigurationAutoConfiguration;
 import org.geoserver.config.ConfigurationListener;
 import org.geoserver.config.CoverageAccessInfo;
@@ -63,7 +64,7 @@ public class LocalApplicationEventsAutoConfigurationTest {
 
     private @Autowired ApplicationEventCapturingListener listener;
 
-    public @Rule CatalogTestData testData = CatalogTestData.empty(() -> catalog);
+    public @Rule CatalogTestData testData = CatalogTestData.empty(() -> catalog, () -> geoserver);
 
     public @Before void before() {
         listener.setCapureEventsOf(LocalInfoEvent.class);
@@ -153,7 +154,7 @@ public class LocalApplicationEventsAutoConfigurationTest {
         Class<LocalCatalogPreModifyEvent> preEventType = LocalCatalogPreModifyEvent.class;
         Class<LocalCatalogPostModifyEvent> postEventType = LocalCatalogPostModifyEvent.class;
         testModify(
-                testData.workspaceA,
+                catalog.getWorkspace(testData.workspaceA.getId()),
                 ws -> {
                     ws.setName("newName");
                     ws.setIsolated(true);
@@ -163,11 +164,10 @@ public class LocalApplicationEventsAutoConfigurationTest {
                 postEventType);
 
         testModify(
-                testData.coverageStoreA,
-                cs -> {
-                    cs.setName("newCoverageStoreName");
-                    cs.setDescription("new description");
-                    cs.setWorkspace(testData.workspaceC);
+                catalog.getNamespace(testData.namespaceA.getId()),
+                n -> {
+                    n.setDateModified(new Date());
+                    n.setPrefix("new-prefix");
                 },
                 catalog::save,
                 preEventType,
@@ -281,6 +281,45 @@ public class LocalApplicationEventsAutoConfigurationTest {
                 postEventType);
     }
 
+    public @Test void testConfigPrePostModifyEvents_ServiceInfo() {
+        catalog.add(testData.workspaceA);
+        catalog.add(testData.workspaceB);
+
+        geoserver.add(testData.wmsService);
+        geoserver.add(testData.wfsService);
+
+        testData.wcsService.setWorkspace(testData.workspaceA);
+        testData.wpsService.setWorkspace(testData.workspaceB);
+        geoserver.add(testData.wcsService);
+        geoserver.add(testData.wpsService);
+
+        testConfigPrePostModifyService(testData.wmsService);
+        testConfigPrePostModifyService(testData.wfsService);
+        // WCSInfoImpl.equals() doesn't work
+        // testConfigPrePostModifyService(testData.wcsService);
+        // WPSInfoImpl.equals() doesn't work
+        // testConfigPrePostModifyService(testData.wpsService);
+    }
+
+    private void testConfigPrePostModifyService(ServiceInfo service) {
+        service = geoserver.getService(service.getId(), ServiceInfo.class);
+
+        Class<LocalConfigPreModifyEvent> preEventType = LocalConfigPreModifyEvent.class;
+        Class<LocalConfigPostModifyEvent> postEventType = LocalConfigPostModifyEvent.class;
+
+        testModify(
+                service,
+                s -> {
+                    s.setName(s.getName() + "_changed");
+                    s.setFees("SOME");
+                    s.setEnabled(false);
+                    s.getKeywords().clear();
+                },
+                geoserver::save,
+                preEventType,
+                postEventType);
+    }
+
     public @Test void testConfigRemoveEvents() {
         listener.stop();
         ServiceInfo service = new WMSInfoImpl();
@@ -309,6 +348,8 @@ public class LocalApplicationEventsAutoConfigurationTest {
             Consumer<T> saver,
             @SuppressWarnings("rawtypes") Class<? extends LocalPreModifyEvent> preEventType,
             @SuppressWarnings("rawtypes") Class<? extends LocalPostModifyEvent> postEventType) {
+        if (null == ModificationProxy.handler(info))
+            throw new IllegalArgumentException("Expected a ModificationProxy");
 
         Class<T> type;
         ClassMappings classMappings =
@@ -324,10 +365,11 @@ public class LocalApplicationEventsAutoConfigurationTest {
         } else {
             throw new IllegalArgumentException("uknown Info type: " + info);
         }
+        // apply the changes to a new proxy to build the expected PropertyDiff
         T proxy = ModificationProxy.create(ModificationProxy.unwrap(info), type);
         modifier.accept(proxy);
 
-        ModificationProxy h = (ModificationProxy) Proxy.getInvocationHandler(proxy);
+        ModificationProxy h = ModificationProxy.handler(proxy);
         List<String> propertyNames = h.getPropertyNames();
         List<Object> newValues = h.getNewValues();
         List<Object> oldValues = h.getOldValues();
@@ -337,7 +379,9 @@ public class LocalApplicationEventsAutoConfigurationTest {
 
         listener.clear();
         listener.start();
-        saver.accept(proxy);
+        // apply the changes to the actual object and save it
+        modifier.accept(info);
+        saver.accept(info);
 
         LocalPreModifyEvent<?, T> pre = listener.expectOne(preEventType);
         testData.assertEqualsLenientConnectionParameters(info, pre.getObject());

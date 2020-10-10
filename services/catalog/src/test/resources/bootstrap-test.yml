@@ -1,0 +1,41 @@
+server.error.includeStacktrace: always
+
+spring:
+  jackson.serialization.indent_output: true
+  main:
+    banner-mode: off
+    allow-bean-definition-overriding: true
+  cloud.config.enabled: false
+  cloud.config.discovery.enabled: false
+  cloud.bus.enabled: false
+eureka.client.enabled: false
+hystrix.command.default.execution.timeout.enabled: false
+hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds: 50000
+
+geoserver:
+  backend:
+    data-directory:
+      enabled: true
+      location: ${data_directory:${java.io.tmpdir}/geoserver_cloud_data_directory}
+    jdbcconfig:
+      enabled: false
+      web.enabled: false
+      initdb: true
+      cache-directory: ${java.io.tmpdir}/geoserver-jdbcconfig-cache
+      datasource:
+        driverClassname: org.h2.Driver
+        jdbcUrl: jdbc:h2:mem:test;DB_CLOSE_DELAY=-1
+        username: sa
+        password:
+
+logging:
+  level:
+    root: WARN
+    org.geoserver.platform: ERROR
+    org.geoserver.jackson: DEBUG
+    org.geotools.jackson: DEBUG
+    org.geoserver.cloud: DEBUG
+    org.geoserver.cloud.config.factory: TRACE
+    org.springframework.test: ERROR
+    o.s.integration.handler.LoggingHandler: OFF
+    

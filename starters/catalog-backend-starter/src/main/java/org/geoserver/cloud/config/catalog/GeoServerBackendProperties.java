@@ -9,12 +9,15 @@ import java.util.Properties;
 import lombok.Data;
 import org.geoserver.cloud.autoconfigure.catalog.DataDirectoryAutoConfiguration;
 import org.geoserver.cloud.autoconfigure.catalog.JDBCConfigAutoConfiguration;
+import org.geoserver.cloud.catalog.client.impl.CatalogClientProperties;
 
 public @Data class GeoServerBackendProperties {
 
     private DataDirectoryProperties dataDirectory = new DataDirectoryProperties();
 
     private JdbcconfigProperties jdbcconfig = new JdbcconfigProperties();
+
+    private CatalogClientProperties catalogService = new CatalogClientProperties();
 
     /**
      * Configuration properties to use GeoServer's traditiona, file-system based data-directory as

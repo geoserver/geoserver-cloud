@@ -4,16 +4,16 @@
  */
 package org.geoserver.cloud.catalog.repository.caching;
 
-import java.util.List;
+import java.util.Optional;
 import org.geoserver.catalog.NamespaceInfo;
-import org.geoserver.catalog.plugin.CatalogInfoRepository.NamespaceRepository;
+import org.geoserver.catalog.plugin.forwarding.ForwardingNamespaceRepository;
 import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 
 @CacheConfig(cacheNames = CacheNames.NAMESPACE_CACHE)
-public class CachingNamespaceRepository extends CachingCatalogRepository<NamespaceInfo>
-        implements NamespaceRepository {
+public class CachingNamespaceRepository extends ForwardingNamespaceRepository {
 
     public CachingNamespaceRepository(NamespaceRepository subject) {
         super(subject);
@@ -21,20 +21,20 @@ public class CachingNamespaceRepository extends CachingCatalogRepository<Namespa
 
     @CachePut(key = "defaultNamespace")
     public @Override void setDefaultNamespace(NamespaceInfo namespace) {
-        ((NamespaceRepository) subject).setDefaultNamespace(namespace);
+        super.setDefaultNamespace(namespace);
+    }
+
+    @CacheEvict(key = "defaultNamespace")
+    public @Override void unsetDefaultNamespace() {
+        super.unsetDefaultNamespace();
     }
 
     @Cacheable(key = "defaultNamespace")
-    public @Override NamespaceInfo getDefaultNamespace() {
-        return ((NamespaceRepository) subject).getDefaultNamespace();
+    public @Override Optional<NamespaceInfo> getDefaultNamespace() {
+        return super.getDefaultNamespace();
     }
 
-    @Cacheable
-    public @Override NamespaceInfo findOneByURI(String uri) {
-        return ((NamespaceRepository) subject).findOneByURI(uri);
-    }
-
-    public @Override List<NamespaceInfo> findAllByURI(String uri) {
-        return ((NamespaceRepository) subject).findAllByURI(uri);
+    public @Override Optional<NamespaceInfo> findOneByURI(String uri) {
+        return super.findOneByURI(uri);
     }
 }

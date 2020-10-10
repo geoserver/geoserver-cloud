@@ -1,5 +1,6 @@
 spring:
   main:
+    web-application-type: REACTIVE
     banner-mode: off
     allow-bean-definition-overriding: true
   cloud.config.enabled: false
@@ -8,6 +9,13 @@ spring:
 eureka.client.enabled: false
 
 geoserver:
+  catalog:
+    isolated: true
+    # Disable advertised catalog, it checks the org.geoserver.ows.Dispatcher.REQUEST to check if an OWS is in progress,
+    # which can never be the case, and causes a java.lang.NoClassDefFoundError on org.springframework.web.servlet.mvc.AbstractController
+    advertised: false
+    localWorkspace: true
+    secure: false
   backend:
     data-directory:
       enabled: true
@@ -18,6 +26,6 @@ logging:
   level:
     root: WARN
     org.geoserver.platform: ERROR
-    org.geoserver.cloud: DEBUG
-    org.geoserver.cloud.config.factory: TRACE
+    org.geoserver.cloud: INFO
+    org.geoserver.cloud.config.factory: INFO
     org.springframework.test: ERROR

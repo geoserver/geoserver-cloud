@@ -4,41 +4,48 @@
  */
 package org.geoserver.catalog.plugin.forwarding;
 
-import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
+import lombok.NonNull;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.StoreRepository;
 
-public class ForwardingStoreRepository extends ForwardingCatalogRepository<StoreInfo>
-        implements StoreRepository {
+public class ForwardingStoreRepository
+        extends ForwardingCatalogRepository<StoreInfo, StoreRepository> implements StoreRepository {
 
     public ForwardingStoreRepository(StoreRepository subject) {
         super(subject);
     }
 
     public @Override void setDefaultDataStore(WorkspaceInfo workspace, DataStoreInfo dataStore) {
-        ((StoreRepository) subject).setDefaultDataStore(workspace, dataStore);
+        subject.setDefaultDataStore(workspace, dataStore);
     }
 
-    public @Override DataStoreInfo getDefaultDataStore(WorkspaceInfo workspace) {
-        return ((StoreRepository) subject).getDefaultDataStore(workspace);
+    public @Override Optional<DataStoreInfo> getDefaultDataStore(WorkspaceInfo workspace) {
+        return subject.getDefaultDataStore(workspace);
     }
 
-    public @Override List<DataStoreInfo> getDefaultDataStores() {
-        return ((StoreRepository) subject).getDefaultDataStores();
+    public @Override Stream<DataStoreInfo> getDefaultDataStores() {
+        return subject.getDefaultDataStores();
     }
 
-    public @Override <T extends StoreInfo> T findOneByName(String name, Class<T> clazz) {
-        return ((StoreRepository) subject).findOneByName(name, clazz);
-    }
-
-    public @Override <T extends StoreInfo> List<T> findAllByWorkspace(
+    public @Override <T extends StoreInfo> Stream<T> findAllByWorkspace(
             WorkspaceInfo workspace, Class<T> clazz) {
-        return ((StoreRepository) subject).findAllByWorkspace(workspace, clazz);
+        return subject.findAllByWorkspace(workspace, clazz);
     }
 
-    public @Override <T extends StoreInfo> List<T> findAllByType(Class<T> clazz) {
-        return ((StoreRepository) subject).findAllByType(clazz);
+    public @Override <T extends StoreInfo> Stream<T> findAllByType(Class<T> clazz) {
+        return subject.findAllByType(clazz);
+    }
+
+    public @Override <T extends StoreInfo> Optional<T> findByNameAndWorkspace(
+            String name, WorkspaceInfo workspace, Class<T> clazz) {
+        return subject.findByNameAndWorkspace(name, workspace, clazz);
+    }
+
+    public @Override void unsetDefaultDataStore(@NonNull WorkspaceInfo workspace) {
+        subject.unsetDefaultDataStore(workspace);
     }
 }

@@ -4,28 +4,29 @@
  */
 package org.geoserver.catalog.plugin.forwarding;
 
-import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerRepository;
 
-public class ForwardingLayerRepository extends ForwardingCatalogRepository<LayerInfo>
-        implements LayerRepository {
+public class ForwardingLayerRepository
+        extends ForwardingCatalogRepository<LayerInfo, LayerRepository> implements LayerRepository {
 
     public ForwardingLayerRepository(LayerRepository subject) {
         super(subject);
     }
 
-    public @Override LayerInfo findOneByName(String name) {
-        return ((LayerRepository) subject).findOneByName(name);
+    public @Override Optional<LayerInfo> findOneByName(String name) {
+        return subject.findOneByName(name);
     }
 
-    public @Override List<LayerInfo> findAllByDefaultStyleOrStyles(StyleInfo style) {
-        return ((LayerRepository) subject).findAllByDefaultStyleOrStyles(style);
+    public @Override Stream<LayerInfo> findAllByDefaultStyleOrStyles(StyleInfo style) {
+        return subject.findAllByDefaultStyleOrStyles(style);
     }
 
-    public @Override List<LayerInfo> findAllByResource(ResourceInfo resource) {
-        return ((LayerRepository) subject).findAllByResource(resource);
+    public @Override Stream<LayerInfo> findAllByResource(ResourceInfo resource) {
+        return subject.findAllByResource(resource);
     }
 }

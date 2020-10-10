@@ -1,0 +1,51 @@
+spring:
+  main:
+    banner-mode: off
+    allow-bean-definition-overriding: true
+  cloud.config.enabled: false
+  cloud.config.discovery.enabled: false
+  cloud.bus.enabled: false
+eureka.client.enabled: false
+
+
+feign:
+  logger.level: full
+  client:
+    config:
+      catalog-service:
+        connectTimeout: 5000
+        readTimeout: 5000
+        loggerLevel: full
+        decode404: true
+        
+geoserver:
+  security.enabled: false
+  catalog:
+    isolated: true
+    advertised: true
+    localWorkspace: true
+    secure: true
+  backend:
+    catalog-service:
+      uri: catalog-service
+    data-directory:
+      enabled: false
+      location: ${java.io.tmpdir}/gscloud_tests/data_directory_${random.uuid}
+    jdbcconfig:
+      enabled: false
+      initdb: true
+      cache-directory: ${java.io.tmpdir}/gscloud_tests/jdbcconfig_cache_${random.uuid}
+      datasource:
+        driverClassname: org.h2.Driver
+        jdbcUrl: jdbc:h2:mem:test;
+        username: sa
+        password:
+
+logging:
+  level:
+    root: WARN
+    org.geoserver.platform: ERROR
+    org.geoserver.cloud: DEBUG
+    org.geoserver.cloud.config.factory: TRACE
+    org.springframework.test: ERROR
+    

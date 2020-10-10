@@ -12,7 +12,7 @@ import javax.annotation.PostConstruct;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import org.geoserver.catalog.Info;
-import org.geoserver.cloud.event.PropertyDiff;
+import org.geoserver.catalog.plugin.PropertyDiff;
 
 @EqualsAndHashCode(callSuper = true)
 // @JsonIgnoreProperties(value = {"object", "diff", "payloadCodec"})

@@ -4,32 +4,19 @@
  */
 package org.geoserver.cloud.catalog.repository.caching;
 
-import java.util.List;
+import java.util.Optional;
 import org.geoserver.catalog.LayerInfo;
-import org.geoserver.catalog.ResourceInfo;
-import org.geoserver.catalog.StyleInfo;
-import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerRepository;
+import org.geoserver.catalog.plugin.forwarding.ForwardingLayerRepository;
 import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.Cacheable;
 
 @CacheConfig(cacheNames = CacheNames.LAYER_CACHE)
-public class CachingLayerRepository extends CachingCatalogRepository<LayerInfo>
-        implements LayerRepository {
+public class CachingLayerRepository extends ForwardingLayerRepository {
 
     public CachingLayerRepository(LayerRepository subject) {
         super(subject);
     }
 
-    @Cacheable
-    public @Override LayerInfo findOneByName(String name) {
-        return ((LayerRepository) subject).findOneByName(name);
-    }
-
-    public @Override List<LayerInfo> findAllByDefaultStyleOrStyles(StyleInfo style) {
-        return ((LayerRepository) subject).findAllByDefaultStyleOrStyles(style);
-    }
-
-    public @Override List<LayerInfo> findAllByResource(ResourceInfo resource) {
-        return ((LayerRepository) subject).findAllByResource(resource);
+    public @Override Optional<LayerInfo> findOneByName(String name) {
+        return super.findOneByName(name);
     }
 }

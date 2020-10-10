@@ -12,6 +12,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import lombok.NonNull;
 import org.geoserver.catalog.Catalog;
+import org.geoserver.catalog.CatalogTestData;
 import org.geoserver.catalog.CoverageStoreInfo;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.Info;
@@ -19,10 +20,9 @@ import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ModificationProxy;
+import org.geoserver.catalog.plugin.PropertyDiff;
 import org.geoserver.cloud.bus.GeoServerBusProperties;
-import org.geoserver.cloud.event.PropertyDiff;
 import org.geoserver.cloud.event.PropertyDiffTestSupport;
-import org.geoserver.cloud.test.CatalogTestData;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.SettingsInfo;
@@ -48,10 +48,13 @@ public class RemoteEventPayloadCodecTest {
 
     public @Before void before() throws Exception {
         catalog = new org.geoserver.catalog.impl.CatalogImpl();
-        catalogTestSupport =
-                CatalogTestData.initialized(() -> catalog).createObjects().addObjects();
-        geoServerBusProperties = new GeoServerBusProperties();
         geoServer = new GeoServerImpl();
+        geoServer.setCatalog(catalog);
+        catalogTestSupport =
+                CatalogTestData.initialized(() -> catalog, () -> geoServer)
+                        .initConfig(false)
+                        .initialize();
+        geoServerBusProperties = new GeoServerBusProperties();
         codec = new RemoteEventPayloadCodec();
         codec.setGeoServer(geoServer);
         codec.setRawCatalog(catalog);

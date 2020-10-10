@@ -23,6 +23,7 @@ import org.geoserver.catalog.event.CatalogListener;
 import org.geoserver.catalog.event.CatalogModifyEvent;
 import org.geoserver.catalog.event.CatalogPostModifyEvent;
 import org.geoserver.catalog.event.CatalogRemoveEvent;
+import org.geoserver.catalog.plugin.PropertyDiff;
 import org.geoserver.cloud.event.catalog.LocalCatalogAddEvent;
 import org.geoserver.cloud.event.catalog.LocalCatalogPostModifyEvent;
 import org.geoserver.cloud.event.catalog.LocalCatalogPreModifyEvent;
@@ -183,9 +184,21 @@ public class LocalApplicationEventPublisher {
             publishPreModify(id, global, propertyNames, oldValues, newValues);
         }
 
+        /**
+         * Note: GeoServerImpl sends a post-modify event on setGlobal(), but no pre-event nor
+         * add-event exists
+         */
         public @Override void handlePostGlobalChange(GeoServerInfo global) {
-            String id = nonnNullIdendifier(global, "geoserver.global");
-            publishPostModify(id, global);
+            final String id = nonnNullIdendifier(global, "geoserver.global");
+            final PropertyDiff diff = pop(id);
+            if (diff == null) {
+                // means there was no handleServiceChange() call and this is an add instead, shame's
+                // on GeoServerImpl
+                publisher.publish(LocalConfigAddEvent.of(geoServer, global));
+            } else {
+                // already called pop()
+                publisher.publish(LocalConfigPostModifyEvent.of(geoServer, global, diff));
+            }
         }
 
         public @Override void handleSettingsAdded(SettingsInfo settings) {
@@ -228,7 +241,15 @@ public class LocalApplicationEventPublisher {
 
         public @Override void handlePostLoggingChange(LoggingInfo logging) {
             // LoggingInfo has no-id
-            publishPostModify(nonnNullIdendifier(logging, "logging"), logging);
+            final String id = nonnNullIdendifier(logging, "logging");
+            PropertyDiff diff = pop(id);
+            if (diff == null) {
+                // it was a GeoServer.setLogging instead...
+                publisher.publish(LocalConfigAddEvent.of(geoServer, logging));
+            } else {
+                // already called pop()
+                publisher.publish(LocalConfigPostModifyEvent.of(geoServer, logging, diff));
+            }
         }
 
         public @Override void handleServiceChange(

@@ -188,7 +188,7 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
     }
 
     public @Bean(name = "JDBCConfigDB") ConfigDatabase jdbcConfigDB() {
-        ConfigDatabase configDb = new ConfigDatabase(dataSource, jdbcPersistenceBinding());
+        ConfigDatabase configDb = new CloudJdbcConfigDatabase(dataSource, jdbcPersistenceBinding());
         return configDb;
     }
 

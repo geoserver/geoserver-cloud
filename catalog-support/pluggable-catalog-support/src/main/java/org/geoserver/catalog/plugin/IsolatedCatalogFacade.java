@@ -4,27 +4,29 @@
  */
 package org.geoserver.catalog.plugin;
 
-import java.util.ArrayList;
+import com.google.common.collect.Iterators;
+import java.io.Closeable;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogCapabilities;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
-import org.geoserver.catalog.MapInfo;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ModificationProxy;
+import org.geoserver.catalog.plugin.forwarding.ForwardingExtendedCatalogFacade;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.catalog.util.CloseableIteratorAdapter;
 import org.geoserver.ows.Dispatcher;
@@ -33,43 +35,10 @@ import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 
 /** Copy of package private {@code org.geoserver.catalog.impl.IsolatedCatalogFacade} */
-public final class IsolatedCatalogFacade implements CatalogFacade {
+public final class IsolatedCatalogFacade extends ForwardingExtendedCatalogFacade {
 
-    // wrapped catalog facade
-    private final CatalogFacade facade;
-
-    IsolatedCatalogFacade(CatalogFacade facade) {
-        this.facade = facade;
-    }
-
-    @Override
-    public Catalog getCatalog() {
-        return facade.getCatalog();
-    }
-
-    @Override
-    public void setCatalog(Catalog catalog) {
-        facade.setCatalog(catalog);
-    }
-
-    @Override
-    public StoreInfo add(StoreInfo store) {
-        return facade.add(store);
-    }
-
-    @Override
-    public void remove(StoreInfo store) {
-        facade.remove(store);
-    }
-
-    @Override
-    public void save(StoreInfo store) {
-        facade.save(store);
-    }
-
-    @Override
-    public <T extends StoreInfo> T detach(T store) {
-        return facade.detach(store);
+    IsolatedCatalogFacade(ExtendedCatalogFacade facade) {
+        super(facade);
     }
 
     @Override
@@ -93,37 +62,12 @@ public final class IsolatedCatalogFacade implements CatalogFacade {
 
     @Override
     public <T extends StoreInfo> List<T> getStores(Class<T> clazz) {
-        return filterIsolated(facade.getStores(clazz), clazz, this::enforceStoreIsolation);
+        return filterIsolated(facade.getStores(clazz), clazz, this::filter);
     }
 
     @Override
     public DataStoreInfo getDefaultDataStore(WorkspaceInfo workspace) {
         return enforceStoreIsolation(facade.getDefaultDataStore(workspace));
-    }
-
-    @Override
-    public void setDefaultDataStore(WorkspaceInfo workspace, DataStoreInfo store) {
-        facade.setDefaultDataStore(workspace, store);
-    }
-
-    @Override
-    public ResourceInfo add(ResourceInfo resource) {
-        return facade.add(resource);
-    }
-
-    @Override
-    public void remove(ResourceInfo resource) {
-        facade.remove(resource);
-    }
-
-    @Override
-    public void save(ResourceInfo resource) {
-        facade.save(resource);
-    }
-
-    @Override
-    public <T extends ResourceInfo> T detach(T resource) {
-        return facade.detach(resource);
     }
 
     @Override
@@ -144,7 +88,7 @@ public final class IsolatedCatalogFacade implements CatalogFacade {
 
     @Override
     public <T extends ResourceInfo> List<T> getResources(Class<T> clazz) {
-        return filterIsolated(facade.getResources(clazz), clazz, this::enforceResourceIsolation);
+        return filterIsolated(facade.getResources(clazz), clazz, this::filter);
     }
 
     @Override
@@ -156,9 +100,7 @@ public final class IsolatedCatalogFacade implements CatalogFacade {
             return facade.getResourcesByNamespace(localNamespace, clazz);
         }
         return filterIsolated(
-                facade.getResourcesByNamespace(namespace, clazz),
-                clazz,
-                this::enforceResourceIsolation);
+                facade.getResourcesByNamespace(namespace, clazz), clazz, this::filter);
     }
 
     @Override
@@ -169,28 +111,7 @@ public final class IsolatedCatalogFacade implements CatalogFacade {
 
     @Override
     public <T extends ResourceInfo> List<T> getResourcesByStore(StoreInfo store, Class<T> clazz) {
-        return filterIsolated(
-                facade.getResourcesByStore(store, clazz), clazz, this::enforceResourceIsolation);
-    }
-
-    @Override
-    public LayerInfo add(LayerInfo layer) {
-        return facade.add(layer);
-    }
-
-    @Override
-    public void remove(LayerInfo layer) {
-        facade.remove(layer);
-    }
-
-    @Override
-    public void save(LayerInfo layer) {
-        facade.save(layer);
-    }
-
-    @Override
-    public LayerInfo detach(LayerInfo layer) {
-        return facade.detach(layer);
+        return filterIsolated(facade.getResourcesByStore(store, clazz), clazz, this::filter);
     }
 
     @Override
@@ -205,74 +126,17 @@ public final class IsolatedCatalogFacade implements CatalogFacade {
 
     @Override
     public List<LayerInfo> getLayers(ResourceInfo resource) {
-        return filterIsolated(
-                facade.getLayers(resource), LayerInfo.class, this::enforceLayerIsolation);
+        return filterIsolated(facade.getLayers(resource), LayerInfo.class, this::filter);
     }
 
     @Override
     public List<LayerInfo> getLayers(StyleInfo style) {
-        return filterIsolated(
-                facade.getLayers(style), LayerInfo.class, this::enforceLayerIsolation);
+        return filterIsolated(facade.getLayers(style), LayerInfo.class, this::filter);
     }
 
     @Override
     public List<LayerInfo> getLayers() {
-        return filterIsolated(facade.getLayers(), LayerInfo.class, this::enforceLayerIsolation);
-    }
-
-    @Override
-    public MapInfo add(MapInfo map) {
-        return facade.add(map);
-    }
-
-    @Override
-    public void remove(MapInfo map) {
-        facade.remove(map);
-    }
-
-    @Override
-    public void save(MapInfo map) {
-        facade.save(map);
-    }
-
-    @Override
-    public MapInfo detach(MapInfo map) {
-        return facade.detach(map);
-    }
-
-    @Override
-    public MapInfo getMap(String id) {
-        return facade.getMap(id);
-    }
-
-    @Override
-    public MapInfo getMapByName(String name) {
-        return facade.getMapByName(name);
-    }
-
-    @Override
-    public List<MapInfo> getMaps() {
-        return facade.getMaps();
-    }
-
-    @Override
-    public LayerGroupInfo add(LayerGroupInfo layerGroup) {
-        return facade.add(layerGroup);
-    }
-
-    @Override
-    public void remove(LayerGroupInfo layerGroup) {
-        facade.remove(layerGroup);
-    }
-
-    @Override
-    public void save(LayerGroupInfo layerGroup) {
-        facade.save(layerGroup);
-    }
-
-    @Override
-    public LayerGroupInfo detach(LayerGroupInfo layerGroup) {
-        return facade.detach(layerGroup);
+        return filterIsolated(facade.getLayers(), LayerInfo.class, this::filter);
     }
 
     @Override
@@ -292,56 +156,13 @@ public final class IsolatedCatalogFacade implements CatalogFacade {
 
     @Override
     public List<LayerGroupInfo> getLayerGroups() {
-        return filterIsolated(
-                facade.getLayerGroups(), LayerGroupInfo.class, this::enforceLayerGroupIsolation);
+        return filterIsolated(facade.getLayerGroups(), LayerGroupInfo.class, this::filter);
     }
 
     @Override
     public List<LayerGroupInfo> getLayerGroupsByWorkspace(WorkspaceInfo workspace) {
         return filterIsolated(
-                facade.getLayerGroupsByWorkspace(workspace),
-                LayerGroupInfo.class,
-                this::enforceLayerGroupIsolation);
-    }
-
-    @Override
-    public NamespaceInfo add(NamespaceInfo namespace) {
-        return facade.add(namespace);
-    }
-
-    @Override
-    public void remove(NamespaceInfo namespace) {
-        facade.remove(namespace);
-    }
-
-    @Override
-    public void save(NamespaceInfo namespace) {
-        facade.save(namespace);
-    }
-
-    @Override
-    public NamespaceInfo detach(NamespaceInfo namespace) {
-        return facade.detach(namespace);
-    }
-
-    @Override
-    public NamespaceInfo getDefaultNamespace() {
-        return facade.getDefaultNamespace();
-    }
-
-    @Override
-    public void setDefaultNamespace(NamespaceInfo defaultNamespace) {
-        facade.setDefaultNamespace(defaultNamespace);
-    }
-
-    @Override
-    public NamespaceInfo getNamespace(String id) {
-        return facade.getNamespace(id);
-    }
-
-    @Override
-    public NamespaceInfo getNamespaceByPrefix(String prefix) {
-        return facade.getNamespaceByPrefix(prefix);
+                facade.getLayerGroupsByWorkspace(workspace), LayerGroupInfo.class, this::filter);
     }
 
     @Override
@@ -363,81 +184,6 @@ public final class IsolatedCatalogFacade implements CatalogFacade {
     }
 
     @Override
-    public List<NamespaceInfo> getNamespacesByURI(String uri) {
-        return facade.getNamespacesByURI(uri);
-    }
-
-    @Override
-    public List<NamespaceInfo> getNamespaces() {
-        return facade.getNamespaces();
-    }
-
-    @Override
-    public WorkspaceInfo add(WorkspaceInfo workspace) {
-        return facade.add(workspace);
-    }
-
-    @Override
-    public void remove(WorkspaceInfo workspace) {
-        facade.remove(workspace);
-    }
-
-    @Override
-    public void save(WorkspaceInfo workspace) {
-        facade.save(workspace);
-    }
-
-    @Override
-    public WorkspaceInfo detach(WorkspaceInfo workspace) {
-        return facade.detach(workspace);
-    }
-
-    @Override
-    public WorkspaceInfo getDefaultWorkspace() {
-        return facade.getDefaultWorkspace();
-    }
-
-    @Override
-    public void setDefaultWorkspace(WorkspaceInfo workspace) {
-        facade.setDefaultWorkspace(workspace);
-    }
-
-    @Override
-    public WorkspaceInfo getWorkspace(String id) {
-        return facade.getWorkspace(id);
-    }
-
-    @Override
-    public WorkspaceInfo getWorkspaceByName(String name) {
-        return facade.getWorkspaceByName(name);
-    }
-
-    @Override
-    public List<WorkspaceInfo> getWorkspaces() {
-        return facade.getWorkspaces();
-    }
-
-    @Override
-    public StyleInfo add(StyleInfo style) {
-        return facade.add(style);
-    }
-
-    @Override
-    public void remove(StyleInfo style) {
-        facade.remove(style);
-    }
-
-    @Override
-    public void save(StyleInfo style) {
-        facade.save(style);
-    }
-
-    @Override
-    public StyleInfo detach(StyleInfo style) {
-        return facade.detach(style);
-    }
-
-    @Override
     public StyleInfo getStyle(String id) {
         return enforceStyleIsolation(facade.getStyle(id));
     }
@@ -454,48 +200,24 @@ public final class IsolatedCatalogFacade implements CatalogFacade {
 
     @Override
     public List<StyleInfo> getStyles() {
-        return filterIsolated(facade.getStyles(), StyleInfo.class, this::enforceStyleIsolation);
+        return filterIsolated(facade.getStyles(), StyleInfo.class, this::filter);
     }
 
     @Override
     public List<StyleInfo> getStylesByWorkspace(WorkspaceInfo workspace) {
         return filterIsolated(
-                facade.getStylesByWorkspace(workspace),
-                StyleInfo.class,
-                this::enforceStyleIsolation);
-    }
-
-    @Override
-    public void dispose() {
-        facade.dispose();
-    }
-
-    @Override
-    public void resolve() {
-        facade.resolve();
-    }
-
-    @Override
-    public void syncTo(CatalogFacade other) {
-        facade.syncTo(other);
+                facade.getStylesByWorkspace(workspace), StyleInfo.class, this::filter);
     }
 
     @Override
     public <T extends CatalogInfo> int count(Class<T> of, Filter filter) {
-        CloseableIterator<T> found = facade.list(of, filter, null, null);
-        try (CloseableIterator<T> filtered = filterIsolated(of, found)) {
-            int count = 0;
-            while (filtered.hasNext()) {
-                count++;
-                filtered.next();
-            }
-            return count;
+        if (Dispatcher.REQUEST.get() == null) {
+            return super.count(of, filter);
         }
-    }
 
-    @Override
-    public boolean canSort(Class<? extends CatalogInfo> type, String propertyName) {
-        return facade.canSort(type, propertyName);
+        try (CloseableIterator<T> found = list(of, filter, null, null)) {
+            return Iterators.size(found);
+        }
     }
 
     @Override
@@ -505,7 +227,27 @@ public final class IsolatedCatalogFacade implements CatalogFacade {
             @Nullable Integer offset,
             @Nullable Integer count,
             @Nullable SortBy... sortOrder) {
-        return filterIsolated(of, facade.list(of, filter, offset, count, sortOrder));
+
+        if (Dispatcher.REQUEST.get() == null) {
+            return facade.list(of, filter, offset, count, sortOrder);
+        }
+        // Fix, gotta request all to be able of filtering, ditch offset and count
+        final CloseableIterator<T> all = facade.list(of, filter, null, null, sortOrder);
+        Iterator<T> filtered = Iterators.filter(all, this::filter);
+        if (offset != null) {
+            Iterators.advance(filtered, offset.intValue());
+        }
+        if (count != null) {
+            filtered = Iterators.limit(filtered, count.intValue());
+        }
+        return new CloseableIteratorAdapter<>(filtered, (Closeable) all);
+    }
+
+    public @Override <T extends CatalogInfo> Stream<T> query(Query<T> query) {
+        return ((ExtendedCatalogFacade) facade)
+                .query(query)
+                .map(this::enforceIsolation)
+                .filter(i -> i != null);
     }
 
     @Override
@@ -516,10 +258,6 @@ public final class IsolatedCatalogFacade implements CatalogFacade {
         return capabilities;
     }
 
-    public static <T extends CatalogInfo> T any(Class<T> clazz) {
-        return CatalogFacade.any(clazz);
-    }
-
     /**
      * Helper method that just returns the current local workspace if available.
      *
@@ -527,6 +265,23 @@ public final class IsolatedCatalogFacade implements CatalogFacade {
      */
     private WorkspaceInfo getLocalWorkspace() {
         return LocalWorkspace.get();
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T extends CatalogInfo> T enforceIsolation(T info) {
+        if (StoreInfo.class.isInstance(info)) return (T) enforceStoreIsolation((StoreInfo) info);
+        if (ResourceInfo.class.isInstance(info))
+            return (T) enforceResourceIsolation((ResourceInfo) info);
+        if (LayerInfo.class.isInstance(info)) return (T) enforceLayerIsolation((LayerInfo) info);
+        if (LayerGroupInfo.class.isInstance(info))
+            return (T) enforceLayerGroupIsolation((LayerGroupInfo) info);
+        if (StyleInfo.class.isInstance(info)) return (T) enforceStyleIsolation((StyleInfo) info);
+
+        return info;
+    }
+
+    private <T extends CatalogInfo> boolean filter(T info) {
+        return enforceIsolation(info) != null;
     }
 
     /**
@@ -666,40 +421,13 @@ public final class IsolatedCatalogFacade implements CatalogFacade {
      * @return a list wrapped with a modification proxy that contains the visible catalog objects
      */
     private <T extends CatalogInfo> List<T> filterIsolated(
-            List<T> objects, Class<T> type, Function<T, T> filter) {
+            List<T> objects, Class<T> type, Predicate<T> filter) {
         // unwrap the catalog objects list
         List<T> unwrapped = ModificationProxy.unwrap(objects);
         // filter the non visible catalog objects and wrap the resulting list with a modification
         // proxy
         return ModificationProxy.createList(
-                unwrapped
-                        .stream()
-                        .filter(store -> filter.apply(store) != null)
-                        .collect(Collectors.toList()),
-                type);
-    }
-
-    /**
-     * Helper method that consumes a catalog objects iterator keeping only the ones visible in the
-     * current context.
-     *
-     * @param objects iterator over catalog objects
-     * @param filter filter that checks if an element should be visible
-     * @return an iterator over the catalog objects visible in the current context
-     */
-    private <T extends CatalogInfo> CloseableIterator<T> filterIsolated(
-            CloseableIterator<T> objects, Function<T, T> filter) {
-        List<T> iterable = new ArrayList<>();
-        // consume the iterator
-        while (objects.hasNext()) {
-            T object = objects.next();
-            if (filter.apply(object) != null) {
-                // this catalog object is visible in the current context
-                iterable.add(object);
-            }
-        }
-        // create an iterator for the visible catalog objects
-        return new CloseableIteratorAdapter<>(iterable.iterator());
+                unwrapped.stream().filter(filter).collect(Collectors.toList()), type);
     }
 
     /**
@@ -738,42 +466,5 @@ public final class IsolatedCatalogFacade implements CatalogFacade {
             return facade.getNamespaceByPrefix(localWorkspace.getName());
         }
         return null;
-    }
-
-    /**
-     * Removes from a list of catalog objects the ones that are not visible in the current context.
-     *
-     * @param type type of the catalog objects that we cna iterate over
-     * @param objects iterator over catalog objects
-     * @return an iterator over the catalog objects visible in the current context
-     */
-    @SuppressWarnings("unchecked")
-    private <T extends CatalogInfo> CloseableIterator<T> filterIsolated(
-            Class<T> type, CloseableIterator<T> objects) {
-        if (StoreInfo.class.isAssignableFrom(type)) {
-            return (CloseableIterator<T>)
-                    filterIsolated(
-                            (CloseableIterator<StoreInfo>) objects, this::enforceStoreIsolation);
-        } else if (ResourceInfo.class.isAssignableFrom(type)) {
-            return (CloseableIterator<T>)
-                    filterIsolated(
-                            (CloseableIterator<ResourceInfo>) objects,
-                            this::enforceResourceIsolation);
-        } else if (LayerInfo.class.isAssignableFrom(type)) {
-            return (CloseableIterator<T>)
-                    filterIsolated(
-                            (CloseableIterator<LayerInfo>) objects, this::enforceLayerIsolation);
-        } else if (LayerGroupInfo.class.isAssignableFrom(type)) {
-            return (CloseableIterator<T>)
-                    filterIsolated(
-                            (CloseableIterator<LayerGroupInfo>) objects,
-                            this::enforceLayerGroupIsolation);
-        } else if (StyleInfo.class.isAssignableFrom(type)) {
-            return (CloseableIterator<T>)
-                    filterIsolated(
-                            (CloseableIterator<StyleInfo>) objects, this::enforceStyleIsolation);
-        }
-        // unknown type of catalog object, there is not much we can do so we just let it go
-        return objects;
     }
 }

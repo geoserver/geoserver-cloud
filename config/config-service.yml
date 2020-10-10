@@ -1,0 +1,9 @@
+spring:
+  profiles:
+    active: native #use native filesystem config by default instead of git. REVISIT.
+  config.server.native.searchLocations: ${config.path:file:./config}
+
+logging:
+  level:
+    root: WARN
+    org.springframework.cloud.config.server.environment.NativeEnvironmentRepository: WARN

@@ -28,11 +28,8 @@ public class GeoServerServletInitializer implements ServletContextInitializer {
 
     private @Autowired ApplicationContext context;
 
-    private @Autowired GeoServerResourceLoader resourceLoader;
-
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
-        resourceLoader.setServletContext(servletContext);
         context.publishEvent(new ContextLoadedEvent(context));
     }
 }

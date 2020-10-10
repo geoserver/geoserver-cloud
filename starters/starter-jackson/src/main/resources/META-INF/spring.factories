@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+org.geoserver.cloud.autoconfigure.jackson.GeoToolsJacksonBindingsAutoConfiguration,\
+org.geoserver.cloud.autoconfigure.jackson.GeoServerJacksonBindingsAutoConfiguration

@@ -32,6 +32,66 @@
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <!-- test scoped with all deps excluded to use WMSInfo/Impl -->
+      <groupId>org.geoserver</groupId>
+      <artifactId>gs-wms</artifactId>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <!-- test scoped with all deps excluded to use WMFSInfo/Impl -->
+      <groupId>org.geoserver</groupId>
+      <artifactId>gs-wfs</artifactId>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <!-- test scoped with all deps excluded to use WCSInfo/Impl -->
+      <groupId>org.geoserver</groupId>
+      <artifactId>gs-wcs</artifactId>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <!-- test scoped with all deps excluded to use WPSInfo/Impl -->
+      <groupId>org.geoserver.extension</groupId>
+      <artifactId>gs-wps-core</artifactId>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <!-- test scoped with all deps excluded to use ProcessFactory -->
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-process</artifactId>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
   </dependencies>
 
   <build>

@@ -17,7 +17,7 @@ import org.geoserver.platform.GeoServerResourceLoader;
 
 /**
  * Overrides {@link #loadGeoServer(GeoServer, XStreamPersister)} to avoid a class cast exception on
- * {@link GeoServerImpl} (we're using {@link org.geoserver.catalog.plugin.GeoServerImpl}), and
+ * {@link GeoServerImpl} (we're using {@link org.geoserver.config.plugin.GeoServerImpl}), and
  * because we don't do import
  */
 public class CloudJdbcGeoServerLoader extends JDBCGeoServerLoader {

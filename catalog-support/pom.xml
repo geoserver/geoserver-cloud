@@ -13,10 +13,13 @@
   <packaging>pom</packaging>
 
   <modules>
+    <module>geotools-jackson-bindings</module>
+    <module>geoserver-jackson-bindings</module>
     <module>pluggable-catalog-support</module>
     <module>catalog-cache</module>
     <module>catalog-event-bus</module>
     <module>catalog-event-bus-amqp</module>
+    <module>catalog-client</module>
   </modules>
   <dependencies>
     <dependency>

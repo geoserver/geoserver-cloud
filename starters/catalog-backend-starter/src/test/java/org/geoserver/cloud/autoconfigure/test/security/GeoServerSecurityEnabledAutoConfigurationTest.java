@@ -14,6 +14,7 @@ import org.geoserver.cloud.autoconfigure.testconfiguration.AutoConfigurationTest
 import org.geoserver.security.GeoServerSecurityManager;
 import org.geoserver.security.SecureCatalogImpl;
 import org.geoserver.security.impl.DataAccessRuleDAO;
+import org.junit.Assume;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +50,8 @@ public class GeoServerSecurityEnabledAutoConfigurationTest {
 
     @Test
     public void secureCatalogIsSecureCatalogImpl() {
-        assertThat(rawCatalog, instanceOf(org.geoserver.catalog.plugin.CatalogImpl.class));
+        Assume.assumeTrue(rawCatalog instanceof org.geoserver.catalog.plugin.CatalogPlugin);
+        assertThat(rawCatalog, instanceOf(org.geoserver.catalog.plugin.CatalogPlugin.class));
         assertThat(secureCatalog, instanceOf(SecureCatalogImpl.class));
     }
 

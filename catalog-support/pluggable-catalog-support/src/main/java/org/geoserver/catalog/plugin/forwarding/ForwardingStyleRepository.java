@@ -4,28 +4,33 @@
  */
 package org.geoserver.catalog.plugin.forwarding;
 
-import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
-import org.geoserver.catalog.plugin.CatalogInfoRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.StyleRepository;
 
-public class ForwardingStyleRepository extends ForwardingCatalogRepository<StyleInfo>
-        implements StyleRepository {
+public class ForwardingStyleRepository
+        extends ForwardingCatalogRepository<StyleInfo, StyleRepository> implements StyleRepository {
 
-    public ForwardingStyleRepository(CatalogInfoRepository<StyleInfo> subject) {
+    public ForwardingStyleRepository(StyleRepository subject) {
         super(subject);
     }
 
-    public @Override StyleInfo findOneByName(String name) {
-        return ((StyleRepository) subject).findOneByName(name);
+    public @Override Stream<StyleInfo> findAllByNullWorkspace() {
+        return subject.findAllByNullWorkspace();
     }
 
-    public @Override List<StyleInfo> findAllByNullWorkspace() {
-        return ((StyleRepository) subject).findAllByNullWorkspace();
+    public @Override Stream<StyleInfo> findAllByWorkspace(WorkspaceInfo ws) {
+        return subject.findAllByWorkspace(ws);
     }
 
-    public @Override List<StyleInfo> findAllByWorkspace(WorkspaceInfo ws) {
-        return ((StyleRepository) subject).findAllByWorkspace(ws);
+    public @Override Optional<StyleInfo> findByNameAndWordkspaceNull(String name) {
+        return subject.findByNameAndWordkspaceNull(name);
+    }
+
+    public @Override Optional<StyleInfo> findByNameAndWordkspace(
+            String name, WorkspaceInfo workspace) {
+        return subject.findByNameAndWordkspace(name, workspace);
     }
 }

@@ -3,15 +3,11 @@ server:
   instance-id: ${spring.application.name}:${spring.application.instance_id:${spring.cloud.client.ip-address}}:${server.port}
 
 spring:
-  main:
-    banner-mode: off
-  application:
-    name: config-service
-  profiles:
-    active: native #use native filesystem config by default instead of git. REVISIT.
-  cloud:
-    loadbalancer.ribbon.enabled: false # ribbon is in maintenance mode and should be replaced by spring-cloud-loadbalancer
-  config.server.native.searchLocations: ${config.path:file:./config}
+  main.banner-mode: off
+  application.name: config-service
+  profiles.active: native #use native filesystem config by default instead of git. REVISIT.
+  cloud.loadbalancer.ribbon.enabled: false # ribbon is in maintenance mode and should be replaced by spring-cloud-loadbalancer
+  #config.server.native.searchLocations: ${config.path:file:./config}
 
 eureka:
   instance:

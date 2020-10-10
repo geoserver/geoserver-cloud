@@ -4,13 +4,11 @@
  */
 package org.geoserver.cloud.catalog.repository.caching;
 
-import org.geoserver.catalog.MapInfo;
-import org.geoserver.catalog.plugin.CatalogInfoRepository.MapRepository;
+import org.geoserver.catalog.plugin.forwarding.ForwardingMapRepository;
 import org.springframework.cache.annotation.CacheConfig;
 
 @CacheConfig(cacheNames = CacheNames.MAP_CACHE)
-public class CachingMapRepository extends CachingCatalogRepository<MapInfo>
-        implements MapRepository {
+public class CachingMapRepository extends ForwardingMapRepository {
 
     public CachingMapRepository(MapRepository subject) {
         super(subject);

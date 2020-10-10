@@ -4,24 +4,31 @@
  */
 package org.geoserver.catalog.plugin.forwarding;
 
-import java.util.List;
-import org.geoserver.catalog.Catalog;
+import java.util.Optional;
+import java.util.stream.Stream;
+import lombok.NonNull;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository;
-import org.opengis.feature.type.Name;
+import org.geoserver.catalog.plugin.Patch;
+import org.geoserver.catalog.plugin.Query;
 import org.opengis.filter.Filter;
 
-public abstract class ForwardingCatalogRepository<I extends CatalogInfo>
+public abstract class ForwardingCatalogRepository<
+                I extends CatalogInfo, S extends CatalogInfoRepository<I>>
         implements CatalogInfoRepository<I> {
 
-    protected CatalogInfoRepository<I> subject;
+    protected S subject;
 
-    public ForwardingCatalogRepository(CatalogInfoRepository<I> subject) {
+    public ForwardingCatalogRepository(S subject) {
         this.subject = subject;
     }
 
-    public @Override void setCatalog(Catalog catalog) {
-        subject.setCatalog(catalog);
+    public @Override Class<I> getContentType() {
+        return subject.getContentType();
+    }
+
+    public @Override boolean canSortBy(@NonNull String propertyName) {
+        return subject.canSortBy(propertyName);
     }
 
     public @Override void add(I value) {
@@ -32,32 +39,33 @@ public abstract class ForwardingCatalogRepository<I extends CatalogInfo>
         subject.remove(value);
     }
 
-    public @Override void update(I value) {
-        subject.update(value);
+    public @Override <T extends I> T update(T value, Patch patch) {
+        return subject.update(value, patch);
     }
 
     public @Override void dispose() {
         subject.dispose();
     }
 
-    public @Override List<I> findAll() {
+    public @Override Stream<I> findAll() {
         return subject.findAll();
     }
 
-    public @Override <U extends I> List<U> findAll(Filter filter) {
-        return subject.findAll(filter);
+    public @Override <U extends I> Stream<U> findAll(Query<U> query) {
+        return subject.findAll(query);
     }
 
-    public @Override <U extends I> List<U> findAll(Filter filter, Class<U> infoType) {
-        return subject.findAll(filter, infoType);
+    public @Override <U extends I> long count(final Class<U> of, final Filter filter) {
+        return subject.count(of, filter);
     }
 
-    public @Override <U extends I> U findById(String id, Class<U> clazz) {
+    public @Override <U extends I> Optional<U> findById(String id, Class<U> clazz) {
         return subject.findById(id, clazz);
     }
 
-    public @Override <U extends I> U findByName(Name name, Class<U> clazz) {
-        return subject.findByName(name, clazz);
+    public @Override <U extends I> Optional<U> findFirstByName(
+            @NonNull String name, Class<U> clazz) {
+        return subject.findFirstByName(name, clazz);
     }
 
     public @Override void syncTo(CatalogInfoRepository<I> target) {
