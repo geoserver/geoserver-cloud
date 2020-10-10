@@ -15,7 +15,6 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cloud.bus.BusAutoConfiguration;
-import org.springframework.cloud.bus.ConditionalOnBusEnabled;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -25,7 +24,7 @@ import org.springframework.context.annotation.Import;
  * RemoteApplicationEventsConfiguration}
  */
 @Configuration
-@ConditionalOnBusEnabled
+@ConditionalOnGeoServerRemoteEventsEnabled
 @AutoConfigureAfter(BusAutoConfiguration.class)
 @Import({RemoteApplicationEventsConfiguration.class})
 public class RemoteApplicationEventsAutoConfiguration {
