@@ -24,8 +24,6 @@ import org.geoserver.cloud.bus.event.catalog.RemoteCatalogRemoveEvent;
 import org.geoserver.cloud.event.ConfigInfoInfoType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.bus.BusAutoConfiguration;
-import org.springframework.cloud.bus.ServiceMatcher;
-import org.springframework.cloud.bus.event.AckRemoteApplicationEvent;
 import org.springframework.cloud.bus.event.RemoteApplicationEvent;
 import org.springframework.context.event.EventListener;
 
@@ -42,8 +40,6 @@ public class RemoteEventResourcePoolProcessor {
 
     private Catalog rawCatalog;
 
-    private @Autowired ServiceMatcher busServiceMatcher;
-
     /**
      * @param rawCatalog used to evict cached live data sources from its {@link
      *     Catalog#getResourcePool() ResourcePool}
@@ -53,26 +49,12 @@ public class RemoteEventResourcePoolProcessor {
     }
 
     /**
-     * Logs ack events received from nodes which processed events sent by the remote event
-     * broadcaster
-     *
-     * <p>{@code spring.cloud.bus.ack.enabled=true} must be set in order for these events to be
-     * processed (see {@link BusAutoConfiguration})
-     */
-    public @EventListener(AckRemoteApplicationEvent.class) void ackReceived(
-            AckRemoteApplicationEvent event) {
-        if (!busServiceMatcher.isFromSelf(event)) {
-            log.trace("Received event ack {}", event); // TODO improve log statement
-        }
-    }
-
-    /**
      * no-op, really, what do we care if a CatalogInfo has been added until anincoming service
      * request needs it
      */
     @EventListener(RemoteCatalogAddEvent.class)
     public void onCatalogRemoteAddEvent(RemoteCatalogAddEvent event) {
-        if (busServiceMatcher.isFromSelf(event)) {
+        if (event.isFromSelf()) {
             log.trace("Ignoring remote event from self: {}", event);
         } else {
             log.debug("remote add event, nothing to do. {}", event);
@@ -90,7 +72,7 @@ public class RemoteEventResourcePoolProcessor {
     }
 
     private void evictFromResourcePool(RemoteInfoEvent<Catalog, CatalogInfo> event) {
-        if (busServiceMatcher.isFromSelf(event)) {
+        if (event.isFromSelf()) {
             log.trace("Ignoring event from self: {}", event);
             return;
         }

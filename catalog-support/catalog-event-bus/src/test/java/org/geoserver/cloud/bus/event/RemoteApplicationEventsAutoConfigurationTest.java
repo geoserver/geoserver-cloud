@@ -8,13 +8,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.lang.reflect.Proxy;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.function.Consumer;
 import org.geoserver.catalog.Catalog;
@@ -24,7 +22,9 @@ import org.geoserver.catalog.Info;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.impl.ModificationProxy;
+import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.PropertyDiff;
+import org.geoserver.cloud.autoconfigure.bus.RemoteInfoEventInboundResolver;
 import org.geoserver.cloud.bus.GeoServerBusProperties;
 import org.geoserver.cloud.bus.event.catalog.RemoteCatalogAddEvent;
 import org.geoserver.cloud.bus.event.catalog.RemoteCatalogModifyEvent;
@@ -94,14 +94,14 @@ public class RemoteApplicationEventsAutoConfigurationTest {
      */
     private @Autowired @Qualifier("busJsonConverter") AbstractMessageConverter busJsonConverter;
 
+    private @Autowired RemoteInfoEventInboundResolver inboundEventResolver;
+
     private @Autowired GeoServer geoserver;
     private @Autowired Catalog catalog;
 
     private @Autowired ApplicationEventCapturingListener localRemoteEventsListener;
 
     private @Autowired GeoServerBusProperties geoserverBusProperties;
-
-    private @Autowired RemoteEventPayloadCodec remoteEventPayloadCodec;
 
     public @Rule CatalogTestData testData = CatalogTestData.empty(() -> catalog, () -> geoserver);
 
@@ -117,7 +117,7 @@ public class RemoteApplicationEventsAutoConfigurationTest {
         BlockingQueue<Message<?>> outChannel =
                 messageCollector.forChannel(springCloudBusChannels.springCloudBusOutput());
         outBoundEvents =
-                new BusChannelEventCollector(outChannel, busJsonConverter, remoteEventPayloadCodec);
+                new BusChannelEventCollector(outChannel, busJsonConverter, inboundEventResolver);
 
         localRemoteEventsListener.start();
     }
@@ -149,7 +149,7 @@ public class RemoteApplicationEventsAutoConfigurationTest {
         catalog.add(testData.workspaceC);
 
         disablePayload();
-        PropertyDiff expected = PropertyDiff.empty();
+        Patch expected = PropertyDiff.empty().toPatch();
         testCatalogModifiedEvent(
                 catalog, c -> c.setDefaultWorkspace(testData.workspaceC), expected);
     }
@@ -158,10 +158,11 @@ public class RemoteApplicationEventsAutoConfigurationTest {
         catalog.add(testData.workspaceA);
         catalog.add(testData.workspaceC);
 
-        PropertyDiff expected =
+        Patch expected =
                 new PropertyDiffTestSupport()
                         .createTestDiff(
-                                "defaultWorkspace", testData.workspaceA, testData.workspaceC);
+                                "defaultWorkspace", testData.workspaceA, testData.workspaceC)
+                        .toPatch();
 
         enablePayload();
         testCatalogModifiedEvent(
@@ -172,7 +173,7 @@ public class RemoteApplicationEventsAutoConfigurationTest {
         catalog.add(testData.namespaceA);
         catalog.add(testData.namespaceB);
 
-        PropertyDiff expected = PropertyDiff.empty();
+        Patch expected = PropertyDiff.empty().toPatch();
         disablePayload();
         testCatalogModifiedEvent(
                 catalog, c -> c.setDefaultNamespace(testData.namespaceB), expected);
@@ -182,10 +183,11 @@ public class RemoteApplicationEventsAutoConfigurationTest {
         catalog.add(testData.namespaceA);
         catalog.add(testData.namespaceB);
 
-        PropertyDiff expected =
+        Patch expected =
                 new PropertyDiffTestSupport()
                         .createTestDiff(
-                                "defaultNamespace", testData.namespaceA, testData.namespaceB);
+                                "defaultNamespace", testData.namespaceA, testData.namespaceB)
+                        .toPatch();
         enablePayload();
         testCatalogModifiedEvent(
                 catalog, c -> c.setDefaultNamespace(testData.namespaceB), expected);
@@ -536,7 +538,7 @@ public class RemoteApplicationEventsAutoConfigurationTest {
         T proxy = ModificationProxy.create(ModificationProxy.unwrap(info), type);
         modifier.accept(proxy);
 
-        PropertyDiff expected = resolveExpectedDiff(proxy);
+        Patch expected = resolveExpectedDiff(proxy).clean().toPatch();
 
         this.localRemoteEventsListener.clear();
         this.localRemoteEventsListener.start();
@@ -550,17 +552,13 @@ public class RemoteApplicationEventsAutoConfigurationTest {
         assertRemoteEvent(info, sentRemoteEvent);
 
         if (this.geoserverBusProperties.isSendDiff()) {
-            assertEquals(expected, localRemoteEvent.diff().get());
-            assertEquals(expected, sentRemoteEvent.diff().get());
-        }
-        if (this.geoserverBusProperties.isSendObject()) {
-            testData.assertEqualsLenientConnectionParameters(info, localRemoteEvent.object().get());
-            testData.assertEqualsLenientConnectionParameters(info, sentRemoteEvent.object().get());
+            assertEquals(expected, localRemoteEvent.patch().get());
+            assertEquals(expected, sentRemoteEvent.patch().get());
         }
     }
 
     private void testCatalogModifiedEvent(
-            Catalog catalog, Consumer<Catalog> modifier, PropertyDiff expected) {
+            Catalog catalog, Consumer<Catalog> modifier, Patch expected) {
         this.localRemoteEventsListener.clear();
         this.localRemoteEventsListener.start();
         this.outBoundEvents.clear();
@@ -579,17 +577,16 @@ public class RemoteApplicationEventsAutoConfigurationTest {
     }
 
     private void assertCatalogEvent(
-            Catalog catalog, RemoteModifyEvent<Catalog, CatalogInfo> event, PropertyDiff expected) {
+            Catalog catalog, RemoteModifyEvent<Catalog, CatalogInfo> event, Patch expected) {
         assertNotNull(event.getId());
         assertEquals("**", event.getDestinationService());
         assertEquals("catalog", event.getObjectId());
         assertNotNull(event.getInfoType());
         assertEquals(Catalog.class, event.getInfoType().getType());
-        assertTrue("Catalog changes should always have a null object", event.object().isEmpty());
 
         if (this.geoserverBusProperties.isSendDiff()) {
-            assertNotNull(event.getSerializedDiff());
-            assertEquals(expected, event.diff().get());
+            assertTrue(event.patch().isPresent());
+            assertEquals(expected, event.patch().get());
         }
     }
 
@@ -643,32 +640,54 @@ public class RemoteApplicationEventsAutoConfigurationTest {
     private <T extends Info> void assertRemoteEvent(T info, RemoteInfoEvent<?, T> event) {
         assertNotNull(event.getId());
         assertEquals("**", event.getDestinationService());
-        assertEquals(info.getId(), event.getObjectId());
+        assertNotNull(event.getObjectId());
         assertNotNull(event.getInfoType());
+        switch (event.getInfoType()) {
+            case Catalog:
+                assertEquals(RemoteInfoEvent.CATALOG_ID, event.getObjectId());
+                break;
+            case GeoServerInfo:
+                assertEquals(RemoteInfoEvent.GEOSERVER_ID, event.getObjectId());
+                break;
+            case LoggingInfo:
+                assertEquals(RemoteInfoEvent.LOGGING_ID, event.getObjectId());
+                break;
+            default:
+                assertEquals(info.getId(), event.getObjectId());
+                break;
+        }
         assertTrue(event.getInfoType().getType().isInstance(info));
 
-        if (geoserverBusProperties.isSendObject()) {
-            assertNotNull(event.getSerializedObject());
-            Optional<T> objectOpt = event.object();
-            assertTrue(objectOpt.isPresent());
-            T object = objectOpt.get();
-            testData.assertEqualsLenientConnectionParameters(info, object);
-        } else {
-            assertNull(event.getSerializedObject());
-            assertTrue(event.object().isEmpty());
+        if (event instanceof RemoteAddEvent) {
+            RemoteAddEvent<?, T> e = (RemoteAddEvent<?, T>) event;
+            if (geoserverBusProperties.isSendObject()) {
+                assertTrue(e.object().isPresent());
+                T object = e.object().get();
+                testData.assertEqualsLenientConnectionParameters(info, object);
+            } else {
+                assertFalse(e.object().isPresent());
+            }
+        }
+
+        if (event instanceof RemoteRemoveEvent) {
+            RemoteRemoveEvent<?, T> e = (RemoteRemoveEvent<?, T>) event;
+            if (geoserverBusProperties.isSendObject()) {
+                assertTrue(e.object().isPresent());
+                T object = e.object().get();
+                testData.assertEqualsLenientConnectionParameters(info, object);
+            } else {
+                assertFalse(e.object().isPresent());
+            }
         }
 
         if (event instanceof RemoteModifyEvent) {
             RemoteModifyEvent<?, T> modifyEvent = (RemoteModifyEvent<?, T>) event;
             if (geoserverBusProperties.isSendDiff()) {
-                assertNotNull(modifyEvent.getSerializedDiff());
-                Optional<PropertyDiff> diffOpt = modifyEvent.diff();
-                assertTrue(diffOpt.isPresent());
-                PropertyDiff diff = diffOpt.get();
-                assertThat(diff.size(), greaterThan(0));
+                assertTrue(modifyEvent.patch().isPresent());
+                Patch diff = modifyEvent.patch().get();
+                assertThat(diff.getPatches().size(), greaterThan(0));
             } else {
-                assertNull(modifyEvent.getSerializedDiff());
-                assertTrue(modifyEvent.diff().isEmpty());
+                assertFalse(modifyEvent.patch().isPresent());
             }
         }
     }

@@ -68,8 +68,10 @@ public class CatalogClientCatalogFacade extends ResolvingCatalogFacadeDecorator 
     public @Override void setCatalog(Catalog catalog) {
         super.setCatalog(catalog);
 
-        final ResolvingProxyResolver proxyResolver = ResolvingProxyResolver.of(catalog, true);
-        final CatalogPropertyResolver catalogPropertyResolver = CatalogPropertyResolver.of(catalog);
+        final ResolvingProxyResolver<CatalogInfo> proxyResolver =
+                ResolvingProxyResolver.of(catalog, true);
+        final CatalogPropertyResolver<CatalogInfo> catalogPropertyResolver =
+                CatalogPropertyResolver.of(catalog);
         final CollectionPropertiesInitializer<CatalogInfo> collectionInitializer =
                 CollectionPropertiesInitializer.instance();
 
@@ -82,7 +84,7 @@ public class CatalogClientCatalogFacade extends ResolvingCatalogFacadeDecorator 
         Supplier<Function<CatalogInfo, CatalogInfo>> streamResolver = //
                 () ->
                         proxyResolver
-                                .memoizing() //
+                                .<CatalogInfo>memoizing() //
                                 .andThen(catalogPropertyResolver) //
                                 .andThen(collectionInitializer);
 

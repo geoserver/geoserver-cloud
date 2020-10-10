@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
-import org.geoserver.catalog.plugin.PropertyDiff;
+import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.cloud.bus.event.RemoteModifyEvent;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -29,9 +29,9 @@ public class RemoteCatalogModifyEvent extends RemoteModifyEvent<Catalog, Catalog
     public RemoteCatalogModifyEvent(
             @NonNull Catalog source,
             @NonNull CatalogInfo object,
-            @NonNull PropertyDiff diff,
+            @NonNull Patch patch,
             @NonNull String originService,
             String destinationService) {
-        super(source, object, diff, originService, destinationService);
+        super(source, object, patch, originService, destinationService);
     }
 }

@@ -7,6 +7,7 @@ package org.geoserver.cloud.bus;
 import lombok.Data;
 
 public @Data class GeoServerBusProperties {
+    private boolean sendEvents = true;
     private boolean sendObject = false;
     private boolean sendDiff = false;
 }

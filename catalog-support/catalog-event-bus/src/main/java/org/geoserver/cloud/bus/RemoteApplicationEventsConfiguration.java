@@ -7,7 +7,6 @@ package org.geoserver.cloud.bus;
 import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.catalog.Catalog;
-import org.geoserver.cloud.bus.event.RemoteEventPayloadCodec;
 import org.geoserver.cloud.bus.event.catalog.RemoteCatalogEvent;
 import org.geoserver.cloud.bus.event.config.RemoteConfigEvent;
 import org.geoserver.config.GeoServer;
@@ -46,10 +45,6 @@ public class RemoteApplicationEventsConfiguration {
     @ConfigurationProperties(prefix = "geoserver.bus")
     public @Bean GeoServerBusProperties geoServerBusProperties() {
         return new GeoServerBusProperties();
-    }
-
-    public @Bean RemoteEventPayloadCodec remoteEventPayloadCodec() {
-        return new RemoteEventPayloadCodec();
     }
 
     public @Bean GeoServerRemoteEventBroadcaster remoteEventBroadcaster() {

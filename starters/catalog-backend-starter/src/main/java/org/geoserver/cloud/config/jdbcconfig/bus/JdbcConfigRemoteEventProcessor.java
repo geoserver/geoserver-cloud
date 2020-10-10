@@ -14,7 +14,6 @@ import org.geoserver.cloud.bus.event.catalog.RemoteCatalogEvent;
 import org.geoserver.cloud.event.ConfigInfoInfoType;
 import org.geoserver.jdbcconfig.internal.ConfigDatabase;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.bus.ServiceMatcher;
 import org.springframework.context.event.EventListener;
 
 /**
@@ -23,8 +22,6 @@ import org.springframework.context.event.EventListener;
  */
 @Slf4j(topic = "org.geoserver.cloud.bus.incoming.jdbcconfig")
 public class JdbcConfigRemoteEventProcessor {
-    private @Autowired ServiceMatcher busServiceMatcher;
-
     private @Autowired ConfigDatabase jdbcConfigDatabase;
 
     @EventListener(RemoteRemoveEvent.class)
@@ -38,7 +35,7 @@ public class JdbcConfigRemoteEventProcessor {
     }
 
     private void evictConfigDatabaseEntry(RemoteInfoEvent<?, ? extends Info> event) {
-        if (busServiceMatcher.isFromSelf(event)) {
+        if (event.isFromSelf()) {
             return;
         }
         ConfigInfoInfoType infoType = event.getInfoType();

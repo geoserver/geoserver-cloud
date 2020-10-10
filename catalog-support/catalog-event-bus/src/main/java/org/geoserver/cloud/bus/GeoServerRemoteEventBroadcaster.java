@@ -8,9 +8,11 @@ import java.util.Optional;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.catalog.CatalogException;
-import org.geoserver.catalog.plugin.PropertyDiff;
+import org.geoserver.catalog.plugin.Patch;
+import org.geoserver.cloud.bus.event.RemoteAddEvent;
 import org.geoserver.cloud.bus.event.RemoteInfoEvent;
 import org.geoserver.cloud.bus.event.RemoteModifyEvent;
+import org.geoserver.cloud.bus.event.RemoteRemoveEvent;
 import org.geoserver.cloud.bus.event.catalog.RemoteCatalogAddEvent;
 import org.geoserver.cloud.bus.event.catalog.RemoteCatalogEvent;
 import org.geoserver.cloud.bus.event.catalog.RemoteCatalogModifyEvent;
@@ -69,10 +71,12 @@ public class GeoServerRemoteEventBroadcaster {
      * RemoteApplicationEvent remote-events}. Such events ought to be constructed with that service
      * id to be properly broadcasted to other nodes but ignored on the sending node.
      */
-    private @Autowired BusProperties busProperties;
+    private @Autowired BusProperties springBusProperties;
+
+    private @Autowired GeoServerBusProperties geoserverBusProperties;
 
     public String toString() {
-        return String.format("%s(%s)", getClass().getSimpleName(), busProperties.getId());
+        return String.format("%s(%s)", getClass().getSimpleName(), springBusProperties.getId());
     }
 
     private String destinationService() {
@@ -80,17 +84,34 @@ public class GeoServerRemoteEventBroadcaster {
     }
 
     private @NonNull String originService() {
-        return busProperties.getId();
+        return springBusProperties.getId();
     }
 
     private void publishRemoteEvent(
             LocalInfoEvent<?, ?> localEvent, RemoteInfoEvent<?, ?> remoteEvent) {
+        if (!geoserverBusProperties.isSendEvents()) {
+            return;
+        }
+        if (!geoserverBusProperties.isSendObject()) {
+            if (remoteEvent instanceof RemoteAddEvent) {
+                ((RemoteAddEvent<?, ?>) remoteEvent).setObject(null);
+            }
+            if (remoteEvent instanceof RemoteRemoveEvent) {
+                ((RemoteRemoveEvent<?, ?>) remoteEvent).setObject(null);
+            }
+        }
         if (remoteEvent instanceof RemoteModifyEvent) {
-            Optional<PropertyDiff> diff = ((RemoteModifyEvent<?, ?>) remoteEvent).diff();
-            if (diff.isPresent() && diff.get().isEmpty()) {
-                log.debug(
-                        "Not publishing remote event for no-op local change event {}", localEvent);
-                return;
+            RemoteModifyEvent<?, ?> modifyEvent = (RemoteModifyEvent<?, ?>) remoteEvent;
+            if (!geoserverBusProperties.isSendDiff()) {
+                modifyEvent.setPatch(null);
+            } else {
+                Optional<Patch> patch = modifyEvent.patch();
+                if (patch.isPresent() && patch.get().isEmpty()) {
+                    log.debug(
+                            "Not publishing remote event for no-op local change event {}",
+                            localEvent);
+                    return;
+                }
             }
         }
         log.debug("broadcasting {} upon {}", remoteEvent, localEvent.getClass().getSimpleName());
@@ -128,12 +149,14 @@ public class GeoServerRemoteEventBroadcaster {
 
     @EventListener(LocalCatalogPostModifyEvent.class)
     public void onCatalogInfoModified(LocalCatalogPostModifyEvent event) throws CatalogException {
+        Patch patch = event.getDiff().clean().toPatch();
+
         RemoteCatalogModifyEvent remoteEvent =
                 beanFactory.getBean(
                         RemoteCatalogModifyEvent.class,
                         event.getSource(),
                         event.getObject(),
-                        event.getDiff().clean(),
+                        patch,
                         originService(),
                         destinationService());
         publishRemoteEvent(event, remoteEvent);
@@ -153,12 +176,15 @@ public class GeoServerRemoteEventBroadcaster {
 
     @EventListener(LocalConfigPostModifyEvent.class)
     public void onConfigInfoModified(LocalConfigPostModifyEvent event) throws CatalogException {
+
+        Patch patch = event.getDiff().clean().toPatch();
+
         RemoteConfigModifyEvent remoteEvent =
                 this.beanFactory.getBean(
                         RemoteConfigModifyEvent.class,
                         event.getSource(),
                         event.getObject(),
-                        event.getDiff().clean(),
+                        patch,
                         originService(),
                         destinationService());
         publishRemoteEvent(event, remoteEvent);

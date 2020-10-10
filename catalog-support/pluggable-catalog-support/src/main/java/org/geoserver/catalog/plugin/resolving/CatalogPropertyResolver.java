@@ -5,9 +5,10 @@
 package org.geoserver.catalog.plugin.resolving;
 
 import java.util.Objects;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
+import org.geoserver.catalog.Info;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
@@ -24,7 +25,7 @@ import org.geoserver.catalog.plugin.forwarding.ResolvingCatalogFacadeDecorator;
  * @see ResourceInfo#getCatalog()
  * @see StyleInfoImpl#getCatalog()
  */
-public class CatalogPropertyResolver implements Function<CatalogInfo, CatalogInfo> {
+public class CatalogPropertyResolver<T extends Info> implements UnaryOperator<T> {
 
     private Catalog catalog;
 
@@ -33,11 +34,11 @@ public class CatalogPropertyResolver implements Function<CatalogInfo, CatalogInf
         this.catalog = catalog;
     }
 
-    public static CatalogPropertyResolver of(Catalog catalog) {
-        return new CatalogPropertyResolver(catalog);
+    public static <I extends Info> CatalogPropertyResolver<I> of(Catalog catalog) {
+        return new CatalogPropertyResolver<>(catalog);
     }
 
-    public @Override CatalogInfo apply(CatalogInfo i) {
+    public @Override T apply(T i) {
         if (i instanceof StoreInfo) setCatalog((StoreInfo) i);
         else if (i instanceof ResourceInfo) setCatalog((ResourceInfo) i);
         else if (i instanceof StyleInfo) setCatalog((StyleInfo) i);

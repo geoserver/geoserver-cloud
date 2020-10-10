@@ -13,11 +13,12 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
+import org.geoserver.catalog.Info;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.NamespaceInfo;
@@ -28,6 +29,8 @@ import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ResolvingProxy;
 import org.geoserver.catalog.plugin.forwarding.ResolvingCatalogFacadeDecorator;
+import org.geoserver.config.ServiceInfo;
+import org.geoserver.config.SettingsInfo;
 
 /**
  * {@link ResolvingCatalogFacadeDecorator#setObjectResolver resolving function} that resolves {@link
@@ -37,13 +40,19 @@ import org.geoserver.catalog.plugin.forwarding.ResolvingCatalogFacadeDecorator;
  * @see ResolvingProxy
  */
 @Slf4j
-public class ResolvingProxyResolver implements Function<CatalogInfo, CatalogInfo> {
+public class ResolvingProxyResolver<T extends Info> implements UnaryOperator<T> {
 
     private final Catalog catalog;
     private final BiConsumer<CatalogInfo, ResolvingProxy> onNotFound;
 
     public ResolvingProxyResolver(Catalog catalog) {
-        this(catalog, (info, proxy) -> {});
+        this(
+                catalog,
+                (info, proxy) -> {
+                    log.warn(
+                            "ResolvingProxy object not found in catalog, keeping proxy around: "
+                                    + info.getId());
+                });
     }
 
     public ResolvingProxyResolver(
@@ -54,12 +63,13 @@ public class ResolvingProxyResolver implements Function<CatalogInfo, CatalogInfo
         this.onNotFound = onNotFound;
     }
 
-    public static ResolvingProxyResolver of(
+    public static <I extends Info> ResolvingProxyResolver<I> of(
             Catalog catalog, BiConsumer<CatalogInfo, ResolvingProxy> onNotFound) {
-        return new ResolvingProxyResolver(catalog, onNotFound);
+        return new ResolvingProxyResolver<>(catalog, onNotFound);
     }
 
-    public static ResolvingProxyResolver of(Catalog catalog, boolean errorOnNotFound) {
+    public static <I extends Info> ResolvingProxyResolver<I> of(
+            Catalog catalog, boolean errorOnNotFound) {
         if (errorOnNotFound)
             return ResolvingProxyResolver.of(
                     catalog,
@@ -70,20 +80,21 @@ public class ResolvingProxyResolver implements Function<CatalogInfo, CatalogInfo
         return ResolvingProxyResolver.of(catalog);
     }
 
-    public static ResolvingProxyResolver of(Catalog catalog) {
-        return new ResolvingProxyResolver(catalog);
-    }
-
-    public ResolvingProxyResolver memoizing() {
-        return new MemoizingProxyResolver(catalog, onNotFound);
-    }
-
-    public @Override CatalogInfo apply(CatalogInfo t) {
-        return resolve(t);
+    public static <I extends Info> ResolvingProxyResolver<I> of(Catalog catalog) {
+        return new ResolvingProxyResolver<>(catalog);
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends CatalogInfo> T resolve(final T orig) {
+    public <I extends Info> ResolvingProxyResolver<I> memoizing() {
+        return (ResolvingProxyResolver<I>) new MemoizingProxyResolver(catalog, onNotFound);
+    }
+
+    public @Override T apply(T info) {
+        return resolve(info);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <I extends Info> I resolve(final I orig) {
         if (orig == null) {
             return null;
         }
@@ -92,28 +103,32 @@ public class ResolvingProxyResolver implements Function<CatalogInfo, CatalogInfo
         final boolean isResolvingProxy = null != resolvingProxy;
         if (isResolvingProxy) {
             // may the object itself be a resolving proxy
-            T resolved = doResolveProxy(orig);
-            if (resolved == null) {
+            I resolved = doResolveProxy(orig);
+            if (resolved == null && orig instanceof CatalogInfo) {
                 log.info("Proxy object {} not found, calling on-not-found consumer", orig.getId());
-                onNotFound.accept(orig, resolvingProxy);
+                onNotFound.accept((CatalogInfo) orig, resolvingProxy);
                 // return the proxied value if the consumer didn't throw an exception
                 return orig;
             }
             return resolved;
         }
 
-        if (orig instanceof StyleInfo) return (T) resolveInternal((StyleInfo) orig);
+        if (orig instanceof StyleInfo) return (I) resolveInternal((StyleInfo) orig);
 
-        if (orig instanceof PublishedInfo) return (T) resolveInternal((PublishedInfo) orig);
+        if (orig instanceof PublishedInfo) return (I) resolveInternal((PublishedInfo) orig);
 
-        if (orig instanceof ResourceInfo) return (T) resolveInternal((ResourceInfo) orig);
+        if (orig instanceof ResourceInfo) return (I) resolveInternal((ResourceInfo) orig);
 
-        if (orig instanceof StoreInfo) return (T) resolveInternal((StoreInfo) orig);
+        if (orig instanceof StoreInfo) return (I) resolveInternal((StoreInfo) orig);
+
+        if (orig instanceof SettingsInfo) return (I) resolveInternal((SettingsInfo) orig);
+
+        if (orig instanceof ServiceInfo) return (I) resolveInternal((ServiceInfo) orig);
 
         return orig;
     }
 
-    protected <T extends CatalogInfo> T doResolveProxy(final T orig) {
+    protected <I extends Info> I doResolveProxy(final I orig) {
         return ResolvingProxy.resolve(catalog, orig);
     }
 
@@ -121,7 +136,7 @@ public class ResolvingProxyResolver implements Function<CatalogInfo, CatalogInfo
         return getResolvingProxy(unresolved) != null;
     }
 
-    protected ResolvingProxy getResolvingProxy(final CatalogInfo unresolved) {
+    protected ResolvingProxy getResolvingProxy(final Info unresolved) {
         if (unresolved != null) {
             boolean isProxy = Proxy.isProxyClass(unresolved.getClass());
             if (isProxy) {
@@ -135,11 +150,11 @@ public class ResolvingProxyResolver implements Function<CatalogInfo, CatalogInfo
     }
 
     @SuppressWarnings("unchecked")
-    protected <T extends PublishedInfo> T resolveInternal(T published) {
-        if (published instanceof LayerInfo) return (T) resolveInternal((LayerInfo) published);
+    protected <P extends PublishedInfo> P resolveInternal(P published) {
+        if (published instanceof LayerInfo) return (P) resolveInternal((LayerInfo) published);
 
         if (published instanceof LayerGroupInfo)
-            return (T) resolveInternal((LayerGroupInfo) published);
+            return (P) resolveInternal((LayerGroupInfo) published);
 
         return published;
     }
@@ -203,6 +218,16 @@ public class ResolvingProxyResolver implements Function<CatalogInfo, CatalogInfo
         return store;
     }
 
+    protected SettingsInfo resolveInternal(SettingsInfo settings) {
+        settings.setWorkspace(resolve(settings.getWorkspace()));
+        return settings;
+    }
+
+    protected ServiceInfo resolveInternal(ServiceInfo service) {
+        service.setWorkspace(resolve(service.getWorkspace()));
+        return service;
+    }
+
     protected ResourceInfo resolveInternal(ResourceInfo resource) {
         // resolve the store
         StoreInfo store = resource.getStore();
@@ -218,9 +243,9 @@ public class ResolvingProxyResolver implements Function<CatalogInfo, CatalogInfo
         return resource;
     }
 
-    private static class MemoizingProxyResolver extends ResolvingProxyResolver {
+    private static class MemoizingProxyResolver extends ResolvingProxyResolver<Info> {
 
-        private Map<String, CatalogInfo> resolved = new ConcurrentHashMap<>();
+        private Map<String, Info> resolved = new ConcurrentHashMap<>();
 
         public MemoizingProxyResolver(
                 Catalog catalog, BiConsumer<CatalogInfo, ResolvingProxy> onNotFound) {
@@ -228,12 +253,12 @@ public class ResolvingProxyResolver implements Function<CatalogInfo, CatalogInfo
         }
 
         @SuppressWarnings("unchecked")
-        protected @Override <T extends CatalogInfo> T doResolveProxy(final T orig) {
+        protected @Override <I extends Info> I doResolveProxy(final I orig) {
             String id = orig.getId();
-            T resolved = (T) this.resolved.get(id);
+            I resolved = (I) this.resolved.get(id);
             if (null == resolved) {
                 log.debug("Memoized cache miss, resolving proxy reference {}", id);
-                resolved = (T) this.resolved.computeIfAbsent(id, key -> super.doResolveProxy(orig));
+                resolved = (I) this.resolved.computeIfAbsent(id, key -> super.doResolveProxy(orig));
             } else {
                 log.debug("Memoized cache hit for {}", resolved.getId());
             }

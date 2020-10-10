@@ -6,6 +6,7 @@ package org.geoserver.cloud.autoconfigure.bus;
 
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.Info;
+import org.geoserver.catalog.impl.ResolvingProxy;
 import org.geoserver.cloud.bus.RemoteApplicationEventsConfiguration;
 import org.geoserver.cloud.bus.event.RemoteInfoEvent;
 import org.geoserver.jackson.databind.catalog.GeoServerCatalogModule;
@@ -45,5 +46,17 @@ public class RemoteApplicationEventsAutoConfiguration {
     @ConditionalOnMissingBean(GeoServerConfigModule.class)
     public @Bean GeoServerConfigModule geoServerConfigJacksonModule() {
         return new GeoServerConfigModule();
+    }
+
+    /**
+     * Highest priority listener for incoming {@link RemoteInfoEvent} events to resolve the payload
+     * {@link CatalogInfo} properties, as they may come either as {@link ResolvingProxy} proxies, or
+     * {@code null} in case of collection properties.
+     *
+     * <p>This listener ensures the payload object properties are resolved before being catch up by
+     * other listeners.
+     */
+    public @Bean RemoteInfoEventInboundResolver remoteInfoEventInboundResolver() {
+        return new RemoteInfoEventInboundResolver();
     }
 }

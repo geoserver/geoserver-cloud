@@ -16,25 +16,39 @@ import java.util.Optional;
 import java.util.TreeMap;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.Value;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.ows.util.OwsUtils;
 
+@NoArgsConstructor
 public @Value class Patch implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public static @Value class Property {
         private final String name;
         private final Object value;
+
+        public Property withValue(Object newValue) {
+            return new Property(name, newValue);
+        }
     }
 
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
     private final Map<String, Property> patches = new TreeMap<>();
 
+    public Patch(List<Property> patches) {
+        patches.forEach(this::add);
+    }
+
     public List<Property> getPatches() {
         return new ArrayList<Patch.Property>(patches.values());
+    }
+
+    public boolean isEmpty() {
+        return patches.isEmpty();
     }
 
     public void add(Property prop) {

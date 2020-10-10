@@ -11,6 +11,8 @@ import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.geoserver.cloud.autoconfigure.bus.RemoteInfoEventInboundResolver;
+import org.mockito.Mockito;
 import org.springframework.cloud.bus.SpringCloudBusClient;
 import org.springframework.cloud.bus.event.RemoteApplicationEvent;
 import org.springframework.cloud.stream.test.binder.MessageCollector;
@@ -36,15 +38,15 @@ public class BusChannelEventCollector {
 
     private BlockingQueue<org.springframework.messaging.Message<?>> sentMessages;
 
-    private RemoteEventPayloadCodec remoteEventPayloadCodec;
+    private RemoteInfoEventInboundResolver inboundEventResolver;
 
     public BusChannelEventCollector(
             BlockingQueue<Message<?>> outChannel,
             AbstractMessageConverter busJsonConverter,
-            RemoteEventPayloadCodec remoteEventPayloadCodec) {
+            RemoteInfoEventInboundResolver inboundEventResolver) {
         this.sentMessages = outChannel;
         this.busJsonConverter = busJsonConverter;
-        this.remoteEventPayloadCodec = remoteEventPayloadCodec;
+        this.inboundEventResolver = inboundEventResolver;
     }
 
     public <T extends ApplicationEvent> T expectOne(Class<T> type) {
@@ -72,11 +74,19 @@ public class BusChannelEventCollector {
         sentMessages.clear();
     }
 
+    /**
+     * Parses the message and fakes its {@link RemoteApplicationEvent#getOriginService() origin
+     * service} to fake it coming from the wire, letting {@link
+     * RemoteInfoEventInboundResolver#resolve(RemoteInfoEvent)} initialize the payload
+     */
     private RemoteApplicationEvent parseEvent(Message<?> message) {
         Object fromMessage = busJsonConverter.fromMessage(message, RemoteApplicationEvent.class);
-        if (fromMessage instanceof RemoteInfoEvent) {
-            remoteEventPayloadCodec.initIncomingMessage((RemoteInfoEvent<?, ?>) fromMessage);
+        RemoteApplicationEvent event = (RemoteApplicationEvent) fromMessage;
+        event = Mockito.spy(event);
+        Mockito.doReturn("mock-remote-service").when(event).getOriginService();
+        if (event instanceof RemoteInfoEvent) {
+            this.inboundEventResolver.resolve((RemoteInfoEvent<?, ?>) event);
         }
-        return (RemoteApplicationEvent) fromMessage;
+        return event;
     }
 }

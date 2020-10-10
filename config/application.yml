@@ -6,14 +6,12 @@ geoserver:
     localWorkspace: true
     secure: true
   bus:
-    # whether to send distributed events (i.e. acts as master)
+    # whether to send distributed events (i.e. acts as master). All instances receive remote events.
     send-events: true
-    # whether to receive and process distributed events (i.e. acts as slave)
-    receive-events: true
     # whether to send the object (CatalogInfo/config info) as payload with the event
-    send-object: false
+    send-object: true
     # whether to send a diff of changes as payload with the event
-    send-diff: false
+    send-diff: true
   backend:
     # configure catalog backends and decide which backend to use on this service.
     # All backends are disabled, enable the required one on each service. For example, the catalog microservice 
@@ -118,7 +116,6 @@ logging:
   level:
     root: WARN
     org.springframework: INFO
-    org.springframework.cloud.bus: DEBUG
     # geoserver roots
     org.geoserver: INFO
     org.geoserver.catalog.plugin: DEBUG
@@ -134,7 +131,8 @@ logging:
     org.geoserver.cloud.config.factory: DEBUG
     # bus debugging
     org.geoserver.cloud.bus: TRACE
+    org.springframework.cloud.bus: DEBUG
     org.springframework.cloud.bus.BusAutoConfiguration: DEBUG
-    org.springframework.cloud.bus.DefaultBusPathMatcher: DEBUG
+    org.springframework.cloud.bus.DefaultBusPathMatcher: INFO
     # reactivefeign:
     reactivefeign.client.log: DEBUG

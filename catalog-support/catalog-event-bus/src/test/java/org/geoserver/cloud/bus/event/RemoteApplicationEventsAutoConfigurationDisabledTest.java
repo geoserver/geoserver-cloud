@@ -33,11 +33,6 @@ public class RemoteApplicationEventsAutoConfigurationDisabledTest {
     }
 
     @Test(expected = NoSuchBeanDefinitionException.class)
-    public void remoteEventPayloadCodec() {
-        context.getBean(RemoteEventPayloadCodec.class);
-    }
-
-    @Test(expected = NoSuchBeanDefinitionException.class)
     public void remoteEventBroadcaster() {
         context.getBean(GeoServerRemoteEventBroadcaster.class);
     }
