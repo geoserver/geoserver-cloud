@@ -11,9 +11,12 @@ import static org.geoserver.jdbcconfig.internal.DbUtils.logStatement;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import java.io.IOException;
+import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collections;
@@ -26,6 +29,7 @@ import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.Info;
+import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.util.CapabilitiesFilterSplitterFix;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.catalog.util.CloseableIteratorAdapter;
@@ -36,6 +40,7 @@ import org.geoserver.jdbcconfig.internal.FilterToCatalogSQL;
 import org.geoserver.jdbcconfig.internal.PropertyType;
 import org.geoserver.jdbcconfig.internal.XStreamInfoSerialBinding;
 import org.geoserver.platform.resource.Resource;
+import org.geoserver.util.CacheProvider;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.filter.Capabilities;
 import org.geotools.filter.visitor.CapabilitiesFilterSplitter;
@@ -64,9 +69,38 @@ class CloudJdbcConfigDatabase extends ConfigDatabase {
     private NamedParameterJdbcTemplate template;
     private DbMappings dbMappings;
 
+    /**
+     * Cache provider that returns no-op caches, where all tests will be cache misses. We use this
+     * here because GeoServer's jdbcconfig's {@link ConfigDatabase} has serious concurrency issues.
+     * For example, if querying WMS capabilities concurrently, will allways get the exception
+     * bellow, since it's updating a {@link LayerInfo}'s styles list while other threads are reading
+     * it to produce the capabilities document.
+     *
+     * <pre>
+     * <code>
+     *   java.util.ConcurrentModificationException: null
+     *   at java.base/java.util.LinkedHashMap$LinkedHashIterator.nextNode(Unknown Source) ~[na:na]
+     *   at java.base/java.util.LinkedHashMap$LinkedKeyIterator.next(Unknown Source) ~[na:na]
+     *   at org.geoserver.jdbcconfig.internal.ConfigDatabase$CatalogReferenceUpdater.visit(ConfigDatabase.java:1795) ~[gs-jdbcconfig-2.19-SNAPSHOT.jar!/:2.19-SNAPSHOT]
+     *   at org.geoserver.catalog.impl.LayerInfoImpl.accept(LayerInfoImpl.java:272) ~[gs-main-2.19-SNAPSHOT.jar!/:2.19-SNAPSHOT]
+     *   ...
+     * </code>
+     * </pre>
+     *
+     * By doing this, we remove all the hassle of caching from jdbcconfig and use our caching module
+     * instead.
+     */
+    private static final CacheProvider NULL_CACHE_PROVIDER =
+            new CacheProvider() {
+                public @Override <K extends Serializable, V extends Serializable>
+                        Cache<K, V> getCache(String cacheName) {
+                    return CacheBuilder.newBuilder().maximumSize(0).build();
+                }
+            };
+
     public CloudJdbcConfigDatabase(
             final DataSource dataSource, final XStreamInfoSerialBinding binding) {
-        super(dataSource, binding);
+        super(dataSource, binding, NULL_CACHE_PROVIDER);
         this.dataSource = dataSource;
         this.template = new NamedParameterJdbcTemplate(dataSource);
     }
