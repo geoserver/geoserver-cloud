@@ -8,6 +8,7 @@ import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogFacade;
+import org.geoserver.catalog.plugin.CatalogFacadeExtensionAdapter;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.config.GeoServer;
@@ -50,7 +51,13 @@ public class GeoServerBackendCacheConfiguration {
     }
 
     public @Bean CachingCatalogFacade cachingCatalogFacade() {
-        ExtendedCatalogFacade facade = (ExtendedCatalogFacade) rawCatalogFacade;
+        CatalogFacade raw = rawCatalogFacade;
+        ExtendedCatalogFacade facade;
+        if (raw instanceof ExtendedCatalogFacade) {
+            facade = (ExtendedCatalogFacade) rawCatalogFacade;
+        } else {
+            facade = new CatalogFacadeExtensionAdapter(raw);
+        }
         return new CachingCatalogFacadeImpl(facade);
     }
 
