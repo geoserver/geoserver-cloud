@@ -6,8 +6,9 @@ package org.geoserver.cloud.integration.jdbcconfig;
 
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogConformanceTest;
+import org.geoserver.catalog.plugin.CatalogPlugin;
+import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.cloud.testconfiguration.IntegrationTestConfiguration;
-import org.geoserver.jdbcconfig.catalog.JDBCCatalogFacade;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -25,14 +26,12 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 public class JDBCConfigCatalogConformanceTest extends CatalogConformanceTest {
 
-    private @Autowired @Qualifier("catalogFacade") JDBCCatalogFacade jdbcCatalogFacade;
+    private @Autowired @Qualifier("catalogFacade") ExtendedCatalogFacade jdbcCatalogFacade;
     private @Autowired GeoServerResourceLoader resourceLoader;
 
     @Override
     protected Catalog createCatalog() {
-        org.geoserver.catalog.impl.CatalogImpl catalog =
-                new org.geoserver.catalog.impl.CatalogImpl();
-        catalog.setFacade(jdbcCatalogFacade);
+        CatalogPlugin catalog = new CatalogPlugin(jdbcCatalogFacade);
         catalog.setResourceLoader(resourceLoader);
         return catalog;
     }

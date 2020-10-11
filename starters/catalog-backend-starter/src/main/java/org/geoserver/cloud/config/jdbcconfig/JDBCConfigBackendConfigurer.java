@@ -12,7 +12,8 @@ import javax.sql.DataSource;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.geoserver.catalog.CatalogFacade;
+import org.geoserver.catalog.plugin.CatalogFacadeExtensionAdapter;
+import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.cloud.config.catalog.GeoServerBackendConfigurer;
 import org.geoserver.cloud.config.jdbcconfig.bus.JdbcConfigRemoteEventProcessor;
 import org.geoserver.config.GeoServerFacade;
@@ -132,7 +133,7 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
     }
 
     @Bean(name = {"catalogFacade", "JDBCCatalogFacade"})
-    public @Override CatalogFacade catalogFacade() {
+    public @Override ExtendedCatalogFacade catalogFacade() {
         ConfigDatabase configDB = jdbcConfigDB();
         JDBCConfigProperties catalogConfig = jdbcConfigProperties();
         CloudJdbcStoreProperties storeConfig = jdbcStoreProperties();
@@ -145,7 +146,8 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
                 throw new BeanInitializationException(e.getMessage(), e);
             }
         }
-        return new JDBCCatalogFacade(jdbcConfigDB());
+        JDBCCatalogFacade legacyFacade = new CloudJdbcCatalogFacade(jdbcConfigDB());
+        return new CatalogFacadeExtensionAdapter(legacyFacade);
     }
 
     @Bean(name = {"geoserverFacade", "JDBCGeoServerFacade"})
@@ -160,12 +162,9 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
     @DependsOn({"catalogFacade", "geoserverFacade"})
     public @Override CloudJdbcGeoServerLoader geoServerLoaderImpl() {
         JDBCConfigProperties config = jdbcConfigProperties();
-        CloudJdbcGeoServerLoader loader;
+        ConfigDatabase configdb = jdbcConfigDB();
         try {
-            loader = new CloudJdbcGeoServerLoader(resourceLoader(), config);
-            loader.setCatalogFacade(catalogFacade());
-            loader.setGeoServerFacade(getContext().getBean(CloudJdbcGeoserverFacade.class));
-            return loader;
+            return new CloudJdbcGeoServerLoader(resourceLoader(), config, configdb);
         } catch (Exception e) {
             throw new BeanInstantiationException(JDBCGeoServerLoader.class, e.getMessage(), e);
         }

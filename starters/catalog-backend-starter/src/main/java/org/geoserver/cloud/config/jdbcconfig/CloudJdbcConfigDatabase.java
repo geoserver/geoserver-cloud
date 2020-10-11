@@ -30,6 +30,7 @@ import javax.sql.DataSource;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.LayerInfo;
+import org.geoserver.catalog.impl.CatalogImpl;
 import org.geoserver.catalog.util.CapabilitiesFilterSplitterFix;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.catalog.util.CloseableIteratorAdapter;
@@ -105,7 +106,17 @@ class CloudJdbcConfigDatabase extends ConfigDatabase {
         this.template = new NamedParameterJdbcTemplate(dataSource);
     }
 
-    public void initDb(@Nullable Resource resource) throws IOException {
+    /**
+     * Overrides to remove the {@link CatalogClearingListener} added by {@code super.setCatalog()},
+     * we don't do caching here and the {@link CatalogClearingListener} produces null pointer
+     * exceptions
+     */
+    public @Override void setCatalog(CatalogImpl catalog) {
+        super.setCatalog(catalog);
+        catalog.removeListeners(CatalogClearingListener.class);
+    }
+
+    public @Override void initDb(@Nullable Resource resource) throws IOException {
         super.initDb(resource);
         this.dbMappings = new DbMappings(dialect());
         this.dbMappings.initDb(template);
