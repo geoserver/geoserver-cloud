@@ -180,6 +180,9 @@ public class CatalogTestData extends ExternalResource {
     public void deleteAll(Catalog catalog) {
         CascadeDeleteVisitor deleteVisitor = new CascadeDeleteVisitor(catalog);
         catalog.getLayerGroups().forEach(lg -> lg.accept(deleteVisitor));
+        catalog.getLayers().forEach(lg -> lg.accept(deleteVisitor));
+        catalog.getResources(ResourceInfo.class).forEach(lg -> lg.accept(deleteVisitor));
+        catalog.getStores(StoreInfo.class).forEach(lg -> lg.accept(deleteVisitor));
         catalog.getWorkspaces().forEach(ws -> ws.accept(deleteVisitor));
         catalog.getNamespaces().forEach(ws -> ws.accept(deleteVisitor));
         // bypass catalog's check for default style
