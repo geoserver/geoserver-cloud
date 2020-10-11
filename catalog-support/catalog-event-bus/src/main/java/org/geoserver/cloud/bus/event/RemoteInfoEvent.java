@@ -4,28 +4,49 @@
  */
 package org.geoserver.cloud.bus.event;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import java.io.IOException;
-import java.util.Optional;
-import javax.annotation.PostConstruct;
-import lombok.AccessLevel;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
+import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.Info;
 import org.geoserver.cloud.event.ConfigInfoInfoType;
+import org.geoserver.config.GeoServer;
+import org.geoserver.config.GeoServerInfo;
+import org.geoserver.config.LoggingInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cloud.bus.ServiceMatcher;
 import org.springframework.cloud.bus.event.RemoteApplicationEvent;
 
 @EqualsAndHashCode(callSuper = true)
-@Slf4j
 public abstract class RemoteInfoEvent<S, I extends Info> extends RemoteApplicationEvent {
+
     private static final long serialVersionUID = 1L;
 
-    @Setter(value = AccessLevel.PACKAGE)
-    protected @Autowired RemoteEventPayloadCodec payloadCodec;
+    private @Autowired @Setter @JsonIgnore transient ServiceMatcher busServiceMatcher;
+
+    /**
+     * {@link #getObjectId() object identifier} for changes performed to the {@link Catalog} itself
+     * (e.g. {@code defaultWorkspace} and the like)
+     */
+    public static final String CATALOG_ID = "catalog";
+
+    /**
+     * {@link #getObjectId() object identifier} for changes performed to the {@link GeoServerInfo
+     * global config} itself (e.g. {@code updateSequence} and the like)
+     */
+    public static final String GEOSERVER_ID = "geoserver";
+
+    /**
+     * {@link #getObjectId() object identifier} for changes performed to the {@link LoggingInfo}
+     * config
+     */
+    public static final String LOGGING_ID = "logging";
+
+    protected @JsonIgnore @Autowired @Qualifier("rawCatalog") Catalog catalog;
+    protected @JsonIgnore @Autowired @Qualifier("geoServer") GeoServer config;
 
     /**
      * Identifier of the catalog or config object this event refers to, from {@link Info#getId()}
@@ -33,10 +54,6 @@ public abstract class RemoteInfoEvent<S, I extends Info> extends RemoteApplicati
     private @Getter String objectId;
 
     private @Getter ConfigInfoInfoType infoType;
-
-    private I object;
-
-    private String serializedObject;
 
     /** Deserialization-time constructor, {@link #getSource()} will be {@code null} */
     protected RemoteInfoEvent() {
@@ -48,48 +65,17 @@ public abstract class RemoteInfoEvent<S, I extends Info> extends RemoteApplicati
             @NonNull S source, @NonNull I info, String originService, String destinationService) {
 
         super(source, originService, destinationService);
-        this.objectId = info.getId();
+        this.objectId =
+                info instanceof Catalog
+                        ? CATALOG_ID
+                        : (info instanceof GeoServerInfo
+                                ? GEOSERVER_ID
+                                : (info instanceof LoggingInfo ? LOGGING_ID : info.getId()));
         this.infoType = ConfigInfoInfoType.valueOf(info);
-        if (info instanceof org.geoserver.catalog.Catalog) {
-            log.trace(
-                    "changed object is Catalog, setting remote event's object property to null. Catalog can't transferred as payload.");
-        } else {
-            this.object = info;
-        }
     }
 
-    protected @PostConstruct void encodePayload() {
-        if (this.object != null && payloadCodec.isIncludePayload()) {
-            try {
-                this.serializedObject = this.payloadCodec.encode(this.object);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        } else {
-            this.object = null;
-        }
-    }
-
-    @JsonInclude
-    public String getSerializedObject() {
-        return this.serializedObject;
-    }
-
-    public Optional<I> object() {
-        return Optional.ofNullable(resolveObject());
-    }
-
-    @SuppressWarnings("unchecked")
-    private I resolveObject() {
-        if (this.object == null && this.serializedObject != null && this.payloadCodec != null) {
-            try {
-                this.object =
-                        this.payloadCodec.decode(serializedObject, (Class<I>) infoType.getType());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return this.object;
+    public @JsonIgnore boolean isFromSelf() {
+        return busServiceMatcher.isFromSelf(this);
     }
 
     public @Override String toString() {

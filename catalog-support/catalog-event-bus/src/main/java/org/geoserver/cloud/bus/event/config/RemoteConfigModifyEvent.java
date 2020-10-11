@@ -6,7 +6,7 @@ package org.geoserver.cloud.bus.event.config;
 
 import lombok.EqualsAndHashCode;
 import org.geoserver.catalog.Info;
-import org.geoserver.catalog.plugin.PropertyDiff;
+import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.cloud.bus.event.RemoteModifyEvent;
 import org.geoserver.config.GeoServer;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -27,9 +27,9 @@ public class RemoteConfigModifyEvent extends RemoteModifyEvent<GeoServer, Info>
     public RemoteConfigModifyEvent(
             GeoServer source,
             Info object,
-            PropertyDiff diff,
+            Patch patch,
             String originService,
             String destinationService) {
-        super(source, object, diff, originService, destinationService);
+        super(source, object, patch, originService, destinationService);
     }
 }

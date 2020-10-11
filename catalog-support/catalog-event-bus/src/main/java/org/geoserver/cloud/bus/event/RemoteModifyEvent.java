@@ -4,24 +4,21 @@
  */
 package org.geoserver.cloud.bus.event;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import java.io.IOException;
 import java.util.Optional;
-import javax.annotation.PostConstruct;
+import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 import org.geoserver.catalog.Info;
-import org.geoserver.catalog.plugin.PropertyDiff;
+import org.geoserver.catalog.plugin.Patch;
 
 @EqualsAndHashCode(callSuper = true)
 // @JsonIgnoreProperties(value = {"object", "diff", "payloadCodec"})
 public abstract class RemoteModifyEvent<S, I extends Info> extends RemoteInfoEvent<S, I> {
     private static final long serialVersionUID = 1L;
 
-    @JsonIgnore private PropertyDiff diff;
-
-    private String serializedDiff;
+    private @Getter @Setter Patch patch;
 
     protected RemoteModifyEvent() {
         // default constructor, needed for deserialization
@@ -30,56 +27,36 @@ public abstract class RemoteModifyEvent<S, I extends Info> extends RemoteInfoEve
     protected RemoteModifyEvent(
             S source,
             @NonNull I object,
-            @NonNull PropertyDiff diff,
+            @NonNull Patch patch,
             String originService,
             String destinationService) {
         super(source, object, originService, destinationService);
-        this.diff = diff;
-    }
-
-    protected @PostConstruct void encodePayload() {
-        super.encodePayload();
-        if (payloadCodec.isIncludeDiff() && diff != null) {
-            try {
-                this.serializedDiff = super.payloadCodec.encode(diff);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        } else {
-            this.diff = null;
-        }
-    }
-
-    @JsonInclude
-    public String getSerializedDiff() {
-        return serializedDiff;
+        this.patch = patch;
     }
 
     public @Override String toString() {
         return String.format(
-                "%s(type: %s, id: %s, diff: %s, event id: %s, from: %s, to: %s, ts: %d)",
+                "%s(type: %s, id: %s, properties: %s, event id: %s, from: %s, to: %s, ts: %d)",
                 getClass().getSimpleName(),
                 getInfoType(),
                 this.getObjectId(),
-                serializedDiff,
+                patchNamesForLog(),
                 super.getId(),
                 super.getOriginService(),
                 super.getDestinationService(),
                 super.getTimestamp());
     }
 
-    public Optional<PropertyDiff> diff() {
-        return Optional.ofNullable(resolveDiff());
+    private String patchNamesForLog() {
+        return patch == null
+                ? "<not present>"
+                : patch.getPatches()
+                        .stream()
+                        .map(Patch.Property::getName)
+                        .collect(Collectors.joining(","));
     }
 
-    private PropertyDiff resolveDiff() {
-        if (this.diff == null && this.serializedDiff != null && this.payloadCodec != null) {
-            try {
-                this.diff = super.payloadCodec.decode(serializedDiff);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return this.diff;
+    public Optional<Patch> patch() {
+        return Optional.ofNullable(getPatch());
     }
 }

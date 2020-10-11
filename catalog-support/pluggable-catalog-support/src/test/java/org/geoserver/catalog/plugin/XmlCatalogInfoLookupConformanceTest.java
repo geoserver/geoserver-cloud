@@ -6,6 +6,7 @@ package org.geoserver.catalog.plugin;
 
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogConformanceTest;
+import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.plugin.forwarding.ResolvingCatalogFacadeDecorator;
 import org.geoserver.catalog.plugin.resolving.CatalogPropertyResolver;
 import org.geoserver.catalog.plugin.resolving.CollectionPropertiesInitializer;
@@ -35,7 +36,7 @@ public class XmlCatalogInfoLookupConformanceTest extends CatalogConformanceTest 
         ResolvingCatalogFacadeDecorator resolving = new ResolvingCatalogFacadeDecorator(rawFacade);
 
         resolving.setOutboundResolver( //
-                CatalogPropertyResolver.of(catalog) //
+                CatalogPropertyResolver.<CatalogInfo>of(catalog) //
                         .andThen(ResolvingProxyResolver.of(catalog)) //
                         .andThen(CollectionPropertiesInitializer.instance()));
         catalog.setFacade(resolving);
