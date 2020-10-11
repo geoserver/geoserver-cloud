@@ -5,11 +5,11 @@
 package org.geoserver.cloud.config.catalog;
 
 import org.geoserver.catalog.Catalog;
-import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.LayerGroupVisibilityPolicy;
 import org.geoserver.catalog.impl.AdvertisedCatalog;
 import org.geoserver.catalog.impl.LocalWorkspaceCatalog;
 import org.geoserver.catalog.plugin.CatalogPlugin;
+import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.cloud.autoconfigure.security.ConditionalOnGeoServerSecurityDisabled;
 import org.geoserver.cloud.autoconfigure.security.ConditionalOnGeoServerSecurityEnabled;
 import org.geoserver.platform.GeoServerResourceLoader;
@@ -21,12 +21,12 @@ import org.springframework.context.annotation.DependsOn;
 /** Configurer interface for the {@link Catalog} subsystem. */
 public interface GeoServerCatalogConfigurer {
 
-    public @Bean CatalogFacade catalogFacade();
+    public @Bean ExtendedCatalogFacade catalogFacade();
 
     @DependsOn({"resourceLoader", "catalogFacade"})
     default @Bean CatalogPlugin rawCatalog(
             GeoServerResourceLoader resourceLoader,
-            @Qualifier("catalogFacade") CatalogFacade catalogFacade,
+            @Qualifier("catalogFacade") ExtendedCatalogFacade catalogFacade,
             CatalogProperties properties) {
 
         boolean isolated = properties.isIsolated();

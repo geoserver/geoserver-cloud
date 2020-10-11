@@ -7,7 +7,7 @@ package org.geoserver.cloud.config.catalogclient;
 import java.io.File;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.geoserver.catalog.CatalogFacade;
+import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.cloud.catalog.client.impl.CatalogClientCatalogFacade;
 import org.geoserver.cloud.catalog.client.impl.CatalogClientConfiguration;
 import org.geoserver.cloud.catalog.client.impl.CatalogClientGeoServerFacade;
@@ -40,7 +40,7 @@ public class CatalogClientBackendConfigurer implements GeoServerBackendConfigure
 
     private @Autowired GeoServerBackendProperties configProps;
 
-    public @Override @Bean CatalogFacade catalogFacade() {
+    public @Override @Bean ExtendedCatalogFacade catalogFacade() {
         return catalogClientFacade;
     }
 
