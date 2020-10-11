@@ -4,6 +4,7 @@
  */
 package org.geoserver.cloud.catalog.caching;
 
+import lombok.NonNull;
 import lombok.Value;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.WorkspaceInfo;
@@ -65,16 +66,24 @@ public class CachingGeoServerFacadeImpl extends ForwardingGeoServerFacade
         return false;
     }
 
-    static <T extends ServiceInfo> T cachePut(Cache cache, T service) {
-        if (service != null) {
-            Object byId = ServiceKey.byId(service.getId());
-            ServiceKey byName = ServiceKey.byName(service.getWorkspace(), service.getName());
-            ServiceKey byType = ServiceKey.byType(service.getWorkspace(), service.getClass());
+    static <T extends ServiceInfo> T cachePutIncludeNull(
+            @NonNull ServiceKey key, @NonNull Cache cache, T service) {
 
-            cache.put(byId, service);
-            cache.put(byName, service);
-            cache.put(byType, service);
+        if (service == null) {
+            cache.put(key, null);
+            return null;
         }
+        return cachePut(cache, service);
+    }
+
+    static <T extends ServiceInfo> T cachePut(@NonNull Cache cache, @NonNull T service) {
+        Object byId = ServiceKey.byId(service.getId());
+        ServiceKey byName = ServiceKey.byName(service.getWorkspace(), service.getName());
+        ServiceKey byType = ServiceKey.byType(service.getWorkspace(), service.getClass());
+
+        cache.put(byId, service);
+        cache.put(byName, service);
+        cache.put(byType, service);
         return service;
     }
 
@@ -103,12 +112,13 @@ public class CachingGeoServerFacadeImpl extends ForwardingGeoServerFacade
 
     public @Override SettingsInfo getSettings(WorkspaceInfo workspace) {
         SettingsInfo settings;
-        ValueWrapper cached = cache.get(CachingGeoServerFacade.settingsKey(workspace));
+        Object key = CachingGeoServerFacade.settingsKey(workspace);
+        ValueWrapper cached = cache.get(key);
         if (cached == null) {
             settings = super.getSettings(workspace);
+            cache.put(key, settings); // cache even if null value
             if (settings != null) {
                 cache.put(settings.getId(), settings);
-                cache.put(CachingGeoServerFacade.settingsKey(settings.getWorkspace()), settings);
             }
         } else {
             settings = (SettingsInfo) cached.get();
@@ -162,10 +172,11 @@ public class CachingGeoServerFacadeImpl extends ForwardingGeoServerFacade
     }
 
     public @Override <T extends ServiceInfo> T getService(Class<T> clazz) {
-        ValueWrapper value = cache.get(ServiceKey.byType(null, clazz));
+        ServiceKey key = ServiceKey.byType(null, clazz);
+        ValueWrapper value = cache.get(key);
         ServiceInfo service;
         if (value == null) {
-            service = cachePut(cache, super.getService(clazz));
+            service = cachePutIncludeNull(key, cache, super.getService(clazz));
         } else {
             service = (ServiceInfo) value.get();
         }
@@ -173,10 +184,11 @@ public class CachingGeoServerFacadeImpl extends ForwardingGeoServerFacade
     }
 
     public @Override <T extends ServiceInfo> T getService(WorkspaceInfo workspace, Class<T> clazz) {
-        ValueWrapper value = cache.get(ServiceKey.byType(workspace, clazz));
+        ServiceKey byTypeKey = ServiceKey.byType(workspace, clazz);
+        ValueWrapper value = cache.get(byTypeKey);
         ServiceInfo service;
         if (value == null) {
-            service = cachePut(cache, super.getService(workspace, clazz));
+            service = cachePutIncludeNull(byTypeKey, cache, super.getService(workspace, clazz));
         } else {
             service = (ServiceInfo) value.get();
         }
@@ -184,10 +196,11 @@ public class CachingGeoServerFacadeImpl extends ForwardingGeoServerFacade
     }
 
     public @Override <T extends ServiceInfo> T getService(String id, Class<T> clazz) {
-        ValueWrapper value = cache.get(ServiceKey.byId(id));
+        ServiceKey key = ServiceKey.byId(id);
+        ValueWrapper value = cache.get(key);
         ServiceInfo service;
         if (value == null) {
-            service = cachePut(cache, super.getService(id, clazz));
+            service = cachePutIncludeNull(key, cache, super.getService(id, clazz));
         } else {
             service = (ServiceInfo) value.get();
         }
@@ -195,10 +208,11 @@ public class CachingGeoServerFacadeImpl extends ForwardingGeoServerFacade
     }
 
     public @Override <T extends ServiceInfo> T getServiceByName(String name, Class<T> clazz) {
-        ValueWrapper value = cache.get(ServiceKey.byName(null, name));
+        ServiceKey key = ServiceKey.byName(null, name);
+        ValueWrapper value = cache.get(key);
         ServiceInfo service;
         if (value == null) {
-            service = cachePut(cache, super.getServiceByName(name, clazz));
+            service = cachePutIncludeNull(key, cache, super.getServiceByName(name, clazz));
         } else {
             service = (ServiceInfo) value.get();
         }
@@ -207,10 +221,13 @@ public class CachingGeoServerFacadeImpl extends ForwardingGeoServerFacade
 
     public @Override <T extends ServiceInfo> T getServiceByName(
             String name, WorkspaceInfo workspace, Class<T> clazz) {
-        ValueWrapper value = cache.get(ServiceKey.byName(workspace, name));
+
+        ServiceKey key = ServiceKey.byName(workspace, name);
+        ValueWrapper value = cache.get(key);
         ServiceInfo service;
         if (value == null) {
-            service = cachePut(cache, super.getServiceByName(name, workspace, clazz));
+            service =
+                    cachePutIncludeNull(key, cache, super.getServiceByName(name, workspace, clazz));
         } else {
             service = (ServiceInfo) value.get();
         }
