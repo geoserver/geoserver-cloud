@@ -108,6 +108,14 @@ public class CatalogTestData extends ExternalResource {
         return new CatalogTestData(catalog, config, true, true);
     }
 
+    public Catalog getCatalog() {
+        return catalog.get();
+    }
+
+    public GeoServer getGeoServer() {
+        return configCatalog.get();
+    }
+
     private CatalogFactory getFactory() {
         return catalog.get().getFactory();
     }
