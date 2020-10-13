@@ -197,7 +197,7 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
             ConfigDatabase configDb) {
         // Need to check whether the db needs to be initialized here because secureCatalog's
         // constructor may use the CatalogFacade during initialization (by means of the
-        // DefaultResourceAccessManager), before JDBCGeoSeverLoader.setCatalogFacade() was called
+        // DefaultResourceAccessManager), before JDBCGeoServerLoader.setCatalogFacade() was called
         try {
             final boolean initCatalogDb = catalogConfig.isInitDb();
             final boolean initStoreDb = resourceStoreConfig.isInitDb();

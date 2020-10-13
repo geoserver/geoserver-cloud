@@ -4,10 +4,10 @@
  */
 package org.geoserver.cloud.autoconfigure.catalog;
 
+import org.geoserver.cloud.bus.incoming.caching.RemoteEventCacheEvictor;
 import org.geoserver.cloud.catalog.caching.CachingCatalogFacade;
 import org.geoserver.cloud.catalog.caching.CachingGeoServerFacade;
 import org.geoserver.cloud.catalog.caching.GeoServerBackendCacheConfiguration;
-import org.geoserver.cloud.config.caching.RemoteEventCacheEvictor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.cache.CacheManager;

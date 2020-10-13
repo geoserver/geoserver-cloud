@@ -5,35 +5,29 @@
 package org.geoserver.cloud.bus.event.config;
 
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.config.GeoServer;
-import org.geoserver.config.GeoServerInfo;
+import org.geoserver.config.ServiceInfo;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+/**
+ * Remote event sent when {@link GeoServer#add(org.geoserver.config.ServiceInfo)} is called on a
+ * node
+ */
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @EqualsAndHashCode(callSuper = true)
-public class RemoteGeoSeverInfoModifyEvent extends RemoteConfigModifyEvent<GeoServerInfo>
+public class RemoteServiceInfoAddEvent extends AbstractRemoteConfigInfoAddEvent<ServiceInfo>
         implements RemoteConfigEvent {
     private static final long serialVersionUID = 1L;
 
-    protected RemoteGeoSeverInfoModifyEvent() {
+    protected RemoteServiceInfoAddEvent() {
         // default constructor, needed for deserialization
     }
 
-    private @Getter boolean updateSequenceEvent;
-
-    public RemoteGeoSeverInfoModifyEvent(
-            GeoServer source,
-            GeoServerInfo object,
-            Patch patch,
-            String originService,
-            String destinationService) {
-        super(source, object, patch, originService, destinationService);
-
-        this.updateSequenceEvent = patch.get("updateSequence").isPresent();
+    public RemoteServiceInfoAddEvent(
+            GeoServer source, ServiceInfo object, String originService, String destinationService) {
+        super(source, object, originService, destinationService);
     }
 }

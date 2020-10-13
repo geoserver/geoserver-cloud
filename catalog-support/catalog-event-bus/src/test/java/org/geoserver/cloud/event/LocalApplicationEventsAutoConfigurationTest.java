@@ -232,7 +232,8 @@ public class LocalApplicationEventsAutoConfigurationTest {
         Class<LocalConfigPreModifyEvent> preEventType = LocalConfigPreModifyEvent.class;
         Class<LocalConfigPostModifyEvent> postEventType = LocalConfigPostModifyEvent.class;
 
-        // odd API weirdness here, can't modify global settings through GeoSever.save(SettingsInfo),
+        // odd API weirdness here, can't modify global settings through
+        // GeoServer.save(SettingsInfo),
         // complains settings must be part of a workspace, although you can get the global settings
         // through GeoServer.getSettings();
         testModify(

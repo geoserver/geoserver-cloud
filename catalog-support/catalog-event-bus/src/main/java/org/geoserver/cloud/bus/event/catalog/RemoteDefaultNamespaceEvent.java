@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @EqualsAndHashCode(callSuper = true)
-public class RemoteDefaultNamespaceEvent extends RemoteCatalogModifyEvent {
+public class RemoteDefaultNamespaceEvent extends AbstractRemoteCatalogModifyEvent {
     private static final long serialVersionUID = 1L;
 
     private @Getter @Setter String newNamespaceId;

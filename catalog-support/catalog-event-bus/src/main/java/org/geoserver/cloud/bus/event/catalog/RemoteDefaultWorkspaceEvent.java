@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @EqualsAndHashCode(callSuper = true)
-public class RemoteDefaultWorkspaceEvent extends RemoteCatalogModifyEvent {
+public class RemoteDefaultWorkspaceEvent extends AbstractRemoteCatalogModifyEvent {
     private static final long serialVersionUID = 1L;
 
     private @Getter @Setter String newWorkspaceId;

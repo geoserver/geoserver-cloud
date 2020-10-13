@@ -135,8 +135,8 @@ public class CachingCatalogFacadeTest {
     }
 
     public @Test void testSuperTypeEvicts() {
-        Key concreteTypeKey = new Key(ds);
-        Key abstractTypeKey = new Key(ds.getId(), StoreInfo.class);
+        CatalogInfoKey concreteTypeKey = new CatalogInfoKey(ds);
+        CatalogInfoKey abstractTypeKey = new CatalogInfoKey(ds.getId(), StoreInfo.class);
 
         cache.put(concreteTypeKey, ds);
         assertSame(ds, cache.get(concreteTypeKey).get());
@@ -147,8 +147,8 @@ public class CachingCatalogFacadeTest {
     }
 
     public @Test void testSubTypeEvicts() {
-        Key concreteTypeKey = new Key(ft);
-        Key abstractTypeKey = new Key(ft.getId(), ResourceInfo.class);
+        CatalogInfoKey concreteTypeKey = new CatalogInfoKey(ft);
+        CatalogInfoKey abstractTypeKey = new CatalogInfoKey(ft.getId(), ResourceInfo.class);
 
         cache.put(abstractTypeKey, ft);
 
@@ -160,8 +160,8 @@ public class CachingCatalogFacadeTest {
     }
 
     public @Test void testPublishedInfoEvicts() {
-        Key concreteTypeKey = new Key(layer);
-        Key abstractTypeKey = new Key(layer.getId(), PublishedInfo.class);
+        CatalogInfoKey concreteTypeKey = new CatalogInfoKey(layer);
+        CatalogInfoKey abstractTypeKey = new CatalogInfoKey(layer.getId(), PublishedInfo.class);
 
         cache.put(concreteTypeKey, layer);
 
@@ -177,7 +177,7 @@ public class CachingCatalogFacadeTest {
         DataStoreInfo added = stub(DataStoreInfo.class, 1); // same id
         when(mock.add(same(info))).thenReturn(added);
         assertSame(added, caching.add(info));
-        assertSame("expected cache put", added, cache.get(new Key(info)).get());
+        assertSame("expected cache put", added, cache.get(new CatalogInfoKey(info)).get());
     }
 
     public @Test void testRemoveStoreInfo() {
@@ -252,7 +252,7 @@ public class CachingCatalogFacadeTest {
         FeatureTypeInfo added = stub(FeatureTypeInfo.class, 1); // same id
         when(mock.add(same(info))).thenReturn(added);
         assertSame(added, caching.add(info));
-        assertSame("expected cache put", added, cache.get(new Key(info)).get());
+        assertSame("expected cache put", added, cache.get(new CatalogInfoKey(info)).get());
     }
 
     public @Test void testRemoveResourceInfo() {
@@ -282,7 +282,7 @@ public class CachingCatalogFacadeTest {
         LayerInfo added = stub(LayerInfo.class, 1); // same id
         when(mock.add(same(info))).thenReturn(added);
         assertSame(added, caching.add(info));
-        assertSame("expected cache put", added, cache.get(new Key(info)).get());
+        assertSame("expected cache put", added, cache.get(new CatalogInfoKey(info)).get());
     }
 
     public @Test void testRemoveLayerInfo() {
@@ -296,7 +296,8 @@ public class CachingCatalogFacadeTest {
 
         assertEquals(layers, caching.getLayers(layer.getResource()));
 
-        Key layersKey = CachingCatalogFacade.generateLayersByResourceKey(layer.getResource());
+        CatalogInfoKey layersKey =
+                CachingCatalogFacade.generateLayersByResourceKey(layer.getResource());
         assertEquals(layers, cache.get(layersKey).get());
 
         testEvicts(layer, caching::remove);
@@ -324,7 +325,7 @@ public class CachingCatalogFacadeTest {
 
         verify(mock, times(1)).getLayers(same(ft));
 
-        Key key = CachingCatalogFacade.generateLayersByResourceKey(ft);
+        CatalogInfoKey key = CachingCatalogFacade.generateLayersByResourceKey(ft);
         ValueWrapper layersWrapper = cache.get(key);
         assertNotNull(layersWrapper);
         assertEquals(expected, layersWrapper.get());
@@ -335,7 +336,7 @@ public class CachingCatalogFacadeTest {
         LayerGroupInfo added = stub(LayerGroupInfo.class, 1); // same id
         when(mock.add(same(info))).thenReturn(added);
         assertSame(added, caching.add(info));
-        assertSame("expected cache put", added, cache.get(new Key(info)).get());
+        assertSame("expected cache put", added, cache.get(new CatalogInfoKey(info)).get());
     }
 
     public @Test void testRemoveLayerGroupInfo() {
@@ -357,7 +358,7 @@ public class CachingCatalogFacadeTest {
         NamespaceInfo added = stub(NamespaceInfo.class, 2); // same id
         when(mock.add(same(info))).thenReturn(added);
         assertSame(added, caching.add(info));
-        assertSame("expected cache put", added, cache.get(new Key(info)).get());
+        assertSame("expected cache put", added, cache.get(new CatalogInfoKey(info)).get());
     }
 
     public @Test void testRemoveNamespaceInfo() {
@@ -413,7 +414,7 @@ public class CachingCatalogFacadeTest {
         WorkspaceInfo added = stub(WorkspaceInfo.class, 1); // same id than ws
         when(mock.add(same(info))).thenReturn(added);
         assertSame(added, caching.add(info));
-        assertSame("expected cache put", added, cache.get(new Key(info)).get());
+        assertSame("expected cache put", added, cache.get(new CatalogInfoKey(info)).get());
     }
 
     public @Test void testRemoveWorkspaceInfo() {
@@ -457,7 +458,7 @@ public class CachingCatalogFacadeTest {
         StyleInfo added = stub(StyleInfo.class, 1); // same id
         when(mock.add(same(info))).thenReturn(added);
         assertSame(added, caching.add(info));
-        assertSame("expected cache put", added, cache.get(new Key(info)).get());
+        assertSame("expected cache put", added, cache.get(new CatalogInfoKey(info)).get());
     }
 
     public @Test void testRemoveStyleInfo() {
@@ -479,11 +480,11 @@ public class CachingCatalogFacadeTest {
         DataStoreInfo updated = stub(DataStoreInfo.class, 1); // same id
         when(mock.update(same(info), any())).thenReturn(updated);
         assertSame(updated, caching.update(info, new Patch()));
-        assertSame("expected cache put", updated, cache.get(new Key(info)).get());
+        assertSame("expected cache put", updated, cache.get(new CatalogInfoKey(info)).get());
     }
 
     private <T extends CatalogInfo> void testEvicts(T info, Consumer<T> op) {
-        Key key = new Key(info);
+        CatalogInfoKey key = new CatalogInfoKey(info);
         cache.put(key, info);
         op.accept(info);
         assertNull("expected cache evict", cache.get(key));

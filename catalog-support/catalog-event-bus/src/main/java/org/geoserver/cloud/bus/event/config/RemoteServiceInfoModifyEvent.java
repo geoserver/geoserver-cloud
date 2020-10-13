@@ -5,6 +5,9 @@
 package org.geoserver.cloud.bus.event.config;
 
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NonNull;
+import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.ServiceInfo;
@@ -15,9 +18,11 @@ import org.springframework.stereotype.Component;
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @EqualsAndHashCode(callSuper = true)
-public class RemoteServiceInfoModifyEvent extends RemoteConfigModifyEvent<ServiceInfo>
+public class RemoteServiceInfoModifyEvent extends AbstractRemoteConfigInfoModifyEvent<ServiceInfo>
         implements RemoteConfigEvent {
     private static final long serialVersionUID = 1L;
+
+    private @Getter @NonNull String workspaceId;
 
     protected RemoteServiceInfoModifyEvent() {
         // default constructor, needed for deserialization
@@ -30,5 +35,9 @@ public class RemoteServiceInfoModifyEvent extends RemoteConfigModifyEvent<Servic
             String originService,
             String destinationService) {
         super(source, object, patch, originService, destinationService);
+        WorkspaceInfo workspace = object.getWorkspace();
+        if (workspace != null) {
+            this.workspaceId = workspace.getId();
+        }
     }
 }

@@ -5,7 +5,6 @@
 package org.geoserver.cloud.catalog.caching;
 
 import lombok.NonNull;
-import lombok.Value;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.config.GeoServerFacade;
@@ -41,25 +40,30 @@ public class CachingGeoServerFacadeImpl extends ForwardingGeoServerFacade
         if (info instanceof SettingsInfo) {
             String id = info.getId();
             ValueWrapper cachedValue = cache.get(id);
+            cache.evict(id);
             if (cachedValue != null) {
                 SettingsInfo cached = (SettingsInfo) cachedValue.get();
-                Object wsKey = CachingGeoServerFacade.settingsKey(cached.getWorkspace());
-                cache.evictIfPresent(info.getId());
-                cache.evict(wsKey);
+                if (cached != null && cached.getWorkspace() != null) {
+                    Object wsKey = CachingGeoServerFacade.settingsKey(cached.getWorkspace());
+                    cache.evict(wsKey);
+                }
                 return true;
             }
         }
         if (info instanceof ServiceInfo) {
             ServiceInfo service = (ServiceInfo) info;
-            Object idKey = ServiceKey.byId(service.getId());
+            Object idKey = CachingGeoServerFacade.serviceByIdKey(service.getId());
             ValueWrapper cachedValue = cache.get(idKey);
             if (cachedValue != null) {
                 ServiceInfo cached = (ServiceInfo) cachedValue.get();
                 cache.evict(idKey);
-                ServiceKey nameKey = ServiceKey.byName(cached.getWorkspace(), cached.getName());
-                ServiceKey typeKey = ServiceKey.byType(cached.getWorkspace(), cached.getClass());
-                cache.evict(nameKey);
-                cache.evict(typeKey);
+                if (cached != null) {
+                    WorkspaceInfo ws = cached.getWorkspace();
+                    Object nameKey = CachingGeoServerFacade.serviceByNameKey(ws, cached.getName());
+                    Object typeKey = CachingGeoServerFacade.serviceByTypeKey(ws, cached.getClass());
+                    cache.evict(nameKey);
+                    cache.evict(typeKey);
+                }
                 return true;
             }
         }
@@ -67,7 +71,7 @@ public class CachingGeoServerFacadeImpl extends ForwardingGeoServerFacade
     }
 
     static <T extends ServiceInfo> T cachePutIncludeNull(
-            @NonNull ServiceKey key, @NonNull Cache cache, T service) {
+            @NonNull Object key, @NonNull Cache cache, T service) {
 
         if (service == null) {
             cache.put(key, null);
@@ -77,9 +81,11 @@ public class CachingGeoServerFacadeImpl extends ForwardingGeoServerFacade
     }
 
     static <T extends ServiceInfo> T cachePut(@NonNull Cache cache, @NonNull T service) {
-        Object byId = ServiceKey.byId(service.getId());
-        ServiceKey byName = ServiceKey.byName(service.getWorkspace(), service.getName());
-        ServiceKey byType = ServiceKey.byType(service.getWorkspace(), service.getClass());
+        WorkspaceInfo ws = service.getWorkspace();
+
+        Object byId = CachingGeoServerFacade.serviceByIdKey(service.getId());
+        Object byName = CachingGeoServerFacade.serviceByNameKey(ws, service.getName());
+        Object byType = CachingGeoServerFacade.serviceByTypeKey(ws, service.getClass());
 
         cache.put(byId, service);
         cache.put(byName, service);
@@ -172,7 +178,7 @@ public class CachingGeoServerFacadeImpl extends ForwardingGeoServerFacade
     }
 
     public @Override <T extends ServiceInfo> T getService(Class<T> clazz) {
-        ServiceKey key = ServiceKey.byType(null, clazz);
+        Object key = CachingGeoServerFacade.serviceByTypeKey(null, clazz);
         ValueWrapper value = cache.get(key);
         ServiceInfo service;
         if (value == null) {
@@ -184,7 +190,7 @@ public class CachingGeoServerFacadeImpl extends ForwardingGeoServerFacade
     }
 
     public @Override <T extends ServiceInfo> T getService(WorkspaceInfo workspace, Class<T> clazz) {
-        ServiceKey byTypeKey = ServiceKey.byType(workspace, clazz);
+        Object byTypeKey = CachingGeoServerFacade.serviceByTypeKey(workspace, clazz);
         ValueWrapper value = cache.get(byTypeKey);
         ServiceInfo service;
         if (value == null) {
@@ -196,7 +202,7 @@ public class CachingGeoServerFacadeImpl extends ForwardingGeoServerFacade
     }
 
     public @Override <T extends ServiceInfo> T getService(String id, Class<T> clazz) {
-        ServiceKey key = ServiceKey.byId(id);
+        Object key = CachingGeoServerFacade.serviceByIdKey(id);
         ValueWrapper value = cache.get(key);
         ServiceInfo service;
         if (value == null) {
@@ -208,7 +214,7 @@ public class CachingGeoServerFacadeImpl extends ForwardingGeoServerFacade
     }
 
     public @Override <T extends ServiceInfo> T getServiceByName(String name, Class<T> clazz) {
-        ServiceKey key = ServiceKey.byName(null, name);
+        Object key = CachingGeoServerFacade.serviceByNameKey((WorkspaceInfo) null, name);
         ValueWrapper value = cache.get(key);
         ServiceInfo service;
         if (value == null) {
@@ -222,7 +228,7 @@ public class CachingGeoServerFacadeImpl extends ForwardingGeoServerFacade
     public @Override <T extends ServiceInfo> T getServiceByName(
             String name, WorkspaceInfo workspace, Class<T> clazz) {
 
-        ServiceKey key = ServiceKey.byName(workspace, name);
+        Object key = CachingGeoServerFacade.serviceByNameKey(workspace, name);
         ValueWrapper value = cache.get(key);
         ServiceInfo service;
         if (value == null) {
@@ -232,40 +238,5 @@ public class CachingGeoServerFacadeImpl extends ForwardingGeoServerFacade
             service = (ServiceInfo) value.get();
         }
         return clazz.isInstance(service) ? clazz.cast(service) : null;
-    }
-
-    static @Value class ServiceKey {
-        private String firstIdentifier;
-        private String secondIdentifier;
-
-        public static ServiceKey byId(String id) {
-            return new ServiceKey(id, null);
-        }
-
-        public static ServiceKey byName(WorkspaceInfo ws, String name) {
-            String wsId = ws == null ? null : ws.getId();
-            return new ServiceKey(wsId, name);
-        }
-
-        @SuppressWarnings("unchecked")
-        public static ServiceKey byType(WorkspaceInfo ws, Class<? extends ServiceInfo> clazz) {
-            String wsId = ws == null ? null : ws.getId();
-            String typeName;
-            if (clazz.isInterface()) typeName = clazz.getCanonicalName();
-            else {
-                Class<?>[] interfaces = clazz.getInterfaces();
-                Class<? extends ServiceInfo> mostConcrete = ServiceInfo.class;
-                for (Class<?> i : interfaces) {
-                    if (ServiceInfo.class.isAssignableFrom(i)) {
-                        if (mostConcrete.isAssignableFrom(i)) {
-                            mostConcrete = (Class<? extends ServiceInfo>) i;
-                        }
-                    }
-                }
-                typeName = mostConcrete.getCanonicalName();
-            }
-
-            return new ServiceKey(wsId, typeName);
-        }
     }
 }

@@ -103,7 +103,21 @@ public class CatalogInfoTypeRegistry<I extends CatalogInfo, R> {
 
     @SuppressWarnings("unchecked")
     public static <T extends Info> Class<T> resolveType(T object) {
-        return (Class<T>) determineKey(object.getClass()).getInterface();
+        ClassMappings cm = ClassMappings.fromImpl(object.getClass());
+        if (cm == null) {
+            // don't really care if it's a proxy, can't assume ModificationProxy and
+            // ResolvingProxy are the only ones
+            for (int i = 0; i < instanceOfLookup.size(); i++) {
+                if (instanceOfLookup.get(i).isInstance(object)) {
+                    cm = ClassMappings.fromInterface(instanceOfLookup.get(i));
+                    break;
+                }
+            }
+        }
+        if (cm == null)
+            throw new IllegalArgumentException(
+                    "Unable to determine CatalogInfo subtype from objec " + object);
+        return (Class<T>) cm.getInterface();
     }
 
     public static <T extends Info> ClassMappings determineKey(Class<T> type) {
@@ -114,13 +128,13 @@ public class CatalogInfoTypeRegistry<I extends CatalogInfo, R> {
         if (cm != null) {
             return cm;
         }
-        // don't really care if it's a proxy, can't assume ModificationProxy and
-        // ResolvingProxy are the only ones
-        for (int i = 0; i < instanceOfLookup.size(); i++) {
-            if (instanceOfLookup.get(i).isAssignableFrom(type)) {
-                return determineKey(instanceOfLookup.get(i));
-            }
-        }
+        //        // don't really care if it's a proxy, can't assume ModificationProxy and
+        //        // ResolvingProxy are the only ones
+        //        for (int i = 0; i < instanceOfLookup.size(); i++) {
+        //            if (instanceOfLookup.get(i).isAssignableFrom(type)) {
+        //                return determineKey(instanceOfLookup.get(i));
+        //            }
+        //        }
         throw new IllegalArgumentException(
                 "Unable to determine CatalogInfo subtype from class " + type.getName());
     }

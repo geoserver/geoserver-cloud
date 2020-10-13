@@ -211,7 +211,7 @@ public class LocalApplicationEventPublisher {
                 List<Object> oldValues,
                 List<Object> newValues) {
             if (settings.getId() == null) {
-                // shouldn't happen, but can happen. GeoSeverImpl doesn't check for it
+                // shouldn't happen, but can happen. GeoServerImpl doesn't check for it
                 OwsUtils.set(settings, "id", UUID.randomUUID().toString());
             }
             publishPreModify(settings.getId(), settings, propertyNames, oldValues, newValues);

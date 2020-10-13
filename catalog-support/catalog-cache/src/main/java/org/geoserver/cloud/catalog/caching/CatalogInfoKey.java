@@ -25,7 +25,7 @@ import org.springframework.cache.interceptor.SimpleKey;
  * smaller memory footprint than {@link SimpleKey}
  */
 @ToString
-public class Key implements Serializable {
+public class CatalogInfoKey implements Serializable {
     private static final long serialVersionUID = 8016140044040386038L;
 
     private String id;
@@ -35,7 +35,7 @@ public class Key implements Serializable {
      * Caching constructor, resolves {@code info}'s type to its concrete {@link
      * ClassMappings#getInterface()}
      */
-    public Key(Info info) {
+    public CatalogInfoKey(Info info) {
         requireNonNull(info);
         this.id = info.getId();
         this.type = resolveTypeId(info);
@@ -45,7 +45,7 @@ public class Key implements Serializable {
      * Query constructor by concrete type, throws {@link IllegalArgumentException} if {@code type}
      * is a base type like {@link ResourceInfo} or {@link StoreInfo}
      */
-    public Key(String id, ClassMappings type) {
+    public CatalogInfoKey(String id, ClassMappings type) {
         requireNonNull(id);
         requireNonNull(type);
         if (type.concreteInterfaces().length > 1) {
@@ -60,7 +60,7 @@ public class Key implements Serializable {
      * Query constructor, allows {@code type} to be a base type like {@link ResourceInfo} or {@link
      * StoreInfo}
      */
-    public Key(String id, Class<? extends Info> type) {
+    public CatalogInfoKey(String id, Class<? extends Info> type) {
         this.id = id;
         this.type = resolveTypeId(type);
     }
@@ -80,9 +80,9 @@ public class Key implements Serializable {
     }
 
     public @Override boolean equals(Object o) {
-        if (!Key.class.isInstance(o)) return false;
+        if (!CatalogInfoKey.class.isInstance(o)) return false;
 
-        Key k = (Key) o;
+        CatalogInfoKey k = (CatalogInfoKey) o;
 
         if (!id.equals(k.id)) return false;
         ClassMappings t1 = this.type;

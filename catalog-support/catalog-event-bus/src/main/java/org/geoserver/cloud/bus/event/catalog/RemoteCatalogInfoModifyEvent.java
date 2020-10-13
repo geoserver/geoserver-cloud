@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @EqualsAndHashCode(callSuper = true)
-public class RemoteCatalogInfoModifyEvent extends RemoteCatalogModifyEvent {
+public class RemoteCatalogInfoModifyEvent extends AbstractRemoteCatalogModifyEvent {
     private static final long serialVersionUID = 1L;
 
     /** default constructor, needed for deserialization */

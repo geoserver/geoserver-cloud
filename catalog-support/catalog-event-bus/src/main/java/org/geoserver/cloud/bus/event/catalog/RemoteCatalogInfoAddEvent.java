@@ -19,18 +19,18 @@ import org.springframework.stereotype.Component;
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @EqualsAndHashCode(callSuper = true)
-public class RemoteCatalogAddEvent extends RemoteAddEvent<Catalog, CatalogInfo>
+public class RemoteCatalogInfoAddEvent extends RemoteAddEvent<Catalog, CatalogInfo>
         implements RemoteCatalogEvent {
 
     private static final long serialVersionUID = 1L;
 
     private @Getter @Setter CatalogInfo object;
 
-    protected RemoteCatalogAddEvent() {
+    protected RemoteCatalogInfoAddEvent() {
         // default constructor, needed for deserialization
     }
 
-    public RemoteCatalogAddEvent(
+    public RemoteCatalogInfoAddEvent(
             @NonNull Catalog source,
             @NonNull CatalogInfo object,
             @NonNull String originService,

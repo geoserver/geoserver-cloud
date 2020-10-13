@@ -17,9 +17,9 @@ import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.Patch;
-import org.geoserver.cloud.bus.event.catalog.RemoteCatalogAddEvent;
-import org.geoserver.cloud.bus.event.catalog.RemoteCatalogModifyEvent;
-import org.geoserver.cloud.bus.event.catalog.RemoteCatalogRemoveEvent;
+import org.geoserver.cloud.bus.event.catalog.AbstractRemoteCatalogModifyEvent;
+import org.geoserver.cloud.bus.event.catalog.RemoteCatalogInfoAddEvent;
+import org.geoserver.cloud.bus.event.catalog.RemoteCatalogInfoRemoveEvent;
 import org.geoserver.cloud.bus.event.catalog.RemoteDefaultDataStoreEvent;
 import org.geoserver.cloud.bus.event.catalog.RemoteDefaultNamespaceEvent;
 import org.geoserver.cloud.bus.event.catalog.RemoteDefaultWorkspaceEvent;
@@ -158,25 +158,25 @@ public class CatalogRemoteApplicationEventsTest extends AbstractRemoteApplicatio
 
     public @Test void testAdd_Workspace() {
         disablePayload();
-        Class<RemoteCatalogAddEvent> eventType = RemoteCatalogAddEvent.class;
+        Class<RemoteCatalogInfoAddEvent> eventType = RemoteCatalogInfoAddEvent.class;
         testRemoteAddEvent(testData.workspaceA, catalog::add, eventType);
     }
 
     public @Test void testAdd_Workspace_Payload() {
         enablePayload();
-        Class<RemoteCatalogAddEvent> eventType = RemoteCatalogAddEvent.class;
+        Class<RemoteCatalogInfoAddEvent> eventType = RemoteCatalogInfoAddEvent.class;
         testRemoteAddEvent(testData.workspaceA, catalog::add, eventType);
     }
 
     public @Test void testAdd_Namespace() {
         disablePayload();
-        Class<RemoteCatalogAddEvent> eventType = RemoteCatalogAddEvent.class;
+        Class<RemoteCatalogInfoAddEvent> eventType = RemoteCatalogInfoAddEvent.class;
         testRemoteAddEvent(testData.namespaceA, catalog::add, eventType);
     }
 
     public @Test void testAdd_Namespace_Payload() {
         enablePayload();
-        Class<RemoteCatalogAddEvent> eventType = RemoteCatalogAddEvent.class;
+        Class<RemoteCatalogInfoAddEvent> eventType = RemoteCatalogInfoAddEvent.class;
         testRemoteAddEvent(testData.namespaceA, catalog::add, eventType);
     }
 
@@ -184,7 +184,7 @@ public class CatalogRemoteApplicationEventsTest extends AbstractRemoteApplicatio
         catalog.add(testData.workspaceA);
         catalog.add(testData.namespaceA);
         disablePayload();
-        Class<RemoteCatalogAddEvent> eventType = RemoteCatalogAddEvent.class;
+        Class<RemoteCatalogInfoAddEvent> eventType = RemoteCatalogInfoAddEvent.class;
         testRemoteAddEvent(testData.coverageStoreA, catalog::add, eventType);
     }
 
@@ -192,7 +192,7 @@ public class CatalogRemoteApplicationEventsTest extends AbstractRemoteApplicatio
         catalog.add(testData.workspaceA);
         catalog.add(testData.namespaceA);
         enablePayload();
-        Class<RemoteCatalogAddEvent> eventType = RemoteCatalogAddEvent.class;
+        Class<RemoteCatalogInfoAddEvent> eventType = RemoteCatalogInfoAddEvent.class;
         testRemoteAddEvent(testData.coverageStoreA, catalog::add, eventType);
     }
 
@@ -200,7 +200,7 @@ public class CatalogRemoteApplicationEventsTest extends AbstractRemoteApplicatio
         catalog.add(testData.workspaceA);
         catalog.add(testData.namespaceA);
         disablePayload();
-        Class<RemoteCatalogAddEvent> eventType = RemoteCatalogAddEvent.class;
+        Class<RemoteCatalogInfoAddEvent> eventType = RemoteCatalogInfoAddEvent.class;
         testRemoteAddEvent(testData.dataStoreA, catalog::add, eventType);
     }
 
@@ -208,7 +208,7 @@ public class CatalogRemoteApplicationEventsTest extends AbstractRemoteApplicatio
         catalog.add(testData.workspaceA);
         catalog.add(testData.namespaceA);
         enablePayload();
-        Class<RemoteCatalogAddEvent> eventType = RemoteCatalogAddEvent.class;
+        Class<RemoteCatalogInfoAddEvent> eventType = RemoteCatalogInfoAddEvent.class;
         testRemoteAddEvent(testData.dataStoreA, catalog::add, eventType);
     }
 
@@ -217,7 +217,7 @@ public class CatalogRemoteApplicationEventsTest extends AbstractRemoteApplicatio
         catalog.add(testData.namespaceA);
         catalog.add(testData.coverageStoreA);
         disablePayload();
-        Class<RemoteCatalogAddEvent> eventType = RemoteCatalogAddEvent.class;
+        Class<RemoteCatalogInfoAddEvent> eventType = RemoteCatalogInfoAddEvent.class;
         testRemoteAddEvent(testData.coverageA, catalog::add, eventType);
     }
 
@@ -227,7 +227,7 @@ public class CatalogRemoteApplicationEventsTest extends AbstractRemoteApplicatio
         catalog.add(testData.namespaceB);
         catalog.add(testData.coverageStoreA);
         enablePayload();
-        Class<RemoteCatalogAddEvent> eventType = RemoteCatalogAddEvent.class;
+        Class<RemoteCatalogInfoAddEvent> eventType = RemoteCatalogInfoAddEvent.class;
         testRemoteAddEvent(testData.coverageA, catalog::add, eventType);
     }
 
@@ -236,7 +236,7 @@ public class CatalogRemoteApplicationEventsTest extends AbstractRemoteApplicatio
         catalog.add(testData.namespaceA);
         catalog.add(testData.dataStoreA);
         disablePayload();
-        Class<RemoteCatalogAddEvent> eventType = RemoteCatalogAddEvent.class;
+        Class<RemoteCatalogInfoAddEvent> eventType = RemoteCatalogInfoAddEvent.class;
         testRemoteAddEvent(testData.featureTypeA, catalog::add, eventType);
     }
 
@@ -245,7 +245,7 @@ public class CatalogRemoteApplicationEventsTest extends AbstractRemoteApplicatio
         catalog.add(testData.namespaceA);
         catalog.add(testData.dataStoreA);
         enablePayload();
-        Class<RemoteCatalogAddEvent> eventType = RemoteCatalogAddEvent.class;
+        Class<RemoteCatalogInfoAddEvent> eventType = RemoteCatalogInfoAddEvent.class;
         testRemoteAddEvent(testData.featureTypeA, catalog::add, eventType);
     }
 
@@ -256,7 +256,7 @@ public class CatalogRemoteApplicationEventsTest extends AbstractRemoteApplicatio
         catalog.add(testData.featureTypeA);
         catalog.add(testData.style1);
         disablePayload();
-        Class<RemoteCatalogAddEvent> eventType = RemoteCatalogAddEvent.class;
+        Class<RemoteCatalogInfoAddEvent> eventType = RemoteCatalogInfoAddEvent.class;
         testRemoteAddEvent(testData.layerFeatureTypeA, catalog::add, eventType);
     }
 
@@ -267,7 +267,7 @@ public class CatalogRemoteApplicationEventsTest extends AbstractRemoteApplicatio
         catalog.add(testData.featureTypeA);
         catalog.add(testData.style1);
         enablePayload();
-        Class<RemoteCatalogAddEvent> eventType = RemoteCatalogAddEvent.class;
+        Class<RemoteCatalogInfoAddEvent> eventType = RemoteCatalogInfoAddEvent.class;
         testRemoteAddEvent(testData.layerFeatureTypeA, catalog::add, eventType);
     }
 
@@ -279,7 +279,7 @@ public class CatalogRemoteApplicationEventsTest extends AbstractRemoteApplicatio
         catalog.add(testData.layerFeatureTypeA);
         catalog.add(testData.style1);
         disablePayload();
-        Class<RemoteCatalogAddEvent> eventType = RemoteCatalogAddEvent.class;
+        Class<RemoteCatalogInfoAddEvent> eventType = RemoteCatalogInfoAddEvent.class;
         testRemoteAddEvent(testData.layerGroup1, catalog::add, eventType);
     }
 
@@ -291,19 +291,19 @@ public class CatalogRemoteApplicationEventsTest extends AbstractRemoteApplicatio
         catalog.add(testData.layerFeatureTypeA);
         catalog.add(testData.style1);
         enablePayload();
-        Class<RemoteCatalogAddEvent> eventType = RemoteCatalogAddEvent.class;
+        Class<RemoteCatalogInfoAddEvent> eventType = RemoteCatalogInfoAddEvent.class;
         testRemoteAddEvent(testData.layerGroup1, catalog::add, eventType);
     }
 
     public @Test void testAdd_Style() {
         disablePayload();
-        Class<RemoteCatalogAddEvent> eventType = RemoteCatalogAddEvent.class;
+        Class<RemoteCatalogInfoAddEvent> eventType = RemoteCatalogInfoAddEvent.class;
         testRemoteAddEvent(testData.style1, catalog::add, eventType);
     }
 
     public @Test void testAdd_Style_Payload() {
         enablePayload();
-        Class<RemoteCatalogAddEvent> eventType = RemoteCatalogAddEvent.class;
+        Class<RemoteCatalogInfoAddEvent> eventType = RemoteCatalogInfoAddEvent.class;
         testRemoteAddEvent(testData.style1, catalog::add, eventType);
     }
 
@@ -340,7 +340,7 @@ public class CatalogRemoteApplicationEventsTest extends AbstractRemoteApplicatio
                     ws.setName("newName");
                 },
                 catalog::save,
-                RemoteCatalogModifyEvent.class);
+                AbstractRemoteCatalogModifyEvent.class);
     }
 
     @Ignore("implement")
@@ -418,7 +418,7 @@ public class CatalogRemoteApplicationEventsTest extends AbstractRemoteApplicatio
         testData.addObjects();
         localRemoteEventsListener.start();
         enablePayload(payload);
-        Class<RemoteCatalogRemoveEvent> eventType = RemoteCatalogRemoveEvent.class;
+        Class<RemoteCatalogInfoRemoveEvent> eventType = RemoteCatalogInfoRemoveEvent.class;
 
         testRemoteRemoveEvent(testData.layerGroup1, catalog::remove, eventType);
         testRemoteRemoveEvent(testData.layerFeatureTypeA, catalog::remove, eventType);
@@ -435,7 +435,7 @@ public class CatalogRemoteApplicationEventsTest extends AbstractRemoteApplicatio
         // testRemoteRemoveEvent(testData.workspaceA, catalog::remove, eventType);
     }
 
-    private <E extends RemoteCatalogModifyEvent> E testCatalogModifiedEvent(
+    private <E extends AbstractRemoteCatalogModifyEvent> E testCatalogModifiedEvent(
             Catalog catalog, Consumer<Catalog> modifier, Patch expected, Class<E> eventType) {
 
         this.localRemoteEventsListener.clear();

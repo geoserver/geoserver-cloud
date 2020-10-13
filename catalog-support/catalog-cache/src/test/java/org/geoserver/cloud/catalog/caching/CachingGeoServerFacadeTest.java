@@ -19,7 +19,6 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ResolvingProxy;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
-import org.geoserver.cloud.catalog.caching.CachingGeoServerFacadeImpl.ServiceKey;
 import org.geoserver.config.GeoServerFacade;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.LoggingInfo;
@@ -210,9 +209,9 @@ public class CachingGeoServerFacadeTest {
     private void testEvictsServiceInfo(ServiceInfo service, Runnable task) {
         cache.invalidate();
 
-        ServiceKey idKey = ServiceKey.byId(service.getId());
-        ServiceKey nameKey = ServiceKey.byName(service.getWorkspace(), service.getName());
-        ServiceKey typeKey = ServiceKey.byType(service.getWorkspace(), service.getClass());
+        ServiceInfoKey idKey = ServiceInfoKey.byId(service.getId());
+        ServiceInfoKey nameKey = ServiceInfoKey.byName(service.getWorkspace(), service.getName());
+        ServiceInfoKey typeKey = ServiceInfoKey.byType(service.getWorkspace(), service.getClass());
 
         CachingGeoServerFacadeImpl.cachePut(cache, service);
         assertNotNull(cache.get(idKey));
@@ -229,9 +228,9 @@ public class CachingGeoServerFacadeTest {
     /** {@link GeoServerFacade#getService(Class)} */
     public @Test void testGetServiceByType() {
         ServiceInfo service = service1;
-        ServiceKey idKey = ServiceKey.byId(service.getId());
-        ServiceKey nameKey = ServiceKey.byName(service.getWorkspace(), service.getName());
-        ServiceKey typeKey = ServiceKey.byType(service.getWorkspace(), service.getClass());
+        ServiceInfoKey idKey = ServiceInfoKey.byId(service.getId());
+        ServiceInfoKey nameKey = ServiceInfoKey.byName(service.getWorkspace(), service.getName());
+        ServiceInfoKey typeKey = ServiceInfoKey.byType(service.getWorkspace(), service.getClass());
 
         assertNull(cache.get(idKey));
         assertNull(cache.get(nameKey));
@@ -254,9 +253,9 @@ public class CachingGeoServerFacadeTest {
         assertNotNull("preflight check failure", ws);
         when(mock.getService(same(ws), eq(TestService1.class))).thenReturn(service);
 
-        ServiceKey idKey = ServiceKey.byId(service.getId());
-        ServiceKey nameKey = ServiceKey.byName(service.getWorkspace(), service.getName());
-        ServiceKey typeKey = ServiceKey.byType(service.getWorkspace(), service.getClass());
+        ServiceInfoKey idKey = ServiceInfoKey.byId(service.getId());
+        ServiceInfoKey nameKey = ServiceInfoKey.byName(service.getWorkspace(), service.getName());
+        ServiceInfoKey typeKey = ServiceInfoKey.byType(service.getWorkspace(), service.getClass());
 
         assertNull(cache.get(idKey));
         assertNull(cache.get(nameKey));
@@ -277,9 +276,9 @@ public class CachingGeoServerFacadeTest {
         TestService1 service = service1;
         when(mock.getService(eq(service.getId()), eq(TestService1.class))).thenReturn(service);
 
-        ServiceKey idKey = ServiceKey.byId(service.getId());
-        ServiceKey nameKey = ServiceKey.byName(service.getWorkspace(), service.getName());
-        ServiceKey typeKey = ServiceKey.byType(service.getWorkspace(), service.getClass());
+        ServiceInfoKey idKey = ServiceInfoKey.byId(service.getId());
+        ServiceInfoKey nameKey = ServiceInfoKey.byName(service.getWorkspace(), service.getName());
+        ServiceInfoKey typeKey = ServiceInfoKey.byType(service.getWorkspace(), service.getClass());
 
         assertNull(cache.get(idKey));
         assertNull(cache.get(nameKey));
@@ -299,9 +298,9 @@ public class CachingGeoServerFacadeTest {
         assertNotNull("preflight check failure", name);
         when(mock.getServiceByName(eq(name), eq(TestService1.class))).thenReturn(service);
 
-        ServiceKey idKey = ServiceKey.byId(service.getId());
-        ServiceKey nameKey = ServiceKey.byName(service.getWorkspace(), service.getName());
-        ServiceKey typeKey = ServiceKey.byType(service.getWorkspace(), service.getClass());
+        ServiceInfoKey idKey = ServiceInfoKey.byId(service.getId());
+        ServiceInfoKey nameKey = ServiceInfoKey.byName(service.getWorkspace(), service.getName());
+        ServiceInfoKey typeKey = ServiceInfoKey.byType(service.getWorkspace(), service.getClass());
 
         assertNull(cache.get(idKey));
         assertNull(cache.get(nameKey));
@@ -323,9 +322,9 @@ public class CachingGeoServerFacadeTest {
         assertNotNull("preflight check failure", ws);
         when(mock.getServiceByName(eq(name), eq(ws), eq(TestService1.class))).thenReturn(service);
 
-        ServiceKey idKey = ServiceKey.byId(service.getId());
-        ServiceKey nameKey = ServiceKey.byName(service.getWorkspace(), service.getName());
-        ServiceKey typeKey = ServiceKey.byType(service.getWorkspace(), service.getClass());
+        ServiceInfoKey idKey = ServiceInfoKey.byId(service.getId());
+        ServiceInfoKey nameKey = ServiceInfoKey.byName(service.getWorkspace(), service.getName());
+        ServiceInfoKey typeKey = ServiceInfoKey.byType(service.getWorkspace(), service.getClass());
 
         assertNull(cache.get(idKey));
         assertNull(cache.get(nameKey));
@@ -384,9 +383,9 @@ public class CachingGeoServerFacadeTest {
     /** {@link CachingGeoServerFacade#evict(Info)} manual eviction aid */
     public @Test void testEvict_ServiceInfo() {
         TestService1 service = service1;
-        ServiceKey idKey = ServiceKey.byId(service.getId());
-        ServiceKey nameKey = ServiceKey.byName(service.getWorkspace(), service.getName());
-        ServiceKey typeKey = ServiceKey.byType(service.getWorkspace(), service.getClass());
+        ServiceInfoKey idKey = ServiceInfoKey.byId(service.getId());
+        ServiceInfoKey nameKey = ServiceInfoKey.byName(service.getWorkspace(), service.getName());
+        ServiceInfoKey typeKey = ServiceInfoKey.byType(service.getWorkspace(), service.getClass());
 
         ServiceInfo serviceProxy = ResolvingProxy.create(service.getId(), TestService1.class);
         assertFalse(caching.evict(serviceProxy));

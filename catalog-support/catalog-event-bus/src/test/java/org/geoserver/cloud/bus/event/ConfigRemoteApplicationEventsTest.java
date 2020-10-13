@@ -4,9 +4,14 @@
  */
 package org.geoserver.cloud.bus.event;
 
-import org.geoserver.cloud.bus.event.config.RemoteConfigAddEvent;
-import org.geoserver.cloud.bus.event.config.RemoteConfigModifyEvent;
-import org.geoserver.cloud.bus.event.config.RemoteConfigRemoveEvent;
+import org.geoserver.cloud.bus.event.config.RemoteGeoServerInfoModifyEvent;
+import org.geoserver.cloud.bus.event.config.RemoteLoggingInfoModifyEvent;
+import org.geoserver.cloud.bus.event.config.RemoteServiceInfoAddEvent;
+import org.geoserver.cloud.bus.event.config.RemoteServiceInfoModifyEvent;
+import org.geoserver.cloud.bus.event.config.RemoteServiceInfoRemoveEvent;
+import org.geoserver.cloud.bus.event.config.RemoteSettingsInfoAddEvent;
+import org.geoserver.cloud.bus.event.config.RemoteSettingsInfoModifyEvent;
+import org.geoserver.cloud.bus.event.config.RemoteSettingsInfoRemoveEvent;
 import org.geoserver.cloud.test.ApplicationEventCapturingListener;
 import org.geoserver.cloud.test.TestConfigurationAutoConfiguration;
 import org.geoserver.config.CoverageAccessInfo;
@@ -45,7 +50,7 @@ public class ConfigRemoteApplicationEventsTest extends AbstractRemoteApplication
     }
 
     private void testConfigAddEvent_ServiceInfo(boolean payload) {
-        Class<RemoteConfigAddEvent> eventType = RemoteConfigAddEvent.class;
+        Class<RemoteServiceInfoAddEvent> eventType = RemoteServiceInfoAddEvent.class;
 
         WMSInfoImpl service = new WMSInfoImpl();
         service.setName("WMS");
@@ -63,7 +68,7 @@ public class ConfigRemoteApplicationEventsTest extends AbstractRemoteApplication
     }
 
     private void testConfigAddEvent_ServiceInfo_Workspace(boolean payload) {
-        Class<RemoteConfigAddEvent> eventType = RemoteConfigAddEvent.class;
+        Class<RemoteServiceInfoAddEvent> eventType = RemoteServiceInfoAddEvent.class;
 
         catalog.add(testData.workspaceB);
         WMSInfoImpl workspaceService = new WMSInfoImpl();
@@ -92,7 +97,7 @@ public class ConfigRemoteApplicationEventsTest extends AbstractRemoteApplication
         enablePayload(payload);
 
         CacheConfiguration cacheCfg = new CacheConfiguration(true, 1000, 100);
-        Class<RemoteConfigModifyEvent> eventType = RemoteConfigModifyEvent.class;
+        Class<RemoteServiceInfoModifyEvent> eventType = RemoteServiceInfoModifyEvent.class;
         testRemoteModifyEvent(
                 service,
                 s -> {
@@ -113,7 +118,7 @@ public class ConfigRemoteApplicationEventsTest extends AbstractRemoteApplication
     }
 
     private void testConfigAddEvent_SettingsInfo(boolean payload) {
-        Class<RemoteConfigAddEvent> eventType = RemoteConfigAddEvent.class;
+        Class<RemoteSettingsInfoAddEvent> eventType = RemoteSettingsInfoAddEvent.class;
 
         catalog.add(testData.workspaceB);
 
@@ -138,7 +143,7 @@ public class ConfigRemoteApplicationEventsTest extends AbstractRemoteApplication
 
         GeoServerInfo global = geoserver.getGlobal();
 
-        Class<RemoteConfigModifyEvent> eventType = RemoteConfigModifyEvent.class;
+        Class<RemoteGeoServerInfoModifyEvent> eventType = RemoteGeoServerInfoModifyEvent.class;
 
         CoverageAccessInfo coverageInfo = new CoverageAccessInfoImpl();
         coverageInfo.setCorePoolSize(10);
@@ -167,10 +172,11 @@ public class ConfigRemoteApplicationEventsTest extends AbstractRemoteApplication
     }
 
     private void testConfigRemotetModifyEvents_GloabalSettingsInfo(boolean payload) {
-        Class<RemoteConfigModifyEvent> eventType = RemoteConfigModifyEvent.class;
+        Class<RemoteGeoServerInfoModifyEvent> eventType = RemoteGeoServerInfoModifyEvent.class;
         testData.initConfig(true).initConfig();
         enablePayload(payload);
-        // odd API weirdness here, can't modify global settings through GeoSever.save(SettingsInfo),
+        // odd API weirdness here, can't modify global settings through
+        // GeoServer.save(SettingsInfo),
         // complains settings must be part of a workspace, although you can get the global settings
         // through GeoServer.getSettings();
         testRemoteModifyEvent(
@@ -193,7 +199,7 @@ public class ConfigRemoteApplicationEventsTest extends AbstractRemoteApplication
     }
 
     private void testConfigRemotetModifyEvents_SettingsInfo(boolean payload) {
-        Class<RemoteConfigModifyEvent> eventType = RemoteConfigModifyEvent.class;
+        Class<RemoteSettingsInfoModifyEvent> eventType = RemoteSettingsInfoModifyEvent.class;
 
         catalog.add(testData.workspaceA);
         catalog.add(testData.workspaceB);
@@ -226,7 +232,7 @@ public class ConfigRemoteApplicationEventsTest extends AbstractRemoteApplication
         catalog.add(testData.workspaceA);
         catalog.add(testData.workspaceB);
 
-        Class<RemoteConfigModifyEvent> eventType = RemoteConfigModifyEvent.class;
+        Class<RemoteLoggingInfoModifyEvent> eventType = RemoteLoggingInfoModifyEvent.class;
 
         LoggingInfo globalLogging = geoserver.getLogging();
 
@@ -261,7 +267,7 @@ public class ConfigRemoteApplicationEventsTest extends AbstractRemoteApplication
 
         localRemoteEventsListener.start();
         enablePayload(payload);
-        testRemoteRemoveEvent(settings, geoserver::remove, RemoteConfigRemoveEvent.class);
+        testRemoteRemoveEvent(settings, geoserver::remove, RemoteSettingsInfoRemoveEvent.class);
     }
 
     public @Test void testConfigRemoveEvent_ServiceInfo() {
@@ -280,6 +286,6 @@ public class ConfigRemoteApplicationEventsTest extends AbstractRemoteApplication
 
         localRemoteEventsListener.start();
         enablePayload(payload);
-        testRemoteRemoveEvent(service, geoserver::remove, RemoteConfigRemoveEvent.class);
+        testRemoteRemoveEvent(service, geoserver::remove, RemoteServiceInfoRemoveEvent.class);
     }
 }

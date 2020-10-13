@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogException;
 import org.geoserver.catalog.DataStoreInfo;
+import org.geoserver.catalog.Info;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.PropertyDiff;
@@ -18,21 +19,27 @@ import org.geoserver.cloud.bus.event.RemoteAddEvent;
 import org.geoserver.cloud.bus.event.RemoteInfoEvent;
 import org.geoserver.cloud.bus.event.RemoteModifyEvent;
 import org.geoserver.cloud.bus.event.RemoteRemoveEvent;
-import org.geoserver.cloud.bus.event.catalog.RemoteCatalogAddEvent;
+import org.geoserver.cloud.bus.event.catalog.AbstractRemoteCatalogModifyEvent;
 import org.geoserver.cloud.bus.event.catalog.RemoteCatalogEvent;
+import org.geoserver.cloud.bus.event.catalog.RemoteCatalogInfoAddEvent;
 import org.geoserver.cloud.bus.event.catalog.RemoteCatalogInfoModifyEvent;
-import org.geoserver.cloud.bus.event.catalog.RemoteCatalogModifyEvent;
-import org.geoserver.cloud.bus.event.catalog.RemoteCatalogRemoveEvent;
+import org.geoserver.cloud.bus.event.catalog.RemoteCatalogInfoRemoveEvent;
 import org.geoserver.cloud.bus.event.catalog.RemoteDefaultDataStoreEvent;
 import org.geoserver.cloud.bus.event.catalog.RemoteDefaultNamespaceEvent;
 import org.geoserver.cloud.bus.event.catalog.RemoteDefaultWorkspaceEvent;
-import org.geoserver.cloud.bus.event.config.RemoteConfigAddEvent;
-import org.geoserver.cloud.bus.event.config.RemoteConfigModifyEvent;
-import org.geoserver.cloud.bus.event.config.RemoteConfigRemoveEvent;
-import org.geoserver.cloud.bus.event.config.RemoteGeoSeverInfoModifyEvent;
+import org.geoserver.cloud.bus.event.config.AbstractRemoteConfigInfoAddEvent;
+import org.geoserver.cloud.bus.event.config.AbstractRemoteConfigInfoModifyEvent;
+import org.geoserver.cloud.bus.event.config.AbstractRemoteConfigInfoRemoveEvent;
+import org.geoserver.cloud.bus.event.config.RemoteGeoServerInfoModifyEvent;
+import org.geoserver.cloud.bus.event.config.RemoteGeoServerInfoSetEvent;
 import org.geoserver.cloud.bus.event.config.RemoteLoggingInfoModifyEvent;
+import org.geoserver.cloud.bus.event.config.RemoteLoggingInfoSetEvent;
+import org.geoserver.cloud.bus.event.config.RemoteServiceInfoAddEvent;
 import org.geoserver.cloud.bus.event.config.RemoteServiceInfoModifyEvent;
+import org.geoserver.cloud.bus.event.config.RemoteServiceInfoRemoveEvent;
+import org.geoserver.cloud.bus.event.config.RemoteSettingsInfoAddEvent;
 import org.geoserver.cloud.bus.event.config.RemoteSettingsInfoModifyEvent;
+import org.geoserver.cloud.bus.event.config.RemoteSettingsInfoRemoveEvent;
 import org.geoserver.cloud.event.LocalInfoEvent;
 import org.geoserver.cloud.event.catalog.LocalCatalogAddEvent;
 import org.geoserver.cloud.event.catalog.LocalCatalogPostModifyEvent;
@@ -59,17 +66,17 @@ import org.springframework.context.event.EventListener;
  * broadcasts them to the cluster as {@link RemoteCatalogEvent catalog remote events}
  *
  * @see LocalCatalogAddEvent
- * @see RemoteCatalogAddEvent
+ * @see RemoteCatalogInfoAddEvent
  * @see LocalCatalogRemoveEvent
- * @see RemoteCatalogRemoveEvent
+ * @see RemoteCatalogInfoRemoveEvent
  * @see LocalCatalogPostModifyEvent
- * @see RemoteCatalogModifyEvent
+ * @see AbstractRemoteCatalogModifyEvent
  * @see LocalConfigAddEvent
- * @see RemoteConfigAddEvent
+ * @see AbstractRemoteConfigInfoAddEvent
  * @see LocalConfigPostModifyEvent
- * @see RemoteConfigModifyEvent
+ * @see AbstractRemoteConfigInfoModifyEvent
  * @see LocalConfigRemoveEvent
- * @see RemoteConfigRemoveEvent
+ * @see AbstractRemoteConfigInfoRemoveEvent
  */
 @Slf4j(topic = "org.geoserver.cloud.bus.outgoing")
 public class GeoServerRemoteEventBroadcaster {
@@ -142,9 +149,9 @@ public class GeoServerRemoteEventBroadcaster {
 
     @EventListener(LocalCatalogAddEvent.class)
     public void onCatalogInfoAdded(LocalCatalogAddEvent event) throws CatalogException {
-        RemoteCatalogAddEvent remoteEvent =
+        RemoteCatalogInfoAddEvent remoteEvent =
                 beanFactory.getBean(
-                        RemoteCatalogAddEvent.class,
+                        RemoteCatalogInfoAddEvent.class,
                         event.getSource(),
                         event.getObject(),
                         originService(),
@@ -154,9 +161,9 @@ public class GeoServerRemoteEventBroadcaster {
 
     @EventListener(LocalCatalogRemoveEvent.class)
     public void onCatalogInfoRemoved(LocalCatalogRemoveEvent event) throws CatalogException {
-        RemoteCatalogRemoveEvent remoteEvent =
+        RemoteCatalogInfoRemoveEvent remoteEvent =
                 beanFactory.getBean(
-                        RemoteCatalogRemoveEvent.class,
+                        RemoteCatalogInfoRemoveEvent.class,
                         event.getSource(),
                         event.getObject(),
                         originService(),
@@ -176,7 +183,7 @@ public class GeoServerRemoteEventBroadcaster {
             return;
         }
 
-        RemoteCatalogModifyEvent remoteEvent;
+        AbstractRemoteCatalogModifyEvent remoteEvent;
         if (event.getObject() instanceof Catalog) {
             remoteEvent = createCatalogChangedEvent(event, diff, patch);
         } else {
@@ -192,7 +199,7 @@ public class GeoServerRemoteEventBroadcaster {
         publishRemoteEvent(event, remoteEvent);
     }
 
-    private RemoteCatalogModifyEvent createCatalogChangedEvent(
+    private AbstractRemoteCatalogModifyEvent createCatalogChangedEvent(
             @NonNull LocalCatalogPostModifyEvent event,
             @NonNull PropertyDiff diff,
             @NonNull Patch patch) {
@@ -235,9 +242,17 @@ public class GeoServerRemoteEventBroadcaster {
 
     @EventListener(LocalConfigAddEvent.class)
     public void onConfigInfoAdded(LocalConfigAddEvent event) throws CatalogException {
-        RemoteConfigAddEvent remoteEvent =
+        final Info object = event.getObject();
+        Class<? extends AbstractRemoteConfigInfoAddEvent<?>> remoteEventType;
+        if (object instanceof GeoServerInfo) remoteEventType = RemoteGeoServerInfoSetEvent.class;
+        else if (object instanceof LoggingInfo) remoteEventType = RemoteLoggingInfoSetEvent.class;
+        else if (object instanceof SettingsInfo) remoteEventType = RemoteSettingsInfoAddEvent.class;
+        else if (object instanceof ServiceInfo) remoteEventType = RemoteServiceInfoAddEvent.class;
+        else throw new IllegalArgumentException("Unknown config info type for object " + object);
+
+        AbstractRemoteConfigInfoAddEvent<?> remoteEvent =
                 beanFactory.getBean(
-                        RemoteConfigAddEvent.class,
+                        remoteEventType,
                         event.getSource(),
                         event.getObject(),
                         originService(),
@@ -250,9 +265,9 @@ public class GeoServerRemoteEventBroadcaster {
 
         Patch patch = event.getDiff().clean().toPatch();
 
-        Class<? extends RemoteConfigModifyEvent<?>> eventType;
+        Class<? extends AbstractRemoteConfigInfoModifyEvent<?>> eventType;
         if (event.getObject() instanceof GeoServerInfo)
-            eventType = RemoteGeoSeverInfoModifyEvent.class;
+            eventType = RemoteGeoServerInfoModifyEvent.class;
         else if (event.getObject() instanceof ServiceInfo)
             eventType = RemoteServiceInfoModifyEvent.class;
         else if (event.getObject() instanceof SettingsInfo)
@@ -261,7 +276,7 @@ public class GeoServerRemoteEventBroadcaster {
             eventType = RemoteLoggingInfoModifyEvent.class;
         else throw new IllegalArgumentException("Unknown config info type: " + event.getObject());
 
-        RemoteConfigModifyEvent<?> remoteEvent =
+        AbstractRemoteConfigInfoModifyEvent<?> remoteEvent =
                 this.beanFactory.getBean(
                         eventType,
                         event.getSource(),
@@ -274,9 +289,18 @@ public class GeoServerRemoteEventBroadcaster {
 
     @EventListener(LocalConfigRemoveEvent.class)
     public void onConfigInfoRemoved(LocalConfigRemoveEvent event) throws CatalogException {
-        RemoteConfigRemoveEvent remoteEvent =
+        Class<? extends AbstractRemoteConfigInfoRemoveEvent<?>> eventType;
+        if (event.getObject() instanceof ServiceInfo)
+            eventType = RemoteServiceInfoRemoveEvent.class;
+        else if (event.getObject() instanceof SettingsInfo)
+            eventType = RemoteSettingsInfoRemoveEvent.class;
+        else
+            throw new IllegalArgumentException(
+                    "Unknown or illegal config info type for remote event: " + event.getObject());
+
+        AbstractRemoteConfigInfoRemoveEvent<?> remoteEvent =
                 beanFactory.getBean(
-                        RemoteConfigRemoveEvent.class,
+                        eventType,
                         event.getSource(),
                         event.getObject(),
                         originService(),
