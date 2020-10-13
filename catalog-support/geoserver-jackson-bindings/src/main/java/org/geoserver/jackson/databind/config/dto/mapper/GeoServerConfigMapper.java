@@ -6,6 +6,7 @@ package org.geoserver.jackson.databind.config.dto.mapper;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.Info;
 import org.geoserver.config.ContactInfo;
 import org.geoserver.config.CoverageAccessInfo;
@@ -17,6 +18,9 @@ import org.geoserver.config.SettingsInfo;
 import org.geoserver.config.impl.ContactInfoImpl;
 import org.geoserver.gwc.wmts.WMTSInfo;
 import org.geoserver.gwc.wmts.WMTSInfoImpl;
+import org.geoserver.jackson.databind.catalog.dto.CatalogInfoDto;
+import org.geoserver.jackson.databind.catalog.dto.InfoDto;
+import org.geoserver.jackson.databind.catalog.mapper.CatalogInfoMapper;
 import org.geoserver.jackson.databind.config.dto.ConfigInfoDto;
 import org.geoserver.jackson.databind.config.dto.Contact;
 import org.geoserver.jackson.databind.config.dto.CoverageAccess;
@@ -36,10 +40,34 @@ import org.geoserver.wps.WPSInfoImpl;
 import org.geotools.util.Version;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.factory.Mappers;
 
 /** Mapper to/from GeoServer config objects and their respective DTO representations */
 @Mapper(config = ConfigInfoMapperConfig.class)
 public interface GeoServerConfigMapper {
+
+    CatalogInfoMapper catalogInfoMapper = Mappers.getMapper(CatalogInfoMapper.class);
+
+    default <T extends Info> Info toInfo(InfoDto dto) {
+        if (dto == null) return null;
+        if (dto instanceof ConfigInfoDto) return toInfo((ConfigInfoDto) dto);
+        if (dto instanceof CatalogInfoDto) return catalogInfoMapper.map((CatalogInfoDto) dto);
+        throw new IllegalArgumentException(
+                "Unknown config DTO type: " + dto.getClass().getCanonicalName());
+    }
+
+    @SuppressWarnings("unchecked")
+    default <T extends InfoDto> T toDto(Info info) {
+        if (info == null) return null;
+        if (info instanceof GeoServerInfo) return (T) toDto((GeoServerInfo) info);
+        if (info instanceof SettingsInfo) return (T) toDto((SettingsInfo) info);
+        if (info instanceof LoggingInfo) return (T) toDto((LoggingInfo) info);
+        if (info instanceof ServiceInfo) return (T) toDto((ServiceInfo) info);
+        if (info instanceof CatalogInfo) return (T) catalogInfoMapper.map((CatalogInfo) info);
+
+        throw new IllegalArgumentException(
+                "Unknown config info type: " + info.getClass().getCanonicalName());
+    }
 
     @SuppressWarnings("unchecked")
     default <T extends Info> T toInfo(ConfigInfoDto dto) {
@@ -51,17 +79,6 @@ public interface GeoServerConfigMapper {
 
         throw new IllegalArgumentException(
                 "Unknown config DTO type: " + dto.getClass().getCanonicalName());
-    }
-
-    @SuppressWarnings("unchecked")
-    default <T extends ConfigInfoDto> T toDto(Info configInfo) {
-        if (configInfo == null) return null;
-        if (configInfo instanceof GeoServerInfo) return (T) toDto((GeoServerInfo) configInfo);
-        if (configInfo instanceof SettingsInfo) return (T) toDto((SettingsInfo) configInfo);
-        if (configInfo instanceof LoggingInfo) return (T) toDto((LoggingInfo) configInfo);
-        if (configInfo instanceof ServiceInfo) return (T) toDto((ServiceInfo) configInfo);
-        throw new IllegalArgumentException(
-                "Unknown config info type: " + configInfo.getClass().getCanonicalName());
     }
 
     @Mapping(target = "id", ignore = true) // set by factory method

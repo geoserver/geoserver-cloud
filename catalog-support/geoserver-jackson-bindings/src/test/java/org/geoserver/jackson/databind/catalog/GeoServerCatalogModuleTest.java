@@ -17,6 +17,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import java.lang.reflect.Proxy;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Date;
@@ -29,7 +30,10 @@ import org.geoserver.catalog.CatalogBuilder;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.CatalogTestData;
 import org.geoserver.catalog.CoverageDimensionInfo;
+import org.geoserver.catalog.CoverageInfo;
+import org.geoserver.catalog.CoverageStoreInfo;
 import org.geoserver.catalog.DataLinkInfo;
+import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.DimensionDefaultValueSetting;
 import org.geoserver.catalog.DimensionDefaultValueSetting.Strategy;
 import org.geoserver.catalog.DimensionInfo;
@@ -37,6 +41,7 @@ import org.geoserver.catalog.DimensionPresentation;
 import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.Keyword;
 import org.geoserver.catalog.KeywordInfo;
+import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerIdentifierInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.LegendInfo;
@@ -47,6 +52,10 @@ import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.SLDHandler;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
+import org.geoserver.catalog.WMSLayerInfo;
+import org.geoserver.catalog.WMSStoreInfo;
+import org.geoserver.catalog.WMTSLayerInfo;
+import org.geoserver.catalog.WMTSStoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.AttributionInfoImpl;
 import org.geoserver.catalog.impl.AuthorityURL;
@@ -57,14 +66,18 @@ import org.geoserver.catalog.impl.DimensionInfoImpl;
 import org.geoserver.catalog.impl.LayerIdentifier;
 import org.geoserver.catalog.impl.LegendInfoImpl;
 import org.geoserver.catalog.impl.MetadataLinkInfoImpl;
+import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.Query;
 import org.geoserver.config.GeoServer;
+import org.geoserver.config.GeoServerInfo;
+import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.impl.ContactInfoImpl;
 import org.geoserver.config.plugin.GeoServerImpl;
 import org.geoserver.platform.GeoServerExtensionsHelper;
+import org.geoserver.wms.WMSInfo;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.data.DataUtilities;
@@ -100,7 +113,7 @@ public class GeoServerCatalogModuleTest {
     private FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2();
 
     private Catalog catalog;
-    private CatalogTestData testData;
+    private CatalogTestData data;
     private ObjectMapper objectMapper;
     private GeoServer geoserver;
     private ProxyUtils proxyResolver;
@@ -114,7 +127,7 @@ public class GeoServerCatalogModuleTest {
     public @Before void before() {
         catalog = new CatalogPlugin();
         geoserver = new GeoServerImpl();
-        testData = CatalogTestData.initialized(() -> catalog, () -> geoserver).initialize();
+        data = CatalogTestData.initialized(() -> catalog, () -> geoserver).initialize();
         proxyResolver = new ProxyUtils(catalog, geoserver);
 
         objectMapper = new ObjectMapper();
@@ -149,53 +162,53 @@ public class GeoServerCatalogModuleTest {
         // proxies for Info references
         decoded = proxyResolver.resolve(decoded);
 
-        testData.assertEqualsLenientConnectionParameters(orig, decoded);
+        data.assertEqualsLenientConnectionParameters(orig, decoded);
     }
 
     public @Test void testWorkspace() throws Exception {
-        catalogInfoRoundtripTest(testData.workspaceA);
+        catalogInfoRoundtripTest(data.workspaceA);
 
-        testData.workspaceB.setIsolated(true);
-        testData.workspaceB.setDateCreated(new Date());
-        testData.workspaceB.setDateModified(new Date());
-        catalogInfoRoundtripTest(testData.workspaceB);
+        data.workspaceB.setIsolated(true);
+        data.workspaceB.setDateCreated(new Date());
+        data.workspaceB.setDateModified(new Date());
+        catalogInfoRoundtripTest(data.workspaceB);
     }
 
     public @Test void testNamespace() throws Exception {
-        catalogInfoRoundtripTest(testData.namespaceA);
+        catalogInfoRoundtripTest(data.namespaceA);
 
-        testData.namespaceB.setIsolated(true);
-        testData.namespaceB.setDateCreated(new Date());
-        testData.namespaceB.setDateModified(new Date());
-        catalogInfoRoundtripTest(testData.workspaceB);
+        data.namespaceB.setIsolated(true);
+        data.namespaceB.setDateCreated(new Date());
+        data.namespaceB.setDateModified(new Date());
+        catalogInfoRoundtripTest(data.workspaceB);
     }
 
     public @Test void testDataStore() throws Exception {
-        catalogInfoRoundtripTest(testData.dataStoreA);
-        catalogInfoRoundtripTest(testData.dataStoreB);
-        catalogInfoRoundtripTest(testData.dataStoreC);
+        catalogInfoRoundtripTest(data.dataStoreA);
+        catalogInfoRoundtripTest(data.dataStoreB);
+        catalogInfoRoundtripTest(data.dataStoreC);
     }
 
     public @Test void testCoverageStore() throws Exception {
-        catalogInfoRoundtripTest(testData.coverageStoreA);
+        catalogInfoRoundtripTest(data.coverageStoreA);
     }
 
     public @Test void testWmsStore() throws Exception {
-        catalogInfoRoundtripTest(testData.wmsStoreA);
+        catalogInfoRoundtripTest(data.wmsStoreA);
     }
 
     public @Test void testWmtsStore() throws Exception {
-        catalogInfoRoundtripTest(testData.wmtsStoreA);
+        catalogInfoRoundtripTest(data.wmtsStoreA);
     }
 
     public @Test void testFeatureType() throws Exception {
         KeywordInfo k = new Keyword("value");
         k.setLanguage("es");
-        FeatureTypeInfo ft = testData.featureTypeA;
+        FeatureTypeInfo ft = data.featureTypeA;
         ft.getKeywords().add(k);
         List<AttributeTypeInfo> attributes = createTestAttributes(ft);
         ft.getAttributes().addAll(attributes);
-        catalogInfoRoundtripTest(testData.featureTypeA);
+        catalogInfoRoundtripTest(data.featureTypeA);
     }
 
     private List<AttributeTypeInfo> createTestAttributes(FeatureTypeInfo info)
@@ -207,39 +220,39 @@ public class GeoServerCatalogModuleTest {
     }
 
     public @Test void testCoverage() throws Exception {
-        catalogInfoRoundtripTest(testData.coverageA);
+        catalogInfoRoundtripTest(data.coverageA);
     }
 
     public @Test void testWmsLayer() throws Exception {
-        catalogInfoRoundtripTest(testData.wmsLayerA);
+        catalogInfoRoundtripTest(data.wmsLayerA);
     }
 
     public @Test void testWtmsLayer() throws Exception {
-        catalogInfoRoundtripTest(testData.wmtsLayerA);
+        catalogInfoRoundtripTest(data.wmtsLayerA);
     }
 
     public @Test void testLayer() throws Exception {
-        LayerInfo layer = testData.layerFeatureTypeA;
-        layer.getStyles().add(testData.style1);
-        layer.getStyles().add(testData.style2);
+        LayerInfo layer = data.layerFeatureTypeA;
+        layer.getStyles().add(data.style1);
+        layer.getStyles().add(data.style2);
         catalogInfoRoundtripTest(layer);
     }
 
     public @Test void testLayerGroup() throws Exception {
-        catalogInfoRoundtripTest(testData.layerGroup1);
+        catalogInfoRoundtripTest(data.layerGroup1);
     }
 
     public @Test void testLayerGroupWorkspace() throws Exception {
-        testData.layerGroup1.setWorkspace(testData.workspaceC);
-        catalogInfoRoundtripTest(testData.layerGroup1);
+        data.layerGroup1.setWorkspace(data.workspaceC);
+        catalogInfoRoundtripTest(data.layerGroup1);
     }
 
     public @Test void testStyle() throws Exception {
-        StyleInfo style1 = testData.style1;
+        StyleInfo style1 = data.style1;
         style1.setFormatVersion(SLDHandler.VERSION_10);
         style1.setFormat(SLDHandler.FORMAT);
 
-        StyleInfo style2 = testData.style2;
+        StyleInfo style2 = data.style2;
         style1.setFormatVersion(SLDHandler.VERSION_11);
         style1.setFormat(SLDHandler.FORMAT);
 
@@ -248,35 +261,10 @@ public class GeoServerCatalogModuleTest {
     }
 
     public @Test void testStyleWorkspace() throws Exception {
-        testData.style1.setWorkspace(testData.workspaceA);
-        testData.style2.setWorkspace(testData.workspaceB);
-        catalogInfoRoundtripTest(testData.style1);
-        catalogInfoRoundtripTest(testData.style2);
-    }
-
-    public @Test void testPatch() throws Exception {
-
-        testPatch("nullvalue", null);
-        testPatch("int", Integer.MAX_VALUE);
-        testPatch("long", Long.MAX_VALUE);
-        testPatch("date", new Date(10_000_000));
-        testPatch("string", "string value");
-        // some CatalogInfo properties, , shall be converted to references
-        testPatch("workspace", testData.workspaceA);
-        testPatch("namespace", testData.namespaceA);
-        testPatch("dataStore", testData.dataStoreA);
-        testPatch("coverageStore", testData.coverageStoreA);
-        testPatch("layer", testData.layerFeatureTypeA);
-        testPatch("style", testData.style1);
-        // some Config Info properties, shall be converted to references
-        testPatch("global", testData.global);
-        testPatch("logging", testData.logging);
-        // testPatch("settings", testData.workspaceASettings);
-        testPatch("wmsService", testData.wmsService);
-
-        // some Info properties that are actually value-objects and shall be serialized
-        testPatch("attribution", attInfo("attributionInfo1"));
-        testPatch("contact", contact("acme"));
+        data.style1.setWorkspace(data.workspaceA);
+        data.style2.setWorkspace(data.workspaceB);
+        catalogInfoRoundtripTest(data.style1);
+        catalogInfoRoundtripTest(data.style2);
     }
 
     protected ContactInfoImpl contact(String org) {
@@ -294,6 +282,46 @@ public class GeoServerCatalogModuleTest {
         return attinfo;
     }
 
+    public @Test void testPatch() throws Exception {
+        testPatch("nullvalue", null);
+        testPatch("int", Integer.MAX_VALUE);
+        testPatch("long", Long.MAX_VALUE);
+        testPatch("date", new Date(10_000_000));
+        testPatch("string", "string value");
+        // some CatalogInfo properties, , shall be converted to references
+        testPatch("workspace", data.workspaceA);
+        testPatch("namespace", data.namespaceA);
+        testPatch("dataStore", data.dataStoreA);
+        testPatch("coverageStore", data.coverageStoreA);
+        testPatch("layer", data.layerFeatureTypeA);
+        testPatch("style", data.style1);
+        // some Config Info properties, shall be converted to references
+        testPatch("global", data.global);
+        testPatch("logging", data.logging);
+        // testPatch("settings", testData.workspaceASettings);
+        testPatch("wmsService", data.wmsService);
+
+        // some Info properties that are actually value-objects and shall be serialized
+        testPatch("attribution", attInfo("attributionInfo1"));
+        testPatch("contact", contact("acme"));
+    }
+
+    public @Test void testPatchWithModificationProxy() throws Exception {
+        testPatch("workspace", ModificationProxy.create(data.workspaceA, WorkspaceInfo.class));
+        testPatch("namespace", ModificationProxy.create(data.namespaceA, NamespaceInfo.class));
+        testPatch("dataStore", ModificationProxy.create(data.dataStoreA, DataStoreInfo.class));
+        testPatch(
+                "coverageStore",
+                ModificationProxy.create(data.coverageStoreA, CoverageStoreInfo.class));
+        testPatch("layer", ModificationProxy.create(data.layerFeatureTypeA, LayerInfo.class));
+        testPatch("style", ModificationProxy.create(data.style1, StyleInfo.class));
+        // some Config Info properties, shall be converted to references
+        testPatch("global", ModificationProxy.create(data.global, GeoServerInfo.class));
+        testPatch("logging", ModificationProxy.create(data.logging, LoggingInfo.class));
+        // testPatch("settings", testData.workspaceASettings);
+        testPatch("wmsService", ModificationProxy.create(data.wmsService, WMSInfo.class));
+    }
+
     public @Test void testPatchWithListProperty() throws Exception {
         testPatch("nullvalue", newArrayList(null, null));
         testPatch("int", newArrayList(Integer.MAX_VALUE, Integer.MIN_VALUE));
@@ -301,13 +329,13 @@ public class GeoServerCatalogModuleTest {
         testPatch("date", newArrayList(new Date(10_000_000), new Date(11_000_000)));
         testPatch("string", newArrayList("string1", "string2"));
         // some CatalogInfo properties, , shall be converted to references
-        testPatch("workspaces", newArrayList(testData.workspaceA, testData.workspaceB));
-        testPatch("namespaces", newArrayList(testData.namespaceA, testData.namespaceB));
-        testPatch("stores", newArrayList(testData.dataStoreA, testData.coverageStoreA));
-        testPatch("layers", newArrayList(testData.layerFeatureTypeA));
-        testPatch("styles", newArrayList(testData.style1, testData.style2));
+        testPatch("workspaces", newArrayList(data.workspaceA, data.workspaceB));
+        testPatch("namespaces", newArrayList(data.namespaceA, data.namespaceB));
+        testPatch("stores", newArrayList(data.dataStoreA, data.coverageStoreA));
+        testPatch("layers", newArrayList(data.layerFeatureTypeA));
+        testPatch("styles", newArrayList(data.style1, data.style2));
 
-        testPatch("serviceInfos", newArrayList(testData.wmsService, testData.wfsService));
+        testPatch("serviceInfos", newArrayList(data.wmsService, data.wfsService));
 
         testPatch(
                 "attribution", newArrayList(attInfo("attributionInfo1"), attInfo("attribution2")));
@@ -316,15 +344,15 @@ public class GeoServerCatalogModuleTest {
 
     public @Test void testPatchWithSetProperty() throws Exception {
         Set<WorkspaceInfo> workspaces =
-                newLinkedHashSet(newArrayList(testData.workspaceA, testData.workspaceB));
+                newLinkedHashSet(newArrayList(data.workspaceA, data.workspaceB));
         Set<NamespaceInfo> namespaces =
-                newLinkedHashSet(newArrayList(testData.namespaceA, testData.namespaceB));
+                newLinkedHashSet(newArrayList(data.namespaceA, data.namespaceB));
         Set<StoreInfo> stores =
-                newLinkedHashSet(newArrayList(testData.dataStoreA, testData.coverageStoreA));
-        Set<LayerInfo> layers = newLinkedHashSet(newArrayList(testData.layerFeatureTypeA));
-        Set<StyleInfo> styles = newLinkedHashSet(newArrayList(testData.style1, testData.style2));
+                newLinkedHashSet(newArrayList(data.dataStoreA, data.coverageStoreA));
+        Set<LayerInfo> layers = newLinkedHashSet(newArrayList(data.layerFeatureTypeA));
+        Set<StyleInfo> styles = newLinkedHashSet(newArrayList(data.style1, data.style2));
         Set<ServiceInfo> services =
-                newLinkedHashSet(newArrayList(testData.wmsService, testData.wfsService));
+                newLinkedHashSet(newArrayList(data.wmsService, data.wfsService));
         Set<AttributionInfoImpl> attributionInfos =
                 newLinkedHashSet(
                         newArrayList(attInfo("attributionInfo1"), attInfo("attribution2")));
@@ -356,22 +384,53 @@ public class GeoServerCatalogModuleTest {
     }
 
     public @Test void testFilterWithInfoLiterals() throws JsonProcessingException {
-        testFilterLiteral(testData.workspaceA);
-        testFilterLiteral(testData.namespaceA);
-        testFilterLiteral(testData.dataStoreA);
-        testFilterLiteral(testData.coverageStoreA);
-        testFilterLiteral(testData.wmsStoreA);
-        testFilterLiteral(testData.wmtsStoreA);
-        testFilterLiteral(testData.featureTypeA);
-        testFilterLiteral(testData.coverageA);
-        testFilterLiteral(testData.wmsLayerA);
-        testFilterLiteral(testData.wmtsLayerA);
-        testFilterLiteral(testData.layerFeatureTypeA);
-        testFilterLiteral(testData.layerGroup1);
-        testFilterLiteral(testData.style1);
+        testFilterLiteral(data.workspaceA);
+        testFilterLiteral(ModificationProxy.create(data.workspaceA, WorkspaceInfo.class));
+
+        testFilterLiteral(data.namespaceA);
+        testFilterLiteral(ModificationProxy.create(data.namespaceA, NamespaceInfo.class));
+
+        testFilterLiteral(data.dataStoreA);
+        testFilterLiteral(ModificationProxy.create(data.dataStoreA, DataStoreInfo.class));
+
+        testFilterLiteral(data.coverageStoreA);
+        testFilterLiteral(ModificationProxy.create(data.coverageStoreA, CoverageStoreInfo.class));
+
+        testFilterLiteral(data.wmsStoreA);
+        testFilterLiteral(ModificationProxy.create(data.wmsStoreA, WMSStoreInfo.class));
+
+        testFilterLiteral(data.wmtsStoreA);
+        testFilterLiteral(ModificationProxy.create(data.wmtsStoreA, WMTSStoreInfo.class));
+
+        testFilterLiteral(data.featureTypeA);
+        testFilterLiteral(ModificationProxy.create(data.featureTypeA, FeatureTypeInfo.class));
+
+        testFilterLiteral(data.coverageA);
+        testFilterLiteral(ModificationProxy.create(data.coverageA, CoverageInfo.class));
+
+        testFilterLiteral(data.wmsLayerA);
+        testFilterLiteral(ModificationProxy.create(data.wmsLayerA, WMSLayerInfo.class));
+
+        testFilterLiteral(data.wmtsLayerA);
+        testFilterLiteral(ModificationProxy.create(data.wmtsLayerA, WMTSLayerInfo.class));
+
+        testFilterLiteral(data.layerFeatureTypeA);
+        testFilterLiteral(ModificationProxy.create(data.layerFeatureTypeA, LayerInfo.class));
+
+        testFilterLiteral(data.layerGroup1);
+        testFilterLiteral(ModificationProxy.create(data.layerGroup1, LayerGroupInfo.class));
+
+        testFilterLiteral(data.style1);
+        testFilterLiteral(ModificationProxy.create(data.style1, StyleInfo.class));
     }
 
     private <T> T testFilterLiteral(T value) throws JsonProcessingException {
+        Class<? extends Object> expectedDecodedType = value.getClass();
+        if (value instanceof Proxy) {
+            T unwrap = ModificationProxy.unwrap(value);
+            expectedDecodedType = unwrap.getClass();
+        }
+
         PropertyIsEqualTo filter = equals("literalTestProp", value);
         PropertyIsEqualTo decodedFilter = roundTrip(filter, Filter.class);
         assertEquals(filter.getExpression1(), decodedFilter.getExpression1());
@@ -380,7 +439,7 @@ public class GeoServerCatalogModuleTest {
         Literal decodedExp = (Literal) decodedFilter.getExpression2();
         Object decodedValue = decodedExp.getValue();
         assertNotNull(decodedValue);
-        assertThat(decodedValue, instanceOf(value.getClass()));
+        assertThat(decodedValue, instanceOf(expectedDecodedType));
 
         filter = equals("collectionProp", Arrays.asList(value, value));
         decodedFilter = roundTrip(filter, Filter.class);
@@ -394,8 +453,8 @@ public class GeoServerCatalogModuleTest {
         @SuppressWarnings("unchecked")
         List<T> decodedList = (List<T>) decodedValue;
         assertEquals(2, decodedList.size());
-        assertThat(decodedList.get(0), instanceOf(value.getClass()));
-        assertThat(decodedList.get(1), instanceOf(value.getClass()));
+        assertThat(decodedList.get(0), instanceOf(expectedDecodedType));
+        assertThat(decodedList.get(1), instanceOf(expectedDecodedType));
         return decodedList.get(0);
     }
 
