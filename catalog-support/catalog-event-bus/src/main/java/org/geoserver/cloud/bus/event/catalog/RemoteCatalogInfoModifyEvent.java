@@ -5,13 +5,10 @@
 package org.geoserver.cloud.bus.event.catalog;
 
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.NonNull;
-import lombok.Setter;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
-import org.geoserver.cloud.bus.event.RemoteRemoveEvent;
-import org.geoserver.cloud.event.ConfigInfoInfoType;
+import org.geoserver.catalog.plugin.Patch;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -19,30 +16,21 @@ import org.springframework.stereotype.Component;
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @EqualsAndHashCode(callSuper = true)
-public class RemoteCatalogRemoveEvent extends RemoteRemoveEvent<Catalog, CatalogInfo>
-        implements RemoteCatalogEvent {
-
+public class RemoteCatalogInfoModifyEvent extends RemoteCatalogModifyEvent {
     private static final long serialVersionUID = 1L;
 
-    private @Getter @Setter CatalogInfo object;
-
     /** default constructor, needed for deserialization */
-    protected RemoteCatalogRemoveEvent() {}
+    protected RemoteCatalogInfoModifyEvent() {
+        //
+    }
 
-    /** Throwing constructor */
-    public RemoteCatalogRemoveEvent(
+    public RemoteCatalogInfoModifyEvent(
             @NonNull Catalog source,
             @NonNull CatalogInfo object,
+            @NonNull Patch patch,
             @NonNull String originService,
             String destinationService) {
-        super(
-                source,
-                RemoteCatalogEvent.resolveId(object),
-                ConfigInfoInfoType.valueOf(object),
-                originService,
-                destinationService);
-        if (!(object instanceof Catalog)) {
-            this.object = object;
-        }
+
+        super(source, object, patch, originService, destinationService);
     }
 }

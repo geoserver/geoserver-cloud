@@ -5,10 +5,13 @@
 package org.geoserver.cloud.bus.event.catalog;
 
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.cloud.bus.event.RemoteAddEvent;
+import org.geoserver.cloud.event.ConfigInfoInfoType;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -21,6 +24,8 @@ public class RemoteCatalogAddEvent extends RemoteAddEvent<Catalog, CatalogInfo>
 
     private static final long serialVersionUID = 1L;
 
+    private @Getter @Setter CatalogInfo object;
+
     protected RemoteCatalogAddEvent() {
         // default constructor, needed for deserialization
     }
@@ -30,6 +35,14 @@ public class RemoteCatalogAddEvent extends RemoteAddEvent<Catalog, CatalogInfo>
             @NonNull CatalogInfo object,
             @NonNull String originService,
             String destinationService) {
-        super(source, object, originService, destinationService);
+        super(
+                source,
+                RemoteCatalogEvent.resolveId(object),
+                ConfigInfoInfoType.valueOf(object),
+                originService,
+                destinationService);
+        if (!(object instanceof Catalog)) {
+            this.object = object;
+        }
     }
 }

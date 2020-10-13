@@ -14,7 +14,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import lombok.NonNull;
+import org.geoserver.catalog.impl.AuthorityURL;
 import org.geoserver.catalog.impl.DataStoreInfoImpl;
 import org.geoserver.catalog.impl.LayerGroupInfoImpl;
 import org.geoserver.catalog.impl.MetadataLinkInfoImpl;
@@ -733,5 +736,18 @@ public class CatalogTestData extends ExternalResource {
         k2.setLanguage("eng");
         k2.setVocabulary("watchit");
         return new ArrayList<>(Arrays.asList(k1, k2));
+    }
+
+    public AuthorityURLInfo authorityURLInfo(int id) {
+        AuthorityURL a1 = new AuthorityURL();
+        a1.setHref("http://test.authority.url/" + id);
+        a1.setName("test-auth-url-" + id);
+        return a1;
+    }
+
+    public List<AuthorityURLInfo> authUrls(int count) {
+        return IntStream.range(0, count)
+                .mapToObj(this::authorityURLInfo)
+                .collect(Collectors.toList());
     }
 }

@@ -157,7 +157,6 @@ public class LocalApplicationEventsAutoConfigurationTest {
                 catalog.getWorkspace(testData.workspaceA.getId()),
                 ws -> {
                     ws.setName("newName");
-                    ws.setIsolated(true);
                 },
                 catalog::save,
                 preEventType,
@@ -229,7 +228,7 @@ public class LocalApplicationEventsAutoConfigurationTest {
     public @Test void testConfigPrePostModifyEvents_SettingsInfo() {
         catalog.add(testData.workspaceA);
         catalog.add(testData.workspaceB);
-
+        geoserver.setGlobal(testData.global);
         Class<LocalConfigPreModifyEvent> preEventType = LocalConfigPreModifyEvent.class;
         Class<LocalConfigPostModifyEvent> postEventType = LocalConfigPostModifyEvent.class;
 
@@ -265,6 +264,7 @@ public class LocalApplicationEventsAutoConfigurationTest {
     public @Test void testConfigPrePostModifyEvents_LoggingInfo() {
         catalog.add(testData.workspaceA);
         catalog.add(testData.workspaceB);
+        geoserver.setLogging(testData.logging);
 
         Class<LocalConfigPreModifyEvent> preEventType = LocalConfigPreModifyEvent.class;
         Class<LocalConfigPostModifyEvent> postEventType = LocalConfigPostModifyEvent.class;

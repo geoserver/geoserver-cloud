@@ -4,20 +4,14 @@
  */
 package org.geoserver.cloud.bus.event.config;
 
-import lombok.EqualsAndHashCode;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.cloud.bus.event.RemoteModifyEvent;
+import org.geoserver.cloud.event.ConfigInfoInfoType;
 import org.geoserver.config.GeoServer;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
-@Component
-@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-@EqualsAndHashCode(callSuper = true)
-public class RemoteConfigModifyEvent extends RemoteModifyEvent<GeoServer, Info>
-        implements RemoteConfigEvent {
+public abstract class RemoteConfigModifyEvent<I extends Info>
+        extends RemoteModifyEvent<GeoServer, I> implements RemoteConfigEvent {
     private static final long serialVersionUID = 1L;
 
     protected RemoteConfigModifyEvent() {
@@ -26,10 +20,16 @@ public class RemoteConfigModifyEvent extends RemoteModifyEvent<GeoServer, Info>
 
     public RemoteConfigModifyEvent(
             GeoServer source,
-            Info object,
+            I object,
             Patch patch,
             String originService,
             String destinationService) {
-        super(source, object, patch, originService, destinationService);
+        super(
+                source,
+                RemoteConfigEvent.resolveId(object),
+                ConfigInfoInfoType.valueOf(object),
+                patch,
+                originService,
+                destinationService);
     }
 }

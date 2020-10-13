@@ -9,9 +9,8 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import org.geoserver.catalog.Catalog;
-import org.geoserver.catalog.CatalogInfo;
-import org.geoserver.cloud.bus.event.RemoteRemoveEvent;
-import org.geoserver.cloud.event.ConfigInfoInfoType;
+import org.geoserver.catalog.WorkspaceInfo;
+import org.geoserver.catalog.plugin.Patch;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -19,30 +18,23 @@ import org.springframework.stereotype.Component;
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @EqualsAndHashCode(callSuper = true)
-public class RemoteCatalogRemoveEvent extends RemoteRemoveEvent<Catalog, CatalogInfo>
-        implements RemoteCatalogEvent {
-
+public class RemoteDefaultWorkspaceEvent extends RemoteCatalogModifyEvent {
     private static final long serialVersionUID = 1L;
 
-    private @Getter @Setter CatalogInfo object;
+    private @Getter @Setter String newWorkspaceId;
 
     /** default constructor, needed for deserialization */
-    protected RemoteCatalogRemoveEvent() {}
+    protected RemoteDefaultWorkspaceEvent() {
+        //
+    }
 
-    /** Throwing constructor */
-    public RemoteCatalogRemoveEvent(
+    public RemoteDefaultWorkspaceEvent(
             @NonNull Catalog source,
-            @NonNull CatalogInfo object,
+            Patch patch,
             @NonNull String originService,
             String destinationService) {
-        super(
-                source,
-                RemoteCatalogEvent.resolveId(object),
-                ConfigInfoInfoType.valueOf(object),
-                originService,
-                destinationService);
-        if (!(object instanceof Catalog)) {
-            this.object = object;
-        }
+        super(source, source, patch, originService, destinationService);
+        WorkspaceInfo newValue = (WorkspaceInfo) patch.get("defaultWorkspace").get().getValue();
+        this.newWorkspaceId = RemoteCatalogEvent.resolveId(newValue);
     }
 }
