@@ -35,6 +35,7 @@ data:
             cors-configurations:
               '[/**]':
                 allowedOrigins: "*"
+                allowedHeaders: "Content-Type, Access-Control-Allow-Origin, Access-Control-Allow-Headers, Authorization, X-Requested-With, requestId, Correlation-Id"
                 allowedMethods:
                   - GET
           routes:
