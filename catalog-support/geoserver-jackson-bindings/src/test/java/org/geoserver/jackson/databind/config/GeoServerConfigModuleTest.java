@@ -67,7 +67,8 @@ public class GeoServerConfigModuleTest {
         writer = writer.withDefaultPrettyPrinter();
         String encoded = writer.writeValueAsString(orig);
         System.out.println(encoded);
-        Class<T> type = ClassMappings.fromImpl(orig.getClass()).getInterface();
+        @SuppressWarnings("unchecked")
+        Class<T> type = (Class<T>) ClassMappings.fromImpl(orig.getClass()).getInterface();
 
         T decoded = objectMapper.readValue(encoded, type);
         // This is the client code's responsibility, the Deserializer returns "resolving proxy"

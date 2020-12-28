@@ -9,7 +9,6 @@ import static java.util.Collections.unmodifiableList;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -109,11 +108,8 @@ import org.opengis.filter.sort.SortBy;
  * and others. We should really code to the interface and leave non API code out of CatalogImpl and
  * into helper classes!
  */
-@SuppressWarnings({
-    "serial",
-    "rawtypes",
-    "unchecked"
-}) // REMOVE once we can stop inheriting from CatalogImpl
+@SuppressWarnings({"serial", "rawtypes", "unchecked"}) // REMOVE once we can stop inheriting from
+// CatalogImpl
 public class CatalogPlugin extends CatalogImpl implements Catalog {
 
     /** logger */
@@ -1023,9 +1019,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
 
     public @Override void addListener(CatalogListener listener) {
         listeners.add(listener);
-        @SuppressWarnings("unchecked")
-        Comparator<CatalogListener> comparator = ExtensionPriority.COMPARATOR;
-        Collections.sort(listeners, comparator);
+        Collections.sort(listeners, ExtensionPriority.COMPARATOR);
     }
 
     public @Override void removeListener(CatalogListener listener) {

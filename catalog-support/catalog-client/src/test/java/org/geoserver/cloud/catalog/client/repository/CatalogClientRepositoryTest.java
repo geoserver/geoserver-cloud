@@ -14,8 +14,9 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atMostOnce;
 import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -264,7 +265,8 @@ public class CatalogClientRepositoryTest {
 
         final @NonNull String name = simpleName(info);
         final @NonNull ClassMappings subType = ClassMappings.fromImpl(info.getClass());
-        Class<T> type = subType.getInterface();
+        @SuppressWarnings("unchecked")
+        Class<T> type = (Class<T>) subType.getInterface();
 
         when(mockClient.findFirstByName(any(String.class), eq(name), eq(subType)))
                 .thenReturn(Mono.just(info));
@@ -316,7 +318,9 @@ public class CatalogClientRepositoryTest {
         } catch (CQLException e) {
             throw new RuntimeException();
         }
-        query = Query.valueOf(subType.getInterface(), someFilter);
+        @SuppressWarnings("unchecked")
+        Class<T> type = (Class<T>) subType.getInterface();
+        query = Query.valueOf(type, someFilter);
         when(mockClient.query(any(String.class), same(query))).thenReturn(Flux.just(info));
         assertThat(repo.findAll(query).count(), equalTo(1L));
         verify(mockClient, times(1)).query(any(String.class), same(query));

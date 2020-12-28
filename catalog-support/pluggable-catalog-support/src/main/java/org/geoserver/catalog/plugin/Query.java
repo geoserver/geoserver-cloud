@@ -15,6 +15,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
 import org.geoserver.catalog.CatalogInfo;
+import org.geoserver.catalog.Info;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 
@@ -22,7 +23,7 @@ import org.opengis.filter.sort.SortBy;
 @NoArgsConstructor
 @RequiredArgsConstructor
 @Accessors(chain = true)
-public @Data class Query<T extends CatalogInfo> {
+public @Data class Query<T extends Info> {
 
     private @NonNull Class<T> type;
     private @NonNull Filter filter = Filter.INCLUDE;
@@ -60,7 +61,7 @@ public @Data class Query<T extends CatalogInfo> {
         return offset == null ? OptionalInt.empty() : OptionalInt.of(offset.intValue());
     }
 
-    public static <C extends CatalogInfo> Query<C> all(Class<C> type) {
+    public static <C extends Info> Query<C> all(Class<? extends Info> type) {
         return valueOf(type, Filter.INCLUDE, null, null);
     }
 
@@ -68,14 +69,19 @@ public @Data class Query<T extends CatalogInfo> {
         return valueOf(type, filter, null, null);
     }
 
-    public static <T extends CatalogInfo> Query<T> valueOf(
-            Class<T> type, Filter filter, Integer offset, Integer count, SortBy... sortOrder) {
+    @SuppressWarnings("unchecked")
+    public static <T extends Info> Query<T> valueOf(
+            Class<? extends Info> type,
+            Filter filter,
+            Integer offset,
+            Integer count,
+            SortBy... sortOrder) {
 
         List<SortBy> sortBy = sortOrder == null ? new ArrayList<>() : Arrays.asList(sortOrder);
         sortBy.forEach(Objects::requireNonNull);
 
         filter = filter == null ? Filter.INCLUDE : filter;
-        return new Query<>(type)
+        return new Query<>((Class<T>) type)
                 .setFilter(filter)
                 .setOffset(offset)
                 .setCount(count)

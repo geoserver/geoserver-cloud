@@ -620,16 +620,16 @@ public class ForwardingCatalog implements Catalog {
     public @Override void fireModified(
             CatalogInfo object,
             List<String> propertyNames,
-            @SuppressWarnings("rawtypes") List oldValues,
-            @SuppressWarnings("rawtypes") List newValues) {
+            List<Object> oldValues,
+            List<Object> newValues) {
         catalog.fireModified(object, propertyNames, oldValues, newValues);
     }
 
     public @Override void firePostModified(
             CatalogInfo object,
             List<String> propertyNames,
-            @SuppressWarnings("rawtypes") List oldValues,
-            @SuppressWarnings("rawtypes") List newValues) {
+            List<Object> oldValues,
+            List<Object> newValues) {
         catalog.firePostModified(object, propertyNames, oldValues, newValues);
     }
 

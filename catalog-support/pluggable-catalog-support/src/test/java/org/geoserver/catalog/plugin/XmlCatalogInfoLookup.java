@@ -127,7 +127,8 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
         T storedValue;
         // for the sake of correctness, get the stored value, contract does not force the supplied
         // value to be attached
-        Class<I> type = ClassMappings.fromImpl(value.getClass()).getInterface();
+        @SuppressWarnings("unchecked")
+        Class<I> type = (Class<I>) ClassMappings.fromImpl(value.getClass()).getInterface();
         synchronized (idMap) {
             storedValue =
                     this.findById(value.getId(), type)

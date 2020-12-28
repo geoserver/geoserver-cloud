@@ -98,22 +98,20 @@ public class GeoServerCatalogModule extends SimpleModule {
         registerSharedMappers();
     }
 
+    @SuppressWarnings("unchecked")
     protected void registerCatalogInfoCodecs() {
         this.addSerializer(CatalogInfo.class);
         this.addDeserializer(CatalogInfo.class);
         Arrays.stream(ClassMappings.values())
-                .map(
-                        c -> {
-                            Class<CatalogInfo> ci = c.getInterface();
-                            return ci;
-                        })
+                .map(ClassMappings::getInterface)
                 .filter(CatalogInfo.class::isAssignableFrom)
+                .map(c -> (Class<? extends CatalogInfo>) c)
                 .distinct()
                 .sorted((c1, c2) -> c1.getSimpleName().compareTo(c2.getSimpleName()))
                 .forEach(
                         c -> {
-                            this.addSerializer((Class<CatalogInfo>) c);
-                            this.addDeserializer((Class<CatalogInfo>) c);
+                            this.addSerializer(c);
+                            this.addDeserializer(c);
                         });
     }
 
