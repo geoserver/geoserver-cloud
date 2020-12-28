@@ -52,7 +52,8 @@ public class CatalogFacadeExtensionAdapter extends ForwardingCatalogFacade
             return ((ExtendedCatalogFacade) facade).update(info, patch);
         }
 
-        Class<I> clazz = ClassMappings.fromImpl(info.getClass()).getInterface();
+        @SuppressWarnings("unchecked")
+        Class<I> clazz = (Class<I>) ClassMappings.fromImpl(info.getClass()).getInterface();
         I proxied = ModificationProxy.create(info, clazz);
         patch.applyTo(proxied);
         save(proxied);

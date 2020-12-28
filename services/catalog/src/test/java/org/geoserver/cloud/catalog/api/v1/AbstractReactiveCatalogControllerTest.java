@@ -318,8 +318,9 @@ public abstract class AbstractReactiveCatalogControllerTest<C extends CatalogInf
     }
 
     private Class<? extends C> expectedType(C info) {
+        @SuppressWarnings("unchecked")
         final Class<? extends C> expectedType =
-                ClassMappings.fromImpl(info.getClass()).getInterface();
+                (Class<? extends C>) ClassMappings.fromImpl(info.getClass()).getInterface();
         return expectedType;
     }
 }

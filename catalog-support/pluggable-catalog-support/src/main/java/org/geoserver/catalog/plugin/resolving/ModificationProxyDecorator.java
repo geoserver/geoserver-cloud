@@ -35,7 +35,10 @@ public class ModificationProxyDecorator {
                         "Can't determine CatalogInfo subtype, make sure the provided object is not a proxy: "
                                 + i);
             }
-            i = ModificationProxy.create(i, mappings.getInterface());
+            @SuppressWarnings("unchecked")
+            Class<? extends CatalogInfo> type =
+                    (Class<? extends CatalogInfo>) mappings.getInterface();
+            i = ModificationProxy.create(i, type);
         }
         return i;
     }

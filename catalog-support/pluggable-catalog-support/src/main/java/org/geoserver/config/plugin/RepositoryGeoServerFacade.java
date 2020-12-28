@@ -86,8 +86,8 @@ public class RepositoryGeoServerFacade implements GeoServerFacade {
         ModificationProxy proxy = (ModificationProxy) Proxy.getInvocationHandler(global);
 
         List<String> propertyNames = proxy.getPropertyNames();
-        List<?> oldValues = proxy.getOldValues();
-        List<?> newValues = proxy.getNewValues();
+        List<Object> oldValues = proxy.getOldValues();
+        List<Object> newValues = proxy.getNewValues();
 
         geoServer.fireGlobalModified(global, propertyNames, oldValues, newValues);
 
@@ -112,8 +112,8 @@ public class RepositoryGeoServerFacade implements GeoServerFacade {
         ModificationProxy proxy = (ModificationProxy) Proxy.getInvocationHandler(settings);
 
         List<String> propertyNames = proxy.getPropertyNames();
-        List<?> oldValues = proxy.getOldValues();
-        List<?> newValues = proxy.getNewValues();
+        List<Object> oldValues = proxy.getOldValues();
+        List<Object> newValues = proxy.getNewValues();
 
         settings = (SettingsInfo) proxy.getProxyObject();
         geoServer.fireSettingsModified(settings, propertyNames, oldValues, newValues);
@@ -142,8 +142,8 @@ public class RepositoryGeoServerFacade implements GeoServerFacade {
         ModificationProxy proxy = (ModificationProxy) Proxy.getInvocationHandler(logging);
 
         List<String> propertyNames = proxy.getPropertyNames();
-        List<?> oldValues = proxy.getOldValues();
-        List<?> newValues = proxy.getNewValues();
+        List<Object> oldValues = proxy.getOldValues();
+        List<Object> newValues = proxy.getNewValues();
 
         geoServer.fireLoggingModified(logging, propertyNames, oldValues, newValues);
 
@@ -164,8 +164,8 @@ public class RepositoryGeoServerFacade implements GeoServerFacade {
         ModificationProxy proxy = ModificationProxy.handler(service);
 
         List<String> propertyNames = proxy.getPropertyNames();
-        List<?> oldValues = proxy.getOldValues();
-        List<?> newValues = proxy.getNewValues();
+        List<Object> oldValues = proxy.getOldValues();
+        List<Object> newValues = proxy.getNewValues();
 
         geoServer.fireServiceModified(service, propertyNames, oldValues, newValues);
         Patch patch = PropertyDiff.valueOf(proxy).clean().toPatch();

@@ -66,7 +66,8 @@ public class CatalogInfoTypeRegistry<R> {
             Class<T> type, R resource) {
 
         ClassMappings key = determineKey(type);
-        Class<T> mainType = key.getInterface();
+        @SuppressWarnings("unchecked")
+        Class<T> mainType = (Class<T>) key.getInterface();
         register(mainType, resource);
         Class<? extends Info>[] subtypes = key.concreteInterfaces();
         for (int i = 0; subtypes.length > 1 && i < subtypes.length; i++) {
