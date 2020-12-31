@@ -1,3 +1,4 @@
+# renamed as .ignore due to API incompatibilities between geoserver 2.18.x and 2.19.x
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
 name: GeoServer latest stable release
