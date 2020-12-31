@@ -2,20 +2,22 @@
 
 Alternative to GeoServer's default implementation for the catalog and configuration backend (`CatalogImpl/DefaultFacadeImpl` and `GeoServerImpl/DefaultGeoServerFacade`) that aims at improving their internal design in order to have clearer contracts and promote ease of extensibility.
 
-## Rant/motivation
+## Motivation
 
 There aren't many alternative back-ends to the configuration subsystem, albeit being the core of GeoServer and having been initially thought of for plug-ability.
 
-Truth is, although the interfaces are rather simple, there are a number of issues with the default implementations that preclude reuse, enforcing to re-invent the wheel or just copy and paste a lot of code and deal with it.
+Truth is, although the interfaces are rather simple, there are a number of issues with the default implementations that preclude reuse, enforcing to re-invent the wheel or just copy and paste a lot of (business logic) code and deal with it.
 
 The only two alternatives I know of are the [jdbcconfig community module](https://github.com/geoserver/geoserver/blob/06230581/src/community/jdbcconfig/src/main/java/org/geoserver/jdbcconfig/catalog/JDBCCatalogFacade.java#L52)'s, and [Stratus](https://github.com/planetlabs/stratus/blob/77838a22/src/stratus-redis-catalog/src/main/java/stratus/redis/catalog/RedisCatalogFacade.java#L77)'. By looking at them, you can identify a common pattern: creating an alternative storage backend requires dealing with a lot of implementation details  unrelated to the primary objective of providing a storage backend plugin, basically, an alternative `CatalogFacade` to be injected as `CatalogImpl`'s backing DAO.
 
 ## Identified issues
 
 * `ModificationProxy` abstraction leak:
- `ModificationProxy`: Serves two purposes really
-    1. it enforces the Catalog's information hiding by not allowing the returned, (possibly) live objects, to be modified by its callers;
-    2. Works as an enabler for [MVCC](https://en.wikipedia.org/wiki/Multiversion_concurrency_control) on `save(*Info)`, by providing the delta changes in the form of lists of changed property names, old values, and new values. Otherwise, upon save, a call on a thread that's supposed to update only a subset of the object properties, would override all the properties another thread just changed.
+
+ `ModificationProxy` serves two purposes really:
+ 
+1. it enforces the Catalog's information hiding by not allowing the returned, (possibly) live objects, to be modified by its callers;
+2. Works as an enabler for [MVCC](https://en.wikipedia.org/wiki/Multiversion_concurrency_control) on `save(*Info)`, by providing the delta changes in the form of lists of changed property names, old values, and new values. Otherwise, upon save, a call on a thread that's supposed to update only a subset of the object properties, would override all the properties another thread just changed.
 
 Now, `CatalogFacade` shouldn't be the place where that happens, but purely as an implementation detail of `CatalogImpl`, which should give `CatalogFacade` both the object to save, and the delta properties, so that `CatalogFacade`'s implementation can apply the changes how it sees fit in order to guarantee the operation's atomicity.
 The current situation is that `CatalogImpl` *relies* on `CatalogFacade` always returning a `ModificationProxy`, which further complicates realizing the initial design goal (I think) of `CatalogFacade` being a pure Data Access Object, so that implementations could be interchangeable. Instead, the lack of single responsibility among these two classes forces all  alternate `CatalogFacade` implementors to replicate the logic of `DefaultCatalogFacade`.
@@ -43,15 +45,8 @@ The current situation is that `CatalogImpl` *relies* on `CatalogFacade` always r
 *  `IsolatedCatalogFacade`: 
     *Note to self: isolated workspaces are a means to allow several workspaces sharing the same namespace **URI** within the scope of each "virtual workspace"*, not the same `NamespaceInfo`, whose `prefix` is still tied to a workspace name.
 
-    *  `CatalogImpl` decorates its default catalog facade on its default constructor, basically:
-         
-        ```java
-        setFacade(new IsolatedCatalogFacade(DefaultCatalogFacade(this)))
-         ```
-     
-    But it should be `setFacade()` the one that decorates it. That's because `Catalog.setFacade()` is an API method, and the way to override the default in-memory storage by an alternate implementation, but this breaks the support for isolated workspaces in that case.
-
-    * By the other hand, I can't see why the isolated workspace handling needs to be implemented as a `CatalogFacade` decorator, which is intended to be the DAO, and not as a `Catalog` decorator, which is the business object, just as so many other catalog decorators (`SecureCatalogImpl`, `LocalWorkspaceCatalog`, `AdvertisedCatalog`). Moreover, since we're at it, there's `AbstractFilteredCatalog` already, which the catalog decorator for isolated workspaces could inherit from, and at the same time `AbstractFilteredCatalog` could inherit from `AbstractCatalogDecorator` to avoid code duplication on the methods it doesn't need to override.
+    * `CatalogImpl` decorates its default catalog facade on its default constructor, by calling `setFacade(new IsolatedCatalogFacade(DefaultCatalogFacade(this)))`,  but it should be `setFacade()` the one that decorates it. That's because `Catalog.setFacade()` is an API method, and the way to override the default in-memory storage by an alternate implementation, but this breaks the support for isolated workspaces in that case.
+    On the other hand, I can't see why the isolated workspace handling needs to be implemented as a `CatalogFacade` decorator, which is intended to be the DAO, and not as a `Catalog` decorator, which is the business object, just as so many other catalog decorators (`SecureCatalogImpl`, `LocalWorkspaceCatalog`, `AdvertisedCatalog`). Moreover, since we're at it, there's `AbstractFilteredCatalog` already, which the catalog decorator for isolated workspaces could inherit from, and at the same time `AbstractFilteredCatalog` could inherit from `AbstractCatalogDecorator` to avoid code duplication on the methods it doesn't need to override.
 
     * `<T> IsolatedCatalogFacade.filterIsolated(CloseableIterator<T> objects, Function<T, T> filter)` breaks the streaming nature of the calling method by creating an `ArrayList<T>` and populating it. It shoud decorate the argument iterator to apply the filtering in-place:
     
