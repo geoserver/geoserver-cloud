@@ -14,10 +14,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import lombok.NonNull;
+import org.geoserver.catalog.impl.AuthorityURL;
 import org.geoserver.catalog.impl.DataStoreInfoImpl;
 import org.geoserver.catalog.impl.LayerGroupInfoImpl;
 import org.geoserver.catalog.impl.MetadataLinkInfoImpl;
+import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.config.ContactInfo;
 import org.geoserver.config.CoverageAccessInfo;
 import org.geoserver.config.CoverageAccessInfo.QueueType;
@@ -37,6 +41,7 @@ import org.geoserver.config.impl.JAIInfoImpl;
 import org.geoserver.config.impl.LoggingInfoImpl;
 import org.geoserver.config.impl.ServiceInfoImpl;
 import org.geoserver.config.impl.SettingsInfoImpl;
+import org.geoserver.config.plugin.GeoServerImpl;
 import org.geoserver.ows.util.OwsUtils;
 import org.geoserver.security.CatalogMode;
 import org.geoserver.wcs.WCSInfo;
@@ -84,6 +89,19 @@ public class CatalogTestData extends ExternalResource {
         this.initializeConfig = initConfig;
     }
 
+    private CatalogTestData() {
+        this.initializeCatalog = false;
+        this.initializeConfig = false;
+        CatalogPlugin cat = new CatalogPlugin();
+        this.catalog = () -> cat;
+        GeoServerImpl geoserver = new GeoServerImpl();
+        this.configCatalog = () -> geoserver;
+    }
+
+    public static CatalogTestData empty() {
+        return new CatalogTestData();
+    }
+
     public static CatalogTestData empty(Supplier<Catalog> catalog, Supplier<GeoServer> config) {
         return new CatalogTestData(catalog, config, false, false);
     }
@@ -91,6 +109,18 @@ public class CatalogTestData extends ExternalResource {
     public static CatalogTestData initialized(
             Supplier<Catalog> catalog, Supplier<GeoServer> config) {
         return new CatalogTestData(catalog, config, true, true);
+    }
+
+    public Catalog getCatalog() {
+        return catalog.get();
+    }
+
+    public GeoServer getGeoServer() {
+        return configCatalog.get();
+    }
+
+    private CatalogFactory getFactory() {
+        return catalog.get().getFactory();
     }
 
     public CatalogTestData initCatalog(boolean addData) {
@@ -116,7 +146,7 @@ public class CatalogTestData extends ExternalResource {
     public CatalogTestData initCatalog() {
         createCatalogObjects();
         if (initializeCatalog) {
-            deleteAll();
+            deleteAll(catalog.get());
             addObjects();
         }
         return this;
@@ -124,7 +154,10 @@ public class CatalogTestData extends ExternalResource {
 
     protected @Override void after() {
         if (initializeCatalog) {
-            deleteAll();
+            deleteAll(catalog.get());
+        }
+        if (initializeConfig) {
+            deleteAll(configCatalog.get());
         }
     }
 
@@ -150,6 +183,9 @@ public class CatalogTestData extends ExternalResource {
     public void deleteAll(Catalog catalog) {
         CascadeDeleteVisitor deleteVisitor = new CascadeDeleteVisitor(catalog);
         catalog.getLayerGroups().forEach(lg -> lg.accept(deleteVisitor));
+        catalog.getLayers().forEach(lg -> lg.accept(deleteVisitor));
+        catalog.getResources(ResourceInfo.class).forEach(lg -> lg.accept(deleteVisitor));
+        catalog.getStores(StoreInfo.class).forEach(lg -> lg.accept(deleteVisitor));
         catalog.getWorkspaces().forEach(ws -> ws.accept(deleteVisitor));
         catalog.getNamespaces().forEach(ws -> ws.accept(deleteVisitor));
         // bypass catalog's check for default style
@@ -271,6 +307,8 @@ public class CatalogTestData extends ExternalResource {
                 throw new IllegalStateException(
                         "No GeoServer provided, either disable config initialization or provide a GeoServer instance");
             }
+            deleteAll(geoServer);
+
             geoServer.setGlobal(global);
             geoServer.setLogging(logging);
             geoServer.add(wmsService);
@@ -352,7 +390,7 @@ public class CatalogTestData extends ExternalResource {
             boolean enabled,
             StyleInfo defaultStyle,
             StyleInfo... additionalStyles) {
-        LayerInfo lyr = catalog.get().getFactory().createLayer();
+        LayerInfo lyr = getFactory().createLayer();
         OwsUtils.set(lyr, "id", id);
         lyr.setResource(resource);
         lyr.setEnabled(enabled);
@@ -374,7 +412,7 @@ public class CatalogTestData extends ExternalResource {
     }
 
     public StyleInfo createStyle(String id, WorkspaceInfo workspace, String name, String fileName) {
-        StyleInfo st = catalog.get().getFactory().createStyle();
+        StyleInfo st = getFactory().createStyle();
         OwsUtils.set(st, "id", id);
         st.setWorkspace(workspace);
         st.setName(name);
@@ -385,7 +423,7 @@ public class CatalogTestData extends ExternalResource {
 
     public WMTSLayerInfo createWMTSLayer(
             String id, StoreInfo store, NamespaceInfo namespace, String name, boolean enabled) {
-        WMTSLayerInfo wmtsl = catalog.get().getFactory().createWMTSLayer();
+        WMTSLayerInfo wmtsl = getFactory().createWMTSLayer();
         OwsUtils.set(wmtsl, "id", id);
         wmtsl.setStore(store);
         wmtsl.setNamespace(namespace);
@@ -397,7 +435,7 @@ public class CatalogTestData extends ExternalResource {
 
     public WMTSStoreInfo createWebMapTileServer(
             String id, WorkspaceInfo workspace, String name, String url, boolean enabled) {
-        WMTSStoreInfo wmtss = catalog.get().getFactory().createWebMapTileServer();
+        WMTSStoreInfo wmtss = getFactory().createWebMapTileServer();
         OwsUtils.set(wmtss, "id", id);
         wmtss.setWorkspace(workspace);
         wmtss.setName(name);
@@ -410,7 +448,7 @@ public class CatalogTestData extends ExternalResource {
 
     public WMSLayerInfo createWMSLayer(
             String id, StoreInfo store, NamespaceInfo namespace, String name, boolean enabled) {
-        WMSLayerInfo wmsl = catalog.get().getFactory().createWMSLayer();
+        WMSLayerInfo wmsl = getFactory().createWMSLayer();
         OwsUtils.set(wmsl, "id", id);
         wmsl.setStore(store);
         wmsl.setNamespace(namespace);
@@ -422,7 +460,7 @@ public class CatalogTestData extends ExternalResource {
 
     public WMSStoreInfo createWebMapServer(
             String id, WorkspaceInfo wspace, String name, String url, boolean enabled) {
-        WMSStoreInfo wms = catalog.get().getFactory().createWebMapServer();
+        WMSStoreInfo wms = getFactory().createWebMapServer();
         OwsUtils.set(wms, "id", id);
         wms.setName(name);
         wms.setType("WMS");
@@ -438,7 +476,7 @@ public class CatalogTestData extends ExternalResource {
     }
 
     public CoverageInfo createCoverage(String id, CoverageStoreInfo cstore, String name) {
-        CoverageInfo coverage = catalog.get().getFactory().createCoverage();
+        CoverageInfo coverage = getFactory().createCoverage();
         OwsUtils.set(coverage, "id", id);
         coverage.setName(name);
         coverage.setStore(cstore);
@@ -448,7 +486,7 @@ public class CatalogTestData extends ExternalResource {
 
     public CoverageStoreInfo createCoverageStore(
             String id, WorkspaceInfo ws, String name, String coverageType, String uri) {
-        CoverageStoreInfo cstore = catalog.get().getFactory().createCoverageStore();
+        CoverageStoreInfo cstore = getFactory().createCoverageStore();
         OwsUtils.set(cstore, "id", id);
         cstore.setName(name);
         cstore.setType(coverageType);
@@ -477,7 +515,7 @@ public class CatalogTestData extends ExternalResource {
             String ftAbstract,
             String ftDescription,
             boolean enabled) {
-        FeatureTypeInfo fttype = catalog.get().getFactory().createFeatureType();
+        FeatureTypeInfo fttype = getFactory().createFeatureType();
         OwsUtils.set(fttype, "id", id);
         fttype.setEnabled(true);
         fttype.setName(name);
@@ -516,7 +554,7 @@ public class CatalogTestData extends ExternalResource {
 
     public DataStoreInfo createDataStore(
             String id, WorkspaceInfo ws, String name, String description, boolean enabled) {
-        DataStoreInfoImpl dstore = (DataStoreInfoImpl) catalog.get().getFactory().createDataStore();
+        DataStoreInfoImpl dstore = (DataStoreInfoImpl) getFactory().createDataStore();
         OwsUtils.set(dstore, "id", id);
         dstore.setEnabled(enabled);
         dstore.setName(name);
@@ -536,7 +574,7 @@ public class CatalogTestData extends ExternalResource {
     }
 
     public WorkspaceInfo createWorkspace(String id, String name) {
-        WorkspaceInfo workspace = catalog.get().getFactory().createWorkspace();
+        WorkspaceInfo workspace = getFactory().createWorkspace();
         OwsUtils.set(workspace, "id", id);
         workspace.setName(name);
         OwsUtils.resolveCollections(workspace);
@@ -698,5 +736,18 @@ public class CatalogTestData extends ExternalResource {
         k2.setLanguage("eng");
         k2.setVocabulary("watchit");
         return new ArrayList<>(Arrays.asList(k1, k2));
+    }
+
+    public AuthorityURLInfo authorityURLInfo(int id) {
+        AuthorityURL a1 = new AuthorityURL();
+        a1.setHref("http://test.authority.url/" + id);
+        a1.setName("test-auth-url-" + id);
+        return a1;
+    }
+
+    public List<AuthorityURLInfo> authUrls(int count) {
+        return IntStream.range(0, count)
+                .mapToObj(this::authorityURLInfo)
+                .collect(Collectors.toList());
     }
 }

@@ -9,6 +9,7 @@ import org.geoserver.jackson.databind.catalog.GeoServerCatalogModule;
 import org.geoserver.jackson.databind.config.GeoServerConfigModule;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -28,10 +29,12 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnClass(GeoServerCatalogModule.class)
 public class GeoServerJacksonBindingsAutoConfiguration {
 
+    @ConditionalOnMissingBean(GeoServerCatalogModule.class)
     public @Bean GeoServerCatalogModule geoServerCatalogJacksonModule() {
         return new GeoServerCatalogModule();
     }
 
+    @ConditionalOnMissingBean(GeoServerConfigModule.class)
     public @Bean GeoServerConfigModule geoServerConfigJacksonModule() {
         return new GeoServerConfigModule();
     }

@@ -17,10 +17,10 @@ import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WMSStoreInfo;
 import org.geoserver.catalog.WMTSStoreInfo;
 import org.geoserver.cloud.bus.event.RemoteInfoEvent;
-import org.geoserver.cloud.bus.event.catalog.RemoteCatalogAddEvent;
+import org.geoserver.cloud.bus.event.catalog.AbstractRemoteCatalogModifyEvent;
 import org.geoserver.cloud.bus.event.catalog.RemoteCatalogEvent;
-import org.geoserver.cloud.bus.event.catalog.RemoteCatalogModifyEvent;
-import org.geoserver.cloud.bus.event.catalog.RemoteCatalogRemoveEvent;
+import org.geoserver.cloud.bus.event.catalog.RemoteCatalogInfoAddEvent;
+import org.geoserver.cloud.bus.event.catalog.RemoteCatalogInfoRemoveEvent;
 import org.geoserver.cloud.event.ConfigInfoInfoType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.bus.BusAutoConfiguration;
@@ -52,8 +52,8 @@ public class RemoteEventResourcePoolProcessor {
      * no-op, really, what do we care if a CatalogInfo has been added until anincoming service
      * request needs it
      */
-    @EventListener(RemoteCatalogAddEvent.class)
-    public void onCatalogRemoteAddEvent(RemoteCatalogAddEvent event) {
+    @EventListener(RemoteCatalogInfoAddEvent.class)
+    public void onCatalogRemoteAddEvent(RemoteCatalogInfoAddEvent event) {
         if (event.isFromSelf()) {
             log.trace("Ignoring remote event from self: {}", event);
         } else {
@@ -61,13 +61,13 @@ public class RemoteEventResourcePoolProcessor {
         }
     }
 
-    @EventListener(RemoteCatalogRemoveEvent.class)
-    public void onCatalogRemoteRemoveEvent(RemoteCatalogRemoveEvent event) {
+    @EventListener(RemoteCatalogInfoRemoveEvent.class)
+    public void onCatalogRemoteRemoveEvent(RemoteCatalogInfoRemoveEvent event) {
         evictFromResourcePool(event);
     }
 
-    @EventListener(RemoteCatalogModifyEvent.class)
-    public void onCatalogRemoteModifyEvent(RemoteCatalogModifyEvent event) {
+    @EventListener(AbstractRemoteCatalogModifyEvent.class)
+    public void onCatalogRemoteModifyEvent(AbstractRemoteCatalogModifyEvent event) {
         evictFromResourcePool(event);
     }
 

@@ -9,6 +9,7 @@ import static java.util.Objects.requireNonNull;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.function.Consumer;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.CoverageInfo;
 import org.geoserver.catalog.CoverageStoreInfo;
@@ -40,7 +41,7 @@ import org.geoserver.catalog.impl.ClassMappings;
  *
  * @param R the type of resource to be accessed on a class basis for {@link CatalogInfo} subtypes
  */
-public class CatalogInfoTypeRegistry<R> {
+public class CatalogInfoTypeRegistry<I extends CatalogInfo, R> {
 
     private final EnumMap<ClassMappings, R> mappings = new EnumMap<>(ClassMappings.class);
 
@@ -48,12 +49,20 @@ public class CatalogInfoTypeRegistry<R> {
      * Registers the {@code resource} for the given type only, first narrowing {@code type} to its
      * corresponding {@link CatalogInfo} interface type.
      */
-    public <T extends CatalogInfo> CatalogInfoTypeRegistry<R> register(Class<T> type, R resource) {
+    @SuppressWarnings("unchecked")
+    public <T extends CatalogInfo> CatalogInfoTypeRegistry<T, R> register(
+            Class<T> type, R resource) {
         requireNonNull(type);
         requireNonNull(resource);
         ClassMappings key = determineKey(type);
         mappings.put(key, resource);
-        return this;
+        return (CatalogInfoTypeRegistry<T, R>) this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends CatalogInfo> CatalogInfoTypeRegistry<T, Consumer<T>> consume(
+            Class<T> type, Consumer<T> with) {
+        return ((CatalogInfoTypeRegistry<T, Consumer<T>>) this).registerRecursively(type, with);
     }
 
     /**
@@ -62,35 +71,56 @@ public class CatalogInfoTypeRegistry<R> {
      * match {@link StoreInfo}, {@link DataStoreInfo}, {@link CoverageStoreInfo}, {@link
      * WMSStoreInfo}, and {@link WMTSStoreInfo})
      */
-    public <T extends CatalogInfo> CatalogInfoTypeRegistry<R> registerRecursively(
+    @SuppressWarnings("unchecked")
+    public <T extends CatalogInfo> CatalogInfoTypeRegistry<T, R> registerRecursively(
             Class<T> type, R resource) {
 
         ClassMappings key = determineKey(type);
-        @SuppressWarnings("unchecked")
         Class<T> mainType = (Class<T>) key.getInterface();
         register(mainType, resource);
         Class<? extends Info>[] subtypes = key.concreteInterfaces();
         for (int i = 0; subtypes.length > 1 && i < subtypes.length; i++) {
-            @SuppressWarnings("unchecked")
             Class<? extends T> subtype = (Class<? extends T>) subtypes[i];
             register(subtype, resource);
         }
-        return this;
+        return (CatalogInfoTypeRegistry<T, R>) this;
     }
 
     public R forObject(CatalogInfo object) {
+        requireNonNull(object);
         return of(object.getClass());
     }
 
     public <T extends CatalogInfo> R of(Class<T> type) {
+        requireNonNull(type);
         return of(determineKey(type));
     }
 
     public <T extends CatalogInfo> R of(ClassMappings key) {
+        requireNonNull(key);
         return mappings.get(key);
     }
 
-    public static <T extends CatalogInfo> ClassMappings determineKey(Class<T> type) {
+    @SuppressWarnings("unchecked")
+    public static <T extends Info> Class<T> resolveType(T object) {
+        ClassMappings cm = ClassMappings.fromImpl(object.getClass());
+        if (cm == null) {
+            // don't really care if it's a proxy, can't assume ModificationProxy and
+            // ResolvingProxy are the only ones
+            for (int i = 0; i < instanceOfLookup.size(); i++) {
+                if (instanceOfLookup.get(i).isInstance(object)) {
+                    cm = ClassMappings.fromInterface(instanceOfLookup.get(i));
+                    break;
+                }
+            }
+        }
+        if (cm == null)
+            throw new IllegalArgumentException(
+                    "Unable to determine CatalogInfo subtype from objec " + object);
+        return (Class<T>) cm.getInterface();
+    }
+
+    public static <T extends Info> ClassMappings determineKey(Class<T> type) {
         ClassMappings cm =
                 type.isInterface()
                         ? ClassMappings.fromInterface(type)
@@ -98,13 +128,13 @@ public class CatalogInfoTypeRegistry<R> {
         if (cm != null) {
             return cm;
         }
-        // don't really care if it's a proxy, can't assume ModificationProxy and
-        // ResolvingProxy are the only ones
-        for (int i = 0; i < instanceOfLookup.size(); i++) {
-            if (instanceOfLookup.get(i).isAssignableFrom(type)) {
-                return determineKey(instanceOfLookup.get(i));
-            }
-        }
+        //        // don't really care if it's a proxy, can't assume ModificationProxy and
+        //        // ResolvingProxy are the only ones
+        //        for (int i = 0; i < instanceOfLookup.size(); i++) {
+        //            if (instanceOfLookup.get(i).isAssignableFrom(type)) {
+        //                return determineKey(instanceOfLookup.get(i));
+        //            }
+        //        }
         throw new IllegalArgumentException(
                 "Unable to determine CatalogInfo subtype from class " + type.getName());
     }

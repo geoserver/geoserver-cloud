@@ -111,6 +111,14 @@
       <artifactId>gs-web-core</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <!-- contains CatalogTestData support class -->
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-pluggable-catalog-support</artifactId>
+      <version>${project.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <profiles>

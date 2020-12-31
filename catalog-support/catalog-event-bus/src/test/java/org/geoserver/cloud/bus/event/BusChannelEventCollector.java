@@ -81,6 +81,9 @@ public class BusChannelEventCollector {
      */
     private RemoteApplicationEvent parseEvent(Message<?> message) {
         Object fromMessage = busJsonConverter.fromMessage(message, RemoteApplicationEvent.class);
+        if (fromMessage == null) {
+            throw new IllegalStateException("Unable to parse message " + message);
+        }
         RemoteApplicationEvent event = (RemoteApplicationEvent) fromMessage;
         event = Mockito.spy(event);
         Mockito.doReturn("mock-remote-service").when(event).getOriginService();

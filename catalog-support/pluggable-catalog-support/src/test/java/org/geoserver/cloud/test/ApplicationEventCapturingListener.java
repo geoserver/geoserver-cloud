@@ -43,6 +43,13 @@ public class ApplicationEventCapturingListener {
         return this;
     }
 
+    public ApplicationEventCapturingListener restart() {
+        stop();
+        clear();
+        start();
+        return this;
+    }
+
     public <T extends ApplicationEvent> Optional<T> firstAndRemove(Class<T> type) {
         Optional<T> first = captured.stream().filter(type::isInstance).map(type::cast).findFirst();
         if (first.isPresent()) {

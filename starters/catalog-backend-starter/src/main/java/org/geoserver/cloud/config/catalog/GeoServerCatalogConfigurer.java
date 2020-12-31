@@ -5,7 +5,6 @@
 package org.geoserver.cloud.config.catalog;
 
 import org.geoserver.catalog.Catalog;
-import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.LayerGroupVisibilityPolicy;
 import org.geoserver.catalog.impl.AdvertisedCatalog;
 import org.geoserver.catalog.impl.LocalWorkspaceCatalog;
@@ -22,22 +21,16 @@ import org.springframework.context.annotation.DependsOn;
 /** Configurer interface for the {@link Catalog} subsystem. */
 public interface GeoServerCatalogConfigurer {
 
-    public @Bean CatalogFacade catalogFacade();
+    public @Bean ExtendedCatalogFacade catalogFacade();
 
     @DependsOn({"resourceLoader", "catalogFacade"})
-    default @Bean Catalog rawCatalog(
+    default @Bean CatalogPlugin rawCatalog(
             GeoServerResourceLoader resourceLoader,
-            @Qualifier("catalogFacade") CatalogFacade catalogFacade,
+            @Qualifier("catalogFacade") ExtendedCatalogFacade catalogFacade,
             CatalogProperties properties) {
 
-        Catalog rawCatalog;
-        if ((catalogFacade instanceof ExtendedCatalogFacade)) {
-            boolean isolated = properties.isIsolated();
-            rawCatalog = new CatalogPlugin(catalogFacade, isolated);
-        } else {
-            rawCatalog = new org.geoserver.catalog.impl.CatalogImpl();
-            ((org.geoserver.catalog.impl.CatalogImpl) rawCatalog).setFacade(catalogFacade);
-        }
+        boolean isolated = properties.isIsolated();
+        CatalogPlugin rawCatalog = new CatalogPlugin(catalogFacade, isolated);
         rawCatalog.setResourceLoader(resourceLoader);
         return rawCatalog;
     }

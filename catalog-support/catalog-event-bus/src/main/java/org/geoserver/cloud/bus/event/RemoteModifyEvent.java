@@ -4,6 +4,7 @@
  */
 package org.geoserver.cloud.bus.event;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
@@ -12,12 +13,14 @@ import lombok.NonNull;
 import lombok.Setter;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.plugin.Patch;
+import org.geoserver.cloud.event.ConfigInfoInfoType;
 
 @EqualsAndHashCode(callSuper = true)
 // @JsonIgnoreProperties(value = {"object", "diff", "payloadCodec"})
 public abstract class RemoteModifyEvent<S, I extends Info> extends RemoteInfoEvent<S, I> {
     private static final long serialVersionUID = 1L;
 
+    private @Getter @Setter List<String> changedProperties;
     private @Getter @Setter Patch patch;
 
     protected RemoteModifyEvent() {
@@ -26,12 +29,18 @@ public abstract class RemoteModifyEvent<S, I extends Info> extends RemoteInfoEve
 
     protected RemoteModifyEvent(
             S source,
-            @NonNull I object,
+            @NonNull String objectId,
+            @NonNull ConfigInfoInfoType type,
             @NonNull Patch patch,
             String originService,
             String destinationService) {
-        super(source, object, originService, destinationService);
+        super(source, objectId, type, originService, destinationService);
         this.patch = patch;
+        this.changedProperties =
+                patch.getPatches()
+                        .stream()
+                        .map(Patch.Property::getName)
+                        .collect(Collectors.toList());
     }
 
     public @Override String toString() {
@@ -40,20 +49,17 @@ public abstract class RemoteModifyEvent<S, I extends Info> extends RemoteInfoEve
                 getClass().getSimpleName(),
                 getInfoType(),
                 this.getObjectId(),
-                patchNamesForLog(),
+                patchNamesToString(),
                 super.getId(),
                 super.getOriginService(),
                 super.getDestinationService(),
                 super.getTimestamp());
     }
 
-    private String patchNamesForLog() {
-        return patch == null
+    private String patchNamesToString() {
+        return changedProperties == null
                 ? "<not present>"
-                : patch.getPatches()
-                        .stream()
-                        .map(Patch.Property::getName)
-                        .collect(Collectors.joining(","));
+                : changedProperties.stream().collect(Collectors.joining(","));
     }
 
     public Optional<Patch> patch() {

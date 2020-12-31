@@ -7,7 +7,6 @@ package org.geoserver.catalog.plugin;
 import static java.lang.String.format;
 
 import java.lang.reflect.Proxy;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -18,7 +17,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nullable;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogCapabilities;
 import org.geoserver.catalog.CatalogFacade;
@@ -129,7 +127,6 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
     }
 
     public @Override void setDefaultDataStore(WorkspaceInfo workspace, DataStoreInfo store) {
-        DataStoreInfo old = stores.getDefaultDataStore(workspace).orElse(null);
         if (store != null) {
             Objects.requireNonNull(store.getWorkspace());
             Assert.isTrue(
@@ -137,14 +134,8 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
                     "Store workspace mismatch");
         }
 
-        // fire modify event before change
-        catalog.fireModified(catalog, asList("defaultDataStore"), asList(old), asList(store));
-
         if (store == null) stores.unsetDefaultDataStore(workspace);
         else stores.setDefaultDataStore(workspace, store);
-
-        // fire postmodify event after change
-        catalog.firePostModified(catalog, asList("defaultDataStore"), asList(old), asList(store));
     }
 
     //
@@ -337,24 +328,9 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
         return namespaces.getDefaultNamespace().orElse(null);
     }
 
-    public @Override void setDefaultNamespace(NamespaceInfo defaultNamespace) {
-        NamespaceInfo old = getDefaultNamespace();
-        // fire modify event before change
-        catalog.fireModified(
-                catalog, asList("defaultNamespace"), asList(old), asList(defaultNamespace));
-
-        NamespaceInfo ns = defaultNamespace;
-        if (ns == null) namespaces.unsetDefaultNamespace();
-        else namespaces.setDefaultNamespace(ns);
-
-        // fire postmodify event after change
-        catalog.firePostModified(
-                catalog, asList("defaultNamespace"), asList(old), asList(defaultNamespace));
-    }
-
-    // if value is null, the list is a singleton list with a null member
-    private <T> List<T> asList(@Nullable T value) {
-        return Collections.singletonList(value);
+    public @Override void setDefaultNamespace(NamespaceInfo defaultNamnespace) {
+        if (defaultNamnespace == null) namespaces.unsetDefaultNamespace();
+        else namespaces.setDefaultNamespace(defaultNamnespace);
     }
 
     public @Override NamespaceInfo getNamespace(String id) {
@@ -397,17 +373,9 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
     }
 
     public @Override void setDefaultWorkspace(WorkspaceInfo workspace) {
-        WorkspaceInfo old = getDefaultWorkspace();
-        // fire modify event before change
-        catalog.fireModified(catalog, asList("defaultWorkspace"), asList(old), asList(workspace));
-
         WorkspaceInfo ws = workspace;
         if (ws == null) workspaces.unsetDefaultWorkspace();
         else workspaces.setDefaultWorkspace(ws);
-
-        // fire postmodify event after change
-        catalog.firePostModified(
-                catalog, asList("defaultWorkspace"), asList(old), asList(workspace));
     }
 
     public @Override List<WorkspaceInfo> getWorkspaces() {

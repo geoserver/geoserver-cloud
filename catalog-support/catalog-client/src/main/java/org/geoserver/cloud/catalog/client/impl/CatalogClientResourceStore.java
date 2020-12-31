@@ -13,6 +13,8 @@ import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.NonNull;
@@ -95,9 +97,12 @@ public class CatalogClientResourceStore implements ResourceStore {
         return local;
     }
 
+    private Map<String, ResourceDescriptor> dumbCache = new ConcurrentHashMap<>();
+
     public @Override CatalogClientResource get(String path) {
         try {
-            ResourceDescriptor descriptor = remoteStore.describe(path);
+            // ResourceDescriptor descriptor = remoteStore.describe(path);
+            ResourceDescriptor descriptor = dumbCache.computeIfAbsent(path, remoteStore::describe);
             return toResource(descriptor);
         } catch (RuntimeException e) {
             e.printStackTrace();

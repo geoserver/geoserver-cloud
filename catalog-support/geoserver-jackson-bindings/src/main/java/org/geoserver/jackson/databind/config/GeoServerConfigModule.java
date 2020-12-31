@@ -15,7 +15,7 @@ import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
 import org.geoserver.gwc.wmts.WMTSInfo;
 import org.geoserver.jackson.databind.catalog.GeoServerCatalogModule;
-import org.geoserver.jackson.databind.config.dto.ConfigInfoDto;
+import org.geoserver.jackson.databind.catalog.dto.InfoDto;
 import org.geoserver.jackson.databind.config.dto.GeoServer;
 import org.geoserver.jackson.databind.config.dto.Logging;
 import org.geoserver.jackson.databind.config.dto.Service;
@@ -59,6 +59,9 @@ public class GeoServerConfigModule extends SimpleModule {
 
         log.debug("registering jackson de/serializers for all GeoServer config Info types");
 
+        //        addSerializer(Info.class);
+        //        addDeserializer(Info.class, InfoDto.class);
+
         addSerializer(GeoServerInfo.class);
         addDeserializer(GeoServerInfo.class, GeoServer.class);
 
@@ -92,7 +95,7 @@ public class GeoServerConfigModule extends SimpleModule {
         super.addSerializer(configInfoType, serializer(configInfoType));
     }
 
-    private <I extends Info, D extends ConfigInfoDto> void addDeserializer(
+    private <I extends Info, D extends InfoDto> void addDeserializer(
             Class<I> infoType, Class<D> dtoType) {
         log.trace("registering deserializer for {}", infoType.getSimpleName());
         super.addDeserializer(infoType, deserializer(dtoType));
@@ -102,7 +105,7 @@ public class GeoServerConfigModule extends SimpleModule {
         return new ConfigInfoSerializer<>(configInfoType);
     }
 
-    private <I extends Info, D extends ConfigInfoDto> ConfigInfoDeserializer<I, D> deserializer(
+    private <I extends Info, D extends InfoDto> ConfigInfoDeserializer<I, D> deserializer(
             Class<D> dtoType) {
         return new ConfigInfoDeserializer<>(dtoType);
     }

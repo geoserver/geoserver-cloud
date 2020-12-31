@@ -12,12 +12,13 @@ import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.CatalogImpl;
 import org.geoserver.catalog.impl.WorkspaceInfoImpl;
+import org.geoserver.catalog.plugin.CatalogFacadeExtensionAdapter;
 import org.geoserver.cloud.autoconfigure.catalog.JDBCConfigAutoConfiguration;
 import org.geoserver.cloud.autoconfigure.testconfiguration.AutoConfigurationTestConfiguration;
 import org.geoserver.cloud.config.catalog.GeoServerBackendProperties;
+import org.geoserver.cloud.config.jdbcconfig.CloudJdbcGeoServerLoader;
 import org.geoserver.cloud.config.jdbcconfig.CloudJdbcGeoserverFacade;
 import org.geoserver.cloud.config.jdbcconfig.JDBCConfigBackendConfigurer;
-import org.geoserver.jdbcconfig.JDBCGeoServerLoader;
 import org.geoserver.jdbcconfig.catalog.JDBCCatalogFacade;
 import org.geoserver.jdbcstore.JDBCResourceStore;
 import org.geoserver.platform.GeoServerResourceLoader;
@@ -41,7 +42,10 @@ public class JDBCConfigAutoConfigurationTest extends JDBCConfigTest {
     }
 
     public @Test void testCatalogFacade() {
-        assertThat(rawCatalogFacade, instanceOf(JDBCCatalogFacade.class));
+        assertThat(rawCatalogFacade, instanceOf(CatalogFacadeExtensionAdapter.class));
+        assertThat(
+                ((CatalogFacadeExtensionAdapter) rawCatalogFacade).getSubject(),
+                instanceOf(JDBCCatalogFacade.class));
     }
 
     public @Test void testResourceLoader() {
@@ -53,7 +57,7 @@ public class JDBCConfigAutoConfigurationTest extends JDBCConfigTest {
     }
 
     public @Test void testGeoserverLoader() {
-        assertThat(geoserverLoader, instanceOf(JDBCGeoServerLoader.class));
+        assertThat(geoserverLoader, instanceOf(CloudJdbcGeoServerLoader.class));
     }
 
     public @Test void testResourceStoreImpl() {

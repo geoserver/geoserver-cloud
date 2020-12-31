@@ -5,10 +5,10 @@
 package org.geoserver.cloud.catalog.client.impl;
 
 import org.geoserver.cloud.catalog.client.repository.CatalogClientConfigRepository;
-import org.geoserver.config.plugin.RepositoryGeoServerFacade;
+import org.geoserver.config.plugin.RepositoryGeoServerFacadeImpl;
 
 /** */
-public class CatalogClientGeoServerFacade extends RepositoryGeoServerFacade {
+public class CatalogClientGeoServerFacade extends RepositoryGeoServerFacadeImpl {
 
     public CatalogClientGeoServerFacade(CatalogClientConfigRepository repository) {
         super(repository);

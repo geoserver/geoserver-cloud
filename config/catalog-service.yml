@@ -6,6 +6,8 @@ geoserver:
   # Disable LocalWorkspaceCatalog decorator, this service exposes a "raw catalog" backend, there's no concept of local workspaces
   catalog.localWorkspace: false
   catalog.secure: false
+  # enable caching while using the jdbcconfig backend, we've disabled its own internal caching due to concurrency related bugs
+  catalog.caching.enabled: ${geoserver.backend.jdbcconfig.enabled}
   catalog-service:
     io-threads:
       # Number of back-end threads to hit the actual catalog with. Defaults 4 * number of cores if unset.

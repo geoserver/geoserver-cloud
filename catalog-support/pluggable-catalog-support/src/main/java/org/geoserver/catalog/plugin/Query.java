@@ -6,9 +6,10 @@ package org.geoserver.catalog.plugin;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.OptionalInt;
+import java.util.stream.Collectors;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -77,8 +78,13 @@ public @Data class Query<T extends Info> {
             Integer count,
             SortBy... sortOrder) {
 
-        List<SortBy> sortBy = sortOrder == null ? new ArrayList<>() : Arrays.asList(sortOrder);
-        sortBy.forEach(Objects::requireNonNull);
+        List<SortBy> sortBy =
+                sortOrder == null
+                        ? Collections.emptyList()
+                        : Arrays.asList(sortOrder)
+                                .stream()
+                                .filter(s -> s != null)
+                                .collect(Collectors.toList());
 
         filter = filter == null ? Filter.INCLUDE : filter;
         return new Query<>((Class<T>) type)

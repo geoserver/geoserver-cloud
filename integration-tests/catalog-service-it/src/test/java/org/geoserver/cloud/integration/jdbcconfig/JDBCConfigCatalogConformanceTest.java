@@ -6,11 +6,11 @@ package org.geoserver.cloud.integration.jdbcconfig;
 
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogConformanceTest;
+import org.geoserver.catalog.plugin.CatalogPlugin;
+import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.cloud.testconfiguration.IntegrationTestConfiguration;
-import org.geoserver.jdbcconfig.catalog.JDBCCatalogFacade;
 import org.geoserver.platform.GeoServerResourceLoader;
-import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,110 +25,168 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 public class JDBCConfigCatalogConformanceTest extends CatalogConformanceTest {
 
-    private @Autowired @Qualifier("catalogFacade") JDBCCatalogFacade jdbcCatalogFacade;
+    private @Autowired @Qualifier("catalogFacade") ExtendedCatalogFacade jdbcCatalogFacade;
     private @Autowired GeoServerResourceLoader resourceLoader;
 
     @Override
     protected Catalog createCatalog() {
-        org.geoserver.catalog.impl.CatalogImpl catalog =
-                new org.geoserver.catalog.impl.CatalogImpl();
-        catalog.setFacade(jdbcCatalogFacade);
+        CatalogPlugin catalog = new CatalogPlugin(jdbcCatalogFacade);
         catalog.setResourceLoader(resourceLoader);
         return catalog;
     }
 
-    public @Before void deleteAll() {
+    public @After void deleteAll() {
         data.deleteAll(rawCatalog);
         jdbcCatalogFacade.dispose();
     }
 
-    @Ignore("equals fails with jdbcfacade, not worth fixing right now")
-    public @Test void testDataStoreEvents() {}
+    // @Ignore("equals fails with jdbcfacade, not worth fixing right now")
+    public @Override @Test void testDataStoreEvents() {
+        super.testDataStoreEvents();
+    }
 
-    @Ignore("equals fails with jdbcfacade, not worth fixing right now")
-    public @Test void testGetLayerGroupByNameWithWorkspace() {}
+    // @Ignore("equals fails with jdbcfacade, not worth fixing right now")
+    public @Override @Test void testGetLayerGroupByNameWithWorkspace() {
+        super.testGetLayerGroupByNameWithWorkspace();
+    }
 
-    @Ignore("equals fails with jdbcfacade, not worth fixing right now")
-    public @Test void testFullTextSearch() {}
+    // @Ignore("equals fails with jdbcfacade, not worth fixing right now")
+    public @Override @Test void testFullTextSearch() {
+        super.testFullTextSearch();
+    }
 
-    @Ignore("equals fails with jdbcfacade, not worth fixing right now")
-    public @Test void testModifyMetadata() {}
+    // @Ignore("equals fails with jdbcfacade, not worth fixing right now")
+    public @Override @Test void testModifyMetadata() {
+        super.testModifyMetadata();
+    }
 
-    @Ignore("equals fails with jdbcfacade, not worth fixing right now")
-    public @Test void testGetFeatureTypeByName() {}
+    // @Ignore("equals fails with jdbcfacade, not worth fixing right now")
+    public @Override @Test void testGetFeatureTypeByName() {
+        super.testGetFeatureTypeByName();
+    }
 
-    @Ignore("equals fails with jdbcfacade, not worth fixing right now")
-    public @Test void testGetLayerById() {}
+    // @Ignore("equals fails with jdbcfacade, not worth fixing right now")
+    public @Override @Test void testGetLayerById() {
+        super.testGetLayerById();
+    }
 
-    @Ignore("equals fails with jdbcfacade, not worth fixing right now")
-    public @Test void testAddIsolatedWorkspace() {}
+    // @Ignore("equals fails with jdbcfacade, not worth fixing right now")
+    public @Override @Test void testAddIsolatedWorkspace() {
+        super.testAddIsolatedWorkspace();
+    }
 
-    @Ignore("equals fails with jdbcfacade, not worth fixing right now")
-    public @Test void testAddIsolatedNamespace() {}
+    // @Ignore("equals fails with jdbcfacade, not worth fixing right now")
+    public @Override @Test void testAddIsolatedNamespace() {
+        super.testAddIsolatedNamespace();
+    }
 
-    @Ignore("equals fails with jdbcfacade, not worth fixing right now")
-    public @Test void testAutoSetDefaultStore() {}
+    // @Ignore("equals fails with jdbcfacade, not worth fixing right now")
+    public @Override @Test void testAutoSetDefaultStore() {
+        super.testAutoSetDefaultStore();
+    }
 
-    @Ignore("equals fails with jdbcfacade, not worth fixing right now")
-    public @Test void testFullTextSearchLayerGroupAbstract() {}
+    // @Ignore("equals fails with jdbcfacade, not worth fixing right now")
+    public @Override @Test void testFullTextSearchLayerGroupAbstract() {
+        super.testFullTextSearchLayerGroupAbstract();
+    }
 
-    @Ignore("equals fails with jdbcfacade, not worth fixing right now")
-    public @Test void testGetLayerByNameWithoutColon() {}
+    // @Ignore("equals fails with jdbcfacade, not worth fixing right now")
+    public @Override @Test void testGetLayerByNameWithoutColon() {
+        super.testGetLayerByNameWithoutColon();
+    }
 
-    @Ignore("equals fails with jdbcfacade, not worth fixing right now")
-    public @Test void testFullTextSearchKeywords() {}
+    // @Ignore("equals fails with jdbcfacade, not worth fixing right now")
+    public @Override @Test void testFullTextSearchKeywords() {
+        super.testFullTextSearchKeywords();
+    }
 
-    @Ignore("equals fails with jdbcfacade, not worth fixing right now")
-    public @Test void testGetDataStoreByName() {}
+    // @Ignore("equals fails with jdbcfacade, not worth fixing right now")
+    public @Override @Test void testGetDataStoreByName() {
+        super.testGetDataStoreByName();
+    }
 
-    @Ignore("equals fails with jdbcfacade, not worth fixing right now")
-    public @Test void testGetStoreByName() {}
+    // @Ignore("equals fails with jdbcfacade, not worth fixing right now")
+    public @Override @Test void testGetStoreByName() {
+        super.testGetStoreByName();
+    }
 
-    @Ignore("equals fails with jdbcfacade, not worth fixing right now")
-    public @Test void testGetLayerByName() {}
+    // @Ignore("equals fails with jdbcfacade, not worth fixing right now")
+    public @Override @Test void testGetLayerByName() {
+        super.testGetLayerByName();
+    }
 
-    @Ignore("equals fails with jdbcfacade, not worth fixing right now")
-    public @Test void testGetLayerByResource() {}
+    // @Ignore("equals fails with jdbcfacade, not worth fixing right now")
+    public @Override @Test void testGetLayerByResource() {
+        super.testGetLayerByResource();
+    }
 
-    @Ignore("equals fails with jdbcfacade, not worth fixing right now")
-    public @Test void testRemoveLayerGroupInLayerGroup() throws Exception {}
+    // @Ignore("equals fails with jdbcfacade, not worth fixing right now")
+    public @Override @Test void testRemoveLayerGroupInLayerGroup() throws Exception {
+        super.testRemoveLayerGroupInLayerGroup();
+    }
 
-    @Ignore("equals fails with jdbcfacade, not worth fixing right now")
-    public @Test void testFullTextSearchLayerGroupTitle() {}
+    // @Ignore("equals fails with jdbcfacade, not worth fixing right now")
+    public @Override @Test void testFullTextSearchLayerGroupTitle() {
+        super.testFullTextSearchLayerGroupTitle();
+    }
 
-    @Ignore("equals fails with jdbcfacade, not worth fixing right now")
-    public @Test void testFeatureTypeEvents() {}
+    // @Ignore("equals fails with jdbcfacade, not worth fixing right now")
+    public @Override @Test void testFeatureTypeEvents() {
+        super.testFeatureTypeEvents();
+    }
 
-    @Ignore("equals fails with jdbcfacade, not worth fixing right now")
-    public @Test void testIterablesHaveCatalogSet() {}
+    // @Ignore("equals fails with jdbcfacade, not worth fixing right now")
+    public @Override @Test void testIterablesHaveCatalogSet() {
+        super.testIterablesHaveCatalogSet();
+    }
 
-    @Ignore("equals fails with jdbcfacade, not worth fixing right now")
-    public @Test void testGetLayerGroupByNameWithColon() {}
+    // @Ignore("equals fails with jdbcfacade, not worth fixing right now")
+    public @Override @Test void testGetLayerGroupByNameWithColon() {
+        super.testGetLayerGroupByNameWithColon();
+    }
 
-    @Ignore("equals fails with jdbcfacade, not worth fixing right now")
-    public @Test void testAddWMSLayer() {}
+    // @Ignore("equals fails with jdbcfacade, not worth fixing right now")
+    public @Override @Test void testAddWMSLayer() {
+        super.testAddWMSLayer();
+    }
 
-    @Ignore("equals fails with jdbcfacade, not worth fixing right now")
-    public @Test void testAddWMTSStore() {}
+    // @Ignore("equals fails with jdbcfacade, not worth fixing right now")
+    public @Override @Test void testAddWMTSStore() {
+        super.testAddWMTSStore();
+    }
 
-    @Ignore("equals fails with jdbcfacade, not worth fixing right now")
-    public @Test void testLayerEvents() {}
+    // @Ignore("equals fails with jdbcfacade, not worth fixing right now")
+    public @Override @Test void testLayerEvents() {
+        super.testLayerEvents();
+    }
 
-    @Ignore("equals fails with jdbcfacade, not worth fixing right now")
-    public @Test void testLayerGroupRootLayer() {}
+    // @Ignore("equals fails with jdbcfacade, not worth fixing right now")
+    public @Override @Test void testLayerGroupRootLayer() {
+        super.testLayerGroupRootLayer();
+    }
 
-    @Ignore("equals fails with jdbcfacade, not worth fixing right now")
-    public @Test void testFullTextSearchLayerGroupName() {}
+    // @Ignore("equals fails with jdbcfacade, not worth fixing right now")
+    public @Override @Test void testFullTextSearchLayerGroupName() {
+        super.testFullTextSearchLayerGroupName();
+    }
 
-    @Ignore("equals fails with jdbcfacade, not worth fixing right now")
-    public @Test void testGetFeatureTypeById() {}
+    // @Ignore("equals fails with jdbcfacade, not worth fixing right now")
+    public @Override @Test void testGetFeatureTypeById() {
+        super.testGetFeatureTypeById();
+    }
 
-    @Ignore("equals fails with jdbcfacade, not worth fixing right now")
-    public @Test void testGetDataStoreById() {}
+    // @Ignore("equals fails with jdbcfacade, not worth fixing right now")
+    public @Override @Test void testGetDataStoreById() {
+        super.testGetDataStoreById();
+    }
 
-    @Ignore("equals fails with jdbcfacade, not worth fixing right now")
-    public @Test void testAddWMTSLayer() {}
+    // @Ignore("equals fails with jdbcfacade, not worth fixing right now")
+    public @Override @Test void testAddWMTSLayer() {
+        super.testAddWMTSLayer();
+    }
 
-    @Ignore("equals fails with jdbcfacade, not worth fixing right now")
-    public @Test void testCountIncludeFilter() {}
+    // @Ignore
+    public @Override @Test void testCountIncludeFilter() {
+        super.testCountIncludeFilter();
+    }
 }

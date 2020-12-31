@@ -47,6 +47,10 @@ public @Value class Patch implements Serializable {
         return new ArrayList<Patch.Property>(patches.values());
     }
 
+    public int size() {
+        return patches.size();
+    }
+
     public boolean isEmpty() {
         return patches.isEmpty();
     }

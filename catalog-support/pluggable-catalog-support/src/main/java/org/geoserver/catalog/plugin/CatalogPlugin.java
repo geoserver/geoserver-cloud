@@ -17,6 +17,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogCapabilities;
 import org.geoserver.catalog.CatalogException;
@@ -62,6 +64,7 @@ import org.geoserver.catalog.plugin.rules.CatalogBusinessRules;
 import org.geoserver.catalog.plugin.rules.CatalogOpContext;
 import org.geoserver.catalog.plugin.validation.CatalogValidationRules;
 import org.geoserver.catalog.util.CloseableIterator;
+import org.geoserver.catalog.util.CloseableIteratorAdapter;
 import org.geoserver.config.GeoServerLoader;
 import org.geoserver.config.impl.GeoServerImpl;
 import org.geoserver.config.util.XStreamPersister;
@@ -168,8 +171,8 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
         businessRules = new CatalogBusinessRules();
     }
 
-    public @Override CatalogFacade getFacade() {
-        return facade;
+    public @Override ExtendedCatalogFacade getFacade() {
+        return (ExtendedCatalogFacade) facade;
     }
 
     public CatalogFacade getRawFacade() {
@@ -374,7 +377,15 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
                                 + store.getWorkspace().getName());
             }
         }
+
+        DataStoreInfo old = getDefaultDataStore(workspace);
+        // fire modify event before change
+        fireModified(this, asList("defaultDataStore"), asList(old), asList(store));
+
         facade.setDefaultDataStore(workspace, store);
+
+        // fire postmodify event after change
+        firePostModified(this, asList("defaultDataStore"), asList(old), asList(store));
     }
 
     public @Override CoverageStoreInfo getCoverageStore(String id) {
@@ -865,7 +876,15 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
                 defaultNamespace = ns;
             }
         }
+
+        NamespaceInfo old = getDefaultNamespace();
+        // fire modify event before change
+        fireModified(this, asList("defaultNamespace"), asList(old), asList(defaultNamespace));
+
         facade.setDefaultNamespace(defaultNamespace);
+
+        // fire postmodify event after change
+        firePostModified(this, asList("defaultNamespace"), asList(old), asList(defaultNamespace));
     }
 
     // Workspace methods
@@ -903,7 +922,14 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
                 defaultWorkspace = ws;
             }
         }
+        WorkspaceInfo old = getDefaultWorkspace();
+        // fire modify event before change
+        fireModified(this, asList("defaultWorkspace"), asList(old), asList(defaultWorkspace));
+
         facade.setDefaultWorkspace(defaultWorkspace);
+
+        // fire postmodify event after change
+        firePostModified(this, asList("defaultWorkspace"), asList(old), asList(defaultWorkspace));
     }
 
     public @Override List<WorkspaceInfo> getWorkspaces() {
@@ -1194,7 +1220,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
             Integer offset,
             Integer count,
             SortBy sortOrder) {
-        CatalogFacade facade = getFacade();
+        ExtendedCatalogFacade facade = getFacade();
         if (sortOrder != null
                 && !facade.canSort(of, sortOrder.getPropertyName().getPropertyName())) {
             // TODO: use GeoTools' merge-sort code to provide sorting anyways
@@ -1203,11 +1229,10 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
                             + sortOrder.getPropertyName()
                             + " in-process sorting is pending implementation");
         }
-        if (sortOrder != null) {
-            return facade.list(of, filter, offset, count, sortOrder);
-        } else {
-            return facade.list(of, filter, offset, count);
-        }
+
+        Query<T> query = Query.valueOf(of, filter, offset, count, sortOrder);
+        Stream<T> stream = getFacade().query(query);
+        return new CloseableIteratorAdapter<>(stream.iterator(), () -> stream.close());
     }
 
     public @Override <T extends CatalogInfo> T get(Class<T> type, Filter filter)
@@ -1326,5 +1351,10 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
         } else {
             LOGGER.fine(String.format("Using user provided id %s", o.getId()));
         }
+    }
+
+    // if value is null, the list is a singleton list with a null member
+    private <T> List<T> asList(@Nullable T value) {
+        return Collections.singletonList(value);
     }
 }

@@ -13,8 +13,6 @@ import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.Info;
 import org.geoserver.cloud.event.ConfigInfoInfoType;
 import org.geoserver.config.GeoServer;
-import org.geoserver.config.GeoServerInfo;
-import org.geoserver.config.LoggingInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cloud.bus.ServiceMatcher;
@@ -26,24 +24,6 @@ public abstract class RemoteInfoEvent<S, I extends Info> extends RemoteApplicati
     private static final long serialVersionUID = 1L;
 
     private @Autowired @Setter @JsonIgnore transient ServiceMatcher busServiceMatcher;
-
-    /**
-     * {@link #getObjectId() object identifier} for changes performed to the {@link Catalog} itself
-     * (e.g. {@code defaultWorkspace} and the like)
-     */
-    public static final String CATALOG_ID = "catalog";
-
-    /**
-     * {@link #getObjectId() object identifier} for changes performed to the {@link GeoServerInfo
-     * global config} itself (e.g. {@code updateSequence} and the like)
-     */
-    public static final String GEOSERVER_ID = "geoserver";
-
-    /**
-     * {@link #getObjectId() object identifier} for changes performed to the {@link LoggingInfo}
-     * config
-     */
-    public static final String LOGGING_ID = "logging";
 
     protected @JsonIgnore @Autowired @Qualifier("rawCatalog") Catalog catalog;
     protected @JsonIgnore @Autowired @Qualifier("geoServer") GeoServer config;
@@ -62,16 +42,15 @@ public abstract class RemoteInfoEvent<S, I extends Info> extends RemoteApplicati
 
     /** Publish-time constructor, {@link #getSource()} won't be {@code null} */
     protected RemoteInfoEvent(
-            @NonNull S source, @NonNull I info, String originService, String destinationService) {
+            @NonNull S source,
+            @NonNull String objectId,
+            @NonNull ConfigInfoInfoType infoType,
+            String originService,
+            String destinationService) {
 
         super(source, originService, destinationService);
-        this.objectId =
-                info instanceof Catalog
-                        ? CATALOG_ID
-                        : (info instanceof GeoServerInfo
-                                ? GEOSERVER_ID
-                                : (info instanceof LoggingInfo ? LOGGING_ID : info.getId()));
-        this.infoType = ConfigInfoInfoType.valueOf(info);
+        this.objectId = objectId;
+        this.infoType = infoType;
     }
 
     public @JsonIgnore boolean isFromSelf() {

@@ -5,9 +5,8 @@
 package org.geoserver.cloud.test;
 
 import org.geoserver.catalog.Catalog;
-import org.geoserver.catalog.impl.CatalogImpl;
+import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.config.GeoServer;
-import org.geoserver.config.impl.GeoServerImpl;
 import org.geoserver.config.util.XStreamPersisterFactory;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -23,10 +22,10 @@ public class TestConfigurationAutoConfiguration {
 
     @Bean(name = {"catalog", "rawCatalog"})
     public Catalog catalog() {
-        return new CatalogImpl();
+        return new CatalogPlugin(false);
     }
 
     public @Bean GeoServer geoServer() {
-        return new GeoServerImpl();
+        return new org.geoserver.config.plugin.GeoServerImpl();
     }
 }

@@ -5,13 +5,14 @@ geoserver:
     advertised: true
     localWorkspace: true
     secure: true
+    caching.enabled: ${geoserver.backend.catalog-service.enabled}
   bus:
     # whether to send distributed events (i.e. acts as master). All instances receive remote events.
     send-events: true
-    # whether to send the object (CatalogInfo/config info) as payload with the event
-    send-object: true
-    # whether to send a diff of changes as payload with the event
-    send-diff: true
+    # whether to send the object (CatalogInfo/config info) as payload with the event. Set to false, not all possible payload types are propertly tested.
+    send-object: false
+    # whether to send a diff of changes as payload with the event. Set to false, not all possible payload types are propertly tested.
+    send-diff: false
   backend:
     # configure catalog backends and decide which backend to use on this service.
     # All backends are disabled, enable the required one on each service. For example, the catalog microservice 
@@ -42,6 +43,16 @@ geoserver:
         schema: public
         minimumIdle: 2
         maximumPoolSize: 8
+
+management:
+  endpoint:
+    shutdown.enabled: true
+    info.enabled: true
+    health.enabled: true
+  endpoints:
+    enabled-by-default: true
+    web.exposure.include: "*"
+
 spring:
   rabbitmq:
     host: ${RABBITMQ_HOST:localhost}
@@ -124,7 +135,7 @@ logging:
     org.geoserver.jackson: DEBUG
     org.geotools.jackson: DEBUG
     org.geoserver.platform: ERROR
-    org.geoserver.jdbcconfig: DEBUG
+    org.geoserver.jdbcconfig: INFO
     # gs-cloud roots
     org.geoserver.cloud: DEBUG
     org.geoserver.cloud.autoconfigure: DEBUG
