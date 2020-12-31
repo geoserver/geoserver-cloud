@@ -80,7 +80,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest(
     classes = AutoConfigurationTestConfiguration.class,
     properties = { //
-        "geoserver.bus.enabled=true", // disable automatic publishing of remote events
+        "geoserver.bus.enabled=true",
+        "geoserver.bus.send-events=false", // disable automatic publishing of remote events
         "geoserver.catalog.caching.enabled=true",
         "geoserver.backend.data-directory.enabled=true",
         "geoserver.backend.data-directory.location=/tmp/data_dir_autoconfiguration_test"
