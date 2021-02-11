@@ -120,8 +120,8 @@ services:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
     command: dockerize -wait http://config:8080/catalog-service/default --timeout 60s java ${WFS_JAVA_OPTS} -jar /opt/app/catalog-service.jar
     # expose port only to be able of running local instances, not necessary in production, just for testing
-    ports:
-      - "9100:8080"
+    #ports:
+    #  - "9100:8080"
 
   # WFS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wfs=5)
   wfs:
