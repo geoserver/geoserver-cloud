@@ -205,7 +205,8 @@ public class BlockingCatalog extends AbstractCatalogDecorator {
     }
 
     public Stream<DataStoreInfo> getDefaultDataStores() {
-        Stream<WorkspaceInfo> workspaces = query(Query.all(WorkspaceInfo.class));
-        return workspaces.map(delegate::getDefaultDataStore).filter(d -> d != null);
+        return query(Query.all(WorkspaceInfo.class))
+                .map(delegate::getDefaultDataStore)
+                .filter(d -> d != null);
     }
 }

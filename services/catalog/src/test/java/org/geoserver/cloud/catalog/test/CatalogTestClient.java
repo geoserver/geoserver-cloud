@@ -39,8 +39,7 @@ public class CatalogTestClient<C extends CatalogInfo> {
         C real = ModificationProxy.unwrap(info);
         Class<? extends CatalogInfo> clazz = real.getClass();
         ClassMappings classMappings = ClassMappings.fromImpl(clazz);
-        @SuppressWarnings("unchecked")
-        C proxied = (C) ModificationProxy.create(info, classMappings.getInterface());
+        C proxied = ModificationProxy.create(info, classMappings.getInterface());
 
         modifyingConsumer.accept(proxied);
         ModificationProxy proxy = (ModificationProxy) Proxy.getInvocationHandler(proxied);
@@ -54,9 +53,7 @@ public class CatalogTestClient<C extends CatalogInfo> {
     }
 
     public ResponseSpec findById(@NonNull C expected) {
-        @SuppressWarnings("unchecked")
-        Class<? extends C> type =
-                (Class<? extends C>) ClassMappings.fromImpl(expected.getClass()).getInterface();
+        Class<? extends C> type = ClassMappings.fromImpl(expected.getClass()).getInterface();
         return findById(expected.getId(), type);
     }
 

@@ -141,8 +141,7 @@ public class GeoServerCatalogModuleTest {
         writer = writer.withDefaultPrettyPrinter();
 
         ClassMappings classMappings = ClassMappings.fromImpl(orig.getClass());
-        @SuppressWarnings("unchecked")
-        Class<T> abstractType = (Class<T>) classMappings.getInterface();
+        Class<T> abstractType = classMappings.getInterface();
 
         String encoded = writer.writeValueAsString(orig);
         System.out.println(encoded);

@@ -219,10 +219,7 @@ public abstract class AbstractCatalogServiceClientRepositoryTest<
         C real = ModificationProxy.unwrap(info);
         Class<? extends CatalogInfo> clazz = real.getClass();
         ClassMappings classMappings = ClassMappings.fromImpl(clazz);
-
-        @SuppressWarnings("unchecked")
-        Class<C> ifaceType = (Class<C>) classMappings.getInterface();
-        C proxied = ModificationProxy.create(info, ifaceType);
+        C proxied = ModificationProxy.create(info, classMappings.getInterface());
 
         modifyingConsumer.accept(proxied);
         ModificationProxy proxy = (ModificationProxy) Proxy.getInvocationHandler(proxied);

@@ -202,11 +202,9 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
         }
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public @Override void fireSettingsModified(
-            SettingsInfo settings,
-            List<String> changed,
-            List<Object> oldValues,
-            List<Object> newValues) {
+            SettingsInfo settings, List<String> changed, List oldValues, List newValues) {
         for (ConfigurationListener l : listeners) {
             try {
                 l.handleSettingsModified(settings, changed, oldValues, newValues);
@@ -371,11 +369,9 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
         }
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public @Override void fireGlobalModified(
-            GeoServerInfo global,
-            List<String> changed,
-            List<Object> oldValues,
-            List<Object> newValues) {
+            GeoServerInfo global, List<String> changed, List oldValues, List newValues) {
 
         for (ConfigurationListener l : getListeners()) {
             try {
@@ -389,11 +385,9 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
         }
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public @Override void fireLoggingModified(
-            LoggingInfo logging,
-            List<String> changed,
-            List<Object> oldValues,
-            List<Object> newValues) {
+            LoggingInfo logging, List<String> changed, List oldValues, List newValues) {
 
         for (ConfigurationListener l : getListeners()) {
             try {
@@ -434,11 +428,9 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
         CatalogImpl.validateKeywords(service.getKeywords());
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public @Override void fireServiceModified(
-            ServiceInfo service,
-            List<String> changed,
-            List<Object> oldValues,
-            List<Object> newValues) {
+            ServiceInfo service, List<String> changed, List oldValues, List newValues) {
 
         for (ConfigurationListener l : getListeners()) {
             try {

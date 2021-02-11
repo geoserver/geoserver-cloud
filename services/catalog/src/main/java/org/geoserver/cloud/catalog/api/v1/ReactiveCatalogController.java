@@ -73,14 +73,14 @@ public class ReactiveCatalogController {
 
         Mono<Patch> resolvedPatch = proxyResolver.resolve(patch);
 
-        Class<? extends CatalogInfo> type = endpointToClass(endpoint);
+        ClassMappings type = endpointToType(endpoint);
 
-        Mono<? extends CatalogInfo> object =
-                catalog.getById(id, type)
+        Mono<CatalogInfo> object =
+                catalog.getById(id, type.getInterface())
                         .switchIfEmpty(
                                 noContent(
                                         "%s with id '%s' does not exist",
-                                        type.getSimpleName(), id));
+                                        type.getInterface().getSimpleName(), id));
 
         try {
             return object.flatMap(c -> catalog.update(c, resolvedPatch));
@@ -105,33 +105,32 @@ public class ReactiveCatalogController {
     @DeleteMapping(path = "/{endpoint}/{id}")
     public Mono<? extends CatalogInfo> deleteById(
             @PathVariable("endpoint") String endpoint, @PathVariable("id") String id) {
-        Class<? extends CatalogInfo> type = endpointToClass(endpoint, null);
-        return catalog.getById(id, type)
+        ClassMappings type = endpointToType(endpoint, null);
+        return catalog.getById(id, type.getInterface())
                 .flatMap(i -> catalog.delete(i))
                 .switchIfEmpty(
-                        noContent("%s with id '%s' does not exist", type.getSimpleName(), id));
+                        noContent(
+                                "%s with id '%s' does not exist",
+                                type.getInterface().getSimpleName(), id));
     }
 
     @GetMapping(path = "/{endpoint}", produces = APPLICATION_STREAM_JSON_VALUE)
-    public Flux<? extends CatalogInfo> findAll(
+    public Flux<CatalogInfo> findAll(
             @PathVariable("endpoint") String endpoint,
             @RequestParam(name = "type", required = false) ClassMappings subType) {
 
-        Class<? extends CatalogInfo> type = endpointToClass(endpoint, subType);
-        return catalog.getAll(type);
+        ClassMappings type = endpointToType(endpoint, subType);
+        return catalog.getAll(type.getInterface());
     }
 
     @GetMapping(path = {"/{endpoint}/{id}"})
-    public Mono<? extends CatalogInfo> findById( //
+    public Mono<CatalogInfo> findById( //
             @PathVariable("endpoint") String endpoint,
             @PathVariable("id") String id,
             @RequestParam(name = "type", required = false) ClassMappings subType) {
 
         final @NonNull ClassMappings type = endpointToType(endpoint, subType);
-        @SuppressWarnings("unchecked")
-        Class<? extends CatalogInfo> targetType =
-                (Class<? extends CatalogInfo>) type.getInterface();
-        return catalog.getById(id, targetType)
+        return catalog.getById(id, type.getInterface())
                 .switchIfEmpty(
                         noContent(
                                 "%s with id '%s' does not exist",
@@ -139,15 +138,17 @@ public class ReactiveCatalogController {
     }
 
     @GetMapping(path = "/{endpoint}/name/{name}/first")
-    public Mono<? extends CatalogInfo> findFirstByName( //
+    public Mono<CatalogInfo> findFirstByName( //
             @PathVariable("endpoint") String endpoint,
             @PathVariable(name = "name") String name,
             @RequestParam(name = "type", required = false) ClassMappings subType) {
 
-        Class<? extends CatalogInfo> type = endpointToClass(endpoint, subType);
-        return catalog.getFirstByName(name, type)
+        ClassMappings type = endpointToType(endpoint, subType);
+        return catalog.getFirstByName(name, type.getInterface())
                 .switchIfEmpty(
-                        noContent("%s with name '%s' does not exist", type.getSimpleName(), name));
+                        noContent(
+                                "%s with name '%s' does not exist",
+                                type.getInterface().getSimpleName(), name));
     }
 
     @GetMapping(path = "/{endpoint}/query/cansortby/{propertyName}")
@@ -155,8 +156,8 @@ public class ReactiveCatalogController {
             @PathVariable("endpoint") String endpoint,
             @PathVariable("propertyName") String propertyName) {
 
-        Class<? extends CatalogInfo> type = endpointToClass(endpoint);
-        return catalog.canSortBy(type, propertyName);
+        ClassMappings type = endpointToType(endpoint);
+        return catalog.canSortBy(type.getInterface(), propertyName);
     }
 
     @GetMapping(path = "/query/capabilities/functions", produces = APPLICATION_STREAM_JSON_VALUE)
@@ -270,9 +271,7 @@ public class ReactiveCatalogController {
             @PathVariable("workspaceId") String workspaceId,
             @RequestParam(name = "type", required = false) ClassMappings subType) {
 
-        @SuppressWarnings("unchecked")
-        final Class<? extends StoreInfo> type =
-                (Class<? extends StoreInfo>) (subType == null ? STORE : subType).getInterface();
+        final Class<? extends StoreInfo> type = (subType == null ? STORE : subType).getInterface();
 
         return catalog.getById(workspaceId, WorkspaceInfo.class)
                 .flatMapMany(w -> catalog.getStoresByWorkspace(w, type));
@@ -284,9 +283,7 @@ public class ReactiveCatalogController {
             @PathVariable("name") String name,
             @RequestParam(name = "type", required = false) ClassMappings subType) {
 
-        @SuppressWarnings("unchecked")
-        final Class<? extends StoreInfo> type =
-                (Class<? extends StoreInfo>) (subType == null ? STORE : subType).getInterface();
+        final Class<? extends StoreInfo> type = (subType == null ? STORE : subType).getInterface();
         return catalog.getById(workspaceId, WorkspaceInfo.class)
                 .flatMap(w -> catalog.getStoreByName(w, name, type))
                 .switchIfEmpty(noContent("Workspace does not exist: %s", workspaceId));
@@ -298,10 +295,8 @@ public class ReactiveCatalogController {
             @PathVariable("name") String name,
             @RequestParam(name = "type", required = false) ClassMappings subType) {
 
-        @SuppressWarnings("unchecked")
         final Class<? extends ResourceInfo> type =
-                (Class<? extends ResourceInfo>)
-                        (subType == null ? RESOURCE : subType).getInterface();
+                (subType == null ? RESOURCE : subType).getInterface();
 
         return catalog.getById(namespaceId, NamespaceInfo.class)
                 .flatMap(n -> catalog.getResourceByName(n, name, type))
@@ -391,11 +386,6 @@ public class ReactiveCatalogController {
                 .switchIfEmpty(noContent("Style named '%s' does not exist", name));
     }
 
-    @SuppressWarnings("unchecked")
-    private @NonNull Class<? extends CatalogInfo> endpointToClass(@NonNull String endpoint) {
-        return (@NonNull Class<? extends CatalogInfo>) endpointToType(endpoint).getInterface();
-    }
-
     private @NonNull ClassMappings endpointToType(@NonNull String endpoint) {
         // e.g. "workspaces" -> "WORKSPACE"
         String enumKey = endpoint.toUpperCase().substring(0, endpoint.length() - 1);
@@ -404,13 +394,6 @@ public class ReactiveCatalogController {
             throw new IllegalArgumentException("Invalid end point: " + endpoint);
         }
         return type;
-    }
-
-    @SuppressWarnings("unchecked")
-    private @NonNull Class<? extends CatalogInfo> endpointToClass(
-            @NonNull String endpoint, ClassMappings subType) {
-        return (@NonNull Class<? extends CatalogInfo>)
-                endpointToType(endpoint, subType).getInterface();
     }
 
     private @NonNull ClassMappings endpointToType(@NonNull String endpoint, ClassMappings subType) {

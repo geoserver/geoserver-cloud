@@ -177,7 +177,7 @@ public class AbstractRemoteApplicationEventsTest {
         ClassMappings classMappings =
                 ClassMappings.fromImpl(ModificationProxy.unwrap(info).getClass());
         if (classMappings != null) {
-            type = (Class<T>) classMappings.getInterface();
+            type = classMappings.getInterface();
         } else if (info instanceof GeoServerInfo) {
             type = (Class<T>) GeoServerInfo.class;
         } else if (info instanceof SettingsInfo) {

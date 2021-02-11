@@ -82,8 +82,7 @@ public abstract class SharedMappers {
         if (ref == null) return null;
         String id = ref.getId();
         Objects.requireNonNull(id, () -> "Object Reference has no id: " + ref);
-        @SuppressWarnings("unchecked")
-        Class<T> type = (Class<T>) ref.getType().getInterface();
+        Class<T> type = ref.getType().getInterface();
         T proxy = ResolvingProxy.create(id, type);
         return proxy;
     }

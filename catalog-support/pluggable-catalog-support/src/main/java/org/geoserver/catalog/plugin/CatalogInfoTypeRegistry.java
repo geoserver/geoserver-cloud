@@ -76,7 +76,7 @@ public class CatalogInfoTypeRegistry<I extends CatalogInfo, R> {
             Class<T> type, R resource) {
 
         ClassMappings key = determineKey(type);
-        Class<T> mainType = (Class<T>) key.getInterface();
+        Class<T> mainType = key.getInterface();
         register(mainType, resource);
         Class<? extends Info>[] subtypes = key.concreteInterfaces();
         for (int i = 0; subtypes.length > 1 && i < subtypes.length; i++) {
@@ -117,7 +117,7 @@ public class CatalogInfoTypeRegistry<I extends CatalogInfo, R> {
         if (cm == null)
             throw new IllegalArgumentException(
                     "Unable to determine CatalogInfo subtype from objec " + object);
-        return (Class<T>) cm.getInterface();
+        return cm.getInterface();
     }
 
     public static <T extends Info> ClassMappings determineKey(Class<T> type) {
