@@ -1,3 +1,5 @@
+# Common configuration for all services. Override or add service specific config
+# properties on each <service-name>-service.yml file
 geoserver:
   security.enabled: true
   servlet.filter.session-debug.enabled: false # until the NPE is fixed
@@ -5,13 +7,15 @@ geoserver:
     advertised: true
     localWorkspace: true
     secure: true
+    # enable caching if using the catalog-service as backend
     caching.enabled: ${geoserver.backend.catalog-service.enabled}
   bus:
     # whether to send distributed events (i.e. acts as master). All instances receive remote events.
     send-events: true
-    # whether to send the object (CatalogInfo/config info) as payload with the event. Set to false, not all possible payload types are propertly tested.
+    # whether to send the object (CatalogInfo/config info) as payload with the event. Set to false, 
+    # not all possible payload types are propertly tested, and full object payload is not needed.
     send-object: false
-    # whether to send a diff of changes as payload with the event. Set to false, not all possible payload types are propertly tested.
+    # whether to send a diff of changes as payload with the event. Set to false, not all possible payload types are propertly tested nor needed.
     send-diff: false
   backend:
     # configure catalog backends and decide which backend to use on this service.
@@ -22,9 +26,6 @@ geoserver:
       enabled: false
       uri: http://catalog:8080
       cache-directory: ${java.io.tmpdir}/cngs/catalog-client/resource_store
-      io-threads:
-        max-size: 16
-        max-queued:
       fallback-resource-directory: ${java.io.tmpdir}/cngs/catalog-client/fallback_resource_store
     data-directory:
       enabled: false

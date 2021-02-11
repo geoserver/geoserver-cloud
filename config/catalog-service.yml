@@ -2,18 +2,19 @@ geoserver:
   security.enabled: false
   # Disable advertised catalog, it checks the org.geoserver.ows.Dispatcher.REQUEST to check if an OWS is in progress,
   # which can never be the case, and causes a java.lang.NoClassDefFoundError on org.springframework.web.servlet.mvc.AbstractController
-  catalog.advertised: false
-  # Disable LocalWorkspaceCatalog decorator, this service exposes a "raw catalog" backend, there's no concept of local workspaces
-  catalog.localWorkspace: false
-  catalog.secure: false
-  # enable caching while using the jdbcconfig backend, we've disabled its own internal caching due to concurrency related bugs
-  catalog.caching.enabled: ${geoserver.backend.jdbcconfig.enabled}
+  catalog:
+    advertised: false
+    # Disable LocalWorkspaceCatalog decorator, this service exposes a "raw catalog" backend, there's no concept of local workspaces
+    localWorkspace: false
+    secure: false
+    # enable caching while using the jdbcconfig backend, we've disabled its own internal caching due to concurrency related bugs
+    caching.enabled: ${geoserver.backend.jdbcconfig.enabled}
   catalog-service:
     io-threads:
       # Number of back-end threads to hit the actual catalog with. Defaults 4 * number of cores if unset.
       # If using jdbcconfig, let io-threads be about half the size of geoserver.backend.jdbcconfig.datasource.maximumPoolSize, 
       # it has the tendency to use more than one jdbc connection for some requests.
-      max-size: 32
+      max-size: 16
       # maximum number of queued requests per worker thread before rejecting new requests 
       max-queued: 10000
   bus:
@@ -22,8 +23,8 @@ geoserver:
   backend:
     # decide which catalog backend to use on this service.
     jdbcconfig.enabled: true
-    jdbcconfig.datasource.minimumIdle: 10
-    jdbcconfig.datasource.maximumPoolSize: 50
+    jdbcconfig.datasource.minimumIdle: 2
+    jdbcconfig.datasource.maximumPoolSize: 32
 
 #spring:
 #  error.includeStacktrace: on_trace_param
