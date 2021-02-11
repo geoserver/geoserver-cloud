@@ -3,7 +3,7 @@
 ---
 **NOTE**
 
-So far this is a verbatim copy of GeoServer's contributing guidelines and do not really apply to this project until/if it becomes an official project under the GeoServer organization.
+So far this is pretty much a verbatim copy of GeoServer's contributing guidelines and do not really apply to this project until/if it becomes an official project under the GeoServer organization.
 
 ---
 

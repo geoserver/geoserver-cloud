@@ -1,0 +1,15 @@
+---
+---
+
+// overrides for https://github.com/pages-themes/modernist/blob/master/_sass/jekyll-theme-modernist.scss
+
+@import "{{ site.theme }}";
+
+.inner {
+  max-width: 100%;
+}
+
+//change width, default value of 740px is too narrow
+.wrapper {
+  width:75%;
+}
