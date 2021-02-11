@@ -100,7 +100,6 @@ public abstract @Data class Service extends ConfigInfoDto {
         private boolean canonicalSchemaLocation;
         private boolean encodeFeatureMember;
         private boolean hitsIgnoreMaxFeatures;
-        private boolean includeWFSRequestDumpFile;
         private Integer maxNumberOfFeaturesForPreview;
         private List<String> SRS;
         private Boolean allowGlobalQueries;
