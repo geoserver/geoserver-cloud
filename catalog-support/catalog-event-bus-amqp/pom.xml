@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.geoserver.cloud</groupId>
     <artifactId>gs-cloud-catalog-support</artifactId>
-    <version>0.2-SNAPSHOT</version>
+    <version>0.2.0</version>
   </parent>
   <artifactId>gs-cloud-event-bus-amqp</artifactId>
   <description>Advanced Message Queuing Protocol catalog and configuration notification support</description>
