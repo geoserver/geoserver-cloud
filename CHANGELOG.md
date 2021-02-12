@@ -14,11 +14,11 @@ The `catalog-service` back-end is supported by a [Reactive Feign](https://github
 
 ### Catalog/config pluggable architecture
 
-sfsdfsd
+Alternative to GeoServer’s default implementation for the catalog and configuration backend (CatalogImpl/DefaultFacadeImpl and GeoServerImpl DefaultGeoServerFacade) that aims at improving their internal design in order to have clearer contracts and promote ease of extensibility.
 
 ### Catalog/config caching
 
-sdfsdfsd
+Spring-cache based Catalog and config caching can be enabled with `geoserever.catalog.caching.enabled=true` in the externalized configuration.
 
 Catalog and configuration change events are propagated to the event-bus, and all the nodes in the cluster react accordingly, cleaning up
 
@@ -26,7 +26,9 @@ Catalog and configuration change events are propagated to the event-bus, and all
 
 Common service configuration properties have been collapsed to a single `application.yml` configuration file (see [./config/application.yml]
 
-### Remove events JSON payload encoding
+### Remote events JSON payload encoding
+
+Removed hack encoding events payload as an XML string, now Jackson-databind bindings exist to encode and decode catalog and config objects.
 
 ### Added importer extension to the `web-ui` service
 
