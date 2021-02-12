@@ -6,8 +6,6 @@ geoserver:
     localWorkspace: true
     secure: true
   backend:
-    catalog-service:
-      uri: catalog-service
     data-directory:
       enabled: false
       location: ${java.io.tmpdir}/gscloud_tests/data_directory_${random.uuid}

@@ -12,12 +12,10 @@ import lombok.Setter;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.ResourceStore;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /** */
-@Component
 public class ResourceStoreFallbackFactory
         implements reactivefeign.FallbackFactory<ReactiveResourceStoreClient> {
 

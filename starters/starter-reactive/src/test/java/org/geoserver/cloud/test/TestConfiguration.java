@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.reactive.ReactiveUserDetailsServiceAutoConfiguration;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.cloud.client.loadbalancer.reactive.LoadBalancerBeanPostProcessorAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -18,7 +19,8 @@ import org.springframework.web.reactive.function.client.WebClient;
     exclude = {
         ReactiveSecurityAutoConfiguration.class,
         ReactiveManagementWebSecurityAutoConfiguration.class,
-        ReactiveUserDetailsServiceAutoConfiguration.class
+        ReactiveUserDetailsServiceAutoConfiguration.class,
+        LoadBalancerBeanPostProcessorAutoConfiguration.class
     }
 )
 public class TestConfiguration {

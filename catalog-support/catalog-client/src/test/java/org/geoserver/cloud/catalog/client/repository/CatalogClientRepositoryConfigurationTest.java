@@ -20,6 +20,8 @@ public class CatalogClientRepositoryConfigurationTest {
 
     private final ApplicationContextRunner contextRunner =
             new ApplicationContextRunner()
+                    .withAllowBeanDefinitionOverriding(true)
+                    .withPropertyValues("reactive.feign.loadbalancer.enabled=false")
                     .withConfiguration(
                             AutoConfigurations.of(
                                     ReactiveFeignAutoConfiguration.class,

@@ -12,11 +12,11 @@
   <packaging>jar</packaging>
 
   <dependencies>
-<dependency>
-    <groupId>com.github.marschall</groupId>
-    <artifactId>memoryfilesystem</artifactId>
-    <version>2.1.0</version>
-</dependency>
+    <dependency>
+      <groupId>com.github.marschall</groupId>
+      <artifactId>memoryfilesystem</artifactId>
+      <version>2.1.0</version>
+    </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-json</artifactId>
@@ -42,27 +42,26 @@
       <artifactId>gs-main</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.playtika.reactivefeign</groupId>
-      <artifactId>feign-reactor-spring-configuration</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.playtika.reactivefeign</groupId>
-      <artifactId>feign-reactor-cloud</artifactId>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
     </dependency>
     <dependency>
       <groupId>com.playtika.reactivefeign</groupId>
       <artifactId>feign-reactor-webclient</artifactId>
     </dependency>
-<!--     <dependency> -->
-<!--       <groupId>com.playtika.reactivefeign</groupId> -->
-<!--       <artifactId>feign-reactor-jetty</artifactId> -->
-<!--       <version>2.0.22</version> -->
-<!--     </dependency> -->
-<!--     <dependency> -->
-<!--       <groupId>com.playtika.reactivefeign</groupId> -->
-<!--       <artifactId>feign-reactor-java11</artifactId> -->
-<!--       <version>2.0.22</version> -->
-<!--     </dependency> -->
+    <dependency>
+      <!-- Adds support of Spring Cloud Loadbalancer instead of Ribbon and Resilience4j instead of Hystrix -->
+      <groupId>com.playtika.reactivefeign</groupId>
+      <artifactId>feign-reactor-cloud2</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.playtika.reactivefeign</groupId>
+      <artifactId>feign-reactor-spring-configuration</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.github.openfeign</groupId>
+      <artifactId>feign-slf4j</artifactId>
+    </dependency>
     <dependency>
       <!-- contains CatalogTestData support class -->
       <groupId>org.geoserver.cloud</groupId>

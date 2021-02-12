@@ -12,7 +12,7 @@
     <maven.compiler.target>11</maven.compiler.target>
     <spring-cloud.version>Hoxton.SR8</spring-cloud.version>
     <spring-boot.version>2.3.3.RELEASE</spring-boot.version>
-    <feign-reactor.version>2.0.22</feign-reactor.version>
+    <feign-reactor.version>2.0.26</feign-reactor.version>
     <gs.version>2.19-SNAPSHOT</gs.version>
     <gt.version>25-SNAPSHOT</gt.version>
     <lombok.version>1.18.12</lombok.version>
@@ -95,8 +95,9 @@
         <scope>import</scope>
       </dependency>
       <dependency>
+        <!-- Adds support of Spring Cloud Loadbalancer instead of Ribbon and Resilience4j instead of Hystrix -->
         <groupId>com.playtika.reactivefeign</groupId>
-        <artifactId>feign-reactor-cloud</artifactId>
+        <artifactId>feign-reactor-cloud2</artifactId>
         <version>${feign-reactor.version}</version>
       </dependency>
       <dependency>

@@ -36,7 +36,9 @@ public class CatalogClientBackendAutoConfigurationTest {
     // since there's no backend service to connect to
     private final ApplicationContextRunner contextRunner =
             new ApplicationContextRunner()
+                    .withAllowBeanDefinitionOverriding(true)
                     .withPropertyValues(
+                            "reactive.feign.loadbalancer.enabled=false",
                             "geoserver.backend.catalog-service.enabled=true",
                             "geoserver.security.enabled=false")
                     .withAllowBeanDefinitionOverriding(true)

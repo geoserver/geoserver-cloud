@@ -4,32 +4,27 @@
  */
 package org.geoserver.cloud.catalog.client.reactivefeign;
 
-import feign.Contract;
 import feign.Headers;
 import feign.Param;
 import feign.RequestLine;
 import java.nio.ByteBuffer;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveResourceStoreClient.ReactiveResourceStoreFeignConfiguration;
 import org.geoserver.platform.resource.Paths;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.Resource.Type;
 import org.geoserver.platform.resource.ResourceStore;
-import org.springframework.cloud.openfeign.support.SpringMvcContract;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import reactivefeign.spring.config.ReactiveFeignClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /** Catalog-service client to support {@link ResourceStore} */
 @ReactiveFeignClient( //
-    name = "resources-client", //
-    url = "${geoserver.backend.catalog-service.uri:catalog-service}", //
-    path = "/api/v1/resources",
-    fallbackFactory = ResourceStoreFallbackFactory.class,
-    configuration = {ReactiveResourceStoreFeignConfiguration.class}
+    name = "catalog-service", //
+    url = "${geoserver.backend.catalog-service.uri:}", //
+    qualifier = "resource-store-client", //
+    path = "/api/v1/resources", //
+    fallbackFactory = ResourceStoreFallbackFactory.class
 )
 public interface ReactiveResourceStoreClient {
 
@@ -80,16 +75,4 @@ public interface ReactiveResourceStoreClient {
     @RequestLine(value = "POST /move/{path}?to={target}", decodeSlash = false)
     @Headers("Accept: application/json")
     Mono<ResourceDescriptor> move(@Param("path") String path, @Param("target") String target);
-
-    /**
-     * {@code Configuration @Configuration} for the resource store client to use feign's default
-     * {@link Contract} instead of spring default's {@link SpringMvcContract}, cause with the later
-     * I couldn't find a way to use the same path with different {@code Accept:} headers that works
-     */
-    public static @Configuration class ReactiveResourceStoreFeignConfiguration {
-
-        public @Bean Contract feignContract() {
-            return new Contract.Default();
-        }
-    }
 }

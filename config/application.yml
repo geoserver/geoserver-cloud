@@ -24,7 +24,9 @@ geoserver:
     # revisit: Could be split into profiles
     catalog-service:
       enabled: false
-      uri: http://catalog:8080
+      # Base URI of the catalog service. If not set, will be automatically determined using the discovery service, looking for "catalog-service"
+      # This allows to explicitly set a fixed location for the catalog service.
+      # uri: http://catalog:8080
       cache-directory: ${java.io.tmpdir}/cngs/catalog-client/resource_store
       fallback-resource-directory: ${java.io.tmpdir}/cngs/catalog-client/fallback_resource_store
     data-directory:
@@ -108,7 +110,6 @@ logging:
 
 ---
 spring.profiles: local
-geoserver.backend.catalog-service.uri: http://localhost:9100
 # provide environment variables that otherwise would be given by docker-compose.yml
 jdbcconfig.url: jdbc:postgresql://localhost:5432/geoserver_config
 jdbcconfig.username: geoserver

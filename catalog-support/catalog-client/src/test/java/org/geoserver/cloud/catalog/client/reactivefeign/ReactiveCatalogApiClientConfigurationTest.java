@@ -18,14 +18,19 @@ import reactivefeign.spring.config.ReactiveFeignAutoConfiguration;
 public class ReactiveCatalogApiClientConfigurationTest {
 
     private final ApplicationContextRunner contextRunner =
-            new ApplicationContextRunner()
+            new ApplicationContextRunner() //
+                    .withAllowBeanDefinitionOverriding(true)
+                    .withPropertyValues("reactive.feign.loadbalancer.enabled=false")
                     .withConfiguration(
-                            AutoConfigurations.of(
-                                    ReactiveFeignAutoConfiguration.class,
-                                    FeignAutoConfiguration.class,
-                                    WebClientAutoConfiguration.class))
+                            AutoConfigurations.of( //
+                                    ReactiveFeignAutoConfiguration.class, //
+                                    FeignAutoConfiguration.class, //
+                                    WebClientAutoConfiguration.class //
+                                    ))
                     .withConfiguration(
-                            UserConfigurations.of(ReactiveCatalogApiClientConfiguration.class));
+                            UserConfigurations.of( //
+                                    ReactiveCatalogApiClientConfiguration.class //
+                                    ));
 
     public @Test void testReactiveCatalogClientIsLoaded() {
         this.contextRunner.run(

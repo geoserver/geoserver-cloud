@@ -28,10 +28,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.context.request.RequestContextListener;
 
 @SpringBootTest(classes = TestConfiguration.class)
-@EnableAutoConfiguration(exclude = SecurityAutoConfiguration.class)
+@EnableAutoConfiguration(exclude = {SecurityAutoConfiguration.class})
 @RunWith(SpringRunner.class)
 @TestPropertySource(
     properties = {
+        "reactive.feign.loadbalancer.enabled=false",
         "geoserver.servlet.filter.session-debug.enabled=false",
         "geoserver.servlet.filter.flush-safe.enabled=false"
     }

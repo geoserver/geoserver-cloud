@@ -1,5 +1,0 @@
-server.port: 9107
-# provide environment variables that otherwise would be given by docker-compose.yml
-jdbcconfig.url: jdbc:postgresql://localhost:5432/geoserver_config
-jdbcconfig.username: geoserver
-jdbcconfig.password: geo$erver

@@ -19,7 +19,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @SpringBootTest(
     classes = IntegrationTestConfiguration.class,
-    properties = {"geoserver.backend.data-directory.enabled=true"}
+    properties = {
+        "spring.cloud.circuitbreaker.hystrix.enabled=false",
+        "geoserver.backend.data-directory.enabled=true"
+    }
 )
 @RunWith(SpringRunner.class)
 public class DataDirectoryCatalogConformanceTest extends CatalogConformanceTest {

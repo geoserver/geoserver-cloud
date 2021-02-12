@@ -10,6 +10,7 @@ import reactivefeign.spring.config.EnableReactiveFeignClients;
 
 @Configuration
 @EnableReactiveFeignClients( //
+    defaultConfiguration = ReactiveFeignConfigurationOverrides.class, //
     clients = { //
         ReactiveCatalogClient.class, //
         ReactiveConfigClient.class, //
