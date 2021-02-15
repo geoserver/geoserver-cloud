@@ -1,5 +1,8 @@
 version: "3.8"
-
+# This docker composition can be used as a quick start. Docker images will be fetch from docker hub's
+# couldnativegeoserver organization. The config-service is set up to use a public remote git repository. At start up, it'll
+# clone it to the service instance container's filesystem and serve application configurations from there.
+#
 volumes:
   postgresql_config_data: # volume for postgresql data, used to store the geoserver config through jdbcconfig
   rabbitmq_data: # volume for rabbitmq data, so it doesn't create an anonymous one on each container
@@ -24,11 +27,11 @@ services:
       - "15672:15672"
 
   database:
-    image: cloudnativegeoserver/gs-cloud-database:${TAG}
+    image: cloudnativegeoserver/gs-cloud-database:0.2.0
     environment:
-      POSTGRES_DB: "${JDBCCONFIG_DBNAME}"
-      POSTGRES_USER: "${JDBCCONFIG_USERNAME}"
-      POSTGRES_PASSWORD: "${JDBCCONFIG_PASSWORD}"
+      POSTGRES_DB: "geoserver_config"
+      POSTGRES_USER: "geoserver"
+      POSTGRES_PASSWORD: "geo5erver"
     ports:
       - 5432:5432
     networks:
@@ -41,11 +44,11 @@ services:
   # Browse to http://localhost:8761 to check all services are registered.
   # Run docker-compose -f docker-compose.yml -f docker-compose-discovery-ha.yml to run extra discovery service instances for HA
   discovery:
-    image: cloudnativegeoserver/gs-cloud-discovery-service:${TAG}
+    image: cloudnativegeoserver/gs-cloud-discovery-service:0.2.0
     environment:
       SERVER_PORT: 8761
       EUREKA_INSTANCE_HOSTNAME: discovery
-      JAVA_OPTS: ${DISCOVERY_JAVA_OPTS}
+      JAVA_OPTS: -Xmx128m -XX:ActiveProcessorCount=2
     ports:
       - 8761:8761 # for development, so services can be run from localhost and find the discovery service running on docker
     networks:
@@ -60,17 +63,17 @@ services:
   # microservices. Being a Discovery First Bootstrap configuration, it'll
   # register itself with the Eureka discovery service and can be scaled
   config:
-    image: cloudnativegeoserver/gs-cloud-config-service:${TAG}
+    image: cloudnativegeoserver/gs-cloud-config-service:0.2.0
     depends_on:
       - discovery
     environment:
-      EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
-      JAVA_OPTS: ${CONFIG_JAVA_OPTS}
+      EUREKA_SERVER_URL: http://discovery:8761/eureka
       RABBITMQ_HOST: rabbitmq
+      management_endpoint_health_show-details: always # never|always|when-authorized
       # Either 'git' or 'native'. Use the default sample git repository to download the services configuration from
       # If 'git', BEWARE config server will look for a branch called "master", and github changed the default branch name to "main"
       # For more information, see https://cloud.spring.io/spring-cloud-config/multi/multi__spring_cloud_config_server.html#_git_backend
-      SPRING_PROFILES_ACTIVE: native
+      SPRING_PROFILES_ACTIVE: git
       # 'git' profile config
       CONFIG_GIT_URI: https://github.com/groldan/geoserver-microservices-config
       CONFIG_GIT_BASEDIR: /opt/app/git_config
@@ -78,26 +81,23 @@ services:
       CONFIG_NATIVE_PATH: /opt/app/config
     networks:
       - gs-cloud-network
-    volumes:
-      - ./config:/opt/app/config
     healthcheck:
       test: ["CMD", "curl", "-f", "-m", "1", "http://localhost:8080/actuator/health"]
       interval: 1s
       timeout: 1s
-      retries: 15
+      retries: 30
     # wait until discovery service is available
-    command: dockerize -wait http://discovery:8761/actuator/health --timeout 15s java ${CONFIG_JAVA_OPTS} -jar /opt/app/config-service.jar
+    command: dockerize -wait http://discovery:8761/actuator/health --timeout 15s java -Xmx128m -jar /opt/app/config-service.jar
 
   # Application facade, provides a single entry point routing to all
   # microservices (e.g. http://localhost:9090/geoserver/wms, http://localhost:9090/geoserver/wfs, etc)
   gateway:
-    image: cloudnativegeoserver/gs-cloud-gateway:${TAG}
+    image: cloudnativegeoserver/gs-cloud-gateway:0.2.0
     depends_on:
       - discovery
       - config
     environment:
-      EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
-      JAVA_OPTS: ${GATEWAY_JAVA_OPTS}
+      EUREKA_SERVER_URL: http://discovery:8761/eureka
     ports:
       - 9090:8080
     networks:
@@ -105,150 +105,105 @@ services:
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
     # wait until config service is available
-    command: dockerize -wait http://config:8080/gateway-service/default --timeout 60s java ${GATEWAY_JAVA_OPTS} -jar /opt/app/gateway-service.jar
+    command: dockerize -wait http://config:8080/gateway-service/default --timeout 60s java -Xmx128m -jar /opt/app/gateway-service.jar
 
   # catalog microservice, provides a unified catalog backend to all services
   catalog:
-    image: cloudnativegeoserver/gs-cloud-catalog:${TAG}
+    image: cloudnativegeoserver/gs-cloud-catalog:0.2.0
     depends_on:
       - discovery
       - config
       - database
       - rabbitmq
     environment:
-      EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
-      JAVA_OPTS: ${CATALOG_JAVA_OPTS}
+      EUREKA_SERVER_URL: http://discovery:8761/eureka
       RABBITMQ_HOST: rabbitmq
-      JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
-      JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
-      JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
+      JDBCCONFIG_URL: "jdbc:postgresql://database:5432/geoserver_config"
+      JDBCCONFIG_USERNAME: "geoserver"
+      JDBCCONFIG_PASSWORD: "geo5erver"
+      spring_cloud_config_fail-fast: "false"
     networks:
       - gs-cloud-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
-    command: dockerize -wait http://config:8080/catalog-service/default --timeout 60s java ${WFS_JAVA_OPTS} -jar /opt/app/catalog-service.jar
-    # expose port only to be able of running local instances, not necessary in production, just for testing
-    #ports:
-    #  - "9100:8080"
+    command: dockerize -wait http://config:8080/catalog-service/default --timeout 60s java -Xmx256m -XX:ActiveProcessorCount=2 -jar /opt/app/catalog-service.jar
 
   # WFS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wfs=5)
   wfs:
-    image: cloudnativegeoserver/gs-cloud-wfs:${TAG}
+    image: cloudnativegeoserver/gs-cloud-wfs:0.2.0
     depends_on:
       - rabbitmq
       - catalog
     environment:
-      EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
-      JAVA_OPTS: ${WFS_JAVA_OPTS}
+      EUREKA_SERVER_URL: http://discovery:8761/eureka
       RABBITMQ_HOST: rabbitmq
-      JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
-      JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
-      JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
     networks:
       - gs-cloud-network
-    #tmpfs: #TODO: avoid runs creating volumes at all
-    #  - /tmp
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
-    command: dockerize --timeout 60s -wait http://config:8080/wfs-service/default -wait http://catalog:8080/actuator/health java ${WFS_JAVA_OPTS} -jar /opt/app/wfs-service.jar
+    command: dockerize --timeout 60s -wait http://config:8080/wfs-service/default -wait http://catalog:8080/actuator/health java -Xmx256m -XX:ActiveProcessorCount=2 -jar /opt/app/wfs-service.jar
 
   # WMS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wms=5)
   wms:
-    image: cloudnativegeoserver/gs-cloud-wms:${TAG}
+    image: cloudnativegeoserver/gs-cloud-wms:0.2.0
     depends_on:
       - rabbitmq
       - catalog
     environment:
-      EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
-      JAVA_OPTS: ${WMS_JAVA_OPTS}
+      EUREKA_SERVER_URL: http://discovery:8761/eureka
       RABBITMQ_HOST: rabbitmq
-      JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
-      JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
-      JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
     networks:
       - gs-cloud-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
     # wait until config service is available
-    command: dockerize -wait http://config:8080/wms-service/default -wait http://catalog:8080/actuator/health --timeout 60s java ${WMS_JAVA_OPTS} -jar /opt/app/wms-service.jar
+    command: dockerize -wait http://config:8080/wms-service/default -wait http://catalog:8080/actuator/health --timeout 60s java -Xmx1G -XX:ActiveProcessorCount=2 -jar /opt/app/wms-service.jar
 
   # WCS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wcs=5)
   wcs:
-    image: cloudnativegeoserver/gs-cloud-wcs:${TAG}
+    image: cloudnativegeoserver/gs-cloud-wcs:0.2.0
     depends_on:
       - rabbitmq
       - catalog
     environment:
-      EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
-      JAVA_OPTS: ${WCS_JAVA_OPTS}
+      EUREKA_SERVER_URL: http://discovery:8761/eureka
       RABBITMQ_HOST: rabbitmq
-      JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
-      JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
-      JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
     networks:
       - gs-cloud-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
     # wait until config service is available
-    command: dockerize -wait http://config:8080/wcs-service/default -wait http://catalog:8080/actuator/health --timeout 60s java ${WCS_JAVA_OPTS} -jar /opt/app/wcs-service.jar
-
-#  # WPS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wps=5)
-#  wps:
-#    image: cloudnativegeoserver/gs-cloud-wps:${TAG}
-#    depends_on:
-#      - rabbitmq
-#      - catalog
-#    environment:
-#      EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
-#      JAVA_OPTS: ${WPS_JAVA_OPTS}
-#      RABBITMQ_HOST: rabbitmq
-#      JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
-#      JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
-#      JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
-#    networks:
-#      - gs-cloud-network
-#    healthcheck:
-#      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
-#    # wait until config service is available
-#    command: dockerize -wait http://config:8080/wps-service/default -wait http://catalog:8080/actuator/health --timeout 60s java ${WPS_JAVA_OPTS} -jar /opt/app/wps-service.jar
+    command: dockerize -wait http://config:8080/wcs-service/default -wait http://catalog:8080/actuator/health --timeout 60s java -Xmx1G -XX:ActiveProcessorCount=2 -jar /opt/app/wcs-service.jar
 
   # REST config microservice, port dynamically allocated to allow scaling (e.g docker-compose scale rest=5)
   rest:
-    image: cloudnativegeoserver/gs-cloud-restconfig-v1:${TAG}
+    image: cloudnativegeoserver/gs-cloud-restconfig-v1:0.2.0
     depends_on:
       - rabbitmq
       - catalog
     environment:
-      EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
-      JAVA_OPTS: ${REST_JAVA_OPTS}
+      EUREKA_SERVER_URL: http://discovery:8761/eureka
       RABBITMQ_HOST: rabbitmq
-      JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
-      JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
-      JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
     networks:
       - gs-cloud-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
     # wait until config service is available
-    command: dockerize -wait http://config:8080/restconfig-service/default -wait http://catalog:8080/actuator/health --timeout 60s java ${REST_JAVA_OPTS} -jar /opt/app/restconfig-service.jar
+    command: dockerize -wait http://config:8080/restconfig-service/default -wait http://catalog:8080/actuator/health --timeout 60s java -Xmx256m -XX:ActiveProcessorCount=2 -jar /opt/app/restconfig-service.jar
 
   # WEB UI microservice
   webui:
-    image: cloudnativegeoserver/gs-cloud-web-ui:${TAG}
+    image: cloudnativegeoserver/gs-cloud-web-ui:0.2.0
     depends_on:
       - rabbitmq
       - catalog
     environment:
-      EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
-      JAVA_OPTS: ${WEBUI_JAVA_OPTS}
+      EUREKA_SERVER_URL: http://discovery:8761/eureka
       RABBITMQ_HOST: rabbitmq
-      JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
-      JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
-      JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
     networks:
       - gs-cloud-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
     # wait until config service is available
-    command: dockerize -wait http://config:8080/web-ui/default -wait http://catalog:8080/actuator/health --timeout 60s java ${WEBUI_JAVA_OPTS} -jar /opt/app/web-ui-service.jar
+    command: dockerize -wait http://config:8080/web-ui/default -wait http://catalog:8080/actuator/health --timeout 60s java -Xmx512m -XX:ActiveProcessorCount=2 -jar /opt/app/web-ui-service.jar
     

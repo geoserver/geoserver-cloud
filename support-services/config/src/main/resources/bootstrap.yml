@@ -5,9 +5,18 @@ server:
 spring:
   main.banner-mode: off
   application.name: config-service
-  profiles.active: native #use native filesystem config by default instead of git. REVISIT.
+  profiles.active: native #use native filesystem config by default instead of git.
   cloud.loadbalancer.ribbon.enabled: false # ribbon is in maintenance mode and should be replaced by spring-cloud-loadbalancer
-  #config.server.native.searchLocations: ${config.path:file:./config}
+  cloud:
+    config.server: # see https://cloud.spring.io/spring-cloud-config/reference/html/#_spring_cloud_config_server
+      git:
+        uri: ${config.git.uri}
+        skipSslValidation: true
+        timeout: 10
+        refreshRate: 30 # Default value of 0 makes the git backend fetch updated configuration from the Git repo every time it is requested
+        basedir: ${config.git.basedir:./git_config} # where to store the cloned repository, if unset, it'll use /tmp/config-repo-<randomid>
+      native:
+        searchLocations: ${config.native.path:file:./config}
 
 eureka:
   instance:
@@ -25,3 +34,8 @@ eureka:
       defaultZone: ${eureka.server.url:http://localhost:8761/eureka}
     healthcheck:
       enabled: false
+
+logging:
+  level:
+    # Avoid log flooding with "INFO Adding property source: file:<...>/application.yml" triggered by the actuator health check
+    org.springframework.cloud.config.server.environment.NativeEnvironmentRepository: WARN

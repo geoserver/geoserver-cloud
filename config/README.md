@@ -1,8 +1,6 @@
-# Centralized microservices configuration 
+# Cloud Native GeoServer Externalized configuration sample repository 
 
-This directory contains the spring configuration properties or yaml files for all
-GeoServer microservices, as used by the config-service, following 
+This repository contains sample/default spring configuration files for all
+micro-services in the [Cloud Native GeoServer](https://github.com/camptocamp/geoserver-microservices) project, as used by the `config-service`, following 
 [spring-cloud-config](https://cloud.spring.io/spring-cloud-config/reference/html/) guidelines.
 
-The default docker composition at the project's root directory sets
-this directory up as a bound volume to the `config-service` container(s).
