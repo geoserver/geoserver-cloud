@@ -24,7 +24,7 @@ services:
       - "15672:15672"
 
   database:
-    image: org.geoserver.cloud/gs-cloud-database:${TAG}
+    image: cloudnativegeoserver/gs-cloud-database:${TAG}
     environment:
       POSTGRES_DB: "${JDBCCONFIG_DBNAME}"
       POSTGRES_USER: "${JDBCCONFIG_USERNAME}"
@@ -41,7 +41,7 @@ services:
   # Browse to http://localhost:8761 to check all services are registered.
   # Run docker-compose -f docker-compose.yml -f docker-compose-discovery-ha.yml to run extra discovery service instances for HA
   discovery:
-    image: org.geoserver.cloud/gs-cloud-discovery-service:${TAG}
+    image: cloudnativegeoserver/gs-cloud-discovery-service:${TAG}
     environment:
       SERVER_PORT: 8761
       EUREKA_INSTANCE_HOSTNAME: discovery
@@ -60,7 +60,7 @@ services:
   # microservices. Being a Discovery First Bootstrap configuration, it'll
   # register itself with the Eureka discovery service and can be scaled
   config:
-    image: org.geoserver.cloud/gs-cloud-config-service:${TAG}
+    image: cloudnativegeoserver/gs-cloud-config-service:${TAG}
     depends_on:
       - discovery
     environment:
@@ -83,7 +83,7 @@ services:
   # Application facade, provides a single entry point routing to all
   # microservices (e.g. http://localhost:9090/geoserver/wms, http://localhost:9090/geoserver/wfs, etc)
   gateway:
-    image: org.geoserver.cloud/gs-cloud-gateway:${TAG}
+    image: cloudnativegeoserver/gs-cloud-gateway:${TAG}
     depends_on:
       - discovery
       - config
@@ -101,7 +101,7 @@ services:
 
   # catalog microservice, provides a unified catalog backend to all services
   catalog:
-    image: org.geoserver.cloud/gs-cloud-catalog:${TAG}
+    image: cloudnativegeoserver/gs-cloud-catalog:${TAG}
     depends_on:
       - discovery
       - config
@@ -125,7 +125,7 @@ services:
 
   # WFS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wfs=5)
   wfs:
-    image: org.geoserver.cloud/gs-cloud-wfs:${TAG}
+    image: cloudnativegeoserver/gs-cloud-wfs:${TAG}
     depends_on:
       - rabbitmq
       - catalog
@@ -146,7 +146,7 @@ services:
 
   # WMS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wms=5)
   wms:
-    image: org.geoserver.cloud/gs-cloud-wms:${TAG}
+    image: cloudnativegeoserver/gs-cloud-wms:${TAG}
     depends_on:
       - rabbitmq
       - catalog
@@ -166,7 +166,7 @@ services:
 
   # WCS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wcs=5)
   wcs:
-    image: org.geoserver.cloud/gs-cloud-wcs:${TAG}
+    image: cloudnativegeoserver/gs-cloud-wcs:${TAG}
     depends_on:
       - rabbitmq
       - catalog
@@ -186,7 +186,7 @@ services:
 
 #  # WPS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wps=5)
 #  wps:
-#    image: org.geoserver.cloud/gs-cloud-wps:${TAG}
+#    image: cloudnativegeoserver/gs-cloud-wps:${TAG}
 #    depends_on:
 #      - rabbitmq
 #      - catalog
@@ -206,7 +206,7 @@ services:
 
   # REST config microservice, port dynamically allocated to allow scaling (e.g docker-compose scale rest=5)
   rest:
-    image: org.geoserver.cloud/gs-cloud-restconfig-v1:${TAG}
+    image: cloudnativegeoserver/gs-cloud-restconfig-v1:${TAG}
     depends_on:
       - rabbitmq
       - catalog
@@ -226,7 +226,7 @@ services:
 
   # WEB UI microservice
   webui:
-    image: org.geoserver.cloud/gs-cloud-web-ui:${TAG}
+    image: cloudnativegeoserver/gs-cloud-web-ui:${TAG}
     depends_on:
       - rabbitmq
       - catalog
