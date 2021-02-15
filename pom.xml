@@ -22,7 +22,7 @@
     <fork.javac>true</fork.javac>
     <javac.maxHeapSize>256M</javac.maxHeapSize>
 
-    <docker.image.prefix>${project.groupId}</docker.image.prefix>
+    <docker.image.prefix>cloudnativegeoserver</docker.image.prefix>
     <dockerfile.build.pullNewerImage>false</dockerfile.build.pullNewerImage>
   </properties>
 

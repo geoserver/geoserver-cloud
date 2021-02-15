@@ -13,7 +13,7 @@ services:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-2:8761/eureka
 
   discovery2:
-    image: org.geoserver.cloud/gs-cloud-discovery-service:${TAG}
+    image: cloudnativegeoserver/gs-cloud-discovery-service:${TAG}
     container_name: discovery-2
     environment:
       SERVER_PORT: 8761
@@ -26,7 +26,7 @@ services:
       - gs-cloud-network
 
   config:
-    image: org.geoserver.cloud/gs-cloud-config-service:${TAG}
+    image: cloudnativegeoserver/gs-cloud-config-service:${TAG}
     depends_on:
       - discovery
       - discovery2
