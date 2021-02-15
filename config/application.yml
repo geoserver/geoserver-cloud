@@ -51,7 +51,9 @@ management:
   endpoint:
     shutdown.enabled: true
     info.enabled: true
-    health.enabled: true
+    health:
+      enabled: true
+      show-details: always
   endpoints:
     enabled-by-default: true
     web.exposure.include: "*"
