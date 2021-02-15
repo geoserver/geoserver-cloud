@@ -58,7 +58,7 @@ Browse to [http://localhost:9090](http://localhost:9090)
 
 Please read [the contribution guidelines](CONTRIBUTING.md) before contributing pull requests to the CN GeoServer project.
 
-<!-- Follow the [developer's guide](CONTRIBUTING.md)  to know more about the project's technical details. -->
+Follow the [developer's guide](docs/develop/index.md) to know more about the project's technical details.
 
 ## Status
 
