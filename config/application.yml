@@ -49,14 +49,20 @@ geoserver:
 
 management:
   endpoint:
-    shutdown.enabled: true
     info.enabled: true
+    metrics.enabled: true
+    shutdown.enabled: true
     health:
       enabled: true
       show-details: always
   endpoints:
     enabled-by-default: true
     web.exposure.include: "*"
+  metrics:
+    enable.all: false
+    enable.jvm: true
+    export:
+      atlas.enabled: false
 
 spring:
   rabbitmq:
@@ -87,10 +93,11 @@ logging:
     root: WARN
     org.springframework: ERROR
     org.springframework.cloud.bus: INFO
+    org.springframework.retry: INFO
     # geoserver roots
     org.geoserver: INFO
     org.geoserver.catalog.plugin: INFO
-    org.geoserver.wms: WARN #don't flud the logs with every request details
+    org.geoserver.wms: WARN #don't flood the logs with every request details
     org.geoserver.wfs: WARN
     org.geoserver.jackson: INFO
     org.geotools.jackson: INFO

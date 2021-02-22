@@ -83,7 +83,7 @@ Download this [docker-compose.yml](deploy/docker-compose/stable/docker-compose.y
 
 ```bash
 $ mkdir gscloud && cd gscloud
-$ wget "https://raw.githubusercontent.com/camptocamp/geoserver-microservices/v0.2.0/docs/deploy/docker-compose/stable/docker-compose.yml" -O docker-compose.yml
+$ wget "https://camptocamp.github.io/geoserver-microservices/deploy/docker-compose/stable/docker-compose.yml"
 ```
 
 Open a terminal and enter the directory where you just downloaded that file, and run `docker-compose pull` to fetch the docker images from [Dockerhub](https://hub.docker.com/u/cloudnativegeoserver/):
@@ -107,8 +107,10 @@ Pulling webui     ... done
 Then start the services with this command:
 
 ```bash
-$ docker-compose up -d
+$ docker-compose --compatibility up -d
 ```
+
+> Note the `--compatibility` argument is required when using a v3 docker-compose file, in order to enable resource the CPU and Memory limits configured in the file for each service.
 
 Wait for the services to start up, check with `docker-compose ps` until they're healthy. May some service had exited, re-run `docker-compose up -d`, initial startup may cause timeouts as services compete for resources on a single machine.
 
