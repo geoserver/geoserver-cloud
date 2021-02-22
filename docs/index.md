@@ -117,6 +117,7 @@ $ ./mvnw clean install -P\!docker
 
 # Running
 
+
 ## docker-compose
 
 Now run the docker composition as follows, the first time it might need to download some additional images for the `rabbitmq` event broker and the `postgresql` config database:
@@ -180,5 +181,6 @@ The "local" spring profile in each `conifg/<service>.yml` file sets a different 
 
 At startup time, as configured in its `src/main/resources/bootstrap.yml` file, the service will contact the `discovery-service` at the default `http://localhost:8761/eureka` location, given there's no `eureka.server.url` configuration property set (which is otherwise provided by `docker-compose.yml`).
 Since `docker-compose.yml` exposes the `discovery-service` at the local port `8761`, that's all the service being run locally needs to engage in the cluster. The discovery service will provide it with the location of any other service it needs to contact, starting with the `config-service`, where it will ultimatelly get the rest of the application configuration from.
+
 
 

@@ -48,11 +48,15 @@ $ ./mvnw clean install
 ## Running
 
 ```bash
-$ docker-compose up -d
+$ docker-compose --compatibility up -d
 $ curl "http://localhost:9090/ows?request=getcapabilities&service={WMS,WFS,WCS}"
 $ curl -u admin:geoserver "http://localhost:9090/rest/workspaces.json"
 ```
 Browse to [http://localhost:9090](http://localhost:9090)
+
+> Note the `--compatibility` argument is required when using a v3 docker-compose file, in order to enable resource limiting (CPU and Memory).
+> Otherwise all services would be competing to use all available CPUs.
+> For more information, check the [compatibility mode](https://docs.docker.com/compose/compose-file/compose-versioning/#compatibility-mode) and [resources](https://docs.docker.com/compose/compose-file/compose-file-v3/#resources) sections in the docker-compose v3 documentation.
 
 ## Contributing
 
