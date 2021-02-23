@@ -158,6 +158,23 @@ The following diagram depicts the System's general architecture:
 > Note the above diagram represents the overall system's architecture. This is not a deployment diagram. Deployment involves choice of platforms, configurations, and more; without affecting the general architecture.
 > Some microservices/components, though planned and represented in the architecture diagram, have not yet been developed/integrated. For instance: the logging, tracing, and monitoring components, as well as the GWC and WPS microservices.
  
+# Project Status
+
+Version `0.2.0` has been released against GeoServer `2.18.2`.
+
+Project is being deployed in production since `v0.1.0`.
+
+[Camptocamp](https://camptocamp.com/), as the original author, is in process of donating the project to OsGeo/Geoserver.
+
+> Q: So, is this **production ready**?
+> Not at all. It's been used in production for the functionalities needed by Camptocamp's customer funding this project so far. That does not mean it's ready for general availability. For instance, these are the most oustanding issues:
+> 
+> * The **security** subsystem needs a review. If you try to change the admin password through the web-ui, there's a bug that would leave you with a broken authentication.
+> * The WPS is non functional and temporarily removed from the build
+> * There's no GWC integration so far
+> * The `catalog-service` uses GeoServer's `jdbcconfig` community module. It'll be replaced by a more performance and scalable solution. A lot of work has been put in improving the catalog and configuration design to make that easier.
+> Additionally, we need to work on centralized logging, tracing, and monitoring.
+
 # Developer's Guide
 
 Follow the [Developer's Guide](develop/index.md) to learn more about the System's design and how to get started contributing to it.
@@ -165,3 +182,12 @@ Follow the [Developer's Guide](develop/index.md) to learn more about the System'
 # Deployment Guide
 
 Chek out the [Deployment Guide](deploy/index.md) to learn about deployment options, configuration, and target platforms.
+
+<!--
+
+Things to mention
+
+** Explain decomposition by business capability: microservice defined as the set of components exposing an API to implement a single business capability. E.g. WFS, WMS, catalog, rest-config, web-admin. Further decomposition could be applied to large subsistems. E.g. GWC -> tile serve and seeding services, WPS decomposed into API + lamda per process, etc., WMS into API/rendering engine, or services into per version microservice.
+
+** Gateway: custom filter to adhere to OWS case-insensitive parameter names
+-->
