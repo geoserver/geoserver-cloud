@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.geoserver.cloud</groupId>
     <artifactId>gs-cloud-starters</artifactId>
-    <version>0.2.1-SNAPSHOT</version>
+    <version>0.2.1</version>
   </parent>
   <artifactId>gs-cloud-starter-vector-formats</artifactId>
   <description>Curated list of supported vector data formats</description>
