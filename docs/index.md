@@ -83,7 +83,7 @@ Download this [docker-compose.yml](deploy/docker-compose/stable/docker-compose.y
 
 ```bash
 $ mkdir gscloud && cd gscloud
-$ wget "https://camptocamp.github.io/geoserver-microservices/deploy/docker-compose/stable/docker-compose.yml"
+$ wget "https://camptocamp.github.io/geoserver-cloud/deploy/docker-compose/stable/docker-compose.yml"
 ```
 
 Open a terminal and enter the directory where you just downloaded that file, and run `docker-compose pull` to fetch the docker images from [Dockerhub](https://hub.docker.com/u/cloudnativegeoserver/):

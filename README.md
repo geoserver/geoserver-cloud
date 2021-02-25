@@ -74,10 +74,10 @@ Read the [changelog](CHANGELOG.md) for more information.
 
 ## Bugs
 
-*CN GeoServer*'s issue tracking is at this [GitHub](https://github.com/camptocamp/geoserver-microservices/issues) repository.
+*CN GeoServer*'s issue tracking is at this [GitHub](https://github.com/camptocamp/geoserver-cloud/issues) repository.
 
 ## Roadmap
 
-Follow the development progress on these [GitHub Kanban boards](https://github.com/camptocamp/geoserver-microservices/projects)
+Follow the development progress on these [GitHub Kanban boards](https://github.com/camptocamp/geoserver-cloud/projects)
 
 

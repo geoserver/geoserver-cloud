@@ -87,7 +87,7 @@ services:
       # For more information, see https://cloud.spring.io/spring-cloud-config/multi/multi__spring_cloud_config_server.html#_git_backend
       SPRING_PROFILES_ACTIVE: native
       # 'git' profile config
-      CONFIG_GIT_URI: https://github.com/groldan/geoserver-microservices-config
+      CONFIG_GIT_URI: https://github.com/groldan/geoserver-cloud-config
       CONFIG_GIT_BASEDIR: /opt/app/git_config
       # 'native' profile config
       CONFIG_NATIVE_PATH: /opt/app/config
