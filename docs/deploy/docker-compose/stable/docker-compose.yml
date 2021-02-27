@@ -108,7 +108,7 @@ services:
           cpus: '2.0'
           memory: 512M
     # wait until discovery service is available
-    command: dockerize -wait http://discovery:8761/actuator/health --timeout 15s java -XX:MaxRAMPercentage=80 -XX:MaxRAM=512M -jar /opt/app/config-service.jar
+    command: sh -c "exec dockerize -wait http://discovery:8761/actuator/health --timeout 15s java $$JAVA_OPTS -jar /opt/app/config-service.jar"
 
   # Application facade, provides a single entry point routing to all
   # microservices (e.g. http://localhost:9090/geoserver/wms, http://localhost:9090/geoserver/wfs, etc)
@@ -132,7 +132,7 @@ services:
           cpus: '2.0'
           memory: 512M
     # wait until config service is available
-    command: dockerize -wait http://config:8080/gateway-service/default --timeout 120s java -XX:MaxRAMPercentage=80 -XX:MaxRAM=512M -jar /opt/app/gateway-service.jar
+    command: sh -c "exec dockerize -wait http://config:8080/gateway-service/default --timeout 120s java $$JAVA_OPTS -jar /opt/app/gateway-service.jar"
 
   # catalog microservice, provides a unified catalog backend to all services
   catalog:
@@ -159,7 +159,7 @@ services:
         limits:
           cpus: '2.0'
           memory: 512M
-    command: dockerize -wait http://config:8080/catalog-service/default --timeout 120s java -XX:MaxRAMPercentage=80 -XX:MaxRAM=512M -jar /opt/app/catalog-service.jar
+    command: sh -c "exec dockerize -wait http://config:8080/catalog-service/default --timeout 120s java $$JAVA_OPTS -jar /opt/app/catalog-service.jar"
 
   # WFS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wfs=5)
   wfs:
@@ -180,7 +180,7 @@ services:
         limits:
           cpus: '2.0'
           memory: 512M
-    command: dockerize --timeout 120s -wait http://config:8080/wfs-service/default -wait http://catalog:8080/api/v1/catalog/workspaces java -XX:MaxRAMPercentage=80 -XX:MaxRAM=512M -jar /opt/app/wfs-service.jar
+    command: sh -c "exec dockerize --timeout 120s -wait http://config:8080/wfs-service/default -wait http://catalog:8080/api/v1/catalog/workspaces java $$JAVA_OPTS -jar /opt/app/wfs-service.jar"
 
   # WMS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wms=5)
   wms:
@@ -202,7 +202,7 @@ services:
           cpus: '2.0'
           memory: 1G
     # wait until config service is available
-    command: dockerize -wait http://config:8080/wms-service/default -wait http://catalog:8080/api/v1/catalog/workspaces --timeout 120s java -XX:MaxRAMPercentage=80 -XX:MaxRAM=1G -jar /opt/app/wms-service.jar
+    command: sh -c "exec dockerize -wait http://config:8080/wms-service/default -wait http://catalog:8080/api/v1/catalog/workspaces --timeout 120s java $$JAVA_OPTS -jar /opt/app/wms-service.jar"
 
   # WCS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wcs=5)
   wcs:
@@ -224,7 +224,7 @@ services:
           cpus: '2.0'
           memory: 1G
     # wait until config service is available
-    command: dockerize -wait http://config:8080/wcs-service/default -wait http://catalog:8080/api/v1/catalog/workspaces --timeout 120s java -XX:MaxRAMPercentage=80 -XX:MaxRAM=1G -jar /opt/app/wcs-service.jar
+    command: sh -c "exec dockerize -wait http://config:8080/wcs-service/default -wait http://catalog:8080/api/v1/catalog/workspaces --timeout 120s java $$JAVA_OPTS -jar /opt/app/wcs-service.jar"
 
   # REST config microservice, port dynamically allocated to allow scaling (e.g docker-compose scale rest=5)
   rest:
@@ -246,7 +246,7 @@ services:
           cpus: '1.5'
           memory: 1G
     # wait until config service is available
-    command: dockerize -wait http://config:8080/restconfig-service/default -wait http://catalog:8080/api/v1/catalog/workspaces --timeout 120s java -XX:MaxRAMPercentage=80 -XX:MaxRAM=512M -jar /opt/app/restconfig-service.jar
+    command: sh -c "exec dockerize -wait http://config:8080/restconfig-v1/default -wait http://catalog:8080/api/v1/catalog/workspaces --timeout 120s java $$JAVA_OPTS -jar /opt/app/restconfig-service.jar"
 
   # WEB UI microservice
   webui:
@@ -268,5 +268,5 @@ services:
           cpus: '2.0'
           memory: 1G
     # wait until config service is available
-    command: dockerize -wait http://config:8080/web-ui/default -wait http://catalog:8080/api/v1/catalog/workspaces --timeout 120s java -XX:MaxRAMPercentage=80 -XX:MaxRAM=1G -jar /opt/app/web-ui-service.jar
+    command: sh -c "exec dockerize -wait http://config:8080/web-ui/default -wait http://catalog:8080/api/v1/catalog/workspaces --timeout 120s java $$JAVA_OPTS -jar /opt/app/web-ui-service.jar"
     
