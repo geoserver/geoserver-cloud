@@ -21,11 +21,11 @@ The *Cloud Native GeoServer* project splits the GeoServer geospatial services an
 
 GeoServer is the most widely used and deployed Open Source geospatial server in the world. It allows publishing, transforming, and editing geospatial data from a wide number of formats, through an extense number of user-facing services. Besides these out-of-the-box capabilities, it also counts with over 40 supported [extensions](http://geoserver.org/release/stable/), plus a bigger number of experimental extensions (so-called "community modules").
 
-Being a [monolithic application](https://en.wikipedia.org/wiki/Monolithic_application), [installation and configuration](https://docs.geoserver.org/latest/en/user/installation/war.html) of GeoServer is very easy, as all its different components are bundled together, offerring a simple, cohesive approach to software delivery.
+Being a [monolithic application](https://en.wikipedia.org/wiki/Monolithic_application), [installation and configuration](https://docs.geoserver.org/latest/en/user/installation/war.html) of GeoServer is very easy, as all its different components are bundled together, offering a simple, cohesive approach to software delivery.
 
 People in charge of deploying and maintaining GeoServer instances usually face some very common challenges when it comes to server dimensioning, configuration, system health monitoring and corrective actions; difficulties that get incremented as systems need to ensure a certain capacity to handle request load, service availability, and overall performance.
 
-Traditional deployments, though feassible of providing [high availability](https://en.wikipedia.org/wiki/High_availability), tend to require a fixed number of application instances, a single-master/multiple-slaves cluster architecture, and/or the installation and configuration of additional components to keep instances in sync.
+Traditional deployments, though feasible of providing [high availability](https://en.wikipedia.org/wiki/High_availability), tend to require a fixed number of application instances, a single-master/multiple-slaves cluster architecture, and/or the installation and configuration of additional components to keep instances in sync.
 
 Ensuring a given load capacity often results in over-provisioning of server resources to handle peaks on demand, which can have a negative impact on an organization's budget, especially if deploying on a public cloud provider such as Amazon AWS, Microsoft Azure, or Google Cloud Platform. 
 
