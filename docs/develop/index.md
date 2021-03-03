@@ -74,7 +74,7 @@ You need to have [docker](https://www.docker.com/) and [docker-compose](https://
 
 > The main branch follows GeoServer's main branch, currently `2.19-SNAPSHOT`. 
 > The stable branch builds against a released GeoServer version.
-> Building master against the latest stable version (`2.18.2`) is no longer possible due to binary incompatible between `2.18.x` and `2.19.x`. Once 2.19.0 is released, it'll be possible to build against a stable version activating the `geoserver_stable_version` profile as follows:
+> Building `main` against the latest stable version (`2.18.2`) is no longer possible due to binary incompatible between `2.18.x` and `2.19.x`. Once 2.19.0 is released, it'll be possible to build against a stable version activating the `geoserver_stable_version` profile as follows:
 >    `./mvnw clean install -P geoserver_stable_version`
 
 To build the applications run the following command from the root project directory:
