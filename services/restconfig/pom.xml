@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.geoserver.cloud</groupId>
@@ -8,8 +7,8 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
   <artifactId>gs-cloud-restconfig-v1</artifactId>
-  <name>restconfig-service</name>
   <packaging>jar</packaging>
+  <name>restconfig-service</name>
   <properties>
     <start-class>org.geoserver.cloud.restconfig.RestConfigApplication</start-class>
   </properties>
@@ -44,7 +43,6 @@
     </dependency>
     <!-- <dependency> <groupId>org.geoserver</groupId> <artifactId>gs-restconfig-wmts</artifactId> </dependency> -->
   </dependencies>
-
   <build>
     <plugins>
       <plugin>
@@ -82,7 +80,6 @@
       </plugin>
     </plugins>
   </build>
-
   <profiles>
     <profile>
       <id>docker</id>
@@ -113,8 +110,8 @@
           <artifactId>gs-wfs</artifactId>
           <exclusions>
             <exclusion>
-              <groupId>*</groupId>
               <artifactId>*</artifactId>
+              <groupId>*</groupId>
             </exclusion>
           </exclusions>
         </dependency>
@@ -124,8 +121,8 @@
           <artifactId>gs-wms</artifactId>
           <exclusions>
             <exclusion>
-              <groupId>*</groupId>
               <artifactId>*</artifactId>
+              <groupId>*</groupId>
             </exclusion>
           </exclusions>
         </dependency>
@@ -135,8 +132,8 @@
           <artifactId>gs-wcs</artifactId>
           <exclusions>
             <exclusion>
-              <groupId>*</groupId>
               <artifactId>*</artifactId>
+              <groupId>*</groupId>
             </exclusion>
           </exclusions>
         </dependency>
@@ -146,8 +143,8 @@
           <artifactId>gs-wps-core</artifactId>
           <exclusions>
             <exclusion>
-              <groupId>*</groupId>
               <artifactId>*</artifactId>
+              <groupId>*</groupId>
             </exclusion>
           </exclusions>
         </dependency>
@@ -157,8 +154,8 @@
           <artifactId>gs-gwc</artifactId>
           <exclusions>
             <exclusion>
-              <groupId>*</groupId>
               <artifactId>*</artifactId>
+              <groupId>*</groupId>
             </exclusion>
           </exclusions>
         </dependency>
@@ -192,20 +189,20 @@
           <!-- exclude data formats, let them be managed by the ones explicitly imported by this module -->
           <exclusions>
             <exclusion>
-              <groupId>org.geotools</groupId>
               <artifactId>gt-shapefile</artifactId>
+              <groupId>org.geotools</groupId>
             </exclusion>
             <exclusion>
-              <groupId>org.geotools.jdbc</groupId>
               <artifactId>gt-jdbc-h2</artifactId>
+              <groupId>org.geotools.jdbc</groupId>
             </exclusion>
             <exclusion>
-              <groupId>org.geotools.jdbc</groupId>
               <artifactId>gt-jdbc-oracle</artifactId>
+              <groupId>org.geotools.jdbc</groupId>
             </exclusion>
             <exclusion>
-              <groupId>org.geotools.jdbc</groupId>
               <artifactId>gt-jdbc-sqlserver</artifactId>
+              <groupId>org.geotools.jdbc</groupId>
             </exclusion>
           </exclusions>
         </dependency>

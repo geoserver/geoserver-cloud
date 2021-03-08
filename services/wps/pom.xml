@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.geoserver.cloud</groupId>
@@ -8,8 +7,8 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
   <artifactId>gs-cloud-wps</artifactId>
-  <name>wps-service</name>
   <packaging>jar</packaging>
+  <name>wps-service</name>
   <properties>
     <start-class>org.geoserver.cloud.wps.WpsApplication</start-class>
   </properties>
@@ -26,7 +25,6 @@
       <groupId>org.geoserver.cloud</groupId>
       <artifactId>gs-cloud-starter-raster-formats</artifactId>
     </dependency>
-
     <dependency>
       <!-- REVISIT: for some reason, the WPS service won't start up without the web components. A bean creation exception 
         will be reported: "Error creating bean with name 'wpsInitializer' ... -->
@@ -41,7 +39,6 @@
       <artifactId>gs-wps-core</artifactId>
     </dependency>
   </dependencies>
-
   <build>
     <plugins>
       <plugin>
@@ -109,8 +106,8 @@
           <artifactId>gs-wfs</artifactId>
           <exclusions>
             <exclusion>
-              <groupId>*</groupId>
               <artifactId>*</artifactId>
+              <groupId>*</groupId>
             </exclusion>
           </exclusions>
         </dependency>
@@ -120,8 +117,8 @@
           <artifactId>gs-wms</artifactId>
           <exclusions>
             <exclusion>
-              <groupId>*</groupId>
               <artifactId>*</artifactId>
+              <groupId>*</groupId>
             </exclusion>
           </exclusions>
         </dependency>
@@ -131,8 +128,8 @@
           <artifactId>gs-wcs</artifactId>
           <exclusions>
             <exclusion>
-              <groupId>*</groupId>
               <artifactId>*</artifactId>
+              <groupId>*</groupId>
             </exclusion>
           </exclusions>
         </dependency>
@@ -142,8 +139,8 @@
           <artifactId>gs-gwc</artifactId>
           <exclusions>
             <exclusion>
-              <groupId>*</groupId>
               <artifactId>*</artifactId>
+              <groupId>*</groupId>
             </exclusion>
           </exclusions>
         </dependency>

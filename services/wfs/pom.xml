@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.geoserver.cloud</groupId>
@@ -8,8 +7,8 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
   <artifactId>gs-cloud-wfs</artifactId>
-  <name>wfs-service</name>
   <packaging>jar</packaging>
+  <name>wfs-service</name>
   <properties>
     <start-class>org.geoserver.cloud.wfs.WfsApplication</start-class>
   </properties>
@@ -32,7 +31,6 @@
       <artifactId>gt-shapefile</artifactId>
     </dependency>
   </dependencies>
-
   <build>
     <plugins>
       <plugin>
@@ -70,7 +68,6 @@
       </plugin>
     </plugins>
   </build>
-
   <profiles>
     <profile>
       <id>docker</id>
@@ -101,8 +98,8 @@
           <artifactId>gs-wms</artifactId>
           <exclusions>
             <exclusion>
-              <groupId>*</groupId>
               <artifactId>*</artifactId>
+              <groupId>*</groupId>
             </exclusion>
           </exclusions>
         </dependency>
@@ -112,8 +109,8 @@
           <artifactId>gs-wcs</artifactId>
           <exclusions>
             <exclusion>
-              <groupId>*</groupId>
               <artifactId>*</artifactId>
+              <groupId>*</groupId>
             </exclusion>
           </exclusions>
         </dependency>
@@ -123,8 +120,8 @@
           <artifactId>gs-wps-core</artifactId>
           <exclusions>
             <exclusion>
-              <groupId>*</groupId>
               <artifactId>*</artifactId>
+              <groupId>*</groupId>
             </exclusion>
           </exclusions>
         </dependency>
@@ -134,8 +131,8 @@
           <artifactId>gs-gwc</artifactId>
           <exclusions>
             <exclusion>
-              <groupId>*</groupId>
               <artifactId>*</artifactId>
+              <groupId>*</groupId>
             </exclusion>
           </exclusions>
         </dependency>

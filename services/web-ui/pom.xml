@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.geoserver.cloud</groupId>
@@ -8,8 +7,8 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
   <artifactId>gs-cloud-web-ui</artifactId>
-  <name>web-ui-service</name>
   <packaging>jar</packaging>
+  <name>web-ui-service</name>
   <properties>
     <start-class>org.geoserver.cloud.web.app.WebUIApplication</start-class>
     <!-- The following properties control whether all gs-wms,gs-wfs,gs-wcs,gs-wps, and gs-gwc transitive dependencies are 
@@ -76,8 +75,8 @@
       <artifactId>gs-wfs</artifactId>
       <exclusions>
         <exclusion>
-          <groupId>${wfs_excludes}</groupId>
           <artifactId>${wfs_excludes}</artifactId>
+          <groupId>${wfs_excludes}</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -87,8 +86,8 @@
       <artifactId>gs-wms</artifactId>
       <exclusions>
         <exclusion>
-          <groupId>${wms_excludes}</groupId>
           <artifactId>${wms_excludes}</artifactId>
+          <groupId>${wms_excludes}</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -98,8 +97,8 @@
       <artifactId>gs-wcs</artifactId>
       <exclusions>
         <exclusion>
-          <groupId>${wcs_excludes}</groupId>
           <artifactId>${wcs_excludes}</artifactId>
+          <groupId>${wcs_excludes}</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -109,8 +108,8 @@
       <artifactId>gs-wps-core</artifactId>
       <exclusions>
         <exclusion>
-          <groupId>${wps_excludes}</groupId>
           <artifactId>${wps_excludes}</artifactId>
+          <groupId>${wps_excludes}</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -120,8 +119,8 @@
       <artifactId>gs-gwc</artifactId>
       <exclusions>
         <exclusion>
-          <groupId>${gwc_excludes}</groupId>
           <artifactId>${gwc_excludes}</artifactId>
+          <groupId>${gwc_excludes}</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -208,7 +207,8 @@
         <activeByDefault>true</activeByDefault>
       </activation>
       <properties>
-        <wms_excludes>none</wms_excludes><!-- use none instead of empty to avoid a maven warning -->
+        <!-- use none instead of empty to avoid a maven warning -->
+        <wms_excludes>none</wms_excludes>
       </properties>
       <dependencies>
         <dependency>
@@ -223,7 +223,8 @@
         <activeByDefault>true</activeByDefault>
       </activation>
       <properties>
-        <wps_excludes>none</wps_excludes><!-- use none instead of empty to avoid a maven warning -->
+        <!-- use none instead of empty to avoid a maven warning -->
+        <wps_excludes>none</wps_excludes>
       </properties>
       <dependencies>
         <dependency>
@@ -238,7 +239,8 @@
         <activeByDefault>true</activeByDefault>
       </activation>
       <properties>
-        <wcs_excludes>none</wcs_excludes><!-- use none instead of empty to avoid a maven warning -->
+        <!-- use none instead of empty to avoid a maven warning -->
+        <wcs_excludes>none</wcs_excludes>
       </properties>
       <dependencies>
         <dependency>
@@ -265,7 +267,8 @@
         <activeByDefault>true</activeByDefault>
       </activation>
       <properties>
-        <wps_excludes>none</wps_excludes><!-- use none instead of empty to avoid a maven warning -->
+        <!-- use none instead of empty to avoid a maven warning -->
+        <wps_excludes>none</wps_excludes>
       </properties>
       <dependencies>
         <dependency>
@@ -280,7 +283,8 @@
         <activeByDefault>true</activeByDefault>
       </activation>
       <properties>
-        <gwc_excludes>none</gwc_excludes><!-- use none instead of empty to avoid a maven warning -->
+        <!-- use none instead of empty to avoid a maven warning -->
+        <gwc_excludes>none</gwc_excludes>
       </properties>
       <dependencies>
         <dependency>

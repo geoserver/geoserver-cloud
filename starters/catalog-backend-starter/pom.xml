@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.geoserver.cloud</groupId>
@@ -8,8 +7,8 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
   <artifactId>gs-cloud-catalog-backend-starter</artifactId>
-  <description>Catalog backends starter</description>
   <packaging>jar</packaging>
+  <description>Catalog backends starter</description>
   <dependencies>
     <dependency>
       <groupId>org.geoserver</groupId>
@@ -21,8 +20,8 @@
       <artifactId>gs-wms</artifactId>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -32,8 +31,8 @@
       <artifactId>gs-wfs</artifactId>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -43,8 +42,8 @@
       <artifactId>gs-wcs</artifactId>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -54,8 +53,8 @@
       <artifactId>gs-wps-core</artifactId>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -65,8 +64,8 @@
       <artifactId>gt-process</artifactId>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -76,8 +75,8 @@
       <artifactId>gt-process-geometry</artifactId>
       <exclusions>
         <exclusion>
-          <groupId>*</groupId>
           <artifactId>*</artifactId>
+          <groupId>*</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -120,7 +119,6 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
   <profiles>
     <profile>
       <id>jdbcconfigDependencies</id>
@@ -142,20 +140,20 @@
           <artifactId>gs-jdbcconfig</artifactId>
           <exclusions>
             <exclusion>
-              <groupId>org.slf4j</groupId>
               <artifactId>slf4j-log4j12</artifactId>
+              <groupId>org.slf4j</groupId>
             </exclusion>
             <exclusion>
-              <groupId>org.geoserver.web</groupId>
               <artifactId>gs-web-core</artifactId>
+              <groupId>org.geoserver.web</groupId>
             </exclusion>
             <exclusion>
-              <groupId>com.ning</groupId>
               <artifactId>compress-lzf</artifactId>
+              <groupId>com.ning</groupId>
             </exclusion>
             <exclusion>
-              <groupId>commons-dbcp</groupId>
               <artifactId>commons-dbcp</artifactId>
+              <groupId>commons-dbcp</groupId>
             </exclusion>
           </exclusions>
         </dependency>

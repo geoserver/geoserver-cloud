@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.geoserver.cloud</groupId>
@@ -8,9 +7,8 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
   <artifactId>gs-jackson-bindings</artifactId>
-  <description>GeoServer Catalog/Config Jackson databind bindings</description>
   <packaging>jar</packaging>
-
+  <description>GeoServer Catalog/Config Jackson databind bindings</description>
   <dependencies>
     <dependency>
       <groupId>org.geoserver.cloud</groupId>
@@ -32,7 +30,6 @@
       <groupId>org.mapstruct</groupId>
       <artifactId>mapstruct</artifactId>
     </dependency>
-
     <dependency>
       <!-- contains CatalogTestData support class -->
       <groupId>org.geoserver.cloud</groupId>
@@ -49,7 +46,6 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
   <build>
     <plugins>
       <plugin>
@@ -90,7 +86,6 @@
       </plugin>
     </plugins>
   </build>
-  
   <profiles>
     <profile>
       <!-- measure to include dependencies not really needed for this service but whose absence make the catalog fail with 
@@ -107,8 +102,8 @@
           <artifactId>gs-wfs</artifactId>
           <exclusions>
             <exclusion>
-              <groupId>*</groupId>
               <artifactId>*</artifactId>
+              <groupId>*</groupId>
             </exclusion>
           </exclusions>
         </dependency>
@@ -118,8 +113,8 @@
           <artifactId>gs-wms</artifactId>
           <exclusions>
             <exclusion>
-              <groupId>*</groupId>
               <artifactId>*</artifactId>
+              <groupId>*</groupId>
             </exclusion>
           </exclusions>
         </dependency>
@@ -129,8 +124,8 @@
           <artifactId>gs-wcs</artifactId>
           <exclusions>
             <exclusion>
-              <groupId>*</groupId>
               <artifactId>*</artifactId>
+              <groupId>*</groupId>
             </exclusion>
           </exclusions>
         </dependency>
@@ -140,8 +135,8 @@
           <artifactId>gs-wps-core</artifactId>
           <exclusions>
             <exclusion>
-              <groupId>*</groupId>
               <artifactId>*</artifactId>
+              <groupId>*</groupId>
             </exclusion>
           </exclusions>
         </dependency>
@@ -151,8 +146,8 @@
           <artifactId>gs-gwc</artifactId>
           <exclusions>
             <exclusion>
-              <groupId>*</groupId>
               <artifactId>*</artifactId>
+              <groupId>*</groupId>
             </exclusion>
           </exclusions>
         </dependency>

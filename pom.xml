@@ -1,12 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.geoserver.cloud</groupId>
   <artifactId>gs-cloud-parent</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
-
+  <modules>
+    <module>docker-base-java</module>
+    <module>support-services</module>
+    <module>catalog-support</module>
+    <module>starters</module>
+    <module>services</module>
+    <module>integration-tests</module>
+  </modules>
   <properties>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
@@ -21,63 +27,9 @@
     <fmt.skip>false</fmt.skip>
     <fork.javac>true</fork.javac>
     <javac.maxHeapSize>256M</javac.maxHeapSize>
-
     <docker.image.prefix>cloudnativegeoserver</docker.image.prefix>
     <dockerfile.build.pullNewerImage>false</dockerfile.build.pullNewerImage>
   </properties>
-
-  <repositories>
-    <repository>
-      <id>spring-repo</id>
-      <name>Spring Repository</name>
-      <url>https://repo.spring.io/release</url>
-    </repository>
-    <repository>
-      <id>spring-milestone</id>
-      <name>Spring Milestone Repository</name>
-      <url>https://repo.spring.io/milestone</url>
-    </repository>
-    <repository>
-      <id>osgeo-releases</id>
-      <name>OSGeo Nexus Release Repository</name>
-      <url>https://repo.osgeo.org/repository/release/</url>
-      <!-- contains release (including third-party-dependences) -->
-      <!-- Restlet maven Repository (http://maven.restlet.org) -->
-      <!-- ucar (https://artifacts.unidata.ucar.edu/content/repositories/unidata-releases) -->
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-    </repository>
-
-    <repository>
-      <id>osgeo-snapshots</id>
-      <name>OSGeo Nexus Snapshot Repository</name>
-      <url>https://repo.osgeo.org/repository/snapshot/</url>
-      <!-- contains snapshots -->
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-    </repository>
-
-    <repository>
-      <id>geosolutions</id>
-      <name>geosolutions repository</name>
-      <url>https://maven.geo-solutions.it/</url>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-    </repository>
-  </repositories>
-
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -187,8 +139,8 @@
         <artifactId>spring-cloud-starter-netflix-archaius</artifactId>
         <exclusions>
           <exclusion>
-            <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-netflix-ribbon</artifactId>
+            <groupId>org.springframework.cloud</groupId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -204,34 +156,34 @@
         <version>${gs.version}</version>
         <exclusions>
           <exclusion>
+            <artifactId>javaee-api</artifactId>
             <!-- exclusion only needed if building with geoserver 2.1.7.x, 2.18.x already removed this dependency -->
             <groupId>javax</groupId>
-            <artifactId>javaee-api</artifactId>
           </exclusion>
           <exclusion>
-            <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
+            <groupId>org.springframework</groupId>
           </exclusion>
           <exclusion>
-            <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
+            <groupId>log4j</groupId>
           </exclusion>
           <!-- exclude data formats, let them be managed by the ones explicitly imported by each service -->
           <exclusion>
-            <groupId>org.geotools</groupId>
             <artifactId>gt-property</artifactId>
+            <groupId>org.geotools</groupId>
           </exclusion>
           <exclusion>
-            <groupId>org.geotools</groupId>
             <artifactId>gt-arcgrid</artifactId>
+            <groupId>org.geotools</groupId>
           </exclusion>
           <exclusion>
-            <groupId>org.geotools</groupId>
             <artifactId>gt-imagemosaic</artifactId>
+            <groupId>org.geotools</groupId>
           </exclusion>
           <exclusion>
-            <groupId>org.geotools</groupId>
             <artifactId>gt-geotiff</artifactId>
+            <groupId>org.geotools</groupId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -242,12 +194,12 @@
         <!-- exclude data formats, let them be managed by the ones explicitly imported by this module -->
         <exclusions>
           <exclusion>
-            <groupId>org.geotools</groupId>
             <artifactId>gt-geotiff</artifactId>
+            <groupId>org.geotools</groupId>
           </exclusion>
           <exclusion>
-            <groupId>org.geotools</groupId>
             <artifactId>gt-geojson</artifactId>
+            <groupId>org.geotools</groupId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -258,8 +210,8 @@
         <exclusions>
           <!-- exclude data formats, let them be managed by the ones explicitly imported by each service -->
           <exclusion>
-            <groupId>org.geotools</groupId>
             <artifactId>gt-shapefile</artifactId>
+            <groupId>org.geotools</groupId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -269,26 +221,26 @@
         <version>${gs.version}</version>
         <exclusions>
           <exclusion>
+            <artifactId>javaee-api</artifactId>
             <!-- exclusion only needed if building with geoserver 2.1.7.x, 2.18.x already removed this dependency -->
             <groupId>javax</groupId>
-            <artifactId>javaee-api</artifactId>
           </exclusion>
           <!-- exclude data formats, let them be managed by the ones explicitly imported by this module -->
           <exclusion>
-            <groupId>org.geotools</groupId>
             <artifactId>gt-geotiff</artifactId>
+            <groupId>org.geotools</groupId>
           </exclusion>
           <exclusion>
-            <groupId>org.geotools</groupId>
             <artifactId>gt-arcgrid</artifactId>
+            <groupId>org.geotools</groupId>
           </exclusion>
           <exclusion>
-            <groupId>org.geotools</groupId>
             <artifactId>gt-imagemosaic</artifactId>
+            <groupId>org.geotools</groupId>
           </exclusion>
           <exclusion>
-            <groupId>org.geotools</groupId>
             <artifactId>gt-image</artifactId>
+            <groupId>org.geotools</groupId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -298,9 +250,9 @@
         <version>${gs.version}</version>
         <exclusions>
           <exclusion>
+            <artifactId>javaee-api</artifactId>
             <!-- exclusion only needed if building with geoserver 2.1.7.x, 2.18.x already removed this dependency -->
             <groupId>javax</groupId>
-            <artifactId>javaee-api</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -310,9 +262,9 @@
         <version>${gs.version}</version>
         <exclusions>
           <exclusion>
+            <artifactId>javaee-api</artifactId>
             <!-- exclusion only needed if building with geoserver 2.1.7.x, 2.18.x already removed this dependency -->
             <groupId>javax</groupId>
-            <artifactId>javaee-api</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -322,9 +274,9 @@
         <version>${gs.version}</version>
         <exclusions>
           <exclusion>
+            <artifactId>javaee-api</artifactId>
             <!-- exclusion only needed if building with geoserver 2.1.7.x, 2.18.x already removed this dependency -->
             <groupId>javax</groupId>
-            <artifactId>javaee-api</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -334,26 +286,26 @@
         <version>${gs.version}</version>
         <exclusions>
           <exclusion>
+            <artifactId>javaee-api</artifactId>
             <!-- exclusion only needed if building with geoserver 2.1.7.x, 2.18.x already removed this dependency -->
             <groupId>javax</groupId>
-            <artifactId>javaee-api</artifactId>
           </exclusion>
           <!-- exclude data formats, let them be managed by the ones explicitly imported by this module -->
           <exclusion>
-            <groupId>org.geotools</groupId>
             <artifactId>gt-geotiff</artifactId>
+            <groupId>org.geotools</groupId>
           </exclusion>
           <exclusion>
-            <groupId>org.geotools</groupId>
             <artifactId>gt-arcgrid</artifactId>
+            <groupId>org.geotools</groupId>
           </exclusion>
           <exclusion>
-            <groupId>org.geotools</groupId>
             <artifactId>gt-csv</artifactId>
+            <groupId>org.geotools</groupId>
           </exclusion>
           <exclusion>
-            <groupId>org.geotools</groupId>
             <artifactId>gt-geojson</artifactId>
+            <groupId>org.geotools</groupId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -363,37 +315,37 @@
         <version>${gs.version}</version>
         <exclusions>
           <exclusion>
-            <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
+            <groupId>org.slf4j</groupId>
           </exclusion>
           <!-- exclude data formats, let them be managed by the ones explicitly imported by this module -->
           <exclusion>
-            <groupId>org.geotools</groupId>
             <artifactId>gt-shapefile</artifactId>
+            <groupId>org.geotools</groupId>
           </exclusion>
           <exclusion>
-            <groupId>org.geotools.jdbc</groupId>
             <artifactId>gt-jdbc-postgis</artifactId>
+            <groupId>org.geotools.jdbc</groupId>
           </exclusion>
           <exclusion>
-            <groupId>org.geotools</groupId>
             <artifactId>gt-wfs-ng</artifactId>
+            <groupId>org.geotools</groupId>
           </exclusion>
           <exclusion>
-            <groupId>org.geotools</groupId>
             <artifactId>gt-arcgrid</artifactId>
+            <groupId>org.geotools</groupId>
           </exclusion>
           <exclusion>
-            <groupId>org.geotools</groupId>
             <artifactId>gt-geotiff</artifactId>
+            <groupId>org.geotools</groupId>
           </exclusion>
           <exclusion>
-            <groupId>org.geotools</groupId>
             <artifactId>gt-image</artifactId>
+            <groupId>org.geotools</groupId>
           </exclusion>
           <exclusion>
-            <groupId>org.geotools</groupId>
             <artifactId>gt-geopkg</artifactId>
+            <groupId>org.geotools</groupId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -413,9 +365,9 @@
         <version>${gs.version}</version>
         <exclusions>
           <exclusion>
+            <artifactId>javaee-api</artifactId>
             <!-- exclusion only needed if building with geoserver 2.1.7.x, 2.18.x already removed this dependency -->
             <groupId>javax</groupId>
-            <artifactId>javaee-api</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -455,12 +407,12 @@
         <version>${gs.version}</version>
         <exclusions>
           <exclusion>
-            <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
+            <groupId>org.springframework</groupId>
           </exclusion>
           <exclusion>
-            <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
+            <groupId>log4j</groupId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -470,12 +422,12 @@
         <version>${gs.version}</version>
         <exclusions>
           <exclusion>
-            <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
+            <groupId>org.springframework</groupId>
           </exclusion>
           <exclusion>
-            <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
+            <groupId>log4j</groupId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -511,24 +463,24 @@
         <!-- exclude data formats, let them be managed by the ones explicitly imported by the service that uses it -->
         <exclusions>
           <exclusion>
-            <groupId>org.geotools</groupId>
             <artifactId>gt-csv</artifactId>
-          </exclusion>
-          <exclusion>
             <groupId>org.geotools</groupId>
+          </exclusion>
+          <exclusion>
             <artifactId>gt-shapefile</artifactId>
+            <groupId>org.geotools</groupId>
           </exclusion>
           <exclusion>
-            <groupId>org.geotools.jdbc</groupId>
             <artifactId>gt-jdbc-h2</artifactId>
+            <groupId>org.geotools.jdbc</groupId>
           </exclusion>
           <exclusion>
-            <groupId>org.geotools.jdbc</groupId>
             <artifactId>gt-jdbc-oracle</artifactId>
+            <groupId>org.geotools.jdbc</groupId>
           </exclusion>
           <exclusion>
-            <groupId>org.geotools.jdbc</groupId>
             <artifactId>gt-jdbc-sqlserver</artifactId>
+            <groupId>org.geotools.jdbc</groupId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -626,9 +578,79 @@
       <scope>provided</scope>
     </dependency>
   </dependencies>
+  <repositories>
+    <repository>
+      <id>spring-repo</id>
+      <name>Spring Repository</name>
+      <url>https://repo.spring.io/release</url>
+    </repository>
+    <repository>
+      <id>spring-milestone</id>
+      <name>Spring Milestone Repository</name>
+      <url>https://repo.spring.io/milestone</url>
+    </repository>
+    <repository>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <!-- contains release (including third-party-dependences) -->
+      <!-- Restlet maven Repository (http://maven.restlet.org) -->
+      <!-- ucar (https://artifacts.unidata.ucar.edu/content/repositories/unidata-releases) -->
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>osgeo-releases</id>
+      <name>OSGeo Nexus Release Repository</name>
+      <url>https://repo.osgeo.org/repository/release/</url>
+    </repository>
+    <repository>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <!-- contains snapshots -->
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <id>osgeo-snapshots</id>
+      <name>OSGeo Nexus Snapshot Repository</name>
+      <url>https://repo.osgeo.org/repository/snapshot/</url>
+    </repository>
+    <repository>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <id>geosolutions</id>
+      <name>geosolutions repository</name>
+      <url>https://maven.geo-solutions.it/</url>
+    </repository>
+  </repositories>
   <build>
     <pluginManagement>
       <plugins>
+        <plugin>
+          <groupId>com.github.ekryd.sortpom</groupId>
+          <artifactId>sortpom-maven-plugin</artifactId>
+          <version>2.13.1</version>
+          <executions>
+            <execution>
+              <id>sort</id>
+              <phase>validate</phase>
+              <goals>
+                <goal>sort</goal>
+              </goals>
+            </execution>
+          </executions>
+          <inherited>true</inherited>
+          <configuration>
+            <encoding>UTF-8</encoding>
+            <createBackupFile>false</createBackupFile>
+            <lineSeparator>\n</lineSeparator>
+            <nrOfIndentSpace>2</nrOfIndentSpace>
+          </configuration>
+        </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
@@ -652,7 +674,6 @@
           <groupId>com.spotify</groupId>
           <artifactId>dockerfile-maven-plugin</artifactId>
           <version>1.4.13</version>
-          <inherited>true</inherited>
           <executions>
             <execution>
               <id>default</id>
@@ -662,6 +683,7 @@
               </goals>
             </execution>
           </executions>
+          <inherited>true</inherited>
           <configuration>
             <repository>${docker.image.prefix}/${project.artifactId}</repository>
             <tag>${project.version}</tag>
@@ -675,7 +697,6 @@
           <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-maven-plugin</artifactId>
           <version>${spring-boot.version}</version>
-          <inherited>true</inherited>
           <executions>
             <execution>
               <goals>
@@ -683,6 +704,7 @@
               </goals>
             </execution>
           </executions>
+          <inherited>true</inherited>
           <configuration>
             <attach>false</attach>
             <classifier>bin</classifier>
@@ -692,13 +714,6 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-failsafe-plugin</artifactId>
           <version>3.0.0-M5</version>
-          <dependencies>
-            <dependency>
-              <groupId>org.apache.maven.surefire</groupId>
-              <artifactId>surefire-junit47</artifactId>
-              <version>3.0.0-M5</version>
-            </dependency>
-          </dependencies>
           <executions>
             <execution>
               <goals>
@@ -707,6 +722,13 @@
               </goals>
             </execution>
           </executions>
+          <dependencies>
+            <dependency>
+              <groupId>org.apache.maven.surefire</groupId>
+              <artifactId>surefire-junit47</artifactId>
+              <version>3.0.0-M5</version>
+            </dependency>
+          </dependencies>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -721,6 +743,10 @@
       </plugins>
     </pluginManagement>
     <plugins>
+      <plugin>
+        <groupId>com.github.ekryd.sortpom</groupId>
+        <artifactId>sortpom-maven-plugin</artifactId>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
@@ -747,12 +773,6 @@
       <plugin>
         <groupId>com.coveo</groupId>
         <artifactId>fmt-maven-plugin</artifactId>
-        <configuration>
-          <verbose>false</verbose>
-          <filesNamePattern>.*\.java</filesNamePattern>
-          <skip>${fmt.skip}</skip>
-          <style>aosp</style>
-        </configuration>
         <executions>
           <execution>
             <goals>
@@ -760,6 +780,12 @@
             </goals>
           </execution>
         </executions>
+        <configuration>
+          <verbose>false</verbose>
+          <filesNamePattern>.*\.java</filesNamePattern>
+          <skip>${fmt.skip}</skip>
+          <style>aosp</style>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -778,14 +804,6 @@
       </plugin>
     </plugins>
   </build>
-  <modules>
-    <module>docker-base-java</module>
-    <module>support-services</module>
-    <module>catalog-support</module>
-    <module>starters</module>
-    <module>services</module>
-    <module>integration-tests</module>
-  </modules>
   <profiles>
     <profile>
       <id>geoserver_stable_version</id>
