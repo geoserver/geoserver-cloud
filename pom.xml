@@ -13,8 +13,8 @@
     <spring-cloud.version>Hoxton.SR8</spring-cloud.version>
     <spring-boot.version>2.3.3.RELEASE</spring-boot.version>
     <feign-reactor.version>2.0.26</feign-reactor.version>
-    <gs.version>2.19-SNAPSHOT</gs.version>
-    <gt.version>25-SNAPSHOT</gt.version>
+    <gs.version>2.20-SNAPSHOT</gs.version>
+    <gt.version>26-SNAPSHOT</gt.version>
     <lombok.version>1.18.12</lombok.version>
     <mapstruct.version>1.4.0.CR1</mapstruct.version>
     <fmt.action>format</fmt.action>
@@ -490,7 +490,7 @@
         <version>${gs.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.geoserver.community</groupId>
+        <groupId>org.geoserver.extension</groupId>
         <artifactId>gs-gwc-s3</artifactId>
         <version>${gs.version}</version>
       </dependency>

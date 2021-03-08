@@ -288,7 +288,7 @@
           <artifactId>gs-web-gwc</artifactId>
         </dependency>
         <dependency>
-          <groupId>org.geoserver.community</groupId>
+          <groupId>org.geoserver.extension</groupId>
           <artifactId>gs-gwc-s3</artifactId>
         </dependency>
         <dependency>
