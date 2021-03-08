@@ -27,3 +27,7 @@ target
 ### artifact created by test runs, under src/main/webapp on some projects
 ### TODO: get rid of them instead by fixing the tests to use in-memory or tmp folder catalogs
 webapp
+
+# https://bugs.openjdk.java.net/browse/JDK-8214300
+.attach_pid*
+
