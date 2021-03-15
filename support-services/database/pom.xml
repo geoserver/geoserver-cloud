@@ -9,6 +9,9 @@
   <artifactId>gs-cloud-database</artifactId>
   <packaging>pom</packaging>
   <name>Database service</name>
+  <properties>
+    <docker.image.name>jdbcconfig-database</docker.image.name>
+  </properties>
   <profiles>
     <profile>
       <id>docker</id>

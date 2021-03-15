@@ -2,7 +2,7 @@
 
 Spring Boot/Cloud microservice that exposes GeoSever [REST API](https://docs.geoserver.org/stable/en/user/rest/).
 
-**Docker image**: `cloudnativegeoserver/gs-cloud-restconfig-v1`. 
+**Docker image**: `geoservercloud/gs-cloud-restconfig-v1`. 
 
 **Service name**: `restconfig-v1`. 
 

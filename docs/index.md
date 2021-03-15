@@ -86,7 +86,7 @@ $ mkdir gscloud && cd gscloud
 $ wget "https://geoserver.github.io/geoserver-cloud/deploy/docker-compose/stable/docker-compose.yml"
 ```
 
-Open a terminal and enter the directory where you just downloaded that file, and run `docker-compose pull` to fetch the docker images from [Dockerhub](https://hub.docker.com/u/cloudnativegeoserver/):
+Open a terminal and enter the directory where you just downloaded that file, and run `docker-compose pull` to fetch the docker images from [Dockerhub](https://hub.docker.com/u/geoservercloud/):
 
 
 ```bash

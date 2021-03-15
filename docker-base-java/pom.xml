@@ -10,6 +10,9 @@
   <artifactId>gs-cloud-docker-base-java</artifactId>
   <packaging>pom</packaging>
   <name>Docker base image for Spring Boot apps</name>
+  <properties>
+    <docker.image.name>docker-base-java</docker.image.name>
+  </properties>
   <profiles>
     <profile>
       <id>docker</id>

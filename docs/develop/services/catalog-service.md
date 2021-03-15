@@ -4,7 +4,7 @@ Spring Webflux reactive microservice that exposes the GeoServer *catalog*, *glob
 objects through a RESTful API to other microservices, in order to abstract out the microservices that require access
 to the catalog from the actual catalog backend and implementation.
 
-**Docker image**: `cloudnativegeoserver/gs-cloud-catalog`. 
+**Docker image**: `geoservercloud/gs-cloud-catalog`. 
 
 **Service name**: `catalog-service`. 
 

@@ -27,7 +27,9 @@
     <fmt.skip>false</fmt.skip>
     <fork.javac>true</fork.javac>
     <javac.maxHeapSize>256M</javac.maxHeapSize>
-    <docker.image.prefix>cloudnativegeoserver</docker.image.prefix>
+    <docker.image.prefix>geoservercloud</docker.image.prefix>
+    <docker.image.name>${project.artifactId}</docker.image.name>
+    <docker.repository>${docker.image.prefix}/${docker.image.name}</docker.repository>
     <dockerfile.build.pullNewerImage>false</dockerfile.build.pullNewerImage>
   </properties>
   <dependencyManagement>
@@ -685,7 +687,7 @@
           </executions>
           <inherited>true</inherited>
           <configuration>
-            <repository>${docker.image.prefix}/${project.artifactId}</repository>
+            <repository>${docker.repository}</repository>
             <tag>${project.version}</tag>
             <buildArgs>
               <TAG>${project.version}</TAG>

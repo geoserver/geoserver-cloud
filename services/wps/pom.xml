@@ -10,6 +10,7 @@
   <packaging>jar</packaging>
   <name>wps-service</name>
   <properties>
+    <docker.image.name>wps-service</docker.image.name>
     <start-class>org.geoserver.cloud.wps.WpsApplication</start-class>
   </properties>
   <dependencies>

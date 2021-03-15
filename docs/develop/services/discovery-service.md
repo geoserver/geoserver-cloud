@@ -11,7 +11,7 @@ The most common scenario is when for High Availability or performance reasons, t
 hence incoming requests passing through the [Gateway Service](gateway-service.yml) get served by a different instance in a round-robin
 fashion.
 
-**Docker image**: `cloudnativegeoserver/gs-cloud-discovery-service`. 
+**Docker image**: `geoservercloud/gs-cloud-discovery-service`. 
 
 **Service name**: `discovery-service`. 
 
