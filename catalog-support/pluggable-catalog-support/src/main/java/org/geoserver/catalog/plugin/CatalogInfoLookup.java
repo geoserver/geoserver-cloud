@@ -378,7 +378,7 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
 
     /** Looks up a CatalogInfo by class and identifier */
     public @Override <U extends T> Optional<U> findById(String id, Class<U> clazz) {
-        requireNonNull(id);
+        requireNonNull(id, () -> "id is null, class: " + clazz);
         requireNonNull(clazz);
         for (Class<? extends T> key : idMultiMap.keySet()) {
             if (clazz.isAssignableFrom(key)) {

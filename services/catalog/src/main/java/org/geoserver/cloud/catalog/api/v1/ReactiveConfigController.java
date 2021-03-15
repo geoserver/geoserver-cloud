@@ -53,6 +53,12 @@ public class ReactiveConfigController {
         return config.setGlobal(global);
     }
 
+    /** The settings configuration by its id, or <code>null</code> if not exists. */
+    @GetMapping("/workspaces/settings/{id}")
+    public Mono<SettingsInfo> getSettingsById(@PathVariable("id") String id) {
+        return config.getSettingsById(id);
+    }
+
     /**
      * The settings configuration for the specified workspace, or <code>null</code> if non exists.
      */

@@ -1,5 +1,5 @@
 geoserver:
-  backend.catalog-service.enabled: true
+  backend.catalog-service.enabled: ${backend.catalog:true}
   web-ui:
     # Theese are all default values, here just for reference. You can omit them and add only the ones to disable or further configure
     security.enabled: true

@@ -2,26 +2,27 @@ server:
   compression:
     enabled: true
 # Configure routes to services. See https://cloud.spring.io/spring-cloud-gateway/single/spring-cloud-gateway.html
+
 management:
-  endpoint:
-    gateway:
-      enabled: true # default value
-    info:
-      enabled: true
-    health:
-      enabled: true
+  endpoint.gateway.enabled: true # default value
   endpoints:
-    web:
-      exposure:
-        include: gateway, info, health
+    enabled-by-default: true
+    web.exposure.include: "*"
+    #web.exposure.include: gateway, info, health
+    
 spring:
   cloud:
-#    loadbalancer.ribbon.enabled: false # ribbon is in maintenance mode and should be replaced by spring-cloud-loadbalancer
     gateway:
       actuator:
         verbose:
           enabled: true
       routes:
+      - id: catalog
+        uri: lb://catalog-service
+        predicates:
+        - Path=/api/v1/**
+        filters: # Expose the catalog and configuration API only if the dev profile is active
+        - RouteProfile=dev,403
 # WFS routes
       - id: wfs # proxies requests to gateway-service:/wfs to wfs-service:/wfs
         uri: lb://wfs-service #load balanced to the wfs-service instances
@@ -79,3 +80,4 @@ logging:
     root: WARN
     com.netflix.discovery: WARN
     com.netflix.eureka: WARN
+

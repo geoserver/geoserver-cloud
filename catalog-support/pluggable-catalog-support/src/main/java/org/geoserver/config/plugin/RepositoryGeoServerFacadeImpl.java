@@ -317,4 +317,9 @@ public class RepositoryGeoServerFacadeImpl implements RepositoryGeoServerFacade 
         }
         return settings;
     }
+
+    @Override
+    public SettingsInfo getSettings(String id) {
+        return repository.getSettingsById(id).orElse(null);
+    }
 }

@@ -45,6 +45,8 @@ public interface ConfigRepository {
      */
     Optional<SettingsInfo> getSettingsByWorkspace(WorkspaceInfo workspace);
 
+    Optional<SettingsInfo> getSettingsById(String id);
+
     /** Adds a settings configuration for the specified workspace. */
     void add(SettingsInfo settings);
 

@@ -89,6 +89,10 @@ class XmlSerializedConfigRepository implements ConfigRepository {
         this.global = serialize(global);
     }
 
+    public @Override Optional<SettingsInfo> getSettingsById(String id) {
+        return Optional.ofNullable(toSettings(settings.get(id)));
+    }
+
     public @Override Optional<SettingsInfo> getSettingsByWorkspace(WorkspaceInfo workspace) {
         return settings.values()
                 .stream()

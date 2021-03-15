@@ -14,17 +14,15 @@ geoserver:
       # Number of back-end threads to hit the actual catalog with. Defaults 4 * number of cores if unset.
       # If using jdbcconfig, let io-threads be about half the size of geoserver.backend.jdbcconfig.datasource.maximumPoolSize, 
       # it has the tendency to use more than one jdbc connection for some requests.
-      max-size: 16
+      max-size: ${catalog.io.threads:8}
       # maximum number of queued requests per worker thread before rejecting new requests 
-      max-queued: 10000
+      max-queued: ${catalog.io.maxQueued:10000}
   bus:
     # receive events but don't publish, it's the front catalogs that publish events to better track where the changes come from
     send-events: false
   backend:
-    # decide which catalog backend to use on this service.
-    jdbcconfig.enabled: true
-    jdbcconfig.datasource.minimumIdle: 2
-    jdbcconfig.datasource.maximumPoolSize: 32
+    # decide which catalog backend to use on this service, default to using jdbcconfig
+    jdbcconfig.enabled: ${backend.jdbcconfig:true}
 
 #spring:
 #  error.includeStacktrace: on_trace_param

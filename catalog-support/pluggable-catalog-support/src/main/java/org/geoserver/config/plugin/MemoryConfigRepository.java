@@ -47,6 +47,10 @@ public class MemoryConfigRepository implements ConfigRepository {
         this.global = global;
     }
 
+    public @Override Optional<SettingsInfo> getSettingsById(String id) {
+        return Optional.ofNullable(settings.get(id));
+    }
+
     public @Override Optional<SettingsInfo> getSettingsByWorkspace(WorkspaceInfo workspace) {
         requireNonNull(workspace);
         requireNonNull(workspace.getId());

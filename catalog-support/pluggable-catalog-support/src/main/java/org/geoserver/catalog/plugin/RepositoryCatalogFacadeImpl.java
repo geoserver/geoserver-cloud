@@ -318,7 +318,8 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
     }
 
     public @Override void remove(NamespaceInfo namespace) {
-        if (namespace.equals(getDefaultNamespace())) {
+        NamespaceInfo defaultNamespace = getDefaultNamespace();
+        if (defaultNamespace != null && namespace.getId().equals(defaultNamespace.getId())) {
             setDefaultNamespace(null);
         }
         namespaces.remove(namespace);
@@ -362,7 +363,8 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
     }
 
     public @Override void remove(WorkspaceInfo workspace) {
-        if (workspace.equals(getDefaultWorkspace())) {
+        WorkspaceInfo defaultWorkspace = getDefaultWorkspace();
+        if (defaultWorkspace != null && workspace.getId().equals(defaultWorkspace.getId())) {
             workspaces.unsetDefaultWorkspace();
         }
         workspaces.remove(workspace);

@@ -36,8 +36,12 @@ public interface ReactiveConfigClient {
     @PutMapping("/global")
     Mono<Void> setGlobal(@RequestBody GeoServerInfo global);
 
+    /** The settings configuration by its id, or <code>null</code> if not exists. */
+    @GetMapping("/workspaces/settings/{id}")
+    Mono<SettingsInfo> getSettingsById(@PathVariable("id") String id);
+
     /**
-     * The settings configuration for the specified workspace, or <code>null</code> if non exists.
+     * The settings configuration for the specified workspace, or <code>null</code> if not exists.
      */
     @GetMapping("/workspaces/{workspaceId}/settings")
     Mono<SettingsInfo> getSettingsByWorkspace(@PathVariable("workspaceId") String workspaceId);

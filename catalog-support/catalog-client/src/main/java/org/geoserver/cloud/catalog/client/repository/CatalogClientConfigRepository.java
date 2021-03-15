@@ -56,6 +56,10 @@ public class CatalogClientConfigRepository implements ConfigRepository {
         blockAndReturn(client.setGlobal(global));
     }
 
+    public @Override Optional<SettingsInfo> getSettingsById(String id) {
+        return blockAndReturn(client.getSettingsById(id));
+    }
+
     public @Override Optional<SettingsInfo> getSettingsByWorkspace(WorkspaceInfo workspace) {
         return blockAndReturn(client.getSettingsByWorkspace(workspace.getId()));
     }
