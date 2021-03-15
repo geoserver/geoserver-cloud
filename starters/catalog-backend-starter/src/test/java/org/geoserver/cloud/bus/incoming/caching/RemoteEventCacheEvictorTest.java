@@ -186,8 +186,8 @@ public class RemoteEventCacheEvictorTest {
         assertNull(
                 "expected key evicted after setting null default datastore", catalogCache.get(key));
 
-        catalog.getDefaultDataStore(data.workspaceA);
-        assertNotNull(catalogCache.get(key));
+        assertNull(catalog.getDefaultDataStore(data.workspaceA));
+        assertNull(catalogCache.get(key));
 
         publish(
                 RemoteDefaultDataStoreEvent.class,
@@ -197,6 +197,8 @@ public class RemoteEventCacheEvictorTest {
                 originService,
                 destinationService);
         assertNull(catalogCache.get(key));
+        assertNotNull(catalog.getDefaultDataStore(data.workspaceA));
+        assertNotNull(catalogCache.get(key));
     }
 
     public @Test void testCatalogInfoEvictingEvents() {

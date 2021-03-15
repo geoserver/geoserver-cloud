@@ -36,11 +36,7 @@ public abstract class RemoteModifyEvent<S, I extends Info> extends RemoteInfoEve
             String destinationService) {
         super(source, objectId, type, originService, destinationService);
         this.patch = patch;
-        this.changedProperties =
-                patch.getPatches()
-                        .stream()
-                        .map(Patch.Property::getName)
-                        .collect(Collectors.toList());
+        this.changedProperties = patch.getPropertyNames();
     }
 
     public @Override String toString() {

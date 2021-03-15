@@ -1,0 +1,72 @@
+version: "3.8"
+
+#
+# Configures all geoserver services to use a shared data directory as catalog backend.
+# Run with `docker-compose --compatibility -f docker-compose.yml -f docker-compose-shared_datadir.yml up -d`
+# NOTE: Not ready for direct usage until deciding on a strategy to easily set up the shared data directory.
+#
+
+volumes:
+  shared_data_directory:
+    driver_opts:
+      type: none
+      o: bind
+      device: $PWD/docker-compose_datadir
+  
+services:
+  database:
+    entrypoint: echo "database-service disabled."
+
+  catalog:
+    environment:
+      BACKEND_JDBCCONFIG: "false"
+      BACKEND_DATA_DIRECTORY: "true"
+      GEOSERVER_DATA_DIR: /tmp/data_directory
+    volumes:
+      - shared_data_directory:/tmp/data_directory
+    command: echo "catalog-service disabled."
+
+  wfs:
+    environment:
+      BACKEND_CATALOG: "false"
+      BACKEND_DATA_DIRECTORY: "true"
+      GEOSERVER_DATA_DIR: /tmp/data_directory
+    volumes:
+      - shared_data_directory:/tmp/data_directory
+    command: sh -c "exec dockerize --timeout 120s -wait http://config:8080/wfs-service/default java $$JAVA_OPTS -jar /opt/app/wfs-service.jar"
+
+  wms:
+    environment:
+      BACKEND_CATALOG: "false"
+      BACKEND_DATA_DIRECTORY: "true"
+      GEOSERVER_DATA_DIR: /tmp/data_directory
+    volumes:
+      - shared_data_directory:/tmp/data_directory
+    command: sh -c "exec dockerize --timeout 120s -wait http://config:8080/wms-service/default java $$JAVA_OPTS -jar /opt/app/wms-service.jar"
+
+  wcs:
+    environment:
+      BACKEND_CATALOG: "false"
+      BACKEND_DATA_DIRECTORY: "true"
+      GEOSERVER_DATA_DIR: /tmp/data_directory
+    volumes:
+      - shared_data_directory:/tmp/data_directory
+    command: sh -c "exec dockerize --timeout 120s -wait http://config:8080/wcs-service/default java $$JAVA_OPTS -jar /opt/app/wcs-service.jar"
+
+  rest:
+    environment:
+      BACKEND_CATALOG: "false"
+      BACKEND_DATA_DIRECTORY: "true"
+      GEOSERVER_DATA_DIR: /tmp/data_directory
+    volumes:
+      - shared_data_directory:/tmp/data_directory
+    command: sh -c "exec dockerize --timeout 120s -wait http://config:8080/restconfig-v1/default java $$JAVA_OPTS -jar /opt/app/restconfig-service.jar"
+
+  webui:
+    environment:
+      BACKEND_CATALOG: "false"
+      BACKEND_DATA_DIRECTORY: "true"
+      GEOSERVER_DATA_DIR: /tmp/data_directory
+    volumes:
+      - shared_data_directory:/tmp/data_directory
+    command: sh -c "exec dockerize --timeout 120s -wait http://config:8080/web-ui/default java $$JAVA_OPTS -jar /opt/app/web-ui-service.jar"

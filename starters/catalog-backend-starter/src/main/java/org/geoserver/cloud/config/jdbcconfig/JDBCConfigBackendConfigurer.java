@@ -14,6 +14,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.catalog.plugin.CatalogFacadeExtensionAdapter;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
+import org.geoserver.cloud.autoconfigure.bus.ConditionalOnGeoServerRemoteEventsEnabled;
 import org.geoserver.cloud.config.catalog.GeoServerBackendConfigurer;
 import org.geoserver.cloud.config.jdbcconfig.bus.JdbcConfigRemoteEventProcessor;
 import org.geoserver.config.GeoServerFacade;
@@ -43,7 +44,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.cloud.bus.ConditionalOnBusEnabled;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -177,7 +177,7 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
     }
 
     @Bean
-    @ConditionalOnBusEnabled
+    @ConditionalOnGeoServerRemoteEventsEnabled
     public JdbcConfigRemoteEventProcessor jdbcConfigRemoteEventProcessor() {
         return new JdbcConfigRemoteEventProcessor();
     }

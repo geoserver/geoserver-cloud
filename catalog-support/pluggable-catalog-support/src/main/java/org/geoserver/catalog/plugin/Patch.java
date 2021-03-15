@@ -66,6 +66,10 @@ public @Value class Patch implements Serializable {
         return p;
     }
 
+    public List<String> getPropertyNames() {
+        return new ArrayList<>(patches.keySet());
+    }
+
     public Optional<Property> get(String propertyName) {
         Property property = this.patches.get(propertyName);
         return Optional.ofNullable(property);

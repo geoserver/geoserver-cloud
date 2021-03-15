@@ -131,4 +131,11 @@ public class ForwardingGeoServerFacade implements RepositoryGeoServerFacade {
     public @Override void dispose() {
         facade.dispose();
     }
+
+    public @Override SettingsInfo getSettings(String id) {
+        if (facade instanceof RepositoryGeoServerFacade)
+            ((RepositoryGeoServerFacade) facade).getSettings(id);
+
+        throw new UnsupportedOperationException();
+    }
 }

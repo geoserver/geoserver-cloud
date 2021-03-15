@@ -5,7 +5,11 @@
 package org.geoserver.config.plugin;
 
 import org.geoserver.config.GeoServerFacade;
+import org.geoserver.config.SettingsInfo;
 
 public interface RepositoryGeoServerFacade extends GeoServerFacade {
+
+    SettingsInfo getSettings(String id);
+
     void setRepository(ConfigRepository repository);
 }

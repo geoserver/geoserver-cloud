@@ -183,7 +183,7 @@ services:
       resources:
         limits:
           cpus: '2.0'
-          memory: 2G
+          memory: 1G
     command: sh -c "exec dockerize --timeout 120s -wait http://config:8080/wfs-service/default -wait http://catalog:8080/api/v1/catalog/workspaces java $$JAVA_OPTS -jar /opt/app/wfs-service.jar"
 
   # WMS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wms=5)

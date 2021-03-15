@@ -9,12 +9,13 @@ import java.nio.file.Path;
 import javax.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
+import org.geoserver.catalog.plugin.DefaultMemoryCatalogFacade;
+import org.geoserver.cloud.autoconfigure.bus.ConditionalOnGeoServerRemoteEventsEnabled;
 import org.geoserver.cloud.config.catalog.GeoServerBackendConfigurer;
 import org.geoserver.cloud.config.catalog.GeoServerBackendProperties;
 import org.geoserver.config.DefaultGeoServerLoader;
-import org.geoserver.config.GeoServerFacade;
 import org.geoserver.config.GeoServerLoader;
+import org.geoserver.config.plugin.RepositoryGeoServerFacade;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.ResourceStore;
 import org.geoserver.wcs.WCSXStreamLoader;
@@ -39,11 +40,16 @@ public class DataDirectoryBackendConfigurer implements GeoServerBackendConfigure
         log.info("Loading geoserver config backend with {}", getClass().getSimpleName());
     }
 
-    public @Override @Bean ExtendedCatalogFacade catalogFacade() {
+    @ConditionalOnGeoServerRemoteEventsEnabled
+    public @Bean DataDirectoryRemoteEventProcessor dataDirectoryRemoteEventProcessor() {
+        return new DataDirectoryRemoteEventProcessor();
+    }
+
+    public @Override @Bean DefaultMemoryCatalogFacade catalogFacade() {
         return new org.geoserver.catalog.plugin.DefaultMemoryCatalogFacade();
     }
 
-    public @Override @Bean GeoServerFacade geoserverFacade() {
+    public @Override @Bean RepositoryGeoServerFacade geoserverFacade() {
         return new org.geoserver.config.plugin.RepositoryGeoServerFacadeImpl();
     }
 

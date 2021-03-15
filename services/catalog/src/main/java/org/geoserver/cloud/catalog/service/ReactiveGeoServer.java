@@ -4,6 +4,8 @@
  */
 package org.geoserver.cloud.catalog.service;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.Patch;
@@ -136,6 +138,21 @@ public class ReactiveGeoServer {
                     patch.applyTo(service, serviceType);
                     blockingConfig.save(service);
                     return service;
+                });
+    }
+
+    public Mono<SettingsInfo> getSettingsById(String id) {
+        // TODO: improve
+        return async(
+                () -> {
+                    List<WorkspaceInfo> workspaces = blockingConfig.getCatalog().getWorkspaces();
+                    for (WorkspaceInfo w : workspaces) {
+                        SettingsInfo settings = blockingConfig.getSettings(w);
+                        if (settings != null && Objects.equals(id, settings.getId())) {
+                            return settings;
+                        }
+                    }
+                    return null;
                 });
     }
 
