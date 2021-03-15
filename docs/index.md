@@ -83,7 +83,7 @@ Download this [docker-compose.yml](deploy/docker-compose/stable/docker-compose.y
 
 ```bash
 $ mkdir gscloud && cd gscloud
-$ wget "https://camptocamp.github.io/geoserver-cloud/deploy/docker-compose/stable/docker-compose.yml"
+$ wget "https://geoserver.github.io/geoserver-cloud/deploy/docker-compose/stable/docker-compose.yml"
 ```
 
 Open a terminal and enter the directory where you just downloaded that file, and run `docker-compose pull` to fetch the docker images from [Dockerhub](https://hub.docker.com/u/cloudnativegeoserver/):
@@ -119,9 +119,9 @@ Then browse to:
 - [http://localhost:8761](http://localhost:8761/) to access the Discovery service registry page.
 - [http://localhost:9090](http://localhost:9090/) for the GeoServer UI. The GateWay service will take care of proxying requests to the appropriate microservice.
 
-From the usability point of view, there should be no appreciable differences with a traditional GeoServer deployment.
+From a usability point of view, there should be no appreciable differences with a traditional GeoServer deployment.
 
-What's going on inside the local-maching cluster you've just run is that each GeoServer business capability is running as a separate process in a separate docker container, and they're all in synch in a loosely coupled way using a message driven event-bus.
+What's going on inside the local-machine cluster you've just run, is that each GeoServer business capability is running as a separate process in a separate docker container, and they're all in synch in a loosely coupled way using a message driven event-bus.
 
 Experiment dynamic service scaling and registration with `docker-compose scale <service>=<instances>`, for example:
 
@@ -169,7 +169,7 @@ Project is being deployed in production since `v0.1.0`.
 [Camptocamp](https://camptocamp.com/), as the original author, is in process of donating the project to OsGeo/Geoserver.
 
 > Q: So, is this **production ready**?
-> Not at all. It's been used in production for the functionalities needed by Camptocamp's customer funding this project so far. That does not mean it's ready for general availability. For instance, these are the most oustanding issues:
+> Not at all. *Cloud Native GeoSever* is being used in production for the functionalities needed by Camptocamp's customer funding this project so far. That does not mean it's ready for general availability. For instance, these are the most oustanding issues:
 > 
 > * The **security** subsystem needs a review. If you try to change the admin password through the web-ui, there's a bug that would leave you with a broken authentication.
 > * The WPS is non functional and temporarily removed from the build

@@ -54,7 +54,7 @@ Removed hack encoding events payload as an XML string, now Jackson-databind bind
 
 ### Release 0.1.0, August 30, 2020
 
-Still an early stage, working towards release [0.2.0](https://github.com/camptocamp/geoserver-cloud/projects/1).
+Still an early stage, working towards release [0.2.0](https://github.com/geoserver/geoserver-cloud/projects/1).
 
 Passed the feasibility exploration prototype phase by `0.1.0` and we're confident this is a good path towards the main objective of having cloud-native,
 independently scalable GeoServer microservices.
@@ -67,7 +67,7 @@ The use `jdbcconfig` and `jdbcstore` has been customized to allow for spring-boo
 
 We're using [spring-cloud-bus](https://cloud.spring.io/spring-cloud-static/spring-cloud-bus/3.0.0.M1/reference/html/) to coordinate configuration changes across services in the cluster.
 
-By [1.0.0](https://github.com/camptocamp/geoserver-cloud/milestone/2) at the end of September 2020 we should be able to deploying to Kubernetes using Kubernetes native services for service discovery and externalized configuration.
+By [1.0.0](https://github.com/geoserver/geoserver-cloud/milestone/2) at the end of September 2020 we should be able to deploying to Kubernetes using Kubernetes native services for service discovery and externalized configuration.
 
 Nonetheless the chosen architecture aims to allow for a number of containerized application platforms such as:
 
@@ -82,5 +82,5 @@ And deployment/configuration choices like:
 - Per-service access to catalog/config backend (e.g. all of them connecting directly to the config database)
 - Catalog microservice: all services use the `catalog-service` client as their catalog, and this in turn talks to the actual backend, which, since the `catalog-service` itself can be scaled out, its backend can be any of the above options.
 
-Feel free to try it out following the above instructions and report bugs [here](https://github.com/camptocamp/geoserver-cloud/issues).
+Feel free to try it out following the above instructions and report bugs [here](https://github.com/geoserver/geoserver-cloud/issues).
 
