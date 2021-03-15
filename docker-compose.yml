@@ -6,7 +6,7 @@ volumes:
   
 networks:
   gs-cloud-network:
-    driver: bridge
+#    driver: bridge
         
 services:
   rabbitmq:
@@ -97,8 +97,8 @@ services:
       - ./config:/opt/app/config
     healthcheck:
       test: ["CMD", "curl", "-f", "-m", "1", "http://localhost:8080/actuator/health"]
-      interval: 1s
-      timeout: 1s
+      interval: 5s
+      timeout: 2s
       retries: 15
     deploy:
       resources:
@@ -118,6 +118,7 @@ services:
     environment:
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: ${GATEWAY_JAVA_OPTS}
+      SPRING_PROFILES_ACTIVE: dev #exposes the catalog and config API at /api/v1/**
     ports:
       - 9090:8080
     networks:
@@ -129,6 +130,7 @@ services:
         limits:
           cpus: '4.0'
           memory: 512M
+    command: sh -c "exec dockerize -wait http://config:8080/gateway-service/default --timeout 120s java $$JAVA_OPTS -jar /opt/app/gateway-service.jar"
 
   # catalog microservice, provides a unified catalog backend to all services
   catalog:
@@ -139,25 +141,28 @@ services:
       - database
       - rabbitmq
     environment:
-      EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       # Force the max RAM (-XX:MaxRAM) seen by the JVM in case --compatibility wasn't used to launch the composition
       JAVA_OPTS: "${CATALOG_JAVA_OPTS}"
+      EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       RABBITMQ_HOST: rabbitmq
+      CATALOG_IO_THREADS: 8
+      CATALOG_IO_MAX_QUEUED: 10000
+      BACKEND_JDBCCONFIG: "true"
       JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
       JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
       JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
+      JDBCCONFIG_MIN_CONNECTIONS: 2
+      JDBCCONFIG_MAX_CONNECTIONS: 16 # 2 x CATALOG_IO_THREADS
     networks:
       - gs-cloud-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
-    # expose port only to be able of running local instances, not necessary in production, just for testing
-    #ports:
-    #  - "9100:8080"
     deploy:
       resources:
         limits:
           cpus: '2.0'
           memory: 512M
+    command: sh -c "exec dockerize -wait http://config:8080/catalog-service/default --timeout 120s java $$JAVA_OPTS -jar /opt/app/catalog-service.jar"
 
   # WFS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wfs=5)
   wfs:
@@ -178,7 +183,8 @@ services:
       resources:
         limits:
           cpus: '2.0'
-          memory: 512M
+          memory: 2G
+    command: sh -c "exec dockerize --timeout 120s -wait http://config:8080/wfs-service/default -wait http://catalog:8080/api/v1/catalog/workspaces java $$JAVA_OPTS -jar /opt/app/wfs-service.jar"
 
   # WMS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wms=5)
   wms:
@@ -198,6 +204,7 @@ services:
         limits:
           cpus: '2.0'
           memory: 1G
+    command: sh -c "exec dockerize -wait http://config:8080/wms-service/default -wait http://catalog:8080/api/v1/catalog/workspaces --timeout 120s java $$JAVA_OPTS -jar /opt/app/wms-service.jar"
 
   # WCS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wcs=5)
   wcs:
@@ -217,6 +224,7 @@ services:
         limits:
           cpus: '2.0'
           memory: 1G
+    command: sh -c "exec dockerize -wait http://config:8080/wcs-service/default -wait http://catalog:8080/api/v1/catalog/workspaces --timeout 120s java $$JAVA_OPTS -jar /opt/app/wcs-service.jar"
 
 #  # WPS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wps=5)
 #  wps:
@@ -254,6 +262,7 @@ services:
         limits:
           cpus: '1.5'
           memory: 512M
+    command: sh -c "exec dockerize -wait http://config:8080/restconfig-v1/default -wait http://catalog:8080/api/v1/catalog/workspaces --timeout 120s java $$JAVA_OPTS -jar /opt/app/restconfig-service.jar"
 
   # WEB UI microservice
   webui:
@@ -274,3 +283,4 @@ services:
         limits:
           cpus: '2.0'
           memory: 1G
+    command: sh -c "exec dockerize -wait http://config:8080/web-ui/default -wait http://catalog:8080/api/v1/catalog/workspaces --timeout 120s java $$JAVA_OPTS -jar /opt/app/web-ui-service.jar"

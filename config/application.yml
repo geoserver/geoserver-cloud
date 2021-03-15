@@ -14,26 +14,26 @@ geoserver:
     send-events: true
     # whether to send the object (CatalogInfo/config info) as payload with the event. Set to false, 
     # not all possible payload types are propertly tested, and full object payload is not needed.
-    send-object: false
+    send-object: ${geoserver.backend.data-directory.enabled}
     # whether to send a diff of changes as payload with the event. Set to false, not all possible payload types are propertly tested nor needed.
-    send-diff: false
+    send-diff: ${geoserver.backend.data-directory.enabled}
   backend:
     # configure catalog backends and decide which backend to use on this service.
     # All backends are disabled, enable the required one on each service. For example, the catalog microservice 
     # will enable one backend type, and the front services the catalog-service backend.
     # revisit: Could be split into profiles
     catalog-service:
-      enabled: false
+      enabled: ${backend.catalog:false}
       # Base URI of the catalog service. If not set, will be automatically determined using the discovery service, looking for "catalog-service"
       # This allows to explicitly set a fixed location for the catalog service.
       # uri: http://catalog:8080
       cache-directory: ${java.io.tmpdir}/cngs/catalog-client/resource_store
       fallback-resource-directory: ${java.io.tmpdir}/cngs/catalog-client/fallback_resource_store
     data-directory:
-      enabled: false
+      enabled: ${backend.data-directory:false}
       location: ${GEOSERVER_DATA_DIR:${java.io.tmpdir}/cngs/data_directory} 
     jdbcconfig:
-      enabled: false
+      enabled: ${backend.jdbcconfig:false}
       initdb: false
       web.enabled: false
       cache-directory: ${jdbcconfig.cachedir:${java.io.tmpdir}/cngs/jdbcconfig/cache}
@@ -43,9 +43,9 @@ geoserver:
         password: ${jdbcconfig.password:geo$erver}
         driverClassname: ${jdbcconfig.driverClassname:org.postgresql.Driver}
         # optional:
-        schema: public
-        minimumIdle: 2
-        maximumPoolSize: 8
+        schema: ${jdbcconfig.schema:public}
+        minimumIdle: ${jdbcconfig.minConnections:2}
+        maximumPoolSize: ${jdbcconfig.maxConnections:8}
 
 management:
   endpoint:
