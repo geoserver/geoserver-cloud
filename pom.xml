@@ -20,6 +20,7 @@
     <spring-boot.version>2.3.3.RELEASE</spring-boot.version>
     <feign-reactor.version>2.0.26</feign-reactor.version>
     <gs.version>2.20-SNAPSHOT</gs.version>
+    <gs.community.version>2.20-SNAPSHOT</gs.community.version>
     <gt.version>26-SNAPSHOT</gt.version>
     <lombok.version>1.18.12</lombok.version>
     <mapstruct.version>1.4.0.CR1</mapstruct.version>
@@ -407,7 +408,7 @@
       <dependency>
         <groupId>org.geoserver.community</groupId>
         <artifactId>gs-jdbcconfig</artifactId>
-        <version>${gs.version}</version>
+        <version>${gs.community.version}</version>
         <exclusions>
           <exclusion>
             <artifactId>spring-webmvc</artifactId>
@@ -422,7 +423,7 @@
       <dependency>
         <groupId>org.geoserver.community</groupId>
         <artifactId>gs-jdbcstore</artifactId>
-        <version>${gs.version}</version>
+        <version>${gs.community.version}</version>
         <exclusions>
           <exclusion>
             <artifactId>spring-webmvc</artifactId>
@@ -452,7 +453,7 @@
       <dependency>
         <groupId>org.geoserver.community</groupId>
         <artifactId>gs-gwc-azure-blob</artifactId>
-        <version>${gs.version}</version>
+        <version>${gs.community.version}</version>
       </dependency>
       <dependency>
         <groupId>org.geoserver.extension</groupId>
