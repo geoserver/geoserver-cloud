@@ -31,6 +31,7 @@
     <docker.image.name>${project.artifactId}</docker.image.name>
     <docker.repository>${docker.image.prefix}/${docker.image.name}</docker.repository>
     <dockerfile.build.pullNewerImage>false</dockerfile.build.pullNewerImage>
+    <dockerfile.push.skip>true</dockerfile.push.skip>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -672,17 +673,25 @@
           <version>2.4.0</version>
         </plugin>
         <plugin>
-          <!-- https://github.com/spotify/dockerfile-maven -->
           <groupId>com.spotify</groupId>
           <artifactId>dockerfile-maven-plugin</artifactId>
           <version>1.4.13</version>
           <executions>
             <execution>
-              <id>default</id>
+              <id>build</id>
               <goals>
                 <goal>build</goal>
-                <!-- goal>push</goal -->
               </goals>
+            </execution>
+            <execution>
+              <id>push</id>
+              <phase>install</phase>
+              <goals>
+                <goal>push</goal>
+              </goals>
+              <configuration>
+                <skip>${dockerfile.push.skip}</skip>
+              </configuration>
             </execution>
           </executions>
           <inherited>true</inherited>
