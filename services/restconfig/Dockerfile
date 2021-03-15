@@ -1,5 +1,5 @@
 ARG TAG
-FROM cloudnativegeoserver/gs-cloud-docker-base-java:${TAG}
+FROM geoservercloud/docker-base-java:${TAG}
 
 ARG JAR_FILE=dummy
 ADD target/${JAR_FILE} /opt/app/restconfig-service.jar

@@ -1,7 +1,7 @@
 # Cloud Native GeoServer Gateway service
 
 
-**Docker image**: `cloudnativegeoserver/gs-cloud-gateway`. 
+**Docker image**: `geoservercloud/gs-cloud-gateway`. 
 
 **Service name**: `gateway-service`. 
 

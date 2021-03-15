@@ -9,7 +9,9 @@
   <artifactId>gs-cloud-gateway</artifactId>
   <packaging>jar</packaging>
   <name>API gateway service</name>
-  <properties></properties>
+  <properties>
+    <docker.image.name>gateway-service</docker.image.name>
+  </properties>
   <dependencies>
     <dependency>
       <groupId>org.springframework.cloud</groupId>

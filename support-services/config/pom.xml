@@ -10,6 +10,7 @@
   <packaging>jar</packaging>
   <name>Cloud config service</name>
   <properties>
+    <docker.image.name>config-service</docker.image.name>
     <start-class>org.geoserver.cloud.config.ConfigApplication</start-class>
   </properties>
   <dependencies>
