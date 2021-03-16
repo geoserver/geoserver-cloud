@@ -589,22 +589,10 @@
   </dependencies>
   <repositories>
     <repository>
-      <id>spring-repo</id>
-      <name>Spring Repository</name>
-      <url>https://repo.spring.io/release</url>
-    </repository>
-    <repository>
-      <id>spring-milestone</id>
-      <name>Spring Milestone Repository</name>
-      <url>https://repo.spring.io/milestone</url>
-    </repository>
-    <repository>
       <releases>
         <enabled>true</enabled>
       </releases>
       <!-- contains release (including third-party-dependences) -->
-      <!-- Restlet maven Repository (http://maven.restlet.org) -->
-      <!-- ucar (https://artifacts.unidata.ucar.edu/content/repositories/unidata-releases) -->
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
