@@ -40,7 +40,7 @@ geoserver:
       datasource:
         jdbcUrl: ${jdbcconfig.url:"jdbc:postgresql://database:5432/geoserver_config"}
         username: ${jdbcconfig.username:geoserver}
-        password: ${jdbcconfig.password:geo$erver}
+        password: ${jdbcconfig.password:geo5erver}
         driverClassname: ${jdbcconfig.driverClassname:org.postgresql.Driver}
         # optional:
         schema: ${jdbcconfig.schema:public}
