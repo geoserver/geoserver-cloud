@@ -225,7 +225,7 @@
       </activation>
       <properties>
         <!-- use none instead of empty to avoid a maven warning -->
-        <wps_excludes>none</wps_excludes>
+        <wfs_excludes>none</wfs_excludes>
       </properties>
       <dependencies>
         <dependency>
