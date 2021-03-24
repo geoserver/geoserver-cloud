@@ -15,12 +15,21 @@
       <artifactId>gs-main</artifactId>
     </dependency>
     <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <!-- provided scope, so its added explicitly where needed. GeoServer's Dispatcher should really get rid of servlet 
+        and webmvc apis, and/or the Dispatcher.REQUEST ThreadLocal -->
+      <artifactId>spring-webmvc</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <!-- for CatalogImplConformanceTest, this dep is excluded from gs-main in the root pom -->
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.geoserver</groupId>
