@@ -20,7 +20,7 @@ public @Data class GeoServerBackendProperties {
     private CatalogClientProperties catalogService = new CatalogClientProperties();
 
     /**
-     * Configuration properties to use GeoServer's traditiona, file-system based data-directory as
+     * Configuration properties to use GeoServer's traditional, file-system based data-directory as
      * the {@link GeoServerBackendConfigurer catalog and configuration backend} through the {@link
      * DataDirectoryAutoConfiguration} auto-configuration.
      */

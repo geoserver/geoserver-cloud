@@ -55,8 +55,12 @@ import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Overrides {@link #count(Class, Filter)} to use {@link CapabilitiesFilterSplitterFix fixed
@@ -69,6 +73,7 @@ class CloudJdbcConfigDatabase extends ConfigDatabase {
     private DataSource dataSource;
     private NamedParameterJdbcTemplate template;
     private DbMappings dbMappings;
+    private ConfigDatabase transactionalConfigDatabase;
 
     /**
      * Cache provider that returns no-op caches, where all tests will be cache misses. We use this
@@ -116,6 +121,17 @@ class CloudJdbcConfigDatabase extends ConfigDatabase {
         catalog.removeListeners(CatalogClearingListener.class);
     }
 
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        super.setApplicationContext(applicationContext);
+        this.transactionalConfigDatabase = applicationContext.getBean(ConfigDatabase.class);
+    }
+
+    @Transactional(
+        transactionManager = "jdbcConfigTransactionManager",
+        propagation = Propagation.REQUIRED,
+        rollbackFor = Exception.class
+    )
     public @Override void initDb(@Nullable Resource resource) throws IOException {
         super.initDb(resource);
         this.dbMappings = new DbMappings(dialect());
@@ -158,7 +174,16 @@ class CloudJdbcConfigDatabase extends ConfigDatabase {
         return count;
     }
 
-    public @Override <T extends Info> CloseableIterator<T> query(
+    /**
+     * Override to use fixed version of {@link CapabilitiesFilterSplitter} until
+     * https://osgeo-org.atlassian.net/browse/GEOT-6717 is fixed
+     */
+    @Transactional(
+        transactionManager = "jdbcConfigTransactionManager",
+        propagation = Propagation.REQUIRED,
+        readOnly = true
+    )
+    public <T extends Info> CloseableIterator<T> query(
             final Class<T> of,
             final Filter filter,
             @Nullable Integer offset,
@@ -246,7 +271,11 @@ class CloudJdbcConfigDatabase extends ConfigDatabase {
                             @Nullable
                             @Override
                             public T apply(String id) {
-                                return getById(id, of);
+                                // tricky bit... transaction management works only if the method
+                                // is called from a Spring proxy that processed the annotations,
+                                // so we cannot call getId directly, it needs to be done from
+                                // "outside"
+                                return transactionalConfigDatabase.getById(id, of);
                             }
                         });
 
@@ -280,6 +309,15 @@ class CloudJdbcConfigDatabase extends ConfigDatabase {
         return iterator;
     }
 
+    /**
+     * Override to use fixed version of {@link CapabilitiesFilterSplitter} until
+     * https://osgeo-org.atlassian.net/browse/GEOT-6717 is fixed
+     */
+    @Transactional(
+        transactionManager = "jdbcConfigTransactionManager",
+        propagation = Propagation.REQUIRED,
+        readOnly = true
+    )
     public @Override <T extends Info> CloseableIterator<String> queryIds(
             final Class<T> of, final Filter filter) {
 
