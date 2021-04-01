@@ -4,8 +4,10 @@
  */
 package org.geoserver.cloud.config.jdbcconfig;
 
+import com.google.common.io.Files;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.sql.Driver;
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
@@ -16,6 +18,7 @@ import org.geoserver.catalog.plugin.CatalogFacadeExtensionAdapter;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.cloud.autoconfigure.bus.ConditionalOnGeoServerRemoteEventsEnabled;
 import org.geoserver.cloud.config.catalog.GeoServerBackendConfigurer;
+import org.geoserver.cloud.config.catalog.GeoServerBackendProperties;
 import org.geoserver.cloud.config.jdbcconfig.bus.JdbcConfigRemoteEventProcessor;
 import org.geoserver.config.GeoServerFacade;
 import org.geoserver.config.util.XStreamPersisterFactory;
@@ -92,6 +95,8 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
     private @Autowired @Qualifier("resourceNotificationDispatcher") ResourceNotificationDispatcher
             resourceWatcher;
 
+    private @Autowired GeoServerBackendProperties configProperties;
+
     public @PostConstruct void log() {
         log.info(
                 "Loading geoserver config backend with {}",
@@ -112,17 +117,26 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
     }
 
     public @Override @Bean GeoServerResourceLoader resourceLoader() {
-        return new GeoServerResourceLoader(resourceStoreImpl());
+        Path path = configProperties.getDataDirectory().getLocation();
+        File dataDirectory = path.toFile();
+        if (null == dataDirectory) dataDirectory = Files.createTempDir();
+        GeoServerResourceLoader loader = new GeoServerResourceLoader(resourceStoreImpl());
+        loader.setBaseDirectory(dataDirectory);
+        return loader;
     }
 
     @DependsOn("JDBCConfigDB")
     public @Override @Bean @NonNull ResourceStore resourceStoreImpl() {
-        initDbSchema(jdbcConfigProperties(), jdbcStoreProperties(), jdbcConfigDB());
+        final JDBCConfigProperties jdbcConfigProperties = jdbcConfigProperties();
+        final CloudJdbcStoreProperties jdbcStoreProperties = jdbcStoreProperties();
+        final ConfigDatabase jdbcConfigDB = jdbcConfigDB();
+
+        initDbSchema(jdbcConfigProperties, jdbcStoreProperties, jdbcConfigDB);
         try {
             // no fall back to data directory, jdbcconfig is either enabled and fully engaged, or
             // not at all
-            JDBCResourceStore resourceStore =
-                    new JDBCResourceStore(dataSource, jdbcStoreProperties());
+            JDBCResourceStore resourceStore;
+            resourceStore = new JDBCResourceStore(dataSource, jdbcStoreProperties);
             resourceStore.setCache(jdbcResourceCache());
             resourceStore.setLockProvider(lockProvider);
             resourceStore.setResourceNotificationDispatcher(resourceWatcher);
