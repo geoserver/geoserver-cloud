@@ -1,0 +1,67 @@
+version: "3.8"
+
+#
+# Configures all geoserver services to use the postgresql database server with jdbcconfig as catalog backend.
+# Run with `docker-compose --compatibility -f docker-compose.yml -f docker-compose-jdbcconfig.yml up -d`
+#
+
+services:
+  catalog:
+    environment:
+      BACKEND_CATALOG: "false"
+      BACKEND_DATA_DIRECTORY: "false"
+      BACKEND_JDBCCONFIG: "true"
+      JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
+      JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
+      JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
+    command: echo "catalog-service disabled."
+
+  wfs:
+    environment:
+      BACKEND_CATALOG: "false"
+      BACKEND_DATA_DIRECTORY: "false"
+      BACKEND_JDBCCONFIG: "true"
+      JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
+      JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
+      JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
+    command: sh -c "exec dockerize --timeout 120s -wait http://config:8080/wfs-service/default java $$JAVA_OPTS -jar /opt/app/wfs-service.jar"
+
+  wms:
+    environment:
+      BACKEND_CATALOG: "false"
+      BACKEND_DATA_DIRECTORY: "false"
+      BACKEND_JDBCCONFIG: "true"
+      JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
+      JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
+      JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
+    command: sh -c "exec dockerize --timeout 120s -wait http://config:8080/wms-service/default java $$JAVA_OPTS -jar /opt/app/wms-service.jar"
+
+  wcs:
+    environment:
+      BACKEND_CATALOG: "false"
+      BACKEND_DATA_DIRECTORY: "false"
+      BACKEND_JDBCCONFIG: "true"
+      JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
+      JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
+      JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
+    command: sh -c "exec dockerize --timeout 120s -wait http://config:8080/wcs-service/default java $$JAVA_OPTS -jar /opt/app/wcs-service.jar"
+
+  rest:
+    environment:
+      BACKEND_CATALOG: "false"
+      BACKEND_DATA_DIRECTORY: "false"
+      BACKEND_JDBCCONFIG: "true"
+      JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
+      JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
+      JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
+    command: sh -c "exec dockerize --timeout 120s -wait http://config:8080/restconfig-v1/default java $$JAVA_OPTS -jar /opt/app/restconfig-service.jar"
+
+  webui:
+    environment:
+      BACKEND_CATALOG: "false"
+      BACKEND_DATA_DIRECTORY: "false"
+      BACKEND_JDBCCONFIG: "true"
+      JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
+      JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
+      JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
+    command: sh -c "exec dockerize --timeout 120s -wait http://config:8080/web-ui/default java $$JAVA_OPTS -jar /opt/app/web-ui-service.jar"
