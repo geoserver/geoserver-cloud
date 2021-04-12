@@ -10,7 +10,8 @@
   <packaging>jar</packaging>
   <name>web-ui-service</name>
   <properties>
-    <docker.image.name>webui-service</docker.image.name>
+    <dockerfile.skip>false</dockerfile.skip>
+    <docker.image.name>geoserver-cloud-webui</docker.image.name>
     <start-class>org.geoserver.cloud.web.app.WebUIApplication</start-class>
     <!-- The following properties control whether all gs-wms,gs-wfs,gs-wcs,gs-wps, and gs-gwc transitive dependencies are 
       excluded. Those jars need to be on the classpath even if the respective profiles are disabled, because they each provide 

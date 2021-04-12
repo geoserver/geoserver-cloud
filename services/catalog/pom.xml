@@ -10,7 +10,8 @@
   <packaging>jar</packaging>
   <name>Catalog microservice</name>
   <properties>
-    <docker.image.name>catalog-service</docker.image.name>
+    <dockerfile.skip>false</dockerfile.skip>
+    <docker.image.name>geoserver-cloud-catalog</docker.image.name>
     <start-class>org.geoserver.cloud.catalog.app.CatalogServiceApplication</start-class>
   </properties>
   <dependencies>

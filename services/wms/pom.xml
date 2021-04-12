@@ -10,7 +10,8 @@
   <packaging>jar</packaging>
   <name>wms-service</name>
   <properties>
-    <docker.image.name>wms-service</docker.image.name>
+    <dockerfile.skip>false</dockerfile.skip>
+    <docker.image.name>geoserver-cloud-wms</docker.image.name>
     <start-class>org.geoserver.cloud.wms.WmsApplication</start-class>
   </properties>
   <dependencies>

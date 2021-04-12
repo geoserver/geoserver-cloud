@@ -11,6 +11,7 @@
   <packaging>pom</packaging>
   <name>Docker base image for Spring Boot apps</name>
   <properties>
+    <dockerfile.skip>false</dockerfile.skip>
     <docker.image.name>docker-base-java</docker.image.name>
   </properties>
   <profiles>

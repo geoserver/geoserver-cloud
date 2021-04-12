@@ -10,7 +10,8 @@
   <packaging>jar</packaging>
   <name>Discovery service</name>
   <properties>
-    <docker.image.name>discovery-service</docker.image.name>
+    <dockerfile.skip>false</dockerfile.skip>
+    <docker.image.name>geoserver-cloud-discovery</docker.image.name>
     <start-class>org.geoserver.cloud.discovery.DiscoveryApplication</start-class>
   </properties>
   <dependencies>

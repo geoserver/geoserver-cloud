@@ -10,7 +10,8 @@
   <packaging>jar</packaging>
   <name>restconfig-service</name>
   <properties>
-    <docker.image.name>rest-service</docker.image.name>
+    <dockerfile.skip>false</dockerfile.skip>
+    <docker.image.name>geoserver-cloud-rest</docker.image.name>
     <start-class>org.geoserver.cloud.restconfig.RestConfigApplication</start-class>
   </properties>
   <dependencies>
