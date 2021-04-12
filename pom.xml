@@ -28,9 +28,13 @@
     <fmt.skip>false</fmt.skip>
     <fork.javac>true</fork.javac>
     <javac.maxHeapSize>256M</javac.maxHeapSize>
+    <!-- docker.image.prefix: dockerhub organization name -->
     <docker.image.prefix>geoservercloud</docker.image.prefix>
-    <docker.image.name>${project.artifactId}</docker.image.name>
+    <!-- Set docker.image.name on each service pom -->
+    <docker.image.name>change_me</docker.image.name>
     <docker.repository>${docker.image.prefix}/${docker.image.name}</docker.repository>
+    <!-- set dockerfile.skip to false in service projects to we can run mvn dockerfile:build from the root directory -->
+    <dockerfile.skip>true</dockerfile.skip>
     <dockerfile.build.pullNewerImage>false</dockerfile.build.pullNewerImage>
     <dockerfile.push.skip>true</dockerfile.push.skip>
   </properties>

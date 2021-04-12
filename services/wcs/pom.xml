@@ -10,7 +10,8 @@
   <packaging>jar</packaging>
   <name>wcs-service</name>
   <properties>
-    <docker.image.name>wcs-service</docker.image.name>
+    <dockerfile.skip>false</dockerfile.skip>
+    <docker.image.name>geoserver-cloud-wcs</docker.image.name>
     <start-class>org.geoserver.cloud.wcs.WcsApplication</start-class>
   </properties>
   <dependencies>

@@ -10,7 +10,8 @@
   <packaging>jar</packaging>
   <name>API gateway service</name>
   <properties>
-    <docker.image.name>gateway-service</docker.image.name>
+    <dockerfile.skip>false</dockerfile.skip>
+    <docker.image.name>geoserver-cloud-gateway</docker.image.name>
   </properties>
   <dependencies>
     <dependency>

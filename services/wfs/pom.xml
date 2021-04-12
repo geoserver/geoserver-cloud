@@ -10,7 +10,8 @@
   <packaging>jar</packaging>
   <name>wfs-service</name>
   <properties>
-    <docker.image.name>wfs-service</docker.image.name>
+    <dockerfile.skip>false</dockerfile.skip>
+    <docker.image.name>geoserver-cloud-wfs</docker.image.name>
     <start-class>org.geoserver.cloud.wfs.WfsApplication</start-class>
   </properties>
   <dependencies>
