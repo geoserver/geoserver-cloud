@@ -185,7 +185,7 @@ public class AbstractRemoteApplicationEventsTest {
         } else if (info instanceof LoggingInfo) {
             type = (Class<T>) LoggingInfo.class;
         } else {
-            throw new IllegalArgumentException("uknown Info type: " + info);
+            throw new IllegalArgumentException("Unknown Info type: " + info);
         }
         return type;
     }

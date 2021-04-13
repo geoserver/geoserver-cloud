@@ -80,7 +80,7 @@ public class GeometryDeserializer<T extends Geometry> extends JsonDeserializer<T
                 return readGeometryCollection(geometryNode, dimensions, hasM);
             default:
                 throw new IllegalArgumentException(
-                        "Uknown geometry node: " + geometryNode.toString());
+                        "Unknown geometry node: " + geometryNode.toString());
         }
     }
 

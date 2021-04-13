@@ -122,7 +122,7 @@ public class DefaultPropertyValuesResolver {
     }
 
     /**
-     * We don't want the world to be able and call this without going trough {@link
+     * We don't want the world to be able and call this without going through {@link
      * #resolve(ResourceInfo)}
      */
     private void resolve(FeatureTypeInfo featureType) {

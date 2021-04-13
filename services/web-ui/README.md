@@ -51,7 +51,7 @@ Here is the full list of `web-ui` config properties in YAML format:
 ```yaml
 geoserver:
   web-ui:
-    # Theese are all default values, here just for reference. You can omit them and add only the ones to disable or further configure
+    # These are all default values, here just for reference. You can omit them and add only the ones to disable or further configure
     security.enabled: true
     wfs.enabled: true
     wms.enabled: true

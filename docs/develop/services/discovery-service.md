@@ -17,7 +17,7 @@ fashion.
 
 This is the logical service name. 
 Since we're using a ["discovery first bootstrap"](https://docs.spring.io/spring-cloud-config/docs/2.2.7.RELEASE/reference/html/#discovery-first-bootstrap) 
-approach to service orchestration, other services won't use this service name to locate the discovery service, but a fixed list of service addresses need to be provided. See the "Client Configuration" section bellow for more details.
+approach to service orchestration, other services won't use this service name to locate the discovery service, but a fixed list of service addresses need to be provided. See the "Client Configuration" section below for more details.
 
 ## Reference documentation
 

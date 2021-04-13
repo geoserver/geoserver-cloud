@@ -78,9 +78,9 @@ class CloudJdbcConfigDatabase extends ConfigDatabase {
     /**
      * Cache provider that returns no-op caches, where all tests will be cache misses. We use this
      * here because GeoServer's jdbcconfig's {@link ConfigDatabase} has serious concurrency issues.
-     * For example, if querying WMS capabilities concurrently, will allways get the exception
-     * bellow, since it's updating a {@link LayerInfo}'s styles list while other threads are reading
-     * it to produce the capabilities document.
+     * For example, if querying WMS capabilities concurrently, will always get the exception below,
+     * since it's updating a {@link LayerInfo}'s styles list while other threads are reading it to
+     * produce the capabilities document.
      *
      * <pre>
      * <code>

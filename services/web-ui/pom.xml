@@ -13,10 +13,10 @@
     <dockerfile.skip>false</dockerfile.skip>
     <docker.image.name>geoserver-cloud-webui</docker.image.name>
     <start-class>org.geoserver.cloud.web.app.WebUIApplication</start-class>
-    <!-- The following properties control whether all gs-wms,gs-wfs,gs-wcs,gs-wps, and gs-gwc transitive dependencies are 
-      excluded. Those jars need to be on the classpath even if the respective profiles are disabled, because they each provide 
-      a configuration org.geoserver.config.ServiceInfo class whose absence may cause a com.thoughtworks.xstream.mapper.CannotResolveClassException. 
-      The wps,wfs,wcs,wps, and gwc profiles bellow remove the wildcard character from their respective xxx_excludes property in 
+    <!-- The following properties control whether all gs-wms,gs-wfs,gs-wcs,gs-wps, and gs-gwc transitive dependencies are
+      excluded. Those jars need to be on the classpath even if the respective profiles are disabled, because they each provide
+      a configuration org.geoserver.config.ServiceInfo class whose absence may cause a com.thoughtworks.xstream.mapper.CannotResolveClassException.
+      The wps,wfs,wcs,wps, and gwc profiles below remove the wildcard character from their respective xxx_excludes property in
       order to restore the profiles transitive dependencies -->
     <wms_excludes>*</wms_excludes>
     <wfs_excludes>*</wfs_excludes>

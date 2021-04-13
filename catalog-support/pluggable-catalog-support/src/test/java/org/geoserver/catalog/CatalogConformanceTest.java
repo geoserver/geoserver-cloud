@@ -1653,7 +1653,7 @@ public abstract class CatalogConformanceTest {
 
         try {
             rawCatalog.add(s2);
-            fail("Shoudl have failed with existing global style with same name");
+            fail("Should have failed with existing global style with same name");
         } catch (IllegalArgumentException expected) {
         }
 

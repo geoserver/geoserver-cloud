@@ -46,8 +46,8 @@ public class DefaultNamespaceInfoRules implements CatalogInfoBusinessRules<Names
     }
 
     /**
-     * Selects a new catalog default namespace if as the result of removing the namespace refered to
-     * by {@code context.getObject()}, the catalog has no default one.
+     * Selects a new catalog default namespace if as the result of removing the namespace referred
+     * to by {@code context.getObject()}, the catalog has no default one.
      */
     public @Override void afterRemove(CatalogOpContext<NamespaceInfo> context) {
         if (context.isSuccess()) {

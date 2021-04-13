@@ -59,7 +59,7 @@ The following configuration properties apply to all *GeoServer* microservices (i
 
 ```
 geoserver.security.enabled=true #flag to turn off geoserver security auto-configuration
-geoserver.proxy-urls.enabled=true #flag to turn off proxyfing respose URL's based on gateway's provided HTTP request headers (X-Forwarded-*)
+geoserver.proxy-urls.enabled=true #flag to turn off proxyfing response URL's based on gateway's provided HTTP request headers (X-Forwarded-*)
 geoserver.web.resource-browser.enabed=true
 geoserver.servlet.enabled=true #flag to turn off auto-configuration of geoserver servlet context
 geoserver.servlet.filter.session-debug.enabled=true #flag to disable the session debug servlet filter

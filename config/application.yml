@@ -13,9 +13,9 @@ geoserver:
     # whether to send distributed events (i.e. acts as master). All instances receive remote events.
     send-events: true
     # whether to send the object (CatalogInfo/config info) as payload with the event. Set to false, 
-    # not all possible payload types are propertly tested, and full object payload is not needed.
+    # not all possible payload types are properly tested, and full object payload is not needed.
     send-object: ${geoserver.backend.data-directory.enabled}
-    # whether to send a diff of changes as payload with the event. Set to false, not all possible payload types are propertly tested nor needed.
+    # whether to send a diff of changes as payload with the event. Set to false, not all possible payload types are properly tested nor needed.
     send-diff: ${geoserver.backend.data-directory.enabled}
   backend:
     # configure catalog backends and decide which backend to use on this service.

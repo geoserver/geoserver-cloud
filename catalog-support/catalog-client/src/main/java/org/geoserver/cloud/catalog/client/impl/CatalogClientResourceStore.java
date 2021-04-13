@@ -202,7 +202,7 @@ public class CatalogClientResourceStore implements ResourceStore {
             boolean localIsDirectory = Type.DIRECTORY.equals(local.getType());
             if (localIsDirectory && !local.delete()) {
                 throw new IllegalStateException(
-                        "Unable to delte local copy of directory " + resource.path());
+                        "Unable to delete local copy of directory " + resource.path());
             }
             File localDirectory = local.dir();
             boolean localAndRemoteUpToDate = resource.lastmodified() == local.lastmodified();

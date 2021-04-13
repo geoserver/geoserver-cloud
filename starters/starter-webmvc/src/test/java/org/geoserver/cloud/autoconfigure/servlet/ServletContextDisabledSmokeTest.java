@@ -26,7 +26,7 @@ import org.springframework.web.context.request.RequestContextListener;
 
 /**
  * Smoke test to check geoserver servlet context related spring beans are not loaded if the
- * auto-configuration is disabled throgh {@code geoserver.servlet.enabled=false}
+ * auto-configuration is disabled through {@code geoserver.servlet.enabled=false}
  */
 @SpringBootTest(
     classes = TestConfiguration.class,

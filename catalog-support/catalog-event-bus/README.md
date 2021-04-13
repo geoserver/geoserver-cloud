@@ -4,7 +4,7 @@ Sets up the basis for an event-stream based synchronization of configuration cha
 
 This module uses [spring-cloud-bus](https://cloud.spring.io/spring-cloud-static/spring-cloud-bus/3.0.0.M1/reference/html/) to notify all services in the cluster of catalog and geoserver configuration changes.
 
-The remote event notification mechanism is agnostic of the transport layer, which depends on the configured [spring-cloud-streams](https://cloud.spring.io/spring-cloud-static/spring-cloud-stream/3.0.6.RELEASE/reference/html/)  Mesage Broker, which is in principle any supported [AMQP](https://www.amqp.org/) (Advanced Message Queuing Protocol) provider, Apache Kafka, Kafka Streams, Google PubSub, Azure Event Hubs, and more, depending on the `spring-cloud-streams` release and third-party binder implementations;
+The remote event notification mechanism is agnostic of the transport layer, which depends on the configured [spring-cloud-streams](https://cloud.spring.io/spring-cloud-static/spring-cloud-stream/3.0.6.RELEASE/reference/html/)  Message Broker, which is in principle any supported [AMQP](https://www.amqp.org/) (Advanced Message Queuing Protocol) provider, Apache Kafka, Kafka Streams, Google PubSub, Azure Event Hubs, and more, depending on the `spring-cloud-streams` release and third-party binder implementations;
 
 We're using [RabbitMQ](https://www.rabbitmq.com/) as the message broker in the default configuration, by means of including the `gs-cloud-catalog-event-bus-amqp` dependency in all services, which this particular module does not depend on.
 
@@ -42,7 +42,7 @@ geoserver:
     send-diff: true
 ```
 
-Whether they're needed depends on the geoserver backend type and configuration, as explained bellow.
+Whether they're needed depends on the geoserver backend type and configuration, as explained below.
 
 ## Usage
 
@@ -57,9 +57,9 @@ May the configuration backend type and topology require receiving either the ful
 There're basically two major backend topologies, regardless of the actual implementation (e.g. "data directory", "jdbcconfig", "catalog-service", etc):
 
 - shared catalog: The catalog/config stores are shared among all geoserver services, hence typically the event payload would not be required;
-- catalog-per-service: each service instance holds on its own copy of the catalog and config objects, hence typicall the remote configuration events should carry the object and/or diff payloads to keep the local version of the catalog and config in sync.
+- catalog-per-service: each service instance holds on its own copy of the catalog and config objects, hence typically the remote configuration events should carry the object and/or diff payloads to keep the local version of the catalog and config in sync.
 
-Note, however, the catalog-per-service approach would not be achievable in an elastically escalable deployment, where service instances of the same kind may sacle out and down to satisfy demand, or for high availability, hence the preferred default configuration is the "shared catalog" with an appropriate, scalabe, catalog backend.
+Note, however, the catalog-per-service approach would not be achievable in an elastically scalable deployment, where service instances of the same kind may scale out and down to satisfy demand, or for high availability, hence the preferred default configuration is the "shared catalog" with an appropriate, scalable, catalog backend.
 
 ## Technical details
 
@@ -67,7 +67,7 @@ Note, however, the catalog-per-service approach would not be achievable in an el
 
 In order to favor loose coupling between components, the "event listener" approach to `Catalog` and `GeoServer` configuration is replaced by a Spring's `ApplicationEventPublisher` based one, by means of registering a single event listener on the `Catalog` and `GeoServer` application context instances, which re-publishes them to the `ApplicationEventPublisher` (generally the `ApplicationContext` itself).
 
-This means the event subsystem relies on regular `ApplicationContext` event publishing and subscribing (e.g. trhough `@EventListener(EventType.class)` mehtod annotations), for both "local" and "remote" events.
+This means the event subsystem relies on regular `ApplicationContext` event publishing and subscribing (e.g. through `@EventListener(EventType.class)` method annotations), for both "local" and "remote" events.
 
 The "local" events published to the `ApplicationContext` are adapted to the ones in the `org.geoserver.cloud.event.catalog` and `org.geoserver.cloud.event.config` packages, which provide a nicer and homogeneous interface. For instance, `GeoServer` config listeners (`org.geoserver.config.ConfigurationListener`) do not receive "event" objects, but finer grained mehod calls, like 
 

@@ -116,7 +116,7 @@ public class CatalogInfoTypeRegistry<I extends CatalogInfo, R> {
         }
         if (cm == null)
             throw new IllegalArgumentException(
-                    "Unable to determine CatalogInfo subtype from objec " + object);
+                    "Unable to determine CatalogInfo subtype from object " + object);
         return (Class<T>) cm.getInterface();
     }
 

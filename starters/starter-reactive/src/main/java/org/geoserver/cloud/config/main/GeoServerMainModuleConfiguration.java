@@ -22,7 +22,7 @@ import org.springframework.context.annotation.Configuration;
  *
  * <p>Note this configuration is intended to be used solely in WebFlux based services. All catalog
  * and config backend configuration is relied upon en enabled {@link GeoServerBackendConfigurer}
- * {@code @Configuration}, loaded either explicitly or, preferrably, through one of the
+ * {@code @Configuration}, loaded either explicitly or, preferably, through one of the
  * auto-configurations provided in {@code starter-catalog-backends}
  */
 @Configuration

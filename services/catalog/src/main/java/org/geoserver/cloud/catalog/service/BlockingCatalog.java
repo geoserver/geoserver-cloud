@@ -103,7 +103,7 @@ public class BlockingCatalog extends AbstractCatalogDecorator {
         else if (MapInfo.class.isAssignableFrom(type)) delegate.add((MapInfo) info);
         else
             throw new IllegalArgumentException(
-                    "Uknown CatalogInfo type: " + type.getCanonicalName());
+                    "Unknown CatalogInfo type: " + type.getCanonicalName());
         return info;
     }
 
@@ -130,7 +130,7 @@ public class BlockingCatalog extends AbstractCatalogDecorator {
             else if (MapInfo.class.isAssignableFrom(type)) delegate.save((MapInfo) info);
             else
                 throw new IllegalArgumentException(
-                        "Uknown CatalogInfo type: " + type.getCanonicalName());
+                        "Unknown CatalogInfo type: " + type.getCanonicalName());
         } catch (RuntimeException e) {
             log.error("Error saving {} with patch {}", info, patch, e);
             throw e;
@@ -170,7 +170,7 @@ public class BlockingCatalog extends AbstractCatalogDecorator {
             return type.cast(delegate.getLayerGroupByName(name));
         if (StyleInfo.class.isAssignableFrom(type)) return type.cast(delegate.getStyleByName(name));
         if (MapInfo.class.isAssignableFrom(type)) return type.cast(delegate.getMapByName(name));
-        throw new IllegalArgumentException("Uknown CatalogInfo type: " + type.getCanonicalName());
+        throw new IllegalArgumentException("Unknown CatalogInfo type: " + type.getCanonicalName());
     }
 
     public <C extends org.geoserver.catalog.CatalogInfo> Stream<C> query(@NonNull Query<C> query) {
