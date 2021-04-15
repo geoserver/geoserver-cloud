@@ -261,7 +261,7 @@ services:
       resources:
         limits:
           cpus: '1.5'
-          memory: 512M
+          memory: 1G
     command: sh -c "exec dockerize -wait http://config:8080/restconfig-v1/default -wait http://catalog:8080/api/v1/catalog/workspaces --timeout 120s java $$JAVA_OPTS -jar /opt/app/restconfig-service.jar"
 
   # WEB UI microservice
