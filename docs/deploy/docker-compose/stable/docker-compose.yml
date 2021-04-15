@@ -32,7 +32,7 @@ services:
           memory: 1G
 
   database:
-    image: geoservercloud/geoserver-cloud-postgres-jdbcconfig:1.0-M1
+    image: geoservercloud/geoserver-cloud-postgres-jdbcconfig:1.0-M2
     environment:
       POSTGRES_DB: "geoserver_config"
       POSTGRES_USER: "geoserver"
@@ -54,7 +54,7 @@ services:
   # Browse to http://localhost:8761 to check all services are registered.
   # Run docker-compose -f docker-compose.yml -f docker-compose-discovery-ha.yml to run extra discovery service instances for HA
   discovery:
-    image: geoservercloud/geoserver-cloud-discovery:1.0-M1
+    image: geoservercloud/geoserver-cloud-discovery:1.0-M2
     environment:
       SERVER_PORT: 8761
       EUREKA_INSTANCE_HOSTNAME: discovery
@@ -78,7 +78,7 @@ services:
   # microservices. Being a Discovery First Bootstrap configuration, it'll
   # register itself with the Eureka discovery service and can be scaled
   config:
-    image: geoservercloud/geoserver-cloud-config:1.0-M1
+    image: geoservercloud/geoserver-cloud-config:1.0-M2
     depends_on:
       - discovery
     environment:
@@ -113,7 +113,7 @@ services:
   # Application facade, provides a single entry point routing to all
   # microservices (e.g. http://localhost:9090/geoserver/wms, http://localhost:9090/geoserver/wfs, etc)
   gateway:
-    image: geoservercloud/geoserver-cloud-gateway:1.0-M1
+    image: geoservercloud/geoserver-cloud-gateway:1.0-M2
     depends_on:
       - discovery
       - config
@@ -137,7 +137,7 @@ services:
 
   # catalog microservice, provides a unified catalog backend to all services
   catalog:
-    image: geoservercloud/geoserver-cloud-catalog:1.0-M1
+    image: geoservercloud/geoserver-cloud-catalog:1.0-M2
     depends_on:
       - discovery
       - config
@@ -165,7 +165,7 @@ services:
 
   # WFS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wfs=5)
   wfs:
-    image: geoservercloud/geoserver-cloud-wfs:1.0-M1
+    image: geoservercloud/geoserver-cloud-wfs:1.0-M2
     depends_on:
       - rabbitmq
       - catalog
@@ -186,7 +186,7 @@ services:
 
   # WMS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wms=5)
   wms:
-    image: geoservercloud/geoserver-cloud-wms:1.0-M1
+    image: geoservercloud/geoserver-cloud-wms:1.0-M2
     depends_on:
       - rabbitmq
       - catalog
@@ -208,7 +208,7 @@ services:
 
   # WCS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wcs=5)
   wcs:
-    image: geoservercloud/geoserver-cloud-wcs:1.0-M1
+    image: geoservercloud/geoserver-cloud-wcs:1.0-M2
     depends_on:
       - rabbitmq
       - catalog
@@ -230,12 +230,12 @@ services:
 
   # REST config microservice, port dynamically allocated to allow scaling (e.g docker-compose scale rest=5)
   rest:
-    image: geoservercloud/geoserver-cloud-rest:1.0-M1
+    image: geoservercloud/geoserver-cloud-rest:1.0-M2
     depends_on:
       - rabbitmq
       - catalog
     environment:
-      JAVA_OPTS: -XX:MaxRAMPercentage=80 -XX:MaxRAM=512M
+      JAVA_OPTS: -XX:MaxRAMPercentage=80 -XX:MaxRAM=1G
       EUREKA_SERVER_URL: http://discovery:8761/eureka
       RABBITMQ_HOST: rabbitmq
     networks:
@@ -252,7 +252,7 @@ services:
 
   # WEB UI microservice
   webui:
-    image: geoservercloud/geoserver-cloud-webui:1.0-M1
+    image: geoservercloud/geoserver-cloud-webui:1.0-M2
     depends_on:
       - rabbitmq
       - catalog
