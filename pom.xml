@@ -32,7 +32,7 @@
     <docker.image.prefix>geoservercloud</docker.image.prefix>
     <!-- Set docker.image.name on each service pom -->
     <docker.image.name>change_me</docker.image.name>
-    <docker.repository>${docker.image.prefix}/${docker.image.name}</docker.repository>
+    <docker.image.repository>${docker.image.prefix}/${docker.image.name}</docker.image.repository>
     <!-- set dockerfile.skip to false in service projects to we can run mvn dockerfile:build from the root directory -->
     <dockerfile.skip>true</dockerfile.skip>
     <dockerfile.build.pullNewerImage>false</dockerfile.build.pullNewerImage>
@@ -627,7 +627,19 @@
       <name>geosolutions repository</name>
       <url>https://maven.geo-solutions.it/</url>
     </repository>
+    <repository>
+      <id>spring-releases</id>
+      <name>Spring Releases</name>
+      <url>https://repo.spring.io/release</url>
+    </repository>
   </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>spring-releases</id>
+      <name>Spring Releases</name>
+      <url>https://repo.spring.io/release</url>
+    </pluginRepository>
+  </pluginRepositories>
   <build>
     <pluginManagement>
       <plugins>
@@ -694,7 +706,7 @@
           </executions>
           <inherited>true</inherited>
           <configuration>
-            <repository>${docker.repository}</repository>
+            <repository>${docker.image.repository}</repository>
             <tag>${project.version}</tag>
             <buildArgs>
               <TAG>${project.version}</TAG>
