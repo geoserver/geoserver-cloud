@@ -19,7 +19,7 @@ Add the following dependency to each micro-service `pom.xml`:
 
 Spring-boot's autoconfiguration SPI is used in order to automatically engage the correct `Catalog` implementation and bean wiring depending on
 what's available in the class path. Hence, independently of which storage backend is used, it's only required to include this module as a dependency
-and set the configuration properties as explained bellow.
+and set the configuration properties as explained below.
 
 ### Configuring JDBCConfig and JDBCStore
 

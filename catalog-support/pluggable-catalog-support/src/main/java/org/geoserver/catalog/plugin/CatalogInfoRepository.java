@@ -29,7 +29,7 @@ import org.springframework.lang.Nullable;
  * provides alternative, semantically clear query methods. For example, {@link
  * StyleRepository#findAllByNullWorkspace()} and {@link
  * StyleRepository#findAllByWorkspace(WorkspaceInfo)} are self-explanatory, no magic is involved nor
- * decision making, which are handled at a higer level of abstraction ({@code CatalogFacade} and/or
+ * decision making, which are handled at a higher level of abstraction ({@code CatalogFacade} and/or
  * {@code Catalog}).
  *
  * <p>All query methods that could return zero or one result, return {@link Optional}. All query

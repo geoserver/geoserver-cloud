@@ -59,7 +59,7 @@ public interface ConfigRepository {
     /** The logging configuration. */
     Optional<LoggingInfo> getLogging();
 
-    /** Saves logging configuration, replacing the current one comletely. */
+    /** Saves logging configuration, replacing the current one completely. */
     void setLogging(LoggingInfo logging);
 
     /** Adds a service to the configuration. */
@@ -99,7 +99,7 @@ public interface ConfigRepository {
      * @param id The id of the service.
      * @param clazz The type of the service.
      * @return The service with the specified id, or {@code Optional.empty()} if no such service
-     *     coud be found.
+     *     could be found.
      */
     <T extends ServiceInfo> Optional<T> getServiceById(String id, Class<T> clazz);
 

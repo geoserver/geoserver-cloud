@@ -797,7 +797,7 @@ public class CapabilitiesFilterSplitterFix implements FilterVisitor, ExpressionV
     }
 
     public Object visit(PropertyName expression, Object notUsed) {
-        // JD: use an expression to get at the attribute type intead of accessing directly
+        // JD: use an expression to get at the attribute type instead of accessing directly
         if (parent != null && expression.evaluate(parent) == null) {
             throw new IllegalArgumentException(
                     "Property '"

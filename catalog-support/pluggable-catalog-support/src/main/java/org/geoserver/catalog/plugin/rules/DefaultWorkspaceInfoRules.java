@@ -37,8 +37,8 @@ public class DefaultWorkspaceInfoRules implements CatalogInfoBusinessRules<Works
     }
 
     /**
-     * Selects a new catalog default workspace if as the result of removing the workspace refered to
-     * by {@code context.getObject()}, the catalog has no default workspace.
+     * Selects a new catalog default workspace if as the result of removing the workspace referred
+     * to by {@code context.getObject()}, the catalog has no default workspace.
      */
     public @Override void afterRemove(CatalogOpContext<WorkspaceInfo> context) {
         if (context.isSuccess()) {

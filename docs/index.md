@@ -4,12 +4,12 @@
 
 The *Cloud Native GeoServer* project splits the GeoServer geospatial services and API offerings into individually deployable components of a [microservices based architecture](https://microservices.io/). This project provides clear constructive changes to GeoServer when required, based on prior experience with GeoServer clustering solutions.
 
-*Cloud Native GeoServer* is built with GeoServer software components. Compontents are adapted and/or extended in a [functional decomposition by business capability](https://microservices.io/patterns/decomposition/decompose-by-business-capability.html). The result is each service (OWS service, the Web UI, the REST API ) is available as a self-contained, individually deployable and scalable micro-services.
+*Cloud Native GeoServer* is built with GeoServer software components. Components are adapted and/or extended in a [functional decomposition by business capability](https://microservices.io/patterns/decomposition/decompose-by-business-capability.html). The result is each service (OWS service, the Web UI, the REST API ) is available as a self-contained, individually deployable and scalable micro-services.
 
 > Q: Does that mean *GeoServer*'s `.war` is deployed several times, with each instance exposing a given "business capability"?
 > 
-> Absolutely not, this is not a clusterd GeoSever approach and does not use war files.
->Each microservice is its own self-contained application, including only the GeoServer compoents needed for the service. Many GeoServer components provide a lot of functionality (such as different output formats). In these cases, care is taken to only load the functionality that is needed for a light-weight experience.
+> Absolutely not, this is not a clustered GeoServer approach and does not use war files.
+>Each microservice is its own self-contained application, including only the GeoServer components needed for the service. Many GeoServer components provide a lot of functionality (such as different output formats). In these cases, care is taken to only load the functionality that is needed for a light-weight experience.
 
 # Contents
 {:.no_toc}
@@ -43,7 +43,7 @@ These containerized applications allow deployment strategies to vary from single
 
 # Goals and benefits
 
-* Posibility to assess and provide guidelines for proper dimensioning of services based on each one's resource needs and performance characteristics
+* Possibility to assess and provide guidelines for proper dimensioning of services based on each one's resource needs and performance characteristics
 * Independent evolvability of services
 * Externalized, centralized configuration of services and their sub-components
 * Service isolation allows the system to keep working in the event of some specific service becoming unavailable
@@ -152,7 +152,7 @@ The following diagram depicts the System's general architecture:
 > - lines connecting a group to another component: connector applies to all services of the outgoing end, to all components of the incoming end; 
 > - white rectangles, components that are platform/deployment choices. For example:
 >     - "Event bus" could be a cloud infrastructure provider's native service (event queue), or a microservice implementing a distributed event broker;
->     - "Catalog/Config backend" is the software compoent used to access the catalog and configuration. Might be a microservice itself, catalog/config provider for  "data  directory", database, or other kind of external service store, catalog/config backend implementations;
+>     - "Catalog/Config backend" is the software component used to access the catalog and configuration. Might be a microservice itself, catalog/config provider for  "data  directory", database, or other kind of external service store, catalog/config backend implementations;
 >     - "Catalog/Config storage" is the storage mechanism that backs the catalog/config software component.  Might be a shared "data  directory" or database, a "per instance" data directory or database, and so on, depending on the available catalog/config backend implementations, and how they're configured and provisioned;
 >     - "Geospatial data sources" is whatever method is used to access the actual data served up by the microservices.
 
@@ -169,7 +169,7 @@ Project is being deployed in production since `v0.1.0`.
 [Camptocamp](https://camptocamp.com/), as the original author, is in process of donating the project to OsGeo/Geoserver.
 
 > Q: So, is this **production ready**?
-> Not at all. *Cloud Native GeoSever* is being used in production for the functionalities needed by Camptocamp's customer funding this project so far. That does not mean it's ready for general availability. For instance, these are the most oustanding issues:
+> Not at all. *Cloud Native GeoServer* is being used in production for the functionalities needed by Camptocamp's customer funding this project so far. That does not mean it's ready for general availability. For instance, these are the most outstanding issues:
 > 
 > * The **security** subsystem needs a review. If you try to change the admin password through the web-ui, there's a bug that would leave you with a broken authentication.
 > * The WPS is non functional and temporarily removed from the build
@@ -183,7 +183,7 @@ Follow the [Developer's Guide](develop/index.md) to learn more about the System'
 
 # Deployment Guide
 
-Chek out the [Deployment Guide](deploy/index.md) to learn about deployment options, configuration, and target platforms.
+Check out the [Deployment Guide](deploy/index.md) to learn about deployment options, configuration, and target platforms.
 
 <!--
 

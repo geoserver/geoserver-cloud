@@ -364,7 +364,7 @@ public class LocalApplicationEventsAutoConfigurationTest {
         } else if (info instanceof LoggingInfo) {
             type = (Class<T>) LoggingInfo.class;
         } else {
-            throw new IllegalArgumentException("uknown Info type: " + info);
+            throw new IllegalArgumentException("Unknown Info type: " + info);
         }
         // apply the changes to a new proxy to build the expected PropertyDiff
         T proxy = ModificationProxy.create(ModificationProxy.unwrap(info), type);

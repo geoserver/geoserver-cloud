@@ -26,7 +26,7 @@ The following diagram depicts the System's general architecture:
 > - lines connecting a group to another component: connector applies to all services of the outgoing end, to all components of the incoming end; 
 > - white rectangles, components that are platform/deployment choices. For example:
 >     - "Event bus" could be a cloud provider's native service (event queue), or a microservice implementing a distributed event broker;
->     - "Catalog/Config backend" is the software compoent used to access the catalog and configuration. Might be a microservice itself, catalog/config provider for  "data  directory", database, or other kind of external service store, catalog/config backend implementations;
+>     - "Catalog/Config backend" is the software component used to access the catalog and configuration. Might be a microservice itself, catalog/config provider for  "data  directory", database, or other kind of external service store, catalog/config backend implementations;
 >     - "Catalog/Config storage" is the storage mechanism that backs the catalog/config software component.  Might be a shared "data  directory" or database, a "per instance" data directory or database, and so on, depending on the available catalog/config backend implementations, and how they're configured and provisioned;
 >     - "Geospatial data sources" is whatever method is used to access the actual data served up by the microservices.
 

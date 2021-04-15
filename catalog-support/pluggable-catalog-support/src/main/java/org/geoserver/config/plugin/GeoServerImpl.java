@@ -40,7 +40,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 /**
- * Defaul implementation of GeoServer global and service configuration manager.
+ * Default implementation of GeoServer global and service configuration manager.
  *
  * <p>Implementation details:
  *

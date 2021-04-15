@@ -1,6 +1,6 @@
 # Cloud Native GeoServer Changelog
 
-## Relase 0.2.1, February 25, 2021
+## Release 0.2.1, February 25, 2021
 
 `v0.2.1` is a patch release adding support to configure CPU and Memory resource limits in the docker composition.
 
@@ -16,7 +16,7 @@ given the percentage set and the memory limit imposed to the container.
 
 A log entry is printed when each service is ready to verify the memory and cpu limits are seen by the JVM.
     
-## Relase 0.2.0, February 11, 2021
+## Release 0.2.0, February 11, 2021
 
 `v0.2.0` code freeze by Dec 31, 2020. Internal priority shifts delayed the release until now, though the system has been deployed in production using Kubernetes since 0.1.0 by end of August 2020.
 
