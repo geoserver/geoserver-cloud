@@ -72,6 +72,11 @@
       <artifactId>gt-property</artifactId>
     </dependency>
     <dependency>
+      <!-- explicitly required by wicket component 'wfsDataStorePanel' in web-core, should be optional -->
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-wfs-ng</artifactId>
+    </dependency>
+    <dependency>
       <!-- just to avoid a com.thoughtworks.xstream.mapper.CannotResolveClassException: org.geoserver.wfs.WFSInfoImpl -->
       <groupId>org.geoserver</groupId>
       <artifactId>gs-wfs</artifactId>
