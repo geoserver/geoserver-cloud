@@ -1,3 +1,20 @@
+server:
+  tomcat:
+    # Maximum number of connections that the server accepts and processes at any given time.
+    # Once the limit has been reached, the operating system may still accept connections based on the "acceptCount" property.
+    max-connections: 1000 # default: 8192
+    # Maximum queue length for incoming connection requests when all possible request processing threads are in use.
+    accept-count: 100 # default: 100
+    accesslog:
+      enabled: false
+      directory: logs
+      encoding: UTF-8
+    threads:
+      # Minimum amount of worker threads.
+      min-spare: 2 #default: 10
+      # Maximum amount of worker threads.
+      max: 20 #defaul: 200
+
 # Common configuration for all services. Override or add service specific config
 # properties on each <service-name>-service.yml file
 geoserver:
@@ -48,6 +65,9 @@ geoserver:
         maximumPoolSize: ${jdbcconfig.maxConnections:8}
 
 management:
+  endpoints:
+    enabled-by-default: true
+    web.exposure.include: "*"
   endpoint:
     info.enabled: true
     metrics.enabled: true
@@ -55,11 +75,12 @@ management:
     health:
       enabled: true
       show-details: always
-  endpoints:
-    enabled-by-default: true
-    web.exposure.include: "*"
   metrics:
-    enable.all: false
+    binders:
+      processor.enabled: true
+      uptime.enabled: true
+      jvm.enabled: true
+    enable.all: true
     enable.jvm: true
     export:
       atlas.enabled: false

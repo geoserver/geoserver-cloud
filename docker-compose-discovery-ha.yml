@@ -7,7 +7,7 @@ services:
   # other and all services are registered at both eureka instances.
   # See http://cloud.spring.io/spring-cloud-static/spring-cloud.html#_peer_awareness
   discovery:
-    container_name: discovery-1
+    container_name: discovery
     environment:
       EUREKA_INSTANCE_HOSTNAME: discovery-1
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-2:8761/eureka
@@ -32,8 +32,6 @@ services:
       - discovery2
     environment:
       EUREKA_SERVER_URL: http://discovery-1:8761/eureka, http://discovery-2:8761/eureka
-    # wait until both discovery services are available
-    command: dockerize -wait http://discovery-1:8761/actuator/health -wait http://discovery-2:8761/actuator/health --timeout 15s java ${CONFIG_JAVA_OPTS} -jar /opt/app/config-service.jar
 
   gateway:
     environment:
