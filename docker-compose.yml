@@ -60,15 +60,10 @@ services:
       - 8761:8761 # for development, so services can be run from localhost and find the discovery service running on docker
     networks:
       - gs-cloud-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "-m", "1", "http://localhost:8761/actuator/health"]
-      interval: 1s
-      timeout: 1s
-      retries: 15
     deploy:
       resources:
         limits:
-          cpus: '1.0'
+          cpus: '2.0'
           memory: 512M
 
   # Spring Cloud Config service, provides centralized configuration to all
@@ -95,18 +90,11 @@ services:
       - gs-cloud-network
     volumes:
       - ./config:/opt/app/config
-    healthcheck:
-      test: ["CMD", "curl", "-f", "-m", "1", "http://localhost:8080/actuator/health"]
-      interval: 5s
-      timeout: 2s
-      retries: 15
     deploy:
       resources:
         limits:
-          cpus: '1.0'
+          cpus: '2.0'
           memory: 512M
-    # wait until discovery service is available
-    command: dockerize -wait http://discovery:8761/actuator/health --timeout 60s java ${CONFIG_JAVA_OPTS} -jar /opt/app/config-service.jar
 
   # Application facade, provides a single entry point routing to all
   # microservices (e.g. http://localhost:9090/geoserver/wms, http://localhost:9090/geoserver/wfs, etc)
@@ -123,14 +111,11 @@ services:
       - 9090:8080
     networks:
       - gs-cloud-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
     deploy:
       resources:
         limits:
           cpus: '4.0'
-          memory: 512M
-    command: sh -c "exec dockerize -wait http://config:8080/gateway-service/default --timeout 120s java $$JAVA_OPTS -jar /opt/app/gateway-service.jar"
+          memory: 1G
 
   # catalog microservice, provides a unified catalog backend to all services
   catalog:
@@ -155,14 +140,11 @@ services:
       JDBCCONFIG_MAX_CONNECTIONS: 16 # 2 x CATALOG_IO_THREADS
     networks:
       - gs-cloud-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
     deploy:
       resources:
         limits:
           cpus: '2.0'
-          memory: 512M
-    command: sh -c "exec dockerize -wait http://config:8080/catalog-service/default --timeout 120s java $$JAVA_OPTS -jar /opt/app/catalog-service.jar"
+          memory: 1G
 
   # WFS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wfs=5)
   wfs:
@@ -177,14 +159,11 @@ services:
       - gs-cloud-network
     #tmpfs: #TODO: avoid runs creating volumes at all
     #  - /tmp
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
     deploy:
       resources:
         limits:
           cpus: '2.0'
           memory: 1G
-    command: sh -c "exec dockerize --timeout 120s -wait http://config:8080/wfs-service/default -wait http://catalog:8080/api/v1/catalog/workspaces java $$JAVA_OPTS -jar /opt/app/wfs-service.jar"
 
   # WMS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wms=5)
   wms:
@@ -197,14 +176,11 @@ services:
       RABBITMQ_HOST: rabbitmq
     networks:
       - gs-cloud-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
     deploy:
       resources:
         limits:
           cpus: '2.0'
           memory: 1G
-    command: sh -c "exec dockerize -wait http://config:8080/wms-service/default -wait http://catalog:8080/api/v1/catalog/workspaces --timeout 120s java $$JAVA_OPTS -jar /opt/app/wms-service.jar"
 
   # WCS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wcs=5)
   wcs:
@@ -217,14 +193,11 @@ services:
       RABBITMQ_HOST: rabbitmq
     networks:
       - gs-cloud-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
     deploy:
       resources:
         limits:
           cpus: '2.0'
           memory: 1G
-    command: sh -c "exec dockerize -wait http://config:8080/wcs-service/default -wait http://catalog:8080/api/v1/catalog/workspaces --timeout 120s java $$JAVA_OPTS -jar /opt/app/wcs-service.jar"
 
 #  # WPS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wps=5)
 #  wps:
@@ -238,8 +211,6 @@ services:
 #      RABBITMQ_HOST: rabbitmq
 #    networks:
 #      - gs-cloud-network
-#    healthcheck:
-#      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
 
   # REST config microservice, port dynamically allocated to allow scaling (e.g docker-compose scale rest=5)
   rest:
@@ -253,8 +224,6 @@ services:
       RABBITMQ_HOST: rabbitmq
     networks:
       - gs-cloud-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
     deploy:
       mode: replicated
       replicas: 1
@@ -262,7 +231,6 @@ services:
         limits:
           cpus: '1.5'
           memory: 1G
-    command: sh -c "exec dockerize -wait http://config:8080/restconfig-v1/default -wait http://catalog:8080/api/v1/catalog/workspaces --timeout 120s java $$JAVA_OPTS -jar /opt/app/restconfig-service.jar"
 
   # WEB UI microservice
   webui:
@@ -276,11 +244,8 @@ services:
       RABBITMQ_HOST: rabbitmq
     networks:
       - gs-cloud-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
     deploy:
       resources:
         limits:
           cpus: '2.0'
           memory: 1G
-    command: sh -c "exec dockerize -wait http://config:8080/web-ui/default -wait http://catalog:8080/api/v1/catalog/workspaces --timeout 120s java $$JAVA_OPTS -jar /opt/app/web-ui-service.jar"
