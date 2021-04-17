@@ -25,9 +25,9 @@ server:
   port: 8080
   instance-id: ${spring.application.name}:${spring.application.instance_id:${spring.cloud.client.ip-address}}:${server.port}
   # one of never, always, on_trace_param (deprecated), on_param
-  error.includeStacktrace: on_trace_param
+  error.includeStacktrace: on-trace-param
 spring:
-  jackson.default-property-inclusion: non_empty
+  jackson.default-property-inclusion: non-empty
   jackson.serialization.indent_output: true
   main:
     banner-mode: off
@@ -38,7 +38,7 @@ spring:
   cloud:
     loadbalancer.ribbon.enabled: false # ribbon is in maintenance mode and should be replaced by spring-cloud-loadbalancer
     config:
-      fail-fast: true
+      fail-fast: false
       retry:
         max-attempts: 20
       discovery:
