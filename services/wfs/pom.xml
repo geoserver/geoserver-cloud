@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.geoserver.cloud</groupId>
     <artifactId>gs-cloud-services-parent</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>${revision}</version>
   </parent>
   <artifactId>gs-cloud-wfs</artifactId>
   <packaging>jar</packaging>

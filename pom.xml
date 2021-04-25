@@ -3,7 +3,8 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.geoserver.cloud</groupId>
   <artifactId>gs-cloud-parent</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>${revision}</version>
+  <!-- See https://maven.apache.org/maven-ci-friendly.html -->
   <packaging>pom</packaging>
   <modules>
     <module>support-services</module>
@@ -13,6 +14,7 @@
     <module>integration-tests</module>
   </modules>
   <properties>
+    <revision>1.0-SNAPSHOT</revision>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
     <spring-cloud.version>Hoxton.SR8</spring-cloud.version>
@@ -692,6 +694,11 @@
           </configuration>
         </plugin>
         <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>flatten-maven-plugin</artifactId>
+          <version>1.2.2</version>
+        </plugin>
+        <plugin>
           <groupId>com.coveo</groupId>
           <artifactId>fmt-maven-plugin</artifactId>
           <version>2.4.0</version>
@@ -778,6 +785,11 @@
           <artifactId>build-helper-maven-plugin</artifactId>
           <version>3.2.0</version>
         </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>versions-maven-plugin</artifactId>
+          <version>2.8.1</version>
+        </plugin>
       </plugins>
     </pluginManagement>
     <plugins>
@@ -834,6 +846,31 @@
           <encoding>UTF-8</encoding>
           <fork>${fork.javac}</fork>
           <maxmem>${javac.maxHeapSize}</maxmem>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>flatten-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>flatten</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>flatten</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>flatten.clean</id>
+            <phase>clean</phase>
+            <goals>
+              <goal>clean</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <updatePomFile>true</updatePomFile>
+          <!--flattenMode>resolveCiFriendliesOnly</flattenMode-->
+          <flattenMode>oss</flattenMode>
         </configuration>
       </plugin>
       <plugin>
