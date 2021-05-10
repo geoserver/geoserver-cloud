@@ -23,7 +23,7 @@
     <gs.version>2.20-SNAPSHOT</gs.version>
     <gs.community.version>2.20-SNAPSHOT</gs.community.version>
     <gt.version>26-SNAPSHOT</gt.version>
-    <lombok.version>1.18.12</lombok.version>
+    <lombok.version>1.18.20</lombok.version>
     <mapstruct.version>1.4.0.CR1</mapstruct.version>
     <fmt.action>format</fmt.action>
     <fmt.skip>false</fmt.skip>
