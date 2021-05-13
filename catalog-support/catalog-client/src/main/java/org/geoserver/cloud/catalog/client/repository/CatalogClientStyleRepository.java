@@ -29,7 +29,7 @@ public class CatalogClientStyleRepository extends CatalogClientRepository<StyleI
         return blockAndReturn(client().findStyleByNameAndNullWorkspace(name));
     }
 
-    public @Override Optional<StyleInfo> findByNameAndWordkspace(
+    public @Override Optional<StyleInfo> findByNameAndWorkspace(
             @NonNull String name, @NonNull WorkspaceInfo workspace) {
 
         String workspaceId = workspace.getId();

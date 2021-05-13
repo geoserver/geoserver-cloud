@@ -182,13 +182,13 @@ public class StyleRepositoryTest
 
         assertEquals(
                 ws1s1.getId(),
-                repository.findByNameAndWordkspace(ws1s1.getName(), ws1).get().getId());
+                repository.findByNameAndWorkspace(ws1s1.getName(), ws1).get().getId());
         assertEquals(
                 ws2s1.getId(),
-                repository.findByNameAndWordkspace(ws2s1.getName(), ws2).get().getId());
+                repository.findByNameAndWorkspace(ws2s1.getName(), ws2).get().getId());
 
-        assertTrue(repository.findByNameAndWordkspace(ws1s1.getName(), ws2).isEmpty());
-        assertTrue(repository.findByNameAndWordkspace(ws2s1.getName(), ws1).isEmpty());
+        assertTrue(repository.findByNameAndWorkspace(ws1s1.getName(), ws2).isEmpty());
+        assertTrue(repository.findByNameAndWorkspace(ws2s1.getName(), ws1).isEmpty());
     }
 
     public @Test void testFindStylesByNullWorkspace() {

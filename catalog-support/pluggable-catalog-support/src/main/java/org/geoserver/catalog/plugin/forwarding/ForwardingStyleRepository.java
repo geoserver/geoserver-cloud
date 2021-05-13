@@ -29,8 +29,8 @@ public class ForwardingStyleRepository
         return subject.findByNameAndWordkspaceNull(name);
     }
 
-    public @Override Optional<StyleInfo> findByNameAndWordkspace(
+    public @Override Optional<StyleInfo> findByNameAndWorkspace(
             String name, WorkspaceInfo workspace) {
-        return subject.findByNameAndWordkspace(name, workspace);
+        return subject.findByNameAndWorkspace(name, workspace);
     }
 }

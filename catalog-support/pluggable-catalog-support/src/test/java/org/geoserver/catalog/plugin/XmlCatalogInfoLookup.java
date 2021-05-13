@@ -570,7 +570,7 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
             return findAllByNullWorkspace().filter(s -> s.getName().equals(name)).findFirst();
         }
 
-        public @Override Optional<StyleInfo> findByNameAndWordkspace(
+        public @Override Optional<StyleInfo> findByNameAndWorkspace(
                 String name, WorkspaceInfo workspace) {
 
             return findAllByWorkspace(workspace).filter(s -> s.getName().equals(name)).findFirst();

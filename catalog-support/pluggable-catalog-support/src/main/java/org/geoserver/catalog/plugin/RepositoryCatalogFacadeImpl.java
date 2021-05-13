@@ -426,7 +426,7 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
         if (workspace == NO_WORKSPACE) {
             match = styles.findByNameAndWordkspaceNull(name);
         } else {
-            match = styles.findByNameAndWordkspace(name, workspace);
+            match = styles.findByNameAndWorkspace(name, workspace);
         }
         return match.orElse(null);
     }

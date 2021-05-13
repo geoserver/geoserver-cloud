@@ -200,7 +200,7 @@ public interface CatalogInfoRepository<T extends CatalogInfo> {
 
         Optional<StyleInfo> findByNameAndWordkspaceNull(@NonNull String name);
 
-        Optional<StyleInfo> findByNameAndWordkspace(
+        Optional<StyleInfo> findByNameAndWorkspace(
                 @NonNull String name, @NonNull WorkspaceInfo workspace);
     }
 
