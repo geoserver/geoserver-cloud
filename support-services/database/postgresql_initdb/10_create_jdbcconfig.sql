@@ -74,6 +74,8 @@ CREATE INDEX property_type_target_property_idx ON property_type (target_property
 CREATE INDEX property_type_type_id_idx ON property_type (type_id);
 CREATE INDEX property_type_name_idx ON property_type (name);
 CREATE INDEX property_type_collection_idx ON property_type (collection);
+-- Avoid creating the same target property mapping twice
+CREATE UNIQUE INDEX property_type_unique_target_idx ON property_type (target_property, type_id, name);
 
 CREATE INDEX default_object_def_key_idx ON default_object (def_key);
 CREATE INDEX default_object_id_idx ON default_object (id);

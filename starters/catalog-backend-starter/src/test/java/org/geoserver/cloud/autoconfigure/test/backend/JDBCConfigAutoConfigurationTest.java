@@ -6,14 +6,11 @@ package org.geoserver.cloud.autoconfigure.test.backend;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.stream.IntStream;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogTestData;
-import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.CatalogImpl;
 import org.geoserver.catalog.impl.WorkspaceInfoImpl;
@@ -81,22 +78,5 @@ public class JDBCConfigAutoConfigurationTest extends JDBCConfigTest {
         assertEquals(ws, readback);
         catalog.remove(ws);
         assertNull(catalog.getWorkspaceByName("test-ws"));
-    }
-
-    public @Test void crudTestFeatureTypeMultiThreading() {
-        assertNotNull(data.featureTypeA);
-        Catalog catalog = super.catalog;
-        catalog.add(data.workspaceA);
-        catalog.add(data.namespaceA);
-        catalog.add(data.dataStoreA);
-        catalog.add(data.featureTypeA);
-
-        //        new ConfigDatabase(dataSource, null)
-        IntStream.range(0, 100)
-                .mapToObj(i -> data.createFeatureType("type-" + i))
-                .forEach(catalog::add);
-
-        FeatureTypeInfo featureType = catalog.getFeatureType(data.featureTypeA.getId());
-        assertNotNull(featureType);
     }
 }
