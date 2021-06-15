@@ -9,8 +9,8 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import lombok.experimental.Accessors;
-import org.geoserver.catalog.util.CapabilitiesFilterSplitterFix;
 import org.geotools.filter.Capabilities;
+import org.geotools.filter.visitor.CapabilitiesFilterSplitter;
 import org.opengis.filter.Filter;
 import org.opengis.filter.Id;
 import org.opengis.filter.PropertyIsBetween;
@@ -113,8 +113,8 @@ public class CatalogClientFilterSupport {
     }
 
     public PrePostFilterTuple split(@NonNull Filter filter) {
-        CapabilitiesFilterSplitterFix splitter =
-                new CapabilitiesFilterSplitterFix(capabilities, null, null);
+        CapabilitiesFilterSplitter splitter =
+                new CapabilitiesFilterSplitter(capabilities, null, null);
         filter.accept(splitter, null);
         return new PrePostFilterTuple(splitter.getFilterPre(), splitter.getFilterPost());
     }
