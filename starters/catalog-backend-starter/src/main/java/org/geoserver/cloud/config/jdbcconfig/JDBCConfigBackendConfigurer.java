@@ -34,8 +34,8 @@ import org.geoserver.jdbcstore.cache.ResourceCache;
 import org.geoserver.jdbcstore.cache.SimpleResourceCache;
 import org.geoserver.jdbcstore.internal.JDBCQueryHelper;
 import org.geoserver.platform.GeoServerResourceLoader;
+import org.geoserver.platform.resource.GlobalLockProvider;
 import org.geoserver.platform.resource.LockProvider;
-import org.geoserver.platform.resource.NullLockProvider;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.ResourceNotificationDispatcher;
 import org.geoserver.platform.resource.ResourceStore;
@@ -97,11 +97,31 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
 
     private @Autowired GeoServerBackendProperties configProperties;
 
-    public @PostConstruct void log() {
+    private @Autowired GlobalLockProvider globalLockProvider;
+
+    private static final String JDBC_LOCK_PROVIDER_BEAN_NAME = "jdbcConfigLockProvider";
+
+    public @PostConstruct void initializeJdbcDistributedLocks() {
         log.info(
                 "Loading geoserver config backend with {}",
                 JDBCConfigBackendConfigurer.class.getSimpleName());
+
+        // GlobalLockProvider runs off NullLockProvider for a while until LockProviderInitializer
+        // sets up the one configured in GeoServerInfo.getLockProviderName(), so make sure it
+        // doesn't and uses the distributed lock manager instead
+        LockProvider jdbcConfigLockProvider = jdbcConfigLockProvider();
+        globalLockProvider.setDelegate(jdbcConfigLockProvider);
     }
+
+    @Bean(name = JDBC_LOCK_PROVIDER_BEAN_NAME)
+    public LockProvider jdbcConfigLockProvider() {
+        return new JDBCConfigLockProvider(dataSource);
+    }
+
+    // @ConditionalOnMissingBean(org.geoserver.platform.resource.LockProvider.class)
+    // public @Bean org.geoserver.platform.resource.LockProvider lockProvider() {
+    // return new NullLockProvider();
+    // }
 
     @ConfigurationProperties(prefix = "geoserver.backend.jdbcconfig")
     public @Bean("JDBCConfigProperties") JDBCConfigProperties jdbcConfigProperties() {
@@ -178,7 +198,10 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
         JDBCConfigProperties config = jdbcConfigProperties();
         ConfigDatabase configdb = jdbcConfigDB();
         try {
-            return new CloudJdbcGeoServerLoader(resourceLoader(), config, configdb);
+            CloudJdbcGeoServerLoader cloudJdbcGeoServerLoader =
+                    new CloudJdbcGeoServerLoader(resourceLoader(), config, configdb);
+            cloudJdbcGeoServerLoader.setInitializingLockProviderName(JDBC_LOCK_PROVIDER_BEAN_NAME);
+            return cloudJdbcGeoServerLoader;
         } catch (Exception e) {
             throw new BeanInstantiationException(JDBCGeoServerLoader.class, e.getMessage(), e);
         }
@@ -251,11 +274,6 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
     public @Bean("JDBCConfigXStreamPersisterInitializer") JDBCConfigXStreamPersisterInitializer
             jdbcConfigXStreamPersisterInitializer() {
         return new JDBCConfigXStreamPersisterInitializer();
-    }
-
-    @ConditionalOnMissingBean(org.geoserver.platform.resource.LockProvider.class)
-    public @Bean org.geoserver.platform.resource.LockProvider lockProvider() {
-        return new NullLockProvider();
     }
 
     @ConditionalOnMissingBean(ResourceNotificationDispatcher.class)

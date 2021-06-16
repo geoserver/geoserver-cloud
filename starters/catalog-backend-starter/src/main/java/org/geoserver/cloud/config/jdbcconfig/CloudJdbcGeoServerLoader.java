@@ -5,10 +5,12 @@
 package org.geoserver.cloud.config.jdbcconfig;
 
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.config.DefaultGeoServerLoader;
 import org.geoserver.config.GeoServer;
+import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.GeoServerResourcePersister;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.impl.GeoServerImpl;
@@ -26,11 +28,14 @@ import org.geoserver.platform.GeoServerResourceLoader;
  * because we don't do import, and other methods to avoid coupling on {@link JDBCCatalogFacade} just
  * to get a handle to the {@link ConfigDatabase}
  */
+@Slf4j
 public class CloudJdbcGeoServerLoader extends DefaultGeoServerLoader {
 
     private JDBCConfigProperties config;
 
     private ConfigDatabase configdb;
+
+    private String lockProviderBeanName;
 
     public CloudJdbcGeoServerLoader(
             GeoServerResourceLoader resourceLoader,
@@ -40,6 +45,11 @@ public class CloudJdbcGeoServerLoader extends DefaultGeoServerLoader {
         super(resourceLoader);
         this.config = config;
         this.configdb = configdb;
+    }
+
+    /** */
+    public void setInitializingLockProviderName(String lockProviderBeanName) {
+        this.lockProviderBeanName = lockProviderBeanName;
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -58,6 +68,19 @@ public class CloudJdbcGeoServerLoader extends DefaultGeoServerLoader {
             ServiceInfo s = geoServer.getService(l.getServiceClass());
             if (s == null) {
                 geoServer.add(l.create(geoServer));
+            }
+        }
+        // initialized log provider if unset
+        if (this.lockProviderBeanName != null) {
+            GeoServerInfo global = geoServer.getGlobal();
+            if (global.getLockProviderName() == null) {
+                global.setLockProviderName(lockProviderBeanName);
+                geoServer.save(global);
+            } else if (!lockProviderBeanName.equals(global.getLockProviderName())) {
+                log.warn(
+                        "Configured lock provider {} doesn't match default {}, please make sure that's what you want",
+                        global.getLockProviderName(),
+                        lockProviderBeanName);
             }
         }
     }
