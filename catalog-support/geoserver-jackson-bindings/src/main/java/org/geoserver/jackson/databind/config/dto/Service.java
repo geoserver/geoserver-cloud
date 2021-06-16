@@ -89,6 +89,9 @@ public abstract @Data class Service extends ConfigInfoDto {
         private CacheConfiguration cacheConfiguration;
         private int remoteStyleMaxRequestTime;
         private int remoteStyleTimeout;
+
+        /** @since geoserver 2.19.2 */
+        private boolean defaultGroupStyleEnabled;
     }
 
     @EqualsAndHashCode(callSuper = true)
