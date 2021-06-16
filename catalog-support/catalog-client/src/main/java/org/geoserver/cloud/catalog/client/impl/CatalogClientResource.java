@@ -157,15 +157,15 @@ class CatalogClientResource implements Resource {
                 store.getLockProvider().getClass().getSimpleName());
     }
 
-    boolean isDirectory() {
+    public @Override boolean isDirectory() {
         return getType() == Type.DIRECTORY;
     }
 
-    boolean isFile() {
+    public @Override boolean isFile() {
         return getType() == Type.RESOURCE;
     }
 
-    boolean exists() {
+    public @Override boolean exists() {
         return getType() != Type.UNDEFINED;
     }
 }

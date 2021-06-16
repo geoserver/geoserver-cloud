@@ -36,6 +36,7 @@ import org.geoserver.jdbcstore.internal.JDBCQueryHelper;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.GlobalLockProvider;
 import org.geoserver.platform.resource.LockProvider;
+import org.geoserver.platform.resource.MemoryLockProvider;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.ResourceNotificationDispatcher;
 import org.geoserver.platform.resource.ResourceStore;
@@ -115,7 +116,9 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
 
     @Bean(name = JDBC_LOCK_PROVIDER_BEAN_NAME)
     public LockProvider jdbcConfigLockProvider() {
-        return new JDBCConfigLockProvider(dataSource);
+        LockProvider inProcessLockProvider = new MemoryLockProvider();
+        LockProvider offProcessLockProvider = new JDBCConfigLockProvider(dataSource);
+        return new DoubleLockProvider(inProcessLockProvider, offProcessLockProvider);
     }
 
     // @ConditionalOnMissingBean(org.geoserver.platform.resource.LockProvider.class)
