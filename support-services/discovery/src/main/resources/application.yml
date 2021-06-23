@@ -1,5 +1,6 @@
 server:
   port: 8761
+  instance-id: ${spring.application.name}:${spring.application.instance_id:${spring.cloud.client.ip-address}}:${server.port}
 spring:
   application:
     name: discovery-service
@@ -15,6 +16,7 @@ eureka:
     eviction-interval-timer-in-ms: 10000
   instance:
     hostname: localhost
+    instance-id: ${server.instance-id}
     preferIpAddress: true
     lease-renewal-interval-in-seconds: 5
     lease-expiration-duration-in-seconds: 15
