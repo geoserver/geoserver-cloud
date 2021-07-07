@@ -5,6 +5,7 @@
 package org.geoserver.jackson.databind.config.dto;
 
 import java.io.Serializable;
+import java.util.Locale;
 import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -30,4 +31,7 @@ public @Data class Settings extends ConfigInfoDto {
     private boolean localWorkspaceIncludesPrefix;
     private boolean showCreatedTimeColumnsInAdminList;
     private boolean showModifiedTimeColumnsInAdminList;
+
+    /** @since geoserver 2.20.0 */
+    private Locale defaultLocale;
 }

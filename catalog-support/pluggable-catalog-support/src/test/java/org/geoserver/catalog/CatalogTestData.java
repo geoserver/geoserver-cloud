@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -42,6 +43,7 @@ import org.geoserver.config.impl.LoggingInfoImpl;
 import org.geoserver.config.impl.ServiceInfoImpl;
 import org.geoserver.config.impl.SettingsInfoImpl;
 import org.geoserver.config.plugin.GeoServerImpl;
+import org.geoserver.ows.util.ClassProperties;
 import org.geoserver.ows.util.OwsUtils;
 import org.geoserver.security.CatalogMode;
 import org.geoserver.wcs.WCSInfo;
@@ -59,8 +61,11 @@ import org.geoserver.wps.WPSInfoImpl;
 import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.process.factory.AnnotationDrivenProcessFactory;
 import org.geotools.util.Converters;
+import org.geotools.util.GrowableInternationalString;
+import org.geotools.util.SimpleInternationalString;
 import org.geotools.util.Version;
 import org.junit.rules.ExternalResource;
+import org.opengis.util.InternationalString;
 import org.springframework.util.Assert;
 
 /**
@@ -548,6 +553,26 @@ public class CatalogTestData extends ExternalResource {
         assertEquals(info1, info2);
     }
 
+    // InternationalString properties have not been added to equals() and hashCode() in
+    // CatalogInfo subclasses
+    public void assertInternationalStringPropertiesEqual(Info info1, Info info2) {
+        ClassProperties props = new ClassProperties(info1.getClass());
+        List<String> istringProps =
+                props.properties()
+                        .stream()
+                        .filter(p -> props.getter(p, InternationalString.class) != null)
+                        .collect(Collectors.toList());
+        for (String isp : istringProps) {
+            InternationalString i1 = (InternationalString) OwsUtils.get(info1, isp);
+            InternationalString i2 = (InternationalString) OwsUtils.get(info2, isp);
+            assertEquals(
+                    String.format(
+                            "%s.%s:InternationalString", info1.getClass().getSimpleName(), isp),
+                    i1,
+                    i2);
+        }
+    }
+
     public DataStoreInfo createDataStore(String name, WorkspaceInfo ws) {
         return createDataStore(name + "-id", ws, name, name + " description", true);
     }
@@ -706,6 +731,18 @@ public class CatalogTestData extends ExternalResource {
         s.setName(name);
         s.setTitle(name + " Title");
         s.setAbstract(name + " Abstract");
+        s.setInternationalTitle(
+                createInternationalString(
+                        Locale.ENGLISH,
+                        name + " english title",
+                        Locale.CANADA_FRENCH,
+                        name + "titre anglais"));
+        s.setInternationalAbstract(
+                createInternationalString(
+                        Locale.ENGLISH,
+                        name + " english abstract",
+                        Locale.CANADA_FRENCH,
+                        name + "résumé anglais"));
         s.setAccessConstraints("NONE");
         s.setCiteCompliant(true);
         s.setEnabled(true);
@@ -749,5 +786,23 @@ public class CatalogTestData extends ExternalResource {
         return IntStream.range(0, count)
                 .mapToObj(this::authorityURLInfo)
                 .collect(Collectors.toList());
+    }
+
+    public InternationalString createInternationalString(String val) {
+        return new SimpleInternationalString(val);
+    }
+
+    public InternationalString createInternationalString(Locale l, String val) {
+        GrowableInternationalString s = new GrowableInternationalString();
+        s.add(l, val);
+        return s;
+    }
+
+    public InternationalString createInternationalString(
+            Locale l1, String val1, Locale l2, String val2) {
+        GrowableInternationalString s = new GrowableInternationalString();
+        s.add(l1, val1);
+        s.add(l2, val2);
+        return s;
     }
 }

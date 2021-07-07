@@ -40,6 +40,8 @@ public interface PublishedMapper {
     @Mapping(target = "abstract", ignore = true)
     @Mapping(target = "enabled", ignore = true)
     @Mapping(target = "advertised", ignore = true)
+    @Mapping(target = "internationalTitle", ignore = true)
+    @Mapping(target = "internationalAbstract", ignore = true)
     LayerInfo map(Layer o);
 
     Layer map(LayerInfo o);

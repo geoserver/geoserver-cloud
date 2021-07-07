@@ -5,6 +5,11 @@
 package org.geoserver.jackson.databind.catalog.mapper;
 
 import java.awt.geom.AffineTransform;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import org.geoserver.catalog.AttributeTypeInfo;
 import org.geoserver.catalog.AttributionInfo;
 import org.geoserver.catalog.AuthorityURLInfo;
@@ -39,7 +44,9 @@ import org.geotools.data.util.MeasureConverterFactory;
 import org.geotools.jdbc.VirtualTable;
 import org.geotools.measure.Measure;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
+import org.geotools.util.GrowableInternationalString;
 import org.geotools.util.NumberRange;
+import org.geotools.util.SimpleInternationalString;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -49,6 +56,8 @@ import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.coverage.grid.GridGeometry;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
+import org.opengis.util.InternationalString;
+import org.slf4j.LoggerFactory;
 
 @Mapper(config = CatalogInfoMapperConfig.class)
 public interface ValueMappers {
@@ -235,4 +244,41 @@ public interface ValueMappers {
 
     // there's no implementation for ImagingInfo and ImageFormatInfo, looks like dead code
     // ImageFormatInfo infoToDto();
+
+    Locale UNDEF_LOCALE = new Locale("");
+
+    default Map<Locale, String> internationalStringToDto(InternationalString s) {
+        if (s instanceof GrowableInternationalString) {
+            GrowableInternationalString gs = (GrowableInternationalString) s;
+            Set<Locale> locales = gs.getLocales();
+            Map<Locale, String> dto = new HashMap<>(locales.size());
+            locales.forEach(
+                    locale -> dto.put(locale == null ? UNDEF_LOCALE : locale, gs.toString(locale)));
+            return dto;
+        }
+        if (s instanceof SimpleInternationalString) {
+            return Collections.singletonMap(null, s.toString());
+        }
+        if (s == null) return null;
+
+        LoggerFactory.getLogger(getClass())
+                .warn(
+                        "Uknown InternationalString implementation: "
+                                + s.getClass().getName()
+                                + ". Returning null");
+        return null;
+    }
+
+    default InternationalString dtoToInternationalString(Map<Locale, String> s) {
+        if (s == null) return null;
+        GrowableInternationalString gs = new GrowableInternationalString();
+        s.forEach(
+                (locale, value) -> {
+                    if (UNDEF_LOCALE.equals(locale)) {
+                        locale = null;
+                    }
+                    gs.add(locale, value);
+                });
+        return gs;
+    }
 }

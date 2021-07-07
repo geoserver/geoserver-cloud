@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.function.Function;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.catalog.AuthorityURLInfo;
@@ -51,6 +52,7 @@ import org.geotools.util.NumberRange;
 import org.mapstruct.factory.Mappers;
 import org.opengis.coverage.grid.GridGeometry;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.util.InternationalString;
 
 /**
  * Jackson {@link com.fasterxml.jackson.databind.Module} to handle GeoServer {@link CatalogInfo}
@@ -200,6 +202,12 @@ public class GeoServerCatalogModule extends SimpleModule {
 
         addMapperSerializer(
                 Query.class, VALUE_MAPPER::queryToDto, QueryDto.class, VALUE_MAPPER::dtoToQuery);
+
+        addMapperSerializer(
+                InternationalString.class,
+                VALUE_MAPPER::internationalStringToDto,
+                Map.class,
+                VALUE_MAPPER::dtoToInternationalString);
     }
 
     private void registerSharedMappers() {

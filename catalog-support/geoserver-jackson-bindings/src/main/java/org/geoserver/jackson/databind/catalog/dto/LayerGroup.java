@@ -5,6 +5,8 @@
 package org.geoserver.jackson.databind.catalog.dto;
 
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -30,4 +32,8 @@ public class LayerGroup extends Published {
     protected List<MetadataLink> metadataLinks;
     protected Envelope bounds;
     private List<Keyword> keywords;
+    /** @since geoserver 2.20.0 */
+    private Map<Locale, String> internationalTitle;
+    /** @since geoserver 2.20.0 */
+    private Map<Locale, String> internationalAbstract;
 }

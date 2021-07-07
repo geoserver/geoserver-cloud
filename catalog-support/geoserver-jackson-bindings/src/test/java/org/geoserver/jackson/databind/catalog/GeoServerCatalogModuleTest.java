@@ -22,7 +22,9 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
 import org.geoserver.catalog.AttributeTypeInfo;
 import org.geoserver.catalog.AuthorityURLInfo;
 import org.geoserver.catalog.Catalog;
@@ -108,6 +110,7 @@ import si.uom.SI;
  * Verifies that all {@link CatalogInfo} can be sent over the wire and parsed back using jackson,
  * thanks to {@link GeoServerCatalogModule} jackcon-databind module
  */
+@Slf4j
 public class GeoServerCatalogModuleTest {
 
     private FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2();
@@ -145,7 +148,7 @@ public class GeoServerCatalogModuleTest {
         Class<T> abstractType = (Class<T>) classMappings.getInterface();
 
         String encoded = writer.writeValueAsString(orig);
-        System.out.println(encoded);
+        log.info(encoded);
         T decoded = objectMapper.readValue(encoded, abstractType);
         // assert it can also be parsed using the generic CatalogInfo class
         CatalogInfo asCatalogInfo = objectMapper.readValue(encoded, CatalogInfo.class);
@@ -163,6 +166,7 @@ public class GeoServerCatalogModuleTest {
         decoded = proxyResolver.resolve(decoded);
 
         data.assertEqualsLenientConnectionParameters(orig, decoded);
+        data.assertInternationalStringPropertiesEqual(orig, decoded);
     }
 
     public @Test void testWorkspace() throws Exception {
@@ -208,7 +212,20 @@ public class GeoServerCatalogModuleTest {
         ft.getKeywords().add(k);
         List<AttributeTypeInfo> attributes = createTestAttributes(ft);
         ft.getAttributes().addAll(attributes);
-        catalogInfoRoundtripTest(data.featureTypeA);
+
+        ft.setTitle("Title");
+        ft.setAbstract("abstract");
+        ft.setInternationalTitle(
+                data.createInternationalString(
+                        Locale.ENGLISH, "english title", Locale.CANADA_FRENCH, "titre anglais"));
+        ft.setInternationalAbstract(
+                data.createInternationalString(
+                        Locale.ENGLISH,
+                        "english abstract",
+                        Locale.CANADA_FRENCH,
+                        "résumé anglais"));
+
+        catalogInfoRoundtripTest(ft);
     }
 
     private List<AttributeTypeInfo> createTestAttributes(FeatureTypeInfo info)
@@ -239,7 +256,19 @@ public class GeoServerCatalogModuleTest {
     }
 
     public @Test void testLayerGroup() throws Exception {
-        catalogInfoRoundtripTest(data.layerGroup1);
+        LayerGroupInfo lg = data.layerGroup1;
+        lg.setTitle("LG Title");
+        lg.setAbstract("LG abstract");
+        lg.setInternationalTitle(
+                data.createInternationalString(
+                        Locale.ENGLISH, "english title", Locale.CANADA_FRENCH, "titre anglais"));
+        lg.setInternationalAbstract(
+                data.createInternationalString(
+                        Locale.ENGLISH,
+                        "english abstract",
+                        Locale.CANADA_FRENCH,
+                        "résumé anglais"));
+        catalogInfoRoundtripTest(lg);
     }
 
     public @Test void testLayerGroupWorkspace() throws Exception {
@@ -376,7 +405,7 @@ public class GeoServerCatalogModuleTest {
         ObjectWriter writer = objectMapper.writer();
         writer = writer.withDefaultPrettyPrinter();
         String encoded = writer.writeValueAsString(patch);
-        System.out.println(encoded);
+        log.info(encoded);
         Patch decoded = objectMapper.readValue(encoded, Patch.class);
 
         Patch resolved = proxyResolver.resolve(decoded);
@@ -466,7 +495,7 @@ public class GeoServerCatalogModuleTest {
         ObjectWriter writer = objectMapper.writer();
         writer = writer.withDefaultPrettyPrinter();
         String encoded = writer.writeValueAsString(orig);
-        System.out.println(encoded);
+        log.info(encoded);
         @SuppressWarnings("unchecked")
         T decoded = (T) objectMapper.readValue(encoded, clazz);
         return decoded;
