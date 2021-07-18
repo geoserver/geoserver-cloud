@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -50,4 +51,9 @@ public abstract class Resource extends CatalogInfoDto {
     private boolean serviceConfiguration;
     private List<String> disabledServices;
     private Boolean simpleConversionEnabled;
+
+    /** @since geoserver 2.20.0 */
+    private Map<Locale, String> internationalTitle;
+    /** @since geoserver 2.20.0 */
+    private Map<Locale, String> internationalAbstract;
 }

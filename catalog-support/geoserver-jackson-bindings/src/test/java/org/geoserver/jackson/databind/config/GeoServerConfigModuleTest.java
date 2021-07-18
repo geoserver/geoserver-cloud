@@ -66,7 +66,7 @@ public class GeoServerConfigModuleTest {
         ObjectWriter writer = objectMapper.writer();
         writer = writer.withDefaultPrettyPrinter();
         String encoded = writer.writeValueAsString(orig);
-        System.out.println(encoded);
+
         @SuppressWarnings("unchecked")
         Class<T> type = (Class<T>) ClassMappings.fromImpl(orig.getClass()).getInterface();
 
@@ -78,6 +78,7 @@ public class GeoServerConfigModuleTest {
         OwsUtils.resolveCollections(orig);
         OwsUtils.resolveCollections(decoded);
         assertEquals(orig, decoded);
+        testData.assertInternationalStringPropertiesEqual(orig, decoded);
         if (orig instanceof SettingsInfo) {
             // SettingsInfoImpl's equals() doesn't check workspace
             assertEquals(
@@ -114,7 +115,7 @@ public class GeoServerConfigModuleTest {
     }
 
     public @Test void wmtsServiceInfo() throws Exception {
-        WMTSInfo wmtsService = new WMTSInfoImpl();
+        WMTSInfo wmtsService = testData.createService("wmts", WMTSInfoImpl::new);
         roundtripTest(wmtsService);
     }
 }

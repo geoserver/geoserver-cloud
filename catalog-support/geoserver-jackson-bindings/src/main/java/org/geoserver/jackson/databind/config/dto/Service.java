@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import lombok.Data;
@@ -62,6 +63,13 @@ public abstract @Data class Service extends ConfigInfoDto {
     // not used
     // Map<Object, Object> clientProperties;
 
+    /** @since geoserver 2.20.0 */
+    private Locale defaultLocale;
+    /** @since geoserver 2.20.0 */
+    private Map<Locale, String> internationalTitle;
+    /** @since geoserver 2.20.0 */
+    private Map<Locale, String> internationalAbstract;
+
     @EqualsAndHashCode(callSuper = true)
     public static @Data class WmsService extends Service {
         // Works well as POJO, no need to create a separate DTO
@@ -92,6 +100,11 @@ public abstract @Data class Service extends ConfigInfoDto {
 
         /** @since geoserver 2.19.2 */
         private boolean defaultGroupStyleEnabled;
+
+        /** @since geoserver 2.20.0 */
+        private Map<Locale, String> internationalRootLayerTitle;
+        /** @since geoserver 2.20.0 */
+        private Map<Locale, String> internationalRootLayerAbstract;
     }
 
     @EqualsAndHashCode(callSuper = true)
