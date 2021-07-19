@@ -1,6 +1,7 @@
 geoserver:
   backend.catalog-service.enabled: ${backend.catalog:true}
   web-ui:
+    file-browser.hide-file-system: true
     # These are all default values, here just for reference. You can omit them and add only the ones to disable or further configure
     security.enabled: true
     wfs.enabled: true

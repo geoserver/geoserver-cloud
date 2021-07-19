@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.env.Environment;
 
 @Configuration
 @AutoConfigureAfter({GeoServerWebMvcMainAutoConfiguration.class})
@@ -40,6 +41,7 @@ import org.springframework.context.annotation.Import;
 public class WebUIApplicationAutoConfiguration {
 
     private @Autowired GeoServer geoServer;
+    private @Autowired Environment environment;
 
     public @PostConstruct void setDefaults() {
         GeoServerInfo global = geoServer.getGlobal();
@@ -48,6 +50,14 @@ public class WebUIApplicationAutoConfiguration {
             log.info("Forcing web-ui mode to DO_NOT_REDIRECT, was {}", webUIMode);
             global.setWebUIMode(WebUIMode.DO_NOT_REDIRECT);
             geoServer.save(global);
+        }
+
+        Boolean hidefs =
+                environment.getProperty(
+                        "geoserver.web-ui.file-browser.hide-file-system", Boolean.class);
+        if (Boolean.TRUE.equals(hidefs)) {
+            log.info("Setting GEOSERVER_FILEBROWSER_HIDEFS=true System Property");
+            System.setProperty("GEOSERVER_FILEBROWSER_HIDEFS", "true");
         }
     }
 }

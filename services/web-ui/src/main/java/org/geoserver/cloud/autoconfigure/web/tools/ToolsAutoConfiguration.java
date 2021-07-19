@@ -17,7 +17,11 @@ import org.springframework.context.annotation.Import;
     havingValue = "true",
     matchIfMissing = true
 )
-@Import({ResourceBrowserConfiguration.class, CatalogBulkLoadToolConfiguration.class})
+@Import({
+    ResourceBrowserConfiguration.class,
+    CatalogBulkLoadToolConfiguration.class,
+    ReprojectionConsoleConfiguration.class
+})
 public class ToolsAutoConfiguration extends AbstractWebUIAutoConfiguration {
 
     static final String CONFIG_PREFIX = "geoserver.web-ui.tools";
