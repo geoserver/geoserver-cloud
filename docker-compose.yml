@@ -10,11 +10,8 @@ networks:
         
 services:
   rabbitmq:
-    image: rabbitmq:3-management
+    image: rabbitmq:3.9-management
     restart: always
-    environment:
-      RABBITMQ_DEFAULT_USER: "guest"
-      RABBITMQ_DEFAULT_PASS: "guest"
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
