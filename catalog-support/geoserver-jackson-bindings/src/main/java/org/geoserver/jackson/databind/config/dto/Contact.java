@@ -4,6 +4,8 @@
  */
 package org.geoserver.jackson.databind.config.dto;
 
+import java.util.Locale;
+import java.util.Map;
 import lombok.Data;
 import org.geoserver.config.ContactInfo;
 
@@ -24,4 +26,33 @@ public @Data class Contact {
     private String contactPosition;
     private String contactVoice;
     private String onlineResource;
+
+    /** @since geoserver 2.20.0 */
+    private Map<Locale, String> internationalAddress;
+    /** @since geoserver 2.20.0 */
+    private Map<Locale, String> internationalContactFacsimile;
+    /** @since geoserver 2.20.0 */
+    private Map<Locale, String> internationalContactOrganization;
+    /** @since geoserver 2.20.0 */
+    private Map<Locale, String> internationalContactPerson;
+    /** @since geoserver 2.20.0 */
+    private Map<Locale, String> internationalContactPosition;
+    /** @since geoserver 2.20.0 */
+    private Map<Locale, String> internationalContactVoice;
+    /** @since geoserver 2.20.0 */
+    private Map<Locale, String> internationalOnlineResource;
+    /** @since geoserver 2.20.0 */
+    private Map<Locale, String> internationalAddressCity;
+    /** @since geoserver 2.20.0 */
+    private Map<Locale, String> internationalAddressCountry;
+    /** @since geoserver 2.20.0 */
+    private Map<Locale, String> internationalAddressDeliveryPoint;
+    /** @since geoserver 2.20.0 */
+    private Map<Locale, String> internationalAddressPostalCode;
+    /** @since geoserver 2.20.0 */
+    private Map<Locale, String> internationalAddressState;
+    /** @since geoserver 2.20.0 */
+    private Map<Locale, String> internationalAddressType;
+    /** @since geoserver 2.20.0 */
+    private Map<Locale, String> internationalContactEmail;
 }
