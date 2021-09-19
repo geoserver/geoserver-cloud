@@ -44,7 +44,7 @@ jobs:
         git clone --depth 1 --branch geoserver-cloud_integration https://github.com/groldan/geoserver.git
 
     - name: Set GeoServer version to 2.21-CLOUD
-      run: ./mvnw -f ./geoserver/src/ versions:set -DnewVersion=2.21-CLOUD -PallExtensions,communityRelease install --no-transfer-progress -DskipTests -Dfmt.skip -T1C 
+      run: ./mvnw -f ./geoserver/src/ versions:set -DnewVersion=2.21-CLOUD -PallExtensions,communityRelease --no-transfer-progress -Dfmt.skip -T1C 
 
     - name: Build GeoServer 2.21-CLOUD
       run: ./mvnw -f ./geoserver/src/ install -PallExtensions,communityRelease --no-transfer-progress -DskipTests -Dfmt.skip -T1 
