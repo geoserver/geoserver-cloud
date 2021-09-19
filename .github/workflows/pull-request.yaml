@@ -13,7 +13,7 @@ jobs:
     steps:
 
     - name: Checkout project
-      uses: actions/checkout@v1
+      uses: actions/checkout@v2
 
     - name: Set up Java 11
       uses: actions/setup-java@v1
@@ -28,15 +28,26 @@ jobs:
         restore-keys: |
           gscloud-${{ runner.os }}-maven-
 
+    - name: Clone GeoServer
+      run: |
+        git clone --depth 1 --branch geoserver-cloud_integration https://github.com/groldan/geoserver.git
+
+    - name: Build GeoServer 2.21-CLOUD
+      run: |
+        ./mvnw -f ./geoserver/src/ versions:set -DnewVersion=2.21-CLOUD -PallExtensions,communityRelease install --no-transfer-progress -DskipTests -Dfmt.skip -T1C 
+        ./mvnw -f ./geoserver/src/ install -PallExtensions,communityRelease --no-transfer-progress -DskipTests -Dfmt.skip -T1 
+
     - name: Update maven dependencies
-      run: ./mvnw -P\!docker de.qaware.maven:go-offline-maven-plugin:resolve-dependencies --no-transfer-progress
+      run: ./mvnw -Dgs.version=2.21-CLOUD -Dgs.community.version=2.21-CLOUD -P\!docker de.qaware.maven:go-offline-maven-plugin:resolve-dependencies --no-transfer-progress
 
     - name: Build without tests
-      run: ./mvnw -P\!docker -ntp -Dfmt.action=check install -T1C -DskipTests
+      run: ./mvnw -Dgs.version=2.21-CLOUD -Dgs.community.version=2.21-CLOUD -P\!docker -ntp -Dfmt.action=check install -T1C -DskipTests
 
     - name: Test
-      run: ./mvnw -P\!docker -ntp verify -T1C -fae
+      run: ./mvnw -Dgs.version=2.21-CLOUD -Dgs.community.version=2.21-CLOUD -P\!docker -ntp verify -T1C -fae
 
     - name: Remove project jars from cached repository
       run: |
         rm -rf .m2/repository/org/geoserver/cloud
+        rm -rf .m2/repository/org/geoserver
+        

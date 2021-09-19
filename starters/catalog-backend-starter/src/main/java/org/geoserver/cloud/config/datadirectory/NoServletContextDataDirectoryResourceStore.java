@@ -31,7 +31,7 @@ public class NoServletContextDataDirectoryResourceStore extends DataDirectoryRes
         } else if (!resourceDirectory.isDirectory() && !resourceDirectory.mkdirs()) {
             throw new IllegalArgumentException("Unable to create directory " + resourceDirectory);
         }
-        this.baseDirectory = resourceDirectory;
+        this.setBaseDirectory(resourceDirectory);
     }
 
     public @Override void setServletContext(ServletContext servletContext) {
