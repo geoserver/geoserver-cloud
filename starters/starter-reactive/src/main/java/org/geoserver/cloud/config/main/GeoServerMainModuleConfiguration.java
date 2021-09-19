@@ -9,7 +9,6 @@ import org.geoserver.catalog.SLDHandler;
 import org.geoserver.catalog.SLDPackageHandler;
 import org.geoserver.cloud.config.catalog.GeoServerBackendConfigurer;
 import org.geoserver.config.CatalogTimeStampUpdater;
-import org.geoserver.platform.resource.NullLockProvider;
 import org.geoserver.platform.resource.SimpleResourceNotificationDispatcher;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -27,11 +26,6 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class GeoServerMainModuleConfiguration {
-
-    // TODO: revisit
-    public @Bean org.geoserver.platform.resource.LockProvider lockProvider() {
-        return new NullLockProvider();
-    }
 
     // TODO: revisit, provide an appropriate notification dispatcher in for the event bus
     public @Bean org.geoserver.platform.resource.ResourceNotificationDispatcher
