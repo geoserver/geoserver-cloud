@@ -33,8 +33,8 @@ import org.geoserver.jdbcstore.JDBCResourceStore;
 import org.geoserver.jdbcstore.cache.ResourceCache;
 import org.geoserver.jdbcstore.cache.SimpleResourceCache;
 import org.geoserver.jdbcstore.internal.JDBCQueryHelper;
+import org.geoserver.jdbcstore.locks.LockRegistryAdapter;
 import org.geoserver.platform.GeoServerResourceLoader;
-import org.geoserver.platform.resource.LockProvider;
 import org.geoserver.platform.resource.NullLockProvider;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.ResourceNotificationDispatcher;
@@ -51,6 +51,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.integration.jdbc.lock.DefaultLockRepository;
+import org.springframework.integration.jdbc.lock.JdbcLockRegistry;
+import org.springframework.util.StringUtils;
 
 /**
  * Configure JDBC Config catalog
@@ -90,12 +93,12 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
     private @Autowired @Qualifier("xstreamPersisterFactory") XStreamPersisterFactory
             xstreamPersisterFactory;
 
-    private @Autowired LockProvider lockProvider;
-
     private @Autowired @Qualifier("resourceNotificationDispatcher") ResourceNotificationDispatcher
             resourceWatcher;
 
     private @Autowired GeoServerBackendProperties configProperties;
+
+    private @Value("${server.instance-id:}") String instanceId;
 
     public @PostConstruct void log() {
         log.info(
@@ -138,12 +141,36 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
             JDBCResourceStore resourceStore;
             resourceStore = new JDBCResourceStore(dataSource, jdbcStoreProperties);
             resourceStore.setCache(jdbcResourceCache());
-            resourceStore.setLockProvider(lockProvider);
+            resourceStore.setLockProvider(jdbcStoreLockProvider());
             resourceStore.setResourceNotificationDispatcher(resourceWatcher);
             return resourceStore;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public @Bean LockRegistryAdapter jdbcStoreLockProvider() {
+        return new LockRegistryAdapter(jdbcLockRegistry());
+    }
+
+    public @Bean JdbcLockRegistry jdbcLockRegistry() {
+        return new JdbcLockRegistry(jdbcLockRepository());
+    }
+
+    public @Bean DefaultLockRepository jdbcLockRepository() {
+        String id = this.instanceId;
+        DefaultLockRepository lockRepository;
+        if (StringUtils.hasLength(id)) {
+            lockRepository = new DefaultLockRepository(dataSource, id);
+        } else {
+            lockRepository = new DefaultLockRepository(dataSource);
+        }
+        // override default table prefix "INT" by "RESOURCE_" (matching table definition
+        // RESOURCE_LOCK in init.XXX.sql
+        lockRepository.setPrefix("RESOURCE_");
+        // time in ms to expire dead locks (10k is the default)
+        lockRepository.setTimeToLive(10_000);
+        return lockRepository;
     }
 
     @Bean(name = {"catalogFacade", "JDBCCatalogFacade"})

@@ -17,6 +17,7 @@ import org.geoserver.config.DefaultGeoServerLoader;
 import org.geoserver.config.GeoServerLoader;
 import org.geoserver.config.plugin.RepositoryGeoServerFacade;
 import org.geoserver.platform.GeoServerResourceLoader;
+import org.geoserver.platform.resource.FileLockProvider;
 import org.geoserver.platform.resource.ResourceStore;
 import org.geoserver.wcs.WCSXStreamLoader;
 import org.geoserver.wfs.WFSXStreamLoader;
@@ -78,7 +79,10 @@ public class DataDirectoryBackendConfigurer implements GeoServerBackendConfigure
     public @Override @Bean ResourceStore resourceStoreImpl() {
         Path path = configProperties.getDataDirectory().getLocation();
         File dataDirectory = path.toFile();
-        return new NoServletContextDataDirectoryResourceStore(dataDirectory);
+        NoServletContextDataDirectoryResourceStore store =
+                new NoServletContextDataDirectoryResourceStore(dataDirectory);
+        store.setLockProvider(new FileLockProvider(dataDirectory));
+        return store;
     }
 
     public @Bean WMSXStreamLoader wmsxStreamLoader() {
