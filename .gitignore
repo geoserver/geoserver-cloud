@@ -32,3 +32,5 @@ webapp
 .attach_pid*
 
 .flattened-pom.xml
+
+docker-compose_datadir
