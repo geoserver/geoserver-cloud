@@ -13,15 +13,6 @@
     <dockerfile.skip>false</dockerfile.skip>
     <docker.image.name>geoserver-cloud-webui</docker.image.name>
     <start-class>org.geoserver.cloud.web.app.WebUIApplication</start-class>
-    <!-- The following properties control whether all gs-wms,gs-wfs,gs-wcs,gs-wps, and gs-gwc transitive dependencies are
-      excluded. Those jars need to be on the classpath even if the respective profiles are disabled, because they each provide
-      a configuration org.geoserver.config.ServiceInfo class whose absence may cause a com.thoughtworks.xstream.mapper.CannotResolveClassException.
-      The wps,wfs,wcs,wps, and gwc profiles below remove the wildcard character from their respective xxx_excludes property in
-      order to restore the profiles transitive dependencies -->
-    <wms_excludes>*</wms_excludes>
-    <wfs_excludes>*</wfs_excludes>
-    <wcs_excludes>*</wcs_excludes>
-    <wps_excludes>*</wps_excludes>
     <gwc_excludes>*</gwc_excludes>
   </properties>
   <dependencies>
@@ -77,48 +68,20 @@
       <artifactId>gt-wfs-ng</artifactId>
     </dependency>
     <dependency>
-      <!-- just to avoid a com.thoughtworks.xstream.mapper.CannotResolveClassException: org.geoserver.wfs.WFSInfoImpl -->
       <groupId>org.geoserver</groupId>
       <artifactId>gs-wfs</artifactId>
-      <exclusions>
-        <exclusion>
-          <artifactId>${wfs_excludes}</artifactId>
-          <groupId>${wfs_excludes}</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
-      <!-- just to avoid a com.thoughtworks.xstream.mapper.CannotResolveClassException: org.geoserver.wms.WMSInfoImpl -->
       <groupId>org.geoserver</groupId>
       <artifactId>gs-wms</artifactId>
-      <exclusions>
-        <exclusion>
-          <artifactId>${wms_excludes}</artifactId>
-          <groupId>${wms_excludes}</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
-      <!-- just to avoid a com.thoughtworks.xstream.mapper.CannotResolveClassException: org.geoserver.wcs.WCSInfoImpl -->
       <groupId>org.geoserver</groupId>
       <artifactId>gs-wcs</artifactId>
-      <exclusions>
-        <exclusion>
-          <artifactId>${wcs_excludes}</artifactId>
-          <groupId>${wcs_excludes}</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
-      <!-- just to avoid a com.thoughtworks.xstream.mapper.CannotResolveClassException: org.geoserver.wps.WPSInfoImpl -->
       <groupId>org.geoserver.extension</groupId>
       <artifactId>gs-wps-core</artifactId>
-      <exclusions>
-        <exclusion>
-          <artifactId>${wps_excludes}</artifactId>
-          <groupId>${wps_excludes}</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <!-- just to avoid a com.thoughtworks.xstream.mapper.CannotResolveClassException: org.geoserver.gwc.WMTSInfoImpl -->
@@ -191,10 +154,6 @@
       <activation>
         <activeByDefault>true</activeByDefault>
       </activation>
-      <properties>
-        <!-- use none instead of empty to avoid a maven warning -->
-        <wms_excludes>none</wms_excludes>
-      </properties>
       <dependencies>
         <dependency>
           <groupId>org.geoserver.web</groupId>
@@ -207,10 +166,6 @@
       <activation>
         <activeByDefault>true</activeByDefault>
       </activation>
-      <properties>
-        <!-- use none instead of empty to avoid a maven warning -->
-        <wfs_excludes>none</wfs_excludes>
-      </properties>
       <dependencies>
         <dependency>
           <groupId>org.geoserver.web</groupId>
@@ -223,10 +178,6 @@
       <activation>
         <activeByDefault>true</activeByDefault>
       </activation>
-      <properties>
-        <!-- use none instead of empty to avoid a maven warning -->
-        <wcs_excludes>none</wcs_excludes>
-      </properties>
       <dependencies>
         <dependency>
           <groupId>org.geoserver.web</groupId>
@@ -251,10 +202,6 @@
       <activation>
         <activeByDefault>true</activeByDefault>
       </activation>
-      <properties>
-        <!-- use none instead of empty to avoid a maven warning -->
-        <wps_excludes>none</wps_excludes>
-      </properties>
       <dependencies>
         <dependency>
           <groupId>org.geoserver.extension</groupId>
@@ -265,7 +212,7 @@
     <profile>
       <id>gwc</id>
       <activation>
-        <activeByDefault>true</activeByDefault>
+        <activeByDefault>false</activeByDefault>
       </activation>
       <properties>
         <!-- use none instead of empty to avoid a maven warning -->
