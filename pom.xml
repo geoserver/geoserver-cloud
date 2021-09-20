@@ -165,11 +165,6 @@
         <version>${gs.version}</version>
         <exclusions>
           <exclusion>
-            <artifactId>javaee-api</artifactId>
-            <!-- exclusion only needed if building with geoserver 2.1.7.x, 2.18.x already removed this dependency -->
-            <groupId>javax</groupId>
-          </exclusion>
-          <exclusion>
             <artifactId>spring-webmvc</artifactId>
             <groupId>org.springframework</groupId>
           </exclusion>
@@ -229,11 +224,6 @@
         <artifactId>gs-wcs</artifactId>
         <version>${gs.version}</version>
         <exclusions>
-          <exclusion>
-            <artifactId>javaee-api</artifactId>
-            <!-- exclusion only needed if building with geoserver 2.1.7.x, 2.18.x already removed this dependency -->
-            <groupId>javax</groupId>
-          </exclusion>
           <!-- exclude data formats, let them be managed by the ones explicitly imported by this module -->
           <exclusion>
             <artifactId>gt-geotiff</artifactId>
@@ -257,48 +247,22 @@
         <groupId>org.geoserver</groupId>
         <artifactId>gs-wcs1_0</artifactId>
         <version>${gs.version}</version>
-        <exclusions>
-          <exclusion>
-            <artifactId>javaee-api</artifactId>
-            <!-- exclusion only needed if building with geoserver 2.1.7.x, 2.18.x already removed this dependency -->
-            <groupId>javax</groupId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.geoserver</groupId>
         <artifactId>gs-wcs1_1</artifactId>
         <version>${gs.version}</version>
-        <exclusions>
-          <exclusion>
-            <artifactId>javaee-api</artifactId>
-            <!-- exclusion only needed if building with geoserver 2.1.7.x, 2.18.x already removed this dependency -->
-            <groupId>javax</groupId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.geoserver</groupId>
         <artifactId>gs-wcs2_0</artifactId>
         <version>${gs.version}</version>
-        <exclusions>
-          <exclusion>
-            <artifactId>javaee-api</artifactId>
-            <!-- exclusion only needed if building with geoserver 2.1.7.x, 2.18.x already removed this dependency -->
-            <groupId>javax</groupId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.geoserver.extension</groupId>
         <artifactId>gs-wps-core</artifactId>
         <version>${gs.version}</version>
         <exclusions>
-          <exclusion>
-            <artifactId>javaee-api</artifactId>
-            <!-- exclusion only needed if building with geoserver 2.1.7.x, 2.18.x already removed this dependency -->
-            <groupId>javax</groupId>
-          </exclusion>
           <!-- exclude data formats, let them be managed by the ones explicitly imported by this module -->
           <exclusion>
             <artifactId>gt-geotiff</artifactId>
@@ -372,13 +336,6 @@
         <groupId>org.geoserver.extension</groupId>
         <artifactId>gs-web-wps</artifactId>
         <version>${gs.version}</version>
-        <exclusions>
-          <exclusion>
-            <artifactId>javaee-api</artifactId>
-            <!-- exclusion only needed if building with geoserver 2.1.7.x, 2.18.x already removed this dependency -->
-            <groupId>javax</groupId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.geoserver.web</groupId>
