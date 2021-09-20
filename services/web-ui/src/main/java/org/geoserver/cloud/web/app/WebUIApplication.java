@@ -49,5 +49,11 @@ public class WebUIApplication {
                 instanceId,
                 cpus,
                 maxMem);
+
+        String nodeOpts = System.getProperty("GEOSERVER_NODE_OPTS");
+        if (null == nodeOpts) {
+            nodeOpts = String.format("id:%s;color:FF0000", instanceId);
+            System.setProperty("GEOSERVER_NODE_OPTS", nodeOpts);
+        }
     }
 }
