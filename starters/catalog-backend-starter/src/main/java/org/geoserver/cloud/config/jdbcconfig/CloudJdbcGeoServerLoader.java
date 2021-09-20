@@ -19,6 +19,7 @@ import org.geoserver.jdbcconfig.internal.ConfigDatabase;
 import org.geoserver.jdbcconfig.internal.JDBCConfigProperties;
 import org.geoserver.platform.GeoServerExtensions;
 import org.geoserver.platform.GeoServerResourceLoader;
+import org.geoserver.platform.resource.Resource.Lock;
 
 /**
  * Overrides {@link #loadGeoServer(GeoServer, XStreamPersister)} to avoid a class cast exception on
@@ -45,20 +46,25 @@ public class CloudJdbcGeoServerLoader extends DefaultGeoServerLoader {
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     protected void loadGeoServer(GeoServer geoServer, XStreamPersister xp) throws Exception {
-        if (geoServer.getGlobal() == null) {
-            geoServer.setGlobal(geoServer.getFactory().createGlobal());
-        }
-        if (geoServer.getLogging() == null) {
-            geoServer.setLogging(geoServer.getFactory().createLogging());
-        }
-        // ensure we have a service configuration for every service we know about
-        final List<XStreamServiceLoader> loaders =
-                GeoServerExtensions.extensions(XStreamServiceLoader.class);
-        for (XStreamServiceLoader l : loaders) {
-            ServiceInfo s = geoServer.getService(l.getServiceClass());
-            if (s == null) {
-                geoServer.add(l.create(geoServer));
+        final Lock lock = resourceLoader.getLockProvider().acquire("GLOBAL");
+        try {
+            if (geoServer.getGlobal() == null) {
+                geoServer.setGlobal(geoServer.getFactory().createGlobal());
             }
+            if (geoServer.getLogging() == null) {
+                geoServer.setLogging(geoServer.getFactory().createLogging());
+            }
+            // ensure we have a service configuration for every service we know about
+            final List<XStreamServiceLoader> loaders =
+                    GeoServerExtensions.extensions(XStreamServiceLoader.class);
+            for (XStreamServiceLoader l : loaders) {
+                ServiceInfo s = geoServer.getService(l.getServiceClass());
+                if (s == null) {
+                    geoServer.add(l.create(geoServer));
+                }
+            }
+        } finally {
+            lock.release();
         }
     }
 

@@ -13,7 +13,6 @@ import org.geoserver.catalog.plugin.DefaultMemoryCatalogFacade;
 import org.geoserver.cloud.autoconfigure.bus.ConditionalOnGeoServerRemoteEventsEnabled;
 import org.geoserver.cloud.config.catalog.GeoServerBackendConfigurer;
 import org.geoserver.cloud.config.catalog.GeoServerBackendProperties;
-import org.geoserver.config.DefaultGeoServerLoader;
 import org.geoserver.config.GeoServerLoader;
 import org.geoserver.config.plugin.RepositoryGeoServerFacade;
 import org.geoserver.platform.GeoServerResourceLoader;
@@ -63,7 +62,7 @@ public class DataDirectoryBackendConfigurer implements GeoServerBackendConfigure
     })
     public @Override @Bean GeoServerLoader geoServerLoaderImpl() {
         GeoServerResourceLoader resourceLoader = resourceLoader();
-        return new DefaultGeoServerLoader(resourceLoader);
+        return new DataDirectoryGeoServerLoader(resourceLoader);
     }
 
     public @Override @Bean GeoServerResourceLoader resourceLoader() {
