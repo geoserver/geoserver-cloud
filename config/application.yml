@@ -146,12 +146,19 @@ jdbcconfig.username: geoserver
 jdbcconfig.password: geo5erver
 ---
 spring.profiles: datadir
-geoserver:
-  backend:
-    data-directory:
-      enabled: true
-      location: ${GEOSERVER_DATA_DIR:${java.io.tmpdir}/cngs/default_data_directory} 
-
+backend.jdbcconfig: false
+backend.catalog: false
+backend.data-directory: true
+---
+spring.profiles: jdbcconfig
+backend.jdbcconfig: true
+backend.catalog: false
+backend.data-directory: false
+---
+spring.profiles: catalog
+backend.catalog: true
+backend.jdbcconfig: false
+backend.data-directory: false
 ---
 spring.profiles: debug
 
