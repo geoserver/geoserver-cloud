@@ -50,10 +50,10 @@ jobs:
       run: ./mvnw -f ./geoserver/src/ install -PallExtensions,communityRelease --no-transfer-progress -DskipTests -Dfmt.skip -T1 
 
     - name: Update maven dependencies
-      run: ./mvnw -Dgs.version=2.21-CLOUD -Dgs.community.version=2.21-CLOUD -P\!docker de.qaware.maven:go-offline-maven-plugin:resolve-dependencies --no-transfer-progress
+      run: ./mvnw de.qaware.maven:go-offline-maven-plugin:resolve-dependencies -Dgs.version=2.21-CLOUD -Dgs.community.version=2.21-CLOUD -P-docker -ntp -Dfmt.skip
 
     - name: Build and push docker images
-      run: ./mvnw -Dgs.version=2.21-CLOUD -Dgs.community.version=2.21-CLOUD -Pdocker -Ddockerfile.push.skip=false -ntp -Dfmt.skip install -T1 -DskipTests
+      run: ./mvnw install -Dgs.version=2.21-CLOUD -Dgs.community.version=2.21-CLOUD -Ddockerfile.push.skip=false -ntp -Dfmt.skip -T1 -DskipTests
 
     - name: Remove project jars from cached repository
       run: |
