@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Import;
 
 @ConditionalOnGeoServerSecurityEnabled
 @Import(GeoServerSecurityConfiguration.class)
-@Slf4j
+@Slf4j(topic = "org.geoserver.cloud.autoconfigure.security")
 public @Configuration class GeoServerSecurityEnabledAutoConfiguration {
 
     private @Value("${geoserver.security.enabled:#{null}}") Boolean enabled;

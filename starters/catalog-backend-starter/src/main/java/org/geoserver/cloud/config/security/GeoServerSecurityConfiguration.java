@@ -6,11 +6,19 @@ package org.geoserver.cloud.config.security;
 
 import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.geoserver.cloud.autoconfigure.bus.ConditionalOnGeoServerRemoteEventsDisabled;
+import org.geoserver.cloud.autoconfigure.bus.ConditionalOnGeoServerRemoteEventsEnabled;
 import org.geoserver.cloud.autoconfigure.security.ConditionalOnGeoServerSecurityEnabled;
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
+import org.geoserver.cloud.security.CloudGeoServerSecurityManager;
+import org.geoserver.cloud.security.GeoServerSecurityConfigChangeEvent;
+import org.geoserver.config.GeoServerDataDirectory;
+import org.geoserver.security.GeoServerSecurityManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
+import org.springframework.cloud.bus.jackson.RemoteApplicationEventScan;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 
@@ -32,10 +40,12 @@ import org.springframework.context.annotation.ImportResource;
 @Configuration
 @ImportResource(
     reader = FilteringXmlBeanDefinitionReader.class, //
-    locations = {"classpath*:/applicationSecurityContext.xml"}
+    // exclude authenticationManager from applicationSecurityContext.xml
+    locations = {"classpath*:/applicationSecurityContext.xml#name=^(?!authenticationManager).*$"}
 )
-@Slf4j
+@Slf4j(topic = "org.geoserver.cloud.config.security")
 @ConditionalOnGeoServerSecurityEnabled
+@RemoteApplicationEventScan(basePackageClasses = {GeoServerSecurityConfigChangeEvent.class})
 public class GeoServerSecurityConfiguration {
 
     private @Value("${geoserver.security.enabled:#{null}}") Boolean enabled;
@@ -45,23 +55,25 @@ public class GeoServerSecurityConfiguration {
                 "GeoServer security being configured through classpath*:/applicationSecurityContext.xml");
     }
 
-    //    @Bean(name = "accessRulesDao")
-    //    @DependsOn({"extensions", "rawCatalog"})
-    //    public DataAccessRuleDAO accessRulesDao(
-    //            GeoServerDataDirectory dataDirectory, @Qualifier("rawCatalog") Catalog rawCatalog)
-    //            throws Exception {
-    //        return new DataAccessRuleDAO(dataDirectory, rawCatalog);
-    //    }
+    /**
+     * Override the {@code authenticationManager} bean defined in {@code gs-main}'s {@code
+     * applicationSecurityContext.xml} with a version that notifies other services of any security
+     * configuration change, and listens to remote events from other services in order to {@link
+     * GeoServerSecurityManager#reload() reload} the config.
+     *
+     * @return {@link CloudGeoServerSecurityManager}
+     */
+    @Bean(name = {"authenticationManager", "geoServerSecurityManager"})
+    @ConditionalOnGeoServerRemoteEventsEnabled
+    public CloudGeoServerSecurityManager cloudAuthenticationManager(GeoServerDataDirectory dataDir)
+            throws Exception {
+        return new CloudGeoServerSecurityManager(dataDir);
+    }
 
-    // // <bean id="authenticationManager" class="org.geoserver.security.GeoServerSecurityManager"
-    // // depends-on="extensions">
-    // // <constructor-arg ref="dataDirectory"/>
-    // // </bean>
-    // // <alias name="authenticationManager" alias="geoServerSecurityManager"/>
-    //    @Bean(name = {"authenticationManager", "geoServerSecurityManager"})
-    //    public GeoServerSecurityManager geoServerSecurityManager(GeoServerDataDirectory
-    // dataDirectory)
-    //            throws Exception {
-    //        return new GeoServerSecurityManager(dataDirectory);
-    //    }
+    @Bean(name = {"authenticationManager", "geoServerSecurityManager"})
+    @ConditionalOnGeoServerRemoteEventsDisabled
+    public GeoServerSecurityManager defaultAuthenticationManager(GeoServerDataDirectory dataDir)
+            throws Exception {
+        return new GeoServerSecurityManager(dataDir);
+    }
 }
