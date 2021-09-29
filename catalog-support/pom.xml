@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.geoserver.cloud</groupId>
     <artifactId>gs-cloud-parent</artifactId>
-    <version>${revision}</version>
+    <version>1.0-RC1</version>
   </parent>
   <artifactId>gs-cloud-catalog-support</artifactId>
   <packaging>pom</packaging>
