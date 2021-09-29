@@ -29,9 +29,6 @@ public class DataDirectoryGeoServerLoader extends DefaultGeoServerLoader {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     protected void initializeEmptyConfig(final GeoServer geoServer) {
-        if (geoServer.getGlobal() != null && geoServer.getLogging() != null) {
-            return;
-        }
         // TODO: this needs to be pushed upstream
         final Lock lock = resourceLoader.getLockProvider().acquire("GLOBAL");
         try {

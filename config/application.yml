@@ -122,7 +122,8 @@ logging:
     org.geoserver.wfs: WARN
     org.geoserver.jackson: INFO
     org.geotools.jackson: INFO
-    org.geoserver.platform: ERROR
+    org.geoserver.platform: INFO
+    org.geoserver.platform.resource: INFO
     org.geoserver.jdbcconfig: INFO
     oshi.hardware.platform.linux: ERROR
     oshi.software.os: ERROR

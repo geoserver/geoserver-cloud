@@ -256,7 +256,12 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
     }
 
     public @Override void save(StoreInfo store) {
-        doSave(store);
+        if (store.getId() == null) {
+            // some code uses save() when it should use add()
+            add(store);
+        } else {
+            doSave(store);
+        }
     }
 
     public @Override <T extends StoreInfo> T detach(T store) {
@@ -1291,8 +1296,14 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
      *     properties
      */
     protected <I extends CatalogInfo> void doSave(final I info) {
-        validationSupport.validate(info, false);
         ModificationProxy proxy = ProxyUtils.handler(info, ModificationProxy.class);
+        if (null == proxy) {
+            throw new IllegalArgumentException(
+                    "The object to save ("
+                            + info.getClass().getName()
+                            + ") is not a ModificationProxy and hence did not come out of this catalog. Saving an object requires to use an instance obtained from the Catalog.");
+        }
+        validationSupport.validate(info, false);
         // figure out what changed
         List<String> propertyNames = proxy.getPropertyNames();
         List<Object> newValues = proxy.getNewValues();
