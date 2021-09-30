@@ -24,7 +24,7 @@ RUN mkdir -p /opt/app \
 WORKDIR /opt/app/bin
 ENV JAVA_OPTS=
 EXPOSE 8080
-HEALTHCHECK CMD wait-for -t 0 http://localhost:8080/actuator/health || exit 1
+HEALTHCHECK CMD wait-for -t 0 http://localhost:8761/actuator/health || exit 1
 
 USER geo:geo
 COPY --from=builder dependencies/ ./

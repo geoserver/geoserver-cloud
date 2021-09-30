@@ -1,0 +1,202 @@
+version: "3.8"
+
+volumes:
+  # a volume to host the shared data directory. Mount it at /opt/app/data_directory, since
+  # /opt/app is owned by the user geo:geo (603:603) in the containers. Otherwise it'd be owned by root
+  shared_data_directory:
+  rabbitmq_data: # volume for rabbitmq data, so it doesn't create an anonymous one on each container
+  
+networks:
+  gs-cloud-network:
+        
+services:
+  rabbitmq:
+    image: rabbitmq:3.9-management
+    restart: always
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - gs-cloud-network
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+
+  # Eureka service discovery. This is a Discovery First Bootstrap configuration.
+  # The discovery service is the only fixed entry point.
+  # Browse to http://localhost:8761 to check all services are registered.
+  # Run docker-compose -f docker-compose.yml -f docker-compose-discovery-ha.yml to run extra discovery service instances for HA
+  discovery:
+    image: geoservercloud/geoserver-cloud-discovery:1.0-RC1
+    environment:
+      SERVER_PORT: 8761
+      EUREKA_INSTANCE_HOSTNAME: discovery
+    ports:
+      - 8761:8761
+    networks:
+      - gs-cloud-network
+    restart: always
+    healthcheck:
+      test: ["CMD", "wait-for","-t","0","http://localhost:8761/actuator/health"]
+      interval: 1s
+      timeout: 1s
+      retries: 30
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 512M
+
+  # Spring Cloud Config service, provides centralized configuration to all
+  # microservices. Being a Discovery First Bootstrap configuration, it'll
+  # register itself with the Eureka discovery service and can be scaled
+  config:
+    image: geoservercloud/geoserver-cloud-config:1.0-RC1
+    depends_on:
+      - discovery
+    environment:
+      EUREKA_SERVER_URL: http://discovery:8761/eureka
+      # Either 'git' or 'native'. Use the default sample git repository to download the services configuration from
+      # If 'git', BEWARE config server will look for a branch called "master", and github changed the default branch name to "main"
+      # For more information, see https://cloud.spring.io/spring-cloud-config/multi/multi__spring_cloud_config_server.html#_git_backend
+      SPRING_PROFILES_ACTIVE: git
+      # 'git' profile config
+      CONFIG_GIT_URI: https://github.com/geoserver/geoserver-cloud-config.git
+      # get the config for this release from the rv1.0-RC1 branch
+      spring.cloud.config.server.git.default-label: r1.0-RC1
+      # where to store the cloned repository, if unset, it'll use /tmp/config-repo-<randomid>
+      CONFIG_GIT_BASEDIR: /opt/app/git_config
+      # 'native' profile config
+      CONFIG_NATIVE_PATH: /opt/app/config
+    networks:
+      - gs-cloud-network
+    # Uncoment to bind to a local filesystem directory if using the 'native' profile
+    #volumes:
+    #  - ./config:/opt/app/config
+    healthcheck:
+      test: ["CMD", "wait-for","-t","0","http://localhost:8080/actuator/health"]
+      interval: 1s
+      timeout: 1s
+      retries: 30
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 512M
+
+  # Application facade, provides a single entry point routing to all
+  # microservices (e.g. http://localhost:9090/geoserver/wms, http://localhost:9090/geoserver/wfs, etc)
+  gateway:
+    image: geoservercloud/geoserver-cloud-gateway:1.0-RC1
+    depends_on:
+      - config
+    environment:
+      SPRING_PROFILES_ACTIVE: "datadir"
+      EUREKA_SERVER_URL: http://discovery:8761/eureka
+    ports:
+      - 9090:8080
+    networks:
+      - gs-cloud-network
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 1G
+
+  # WFS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wfs=5)
+  wfs:
+    image: geoservercloud/geoserver-cloud-wfs:1.0-RC1
+    depends_on:
+      - config
+    environment:
+      SPRING_PROFILES_ACTIVE: "datadir"
+      EUREKA_SERVER_URL: http://discovery:8761/eureka
+      GEOSERVER_DATA_DIR: /opt/app/data_directory
+    volumes:
+      - shared_data_directory:/opt/app/data_directory
+    networks:
+      - gs-cloud-network
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+
+  # WMS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wms=5)
+  wms:
+    image: geoservercloud/geoserver-cloud-wms:1.0-RC1
+    depends_on:
+      - config
+    environment:
+      SPRING_PROFILES_ACTIVE: "datadir"
+      EUREKA_SERVER_URL: http://discovery:8761/eureka
+      GEOSERVER_DATA_DIR: /opt/app/data_directory
+    volumes:
+      - shared_data_directory:/opt/app/data_directory
+    networks:
+      - gs-cloud-network
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+
+  # WCS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wcs=5)
+  wcs:
+    image: geoservercloud/geoserver-cloud-wcs:1.0-RC1
+    depends_on:
+      - config
+    environment:
+      SPRING_PROFILES_ACTIVE: "datadir"
+      EUREKA_SERVER_URL: http://discovery:8761/eureka
+      GEOSERVER_DATA_DIR: /opt/app/data_directory
+    volumes:
+      - shared_data_directory:/opt/app/data_directory
+    networks:
+      - gs-cloud-network
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+
+  # REST config microservice, port dynamically allocated to allow scaling (e.g docker-compose scale rest=5)
+  rest:
+    image: geoservercloud/geoserver-cloud-rest:1.0-RC1
+    depends_on:
+      - config
+    environment:
+      SPRING_PROFILES_ACTIVE: "datadir"
+      EUREKA_SERVER_URL: http://discovery:8761/eureka
+      GEOSERVER_DATA_DIR: /opt/app/data_directory
+    volumes:
+      - shared_data_directory:/opt/app/data_directory
+    networks:
+      - gs-cloud-network
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1G
+
+  # WEB UI microservice
+  webui:
+    image: geoservercloud/geoserver-cloud-webui:1.0-RC1
+    depends_on:
+      - rabbitmq
+    environment:
+      SPRING_PROFILES_ACTIVE: "datadir"
+      EUREKA_SERVER_URL: http://discovery:8761/eureka
+      GEOSERVER_DATA_DIR: /opt/app/data_directory
+    volumes:
+      - shared_data_directory:/opt/app/data_directory
+    networks:
+      - gs-cloud-network
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G

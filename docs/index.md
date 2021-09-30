@@ -72,18 +72,34 @@ These containerized applications allow deployment strategies to vary from single
 
 # Quick Start
 
-The following instructions are meant as quick start up guide to run the system as a docker composition in a single machine. For more advanced deployment options and strategies, check out the [Deployment Guide](deploy/index.md).
+The following instructions are meant as quick start up guide to run the 
+system as a docker composition in a single machine. For more advanced deployment 
+options and strategies, check out the [Deployment Guide](deploy/index.md).
 
 Make sure you have `docker` and `docker-compose` installed:
 
  * [Docker](https://docs.docker.com/engine/install/) version >= `19.03.3`
  * [docker-compose](https://docs.docker.com/compose/) version >= `1.26.2`
 
-Download this [docker-compose.yml](deploy/docker-compose/stable/docker-compose.yml) file to a directory in your computer. For example:
+Here are two docker-compose based deployment examples to try out:
+
+  * A [Shared data-directory](deploy/docker-compose/stable/shared_datadir/docker-compose.yml) `docker-compose.yml` file;
+  * and a PostgreSQL [jdbcconfig](deploy/docker-compose/stable/jdbcconfig/docker-compose.yml) `docker-compose.yml`.
+
+The former will mount a docker volume on all containers for them to share the same "data directory",
+while the later will use a PostgreSQL database to store the catalog and other resource configuration
+objects instead of the file system.
+
+Download either one to a directory in your computer. For example:
 
 ```bash
-$ mkdir gscloud && cd gscloud
-$ wget "https://geoserver.github.io/geoserver-cloud/deploy/docker-compose/stable/docker-compose.yml"
+$ wget "http://geoserver.org/geoserver-cloud/deploy/docker-compose/stable/shared_datadir/docker-compose.yml"
+```
+
+Or:
+
+```bash
+$ wget "http://geoserver.org/geoserver-cloud/deploy/docker-compose/stable/jdbcconfig/docker-compose.yml"
 ```
 
 Open a terminal and enter the directory where you just downloaded that file, and run `docker-compose pull` to fetch the docker images from [Dockerhub](https://hub.docker.com/u/geoservercloud/):
@@ -162,7 +178,10 @@ The following diagram depicts the System's general architecture:
  
 # Project Status
 
-Version `0.2.0` has been released against GeoServer `2.18.2`.
+Version `1.0-RC1` has been released against a slightly customized GeoServer `2.21-SNAPSHOT`
+with some important fixes to allow starting up several GeoServer instances from an empty
+directory or database. We will make sure to contribute those fixes upstream before the final
+release.
 
 Project is being deployed in production since `v0.1.0`.
 

@@ -16,10 +16,11 @@ LABEL maintainer="GeoServer PSC <geoserver-users@lists.sourceforge.net>"
 
 COPY --from=builder /usr/local/bin/wait-for /usr/local/bin/wait-for
 
-RUN mkdir -p /opt/app \ 
+RUN mkdir -p /opt/app/bin \
+    && mkdir -p /opt/app/data_directory \ 
     && addgroup -S -g 630 geo \
     && adduser -s /bin/sh -h /opt/app/bin -D -u 630 -G geo geo \
-    && chown geo:geo /opt/app
+    && chown geo:geo /opt/app -R
 
 WORKDIR /opt/app/bin
 ENV JAVA_OPTS=

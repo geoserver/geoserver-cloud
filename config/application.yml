@@ -48,14 +48,14 @@ geoserver:
       fallback-resource-directory: ${java.io.tmpdir}/cngs/catalog-client/fallback_resource_store
     data-directory:
       enabled: ${backend.data-directory:false}
-      location: ${GEOSERVER_DATA_DIR:${java.io.tmpdir}/cngs/data_directory} 
+      location: ${GEOSERVER_DATA_DIR:${opt/app/data_directory} 
     jdbcconfig:
       enabled: ${backend.jdbcconfig:false}
       initdb: false
-      web.enabled: false
+      web.enabled: true
       cache-directory: ${jdbcconfig.cachedir:${java.io.tmpdir}/cngs/jdbcconfig/cache}
       datasource:
-        jdbcUrl: ${jdbcconfig.url:"jdbc:postgresql://database:5432/geoserver_config"}
+        jdbcUrl: ${jdbcconfig.url:jdbc:postgresql://database:5432/geoserver_config}
         username: ${jdbcconfig.username:geoserver}
         password: ${jdbcconfig.password:geo5erver}
         driverClassname: ${jdbcconfig.driverClassname:org.postgresql.Driver}
@@ -87,7 +87,7 @@ management:
 
 spring:
   rabbitmq:
-    host: ${RABBITMQ_HOST:localhost}
+    host: ${RABBITMQ_HOST:rabbitmq}
     port: ${RABBITMQ_PORT:5672}
     username: ${RABBITMQ_URSER:guest}
     password: ${RABBITMQ_PASSWORD:guest}
