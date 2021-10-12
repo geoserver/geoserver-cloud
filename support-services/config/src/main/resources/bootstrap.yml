@@ -31,7 +31,7 @@ eureka:
     fetchRegistry: true
     registry-fetch-interval-seconds: 30
     serviceUrl:
-      defaultZone: ${eureka.server.url:http://localhost:8761/eureka}
+      defaultZone: ${eureka.server.url:http://discovery:8761/eureka}
     healthcheck:
       enabled: false
 
@@ -40,3 +40,8 @@ logging:
     org.springframework.retry: DEBUG
     # Avoid log flooding with "INFO Adding property source: file:<...>/application.yml" triggered by the actuator health check
     org.springframework.cloud.config.server.environment.NativeEnvironmentRepository: WARN
+
+---
+spring.profiles: local
+eureka.server.url: http://localhost:8761/eureka
+    

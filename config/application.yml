@@ -143,6 +143,7 @@ logging:
 spring.profiles: local
 # provide environment variables that otherwise would be given by docker-compose.yml
 rabbitmq.host: localhost
+
 jdbcconfig.url: jdbc:postgresql://localhost:5432/geoserver_config
 jdbcconfig.username: geoserver
 jdbcconfig.password: geo5erver
