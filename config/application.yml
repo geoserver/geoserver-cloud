@@ -48,7 +48,7 @@ geoserver:
       fallback-resource-directory: ${java.io.tmpdir}/cngs/catalog-client/fallback_resource_store
     data-directory:
       enabled: ${backend.data-directory:false}
-      location: ${GEOSERVER_DATA_DIR:${opt/app/data_directory} 
+      location: ${GEOSERVER_DATA_DIR:/opt/app/data_directory} 
     jdbcconfig:
       enabled: ${backend.jdbcconfig:false}
       initdb: false
