@@ -34,5 +34,9 @@
       <groupId>org.geotools</groupId>
       <artifactId>gt-wfs-ng</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.geoserver.extension</groupId>
+      <artifactId>gs-feature-pregeneralized</artifactId>
+    </dependency>
   </dependencies>
 </project>

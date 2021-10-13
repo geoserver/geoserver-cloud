@@ -466,6 +466,11 @@
         <version>${gs.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.geoserver.extension</groupId>
+        <artifactId>gs-feature-pregeneralized</artifactId>
+        <version>${gs.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.geotools</groupId>
         <artifactId>gt-main</artifactId>
         <version>${gt.version}</version>
@@ -826,7 +831,7 @@
         </executions>
         <configuration>
           <updatePomFile>true</updatePomFile>
-          <!--flattenMode>resolveCiFriendliesOnly</flattenMode-->
+          <!--flattenMode>resolveCiFriendliesOnly</flattenMode -->
           <flattenMode>oss</flattenMode>
         </configuration>
       </plugin>
