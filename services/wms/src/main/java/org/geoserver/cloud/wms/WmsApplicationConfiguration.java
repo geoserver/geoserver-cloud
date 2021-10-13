@@ -18,7 +18,9 @@ import org.springframework.context.annotation.ImportResource;
     reader = FilteringXmlBeanDefinitionReader.class, //
     locations = { //
         "jar:gs-wms-.*!/applicationContext.xml", //
-        "jar:gs-wfs-.*!/applicationContext.xml#name=" + WmsApplicationConfiguration.WFS_BEANS_REGEX
+        "jar:gs-wfs-.*!/applicationContext.xml#name="
+                + WmsApplicationConfiguration.WFS_BEANS_REGEX, //
+        "jar:gs-css-.*!/applicationContext.xml" //
     }
 )
 public class WmsApplicationConfiguration {

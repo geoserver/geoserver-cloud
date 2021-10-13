@@ -15,7 +15,10 @@ import org.springframework.context.annotation.ImportResource;
 @Configuration(proxyBeanMethods = true)
 @ImportResource( //
     reader = FilteringXmlBeanDefinitionReader.class, //
-    locations = {"jar:gs-web-core-.*!/applicationContext.xml"}
+    locations = { //
+        "jar:gs-web-core-.*!/applicationContext.xml", //
+        "jar:gs-css-.*!/applicationContext.xml" //
+    }
 )
 public class WebCoreConfiguration {
 
