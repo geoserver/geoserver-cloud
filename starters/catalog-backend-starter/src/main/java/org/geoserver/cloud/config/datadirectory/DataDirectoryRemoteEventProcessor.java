@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.LayerGroupInfo;
@@ -255,6 +256,10 @@ public class DataDirectoryRemoteEventProcessor {
                     objectId);
         } else {
             patch.applyTo(info);
+            if (info instanceof CatalogInfo) {
+                // going directly through the CatalogFacade does not produce any further event
+                this.catalogFacade.update((CatalogInfo) info, patch);
+            }
             log.debug(
                     "Object updated: {}({}). Properties: {}",
                     type,
