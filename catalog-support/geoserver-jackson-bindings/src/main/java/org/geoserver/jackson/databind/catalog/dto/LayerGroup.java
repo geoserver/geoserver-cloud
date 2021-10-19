@@ -36,4 +36,6 @@ public class LayerGroup extends Published {
     private Map<Locale, String> internationalTitle;
     /** @since geoserver 2.20.0 */
     private Map<Locale, String> internationalAbstract;
+    /** @since geoserver 2.21.0 */
+    private List<LayerGroupStyle> layerGroupStyles;
 }

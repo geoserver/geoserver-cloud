@@ -37,6 +37,8 @@ import org.geoserver.catalog.impl.DataStoreInfoImpl;
 import org.geoserver.catalog.impl.DimensionInfoImpl;
 import org.geoserver.catalog.impl.FeatureTypeInfoImpl;
 import org.geoserver.catalog.impl.LayerGroupInfoImpl;
+import org.geoserver.catalog.impl.LayerGroupStyle;
+import org.geoserver.catalog.impl.LayerGroupStyleImpl;
 import org.geoserver.catalog.impl.LayerInfoImpl;
 import org.geoserver.catalog.impl.LegendInfoImpl;
 import org.geoserver.catalog.impl.MapInfoImpl;
@@ -130,6 +132,13 @@ public class ObjectFacotries {
     public @ObjectFactory LayerGroupInfo layerGroupInfo(
             LayerGroup source, @TargetType Class<LayerGroupInfo> type) {
         return create(source.getId(), LayerGroupInfoImpl::new);
+    }
+
+    public @ObjectFactory LayerGroupStyle layerGroupStyle( //
+            org.geoserver.jackson.databind.catalog.dto.LayerGroupStyle source, //
+            @TargetType Class<LayerGroupStyle> type) {
+
+        return create(source.getId(), LayerGroupStyleImpl::new);
     }
 
     public @ObjectFactory StyleInfo styleInfo(Style source, @TargetType Class<StyleInfo> type) {
