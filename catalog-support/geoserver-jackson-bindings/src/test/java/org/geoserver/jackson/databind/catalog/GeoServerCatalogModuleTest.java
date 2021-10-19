@@ -65,6 +65,8 @@ import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.impl.CoverageDimensionImpl;
 import org.geoserver.catalog.impl.DataLinkInfoImpl;
 import org.geoserver.catalog.impl.DimensionInfoImpl;
+import org.geoserver.catalog.impl.LayerGroupStyle;
+import org.geoserver.catalog.impl.LayerGroupStyleImpl;
 import org.geoserver.catalog.impl.LayerIdentifier;
 import org.geoserver.catalog.impl.LegendInfoImpl;
 import org.geoserver.catalog.impl.MetadataLinkInfoImpl;
@@ -268,6 +270,23 @@ public class GeoServerCatalogModuleTest {
                         "english abstract",
                         Locale.CANADA_FRENCH,
                         "résumé anglais"));
+
+        LayerGroupStyle lgs = new LayerGroupStyleImpl();
+        lgs.setId("lgsid");
+        lgs.setTitle("Lgs Title");
+        lgs.setAbstract("Lgs Abstract");
+        lgs.setInternationalTitle(
+                data.createInternationalString(
+                        Locale.ITALIAN, "Italian title", Locale.FRENCH, "French title"));
+        lgs.setInternationalAbstract(
+                data.createInternationalString(
+                        Locale.ITALIAN, "Italian abstract", Locale.FRENCH, "French abstract"));
+
+        lgs.setLayers(Arrays.asList(data.createLayer(data.coverageA, data.style1)));
+        lgs.setStyles(Arrays.asList(data.createStyle("test-style")));
+
+        lg.setLayerGroupStyles(Arrays.asList(lgs));
+
         catalogInfoRoundtripTest(lg);
     }
 

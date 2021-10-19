@@ -792,13 +792,13 @@ public class CatalogTestData extends ExternalResource {
         return new SimpleInternationalString(val);
     }
 
-    public InternationalString createInternationalString(Locale l, String val) {
+    public GrowableInternationalString createInternationalString(Locale l, String val) {
         GrowableInternationalString s = new GrowableInternationalString();
         s.add(l, val);
         return s;
     }
 
-    public InternationalString createInternationalString(
+    public GrowableInternationalString createInternationalString(
             Locale l1, String val1, Locale l2, String val2) {
         GrowableInternationalString s = new GrowableInternationalString();
         s.add(l1, val1);

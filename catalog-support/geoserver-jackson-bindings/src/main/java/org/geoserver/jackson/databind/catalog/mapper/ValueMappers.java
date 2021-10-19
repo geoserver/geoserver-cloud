@@ -269,7 +269,7 @@ public interface ValueMappers {
         return null;
     }
 
-    default InternationalString dtoToInternationalString(Map<Locale, String> s) {
+    default GrowableInternationalString dtoToInternationalString(Map<Locale, String> s) {
         if (s == null) return null;
         GrowableInternationalString gs = new GrowableInternationalString();
         s.forEach(
