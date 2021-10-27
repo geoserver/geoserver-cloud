@@ -50,8 +50,6 @@ services:
   discovery:
     image: geoservercloud/geoserver-cloud-discovery:${TAG}
     environment:
-      SERVER_PORT: 8761
-      EUREKA_INSTANCE_HOSTNAME: discovery
       JAVA_OPTS: "${DISCOVERY_JAVA_OPTS}"
     ports:
       - 8761:8761 # for development, so services can be run from localhost and find the discovery service running on docker
@@ -71,7 +69,6 @@ services:
     depends_on:
       - discovery
     environment:
-      EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: "${CONFIG_JAVA_OPTS}"
       # Either 'git' or 'native'. Use the default sample git repository to download the services configuration from
       # If 'git', BEWARE config server will look for a branch called "master", and github changed the default branch name to "main"
@@ -100,7 +97,6 @@ services:
       - discovery
       - config
     environment:
-      EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: ${GATEWAY_JAVA_OPTS}
       SPRING_PROFILES_ACTIVE: dev #exposes the catalog and config API at /api/v1/**
     ports:
@@ -124,7 +120,6 @@ services:
     environment:
       # Force the max RAM (-XX:MaxRAM) seen by the JVM in case --compatibility wasn't used to launch the composition
       JAVA_OPTS: "${CATALOG_JAVA_OPTS}"
-      EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       CATALOG_IO_THREADS: 8
       CATALOG_IO_MAX_QUEUED: 10000
       BACKEND_JDBCCONFIG: "true"
@@ -147,7 +142,6 @@ services:
     depends_on:
       - catalog
     environment:
-      EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: "${WFS_JAVA_OPTS}"
     networks:
       - gs-cloud-network
@@ -165,7 +159,6 @@ services:
     depends_on:
       - catalog
     environment:
-      EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: "${WMS_JAVA_OPTS}"
     networks:
       - gs-cloud-network
@@ -181,7 +174,6 @@ services:
     depends_on:
       - catalog
     environment:
-      EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: "${WCS_JAVA_OPTS}"
     networks:
       - gs-cloud-network
@@ -198,7 +190,6 @@ services:
 #      - rabbitmq
 #      - catalog
 #    environment:
-#      EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
 #      JAVA_OPTS: ${WPS_JAVA_OPTS}
 #    networks:
 #      - gs-cloud-network
@@ -210,7 +201,6 @@ services:
       - rabbitmq
       - catalog
     environment:
-      EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: "${REST_JAVA_OPTS}"
     networks:
       - gs-cloud-network
@@ -229,7 +219,6 @@ services:
       - rabbitmq
       - catalog
     environment:
-      EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: "${WEBUI_JAVA_OPTS}"
     networks:
       - gs-cloud-network
