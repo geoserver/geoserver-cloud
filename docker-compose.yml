@@ -73,7 +73,6 @@ services:
     environment:
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: "${CONFIG_JAVA_OPTS}"
-      RABBITMQ_HOST: rabbitmq
       # Either 'git' or 'native'. Use the default sample git repository to download the services configuration from
       # If 'git', BEWARE config server will look for a branch called "master", and github changed the default branch name to "main"
       # For more information, see https://cloud.spring.io/spring-cloud-config/multi/multi__spring_cloud_config_server.html#_git_backend
@@ -126,7 +125,6 @@ services:
       # Force the max RAM (-XX:MaxRAM) seen by the JVM in case --compatibility wasn't used to launch the composition
       JAVA_OPTS: "${CATALOG_JAVA_OPTS}"
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
-      RABBITMQ_HOST: rabbitmq
       CATALOG_IO_THREADS: 8
       CATALOG_IO_MAX_QUEUED: 10000
       BACKEND_JDBCCONFIG: "true"
@@ -151,7 +149,6 @@ services:
     environment:
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: "${WFS_JAVA_OPTS}"
-      RABBITMQ_HOST: rabbitmq
     networks:
       - gs-cloud-network
     #tmpfs: #TODO: avoid runs creating volumes at all
@@ -170,7 +167,6 @@ services:
     environment:
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: "${WMS_JAVA_OPTS}"
-      RABBITMQ_HOST: rabbitmq
     networks:
       - gs-cloud-network
     deploy:
@@ -187,7 +183,6 @@ services:
     environment:
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: "${WCS_JAVA_OPTS}"
-      RABBITMQ_HOST: rabbitmq
     networks:
       - gs-cloud-network
     deploy:
@@ -205,7 +200,6 @@ services:
 #    environment:
 #      EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
 #      JAVA_OPTS: ${WPS_JAVA_OPTS}
-#      RABBITMQ_HOST: rabbitmq
 #    networks:
 #      - gs-cloud-network
 
@@ -218,7 +212,6 @@ services:
     environment:
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: "${REST_JAVA_OPTS}"
-      RABBITMQ_HOST: rabbitmq
     networks:
       - gs-cloud-network
     deploy:
@@ -238,7 +231,6 @@ services:
     environment:
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JAVA_OPTS: "${WEBUI_JAVA_OPTS}"
-      RABBITMQ_HOST: rabbitmq
     networks:
       - gs-cloud-network
     deploy:

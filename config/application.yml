@@ -87,10 +87,10 @@ management:
 
 spring:
   rabbitmq:
-    host: ${RABBITMQ_HOST:rabbitmq}
-    port: ${RABBITMQ_PORT:5672}
-    username: ${RABBITMQ_URSER:guest}
-    password: ${RABBITMQ_PASSWORD:guest}
+    host: ${rabbitmq.host:rabbitmq}
+    port: ${rabbitmq.port:5672}
+    username: ${rabbitmq.user:guest}
+    password: ${rabbitmq.password:guest}
   cloud:
     bus:
       enabled: true
