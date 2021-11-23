@@ -6,7 +6,6 @@ spring:
   main.banner-mode: off
   application.name: config-service
   profiles.active: native #use native filesystem config by default instead of git.
-  cloud.loadbalancer.ribbon.enabled: false # ribbon is in maintenance mode and should be replaced by spring-cloud-loadbalancer
   cloud:
     config.server: # see https://cloud.spring.io/spring-cloud-config/reference/html/#_spring_cloud_config_server
       git:

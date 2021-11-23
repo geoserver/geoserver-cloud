@@ -12,7 +12,6 @@ spring:
   application:
     name: wps-service
   cloud:
-    loadbalancer.ribbon.enabled: false # ribbon is in maintenance mode and should be replaced by spring-cloud-loadbalancer
     config:
       fail-fast: true
       retry:

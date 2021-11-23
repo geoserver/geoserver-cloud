@@ -18,16 +18,6 @@
     <dependency>
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
-      <exclusions>
-        <exclusion>
-          <artifactId>spring-cloud-starter-netflix-ribbon</artifactId>
-          <groupId>org.springframework.cloud</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>ribbon-eureka</artifactId>
-          <groupId>com.netflix.ribbon</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>javax.xml.bind</groupId>

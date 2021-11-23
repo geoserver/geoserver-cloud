@@ -148,18 +148,6 @@
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <!-- originally transitive from spring-cloud-starter-netflix-eureka-server, adding explicitly to exclude ribbon in 
-          favor of spring-cloud-loadbalancer -->
-        <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-starter-netflix-archaius</artifactId>
-        <exclusions>
-          <exclusion>
-            <artifactId>spring-cloud-netflix-ribbon</artifactId>
-            <groupId>org.springframework.cloud</groupId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
         <groupId>org.projectlombok</groupId>
         <artifactId>lombok</artifactId>
         <version>${lombok.version}</version>

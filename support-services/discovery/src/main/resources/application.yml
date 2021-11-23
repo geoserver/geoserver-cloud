@@ -6,8 +6,6 @@ spring:
     name: discovery-service
   main:
     banner-mode: off
-  cloud:
-    loadbalancer.ribbon.enabled: false # ribbon is in maintenance mode and should be replaced by spring-cloud-loadbalancer
 
 eureka:
   server:

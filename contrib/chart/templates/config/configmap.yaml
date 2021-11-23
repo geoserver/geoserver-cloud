@@ -26,7 +26,6 @@ data:
             include: gateway, info, health
     spring:
       cloud:
-    #    loadbalancer.ribbon.enabled: false # ribbon is in maintenance mode and should be replaced by spring-cloud-loadbalancer
         gateway:
           actuator:
             verbose:
