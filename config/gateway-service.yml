@@ -27,32 +27,32 @@ spring:
       - id: wfs # proxies requests to gateway-service:/wfs to wfs-service:/wfs
         uri: lb://wfs-service #load balanced to the wfs-service instances
         predicates:
-        - Path=/wfs,/{segment}/wfs,/schemas/wfs/**
+        - Path=/wfs,/{workspace}/wfs,/{workspace}/{layer}/wfs,/schemas/wfs/**
 # proxy [/{workspace}]/ows?SERVICE=wfs to wfs-service:[/{workspace}]/ows?SERVICE=wfs. Param value is case insensitive, name is not.
       - id: wfs_ows
         uri: lb://wfs-service
         predicates:
-        - Path=/ows,/{segment}/ows
+        - Path=/ows,/{workspace}/ows,/{workspace}/{layer}/ows
         - RegExpQuery=(?i:service),(?i:wfs) # match service=wfs case insensitively 
 # WMS routes
       - id: wms # proxies requests to gateway-service:/wms to wms-service:/wms
         uri: lb://wms-service #load balanced to the wms-service instances
         predicates:
-        - Path=/wms,/{segment}/wms,/schemas/wms/**,/openlayers/**,/openlayers3/**
+        - Path=/wms,/{workspace}/wms,/{workspace}/{layer}/wms,/schemas/wms/**,/openlayers/**,/openlayers3/**
       - id: wms_ows # proxy [/{workspace}]/ows?SERVICE=wms to wms-service:[/{workspace}]/ows?SERVICE=wms. Param value is case insensitive, name is not.
         uri: lb://wms-service
         predicates:
-        - Path=/ows,/{segment}/ows
+        - Path=/ows,/{workspace}/ows,/{workspace}/{layer}/ows
         - RegExpQuery=(?i:service),(?i:wms) # match service=wms case insensitively 
 # WCS routes
       - id: wcs # proxies requests to gateway-service:/wcs to wcs-service:/wcs
         uri: lb://wcs-service #load balanced to the wps-service instances
         predicates:
-        - Path=/wcs,/{segment}/wcs,/schemas/wcs/**
+        - Path=/wcs,/{workspace}/wcs,/{workspace}/{layer}/wcs,/schemas/wcs/**
       - id: wcs_ows # proxy [/{workspace}]/ows?SERVICE=wcs to wcs-service:[/{workspace}]/ows?SERVICE=wcs. Param value is case insensitive, name is not.
         uri: lb://wcs-service
         predicates:
-        - Path=/ows,/{segment}/ows
+        - Path=/ows,/{workspace}/ows,/{workspace}/{layer}/ows
         - RegExpQuery=(?i:service),(?i:wcs) # match service=wcs case insensitively 
 # WPS routes
       - id: wps # proxies requests to gateway-service:/wps to wfs-service:/wps
