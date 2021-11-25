@@ -31,7 +31,14 @@ public class WFSController {
 
     @RequestMapping(
         method = {GET, POST},
-        path = {"/wfs", "/{workspace}/wfs", "/ows", "/{workspace}/ows"}
+        path = {
+            "/wfs",
+            "/{workspace}/wfs",
+            "/{workspace}/{layer}/wfs",
+            "/ows",
+            "/{workspace}/ows",
+            "/{workspace}/{layer}/ows"
+        }
     )
     public void serviceRequest(HttpServletRequest request, HttpServletResponse response)
             throws Exception {

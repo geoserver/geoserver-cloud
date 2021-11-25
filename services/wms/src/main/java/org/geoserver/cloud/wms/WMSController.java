@@ -44,7 +44,14 @@ public @Controller class WMSController {
 
     @RequestMapping(
         method = {GET, POST},
-        path = {"/wms", "/{workspace}/wms", "/ows", "/{workspace}/ows"}
+        path = {
+            "/wms",
+            "/{workspace}/wms",
+            "/{workspace}/{layer}/wms",
+            "/ows",
+            "/{workspace}/ows",
+            "/{workspace}/{layer}/ows"
+        }
     )
     public void handle(HttpServletRequest request, HttpServletResponse response) throws Exception {
         geoserverDispatcher.handleRequest(request, response);

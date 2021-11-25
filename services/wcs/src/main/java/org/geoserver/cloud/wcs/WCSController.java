@@ -30,7 +30,14 @@ public @Controller class WCSController {
 
     @RequestMapping(
         method = {GET, POST},
-        path = {"/wcs", "/{workspace}/wcs", "/ows", "/{workspace}/ows"}
+        path = {
+            "/wcs",
+            "/{workspace}/wcs",
+            "/{workspace}/{layer}/wcs",
+            "/ows",
+            "/{workspace}/ows",
+            "/{workspace}/{layer}/ows"
+        }
     )
     public void handle(HttpServletRequest request, HttpServletResponse response) throws Exception {
         geoserverDispatcher.handleRequest(request, response);
