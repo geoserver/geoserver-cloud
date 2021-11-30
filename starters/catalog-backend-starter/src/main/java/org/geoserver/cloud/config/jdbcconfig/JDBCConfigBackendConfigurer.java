@@ -106,6 +106,7 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
                 JDBCConfigBackendConfigurer.class.getSimpleName());
     }
 
+    @DependsOn("jdbcConfigDataSourceStartupValidator")
     @ConfigurationProperties(prefix = "geoserver.backend.jdbcconfig")
     public @Bean("JDBCConfigProperties") JDBCConfigProperties jdbcConfigProperties() {
         CloudJdbcConfigProperties configProperties = new CloudJdbcConfigProperties(dataSource);
@@ -114,11 +115,13 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
         return configProperties;
     }
 
+    @DependsOn("jdbcConfigDataSourceStartupValidator")
     @ConfigurationProperties(prefix = "geoserver.backend.jdbcconfig")
     public @Bean CloudJdbcStoreProperties jdbcStoreProperties() {
         return new CloudJdbcStoreProperties(dataSource);
     }
 
+    @DependsOn("jdbcConfigDataSourceStartupValidator")
     public @Override @Bean GeoServerResourceLoader resourceLoader() {
         Path path = configProperties.getDataDirectory().getLocation();
         File dataDirectory = path.toFile();
@@ -128,7 +131,7 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
         return loader;
     }
 
-    @DependsOn("JDBCConfigDB")
+    @DependsOn({"JDBCConfigDB", "jdbcConfigDataSourceStartupValidator"})
     public @Override @Bean @NonNull ResourceStore resourceStoreImpl() {
         final JDBCConfigProperties jdbcConfigProperties = jdbcConfigProperties();
         final CloudJdbcStoreProperties jdbcStoreProperties = jdbcStoreProperties();
@@ -149,14 +152,17 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
         }
     }
 
+    @DependsOn("jdbcConfigDataSourceStartupValidator")
     public @Bean LockRegistryAdapter jdbcStoreLockProvider() {
         return new LockRegistryAdapter(jdbcLockRegistry());
     }
 
+    @DependsOn("jdbcConfigDataSourceStartupValidator")
     public @Bean JdbcLockRegistry jdbcLockRegistry() {
         return new JdbcLockRegistry(jdbcLockRepository());
     }
 
+    @DependsOn("jdbcConfigDataSourceStartupValidator")
     public @Bean DefaultLockRepository jdbcLockRepository() {
         String id = this.instanceId;
         DefaultLockRepository lockRepository;
@@ -173,6 +179,7 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
         return lockRepository;
     }
 
+    @DependsOn("jdbcConfigDataSourceStartupValidator")
     @Bean(name = {"catalogFacade", "JDBCCatalogFacade"})
     public @Override ExtendedCatalogFacade catalogFacade() {
         ConfigDatabase configDB = jdbcConfigDB();
@@ -191,6 +198,7 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
         return new CatalogFacadeExtensionAdapter(legacyFacade);
     }
 
+    @DependsOn("jdbcConfigDataSourceStartupValidator")
     @Bean(name = {"geoserverFacade", "JDBCGeoServerFacade"})
     public @Override GeoServerFacade geoserverFacade() {
         initDbSchema(jdbcConfigProperties(), jdbcStoreProperties(), jdbcConfigDB());
@@ -223,10 +231,12 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
         return new JdbcConfigRemoteEventProcessor();
     }
 
+    @DependsOn("jdbcConfigDataSourceStartupValidator")
     public @Bean XStreamInfoSerialBinding jdbcPersistenceBinding() {
         return new XStreamInfoSerialBinding(xstreamPersisterFactory);
     }
 
+    @DependsOn("jdbcConfigDataSourceStartupValidator")
     public @Bean(name = "JDBCConfigDB") ConfigDatabase jdbcConfigDB() {
         ConfigDatabase configDb = new CloudJdbcConfigDatabase(dataSource, jdbcPersistenceBinding());
         return configDb;
@@ -275,6 +285,7 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
 
     // <bean id="JDBCConfigXStreamPersisterInitializer"
     // class="org.geoserver.jdbcconfig.internal.JDBCConfigXStreamPersisterInitializer"/>
+    @DependsOn("jdbcConfigDataSourceStartupValidator")
     public @Bean("JDBCConfigXStreamPersisterInitializer") JDBCConfigXStreamPersisterInitializer
             jdbcConfigXStreamPersisterInitializer() {
         return new JDBCConfigXStreamPersisterInitializer();

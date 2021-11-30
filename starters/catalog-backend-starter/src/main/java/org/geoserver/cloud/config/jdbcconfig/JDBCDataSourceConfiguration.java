@@ -10,9 +10,12 @@ import org.geoserver.jdbcstore.JDBCResourceStore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
+import org.springframework.boot.jdbc.DatabaseDriver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.jdbc.support.DatabaseStartupValidator;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 /**
@@ -53,12 +56,27 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 public class JDBCDataSourceConfiguration {
 
+    /**
+     * Checks for {@link #jdbcConfigDataSource()} connectivity, delaying startup until the database
+     * is ready, as long as the beans that depend on {@literal jdbcConfigDataSource} are annotated
+     * with {@literal @DependsOn("jdbcConfigDataSourceStartupValidator")}
+     *
+     * @see DatabaseStartupValidator
+     */
+    public @Bean DatabaseStartupValidator jdbcConfigDataSourceStartupValidator() {
+        DatabaseStartupValidator jdbcConfigDataSourceValidator = new DatabaseStartupValidator();
+        jdbcConfigDataSourceValidator.setDataSource(jdbcConfigDataSource());
+        jdbcConfigDataSourceValidator.setValidationQuery(
+                DatabaseDriver.POSTGRESQL.getValidationQuery());
+        return jdbcConfigDataSourceValidator;
+    }
+
     // <!-- data source, also loaded and configured via factory bean -->
     // <bean id="jdbcConfigDataSource"
     // class="org.geoserver.jdbcloader.DataSourceFactoryBean">
     // <constructor-arg ref="jdbcConfigProperties" />
     // </bean>
-    @Bean(name = {"jdbcStoreDataSource", "jdbcConfigDataSource"})
+    @Bean(name = {"jdbcConfigDataSource", "jdbcStoreDataSource"})
     @ConfigurationProperties(prefix = "geoserver.backend.jdbcconfig.datasource")
     public DataSource jdbcConfigDataSource() {
         return DataSourceBuilder.create().build();
@@ -71,6 +89,7 @@ public class JDBCDataSourceConfiguration {
     // </bean>
     // <tx:annotation-driven /> -> @EnableTransactionManagement above
     @Bean
+    @DependsOn("jdbcConfigDataSourceStartupValidator")
     public DataSourceTransactionManager jdbcConfigTransactionManager() {
         return new DataSourceTransactionManager(jdbcConfigDataSource());
     }
