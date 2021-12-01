@@ -37,9 +37,8 @@ eureka:
 
 logging:
   level:
-    org.springframework.retry: DEBUG
     # Avoid log flooding with "INFO Adding property source: file:<...>/application.yml" triggered by the actuator health check
-    org.springframework.cloud.config.server.environment.NativeEnvironmentRepository: WARN
+    '[org.springframework.cloud.config.server.environment.NativeEnvironmentRepository]': warn
 
 ---
 spring.profiles: local
