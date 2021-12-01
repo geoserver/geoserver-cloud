@@ -17,7 +17,7 @@ RUN mkdir -p /opt/app \
 
 WORKDIR /opt/app/bin
 ENV JAVA_OPTS=
-EXPOSE 8080
+EXPOSE 8761
 
 USER geo:geo
 COPY --from=builder dependencies/ ./
@@ -25,5 +25,11 @@ COPY --from=builder snapshot-dependencies/ ./
 COPY --from=builder spring-boot-loader/ ./
 COPY --from=builder application/ ./
 
-#ENTRYPOINT ["java", "org.springframework.boot.loader.JarLauncher"]
+HEALTHCHECK \
+--interval=10s \
+--timeout=5s \
+--start-period=30s \
+--retries=5 \
+CMD java -Xms4M -Xmx16M -jar BOOT-INF/lib/gs-cloud-docker-healthcheck-*-bin.jar 8761|| exit 1
+
 CMD exec java $JAVA_OPTS org.springframework.boot.loader.JarLauncher

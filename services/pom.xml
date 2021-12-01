@@ -20,6 +20,11 @@
   </modules>
   <dependencies>
     <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-docker-healthcheck</artifactId>
+      <classifier>bin</classifier>
+    </dependency>
+    <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>

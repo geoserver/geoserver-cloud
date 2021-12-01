@@ -53,6 +53,11 @@
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-docker-healthcheck</artifactId>
+      <classifier>bin</classifier>
+    </dependency>
   </dependencies>
   <build>
     <plugins>
