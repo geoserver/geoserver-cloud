@@ -6,6 +6,12 @@ This project is an opinionated effort to split *GeoServer*'s geospatial services
 
 As such, it builds on top of existing *GeoServer* software components, adapting and/or extending them in an attempt to achieve functional decomposition by business capability; which roughly means each OWS service, the Web UI, the REST API, and probably other components such as the *Catalog and Configuration subsystem*, become self-contained, individually deployable and scalable micro-services.
 
+
+
+https://user-images.githubusercontent.com/207423/144188466-54a1695f-129e-44c2-b6d6-09bf34b96f84.mp4
+
+
+
 ## Architecture
 
 The following diagram depicts the System's general architecture.
