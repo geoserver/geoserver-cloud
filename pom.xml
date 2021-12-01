@@ -15,7 +15,7 @@
     <module>integration-tests</module>
   </modules>
   <properties>
-    <revision>1.0-SNAPSHOT</revision>
+    <revision>1.0-RC2</revision>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
     <spring-cloud.version>Hoxton.SR8</spring-cloud.version>
