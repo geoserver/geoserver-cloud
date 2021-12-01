@@ -115,6 +115,8 @@ logging:
     org.springframework: ERROR
     org.springframework.cloud.bus: INFO
     org.springframework.retry: INFO
+    org.springframework.jdbc.support: INFO
+    com.zaxxer.hikari.pool: OFF
     # geoserver roots
     org.geoserver: INFO
     org.geoserver.catalog.plugin: INFO

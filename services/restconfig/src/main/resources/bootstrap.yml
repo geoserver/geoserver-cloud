@@ -12,7 +12,7 @@ spring:
   cloud:
     loadbalancer.ribbon.enabled: false # ribbon is in maintenance mode and should be replaced by spring-cloud-loadbalancer
     config:
-      fail-fast: false
+      fail-fast: true
       retry:
         max-attempts: 20
       discovery:
@@ -44,9 +44,8 @@ eureka:
     healthcheck:
       enabled: false
 
-logging:
-  level:
-    org.springframework.retry: DEBUG
+logging.level:
+    '[org.springframework.retry]': debug
 
 ---
 spring.profiles: local

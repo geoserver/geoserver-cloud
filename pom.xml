@@ -7,6 +7,7 @@
   <!-- See https://maven.apache.org/maven-ci-friendly.html -->
   <packaging>pom</packaging>
   <modules>
+    <module>docker-healthcheck</module>
     <module>support-services</module>
     <module>catalog-support</module>
     <module>starters</module>
@@ -70,6 +71,12 @@
         <groupId>com.playtika.reactivefeign</groupId>
         <artifactId>feign-reactor-webclient</artifactId>
         <version>${feign-reactor.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud</groupId>
+        <artifactId>gs-cloud-docker-healthcheck</artifactId>
+        <version>${project.version}</version>
+        <classifier>bin</classifier>
       </dependency>
       <dependency>
         <groupId>org.geoserver.cloud</groupId>

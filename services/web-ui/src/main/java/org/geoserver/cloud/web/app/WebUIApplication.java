@@ -10,10 +10,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.util.unit.DataSize;
 
 @Slf4j
 @SpringBootApplication
+@EnableRetry
 public class WebUIApplication {
 
     public static void main(String[] args) {

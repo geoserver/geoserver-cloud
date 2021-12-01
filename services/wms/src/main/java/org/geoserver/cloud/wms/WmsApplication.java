@@ -1,6 +1,6 @@
-/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
- * This code is licensed under the GPL 2.0 license, available at the root
- * application directory.
+/*
+ * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
+ * GPL 2.0 license, available at the root application directory.
  */
 package org.geoserver.cloud.wms;
 
@@ -10,10 +10,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.util.unit.DataSize;
 
 @Slf4j
 @SpringBootApplication
+@EnableRetry
 public class WmsApplication {
 
     public static void main(String[] args) {

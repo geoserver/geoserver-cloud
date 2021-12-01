@@ -7,4 +7,4 @@ ADD ./postgresql_initdb /docker-entrypoint-initdb.d
 
 COPY --chown=postgres ./postgresql_initdb/* /docker-entrypoint-initdb.d/
 
-HEALTHCHECK --interval=5s --timeout=1s CMD pg_isready -d $POSTGRES_DB -U $POSTGRES_USER
+HEALTHCHECK --interval=10s --timeout=1s --retries=5 CMD pg_isready -d $POSTGRES_DB -U $POSTGRES_USER
