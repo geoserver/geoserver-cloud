@@ -19,8 +19,7 @@ services:
 
   catalog:
     environment:
-      BACKEND_JDBCCONFIG: "false"
-      BACKEND_DATA_DIRECTORY: "true"
+      SPRING_PROFILES_ACTIVE: "datadir"
       GEOSERVER_DATA_DIR: /tmp/data_directory
     volumes:
       - shared_data_directory:/tmp/data_directory
@@ -28,40 +27,35 @@ services:
 
   wfs:
     environment:
-      BACKEND_CATALOG: "false"
-      BACKEND_DATA_DIRECTORY: "true"
+      SPRING_PROFILES_ACTIVE: "datadir"
       GEOSERVER_DATA_DIR: /tmp/data_directory
     volumes:
       - shared_data_directory:/tmp/data_directory
 
   wms:
     environment:
-      BACKEND_CATALOG: "false"
-      BACKEND_DATA_DIRECTORY: "true"
+      SPRING_PROFILES_ACTIVE: "datadir"
       GEOSERVER_DATA_DIR: /tmp/data_directory
     volumes:
       - shared_data_directory:/tmp/data_directory
 
   wcs:
     environment:
-      BACKEND_CATALOG: "false"
-      BACKEND_DATA_DIRECTORY: "true"
+      SPRING_PROFILES_ACTIVE: "datadir"
       GEOSERVER_DATA_DIR: /tmp/data_directory
     volumes:
       - shared_data_directory:/tmp/data_directory
 
   rest:
     environment:
-      BACKEND_CATALOG: "false"
-      BACKEND_DATA_DIRECTORY: "true"
+      SPRING_PROFILES_ACTIVE: "datadir"
       GEOSERVER_DATA_DIR: /tmp/data_directory
     volumes:
       - shared_data_directory:/tmp/data_directory
 
   webui:
     environment:
-      BACKEND_CATALOG: "false"
-      BACKEND_DATA_DIRECTORY: "true"
+      SPRING_PROFILES_ACTIVE: "datadir"
       GEOSERVER_DATA_DIR: /tmp/data_directory
     volumes:
       - shared_data_directory:/tmp/data_directory

@@ -94,7 +94,6 @@ services:
   gateway:
     image: geoservercloud/geoserver-cloud-gateway:${TAG}
     depends_on:
-      - discovery
       - config
     environment:
       JAVA_OPTS: ${GATEWAY_JAVA_OPTS}
@@ -113,7 +112,6 @@ services:
   catalog:
     image: geoservercloud/geoserver-cloud-catalog:${TAG}
     depends_on:
-      - discovery
       - config
       - database
       - rabbitmq
