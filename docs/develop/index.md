@@ -72,14 +72,17 @@ You need to have [docker](https://www.docker.com/) and [docker-compose](https://
 
 ## Build
 
-> The main branch follows GeoServer's main branch, currently `2.19-SNAPSHOT`. 
-> The stable branch builds against a released GeoServer version.
-> Building `main` against the latest stable version (`2.18.2`) is no longer possible due to binary incompatible between `2.18.x` and `2.19.x`. Once 2.19.0 is released, it'll be possible to build against a stable version activating the `geoserver_stable_version` profile as follows:
->    `./mvnw clean install -P geoserver_stable_version`
+Clone the repository, including submodules:
+
+```bash
+git clone --recursive /data2/groldan/git/geoserver-microservices
+```
 
 To build the applications run the following command from the root project directory:
 
-    ./mvnw clean install
+```bash
+./mvnw clean install
+```
 
 That will compile, run unit and integration tests, install maven artifacts to the local maven repository, and create all microservices docker images.
 The maven build uses the `com.spotify:dockerfile-maven-plugin` maven plugin to build the microservice docker images.
@@ -87,25 +90,24 @@ The maven build uses the `com.spotify:dockerfile-maven-plugin` maven plugin to b
 The simple build command above creates the following docker images:
 
 ```bash
-$ docker images
-REPOSITORY                                       TAG                 IMAGE ID            CREATED             SIZE
-org.geoserver.cloud/gs-cloud-catalog            0.2-SNAPSHOT        cd7159216be8        About an hour ago   406MB
-org.geoserver.cloud/gs-cloud-config-service     0.2-SNAPSHOT        28f4f4f9ff35        25 hours ago        332MB
-org.geoserver.cloud/gs-cloud-database           0.2-SNAPSHOT        0022bb2d2a1e        6 weeks ago         491MB
-org.geoserver.cloud/gs-cloud-discovery-service  0.2-SNAPSHOT        827e3ebde911        25 hours ago        334MB
-org.geoserver.cloud/gs-cloud-gateway            0.2-SNAPSHOT        55ecab20b51e        25 hours ago        330MB
-org.geoserver.cloud/gs-cloud-restconfig-v1      0.2-SNAPSHOT        d1aa8a3495a1        About an hour ago   432MB
-org.geoserver.cloud/gs-cloud-wcs                0.2-SNAPSHOT        580b2336ab02        About an hour ago   416MB
-org.geoserver.cloud/gs-cloud-web-ui             0.2-SNAPSHOT        da1e714ff851        About an hour ago   461MB
-org.geoserver.cloud/gs-cloud-wfs                0.2-SNAPSHOT        6f296b3ba198        About an hour ago   427MB
-org.geoserver.cloud/gs-cloud-wms                0.2-SNAPSHOT        294ab913aaf4        About an hour ago   439MB
-org.geoserver.cloud/gs-cloud-wps                0.2-SNAPSHOT        07135b861814        About an hour ago   440MB
+$ docker images|grep geoserver-cloud|sort
+geoservercloud/geoserver-cloud-catalog               1.0-SNAPSHOT        afed2dc4888e        39 minutes ago      403MB
+geoservercloud/geoserver-cloud-config                1.0-SNAPSHOT        be987ff2a85e        42 minutes ago      319MB
+geoservercloud/geoserver-cloud-discovery             1.0-SNAPSHOT        abc5a17cf14c        42 minutes ago      320MB
+geoservercloud/geoserver-cloud-gateway               1.0-SNAPSHOT        10f267950c15        42 minutes ago      317MB
+geoservercloud/geoserver-cloud-postgres-jdbcconfig   1.0-SNAPSHOT        6014df31f1ee        2 hours ago         196MB
+geoservercloud/geoserver-cloud-rest                  1.0-SNAPSHOT        29406a1e1fdb        36 minutes ago      429MB
+geoservercloud/geoserver-cloud-wcs                   1.0-SNAPSHOT        c77ac22aa522        37 minutes ago      391MB
+geoservercloud/geoserver-cloud-webui                 1.0-SNAPSHOT        876d6fc3fac0        36 minutes ago      449MB
+geoservercloud/geoserver-cloud-wfs                   1.0-SNAPSHOT        62960137eb5a        38 minutes ago      410MB
+geoservercloud/geoserver-cloud-wms                   1.0-SNAPSHOT        6686ca90b552        38 minutes ago      437MB
+geoservercloud/geoserver-cloud-wps                   1.0-SNAPSHOT        73bae600226c        37 minutes ago      416MB
 ```
 
 To run the build without building the docker images, disable the `docker` maven profile:
 
 ```bash
-$ ./mvnw clean install -P\!docker
+$ ./mvnw clean install -P-docker
 ```
 
 # Running
@@ -115,15 +117,15 @@ $ ./mvnw clean install -P\!docker
 Now run the docker composition as follows, the first time it might need to download some additional images for the `rabbitmq` event broker and the `postgresql` config database:
 
 ```bash
-$ docker-compose up -d
+$ docker-compose --compatibility up -d
 ```
 
-Run `docker-compose logs -f` to watch startup progress of all services.
+Run `docker-compose --compatibility logs -f` to watch startup progress of all services.
 
 Watch the output of `docker-compose ps` until all services are healthy:
 
 ```bash
-$ docker-compose ps
+$ docker-compose --compatibility ps
        Name                      Command                  State                   Ports                                                      
 -----------------------------------------------------------------------------------------------------------------
 gscloud_catalog_1     dockerize -wait http://con ...   Up (healthy)                                                                                                                   
