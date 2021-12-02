@@ -71,7 +71,7 @@ services:
       # 'git' profile config
       CONFIG_GIT_URI: https://github.com/geoserver/geoserver-cloud-config.git
       # get the config for this release from the rv1.0-RC2 branch
-      spring.cloud.config.server.git.default-label: r1.0-RC2
+      SPRING_CLOUD_CONFIG_SERVER_GIT_DEFAULT_LABEL: v1.0-RC2
       # where to store the cloned repository, if unset, it'll use /tmp/config-repo-<randomid>
       CONFIG_GIT_BASEDIR: /opt/app/git_config
       # 'native' profile config
