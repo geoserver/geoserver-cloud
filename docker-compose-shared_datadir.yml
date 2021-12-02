@@ -7,7 +7,7 @@ version: "3.8"
 #
 
 volumes:
-  shared_data_directory:
+  test_shared_data_directory:
     driver_opts:
       type: none
       o: bind
@@ -22,7 +22,7 @@ services:
       SPRING_PROFILES_ACTIVE: "datadir"
       GEOSERVER_DATA_DIR: /tmp/data_directory
     volumes:
-      - shared_data_directory:/tmp/data_directory
+      - test_shared_data_directory:/tmp/data_directory
     command: echo "catalog-service disabled."
 
   wfs:
@@ -30,32 +30,32 @@ services:
       SPRING_PROFILES_ACTIVE: "datadir"
       GEOSERVER_DATA_DIR: /tmp/data_directory
     volumes:
-      - shared_data_directory:/tmp/data_directory
+      - test_shared_data_directory:/tmp/data_directory
 
   wms:
     environment:
       SPRING_PROFILES_ACTIVE: "datadir"
       GEOSERVER_DATA_DIR: /tmp/data_directory
     volumes:
-      - shared_data_directory:/tmp/data_directory
+      - test_shared_data_directory:/tmp/data_directory
 
   wcs:
     environment:
       SPRING_PROFILES_ACTIVE: "datadir"
       GEOSERVER_DATA_DIR: /tmp/data_directory
     volumes:
-      - shared_data_directory:/tmp/data_directory
+      - test_shared_data_directory:/tmp/data_directory
 
   rest:
     environment:
       SPRING_PROFILES_ACTIVE: "datadir"
       GEOSERVER_DATA_DIR: /tmp/data_directory
     volumes:
-      - shared_data_directory:/tmp/data_directory
+      - test_shared_data_directory:/tmp/data_directory
 
   webui:
     environment:
       SPRING_PROFILES_ACTIVE: "datadir"
       GEOSERVER_DATA_DIR: /tmp/data_directory
     volumes:
-      - shared_data_directory:/tmp/data_directory
+      - test_shared_data_directory:/tmp/data_directory
