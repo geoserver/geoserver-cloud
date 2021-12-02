@@ -43,9 +43,8 @@
       <artifactId>feign-reactor-webclient</artifactId>
     </dependency>
     <dependency>
-      <!-- Adds support of Spring Cloud Loadbalancer instead of Ribbon and Resilience4j instead of Hystrix -->
       <groupId>com.playtika.reactivefeign</groupId>
-      <artifactId>feign-reactor-cloud2</artifactId>
+      <artifactId>feign-reactor-cloud</artifactId>
     </dependency>
     <dependency>
       <groupId>com.playtika.reactivefeign</groupId>
