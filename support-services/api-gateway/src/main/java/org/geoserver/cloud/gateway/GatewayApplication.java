@@ -6,6 +6,7 @@ package org.geoserver.cloud.gateway;
 
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.gateway.filter.RouteProfileGatewayFilterFactory;
+import org.geoserver.cloud.gateway.filter.StripBasePathGatewayFilterFactory;
 import org.geoserver.cloud.gateway.predicate.RegExpQueryRoutePredicateFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -40,6 +41,10 @@ public class GatewayApplication {
     /** Allows to enable routes only if a given spring profile is enabled */
     public @Bean RouteProfileGatewayFilterFactory routeProfileGatewayFilterFactory() {
         return new RouteProfileGatewayFilterFactory();
+    }
+
+    public @Bean StripBasePathGatewayFilterFactory stripBasePathGatewayFilterFactory() {
+        return new StripBasePathGatewayFilterFactory();
     }
 
     @EventListener(ApplicationReadyEvent.class)

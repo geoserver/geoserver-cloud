@@ -1,8 +1,10 @@
 server:
   port: 8080
   instance-id: ${spring.application.name}:${spring.application.instance_id:${spring.cloud.client.ip-address}}:${server.port}
-  servlet:
-    context-path: /
+  # Let spring-boot's ForwardedHeaderFilter take care of reflecting the client-originated protocol and address in the HttpServletRequest  
+  forward-headers-strategy: framework
+  servlet.context-path: /
+
 spring:
   main:
     banner-mode: off
