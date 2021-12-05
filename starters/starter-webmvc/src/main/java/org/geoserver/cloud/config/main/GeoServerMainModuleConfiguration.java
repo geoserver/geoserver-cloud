@@ -7,7 +7,6 @@ package org.geoserver.cloud.config.main;
 import org.geoserver.cloud.config.catalog.GeoServerBackendConfigurer;
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportResource;
 
 /**
@@ -33,10 +32,28 @@ import org.springframework.context.annotation.ImportResource;
  *   <li>{@link GeoServerBackendConfigurer#xstreamPersisterFactory}
  * </ul>
  *
+ * <p>Other excluded beans that are not used in geoserver-cloud:
+ *
+ * <p>We let spring-boot's {@code ForwardedHeaderFilter} take care of reflecting the
+ * client-originated protocol and address in the HttpServletRequest through the {@code
+ * server.forward-headers-strategy=framework} config property, so the following are not used:
+ *
+ * <ul>
+ *   <li>{@code <bean id="proxyfierHeaderCollector"
+ *       class="org.geoserver.ows.HTTPHeadersCollector"/>}
+ *   <li>{@code <bean id="proxyfierHeaderTransfer" class=
+ *       "org.geoserver.threadlocals.PublicThreadLocalTransfer">}
+ *   <li>{@code <bean id="proxyfier" class="org.geoserver.ows.ProxifyingURLMangler">}
+ * </ul>
+ *
  * <p>
+ *
+ * <ul>
+ *   <li>{@code logsPage}: {@code org.geoserver.web.admin.LogPage} is of no use with the
+ *       microservices approach, as it reads from {@literal <datadir>/logs/geoserver.log}
+ * </ul>
  */
 @Configuration(proxyBeanMethods = true)
-@Import({UrlProxifyingConfiguration.class})
 @ImportResource( //
     reader = FilteringXmlBeanDefinitionReader.class, //
     // exclude beans
@@ -46,6 +63,12 @@ import org.springframework.context.annotation.ImportResource;
 )
 public class GeoServerMainModuleConfiguration {
 
+    private static final String UNUSED_BEAN_NAMES =
+            "proxyfierHeaderCollector|proxyfierHeaderTransfer|proxyfier" + "|logsPage";
+
+    private static final String OVERRIDDEN_BEAN_NAMES =
+            "rawCatalog|secureCatalog|localWorkspaceCatalog|catalog|advertisedCatalog|accessRulesDao|catalogFacade|dataDirectory|extensions|geoServer|geoserverFacade|geoServerLoader|geoServerSecurityManager|resourceLoader|resourceStoreImpl|secureCatalog|xstreamPersisterFactory";
+
     static final String EXCLUDE_BEANS_REGEX =
-            "^(?!rawCatalog|secureCatalog|localWorkspaceCatalog|catalog|advertisedCatalog|accessRulesDao|catalogFacade|dataDirectory|extensions|geoServer|geoserverFacade|geoServerLoader|geoServerSecurityManager|resourceLoader|resourceStoreImpl|secureCatalog|xstreamPersisterFactory).*$";
+            "^(?!" + OVERRIDDEN_BEAN_NAMES + "|" + UNUSED_BEAN_NAMES + ").*$";
 }

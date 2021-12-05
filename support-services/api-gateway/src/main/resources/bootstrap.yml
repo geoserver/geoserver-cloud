@@ -1,7 +1,10 @@
 server:
   port: 8080
   instance-id: ${spring.application.name}:${spring.application.instance_id:${spring.cloud.client.ip-address}}:${server.port}
+        
 spring:
+  webflux:
+    base-path: /
   main:
     banner-mode: off
   application:

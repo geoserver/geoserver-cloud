@@ -1,0 +1,16 @@
+/* hide the proxy base URL form fields*/
+/* input[id="proxyBaseUrl"] { */
+/*   display: none; */
+/* } */
+/* label[for="proxyBaseUrl"] { */
+/*   display: none; */
+/* } */
+/* input[id="useHeadersProxyURL"] { */
+/*   display: none; */
+/* } */
+/* label[for="useHeadersProxyURL"] { */
+/*   display: none; */
+/* } */
+/* li[class="choiceItem"]/label[for="proxyBaseUrl"]{ */
+/*   display: none; */
+/* } */
