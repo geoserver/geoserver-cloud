@@ -14,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.lang.reflect.Proxy;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
 import lombok.NonNull;
 import org.geoserver.catalog.Catalog;
@@ -26,6 +27,7 @@ import org.geoserver.catalog.plugin.PropertyDiff;
 import org.geoserver.cloud.autoconfigure.bus.RemoteInfoEventInboundResolver;
 import org.geoserver.cloud.bus.GeoServerBusProperties;
 import org.geoserver.cloud.bus.event.catalog.RemoteCatalogEvent;
+import org.geoserver.cloud.bus.event.catalog.RemoteDefaultWorkspaceEvent;
 import org.geoserver.cloud.bus.event.config.RemoteConfigEvent;
 import org.geoserver.cloud.test.ApplicationEventCapturingListener;
 import org.geoserver.config.GeoServer;
@@ -36,8 +38,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.cloud.bus.SpringCloudBusClient;
 import org.springframework.cloud.stream.test.binder.MessageCollector;
+import org.springframework.context.ApplicationContext;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.converter.AbstractMessageConverter;
 
@@ -52,16 +54,8 @@ import org.springframework.messaging.converter.AbstractMessageConverter;
  */
 public class AbstractRemoteApplicationEventsTest {
 
-    /**
-     * Spring-cloud-stream test message collector used to capture out-bound {@link RemoteInfoEvent}s
-     */
-    protected @Autowired MessageCollector messageCollector;
-
-    /**
-     * Spring-cloud-bus auto-configured message channels for spring-cloud-stream {@link
-     * SpringCloudBusClient#springCloudBusOutput()}
-     */
-    protected @Autowired SpringCloudBusClient springCloudBusChannels;
+    private @Autowired TestBindingService testBindingService;
+    private @Autowired ApplicationContext context;
 
     /**
      * Message converter registered by spring-cloud-bus, used to parse the json message sent to the
@@ -90,8 +84,13 @@ public class AbstractRemoteApplicationEventsTest {
         testData.deleteAll();
 
         localRemoteEventsListener.clear();
-        BlockingQueue<Message<?>> outChannel =
-                messageCollector.forChannel(springCloudBusChannels.springCloudBusOutput());
+
+        Patch patch = new Patch();
+        patch.add("defaultWorkspace", null);
+        context.publishEvent(new RemoteDefaultWorkspaceEvent(catalog, patch, "this", null));
+
+        final BlockingQueue<Message<?>> outChannel = new LinkedBlockingQueue<>();
+
         outBoundEvents =
                 new BusChannelEventCollector(outChannel, busJsonConverter, inboundEventResolver);
 
@@ -131,9 +130,9 @@ public class AbstractRemoteApplicationEventsTest {
     }
 
     @SuppressWarnings("unchecked")
-    protected <T extends Info> void testRemoteModifyEvent(
-            @NonNull T info,
-            @NonNull Consumer<T> modifier,
+    protected <T extends Info> void testRemoteModifyEvent( //
+            @NonNull T info, //
+            @NonNull Consumer<T> modifier, //
             @NonNull Consumer<T> saver,
             @SuppressWarnings("rawtypes") @NonNull Class<? extends RemoteModifyEvent> eventType) {
 

@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.geoserver.cloud.autoconfigure.bus.RemoteInfoEventInboundResolver;
 import org.mockito.Mockito;
-import org.springframework.cloud.bus.SpringCloudBusClient;
 import org.springframework.cloud.bus.event.RemoteApplicationEvent;
 import org.springframework.cloud.stream.test.binder.MessageCollector;
 import org.springframework.context.ApplicationEvent;

@@ -1,6 +1,7 @@
 spring:
   main.banner-mode: off
   main.allow-bean-definition-overriding: true
+    allow-circular-references: true # false by default since spring-boot 2.6.0, breaks geoserver initialization
   cloud.bus.enabled: false
 
 geoserver:
@@ -12,7 +13,7 @@ geoserver:
 #      resource-store.fallback: ${java.io.tmpdir}/gs_cloud/catalog_client_resource_store_fallback
     data-directory:
       enabled: false
-      location: ${data_directory:${java.io.tmpdir}/geoserver_cloud_data_directory}
+      location: ${java.io.tmpdir}/geoserver_cloud_data_directory
     jdbcconfig:
       enabled: false
       web.enabled: false

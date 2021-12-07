@@ -9,7 +9,6 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -165,7 +164,6 @@ public class LocalApplicationEventsAutoConfigurationTest {
         testModify(
                 catalog.getNamespace(testData.namespaceA.getId()),
                 n -> {
-                    n.setDateModified(new Date());
                     n.setPrefix("new-prefix");
                 },
                 catalog::save,

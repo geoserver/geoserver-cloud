@@ -13,13 +13,10 @@ import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.ResourceStore;
 import org.geoserver.platform.resource.ResourceStoreFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 
 /** Configurer interface for the {@link GeoServer} config subsystem. */
 public interface GeoServerConfigConfigurer {
-
-    ApplicationContext getContext();
 
     default @Bean(name = "geoServer") GeoServerImpl geoServer(@Qualifier("catalog") Catalog catalog)
             throws Exception {

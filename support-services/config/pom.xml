@@ -10,8 +10,7 @@
   <packaging>jar</packaging>
   <name>Cloud config service</name>
   <properties>
-    <dockerfile.skip>false</dockerfile.skip>
-    <docker.image.name>geoserver-cloud-config</docker.image.name>
+    <spring-boot.build-image.imageName>geoservercloud/geoserver-cloud-config:${project.version}</spring-boot.build-image.imageName>
     <start-class>org.geoserver.cloud.config.ConfigApplication</start-class>
   </properties>
   <dependencies>
@@ -36,18 +35,70 @@
       <artifactId>spring-boot-starter-aop</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.springframework.experimental</groupId>
+      <artifactId>spring-native</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.geoserver.cloud</groupId>
       <artifactId>gs-cloud-docker-healthcheck</artifactId>
       <classifier>bin</classifier>
     </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
   <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-maven-plugin</artifactId>
+          <version>${spring-boot.version}</version>
+          <executions>
+            <execution>
+              <id>build-info</id>
+              <goals>
+                <goal>build-info</goal>
+              </goals>
+            </execution>
+          </executions>
+          <configuration>
+            <excludes>
+              <exclude>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+              </exclude>
+            </excludes>
+            <layers>
+              <enabled>true</enabled>
+            </layers>
+            <image>
+              <pullPolicy>IF_NOT_PRESENT</pullPolicy>
+              <env>
+                <!-- Builder config options -->
+                <BP_JVM_VERSION>11</BP_JVM_VERSION>
+                <BP_JVM_TYPE>JRE</BP_JVM_TYPE>
+                <BPL_JVM_THREAD_COUNT>8</BPL_JVM_THREAD_COUNT>
+                <!-- Runtime config options -->
+                <!-- Allow running on low-resource provisioned containers, this service doesn't need much -->
+                <BPE_DELIM_JAVA_TOOL_OPTIONS xml:space="preserve" />
+                <BPE_JAVA_TOOL_OPTIONS>-Xss256K -XX:ReservedCodeCacheSize=64M -XX:MaxMetaspaceSize=128M</BPE_JAVA_TOOL_OPTIONS>
+                <BPE_JVM_THREAD_COUNT>8</BPE_JVM_THREAD_COUNT>
+              </env>
+            </image>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
     <plugins>
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
         <executions>
           <execution>
+            <id>build-info</id>
             <goals>
               <goal>build-info</goal>
             </goals>
@@ -65,11 +116,104 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>com.spotify</groupId>
-            <artifactId>dockerfile-maven-plugin</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>build-image</id>
+                <goals>
+                  <goal>build-image</goal>
+                </goals>
+              </execution>
+              <!-- <execution> -->
+              <!-- <id>build-image-openj9</id> -->
+              <!-- <goals> -->
+              <!-- <goal>build-image</goal> -->
+              <!-- </goals> -->
+              <!-- <configuration> -->
+              <!-- <image> -->
+              <!-- <name>${spring-boot.build-image.imageName}-openj9</name> -->
+              <!-- <pullPolicy>IF_NOT_PRESENT</pullPolicy> -->
+              <!-- <runImage>paketobuildpacks/eclipse-openj9:latest</runImage> -->
+              <!-- <env> -->
+              <!-- <BP_JVM_VERSION>11</BP_JVM_VERSION> -->
+              <!-- <BPE_JAVA_TOOL_OPTIONS>-Xss256K -XX:ReservedCodeCacheSize=64M -XX:MaxMetaspaceSize=128M</BPE_JAVA_TOOL_OPTIONS> -->
+              <!-- <BPE_OVERRIDE_BPL_JVM_THREAD_COUNT>25</BPE_OVERRIDE_BPL_JVM_THREAD_COUNT> -->
+              <!-- <BPL_JVM_THREAD_COUNT>25</BPL_JVM_THREAD_COUNT> -->
+              <!-- </env> -->
+              <!-- </image> -->
+              <!-- </configuration> -->
+              <!-- </execution> -->
+            </executions>
           </plugin>
         </plugins>
       </build>
+    </profile>
+    <profile>
+      <id>native</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>build-native-image</id>
+                <goals>
+                  <goal>build-image</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <image>
+                <builder>paketobuildpacks/builder:tiny</builder>
+                <env>
+                  <!-- Builder config options -->
+                  <BP_NATIVE_IMAGE>true</BP_NATIVE_IMAGE>
+                </env>
+              </image>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.springframework.experimental</groupId>
+            <artifactId>spring-aot-maven-plugin</artifactId>
+            <executions>
+              <!-- <execution> -->
+              <!-- <id>test-generate</id> -->
+              <!-- <goals> -->
+              <!-- <goal>test-generate</goal> -->
+              <!-- </goals> -->
+              <!-- </execution> -->
+              <execution>
+                <id>generate</id>
+                <goals>
+                  <goal>generate</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.graalvm.buildtools</groupId>
+            <artifactId>native-maven-plugin</artifactId>
+          </plugin>
+        </plugins>
+      </build>
+      <properties>
+        <spring-boot.build-image.imageName>geoservercloud/geoserver-cloud-config:${project.version}-native</spring-boot.build-image.imageName>
+        <start-class>org.geoserver.cloud.config.ConfigApplication</start-class>
+      </properties>
+      <dependencies>
+        <dependency>
+          <groupId>org.springframework.experimental</groupId>
+          <artifactId>spring-native</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.graalvm.buildtools</groupId>
+          <artifactId>junit-platform-native</artifactId>
+          <version>${native-buildtools.version}</version>
+          <scope>test</scope>
+        </dependency>
+      </dependencies>
     </profile>
   </profiles>
 </project>

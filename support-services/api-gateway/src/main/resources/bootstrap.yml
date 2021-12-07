@@ -1,10 +1,10 @@
+info:
+  instance-id: ${spring.application.name}:${vcap.application.instance_id:${spring.application.instance_id:${spring.cloud.client.ip-address}}:${server.port}}
+
 server:
   port: 8080
-  instance-id: ${spring.application.name}:${spring.application.instance_id:${spring.cloud.client.ip-address}}:${server.port}
         
 spring:
-  webflux:
-    base-path: /
   main:
     banner-mode: off
   application:
@@ -20,7 +20,7 @@ spring:
 eureka:
   instance:
     hostname: ${spring.application.name}
-    instance-id: ${server.instance-id}
+    instance-id: ${info.instance-id}
     preferIpAddress: true
     lease-expiration-duration-in-seconds: 30
     lease-renewal-interval-in-seconds: 30
@@ -34,11 +34,10 @@ eureka:
     healthcheck:
       enabled: false
 
-logging:
-  level:
-    org.springframework.retry: DEBUG
+logging.level:
+    '[org.springframework.retry]': debug
 
 ---
-spring.profiles: local
+spring.config.activate.on-profile: local
 eureka.server.url: http://localhost:8761/eureka
     

@@ -1,7 +1,4 @@
 spring:
-  main:
-    banner-mode: off
-    allow-bean-definition-overriding: true
   cloud.config.enabled: false
   cloud.config.discovery.enabled: false
   cloud.bus.enabled: false

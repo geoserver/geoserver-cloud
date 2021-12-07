@@ -1,0 +1,19 @@
+geoserver:
+  backend:
+    catalog-service:
+      enabled: false
+      url: catalog-service
+    data-directory:
+      enabled: true
+      location: ${java.io.tmpdir}/geoserver_cloud_data_directory
+    jdbcconfig:
+      enabled: false
+
+logging:
+  level:
+    root: WARN
+    #org.geoserver.platform: ERROR
+    org.geoserver: DEBUG
+    org.geoserver.cloud: DEBUG
+    org.geoserver.cloud.config.factory: TRACE
+    org.springframework.test: ERROR

@@ -4,7 +4,6 @@
  */
 package org.geoserver.cloud.catalog.caching;
 
-import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogFacade;
@@ -16,6 +15,7 @@ import org.geoserver.config.GeoServerFacade;
 import org.geoserver.config.plugin.GeoServerImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,27 +30,15 @@ import org.springframework.context.annotation.Configuration;
  * @see CachingCatalogFacade
  * @see CachingGeoServerFacade
  */
-@Configuration
+@Configuration(proxyBeanMethods = true)
 @EnableCaching
 @Slf4j
-public class GeoServerBackendCacheConfiguration {
+public class GeoServerBackendCacheConfiguration implements BeanPostProcessor {
 
-    private @Autowired @Qualifier("rawCatalog") CatalogPlugin rawCatalog;
-    private @Autowired @Qualifier("geoServer") GeoServerImpl rawGeoServer;
-
-    private @Autowired @Qualifier("catalogFacade") CatalogFacade rawCatalogFacade;
-    private @Autowired @Qualifier("geoserverFacade") GeoServerFacade rawGeoServerFacade;
-
-    public @PostConstruct void decorateFacades() {
-        CatalogFacade cachingCatalogFacade = cachingCatalogFacade();
-        GeoServerFacade cachingGeoServerFacade = cachingGeoServerFacade();
-
-        rawCatalog.setFacade(cachingCatalogFacade);
-        rawGeoServer.setFacade(cachingGeoServerFacade);
-        log.info("Caching for catalog and geoserver config enabled");
-    }
-
-    public @Bean CachingCatalogFacade cachingCatalogFacade() {
+    @Autowired
+    public @Bean CachingCatalogFacade cachingCatalogFacade(
+            @Qualifier("rawCatalog") CatalogPlugin rawCatalog,
+            @Qualifier("catalogFacade") CatalogFacade rawCatalogFacade) {
         CatalogFacade raw = rawCatalogFacade;
         ExtendedCatalogFacade facade;
         if (raw instanceof ExtendedCatalogFacade) {
@@ -58,10 +46,19 @@ public class GeoServerBackendCacheConfiguration {
         } else {
             facade = new CatalogFacadeExtensionAdapter(raw);
         }
-        return new CachingCatalogFacadeImpl(facade);
+        CachingCatalogFacadeImpl caching = new CachingCatalogFacadeImpl(facade);
+        rawCatalog.setFacade(caching);
+        log.info("Caching for CatalogFacade enabled");
+        return caching;
     }
 
-    public @Bean CachingGeoServerFacade cachingGeoServerFacade() {
-        return new CachingGeoServerFacadeImpl(rawGeoServerFacade);
+    @Autowired
+    public @Bean CachingGeoServerFacade cachingGeoServerFacade(
+            @Qualifier("geoServer") GeoServerImpl rawGeoServer,
+            @Qualifier("geoserverFacade") GeoServerFacade rawGeoServerFacade) {
+        CachingGeoServerFacadeImpl caching = new CachingGeoServerFacadeImpl(rawGeoServerFacade);
+        rawGeoServer.setFacade(caching);
+        log.info("Caching for GeoServerFacade enabled");
+        return caching;
     }
 }

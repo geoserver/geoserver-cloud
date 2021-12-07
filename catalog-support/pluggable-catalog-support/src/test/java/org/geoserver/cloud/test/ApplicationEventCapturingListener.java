@@ -30,7 +30,9 @@ public class ApplicationEventCapturingListener {
 
     @EventListener(ApplicationEvent.class)
     public void capture(ApplicationEvent anyEvent) {
-        if (capturing && this.eventType.isInstance(anyEvent)) captured.add(anyEvent);
+        if (capturing && this.eventType.isInstance(anyEvent)) {
+            captured.add(anyEvent);
+        }
     }
 
     public ApplicationEventCapturingListener stop() {

@@ -155,7 +155,17 @@
       <artifactId>postgresql</artifactId>
     </dependency>
     <dependency>
-      <!-- test scoped to enable testing autoconfiguration of web components (e.g. jdbc-config's home page contribution)-->
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-configuration-processor</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-autoconfigure-processor</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <!-- test scoped to enable testing autoconfiguration of web components (e.g. jdbc-config's home page contribution) -->
       <groupId>org.geoserver.web</groupId>
       <artifactId>gs-web-core</artifactId>
       <scope>test</scope>

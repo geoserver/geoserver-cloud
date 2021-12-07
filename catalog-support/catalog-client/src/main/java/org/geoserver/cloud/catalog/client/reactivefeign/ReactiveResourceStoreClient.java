@@ -23,8 +23,8 @@ import reactor.core.publisher.Mono;
     name = "catalog-service", //
     url = "${geoserver.backend.catalog-service.uri:}", //
     qualifier = "resource-store-client", //
-    path = "/api/v1/resources", //
-    fallbackFactory = ResourceStoreFallbackFactory.class
+    path = "/api/v1/resources" //
+    // , fallbackFactory = ResourceStoreFallbackFactory.class
 )
 public interface ReactiveResourceStoreClient {
 

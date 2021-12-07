@@ -1,6 +1,7 @@
+info:
+  instance-id: ${spring.application.name}:${vcap.application.instance_id:${spring.application.instance_id:${spring.cloud.client.ip-address}}:${server.port}}
 server:
   port: 8080
-  instance-id: ${spring.application.name}:${spring.application.instance_id:${spring.cloud.client.ip-address}}:${server.port}
   # Let spring-boot's ForwardedHeaderFilter take care of reflecting the client-originated protocol and address in the HttpServletRequest  
   forward-headers-strategy: framework
   servlet:
@@ -11,6 +12,7 @@ spring:
   main:
     banner-mode: off
     allow-bean-definition-overriding: true
+    allow-circular-references: true # false by default since spring-boot 2.6.0, breaks geoserver initialization
   application:
     name: web-ui
   cloud:
@@ -33,7 +35,7 @@ spring:
 eureka:
   instance:
     hostname: ${spring.application.name}
-    instance-id: ${server.instance-id}
+    instance-id: ${info.instance-id}
     preferIpAddress: true
     lease-expiration-duration-in-seconds: 30
     lease-renewal-interval-in-seconds: 30
@@ -47,10 +49,40 @@ eureka:
     healthcheck:
       enabled: false
 
+geoserver:
+  web-ui:
+    file-browser.hide-file-system: true
+    # These are all default values, here just for reference. You can omit them and add only the ones to disable or further configure
+    security.enabled: true
+    wfs.enabled: true
+    wms.enabled: true
+    wcs.enabled: true
+    wps.enabled: false # not working yet
+    gwc.enabled: false # not ready yet
+    extensions:
+      importer.enabled: true
+    demos:
+      enabled: true
+      wps-request-builder: true
+      wcs-request-builder: true
+      demo-requests: true
+      srs-list: true
+      reprojection-console: true
+      layer-preview-page:
+        enabled: true
+        common-formats:
+          open-layers: true
+          gml: true
+          kml: false #kml links are broken
+    tools:
+      enabled: true
+      resource-browser: true
+      catalog-bulk-load: true
+
 logging.level:
     '[org.springframework.retry]': debug
 
 ---
-spring.profiles: local
+spring.config.activate.on-profile: local
 eureka.server.url: http://localhost:8761/eureka
     

@@ -34,7 +34,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.NONE,
-    classes = {TestConfigurationAutoConfiguration.class, ApplicationEventCapturingListener.class}
+    classes = {
+        TestConfigurationAutoConfiguration.class,
+        ApplicationEventCapturingListener.class,
+        TestSpringCloudBusConfig.class
+    }
 )
 @RunWith(SpringRunner.class)
 @EnableAutoConfiguration

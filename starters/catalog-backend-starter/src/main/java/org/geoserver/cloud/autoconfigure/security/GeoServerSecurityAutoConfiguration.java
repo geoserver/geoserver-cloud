@@ -4,10 +4,13 @@
  */
 package org.geoserver.cloud.autoconfigure.security;
 
+import org.geoserver.cloud.autoconfigure.catalog.GeoServerBackendAutoConfiguration;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 @Configuration
+@AutoConfigureAfter(GeoServerBackendAutoConfiguration.class)
 @Import({
     GeoServerSecurityEnabledAutoConfiguration.class,
     GeoServerSecurityDisabledAutoConfiguration.class

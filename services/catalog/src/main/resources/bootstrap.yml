@@ -1,3 +1,7 @@
+info:
+  component: Catalog and Config Server
+  instance-id: ${spring.application.name}:${vcap.application.instance_id:${spring.application.instance_id:${spring.cloud.client.ip-address}}:${server.port}}
+
 geoserver:
   security.enabled: false
   catalog:
@@ -23,16 +27,18 @@ geoserver:
     send-diff: false
 server:
   port: 8080
-  instance-id: ${spring.application.name}:${spring.application.instance_id:${spring.cloud.client.ip-address}}:${server.port}
   # one of never, always, on_trace_param (deprecated), on_param
-  error.includeStacktrace: on-trace-param
+  error.include-stacktrace: on-param
 spring:
-  jackson.default-property-inclusion: non-empty
-  jackson.serialization.indent_output: true
+  jackson:
+    default-property-inclusion: non-empty
+    serialization:
+      indent-output: true
   main:
     banner-mode: off
     web-application-type: REACTIVE
     allow-bean-definition-overriding: true
+    allow-circular-references: true # false by default since spring-boot 2.6.0, breaks geoserver initialization
   application:
     name: catalog-service
   cloud:
@@ -52,7 +58,7 @@ spring:
 eureka:
   instance:
     hostname: ${spring.application.name}
-    instance-id: ${server.instance-id}
+    instance-id: ${info.instance-id}
     preferIpAddress: true
     lease-expiration-duration-in-seconds: 30
     lease-renewal-interval-in-seconds: 30
@@ -68,9 +74,9 @@ eureka:
 
 logging:
   level:
-    org.springframework.retry: DEBUG
+    org.springframework.retry: debug
 
 ---
-spring.profiles: local
+spring.config.activate.on-profile: local
 eureka.server.url: http://localhost:8761/eureka
     
