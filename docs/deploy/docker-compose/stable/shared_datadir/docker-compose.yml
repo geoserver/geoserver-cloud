@@ -3,7 +3,13 @@ version: "3.8"
 volumes:
   # a volume to host the shared data directory. Mount it at /opt/app/data_directory, since
   # /opt/app is owned by the user geo:geo (603:603) in the containers. Otherwise it'd be owned by root
+  # uncomment the driver_opts entry to bind mount an existing datadirectory and set the device: <path>
+  # accordingly to the location of the data directory in the host
   shared_data_directory:
+    #driver_opts:
+      #type: none
+      #o: bind
+      #device: $PWD/datadir
   rabbitmq_data: # volume for rabbitmq data, so it doesn't create an anonymous one on each container
   
 networks:
