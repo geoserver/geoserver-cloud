@@ -95,7 +95,6 @@ geoservercloud/geoserver-cloud-catalog               1.0-SNAPSHOT        afed2dc
 geoservercloud/geoserver-cloud-config                1.0-SNAPSHOT        be987ff2a85e        42 minutes ago      319MB
 geoservercloud/geoserver-cloud-discovery             1.0-SNAPSHOT        abc5a17cf14c        42 minutes ago      320MB
 geoservercloud/geoserver-cloud-gateway               1.0-SNAPSHOT        10f267950c15        42 minutes ago      317MB
-geoservercloud/geoserver-cloud-postgres-jdbcconfig   1.0-SNAPSHOT        6014df31f1ee        2 hours ago         196MB
 geoservercloud/geoserver-cloud-rest                  1.0-SNAPSHOT        29406a1e1fdb        36 minutes ago      429MB
 geoservercloud/geoserver-cloud-wcs                   1.0-SNAPSHOT        c77ac22aa522        37 minutes ago      391MB
 geoservercloud/geoserver-cloud-webui                 1.0-SNAPSHOT        876d6fc3fac0        36 minutes ago      449MB

@@ -26,7 +26,8 @@ services:
           memory: 1G
 
   database:
-    image: geoservercloud/geoserver-cloud-postgres-jdbcconfig:${TAG}
+    # be sure geoserver.backend.jdbcconfig.initdb is set to true in application.yml at lease for the first app run
+    image: postgres:13-alpine
     environment:
       POSTGRES_DB: "${JDBCCONFIG_DBNAME}"
       POSTGRES_USER: "${JDBCCONFIG_USERNAME}"
