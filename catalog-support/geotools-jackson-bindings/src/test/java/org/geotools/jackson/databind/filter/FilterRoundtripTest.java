@@ -4,7 +4,7 @@
  */
 package org.geotools.jackson.databind.filter;
 
-import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
@@ -245,11 +245,7 @@ public abstract class FilterRoundtripTest {
     }
 
     private Expression temporalLiteral() {
-        // LocalDate start = LocalDate.of(1977, 01, 17);
-        // ChronoLocalDate end = LocalDate.of(2020, 9, 15);
-        // Period period = start.until(end);
-        Object literal = Instant.now();
-        return literal(literal);
+        return literal(LocalDate.of(1977, 01, 17));
     }
 
     private Literal literal(Object literal) {

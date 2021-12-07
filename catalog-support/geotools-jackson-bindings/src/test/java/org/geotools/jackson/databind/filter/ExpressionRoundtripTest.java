@@ -154,7 +154,10 @@ public abstract class ExpressionRoundtripTest {
     }
 
     public @Test void literalInstant() throws Exception {
-        roundtripTest(literal(Instant.now()));
+        // use a value with rounded-up nanos, some JVM implementations will not get the same exact
+        // value after marshalling/unmarshalling
+        Instant literal = Instant.ofEpochMilli(Instant.now().toEpochMilli()).plusNanos(1000);
+        roundtripTest(literal(literal));
     }
 
     @Ignore("no jackson module can handle serialization/deserialization")
