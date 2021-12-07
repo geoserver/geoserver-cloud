@@ -35,6 +35,23 @@ eureka:
     healthcheck:
       enabled: false
 
+management:
+  endpoints:
+    enabled-by-default: true
+    web.exposure.include: "*"
+  endpoint:
+    info.enabled: true
+    metrics.enabled: true
+    shutdown.enabled: true
+    health:
+      enabled: true
+      show-details: always
+  metrics:
+    enable:
+      all: true
+    export:
+      atlas.enabled: false
+
 logging:
   level:
     # Avoid log flooding with "INFO Adding property source: file:<...>/application.yml" triggered by the actuator health check

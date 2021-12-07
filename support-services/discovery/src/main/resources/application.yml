@@ -25,6 +25,24 @@ eureka:
     fetchRegistry: false
     serviceUrl:
       defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+
+management:
+  endpoints:
+    enabled-by-default: true
+    web.exposure.include: "*"
+  endpoint:
+    info.enabled: true
+    metrics.enabled: true
+    shutdown.enabled: true
+    health:
+      enabled: true
+      show-details: always
+  metrics:
+    enable:
+      all: true
+    export:
+      atlas.enabled: false
+
 logging:
   level:
     root: INFO
