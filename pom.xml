@@ -15,11 +15,13 @@
     <module>integration-tests</module>
   </modules>
   <properties>
-    <revision>1.0-SNAPSHOT</revision>
+    <revision>1.0-SNAPSHOT_2021.0.0</revision>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
     <spring-cloud.version>2021.0.0</spring-cloud.version>
     <spring-boot.version>2.6.1</spring-boot.version>
+    <spring-native.version>0.10.5</spring-native.version>
+    <native-buildtools.version>0.9.8</native-buildtools.version>
     <feign-reactor.version>3.1.5</feign-reactor.version>
     <gs.version>2.21-SNAPSHOT</gs.version>
     <gs.community.version>2.21-SNAPSHOT</gs.community.version>
@@ -55,6 +57,11 @@
         <version>${spring-boot.version}</version>
         <type>pom</type>
         <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.experimental</groupId>
+        <artifactId>spring-native</artifactId>
+        <version>${spring-native.version}</version>
       </dependency>
       <dependency>
         <groupId>com.playtika.reactivefeign</groupId>
@@ -700,20 +707,19 @@
           <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-maven-plugin</artifactId>
           <version>${spring-boot.version}</version>
-          <executions>
-            <execution>
-              <goals>
-                <goal>repackage</goal>
-              </goals>
-            </execution>
-          </executions>
-          <inherited>true</inherited>
+          <inherited>false</inherited>
           <configuration>
             <attach>false</attach>
             <classifier>bin</classifier>
             <layers>
               <enabled>true</enabled>
             </layers>
+            <excludes>
+              <exclude>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+              </exclude>
+            </excludes>
           </configuration>
         </plugin>
         <plugin>
@@ -750,6 +756,16 @@
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>versions-maven-plugin</artifactId>
           <version>2.8.1</version>
+        </plugin>
+        <plugin>
+          <groupId>org.springframework.experimental</groupId>
+          <artifactId>spring-aot-maven-plugin</artifactId>
+          <version>${spring-native.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.graalvm.buildtools</groupId>
+          <artifactId>native-maven-plugin</artifactId>
+          <version>${native-buildtools.version}</version>
         </plugin>
       </plugins>
     </pluginManagement>
