@@ -90,6 +90,20 @@ services:
           cpus: '2.0'
           memory: 512M
 
+  admin:
+    image: geoservercloud/geoserver-cloud-admin-server:${TAG}
+    depends_on:
+      - config
+    ports:
+      - 9091:8080
+    networks:
+      - gs-cloud-network
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 512M
+    
   # Application facade, provides a single entry point routing to all
   # microservices (e.g. http://localhost:9090/geoserver/wms, http://localhost:9090/geoserver/wfs, etc)
   gateway:

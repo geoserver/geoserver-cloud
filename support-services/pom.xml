@@ -13,6 +13,7 @@
     <module>discovery</module>
     <module>config</module>
     <module>api-gateway</module>
+    <module>admin</module>
   </modules>
   <dependencies>
     <dependency>
