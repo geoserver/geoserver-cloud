@@ -73,7 +73,7 @@ These containerized applications allow deployment strategies to vary from single
 # Quick Start
 
 The following instructions are meant as quick start up guide to run the 
-system as a docker composition in a single machine. For more advanced deployment 
+system as a docker composition on a single machine. For more advanced deployment 
 options and strategies, check out the [Deployment Guide](deploy/index.md).
 
 Make sure you have `docker` and `docker-compose` installed:
