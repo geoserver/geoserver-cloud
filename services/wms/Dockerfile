@@ -20,17 +20,14 @@ LABEL maintainer="GeoServer PSC <geoserver-users@lists.sourceforge.net>"
 
 COPY --from=builder /usr/share/fonts/truetype/* /usr/share/fonts/truetype/
 
-RUN mkdir -p /opt/app/bin \
-    && mkdir -p /opt/app/data_directory \ 
-    && groupadd --system -g 630 geo \
-    && useradd -u 630 -g geo --home-dir /opt/app/bin geo \
-    && chown geo:geo /opt/app -R
+VOLUME /opt/app/data_directory
+
+RUN mkdir -p /opt/app/bin
 
 WORKDIR /opt/app/bin
 ENV JAVA_OPTS=
 EXPOSE 8080
 
-USER geo:geo
 COPY --from=builder dependencies/ ./
 COPY --from=builder snapshot-dependencies/ ./
 COPY --from=builder spring-boot-loader/ ./
