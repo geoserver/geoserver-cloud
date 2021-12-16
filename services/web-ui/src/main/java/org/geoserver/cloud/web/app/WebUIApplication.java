@@ -46,11 +46,14 @@ public class WebUIApplication {
             maxMem = String.format("%.2f %s", value, unit);
         }
         log.info(
-                "{} ready. Instance-id: {}, cpus: {}, max memory: {}",
+                "{} ready. Instance-id: {}, cpus: {}, max memory: {}. Running as {}({}:{})",
                 app,
                 instanceId,
                 cpus,
-                maxMem);
+                maxMem,
+                env.getProperty("user.name"),
+                env.getProperty("user.id"),
+                env.getProperty("user.gid"));
 
         String nodeOpts = System.getProperty("GEOSERVER_NODE_OPTS");
         if (null == nodeOpts) {

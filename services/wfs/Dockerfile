@@ -16,6 +16,7 @@ RUN mkdir -p /opt/app/bin
 
 WORKDIR /opt/app/bin
 ENV JAVA_OPTS=
+
 EXPOSE 8080
 
 COPY --from=builder dependencies/ ./
@@ -30,4 +31,4 @@ HEALTHCHECK \
 --retries=5 \
 CMD java -Xms4M -Xmx16M -jar BOOT-INF/lib/gs-cloud-docker-healthcheck-*-bin.jar || exit 1
 
-CMD exec java $JAVA_OPTS org.springframework.boot.loader.JarLauncher
+CMD exec env USER_ID="$(id -u)" USER_GID="$(id -g)" java $JAVA_OPTS org.springframework.boot.loader.JarLauncher
