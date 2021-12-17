@@ -10,10 +10,7 @@ FROM adoptopenjdk:11-jre-openj9
 
 LABEL maintainer="GeoServer PSC <geoserver-users@lists.sourceforge.net>"
 
-RUN mkdir -p /opt/app \ 
-    && groupadd --system -g 630 geo \
-    && useradd -u 630 -g geo --home-dir /opt/app/bin geo \
-    && chown geo:geo /opt/app
+RUN mkdir -p /opt/app/bin
 
 WORKDIR /opt/app/bin
 ENV JAVA_OPTS=
