@@ -1,4 +1,4 @@
 [submodule "config"]
 	path = config
-	url = git@github.com:geoserver/geoserver-cloud-config.git
+	url = https://github.com/geoserver/geoserver-cloud-config
 	branch = master
