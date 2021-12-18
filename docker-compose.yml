@@ -3,12 +3,31 @@ version: "3.8"
 volumes:
   postgresql_config_data: # volume for postgresql data, used to store the geoserver config through jdbcconfig
   rabbitmq_data: # volume for rabbitmq data, so it doesn't create an anonymous one on each container
+  postgis_data:
   
 networks:
   gs-cloud-network:
 #    driver: bridge
         
 services:
+  postgis:
+    image: postgis/postgis:latest
+    environment:
+      POSTGRES_DB: postgis
+      POSTGRES_USER: postgis
+      POSTGRES_PASSWORD: postgis
+    networks:
+      - gs-cloud-network
+    volumes:
+      - postgis_data:/var/lib/postgresql/data
+    ports:
+      - 54321:5432
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+    
   rabbitmq:
     image: rabbitmq:3.9-management
     restart: always
