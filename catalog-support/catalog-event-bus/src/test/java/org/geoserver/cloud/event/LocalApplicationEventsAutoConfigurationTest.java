@@ -52,7 +52,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @SpringBootTest(
-    classes = {TestConfigurationAutoConfiguration.class, ApplicationEventCapturingListener.class}
+    classes = {TestConfigurationAutoConfiguration.class, ApplicationEventCapturingListener.class},
+    properties = {"spring.cloud.bus.enabled=false"}
 )
 @RunWith(SpringRunner.class)
 @EnableAutoConfiguration
