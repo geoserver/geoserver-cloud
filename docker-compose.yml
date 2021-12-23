@@ -30,6 +30,7 @@ services:
     
   rabbitmq:
     image: rabbitmq:3.9-management
+    user: ${GS_USER}
     restart: always
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
@@ -69,6 +70,7 @@ services:
   # Run docker-compose -f docker-compose.yml -f docker-compose-discovery-ha.yml to run extra discovery service instances for HA
   discovery:
     image: geoservercloud/geoserver-cloud-discovery:${TAG}
+    user: ${GS_USER}
     environment:
       JAVA_OPTS: "${DISCOVERY_JAVA_OPTS}"
     ports:
@@ -87,6 +89,7 @@ services:
   config:
     image: geoservercloud/geoserver-cloud-config:${TAG}
     #image: geoservercloud/geoserver-cloud-config:${TAG}-native
+    user: ${GS_USER}
     depends_on:
       - discovery
     environment:
@@ -114,6 +117,7 @@ services:
 
   admin:
     image: geoservercloud/geoserver-cloud-admin-server:${TAG}
+    user: ${GS_USER}
     depends_on:
       - config
     ports:
@@ -130,6 +134,7 @@ services:
   # microservices (e.g. http://localhost:9090/geoserver/wms, http://localhost:9090/geoserver/wfs, etc)
   gateway:
     image: geoservercloud/geoserver-cloud-gateway:${TAG}
+    user: ${GS_USER}
     depends_on:
       - config
     environment:
@@ -149,6 +154,7 @@ services:
   # catalog microservice, provides a unified catalog backend to all services
   catalog:
     image: geoservercloud/geoserver-cloud-catalog:${TAG}
+    user: ${GS_USER}
     depends_on:
       - config
       - database
@@ -176,6 +182,7 @@ services:
   # WFS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wfs=5)
   wfs:
     image: geoservercloud/geoserver-cloud-wfs:${TAG}
+    user: ${GS_USER}
     depends_on:
       - catalog
     environment:
@@ -194,6 +201,7 @@ services:
   # WMS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wms=5)
   wms:
     image: geoservercloud/geoserver-cloud-wms:${TAG}
+    user: ${GS_USER}
     depends_on:
       - catalog
     environment:
@@ -210,6 +218,7 @@ services:
   # WCS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wcs=5)
   wcs:
     image: geoservercloud/geoserver-cloud-wcs:${TAG}
+    user: ${GS_USER}
     depends_on:
       - catalog
     environment:
@@ -237,6 +246,7 @@ services:
   # REST config microservice, port dynamically allocated to allow scaling (e.g docker-compose scale rest=5)
   rest:
     image: geoservercloud/geoserver-cloud-rest:${TAG}
+    user: ${GS_USER}
     depends_on:
       - rabbitmq
       - catalog
@@ -256,6 +266,7 @@ services:
   # WEB UI microservice
   webui:
     image: geoservercloud/geoserver-cloud-webui:${TAG}
+    user: ${GS_USER}
     depends_on:
       - rabbitmq
       - catalog

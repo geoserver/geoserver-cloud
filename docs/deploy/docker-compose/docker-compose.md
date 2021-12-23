@@ -20,6 +20,8 @@ Open a terminal and enter the directory where you just downloaded that file,
 and run `docker-compose pull` to fetch the docker images from 
 [Dockerhub](https://hub.docker.com/u/geoservercloud/):
 
+> Note in order to run the containers as a non root user, all service definitions specify a `user: 1000:1000`,
+> which you should change to the appropriate user id and group id especially if using bind volumes.
 
 ```bash
 $ docker-compose pull
