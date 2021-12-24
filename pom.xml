@@ -15,7 +15,7 @@
     <module>integration-tests</module>
   </modules>
   <properties>
-    <revision>1.0-SNAPSHOT_2021.0.0</revision>
+    <revision>1.0-SNAPSHOT</revision>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
     <spring-cloud.version>2021.0.0</spring-cloud.version>
