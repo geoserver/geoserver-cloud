@@ -633,7 +633,8 @@ public class CatalogTestData extends ExternalResource {
         g.setGlobalServices(true);
         g.setId("GeoServer.global");
         g.setJAI(creteJAI());
-        g.setLockProviderName("testLockProvider");
+        // don't set lock provider to avoid a warning stack trace that the bean does not exist
+        // g.setLockProviderName("testLockProvider");
         g.setMetadata(createMetadata("k1", Integer.valueOf(1), "k2", "2", "k3", Boolean.FALSE));
         g.setResourceErrorHandling(ResourceErrorHandling.OGC_EXCEPTION_REPORT);
         g.setSettings(createSettings(null));
