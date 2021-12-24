@@ -5,11 +5,10 @@
 package org.geoserver.cloud.autoconfigure.catalog;
 
 import org.geoserver.cloud.config.jdbcconfig.JDBCConfigBackendConfigurer;
-import org.geoserver.cloud.config.jdbcconfig.JDBCDataSourceConfiguration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnJdbcConfigEnabled
-@Import({JDBCConfigBackendConfigurer.class, JDBCDataSourceConfiguration.class})
-public class JDBCConfigAutoConfiguration extends AbstractBackendAutoConfiguration {}
+@Import(JDBCConfigBackendConfigurer.class)
+public class JDBCConfigAutoConfiguration {}

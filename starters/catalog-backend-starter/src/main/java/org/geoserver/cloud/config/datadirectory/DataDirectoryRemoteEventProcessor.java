@@ -7,6 +7,8 @@ package org.geoserver.cloud.config.datadirectory;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.DataStoreInfo;
@@ -19,7 +21,7 @@ import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ModificationProxy;
-import org.geoserver.catalog.plugin.DefaultMemoryCatalogFacade;
+import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.cloud.bus.event.RemoteAddEvent;
 import org.geoserver.cloud.bus.event.RemoteModifyEvent;
@@ -32,15 +34,15 @@ import org.geoserver.cloud.event.ConfigInfoInfoType;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
 import org.geoserver.config.plugin.RepositoryGeoServerFacade;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 
 /** Listens to {@link RemoteCatalogEvent}s and updates the local catalog */
 @Slf4j(topic = "org.geoserver.cloud.bus.incoming.datadirectory")
+@RequiredArgsConstructor
 public class DataDirectoryRemoteEventProcessor {
-    private @Autowired RepositoryGeoServerFacade configFacade;
 
-    private @Autowired DefaultMemoryCatalogFacade catalogFacade;
+    private final @NonNull RepositoryGeoServerFacade configFacade;
+    private final @NonNull ExtendedCatalogFacade catalogFacade;
 
     @EventListener(RemoteRemoveEvent.class)
     public void onRemoteRemoveEvent(RemoteRemoveEvent<?, ? extends Info> event) {

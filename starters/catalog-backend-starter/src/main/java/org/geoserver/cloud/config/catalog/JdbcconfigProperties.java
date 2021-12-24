@@ -5,27 +5,18 @@
 package org.geoserver.cloud.config.catalog;
 
 import java.nio.file.Path;
-import java.util.Properties;
 import lombok.Data;
 import org.geoserver.cloud.autoconfigure.catalog.JDBCConfigAutoConfiguration;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 
 /**
  * Configuration properties to use GeoServer's {@code jdbcconfig} and {@code jdbcstore} community
  * modules as the {@link GeoServerBackendConfigurer catalog and configuration backend} through the
  * {@link JDBCConfigAutoConfiguration} auto-configuration.
  */
-// @ConfigurationProperties(prefix = "geoserver.backend.jdbcconfig")
 public @Data class JdbcconfigProperties {
-    @Value("${geoserver.backend.jdbcconfig.enabled}")
     private boolean enabled;
-
-    @Value("${geoserver.backend.jdbcconfig.initdb:false}")
     private boolean initdb;
-
-    @Value("${geoserver.backend.jdbcconfig.cache-directory:}")
     private Path cacheDirectory;
-
-    @Value("${geoserver.backend.jdbcconfig.datasource:}")
-    private Properties datasource;
+    private DataSourceProperties datasource;
 }

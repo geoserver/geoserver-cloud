@@ -17,7 +17,7 @@ import org.springframework.context.annotation.Configuration;
     matchIfMissing = false,
     havingValue = "false"
 )
-@Slf4j
+@Slf4j(topic = "org.geoserver.cloud.autoconfigure.bus")
 public class RemoteApplicationEventsDisabledAutoConfiguration {
 
     public @PostConstruct void logBusDisabled() {

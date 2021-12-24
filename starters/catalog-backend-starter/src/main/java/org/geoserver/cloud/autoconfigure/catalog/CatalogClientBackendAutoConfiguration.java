@@ -23,4 +23,4 @@ import org.springframework.context.annotation.Import;
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnCatalogServiceClientEnabled
 @Import(CatalogClientBackendConfigurer.class)
-public class CatalogClientBackendAutoConfiguration extends AbstractBackendAutoConfiguration {}
+public class CatalogClientBackendAutoConfiguration {}

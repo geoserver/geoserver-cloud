@@ -4,18 +4,16 @@
  */
 package org.geoserver.cloud.config.catalog;
 
+import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.cloud.config.datadirectory.DataDirectoryBackendConfigurer;
+import org.geoserver.config.GeoServerFacade;
 import org.geoserver.config.GeoServerLoader;
-import org.geoserver.config.GeoServerLoaderProxy;
-import org.geoserver.config.util.XStreamPersisterFactory;
-import org.geoserver.platform.GeoServerExtensions;
+import org.geoserver.platform.GeoServerResourceLoader;
+import org.geoserver.platform.resource.ResourceStore;
+import org.geoserver.platform.resource.ResourceStoreFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 
 /**
  * Unified provider interface for the complete GeoServer backend storage (catalog and config).
@@ -37,34 +35,25 @@ import org.springframework.context.annotation.DependsOn;
  *
  * @see DataDirectoryBackendConfigurer
  */
-@Configuration(proxyBeanMethods = true)
-@EnableConfigurationProperties
-public interface GeoServerBackendConfigurer
-        extends GeoServerCatalogConfigurer, GeoServerConfigConfigurer {
+public interface GeoServerBackendConfigurer {
 
-    //    @ConfigurationProperties(prefix = "geoserver.backend")
-    //    default @Bean GeoServerBackendProperties geoServerBackendProperties() {
-    //        return new GeoServerBackendProperties();
-    //    }
-    //
-    //    @ConfigurationProperties(prefix = "geoserver.catalog")
-    //    default @Bean CatalogProperties geoServerCatalogProperties() {
-    //        return new CatalogProperties();
-    //    }
+    @Bean
+    ExtendedCatalogFacade catalogFacade();
 
-    public @Bean GeoServerLoader geoServerLoaderImpl();
+    @Bean
+    GeoServerLoader geoServerLoaderImpl();
 
-    @DependsOn("geoServerLoaderImpl")
-    default @Bean GeoServerLoaderProxy geoServerLoader() {
-        return new GeoServerLoaderProxy(resourceLoader());
-    }
+    @Bean
+    GeoServerFacade geoserverFacade();
 
-    default @Bean GeoServerExtensions extensions() {
-        return new GeoServerExtensions();
-    }
+    /**
+     * {@link ResourceStore} named {@code resourceStoreImpl}, as looked up in the application
+     * context by {@link ResourceStoreFactory}. With this, we don't need a bean called
+     * "dataDirectoryResourceStore" at all.
+     */
+    @Bean
+    ResourceStore resourceStoreImpl();
 
-    @ConditionalOnMissingBean(name = "xstreamPersisterFactory")
-    default @Bean XStreamPersisterFactory xstreamPersisterFactory() {
-        return new XStreamPersisterFactory();
-    }
+    @Bean
+    GeoServerResourceLoader resourceLoader();
 }

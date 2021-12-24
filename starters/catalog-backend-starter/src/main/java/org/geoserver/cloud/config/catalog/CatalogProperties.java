@@ -5,18 +5,12 @@
 package org.geoserver.cloud.config.catalog;
 
 import lombok.Data;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
+@ConfigurationProperties(prefix = "geoserver.catalog")
 public @Data class CatalogProperties {
-    @Value("${geoserver.catalog.isolated:true}")
     private boolean isolated = true;
-
-    @Value("${geoserver.catalog.secure:true}")
     private boolean secure = true;
-
-    @Value("${geoserver.catalog.local-workspace:true}")
     private boolean localWorkspace = true;
-
-    @Value("${geoserver.catalog.advertised:true}")
     private boolean advertised = true;
 }

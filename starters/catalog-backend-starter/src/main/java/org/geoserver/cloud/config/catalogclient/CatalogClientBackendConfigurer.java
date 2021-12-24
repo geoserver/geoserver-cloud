@@ -5,6 +5,7 @@
 package org.geoserver.cloud.config.catalogclient;
 
 import java.io.File;
+import lombok.extern.slf4j.Slf4j;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.cloud.catalog.client.impl.CatalogClientCatalogFacade;
 import org.geoserver.cloud.catalog.client.impl.CatalogClientConfiguration;
@@ -23,8 +24,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.env.Environment;
 
-@Configuration
+@Configuration(proxyBeanMethods = true)
 @Import(CatalogClientConfiguration.class)
+@Slf4j(topic = "org.geoserver.cloud.config.catalogclient")
 public class CatalogClientBackendConfigurer implements GeoServerBackendConfigurer {
 
     private @Autowired CatalogClientCatalogFacade catalogClientFacade;
@@ -32,6 +34,12 @@ public class CatalogClientBackendConfigurer implements GeoServerBackendConfigure
     private @Autowired CatalogClientResourceStore catalogServiceResourceStore;
 
     private @Autowired GeoServerBackendProperties configProps;
+
+    public CatalogClientBackendConfigurer() {
+        log.info(
+                "Loading geoserver config backend with {}",
+                CatalogClientBackendConfigurer.class.getSimpleName());
+    }
 
     public @Override @Bean ExtendedCatalogFacade catalogFacade() {
         return catalogClientFacade;

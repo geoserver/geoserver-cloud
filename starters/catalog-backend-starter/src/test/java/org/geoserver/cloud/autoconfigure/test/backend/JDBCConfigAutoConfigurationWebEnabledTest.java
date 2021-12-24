@@ -13,6 +13,7 @@ import org.geoserver.cloud.config.jdbcconfig.JDBCConfigWebConfiguration;
 import org.geoserver.jdbcconfig.web.JDBCConfigStatusProvider;
 import org.junit.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 /**
  * Test {@link JDBCConfigWebConfiguration} through {@link JDBCConfigAutoConfiguration} when {@code
@@ -25,6 +26,7 @@ import org.springframework.boot.test.context.SpringBootTest;
         "geoserver.backend.jdbcconfig.web.enabled=true"
     }
 )
+@ActiveProfiles("test")
 public class JDBCConfigAutoConfigurationWebEnabledTest extends JDBCConfigTest {
 
     @Test

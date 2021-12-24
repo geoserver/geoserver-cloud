@@ -1,8 +1,15 @@
+info:
+  instance-id: test-instance-id
 spring:
-  main.banner-mode: off
-  main.allow-bean-definition-overriding: true
-    allow-circular-references: true # false by default since spring-boot 2.6.0, breaks geoserver initialization
+  main:
+    banner-mode: off
+    allow-bean-definition-overriding: true
+    # false by default since spring-boot 2.6.0, breaks geoserver initialization
+    allow-circular-references: true
   cloud.bus.enabled: false
+  autoconfigure:
+    exclude:
+    - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
 
 geoserver:
   backend:
@@ -21,7 +28,7 @@ geoserver:
       cache-directory: ${java.io.tmpdir}/geoserver-jdbcconfig-cache
       datasource:
         driverClassname: org.h2.Driver
-        jdbcUrl: jdbc:h2:mem:test;
+        url: jdbc:h2:mem:test;DB_CLOSE_DELAY=-1
         username: sa
         password:
 
@@ -29,7 +36,8 @@ logging:
   level:
     root: WARN
     #org.geoserver.platform: ERROR
-    org.geoserver: DEBUG
-    org.geoserver.cloud: DEBUG
-    org.geoserver.cloud.config.factory: TRACE
-    org.springframework.test: ERROR
+    org.geoserver: INFO
+    org.geoserver.cloud: INFO
+    org.geoserver.cloud.config.factory: INFO
+    org.geoserver.jdbcconfig: WARN
+    org.geoserver.jdbcstore: WARN

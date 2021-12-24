@@ -31,7 +31,7 @@ spring:
 
 If such is the case, GeoServer remote events are automatically enabled (see `RemoteApplicationEventsAutoConfiguration`).
 
-The remote events propagated by this module may or may not carry the changed object payload (`org.geoserver.catalog.Info` object) and the "diff" (`PropertyDiff` payload sent on moidification events). By default, it is considered that the full object payload is not necessary, but only the object type and id are enough information in most cases (like for evicting local caches).
+The remote events propagated by this module may or may not carry the changed object payload (`org.geoserver.catalog.Info` object) and the "diff" (`PropertyDiff` payload sent on modification events). By default, it is considered that the full object payload is not necessary, but only the object type and id are enough information in most cases (like for evicting local caches).
 
 The following externalized configuration property flags can enable them:
 
