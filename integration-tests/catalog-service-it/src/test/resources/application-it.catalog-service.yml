@@ -35,7 +35,7 @@ feign.hystrix.enabled: false
 #        loggerLevel: full
 
 spring:
-  jackson.default-property-inclusion: non_empty
+  jackson.default-property-inclusion: non-empty
   jackson.serialization.indent_output: true
   autoconfigure:
     exclude:

@@ -55,7 +55,7 @@ import org.springframework.test.context.junit4.SpringRunner;
     properties = {
         "spring.cloud.circuitbreaker.hystrix.enabled=false",
         "spring.main.web-application-type=reactive",
-        "server.port=15555",
+        "server.port=16666",
         "geoserver.backend.catalog-service.uri=http://localhost:${server.port}"
     }
 )
