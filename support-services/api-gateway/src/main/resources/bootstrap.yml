@@ -1,4 +1,5 @@
 info:
+  component: Gateway Service
   instance-id: ${spring.application.name}:${vcap.application.instance_id:${spring.application.instance_id:${spring.cloud.client.ip-address}}:${server.port}}
 
 server:
