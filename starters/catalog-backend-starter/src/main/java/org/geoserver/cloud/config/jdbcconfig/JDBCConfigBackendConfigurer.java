@@ -68,7 +68,7 @@ import org.springframework.util.StringUtils;
  *   <li>{@code geoserver.backend.jdbcconfig.web.enabled}: whether to enable jdbc-config wicket
  *       components, provided {@code jdbcconfig} is enabled and the geoserver web-ui is in the
  *       classpath. Defaults to {@code true}.
- *   <li>{@code geoserver.backend.jdbcconfig.datasource.jdbcUrl}: connection URL (e.g. {@code
+ *   <li>{@code geoserver.backend.jdbcconfig.datasource.url}: connection URL (e.g. {@code
  *       jdbc:postgresql://localhost:5432/gsconfigdb})
  *   <li>{@code geoserver.backend.jdbcconfig.datasource.username}:
  *   <li>{@code geoserver.backend.jdbcconfig.datasource.password}:

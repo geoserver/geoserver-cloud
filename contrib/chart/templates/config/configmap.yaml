@@ -115,7 +115,7 @@ data:
           web.enabled: false
           cache-directory: ${jdbcconfig.cachedir:${java.io.tmpdir}/geoserver-jdbcconfig-cache}
           datasource:
-            jdbcUrl: {{ .Values.jdbcconfig.url }}
+            url: {{ .Values.jdbcconfig.url }}
             username: {{ .Values.jdbcconfig.username }}
             password: {{ .Values.jdbcconfig.password }}
             driverClassname: org.postgresql.Driver
