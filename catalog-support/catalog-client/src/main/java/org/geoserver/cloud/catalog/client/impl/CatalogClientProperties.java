@@ -14,8 +14,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  */
 public @Data class CatalogClientProperties {
     private boolean enabled;
-
     private String url;
-
     private File cacheDirectory;
 }

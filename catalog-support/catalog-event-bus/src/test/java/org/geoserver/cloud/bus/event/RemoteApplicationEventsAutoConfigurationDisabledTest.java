@@ -9,36 +9,40 @@ import org.geoserver.cloud.bus.GeoServerRemoteEventBroadcaster;
 import org.geoserver.cloud.bus.RemoteEventResourcePoolProcessor;
 import org.geoserver.cloud.test.ApplicationEventCapturingListener;
 import org.geoserver.cloud.test.TestConfigurationAutoConfiguration;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
-import org.springframework.test.context.junit4.SpringRunner;
 
 @SpringBootTest(
     classes = {TestConfigurationAutoConfiguration.class, ApplicationEventCapturingListener.class},
     properties = {"spring.cloud.bus.enabled=true", "geoserver.bus.enabled=false"}
 )
-@RunWith(SpringRunner.class)
 @EnableAutoConfiguration
 public class RemoteApplicationEventsAutoConfigurationDisabledTest {
     private @Autowired ApplicationContext context;
 
-    @Test(expected = NoSuchBeanDefinitionException.class)
+    @Test
     public void geoServerBusProperties() {
-        context.getBean(GeoServerBusProperties.class);
+        Assertions.assertThrows(
+                NoSuchBeanDefinitionException.class,
+                () -> context.getBean(GeoServerBusProperties.class));
     }
 
-    @Test(expected = NoSuchBeanDefinitionException.class)
+    @Test
     public void remoteEventBroadcaster() {
-        context.getBean(GeoServerRemoteEventBroadcaster.class);
+        Assertions.assertThrows(
+                NoSuchBeanDefinitionException.class,
+                () -> context.getBean(GeoServerRemoteEventBroadcaster.class));
     }
 
-    @Test(expected = NoSuchBeanDefinitionException.class)
+    @Test
     public void remoteEventResourcePoolProcessor() {
-        context.getBean(RemoteEventResourcePoolProcessor.class);
+        Assertions.assertThrows(
+                NoSuchBeanDefinitionException.class,
+                () -> context.getBean(RemoteEventResourcePoolProcessor.class));
     }
 }

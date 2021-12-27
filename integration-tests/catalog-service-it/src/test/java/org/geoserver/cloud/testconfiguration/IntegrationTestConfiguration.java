@@ -4,6 +4,7 @@
  */
 package org.geoserver.cloud.testconfiguration;
 
+import org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
@@ -15,6 +16,10 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 @EnableAutoConfiguration(
-    exclude = {SecurityAutoConfiguration.class, UserDetailsServiceAutoConfiguration.class}
+    exclude = {
+        SecurityAutoConfiguration.class,
+        UserDetailsServiceAutoConfiguration.class,
+        ManagementWebSecurityAutoConfiguration.class
+    }
 )
 public class IntegrationTestConfiguration {}

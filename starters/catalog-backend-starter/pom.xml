@@ -147,15 +147,26 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
     </dependency>
     <dependency>
-      <!-- test scoped to enable testing autoconfiguration of web components (e.g. jdbc-config's home page contribution)-->
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-configuration-processor</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-autoconfigure-processor</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <!-- test scoped to enable testing autoconfiguration of web components (e.g. jdbc-config's home page contribution) -->
       <groupId>org.geoserver.web</groupId>
       <artifactId>gs-web-core</artifactId>
       <scope>test</scope>
@@ -166,6 +177,11 @@
       <artifactId>gs-cloud-pluggable-catalog-support</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.vintage</groupId>
+      <artifactId>junit-vintage-engine</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

@@ -7,6 +7,7 @@ package org.geoserver.cloud.autoconfigure.jackson;
 import com.fasterxml.jackson.databind.Module;
 import org.geoserver.jackson.databind.catalog.GeoServerCatalogModule;
 import org.geoserver.jackson.databind.config.GeoServerConfigModule;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -26,6 +27,7 @@ import org.springframework.context.annotation.Configuration;
  * set up the application required ones.
  */
 @Configuration
+@AutoConfigureAfter(GeoToolsJacksonBindingsAutoConfiguration.class)
 @ConditionalOnClass(GeoServerCatalogModule.class)
 public class GeoServerJacksonBindingsAutoConfiguration {
 

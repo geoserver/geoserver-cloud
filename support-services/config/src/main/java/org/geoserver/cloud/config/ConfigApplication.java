@@ -21,7 +21,9 @@ import org.springframework.util.unit.DataSize;
 public class ConfigApplication {
 
     public static void main(String[] args) {
-        new SpringApplicationBuilder(ConfigApplication.class).run(args);
+        new SpringApplicationBuilder(ConfigApplication.class) //
+                // .properties("spring.config.name=config-service")
+                .run(args);
     }
 
     @EventListener(ApplicationReadyEvent.class)
@@ -29,7 +31,7 @@ public class ConfigApplication {
         ConfigurableEnvironment env = e.getApplicationContext().getEnvironment();
 
         String app = env.getProperty("spring.application.name");
-        String instanceId = env.getProperty("server.instance-id");
+        String instanceId = env.getProperty("info.instance-id");
         int cpus = Runtime.getRuntime().availableProcessors();
         String maxMem;
         {

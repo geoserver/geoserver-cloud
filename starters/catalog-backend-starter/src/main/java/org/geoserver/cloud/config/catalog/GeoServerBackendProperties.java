@@ -4,13 +4,11 @@
  */
 package org.geoserver.cloud.config.catalog;
 
-import java.nio.file.Path;
-import java.util.Properties;
 import lombok.Data;
-import org.geoserver.cloud.autoconfigure.catalog.DataDirectoryAutoConfiguration;
-import org.geoserver.cloud.autoconfigure.catalog.JDBCConfigAutoConfiguration;
 import org.geoserver.cloud.catalog.client.impl.CatalogClientProperties;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
+@ConfigurationProperties(prefix = "geoserver.backend")
 public @Data class GeoServerBackendProperties {
 
     private DataDirectoryProperties dataDirectory = new DataDirectoryProperties();
@@ -18,31 +16,4 @@ public @Data class GeoServerBackendProperties {
     private JdbcconfigProperties jdbcconfig = new JdbcconfigProperties();
 
     private CatalogClientProperties catalogService = new CatalogClientProperties();
-
-    /**
-     * Configuration properties to use GeoServer's traditional, file-system based data-directory as
-     * the {@link GeoServerBackendConfigurer catalog and configuration backend} through the {@link
-     * DataDirectoryAutoConfiguration} auto-configuration.
-     */
-    public static @Data class DataDirectoryProperties {
-        private boolean enabled;
-        private Path location;
-    }
-
-    /**
-     * Configuration properties to use GeoServer's {@code jdbcconfig} and {@code jdbcstore}
-     * community modules as the {@link GeoServerBackendConfigurer catalog and configuration backend}
-     * through the {@link JDBCConfigAutoConfiguration} auto-configuration.
-     */
-    public static @Data class JdbcconfigProperties {
-        private boolean enabled;
-        private boolean initdb;
-        private Web web = new Web();
-        private Path cacheDirectory;
-        private Properties datasource;
-
-        public static @Data class Web {
-            private boolean enabled;
-        }
-    }
 }

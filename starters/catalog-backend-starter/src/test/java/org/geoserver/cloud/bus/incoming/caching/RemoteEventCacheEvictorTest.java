@@ -80,11 +80,16 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest(
     classes = AutoConfigurationTestConfiguration.class,
     properties = { //
-        "geoserver.bus.enabled=true",
-        "geoserver.bus.send-events=false", // disable automatic publishing of remote events
+        "eureka.client.enabled=false",
+        "spring.cloud.bus.enabled=true",
         "geoserver.catalog.caching.enabled=true",
+        "geoserver.bus.enabled=true",
+        // disable automatic publishing of remote events,
+        // we're publishing them directly in test cases
+        "geoserver.bus.send-events=false",
         "geoserver.backend.data-directory.enabled=true",
-        "geoserver.backend.data-directory.location=/tmp/data_dir_autoconfiguration_test"
+        "geoserver.backend.data-directory.location=/tmp/data_dir_autoconfiguration_test",
+        "logging.level.org.springframework.cache=DEBUG"
     }
 )
 @RunWith(SpringRunner.class)

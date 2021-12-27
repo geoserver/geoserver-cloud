@@ -1,6 +1,7 @@
+info:
+  instance-id: ${spring.application.name}:${vcap.application.instance_id:${spring.application.instance_id:${spring.cloud.client.ip-address}}:${server.port}}
 server:
   port: 8080
-  instance-id: ${spring.application.name}:${spring.application.instance_id:${spring.cloud.client.ip-address}}:${server.port}
   # Let spring-boot's ForwardedHeaderFilter take care of reflecting the client-originated protocol and address in the HttpServletRequest  
   forward-headers-strategy: framework
   servlet.context-path: /
@@ -9,10 +10,10 @@ spring:
   main:
     banner-mode: off
     allow-bean-definition-overriding: true
+    allow-circular-references: true # false by default since spring-boot 2.6.0, breaks geoserver initialization
   application:
     name: wms-service
   cloud:
-    loadbalancer.ribbon.enabled: false # ribbon is in maintenance mode and should be replaced by spring-cloud-loadbalancer
     config:
       fail-fast: true
       retry:
@@ -31,7 +32,7 @@ spring:
 eureka:
   instance:
     hostname: ${spring.application.name}
-    instance-id: ${server.instance-id}
+    instance-id: ${info.instance-id}
     preferIpAddress: true
     lease-expiration-duration-in-seconds: 30
     lease-renewal-interval-in-seconds: 30
@@ -48,6 +49,6 @@ eureka:
 logging.level:
     '[org.springframework.retry]': debug
 ---
-spring.profiles: local
+spring.config.activate.on-profile: local
 eureka.server.url: http://localhost:8761/eureka
     

@@ -87,21 +87,28 @@ public class ActuatorHealthCheck implements CommandLineRunner, ExitCodeGenerator
     }
 
     private static URI buildUrl(String... args) {
-        args = Arrays.stream(args).filter(arg -> !arg.startsWith("log=")).toArray(String[]::new);
-        int port = DEFAULT_PORT;
-        if (args != null && args.length > 0) {
-            try {
-                log.trace("trying command line argument '{}' as port number...", args[0]);
-                port = Integer.parseInt(args[0]);
-            } catch (NumberFormatException invalidPort) {
-                log.trace("trying command line argument '{}' as full URL...", args[0]);
-                try {
-                    return URI.create(args[0]);
-                } catch (IllegalArgumentException invalidURI) {
+        return Arrays.stream(args) //
+                .filter(arg -> !arg.startsWith("log=") && !arg.startsWith("--"))
+                .map(ActuatorHealthCheck::resolveURI) //
+                .findFirst() //
+                .orElseGet(
+                        () -> URI.create("http://localhost:" + DEFAULT_PORT + "/actuator/health"));
+    }
 
-                }
+    private static URI resolveURI(String param) {
+        URI uri = null;
+        try {
+            log.trace("trying command line argument '{}' as port number...", param);
+            int port = Integer.parseInt(param);
+            uri = URI.create("http://localhost:" + port + "/actuator/health");
+        } catch (NumberFormatException invalidPort) {
+            log.trace("trying command line argument '{}' as full URL...", param);
+            try {
+                uri = URI.create(param).normalize();
+                uri.toURL();
+            } catch (Exception invalidURI) {
             }
         }
-        return URI.create("http://localhost:" + port + "/actuator/health");
+        return uri;
     }
 }

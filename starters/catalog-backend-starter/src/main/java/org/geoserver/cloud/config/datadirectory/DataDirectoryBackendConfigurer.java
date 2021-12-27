@@ -6,11 +6,13 @@ package org.geoserver.cloud.config.datadirectory;
 
 import java.io.File;
 import java.nio.file.Path;
-import javax.annotation.PostConstruct;
-import lombok.Getter;
+import java.util.Objects;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.catalog.plugin.DefaultMemoryCatalogFacade;
+import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.cloud.autoconfigure.bus.ConditionalOnGeoServerRemoteEventsEnabled;
+import org.geoserver.cloud.config.catalog.DataDirectoryProperties;
 import org.geoserver.cloud.config.catalog.GeoServerBackendConfigurer;
 import org.geoserver.cloud.config.catalog.GeoServerBackendProperties;
 import org.geoserver.config.GeoServerLoader;
@@ -23,90 +25,101 @@ import org.geoserver.wfs.WFSXStreamLoader;
 import org.geoserver.wms.WMSXStreamLoader;
 import org.geoserver.wps.WPSXStreamLoader;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 
 /** */
 @Configuration(proxyBeanMethods = true)
-@Slf4j
+@Slf4j(topic = "org.geoserver.cloud.config.datadirectory")
 public class DataDirectoryBackendConfigurer implements GeoServerBackendConfigurer {
 
-    private @Autowired @Getter ApplicationContext context;
-    private @Autowired GeoServerBackendProperties configProperties;
+    private GeoServerBackendProperties backendConfig;
 
-    public @PostConstruct void log() {
-        log.info("Loading geoserver config backend with {}", getClass().getSimpleName());
+    @Autowired
+    public DataDirectoryBackendConfigurer(GeoServerBackendProperties backendConfig) {
+        this.backendConfig = backendConfig;
+        log.info(
+                "Loading geoserver config backend with {}",
+                DataDirectoryBackendConfigurer.class.getSimpleName());
     }
 
+    @Autowired
     @ConditionalOnGeoServerRemoteEventsEnabled
-    public @Bean DataDirectoryRemoteEventProcessor dataDirectoryRemoteEventProcessor() {
-        return new DataDirectoryRemoteEventProcessor();
+    public @Bean DataDirectoryRemoteEventProcessor dataDirectoryRemoteEventProcessor(
+            @Qualifier("geoserverFacade") RepositoryGeoServerFacade configFacade,
+            @Qualifier("catalogFacade") ExtendedCatalogFacade catalogFacade) {
+        return new DataDirectoryRemoteEventProcessor(configFacade, catalogFacade);
     }
 
-    public @Override @Bean DefaultMemoryCatalogFacade catalogFacade() {
+    public /* @Override */ @Bean DefaultMemoryCatalogFacade catalogFacade() {
         return new org.geoserver.catalog.plugin.DefaultMemoryCatalogFacade();
     }
 
-    public @Override @Bean RepositoryGeoServerFacade geoserverFacade() {
+    public /* @Override */ @Bean RepositoryGeoServerFacade geoserverFacade() {
         return new org.geoserver.config.plugin.RepositoryGeoServerFacadeImpl();
     }
 
     @DependsOn({"extensions", "wmsLoader", "wfsLoader", "wcsLoader", "wpsServiceLoader"})
     public @Override @Bean GeoServerLoader geoServerLoaderImpl() {
-        GeoServerResourceLoader resourceLoader = resourceLoader();
-        return new DataDirectoryGeoServerLoader(resourceLoader);
+        return new DataDirectoryGeoServerLoader(resourceLoader());
     }
 
     public @Override @Bean GeoServerResourceLoader resourceLoader() {
-        ResourceStore resourceStore = resourceStoreImpl();
-        GeoServerResourceLoader resourceLoader = new GeoServerResourceLoader(resourceStore);
-        Path location = configProperties.getDataDirectory().getLocation();
-        log.debug("geoserver.backend.data-directory.location:" + location);
-        File dataDirectory = location.toFile();
-        resourceLoader.setBaseDirectory(dataDirectory);
+        ResourceStore resourceStoreImpl = resourceStoreImpl();
+        GeoServerResourceLoader resourceLoader = new GeoServerResourceLoader(resourceStoreImpl);
+        final @NonNull Path datadir = dataDirectoryFile();
+        log.debug("geoserver.backend.data-directory.location:" + datadir);
+        resourceLoader.setBaseDirectory(datadir.toFile());
         return resourceLoader;
     }
 
     public @Override @Bean ResourceStore resourceStoreImpl() {
-        Path path = configProperties.getDataDirectory().getLocation();
-        File dataDirectory = path.toFile();
+        final @NonNull File dataDirectory = dataDirectoryFile().toFile();
         NoServletContextDataDirectoryResourceStore store =
                 new NoServletContextDataDirectoryResourceStore(dataDirectory);
         store.setLockProvider(new FileLockProvider(dataDirectory));
         return store;
     }
 
+    private Path dataDirectoryFile() {
+        DataDirectoryProperties dataDirectoryConfig = this.backendConfig.getDataDirectory();
+        Path path = dataDirectoryConfig.getLocation();
+        Objects.requireNonNull(
+                path, "geoserver.backend.data-directory.location config property resolves to null");
+        return path;
+    }
+
     /**
      * Provide {@code wmsLoader} if not loaded from {@code
      * gs-wms-<version>.jar!/applicationContext.xml#wmsLoader}
      */
-    public @Bean WMSXStreamLoader wmsLoader() {
-        return new WMSXStreamLoader(resourceLoader());
+    public @Bean WMSXStreamLoader wmsLoader(GeoServerResourceLoader resourceLoader) {
+        return new WMSXStreamLoader(resourceLoader);
     }
 
     /**
      * Provide {@code wfsLoader} if not loaded from {@code
      * gs-wfs-<version>.jar!/applicationContext.xml#wfsLoader}
      */
-    public @Bean WFSXStreamLoader wfsLoader() {
-        return new WFSXStreamLoader(resourceLoader());
+    public @Bean WFSXStreamLoader wfsLoader(GeoServerResourceLoader resourceLoader) {
+        return new WFSXStreamLoader(resourceLoader);
     }
 
     /**
      * Provide {@code wcsLoader} if not loaded from {@code
      * gs-wcs-<version>.jar!/applicationContext.xml#wcsLoader}
      */
-    public @Bean WCSXStreamLoader wcsLoader() {
-        return new WCSXStreamLoader(resourceLoader());
+    public @Bean WCSXStreamLoader wcsLoader(GeoServerResourceLoader resourceLoader) {
+        return new WCSXStreamLoader(resourceLoader);
     }
 
     /**
      * Provide {@code wcsLoader} if not loaded from {@code
      * gs-wps-<version>.jar!/applicationContext.xml#wpsServiceLoader}
      */
-    public @Bean WPSXStreamLoader wpsServiceLoader() {
-        return new WPSXStreamLoader(resourceLoader());
+    public @Bean WPSXStreamLoader wpsServiceLoader(GeoServerResourceLoader resourceLoader) {
+        return new WPSXStreamLoader(resourceLoader);
     }
 }

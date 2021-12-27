@@ -8,7 +8,7 @@ import org.geoserver.cloud.config.datadirectory.DataDirectoryBackendConfigurer;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @ConditionalOnDataDirectoryEnabled
 @Import(DataDirectoryBackendConfigurer.class)
-public class DataDirectoryAutoConfiguration extends AbstractBackendAutoConfiguration {}
+public class DataDirectoryAutoConfiguration {}

@@ -2,8 +2,9 @@
  * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
  * GPL 2.0 license, available at the root application directory.
  */
-package org.geoserver.cloud.bus.event;
+package org.geoserver.cloud.bus.integration;
 
+import java.util.Locale;
 import org.geoserver.cloud.bus.event.config.RemoteGeoServerInfoModifyEvent;
 import org.geoserver.cloud.bus.event.config.RemoteLoggingInfoModifyEvent;
 import org.geoserver.cloud.bus.event.config.RemoteServiceInfoAddEvent;
@@ -12,8 +13,6 @@ import org.geoserver.cloud.bus.event.config.RemoteServiceInfoRemoveEvent;
 import org.geoserver.cloud.bus.event.config.RemoteSettingsInfoAddEvent;
 import org.geoserver.cloud.bus.event.config.RemoteSettingsInfoModifyEvent;
 import org.geoserver.cloud.bus.event.config.RemoteSettingsInfoRemoveEvent;
-import org.geoserver.cloud.test.ApplicationEventCapturingListener;
-import org.geoserver.cloud.test.TestConfigurationAutoConfiguration;
 import org.geoserver.config.CoverageAccessInfo;
 import org.geoserver.config.CoverageAccessInfo.QueueType;
 import org.geoserver.config.GeoServerInfo;
@@ -25,26 +24,16 @@ import org.geoserver.config.impl.SettingsInfoImpl;
 import org.geoserver.wms.CacheConfiguration;
 import org.geoserver.wms.WMSInfo;
 import org.geoserver.wms.WMSInfoImpl;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-@SpringBootTest(
-    webEnvironment = SpringBootTest.WebEnvironment.NONE,
-    classes = {TestConfigurationAutoConfiguration.class, ApplicationEventCapturingListener.class}
-)
-@RunWith(SpringRunner.class)
-@EnableAutoConfiguration
-public class ConfigRemoteApplicationEventsTest extends AbstractRemoteApplicationEventsTest {
+public class ConfigRemoteApplicationEventsTest extends BusAmqpIntegrationTests {
 
     public @Test void testConfigAddEvent_ServiceInfo() {
         testConfigAddEvent_ServiceInfo(false);
     }
 
-    @Ignore("revisit, not all payloads work, possibly a misconfigured ObjectMapper for the bus")
+    @Disabled("revisit, not all payloads work, possibly a misconfigured ObjectMapper for the bus")
     public @Test void testConfigAddEvent_ServiceInfo_Payload() {
         testConfigAddEvent_ServiceInfo(true);
     }
@@ -62,7 +51,7 @@ public class ConfigRemoteApplicationEventsTest extends AbstractRemoteApplication
         testConfigAddEvent_ServiceInfo_Workspace(false);
     }
 
-    @Ignore("revisit, not all payloads work, possibly a misconfigured ObjectMapper for the bus")
+    @Disabled("revisit, not all payloads work, possibly a misconfigured ObjectMapper for the bus")
     public @Test void testConfigAddEvent_ServiceInfo_Workspace_Payload() {
         testConfigAddEvent_ServiceInfo_Workspace(true);
     }
@@ -82,7 +71,7 @@ public class ConfigRemoteApplicationEventsTest extends AbstractRemoteApplication
         testConfigRemoteModifyEvent_ServiceInfo_Workspace(false);
     }
 
-    @Ignore("revisit, not all payloads work, possibly a misconfigured ObjectMapper for the bus")
+    @Disabled("revisit, not all payloads work, possibly a misconfigured ObjectMapper for the bus")
     public @Test void testConfigRemoteModifyEvent_ServiceInfo_Workspace_Payload() {
         testConfigRemoteModifyEvent_ServiceInfo_Workspace(true);
     }
@@ -112,7 +101,7 @@ public class ConfigRemoteApplicationEventsTest extends AbstractRemoteApplication
         testConfigAddEvent_SettingsInfo(false);
     }
 
-    @Ignore("revisit, not all payloads work, possibly a misconfigured ObjectMapper for the bus")
+    @Disabled("revisit, not all payloads work, possibly a misconfigured ObjectMapper for the bus")
     public @Test void testConfigAddEvent_SettingsInfo_Payload() {
         testConfigAddEvent_SettingsInfo(true);
     }
@@ -132,7 +121,7 @@ public class ConfigRemoteApplicationEventsTest extends AbstractRemoteApplication
         testConfigRemoteModifyEvents_GeoServerInfo(false);
     }
 
-    @Ignore("revisit, not all payloads work, possibly a misconfigured ObjectMapper for the bus")
+    @Disabled("revisit, not all payloads work, possibly a misconfigured ObjectMapper for the bus")
     public @Test void testConfigRemoteModifyEvents_GeoServerInfo_Payload() {
         testConfigRemoteModifyEvents_GeoServerInfo(true);
     }
@@ -166,7 +155,7 @@ public class ConfigRemoteApplicationEventsTest extends AbstractRemoteApplication
         testConfigRemotetModifyEvents_GloabalSettingsInfo(false);
     }
 
-    @Ignore("revisit, not all payloads work, possibly a misconfigured ObjectMapper for the bus")
+    @Disabled("revisit, not all payloads work, possibly a misconfigured ObjectMapper for the bus")
     public @Test void testConfigRemotetModifyEvents_GloabalSettingsInfo_Payload() {
         testConfigRemotetModifyEvents_GloabalSettingsInfo(true);
     }
@@ -189,7 +178,7 @@ public class ConfigRemoteApplicationEventsTest extends AbstractRemoteApplication
                 eventType);
     }
 
-    @Ignore("revisit, settings already exist for workspace wsName")
+    @Disabled("revisit, settings already exist for workspace wsName")
     public @Test void testConfigRemotetModifyEvents_SettingsInfo() {
         testConfigRemotetModifyEvents_SettingsInfo(false);
     }
@@ -214,7 +203,7 @@ public class ConfigRemoteApplicationEventsTest extends AbstractRemoteApplication
                 workspaceSettings,
                 s -> {
                     s.setCharset("ISO-8869-1");
-                    s.setWorkspace(testData.workspaceB);
+                    s.setDefaultLocale(Locale.CHINESE);
                 },
                 geoserver::save,
                 eventType);
@@ -252,20 +241,20 @@ public class ConfigRemoteApplicationEventsTest extends AbstractRemoteApplication
         testConfigRemoteRemoveEvent_SettingsInfo(false);
     }
 
-    @Ignore("revisit, not all payloads work, possibly a misconfigured ObjectMapper for the bus")
+    @Disabled("revisit, not all payloads work, possibly a misconfigured ObjectMapper for the bus")
     public @Test void testConfigRemoteRemoveEvent_SettingsInfo_Payload() {
         testConfigRemoteRemoveEvent_SettingsInfo(true);
     }
 
     private void testConfigRemoteRemoveEvent_SettingsInfo(boolean payload) {
-        localRemoteEventsListener.stop();
+        eventsCaptor.stop();
 
         catalog.add(testData.workspaceC);
         SettingsInfo settings = new SettingsInfoImpl();
         settings.setWorkspace(testData.workspaceC);
         geoserver.add(settings);
 
-        localRemoteEventsListener.start();
+        eventsCaptor.clear().start();
         enablePayload(payload);
         testRemoteRemoveEvent(settings, geoserver::remove, RemoteSettingsInfoRemoveEvent.class);
     }
@@ -274,17 +263,17 @@ public class ConfigRemoteApplicationEventsTest extends AbstractRemoteApplication
         testConfigRemoveEvent_ServiceInfo(false);
     }
 
-    @Ignore("revisit, not all payloads work, possibly a misconfigured ObjectMapper for the bus")
+    @Disabled("revisit, not all payloads work, possibly a misconfigured ObjectMapper for the bus")
     public @Test void testConfigRemoveEvent_ServiceInfo_Payload() {
         testConfigRemoveEvent_ServiceInfo(true);
     }
 
     private void testConfigRemoveEvent_ServiceInfo(boolean payload) {
-        localRemoteEventsListener.stop();
+        eventsCaptor.stop();
         ServiceInfo service = new WMSInfoImpl();
         geoserver.add(service);
 
-        localRemoteEventsListener.start();
+        eventsCaptor.clear().start();
         enablePayload(payload);
         testRemoteRemoveEvent(service, geoserver::remove, RemoteServiceInfoRemoveEvent.class);
     }

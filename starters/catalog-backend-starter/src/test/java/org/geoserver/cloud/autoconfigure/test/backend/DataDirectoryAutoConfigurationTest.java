@@ -27,10 +27,11 @@ import org.springframework.boot.test.context.SpringBootTest;
  * {@code geoserver.backend.data-directory.enabled=true}
  */
 @SpringBootTest(
-    classes = AutoConfigurationTestConfiguration.class,
+    classes = AutoConfigurationTestConfiguration.class //
+    ,
     properties = {
-        "geoserver.backend.data-directory.enabled=true",
-        "geoserver.backend.data-directory.location=/tmp/data_dir_autoconfiguration_test"
+        "geoserver.backend.dataDirectory.enabled=true",
+        "geoserver.backend.dataDirectory.location=/tmp/data_dir_autoconfiguration_test"
     }
 )
 public class DataDirectoryAutoConfigurationTest extends GeoServerBackendConfigurerTest {

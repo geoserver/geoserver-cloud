@@ -31,7 +31,7 @@ public class WfsApplication {
         ConfigurableEnvironment env = e.getApplicationContext().getEnvironment();
 
         String app = env.getProperty("spring.application.name");
-        String instanceId = env.getProperty("server.instance-id");
+        String instanceId = env.getProperty("info.instance-id");
         int cpus = Runtime.getRuntime().availableProcessors();
         String maxMem;
         {

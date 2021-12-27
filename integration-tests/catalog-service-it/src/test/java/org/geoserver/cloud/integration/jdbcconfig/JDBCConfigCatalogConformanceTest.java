@@ -16,16 +16,17 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @SpringBootTest(
     classes = IntegrationTestConfiguration.class,
-    properties = {"geoserver.backend.jdbcconfig.enabled=true"}
+    properties = {
+        "geoserver.backend.jdbcconfig.enabled=true",
+        "logging.level.org.geoserver.cloud.autoconfigure.bus=ERROR"
+    }
 )
 @RunWith(SpringRunner.class)
-@DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
+// @DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
 public class JDBCConfigCatalogConformanceTest extends CatalogConformanceTest {
 
     private @Autowired @Qualifier("catalogFacade") ExtendedCatalogFacade jdbcCatalogFacade;
@@ -42,11 +43,6 @@ public class JDBCConfigCatalogConformanceTest extends CatalogConformanceTest {
         data.deleteAll(rawCatalog);
         jdbcCatalogFacade.dispose(); // disposes internal caches
     }
-
-    //    public @After void deleteAll() {
-    //        data.deleteAll(rawCatalog);
-    //        jdbcCatalogFacade.dispose();
-    //    }
 
     // @Ignore("equals fails with jdbcfacade, not worth fixing right now")
     public @Override @Test void testDataStoreEvents() {

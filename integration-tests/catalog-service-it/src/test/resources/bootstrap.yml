@@ -19,7 +19,7 @@ geoserver:
       cache-directory: ${java.io.tmpdir}/gscloud_tests/jdbcconfig_cache_${random.uuid}
       datasource:
         driverClassname: org.h2.Driver
-        jdbcUrl: jdbc:h2:mem:test;
+        url: jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
         username: sa
         password:
 
@@ -28,6 +28,7 @@ spring:
   main:
     banner-mode: off
     allow-bean-definition-overriding: true
+    allow-circular-references: true # false by default since spring-boot 2.6.0, breaks geoserver initialization
   cloud.config.enabled: false
   cloud.config.discovery.enabled: false
   cloud.bus.enabled: false
@@ -38,6 +39,6 @@ logging:
   level:
     root: WARN
     org.geoserver.platform: ERROR
-    org.geoserver.cloud: DEBUG
-    org.geoserver.cloud.config.factory: TRACE
+    org.geoserver.cloud: INFO
+    org.geoserver.cloud.config.factory: INFO
     org.springframework.test: ERROR

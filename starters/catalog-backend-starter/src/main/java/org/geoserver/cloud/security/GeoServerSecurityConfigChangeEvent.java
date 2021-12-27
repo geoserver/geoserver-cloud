@@ -27,7 +27,7 @@ public class GeoServerSecurityConfigChangeEvent extends RemoteApplicationEvent {
 
     public GeoServerSecurityConfigChangeEvent(
             Object source, @NonNull String originService, @NonNull String reason) {
-        super(source, originService, null);
+        super(source, originService, (String) null);
         this.reason = reason;
     }
 }

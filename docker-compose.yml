@@ -86,10 +86,11 @@ services:
   # register itself with the Eureka discovery service and can be scaled
   config:
     image: geoservercloud/geoserver-cloud-config:${TAG}
+    #image: geoservercloud/geoserver-cloud-config:${TAG}-native
     depends_on:
       - discovery
     environment:
-      JAVA_OPTS: "${CONFIG_JAVA_OPTS}"
+      #JAVA_OPTS: "${CONFIG_JAVA_OPTS}"
       # Either 'git' or 'native'. Use the default sample git repository to download the services configuration from
       # If 'git', BEWARE config server will look for a branch called "master", and github changed the default branch name to "main"
       # For more information, see https://cloud.spring.io/spring-cloud-config/multi/multi__spring_cloud_config_server.html#_git_backend
@@ -103,6 +104,8 @@ services:
       - gs-cloud-network
     volumes:
       - ./config:/opt/app/config
+    ports:
+      - 8888:8080
     deploy:
       resources:
         limits:
@@ -132,6 +135,7 @@ services:
     environment:
       JAVA_OPTS: ${GATEWAY_JAVA_OPTS}
       SPRING_PROFILES_ACTIVE: dev #exposes the catalog and config API at /api/v1/**
+      RETRY_MAX_ATTEMPTS: 100
     ports:
       - 9090:8080
     networks:
@@ -160,6 +164,7 @@ services:
       JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
       JDBCCONFIG_MIN_CONNECTIONS: 2
       JDBCCONFIG_MAX_CONNECTIONS: 16 # 2 x CATALOG_IO_THREADS
+      RETRY_MAX_ATTEMPTS: 100
     networks:
       - gs-cloud-network
     deploy:
@@ -175,6 +180,7 @@ services:
       - catalog
     environment:
       JAVA_OPTS: "${WFS_JAVA_OPTS}"
+      RETRY_MAX_ATTEMPTS: 100
     networks:
       - gs-cloud-network
     #tmpfs: #TODO: avoid runs creating volumes at all
@@ -192,6 +198,7 @@ services:
       - catalog
     environment:
       JAVA_OPTS: "${WMS_JAVA_OPTS}"
+      RETRY_MAX_ATTEMPTS: 100
     networks:
       - gs-cloud-network
     deploy:
@@ -207,6 +214,7 @@ services:
       - catalog
     environment:
       JAVA_OPTS: "${WCS_JAVA_OPTS}"
+      RETRY_MAX_ATTEMPTS: 100
     networks:
       - gs-cloud-network
     deploy:
@@ -234,6 +242,7 @@ services:
       - catalog
     environment:
       JAVA_OPTS: "${REST_JAVA_OPTS}"
+      RETRY_MAX_ATTEMPTS: 100
     networks:
       - gs-cloud-network
     deploy:
@@ -252,6 +261,7 @@ services:
       - catalog
     environment:
       JAVA_OPTS: "${WEBUI_JAVA_OPTS}"
+      RETRY_MAX_ATTEMPTS: 100
     networks:
       - gs-cloud-network
     deploy:

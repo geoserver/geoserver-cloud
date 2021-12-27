@@ -20,8 +20,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest(
     classes = IntegrationTestConfiguration.class,
     properties = {
+        "geoserver.backend.data-directory.enabled=true",
         "spring.cloud.circuitbreaker.hystrix.enabled=false",
-        "geoserver.backend.data-directory.enabled=true"
+        "spring.cloud.config.retry.max-attempts=1"
     }
 )
 @RunWith(SpringRunner.class)

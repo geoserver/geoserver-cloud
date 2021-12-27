@@ -1,7 +1,7 @@
 spring:
   main.banner-mode: off
   application.name: config-service
-  profiles.active: native #use native filesystem config by default instead of git. REVISIT.
   cloud.config.server.native.searchLocations: classpath:/config
 eureka.client.enabled: false
-logging.level.root: WARN
+logging.level:
+  root: warn

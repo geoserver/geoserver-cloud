@@ -34,9 +34,9 @@ public class GeoToolsJacksonBindingsAutoConfigurationTest {
         Condition<? super Set<Object>> condition =
                 matching(
                         Matchers.hasItems(
-                                GeoToolsFilterModule.class.getName(),
-                                GeoToolsGeoJsonModule.class.getName(),
-                                JavaTimeModule.class.getName()));
+                                new GeoToolsFilterModule().getTypeId(),
+                                new GeoToolsGeoJsonModule().getTypeId(),
+                                new JavaTimeModule().getTypeId()));
         this.contextRunner.run(
                 context ->
                         assertThat(context)

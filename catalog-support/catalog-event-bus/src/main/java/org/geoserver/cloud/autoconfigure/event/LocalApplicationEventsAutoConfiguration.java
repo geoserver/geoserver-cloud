@@ -4,9 +4,9 @@
  */
 package org.geoserver.cloud.autoconfigure.event;
 
-import org.geoserver.cloud.autoconfigure.bus.ConditionalOnGeoServerRemoteEventsEnabled;
 import org.geoserver.cloud.event.LocalApplicationEventsConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
@@ -15,6 +15,10 @@ import org.springframework.context.annotation.Import;
  * LocalApplicationEventsConfiguration}
  */
 @Configuration
-@ConditionalOnGeoServerRemoteEventsEnabled
+@ConditionalOnProperty(
+    value = "geoserver.catalog.events.enabled",
+    havingValue = "true",
+    matchIfMissing = true
+)
 @Import({LocalApplicationEventsConfiguration.class})
 public class LocalApplicationEventsAutoConfiguration {}
