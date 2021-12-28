@@ -11,6 +11,9 @@ spring:
     exclude:
     - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
 
+
+eureka.client.enabled: false
+
 geoserver:
   backend:
     catalog-service:

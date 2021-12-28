@@ -136,9 +136,7 @@ public class CloudGeoServerSecurityManager extends GeoServerSecurityManager {
 
     protected GeoServerSecurityConfigChangeEvent event(String reason) {
         final String originService = busServiceMatcher.getBusId();
-        GeoServerSecurityConfigChangeEvent event =
-                new GeoServerSecurityConfigChangeEvent(this, originService, reason);
-        return event;
+        return new GeoServerSecurityConfigChangeEvent(this, originService, reason);
     }
 
     private boolean isFromSelf(GeoServerSecurityConfigChangeEvent event) {

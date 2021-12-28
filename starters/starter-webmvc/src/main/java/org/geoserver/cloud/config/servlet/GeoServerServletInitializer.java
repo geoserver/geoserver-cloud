@@ -4,15 +4,13 @@
  */
 package org.geoserver.cloud.config.servlet;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 import org.geoserver.platform.ContextLoadedEvent;
 import org.geoserver.platform.GeoServerContextLoaderListener;
-import org.geoserver.platform.GeoServerResourceLoader;
-import org.geoserver.platform.resource.DataDirectoryResourceStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
 
 /**
  * Replaces the {@link GeoServerContextLoaderListener} listener in web.xml that otherwise would
@@ -20,16 +18,23 @@ import org.springframework.context.ApplicationContext;
  * already a root application context present - check whether you have multiple ContextLoader*
  * definitions in your web.xml!" error.
  *
- * <p>Sets the servlet context to {@link GeoServerResourceLoader} and {@link
- * DataDirectoryResourceStore}, for some reason they will not being set automatically, and hence the
- * data directory won't be initialized
+ * <p>Instead of implementing {@link ServletContextInitializer}, listens to {@link
+ * ContextRefreshedEvent}, since servlet context initialization happens too early during application
+ * context initialization and some things like the event bus may not be ready.
  */
-public class GeoServerServletInitializer implements ServletContextInitializer {
+public class GeoServerServletInitializer implements ApplicationListener<ContextRefreshedEvent> {
 
-    private @Autowired ApplicationContext context;
+    /**
+     * Actual application context, held to check whether the context being refreshed is this one and
+     * avoid sending multiple geoserver-specific {@link ContextLoadedEvent}s
+     */
+    private @Autowired ApplicationContext appContext;
 
     @Override
-    public void onStartup(ServletContext servletContext) throws ServletException {
-        context.publishEvent(new ContextLoadedEvent(context));
+    public void onApplicationEvent(ContextRefreshedEvent event) {
+        ApplicationContext eventContext = event.getApplicationContext();
+        if (appContext == eventContext) {
+            eventContext.publishEvent(new ContextLoadedEvent(eventContext));
+        }
     }
 }
