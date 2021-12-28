@@ -18,7 +18,6 @@ import org.geoserver.cloud.config.catalog.GeoServerBackendProperties;
 import org.geoserver.config.GeoServerLoader;
 import org.geoserver.config.plugin.RepositoryGeoServerFacade;
 import org.geoserver.platform.GeoServerResourceLoader;
-import org.geoserver.platform.resource.FileLockProvider;
 import org.geoserver.platform.resource.ResourceStore;
 import org.geoserver.wcs.WCSXStreamLoader;
 import org.geoserver.wfs.WFSXStreamLoader;
@@ -79,7 +78,7 @@ public class DataDirectoryBackendConfigurer implements GeoServerBackendConfigure
         final @NonNull File dataDirectory = dataDirectoryFile().toFile();
         NoServletContextDataDirectoryResourceStore store =
                 new NoServletContextDataDirectoryResourceStore(dataDirectory);
-        store.setLockProvider(new FileLockProvider(dataDirectory));
+        store.setLockProvider(new NoServletContextFileLockProvider(dataDirectory));
         return store;
     }
 

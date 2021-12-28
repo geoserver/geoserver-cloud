@@ -10,6 +10,7 @@ networks:
 services:
   rabbitmq:
     image: rabbitmq:3.9-management
+    user: 1000:1000 # set the userid:groupid the container runs as
     restart: always
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
@@ -24,6 +25,7 @@ services:
   database:
     # be sure geoserver.backend.jdbcconfig.initdb is set to true in application.yml at lease for the first app run
     image: postgres:13-alpine
+    user: 1000:1000 # set the userid:groupid the container runs as
     environment:
       POSTGRES_DB: geoserver_config
       POSTGRES_USER: geoserver
@@ -44,6 +46,7 @@ services:
   # Run docker-compose -f docker-compose.yml -f docker-compose-discovery-ha.yml to run extra discovery service instances for HA
   discovery:
     image: geoservercloud/geoserver-cloud-discovery:1.0-RC5
+    user: 1000:1000 # set the userid:groupid the container runs as
     ports:
       - 8761:8761
     networks:
@@ -60,6 +63,7 @@ services:
   # register itself with the Eureka discovery service and can be scaled
   config:
     image: geoservercloud/geoserver-cloud-config:1.0-RC5
+    user: 1000:1000 # set the userid:groupid the container runs as
     depends_on:
       - discovery
       - rabbitmq
@@ -90,6 +94,7 @@ services:
 
   admin:
     image: geoservercloud/geoserver-cloud-admin-server:1.0-RC5
+    user: 1000:1000 # set the userid:groupid the container runs as
     depends_on:
       - config
     ports:
@@ -106,6 +111,7 @@ services:
   # microservices (e.g. http://localhost:9090/geoserver/wms, http://localhost:9090/geoserver/wfs, etc)
   gateway:
     image: geoservercloud/geoserver-cloud-gateway:1.0-RC5
+    user: 1000:1000 # set the userid:groupid the container runs as
     depends_on:
       - config
     environment:
@@ -123,6 +129,7 @@ services:
   # WFS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wfs=5)
   wfs:
     image: geoservercloud/geoserver-cloud-wfs:1.0-RC5
+    user: 1000:1000 # set the userid:groupid the container runs as
     depends_on:
       - config
     environment:
@@ -138,6 +145,7 @@ services:
   # WMS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wms=5)
   wms:
     image: geoservercloud/geoserver-cloud-wms:1.0-RC5
+    user: 1000:1000 # set the userid:groupid the container runs as
     depends_on:
       - config
     environment:
@@ -153,6 +161,7 @@ services:
   # WCS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wcs=5)
   wcs:
     image: geoservercloud/geoserver-cloud-wcs:1.0-RC5
+    user: 1000:1000 # set the userid:groupid the container runs as
     depends_on:
       - config
     environment:
@@ -168,6 +177,7 @@ services:
   # REST config microservice, port dynamically allocated to allow scaling (e.g docker-compose scale rest=5)
   rest:
     image: geoservercloud/geoserver-cloud-rest:1.0-RC5
+    user: 1000:1000 # set the userid:groupid the container runs as
     depends_on:
       - config
     environment:
@@ -185,6 +195,7 @@ services:
   # WEB UI microservice
   webui:
     image: geoservercloud/geoserver-cloud-webui:1.0-RC5
+    user: 1000:1000 # set the userid:groupid the container runs as
     depends_on:
       - rabbitmq
     environment:

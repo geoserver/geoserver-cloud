@@ -7,11 +7,6 @@ version: "3.8"
 
 services:
   catalog:
-    environment:
-      SPRING_PROFILES_ACTIVE: "jdbcconfig"
-      JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
-      JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
-      JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
     command: echo "catalog-service disabled."
 
   wfs:

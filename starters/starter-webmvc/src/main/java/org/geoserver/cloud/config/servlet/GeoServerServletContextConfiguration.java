@@ -21,7 +21,6 @@ import org.springframework.web.context.request.RequestContextListener;
 @Configuration
 public class GeoServerServletContextConfiguration {
 
-    private static final int FORWARDED_HEADER_FILTER_ORDER = 0;
     private static final int FLUSH_SAFE_FILTER_ORDER = 1;
     private static final int SESSION_DEBUG_FILTER_ORDER = 2;
     private static final int SPRING_DELEGATING_FILTER_ORDER = 3;
