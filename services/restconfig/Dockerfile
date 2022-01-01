@@ -38,6 +38,6 @@ HEALTHCHECK \
 --timeout=5s \
 --start-period=30s \
 --retries=5 \
-CMD java -Xms4M -Xmx16M -jar BOOT-INF/lib/gs-cloud-docker-healthcheck-*-bin.jar || exit 1
+CMD curl -f -s -o /dev/null localhost:8080/actuator/health || exit 1
 
 CMD exec env USER_ID="$(id -u)" USER_GID="$(id -g)" java $JAVA_OPTS org.springframework.boot.loader.JarLauncher
