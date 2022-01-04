@@ -32,6 +32,10 @@ spring:
       - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
       - org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration
 
+management:
+  server.port: 8081
+  endpoint.health.probes.enabled: true
+    
 eureka:
   instance:
     hostname: ${spring.application.name}

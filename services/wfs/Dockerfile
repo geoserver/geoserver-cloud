@@ -18,6 +18,7 @@ WORKDIR /opt/app/bin
 ENV JAVA_OPTS=
 
 EXPOSE 8080
+EXPOSE 8081
 
 COPY --from=builder dependencies/ ./
 COPY --from=builder snapshot-dependencies/ ./
@@ -29,6 +30,6 @@ HEALTHCHECK \
 --timeout=5s \
 --start-period=30s \
 --retries=5 \
-CMD curl -f -s -o /dev/null localhost:8080/actuator/health || exit 1
+CMD curl -f -s -o /dev/null localhost:8081/actuator/health || exit 1
 
 CMD exec env USER_ID="$(id -u)" USER_GID="$(id -g)" java $JAVA_OPTS org.springframework.boot.loader.JarLauncher

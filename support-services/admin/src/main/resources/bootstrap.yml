@@ -30,6 +30,10 @@ spring:
 #      - org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration
 #      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
 #      - org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration
+
+management:
+  endpoint.health.probes.enabled: true
+
 eureka:
   instance:
     hostname: ${spring.application.name}
