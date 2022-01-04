@@ -74,9 +74,7 @@ Follow the [developer's guide](docs/develop/index.md) to know more about the pro
 
 ## Status
 
-`v0.2.0` released against GeoServer `2.18.2`.
-
-Project is being deployed in production since `v0.1.0`.
+`v1.0-RC6` released against GeoServer `2.21-SNAPSHOT`.
 
 Read the [changelog](CHANGELOG.md) for more information.
 

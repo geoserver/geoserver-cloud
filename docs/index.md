@@ -178,7 +178,7 @@ The following diagram depicts the System's general architecture:
  
 # Project Status
 
-Version `1.0-RC1` has been released against a slightly customized GeoServer `2.21-SNAPSHOT`
+Version `1.0-RC6` has been released against a slightly customized GeoServer `2.21-SNAPSHOT`
 with some important fixes to allow starting up several GeoServer instances from an empty
 directory or database. We will make sure to contribute those fixes upstream before the final
 release.
@@ -190,10 +190,11 @@ Project is being deployed in production since `v0.1.0`.
 > Q: So, is this **production ready**?
 > Not at all. *Cloud Native GeoServer* is being used in production for the functionalities needed by Camptocamp's customer funding this project so far. That does not mean it's ready for general availability. For instance, these are the most outstanding issues:
 > 
-> * The **security** subsystem needs a review. If you try to change the admin password through the web-ui, there's a bug that would leave you with a broken authentication.
 > * The WPS is non functional and temporarily removed from the build
 > * There's no GWC integration so far
-> * The `catalog-service` uses GeoServer's `jdbcconfig` community module. It'll be replaced by a more performance and scalable solution. A lot of work has been put in improving the catalog and configuration design to make that easier.
+> * The `catalog-service` is temporarily out of commission, until it can deal
+> with distributed locking on behalf of its clients applications. Hence only
+> the jdbcconfig and shared-data-directory backend configurations are supported for the time being.
 > Additionally, we need to work on centralized logging, tracing, and monitoring.
 
 # Developer's Guide
