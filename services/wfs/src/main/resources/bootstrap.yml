@@ -12,10 +12,10 @@ spring:
   banner:
     charset: UTF-8 # https://patorjk.com/software/taag/#p=display&f=Marquee&t=GeoServer%20WFS
   main:
-    banner-mode: console
+    banner-mode: off
     allow-bean-definition-overriding: true
     allow-circular-references: true # false by default since spring-boot 2.6.0, breaks geoserver initialization
-    web-application-type: SERVLET
+    web-application-type: servlet
   application:
     name: wfs-service
   cloud:

@@ -12,6 +12,7 @@ spring:
     banner-mode: off
     allow-bean-definition-overriding: true
     allow-circular-references: true # false by default since spring-boot 2.6.0, breaks geoserver initialization
+    web-application-type: servlet
   application:
     name: wms-service
   cloud:
