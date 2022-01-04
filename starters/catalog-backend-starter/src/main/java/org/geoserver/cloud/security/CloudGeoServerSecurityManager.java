@@ -54,18 +54,25 @@ public class CloudGeoServerSecurityManager extends GeoServerSecurityManager {
      */
     @EventListener(GeoServerSecurityConfigChangeEvent.class)
     public void onRemoteSecurityConfigChangeEvent(GeoServerSecurityConfigChangeEvent event) {
-        if (!isFromSelf(event)) {
+        if (isFromSelf(event)) {
+            return;
+        }
+        if (!isInitialized()) {
             log.info(
-                    "Reloading security configuration due to change from {}, reason: {}",
+                    "Ignoring security config change event from {}, security subsystem not yet initialized.",
+                    event.getOriginService());
+            return;
+        }
+        log.info(
+                "Reloading security configuration due to change from {}, reason: {}",
+                event.getOriginService(),
+                event.getReason());
+        synchronized (this) {
+            super.reload();
+            log.debug(
+                    "Security configuration reloaded due to change from {}, reason: {}",
                     event.getOriginService(),
                     event.getReason());
-            synchronized (this) {
-                super.reload();
-                log.debug(
-                        "Security configuration reloaded due to change from {}, reason: {}",
-                        event.getOriginService(),
-                        event.getReason());
-            }
         }
     }
 
