@@ -20,6 +20,7 @@ import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServic
 import org.springframework.cloud.bus.jackson.RemoteApplicationEventScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.ImportResource;
 
 /**
@@ -64,6 +65,7 @@ public class GeoServerSecurityConfiguration {
      * @return {@link CloudGeoServerSecurityManager}
      */
     @Bean(name = {"authenticationManager", "geoServerSecurityManager"})
+    @DependsOn({"extensions"})
     @ConditionalOnGeoServerRemoteEventsEnabled
     public CloudGeoServerSecurityManager cloudAuthenticationManager(GeoServerDataDirectory dataDir)
             throws Exception {

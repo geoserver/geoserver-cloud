@@ -4,9 +4,12 @@
  */
 package org.geoserver.cloud.config.jdbcconfig;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.zaxxer.hikari.HikariDataSource;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.file.Path;
 import java.sql.Driver;
 import javax.sql.DataSource;
@@ -23,7 +26,6 @@ import org.geoserver.config.util.XStreamPersisterFactory;
 import org.geoserver.jdbcconfig.JDBCGeoServerLoader;
 import org.geoserver.jdbcconfig.catalog.JDBCCatalogFacade;
 import org.geoserver.jdbcconfig.internal.ConfigDatabase;
-import org.geoserver.jdbcconfig.internal.JDBCCacheProvider;
 import org.geoserver.jdbcconfig.internal.JDBCConfigProperties;
 import org.geoserver.jdbcconfig.internal.JDBCConfigXStreamPersisterInitializer;
 import org.geoserver.jdbcconfig.internal.XStreamInfoSerialBinding;
@@ -33,11 +35,11 @@ import org.geoserver.jdbcstore.cache.SimpleResourceCache;
 import org.geoserver.jdbcstore.internal.JDBCQueryHelper;
 import org.geoserver.jdbcstore.locks.LockRegistryAdapter;
 import org.geoserver.platform.GeoServerResourceLoader;
-import org.geoserver.platform.resource.NullLockProvider;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.ResourceNotificationDispatcher;
 import org.geoserver.platform.resource.ResourceStore;
 import org.geoserver.platform.resource.SimpleResourceNotificationDispatcher;
+import org.geoserver.util.CacheProvider;
 import org.springframework.beans.BeanInstantiationException;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -140,7 +142,7 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
         return new CloudJdbcStoreProperties(jdbcConfigDataSource());
     }
 
-    @DependsOn({"jdbcConfigDataSourceStartupValidator"})
+    @DependsOn({"extensions", "jdbcConfigDataSourceStartupValidator"})
     public @Override @Bean GeoServerResourceLoader resourceLoader() {
         GeoServerBackendProperties configProperties = backendConfig;
         Path path = configProperties.getDataDirectory().getLocation();
@@ -150,7 +152,7 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
         return loader;
     }
 
-    @DependsOn({"JDBCConfigDB", "jdbcConfigDataSourceStartupValidator"})
+    @DependsOn({"extensions", "JDBCConfigDB", "jdbcConfigDataSourceStartupValidator"})
     public @Override @Bean @NonNull ResourceStore resourceStoreImpl() {
         final JDBCConfigProperties jdbcConfigProperties = jdbcConfigProperties();
         final CloudJdbcStoreProperties jdbcStoreProperties = jdbcStoreProperties();
@@ -171,7 +173,7 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
         }
     }
 
-    @DependsOn("jdbcConfigDataSourceStartupValidator")
+    @DependsOn({"extensions", "jdbcConfigDataSourceStartupValidator"})
     public @Bean LockRegistryAdapter jdbcStoreLockProvider() {
         return new LockRegistryAdapter(jdbcLockRegistry());
     }
@@ -194,7 +196,7 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
         // RESOURCE_LOCK in init.XXX.sql
         lockRepository.setPrefix("RESOURCE_");
         // time in ms to expire dead locks (10k is the default)
-        lockRepository.setTimeToLive(10_000);
+        lockRepository.setTimeToLive(300_000);
         return lockRepository;
     }
 
@@ -303,8 +305,15 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
 
     // <bean id="JDBCCacheProvider"
     // class="org.geoserver.jdbcconfig.internal.JDBCCacheProvider"/>
-    public @Bean("JDBCCacheProvider") JDBCCacheProvider jdbcCacheProvider() {
-        return new JDBCCacheProvider();
+    @DependsOn({"extensions"})
+    public @Bean("JDBCCacheProvider") CacheProvider jdbcCacheProvider() {
+        // return new JDBCCacheProvider();
+        return new CacheProvider() {
+            public @Override <K extends Serializable, V extends Serializable> Cache<K, V> getCache(
+                    String cacheName) {
+                return CacheBuilder.newBuilder().maximumSize(0).build();
+            }
+        };
     }
 
     // <bean id="JDBCConfigXStreamPersisterInitializer"
@@ -313,11 +322,6 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
     public @Bean("JDBCConfigXStreamPersisterInitializer") JDBCConfigXStreamPersisterInitializer
             jdbcConfigXStreamPersisterInitializer() {
         return new JDBCConfigXStreamPersisterInitializer();
-    }
-
-    @ConditionalOnMissingBean(org.geoserver.platform.resource.LockProvider.class)
-    public @Bean org.geoserver.platform.resource.LockProvider lockProvider() {
-        return new NullLockProvider();
     }
 
     @ConditionalOnMissingBean(ResourceNotificationDispatcher.class)
