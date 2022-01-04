@@ -18,6 +18,10 @@ spring:
       discovery:
         enabled: true
         service-id: config-service
+
+management:
+  endpoint.health.probes.enabled: true
+
 eureka:
   instance:
     hostname: ${spring.application.name}

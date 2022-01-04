@@ -69,6 +69,7 @@ management:
     shutdown.enabled: true
     health:
       enabled: true
+      probes.enabled: true
       show-details: always
   metrics:
     enable:
