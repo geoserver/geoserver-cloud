@@ -46,6 +46,7 @@ eureka:
     appname: ${spring.application.name}
     instance-id: ${info.instance-id}
     prefer-ip-address: true
+    # how often the client sends heartbits to the server
     lease-renewal-interval-in-seconds: 10
   client:
     enabled: true
@@ -55,7 +56,7 @@ eureka:
     service-url:
       defaultZone: ${eureka.server.url:http://discovery:8761/eureka} 
     healthcheck:
-      enabled: false
+      enabled: false # must only be set to true in application.yml, not bootstrap
 
 management:
   endpoints:

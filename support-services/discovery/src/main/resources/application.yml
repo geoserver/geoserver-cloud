@@ -16,18 +16,16 @@ spring:
 
 eureka:
   server:
-    peer-node-read-timeout-ms: 60000
-    enableSelfPreservation: true
-    eviction-interval-timer-in-ms: 10000
+    enable-self-preservation: true
+    expected-client-renewal-interval-seconds: 10
   instance:
     hostname: localhost
     instance-id: ${info.instance-id}
-    preferIpAddress: true
-    lease-renewal-interval-in-seconds: 5
+    prefer-ip-address: true
     lease-expiration-duration-in-seconds: 15
   client:
-    registerWithEureka: false
-    fetchRegistry: false
+    register-with-eureka: false
+    fetch-registry: false
     serviceUrl:
       defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
 
