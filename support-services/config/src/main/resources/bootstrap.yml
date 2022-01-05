@@ -11,11 +11,11 @@ server:
       max: 25
 
 spring:
+  config:
+    name: config-service
+  profiles.active: native
   main.banner-mode: off
   application.name: config-service
-  profiles:
-    include:
-    - ${config.profile:native} #unconditionally use a config server backend profile, defaulting to native 
   jmx.enabled: false
   cloud:
     config:
@@ -30,9 +30,6 @@ spring:
         git:
           uri: ${config.git.uri}
           default-label: ${config.git.label:master}
-          #repos:
-          #  - patterns: multi-repo-demo-*
-          #    uri: https://github.com/spring-cloud-samples/config-repo
           skip-ssl-validation: true
           timeout: 10
           # Default value of 0 makes the git backend fetch updated configuration from the Git repo every time it is requested
@@ -49,7 +46,7 @@ eureka:
     appname: ${spring.application.name}
     instance-id: ${info.instance-id}
     prefer-ip-address: true
-    lease-renewal-interval-in-seconds: 30
+    lease-renewal-interval-in-seconds: 10
   client:
     enabled: true
     register-with-eureka: true
@@ -58,7 +55,7 @@ eureka:
     service-url:
       defaultZone: ${eureka.server.url:http://discovery:8761/eureka} 
     healthcheck:
-      enabled: true
+      enabled: false
 
 management:
   endpoints:
@@ -78,13 +75,35 @@ management:
     export:
       atlas.enabled: false
 
-logging:
-  level:
-    root: info
-    '[org.springframework.cloud]': info
-    '[org.springframework.cloud.config]': info
-    # Avoid log flooding with "INFO Adding property source: file:<...>/application.yml" triggered by the actuator health check
-    '[org.springframework.cloud.config.server.environment.NativeEnvironmentRepository]': error
+logging.level:
+  root: info
+
+---
+spring.config.activate.on-profile: native
+spring:
+  cloud:
+    config:
+      server:
+        native:
+          fail-on-error: true
+          search-locations:
+          - ${config.native.path:file:./config}
+
+---
+spring.config.activate.on-profile: git
+spring:
+  cloud:
+    config:
+      server:
+        git:
+          uri: ${config.git.uri:https://github.com/geoserver/geoserver-cloud-config.git}
+          default-label: ${config.git.label:master}
+          skip-ssl-validation: true
+          timeout: 10
+          # Default value of 0 makes the git backend fetch updated configuration from the Git repo every time it is requested
+          refresh-rate: 30
+          # where to store the cloned repository, if unset, it'll use /tmp/config-repo-<randomid>
+          # basedir: ${config.git.basedir:/tmp/git_config} # where to store the cloned repository, if unset, it'll use /tmp/config-repo-<randomid>
 
 ---
 spring.config.activate.on-profile: local
