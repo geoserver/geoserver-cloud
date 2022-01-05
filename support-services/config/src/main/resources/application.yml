@@ -28,7 +28,8 @@ spring:
         default-application-name: application
 #        accept-empty: false #send 404 if global application.yml is not found
         git:
-          uri: ${config.git.uri} 
+          uri: ${config.git.uri}
+          default-label: ${config.git.label:master}
           #repos:
           #  - patterns: multi-repo-demo-*
           #    uri: https://github.com/spring-cloud-samples/config-repo
@@ -37,7 +38,7 @@ spring:
           # Default value of 0 makes the git backend fetch updated configuration from the Git repo every time it is requested
           refresh-rate: 30
           # where to store the cloned repository, if unset, it'll use /tmp/config-repo-<randomid>
-          basedir: ${config.git.basedir:./git_config} # where to store the cloned repository, if unset, it'll use /tmp/config-repo-<randomid>
+          basedir: ${config.git.basedir:/tmp/git_config} # where to store the cloned repository, if unset, it'll use /tmp/config-repo-<randomid>
         native:
           fail-on-error: true
           search-locations:
