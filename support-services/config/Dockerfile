@@ -12,9 +12,12 @@ LABEL maintainer="GeoServer PSC <geoserver-users@lists.sourceforge.net>"
 
 RUN mkdir -p /opt/app/bin
 
+# Where jgit will try to create a .config directory
+ENV XDG_CONFIG_HOME=/tmp
+
 WORKDIR /opt/app/bin
 ENV JAVA_OPTS=
-EXPOSE 8761
+EXPOSE 8080
 
 COPY --from=builder dependencies/ ./
 COPY --from=builder snapshot-dependencies/ ./
