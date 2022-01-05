@@ -25,7 +25,6 @@ services:
   database:
     # be sure geoserver.backend.jdbcconfig.initdb is set to true in application.yml at lease for the first app run
     image: postgres:13-alpine
-    user: 1000:1000 # set the userid:groupid the container runs as
     environment:
       POSTGRES_DB: geoserver_config
       POSTGRES_USER: geoserver
