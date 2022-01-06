@@ -10,9 +10,9 @@ FROM adoptopenjdk:11-jre-openj9
 
 LABEL maintainer="GeoServer PSC <geoserver-users@lists.sourceforge.net>"
 
-VOLUME /opt/app/data_directory
-
 RUN mkdir -p /opt/app/bin
+RUN mkdir -p /opt/app/data_directory && chmod 0777 /opt/app/data_directory
+VOLUME /opt/app/data_directory
 
 WORKDIR /opt/app/bin
 ENV JAVA_OPTS=
