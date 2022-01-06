@@ -25,7 +25,6 @@ services:
   database:
     # be sure geoserver.backend.jdbcconfig.initdb is set to true in application.yml at lease for the first app run
     image: postgres:13-alpine
-    user: 1000:1000 # set the userid:groupid the container runs as
     environment:
       POSTGRES_DB: geoserver_config
       POSTGRES_USER: geoserver
@@ -78,14 +77,16 @@ services:
       # get the config for this release from the v1.0-RC6 tag
       SPRING_CLOUD_CONFIG_SERVER_GIT_DEFAULT_LABEL: v1.0-RC6
       # where to store the cloned repository, if unset, it'll use /tmp/config-repo-<randomid>
-      CONFIG_GIT_BASEDIR: /opt/app/git_config
+      CONFIG_GIT_BASEDIR: /tmp/git_config
       # 'native' profile config
-      CONFIG_NATIVE_PATH: /opt/app/config
+      CONFIG_NATIVE_PATH: /tmp/config
+      # avoid stack trace due to jgit not being able of creating a .config dir at $HOME
+      XDG_CONFIG_HOME: /tmp
     networks:
       - gs-cloud-network
     # Uncoment to bind to a local filesystem directory if using the 'native' profile
     #volumes:
-    #  - ./config:/opt/app/config
+    #  - ./config:/tmp/config
     deploy:
       resources:
         limits:

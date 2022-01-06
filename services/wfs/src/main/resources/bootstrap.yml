@@ -44,8 +44,8 @@ eureka:
     hostname: ${spring.application.name}
     instance-id: ${info.instance-id}
     preferIpAddress: true
-    lease-expiration-duration-in-seconds: 30
-    lease-renewal-interval-in-seconds: 30
+    # how often the client sends heartbits to the server
+    lease-renewal-interval-in-seconds: 10
   client:
     enabled: true
     registerWithEureka: true
@@ -54,7 +54,7 @@ eureka:
     serviceUrl:
       defaultZone: ${eureka.server.url:http://discovery:8761/eureka}
     healthcheck:
-      enabled: false
+      enabled: false # must only be set to true in application.yml, not bootstrap
 
 logging.level:
     '[org.springframework.retry]': debug
