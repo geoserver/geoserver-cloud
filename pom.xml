@@ -866,13 +866,4 @@
       </plugin>
     </plugins>
   </build>
-  <profiles>
-    <profile>
-      <id>geoserver_stable_version</id>
-      <properties>
-        <gs.version>2.18.1</gs.version>
-        <gt.version>24.1</gt.version>
-      </properties>
-    </profile>
-  </profiles>
 </project>

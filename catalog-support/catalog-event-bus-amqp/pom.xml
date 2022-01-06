@@ -15,8 +15,20 @@
       <artifactId>gs-cloud-event-bus</artifactId>
     </dependency>
     <dependency>
+      <!-- trivy: Upgrade jsoup version carried over by spring-cloud-starter-bus-amqp:3.1.0 due to CVE-2021-37714 -->
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-starter-bus-amqp</artifactId>
+      <exclusions>
+        <exclusion>
+          <artifactId>jsoup</artifactId>
+          <groupId>org.jsoup</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.jsoup</groupId>
+      <artifactId>jsoup</artifactId>
+      <version>1.14.3</version>
     </dependency>
   </dependencies>
 </project>
