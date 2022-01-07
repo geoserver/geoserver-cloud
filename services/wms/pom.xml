@@ -31,12 +31,6 @@
       <groupId>org.geoserver</groupId>
       <artifactId>gs-wms</artifactId>
     </dependency>
-    <dependency>
-      <!-- ClassNotFoundException in FreeMarkerTemplateManager, see https://osgeo-org.atlassian.net/browse/GEOS-9734 -->
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <version>1.2.17</version>
-    </dependency>
   </dependencies>
   <profiles>
     <profile>
