@@ -19,7 +19,7 @@
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
     <spring-cloud.version>2021.0.0</spring-cloud.version>
-    <spring-boot.version>2.6.1</spring-boot.version>
+    <spring-boot.version>2.6.2</spring-boot.version>
     <spring-native.version>0.11.0</spring-native.version>
     <native-buildtools.version>0.9.8</native-buildtools.version>
     <feign-reactor.version>3.1.5</feign-reactor.version>
@@ -44,6 +44,13 @@
   </properties>
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-bom</artifactId>
+        <version>2.17.1</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
       <dependency>
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-dependencies</artifactId>
@@ -866,13 +873,4 @@
       </plugin>
     </plugins>
   </build>
-  <profiles>
-    <profile>
-      <id>geoserver_stable_version</id>
-      <properties>
-        <gs.version>2.18.1</gs.version>
-        <gt.version>24.1</gt.version>
-      </properties>
-    </profile>
-  </profiles>
 </project>
