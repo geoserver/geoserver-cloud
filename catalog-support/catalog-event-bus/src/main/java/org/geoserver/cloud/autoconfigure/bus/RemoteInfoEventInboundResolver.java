@@ -39,15 +39,15 @@ public class RemoteInfoEventInboundResolver {
     private Function<Info, Info> configInfoResolver;
     private Function<CatalogInfo, CatalogInfo> catalogInfoResolver;
 
-    public @Autowired void setCatalog(@Qualifier("catalog") Catalog catalog) {
+    public @Autowired void setCatalog(@Qualifier("rawCatalog") Catalog rawCatalog) {
         configInfoResolver =
                 CollectionPropertiesInitializer.<Info>instance()
-                        .andThen(ResolvingProxyResolver.<Info>of(catalog));
+                        .andThen(ResolvingProxyResolver.<Info>of(rawCatalog));
 
         catalogInfoResolver =
                 CollectionPropertiesInitializer.<CatalogInfo>instance()
-                        .andThen(CatalogPropertyResolver.of(catalog))
-                        .andThen(ResolvingProxyResolver.of(catalog));
+                        .andThen(CatalogPropertyResolver.of(rawCatalog))
+                        .andThen(ResolvingProxyResolver.of(rawCatalog));
     }
 
     @Order(HIGHEST_PRECEDENCE)
