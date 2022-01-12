@@ -91,6 +91,10 @@ public class LocalApplicationEventPublisher {
         private final LocalApplicationEventPublisher publisher;
         private final Catalog catalog;
 
+        /**
+         * @throws CatalogException meaning the operation that generated the event should be
+         *     reverted (as handled by Catalog.event())
+         */
         private void publish(LocalInfoEvent<?, ?> event) throws CatalogException {
             try {
                 publisher.publish(event);
