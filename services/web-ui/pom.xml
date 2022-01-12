@@ -254,5 +254,17 @@
         </dependency>
       </dependencies>
     </profile>
+    <profile>
+      <id>geostyler</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>org.geoserver.community</groupId>
+          <artifactId>gs-geostyler</artifactId>
+        </dependency>
+      </dependencies>
+    </profile>
   </profiles>
 </project>
