@@ -20,6 +20,7 @@ import org.geoserver.catalog.Info;
 import org.geoserver.catalog.KeywordInfo;
 import org.geoserver.catalog.LayerIdentifierInfo;
 import org.geoserver.catalog.MetadataLinkInfo;
+import org.geoserver.catalog.MetadataMap;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.impl.AuthorityURL;
 import org.geoserver.catalog.impl.ClassMappings;
@@ -79,11 +80,12 @@ public abstract class SharedMappers {
         // beware of remote styles that have no id
         if (ClassMappings.STYLE.equals(type)) {
             StyleInfo s = (StyleInfo) info;
+            MetadataMap metadata = s.getMetadata();
             boolean isRemote =
-                    Boolean.valueOf(
-                            s.getMetadata()
-                                    .getOrDefault(StyleInfoImpl.IS_REMOTE, "false")
-                                    .toString());
+                    metadata != null
+                            && Boolean.valueOf(
+                                    metadata.getOrDefault(StyleInfoImpl.IS_REMOTE, "false")
+                                            .toString());
             if (isRemote) {
                 return null;
             }
