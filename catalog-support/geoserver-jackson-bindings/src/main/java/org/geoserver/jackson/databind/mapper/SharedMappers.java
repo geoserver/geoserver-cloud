@@ -20,12 +20,14 @@ import org.geoserver.catalog.Info;
 import org.geoserver.catalog.KeywordInfo;
 import org.geoserver.catalog.LayerIdentifierInfo;
 import org.geoserver.catalog.MetadataLinkInfo;
+import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.impl.AuthorityURL;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.impl.LayerIdentifier;
 import org.geoserver.catalog.impl.MetadataLinkInfoImpl;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.impl.ResolvingProxy;
+import org.geoserver.catalog.impl.StyleInfoImpl;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.jackson.databind.catalog.dto.CRS;
 import org.geoserver.jackson.databind.catalog.dto.Envelope;
@@ -72,7 +74,20 @@ public abstract class SharedMappers {
     public <T extends Info> InfoReference infoToReference(final T info) {
         if (info == null) return null;
         final String id = info.getId();
-        ClassMappings type = resolveType(info);
+        final ClassMappings type = resolveType(info);
+
+        // beware of remote styles that have no id
+        if (ClassMappings.STYLE.equals(type)) {
+            StyleInfo s = (StyleInfo) info;
+            boolean isRemote =
+                    Boolean.valueOf(
+                            s.getMetadata()
+                                    .getOrDefault(StyleInfoImpl.IS_REMOTE, "false")
+                                    .toString());
+            if (isRemote) {
+                return null;
+            }
+        }
         Objects.requireNonNull(id, () -> "Object has no id: " + info);
         Objects.requireNonNull(type, "Bad info class: " + info.getClass());
         return new InfoReference(type, id);
