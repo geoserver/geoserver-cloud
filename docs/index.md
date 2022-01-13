@@ -213,3 +213,7 @@ Things to mention
 
 ** Gateway: custom filter to adhere to OWS case-insensitive parameter names
 -->
+
+# Configuration guide
+
+Check out the [Externalized configuration guide](configuration/index.md) to learn about fine tuning GeoServer-Cloud applications.

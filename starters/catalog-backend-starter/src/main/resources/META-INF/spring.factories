@@ -1,3 +1,4 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+org.geotools.autoconfigure.httpclient.GeoToolsHttpClientAutoConfiguration,\
 org.geoserver.cloud.autoconfigure.catalog.GeoServerBackendAutoConfiguration,\
 org.geoserver.cloud.autoconfigure.security.GeoServerSecurityAutoConfiguration
