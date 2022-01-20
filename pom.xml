@@ -163,7 +163,7 @@
       </dependency>
       <dependency>
         <groupId>org.geoserver.cloud</groupId>
-        <artifactId>gs-cloud-catalog-backend-starter</artifactId>
+        <artifactId>gs-cloud-starter-catalog-backend</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

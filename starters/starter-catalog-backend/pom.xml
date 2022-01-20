@@ -6,7 +6,7 @@
     <artifactId>gs-cloud-starters</artifactId>
     <version>${revision}</version>
   </parent>
-  <artifactId>gs-cloud-catalog-backend-starter</artifactId>
+  <artifactId>gs-cloud-starter-catalog-backend</artifactId>
   <packaging>jar</packaging>
   <description>Catalog backends starter</description>
   <dependencies>
