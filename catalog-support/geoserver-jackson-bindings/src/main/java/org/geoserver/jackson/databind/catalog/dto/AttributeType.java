@@ -17,4 +17,12 @@ public class AttributeType {
     private Map<String, Serializable> metadata;
     private String binding;
     private Integer length;
+
+    /**
+     * Source expression (a valid CQL expression). If not set, it will default to the attribute name
+     * (in AttributeTypeInfoImpl, not here, here it can be {@code null}).
+     *
+     * @since GeoServer 2.21
+     */
+    private String source;
 }
