@@ -4,22 +4,17 @@
  */
 package org.geoserver.cloud.config.factory;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
-import lombok.extern.slf4j.Slf4j;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestName;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 
-@Slf4j(topic = "FilteringXmlBeanDefinitionReaderTest")
 public class FilteringXmlBeanDefinitionReaderTest {
 
     private final String baseResource =
@@ -27,8 +22,6 @@ public class FilteringXmlBeanDefinitionReaderTest {
 
     FilteringXmlBeanDefinitionReader reader;
     DefaultListableBeanFactory registry;
-
-    public @Rule TestName testName = new TestName();
 
     /**
      * These are all the beans defined in the xml resource file:
@@ -46,7 +39,7 @@ public class FilteringXmlBeanDefinitionReaderTest {
      * </code>
      * </pre>
      */
-    public @Before void before() {
+    public @BeforeEach void before() {
         registry = new DefaultListableBeanFactory();
         reader = new FilteringXmlBeanDefinitionReader(registry);
     }
@@ -110,14 +103,13 @@ public class FilteringXmlBeanDefinitionReaderTest {
     }
 
     private void verify(String location, String... expectedBeanNames) {
-        log.info(testName.getMethodName() + ":");
         Set<String> expected =
                 expectedBeanNames == null
                         ? Collections.emptySet()
                         : Arrays.stream(expectedBeanNames)
                                 .collect(Collectors.toCollection(TreeSet::new));
         Set<String> loadedNames = loadBeanDefinitionsAndReturnNames(location);
-        assertEquals("loaded beans don't match expected", expected, loadedNames);
+        Assertions.assertEquals(expected, loadedNames, "loaded beans don't match expected");
     }
 
     private SortedSet<String> loadBeanDefinitionsAndReturnNames(String location) {

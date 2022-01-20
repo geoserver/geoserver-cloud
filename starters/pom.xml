@@ -10,6 +10,7 @@
   <packaging>pom</packaging>
   <name>Spring boot starters for GeoServer cloud services</name>
   <modules>
+    <module>starter-spring-boot</module>
     <module>catalog-backend-starter</module>
     <module>starter-jackson</module>
     <module>starter-vector-formats</module>
