@@ -133,6 +133,11 @@
       </dependency>
       <dependency>
         <groupId>org.geoserver.cloud</groupId>
+        <artifactId>gs-cloud-starter-wms-extensions</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud</groupId>
         <artifactId>gs-cloud-pluggable-catalog-support</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -489,9 +494,19 @@
         <version>${gs.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.geoserver.extension</groupId>
+        <artifactId>gs-ysld</artifactId>
+        <version>${gs.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.geoserver.community</groupId>
         <artifactId>gs-geostyler</artifactId>
         <version>${gs.community.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.extension</groupId>
+        <artifactId>gs-vectortiles</artifactId>
+        <version>${gs.version}</version>
       </dependency>
       <dependency>
         <groupId>org.geotools</groupId>

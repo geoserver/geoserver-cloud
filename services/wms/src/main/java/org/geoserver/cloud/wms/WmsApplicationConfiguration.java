@@ -19,8 +19,7 @@ import org.springframework.context.annotation.ImportResource;
     locations = { //
         "jar:gs-wms-.*!/applicationContext.xml", //
         "jar:gs-wfs-.*!/applicationContext.xml#name="
-                + WmsApplicationConfiguration.WFS_BEANS_REGEX, //
-        "jar:gs-css-.*!/applicationContext.xml" //
+                + WmsApplicationConfiguration.WFS_BEANS_REGEX //
     }
 )
 public class WmsApplicationConfiguration {

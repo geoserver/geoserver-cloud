@@ -57,6 +57,14 @@ eureka:
       enabled: false # must only be set to true in application.yml, not bootstrap
 
 geoserver:
+  styling:
+    css.enabled: true
+  wms:
+    output-formats:
+      vector-tiles:
+        mapbox.enabled: true
+        geojson.enabled: false
+        topojson.enabled: false
   web-ui:
     file-browser.hide-file-system: true
     # These are all default values, here just for reference. You can omit them and add only the ones to disable or further configure

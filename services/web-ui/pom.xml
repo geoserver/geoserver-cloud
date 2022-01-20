@@ -22,6 +22,10 @@
     </dependency>
     <dependency>
       <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-starter-wms-extensions</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.cloud</groupId>
       <artifactId>gs-cloud-starter-vector-formats</artifactId>
     </dependency>
     <dependency>
@@ -239,18 +243,6 @@
         <dependency>
           <groupId>org.geoserver.importer</groupId>
           <artifactId>gs-importer-web</artifactId>
-        </dependency>
-      </dependencies>
-    </profile>
-    <profile>
-      <id>css</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>org.geoserver.extension</groupId>
-          <artifactId>gs-css</artifactId>
         </dependency>
       </dependencies>
     </profile>
