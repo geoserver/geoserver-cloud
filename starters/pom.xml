@@ -17,6 +17,7 @@
     <module>starter-raster-formats</module>
     <module>starter-webmvc</module>
     <module>starter-reactive</module>
+    <module>starter-wms-extensions</module>
   </modules>
   <dependencies>
     <dependency>
