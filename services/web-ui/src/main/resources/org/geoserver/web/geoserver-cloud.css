@@ -14,3 +14,7 @@
 /* li[class="choiceItem"]/label[for="proxyBaseUrl"]{ */
 /*   display: none; */
 /* } */
+
+#loggingSettingsFieldset{
+	display: none;
+}
