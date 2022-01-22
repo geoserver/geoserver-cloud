@@ -109,7 +109,13 @@ The nested properties obey their parent's `enabled` settings, so for example, if
 ## Differences with monolith GeoServer application's Web UI
 
 - The `LogPage` (`/web/wicket/bookmarkable/org.geoserver.web.admin.LogPage`) menu entry is removed.
-- The `GlobalSettingsPage`'s `logging settings` field set is hidden. A copy of `GlobalSettingsPage.html`
-is provided, adding an `id` attribute to the `fieldset` that groups the logging configuration form elements
-(`<fieldset id="loggingSettingsFieldset">`), which is in turn hidden using CSS in the contributed `geoserver-cloud.css` stylesheet.
+
+### Changes to GlobalSettings page:
+
+A copy of `GlobalSettingsPage.html` is provided, adding HTML `id` attributes some elements
+so they can be hidden using an id CSS selector in the contributed `geoserver-cloud.css` stylesheet.
+
+- The "Logging settings" section set is hidden.
+- The "Lock Provider" selection is hidden, each Configuration and Catalog backend implementation is in charge of
+setting up a lock provider appropriate to the backend that works effectively on a distributed system.
 
