@@ -78,6 +78,7 @@ management:
 
 logging.level:
   root: info
+  org.springframework.cloud.config.server.environment.NativeEnvironmentRepository: warn
 
 ---
 spring.config.activate.on-profile: native
@@ -108,6 +109,6 @@ spring:
 
 ---
 spring.config.activate.on-profile: local
-##server.port: 8888
+server.port: 8888
 eureka.server.url: http://localhost:8761/eureka
-config.native.path: /data2/groldan/git/geoserver-microservices/config
+config.native.path: ${user.dir}/../../config

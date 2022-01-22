@@ -82,5 +82,6 @@ logging:
 
 ---
 spring.config.activate.on-profile: local
+server.port: 9100
+management.server.port: 8100
 eureka.server.url: http://localhost:8761/eureka
-    

@@ -57,5 +57,6 @@ logging.level:
     '[org.springframework.retry]': debug
 ---
 spring.config.activate.on-profile: local
+server.port: 9102
+management.server.port: 8102
 eureka.server.url: http://localhost:8761/eureka
-    
