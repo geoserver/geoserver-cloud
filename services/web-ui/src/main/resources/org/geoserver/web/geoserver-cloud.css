@@ -21,3 +21,6 @@
 #lockProviderListItem{
   display: none;
 }
+#webUIModeSelection{
+	display: none;
+}

@@ -115,7 +115,9 @@ The nested properties obey their parent's `enabled` settings, so for example, if
 A copy of `GlobalSettingsPage.html` is provided, adding HTML `id` attributes some elements
 so they can be hidden using an id CSS selector in the contributed `geoserver-cloud.css` stylesheet.
 
-- The "Logging settings" section set is hidden.
-- The "Lock Provider" selection is hidden, each Configuration and Catalog backend implementation is in charge of
+- The "**Logging settings**" section set is hidden.
+- The "**Lock Provider**" selection is hidden, each Configuration and Catalog backend implementation is in charge of
 setting up a lock provider appropriate to the backend that works effectively on a distributed system.
-
+- The "**Web UI Mode**" selection is hidden. `WebUIApplicationAutoConfiguration` forces it to be
+`WebUIMode.DO_NOT_REDIRECT` "Never redirect to persist page state (supports clustering but doesn't
+prevent double submit problem)."
