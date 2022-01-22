@@ -112,8 +112,10 @@ The nested properties obey their parent's `enabled` settings, so for example, if
 
 ### Changes to GlobalSettings page:
 
-A copy of `GlobalSettingsPage.html` is provided, adding HTML `id` attributes some elements
-so they can be hidden using an id CSS selector in the contributed `geoserver-cloud.css` stylesheet.
+A copy of `GlobalSettingsPage.html` is provided, setting `class="unused"` to HTML elements
+that shall be hidden.
+
+The contributed `geoserver-cloud.css` stylesheet defines `.unused{display: none;}`.
 
 - The "**Logging settings**" section set is hidden.
 - The "**Lock Provider**" selection is hidden, each Configuration and Catalog backend implementation is in charge of
@@ -121,3 +123,7 @@ setting up a lock provider appropriate to the backend that works effectively on 
 - The "**Web UI Mode**" selection is hidden. `WebUIApplicationAutoConfiguration` forces it to be
 `WebUIMode.DO_NOT_REDIRECT` "Never redirect to persist page state (supports clustering but doesn't
 prevent double submit problem)."
+- The "**Proxy Base URL**" field is hidden. The gateway app is in charge of providing the appropriate
+`X-Forward` headers. The spring-boot applications must set the `server.forward-headers-strategy=framework`
+config property to let spring-boot's `ForwardedHeaderFilter` take care of reflecting the client-originated
+protocol and address in the `HttpServletRequest`.
