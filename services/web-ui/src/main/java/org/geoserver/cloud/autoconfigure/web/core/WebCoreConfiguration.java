@@ -18,10 +18,13 @@ import org.springframework.context.annotation.ImportResource;
 @ImportResource( //
     reader = FilteringXmlBeanDefinitionReader.class, //
     locations = { //
-        "jar:gs-web-core-.*!/applicationContext.xml" //
+        "jar:gs-web-core-.*!/applicationContext.xml#name="
+                + WebCoreConfiguration.EXCLUDED_BEANS_PATTERN //
     }
 )
 public class WebCoreConfiguration {
+
+    static final String EXCLUDED_BEANS_PATTERN = "^(?!logsPage).*$";
 
     public @Bean GeoServerWicketServlet geoServerWicketServlet() {
         return new GeoServerWicketServlet();
