@@ -33,4 +33,4 @@ webapp
 
 .flattened-pom.xml
 
-docker-compose_datadir
+docker-compose_datadir*
