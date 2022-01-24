@@ -2,10 +2,12 @@
  * (c) 2022 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
  * GPL 2.0 license, available at the root application directory.
  */
-package org.geoserver.cloud.autoconfigure.gwc.integration;
+package org.geoserver.cloud.autoconfigure.gwc.core;
 
+import javax.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.geoserver.catalog.Catalog;
-import org.geoserver.cloud.autoconfigure.gwc.core.GwcCoreAutoConfiguration;
+import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnGeoWebCacheEnabled;
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
 import org.geoserver.cloud.gwc.repository.CachingTileLayerCatalog;
 import org.geoserver.cloud.gwc.repository.CloudCatalogConfiguration;
@@ -25,6 +27,7 @@ import org.springframework.context.annotation.Primary;
 
 /** @since 1.0 */
 @Configuration(proxyBeanMethods = true)
+@ConditionalOnGeoWebCacheEnabled
 @AutoConfigureAfter(GwcCoreAutoConfiguration.class)
 @ImportResource(
     reader = FilteringXmlBeanDefinitionReader.class, //
@@ -32,7 +35,12 @@ import org.springframework.context.annotation.Primary;
         "jar:gs-gwc-.*!/geowebcache-geoserver-context.xml#name=^(?!GeoSeverTileLayerCatalog|gwcCatalogConfiguration).*$"
     }
 )
+@Slf4j(topic = "org.geoserver.cloud.autoconfigure.gwc.core")
 public class GeoServerIntegrationAutoConfiguration {
+
+    public @PostConstruct void log() {
+        log.info("GeoWebCache core GeoServer integration enabled");
+    }
 
     @Bean(name = "gwcCatalogConfiguration")
     CatalogConfiguration gwcCatalogConfiguration( //

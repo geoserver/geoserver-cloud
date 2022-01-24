@@ -34,6 +34,15 @@ spring:
       - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
       - org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration
       - org.springframework.boot.autoconfigure.ldap.LdapAutoConfiguration
+      # Force disabling GWC services
+      - org.geoserver.cloud.autoconfigure.gwc.service.WebMapTileServiceAutoConfiguration
+      - org.geoserver.cloud.autoconfigure.gwc.service.WebMapServiceAutoConfiguration
+      - org.geoserver.cloud.autoconfigure.gwc.service.TileMapServiceAutoConfiguration
+      - org.geoserver.cloud.autoconfigure.gwc.service.GoogleMapsAutoConfiguration
+      - org.geoserver.cloud.autoconfigure.gwc.service.MGMapsAutoConfiguration
+      - org.geoserver.cloud.autoconfigure.gwc.service.KMLAutoConfiguration
+      - org.geoserver.cloud.autoconfigure.gwc.service.RESTConfigAutoConfiguration
+      - org.geoserver.cloud.autoconfigure.web.gwc.GeoWebCacheUIAutoConfiguration
 
 management:
   server.port: 8081
@@ -56,9 +65,6 @@ eureka:
     healthcheck:
       enabled: false # must only be set to true in application.yml, not bootstrap
 
-gwc:
-  cache-directory: ${GEOWEBCACHE_CACHE_DIR:${geoserver.backend.data-directory.location}/gwc}
-
 geoserver:
   styling:
     css.enabled: true
@@ -76,7 +82,12 @@ geoserver:
     wms.enabled: true
     wcs.enabled: true
     wps.enabled: false # not working yet
-    gwc.enabled: false # not ready yet
+    gwc:
+      enabled: true
+      capabilities:
+        tms: true
+        wmts: true
+        wmsc: true
     extensions:
       importer.enabled: true
     demos:

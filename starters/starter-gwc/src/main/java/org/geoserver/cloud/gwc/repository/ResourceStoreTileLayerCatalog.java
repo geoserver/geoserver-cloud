@@ -258,7 +258,6 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
         DirectoryStream.Filter<Path> filter =
                 path -> {
                     boolean matches = matcher.matches(path);
-                    log.info("{}: match: {}", path, matches);
                     return matches && Files.isRegularFile(path);
                 };
         DirectoryStream<Path> directoryStream;
