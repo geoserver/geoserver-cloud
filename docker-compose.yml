@@ -280,3 +280,18 @@ services:
         limits:
           cpus: '2.0'
           memory: 1G
+  gwc:
+    image: geoservercloud/geoserver-cloud-gwc:${TAG}
+    user: ${GS_USER}
+    depends_on:
+      - rabbitmq
+      - catalog
+    environment:
+      RETRY_MAX_ATTEMPTS: 100
+    networks:
+      - gs-cloud-network
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G

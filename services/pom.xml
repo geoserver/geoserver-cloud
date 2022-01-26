@@ -17,6 +17,7 @@
     <module>wps</module>
     <module>restconfig</module>
     <module>web-ui</module>
+    <module>gwc</module>
   </modules>
   <dependencies>
     <dependency>

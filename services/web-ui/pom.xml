@@ -22,6 +22,10 @@
     </dependency>
     <dependency>
       <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-starter-gwc</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.cloud</groupId>
       <artifactId>gs-cloud-starter-wms-extensions</artifactId>
     </dependency>
     <dependency>
@@ -86,17 +90,6 @@
     <dependency>
       <groupId>org.geoserver.extension</groupId>
       <artifactId>gs-wps-core</artifactId>
-    </dependency>
-    <dependency>
-      <!-- just to avoid a com.thoughtworks.xstream.mapper.CannotResolveClassException: org.geoserver.gwc.WMTSInfoImpl -->
-      <groupId>org.geoserver</groupId>
-      <artifactId>gs-gwc</artifactId>
-      <exclusions>
-        <exclusion>
-          <artifactId>${gwc_excludes}</artifactId>
-          <groupId>${gwc_excludes}</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
   </dependencies>
   <profiles>
@@ -201,13 +194,17 @@
     <profile>
       <id>gwc</id>
       <activation>
-        <activeByDefault>false</activeByDefault>
+        <activeByDefault>true</activeByDefault>
       </activation>
       <properties>
         <!-- use none instead of empty to avoid a maven warning -->
         <gwc_excludes>none</gwc_excludes>
       </properties>
       <dependencies>
+        <dependency>
+          <groupId>org.geoserver</groupId>
+          <artifactId>gs-gwc</artifactId>
+        </dependency>
         <dependency>
           <groupId>org.geoserver.web</groupId>
           <artifactId>gs-web-gwc</artifactId>

@@ -18,6 +18,7 @@
     <module>starter-webmvc</module>
     <module>starter-reactive</module>
     <module>starter-wms-extensions</module>
+    <module>starter-gwc</module>
   </modules>
   <dependencies>
     <dependency>

@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.autoconfigure.core.GeoServerWebMvcMainAutoConfiguration;
 import org.geoserver.cloud.autoconfigure.web.demo.DemosAutoConfiguration;
 import org.geoserver.cloud.autoconfigure.web.extension.ExtensionsAutoConfiguration;
+import org.geoserver.cloud.autoconfigure.web.gwc.GwcWebAutoConfiguration;
 import org.geoserver.cloud.autoconfigure.web.security.SecurityAutoConfiguration;
 import org.geoserver.cloud.autoconfigure.web.tools.ToolsAutoConfiguration;
 import org.geoserver.cloud.autoconfigure.web.wcs.WcsAutoConfiguration;
@@ -35,7 +36,8 @@ import org.springframework.core.env.Environment;
     WpsAutoConfiguration.class,
     ExtensionsAutoConfiguration.class,
     DemosAutoConfiguration.class,
-    ToolsAutoConfiguration.class
+    ToolsAutoConfiguration.class,
+    GwcWebAutoConfiguration.class
 })
 @Slf4j
 public class WebUIApplicationAutoConfiguration {

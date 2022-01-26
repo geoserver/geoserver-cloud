@@ -246,7 +246,7 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
 
         private void registerDeferredAlias(String name, String alias) {
             String msgFormat = "Registering   '{}' alias for '{}'";
-            log.debug(msgFormat, alias, name);
+            log.trace(msgFormat, alias, name);
             try {
                 getReaderContext().getRegistry().registerAlias(name, alias);
             } catch (Exception ex) {
@@ -337,12 +337,12 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
 
         private void logIncludingBeanMessage(String beanName) {
             String msgFormat = "Registering   '{}', matches regular expression";
-            log.debug(msgFormat, beanName);
+            log.trace(msgFormat, beanName);
         }
 
         private void logExcludedBeanMessage(String beanName) {
             String msgFormat = "Excluded bean '{}', no regular expression matches";
-            log.debug(msgFormat, beanName);
+            log.trace(msgFormat, beanName);
         }
     }
 }
