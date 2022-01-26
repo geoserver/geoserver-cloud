@@ -1,0 +1,5 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+org.geoserver.cloud.gwc.autoconfigure.GwcCoreAutoConfiguration,\
+org.geoserver.cloud.gwc.autoconfigure.GwcGeoServerAutoConfiguration,\
+org.geoserver.cloud.gwc.autoconfigure.GwcWMTSAutoConfiguration,\
+org.geoserver.cloud.gwc.autoconfigure.GwcSedingWmsAutoConfiguration

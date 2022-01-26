@@ -50,3 +50,9 @@ services:
       SPRING_PROFILES_ACTIVE: "datadir"
     volumes:
       - test_shared_data_directory:/opt/app/data_directory
+
+  gwc:
+    environment:
+      SPRING_PROFILES_ACTIVE: "datadir"
+    volumes:
+      - test_shared_data_directory:/opt/app/data_directory

@@ -1,14 +1,15 @@
+gwc:
+  cache-directory: ${GEOWEBCACHE_CACHE_DIR:${geoserver.backend.data-directory.location}/gwc}
+
 info:
-  component: User Interface Service
+  component: GeoWebcache
   instance-id: ${spring.application.name}:${vcap.application.instance_id:${spring.application.instance_id:${spring.cloud.client.ip-address}}:${server.port}}
 server:
   port: 8080
   # Let spring-boot's ForwardedHeaderFilter take care of reflecting the client-originated protocol and address in the HttpServletRequest  
   forward-headers-strategy: framework
-  servlet:
-    context-path: /
-    session.tracking-modes: COOKIE
-    
+  servlet.context-path: /
+
 spring:
   main:
     banner-mode: off
@@ -16,7 +17,7 @@ spring:
     allow-circular-references: true # false by default since spring-boot 2.6.0, breaks geoserver initialization
     web-application-type: servlet
   application:
-    name: web-ui
+    name: gwc-service
   cloud:
     config:
       fail-fast: true
@@ -33,7 +34,6 @@ spring:
       - org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration
       - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
       - org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration
-      - org.springframework.boot.autoconfigure.ldap.LdapAutoConfiguration
 
 management:
   server.port: 8081
@@ -56,52 +56,10 @@ eureka:
     healthcheck:
       enabled: false # must only be set to true in application.yml, not bootstrap
 
-gwc:
-  cache-directory: ${GEOWEBCACHE_CACHE_DIR:${geoserver.backend.data-directory.location}/gwc}
-
-geoserver:
-  styling:
-    css.enabled: true
-  wms:
-    output-formats:
-      vector-tiles:
-        mapbox.enabled: true
-        geojson.enabled: false
-        topojson.enabled: false
-  web-ui:
-    file-browser.hide-file-system: true
-    # These are all default values, here just for reference. You can omit them and add only the ones to disable or further configure
-    security.enabled: true
-    wfs.enabled: true
-    wms.enabled: true
-    wcs.enabled: true
-    wps.enabled: false # not working yet
-    gwc.enabled: false # not ready yet
-    extensions:
-      importer.enabled: true
-    demos:
-      enabled: true
-      wps-request-builder: true
-      wcs-request-builder: true
-      demo-requests: true
-      srs-list: true
-      reprojection-console: true
-      layer-preview-page:
-        enabled: true
-        common-formats:
-          open-layers: true
-          gml: true
-          kml: false #kml links are broken
-    tools:
-      enabled: true
-      resource-browser: true
-      catalog-bulk-load: true
-
 logging.level:
     '[org.springframework.retry]': debug
-
 ---
 spring.config.activate.on-profile: local
-server.port: 9106
-management.server.port: 8106
 eureka.server.url: http://localhost:8761/eureka
+server.port: 9107
+management.server.port: 8107
