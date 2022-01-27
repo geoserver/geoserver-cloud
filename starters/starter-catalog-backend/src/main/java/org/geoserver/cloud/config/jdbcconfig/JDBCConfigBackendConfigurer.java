@@ -229,7 +229,16 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
     }
 
     @Bean(name = {"geoServerLoaderImpl", "JDBCGeoServerLoader"})
-    @DependsOn({"catalogFacade", "geoserverFacade"})
+    @DependsOn({
+        "catalogFacade",
+        "geoserverFacade",
+        "extensions",
+        "wmsLoader",
+        "wfsLoader",
+        "wcsLoader",
+        "wpsServiceLoader",
+        "wmtsLoader"
+    })
     public @Override CloudJdbcGeoServerLoader geoServerLoaderImpl() {
         JDBCConfigProperties config = jdbcConfigProperties();
         ConfigDatabase configdb = jdbcConfigDB();
