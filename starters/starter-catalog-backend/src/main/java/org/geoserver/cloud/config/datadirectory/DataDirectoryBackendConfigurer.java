@@ -19,10 +19,6 @@ import org.geoserver.config.GeoServerLoader;
 import org.geoserver.config.plugin.RepositoryGeoServerFacade;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.ResourceStore;
-import org.geoserver.wcs.WCSXStreamLoader;
-import org.geoserver.wfs.WFSXStreamLoader;
-import org.geoserver.wms.WMSXStreamLoader;
-import org.geoserver.wps.WPSXStreamLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -60,7 +56,14 @@ public class DataDirectoryBackendConfigurer implements GeoServerBackendConfigure
         return new org.geoserver.config.plugin.RepositoryGeoServerFacadeImpl();
     }
 
-    @DependsOn({"extensions", "wmsLoader", "wfsLoader", "wcsLoader", "wpsServiceLoader"})
+    @DependsOn({
+        "extensions",
+        "wmsLoader",
+        "wfsLoader",
+        "wcsLoader",
+        "wpsServiceLoader",
+        "wmtsLoader"
+    })
     public @Override @Bean GeoServerLoader geoServerLoaderImpl() {
         return new DataDirectoryGeoServerLoader(resourceLoader());
     }
@@ -88,37 +91,5 @@ public class DataDirectoryBackendConfigurer implements GeoServerBackendConfigure
         Objects.requireNonNull(
                 path, "geoserver.backend.data-directory.location config property resolves to null");
         return path;
-    }
-
-    /**
-     * Provide {@code wmsLoader} if not loaded from {@code
-     * gs-wms-<version>.jar!/applicationContext.xml#wmsLoader}
-     */
-    public @Bean WMSXStreamLoader wmsLoader(GeoServerResourceLoader resourceLoader) {
-        return new WMSXStreamLoader(resourceLoader);
-    }
-
-    /**
-     * Provide {@code wfsLoader} if not loaded from {@code
-     * gs-wfs-<version>.jar!/applicationContext.xml#wfsLoader}
-     */
-    public @Bean WFSXStreamLoader wfsLoader(GeoServerResourceLoader resourceLoader) {
-        return new WFSXStreamLoader(resourceLoader);
-    }
-
-    /**
-     * Provide {@code wcsLoader} if not loaded from {@code
-     * gs-wcs-<version>.jar!/applicationContext.xml#wcsLoader}
-     */
-    public @Bean WCSXStreamLoader wcsLoader(GeoServerResourceLoader resourceLoader) {
-        return new WCSXStreamLoader(resourceLoader);
-    }
-
-    /**
-     * Provide {@code wcsLoader} if not loaded from {@code
-     * gs-wps-<version>.jar!/applicationContext.xml#wpsServiceLoader}
-     */
-    public @Bean WPSXStreamLoader wpsServiceLoader(GeoServerResourceLoader resourceLoader) {
-        return new WPSXStreamLoader(resourceLoader);
     }
 }

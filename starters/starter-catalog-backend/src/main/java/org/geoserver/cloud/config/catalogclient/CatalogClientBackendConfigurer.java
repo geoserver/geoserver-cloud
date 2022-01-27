@@ -21,6 +21,7 @@ import org.geoserver.platform.resource.ResourceStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.env.Environment;
 
@@ -58,6 +59,14 @@ public class CatalogClientBackendConfigurer implements GeoServerBackendConfigure
         return store;
     }
 
+    @DependsOn({
+        "extensions",
+        "wmsLoader",
+        "wfsLoader",
+        "wcsLoader",
+        "wpsServiceLoader",
+        "wmtsLoader"
+    })
     public @Override @Bean GeoServerLoader geoServerLoaderImpl() {
         return new CatalogClientGeoServerLoader(resourceLoader());
     }
