@@ -38,7 +38,7 @@ eureka.client.enabled: false
 logging:
   level:
     root: WARN
-    org.geoserver.platform: ERROR
-    org.geoserver.cloud: INFO
-    org.geoserver.cloud.config.factory: INFO
-    org.springframework.test: ERROR
+    org.geoserver.platform: error
+    org.geoserver.cloud: warn
+    org.geoserver.cloud.config.factory: info
+    org.springframework.test: error

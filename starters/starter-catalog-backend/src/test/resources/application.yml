@@ -39,8 +39,8 @@ logging:
   level:
     root: WARN
     #org.geoserver.platform: ERROR
-    org.geoserver: INFO
-    org.geoserver.cloud: INFO
-    org.geoserver.cloud.config.factory: INFO
-    org.geoserver.jdbcconfig: WARN
-    org.geoserver.jdbcstore: WARN
+    org.geoserver: warn
+    org.geoserver.cloud: warn
+    org.geoserver.cloud.config.factory: warn
+    org.geoserver.jdbcconfig: warn
+    org.geoserver.jdbcstore: warn

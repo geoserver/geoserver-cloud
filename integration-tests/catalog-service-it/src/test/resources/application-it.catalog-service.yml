@@ -35,8 +35,10 @@ feign.hystrix.enabled: false
 #        loggerLevel: full
 
 spring:
-  jackson.default-property-inclusion: non-empty
-  jackson.serialization.indent_output: true
+  jackson:
+    default-property-inclusion: non-empty
+    serialization:
+      indent-output: true
   autoconfigure:
     exclude:
       - org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration
@@ -46,13 +48,13 @@ spring:
 
 logging:
   level:
-    root: WARN
-    reactivefeign.client.log: TRACE
-    org.geoserver.cloud: DEBUG
-    org.geoserver.jackson: DEBUG
-    org.geotools.jackson: DEBUG
-    org.geoserver.cloud.config.factory: INFO
-    org.geoserver.platform: ERROR
-    org.springframework.test: ERROR
-    o.s.integration.handler.LoggingHandler: OFF
+    root: warn
+    reactivefeign.client.log: info
+    org.geoserver.cloud: info
+    org.geoserver.jackson: info
+    org.geotools.jackson: info
+    org.geoserver.cloud.config.factory: info
+    org.geoserver.platform: warn
+    org.springframework.test: error
+    o.s.integration.handler.LoggingHandler: off
     
