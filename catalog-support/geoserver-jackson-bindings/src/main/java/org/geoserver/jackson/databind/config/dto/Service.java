@@ -66,9 +66,9 @@ public abstract @Data class Service extends ConfigInfoDto {
     /** @since geoserver 2.20.0 */
     private Locale defaultLocale;
     /** @since geoserver 2.20.0 */
-    private Map<Locale, String> internationalTitle;
+    private Map<String, String> internationalTitle;
     /** @since geoserver 2.20.0 */
-    private Map<Locale, String> internationalAbstract;
+    private Map<String, String> internationalAbstract;
 
     @EqualsAndHashCode(callSuper = true)
     public static @Data class WmsService extends Service {
@@ -102,9 +102,9 @@ public abstract @Data class Service extends ConfigInfoDto {
         private boolean defaultGroupStyleEnabled;
 
         /** @since geoserver 2.20.0 */
-        private Map<Locale, String> internationalRootLayerTitle;
+        private Map<String, String> internationalRootLayerTitle;
         /** @since geoserver 2.20.0 */
-        private Map<Locale, String> internationalRootLayerAbstract;
+        private Map<String, String> internationalRootLayerAbstract;
     }
 
     @EqualsAndHashCode(callSuper = true)

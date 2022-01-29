@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
 import lombok.extern.slf4j.Slf4j;
@@ -202,6 +203,12 @@ public class GeoServerCatalogModule extends SimpleModule {
 
         addMapperSerializer(
                 Query.class, VALUE_MAPPER::queryToDto, QueryDto.class, VALUE_MAPPER::dtoToQuery);
+
+        addMapperSerializer(
+                Locale.class,
+                VALUE_MAPPER::localeToString,
+                String.class,
+                VALUE_MAPPER::stringToLocale);
 
         addMapperSerializer(
                 InternationalString.class,

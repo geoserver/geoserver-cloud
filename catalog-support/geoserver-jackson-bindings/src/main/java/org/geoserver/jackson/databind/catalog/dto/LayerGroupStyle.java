@@ -5,7 +5,6 @@
 package org.geoserver.jackson.databind.catalog.dto;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import lombok.Data;
 
@@ -30,8 +29,8 @@ public class LayerGroupStyle {
     private List<InfoReference> styles;
 
     private String title;
-    private Map<Locale, String> internationalTitle;
+    private Map<String, String> internationalTitle;
 
     private String Abstract;
-    private Map<Locale, String> internationalAbstract;
+    private Map<String, String> internationalAbstract;
 }
