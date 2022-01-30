@@ -34,6 +34,7 @@ import java.util.stream.Stream;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.configuration.DefaultConfigurationBuilder.XMLConfigurationProvider;
 import org.geoserver.config.util.SecureXStream;
 import org.geoserver.gwc.layer.GeoServerTileLayerInfo;
 import org.geoserver.gwc.layer.TileLayerCatalog;
@@ -41,7 +42,6 @@ import org.geoserver.gwc.layer.TileLayerCatalogListener;
 import org.geoserver.gwc.layer.TileLayerCatalogListener.Type;
 import org.geoserver.platform.resource.FileSystemResourceStore;
 import org.geoserver.platform.resource.Resource;
-import org.geoserver.platform.resource.Resource.Lock;
 import org.geoserver.platform.resource.ResourceStore;
 import org.geoserver.platform.resource.Resources;
 import org.geoserver.util.DimensionWarning;
@@ -58,6 +58,12 @@ import org.springframework.web.context.WebApplicationContext;
 public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
 
     private @Autowired @Qualifier("resourceStoreImpl") ResourceStore resourceStore;
+
+    /**
+     * Used by {@link XMLConfiguration#getConfiguredXStreamWithContext}, at {@link #initialize()},
+     * to lookup implementations of {@link XMLConfigurationProvider}, such as {@code
+     * S3BlobStoreConfigProvider}, etc. This could be improved.
+     */
     private @Autowired WebApplicationContext applicationContext;
 
     private final AtomicBoolean initialized = new AtomicBoolean();
@@ -193,12 +199,7 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
     private void persist(GeoServerTileLayerInfo real) {
         final String tileLayerId = real.getId();
         final Resource file = getFile(tileLayerId);
-        final Lock lock = file.lock();
-        try {
-            persist(real, file.out());
-        } finally {
-            lock.release();
-        }
+        persist(real, file.out());
     }
 
     private void persist(GeoServerTileLayerInfo real, OutputStream out) {
@@ -270,6 +271,7 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
                 .onClose(() -> closeSilently(directoryStream))
                 .map(Path::getFileName)
                 .map(Path::toString)
+                .peek(name -> log.trace("found potential tile layer file {}", name))
                 .map(store::get);
     }
 
