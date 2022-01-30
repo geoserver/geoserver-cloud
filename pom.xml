@@ -224,10 +224,6 @@
             <artifactId>gt-geotiff</artifactId>
             <groupId>org.geotools</groupId>
           </exclusion>
-          <exclusion>
-            <artifactId>gt-geojson</artifactId>
-            <groupId>org.geotools</groupId>
-          </exclusion>
         </exclusions>
       </dependency>
       <dependency>
@@ -297,10 +293,6 @@
           </exclusion>
           <exclusion>
             <artifactId>gt-csv</artifactId>
-            <groupId>org.geotools</groupId>
-          </exclusion>
-          <exclusion>
-            <artifactId>gt-geojson</artifactId>
             <groupId>org.geotools</groupId>
           </exclusion>
         </exclusions>
