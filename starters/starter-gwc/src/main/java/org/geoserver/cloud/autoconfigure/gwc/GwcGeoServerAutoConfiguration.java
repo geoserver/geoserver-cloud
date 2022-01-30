@@ -11,6 +11,7 @@ import org.geoserver.cloud.gwc.repository.CloudCatalogConfiguration;
 import org.geoserver.cloud.gwc.repository.ResourceStoreTileLayerCatalog;
 import org.geoserver.gwc.layer.CatalogConfiguration;
 import org.geoserver.gwc.layer.TileLayerCatalog;
+import org.geoserver.platform.resource.ResourceStore;
 import org.geowebcache.grid.GridSetBroker;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -19,6 +20,7 @@ import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
+import org.springframework.context.annotation.Primary;
 
 /** @since 1.0 */
 @Configuration(proxyBeanMethods = true)
@@ -32,22 +34,23 @@ import org.springframework.context.annotation.ImportResource;
 public class GwcGeoServerAutoConfiguration {
 
     @Bean(name = "gwcCatalogConfiguration")
-    CatalogConfiguration gwcCatalogConfiguration(
-            @Qualifier("rawCatalog") Catalog catalog,
-            @Qualifier("GeoSeverTileLayerCatalog") TileLayerCatalog tld,
+    CatalogConfiguration gwcCatalogConfiguration( //
+            @Qualifier("rawCatalog") Catalog catalog, //
+            @Qualifier("GeoSeverTileLayerCatalog") TileLayerCatalog tld, //
             GridSetBroker gsb) {
 
         return new CloudCatalogConfiguration(catalog, tld, gsb);
     }
 
+    @Primary
     @Bean(name = "GeoSeverTileLayerCatalog")
-    public TileLayerCatalog cachingTileLayerCatalog() {
+    public TileLayerCatalog cachingTileLayerCatalog(ResourceStoreTileLayerCatalog delegate) {
         CacheManager cacheManager = new CaffeineCacheManager();
-        ResourceStoreTileLayerCatalog delegate = resourceStoreTileLayerCatalog();
         return new CachingTileLayerCatalog(cacheManager, delegate);
     }
 
-    public @Bean ResourceStoreTileLayerCatalog resourceStoreTileLayerCatalog() {
-        return new ResourceStoreTileLayerCatalog();
+    public @Bean ResourceStoreTileLayerCatalog resourceStoreTileLayerCatalog(
+            @Qualifier("resourceStoreImpl") ResourceStore resourceStore) {
+        return new ResourceStoreTileLayerCatalog(resourceStore);
     }
 }

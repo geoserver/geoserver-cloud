@@ -49,7 +49,6 @@ import org.geowebcache.config.ContextualConfigurationProvider.Context;
 import org.geowebcache.config.XMLConfiguration;
 import org.geowebcache.storage.blobstore.file.FilePathUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.context.WebApplicationContext;
 
 /** @since 1.0 */
@@ -57,7 +56,7 @@ import org.springframework.web.context.WebApplicationContext;
 @RequiredArgsConstructor
 public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
 
-    private @Autowired @Qualifier("resourceStoreImpl") ResourceStore resourceStore;
+    private final @NonNull ResourceStore resourceStore;
 
     /**
      * Used by {@link XMLConfiguration#getConfiguredXStreamWithContext}, at {@link #initialize()},
