@@ -11,7 +11,6 @@ import static org.junit.Assert.assertEquals;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import org.geoserver.catalog.Catalog;
-import org.geoserver.catalog.CatalogConformanceTest;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CoverageStoreInfo;
 import org.geoserver.catalog.DataStoreInfo;
@@ -24,16 +23,15 @@ import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.cloud.catalog.app.CatalogServiceApplication;
 import org.geoserver.cloud.catalog.client.impl.CatalogClientConfiguration;
 import org.geoserver.cloud.catalog.client.repository.CatalogClientRepository;
+import org.geoserver.cloud.integration.catalog.AbstractCatalogBackendIT;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.opengis.filter.Filter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 
 /**
  * {@link Catalog} integration and conformance tests for a {@link CatalogFacade} running off
@@ -59,9 +57,10 @@ import org.springframework.test.context.junit4.SpringRunner;
         "geoserver.backend.catalog-service.uri=http://localhost:${server.port}"
     }
 )
-@RunWith(SpringRunner.class)
 @ActiveProfiles("it.catalog-service")
-public class CatalogClientBackendConformanceTest extends CatalogConformanceTest {
+// REVISIT: fails if run with failsafe "ClassNotFoundException:
+// org.geoserver.cloud.catalog.client.reactivefeign.ReactiveCatalogClient"
+public class CatalogClientBackendIntegrationTest extends AbstractCatalogBackendIT {
     /**
      * WebFlux catalog-service catalog with backend as configured by
      * bootstrap-it.catalog-service.yml
