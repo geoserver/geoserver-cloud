@@ -248,18 +248,20 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
 
         if (store instanceof FileSystemResourceStore) {
             Path basePath = layersBase.dir().toPath();
-            FileSystemResourceStore fsstore = (FileSystemResourceStore) store;
-            return findAllTileLayerResources(fsstore, basePath);
+            return findAllTileLayerResources(basePath);
         }
         Predicate<Resource> xmlFilter = new Resources.ExtensionFilter("XML")::accept;
         return layersBase.list().stream().filter(xmlFilter);
     }
 
-    private Stream<Resource> findAllTileLayerResources(
-            FileSystemResourceStore store, Path basePath) {
-        PathMatcher matcher = basePath.getFileSystem().getPathMatcher("glob:*.xml");
+    private Stream<Resource> findAllTileLayerResources(Path basePath) {
+        final PathMatcher matcher = basePath.getFileSystem().getPathMatcher("glob:**.xml");
         DirectoryStream.Filter<Path> filter =
-                path -> matcher.matches(path) && Files.isRegularFile(path);
+                path -> {
+                    boolean matches = matcher.matches(path);
+                    log.info("{}: match: {}", path, matches);
+                    return matches && Files.isRegularFile(path);
+                };
         DirectoryStream<Path> directoryStream;
         try {
             directoryStream = Files.newDirectoryStream(basePath, filter);
@@ -267,12 +269,13 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
             throw new UncheckedIOException(e);
         }
 
+        final Resource baseDirectory = baseDirectory();
         return Streams.stream(directoryStream)
                 .onClose(() -> closeSilently(directoryStream))
                 .map(Path::getFileName)
                 .map(Path::toString)
                 .peek(name -> log.trace("found potential tile layer file {}", name))
-                .map(store::get);
+                .map(baseDirectory::get);
     }
 
     private void closeSilently(DirectoryStream<Path> directoryStream) {
