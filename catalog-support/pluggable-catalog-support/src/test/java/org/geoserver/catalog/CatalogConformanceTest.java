@@ -127,7 +127,7 @@ public abstract class CatalogConformanceTest {
         data = CatalogTestData.empty(() -> rawCatalog, () -> null).createCatalogObjects();
     }
 
-    private <T extends CatalogInfo> T add(T info, Consumer<T> adder, Function<String, T> query) {
+    protected <T extends CatalogInfo> T add(T info, Consumer<T> adder, Function<String, T> query) {
         OwsUtils.set(info, "id", null);
         assertNull(info.getId());
         adder.accept(info);
