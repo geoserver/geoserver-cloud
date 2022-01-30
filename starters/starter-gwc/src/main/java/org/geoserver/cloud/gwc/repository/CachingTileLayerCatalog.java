@@ -11,10 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.geoserver.cloud.gwc.event.TileLayerAddedEvent;
-import org.geoserver.cloud.gwc.event.TileLayerModifiedEvent;
-import org.geoserver.cloud.gwc.event.TileLayerRemovedEvent;
+import org.geoserver.cloud.gwc.event.TileLayerEvent;
 import org.geoserver.gwc.layer.GeoServerTileLayerInfo;
 import org.geoserver.gwc.layer.TileLayerCatalog;
 import org.geoserver.gwc.layer.TileLayerCatalogListener;
@@ -24,7 +21,6 @@ import org.springframework.cache.CacheManager;
 import org.springframework.context.event.EventListener;
 
 /** @since 1.0 */
-@Slf4j
 @RequiredArgsConstructor
 public class CachingTileLayerCatalog implements TileLayerCatalog {
 
@@ -38,20 +34,23 @@ public class CachingTileLayerCatalog implements TileLayerCatalog {
     private Cache nameCache;
     private ConcurrentMap<String, String> namesById;
 
-    @EventListener(TileLayerAddedEvent.class)
-    public void onTileLayerEvent(TileLayerAddedEvent event) {
-        getLayerById(event.getLayerId());
-    }
-
-    @EventListener(TileLayerModifiedEvent.class)
-    public void onTileLayerModifiedEvent(TileLayerModifiedEvent event) {
-        evictById(event.getLayerId());
-        getLayerById(event.getLayerId());
-    }
-
-    @EventListener(TileLayerRemovedEvent.class)
-    public void onTileLayerRemovedEvent(TileLayerRemovedEvent event) {
-        evictById(event.getLayerId());
+    @EventListener(TileLayerEvent.class)
+    public void onTileLayerEvent(TileLayerEvent event) {
+        switch (event.getEventType()) {
+            case CREATED:
+                getLayerById(event.getLayerId());
+                break;
+            case DELETED:
+                evictById(event.getLayerId());
+                break;
+            case MODIFIED:
+                evictById(event.getLayerId());
+                getLayerById(event.getLayerId());
+                break;
+            default:
+                throw new IllegalArgumentException(
+                        "Invalid TileLayerEvent type: " + event.getEventType());
+        }
     }
 
     public void evictById(@NonNull String id) {

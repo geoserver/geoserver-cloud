@@ -9,8 +9,6 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
 import org.geoserver.gwc.layer.TileLayerCatalogListener;
-import org.springframework.cloud.bus.event.Destination;
-import org.springframework.cloud.bus.event.RemoteApplicationEvent;
 import org.springframework.context.ApplicationContext;
 
 /**
@@ -20,29 +18,14 @@ import org.springframework.context.ApplicationContext;
  * @since 1.0
  */
 @NoArgsConstructor
-public abstract class RemoteTileLayerEvent extends RemoteApplicationEvent {
+public class RemoteTileLayerEvent extends RemoteGeoWebCacheEvent {
 
     private static final long serialVersionUID = 1L;
 
-    public static enum Type {
-        CREATED,
-        MODIFIED,
-        DELETED
-    }
-
-    private static final Destination ALL = DEFAULT_DESTINATION_FACTORY.getDestination(null);
-
-    private @Getter @Setter Type eventType;
     private @Getter @Setter String layerId;
 
-    public RemoteTileLayerEvent(
-            Object source,
-            @NonNull String originService,
-            @NonNull String layerId,
-            @NonNull Type eventType) {
-        super(source, originService, ALL);
-        this.eventType = eventType;
-        this.layerId = layerId;
+    public RemoteTileLayerEvent(Object source, @NonNull String originService) {
+        super(source, originService);
     }
 
     public @Override String toString() {

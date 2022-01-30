@@ -4,12 +4,18 @@
  */
 package org.geoserver.cloud.autoconfigure.gwc;
 
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import org.geoserver.cloud.autoconfigure.bus.ConditionalOnGeoServerRemoteEventsEnabled;
-import org.geoserver.cloud.gwc.bus.RemoteTileLayerEvent;
-import org.geoserver.cloud.gwc.bus.TileLayerRemoteEventBroadcaster;
+import org.geoserver.cloud.gwc.bus.GeoWebCacheRemoteEventsBroker;
+import org.geoserver.cloud.gwc.bus.RemoteGeoWebCacheEvent;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.cloud.bus.BusAutoConfiguration;
+import org.springframework.cloud.bus.ServiceMatcher;
+import org.springframework.cloud.bus.event.RemoteApplicationEvent;
 import org.springframework.cloud.bus.jackson.RemoteApplicationEventScan;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -17,10 +23,15 @@ import org.springframework.context.annotation.Configuration;
 @Configuration(proxyBeanMethods = false)
 @AutoConfigureAfter(BusAutoConfiguration.class)
 @ConditionalOnGeoServerRemoteEventsEnabled
-@RemoteApplicationEventScan(basePackageClasses = {RemoteTileLayerEvent.class})
+@RemoteApplicationEventScan(basePackageClasses = {RemoteGeoWebCacheEvent.class})
 public class GwcEventBusAutoConfiguration {
 
-    public @Bean TileLayerRemoteEventBroadcaster tileLayerRemoteEventBroadcaster() {
-        return new TileLayerRemoteEventBroadcaster();
+    public @Bean GeoWebCacheRemoteEventsBroker tileLayerRemoteEventBroadcaster( //
+            ApplicationEventPublisher eventPublisher, ServiceMatcher busServiceMatcher) {
+
+        Supplier<String> originServiceId = busServiceMatcher::getBusId;
+        Function<RemoteApplicationEvent, Boolean> selfServiceCheck = busServiceMatcher::isFromSelf;
+        Consumer<Object> publisher = eventPublisher::publishEvent;
+        return new GeoWebCacheRemoteEventsBroker(originServiceId, selfServiceCheck, publisher);
     }
 }

@@ -4,14 +4,18 @@
  */
 package org.geoserver.cloud.gwc.event;
 
+import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 
 /** @since 1.0 */
-public class TileLayerAddedEvent extends TileLayerEvent {
-
+public class GridsetEvent extends GeoWebCacheEvent {
     private static final long serialVersionUID = 1L;
 
-    public TileLayerAddedEvent(Object source, @NonNull String layerId) {
-        super(source, layerId, Type.CREATE);
+    private @Getter @Setter String gridsetId;
+
+    public GridsetEvent(Object source, @NonNull Type eventType, @NonNull String gridsetId) {
+        super(source, eventType);
+        this.gridsetId = gridsetId;
     }
 }

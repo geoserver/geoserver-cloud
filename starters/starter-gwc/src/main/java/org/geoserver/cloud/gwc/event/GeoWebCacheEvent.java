@@ -9,6 +9,7 @@ import lombok.NonNull;
 import lombok.Setter;
 import org.geoserver.gwc.layer.TileLayerCatalogListener;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationEvent;
 
 /**
  * Local {@link ApplicationContext} event issued to replace the tighly coupled {@link
@@ -16,18 +17,20 @@ import org.springframework.context.ApplicationContext;
  *
  * @since 1.0
  */
-public class TileLayerEvent extends GeoWebCacheEvent {
+public abstract class GeoWebCacheEvent extends ApplicationEvent {
 
     private static final long serialVersionUID = 1L;
 
-    private @Getter @Setter String layerId;
-
-    public TileLayerEvent(Object source, @NonNull Type eventType, @NonNull String layerId) {
-        super(source, eventType);
-        this.layerId = layerId;
+    public static enum Type {
+        CREATED,
+        MODIFIED,
+        DELETED
     }
 
-    public @Override String toString() {
-        return String.format("%s[%s]", getClass().getSimpleName(), getLayerId());
+    private @Getter @Setter Type eventType;
+
+    public GeoWebCacheEvent(Object source, @NonNull Type eventType) {
+        super(source);
+        this.eventType = eventType;
     }
 }

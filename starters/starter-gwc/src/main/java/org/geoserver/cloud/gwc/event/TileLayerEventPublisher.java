@@ -25,10 +25,7 @@ import org.springframework.context.ApplicationEventPublisher;
  * so other components interested in these kind of events don't need to register themselves as
  * {@link TileLayerCatalogListener}s.
  *
- * @see TileLayerAddedEvent
- * @see TileLayerRemovedEvent
- * @see TileLayerModifiedEvent
- * @see TileLayerRenamedEvent
+ * @see TileLayerEvent
  */
 public class TileLayerEventPublisher {
 
@@ -52,11 +49,11 @@ public class TileLayerEventPublisher {
     TileLayerEvent toEvent(@NonNull String layerId, @NonNull TileLayerCatalogListener.Type type) {
         switch (type) {
             case CREATE:
-                return new TileLayerAddedEvent(this, layerId);
+                return new TileLayerEvent(this, GeoWebCacheEvent.Type.CREATED, layerId);
             case DELETE:
-                return new TileLayerRemovedEvent(this, layerId);
+                return new TileLayerEvent(this, GeoWebCacheEvent.Type.DELETED, layerId);
             case MODIFY:
-                return new TileLayerModifiedEvent(this, layerId);
+                return new TileLayerEvent(this, GeoWebCacheEvent.Type.MODIFIED, layerId);
             default:
                 throw new IllegalArgumentException("type: " + type);
         }
