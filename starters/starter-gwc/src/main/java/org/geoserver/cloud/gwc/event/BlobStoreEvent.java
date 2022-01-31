@@ -14,8 +14,16 @@ public class BlobStoreEvent extends GeoWebCacheEvent {
 
     private @Getter @Setter String blobStoreId;
 
+    public BlobStoreEvent(Object source) {
+        super(source);
+    }
+
     public BlobStoreEvent(Object source, @NonNull Type eventType, @NonNull String blobStoreId) {
         super(source, eventType);
         this.blobStoreId = blobStoreId;
+    }
+
+    protected @Override String getObjectId() {
+        return blobStoreId;
     }
 }

@@ -30,7 +30,7 @@ public class RemoteBlobStoreEvent extends RemoteGeoWebCacheEvent {
         this.blobStoreId = blobStoreId;
     }
 
-    public @Override String toString() {
-        return String.format("%s[%s]", getClass().getSimpleName(), getBlobStoreId());
+    protected @Override String getObjectId() {
+        return blobStoreId;
     }
 }

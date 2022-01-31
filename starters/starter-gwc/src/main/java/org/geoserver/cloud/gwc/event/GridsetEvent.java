@@ -14,8 +14,16 @@ public class GridsetEvent extends GeoWebCacheEvent {
 
     private @Getter @Setter String gridsetId;
 
+    public GridsetEvent(Object source) {
+        super(source);
+    }
+
     public GridsetEvent(Object source, @NonNull Type eventType, @NonNull String gridsetId) {
         super(source, eventType);
         this.gridsetId = gridsetId;
+    }
+
+    protected @Override String getObjectId() {
+        return gridsetId;
     }
 }

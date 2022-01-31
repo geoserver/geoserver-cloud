@@ -28,7 +28,7 @@ public class RemoteTileLayerEvent extends RemoteGeoWebCacheEvent {
         super(source, originService);
     }
 
-    public @Override String toString() {
-        return String.format("%s[%s]", getClass().getSimpleName(), getLayerId());
+    protected @Override String getObjectId() {
+        return layerId;
     }
 }

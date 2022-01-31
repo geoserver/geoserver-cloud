@@ -43,7 +43,7 @@ public class GeoWebCacheRemoteEventsBroker {
     private final RemoteEventMapper mapper = Mappers.getMapper(RemoteEventMapper.class);
 
     @EventListener(GeoWebCacheEvent.class)
-    public void publishRemoteGeoWebCacheEvent(GeoWebCacheEvent localEvent) throws CatalogException {
+    public void publishRemoteEvent(GeoWebCacheEvent localEvent) throws CatalogException {
         if (isFromSelf(localEvent)) {
             String originService = originService();
             RemoteGeoWebCacheEvent remoteEvent = mapper.toRemote(localEvent, this, originService);
@@ -52,9 +52,9 @@ public class GeoWebCacheRemoteEventsBroker {
     }
 
     @EventListener(RemoteGeoWebCacheEvent.class)
-    public void publishLocalTileLayerEvent(RemoteGeoWebCacheEvent remoteEvent) {
+    public void publishLocalEvent(RemoteGeoWebCacheEvent remoteEvent) {
         if (!isFromSelf(remoteEvent)) {
-            GeoWebCacheEvent localEvent = mapper.toLocal(remoteEvent);
+            GeoWebCacheEvent localEvent = mapper.toLocal(remoteEvent, this);
             publish(remoteEvent, localEvent);
         }
     }

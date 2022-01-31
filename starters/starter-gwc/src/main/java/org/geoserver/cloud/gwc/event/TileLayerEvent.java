@@ -22,6 +22,10 @@ public class TileLayerEvent extends GeoWebCacheEvent {
 
     private @Getter @Setter String layerId;
 
+    public TileLayerEvent(Object source) {
+        super(source);
+    }
+
     public TileLayerEvent(Object source, @NonNull Type eventType, @NonNull String layerId) {
         super(source, eventType);
         this.layerId = layerId;
@@ -29,5 +33,9 @@ public class TileLayerEvent extends GeoWebCacheEvent {
 
     public @Override String toString() {
         return String.format("%s[%s]", getClass().getSimpleName(), getLayerId());
+    }
+
+    protected @Override String getObjectId() {
+        return layerId;
     }
 }

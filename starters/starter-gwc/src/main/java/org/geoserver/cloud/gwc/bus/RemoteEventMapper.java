@@ -23,33 +23,38 @@ interface RemoteEventMapper {
             @NonNull Object source,
             @NonNull String originService) {
         if (local instanceof TileLayerEvent)
-            return map((TileLayerEvent) local, source, originService);
-        if (local instanceof GridsetEvent) return map((GridsetEvent) local, source, originService);
+            return toRemote((TileLayerEvent) local, source, originService);
+        if (local instanceof GridsetEvent)
+            return toRemote((GridsetEvent) local, source, originService);
         if (local instanceof BlobStoreEvent)
-            return map((BlobStoreEvent) local, source, originService);
+            return toRemote((BlobStoreEvent) local, source, originService);
         throw new IllegalArgumentException("unknown GeoWebCacheEvent type: " + local);
     }
 
-    default GeoWebCacheEvent toLocal(@NonNull RemoteGeoWebCacheEvent remote) {
-        if (remote instanceof RemoteTileLayerEvent) return map((RemoteTileLayerEvent) remote);
-        if (remote instanceof RemoteGridsetEvent) return map((RemoteGridsetEvent) remote);
-        if (remote instanceof RemoteBlobStoreEvent) return map((RemoteBlobStoreEvent) remote);
+    default GeoWebCacheEvent toLocal(
+            @NonNull RemoteGeoWebCacheEvent remote, @NonNull Object source) {
+        if (remote instanceof RemoteTileLayerEvent)
+            return toLocal((RemoteTileLayerEvent) remote, source);
+        if (remote instanceof RemoteGridsetEvent)
+            return toLocal((RemoteGridsetEvent) remote, source);
+        if (remote instanceof RemoteBlobStoreEvent)
+            return toLocal((RemoteBlobStoreEvent) remote, source);
         throw new IllegalArgumentException("unknown RemoteGeoWebCacheEvent type: " + remote);
     }
 
-    TileLayerEvent map(RemoteTileLayerEvent remote);
+    TileLayerEvent toLocal(RemoteTileLayerEvent remote, @Context Object source);
 
-    RemoteTileLayerEvent map(
+    RemoteTileLayerEvent toRemote(
             TileLayerEvent local, @Context Object source, @Context String originService);
 
-    GridsetEvent map(RemoteGridsetEvent remote);
+    GridsetEvent toLocal(RemoteGridsetEvent remote, @Context Object source);
 
-    RemoteGridsetEvent map(
+    RemoteGridsetEvent toRemote(
             GridsetEvent local, @Context Object source, @Context String originService);
 
-    BlobStoreEvent map(RemoteBlobStoreEvent remote);
+    BlobStoreEvent toLocal(RemoteBlobStoreEvent remote, @Context Object source);
 
-    RemoteBlobStoreEvent map(
+    RemoteBlobStoreEvent toRemote(
             BlobStoreEvent local, @Context Object source, @Context String originService);
 
     @ObjectFactory
@@ -68,5 +73,20 @@ interface RemoteEventMapper {
     default RemoteBlobStoreEvent newRemoteBlobStoreEvent(
             @Context Object source, @Context String originService) {
         return new RemoteBlobStoreEvent(source, originService);
+    }
+
+    @ObjectFactory
+    default TileLayerEvent newTileEvent(@Context Object source) {
+        return new TileLayerEvent(source);
+    }
+
+    @ObjectFactory
+    default GridsetEvent newGridsetEvent(@Context Object source) {
+        return new GridsetEvent(source);
+    }
+
+    @ObjectFactory
+    default BlobStoreEvent newBlobStoreEvent(@Context Object source) {
+        return new BlobStoreEvent(source);
     }
 }

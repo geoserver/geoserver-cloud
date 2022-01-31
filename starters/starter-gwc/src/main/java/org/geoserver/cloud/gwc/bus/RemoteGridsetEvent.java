@@ -30,7 +30,7 @@ public class RemoteGridsetEvent extends RemoteGeoWebCacheEvent {
         this.gridsetId = gridsetId;
     }
 
-    public @Override String toString() {
-        return String.format("%s[%s]", getClass().getSimpleName(), getGridsetId());
+    protected @Override String getObjectId() {
+        return gridsetId;
     }
 }
