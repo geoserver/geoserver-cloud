@@ -99,7 +99,7 @@ public class GeoServerRemoteEventBroadcaster {
 
     private @Autowired GeoServerBusProperties geoserverBusProperties;
 
-    public String toString() {
+    public @Override String toString() {
         return String.format("%s(%s)", getClass().getSimpleName(), springBusProperties.getId());
     }
 

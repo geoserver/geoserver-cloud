@@ -1,8 +1,8 @@
 /*
- * (c) 2021 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
+ * (c) 2022 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
  * GPL 2.0 license, available at the root application directory.
  */
-package org.geoserver.cloud.gwc.autoconfigure;
+package org.geoserver.cloud.autoconfigure.gwc;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -17,10 +17,17 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
 import org.geoserver.cloud.gwc.controller.GeoWebCacheController;
+import org.geoserver.cloud.gwc.repository.CloudGwcXmlConfiguration;
+import org.geoserver.gwc.config.GeoserverXMLResourceProvider;
+import org.geoserver.platform.resource.ResourceStore;
+import org.geowebcache.config.ConfigurationException;
+import org.geowebcache.config.ConfigurationResourceProvider;
+import org.geowebcache.config.XMLConfiguration;
 import org.geowebcache.storage.DefaultStorageFinder;
 import org.geowebcache.util.ApplicationContextProvider;
 import org.geowebcache.util.GWCVars;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -36,7 +43,9 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 @AutoConfigureAfter(GwcSedingWmsAutoConfiguration.class)
 @ImportResource(
     reader = FilteringXmlBeanDefinitionReader.class, //
-    locations = {"jar:gs-gwc-.*!/geowebcache-servlet.xml#name=^(?!gwcDefaultStorageFinder).*$"}
+    locations = {
+        "jar:gs-gwc-.*!/geowebcache-servlet.xml#name=^(?!gwcXmlConfig|gwcDefaultStorageFinder).*$"
+    }
 )
 @Slf4j(topic = "org.geoserver.cloud.gwc.autoconfigure")
 public class GwcCoreAutoConfiguration {
@@ -61,12 +70,55 @@ public class GwcCoreAutoConfiguration {
     }
 
     /**
+     *
+     *
+     * <pre>{@code
+     * <bean id="gwcXmlConfigResourceProvider" class=
+     *     "org.geoserver.gwc.config.GeoserverXMLResourceProvider">
+     * <constructor-arg value="geowebcache.xml" />
+     * <constructor-arg ref="resourceStore" />
+     * </bean>
+     * }</pre>
+     *
+     * @param resourceStore
+     * @throws ConfigurationException
+     */
+    public @Bean GeoserverXMLResourceProvider gwcXmlConfigResourceProvider(
+            @Qualifier("resourceLoader") ResourceStore resourceStore)
+            throws ConfigurationException {
+        String configFileName = "geowebcache.xml";
+        return new GeoserverXMLResourceProvider(configFileName, resourceStore);
+    }
+
+    /**
+     *
+     *
+     * <pre>{@code
+     * <bean id="gwcXmlConfig" class="org.geowebcache.config.XMLConfiguration">
+     *   <constructor-arg ref="gwcAppCtx" />
+     *   <constructor-arg ref="gwcXmlConfigResourceProvider" />
+     *   <property name="template" value="/geowebcache_empty.xml">
+     *     <description>Create an empty geoebcache.xml in data_dir/gwc as template</description>
+     *   </property>
+     * </bean>
+     * }</pre>
+     *
+     * @param appCtx
+     * @param inFac
+     */
+    @Bean(name = "gwcXmlConfig")
+    public XMLConfiguration gwcXmlConfig( //
+            ApplicationContextProvider appCtx, //
+            @Qualifier("gwcXmlConfigResourceProvider") ConfigurationResourceProvider inFac) {
+        return new CloudGwcXmlConfiguration(appCtx, inFac);
+    }
+
+    /**
      * Define {@code DefaultStorageFinder} in code, excluded from {@literal geowebcache-servlet.xml}
      * in the {@code @ImportResource} declaration above, to make sure the cache directory
      * environment variable or system property is set up beforehand (GWC doesn't look it up in the
      * spring application context).
      */
-    @Autowired
     public @Bean DefaultStorageFinder gwcDefaultStorageFinder( //
             ApplicationContextProvider provider) {
         initGeowebCacheDirEnvVariable();
