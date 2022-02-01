@@ -91,7 +91,9 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.jdbc.VirtualTable;
 import org.geotools.measure.Measure;
 import org.geotools.referencing.CRS;
+import org.geotools.util.GrowableInternationalString;
 import org.geotools.util.NumberRange;
+import org.geotools.util.SimpleInternationalString;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -106,6 +108,7 @@ import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Literal;
 import org.opengis.filter.sort.SortOrder;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.util.InternationalString;
 import si.uom.SI;
 
 /**
@@ -415,6 +418,28 @@ public class GeoServerCatalogModuleTest {
         testPatch("serviceInfos", services);
         testPatch("attribution", attributionInfos);
         testPatch("contact", contactInfos);
+    }
+
+    public @Test void testPatchWithSimpleInternationalStringProperty() throws Exception {
+        InternationalString simpleI18n = new SimpleInternationalString("simpleI18n");
+        Patch patch = new Patch();
+        patch.add("simpleI18n", simpleI18n);
+
+        ObjectWriter writer = objectMapper.writer();
+        writer = writer.withDefaultPrettyPrinter();
+        String encoded = writer.writeValueAsString(patch);
+        log.info(encoded);
+        Patch decoded = objectMapper.readValue(encoded, Patch.class);
+        Patch expected = new Patch();
+        expected.add("simpleI18n", new GrowableInternationalString(simpleI18n.toString()));
+        assertEquals(expected, decoded);
+    }
+
+    public @Test void testPatchWithGrowableInternationalStringProperty() throws Exception {
+        GrowableInternationalString growableI18n = new GrowableInternationalString("default lang");
+        growableI18n.add(Locale.forLanguageTag("es-AR"), "en argentino");
+        growableI18n.add(Locale.forLanguageTag("es"), "en español");
+        testPatch("growableI18n", growableI18n);
     }
 
     private void testPatch(String name, Object value) throws Exception {

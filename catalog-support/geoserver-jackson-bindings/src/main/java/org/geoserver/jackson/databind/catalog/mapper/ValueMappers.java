@@ -245,19 +245,24 @@ public interface ValueMappers {
     // there's no implementation for ImagingInfo and ImageFormatInfo, looks like dead code
     // ImageFormatInfo infoToDto();
 
-    Locale UNDEF_LOCALE = new Locale("");
+    default String localeToString(Locale locale) {
+        return locale == null ? "" : locale.toLanguageTag();
+    }
 
-    default Map<Locale, String> internationalStringToDto(InternationalString s) {
+    default Locale stringToLocale(String s) {
+        return s == null || s.isBlank() ? null : Locale.forLanguageTag(s);
+    }
+
+    default Map<String, String> internationalStringToDto(InternationalString s) {
         if (s instanceof GrowableInternationalString) {
             GrowableInternationalString gs = (GrowableInternationalString) s;
             Set<Locale> locales = gs.getLocales();
-            Map<Locale, String> dto = new HashMap<>(locales.size());
-            locales.forEach(
-                    locale -> dto.put(locale == null ? UNDEF_LOCALE : locale, gs.toString(locale)));
+            Map<String, String> dto = new HashMap<>(locales.size());
+            locales.forEach(locale -> dto.put(localeToString(locale), gs.toString(locale)));
             return dto;
         }
         if (s instanceof SimpleInternationalString) {
-            return Collections.singletonMap(null, s.toString());
+            return Collections.singletonMap("", s.toString());
         }
         if (s == null) return null;
 
@@ -269,16 +274,10 @@ public interface ValueMappers {
         return null;
     }
 
-    default GrowableInternationalString dtoToInternationalString(Map<Locale, String> s) {
+    default GrowableInternationalString dtoToInternationalString(Map<String, String> s) {
         if (s == null) return null;
         GrowableInternationalString gs = new GrowableInternationalString();
-        s.forEach(
-                (locale, value) -> {
-                    if (UNDEF_LOCALE.equals(locale)) {
-                        locale = null;
-                    }
-                    gs.add(locale, value);
-                });
+        s.forEach((locale, value) -> gs.add(stringToLocale(locale), value));
         return gs;
     }
 }

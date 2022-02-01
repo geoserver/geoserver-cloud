@@ -4,7 +4,6 @@
  */
 package org.geoserver.jackson.databind.config.dto;
 
-import java.util.Locale;
 import java.util.Map;
 import lombok.Data;
 import org.geoserver.config.ContactInfo;
@@ -28,31 +27,31 @@ public @Data class Contact {
     private String onlineResource;
 
     /** @since geoserver 2.20.0 */
-    private Map<Locale, String> internationalAddress;
+    private Map<String, String> internationalAddress;
     /** @since geoserver 2.20.0 */
-    private Map<Locale, String> internationalContactFacsimile;
+    private Map<String, String> internationalContactFacsimile;
     /** @since geoserver 2.20.0 */
-    private Map<Locale, String> internationalContactOrganization;
+    private Map<String, String> internationalContactOrganization;
     /** @since geoserver 2.20.0 */
-    private Map<Locale, String> internationalContactPerson;
+    private Map<String, String> internationalContactPerson;
     /** @since geoserver 2.20.0 */
-    private Map<Locale, String> internationalContactPosition;
+    private Map<String, String> internationalContactPosition;
     /** @since geoserver 2.20.0 */
-    private Map<Locale, String> internationalContactVoice;
+    private Map<String, String> internationalContactVoice;
     /** @since geoserver 2.20.0 */
-    private Map<Locale, String> internationalOnlineResource;
+    private Map<String, String> internationalOnlineResource;
     /** @since geoserver 2.20.0 */
-    private Map<Locale, String> internationalAddressCity;
+    private Map<String, String> internationalAddressCity;
     /** @since geoserver 2.20.0 */
-    private Map<Locale, String> internationalAddressCountry;
+    private Map<String, String> internationalAddressCountry;
     /** @since geoserver 2.20.0 */
-    private Map<Locale, String> internationalAddressDeliveryPoint;
+    private Map<String, String> internationalAddressDeliveryPoint;
     /** @since geoserver 2.20.0 */
-    private Map<Locale, String> internationalAddressPostalCode;
+    private Map<String, String> internationalAddressPostalCode;
     /** @since geoserver 2.20.0 */
-    private Map<Locale, String> internationalAddressState;
+    private Map<String, String> internationalAddressState;
     /** @since geoserver 2.20.0 */
-    private Map<Locale, String> internationalAddressType;
+    private Map<String, String> internationalAddressType;
     /** @since geoserver 2.20.0 */
-    private Map<Locale, String> internationalContactEmail;
+    private Map<String, String> internationalContactEmail;
 }
