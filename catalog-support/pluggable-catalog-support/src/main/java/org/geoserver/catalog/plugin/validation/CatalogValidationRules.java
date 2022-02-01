@@ -73,6 +73,9 @@ public class CatalogValidationRules {
     public <T extends CatalogInfo> ValidationResult validate(T object, boolean isNew) {
         CatalogValidatorVisitor visitor = new CatalogValidatorVisitor(defaultValidator, isNew);
         if (isNew) {
+            // REVISIT: of course the webui will call catalog.validate with a mod proxy and
+            // isNew=true... ResourceConfigurationPage.doSaveInternal() for instance
+            object = ModificationProxy.unwrap(object);
             object.accept(visitor);
         } else {
             object =
