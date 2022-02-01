@@ -1,7 +1,8 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-org.geoserver.cloud.autoconfigure.gwc.GwcCoreAutoConfiguration,\
-org.geoserver.cloud.autoconfigure.gwc.GwcGeoServerAutoConfiguration,\
-org.geoserver.cloud.autoconfigure.gwc.GwcWMTSAutoConfiguration,\
-org.geoserver.cloud.autoconfigure.gwc.GwcSedingWmsAutoConfiguration,\
-org.geoserver.cloud.autoconfigure.gwc.GwcLocalEventsAutoConfiguration,\
-org.geoserver.cloud.autoconfigure.gwc.GwcEventBusAutoConfiguration
+org.geoserver.cloud.autoconfigure.gwc.core.GwcCoreAutoConfiguration,\
+org.geoserver.cloud.autoconfigure.gwc.integration.GeoServerIntegrationAutoConfiguration,\
+org.geoserver.cloud.autoconfigure.gwc.integration.LocalEventsAutoConfiguration,\
+org.geoserver.cloud.autoconfigure.gwc.integration.RemoteEventsAutoConfiguration,\
+org.geoserver.cloud.autoconfigure.gwc.integration.SedingWMSAutoConfiguration,\
+org.geoserver.cloud.autoconfigure.gwc.integration.WMTSIntegrationAutoConfiguration,\
+org.geoserver.cloud.autoconfigure.web.gwc.WebUIAutoConfiguration

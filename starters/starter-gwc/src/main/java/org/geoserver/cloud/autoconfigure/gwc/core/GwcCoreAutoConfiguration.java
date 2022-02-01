@@ -2,7 +2,7 @@
  * (c) 2022 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
  * GPL 2.0 license, available at the root application directory.
  */
-package org.geoserver.cloud.autoconfigure.gwc;
+package org.geoserver.cloud.autoconfigure.gwc.core;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -15,6 +15,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import lombok.extern.slf4j.Slf4j;
+import org.geoserver.cloud.autoconfigure.gwc.integration.SedingWMSAutoConfiguration;
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
 import org.geoserver.cloud.gwc.controller.GeoWebCacheController;
 import org.geoserver.cloud.gwc.repository.CloudGwcXmlConfiguration;
@@ -23,6 +24,7 @@ import org.geoserver.platform.resource.ResourceStore;
 import org.geowebcache.config.ConfigurationException;
 import org.geowebcache.config.ConfigurationResourceProvider;
 import org.geowebcache.config.XMLConfiguration;
+import org.geowebcache.diskquota.DiskQuotaMonitor;
 import org.geowebcache.storage.DefaultStorageFinder;
 import org.geowebcache.util.ApplicationContextProvider;
 import org.geowebcache.util.GWCVars;
@@ -38,9 +40,41 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
-/** @since 1.0 */
+/**
+ * Replaces upstream's {@literal geowebcache-servlet.xml} which is an aggregate of several xml
+ * files.
+ * <p>
+ * The original {@literal geowebcache-servlet.xml}:
+ *
+ * <pre>
+ * {@code
+ *   <import resource="geowebcache-core-context.xml"/>
+ *   <import resource="geowebcache-georss-context.xml"/>
+ *   <import resource="geowebcache-gmaps-context.xml"/>
+ *   <import resource="geowebcache-kmlservice-context.xml"/>
+ *   <import resource="geowebcache-rest-context.xml"/>
+ *   <import resource="geowebcache-tmsservice-context.xml"/>
+ *   <import resource="geowebcache-virtualearth-context.xml"/>
+ *   <import resource="geowebcache-wmsservice-context.xml"/>
+ *   <import resource="geowebcache-wmtsservice-context.xml"/>
+ *   <import resource="geowebcache-diskquota-context.xml"/>
+ *   <!--
+ *     This mappings are different from the standalone gwc ones in that they prepend the /gwc prefix to the context so it
+ *     ends up being, for example, /geoserver/gwc/*
+ *   -->
+ *   <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+ *     <property name="ignoreUnresolvablePlaceholders" value="true" />
+ *     <property name="location">
+ *       <value>classpath:application.properties</value>
+ *     </property>
+ *   </bean>
+ *   <context:component-scan base-package="org.geoserver.gwc.dispatch"/>
+ * }
+ *
+ * @since 1.0
+ */
 @Configuration(proxyBeanMethods = true)
-@AutoConfigureAfter(GwcSedingWmsAutoConfiguration.class)
+@AutoConfigureAfter(SedingWMSAutoConfiguration.class)
 @ImportResource(
     reader = FilteringXmlBeanDefinitionReader.class, //
     locations = {
@@ -52,6 +86,14 @@ public class GwcCoreAutoConfiguration {
 
     private @Autowired ApplicationContext appContext;
     private @Value("${gwc.cache-directory:}") Path cacheDirectory;
+
+    static {
+        /*
+         * Disable disk-quota by brute force for now. We need to resolve how and where to store the
+         * configuration and database.
+         */
+        System.setProperty(DiskQuotaMonitor.GWC_DISKQUOTA_DISABLED, "true");
+    }
 
     @Bean
     GeoWebCacheController gwcController() {

@@ -2,7 +2,7 @@
  * (c) 2022 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
  * GPL 2.0 license, available at the root application directory.
  */
-package org.geoserver.cloud.autoconfigure.gwc;
+package org.geoserver.cloud.autoconfigure.gwc.integration;
 
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
 import org.springframework.context.annotation.Configuration;
@@ -14,4 +14,4 @@ import org.springframework.context.annotation.ImportResource;
     reader = FilteringXmlBeanDefinitionReader.class, //
     locations = {"jar:gs-gwc-.*!/geowebcache-geoserver-wmts-integration.xml"}
 )
-public class GwcWMTSAutoConfiguration {}
+public class WMTSIntegrationAutoConfiguration {}

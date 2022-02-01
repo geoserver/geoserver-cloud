@@ -2,7 +2,7 @@
  * (c) 2022 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
  * GPL 2.0 license, available at the root application directory.
  */
-package org.geoserver.cloud.autoconfigure.gwc;
+package org.geoserver.cloud.autoconfigure.gwc.integration;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -24,7 +24,7 @@ import org.springframework.context.annotation.Configuration;
 @AutoConfigureAfter(BusAutoConfiguration.class)
 @ConditionalOnGeoServerRemoteEventsEnabled
 @RemoteApplicationEventScan(basePackageClasses = {RemoteGeoWebCacheEvent.class})
-public class GwcEventBusAutoConfiguration {
+public class RemoteEventsAutoConfiguration {
 
     public @Bean GeoWebCacheRemoteEventsBroker tileLayerRemoteEventBroadcaster( //
             ApplicationEventPublisher eventPublisher, ServiceMatcher busServiceMatcher) {
