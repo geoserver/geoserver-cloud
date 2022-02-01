@@ -11,37 +11,25 @@ jobs:
       - ubuntu-latest
     timeout-minutes: 60
     steps:
-
-    - name: Checkout project
+    - name: Checkout
       uses: actions/checkout@v2
       with:
         submodules: recursive
-
-    - name: Set up Java 11
-      uses: actions/setup-java@v1
+    - name: Setup Java
+      uses: actions/setup-java@v2
       with:
-        java-version: 11
-
-    - name: Fetch maven cache
-      uses: actions/cache@v1.1.0
-      with:
-        path: ~/.m2/repository
-        key: gscloud-${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-        restore-keys: |
-          gscloud-${{ runner.os }}-maven-
-
-    - name: Clone GeoServer
-      run: |
-        git clone --depth 1 --branch geoserver-cloud_integration https://github.com/groldan/geoserver.git
-
-    - name: Set GeoServer version to 2.21-CLOUD
-      run: find . -name pom.xml|xargs sed -i 's/2.21-SNAPSHOT/2.21-CLOUD/g' 
+        distribution: 'temurin'
+        java-version: '11'
+        cache: 'maven'
 
     - name: Build GeoServer 2.21-CLOUD
-      run: ./mvnw -f ./geoserver/src/ install -PallExtensions,communityRelease --no-transfer-progress -DskipTests -Dfmt.skip -T1 
+      run: |
+        git clone --depth 1 --branch geoserver-cloud_integration https://github.com/groldan/geoserver.git
+        find . -name pom.xml|xargs sed -i 's/2.21-SNAPSHOT/2.21-CLOUD/g' 
+        ./mvnw -f ./geoserver/src/ install -PallExtensions,communityRelease --no-transfer-progress -DskipTests -Dfmt.skip -T1C 
 
-    - name: Update maven dependencies
-      run: ./mvnw -Dgs.version=2.21-CLOUD -Dgs.community.version=2.21-CLOUD -P\!docker de.qaware.maven:go-offline-maven-plugin:resolve-dependencies --no-transfer-progress
+#    - name: Update maven dependencies
+#      run: ./mvnw -Dgs.version=2.21-CLOUD -Dgs.community.version=2.21-CLOUD -P\!docker de.qaware.maven:go-offline-maven-plugin:resolve-dependencies --no-transfer-progress
 
     - name: Build without tests
       run: ./mvnw -Dgs.version=2.21-CLOUD -Dgs.community.version=2.21-CLOUD -P\!docker -ntp -Dfmt.action=check install -T1C -DskipTests
