@@ -2,7 +2,7 @@
  * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
  * GPL 2.0 license, available at the root application directory.
  */
-package org.geoserver.cloud.autoconfigure.gwc;
+package org.geoserver.cloud.autoconfigure.gwc.integration;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -42,10 +42,10 @@ import org.springframework.context.annotation.ImportResource;
     locations = { //
         "jar:gs-wms-.*!/applicationContext.xml#name=^(?!getMapKvpReader).*$", //
         "jar:gs-wfs-.*!/applicationContext.xml#name="
-                + GwcSedingWmsAutoConfiguration.WFS_BEANS_REGEX //
+                + SedingWMSAutoConfiguration.WFS_BEANS_REGEX //
     }
 )
-public class GwcSedingWmsAutoConfiguration {
+public class SedingWMSAutoConfiguration {
 
     static final String WFS_BEANS_REGEX =
             "^(gml.*OutputFormat|bboxKvpParser|xmlConfiguration.*|gml[1-9]*SchemaBuilder|wfsXsd.*|wfsSqlViewKvpParser).*$";
