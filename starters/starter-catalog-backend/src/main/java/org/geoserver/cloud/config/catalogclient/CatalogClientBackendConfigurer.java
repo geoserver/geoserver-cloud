@@ -50,7 +50,8 @@ public class CatalogClientBackendConfigurer implements GeoServerBackendConfigure
         return configClientFacade;
     }
 
-    public @Override @Bean CatalogClientResourceStore resourceStoreImpl() {
+    @Bean(name = {"resourceStoreImpl"})
+    public @Override CatalogClientResourceStore resourceStoreImpl() {
         CatalogClientResourceStore store = catalogServiceResourceStore;
         File cacheDirectory = configProps.getCatalogService().getCacheDirectory();
         if (null != cacheDirectory) {

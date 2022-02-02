@@ -42,10 +42,10 @@ import org.springframework.context.annotation.ImportResource;
     locations = { //
         "jar:gs-wms-.*!/applicationContext.xml#name=^(?!getMapKvpReader).*$", //
         "jar:gs-wfs-.*!/applicationContext.xml#name="
-                + SedingWMSAutoConfiguration.WFS_BEANS_REGEX //
+                + SeedingWMSAutoConfiguration.WFS_BEANS_REGEX //
     }
 )
-public class SedingWMSAutoConfiguration {
+public class SeedingWMSAutoConfiguration {
 
     static final String WFS_BEANS_REGEX =
             "^(gml.*OutputFormat|bboxKvpParser|xmlConfiguration.*|gml[1-9]*SchemaBuilder|wfsXsd.*|wfsSqlViewKvpParser).*$";

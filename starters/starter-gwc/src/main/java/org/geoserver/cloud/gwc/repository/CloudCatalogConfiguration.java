@@ -16,7 +16,7 @@ import org.geowebcache.grid.GridSetBroker;
 import org.springframework.context.event.EventListener;
 
 /** @since 1.0 */
-@Slf4j
+@Slf4j(topic = "org.geoserver.cloud.gwc.repository")
 public class CloudCatalogConfiguration extends CatalogConfiguration {
 
     private LoadingCache<String, GeoServerTileLayer> spyedLayerCache;

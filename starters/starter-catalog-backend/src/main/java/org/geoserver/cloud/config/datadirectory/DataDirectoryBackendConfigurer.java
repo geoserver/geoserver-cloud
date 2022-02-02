@@ -77,7 +77,8 @@ public class DataDirectoryBackendConfigurer implements GeoServerBackendConfigure
         return resourceLoader;
     }
 
-    public @Override @Bean ResourceStore resourceStoreImpl() {
+    @Bean(name = {"resourceStoreImpl"})
+    public @Override ResourceStore resourceStoreImpl() {
         final @NonNull File dataDirectory = dataDirectoryFile().toFile();
         NoServletContextDataDirectoryResourceStore store =
                 new NoServletContextDataDirectoryResourceStore(dataDirectory);
