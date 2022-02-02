@@ -4,9 +4,13 @@
  */
 package org.geoserver.cloud.autoconfigure.gwc.core;
 
+import static org.geowebcache.config.XMLFileResourceProvider.GWC_CONFIG_DIR_VAR;
+
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.function.Supplier;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -15,12 +19,14 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import lombok.extern.slf4j.Slf4j;
-import org.geoserver.cloud.autoconfigure.gwc.integration.SedingWMSAutoConfiguration;
+import org.geoserver.cloud.autoconfigure.gwc.integration.SeedingWMSAutoConfiguration;
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
 import org.geoserver.cloud.gwc.controller.GeoWebCacheController;
 import org.geoserver.cloud.gwc.repository.CloudGwcXmlConfiguration;
-import org.geoserver.gwc.config.GeoserverXMLResourceProvider;
+import org.geoserver.cloud.gwc.repository.CloudXMLResourceProvider;
+import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.ResourceStore;
+import org.geoserver.platform.resource.Resources;
 import org.geowebcache.config.ConfigurationException;
 import org.geowebcache.config.ConfigurationResourceProvider;
 import org.geowebcache.config.XMLConfiguration;
@@ -28,6 +34,8 @@ import org.geowebcache.diskquota.DiskQuotaMonitor;
 import org.geowebcache.storage.DefaultStorageFinder;
 import org.geowebcache.util.ApplicationContextProvider;
 import org.geowebcache.util.GWCVars;
+import org.springframework.beans.FatalBeanException;
+import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,6 +46,7 @@ import org.springframework.context.ApplicationContextException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
+import org.springframework.core.env.Environment;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 /**
@@ -74,7 +83,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
  * @since 1.0
  */
 @Configuration(proxyBeanMethods = true)
-@AutoConfigureAfter(SedingWMSAutoConfiguration.class)
+@AutoConfigureAfter(SeedingWMSAutoConfiguration.class)
 @ImportResource(
     reader = FilteringXmlBeanDefinitionReader.class, //
     locations = {
@@ -125,11 +134,49 @@ public class GwcCoreAutoConfiguration {
      * @param resourceStore
      * @throws ConfigurationException
      */
-    public @Bean GeoserverXMLResourceProvider gwcXmlConfigResourceProvider(
-            @Qualifier("resourceLoader") ResourceStore resourceStore)
+    public @Bean ConfigurationResourceProvider gwcXmlConfigResourceProvider(
+            @Qualifier("resourceStoreImpl") ResourceStore resourceStore)
             throws ConfigurationException {
-        String configFileName = "geowebcache.xml";
-        return new GeoserverXMLResourceProvider(configFileName, resourceStore);
+
+        Supplier<Resource> configDirectory = findConfigDirectory(resourceStore);
+        return new CloudXMLResourceProvider(configDirectory);
+    }
+
+    /**
+     * Only resolves the {@literal GEOWEBCACHE_CONFIG_DIR} environment variable, {@literal
+     * GEOWEBCACHE_CACHE_DIR} is not considered, for separation of concerns (i.e. keep config in
+     * {@link ResourceStore}, separate from cached tile images). If not provided, deafults to the
+     * resource store's {@literal /gwc} directory.
+     *
+     * @throws BeanInitializationException if the directory supplied through the {@literal
+     *     GEOWEBCACHE_CONFIG_DIR} is invalid
+     */
+    private Supplier<Resource> findConfigDirectory(ResourceStore resourceStore)
+            throws FatalBeanException {
+        Environment env = appContext.getEnvironment();
+        final String dirLocationEnvVar = GWC_CONFIG_DIR_VAR;
+        final String dirLocation = env.getProperty(dirLocationEnvVar);
+        if (null == dirLocation) {
+            log.debug(
+                    "no {} env variable found, gwc configuration will be loaded from the resource store's gwc/ directory",
+                    dirLocationEnvVar);
+            return () -> resourceStore.get("gwc");
+        }
+        log.info(
+                "found {} env variable, gwc configuration will be loaded from {}",
+                dirLocationEnvVar,
+                dirLocation);
+        File configurationDirectory = new File(dirLocation);
+        if (!configurationDirectory.isAbsolute()) {
+            throw new BeanInitializationException(
+                    "GEOWEBCACHE_CONFIG_DIR must point to an absolute path: " + dirLocation);
+        }
+        if (!configurationDirectory.isDirectory() || !configurationDirectory.canWrite()) {
+            throw new BeanInitializationException(
+                    dirLocation + " is not a directory or is not writable");
+        }
+        Resource resource = Resources.fromPath(configurationDirectory.getAbsolutePath());
+        return () -> resource;
     }
 
     /**

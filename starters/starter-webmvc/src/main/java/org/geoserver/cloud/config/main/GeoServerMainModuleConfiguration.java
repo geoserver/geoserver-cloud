@@ -64,11 +64,31 @@ import org.springframework.context.annotation.ImportResource;
 public class GeoServerMainModuleConfiguration {
 
     private static final String UNUSED_BEAN_NAMES =
-            "proxyfierHeaderCollector|proxyfierHeaderTransfer|proxyfier" //
-                    + "|fileLockProvider|memoryLockProvider|nullLockProvider|lockProviderInitializer";
+            "proxyfierHeaderCollector"
+                    + "|proxyfierHeaderTransfer"
+                    + "|proxyfier"
+                    + "|fileLockProvider"
+                    + "|memoryLockProvider"
+                    + "|nullLockProvider"
+                    + "|lockProviderInitializer";
 
     private static final String OVERRIDDEN_BEAN_NAMES =
-            "rawCatalog|secureCatalog|localWorkspaceCatalog|catalog|advertisedCatalog|accessRulesDao|catalogFacade|dataDirectory|extensions|geoServer|geoserverFacade|geoServerLoader|geoServerSecurityManager|resourceLoader|resourceStoreImpl|secureCatalog|xstreamPersisterFactory";
+            "rawCatalog"
+                    + "|secureCatalog"
+                    + "|localWorkspaceCatalog"
+                    + "|catalog"
+                    + "|advertisedCatalog"
+                    + "|accessRulesDao"
+                    + "|catalogFacade"
+                    + "|dataDirectory"
+                    + "|extensions"
+                    + "|geoServer"
+                    + "|geoserverFacade"
+                    + "|geoServerLoader"
+                    + "|geoServerSecurityManager"
+                    + "|resourceLoader"
+                    + "|resourceStoreImpl"
+                    + "|xstreamPersisterFactory";
 
     static final String EXCLUDE_BEANS_REGEX =
             "^(?!" + OVERRIDDEN_BEAN_NAMES + "|" + UNUSED_BEAN_NAMES + ").*$";

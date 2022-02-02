@@ -153,7 +153,8 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
     }
 
     @DependsOn({"extensions", "JDBCConfigDB", "jdbcConfigDataSourceStartupValidator"})
-    public @Override @Bean @NonNull ResourceStore resourceStoreImpl() {
+    @Bean(name = {"resourceStoreImpl"})
+    public @Override @NonNull ResourceStore resourceStoreImpl() {
         final JDBCConfigProperties jdbcConfigProperties = jdbcConfigProperties();
         final CloudJdbcStoreProperties jdbcStoreProperties = jdbcStoreProperties();
         final ConfigDatabase jdbcConfigDB = jdbcConfigDB();

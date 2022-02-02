@@ -42,7 +42,7 @@ import org.springframework.context.event.EventListener;
  *     and {@link BlobStoreEvent} appropriately.
  * @since 1.0
  */
-@Slf4j
+@Slf4j(topic = "org.geoserver.cloud.gwc.repository")
 public class CloudGwcXmlConfiguration extends XMLConfiguration {
 
     private final @NonNull Consumer<GeoWebCacheEvent> publisher;
