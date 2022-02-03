@@ -3,6 +3,9 @@ spring:
   cloud.config.discovery.enabled: false
 eureka.client.enabled: false
 
+gwc:
+  cache-directory: ${java.io.tmpdir}/gs-webui-tmp
+  
 geoserver:
   security.enabled: true
   backend:

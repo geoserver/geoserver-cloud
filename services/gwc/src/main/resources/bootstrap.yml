@@ -1,5 +1,17 @@
 gwc:
+  enabled: true
   cache-directory: ${GEOWEBCACHE_CACHE_DIR:${geoserver.backend.data-directory.location}/gwc}
+  rest-config: true
+  web-ui: true
+  services:
+    wmts: true
+    tms: true
+    wms: true
+    kml: false
+    gmaps: false
+    mgmaps: false
+  disk-quota:
+    enabeld: false
 
 info:
   component: GeoWebcache

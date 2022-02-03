@@ -2,21 +2,20 @@
  * (c) 2022 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
  * GPL 2.0 license, available at the root application directory.
  */
+package org.geoserver.cloud.autoconfigure.gwc.core;
+
+import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnGeoWebCacheEnabled;
+import org.geoserver.cloud.autoconfigure.gwc.GeoWebCacheConfigurationProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+
 /**
- * Upstream's {@literal applicatonContext.xml} is the following aggregate:
- *
- * <pre>
- * {@code
- * <beans>
- *   <import resource="geowebcache-servlet.xml" />
- *   <import resource="geowebcache-geoserver-context.xml" />
- *   <import resource="geowebcache-geoserver-wms-integration.xml" />
- *   <import resource="geowebcache-geoserver-wmts-integration.xml" />
- * </beans>
- * }
- * </pre>
+ * Replaces upstream's {@literal geowebcache-servlet.xml} which is an aggregate of several xml
+ * files.
  * <p>
- * In turn, {@literal geowebcache-servlet.xml} aggregates the following xml files:
+ * The original {@literal geowebcache-servlet.xml}:
+ *
  * <pre>
  * {@code
  *   <import resource="geowebcache-core-context.xml"/>
@@ -41,5 +40,19 @@
  *   </bean>
  *   <context:component-scan base-package="org.geoserver.gwc.dispatch"/>
  * }
+ *
+ * <p>
+ * This auto-configuration only integrates the minimal components to have gwc integrated with
+ * GeoServer, while allowing to disable certain components through configuration properties.
+ *
+ * @since 1.0
  */
-package org.geoserver.cloud.autoconfigure.gwc;
+@Configuration(proxyBeanMethods = true)
+@ConditionalOnGeoWebCacheEnabled
+@Import({ //
+    GwcCoreAutoConfiguration.class, //
+    GeoServerIntegrationAutoConfiguration.class, //
+    DiskQuotaAutoConfiguration.class
+})
+@EnableConfigurationProperties(GeoWebCacheConfigurationProperties.class)
+public class GeoWebCacheAutoConfiguration {}

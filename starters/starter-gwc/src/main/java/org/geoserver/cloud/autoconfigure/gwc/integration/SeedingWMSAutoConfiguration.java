@@ -1,5 +1,5 @@
 /*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
+ * (c) 2022 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
  * GPL 2.0 license, available at the root application directory.
  */
 package org.geoserver.cloud.autoconfigure.gwc.integration;
@@ -7,9 +7,12 @@ package org.geoserver.cloud.autoconfigure.gwc.integration;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import java.util.Map;
+import javax.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnGeoWebCacheEnabled;
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
 import org.geoserver.gwc.layer.GeoServerTileLayer;
 import org.geoserver.gwc.wms.CacheSeedingWebMapService;
@@ -24,7 +27,6 @@ import org.geoserver.wms.map.GetMapKvpRequestReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.ImportResource;
@@ -36,7 +38,7 @@ import org.springframework.context.annotation.ImportResource;
  * @since 1.0
  */
 @Configuration
-@ComponentScan
+@ConditionalOnGeoWebCacheEnabled
 @ImportResource( //
     reader = FilteringXmlBeanDefinitionReader.class, //
     locations = { //
@@ -45,10 +47,15 @@ import org.springframework.context.annotation.ImportResource;
                 + SeedingWMSAutoConfiguration.WFS_BEANS_REGEX //
     }
 )
+@Slf4j(topic = "org.geoserver.cloud.autoconfigure.gwc.integration")
 public class SeedingWMSAutoConfiguration {
 
     static final String WFS_BEANS_REGEX =
             "^(gml.*OutputFormat|bboxKvpParser|xmlConfiguration.*|gml[1-9]*SchemaBuilder|wfsXsd.*|wfsSqlViewKvpParser).*$";
+
+    public @PostConstruct void log() {
+        log.info("GeoWebCache internal WMS for seeding enabled");
+    }
 
     @Bean
     @Autowired
