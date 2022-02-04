@@ -32,6 +32,9 @@ jobs:
         java-version: '11'
         cache: 'maven'
 
+    - name: Validate source code formatting
+      run: ./mvnw fmt:check -ntp
+
     - name: Build GeoServer 2.21-CLOUD
       run: |
         git clone --depth 1 --branch geoserver-cloud_integration https://github.com/groldan/geoserver.git

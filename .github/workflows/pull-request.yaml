@@ -22,6 +22,9 @@ jobs:
         java-version: '11'
         cache: 'maven'
 
+    - name: Validate source code formatting
+      run: ./mvnw fmt:check -ntp
+
     - name: Build GeoServer 2.21-CLOUD
       run: |
         git clone --depth 1 --branch geoserver-cloud_integration https://github.com/groldan/geoserver.git
@@ -32,7 +35,7 @@ jobs:
 #      run: ./mvnw -Dgs.version=2.21-CLOUD -Dgs.community.version=2.21-CLOUD -P\!docker de.qaware.maven:go-offline-maven-plugin:resolve-dependencies --no-transfer-progress
 
     - name: Build without tests
-      run: ./mvnw -Dgs.version=2.21-CLOUD -Dgs.community.version=2.21-CLOUD -P\!docker -ntp -Dfmt.action=check install -T1C -DskipTests
+      run: ./mvnw -Dgs.version=2.21-CLOUD -Dgs.community.version=2.21-CLOUD -P\!docker -ntp -Dfmt.skip install -T1C -DskipTests
 
     - name: Test
       run: ./mvnw -Dgs.version=2.21-CLOUD -Dgs.community.version=2.21-CLOUD -P\!docker -ntp verify -T1C -fae
