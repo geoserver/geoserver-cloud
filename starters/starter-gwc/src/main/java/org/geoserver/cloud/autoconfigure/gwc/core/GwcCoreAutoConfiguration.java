@@ -4,12 +4,12 @@
  */
 package org.geoserver.cloud.autoconfigure.gwc.core;
 
-import static org.geowebcache.config.XMLFileResourceProvider.GWC_CONFIG_DIR_VAR;
+import static org.geowebcache.storage.DefaultStorageFinder.GWC_CACHE_DIR;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Optional;
 import java.util.function.Supplier;
 import javax.annotation.PostConstruct;
 import javax.servlet.Filter;
@@ -21,8 +21,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnGeoWebCacheEnabled;
+import org.geoserver.cloud.autoconfigure.gwc.GeoWebCacheConfigurationProperties;
 import org.geoserver.cloud.autoconfigure.gwc.integration.SeedingWMSAutoConfiguration;
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
+import org.geoserver.cloud.gwc.repository.CloudDefaultStorageFinder;
 import org.geoserver.cloud.gwc.repository.CloudGwcXmlConfiguration;
 import org.geoserver.cloud.gwc.repository.CloudXMLResourceProvider;
 import org.geoserver.platform.resource.Resource;
@@ -31,18 +33,15 @@ import org.geoserver.platform.resource.Resources;
 import org.geowebcache.config.ConfigurationException;
 import org.geowebcache.config.ConfigurationResourceProvider;
 import org.geowebcache.config.XMLConfiguration;
+import org.geowebcache.config.XMLFileResourceProvider;
 import org.geowebcache.storage.DefaultStorageFinder;
 import org.geowebcache.util.ApplicationContextProvider;
-import org.geowebcache.util.GWCVars;
 import org.springframework.beans.FatalBeanException;
+import org.springframework.beans.InvalidPropertyException;
 import org.springframework.beans.factory.BeanInitializationException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -58,14 +57,11 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 @ImportResource(
     reader = FilteringXmlBeanDefinitionReader.class, //
     locations = {
-        "jar:gs-gwc-.*!/geowebcache-core-context.xml#name=^(?!gwcXmlConfig|gwcDefaultStorageFinder|metastoreRemover).*$"
+        "jar:gs-gwc-.*!/geowebcache-core-context.xml#name=^(?!gwcXmlConfig|gwcDefaultStorageFinder|gwcGeoServervConfigPersister|metastoreRemover).*$"
     }
 )
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.gwc.core")
 public class GwcCoreAutoConfiguration {
-
-    private @Autowired ApplicationContext appContext;
-    private @Value("${gwc.cache-directory:}") Path cacheDirectory;
 
     public @PostConstruct void log() {
         log.info("GeoWebCache core integration enabled");
@@ -83,7 +79,85 @@ public class GwcCoreAutoConfiguration {
     }
 
     /**
+     * There's only one way to set the default cache directory, through the {@code
+     * gwc.cache-directory} config property, following standard spring-boot externalized
+     * configuration rules.
      *
+     * <p>The directory will be validated to be writable, or an attempt to create it will be made if
+     * it doesn't exist.
+     *
+     * <p>The {@literal GEOWEBCACHE_CACHE_DIR} System Property will be forced to the cache directory
+     * once validated, for interoperability with upstream's geowebcache lookup mechanism.
+     *
+     * @return
+     * @throws FatalBeanException if the {@code gwc.cache-directory} is not provided, is not a
+     *     writable directory, or can't be created
+     */
+    @Bean
+    Path gwcDefaultCacheDirectory(GeoWebCacheConfigurationProperties config) {
+        log.debug(
+                "resolving default cache directory from configuration property {}",
+                GeoWebCacheConfigurationProperties.CACHE_DIRECTORY);
+
+        final Path directory = config.getCacheDirectory();
+        final String propName = GeoWebCacheConfigurationProperties.CACHE_DIRECTORY;
+        if (null == directory) {
+            throw new InvalidPropertyException(
+                    GeoWebCacheConfigurationProperties.class,
+                    "cacheDirectory",
+                    propName + " is not set. The default cache directory MUST be provided.");
+        }
+        validateDirectory(directory, propName);
+
+        String path = directory.toAbsolutePath().toString();
+        log.info("forcing System Property {}={}", GWC_CACHE_DIR, path);
+        System.setProperty(GWC_CACHE_DIR, path);
+        return directory;
+    }
+
+    /**
+     * Resolves the location of the global {@literal geowebcache.xml} configuration file by checking
+     * the {@literal gwc.config-directory} spring-boot configuration property from {@link
+     * GeoWebCacheConfigurationProperties}.
+     *
+     * <p>This config setting is optional, and if unset defaults to the {@link ResourceStore}'s
+     * {@literal gwc/} directory.
+     *
+     * <p>The {@literal GEOWEBCACHE_CONFIG_DIR} environment variable has no effect, as it's only
+     * used by upstream's {@link XMLFileResourceProvider}, which we replace by {@link
+     * #gwcXmlConfigResourceProvider}.
+     *
+     * @throws BeanInitializationException if the directory supplied through the {@literal
+     *     gwc.config-directory} config property is invalid
+     */
+    @Bean
+    Supplier<Resource> gwcDefaultConfigDirectory(
+            GeoWebCacheConfigurationProperties config,
+            @Qualifier("resourceStoreImpl") ResourceStore resourceStore)
+            throws FatalBeanException {
+
+        final Path directory = config.getConfigDirectory();
+        final String propName = GeoWebCacheConfigurationProperties.CONFIG_DIRECTORY;
+        final Supplier<Resource> resource;
+        if (null == directory) {
+            log.debug(
+                    "no {} config property found, geowebcache.xml will be loaded from the resource store's gwc/ directory");
+            resource = () -> resourceStore.get("gwc");
+        } else {
+            log.debug(
+                    "resolving global geowebcache.xml parent directory from configured property {}={}",
+                    propName,
+                    directory);
+            validateDirectory(directory, propName);
+            log.info("geowebcache.xml will be loaded from {} as per {}", directory, propName);
+            final Resource res = Resources.fromPath(directory.toAbsolutePath().toString());
+            resource = () -> res;
+        }
+        return resource;
+    }
+
+    /**
+     * Replaces the upstream bean:
      *
      * <pre>{@code
      * <bean id="gwcXmlConfigResourceProvider" class=
@@ -93,52 +167,14 @@ public class GwcCoreAutoConfiguration {
      * </bean>
      * }</pre>
      *
-     * @param resourceStore
-     * @throws ConfigurationException
+     * With one that resolves the default {@literal geowebcache.xml} file from {@link
+     * #gwcDefaultConfigDirectory}
      */
     public @Bean ConfigurationResourceProvider gwcXmlConfigResourceProvider(
-            @Qualifier("resourceStoreImpl") ResourceStore resourceStore)
+            @Qualifier("gwcDefaultConfigDirectory") Supplier<Resource> gwcDefaultConfigDirectory)
             throws ConfigurationException {
 
-        Supplier<Resource> configDirectory = findConfigDirectory(resourceStore);
-        return new CloudXMLResourceProvider(configDirectory);
-    }
-
-    /**
-     * Only resolves the {@literal GEOWEBCACHE_CONFIG_DIR} environment variable, {@literal
-     * GEOWEBCACHE_CACHE_DIR} is not considered, for separation of concerns (i.e. keep config in
-     * {@link ResourceStore}, separate from cached tile images). If not provided, deafults to the
-     * resource store's {@literal /gwc} directory.
-     *
-     * @throws BeanInitializationException if the directory supplied through the {@literal
-     *     GEOWEBCACHE_CONFIG_DIR} is invalid
-     */
-    private Supplier<Resource> findConfigDirectory(ResourceStore resourceStore)
-            throws FatalBeanException {
-        Environment env = appContext.getEnvironment();
-        final String dirLocationEnvVar = GWC_CONFIG_DIR_VAR;
-        final String dirLocation = env.getProperty(dirLocationEnvVar);
-        if (null == dirLocation) {
-            log.debug(
-                    "no {} env variable found, gwc configuration will be loaded from the resource store's gwc/ directory",
-                    dirLocationEnvVar);
-            return () -> resourceStore.get("gwc");
-        }
-        log.info(
-                "found {} env variable, gwc configuration will be loaded from {}",
-                dirLocationEnvVar,
-                dirLocation);
-        File configurationDirectory = new File(dirLocation);
-        if (!configurationDirectory.isAbsolute()) {
-            throw new BeanInitializationException(
-                    "GEOWEBCACHE_CONFIG_DIR must point to an absolute path: " + dirLocation);
-        }
-        if (!configurationDirectory.isDirectory() || !configurationDirectory.canWrite()) {
-            throw new BeanInitializationException(
-                    dirLocation + " is not a directory or is not writable");
-        }
-        Resource resource = Resources.fromPath(configurationDirectory.getAbsolutePath());
-        return () -> resource;
+        return new CloudXMLResourceProvider(gwcDefaultConfigDirectory);
     }
 
     /**
@@ -169,40 +205,45 @@ public class GwcCoreAutoConfiguration {
      * in the {@code @ImportResource} declaration above, to make sure the cache directory
      * environment variable or system property is set up beforehand (GWC doesn't look it up in the
      * spring application context).
+     *
+     * @param defaultCacheDirectory
+     * @param environment
      */
-    public @Bean DefaultStorageFinder gwcDefaultStorageFinder( //
-            ApplicationContextProvider provider) {
-        initGeowebCacheDirEnvVariable();
-        return new DefaultStorageFinder(provider);
+    public @Bean DefaultStorageFinder gwcDefaultStorageFinder(
+            @Qualifier("gwcDefaultCacheDirectory") Path defaultCacheDirectory,
+            Environment environment) {
+        return new CloudDefaultStorageFinder(defaultCacheDirectory, environment);
     }
 
-    public void initGeowebCacheDirEnvVariable() {
-
-        final String cacheDirVar = DefaultStorageFinder.GWC_CACHE_DIR;
-        final String foundAsEnvOrSysProperty = findCacheDirAsEnvOrSysProperty();
-
-        if (null != foundAsEnvOrSysProperty) {
-            if (null != cacheDirectory) {
-                log.warn(
-                        "Ignoring gwc.cache-directory property, cache directory found as System Property or environment variable");
+    /** @param directory */
+    private void validateDirectory(Path directory, String configPropertyName) {
+        if (!directory.isAbsolute()) {
+            throw new BeanInitializationException(
+                    configPropertyName + " must be an absolute path: " + directory);
+        }
+        if (!Files.exists(directory)) {
+            try {
+                Path created = Files.createDirectory(directory);
+                log.info(
+                        "Created directory from config property {}: {}",
+                        configPropertyName,
+                        created);
+            } catch (FileAlreadyExistsException beatenByOtherInstance) {
+                // continue
+            } catch (IOException e) {
+                throw new BeanInitializationException(
+                        configPropertyName + " does not exist and can't be created: " + directory,
+                        e);
             }
-            return;
         }
-        if (null == cacheDirectory) {
-            throw new ApplicationContextException(
-                    "GeoWebCache cache directory not found as system property, "
-                            + "environment variable, or gwc.cache-directory "
-                            + "spring environment property");
+        if (!Files.isDirectory(directory)) {
+            throw new BeanInitializationException(
+                    configPropertyName + " is not a directory: " + directory);
         }
-        String path = cacheDirectory.toAbsolutePath().toString();
-        log.info("Forcing System Property {}={}", cacheDirVar, path);
-        System.setProperty(cacheDirVar, path);
-    }
-
-    private String findCacheDirAsEnvOrSysProperty() {
-        return Optional.ofNullable(
-                        GWCVars.findEnvVar(appContext, DefaultStorageFinder.GWC_CACHE_DIR))
-                .orElseGet(() -> GWCVars.findEnvVar(appContext, DefaultStorageFinder.GS_DATA_DIR));
+        if (!Files.isWritable(directory)) {
+            throw new BeanInitializationException(
+                    configPropertyName + " is not writable: " + directory);
+        }
     }
 
     /**
