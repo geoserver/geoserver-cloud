@@ -81,7 +81,7 @@ import org.opengis.util.InternationalString;
  * </code>
  * </pre>
  */
-@Slf4j
+@Slf4j(topic = "org.geoserver.jackson.databind.catalog")
 public class GeoServerCatalogModule extends SimpleModule {
     private static final long serialVersionUID = -8756800180255446679L;
 
