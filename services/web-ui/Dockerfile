@@ -20,9 +20,14 @@ LABEL maintainer="GeoServer PSC <geoserver-users@lists.sourceforge.net>"
 
 COPY --from=builder /usr/share/fonts/truetype/* /usr/share/fonts/truetype/
 
-RUN mkdir -p /opt/app/bin
-RUN mkdir -p /opt/app/data_directory && chmod 0777 /opt/app/data_directory
+# REVISIT: ideally webui shouldn't even have access to the geowebcache
+# directory, but since it needs to run a lot of gwc and gwc-gs integration
+# services, it might still need it.
+RUN mkdir -p /opt/app/bin /opt/app/data_directory /data/geowebcache
+RUN chmod 0777 /opt/app/data_directory /data/geowebcache
+
 VOLUME /opt/app/data_directory
+VOLUME /data/geowebcache
 
 WORKDIR /opt/app/bin
 ENV JAVA_OPTS=
