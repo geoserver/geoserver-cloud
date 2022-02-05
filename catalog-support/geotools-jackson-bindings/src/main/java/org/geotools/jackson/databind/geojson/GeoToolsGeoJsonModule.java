@@ -48,7 +48,7 @@ import org.locationtech.jts.geom.Polygon;
  *
  * TODO: supply an alternate, user defined, {@link GeometryFactory}
  */
-@Slf4j
+@Slf4j(topic = "org.geotools.jackson.databind.geojson")
 public class GeoToolsGeoJsonModule extends SimpleModule {
     private static final long serialVersionUID = 4898575169880138758L;
 

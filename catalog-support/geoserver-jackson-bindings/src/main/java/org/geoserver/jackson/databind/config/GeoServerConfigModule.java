@@ -50,7 +50,7 @@ import org.geoserver.wps.WPSInfo;
  * </code>
  * </pre>
  */
-@Slf4j
+@Slf4j(topic = "org.geoserver.jackson.databind.config")
 public class GeoServerConfigModule extends SimpleModule {
     private static final long serialVersionUID = -8756800180255446679L;
 

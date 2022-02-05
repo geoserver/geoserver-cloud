@@ -24,12 +24,14 @@
     <dependency>
       <groupId>org.geoserver</groupId>
       <artifactId>gs-gwc</artifactId>
+      <!--
       <exclusions>
         <exclusion>
           <artifactId>h2</artifactId>
           <groupId>com.h2database</groupId>
         </exclusion>
       </exclusions>
+-->
     </dependency>
     <dependency>
       <groupId>org.geoserver</groupId>

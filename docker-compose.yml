@@ -4,6 +4,7 @@ volumes:
   postgresql_config_data: # volume for postgresql data, used to store the geoserver config through jdbcconfig
   rabbitmq_data: # volume for rabbitmq data, so it doesn't create an anonymous one on each container
   postgis_data:
+  geowebcache_data:
   
 networks:
   gs-cloud-network:
@@ -275,6 +276,8 @@ services:
       RETRY_MAX_ATTEMPTS: 100
     networks:
       - gs-cloud-network
+    volumes:
+      - geowebcache_data:/data/geowebcache
     deploy:
       resources:
         limits:
@@ -290,6 +293,8 @@ services:
       RETRY_MAX_ATTEMPTS: 100
     networks:
       - gs-cloud-network
+    volumes:
+      - geowebcache_data:/data/geowebcache
     deploy:
       resources:
         limits:

@@ -49,6 +49,7 @@ public @Data class GeoWebCacheConfigurationProperties {
 
     public static final String ENABLED = "gwc.enabled";
     public static final String CACHE_DIRECTORY = "gwc.cache-directory";
+    public static final String CONFIG_DIRECTORY = "gwc.config-directory";
     public static final String WEBUI_ENABLED = "gwc.web-ui";
     public static final String RESTCONFIG_ENABLED = "gwc.rest-config";
     public static final String SERVICE_WMTS_ENABLED = "gwc.services.wmts";
@@ -71,6 +72,14 @@ public @Data class GeoWebCacheConfigurationProperties {
      * stored, unless a separate "Blob Store" is configured for a given Tile Layer.
      */
     private Path cacheDirectory;
+
+    /**
+     * Alternate parent directory for the global geowebcache.xml configuration file. If specified,
+     * must be an absolute path to a writable directory. An attempt to create it will be made if it
+     * doesn't exist. Defaults to null, meaning the GeoServer resource store's gwc/ directory will
+     * be used.
+     */
+    private Path configDirectory = null;
 
     /** Enables or disables the GWC user interface */
     private boolean webUi = false;

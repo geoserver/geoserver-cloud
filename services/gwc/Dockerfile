@@ -10,9 +10,11 @@ FROM adoptopenjdk:11-jre-openj9
 
 LABEL maintainer="GeoServer PSC <geoserver-users@lists.sourceforge.net>"
 
-VOLUME /opt/app/data_directory
+RUN mkdir -p /opt/app/bin /opt/app/data_directory /data/geowebcache
+RUN chmod 0777 /opt/app/data_directory /data/geowebcache
 
-RUN mkdir -p /opt/app/bin
+VOLUME /opt/app/data_directory
+VOLUME /data/geowebcache
 
 WORKDIR /opt/app/bin
 ENV JAVA_OPTS=
@@ -29,6 +31,6 @@ HEALTHCHECK \
 --timeout=5s \
 --start-period=30s \
 --retries=5 \
-CMD java -Xms4M -Xmx16M -jar BOOT-INF/lib/gs-cloud-docker-healthcheck-*-bin.jar || exit 1
+CMD curl -f -s -o /dev/null localhost:8081/actuator/health || exit 1
 
 CMD exec env USER_ID="$(id -u)" USER_GID="$(id -g)" java $JAVA_OPTS org.springframework.boot.loader.JarLauncher
