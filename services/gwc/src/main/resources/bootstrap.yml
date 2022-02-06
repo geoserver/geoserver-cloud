@@ -13,6 +13,12 @@ gwc:
   disk-quota:
     enabeld: false
 
+# gwc.context.suffix is used by gwc rest controllers
+# (e.g. @RequestMapping(path = "${gwc.context.suffix:}/rest"))
+# and usually loaded from gs-gwc.jar's application.properties.
+# This won't be the case since we declare spring.config.name=geoserver
+gwc.context.suffix: gwc
+
 info:
   component: GeoWebcache
   instance-id: ${spring.application.name}:${vcap.application.instance_id:${spring.application.instance_id:${spring.cloud.client.ip-address}}:${server.port}}
@@ -21,8 +27,18 @@ server:
   # Let spring-boot's ForwardedHeaderFilter take care of reflecting the client-originated protocol and address in the HttpServletRequest  
   forward-headers-strategy: framework
   servlet.context-path: /
-
+management.server.port: 8081
 spring:
+  config:
+    import:
+# import definition of common bootstrap configuration profiles    
+    - classpath:gs_cloud_bootstrap_profiles.yml
+# load externalized configuration from geoserver.yml
+    name: geoserver 
+# and always include the service specific settings from the profile
+  profiles.include: gwc_service 
+# also ask for geoserver.yml when loading the externalized config through a config-server
+  cloud.config.name: geoserver
   main:
     banner-mode: off
     allow-bean-definition-overriding: true
@@ -30,14 +46,6 @@ spring:
     web-application-type: servlet
   application:
     name: gwc-service
-  cloud:
-    config:
-      fail-fast: true
-      retry:
-        max-attempts: 20
-      discovery:
-        enabled: true
-        service-id: config-service
   autoconfigure:
     exclude:
       - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
@@ -47,31 +55,11 @@ spring:
       - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
       - org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration
 
-management:
-  server.port: 8081
-  endpoint.health.probes.enabled: true
-
-eureka:
-  instance:
-    hostname: ${spring.application.name}
-    instance-id: ${info.instance-id}
-    preferIpAddress: true
-    # how often the client sends heartbits to the server
-    lease-renewal-interval-in-seconds: 10
-  client:
-    enabled: true
-    registerWithEureka: true
-    fetchRegistry: true
-    registry-fetch-interval-seconds: 30
-    serviceUrl:
-      defaultZone: ${eureka.server.url:http://discovery:8761/eureka}
-    healthcheck:
-      enabled: false # must only be set to true in application.yml, not bootstrap
-
 logging.level:
     '[org.springframework.retry]': debug
+
 ---
+# local profile, used for development only. Other settings like config and eureka urls in gs_cloud_bootstrap_profiles.yml
 spring.config.activate.on-profile: local
-eureka.server.url: http://localhost:8761/eureka
 server.port: 9107
 management.server.port: 8107

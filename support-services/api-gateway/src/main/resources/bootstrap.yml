@@ -2,47 +2,31 @@ info:
   component: Gateway Service
   instance-id: ${spring.application.name}:${vcap.application.instance_id:${spring.application.instance_id:${spring.cloud.client.ip-address}}:${server.port}}
 
-server:
-  port: 8080
-        
+server.port: 8080
+management.server.port: 8081
 spring:
+  config:
+    import:
+    - classpath:gs_cloud_bootstrap_profiles.yml
+    name: gateway-service
+  cloud.config.name: gateway-service
   main:
     banner-mode: off
   application:
     name: gateway-service
-  cloud:
-    config:
-      fail-fast: true
-      retry:
-        max-attempts: 20
-      discovery:
-        enabled: true
-        service-id: config-service
-
-management:
-  endpoint.health.probes.enabled: true
-
-eureka:
-  instance:
-    hostname: ${spring.application.name}
-    instance-id: ${info.instance-id}
-    preferIpAddress: true
-    # how often the client sends heartbits to the server
-    lease-renewal-interval-in-seconds: 10
-  client:
-    enabled: true
-    registerWithEureka: true
-    fetchRegistry: true
-    registry-fetch-interval-seconds: 5
-    serviceUrl:
-      defaultZone: ${eureka.server.url:http://discovery:8761/eureka}
-    healthcheck:
-      enabled: false # must only be set to true in application.yml, not bootstrap
-
+  jmx.enabled: false
+#  autoconfigure:
+#    exclude:
+#      - org.springframework.cloud.loadbalancer.config.LoadBalancerAutoConfiguration
+#      - org.springframework.cloud.loadbalancer.config.BlockingLoadBalancerClientAutoConfiguration
+#      - org.springframework.cloud.loadbalancer.config.LoadBalancerCacheAutoConfiguration
+#      - org.springframework.cloud.loadbalancer.security.OAuth2LoadBalancerClientAutoConfiguration
+#      - org.springframework.cloud.loadbalancer.config.LoadBalancerStatsAutoConfiguration
 logging.level:
     '[org.springframework.retry]': debug
 
 ---
+# local profile, used for development only. Other settings like config and eureka urls in gs_cloud_bootstrap_profiles.yml
 spring.config.activate.on-profile: local
 server.port: 9000
-eureka.server.url: http://localhost:8761/eureka
+management.server.port: 9000

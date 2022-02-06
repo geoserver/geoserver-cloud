@@ -174,6 +174,8 @@ services:
       RETRY_MAX_ATTEMPTS: 100
     networks:
       - gs-cloud-network
+    ports:
+      - 9100:8080
     deploy:
       resources:
         limits:
@@ -193,6 +195,8 @@ services:
       - gs-cloud-network
     #tmpfs: #TODO: avoid runs creating volumes at all
     #  - /tmp
+    ports:
+      - 9101:8080
     deploy:
       resources:
         limits:
@@ -210,6 +214,8 @@ services:
       RETRY_MAX_ATTEMPTS: 100
     networks:
       - gs-cloud-network
+    ports:
+      - 9102:8080
     deploy:
       resources:
         limits:
@@ -227,6 +233,8 @@ services:
       RETRY_MAX_ATTEMPTS: 100
     networks:
       - gs-cloud-network
+    ports:
+      - 9103:8080
     deploy:
       resources:
         limits:
@@ -256,6 +264,8 @@ services:
       RETRY_MAX_ATTEMPTS: 100
     networks:
       - gs-cloud-network
+    ports:
+      - 9105:8080
     deploy:
       mode: replicated
       replicas: 1
@@ -278,6 +288,8 @@ services:
       - gs-cloud-network
     volumes:
       - geowebcache_data:/data/geowebcache
+    ports:
+      - 9106:8080
     deploy:
       resources:
         limits:
@@ -295,6 +307,8 @@ services:
       - gs-cloud-network
     volumes:
       - geowebcache_data:/data/geowebcache
+    ports:
+      - 9107:8080
     deploy:
       resources:
         limits:

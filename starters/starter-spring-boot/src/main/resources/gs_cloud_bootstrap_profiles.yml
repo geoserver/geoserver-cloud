@@ -1,0 +1,124 @@
+#eureka client disabled by default, use the discovery_eureka profile to enable it
+eureka.client.enabled: false
+
+# possibly externally provided short name for the location of
+# the config-service when the bootstrap_config_first profile is enabled
+config.server.url: http://config:8080
+
+# possibly externally provided short name for the location of
+# the config-service when the bootstrap_discovery_first profile is enabled
+# and the the discovery-service is eureka (discovery_eureka profile is enabled) 
+eureka.server.url: http://discovery:8761/eureka
+
+# This default configuration is the same than applying the config_first profile group
+# defined below.
+spring:
+  profiles:
+    group:
+      config_first:
+        - bootstrap_config_first
+        - discovery_eureka
+      discovery_first:
+        - bootstrap_discovery_first
+        - discovery_eureka
+      standalone:
+        - bootstrap_standalone
+        - discovery_none
+  cloud:
+    config:
+      enabled: true
+      fail-fast: true
+      retry.max-attempts: 20
+      uri:
+      - ${config.server.url}
+      discovery:
+        # discovery-first config mode disabled by default, use the discovery_first profile to enable it
+        enabled: false
+        service-id: config-service
+eureka:
+  instance:
+    hostname: ${spring.application.name}
+    instance-id: ${info.instance-id}
+    preferIpAddress: true
+    # how often the client sends heartbits to the server
+    lease-renewal-interval-in-seconds: 10
+  client:
+    enabled: true
+    registerWithEureka: true
+    fetchRegistry: true
+    registry-fetch-interval-seconds: 30
+    serviceUrl:
+      defaultZone: ${eureka.server.url}
+    healthcheck:
+      enabled: false # must only be set to true in application.yml, not bootstrap
+---
+#no config-service, load config from /etc/gscloud if it exists
+spring.config.activate.on-profile: bootstrap_standalone
+spring:
+  #config.additional-location: optional:file:/etc/gscloud/
+  config.location: file:/etc/gscloud/
+  cloud.config:
+    enabled: false
+---
+#config-first bootstrap, using config-service from ${config.server.url}
+spring.config.activate.on-profile: bootstrap_config_first
+spring:
+  cloud:
+    config:
+      enabled: true
+      discovery:
+        enabled: false
+      uri:
+      - ${config.server.url:http://localhost:8888}
+
+---
+#discovery-first bootstrap, first registers with discovery-service and 
+# gets the config-service url from it
+spring.config.activate.on-profile: bootstrap_discovery_first
+spring:
+  cloud:
+    config:
+      enabled: true
+      discovery:
+        enabled: true
+        service-id: config-service
+---
+# disables all known DiscoveryClient AutoConfigurations
+spring.config.activate.on-profile: discovery_none
+spring:
+  cloud:
+    config:
+      discovery:
+        enabled: false
+eureka.client.enabled: false
+---
+spring.config.activate.on-profile: discovery_eureka
+eureka:
+  instance:
+    hostname: ${spring.application.name}
+    instance-id: ${info.instance-id}
+    preferIpAddress: true
+    # how often the client sends heartbits to the server
+    lease-renewal-interval-in-seconds: 10
+  client:
+    enabled: true
+    registerWithEureka: true
+    fetchRegistry: true
+    registry-fetch-interval-seconds: 30
+    serviceUrl:
+      defaultZone: ${eureka.server.url}
+    healthcheck:
+      enabled: false # must only be set to true in application.yml, not bootstrap
+---
+spring.config.activate.on-profile: local
+# Profile used for local development, so an app launched from the IDE can participate in the cluster.
+# providing environment variables that otherwise would be given by docker-compose.yml
+# It is safe to remove this profile completely in a production deployment config.
+# Additionally, each service's bootstrap.yml must set the following properties in the "local" profile:
+# eureka.server.url: http://localhost:8761/eureka, server.port, and management.server.port if it ought to differ from server.port
+rabbitmq.host: localhost
+jdbcconfig.url: jdbc:postgresql://localhost:5432/geoserver_config
+jdbcconfig.username: geoserver
+jdbcconfig.password: geo5erver
+eureka.server.url: http://localhost:8761/eureka
+config.server.url: http://localhost:8888

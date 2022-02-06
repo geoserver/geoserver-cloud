@@ -9,13 +9,19 @@ server:
     threads:
       min-spare: 1
       max: 25
-
+management.server.port: 8081
 spring:
   config:
     name: config-service
-  profiles.active: native
-  main.banner-mode: off
-  application.name: config-service
+    import:
+    - classpath:gs_cloud_bootstrap_profiles.yml
+  profiles:
+    active: 
+      - native
+  main:
+    banner-mode: off
+  application:
+    name: config-service
   jmx.enabled: false
   cloud:
     config:
@@ -41,22 +47,6 @@ spring:
           search-locations:
           - ${config.native.path:file:./config}
 
-eureka:
-  instance:
-    appname: ${spring.application.name}
-    instance-id: ${info.instance-id}
-    prefer-ip-address: true
-    # how often the client sends heartbits to the server
-    lease-renewal-interval-in-seconds: 10
-  client:
-    enabled: true
-    register-with-eureka: true
-    fetch-registry: false
-    service-url:
-      defaultZone: ${eureka.server.url:http://discovery:8761/eureka} 
-    healthcheck:
-      enabled: false # must only be set to true in application.yml, not bootstrap
-
 management:
   endpoints:
     enabled-by-default: true
@@ -81,14 +71,10 @@ logging.level:
 
 ---
 spring.config.activate.on-profile: native
-spring:
-  cloud:
-    config:
-      server:
-        native:
-          fail-on-error: true
-          search-locations:
-          - ${config.native.path:file:./config}
+spring.cloud.config.server.native:
+  fail-on-error: true
+  search-locations:
+  - ${config.native.path:file:./config}
 
 ---
 spring.config.activate.on-profile: git
@@ -107,7 +93,7 @@ spring:
           # basedir: ${config.git.basedir:/tmp/git_config} # where to store the cloned repository, if unset, it'll use /tmp/config-repo-<randomid>
 
 ---
+# local profile, used for development only. Other settings like config and eureka urls in gs_cloud_bootstrap_profiles.yml
 spring.config.activate.on-profile: local
 server.port: 8888
-eureka.server.url: http://localhost:8761/eureka
 config.native.path: ${user.dir}/../../config

@@ -8,6 +8,7 @@ server:
     threads:
       min-spare: 1
       max: 25
+management.server.port: 8081
 spring:
   application:
     name: discovery-service
@@ -24,6 +25,7 @@ eureka:
     prefer-ip-address: true
     lease-expiration-duration-in-seconds: 15
   client:
+    enabled: true
     register-with-eureka: false
     fetch-registry: false
     serviceUrl:
