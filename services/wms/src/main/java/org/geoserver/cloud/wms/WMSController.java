@@ -1,6 +1,6 @@
-/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
- * This code is licensed under the GPL 2.0 license, available at the root
- * application directory.
+/*
+ * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
+ * GPL 2.0 license, available at the root application directory.
  */
 package org.geoserver.cloud.wms;
 
@@ -12,14 +12,21 @@ import javax.servlet.http.HttpServletResponse;
 import org.geoserver.ows.Dispatcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.view.RedirectView;
 
 public @Controller class WMSController {
 
     private @Autowired Dispatcher geoserverDispatcher;
 
     private @Autowired org.geoserver.ows.ClasspathPublisher classPathPublisher;
+
+    @GetMapping("/")
+    public RedirectView redirectRootToGetCapabilities() {
+        return new RedirectView("/wms?SERVICE=WMS&REQUEST=GetCapabilities");
+    }
 
     /**
      * Serve only WMS schemas and related resources from classpath.

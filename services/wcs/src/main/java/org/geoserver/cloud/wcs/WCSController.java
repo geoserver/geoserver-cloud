@@ -12,14 +12,21 @@ import javax.servlet.http.HttpServletResponse;
 import org.geoserver.ows.Dispatcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.view.RedirectView;
 
 public @Controller class WCSController {
 
     private @Autowired Dispatcher geoserverDispatcher;
 
     private @Autowired org.geoserver.ows.ClasspathPublisher classPathPublisher;
+
+    @GetMapping("/")
+    public RedirectView redirectRootToGetCapabilities() {
+        return new RedirectView("/wcs?SERVICE=WCS&REQUEST=GetCapabilities");
+    }
 
     /** Serve only WCS schemas from classpath (e.g. {@code /schemas/wcs/1.1.1/wcsAll.xsd}) */
     @RequestMapping(method = RequestMethod.GET, path = "/schemas/wcs/**")
