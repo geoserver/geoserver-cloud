@@ -6,21 +6,23 @@ package org.geoserver.cloud.app;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.util.unit.DataSize;
 
 /**
- * Auto configuration to log basic application info at {@link ApplicationReadyEvent app startup}
+ * Logs basic application info at {@link ApplicationReadyEvent app startup}
  *
- * <p>Expects the following properties be present in the {@link Environment}: {@literal
- * spring.application.name}, {@literal info.instance-id}.
+ * <p>Expects the following properties be present in the {@link Environment}:
+ *
+ * <pre>
+ *  {@literal spring.application.name}
+ *  {@literal info.instance-id}
+ * </pre>
  *
  * @since 1.0
  */
-@Configuration
 @Slf4j(topic = "org.geoserver.cloud.app")
 public class StartupLogger {
 

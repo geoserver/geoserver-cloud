@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-org.geoserver.cloud.app.StartupLogger
+org.geoserver.cloud.app.StartupLoggerAutoConfiguration
