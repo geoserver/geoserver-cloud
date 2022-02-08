@@ -51,8 +51,7 @@ eureka:
   client:
     enabled: true
     register-with-eureka: true
-    fetch-registry: true
-    registry-fetch-interval-seconds: 30
+    fetch-registry: false
     service-url:
       defaultZone: ${eureka.server.url:http://discovery:8761/eureka} 
     healthcheck:
