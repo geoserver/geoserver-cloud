@@ -60,6 +60,8 @@ public @Data class GeoWebCacheConfigurationProperties {
     public static final String SERVICE_MGMAPS_ENABLED = "gwc.services.mgmaps";
     public static final String DISKQUOTA_ENABLED = "gwc.disk-quota.enabled";
     public static final String DISKQUOTA_DATASOURCE = "gwc.disk-quota.data-source";
+    public static final String BLOBSTORE_S3_ENABLED = "gwc.blobstores.s3";
+    public static final String BLOBSTORE_AZURE_ENABLED = "gwc.blobstores.azure";
 
     /**
      * Enables the core GeoWebCache functionality and integration with GeoServer tile layers. All
@@ -90,6 +92,8 @@ public @Data class GeoWebCacheConfigurationProperties {
     private ServicesConfig services = new ServicesConfig();
 
     private DiskQuotaConfig diskQuota = new DiskQuotaConfig();
+
+    private BlobstoresConfig blobstores = new BlobstoresConfig();
 
     /**
      * Configure which tile services to load at startup time. These are not dynamic enablements for
@@ -138,6 +142,22 @@ public @Data class GeoWebCacheConfigurationProperties {
          * context.
          */
         private boolean mgmaps = false;
+    }
+
+    public static @Data class BlobstoresConfig {
+        /**
+         * Enables or disables support for Amazon-S3 BLOB Store. This is not a dynamic runtime
+         * setting, but an application container level one. Disabled BLOB stores won't even be
+         * loaded to the runtime context.
+         */
+        private boolean s3 = false;
+
+        /**
+         * Enables or disables support for Microsoft Azure BLOB Store. This is not a dynamic runtime
+         * setting, but an application container level one. Disabled BLOB stores won't even be
+         * loaded to the runtime context.
+         */
+        private boolean azure = false;
     }
 
     private static @Data class DiskQuotaConfig {
