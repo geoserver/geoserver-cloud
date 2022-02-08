@@ -9,7 +9,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import org.geoserver.gwc.web.GWCSettingsPage;
+import org.geowebcache.s3.S3BlobStoreConfigProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
@@ -17,9 +17,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
  * Conditionals:
  *
  * <ul>
- *   <li>The {@literal gs-web-gwc} jar is in the classpath
  *   <li>{@literal gwc.enabled=true}: Core gwc integration is enabled
- *   <li>{@literal geoserver.web-ui.gwc.enabled=true}: GeoServer gwc web-ui integration is enabled
+ *   <li>{@literal gs-gwc-s3-blob.jar}: is in the classpath
+ *   <li>{@literal gwc.blobstores.s3=true}: S3 blobstore integration is enabled
  * </ul>
  *
  * @since 1.0
@@ -28,10 +28,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Documented
 @ConditionalOnGeoWebCacheEnabled
-@ConditionalOnClass(GWCSettingsPage.class)
+@ConditionalOnClass(S3BlobStoreConfigProvider.class)
 @ConditionalOnProperty(
-    name = GoServerWebUIConfigurationProperties.ENABLED,
+    name = GeoWebCacheConfigurationProperties.BLOBSTORE_S3_ENABLED,
     havingValue = "true",
     matchIfMissing = false
 )
-public @interface ConditionalOnGeoServerWebUIEnabled {}
+public @interface ConditionalOnS3BlobstoreEnabled {}

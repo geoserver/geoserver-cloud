@@ -19,13 +19,11 @@ import org.geoserver.config.GeoServer;
 import org.geoserver.gwc.GWC;
 import org.geoserver.gwc.config.GWCConfig;
 import org.geoserver.gwc.web.GWCCapabilitiesHomePageProvider;
-import org.geoserver.gwc.web.GWCSettingsPage;
 import org.geoserver.gwc.wmts.WMTSInfo;
 import org.geoserver.web.CapabilitiesHomePageLinkProvider;
 import org.geoserver.web.CapabilitiesHomePagePanel;
 import org.geoserver.web.CapabilitiesHomePagePanel.CapsInfo;
 import org.geotools.util.Version;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -47,7 +45,6 @@ import org.springframework.context.annotation.ImportResource;
 @Configuration
 @ConditionalOnGeoServerWebUIEnabled
 @EnableConfigurationProperties(GoServerWebUIConfigurationProperties.class)
-@ConditionalOnClass(GWCSettingsPage.class)
 @ImportResource( //
     reader = FilteringXmlBeanDefinitionReader.class,
     locations = {
