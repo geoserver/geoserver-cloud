@@ -18,6 +18,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * geoserver:
  *   styling:
  *     css.enabled: true
+ *     mapbox.enabled: true
  *   wms:
  *     outputFormats:
  *       vectorTiles:
@@ -40,6 +41,7 @@ public @Data class WmsExtensionsConfigProperties {
 
     public static @Data class Styling {
         private EnabledProperty css = new EnabledProperty();
+        private EnabledProperty mapbox = new EnabledProperty();
     }
 
     public static @Data class Wms {

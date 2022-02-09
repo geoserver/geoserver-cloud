@@ -11,5 +11,11 @@ import org.springframework.context.annotation.Import;
 /** @since 1.0 */
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(WmsExtensionsConfigProperties.class)
-@Import(value = {CssStylingConfiguration.class, VectorTilesConfiguration.class})
+@Import(
+    value = {
+        CssStylingConfiguration.class,
+        MapBoxStylingConfiguration.class,
+        VectorTilesConfiguration.class
+    }
+)
 public class WmsExtensionsAutoConfiguration {}
