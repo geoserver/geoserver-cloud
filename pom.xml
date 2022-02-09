@@ -108,6 +108,11 @@
       </dependency>
       <dependency>
         <groupId>org.geoserver.cloud</groupId>
+        <artifactId>gs-cloud-starter-security</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud</groupId>
         <artifactId>gs-cloud-starter-jackson</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -358,6 +363,16 @@
         <version>${gs.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.geoserver.web</groupId>
+        <artifactId>gs-web-sec-core</artifactId>
+        <version>${gs.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver</groupId>
+        <artifactId>gs-rest</artifactId>
+        <version>${gs.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.geoserver</groupId>
         <artifactId>gs-restconfig</artifactId>
         <version>${gs.version}</version>
@@ -518,6 +533,11 @@
       <dependency>
         <groupId>org.geoserver.extension</groupId>
         <artifactId>gs-vectortiles</artifactId>
+        <version>${gs.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.extension</groupId>
+        <artifactId>gs-authkey</artifactId>
         <version>${gs.version}</version>
       </dependency>
       <dependency>
