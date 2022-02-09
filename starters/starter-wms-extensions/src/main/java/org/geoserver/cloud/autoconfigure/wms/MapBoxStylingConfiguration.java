@@ -4,12 +4,10 @@
  */
 package org.geoserver.cloud.autoconfigure.wms;
 
-import org.apache.batik.svggen.StyleHandler;
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
-import org.geoserver.community.css.web.CssHandler;
+import org.geoserver.community.mbstyle.MBStyleHandler;
 import org.geoserver.platform.ModuleStatus;
 import org.geoserver.platform.ModuleStatusImpl;
-import org.geotools.styling.css.CssParser;
 import org.geotools.util.Version;
 import org.geotools.util.factory.GeoTools;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -22,47 +20,44 @@ import org.springframework.context.annotation.ImportResource;
 
 /** @since 1.0 */
 @Configuration
-@Import(value = {CssStylingConfiguration.Enabled.class, CssStylingConfiguration.Disabled.class})
-class CssStylingConfiguration {
+@Import(
+    value = {MapBoxStylingConfiguration.Enabled.class, MapBoxStylingConfiguration.Disabled.class}
+)
+class MapBoxStylingConfiguration {
 
-    @ConditionalOnBean(name = "sldHandler")
+    @Configuration
+    @ConditionalOnBean(name = "sldHandler") // sldHandler is MBStyleHandler's constructor arg
     @ConditionalOnProperty(
-        name = "geoserver.styling.css.enabled",
+        name = "geoserver.styling.mapbox.enabled",
         havingValue = "true",
         matchIfMissing = true
     )
-    @ConditionalOnClass(CssHandler.class)
+    @ConditionalOnClass(MBStyleHandler.class)
     @ImportResource( //
         reader = FilteringXmlBeanDefinitionReader.class, //
-        locations = {"jar:gs-css-.*!/applicationContext.xml"}
+        locations = {"jar:gs-mbstyle-.*!/applicationContext.xml"}
     )
     static class Enabled {}
 
-    /**
-     * {@link CssHandler} is both a {@link StyleHandler} and a {@link ModuleStatus}. This config
-     * engages when css is disabled and provides a {@link ModuleStatus} with {@link
-     * ModuleStatus#isEnabled() == false}
-     *
-     * @since 1.0
-     */
-    @ConditionalOnBean(name = "sldHandler")
+    @Configuration
     @ConditionalOnProperty(
-        name = "geoserver.styling.css.enabled",
+        name = "geoserver.styling.mapbox.enabled",
         havingValue = "false",
         matchIfMissing = false
     )
+    @ConditionalOnClass(MBStyleHandler.class)
     static class Disabled {
 
-        public @Bean ModuleStatus cssDisabledModuleStatus() {
+        public @Bean(name = "MBStyleExtension") ModuleStatus mbStyleDisabledModuleStatus() {
             ModuleStatusImpl mod = new ModuleStatusImpl();
             mod.setAvailable(true);
             mod.setEnabled(false);
             mod.setMessage(
-                    "CSS module disabled through config property geoserver.styling.css.enabled=false");
-            mod.setComponent("GeoServer CSS Styling");
-            mod.setModule("gs-css");
-            mod.setName("CSS");
-            Version v = GeoTools.getVersion(CssParser.class);
+                    "MapBox Styling module disabled through config property geoserver.styling.mapbox.enabled=false");
+            mod.setComponent("MBStyle plugin");
+            mod.setModule("gs-mbstyle");
+            mod.setName("MBStyle Extension");
+            Version v = GeoTools.getVersion(MBStyleHandler.class);
             mod.setVersion(v == null ? null : v.toString());
             return mod;
         }
