@@ -11,6 +11,7 @@ volumes:
       #o: bind
       #device: $PWD/datadir
   rabbitmq_data: # volume for rabbitmq data, so it doesn't create an anonymous one on each container
+  geowebcache_data: # used by gwc and web-ui to locate the default gwc tile cache directory
   
 networks:
   gs-cloud-network:
@@ -204,10 +205,31 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: "datadir"
       GEOSERVER_DATA_DIR: /opt/app/data_directory
+      GEOWEBCACHE_CACHE_DIR: /data/geowebcache
     volumes:
       - shared_data_directory:/opt/app/data_directory
+      - geowebcache_data:/data/geowebcache
     networks:
       - gs-cloud-network
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+  gwc:
+    image: geoservercloud/geoserver-cloud-gwc:1.0-RC10
+    user: 1000:1000 # set the userid:groupid the container runs as
+    depends_on:
+      - config
+    environment:
+      SPRING_PROFILES_ACTIVE: "datadir"
+      GEOSERVER_DATA_DIR: /opt/app/data_directory
+      GEOWEBCACHE_CACHE_DIR: /data/geowebcache
+    networks:
+      - gs-cloud-network
+    volumes:
+      - shared_data_directory:/opt/app/data_directory
+      - geowebcache_data:/data/geowebcache
     deploy:
       resources:
         limits:

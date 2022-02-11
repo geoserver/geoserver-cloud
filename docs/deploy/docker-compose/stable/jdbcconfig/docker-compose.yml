@@ -3,6 +3,7 @@ version: "3.8"
 volumes:
   postgresql_config_data: # volume for postgresql data, used to store the geoserver config through jdbcconfig
   rabbitmq_data: # volume for rabbitmq data, so it doesn't create an anonymous one on each container
+  geowebcache_data: # used by gwc and web-ui to locate the default gwc tile cache directory
   
 networks:
   gs-cloud-network:
@@ -201,8 +202,26 @@ services:
       - rabbitmq
     environment:
       SPRING_PROFILES_ACTIVE: "jdbcconfig"
+      GEOWEBCACHE_CACHE_DIR: /data/geowebcache
     networks:
       - gs-cloud-network
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+  gwc:
+    image: geoservercloud/geoserver-cloud-gwc:1.0-RC10
+    user: 1000:1000 # set the userid:groupid the container runs as
+    depends_on:
+      - config
+    environment:
+      SPRING_PROFILES_ACTIVE: "jdbcconfig"
+      GEOWEBCACHE_CACHE_DIR: /data/geowebcache
+    networks:
+      - gs-cloud-network
+    volumes:
+      - geowebcache_data:/data/geowebcache
     deploy:
       resources:
         limits:

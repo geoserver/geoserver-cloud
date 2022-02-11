@@ -46,7 +46,7 @@ podman run $STD_OPTS --name=admin-server \
 
 mkdir -p datadir
 #for i in webui wms wfs wcs rest
-for i in webui wms wfs
+for i in webui wms wfs wcs rest gwc
 do
   echo Starting $i:$GSCLOUD_VERSION...
   podman run $STD_OPTS --name=$i \
