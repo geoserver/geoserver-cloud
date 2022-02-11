@@ -15,7 +15,7 @@
     <module>integration-tests</module>
   </modules>
   <properties>
-    <revision>1.0-SNAPSHOT</revision>
+    <revision>1.0-RC10</revision>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
     <spring-cloud.version>2021.0.0</spring-cloud.version>
@@ -23,8 +23,8 @@
     <spring-native.version>0.11.0</spring-native.version>
     <native-buildtools.version>0.9.8</native-buildtools.version>
     <feign-reactor.version>3.1.5</feign-reactor.version>
-    <gs.version>2.21-SNAPSHOT</gs.version>
-    <gs.community.version>2.21-SNAPSHOT</gs.community.version>
+    <gs.version>2.21-CLOUD</gs.version>
+    <gs.community.version>2.21-CLOUD</gs.community.version>
     <gt.version>27-SNAPSHOT</gt.version>
     <lombok.version>1.18.22</lombok.version>
     <mapstruct.version>1.4.2.Final</mapstruct.version>
