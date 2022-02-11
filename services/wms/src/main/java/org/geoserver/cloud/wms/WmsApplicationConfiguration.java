@@ -19,13 +19,24 @@ import org.springframework.context.annotation.ImportResource;
     locations = { //
         "jar:gs-wms-.*!/applicationContext.xml", //
         "jar:gs-wfs-.*!/applicationContext.xml#name="
-                + WmsApplicationConfiguration.WFS_BEANS_REGEX //
+                + WmsApplicationConfiguration.WFS_INCLUDED_BEANS_REGEX //
     }
 )
 public class WmsApplicationConfiguration {
 
-    static final String WFS_BEANS_REGEX =
-            "^(gml.*OutputFormat|bboxKvpParser|xmlConfiguration.*|gml[1-9]*SchemaBuilder|wfsXsd.*|wfsSqlViewKvpParser).*$";
+    static final String WFS_INCLUDED_BEANS_REGEX =
+            "^(gml.*OutputFormat"
+                    + "|bboxKvpParser"
+                    + "|featureIdKvpParser"
+                    + "|filter.*_KvpParser"
+                    + "|cqlKvpParser"
+                    + "|maxFeatureKvpParser"
+                    + "|sortByKvpParser"
+                    + "|xmlConfiguration.*"
+                    + "|gml[1-9]*SchemaBuilder"
+                    + "|wfsXsd.*"
+                    + "|wfsSqlViewKvpParser"
+                    + ").*$";
 
     public @Bean WFSConfiguration wfsConfiguration(GeoServer geoServer) {
         FeatureTypeSchemaBuilder schemaBuilder = new FeatureTypeSchemaBuilder.GML3(geoServer);
