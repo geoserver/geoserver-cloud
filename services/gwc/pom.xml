@@ -21,11 +21,15 @@
     </dependency>
     <dependency>
       <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-starter-gwc</artifactId>
+      <artifactId>gs-cloud-starter-webmvc</artifactId>
     </dependency>
     <dependency>
       <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-starter-webmvc</artifactId>
+      <artifactId>gs-cloud-starter-security</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-starter-gwc</artifactId>
     </dependency>
     <dependency>
       <groupId>org.geoserver</groupId>

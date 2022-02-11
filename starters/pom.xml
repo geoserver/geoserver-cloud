@@ -19,6 +19,7 @@
     <module>starter-reactive</module>
     <module>starter-wms-extensions</module>
     <module>starter-gwc</module>
+    <module>starter-security</module>
   </modules>
   <dependencies>
     <dependency>

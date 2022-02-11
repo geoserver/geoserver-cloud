@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.geoserver.cloud</groupId>
+    <artifactId>gs-cloud-starters</artifactId>
+    <version>${revision}</version>
+  </parent>
+  <artifactId>gs-cloud-starter-security</artifactId>
+  <packaging>jar</packaging>
+  <description>Curated Autoconfigurations of supported AuthZN extensions</description>
+  <dependencies>
+    <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-spring-boot-starter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.extension</groupId>
+      <artifactId>gs-authkey</artifactId>
+      <exclusions>
+        <exclusion>
+          <artifactId>gs-rest</artifactId>
+          <groupId>org.geoserver</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>gs-web-sec-core</artifactId>
+          <groupId>org.geoserver.web</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver</groupId>
+      <artifactId>gs-rest</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.web</groupId>
+      <artifactId>gs-web-sec-core</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <!-- need it on the classpath just to avoid ClassNotFoundExceptions when loading some GeoServer bean definitions -->
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-configuration-processor</artifactId>
+      <optional>true</optional>
+    </dependency>
+  </dependencies>
+</project>
