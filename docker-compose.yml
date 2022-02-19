@@ -88,8 +88,8 @@ services:
   # microservices. Being a Discovery First Bootstrap configuration, it'll
   # register itself with the Eureka discovery service and can be scaled
   config:
-    image: geoservercloud/geoserver-cloud-config:${TAG}
-    #image: geoservercloud/geoserver-cloud-config:${TAG}-native
+    #image: geoservercloud/geoserver-cloud-config:${TAG}
+    image: geoservercloud/geoserver-cloud-config:${TAG}-native
     user: ${GS_USER}
     depends_on:
       - discovery
