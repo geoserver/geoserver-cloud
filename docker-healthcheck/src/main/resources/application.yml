@@ -1,4 +1,0 @@
-logging:
-  level:
-    root: off
-    org.geoserver.cloud.healthchek: ${log.level:info}
