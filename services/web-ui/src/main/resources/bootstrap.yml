@@ -46,6 +46,11 @@ spring:
       - org.geoserver.cloud.autoconfigure.gwc.service.RESTConfigAutoConfiguration
       - org.geoserver.cloud.autoconfigure.web.gwc.GeoWebCacheUIAutoConfiguration
 
+# same as default of true, this service does use the registry (when eureka client is enabled)
+eureka.client:
+  fetch-registry: true
+  registry-fetch-interval-seconds: 10
+
 geoserver:
   styling:
     css.enabled: true

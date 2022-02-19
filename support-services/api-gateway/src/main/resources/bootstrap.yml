@@ -25,6 +25,11 @@ spring:
 logging.level:
     '[org.springframework.retry]': debug
 
+# this service uses the registry (when eureka client is enabled)
+eureka.client:
+  fetch-registry: true
+  registry-fetch-interval-seconds: 5
+
 ---
 # local profile, used for development only. Other settings like config and eureka urls in gs_cloud_bootstrap_profiles.yml
 spring.config.activate.on-profile: local
