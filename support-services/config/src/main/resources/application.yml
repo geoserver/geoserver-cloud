@@ -47,6 +47,9 @@ spring:
           search-locations:
           - ${config.native.path:file:./config}
 
+# override default of true, this service does not use the registry (when eureka client is enabled)
+eureka.client.fetch-registry: false
+
 management:
   endpoints:
     enabled-by-default: true

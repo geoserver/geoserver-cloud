@@ -45,8 +45,7 @@ eureka:
   client:
     enabled: true
     registerWithEureka: true
-    fetchRegistry: true
-    registry-fetch-interval-seconds: 30
+    #registry-fetch-interval-seconds: 10
     serviceUrl:
       defaultZone: ${eureka.server.url}
     healthcheck:
@@ -103,8 +102,7 @@ eureka:
   client:
     enabled: true
     registerWithEureka: true
-    fetchRegistry: true
-    registry-fetch-interval-seconds: 30
+    registry-fetch-interval-seconds: 10
     serviceUrl:
       defaultZone: ${eureka.server.url}
     healthcheck:

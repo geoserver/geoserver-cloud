@@ -34,6 +34,9 @@ spring:
       - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
       - org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration
 
+# override default of true, this service does not use the registry (when eureka client is enabled)
+eureka.client.fetch-registry: false
+
 logging.level:
     '[org.springframework.retry]': debug
 

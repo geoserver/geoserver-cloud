@@ -31,6 +31,9 @@ spring:
         enabled: false
         service-id: config-service
 
+# override default of false, this service uses the registry (when eureka client is enabled)
+eureka.client.fetch-registry: true
+
 logging.level:
     '[org.springframework.retry]': debug
 
