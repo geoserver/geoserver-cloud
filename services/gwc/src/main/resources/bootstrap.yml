@@ -26,7 +26,13 @@ server:
   port: 8080
   # Let spring-boot's ForwardedHeaderFilter take care of reflecting the client-originated protocol and address in the HttpServletRequest  
   forward-headers-strategy: framework
-  servlet.context-path: /
+  servlet:
+    context-path: /
+    session:
+      tracking-modes: COOKIE
+      cookie:
+        name: JSESSIONID_${spring.application.name}
+        http-only: true
 management.server.port: 8081
 spring:
   config:
