@@ -16,6 +16,7 @@ public class RemoteBlobStoreEvent extends RemoteGeoWebCacheEvent {
     private static final long serialVersionUID = 1L;
 
     private @Getter @Setter String blobStoreId;
+    private @Getter @Setter String oldName;
 
     public RemoteBlobStoreEvent(Object source, @NonNull String originService) {
         super(source, originService);
