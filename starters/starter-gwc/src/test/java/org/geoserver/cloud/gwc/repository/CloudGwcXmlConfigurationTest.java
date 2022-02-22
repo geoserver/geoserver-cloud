@@ -13,7 +13,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,6 +25,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.geoserver.cloud.gwc.event.BlobStoreEvent;
 import org.geoserver.cloud.gwc.event.GeoWebCacheEvent;
 import org.geoserver.cloud.gwc.event.GridsetEvent;
+import org.geowebcache.azure.AzureBlobStoreInfo;
+import org.geowebcache.config.BlobStoreConfigurationListener;
 import org.geowebcache.config.BlobStoreInfo;
 import org.geowebcache.config.ConfigurationResourceProvider;
 import org.geowebcache.config.DefaultGridsets;
@@ -254,6 +258,11 @@ class CloudGwcXmlConfigurationTest {
         final CloudGwcXmlConfiguration local = this.config;
         final CloudGwcXmlConfiguration remote = createStubConfig();
 
+        BlobStoreConfigurationListener localListener = mock(BlobStoreConfigurationListener.class);
+        BlobStoreConfigurationListener remoteListener = mock(BlobStoreConfigurationListener.class);
+        local.addBlobStoreListener(localListener);
+        remote.addBlobStoreListener(remoteListener);
+
         BlobStoreInfo bsi = new FileBlobStoreInfo("test");
 
         assertFalse(remote.getBlobStore(bsi.getName()).isPresent());
@@ -262,6 +271,7 @@ class CloudGwcXmlConfigurationTest {
         remote.addBlobStore(bsi);
         assertTrue(remote.getBlobStore(bsi.getName()).isPresent());
         assertFalse(local.getBlobStore(bsi.getName()).isPresent());
+        verify(remoteListener).handleAddBlobStore(eq(bsi));
 
         final Object unknownSource = new Object();
         BlobStoreEvent event = new BlobStoreEvent(unknownSource);
@@ -271,14 +281,19 @@ class CloudGwcXmlConfigurationTest {
         local.onBlobStoreEvent(event);
         BlobStoreInfo actual = local.getBlobStore(bsi.getName()).orElse(null);
         assertEquals(bsi, actual);
+        verify(localListener).handleAddBlobStore(eq(bsi));
     }
 
     @Test
-    void testOnBlobStoreEvent_Modified() throws Exception {
+    void testOnBlobStoreEvent_Modified_FileBlobStore() throws Exception {
         final CloudGwcXmlConfiguration local = this.config;
         final CloudGwcXmlConfiguration remote = createStubConfig();
+        BlobStoreConfigurationListener localListener = mock(BlobStoreConfigurationListener.class);
+        BlobStoreConfigurationListener remoteListener = mock(BlobStoreConfigurationListener.class);
+        local.addBlobStoreListener(localListener);
+        remote.addBlobStoreListener(remoteListener);
 
-        BlobStoreInfo bsi = new FileBlobStoreInfo("test");
+        FileBlobStoreInfo bsi = new FileBlobStoreInfo("test");
         remote.addBlobStore(bsi);
         local.deinitialize();
         local.afterPropertiesSet();
@@ -288,7 +303,10 @@ class CloudGwcXmlConfigurationTest {
 
         bsi.setDefault(!bsi.isDefault());
         bsi.setEnabled(!bsi.isEnabled());
+        bsi.setBaseDirectory("/tmp/newdir");
+
         remote.modifyBlobStore(bsi);
+        verify(remoteListener).handleModifyBlobStore(eq(bsi));
 
         final Object unknownSource = new Object();
         BlobStoreEvent event = new BlobStoreEvent(unknownSource);
@@ -298,6 +316,55 @@ class CloudGwcXmlConfigurationTest {
         local.onBlobStoreEvent(event);
         BlobStoreInfo actual = local.getBlobStore(bsi.getName()).orElse(null);
         assertEquals(bsi, actual);
+        verify(localListener).handleModifyBlobStore(eq(bsi));
+    }
+
+    @Test
+    void testOnBlobStoreEvent_Modified_AzureBlobStore() throws Exception {
+        final CloudGwcXmlConfiguration local = this.config;
+        final CloudGwcXmlConfiguration remote = createStubConfig();
+        BlobStoreConfigurationListener localListener = mock(BlobStoreConfigurationListener.class);
+        BlobStoreConfigurationListener remoteListener = mock(BlobStoreConfigurationListener.class);
+        local.addBlobStoreListener(localListener);
+        remote.addBlobStoreListener(remoteListener);
+
+        AzureBlobStoreInfo bsi = new AzureBlobStoreInfo();
+        bsi.setAccountKey("fake-key");
+        bsi.setAccountName("fake-name");
+        bsi.setContainer("fake-container");
+        bsi.setName("fake-azure-store");
+        bsi.setPrefix("/gwc/fake");
+        bsi.setServiceURL("http://fake");
+
+        remote.addBlobStore(bsi);
+
+        local.deinitialize();
+        local.afterPropertiesSet();
+
+        assertTrue(remote.getBlobStore(bsi.getName()).isPresent());
+        assertTrue(local.getBlobStore(bsi.getName()).isPresent());
+
+        bsi.setDefault(!bsi.isDefault());
+        bsi.setEnabled(!bsi.isEnabled());
+        bsi.setAccountKey("fake-key-modified");
+        bsi.setAccountName("fake-name-modified");
+        bsi.setContainer("fake-container-modified");
+        bsi.setName("fake-azure-store-modified");
+        bsi.setPrefix("/gwc/fake/modified");
+        bsi.setServiceURL("http://fake/modified");
+
+        remote.modifyBlobStore(bsi);
+        verify(remoteListener).handleModifyBlobStore(eq(bsi));
+
+        final Object unknownSource = new Object();
+        BlobStoreEvent event = new BlobStoreEvent(unknownSource);
+        event.setBlobStoreId(bsi.getName());
+        event.setEventType(MODIFIED);
+
+        local.onBlobStoreEvent(event);
+        BlobStoreInfo actual = local.getBlobStore(bsi.getName()).orElse(null);
+        assertEquals(bsi, actual);
+        verify(localListener).handleModifyBlobStore(eq(bsi));
     }
 
     @Test
@@ -336,6 +403,11 @@ class CloudGwcXmlConfigurationTest {
         final CloudGwcXmlConfiguration local = this.config;
         final CloudGwcXmlConfiguration remote = createStubConfig();
 
+        BlobStoreConfigurationListener localListener = mock(BlobStoreConfigurationListener.class);
+        BlobStoreConfigurationListener remoteListener = mock(BlobStoreConfigurationListener.class);
+        local.addBlobStoreListener(localListener);
+        remote.addBlobStoreListener(remoteListener);
+
         BlobStoreInfo bsi = new FileBlobStoreInfo("test");
         remote.addBlobStore(bsi);
         local.deinitialize();
@@ -347,6 +419,7 @@ class CloudGwcXmlConfigurationTest {
         remote.removeBlobStore(bsi.getName());
         assertFalse(remote.getBlobStore(bsi.getName()).isPresent());
         assertTrue(local.getBlobStore(bsi.getName()).isPresent());
+        verify(remoteListener).handleRemoveBlobStore(eq(bsi));
 
         final Object unknownSource = new Object();
         BlobStoreEvent event = new BlobStoreEvent(unknownSource);
@@ -355,6 +428,7 @@ class CloudGwcXmlConfigurationTest {
 
         local.onBlobStoreEvent(event);
         assertFalse(local.getBlobStore(bsi.getName()).isPresent());
+        verify(localListener).handleRemoveBlobStore(eq(bsi));
     }
 
     private void expect(GridsetEvent expected) {

@@ -20,6 +20,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.geoserver.cloud.gwc.event.BlobStoreEvent;
 import org.geoserver.cloud.gwc.event.GeoWebCacheEvent;
 import org.geoserver.cloud.gwc.event.GridsetEvent;
@@ -27,6 +28,7 @@ import org.geowebcache.GeoWebCacheException;
 import org.geowebcache.config.BlobStoreConfigurationListener;
 import org.geowebcache.config.BlobStoreInfo;
 import org.geowebcache.config.ConfigurationResourceProvider;
+import org.geowebcache.config.ListenerCollection;
 import org.geowebcache.config.XMLConfiguration;
 import org.geowebcache.config.meta.ServiceInformation;
 import org.geowebcache.grid.GridSet;
@@ -49,11 +51,14 @@ public class CloudGwcXmlConfiguration extends XMLConfiguration {
 
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
+    private ListenerCollection<BlobStoreConfigurationListener> spiedListeners;
+
     public CloudGwcXmlConfiguration( //
             ApplicationContextProvider appCtx, ConfigurationResourceProvider inFac) {
         this(appCtx, inFac, appCtx.getApplicationContext()::publishEvent);
     }
 
+    @SuppressWarnings("unchecked")
     public CloudGwcXmlConfiguration( //
             ApplicationContextProvider appCtx, //
             ConfigurationResourceProvider inFac, //
@@ -61,34 +66,70 @@ public class CloudGwcXmlConfiguration extends XMLConfiguration {
 
         super(appCtx, inFac);
         this.publisher = publisher;
+
+        try {
+            spiedListeners =
+                    (ListenerCollection<BlobStoreConfigurationListener>)
+                            FieldUtils.readField(this, "blobStoreListeners", true);
+
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @EventListener(GridsetEvent.class)
     public boolean onGridsetEvent(GridsetEvent event) throws Exception {
-        if (event.getSource() == this) return false;
+        if (isLocal(event)) return false;
+
         switch (event.getEventType()) {
             case CREATED:
             case DELETED:
             case MODIFIED:
                 reload(event);
-                return true;
+                break;
             default:
                 throw new IllegalArgumentException("Uknown event type: " + event.getEventType());
         }
+        return true;
     }
 
     @EventListener(BlobStoreEvent.class)
     public boolean onBlobStoreEvent(BlobStoreEvent event) throws Exception {
-        if (event.getSource() == this) return false;
+        if (isLocal(event)) return false;
+
+        final String blobStoreId = event.getBlobStoreId();
+        final Optional<BlobStoreInfo> pre = super.getBlobStore(blobStoreId);
+
+        reload(event);
+
+        final Optional<BlobStoreInfo> post = super.getBlobStore(blobStoreId);
+
+        // relay events to BlobStoreConfigurationListener, especially to CompositeBlobStore, which
+        // holds an internal Map of BlobStores
         switch (event.getEventType()) {
-            case CREATED:
             case DELETED:
+                spiedListeners.safeForEach(l -> l.handleRemoveBlobStore(pre.orElseThrow()));
+                break;
+            case CREATED:
+                spiedListeners.safeForEach(l -> l.handleAddBlobStore(post.orElseThrow()));
+                break;
             case MODIFIED:
-                reload(event);
-                return true;
+                String oldName = event.getOldName();
+                if (null == oldName) {
+                    spiedListeners.safeForEach(l -> l.handleModifyBlobStore(post.orElseThrow()));
+                } else {
+                    spiedListeners.safeForEach(
+                            l -> l.handleRenameBlobStore(oldName, post.orElseThrow()));
+                }
+                break;
             default:
                 throw new IllegalArgumentException("Uknown event type: " + event.getEventType());
         }
+        return true;
+    }
+
+    private boolean isLocal(GeoWebCacheEvent event) {
+        return event.getSource() == this;
     }
 
     private synchronized void reload(GeoWebCacheEvent event) throws Exception {
@@ -160,7 +201,7 @@ public class CloudGwcXmlConfiguration extends XMLConfiguration {
         } finally {
             lock.writeLock().unlock();
         }
-        publisher.accept(new BlobStoreEvent(this, MODIFIED, newName));
+        publisher.accept(new BlobStoreEvent(this, MODIFIED, oldName, newName));
     }
 
     public @Override void removeBlobStore(final String blobStoreName) {

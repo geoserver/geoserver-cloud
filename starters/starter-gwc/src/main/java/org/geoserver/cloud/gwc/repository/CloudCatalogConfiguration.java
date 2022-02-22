@@ -19,7 +19,7 @@ import org.springframework.context.event.EventListener;
 @Slf4j(topic = "org.geoserver.cloud.gwc.repository")
 public class CloudCatalogConfiguration extends CatalogConfiguration {
 
-    private LoadingCache<String, GeoServerTileLayer> spyedLayerCache;
+    private LoadingCache<String, GeoServerTileLayer> spiedLayerCache;
 
     @SuppressWarnings("unchecked")
     public CloudCatalogConfiguration(
@@ -28,7 +28,7 @@ public class CloudCatalogConfiguration extends CatalogConfiguration {
         super(catalog, tileLayerCatalog, gridSetBroker);
 
         try {
-            spyedLayerCache =
+            spiedLayerCache =
                     (LoadingCache<String, GeoServerTileLayer>)
                             FieldUtils.readField(this, "layerCache", true);
         } catch (IllegalAccessException e) {
@@ -39,6 +39,6 @@ public class CloudCatalogConfiguration extends CatalogConfiguration {
     @EventListener(TileLayerEvent.class)
     public void onTileLayerEvent(TileLayerEvent event) {
         log.debug("evicting GeoServerTileLayer cache entry upon {}", event);
-        spyedLayerCache.invalidate(event.getLayerId());
+        spiedLayerCache.invalidate(event.getLayerId());
     }
 }
