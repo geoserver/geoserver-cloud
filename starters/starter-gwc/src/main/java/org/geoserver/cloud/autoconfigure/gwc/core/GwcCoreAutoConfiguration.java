@@ -266,9 +266,25 @@ public class GwcCoreAutoConfiguration {
             chain.doFilter(request, response);
         }
 
+        /**
+         *
+         *
+         * <ul>
+         *   <li>{@code contextPath} is usually empty, but it'll match the gateways
+         *       ${geoserver.base-path} if such is set, thanks to the
+         *       server.forward-headers-strategy=framework in the application's bootstrap.yml
+         *   <li>{@code suffix} is computed beforehand to avoid decorating the HttpServletRequest if
+         *       the request is not for gwc (e.g. an actuator endpoint)
+         *   <li>{@code suffix} is used to strip it out of requestURI and fake the pathInfo gwc
+         *       expects as it assumes the request is being handled by a Dispatcher mapped to /**
+         *   <li>yes, this is odd, the alternative is re-writing GWC without weird assumptions
+         * </ul>
+         */
         protected ServletRequest adaptRequest(HttpServletRequest request) {
-            final String suffix = "/gwc";
             final String requestURI = request.getRequestURI();
+            final String contextPath = request.getContextPath();
+            final String suffix = contextPath + "/gwc";
+
             if (requestURI.startsWith(suffix)) {
                 return new HttpServletRequestWrapper(request) {
                     public @Override String getPathInfo() {
