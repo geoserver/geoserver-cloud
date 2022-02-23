@@ -61,6 +61,9 @@
     </profile>
     <profile>
       <id>docker-openj9</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
       <build>
         <plugins>
           <plugin>
