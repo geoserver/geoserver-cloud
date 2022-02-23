@@ -1,4 +1,4 @@
-FROM adoptopenjdk:11-jre-openj9 as builder
+FROM eclipse-temurin:17-jre as builder
 ARG JAR_FILE=target/gs-cloud-*-bin.jar
 
 RUN apt update && \ 
@@ -14,7 +14,7 @@ COPY ${JAR_FILE} application.jar
 RUN java -Djarmode=layertools -jar application.jar extract
 
 ##########
-FROM adoptopenjdk:11-jre-openj9
+FROM eclipse-temurin:17-jre
 
 LABEL maintainer="GeoServer PSC <geoserver-users@lists.sourceforge.net>"
 
