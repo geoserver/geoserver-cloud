@@ -7,7 +7,6 @@ server:
   # Let spring-boot's ForwardedHeaderFilter take care of reflecting the client-originated protocol and address in the HttpServletRequest  
   forward-headers-strategy: framework
   servlet.context-path: /
-management.server.port: 8081
 spring:
   config:
     import:
@@ -33,6 +32,24 @@ spring:
 
 # override default of false, this service uses the registry (when eureka client is enabled)
 eureka.client.fetch-registry: true
+
+management:
+  endpoints:
+    enabled-by-default: true
+    web.exposure.include: "*"
+  endpoint:
+    info.enabled: true
+    metrics.enabled: true
+    shutdown.enabled: true
+    health:
+      enabled: true
+      probes.enabled: true
+      show-details: always
+  metrics:
+    enable:
+      all: true
+    export:
+      atlas.enabled: false
 
 logging.level:
     '[org.springframework.retry]': debug
