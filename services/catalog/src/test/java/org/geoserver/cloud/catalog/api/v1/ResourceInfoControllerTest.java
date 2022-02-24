@@ -7,8 +7,6 @@ package org.geoserver.cloud.catalog.api.v1;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-import java.io.IOException;
-import java.util.List;
 import org.geoserver.catalog.CoverageInfo;
 import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.NamespaceInfo;
@@ -24,6 +22,9 @@ import org.junit.Test;
 import org.opengis.filter.Filter;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.http.MediaType;
+
+import java.io.IOException;
+import java.util.List;
 
 @AutoConfigureWebTestClient(timeout = "360000")
 public class ResourceInfoControllerTest

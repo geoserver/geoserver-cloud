@@ -6,11 +6,13 @@ package org.geoserver.jackson.databind.catalog.dto;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonSubTypes({
@@ -51,8 +53,12 @@ public abstract class Resource extends CatalogInfoDto {
     private List<String> disabledServices;
     private Boolean simpleConversionEnabled;
 
-    /** @since geoserver 2.20.0 */
+    /**
+     * @since geoserver 2.20.0
+     */
     private Map<String, String> internationalTitle;
-    /** @since geoserver 2.20.0 */
+    /**
+     * @since geoserver 2.20.0
+     */
     private Map<String, String> internationalAbstract;
 }

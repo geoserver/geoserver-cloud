@@ -4,8 +4,6 @@
  */
 package org.geoserver.jackson.databind.config.dto.mapper;
 
-import java.util.List;
-import java.util.stream.Collectors;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.Info;
 import org.geoserver.config.ContactInfo;
@@ -41,6 +39,9 @@ import org.geotools.util.Version;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /** Mapper to/from GeoServer config objects and their respective DTO representations */
 @Mapper(config = ConfigInfoMapperConfig.class)

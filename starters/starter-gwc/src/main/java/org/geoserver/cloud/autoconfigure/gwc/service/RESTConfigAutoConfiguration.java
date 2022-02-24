@@ -4,13 +4,15 @@
  */
 package org.geoserver.cloud.autoconfigure.gwc.service;
 
-import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnGeoWebCacheRestConfigEnabled;
 import org.geoserver.cloud.autoconfigure.gwc.GeoWebCacheConfigurationProperties;
 import org.geoserver.cloud.autoconfigure.gwc.core.DiskQuotaAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+
+import javax.annotation.PostConstruct;
 
 /**
  * The original {@literal geowebcache-rest-context.xml}:

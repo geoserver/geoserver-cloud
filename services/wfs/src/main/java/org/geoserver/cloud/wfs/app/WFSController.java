@@ -7,8 +7,6 @@ package org.geoserver.cloud.wfs.app;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.geoserver.ows.Dispatcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -16,6 +14,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.view.RedirectView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 @Controller
 public class WFSController {
@@ -37,16 +38,15 @@ public class WFSController {
     }
 
     @RequestMapping(
-        method = {GET, POST},
-        path = {
-            "/wfs",
-            "/{workspace}/wfs",
-            "/{workspace}/{layer}/wfs",
-            "/ows",
-            "/{workspace}/ows",
-            "/{workspace}/{layer}/ows"
-        }
-    )
+            method = {GET, POST},
+            path = {
+                "/wfs",
+                "/{workspace}/wfs",
+                "/{workspace}/{layer}/wfs",
+                "/ows",
+                "/{workspace}/ows",
+                "/{workspace}/{layer}/ows"
+            })
     public void serviceRequest(HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         geoserverDispatcher.handleRequest(request, response);

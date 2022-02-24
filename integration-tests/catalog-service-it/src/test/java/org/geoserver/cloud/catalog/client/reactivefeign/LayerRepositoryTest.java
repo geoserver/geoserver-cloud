@@ -8,9 +8,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.Sets;
-import java.util.Set;
+
 import lombok.Getter;
 import lombok.experimental.Accessors;
+
 import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.StyleInfo;
@@ -19,6 +20,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+
+import java.util.Set;
 
 @EnableAutoConfiguration
 @Accessors(fluent = true)

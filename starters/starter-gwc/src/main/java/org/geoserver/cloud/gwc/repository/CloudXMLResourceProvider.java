@@ -4,6 +4,16 @@
  */
 package org.geoserver.cloud.gwc.repository;
 
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
+
+import org.geoserver.platform.resource.Resource;
+import org.geoserver.platform.resource.ResourceStore;
+import org.geoserver.platform.resource.Resources;
+import org.geoserver.util.IOUtils;
+import org.geowebcache.config.ConfigurationException;
+import org.geowebcache.config.ConfigurationResourceProvider;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -13,16 +23,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
-import org.geoserver.platform.resource.Resource;
-import org.geoserver.platform.resource.ResourceStore;
-import org.geoserver.platform.resource.Resources;
-import org.geoserver.util.IOUtils;
-import org.geowebcache.config.ConfigurationException;
-import org.geowebcache.config.ConfigurationResourceProvider;
 
-/** @since 1.0 */
+/**
+ * @since 1.0
+ */
 @Slf4j(topic = "org.geoserver.cloud.gwc.repository")
 public class CloudXMLResourceProvider implements ConfigurationResourceProvider {
 

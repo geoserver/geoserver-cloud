@@ -5,6 +5,7 @@
 package org.geoserver.cloud.bus.event.config;
 
 import lombok.EqualsAndHashCode;
+
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.ServiceInfo;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;

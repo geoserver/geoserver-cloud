@@ -7,25 +7,30 @@ package org.geoserver.cloud.catalog.client.reactivefeign;
 import feign.Headers;
 import feign.Param;
 import feign.RequestLine;
-import java.nio.ByteBuffer;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import org.geoserver.platform.resource.Paths;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.Resource.Type;
 import org.geoserver.platform.resource.ResourceStore;
+
 import reactivefeign.spring.config.ReactiveFeignClient;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.nio.ByteBuffer;
+
 /** Catalog-service client to support {@link ResourceStore} */
 @ReactiveFeignClient( //
-    name = "catalog-service", //
-    url = "${geoserver.backend.catalog-service.uri:}", //
-    qualifier = "resource-store-client", //
-    path = "/api/v1/resources" //
-    // , fallbackFactory = ResourceStoreFallbackFactory.class
-)
+        name = "catalog-service", //
+        url = "${geoserver.backend.catalog-service.uri:}", //
+        qualifier = "resource-store-client", //
+        path = "/api/v1/resources" //
+        // , fallbackFactory = ResourceStoreFallbackFactory.class
+        )
 public interface ReactiveResourceStoreClient {
 
     @Data

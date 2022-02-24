@@ -13,10 +13,9 @@ import org.springframework.context.annotation.Import;
 @ConditionalOnClass(name = "org.geoserver.web.GeoServerHomePageContentProvider")
 @ConditionalOnJdbcConfigEnabled
 @ConditionalOnProperty(
-    prefix = "geoserver.backend.jdbcconfig.web",
-    name = "enabled",
-    havingValue = "true",
-    matchIfMissing = false
-)
+        prefix = "geoserver.backend.jdbcconfig.web",
+        name = "enabled",
+        havingValue = "true",
+        matchIfMissing = false)
 @Import({JDBCConfigWebConfiguration.class})
 public class JDBCConfigWebAutoConfiguration {}

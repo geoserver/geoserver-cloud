@@ -4,11 +4,13 @@
  */
 package org.geoserver.cloud.bus.event;
 
-import java.util.Optional;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
+
 import org.geoserver.catalog.Info;
 import org.geoserver.cloud.event.ConfigInfoInfoType;
+
+import java.util.Optional;
 
 @EqualsAndHashCode(callSuper = true)
 public abstract class RemoteRemoveEvent<S, I extends Info> extends RemoteInfoEvent<S, I> {

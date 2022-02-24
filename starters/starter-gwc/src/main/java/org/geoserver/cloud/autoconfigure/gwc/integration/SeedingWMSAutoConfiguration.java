@@ -6,9 +6,8 @@ package org.geoserver.cloud.autoconfigure.gwc.integration;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import java.util.Map;
-import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -31,6 +30,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.ImportResource;
 
+import java.util.Map;
+
+import javax.annotation.PostConstruct;
+
 /**
  * Autoconfiguration to create a minimal {@link WebMapService} bean and its collaborators, to be
  * used by GeoWebCache for creating tile images.
@@ -40,13 +43,12 @@ import org.springframework.context.annotation.ImportResource;
 @Configuration
 @ConditionalOnGeoWebCacheEnabled
 @ImportResource( //
-    reader = FilteringXmlBeanDefinitionReader.class, //
-    locations = { //
-        "jar:gs-wms-.*!/applicationContext.xml#name=^(?!getMapKvpReader).*$", //
-        "jar:gs-wfs-.*!/applicationContext.xml#name="
-                + SeedingWMSAutoConfiguration.WFS_BEANS_REGEX //
-    }
-)
+        reader = FilteringXmlBeanDefinitionReader.class, //
+        locations = { //
+            "jar:gs-wms-.*!/applicationContext.xml#name=^(?!getMapKvpReader).*$", //
+            "jar:gs-wfs-.*!/applicationContext.xml#name="
+                    + SeedingWMSAutoConfiguration.WFS_BEANS_REGEX //
+        })
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.gwc.integration")
 public class SeedingWMSAutoConfiguration {
 

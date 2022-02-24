@@ -5,15 +5,7 @@
 package org.geoserver.catalog.plugin;
 
 import com.google.common.collect.Iterators;
-import java.io.Closeable;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import javax.annotation.Nullable;
+
 import org.geoserver.catalog.CatalogCapabilities;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogInfo;
@@ -33,6 +25,17 @@ import org.geoserver.ows.Dispatcher;
 import org.geoserver.ows.LocalWorkspace;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
+
+import java.io.Closeable;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.annotation.Nullable;
 
 /** Copy of package private {@code org.geoserver.catalog.impl.IsolatedCatalogFacade} */
 public final class IsolatedCatalogFacade extends ForwardingExtendedCatalogFacade {

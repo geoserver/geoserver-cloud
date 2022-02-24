@@ -5,6 +5,7 @@
 package org.geoserver.cloud.bus.event.config;
 
 import lombok.EqualsAndHashCode;
+
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.LoggingInfo;

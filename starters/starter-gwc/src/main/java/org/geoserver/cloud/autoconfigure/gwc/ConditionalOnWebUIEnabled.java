@@ -4,12 +4,13 @@
  */
 package org.geoserver.cloud.autoconfigure.gwc;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 /**
  * Conditionals:
@@ -26,8 +27,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 @Documented
 @ConditionalOnGeoWebCacheEnabled
 @ConditionalOnProperty(
-    name = GeoWebCacheConfigurationProperties.WEBUI_ENABLED,
-    havingValue = "true",
-    matchIfMissing = false
-)
+        name = GeoWebCacheConfigurationProperties.WEBUI_ENABLED,
+        havingValue = "true",
+        matchIfMissing = false)
 public @interface ConditionalOnWebUIEnabled {}

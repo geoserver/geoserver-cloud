@@ -8,9 +8,11 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-import java.io.IOException;
+
 import org.geoserver.jackson.databind.catalog.dto.VersionDto;
 import org.geotools.util.Version;
+
+import java.io.IOException;
 
 public class VersionDeserializer extends JsonDeserializer<Version> {
 

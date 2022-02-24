@@ -6,6 +6,16 @@ package org.geoserver.cloud.bus.integration;
 
 import static org.junit.Assert.assertEquals;
 
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
+
+import org.geoserver.cloud.bus.event.RemoteInfoEvent;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.bus.event.RemoteApplicationEvent;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.event.EventListener;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
@@ -13,14 +23,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
-import org.geoserver.cloud.bus.event.RemoteInfoEvent;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.bus.event.RemoteApplicationEvent;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.event.EventListener;
 
 @Configuration
 @Slf4j

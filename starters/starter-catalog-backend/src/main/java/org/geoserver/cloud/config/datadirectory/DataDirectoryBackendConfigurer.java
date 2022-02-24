@@ -4,11 +4,9 @@
  */
 package org.geoserver.cloud.config.datadirectory;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.util.Objects;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.catalog.plugin.DefaultMemoryCatalogFacade;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.cloud.autoconfigure.bus.ConditionalOnGeoServerRemoteEventsEnabled;
@@ -24,6 +22,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+
+import java.io.File;
+import java.nio.file.Path;
+import java.util.Objects;
 
 /** */
 @Configuration(proxyBeanMethods = true)

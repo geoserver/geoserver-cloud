@@ -4,10 +4,12 @@
  */
 package org.geoserver.cloud.event;
 
-import java.util.List;
 import lombok.NonNull;
+
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.plugin.PropertyDiff;
+
+import java.util.List;
 
 public abstract class LocalPreModifyEvent<S, I extends Info> extends LocalModifyEvent<S, I> {
 

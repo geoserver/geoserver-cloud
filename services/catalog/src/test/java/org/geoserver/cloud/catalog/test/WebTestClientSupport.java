@@ -4,9 +4,8 @@
  */
 package org.geoserver.cloud.catalog.test;
 
-import java.util.function.Supplier;
-import javax.annotation.PostConstruct;
 import lombok.NonNull;
+
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
@@ -18,6 +17,10 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.cloud.catalog.api.v1.ReactiveCatalogController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.reactive.server.WebTestClient;
+
+import java.util.function.Supplier;
+
+import javax.annotation.PostConstruct;
 
 /**
  * Configures the {@link WebTestClient} to be able of encoding and decoding {@link CatalogInfo}

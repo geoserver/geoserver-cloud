@@ -6,7 +6,6 @@ package org.geoserver.cloud.autoconfigure.bus;
 
 import static org.springframework.core.Ordered.HIGHEST_PRECEDENCE;
 
-import java.util.function.Function;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.Info;
@@ -24,6 +23,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cloud.bus.ServiceMatcher;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
+
+import java.util.function.Function;
 
 /**
  * Highest priority listener for incoming {@link RemoteInfoEvent} events to resolve the payload

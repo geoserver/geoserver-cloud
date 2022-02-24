@@ -5,6 +5,7 @@
 package org.geoserver.cloud.catalog.caching;
 
 import lombok.NonNull;
+
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.config.GeoServerFacade;
@@ -133,21 +134,19 @@ public class CachingGeoServerFacadeImpl extends ForwardingGeoServerFacade
     }
 
     @Caching(
-        evict = {
-            @CacheEvict(key = "#settings.id"),
-            @CacheEvict(key = "'settings@' + #settings.workspace.id")
-        }
-    )
+            evict = {
+                @CacheEvict(key = "#settings.id"),
+                @CacheEvict(key = "'settings@' + #settings.workspace.id")
+            })
     public @Override void save(SettingsInfo settings) {
         super.save(settings);
     }
 
     @Caching(
-        evict = {
-            @CacheEvict(key = "#settings.id"),
-            @CacheEvict(key = "'settings@' + #settings.workspace.id")
-        }
-    )
+            evict = {
+                @CacheEvict(key = "#settings.id"),
+                @CacheEvict(key = "'settings@' + #settings.workspace.id")
+            })
     public @Override void remove(SettingsInfo settings) {
         super.remove(settings);
     }

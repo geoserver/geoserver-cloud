@@ -7,6 +7,7 @@ package org.geoserver.cloud.autoconfigure.wms;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**

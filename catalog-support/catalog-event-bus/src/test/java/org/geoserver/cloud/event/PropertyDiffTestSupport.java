@@ -6,9 +6,10 @@ package org.geoserver.cloud.event;
 
 import static org.junit.Assert.assertTrue;
 
+import org.geoserver.catalog.plugin.PropertyDiff;
+
 import java.util.ArrayList;
 import java.util.List;
-import org.geoserver.catalog.plugin.PropertyDiff;
 
 public class PropertyDiffTestSupport {
 

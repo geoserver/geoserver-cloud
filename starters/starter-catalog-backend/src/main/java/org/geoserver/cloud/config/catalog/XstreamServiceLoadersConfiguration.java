@@ -5,6 +5,7 @@
 package org.geoserver.cloud.config.catalog;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.config.util.XStreamServiceLoader;
 import org.geoserver.gwc.wmts.WMTSXStreamLoader;
 import org.geoserver.platform.GeoServerResourceLoader;

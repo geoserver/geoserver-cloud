@@ -5,6 +5,7 @@
 package org.geoserver.cloud.autoconfigure.web.demo;
 
 import lombok.Getter;
+
 import org.geoserver.cloud.autoconfigure.web.core.AbstractWebUIAutoConfiguration;
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -15,17 +16,16 @@ import org.springframework.context.annotation.ImportResource;
 @Configuration(proxyBeanMethods = true)
 @ConditionalOnClass(name = "org.geoserver.wcs.web.demo.WCSRequestBuilder")
 @ConditionalOnProperty( // enabled by default
-    prefix = DemosAutoConfiguration.CONFIG_PREFIX,
-    name = "wcs-request-builder",
-    havingValue = "true",
-    matchIfMissing = true
-)
+        prefix = DemosAutoConfiguration.CONFIG_PREFIX,
+        name = "wcs-request-builder",
+        havingValue = "true",
+        matchIfMissing = true)
 @ImportResource( //
-    reader = FilteringXmlBeanDefinitionReader.class, //
-    locations = { //
-        "jar:gs-web-wcs-.*!/applicationContext.xml#name=wcsRequestBuilder"
-    } //
-)
+        reader = FilteringXmlBeanDefinitionReader.class, //
+        locations = { //
+            "jar:gs-web-wcs-.*!/applicationContext.xml#name=wcsRequestBuilder"
+        } //
+        )
 public class WcsRequestBuilderConfiguration extends AbstractWebUIAutoConfiguration {
 
     static final String CONFIG_PREFIX =

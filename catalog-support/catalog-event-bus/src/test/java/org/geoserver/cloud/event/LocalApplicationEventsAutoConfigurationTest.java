@@ -9,9 +9,6 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Consumer;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.CatalogTestData;
@@ -51,10 +48,16 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
+
 @SpringBootTest(
-    classes = {TestConfigurationAutoConfiguration.class, ApplicationEventCapturingListener.class},
-    properties = {"spring.cloud.bus.enabled=false"}
-)
+        classes = {
+            TestConfigurationAutoConfiguration.class,
+            ApplicationEventCapturingListener.class
+        },
+        properties = {"spring.cloud.bus.enabled=false"})
 @RunWith(SpringRunner.class)
 @EnableAutoConfiguration
 public class LocalApplicationEventsAutoConfigurationTest {
@@ -74,8 +77,7 @@ public class LocalApplicationEventsAutoConfigurationTest {
 
     public @Test void testCatalogEventBroadcasterHasSetUpItself() {
         Optional<CatalogListener> publiherListener =
-                catalog.getListeners()
-                        .stream()
+                catalog.getListeners().stream()
                         .filter(
                                 l ->
                                         l
@@ -88,9 +90,7 @@ public class LocalApplicationEventsAutoConfigurationTest {
 
     public @Test void testConfigEventBroadcasterHasSetUpItself() {
         Optional<ConfigurationListener> publiherListener =
-                geoserver
-                        .getListeners()
-                        .stream()
+                geoserver.getListeners().stream()
                         .filter(
                                 l ->
                                         l

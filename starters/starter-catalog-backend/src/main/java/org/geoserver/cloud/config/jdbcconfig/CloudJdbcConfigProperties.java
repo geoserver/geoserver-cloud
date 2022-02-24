@@ -6,17 +6,20 @@ package org.geoserver.cloud.config.jdbcconfig;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import java.io.IOException;
-import java.net.URL;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-import javax.sql.DataSource;
+
 import org.geoserver.jdbcconfig.internal.ConfigDatabase;
 import org.geoserver.jdbcconfig.internal.JDBCConfigProperties;
 import org.geoserver.jdbcconfig.internal.JDBCConfigPropertiesFactoryBean;
 import org.geoserver.jdbcloader.DataSourceFactoryBean;
 import org.geoserver.platform.resource.Resource;
+
+import java.io.IOException;
+import java.net.URL;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+import javax.sql.DataSource;
 
 /** Extends {@link JDBCConfigProperties} to not need a {@link JDBCConfigPropertiesFactoryBean} */
 public class CloudJdbcConfigProperties extends JDBCConfigProperties {

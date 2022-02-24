@@ -4,7 +4,6 @@
  */
 package org.geoserver.cloud.config.jdbcconfig;
 
-import java.util.List;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.config.DefaultGeoServerLoader;
@@ -20,6 +19,8 @@ import org.geoserver.jdbcconfig.internal.JDBCConfigProperties;
 import org.geoserver.platform.GeoServerExtensions;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.Resource.Lock;
+
+import java.util.List;
 
 /**
  * Overrides {@link #loadGeoServer(GeoServer, XStreamPersister)} to avoid a class cast exception on

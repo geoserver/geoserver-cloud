@@ -4,12 +4,6 @@
  */
 package org.geoserver.jackson.databind.catalog.mapper;
 
-import java.awt.geom.AffineTransform;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
 import org.geoserver.catalog.AttributeTypeInfo;
 import org.geoserver.catalog.AttributionInfo;
 import org.geoserver.catalog.AuthorityURLInfo;
@@ -58,6 +52,13 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.util.InternationalString;
 import org.slf4j.LoggerFactory;
+
+import java.awt.geom.AffineTransform;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 @Mapper(config = CatalogInfoMapperConfig.class)
 public interface ValueMappers {
@@ -137,7 +138,9 @@ public interface ValueMappers {
         }
     }
 
-    /** @see XStreamPersister#GridGeometry2DConverter */
+    /**
+     * @see XStreamPersister#GridGeometry2DConverter
+     */
     default GridGeometry dtoToGridGeometry2D(GridGeometryDto value) {
         if (value == null) return null;
         CoordinateReferenceSystem crs = Mappers.getMapper(SharedMappers.class).crs(value.getCrs());

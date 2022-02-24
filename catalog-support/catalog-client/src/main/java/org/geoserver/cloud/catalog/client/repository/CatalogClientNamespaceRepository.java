@@ -4,14 +4,16 @@
  */
 package org.geoserver.cloud.catalog.client.repository;
 
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.NonNull;
+
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.NamespaceRepository;
 import org.springframework.lang.Nullable;
+
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 public class CatalogClientNamespaceRepository extends CatalogClientRepository<NamespaceInfo>
         implements NamespaceRepository {

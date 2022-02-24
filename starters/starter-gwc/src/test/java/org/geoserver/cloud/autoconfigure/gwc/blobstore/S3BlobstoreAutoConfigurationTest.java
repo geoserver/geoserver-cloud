@@ -7,7 +7,6 @@ package org.geoserver.cloud.autoconfigure.gwc.blobstore;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.File;
 import org.geoserver.cloud.autoconfigure.gwc.GeoWebCacheContextRunner;
 import org.geoserver.gwc.web.blob.S3BlobStoreType;
 import org.geoserver.platform.ModuleStatusImpl;
@@ -17,6 +16,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
+
+import java.io.File;
 
 /**
  * {@link S3BlobstoreAutoConfiguration} tests

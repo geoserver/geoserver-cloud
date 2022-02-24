@@ -4,18 +4,20 @@
  */
 package org.geoserver.cloud.gwc.bus;
 
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.catalog.CatalogException;
 import org.geoserver.cloud.gwc.event.GeoWebCacheEvent;
 import org.mapstruct.factory.Mappers;
 import org.springframework.cloud.bus.event.RemoteApplicationEvent;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.EventListener;
+
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * Listens to local {@link GeoWebCacheEvent}s produced by this service instance and broadcasts them

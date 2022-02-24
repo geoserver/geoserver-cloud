@@ -14,9 +14,6 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.times;
 
-import java.util.Date;
-import java.util.function.Function;
-import javax.annotation.Nullable;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.CatalogTestData;
@@ -69,6 +66,11 @@ import org.springframework.cache.CacheManager;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.Date;
+import java.util.function.Function;
+
+import javax.annotation.Nullable;
+
 /**
  * Test {@link org.geoserver.cloud.bus.incoming.caching.RemoteEventCacheEvictor} functionality when
  * {@code geoserver.catalog.caching.enabled=true}.
@@ -78,20 +80,19 @@ import org.springframework.test.context.junit4.SpringRunner;
  * locally cached {@link Info} objects
  */
 @SpringBootTest(
-    classes = AutoConfigurationTestConfiguration.class,
-    properties = { //
-        "eureka.client.enabled=false",
-        "spring.cloud.bus.enabled=true",
-        "geoserver.catalog.caching.enabled=true",
-        "geoserver.bus.enabled=true",
-        // disable automatic publishing of remote events,
-        // we're publishing them directly in test cases
-        "geoserver.bus.send-events=false",
-        "geoserver.backend.data-directory.enabled=true",
-        "geoserver.backend.data-directory.location=/tmp/data_dir_autoconfiguration_test",
-        "logging.level.org.springframework.cache=DEBUG"
-    }
-)
+        classes = AutoConfigurationTestConfiguration.class,
+        properties = { //
+            "eureka.client.enabled=false",
+            "spring.cloud.bus.enabled=true",
+            "geoserver.catalog.caching.enabled=true",
+            "geoserver.bus.enabled=true",
+            // disable automatic publishing of remote events,
+            // we're publishing them directly in test cases
+            "geoserver.bus.send-events=false",
+            "geoserver.backend.data-directory.enabled=true",
+            "geoserver.backend.data-directory.location=/tmp/data_dir_autoconfiguration_test",
+            "logging.level.org.springframework.cache=DEBUG"
+        })
 @RunWith(SpringRunner.class)
 public class RemoteEventCacheEvictorTest {
 

@@ -20,17 +20,8 @@ package org.geotools.autoconfigure.httpclient;
 import static java.time.Duration.ofMillis;
 import static java.time.Duration.ofSeconds;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.zip.GZIPInputStream;
 import lombok.NonNull;
+
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
@@ -59,6 +50,17 @@ import org.geotools.http.HTTPProxy;
 import org.geotools.http.HTTPResponse;
 import org.geotools.util.factory.GeoTools;
 import org.springframework.core.env.PropertyResolver;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.zip.GZIPInputStream;
 
 /**
  * Copy of GeoTools' {@link org.geotools.http.commons.MultithreadedHttpClient} due to its lack of
@@ -212,7 +214,9 @@ class SpringEnvironmentAwareGeoToolsHttpClient
         return response;
     }
 
-    /** @return the http status code of the execution */
+    /**
+     * @return the http status code of the execution
+     */
     private HttpMethodResponse executeMethod(HttpRequestBase method)
             throws IOException, HttpException {
 

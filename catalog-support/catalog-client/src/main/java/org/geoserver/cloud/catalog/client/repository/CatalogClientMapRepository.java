@@ -5,6 +5,7 @@
 package org.geoserver.cloud.catalog.client.repository;
 
 import lombok.Getter;
+
 import org.geoserver.catalog.MapInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.MapRepository;
 

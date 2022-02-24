@@ -5,6 +5,7 @@
 package org.geoserver.cloud.catalog.caching;
 
 import lombok.Value;
+
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.config.ServiceInfo;
 

@@ -4,8 +4,8 @@
  */
 package org.geoserver.cloud.config.catalogclient;
 
-import java.io.File;
 import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.cloud.catalog.client.impl.CatalogClientCatalogFacade;
 import org.geoserver.cloud.catalog.client.impl.CatalogClientConfiguration;
@@ -24,6 +24,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.env.Environment;
+
+import java.io.File;
 
 @Configuration(proxyBeanMethods = true)
 @Import(CatalogClientConfiguration.class)

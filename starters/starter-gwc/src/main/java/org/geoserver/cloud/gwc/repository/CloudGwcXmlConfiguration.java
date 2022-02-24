@@ -9,17 +9,10 @@ import static org.geoserver.cloud.gwc.event.GeoWebCacheEvent.Type.DELETED;
 import static org.geoserver.cloud.gwc.event.GeoWebCacheEvent.Type.MODIFIED;
 
 import com.google.common.base.Supplier;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.function.Consumer;
+
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.geoserver.cloud.gwc.event.BlobStoreEvent;
 import org.geoserver.cloud.gwc.event.GeoWebCacheEvent;
@@ -36,6 +29,16 @@ import org.geowebcache.layer.TileLayer;
 import org.geowebcache.locks.LockProvider;
 import org.geowebcache.util.ApplicationContextProvider;
 import org.springframework.context.event.EventListener;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Consumer;
 
 /**
  * @implNote there is a {@link BlobStoreConfigurationListener} abstraction, but no homologous one to

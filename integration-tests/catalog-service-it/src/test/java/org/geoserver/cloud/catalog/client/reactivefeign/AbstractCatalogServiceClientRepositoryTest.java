@@ -11,17 +11,8 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.io.IOException;
-import java.lang.reflect.Proxy;
-import java.util.Arrays;
-import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.NonNull;
+
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.CatalogTestData;
@@ -50,20 +41,30 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.io.IOException;
+import java.lang.reflect.Proxy;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 @SpringBootTest(
-    classes = { //
-        CatalogServiceApplication.class, //
-        CatalogClientConfiguration.class //
-    },
-    webEnvironment = WebEnvironment.DEFINED_PORT,
-    properties = {
-        "reactive.feign.hystrix.enabled=false",
-        "spring.cloud.circuitbreaker.hystrix.enabled=false",
-        "spring.main.web-application-type=reactive",
-        "server.port=15556",
-        "geoserver.backend.catalog-service.uri=http://localhost:${server.port}"
-    }
-)
+        classes = { //
+            CatalogServiceApplication.class, //
+            CatalogClientConfiguration.class //
+        },
+        webEnvironment = WebEnvironment.DEFINED_PORT,
+        properties = {
+            "reactive.feign.hystrix.enabled=false",
+            "spring.cloud.circuitbreaker.hystrix.enabled=false",
+            "spring.main.web-application-type=reactive",
+            "server.port=15556",
+            "geoserver.backend.catalog-service.uri=http://localhost:${server.port}"
+        })
 @RunWith(SpringRunner.class)
 @ActiveProfiles("it.catalog-service")
 @EnableAutoConfiguration

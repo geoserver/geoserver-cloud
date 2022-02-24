@@ -6,19 +6,6 @@ package org.geoserver.catalog.plugin;
 
 import static java.util.Collections.unmodifiableList;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Stream;
-import javax.annotation.Nullable;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogCapabilities;
 import org.geoserver.catalog.CatalogException;
@@ -76,6 +63,21 @@ import org.geotools.util.logging.Logging;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Stream;
+
+import javax.annotation.Nullable;
 
 /**
  * Alternative to {@link org.geoserver.catalog.impl.CatalogImpl} to improve separation of concerns
@@ -1060,8 +1062,8 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
     public @Override void removeListeners(Class listenerClass) {
         new ArrayList<>(listeners)
                 .stream()
-                .filter(l -> listenerClass.isInstance(l))
-                .forEach(l -> listeners.remove(l));
+                        .filter(l -> listenerClass.isInstance(l))
+                        .forEach(l -> listeners.remove(l));
     }
 
     public @Override ResourcePool getResourcePool() {

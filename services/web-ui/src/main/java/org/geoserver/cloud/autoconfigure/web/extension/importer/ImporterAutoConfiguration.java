@@ -5,6 +5,7 @@
 package org.geoserver.cloud.autoconfigure.web.extension.importer;
 
 import lombok.Getter;
+
 import org.geoserver.cloud.autoconfigure.web.core.AbstractWebUIAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -14,11 +15,10 @@ import org.springframework.context.annotation.Import;
 @Configuration
 @ConditionalOnClass(name = "org.geoserver.importer.web.ImporterConfigPage")
 @ConditionalOnProperty( // enabled by default
-    prefix = ImporterAutoConfiguration.CONFIG_PREFIX,
-    name = "enabled",
-    havingValue = "true",
-    matchIfMissing = true
-)
+        prefix = ImporterAutoConfiguration.CONFIG_PREFIX,
+        name = "enabled",
+        havingValue = "true",
+        matchIfMissing = true)
 @Import(ImporterConfiguration.class)
 public class ImporterAutoConfiguration extends AbstractWebUIAutoConfiguration {
 

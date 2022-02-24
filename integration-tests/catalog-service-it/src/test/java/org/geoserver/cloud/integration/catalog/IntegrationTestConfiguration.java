@@ -16,10 +16,9 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 @EnableAutoConfiguration(
-    exclude = {
-        SecurityAutoConfiguration.class,
-        UserDetailsServiceAutoConfiguration.class,
-        ManagementWebSecurityAutoConfiguration.class
-    }
-)
+        exclude = {
+            SecurityAutoConfiguration.class,
+            UserDetailsServiceAutoConfiguration.class,
+            ManagementWebSecurityAutoConfiguration.class
+        })
 public class IntegrationTestConfiguration {}

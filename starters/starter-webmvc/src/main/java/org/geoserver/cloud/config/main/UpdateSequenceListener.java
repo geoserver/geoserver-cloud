@@ -5,7 +5,6 @@
  */
 package org.geoserver.cloud.config.main;
 
-import java.util.List;
 import org.geoserver.catalog.CatalogException;
 import org.geoserver.catalog.event.CatalogAddEvent;
 import org.geoserver.catalog.event.CatalogListener;
@@ -18,6 +17,8 @@ import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
+
+import java.util.List;
 
 /**
  * REVISIT: verbatim copy of org.geoserver.config.UpdateSequenceListener cause it's package private.

@@ -15,19 +15,19 @@ import org.springframework.retry.annotation.EnableRetry;
 @EnableConfigServer
 @EnableRetry
 @NativeHint(
-    // these type hints are not needed since we've configured config-service not to fetch the eureka
-    // registry
-    //    types =
-    //            @TypeHint(
-    //                types = {
-    //                    com.netflix.discovery.shared.Application.class, //
-    //                    com.netflix.appinfo.InstanceInfo.class, //
-    //                    com.netflix.appinfo.InstanceInfo.PortWrapper.class, //
-    //                    com.netflix.appinfo.MyDataCenterInfo.class
-    //                }
-    //            ), //
-    resources = @ResourceHint(patterns = "gs_cloud_bootstrap_profiles.yml")
-)
+        // these type hints are not needed since we've configured config-service not to fetch the
+        // eureka
+        // registry
+        //    types =
+        //            @TypeHint(
+        //                types = {
+        //                    com.netflix.discovery.shared.Application.class, //
+        //                    com.netflix.appinfo.InstanceInfo.class, //
+        //                    com.netflix.appinfo.InstanceInfo.PortWrapper.class, //
+        //                    com.netflix.appinfo.MyDataCenterInfo.class
+        //                }
+        //            ), //
+        resources = @ResourceHint(patterns = "gs_cloud_bootstrap_profiles.yml"))
 public class ConfigApplication {
 
     public static void main(String[] args) {

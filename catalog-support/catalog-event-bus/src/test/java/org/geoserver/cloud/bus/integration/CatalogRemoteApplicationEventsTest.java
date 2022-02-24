@@ -10,8 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.util.Collections;
-import java.util.function.Consumer;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.DataStoreInfo;
@@ -27,6 +25,9 @@ import org.geoserver.cloud.bus.event.catalog.RemoteDefaultWorkspaceEvent;
 import org.geoserver.cloud.event.PropertyDiffTestSupport;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+
+import java.util.Collections;
+import java.util.function.Consumer;
 
 public class CatalogRemoteApplicationEventsTest extends BusAmqpIntegrationTests {
 

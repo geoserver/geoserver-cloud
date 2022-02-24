@@ -9,11 +9,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.http.MediaType.*;
 
-import java.io.IOException;
-import java.util.List;
 import org.geoserver.catalog.NamespaceInfo;
 import org.junit.Test;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
+
+import java.io.IOException;
+import java.util.List;
 
 @AutoConfigureWebTestClient(timeout = "360000")
 public class NamespaceControllerTest extends AbstractReactiveCatalogControllerTest<NamespaceInfo> {

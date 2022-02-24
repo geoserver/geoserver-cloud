@@ -10,14 +10,14 @@ import org.springframework.context.annotation.ImportResource;
 
 @Configuration(proxyBeanMethods = true)
 @ImportResource( //
-    reader = FilteringXmlBeanDefinitionReader.class, //
-    locations = { //
-        "jar:gs-wcs-.*!/applicationContext.xml", //
-        "jar:gs-wcs1_0-.*!/applicationContext.xml", //
-        "jar:gs-wcs1_1-.*!/applicationContext.xml", //
-        "jar:gs-wcs2_0-.*!/applicationContext.xml", //
-        // exclude wcs request builder, the DemosAutoConfiguration takes care of it
-        "jar:gs-web-wcs-.*!/applicationContext.xml#name=^(?!wcsRequestBuilder).*$"
-    } //
-)
+        reader = FilteringXmlBeanDefinitionReader.class, //
+        locations = { //
+            "jar:gs-wcs-.*!/applicationContext.xml", //
+            "jar:gs-wcs1_0-.*!/applicationContext.xml", //
+            "jar:gs-wcs1_1-.*!/applicationContext.xml", //
+            "jar:gs-wcs2_0-.*!/applicationContext.xml", //
+            // exclude wcs request builder, the DemosAutoConfiguration takes care of it
+            "jar:gs-web-wcs-.*!/applicationContext.xml#name=^(?!wcsRequestBuilder).*$"
+        } //
+        )
 public class WcsConfiguration {}

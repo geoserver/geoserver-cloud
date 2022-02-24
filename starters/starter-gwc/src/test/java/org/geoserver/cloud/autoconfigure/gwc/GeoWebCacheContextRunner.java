@@ -4,7 +4,6 @@
  */
 package org.geoserver.cloud.autoconfigure.gwc;
 
-import java.io.File;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.cloud.autoconfigure.gwc.core.GeoWebCacheAutoConfiguration;
@@ -21,7 +20,11 @@ import org.geoserver.security.GeoServerSecurityManager;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 
-/** @since 1.0 */
+import java.io.File;
+
+/**
+ * @since 1.0
+ */
 public class GeoWebCacheContextRunner {
 
     public static WebApplicationContextRunner newMinimalGeoWebCacheContextRunner(File tmpDir) {

@@ -4,13 +4,15 @@
  */
 package org.geoserver.cloud.catalog.client.repository;
 
-import java.util.Objects;
-import java.util.Optional;
 import lombok.Getter;
 import lombok.NonNull;
+
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.WorkspaceRepository;
 import org.springframework.lang.Nullable;
+
+import java.util.Objects;
+import java.util.Optional;
 
 public class CatalogClientWorkspaceRepository extends CatalogClientRepository<WorkspaceInfo>
         implements WorkspaceRepository {

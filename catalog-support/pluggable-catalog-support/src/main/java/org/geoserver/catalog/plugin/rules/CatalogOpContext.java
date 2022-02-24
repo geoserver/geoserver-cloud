@@ -6,13 +6,14 @@ package org.geoserver.catalog.plugin.rules;
 
 import static java.util.Objects.requireNonNull;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.BooleanSupplier;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.plugin.CatalogInfoTypeRegistry;
 import org.geoserver.catalog.plugin.PropertyDiff;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.BooleanSupplier;
 
 /**
  * Encapsulates the context on which a catalog add/save/remove operation is being executed,
@@ -53,12 +54,16 @@ public class CatalogOpContext<T extends CatalogInfo> {
         this.diff = diff;
     }
 
-    /** @return the catalog on which the operation is being executed */
+    /**
+     * @return the catalog on which the operation is being executed
+     */
     public Catalog getCatalog() {
         return catalog;
     }
 
-    /** @return the {@link CatalogInfo} object subject of the add,save, or remove operation. */
+    /**
+     * @return the {@link CatalogInfo} object subject of the add,save, or remove operation.
+     */
     public T getObject() {
         return object;
     }
@@ -116,7 +121,9 @@ public class CatalogOpContext<T extends CatalogInfo> {
         return value == null ? false : value;
     }
 
-    /** @return {@code this} type narrowed to a sub type of {@code <T>} */
+    /**
+     * @return {@code this} type narrowed to a sub type of {@code <T>}
+     */
     @SuppressWarnings("unchecked")
     public <S extends T> CatalogOpContext<S> as(Class<S> subtype) {
         if (subtype.isInstance(object)) return (CatalogOpContext<S>) this;

@@ -7,24 +7,7 @@ package org.geoserver.catalog.plugin;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.collect.Ordering;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ConcurrentNavigableMap;
-import java.util.concurrent.ConcurrentSkipListMap;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.logging.Logger;
-import java.util.stream.Stream;
+
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.LayerGroupInfo;
@@ -45,6 +28,25 @@ import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 import org.springframework.lang.Nullable;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentNavigableMap;
+import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 /**
  * A support index for {@link DefaultMemoryCatalogFacade}, can perform fast lookups of {@link
@@ -282,9 +284,7 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
 
     public @Override <U extends T> long count(Class<U> type, Filter filter) {
         return Filter.INCLUDE.equals(filter)
-                ? idMultiMap
-                        .entrySet()
-                        .stream()
+                ? idMultiMap.entrySet().stream()
                         .filter(k -> type.isAssignableFrom(k.getKey()))
                         .map(Map.Entry::getValue)
                         .mapToLong(Map::size)

@@ -4,7 +4,6 @@
  */
 package org.geoserver.cloud.config.jdbcconfig;
 
-import javax.sql.DataSource;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.impl.CatalogImpl;
 import org.geoserver.catalog.impl.ModificationProxy;
@@ -12,6 +11,8 @@ import org.geoserver.jdbcconfig.internal.ConfigDatabase;
 import org.geoserver.jdbcconfig.internal.XStreamInfoSerialBinding;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.sql.DataSource;
 
 /**
  * Overrides {@link #save} and {@link #remove} to {@link #clearCache(Info) dispose the internal
@@ -33,10 +34,9 @@ class CloudJdbcConfigDatabase extends ConfigDatabase {
      */
     @Override
     @Transactional(
-        transactionManager = "jdbcConfigTransactionManager",
-        propagation = Propagation.REQUIRED,
-        rollbackFor = Exception.class
-    )
+            transactionManager = "jdbcConfigTransactionManager",
+            propagation = Propagation.REQUIRED,
+            rollbackFor = Exception.class)
     public <T extends Info> T save(T info) {
         clearCache(ModificationProxy.unwrap(info));
         T saved = super.save(info);
@@ -49,10 +49,9 @@ class CloudJdbcConfigDatabase extends ConfigDatabase {
      */
     @Override
     @Transactional(
-        transactionManager = "jdbcConfigTransactionManager",
-        propagation = Propagation.REQUIRED,
-        rollbackFor = Exception.class
-    )
+            transactionManager = "jdbcConfigTransactionManager",
+            propagation = Propagation.REQUIRED,
+            rollbackFor = Exception.class)
     public void remove(Info info) {
         clearCache(ModificationProxy.unwrap(info));
         super.remove(info);

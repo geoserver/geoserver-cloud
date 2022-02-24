@@ -4,9 +4,11 @@
  */
 package org.geoserver.cloud.config.catalog;
 
-import java.nio.file.Path;
 import lombok.Data;
+
 import org.geoserver.cloud.autoconfigure.catalog.DataDirectoryAutoConfiguration;
+
+import java.nio.file.Path;
 
 /**
  * Configuration properties to use GeoServer's traditional, file-system based data-directory as the

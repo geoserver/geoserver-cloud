@@ -5,6 +5,7 @@
 package org.geoserver.catalog;
 
 import static com.google.common.collect.Sets.newHashSet;
+
 import static org.geoserver.catalog.Predicates.acceptAll;
 import static org.geoserver.catalog.Predicates.asc;
 import static org.geoserver.catalog.Predicates.contains;
@@ -26,24 +27,7 @@ import static org.junit.Assert.fail;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import java.io.IOException;
-import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 import org.geoserver.catalog.event.CatalogAddEvent;
 import org.geoserver.catalog.event.CatalogListener;
 import org.geoserver.catalog.event.CatalogModifyEvent;
@@ -77,6 +61,25 @@ import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.MultiValuedFilter.MatchAction;
 import org.opengis.filter.sort.SortBy;
+
+import java.io.IOException;
+import java.lang.reflect.Proxy;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Initially a verbatim copy of {@code gs-main}'s {@code
@@ -2583,7 +2586,8 @@ public abstract class CatalogConformanceTest {
                 rawCatalog.add(layer);
             }
         }
-    };
+    }
+    ;
 
     @Test
     public void testGet() {
@@ -3311,9 +3315,7 @@ public abstract class CatalogConformanceTest {
                             for (TestListener testListener : listeners) {
                                 assertTrue(
                                         "Did not find the expected even in the listener",
-                                        testListener
-                                                .removed
-                                                .stream()
+                                        testListener.removed.stream()
                                                 .anyMatch(
                                                         event -> event.getSource() == catalogInfo));
                             }

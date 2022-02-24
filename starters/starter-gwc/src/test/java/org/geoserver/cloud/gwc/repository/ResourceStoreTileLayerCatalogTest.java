@@ -12,14 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.common.collect.ImmutableSet;
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.apache.commons.io.FileUtils;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.gwc.layer.GeoServerTileLayerInfo;
@@ -32,7 +25,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-/** @since 1.0 */
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+/**
+ * @since 1.0
+ */
 class ResourceStoreTileLayerCatalogTest {
 
     private @TempDir File baseDirectory;

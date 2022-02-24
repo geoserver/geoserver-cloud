@@ -17,11 +17,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 import org.geoserver.cloud.gwc.event.BlobStoreEvent;
 import org.geoserver.cloud.gwc.event.GeoWebCacheEvent;
 import org.geoserver.cloud.gwc.event.GridsetEvent;
@@ -40,7 +35,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-/** @since 1.0 */
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
+
+/**
+ * @since 1.0
+ */
 class CloudGwcXmlConfigurationTest {
 
     private CloudGwcXmlConfiguration config;

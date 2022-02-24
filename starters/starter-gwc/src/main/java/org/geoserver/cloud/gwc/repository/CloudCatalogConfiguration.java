@@ -5,7 +5,9 @@
 package org.geoserver.cloud.gwc.repository;
 
 import com.google.common.cache.LoadingCache;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.cloud.gwc.event.TileLayerEvent;
@@ -15,7 +17,9 @@ import org.geoserver.gwc.layer.TileLayerCatalog;
 import org.geowebcache.grid.GridSetBroker;
 import org.springframework.context.event.EventListener;
 
-/** @since 1.0 */
+/**
+ * @since 1.0
+ */
 @Slf4j(topic = "org.geoserver.cloud.gwc.repository")
 public class CloudCatalogConfiguration extends CatalogConfiguration {
 

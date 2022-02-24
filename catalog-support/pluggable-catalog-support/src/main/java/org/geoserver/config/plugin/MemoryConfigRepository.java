@@ -6,11 +6,6 @@ package org.geoserver.config.plugin;
 
 import static java.util.Objects.requireNonNull;
 
-import java.lang.reflect.Proxy;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.stream.Stream;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.Patch;
@@ -18,6 +13,12 @@ import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
+
+import java.lang.reflect.Proxy;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Stream;
 
 /**
  * Purely in-memory {@link ConfigRepository} implementation holding live-objects (no serialization
@@ -54,8 +55,7 @@ public class MemoryConfigRepository implements ConfigRepository {
     public @Override Optional<SettingsInfo> getSettingsByWorkspace(WorkspaceInfo workspace) {
         requireNonNull(workspace);
         requireNonNull(workspace.getId());
-        return settings.values()
-                .stream()
+        return settings.values().stream()
                 .filter(s -> s.getWorkspace().getId().equals(workspace.getId()))
                 .findFirst();
     }
@@ -132,9 +132,7 @@ public class MemoryConfigRepository implements ConfigRepository {
     public @Override Stream<? extends ServiceInfo> getServicesByWorkspace(WorkspaceInfo workspace) {
         requireNonNull(workspace);
         requireNonNull(workspace.getId());
-        return this.services
-                .values()
-                .stream()
+        return this.services.values().stream()
                 .filter(
                         s ->
                                 s.getWorkspace() != null
@@ -143,9 +141,7 @@ public class MemoryConfigRepository implements ConfigRepository {
 
     public @Override <T extends ServiceInfo> Optional<T> getGlobalService(Class<T> clazz) {
         requireNonNull(clazz);
-        return this.services
-                .values()
-                .stream()
+        return this.services.values().stream()
                 .filter(clazz::isInstance)
                 .filter(s -> s.getWorkspace() == null)
                 .map(clazz::cast)
@@ -157,9 +153,7 @@ public class MemoryConfigRepository implements ConfigRepository {
         requireNonNull(workspace);
         requireNonNull(workspace.getId());
         requireNonNull(clazz);
-        return this.services
-                .values()
-                .stream()
+        return this.services.values().stream()
                 .filter(clazz::isInstance)
                 .filter(
                         s ->
@@ -180,9 +174,7 @@ public class MemoryConfigRepository implements ConfigRepository {
             String name, Class<T> clazz) {
         requireNonNull(name);
         requireNonNull(clazz);
-        return this.services
-                .values()
-                .stream()
+        return this.services.values().stream()
                 .filter(clazz::isInstance)
                 .filter(s -> name.equals(s.getName()))
                 .map(clazz::cast)
@@ -195,9 +187,7 @@ public class MemoryConfigRepository implements ConfigRepository {
         requireNonNull(workspace);
         requireNonNull(workspace.getId());
         requireNonNull(clazz);
-        return this.services
-                .values()
-                .stream()
+        return this.services.values().stream()
                 .filter(clazz::isInstance)
                 .filter(
                         s ->

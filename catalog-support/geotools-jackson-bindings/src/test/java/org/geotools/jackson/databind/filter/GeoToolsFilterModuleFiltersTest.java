@@ -8,6 +8,7 @@ import static org.junit.Assert.assertEquals;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.geotools.jackson.databind.filter.dto.Filter;
 import org.geotools.jackson.databind.filter.dto.SortBy;
 import org.geotools.jackson.databind.filter.mapper.FilterMapper;

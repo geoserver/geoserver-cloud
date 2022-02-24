@@ -13,9 +13,6 @@ import static org.junit.Assert.assertNull;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_STREAM_JSON;
 
-import java.util.Arrays;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.geoserver.catalog.CatalogTestData;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.WorkspaceInfo;
@@ -50,12 +47,15 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.reactive.server.WebTestClient.ResponseSpec;
 
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 @SpringBootTest(
-    classes = {
-        CatalogServiceApplicationConfiguration.class,
-        WebTestClientSupportConfiguration.class
-    }
-)
+        classes = {
+            CatalogServiceApplicationConfiguration.class,
+            WebTestClientSupportConfiguration.class
+        })
 @ActiveProfiles("test") // see bootstrap-test.yml
 @RunWith(SpringRunner.class)
 @AutoConfigureWebTestClient(timeout = "360000")

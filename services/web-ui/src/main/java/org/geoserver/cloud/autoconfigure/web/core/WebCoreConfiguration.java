@@ -16,12 +16,11 @@ import org.springframework.context.annotation.ImportResource;
 
 @Configuration(proxyBeanMethods = true)
 @ImportResource( //
-    reader = FilteringXmlBeanDefinitionReader.class, //
-    locations = { //
-        "jar:gs-web-core-.*!/applicationContext.xml#name="
-                + WebCoreConfiguration.EXCLUDED_BEANS_PATTERN //
-    }
-)
+        reader = FilteringXmlBeanDefinitionReader.class, //
+        locations = { //
+            "jar:gs-web-core-.*!/applicationContext.xml#name="
+                    + WebCoreConfiguration.EXCLUDED_BEANS_PATTERN //
+        })
 public class WebCoreConfiguration {
 
     static final String EXCLUDED_BEANS_PATTERN = "^(?!logsPage).*$";

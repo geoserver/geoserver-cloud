@@ -6,6 +6,7 @@ package org.geoserver.jackson.databind.catalog;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newLinkedHashSet;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertEquals;
@@ -17,14 +18,9 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import java.lang.reflect.Proxy;
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.catalog.AttributeTypeInfo;
 import org.geoserver.catalog.AuthorityURLInfo;
 import org.geoserver.catalog.Catalog;
@@ -109,7 +105,16 @@ import org.opengis.filter.expression.Literal;
 import org.opengis.filter.sort.SortOrder;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.util.InternationalString;
+
 import si.uom.SI;
+
+import java.lang.reflect.Proxy;
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 /**
  * Verifies that all {@link CatalogInfo} can be sent over the wire and parsed back using jackson,

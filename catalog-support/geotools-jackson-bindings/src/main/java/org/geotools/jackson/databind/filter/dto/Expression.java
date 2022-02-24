@@ -7,16 +7,18 @@ package org.geotools.jackson.databind.filter.dto;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import lombok.experimental.Accessors;
+
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-import lombok.experimental.Accessors;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonSubTypes({
@@ -35,10 +37,9 @@ public @Data abstract class Expression {
          * property to the {@code Literal} object, without messing with the value representation.
          */
         @JsonTypeInfo(
-            use = JsonTypeInfo.Id.CLASS,
-            include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
-            property = "@type"
-        )
+                use = JsonTypeInfo.Id.CLASS,
+                include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
+                property = "@type")
         private Object value;
 
         private List<Literal> list;
@@ -49,14 +50,14 @@ public @Data abstract class Expression {
                 list =
                         ((List<?>) value)
                                 .stream()
-                                .map(v -> new Literal().setValue(v))
-                                .collect(Collectors.toList());
+                                        .map(v -> new Literal().setValue(v))
+                                        .collect(Collectors.toList());
             else if (value instanceof Set)
                 set =
                         ((Set<?>) value)
                                 .stream()
-                                .map(v -> new Literal().setValue(v))
-                                .collect(Collectors.toCollection(LinkedHashSet::new));
+                                        .map(v -> new Literal().setValue(v))
+                                        .collect(Collectors.toCollection(LinkedHashSet::new));
             else this.value = value;
             return this;
         }

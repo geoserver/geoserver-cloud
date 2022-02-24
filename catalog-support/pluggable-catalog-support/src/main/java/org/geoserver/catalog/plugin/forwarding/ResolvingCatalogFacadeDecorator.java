@@ -5,10 +5,7 @@
 package org.geoserver.catalog.plugin.forwarding;
 
 import com.google.common.collect.Lists;
-import java.util.List;
-import java.util.Objects;
-import java.util.function.Function;
-import java.util.stream.Stream;
+
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogInfo;
@@ -31,6 +28,11 @@ import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.catalog.util.CloseableIteratorAdapter;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 /**
  * {@link ExtendedCatalogFacade} decorator that applies a possibly side-effect producing

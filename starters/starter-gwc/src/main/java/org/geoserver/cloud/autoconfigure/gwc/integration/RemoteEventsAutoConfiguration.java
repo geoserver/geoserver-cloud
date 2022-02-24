@@ -4,11 +4,8 @@
  */
 package org.geoserver.cloud.autoconfigure.gwc.integration;
 
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.cloud.autoconfigure.bus.ConditionalOnGeoServerRemoteEventsEnabled;
 import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnGeoWebCacheEnabled;
 import org.geoserver.cloud.gwc.bus.GeoWebCacheRemoteEventsBroker;
@@ -22,7 +19,15 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/** @since 1.0 */
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+import javax.annotation.PostConstruct;
+
+/**
+ * @since 1.0
+ */
 @Configuration(proxyBeanMethods = false)
 @AutoConfigureAfter(BusAutoConfiguration.class)
 @ConditionalOnGeoWebCacheEnabled

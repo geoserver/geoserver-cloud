@@ -4,14 +4,18 @@
  */
 package org.geoserver.cloud.autoconfigure.gwc.integration;
 
-import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnGeoWebCacheEnabled;
 import org.geoserver.cloud.gwc.event.TileLayerEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/** @since 1.0 */
+import javax.annotation.PostConstruct;
+
+/**
+ * @since 1.0
+ */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnGeoWebCacheEnabled
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.gwc.integration")

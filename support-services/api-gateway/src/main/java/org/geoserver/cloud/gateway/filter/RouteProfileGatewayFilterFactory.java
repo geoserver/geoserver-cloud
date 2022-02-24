@@ -6,14 +6,11 @@ package org.geoserver.cloud.gateway.filter;
 
 import static org.springframework.cloud.gateway.support.GatewayToStringStyler.filterToStringCreator;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import javax.validation.constraints.NotEmpty;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -23,7 +20,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.server.ServerWebExchange;
+
 import reactor.core.publisher.Mono;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import javax.validation.constraints.NotEmpty;
 
 /** Allows to enable routes only if a given spring profile is enabled */
 public class RouteProfileGatewayFilterFactory

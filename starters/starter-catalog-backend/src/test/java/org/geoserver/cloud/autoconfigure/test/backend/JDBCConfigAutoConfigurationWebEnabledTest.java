@@ -20,12 +20,11 @@ import org.springframework.test.context.ActiveProfiles;
  * geoserver.backend.jdbcconfig.enabled=true} and {@code geoserver.backend.jdbcconfig.web=true}
  */
 @SpringBootTest(
-    classes = AutoConfigurationTestConfiguration.class,
-    properties = {
-        "geoserver.backend.jdbcconfig.enabled=true",
-        "geoserver.backend.jdbcconfig.web.enabled=true"
-    }
-)
+        classes = AutoConfigurationTestConfiguration.class,
+        properties = {
+            "geoserver.backend.jdbcconfig.enabled=true",
+            "geoserver.backend.jdbcconfig.web.enabled=true"
+        })
 @ActiveProfiles("test")
 public class JDBCConfigAutoConfigurationWebEnabledTest extends JDBCConfigTest {
 

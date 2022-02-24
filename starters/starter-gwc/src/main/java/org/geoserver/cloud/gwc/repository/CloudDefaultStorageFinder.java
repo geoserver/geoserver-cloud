@@ -4,14 +4,17 @@
  */
 package org.geoserver.cloud.gwc.repository;
 
-import java.nio.file.Path;
 import org.geowebcache.config.ConfigurationException;
 import org.geowebcache.storage.DefaultStorageFinder;
 import org.geowebcache.util.ApplicationContextProvider;
 import org.springframework.core.env.Environment;
 import org.springframework.web.context.WebApplicationContext;
 
-/** @since 1.0 */
+import java.nio.file.Path;
+
+/**
+ * @since 1.0
+ */
 public class CloudDefaultStorageFinder extends DefaultStorageFinder {
 
     private Environment environment;

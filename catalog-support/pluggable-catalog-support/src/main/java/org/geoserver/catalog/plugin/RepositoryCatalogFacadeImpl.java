@@ -6,17 +6,6 @@ package org.geoserver.catalog.plugin;
 
 import static java.lang.String.format;
 
-import java.lang.reflect.Proxy;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogCapabilities;
 import org.geoserver.catalog.CatalogFacade;
@@ -37,6 +26,18 @@ import org.geotools.util.logging.Logging;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 import org.springframework.util.Assert;
+
+import java.lang.reflect.Proxy;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
         implements RepositoryCatalogFacade {
@@ -68,7 +69,8 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
 
     public @Override void resolve() {
         // no-op, override as appropriate
-    };
+    }
+    ;
 
     protected <I extends CatalogInfo> I add(
             I info, Class<I> type, CatalogInfoRepository<I> repository) {

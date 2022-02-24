@@ -6,13 +6,10 @@ package org.geoserver.jackson.databind.config.dto;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import java.io.Serializable;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
 import org.geoserver.catalog.LayerInfo.WMSInterpolation;
 import org.geoserver.catalog.impl.AuthorityURL;
 import org.geoserver.catalog.impl.LayerIdentifier;
@@ -30,6 +27,12 @@ import org.geoserver.wms.WatermarkInfoImpl;
 import org.geoserver.wps.ProcessGroupInfo;
 import org.geoserver.wps.ProcessInfo;
 import org.geotools.coverage.grid.io.OverviewPolicy;
+
+import java.io.Serializable;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 /** DTO for {@link ServiceInfo} */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
@@ -63,11 +66,17 @@ public abstract @Data class Service extends ConfigInfoDto {
     // not used
     // Map<Object, Object> clientProperties;
 
-    /** @since geoserver 2.20.0 */
+    /**
+     * @since geoserver 2.20.0
+     */
     private Locale defaultLocale;
-    /** @since geoserver 2.20.0 */
+    /**
+     * @since geoserver 2.20.0
+     */
     private Map<String, String> internationalTitle;
-    /** @since geoserver 2.20.0 */
+    /**
+     * @since geoserver 2.20.0
+     */
     private Map<String, String> internationalAbstract;
 
     @EqualsAndHashCode(callSuper = true)
@@ -98,12 +107,18 @@ public abstract @Data class Service extends ConfigInfoDto {
         private int remoteStyleMaxRequestTime;
         private int remoteStyleTimeout;
 
-        /** @since geoserver 2.19.2 */
+        /**
+         * @since geoserver 2.19.2
+         */
         private boolean defaultGroupStyleEnabled;
 
-        /** @since geoserver 2.20.0 */
+        /**
+         * @since geoserver 2.20.0
+         */
         private Map<String, String> internationalRootLayerTitle;
-        /** @since geoserver 2.20.0 */
+        /**
+         * @since geoserver 2.20.0
+         */
         private Map<String, String> internationalRootLayerAbstract;
     }
 

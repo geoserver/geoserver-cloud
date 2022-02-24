@@ -13,10 +13,10 @@ import org.springframework.context.annotation.ImportResource;
 @Configuration(proxyBeanMethods = true)
 @AutoConfigureAfter({GeoServerWebMvcMainAutoConfiguration.class})
 @ImportResource( //
-    reader = FilteringXmlBeanDefinitionReader.class, //
-    locations = {
-        "jar:gs-wfs-.*!/applicationContext.xml#name=.*",
-        "jar:gs-flatgeobuf-.*!/applicationContext.xml#name=.*"
-    } //
-)
+        reader = FilteringXmlBeanDefinitionReader.class, //
+        locations = {
+            "jar:gs-wfs-.*!/applicationContext.xml#name=.*",
+            "jar:gs-flatgeobuf-.*!/applicationContext.xml#name=.*"
+        } //
+        )
 public class WfsAutoConfiguration {}

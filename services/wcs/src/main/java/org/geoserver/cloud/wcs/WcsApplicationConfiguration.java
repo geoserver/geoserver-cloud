@@ -10,12 +10,11 @@ import org.springframework.context.annotation.ImportResource;
 
 @Configuration
 @ImportResource( //
-    reader = FilteringXmlBeanDefinitionReader.class, //
-    locations = { //
-        "jar:gs-wcs-.*!/applicationContext.xml", //
-        "jar:gs-wcs1_0-.*!/applicationContext.xml", //
-        "jar:gs-wcs1_1-.*!/applicationContext.xml", //
-        "jar:gs-wcs2_0-.*!/applicationContext.xml" //
-    }
-)
+        reader = FilteringXmlBeanDefinitionReader.class, //
+        locations = { //
+            "jar:gs-wcs-.*!/applicationContext.xml", //
+            "jar:gs-wcs1_0-.*!/applicationContext.xml", //
+            "jar:gs-wcs1_1-.*!/applicationContext.xml", //
+            "jar:gs-wcs2_0-.*!/applicationContext.xml" //
+        })
 public class WcsApplicationConfiguration {}

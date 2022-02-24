@@ -4,13 +4,15 @@
  */
 package org.geoserver.catalog.plugin.forwarding;
 
-import java.util.Optional;
-import java.util.stream.Stream;
 import lombok.NonNull;
+
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.ResourceRepository;
+
+import java.util.Optional;
+import java.util.stream.Stream;
 
 public class ForwardingResourceRepository
         extends ForwardingCatalogRepository<ResourceInfo, ResourceRepository>

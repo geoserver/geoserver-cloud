@@ -55,12 +55,11 @@ import org.springframework.context.annotation.ImportResource;
  */
 @Configuration(proxyBeanMethods = true)
 @ImportResource( //
-    reader = FilteringXmlBeanDefinitionReader.class, //
-    // exclude beans
-    locations =
-            "jar:gs-main-.*!/applicationContext.xml#name="
-                    + GeoServerMainModuleConfiguration.EXCLUDE_BEANS_REGEX
-)
+        reader = FilteringXmlBeanDefinitionReader.class, //
+        // exclude beans
+        locations =
+                "jar:gs-main-.*!/applicationContext.xml#name="
+                        + GeoServerMainModuleConfiguration.EXCLUDE_BEANS_REGEX)
 public class GeoServerMainModuleConfiguration {
 
     private static final String UNUSED_BEAN_NAMES =

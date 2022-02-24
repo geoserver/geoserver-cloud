@@ -4,13 +4,15 @@
  */
 package org.geoserver.cloud.autoconfigure.security;
 
-import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.cloud.security.GeoServerSecurityConfigChangeEvent;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.bus.jackson.RemoteApplicationEventScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
+
+import javax.annotation.PostConstruct;
 
 @Configuration
 @ConditionalOnGeoServerSecurityDisabled

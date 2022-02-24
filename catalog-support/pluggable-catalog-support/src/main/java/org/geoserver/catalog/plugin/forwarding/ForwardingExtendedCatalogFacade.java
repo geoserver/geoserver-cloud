@@ -4,12 +4,13 @@
  */
 package org.geoserver.catalog.plugin.forwarding;
 
-import java.util.stream.Stream;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.Query;
+
+import java.util.stream.Stream;
 
 /** Adapts a regular {@link CatalogFacade} to a {@link ExtendedCatalogFacade} */
 public class ForwardingExtendedCatalogFacade extends ForwardingCatalogFacade

@@ -5,6 +5,7 @@
 package org.geoserver.jackson.databind.config.dto;
 
 import lombok.Data;
+
 import org.geoserver.config.CoverageAccessInfo;
 
 /** DTO for {@link CoverageAccessInfo} */

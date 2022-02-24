@@ -10,12 +10,11 @@ import org.springframework.context.annotation.ImportResource;
 
 @Configuration
 @ImportResource( //
-    reader = FilteringXmlBeanDefinitionReader.class, //
-    locations = { //
-        "jar:gs-wps-.*!/applicationContext.xml" // , //
-        // // REVISIT: wps won't start without the web components! see note in pom.xml
-        // "jar:gs-web-core-.*!/applicationContext.xml", //
-        // "jar:gs-web-wps-.*!/applicationContext.xml", //
-    }
-)
+        reader = FilteringXmlBeanDefinitionReader.class, //
+        locations = { //
+            "jar:gs-wps-.*!/applicationContext.xml" // , //
+            // // REVISIT: wps won't start without the web components! see note in pom.xml
+            // "jar:gs-web-core-.*!/applicationContext.xml", //
+            // "jar:gs-web-wps-.*!/applicationContext.xml", //
+        })
 public class WpsApplicationConfiguration {}

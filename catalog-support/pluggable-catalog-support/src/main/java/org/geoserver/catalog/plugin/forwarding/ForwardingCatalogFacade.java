@@ -4,8 +4,6 @@
  */
 package org.geoserver.catalog.plugin.forwarding;
 
-import java.util.List;
-import javax.annotation.Nullable;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogCapabilities;
 import org.geoserver.catalog.CatalogFacade;
@@ -23,6 +21,10 @@ import org.geoserver.catalog.util.CloseableIterator;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 
+import java.util.List;
+
+import javax.annotation.Nullable;
+
 /**
  * {@link CatalogFacade} which forwards all its method calls to another {@code CatalogFacade} aiding
  * in implementing a decorator.
@@ -39,7 +41,9 @@ public class ForwardingCatalogFacade implements CatalogFacade {
         this.facade = facade;
     }
 
-    /** @return this decorator's subject */
+    /**
+     * @return this decorator's subject
+     */
     public CatalogFacade getSubject() {
         // if you're wondering, I refuse to derive from org.geotools.util.decorate.AbstractDecorator
         // and by extension from java.sql.Wrapper

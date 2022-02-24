@@ -4,8 +4,8 @@
  */
 package org.geoserver.cloud.autoconfigure.gwc.core;
 
-import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.catalog.Catalog;
 import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnGeoWebCacheEnabled;
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
@@ -25,16 +25,19 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.Primary;
 
-/** @since 1.0 */
+import javax.annotation.PostConstruct;
+
+/**
+ * @since 1.0
+ */
 @Configuration(proxyBeanMethods = true)
 @ConditionalOnGeoWebCacheEnabled
 @AutoConfigureAfter(GwcCoreAutoConfiguration.class)
 @ImportResource(
-    reader = FilteringXmlBeanDefinitionReader.class, //
-    locations = {
-        "jar:gs-gwc-.*!/geowebcache-geoserver-context.xml#name=^(?!GeoSeverTileLayerCatalog|gwcCatalogConfiguration).*$"
-    }
-)
+        reader = FilteringXmlBeanDefinitionReader.class, //
+        locations = {
+            "jar:gs-gwc-.*!/geowebcache-geoserver-context.xml#name=^(?!GeoSeverTileLayerCatalog|gwcCatalogConfiguration).*$"
+        })
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.gwc.core")
 public class GeoServerIntegrationAutoConfiguration {
 

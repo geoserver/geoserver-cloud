@@ -4,15 +4,17 @@
  */
 package org.geoserver.cloud.catalog.client.reactivefeign;
 
-import static java.lang.String.format;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import static java.lang.String.format;
+
 import lombok.Getter;
 import lombok.experimental.Accessors;
+
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.WorkspaceRepository;
 import org.junit.Test;

@@ -5,6 +5,7 @@
 package org.geoserver.cloud.config.catalog;
 
 import lombok.Data;
+
 import org.geoserver.cloud.catalog.client.impl.CatalogClientProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

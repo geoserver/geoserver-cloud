@@ -4,11 +4,13 @@
  */
 package org.geoserver.jackson.databind.catalog.dto;
 
-import java.math.BigDecimal;
 import lombok.Data;
+
 import org.geoserver.catalog.DimensionDefaultValueSetting;
 import org.geoserver.catalog.DimensionInfo;
 import org.geoserver.catalog.DimensionPresentation;
+
+import java.math.BigDecimal;
 
 /** DTO for {@link DimensionInfo} */
 public @Data class Dimension {

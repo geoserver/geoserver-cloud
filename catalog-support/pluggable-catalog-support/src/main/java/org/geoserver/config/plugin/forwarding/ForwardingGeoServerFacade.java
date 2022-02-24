@@ -4,7 +4,6 @@
  */
 package org.geoserver.config.plugin.forwarding;
 
-import java.util.Collection;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerFacade;
@@ -15,6 +14,8 @@ import org.geoserver.config.SettingsInfo;
 import org.geoserver.config.plugin.ConfigRepository;
 import org.geoserver.config.plugin.RepositoryGeoServerFacade;
 
+import java.util.Collection;
+
 /** */
 public class ForwardingGeoServerFacade implements RepositoryGeoServerFacade {
 
@@ -24,7 +25,9 @@ public class ForwardingGeoServerFacade implements RepositoryGeoServerFacade {
         this.facade = facade;
     }
 
-    /** @return this decorator's subject */
+    /**
+     * @return this decorator's subject
+     */
     public GeoServerFacade getSubject() {
         // if you're wondering, I refuse to derive from org.geotools.util.decorate.AbstractDecorator
         // and by extension from java.sql.Wrapper

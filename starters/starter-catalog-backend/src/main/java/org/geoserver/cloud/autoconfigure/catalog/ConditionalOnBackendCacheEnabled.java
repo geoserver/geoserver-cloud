@@ -4,22 +4,22 @@
  */
 package org.geoserver.cloud.autoconfigure.catalog;
 
+import org.geoserver.cloud.catalog.caching.GeoServerBackendCacheConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import org.geoserver.cloud.catalog.caching.GeoServerBackendCacheConfiguration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Documented
 @ConditionalOnClass(GeoServerBackendCacheConfiguration.class)
 @ConditionalOnProperty(
-    name = "geoserver.catalog.caching.enabled",
-    havingValue = "true",
-    matchIfMissing = false
-)
+        name = "geoserver.catalog.caching.enabled",
+        havingValue = "true",
+        matchIfMissing = false)
 public @interface ConditionalOnBackendCacheEnabled {}

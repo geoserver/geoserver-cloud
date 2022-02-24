@@ -4,6 +4,17 @@
  */
 package org.geoserver.catalog.plugin;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+
+import org.geoserver.catalog.Info;
+import org.geoserver.catalog.impl.ClassMappings;
+import org.geoserver.catalog.impl.ModificationProxy;
+import org.geoserver.ows.util.ClassProperties;
+import org.geoserver.ows.util.OwsUtils;
+
 import java.io.Serializable;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
@@ -15,15 +26,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import org.geoserver.catalog.Info;
-import org.geoserver.catalog.impl.ClassMappings;
-import org.geoserver.catalog.impl.ModificationProxy;
-import org.geoserver.ows.util.ClassProperties;
-import org.geoserver.ows.util.OwsUtils;
 
 public @Data class PropertyDiff implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -67,7 +69,9 @@ public @Data class PropertyDiff implements Serializable {
         return changes.stream().filter(c -> propertyName.equals(c.getPropertyName())).findFirst();
     }
 
-    /** @return a "clean copy", where no-op changes are ignored */
+    /**
+     * @return a "clean copy", where no-op changes are ignored
+     */
     public PropertyDiff clean() {
         return new PropertyDiff(
                 changes.stream().filter(c -> !c.isNoChange()).collect(Collectors.toList()));

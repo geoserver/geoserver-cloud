@@ -8,9 +8,9 @@ import static org.geoserver.cloud.catalog.caching.CachingCatalogFacade.DEFAULT_N
 import static org.geoserver.cloud.catalog.caching.CachingCatalogFacade.DEFAULT_WORKSPACE_CACHE_KEY;
 import static org.geoserver.cloud.catalog.caching.CachingCatalogFacade.generateDefaultDataStoreKey;
 
-import java.util.function.BooleanSupplier;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.WorkspaceInfo;
@@ -35,6 +35,8 @@ import org.geoserver.cloud.event.ConfigInfoInfoType;
 import org.geoserver.config.GeoServerInfo;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
+
+import java.util.function.BooleanSupplier;
 
 /**
  * Component to listen to {@link RemoteInfoEvent} based hierarchy of events and evict entries from

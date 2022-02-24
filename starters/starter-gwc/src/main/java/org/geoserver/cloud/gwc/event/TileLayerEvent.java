@@ -7,6 +7,7 @@ package org.geoserver.cloud.gwc.event;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
+
 import org.geoserver.gwc.layer.TileLayerCatalogListener;
 import org.springframework.context.ApplicationContext;
 

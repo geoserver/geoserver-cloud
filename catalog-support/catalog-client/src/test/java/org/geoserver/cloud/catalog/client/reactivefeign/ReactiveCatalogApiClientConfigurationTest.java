@@ -13,6 +13,7 @@ import org.springframework.boot.autoconfigure.web.reactive.function.client.WebCl
 import org.springframework.boot.context.annotation.UserConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.cloud.openfeign.FeignAutoConfiguration;
+
 import reactivefeign.spring.config.ReactiveFeignAutoConfiguration;
 
 public class ReactiveCatalogApiClientConfigurationTest {

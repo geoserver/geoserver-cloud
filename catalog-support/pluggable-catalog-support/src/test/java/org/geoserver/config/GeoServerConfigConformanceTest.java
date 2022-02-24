@@ -18,12 +18,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.config.impl.GeoServerImpl;
 import org.geoserver.config.impl.GeoServerInfoImpl;
@@ -31,6 +25,13 @@ import org.geoserver.config.impl.ServiceInfoImpl;
 import org.geoserver.ows.LocalWorkspace;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.lang.reflect.Proxy;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public abstract class GeoServerConfigConformanceTest {
 

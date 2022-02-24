@@ -7,6 +7,28 @@ package org.geoserver.cloud.gwc.repository;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Streams;
 import com.thoughtworks.xstream.XStream;
+
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.configuration.DefaultConfigurationBuilder.XMLConfigurationProvider;
+import org.geoserver.config.util.SecureXStream;
+import org.geoserver.gwc.layer.GeoServerTileLayerInfo;
+import org.geoserver.gwc.layer.TileLayerCatalog;
+import org.geoserver.gwc.layer.TileLayerCatalogListener;
+import org.geoserver.gwc.layer.TileLayerCatalogListener.Type;
+import org.geoserver.platform.resource.FileSystemResourceStore;
+import org.geoserver.platform.resource.Resource;
+import org.geoserver.platform.resource.ResourceStore;
+import org.geoserver.platform.resource.Resources;
+import org.geoserver.util.DimensionWarning;
+import org.geowebcache.config.ContextualConfigurationProvider.Context;
+import org.geowebcache.config.XMLConfiguration;
+import org.geowebcache.storage.blobstore.file.FilePathUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.WebApplicationContext;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -31,27 +53,10 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.configuration.DefaultConfigurationBuilder.XMLConfigurationProvider;
-import org.geoserver.config.util.SecureXStream;
-import org.geoserver.gwc.layer.GeoServerTileLayerInfo;
-import org.geoserver.gwc.layer.TileLayerCatalog;
-import org.geoserver.gwc.layer.TileLayerCatalogListener;
-import org.geoserver.gwc.layer.TileLayerCatalogListener.Type;
-import org.geoserver.platform.resource.FileSystemResourceStore;
-import org.geoserver.platform.resource.Resource;
-import org.geoserver.platform.resource.ResourceStore;
-import org.geoserver.platform.resource.Resources;
-import org.geoserver.util.DimensionWarning;
-import org.geowebcache.config.ContextualConfigurationProvider.Context;
-import org.geowebcache.config.XMLConfiguration;
-import org.geowebcache.storage.blobstore.file.FilePathUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.context.WebApplicationContext;
 
-/** @since 1.0 */
+/**
+ * @since 1.0
+ */
 @Slf4j(topic = "org.geoserver.cloud.gwc.repository")
 @RequiredArgsConstructor
 public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {

@@ -6,29 +6,35 @@ package org.geoserver.cloud.web.service;
 
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
+
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
+import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.cloud.netflix.eureka.EurekaServiceInstance;
+
 import java.net.URI;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
-import org.springframework.cloud.netflix.eureka.EurekaServiceInstance;
 
-/** @since 1.0 */
+/**
+ * @since 1.0
+ */
 @RequiredArgsConstructor
 public class ServiceInstanceRegistry {
 
     private final @NonNull DiscoveryClient client;
 
-    /** @return All known service IDs */
+    /**
+     * @return All known service IDs
+     */
     public List<String> getServiceNames() {
         return client.getServices();
     }
 
     public Stream<ServiceInstance> getServices() {
-        return client.getServices()
-                .stream()
+        return client.getServices().stream()
                 .map(client::getInstances)
                 .map(List::stream)
                 .flatMap(Function.identity())

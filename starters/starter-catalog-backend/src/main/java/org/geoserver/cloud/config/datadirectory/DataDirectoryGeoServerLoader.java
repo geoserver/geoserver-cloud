@@ -4,7 +4,6 @@
  */
 package org.geoserver.cloud.config.datadirectory;
 
-import java.util.List;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.Info;
@@ -25,6 +24,8 @@ import org.geoserver.platform.GeoServerExtensions;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.Resource.Lock;
 
+import java.util.List;
+
 /** */
 public class DataDirectoryGeoServerLoader extends DefaultGeoServerLoader {
 
@@ -41,9 +42,7 @@ public class DataDirectoryGeoServerLoader extends DefaultGeoServerLoader {
                         geoServer.getCatalog().getResourceLoader(), xp);
 
         ConfigurationListener configPersister =
-                geoServer
-                        .getListeners()
-                        .stream()
+                geoServer.getListeners().stream()
                         .filter(GeoServerConfigPersister.class::isInstance)
                         .findFirst()
                         .orElse(null);

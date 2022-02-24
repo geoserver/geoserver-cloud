@@ -5,6 +5,15 @@
 package org.geoserver.cloud.catalog.client.impl;
 
 import com.google.common.io.ByteStreams;
+
+import lombok.AllArgsConstructor;
+import lombok.NonNull;
+
+import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveResourceStoreClient;
+import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveResourceStoreClient.ResourceDescriptor;
+import org.geoserver.platform.resource.Resource;
+import org.geoserver.platform.resource.ResourceListener;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -18,12 +27,6 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import lombok.AllArgsConstructor;
-import lombok.NonNull;
-import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveResourceStoreClient;
-import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveResourceStoreClient.ResourceDescriptor;
-import org.geoserver.platform.resource.Resource;
-import org.geoserver.platform.resource.ResourceListener;
 
 /** */
 @AllArgsConstructor

@@ -4,8 +4,8 @@
  */
 package org.geoserver.cloud.config.security;
 
-import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.cloud.autoconfigure.bus.ConditionalOnGeoServerRemoteEventsDisabled;
 import org.geoserver.cloud.autoconfigure.bus.ConditionalOnGeoServerRemoteEventsEnabled;
 import org.geoserver.cloud.autoconfigure.security.ConditionalOnGeoServerSecurityEnabled;
@@ -22,6 +22,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.ImportResource;
+
+import javax.annotation.PostConstruct;
 
 /**
  * Loads geoserver security bean definitions from {@code
@@ -40,10 +42,11 @@ import org.springframework.context.annotation.ImportResource;
  */
 @Configuration
 @ImportResource(
-    reader = FilteringXmlBeanDefinitionReader.class, //
-    // exclude authenticationManager from applicationSecurityContext.xml
-    locations = {"classpath*:/applicationSecurityContext.xml#name=^(?!authenticationManager).*$"}
-)
+        reader = FilteringXmlBeanDefinitionReader.class, //
+        // exclude authenticationManager from applicationSecurityContext.xml
+        locations = {
+            "classpath*:/applicationSecurityContext.xml#name=^(?!authenticationManager).*$"
+        })
 @Slf4j(topic = "org.geoserver.cloud.config.security")
 @ConditionalOnGeoServerSecurityEnabled
 @RemoteApplicationEventScan(basePackageClasses = {GeoServerSecurityConfigChangeEvent.class})

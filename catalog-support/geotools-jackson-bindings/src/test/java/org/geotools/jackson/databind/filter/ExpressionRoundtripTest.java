@@ -8,22 +8,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-import java.awt.Color;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.sql.Date;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import lombok.extern.slf4j.Slf4j;
+
 import org.geotools.filter.FunctionFinder;
 import org.geotools.geometry.jts.Geometries;
 import org.geotools.jackson.databind.filter.dto.Expression;
@@ -44,7 +30,24 @@ import org.locationtech.jts.io.WKTReader;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.capability.FunctionName;
 import org.opengis.parameter.Parameter;
+
 import si.uom.SI;
+
+import java.awt.Color;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.sql.Date;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Abstract test suite for {@link Expression} Data Transfer Objects or POJOS; to be used both for
@@ -244,8 +247,7 @@ public abstract class ExpressionRoundtripTest {
     public @Test void allAvailableFunctionNames() throws Exception {
         FunctionFinder finder = new FunctionFinder(null);
         List<FunctionName> allFunctionDescriptions =
-                finder.getAllFunctionDescriptions()
-                        .stream()
+                finder.getAllFunctionDescriptions().stream()
                         .sorted((f1, f2) -> f1.getName().compareTo(f2.getName()))
                         .collect(Collectors.toList());
         for (FunctionName functionName : allFunctionDescriptions) {

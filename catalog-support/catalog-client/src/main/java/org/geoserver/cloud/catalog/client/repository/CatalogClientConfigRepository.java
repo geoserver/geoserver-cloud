@@ -4,12 +4,9 @@
  */
 package org.geoserver.cloud.catalog.client.repository;
 
-import java.lang.reflect.Proxy;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.Setter;
+
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.Patch;
@@ -19,8 +16,14 @@ import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
 import org.geoserver.config.plugin.ConfigRepository;
+
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
+
+import java.lang.reflect.Proxy;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
 /** */
 public class CatalogClientConfigRepository implements ConfigRepository {

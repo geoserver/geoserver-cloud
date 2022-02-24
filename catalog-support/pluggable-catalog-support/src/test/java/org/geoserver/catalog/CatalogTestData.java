@@ -6,18 +6,8 @@ package org.geoserver.catalog;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import lombok.NonNull;
+
 import org.geoserver.catalog.impl.AuthorityURL;
 import org.geoserver.catalog.impl.DataStoreInfoImpl;
 import org.geoserver.catalog.impl.LayerGroupInfoImpl;
@@ -67,6 +57,18 @@ import org.geotools.util.Version;
 import org.junit.rules.ExternalResource;
 import org.opengis.util.InternationalString;
 import org.springframework.util.Assert;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Junit {@code @Rule} to provide or populate a catalog; use {@link CatalogTestData#empty
@@ -558,8 +560,7 @@ public class CatalogTestData extends ExternalResource {
     public void assertInternationalStringPropertiesEqual(Info info1, Info info2) {
         ClassProperties props = new ClassProperties(info1.getClass());
         List<String> istringProps =
-                props.properties()
-                        .stream()
+                props.properties().stream()
                         .filter(p -> props.getter(p, InternationalString.class) != null)
                         .collect(Collectors.toList());
         for (String isp : istringProps) {

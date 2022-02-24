@@ -6,10 +6,13 @@ package org.geoserver.jackson.databind.catalog.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+
+import lombok.Data;
+
+import org.geotools.jackson.databind.filter.dto.Expression.Literal;
+
 import java.util.Map;
 import java.util.TreeMap;
-import lombok.Data;
-import org.geotools.jackson.databind.filter.dto.Expression.Literal;
 
 /** DTO for {@link org.geoserver.catalog.plugin.Patch} */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)

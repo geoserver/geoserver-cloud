@@ -4,8 +4,8 @@
  */
 package org.geoserver.cloud.config.catalogclient;
 
-import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.config.GeoServer;
@@ -14,6 +14,8 @@ import org.geoserver.config.GeoServerLoader;
 import org.geoserver.config.util.XStreamPersister;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.opengis.filter.Filter;
+
+import java.io.IOException;
 
 /** */
 @Slf4j

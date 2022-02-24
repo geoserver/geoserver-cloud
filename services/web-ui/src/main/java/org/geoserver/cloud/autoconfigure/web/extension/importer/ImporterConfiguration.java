@@ -10,10 +10,10 @@ import org.springframework.context.annotation.ImportResource;
 
 @Configuration(proxyBeanMethods = true)
 @ImportResource( //
-    reader = FilteringXmlBeanDefinitionReader.class, //
-    locations = { //
-        "jar:gs-importer-core-.*!/applicationContext.xml", //
-        "jar:gs-importer-web-.*!/applicationContext.xml" //
-    } //
-)
+        reader = FilteringXmlBeanDefinitionReader.class, //
+        locations = { //
+            "jar:gs-importer-core-.*!/applicationContext.xml", //
+            "jar:gs-importer-web-.*!/applicationContext.xml" //
+        } //
+        )
 public class ImporterConfiguration {}

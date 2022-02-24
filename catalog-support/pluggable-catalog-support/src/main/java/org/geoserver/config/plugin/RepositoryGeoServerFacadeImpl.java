@@ -6,17 +6,6 @@ package org.geoserver.config.plugin;
 
 import static java.util.Objects.requireNonNull;
 
-import java.lang.reflect.Proxy;
-import java.rmi.server.UID;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.MetadataMap;
 import org.geoserver.catalog.WorkspaceInfo;
@@ -34,6 +23,19 @@ import org.geoserver.config.impl.CoverageAccessInfoImpl;
 import org.geoserver.config.impl.GeoServerInfoImpl;
 import org.geoserver.ows.util.OwsUtils;
 import org.geotools.util.logging.Logging;
+
+import java.lang.reflect.Proxy;
+import java.rmi.server.UID;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
+import javax.annotation.Nullable;
 
 /**
  * Default implementation of {@link GeoServerFacade} backed by a pluggable {@link ConfigRepository}

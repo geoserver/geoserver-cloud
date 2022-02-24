@@ -6,21 +6,21 @@ package org.geoserver.cloud.wms.controller;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.geoserver.ows.Dispatcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 public @Controller class GetMapReflectorController {
 
     private @Autowired Dispatcher geoserverDispatcher;
 
     @RequestMapping(
-        method = {GET},
-        path = {"/wms/reflect", "/{workspace}/wms/reflect"}
-    )
+            method = {GET},
+            path = {"/wms/reflect", "/{workspace}/wms/reflect"})
     public void getMapReflect(HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         geoserverDispatcher.handleRequest(request, response);

@@ -9,7 +9,7 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertEquals;
 
 import com.google.common.collect.Lists;
-import java.util.ArrayList;
+
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CoverageStoreInfo;
@@ -33,6 +33,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.ArrayList;
+
 /**
  * {@link Catalog} integration and conformance tests for a {@link CatalogFacade} running off
  * catalog-service's client {@link CatalogClientRepository repositories} hitting a real back-end
@@ -45,18 +47,17 @@ import org.springframework.test.context.ActiveProfiles;
  * HTTP.
  */
 @SpringBootTest(
-    classes = { //
-        CatalogServiceApplication.class, //
-        CatalogClientConfiguration.class //
-    },
-    webEnvironment = WebEnvironment.DEFINED_PORT,
-    properties = {
-        "spring.cloud.circuitbreaker.hystrix.enabled=false",
-        "spring.main.web-application-type=reactive",
-        "server.port=16666",
-        "geoserver.backend.catalog-service.uri=http://localhost:${server.port}"
-    }
-)
+        classes = { //
+            CatalogServiceApplication.class, //
+            CatalogClientConfiguration.class //
+        },
+        webEnvironment = WebEnvironment.DEFINED_PORT,
+        properties = {
+            "spring.cloud.circuitbreaker.hystrix.enabled=false",
+            "spring.main.web-application-type=reactive",
+            "server.port=16666",
+            "geoserver.backend.catalog-service.uri=http://localhost:${server.port}"
+        })
 @ActiveProfiles("it.catalog-service")
 // REVISIT: fails if run with failsafe "ClassNotFoundException:
 // org.geoserver.cloud.catalog.client.reactivefeign.ReactiveCatalogClient"

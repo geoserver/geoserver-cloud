@@ -5,6 +5,7 @@
 package org.geoserver.cloud.event.config;
 
 import lombok.NonNull;
+
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.plugin.PropertyDiff;
 import org.geoserver.cloud.event.LocalPreModifyEvent;

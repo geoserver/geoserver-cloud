@@ -7,7 +7,9 @@ package org.geotools.jackson.databind.filter;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.geotools.jackson.databind.filter.mapper.ExpressionMapper;
 import org.geotools.jackson.databind.filter.mapper.FilterMapper;
 import org.geotools.jackson.databind.geojson.GeoToolsGeoJsonModule;

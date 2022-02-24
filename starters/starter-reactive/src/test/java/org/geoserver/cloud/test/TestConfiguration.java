@@ -16,13 +16,12 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
 @EnableAutoConfiguration(
-    exclude = {
-        ReactiveSecurityAutoConfiguration.class,
-        ReactiveManagementWebSecurityAutoConfiguration.class,
-        ReactiveUserDetailsServiceAutoConfiguration.class,
-        LoadBalancerBeanPostProcessorAutoConfiguration.class
-    }
-)
+        exclude = {
+            ReactiveSecurityAutoConfiguration.class,
+            ReactiveManagementWebSecurityAutoConfiguration.class,
+            ReactiveUserDetailsServiceAutoConfiguration.class,
+            LoadBalancerBeanPostProcessorAutoConfiguration.class
+        })
 public class TestConfiguration {
 
     @Bean

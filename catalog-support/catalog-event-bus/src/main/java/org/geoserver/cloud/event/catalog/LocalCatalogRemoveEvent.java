@@ -5,6 +5,7 @@
 package org.geoserver.cloud.event.catalog;
 
 import lombok.NonNull;
+
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.event.CatalogRemoveEvent;

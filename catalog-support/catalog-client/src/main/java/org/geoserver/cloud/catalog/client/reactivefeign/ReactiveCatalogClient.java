@@ -25,16 +25,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+
 import reactivefeign.spring.config.ReactiveFeignClient;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @ReactiveFeignClient( //
-    name = "catalog-service", //
-    url = "${geoserver.backend.catalog-service.uri:}", //
-    qualifier = "catalog-client", //
-    path = "/api/v1/catalog"
-)
+        name = "catalog-service", //
+        url = "${geoserver.backend.catalog-service.uri:}", //
+        qualifier = "catalog-client", //
+        path = "/api/v1/catalog")
 public interface ReactiveCatalogClient {
 
     @PostMapping(path = "/{endpoint}")

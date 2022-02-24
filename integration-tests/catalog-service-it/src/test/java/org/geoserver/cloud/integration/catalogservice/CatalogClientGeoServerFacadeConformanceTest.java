@@ -36,18 +36,17 @@ import org.springframework.test.context.junit4.SpringRunner;
  * hitting a live {@code catalog-service} instance.
  */
 @SpringBootTest(
-    classes = { //
-        CatalogServiceApplication.class, //
-        CatalogClientConfiguration.class //
-    },
-    webEnvironment = WebEnvironment.DEFINED_PORT,
-    properties = {
-        "spring.cloud.circuitbreaker.hystrix.enabled=false",
-        "spring.main.web-application-type=reactive",
-        "server.port=15555",
-        "geoserver.backend.catalog-service.uri=http://localhost:${server.port}"
-    }
-)
+        classes = { //
+            CatalogServiceApplication.class, //
+            CatalogClientConfiguration.class //
+        },
+        webEnvironment = WebEnvironment.DEFINED_PORT,
+        properties = {
+            "spring.cloud.circuitbreaker.hystrix.enabled=false",
+            "spring.main.web-application-type=reactive",
+            "server.port=15555",
+            "geoserver.backend.catalog-service.uri=http://localhost:${server.port}"
+        })
 @RunWith(SpringRunner.class)
 @ActiveProfiles("it.catalog-service")
 public class CatalogClientGeoServerFacadeConformanceTest extends GeoServerConfigConformanceTest {

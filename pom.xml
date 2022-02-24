@@ -669,9 +669,26 @@
       <url>https://maven.geo-solutions.it/</url>
     </repository>
     <repository>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
       <id>spring-releases</id>
       <name>Spring Releases</name>
       <url>https://repo.spring.io/release</url>
+    </repository>
+    <repository>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>maven-central</id>
+      <name>Maven Central</name>
+      <url>https://repo.maven.apache.org/maven2</url>
     </repository>
   </repositories>
   <pluginRepositories>
@@ -724,9 +741,9 @@
           <version>1.2.2</version>
         </plugin>
         <plugin>
-          <groupId>com.coveo</groupId>
+          <groupId>com.spotify.fmt</groupId>
           <artifactId>fmt-maven-plugin</artifactId>
-          <version>2.4.0</version>
+          <version>2.15</version>
         </plugin>
         <plugin>
           <groupId>com.spotify</groupId>
@@ -866,7 +883,7 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>com.coveo</groupId>
+        <groupId>com.spotify.fmt</groupId>
         <artifactId>fmt-maven-plugin</artifactId>
         <executions>
           <execution>

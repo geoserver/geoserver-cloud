@@ -4,12 +4,6 @@
  */
 package org.geotools.jackson.databind.filter.mapper;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.filter.IsEqualsToImpl;
 import org.geotools.filter.IsGreaterThanImpl;
@@ -93,6 +87,13 @@ import org.opengis.filter.temporal.OverlappedBy;
 import org.opengis.filter.temporal.TContains;
 import org.opengis.filter.temporal.TEquals;
 import org.opengis.filter.temporal.TOverlaps;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Mapper(config = FilterMapperConfig.class)
 abstract class DtoToFilterMapper {

@@ -4,8 +4,8 @@
  */
 package org.geoserver.cloud.bus;
 
-import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.catalog.Catalog;
 import org.geoserver.cloud.bus.event.catalog.RemoteCatalogEvent;
 import org.geoserver.cloud.bus.event.config.RemoteConfigEvent;
@@ -18,6 +18,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
+import javax.annotation.PostConstruct;
+
 /**
  * Configuration to enable sending and receiving remote application events related to configuration
  * changes in the {@link Catalog} and {@link GeoServer}
@@ -25,8 +27,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ConditionalOnBusEnabled
 @RemoteApplicationEventScan(
-    basePackageClasses = {RemoteCatalogEvent.class, RemoteConfigEvent.class}
-)
+        basePackageClasses = {RemoteCatalogEvent.class, RemoteConfigEvent.class})
 @ComponentScan(basePackageClasses = {RemoteCatalogEvent.class, RemoteConfigEvent.class})
 @Slf4j(topic = "org.geoserver.cloud.bus")
 public class RemoteApplicationEventsConfiguration {

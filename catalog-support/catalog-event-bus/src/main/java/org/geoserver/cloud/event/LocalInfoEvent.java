@@ -6,6 +6,7 @@ package org.geoserver.cloud.event;
 
 import lombok.Getter;
 import lombok.NonNull;
+
 import org.geoserver.catalog.Info;
 import org.springframework.context.ApplicationEvent;
 

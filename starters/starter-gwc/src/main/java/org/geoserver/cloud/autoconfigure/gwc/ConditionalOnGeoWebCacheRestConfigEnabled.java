@@ -4,13 +4,14 @@
  */
 package org.geoserver.cloud.autoconfigure.gwc;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})
@@ -18,8 +19,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 @ConditionalOnGeoWebCacheEnabled
 @ConditionalOnClass(org.geowebcache.rest.controller.GWCController.class)
 @ConditionalOnProperty(
-    name = GeoWebCacheConfigurationProperties.RESTCONFIG_ENABLED,
-    havingValue = "true",
-    matchIfMissing = false
-)
+        name = GeoWebCacheConfigurationProperties.RESTCONFIG_ENABLED,
+        havingValue = "true",
+        matchIfMissing = false)
 public @interface ConditionalOnGeoWebCacheRestConfigEnabled {}

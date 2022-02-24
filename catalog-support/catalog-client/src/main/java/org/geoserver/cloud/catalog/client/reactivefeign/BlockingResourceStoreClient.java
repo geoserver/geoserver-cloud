@@ -4,17 +4,20 @@
  */
 package org.geoserver.cloud.catalog.client.reactivefeign;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
+import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveResourceStoreClient.ResourceDescriptor;
+
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
+
 import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveResourceStoreClient.ResourceDescriptor;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 @RequiredArgsConstructor
 public class BlockingResourceStoreClient {

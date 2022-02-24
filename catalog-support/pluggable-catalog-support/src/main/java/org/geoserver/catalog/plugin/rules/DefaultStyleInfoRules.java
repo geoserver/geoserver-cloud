@@ -4,10 +4,6 @@
  */
 package org.geoserver.catalog.plugin.rules;
 
-import java.io.IOException;
-import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.commons.io.FilenameUtils;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.SLDHandler;
@@ -22,6 +18,11 @@ import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.Resource.Type;
 import org.geoserver.platform.resource.Resources;
 import org.geotools.util.logging.Logging;
+
+import java.io.IOException;
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /** Encapsulates default {@link Catalog} business rules for {@link StyleInfo} objects */
 public class DefaultStyleInfoRules implements CatalogInfoBusinessRules<StyleInfo> {

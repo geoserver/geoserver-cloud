@@ -4,9 +4,11 @@
  */
 package org.geoserver.cloud.catalog.client.impl;
 
-import java.io.File;
 import lombok.Data;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import java.io.File;
 
 /**
  * Configuration properties bean to use the {@code catalog-service} micro-service client back-end

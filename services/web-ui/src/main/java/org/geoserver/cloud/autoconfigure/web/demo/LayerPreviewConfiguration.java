@@ -5,6 +5,7 @@
 package org.geoserver.cloud.autoconfigure.web.demo;
 
 import lombok.Getter;
+
 import org.geoserver.cloud.autoconfigure.web.core.AbstractWebUIAutoConfiguration;
 import org.geoserver.cloud.autoconfigure.web.demo.LayerPreviewConfiguration.GmlCommonFormatsConfiguration;
 import org.geoserver.cloud.autoconfigure.web.demo.LayerPreviewConfiguration.KmlCommonFormatsConfiguration;
@@ -19,15 +20,13 @@ import org.springframework.context.annotation.ImportResource;
 @Configuration
 @ConditionalOnClass(name = "org.geoserver.web.demo.MapPreviewPage")
 @ConditionalOnProperty( // enabled by default
-    prefix = LayerPreviewConfiguration.CONFIG_PREFIX,
-    name = "enabled",
-    havingValue = "true",
-    matchIfMissing = true
-)
+        prefix = LayerPreviewConfiguration.CONFIG_PREFIX,
+        name = "enabled",
+        havingValue = "true",
+        matchIfMissing = true)
 @ImportResource( //
-    reader = FilteringXmlBeanDefinitionReader.class, //
-    locations = {"jar:gs-web-demo-.*!/applicationContext.xml#name=layerListDemo2"}
-)
+        reader = FilteringXmlBeanDefinitionReader.class, //
+        locations = {"jar:gs-web-demo-.*!/applicationContext.xml#name=layerListDemo2"})
 @Import({
     OpenLayersCommonFormatsConfiguration.class,
     GmlCommonFormatsConfiguration.class,
@@ -42,15 +41,13 @@ public class LayerPreviewConfiguration extends AbstractWebUIAutoConfiguration {
 
     @Configuration
     @ConditionalOnProperty(
-        prefix = LayerPreviewConfiguration.COMMON_FORMATS_PREFIX,
-        name = "open-layers",
-        havingValue = "true",
-        matchIfMissing = true
-    )
+            prefix = LayerPreviewConfiguration.COMMON_FORMATS_PREFIX,
+            name = "open-layers",
+            havingValue = "true",
+            matchIfMissing = true)
     @ImportResource( //
-        reader = FilteringXmlBeanDefinitionReader.class, //
-        locations = {"jar:gs-web-demo-.*!/applicationContext.xml#name=openLayersPreview"}
-    )
+            reader = FilteringXmlBeanDefinitionReader.class, //
+            locations = {"jar:gs-web-demo-.*!/applicationContext.xml#name=openLayersPreview"})
     public class OpenLayersCommonFormatsConfiguration extends AbstractWebUIAutoConfiguration {
 
         static final String CONFIG_PREFIX =
@@ -61,15 +58,13 @@ public class LayerPreviewConfiguration extends AbstractWebUIAutoConfiguration {
 
     @Configuration
     @ConditionalOnProperty(
-        prefix = LayerPreviewConfiguration.COMMON_FORMATS_PREFIX,
-        name = "gml",
-        havingValue = "true",
-        matchIfMissing = true
-    )
+            prefix = LayerPreviewConfiguration.COMMON_FORMATS_PREFIX,
+            name = "gml",
+            havingValue = "true",
+            matchIfMissing = true)
     @ImportResource( //
-        reader = FilteringXmlBeanDefinitionReader.class, //
-        locations = {"jar:gs-web-demo-.*!/applicationContext.xml#name=gMLPreview"}
-    )
+            reader = FilteringXmlBeanDefinitionReader.class, //
+            locations = {"jar:gs-web-demo-.*!/applicationContext.xml#name=gMLPreview"})
     public class GmlCommonFormatsConfiguration extends AbstractWebUIAutoConfiguration {
 
         static final String CONFIG_PREFIX =
@@ -80,15 +75,13 @@ public class LayerPreviewConfiguration extends AbstractWebUIAutoConfiguration {
 
     @Configuration
     @ConditionalOnProperty(
-        prefix = LayerPreviewConfiguration.COMMON_FORMATS_PREFIX,
-        name = "kml",
-        havingValue = "true",
-        matchIfMissing = true
-    )
+            prefix = LayerPreviewConfiguration.COMMON_FORMATS_PREFIX,
+            name = "kml",
+            havingValue = "true",
+            matchIfMissing = true)
     @ImportResource( //
-        reader = FilteringXmlBeanDefinitionReader.class, //
-        locations = {"jar:gs-web-demo-.*!/applicationContext.xml#name=kMLPreview"}
-    )
+            reader = FilteringXmlBeanDefinitionReader.class, //
+            locations = {"jar:gs-web-demo-.*!/applicationContext.xml#name=kMLPreview"})
     public class KmlCommonFormatsConfiguration extends AbstractWebUIAutoConfiguration {
 
         static final String CONFIG_PREFIX =

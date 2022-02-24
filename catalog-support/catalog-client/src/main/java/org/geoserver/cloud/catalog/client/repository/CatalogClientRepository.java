@@ -6,20 +6,10 @@ package org.geoserver.cloud.catalog.client.repository;
 
 import static org.geotools.filter.visitor.SimplifyingFilterVisitor.simplify;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.impl.ClassMappings;
@@ -33,9 +23,22 @@ import org.opengis.filter.Filter;
 import org.opengis.filter.capability.FunctionName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 public abstract class CatalogClientRepository<CI extends CatalogInfo>

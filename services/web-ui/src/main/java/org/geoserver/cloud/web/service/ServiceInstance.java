@@ -4,10 +4,13 @@
  */
 package org.geoserver.cloud.web.service;
 
-import java.io.Serializable;
 import lombok.Data;
 
-/** @since 1.0 */
+import java.io.Serializable;
+
+/**
+ * @since 1.0
+ */
 public @Data class ServiceInstance implements Serializable, Comparable<ServiceInstance> {
     private static final long serialVersionUID = 1L;
 

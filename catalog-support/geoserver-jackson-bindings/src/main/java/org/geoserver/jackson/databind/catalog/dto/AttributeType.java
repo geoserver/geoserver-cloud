@@ -4,9 +4,10 @@
  */
 package org.geoserver.jackson.databind.catalog.dto;
 
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Map;
-import lombok.Data;
 
 @Data
 public class AttributeType {

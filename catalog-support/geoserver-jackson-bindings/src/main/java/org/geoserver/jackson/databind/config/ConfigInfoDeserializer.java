@@ -5,6 +5,7 @@
 package org.geoserver.jackson.databind.config;
 
 import lombok.NonNull;
+
 import org.geoserver.catalog.Info;
 import org.geoserver.jackson.databind.catalog.dto.InfoDto;
 import org.geoserver.jackson.databind.config.dto.mapper.GeoServerConfigMapper;

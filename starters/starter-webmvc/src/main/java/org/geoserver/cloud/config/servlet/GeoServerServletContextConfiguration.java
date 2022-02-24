@@ -4,7 +4,6 @@
  */
 package org.geoserver.cloud.config.servlet;
 
-import javax.servlet.Filter;
 import org.geoserver.GeoserverInitStartupListener;
 import org.geoserver.filters.FlushSafeFilter;
 import org.geoserver.filters.SessionDebugFilter;
@@ -17,6 +16,8 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.context.request.RequestContextListener;
+
+import javax.servlet.Filter;
 
 @Configuration
 public class GeoServerServletContextConfiguration {
@@ -47,41 +48,37 @@ public class GeoServerServletContextConfiguration {
      * after close() has been called (https://osgeo-org.atlassian.net/browse/GEOS-5985)
      */
     @ConditionalOnProperty(
-        prefix = "geoserver.servlet.filter.flush-safe",
-        name = "enabled",
-        havingValue = "true",
-        matchIfMissing = true
-    )
+            prefix = "geoserver.servlet.filter.flush-safe",
+            name = "enabled",
+            havingValue = "true",
+            matchIfMissing = true)
     public @Bean FlushSafeFilter flushSafeFilter() {
         return new FlushSafeFilter();
     }
 
     @ConditionalOnProperty(
-        prefix = "geoserver.servlet.filter.flush-safe",
-        name = "enabled",
-        havingValue = "true",
-        matchIfMissing = true
-    )
+            prefix = "geoserver.servlet.filter.flush-safe",
+            name = "enabled",
+            havingValue = "true",
+            matchIfMissing = true)
     public @Bean FilterRegistrationBean<FlushSafeFilter> flushSafeFilterReg() {
         return newRegistration(flushSafeFilter(), FLUSH_SAFE_FILTER_ORDER);
     }
 
     @ConditionalOnProperty(
-        prefix = "geoserver.servlet.filter.session-debug",
-        name = "enabled",
-        havingValue = "true",
-        matchIfMissing = true
-    )
+            prefix = "geoserver.servlet.filter.session-debug",
+            name = "enabled",
+            havingValue = "true",
+            matchIfMissing = true)
     public @Bean SessionDebugFilter sessionDebugFilter() {
         return new SessionDebugFilter();
     }
 
     @ConditionalOnProperty(
-        prefix = "geoserver.servlet.filter.session-debug",
-        name = "enabled",
-        havingValue = "true",
-        matchIfMissing = true
-    )
+            prefix = "geoserver.servlet.filter.session-debug",
+            name = "enabled",
+            havingValue = "true",
+            matchIfMissing = true)
     public @Bean FilterRegistrationBean<SessionDebugFilter> sessionDebugFilterFilterReg() {
         return newRegistration(sessionDebugFilter(), SESSION_DEBUG_FILTER_ORDER);
     }

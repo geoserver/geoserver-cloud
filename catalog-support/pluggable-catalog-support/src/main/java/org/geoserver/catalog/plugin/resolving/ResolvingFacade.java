@@ -4,13 +4,14 @@
  */
 package org.geoserver.catalog.plugin.resolving;
 
-import java.util.function.Function;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.impl.ResolvingProxy;
+
+import java.util.function.Function;
 
 /**
  * Facade trait that applies a possibly side-effect producing {@link Function} to each outgoing

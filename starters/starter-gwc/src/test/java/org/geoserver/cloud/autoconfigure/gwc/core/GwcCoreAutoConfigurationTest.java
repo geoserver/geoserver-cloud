@@ -11,8 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.common.base.Throwables;
-import java.io.File;
-import java.io.IOException;
+
 import org.geoserver.cloud.autoconfigure.gwc.GeoWebCacheContextRunner;
 import org.geoserver.cloud.gwc.repository.CloudDefaultStorageFinder;
 import org.geoserver.cloud.gwc.repository.CloudGwcXmlConfiguration;
@@ -24,13 +23,20 @@ import org.springframework.beans.InvalidPropertyException;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 
-/** @since 1.0 */
+import java.io.File;
+import java.io.IOException;
+
+/**
+ * @since 1.0
+ */
 class GwcCoreAutoConfigurationTest {
 
     @TempDir File tmpDir;
     WebApplicationContextRunner runner;
 
-    /** @throws java.lang.Exception */
+    /**
+     * @throws java.lang.Exception
+     */
     @BeforeEach
     void setUp() throws Exception {
         runner = GeoWebCacheContextRunner.newMinimalGeoWebCacheContextRunner(tmpDir);

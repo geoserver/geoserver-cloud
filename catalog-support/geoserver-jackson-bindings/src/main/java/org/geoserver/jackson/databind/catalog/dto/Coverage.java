@@ -4,11 +4,12 @@
  */
 package org.geoserver.jackson.databind.catalog.dto;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)

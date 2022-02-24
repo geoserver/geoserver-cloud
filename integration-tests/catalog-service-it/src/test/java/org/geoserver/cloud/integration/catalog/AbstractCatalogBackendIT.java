@@ -8,8 +8,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
-import java.io.IOException;
-import java.util.List;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogConformanceTest;
 import org.geoserver.catalog.LayerInfo;
@@ -24,6 +22,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opengis.util.ProgressListener;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.io.IOException;
+import java.util.List;
 
 @RunWith(SpringRunner.class)
 public abstract class AbstractCatalogBackendIT extends CatalogConformanceTest {

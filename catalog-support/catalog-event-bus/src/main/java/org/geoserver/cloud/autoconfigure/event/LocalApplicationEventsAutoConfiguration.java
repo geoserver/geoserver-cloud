@@ -16,9 +16,8 @@ import org.springframework.context.annotation.Import;
  */
 @Configuration
 @ConditionalOnProperty(
-    value = "geoserver.catalog.events.enabled",
-    havingValue = "true",
-    matchIfMissing = true
-)
+        value = "geoserver.catalog.events.enabled",
+        havingValue = "true",
+        matchIfMissing = true)
 @Import({LocalApplicationEventsConfiguration.class})
 public class LocalApplicationEventsAutoConfiguration {}

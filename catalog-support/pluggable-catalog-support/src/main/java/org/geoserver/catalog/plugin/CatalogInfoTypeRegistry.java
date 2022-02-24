@@ -6,10 +6,6 @@ package org.geoserver.catalog.plugin;
 
 import static java.util.Objects.requireNonNull;
 
-import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.function.Consumer;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.CoverageInfo;
 import org.geoserver.catalog.CoverageStoreInfo;
@@ -30,6 +26,11 @@ import org.geoserver.catalog.WMTSLayerInfo;
 import org.geoserver.catalog.WMTSStoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ClassMappings;
+
+import java.util.Arrays;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Utility class to register providers of any kind based on {@link CatalogInfo} subtypes.

@@ -5,6 +5,7 @@
 package org.geoserver.cloud.catalog.service;
 
 import lombok.NonNull;
+
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.LayerGroupInfo;
@@ -18,6 +19,7 @@ import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.Query;
 import org.opengis.filter.Filter;
 import org.opengis.filter.capability.FunctionName;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
