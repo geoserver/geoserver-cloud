@@ -29,20 +29,37 @@ public @Controller class WMSController {
     }
 
     /**
-     * Serve only WMS schemas and related resources from classpath.
+     * Serve only WMS schemas from classpath.
      *
      * <p>E.g.:
      *
      * <ul>
      *   <li>{@code /schemas/wms/1.3.0/capabilities_1_3_0.xsd}
      *   <li>{@code /schemas/wms/1.1.1/WMS_MS_Capabilities.dtd}
+     * </ul>
+     */
+    @RequestMapping(
+        method = RequestMethod.GET,
+        path = {"/schemas/wms/**"}
+    )
+    public void getWmsSchema(HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
+        classPathPublisher.handleRequest(request, response);
+    }
+
+    /**
+     * Serve openlayers resources from classpath.
+     *
+     * <p>I.e.:
+     *
+     * <ul>
      *   <li>{@code /openlayers/**}
      *   <li>{@code /openlayers3/**}
      * </ul>
      */
     @RequestMapping(
         method = RequestMethod.GET,
-        path = {"/schemas/wms/**", "/openlayers/**", "/openlayers3/**"}
+        path = {"/openlayers/**", "/openlayers3/**"}
     )
     public void getStaticResource(HttpServletRequest request, HttpServletResponse response)
             throws Exception {
@@ -61,6 +78,15 @@ public @Controller class WMSController {
         }
     )
     public void handle(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        geoserverDispatcher.handleRequest(request, response);
+    }
+
+    @RequestMapping(
+        method = {GET},
+        path = {"/wms/reflect", "/{workspace}/wms/reflect"}
+    )
+    public void getMapReflect(HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
         geoserverDispatcher.handleRequest(request, response);
     }
 }
