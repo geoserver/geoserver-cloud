@@ -2,7 +2,7 @@
  * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
  * GPL 2.0 license, available at the root application directory.
  */
-package org.geoserver.cloud.wms;
+package org.geoserver.cloud.wms.controller;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
@@ -78,15 +78,6 @@ public @Controller class WMSController {
         }
     )
     public void handle(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        geoserverDispatcher.handleRequest(request, response);
-    }
-
-    @RequestMapping(
-        method = {GET},
-        path = {"/wms/reflect", "/{workspace}/wms/reflect"}
-    )
-    public void getMapReflect(HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
         geoserverDispatcher.handleRequest(request, response);
     }
 }

@@ -12,7 +12,7 @@
   <properties>
     <dockerfile.skip>false</dockerfile.skip>
     <docker.image.name>geoserver-cloud-wms</docker.image.name>
-    <start-class>org.geoserver.cloud.wms.WmsApplication</start-class>
+    <start-class>org.geoserver.cloud.wms.app.WmsApplication</start-class>
   </properties>
   <dependencies>
     <dependency>
