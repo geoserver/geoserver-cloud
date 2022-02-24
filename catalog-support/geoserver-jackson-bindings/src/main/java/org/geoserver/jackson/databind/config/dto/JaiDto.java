@@ -4,9 +4,11 @@
  */
 package org.geoserver.jackson.databind.config.dto;
 
-import java.util.Set;
 import lombok.Data;
+
 import org.geoserver.config.JAIInfo;
+
+import java.util.Set;
 
 /** DTO for {@link JAIInfo} */
 public @Data class JaiDto {

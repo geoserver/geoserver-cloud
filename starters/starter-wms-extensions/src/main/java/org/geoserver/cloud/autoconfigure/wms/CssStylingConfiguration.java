@@ -20,22 +20,22 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportResource;
 
-/** @since 1.0 */
+/**
+ * @since 1.0
+ */
 @Configuration
 @Import(value = {CssStylingConfiguration.Enabled.class, CssStylingConfiguration.Disabled.class})
 class CssStylingConfiguration {
 
     @ConditionalOnBean(name = "sldHandler")
     @ConditionalOnProperty(
-        name = "geoserver.styling.css.enabled",
-        havingValue = "true",
-        matchIfMissing = true
-    )
+            name = "geoserver.styling.css.enabled",
+            havingValue = "true",
+            matchIfMissing = true)
     @ConditionalOnClass(CssHandler.class)
     @ImportResource( //
-        reader = FilteringXmlBeanDefinitionReader.class, //
-        locations = {"jar:gs-css-.*!/applicationContext.xml"}
-    )
+            reader = FilteringXmlBeanDefinitionReader.class, //
+            locations = {"jar:gs-css-.*!/applicationContext.xml"})
     static class Enabled {}
 
     /**
@@ -47,10 +47,9 @@ class CssStylingConfiguration {
      */
     @ConditionalOnBean(name = "sldHandler")
     @ConditionalOnProperty(
-        name = "geoserver.styling.css.enabled",
-        havingValue = "false",
-        matchIfMissing = false
-    )
+            name = "geoserver.styling.css.enabled",
+            havingValue = "false",
+            matchIfMissing = false)
     static class Disabled {
 
         public @Bean ModuleStatus cssDisabledModuleStatus() {

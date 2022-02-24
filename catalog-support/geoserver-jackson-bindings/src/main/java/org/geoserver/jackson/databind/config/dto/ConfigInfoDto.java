@@ -6,8 +6,10 @@ package org.geoserver.jackson.databind.config.dto;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
 import org.geoserver.jackson.databind.catalog.dto.InfoDto;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)

@@ -16,16 +16,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+
 import reactivefeign.spring.config.ReactiveFeignClient;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @ReactiveFeignClient( //
-    name = "catalog-service", //
-    url = "${geoserver.backend.catalog-service.uri:}", //
-    qualifier = "config-client", //
-    path = "/api/v1/config"
-)
+        name = "catalog-service", //
+        url = "${geoserver.backend.catalog-service.uri:}", //
+        qualifier = "config-client", //
+        path = "/api/v1/config")
 public interface ReactiveConfigClient {
 
     /** The global geoserver configuration. */

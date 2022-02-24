@@ -4,11 +4,14 @@
  */
 package org.geoserver.cloud.config.datadirectory;
 
-import java.io.File;
-import javax.servlet.ServletContext;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.platform.resource.FileLockProvider;
+
+import java.io.File;
+
+import javax.servlet.ServletContext;
 
 /**
  * {@link FileLockProvider} that expects the data directory file at its constructor, overriding

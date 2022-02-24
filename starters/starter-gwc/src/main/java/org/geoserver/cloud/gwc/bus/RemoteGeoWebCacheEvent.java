@@ -8,10 +8,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
+
 import org.springframework.cloud.bus.event.Destination;
 import org.springframework.cloud.bus.event.RemoteApplicationEvent;
 
-/** @since 1.0 */
+/**
+ * @since 1.0
+ */
 @NoArgsConstructor
 public abstract class RemoteGeoWebCacheEvent extends RemoteApplicationEvent {
 

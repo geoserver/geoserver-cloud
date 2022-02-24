@@ -7,6 +7,7 @@ package org.geoserver.cloud.catalog.api.v1;
 import static org.springframework.http.MediaType.APPLICATION_STREAM_JSON_VALUE;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.cloud.catalog.service.ReactiveCatalog;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -172,9 +174,8 @@ public class ReactiveConfigController {
 
     /** GeoServer services specific to the specified workspace. */
     @GetMapping(
-        path = "/workspaces/{workspaceId}/services",
-        produces = APPLICATION_STREAM_JSON_VALUE
-    )
+            path = "/workspaces/{workspaceId}/services",
+            produces = APPLICATION_STREAM_JSON_VALUE)
     public Flux<ServiceInfo> getServicesByWorkspace(
             @PathVariable("workspaceId") String workspaceId) {
 

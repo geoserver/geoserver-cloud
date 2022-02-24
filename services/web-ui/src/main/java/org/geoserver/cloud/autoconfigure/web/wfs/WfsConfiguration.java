@@ -10,10 +10,10 @@ import org.springframework.context.annotation.ImportResource;
 
 @Configuration(proxyBeanMethods = true)
 @ImportResource( //
-    reader = FilteringXmlBeanDefinitionReader.class, //
-    locations = { //
-        "jar:gs-web-wfs-.*!/applicationContext.xml", //
-        "jar:gs-wfs-.*!/applicationContext.xml"
-    } //
-)
+        reader = FilteringXmlBeanDefinitionReader.class, //
+        locations = { //
+            "jar:gs-web-wfs-.*!/applicationContext.xml", //
+            "jar:gs-wfs-.*!/applicationContext.xml"
+        } //
+        )
 public class WfsConfiguration {}

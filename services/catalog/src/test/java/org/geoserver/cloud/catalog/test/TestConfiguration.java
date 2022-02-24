@@ -12,10 +12,9 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @EnableAutoConfiguration(
-    exclude = { //
-        ReactiveSecurityAutoConfiguration.class, //
-        ReactiveUserDetailsServiceAutoConfiguration.class, //
-        ReactiveManagementWebSecurityAutoConfiguration.class //
-    }
-)
+        exclude = { //
+            ReactiveSecurityAutoConfiguration.class, //
+            ReactiveUserDetailsServiceAutoConfiguration.class, //
+            ReactiveManagementWebSecurityAutoConfiguration.class //
+        })
 public class TestConfiguration {}

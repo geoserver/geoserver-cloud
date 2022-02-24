@@ -4,14 +4,15 @@
  */
 package org.geoserver.cloud.autoconfigure.gwc;
 
+import org.geowebcache.azure.AzureBlobStoreConfigProvider;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import org.geowebcache.azure.AzureBlobStoreConfigProvider;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 /**
  * Conditionals:
@@ -30,8 +31,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 @ConditionalOnGeoWebCacheEnabled
 @ConditionalOnClass(AzureBlobStoreConfigProvider.class)
 @ConditionalOnProperty(
-    name = GeoWebCacheConfigurationProperties.BLOBSTORE_AZURE_ENABLED,
-    havingValue = "true",
-    matchIfMissing = false
-)
+        name = GeoWebCacheConfigurationProperties.BLOBSTORE_AZURE_ENABLED,
+        havingValue = "true",
+        matchIfMissing = false)
 public @interface ConditionalOnAzureBlobstoreEnabled {}

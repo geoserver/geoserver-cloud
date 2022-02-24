@@ -4,15 +4,16 @@
  */
 package org.geotools.jackson.databind.filter.mapper;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
 import org.geotools.jackson.databind.filter.dto.Filter.MultiValuedFilter.MatchAction;
 import org.geotools.util.SimpleInternationalString;
 import org.mapstruct.Mapper;
 import org.opengis.util.InternationalString;
 import org.xml.sax.helpers.NamespaceSupport;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
 
 @Mapper(config = FilterMapperConfig.class)
 public abstract class ValueMappers {

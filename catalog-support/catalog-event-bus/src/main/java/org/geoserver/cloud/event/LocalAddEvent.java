@@ -5,6 +5,7 @@
 package org.geoserver.cloud.event;
 
 import lombok.NonNull;
+
 import org.geoserver.catalog.Info;
 
 public abstract class LocalAddEvent<S, I extends Info> extends LocalInfoEvent<S, I> {

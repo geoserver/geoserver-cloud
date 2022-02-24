@@ -4,14 +4,17 @@
  */
 package org.geoserver.cloud.web.ui;
 
-import java.util.List;
-import java.util.stream.Collectors;
 import org.geoserver.cloud.web.service.ServiceInstance;
 import org.geoserver.cloud.web.service.ServiceInstanceRegistry;
 import org.geoserver.web.GeoServerApplication;
 import org.geoserver.web.wicket.GeoServerDataProvider;
 
-/** @since 1.0 */
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * @since 1.0
+ */
 class ServiceProvider extends GeoServerDataProvider<ServiceInstance> {
     private static final long serialVersionUID = 1L;
 

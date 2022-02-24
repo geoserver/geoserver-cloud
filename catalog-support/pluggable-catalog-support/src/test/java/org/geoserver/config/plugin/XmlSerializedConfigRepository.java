@@ -4,6 +4,16 @@
  */
 package org.geoserver.config.plugin;
 
+import org.geoserver.catalog.Info;
+import org.geoserver.catalog.WorkspaceInfo;
+import org.geoserver.catalog.plugin.Patch;
+import org.geoserver.config.GeoServerInfo;
+import org.geoserver.config.LoggingInfo;
+import org.geoserver.config.ServiceInfo;
+import org.geoserver.config.SettingsInfo;
+import org.geoserver.config.util.XStreamPersister;
+import org.geoserver.ows.util.OwsUtils;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -14,15 +24,6 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Stream;
-import org.geoserver.catalog.Info;
-import org.geoserver.catalog.WorkspaceInfo;
-import org.geoserver.catalog.plugin.Patch;
-import org.geoserver.config.GeoServerInfo;
-import org.geoserver.config.LoggingInfo;
-import org.geoserver.config.ServiceInfo;
-import org.geoserver.config.SettingsInfo;
-import org.geoserver.config.util.XStreamPersister;
-import org.geoserver.ows.util.OwsUtils;
 
 /**
  * Example {@link ConfigRepository} alternative that serializes to XML using {@link
@@ -94,8 +95,7 @@ class XmlSerializedConfigRepository implements ConfigRepository {
     }
 
     public @Override Optional<SettingsInfo> getSettingsByWorkspace(WorkspaceInfo workspace) {
-        return settings.values()
-                .stream()
+        return settings.values().stream()
                 .map(this::toSettings)
                 .filter(s -> s.getWorkspace().getId().equals(workspace.getId()))
                 .findFirst();

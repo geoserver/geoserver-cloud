@@ -9,6 +9,7 @@ import static org.junit.Assert.assertTrue;
 
 import lombok.Getter;
 import lombok.experimental.Accessors;
+
 import org.geoserver.catalog.LegendInfo;
 import org.geoserver.catalog.SLDHandler;
 import org.geoserver.catalog.StyleInfo;

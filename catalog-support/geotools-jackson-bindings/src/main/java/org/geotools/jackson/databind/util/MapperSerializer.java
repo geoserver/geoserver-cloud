@@ -11,9 +11,11 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.IOException;
 import java.util.function.Function;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Generic {@link JsonSerializer} that applies a function from the original object type to the

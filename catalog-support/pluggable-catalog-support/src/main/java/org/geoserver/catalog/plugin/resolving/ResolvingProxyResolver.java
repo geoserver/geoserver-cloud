@@ -6,16 +6,8 @@ package org.geoserver.catalog.plugin.resolving;
 
 import static java.util.Objects.requireNonNull;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Proxy;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.BiConsumer;
-import java.util.function.UnaryOperator;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.Info;
@@ -31,6 +23,16 @@ import org.geoserver.catalog.impl.ResolvingProxy;
 import org.geoserver.catalog.plugin.forwarding.ResolvingCatalogFacadeDecorator;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
+import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
 
 /**
  * {@link ResolvingCatalogFacadeDecorator#setObjectResolver resolving function} that resolves {@link
@@ -177,8 +179,7 @@ public class ResolvingProxyResolver<T extends Info> implements UnaryOperator<T> 
 
             LinkedHashSet<StyleInfo> resolvedStyles;
             resolvedStyles =
-                    layer.getStyles()
-                            .stream()
+                    layer.getStyles().stream()
                             .map(this::resolve)
                             .collect(Collectors.toCollection(LinkedHashSet::new));
 

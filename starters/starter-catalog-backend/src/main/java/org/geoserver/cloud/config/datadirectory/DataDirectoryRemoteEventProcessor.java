@@ -4,12 +4,10 @@
  */
 package org.geoserver.cloud.config.datadirectory;
 
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.Info;
@@ -35,6 +33,10 @@ import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
 import org.geoserver.config.plugin.RepositoryGeoServerFacade;
 import org.springframework.context.event.EventListener;
+
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /** Listens to {@link RemoteCatalogEvent}s and updates the local catalog */
 @Slf4j(topic = "org.geoserver.cloud.bus.incoming.datadirectory")

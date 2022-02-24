@@ -4,21 +4,23 @@
  */
 package org.geoserver.catalog.plugin;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.Accessors;
+
+import org.geoserver.catalog.CatalogInfo;
+import org.geoserver.catalog.Info;
+import org.opengis.filter.Filter;
+import org.opengis.filter.sort.SortBy;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.OptionalInt;
 import java.util.stream.Collectors;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.Accessors;
-import org.geoserver.catalog.CatalogInfo;
-import org.geoserver.catalog.Info;
-import org.opengis.filter.Filter;
-import org.opengis.filter.sort.SortBy;
 
 /** */
 @NoArgsConstructor
@@ -81,8 +83,7 @@ public @Data class Query<T extends Info> {
         List<SortBy> sortBy =
                 sortOrder == null
                         ? Collections.emptyList()
-                        : Arrays.asList(sortOrder)
-                                .stream()
+                        : Arrays.asList(sortOrder).stream()
                                 .filter(s -> s != null)
                                 .collect(Collectors.toList());
 

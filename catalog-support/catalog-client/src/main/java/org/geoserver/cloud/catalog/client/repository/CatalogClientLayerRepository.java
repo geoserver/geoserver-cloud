@@ -4,14 +4,16 @@
  */
 package org.geoserver.cloud.catalog.client.repository;
 
-import java.util.Optional;
-import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.NonNull;
+
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerRepository;
+
+import java.util.Optional;
+import java.util.stream.Stream;
 
 public class CatalogClientLayerRepository extends CatalogClientRepository<LayerInfo>
         implements LayerRepository {

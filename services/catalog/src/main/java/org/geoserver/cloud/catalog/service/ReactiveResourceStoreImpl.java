@@ -4,19 +4,22 @@
  */
 package org.geoserver.cloud.catalog.service;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.ByteBuffer;
 import lombok.NonNull;
+
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.Resource.Type;
 import org.geoserver.platform.resource.ResourceStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
+
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.ByteBuffer;
 
 /** */
 @Service
@@ -62,7 +65,9 @@ public class ReactiveResourceStoreImpl implements ReactiveResourceStore {
         return Mono.just(path).subscribeOn(catalogScheduler).map(blockingStore::remove);
     }
 
-    /** @return the new resource, or empty if it couldn't be moved */
+    /**
+     * @return the new resource, or empty if it couldn't be moved
+     */
     public @Override Mono<Resource> move(String path, String target) {
         return Mono.just(path)
                 .subscribeOn(catalogScheduler)

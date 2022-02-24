@@ -4,9 +4,10 @@
  */
 package org.geoserver.jackson.databind.catalog.dto;
 
-import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = true)

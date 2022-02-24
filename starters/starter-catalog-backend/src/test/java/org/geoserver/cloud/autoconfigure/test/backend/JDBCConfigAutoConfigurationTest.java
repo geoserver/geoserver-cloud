@@ -33,9 +33,8 @@ import org.springframework.test.context.junit4.SpringRunner;
  * geoserver.backend.jdbcconfig.enabled=true}
  */
 @SpringBootTest(
-    classes = AutoConfigurationTestConfiguration.class,
-    properties = "geoserver.backend.jdbcconfig.enabled=true"
-)
+        classes = AutoConfigurationTestConfiguration.class,
+        properties = "geoserver.backend.jdbcconfig.enabled=true")
 @RunWith(SpringRunner.class)
 public class JDBCConfigAutoConfigurationTest extends JDBCConfigTest {
 

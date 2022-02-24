@@ -10,7 +10,7 @@ import static org.junit.Assert.assertTrue;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.EnumSet;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.locationtech.jts.geom.Coordinate;
@@ -27,6 +27,8 @@ import org.locationtech.jts.io.Ordinate;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.io.WKTWriter;
+
+import java.util.EnumSet;
 
 /**
  * Test suite for {@link GeoToolsGeoJsonModule}, assuming it's registered to an {@link ObjectMapper}

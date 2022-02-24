@@ -10,11 +10,11 @@ import org.springframework.context.annotation.ImportResource;
 
 @Configuration(proxyBeanMethods = true)
 @ImportResource( //
-    reader = FilteringXmlBeanDefinitionReader.class, //
-    locations = { //
-        "jar:gs-web-sec-core-.*!/applicationContext.xml", //
-        "jar:gs-web-sec-jdbc-.*!/applicationContext.xml", //
-        "jar:gs-web-sec-ldap-.*!/applicationContext.xml" //
-    } //
-)
+        reader = FilteringXmlBeanDefinitionReader.class, //
+        locations = { //
+            "jar:gs-web-sec-core-.*!/applicationContext.xml", //
+            "jar:gs-web-sec-jdbc-.*!/applicationContext.xml", //
+            "jar:gs-web-sec-ldap-.*!/applicationContext.xml" //
+        } //
+        )
 public class SecurityConfiguration {}

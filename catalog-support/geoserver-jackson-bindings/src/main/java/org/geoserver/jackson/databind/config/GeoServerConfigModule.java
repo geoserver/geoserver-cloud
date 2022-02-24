@@ -7,7 +7,9 @@ package org.geoserver.jackson.databind.config;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.catalog.Info;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.LoggingInfo;

@@ -7,6 +7,7 @@ package org.geoserver.cloud.security;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
+
 import org.geoserver.security.GeoServerSecurityManager;
 import org.springframework.cloud.bus.event.RemoteApplicationEvent;
 

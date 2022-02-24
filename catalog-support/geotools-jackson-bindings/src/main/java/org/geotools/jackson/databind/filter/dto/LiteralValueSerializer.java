@@ -7,6 +7,7 @@ package org.geotools.jackson.databind.filter.dto;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+
 import java.io.IOException;
 
 public class LiteralValueSerializer extends StdSerializer<Object> {

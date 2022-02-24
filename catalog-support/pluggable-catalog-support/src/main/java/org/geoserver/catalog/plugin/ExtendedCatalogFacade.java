@@ -4,10 +4,6 @@
  */
 package org.geoserver.catalog.plugin;
 
-import java.io.Closeable;
-import java.util.Objects;
-import java.util.stream.Stream;
-import javax.annotation.Nullable;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.LayerGroupInfo;
@@ -22,6 +18,12 @@ import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.catalog.util.CloseableIteratorAdapter;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
+
+import java.io.Closeable;
+import java.util.Objects;
+import java.util.stream.Stream;
+
+import javax.annotation.Nullable;
 
 /**
  * {@link CatalogFacade} with additional methods
@@ -45,7 +47,9 @@ public interface ExtendedCatalogFacade extends CatalogFacade {
      */
     <T extends CatalogInfo> Stream<T> query(Query<T> query);
 
-    /** @deprecated use {@link #query(Query)} instead */
+    /**
+     * @deprecated use {@link #query(Query)} instead
+     */
     @Deprecated
     default @Override <T extends CatalogInfo> CloseableIterator<T> list(
             final Class<T> of,

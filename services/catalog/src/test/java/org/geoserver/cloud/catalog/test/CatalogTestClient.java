@@ -6,11 +6,9 @@ package org.geoserver.cloud.catalog.test;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
-import java.lang.reflect.Proxy;
-import java.util.function.Consumer;
-import javax.annotation.Nullable;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.impl.ModificationProxy;
@@ -20,6 +18,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.reactive.server.WebTestClient.RequestBodySpec;
 import org.springframework.test.web.reactive.server.WebTestClient.ResponseSpec;
+
+import java.lang.reflect.Proxy;
+import java.util.function.Consumer;
+
+import javax.annotation.Nullable;
 
 @RequiredArgsConstructor
 public class CatalogTestClient<C extends CatalogInfo> {

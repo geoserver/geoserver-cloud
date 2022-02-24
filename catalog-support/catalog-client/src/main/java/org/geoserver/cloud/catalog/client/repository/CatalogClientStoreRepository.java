@@ -4,17 +4,20 @@
  */
 package org.geoserver.cloud.catalog.client.repository;
 
-import java.util.Optional;
-import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.NonNull;
+
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.StoreRepository;
 import org.springframework.lang.Nullable;
+
 import reactor.core.publisher.Flux;
+
+import java.util.Optional;
+import java.util.stream.Stream;
 
 public class CatalogClientStoreRepository extends CatalogClientRepository<StoreInfo>
         implements StoreRepository {

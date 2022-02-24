@@ -4,10 +4,8 @@
  */
 package org.geoserver.cloud.catalog.client.impl;
 
-import java.lang.reflect.Proxy;
-import java.util.function.Function;
-import java.util.function.Supplier;
 import lombok.NonNull;
+
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogInfo;
@@ -27,6 +25,10 @@ import org.geoserver.catalog.plugin.resolving.CatalogPropertyResolver;
 import org.geoserver.catalog.plugin.resolving.CollectionPropertiesInitializer;
 import org.geoserver.catalog.plugin.resolving.ResolvingProxyResolver;
 import org.geoserver.cloud.catalog.client.repository.CatalogClientRepository;
+
+import java.lang.reflect.Proxy;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * {@link CatalogFacade} for {@code catalog-service}, being a {@link

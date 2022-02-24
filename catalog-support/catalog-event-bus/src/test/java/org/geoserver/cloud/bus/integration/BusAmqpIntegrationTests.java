@@ -23,13 +23,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
-import java.lang.reflect.Proxy;
-import java.util.List;
-import java.util.function.Consumer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.experimental.Accessors;
+
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogTestData;
 import org.geoserver.catalog.Info;
@@ -63,17 +61,20 @@ import org.testcontainers.containers.RabbitMQContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.lang.reflect.Proxy;
+import java.util.List;
+import java.util.function.Consumer;
+
 @SpringBootTest(
-    webEnvironment = RANDOM_PORT,
-    classes = {TestConfigurationAutoConfiguration.class, BusEventCollector.class},
-    properties = {
-        "spring.cloud.bus.id=app:1",
-        "spring.cloud.stream.bindings.springCloudBusOutput.producer.errorChannelEnabled=true",
-        "spring.autoconfigure.exclude=org.springframework.cloud.stream.test.binder.TestSupportBinderAutoConfiguration",
-        "logging.level.root=WARN",
-        "logging.level.org.springframework.cloud.bus.BusConsumer=INFO"
-    }
-)
+        webEnvironment = RANDOM_PORT,
+        classes = {TestConfigurationAutoConfiguration.class, BusEventCollector.class},
+        properties = {
+            "spring.cloud.bus.id=app:1",
+            "spring.cloud.stream.bindings.springCloudBusOutput.producer.errorChannelEnabled=true",
+            "spring.autoconfigure.exclude=org.springframework.cloud.stream.test.binder.TestSupportBinderAutoConfiguration",
+            "logging.level.root=WARN",
+            "logging.level.org.springframework.cloud.bus.BusConsumer=INFO"
+        })
 @Testcontainers
 public abstract class BusAmqpIntegrationTests {
 

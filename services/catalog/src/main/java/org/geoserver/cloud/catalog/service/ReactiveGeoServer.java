@@ -4,9 +4,6 @@
  */
 package org.geoserver.cloud.catalog.service;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.Callable;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.config.GeoServer;
@@ -21,9 +18,14 @@ import org.geoserver.wms.WMSInfo;
 import org.geoserver.wps.WPSInfo;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.Callable;
 
 /** */
 @Service

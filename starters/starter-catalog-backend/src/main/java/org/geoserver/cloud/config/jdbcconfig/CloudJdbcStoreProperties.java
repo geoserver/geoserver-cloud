@@ -6,17 +6,20 @@ package org.geoserver.cloud.config.jdbcconfig;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+
+import org.geoserver.jdbcloader.DataSourceFactoryBean;
+import org.geoserver.jdbcstore.internal.JDBCResourceStoreProperties;
+import org.geoserver.jdbcstore.internal.JDBCResourceStorePropertiesFactoryBean;
+import org.geoserver.platform.resource.Resource;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+
 import javax.sql.DataSource;
-import org.geoserver.jdbcloader.DataSourceFactoryBean;
-import org.geoserver.jdbcstore.internal.JDBCResourceStoreProperties;
-import org.geoserver.jdbcstore.internal.JDBCResourceStorePropertiesFactoryBean;
-import org.geoserver.platform.resource.Resource;
 
 /**
  * Extends {@link JDBCResourceStoreProperties} to not need a {@link

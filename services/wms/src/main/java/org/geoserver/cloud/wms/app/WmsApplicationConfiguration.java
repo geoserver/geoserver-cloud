@@ -18,13 +18,12 @@ import org.springframework.context.annotation.ImportResource;
 
 @Configuration
 @ImportResource( //
-    reader = FilteringXmlBeanDefinitionReader.class, //
-    locations = { //
-        "jar:gs-wms-.*!/applicationContext.xml", //
-        "jar:gs-wfs-.*!/applicationContext.xml#name="
-                + WmsApplicationConfiguration.WFS_INCLUDED_BEANS_REGEX //
-    }
-)
+        reader = FilteringXmlBeanDefinitionReader.class, //
+        locations = { //
+            "jar:gs-wms-.*!/applicationContext.xml", //
+            "jar:gs-wfs-.*!/applicationContext.xml#name="
+                    + WmsApplicationConfiguration.WFS_INCLUDED_BEANS_REGEX //
+        })
 public class WmsApplicationConfiguration {
 
     static final String WFS_INCLUDED_BEANS_REGEX =
@@ -51,11 +50,10 @@ public class WmsApplicationConfiguration {
     }
 
     @ConditionalOnProperty(
-        prefix = "geoserver.wms",
-        name = "reflector.enabled",
-        havingValue = "true",
-        matchIfMissing = false
-    )
+            prefix = "geoserver.wms",
+            name = "reflector.enabled",
+            havingValue = "true",
+            matchIfMissing = false)
     public @Bean GetMapReflectorController getMapReflectorController() {
         return new GetMapReflectorController();
     }

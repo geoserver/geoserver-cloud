@@ -4,13 +4,6 @@
  */
 package org.geotools.jackson.databind.filter;
 
-import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.function.Supplier;
 import org.geotools.jackson.databind.filter.dto.Expression;
 import org.geotools.jackson.databind.filter.dto.Expression.Literal;
 import org.geotools.jackson.databind.filter.dto.Filter;
@@ -30,6 +23,14 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.impl.PackedCoordinateSequenceFactory;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
+
+import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * Abstract test suite for {@link Filter} Data Transfer Objects or POJOS; to be used both for

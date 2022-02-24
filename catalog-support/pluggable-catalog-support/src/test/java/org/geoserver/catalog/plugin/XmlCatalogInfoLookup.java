@@ -5,20 +5,7 @@
 package org.geoserver.catalog.plugin;
 
 import com.google.common.collect.Ordering;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.lang.reflect.Proxy;
-import java.nio.charset.StandardCharsets;
-import java.util.Comparator;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.function.Predicate;
-import java.util.logging.Logger;
-import java.util.stream.Stream;
+
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.Info;
@@ -37,6 +24,21 @@ import org.geotools.util.logging.Logging;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.lang.reflect.Proxy;
+import java.nio.charset.StandardCharsets;
+import java.util.Comparator;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.function.Predicate;
+import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 /**
  * Exemplar alternative implementations of {@link CatalogInfoRepository} that store serialized
@@ -526,8 +528,7 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
                     li ->
                             (li.getDefaultStyle() != null
                                             && id.equals(li.getDefaultStyle().getId()))
-                                    || li.getStyles()
-                                            .stream()
+                                    || li.getStyles().stream()
                                             .map(s -> s.getId())
                                             .anyMatch(id::equals);
             return all().filter(predicate);

@@ -8,7 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.HamcrestCondition.matching;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.Set;
+
 import org.assertj.core.api.Condition;
 import org.geoserver.jackson.databind.catalog.GeoServerCatalogModule;
 import org.geoserver.jackson.databind.config.GeoServerConfigModule;
@@ -17,6 +17,8 @@ import org.junit.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
+
+import java.util.Set;
 
 public class GeoServerJacksonBindingsAutoConfigurationTest {
 

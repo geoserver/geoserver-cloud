@@ -29,9 +29,11 @@ import org.springframework.web.context.request.RequestContextListener;
  * auto-configuration is disabled through {@code geoserver.servlet.enabled=false}
  */
 @SpringBootTest(
-    classes = TestConfiguration.class,
-    properties = {"reactive.feign.loadbalancer.enabled=false", "geoserver.servlet.enabled=false"}
-)
+        classes = TestConfiguration.class,
+        properties = {
+            "reactive.feign.loadbalancer.enabled=false",
+            "geoserver.servlet.enabled=false"
+        })
 @EnableAutoConfiguration(exclude = SecurityAutoConfiguration.class)
 @RunWith(SpringRunner.class)
 @ActiveProfiles("test")

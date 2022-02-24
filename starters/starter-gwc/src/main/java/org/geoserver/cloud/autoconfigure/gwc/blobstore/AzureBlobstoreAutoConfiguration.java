@@ -4,14 +4,16 @@
  */
 package org.geoserver.cloud.autoconfigure.gwc.blobstore;
 
-import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnAzureBlobstoreEnabled;
 import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnGeoServerWebUIEnabled;
 import org.geoserver.gwc.web.blob.AzureBlobStoreType;
 import org.geowebcache.azure.AzureBlobStoreConfigProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import javax.annotation.PostConstruct;
 
 /**
  * Original:

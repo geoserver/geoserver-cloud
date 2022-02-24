@@ -5,10 +5,12 @@
 package org.geoserver.cloud.bus.event;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
+
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.Info;
 import org.geoserver.cloud.event.ConfigInfoInfoType;

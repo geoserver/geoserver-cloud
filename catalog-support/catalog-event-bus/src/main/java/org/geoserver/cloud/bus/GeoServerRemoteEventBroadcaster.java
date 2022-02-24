@@ -4,9 +4,9 @@
  */
 package org.geoserver.cloud.bus;
 
-import java.util.Optional;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogException;
 import org.geoserver.catalog.DataStoreInfo;
@@ -60,6 +60,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
+
+import java.util.Optional;
 
 /**
  * Listens to local catalog change {@link ApplicationEvent}s produced by this service instance and

@@ -5,6 +5,7 @@
 package org.geoserver.cloud.autoconfigure.web.wms;
 
 import lombok.Getter;
+
 import org.geoserver.cloud.autoconfigure.web.core.AbstractWebUIAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -14,11 +15,10 @@ import org.springframework.context.annotation.Import;
 @Configuration
 @ConditionalOnClass(name = "org.geoserver.wms.web.WMSAdminPage")
 @ConditionalOnProperty( // enabled by default
-    prefix = WmsAutoConfiguration.CONFIG_PREFIX,
-    name = "enabled",
-    havingValue = "true",
-    matchIfMissing = true
-)
+        prefix = WmsAutoConfiguration.CONFIG_PREFIX,
+        name = "enabled",
+        havingValue = "true",
+        matchIfMissing = true)
 @Import(WmsConfiguration.class)
 public class WmsAutoConfiguration extends AbstractWebUIAutoConfiguration {
 

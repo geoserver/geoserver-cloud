@@ -5,6 +5,7 @@
 package org.geoserver.cloud.catalog.caching;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.plugin.CatalogFacadeExtensionAdapter;

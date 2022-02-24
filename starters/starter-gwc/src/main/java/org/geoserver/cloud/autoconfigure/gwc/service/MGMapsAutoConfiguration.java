@@ -4,8 +4,8 @@
  */
 package org.geoserver.cloud.autoconfigure.gwc.service;
 
-import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.cloud.autoconfigure.gwc.GeoWebCacheConfigurationProperties;
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
 import org.gwc.web.mgmaps.MGMapsController;
@@ -14,18 +14,20 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 
-/** @since 1.0 */
+import javax.annotation.PostConstruct;
+
+/**
+ * @since 1.0
+ */
 @Configuration
 @ConditionalOnProperty(
-    name = GeoWebCacheConfigurationProperties.SERVICE_MGMAPS_ENABLED,
-    havingValue = "true",
-    matchIfMissing = false
-)
+        name = GeoWebCacheConfigurationProperties.SERVICE_MGMAPS_ENABLED,
+        havingValue = "true",
+        matchIfMissing = false)
 @ComponentScan(basePackageClasses = MGMapsController.class)
 @ImportResource(
-    reader = FilteringXmlBeanDefinitionReader.class,
-    locations = "jar:gs-gwc-.*!/geowebcache-gmaps-context.xml#name=gwcServiceMGMapsTarget"
-)
+        reader = FilteringXmlBeanDefinitionReader.class,
+        locations = "jar:gs-gwc-.*!/geowebcache-gmaps-context.xml#name=gwcServiceMGMapsTarget")
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.gwc.service")
 public class MGMapsAutoConfiguration {
 

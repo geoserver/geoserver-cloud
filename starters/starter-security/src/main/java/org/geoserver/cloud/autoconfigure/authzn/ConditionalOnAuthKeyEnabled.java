@@ -4,16 +4,17 @@
  */
 package org.geoserver.cloud.autoconfigure.authzn;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import org.geoserver.security.GeoServerAuthenticationKeyProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Conditionals:
@@ -32,10 +33,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplicat
 @ConditionalOnWebApplication(type = Type.SERVLET)
 @ConditionalOnClass(GeoServerAuthenticationKeyProvider.class)
 @ConditionalOnProperty(
-    name = AuthKeyAutoConfiguration.GEOSERVER_SECURITY_AUTHKEY,
-    havingValue = "true",
-    matchIfMissing = ConditionalOnAuthKeyEnabled.enabledByDefault
-)
+        name = AuthKeyAutoConfiguration.GEOSERVER_SECURITY_AUTHKEY,
+        havingValue = "true",
+        matchIfMissing = ConditionalOnAuthKeyEnabled.enabledByDefault)
 public @interface ConditionalOnAuthKeyEnabled {
     boolean enabledByDefault = false;
 }

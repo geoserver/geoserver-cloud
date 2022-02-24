@@ -4,9 +4,10 @@
  */
 package org.geoserver.catalog.plugin.forwarding;
 
-import java.util.Optional;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.WorkspaceRepository;
+
+import java.util.Optional;
 
 public class ForwardingWorkspaceRepository
         extends ForwardingCatalogRepository<WorkspaceInfo, WorkspaceRepository>

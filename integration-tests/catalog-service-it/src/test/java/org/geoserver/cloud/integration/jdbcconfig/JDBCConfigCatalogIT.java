@@ -16,12 +16,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest(
-    classes = IntegrationTestConfiguration.class,
-    properties = {
-        "geoserver.backend.jdbcconfig.enabled=true",
-        "logging.level.org.geoserver.cloud.autoconfigure.bus=ERROR"
-    }
-)
+        classes = IntegrationTestConfiguration.class,
+        properties = {
+            "geoserver.backend.jdbcconfig.enabled=true",
+            "logging.level.org.geoserver.cloud.autoconfigure.bus=ERROR"
+        })
 public class JDBCConfigCatalogIT extends AbstractCatalogBackendIT {
 
     private @Autowired @Qualifier("catalogFacade") ExtendedCatalogFacade jdbcCatalogFacade;

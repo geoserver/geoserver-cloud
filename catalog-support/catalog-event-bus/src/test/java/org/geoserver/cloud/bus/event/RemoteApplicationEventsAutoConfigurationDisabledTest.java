@@ -18,9 +18,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 
 @SpringBootTest(
-    classes = {TestConfigurationAutoConfiguration.class, ApplicationEventCapturingListener.class},
-    properties = {"spring.cloud.bus.enabled=true", "geoserver.bus.enabled=false"}
-)
+        classes = {
+            TestConfigurationAutoConfiguration.class,
+            ApplicationEventCapturingListener.class
+        },
+        properties = {"spring.cloud.bus.enabled=true", "geoserver.bus.enabled=false"})
 @EnableAutoConfiguration
 public class RemoteApplicationEventsAutoConfigurationDisabledTest {
     private @Autowired ApplicationContext context;

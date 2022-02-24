@@ -5,6 +5,7 @@
 package org.geoserver.cloud.config.jdbcconfig.bus;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.Info;
 import org.geoserver.cloud.bus.event.RemoteInfoEvent;

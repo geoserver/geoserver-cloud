@@ -8,8 +8,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_XML;
 import static org.springframework.http.MediaType.TEXT_HTML;
 
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 import org.geoserver.rest.CallbackInterceptor;
 import org.geoserver.rest.PutIgnoringExtensionContentNegotiationStrategy;
 import org.geoserver.rest.RestInterceptor;
@@ -30,6 +28,10 @@ import org.springframework.web.servlet.mvc.condition.PatternsRequestCondition;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.servlet.resource.ResourceUrlProvider;
 import org.springframework.web.util.UrlPathHelper;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
 
 @Configuration
 @ComponentScan(basePackageClasses = org.geoserver.rest.AbstractGeoServerController.class)

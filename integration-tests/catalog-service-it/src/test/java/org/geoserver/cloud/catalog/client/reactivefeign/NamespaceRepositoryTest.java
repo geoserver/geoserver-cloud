@@ -10,16 +10,18 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.experimental.Accessors;
+
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.NamespaceRepository;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @EnableAutoConfiguration
 @Accessors(fluent = true)

@@ -5,6 +5,7 @@
 package org.geoserver.cloud.autoconfigure.jackson;
 
 import com.fasterxml.jackson.databind.Module;
+
 import org.geoserver.jackson.databind.catalog.GeoServerCatalogModule;
 import org.geoserver.jackson.databind.config.GeoServerConfigModule;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;

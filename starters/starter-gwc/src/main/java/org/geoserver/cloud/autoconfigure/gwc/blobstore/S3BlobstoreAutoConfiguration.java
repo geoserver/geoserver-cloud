@@ -4,8 +4,8 @@
  */
 package org.geoserver.cloud.autoconfigure.gwc.blobstore;
 
-import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnGeoServerWebUIEnabled;
 import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnS3BlobstoreEnabled;
 import org.geoserver.gwc.web.blob.S3BlobStoreType;
@@ -13,6 +13,8 @@ import org.geoserver.platform.ModuleStatusImpl;
 import org.geowebcache.s3.S3BlobStoreConfigProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import javax.annotation.PostConstruct;
 
 /**
  * Original:

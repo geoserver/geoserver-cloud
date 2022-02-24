@@ -4,13 +4,14 @@
  */
 package org.geoserver.catalog.plugin.rules;
 
-import java.util.EnumMap;
-import java.util.Objects;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.MapInfo;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.impl.ModificationProxy;
+
+import java.util.EnumMap;
+import java.util.Objects;
 
 /** */
 public class CatalogBusinessRules {

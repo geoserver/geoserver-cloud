@@ -9,6 +9,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.geotools.jackson.databind.filter.dto.Expression;
 import org.geotools.jackson.databind.filter.dto.Expression.FunctionName;
 import org.geotools.jackson.databind.filter.mapper.ExpressionMapper;

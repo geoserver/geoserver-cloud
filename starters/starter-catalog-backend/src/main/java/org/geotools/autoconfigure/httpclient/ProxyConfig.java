@@ -4,12 +4,14 @@
  */
 package org.geotools.autoconfigure.httpclient;
 
+import lombok.Data;
+import lombok.NonNull;
+
+import org.springframework.util.StringUtils;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
-import lombok.Data;
-import lombok.NonNull;
-import org.springframework.util.StringUtils;
 
 /** */
 public @Data class ProxyConfig {

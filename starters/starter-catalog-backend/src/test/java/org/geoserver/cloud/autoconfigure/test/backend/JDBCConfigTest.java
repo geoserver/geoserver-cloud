@@ -5,10 +5,12 @@
 package org.geoserver.cloud.autoconfigure.test.backend;
 
 import com.zaxxer.hikari.HikariDataSource;
-import javax.sql.DataSource;
+
 import org.junit.After;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+
+import javax.sql.DataSource;
 
 /**
  * Closes the {@link DataSource} after each test run, otherwise, being an in-memory H2 db (as

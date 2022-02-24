@@ -4,15 +4,9 @@
  */
 package org.geoserver.cloud.catalog.service;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.DataStoreInfo;
@@ -35,9 +29,18 @@ import org.opengis.parameter.Parameter;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
+
+import java.util.Arrays;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /** */
 @Service
@@ -48,7 +51,9 @@ public class ReactiveCatalogImpl implements ReactiveCatalog {
 
     private BlockingCatalog blockingCatalog;
 
-    /** @see #getSupportedFunctionNames() */
+    /**
+     * @see #getSupportedFunctionNames()
+     */
     private List<FunctionName> supportedFilterFunctionNames;
 
     public ReactiveCatalogImpl(
@@ -121,11 +126,10 @@ public class ReactiveCatalogImpl implements ReactiveCatalog {
         if (supportedFilterFunctionNames == null) {
             List<FunctionName> names =
                     new FunctionFinder(null)
-                            .getAllFunctionDescriptions()
-                            .stream()
-                            .filter(this::supportsdArgumentTypes)
-                            .sorted((f1, f2) -> f1.getName().compareTo(f2.getName()))
-                            .collect(Collectors.toCollection(LinkedList::new));
+                            .getAllFunctionDescriptions().stream()
+                                    .filter(this::supportsdArgumentTypes)
+                                    .sorted((f1, f2) -> f1.getName().compareTo(f2.getName()))
+                                    .collect(Collectors.toCollection(LinkedList::new));
             if (!names.contains(IsInstanceOf.NAME)) {
                 names.add(0, IsInstanceOf.NAME);
             }

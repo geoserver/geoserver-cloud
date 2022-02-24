@@ -4,14 +4,16 @@
  */
 package org.geoserver.catalog.plugin.forwarding;
 
-import java.util.Optional;
-import java.util.stream.Stream;
 import lombok.NonNull;
+
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.Query;
 import org.opengis.filter.Filter;
+
+import java.util.Optional;
+import java.util.stream.Stream;
 
 public abstract class ForwardingCatalogRepository<
                 I extends CatalogInfo, S extends CatalogInfoRepository<I>>

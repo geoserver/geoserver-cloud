@@ -4,12 +4,9 @@
  */
 package org.geoserver.cloud.catalog.service;
 
-import java.util.Spliterator;
-import java.util.Spliterators;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogCapabilities;
 import org.geoserver.catalog.CatalogFacade;
@@ -33,6 +30,11 @@ import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /** */
 @Component

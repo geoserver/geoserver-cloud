@@ -4,8 +4,6 @@
  */
 package org.geoserver.catalog.plugin.resolving;
 
-import java.util.Objects;
-import java.util.function.UnaryOperator;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.Info;
@@ -15,6 +13,9 @@ import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.impl.StoreInfoImpl;
 import org.geoserver.catalog.impl.StyleInfoImpl;
 import org.geoserver.catalog.plugin.forwarding.ResolvingCatalogFacadeDecorator;
+
+import java.util.Objects;
+import java.util.function.UnaryOperator;
 
 /**
  * {@link ResolvingCatalogFacadeDecorator#setObjectResolver resolving function} to set the {@link

@@ -4,11 +4,12 @@
  */
 package org.geoserver.catalog.plugin.rules;
 
-import java.util.List;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
+
+import java.util.List;
 
 /** Encapsulates default {@link Catalog} business rules for {@link StoreInfo} objects */
 public class DefaultStoreInfoRules implements CatalogInfoBusinessRules<StoreInfo> {

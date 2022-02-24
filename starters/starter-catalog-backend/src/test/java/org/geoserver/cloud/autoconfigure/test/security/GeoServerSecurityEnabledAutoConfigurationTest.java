@@ -31,16 +31,14 @@ import org.springframework.test.context.junit4.SpringRunner;
 /** Smoke test for {@link GeoServerSecurityEnabledAutoConfiguration} enabled */
 @SpringBootTest(classes = AutoConfigurationTestConfiguration.class)
 @EnableAutoConfiguration(
-    exclude = {SecurityAutoConfiguration.class, UserDetailsServiceAutoConfiguration.class}
-)
+        exclude = {SecurityAutoConfiguration.class, UserDetailsServiceAutoConfiguration.class})
 @RunWith(SpringRunner.class)
 @ActiveProfiles("test")
 @TestPropertySource(
-    properties = {
-        "geoserver.backend.data-directory.enabled=true",
-        "geoserver.security.enabled=true"
-    }
-)
+        properties = {
+            "geoserver.backend.data-directory.enabled=true",
+            "geoserver.security.enabled=true"
+        })
 public class GeoServerSecurityEnabledAutoConfigurationTest {
 
     private @Autowired @Qualifier("rawCatalog") Catalog rawCatalog;

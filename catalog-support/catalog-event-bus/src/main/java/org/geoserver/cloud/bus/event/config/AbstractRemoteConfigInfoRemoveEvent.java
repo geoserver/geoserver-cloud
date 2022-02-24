@@ -6,6 +6,7 @@ package org.geoserver.cloud.bus.event.config;
 
 import lombok.Getter;
 import lombok.Setter;
+
 import org.geoserver.catalog.Info;
 import org.geoserver.cloud.bus.event.RemoteRemoveEvent;
 import org.geoserver.cloud.event.ConfigInfoInfoType;

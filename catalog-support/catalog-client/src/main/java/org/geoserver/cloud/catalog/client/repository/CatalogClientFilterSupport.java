@@ -4,11 +4,11 @@
  */
 package org.geoserver.cloud.catalog.client.repository;
 
-import java.util.List;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import lombok.experimental.Accessors;
+
 import org.geotools.filter.Capabilities;
 import org.geotools.filter.visitor.CapabilitiesFilterSplitter;
 import org.opengis.filter.Filter;
@@ -48,6 +48,8 @@ import org.opengis.filter.temporal.OverlappedBy;
 import org.opengis.filter.temporal.TContains;
 import org.opengis.filter.temporal.TEquals;
 import org.opengis.filter.temporal.TOverlaps;
+
+import java.util.List;
 
 /** */
 @RequiredArgsConstructor

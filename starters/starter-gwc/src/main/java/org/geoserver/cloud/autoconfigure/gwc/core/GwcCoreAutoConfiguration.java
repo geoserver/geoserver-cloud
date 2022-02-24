@@ -6,20 +6,8 @@ package org.geoserver.cloud.autoconfigure.gwc.core;
 
 import static org.geowebcache.storage.DefaultStorageFinder.GWC_CACHE_DIR;
 
-import java.io.IOException;
-import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.function.Supplier;
-import javax.annotation.PostConstruct;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
 import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnGeoWebCacheEnabled;
 import org.geoserver.cloud.autoconfigure.gwc.GeoWebCacheConfigurationProperties;
 import org.geoserver.cloud.autoconfigure.gwc.integration.SeedingWMSAutoConfiguration;
@@ -49,17 +37,33 @@ import org.springframework.context.annotation.ImportResource;
 import org.springframework.core.env.Environment;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
-/** @since 1.0 */
+import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.function.Supplier;
+
+import javax.annotation.PostConstruct;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
+
+/**
+ * @since 1.0
+ */
 @Configuration(proxyBeanMethods = true)
 @ConditionalOnGeoWebCacheEnabled
 @Import(DiskQuotaAutoConfiguration.class)
 @AutoConfigureAfter(SeedingWMSAutoConfiguration.class)
 @ImportResource(
-    reader = FilteringXmlBeanDefinitionReader.class, //
-    locations = {
-        "jar:gs-gwc-.*!/geowebcache-core-context.xml#name=^(?!gwcXmlConfig|gwcDefaultStorageFinder|gwcGeoServervConfigPersister|metastoreRemover).*$"
-    }
-)
+        reader = FilteringXmlBeanDefinitionReader.class, //
+        locations = {
+            "jar:gs-gwc-.*!/geowebcache-core-context.xml#name=^(?!gwcXmlConfig|gwcDefaultStorageFinder|gwcGeoServervConfigPersister|metastoreRemover).*$"
+        })
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.gwc.core")
 public class GwcCoreAutoConfiguration {
 
@@ -215,7 +219,9 @@ public class GwcCoreAutoConfiguration {
         return new CloudDefaultStorageFinder(defaultCacheDirectory, environment);
     }
 
-    /** @param directory */
+    /**
+     * @param directory
+     */
     private void validateDirectory(Path directory, String configPropertyName) {
         if (!directory.isAbsolute()) {
             throw new BeanInitializationException(

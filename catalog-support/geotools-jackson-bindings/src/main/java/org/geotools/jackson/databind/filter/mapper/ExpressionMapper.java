@@ -4,7 +4,6 @@
  */
 package org.geotools.jackson.databind.filter.mapper;
 
-import java.util.List;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.filter.FunctionFinder;
 import org.geotools.filter.capability.FunctionNameImpl;
@@ -22,6 +21,8 @@ import org.mapstruct.ObjectFactory;
 import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.expression.ExpressionVisitor;
 import org.opengis.filter.expression.NilExpression;
+
+import java.util.List;
 
 @Mapper(config = FilterMapperConfig.class)
 public abstract class ExpressionMapper {

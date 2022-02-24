@@ -4,7 +4,6 @@
  */
 package org.geoserver.catalog.plugin;
 
-import java.util.function.Supplier;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogInfo;
@@ -17,6 +16,8 @@ import org.geoserver.catalog.plugin.CatalogInfoLookup.ResourceInfoLookup;
 import org.geoserver.catalog.plugin.CatalogInfoLookup.StoreInfoLookup;
 import org.geoserver.catalog.plugin.CatalogInfoLookup.StyleInfoLookup;
 import org.geoserver.catalog.plugin.CatalogInfoLookup.WorkspaceInfoLookup;
+
+import java.util.function.Supplier;
 
 /**
  * Default catalog facade implementation using in-memory {@link CatalogRepository repositories} to

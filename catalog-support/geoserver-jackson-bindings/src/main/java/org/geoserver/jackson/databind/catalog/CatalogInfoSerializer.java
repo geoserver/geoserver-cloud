@@ -10,11 +10,13 @@ import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import java.io.IOException;
+
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.jackson.databind.catalog.dto.CatalogInfoDto;
 import org.geoserver.jackson.databind.catalog.mapper.CatalogInfoMapper;
 import org.mapstruct.factory.Mappers;
+
+import java.io.IOException;
 
 public class CatalogInfoSerializer<I extends CatalogInfo> extends StdSerializer<I> {
     private static final long serialVersionUID = -4772839273787523779L;

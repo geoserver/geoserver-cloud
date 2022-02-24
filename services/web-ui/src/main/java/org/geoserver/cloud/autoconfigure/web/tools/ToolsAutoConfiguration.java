@@ -5,6 +5,7 @@
 package org.geoserver.cloud.autoconfigure.web.tools;
 
 import lombok.Getter;
+
 import org.geoserver.cloud.autoconfigure.web.core.AbstractWebUIAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
@@ -12,11 +13,10 @@ import org.springframework.context.annotation.Import;
 
 @Configuration
 @ConditionalOnProperty(
-    prefix = ToolsAutoConfiguration.CONFIG_PREFIX,
-    name = "enabled",
-    havingValue = "true",
-    matchIfMissing = true
-)
+        prefix = ToolsAutoConfiguration.CONFIG_PREFIX,
+        name = "enabled",
+        havingValue = "true",
+        matchIfMissing = true)
 @Import({
     ResourceBrowserConfiguration.class,
     CatalogBulkLoadToolConfiguration.class,

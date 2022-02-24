@@ -4,11 +4,13 @@
  */
 package org.geoserver.jackson.databind.config.dto;
 
-import java.io.Serializable;
-import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
 import org.geoserver.config.GeoServerInfo;
+
+import java.io.Serializable;
+import java.util.Map;
 
 /** DTO for {@link GeoServerInfo} */
 @EqualsAndHashCode(callSuper = true)

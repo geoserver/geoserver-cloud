@@ -5,6 +5,7 @@
 package org.geoserver.cloud.event.config;
 
 import lombok.NonNull;
+
 import org.geoserver.catalog.Info;
 import org.geoserver.cloud.event.LocalAddEvent;
 import org.geoserver.config.GeoServer;

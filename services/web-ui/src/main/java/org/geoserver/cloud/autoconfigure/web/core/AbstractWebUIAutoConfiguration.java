@@ -4,8 +4,9 @@
  */
 package org.geoserver.cloud.autoconfigure.web.core;
 
-import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+
+import javax.annotation.PostConstruct;
 
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.web")
 public abstract class AbstractWebUIAutoConfiguration {

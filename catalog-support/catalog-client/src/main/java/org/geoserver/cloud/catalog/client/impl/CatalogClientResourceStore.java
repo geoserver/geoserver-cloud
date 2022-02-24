@@ -5,21 +5,12 @@
 package org.geoserver.cloud.catalog.client.impl;
 
 import com.google.common.io.ByteStreams;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UncheckedIOException;
-import java.nio.ByteBuffer;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Stream;
+
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.cloud.catalog.client.reactivefeign.BlockingResourceStoreClient;
 import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveResourceStoreClient.ResourceDescriptor;
 import org.geoserver.platform.resource.FileSystemResourceStore;
@@ -34,6 +25,18 @@ import org.geoserver.platform.resource.ResourceNotification;
 import org.geoserver.platform.resource.ResourceNotificationDispatcher;
 import org.geoserver.platform.resource.ResourceStore;
 import org.springframework.util.Assert;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UncheckedIOException;
+import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
 /** */
 @Slf4j

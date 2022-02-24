@@ -4,7 +4,6 @@
  */
 package org.geoserver.jackson.databind.catalog.mapper;
 
-import java.util.function.Supplier;
 import org.geoserver.catalog.AttributeTypeInfo;
 import org.geoserver.catalog.AttributionInfo;
 import org.geoserver.catalog.Catalog;
@@ -68,6 +67,8 @@ import org.geoserver.jackson.databind.catalog.dto.Workspace;
 import org.geoserver.ows.util.OwsUtils;
 import org.mapstruct.ObjectFactory;
 import org.mapstruct.TargetType;
+
+import java.util.function.Supplier;
 
 /**
  * Auto-wired object factory for Catalog info interfaces, so the mapstruct code-generated mappers

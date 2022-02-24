@@ -4,9 +4,8 @@
  */
 package org.geoserver.catalog.plugin;
 
-import java.util.Optional;
-import java.util.stream.Stream;
 import lombok.NonNull;
+
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.LayerGroupInfo;
@@ -19,6 +18,9 @@ import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.opengis.filter.Filter;
 import org.springframework.lang.Nullable;
+
+import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Raw data access API for {@link CatalogInfo} back-end implementations.

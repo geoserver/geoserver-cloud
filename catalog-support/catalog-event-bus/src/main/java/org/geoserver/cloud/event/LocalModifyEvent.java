@@ -4,11 +4,13 @@
  */
 package org.geoserver.cloud.event;
 
-import java.util.List;
 import lombok.Getter;
 import lombok.NonNull;
+
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.plugin.PropertyDiff;
+
+import java.util.List;
 
 public abstract class LocalModifyEvent<S, I extends Info> extends LocalInfoEvent<S, I> {
     private static final long serialVersionUID = 1L;

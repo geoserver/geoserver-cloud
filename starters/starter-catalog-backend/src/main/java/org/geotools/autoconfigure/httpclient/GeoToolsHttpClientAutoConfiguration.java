@@ -5,6 +5,7 @@
 package org.geotools.autoconfigure.httpclient;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.geotools.autoconfigure.httpclient.ProxyConfig.ProxyHostConfig;
 import org.geotools.http.HTTPClientFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,11 +70,10 @@ import org.springframework.context.annotation.Configuration;
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties
 @ConditionalOnProperty(
-    prefix = "geotools.httpclient.proxy",
-    name = "enabled",
-    havingValue = "true",
-    matchIfMissing = true
-)
+        prefix = "geotools.httpclient.proxy",
+        name = "enabled",
+        havingValue = "true",
+        matchIfMissing = true)
 @Slf4j(topic = "org.geotools.autoconfigure.httpclient")
 public class GeoToolsHttpClientAutoConfiguration {
 

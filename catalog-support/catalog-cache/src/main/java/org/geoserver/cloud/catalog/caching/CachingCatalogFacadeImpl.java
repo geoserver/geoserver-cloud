@@ -6,9 +6,8 @@ package org.geoserver.cloud.catalog.caching;
 
 import static org.geoserver.cloud.catalog.caching.CachingCatalogFacade.generateLayersByResourceKey;
 
-import java.util.List;
-import java.util.function.BiFunction;
 import lombok.NonNull;
+
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.LayerGroupInfo;
@@ -30,6 +29,9 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+
+import java.util.List;
+import java.util.function.BiFunction;
 
 /** */
 @CacheConfig(cacheNames = {CachingCatalogFacade.CACHE_NAME})
@@ -114,16 +116,14 @@ public class CachingCatalogFacadeImpl extends ForwardingExtendedCatalogFacade
     }
 
     @Caching(
-        evict = {
-            // cached layers
-            @CacheEvict(key = "new org.geoserver.cloud.catalog.caching.CatalogInfoKey(#p0)"),
-            // layers by resource (see getLayers(ResourceInfo)
-            @CacheEvict(
-                key =
-                        "new org.geoserver.cloud.catalog.caching.CatalogInfoKey('layers@' + #layer.resource.id, 'LAYER')"
-            )
-        }
-    )
+            evict = {
+                // cached layers
+                @CacheEvict(key = "new org.geoserver.cloud.catalog.caching.CatalogInfoKey(#p0)"),
+                // layers by resource (see getLayers(ResourceInfo)
+                @CacheEvict(
+                        key =
+                                "new org.geoserver.cloud.catalog.caching.CatalogInfoKey('layers@' + #layer.resource.id, 'LAYER')")
+            })
     public @Override void remove(LayerInfo layer) {
         super.remove(layer);
     }
@@ -184,25 +184,22 @@ public class CachingCatalogFacadeImpl extends ForwardingExtendedCatalogFacade
     }
 
     @CachePut(
-        key = "new org.geoserver.cloud.catalog.caching.CatalogInfoKey(#info)",
-        unless = "#result == null"
-    )
+            key = "new org.geoserver.cloud.catalog.caching.CatalogInfoKey(#info)",
+            unless = "#result == null")
     public @Override <I extends CatalogInfo> I update(final I info, final Patch patch) {
         return super.update(info, patch);
     }
 
     @Cacheable(
-        key = "new org.geoserver.cloud.catalog.caching.CatalogInfoKey(#id, 'WORKSPACE')",
-        unless = "#result == null"
-    )
+            key = "new org.geoserver.cloud.catalog.caching.CatalogInfoKey(#id, 'WORKSPACE')",
+            unless = "#result == null")
     public @Override WorkspaceInfo getWorkspace(String id) {
         return super.getWorkspace(id);
     }
 
     @Cacheable(
-        key = "new org.geoserver.cloud.catalog.caching.CatalogInfoKey(#id, 'NAMESPACE')",
-        unless = "#result == null"
-    )
+            key = "new org.geoserver.cloud.catalog.caching.CatalogInfoKey(#id, 'NAMESPACE')",
+            unless = "#result == null")
     public @Override NamespaceInfo getNamespace(String id) {
         return super.getNamespace(id);
     }
@@ -247,34 +244,30 @@ public class CachingCatalogFacadeImpl extends ForwardingExtendedCatalogFacade
     }
 
     @Cacheable(
-        key = "new org.geoserver.cloud.catalog.caching.CatalogInfoKey(#id, 'STYLE')",
-        unless = "#result == null"
-    )
+            key = "new org.geoserver.cloud.catalog.caching.CatalogInfoKey(#id, 'STYLE')",
+            unless = "#result == null")
     public @Override StyleInfo getStyle(String id) {
         return super.getStyle(id);
     }
 
     @Cacheable(
-        key = "new org.geoserver.cloud.catalog.caching.CatalogInfoKey(#id, 'LAYER')",
-        unless = "#result == null"
-    )
+            key = "new org.geoserver.cloud.catalog.caching.CatalogInfoKey(#id, 'LAYER')",
+            unless = "#result == null")
     public @Override LayerInfo getLayer(String id) {
         return super.getLayer(id);
     }
 
     @Cacheable(
-        key =
-                "new org.geoserver.cloud.catalog.caching.CatalogInfoKey('layers@' + #resource.id, 'LAYER')",
-        unless = "#result == null"
-    )
+            key =
+                    "new org.geoserver.cloud.catalog.caching.CatalogInfoKey('layers@' + #resource.id, 'LAYER')",
+            unless = "#result == null")
     public @Override List<LayerInfo> getLayers(ResourceInfo resource) {
         return super.getLayers(resource);
     }
 
     @Cacheable(
-        key = "new org.geoserver.cloud.catalog.caching.CatalogInfoKey(#id, 'LAYERGROUP')",
-        unless = "#result == null"
-    )
+            key = "new org.geoserver.cloud.catalog.caching.CatalogInfoKey(#id, 'LAYERGROUP')",
+            unless = "#result == null")
     public @Override LayerGroupInfo getLayerGroup(String id) {
         return super.getLayerGroup(id);
     }
@@ -300,9 +293,8 @@ public class CachingCatalogFacadeImpl extends ForwardingExtendedCatalogFacade
     }
 
     @Cacheable(
-        key = "'" + DEFAULT_DATASTORE_CACHE_KEY_PREFIX + "' + #p0.id",
-        unless = "#result == null"
-    )
+            key = "'" + DEFAULT_DATASTORE_CACHE_KEY_PREFIX + "' + #p0.id",
+            unless = "#result == null")
     public @Override DataStoreInfo getDefaultDataStore(WorkspaceInfo workspace) {
         return super.getDefaultDataStore(workspace);
     }

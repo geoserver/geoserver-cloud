@@ -4,6 +4,15 @@
  */
 package org.geoserver.catalog.plugin;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.Value;
+
+import org.geoserver.catalog.impl.ModificationProxy;
+import org.geoserver.ows.util.OwsUtils;
+
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -14,13 +23,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.TreeMap;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.Value;
-import org.geoserver.catalog.impl.ModificationProxy;
-import org.geoserver.ows.util.OwsUtils;
 
 @NoArgsConstructor
 public @Value class Patch implements Serializable {

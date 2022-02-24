@@ -4,11 +4,12 @@
  */
 package org.geoserver.cloud.catalog.api.v1;
 
-import static java.lang.String.format;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+
+import static java.lang.String.format;
 
 import org.geoserver.catalog.WorkspaceInfo;
 import org.junit.Test;

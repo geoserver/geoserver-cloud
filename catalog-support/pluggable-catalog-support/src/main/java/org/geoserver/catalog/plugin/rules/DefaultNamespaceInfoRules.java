@@ -4,10 +4,11 @@
  */
 package org.geoserver.catalog.plugin.rules;
 
-import java.util.List;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.WorkspaceInfo;
+
+import java.util.List;
 
 /** Encapsulates default {@link Catalog} business rules for {@link NamespaceInfo} objects */
 public class DefaultNamespaceInfoRules implements CatalogInfoBusinessRules<NamespaceInfo> {

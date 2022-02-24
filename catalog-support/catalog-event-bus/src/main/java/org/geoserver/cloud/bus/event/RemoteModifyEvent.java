@@ -4,16 +4,18 @@
  */
 package org.geoserver.cloud.bus.event;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
+
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.cloud.event.ConfigInfoInfoType;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @EqualsAndHashCode(callSuper = true)
 // @JsonIgnoreProperties(value = {"object", "diff", "payloadCodec"})

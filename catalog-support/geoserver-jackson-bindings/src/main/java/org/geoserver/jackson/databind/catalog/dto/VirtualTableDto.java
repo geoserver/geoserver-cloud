@@ -5,6 +5,7 @@
 package org.geoserver.jackson.databind.catalog.dto;
 
 import lombok.Data;
+
 import org.geotools.jdbc.VirtualTable;
 
 /** DTO type for {@link VirtualTable} */

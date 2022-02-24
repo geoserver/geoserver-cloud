@@ -28,11 +28,10 @@ import org.springframework.context.annotation.ImportResource;
 @Configuration(proxyBeanMethods = true)
 @Import(DisquotaRestAutoConfiguration.class)
 @ImportResource(
-    reader = FilteringXmlBeanDefinitionReader.class, //
-    locations = {
-        "jar:gs-gwc-.*!/geowebcache-diskquota-context.xml#name=^(?!DiskQuotaConfigLoader).*$"
-    }
-)
+        reader = FilteringXmlBeanDefinitionReader.class, //
+        locations = {
+            "jar:gs-gwc-.*!/geowebcache-diskquota-context.xml#name=^(?!DiskQuotaConfigLoader).*$"
+        })
 public class DiskQuotaAutoConfiguration {
 
     static {

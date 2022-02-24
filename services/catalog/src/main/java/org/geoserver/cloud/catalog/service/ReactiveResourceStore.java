@@ -4,11 +4,14 @@
  */
 package org.geoserver.cloud.catalog.service;
 
-import java.nio.ByteBuffer;
 import lombok.NonNull;
+
 import org.geoserver.platform.resource.Resource;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.nio.ByteBuffer;
 
 /** */
 public interface ReactiveResourceStore {

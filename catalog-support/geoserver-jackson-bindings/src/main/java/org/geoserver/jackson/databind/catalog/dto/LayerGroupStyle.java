@@ -4,9 +4,10 @@
  */
 package org.geoserver.jackson.databind.catalog.dto;
 
+import lombok.Data;
+
 import java.util.List;
 import java.util.Map;
-import lombok.Data;
 
 /**
  * DTO for {@link org.geoserver.catalog.impl.LayerGroupStyle}

@@ -6,6 +6,7 @@ package org.geoserver.cloud.bus.event.catalog;
 
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
+
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.plugin.Patch;

@@ -4,12 +4,14 @@
  */
 package org.geoserver.cloud.event.catalog;
 
-import java.util.List;
 import lombok.NonNull;
+
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.event.CatalogModifyEvent;
 import org.geoserver.cloud.event.LocalPreModifyEvent;
+
+import java.util.List;
 
 public class LocalCatalogPreModifyEvent extends LocalPreModifyEvent<Catalog, CatalogInfo> {
     private static final long serialVersionUID = 1L;

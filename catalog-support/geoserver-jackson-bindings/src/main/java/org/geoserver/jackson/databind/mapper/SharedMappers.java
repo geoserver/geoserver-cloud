@@ -4,17 +4,9 @@
  */
 package org.geoserver.jackson.databind.mapper;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.catalog.AuthorityURLInfo;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.KeywordInfo;
@@ -51,6 +43,16 @@ import org.mapstruct.factory.Mappers;
 import org.opengis.feature.type.Name;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 @Mapper
 @Slf4j
@@ -219,7 +221,8 @@ public abstract class SharedMappers {
         if (prop == null) return null;
         Object value = patchPropertyValueToDto(prop.getValue());
         return value;
-    };
+    }
+    ;
 
     private Object patchPropertyValueToDto(Object value) {
         if (value instanceof Info) {
@@ -245,7 +248,8 @@ public abstract class SharedMappers {
             return this.infoToReference((Info) value);
         }
         return value;
-    };
+    }
+    ;
 
     private ClassMappings resolveType(@NonNull Info value) {
         value = ModificationProxy.unwrap(value);

@@ -9,16 +9,8 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import lombok.NonNull;
+
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.CatalogTestData;
@@ -46,12 +38,22 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import javax.annotation.Nullable;
+
 @SpringBootTest(
-    classes = {
-        CatalogServiceApplicationConfiguration.class,
-        WebTestClientSupportConfiguration.class
-    }
-)
+        classes = {
+            CatalogServiceApplicationConfiguration.class,
+            WebTestClientSupportConfiguration.class
+        })
 @ActiveProfiles("test") // see bootstrap-test.yml
 @RunWith(SpringRunner.class)
 public abstract class AbstractReactiveCatalogControllerTest<C extends CatalogInfo> {
@@ -98,8 +100,7 @@ public abstract class AbstractReactiveCatalogControllerTest<C extends CatalogInf
                 Arrays.stream(expected).map(CatalogInfo::getId).collect(Collectors.toSet());
         ClassMappings classMappings = ClassMappings.fromInterface(type);
         Set<String> actual =
-                this.findAll(classMappings)
-                        .stream()
+                this.findAll(classMappings).stream()
                         .map(CatalogInfo::getId)
                         .collect(Collectors.toSet());
         assertEquals(expectedIds, actual);
@@ -142,8 +143,7 @@ public abstract class AbstractReactiveCatalogControllerTest<C extends CatalogInf
                                             .map(CatalogInfo::getId)
                                             .collect(Collectors.toSet());
                             Set<String> returnedIds =
-                                    responseBody
-                                            .stream()
+                                    responseBody.stream()
                                             .map(CatalogInfo::getId)
                                             .collect(Collectors.toSet());
                             assertEquals(expectedIds, returnedIds);

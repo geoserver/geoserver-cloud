@@ -4,9 +4,9 @@
  */
 package org.geoserver.cloud.security;
 
-import java.io.IOException;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.config.GeoServerDataDirectory;
 import org.geoserver.security.GeoServerSecurityManager;
 import org.geoserver.security.config.PasswordPolicyConfig;
@@ -22,6 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.bus.ServiceMatcher;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
+
+import java.io.IOException;
 
 /**
  * Extends {@link GeoServerSecurityManager} to {@link #fireRemoteChangedEvent(String) notify} other

@@ -4,14 +4,14 @@
  */
 package org.geoserver.cloud.catalog.caching;
 
-import static java.util.Objects.requireNonNull;
 import static org.geoserver.catalog.impl.ClassMappings.PUBLISHED;
 import static org.geoserver.catalog.impl.ClassMappings.RESOURCE;
 import static org.geoserver.catalog.impl.ClassMappings.STORE;
 
-import java.io.Serializable;
-import java.util.Objects;
+import static java.util.Objects.requireNonNull;
+
 import lombok.ToString;
+
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.catalog.ResourceInfo;
@@ -19,6 +19,9 @@ import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.plugin.CatalogInfoTypeRegistry;
 import org.springframework.cache.interceptor.SimpleKey;
+
+import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * A key to for a cached {@link Info}, easier than implementing multiple key generators; it's also a

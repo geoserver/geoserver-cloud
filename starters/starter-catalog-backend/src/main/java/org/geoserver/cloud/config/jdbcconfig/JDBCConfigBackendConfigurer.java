@@ -7,14 +7,10 @@ package org.geoserver.cloud.config.jdbcconfig;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.zaxxer.hikari.HikariDataSource;
-import java.io.File;
-import java.io.IOException;
-import java.io.Serializable;
-import java.nio.file.Path;
-import java.sql.Driver;
-import javax.sql.DataSource;
+
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.catalog.plugin.CatalogFacadeExtensionAdapter;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.cloud.autoconfigure.bus.ConditionalOnGeoServerRemoteEventsEnabled;
@@ -58,6 +54,14 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.support.DatabaseStartupValidator;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.util.StringUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.Serializable;
+import java.nio.file.Path;
+import java.sql.Driver;
+
+import javax.sql.DataSource;
 
 /**
  * Configure JDBC Config catalog

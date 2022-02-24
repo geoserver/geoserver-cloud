@@ -13,14 +13,13 @@ import static org.geoserver.catalog.impl.ClassMappings.STORE;
 import static org.geoserver.catalog.impl.ClassMappings.STYLE;
 import static org.geoserver.catalog.impl.ClassMappings.WORKSPACE;
 
-import java.util.EnumMap;
-import java.util.function.Supplier;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.impl.ClassMappings;
@@ -33,6 +32,9 @@ import org.geoserver.catalog.plugin.CatalogInfoRepository.ResourceRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.StoreRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.StyleRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.WorkspaceRepository;
+
+import java.util.EnumMap;
+import java.util.function.Supplier;
 
 // revisit, replaced by BlockingCatalog
 // @Component

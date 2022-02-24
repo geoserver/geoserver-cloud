@@ -4,10 +4,9 @@
  */
 package org.geoserver.cloud.catalog.client.repository;
 
-import java.util.Optional;
-import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.NonNull;
+
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
@@ -18,6 +17,9 @@ import org.geotools.factory.CommonFactoryFinder;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory2;
 import org.springframework.lang.Nullable;
+
+import java.util.Optional;
+import java.util.stream.Stream;
 
 public class CatalogClientResourceRepository extends CatalogClientRepository<ResourceInfo>
         implements ResourceRepository {

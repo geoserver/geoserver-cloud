@@ -6,10 +6,6 @@ package org.geoserver.cloud.catalog.api.v1;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.geoserver.catalog.LegendInfo;
 import org.geoserver.catalog.SLDHandler;
 import org.geoserver.catalog.StyleInfo;
@@ -20,6 +16,11 @@ import org.junit.Test;
 import org.opengis.filter.Filter;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.http.MediaType;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @AutoConfigureWebTestClient(timeout = "360000")
 public class StyleControllerTest extends AbstractReactiveCatalogControllerTest<StyleInfo> {
@@ -223,8 +224,7 @@ public class StyleControllerTest extends AbstractReactiveCatalogControllerTest<S
                                             .map(StyleInfo::getId)
                                             .collect(Collectors.toSet());
                             Set<String> returnedIds =
-                                    response.getResponseBody()
-                                            .stream()
+                                    response.getResponseBody().stream()
                                             .map(StyleInfo::getId)
                                             .collect(Collectors.toSet());
                             assertEquals(expectedIds, returnedIds);
@@ -263,8 +263,7 @@ public class StyleControllerTest extends AbstractReactiveCatalogControllerTest<S
                                             .map(StyleInfo::getId)
                                             .collect(Collectors.toSet());
                             Set<String> returnedIds =
-                                    response.getResponseBody()
-                                            .stream()
+                                    response.getResponseBody().stream()
                                             .map(StyleInfo::getId)
                                             .collect(Collectors.toSet());
                             assertEquals(expectedIds, returnedIds);

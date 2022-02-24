@@ -8,11 +8,13 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-import java.io.IOException;
-import java.util.function.Function;
+
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.io.IOException;
+import java.util.function.Function;
 
 /**
  * Generic {@link JsonDeserializer} that applies a function from an for-the-wire POJO type to the

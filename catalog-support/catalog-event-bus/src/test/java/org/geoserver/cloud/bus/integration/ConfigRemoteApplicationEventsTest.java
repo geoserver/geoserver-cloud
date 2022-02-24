@@ -4,7 +4,6 @@
  */
 package org.geoserver.cloud.bus.integration;
 
-import java.util.Locale;
 import org.geoserver.cloud.bus.event.config.RemoteGeoServerInfoModifyEvent;
 import org.geoserver.cloud.bus.event.config.RemoteLoggingInfoModifyEvent;
 import org.geoserver.cloud.bus.event.config.RemoteServiceInfoAddEvent;
@@ -26,6 +25,8 @@ import org.geoserver.wms.WMSInfo;
 import org.geoserver.wms.WMSInfoImpl;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+
+import java.util.Locale;
 
 public class ConfigRemoteApplicationEventsTest extends BusAmqpIntegrationTests {
 

@@ -10,8 +10,7 @@ import org.mapstruct.MapperConfig;
 import org.mapstruct.ReportingPolicy;
 
 @MapperConfig(
-    componentModel = "default",
-    unmappedTargetPolicy = ReportingPolicy.ERROR,
-    uses = {SharedMappers.class, ObjectFacotries.class, WPSMapper.class, ValueMappers.class}
-)
+        componentModel = "default",
+        unmappedTargetPolicy = ReportingPolicy.ERROR,
+        uses = {SharedMappers.class, ObjectFacotries.class, WPSMapper.class, ValueMappers.class})
 public class ConfigInfoMapperConfig {}

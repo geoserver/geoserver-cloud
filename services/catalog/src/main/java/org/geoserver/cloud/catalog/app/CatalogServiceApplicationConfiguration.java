@@ -5,6 +5,7 @@
 package org.geoserver.cloud.catalog.app;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.cloud.catalog.api.v1.ReactiveCatalogController;
 import org.geoserver.cloud.catalog.app.CatalogServiceApplicationProperties.SchedulerConfig;
 import org.geoserver.cloud.catalog.service.ReactiveCatalog;
@@ -14,6 +15,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
+
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 

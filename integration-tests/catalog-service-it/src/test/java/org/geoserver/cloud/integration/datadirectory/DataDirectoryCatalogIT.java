@@ -16,13 +16,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest(
-    classes = IntegrationTestConfiguration.class,
-    properties = {
-        "geoserver.backend.data-directory.enabled=true",
-        "spring.cloud.circuitbreaker.hystrix.enabled=false",
-        "spring.cloud.config.retry.max-attempts=1"
-    }
-)
+        classes = IntegrationTestConfiguration.class,
+        properties = {
+            "geoserver.backend.data-directory.enabled=true",
+            "spring.cloud.circuitbreaker.hystrix.enabled=false",
+            "spring.cloud.config.retry.max-attempts=1"
+        })
 public class DataDirectoryCatalogIT extends AbstractCatalogBackendIT {
 
     private @Autowired @Qualifier("catalogFacade") CatalogFacade rawCatalogFacade;

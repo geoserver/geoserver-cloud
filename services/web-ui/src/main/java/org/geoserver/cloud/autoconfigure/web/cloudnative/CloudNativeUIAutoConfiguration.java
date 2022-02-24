@@ -4,13 +4,17 @@
  */
 package org.geoserver.cloud.autoconfigure.web.cloudnative;
 
-import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.cloud.web.service.WebUiCloudServicesConfiguration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-/** @since 1.0 */
+import javax.annotation.PostConstruct;
+
+/**
+ * @since 1.0
+ */
 @Configuration(proxyBeanMethods = false)
 @Import(WebUiCloudServicesConfiguration.class)
 @Slf4j

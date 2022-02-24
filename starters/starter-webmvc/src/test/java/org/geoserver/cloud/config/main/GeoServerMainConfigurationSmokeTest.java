@@ -21,9 +21,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 /** Smoke test to load the main context without auto-configuration enabled and without security */
 @SpringBootTest(
-    classes = {TestConfiguration.class},
-    properties = "reactive.feign.loadbalancer.enabled=false"
-)
+        classes = {TestConfiguration.class},
+        properties = "reactive.feign.loadbalancer.enabled=false")
 @RunWith(SpringRunner.class)
 @ActiveProfiles("test")
 public class GeoServerMainConfigurationSmokeTest {

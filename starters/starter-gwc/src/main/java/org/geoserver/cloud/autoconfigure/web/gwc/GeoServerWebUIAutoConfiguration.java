@@ -4,12 +4,10 @@
  */
 package org.geoserver.cloud.autoconfigure.web.gwc;
 
-import java.util.ArrayList;
-import java.util.List;
-import javax.annotation.PostConstruct;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.wicket.Component;
 import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnGeoServerWebUIEnabled;
 import org.geoserver.cloud.autoconfigure.gwc.GoServerWebUIConfigurationProperties;
@@ -29,6 +27,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+
 /**
  * Auto configuration to enabled GWC Wicket Web UI components.
  *
@@ -46,13 +49,12 @@ import org.springframework.context.annotation.ImportResource;
 @ConditionalOnGeoServerWebUIEnabled
 @EnableConfigurationProperties(GoServerWebUIConfigurationProperties.class)
 @ImportResource( //
-    reader = FilteringXmlBeanDefinitionReader.class,
-    locations = {
-        "jar:gs-web-gwc-.*!/applicationContext.xml#name=^(?!"
-                + GeoServerWebUIAutoConfiguration.EXCLUDED_BEANS
-                + ").*$"
-    }
-)
+        reader = FilteringXmlBeanDefinitionReader.class,
+        locations = {
+            "jar:gs-web-gwc-.*!/applicationContext.xml#name=^(?!"
+                    + GeoServerWebUIAutoConfiguration.EXCLUDED_BEANS
+                    + ").*$"
+        })
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.web.gwc")
 public class GeoServerWebUIAutoConfiguration {
 

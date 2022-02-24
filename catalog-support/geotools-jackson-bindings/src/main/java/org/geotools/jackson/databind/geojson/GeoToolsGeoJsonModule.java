@@ -7,7 +7,9 @@ package org.geotools.jackson.databind.geojson;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.geotools.jackson.databind.geojson.geometry.GeometryDeserializer;
 import org.geotools.jackson.databind.geojson.geometry.GeometrySerializer;
 import org.locationtech.jts.geom.Geometry;

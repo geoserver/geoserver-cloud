@@ -4,12 +4,15 @@
  */
 package org.geoserver.cloud.config.datadirectory;
 
-import java.io.File;
-import java.util.Objects;
-import javax.servlet.ServletContext;
 import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.platform.resource.DataDirectoryResourceStore;
 import org.geoserver.platform.resource.FileSystemResourceStore;
+
+import java.io.File;
+import java.util.Objects;
+
+import javax.servlet.ServletContext;
 
 /**
  * {@link DataDirectoryResourceStore} that works both for webmvc (servlet) and reactive (WebFlux)

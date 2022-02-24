@@ -4,13 +4,15 @@
  */
 package org.geoserver.jackson.databind.config.dto;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import org.geoserver.config.SettingsInfo;
+import org.geoserver.jackson.databind.catalog.dto.InfoReference;
+
 import java.io.Serializable;
 import java.util.Locale;
 import java.util.Map;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import org.geoserver.config.SettingsInfo;
-import org.geoserver.jackson.databind.catalog.dto.InfoReference;
 
 /** DTO for {@link SettingsInfo} */
 @EqualsAndHashCode(callSuper = true)
@@ -32,6 +34,8 @@ public @Data class Settings extends ConfigInfoDto {
     private boolean showCreatedTimeColumnsInAdminList;
     private boolean showModifiedTimeColumnsInAdminList;
 
-    /** @since geoserver 2.20.0 */
+    /**
+     * @since geoserver 2.20.0
+     */
     private Locale defaultLocale;
 }

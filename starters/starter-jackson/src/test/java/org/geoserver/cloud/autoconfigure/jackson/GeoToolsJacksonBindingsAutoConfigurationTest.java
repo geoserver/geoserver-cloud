@@ -9,7 +9,7 @@ import static org.assertj.core.api.HamcrestCondition.matching;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import java.util.Set;
+
 import org.assertj.core.api.Condition;
 import org.geotools.jackson.databind.filter.GeoToolsFilterModule;
 import org.geotools.jackson.databind.geojson.GeoToolsGeoJsonModule;
@@ -19,6 +19,8 @@ import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.test.context.FilteredClassLoader;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
+
+import java.util.Set;
 
 public class GeoToolsJacksonBindingsAutoConfigurationTest {
 

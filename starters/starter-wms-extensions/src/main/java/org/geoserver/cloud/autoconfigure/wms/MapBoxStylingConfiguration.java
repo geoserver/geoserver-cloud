@@ -18,33 +18,34 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportResource;
 
-/** @since 1.0 */
+/**
+ * @since 1.0
+ */
 @Configuration
 @Import(
-    value = {MapBoxStylingConfiguration.Enabled.class, MapBoxStylingConfiguration.Disabled.class}
-)
+        value = {
+            MapBoxStylingConfiguration.Enabled.class,
+            MapBoxStylingConfiguration.Disabled.class
+        })
 class MapBoxStylingConfiguration {
 
     @Configuration
     @ConditionalOnBean(name = "sldHandler") // sldHandler is MBStyleHandler's constructor arg
     @ConditionalOnProperty(
-        name = "geoserver.styling.mapbox.enabled",
-        havingValue = "true",
-        matchIfMissing = true
-    )
+            name = "geoserver.styling.mapbox.enabled",
+            havingValue = "true",
+            matchIfMissing = true)
     @ConditionalOnClass(MBStyleHandler.class)
     @ImportResource( //
-        reader = FilteringXmlBeanDefinitionReader.class, //
-        locations = {"jar:gs-mbstyle-.*!/applicationContext.xml"}
-    )
+            reader = FilteringXmlBeanDefinitionReader.class, //
+            locations = {"jar:gs-mbstyle-.*!/applicationContext.xml"})
     static class Enabled {}
 
     @Configuration
     @ConditionalOnProperty(
-        name = "geoserver.styling.mapbox.enabled",
-        havingValue = "false",
-        matchIfMissing = false
-    )
+            name = "geoserver.styling.mapbox.enabled",
+            havingValue = "false",
+            matchIfMissing = false)
     @ConditionalOnClass(MBStyleHandler.class)
     static class Disabled {
 

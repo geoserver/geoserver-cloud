@@ -4,11 +4,6 @@
  */
 package org.geoserver.catalog.plugin.forwarding;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogCapabilities;
 import org.geoserver.catalog.CatalogFacade;
@@ -36,6 +31,12 @@ import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+
 /**
  * {@link Catalog} which forwards all its method calls to another {@code Catalog} aiding in
  * implementing a decorator.
@@ -56,7 +57,9 @@ public class ForwardingCatalog implements Catalog {
         this.catalog = catalog;
     }
 
-    /** @return this decorator's subject */
+    /**
+     * @return this decorator's subject
+     */
     public Catalog getSubject() {
         // if you're wondering, I refuse to derive from org.geotools.util.decorate.AbstractDecorator
         // and by extension from java.sql.Wrapper

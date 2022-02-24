@@ -7,11 +7,9 @@ package org.geoserver.jackson.databind.catalog;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.Map;
-import java.util.function.Function;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.catalog.AuthorityURLInfo;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.CoverageDimensionInfo;
@@ -54,6 +52,11 @@ import org.mapstruct.factory.Mappers;
 import org.opengis.coverage.grid.GridGeometry;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.util.InternationalString;
+
+import java.util.Arrays;
+import java.util.Locale;
+import java.util.Map;
+import java.util.function.Function;
 
 /**
  * Jackson {@link com.fasterxml.jackson.databind.Module} to handle GeoServer {@link CatalogInfo}

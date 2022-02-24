@@ -11,6 +11,7 @@ import static org.junit.Assert.assertTrue;
 
 import lombok.Getter;
 import lombok.experimental.Accessors;
+
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.StyleInfo;

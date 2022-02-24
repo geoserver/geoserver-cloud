@@ -7,13 +7,14 @@ package org.geoserver.cloud.test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Component;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Component;
 
 @Component
 public class ApplicationEventCapturingListener {

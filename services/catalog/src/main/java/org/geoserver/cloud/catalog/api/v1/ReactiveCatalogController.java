@@ -9,6 +9,7 @@ import static org.geoserver.catalog.impl.ClassMappings.STORE;
 import static org.springframework.http.MediaType.APPLICATION_STREAM_JSON_VALUE;
 
 import lombok.NonNull;
+
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.DataStoreInfo;
@@ -38,6 +39,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -329,9 +331,8 @@ public class ReactiveCatalogController {
     }
 
     @GetMapping(
-        path = "/workspaces/{workspaceId}/layergroups",
-        produces = APPLICATION_STREAM_JSON_VALUE
-    )
+            path = "/workspaces/{workspaceId}/layergroups",
+            produces = APPLICATION_STREAM_JSON_VALUE)
     public Flux<LayerGroupInfo> findLayerGroupsByWoskspaceId(
             @PathVariable("workspaceId") String workspaceId) {
 

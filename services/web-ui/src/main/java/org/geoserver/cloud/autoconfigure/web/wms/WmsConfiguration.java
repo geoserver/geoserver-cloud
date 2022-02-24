@@ -10,13 +10,12 @@ import org.springframework.context.annotation.ImportResource;
 
 @Configuration(proxyBeanMethods = true)
 @ImportResource( //
-    reader = FilteringXmlBeanDefinitionReader.class, //
-    locations = {
-        "jar:gs-web-wms-.*!/applicationContext.xml", //
-        "jar:gs-wms-.*!/applicationContext.xml", //
-        "jar:gs-wfs-.*!/applicationContext.xml#name=" + WmsConfiguration.WFS_BEANS_REGEX
-    }
-)
+        reader = FilteringXmlBeanDefinitionReader.class, //
+        locations = {
+            "jar:gs-web-wms-.*!/applicationContext.xml", //
+            "jar:gs-wms-.*!/applicationContext.xml", //
+            "jar:gs-wfs-.*!/applicationContext.xml#name=" + WmsConfiguration.WFS_BEANS_REGEX
+        })
 public class WmsConfiguration {
 
     static final String WFS_BEANS_REGEX =

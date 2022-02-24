@@ -23,15 +23,14 @@ import org.springframework.test.context.TestPropertySource;
  */
 @Configuration
 @EnableAutoConfiguration(
-    exclude = { //
-        DataSourceAutoConfiguration.class, //
-        DataSourceTransactionManagerAutoConfiguration.class, //
-        HibernateJpaAutoConfiguration.class, //
-        SecurityAutoConfiguration.class, //
-        UserDetailsServiceAutoConfiguration.class, //
-        ManagementWebSecurityAutoConfiguration.class, //
-        LoadBalancerBeanPostProcessorAutoConfiguration.class
-    }
-)
+        exclude = { //
+            DataSourceAutoConfiguration.class, //
+            DataSourceTransactionManagerAutoConfiguration.class, //
+            HibernateJpaAutoConfiguration.class, //
+            SecurityAutoConfiguration.class, //
+            UserDetailsServiceAutoConfiguration.class, //
+            ManagementWebSecurityAutoConfiguration.class, //
+            LoadBalancerBeanPostProcessorAutoConfiguration.class
+        })
 @TestPropertySource(properties = {"geoserver.backend.data-directory.enabled=true"})
 public class TestConfiguration {}

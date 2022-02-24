@@ -7,9 +7,6 @@ package org.geoserver.catalog.plugin.validation;
 import static org.geoserver.catalog.plugin.validation.DefaultCatalogValidator.checkArgument;
 import static org.geoserver.catalog.plugin.validation.DefaultCatalogValidator.isDefaultStyle;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.CatalogValidator;
@@ -33,6 +30,10 @@ import org.geoserver.catalog.WMTSStoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.platform.GeoServerExtensions;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Support class implementing the {@link Catalog} state validation rules for {@link CatalogInfo}

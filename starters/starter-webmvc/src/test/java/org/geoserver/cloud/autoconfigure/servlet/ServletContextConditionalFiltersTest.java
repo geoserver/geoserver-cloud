@@ -31,12 +31,11 @@ import org.springframework.web.context.request.RequestContextListener;
 @EnableAutoConfiguration(exclude = {SecurityAutoConfiguration.class})
 @RunWith(SpringRunner.class)
 @TestPropertySource(
-    properties = {
-        "reactive.feign.loadbalancer.enabled=false",
-        "geoserver.servlet.filter.session-debug.enabled=false",
-        "geoserver.servlet.filter.flush-safe.enabled=false"
-    }
-)
+        properties = {
+            "reactive.feign.loadbalancer.enabled=false",
+            "geoserver.servlet.filter.session-debug.enabled=false",
+            "geoserver.servlet.filter.flush-safe.enabled=false"
+        })
 @ActiveProfiles("test")
 public class ServletContextConditionalFiltersTest {
 

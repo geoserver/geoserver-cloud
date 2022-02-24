@@ -10,11 +10,11 @@ import static org.springframework.http.MediaType.APPLICATION_STREAM_JSON_VALUE;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.nio.ByteBuffer;
-import java.util.Objects;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+
 import org.geoserver.cloud.catalog.service.ReactiveResourceStore;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.Resource.Type;
@@ -31,8 +31,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.nio.ByteBuffer;
+import java.util.Objects;
 
 /** */
 @RestController
@@ -86,9 +90,8 @@ public class ReactiveResourceStoreController {
     }
 
     @GetMapping(
-        path = "/{*path}",
-        produces = {APPLICATION_STREAM_JSON_VALUE}
-    )
+            path = "/{*path}",
+            produces = {APPLICATION_STREAM_JSON_VALUE})
     public Flux<WebResource> list(@PathVariable("path") String path) {
         return store.get(path).flatMapMany(store::list).map(this::toWebResource);
     }
@@ -99,10 +102,9 @@ public class ReactiveResourceStoreController {
     }
 
     @PutMapping(
-        path = "/{*path}",
-        consumes = APPLICATION_OCTET_STREAM_VALUE,
-        produces = APPLICATION_JSON_VALUE
-    )
+            path = "/{*path}",
+            consumes = APPLICATION_OCTET_STREAM_VALUE,
+            produces = APPLICATION_JSON_VALUE)
     public Mono<WebResource> put(
             @PathVariable("path") String path, @RequestBody ByteBuffer contents) {
 
@@ -110,9 +112,8 @@ public class ReactiveResourceStoreController {
     }
 
     @GetMapping(
-        path = "/{*path}",
-        produces = {APPLICATION_OCTET_STREAM_VALUE}
-    )
+            path = "/{*path}",
+            produces = {APPLICATION_OCTET_STREAM_VALUE})
     public Mono<org.springframework.core.io.Resource> getFileContent(
             @PathVariable("path") String path) {
         return store.get(path).map(this::toSpringResource);

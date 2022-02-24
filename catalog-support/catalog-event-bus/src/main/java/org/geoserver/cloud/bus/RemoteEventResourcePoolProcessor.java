@@ -4,8 +4,8 @@
  */
 package org.geoserver.cloud.bus;
 
-import java.lang.reflect.Proxy;
 import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.CoverageStoreInfo;
@@ -26,6 +26,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.bus.BusAutoConfiguration;
 import org.springframework.cloud.bus.event.RemoteApplicationEvent;
 import org.springframework.context.event.EventListener;
+
+import java.lang.reflect.Proxy;
 
 /**
  * Listens to {@link RemoteCatalogEvent}s and acts accordingly
