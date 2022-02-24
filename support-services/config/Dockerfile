@@ -18,6 +18,7 @@ ENV XDG_CONFIG_HOME=/tmp
 WORKDIR /opt/app/bin
 ENV JAVA_OPTS=
 EXPOSE 8080
+EXPOSE 8081
 
 COPY --from=builder dependencies/ ./
 COPY --from=builder snapshot-dependencies/ ./
