@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jre as builder
+FROM ibm-semeru-runtimes:open-17-jre as builder
 ARG JAR_FILE=target/gs-cloud-*-bin.jar
 
 COPY ${JAR_FILE} application.jar
@@ -6,7 +6,7 @@ COPY ${JAR_FILE} application.jar
 RUN java -Djarmode=layertools -jar application.jar extract
 
 ##########
-FROM eclipse-temurin:17-jre
+FROM ibm-semeru-runtimes:open-17-jre
 
 LABEL maintainer="GeoServer PSC <geoserver-users@lists.sourceforge.net>"
 
@@ -14,8 +14,7 @@ RUN mkdir -p /opt/app/bin
 
 WORKDIR /opt/app/bin
 ENV JAVA_OPTS=
-EXPOSE 8761
-EXPOSE 8081
+EXPOSE 8080
 
 COPY --from=builder dependencies/ ./
 COPY --from=builder snapshot-dependencies/ ./

@@ -42,7 +42,7 @@ Only a curated list of the [vast amount](http://geoserver.org/release/stable/) o
 
 Requirements:
 
- * Java >= 11 JDK
+ * Java >= 17 JDK
  * [Maven](https://maven.apache.org/) >= `3.6.3`
  * [Docker](https://docs.docker.com/engine/install/) version >= `19.03.3`
  * [docker-compose](https://docs.docker.com/compose/) version >= `1.26.2`

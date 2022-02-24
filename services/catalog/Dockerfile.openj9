@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jre as builder
+FROM ibm-semeru-runtimes:open-17-jre as builder
 ARG JAR_FILE=target/gs-cloud-*-bin.jar
 
 RUN apt update && \ 
@@ -14,20 +14,15 @@ COPY ${JAR_FILE} application.jar
 RUN java -Djarmode=layertools -jar application.jar extract
 
 ##########
-FROM eclipse-temurin:17-jre
+FROM ibm-semeru-runtimes:open-17-jre
 
 LABEL maintainer="GeoServer PSC <geoserver-users@lists.sourceforge.net>"
 
 COPY --from=builder /usr/share/fonts/truetype/* /usr/share/fonts/truetype/
 
-# REVISIT: ideally webui shouldn't even have access to the geowebcache
-# directory, but since it needs to run a lot of gwc and gwc-gs integration
-# services, it might still need it.
-RUN mkdir -p /opt/app/bin /opt/app/data_directory /data/geowebcache
-RUN chmod 0777 /opt/app/data_directory /data/geowebcache
-
+RUN mkdir -p /opt/app/bin
+RUN mkdir -p /opt/app/data_directory && chmod 0777 /opt/app/data_directory
 VOLUME /opt/app/data_directory
-VOLUME /data/geowebcache
 
 WORKDIR /opt/app/bin
 ENV JAVA_TOOL_OPTS=\
@@ -40,6 +35,8 @@ ENV JAVA_TOOL_OPTS=\
 --add-opens=java.desktop/sun.awt.image=ALL-UNNAMED \
 --add-opens=java.naming/com.sun.jndi.ldap=ALL-UNNAMED
 ENV JAVA_OPTS=
+
+
 EXPOSE 8080
 EXPOSE 8081
 

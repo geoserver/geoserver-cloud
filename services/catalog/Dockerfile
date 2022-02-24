@@ -1,4 +1,4 @@
-FROM adoptopenjdk:11-jre-openj9 as builder
+FROM eclipse-temurin:17-jre as builder
 ARG JAR_FILE=target/gs-cloud-*-bin.jar
 
 RUN apt update && \ 
@@ -14,7 +14,7 @@ COPY ${JAR_FILE} application.jar
 RUN java -Djarmode=layertools -jar application.jar extract
 
 ##########
-FROM adoptopenjdk:11-jre-openj9
+FROM eclipse-temurin:17-jre
 
 LABEL maintainer="GeoServer PSC <geoserver-users@lists.sourceforge.net>"
 
@@ -25,6 +25,15 @@ RUN mkdir -p /opt/app/data_directory && chmod 0777 /opt/app/data_directory
 VOLUME /opt/app/data_directory
 
 WORKDIR /opt/app/bin
+ENV JAVA_TOOL_OPTS=\
+--add-exports=java.desktop/sun.awt.image=ALL-UNNAMED \
+--add-opens=java.base/java.lang=ALL-UNNAMED \
+--add-opens=java.base/java.util=ALL-UNNAMED \
+--add-opens=java.base/java.lang.reflect=ALL-UNNAMED \
+--add-opens=java.base/java.text=ALL-UNNAMED \
+--add-opens=java.desktop/java.awt.font=ALL-UNNAMED \
+--add-opens=java.desktop/sun.awt.image=ALL-UNNAMED \
+--add-opens=java.naming/com.sun.jndi.ldap=ALL-UNNAMED
 ENV JAVA_OPTS=
 EXPOSE 8080
 EXPOSE 8081
@@ -41,4 +50,4 @@ HEALTHCHECK \
 --retries=5 \
 CMD curl -f -s -o /dev/null localhost:8081/actuator/health || exit 1
 
-CMD exec env USER_ID="$(id -u)" USER_GID="$(id -g)" java $JAVA_OPTS org.springframework.boot.loader.JarLauncher
+CMD exec env USER_ID="$(id -u)" USER_GID="$(id -g)" java $JAVA_OPTS $JAVA_TOOL_OPTS org.springframework.boot.loader.JarLauncher

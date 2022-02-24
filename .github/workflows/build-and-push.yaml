@@ -29,7 +29,7 @@ jobs:
       uses: actions/setup-java@v2
       with:
         distribution: 'temurin'
-        java-version: '11'
+        java-version: '17'
         cache: 'maven'
 
     - name: Validate source code formatting
@@ -38,14 +38,11 @@ jobs:
     - name: Build GeoServer 2.21-CLOUD
       run: |
         git clone --depth 1 --branch geoserver-cloud_integration https://github.com/groldan/geoserver.git
-        find . -name pom.xml|xargs sed -i 's/2.21-SNAPSHOT/2.21-CLOUD/g' 
         ./mvnw -f ./geoserver/src/ install -PallExtensions,communityRelease --no-transfer-progress -DskipTests -Dfmt.skip -T1C 
 
-#    - name: Update maven dependencies
-#      run: ./mvnw de.qaware.maven:go-offline-maven-plugin:resolve-dependencies -Dgs.version=2.21-CLOUD -Dgs.community.version=2.21-CLOUD -P-docker -ntp -Dfmt.skip
-
-    - name: Build and push docker images
-      run: ./mvnw install -Dgs.version=2.21-CLOUD -Dgs.community.version=2.21-CLOUD -Ddockerfile.push.skip=false -ntp -Dfmt.skip -T1 -DskipTests
+    - name: Build and push Hotspot and OpenJ9 docker images
+      run: ./mvnw -Ddockerfile.push.skip=false  install \
+           -ntp -Dfmt.skip -T1 -DskipTests
 
     - name: Remove project jars from cached repository
       run: |

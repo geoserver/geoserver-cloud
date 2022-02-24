@@ -39,7 +39,7 @@ jobs:
       uses: actions/setup-java@v2
       with:
         distribution: 'temurin'
-        java-version: '11'
+        java-version: '17'
         cache: 'maven'
 
     - name: Resolve image name
@@ -50,7 +50,7 @@ jobs:
 
     - name: Build config-service native image
       run: |
-        ./mvnw clean install -pl :gs-cloud-config-service -am -Dfmt.action=check -ntp -P-docker
+        ./mvnw clean install -pl :gs-cloud-config-service -am -Dfmt.action=check -ntp -P-docker,-docker-openj9
         ./mvnw -f support-services/config/ spring-boot:build-image -Pnative -ntp -DskipTests
 
     - name: Push image to docker.io
