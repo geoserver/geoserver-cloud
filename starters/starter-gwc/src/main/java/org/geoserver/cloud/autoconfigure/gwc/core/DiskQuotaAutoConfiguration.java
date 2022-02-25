@@ -30,7 +30,7 @@ import org.springframework.context.annotation.ImportResource;
 @ImportResource(
         reader = FilteringXmlBeanDefinitionReader.class, //
         locations = {
-            "jar:gs-gwc-.*!/geowebcache-diskquota-context.xml#name=^(?!DiskQuotaConfigLoader).*$"
+            "jar:gs-gwc-[0-9]+.*!/geowebcache-diskquota-context.xml#name=^(?!DiskQuotaConfigLoader).*$"
         })
 public class DiskQuotaAutoConfiguration {
 

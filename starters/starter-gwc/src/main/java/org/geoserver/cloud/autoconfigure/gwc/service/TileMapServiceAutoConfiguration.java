@@ -27,8 +27,7 @@ import javax.annotation.PostConstruct;
 @ComponentScan(basePackageClasses = TMSController.class)
 @ImportResource(
         reader = FilteringXmlBeanDefinitionReader.class,
-        // locations = "jar:gs-gwc-.*!/geowebcache-tmsservice-context.xml#name=gwcServiceTMSTarget"
-        locations = "jar:gs-gwc-.*!/geowebcache-tmsservice-context.xml")
+        locations = "jar:gs-gwc-[0-9]+.*!/geowebcache-tmsservice-context.xml")
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.gwc.service")
 public class TileMapServiceAutoConfiguration {
 

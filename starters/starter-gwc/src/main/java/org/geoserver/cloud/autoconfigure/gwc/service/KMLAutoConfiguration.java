@@ -27,7 +27,8 @@ import javax.annotation.PostConstruct;
 @ComponentScan(basePackageClasses = KMLController.class)
 @ImportResource(
         reader = FilteringXmlBeanDefinitionReader.class,
-        locations = "jar:gs-gwc-.*!/geowebcache-kmlservice-context.xml#name=gwcServiceKMLTarget")
+        locations =
+                "jar:gs-gwc-[0-9]+.*!/geowebcache-kmlservice-context.xml#name=gwcServiceKMLTarget")
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.gwc.service")
 public class KMLAutoConfiguration {
 

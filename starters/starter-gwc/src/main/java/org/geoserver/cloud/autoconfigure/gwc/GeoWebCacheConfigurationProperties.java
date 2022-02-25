@@ -53,6 +53,7 @@ public @Data class GeoWebCacheConfigurationProperties {
     public static final String CACHE_DIRECTORY = "gwc.cache-directory";
     public static final String CONFIG_DIRECTORY = "gwc.config-directory";
     public static final String WEBUI_ENABLED = "gwc.web-ui";
+    public static final String WMS_INTEGRATION_ENABLED = "gwc.wms-integration";
     public static final String RESTCONFIG_ENABLED = "gwc.rest-config";
     public static final String SERVICE_WMTS_ENABLED = "gwc.services.wmts";
     public static final String SERVICE_TMS_ENABLED = "gwc.services.tms";
@@ -87,6 +88,14 @@ public @Data class GeoWebCacheConfigurationProperties {
 
     /** Enables or disables the GWC user interface */
     private boolean webUi = false;
+
+    /**
+     * Enables or disables the extension to integrate GWC with GeoServer's WMS. This is a
+     * component-level configuration property that, if enabled, the option to activate the
+     * integration needs to be configured in GeoServer's WEB-UI, and if disabled, the Web-UI don't
+     * even show the option
+     */
+    private boolean wmsIntegration = false;
 
     /** Enables or disables the GWC REST API to configure layers, blob stores, etc. */
     private boolean restConfig = false;

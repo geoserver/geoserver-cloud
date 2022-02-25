@@ -4,6 +4,7 @@ org.geoserver.cloud.autoconfigure.gwc.integration.LocalEventsAutoConfiguration,\
 org.geoserver.cloud.autoconfigure.gwc.integration.RemoteEventsAutoConfiguration,\
 org.geoserver.cloud.autoconfigure.gwc.integration.SeedingWMSAutoConfiguration,\
 org.geoserver.cloud.autoconfigure.gwc.integration.WMTSIntegrationAutoConfiguration,\
+org.geoserver.cloud.autoconfigure.gwc.integration.WMSIntegrationAutoConfiguration,\
 org.geoserver.cloud.autoconfigure.gwc.service.TileMapServiceAutoConfiguration,\
 org.geoserver.cloud.autoconfigure.gwc.service.WebMapTileServiceAutoConfiguration,\
 org.geoserver.cloud.autoconfigure.gwc.service.WebMapServiceAutoConfiguration,\

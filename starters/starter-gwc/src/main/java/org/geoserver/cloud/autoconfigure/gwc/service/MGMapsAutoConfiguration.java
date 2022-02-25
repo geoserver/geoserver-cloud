@@ -27,7 +27,8 @@ import javax.annotation.PostConstruct;
 @ComponentScan(basePackageClasses = MGMapsController.class)
 @ImportResource(
         reader = FilteringXmlBeanDefinitionReader.class,
-        locations = "jar:gs-gwc-.*!/geowebcache-gmaps-context.xml#name=gwcServiceMGMapsTarget")
+        locations =
+                "jar:gs-gwc-[0-9]+.*!/geowebcache-gmaps-context.xml#name=gwcServiceMGMapsTarget")
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.gwc.service")
 public class MGMapsAutoConfiguration {
 

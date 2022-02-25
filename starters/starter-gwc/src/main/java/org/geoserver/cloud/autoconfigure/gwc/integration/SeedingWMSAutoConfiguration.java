@@ -45,15 +45,59 @@ import javax.annotation.PostConstruct;
 @ImportResource( //
         reader = FilteringXmlBeanDefinitionReader.class, //
         locations = { //
-            "jar:gs-wms-.*!/applicationContext.xml#name=^(?!getMapKvpReader).*$", //
-            "jar:gs-wfs-.*!/applicationContext.xml#name="
-                    + SeedingWMSAutoConfiguration.WFS_BEANS_REGEX //
+            SeedingWMSAutoConfiguration.GS_WMS_INCLUDES, //
+            SeedingWMSAutoConfiguration.GS_WFS_INCLUDES //
         })
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.gwc.integration")
 public class SeedingWMSAutoConfiguration {
 
-    static final String WFS_BEANS_REGEX =
-            "^(gml.*OutputFormat|bboxKvpParser|xmlConfiguration.*|gml[1-9]*SchemaBuilder|wfsXsd.*|wfsSqlViewKvpParser).*$";
+    // wms beans black-list
+    private static final String WMS_BEANS_REGEX =
+            """
+            ^(?!\
+            getMapKvpReader\
+            |wmsCapabilitiesXmlReader\
+            |getMapXmlReader\
+            |sldXmlReader\
+            |wms_1_1_1_GetCapabilitiesResponse\
+            |wms_1_3_0_GetCapabilitiesResponse\
+            |wmsDescribeLayerXML\
+            |.*DescribeLayerResponse\
+            |.stylesResponse\
+            |.kmlIconService\
+            |.wmsURLMapping\
+            |.wmsXMLTransformerResponse\
+            |.*LegendOutputFormat\
+            |.*LegendGraphicResponse\
+            |.PDFMap.*\
+            |OpenLayers.*\
+            |Atom.*\
+            |RSSGeoRSSMapProducer\
+            |.*SVG.*\
+            |animateURLMapping\
+            |metaTileCache\
+            |wmsClasspathPublisherMapping\
+            ).*$\
+            """;
+
+    // wfs beans white-list
+    private static final String WFS_BEANS_REGEX =
+            """
+            ^(\
+            gml.*OutputFormat\
+            |bboxKvpParser\
+            |xmlConfiguration.*\
+            |gml[1-9]*SchemaBuilder\
+            |wfsXsd.*\
+            |wfsSqlViewKvpParser\
+            ).*$\
+            """;
+
+    static final String GS_WMS_INCLUDES =
+            "jar:gs-wms-[0-9]+.*!/applicationContext.xml#name=" + WMS_BEANS_REGEX;
+
+    static final String GS_WFS_INCLUDES =
+            "jar:gs-wfs-[0-9]+.*!/applicationContext.xml#name=" + WFS_BEANS_REGEX;
 
     public @PostConstruct void log() {
         log.info("GeoWebCache internal WMS for seeding enabled");
@@ -73,7 +117,7 @@ public class SeedingWMSAutoConfiguration {
      *
      * <p>Replaces {@link CacheSeedingWebMapService} declared in {@literal
      * geowebcache-geoserver-wms-integration.xml} for simplicity and because its {@literal
-     * wmsServiceInterceptor_CachingWMS} pointcut advisor forces eager loading of the wms context
+     * wmsServiceInterceptor_SeedingWMS} pointcut advisor forces eager loading of the wms context
      * before the catalog is initialized, making {@link GetMapKvpRequestReader} constructor throw a
      * NPE.
      */

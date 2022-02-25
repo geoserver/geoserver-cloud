@@ -27,7 +27,7 @@ import javax.annotation.PostConstruct;
 @ComponentScan(basePackageClasses = WMSController.class)
 @ImportResource(
         reader = FilteringXmlBeanDefinitionReader.class,
-        locations = "jar:gs-gwc-.*!/geowebcache-wmsservice-context.xml")
+        locations = "jar:gs-gwc-[0-9]+.*!/geowebcache-wmsservice-context.xml")
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.gwc.service")
 public class WebMapServiceAutoConfiguration {
 

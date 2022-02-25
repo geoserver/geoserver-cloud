@@ -36,10 +36,19 @@ import javax.annotation.PostConstruct;
 @ImportResource(
         reader = FilteringXmlBeanDefinitionReader.class, //
         locations = {
-            "jar:gs-gwc-.*!/geowebcache-geoserver-context.xml#name=^(?!GeoSeverTileLayerCatalog|gwcCatalogConfiguration).*$"
+            "jar:gs-gwc-[0-9]+.*!/geowebcache-geoserver-context.xml#name=^(?!"
+                    + GeoServerIntegrationAutoConfiguration.EXCLUDED_BEANS
+                    + ").*$"
         })
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.gwc.core")
 public class GeoServerIntegrationAutoConfiguration {
+
+    static final String EXCLUDED_BEANS = //
+            "GeoSeverTileLayerCatalog" //
+                    + "|gwcCatalogConfiguration" //
+                    + "|gwcTransactionListener" //
+                    + "|gwcWMSExtendedCapabilitiesProvider" //
+            ;
 
     public @PostConstruct void log() {
         log.info("GeoWebCache core GeoServer integration enabled");
