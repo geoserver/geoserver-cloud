@@ -20,12 +20,54 @@
       <artifactId>gs-cloud-starter-webmvc</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-starter-security</artifactId>
+      <groupId>org.geoserver</groupId>
+      <artifactId>gs-wms</artifactId>
     </dependency>
     <dependency>
       <groupId>org.geoserver.cloud</groupId>
       <artifactId>gs-cloud-starter-wms-extensions</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-starter-gwc</artifactId>
+      <exclusions>
+        <exclusion>
+          <artifactId>gwc-georss</artifactId>
+          <groupId>org.geowebcache</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>gwc-gmaps</artifactId>
+          <groupId>org.geowebcache</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>gwc-kml</artifactId>
+          <groupId>org.geowebcache</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>gwc-rest</artifactId>
+          <groupId>org.geowebcache</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>gwc-tms</artifactId>
+          <groupId>org.geowebcache</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>gwc-ve</artifactId>
+          <groupId>org.geowebcache</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>gwc-wms</artifactId>
+          <groupId>org.geowebcache</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>gwc-wmts</artifactId>
+          <groupId>org.geowebcache</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-starter-security</artifactId>
     </dependency>
     <dependency>
       <groupId>org.geoserver.cloud</groupId>
@@ -34,10 +76,6 @@
     <dependency>
       <groupId>org.geoserver.cloud</groupId>
       <artifactId>gs-cloud-starter-raster-formats</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.geoserver</groupId>
-      <artifactId>gs-wms</artifactId>
     </dependency>
   </dependencies>
   <profiles>
@@ -131,17 +169,6 @@
           <!-- just to avoid a com.thoughtworks.xstream.mapper.CannotResolveClassException: org.geoserver.wps.WPSInfoImpl -->
           <groupId>org.geoserver.extension</groupId>
           <artifactId>gs-wps-core</artifactId>
-          <exclusions>
-            <exclusion>
-              <artifactId>*</artifactId>
-              <groupId>*</groupId>
-            </exclusion>
-          </exclusions>
-        </dependency>
-        <dependency>
-          <!-- just to avoid a com.thoughtworks.xstream.mapper.CannotResolveClassException: org.geoserver.gwc.WMTSInfoImpl -->
-          <groupId>org.geoserver</groupId>
-          <artifactId>gs-gwc</artifactId>
           <exclusions>
             <exclusion>
               <artifactId>*</artifactId>

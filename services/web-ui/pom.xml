@@ -245,6 +245,40 @@
         <dependency>
           <groupId>org.geoserver.cloud</groupId>
           <artifactId>gs-cloud-starter-gwc</artifactId>
+          <exclusions>
+            <exclusion>
+              <artifactId>gwc-georss</artifactId>
+              <groupId>org.geowebcache</groupId>
+            </exclusion>
+            <exclusion>
+              <artifactId>gwc-gmaps</artifactId>
+              <groupId>org.geowebcache</groupId>
+            </exclusion>
+            <exclusion>
+              <artifactId>gwc-kml</artifactId>
+              <groupId>org.geowebcache</groupId>
+            </exclusion>
+            <exclusion>
+              <artifactId>gwc-rest</artifactId>
+              <groupId>org.geowebcache</groupId>
+            </exclusion>
+            <exclusion>
+              <artifactId>gwc-tms</artifactId>
+              <groupId>org.geowebcache</groupId>
+            </exclusion>
+            <exclusion>
+              <artifactId>gwc-ve</artifactId>
+              <groupId>org.geowebcache</groupId>
+            </exclusion>
+            <exclusion>
+              <artifactId>gwc-wms</artifactId>
+              <groupId>org.geowebcache</groupId>
+            </exclusion>
+            <exclusion>
+              <artifactId>gwc-wmts</artifactId>
+              <groupId>org.geowebcache</groupId>
+            </exclusion>
+          </exclusions>
         </dependency>
         <dependency>
           <groupId>org.geoserver.web</groupId>

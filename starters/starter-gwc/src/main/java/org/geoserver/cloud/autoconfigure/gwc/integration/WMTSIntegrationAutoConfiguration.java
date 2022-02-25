@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnWMTSIntegrationEnabled;
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
+import org.geowebcache.service.wmts.WMTSService;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 
@@ -18,6 +20,7 @@ import javax.annotation.PostConstruct;
  */
 @Configuration(proxyBeanMethods = true)
 @ConditionalOnWMTSIntegrationEnabled
+@ConditionalOnClass(WMTSService.class)
 @ImportResource(
         reader = FilteringXmlBeanDefinitionReader.class, //
         locations = {"jar:gs-gwc-[0-9]+.*!/geowebcache-geoserver-wmts-integration.xml"})

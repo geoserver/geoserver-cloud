@@ -8,7 +8,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.geoserver.cloud.autoconfigure.gwc.GeoWebCacheConfigurationProperties;
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
+import org.geowebcache.service.gmaps.GMapsConverter;
 import org.gwc.web.gmaps.GoogleMapsController;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +22,7 @@ import javax.annotation.PostConstruct;
  * @since 1.0
  */
 @Configuration
+@ConditionalOnClass(GMapsConverter.class)
 @ConditionalOnProperty(
         name = GeoWebCacheConfigurationProperties.SERVICE_GMAPS_ENABLED,
         havingValue = "true",
