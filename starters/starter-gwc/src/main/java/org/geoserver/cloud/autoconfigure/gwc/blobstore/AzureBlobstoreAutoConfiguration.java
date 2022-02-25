@@ -9,9 +9,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnAzureBlobstoreEnabled;
 import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnGeoServerWebUIEnabled;
 import org.geoserver.gwc.web.blob.AzureBlobStoreType;
+import org.geoserver.platform.ModuleStatusImpl;
 import org.geowebcache.azure.AzureBlobStoreConfigProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 import javax.annotation.PostConstruct;
 
@@ -34,6 +36,7 @@ import javax.annotation.PostConstruct;
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnAzureBlobstoreEnabled
+@Import(AzureBlobstoreAutoConfiguration.AzureBlobstoreGsWebUIConfiguration.class)
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.gwc.blobstore")
 public class AzureBlobstoreAutoConfiguration {
 
@@ -46,9 +49,23 @@ public class AzureBlobstoreAutoConfiguration {
         return new AzureBlobStoreConfigProvider();
     }
 
-    @Bean(name = "AzureBlobStoreType")
     @ConditionalOnGeoServerWebUIEnabled
-    public AzureBlobStoreType azureBlobStoreType() {
-        return new AzureBlobStoreType();
+    static @Configuration class AzureBlobstoreGsWebUIConfiguration {
+
+        @Bean(name = "AzureBlobStoreType")
+        public AzureBlobStoreType azureBlobStoreType() {
+            return new AzureBlobStoreType();
+        }
+
+        @Bean(name = "GWC-AzureExtension")
+        public ModuleStatusImpl gwcAzureExtension() {
+            ModuleStatusImpl module = new ModuleStatusImpl();
+            module.setModule("gs-gwc-azure");
+            module.setName("GeoWebCache Azure Extension");
+            module.setComponent("GeoWebCache Azure BlobStore plugin");
+            module.setEnabled(true);
+            module.setAvailable(true);
+            return module;
+        }
     }
 }

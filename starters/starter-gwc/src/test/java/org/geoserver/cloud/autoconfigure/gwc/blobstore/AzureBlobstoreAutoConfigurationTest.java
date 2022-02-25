@@ -4,16 +4,17 @@
  */
 package org.geoserver.cloud.autoconfigure.gwc.blobstore;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.geoserver.cloud.autoconfigure.gwc.GeoWebCacheContextRunner;
+import org.geoserver.gwc.web.GWCSettingsPage;
 import org.geoserver.gwc.web.blob.AzureBlobStoreType;
 import org.geowebcache.azure.AzureBlobStoreConfigProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
+import org.springframework.boot.test.context.FilteredClassLoader;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 
 import java.io.File;
@@ -40,34 +41,41 @@ class AzureBlobstoreAutoConfigurationTest {
     public @Test void disabledByDefault() {
         runner.run(
                 context -> {
-                    assertFalse(context.containsBean("AzureBlobStoreConfigProvider"));
-                    assertFalse(context.containsBean("AzureBlobStoreType"));
+                    assertThat(context).doesNotHaveBean(AzureBlobStoreConfigProvider.class);
+                    assertThat(context).doesNotHaveBean("AzureBlobStoreType");
+                    assertThat(context).doesNotHaveBean("GWC-AzureExtension");
                 });
     }
 
-    public @Test void blobstoreEnabledWebUiDisabled() {
+    public @Test void blobstoreEnabledGeoServerWebUiDisabled() {
         runner.withPropertyValues("gwc.blobstores.azure=true", "geoserver.web-ui.gwc.enabled=false")
                 .run(
                         context -> {
-                            assertTrue(
-                                    context.isTypeMatch(
-                                            "AzureBlobStoreConfigProvider",
-                                            AzureBlobStoreConfigProvider.class));
-                            assertFalse(context.containsBean("AzureBlobStoreType"));
+                            assertThat(context).hasSingleBean(AzureBlobStoreConfigProvider.class);
+                            assertThat(context).doesNotHaveBean("AzureBlobStoreType");
+                            assertThat(context).doesNotHaveBean("GWC-AzureExtension");
                         });
     }
 
-    public @Test void enabled() {
+    public @Test void blobstoreEnabledGeoServerWebUiEnabled() {
         runner.withPropertyValues("gwc.blobstores.azure=true", "geoserver.web-ui.gwc.enabled=true")
                 .run(
                         context -> {
-                            assertTrue(
-                                    context.isTypeMatch(
-                                            "AzureBlobStoreConfigProvider",
-                                            AzureBlobStoreConfigProvider.class));
-                            assertTrue(
-                                    context.isTypeMatch(
-                                            "AzureBlobStoreType", AzureBlobStoreType.class));
+                            assertThat(context).hasSingleBean(AzureBlobStoreConfigProvider.class);
+                            assertThat(context).hasSingleBean(AzureBlobStoreType.class);
+                            assertThat(context).hasBean("GWC-AzureExtension");
+                        });
+    }
+
+    public @Test void blobstoreEnabledGeoServerWebUiEnabledGsWebGwcNotInClassPath() {
+        runner.withClassLoader(new FilteredClassLoader(GWCSettingsPage.class))
+                .withPropertyValues(
+                        "gwc.blobstores.azure=true", "geoserver.web-ui.gwc.enabled=true")
+                .run(
+                        context -> {
+                            assertThat(context).hasSingleBean(AzureBlobStoreConfigProvider.class);
+                            assertThat(context).doesNotHaveBean("AzureBlobStoreType");
+                            assertThat(context).doesNotHaveBean("GWC-AzureExtension");
                         });
     }
 }

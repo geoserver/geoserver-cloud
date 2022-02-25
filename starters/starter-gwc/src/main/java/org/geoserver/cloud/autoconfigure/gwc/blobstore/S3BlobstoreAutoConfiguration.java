@@ -13,6 +13,7 @@ import org.geoserver.platform.ModuleStatusImpl;
 import org.geowebcache.s3.S3BlobStoreConfigProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 import javax.annotation.PostConstruct;
 
@@ -41,6 +42,7 @@ import javax.annotation.PostConstruct;
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnS3BlobstoreEnabled
+@Import(S3BlobstoreAutoConfiguration.S3BlobstoreGsWebUIConfiguration.class)
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.gwc.blobstore")
 public class S3BlobstoreAutoConfiguration {
 
@@ -53,21 +55,25 @@ public class S3BlobstoreAutoConfiguration {
         return new S3BlobStoreConfigProvider();
     }
 
-    @Bean(name = "S3BlobStoreType")
     @ConditionalOnGeoServerWebUIEnabled
-    public S3BlobStoreType s3BlobStoreType() {
-        return new S3BlobStoreType();
-    }
+    static @Configuration class S3BlobstoreGsWebUIConfiguration {
 
-    @Bean(name = "GWC-S3Extension")
-    @ConditionalOnGeoServerWebUIEnabled
-    public ModuleStatusImpl gwcS3Extension() {
-        ModuleStatusImpl module = new ModuleStatusImpl();
-        module.setModule("gs-gwc-s3");
-        module.setName("GeoWebCache S3 Extension");
-        module.setComponent("GeoWebCache S3 support plugin");
-        module.setEnabled(true);
-        module.setAvailable(true);
-        return module;
+        @Bean(name = "GWC-S3Extension")
+        @ConditionalOnGeoServerWebUIEnabled
+        public ModuleStatusImpl gwcS3Extension() {
+            ModuleStatusImpl module = new ModuleStatusImpl();
+            module.setModule("gs-gwc-s3");
+            module.setName("GeoWebCache S3 Extension");
+            module.setComponent("GeoWebCache S3 support plugin");
+            module.setEnabled(true);
+            module.setAvailable(true);
+            return module;
+        }
+
+        @Bean(name = "S3BlobStoreType")
+        @ConditionalOnGeoServerWebUIEnabled
+        public S3BlobStoreType s3BlobStoreType() {
+            return new S3BlobStoreType();
+        }
     }
 }
