@@ -4,17 +4,17 @@
  */
 package org.geoserver.cloud.autoconfigure.gwc.blobstore;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.geoserver.cloud.autoconfigure.gwc.GeoWebCacheContextRunner;
+import org.geoserver.gwc.web.GWCSettingsPage;
 import org.geoserver.gwc.web.blob.S3BlobStoreType;
-import org.geoserver.platform.ModuleStatusImpl;
 import org.geowebcache.s3.S3BlobStoreConfigProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
+import org.springframework.boot.test.context.FilteredClassLoader;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 
 import java.io.File;
@@ -41,37 +41,40 @@ class S3BlobstoreAutoConfigurationTest {
     public @Test void disabledByDefault() {
         runner.run(
                 context -> {
-                    assertFalse(context.containsBean("S3BlobStoreConfigProvider"));
-                    assertFalse(context.containsBean("S3BlobStoreType"));
-                    assertFalse(context.containsBean("GWC-S3Extension"));
+                    assertThat(context).doesNotHaveBean(S3BlobStoreConfigProvider.class);
+                    assertThat(context).doesNotHaveBean(S3BlobStoreType.class);
+                    assertThat(context).doesNotHaveBean("GWC-S3Extension");
                 });
     }
 
-    public @Test void blobstoreEnabledWebUiDisabled() {
+    public @Test void blobstoreEnabledGeoServerWebUiDisabled() {
         runner.withPropertyValues("gwc.blobstores.s3=true", "geoserver.web-ui.gwc.enabled=false")
                 .run(
                         context -> {
-                            assertTrue(
-                                    context.isTypeMatch(
-                                            "S3BlobStoreConfigProvider",
-                                            S3BlobStoreConfigProvider.class));
-                            assertFalse(context.containsBean("S3BlobStoreType"));
-                            assertFalse(context.containsBean("GWC-S3Extension"));
+                            assertThat(context).hasSingleBean(S3BlobStoreConfigProvider.class);
+                            assertThat(context).doesNotHaveBean(S3BlobStoreType.class);
+                            assertThat(context).doesNotHaveBean("GWC-S3Extension");
                         });
     }
 
-    public @Test void enabled() {
+    public @Test void blobstoreEnabledGeoServerWebUiEnabled() {
         runner.withPropertyValues("gwc.blobstores.s3=true", "geoserver.web-ui.gwc.enabled=true")
                 .run(
                         context -> {
-                            assertTrue(
-                                    context.isTypeMatch(
-                                            "S3BlobStoreConfigProvider",
-                                            S3BlobStoreConfigProvider.class));
-                            assertTrue(
-                                    context.isTypeMatch("S3BlobStoreType", S3BlobStoreType.class));
-                            assertTrue(
-                                    context.isTypeMatch("GWC-S3Extension", ModuleStatusImpl.class));
+                            assertThat(context).hasSingleBean(S3BlobStoreConfigProvider.class);
+                            assertThat(context).hasSingleBean(S3BlobStoreType.class);
+                            assertThat(context).hasBean("GWC-S3Extension");
+                        });
+    }
+
+    public @Test void blobstoreEnabledGeoServerWebUiEnabledGsWebGwcNotInClassPath() {
+        runner.withClassLoader(new FilteredClassLoader(GWCSettingsPage.class))
+                .withPropertyValues("gwc.blobstores.s3=true", "geoserver.web-ui.gwc.enabled=true")
+                .run(
+                        context -> {
+                            assertThat(context).hasSingleBean(S3BlobStoreConfigProvider.class);
+                            assertThat(context).doesNotHaveBean("S3BlobStoreType");
+                            assertThat(context).doesNotHaveBean("GWC-S3Extension");
                         });
     }
 }
