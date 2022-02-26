@@ -6,10 +6,10 @@ package org.geoserver.cloud.autoconfigure.gwc.integration;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnGeoWebCacheEnabled;
-import org.geoserver.cloud.autoconfigure.gwc.GeoWebCacheConfigurationProperties;
+import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnWMTSIntegrationEnabled;
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.geowebcache.service.wmts.WMTSService;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 
@@ -19,14 +19,11 @@ import javax.annotation.PostConstruct;
  * @since 1.0
  */
 @Configuration(proxyBeanMethods = true)
-@ConditionalOnGeoWebCacheEnabled
-@ConditionalOnProperty(
-        name = GeoWebCacheConfigurationProperties.SERVICE_WMTS_ENABLED,
-        havingValue = "true",
-        matchIfMissing = false)
+@ConditionalOnWMTSIntegrationEnabled
+@ConditionalOnClass(WMTSService.class)
 @ImportResource(
         reader = FilteringXmlBeanDefinitionReader.class, //
-        locations = {"jar:gs-gwc-.*!/geowebcache-geoserver-wmts-integration.xml"})
+        locations = {"jar:gs-gwc-[0-9]+.*!/geowebcache-geoserver-wmts-integration.xml"})
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.gwc.integration")
 public class WMTSIntegrationAutoConfiguration {
 

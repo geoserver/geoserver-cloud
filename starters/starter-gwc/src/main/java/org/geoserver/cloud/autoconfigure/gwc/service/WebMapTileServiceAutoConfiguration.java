@@ -8,7 +8,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.geoserver.cloud.autoconfigure.gwc.GeoWebCacheConfigurationProperties;
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
+import org.geowebcache.service.wmts.WMTSService;
 import org.gwc.web.wmts.WMTSController;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +22,7 @@ import javax.annotation.PostConstruct;
  * @since 1.0
  */
 @Configuration
+@ConditionalOnClass(WMTSService.class)
 @ConditionalOnProperty(
         name = GeoWebCacheConfigurationProperties.SERVICE_WMTS_ENABLED,
         havingValue = "true",
@@ -27,7 +30,7 @@ import javax.annotation.PostConstruct;
 @ComponentScan(basePackageClasses = WMTSController.class)
 @ImportResource(
         reader = FilteringXmlBeanDefinitionReader.class,
-        locations = "jar:gs-gwc-.*!/geowebcache-wmtsservice-context.xml")
+        locations = "jar:gs-gwc-[0-9]+.*!/geowebcache-wmtsservice-context.xml")
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.gwc.service")
 public class WebMapTileServiceAutoConfiguration {
 

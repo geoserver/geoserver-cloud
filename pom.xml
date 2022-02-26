@@ -429,16 +429,6 @@
         <groupId>org.geoserver</groupId>
         <artifactId>gs-gwc</artifactId>
         <version>${gs.version}</version>
-        <exclusions>
-          <exclusion>
-            <artifactId>stax-api</artifactId>
-            <groupId>stax</groupId>
-          </exclusion>
-          <exclusion>
-            <artifactId>stax</artifactId>
-            <groupId>stax</groupId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.geoserver.extension</groupId>
