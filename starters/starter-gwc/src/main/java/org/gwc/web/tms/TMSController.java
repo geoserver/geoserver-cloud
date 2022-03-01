@@ -14,7 +14,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @Controller
-@RequestMapping("/gwc/service/tms")
+@RequestMapping(
+        path = {
+            "/gwc/service/tms",
+            "/{virtualservice}/gwc/service/tms",
+            "/{virtualservice}/{layer}/gwc/service/tms"
+        })
 public class TMSController {
 
     private @Autowired Dispatcher geoserverDispatcher;

@@ -14,7 +14,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @Controller
-@RequestMapping("/gwc/service/wms")
+@RequestMapping(
+        path = {
+            "/gwc/service/wms",
+            "/{virtualservice}/gwc/service/wms",
+            "/{virtualservice}/{layer}/gwc/service/wms"
+        })
 public class WMSController {
 
     private @Autowired Dispatcher geoserverDispatcher;

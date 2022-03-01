@@ -14,7 +14,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @Controller
-@RequestMapping("/gwc/service/mgmaps")
+@RequestMapping(
+        path = {
+            "/gwc/service/mgmaps",
+            "/{virtualservice}/gwc/service/mgmaps",
+            "/{virtualservice}/{layer}/gwc/service/mgmaps"
+        })
 public class MGMapsController {
 
     private @Autowired Dispatcher geoserverDispatcher;
