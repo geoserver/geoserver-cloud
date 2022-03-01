@@ -142,6 +142,8 @@ services:
       JAVA_OPTS: ${GATEWAY_JAVA_OPTS}
       SPRING_PROFILES_ACTIVE: dev #exposes the catalog and config API at /api/v1/**
       RETRY_MAX_ATTEMPTS: 100
+      # eat our own dogfood and set a base path
+      GEOSERVER_BASE_PATH: /geoserver/cloud
     ports:
       - 9090:8080
     networks:

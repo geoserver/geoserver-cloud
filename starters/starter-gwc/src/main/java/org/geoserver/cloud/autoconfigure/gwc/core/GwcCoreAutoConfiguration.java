@@ -279,23 +279,27 @@ public class GwcCoreAutoConfiguration {
          *   <li>{@code contextPath} is usually empty, but it'll match the gateways
          *       ${geoserver.base-path} if such is set, thanks to the
          *       server.forward-headers-strategy=framework in the application's bootstrap.yml
-         *   <li>{@code suffix} is computed beforehand to avoid decorating the HttpServletRequest if
-         *       the request is not for gwc (e.g. an actuator endpoint)
+         *   <li>{@code pathInfo} is computed beforehand to avoid decorating the HttpServletRequest
+         *       if the request is not for gwc (e.g. an actuator endpoint)
          *   <li>{@code suffix} is used to strip it out of requestURI and fake the pathInfo gwc
          *       expects as it assumes the request is being handled by a Dispatcher mapped to /**
          *   <li>yes, this is odd, the alternative is re-writing GWC without weird assumptions
          * </ul>
          */
         protected ServletRequest adaptRequest(HttpServletRequest request) {
+            // full request URI (e.g. '/geoserver/cloud/{workspace}/gwc/service/tms/1.0.0', where
+            // '/geoserver/cloud' is the context path as given by the gateway's base uri, and
+            // '/{workspace}/gwc' the suffix after which comes the pathInfo '/service/tms/1.0.0')
             final String requestURI = request.getRequestURI();
-            final String contextPath = request.getContextPath();
-            final String suffix = contextPath + "/gwc";
 
-            if (requestURI.startsWith(suffix)) {
+            final int gwcIdx = requestURI.indexOf("/gwc");
+            if (gwcIdx > -1) {
+                final String pathToGwc = requestURI.substring(0, gwcIdx + "/gwc".length());
+                final String pathInfo = requestURI.substring(pathToGwc.length());
+
                 return new HttpServletRequestWrapper(request) {
                     public @Override String getPathInfo() {
-                        String requestURI = request.getRequestURI();
-                        return requestURI.substring(suffix.length());
+                        return pathInfo;
                     }
                 };
             }

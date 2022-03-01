@@ -14,7 +14,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @Controller
-@RequestMapping("/gwc/service/kml")
+@RequestMapping(
+        path = {
+            "/gwc/service/kml",
+            "/{virtualservice}/gwc/service/kml",
+            "/{virtualservice}/{layer}/gwc/service/kml"
+        })
 public class KMLController {
 
     private @Autowired Dispatcher geoserverDispatcher;
