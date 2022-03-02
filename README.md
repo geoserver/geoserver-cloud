@@ -157,8 +157,8 @@ $ curl -u admin:geoserver "http://localhost:9090/geoserver/cloud/rest/workspaces
 Browse to [http://localhost:9090/geoserver/cloud](http://localhost:9090/geoserver/cloud)
 
 > Note the `/geoserver/cloud` context path is set up in the `gateway-service`'s externalized
-> configuration through the `GEOSERVER_BASE_PATH` in `docker-compose.yml`. You can cahnge
-> it to whatever you want. The default [config/gateway-service.yml](config/gateway-service.yml)
+> configuration, and enforced through the `GEOSERVER_BASE_PATH` in `docker-compose.yml`.
+> You can change it to whatever you want. The default [config/gateway-service.yml](config/gateway-service.yml)
 > configuration file does not set up a context path at all, and hence GeoServer will
 > be available at the root URL.
 
