@@ -147,18 +147,20 @@ Healthckecks use `curl` hitting the `http:localhost:8081/actuator/health`.
 The services run on the `8080` port, and are exposed using different
 host ports. The spring-boot-actuator is set up at port `8081`.
 
-The `gateway-service` proxies request from the `9090` local port:
+The `gateway-service` proxies requests from the `9090` local port:
 
 ```
-$ curl "http://localhost:9090/ows?request=getcapabilities&service={WMS,WFS,WCS}"
-$ curl -u admin:geoserver "http://localhost:9090/rest/workspaces.json"
+$ curl "http://localhost:9090/geoserver/cloud/ows?request=getcapabilities&service={WMS,WFS,WCS}"
+$ curl -u admin:geoserver "http://localhost:9090/geoserver/cloud/rest/workspaces.json"
 ```
 
-Browse to [http://localhost:9090](http://localhost:9090)
+Browse to [http://localhost:9090/geoserver/cloud](http://localhost:9090/geoserver/cloud)
 
-> Note the `--compatibility` argument is required when using a v3 docker-compose file, in order to enable resource limiting (CPU and Memory).
-> Otherwise all services would be competing to use all available CPUs.
-> For more information, check the [compatibility mode](https://docs.docker.com/compose/compose-file/compose-versioning/#compatibility-mode) and [resources](https://docs.docker.com/compose/compose-file/compose-file-v3/#resources) sections in the docker-compose v3 documentation.
+> Note the `/geoserver/cloud` context path is set up in the `gateway-service`'s externalized
+> configuration through the `GEOSERVER_BASE_PATH` in `docker-compose.yml`. You can cahnge
+> it to whatever you want. The default [config/gateway-service.yml](config/gateway-service.yml)
+> configuration file does not set up a context path at all, and hence GeoServer will
+> be available at the root URL.
 
 ## Contributing
 
@@ -168,9 +170,9 @@ Follow the [developer's guide](docs/develop/index.md) to know more about the pro
 
 ## Status
 
-`v1.0-RC10` released against GeoServer `2.21-SNAPSHOT`.
+`v1.0-RC11` released against GeoServer `2.21-SNAPSHOT`.
 
-Read the [changelog](https://github.com/geoserver/geoserver-cloud/releases/tag/v1.0-R10) for more information.
+Read the [changelog](https://github.com/geoserver/geoserver-cloud/releases/tag/v1.0-RC11) for more information.
 
 ## Bugs
 
