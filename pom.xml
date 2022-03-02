@@ -235,4 +235,15 @@
       </plugin>
     </plugins>
   </build>
+  <profiles>
+    <profile>
+      <id>geoserver</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <modules>
+        <module>geoserver_submodule</module>
+      </modules>
+    </profile>
+  </profiles>
 </project>

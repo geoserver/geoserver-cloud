@@ -2,3 +2,8 @@
 	path = config
 	url = https://github.com/geoserver/geoserver-cloud-config
 	branch = master
+[submodule "geoserver"]
+	path = geoserver_submodule/geoserver
+	url = https://github.com/groldan/geoserver.git
+	branch = geoserver-cloud_integration
+	shallow = true

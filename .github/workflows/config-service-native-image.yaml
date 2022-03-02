@@ -52,8 +52,8 @@ jobs:
 
     - name: Build config-service native image
       run: |
-        ./mvnw clean install -pl :gs-cloud-config-service -am -Dfmt.action=check -ntp -P-docker,-docker-openj9
-        ./mvnw -pl :gs-cloud-config-service spring-boot:build-image -Pnative -ntp -DskipTests -Dfmt.skip
+        ./mvnw install -pl :gs-cloud-config-service -am -Dfmt.action=check -ntp -P-geoserver,-docker,-docker-openj9
+        ./mvnw spring-boot:build-image -pl :gs-cloud-config-service -Pnative,-geoserver -ntp -DskipTests -Dfmt.skip
 
     - name: Push image to docker.io
       if: ${{ (github.repository == 'geoserver/geoserver-cloud') && (github.event_name != 'pull_request') }}

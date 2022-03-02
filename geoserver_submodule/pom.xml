@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.geoserver.cloud</groupId>
+    <artifactId>gs-cloud-bom</artifactId>
+    <version>${revision}</version>
+  </parent>
+  <artifactId>gs-upstream</artifactId>
+  <packaging>pom</packaging>
+  <name>GeoServer upstream dependencies</name>
+  <modules>
+    <!-- modules modified in the geoserver-cloud_integration branch -->
+    <module>geoserver/src</module>
+    <module>geoserver/src/community/jdbcconfig</module>
+    <module>geoserver/src/community/jdbcstore</module>
+    <!-- all other required deps -->
+    <module>geoserver/src/extension/authkey</module>
+    <module>geoserver/src/extension/web-resource</module>
+    <module>geoserver/src/extension/css</module>
+    <module>geoserver/src/extension/feature-pregeneralized</module>
+    <module>geoserver/src/extension/gwc-s3</module>
+    <module>geoserver/src/extension/mbstyle</module>
+    <module>geoserver/src/extension/vectortiles</module>
+    <module>geoserver/src/extension/wps</module>
+    <module>geoserver/src/extension/importer</module>
+    <module>geoserver/src/community/flatgeobuf</module>
+    <module>geoserver/src/community/geostyler</module>
+    <module>geoserver/src/community/gwc-azure-blob</module>
+  </modules>
+</project>
