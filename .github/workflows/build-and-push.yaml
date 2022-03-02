@@ -5,6 +5,11 @@ on:
   push:
     branches:
       - main
+    paths:
+      - ".github/workflows/build-and-push.yaml"
+      - "pom.xml"
+      - "geoserver_submodule/**"
+      - "src/**"
     tags:
       - '*'
 
