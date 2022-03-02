@@ -47,19 +47,113 @@ Requirements:
  * [Docker](https://docs.docker.com/engine/install/) version >= `19.03.3`
  * [docker-compose](https://docs.docker.com/compose/) version >= `1.26.2`
 
-Build, test, and create docker images:
+The simple `./mvnw install` command from the project root directory will
+build and install all the required components, including upstream GeoServer
+dependencies and GeoServer-Cloud Docker images.
+
+If its your first run, you may want to build without running tests to
+speed up the build, not including a full upstream GeoServer build. Read
+the sections bellow for more information.
 
 ```bash
+$ ./mvnw clean install -DskipTests
+```
+
+### Custom upstream GeoServer version
+
+*Cloud Native GeoServer* depends on a custom GeoServer branch,
+`geoserver-cloud_integration`, which contains patches to upstream
+GeoServer that have not yet been integrated into the mainstream
+`main` branch. Additionally, the `geoserver-cloud_integration`
+GeoServer branch changes the artifact versions from `2.21-SNAPSHOT`
+to `2.21-CLOUD`, to avoid confusing maven if you also work
+with vanilla GeoServer, and to avoid your IDE downloading the
+latest `2.21-SNAPSHOT` artifacts from the OsGeo maven repository,
+overriding your local maven repository ones, and having
+confusing compilation errors that would require re-building
+the branch we need.
+
+The `geoserver-cloud_integration` branch is checked out as a
+submodule under the `geoserver_submodule/geoserver` directory.
+
+The root `pom.xml` defines a `geoserver` maven profile, active
+by default, that includes the module `geoserver_submodule`, which
+in turn includes all the required `geoserver` modules for this project.
+
+So in general, you may chose to only eventually build the
+`geoserver_submodule` subproject, since it won't change
+frequently, with
+
+```bash
+./mvnw clean install -f geoserver_submodule -DskipTests
+```
+
+### Targeted builds
+
+*Cloud Native GeoServer*-specific modules source code
+is under the `src/` directory.
+
+When you already have the `2.21-CLOUD` GeoServer artifacts,
+you can chose to only build these projects, either by:
+
+
+```bash
+$ ./mvnw clean install -f src/
+```
+
+Or 
+
+```bash
+$ cd src/
 $ ./mvnw clean install
 ```
 
 ## Running
 
+The `docker-compose.yml` file and the accompanying overrides
+`docker-compose-shared_datadir.yml`, `docker-compose-jdbcconfig.yml`,
+and `docker-compose-standalone.yml` at the project's root
+directory are meant for development and testing purposes, not
+for production use.
+
+You'll find more production-suitable deployment files for
+docker-compose and podman under the [docs/deploy](docs/deploy) folder.
+
+Also, a ready-to-use Helm chart for Kubernetes is available
+at the [camptocamp/helm-geoserver-cloud](https://github.com/camptocamp/helm-geoserver-cloud)
+Github repository.
+
+### Development runs
+
+To run the development docker composition using a shared data directory.
+GeoServer-Cloud can start from an empty directory.
+
 ```bash
-$ docker-compose --compatibility up -d
+$ mkdir docker-compose_datadir
+$ docker-compose -f docker-compose.yml -f docker-compose_shared_datadir up -d
+```
+
+To run the development docker composition using a shared data directory.
+GeoServer-Cloud can start from an empty directory.
+
+```bash
+$ mkdir docker-compose_datadir
+$ alias dcd="docker-compose -f docker-compose.yml -f docker-compose_shared_datadir"
+$ dcd up -d
+```
+
+Verify the services are running with `dcd ps`.
+Healthckecks use `curl` hitting the `http:localhost:8081/actuator/health`.
+The services run on the `8080` port, and are exposed using different
+host ports. The spring-boot-actuator is set up at port `8081`.
+
+The `gateway-service` proxies request from the `9090` local port:
+
+```
 $ curl "http://localhost:9090/ows?request=getcapabilities&service={WMS,WFS,WCS}"
 $ curl -u admin:geoserver "http://localhost:9090/rest/workspaces.json"
 ```
+
 Browse to [http://localhost:9090](http://localhost:9090)
 
 > Note the `--compatibility` argument is required when using a v3 docker-compose file, in order to enable resource limiting (CPU and Memory).
