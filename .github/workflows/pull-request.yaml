@@ -23,21 +23,19 @@ jobs:
         cache: 'maven'
 
     - name: Validate source code formatting
-      run: ./mvnw fmt:check -ntp
+      run: ./mvnw fmt:check -ntp -f src/
 
     - name: Build GeoServer 2.21-CLOUD
       run: |
         git clone --depth 1 --branch geoserver-cloud_integration https://github.com/groldan/geoserver.git
-        ./mvnw -f ./geoserver/src/ install -PallExtensions,communityRelease --no-transfer-progress -DskipTests -Dfmt.skip -T1C 
+        ./mvnw install -f ./geoserver/src/ -PallExtensions,communityRelease --no-transfer-progress -DskipTests -Dfmt.skip -T1C 
 
     - name: Build without tests
-      run: ./mvnw -P-docker,-docker-openj9 -ntp -Dfmt.skip install -T1C -DskipTests
+      run: ./mvnw install -P-docker,-docker-openj9 -f src/ -ntp -Dfmt.skip -T1C -DskipTests
 
     - name: Test
-      run: ./mvnw -P-docker,-docker-openj9 -ntp verify -T1C -fae
+      run: ./mvnw verify -P-docker,-docker-openj9 -ntp -T1C -fae
 
     - name: Remove project jars from cached repository
       run: |
         rm -rf .m2/repository/org/geoserver/cloud
-        rm -rf .m2/repository/org/geoserver
-        
