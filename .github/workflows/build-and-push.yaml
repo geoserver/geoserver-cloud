@@ -33,7 +33,7 @@ jobs:
         cache: 'maven'
 
     - name: Validate source code formatting
-      run: ./mvnw fmt:check -ntp
+      run: ./mvnw fmt:check -f src/ -ntp
 
     - name: Build GeoServer 2.21-CLOUD
       run: |
@@ -41,10 +41,9 @@ jobs:
         ./mvnw -f ./geoserver/src/ install -PallExtensions,communityRelease --no-transfer-progress -DskipTests -Dfmt.skip -T1C 
 
     - name: Build and push Hotspot and OpenJ9 docker images
-      run: ./mvnw -Ddockerfile.push.skip=false  install  -ntp -Dfmt.skip -T1 -DskipTests
+      run: ./mvnw install -f src/ -Ddockerfile.push.skip=false -ntp -Dfmt.skip -T1 -DskipTests
 
     - name: Remove project jars from cached repository
       run: |
         rm -rf .m2/repository/org/geoserver/cloud
-        rm -rf .m2/repository/org/geoserver/
         

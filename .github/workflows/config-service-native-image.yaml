@@ -9,14 +9,16 @@ on:
     paths:
       - ".github/workflows/config-service-native-image.yaml"
       - "pom.xml"
-      - "support-services/pom.xml"
-      - "support-services/config/**"
+      - "src/pom.xml"
+      - "src/support-services/pom.xml"
+      - "src/support-services/config/**"
   pull_request:
     paths:
       - ".github/workflows/config-service-native-image.yaml"
       - "pom.xml"
-      - "support-services/pom.xml"
-      - "support-services/config/**"
+      - "src/pom.xml"
+      - "src/support-services/pom.xml"
+      - "src/support-services/config/**"
 
 jobs:
   build:
@@ -46,12 +48,12 @@ jobs:
       id: version
       run: |
          echo '::echo::on'
-         echo ::set-output name=IMAGE_NAME::$(./mvnw help:evaluate -f support-services/config/ -Pnative -Dexpression=spring-boot.build-image.imageName -q -DforceStdout)
+         echo ::set-output name=IMAGE_NAME::$(./mvnw help:evaluate -f src/support-services/config/ -Pnative -Dexpression=spring-boot.build-image.imageName -q -DforceStdout)
 
     - name: Build config-service native image
       run: |
         ./mvnw clean install -pl :gs-cloud-config-service -am -Dfmt.action=check -ntp -P-docker,-docker-openj9
-        ./mvnw -f support-services/config/ spring-boot:build-image -Pnative -ntp -DskipTests
+        ./mvnw -pl :gs-cloud-config-service spring-boot:build-image -Pnative -ntp -DskipTests -Dfmt.skip
 
     - name: Push image to docker.io
       if: ${{ (github.repository == 'geoserver/geoserver-cloud') && (github.event_name != 'pull_request') }}
