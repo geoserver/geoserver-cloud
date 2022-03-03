@@ -30,7 +30,7 @@ VOLUME /opt/app/data_directory
 VOLUME /data/geowebcache
 
 WORKDIR /opt/app/bin
-ENV JAVA_TOOL_OPTS=\
+ENV JAVA_TOOL_OPTS="\
 --add-exports=java.desktop/sun.awt.image=ALL-UNNAMED \
 --add-opens=java.base/java.lang=ALL-UNNAMED \
 --add-opens=java.base/java.util=ALL-UNNAMED \
@@ -38,7 +38,7 @@ ENV JAVA_TOOL_OPTS=\
 --add-opens=java.base/java.text=ALL-UNNAMED \
 --add-opens=java.desktop/java.awt.font=ALL-UNNAMED \
 --add-opens=java.desktop/sun.awt.image=ALL-UNNAMED \
---add-opens=java.naming/com.sun.jndi.ldap=ALL-UNNAMED
+--add-opens=java.naming/com.sun.jndi.ldap=ALL-UNNAMED"
 ENV JAVA_OPTS=
 EXPOSE 8080
 EXPOSE 8081
