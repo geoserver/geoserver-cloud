@@ -4,6 +4,8 @@
  */
 package org.geoserver.cloud.config.datadirectory;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.Info;
@@ -18,28 +20,102 @@ import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerConfigPersister;
 import org.geoserver.config.GeoServerResourcePersister;
 import org.geoserver.config.ServiceInfo;
+import org.geoserver.config.ServicePersister;
 import org.geoserver.config.util.XStreamPersister;
 import org.geoserver.config.util.XStreamServiceLoader;
 import org.geoserver.platform.GeoServerExtensions;
 import org.geoserver.platform.GeoServerResourceLoader;
+import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.Resource.Lock;
+import org.geoserver.platform.resource.Resources;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /** */
+@Slf4j
 public class DataDirectoryGeoServerLoader extends DefaultGeoServerLoader {
 
     public DataDirectoryGeoServerLoader(GeoServerResourceLoader resourceLoader) {
         super(resourceLoader);
     }
 
+    /**
+     * Issues with {@link DefaultGeoServerLoader}:
+     *
+     * <ul>
+     *   <li>Starting from an empty data directory, creates the ServiceInfos, but doesn't persist
+     *       them
+     *   <li>Starting from an empty data directory, does not set {@link GeoServer#setGlobal global}
+     *       and {@link GeoServer#setLogging logging}
+     *   <li>Starting from an empty data directory (or if any ServiceInfo config is missing),
+     *       there's a race condition where each service instance will end up with service infos
+     *       with different ids for the same service.
+     * </ul>
+     */
     @Override
     protected void loadGeoServer(final GeoServer geoServer, XStreamPersister xp) throws Exception {
-        super.loadGeoServer(geoServer, xp);
+        final Lock lock = resourceLoader.getLockProvider().acquire("GLOBAL");
+        try {
 
-        GeoServerConfigPersister fixedConfigPersister =
-                new CatalogPluginGeoServerConfigPersister(
-                        geoServer.getCatalog().getResourceLoader(), xp);
+            Set<String> existing = preloadServiceNames(geoServer);
+            super.loadGeoServer(geoServer, xp);
+            replaceCatalogInfoPersisterWithFixedVersion(geoServer, xp);
+
+            persistNewlyCreatedServices(geoServer, existing);
+
+            initializeEmptyConfig(geoServer);
+        } finally {
+            lock.release();
+        }
+    }
+
+    private Set<String> preloadServiceNames(GeoServer gs) {
+        @SuppressWarnings({"unchecked", "rawtypes"})
+        final List<XStreamServiceLoader<ServiceInfo>> loaders =
+                (List) GeoServerExtensions.extensions(XStreamServiceLoader.class);
+
+        return loaders.stream()
+                .map(loader -> preload(gs, loader))
+                .filter(Objects::nonNull)
+                .map(ServiceInfo::getName)
+                .collect(Collectors.toSet());
+    }
+
+    public final ServiceInfo preload(GeoServer gs, XStreamServiceLoader<?> loader) {
+        Resource root = resourceLoader.get("");
+        Resource file = root.get(loader.getFilename());
+
+        if (Resources.exists(file)) {
+            try {
+                return loader.load(gs);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return null;
+    }
+
+    private void persistNewlyCreatedServices(
+            GeoServer geoServer, Set<String> existingServiceNames) {
+
+        ServicePersister servicePersister =
+                geoServer.getListeners().stream()
+                        .filter(ServicePersister.class::isInstance)
+                        .map(ServicePersister.class::cast)
+                        .findFirst()
+                        .orElseThrow();
+
+        geoServer.getServices().stream()
+                .filter(s -> !existingServiceNames.contains(s.getName()))
+                .peek(s -> log.info("Persisting created service {}", s.getId()))
+                .forEach(servicePersister::handlePostServiceChange);
+    }
+
+    protected void replaceCatalogInfoPersisterWithFixedVersion(
+            final GeoServer geoServer, XStreamPersister xp) {
 
         ConfigurationListener configPersister =
                 geoServer.getListeners().stream()
@@ -49,9 +125,12 @@ public class DataDirectoryGeoServerLoader extends DefaultGeoServerLoader {
         if (configPersister != null) {
             geoServer.removeListener(configPersister);
         }
-        geoServer.addListener(fixedConfigPersister);
 
-        initializeEmptyConfig(geoServer);
+        GeoServerConfigPersister fixedCatalogInfoPersister =
+                new CatalogPluginGeoServerConfigPersister(
+                        geoServer.getCatalog().getResourceLoader(), xp);
+
+        geoServer.addListener(fixedCatalogInfoPersister);
     }
 
     @Override
@@ -69,25 +148,23 @@ public class DataDirectoryGeoServerLoader extends DefaultGeoServerLoader {
     @SuppressWarnings({"unchecked", "rawtypes"})
     protected void initializeEmptyConfig(final GeoServer geoServer) {
         // TODO: this needs to be pushed upstream
-        final Lock lock = resourceLoader.getLockProvider().acquire("GLOBAL");
-        try {
-            if (geoServer.getGlobal() == null) {
-                geoServer.setGlobal(geoServer.getFactory().createGlobal());
+        if (geoServer.getGlobal() == null) {
+            geoServer.setGlobal(geoServer.getFactory().createGlobal());
+        }
+        if (geoServer.getLogging() == null) {
+            geoServer.setLogging(geoServer.getFactory().createLogging());
+        }
+        // ensure we have a service configuration for every service we know about
+        final List<XStreamServiceLoader> loaders =
+                GeoServerExtensions.extensions(XStreamServiceLoader.class);
+        for (XStreamServiceLoader l : loaders) {
+            ServiceInfo serviceInfo = geoServer.getService(l.getServiceClass());
+            if (serviceInfo == null) {
+                serviceInfo = l.create(geoServer);
+                geoServer.add(serviceInfo);
+            } else {
+
             }
-            if (geoServer.getLogging() == null) {
-                geoServer.setLogging(geoServer.getFactory().createLogging());
-            }
-            // ensure we have a service configuration for every service we know about
-            final List<XStreamServiceLoader> loaders =
-                    GeoServerExtensions.extensions(XStreamServiceLoader.class);
-            for (XStreamServiceLoader l : loaders) {
-                ServiceInfo s = geoServer.getService(l.getServiceClass());
-                if (s == null) {
-                    geoServer.add(l.create(geoServer));
-                }
-            }
-        } finally {
-            lock.release();
         }
     }
 
