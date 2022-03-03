@@ -9,6 +9,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnGeoWebCacheRestConfigEnabled;
 import org.geoserver.cloud.autoconfigure.gwc.GeoWebCacheConfigurationProperties;
 import org.geoserver.cloud.autoconfigure.gwc.core.DiskQuotaAutoConfiguration;
+import org.geowebcache.rest.converter.GWCConverter;
+import org.geowebcache.util.ApplicationContextProvider;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
@@ -36,6 +40,7 @@ import javax.annotation.PostConstruct;
  * @since 1.0
  */
 @Configuration
+@ConditionalOnClass(GWCConverter.class)
 @ConditionalOnGeoWebCacheRestConfigEnabled
 @ComponentScan(basePackages = "org.geowebcache.rest")
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.gwc.service")
@@ -43,5 +48,22 @@ public class RESTConfigAutoConfiguration {
 
     public @PostConstruct void log() {
         log.info("{} enabled", GeoWebCacheConfigurationProperties.RESTCONFIG_ENABLED);
+    }
+
+    /**
+     * The original {@literal geowebcache-rest-context.xml}:
+     *
+     * <pre>{@code
+     * <!-- Used by org.geoserver.rest.RestConfiguration when setting up converters -->
+     * <bean id="gwcConverter" class="org.geowebcache.rest.converter.GWCConverter">
+     *   <constructor-arg ref="gwcAppCtx" />
+     * </bean>
+     * }</pre>
+     *
+     * @param appCtx
+     */
+    @SuppressWarnings("rawtypes")
+    public @Bean GWCConverter<?> gwcConverter(ApplicationContextProvider appCtx) {
+        return new GWCConverter(appCtx);
     }
 }
