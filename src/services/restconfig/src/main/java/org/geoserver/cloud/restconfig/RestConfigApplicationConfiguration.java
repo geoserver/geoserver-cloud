@@ -10,8 +10,10 @@ import static org.springframework.http.MediaType.TEXT_HTML;
 
 import org.geoserver.rest.CallbackInterceptor;
 import org.geoserver.rest.PutIgnoringExtensionContentNegotiationStrategy;
+import org.geoserver.rest.RequestInfo;
 import org.geoserver.rest.RestInterceptor;
 import org.geoserver.rest.catalog.StyleController;
+import org.geoserver.rest.resources.ResourceController;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -29,9 +31,16 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 import org.springframework.web.servlet.resource.ResourceUrlProvider;
 import org.springframework.web.util.UrlPathHelper;
 
+import java.io.IOException;
 import java.util.List;
 
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 
 @Configuration
 @ComponentScan(basePackageClasses = org.geoserver.rest.AbstractGeoServerController.class)
@@ -49,6 +58,9 @@ public class RestConfigApplicationConfiguration extends WebMvcConfigurationSuppo
      * java.lang.IllegalArgumentException: Expected lookupPath in request attribute
      * "org.springframework.web.util.UrlPathHelper.PATH".} exception for {@literal /actuator/*}
      * requests.
+     *
+     * <p>REVISIT: should no longer be needed since we're running the actuator on a separate port to
+     * avoid any such conflict with geoserver beans/filters
      */
     @Bean
     @Primary
@@ -91,5 +103,48 @@ public class RestConfigApplicationConfiguration extends WebMvcConfigurationSuppo
         // handlerMapping.setAlwaysUseFullPath(true);
 
         return handlerMapping;
+    }
+
+    @Bean
+    SetRequestPathInfoFilter setRequestPathInfoFilter() {
+        return new SetRequestPathInfoFilter();
+    }
+
+    /**
+     * GeoSever REST API always expect the {@link HttpServletRequest#getServletPath()} to be
+     * {@literal /rest}, and {@link HttpServletRequest#getPathInfo()} whatever comes after in the
+     * request URI.
+     *
+     * <p>for example: {@link RequestInfo} constructor, {@link ResourceController#resource}, etc.
+     */
+    static class SetRequestPathInfoFilter implements Filter {
+
+        @Override
+        public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+                throws IOException, ServletException {
+
+            request = adaptRequest((HttpServletRequest) request);
+            chain.doFilter(request, response);
+        }
+
+        protected ServletRequest adaptRequest(HttpServletRequest request) {
+            final String requestURI = request.getRequestURI();
+            final int restIdx = requestURI.indexOf("/rest");
+            if (restIdx > -1) {
+                final String pathToRest = requestURI.substring(0, restIdx + "/rest".length());
+                final String pathInfo = requestURI.substring(pathToRest.length());
+
+                return new HttpServletRequestWrapper(request) {
+                    public @Override String getServletPath() {
+                        return "/rest";
+                    }
+
+                    public @Override String getPathInfo() {
+                        return pathInfo;
+                    }
+                };
+            }
+            return request;
+        }
     }
 }
