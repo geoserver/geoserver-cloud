@@ -1,6 +1,6 @@
 #!/bin/sh
 
-v1=1.0-RC5
+v1=1.0-RC15
 echo Gettig current version...
 v2=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
 
