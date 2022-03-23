@@ -6,7 +6,9 @@ package org.geoserver.cloud.wfs.config;
 
 import org.geoserver.cloud.autoconfigure.core.GeoServerWebMvcMainAutoConfiguration;
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
+import org.geoserver.cloud.virtualservice.VirtualServiceVerifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 
@@ -19,4 +21,9 @@ import org.springframework.context.annotation.ImportResource;
             "jar:gs-flatgeobuf-.*!/applicationContext.xml#name=.*"
         } //
         )
-public class WfsAutoConfiguration {}
+public class WfsAutoConfiguration {
+
+    public @Bean VirtualServiceVerifier virtualServiceVerifier() {
+        return new VirtualServiceVerifier();
+    }
+}
