@@ -5,6 +5,8 @@
 package org.geoserver.cloud.wcs;
 
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
+import org.geoserver.cloud.virtualservice.VirtualServiceVerifier;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 
@@ -17,4 +19,9 @@ import org.springframework.context.annotation.ImportResource;
             "jar:gs-wcs1_1-.*!/applicationContext.xml", //
             "jar:gs-wcs2_0-.*!/applicationContext.xml" //
         })
-public class WcsApplicationConfiguration {}
+public class WcsApplicationConfiguration {
+
+    public @Bean VirtualServiceVerifier virtualServiceVerifier() {
+        return new VirtualServiceVerifier();
+    }
+}

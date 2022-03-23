@@ -5,6 +5,7 @@
 package org.geoserver.cloud.wms.app;
 
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
+import org.geoserver.cloud.virtualservice.VirtualServiceVerifier;
 import org.geoserver.cloud.wms.controller.GetMapReflectorController;
 import org.geoserver.cloud.wms.controller.WMSController;
 import org.geoserver.config.GeoServer;
@@ -47,6 +48,10 @@ public class WmsApplicationConfiguration {
 
     public @Bean WMSController webMapServiceController() {
         return new WMSController();
+    }
+
+    public @Bean VirtualServiceVerifier virtualServiceVerifier() {
+        return new VirtualServiceVerifier();
     }
 
     @ConditionalOnProperty(

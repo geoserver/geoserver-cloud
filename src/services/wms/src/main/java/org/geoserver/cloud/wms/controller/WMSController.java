@@ -7,10 +7,12 @@ package org.geoserver.cloud.wms.controller;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
+import org.geoserver.cloud.virtualservice.VirtualServiceVerifier;
 import org.geoserver.ows.Dispatcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.view.RedirectView;
@@ -23,6 +25,8 @@ public @Controller class WMSController {
     private @Autowired Dispatcher geoserverDispatcher;
 
     private @Autowired org.geoserver.ows.ClasspathPublisher classPathPublisher;
+
+    private @Autowired VirtualServiceVerifier virtualServiceVerifier;
 
     @GetMapping("/")
     public RedirectView redirectRootToGetCapabilities() {
@@ -67,15 +71,36 @@ public @Controller class WMSController {
 
     @RequestMapping(
             method = {GET, POST},
-            path = {
-                "/wms",
-                "/{workspace}/wms",
-                "/{workspace}/{layer}/wms",
-                "/ows",
-                "/{workspace}/ows",
-                "/{workspace}/{layer}/ows"
-            })
+            path = {"/wms", "/ows"})
     public void handle(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        geoserverDispatcher.handleRequest(request, response);
+    }
+
+    @RequestMapping(
+            method = {GET, POST},
+            path = {"/{virtualService}/wms", "/{virtualService}/ows"})
+    public void handleVirtualService(
+            @PathVariable(name = "virtualService") String virtualService,
+            HttpServletRequest request,
+            HttpServletResponse response)
+            throws Exception {
+
+        virtualServiceVerifier.checkVirtualService(virtualService);
+
+        geoserverDispatcher.handleRequest(request, response);
+    }
+
+    @RequestMapping(
+            method = {GET, POST},
+            path = {"/{virtualService}/{layer}/wms", "/{virtualService}/{layer}/ows"})
+    public void handleVirtualServiceLayer(
+            @PathVariable(name = "virtualService") String virtualService,
+            @PathVariable(name = "layer") String layer,
+            HttpServletRequest request,
+            HttpServletResponse response)
+            throws Exception {
+
+        virtualServiceVerifier.checkVirtualService(virtualService, layer);
         geoserverDispatcher.handleRequest(request, response);
     }
 }

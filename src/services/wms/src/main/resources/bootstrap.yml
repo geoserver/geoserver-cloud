@@ -6,6 +6,11 @@ server:
   # Let spring-boot's ForwardedHeaderFilter take care of reflecting the client-originated protocol and address in the HttpServletRequest  
   forward-headers-strategy: framework
   servlet.context-path: /
+  error:
+    include-message: always
+    include-binding-errors: always
+    whitelabel:
+      enabled: true
 management.server.port: 8081
 spring:
   config:
