@@ -21,5 +21,5 @@ do
   export image=$i
   echo "--------------------------------------------------"
   echo "$image:"
-  trivy image --vuln-type library --no-progress -s "HIGH,CRITICAL" $image:$v2 |grep -v INFO
+  trivy image --light --vuln-type library --no-progress -s "HIGH,CRITICAL" $image:$v2 |grep -v INFO
 done
