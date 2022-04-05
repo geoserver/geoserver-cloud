@@ -130,7 +130,7 @@ public abstract class FilterRoundtripTest {
         MultiValuedFilter filter =
                 new Filter.PropertyIsLike()
                         .setExpression(propertyName("text"))
-                        .setEscape("--")
+                        .setEscape("-")
                         .setLiteral("good thoughts")
                         .setMatchingCase(true)
                         .setSingleChar("?")
