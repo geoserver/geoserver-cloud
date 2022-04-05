@@ -367,6 +367,11 @@
             <artifactId>gs-web-gwc</artifactId>
             <groupId>org.geoserver.web</groupId>
           </exclusion>
+          <exclusion>
+            <!-- exclude transitive from com.microsoft.azure:azure-storage-blob:jar:11.0.0 -->
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <groupId>org.apache.logging.log4j</groupId>
+          </exclusion>
         </exclusions>
       </dependency>
       <dependency>

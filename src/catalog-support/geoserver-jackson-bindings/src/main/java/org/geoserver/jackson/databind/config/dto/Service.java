@@ -165,6 +165,9 @@ public abstract @Data class Service extends ConfigInfoDto {
         private int maxSynchronousExecutionTime;
         private Integer maxSynchronousTotalTime;
 
+        private String externalOutputDirectory;
+        private boolean remoteInputDisabled;
+
         /** DTO for {@link ProcessGroupInfo} */
         public static @Data class ProcessGroup {
             private String factoryClass;
