@@ -19,7 +19,7 @@
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
     <spring-cloud.version>2021.0.1</spring-cloud.version>
-    <spring-boot.version>2.6.4</spring-boot.version>
+    <spring-boot.version>2.6.6</spring-boot.version>
     <spring-native.version>0.11.3</spring-native.version>
     <native-buildtools.version>0.9.10</native-buildtools.version>
     <feign-reactor.version>3.1.5</feign-reactor.version>
