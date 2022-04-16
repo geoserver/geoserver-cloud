@@ -27,6 +27,7 @@ import org.geoserver.gwc.wmts.WMTSInfoImpl;
 import org.geoserver.jackson.databind.catalog.ProxyUtils;
 import org.geoserver.ows.util.OwsUtils;
 import org.geoserver.platform.GeoServerExtensionsHelper;
+import org.geoserver.wcs.WCSInfo;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -105,7 +106,10 @@ public class GeoServerConfigModuleTest {
     }
 
     public @Test void wcsServiceInfo() throws Exception {
-        roundtripTest(testData.wcsService);
+        WCSInfo wcsService = testData.wcsService;
+        // WCSInfoImpl.equals() is broken, set a value for this property to workaround it
+        wcsService.setMaxRequestedDimensionValues(10);
+        roundtripTest(wcsService);
     }
 
     public @Test void wfsServiceInfo() throws Exception {
