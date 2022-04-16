@@ -148,6 +148,7 @@ public abstract @Data class Service extends ConfigInfoDto {
         private boolean LatLon;
         private List<String> SRS;
         private int maxRequestedDimensionValues;
+        private int defaultDeflateCompressionLevel;
     }
 
     @EqualsAndHashCode(callSuper = true)
