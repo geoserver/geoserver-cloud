@@ -8,6 +8,8 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.zaxxer.hikari.HikariDataSource;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
@@ -356,21 +358,32 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
         return jdbcConfigDataSourceValidator;
     }
 
+    @Data
+    @EqualsAndHashCode(callSuper = true)
+    public static class ExtendedDataSourceProperties extends DataSourceProperties {
+        int minimumIdle = 2;
+        int maximumPoolSize = 10;
+        long connectionTimeout = 250; // ms
+        long idleTimeout = 60_000; // ms
+    }
+
     @Bean
     @ConfigurationProperties("geoserver.backend.jdbcconfig.datasource")
-    public DataSourceProperties jdbcconfigDataSourceProperties() {
-        return new DataSourceProperties();
+    public ExtendedDataSourceProperties jdbcconfigDataSourceProperties() {
+        return new ExtendedDataSourceProperties();
     }
 
     @Bean(name = {"jdbcConfigDataSource", "jdbcStoreDataSource"})
-    // @ConfigurationProperties(prefix = "geoserver.backend.jdbcconfig.datasource")
+    @ConfigurationProperties(prefix = "geoserver.backend.jdbcconfig.datasource")
     public DataSource jdbcConfigDataSource() {
-        return jdbcconfigDataSourceProperties()
-                .initializeDataSourceBuilder()
-                .type(HikariDataSource.class)
-                .build();
-        // String url = env.getProperty("geoserver.backend.jdbcconfig.datasource.jdbc-url");
-        // return DataSourceBuilder.create().build();
+        ExtendedDataSourceProperties props = jdbcconfigDataSourceProperties();
+        HikariDataSource dataSource =
+                props.initializeDataSourceBuilder().type(HikariDataSource.class).build();
+        dataSource.setMaximumPoolSize(props.getMaximumPoolSize());
+        dataSource.setMinimumIdle(props.getMinimumIdle());
+        dataSource.setConnectionTimeout(props.getConnectionTimeout());
+        dataSource.setIdleTimeout(props.getIdleTimeout());
+        return dataSource;
     }
 
     @Bean
