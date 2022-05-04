@@ -87,7 +87,8 @@ public class GeoServerMainModuleConfiguration {
                     + "|geoServerSecurityManager"
                     + "|resourceLoader"
                     + "|resourceStoreImpl"
-                    + "|xstreamPersisterFactory";
+                    + "|xstreamPersisterFactory"
+                    + "|loggingInitializer";
 
     static final String EXCLUDE_BEANS_REGEX =
             "^(?!" + OVERRIDDEN_BEAN_NAMES + "|" + UNUSED_BEAN_NAMES + ").*$";
