@@ -93,6 +93,38 @@
       </dependency>
       <dependency>
         <groupId>org.geoserver</groupId>
+        <artifactId>gs-platform</artifactId>
+        <version>${gs.version}</version>
+        <exclusions>
+          <!-- exclude log4j dependencies, spring-boot-starter-logging provides everything we need -->
+          <exclusion>
+            <artifactId>log4j-api</artifactId>
+            <groupId>org.apache.logging.log4j</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>log4j-core</artifactId>
+            <groupId>org.apache.logging.log4j</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>log4j-jcl</artifactId>
+            <groupId>org.apache.logging.log4j</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>log4j-jul</artifactId>
+            <groupId>org.apache.logging.log4j</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <groupId>org.apache.logging.log4j</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>log4j-1.2-api</artifactId>
+            <groupId>org.apache.logging.log4j</groupId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver</groupId>
         <artifactId>gs-main</artifactId>
         <version>${gs.version}</version>
         <exclusions>
@@ -100,9 +132,30 @@
             <artifactId>spring-webmvc</artifactId>
             <groupId>org.springframework</groupId>
           </exclusion>
+          <!-- exclude log4j dependencies, spring-boot-starter-logging provides everything we need -->
           <exclusion>
-            <artifactId>log4j</artifactId>
-            <groupId>log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <groupId>org.apache.logging.log4j</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>log4j-core</artifactId>
+            <groupId>org.apache.logging.log4j</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>log4j-jcl</artifactId>
+            <groupId>org.apache.logging.log4j</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>log4j-jul</artifactId>
+            <groupId>org.apache.logging.log4j</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <groupId>org.apache.logging.log4j</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>log4j-1.2-api</artifactId>
+            <groupId>org.apache.logging.log4j</groupId>
           </exclusion>
           <!-- exclude data formats, let them be managed by the ones explicitly imported by each service -->
           <exclusion>
@@ -211,9 +264,30 @@
         <artifactId>gs-web-core</artifactId>
         <version>${gs.version}</version>
         <exclusions>
+          <!-- exclude log4j dependencies, spring-boot-starter-logging provides everything we need -->
           <exclusion>
-            <artifactId>slf4j-log4j12</artifactId>
-            <groupId>org.slf4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <groupId>org.apache.logging.log4j</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>log4j-core</artifactId>
+            <groupId>org.apache.logging.log4j</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>log4j-jcl</artifactId>
+            <groupId>org.apache.logging.log4j</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>log4j-jul</artifactId>
+            <groupId>org.apache.logging.log4j</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <groupId>org.apache.logging.log4j</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>log4j-1.2-api</artifactId>
+            <groupId>org.apache.logging.log4j</groupId>
           </exclusion>
           <!-- exclude data formats, let them be managed by the ones explicitly imported by this module -->
           <exclusion>
@@ -344,6 +418,31 @@
           <exclusion>
             <artifactId>h2</artifactId>
             <groupId>com.h2database</groupId>
+          </exclusion>
+          <!-- exclude log4j dependencies, spring-boot-starter-logging provides everything we need -->
+          <exclusion>
+            <artifactId>log4j-api</artifactId>
+            <groupId>org.apache.logging.log4j</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>log4j-core</artifactId>
+            <groupId>org.apache.logging.log4j</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>log4j-jcl</artifactId>
+            <groupId>org.apache.logging.log4j</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>log4j-jul</artifactId>
+            <groupId>org.apache.logging.log4j</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <groupId>org.apache.logging.log4j</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>log4j-1.2-api</artifactId>
+            <groupId>org.apache.logging.log4j</groupId>
           </exclusion>
         </exclusions>
       </dependency>
