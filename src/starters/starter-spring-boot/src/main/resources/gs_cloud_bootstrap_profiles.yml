@@ -10,6 +10,15 @@ config.server.url: http://config:8080
 # and the the discovery-service is eureka (discovery_eureka profile is enabled) 
 eureka.server.url: http://discovery:8761/eureka
 
+info:
+  component: Web Map Service
+  instance-id: ${spring.application.name}:${vcap.application.instance_id:${spring.application.instance_id:${spring.cloud.client.ip-address}}:${server.port}}
+
+geoserver:
+  metrics:
+    enabled: true
+    instance-id: ${info.instance-id}
+    
 # This default configuration is the same than applying the config_first profile group
 # defined below.
 spring:
