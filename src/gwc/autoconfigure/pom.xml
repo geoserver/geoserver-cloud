@@ -28,6 +28,12 @@
       <optional>true</optional>
     </dependency>
     <dependency>
+      <!-- if available, ditributed tile seeding services will engage -->
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gwc-cloud-tiling</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
       <!-- if available, the wicket ui contributions autoconfiguration will engage -->
       <groupId>org.geoserver.web</groupId>
       <artifactId>gs-web-gwc</artifactId>
@@ -37,6 +43,13 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-autoconfigure-processor</artifactId>
       <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gwc-cloud-tiling</artifactId>
+      <version>${project.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>

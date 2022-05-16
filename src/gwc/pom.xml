@@ -13,6 +13,7 @@
     <module>core</module>
     <module>backends</module>
     <module>services</module>
+    <module>tiling</module>
     <module>integration-bus</module>
     <module>autoconfigure</module>
     <module>starter</module>

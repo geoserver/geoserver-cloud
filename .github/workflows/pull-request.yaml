@@ -1,8 +1,10 @@
 # Triggers the workflow on pull request events to the main branch
-name: Pull Request on Main Branch
+name: Pull Request
 on:
   pull_request:
-    branches: [ main ]
+    branches:
+    - main
+    - 'feature/**'
 
 jobs:
   build:
