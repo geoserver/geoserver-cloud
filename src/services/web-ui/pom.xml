@@ -13,7 +13,8 @@
     <dockerfile.skip>false</dockerfile.skip>
     <docker.image.name>geoserver-cloud-webui</docker.image.name>
     <start-class>org.geoserver.cloud.web.app.WebUIApplication</start-class>
-    <gwc_excludes>*</gwc_excludes>
+    <!-- use none instead of empty to avoid a maven warning -->
+    <gwc_excludes>none</gwc_excludes>
   </properties>
   <dependencies>
     <dependency>
@@ -39,6 +40,46 @@
     <dependency>
       <groupId>org.geoserver.web</groupId>
       <artifactId>gs-web-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.web</groupId>
+      <artifactId>gs-web-wms</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.web</groupId>
+      <artifactId>gs-web-wfs</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.web</groupId>
+      <artifactId>gs-web-wcs</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver</groupId>
+      <artifactId>gs-wcs1_0</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver</groupId>
+      <artifactId>gs-wcs1_1</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver</groupId>
+      <artifactId>gs-wcs2_0</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.extension</groupId>
+      <artifactId>gs-web-wps</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.extension</groupId>
+      <artifactId>gs-web-resource</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.importer</groupId>
+      <artifactId>gs-importer-web</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.community</groupId>
+      <artifactId>gs-geostyler</artifactId>
     </dependency>
     <dependency>
       <!-- explicitly required by wicket component 'geotiffStorePanel' in web-core, should be optional -->
@@ -90,6 +131,48 @@
     <dependency>
       <groupId>org.geoserver.extension</groupId>
       <artifactId>gs-wps-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-starter-gwc</artifactId>
+      <exclusions>
+        <exclusion>
+          <artifactId>gwc-georss</artifactId>
+          <groupId>org.geowebcache</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>gwc-gmaps</artifactId>
+          <groupId>org.geowebcache</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>gwc-kml</artifactId>
+          <groupId>org.geowebcache</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>gwc-rest</artifactId>
+          <groupId>org.geowebcache</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>gwc-tms</artifactId>
+          <groupId>org.geowebcache</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>gwc-ve</artifactId>
+          <groupId>org.geowebcache</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>gwc-wms</artifactId>
+          <groupId>org.geowebcache</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>gwc-wmts</artifactId>
+          <groupId>org.geowebcache</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.web</groupId>
+      <artifactId>gs-web-gwc</artifactId>
     </dependency>
   </dependencies>
   <profiles>
@@ -147,180 +230,6 @@
           </plugin>
         </plugins>
       </build>
-    </profile>
-    <profile>
-      <id>xstreamPersisterDependencies</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>org.geotools</groupId>
-          <artifactId>gt-process</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.geotools</groupId>
-          <artifactId>gt-process-geometry</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.geotools</groupId>
-          <artifactId>gt-process-raster</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.geotools</groupId>
-          <artifactId>gt-process-feature</artifactId>
-        </dependency>
-      </dependencies>
-    </profile>
-    <profile>
-      <id>wms</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>org.geoserver.web</groupId>
-          <artifactId>gs-web-wms</artifactId>
-        </dependency>
-      </dependencies>
-    </profile>
-    <profile>
-      <id>wfs</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>org.geoserver.web</groupId>
-          <artifactId>gs-web-wfs</artifactId>
-        </dependency>
-      </dependencies>
-    </profile>
-    <profile>
-      <id>wcs</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>org.geoserver.web</groupId>
-          <artifactId>gs-web-wcs</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.geoserver</groupId>
-          <artifactId>gs-wcs1_0</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.geoserver</groupId>
-          <artifactId>gs-wcs1_1</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.geoserver</groupId>
-          <artifactId>gs-wcs2_0</artifactId>
-        </dependency>
-      </dependencies>
-    </profile>
-    <profile>
-      <id>wps</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>org.geoserver.extension</groupId>
-          <artifactId>gs-web-wps</artifactId>
-        </dependency>
-      </dependencies>
-    </profile>
-    <profile>
-      <id>gwc</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <properties>
-        <!-- use none instead of empty to avoid a maven warning -->
-        <gwc_excludes>none</gwc_excludes>
-      </properties>
-      <dependencies>
-        <dependency>
-          <groupId>org.geoserver.cloud</groupId>
-          <artifactId>gs-cloud-starter-gwc</artifactId>
-          <exclusions>
-            <exclusion>
-              <artifactId>gwc-georss</artifactId>
-              <groupId>org.geowebcache</groupId>
-            </exclusion>
-            <exclusion>
-              <artifactId>gwc-gmaps</artifactId>
-              <groupId>org.geowebcache</groupId>
-            </exclusion>
-            <exclusion>
-              <artifactId>gwc-kml</artifactId>
-              <groupId>org.geowebcache</groupId>
-            </exclusion>
-            <exclusion>
-              <artifactId>gwc-rest</artifactId>
-              <groupId>org.geowebcache</groupId>
-            </exclusion>
-            <exclusion>
-              <artifactId>gwc-tms</artifactId>
-              <groupId>org.geowebcache</groupId>
-            </exclusion>
-            <exclusion>
-              <artifactId>gwc-ve</artifactId>
-              <groupId>org.geowebcache</groupId>
-            </exclusion>
-            <exclusion>
-              <artifactId>gwc-wms</artifactId>
-              <groupId>org.geowebcache</groupId>
-            </exclusion>
-            <exclusion>
-              <artifactId>gwc-wmts</artifactId>
-              <groupId>org.geowebcache</groupId>
-            </exclusion>
-          </exclusions>
-        </dependency>
-        <dependency>
-          <groupId>org.geoserver.web</groupId>
-          <artifactId>gs-web-gwc</artifactId>
-        </dependency>
-      </dependencies>
-    </profile>
-    <profile>
-      <id>web-resource</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>org.geoserver.extension</groupId>
-          <artifactId>gs-web-resource</artifactId>
-        </dependency>
-      </dependencies>
-    </profile>
-    <profile>
-      <id>importer</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>org.geoserver.importer</groupId>
-          <artifactId>gs-importer-web</artifactId>
-        </dependency>
-      </dependencies>
-    </profile>
-    <profile>
-      <id>geostyler</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>org.geoserver.community</groupId>
-          <artifactId>gs-geostyler</artifactId>
-        </dependency>
-      </dependencies>
     </profile>
   </profiles>
 </project>
