@@ -3,12 +3,12 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.geoserver.cloud</groupId>
-    <artifactId>gs-cloud-parent</artifactId>
+    <artifactId>gs-cloud</artifactId>
     <version>${revision}</version>
   </parent>
-  <artifactId>gs-cloud-services-parent</artifactId>
+  <artifactId>gs-cloud-services</artifactId>
   <packaging>pom</packaging>
-  <name>Parent pom for GeoServer microservices</name>
+  <name>GeoServer microservices</name>
   <modules>
     <module>catalog</module>
     <module>wfs</module>

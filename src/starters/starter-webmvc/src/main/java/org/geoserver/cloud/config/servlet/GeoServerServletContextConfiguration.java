@@ -30,6 +30,7 @@ public class GeoServerServletContextConfiguration {
 
     // Listeners
     public @Bean GeoserverInitStartupListener initStartupListener() {
+        System.setProperty("RELINQUISH_LOG4J_CONTROL", "true");
         return new GeoserverInitStartupListener();
     }
 
