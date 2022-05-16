@@ -3,12 +3,12 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.geoserver.cloud</groupId>
-    <artifactId>gs-cloud-services-parent</artifactId>
+    <artifactId>gs-cloud-services</artifactId>
     <version>${revision}</version>
   </parent>
   <artifactId>gs-cloud-catalog</artifactId>
   <packaging>jar</packaging>
-  <name>Catalog microservice</name>
+  <name>catalog-service</name>
   <properties>
     <dockerfile.skip>false</dockerfile.skip>
     <docker.image.name>geoserver-cloud-catalog</docker.image.name>

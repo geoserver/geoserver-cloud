@@ -3,12 +3,12 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.geoserver.cloud</groupId>
-    <artifactId>gs-cloud-parent</artifactId>
+    <artifactId>gs-cloud</artifactId>
     <version>${revision}</version>
   </parent>
-  <artifactId>gs-cloud-catalog-support</artifactId>
+  <artifactId>gs-cloud-core</artifactId>
   <packaging>pom</packaging>
-  <name>Parent pom for GeoServer Catalog modules</name>
+  <name>Catalog and Config</name>
   <modules>
     <module>geotools-jackson-bindings</module>
     <module>geoserver-jackson-bindings</module>

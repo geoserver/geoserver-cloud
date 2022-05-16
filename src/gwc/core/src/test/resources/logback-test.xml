@@ -1,0 +1,19 @@
+<configuration>
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+      <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger [%X{instance-id}] %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <root level="info">
+    <appender-ref ref="STDOUT" />
+  </root>
+
+  <logger name="org.gwc.tiling.service" level="WARN" />
+  <logger name="org.gwc.tiling.cluster" level="DEBUG" />
+  <logger name="org.springframework.test" level="ERROR" />
+  <logger name="org.springframework.boot.test" level="ERROR" />
+  <logger name="org.springframework.context" level="WARN" />
+  <logger name="org.geoserver.platform.GeoServerExtensions" level="ERROR" />
+  
+</configuration>

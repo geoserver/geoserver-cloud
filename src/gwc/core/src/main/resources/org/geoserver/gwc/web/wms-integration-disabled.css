@@ -1,0 +1,10 @@
+/* direct-WMS integration is disabled, hide the related form elements */
+#enableWMSIntegration,#requireTiledParameter{
+  display: none;
+}
+#page-pane form ul li label[for="enableWMSIntegration"]{
+  display: none;
+}
+#page-pane form ul li label[for="requireTiledParameter"]{
+  display: none;
+}

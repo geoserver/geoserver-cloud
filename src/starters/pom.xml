@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.geoserver.cloud</groupId>
-    <artifactId>gs-cloud-parent</artifactId>
+    <artifactId>gs-cloud</artifactId>
     <version>${revision}</version>
   </parent>
   <artifactId>gs-cloud-starters</artifactId>
@@ -18,7 +18,6 @@
     <module>starter-webmvc</module>
     <module>starter-reactive</module>
     <module>starter-wms-extensions</module>
-    <module>starter-gwc</module>
     <module>starter-security</module>
   </modules>
   <dependencies>

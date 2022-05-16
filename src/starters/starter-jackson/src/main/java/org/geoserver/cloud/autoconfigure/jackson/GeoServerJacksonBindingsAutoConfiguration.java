@@ -20,8 +20,7 @@ import org.springframework.context.annotation.Configuration;
  * jackson databind {@link Module modules}.
  *
  * <p>Configuration enablement is conditional on the presence of {@link GeoServerCatalogModule} on
- * the classpath. Add an explicit dependency on {@code gs-cloud-catalog-support:gs-jackson-bindings}
- * to use it.
+ * the classpath. Add an explicit dependency on {@code gs-cloud-core:gs-jackson-bindings} to use it.
  *
  * <p>Spring-boot's default auto configuration does not register all modules in the classpath,
  * despite them being register-able through Jackson's SPI; a configuration like this is needed to

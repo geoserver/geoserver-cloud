@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.geoserver.cloud</groupId>
-    <artifactId>gs-cloud-services-parent</artifactId>
+    <artifactId>gs-cloud-services</artifactId>
     <version>${revision}</version>
   </parent>
   <artifactId>gs-cloud-wms</artifactId>
@@ -29,44 +29,6 @@
     </dependency>
     <dependency>
       <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-starter-gwc</artifactId>
-      <exclusions>
-        <exclusion>
-          <artifactId>gwc-georss</artifactId>
-          <groupId>org.geowebcache</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>gwc-gmaps</artifactId>
-          <groupId>org.geowebcache</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>gwc-kml</artifactId>
-          <groupId>org.geowebcache</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>gwc-rest</artifactId>
-          <groupId>org.geowebcache</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>gwc-tms</artifactId>
-          <groupId>org.geowebcache</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>gwc-ve</artifactId>
-          <groupId>org.geowebcache</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>gwc-wms</artifactId>
-          <groupId>org.geowebcache</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>gwc-wmts</artifactId>
-          <groupId>org.geowebcache</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.geoserver.cloud</groupId>
       <artifactId>gs-cloud-starter-security</artifactId>
     </dependency>
     <dependency>
@@ -76,6 +38,11 @@
     <dependency>
       <groupId>org.geoserver.cloud</groupId>
       <artifactId>gs-cloud-starter-raster-formats</artifactId>
+    </dependency>
+    <dependency>
+      <!-- provides GWC integration with WMS-C -->
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gwc-cloud-spring-boot-starter</artifactId>
     </dependency>
   </dependencies>
   <profiles>
