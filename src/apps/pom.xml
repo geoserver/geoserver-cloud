@@ -11,6 +11,7 @@
   <packaging>pom</packaging>
   <name>Applications</name>
   <modules>
+    <module>base-images</module>
     <module>infrastructure</module>
     <module>geoserver</module>
   </modules>

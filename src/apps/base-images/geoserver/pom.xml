@@ -3,42 +3,47 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.geoserver.cloud.apps</groupId>
-    <artifactId>gs-cloud-infrastructure</artifactId>
+    <artifactId>gs-cloud-base-images</artifactId>
     <version>${revision}</version>
   </parent>
-  <artifactId>gs-cloud-admin-service</artifactId>
+  <artifactId>gs-cloud-base-geoserver-image</artifactId>
   <packaging>jar</packaging>
-  <name>Spring-boot admin service</name>
   <properties>
     <dockerfile.skip>false</dockerfile.skip>
-    <docker.image.name>geoserver-cloud-admin-server</docker.image.name>
-    <start-class>org.geoserver.cloud.adminserver.SpringBootAdminServerApplication</start-class>
+    <docker.image.name>${project.artifactId}</docker.image.name>
   </properties>
   <dependencies>
     <dependency>
-      <groupId>de.codecentric</groupId>
-      <artifactId>spring-boot-admin-starter-server</artifactId>
-      <version>2.5.5</version>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-spring-factory</artifactId>
     </dependency>
     <dependency>
       <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-spring-boot-starter</artifactId>
+      <artifactId>gs-cloud-starter-webmvc</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-starter-security</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-starter-event-bus</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>spring-boot-simplejndi</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-starter-vector-formats</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-starter-raster-formats</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-starter-bootstrap</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-loadbalancer</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-config-client</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.retry</groupId>
@@ -49,8 +54,10 @@
       <artifactId>spring-boot-starter-aop</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-actuator</artifactId>
+      <groupId>org.geoserver.cloud.apps</groupId>
+      <artifactId>gs-cloud-base-spring-boot</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
   <profiles>
@@ -70,6 +77,15 @@
             <configuration>
               <pullNewerImage>false</pullNewerImage>
             </configuration>
+            <executions>
+              <execution>
+                <id>push</id>
+                <configuration>
+                  <!-- always skip push -->
+                  <skip>true</skip>
+                </configuration>
+              </execution>
+            </executions>
           </plugin>
         </plugins>
       </build>

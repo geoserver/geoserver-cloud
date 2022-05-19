@@ -29,9 +29,28 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud</groupId>
+        <artifactId>gs-cloud-webmvc-common-docker-layers</artifactId>
+        <version>${project.version}</version>
+        <scope>provided</scope>
+        <optional>true</optional>
+      </dependency>
     </dependencies>
   </dependencyManagement>
   <dependencies>
+    <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-spring-factory</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-starter-webmvc</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-starter-security</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.geoserver.cloud</groupId>
       <artifactId>spring-boot-simplejndi</artifactId>
