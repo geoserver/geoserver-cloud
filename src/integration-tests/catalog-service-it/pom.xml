@@ -35,7 +35,7 @@
     <dependency>
       <!-- contains abstract catalog api conformance test suite -->
       <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-pluggable-catalog-support</artifactId>
+      <artifactId>gs-cloud-catalog-plugin</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
       <scope>test</scope>

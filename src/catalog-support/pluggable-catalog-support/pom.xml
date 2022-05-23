@@ -6,7 +6,7 @@
     <artifactId>gs-cloud-core</artifactId>
     <version>${revision}</version>
   </parent>
-  <artifactId>gs-cloud-pluggable-catalog-support</artifactId>
+  <artifactId>gs-cloud-catalog-plugin</artifactId>
   <packaging>jar</packaging>
   <description>Catalog infrastructure for pluggable backends</description>
   <dependencies>
