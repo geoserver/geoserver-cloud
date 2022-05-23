@@ -48,12 +48,12 @@ jobs:
       id: version
       run: |
          echo '::echo::on'
-         echo ::set-output name=IMAGE_NAME::$(./mvnw help:evaluate -f src/support-services/config/ -Pnative -Dexpression=spring-boot.build-image.imageName -q -DforceStdout)
+         echo ::set-output name=IMAGE_NAME::$(./mvnw -pl :gs-cloud-config-service help:evaluate -Pnative -Dexpression=spring-boot.build-image.imageName -q -DforceStdout)
 
     - name: Build config-service native image
       run: |
-        ./mvnw install -pl :gs-cloud-config-service -am -Dfmt.action=check -ntp -P-geoserver,-docker,-docker-openj9
-        ./mvnw spring-boot:build-image -pl :gs-cloud-config-service -Pnative,-geoserver -ntp -DskipTests -Dfmt.skip
+        ./mvnw -pl :gs-cloud-config-service install -am -Dfmt.action=check -ntp -P-geoserver,-docker,-docker-openj9
+        ./mvnw -pl :gs-cloud-config-service spring-boot:build-image -Pnative,-geoserver -ntp -DskipTests -Dfmt.skip
 
     - name: Push image to docker.io
       if: ${{ (github.repository == 'geoserver/geoserver-cloud') && (github.event_name != 'pull_request') }}
