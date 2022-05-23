@@ -15,13 +15,14 @@
   </properties>
   <dependencies>
     <dependency>
-      <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-catalog-client</artifactId>
+      <groupId>org.geoserver.cloud.catalog.service</groupId>
+      <artifactId>gs-cloud-reactive-catalog-client</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-catalog</artifactId>
+      <groupId>org.geoserver.cloud.apps</groupId>
+      <artifactId>gs-cloud-catalog-service</artifactId>
+      <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -34,8 +35,8 @@
     </dependency>
     <dependency>
       <!-- contains abstract catalog api conformance test suite -->
-      <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-pluggable-catalog-support</artifactId>
+      <groupId>org.geoserver.cloud.catalog</groupId>
+      <artifactId>gs-cloud-catalog-plugin</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
       <scope>test</scope>

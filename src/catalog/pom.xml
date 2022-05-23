@@ -6,19 +6,16 @@
     <artifactId>gs-cloud</artifactId>
     <version>${revision}</version>
   </parent>
-  <artifactId>gs-cloud-starters</artifactId>
+  <groupId>org.geoserver.cloud.catalog</groupId>
+  <artifactId>gs-cloud-catalog</artifactId>
   <packaging>pom</packaging>
-  <name>Spring boot starters for GeoServer cloud services</name>
+  <name>Catalog and Config</name>
   <modules>
-    <module>spring-boot</module>
-    <module>catalog-backend</module>
+    <module>plugin</module>
+    <module>cache</module>
+    <module>jackson-bindings</module>
     <module>event-bus</module>
-    <module>vector-formats</module>
-    <module>raster-formats</module>
-    <module>webmvc</module>
-    <module>reactive</module>
-    <module>wms-extensions</module>
-    <module>security</module>
+    <module>catalog-server</module>
   </modules>
   <dependencies>
     <dependency>

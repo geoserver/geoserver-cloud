@@ -2,25 +2,25 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.geoserver.cloud</groupId>
-    <artifactId>gs-cloud</artifactId>
+    <groupId>org.geoserver.cloud.apps</groupId>
+    <artifactId>gs-cloud-apps</artifactId>
     <version>${revision}</version>
   </parent>
-  <artifactId>gs-cloud-starters</artifactId>
+  <artifactId>gs-cloud-infrastructure</artifactId>
   <packaging>pom</packaging>
-  <name>Spring boot starters for GeoServer cloud services</name>
+  <name>Infrastructure microservices</name>
   <modules>
-    <module>spring-boot</module>
-    <module>catalog-backend</module>
-    <module>event-bus</module>
-    <module>vector-formats</module>
-    <module>raster-formats</module>
-    <module>webmvc</module>
-    <module>reactive</module>
-    <module>wms-extensions</module>
-    <module>security</module>
+    <module>discovery</module>
+    <module>config</module>
+    <module>gateway</module>
+    <module>admin</module>
   </modules>
   <dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-configuration-processor</artifactId>
+      <optional>true</optional>
+    </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
