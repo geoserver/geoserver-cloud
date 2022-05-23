@@ -2,22 +2,17 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.geoserver.cloud</groupId>
-    <artifactId>gs-cloud</artifactId>
+    <groupId>org.geoserver.cloud.catalog</groupId>
+    <artifactId>gs-cloud-catalog</artifactId>
     <version>${revision}</version>
   </parent>
-  <artifactId>integration-tests</artifactId>
+  <groupId>org.geoserver.cloud.catalog.service</groupId>
+  <artifactId>gs-cloud-catalog-server</artifactId>
   <packaging>pom</packaging>
-  <name>Integration Tests</name>
+  <name>Reactive Catalog Server and Client Libraries</name>
   <modules>
+    <module>client</module>
     <!-- temporarily disabled -->
-    <!-- <module>catalog-service-it</module>-->
+    <!---module>server</module-->
   </modules>
-  <dependencies>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
 </project>

@@ -10,11 +10,10 @@
   <packaging>pom</packaging>
   <name>Cloud Native GeoServer</name>
   <modules>
-    <module>catalog-support</module>
-    <module>starters</module>
+    <module>catalog</module>
     <module>gwc</module>
-    <module>support-services</module>
-    <module>services</module>
+    <module>starters</module>
+    <module>apps</module>
     <module>integration-tests</module>
   </modules>
   <properties>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.geoserver.cloud</groupId>
+    <artifactId>gs-cloud-starters</artifactId>
+    <version>${revision}</version>
+  </parent>
+  <artifactId>gs-cloud-starter-event-bus</artifactId>
+  <packaging>jar</packaging>
+  <description>Advanced Message Queuing Protocol catalog and configuration notification support</description>
+  <dependencies>
+    <dependency>
+      <groupId>org.geoserver.cloud.catalog</groupId>
+      <artifactId>gs-cloud-event-bus</artifactId>
+    </dependency>
+    <dependency>
+      <!-- trivy: Upgrade jsoup version carried over by spring-cloud-starter-bus-amqp:3.1.0 due to CVE-2021-37714 -->
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-bus-amqp</artifactId>
+      <exclusions>
+        <exclusion>
+          <artifactId>jsoup</artifactId>
+          <groupId>org.jsoup</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.jsoup</groupId>
+      <artifactId>jsoup</artifactId>
+      <version>1.14.3</version>
+    </dependency>
+  </dependencies>
+</project>

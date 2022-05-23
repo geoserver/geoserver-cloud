@@ -15,12 +15,12 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.geoserver.cloud</groupId>
+        <groupId>org.geoserver.cloud.catalog.jackson</groupId>
         <artifactId>gt-jackson-bindings</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.geoserver.cloud</groupId>
+        <groupId>org.geoserver.cloud.catalog.jackson</groupId>
         <artifactId>gs-jackson-bindings</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -35,7 +35,7 @@
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.geoserver.cloud</groupId>
+        <groupId>org.geoserver.cloud.catalog.jackson</groupId>
         <artifactId>gs-cloud-starter-jackson</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -65,34 +65,34 @@
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.geoserver.cloud</groupId>
+        <groupId>org.geoserver.cloud.catalog</groupId>
         <artifactId>gs-cloud-catalog-plugin</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.geoserver.cloud</groupId>
+        <groupId>org.geoserver.cloud.catalog</groupId>
         <artifactId>gs-cloud-event-bus</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>org.geoserver.cloud</groupId>
-        <artifactId>gs-cloud-event-bus-amqp</artifactId>
+        <artifactId>gs-cloud-starter-event-bus</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.geoserver.cloud</groupId>
+        <groupId>org.geoserver.cloud.catalog</groupId>
         <artifactId>gs-cloud-catalog-cache</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.geoserver.cloud</groupId>
-        <artifactId>gs-cloud-catalog-client</artifactId>
+        <groupId>org.geoserver.cloud.catalog.service</groupId>
+        <artifactId>gs-cloud-reactive-catalog-client</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.geoserver.cloud</groupId>
-        <artifactId>gs-cloud-catalog</artifactId>
-        <version>${project.version}</version>
+        <groupId>org.geoserver.cloud.catalog.service</groupId>
+        <artifactId>gs-cloud-reactive-catalog-server</artifactId>
+        <version>${revision}</version>
       </dependency>
       <dependency>
         <groupId>org.geoserver.cloud</groupId>
