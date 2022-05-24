@@ -4,7 +4,6 @@
  */
 package org.geoserver.cloud.autoconfigure.servlet;
 
-import org.geoserver.GeoserverInitStartupListener;
 import org.geoserver.cloud.config.servlet.GeoServerServletInitializer;
 import org.geoserver.cloud.test.TestConfiguration;
 import org.geoserver.filters.FlushSafeFilter;
@@ -40,11 +39,6 @@ import org.springframework.web.context.request.RequestContextListener;
 public class ServletContextDisabledSmokeTest {
 
     private @Autowired ApplicationContext context;
-
-    @Test(expected = NoSuchBeanDefinitionException.class)
-    public void initStartupListener() {
-        context.getBean(GeoserverInitStartupListener.class);
-    }
 
     @Test(expected = NoSuchBeanDefinitionException.class)
     public void contextLoaderListener() {

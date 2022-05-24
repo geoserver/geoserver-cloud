@@ -4,7 +4,6 @@
  */
 package org.geoserver.cloud.config.servlet;
 
-import org.geoserver.GeoserverInitStartupListener;
 import org.geoserver.filters.FlushSafeFilter;
 import org.geoserver.filters.SessionDebugFilter;
 import org.geoserver.filters.SpringDelegatingFilter;
@@ -29,11 +28,6 @@ public class GeoServerServletContextConfiguration {
     private static final int THREAD_LOCALS_CLEANUP_FILTER_ORDER = 5;
 
     // Listeners
-    public @Bean GeoserverInitStartupListener initStartupListener() {
-        System.setProperty("RELINQUISH_LOG4J_CONTROL", "true");
-        return new GeoserverInitStartupListener();
-    }
-
     public @Bean GeoServerServletInitializer contextLoaderListener() {
         return new GeoServerServletInitializer();
     }
