@@ -6,7 +6,6 @@ package org.geoserver.cloud.autoconfigure.servlet;
 
 import static org.junit.Assert.assertNotNull;
 
-import org.geoserver.GeoserverInitStartupListener;
 import org.geoserver.cloud.config.servlet.GeoServerServletInitializer;
 import org.geoserver.cloud.test.TestConfiguration;
 import org.geoserver.filters.FlushSafeFilter;
@@ -35,10 +34,6 @@ import org.springframework.web.context.request.RequestContextListener;
 public class ServletContextEnabledSmokeTest {
 
     private @Autowired ApplicationContext context;
-
-    public @Test void initStartupListener() {
-        assertNotNull(context.getBean(GeoserverInitStartupListener.class));
-    }
 
     public @Test void contextLoaderListener() {
         assertNotNull(context.getBean(GeoServerServletInitializer.class));

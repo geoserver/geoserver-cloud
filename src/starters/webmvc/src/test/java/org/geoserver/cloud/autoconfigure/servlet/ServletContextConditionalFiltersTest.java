@@ -6,7 +6,6 @@ package org.geoserver.cloud.autoconfigure.servlet;
 
 import static org.junit.Assert.assertNotNull;
 
-import org.geoserver.GeoserverInitStartupListener;
 import org.geoserver.cloud.config.servlet.GeoServerServletInitializer;
 import org.geoserver.cloud.test.TestConfiguration;
 import org.geoserver.filters.FlushSafeFilter;
@@ -49,10 +48,6 @@ public class ServletContextConditionalFiltersTest {
     @Test(expected = NoSuchBeanDefinitionException.class)
     public void sessionDebugFilter() {
         context.getBean(SessionDebugFilter.class);
-    }
-
-    public @Test void initStartupListener() {
-        assertNotNull(context.getBean(GeoserverInitStartupListener.class));
     }
 
     public @Test void contextLoaderListener() {
