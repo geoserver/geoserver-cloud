@@ -239,6 +239,9 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
 
     // Store methods
     public @Override void add(StoreInfo store) {
+        if (store.getWorkspace() == null) {
+            store.setWorkspace(getDefaultWorkspace());
+        }
         doAdd(store, facade::add);
     }
 
@@ -426,6 +429,13 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
 
     // Resource methods
     public @Override void add(ResourceInfo resource) {
+        if (resource.getNamespace() == null) {
+            // default to default namespace
+            resource.setNamespace(getDefaultNamespace());
+        }
+        if (resource.getNativeName() == null) {
+            resource.setNativeName(resource.getName());
+        }
         doAdd(resource, facade::add);
     }
 
