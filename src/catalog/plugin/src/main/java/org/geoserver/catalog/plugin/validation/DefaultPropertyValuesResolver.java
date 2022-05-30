@@ -74,10 +74,6 @@ public class DefaultPropertyValuesResolver {
     }
 
     private void resolve(StoreInfo store) {
-        if (store.getWorkspace() == null) {
-            store.setWorkspace(catalog.getDefaultWorkspace());
-        }
-
         resolveCollections(store);
         StoreInfoImpl s = (StoreInfoImpl) store;
         s.setCatalog(catalog);
@@ -86,14 +82,6 @@ public class DefaultPropertyValuesResolver {
     private void resolve(ResourceInfo resource) {
         ResourceInfoImpl r = (ResourceInfoImpl) resource;
         r.setCatalog(catalog);
-
-        if (resource.getNamespace() == null) {
-            // default to default namespace
-            resource.setNamespace(catalog.getDefaultNamespace());
-        }
-        if (resource.getNativeName() == null) {
-            resource.setNativeName(resource.getName());
-        }
 
         if (resource instanceof FeatureTypeInfo) {
             resolve((FeatureTypeInfo) resource);
