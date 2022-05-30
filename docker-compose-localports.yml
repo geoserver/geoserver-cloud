@@ -1,0 +1,27 @@
+version: "3.8"
+# Used only when needing to expose local ports on geoserver backend services
+# for example, when running the gateway through the IDE 
+# Port numbers match the ones in the `local` spring profile used for development.
+services:
+  # catalog microservice, provides a unified catalog backend to all services
+  catalog:
+    ports:
+      - 9100:8080
+  wfs:
+    ports:
+      - 9101:8080
+  wms:
+    ports:
+      - 9102:8080
+  wcs:
+    ports:
+      - 9103:8080
+  rest:
+    ports:
+      - 9105:8080
+  webui:
+    ports:
+      - 9106:8080
+  gwc:
+    ports:
+      - 9107:8080
