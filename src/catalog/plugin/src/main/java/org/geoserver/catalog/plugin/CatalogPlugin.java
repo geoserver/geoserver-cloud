@@ -21,11 +21,16 @@ import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.MapInfo;
 import org.geoserver.catalog.NamespaceInfo;
+import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.ResourcePool;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.ValidationResult;
+import org.geoserver.catalog.WMSLayerInfo;
+import org.geoserver.catalog.WMSStoreInfo;
+import org.geoserver.catalog.WMTSLayerInfo;
+import org.geoserver.catalog.WMTSStoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.event.CatalogAddEvent;
 import org.geoserver.catalog.event.CatalogBeforeAddEvent;
@@ -41,6 +46,7 @@ import org.geoserver.catalog.event.impl.CatalogPostModifyEventImpl;
 import org.geoserver.catalog.event.impl.CatalogRemoveEventImpl;
 import org.geoserver.catalog.impl.CatalogFactoryImpl;
 import org.geoserver.catalog.impl.CatalogImpl;
+import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.impl.DefaultCatalogFacade;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.impl.ProxyUtils;
@@ -58,10 +64,16 @@ import org.geoserver.config.util.XStreamPersister;
 import org.geoserver.ows.util.OwsUtils;
 import org.geoserver.platform.ExtensionPriority;
 import org.geoserver.platform.GeoServerResourceLoader;
+import org.geotools.util.Converters;
 import org.geotools.util.SuppressFBWarnings;
 import org.geotools.util.logging.Logging;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
+import org.opengis.filter.Id;
+import org.opengis.filter.PropertyIsEqualTo;
+import org.opengis.filter.expression.Literal;
+import org.opengis.filter.expression.PropertyName;
+import org.opengis.filter.identity.Identifier;
 import org.opengis.filter.sort.SortBy;
 
 import java.util.ArrayList;
@@ -70,6 +82,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -1254,19 +1268,94 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
 
     public @Override <T extends CatalogInfo> T get(Class<T> type, Filter filter)
             throws IllegalArgumentException {
+        // try optimizing by querying by id first, defer to regular filter query if filter is not
+        // and Id filter
+        return getIdIfIdFilter(filter) //
+                .map(id -> findOneById(id, type)) //
+                .or(() -> findOne(type, filter)) //
+                .orElse(null);
+    }
 
-        final Integer limit = Integer.valueOf(2);
-        T result = null;
-        try (CloseableIterator<T> it = list(type, filter, null, limit, null)) {
-            if (it.hasNext()) {
-                result = it.next();
-                if (it.hasNext()) {
+    private <T extends CatalogInfo> Optional<T> findOne(Class<T> type, Filter filter) {
+        Query<T> query = Query.valueOf(type, filter, 0, 2);
+        try (Stream<T> stream = getFacade().query(query)) {
+            List<T> matches = stream.limit(2).toList();
+            switch (matches.size()) {
+                case 0:
+                    Optional.empty();
+                case 1:
+                    return Optional.of(matches.get(0));
+                default:
                     throw new IllegalArgumentException(
                             "Specified query predicate resulted in more than one object");
-                }
             }
         }
-        return result;
+    }
+
+    private <T extends CatalogInfo> T findOneById(String id, Class<T> type) {
+        final ClassMappings cm = classMapping(type).orElseThrow();
+        switch (cm) {
+            case NAMESPACE:
+                return type.cast(getNamespace(id));
+            case WORKSPACE:
+                return type.cast(getWorkspace(id));
+            case STORE:
+                return type.cast(getStore(id, StoreInfo.class));
+            case COVERAGESTORE:
+                return type.cast(getCoverageStore(id));
+            case DATASTORE:
+                return type.cast(getDataStore(id));
+            case WMSSTORE:
+                return type.cast(getStore(id, WMSStoreInfo.class));
+            case WMTSSTORE:
+                return type.cast(getStore(id, WMTSStoreInfo.class));
+            case RESOURCE:
+                return type.cast(getResource(id, ResourceInfo.class));
+            case COVERAGE:
+                return type.cast(getCoverage(id));
+            case FEATURETYPE:
+                return type.cast(getFeatureType(id));
+            case WMSLAYER:
+                return type.cast(getResource(id, WMSLayerInfo.class));
+            case WMTSLAYER:
+                return type.cast(getResource(id, WMTSLayerInfo.class));
+            case LAYER:
+                return type.cast(getLayer(id));
+            case LAYERGROUP:
+                return type.cast(getLayerGroup(id));
+            case PUBLISHED:
+                return type.cast(
+                        Optional.<PublishedInfo>ofNullable(getLayer(id))
+                                .orElseGet(() -> getLayerGroup(id)));
+            case STYLE:
+                return type.cast(getStyle(id));
+            default:
+                throw new IllegalArgumentException("Unexpected value: " + cm);
+        }
+    }
+
+    private Optional<String> getIdIfIdFilter(Filter filter) {
+        String id = null;
+        if (filter instanceof Id) {
+            Set<Identifier> identifiers = ((Id) filter).getIdentifiers();
+            if (identifiers.size() == 1) {
+                id = identifiers.iterator().next().toString();
+            }
+        } else if (filter instanceof PropertyIsEqualTo) {
+            PropertyIsEqualTo eq = (PropertyIsEqualTo) filter;
+            boolean idProperty =
+                    (eq.getExpression1() instanceof PropertyName)
+                            && "id".equals(((PropertyName) eq.getExpression1()).getPropertyName());
+            if (idProperty && eq.getExpression2() instanceof Literal) {
+                id = Converters.convert(eq.getExpression2().evaluate(null), String.class);
+            }
+        }
+        return Optional.ofNullable(id);
+    }
+
+    protected <T extends CatalogInfo> Optional<ClassMappings> classMapping(Class<T> type) {
+        return Optional.ofNullable(ClassMappings.fromInterface(type))
+                .or(() -> Optional.ofNullable(ClassMappings.fromImpl(type)));
     }
 
     public @Override CatalogCapabilities getCatalogCapabilities() {
