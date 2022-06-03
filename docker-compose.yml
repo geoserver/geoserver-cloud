@@ -22,7 +22,7 @@ services:
     volumes:
       - postgis_data:/var/lib/postgresql/data
     ports:
-      - 54321:5432
+      - 5432:5432
     deploy:
       resources:
         limits:
@@ -54,7 +54,7 @@ services:
       POSTGRES_USER: "${JDBCCONFIG_USERNAME}"
       POSTGRES_PASSWORD: "${JDBCCONFIG_PASSWORD}"
     ports:
-      - 5432:5432
+      - 54321:5432
     networks:
       - gs-cloud-network
     volumes:

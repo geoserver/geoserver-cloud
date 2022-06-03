@@ -23,7 +23,6 @@ geoserver:
         username: sa
         password:
 
-
 spring:
   main:
     banner-mode: off

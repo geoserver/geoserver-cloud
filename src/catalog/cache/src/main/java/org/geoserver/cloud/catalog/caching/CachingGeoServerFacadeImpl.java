@@ -5,6 +5,7 @@
 package org.geoserver.cloud.catalog.caching;
 
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.WorkspaceInfo;
@@ -25,6 +26,7 @@ import org.springframework.cache.annotation.Caching;
 
 /** */
 @CacheConfig(cacheNames = CachingGeoServerFacade.CACHE_NAME)
+@Slf4j(topic = "org.geoserver.cloud.catalog.caching")
 public class CachingGeoServerFacadeImpl extends ForwardingGeoServerFacade
         implements CachingGeoServerFacade {
 
@@ -32,6 +34,7 @@ public class CachingGeoServerFacadeImpl extends ForwardingGeoServerFacade
 
     @Override
     public boolean evict(Info info) {
+        log.debug("Evict cache entry for {}", info.getId());
         if (info instanceof GeoServerInfo) {
             return cache.evictIfPresent(GEOSERVERINFO_KEY);
         }
@@ -91,6 +94,8 @@ public class CachingGeoServerFacadeImpl extends ForwardingGeoServerFacade
         cache.put(byId, service);
         cache.put(byName, service);
         cache.put(byType, service);
+        log.debug("Cached entry for service {}", service.getId());
+        log.trace("cached keys = id: {}, name: {}, type: {}", byId, byName, byType);
         return service;
     }
 

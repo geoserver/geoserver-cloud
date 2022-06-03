@@ -62,6 +62,9 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.nio.file.Path;
 import java.sql.Driver;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
@@ -94,7 +97,6 @@ import javax.sql.DataSource;
  * geoserver.backend.jdbcconfig.datasource.driver-class-name
  * geoserver.backend.jdbcconfig.datasource.username
  * geoserver.backend.jdbcconfig.datasource.password
- * geoserver.backend.jdbcconfig.datasource.configuration
  * }</pre>
  *
  * Additionally, you can further configure the connection pool using any of the <a
@@ -105,6 +107,8 @@ import javax.sql.DataSource;
  * geoserver.backend.jdbcconfig.datasource.schema=public
  * geoserver.backend.jdbcconfig.datasource.minimumIdle=2
  * geoserver.backend.jdbcconfig.datasource.maximumPoolSize=10
+ * geoserver.backend.jdbcconfig.datasource.connectionTimeout=250
+ * geoserver.backend.jdbcconfig.datasource.idletTimeout=60000
  * }</pre>
  */
 @Configuration(proxyBeanMethods = true)
@@ -279,8 +283,10 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
 
     @DependsOn({"jdbcConfigDataSourceStartupValidator", "jdbcConfigDataSource"})
     public @Bean(name = "JDBCConfigDB") ConfigDatabase jdbcConfigDB() {
-        ConfigDatabase configDb =
-                new CloudJdbcConfigDatabase(jdbcConfigDataSource(), jdbcPersistenceBinding());
+        DataSource dataSource = jdbcConfigDataSource();
+        XStreamInfoSerialBinding binding = jdbcPersistenceBinding();
+        CacheProvider cacheProvider = jdbcCacheProvider();
+        ConfigDatabase configDb = new CloudJdbcConfigDatabase(dataSource, binding, cacheProvider);
         return configDb;
     }
 
@@ -323,13 +329,44 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
     // class="org.geoserver.jdbcconfig.internal.JDBCCacheProvider"/>
     @DependsOn({"extensions"})
     public @Bean("JDBCCacheProvider") CacheProvider jdbcCacheProvider() {
-        // return new JDBCCacheProvider();
-        return new CacheProvider() {
-            public @Override <K extends Serializable, V extends Serializable> Cache<K, V> getCache(
-                    String cacheName) {
-                return CacheBuilder.newBuilder().maximumSize(0).build();
-            }
-        };
+        return new CloudJdbcConfigCacheProvider();
+    }
+
+    private static class CloudJdbcConfigCacheProvider implements org.geoserver.util.CacheProvider {
+
+        private final ConcurrentMap<String, Cache<?, ?>> caches = new ConcurrentHashMap<>();
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public <K extends Serializable, V extends Serializable> Cache<K, V> getCache(
+                @NonNull String cacheName) {
+
+            return (Cache<K, V>) caches.computeIfAbsent(cacheName, this::newCache);
+        }
+
+        protected <K, V> Cache<K, V> newCache(String name) {
+
+            int concurrencyLevel = Runtime.getRuntime().availableProcessors();
+            final double maxMiB = Runtime.getRuntime().maxMemory() / 1024d / 1024d;
+            final int entriesPerMiB = 50;
+
+            long expirationMinutes = 10;
+            long maxEntries = (long) (maxMiB * entriesPerMiB);
+
+            log.info(
+                    "Creating cache {} with max extries: {}, concurrency level {}, expiration time: {} minutes",
+                    name,
+                    maxEntries,
+                    concurrencyLevel,
+                    expirationMinutes);
+
+            return CacheBuilder.newBuilder()
+                    .concurrencyLevel(concurrencyLevel)
+                    .softValues()
+                    .expireAfterAccess(expirationMinutes, TimeUnit.MINUTES)
+                    .maximumSize(maxEntries)
+                    .build();
+        }
     }
 
     // <bean id="JDBCConfigXStreamPersisterInitializer"
@@ -378,11 +415,23 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
     public DataSource jdbcConfigDataSource() {
         ExtendedDataSourceProperties props = jdbcconfigDataSourceProperties();
         HikariDataSource dataSource =
-                props.initializeDataSourceBuilder().type(HikariDataSource.class).build();
+                props.initializeDataSourceBuilder() //
+                        .type(HikariDataSource.class)
+                        .build();
+
         dataSource.setMaximumPoolSize(props.getMaximumPoolSize());
         dataSource.setMinimumIdle(props.getMinimumIdle());
         dataSource.setConnectionTimeout(props.getConnectionTimeout());
         dataSource.setIdleTimeout(props.getIdleTimeout());
+
+        log.info(
+                "jdbcconfig datasource: url: {}, user: {}, max size: {}, min size: {}, connection timeout: {}, idle timeout: {}",
+                props.getUrl(),
+                props.getUsername(),
+                props.getMaximumPoolSize(),
+                props.getMinimumIdle(),
+                props.getConnectionTimeout(),
+                props.getIdleTimeout());
         return dataSource;
     }
 
