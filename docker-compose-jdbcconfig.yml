@@ -6,8 +6,8 @@ version: "3.8"
 #
 
 services:
-  catalog:
-    command: echo "catalog-service disabled."
+  #catalog:
+  #  command: echo "catalog-service disabled."
 
   wfs:
     environment:

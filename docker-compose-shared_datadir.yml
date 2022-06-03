@@ -18,8 +18,8 @@ services:
   database:
     entrypoint: echo "database-service disabled."
 
-  catalog:
-    command: echo "catalog-service disabled."
+  #catalog:
+  #  command: echo "catalog-service disabled."
 
   wfs:
     environment:

@@ -34,11 +34,11 @@ services:
     volumes:
       - config:/etc/gscloud
 
-  catalog:
-    environment:
-      SPRING_PROFILES_ACTIVE: "standalone,datadir"
-    volumes:
-      - config:/etc/gscloud
+  #catalog:
+  #  environment:
+  #    SPRING_PROFILES_ACTIVE: "standalone,datadir"
+  #  volumes:
+  #    - config:/etc/gscloud
 
   wfs:
     environment:

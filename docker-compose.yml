@@ -88,11 +88,9 @@ services:
   # microservices. Being a Discovery First Bootstrap configuration, it'll
   # register itself with the Eureka discovery service and can be scaled
   config:
-    #image: geoservercloud/geoserver-cloud-config:${TAG}
-    image: geoservercloud/geoserver-cloud-config:${TAG}-native
+    image: geoservercloud/geoserver-cloud-config:${TAG}
+    #image: geoservercloud/geoserver-cloud-config:${TAG}-native
     user: ${GS_USER}
-    depends_on:
-      - discovery
     environment:
       JAVA_OPTS: "${CONFIG_JAVA_OPTS}"
       # Either 'git' or 'native'. Use the default sample git repository to download the services configuration from
@@ -155,39 +153,39 @@ services:
           memory: 1G
 
   # catalog microservice, provides a unified catalog backend to all services
-  catalog:
-    image: geoservercloud/geoserver-cloud-catalog:${TAG}
-    user: ${GS_USER}
-    depends_on:
-      - config
-      - database
-      - rabbitmq
-    environment:
-      # Force the max RAM (-XX:MaxRAM) seen by the JVM in case --compatibility wasn't used to launch the composition
-      JAVA_OPTS: "${CATALOG_JAVA_OPTS}"
-      CATALOG_IO_THREADS: 8
-      CATALOG_IO_MAX_QUEUED: 10000
-      BACKEND_JDBCCONFIG: "true"
-      JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
-      JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
-      JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
-      JDBCCONFIG_MIN_CONNECTIONS: 2
-      JDBCCONFIG_MAX_CONNECTIONS: 16 # 2 x CATALOG_IO_THREADS
-      RETRY_MAX_ATTEMPTS: 100
-    networks:
-      - gs-cloud-network
-    deploy:
-      resources:
-        limits:
-          cpus: '2.0'
-          memory: 1G
+  #catalog:
+  #  image: geoservercloud/geoserver-cloud-catalog:${TAG}
+  #  user: ${GS_USER}
+  #  depends_on:
+  #    - config
+  #    - database
+  #    - rabbitmq
+  #  environment:
+  #    # Force the max RAM (-XX:MaxRAM) seen by the JVM in case --compatibility wasn't used to launch the composition
+  #    JAVA_OPTS: "${CATALOG_JAVA_OPTS}"
+  #    CATALOG_IO_THREADS: 8
+  #    CATALOG_IO_MAX_QUEUED: 10000
+  #    BACKEND_JDBCCONFIG: "true"
+  #    JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
+  #    JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
+  #    JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
+  #    JDBCCONFIG_MIN_CONNECTIONS: 2
+  #    JDBCCONFIG_MAX_CONNECTIONS: 16 # 2 x CATALOG_IO_THREADS
+  #    RETRY_MAX_ATTEMPTS: 100
+  #  networks:
+  #    - gs-cloud-network
+  #  deploy:
+  #    resources:
+  #      limits:
+  #        cpus: '2.0'
+  #        memory: 1G
 
   # WFS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wfs=5)
   wfs:
     image: geoservercloud/geoserver-cloud-wfs:${TAG}
     user: ${GS_USER}
     depends_on:
-      - catalog
+      - rabbitmq
     environment:
       JAVA_OPTS: "${WFS_JAVA_OPTS}"
       RETRY_MAX_ATTEMPTS: 100
@@ -206,7 +204,7 @@ services:
     image: geoservercloud/geoserver-cloud-wms:${TAG}
     user: ${GS_USER}
     depends_on:
-      - catalog
+      - rabbitmq
     environment:
       JAVA_OPTS: "${WMS_JAVA_OPTS}"
       RETRY_MAX_ATTEMPTS: 100
@@ -223,7 +221,7 @@ services:
     image: geoservercloud/geoserver-cloud-wcs:${TAG}
     user: ${GS_USER}
     depends_on:
-      - catalog
+      - rabbitmq
     environment:
       JAVA_OPTS: "${WCS_JAVA_OPTS}"
       RETRY_MAX_ATTEMPTS: 100
@@ -240,7 +238,6 @@ services:
 #    image: geoservercloud/geoserver-cloud-wps:${TAG}
 #    depends_on:
 #      - rabbitmq
-#      - catalog
 #    environment:
 #      JAVA_OPTS: ${WPS_JAVA_OPTS}
 #    networks:
@@ -252,7 +249,6 @@ services:
     user: ${GS_USER}
     depends_on:
       - rabbitmq
-      - catalog
     environment:
       JAVA_OPTS: "${REST_JAVA_OPTS}"
       RETRY_MAX_ATTEMPTS: 100
@@ -272,7 +268,6 @@ services:
     user: ${GS_USER}
     depends_on:
       - rabbitmq
-      - catalog
     environment:
       JAVA_OPTS: "${WEBUI_JAVA_OPTS}"
       RETRY_MAX_ATTEMPTS: 100
@@ -290,7 +285,6 @@ services:
     user: ${GS_USER}
     depends_on:
       - rabbitmq
-      - catalog
     environment:
       RETRY_MAX_ATTEMPTS: 100
     networks:
