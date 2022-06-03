@@ -130,15 +130,7 @@ GeoServer-Cloud can start from an empty directory.
 
 ```bash
 $ mkdir docker-compose_datadir
-$ docker-compose -f docker-compose.yml -f docker-compose_shared_datadir up -d
-```
-
-To run the development docker composition using a shared data directory.
-GeoServer-Cloud can start from an empty directory.
-
-```bash
-$ mkdir docker-compose_datadir
-$ alias dcd="docker-compose -f docker-compose.yml -f docker-compose_shared_datadir"
+$ alias dcd="docker-compose -f docker-compose.yml -f docker-compose-shared_datadir.yml"
 $ dcd up -d
 ```
 
