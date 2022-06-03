@@ -9,6 +9,7 @@ import org.geoserver.catalog.impl.CatalogImpl;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.jdbcconfig.internal.ConfigDatabase;
 import org.geoserver.jdbcconfig.internal.XStreamInfoSerialBinding;
+import org.geoserver.util.CacheProvider;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,8 +24,10 @@ import javax.sql.DataSource;
 class CloudJdbcConfigDatabase extends ConfigDatabase {
 
     public CloudJdbcConfigDatabase(
-            final DataSource dataSource, final XStreamInfoSerialBinding binding) {
-        super(dataSource, binding);
+            final DataSource dataSource,
+            final XStreamInfoSerialBinding binding,
+            final CacheProvider cacheProvider) {
+        super(dataSource, binding, cacheProvider);
     }
 
     /**

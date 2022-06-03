@@ -167,9 +167,11 @@ public class CloudJdbcGeoserverFacade implements GeoServerFacade {
 
     @Override
     public SettingsInfo getSettings(WorkspaceInfo workspace) {
-        Filter filter = equal("workspace.id", workspace.getId());
+        //        Filter filter = equal("workspace.id", workspace.getId());
+        //        return db.get(SettingsInfo.class, filter);
 
-        return db.get(SettingsInfo.class, filter);
+        String wsId = workspace.getId();
+        return db.getByIdentity(SettingsInfo.class, "workspace.id", wsId);
     }
 
     @Override
