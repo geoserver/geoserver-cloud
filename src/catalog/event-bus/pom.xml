@@ -6,7 +6,7 @@
     <artifactId>gs-cloud-catalog</artifactId>
     <version>${revision}</version>
   </parent>
-  <artifactId>gs-cloud-event-bus</artifactId>
+  <artifactId>gs-cloud-catalog-event-bus</artifactId>
   <packaging>jar</packaging>
   <description>Event bus catalog notification support</description>
   <properties>
@@ -26,6 +26,10 @@
       <artifactId>gs-cloud-catalog-plugin</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.geoserver.cloud.catalog</groupId>
+      <artifactId>gs-cloud-catalog-events</artifactId>
+    </dependency>
+    <dependency>
       <!-- ability to encode RemoteInfoEvent payloads as JSON -->
       <groupId>org.geoserver.cloud.catalog.jackson</groupId>
       <artifactId>gs-jackson-bindings</artifactId>
@@ -36,66 +40,6 @@
       <version>${project.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <!-- test scoped with all deps excluded to use WMSInfo/Impl -->
-      <groupId>org.geoserver</groupId>
-      <artifactId>gs-wms</artifactId>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <!-- test scoped with all deps excluded to use WMFSInfo/Impl -->
-      <groupId>org.geoserver</groupId>
-      <artifactId>gs-wfs</artifactId>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <!-- test scoped with all deps excluded to use WCSInfo/Impl -->
-      <groupId>org.geoserver</groupId>
-      <artifactId>gs-wcs</artifactId>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <!-- test scoped with all deps excluded to use WPSInfo/Impl -->
-      <groupId>org.geoserver.extension</groupId>
-      <artifactId>gs-wps-core</artifactId>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <!-- test scoped with all deps excluded to use ProcessFactory -->
-      <groupId>org.geotools</groupId>
-      <artifactId>gt-process</artifactId>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -112,11 +56,6 @@
       <artifactId>spring-cloud-starter-bus-amqp</artifactId>
       <scope>test</scope>
     </dependency>
-    <!--     <dependency> -->
-    <!--       <groupId>org.junit.vintage</groupId> -->
-    <!--       <artifactId>junit-vintage-engine</artifactId> -->
-    <!--       <scope>test</scope> -->
-    <!--     </dependency> -->
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>junit-jupiter</artifactId>
@@ -129,5 +68,22 @@
       <version>${testcontainers.version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-configuration-processor</artifactId>
+      <optional>true</optional>
+    </dependency>
   </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <reuseForks>false</reuseForks>
+          <forkCount>1</forkCount>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>

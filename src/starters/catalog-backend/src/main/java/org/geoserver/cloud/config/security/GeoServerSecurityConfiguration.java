@@ -6,18 +6,14 @@ package org.geoserver.cloud.config.security;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.geoserver.cloud.autoconfigure.bus.ConditionalOnGeoServerRemoteEventsDisabled;
-import org.geoserver.cloud.autoconfigure.bus.ConditionalOnGeoServerRemoteEventsEnabled;
 import org.geoserver.cloud.autoconfigure.security.ConditionalOnGeoServerSecurityEnabled;
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
 import org.geoserver.cloud.security.CloudGeoServerSecurityManager;
-import org.geoserver.cloud.security.GeoServerSecurityConfigChangeEvent;
 import org.geoserver.config.GeoServerDataDirectory;
 import org.geoserver.security.GeoServerSecurityManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
-import org.springframework.cloud.bus.jackson.RemoteApplicationEventScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
@@ -49,7 +45,6 @@ import javax.annotation.PostConstruct;
         })
 @Slf4j(topic = "org.geoserver.cloud.config.security")
 @ConditionalOnGeoServerSecurityEnabled
-@RemoteApplicationEventScan(basePackageClasses = {GeoServerSecurityConfigChangeEvent.class})
 public class GeoServerSecurityConfiguration {
 
     private @Value("${geoserver.security.enabled:#{null}}") Boolean enabled;
@@ -69,16 +64,8 @@ public class GeoServerSecurityConfiguration {
      */
     @Bean(name = {"authenticationManager", "geoServerSecurityManager"})
     @DependsOn({"extensions"})
-    @ConditionalOnGeoServerRemoteEventsEnabled
     public CloudGeoServerSecurityManager cloudAuthenticationManager(GeoServerDataDirectory dataDir)
             throws Exception {
         return new CloudGeoServerSecurityManager(dataDir);
-    }
-
-    @Bean(name = {"authenticationManager", "geoServerSecurityManager"})
-    @ConditionalOnGeoServerRemoteEventsDisabled
-    public GeoServerSecurityManager defaultAuthenticationManager(GeoServerDataDirectory dataDir)
-            throws Exception {
-        return new GeoServerSecurityManager(dataDir);
     }
 }

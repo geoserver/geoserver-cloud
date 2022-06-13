@@ -19,6 +19,7 @@ import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.LegendInfo;
 import org.geoserver.catalog.MapInfo;
+import org.geoserver.catalog.MetadataLinkInfo;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WMSLayerInfo;
@@ -41,6 +42,7 @@ import org.geoserver.catalog.impl.LayerGroupStyleImpl;
 import org.geoserver.catalog.impl.LayerInfoImpl;
 import org.geoserver.catalog.impl.LegendInfoImpl;
 import org.geoserver.catalog.impl.MapInfoImpl;
+import org.geoserver.catalog.impl.MetadataLinkInfoImpl;
 import org.geoserver.catalog.impl.NamespaceInfoImpl;
 import org.geoserver.catalog.impl.StyleInfoImpl;
 import org.geoserver.catalog.impl.WMSLayerInfoImpl;
@@ -57,6 +59,7 @@ import org.geoserver.jackson.databind.catalog.dto.Layer;
 import org.geoserver.jackson.databind.catalog.dto.LayerGroup;
 import org.geoserver.jackson.databind.catalog.dto.Legend;
 import org.geoserver.jackson.databind.catalog.dto.Map;
+import org.geoserver.jackson.databind.catalog.dto.MetadataLink;
 import org.geoserver.jackson.databind.catalog.dto.Namespace;
 import org.geoserver.jackson.databind.catalog.dto.Style;
 import org.geoserver.jackson.databind.catalog.dto.WMSLayer;
@@ -158,6 +161,12 @@ public class ObjectFacotries {
 
     public @ObjectFactory LegendInfo legendInfo(Legend source) {
         LegendInfoImpl l = new LegendInfoImpl();
+        l.setId(source.getId());
+        return l;
+    }
+
+    public @ObjectFactory MetadataLinkInfo metadataLinkInfo(MetadataLink source) {
+        MetadataLinkInfoImpl l = new MetadataLinkInfoImpl();
         l.setId(source.getId());
         return l;
     }

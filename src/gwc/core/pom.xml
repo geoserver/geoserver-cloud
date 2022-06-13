@@ -16,6 +16,12 @@
     <dependency>
       <groupId>org.geoserver.cloud</groupId>
       <artifactId>gs-cloud-starter-catalog-backend</artifactId>
+      <exclusions>
+        <exclusion>
+          <artifactId>gs-gwc</artifactId>
+          <groupId>org.geoserver</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>

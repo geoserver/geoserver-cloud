@@ -19,18 +19,18 @@ import java.util.stream.Collectors;
 @Component
 public class ApplicationEventCapturingListener {
 
-    private List<ApplicationEvent> captured = new ArrayList<>();
+    private List<Object> captured = new ArrayList<>();
 
     private boolean capturing = true;
 
-    private Class<? extends ApplicationEvent> eventType = ApplicationEvent.class;
+    private Class<?> eventType = ApplicationEvent.class;
 
-    public void setCapureEventsOf(Class<? extends ApplicationEvent> type) {
+    public void setCapureEventsOf(Class<?> type) {
         this.eventType = type;
     }
 
-    @EventListener(ApplicationEvent.class)
-    public void capture(ApplicationEvent anyEvent) {
+    @EventListener
+    public void capture(Object anyEvent) {
         if (capturing && this.eventType.isInstance(anyEvent)) {
             captured.add(anyEvent);
         }
@@ -53,7 +53,7 @@ public class ApplicationEventCapturingListener {
         return this;
     }
 
-    public <T extends ApplicationEvent> Optional<T> firstAndRemove(Class<T> type) {
+    public <T> Optional<T> firstAndRemove(Class<T> type) {
         Optional<T> first = captured.stream().filter(type::isInstance).map(type::cast).findFirst();
         if (first.isPresent()) {
             assertTrue(captured.remove(first.get()));
@@ -61,20 +61,20 @@ public class ApplicationEventCapturingListener {
         return first;
     }
 
-    public <T extends ApplicationEvent> T expectOne(Class<T> type) {
+    public <T> T expectOne(Class<T> type) {
         List<T> list = allOf(type);
         assertEquals("exactly only one " + type.getSimpleName(), 1, list.size());
         return list.get(0);
     }
 
-    public <T extends ApplicationEvent> List<T> allOf(Class<T> type) {
+    public <T> List<T> allOf(Class<T> type) {
         return captured.stream()
                 .filter(type::isInstance)
                 .map(type::cast)
                 .collect(Collectors.toList());
     }
 
-    public <T extends ApplicationEvent> Optional<T> first(Class<T> type) {
+    public <T> Optional<T> first(Class<T> type) {
         return captured.stream().filter(type::isInstance).map(type::cast).findFirst();
     }
 

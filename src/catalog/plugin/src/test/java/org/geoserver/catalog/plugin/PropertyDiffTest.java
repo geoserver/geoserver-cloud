@@ -129,7 +129,8 @@ public class PropertyDiffTest {
                         .with("dateCreated", ws.getDateCreated())
                         .with("dateModified", ws.getDateModified())
                         .build();
-        assertTrue(diff.isEmpty());
+        assertEquals(4, diff.size());
+        assertTrue(diff.clean().isEmpty());
     }
 
     public @Test void applyWorkspace() {

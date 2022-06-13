@@ -21,14 +21,13 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.catalog.plugin.Patch;
-import org.geoserver.cloud.bus.event.RemoteAddEvent;
-import org.geoserver.cloud.bus.event.RemoteModifyEvent;
-import org.geoserver.cloud.bus.event.RemoteRemoveEvent;
-import org.geoserver.cloud.bus.event.catalog.RemoteCatalogEvent;
-import org.geoserver.cloud.bus.event.catalog.RemoteDefaultDataStoreEvent;
-import org.geoserver.cloud.bus.event.catalog.RemoteDefaultNamespaceEvent;
-import org.geoserver.cloud.bus.event.catalog.RemoteDefaultWorkspaceEvent;
-import org.geoserver.cloud.event.ConfigInfoInfoType;
+import org.geoserver.cloud.event.catalog.DefaultDataStoreEvent;
+import org.geoserver.cloud.event.catalog.DefaultNamespaceEvent;
+import org.geoserver.cloud.event.catalog.DefaultWorkspaceEvent;
+import org.geoserver.cloud.event.info.ConfigInfoType;
+import org.geoserver.cloud.event.info.InfoAddEvent;
+import org.geoserver.cloud.event.info.InfoPostModifyEvent;
+import org.geoserver.cloud.event.info.InfoRemoveEvent;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
 import org.geoserver.config.plugin.RepositoryGeoServerFacade;
@@ -46,12 +45,12 @@ public class DataDirectoryRemoteEventProcessor {
     private final @NonNull RepositoryGeoServerFacade configFacade;
     private final @NonNull ExtendedCatalogFacade catalogFacade;
 
-    @EventListener(RemoteRemoveEvent.class)
-    public void onRemoteRemoveEvent(RemoteRemoveEvent<?, ? extends Info> event) {
-        if (event.isFromSelf()) {
+    @EventListener(InfoRemoveEvent.class)
+    public void onRemoteRemoveEvent(InfoRemoveEvent<?, ?, ? extends Info> event) {
+        if (event.isLocal()) {
             return;
         }
-        final ConfigInfoInfoType type = event.getInfoType();
+        final ConfigInfoType type = event.getObjectType();
         final String objectId = event.getObjectId();
         switch (type) {
             case NamespaceInfo:
@@ -97,19 +96,18 @@ public class DataDirectoryRemoteEventProcessor {
                 remove(objectId, configFacade::getSettings, configFacade::remove);
                 break;
             default:
-                log.warn(
-                        "Don't know how to handle remote remove envent for {}({})", type, objectId);
+                log.warn("Don't know how to handle remote remove envent for {}", event);
                 break;
         }
     }
 
-    @EventListener(RemoteAddEvent.class)
-    public void onRemoteAddEvent(RemoteAddEvent<?, ? extends Info> event) {
-        if (event.isFromSelf()) {
+    @EventListener(InfoAddEvent.class)
+    public void onRemoteAddEvent(InfoAddEvent<?, ?, ? extends Info> event) {
+        if (event.isLocal()) {
             return;
         }
         final String objectId = event.getObjectId();
-        final ConfigInfoInfoType type = event.getInfoType();
+        final ConfigInfoType type = event.getObjectType();
         log.debug("Handling remote add event {}({})", type, objectId);
         final Info object = event.getObject();
         if (object == null) {
@@ -151,60 +149,57 @@ public class DataDirectoryRemoteEventProcessor {
                 configFacade.add((SettingsInfo) object);
                 break;
             default:
-                log.warn("Don't know how to handle remote add envent for {}({})", type, objectId);
+                log.warn("Don't know how to handle remote envent {})", event);
                 break;
         }
     }
 
-    @EventListener(RemoteDefaultWorkspaceEvent.class)
-    public void onRemoteDefaultWorkspaceEvent(RemoteDefaultWorkspaceEvent event) {
-        if (event.isFromSelf()) {
-            return;
+    @EventListener(DefaultWorkspaceEvent.class)
+    public void onRemoteDefaultWorkspaceEvent(DefaultWorkspaceEvent event) {
+        if (event.isRemote()) {
+            String newId = event.getNewWorkspaceId();
+            WorkspaceInfo newDefault = newId == null ? null : catalogFacade.getWorkspace(newId);
+            catalogFacade.setDefaultWorkspace(newDefault);
         }
-        String newId = event.getNewWorkspaceId();
-        WorkspaceInfo newDefault = newId == null ? null : catalogFacade.getWorkspace(newId);
-        catalogFacade.setDefaultWorkspace(newDefault);
     }
 
-    @EventListener(RemoteDefaultNamespaceEvent.class)
-    public void onRemoteDefaultNamespaceEvent(RemoteDefaultNamespaceEvent event) {
-        if (event.isFromSelf()) {
-            return;
+    @EventListener(DefaultNamespaceEvent.class)
+    public void onRemoteDefaultNamespaceEvent(DefaultNamespaceEvent event) {
+        if (event.isRemote()) {
+            String newId = event.getNewNamespaceId();
+            NamespaceInfo namespace = newId == null ? null : catalogFacade.getNamespace(newId);
+            catalogFacade.setDefaultNamespace(namespace);
         }
-        String newId = event.getNewNamespaceId();
-        NamespaceInfo namespace = newId == null ? null : catalogFacade.getNamespace(newId);
-        catalogFacade.setDefaultNamespace(namespace);
     }
 
-    @EventListener(RemoteDefaultDataStoreEvent.class)
-    public void onRemoteDefaultDataStoreEvent(RemoteDefaultDataStoreEvent event) {
-        if (event.isFromSelf()) {
-            return;
+    @EventListener(DefaultDataStoreEvent.class)
+    public void onRemoteDefaultDataStoreEvent(DefaultDataStoreEvent event) {
+        if (event.isRemote()) {
+            String workspaceId = event.getWorkspaceId();
+            WorkspaceInfo workspace = catalogFacade.getWorkspace(workspaceId);
+            String storeId = event.getDefaultDataStoreId();
+            DataStoreInfo store =
+                    storeId == null ? null : catalogFacade.getStore(storeId, DataStoreInfo.class);
+            catalogFacade.setDefaultDataStore(workspace, store);
         }
-        String workspaceId = event.getWorkspaceId();
-        WorkspaceInfo workspace = catalogFacade.getWorkspace(workspaceId);
-        String storeId = event.getDefaultDataStoreId();
-        DataStoreInfo store =
-                storeId == null ? null : catalogFacade.getStore(storeId, DataStoreInfo.class);
-        catalogFacade.setDefaultDataStore(workspace, store);
     }
 
-    @EventListener(RemoteModifyEvent.class)
-    public void onRemoteModifyEvent(RemoteModifyEvent<?, ? extends Info> event) {
-        if (event.isFromSelf()) {
+    @EventListener(InfoPostModifyEvent.class)
+    public void onRemoteModifyEvent(InfoPostModifyEvent<?, ?, ? extends Info> event) {
+        if (event.isLocal()) {
             return;
         }
         final String objectId = event.getObjectId();
-        final ConfigInfoInfoType type = event.getInfoType();
-        if (type == ConfigInfoInfoType.Catalog) {
+        final ConfigInfoType type = event.getObjectType();
+        if (type == ConfigInfoType.Catalog) {
             log.trace(
                     "remote catalog modify events handled by RemoteDefaultWorkspace/Namespace/Store event handlers");
             return;
         }
-        log.debug("Handling remote modify event {}({})", type, objectId);
+        log.debug("Handling remote modify event {}", event);
         final Patch patch = event.getPatch();
         if (patch == null) {
-            log.error("Remote add event didn't send the patch payload for {}({})", type, objectId);
+            log.error("Remote event didn't send the patch payload {}", event);
             return;
         }
         Info info = null;
@@ -249,15 +244,11 @@ public class DataDirectoryRemoteEventProcessor {
                 info = ModificationProxy.unwrap(info);
                 break;
             default:
-                log.warn(
-                        "Don't know how to handle remote modify envent for {}({})", type, objectId);
+                log.warn("Don't know how to handle remote modify envent {}", event);
                 return;
         }
         if (info == null) {
-            log.warn(
-                    "Object not found, can't update upon remote modify event {}({})",
-                    type,
-                    objectId);
+            log.warn("Object not found on local Catalog, can't update upon {}", event);
         } else {
             patch.applyTo(info);
             if (info instanceof CatalogInfo) {
@@ -268,7 +259,7 @@ public class DataDirectoryRemoteEventProcessor {
                     "Object updated: {}({}). Properties: {}",
                     type,
                     objectId,
-                    event.getChangedProperties().stream().collect(Collectors.joining(",")));
+                    patch.getPropertyNames().stream().collect(Collectors.joining(",")));
         }
     }
 

@@ -6,8 +6,11 @@ package org.geoserver.catalog;
 
 import static org.junit.Assert.assertEquals;
 
+import com.google.common.base.Function;
+
 import lombok.NonNull;
 
+import org.geoserver.catalog.impl.AttributeTypeInfoImpl;
 import org.geoserver.catalog.impl.AuthorityURL;
 import org.geoserver.catalog.impl.DataStoreInfoImpl;
 import org.geoserver.catalog.impl.LayerGroupInfoImpl;
@@ -66,6 +69,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -233,30 +237,40 @@ public class CatalogTestData extends ExternalResource {
 
     public CatalogTestData addObjects() {
         Catalog catalog = this.catalog.get();
-        catalog.add(workspaceA);
-        catalog.add(workspaceB);
-        catalog.add(workspaceC);
+        workspaceA = add(workspaceA, catalog::add, catalog::getWorkspace);
+        workspaceB = add(workspaceB, catalog::add, catalog::getWorkspace);
+        workspaceC = add(workspaceC, catalog::add, catalog::getWorkspace);
 
-        catalog.add(namespaceA);
-        catalog.add(namespaceB);
-        catalog.add(namespaceC);
+        namespaceA = add(namespaceA, catalog::add, catalog::getNamespace);
+        namespaceB = add(namespaceB, catalog::add, catalog::getNamespace);
+        namespaceC = add(namespaceC, catalog::add, catalog::getNamespace);
 
-        catalog.add(dataStoreA);
-        catalog.add(dataStoreB);
-        catalog.add(dataStoreC);
+        dataStoreA = add(dataStoreA, catalog::add, catalog::getDataStore);
+        dataStoreB = add(dataStoreB, catalog::add, catalog::getDataStore);
+        dataStoreC = add(dataStoreC, catalog::add, catalog::getDataStore);
 
-        catalog.add(coverageStoreA);
-        catalog.add(wmsStoreA);
-        catalog.add(wmtsStoreA);
-        catalog.add(featureTypeA);
-        catalog.add(coverageA);
-        catalog.add(wmsLayerA);
-        catalog.add(wmtsLayerA);
-        catalog.add(style1);
-        catalog.add(style2);
-        catalog.add(layerFeatureTypeA);
-        catalog.add(layerGroup1);
+        coverageStoreA = add(coverageStoreA, catalog::add, catalog::getCoverageStore);
+        wmsStoreA = add(wmsStoreA, catalog::add, id -> catalog.getStore(id, WMSStoreInfo.class));
+        wmtsStoreA = add(wmtsStoreA, catalog::add, id -> catalog.getStore(id, WMTSStoreInfo.class));
+
+        featureTypeA = add(featureTypeA, catalog::add, catalog::getFeatureType);
+        coverageA = add(coverageA, catalog::add, catalog::getCoverage);
+        wmsLayerA = add(wmsLayerA, catalog::add, id -> catalog.getResource(id, WMSLayerInfo.class));
+        wmtsLayerA =
+                add(wmtsLayerA, catalog::add, id -> catalog.getResource(id, WMTSLayerInfo.class));
+
+        style1 = add(style1, catalog::add, catalog::getStyle);
+        style2 = add(style2, catalog::add, catalog::getStyle);
+
+        layerFeatureTypeA = add(layerFeatureTypeA, catalog::add, catalog::getLayer);
+        layerGroup1 = add(layerGroup1, catalog::add, catalog::getLayerGroup);
+
         return this;
+    }
+
+    private <T extends Info> @NonNull T add(T orig, Consumer<T> adder, Function<String, T> fetch) {
+        adder.accept(orig);
+        return fetch.apply(orig.getId());
     }
 
     public CatalogTestData createCatalogObjects() {
@@ -633,7 +647,7 @@ public class CatalogTestData extends ExternalResource {
         g.setFeatureTypeCacheSize(1000);
         g.setGlobalServices(true);
         g.setId("GeoServer.global");
-        g.setJAI(creteJAI());
+        g.setJAI(createJAI());
         // don't set lock provider to avoid a warning stack trace that the bean does not exist
         // g.setLockProviderName("testLockProvider");
         g.setMetadata(createMetadata("k1", Integer.valueOf(1), "k2", "2", "k3", Boolean.FALSE));
@@ -659,7 +673,7 @@ public class CatalogTestData extends ExternalResource {
         return m;
     }
 
-    private JAIInfo creteJAI() {
+    private JAIInfo createJAI() {
         JAIInfoImpl jai = new JAIInfoImpl();
         jai.setAllowInterpolation(true);
         jai.setAllowNativeMosaic(true);
@@ -806,5 +820,11 @@ public class CatalogTestData extends ExternalResource {
         s.add(l1, val1);
         s.add(l2, val2);
         return s;
+    }
+
+    public AttributeTypeInfo createAttributeTypeInfo(String name) {
+        AttributeTypeInfoImpl att = new AttributeTypeInfoImpl();
+        getCatalog().getFactory().createAttribute();
+        return att;
     }
 }

@@ -6,9 +6,8 @@ package org.geoserver.cloud.autoconfigure.security;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.geoserver.cloud.security.GeoServerSecurityConfigChangeEvent;
+import org.geoserver.cloud.event.security.SecurityConfigEvent;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.bus.jackson.RemoteApplicationEventScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
 
@@ -16,7 +15,6 @@ import javax.annotation.PostConstruct;
 
 @Configuration
 @ConditionalOnGeoServerSecurityDisabled
-@RemoteApplicationEventScan(basePackageClasses = {GeoServerSecurityConfigChangeEvent.class})
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.security")
 public class GeoServerSecurityDisabledAutoConfiguration {
 
@@ -27,11 +25,12 @@ public class GeoServerSecurityDisabledAutoConfiguration {
                 "GeoServer security auto-configuration disabled explicitly through geoserver.security.enabled");
     }
 
-    @EventListener(GeoServerSecurityConfigChangeEvent.class)
-    public void onRemoteSecurityConfigChangeEvent(GeoServerSecurityConfigChangeEvent event) {
-        log.info(
-                "Security change event ignored, security is disabled on this service. Origin service: {}, reason: {}",
-                event.getOriginService(),
-                event.getReason());
+    @EventListener(SecurityConfigEvent.class)
+    public void onRemoteSecurityConfigChangeEvent(SecurityConfigEvent event) {
+        if (!event.isLocal()) {
+            log.info(
+                    "Security change event ignored, security is disabled on this service. {}",
+                    event);
+        }
     }
 }

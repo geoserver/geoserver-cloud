@@ -79,7 +79,6 @@ import org.opengis.filter.sort.SortBy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -1157,10 +1156,8 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
     protected void event(CatalogEvent event) {
         CatalogException toThrow = null;
 
-        for (Iterator<CatalogListener> l = listeners.iterator(); l.hasNext(); ) {
+        for (CatalogListener listener : listeners) {
             try {
-                CatalogListener listener = (CatalogListener) l.next();
-
                 if (event instanceof CatalogAddEvent) {
                     listener.handleAddEvent((CatalogAddEvent) event);
                 } else if (event instanceof CatalogRemoveEvent) {
@@ -1374,13 +1371,13 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
             fireBeforeAdded(object);
             try {
                 added = inserter.apply(object);
+                fireAdded(added);
                 businessRules.onAfterAdd(context.setObject(added));
             } catch (RuntimeException error) {
                 businessRules.onAfterAdd(context.setError(error));
                 throw error;
             }
         }
-        fireAdded(added);
     }
 
     /**
@@ -1405,17 +1402,19 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
                             + ") is not a ModificationProxy and hence did not come out of this catalog. Saving an object requires to use an instance obtained from the Catalog.");
         }
         validationSupport.validate(info, false);
-        // figure out what changed
-        List<String> propertyNames = proxy.getPropertyNames();
-        List<Object> newValues = proxy.getNewValues();
-        List<Object> oldValues = proxy.getOldValues();
+
+        // this could be the event's payload instead of three separate lists
+        final PropertyDiff diff = PropertyDiff.valueOf(proxy).clean();
+        // filter out no-op changes before firing pre-modified event (e.g. null to empty collection
+        // property)
+        final List<String> propertyNames = diff.getPropertyNames();
+        final List<Object> oldValues = diff.getOldValues();
+        final List<Object> newValues = diff.getNewValues();
+        final Patch patch = diff.toPatch();
 
         // use the proxied object, may some listener change it
         fireModified(info, propertyNames, oldValues, newValues);
 
-        // this could be the event's payload instead of three separate lists
-        PropertyDiff diff = PropertyDiff.valueOf(proxy);
-        Patch patch = diff.toPatch();
         CatalogOpContext<I> context = new CatalogOpContext<>(this, info, diff);
         businessRules.onBeforeSave(context);
         try {
@@ -1426,8 +1425,8 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
             // commit proxy, making effective the change in the provided object. Has no effect in
             // what's been passed to the facade
             proxy.commit();
-            businessRules.onAfterSave(context.setObject(updated));
             firePostModified(updated, propertyNames, oldValues, newValues);
+            businessRules.onAfterSave(context.setObject(updated));
         } catch (RuntimeException error) {
             businessRules.onAfterSave(context.setError(error));
             throw error;
@@ -1442,13 +1441,13 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
             businessRules.onBeforeRemove(context);
             try {
                 remover.accept(object);
+                fireRemoved(object);
                 businessRules.onRemoved(context);
             } catch (RuntimeException error) {
                 businessRules.onRemoved(context.setError(error));
                 throw error;
             }
         }
-        fireRemoved(object);
     }
 
     <T extends CatalogInfo> T detached(T original, T detached) {

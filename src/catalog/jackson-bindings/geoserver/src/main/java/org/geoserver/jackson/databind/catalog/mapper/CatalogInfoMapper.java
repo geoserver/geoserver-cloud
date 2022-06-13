@@ -57,7 +57,7 @@ public interface CatalogInfoMapper {
         if (info instanceof PublishedInfo) return PUBLISHED_MAPPER.map((PublishedInfo) info);
         if (info instanceof StyleInfo) return STYLE_MAPPER.map((StyleInfo) info);
         if (info instanceof MapInfo) return MAP_MAPPER.map((MapInfo) info);
-
+        if (info instanceof CatalogInfo) return null;
         throw new IllegalArgumentException(
                 "Unknown CatalogInfo type: " + info.getClass().getCanonicalName());
     }

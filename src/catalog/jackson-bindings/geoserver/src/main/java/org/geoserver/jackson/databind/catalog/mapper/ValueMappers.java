@@ -190,7 +190,7 @@ public interface ValueMappers {
 
     AttributeType infoToDto(AttributeTypeInfo o);
 
-    @Mapping(target = "featureType", ignore = true)
+    //    @Mapping(target = "featureType", ignore = true)
     @Mapping(target = "attribute", ignore = true)
     AttributeTypeInfo dtoToInfo(AttributeType o);
 

@@ -9,8 +9,10 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.geoserver.catalog.AttributeTypeInfo;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
+import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
@@ -76,6 +78,9 @@ public class ProxyUtils {
         if (orig instanceof Info) {
             return resolve((Info) orig);
         }
+        if (orig instanceof AttributeTypeInfo) {
+            return resolve((AttributeTypeInfo) orig);
+        }
         if (orig instanceof List) {
             @SuppressWarnings("unchecked")
             List<Object> list = (List<Object>) orig;
@@ -87,6 +92,13 @@ public class ProxyUtils {
             Set<Object> set = (Set<Object>) orig;
             return resolve(set);
         }
+        return orig;
+    }
+
+    private AttributeTypeInfo resolve(AttributeTypeInfo orig) {
+        FeatureTypeInfo ft = orig.getFeatureType();
+        FeatureTypeInfo resolvedFt = resolve(ft);
+        orig.setFeatureType(resolvedFt);
         return orig;
     }
 

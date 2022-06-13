@@ -12,6 +12,8 @@ import java.util.Map;
 @Data
 public class AttributeType {
     private String name;
+    private InfoReference featureType;
+
     private int minOccurs;
     private int maxOccurs;
     private boolean nillable;
