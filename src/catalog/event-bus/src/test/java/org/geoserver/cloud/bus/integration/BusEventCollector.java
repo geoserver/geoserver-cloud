@@ -6,13 +6,17 @@ package org.geoserver.cloud.bus.integration;
 
 import static org.junit.Assert.assertEquals;
 
+import com.google.common.base.Predicates;
+
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
-import org.geoserver.cloud.bus.event.RemoteInfoEvent;
+import org.geoserver.cloud.bus.catalog.RemoteCatalogEventBridge;
+import org.geoserver.cloud.bus.catalog.RemoteInfoEvent;
+import org.geoserver.cloud.event.info.ConfigInfoType;
+import org.geoserver.cloud.event.info.InfoEvent;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.bus.event.RemoteApplicationEvent;
-import org.springframework.context.ApplicationEvent;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
 
@@ -21,70 +25,110 @@ import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Configuration
 @Slf4j
-@SuppressWarnings("rawtypes")
 public class BusEventCollector {
 
-    private BlockingQueue<RemoteApplicationEvent> events = new LinkedBlockingQueue<>();
+    private BlockingQueue<RemoteInfoEvent> events = new LinkedBlockingQueue<>();
 
     private @Value("${spring.cloud.bus.id}") String busId;
+    private @Autowired RemoteCatalogEventBridge bridge;
 
-    private Class<? extends RemoteInfoEvent> eventType = RemoteInfoEvent.class;
+    @SuppressWarnings("rawtypes")
+    private @NonNull Class<? extends InfoEvent> eventType = InfoEvent.class;
 
     private volatile boolean capturing = false;
 
     @EventListener(RemoteInfoEvent.class)
-    public void onApplicationEvent(RemoteInfoEvent event) {
-        log.debug("Received event on bus id {}: {}", busId, event);
-        if (capturing && eventType.isInstance(event)) {
-            log.info("Captured event on bus id {}: {}", busId, event);
-            events.add(event);
+    public void onApplicationEvent(RemoteInfoEvent busEvent) {
+        if (!capturing) {
+            log.debug("{}: capturing is off, ignoring {}", busId, busEvent);
+            return;
         }
+        InfoEvent<?, ?, ?> payloadEvent = busEvent.getEvent();
+        if (!eventType.isInstance(payloadEvent)) {
+            log.debug(
+                    "{}: ignoring non {} event {}", busId, eventType.getSimpleName(), payloadEvent);
+            return;
+        }
+        log.info("{}: captured event {}", busId, busEvent);
+        events.add(busEvent);
     }
 
-    public void capture(@NonNull Class<? extends RemoteInfoEvent> type) {
+    @SuppressWarnings("rawtypes")
+    public void capture(@NonNull Class<? extends InfoEvent> type) {
         this.eventType = type;
     }
 
-    public <T extends ApplicationEvent> T expectOne(Class<T> type) {
+    @SuppressWarnings("rawtypes")
+    public <T extends InfoEvent> RemoteInfoEvent expectOne(Class<T> payloadType) {
+        return expectOne(payloadType, Predicates.alwaysTrue());
+    }
+
+    @SuppressWarnings("rawtypes")
+    public <T extends InfoEvent> RemoteInfoEvent expectOne(
+            Class<T> payloadType, ConfigInfoType infoType) {
+        return expectOne(payloadType, c -> infoType.equals(c.getObjectType()));
+    }
+
+    @SuppressWarnings("rawtypes")
+    public <T extends InfoEvent> RemoteInfoEvent expectOne(
+            Class<T> payloadType, Predicate<T> filter) {
         final long t = System.nanoTime();
         final long max = t + TimeUnit.SECONDS.toNanos(5);
-        List<T> list = allOf(type);
-        while (list.isEmpty() && System.nanoTime() < max) {
+        List<RemoteInfoEvent> list = allOf(payloadType);
+        while (list.stream()
+                        .map(RemoteInfoEvent::getEvent)
+                        .filter(payloadType::isInstance)
+                        .map(payloadType::cast)
+                        .noneMatch(filter)
+                && System.nanoTime() < max) {
             try {
-                Thread.sleep(100);
-                list = allOf(type);
+                Thread.sleep(10);
+                list = allOf(payloadType);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }
+
+        @SuppressWarnings("unchecked")
+        List<RemoteInfoEvent> matches =
+                list.stream()
+                        .filter(re -> payloadType.isInstance(re.getEvent()))
+                        .filter(e -> filter.test((T) e.getEvent()))
+                        .toList();
+
         String message =
                 "expected 1, got "
-                        + list.size()
+                        + matches.size()
                         + " events of type "
-                        + type.getSimpleName()
+                        + payloadType.getSimpleName()
                         + ": "
-                        + list;
-        assertEquals(message, 1, list.size());
-        return list.get(0);
+                        + matches;
+        assertEquals(message, 1, matches.size());
+        return matches.get(0);
     }
 
-    public <T extends ApplicationEvent> List<T> allOf(Class<T> type) {
-        return capturedEvents()
-                .filter(type::isInstance)
-                .map(type::cast)
-                .collect(Collectors.toList());
+    @SuppressWarnings("rawtypes")
+    public <T extends InfoEvent> List<RemoteInfoEvent> allOf(Class<T> payloadType) {
+        return capturedEvents(payloadType).collect(Collectors.toList());
     }
 
-    public <T extends ApplicationEvent> Optional<T> first(Class<T> type) {
-        return capturedEvents().filter(type::isInstance).map(type::cast).findFirst();
+    @SuppressWarnings("rawtypes")
+    public <T extends InfoEvent> Optional<RemoteInfoEvent> first(Class<T> payloadType) {
+        return capturedEvents(payloadType).findFirst();
     }
 
-    private Stream<? extends RemoteApplicationEvent> capturedEvents() {
+    @SuppressWarnings("rawtypes")
+    private <T extends InfoEvent> Stream<RemoteInfoEvent> capturedEvents(Class<T> payloadType) {
+        return capturedEvents().filter(remote -> payloadType.isInstance(remote.getEvent()));
+    }
+
+    private Stream<RemoteInfoEvent> capturedEvents() {
         return events.stream();
     }
 
@@ -95,10 +139,12 @@ public class BusEventCollector {
     public void stop() {
         log.debug("bus id {}: stopped", busId);
         capturing = false;
+        bridge.enabled(false);
     }
 
     public void start() {
         log.debug("bus id {}: ready to capture {} events", busId, eventType.getSimpleName());
         capturing = true;
+        bridge.enabled(true);
     }
 }

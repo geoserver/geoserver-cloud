@@ -39,10 +39,9 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <!-- test scoped with all deps excluded to use WMSInfo/Impl -->
+      <!-- required to always have WMSInfo/Impl on the classpath -->
       <groupId>org.geoserver</groupId>
       <artifactId>gs-wms</artifactId>
-      <scope>test</scope>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
@@ -51,10 +50,9 @@
       </exclusions>
     </dependency>
     <dependency>
-      <!-- test scoped with all deps excluded to use WMFSInfo/Impl -->
+      <!-- required to always have WFSInfo/Impl on the classpath -->
       <groupId>org.geoserver</groupId>
       <artifactId>gs-wfs</artifactId>
-      <scope>test</scope>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
@@ -63,10 +61,9 @@
       </exclusions>
     </dependency>
     <dependency>
-      <!-- test scoped with all deps excluded to use WCSInfo/Impl -->
+      <!-- required to always have WCSInfo/Impl on the classpath -->
       <groupId>org.geoserver</groupId>
       <artifactId>gs-wcs</artifactId>
-      <scope>test</scope>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
@@ -75,10 +72,20 @@
       </exclusions>
     </dependency>
     <dependency>
-      <!-- test scoped with all deps excluded to use WPSInfo/Impl -->
+      <!-- required to always have WMTSInfo/Impl on the classpath -->
+      <groupId>org.geoserver</groupId>
+      <artifactId>gs-gwc</artifactId>
+      <exclusions>
+        <exclusion>
+          <artifactId>*</artifactId>
+          <groupId>*</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <!-- required to always have WPSInfo/Impl on the classpath -->
       <groupId>org.geoserver.extension</groupId>
       <artifactId>gs-wps-core</artifactId>
-      <scope>test</scope>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
@@ -87,16 +94,24 @@
       </exclusions>
     </dependency>
     <dependency>
-      <!-- test scoped with all deps excluded to use ProcessFactory -->
+      <!-- required by WPSInfoImpl -->
       <groupId>org.geotools</groupId>
       <artifactId>gt-process</artifactId>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
+    </dependency>
+    <dependency>
+      <!-- required by WPSInfoImpl -->
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-process-geometry</artifactId>
+    </dependency>
+    <dependency>
+      <!-- required by WPSInfoImpl -->
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-process-raster</artifactId>
+    </dependency>
+    <dependency>
+      <!-- required by WPSInfoImpl -->
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-process-feature</artifactId>
     </dependency>
     <dependency>
       <groupId>org.junit.vintage</groupId>

@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.geoserver.catalog.plugin.DefaultMemoryCatalogFacade;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
-import org.geoserver.cloud.autoconfigure.bus.ConditionalOnGeoServerRemoteEventsEnabled;
+import org.geoserver.cloud.autoconfigure.catalog.event.ConditionalOnCatalogEvents;
 import org.geoserver.cloud.config.catalog.DataDirectoryProperties;
 import org.geoserver.cloud.config.catalog.GeoServerBackendConfigurer;
 import org.geoserver.cloud.config.catalog.GeoServerBackendProperties;
@@ -43,7 +43,7 @@ public class DataDirectoryBackendConfigurer implements GeoServerBackendConfigure
     }
 
     @Autowired
-    @ConditionalOnGeoServerRemoteEventsEnabled
+    @ConditionalOnCatalogEvents
     public @Bean DataDirectoryRemoteEventProcessor dataDirectoryRemoteEventProcessor(
             @Qualifier("geoserverFacade") RepositoryGeoServerFacade configFacade,
             @Qualifier("catalogFacade") ExtendedCatalogFacade catalogFacade) {

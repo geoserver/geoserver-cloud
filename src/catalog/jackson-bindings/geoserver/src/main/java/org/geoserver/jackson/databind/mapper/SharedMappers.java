@@ -11,7 +11,6 @@ import org.geoserver.catalog.AuthorityURLInfo;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.KeywordInfo;
 import org.geoserver.catalog.LayerIdentifierInfo;
-import org.geoserver.catalog.MetadataLinkInfo;
 import org.geoserver.catalog.MetadataMap;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.impl.AuthorityURL;
@@ -128,7 +127,7 @@ public abstract class SharedMappers {
 
     public abstract Keyword keywordToDto(KeywordInfo keyword);
 
-    public @ObjectFactory MetadataLinkInfo metadataLinkInfo() {
+    public @ObjectFactory MetadataLinkInfoImpl metadataLinkInfo() {
         return new MetadataLinkInfoImpl();
     }
 
@@ -219,14 +218,12 @@ public abstract class SharedMappers {
      */
     private Object resolvePatchValue(Patch.Property prop) {
         if (prop == null) return null;
-        Object value = patchPropertyValueToDto(prop.getValue());
-        return value;
+        return patchPropertyValueToDto(prop.getValue());
     }
-    ;
 
     private Object patchPropertyValueToDto(Object value) {
         if (value instanceof Info) {
-            return resolveReferenceOrValueObject((Info) value);
+            return value; // resolveReferenceOrValueObject((Info) value);
         } else if (value instanceof Collection) {
             @SuppressWarnings("unchecked")
             Collection<Object> col = (Collection<Object>) newCollectionInstance(value.getClass());

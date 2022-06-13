@@ -36,10 +36,13 @@ public @Data abstract class Expression {
          * JsonTypeInfo necessary for jackson to resolve which deserializer to use, adds an "@type"
          * property to the {@code Literal} object, without messing with the value representation.
          */
-        @JsonTypeInfo(
-                use = JsonTypeInfo.Id.CLASS,
-                include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
-                property = "@type")
+        //        @JsonTypeInfo(
+        //                use = JsonTypeInfo.Id.CLASS,
+        //                include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
+        //                property = "@type")
+        // REVISIT: @type produces an exception for null values: "Missing external type id property
+        // '@type' (and no 'defaultImpl' specified)"
+        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT)
         private Object value;
 
         private List<Literal> list;

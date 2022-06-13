@@ -8,11 +8,10 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.Info;
-import org.geoserver.cloud.bus.event.RemoteInfoEvent;
-import org.geoserver.cloud.bus.event.RemoteModifyEvent;
-import org.geoserver.cloud.bus.event.RemoteRemoveEvent;
-import org.geoserver.cloud.bus.event.catalog.RemoteCatalogEvent;
-import org.geoserver.cloud.event.ConfigInfoInfoType;
+import org.geoserver.cloud.event.info.ConfigInfoType;
+import org.geoserver.cloud.event.info.InfoEvent;
+import org.geoserver.cloud.event.info.InfoModifyEvent;
+import org.geoserver.cloud.event.info.InfoRemoveEvent;
 import org.geoserver.jdbcconfig.internal.ConfigDatabase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
@@ -25,28 +24,29 @@ import org.springframework.context.event.EventListener;
 public class JdbcConfigRemoteEventProcessor {
     private @Autowired ConfigDatabase jdbcConfigDatabase;
 
-    @EventListener(RemoteRemoveEvent.class)
-    public void onRemoteRemoveEvent(RemoteRemoveEvent<?, ? extends Info> event) {
+    @EventListener(InfoRemoveEvent.class)
+    public void onRemoteRemoveEvent(InfoRemoveEvent<?, ?, ?> event) {
         evictConfigDatabaseEntry(event);
     }
 
-    @EventListener(RemoteModifyEvent.class)
-    public void onRemoteModifyEvent(RemoteModifyEvent<?, ? extends Info> event) {
+    @EventListener(InfoModifyEvent.class)
+    public void onRemoteModifyEvent(InfoModifyEvent<?, ?, ? extends Info> event) {
         evictConfigDatabaseEntry(event);
     }
 
-    private void evictConfigDatabaseEntry(RemoteInfoEvent<?, ? extends Info> event) {
-        if (event.isFromSelf()) {
-            return;
-        }
-        ConfigInfoInfoType infoType = event.getInfoType();
-        if (ConfigInfoInfoType.Catalog.equals(infoType)) {
-            log.trace(
-                    "ignore catalog default workspace or default namespace change event, no need to treat it.");
-        } else {
-            log.debug("Evict JDBCConfig cache for {}", event);
-            String catalogInfoId = event.getObjectId();
-            jdbcConfigDatabase.clearCacheIfPresent(catalogInfoId);
-        }
+    private void evictConfigDatabaseEntry(InfoEvent<?, ?, ?> event) {
+        event.remote()
+                .ifPresent(
+                        remoteEvent -> {
+                            ConfigInfoType infoType = event.getObjectType();
+                            if (ConfigInfoType.Catalog.equals(infoType)) {
+                                log.trace(
+                                        "ignore catalog default workspace or default namespace change event, no need to treat it.");
+                            } else {
+                                log.debug("Evict JDBCConfig cache for {}", event);
+                                String catalogInfoId = event.getObjectId();
+                                jdbcConfigDatabase.clearCacheIfPresent(catalogInfoId);
+                            }
+                        });
     }
 }

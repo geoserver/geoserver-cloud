@@ -22,6 +22,10 @@
       <artifactId>gwc-cloud-bus-integration</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.geoserver.cloud.catalog</groupId>
+      <artifactId>gs-cloud-catalog-event-bus</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.geoserver.cloud</groupId>
       <!-- if available, gwc API services will engage (e.g. tms, wmts, rest, etc) -->
       <artifactId>gwc-cloud-services</artifactId>

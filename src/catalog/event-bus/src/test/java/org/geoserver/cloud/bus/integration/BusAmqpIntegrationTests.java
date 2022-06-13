@@ -15,12 +15,9 @@
 package org.geoserver.cloud.bus.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 import lombok.AllArgsConstructor;
@@ -35,13 +32,15 @@ import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.PropertyDiff;
-import org.geoserver.cloud.bus.GeoServerBusProperties;
-import org.geoserver.cloud.bus.event.RemoteAddEvent;
-import org.geoserver.cloud.bus.event.RemoteInfoEvent;
-import org.geoserver.cloud.bus.event.RemoteModifyEvent;
-import org.geoserver.cloud.bus.event.RemoteRemoveEvent;
-import org.geoserver.cloud.bus.event.catalog.RemoteCatalogEvent;
-import org.geoserver.cloud.bus.event.config.RemoteConfigEvent;
+import org.geoserver.cloud.bus.catalog.RemoteInfoEvent;
+import org.geoserver.cloud.event.catalog.CatalogInfoAddEvent;
+import org.geoserver.cloud.event.catalog.CatalogInfoModifyEvent;
+import org.geoserver.cloud.event.config.ConfigInfoModifyEvent;
+import org.geoserver.cloud.event.info.ConfigInfoType;
+import org.geoserver.cloud.event.info.InfoAddEvent;
+import org.geoserver.cloud.event.info.InfoEvent;
+import org.geoserver.cloud.event.info.InfoModifyEvent;
+import org.geoserver.cloud.event.info.InfoRemoveEvent;
 import org.geoserver.cloud.test.TestConfigurationAutoConfiguration;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerInfo;
@@ -73,7 +72,8 @@ import java.util.function.Consumer;
             "spring.cloud.stream.bindings.springCloudBusOutput.producer.errorChannelEnabled=true",
             "spring.autoconfigure.exclude=org.springframework.cloud.stream.test.binder.TestSupportBinderAutoConfiguration",
             "logging.level.root=WARN",
-            "logging.level.org.springframework.cloud.bus.BusConsumer=INFO"
+            "logging.level.org.geoserver.cloud.bus.integration=info",
+            "logging.level.org.springframework.cloud.bus.BusConsumer=info"
         })
 @Testcontainers
 public abstract class BusAmqpIntegrationTests {
@@ -82,12 +82,11 @@ public abstract class BusAmqpIntegrationTests {
     private static final RabbitMQContainer rabbitMQContainer =
             new RabbitMQContainer("rabbitmq:3.9-management");
 
-    private static ConfigurableApplicationContext remoteAppContext;
+    protected static ConfigurableApplicationContext remoteAppContext;
     private @Autowired ConfigurableApplicationContext localAppContext;
 
     protected @Autowired GeoServer geoserver;
     protected @Autowired Catalog catalog;
-    protected @Autowired GeoServerBusProperties geoserverBusProperties;
 
     protected CatalogTestData testData;
 
@@ -120,29 +119,40 @@ public abstract class BusAmqpIntegrationTests {
         }
     }
 
+    protected void setupClean() {
+        eventsCaptor.stop();
+
+        testData.initCatalog(true).initConfig(true).initialize();
+
+        Catalog remoteCatalog = remoteAppContext.getBean("rawCatalog", Catalog.class);
+        GeoServer remoteGeoserver = remoteAppContext.getBean(GeoServer.class);
+        CatalogTestData remoteTestData =
+                CatalogTestData.empty(() -> remoteCatalog, () -> remoteGeoserver)
+                        .createCatalogObjects()
+                        .createConfigObjects();
+
+        remoteTestData.initCatalog(true).initConfig(true).initialize();
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        eventsCaptor.clear();
+    }
+
     @BeforeEach
-    final void before() {
+    public void before() {
         assertThat(rabbitMQContainer.isRunning());
         BusEventCollector localAppEvents = localAppContext.getBean(BusEventCollector.class);
         BusEventCollector remoteAppEvents = remoteAppContext.getBean(BusEventCollector.class);
-        this.eventsCaptor =
-                new EventsCaptor(localAppEvents, remoteAppEvents, geoserverBusProperties);
+        this.eventsCaptor = new EventsCaptor(localAppEvents, remoteAppEvents);
 
-        // restore default settings
-        disablePayload();
-
-        eventsCaptor.stop().clear().capureEventsOf(RemoteInfoEvent.class);
+        eventsCaptor.stop().clear().capureEventsOf(InfoEvent.class);
 
         testData =
                 CatalogTestData.empty(() -> catalog, () -> geoserver)
                         .createCatalogObjects()
                         .createConfigObjects();
-
-        // Patch patch = new Patch();
-        // patch.add("defaultWorkspace", null);
-        // context.publishEvent(new RemoteDefaultWorkspaceEvent(catalog, patch, "this", null));
-
-        // eventsCaptor.start();
     }
 
     @AfterEach
@@ -152,64 +162,99 @@ public abstract class BusAmqpIntegrationTests {
         testData.deleteAll();
     }
 
-    protected void disablePayload() {
-        geoserverBusProperties.setSendDiff(false);
-        geoserverBusProperties.setSendObject(false);
-    }
+    @SuppressWarnings({"rawtypes"})
+    protected <T extends Info, E extends InfoRemoveEvent> E testRemoteRemoveEvent(
+            T info, Consumer<T> remover, Class<E> eventType) {
 
-    protected void enablePayload(boolean enabled) {
-        geoserverBusProperties.setSendDiff(enabled);
-        geoserverBusProperties.setSendObject(enabled);
-    }
-
-    protected void enablePayload() {
-        geoserverBusProperties.setSendDiff(true);
-        geoserverBusProperties.setSendObject(true);
-    }
-
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    protected <T extends Info> void testRemoteRemoveEvent(
-            T info, Consumer<T> remover, Class<? extends RemoteRemoveEvent> eventType) {
-
-        this.eventsCaptor.clear();
+        this.eventsCaptor.clear().start();
         remover.accept(info);
 
-        RemoteRemoveEvent<?, T> event = eventsCaptor.local().expectOne(eventType);
+        RemoteInfoEvent event = eventsCaptor.local().expectOne(eventType);
         assertRemoteEvent(info, event);
 
         // local-remote event ok, check the one sent over the wire
 
-        RemoteRemoveEvent<?, T> parsedSentEvent = eventsCaptor.remote().expectOne(eventType);
+        RemoteInfoEvent parsedSentEvent = eventsCaptor.remote().expectOne(eventType);
         assertRemoteEvent(info, parsedSentEvent);
+        return eventType.cast(event.getEvent());
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    protected <T extends Info> void testRemoteModifyEvent( //
+    protected <T extends Info> Patch testCatalogInfoModifyEvent( //
+            @NonNull T info, //
+            @NonNull Consumer<T> modifier, //
+            @NonNull Consumer<T> saver) {
+        return testRemoteModifyEvent(info, modifier, saver, CatalogInfoModifyEvent.class, true);
+    }
+
+    protected <T extends Info> Patch testCatalogInfoModifyEventNoEquals( //
+            @NonNull T info, //
+            @NonNull Consumer<T> modifier, //
+            @NonNull Consumer<T> saver) {
+        return testRemoteModifyEvent(info, modifier, saver, CatalogInfoModifyEvent.class, false);
+    }
+
+    protected <T extends Info> Patch testConfigInfoModifyEvent( //
+            @NonNull T info, //
+            @NonNull Consumer<T> modifier, //
+            @NonNull Consumer<T> saver) {
+        return testRemoteModifyEvent(info, modifier, saver, ConfigInfoModifyEvent.class, true);
+    }
+
+    protected <T extends Info> Patch testConfigInfoModifyEventNoEquals( //
+            @NonNull T info, //
+            @NonNull Consumer<T> modifier, //
+            @NonNull Consumer<T> saver) {
+        return testRemoteModifyEvent(info, modifier, saver, ConfigInfoModifyEvent.class, false);
+    }
+
+    @SuppressWarnings({"rawtypes"})
+    protected <T extends Info> Patch testRemoteModifyEvent( //
             @NonNull T info, //
             @NonNull Consumer<T> modifier, //
             @NonNull Consumer<T> saver,
-            @NonNull Class<? extends RemoteModifyEvent> eventType) {
+            @NonNull Class<? extends InfoModifyEvent> eventType) {
+        return testRemoteModifyEvent(info, modifier, saver, eventType, true);
+    }
+
+    @SuppressWarnings({"rawtypes"})
+    protected <T extends Info> Patch testRemoteModifyEvent( //
+            @NonNull T info, //
+            @NonNull Consumer<T> modifier, //
+            @NonNull Consumer<T> saver,
+            @NonNull Class<? extends InfoModifyEvent> eventType,
+            boolean comparePatch) {
+
+        this.eventsCaptor.stop().clear();
 
         Class<T> type = resolveInfoInterface(info);
         T proxy = ModificationProxy.create(ModificationProxy.unwrap(info), type);
         modifier.accept(proxy);
 
         Patch expected = resolveExpectedDiff(proxy).clean().toPatch();
+        assertThat(expected.size()).isGreaterThan(0);
 
-        this.eventsCaptor.clear();
         this.eventsCaptor.start();
         saver.accept(proxy);
 
-        RemoteModifyEvent<?, T> localRemoteEvent = eventsCaptor.local().expectOne(eventType);
+        RemoteInfoEvent localRemoteEvent = eventsCaptor.local().expectOne(eventType);
         assertRemoteEvent(info, localRemoteEvent);
 
-        RemoteModifyEvent<?, T> sentRemoteEvent = eventsCaptor.remote().expectOne(eventType);
+        RemoteInfoEvent sentRemoteEvent = eventsCaptor.remote().expectOne(eventType);
         assertRemoteEvent(info, sentRemoteEvent);
 
-        if (this.geoserverBusProperties.isSendDiff()) {
-            assertEquals(expected, localRemoteEvent.patch().get());
-            assertEquals(expected, sentRemoteEvent.patch().get());
+        InfoModifyEvent localModifyEvent = (InfoModifyEvent) localRemoteEvent.getEvent();
+        InfoModifyEvent remoteModifyEvent = (InfoModifyEvent) sentRemoteEvent.getEvent();
+
+        Patch localPatch = localModifyEvent.getPatch();
+        Patch remotePatch = remoteModifyEvent.getPatch();
+
+        assertEquals(expected.getPropertyNames(), localPatch.getPropertyNames());
+        assertEquals(expected.getPropertyNames(), remotePatch.getPropertyNames());
+        if (comparePatch) {
+            assertEquals(expected, localPatch);
+            assertEquals(expected, remotePatch);
         }
+        return remotePatch;
     }
 
     protected <T extends Info> PropertyDiff resolveExpectedDiff(T proxy) {
@@ -242,77 +287,78 @@ public abstract class BusAmqpIntegrationTests {
         return type;
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    protected <T extends Info> void testRemoteCatalogInfoAddEvent(T info, Consumer<T> addOp) {
+        testRemoteAddEvent(info, addOp, CatalogInfoAddEvent.class);
+    }
+
+    @SuppressWarnings({"rawtypes"})
     protected <T extends Info> void testRemoteAddEvent(
-            T info, Consumer<T> addOp, Class<? extends RemoteAddEvent> eventType) {
+            T info, Consumer<T> addOp, Class<? extends InfoAddEvent> eventType) {
 
         this.eventsCaptor.stop().clear().capureEventsOf(eventType);
         eventsCaptor.start();
         addOp.accept(info);
 
-        RemoteAddEvent<?, T> event = eventsCaptor.local().expectOne(eventType);
-        assertRemoteEvent(info, event);
+        final ConfigInfoType infoType = ConfigInfoType.valueOf(info);
+
+        RemoteInfoEvent localRemoteEvent = eventsCaptor.local().expectOne(eventType, infoType);
+        assertThat(localRemoteEvent.getEvent().isRemote()).isFalse();
+        assertThat(localRemoteEvent.getEvent().isLocal()).isTrue();
+        assertRemoteEvent(info, localRemoteEvent);
 
         // ok, that's the event published to the local application context, and which
         // spring-cloud-bus took care of not re-publishing. Let's capture the actual out-bound
-        // message that traveled through the bus channel
-        RemoteAddEvent<?, T> parsedSentEvent = eventsCaptor.remote().expectOne(eventType);
-        assertRemoteEvent(info, parsedSentEvent);
+        // message that traveled through the bus channel to the second application
+        RemoteInfoEvent remoteRemoteEvent = eventsCaptor.remote().expectOne(eventType, infoType);
+        assertThat(remoteRemoteEvent.getEvent().isRemote()).isTrue();
+        assertThat(remoteRemoteEvent.getEvent().isLocal()).isFalse();
+        assertRemoteEvent(info, remoteRemoteEvent);
     }
 
-    protected <T extends Info> void assertRemoteEvent(T info, RemoteInfoEvent<?, T> event) {
-        assertNotNull(event.getId());
-        assertEquals("**", event.getDestinationService());
+    @SuppressWarnings("rawtypes")
+    protected <T extends Info> void assertRemoteEvent(T info, RemoteInfoEvent busEvent) {
+        assertNotNull(busEvent.getId());
+        assertNotNull(busEvent.getOriginService());
+        assertEquals("**", busEvent.getDestinationService());
+
+        InfoEvent<?, ?, ?> event = busEvent.getEvent();
+        assertNotNull(event);
         assertNotNull(event.getObjectId());
-        assertNotNull(event.getInfoType());
-        switch (event.getInfoType()) {
+        // assertNotNull(event.getTarget());
+        // assertNull(event.getSource());
+
+        final ConfigInfoType infoType = event.getObjectType();
+        assertThat(infoType).isNotNull();
+        ConfigInfoType expectedType = ConfigInfoType.valueOf(info);
+        assertThat(infoType).isEqualTo(expectedType);
+
+        switch (infoType) {
             case Catalog:
-                assertEquals(RemoteCatalogEvent.CATALOG_ID, event.getObjectId());
-                break;
             case GeoServerInfo:
-                assertEquals(RemoteConfigEvent.GEOSERVER_ID, event.getObjectId());
-                break;
             case LoggingInfo:
-                assertEquals(RemoteConfigEvent.LOGGING_ID, event.getObjectId());
+                assertNotNull(event.getObjectId());
                 break;
             default:
                 assertEquals(info.getId(), event.getObjectId());
                 break;
         }
-        assertTrue(event.getInfoType().getType().isInstance(info));
+        assertThat(infoType.isInstance(info)).isTrue();
 
-        if (event instanceof RemoteAddEvent) {
-            RemoteAddEvent<?, T> e = (RemoteAddEvent<?, T>) event;
-            if (geoserverBusProperties.isSendObject()) {
-                assertTrue(e.object().isPresent());
-                T object = e.object().get();
-                assertEquals(info.getId(), object.getId());
-                //                testData.assertEqualsLenientConnectionParameters(info, object);
-            } else {
-                assertFalse(e.object().isPresent());
-            }
+        if (event instanceof InfoAddEvent) {
+            InfoAddEvent e = (InfoAddEvent) event;
+            assertThat(e.getObject()).isNotNull();
+            assertThat(infoType.isInstance(e.getObject())).isTrue();
+            assertThat(e.getObject().getId()).isEqualTo(info.getId());
+
+            Info object = e.getObject();
+            info = ModificationProxy.unwrap(info);
+            object = ModificationProxy.unwrap(object);
+            // testData.assertEqualsLenientConnectionParameters(info, object);
         }
 
-        if (event instanceof RemoteRemoveEvent) {
-            RemoteRemoveEvent<?, T> e = (RemoteRemoveEvent<?, T>) event;
-            if (geoserverBusProperties.isSendObject()) {
-                assertTrue(e.object().isPresent());
-                T object = e.object().get();
-                testData.assertEqualsLenientConnectionParameters(info, object);
-            } else {
-                assertFalse(e.object().isPresent());
-            }
-        }
-
-        if (event instanceof RemoteModifyEvent) {
-            RemoteModifyEvent<?, T> modifyEvent = (RemoteModifyEvent<?, T>) event;
-            if (geoserverBusProperties.isSendDiff()) {
-                assertTrue(modifyEvent.patch().isPresent());
-                Patch diff = modifyEvent.patch().get();
-                assertThat(diff.getPatches().size(), greaterThan(0));
-            } else {
-                assertFalse(modifyEvent.patch().isPresent());
-            }
+        if (event instanceof InfoModifyEvent) {
+            InfoModifyEvent modifyEvent = (InfoModifyEvent) event;
+            assertThat(modifyEvent.getPatch()).isNotNull();
         }
     }
 
@@ -321,26 +367,23 @@ public abstract class BusAmqpIntegrationTests {
     protected static class EventsCaptor {
         final @Getter BusEventCollector local;
         final @Getter BusEventCollector remote;
-        final GeoServerBusProperties geoserverBusProperties;
 
-        public EventsCaptor capureEventsOf(
-                @SuppressWarnings("rawtypes") Class<? extends RemoteInfoEvent> type) {
+        @SuppressWarnings("rawtypes")
+        public <E extends InfoEvent> EventsCaptor capureEventsOf(Class<E> type) {
             local.capture(type);
             remote.capture(type);
             return this;
         }
 
         public EventsCaptor stop() {
-            geoserverBusProperties.setSendEvents(false);
             remote.stop();
             local.stop();
             return this;
         }
 
         public EventsCaptor start() {
-            remote.start();
             local.start();
-            geoserverBusProperties.setSendEvents(true);
+            remote.start();
             return this;
         }
 

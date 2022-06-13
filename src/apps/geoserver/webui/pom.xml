@@ -13,8 +13,6 @@
     <dockerfile.skip>false</dockerfile.skip>
     <docker.image.name>geoserver-cloud-webui</docker.image.name>
     <start-class>org.geoserver.cloud.web.app.WebUIApplication</start-class>
-    <!-- use none instead of empty to avoid a maven warning -->
-    <gwc_excludes>none</gwc_excludes>
   </properties>
   <dependencies>
     <dependency>

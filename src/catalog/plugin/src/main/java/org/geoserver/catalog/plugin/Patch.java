@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 @NoArgsConstructor
 public @Value class Patch implements Serializable {
@@ -130,5 +131,13 @@ public @Value class Patch implements Serializable {
 
     private static boolean isCollection(Method getter) {
         return Collection.class.isAssignableFrom(getter.getReturnType());
+    }
+
+    public @Override String toString() {
+        String props =
+                this.getPatches().stream()
+                        .map(p -> String.format("(%s: %s)", p.getName(), p.getValue()))
+                        .collect(Collectors.joining(","));
+        return String.format("%s[%s]", getClass().getSimpleName(), props);
     }
 }

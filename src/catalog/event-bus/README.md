@@ -1,4 +1,4 @@
-# GeoServer event-bus configuration synchronization
+# GeoServer catalog integration for Spring-Cloud event-bus
 
 Sets up the basis for an event-stream based synchronization of configuration changes across services in the cluster.
 

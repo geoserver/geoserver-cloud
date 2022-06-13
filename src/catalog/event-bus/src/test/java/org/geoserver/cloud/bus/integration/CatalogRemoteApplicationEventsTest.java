@@ -4,239 +4,186 @@
  */
 package org.geoserver.cloud.bus.integration;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import org.geoserver.catalog.AttributeTypeInfo;
+import org.geoserver.catalog.AttributionInfo;
 import org.geoserver.catalog.Catalog;
-import org.geoserver.catalog.CatalogInfo;
+import org.geoserver.catalog.CatalogBuilder;
 import org.geoserver.catalog.DataStoreInfo;
+import org.geoserver.catalog.FeatureTypeInfo;
+import org.geoserver.catalog.LayerInfo;
+import org.geoserver.catalog.LayerInfo.WMSInterpolation;
+import org.geoserver.catalog.PublishedType;
+import org.geoserver.catalog.WMSLayerInfo;
+import org.geoserver.catalog.WMTSLayerInfo;
 import org.geoserver.catalog.WorkspaceInfo;
+import org.geoserver.catalog.impl.AttributionInfoImpl;
+import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.plugin.Patch;
-import org.geoserver.cloud.bus.event.RemoteModifyEvent;
-import org.geoserver.cloud.bus.event.catalog.AbstractRemoteCatalogModifyEvent;
-import org.geoserver.cloud.bus.event.catalog.RemoteCatalogInfoAddEvent;
-import org.geoserver.cloud.bus.event.catalog.RemoteCatalogInfoRemoveEvent;
-import org.geoserver.cloud.bus.event.catalog.RemoteDefaultDataStoreEvent;
-import org.geoserver.cloud.bus.event.catalog.RemoteDefaultNamespaceEvent;
-import org.geoserver.cloud.bus.event.catalog.RemoteDefaultWorkspaceEvent;
-import org.geoserver.cloud.event.PropertyDiffTestSupport;
+import org.geoserver.catalog.plugin.Patch.Property;
+import org.geoserver.catalog.plugin.PropertyDiffTestSupport;
+import org.geoserver.cloud.bus.catalog.RemoteInfoEvent;
+import org.geoserver.cloud.event.catalog.CatalogInfoRemoveEvent;
+import org.geoserver.cloud.event.catalog.DefaultDataStoreEvent;
+import org.geoserver.cloud.event.catalog.DefaultNamespaceEvent;
+import org.geoserver.cloud.event.catalog.DefaultWorkspaceEvent;
+import org.geoserver.cloud.event.info.ConfigInfoType;
+import org.geoserver.cloud.event.info.InfoEvent;
+import org.geoserver.cloud.event.info.InfoModifyEvent;
+import org.geotools.data.DataUtilities;
+import org.geotools.feature.SchemaException;
+import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.referencing.CRS;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.opengis.feature.simple.SimpleFeatureType;
 
-import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.stream.IntStream;
 
 public class CatalogRemoteApplicationEventsTest extends BusAmqpIntegrationTests {
 
     public @Test void testCatalogSetDefaultWorkspace() {
-        testDefaultWorkspace(false);
-    }
-
-    public @Test void testCatalogSetDefaultWorkspace_Payload() {
-        testDefaultWorkspace(true);
-    }
-
-    private void testDefaultWorkspace(boolean payload) {
         catalog.add(testData.workspaceA);
         catalog.add(testData.workspaceC);
+        final Class<DefaultWorkspaceEvent> eventType = DefaultWorkspaceEvent.class;
+        {
+            Patch expected =
+                    new PropertyDiffTestSupport()
+                            .createTestDiff(
+                                    "defaultWorkspace", testData.workspaceA, testData.workspaceC)
+                            .toPatch();
 
-        Patch expected =
-                new PropertyDiffTestSupport()
-                        .createTestDiff(
-                                "defaultWorkspace", testData.workspaceA, testData.workspaceC)
-                        .toPatch();
+            Consumer<Catalog> modifier = c -> c.setDefaultWorkspace(testData.workspaceC);
+            Predicate<DefaultWorkspaceEvent> filter =
+                    e -> testData.workspaceC.getId().equals(e.getNewWorkspaceId());
 
-        enablePayload(payload);
-        RemoteDefaultWorkspaceEvent event =
-                testCatalogModifiedEvent(
-                        catalog,
-                        c -> c.setDefaultWorkspace(testData.workspaceC),
-                        expected,
-                        RemoteDefaultWorkspaceEvent.class);
+            testCatalogModifiedEvent(catalog, modifier, expected, eventType, filter);
+        }
+        {
+            Patch expected =
+                    new PropertyDiffTestSupport()
+                            .createTestDiff("defaultWorkspace", testData.workspaceC, null)
+                            .toPatch();
 
-        assertEquals(Collections.singletonList("defaultWorkspace"), event.getChangedProperties());
-        assertEquals(testData.workspaceC.getId(), event.getNewWorkspaceId());
+            Consumer<Catalog> modifier = c -> c.setDefaultWorkspace(null);
+            Predicate<DefaultWorkspaceEvent> filter = e -> e.getNewWorkspaceId() == null;
+            testCatalogModifiedEvent(catalog, modifier, expected, eventType, filter);
+        }
     }
 
     public @Test void testCatalogSetDefaultNamespace() {
-        testSetDefaultNamespace(false);
-    }
-
-    public @Test void testCatalogSetDefaultNamespace_Payload() {
-        testSetDefaultNamespace(true);
-    }
-
-    private void testSetDefaultNamespace(boolean payload) {
         catalog.add(testData.namespaceA);
         catalog.add(testData.namespaceB);
 
-        Patch expected =
-                new PropertyDiffTestSupport()
-                        .createTestDiff(
-                                "defaultNamespace", testData.namespaceA, testData.namespaceB)
-                        .toPatch();
-        enablePayload(payload);
-        RemoteDefaultNamespaceEvent event =
-                testCatalogModifiedEvent(
-                        catalog,
-                        c -> c.setDefaultNamespace(testData.namespaceB),
-                        expected,
-                        RemoteDefaultNamespaceEvent.class);
-        assertEquals(Collections.singletonList("defaultNamespace"), event.getChangedProperties());
-        assertEquals(testData.namespaceB.getId(), event.getNewNamespaceId());
+        final Class<DefaultNamespaceEvent> eventType = DefaultNamespaceEvent.class;
+
+        {
+            Consumer<Catalog> modifier = c -> c.setDefaultNamespace(testData.namespaceB);
+            Predicate<DefaultNamespaceEvent> filter =
+                    e -> testData.namespaceB.getId().equals(e.getNewNamespaceId());
+            Patch expected =
+                    new PropertyDiffTestSupport()
+                            .createTestDiff(
+                                    "defaultNamespace", testData.namespaceA, testData.namespaceB)
+                            .toPatch();
+
+            testCatalogModifiedEvent(catalog, modifier, expected, eventType, filter);
+        }
+        {
+            Patch expected =
+                    new PropertyDiffTestSupport()
+                            .createTestDiff("defaultNamespace", testData.namespaceA, null)
+                            .toPatch();
+
+            Consumer<Catalog> modifier = c -> c.setDefaultNamespace(null);
+            Predicate<DefaultNamespaceEvent> filter = e -> null == e.getNewNamespaceId();
+
+            testCatalogModifiedEvent(catalog, modifier, expected, eventType, filter);
+        }
     }
 
     public @Test void testCatalogSetDefaultDataStoreByWorkspace() {
-        testSetDefaultDataStoreByWorkspace(false);
-    }
-
-    @Disabled("revisit, not all payloads work, possibly a misconfigured ObjectMapper for the bus")
-    public @Test void testCatalogSetDefaultDataStoreByWorkspace_Payload() {
-        testSetDefaultDataStoreByWorkspace(true);
-    }
-
-    private void testSetDefaultDataStoreByWorkspace(boolean payload) {
         WorkspaceInfo workspace = testData.workspaceA;
         DataStoreInfo dataStore = testData.dataStoreA;
 
         catalog.add(workspace);
         catalog.add(testData.namespaceA);
 
-        enablePayload(payload);
-        eventsCaptor.stop().clear().start();
+        final Class<DefaultDataStoreEvent> eventType = DefaultDataStoreEvent.class;
 
-        Patch expected;
-        RemoteDefaultDataStoreEvent event;
+        {
+            Patch expected =
+                    new PropertyDiffTestSupport()
+                            .createTestDiff("defaultDataStore", null, dataStore)
+                            .toPatch();
 
-        expected =
-                new PropertyDiffTestSupport()
-                        .createTestDiff("defaultDataStore", null, dataStore)
-                        .toPatch();
+            Predicate<DefaultDataStoreEvent> filter =
+                    e -> dataStore.getId().equals(e.getDefaultDataStoreId());
+            DefaultDataStoreEvent event =
+                    testCatalogModifiedEvent(
+                            catalog, c -> c.add(dataStore), expected, eventType, filter);
 
-        event =
-                testCatalogModifiedEvent(
-                        catalog,
-                        c -> c.add(dataStore),
-                        expected,
-                        RemoteDefaultDataStoreEvent.class);
+            assertThat(event.getWorkspaceId()).isEqualTo(workspace.getId());
+            assertThat(event.getDefaultDataStoreId()).isEqualTo(dataStore.getId());
+        }
+        {
+            Patch expected =
+                    new PropertyDiffTestSupport()
+                            .createTestDiff("defaultDataStore", dataStore, null)
+                            .toPatch();
 
-        assertEquals(Collections.singletonList("defaultDataStore"), event.getChangedProperties());
-        assertEquals(workspace.getId(), event.getWorkspaceId());
-        assertEquals(dataStore.getId(), event.getDefaultDataStoreId());
+            Predicate<DefaultDataStoreEvent> filter = e -> null == e.getDefaultDataStoreId();
 
-        eventsCaptor.stop().clear().start();
+            DefaultDataStoreEvent event =
+                    testCatalogModifiedEvent(
+                            catalog, c -> c.remove(dataStore), expected, eventType, filter);
 
-        expected =
-                new PropertyDiffTestSupport()
-                        .createTestDiff("defaultDataStore", dataStore, null)
-                        .toPatch();
-
-        event =
-                testCatalogModifiedEvent(
-                        catalog,
-                        c -> c.remove(dataStore),
-                        expected,
-                        RemoteDefaultDataStoreEvent.class);
-
-        assertEquals(Collections.singletonList("defaultDataStore"), event.getChangedProperties());
-        assertEquals(workspace.getId(), event.getWorkspaceId());
-        assertNull(event.getDefaultDataStoreId());
+            assertThat(event.getWorkspaceId()).isEqualTo(workspace.getId());
+            assertThat(event.getDefaultDataStoreId()).isNull();
+        }
     }
 
     public @Test void testAdd_Workspace() {
-        disablePayload();
-        Class<RemoteCatalogInfoAddEvent> eventType = RemoteCatalogInfoAddEvent.class;
-        testRemoteAddEvent(testData.workspaceA, catalog::add, eventType);
-    }
-
-    public @Test void testAdd_Workspace_Payload() {
-        enablePayload();
-        Class<RemoteCatalogInfoAddEvent> eventType = RemoteCatalogInfoAddEvent.class;
-        testRemoteAddEvent(testData.workspaceA, catalog::add, eventType);
+        testRemoteCatalogInfoAddEvent(testData.workspaceA, catalog::add);
     }
 
     public @Test void testAdd_Namespace() {
-        disablePayload();
-        Class<RemoteCatalogInfoAddEvent> eventType = RemoteCatalogInfoAddEvent.class;
-        testRemoteAddEvent(testData.namespaceA, catalog::add, eventType);
-    }
-
-    public @Test void testAdd_Namespace_Payload() {
-        enablePayload();
-        Class<RemoteCatalogInfoAddEvent> eventType = RemoteCatalogInfoAddEvent.class;
-        testRemoteAddEvent(testData.namespaceA, catalog::add, eventType);
+        testRemoteCatalogInfoAddEvent(testData.namespaceA, catalog::add);
     }
 
     public @Test void testAdd_CoverageStore() {
         catalog.add(testData.workspaceA);
         catalog.add(testData.namespaceA);
-        disablePayload();
-        Class<RemoteCatalogInfoAddEvent> eventType = RemoteCatalogInfoAddEvent.class;
-        testRemoteAddEvent(testData.coverageStoreA, catalog::add, eventType);
-    }
-
-    public @Test void testAdd_CoverageStore_Payload() {
-        catalog.add(testData.workspaceA);
-        catalog.add(testData.namespaceA);
-        enablePayload();
-        Class<RemoteCatalogInfoAddEvent> eventType = RemoteCatalogInfoAddEvent.class;
-        testRemoteAddEvent(testData.coverageStoreA, catalog::add, eventType);
+        testRemoteCatalogInfoAddEvent(testData.coverageStoreA, catalog::add);
     }
 
     public @Test void testAdd_DataStore() {
         catalog.add(testData.workspaceA);
         catalog.add(testData.namespaceA);
-        disablePayload();
-        Class<RemoteCatalogInfoAddEvent> eventType = RemoteCatalogInfoAddEvent.class;
-        testRemoteAddEvent(testData.dataStoreA, catalog::add, eventType);
-    }
-
-    public @Test void testAdd_DataStore_Payload() {
-        catalog.add(testData.workspaceA);
-        catalog.add(testData.namespaceA);
-        enablePayload();
-        Class<RemoteCatalogInfoAddEvent> eventType = RemoteCatalogInfoAddEvent.class;
-        testRemoteAddEvent(testData.dataStoreA, catalog::add, eventType);
+        testRemoteCatalogInfoAddEvent(testData.dataStoreA, catalog::add);
     }
 
     public @Test void testAdd_Coverage() {
         catalog.add(testData.workspaceA);
         catalog.add(testData.namespaceA);
-        catalog.add(testData.coverageStoreA);
-        disablePayload();
-        Class<RemoteCatalogInfoAddEvent> eventType = RemoteCatalogInfoAddEvent.class;
-        testRemoteAddEvent(testData.coverageA, catalog::add, eventType);
-    }
-
-    public @Test void testAdd_Coverage_Payload() {
-        catalog.add(testData.workspaceA);
-        catalog.add(testData.namespaceA);
         catalog.add(testData.namespaceB);
         catalog.add(testData.coverageStoreA);
-        enablePayload();
-        Class<RemoteCatalogInfoAddEvent> eventType = RemoteCatalogInfoAddEvent.class;
-        testRemoteAddEvent(testData.coverageA, catalog::add, eventType);
+        testRemoteCatalogInfoAddEvent(testData.coverageA, catalog::add);
     }
 
     public @Test void testAdd_FeatureType() {
         catalog.add(testData.workspaceA);
         catalog.add(testData.namespaceA);
         catalog.add(testData.dataStoreA);
-        disablePayload();
-        Class<RemoteCatalogInfoAddEvent> eventType = RemoteCatalogInfoAddEvent.class;
-        testRemoteAddEvent(testData.featureTypeA, catalog::add, eventType);
-    }
-
-    public @Test void testAdd_FeatureType_Payload() {
-        catalog.add(testData.workspaceA);
-        catalog.add(testData.namespaceA);
-        catalog.add(testData.dataStoreA);
-        enablePayload();
-        Class<RemoteCatalogInfoAddEvent> eventType = RemoteCatalogInfoAddEvent.class;
-        testRemoteAddEvent(testData.featureTypeA, catalog::add, eventType);
+        testRemoteCatalogInfoAddEvent(testData.featureTypeA, catalog::add);
     }
 
     public @Test void testAdd_Layer() {
@@ -245,21 +192,7 @@ public class CatalogRemoteApplicationEventsTest extends BusAmqpIntegrationTests 
         catalog.add(testData.dataStoreA);
         catalog.add(testData.featureTypeA);
         catalog.add(testData.style1);
-        disablePayload();
-        Class<RemoteCatalogInfoAddEvent> eventType = RemoteCatalogInfoAddEvent.class;
-        testRemoteAddEvent(testData.layerFeatureTypeA, catalog::add, eventType);
-    }
-
-    @Disabled("resource info is not in remote catalog, fails on resolving proxy")
-    public @Test void testAdd_Layer_Payload() {
-        catalog.add(testData.workspaceA);
-        catalog.add(testData.namespaceA);
-        catalog.add(testData.dataStoreA);
-        catalog.add(testData.featureTypeA);
-        catalog.add(testData.style1);
-        enablePayload();
-        Class<RemoteCatalogInfoAddEvent> eventType = RemoteCatalogInfoAddEvent.class;
-        testRemoteAddEvent(testData.layerFeatureTypeA, catalog::add, eventType);
+        testRemoteCatalogInfoAddEvent(testData.layerFeatureTypeA, catalog::add);
     }
 
     public @Test void testAdd_LayerGroup() {
@@ -269,99 +202,126 @@ public class CatalogRemoteApplicationEventsTest extends BusAmqpIntegrationTests 
         catalog.add(testData.featureTypeA);
         catalog.add(testData.layerFeatureTypeA);
         catalog.add(testData.style1);
-        disablePayload();
-        Class<RemoteCatalogInfoAddEvent> eventType = RemoteCatalogInfoAddEvent.class;
-        testRemoteAddEvent(testData.layerGroup1, catalog::add, eventType);
-    }
-
-    public @Test void testAdd_LayerGroup_Payload() {
-        catalog.add(testData.workspaceA);
-        catalog.add(testData.namespaceA);
-        catalog.add(testData.dataStoreA);
-        catalog.add(testData.featureTypeA);
-        catalog.add(testData.layerFeatureTypeA);
-        catalog.add(testData.style1);
-        enablePayload();
-        Class<RemoteCatalogInfoAddEvent> eventType = RemoteCatalogInfoAddEvent.class;
-        testRemoteAddEvent(testData.layerGroup1, catalog::add, eventType);
-    }
-
-    public @Test void testAdd_Style() {
-        disablePayload();
-        Class<RemoteCatalogInfoAddEvent> eventType = RemoteCatalogInfoAddEvent.class;
-        testRemoteAddEvent(testData.style1, catalog::add, eventType);
+        testRemoteCatalogInfoAddEvent(testData.layerGroup1, catalog::add);
     }
 
     public @Test void testAdd_Style_Payload() {
-        enablePayload();
-        Class<RemoteCatalogInfoAddEvent> eventType = RemoteCatalogInfoAddEvent.class;
-        testRemoteAddEvent(testData.style1, catalog::add, eventType);
-    }
-
-    protected void setupNoPayload() {
-        setupClean(false);
-    }
-
-    protected void setupPayload() {
-        setupClean(true);
-    }
-
-    protected void setupClean(boolean payload) {
-        eventsCaptor.stop();
-        testData.deleteAll();
-        testData.addObjects();
-        enablePayload(payload);
-        eventsCaptor.start();
+        testRemoteCatalogInfoAddEvent(testData.style1, catalog::add);
     }
 
     public @Test void testModifyEventsWorkspace() {
-        setupNoPayload();
-        modifyEventsWorkspace();
-    }
-
-    public @Test void testModifyEventsWorkspace_Payload() {
-        setupPayload();
-        modifyEventsWorkspace();
-    }
-
-    protected void modifyEventsWorkspace() {
-        testRemoteModifyEvent(
+        setupClean();
+        testCatalogInfoModifyEvent(
                 testData.workspaceA,
                 ws -> {
                     ws.setName("newName");
                 },
-                catalog::save,
-                AbstractRemoteCatalogModifyEvent.class);
+                catalog::save);
     }
 
-    @Disabled("implement")
     public @Test void testModifyEventsNamespace() {
-        fail("NOT IMPLEMENTED");
+        setupClean();
+        testCatalogInfoModifyEvent(
+                testData.namespaceA,
+                ns -> {
+                    ns.setPrefix("newPrefix");
+                    ns.setURI("http://test.com/modified");
+                },
+                catalog::save);
     }
 
-    @Disabled("implement")
     public @Test void testModifyEventsDataStore() {
-        fail("NOT IMPLEMENTED");
+        setupClean();
+        testCatalogInfoModifyEvent(
+                testData.dataStoreA,
+                ds -> {
+                    ds.getConnectionParameters().put("new-key", "new-value");
+                    ds.setWorkspace(testData.workspaceB);
+                    ds.getMetadata().put("md-key", "md-value");
+                    ds.getMetadata().put("md-int-key", 1000);
+                },
+                catalog::save);
     }
 
-    @Disabled("implement")
     public @Test void testModifyEventsCoverageStore() {
-        fail("NOT IMPLEMENTED");
+        setupClean();
+        testCatalogInfoModifyEvent(
+                testData.coverageStoreA,
+                cs -> {
+                    cs.getConnectionParameters().put("new-key", "new-value");
+                    cs.setWorkspace(testData.workspaceB);
+                    cs.getMetadata().put("md-key", "md-value");
+                    cs.getMetadata().put("md-int-key", 1000);
+                },
+                catalog::save);
     }
 
-    @Disabled("implement")
     public @Test void testModifyEventsWMSStore() {
-        fail("NOT IMPLEMENTED");
+        setupClean();
+        testCatalogInfoModifyEvent(
+                testData.wmsStoreA,
+                wms -> {
+                    wms.getConnectionParameters().put("new-key", "new-value");
+                    wms.setWorkspace(testData.workspaceB);
+                    wms.getMetadata().put("md-key", "md-value");
+                    wms.getMetadata().put("md-int-key", 1000);
+                    wms.setCapabilitiesURL("http://test.caps.com");
+                    wms.setConnectTimeout(10);
+                },
+                catalog::save);
     }
 
-    @Disabled("implement")
     public @Test void testModifyEventsWMTSStore() {
-        fail("NOT IMPLEMENTED");
+        setupClean();
+        testCatalogInfoModifyEvent(
+                testData.wmsStoreA,
+                wmts -> {
+                    wmts.getConnectionParameters().put("new-key", "new-value");
+                    wmts.setWorkspace(testData.workspaceB);
+                    wmts.getMetadata().put("md-key", "md-value");
+                    wmts.getMetadata().put("md-int-key", 1000);
+                    wmts.setCapabilitiesURL("http://test.caps.com");
+                    wmts.setConnectTimeout(10);
+                },
+                catalog::save);
     }
 
-    @Disabled("implement")
-    public @Test void testModifyEventsFeatureType() {
-        fail("NOT IMPLEMENTED");
+    public @Test void testModifyEventsFeatureType() throws SchemaException {
+        setupClean();
+
+        SimpleFeatureType type = DataUtilities.createType("test", "name:String,location:Point");
+        List<AttributeTypeInfo> attributes =
+                new CatalogBuilder(catalog).getAttributes(type, testData.featureTypeA);
+
+        // don't run equals
+        Patch patch =
+                testCatalogInfoModifyEventNoEquals(
+                        testData.featureTypeA,
+                        ft -> {
+                            ft.getMetadata().put("md-key", "md-value");
+                            ft.getMetadata().put("md-int-key", 1000);
+                            ft.setNamespace(testData.namespaceC);
+                            ft.getAttributes().addAll(attributes);
+                        },
+                        catalog::save);
+
+        Property atts = patch.get("attributes").orElseThrow();
+        List<AttributeTypeInfo> decodedAtts = (List<AttributeTypeInfo>) atts.getValue();
+        assertEquals(attributes.size(), decodedAtts.size());
+        IntStream.range(0, attributes.size())
+                .forEach(
+                        i -> {
+                            AttributeTypeInfo decoded = decodedAtts.get(i);
+                            AttributeTypeInfo orig = attributes.get(i);
+                            assertThat(decoded.equalsIngnoreFeatureType(orig));
+                            assertNotNull(decoded.getFeatureType());
+                            FeatureTypeInfo expected =
+                                    ModificationProxy.unwrap(orig.getFeatureType());
+                            FeatureTypeInfo actual =
+                                    ModificationProxy.unwrap(decoded.getFeatureType());
+                            assertEquals(expected.getId(), actual.getId());
+                            assertEquals(expected.getName(), actual.getName());
+                        });
     }
 
     @Disabled("implement")
@@ -369,19 +329,73 @@ public class CatalogRemoteApplicationEventsTest extends BusAmqpIntegrationTests 
         fail("NOT IMPLEMENTED");
     }
 
-    @Disabled("implement")
-    public @Test void testModifyEventsWMSLayer() {
-        fail("NOT IMPLEMENTED");
+    public @Test void testModifyEventsWMSLayer() throws Exception {
+        setupClean();
+
+        WMSLayerInfo layer = testData.wmsLayerA;
+
+        ReferencedEnvelope bounds =
+                new ReferencedEnvelope(-180, -90, 0, 0, CRS.decode("EPSG:4326"));
+
+        testCatalogInfoModifyEvent(
+                layer, l -> l.setDisabledServices(List.of("WMS", "WFS")), catalog::save);
+        testCatalogInfoModifyEvent(layer, l -> l.setAbstract("modified"), catalog::save);
+        testCatalogInfoModifyEvent(layer, l -> l.setNativeBoundingBox(bounds), catalog::save);
+
+        testCatalogInfoModifyEvent(
+                layer,
+                l -> {
+                    l.setDisabledServices(List.of());
+                    l.setAbstract("modified again");
+                    l.setNativeBoundingBox(null);
+                },
+                catalog::save);
     }
 
-    @Disabled("implement")
-    public @Test void testModifyEventsWMTSLayer() {
-        fail("NOT IMPLEMENTED");
+    public @Test void testModifyEventsWMTSLayer() throws Exception {
+        setupClean();
+
+        WMTSLayerInfo layer = testData.wmtsLayerA;
+
+        ReferencedEnvelope bounds =
+                new ReferencedEnvelope(-180, -90, 0, 0, CRS.decode("EPSG:4326"));
+
+        testCatalogInfoModifyEvent(
+                layer, l -> l.setDisabledServices(List.of("WMS", "WFS")), catalog::save);
+        testCatalogInfoModifyEvent(layer, l -> l.setAbstract("modified"), catalog::save);
+        testCatalogInfoModifyEvent(layer, l -> l.setNativeBoundingBox(bounds), catalog::save);
+
+        testCatalogInfoModifyEvent(
+                layer,
+                l -> {
+                    l.setDisabledServices(List.of());
+                    l.setAbstract("modified again");
+                    l.setNativeBoundingBox(null);
+                },
+                catalog::save);
     }
 
-    @Disabled("implement")
     public @Test void testModifyEventsLayer() {
-        fail("NOT IMPLEMENTED");
+        setupClean();
+
+        LayerInfo layer = testData.layerFeatureTypeA;
+        testCatalogInfoModifyEvent(
+                layer,
+                l -> {
+                    l.setAbstract("modified");
+                    AttributionInfo attr = new AttributionInfoImpl();
+                    attr.setHref("http://test.com");
+                    attr.setTitle("attribution");
+                    l.setAttribution(attr);
+
+                    l.setDefaultWMSInterpolationMethod(WMSInterpolation.Bicubic);
+                    l.setInternationalTitle(
+                            testData.createInternationalString(
+                                    Locale.ENGLISH, "test", Locale.ITALIAN, "proba"));
+
+                    l.setType(PublishedType.REMOTE);
+                },
+                catalog::save);
     }
 
     @Disabled("implement")
@@ -394,22 +408,10 @@ public class CatalogRemoteApplicationEventsTest extends BusAmqpIntegrationTests 
         fail("NOT IMPLEMENTED");
     }
 
-    @Disabled("implement")
     public @Test void testRemoveEvents() {
-        testRemoveEvents(false);
-    }
+        setupClean();
 
-    @Disabled("revisit, not all payloads work, possibly a misconfigured ObjectMapper for the bus")
-    public @Test void testRemoveEvents_Payload() {
-        testRemoveEvents(true);
-    }
-
-    private void testRemoveEvents(boolean payload) {
-        eventsCaptor.stop();
-        testData.addObjects();
-        eventsCaptor.start();
-        enablePayload(payload);
-        Class<RemoteCatalogInfoRemoveEvent> eventType = RemoteCatalogInfoRemoveEvent.class;
+        Class<CatalogInfoRemoveEvent> eventType = CatalogInfoRemoveEvent.class;
 
         testRemoteRemoveEvent(testData.layerGroup1, catalog::remove, eventType);
         testRemoteRemoveEvent(testData.layerFeatureTypeA, catalog::remove, eventType);
@@ -417,48 +419,46 @@ public class CatalogRemoteApplicationEventsTest extends BusAmqpIntegrationTests 
         testRemoteRemoveEvent(testData.coverageA, catalog::remove, eventType);
         testRemoteRemoveEvent(testData.style1, catalog::remove, eventType);
         testRemoteRemoveEvent(testData.dataStoreA, catalog::remove, eventType);
-        // testRemoteRemoveEvent(testData.coverageStoreA, catalog::remove, eventType);
-        // testRemoteRemoveEvent(testData.wmsLayerA, catalog::remove, eventType);
-        // testRemoteRemoveEvent(testData.wmsStoreA, catalog::remove, eventType);
-        // testRemoteRemoveEvent(testData.wmtsLayerA, catalog::remove, eventType);
-        // testRemoteRemoveEvent(testData.wmtsStoreA, catalog::remove, eventType);
-        // testRemoteRemoveEvent(testData.namespaceA, catalog::remove, eventType);
-        // testRemoteRemoveEvent(testData.workspaceA, catalog::remove, eventType);
+        testRemoteRemoveEvent(testData.coverageStoreA, catalog::remove, eventType);
+        testRemoteRemoveEvent(testData.wmsLayerA, catalog::remove, eventType);
+        testRemoteRemoveEvent(testData.wmsStoreA, catalog::remove, eventType);
+        testRemoteRemoveEvent(testData.wmtsLayerA, catalog::remove, eventType);
+        testRemoteRemoveEvent(testData.wmtsStoreA, catalog::remove, eventType);
+        testRemoteRemoveEvent(testData.namespaceA, catalog::remove, eventType);
+        testRemoteRemoveEvent(testData.workspaceA, catalog::remove, eventType);
     }
 
-    private <E extends AbstractRemoteCatalogModifyEvent> E testCatalogModifiedEvent(
-            Catalog catalog, Consumer<Catalog> modifier, Patch expected, Class<E> eventType) {
+    @SuppressWarnings("rawtypes")
+    private <E extends InfoEvent> E testCatalogModifiedEvent(
+            Catalog catalog,
+            Consumer<Catalog> modifier,
+            Patch expected,
+            Class<E> eventType,
+            Predicate<E> filter) {
 
         this.eventsCaptor.stop().clear().start();
 
         modifier.accept(catalog);
 
-        RemoteModifyEvent<Catalog, CatalogInfo> localRemoteEvent;
-        E sentEvent;
+        RemoteInfoEvent localRemoteEvent = eventsCaptor.local().expectOne(eventType, filter);
+        RemoteInfoEvent sentEvent = eventsCaptor.remote().expectOne(eventType, filter);
 
-        localRemoteEvent = eventsCaptor.local().expectOne(eventType);
-        sentEvent = eventsCaptor.remote().expectOne(eventType);
-
-        assertCatalogEvent(catalog, localRemoteEvent, expected);
-        assertCatalogEvent(catalog, sentEvent, expected);
-        return sentEvent;
+        assertCatalogEvent(catalog, (InfoModifyEvent) localRemoteEvent.getEvent(), expected);
+        assertCatalogEvent(catalog, (InfoModifyEvent) sentEvent.getEvent(), expected);
+        return eventType.cast(sentEvent.getEvent());
     }
 
-    private void assertCatalogEvent(
-            Catalog catalog, RemoteModifyEvent<Catalog, CatalogInfo> event, Patch expected) {
-        assertNotNull(event.getId());
-        assertEquals("**", event.getDestinationService());
-        assertEquals("catalog", event.getObjectId());
-        assertNotNull(event.getInfoType());
-        assertEquals(Catalog.class, event.getInfoType().getType());
+    @SuppressWarnings("rawtypes")
+    private void assertCatalogEvent(Catalog catalog, InfoModifyEvent event, Patch expected) {
+        assertThat(event.getObjectId()).isEqualTo("catalog"); // i.e. InfoEvent.CATALOG_ID
+        assertThat(event.getObjectType()).isEqualTo(ConfigInfoType.Catalog);
 
-        if (this.geoserverBusProperties.isSendDiff()) {
-            assertTrue(event.patch().isPresent());
-            assertEquals(expected.getPropertyNames(), event.patch().get().getPropertyNames());
-            // can't compare value equality here, RevolvingProxy instances won't be resolved against
-            // the remote catalog because that depends on having an actual catalog backend
-            // configured
-            // assertEquals(expected, event.patch().get());
-        }
+        Patch actual = event.getPatch();
+        assertThat(actual).isNotNull();
+        assertThat(actual.getPropertyNames()).isEqualTo(expected.getPropertyNames());
+        // can't compare value equality here, RevolvingProxy instances won't be resolved against
+        // the remote catalog because that depends on having an actual catalog backend
+        // configured
+        // assertEquals(expected, actual);
     }
 }

@@ -71,7 +71,12 @@
       </dependency>
       <dependency>
         <groupId>org.geoserver.cloud.catalog</groupId>
-        <artifactId>gs-cloud-event-bus</artifactId>
+        <artifactId>gs-cloud-catalog-events</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud.catalog</groupId>
+        <artifactId>gs-cloud-catalog-event-bus</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

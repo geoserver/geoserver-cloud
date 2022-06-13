@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.geoserver.catalog.AttributeTypeInfo;
 import org.geoserver.catalog.AuthorityURLInfo;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.CoverageDimensionInfo;
@@ -22,6 +23,7 @@ import org.geoserver.catalog.MetadataLinkInfo;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.Query;
+import org.geoserver.jackson.databind.catalog.dto.AttributeType;
 import org.geoserver.jackson.databind.catalog.dto.AuthorityURL;
 import org.geoserver.jackson.databind.catalog.dto.CRS;
 import org.geoserver.jackson.databind.catalog.dto.CoverageDimension;
@@ -218,6 +220,12 @@ public class GeoServerCatalogModule extends SimpleModule {
                 VALUE_MAPPER::internationalStringToDto,
                 Map.class,
                 VALUE_MAPPER::dtoToInternationalString);
+
+        addMapperSerializer(
+                AttributeTypeInfo.class,
+                VALUE_MAPPER::infoToDto,
+                AttributeType.class,
+                VALUE_MAPPER::dtoToInfo);
     }
 
     private void registerSharedMappers() {

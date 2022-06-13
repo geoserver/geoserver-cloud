@@ -11,21 +11,31 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import lombok.extern.slf4j.Slf4j;
 
 import org.geoserver.catalog.Info;
+import org.geoserver.config.CoverageAccessInfo;
 import org.geoserver.config.GeoServerInfo;
+import org.geoserver.config.JAIInfo;
 import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
 import org.geoserver.gwc.wmts.WMTSInfo;
 import org.geoserver.jackson.databind.catalog.GeoServerCatalogModule;
 import org.geoserver.jackson.databind.catalog.dto.InfoDto;
+import org.geoserver.jackson.databind.config.dto.CoverageAccess;
 import org.geoserver.jackson.databind.config.dto.GeoServer;
+import org.geoserver.jackson.databind.config.dto.JaiDto;
 import org.geoserver.jackson.databind.config.dto.Logging;
 import org.geoserver.jackson.databind.config.dto.Service;
 import org.geoserver.jackson.databind.config.dto.Settings;
+import org.geoserver.jackson.databind.config.dto.mapper.GeoServerConfigMapper;
 import org.geoserver.wcs.WCSInfo;
 import org.geoserver.wfs.WFSInfo;
 import org.geoserver.wms.WMSInfo;
 import org.geoserver.wps.WPSInfo;
+import org.geotools.jackson.databind.util.MapperDeserializer;
+import org.geotools.jackson.databind.util.MapperSerializer;
+import org.mapstruct.factory.Mappers;
+
+import java.util.function.Function;
 
 /**
  * Jackson {@link com.fasterxml.jackson.databind.Module} to handle GeoServer configuration objects
@@ -55,14 +65,13 @@ import org.geoserver.wps.WPSInfo;
 @Slf4j(topic = "org.geoserver.jackson.databind.config")
 public class GeoServerConfigModule extends SimpleModule {
     private static final long serialVersionUID = -8756800180255446679L;
+    static final GeoServerConfigMapper VALUE_MAPPER =
+            Mappers.getMapper(GeoServerConfigMapper.class);
 
     public GeoServerConfigModule() {
         super(GeoServerConfigModule.class.getSimpleName(), new Version(1, 0, 0, null, null, null));
 
         log.debug("registering jackson de/serializers for all GeoServer config Info types");
-
-        //        addSerializer(Info.class);
-        //        addDeserializer(Info.class, InfoDto.class);
 
         addSerializer(GeoServerInfo.class);
         addDeserializer(GeoServerInfo.class, GeoServer.class);
@@ -90,6 +99,27 @@ public class GeoServerConfigModule extends SimpleModule {
 
         addSerializer(WMTSInfo.class);
         addDeserializer(WMTSInfo.class, Service.WmtsService.class);
+
+        addMapperSerializer(
+                CoverageAccessInfo.class,
+                VALUE_MAPPER::toDto,
+                CoverageAccess.class,
+                VALUE_MAPPER::toInfo);
+
+        addMapperSerializer(JAIInfo.class, VALUE_MAPPER::toDto, JaiDto.class, VALUE_MAPPER::toInfo);
+    }
+
+    private <T, DTO> void addMapperSerializer(
+            Class<T> type,
+            Function<T, DTO> serializerMapper,
+            Class<DTO> dtoType,
+            Function<DTO, T> deserializerMapper) {
+
+        MapperSerializer<T, DTO> serializer = new MapperSerializer<>(type, serializerMapper);
+        MapperDeserializer<DTO, T> deserializer =
+                new MapperDeserializer<>(dtoType, deserializerMapper);
+        super.addSerializer(type, serializer);
+        super.addDeserializer(type, deserializer);
     }
 
     private <I extends Info> void addSerializer(Class<I> configInfoType) {

@@ -17,7 +17,9 @@ import static org.mockito.Mockito.times;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.CatalogTestData;
+import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.Info;
+import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ModificationProxy;
@@ -25,23 +27,24 @@ import org.geoserver.catalog.impl.WorkspaceInfoImpl;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.cloud.autoconfigure.testconfiguration.AutoConfigurationTestConfiguration;
-import org.geoserver.cloud.bus.event.RemoteInfoEvent;
-import org.geoserver.cloud.bus.event.catalog.RemoteCatalogInfoModifyEvent;
-import org.geoserver.cloud.bus.event.catalog.RemoteCatalogInfoRemoveEvent;
-import org.geoserver.cloud.bus.event.catalog.RemoteDefaultDataStoreEvent;
-import org.geoserver.cloud.bus.event.catalog.RemoteDefaultNamespaceEvent;
-import org.geoserver.cloud.bus.event.catalog.RemoteDefaultWorkspaceEvent;
-import org.geoserver.cloud.bus.event.config.RemoteGeoServerInfoModifyEvent;
-import org.geoserver.cloud.bus.event.config.RemoteGeoServerInfoSetEvent;
-import org.geoserver.cloud.bus.event.config.RemoteLoggingInfoModifyEvent;
-import org.geoserver.cloud.bus.event.config.RemoteLoggingInfoSetEvent;
-import org.geoserver.cloud.bus.event.config.RemoteServiceInfoModifyEvent;
-import org.geoserver.cloud.bus.event.config.RemoteServiceInfoRemoveEvent;
-import org.geoserver.cloud.bus.event.config.RemoteSettingsInfoModifyEvent;
-import org.geoserver.cloud.bus.event.config.RemoteSettingsInfoRemoveEvent;
 import org.geoserver.cloud.catalog.caching.CachingCatalogFacade;
 import org.geoserver.cloud.catalog.caching.CachingGeoServerFacade;
 import org.geoserver.cloud.catalog.caching.CatalogInfoKey;
+import org.geoserver.cloud.event.catalog.CatalogInfoModifyEvent;
+import org.geoserver.cloud.event.catalog.CatalogInfoRemoveEvent;
+import org.geoserver.cloud.event.catalog.DefaultDataStoreEvent;
+import org.geoserver.cloud.event.catalog.DefaultNamespaceEvent;
+import org.geoserver.cloud.event.catalog.DefaultWorkspaceEvent;
+import org.geoserver.cloud.event.config.GeoServerInfoModifyEvent;
+import org.geoserver.cloud.event.config.GeoServerInfoSetEvent;
+import org.geoserver.cloud.event.config.LoggingInfoModifyEvent;
+import org.geoserver.cloud.event.config.LoggingInfoSetEvent;
+import org.geoserver.cloud.event.config.ServiceInfoModifyEvent;
+import org.geoserver.cloud.event.config.ServiceInfoRemoveEvent;
+import org.geoserver.cloud.event.config.SettingsInfoModifyEvent;
+import org.geoserver.cloud.event.config.SettingsInfoRemoveEvent;
+import org.geoserver.cloud.event.config.UpdateSequenceEvent;
+import org.geoserver.cloud.event.info.InfoEvent;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
@@ -56,7 +59,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -75,7 +77,7 @@ import javax.annotation.Nullable;
  * Test {@link org.geoserver.cloud.bus.incoming.caching.RemoteEventCacheEvictor} functionality when
  * {@code geoserver.catalog.caching.enabled=true}.
  *
- * <p>Upon receiving {@link RemoteInfoEvent}s from the bus, {@link
+ * <p>Upon receiving {@link InfoEvent}s from the bus, {@link
  * org.geoserver.cloud.bus.incoming.caching.RemoteEventCacheEvictor} shall evict the appropriate
  * locally cached {@link Info} objects
  */
@@ -83,9 +85,7 @@ import javax.annotation.Nullable;
         classes = AutoConfigurationTestConfiguration.class,
         properties = { //
             "eureka.client.enabled=false",
-            "spring.cloud.bus.enabled=true",
             "geoserver.catalog.caching.enabled=true",
-            "geoserver.bus.enabled=true",
             // disable automatic publishing of remote events,
             // we're publishing them directly in test cases
             "geoserver.bus.send-events=false",
@@ -113,9 +113,6 @@ public class RemoteEventCacheEvictorTest {
 
     // ApplicationContext, used to publish remote events as if the'd be coming from the bus
     private @Autowired ApplicationEventPublisher publisher;
-    private @Autowired BeanFactory beanFactory;
-    private final String originService = "fake-origin-service";
-    private final String destinationService = "**";
 
     public @Rule CatalogTestData data =
             CatalogTestData.initialized(() -> rawCatalog, () -> geoServer);
@@ -139,12 +136,7 @@ public class RemoteEventCacheEvictorTest {
         catalog.getDefaultWorkspace();
         assertNotNull(catalogCache.get(DEFAULT_WORKSPACE_CACHE_KEY));
 
-        publish(
-                RemoteDefaultWorkspaceEvent.class,
-                catalog,
-                patch("defaultWorkspace", null),
-                originService,
-                destinationService);
+        publishRemote(DefaultWorkspaceEvent.createLocal(catalog, (WorkspaceInfo) null));
         assertNull(catalogCache.get(DEFAULT_WORKSPACE_CACHE_KEY));
     }
 
@@ -154,8 +146,8 @@ public class RemoteEventCacheEvictorTest {
         return patch;
     }
 
-    private <E extends RemoteInfoEvent<?, ?>> E publish(Class<E> eventType, Object... args) {
-        E event = this.beanFactory.getBean(eventType, args);
+    private <E extends InfoEvent<?, ?, ?>> E publishRemote(E event) {
+        event.setRemote(true);
         publisher.publishEvent(event);
         return event;
     }
@@ -166,12 +158,8 @@ public class RemoteEventCacheEvictorTest {
         catalog.getDefaultNamespace();
         assertNotNull(catalogCache.get(DEFAULT_NAMESPACE_CACHE_KEY));
 
-        publish(
-                RemoteDefaultNamespaceEvent.class,
-                catalog,
-                patch("defaultNamespace", null),
-                originService,
-                destinationService);
+        publishRemote(DefaultNamespaceEvent.createLocal(catalog, (NamespaceInfo) null));
+
         assertNull(catalogCache.get(DEFAULT_NAMESPACE_CACHE_KEY));
     }
 
@@ -182,48 +170,41 @@ public class RemoteEventCacheEvictorTest {
         catalog.getDefaultDataStore(data.workspaceA);
         assertNotNull("expected cache hit", catalogCache.get(key));
 
-        publish(
-                RemoteDefaultDataStoreEvent.class,
-                catalog,
-                data.workspaceA,
-                patch("defaultDataStore", null),
-                originService,
-                destinationService);
+        publishRemote(
+                DefaultDataStoreEvent.createLocal(catalog, data.workspaceA, (DataStoreInfo) null));
+
         assertNull(
                 "expected key evicted after setting null default datastore", catalogCache.get(key));
 
         assertNull(catalog.getDefaultDataStore(data.workspaceA));
         assertNull(catalogCache.get(key));
 
-        publish(
-                RemoteDefaultDataStoreEvent.class,
-                catalog,
-                data.workspaceA,
-                patch("defaultDataStore", data.dataStoreA),
-                originService,
-                destinationService);
+        publishRemote(DefaultDataStoreEvent.createLocal(catalog, data.workspaceA, data.dataStoreA));
+
         assertNull(catalogCache.get(key));
         assertNotNull(catalog.getDefaultDataStore(data.workspaceA));
         assertNotNull(catalogCache.get(key));
     }
 
     public @Test void testCatalogInfoEvictingEvents() {
-        testModifyRemoveCatalogInfo(data.layerGroup1, catalog::getLayerGroup);
-        testModifyRemoveCatalogInfo(data.layerFeatureTypeA, catalog::getLayer);
-        testModifyRemoveCatalogInfo(data.style1, catalog::getStyle);
-        testModifyRemoveCatalogInfo(data.coverageA, catalog::getCoverage);
-        testModifyRemoveCatalogInfo(data.dataStoreA, catalog::getDataStore);
-        testModifyRemoveCatalogInfo(data.wmsStoreA, id -> catalog.getStore(id, StoreInfo.class));
-        testModifyRemoveCatalogInfo(data.wmtsStoreA, id -> catalog.getStore(id, StoreInfo.class));
-        testModifyRemoveCatalogInfo(data.namespaceA, catalog::getNamespace);
-        testModifyRemoveCatalogInfo(data.workspaceA, catalog::getWorkspace);
+        testModifyThenRemoveCatalogInfo(data.layerGroup1, catalog::getLayerGroup);
+        testModifyThenRemoveCatalogInfo(data.layerFeatureTypeA, catalog::getLayer);
+        testModifyThenRemoveCatalogInfo(data.style1, catalog::getStyle);
+        testModifyThenRemoveCatalogInfo(data.coverageA, catalog::getCoverage);
+        testModifyThenRemoveCatalogInfo(data.dataStoreA, catalog::getDataStore);
+        testModifyThenRemoveCatalogInfo(
+                data.wmsStoreA, id -> catalog.getStore(id, StoreInfo.class));
+        testModifyThenRemoveCatalogInfo(
+                data.wmtsStoreA, id -> catalog.getStore(id, StoreInfo.class));
+        testModifyThenRemoveCatalogInfo(data.namespaceA, catalog::getNamespace);
+        testModifyThenRemoveCatalogInfo(data.workspaceA, catalog::getWorkspace);
     }
 
     /**
      * @param info the object to check modify and delete events for
      * @param query a function to query the object by id, that would result in a cache hit
      */
-    private <T extends CatalogInfo> void testModifyRemoveCatalogInfo(
+    private <T extends CatalogInfo> void testModifyThenRemoveCatalogInfo(
             T info, Function<String, T> query) {
         CatalogInfoKey key = new CatalogInfoKey(info);
 
@@ -234,14 +215,11 @@ public class RemoteEventCacheEvictorTest {
 
         Mockito.clearInvocations(this.evictor);
 
-        RemoteCatalogInfoModifyEvent modifyEvent =
-                publish(
-                        RemoteCatalogInfoModifyEvent.class,
-                        catalog,
-                        info,
-                        patch("dateModified", new Date()),
-                        originService,
-                        destinationService);
+        CatalogInfoModifyEvent modifyEvent =
+                publishRemote(
+                        CatalogInfoModifyEvent.createLocal(
+                                catalog, info, patch("dateModified", new Date())));
+
         Mockito.verify(this.evictor, times(1)).onCatalogInfoModifyEvent(same(modifyEvent));
         Mockito.verifyNoMoreInteractions(evictor);
 
@@ -252,13 +230,8 @@ public class RemoteEventCacheEvictorTest {
 
         Mockito.clearInvocations(this.evictor);
 
-        RemoteCatalogInfoRemoveEvent removeEvent =
-                publish(
-                        RemoteCatalogInfoRemoveEvent.class,
-                        catalog,
-                        info,
-                        originService,
-                        destinationService);
+        CatalogInfoRemoveEvent removeEvent =
+                publishRemote(CatalogInfoRemoveEvent.createLocal(catalog, info));
         Mockito.verify(this.evictor, times(1)).onCatalogInfoRemoveEvent(same(removeEvent));
         Mockito.verifyNoMoreInteractions(evictor);
 
@@ -298,14 +271,10 @@ public class RemoteEventCacheEvictorTest {
         assertNotNull(configCache.get(typeKey));
 
         Mockito.clearInvocations(this.evictor);
-        RemoteServiceInfoModifyEvent event =
-                publish(
-                        RemoteServiceInfoModifyEvent.class,
-                        geoServer,
-                        service,
-                        patch("abstract", "doesn't matter"),
-                        originService,
-                        destinationService);
+        ServiceInfoModifyEvent event =
+                publishRemote(
+                        ServiceInfoModifyEvent.createLocal(
+                                geoServer, service, patch("abstract", "doesn't matter")));
 
         Mockito.verify(this.evictor, times(1)).onServiceInfoModifyEvent(same(event));
 
@@ -347,13 +316,8 @@ public class RemoteEventCacheEvictorTest {
         assertNotNull(configCache.get(typeKey));
 
         Mockito.clearInvocations(this.evictor);
-        RemoteServiceInfoRemoveEvent event =
-                publish(
-                        RemoteServiceInfoRemoveEvent.class,
-                        geoServer,
-                        service,
-                        originService,
-                        destinationService);
+        ServiceInfoRemoveEvent event =
+                publishRemote(ServiceInfoRemoveEvent.createLocal(geoServer, service));
 
         Mockito.verify(this.evictor, times(1)).onServiceInfoRemoveEvent(same(event));
 
@@ -380,14 +344,10 @@ public class RemoteEventCacheEvictorTest {
 
         // constructor args: GeoServer, SettingsInfo, Patch, originService,destinationService
         Mockito.clearInvocations(evictor);
-        RemoteSettingsInfoModifyEvent event =
-                publish(
-                        RemoteSettingsInfoModifyEvent.class,
-                        geoServer,
-                        settings,
-                        patch("charset", "ISO-8859-1"),
-                        originService,
-                        destinationService);
+        SettingsInfoModifyEvent event =
+                publishRemote(
+                        SettingsInfoModifyEvent.createLocal(
+                                geoServer, settings, patch("charset", "ISO-8859-1")));
 
         assertEquals(ws.getId(), event.getWorkspaceId());
 
@@ -417,13 +377,8 @@ public class RemoteEventCacheEvictorTest {
 
         // constructor args: GeoServer, SettingsInfo, originService,destinationService
         Mockito.clearInvocations(evictor);
-        RemoteSettingsInfoRemoveEvent event =
-                publish(
-                        RemoteSettingsInfoRemoveEvent.class,
-                        geoServer,
-                        settings,
-                        originService,
-                        destinationService);
+        SettingsInfoRemoveEvent event =
+                publishRemote(SettingsInfoRemoveEvent.createLocal(geoServer, settings));
 
         assertEquals(ws.getId(), event.getWorkspaceId());
 
@@ -445,13 +400,9 @@ public class RemoteEventCacheEvictorTest {
 
         Mockito.clearInvocations(this.evictor);
 
-        RemoteLoggingInfoSetEvent event =
-                publish(
-                        RemoteLoggingInfoSetEvent.class,
-                        this.geoServer,
-                        newLogging,
-                        originService,
-                        destinationService);
+        LoggingInfoSetEvent event =
+                publishRemote(LoggingInfoSetEvent.createLocal(geoServer, newLogging));
+
         Mockito.verify(evictor, times(1)).onSetLoggingInfoEvent(same(event));
 
         assertNull("logging not evicted", configCache.get(key));
@@ -465,14 +416,10 @@ public class RemoteEventCacheEvictorTest {
 
         Mockito.clearInvocations(this.evictor);
 
-        RemoteLoggingInfoModifyEvent event =
-                publish(
-                        RemoteLoggingInfoModifyEvent.class,
-                        this.geoServer,
-                        info,
-                        patch("level", "DEBUG"),
-                        originService,
-                        destinationService);
+        LoggingInfoModifyEvent event =
+                publishRemote(
+                        LoggingInfoModifyEvent.createLocal(
+                                geoServer, info, patch("level", "DEBUG")));
         Mockito.verify(evictor, times(1)).onLoggingInfoModifyEvent(same(event));
 
         assertNull("logging not evicted", configCache.get(key));
@@ -488,13 +435,9 @@ public class RemoteEventCacheEvictorTest {
 
         Mockito.clearInvocations(this.evictor);
         // GeoServer source, Info object, String originService, String destinationService
-        RemoteGeoServerInfoSetEvent event =
-                publish(
-                        RemoteGeoServerInfoSetEvent.class,
-                        this.geoServer,
-                        newGlobal,
-                        originService,
-                        destinationService);
+        GeoServerInfoSetEvent event =
+                publishRemote(GeoServerInfoSetEvent.createLocal(geoServer, newGlobal));
+
         Mockito.verify(evictor, times(1)).onSetGlobalInfoEvent(same(event));
 
         assertNull("global not evicted", configCache.get(key));
@@ -508,14 +451,10 @@ public class RemoteEventCacheEvictorTest {
 
         Mockito.clearInvocations(this.evictor);
         // GeoServer source, GeoServerInfo object, Patch patch, originService,destinationService
-        RemoteGeoServerInfoModifyEvent event =
-                publish(
-                        RemoteGeoServerInfoModifyEvent.class,
-                        this.geoServer,
-                        info,
-                        patch("xmlExternalEntitiesEnabled", true),
-                        originService,
-                        destinationService);
+        GeoServerInfoModifyEvent event =
+                publishRemote(
+                        GeoServerInfoModifyEvent.createLocal(
+                                geoServer, info, patch("xmlExternalEntitiesEnabled", true)));
         Mockito.verify(evictor, times(1)).onGeoServerInfoModifyEvent(same(event));
 
         assertNull("global not evicted", configCache.get(key));
@@ -525,12 +464,11 @@ public class RemoteEventCacheEvictorTest {
      * {@link GeoServerInfo#getUpdateSequence() update sequence} events are triggered upon each
      * configuration and catalog modification just for the sake of incrementing the update sequence.
      *
-     * <p>{@link RemoteGeoServerInfoModifyEvent#isUpdateSequenceEvent()} is meant to be checked by
-     * {@link RemoteEventCacheEvictor} and set the updated sequence number to the cached object
-     * instead of evicting it.
+     * <p>{@link UpdateSequenceEvent} is meant to be checked by {@link RemoteEventCacheEvictor} and
+     * set the updated sequence number to the cached object instead of evicting it.
      */
     public @Test void
-            testRemoteGeoServerInfoModifyEvent_do_not_evict_and_apply_update_sequence_in_place() {
+            testUpdateSequenceModifyEvent_does_not_evict_but_applies_update_sequence_in_place() {
         GeoServerInfo local = geoServer.getGlobal();
         assertNotNull(local);
         final String key = CachingGeoServerFacade.GEOSERVERINFO_KEY;
@@ -545,16 +483,10 @@ public class RemoteEventCacheEvictorTest {
         // GeoServer source,GeoServerInfo object,Patch patch,String originService,String
         // destinationService
         Mockito.clearInvocations(this.evictor);
-        RemoteGeoServerInfoModifyEvent event =
-                publish(
-                        RemoteGeoServerInfoModifyEvent.class,
-                        geoServer,
-                        remote,
-                        patch("updateSequence", 1000L),
-                        originService,
-                        destinationService);
+        UpdateSequenceEvent event =
+                publishRemote(UpdateSequenceEvent.createLocal(geoServer, remote));
 
-        Mockito.verify(evictor, times(1)).onGeoServerInfoModifyEvent(same(event));
+        Mockito.verify(evictor, times(1)).onUpdateSequenceEvent(same(event));
 
         assertNotNull(
                 "updateSequence event shouldn't evict the global config", configCache.get(key));

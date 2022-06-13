@@ -34,72 +34,6 @@
       <artifactId>gs-main</artifactId>
     </dependency>
     <dependency>
-      <!-- all deps excluded to use WMSInfo/Impl -->
-      <groupId>org.geoserver</groupId>
-      <artifactId>gs-wms</artifactId>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <!-- all deps excluded to use WMFSInfo/Impl -->
-      <groupId>org.geoserver</groupId>
-      <artifactId>gs-wfs</artifactId>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <!-- all deps excluded to use WCSInfo/Impl -->
-      <groupId>org.geoserver</groupId>
-      <artifactId>gs-wcs</artifactId>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <!-- all deps excluded to use WPSInfo/Impl -->
-      <groupId>org.geoserver.extension</groupId>
-      <artifactId>gs-wps-core</artifactId>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <!-- all deps excluded, needed by WPSXstreamLoader -->
-      <groupId>org.geotools</groupId>
-      <artifactId>gt-process</artifactId>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <!-- all deps excluded, needed by WPSXstreamLoader -->
-      <groupId>org.geotools</groupId>
-      <artifactId>gt-process-geometry</artifactId>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
       <groupId>org.geoserver.cloud.catalog</groupId>
       <artifactId>gs-cloud-catalog-plugin</artifactId>
     </dependency>
@@ -112,8 +46,8 @@
       <artifactId>gs-cloud-reactive-catalog-client</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-starter-event-bus</artifactId>
+      <groupId>org.geoserver.cloud.catalog</groupId>
+      <artifactId>gs-cloud-catalog-events</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>

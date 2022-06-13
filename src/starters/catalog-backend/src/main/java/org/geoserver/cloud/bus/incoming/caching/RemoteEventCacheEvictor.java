@@ -6,7 +6,6 @@ package org.geoserver.cloud.bus.incoming.caching;
 
 import static org.geoserver.cloud.catalog.caching.CachingCatalogFacade.DEFAULT_NAMESPACE_CACHE_KEY;
 import static org.geoserver.cloud.catalog.caching.CachingCatalogFacade.DEFAULT_WORKSPACE_CACHE_KEY;
-import static org.geoserver.cloud.catalog.caching.CachingCatalogFacade.generateDefaultDataStoreKey;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,23 +14,24 @@ import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ResolvingProxy;
-import org.geoserver.cloud.bus.event.RemoteInfoEvent;
-import org.geoserver.cloud.bus.event.catalog.RemoteCatalogInfoModifyEvent;
-import org.geoserver.cloud.bus.event.catalog.RemoteCatalogInfoRemoveEvent;
-import org.geoserver.cloud.bus.event.catalog.RemoteDefaultDataStoreEvent;
-import org.geoserver.cloud.bus.event.catalog.RemoteDefaultNamespaceEvent;
-import org.geoserver.cloud.bus.event.catalog.RemoteDefaultWorkspaceEvent;
-import org.geoserver.cloud.bus.event.config.RemoteGeoServerInfoModifyEvent;
-import org.geoserver.cloud.bus.event.config.RemoteGeoServerInfoSetEvent;
-import org.geoserver.cloud.bus.event.config.RemoteLoggingInfoModifyEvent;
-import org.geoserver.cloud.bus.event.config.RemoteLoggingInfoSetEvent;
-import org.geoserver.cloud.bus.event.config.RemoteServiceInfoModifyEvent;
-import org.geoserver.cloud.bus.event.config.RemoteServiceInfoRemoveEvent;
-import org.geoserver.cloud.bus.event.config.RemoteSettingsInfoModifyEvent;
-import org.geoserver.cloud.bus.event.config.RemoteSettingsInfoRemoveEvent;
 import org.geoserver.cloud.catalog.caching.CachingCatalogFacade;
 import org.geoserver.cloud.catalog.caching.CachingGeoServerFacade;
-import org.geoserver.cloud.event.ConfigInfoInfoType;
+import org.geoserver.cloud.event.catalog.CatalogInfoModifyEvent;
+import org.geoserver.cloud.event.catalog.CatalogInfoRemoveEvent;
+import org.geoserver.cloud.event.catalog.DefaultDataStoreEvent;
+import org.geoserver.cloud.event.catalog.DefaultNamespaceEvent;
+import org.geoserver.cloud.event.catalog.DefaultWorkspaceEvent;
+import org.geoserver.cloud.event.config.GeoServerInfoModifyEvent;
+import org.geoserver.cloud.event.config.GeoServerInfoSetEvent;
+import org.geoserver.cloud.event.config.LoggingInfoModifyEvent;
+import org.geoserver.cloud.event.config.LoggingInfoSetEvent;
+import org.geoserver.cloud.event.config.ServiceInfoModifyEvent;
+import org.geoserver.cloud.event.config.ServiceInfoRemoveEvent;
+import org.geoserver.cloud.event.config.SettingsInfoModifyEvent;
+import org.geoserver.cloud.event.config.SettingsInfoRemoveEvent;
+import org.geoserver.cloud.event.config.UpdateSequenceEvent;
+import org.geoserver.cloud.event.info.ConfigInfoType;
+import org.geoserver.cloud.event.info.InfoEvent;
 import org.geoserver.config.GeoServerInfo;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
@@ -50,82 +50,89 @@ public @Service class RemoteEventCacheEvictor {
     private final CachingCatalogFacade catalog;
     private final CachingGeoServerFacade config;
 
-    @EventListener(classes = {RemoteDefaultWorkspaceEvent.class})
-    public void onSetDefaultWorkspaceEvent(RemoteDefaultWorkspaceEvent event) {
+    @EventListener(classes = {DefaultWorkspaceEvent.class})
+    public void onSetDefaultWorkspaceEvent(DefaultWorkspaceEvent event) {
         evictEntry(event, () -> catalog.evict(DEFAULT_WORKSPACE_CACHE_KEY));
     }
 
-    @EventListener(classes = {RemoteDefaultNamespaceEvent.class})
-    public void onSetDefaultNamespaceEvent(RemoteDefaultNamespaceEvent event) {
+    @EventListener(classes = {DefaultNamespaceEvent.class})
+    public void onSetDefaultNamespaceEvent(DefaultNamespaceEvent event) {
         evictEntry(event, () -> catalog.evict(DEFAULT_NAMESPACE_CACHE_KEY));
     }
 
-    @EventListener(classes = {RemoteDefaultDataStoreEvent.class})
-    public void onSetDefaultDataStoreEvent(RemoteDefaultDataStoreEvent event) {
+    @EventListener(classes = {DefaultDataStoreEvent.class})
+    public void onSetDefaultDataStoreEvent(DefaultDataStoreEvent event) {
         evictEntry(
                 event,
                 () -> {
                     String workspaceId = event.getWorkspaceId();
-                    WorkspaceInfo info = ResolvingProxy.create(workspaceId, WorkspaceInfo.class);
-                    catalog.evict(generateDefaultDataStoreKey(info));
+                    WorkspaceInfo workspace =
+                            ResolvingProxy.create(workspaceId, WorkspaceInfo.class);
+                    catalog.evict(CachingCatalogFacade.generateDefaultDataStoreKey(workspace));
                     return false;
                 });
     }
 
-    @EventListener(classes = {RemoteCatalogInfoRemoveEvent.class})
-    public void onCatalogInfoRemoveEvent(RemoteCatalogInfoRemoveEvent event) {
+    @EventListener(classes = {CatalogInfoRemoveEvent.class})
+    public void onCatalogInfoRemoveEvent(CatalogInfoRemoveEvent event) {
         evictCatalogInfo(event);
     }
 
-    @EventListener(classes = {RemoteCatalogInfoModifyEvent.class})
-    public void onCatalogInfoModifyEvent(RemoteCatalogInfoModifyEvent event) {
-        evictCatalogInfo(event);
-    }
-
-    @EventListener(classes = {RemoteGeoServerInfoModifyEvent.class})
-    public void onGeoServerInfoModifyEvent(RemoteGeoServerInfoModifyEvent event) {
-        if (!event.isFromSelf()) {
-            final boolean isUpdateSequenceEvent = event.isUpdateSequenceEvent();
-            if (isUpdateSequenceEvent) {
-                applyUpdateSequence((RemoteGeoServerInfoModifyEvent) event);
-            } else {
-                evictConfigEntry(event);
-            }
+    @EventListener(classes = {CatalogInfoModifyEvent.class})
+    public void onCatalogInfoModifyEvent(CatalogInfoModifyEvent event) {
+        if (CatalogInfoModifyEvent.class.equals(event.getClass())) {
+            evictCatalogInfo(event);
         }
     }
 
-    @EventListener(classes = {RemoteLoggingInfoModifyEvent.class})
-    public void onLoggingInfoModifyEvent(RemoteLoggingInfoModifyEvent event) {
+    @EventListener(classes = {GeoServerInfoModifyEvent.class})
+    public void onGeoServerInfoModifyEvent(GeoServerInfoModifyEvent event) {
+        if (GeoServerInfoModifyEvent.class.equals(event.getClass())) {
+            evictConfigEntry(event);
+        }
+    }
+
+    @EventListener(classes = {UpdateSequenceEvent.class})
+    public void onUpdateSequenceEvent(UpdateSequenceEvent event) {
+        event.remote()
+                .ifPresent(
+                        evt -> {
+                            applyUpdateSequence((UpdateSequenceEvent) evt);
+                        });
+    }
+
+    @EventListener(classes = {LoggingInfoModifyEvent.class})
+    public void onLoggingInfoModifyEvent(LoggingInfoModifyEvent event) {
         evictConfigEntry(event);
     }
 
-    @EventListener(classes = {RemoteSettingsInfoModifyEvent.class})
-    public void onSettingsInfoModifyEvent(RemoteSettingsInfoModifyEvent event) {
+    @EventListener(classes = {SettingsInfoModifyEvent.class})
+    public void onSettingsInfoModifyEvent(SettingsInfoModifyEvent event) {
         evictConfigEntry(event);
     }
 
-    @EventListener(classes = {RemoteServiceInfoModifyEvent.class})
-    public void onServiceInfoModifyEvent(RemoteServiceInfoModifyEvent event) {
+    @EventListener(classes = {ServiceInfoModifyEvent.class})
+    public void onServiceInfoModifyEvent(ServiceInfoModifyEvent event) {
         evictConfigEntry(event);
     }
 
-    @EventListener(classes = {RemoteSettingsInfoRemoveEvent.class})
-    public void onSettingsInfoRemoveEvent(RemoteSettingsInfoRemoveEvent event) {
+    @EventListener(classes = {SettingsInfoRemoveEvent.class})
+    public void onSettingsInfoRemoveEvent(SettingsInfoRemoveEvent event) {
         evictConfigEntry(event);
     }
 
-    @EventListener(classes = {RemoteServiceInfoRemoveEvent.class})
-    public void onServiceInfoRemoveEvent(RemoteServiceInfoRemoveEvent event) {
+    @EventListener(classes = {ServiceInfoRemoveEvent.class})
+    public void onServiceInfoRemoveEvent(ServiceInfoRemoveEvent event) {
         evictConfigEntry(event);
     }
 
-    @EventListener(classes = {RemoteGeoServerInfoSetEvent.class})
-    public void onSetGlobalInfoEvent(RemoteGeoServerInfoSetEvent event) {
+    @EventListener(classes = {GeoServerInfoSetEvent.class})
+    public void onSetGlobalInfoEvent(GeoServerInfoSetEvent event) {
         evictConfigEntry(event);
     }
 
-    @EventListener(classes = {RemoteLoggingInfoSetEvent.class})
-    public void onSetLoggingInfoEvent(RemoteLoggingInfoSetEvent event) {
+    @EventListener(classes = {LoggingInfoSetEvent.class})
+    public void onSetLoggingInfoEvent(LoggingInfoSetEvent event) {
         evictConfigEntry(event);
     }
 
@@ -133,7 +140,7 @@ public @Service class RemoteEventCacheEvictor {
      * Called when the only change to {@link GeoServerInfo} is its update sequence number, in order
      * to avoid evicting the locally cached object and apply the new update sequence to it instead.
      */
-    private void applyUpdateSequence(RemoteGeoServerInfoModifyEvent event) {
+    private void applyUpdateSequence(UpdateSequenceEvent event) {
         GeoServerInfo global = config.getGlobal();
         long current = global.getUpdateSequence();
         long updateSequence = event.getUpdateSequence();
@@ -155,49 +162,39 @@ public @Service class RemoteEventCacheEvictor {
         }
     }
 
-    private void evictCatalogInfo(RemoteInfoEvent<?, ?> event) {
+    private void evictCatalogInfo(InfoEvent<?, ?, ?> event) {
         evictEntry(
                 event,
                 () -> {
                     String objectId = event.getObjectId();
-                    ConfigInfoInfoType infoType = event.getInfoType();
+                    ConfigInfoType infoType = event.getObjectType();
                     CatalogInfo info =
                             (CatalogInfo) ResolvingProxy.create(objectId, infoType.getType());
                     return catalog.evict(info);
                 });
     }
 
-    public void evictConfigEntry(RemoteInfoEvent<?, ?> event) {
+    public void evictConfigEntry(InfoEvent<?, ?, ?> event) {
         evictEntry(
                 event,
                 () -> {
                     String objectId = event.getObjectId();
-                    ConfigInfoInfoType infoType = event.getInfoType();
+                    ConfigInfoType infoType = event.getObjectType();
                     Info info = ResolvingProxy.create(objectId, infoType.getType());
                     return config.evict(info);
                 });
     }
 
-    private void evictEntry(RemoteInfoEvent<?, ?> event, BooleanSupplier evictor) {
-        if (event.isFromSelf()) {
-            return;
-        }
-        boolean evicted = evictor.getAsBoolean();
-        String eventName = event.getClass().getSimpleName();
-        ConfigInfoInfoType eventSourceType = event.getInfoType();
-        String eventSourceId = event.getId();
-        if (evicted) {
-            log.debug(
-                    "Evicted cache entry upon remote event {}[{}({})]",
-                    eventName,
-                    eventSourceType,
-                    eventSourceId);
-        } else {
-            log.trace(
-                    "Remote event {}[{}({})] resulted in no cache evict",
-                    eventName,
-                    eventSourceType,
-                    eventSourceId);
-        }
+    private void evictEntry(InfoEvent<?, ?, ?> event, BooleanSupplier evictor) {
+        event.remote()
+                .ifPresent(
+                        evt -> {
+                            boolean evicted = evictor.getAsBoolean();
+                            if (evicted) {
+                                log.debug("Evicted cache entry upon remote event ", evt);
+                            } else {
+                                log.trace("Remote event resulted in no cache eviction: ", evt);
+                            }
+                        });
     }
 }

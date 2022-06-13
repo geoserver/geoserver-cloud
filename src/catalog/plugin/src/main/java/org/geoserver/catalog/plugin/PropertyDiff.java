@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 import org.geoserver.catalog.Info;
+import org.geoserver.catalog.MetadataMap;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.ows.util.ClassProperties;
@@ -20,17 +21,30 @@ import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public @Data class PropertyDiff implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private List<Change> changes;
+
+    public static <T extends Info> PropertyDiffBuilder<T> builder() {
+        return new PropertyDiffBuilder<>();
+    }
 
     public static <T extends Info> PropertyDiffBuilder<T> builder(T oldValueHolder) {
         return new PropertyDiffBuilder<>(oldValueHolder);
@@ -69,6 +83,18 @@ public @Data class PropertyDiff implements Serializable {
         return changes.stream().filter(c -> propertyName.equals(c.getPropertyName())).findFirst();
     }
 
+    public List<String> getPropertyNames() {
+        return getChanges().stream().map(Change::getPropertyName).toList();
+    }
+
+    public List<Object> getOldValues() {
+        return getChanges().stream().map(Change::getOldValue).toList();
+    }
+
+    public List<Object> getNewValues() {
+        return getChanges().stream().map(Change::getNewValue).toList();
+    }
+
     /**
      * @return a "clean copy", where no-op changes are ignored
      */
@@ -98,11 +124,15 @@ public @Data class PropertyDiff implements Serializable {
         }
 
         private boolean isNullMapOp(Map<?, ?> m1, Map<?, ?> m2) {
-            return (m1 == null && m2.isEmpty()) || (m1.isEmpty() && m2 == null);
+            return m1 == null
+                    ? (m2 == null || m2.isEmpty())
+                    : (m2 == null ? m1 == null || m1.isEmpty() : false);
         }
 
         private boolean isNullCollectionOp(Collection<?> c1, Collection<?> c2) {
-            return (c1 == null && c2.isEmpty()) || (c1.isEmpty() && c2 == null);
+            if (c1 == null) return c2 == null ? true : c2.isEmpty();
+            if (c2 == null) return c1 == null ? true : c1.isEmpty();
+            return false;
         }
 
         public boolean isCollectionProperty() {
@@ -132,7 +162,10 @@ public @Data class PropertyDiff implements Serializable {
 
     public static PropertyDiff valueOf(ModificationProxy proxy) {
         Objects.requireNonNull(proxy);
-        return valueOf(proxy.getPropertyNames(), proxy.getOldValues(), proxy.getNewValues());
+        List<String> propertyNames = proxy.getPropertyNames();
+        List<Object> oldValues = proxy.getOldValues();
+        List<Object> newValues = proxy.getNewValues();
+        return valueOf(propertyNames, oldValues, newValues);
     }
 
     public static PropertyDiff valueOf(
@@ -140,14 +173,16 @@ public @Data class PropertyDiff implements Serializable {
             final @NonNull List<Object> oldValues,
             final @NonNull List<Object> newValues) {
 
-        PropertyDiff changeset = new PropertyDiff();
+        PropertyDiffBuilder<Info> builder = PropertyDiff.builder();
         IntStream.range(0, propertyNames.size())
-                .mapToObj(
-                        i ->
-                                Change.valueOf(
-                                        propertyNames.get(i), oldValues.get(i), newValues.get(i)))
-                .forEach(changeset.getChanges()::add);
-        return changeset;
+                .forEach(
+                        i -> {
+                            String prop = propertyNames.get(i);
+                            Object oldV = oldValues.get(i);
+                            Object newV = newValues.get(i);
+                            builder.with(prop, oldV, newV);
+                        });
+        return builder.build();
     }
 
     public static PropertyDiff empty() {
@@ -161,6 +196,10 @@ public @Data class PropertyDiff implements Serializable {
         private List<Object> newValues = new ArrayList<>();
         private List<Object> oldValues = new ArrayList<>();
 
+        PropertyDiffBuilder() {
+            this.info = null;
+        }
+
         PropertyDiffBuilder(T info) {
             Objects.requireNonNull(info);
             if (Proxy.isProxyClass(info.getClass())) {
@@ -173,7 +212,17 @@ public @Data class PropertyDiff implements Serializable {
         }
 
         public PropertyDiff build() {
-            return PropertyDiff.valueOf(propertyNames, oldValues, newValues).clean();
+            List<Change> changes =
+                    IntStream.range(0, propertyNames.size())
+                            .mapToObj(
+                                    i -> {
+                                        String name = propertyNames.get(i);
+                                        Object oldV = oldValues.get(i);
+                                        Object newV = newValues.get(i);
+                                        return Change.valueOf(name, oldV, newV);
+                                    })
+                            .toList();
+            return new PropertyDiff(changes);
         }
 
         public PropertyDiffBuilder<T> with(String property, Object newValue) {
@@ -186,12 +235,60 @@ public @Data class PropertyDiff implements Serializable {
                 throw new IllegalArgumentException("No such property: " + property);
             }
 
-            remove(property);
             Object oldValue = OwsUtils.get(info, property);
+            return with(property, oldValue, newValue);
+        }
+
+        public PropertyDiffBuilder<T> with(String property, Object oldValue, Object newValue) {
+            property = fixCase(property);
+            oldValue = copySafe(oldValue);
+            newValue = copySafe(newValue);
+            remove(property);
             propertyNames.add(property);
             oldValues.add(oldValue);
             newValues.add(newValue);
             return this;
+        }
+
+        private Object copySafe(Object val) {
+            if (val instanceof Collection) return copyOf((Collection<?>) val);
+            if (val instanceof Map) {
+                return copyOf((Map<?, ?>) val);
+            }
+            return val;
+        }
+
+        private Collection<?> copyOf(Collection<?> val) {
+            Stream<Object> stream = val.stream().map(this::copySafe);
+            if (val instanceof SortedSet) {
+                @SuppressWarnings("unchecked")
+                Comparator<Object> comparator = ((SortedSet<Object>) val).comparator();
+                return stream.collect(Collectors.toCollection(() -> new TreeSet<>(comparator)));
+            }
+            if (val instanceof Set) {
+                return stream.collect(Collectors.toCollection(HashSet::new));
+            }
+            return stream.collect(Collectors.toList());
+        }
+
+        @SuppressWarnings({"rawtypes", "unchecked"})
+        private Map<?, ?> copyOf(final Map<?, ?> val) {
+            Map target;
+            if (val instanceof MetadataMap) {
+                target = new MetadataMap();
+            } else if (val instanceof SortedMap) {
+                Comparator comparator = ((SortedMap) val).comparator();
+                target = new TreeMap<>(comparator);
+            } else {
+                target = new HashMap<>();
+            }
+            val.forEach(
+                    (k, v) -> {
+                        Object key = copySafe(k);
+                        Object value = copySafe(v);
+                        target.put(key, value);
+                    });
+            return target;
         }
 
         public PropertyDiffBuilder<T> remove(String property) {

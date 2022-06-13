@@ -1,0 +1,32 @@
+/*
+ * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
+ * GPL 2.0 license, available at the root application directory.
+ */
+package org.geoserver.cloud.config.catalog.events;
+
+import org.geoserver.catalog.Catalog;
+import org.geoserver.catalog.plugin.CatalogPlugin;
+import org.geoserver.config.GeoServer;
+import org.geoserver.config.util.XStreamPersisterFactory;
+import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.context.annotation.Bean;
+
+@EnableAutoConfiguration
+@SpringBootConfiguration
+class TestConfigurationAutoConfiguration {
+
+    public @Bean XStreamPersisterFactory xStreamPersisterFactory() {
+        return new XStreamPersisterFactory();
+    }
+
+    @Bean(name = {"catalog", "rawCatalog"})
+    public Catalog catalog() {
+        final boolean isolated = false;
+        return new CatalogPlugin(isolated);
+    }
+
+    public @Bean GeoServer geoServer() {
+        return new org.geoserver.config.plugin.GeoServerImpl();
+    }
+}
