@@ -16,6 +16,7 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ResolvingProxy;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
+import org.geoserver.cloud.autoconfigure.catalog.event.LocalCatalogEventsAutoConfiguration;
 import org.geoserver.config.GeoServerFacade;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.LoggingInfo;
@@ -41,7 +42,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 @SpringBootTest(classes = GeoServerBackendCacheConfiguration.class)
-@EnableAutoConfiguration
+@EnableAutoConfiguration(exclude = LocalCatalogEventsAutoConfiguration.class)
 @RunWith(SpringRunner.class)
 public class CachingGeoServerFacadeTest {
 

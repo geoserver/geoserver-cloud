@@ -35,7 +35,7 @@ import java.util.function.BiFunction;
 
 /** */
 @CacheConfig(cacheNames = {CachingCatalogFacade.CACHE_NAME})
-public class CachingCatalogFacadeImpl extends ForwardingExtendedCatalogFacade
+class CachingCatalogFacadeImpl extends ForwardingExtendedCatalogFacade
         implements CachingCatalogFacade {
     private Cache idCache;
 

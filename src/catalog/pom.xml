@@ -17,6 +17,7 @@
     <module>jackson-bindings</module>
     <module>event-bus</module>
     <module>catalog-server</module>
+    <module>backends</module>
   </modules>
   <dependencies>
     <dependency>

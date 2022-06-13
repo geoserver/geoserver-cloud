@@ -2,16 +2,11 @@
  * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
  * GPL 2.0 license, available at the root application directory.
  */
-package org.geoserver.cloud.autoconfigure.catalog;
+package org.geoserver.cloud.autoconfigure.catalog.cache;
 
-import org.geoserver.cloud.bus.incoming.caching.RemoteEventCacheEvictor;
-import org.geoserver.cloud.catalog.caching.CachingCatalogFacade;
-import org.geoserver.cloud.catalog.caching.CachingGeoServerFacade;
 import org.geoserver.cloud.catalog.caching.GeoServerBackendCacheConfiguration;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.cache.CacheManager;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
@@ -27,12 +22,4 @@ import org.springframework.context.annotation.Import;
 @Configuration
 @ConditionalOnBackendCacheEnabled
 @Import(GeoServerBackendCacheConfiguration.class)
-public class BackendCacheAutoConfiguration {
-
-    private @Autowired CachingCatalogFacade cachingCatalogFacade;
-    private @Autowired CachingGeoServerFacade cachingGeoServerFacade;
-
-    public @Bean RemoteEventCacheEvictor remoteEventCacheEvictor() {
-        return new RemoteEventCacheEvictor(cachingCatalogFacade, cachingGeoServerFacade);
-    }
-}
+public class BackendCacheAutoConfiguration {}

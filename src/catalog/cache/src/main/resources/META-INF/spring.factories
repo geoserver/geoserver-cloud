@@ -1,1 +1,3 @@
-#org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+org.geoserver.cloud.autoconfigure.catalog.cache.BackendCacheAutoConfiguration,\
+org.geoserver.cloud.autoconfigure.catalog.cache.RemoteEventsCacheAutoConfiguration

@@ -27,7 +27,7 @@ import org.springframework.cache.annotation.Caching;
 /** */
 @CacheConfig(cacheNames = CachingGeoServerFacade.CACHE_NAME)
 @Slf4j(topic = "org.geoserver.cloud.catalog.caching")
-public class CachingGeoServerFacadeImpl extends ForwardingGeoServerFacade
+class CachingGeoServerFacadeImpl extends ForwardingGeoServerFacade
         implements CachingGeoServerFacade {
 
     private Cache cache;

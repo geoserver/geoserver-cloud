@@ -4,6 +4,7 @@
  */
 package org.geoserver.cloud.autoconfigure.catalog;
 
+import org.geoserver.cloud.autoconfigure.catalog.cache.BackendCacheAutoConfiguration;
 import org.geoserver.cloud.config.catalog.CoreBackendConfiguration;
 import org.geoserver.cloud.config.catalog.XstreamServiceLoadersConfiguration;
 import org.geotools.autoconfigure.httpclient.GeoToolsHttpClientAutoConfiguration;

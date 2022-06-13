@@ -35,6 +35,7 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.catalog.plugin.Patch;
+import org.geoserver.cloud.autoconfigure.catalog.event.LocalCatalogEventsAutoConfiguration;
 import org.geoserver.config.GeoServerFacade;
 import org.geoserver.config.plugin.GeoServerImpl;
 import org.junit.Assert;
@@ -58,7 +59,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 @SpringBootTest(classes = GeoServerBackendCacheConfiguration.class)
-@EnableAutoConfiguration
+@EnableAutoConfiguration(exclude = LocalCatalogEventsAutoConfiguration.class)
 @RunWith(SpringRunner.class)
 @SuppressWarnings("deprecation")
 public class CachingCatalogFacadeTest {

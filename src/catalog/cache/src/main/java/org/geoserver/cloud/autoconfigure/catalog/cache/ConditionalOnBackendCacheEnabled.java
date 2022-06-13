@@ -2,7 +2,7 @@
  * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
  * GPL 2.0 license, available at the root application directory.
  */
-package org.geoserver.cloud.autoconfigure.catalog;
+package org.geoserver.cloud.autoconfigure.catalog.cache;
 
 import org.geoserver.cloud.catalog.caching.GeoServerBackendCacheConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;

@@ -2,7 +2,7 @@
  * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
  * GPL 2.0 license, available at the root application directory.
  */
-package org.geoserver.cloud.bus.incoming.caching;
+package org.geoserver.cloud.event.catalog.caching;
 
 import static org.geoserver.cloud.catalog.caching.CachingCatalogFacade.DEFAULT_NAMESPACE_CACHE_KEY;
 import static org.geoserver.cloud.catalog.caching.CachingCatalogFacade.DEFAULT_WORKSPACE_CACHE_KEY;
@@ -26,7 +26,6 @@ import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.impl.WorkspaceInfoImpl;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.Patch;
-import org.geoserver.cloud.autoconfigure.testconfiguration.AutoConfigurationTestConfiguration;
 import org.geoserver.cloud.catalog.caching.CachingCatalogFacade;
 import org.geoserver.cloud.catalog.caching.CachingGeoServerFacade;
 import org.geoserver.cloud.catalog.caching.CatalogInfoKey;
@@ -181,7 +180,6 @@ public class RemoteEventCacheEvictorTest {
         assertNull(
                 "expected key evicted after setting null default datastore", catalogCache.get(key));
 
-        assertNull(catalog.getDefaultDataStore(data.workspaceA));
         assertNull(catalogCache.get(key));
 
         publishRemote(DefaultDataStoreEvent.createLocal(data.workspaceA, data.dataStoreA));

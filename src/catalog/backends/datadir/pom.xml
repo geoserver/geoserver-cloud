@@ -2,13 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.geoserver.cloud.catalog</groupId>
-    <artifactId>gs-cloud-catalog</artifactId>
+    <groupId>org.geoserver.cloud.catalog.backends</groupId>
+    <artifactId>gs-cloud-catalog-backends</artifactId>
     <version>${revision}</version>
   </parent>
-  <artifactId>gs-cloud-catalog-cache</artifactId>
+  <artifactId>gs-cloud-catalog-backend-datadir</artifactId>
   <packaging>jar</packaging>
-  <description>Caching catalog decorator</description>
+  <description>Autoconfigurations for using a shared data-directory as Catalog and config backend</description>
   <dependencies>
     <dependency>
       <groupId>org.geoserver.cloud.catalog</groupId>
@@ -17,15 +17,39 @@
     <dependency>
       <groupId>org.geoserver.cloud.catalog</groupId>
       <artifactId>gs-cloud-catalog-events</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-spring-boot-starter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webmvc</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-configuration-processor</artifactId>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-cache</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.github.ben-manes.caffeine</groupId>
-      <artifactId>caffeine</artifactId>
+      <artifactId>spring-boot-autoconfigure-processor</artifactId>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <!-- contains CatalogTestData support class -->
