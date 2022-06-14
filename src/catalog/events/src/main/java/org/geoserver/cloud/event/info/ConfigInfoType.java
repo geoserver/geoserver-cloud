@@ -68,4 +68,8 @@ public enum ConfigInfoType {
         }
         throw new IllegalArgumentException("Unknown info type for object " + object);
     }
+
+    public boolean isA(Class<? extends Info> type) {
+        return type.isAssignableFrom(getType());
+    }
 }

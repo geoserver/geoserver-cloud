@@ -14,7 +14,6 @@ import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.PropertyDiff;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoPostModifyEvent;
-import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
@@ -28,24 +27,20 @@ import org.geoserver.config.SettingsInfo;
     @JsonSubTypes.Type(value = SettingsInfoModifyEvent.class),
 })
 public abstract class ConfigInfoModifyEvent<SELF, INFO extends Info>
-        extends InfoPostModifyEvent<SELF, GeoServer, INFO> implements ConfigInfoEvent {
+        extends InfoPostModifyEvent<SELF, INFO> implements ConfigInfoEvent {
 
     protected ConfigInfoModifyEvent() {
         // default constructor, needed for deserialization
     }
 
     protected ConfigInfoModifyEvent(
-            GeoServer source,
-            GeoServer target,
-            @NonNull String objectId,
-            @NonNull ConfigInfoType objectType,
-            @NonNull Patch patch) {
-        super(source, target, objectId, objectType, patch);
+            @NonNull String objectId, @NonNull ConfigInfoType objectType, @NonNull Patch patch) {
+        super(objectId, objectType, patch);
     }
 
     @SuppressWarnings("unchecked")
     public static @NonNull <I extends Info> ConfigInfoModifyEvent<?, I> createLocal(
-            @NonNull GeoServer geoServer, @NonNull Info info, @NonNull PropertyDiff diff) {
+            @NonNull Info info, @NonNull PropertyDiff diff) {
 
         final ConfigInfoType type = ConfigInfoType.valueOf(info);
         final Patch patch = diff.toPatch();
@@ -53,20 +48,19 @@ public abstract class ConfigInfoModifyEvent<SELF, INFO extends Info>
             case GeoServerInfo:
                 {
                     return (ConfigInfoModifyEvent<?, I>)
-                            GeoServerInfoModifyEvent.createLocal(
-                                    geoServer, (GeoServerInfo) info, patch);
+                            GeoServerInfoModifyEvent.createLocal((GeoServerInfo) info, patch);
                 }
             case ServiceInfo:
                 ServiceInfo service = (ServiceInfo) info;
                 return (ConfigInfoModifyEvent<?, I>)
-                        ServiceInfoModifyEvent.createLocal(geoServer, service, patch);
+                        ServiceInfoModifyEvent.createLocal(service, patch);
             case SettingsInfo:
                 SettingsInfo settings = (SettingsInfo) info;
                 return (ConfigInfoModifyEvent<?, I>)
-                        SettingsInfoModifyEvent.createLocal(geoServer, settings, patch);
+                        SettingsInfoModifyEvent.createLocal(settings, patch);
             case LoggingInfo:
                 return (ConfigInfoModifyEvent<?, I>)
-                        LoggingInfoModifyEvent.createLocal(geoServer, (LoggingInfo) info, patch);
+                        LoggingInfoModifyEvent.createLocal((LoggingInfo) info, patch);
             default:
                 throw new IllegalArgumentException(
                         "Uknown or unsupported config Info type: " + type + ". " + info);

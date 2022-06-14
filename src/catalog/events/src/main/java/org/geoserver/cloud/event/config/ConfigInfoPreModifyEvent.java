@@ -14,32 +14,27 @@ import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.PropertyDiff;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoPreModifyEvent;
-import org.geoserver.config.GeoServer;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("ConfigInfoPreModify")
 public class ConfigInfoPreModifyEvent<SELF, INFO extends Info>
-        extends InfoPreModifyEvent<SELF, GeoServer, INFO> implements ConfigInfoEvent {
+        extends InfoPreModifyEvent<SELF, INFO> implements ConfigInfoEvent {
 
     protected ConfigInfoPreModifyEvent() {
         // default constructor, needed for deserialization
     }
 
     protected ConfigInfoPreModifyEvent(
-            GeoServer source,
-            GeoServer target,
-            @NonNull String objectId,
-            @NonNull ConfigInfoType objectType,
-            @NonNull Patch patch) {
-        super(source, target, objectId, objectType, patch);
+            @NonNull String objectId, @NonNull ConfigInfoType objectType, @NonNull Patch patch) {
+        super(objectId, objectType, patch);
     }
 
     public static @NonNull <I extends Info> ConfigInfoPreModifyEvent<?, I> createLocal(
-            @NonNull GeoServer source, @NonNull Info object, @NonNull PropertyDiff diff) {
+            @NonNull Info object, @NonNull PropertyDiff diff) {
 
         final @NonNull String id = resolveId(object);
         final ConfigInfoType type = ConfigInfoType.valueOf(object);
         final Patch patch = diff.toPatch();
-        return new ConfigInfoPreModifyEvent<>(source, null, id, type, patch);
+        return new ConfigInfoPreModifyEvent<>(id, type, patch);
     }
 }

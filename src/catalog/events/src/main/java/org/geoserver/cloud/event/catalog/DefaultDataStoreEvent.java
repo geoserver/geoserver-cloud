@@ -11,7 +11,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 
-import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.event.CatalogPostModifyEvent;
@@ -36,27 +35,22 @@ public class DefaultDataStoreEvent extends CatalogInfoModifyEvent {
     protected DefaultDataStoreEvent() {}
 
     DefaultDataStoreEvent(
-            Catalog source,
-            Catalog target,
-            @NonNull String workspaceId,
-            String defaultDataStoreId,
-            @NonNull Patch patch) {
+            @NonNull String workspaceId, String defaultDataStoreId, @NonNull Patch patch) {
 
-        super(source, target, InfoEvent.CATALOG_ID, ConfigInfoType.Catalog, patch);
+        super(InfoEvent.CATALOG_ID, ConfigInfoType.Catalog, patch);
 
         this.workspaceId = workspaceId;
         this.defaultDataStoreId = defaultDataStoreId;
     }
 
-    @Override
-    public String toString() {
-        return String.format(
-                "%s[workspace: %s, store: %s]",
-                getClass().getSimpleName(), getWorkspaceId(), getDefaultDataStoreId());
+    public @Override String toString() {
+        return toStringBuilder()
+                .append("workspace", getWorkspaceId())
+                .append("store", getDefaultDataStoreId())
+                .toString();
     }
 
-    public static DefaultDataStoreEvent createLocal(
-            @NonNull Catalog source, @NonNull CatalogPostModifyEvent event) {
+    public static DefaultDataStoreEvent createLocal(@NonNull CatalogPostModifyEvent event) {
 
         PropertyDiff diff =
                 PropertyDiff.valueOf(
@@ -76,11 +70,11 @@ public class DefaultDataStoreEvent extends CatalogInfoModifyEvent {
 
         Patch patch = diff.toPatch();
 
-        return new DefaultDataStoreEvent(source, null, workspaceId, newDefaultStoreId, patch);
+        return new DefaultDataStoreEvent(workspaceId, newDefaultStoreId, patch);
     }
 
     public static DefaultDataStoreEvent createLocal(
-            @NonNull Catalog source, @NonNull WorkspaceInfo workspace, DataStoreInfo newStore) {
+            @NonNull WorkspaceInfo workspace, DataStoreInfo newStore) {
 
         Patch patch = new Patch();
         patch.add("defaultDataStore", newStore);
@@ -88,7 +82,7 @@ public class DefaultDataStoreEvent extends CatalogInfoModifyEvent {
         final @Nullable String newDefaultStoreId = resolveId(newStore);
         final @NonNull String workspaceId = resolveId(workspace);
 
-        return new DefaultDataStoreEvent(source, null, workspaceId, newDefaultStoreId, patch);
+        return new DefaultDataStoreEvent(workspaceId, newDefaultStoreId, patch);
     }
 
     private static @NonNull WorkspaceInfo resolveWorkspace(Change change) {

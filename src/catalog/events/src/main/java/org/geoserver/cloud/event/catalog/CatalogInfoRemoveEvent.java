@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import lombok.NonNull;
 
-import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.event.CatalogRemoveEvent;
 import org.geoserver.cloud.event.info.ConfigInfoType;
@@ -17,27 +16,23 @@ import org.geoserver.cloud.event.info.InfoRemoveEvent;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("CatalogInfoRemoved")
-public class CatalogInfoRemoveEvent
-        extends InfoRemoveEvent<CatalogInfoRemoveEvent, Catalog, CatalogInfo> {
+public class CatalogInfoRemoveEvent extends InfoRemoveEvent<CatalogInfoRemoveEvent, CatalogInfo> {
 
     protected CatalogInfoRemoveEvent() {}
 
-    CatalogInfoRemoveEvent(
-            Catalog source, Catalog target, @NonNull String id, @NonNull ConfigInfoType type) {
-        super(source, target, id, type);
+    CatalogInfoRemoveEvent(@NonNull String id, @NonNull ConfigInfoType type) {
+        super(id, type);
     }
 
-    public static CatalogInfoRemoveEvent createLocal(
-            @NonNull Catalog source, @NonNull CatalogRemoveEvent event) {
+    public static CatalogInfoRemoveEvent createLocal(@NonNull CatalogRemoveEvent event) {
 
-        return createLocal(source, event.getSource());
+        return createLocal(event.getSource());
     }
 
-    public static CatalogInfoRemoveEvent createLocal(
-            @NonNull Catalog source, @NonNull CatalogInfo info) {
+    public static CatalogInfoRemoveEvent createLocal(@NonNull CatalogInfo info) {
 
         String id = resolveId(info);
         ConfigInfoType type = ConfigInfoType.valueOf(info);
-        return new CatalogInfoRemoveEvent(source, null, id, type);
+        return new CatalogInfoRemoveEvent(id, type);
     }
 }

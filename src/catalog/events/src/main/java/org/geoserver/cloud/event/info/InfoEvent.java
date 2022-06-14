@@ -15,10 +15,9 @@ import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.Info;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.LoggingInfo;
+import org.springframework.core.style.ToStringCreator;
 
 import java.util.Optional;
-
-import javax.annotation.Nullable;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonSubTypes({
@@ -26,7 +25,7 @@ import javax.annotation.Nullable;
     @JsonSubTypes.Type(value = InfoModifyEvent.class),
     @JsonSubTypes.Type(value = InfoRemoveEvent.class)
 })
-public abstract class InfoEvent<SELF, SOURCE, INFO extends Info> {
+public abstract class InfoEvent<SELF, INFO extends Info> {
 
     private @Setter boolean remote;
 
@@ -39,17 +38,7 @@ public abstract class InfoEvent<SELF, SOURCE, INFO extends Info> {
 
     protected InfoEvent() {}
 
-    protected InfoEvent(
-            @Nullable SOURCE source,
-            @Nullable SOURCE target,
-            @NonNull String objectId,
-            @NonNull ConfigInfoType objectType) {
-        if (source == null && target == null) {
-            throw new IllegalArgumentException("Either source or target shall be non-null");
-        }
-        if (source != null && target != null) {
-            throw new IllegalArgumentException("Either source or target shall be null");
-        }
+    protected InfoEvent(@NonNull String objectId, @NonNull ConfigInfoType objectType) {
         // this.source = source;
         this.objectId = objectId;
         this.objectType = objectType;
@@ -74,11 +63,17 @@ public abstract class InfoEvent<SELF, SOURCE, INFO extends Info> {
         return remote;
     }
 
-    @Override
-    public String toString() {
-        return String.format(
-                "%s[%s(%s)]", getClass().getSimpleName(), getObjectType(), getObjectId());
+    public @Override String toString() {
+        return toStringBuilder().toString();
     }
+
+    protected ToStringCreator toStringBuilder() {
+        return new ToStringCreator(this)
+                .append("remote", isRemote())
+                .append("type", getObjectType())
+                .append("id", getObjectId());
+    }
+
     /**
      * {@link #getObjectId() object identifier} for changes performed to the {@link Catalog} itself
      * (e.g. {@code defaultWorkspace} and the like)

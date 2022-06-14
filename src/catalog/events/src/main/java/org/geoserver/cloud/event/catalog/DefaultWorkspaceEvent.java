@@ -11,7 +11,6 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 
-import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.cloud.event.info.ConfigInfoType;
@@ -28,23 +27,20 @@ public class DefaultWorkspaceEvent extends CatalogInfoModifyEvent {
         //
     }
 
-    DefaultWorkspaceEvent(
-            Catalog source, Catalog target, String newWorkspaceId, @NonNull Patch patch) {
-        super(source, target, InfoEvent.CATALOG_ID, ConfigInfoType.Catalog, patch);
+    DefaultWorkspaceEvent(String newWorkspaceId, @NonNull Patch patch) {
+        super(InfoEvent.CATALOG_ID, ConfigInfoType.Catalog, patch);
         this.newWorkspaceId = newWorkspaceId;
     }
 
-    @Override
-    public String toString() {
-        return String.format("%s[%s]", getClass().getSimpleName(), getNewWorkspaceId());
+    public @Override String toString() {
+        return toStringBuilder().append("workspace", getNewWorkspaceId()).toString();
     }
 
-    public static DefaultWorkspaceEvent createLocal(
-            @NonNull Catalog source, WorkspaceInfo defaultWorkspace) {
+    public static DefaultWorkspaceEvent createLocal(WorkspaceInfo defaultWorkspace) {
 
         String workspaceId = resolveId(defaultWorkspace);
         Patch patch = new Patch();
         patch.add("defaultWorkspace", defaultWorkspace);
-        return new DefaultWorkspaceEvent(source, null, workspaceId, patch);
+        return new DefaultWorkspaceEvent(workspaceId, patch);
     }
 }

@@ -14,7 +14,6 @@ import lombok.Setter;
 import org.geoserver.catalog.Info;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoRemoveEvent;
-import org.geoserver.config.GeoServer;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
 
@@ -24,7 +23,7 @@ import org.geoserver.config.SettingsInfo;
     @JsonSubTypes.Type(value = SettingsInfoRemoveEvent.class, name = "SettingsInfoRemoved"),
 })
 public abstract class ConfigInfoRemoveEvent<SELF, INFO extends Info>
-        extends InfoRemoveEvent<SELF, GeoServer, INFO> implements ConfigInfoEvent {
+        extends InfoRemoveEvent<SELF, INFO> implements ConfigInfoEvent {
 
     private @Getter @Setter INFO object;
 
@@ -32,26 +31,22 @@ public abstract class ConfigInfoRemoveEvent<SELF, INFO extends Info>
         // default constructor, needed for deserialization
     }
 
-    public ConfigInfoRemoveEvent(
-            GeoServer source,
-            GeoServer target,
-            @NonNull String objectId,
-            @NonNull ConfigInfoType type) {
-        super(source, target, objectId, type);
+    public ConfigInfoRemoveEvent(@NonNull String objectId, @NonNull ConfigInfoType type) {
+        super(objectId, type);
     }
 
     @SuppressWarnings("unchecked")
     public static @NonNull <I extends Info> ConfigInfoRemoveEvent<?, I> createLocal(
-            @NonNull GeoServer geoServer, @NonNull I info) {
+            @NonNull I info) {
 
         final ConfigInfoType type = ConfigInfoType.valueOf(info);
         switch (type) {
             case ServiceInfo:
                 return (ConfigInfoRemoveEvent<?, I>)
-                        ServiceInfoRemoveEvent.createLocal(geoServer, (ServiceInfo) info);
+                        ServiceInfoRemoveEvent.createLocal((ServiceInfo) info);
             case SettingsInfo:
                 return (ConfigInfoRemoveEvent<?, I>)
-                        SettingsInfoRemoveEvent.createLocal(geoServer, (SettingsInfo) info);
+                        SettingsInfoRemoveEvent.createLocal((SettingsInfo) info);
             default:
                 throw new IllegalArgumentException(
                         "Uknown or unsupported config Info type: " + type + ". " + info);

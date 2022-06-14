@@ -32,21 +32,24 @@ public class RemoteCatalogEventMapper {
         return serviceMatcher.getBusId();
     }
 
-    public RemoteInfoEvent toRemote(InfoEvent<?, ?, ?> anyLocalCatalogOrConfigEvent) {
+    public RemoteInfoEvent toRemote(InfoEvent<?, ?> anyLocalCatalogOrConfigEvent) {
         String origin = originService();
         Destination destination = destinationService();
         Object source = new Object(); // anyLocalCatalogOrConfigEvent.getSource();
         return new RemoteInfoEvent(source, anyLocalCatalogOrConfigEvent, origin, destination);
     }
 
-    public Optional<InfoEvent<?, ?, ?>> toLocal(@NonNull RemoteInfoEvent incoming) {
-        final boolean fromSelf = serviceMatcher.isFromSelf(incoming);
-        if (!fromSelf) {
-            InfoEvent<?, ?, ?> event = incoming.getEvent();
-            event.setRemote(true);
-            event = remoteEventsPropertyResolver.resolve(event);
-            return Optional.of(event);
-        }
-        return Optional.empty();
+    public Optional<RemoteInfoEvent> ifRemote(@NonNull RemoteInfoEvent busEvent) {
+        final boolean fromSelf = serviceMatcher.isFromSelf(busEvent);
+        final boolean forSelf = serviceMatcher.isForSelf(busEvent);
+        final boolean republishAsLocal = !fromSelf && forSelf;
+        return Optional.ofNullable(republishAsLocal ? busEvent : null);
+    }
+
+    public InfoEvent<?, ?> toLocalRemote(@NonNull RemoteInfoEvent incoming) {
+        InfoEvent<?, ?> event = incoming.getEvent();
+        event.setRemote(true);
+        event = remoteEventsPropertyResolver.resolve(event);
+        return event;
     }
 }

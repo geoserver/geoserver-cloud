@@ -14,24 +14,18 @@ import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.cloud.event.catalog.CatalogInfoPreModifyEvent;
 import org.geoserver.cloud.event.config.ConfigInfoPreModifyEvent;
 
-import javax.annotation.Nullable;
-
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonSubTypes({
     @JsonSubTypes.Type(value = CatalogInfoPreModifyEvent.class),
     @JsonSubTypes.Type(value = ConfigInfoPreModifyEvent.class),
 })
-public abstract class InfoPreModifyEvent<SELF, SOURCE, INFO extends Info>
-        extends InfoModifyEvent<SELF, SOURCE, INFO> {
+public abstract class InfoPreModifyEvent<SELF, INFO extends Info>
+        extends InfoModifyEvent<SELF, INFO> {
 
     protected InfoPreModifyEvent() {}
 
     protected InfoPreModifyEvent(
-            @Nullable SOURCE source,
-            @Nullable SOURCE target,
-            @NonNull String objectId,
-            @NonNull ConfigInfoType objectType,
-            @NonNull Patch patch) {
-        super(source, target, objectId, objectType, patch);
+            @NonNull String objectId, @NonNull ConfigInfoType objectType, @NonNull Patch patch) {
+        super(objectId, objectType, patch);
     }
 }

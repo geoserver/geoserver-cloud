@@ -9,23 +9,21 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import lombok.NonNull;
 
-import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.event.CatalogAddEvent;
 import org.geoserver.cloud.event.info.InfoAddEvent;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("CatalogInfoAdded")
-public class CatalogInfoAddEvent extends InfoAddEvent<CatalogInfoAddEvent, Catalog, CatalogInfo> {
+public class CatalogInfoAddEvent extends InfoAddEvent<CatalogInfoAddEvent, CatalogInfo> {
 
     protected CatalogInfoAddEvent() {}
 
-    CatalogInfoAddEvent(Catalog source, Catalog target, @NonNull CatalogInfo object) {
-        super(source, target, object);
+    CatalogInfoAddEvent(@NonNull CatalogInfo object) {
+        super(object);
     }
 
-    public static CatalogInfoAddEvent createLocal(
-            @NonNull Catalog source, @NonNull CatalogAddEvent event) {
-        return new CatalogInfoAddEvent(source, null, event.getSource());
+    public static CatalogInfoAddEvent createLocal(@NonNull CatalogAddEvent event) {
+        return new CatalogInfoAddEvent(event.getSource());
     }
 }

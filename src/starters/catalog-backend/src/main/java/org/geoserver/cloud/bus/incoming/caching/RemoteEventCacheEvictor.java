@@ -43,7 +43,7 @@ import java.util.function.BooleanSupplier;
  * {@link CachingCatalogFacade} and {@link CachingGeoServerFacade} as required by the event type and
  * the object it refers to.
  */
-@Slf4j(topic = "org.geoserver.cloud.bus.incoming.caching")
+@Slf4j(topic = "org.geoserver.cloud.events.catalog.caching")
 @RequiredArgsConstructor
 public @Service class RemoteEventCacheEvictor {
 
@@ -162,7 +162,7 @@ public @Service class RemoteEventCacheEvictor {
         }
     }
 
-    private void evictCatalogInfo(InfoEvent<?, ?, ?> event) {
+    private void evictCatalogInfo(InfoEvent<?, ?> event) {
         evictEntry(
                 event,
                 () -> {
@@ -174,7 +174,7 @@ public @Service class RemoteEventCacheEvictor {
                 });
     }
 
-    public void evictConfigEntry(InfoEvent<?, ?, ?> event) {
+    public void evictConfigEntry(InfoEvent<?, ?> event) {
         evictEntry(
                 event,
                 () -> {
@@ -185,15 +185,15 @@ public @Service class RemoteEventCacheEvictor {
                 });
     }
 
-    private void evictEntry(InfoEvent<?, ?, ?> event, BooleanSupplier evictor) {
+    private void evictEntry(InfoEvent<?, ?> event, BooleanSupplier evictor) {
         event.remote()
                 .ifPresent(
                         evt -> {
                             boolean evicted = evictor.getAsBoolean();
                             if (evicted) {
-                                log.debug("Evicted cache entry upon remote event ", evt);
+                                log.debug("Evicted cache entry {}", evt);
                             } else {
-                                log.trace("Remote event resulted in no cache eviction: ", evt);
+                                log.trace("Remote event resulted in no cache eviction: {}", evt);
                             }
                         });
     }

@@ -12,7 +12,6 @@ import lombok.NonNull;
 import org.geoserver.catalog.Info;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoAddEvent;
-import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
@@ -25,35 +24,34 @@ import org.geoserver.config.SettingsInfo;
     @JsonSubTypes.Type(value = ServiceInfoAddEvent.class, name = "ServiceInfoAdded"),
     @JsonSubTypes.Type(value = SettingsInfoAddEvent.class, name = "SettingsInfoAdded"),
 })
-public abstract class ConfigInfoAddEvent<SELF, INFO extends Info>
-        extends InfoAddEvent<SELF, GeoServer, INFO> implements ConfigInfoEvent {
+public abstract class ConfigInfoAddEvent<SELF, INFO extends Info> extends InfoAddEvent<SELF, INFO>
+        implements ConfigInfoEvent {
 
     protected ConfigInfoAddEvent() {
         // default constructor, needed for deserialization
     }
 
-    public ConfigInfoAddEvent(GeoServer source, GeoServer target, INFO object) {
-        super(source, target, object);
+    public ConfigInfoAddEvent(INFO object) {
+        super(object);
     }
 
     @SuppressWarnings("unchecked")
-    public static @NonNull <I extends Info> ConfigInfoAddEvent<?, I> createLocal(
-            @NonNull GeoServer geoServer, @NonNull I info) {
+    public static @NonNull <I extends Info> ConfigInfoAddEvent<?, I> createLocal(@NonNull I info) {
 
         final ConfigInfoType type = ConfigInfoType.valueOf(info);
         switch (type) {
             case GeoServerInfo:
                 return (ConfigInfoAddEvent<?, I>)
-                        GeoServerInfoSetEvent.createLocal(geoServer, (GeoServerInfo) info);
+                        GeoServerInfoSetEvent.createLocal((GeoServerInfo) info);
             case ServiceInfo:
                 return (ConfigInfoAddEvent<?, I>)
-                        ServiceInfoAddEvent.createLocal(geoServer, (ServiceInfo) info);
+                        ServiceInfoAddEvent.createLocal((ServiceInfo) info);
             case SettingsInfo:
                 return (ConfigInfoAddEvent<?, I>)
-                        SettingsInfoAddEvent.createLocal(geoServer, (SettingsInfo) info);
+                        SettingsInfoAddEvent.createLocal((SettingsInfo) info);
             case LoggingInfo:
                 return (ConfigInfoAddEvent<?, I>)
-                        LoggingInfoSetEvent.createLocal(geoServer, (LoggingInfo) info);
+                        LoggingInfoSetEvent.createLocal((LoggingInfo) info);
             default:
                 throw new IllegalArgumentException(
                         "Uknown or unsupported config Info type: " + type + ". " + info);

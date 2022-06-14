@@ -33,6 +33,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * {@link EnableAutoConfiguration auto-configuration} catalog and config events integration with
@@ -87,12 +88,17 @@ public class RemoteCatalogEventsAutoConfiguration {
     }
 
     public @Bean RemoteCatalogEventBridge remoteEventBroadcaster(
-            ApplicationEventPublisher eventPublisher, RemoteCatalogEventMapper eventMapper) {
+            ApplicationEventPublisher eventPublisher,
+            RemoteCatalogEventMapper eventMapper,
+            ServiceMatcher serviceMatcher) {
 
         log.info("Configuring GeoServer Catalog distributed events.");
 
         Consumer<RemoteInfoEvent> remoteEventPublisher = eventPublisher::publishEvent;
-        Consumer<InfoEvent<?, ?, ?>> localEventPublisher = eventPublisher::publishEvent;
-        return new RemoteCatalogEventBridge(remoteEventPublisher, localEventPublisher, eventMapper);
+        @SuppressWarnings("rawtypes")
+        Consumer<InfoEvent> localEventPublisher = eventPublisher::publishEvent;
+        Supplier<String> busId = serviceMatcher::getBusId;
+        return new RemoteCatalogEventBridge(
+                localEventPublisher, remoteEventPublisher, eventMapper, busId);
     }
 }

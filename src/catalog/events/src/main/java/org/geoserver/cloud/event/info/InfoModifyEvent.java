@@ -14,49 +14,30 @@ import lombok.Setter;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.plugin.Patch;
 
-import javax.annotation.Nullable;
+import java.util.stream.Collectors;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonSubTypes({
     @JsonSubTypes.Type(value = InfoPreModifyEvent.class),
     @JsonSubTypes.Type(value = InfoPostModifyEvent.class),
 })
-public abstract class InfoModifyEvent<SELF, SOURCE, INFO extends Info>
-        extends InfoEvent<SELF, SOURCE, INFO> {
+public abstract class InfoModifyEvent<SELF, INFO extends Info> extends InfoEvent<SELF, INFO> {
 
     private @Getter @Setter @NonNull Patch patch;
 
     protected InfoModifyEvent() {}
 
     protected InfoModifyEvent(
-            @Nullable SOURCE source,
-            @Nullable SOURCE target,
-            @NonNull String objectId,
-            @NonNull ConfigInfoType objectType,
-            @NonNull Patch patch) {
-        super(source, target, objectId, objectType);
+            @NonNull String objectId, @NonNull ConfigInfoType objectType, @NonNull Patch patch) {
+        super(objectId, objectType);
         this.patch = patch;
     }
 
-    @Override
-    public String toString() {
-        return String.format(
-                "%s[%s(%s), changed: %s]",
-                getClass().getSimpleName(),
-                getObjectType(),
-                getObjectId(),
-                getPatch().getPropertyNames());
+    public @Override String toString() {
+        return toStringBuilder()
+                .append(
+                        "changes",
+                        getPatch().getPropertyNames().stream().collect(Collectors.joining(",")))
+                .toString();
     }
-
-    //    public @Override String toString() {
-    //        return String.format(
-    //                "%s(remote: %s, type: %s, id: %s, source: %s, target: %s, patch: %s)",
-    //                getClass().getSimpleName(),
-    //                isRemote(),
-    //                getObjectType(),
-    //                getObjectId(),
-    //                getSource() == null ? null : getSource().getClass().getSimpleName(),
-    //                getTarget() == null ? null : getTarget().getClass().getSimpleName(),
-    //                getPatch());
-    //    }
 }

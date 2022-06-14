@@ -26,11 +26,11 @@ public class SettingsInfoAddEvent extends ConfigInfoAddEvent<SettingsInfoAddEven
         // default constructor, needed for deserialization
     }
 
-    protected SettingsInfoAddEvent(GeoServer source, GeoServer target, SettingsInfo object) {
-        super(source, target, object);
+    protected SettingsInfoAddEvent(SettingsInfo object) {
+        super(object);
     }
 
-    public static SettingsInfoAddEvent createLocal(GeoServer source, SettingsInfo value) {
-        return new SettingsInfoAddEvent(source, null, value);
+    public static SettingsInfoAddEvent createLocal(SettingsInfo value) {
+        return new SettingsInfoAddEvent(value);
     }
 }

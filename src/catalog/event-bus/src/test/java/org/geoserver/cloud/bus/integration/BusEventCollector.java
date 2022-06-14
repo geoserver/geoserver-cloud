@@ -49,7 +49,7 @@ public class BusEventCollector {
             log.debug("{}: capturing is off, ignoring {}", busId, busEvent);
             return;
         }
-        InfoEvent<?, ?, ?> payloadEvent = busEvent.getEvent();
+        InfoEvent<?, ?> payloadEvent = busEvent.getEvent();
         if (!eventType.isInstance(payloadEvent)) {
             log.debug(
                     "{}: ignoring non {} event {}", busId, eventType.getSimpleName(), payloadEvent);

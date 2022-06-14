@@ -321,7 +321,7 @@ public abstract class BusAmqpIntegrationTests {
         assertNotNull(busEvent.getOriginService());
         assertEquals("**", busEvent.getDestinationService());
 
-        InfoEvent<?, ?, ?> event = busEvent.getEvent();
+        InfoEvent<?, ?> event = busEvent.getEvent();
         assertNotNull(event);
         assertNotNull(event.getObjectId());
         // assertNotNull(event.getTarget());

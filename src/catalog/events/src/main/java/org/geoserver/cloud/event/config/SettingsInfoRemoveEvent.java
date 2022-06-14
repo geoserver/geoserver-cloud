@@ -11,7 +11,6 @@ import lombok.Getter;
 import lombok.NonNull;
 
 import org.geoserver.cloud.event.info.ConfigInfoType;
-import org.geoserver.config.GeoServer;
 import org.geoserver.config.SettingsInfo;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
@@ -25,22 +24,17 @@ public class SettingsInfoRemoveEvent
         // default constructor, needed for deserialization
     }
 
-    protected SettingsInfoRemoveEvent(
-            GeoServer source,
-            GeoServer target,
-            @NonNull String objectId,
-            @NonNull String workspaceId) {
+    protected SettingsInfoRemoveEvent(@NonNull String objectId, @NonNull String workspaceId) {
 
-        super(source, target, objectId, ConfigInfoType.SettingsInfo);
+        super(objectId, ConfigInfoType.SettingsInfo);
         this.workspaceId = workspaceId;
     }
 
-    public static SettingsInfoRemoveEvent createLocal(
-            @NonNull GeoServer source, @NonNull SettingsInfo settings) {
+    public static SettingsInfoRemoveEvent createLocal(@NonNull SettingsInfo settings) {
 
         final @NonNull String settingsId = settings.getId();
         final @NonNull String workspaceId = settings.getWorkspace().getId();
 
-        return new SettingsInfoRemoveEvent(source, null, settingsId, workspaceId);
+        return new SettingsInfoRemoveEvent(settingsId, workspaceId);
     }
 }
