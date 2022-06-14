@@ -5,7 +5,10 @@
 package org.geoserver.cloud.autoconfigure.catalog;
 
 import org.geoserver.catalog.ResourcePool;
+import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.cloud.autoconfigure.catalog.event.ConditionalOnCatalogEvents;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -15,4 +18,11 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnCatalogEvents
-public class RemoteEventsResourcePoolCleaupUpAutoConfiguration {}
+public class RemoteEventsResourcePoolCleaupUpAutoConfiguration {
+
+    public @Bean RemoteEventResourcePoolProcessor remoteEventResourcePoolProcessor(
+            @Qualifier("rawCatalog") CatalogPlugin rawCatalog) {
+
+        return new RemoteEventResourcePoolProcessor(rawCatalog);
+    }
+}

@@ -13,7 +13,6 @@ import lombok.NonNull;
 
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.cloud.event.info.ConfigInfoType;
-import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerInfo;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
@@ -30,19 +29,14 @@ public class GeoServerInfoModifyEvent
         // default constructor, needed for deserialization
     }
 
-    protected GeoServerInfoModifyEvent(
-            GeoServer source, GeoServer target, @NonNull String id, @NonNull Patch patch) {
-        super(source, target, id, ConfigInfoType.GeoServerInfo, patch);
+    protected GeoServerInfoModifyEvent(@NonNull String id, @NonNull Patch patch) {
+        super(id, ConfigInfoType.GeoServerInfo, patch);
     }
 
-    public static GeoServerInfoModifyEvent createLocal(
-            GeoServer source, GeoServerInfo info, @NonNull Patch patch) {
+    public static GeoServerInfoModifyEvent createLocal(GeoServerInfo info, @NonNull Patch patch) {
         final String id = resolveId(info);
         return patch.get("updateSequence")
-                .map(
-                        p ->
-                                (GeoServerInfoModifyEvent)
-                                        UpdateSequenceEvent.createLocal(source, id, patch))
-                .orElseGet(() -> new GeoServerInfoModifyEvent(source, null, id, patch));
+                .map(p -> (GeoServerInfoModifyEvent) UpdateSequenceEvent.createLocal(id, patch))
+                .orElseGet(() -> new GeoServerInfoModifyEvent(id, patch));
     }
 }

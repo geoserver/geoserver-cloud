@@ -23,11 +23,11 @@ public class ServiceInfoAddEvent extends ConfigInfoAddEvent<ServiceInfoAddEvent,
         // default constructor, needed for deserialization
     }
 
-    protected ServiceInfoAddEvent(GeoServer source, GeoServer target, ServiceInfo object) {
-        super(source, target, object);
+    protected ServiceInfoAddEvent(ServiceInfo object) {
+        super(object);
     }
 
-    public static ServiceInfoAddEvent createLocal(GeoServer source, ServiceInfo value) {
-        return new ServiceInfoAddEvent(source, null, value);
+    public static ServiceInfoAddEvent createLocal(ServiceInfo value) {
+        return new ServiceInfoAddEvent(value);
     }
 }

@@ -20,11 +20,11 @@ public class GeoServerInfoSetEvent extends ConfigInfoAddEvent<GeoServerInfoSetEv
         // default constructor, needed for deserialization
     }
 
-    protected GeoServerInfoSetEvent(GeoServer source, GeoServer target, GeoServerInfo object) {
-        super(source, target, object);
+    protected GeoServerInfoSetEvent(GeoServerInfo object) {
+        super(object);
     }
 
-    public static GeoServerInfoSetEvent createLocal(GeoServer source, GeoServerInfo value) {
-        return new GeoServerInfoSetEvent(source, null, value);
+    public static GeoServerInfoSetEvent createLocal(GeoServerInfo value) {
+        return new GeoServerInfoSetEvent(value);
     }
 }

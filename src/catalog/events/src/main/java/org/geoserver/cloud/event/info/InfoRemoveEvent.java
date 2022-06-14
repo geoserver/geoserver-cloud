@@ -18,13 +18,11 @@ import org.geoserver.cloud.event.config.ConfigInfoRemoveEvent;
     @JsonSubTypes.Type(value = CatalogInfoRemoveEvent.class, name = "CatalogInfoRemoved"),
     @JsonSubTypes.Type(value = ConfigInfoRemoveEvent.class, name = "ConfigInfoRemoved"),
 })
-public abstract class InfoRemoveEvent<SELF, SOURCE, INFO extends Info>
-        extends InfoEvent<SELF, SOURCE, INFO> {
+public abstract class InfoRemoveEvent<SELF, INFO extends Info> extends InfoEvent<SELF, INFO> {
 
     protected InfoRemoveEvent() {}
 
-    protected InfoRemoveEvent(
-            SOURCE source, SOURCE target, @NonNull String objectId, @NonNull ConfigInfoType type) {
-        super(source, target, objectId, type);
+    protected InfoRemoveEvent(@NonNull String objectId, @NonNull ConfigInfoType type) {
+        super(objectId, type);
     }
 }

@@ -20,11 +20,11 @@ public class LoggingInfoSetEvent extends ConfigInfoAddEvent<LoggingInfoSetEvent,
         // default constructor, needed for deserialization
     }
 
-    protected LoggingInfoSetEvent(GeoServer source, GeoServer target, LoggingInfo object) {
-        super(source, target, object);
+    protected LoggingInfoSetEvent(LoggingInfo object) {
+        super(object);
     }
 
-    public static LoggingInfoSetEvent createLocal(GeoServer source, LoggingInfo value) {
-        return new LoggingInfoSetEvent(source, null, value);
+    public static LoggingInfoSetEvent createLocal(LoggingInfo value) {
+        return new LoggingInfoSetEvent(value);
     }
 }

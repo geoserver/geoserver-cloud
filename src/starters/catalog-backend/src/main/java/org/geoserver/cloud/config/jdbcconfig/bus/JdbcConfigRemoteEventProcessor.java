@@ -25,16 +25,16 @@ public class JdbcConfigRemoteEventProcessor {
     private @Autowired ConfigDatabase jdbcConfigDatabase;
 
     @EventListener(InfoRemoveEvent.class)
-    public void onRemoteRemoveEvent(InfoRemoveEvent<?, ?, ?> event) {
+    public void onRemoteRemoveEvent(InfoRemoveEvent<?, ?> event) {
         evictConfigDatabaseEntry(event);
     }
 
     @EventListener(InfoModifyEvent.class)
-    public void onRemoteModifyEvent(InfoModifyEvent<?, ?, ? extends Info> event) {
+    public void onRemoteModifyEvent(InfoModifyEvent<?, ? extends Info> event) {
         evictConfigDatabaseEntry(event);
     }
 
-    private void evictConfigDatabaseEntry(InfoEvent<?, ?, ?> event) {
+    private void evictConfigDatabaseEntry(InfoEvent<?, ?> event) {
         event.remote()
                 .ifPresent(
                         remoteEvent -> {

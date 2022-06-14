@@ -38,7 +38,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /** Listens to {@link RemoteCatalogEvent}s and updates the local catalog */
-@Slf4j(topic = "org.geoserver.cloud.bus.incoming.datadirectory")
+@Slf4j(topic = "org.geoserver.cloud.events.catalog.datadir")
 @RequiredArgsConstructor
 public class DataDirectoryRemoteEventProcessor {
 
@@ -46,7 +46,7 @@ public class DataDirectoryRemoteEventProcessor {
     private final @NonNull ExtendedCatalogFacade catalogFacade;
 
     @EventListener(InfoRemoveEvent.class)
-    public void onRemoteRemoveEvent(InfoRemoveEvent<?, ?, ? extends Info> event) {
+    public void onRemoteRemoveEvent(InfoRemoveEvent<?, ? extends Info> event) {
         if (event.isLocal()) {
             return;
         }
@@ -102,7 +102,7 @@ public class DataDirectoryRemoteEventProcessor {
     }
 
     @EventListener(InfoAddEvent.class)
-    public void onRemoteAddEvent(InfoAddEvent<?, ?, ? extends Info> event) {
+    public void onRemoteAddEvent(InfoAddEvent<?, ? extends Info> event) {
         if (event.isLocal()) {
             return;
         }
@@ -148,6 +148,9 @@ public class DataDirectoryRemoteEventProcessor {
             case SettingsInfo:
                 configFacade.add((SettingsInfo) object);
                 break;
+            case LoggingInfo:
+                // ignore
+                break;
             default:
                 log.warn("Don't know how to handle remote envent {})", event);
                 break;
@@ -185,7 +188,7 @@ public class DataDirectoryRemoteEventProcessor {
     }
 
     @EventListener(InfoPostModifyEvent.class)
-    public void onRemoteModifyEvent(InfoPostModifyEvent<?, ?, ? extends Info> event) {
+    public void onRemoteModifyEvent(InfoPostModifyEvent<?, ? extends Info> event) {
         if (event.isLocal()) {
             return;
         }
@@ -232,16 +235,18 @@ public class DataDirectoryRemoteEventProcessor {
                 info = catalogFacade.getStyle(objectId);
                 break;
             case GeoServerInfo:
-                info = configFacade.getGlobal();
-                info = ModificationProxy.unwrap(info);
+                info = ModificationProxy.unwrap(configFacade.getGlobal());
                 break;
             case ServiceInfo:
-                info = configFacade.getService(objectId, ServiceInfo.class);
-                info = ModificationProxy.unwrap(info);
+                info =
+                        ModificationProxy.unwrap(
+                                configFacade.getService(objectId, ServiceInfo.class));
                 break;
             case SettingsInfo:
-                info = configFacade.getSettings(objectId);
-                info = ModificationProxy.unwrap(info);
+                info = ModificationProxy.unwrap(configFacade.getSettings(objectId));
+                break;
+            case LoggingInfo:
+                info = ModificationProxy.unwrap(configFacade.getLogging());
                 break;
             default:
                 log.warn("Don't know how to handle remote modify envent {}", event);

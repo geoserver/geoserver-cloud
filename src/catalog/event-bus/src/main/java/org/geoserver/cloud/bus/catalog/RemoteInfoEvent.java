@@ -17,7 +17,7 @@ public class RemoteInfoEvent extends RemoteApplicationEvent {
 
     private static final long serialVersionUID = 1L;
 
-    private @Getter @NonNull InfoEvent<?, ?, ?> event;
+    private @Getter @NonNull InfoEvent<?, ?> event;
 
     /** Deserialization-time constructor, {@link #getSource()} will be {@code null} */
     protected RemoteInfoEvent() {
@@ -26,10 +26,7 @@ public class RemoteInfoEvent extends RemoteApplicationEvent {
 
     /** Publish-time constructor, {@link #getSource()} won't be {@code null} */
     public RemoteInfoEvent(
-            Object source,
-            InfoEvent<?, ?, ?> event,
-            String originService,
-            Destination destination) {
+            Object source, InfoEvent<?, ?> event, String originService, Destination destination) {
         super(source, originService, destination);
         this.event = event;
     }

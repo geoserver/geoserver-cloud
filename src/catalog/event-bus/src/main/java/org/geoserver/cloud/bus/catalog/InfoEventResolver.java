@@ -56,7 +56,7 @@ public class InfoEventResolver {
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public InfoEvent<?, ?, ?> resolve(InfoEvent event) {
+    public InfoEvent<?, ?> resolve(InfoEvent event) {
         if (event instanceof InfoAddEvent) {
             InfoAddEvent addEvent = (InfoAddEvent) event;
             Info object = addEvent.getObject();

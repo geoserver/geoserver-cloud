@@ -12,7 +12,6 @@ import lombok.Getter;
 import lombok.NonNull;
 
 import org.geoserver.catalog.plugin.Patch;
-import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerInfo;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
@@ -31,29 +30,27 @@ public class UpdateSequenceEvent extends GeoServerInfoModifyEvent {
      */
     private @Getter long updateSequence;
 
-    protected UpdateSequenceEvent(
-            GeoServer source,
-            GeoServer target,
-            @NonNull String id,
-            @NonNull Patch patch,
-            long updateSequence) {
-        super(source, target, id, patch);
+    protected UpdateSequenceEvent(@NonNull String id, @NonNull Patch patch, long updateSequence) {
+        super(id, patch);
         this.updateSequence = updateSequence;
     }
 
-    public static UpdateSequenceEvent createLocal(GeoServer source, GeoServerInfo info) {
+    public @Override String toString() {
+        return toStringBuilder().append("updateSequence", getUpdateSequence()).toString();
+    }
+
+    public static UpdateSequenceEvent createLocal(GeoServerInfo info) {
 
         long updateSequence = info.getUpdateSequence();
         String id = resolveId(info);
         Patch patch = new Patch();
         patch.add("updateSequence", updateSequence);
-        return createLocal(source, id, patch);
+        return createLocal(id, patch);
     }
 
-    public static UpdateSequenceEvent createLocal(
-            GeoServer source, @NonNull String id, @NonNull Patch patch) {
+    public static UpdateSequenceEvent createLocal(@NonNull String id, @NonNull Patch patch) {
 
         long updateSequence = (long) patch.get("updateSequence").orElseThrow().getValue();
-        return new UpdateSequenceEvent(source, null, id, patch, updateSequence);
+        return new UpdateSequenceEvent(id, patch, updateSequence);
     }
 }

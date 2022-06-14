@@ -20,14 +20,14 @@ import org.geoserver.cloud.event.config.ConfigInfoAddEvent;
     @JsonSubTypes.Type(value = CatalogInfoAddEvent.class, name = "CatalogInfoAdded"),
     @JsonSubTypes.Type(value = ConfigInfoAddEvent.class),
 })
-public abstract class InfoAddEvent<SELF, S, I extends Info> extends InfoEvent<SELF, S, I> {
+public abstract class InfoAddEvent<SELF, I extends Info> extends InfoEvent<SELF, I> {
 
     private @Getter @Setter @NonNull I object;
 
     protected InfoAddEvent() {}
 
-    protected InfoAddEvent(S source, S target, @NonNull I object) {
-        super(source, target, resolveId(object), typeOf(object));
+    protected InfoAddEvent(@NonNull I object) {
+        super(resolveId(object), typeOf(object));
         this.object = object;
     }
 }

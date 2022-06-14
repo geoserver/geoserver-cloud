@@ -23,7 +23,7 @@ public class CatalogApplicationEventsConfiguration {
             @Qualifier("geoServer") GeoServer geoServer //
             ) {
 
-        Consumer<? super InfoEvent<?, ?, ?>> publisher = localContextPublisher::publishEvent;
+        Consumer<? super InfoEvent<?, ?>> publisher = localContextPublisher::publishEvent;
         return new CatalogApplicationEventPublisher(publisher, catalog, geoServer);
     }
 }

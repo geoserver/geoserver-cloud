@@ -14,7 +14,6 @@ import lombok.NonNull;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoEvent;
-import org.geoserver.config.GeoServer;
 import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
 
@@ -32,21 +31,21 @@ public class ServiceInfoModifyEvent
     }
 
     protected ServiceInfoModifyEvent(
-            GeoServer source,
-            GeoServer target,
-            @NonNull String objectId,
-            @NonNull Patch patch,
-            String workspaceId) {
+            @NonNull String objectId, @NonNull Patch patch, String workspaceId) {
 
-        super(source, target, objectId, ConfigInfoType.ServiceInfo, patch);
+        super(objectId, ConfigInfoType.ServiceInfo, patch);
         this.workspaceId = workspaceId;
     }
 
+    public @Override String toString() {
+        return toStringBuilder().append("workspace", getWorkspaceId()).toString();
+    }
+
     public static ServiceInfoModifyEvent createLocal(
-            GeoServer source, @NonNull ServiceInfo object, @NonNull Patch patch) {
+            @NonNull ServiceInfo object, @NonNull Patch patch) {
 
         final @NonNull String serviceId = InfoEvent.resolveId(object);
         final String workspaceId = InfoEvent.resolveId(object.getWorkspace());
-        return new ServiceInfoModifyEvent(source, null, serviceId, patch, workspaceId);
+        return new ServiceInfoModifyEvent(serviceId, patch, workspaceId);
     }
 }
