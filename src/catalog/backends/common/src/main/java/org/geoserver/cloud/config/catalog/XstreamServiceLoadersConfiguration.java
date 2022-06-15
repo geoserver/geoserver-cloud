@@ -30,7 +30,7 @@ import org.springframework.context.annotation.Configuration;
  * @since 1.0
  */
 @Configuration(proxyBeanMethods = false)
-@EnableConfigurationProperties({GeoServerBackendProperties.class, CatalogProperties.class})
+@EnableConfigurationProperties({CatalogProperties.class})
 @Slf4j(topic = "org.geoserver.cloud.config.catalog")
 public class XstreamServiceLoadersConfiguration {
 

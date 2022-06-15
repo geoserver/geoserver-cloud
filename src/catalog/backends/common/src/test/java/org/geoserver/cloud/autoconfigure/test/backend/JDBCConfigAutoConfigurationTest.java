@@ -7,8 +7,8 @@ package org.geoserver.cloud.autoconfigure.test.backend;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.CatalogImpl;
@@ -16,7 +16,7 @@ import org.geoserver.catalog.impl.WorkspaceInfoImpl;
 import org.geoserver.catalog.plugin.CatalogFacadeExtensionAdapter;
 import org.geoserver.cloud.autoconfigure.catalog.JDBCConfigAutoConfiguration;
 import org.geoserver.cloud.autoconfigure.testconfiguration.AutoConfigurationTestConfiguration;
-import org.geoserver.cloud.config.catalog.GeoServerBackendProperties;
+import org.geoserver.cloud.config.catalog.JdbcconfigProperties;
 import org.geoserver.cloud.config.jdbcconfig.CloudJdbcGeoServerLoader;
 import org.geoserver.cloud.config.jdbcconfig.CloudJdbcGeoserverFacade;
 import org.geoserver.cloud.config.jdbcconfig.JDBCConfigBackendConfigurer;
@@ -25,6 +25,7 @@ import org.geoserver.jdbcstore.JDBCResourceStore;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -32,22 +33,28 @@ import org.springframework.test.context.junit4.SpringRunner;
  * Test {@link JDBCConfigBackendConfigurer} through {@link JDBCConfigAutoConfiguration} when {@code
  * geoserver.backend.jdbcconfig.enabled=true}
  */
-@SpringBootTest(
-        classes = AutoConfigurationTestConfiguration.class,
+@SpringBootTest(classes = AutoConfigurationTestConfiguration.class,
         properties = "geoserver.backend.jdbcconfig.enabled=true")
 @RunWith(SpringRunner.class)
 public class JDBCConfigAutoConfigurationTest extends JDBCConfigTest {
 
+    private @Autowired JdbcconfigProperties configProperties;
+
     public @Test void testCatalog() {
         assertThat(rawCatalog, instanceOf(CatalogImpl.class));
-        GeoServerBackendProperties props = context.getBean(GeoServerBackendProperties.class);
-        System.err.println(props);
     }
 
+    public @Test void testProperties() {
+        assertNotNull(configProperties);
+        assertNotNull(configProperties.getDatasource());
+        assertNotNull(configProperties.getCacheDirectory());
+        assertEquals(
+                "/tmp/geoserver-jdbcconfig-cache",
+                configProperties.getCacheDirectory().toString());
+    }
     public @Test void testCatalogFacade() {
         assertThat(rawCatalogFacade, instanceOf(CatalogFacadeExtensionAdapter.class));
-        assertThat(
-                ((CatalogFacadeExtensionAdapter) rawCatalogFacade).getSubject(),
+        assertThat(((CatalogFacadeExtensionAdapter) rawCatalogFacade).getSubject(),
                 instanceOf(JDBCCatalogFacade.class));
     }
 

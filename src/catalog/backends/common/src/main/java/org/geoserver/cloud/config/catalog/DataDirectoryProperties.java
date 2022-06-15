@@ -5,8 +5,10 @@
 package org.geoserver.cloud.config.catalog;
 
 import lombok.Data;
+import lombok.Generated;
 
 import org.geoserver.cloud.autoconfigure.catalog.DataDirectoryAutoConfiguration;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.nio.file.Path;
 
@@ -15,6 +17,8 @@ import java.nio.file.Path;
  * {@link GeoServerBackendConfigurer catalog and configuration backend} through the {@link
  * DataDirectoryAutoConfiguration} auto-configuration.
  */
+@Generated
+@ConfigurationProperties(prefix = "geoserver.backend.data-directory")
 public @Data class DataDirectoryProperties {
 
     private boolean enabled;

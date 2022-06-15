@@ -17,7 +17,7 @@ import org.geoserver.catalog.plugin.CatalogFacadeExtensionAdapter;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.cloud.autoconfigure.catalog.event.ConditionalOnCatalogEvents;
 import org.geoserver.cloud.config.catalog.GeoServerBackendConfigurer;
-import org.geoserver.cloud.config.catalog.GeoServerBackendProperties;
+import org.geoserver.cloud.config.catalog.JdbcconfigProperties;
 import org.geoserver.cloud.config.jdbcconfig.bus.JdbcConfigRemoteEventProcessor;
 import org.geoserver.config.GeoServerFacade;
 import org.geoserver.config.util.XStreamPersisterFactory;
@@ -118,13 +118,12 @@ import javax.sql.DataSource;
 public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
 
     private String instanceId;
-    private GeoServerBackendProperties backendConfig;
+    private JdbcconfigProperties jdbcconfigConfig;
 
     @Autowired
     public JDBCConfigBackendConfigurer(
-            GeoServerBackendProperties backendConfig,
-            @Value("${info.instance-id:}") String instanceId) {
-        this.backendConfig = backendConfig;
+            JdbcconfigProperties backendConfig, @Value("${info.instance-id:}") String instanceId) {
+        this.jdbcconfigConfig = backendConfig;
         this.instanceId = instanceId;
         log.info(
                 "Loading geoserver config backend with {}",
@@ -138,9 +137,8 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
         CloudJdbcConfigProperties props = new CloudJdbcConfigProperties(dataSource);
 
         // dataSourceId shows up in geoserver's home page so set it here
-        GeoServerBackendProperties backendProperties = backendConfig;
-        DataSourceProperties dataSourceProperties =
-                backendProperties.getJdbcconfig().getDatasource();
+        JdbcconfigProperties backendProperties = this.jdbcconfigConfig;
+        DataSourceProperties dataSourceProperties = backendProperties.getDatasource();
         String jdbcUrl = dataSourceProperties.getUrl();
         props.setDatasourceId(jdbcUrl);
         return props;
@@ -154,8 +152,8 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
 
     @DependsOn({"extensions", "jdbcConfigDataSourceStartupValidator"})
     public @Override @Bean GeoServerResourceLoader resourceLoader() {
-        GeoServerBackendProperties configProperties = backendConfig;
-        Path path = configProperties.getDataDirectory().getLocation();
+        JdbcconfigProperties configProperties = this.jdbcconfigConfig;
+        Path path = configProperties.getCacheDirectory();
         File dataDirectory = path == null ? null : path.toFile();
         GeoServerResourceLoader loader = new GeoServerResourceLoader(resourceStoreImpl());
         loader.setBaseDirectory(dataDirectory);

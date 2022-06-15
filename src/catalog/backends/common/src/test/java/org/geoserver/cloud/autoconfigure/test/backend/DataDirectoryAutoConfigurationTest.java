@@ -9,10 +9,9 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
-
 import org.geoserver.cloud.autoconfigure.catalog.DataDirectoryAutoConfiguration;
 import org.geoserver.cloud.autoconfigure.testconfiguration.AutoConfigurationTestConfiguration;
-import org.geoserver.cloud.config.catalog.GeoServerBackendProperties;
+import org.geoserver.cloud.config.catalog.DataDirectoryProperties;
 import org.geoserver.cloud.config.datadirectory.DataDirectoryBackendConfigurer;
 import org.geoserver.cloud.config.datadirectory.NoServletContextDataDirectoryResourceStore;
 import org.geoserver.config.DefaultGeoServerLoader;
@@ -35,14 +34,14 @@ import org.springframework.boot.test.context.SpringBootTest;
         })
 public class DataDirectoryAutoConfigurationTest extends GeoServerBackendConfigurerTest {
 
-    private @Autowired GeoServerBackendProperties configProperties;
+    private @Autowired DataDirectoryProperties configProperties;
 
     public @Test void testProperties() {
         assertNotNull(configProperties);
-        assertNotNull(configProperties.getDataDirectory().getLocation());
+        assertNotNull(configProperties.getLocation());
         assertEquals(
                 "/tmp/data_dir_autoconfiguration_test",
-                configProperties.getDataDirectory().getLocation().toString());
+                configProperties.getLocation().toString());
     }
 
     public @Test void testCatalog() {

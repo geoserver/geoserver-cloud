@@ -11,8 +11,8 @@ import org.geoserver.cloud.catalog.client.impl.CatalogClientCatalogFacade;
 import org.geoserver.cloud.catalog.client.impl.CatalogClientConfiguration;
 import org.geoserver.cloud.catalog.client.impl.CatalogClientGeoServerFacade;
 import org.geoserver.cloud.catalog.client.impl.CatalogClientResourceStore;
+import org.geoserver.cloud.config.catalog.CatalogClientProperties;
 import org.geoserver.cloud.config.catalog.GeoServerBackendConfigurer;
-import org.geoserver.cloud.config.catalog.GeoServerBackendProperties;
 import org.geoserver.config.GeoServerFacade;
 import org.geoserver.config.GeoServerLoader;
 import org.geoserver.platform.GeoServerResourceLoader;
@@ -36,7 +36,7 @@ public class CatalogClientBackendConfigurer implements GeoServerBackendConfigure
     private @Autowired CatalogClientGeoServerFacade configClientFacade;
     private @Autowired CatalogClientResourceStore catalogServiceResourceStore;
 
-    private @Autowired GeoServerBackendProperties configProps;
+    private @Autowired CatalogClientProperties catalogClientConfig;
 
     public CatalogClientBackendConfigurer() {
         log.info(
@@ -55,7 +55,7 @@ public class CatalogClientBackendConfigurer implements GeoServerBackendConfigure
     @Bean(name = {"resourceStoreImpl"})
     public @Override CatalogClientResourceStore resourceStoreImpl() {
         CatalogClientResourceStore store = catalogServiceResourceStore;
-        File cacheDirectory = configProps.getCatalogService().getCacheDirectory();
+        File cacheDirectory = catalogClientConfig.getCacheDirectory();
         if (null != cacheDirectory) {
             store.setLocalCacheDirectory(cacheDirectory);
         }
@@ -77,7 +77,7 @@ public class CatalogClientBackendConfigurer implements GeoServerBackendConfigure
     public @Override @Bean GeoServerResourceLoader resourceLoader() {
         CatalogClientResourceStore resourceStore = resourceStoreImpl();
         GeoServerResourceLoader resourceLoader = new GeoServerResourceLoader(resourceStore);
-        File cacheDirectory = configProps.getCatalogService().getCacheDirectory();
+        File cacheDirectory = catalogClientConfig.getCacheDirectory();
         if (null != cacheDirectory) {
             resourceLoader.setBaseDirectory(cacheDirectory);
         }

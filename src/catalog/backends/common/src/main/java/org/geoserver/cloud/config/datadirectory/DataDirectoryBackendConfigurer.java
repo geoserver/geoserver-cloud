@@ -12,7 +12,6 @@ import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.cloud.autoconfigure.catalog.event.ConditionalOnCatalogEvents;
 import org.geoserver.cloud.config.catalog.DataDirectoryProperties;
 import org.geoserver.cloud.config.catalog.GeoServerBackendConfigurer;
-import org.geoserver.cloud.config.catalog.GeoServerBackendProperties;
 import org.geoserver.config.GeoServerLoader;
 import org.geoserver.config.plugin.RepositoryGeoServerFacade;
 import org.geoserver.platform.GeoServerResourceLoader;
@@ -32,11 +31,11 @@ import java.util.Objects;
 @Slf4j(topic = "org.geoserver.cloud.config.datadirectory")
 public class DataDirectoryBackendConfigurer implements GeoServerBackendConfigurer {
 
-    private GeoServerBackendProperties backendConfig;
+    private DataDirectoryProperties dataDirectoryConfig;
 
     @Autowired
-    public DataDirectoryBackendConfigurer(GeoServerBackendProperties backendConfig) {
-        this.backendConfig = backendConfig;
+    public DataDirectoryBackendConfigurer(DataDirectoryProperties dataDirectoryConfig) {
+        this.dataDirectoryConfig = dataDirectoryConfig;
         log.info(
                 "Loading geoserver config backend with {}",
                 DataDirectoryBackendConfigurer.class.getSimpleName());
@@ -89,7 +88,7 @@ public class DataDirectoryBackendConfigurer implements GeoServerBackendConfigure
     }
 
     private Path dataDirectoryFile() {
-        DataDirectoryProperties dataDirectoryConfig = this.backendConfig.getDataDirectory();
+        DataDirectoryProperties dataDirectoryConfig = this.dataDirectoryConfig;
         Path path = dataDirectoryConfig.getLocation();
         Objects.requireNonNull(
                 path, "geoserver.backend.data-directory.location config property resolves to null");

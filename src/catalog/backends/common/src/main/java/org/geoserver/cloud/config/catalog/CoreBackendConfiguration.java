@@ -30,7 +30,12 @@ import org.springframework.context.annotation.DependsOn;
 // proxyBeanMethods = true required to avoid circular reference exceptions, especially related to
 // GeoServerExtensions still being created
 @Configuration(proxyBeanMethods = true)
-@EnableConfigurationProperties({GeoServerBackendProperties.class, CatalogProperties.class})
+@EnableConfigurationProperties({
+    CatalogProperties.class,
+    DataDirectoryProperties.class,
+    CatalogClientProperties.class,
+    JdbcconfigProperties.class
+})
 public class CoreBackendConfiguration {
 
     public @Bean XStreamPersisterFactory xstreamPersisterFactory() {
