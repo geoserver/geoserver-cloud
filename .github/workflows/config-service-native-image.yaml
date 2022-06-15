@@ -10,15 +10,15 @@ on:
       - ".github/workflows/config-service-native-image.yaml"
       - "pom.xml"
       - "src/pom.xml"
-      - "src/support-services/pom.xml"
-      - "src/support-services/config/**"
+      - "src/apps/infrastructure/pom.xml"
+      - "src/apps/infrastructure/config/**"
   pull_request:
     paths:
       - ".github/workflows/config-service-native-image.yaml"
       - "pom.xml"
       - "src/pom.xml"
-      - "src/support-services/pom.xml"
-      - "src/support-services/config/**"
+      - "src/apps/infrastructure/pom.xml"
+      - "src/apps/infrastructure/config/**"
 
 jobs:
   build:
