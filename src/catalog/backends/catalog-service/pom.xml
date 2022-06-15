@@ -6,9 +6,9 @@
     <artifactId>gs-cloud-catalog-backends</artifactId>
     <version>${revision}</version>
   </parent>
-  <artifactId>gs-cloud-catalog-backend-jdbcconfig</artifactId>
+  <artifactId>gs-cloud-catalog-backend-catalog-service</artifactId>
   <packaging>jar</packaging>
-  <description>Autoconfigurations for using jdbcconfig/jdbcstore as Catalog and config backend</description>
+  <description>Autoconfigurations for using the reactive catalog service as Catalog and config backend</description>
   <dependencies>
     <dependency>
       <groupId>org.geoserver.cloud.catalog.backend</groupId>

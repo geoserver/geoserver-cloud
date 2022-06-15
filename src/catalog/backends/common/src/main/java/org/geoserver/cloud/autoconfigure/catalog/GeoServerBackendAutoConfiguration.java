@@ -4,7 +4,6 @@
  */
 package org.geoserver.cloud.autoconfigure.catalog;
 
-import org.geoserver.cloud.autoconfigure.catalog.cache.BackendCacheAutoConfiguration;
 import org.geoserver.cloud.config.catalog.CoreBackendConfiguration;
 import org.geoserver.cloud.config.catalog.XstreamServiceLoadersConfiguration;
 import org.geotools.autoconfigure.httpclient.GeoToolsHttpClientAutoConfiguration;
@@ -30,7 +29,6 @@ import org.springframework.context.annotation.Import;
     JDBCConfigAutoConfiguration.class, //
     JDBCConfigWebAutoConfiguration.class, //
     CatalogClientBackendAutoConfiguration.class, //
-    BackendCacheAutoConfiguration.class, //
     RemoteEventsResourcePoolCleaupUpAutoConfiguration.class //
 })
 public class GeoServerBackendAutoConfiguration {}
