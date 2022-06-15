@@ -4,9 +4,9 @@
  */
 package org.geoserver.cloud.autoconfigure.catalog;
 
+import org.geoserver.cloud.autoconfigure.geotools.GeoToolsHttpClientAutoConfiguration;
 import org.geoserver.cloud.config.catalog.CoreBackendConfiguration;
 import org.geoserver.cloud.config.catalog.XstreamServiceLoadersConfiguration;
-import org.geotools.autoconfigure.httpclient.GeoToolsHttpClientAutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;

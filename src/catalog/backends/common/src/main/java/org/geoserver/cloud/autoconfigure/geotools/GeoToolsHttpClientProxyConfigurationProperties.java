@@ -2,19 +2,28 @@
  * (c) 2021 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
  * GPL 2.0 license, available at the root application directory.
  */
-package org.geotools.autoconfigure.httpclient;
+package org.geoserver.cloud.autoconfigure.geotools;
 
 import lombok.Data;
 import lombok.NonNull;
 
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.util.StringUtils;
 
+import java.net.http.HttpClient;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-/** */
-public @Data class ProxyConfig {
+/**
+ * {@link EnableConfigurationProperties @EnableConfigurationProperties} to configure the HTTP proxy
+ * for the GeoTools {@link HttpClient} using Spring environment configuration.
+ *
+ * @see SpringEnvironmentAwareGeoToolsHttpClientFactory
+ */
+@ConfigurationProperties(prefix = "geotools.httpclient.proxy")
+public @Data class GeoToolsHttpClientProxyConfigurationProperties {
 
     private boolean enabled = true;
     private ProxyHostConfig http = new ProxyHostConfig();

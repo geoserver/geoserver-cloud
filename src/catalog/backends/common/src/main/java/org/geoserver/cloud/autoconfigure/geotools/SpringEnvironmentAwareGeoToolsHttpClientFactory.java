@@ -2,7 +2,7 @@
  * (c) 2021 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
  * GPL 2.0 license, available at the root application directory.
  */
-package org.geotools.autoconfigure.httpclient;
+package org.geoserver.cloud.autoconfigure.geotools;
 
 import lombok.AccessLevel;
 import lombok.Setter;
@@ -18,7 +18,9 @@ import java.util.List;
 /** */
 public class SpringEnvironmentAwareGeoToolsHttpClientFactory extends AbstractHTTPClientFactory {
 
-    private static @Setter(value = AccessLevel.PACKAGE) ProxyConfig proxyConfig = new ProxyConfig();
+    private static @Setter(value = AccessLevel.PACKAGE)
+    GeoToolsHttpClientProxyConfigurationProperties proxyConfig =
+            new GeoToolsHttpClientProxyConfigurationProperties();
 
     public @Override List<Class<?>> clientClasses() {
         return List.of(SpringEnvironmentAwareGeoToolsHttpClient.class);

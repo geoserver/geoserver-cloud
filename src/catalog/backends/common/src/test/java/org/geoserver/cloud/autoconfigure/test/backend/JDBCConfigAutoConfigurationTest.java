@@ -9,6 +9,7 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.CatalogImpl;
@@ -33,7 +34,8 @@ import org.springframework.test.context.junit4.SpringRunner;
  * Test {@link JDBCConfigBackendConfigurer} through {@link JDBCConfigAutoConfiguration} when {@code
  * geoserver.backend.jdbcconfig.enabled=true}
  */
-@SpringBootTest(classes = AutoConfigurationTestConfiguration.class,
+@SpringBootTest(
+        classes = AutoConfigurationTestConfiguration.class,
         properties = "geoserver.backend.jdbcconfig.enabled=true")
 @RunWith(SpringRunner.class)
 public class JDBCConfigAutoConfigurationTest extends JDBCConfigTest {
@@ -49,12 +51,13 @@ public class JDBCConfigAutoConfigurationTest extends JDBCConfigTest {
         assertNotNull(configProperties.getDatasource());
         assertNotNull(configProperties.getCacheDirectory());
         assertEquals(
-                "/tmp/geoserver-jdbcconfig-cache",
-                configProperties.getCacheDirectory().toString());
+                "/tmp/geoserver-jdbcconfig-cache", configProperties.getCacheDirectory().toString());
     }
+
     public @Test void testCatalogFacade() {
         assertThat(rawCatalogFacade, instanceOf(CatalogFacadeExtensionAdapter.class));
-        assertThat(((CatalogFacadeExtensionAdapter) rawCatalogFacade).getSubject(),
+        assertThat(
+                ((CatalogFacadeExtensionAdapter) rawCatalogFacade).getSubject(),
                 instanceOf(JDBCCatalogFacade.class));
     }
 

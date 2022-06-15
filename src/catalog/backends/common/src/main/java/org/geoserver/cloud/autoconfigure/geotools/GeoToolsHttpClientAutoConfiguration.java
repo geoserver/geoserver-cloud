@@ -2,16 +2,15 @@
  * (c) 2021 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
  * GPL 2.0 license, available at the root application directory.
  */
-package org.geotools.autoconfigure.httpclient;
+package org.geoserver.cloud.autoconfigure.geotools;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.geotools.autoconfigure.httpclient.ProxyConfig.ProxyHostConfig;
+import org.geoserver.cloud.autoconfigure.geotools.GeoToolsHttpClientProxyConfigurationProperties.ProxyHostConfig;
 import org.geotools.http.HTTPClientFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -68,25 +67,17 @@ import org.springframework.context.annotation.Configuration;
  * </pre>
  */
 @Configuration(proxyBeanMethods = false)
-@EnableConfigurationProperties
+@EnableConfigurationProperties(GeoToolsHttpClientProxyConfigurationProperties.class)
 @ConditionalOnProperty(
-        prefix = "geotools.httpclient.proxy",
-        name = "enabled",
+        name = "geotools.httpclient.proxy.enabled",
         havingValue = "true",
         matchIfMissing = true)
 @Slf4j(topic = "org.geotools.autoconfigure.httpclient")
 public class GeoToolsHttpClientAutoConfiguration {
 
-    @ConfigurationProperties(prefix = "geotools.httpclient.proxy")
-    public @Bean ProxyConfig geoToolsHttpProxyConfiguration() {
-        System.setProperty(
-                "HTTP_CLIENT_FACTORY",
-                SpringEnvironmentAwareGeoToolsHttpClientFactory.class.getCanonicalName());
-        return new ProxyConfig();
-    }
-
     public @Bean SpringEnvironmentAwareGeoToolsHttpClientFactory
-            springEnvironmentAwareGeoToolsHttpClientFactory(@Autowired ProxyConfig proxyConfig) {
+            springEnvironmentAwareGeoToolsHttpClientFactory(
+                    @Autowired GeoToolsHttpClientProxyConfigurationProperties proxyConfig) {
 
         log.info("Using spring environment aware GeoTools HTTPClientFactory");
         log(proxyConfig.getHttp(), "HTTP");

@@ -1,5 +1,10 @@
+# Initializers
+org.springframework.context.ApplicationContextInitializer=\
+org.geoserver.cloud.autoconfigure.geotools.GeoToolsStaticContextInitializer
+
+# Auto Configure
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-org.geotools.autoconfigure.httpclient.GeoToolsHttpClientAutoConfiguration,\
+org.geoserver.cloud.autoconfigure.geotools.GeoToolsHttpClientAutoConfiguration,\
 org.geoserver.cloud.autoconfigure.catalog.GeoServerBackendAutoConfiguration,\
 org.geoserver.cloud.autoconfigure.security.GeoServerSecurityAutoConfiguration,\
 org.geoserver.cloud.autoconfigure.metrics.catalog.CatalogMetricsAutoConfiguration

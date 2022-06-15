@@ -15,7 +15,7 @@
  * (c) 2021 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
  * GPL 2.0 license, available at the root application directory.
  */
-package org.geotools.autoconfigure.httpclient;
+package org.geoserver.cloud.autoconfigure.geotools;
 
 import static java.time.Duration.ofMillis;
 import static java.time.Duration.ofSeconds;
@@ -43,7 +43,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.geotools.autoconfigure.httpclient.ProxyConfig.ProxyHostConfig;
+import org.geoserver.cloud.autoconfigure.geotools.GeoToolsHttpClientProxyConfigurationProperties.ProxyHostConfig;
 import org.geotools.http.HTTPClient;
 import org.geotools.http.HTTPConnectionPooling;
 import org.geotools.http.HTTPProxy;
@@ -84,9 +84,10 @@ class SpringEnvironmentAwareGeoToolsHttpClient
 
     private BasicCredentialsProvider credsProvider = null;
 
-    private ProxyConfig proxyConfig;
+    private GeoToolsHttpClientProxyConfigurationProperties proxyConfig;
 
-    public SpringEnvironmentAwareGeoToolsHttpClient(@NonNull ProxyConfig proxyConfig) {
+    public SpringEnvironmentAwareGeoToolsHttpClient(
+            @NonNull GeoToolsHttpClientProxyConfigurationProperties proxyConfig) {
         this.proxyConfig = proxyConfig;
         connectionManager = new PoolingHttpClientConnectionManager();
         connectionManager.setMaxTotal(6);
@@ -113,7 +114,7 @@ class SpringEnvironmentAwareGeoToolsHttpClient
     }
 
     private Optional<HttpHost> proxy(URL url) {
-        final ProxyConfig config = this.proxyConfig;
+        final GeoToolsHttpClientProxyConfigurationProperties config = this.proxyConfig;
         final String host = url.getHost();
         return config.ofProtocol(url.getProtocol()).forHost(host).map(this::toHttpHost);
     }
