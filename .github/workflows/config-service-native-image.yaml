@@ -48,7 +48,7 @@ jobs:
       id: version
       run: |
          echo '::echo::on'
-         echo ::set-output name=IMAGE_NAME::$(./mvnw -pl :gs-cloud-config-service help:evaluate -Pnative -Dexpression=spring-boot.build-image.imageName -q -DforceStdout)
+         echo ::set-output name=IMAGE_NAME::$(./mvnw -pl :gs-cloud-config-service help:evaluate -Dexpression=spring-boot.build-image.imageName -Pnative,-geoserver,-docker,-docker-openj9 -q -DforceStdout)
 
     - name: Build config-service native image
       run: |
