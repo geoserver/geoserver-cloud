@@ -66,7 +66,7 @@ $ ./mvnw clean install -DskipTests
 GeoServer that have not yet been integrated into the mainstream
 `main` branch. Additionally, the `geoserver-cloud_integration`
 GeoServer branch changes the artifact versions from `2.21-SNAPSHOT`
-to `2.21-CLOUD`, to avoid confusing maven if you also work
+to `2.21.0-CLOUD`, to avoid confusing maven if you also work
 with vanilla GeoServer, and to avoid your IDE downloading the
 latest `2.21-SNAPSHOT` artifacts from the OsGeo maven repository,
 overriding your local maven repository ones, and having
@@ -93,7 +93,7 @@ frequently, with
 *Cloud Native GeoServer*-specific modules source code
 is under the `src/` directory.
 
-When you already have the `2.21-CLOUD` GeoServer artifacts,
+When you already have the `2.21.0-CLOUD` GeoServer artifacts,
 you can chose to only build these projects, either by:
 
 
