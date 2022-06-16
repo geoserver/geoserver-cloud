@@ -5,6 +5,7 @@
 package org.geoserver.jackson.databind.catalog.dto;
 
 import lombok.Data;
+import lombok.Generated;
 
 import org.geoserver.catalog.impl.CoverageDimensionImpl;
 
@@ -13,7 +14,7 @@ import java.util.List;
 /**
  * @see CoverageDimensionImpl
  */
-public @Data class CoverageDimension {
+public @Data @Generated class CoverageDimension {
     private String id;
     private String name;
     private String description;

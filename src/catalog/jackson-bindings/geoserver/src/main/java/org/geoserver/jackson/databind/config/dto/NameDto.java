@@ -5,9 +5,10 @@
 package org.geoserver.jackson.databind.config.dto;
 
 import lombok.Data;
+import lombok.Generated;
 
 /** DTO for {@link org.opengis.feature.type.Name} */
-public @Data class NameDto {
+public @Data @Generated class NameDto {
     private String namespaceURI;
     private String localPart;
 }

@@ -5,8 +5,9 @@
 package org.geoserver.jackson.databind.catalog.dto;
 
 import lombok.Data;
+import lombok.Generated;
 
-public @Data class Attribution {
+public @Data @Generated class Attribution {
     private String id;
     private String title;
     private String href;

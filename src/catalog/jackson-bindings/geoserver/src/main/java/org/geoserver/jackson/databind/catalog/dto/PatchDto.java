@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import lombok.Data;
+import lombok.Generated;
 
 import org.geotools.jackson.databind.filter.dto.Expression.Literal;
 
@@ -17,6 +18,6 @@ import java.util.TreeMap;
 /** DTO for {@link org.geoserver.catalog.plugin.Patch} */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("Patch")
-public @Data class PatchDto {
+public @Data @Generated class PatchDto {
     private Map<String, Literal> patches = new TreeMap<>();
 }

@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Generated;
 
 import org.geoserver.catalog.LayerInfo.WMSInterpolation;
 import org.geoserver.catalog.impl.AuthorityURL;
@@ -44,7 +45,7 @@ import java.util.Set;
     @JsonSubTypes.Type(value = Service.WmtsService.class, name = "WMTSInfo")
 })
 @EqualsAndHashCode(callSuper = true)
-public abstract @Data class Service extends ConfigInfoDto {
+public abstract @Data @Generated class Service extends ConfigInfoDto {
     private String name;
     private InfoReference workspace;
     private boolean citeCompliant;
@@ -80,7 +81,7 @@ public abstract @Data class Service extends ConfigInfoDto {
     private Map<String, String> internationalAbstract;
 
     @EqualsAndHashCode(callSuper = true)
-    public static @Data class WmsService extends Service {
+    public static @Data @Generated class WmsService extends Service {
         // Works well as POJO, no need to create a separate DTO
         private WatermarkInfoImpl watermark;
         // enum, direct use
@@ -123,7 +124,7 @@ public abstract @Data class Service extends ConfigInfoDto {
     }
 
     @EqualsAndHashCode(callSuper = true)
-    public static @Data class WfsService extends Service {
+    public static @Data @Generated class WfsService extends Service {
         private Map<Version, GMLInfoImpl> GML;
         private int maxFeatures;
         private ServiceLevel serviceLevel;
@@ -139,7 +140,7 @@ public abstract @Data class Service extends ConfigInfoDto {
     }
 
     @EqualsAndHashCode(callSuper = true)
-    public static @Data class WcsService extends Service {
+    public static @Data @Generated class WcsService extends Service {
         private boolean GMLPrefixing;
         private long maxInputMemory;
         private long maxOutputMemory;
@@ -152,7 +153,7 @@ public abstract @Data class Service extends ConfigInfoDto {
     }
 
     @EqualsAndHashCode(callSuper = true)
-    public static @Data class WpsService extends Service {
+    public static @Data @Generated class WpsService extends Service {
         private double connectionTimeout;
         private int resourceExpirationTimeout;
         private int maxSynchronousProcesses;
@@ -170,7 +171,7 @@ public abstract @Data class Service extends ConfigInfoDto {
         private boolean remoteInputDisabled;
 
         /** DTO for {@link ProcessGroupInfo} */
-        public static @Data class ProcessGroup {
+        public static @Data @Generated class ProcessGroup {
             private String factoryClass;
             private boolean isEnabled;
             private List<WpsService.Process> filteredProcesses;
@@ -178,7 +179,7 @@ public abstract @Data class Service extends ConfigInfoDto {
             private List<String> roles;
         }
         /** DTO for {@link ProcessInfo} */
-        public static @Data class Process {
+        public static @Data @Generated class Process {
             private NameDto name;
             private boolean enabled;
             private List<String> roles;
@@ -187,5 +188,5 @@ public abstract @Data class Service extends ConfigInfoDto {
 
     /** DTO for {@link WMTSInfo} */
     @EqualsAndHashCode(callSuper = true)
-    public static @Data class WmtsService extends Service {}
+    public static @Data @Generated class WmtsService extends Service {}
 }

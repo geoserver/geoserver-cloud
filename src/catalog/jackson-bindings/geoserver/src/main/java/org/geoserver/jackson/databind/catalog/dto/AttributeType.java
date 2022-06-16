@@ -5,11 +5,13 @@
 package org.geoserver.jackson.databind.catalog.dto;
 
 import lombok.Data;
+import lombok.Generated;
 
 import java.io.Serializable;
 import java.util.Map;
 
 @Data
+@Generated
 public class AttributeType {
     private String name;
     private InfoReference featureType;

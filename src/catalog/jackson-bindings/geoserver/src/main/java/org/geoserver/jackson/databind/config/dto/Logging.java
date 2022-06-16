@@ -6,12 +6,13 @@ package org.geoserver.jackson.databind.config.dto;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Generated;
 
 import org.geoserver.config.LoggingInfo;
 
 /** DTO for {@link LoggingInfo} */
 @EqualsAndHashCode(callSuper = true)
-public @Data class Logging extends ConfigInfoDto {
+public @Data @Generated class Logging extends ConfigInfoDto {
     private String level;
     private String location;
     private boolean stdOutLogging;

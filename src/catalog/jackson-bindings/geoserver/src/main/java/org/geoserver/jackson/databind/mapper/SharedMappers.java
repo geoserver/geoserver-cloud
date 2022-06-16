@@ -246,7 +246,6 @@ public abstract class SharedMappers {
         }
         return value;
     }
-    ;
 
     private ClassMappings resolveType(@NonNull Info value) {
         value = ModificationProxy.unwrap(value);

@@ -5,13 +5,14 @@
 package org.geoserver.jackson.databind.config.dto;
 
 import lombok.Data;
+import lombok.Generated;
 
 import org.geoserver.config.ContactInfo;
 
 import java.util.Map;
 
 /** DTO for {@link ContactInfo} */
-public @Data class Contact {
+public @Data @Generated class Contact {
     private String id;
     private String address;
     private String addressCity;

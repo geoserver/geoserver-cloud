@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Generated;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
@@ -29,19 +30,19 @@ import java.util.Set;
     @JsonSubTypes.Type(value = Filter.BinaryLogicOperator.class)
 })
 @Accessors(chain = true)
-public @Data class Filter {
+public @Data @Generated class Filter {
     public static final IncludeFilter INCLUDE = new IncludeFilter();
     public static final ExcludeFilter EXCLUDE = new ExcludeFilter();
 
     @EqualsAndHashCode(callSuper = true)
-    public static @Data class IncludeFilter extends Filter {}
+    public static @Data @Generated class IncludeFilter extends Filter {}
 
     @EqualsAndHashCode(callSuper = true)
-    public static @Data class ExcludeFilter extends Filter {}
+    public static @Data @Generated class ExcludeFilter extends Filter {}
 
     @Accessors(chain = true)
     @EqualsAndHashCode(callSuper = true)
-    public static @Data class Id extends Filter {
+    public static @Data @Generated class Id extends Filter {
         private Set<FeatureId> identifiers;
 
         @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
@@ -50,7 +51,7 @@ public @Data class Filter {
             @JsonSubTypes.Type(value = ResourceId.class, name = "ResourceId")
         })
         @Accessors(chain = true)
-        public static @Data class FeatureId {
+        public static @Data @Generated class FeatureId {
             private String id;
             private String previousRid;
             private String featureVersion;
@@ -58,7 +59,7 @@ public @Data class Filter {
 
         @Accessors(chain = true)
         @EqualsAndHashCode(callSuper = true)
-        public static @Data class ResourceId extends FeatureId {
+        public static @Data @Generated class ResourceId extends FeatureId {
             String version;
             Date startTime;
             Date endTime;
@@ -67,13 +68,13 @@ public @Data class Filter {
 
     @Accessors(chain = true)
     @EqualsAndHashCode(callSuper = true)
-    public static @Data class NativeFilter extends Filter {
+    public static @Data @Generated class NativeFilter extends Filter {
         private String Native;
     }
 
     @Accessors(chain = true)
     @EqualsAndHashCode(callSuper = true)
-    public static @Data class Not extends Filter {
+    public static @Data @Generated class Not extends Filter {
         private Filter filter;
     }
 
@@ -84,26 +85,26 @@ public @Data class Filter {
     })
     @Accessors(chain = true)
     @EqualsAndHashCode(callSuper = true)
-    public abstract static @Data class BinaryLogicOperator extends Filter {
+    public abstract static @Data @Generated class BinaryLogicOperator extends Filter {
         private List<Filter> children;
 
         @EqualsAndHashCode(callSuper = true)
-        public static @Data class And extends BinaryLogicOperator {}
+        public static @Data @Generated class And extends BinaryLogicOperator {}
 
         @EqualsAndHashCode(callSuper = true)
-        public static @Data class Or extends BinaryLogicOperator {}
+        public static @Data @Generated class Or extends BinaryLogicOperator {}
     }
 
     @Accessors(chain = true)
     @EqualsAndHashCode(callSuper = true)
-    public static @Data class PropertyIsNil extends Filter {
+    public static @Data @Generated class PropertyIsNil extends Filter {
         private Expression expression;
         private Object nilReason;
     }
 
     @Accessors(chain = true)
     @EqualsAndHashCode(callSuper = true)
-    public static @Data class PropertyIsNull extends Filter {
+    public static @Data @Generated class PropertyIsNull extends Filter {
         private Expression expression;
     }
 
@@ -115,7 +116,7 @@ public @Data class Filter {
     })
     @Accessors(chain = true)
     @EqualsAndHashCode(callSuper = true)
-    public abstract static @Data class MultiValuedFilter extends Filter {
+    public abstract static @Data @Generated class MultiValuedFilter extends Filter {
         public enum MatchAction {
             ANY,
             ALL,
@@ -133,14 +134,14 @@ public @Data class Filter {
     })
     @Accessors(chain = true)
     @EqualsAndHashCode(callSuper = true)
-    public abstract static @Data class BinaryOperator extends MultiValuedFilter {
+    public abstract static @Data @Generated class BinaryOperator extends MultiValuedFilter {
         private Expression expression1;
         private Expression expression2;
     }
 
     @Accessors(chain = true)
     @EqualsAndHashCode(callSuper = true)
-    public static @Data class PropertyIsBetween extends MultiValuedFilter {
+    public static @Data @Generated class PropertyIsBetween extends MultiValuedFilter {
         private Expression expression;
         private Expression lowerBoundary;
         private Expression upperBoundary;
@@ -148,7 +149,7 @@ public @Data class Filter {
 
     @Accessors(chain = true)
     @EqualsAndHashCode(callSuper = true)
-    public static @Data class PropertyIsLike extends MultiValuedFilter {
+    public static @Data @Generated class PropertyIsLike extends MultiValuedFilter {
         private Expression expression;
         private String literal;
         private String wildCard;
@@ -180,26 +181,30 @@ public @Data class Filter {
     })
     @Accessors(chain = true)
     @EqualsAndHashCode(callSuper = true)
-    public abstract static @Data class BinaryComparisonOperator extends BinaryOperator {
+    public abstract static @Data @Generated class BinaryComparisonOperator extends BinaryOperator {
         private boolean matchingCase;
 
         @EqualsAndHashCode(callSuper = true)
-        public static @Data class PropertyIsEqualTo extends BinaryComparisonOperator {}
+        public static @Data @Generated class PropertyIsEqualTo extends BinaryComparisonOperator {}
 
         @EqualsAndHashCode(callSuper = true)
-        public static @Data class PropertyIsGreaterThan extends BinaryComparisonOperator {}
+        public static @Data @Generated class PropertyIsGreaterThan
+                extends BinaryComparisonOperator {}
 
         @EqualsAndHashCode(callSuper = true)
-        public static @Data class PropertyIsGreaterThanOrEqualTo extends BinaryComparisonOperator {}
+        public static @Data @Generated class PropertyIsGreaterThanOrEqualTo
+                extends BinaryComparisonOperator {}
 
         @EqualsAndHashCode(callSuper = true)
-        public static @Data class PropertyIsLessThan extends BinaryComparisonOperator {}
+        public static @Data @Generated class PropertyIsLessThan extends BinaryComparisonOperator {}
 
         @EqualsAndHashCode(callSuper = true)
-        public static @Data class PropertyIsLessThanOrEqualTo extends BinaryComparisonOperator {}
+        public static @Data @Generated class PropertyIsLessThanOrEqualTo
+                extends BinaryComparisonOperator {}
 
         @EqualsAndHashCode(callSuper = true)
-        public static @Data class PropertyIsNotEqualTo extends BinaryComparisonOperator {}
+        public static @Data @Generated class PropertyIsNotEqualTo
+                extends BinaryComparisonOperator {}
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
@@ -219,34 +224,34 @@ public @Data class Filter {
     })
     @Accessors(chain = true)
     @EqualsAndHashCode(callSuper = true)
-    public abstract static @Data class BinarySpatialOperator extends BinaryOperator {
+    public abstract static @Data @Generated class BinarySpatialOperator extends BinaryOperator {
 
         @EqualsAndHashCode(callSuper = true)
-        public static @Data class BBOX extends BinarySpatialOperator {}
+        public static @Data @Generated class BBOX extends BinarySpatialOperator {}
 
         @EqualsAndHashCode(callSuper = true)
-        public static @Data class Contains extends BinarySpatialOperator {}
+        public static @Data @Generated class Contains extends BinarySpatialOperator {}
 
         @EqualsAndHashCode(callSuper = true)
-        public static @Data class Crosses extends BinarySpatialOperator {}
+        public static @Data @Generated class Crosses extends BinarySpatialOperator {}
 
         @EqualsAndHashCode(callSuper = true)
-        public static @Data class Disjoint extends BinarySpatialOperator {}
+        public static @Data @Generated class Disjoint extends BinarySpatialOperator {}
 
         @EqualsAndHashCode(callSuper = true)
-        public static @Data class Equals extends BinarySpatialOperator {}
+        public static @Data @Generated class Equals extends BinarySpatialOperator {}
 
         @EqualsAndHashCode(callSuper = true)
-        public static @Data class Intersects extends BinarySpatialOperator {}
+        public static @Data @Generated class Intersects extends BinarySpatialOperator {}
 
         @EqualsAndHashCode(callSuper = true)
-        public static @Data class Overlaps extends BinarySpatialOperator {}
+        public static @Data @Generated class Overlaps extends BinarySpatialOperator {}
 
         @EqualsAndHashCode(callSuper = true)
-        public static @Data class Touches extends BinarySpatialOperator {}
+        public static @Data @Generated class Touches extends BinarySpatialOperator {}
 
         @EqualsAndHashCode(callSuper = true)
-        public static @Data class Within extends BinarySpatialOperator {}
+        public static @Data @Generated class Within extends BinarySpatialOperator {}
 
         @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
         @JsonSubTypes({
@@ -256,16 +261,17 @@ public @Data class Filter {
             @JsonSubTypes.Type(value = Filter.BinarySpatialOperator.Beyond.class, name = "Beyond")
         })
         @EqualsAndHashCode(callSuper = true)
-        public static @Data abstract class DistanceBufferOperator extends BinarySpatialOperator {
+        public static @Data @Generated abstract class DistanceBufferOperator
+                extends BinarySpatialOperator {
             private double distance;
             private String distanceUnits;
         }
 
         @EqualsAndHashCode(callSuper = true)
-        public static @Data class Beyond extends DistanceBufferOperator {}
+        public static @Data @Generated class Beyond extends DistanceBufferOperator {}
 
         @EqualsAndHashCode(callSuper = true)
-        public static @Data class DWithin extends DistanceBufferOperator {}
+        public static @Data @Generated class DWithin extends DistanceBufferOperator {}
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
@@ -291,49 +297,49 @@ public @Data class Filter {
     })
     @Accessors(chain = true)
     @EqualsAndHashCode(callSuper = true)
-    public abstract static @Data class BinaryTemporalOperator extends BinaryOperator {
+    public abstract static @Data @Generated class BinaryTemporalOperator extends BinaryOperator {
 
         @EqualsAndHashCode(callSuper = true)
         @ToString(doNotUseGetters = true, callSuper = true)
-        public static @Data class After extends BinaryTemporalOperator {}
+        public static @Data @Generated class After extends BinaryTemporalOperator {}
 
         @EqualsAndHashCode(callSuper = true)
-        public static @Data class AnyInteracts extends BinaryTemporalOperator {}
+        public static @Data @Generated class AnyInteracts extends BinaryTemporalOperator {}
 
         @EqualsAndHashCode(callSuper = true)
-        public static @Data class Before extends BinaryTemporalOperator {}
+        public static @Data @Generated class Before extends BinaryTemporalOperator {}
 
         @EqualsAndHashCode(callSuper = true)
-        public static @Data class Begins extends BinaryTemporalOperator {}
+        public static @Data @Generated class Begins extends BinaryTemporalOperator {}
 
         @EqualsAndHashCode(callSuper = true)
-        public static @Data class BegunBy extends BinaryTemporalOperator {}
+        public static @Data @Generated class BegunBy extends BinaryTemporalOperator {}
 
         @EqualsAndHashCode(callSuper = true)
-        public static @Data class During extends BinaryTemporalOperator {}
+        public static @Data @Generated class During extends BinaryTemporalOperator {}
 
         @EqualsAndHashCode(callSuper = true)
-        public static @Data class EndedBy extends BinaryTemporalOperator {}
+        public static @Data @Generated class EndedBy extends BinaryTemporalOperator {}
 
         @EqualsAndHashCode(callSuper = true)
-        public static @Data class Ends extends BinaryTemporalOperator {}
+        public static @Data @Generated class Ends extends BinaryTemporalOperator {}
 
         @EqualsAndHashCode(callSuper = true)
-        public static @Data class Meets extends BinaryTemporalOperator {}
+        public static @Data @Generated class Meets extends BinaryTemporalOperator {}
 
         @EqualsAndHashCode(callSuper = true)
-        public static @Data class MetBy extends BinaryTemporalOperator {}
+        public static @Data @Generated class MetBy extends BinaryTemporalOperator {}
 
         @EqualsAndHashCode(callSuper = true)
-        public static @Data class OverlappedBy extends BinaryTemporalOperator {}
+        public static @Data @Generated class OverlappedBy extends BinaryTemporalOperator {}
 
         @EqualsAndHashCode(callSuper = true)
-        public static @Data class TContains extends BinaryTemporalOperator {}
+        public static @Data @Generated class TContains extends BinaryTemporalOperator {}
 
         @EqualsAndHashCode(callSuper = true)
-        public static @Data class TEquals extends BinaryTemporalOperator {}
+        public static @Data @Generated class TEquals extends BinaryTemporalOperator {}
 
         @EqualsAndHashCode(callSuper = true)
-        public static @Data class TOverlaps extends BinaryTemporalOperator {}
+        public static @Data @Generated class TOverlaps extends BinaryTemporalOperator {}
     }
 }

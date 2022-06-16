@@ -5,8 +5,9 @@
 package org.geoserver.jackson.databind.catalog.dto;
 
 import lombok.Data;
+import lombok.Generated;
 
-public @Data class AuthorityURL {
+public @Data @Generated class AuthorityURL {
     private String name;
     private String href;
 }

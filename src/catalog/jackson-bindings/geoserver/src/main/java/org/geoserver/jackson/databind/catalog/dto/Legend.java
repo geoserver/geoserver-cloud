@@ -5,8 +5,9 @@
 package org.geoserver.jackson.databind.catalog.dto;
 
 import lombok.Data;
+import lombok.Generated;
 
-public @Data class Legend {
+public @Data @Generated class Legend {
     private String id;
     private int width;
     private int height;

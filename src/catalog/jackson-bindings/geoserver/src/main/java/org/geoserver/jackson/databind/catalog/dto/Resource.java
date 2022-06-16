@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Generated;
 
 import java.io.Serializable;
 import java.util.List;
@@ -22,6 +23,7 @@ import java.util.Map;
     @JsonSubTypes.Type(value = WMTSLayer.class, name = "WMTSLayerInfo")
 })
 @Data
+@Generated
 @EqualsAndHashCode(callSuper = true)
 public abstract class Resource extends CatalogInfoDto {
     public enum ProjectionPolicy {

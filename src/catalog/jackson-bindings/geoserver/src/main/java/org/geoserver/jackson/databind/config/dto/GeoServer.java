@@ -6,6 +6,7 @@ package org.geoserver.jackson.databind.config.dto;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Generated;
 
 import org.geoserver.config.GeoServerInfo;
 
@@ -14,7 +15,7 @@ import java.util.Map;
 
 /** DTO for {@link GeoServerInfo} */
 @EqualsAndHashCode(callSuper = true)
-public @Data class GeoServer extends ConfigInfoDto {
+public @Data @Generated class GeoServer extends ConfigInfoDto {
     public static enum ResourceErrorHandling {
         OGC_EXCEPTION_REPORT,
         SKIP_MISCONFIGURED_LAYERS

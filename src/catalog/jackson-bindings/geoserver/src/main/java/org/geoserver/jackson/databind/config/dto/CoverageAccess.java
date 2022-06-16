@@ -5,11 +5,12 @@
 package org.geoserver.jackson.databind.config.dto;
 
 import lombok.Data;
+import lombok.Generated;
 
 import org.geoserver.config.CoverageAccessInfo;
 
 /** DTO for {@link CoverageAccessInfo} */
-public @Data class CoverageAccess {
+public @Data @Generated class CoverageAccess {
     public enum QueueType {
         UNBOUNDED,
         DIRECT

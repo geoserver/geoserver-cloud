@@ -27,9 +27,7 @@ import org.geoserver.catalog.CatalogBuilder;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.CatalogTestData;
 import org.geoserver.catalog.CoverageDimensionInfo;
-import org.geoserver.catalog.CoverageStoreInfo;
 import org.geoserver.catalog.DataLinkInfo;
-import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.DimensionDefaultValueSetting;
 import org.geoserver.catalog.DimensionDefaultValueSetting.Strategy;
 import org.geoserver.catalog.DimensionInfo;
@@ -68,9 +66,7 @@ import org.geoserver.catalog.plugin.Query;
 import org.geoserver.config.CoverageAccessInfo;
 import org.geoserver.config.CoverageAccessInfo.QueueType;
 import org.geoserver.config.GeoServer;
-import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.JAIInfo;
-import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.impl.ContactInfoImpl;
 import org.geoserver.config.impl.CoverageAccessInfoImpl;
@@ -373,19 +369,16 @@ public class GeoServerCatalogModuleTest {
     }
 
     public @Test void testPatchWithModificationProxy() throws Exception {
-        testPatch("workspace", ModificationProxy.create(data.workspaceA, WorkspaceInfo.class));
-        testPatch("namespace", ModificationProxy.create(data.namespaceA, NamespaceInfo.class));
-        testPatch("dataStore", ModificationProxy.create(data.dataStoreA, DataStoreInfo.class));
-        testPatch(
-                "coverageStore",
-                ModificationProxy.create(data.coverageStoreA, CoverageStoreInfo.class));
-        testPatch("layer", ModificationProxy.create(data.layerFeatureTypeA, LayerInfo.class));
-        testPatch("style", ModificationProxy.create(data.style1, StyleInfo.class));
-        // some Config Info properties, shall be converted to references
-        testPatch("global", ModificationProxy.create(data.global, GeoServerInfo.class));
-        testPatch("logging", ModificationProxy.create(data.logging, LoggingInfo.class));
-        // testPatch("settings", testData.workspaceASettings);
-        testPatch("wmsService", ModificationProxy.create(data.wmsService, WMSInfo.class));
+        testPatch("workspace", forceProxy(data.workspaceA));
+        testPatch("namespace", forceProxy(data.namespaceA));
+        testPatch("dataStore", forceProxy(data.dataStoreA));
+        testPatch("coverageStore", forceProxy(data.coverageStoreA));
+        testPatch("layer", forceProxy(data.layerFeatureTypeA));
+        testPatch("style", forceProxy(data.style1));
+        testPatch("global", forceProxy(data.global));
+        testPatch("logging", forceProxy(data.logging));
+        testPatch("settings", forceProxy(data.workspaceASettings));
+        testPatch("wmsService", forceProxy(data.wmsService));
     }
 
     public @Test void testPatchWithListProperty() throws Exception {
@@ -548,7 +541,7 @@ public class GeoServerCatalogModuleTest {
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends CatalogInfo> T forceProxy(T info) {
+    private <T extends Info> T forceProxy(T info) {
         if (!Proxy.isProxyClass(info.getClass())) {
             Class<? extends Info> iface = ClassMappings.fromImpl(info.getClass()).getInterface();
             return (T) ModificationProxy.create(info, iface);

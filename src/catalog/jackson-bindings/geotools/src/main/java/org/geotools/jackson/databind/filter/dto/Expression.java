@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Generated;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
@@ -28,10 +29,10 @@ import java.util.stream.Collectors;
     @JsonSubTypes.Type(value = Expression.BinaryExpression.class, name = "BinaryExpression")
 })
 @Accessors(chain = true)
-public @Data abstract class Expression {
+public @Data @Generated abstract class Expression {
 
     @EqualsAndHashCode(callSuper = true)
-    public static @Data class Literal extends Expression {
+    public static @Data @Generated class Literal extends Expression {
         /**
          * JsonTypeInfo necessary for jackson to resolve which deserializer to use, adds an "@type"
          * property to the {@code Literal} object, without messing with the value representation.
@@ -77,7 +78,7 @@ public @Data abstract class Expression {
     }
 
     @EqualsAndHashCode(callSuper = true)
-    public static @Data class PropertyName extends Expression {
+    public static @Data @Generated class PropertyName extends Expression {
         private String propertyName;
         private Map<String, String> namespaceContext;
     }
@@ -89,36 +90,36 @@ public @Data abstract class Expression {
         @JsonSubTypes.Type(value = Divide.class, name = "Divide")
     })
     @EqualsAndHashCode(callSuper = true)
-    public abstract static @Data class BinaryExpression extends Expression {
+    public abstract static @Data @Generated class BinaryExpression extends Expression {
         private Expression expression1;
         private Expression expression2;
     }
 
     @EqualsAndHashCode(callSuper = true)
     @ToString(callSuper = true)
-    public static @Data class Add extends BinaryExpression {}
+    public static @Data @Generated class Add extends BinaryExpression {}
 
     @EqualsAndHashCode(callSuper = true)
     @ToString(callSuper = true)
-    public static @Data class Divide extends BinaryExpression {}
+    public static @Data @Generated class Divide extends BinaryExpression {}
 
     @EqualsAndHashCode(callSuper = true)
     @ToString(callSuper = true)
-    public static @Data class Multiply extends BinaryExpression {}
+    public static @Data @Generated class Multiply extends BinaryExpression {}
 
     @EqualsAndHashCode(callSuper = true)
     @ToString(callSuper = true)
-    public static @Data class Subtract extends BinaryExpression {}
+    public static @Data @Generated class Subtract extends BinaryExpression {}
 
     @EqualsAndHashCode(callSuper = true)
     @ToString(callSuper = true)
-    public static @Data class Function extends Expression {
+    public static @Data @Generated class Function extends Expression {
         private String name;
         private List<Expression> parameters = new ArrayList<>();
     }
 
     @JsonTypeName("FunctionName")
-    public static @Data class FunctionName {
+    public static @Data @Generated class FunctionName {
         private String name;
         private int argumentCount;
         private List<String> argumentNames = new ArrayList<>();

@@ -5,11 +5,12 @@
 package org.geoserver.jackson.databind.catalog.dto;
 
 import lombok.Data;
+import lombok.Generated;
 
 import org.geotools.jdbc.VirtualTable;
 
 /** DTO type for {@link VirtualTable} */
-public @Data class VirtualTableDto {
+public @Data @Generated class VirtualTableDto {
 
     private String name;
     private String sql;

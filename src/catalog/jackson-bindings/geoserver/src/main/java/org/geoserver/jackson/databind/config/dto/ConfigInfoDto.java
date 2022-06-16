@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Generated;
 
 import org.geoserver.jackson.databind.catalog.dto.InfoDto;
 
@@ -20,4 +21,4 @@ import org.geoserver.jackson.databind.catalog.dto.InfoDto;
     @JsonSubTypes.Type(value = Service.class)
 })
 @EqualsAndHashCode(callSuper = true)
-public @Data class ConfigInfoDto extends InfoDto {}
+public @Data @Generated class ConfigInfoDto extends InfoDto {}

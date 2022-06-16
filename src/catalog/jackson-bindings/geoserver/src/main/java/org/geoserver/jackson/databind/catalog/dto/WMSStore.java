@@ -6,7 +6,9 @@ package org.geoserver.jackson.databind.catalog.dto;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Generated;
 
 @Data
+@Generated
 @EqualsAndHashCode(callSuper = true)
 public class WMSStore extends HTTPStore {}
