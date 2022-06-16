@@ -32,6 +32,10 @@
       <artifactId>gs-wms</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.github.ben-manes.caffeine</groupId>
+      <artifactId>caffeine</artifactId>
+    </dependency>
+    <dependency>
       <!-- if available, the wicket ui contributions autoconfiguration will engage -->
       <groupId>org.geoserver.web</groupId>
       <artifactId>gs-web-gwc</artifactId>
