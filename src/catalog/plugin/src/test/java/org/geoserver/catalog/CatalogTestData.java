@@ -4,37 +4,21 @@
  */
 package org.geoserver.catalog;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.google.common.base.Function;
 
+import lombok.Getter;
 import lombok.NonNull;
+import lombok.experimental.Accessors;
 
-import org.geoserver.catalog.impl.AttributeTypeInfoImpl;
-import org.geoserver.catalog.impl.AuthorityURL;
-import org.geoserver.catalog.impl.DataStoreInfoImpl;
+import org.geoserver.catalog.faker.CatalogFaker;
 import org.geoserver.catalog.impl.LayerGroupInfoImpl;
-import org.geoserver.catalog.impl.MetadataLinkInfoImpl;
 import org.geoserver.catalog.plugin.CatalogPlugin;
-import org.geoserver.config.ContactInfo;
-import org.geoserver.config.CoverageAccessInfo;
-import org.geoserver.config.CoverageAccessInfo.QueueType;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerInfo;
-import org.geoserver.config.GeoServerInfo.WebUIMode;
-import org.geoserver.config.JAIInfo;
-import org.geoserver.config.JAIInfo.PngEncoderType;
 import org.geoserver.config.LoggingInfo;
-import org.geoserver.config.ResourceErrorHandling;
 import org.geoserver.config.SettingsInfo;
-import org.geoserver.config.impl.ContactInfoImpl;
-import org.geoserver.config.impl.CoverageAccessInfoImpl;
-import org.geoserver.config.impl.GeoServerInfoImpl;
-import org.geoserver.config.impl.JAIEXTInfoImpl;
-import org.geoserver.config.impl.JAIInfoImpl;
-import org.geoserver.config.impl.LoggingInfoImpl;
-import org.geoserver.config.impl.ServiceInfoImpl;
-import org.geoserver.config.impl.SettingsInfoImpl;
 import org.geoserver.config.plugin.GeoServerImpl;
 import org.geoserver.ows.util.ClassProperties;
 import org.geoserver.ows.util.OwsUtils;
@@ -54,40 +38,33 @@ import org.geoserver.wps.WPSInfoImpl;
 import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.process.factory.AnnotationDrivenProcessFactory;
 import org.geotools.util.Converters;
-import org.geotools.util.GrowableInternationalString;
-import org.geotools.util.SimpleInternationalString;
-import org.geotools.util.Version;
-import org.junit.rules.ExternalResource;
 import org.opengis.util.InternationalString;
-import org.springframework.util.Assert;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
- * Junit {@code @Rule} to provide or populate a catalog; use {@link CatalogTestData#empty
+ * Provides or populates a catalog; use {@link CatalogTestData#empty
  * CatalogTestData.empty(Supplier<Catalog>)} to start up with an empty catalog but having the test
  * data {@link #createCatalogObjects() ready to be used}, or {@link CatalogTestData#initialized
  * CatalogTestData.initialized(Supplier<Catalog>)} to pre-populate the catalog with the {@link
  * #createCatalogObjects() test objects} before running the tests.
  */
-public class CatalogTestData extends ExternalResource {
+@Accessors(fluent = true)
+public class CatalogTestData {
 
     private Supplier<Catalog> catalog;
     private Supplier<GeoServer> configCatalog = () -> null;
 
     private boolean initializeCatalog;
     private boolean initializeConfig;
+
+    private final @Getter CatalogFaker faker;
 
     private CatalogTestData(
             Supplier<Catalog> catalog,
@@ -98,15 +75,18 @@ public class CatalogTestData extends ExternalResource {
         this.configCatalog = config;
         this.initializeCatalog = initCatalog;
         this.initializeConfig = initConfig;
+        this.faker = new CatalogFaker(catalog, config);
     }
 
     private CatalogTestData() {
         this.initializeCatalog = false;
         this.initializeConfig = false;
         CatalogPlugin cat = new CatalogPlugin();
-        this.catalog = () -> cat;
         GeoServerImpl geoserver = new GeoServerImpl();
+        geoserver.setCatalog(cat);
+        this.catalog = () -> cat;
         this.configCatalog = () -> geoserver;
+        this.faker = new CatalogFaker(cat, geoserver);
     }
 
     public static CatalogTestData empty() {
@@ -144,10 +124,6 @@ public class CatalogTestData extends ExternalResource {
         return this;
     }
 
-    protected @Override void before() {
-        initialize();
-    }
-
     public CatalogTestData initialize() {
         initCatalog();
         initConfig();
@@ -163,7 +139,7 @@ public class CatalogTestData extends ExternalResource {
         return this;
     }
 
-    protected @Override void after() {
+    public void after() {
         if (initializeCatalog) {
             deleteAll(catalog.get());
         }
@@ -274,16 +250,16 @@ public class CatalogTestData extends ExternalResource {
     }
 
     public CatalogTestData createCatalogObjects() {
-        namespaceA = createNamespace("ns1", "wsName", "nsURI");
-        namespaceB = createNamespace("ns2", "aaa", "nsURIaaa");
-        namespaceC = createNamespace("ns3", "bbb", "nsURIbbb");
-        workspaceA = createWorkspace("ws1", "wsName");
-        workspaceB = createWorkspace("ws2", "aaa");
-        workspaceC = createWorkspace("ws3", "bbb");
+        namespaceA = faker().namespace("ns1", "wsName", "nsURI");
+        namespaceB = faker().namespace("ns2", "aaa", "nsURIaaa");
+        namespaceC = faker().namespace("ns3", "bbb", "nsURIbbb");
+        workspaceA = faker().workspaceInfo("ws1", "wsName");
+        workspaceB = faker().workspaceInfo("ws2", "aaa");
+        workspaceC = faker().workspaceInfo("ws3", "bbb");
 
-        dataStoreA = createDataStore("ds1", workspaceA, "dsName", "dsDescription", true);
-        dataStoreB = createDataStore("ds2", workspaceB, "dsNameA", "dsDescription", true);
-        dataStoreC = createDataStore("ds3", workspaceC, "dsNameB", "dsDescription", true);
+        dataStoreA = faker().dataStoreInfo("ds1", workspaceA, "dsName", "dsDescription", true);
+        dataStoreB = faker().dataStoreInfo("ds2", workspaceB, "dsNameA", "dsDescription", true);
+        dataStoreC = faker().dataStoreInfo("ds3", workspaceC, "dsNameB", "dsDescription", true);
 
         featureTypeA =
                 createFeatureType(
@@ -343,13 +319,13 @@ public class CatalogTestData extends ExternalResource {
     }
 
     public CatalogTestData createConfigObjects() {
-        global = createGlobal();
-        logging = createLogging();
-        workspaceASettings = createSettings(workspaceA);
-        wmsService = createService("wms", WMSInfoImpl::new);
-        wfsService = createService("wfs", WFSInfoImpl::new);
-        wcsService = createService("wcs", WCSInfoImpl::new);
-        wpsService = createService("wps", WPSInfoImpl::new);
+        global = faker().geoServerInfo();
+        logging = faker().loggingInfo();
+        workspaceASettings = faker().settingsInfo(workspaceA);
+        wmsService = faker().serviceInfo("wms", WMSInfoImpl::new);
+        wfsService = faker().serviceInfo("wfs", WFSInfoImpl::new);
+        wcsService = faker().serviceInfo("wcs", WCSInfoImpl::new);
+        wpsService = faker().serviceInfo("wps", WPSInfoImpl::new);
 
         // ignore simple boolean properties
 
@@ -569,8 +545,6 @@ public class CatalogTestData extends ExternalResource {
         assertEquals(info1, info2);
     }
 
-    // InternationalString properties have not been added to equals() and hashCode() in
-    // CatalogInfo subclasses
     public void assertInternationalStringPropertiesEqual(Info info1, Info info2) {
         ClassProperties props = new ClassProperties(info1.getClass());
         List<String> istringProps =
@@ -580,251 +554,13 @@ public class CatalogTestData extends ExternalResource {
         for (String isp : istringProps) {
             InternationalString i1 = (InternationalString) OwsUtils.get(info1, isp);
             InternationalString i2 = (InternationalString) OwsUtils.get(info2, isp);
-            assertEquals(
-                    String.format(
-                            "%s.%s:InternationalString", info1.getClass().getSimpleName(), isp),
-                    i1,
-                    i2);
+
+            Supplier<String> msg =
+                    () ->
+                            String.format(
+                                    "%s.%s:InternationalString",
+                                    info1.getClass().getSimpleName(), isp);
+            assertEquals(i1, i2, msg);
         }
-    }
-
-    public DataStoreInfo createDataStore(String name, WorkspaceInfo ws) {
-        return createDataStore(name + "-id", ws, name, name + " description", true);
-    }
-
-    public DataStoreInfo createDataStore(
-            String id, WorkspaceInfo ws, String name, String description, boolean enabled) {
-        DataStoreInfoImpl dstore = (DataStoreInfoImpl) getFactory().createDataStore();
-        OwsUtils.set(dstore, "id", id);
-        dstore.setEnabled(enabled);
-        dstore.setName(name);
-        dstore.setDescription(description);
-        dstore.setWorkspace(ws);
-        dstore.setConnectionParameters(new HashMap<>());
-        // note: using only string param values to avoid assertEquals() failures due to
-        // serialization/deserialization losing type of parameter values
-        dstore.getConnectionParameters().put("param1", "test value");
-        dstore.getConnectionParameters().put("param2", "1000");
-        OwsUtils.resolveCollections(dstore);
-        return dstore;
-    }
-
-    public WorkspaceInfo createWorkspace(String name) {
-        return createWorkspace(name + "-id", name);
-    }
-
-    public WorkspaceInfo createWorkspace(String id, String name) {
-        WorkspaceInfo workspace = getFactory().createWorkspace();
-        OwsUtils.set(workspace, "id", id);
-        workspace.setName(name);
-        OwsUtils.resolveCollections(workspace);
-        return workspace;
-    }
-
-    public NamespaceInfo createNamespace(String name, String uri) {
-        return createNamespace(name + "-id", name, uri);
-    }
-
-    public NamespaceInfo createNamespace(String id, String name, String uri) {
-        Catalog cat = catalog.get();
-        CatalogFactory factory = cat.getFactory();
-        NamespaceInfo namesapce = factory.createNamespace();
-        OwsUtils.set(namesapce, "id", id);
-        namesapce.setPrefix(name);
-        namesapce.setURI(uri);
-        OwsUtils.resolveCollections(namesapce);
-        return namesapce;
-    }
-
-    public GeoServerInfo createGlobal() {
-        GeoServerInfoImpl g = new GeoServerInfoImpl();
-
-        g.setId("GeoServer.global");
-        g.setAdminPassword("geoserver");
-        g.setAdminUsername("admin");
-        g.setAllowStoredQueriesPerWorkspace(true);
-        g.setCoverageAccess(createCoverageAccessInfo());
-        g.setFeatureTypeCacheSize(1000);
-        g.setGlobalServices(true);
-        g.setId("GeoServer.global");
-        g.setJAI(createJAI());
-        // don't set lock provider to avoid a warning stack trace that the bean does not exist
-        // g.setLockProviderName("testLockProvider");
-        g.setMetadata(createMetadata("k1", Integer.valueOf(1), "k2", "2", "k3", Boolean.FALSE));
-        g.setResourceErrorHandling(ResourceErrorHandling.OGC_EXCEPTION_REPORT);
-        g.setSettings(createSettings(null));
-        g.setUpdateSequence(999);
-        g.setUseHeadersProxyURL(true);
-        g.setWebUIMode(WebUIMode.DO_NOT_REDIRECT);
-        g.setXmlExternalEntitiesEnabled(Boolean.TRUE);
-        g.setXmlPostRequestLogBufferSize(1024);
-
-        return g;
-    }
-
-    public MetadataMap createMetadata(Serializable... kvps) {
-        Assert.isTrue(kvps == null || kvps.length % 2 == 0, "expected even number");
-        MetadataMap m = new MetadataMap();
-        if (kvps != null) {
-            for (int i = 0; i < kvps.length; i += 2) {
-                m.put((String) kvps[i], kvps[i + 1]);
-            }
-        }
-        return m;
-    }
-
-    private JAIInfo createJAI() {
-        JAIInfoImpl jai = new JAIInfoImpl();
-        jai.setAllowInterpolation(true);
-        jai.setAllowNativeMosaic(true);
-        jai.setAllowNativeWarp(true);
-        jai.setImageIOCache(true);
-        JAIEXTInfoImpl jaiext = new JAIEXTInfoImpl();
-        jaiext.setJAIEXTOperations(Collections.singleton("categorize"));
-        jaiext.setJAIOperations(Collections.singleton("band"));
-        jai.setJAIEXTInfo(jaiext);
-        jai.setJpegAcceleration(true);
-        jai.setMemoryCapacity(4096);
-        jai.setMemoryThreshold(0.75);
-        jai.setPngAcceleration(true);
-        jai.setPngEncoderType(PngEncoderType.PNGJ);
-        jai.setRecycling(true);
-        jai.setTilePriority(1);
-        jai.setTileThreads(7);
-        return jai;
-    }
-
-    private CoverageAccessInfo createCoverageAccessInfo() {
-        CoverageAccessInfoImpl c = new CoverageAccessInfoImpl();
-        c.setCorePoolSize(9);
-        c.setImageIOCacheThreshold(11);
-        c.setKeepAliveTime(1000);
-        c.setMaxPoolSize(18);
-        c.setQueueType(QueueType.UNBOUNDED);
-        return c;
-    }
-
-    public ContactInfo createContact() {
-        ContactInfoImpl c = new ContactInfoImpl();
-        c.setId("cinfo-id");
-        c.setAddress("right here");
-        c.setAddressCity("Sin City");
-        c.setAddressCountry("USA");
-        c.setContactPerson("myself");
-        c.setContactVoice("yes please");
-        return c;
-    }
-
-    public LoggingInfo createLogging() {
-        LoggingInfoImpl l = new LoggingInfoImpl();
-        l.setId("weird-this-has-id");
-        l.setLevel("super");
-        l.setLocation("there");
-        l.setStdOutLogging(true);
-        return l;
-    }
-
-    public SettingsInfo createSettings(WorkspaceInfo workspace) {
-        SettingsInfoImpl s = new SettingsInfoImpl();
-        s.setWorkspace(workspace);
-        s.setId(workspace == null ? "global-settings-id" : workspace.getName() + "-settings-id");
-        s.setTitle(workspace == null ? "Global Settings" : workspace.getName() + " Settings");
-        s.setCharset("UTF-8");
-        s.setContact(createContact());
-        s.setMetadata(createMetadata("k1", Integer.valueOf(1), "k2", "2", "k3", Boolean.FALSE));
-        s.setNumDecimals(9);
-        s.setOnlineResource("http://geoserver.org");
-        s.setProxyBaseUrl("http://test.geoserver.org");
-        s.setSchemaBaseUrl("file:data/schemas");
-        s.setVerbose(true);
-        s.setVerboseExceptions(true);
-        return s;
-    }
-
-    public <S extends ServiceInfoImpl> S createService(String name, Supplier<S> factory) {
-        S s = factory.get();
-        s.setId(name + "-id");
-        s.setName(name);
-        s.setTitle(name + " Title");
-        s.setAbstract(name + " Abstract");
-        s.setInternationalTitle(
-                createInternationalString(
-                        Locale.ENGLISH,
-                        name + " english title",
-                        Locale.CANADA_FRENCH,
-                        name + "titre anglais"));
-        s.setInternationalAbstract(
-                createInternationalString(
-                        Locale.ENGLISH,
-                        name + " english abstract",
-                        Locale.CANADA_FRENCH,
-                        name + "résumé anglais"));
-        s.setAccessConstraints("NONE");
-        s.setCiteCompliant(true);
-        s.setEnabled(true);
-        s.setExceptionFormats(Collections.singletonList("fake-" + name + "-exception-format"));
-        s.setFees("NONE");
-        s.setKeywords(createKeywords(name));
-        s.setMaintainer("Claudious whatever");
-        s.setMetadata(createMetadata(name, "something"));
-        MetadataLinkInfoImpl metadataLink = new MetadataLinkInfoImpl();
-        metadataLink.setAbout("about");
-        metadataLink.setContent("content");
-        metadataLink.setId("medatata-link-" + name);
-        metadataLink.setMetadataType("fake");
-        metadataLink.setType("void");
-        s.setMetadataLink(metadataLink);
-        s.setOnlineResource("http://geoserver.org/" + name);
-        s.setOutputStrategy("SPEED");
-        s.setSchemaBaseURL("file:data/" + name);
-        s.setVerbose(true);
-        List<Version> versions = Arrays.asList(new Version("1.0.0"), new Version("2.0.0"));
-        s.getVersions().addAll(versions);
-        return s;
-    }
-
-    private List<KeywordInfo> createKeywords(String name) {
-        Keyword k1 = new Keyword("GeoServer");
-        Keyword k2 = new Keyword(name);
-        k2.setLanguage("eng");
-        k2.setVocabulary("watchit");
-        return new ArrayList<>(Arrays.asList(k1, k2));
-    }
-
-    public AuthorityURLInfo authorityURLInfo(int id) {
-        AuthorityURL a1 = new AuthorityURL();
-        a1.setHref("http://test.authority.url/" + id);
-        a1.setName("test-auth-url-" + id);
-        return a1;
-    }
-
-    public List<AuthorityURLInfo> authUrls(int count) {
-        return IntStream.range(0, count)
-                .mapToObj(this::authorityURLInfo)
-                .collect(Collectors.toList());
-    }
-
-    public InternationalString createInternationalString(String val) {
-        return new SimpleInternationalString(val);
-    }
-
-    public GrowableInternationalString createInternationalString(Locale l, String val) {
-        GrowableInternationalString s = new GrowableInternationalString();
-        s.add(l, val);
-        return s;
-    }
-
-    public GrowableInternationalString createInternationalString(
-            Locale l1, String val1, Locale l2, String val2) {
-        GrowableInternationalString s = new GrowableInternationalString();
-        s.add(l1, val1);
-        s.add(l2, val2);
-        return s;
-    }
-
-    public AttributeTypeInfo createAttributeTypeInfo(String name) {
-        AttributeTypeInfoImpl att = new AttributeTypeInfoImpl();
-        getCatalog().getFactory().createAttribute();
-        return att;
     }
 }

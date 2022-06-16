@@ -45,8 +45,8 @@ import org.geoserver.config.SettingsInfo;
 import org.geoserver.config.impl.CoverageAccessInfoImpl;
 import org.geoserver.config.impl.SettingsInfoImpl;
 import org.geoserver.wms.WMSInfoImpl;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,12 +72,17 @@ public class CatalogApplicationEventsConfigurationTest {
 
     private @Autowired ApplicationEventCapturingListener listener;
 
-    public @Rule CatalogTestData testData = CatalogTestData.empty(() -> catalog, () -> geoserver);
+    private CatalogTestData testData;
 
     public @Before void before() {
         listener.setCapureEventsOf(InfoEvent.class);
         catalog.dispose();
         listener.clear();
+        testData = CatalogTestData.empty(() -> catalog, () -> geoserver).initialize();
+    }
+
+    public @After void after() {
+        testData.after();
     }
 
     public @Test void testCatalogEventBroadcasterHasSetUpItself() {

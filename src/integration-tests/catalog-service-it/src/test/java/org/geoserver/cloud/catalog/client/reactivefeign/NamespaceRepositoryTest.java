@@ -9,19 +9,16 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
-import lombok.Getter;
-import lombok.experimental.Accessors;
-
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.NamespaceRepository;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
+import lombok.Getter;
+import lombok.experimental.Accessors;
 
 @EnableAutoConfiguration
 @Accessors(fluent = true)
@@ -45,8 +42,8 @@ public class NamespaceRepositoryTest
     }
 
     public @Override @Test void testFindAllByType() {
-        super.testFindAllIncludeFilter(
-                NamespaceInfo.class, testData.namespaceA, testData.namespaceB, testData.namespaceC);
+        super.testFindAllIncludeFilter(NamespaceInfo.class, testData.namespaceA,
+                testData.namespaceB, testData.namespaceC);
     }
 
     public @Override @Test void testFindById() {
@@ -82,17 +79,13 @@ public class NamespaceRepositoryTest
     }
 
     private void testFindByPrefix(NamespaceInfo expected) {
-        assertEquals(
-                expected,
+        assertEquals(expected,
                 repository.findFirstByName(expected.getPrefix(), NamespaceInfo.class).get());
     }
 
     public @Test void testNamespaceInfo_CRUD() throws IOException {
-        NamespaceInfo ns = testData.createNamespace("namedpaceCRUD", "http://namespace.crud.test");
-        crudTest(
-                ns,
-                serverCatalog::getNamespace,
-                n -> n.setPrefix("modified-prefix"),
+        NamespaceInfo ns = testData.faker().namespace();
+        crudTest(ns, serverCatalog::getNamespace, n -> n.setPrefix("modified-prefix"),
                 (old, updated) -> assertEquals("modified-prefix", updated.getPrefix()));
     }
 
@@ -120,7 +113,7 @@ public class NamespaceRepositoryTest
     public @Test void testSetDefaultNamespaceNonExistent() {
         assertEquals(testData.namespaceA, serverCatalog.getDefaultNamespace());
 
-        NamespaceInfo nonExistent = testData.createNamespace("invalid", "nonExistentURI");
+        NamespaceInfo nonExistent = testData.faker().namespace();
         repository.setDefaultNamespace(nonExistent);
         assertEquals(testData.namespaceA, repository.getDefaultNamespace().get());
         assertEquals(testData.namespaceA, serverCatalog.getDefaultNamespace());
@@ -152,8 +145,8 @@ public class NamespaceRepositoryTest
 
     public @Test void testFindOneNamespaceByURI() {
         NamespaceInfo ns1 = testData.namespaceA;
-        NamespaceInfo ns2 =
-                testData.createNamespace("second-ns-with-duplicate-uri", "prefix2", ns1.getURI());
+        NamespaceInfo ns2 = testData.faker().namespace();
+        ns2.setURI(ns1.getURI());
         ns2.setIsolated(true);
         serverCatalog.add(ns2);
 
@@ -165,8 +158,8 @@ public class NamespaceRepositoryTest
 
     public @Test void testFindAllNamespacesByURI() {
         NamespaceInfo ns1 = testData.namespaceA;
-        NamespaceInfo ns2 =
-                testData.createNamespace("second-ns-with-duplicate-uri", "prefix2", ns1.getURI());
+        NamespaceInfo ns2 = testData.faker().namespace();
+        ns2.setURI(ns1.getURI());
         ns2.setIsolated(true);
         serverCatalog.add(ns2);
 
@@ -179,8 +172,8 @@ public class NamespaceRepositoryTest
 
     public @Test void testCreateNamespaceDuplicateURI() {
         NamespaceInfo ns1 = testData.namespaceA;
-        NamespaceInfo ns2 =
-                testData.createNamespace("second-ns-with-duplicate-uri", "prefix2", ns1.getURI());
+        NamespaceInfo ns2 = testData.faker().namespace();
+        ns2.setURI(ns1.getURI());
         try {
             repository.add(ns2);
             fail("expected exception");

@@ -6,26 +6,32 @@ package org.geotools.jackson.databind.filter.dto;
 
 import static org.junit.Assert.assertEquals;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.geotools.jackson.databind.filter.FilterRoundtripTest;
-import org.junit.Before;
+import org.geotools.jackson.databind.util.ObjectMapperUtil;
+import org.junit.BeforeClass;
 
+@Slf4j
 public class FilterSerializationTest extends FilterRoundtripTest {
+    private boolean debug = Boolean.valueOf(System.getProperty("debug", "false"));
 
-    private ObjectMapper objectMapper;
+    protected void print(String logmsg, Object... args) {
+        if (debug) log.debug(logmsg, args);
+    }
 
-    public @Before void before() {
-        objectMapper = new ObjectMapper();
-        objectMapper.setDefaultPropertyInclusion(Include.NON_EMPTY);
-        objectMapper.findAndRegisterModules();
+    private static ObjectMapper objectMapper;
+
+    public static @BeforeClass void beforeAll() {
+        objectMapper = ObjectMapperUtil.newObjectMapper();
     }
 
     @SuppressWarnings("unchecked")
     protected @Override <F extends Filter> F roundtripTest(F dto) throws Exception {
         String serialized = objectMapper.writeValueAsString(dto);
-        System.err.println(serialized);
+        print("serialized: {}", serialized);
         Filter deserialized = objectMapper.readValue(serialized, Filter.class);
         assertEquals(dto, deserialized);
         return (F) deserialized;
@@ -33,7 +39,7 @@ public class FilterSerializationTest extends FilterRoundtripTest {
 
     protected @Override void roundtripTest(SortBy dto) throws Exception {
         String serialized = objectMapper.writeValueAsString(dto);
-        System.err.println(serialized);
+        print("serialized: {}", serialized);
         SortBy deserialized = objectMapper.readValue(serialized, SortBy.class);
         assertEquals(dto, deserialized);
     }

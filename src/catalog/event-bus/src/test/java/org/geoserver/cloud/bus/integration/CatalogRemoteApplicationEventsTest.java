@@ -390,8 +390,9 @@ public class CatalogRemoteApplicationEventsTest extends BusAmqpIntegrationTests 
 
                     l.setDefaultWMSInterpolationMethod(WMSInterpolation.Bicubic);
                     l.setInternationalTitle(
-                            testData.createInternationalString(
-                                    Locale.ENGLISH, "test", Locale.ITALIAN, "proba"));
+                            testData.faker()
+                                    .internationalString(
+                                            Locale.ENGLISH, "test", Locale.ITALIAN, "proba"));
 
                     l.setType(PublishedType.REMOTE);
                 },

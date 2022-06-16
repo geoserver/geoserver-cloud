@@ -93,6 +93,12 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
+        <groupId>com.github.javafaker</groupId>
+        <artifactId>javafaker</artifactId>
+        <version>1.0.2</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
         <groupId>org.geoserver</groupId>
         <artifactId>gs-platform</artifactId>
         <version>${gs.version}</version>
@@ -654,6 +660,11 @@
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.github.javafaker</groupId>
+      <artifactId>javafaker</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
   <build>

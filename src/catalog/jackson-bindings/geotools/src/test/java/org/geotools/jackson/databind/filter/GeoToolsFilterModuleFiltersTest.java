@@ -6,13 +6,15 @@ package org.geotools.jackson.databind.filter;
 
 import static org.junit.Assert.assertEquals;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.geotools.jackson.databind.filter.dto.Filter;
 import org.geotools.jackson.databind.filter.dto.SortBy;
 import org.geotools.jackson.databind.filter.mapper.FilterMapper;
-import org.junit.Before;
+import org.geotools.jackson.databind.util.ObjectMapperUtil;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mapstruct.factory.Mappers;
@@ -21,23 +23,26 @@ import org.mapstruct.factory.Mappers;
  * Test suite for {@link GeoToolsFilterModule} serialization and deserialization of {@link
  * org.opengis.filter.Filter}s
  */
+@Slf4j
 public class GeoToolsFilterModuleFiltersTest extends FilterRoundtripTest {
+    private boolean debug = Boolean.valueOf(System.getProperty("debug", "false"));
 
-    private ObjectMapper objectMapper;
-    private FilterMapper filterMapper;
+    protected void print(String logmsg, Object... args) {
+        if (debug) log.debug(logmsg, args);
+    }
 
-    public @Before void before() {
-        objectMapper = new ObjectMapper();
-        objectMapper.setDefaultPropertyInclusion(Include.NON_EMPTY);
-        objectMapper.findAndRegisterModules();
+    private static ObjectMapper objectMapper;
+    private static FilterMapper filterMapper;
 
+    public static @BeforeClass void beforeAll() {
+        objectMapper = ObjectMapperUtil.newObjectMapper();
         filterMapper = Mappers.getMapper(FilterMapper.class);
     }
 
     protected @Override <F extends Filter> F roundtripTest(F dto) throws Exception {
         final org.opengis.filter.Filter expected = filterMapper.map(dto);
         String serialized = objectMapper.writeValueAsString(expected);
-        System.err.println(serialized);
+        print("serialized: {}", serialized);
         org.opengis.filter.Filter deserialized;
         deserialized = objectMapper.readValue(serialized, org.opengis.filter.Filter.class);
         assertEquals(expected, deserialized);
@@ -47,7 +52,7 @@ public class GeoToolsFilterModuleFiltersTest extends FilterRoundtripTest {
     protected @Override void roundtripTest(SortBy dto) throws Exception {
         final org.opengis.filter.sort.SortBy expected = filterMapper.map(dto);
         String serialized = objectMapper.writeValueAsString(expected);
-        System.err.println(serialized);
+        print("serialized: {}", serialized);
         org.opengis.filter.sort.SortBy deserialized;
         deserialized = objectMapper.readValue(serialized, org.opengis.filter.sort.SortBy.class);
         assertEquals(expected, deserialized);

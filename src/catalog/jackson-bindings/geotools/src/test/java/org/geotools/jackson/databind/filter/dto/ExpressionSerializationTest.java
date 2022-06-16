@@ -6,30 +6,33 @@ package org.geotools.jackson.databind.filter.dto;
 
 import static org.junit.Assert.assertEquals;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.geotools.jackson.databind.filter.ExpressionRoundtripTest;
 import org.geotools.jackson.databind.filter.dto.Expression.FunctionName;
-import org.junit.Before;
+import org.geotools.jackson.databind.util.ObjectMapperUtil;
+import org.junit.BeforeClass;
 
+@Slf4j
 public class ExpressionSerializationTest extends ExpressionRoundtripTest {
+    private boolean debug = Boolean.valueOf(System.getProperty("debug", "false"));
 
-    private ObjectMapper objectMapper;
+    protected void print(String logmsg, Object... args) {
+        if (debug) log.debug(logmsg, args);
+    }
 
-    public @Before void before() {
-        objectMapper = new ObjectMapper();
-        objectMapper.setDefaultPropertyInclusion(Include.NON_EMPTY);
-        objectMapper.enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN);
-        // should register our modules, but also all the other ones like JavaTimeModule
-        objectMapper.findAndRegisterModules();
+    private static ObjectMapper objectMapper;
+
+    public static @BeforeClass void beforeAll() {
+        objectMapper = ObjectMapperUtil.newObjectMapper();
     }
 
     @SuppressWarnings("unchecked")
     protected @Override <E extends Expression> E roundtripTest(E dto) throws Exception {
         String serialized = objectMapper.writeValueAsString(dto);
-        System.err.println(serialized);
+        print("serialized: {}", serialized);
         Expression deserialized = objectMapper.readValue(serialized, Expression.class);
         assertEquals(dto, deserialized);
         return (E) deserialized;
@@ -37,7 +40,7 @@ public class ExpressionSerializationTest extends ExpressionRoundtripTest {
 
     protected @Override FunctionName roundtripTest(FunctionName dto) throws Exception {
         String serialized = objectMapper.writeValueAsString(dto);
-        System.err.println(serialized);
+        print("serialized: {}", serialized);
         FunctionName deserialized =
                 objectMapper.readValue(serialized, Expression.FunctionName.class);
         assertEquals(dto, deserialized);

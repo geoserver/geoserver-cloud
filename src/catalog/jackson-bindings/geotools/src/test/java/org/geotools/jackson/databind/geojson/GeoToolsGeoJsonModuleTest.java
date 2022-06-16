@@ -7,11 +7,13 @@ package org.geotools.jackson.databind.geojson;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.junit.Before;
+import lombok.extern.slf4j.Slf4j;
+
+import org.geotools.jackson.databind.util.ObjectMapperUtil;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.CoordinateSequence;
@@ -33,14 +35,18 @@ import java.util.EnumSet;
 /**
  * Test suite for {@link GeoToolsGeoJsonModule}, assuming it's registered to an {@link ObjectMapper}
  */
+@Slf4j
 public class GeoToolsGeoJsonModuleTest {
+    private boolean debug = Boolean.valueOf(System.getProperty("debug", "false"));
 
-    private ObjectMapper objectMapper;
+    protected void print(String logmsg, Object... args) {
+        if (debug) log.debug(logmsg, args);
+    }
 
-    public @Before void before() {
-        objectMapper = new ObjectMapper();
-        objectMapper.setDefaultPropertyInclusion(Include.NON_EMPTY);
-        objectMapper.findAndRegisterModules();
+    private static ObjectMapper objectMapper;
+
+    public static @BeforeClass void beforeAll() {
+        objectMapper = ObjectMapperUtil.newObjectMapper();
     }
 
     public @Test void testEmptyGeometries() throws JsonProcessingException {
@@ -125,10 +131,10 @@ public class GeoToolsGeoJsonModuleTest {
     private Geometry roundtripTest(Geometry orig) throws JsonProcessingException {
         String preWkt = toWKT(orig);
         String serialized = objectMapper.writeValueAsString(orig);
-        System.err.println(serialized);
+        print("serialized: {}", serialized);
         Geometry deserialized = objectMapper.readValue(serialized, Geometry.class);
         String postWkt = toWKT(deserialized);
-        System.err.printf(" orig: %s%n read: %s%n%n", preWkt, postWkt);
+        print("orig: {}\n read: {}", preWkt, postWkt);
         assertActuallyEqualsExact(orig, deserialized);
         return deserialized;
     }

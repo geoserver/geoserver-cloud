@@ -33,6 +33,7 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -250,16 +251,24 @@ public @Data class PropertyDiff implements Serializable {
             return this;
         }
 
-        private Object copySafe(Object val) {
-            if (val instanceof Collection) return copyOf((Collection<?>) val);
+        @SuppressWarnings({"unchecked", "rawtypes"})
+        public static <V> V copySafe(V val) {
+            if (val instanceof Collection) return (V) copyOf((Collection) val);
             if (val instanceof Map) {
-                return copyOf((Map<?, ?>) val);
+                return (V) copyOf((Map<?, ?>) val);
             }
             return val;
         }
 
-        private Collection<?> copyOf(Collection<?> val) {
-            Stream<Object> stream = val.stream().map(this::copySafe);
+        public static <V> Collection<V> copyOf(Collection<? extends V> val) {
+            return copyOf(val, Function.identity());
+        }
+
+        public static <V, R> Collection<R> copyOf(
+                Collection<? extends V> val, Function<V, R> mapper) {
+
+            Stream<R> stream = val.stream().map(PropertyDiffBuilder::copySafe).map(mapper);
+
             if (val instanceof SortedSet) {
                 @SuppressWarnings("unchecked")
                 Comparator<Object> comparator = ((SortedSet<Object>) val).comparator();
@@ -271,8 +280,12 @@ public @Data class PropertyDiff implements Serializable {
             return stream.collect(Collectors.toList());
         }
 
+        public static <K, V> Map<K, V> copyOf(final Map<K, V> val) {
+            return copyOf(val, Function.identity());
+        }
+
         @SuppressWarnings({"rawtypes", "unchecked"})
-        private Map<?, ?> copyOf(final Map<?, ?> val) {
+        public static <K, V, R> Map<K, R> copyOf(final Map<K, V> val, Function<V, R> valueMapper) {
             Map target;
             if (val instanceof MetadataMap) {
                 target = new MetadataMap();
@@ -285,8 +298,9 @@ public @Data class PropertyDiff implements Serializable {
             val.forEach(
                     (k, v) -> {
                         Object key = copySafe(k);
-                        Object value = copySafe(v);
-                        target.put(key, value);
+                        V value = copySafe(v);
+                        R result = valueMapper.apply(value);
+                        target.put(key, result);
                     });
             return target;
         }

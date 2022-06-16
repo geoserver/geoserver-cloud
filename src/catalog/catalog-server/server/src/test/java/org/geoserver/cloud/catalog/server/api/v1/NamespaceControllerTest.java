@@ -7,14 +7,13 @@ package org.geoserver.cloud.catalog.server.api.v1;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.springframework.http.MediaType.*;
-
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.MediaType.APPLICATION_STREAM_JSON;
+import java.io.IOException;
+import java.util.List;
 import org.geoserver.catalog.NamespaceInfo;
 import org.junit.Test;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
-
-import java.io.IOException;
-import java.util.List;
 
 @AutoConfigureWebTestClient(timeout = "360000")
 public class NamespaceControllerTest extends AbstractReactiveCatalogControllerTest<NamespaceInfo> {
@@ -34,8 +33,8 @@ public class NamespaceControllerTest extends AbstractReactiveCatalogControllerTe
     }
 
     public @Override @Test void testFindAllByType() {
-        super.testFindAll(
-                NamespaceInfo.class, testData.namespaceA, testData.namespaceB, testData.namespaceC);
+        super.testFindAll(NamespaceInfo.class, testData.namespaceA, testData.namespaceB,
+                testData.namespaceC);
     }
 
     public @Override @Test void testFindById() {
@@ -75,11 +74,8 @@ public class NamespaceControllerTest extends AbstractReactiveCatalogControllerTe
     }
 
     public @Test void testNamespaceInfo_CRUD() throws IOException {
-        NamespaceInfo ns = testData.createNamespace("namedpaceCRUD", "http://namespace.crud.test");
-        crudTest(
-                ns,
-                catalog::getNamespace,
-                n -> n.setPrefix("modified-prefix"),
+        NamespaceInfo ns = testData.faker().namespace();
+        crudTest(ns, catalog::getNamespace, n -> n.setPrefix("modified-prefix"),
                 (old, updated) -> assertEquals("modified-prefix", updated.getPrefix()));
     }
 
@@ -87,14 +83,9 @@ public class NamespaceControllerTest extends AbstractReactiveCatalogControllerTe
         assertEquals(testData.namespaceA, catalog.getDefaultNamespace());
 
         NamespaceInfo returned =
-                client().put("/namespaces/default/{id}", testData.namespaceB.getId())
-                        .expectStatus()
-                        .isOk()
-                        .expectHeader()
-                        .contentType(APPLICATION_JSON)
-                        .expectBody(NamespaceInfo.class)
-                        .returnResult()
-                        .getResponseBody();
+                client().put("/namespaces/default/{id}", testData.namespaceB.getId()).expectStatus()
+                        .isOk().expectHeader().contentType(APPLICATION_JSON)
+                        .expectBody(NamespaceInfo.class).returnResult().getResponseBody();
 
         assertEquals(testData.namespaceB, returned);
     }
@@ -102,53 +93,35 @@ public class NamespaceControllerTest extends AbstractReactiveCatalogControllerTe
     public @Test void testSetDefaultNamespaceNonExistent() {
         assertEquals(testData.namespaceA, catalog.getDefaultNamespace());
 
-        client().put("/namespaces/default/{id}", "non-existent-id")
-                .expectStatus()
-                .isNoContent()
-                .expectHeader()
-                .contentType(APPLICATION_JSON);
+        client().put("/namespaces/default/{id}", "non-existent-id").expectStatus().isNoContent()
+                .expectHeader().contentType(APPLICATION_JSON);
     }
 
     public @Test void testGetDefaultNamespace() {
-        NamespaceInfo returned =
-                client().getRelative("/namespaces/default")
-                        .expectStatus()
-                        .isOk()
-                        .expectHeader()
-                        .contentType(APPLICATION_JSON)
-                        .expectBody(NamespaceInfo.class)
-                        .returnResult()
-                        .getResponseBody();
+        NamespaceInfo returned = client().getRelative("/namespaces/default").expectStatus().isOk()
+                .expectHeader().contentType(APPLICATION_JSON).expectBody(NamespaceInfo.class)
+                .returnResult().getResponseBody();
 
         assertEquals(testData.namespaceA, returned);
         catalog.setDefaultNamespace(testData.namespaceB);
 
-        returned =
-                client().getRelative("/namespaces/default")
-                        .expectStatus()
-                        .isOk()
-                        .expectHeader()
-                        .contentType(APPLICATION_JSON)
-                        .expectBody(NamespaceInfo.class)
-                        .returnResult()
-                        .getResponseBody();
+        returned = client().getRelative("/namespaces/default").expectStatus().isOk().expectHeader()
+                .contentType(APPLICATION_JSON).expectBody(NamespaceInfo.class).returnResult()
+                .getResponseBody();
 
         assertEquals(testData.namespaceB, returned);
     }
 
     public @Test void testGetDefaultNamespaceNoDefaultExists() {
         testData.deleteAll();
-        client().getRelative("/namespaces/default")
-                .expectStatus()
-                .isNoContent()
-                .expectHeader()
+        client().getRelative("/namespaces/default").expectStatus().isNoContent().expectHeader()
                 .contentType(APPLICATION_JSON);
     }
 
     public @Test void testFindOneNamespaceByURI() {
         NamespaceInfo ns1 = testData.namespaceA;
         NamespaceInfo ns2 =
-                testData.createNamespace("second-ns-with-duplicate-uri", "prefix2", ns1.getURI());
+                testData.faker().namespace("second-ns-with-duplicate-uri", "prefix2", ns1.getURI());
         ns2.setIsolated(true);
         catalog.add(ns2);
 
@@ -158,34 +131,23 @@ public class NamespaceControllerTest extends AbstractReactiveCatalogControllerTe
     }
 
     protected NamespaceInfo findByURI(String uri) {
-        NamespaceInfo found =
-                client().getRelative("/namespaces/uri?uri={uri}", uri)
-                        .expectStatus()
-                        .isOk()
-                        .expectHeader()
-                        .contentType(APPLICATION_JSON)
-                        .expectBody(NamespaceInfo.class)
-                        .returnResult()
-                        .getResponseBody();
+        NamespaceInfo found = client().getRelative("/namespaces/uri?uri={uri}", uri).expectStatus()
+                .isOk().expectHeader().contentType(APPLICATION_JSON).expectBody(NamespaceInfo.class)
+                .returnResult().getResponseBody();
         return found;
     }
 
     public @Test void testFindAllNamespacesByURI() {
         NamespaceInfo ns1 = testData.namespaceA;
         NamespaceInfo ns2 =
-                testData.createNamespace("second-ns-with-duplicate-uri", "prefix2", ns1.getURI());
+                testData.faker().namespace("second-ns-with-duplicate-uri", "prefix2", ns1.getURI());
         ns2.setIsolated(true);
         catalog.add(ns2);
 
         List<NamespaceInfo> found =
-                client().getRelative("/namespaces/uri/all?uri={uri}", ns1.getURI())
-                        .expectStatus()
-                        .isOk()
-                        .expectHeader()
-                        .contentType(APPLICATION_STREAM_JSON)
-                        .expectBodyList(NamespaceInfo.class)
-                        .returnResult()
-                        .getResponseBody();
+                client().getRelative("/namespaces/uri/all?uri={uri}", ns1.getURI()).expectStatus()
+                        .isOk().expectHeader().contentType(APPLICATION_STREAM_JSON)
+                        .expectBodyList(NamespaceInfo.class).returnResult().getResponseBody();
 
         assertTrue(found.contains(ns1));
         assertTrue(found.contains(ns2));
@@ -195,19 +157,13 @@ public class NamespaceControllerTest extends AbstractReactiveCatalogControllerTe
     public @Test void testCreateNamespaceDuplicateURI() {
         NamespaceInfo ns1 = testData.namespaceA;
         NamespaceInfo ns2 =
-                testData.createNamespace("second-ns-with-duplicate-uri", "prefix2", ns1.getURI());
+                testData.faker().namespace("second-ns-with-duplicate-uri", "prefix2", ns1.getURI());
         client().create(ns2).expectStatus().isBadRequest();
 
         ns2.setIsolated(true);
-        NamespaceInfo created =
-                client().create(ns2)
-                        .expectStatus()
-                        .isCreated()
-                        .expectHeader()
-                        .contentType(APPLICATION_JSON)
-                        .expectBody(NamespaceInfo.class)
-                        .returnResult()
-                        .getResponseBody();
+        NamespaceInfo created = client().create(ns2).expectStatus().isCreated().expectHeader()
+                .contentType(APPLICATION_JSON).expectBody(NamespaceInfo.class).returnResult()
+                .getResponseBody();
         assertNotNull(created.getId());
         assertEquals(ns2.getPrefix(), created.getPrefix());
         assertEquals(ns1.getURI(), created.getURI());

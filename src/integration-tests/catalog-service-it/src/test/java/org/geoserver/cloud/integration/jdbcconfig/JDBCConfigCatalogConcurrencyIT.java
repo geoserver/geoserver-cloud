@@ -70,7 +70,7 @@ public class JDBCConfigCatalogConcurrencyIT {
 
     @Before
     public void setUp() throws Exception {
-        data = CatalogTestData.empty(() -> rawCatalog, () -> geoServer).createCatalogObjects();
+        data = CatalogTestData.empty(() -> rawCatalog, () -> geoServer).initialize();
         data.deleteAll();
     }
 

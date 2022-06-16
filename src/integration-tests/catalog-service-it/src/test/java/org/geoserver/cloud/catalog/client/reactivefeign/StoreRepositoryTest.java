@@ -132,7 +132,7 @@ public class StoreRepositoryTest
     public @Test void testSetDefaultDataStore() {
         WorkspaceInfo ws = testData.workspaceA;
         DataStoreInfo ds1 = testData.dataStoreA;
-        DataStoreInfo ds2 = testData.createDataStore("wsA-ds2", ws);
+        DataStoreInfo ds2 = testData.faker().dataStoreInfo("wsA-ds2", ws);
         serverCatalog.add(ds2);
         assertEquals(ds1.getId(), repository().getDefaultDataStore(ws).get().getId());
 
@@ -170,8 +170,8 @@ public class StoreRepositoryTest
         WorkspaceInfo wsA = testData.workspaceA;
         WorkspaceInfo wsB = testData.workspaceB;
 
-        DataStoreInfo dsA2 = testData.createDataStore("wsA-ds2", wsA);
-        DataStoreInfo dsB2 = testData.createDataStore("wsB-ds2", wsB);
+        DataStoreInfo dsA2 = testData.faker().dataStoreInfo("wsA-ds2", wsA);
+        DataStoreInfo dsB2 = testData.faker().dataStoreInfo("wsB-ds2", wsB);
         serverCatalog.add(dsA2);
         serverCatalog.add(dsB2);
 
@@ -198,8 +198,8 @@ public class StoreRepositoryTest
     public @Test void testGetDefaultDataStores() {
         WorkspaceInfo wsA = testData.workspaceA;
         WorkspaceInfo wsB = testData.workspaceB;
-        DataStoreInfo dsA2 = testData.createDataStore("wsA-ds2", wsA);
-        DataStoreInfo dsB2 = testData.createDataStore("wsB-ds2", wsB);
+        DataStoreInfo dsA2 = testData.faker().dataStoreInfo("wsA-ds2", wsA);
+        DataStoreInfo dsB2 = testData.faker().dataStoreInfo("wsB-ds2", wsB);
         serverCatalog.add(dsA2);
         serverCatalog.add(dsB2);
 
@@ -242,7 +242,7 @@ public class StoreRepositoryTest
 
     public @Test void testDataStoreInfo_CRUD() throws IOException {
         DataStoreInfo store =
-                testData.createDataStore(
+                testData.faker().dataStoreInfo(
                         "dataStoreCRUD-id",
                         testData.workspaceB,
                         "dataStoreCRUD",
@@ -426,8 +426,8 @@ public class StoreRepositoryTest
                 testData.wmsStoreA,
                 testData.wmtsStoreA);
         testFindStoresByWorkspace(testData.workspaceB, testData.dataStoreB);
-        WorkspaceInfo emptyWs = testData.createWorkspace("emptyws");
-        NamespaceInfo emptyNs = testData.createNamespace("emptyns", "http://test.com/emptyns");
+        WorkspaceInfo emptyWs = testData.faker().workspaceInfo("emptyws");
+        NamespaceInfo emptyNs = testData.faker().namespace();
         serverCatalog.add(emptyWs);
         serverCatalog.add(emptyNs);
         testFindStoresByWorkspace(emptyWs);
