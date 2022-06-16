@@ -26,5 +26,9 @@
       <groupId>org.geoserver.cloud.catalog</groupId>
       <artifactId>gs-cloud-catalog-cache</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.geoserver.cloud.catalog</groupId>
+      <artifactId>gs-cloud-catalog-events</artifactId>
+    </dependency>
   </dependencies>
 </project>

@@ -7,7 +7,7 @@ package org.geoserver.cloud.config.main;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.SLDHandler;
 import org.geoserver.catalog.SLDPackageHandler;
-import org.geoserver.cloud.config.catalog.GeoServerBackendConfigurer;
+import org.geoserver.cloud.config.catalog.backend.core.GeoServerBackendConfigurer;
 import org.geoserver.config.CatalogTimeStampUpdater;
 import org.geoserver.platform.resource.SimpleResourceNotificationDispatcher;
 import org.springframework.beans.factory.annotation.Qualifier;

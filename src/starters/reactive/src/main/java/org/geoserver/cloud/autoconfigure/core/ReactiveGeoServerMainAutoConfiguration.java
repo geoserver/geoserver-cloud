@@ -4,8 +4,8 @@
  */
 package org.geoserver.cloud.autoconfigure.core;
 
-import org.geoserver.cloud.autoconfigure.catalog.GeoServerBackendAutoConfiguration;
-import org.geoserver.cloud.config.catalog.GeoServerBackendConfigurer;
+import org.geoserver.cloud.autoconfigure.catalog.backend.core.GeoServerBackendAutoConfiguration;
+import org.geoserver.cloud.config.catalog.backend.core.GeoServerBackendConfigurer;
 import org.geoserver.cloud.config.main.GeoServerMainModuleConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;

@@ -1,4 +1,4 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-org.geoserver.cloud.autoconfigure.bus.GeoServerBusIntegrationAutoConfiguration,\
-org.geoserver.cloud.autoconfigure.bus.catalog.RemoteCatalogEventsAutoConfiguration,\
-org.geoserver.cloud.autoconfigure.bus.security.RemoteSecurityEventsAutoConfiguration
+org.geoserver.cloud.autoconfigure.event.bus.GeoServerBusIntegrationAutoConfiguration,\
+org.geoserver.cloud.autoconfigure.event.bus.RemoteCatalogEventsAutoConfiguration,\
+org.geoserver.cloud.autoconfigure.event.bus.RemoteSecurityEventsAutoConfiguration

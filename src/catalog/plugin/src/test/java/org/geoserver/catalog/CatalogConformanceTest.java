@@ -2543,9 +2543,9 @@ public abstract class CatalogConformanceTest {
 
         public void handleAddEvent(CatalogAddEvent event) throws CatalogException {
             if (throwCatalogException) {
-                throw new CatalogException("expected");
+                throw new CatalogException("expected, testing Catalog's CatalogException handling");
             } else {
-                throw new RuntimeException("expected");
+                throw new RuntimeException("expected, testing Catalog's RuntimeException handling");
             }
         }
 

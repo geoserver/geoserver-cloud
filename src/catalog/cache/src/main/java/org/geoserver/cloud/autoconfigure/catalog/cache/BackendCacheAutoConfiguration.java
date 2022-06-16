@@ -4,7 +4,7 @@
  */
 package org.geoserver.cloud.autoconfigure.catalog.cache;
 
-import org.geoserver.cloud.catalog.caching.GeoServerBackendCacheConfiguration;
+import org.geoserver.cloud.catalog.cache.GeoServerBackendCacheConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Configuration;

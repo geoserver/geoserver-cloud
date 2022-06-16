@@ -4,7 +4,7 @@
  */
 package org.geoserver.cloud.autoconfigure.catalog.cache;
 
-import org.geoserver.cloud.catalog.caching.GeoServerBackendCacheConfiguration;
+import org.geoserver.cloud.catalog.cache.GeoServerBackendCacheConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 

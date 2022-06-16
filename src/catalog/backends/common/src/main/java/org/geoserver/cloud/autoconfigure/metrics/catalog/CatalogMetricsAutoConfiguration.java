@@ -4,8 +4,6 @@
  */
 package org.geoserver.cloud.autoconfigure.metrics.catalog;
 
-import io.micrometer.core.instrument.MeterRegistry;
-
 import org.geoserver.catalog.Catalog;
 import org.geoserver.config.GeoServer;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -13,8 +11,6 @@ import org.springframework.boot.actuate.autoconfigure.metrics.CompositeMeterRegi
 import org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,12 +24,12 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration(proxyBeanMethods = false)
 @AutoConfigureAfter({MetricsAutoConfiguration.class, CompositeMeterRegistryAutoConfiguration.class})
-@ConditionalOnClass(MeterRegistry.class)
-@ConditionalOnBean(MeterRegistry.class)
+@ConditionalOnGeoServerMetricsEnabled
 @EnableConfigurationProperties(GeoSeverMetricsConfigProperties.class)
 public class CatalogMetricsAutoConfiguration {
 
-    public @Bean CatalogMetrics geoserverCatalogMetrics( //
+    @Bean
+    CatalogMetrics geoserverCatalogMetrics( //
             GeoSeverMetricsConfigProperties metricsConfig, //
             @Qualifier("catalog") Catalog catalog, //
             @Qualifier("geoServer") GeoServer config) {

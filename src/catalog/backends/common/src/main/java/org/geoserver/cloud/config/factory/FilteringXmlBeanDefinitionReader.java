@@ -10,7 +10,6 @@ import static org.springframework.util.StringUtils.tokenizeToStringArray;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.BeanDefinitionStoreException;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.xml.BeanDefinitionParserDelegate;
 import org.springframework.beans.factory.xml.DefaultBeanDefinitionDocumentReader;
@@ -281,14 +280,6 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
                 return;
             }
             deferredNameToAlias.put(name, alias);
-        }
-
-        private void tryUnregister(String name, String alias) {
-            try {
-                getReaderContext().getRegistry().removeBeanDefinition(name);
-            } catch (NoSuchBeanDefinitionException ok) {
-                log.trace("Blacklisted bean {}, alias {} comes first in the xml file", name, alias);
-            }
         }
 
         protected @Override void processBeanDefinition(

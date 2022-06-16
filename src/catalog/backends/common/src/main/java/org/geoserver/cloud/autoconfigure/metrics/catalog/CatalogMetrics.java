@@ -43,7 +43,7 @@ import java.util.function.Supplier;
  */
 @RequiredArgsConstructor
 @Slf4j(topic = "org.geoserver.cloud.metrics.catalog")
-public class CatalogMetrics implements MeterBinder {
+class CatalogMetrics implements MeterBinder {
 
     private final @NonNull GeoSeverMetricsConfigProperties metricsConfig;
     private final @NonNull Catalog catalog;

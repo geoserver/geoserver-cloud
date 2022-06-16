@@ -1,0 +1,9 @@
+spring.main.banner-mode: off
+
+logging:
+  level:
+    root: WARN
+    org.springframework: error
+    org.geoserver.platform: error
+    org.geoserver.cloud: info
+    org.geoserver.cloud.bus: info

@@ -7,7 +7,7 @@ package org.geoserver.cloud.autoconfigure.gwc;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.cloud.autoconfigure.gwc.core.GeoWebCacheAutoConfiguration;
-import org.geoserver.cloud.config.datadirectory.NoServletContextDataDirectoryResourceStore;
+import org.geoserver.cloud.config.catalog.backend.datadirectory.NoServletContextDataDirectoryResourceStore;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerDataDirectory;
 import org.geoserver.config.plugin.GeoServerImpl;
