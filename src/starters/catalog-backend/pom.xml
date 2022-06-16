@@ -22,5 +22,9 @@
       <groupId>org.geoserver.cloud.catalog.backend</groupId>
       <artifactId>gs-cloud-catalog-backend-catalog-service</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.geoserver.cloud.catalog</groupId>
+      <artifactId>gs-cloud-catalog-cache</artifactId>
+    </dependency>
   </dependencies>
 </project>
