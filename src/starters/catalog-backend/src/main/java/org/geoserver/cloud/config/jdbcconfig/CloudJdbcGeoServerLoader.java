@@ -20,6 +20,7 @@ import org.geoserver.platform.GeoServerExtensions;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.Resource.Lock;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -81,6 +82,21 @@ public class CloudJdbcGeoServerLoader extends DefaultGeoServerLoader {
             configDatabase.repopulateQueryableProperties();
             config.setRepopulate(false);
             config.save();
+        }
+    }
+
+    /**
+     * Overrides to run inside a lock on "styles" to avoid multiple instances starting up off an
+     * empty database trying to create the same default styles, which results in either a startup
+     * error or multiple styles named the same.
+     */
+    @Override
+    protected void initializeDefaultStyles(Catalog catalog) throws IOException {
+        final Lock lock = resourceLoader.getLockProvider().acquire("DEFAULT_STYLES");
+        try {
+            super.initializeDefaultStyles(catalog);
+        } finally {
+            lock.release();
         }
     }
 }

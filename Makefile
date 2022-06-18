@@ -16,4 +16,7 @@ test:
 	./mvnw -f src/ verify -ntp -T4 -P-docker,-docker-openj9
 
 docker:
-	./mvnw package -f src/ -Ddockerfile.push.skip=$(PUSH) -ntp -Dfmt.skip -T4 -DskipTests
+	./mvnw clean package -f src/apps -Ddockerfile.push.skip=$(PUSH) -ntp -Dfmt.skip -T4 -DskipTests -P-docker-openj9
+
+docker-openj9:
+	./mvnw clean package -f src/apps -Ddockerfile.push.skip=$(PUSH) -ntp -Dfmt.skip -T4 -DskipTests -P-docker
