@@ -1360,6 +1360,8 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
     }
 
     protected <T extends CatalogInfo> void doAdd(T object, Function<T, T> inserter) {
+        Objects.requireNonNull(object, "object");
+        Objects.requireNonNull(inserter, "insert function");
         setId(object);
         validationSupport.validate(object, true);
         T added;

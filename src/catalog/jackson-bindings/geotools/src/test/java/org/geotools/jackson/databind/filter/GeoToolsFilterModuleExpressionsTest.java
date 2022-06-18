@@ -7,13 +7,15 @@ package org.geotools.jackson.databind.filter;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.geotools.jackson.databind.filter.dto.Expression;
 import org.geotools.jackson.databind.filter.dto.Expression.FunctionName;
 import org.geotools.jackson.databind.filter.mapper.ExpressionMapper;
-import org.junit.Before;
+import org.geotools.jackson.databind.util.ObjectMapperUtil;
+import org.junit.BeforeClass;
 import org.mapstruct.factory.Mappers;
 import org.opengis.filter.expression.Function;
 
@@ -21,22 +23,26 @@ import org.opengis.filter.expression.Function;
  * Test suite for {@link GeoToolsFilterModule} serialization and deserialization of {@link
  * org.opengis.filter.expression.Expression}s
  */
+@Slf4j
 public class GeoToolsFilterModuleExpressionsTest extends ExpressionRoundtripTest {
+    private boolean debug = Boolean.valueOf(System.getProperty("debug", "false"));
 
-    private ObjectMapper objectMapper;
-    private ExpressionMapper expressionMapper;
+    protected void print(String logmsg, Object... args) {
+        if (debug) log.debug(logmsg, args);
+    }
 
-    public @Before void before() {
-        objectMapper = new ObjectMapper();
-        objectMapper.setDefaultPropertyInclusion(Include.NON_EMPTY);
-        objectMapper.findAndRegisterModules();
+    private static ObjectMapper objectMapper;
+    private static ExpressionMapper expressionMapper;
+
+    public static @BeforeClass void beforeAll() {
+        objectMapper = ObjectMapperUtil.newObjectMapper();
         expressionMapper = Mappers.getMapper(ExpressionMapper.class);
     }
 
     protected @Override <E extends Expression> E roundtripTest(E dto) throws Exception {
         final org.opengis.filter.expression.Expression expected = expressionMapper.map(dto);
         String serialized = objectMapper.writeValueAsString(expected);
-        System.err.println(serialized);
+        print("serialized: {}", serialized);
         org.opengis.filter.expression.Expression deserialized;
         deserialized =
                 objectMapper.readValue(serialized, org.opengis.filter.expression.Expression.class);
@@ -56,7 +62,7 @@ public class GeoToolsFilterModuleExpressionsTest extends ExpressionRoundtripTest
     protected @Override FunctionName roundtripTest(FunctionName dto) throws Exception {
         org.opengis.filter.capability.FunctionName expected = expressionMapper.map(dto);
         String serialized = objectMapper.writeValueAsString(expected);
-        System.err.println(serialized);
+        print("serialized: {}", serialized);
         org.opengis.filter.capability.FunctionName deserialized =
                 objectMapper.readValue(
                         serialized, org.opengis.filter.capability.FunctionName.class);

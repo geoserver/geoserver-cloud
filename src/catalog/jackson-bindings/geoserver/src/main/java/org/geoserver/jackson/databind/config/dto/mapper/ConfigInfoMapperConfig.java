@@ -5,6 +5,7 @@
 package org.geoserver.jackson.databind.config.dto.mapper;
 
 import org.geoserver.jackson.databind.catalog.mapper.ValueMappers;
+import org.geoserver.jackson.databind.mapper.PatchMapper;
 import org.geoserver.jackson.databind.mapper.SharedMappers;
 import org.mapstruct.MapperConfig;
 import org.mapstruct.ReportingPolicy;
@@ -12,5 +13,11 @@ import org.mapstruct.ReportingPolicy;
 @MapperConfig(
         componentModel = "default",
         unmappedTargetPolicy = ReportingPolicy.ERROR,
-        uses = {SharedMappers.class, ObjectFacotries.class, WPSMapper.class, ValueMappers.class})
+        uses = {
+            ObjectFacotries.class,
+            WPSMapper.class,
+            ValueMappers.class,
+            SharedMappers.class,
+            PatchMapper.class
+        })
 public class ConfigInfoMapperConfig {}

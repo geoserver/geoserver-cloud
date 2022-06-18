@@ -4,14 +4,14 @@
  */
 package org.geoserver.jackson.databind.config;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogTestData;
@@ -28,30 +28,41 @@ import org.geoserver.jackson.databind.catalog.ProxyUtils;
 import org.geoserver.ows.util.OwsUtils;
 import org.geoserver.platform.GeoServerExtensionsHelper;
 import org.geoserver.wcs.WCSInfo;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.geoserver.wfs.WFSInfo;
+import org.geotools.jackson.databind.util.ObjectMapperUtil;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Verifies that all GeoServer config ({@link GeoServerInfo}, etc) object types can be sent over the
  * wire and parsed back using jackson, thanks to {@link GeoServerConfigModule} jackcon-databind
  * module
  */
+@Slf4j
 public class GeoServerConfigModuleTest {
+
+    private boolean debug = Boolean.valueOf(System.getProperty("debug", "false"));
+
+    protected void print(String logmsg, Object... args) {
+        if (debug) log.debug(logmsg, args);
+    }
+
+    private static ObjectMapper objectMapper;
 
     private Catalog catalog;
     private CatalogTestData testData;
-    private ObjectMapper objectMapper;
     private GeoServer geoserver;
     private ProxyUtils proxyResolver;
 
-    public static @BeforeClass void oneTimeSetup() {
+    public static @BeforeAll void oneTimeSetup() {
         // avoid the chatty warning logs due to catalog looking up a bean of type
         // GeoServerConfigurationLock
         GeoServerExtensionsHelper.setIsSpringContext(false);
+        objectMapper = ObjectMapperUtil.newObjectMapper();
     }
 
-    public @Before void before() {
+    public @BeforeEach void before() {
         catalog = new CatalogPlugin();
         geoserver = new GeoServerImpl();
         testData =
@@ -59,33 +70,32 @@ public class GeoServerConfigModuleTest {
                         .initConfig(false)
                         .initialize();
         proxyResolver = new ProxyUtils(catalog, geoserver);
-
-        objectMapper = new ObjectMapper();
-        objectMapper.setDefaultPropertyInclusion(Include.NON_EMPTY);
-        objectMapper.findAndRegisterModules();
     }
 
     private <T extends Info> void roundtripTest(@NonNull T orig) throws JsonProcessingException {
         ObjectWriter writer = objectMapper.writer();
         writer = writer.withDefaultPrettyPrinter();
         String encoded = writer.writeValueAsString(orig);
+        print("encoded: {}", encoded);
 
         @SuppressWarnings("unchecked")
         Class<T> type = (Class<T>) ClassMappings.fromImpl(orig.getClass()).getInterface();
 
         T decoded = objectMapper.readValue(encoded, type);
+        print("decoded: {}", decoded);
         // This is the client code's responsibility, the Deserializer returns "resolving proxy"
         // proxies for Info references
-        decoded = proxyResolver.resolve(decoded);
+        T resolved = proxyResolver.resolve(decoded);
+        print("resolved: {}", resolved);
 
         OwsUtils.resolveCollections(orig);
-        OwsUtils.resolveCollections(decoded);
-        assertEquals(orig, decoded);
-        testData.assertInternationalStringPropertiesEqual(orig, decoded);
+        OwsUtils.resolveCollections(resolved);
+        assertEquals(orig, resolved);
+        testData.assertInternationalStringPropertiesEqual(orig, resolved);
         if (orig instanceof SettingsInfo) {
             // SettingsInfoImpl's equals() doesn't check workspace
             assertEquals(
-                    ((SettingsInfo) orig).getWorkspace(), ((SettingsInfo) decoded).getWorkspace());
+                    ((SettingsInfo) orig).getWorkspace(), ((SettingsInfo) resolved).getWorkspace());
         }
     }
 
@@ -113,7 +123,10 @@ public class GeoServerConfigModuleTest {
     }
 
     public @Test void wfsServiceInfo() throws Exception {
-        roundtripTest(testData.wfsService);
+        WFSInfo wfs = testData.wfsService;
+        wfs.getGML().put(WFSInfo.Version.V_10, testData.faker().gmlInfo());
+        wfs.getGML().put(WFSInfo.Version.V_20, testData.faker().gmlInfo());
+        roundtripTest(wfs);
     }
 
     public @Test void wpsServiceInfo() throws Exception {
@@ -121,7 +134,7 @@ public class GeoServerConfigModuleTest {
     }
 
     public @Test void wmtsServiceInfo() throws Exception {
-        WMTSInfo wmtsService = testData.createService("wmts", WMTSInfoImpl::new);
+        WMTSInfo wmtsService = testData.faker().serviceInfo("wmts", WMTSInfoImpl::new);
         roundtripTest(wmtsService);
     }
 }

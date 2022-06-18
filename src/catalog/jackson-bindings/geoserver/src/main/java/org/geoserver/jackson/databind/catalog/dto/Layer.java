@@ -6,10 +6,12 @@ package org.geoserver.jackson.databind.catalog.dto;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Generated;
 
 import java.util.Set;
 
 @Data
+@Generated
 @EqualsAndHashCode(callSuper = true)
 public class Layer extends Published {
     public enum WMSInterpolation {

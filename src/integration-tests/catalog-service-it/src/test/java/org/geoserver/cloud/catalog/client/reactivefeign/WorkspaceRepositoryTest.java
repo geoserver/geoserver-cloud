@@ -73,7 +73,7 @@ public class WorkspaceRepositoryTest
     }
 
     public @Test void testWorkspaceCRUD() {
-        WorkspaceInfo ws = testData.createWorkspace("workspaceCRUD");
+        WorkspaceInfo ws = testData.faker().workspaceInfo("workspaceCRUD");
         crudTest(
                 ws,
                 serverCatalog::getWorkspace,

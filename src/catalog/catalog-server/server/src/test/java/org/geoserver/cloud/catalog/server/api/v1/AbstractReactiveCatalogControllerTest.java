@@ -25,6 +25,7 @@ import org.geoserver.config.GeoServer;
 import org.geoserver.jackson.databind.catalog.ProxyUtils;
 import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.filter.text.ecql.ECQL;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -64,8 +65,7 @@ public abstract class AbstractReactiveCatalogControllerTest<C extends CatalogInf
     protected @Autowired @Qualifier("catalog") Catalog catalog;
     protected @Autowired @Qualifier("geoServer") GeoServer geoServer;
 
-    public @Rule CatalogTestData testData =
-            CatalogTestData.initialized(() -> catalog, () -> null).initConfig(false);
+    protected CatalogTestData testData;
 
     protected final @NonNull Class<C> infoType;
 
@@ -77,7 +77,14 @@ public abstract class AbstractReactiveCatalogControllerTest<C extends CatalogInf
 
     public @Before void setup() {
         proxyResolver = new ProxyUtils(catalog, geoServer).failOnMissingReference(true);
+        testData =
+                CatalogTestData.initialized(() -> catalog, () -> null).initConfig(false).initialize();
     }
+    
+    public @After void after() {
+        testData.after();
+    }
+
 
     public abstract @Test void testFindAll();
 

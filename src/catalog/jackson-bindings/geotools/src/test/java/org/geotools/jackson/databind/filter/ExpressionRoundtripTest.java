@@ -56,6 +56,11 @@ import java.util.stream.IntStream;
  */
 @Slf4j
 public abstract class ExpressionRoundtripTest {
+    private boolean debug = Boolean.valueOf(System.getProperty("debug", "false"));
+
+    protected void print(String logmsg, Object... args) {
+        if (debug) log.debug(logmsg, args);
+    }
 
     protected abstract <E extends Expression> E roundtripTest(E dto) throws Exception;
 
@@ -235,7 +240,7 @@ public abstract class ExpressionRoundtripTest {
         List<FunctionName> allFunctionDescriptions = finder.getAllFunctionDescriptions();
         for (FunctionName functionName : allFunctionDescriptions) {
             if (ignore.contains(functionName.getName())) {
-                log.info(
+                print(
                         "Ignoring function {}, can't represent its arguments in JSON",
                         functionName.getName());
                 continue;
@@ -256,7 +261,7 @@ public abstract class ExpressionRoundtripTest {
     }
 
     private void testFunctionRoundtrip(FunctionName functionDescriptor) throws Exception {
-        log.debug("Testing function {}", functionDescriptor);
+        print("Testing function {}", functionDescriptor);
 
         String name = functionDescriptor.getName();
         Name functionName = functionDescriptor.getFunctionName();
@@ -264,7 +269,7 @@ public abstract class ExpressionRoundtripTest {
         List<String> argumentNames = functionDescriptor.getArgumentNames();
         List<Parameter<?>> arguments = functionDescriptor.getArguments();
         Parameter<?> returnValueDescriptor = functionDescriptor.getReturn();
-        log.debug(
+        print(
                 "functionName: {}, argumentCount: {}, argumentNames: {}, ret: {}",
                 functionName,
                 argumentCount,
@@ -300,7 +305,7 @@ public abstract class ExpressionRoundtripTest {
         dto.setArgumentCount(argumentCount);
         dto.getArgumentNames().addAll(argumentNames);
 
-        log.debug("Testing FunctionName {}", dto);
+        print("Testing FunctionName {}", dto);
         roundtripTest(dto);
     }
 

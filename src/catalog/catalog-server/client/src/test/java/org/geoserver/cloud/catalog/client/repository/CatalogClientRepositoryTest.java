@@ -48,8 +48,8 @@ import org.geotools.filter.function.math.FilterFunction_abs;
 import org.geotools.filter.function.math.FilterFunction_acos;
 import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.filter.text.ecql.ECQL;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opengis.filter.Filter;
@@ -83,8 +83,7 @@ public class CatalogClientRepositoryTest {
     private @Autowired StyleRepository styleRepository;
 
     private static final Catalog fakeCatalog = new CatalogPlugin();
-    public @Rule CatalogTestData testData =
-            CatalogTestData.empty(() -> fakeCatalog, () -> null).initConfig(false);
+    protected CatalogTestData testData;
 
     public @Before void before() {
         List<FunctionName> functions =
@@ -94,6 +93,12 @@ public class CatalogClientRepositoryTest {
                         FilterFunction_acos.NAME,
                         FilterFunction_toWKT.NAME);
         when(mockClient.getSupportedFilterFunctionNames()).thenReturn(Flux.fromIterable(functions));
+        testData =
+                CatalogTestData.empty(() -> fakeCatalog, () -> null).initConfig(false).initialize();
+    }
+
+    public @After void after() {
+        testData.after();
     }
 
     public @Test void workspaceRepository_CRUD() {

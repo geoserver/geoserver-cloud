@@ -6,12 +6,13 @@ package org.geotools.jackson.databind.filter.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Generated;
 import lombok.NoArgsConstructor;
 
 /** DTO for {@link org.opengis.filter.sort.SortBy} */
 @NoArgsConstructor
 @AllArgsConstructor
-public @Data class SortBy {
+public @Data @Generated class SortBy {
 
     public static enum SortOrder {
         ASCENDING,

@@ -55,7 +55,7 @@ public class ConfigRemoteApplicationEventsTest extends BusAmqpIntegrationTests {
     }
 
     public @Test void testConfigRemoteModifyEvent_ServiceInfo_Workspace() {
-        WMSInfo service = testData.createService("WMS_WS_TEST", WMSInfoImpl::new);
+        WMSInfo service = testData.faker().serviceInfo("WMS_WS_TEST", WMSInfoImpl::new);
         service.setWorkspace(testData.workspaceB);
         geoserver.add(service);
 
@@ -65,7 +65,7 @@ public class ConfigRemoteApplicationEventsTest extends BusAmqpIntegrationTests {
                 service,
                 s -> {
                     s.setCacheConfiguration(cacheCfg);
-                    s.getAuthorityURLs().addAll(testData.authUrls(2));
+                    s.getAuthorityURLs().addAll(testData.faker().authUrls(2));
                 },
                 geoserver::save,
                 ServiceInfoModifyEvent.class);
@@ -119,7 +119,7 @@ public class ConfigRemoteApplicationEventsTest extends BusAmqpIntegrationTests {
         GeoServerInfo global = new GeoServerInfoImpl();
         SettingsInfo settings = new SettingsInfoImpl();
         settings.setCharset("ISO-8859-1");
-        settings.setContact(testData.createContact());
+        settings.setContact(testData.faker().contactInfo());
 
         global.setSettings(settings);
         geoserver.setGlobal(global);

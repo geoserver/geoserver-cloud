@@ -6,11 +6,13 @@ package org.geoserver.jackson.databind.catalog.dto;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Generated;
 
 import java.util.List;
 import java.util.Map;
 
 @Data
+@Generated
 @EqualsAndHashCode(callSuper = true)
 public class LayerGroup extends Published {
 

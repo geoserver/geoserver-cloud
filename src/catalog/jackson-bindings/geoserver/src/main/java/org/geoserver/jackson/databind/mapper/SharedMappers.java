@@ -20,38 +20,26 @@ import org.geoserver.catalog.impl.MetadataLinkInfoImpl;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.impl.ResolvingProxy;
 import org.geoserver.catalog.impl.StyleInfoImpl;
-import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.jackson.databind.catalog.dto.CRS;
 import org.geoserver.jackson.databind.catalog.dto.Envelope;
 import org.geoserver.jackson.databind.catalog.dto.InfoReference;
 import org.geoserver.jackson.databind.catalog.dto.Keyword;
-import org.geoserver.jackson.databind.catalog.dto.PatchDto;
 import org.geoserver.jackson.databind.catalog.dto.VersionDto;
 import org.geoserver.jackson.databind.config.dto.NameDto;
 import org.geoserver.wfs.GMLInfo;
 import org.geotools.feature.NameImpl;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.jackson.databind.filter.dto.Expression.Literal;
-import org.geotools.jackson.databind.filter.mapper.ExpressionMapper;
 import org.geotools.referencing.CRS.AxisOrder;
 import org.geotools.referencing.wkt.Formattable;
 import org.geotools.util.Version;
 import org.mapstruct.Mapper;
 import org.mapstruct.ObjectFactory;
-import org.mapstruct.factory.Mappers;
 import org.opengis.feature.type.Name;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 @Mapper
 @Slf4j
@@ -82,12 +70,12 @@ public abstract class SharedMappers {
         if (ClassMappings.STYLE.equals(type)) {
             StyleInfo s = (StyleInfo) info;
             MetadataMap metadata = s.getMetadata();
-            boolean isRemote =
+            boolean isRemoteStyle =
                     metadata != null
                             && Boolean.valueOf(
                                     metadata.getOrDefault(StyleInfoImpl.IS_REMOTE, "false")
                                             .toString());
-            if (isRemote) {
+            if (isRemoteStyle) {
                 return null;
             }
         }
@@ -123,9 +111,9 @@ public abstract class SharedMappers {
         return new org.geoserver.catalog.Keyword(source.getValue());
     }
 
-    public abstract KeywordInfo dtoToKeyword(Keyword dto);
+    public abstract KeywordInfo keyword(Keyword dto);
 
-    public abstract Keyword keywordToDto(KeywordInfo keyword);
+    public abstract Keyword keyword(KeywordInfo keyword);
 
     public @ObjectFactory MetadataLinkInfoImpl metadataLinkInfo() {
         return new MetadataLinkInfoImpl();
@@ -139,7 +127,7 @@ public abstract class SharedMappers {
         return new LayerIdentifier();
     }
 
-    /** Added sue to {@link GMLInfo#getMimeTypeToForce()} */
+    /** Added due to {@link GMLInfo#getMimeTypeToForce()} */
     public String optToString(Optional<String> value) {
         return value == null ? null : value.orElse(null);
     }
@@ -153,100 +141,6 @@ public abstract class SharedMappers {
     public Name map(NameDto dto) {
         return new NameImpl(dto.getNamespaceURI(), dto.getLocalPart());
     }
-
-    public Patch dtoToPatch(PatchDto dto) {
-        if (dto == null) return null;
-        ExpressionMapper expressionMapper = Mappers.getMapper(ExpressionMapper.class);
-        Patch patch = new Patch();
-        dto.getPatches()
-                .forEach(
-                        (k, literalDto) -> {
-                            org.opengis.filter.expression.Literal literal =
-                                    expressionMapper.map(literalDto);
-                            Object v = literal.getValue();
-                            if (v instanceof InfoReference) {
-                                v = referenceToInfo((InfoReference) v);
-                            } else if (v instanceof Collection) {
-                                v = resolveCollection((Collection<?>) v);
-                            }
-                            patch.add(new Patch.Property(k, v));
-                        });
-        return patch;
-    }
-
-    private Collection<?> resolveCollection(Collection<?> v) {
-        @SuppressWarnings("unchecked")
-        Collection<Object> resolved = (Collection<Object>) newCollectionInstance(v.getClass());
-        for (Object o : v) {
-            Object resolvedMember = o;
-            if (o instanceof InfoReference) {
-                resolvedMember = referenceToInfo((InfoReference) o);
-            }
-            resolved.add(resolvedMember);
-        }
-        return resolved;
-    }
-
-    private Object newCollectionInstance(Class<?> class1) {
-        try {
-            return class1.getConstructor().newInstance();
-        } catch (Exception e) {
-            if (List.class.isAssignableFrom(class1)) return new ArrayList<>();
-            if (Set.class.isAssignableFrom(class1)) return new HashSet<>();
-            if (Map.class.isAssignableFrom(class1)) return new HashMap<>();
-        }
-        return null;
-    }
-
-    public PatchDto patchToDto(Patch patch) {
-        if (patch == null) return null;
-
-        PatchDto dto = new PatchDto();
-        for (Patch.Property propChange : patch.getPatches()) {
-            String name = propChange.getName();
-            Object value = resolvePatchValue(propChange);
-            Literal literal = new org.geotools.jackson.databind.filter.dto.Expression.Literal();
-            literal.setValue(value);
-            dto.getPatches().put(name, literal);
-        }
-        return dto;
-    }
-
-    /**
-     * If value is an identified {@link Info} (catalog or config object), returns an {@link
-     * InfoReference} instead, to be resolved at the receiving end
-     */
-    private Object resolvePatchValue(Patch.Property prop) {
-        if (prop == null) return null;
-        return patchPropertyValueToDto(prop.getValue());
-    }
-
-    private Object patchPropertyValueToDto(Object value) {
-        if (value instanceof Info) {
-            return value; // resolveReferenceOrValueObject((Info) value);
-        } else if (value instanceof Collection) {
-            @SuppressWarnings("unchecked")
-            Collection<Object> col = (Collection<Object>) newCollectionInstance(value.getClass());
-            for (Object v : ((Collection<?>) value)) {
-                col.add(patchPropertyValueToDto(v));
-            }
-            return col;
-        }
-
-        return value;
-    }
-
-    private Object resolveReferenceOrValueObject(Info value) {
-        value = ModificationProxy.unwrap(value);
-        ClassMappings cm = ClassMappings.fromImpl(value.getClass());
-        boolean useReference = cm != null; // && !(ClassMappings.GLOBAL == cm ||
-        // ClassMappings.LOGGING == cm);
-        if (useReference) {
-            return this.infoToReference((Info) value);
-        }
-        return value;
-    }
-    ;
 
     private ClassMappings resolveType(@NonNull Info value) {
         value = ModificationProxy.unwrap(value);
@@ -310,7 +204,7 @@ public abstract class SharedMappers {
         return crs;
     }
 
-    public Envelope referencedEnvelopeToDto(ReferencedEnvelope env) {
+    public Envelope referencedEnvelope(ReferencedEnvelope env) {
         if (env == null) return null;
         Envelope dto = new Envelope();
         int dimension = env.getDimension();
@@ -324,7 +218,7 @@ public abstract class SharedMappers {
         return dto;
     }
 
-    public ReferencedEnvelope dtoToReferencedEnvelope(Envelope source) {
+    public ReferencedEnvelope referencedEnvelope(Envelope source) {
         if (source == null) return null;
         CoordinateReferenceSystem crs = crs(source.getCrs());
         ReferencedEnvelope env = new ReferencedEnvelope(crs);

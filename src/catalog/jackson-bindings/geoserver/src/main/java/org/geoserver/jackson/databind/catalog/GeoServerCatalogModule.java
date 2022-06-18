@@ -41,6 +41,8 @@ import org.geoserver.jackson.databind.catalog.dto.QueryDto;
 import org.geoserver.jackson.databind.catalog.dto.VersionDto;
 import org.geoserver.jackson.databind.catalog.dto.VirtualTableDto;
 import org.geoserver.jackson.databind.catalog.mapper.ValueMappers;
+import org.geoserver.jackson.databind.config.dto.NameDto;
+import org.geoserver.jackson.databind.mapper.PatchMapper;
 import org.geoserver.jackson.databind.mapper.SharedMappers;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.jackson.databind.filter.GeoToolsFilterModule;
@@ -91,6 +93,7 @@ public class GeoServerCatalogModule extends SimpleModule {
     private static final long serialVersionUID = -8756800180255446679L;
 
     static final SharedMappers SHARED_MAPPER = Mappers.getMapper(SharedMappers.class);
+    static final PatchMapper PATCH_MAPPER = Mappers.getMapper(PatchMapper.class);
     static final ValueMappers VALUE_MAPPER = Mappers.getMapper(ValueMappers.class);
 
     private final CatalogInfoDeserializer<CatalogInfo> deserializer =
@@ -229,18 +232,18 @@ public class GeoServerCatalogModule extends SimpleModule {
     }
 
     private void registerSharedMappers() {
+
+        addMapperSerializer(
+                Patch.class, PATCH_MAPPER::patchToDto, PatchDto.class, PATCH_MAPPER::dtoToPatch);
+
         addMapperSerializer(
                 CoordinateReferenceSystem.class, SHARED_MAPPER::crs, CRS.class, SHARED_MAPPER::crs);
 
         addMapperSerializer(
                 ReferencedEnvelope.class,
-                SHARED_MAPPER::referencedEnvelopeToDto,
+                SHARED_MAPPER::referencedEnvelope,
                 Envelope.class,
-                SHARED_MAPPER::dtoToReferencedEnvelope);
-
-        addMapperSerializer(
-                Patch.class, SHARED_MAPPER::patchToDto, PatchDto.class, SHARED_MAPPER::dtoToPatch);
-
+                SHARED_MAPPER::referencedEnvelope);
         addMapperSerializer(
                 org.geotools.util.Version.class,
                 SHARED_MAPPER::versionToDto,
@@ -248,9 +251,18 @@ public class GeoServerCatalogModule extends SimpleModule {
                 SHARED_MAPPER::dtoToVersion);
 
         addMapperSerializer(
-                KeywordInfo.class,
-                SHARED_MAPPER::keywordToDto,
-                Keyword.class,
-                SHARED_MAPPER::dtoToKeyword);
+                KeywordInfo.class, SHARED_MAPPER::keyword, Keyword.class, SHARED_MAPPER::keyword);
+
+        addMapperSerializer(
+                org.opengis.feature.type.Name.class,
+                SHARED_MAPPER::map,
+                NameDto.class,
+                SHARED_MAPPER::map);
+
+        addMapperSerializer(
+                org.geotools.util.Version.class,
+                SHARED_MAPPER::versionToDto,
+                VersionDto.class,
+                SHARED_MAPPER::dtoToVersion);
     }
 }

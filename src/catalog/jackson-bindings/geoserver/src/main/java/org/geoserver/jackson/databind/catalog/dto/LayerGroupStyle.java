@@ -5,6 +5,7 @@
 package org.geoserver.jackson.databind.catalog.dto;
 
 import lombok.Data;
+import lombok.Generated;
 
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,7 @@ import java.util.Map;
  * @since 1.0-RC2 (geoserver 2.21.0)
  */
 @Data
+@Generated
 public class LayerGroupStyle {
 
     private String id;

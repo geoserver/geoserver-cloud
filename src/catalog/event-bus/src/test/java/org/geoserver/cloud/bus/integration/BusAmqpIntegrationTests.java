@@ -127,10 +127,7 @@ public abstract class BusAmqpIntegrationTests {
         Catalog remoteCatalog = remoteAppContext.getBean("rawCatalog", Catalog.class);
         GeoServer remoteGeoserver = remoteAppContext.getBean(GeoServer.class);
         CatalogTestData remoteTestData =
-                CatalogTestData.empty(() -> remoteCatalog, () -> remoteGeoserver)
-                        .createCatalogObjects()
-                        .createConfigObjects();
-
+                CatalogTestData.empty(() -> remoteCatalog, () -> remoteGeoserver).initialize();
         remoteTestData.initCatalog(true).initConfig(true).initialize();
         try {
             Thread.sleep(100);
@@ -149,10 +146,7 @@ public abstract class BusAmqpIntegrationTests {
 
         eventsCaptor.stop().clear().capureEventsOf(InfoEvent.class);
 
-        testData =
-                CatalogTestData.empty(() -> catalog, () -> geoserver)
-                        .createCatalogObjects()
-                        .createConfigObjects();
+        testData = CatalogTestData.empty(() -> catalog, () -> geoserver).initialize();
     }
 
     @AfterEach

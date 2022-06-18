@@ -10,12 +10,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.geoserver.catalog.AttributeTypeInfo;
+import org.geoserver.catalog.AttributionInfo;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
+import org.geoserver.catalog.LegendInfo;
+import org.geoserver.catalog.MapInfo;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.catalog.ResourceInfo;
@@ -34,18 +37,40 @@ import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
+import org.geoserver.jackson.databind.catalog.dto.InfoReference;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /** */
 @Slf4j
 @RequiredArgsConstructor
 public class ProxyUtils {
+    /**
+     * Types that shall be encoded as {@link InfoReference reference} instead of as a full value
+     * object when coming as a Patch {@link Patch.Property#getValue() Property} value. Some config
+     * info types like {@link SettingsInfo} and {@link LoggingInfo} shall be encoded as values, and
+     * so all other {@link Info} subtypes that are not entities but value objects (such as {@link
+     * AttributionInfo}, {@link LegendInfo}, etc.)
+     *
+     * @see #encodeByReference
+     * @see #referenceTypeOf
+     */
+    private static final Set<Class<? extends Info>> VALUE_BY_REFERENCE_TYPES =
+            Set.of(
+                    WorkspaceInfo.class, //
+                    NamespaceInfo.class, //
+                    StoreInfo.class, //
+                    ResourceInfo.class, //
+                    PublishedInfo.class, //
+                    MapInfo.class, //
+                    StyleInfo.class, //
+                    GeoServerInfo.class, //
+                    ServiceInfo.class);
 
     private final @NonNull @Getter Catalog catalog;
     private final @NonNull @Getter GeoServer config;
@@ -160,14 +185,12 @@ public class ProxyUtils {
         return info;
     }
 
-    protected <T extends Info> boolean isResolvingProxy(final T unresolved) {
-        boolean isProxy = Proxy.isProxyClass(unresolved.getClass());
-        boolean isResolvingProxy = false;
-        if (isProxy) {
-            InvocationHandler invocationHandler = Proxy.getInvocationHandler(unresolved);
-            isResolvingProxy = invocationHandler instanceof ResolvingProxy;
-        }
-        return isResolvingProxy;
+    public <T extends Info> boolean isResolvingProxy(final T info) {
+        return null != org.geoserver.catalog.impl.ProxyUtils.handler(info, ResolvingProxy.class);
+    }
+
+    public <T extends Info> boolean isModificationProxy(final T info) {
+        return null != org.geoserver.catalog.impl.ProxyUtils.handler(info, ModificationProxy.class);
     }
 
     private void resolveInternal(LoggingInfo info) {}
@@ -266,5 +289,19 @@ public class ProxyUtils {
             r.setNamespace(resolve(namespace));
         }
         return r;
+    }
+
+    public static Optional<Class<? extends Info>> referenceTypeOf(Object val) {
+        return Optional.ofNullable(val)
+                .filter(Info.class::isInstance)
+                .flatMap(
+                        i ->
+                                VALUE_BY_REFERENCE_TYPES.stream()
+                                        .filter(type -> type.isInstance(i))
+                                        .findFirst());
+    }
+
+    public static boolean encodeByReference(Object o) {
+        return referenceTypeOf(o).isPresent();
     }
 }

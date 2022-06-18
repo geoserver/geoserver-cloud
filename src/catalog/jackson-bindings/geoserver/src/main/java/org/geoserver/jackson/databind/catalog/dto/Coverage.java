@@ -6,12 +6,14 @@ package org.geoserver.jackson.databind.catalog.dto;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Generated;
 
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
 @Data
+@Generated
 @EqualsAndHashCode(callSuper = true)
 public class Coverage extends Resource {
     private String nativeFormat;

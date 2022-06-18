@@ -5,8 +5,9 @@
 package org.geoserver.jackson.databind.catalog.dto;
 
 import lombok.Data;
+import lombok.Generated;
 
-public @Data class DataLink {
+public @Data @Generated class DataLink {
     private String id;
     private String about;
     private String type;

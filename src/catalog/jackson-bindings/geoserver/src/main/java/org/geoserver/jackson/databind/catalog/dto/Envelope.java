@@ -5,8 +5,9 @@
 package org.geoserver.jackson.databind.catalog.dto;
 
 import lombok.Data;
+import lombok.Generated;
 
-public @Data class Envelope {
+public @Data @Generated class Envelope {
     private CRS crs;
     private double[] coordinates;
 }

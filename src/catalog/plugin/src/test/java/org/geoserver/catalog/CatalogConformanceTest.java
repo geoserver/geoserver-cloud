@@ -127,7 +127,7 @@ public abstract class CatalogConformanceTest {
         dataAccessRuleDAO = new DataAccessRuleDAO(dd, rawCatalog);
         dataAccessRuleDAO.reload();
 
-        data = CatalogTestData.empty(() -> rawCatalog, () -> null).createCatalogObjects();
+        data = CatalogTestData.empty(() -> rawCatalog, () -> null).initialize();
     }
 
     protected <T extends CatalogInfo> T add(T info, Consumer<T> adder, Function<String, T> query) {

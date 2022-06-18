@@ -49,7 +49,7 @@ public interface GeoServerConfigMapper {
 
     CatalogInfoMapper catalogInfoMapper = Mappers.getMapper(CatalogInfoMapper.class);
 
-    default <T extends Info> Info toInfo(InfoDto dto) {
+    default <T extends Info> T toInfo(InfoDto dto) {
         if (dto == null) return null;
         if (dto instanceof ConfigInfoDto) return toInfo((ConfigInfoDto) dto);
         if (dto instanceof CatalogInfoDto) return catalogInfoMapper.map((CatalogInfoDto) dto);

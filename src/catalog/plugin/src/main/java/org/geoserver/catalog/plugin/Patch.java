@@ -36,6 +36,11 @@ public @Value class Patch implements Serializable {
         public Property withValue(Object newValue) {
             return new Property(name, newValue);
         }
+
+        @SuppressWarnings("unchecked")
+        public <V> V value() {
+            return (V) value;
+        }
     }
 
     @Getter(AccessLevel.NONE)
@@ -69,6 +74,11 @@ public @Value class Patch implements Serializable {
         return p;
     }
 
+    public Patch with(String name, Object value) {
+        add(name, value);
+        return this;
+    }
+
     public List<String> getPropertyNames() {
         return new ArrayList<>(patches.keySet());
     }
@@ -76,6 +86,10 @@ public @Value class Patch implements Serializable {
     public Optional<Property> get(String propertyName) {
         Property property = this.patches.get(propertyName);
         return Optional.ofNullable(property);
+    }
+
+    public Optional<Object> getValue(String propertyName) {
+        return get(propertyName).map(Property::getValue);
     }
 
     public void applyTo(Object target) {
@@ -106,7 +120,12 @@ public @Value class Patch implements Serializable {
             Collection value = (Collection) change.getValue();
             Collection prop = (Collection) OwsUtils.get(target, change.getName());
             if (prop != null) {
-                prop.clear();
+                try {
+                    prop.clear();
+                } catch (UnsupportedOperationException e) {
+                    throw new IllegalArgumentException(
+                            "Collection property " + change.getName() + " is immutable", e);
+                }
                 if (value != null) {
                     prop.addAll(value);
                 }

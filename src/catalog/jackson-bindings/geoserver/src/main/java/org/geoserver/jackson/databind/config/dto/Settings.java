@@ -6,6 +6,7 @@ package org.geoserver.jackson.databind.config.dto;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Generated;
 
 import org.geoserver.config.SettingsInfo;
 import org.geoserver.jackson.databind.catalog.dto.InfoReference;
@@ -16,7 +17,7 @@ import java.util.Map;
 
 /** DTO for {@link SettingsInfo} */
 @EqualsAndHashCode(callSuper = true)
-public @Data class Settings extends ConfigInfoDto {
+public @Data @Generated class Settings extends ConfigInfoDto {
     private InfoReference workspace;
     private String title;
     private Contact contact;

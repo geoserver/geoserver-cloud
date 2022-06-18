@@ -68,6 +68,7 @@ public class CatalogInfoModifyEvent
                                 event.getPropertyNames(),
                                 event.getOldValues(),
                                 event.getNewValues())
+                        .clean()
                         .toPatch();
 
         if (info instanceof Catalog) {

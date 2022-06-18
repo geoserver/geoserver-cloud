@@ -54,8 +54,8 @@ import org.geoserver.config.impl.SettingsInfoImpl;
 import org.geoserver.config.plugin.GeoServerImpl;
 import org.geoserver.security.SecuredResourceNameChangeListener;
 import org.geoserver.wms.WMSInfoImpl;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -115,20 +115,25 @@ public class RemoteEventCacheEvictorTest {
     // ApplicationContext, used to publish remote events as if the'd be coming from the bus
     private @Autowired ApplicationEventPublisher publisher;
 
-    public @Rule CatalogTestData data =
-            CatalogTestData.initialized(() -> rawCatalog, () -> geoServer);
+    protected CatalogTestData data;
 
     private @SpyBean RemoteEventCacheEvictor evictor;
 
     public @Before void before() {
         assertTrue(rawCatalog.getRawFacade() instanceof CachingCatalogFacade);
         assertTrue(geoServer.getFacade() instanceof CachingGeoServerFacade);
+        data = CatalogTestData.initialized(() -> rawCatalog, () -> geoServer).initialize();
+
         this.catalogCache = cacheManager.getCache(CachingCatalogFacade.CACHE_NAME);
         this.configCache = cacheManager.getCache(CachingGeoServerFacade.CACHE_NAME);
         this.catalogCache.clear();
         this.configCache.clear();
 
         catalog.removeListeners(SecuredResourceNameChangeListener.class);
+    }
+
+    public @After void after() {
+        data.after();
     }
 
     public @Test void testRemoteDefaultWorkspaceEvent() {
