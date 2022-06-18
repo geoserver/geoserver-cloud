@@ -11,7 +11,6 @@ import lombok.NonNull;
 
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.plugin.Patch;
-import org.geoserver.catalog.plugin.PropertyDiff;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoPostModifyEvent;
 import org.geoserver.config.GeoServerInfo;
@@ -40,10 +39,9 @@ public abstract class ConfigInfoModifyEvent<SELF, INFO extends Info>
 
     @SuppressWarnings("unchecked")
     public static @NonNull <I extends Info> ConfigInfoModifyEvent<?, I> createLocal(
-            @NonNull Info info, @NonNull PropertyDiff diff) {
+            @NonNull Info info, @NonNull Patch patch) {
 
         final ConfigInfoType type = ConfigInfoType.valueOf(info);
-        final Patch patch = diff.toPatch();
         switch (type) {
             case GeoServerInfo:
                 {

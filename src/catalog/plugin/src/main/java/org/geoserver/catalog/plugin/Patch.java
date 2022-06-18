@@ -4,11 +4,9 @@
  */
 package org.geoserver.catalog.plugin;
 
-import lombok.AccessLevel;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.Value;
+import lombok.NonNull;
 
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.ows.util.OwsUtils;
@@ -22,20 +20,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 @NoArgsConstructor
-public @Value class Patch implements Serializable {
+public @Data class Patch implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    public static @Value class Property {
+    public static @Data class Property {
         private final String name;
         private final Object value;
-
-        public Property withValue(Object newValue) {
-            return new Property(name, newValue);
-        }
 
         @SuppressWarnings("unchecked")
         public <V> V value() {
@@ -43,17 +36,15 @@ public @Value class Patch implements Serializable {
         }
     }
 
-    @Getter(AccessLevel.NONE)
-    @Setter(AccessLevel.NONE)
-    private final Map<String, Property> patches = new TreeMap<>();
+    private final List<Property> patches = new ArrayList<>();
 
     public Patch(List<Property> patches) {
         patches.forEach(this::add);
     }
 
-    public List<Property> getPatches() {
-        return new ArrayList<Patch.Property>(patches.values());
-    }
+    //    public List<Property> getPatches() {
+    //        return new ArrayList<Patch.Property>(patches.values());
+    //    }
 
     public int size() {
         return patches.size();
@@ -63,8 +54,8 @@ public @Value class Patch implements Serializable {
         return patches.isEmpty();
     }
 
-    public void add(Property prop) {
-        patches.put(prop.getName(), prop);
+    public void add(@NonNull Property prop) {
+        patches.add(prop);
     }
 
     public Property add(String name, Object value) {
@@ -80,12 +71,11 @@ public @Value class Patch implements Serializable {
     }
 
     public List<String> getPropertyNames() {
-        return new ArrayList<>(patches.keySet());
+        return patches.stream().map(Property::getName).toList();
     }
 
     public Optional<Property> get(String propertyName) {
-        Property property = this.patches.get(propertyName);
-        return Optional.ofNullable(property);
+        return patches.stream().filter(p -> p.getName().equals(propertyName)).findFirst();
     }
 
     public Optional<Object> getValue(String propertyName) {
@@ -106,7 +96,7 @@ public @Value class Patch implements Serializable {
     }
 
     public void applyTo(Object target, Class<?> objectType) {
-        patches.values().forEach(p -> apply(target, objectType, p));
+        patches.forEach(p -> apply(target, objectType, p));
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})

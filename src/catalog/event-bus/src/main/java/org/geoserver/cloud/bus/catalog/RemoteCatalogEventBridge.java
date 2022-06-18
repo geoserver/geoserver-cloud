@@ -11,7 +11,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.geoserver.catalog.CatalogException;
+import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.cloud.event.info.InfoEvent;
+import org.geoserver.cloud.event.info.InfoPostModifyEvent;
 import org.geoserver.cloud.event.info.InfoPreModifyEvent;
 import org.springframework.context.event.EventListener;
 
@@ -77,6 +79,14 @@ public class RemoteCatalogEventBridge {
         }
 
         private void publishRemoteEvent(RemoteInfoEvent remoteEvent) {
+            InfoEvent<?, ?> event = remoteEvent.getEvent();
+            if (event instanceof InfoPostModifyEvent) {
+                Patch patch = ((InfoPostModifyEvent<?, ?>) event).getPatch();
+                if (patch.isEmpty()) {
+                    log.info("Not broadcasting no-change event {}", remoteEvent);
+                    return;
+                }
+            }
             log.debug("{}: broadcasting {}", localBusId.get(), remoteEvent);
             try {
                 remoteEventPublisher.accept(remoteEvent);

@@ -4,7 +4,7 @@
  */
 package org.geoserver.jackson.databind.mapper;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.NonNull;
 
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.plugin.Patch;
@@ -12,61 +12,44 @@ import org.geoserver.catalog.plugin.PropertyDiff;
 import org.geoserver.jackson.databind.catalog.ProxyUtils;
 import org.geoserver.jackson.databind.catalog.dto.InfoReference;
 import org.geoserver.jackson.databind.catalog.dto.PatchDto;
+import org.geoserver.jackson.databind.catalog.mapper.ValueMappers;
+import org.geoserver.jackson.databind.config.dto.mapper.GeoServerConfigMapper;
+import org.geoserver.jackson.databind.config.dto.mapper.ObjectFacotries;
+import org.geoserver.jackson.databind.config.dto.mapper.WPSMapper;
 import org.geotools.jackson.databind.filter.dto.Expression;
-import org.geotools.jackson.databind.filter.dto.Expression.Literal;
-import org.geotools.jackson.databind.filter.mapper.ExpressionMapper;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.function.Function;
 
-@Mapper
-@Slf4j(topic = "org.geoserver.jackson.databind.mapper")
+@Mapper(
+        uses = {
+            ObjectFacotries.class,
+            WPSMapper.class,
+            ValueMappers.class,
+            SharedMappers.class,
+            GeoServerConfigMapper.class
+        })
 public abstract class PatchMapper {
 
     private static SharedMappers SHARED = Mappers.getMapper(SharedMappers.class);
 
-    private static ExpressionMapper expressionMapper = Mappers.getMapper(ExpressionMapper.class);
+    @Mapping(target = "propertyNames", ignore = true)
+    public abstract Patch dtoToPatch(PatchDto dto);
 
-    public Patch dtoToPatch(PatchDto dto) {
-        if (dto != null) {
-            Patch patch = new Patch();
-            dto.getPatches().entrySet().stream().map(this::dtoToProperty).forEach(patch::add);
-            return patch;
-        }
-        return null;
+    public abstract PatchDto patchToDto(Patch patch);
+
+    protected @NonNull Expression.Literal literalValueToDto(final Object value) {
+        Object proxified = valueToDto(value);
+        return new Expression.Literal().setValue(proxified);
     }
 
-    public PatchDto patchToDto(Patch patch) {
-        if (patch == null) return null;
-
-        PatchDto dto = new PatchDto();
-        for (Patch.Property propChange : patch.getPatches()) {
-            String name = propChange.getName();
-            Object value = valueToDto(propChange.getValue());
-            if (value instanceof InfoReference && log.isTraceEnabled()) {
-                log.trace(
-                        "Replaced patch property {} of type {} by {}",
-                        name,
-                        ProxyUtils.referenceTypeOf(propChange.getValue()).orElse(null),
-                        value);
-            }
-            Literal literal = new org.geotools.jackson.databind.filter.dto.Expression.Literal();
-            literal.setValue(value);
-            dto.getPatches().put(name, literal);
-        }
-        return dto;
-    }
-
-    private Patch.Property dtoToProperty(Map.Entry<String, Expression.Literal> entry) {
-        final String name = entry.getKey();
-        final Expression.Literal dto = entry.getValue();
-        org.opengis.filter.expression.Literal literal = expressionMapper.map(dto);
-        Object valueDto = literal.getValue();
-        Object propertyValye = dtoToValue(valueDto);
-        return new Patch.Property(name, propertyValye);
+    protected Object literalDtoToValueObject(Expression.Literal l) {
+        Object value = l == null ? null : l.resolveValue();
+        return dtoToValue(value);
     }
 
     private Object dtoToValue(final Object valueDto) {
@@ -88,17 +71,21 @@ public abstract class PatchMapper {
      * If value is an identified {@link Info} (catalog or config object), returns an {@link
      * InfoReference} instead, to be resolved at the receiving end
      */
-    private Object valueToDto(final Object value) {
-        Object dto = value;
-        if (ProxyUtils.encodeByReference(value)) {
-            dto = SHARED.infoToReference((Info) value);
+    @SuppressWarnings("unchecked")
+    private <V, R> R valueToDto(final V value) {
+        R dto = (R) value;
+
+        if (value instanceof Info) {
+            Info info = (Info) dto;
+            if (ProxyUtils.encodeByReference(info)) {
+                dto = (R) SHARED.infoToReference(info);
+            }
         } else if (value instanceof Collection) {
             Collection<?> c = (Collection<?>) value;
-            dto = copyOf(c, this::valueToDto);
+            dto = (R) copyOf(c, this::valueToDto);
         } else if (value instanceof Map) {
-            @SuppressWarnings("unchecked")
             Map<Object, Object> fromMap = (Map<Object, Object>) value;
-            dto = copyOf(fromMap, this::valueToDto);
+            dto = (R) copyOf(fromMap, this::valueToDto);
         }
         return dto;
     }

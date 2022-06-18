@@ -15,6 +15,7 @@ import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoEvent;
 import org.geoserver.config.SettingsInfo;
+import org.springframework.core.style.ToStringCreator;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("SettingsInfoModified")
@@ -36,8 +37,8 @@ public class SettingsInfoModifyEvent
         this.workspaceId = workspaceId;
     }
 
-    public @Override String toString() {
-        return toStringBuilder().append("workspace", getWorkspaceId()).toString();
+    protected @Override ToStringCreator toStringBuilder() {
+        return super.toStringBuilder().append("workspace", getWorkspaceId());
     }
 
     public static SettingsInfoModifyEvent createLocal(

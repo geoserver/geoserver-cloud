@@ -19,6 +19,7 @@ import org.geoserver.catalog.plugin.PropertyDiff;
 import org.geoserver.catalog.plugin.PropertyDiff.Change;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoEvent;
+import org.springframework.core.style.ToStringCreator;
 
 import java.util.Objects;
 
@@ -43,11 +44,10 @@ public class DefaultDataStoreEvent extends CatalogInfoModifyEvent {
         this.defaultDataStoreId = defaultDataStoreId;
     }
 
-    public @Override String toString() {
-        return toStringBuilder()
+    protected @Override ToStringCreator toStringBuilder() {
+        return super.toStringBuilder()
                 .append("workspace", getWorkspaceId())
-                .append("store", getDefaultDataStoreId())
-                .toString();
+                .append("store", getDefaultDataStoreId());
     }
 
     public static DefaultDataStoreEvent createLocal(@NonNull CatalogPostModifyEvent event) {

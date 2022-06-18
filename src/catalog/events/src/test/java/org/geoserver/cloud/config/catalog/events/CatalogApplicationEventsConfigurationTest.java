@@ -9,6 +9,8 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import lombok.NonNull;
+
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.CatalogTestData;
@@ -213,6 +215,7 @@ public class CatalogApplicationEventsConfigurationTest {
     public @Test void testConfigPrePostModifyEvents_GeoServerInfo() {
         catalog.add(testData.workspaceA);
         catalog.add(testData.workspaceB);
+        geoserver.setGlobal(testData.global);
 
         GeoServerInfo global = geoserver.getGlobal();
 
@@ -228,7 +231,7 @@ public class CatalogApplicationEventsConfigurationTest {
         testModify(
                 global,
                 gs -> {
-                    gs.setAdminUsername("admin");
+                    gs.setAdminUsername("new_name_" + gs.getAdminUsername());
                     gs.setAdminPassword("secret");
                     gs.setCoverageAccess(coverageInfo);
                 },
@@ -253,8 +256,9 @@ public class CatalogApplicationEventsConfigurationTest {
         testModify(
                 geoserver.getGlobal(),
                 g -> {
-                    g.getSettings().setCharset("ISO-8869-1");
-                    g.getSettings().setProxyBaseUrl("http://test.com");
+                    SettingsInfo settings = g.getSettings();
+                    settings.setCharset("ISO-8869-1");
+                    settings.setProxyBaseUrl("http://test.com");
                 },
                 geoserver::save,
                 preEventType,
@@ -363,11 +367,12 @@ public class CatalogApplicationEventsConfigurationTest {
 
     @SuppressWarnings("unchecked")
     private <T extends Info> void testModify(
-            T info,
-            Consumer<T> modifier,
-            Consumer<T> saver,
-            @SuppressWarnings("rawtypes") Class<? extends InfoPreModifyEvent> preEventType,
-            @SuppressWarnings("rawtypes") Class<? extends InfoPostModifyEvent> postEventType) {
+            @NonNull T info,
+            @NonNull Consumer<T> modifier,
+            @NonNull Consumer<T> saver,
+            @NonNull @SuppressWarnings("rawtypes") Class<? extends InfoPreModifyEvent> preEventType,
+            @NonNull @SuppressWarnings("rawtypes")
+                    Class<? extends InfoPostModifyEvent> postEventType) {
         if (null == ModificationProxy.handler(info))
             throw new IllegalArgumentException("Expected a ModificationProxy");
 
@@ -406,6 +411,7 @@ public class CatalogApplicationEventsConfigurationTest {
         InfoPreModifyEvent<?, T> pre = listener.expectOne(preEventType);
         assertEquals(info.getId(), pre.getObjectId());
 
+        assertEquals(expected.getPropertyNames(), pre.getPatch().getPropertyNames());
         assertEquals(expected, pre.getPatch());
 
         InfoPostModifyEvent<?, T> post = listener.expectOne(postEventType);
