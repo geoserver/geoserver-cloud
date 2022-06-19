@@ -87,9 +87,10 @@ public class RepositoryGeoServerFacadeImpl implements RepositoryGeoServerFacade 
     public @Override void save(GeoServerInfo global) {
         ModificationProxy proxy = (ModificationProxy) Proxy.getInvocationHandler(global);
 
-        List<String> propertyNames = proxy.getPropertyNames();
-        List<Object> oldValues = proxy.getOldValues();
-        List<Object> newValues = proxy.getNewValues();
+        PropertyDiff diff = PropertyDiff.valueOf(proxy);
+        List<String> propertyNames = diff.getPropertyNames();
+        List<Object> oldValues = diff.getOldValues();
+        List<Object> newValues = diff.getNewValues();
 
         geoServer.fireGlobalModified(global, propertyNames, oldValues, newValues);
 
@@ -113,9 +114,10 @@ public class RepositoryGeoServerFacadeImpl implements RepositoryGeoServerFacade 
     public @Override void save(SettingsInfo settings) {
         ModificationProxy proxy = (ModificationProxy) Proxy.getInvocationHandler(settings);
 
-        List<String> propertyNames = proxy.getPropertyNames();
-        List<Object> oldValues = proxy.getOldValues();
-        List<Object> newValues = proxy.getNewValues();
+        PropertyDiff diff = PropertyDiff.valueOf(proxy);
+        List<String> propertyNames = diff.getPropertyNames();
+        List<Object> oldValues = diff.getOldValues();
+        List<Object> newValues = diff.getNewValues();
 
         settings = (SettingsInfo) proxy.getProxyObject();
         geoServer.fireSettingsModified(settings, propertyNames, oldValues, newValues);
@@ -143,9 +145,10 @@ public class RepositoryGeoServerFacadeImpl implements RepositoryGeoServerFacade 
     public @Override void save(LoggingInfo logging) {
         ModificationProxy proxy = (ModificationProxy) Proxy.getInvocationHandler(logging);
 
-        List<String> propertyNames = proxy.getPropertyNames();
-        List<Object> oldValues = proxy.getOldValues();
-        List<Object> newValues = proxy.getNewValues();
+        PropertyDiff diff = PropertyDiff.valueOf(proxy);
+        List<String> propertyNames = diff.getPropertyNames();
+        List<Object> oldValues = diff.getOldValues();
+        List<Object> newValues = diff.getNewValues();
 
         geoServer.fireLoggingModified(logging, propertyNames, oldValues, newValues);
 
@@ -165,9 +168,10 @@ public class RepositoryGeoServerFacadeImpl implements RepositoryGeoServerFacade 
     public @Override void save(ServiceInfo service) {
         ModificationProxy proxy = ModificationProxy.handler(service);
 
-        List<String> propertyNames = proxy.getPropertyNames();
-        List<Object> oldValues = proxy.getOldValues();
-        List<Object> newValues = proxy.getNewValues();
+        PropertyDiff diff = PropertyDiff.valueOf(proxy);
+        List<String> propertyNames = diff.getPropertyNames();
+        List<Object> oldValues = diff.getOldValues();
+        List<Object> newValues = diff.getNewValues();
 
         geoServer.fireServiceModified(service, propertyNames, oldValues, newValues);
         Patch patch = PropertyDiff.valueOf(proxy).clean().toPatch();

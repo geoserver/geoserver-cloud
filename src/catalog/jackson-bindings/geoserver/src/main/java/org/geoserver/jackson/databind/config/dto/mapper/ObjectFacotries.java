@@ -5,11 +5,13 @@
 package org.geoserver.jackson.databind.config.dto.mapper;
 
 import org.geoserver.catalog.Info;
+import org.geoserver.config.ContactInfo;
 import org.geoserver.config.CoverageAccessInfo;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.JAIInfo;
 import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.SettingsInfo;
+import org.geoserver.config.impl.ContactInfoImpl;
 import org.geoserver.config.impl.CoverageAccessInfoImpl;
 import org.geoserver.config.impl.GeoServerInfoImpl;
 import org.geoserver.config.impl.JAIEXTInfoImpl;
@@ -61,5 +63,9 @@ public class ObjectFacotries {
 
     public @ObjectFactory org.geoserver.config.JAIEXTInfo jaiExtInfo(JAIEXTInfo source) {
         return new JAIEXTInfoImpl();
+    }
+
+    public @ObjectFactory ContactInfo contactInfo() {
+        return new ContactInfoImpl();
     }
 }

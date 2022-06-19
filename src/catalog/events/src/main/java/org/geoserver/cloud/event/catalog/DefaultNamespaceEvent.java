@@ -14,6 +14,7 @@ import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoEvent;
+import org.springframework.core.style.ToStringCreator;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("DefaultNamespaceSet")
@@ -28,8 +29,8 @@ public class DefaultNamespaceEvent extends CatalogInfoModifyEvent {
         this.newNamespaceId = newNamespaceId;
     }
 
-    public @Override String toString() {
-        return toStringBuilder().append("namespace", getNewNamespaceId()).toString();
+    protected @Override ToStringCreator toStringBuilder() {
+        return super.toStringBuilder().append("namespace", getNewNamespaceId());
     }
 
     public static DefaultNamespaceEvent createLocal(NamespaceInfo defaultNamespace) {

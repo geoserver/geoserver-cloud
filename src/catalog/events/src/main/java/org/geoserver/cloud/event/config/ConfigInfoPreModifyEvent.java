@@ -11,7 +11,6 @@ import lombok.NonNull;
 
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.plugin.Patch;
-import org.geoserver.catalog.plugin.PropertyDiff;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoPreModifyEvent;
 
@@ -30,11 +29,10 @@ public class ConfigInfoPreModifyEvent<SELF, INFO extends Info>
     }
 
     public static @NonNull <I extends Info> ConfigInfoPreModifyEvent<?, I> createLocal(
-            @NonNull Info object, @NonNull PropertyDiff diff) {
+            @NonNull Info object, @NonNull Patch patch) {
 
         final @NonNull String id = resolveId(object);
         final ConfigInfoType type = ConfigInfoType.valueOf(object);
-        final Patch patch = diff.toPatch();
         return new ConfigInfoPreModifyEvent<>(id, type, patch);
     }
 }

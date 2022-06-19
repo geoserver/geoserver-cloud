@@ -13,6 +13,7 @@ import lombok.Setter;
 
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.plugin.Patch;
+import org.springframework.core.style.ToStringCreator;
 
 import java.util.stream.Collectors;
 
@@ -33,11 +34,10 @@ public abstract class InfoModifyEvent<SELF, INFO extends Info> extends InfoEvent
         this.patch = patch;
     }
 
-    public @Override String toString() {
-        return toStringBuilder()
+    protected @Override ToStringCreator toStringBuilder() {
+        return super.toStringBuilder()
                 .append(
                         "changes",
-                        getPatch().getPropertyNames().stream().collect(Collectors.joining(",")))
-                .toString();
+                        getPatch().getPropertyNames().stream().collect(Collectors.joining(",")));
     }
 }

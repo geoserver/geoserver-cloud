@@ -13,6 +13,7 @@ import lombok.NonNull;
 
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.config.GeoServerInfo;
+import org.springframework.core.style.ToStringCreator;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("UpdateSequence")
@@ -35,8 +36,8 @@ public class UpdateSequenceEvent extends GeoServerInfoModifyEvent {
         this.updateSequence = updateSequence;
     }
 
-    public @Override String toString() {
-        return toStringBuilder().append("updateSequence", getUpdateSequence()).toString();
+    protected @Override ToStringCreator toStringBuilder() {
+        return super.toStringBuilder().append("updateSequence", getUpdateSequence());
     }
 
     public static UpdateSequenceEvent createLocal(GeoServerInfo info) {

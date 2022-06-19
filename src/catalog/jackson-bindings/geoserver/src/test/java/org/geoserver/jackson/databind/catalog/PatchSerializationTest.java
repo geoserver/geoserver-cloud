@@ -24,6 +24,8 @@ import org.geoserver.catalog.AttributionInfo;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogBuilder;
 import org.geoserver.catalog.CatalogTestData;
+import org.geoserver.catalog.CoverageStoreInfo;
+import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.DimensionInfo;
 import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.Info;
@@ -34,7 +36,6 @@ import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.faker.CatalogFaker;
-import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.Patch;
@@ -42,6 +43,7 @@ import org.geoserver.config.ContactInfo;
 import org.geoserver.config.CoverageAccessInfo;
 import org.geoserver.config.CoverageAccessInfo.QueueType;
 import org.geoserver.config.GeoServer;
+import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.JAIInfo;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
@@ -77,7 +79,6 @@ import org.opengis.util.InternationalString;
 
 import si.uom.SI;
 
-import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -366,17 +367,66 @@ public class PatchSerializationTest {
         testPatch("gridGeometry", gridGeometry);
     }
 
-    public @Test void testPatchWithModificationProxy() throws Exception {
-        testPatch("workspace", forceProxy(data.workspaceA));
-        testPatch("namespace", forceProxy(data.namespaceA));
-        testPatch("dataStore", forceProxy(data.dataStoreA));
-        testPatch("coverageStore", forceProxy(data.coverageStoreA));
-        testPatch("layer", forceProxy(data.layerFeatureTypeA));
-        testPatch("style", forceProxy(data.style1));
-        testPatch("global", forceProxy(data.global));
-        testPatch("logging", forceProxy(data.logging));
-        testPatch("settings", forceProxy(data.workspaceASettings));
-        testPatch("wmsService", forceProxy(data.wmsService));
+    public @Test void modificationProxy_workspace() throws Exception {
+        testPatch("workspace", forceProxy(data.workspaceA, WorkspaceInfo.class));
+    }
+
+    public @Test void modificationProxy_namespace() throws Exception {
+        testPatch("namespace", forceProxy(data.namespaceA, NamespaceInfo.class));
+    }
+
+    public @Test void modificationProxy_dataStore() throws Exception {
+        testPatch("dataStore", forceProxy(data.dataStoreA, DataStoreInfo.class));
+    }
+
+    public @Test void modificationProxy_coverageStore() throws Exception {
+        testPatch("coverageStore", forceProxy(data.coverageStoreA, CoverageStoreInfo.class));
+    }
+
+    public @Test void modificationProxy_layer() throws Exception {
+        testPatch("layer", forceProxy(data.layerFeatureTypeA, LayerInfo.class));
+    }
+
+    public @Test void modificationProxy_style() throws Exception {
+        testPatch("style", forceProxy(data.style1, StyleInfo.class));
+    }
+
+    public @Test void modificationProxy_geoserverInfo() throws Exception {
+        testPatch("global", forceProxy(data.global, GeoServerInfo.class));
+    }
+
+    public @Test void modificationProxy_wmsInfo() throws Exception {
+        testPatch("wmsService", forceProxy(data.wmsService, WMSInfo.class));
+    }
+
+    public @Test void modificationProxy_settingsInfo() throws Exception {
+        testPatch(
+                "settings",
+                forceProxy(data.faker().settingsInfo(data.workspaceA), SettingsInfo.class));
+    }
+
+    /** Though ContactInfo is a value object, webui will save a ModificationProxy */
+    public @Test void modificationProxy_settingsInfo_with_proxy_contact_info() throws Exception {
+        WorkspaceInfo workspaceProxy = forceProxy(data.workspaceA, WorkspaceInfo.class);
+        SettingsInfo settings = data.faker().settingsInfo(workspaceProxy);
+        ContactInfo contactInfo = data.faker().contactInfo();
+        ContactInfo contactProxy = forceProxy(contactInfo, ContactInfo.class);
+        SettingsInfo settingsProxy = forceProxy(settings, SettingsInfo.class);
+        settingsProxy.setContact(contactProxy);
+
+        final Patch sent = patch("settings", settingsProxy);
+        final SettingsInfo received = testPatchNoEquals(sent).get("settings").orElseThrow().value();
+        assertModificationProxy(workspaceProxy, received.getWorkspace());
+        ContactInfo contact = received.getContact();
+        assertNotAProxy(contact);
+        assertEquals(contactInfo, contact);
+    }
+
+    /** Though ContactInfo is a value object, webui will save a ModificationProxy */
+    public @Test void modificationProxy_contactInfo() throws Exception {
+        ContactInfo contactInfo = data.faker().contactInfo();
+        Patch received = testPatch("contact", forceProxy(contactInfo, ContactInfo.class));
+        assertValueObject(received.get("contact").orElseThrow().getValue(), ContactInfo.class);
     }
 
     public @Test void testPatchWithListProperty() throws Exception {
@@ -599,20 +649,17 @@ public class PatchSerializationTest {
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends Info> T forceProxy(T info) {
-        if (!Proxy.isProxyClass(info.getClass())) {
-            Class<? extends Info> iface = ClassMappings.fromImpl(info.getClass()).getInterface();
-            return (T) ModificationProxy.create(info, iface);
-        }
-        return info;
+    private <T extends Info> T forceProxy(T info, Class<T> iface) {
+        info = ModificationProxy.unwrap(info);
+        return (T) ModificationProxy.create(info, iface);
     }
 
     protected String typeName(Object mp) {
         if (mp == null) return null;
         if (mp instanceof Info) {
             Info info = (Info) mp;
-            if (proxyResolver.isResolvingProxy(info)) return "ResolvingProxy";
-            if (proxyResolver.isModificationProxy(info)) return "ModificationProxy";
+            if (ProxyUtils.isResolvingProxy(info)) return "ResolvingProxy";
+            if (ProxyUtils.isModificationProxy(info)) return "ModificationProxy";
         }
         return mp.getClass().getCanonicalName();
     }
@@ -626,14 +673,14 @@ public class PatchSerializationTest {
     protected void assertNotAProxy(Object value) {
         if (value instanceof Info) {
             Info info = (Info) value;
-            assertThat(proxyResolver.isResolvingProxy(info))
+            assertThat(ProxyUtils.isResolvingProxy(info))
                     .as(
                             () ->
                                     String.format(
                                             "%s should not be a ResolvingProxy",
                                             info.getId(), typeName(info)))
                     .isFalse();
-            assertThat(proxyResolver.isModificationProxy(info))
+            assertThat(ProxyUtils.isModificationProxy(info))
                     .as(
                             () ->
                                     String.format(
@@ -644,7 +691,7 @@ public class PatchSerializationTest {
     }
 
     protected <I extends Info> I assertModificationProxy(I info) {
-        assertThat(proxyResolver.isModificationProxy(info))
+        assertThat(ProxyUtils.isModificationProxy(info))
                 .as(
                         () ->
                                 String.format(
@@ -665,7 +712,7 @@ public class PatchSerializationTest {
     }
 
     protected void assertResolvingProxy(Info info) {
-        assertThat(proxyResolver.isResolvingProxy(info))
+        assertThat(ProxyUtils.isResolvingProxy(info))
                 .as(
                         () ->
                                 String.format(
@@ -681,8 +728,8 @@ public class PatchSerializationTest {
                             String.format(
                                     "expected pure value object of type %s, got %s",
                                     valueType.getCanonicalName(), typeName(valueObject));
-            assertThat(proxyResolver.isResolvingProxy((Info) valueObject)).as(msg).isFalse();
-            assertThat(proxyResolver.isModificationProxy((Info) valueObject)).as(msg).isFalse();
+            assertThat(ProxyUtils.isResolvingProxy((Info) valueObject)).as(msg).isFalse();
+            assertThat(ProxyUtils.isModificationProxy((Info) valueObject)).as(msg).isFalse();
         }
         assertThat(valueObject).isInstanceOf(valueType);
     }

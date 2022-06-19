@@ -13,7 +13,6 @@ import org.geoserver.config.JAIInfo;
 import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
-import org.geoserver.config.impl.ContactInfoImpl;
 import org.geoserver.gwc.wmts.WMTSInfo;
 import org.geoserver.gwc.wmts.WMTSInfoImpl;
 import org.geoserver.jackson.databind.catalog.dto.CatalogInfoDto;
@@ -96,9 +95,9 @@ public interface GeoServerConfigMapper {
 
     @Mapping(target = "tileCache", ignore = true)
     @Mapping(target = "JAI", ignore = true)
-    JAIInfo toInfo(JaiDto dto);
+    JAIInfo jaiInfo(JaiDto dto);
 
-    JaiDto toDto(JAIInfo info);
+    JaiDto jaiInfo(JAIInfo info);
 
     @Mapping(target = "id", ignore = true) // set by factory method
     LoggingInfo toInfo(Logging dto);
@@ -106,14 +105,14 @@ public interface GeoServerConfigMapper {
     Logging toDto(LoggingInfo info);
 
     @Mapping(target = "threadPoolExecutor", ignore = true)
-    CoverageAccessInfo toInfo(CoverageAccess dto);
+    CoverageAccessInfo coverageAccessInfo(CoverageAccess dto);
 
-    CoverageAccess toDto(CoverageAccessInfo info);
+    CoverageAccess coverageAccessInfo(CoverageAccessInfo info);
 
     @Mapping(target = "id", ignore = true) // set by factory method
-    ContactInfoImpl toInfo(Contact dto);
+    ContactInfo contactInfo(Contact dto);
 
-    Contact toDto(ContactInfo info);
+    Contact contactInfo(ContactInfo info);
 
     default ServiceInfo toInfo(Service dto) {
         if (dto == null) return null;

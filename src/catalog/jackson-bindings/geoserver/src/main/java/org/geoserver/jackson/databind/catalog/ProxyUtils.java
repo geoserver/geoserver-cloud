@@ -185,11 +185,11 @@ public class ProxyUtils {
         return info;
     }
 
-    public <T extends Info> boolean isResolvingProxy(final T info) {
+    public static <T extends Info> boolean isResolvingProxy(final T info) {
         return null != org.geoserver.catalog.impl.ProxyUtils.handler(info, ResolvingProxy.class);
     }
 
-    public <T extends Info> boolean isModificationProxy(final T info) {
+    public static <T extends Info> boolean isModificationProxy(final T info) {
         return null != org.geoserver.catalog.impl.ProxyUtils.handler(info, ModificationProxy.class);
     }
 

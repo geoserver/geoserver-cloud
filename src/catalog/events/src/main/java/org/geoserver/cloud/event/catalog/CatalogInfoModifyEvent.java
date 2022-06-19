@@ -71,7 +71,7 @@ public class CatalogInfoModifyEvent
                         .clean()
                         .toPatch();
 
-        if (info instanceof Catalog) {
+        if (!patch.isEmpty() && info instanceof Catalog) {
             Optional<Property> defaultWorkspace = patch.get("defaultWorkspace");
             if (defaultWorkspace.isPresent()) {
                 WorkspaceInfo ws = (WorkspaceInfo) defaultWorkspace.get().getValue();

@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import lombok.extern.slf4j.Slf4j;
 
 import org.geoserver.catalog.Info;
+import org.geoserver.config.ContactInfo;
 import org.geoserver.config.CoverageAccessInfo;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.JAIInfo;
@@ -20,6 +21,7 @@ import org.geoserver.config.SettingsInfo;
 import org.geoserver.gwc.wmts.WMTSInfo;
 import org.geoserver.jackson.databind.catalog.GeoServerCatalogModule;
 import org.geoserver.jackson.databind.catalog.dto.InfoDto;
+import org.geoserver.jackson.databind.config.dto.Contact;
 import org.geoserver.jackson.databind.config.dto.CoverageAccess;
 import org.geoserver.jackson.databind.config.dto.GeoServer;
 import org.geoserver.jackson.databind.config.dto.JaiDto;
@@ -100,13 +102,24 @@ public class GeoServerConfigModule extends SimpleModule {
         addSerializer(WMTSInfo.class);
         addDeserializer(WMTSInfo.class, Service.WmtsService.class);
 
+        registerValueSerializers();
+    }
+
+    protected void registerValueSerializers() {
         addMapperSerializer(
                 CoverageAccessInfo.class,
-                VALUE_MAPPER::toDto,
+                VALUE_MAPPER::coverageAccessInfo,
                 CoverageAccess.class,
-                VALUE_MAPPER::toInfo);
+                VALUE_MAPPER::coverageAccessInfo);
 
-        addMapperSerializer(JAIInfo.class, VALUE_MAPPER::toDto, JaiDto.class, VALUE_MAPPER::toInfo);
+        addMapperSerializer(
+                JAIInfo.class, VALUE_MAPPER::jaiInfo, JaiDto.class, VALUE_MAPPER::jaiInfo);
+
+        addMapperSerializer(
+                ContactInfo.class,
+                VALUE_MAPPER::contactInfo,
+                Contact.class,
+                VALUE_MAPPER::contactInfo);
     }
 
     private <T, DTO> void addMapperSerializer(

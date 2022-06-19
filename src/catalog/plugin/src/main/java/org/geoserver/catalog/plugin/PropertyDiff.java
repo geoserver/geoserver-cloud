@@ -9,16 +9,21 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
+import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.MetadataMap;
+import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.impl.ModificationProxy;
+import org.geoserver.catalog.impl.ProxyUtils;
+import org.geoserver.config.ServiceInfo;
 import org.geoserver.ows.util.ClassProperties;
 import org.geoserver.ows.util.OwsUtils;
 
 import java.io.Serializable;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -179,11 +184,38 @@ public @Data class PropertyDiff implements Serializable {
                 .forEach(
                         i -> {
                             String prop = propertyNames.get(i);
-                            Object oldV = oldValues.get(i);
-                            Object newV = newValues.get(i);
+                            Object oldV = hanldeProxy(oldValues.get(i));
+                            Object newV = hanldeProxy(newValues.get(i));
                             builder.with(prop, oldV, newV);
                         });
         return builder.build();
+    }
+
+    private static Object hanldeProxy(Object value) {
+        if (value == null) return null;
+        ModificationProxy proxy = ProxyUtils.handler(value, ModificationProxy.class);
+        if (null != proxy) {
+            Class<? extends Object> type = proxy.getProxyObject().getClass();
+            Class<Info> infoInterface = findInfoIterface(type);
+            return ModificationProxy.rewrap((Info) value, i -> i, infoInterface);
+        }
+        return value;
+    }
+
+    private static Set<Class<? extends Info>> IGNORE =
+            Set.of(Info.class, Catalog.class, ServiceInfo.class, PublishedInfo.class);
+
+    @SuppressWarnings("unchecked")
+    private static <T extends Info> Class<T> findInfoIterface(Class<?> of) {
+        return (Class<T>)
+                Arrays.stream(of.getInterfaces())
+                        .filter(c -> !IGNORE.contains(c))
+                        .findFirst()
+                        .orElseThrow(
+                                () ->
+                                        new IllegalArgumentException(
+                                                "Unable to find most concrete Info sub-interface of "
+                                                        + of.getCanonicalName()));
     }
 
     public static PropertyDiff empty() {

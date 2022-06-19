@@ -15,6 +15,7 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoEvent;
+import org.springframework.core.style.ToStringCreator;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("DefaultWorkspaceSet")
@@ -32,8 +33,8 @@ public class DefaultWorkspaceEvent extends CatalogInfoModifyEvent {
         this.newWorkspaceId = newWorkspaceId;
     }
 
-    public @Override String toString() {
-        return toStringBuilder().append("workspace", getNewWorkspaceId()).toString();
+    protected @Override ToStringCreator toStringBuilder() {
+        return super.toStringBuilder().append("workspace", getNewWorkspaceId());
     }
 
     public static DefaultWorkspaceEvent createLocal(WorkspaceInfo defaultWorkspace) {
