@@ -10,7 +10,7 @@
     <module>src</module>
   </modules>
   <properties>
-    <revision>1.0-RC22</revision>
+    <revision>1.0-SNAPSHOT</revision>
   </properties>
   <dependencyManagement>
     <dependencies>
