@@ -1,8 +1,8 @@
 spring:
   cloud.config.enabled: false
   cloud.config.discovery.enabled: false
+  cloud.discovery.enabled: false
 eureka.client.enabled: false
-
 geoserver:
   security.enabled: true
   backend:
@@ -12,9 +12,11 @@ geoserver:
 
 logging:
   level:
-    root: info
-    org.geoserver.platform: info
+    root: warn
+    org.geotools: warn
+    org.geoserver: warn
     org.geoserver.cloud: info
-    org.geoserver.cloud.config.factory: debug
+    org.geoserver.cloud.config.factory: info
+    org.geowebcache.config.XMLConfiguration: off
     org.springframework.test: info
     org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader: off

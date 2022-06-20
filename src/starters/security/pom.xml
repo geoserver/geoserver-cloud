@@ -12,7 +12,7 @@
   <dependencies>
     <dependency>
       <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-spring-boot-starter</artifactId>
+      <artifactId>gs-cloud-starter-catalog-backend</artifactId>
     </dependency>
     <dependency>
       <groupId>org.geoserver.extension</groupId>

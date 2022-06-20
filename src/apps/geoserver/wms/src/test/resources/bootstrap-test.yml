@@ -5,7 +5,7 @@ spring:
     allow-circular-references: true # false by default since spring-boot 2.6.0, breaks geoserver initialization
   cloud.config.enabled: false
   cloud.config.discovery.enabled: false
-  cloud.bus.enabled: false
+  cloud.discovery.enabled: false
 eureka.client.enabled: false
 
 gwc:
@@ -32,6 +32,6 @@ logging:
     root: WARN
     org.geoserver.platform: error
     org.geoserver.cloud: info
-    org.geoserver.cloud.config.factory: debug
+    org.geoserver.cloud.config.factory: info
     org.springframework.test: error
 

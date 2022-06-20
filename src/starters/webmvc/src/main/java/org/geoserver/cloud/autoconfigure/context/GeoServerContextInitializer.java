@@ -30,7 +30,6 @@ public class GeoServerContextInitializer
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
         System.setProperty("RELINQUISH_LOG4J_CONTROL", "true");
-        System.setProperty("org.geotools.referencing.forceXY", "true");
 
         ServletContext source = mockServletContext();
         ServletContextEvent sce = new ServletContextEvent(source);

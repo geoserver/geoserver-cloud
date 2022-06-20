@@ -1,0 +1,25 @@
+info:
+  instance-id: test-instance-id
+spring:
+  main:
+    banner-mode: off
+    allow-bean-definition-overriding: true
+    # false by default since spring-boot 2.6.0, breaks geoserver initialization
+    allow-circular-references: true
+  cloud.bus.enabled: false
+  autoconfigure:
+    exclude:
+    - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+
+
+eureka.client.enabled: false
+
+logging:
+  level:
+    root: WARN
+    #org.geoserver.platform: ERROR
+    org.geoserver: warn
+    org.geoserver.cloud: warn
+    org.geoserver.cloud.config.factory: warn
+    org.geoserver.jdbcconfig: warn
+    org.geoserver.jdbcstore: warn

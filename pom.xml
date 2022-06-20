@@ -31,6 +31,11 @@
       </dependency>
       <dependency>
         <groupId>org.geoserver.cloud</groupId>
+        <artifactId>gs-cloud-starter-catalog-backend</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud</groupId>
         <artifactId>gs-cloud-starter-security</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -100,8 +105,23 @@
         <version>${revision}</version>
       </dependency>
       <dependency>
-        <groupId>org.geoserver.cloud</groupId>
-        <artifactId>gs-cloud-starter-catalog-backend</artifactId>
+        <groupId>org.geoserver.cloud.catalog.backend</groupId>
+        <artifactId>gs-cloud-catalog-backend-common</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud.catalog.backend</groupId>
+        <artifactId>gs-cloud-catalog-backend-datadir</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud.catalog.backend</groupId>
+        <artifactId>gs-cloud-catalog-backend-jdbcconfig</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud.catalog.backend</groupId>
+        <artifactId>gs-cloud-catalog-backend-catalog-service</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

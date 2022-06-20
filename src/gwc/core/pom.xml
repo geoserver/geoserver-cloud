@@ -11,10 +11,6 @@
   <dependencies>
     <dependency>
       <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-spring-boot-starter</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.geoserver.cloud</groupId>
       <artifactId>gs-cloud-starter-catalog-backend</artifactId>
       <exclusions>
         <exclusion>
@@ -34,6 +30,10 @@
     <dependency>
       <groupId>org.geoserver</groupId>
       <artifactId>gs-wms</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.github.ben-manes.caffeine</groupId>
+      <artifactId>caffeine</artifactId>
     </dependency>
     <dependency>
       <!-- if available, the wicket ui contributions autoconfiguration will engage -->

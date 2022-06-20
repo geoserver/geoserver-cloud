@@ -4,7 +4,7 @@
  */
 package org.geoserver.cloud.config.main;
 
-import org.geoserver.cloud.config.catalog.GeoServerBackendConfigurer;
+import org.geoserver.cloud.config.catalog.backend.core.GeoServerBackendConfigurer;
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;

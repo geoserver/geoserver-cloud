@@ -1,0 +1,4 @@
+# Auto Configure
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+org.geoserver.cloud.autoconfigure.catalog.backend.datadir.DataDirectoryAutoConfiguration,\
+org.geoserver.cloud.autoconfigure.catalog.backend.datadir.RemoteEventDataDirectoryAutoConfiguration

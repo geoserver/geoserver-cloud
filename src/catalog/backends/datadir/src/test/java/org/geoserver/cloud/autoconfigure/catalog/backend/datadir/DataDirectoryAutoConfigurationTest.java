@@ -1,0 +1,107 @@
+/*
+ * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
+ * GPL 2.0 license, available at the root application directory.
+ */
+package org.geoserver.cloud.autoconfigure.catalog.backend.datadir;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+
+import org.geoserver.catalog.Catalog;
+import org.geoserver.catalog.CatalogFacade;
+import org.geoserver.cloud.config.catalog.backend.datadirectory.DataDirectoryBackendConfiguration;
+import org.geoserver.cloud.config.catalog.backend.datadirectory.DataDirectoryProperties;
+import org.geoserver.cloud.config.catalog.backend.datadirectory.NoServletContextDataDirectoryResourceStore;
+import org.geoserver.config.DefaultGeoServerLoader;
+import org.geoserver.config.GeoServer;
+import org.geoserver.config.GeoServerFacade;
+import org.geoserver.config.GeoServerLoader;
+import org.geoserver.platform.GeoServerResourceLoader;
+import org.geoserver.platform.resource.ResourceStore;
+import org.junit.Assume;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit4.SpringRunner;
+
+/**
+ * Test {@link DataDirectoryBackendConfiguration} through {@link DataDirectoryAutoConfiguration}
+ * when {@code geoserver.backend.data-directory.enabled=true}
+ */
+@SpringBootTest(
+        classes = DataDirectoryTestConfiguration.class, //
+        properties = {
+            "geoserver.backend.dataDirectory.enabled=true",
+            "geoserver.backend.dataDirectory.location=/tmp/data_dir_autoconfiguration_test"
+        })
+@RunWith(SpringRunner.class)
+@ActiveProfiles("test")
+public class DataDirectoryAutoConfigurationTest {
+
+    private @Autowired DataDirectoryProperties configProperties;
+    protected @Autowired ApplicationContext context;
+
+    protected @Autowired @Qualifier("catalog") Catalog catalog;
+    protected @Autowired @Qualifier("rawCatalog") Catalog rawCatalog;
+    protected @Autowired @Qualifier("catalogFacade") CatalogFacade rawCatalogFacade;
+    protected @Autowired @Qualifier("geoServer") GeoServer geoServer;
+    protected @Autowired @Qualifier("resourceLoader") GeoServerResourceLoader resourceLoader;
+    protected @Autowired(required = false) @Qualifier("geoserverFacade") GeoServerFacade
+            geoserverFacade;
+    protected @Autowired @Qualifier("geoServerLoaderImpl") GeoServerLoader geoserverLoader;
+    protected @Autowired @Qualifier("resourceStoreImpl") ResourceStore resourceStoreImpl;
+
+    public @Test void testProperties() {
+        assertNotNull(configProperties);
+        assertNotNull(configProperties.getLocation());
+        assertEquals(
+                "/tmp/data_dir_autoconfiguration_test", configProperties.getLocation().toString());
+    }
+
+    public @Test void testCatalog() {
+        Assume.assumeTrue(rawCatalog instanceof org.geoserver.catalog.plugin.CatalogPlugin);
+        assertThat(rawCatalog, instanceOf(org.geoserver.catalog.plugin.CatalogPlugin.class));
+    }
+
+    public @Test void testCatalogFacadeIsRawCatalogFacade() {
+        Assume.assumeTrue(rawCatalog instanceof org.geoserver.catalog.plugin.CatalogPlugin);
+        assertSame(
+                rawCatalogFacade,
+                ((org.geoserver.catalog.plugin.CatalogPlugin) rawCatalog).getRawFacade());
+    }
+
+    public @Test void testCatalogFacade() {
+        Assume.assumeTrue(rawCatalog instanceof org.geoserver.catalog.plugin.CatalogPlugin);
+        assertThat(
+                rawCatalogFacade,
+                instanceOf(org.geoserver.catalog.plugin.DefaultMemoryCatalogFacade.class));
+        assertSame(
+                rawCatalogFacade,
+                ((org.geoserver.catalog.plugin.CatalogPlugin) rawCatalog).getRawFacade());
+    }
+
+    public @Test void testResourceLoader() {
+        assertThat(resourceLoader, instanceOf(GeoServerResourceLoader.class));
+    }
+
+    public @Test void testGeoserverFacade() {
+        assertThat(
+                geoserverFacade,
+                instanceOf(org.geoserver.config.plugin.RepositoryGeoServerFacade.class));
+    }
+
+    public @Test void testGeoserverLoader() {
+        assertThat(geoserverLoader, instanceOf(DefaultGeoServerLoader.class));
+    }
+
+    public @Test void testResourceStoreImpl() {
+        assertThat(resourceStoreImpl, instanceOf(NoServletContextDataDirectoryResourceStore.class));
+    }
+}

@@ -6,7 +6,7 @@ package org.geoserver.cloud.autoconfigure.gwc.integration;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.geoserver.cloud.autoconfigure.bus.ConditionalOnGeoServerRemoteEventsEnabled;
+import org.geoserver.cloud.autoconfigure.event.bus.ConditionalOnGeoServerRemoteEventsEnabled;
 import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnGeoWebCacheEnabled;
 import org.geoserver.cloud.gwc.config.bus.GeoWebCacheRemoteEventsConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;

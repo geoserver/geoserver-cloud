@@ -1,0 +1,1 @@
+org.geoserver.cloud.autoconfigure.geotools.SpringEnvironmentAwareGeoToolsHttpClientFactory
