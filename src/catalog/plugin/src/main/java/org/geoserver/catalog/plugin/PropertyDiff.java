@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.Info;
@@ -19,6 +20,9 @@ import org.geoserver.catalog.impl.ProxyUtils;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.ows.util.ClassProperties;
 import org.geoserver.ows.util.OwsUtils;
+import org.geotools.referencing.CRS;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.util.InternationalString;
 
 import java.io.Serializable;
 import java.lang.reflect.Proxy;
@@ -43,6 +47,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+@Slf4j
 public @Data class PropertyDiff implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -123,38 +128,72 @@ public @Data class PropertyDiff implements Serializable {
 
         public boolean isNoChange() {
             if (Objects.equals(oldValue, newValue)) return true;
-            if (isCollectionProperty())
-                return isNullCollectionOp((Collection<?>) newValue, (Collection<?>) oldValue);
-            if (isMapProperty()) return isNullMapOp((Map<?, ?>) newValue, (Map<?, ?>) oldValue);
+
+            if (isCollectionProperty()) return bothAreNullOrEmpty();
+
+            if (isA(InternationalString.class)) return isNullInternationalStringOp();
+
+            if (isA(CoordinateReferenceSystem.class)) return isSameCrs();
+
             return false;
         }
 
-        private boolean isNullMapOp(Map<?, ?> m1, Map<?, ?> m2) {
-            return m1 == null
-                    ? (m2 == null || m2.isEmpty())
-                    : (m2 == null ? m1 == null || m1.isEmpty() : false);
-        }
-
-        private boolean isNullCollectionOp(Collection<?> c1, Collection<?> c2) {
-            if (c1 == null) return c2 == null ? true : c2.isEmpty();
-            if (c2 == null) return c1 == null ? true : c1.isEmpty();
+        protected boolean isSameCrs() {
+            if (neitherIsNull()) {
+                try {
+                    final boolean fullScan = false; // don't bother
+                    String id1 =
+                            CRS.lookupIdentifier((CoordinateReferenceSystem) oldValue, fullScan);
+                    String id2 =
+                            CRS.lookupIdentifier((CoordinateReferenceSystem) newValue, fullScan);
+                    boolean sameId = Objects.equals(id1, id2);
+                    return sameId && CRS.equalsIgnoreMetadata(oldValue, newValue);
+                } catch (Exception e) {
+                    log.trace("Error comparing PropertyDif CRS values", e);
+                }
+            }
             return false;
         }
 
-        public boolean isCollectionProperty() {
-            return isCollection(newValue) || isCollection(oldValue);
+        protected boolean isNullInternationalStringOp() {
+            return isNullOrEmpty(toStringOrNull(oldValue))
+                    && isNullOrEmpty(toStringOrNull(newValue));
         }
 
-        public boolean isMapProperty() {
-            return isMap(newValue) || isMap(oldValue);
+        private String toStringOrNull(Object o) {
+            return o == null ? null : o.toString();
         }
 
-        private boolean isCollection(Object o) {
-            return o instanceof Collection;
+        private boolean isNullOrEmpty(Object o) {
+            if (o == null) return true;
+            if (o instanceof String) return ((String) o).isEmpty();
+            if (o instanceof Collection) return ((Collection<?>) o).isEmpty();
+            if (o instanceof Map) return ((Map<?, ?>) o).isEmpty();
+            return false;
         }
 
-        private boolean isMap(Object o) {
-            return o instanceof Map;
+        private boolean neitherIsNull() {
+            return oldValue != null && newValue != null;
+        }
+
+        private boolean bothAreNullOrEmpty() {
+            return isNullOrEmpty(oldValue) && isNullOrEmpty(newValue);
+        }
+
+        private boolean isCollectionProperty() {
+            return isA(Collection.class, oldValue, newValue) || isA(Map.class, oldValue, newValue);
+        }
+
+        private boolean isA(@NonNull Class<?> type) {
+            return isA(type, oldValue, newValue);
+        }
+
+        private boolean isA(@NonNull Class<?> type, Object value1, Object value2) {
+            return isA(type, value1) || isA(type, value2);
+        }
+
+        private boolean isA(@NonNull Class<?> type, Object value) {
+            return type.isInstance(value);
         }
 
         public static Change valueOf(String propertyName, Object oldValue, Object newValue) {

@@ -18,6 +18,8 @@ import org.geoserver.catalog.MetadataMap;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.WorkspaceInfoImpl;
 import org.geoserver.catalog.plugin.PropertyDiff.Change;
+import org.geotools.util.GrowableInternationalString;
+import org.geotools.util.SimpleInternationalString;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -80,6 +82,29 @@ public class PropertyDiffTest {
                         new HashMap<>() //
                         );
         assertEquals(7, diff.size());
+        PropertyDiff clean = diff.clean();
+        assertTrue(clean.isEmpty());
+        assertEquals(0, clean.size());
+        assertEquals(0, clean.getChanges().size());
+    }
+
+    public @Test void cleanToEmpty_InternationalString() {
+        PropertyDiff diff =
+                support.createTestDiff( //
+                        "leftListNull",
+                        null,
+                        new SimpleInternationalString(""), //
+                        "rightListNull",
+                        new SimpleInternationalString(""), //
+                        null, //
+                        "bothEmpty",
+                        new SimpleInternationalString(""), //
+                        new GrowableInternationalString(), //
+                        "bothEmpty2",
+                        new GrowableInternationalString(), //
+                        new SimpleInternationalString("") //
+                        );
+
         PropertyDiff clean = diff.clean();
         assertTrue(clean.isEmpty());
         assertEquals(0, clean.size());
