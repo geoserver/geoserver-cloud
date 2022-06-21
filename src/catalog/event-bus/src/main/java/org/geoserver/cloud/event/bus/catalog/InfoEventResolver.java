@@ -14,9 +14,9 @@ import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.resolving.CatalogPropertyResolver;
 import org.geoserver.catalog.plugin.resolving.CollectionPropertiesInitializer;
 import org.geoserver.catalog.plugin.resolving.ResolvingProxyResolver;
-import org.geoserver.cloud.event.info.InfoAddEvent;
+import org.geoserver.cloud.event.info.InfoAdded;
 import org.geoserver.cloud.event.info.InfoEvent;
-import org.geoserver.cloud.event.info.InfoModifyEvent;
+import org.geoserver.cloud.event.info.InfoModified;
 import org.geoserver.config.GeoServer;
 import org.geoserver.jackson.databind.catalog.ProxyUtils;
 
@@ -57,12 +57,12 @@ public class InfoEventResolver {
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     public InfoEvent<?, ?> resolve(InfoEvent event) {
-        if (event instanceof InfoAddEvent) {
-            InfoAddEvent addEvent = (InfoAddEvent) event;
+        if (event instanceof InfoAdded) {
+            InfoAdded addEvent = (InfoAdded) event;
             Info object = addEvent.getObject();
             addEvent.setObject(resolve(object));
-        } else if (event instanceof InfoModifyEvent) {
-            InfoModifyEvent modifyEvent = (InfoModifyEvent) event;
+        } else if (event instanceof InfoModified) {
+            InfoModified modifyEvent = (InfoModified) event;
             modifyEvent.setPatch(resolve(modifyEvent.getPatch()));
         }
         return event;

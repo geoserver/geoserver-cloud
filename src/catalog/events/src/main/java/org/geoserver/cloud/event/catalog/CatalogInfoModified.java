@@ -19,29 +19,31 @@ import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.Patch.Property;
 import org.geoserver.catalog.plugin.PropertyDiff;
 import org.geoserver.cloud.event.info.ConfigInfoType;
-import org.geoserver.cloud.event.info.InfoPostModifyEvent;
+import org.geoserver.cloud.event.info.InfoModified;
 
 import java.util.Optional;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("CatalogInfoModified")
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = DefaultNamespaceEvent.class, name = "DefaultNamespaceSet"),
-    @JsonSubTypes.Type(value = DefaultWorkspaceEvent.class, name = "DefaultWorkspaceSet"),
-    @JsonSubTypes.Type(value = DefaultDataStoreEvent.class, name = "DefaultDataStoreSet"),
+    @JsonSubTypes.Type(value = DefaultNamespaceSet.class),
+    @JsonSubTypes.Type(value = DefaultWorkspaceSet.class),
+    @JsonSubTypes.Type(value = DefaultDataStoreSet.class),
 })
-public class CatalogInfoModifyEvent
-        extends InfoPostModifyEvent<CatalogInfoModifyEvent, CatalogInfo> {
+public class CatalogInfoModified extends InfoModified<CatalogInfoModified, CatalogInfo> {
 
-    protected CatalogInfoModifyEvent() {}
+    protected CatalogInfoModified() {}
 
-    protected CatalogInfoModifyEvent(
-            @NonNull String objectId, @NonNull ConfigInfoType objectType, @NonNull Patch patch) {
-        super(objectId, objectType, patch);
+    protected CatalogInfoModified(
+            @NonNull Long updateSequence,
+            @NonNull String objectId,
+            @NonNull ConfigInfoType objectType,
+            @NonNull Patch patch) {
+        super(updateSequence, objectId, objectType, patch);
     }
 
-    public static CatalogInfoModifyEvent createLocal(
-            @NonNull CatalogInfo info, @NonNull Patch patch) {
+    public static CatalogInfoModified createLocal(
+            @NonNull Long updateSequence, @NonNull CatalogInfo info, @NonNull Patch patch) {
 
         if (info instanceof Catalog) {
             if (patch.get("defaultWorkspace").isPresent()) {
@@ -57,10 +59,11 @@ public class CatalogInfoModifyEvent
                             + patch);
         }
 
-        return new CatalogInfoModifyEvent(resolveId(info), typeOf(info), patch);
+        return new CatalogInfoModified(updateSequence, resolveId(info), typeOf(info), patch);
     }
 
-    public static CatalogInfoModifyEvent createLocal(@NonNull CatalogPostModifyEvent event) {
+    public static CatalogInfoModified createLocal(
+            @NonNull Long updateSequence, @NonNull CatalogPostModifyEvent event) {
 
         final CatalogInfo info = event.getSource();
         final Patch patch =
@@ -75,21 +78,21 @@ public class CatalogInfoModifyEvent
             Optional<Property> defaultWorkspace = patch.get("defaultWorkspace");
             if (defaultWorkspace.isPresent()) {
                 WorkspaceInfo ws = (WorkspaceInfo) defaultWorkspace.get().getValue();
-                return DefaultWorkspaceEvent.createLocal(ws);
+                return DefaultWorkspaceSet.createLocal(updateSequence, ws);
             }
             Optional<Property> defaultNamespace = patch.get("defaultNamespace");
             if (defaultNamespace.isPresent()) {
                 NamespaceInfo ns = (NamespaceInfo) defaultNamespace.get().getValue();
-                return DefaultNamespaceEvent.createLocal(ns);
+                return DefaultNamespaceSet.createLocal(updateSequence, ns);
             }
             if (patch.get("defaultDataStore").isPresent())
-                return DefaultDataStoreEvent.createLocal(event);
+                return DefaultDataStoreSet.createLocal(updateSequence, event);
 
             throw new IllegalArgumentException(
                     "Catalog change events only support defaultWorkspace, defaultNamespace, and defaultDataStore properties. Diff: "
                             + patch);
         }
 
-        return new CatalogInfoModifyEvent(resolveId(info), typeOf(info), patch);
+        return new CatalogInfoModified(updateSequence, resolveId(info), typeOf(info), patch);
     }
 }

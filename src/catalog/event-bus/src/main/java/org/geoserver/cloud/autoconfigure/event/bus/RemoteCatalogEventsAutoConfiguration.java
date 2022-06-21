@@ -86,6 +86,11 @@ public class RemoteCatalogEventsAutoConfiguration {
                 remoteEventPropertiesResolver, serviceMatcher, destinationFactory);
     }
 
+    @Bean
+    LocalInfoEventOriginSetter remoteEventOriginSetter(ServiceMatcher serviceMatcher) {
+        return new LocalInfoEventOriginSetter(serviceMatcher::getBusId);
+    }
+
     public @Bean RemoteCatalogEventBridge remoteEventBroadcaster(
             ApplicationEventPublisher eventPublisher,
             RemoteCatalogEventMapper eventMapper,

@@ -19,9 +19,11 @@ import org.geoserver.cloud.config.catalog.backend.jdbcconfig.CloudJdbcGeoServerL
 import org.geoserver.cloud.config.catalog.backend.jdbcconfig.CloudJdbcGeoserverFacade;
 import org.geoserver.cloud.config.catalog.backend.jdbcconfig.JDBCConfigBackendConfigurer;
 import org.geoserver.cloud.config.catalog.backend.jdbcconfig.JdbcConfigConfigurationProperties;
+import org.geoserver.cloud.config.catalog.backend.jdbcconfig.JdbcConfigUpdateSequence;
 import org.geoserver.jdbcconfig.catalog.JDBCCatalogFacade;
 import org.geoserver.jdbcstore.JDBCResourceStore;
 import org.geoserver.platform.GeoServerResourceLoader;
+import org.geoserver.platform.config.UpdateSequence;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,5 +86,10 @@ public class JDBCConfigAutoConfigurationTest extends JDBCConfigTest {
         assertEquals(ws, readback);
         catalog.remove(ws);
         assertNull(catalog.getWorkspaceByName("test-ws"));
+    }
+
+    public @Test void testUpdateSequence() {
+        UpdateSequence updateSequence = context.getBean(UpdateSequence.class);
+        assertThat(updateSequence, instanceOf(JdbcConfigUpdateSequence.class));
     }
 }

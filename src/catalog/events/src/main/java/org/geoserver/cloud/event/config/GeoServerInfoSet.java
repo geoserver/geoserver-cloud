@@ -7,24 +7,26 @@ package org.geoserver.cloud.event.config;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
+import lombok.NonNull;
+
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerInfo;
 
 /** Event sent when {@link GeoServer#setGlobal(GeoServerInfo)} is called */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("GeoServerInfoSet")
-public class GeoServerInfoSetEvent extends ConfigInfoAddEvent<GeoServerInfoSetEvent, GeoServerInfo>
+public class GeoServerInfoSet extends ConfigInfoAdded<GeoServerInfoSet, GeoServerInfo>
         implements ConfigInfoEvent {
 
-    protected GeoServerInfoSetEvent() {
+    protected GeoServerInfoSet() {
         // default constructor, needed for deserialization
     }
 
-    protected GeoServerInfoSetEvent(GeoServerInfo object) {
-        super(object);
+    protected GeoServerInfoSet(@NonNull Long updateSequence, GeoServerInfo object) {
+        super(updateSequence, object);
     }
 
-    public static GeoServerInfoSetEvent createLocal(GeoServerInfo value) {
-        return new GeoServerInfoSetEvent(value);
+    public static GeoServerInfoSet createLocal(@NonNull Long updateSequence, GeoServerInfo value) {
+        return new GeoServerInfoSet(updateSequence, value);
     }
 }

@@ -36,7 +36,11 @@ public class RemoteCatalogEventMapper {
         String origin = originService();
         Destination destination = destinationService();
         Object source = new Object(); // anyLocalCatalogOrConfigEvent.getSource();
-        return new RemoteInfoEvent(source, anyLocalCatalogOrConfigEvent, origin, destination);
+        RemoteInfoEvent remote =
+                new RemoteInfoEvent(source, anyLocalCatalogOrConfigEvent, origin, destination);
+        anyLocalCatalogOrConfigEvent.setOrigin(origin);
+        anyLocalCatalogOrConfigEvent.setId(remote.getId());
+        return remote;
     }
 
     public Optional<RemoteInfoEvent> ifRemote(@NonNull RemoteInfoEvent busEvent) {
@@ -49,6 +53,7 @@ public class RemoteCatalogEventMapper {
     public InfoEvent<?, ?> toLocalRemote(@NonNull RemoteInfoEvent incoming) {
         InfoEvent<?, ?> event = incoming.getEvent();
         event.setRemote(true);
+        event.setOrigin(incoming.getOriginService());
         event = remoteEventsPropertyResolver.resolve(event);
         return event;
     }

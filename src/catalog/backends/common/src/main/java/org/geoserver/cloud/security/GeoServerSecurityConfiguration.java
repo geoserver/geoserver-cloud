@@ -8,15 +8,21 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.geoserver.cloud.autoconfigure.security.ConditionalOnGeoServerSecurityEnabled;
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
+import org.geoserver.cloud.event.security.SecurityConfigChanged;
 import org.geoserver.config.GeoServerDataDirectory;
+import org.geoserver.platform.config.UpdateSequence;
 import org.geoserver.security.GeoServerSecurityManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.ImportResource;
+
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import javax.annotation.PostConstruct;
 
@@ -65,8 +71,15 @@ public class GeoServerSecurityConfiguration {
      */
     @Bean(name = {"authenticationManager", "geoServerSecurityManager"})
     @DependsOn({"extensions"})
-    public CloudGeoServerSecurityManager cloudAuthenticationManager(GeoServerDataDirectory dataDir)
-            throws Exception {
-        return new CloudGeoServerSecurityManager(dataDir);
+    public CloudGeoServerSecurityManager cloudAuthenticationManager( //
+            GeoServerDataDirectory dataDir, //
+            ApplicationEventPublisher localContextPublisher, //
+            UpdateSequence updateSequence //
+            ) throws Exception {
+
+        Consumer<SecurityConfigChanged> publisher = localContextPublisher::publishEvent;
+        Supplier<Long> updateSequenceIncrementor = updateSequence::incrementAndGet;
+
+        return new CloudGeoServerSecurityManager(dataDir, publisher, updateSequenceIncrementor);
     }
 }

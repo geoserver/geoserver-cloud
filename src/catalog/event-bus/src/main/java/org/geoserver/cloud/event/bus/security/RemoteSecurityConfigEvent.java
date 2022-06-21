@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 
-import org.geoserver.cloud.event.security.SecurityConfigEvent;
+import org.geoserver.cloud.event.security.SecurityConfigChanged;
 import org.springframework.cloud.bus.event.Destination;
 import org.springframework.cloud.bus.event.RemoteApplicationEvent;
 
@@ -18,7 +18,7 @@ public class RemoteSecurityConfigEvent extends RemoteApplicationEvent {
 
     private static final long serialVersionUID = 1L;
 
-    private @Getter @NonNull SecurityConfigEvent event;
+    private @Getter @NonNull SecurityConfigChanged event;
 
     /** Deserialization-time constructor, {@link #getSource()} will be {@code null} */
     protected RemoteSecurityConfigEvent() {
@@ -27,7 +27,7 @@ public class RemoteSecurityConfigEvent extends RemoteApplicationEvent {
 
     /** Publish-time constructor, {@link #getSource()} won't be {@code null} */
     public RemoteSecurityConfigEvent(
-            @NonNull SecurityConfigEvent orig, @NonNull Object source, @NonNull String origin) {
+            @NonNull SecurityConfigChanged orig, @NonNull Object source, @NonNull String origin) {
 
         super(source, origin, ALL);
         this.event = orig;

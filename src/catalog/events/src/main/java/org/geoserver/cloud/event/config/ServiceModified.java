@@ -19,22 +19,24 @@ import org.geoserver.config.ServiceInfo;
 import org.springframework.core.style.ToStringCreator;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
-@JsonTypeName("ServiceInfoModified")
+@JsonTypeName("ServiceModified")
 @EqualsAndHashCode(callSuper = true)
-public class ServiceInfoModifyEvent
-        extends ConfigInfoModifyEvent<ServiceInfoModifyEvent, LoggingInfo>
+public class ServiceModified extends ConfigInfoModified<ServiceModified, LoggingInfo>
         implements ConfigInfoEvent {
 
     private @Getter String workspaceId;
 
-    protected ServiceInfoModifyEvent() {
+    protected ServiceModified() {
         // default constructor, needed for deserialization
     }
 
-    protected ServiceInfoModifyEvent(
-            @NonNull String objectId, @NonNull Patch patch, String workspaceId) {
+    protected ServiceModified(
+            @NonNull Long updateSequence,
+            @NonNull String objectId,
+            @NonNull Patch patch,
+            String workspaceId) {
 
-        super(objectId, ConfigInfoType.ServiceInfo, patch);
+        super(updateSequence, objectId, ConfigInfoType.ServiceInfo, patch);
         this.workspaceId = workspaceId;
     }
 
@@ -42,11 +44,11 @@ public class ServiceInfoModifyEvent
         return super.toStringBuilder().append("workspace", getWorkspaceId());
     }
 
-    public static ServiceInfoModifyEvent createLocal(
-            @NonNull ServiceInfo object, @NonNull Patch patch) {
+    public static ServiceModified createLocal(
+            @NonNull Long updateSequence, @NonNull ServiceInfo object, @NonNull Patch patch) {
 
         final @NonNull String serviceId = InfoEvent.resolveId(object);
         final String workspaceId = InfoEvent.resolveId(object.getWorkspace());
-        return new ServiceInfoModifyEvent(serviceId, patch, workspaceId);
+        return new ServiceModified(updateSequence, serviceId, patch, workspaceId);
     }
 }

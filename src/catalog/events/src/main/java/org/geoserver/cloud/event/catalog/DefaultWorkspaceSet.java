@@ -19,17 +19,17 @@ import org.springframework.core.style.ToStringCreator;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("DefaultWorkspaceSet")
-public class DefaultWorkspaceEvent extends CatalogInfoModifyEvent {
+public class DefaultWorkspaceSet extends CatalogInfoModified {
 
     private @Getter @Setter String newWorkspaceId;
 
     /** default constructor, needed for deserialization */
-    protected DefaultWorkspaceEvent() {
+    protected DefaultWorkspaceSet() {
         //
     }
 
-    DefaultWorkspaceEvent(String newWorkspaceId, @NonNull Patch patch) {
-        super(InfoEvent.CATALOG_ID, ConfigInfoType.Catalog, patch);
+    DefaultWorkspaceSet(@NonNull Long updateSequence, String newWorkspaceId, @NonNull Patch patch) {
+        super(updateSequence, InfoEvent.CATALOG_ID, ConfigInfoType.Catalog, patch);
         this.newWorkspaceId = newWorkspaceId;
     }
 
@@ -37,11 +37,12 @@ public class DefaultWorkspaceEvent extends CatalogInfoModifyEvent {
         return super.toStringBuilder().append("workspace", getNewWorkspaceId());
     }
 
-    public static DefaultWorkspaceEvent createLocal(WorkspaceInfo defaultWorkspace) {
+    public static DefaultWorkspaceSet createLocal(
+            @NonNull Long updateSequence, WorkspaceInfo defaultWorkspace) {
 
         String workspaceId = resolveId(defaultWorkspace);
         Patch patch = new Patch();
         patch.add("defaultWorkspace", defaultWorkspace);
-        return new DefaultWorkspaceEvent(workspaceId, patch);
+        return new DefaultWorkspaceSet(updateSequence, workspaceId, patch);
     }
 }

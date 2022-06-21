@@ -21,13 +21,15 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.catalog.plugin.Patch;
-import org.geoserver.cloud.event.catalog.DefaultDataStoreEvent;
-import org.geoserver.cloud.event.catalog.DefaultNamespaceEvent;
-import org.geoserver.cloud.event.catalog.DefaultWorkspaceEvent;
+import org.geoserver.cloud.event.UpdateSequenceEvent;
+import org.geoserver.cloud.event.catalog.DefaultDataStoreSet;
+import org.geoserver.cloud.event.catalog.DefaultNamespaceSet;
+import org.geoserver.cloud.event.catalog.DefaultWorkspaceSet;
 import org.geoserver.cloud.event.info.ConfigInfoType;
-import org.geoserver.cloud.event.info.InfoAddEvent;
-import org.geoserver.cloud.event.info.InfoPostModifyEvent;
-import org.geoserver.cloud.event.info.InfoRemoveEvent;
+import org.geoserver.cloud.event.info.InfoAdded;
+import org.geoserver.cloud.event.info.InfoModified;
+import org.geoserver.cloud.event.info.InfoRemoved;
+import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
 import org.geoserver.config.plugin.RepositoryGeoServerFacade;
@@ -45,8 +47,24 @@ public class RemoteEventDataDirectoryProcessor {
     private final @NonNull RepositoryGeoServerFacade configFacade;
     private final @NonNull ExtendedCatalogFacade catalogFacade;
 
-    @EventListener(InfoRemoveEvent.class)
-    public void onRemoteRemoveEvent(InfoRemoveEvent<?, ? extends Info> event) {
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    @EventListener(classes = {UpdateSequenceEvent.class})
+    public void onUpdateSequenceEvent(UpdateSequenceEvent updateSequenceEvent) {
+        final Long updateSequence = updateSequenceEvent.getUpdateSequence();
+        updateSequenceEvent
+                .remote()
+                .ifPresent(
+                        remote -> {
+                            log.info("applying update sequence {} from {}", updateSequence, remote);
+                            GeoServerInfo info = ModificationProxy.unwrap(configFacade.getGlobal());
+                            long current = info.getUpdateSequence();
+                            info.setUpdateSequence(updateSequence);
+                            log.info("replaced update sequence {} by {}", current, updateSequence);
+                        });
+    }
+
+    @EventListener(InfoRemoved.class)
+    public void onRemoteRemoveEvent(InfoRemoved<?, ? extends Info> event) {
         if (event.isLocal()) {
             return;
         }
@@ -101,8 +119,8 @@ public class RemoteEventDataDirectoryProcessor {
         }
     }
 
-    @EventListener(InfoAddEvent.class)
-    public void onRemoteAddEvent(InfoAddEvent<?, ? extends Info> event) {
+    @EventListener(InfoAdded.class)
+    public void onRemoteAddEvent(InfoAdded<?, ? extends Info> event) {
         if (event.isLocal()) {
             return;
         }
@@ -157,8 +175,8 @@ public class RemoteEventDataDirectoryProcessor {
         }
     }
 
-    @EventListener(DefaultWorkspaceEvent.class)
-    public void onRemoteDefaultWorkspaceEvent(DefaultWorkspaceEvent event) {
+    @EventListener(DefaultWorkspaceSet.class)
+    public void onRemoteDefaultWorkspaceEvent(DefaultWorkspaceSet event) {
         if (event.isRemote()) {
             String newId = event.getNewWorkspaceId();
             WorkspaceInfo newDefault = newId == null ? null : catalogFacade.getWorkspace(newId);
@@ -166,8 +184,8 @@ public class RemoteEventDataDirectoryProcessor {
         }
     }
 
-    @EventListener(DefaultNamespaceEvent.class)
-    public void onRemoteDefaultNamespaceEvent(DefaultNamespaceEvent event) {
+    @EventListener(DefaultNamespaceSet.class)
+    public void onRemoteDefaultNamespaceEvent(DefaultNamespaceSet event) {
         if (event.isRemote()) {
             String newId = event.getNewNamespaceId();
             NamespaceInfo namespace = newId == null ? null : catalogFacade.getNamespace(newId);
@@ -175,8 +193,8 @@ public class RemoteEventDataDirectoryProcessor {
         }
     }
 
-    @EventListener(DefaultDataStoreEvent.class)
-    public void onRemoteDefaultDataStoreEvent(DefaultDataStoreEvent event) {
+    @EventListener(DefaultDataStoreSet.class)
+    public void onRemoteDefaultDataStoreEvent(DefaultDataStoreSet event) {
         if (event.isRemote()) {
             String workspaceId = event.getWorkspaceId();
             WorkspaceInfo workspace = catalogFacade.getWorkspace(workspaceId);
@@ -187,8 +205,8 @@ public class RemoteEventDataDirectoryProcessor {
         }
     }
 
-    @EventListener(InfoPostModifyEvent.class)
-    public void onRemoteModifyEvent(InfoPostModifyEvent<?, ? extends Info> event) {
+    @EventListener(InfoModified.class)
+    public void onRemoteModifyEvent(InfoModified<?, ? extends Info> event) {
         if (event.isLocal()) {
             return;
         }

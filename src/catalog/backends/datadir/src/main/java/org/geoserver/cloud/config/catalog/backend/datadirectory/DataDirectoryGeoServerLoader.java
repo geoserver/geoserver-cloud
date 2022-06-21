@@ -14,10 +14,12 @@ import org.geoserver.catalog.event.impl.CatalogModifyEventImpl;
 import org.geoserver.catalog.impl.DefaultCatalogFacade;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.plugin.CatalogPlugin;
+import org.geoserver.cloud.config.catalog.backend.core.CoreBackendConfiguration;
 import org.geoserver.config.ConfigurationListener;
 import org.geoserver.config.DefaultGeoServerLoader;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerConfigPersister;
+import org.geoserver.config.GeoServerLoaderProxy;
 import org.geoserver.config.GeoServerResourcePersister;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.ServicePersister;
@@ -28,18 +30,34 @@ import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.Resource.Lock;
 import org.geoserver.platform.resource.Resources;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/** */
+import javax.annotation.PostConstruct;
+
+/**
+ * {@link Catalog} and {@link GeoServer config} loader for the data-directory backend, loads the
+ * configuration from disk as soon as the spring bean wiring is {@link #load() ready}; {@link
+ * GeoServerLoaderProxy} is excluded from {@link CoreBackendConfiguration}.
+ */
 @Slf4j
 public class DataDirectoryGeoServerLoader extends DefaultGeoServerLoader {
 
+    private @Autowired @Qualifier("rawCatalog") Catalog rawCatalog;
+    private @Autowired GeoServer geoserver;
+
     public DataDirectoryGeoServerLoader(GeoServerResourceLoader resourceLoader) {
         super(resourceLoader);
+    }
+
+    public @PostConstruct void load() {
+        postProcessBeforeInitialization(rawCatalog, "rawCatalog");
+        postProcessBeforeInitialization(geoserver, "geoServer");
     }
 
     /**

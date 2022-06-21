@@ -21,20 +21,17 @@ import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.Patch.Property;
 import org.geoserver.catalog.plugin.PropertyDiff;
-import org.geoserver.cloud.event.catalog.CatalogInfoAddEvent;
-import org.geoserver.cloud.event.catalog.CatalogInfoModifyEvent;
-import org.geoserver.cloud.event.catalog.CatalogInfoPreModifyEvent;
-import org.geoserver.cloud.event.catalog.CatalogInfoRemoveEvent;
-import org.geoserver.cloud.event.config.ConfigInfoAddEvent;
-import org.geoserver.cloud.event.config.ConfigInfoModifyEvent;
-import org.geoserver.cloud.event.config.ConfigInfoPreModifyEvent;
-import org.geoserver.cloud.event.config.ServiceInfoRemoveEvent;
+import org.geoserver.cloud.event.catalog.CatalogInfoAdded;
+import org.geoserver.cloud.event.catalog.CatalogInfoModified;
+import org.geoserver.cloud.event.catalog.CatalogInfoRemoved;
+import org.geoserver.cloud.event.config.ConfigInfoAdded;
+import org.geoserver.cloud.event.config.ConfigInfoModified;
+import org.geoserver.cloud.event.config.ServiceRemoved;
 import org.geoserver.cloud.event.info.ConfigInfoType;
-import org.geoserver.cloud.event.info.InfoAddEvent;
+import org.geoserver.cloud.event.info.InfoAdded;
 import org.geoserver.cloud.event.info.InfoEvent;
-import org.geoserver.cloud.event.info.InfoPostModifyEvent;
-import org.geoserver.cloud.event.info.InfoPreModifyEvent;
-import org.geoserver.cloud.event.info.InfoRemoveEvent;
+import org.geoserver.cloud.event.info.InfoModified;
+import org.geoserver.cloud.event.info.InfoRemoved;
 import org.geoserver.cloud.test.ApplicationEventCapturingListener;
 import org.geoserver.config.ConfigurationListener;
 import org.geoserver.config.CoverageAccessInfo;
@@ -122,11 +119,11 @@ public class CatalogApplicationEventsConfigurationTest {
 
         listener.clear();
         catalog.setDefaultWorkspace(testData.workspaceC);
-        testPrePostModify(catalog, "defaultWorkspace", testData.workspaceA, testData.workspaceC);
+        testModify(catalog, "defaultWorkspace", testData.workspaceA, testData.workspaceC);
 
         listener.clear();
         catalog.setDefaultWorkspace(testData.workspaceB);
-        testPrePostModify(catalog, "defaultWorkspace", testData.workspaceC, testData.workspaceB);
+        testModify(catalog, "defaultWorkspace", testData.workspaceC, testData.workspaceB);
     }
 
     public @Test void testCatalogSetDefaultNamespace() {
@@ -138,15 +135,15 @@ public class CatalogApplicationEventsConfigurationTest {
 
         listener.clear();
         catalog.setDefaultNamespace(testData.namespaceC);
-        testPrePostModify(catalog, "defaultNamespace", testData.namespaceA, testData.namespaceC);
+        testModify(catalog, "defaultNamespace", testData.namespaceA, testData.namespaceC);
 
         listener.clear();
         catalog.setDefaultNamespace(testData.namespaceB);
-        testPrePostModify(catalog, "defaultNamespace", testData.namespaceC, testData.namespaceB);
+        testModify(catalog, "defaultNamespace", testData.namespaceC, testData.namespaceB);
     }
 
     public @Test void testCatalogAddedEvents() {
-        Class<CatalogInfoAddEvent> eventType = CatalogInfoAddEvent.class;
+        Class<CatalogInfoAdded> eventType = CatalogInfoAdded.class;
         testAddEvent(testData.workspaceA, catalog::add, eventType);
         testAddEvent(testData.namespaceA, catalog::add, eventType);
         testAddEvent(testData.coverageStoreA, catalog::add, eventType);
@@ -158,45 +155,19 @@ public class CatalogApplicationEventsConfigurationTest {
         testAddEvent(testData.style1, catalog::add, eventType);
     }
 
-    public @Test void testCatalogPrePostModifyEvents() {
-        listener.stop();
-        testData.addObjects();
-        listener.start();
-
-        Class<CatalogInfoPreModifyEvent> preEventType = CatalogInfoPreModifyEvent.class;
-        Class<CatalogInfoModifyEvent> postEventType = CatalogInfoModifyEvent.class;
-        testModify(
-                catalog.getWorkspace(testData.workspaceA.getId()),
-                ws -> {
-                    ws.setName("newName");
-                },
-                catalog::save,
-                preEventType,
-                postEventType);
-
-        testModify(
-                catalog.getNamespace(testData.namespaceA.getId()),
-                n -> {
-                    n.setPrefix("new-prefix");
-                },
-                catalog::save,
-                preEventType,
-                postEventType);
-    }
-
     public @Test void testCatalogRemoveEvents() {
         listener.stop();
         testData.addObjects();
         listener.start();
 
-        testRemove(testData.layerGroup1, catalog::remove, CatalogInfoRemoveEvent.class);
+        testRemove(testData.layerGroup1, catalog::remove, CatalogInfoRemoved.class);
     }
 
     public @Test void testConfigAddEvents() {
         catalog.add(testData.workspaceB);
 
         @SuppressWarnings("rawtypes")
-        Class<ConfigInfoAddEvent> eventType = ConfigInfoAddEvent.class;
+        Class<ConfigInfoAdded> eventType = ConfigInfoAdded.class;
 
         WMSInfoImpl service = new WMSInfoImpl();
         service.setName("WMS");
@@ -212,7 +183,7 @@ public class CatalogApplicationEventsConfigurationTest {
         testAddEvent(workspaceSettings, geoserver::add, eventType);
     }
 
-    public @Test void testConfigPrePostModifyEvents_GeoServerInfo() {
+    public @Test void testConfigModifyEvents_GeoServerInfo() {
         catalog.add(testData.workspaceA);
         catalog.add(testData.workspaceB);
         geoserver.setGlobal(testData.global);
@@ -220,9 +191,7 @@ public class CatalogApplicationEventsConfigurationTest {
         GeoServerInfo global = geoserver.getGlobal();
 
         @SuppressWarnings("rawtypes")
-        Class<ConfigInfoPreModifyEvent> preEventType = ConfigInfoPreModifyEvent.class;
-        @SuppressWarnings("rawtypes")
-        Class<ConfigInfoModifyEvent> postEventType = ConfigInfoModifyEvent.class;
+        Class<ConfigInfoModified> eventType = ConfigInfoModified.class;
 
         CoverageAccessInfo coverageInfo = new CoverageAccessInfoImpl();
         coverageInfo.setCorePoolSize(10);
@@ -236,18 +205,16 @@ public class CatalogApplicationEventsConfigurationTest {
                     gs.setCoverageAccess(coverageInfo);
                 },
                 geoserver::save,
-                preEventType,
-                postEventType);
+                eventType);
     }
 
     public @Test void testConfigPrePostModifyEvents_SettingsInfo() {
         catalog.add(testData.workspaceA);
         catalog.add(testData.workspaceB);
         geoserver.setGlobal(testData.global);
+
         @SuppressWarnings("rawtypes")
-        Class<ConfigInfoPreModifyEvent> preEventType = ConfigInfoPreModifyEvent.class;
-        @SuppressWarnings("rawtypes")
-        Class<ConfigInfoModifyEvent> postEventType = ConfigInfoModifyEvent.class;
+        Class<ConfigInfoModified> eventType = ConfigInfoModified.class;
 
         // odd API weirdness here, can't modify global settings through
         // GeoServer.save(SettingsInfo),
@@ -261,8 +228,7 @@ public class CatalogApplicationEventsConfigurationTest {
                     settings.setProxyBaseUrl("http://test.com");
                 },
                 geoserver::save,
-                preEventType,
-                postEventType);
+                eventType);
 
         SettingsInfo workspaceSettings = new SettingsInfoImpl();
         workspaceSettings.setWorkspace(testData.workspaceA);
@@ -276,19 +242,16 @@ public class CatalogApplicationEventsConfigurationTest {
                     s.setWorkspace(testData.workspaceB);
                 },
                 geoserver::save,
-                preEventType,
-                postEventType);
+                eventType);
     }
 
-    public @Test void testConfigPrePostModifyEvents_LoggingInfo() {
+    public @Test void testConfigModifyEvents_LoggingInfo() {
         catalog.add(testData.workspaceA);
         catalog.add(testData.workspaceB);
         geoserver.setLogging(testData.logging);
 
         @SuppressWarnings("rawtypes")
-        Class<ConfigInfoPreModifyEvent> preEventType = ConfigInfoPreModifyEvent.class;
-        @SuppressWarnings("rawtypes")
-        Class<ConfigInfoModifyEvent> postEventType = ConfigInfoModifyEvent.class;
+        Class<ConfigInfoModified> eventType = ConfigInfoModified.class;
 
         LoggingInfo globalLogging = geoserver.getLogging();
         testModify(
@@ -298,8 +261,7 @@ public class CatalogApplicationEventsConfigurationTest {
                     logging.setStdOutLogging(!logging.isStdOutLogging());
                 },
                 geoserver::save,
-                preEventType,
-                postEventType);
+                eventType);
     }
 
     public @Test void testConfigPrePostModifyEvents_ServiceInfo() {
@@ -314,21 +276,19 @@ public class CatalogApplicationEventsConfigurationTest {
         geoserver.add(testData.wcsService);
         geoserver.add(testData.wpsService);
 
-        testConfigPrePostModifyService(testData.wmsService);
-        testConfigPrePostModifyService(testData.wfsService);
+        testConfigModifyService(testData.wmsService);
+        testConfigModifyService(testData.wfsService);
         // WCSInfoImpl.equals() doesn't work
-        // testConfigPrePostModifyService(testData.wcsService);
+        // testConfigModifyService(testData.wcsService);
         // WPSInfoImpl.equals() doesn't work
-        // testConfigPrePostModifyService(testData.wpsService);
+        // testConfigModifyService(testData.wpsService);
     }
 
-    private void testConfigPrePostModifyService(ServiceInfo service) {
+    private void testConfigModifyService(ServiceInfo service) {
         service = geoserver.getService(service.getId(), ServiceInfo.class);
 
         @SuppressWarnings("rawtypes")
-        Class<ConfigInfoPreModifyEvent> preEventType = ConfigInfoPreModifyEvent.class;
-        @SuppressWarnings("rawtypes")
-        Class<ConfigInfoModifyEvent> postEventType = ConfigInfoModifyEvent.class;
+        Class<ConfigInfoModified> postEventType = ConfigInfoModified.class;
 
         testModify(
                 service,
@@ -339,7 +299,6 @@ public class CatalogApplicationEventsConfigurationTest {
                     s.getKeywords().clear();
                 },
                 geoserver::save,
-                preEventType,
                 postEventType);
     }
 
@@ -349,18 +308,18 @@ public class CatalogApplicationEventsConfigurationTest {
         geoserver.add(service);
         listener.start();
 
-        testRemove(service, geoserver::remove, ServiceInfoRemoveEvent.class);
+        testRemove(service, geoserver::remove, ServiceRemoved.class);
     }
 
     private <T extends Info> void testRemove(
             T info,
             Consumer<T> remover,
-            @SuppressWarnings("rawtypes") Class<? extends InfoRemoveEvent> eventType) {
+            @SuppressWarnings("rawtypes") Class<? extends InfoRemoved> eventType) {
         listener.clear();
         listener.start();
         remover.accept(info);
         @SuppressWarnings("unchecked")
-        InfoRemoveEvent<?, T> event = listener.expectOne(eventType);
+        InfoRemoved<?, T> event = listener.expectOne(eventType);
         assertEquals(info.getId(), event.getObjectId());
         assertEquals(ConfigInfoType.valueOf(info), event.getObjectType());
     }
@@ -370,9 +329,7 @@ public class CatalogApplicationEventsConfigurationTest {
             @NonNull T info,
             @NonNull Consumer<T> modifier,
             @NonNull Consumer<T> saver,
-            @NonNull @SuppressWarnings("rawtypes") Class<? extends InfoPreModifyEvent> preEventType,
-            @NonNull @SuppressWarnings("rawtypes")
-                    Class<? extends InfoPostModifyEvent> postEventType) {
+            @NonNull @SuppressWarnings("rawtypes") Class<? extends InfoModified> postEventType) {
         if (null == ModificationProxy.handler(info))
             throw new IllegalArgumentException("Expected a ModificationProxy");
 
@@ -408,35 +365,22 @@ public class CatalogApplicationEventsConfigurationTest {
         modifier.accept(info);
         saver.accept(info);
 
-        InfoPreModifyEvent<?, T> pre = listener.expectOne(preEventType);
-        assertEquals(info.getId(), pre.getObjectId());
-
-        assertEquals(expected.getPropertyNames(), pre.getPatch().getPropertyNames());
-        assertEquals(expected, pre.getPatch());
-
-        InfoPostModifyEvent<?, T> post = listener.expectOne(postEventType);
+        InfoModified<?, T> post = listener.expectOne(postEventType);
         assertEquals(proxy.getId(), post.getObjectId());
         assertEquals(expected, post.getPatch());
     }
 
-    private void testPrePostModify(
+    private void testModify(
             CatalogInfo objectChanged,
             String propertyName,
             CatalogInfo oldValue,
             CatalogInfo newValue) {
-        CatalogInfoPreModifyEvent pre = listener.expectOne(CatalogInfoPreModifyEvent.class);
-        CatalogInfoModifyEvent post = listener.expectOne(CatalogInfoModifyEvent.class);
 
-        assertSame(objectChanged.getId(), pre.getObjectId());
+        CatalogInfoModified post = listener.expectOne(CatalogInfoModified.class);
+
         assertSame(objectChanged.getId(), post.getObjectId());
 
-        assertFalse(pre.getPatch().isEmpty());
         assertFalse(post.getPatch().isEmpty());
-        assertTrue(pre.getPatch().get(propertyName).isPresent());
-
-        Property preChange = pre.getPatch().get(propertyName).get();
-
-        assertEquals(newValue, preChange.getValue());
 
         assertTrue(post.getPatch().get(propertyName).isPresent());
         Property postChange = post.getPatch().get(propertyName).get();
@@ -445,10 +389,10 @@ public class CatalogApplicationEventsConfigurationTest {
 
     @SuppressWarnings({"rawtypes"})
     private <T extends Info> void testAddEvent(
-            T info, Consumer<T> addOp, Class<? extends InfoAddEvent> eventType) {
+            T info, Consumer<T> addOp, Class<? extends InfoAdded> eventType) {
         listener.clear();
         addOp.accept(info);
-        InfoAddEvent event = listener.expectOne(eventType);
+        InfoAdded event = listener.expectOne(eventType);
 
         assertEquals(info, event.getObject());
     }

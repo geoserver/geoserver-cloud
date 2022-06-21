@@ -12,6 +12,7 @@ import org.geoserver.cloud.config.catalog.backend.core.GeoServerBackendConfigure
 import org.geoserver.config.GeoServerLoader;
 import org.geoserver.config.plugin.RepositoryGeoServerFacade;
 import org.geoserver.platform.GeoServerResourceLoader;
+import org.geoserver.platform.config.UpdateSequence;
 import org.geoserver.platform.resource.ResourceStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -39,11 +40,16 @@ public class DataDirectoryBackendConfiguration implements GeoServerBackendConfig
                 DataDirectoryBackendConfiguration.class.getSimpleName());
     }
 
-    public /* @Override */ @Bean DefaultMemoryCatalogFacade catalogFacade() {
+    @Bean
+    public @Override UpdateSequence updateSequence() {
+        return new DataDirectoryUpdateSequence();
+    }
+
+    public @Override @Bean DefaultMemoryCatalogFacade catalogFacade() {
         return new org.geoserver.catalog.plugin.DefaultMemoryCatalogFacade();
     }
 
-    public /* @Override */ @Bean RepositoryGeoServerFacade geoserverFacade() {
+    public @Override @Bean RepositoryGeoServerFacade geoserverFacade() {
         return new org.geoserver.config.plugin.RepositoryGeoServerFacadeImpl();
     }
 

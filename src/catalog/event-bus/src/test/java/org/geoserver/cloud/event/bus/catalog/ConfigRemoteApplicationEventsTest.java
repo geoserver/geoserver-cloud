@@ -10,12 +10,12 @@ import static org.junit.Assert.assertNotNull;
 
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.Patch;
-import org.geoserver.cloud.event.config.GeoServerInfoModifyEvent;
-import org.geoserver.cloud.event.config.ServiceInfoAddEvent;
-import org.geoserver.cloud.event.config.ServiceInfoModifyEvent;
-import org.geoserver.cloud.event.config.ServiceInfoRemoveEvent;
-import org.geoserver.cloud.event.config.SettingsInfoAddEvent;
-import org.geoserver.cloud.event.config.SettingsInfoRemoveEvent;
+import org.geoserver.cloud.event.config.GeoServerInfoModified;
+import org.geoserver.cloud.event.config.ServiceAdded;
+import org.geoserver.cloud.event.config.ServiceModified;
+import org.geoserver.cloud.event.config.ServiceRemoved;
+import org.geoserver.cloud.event.config.SettingsAdded;
+import org.geoserver.cloud.event.config.SettingsRemoved;
 import org.geoserver.config.CoverageAccessInfo;
 import org.geoserver.config.CoverageAccessInfo.QueueType;
 import org.geoserver.config.GeoServerInfo;
@@ -44,14 +44,14 @@ public class ConfigRemoteApplicationEventsTest extends BusAmqpIntegrationTests {
     public @Test void testConfigAddEvent_ServiceInfo() {
         WMSInfoImpl service = new WMSInfoImpl();
         service.setName("WMS");
-        testRemoteAddEvent(service, geoserver::add, ServiceInfoAddEvent.class);
+        testRemoteAddEvent(service, geoserver::add, ServiceAdded.class);
     }
 
     public @Test void testConfigAddEvent_ServiceInfo_Workspace() {
         WMSInfoImpl workspaceService = new WMSInfoImpl();
         workspaceService.setName("WMS");
         workspaceService.setWorkspace(testData.workspaceB);
-        testRemoteAddEvent(workspaceService, geoserver::add, ServiceInfoAddEvent.class);
+        testRemoteAddEvent(workspaceService, geoserver::add, ServiceAdded.class);
     }
 
     public @Test void testConfigRemoteModifyEvent_ServiceInfo_Workspace() {
@@ -68,7 +68,7 @@ public class ConfigRemoteApplicationEventsTest extends BusAmqpIntegrationTests {
                     s.getAuthorityURLs().addAll(testData.faker().authUrls(2));
                 },
                 geoserver::save,
-                ServiceInfoModifyEvent.class);
+                ServiceModified.class);
     }
 
     public @Test void testConfigAddEvent_SettingsInfo() {
@@ -76,7 +76,7 @@ public class ConfigRemoteApplicationEventsTest extends BusAmqpIntegrationTests {
 
         SettingsInfoImpl workspaceSettings = new SettingsInfoImpl();
         workspaceSettings.setWorkspace(testData.workspaceB);
-        testRemoteAddEvent(workspaceSettings, geoserver::add, SettingsInfoAddEvent.class);
+        testRemoteAddEvent(workspaceSettings, geoserver::add, SettingsAdded.class);
     }
 
     public @Test void testConfigRemoteModifyEvents_GeoServerInfo() {
@@ -100,7 +100,7 @@ public class ConfigRemoteApplicationEventsTest extends BusAmqpIntegrationTests {
                             gs.getSettings().getContact().setAddressCity("Buenos Aires");
                         },
                         geoserver::save,
-                        GeoServerInfoModifyEvent.class);
+                        GeoServerInfoModified.class);
 
         SettingsInfo settings = (SettingsInfo) patch.get("settings").orElseThrow().getValue();
         assertThat(settings.getContact()).isNotNull();
@@ -177,8 +177,8 @@ public class ConfigRemoteApplicationEventsTest extends BusAmqpIntegrationTests {
         settings.setWorkspace(testData.workspaceC);
         geoserver.add(settings);
 
-        SettingsInfoRemoveEvent event =
-                testRemoteRemoveEvent(settings, geoserver::remove, SettingsInfoRemoveEvent.class);
+        SettingsRemoved event =
+                testRemoteRemoveEvent(settings, geoserver::remove, SettingsRemoved.class);
         assertEquals(testData.workspaceC.getId(), event.getWorkspaceId());
     }
 
@@ -187,8 +187,8 @@ public class ConfigRemoteApplicationEventsTest extends BusAmqpIntegrationTests {
         geoserver.add(service);
 
         eventsCaptor.clear().start();
-        ServiceInfoRemoveEvent event =
-                testRemoteRemoveEvent(service, geoserver::remove, ServiceInfoRemoveEvent.class);
+        ServiceRemoved event =
+                testRemoteRemoveEvent(service, geoserver::remove, ServiceRemoved.class);
         assertThat(event.getWorkspaceId()).isNull();
     }
 
@@ -199,8 +199,8 @@ public class ConfigRemoteApplicationEventsTest extends BusAmqpIntegrationTests {
         geoserver.add(service);
 
         eventsCaptor.clear().start();
-        ServiceInfoRemoveEvent event =
-                testRemoteRemoveEvent(service, geoserver::remove, ServiceInfoRemoveEvent.class);
+        ServiceRemoved event =
+                testRemoteRemoveEvent(service, geoserver::remove, ServiceRemoved.class);
 
         assertThat(event.getWorkspaceId()).isEqualTo(testData.workspaceC.getId());
     }

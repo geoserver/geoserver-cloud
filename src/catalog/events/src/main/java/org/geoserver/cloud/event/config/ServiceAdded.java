@@ -8,29 +8,27 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 
 import org.geoserver.config.GeoServer;
-import org.geoserver.config.SettingsInfo;
+import org.geoserver.config.ServiceInfo;
 
-/**
- * Remote event sent when {@link GeoServer#add(org.geoserver.config.SettingsInfo)} is called on a
- * node
- */
+/** Event sent when {@link GeoServer#add(org.geoserver.config.ServiceInfo)} is called on a node */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
-@JsonTypeName("SettingsInfoAdded")
+@JsonTypeName("ServiceAdded")
 @EqualsAndHashCode(callSuper = true)
-public class SettingsInfoAddEvent extends ConfigInfoAddEvent<SettingsInfoAddEvent, SettingsInfo>
+public class ServiceAdded extends ConfigInfoAdded<ServiceAdded, ServiceInfo>
         implements ConfigInfoEvent {
 
-    protected SettingsInfoAddEvent() {
+    protected ServiceAdded() {
         // default constructor, needed for deserialization
     }
 
-    protected SettingsInfoAddEvent(SettingsInfo object) {
-        super(object);
+    protected ServiceAdded(@NonNull Long updateSequence, ServiceInfo object) {
+        super(updateSequence, object);
     }
 
-    public static SettingsInfoAddEvent createLocal(SettingsInfo value) {
-        return new SettingsInfoAddEvent(value);
+    public static ServiceAdded createLocal(@NonNull Long updateSequence, ServiceInfo value) {
+        return new ServiceAdded(updateSequence, value);
     }
 }

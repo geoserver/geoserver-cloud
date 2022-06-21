@@ -82,6 +82,7 @@ public abstract class AbstractReactiveCatalogControllerTest<C extends CatalogInf
     }
     
     public @After void after() {
+        if(null != testData)
         testData.after();
     }
 

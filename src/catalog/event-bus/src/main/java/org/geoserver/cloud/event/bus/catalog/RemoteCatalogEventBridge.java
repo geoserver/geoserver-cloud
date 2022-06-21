@@ -13,8 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.geoserver.catalog.CatalogException;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.cloud.event.info.InfoEvent;
-import org.geoserver.cloud.event.info.InfoPostModifyEvent;
-import org.geoserver.cloud.event.info.InfoPreModifyEvent;
+import org.geoserver.cloud.event.info.InfoModified;
 import org.springframework.context.event.EventListener;
 
 import java.util.function.Consumer;
@@ -61,7 +60,7 @@ public class RemoteCatalogEventBridge {
     }
 
     @RequiredArgsConstructor
-    @Slf4j(topic = "org.geoserver.cloud.bus.catalog.outgoing")
+    @Slf4j(topic = "org.geoserver.cloud.event.bus.catalog.outgoing")
     private static class Outgoing {
         private final @NonNull Consumer<RemoteInfoEvent> remoteEventPublisher;
         private final @NonNull RemoteCatalogEventMapper mapper;
@@ -71,7 +70,6 @@ public class RemoteCatalogEventBridge {
                 throws CatalogException {
 
             event.local() //
-                    .filter(e -> !(e instanceof InfoPreModifyEvent)) //
                     .map(mapper::toRemote) //
                     .ifPresentOrElse( //
                             this::publishRemoteEvent, //
@@ -80,8 +78,8 @@ public class RemoteCatalogEventBridge {
 
         private void publishRemoteEvent(RemoteInfoEvent remoteEvent) {
             InfoEvent<?, ?> event = remoteEvent.getEvent();
-            if (event instanceof InfoPostModifyEvent) {
-                Patch patch = ((InfoPostModifyEvent<?, ?>) event).getPatch();
+            if (event instanceof InfoModified) {
+                Patch patch = ((InfoModified<?, ?>) event).getPatch();
                 if (patch.isEmpty()) {
                     log.info("Not broadcasting no-change event {}", remoteEvent);
                     return;
@@ -98,7 +96,7 @@ public class RemoteCatalogEventBridge {
     }
 
     @RequiredArgsConstructor
-    @Slf4j(topic = "org.geoserver.cloud.bus.catalog.incoming")
+    @Slf4j(topic = "org.geoserver.cloud.event.bus.catalog.incoming")
     private static class Incoming {
 
         @SuppressWarnings("rawtypes")

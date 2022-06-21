@@ -9,7 +9,6 @@ import static org.geoserver.cloud.catalog.cache.CachingCatalogFacade.DEFAULT_WOR
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.times;
@@ -29,20 +28,20 @@ import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.cloud.catalog.cache.CachingCatalogFacade;
 import org.geoserver.cloud.catalog.cache.CachingGeoServerFacade;
 import org.geoserver.cloud.catalog.cache.CatalogInfoKey;
-import org.geoserver.cloud.event.catalog.CatalogInfoModifyEvent;
-import org.geoserver.cloud.event.catalog.CatalogInfoRemoveEvent;
-import org.geoserver.cloud.event.catalog.DefaultDataStoreEvent;
-import org.geoserver.cloud.event.catalog.DefaultNamespaceEvent;
-import org.geoserver.cloud.event.catalog.DefaultWorkspaceEvent;
-import org.geoserver.cloud.event.config.GeoServerInfoModifyEvent;
-import org.geoserver.cloud.event.config.GeoServerInfoSetEvent;
-import org.geoserver.cloud.event.config.LoggingInfoModifyEvent;
-import org.geoserver.cloud.event.config.LoggingInfoSetEvent;
-import org.geoserver.cloud.event.config.ServiceInfoModifyEvent;
-import org.geoserver.cloud.event.config.ServiceInfoRemoveEvent;
-import org.geoserver.cloud.event.config.SettingsInfoModifyEvent;
-import org.geoserver.cloud.event.config.SettingsInfoRemoveEvent;
-import org.geoserver.cloud.event.config.UpdateSequenceEvent;
+import org.geoserver.cloud.event.UpdateSequenceEvent;
+import org.geoserver.cloud.event.catalog.CatalogInfoModified;
+import org.geoserver.cloud.event.catalog.CatalogInfoRemoved;
+import org.geoserver.cloud.event.catalog.DefaultDataStoreSet;
+import org.geoserver.cloud.event.catalog.DefaultNamespaceSet;
+import org.geoserver.cloud.event.catalog.DefaultWorkspaceSet;
+import org.geoserver.cloud.event.config.GeoServerInfoModified;
+import org.geoserver.cloud.event.config.GeoServerInfoSet;
+import org.geoserver.cloud.event.config.LoggingInfoModified;
+import org.geoserver.cloud.event.config.LoggingInfoSet;
+import org.geoserver.cloud.event.config.ServiceModified;
+import org.geoserver.cloud.event.config.ServiceRemoved;
+import org.geoserver.cloud.event.config.SettingsModified;
+import org.geoserver.cloud.event.config.SettingsRemoved;
 import org.geoserver.cloud.event.info.InfoEvent;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.LoggingInfo;
@@ -135,7 +134,7 @@ public class RemoteEventCacheEvictorTest {
         catalog.getDefaultWorkspace();
         assertNotNull(catalogCache.get(DEFAULT_WORKSPACE_CACHE_KEY));
 
-        publishRemote(DefaultWorkspaceEvent.createLocal((WorkspaceInfo) null));
+        publishRemote(DefaultWorkspaceSet.createLocal(123L, (WorkspaceInfo) null));
         assertNull(catalogCache.get(DEFAULT_WORKSPACE_CACHE_KEY));
     }
 
@@ -157,7 +156,7 @@ public class RemoteEventCacheEvictorTest {
         catalog.getDefaultNamespace();
         assertNotNull(catalogCache.get(DEFAULT_NAMESPACE_CACHE_KEY));
 
-        publishRemote(DefaultNamespaceEvent.createLocal((NamespaceInfo) null));
+        publishRemote(DefaultNamespaceSet.createLocal(123L, (NamespaceInfo) null));
 
         assertNull(catalogCache.get(DEFAULT_NAMESPACE_CACHE_KEY));
     }
@@ -169,14 +168,14 @@ public class RemoteEventCacheEvictorTest {
         catalog.getDefaultDataStore(data.workspaceA);
         assertNotNull("expected cache hit", catalogCache.get(key));
 
-        publishRemote(DefaultDataStoreEvent.createLocal(data.workspaceA, (DataStoreInfo) null));
+        publishRemote(DefaultDataStoreSet.createLocal(123L, data.workspaceA, (DataStoreInfo) null));
 
         assertNull(
                 "expected key evicted after setting null default datastore", catalogCache.get(key));
 
         assertNull(catalogCache.get(key));
 
-        publishRemote(DefaultDataStoreEvent.createLocal(data.workspaceA, data.dataStoreA));
+        publishRemote(DefaultDataStoreSet.createLocal(123L, data.workspaceA, data.dataStoreA));
 
         assertNull(catalogCache.get(key));
         assertNotNull(catalog.getDefaultDataStore(data.workspaceA));
@@ -212,12 +211,13 @@ public class RemoteEventCacheEvictorTest {
 
         Mockito.clearInvocations(this.evictor);
 
-        CatalogInfoModifyEvent modifyEvent =
+        CatalogInfoModified modifyEvent =
                 publishRemote(
-                        CatalogInfoModifyEvent.createLocal(
-                                info, patch("dateModified", new Date())));
+                        CatalogInfoModified.createLocal(
+                                123L, info, patch("dateModified", new Date())));
 
         Mockito.verify(this.evictor, times(1)).onCatalogInfoModifyEvent(same(modifyEvent));
+        Mockito.verify(this.evictor, times(1)).onUpdateSequenceEvent(same(modifyEvent));
         Mockito.verifyNoMoreInteractions(evictor);
 
         // RemoteEventResourcePoolProcessor is triggering a catalog lookup which defeats this check
@@ -228,9 +228,10 @@ public class RemoteEventCacheEvictorTest {
 
         Mockito.clearInvocations(this.evictor);
 
-        CatalogInfoRemoveEvent removeEvent =
-                publishRemote(CatalogInfoRemoveEvent.createLocal(info));
+        CatalogInfoRemoved removeEvent = publishRemote(CatalogInfoRemoved.createLocal(123L, info));
+
         Mockito.verify(this.evictor, times(1)).onCatalogInfoRemoveEvent(same(removeEvent));
+        Mockito.verify(this.evictor, times(1)).onUpdateSequenceEvent(same(removeEvent));
         Mockito.verifyNoMoreInteractions(evictor);
 
         assertNull(catalogCache.get(key));
@@ -269,10 +270,10 @@ public class RemoteEventCacheEvictorTest {
         assertNotNull(configCache.get(typeKey));
 
         Mockito.clearInvocations(this.evictor);
-        ServiceInfoModifyEvent event =
+        ServiceModified event =
                 publishRemote(
-                        ServiceInfoModifyEvent.createLocal(
-                                service, patch("abstract", "doesn't matter")));
+                        ServiceModified.createLocal(
+                                123L, service, patch("abstract", "doesn't matter")));
 
         Mockito.verify(this.evictor, times(1)).onServiceInfoModifyEvent(same(event));
 
@@ -314,7 +315,7 @@ public class RemoteEventCacheEvictorTest {
         assertNotNull(configCache.get(typeKey));
 
         Mockito.clearInvocations(this.evictor);
-        ServiceInfoRemoveEvent event = publishRemote(ServiceInfoRemoveEvent.createLocal(service));
+        ServiceRemoved event = publishRemote(ServiceRemoved.createLocal(123L, service));
 
         Mockito.verify(this.evictor, times(1)).onServiceInfoRemoveEvent(same(event));
 
@@ -341,10 +342,10 @@ public class RemoteEventCacheEvictorTest {
 
         // constructor args: GeoServer, SettingsInfo, Patch, originService,destinationService
         Mockito.clearInvocations(evictor);
-        SettingsInfoModifyEvent event =
+        SettingsModified event =
                 publishRemote(
-                        SettingsInfoModifyEvent.createLocal(
-                                settings, patch("charset", "ISO-8859-1")));
+                        SettingsModified.createLocal(
+                                123L, settings, patch("charset", "ISO-8859-1")));
 
         assertEquals(ws.getId(), event.getWorkspaceId());
 
@@ -374,8 +375,7 @@ public class RemoteEventCacheEvictorTest {
 
         // constructor args: GeoServer, SettingsInfo, originService,destinationService
         Mockito.clearInvocations(evictor);
-        SettingsInfoRemoveEvent event =
-                publishRemote(SettingsInfoRemoveEvent.createLocal(settings));
+        SettingsRemoved event = publishRemote(SettingsRemoved.createLocal(123L, settings));
 
         assertEquals(ws.getId(), event.getWorkspaceId());
 
@@ -397,7 +397,7 @@ public class RemoteEventCacheEvictorTest {
 
         Mockito.clearInvocations(this.evictor);
 
-        LoggingInfoSetEvent event = publishRemote(LoggingInfoSetEvent.createLocal(newLogging));
+        LoggingInfoSet event = publishRemote(LoggingInfoSet.createLocal(123L, newLogging));
 
         Mockito.verify(evictor, times(1)).onSetLoggingInfoEvent(same(event));
 
@@ -412,8 +412,8 @@ public class RemoteEventCacheEvictorTest {
 
         Mockito.clearInvocations(this.evictor);
 
-        LoggingInfoModifyEvent event =
-                publishRemote(LoggingInfoModifyEvent.createLocal(info, patch("level", "DEBUG")));
+        LoggingInfoModified event =
+                publishRemote(LoggingInfoModified.createLocal(123L, info, patch("level", "DEBUG")));
         Mockito.verify(evictor, times(1)).onLoggingInfoModifyEvent(same(event));
 
         assertNull("logging not evicted", configCache.get(key));
@@ -429,7 +429,7 @@ public class RemoteEventCacheEvictorTest {
 
         Mockito.clearInvocations(this.evictor);
         // GeoServer source, Info object, String originService, String destinationService
-        GeoServerInfoSetEvent event = publishRemote(GeoServerInfoSetEvent.createLocal(newGlobal));
+        GeoServerInfoSet event = publishRemote(GeoServerInfoSet.createLocal(123L, newGlobal));
 
         Mockito.verify(evictor, times(1)).onSetGlobalInfoEvent(same(event));
 
@@ -444,24 +444,16 @@ public class RemoteEventCacheEvictorTest {
 
         Mockito.clearInvocations(this.evictor);
         // GeoServer source, GeoServerInfo object, Patch patch, originService,destinationService
-        GeoServerInfoModifyEvent event =
+        GeoServerInfoModified event =
                 publishRemote(
-                        GeoServerInfoModifyEvent.createLocal(
-                                info, patch("xmlExternalEntitiesEnabled", true)));
+                        GeoServerInfoModified.createLocal(
+                                123L, info, patch("xmlExternalEntitiesEnabled", true)));
         Mockito.verify(evictor, times(1)).onGeoServerInfoModifyEvent(same(event));
 
         assertNull("global not evicted", configCache.get(key));
     }
 
-    /**
-     * {@link GeoServerInfo#getUpdateSequence() update sequence} events are triggered upon each
-     * configuration and catalog modification just for the sake of incrementing the update sequence.
-     *
-     * <p>{@link UpdateSequenceEvent} is meant to be checked by {@link RemoteEventCacheEvictor} and
-     * set the updated sequence number to the cached object instead of evicting it.
-     */
-    public @Test void
-            testUpdateSequenceModifyEvent_does_not_evict_but_applies_update_sequence_in_place() {
+    public @Test void testUpdateSequenceModifyEvent_evicts_but_applies_update_sequence_in_place() {
         GeoServerInfo local = geoServer.getGlobal();
         assertNotNull(local);
         final String key = CachingGeoServerFacade.GEOSERVERINFO_KEY;
@@ -470,23 +462,18 @@ public class RemoteEventCacheEvictorTest {
 
         GeoServerInfoImpl remote = new GeoServerInfoImpl();
         local.setUpdateSequence(999L);
-        remote.setUpdateSequence(1000L);
 
-        // Constructor args:
-        // GeoServer source,GeoServerInfo object,Patch patch,String originService,String
-        // destinationService
+        final Long updateSequence = 1000L;
+        remote.setTitle("some change");
+        Patch patch = patch("title", "some change");
+
         Mockito.clearInvocations(this.evictor);
-        UpdateSequenceEvent event = publishRemote(UpdateSequenceEvent.createLocal(remote));
+
+        UpdateSequenceEvent<?> event =
+                publishRemote(GeoServerInfoModified.createLocal(updateSequence, remote, patch));
 
         Mockito.verify(evictor, times(1)).onUpdateSequenceEvent(same(event));
 
-        assertNotNull(
-                "updateSequence event shouldn't evict the global config", configCache.get(key));
-        GeoServerInfo updateSequenceAppliedInPlace = (GeoServerInfo) configCache.get(key).get();
-        assertSame(local, updateSequenceAppliedInPlace);
-        assertEquals(
-                "updateSequence expected to be updated in place",
-                1000L,
-                updateSequenceAppliedInPlace.getUpdateSequence());
+        assertNull(configCache.get(key));
     }
 }

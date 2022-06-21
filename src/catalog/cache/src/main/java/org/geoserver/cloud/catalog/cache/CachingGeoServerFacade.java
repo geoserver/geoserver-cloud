@@ -16,6 +16,8 @@ import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
 import org.springframework.cache.CacheManager;
 
+import java.util.Optional;
+
 import javax.annotation.Nullable;
 
 /**
@@ -65,4 +67,11 @@ public interface CachingGeoServerFacade extends GeoServerFacade {
      *     proper {@link Info#getId() id}
      */
     boolean evict(Info info);
+
+    /**
+     * Evicts the {@link GeoServerInfo} if cached
+     *
+     * @return the cached value or empty
+     */
+    Optional<GeoServerInfo> evictGlobal();
 }

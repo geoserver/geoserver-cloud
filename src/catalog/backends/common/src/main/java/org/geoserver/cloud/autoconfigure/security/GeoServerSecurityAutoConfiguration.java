@@ -7,7 +7,7 @@ package org.geoserver.cloud.autoconfigure.security;
 import lombok.extern.slf4j.Slf4j;
 
 import org.geoserver.cloud.autoconfigure.catalog.backend.core.GeoServerBackendAutoConfiguration;
-import org.geoserver.cloud.event.security.SecurityConfigEvent;
+import org.geoserver.cloud.event.security.SecurityConfigChanged;
 import org.geoserver.cloud.security.GeoServerSecurityConfiguration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -36,13 +36,13 @@ public class GeoServerSecurityAutoConfiguration {
             if (enabled == null)
                 log.info(
                         """
-                        GeoServer security auto-configuration enabled automatically
+                        GeoServer security auto-configuration enabled automatically \
                         (no geoserver.security.enabled configuration property provided)
                         """);
             else if (enabled.booleanValue())
                 log.info(
                         """
-                        GeoServer security auto-configuration enabled
+                        GeoServer security auto-configuration enabled \
                         explicitly through geoserver.security.enabled: true
                         """);
         }
@@ -62,8 +62,8 @@ public class GeoServerSecurityAutoConfiguration {
                     """);
         }
 
-        @EventListener(SecurityConfigEvent.class)
-        public void onRemoteSecurityConfigChangeEvent(SecurityConfigEvent event) {
+        @EventListener(SecurityConfigChanged.class)
+        public void onRemoteSecurityConfigChangeEvent(SecurityConfigChanged event) {
             if (!event.isLocal()) {
                 log.info(
                         """

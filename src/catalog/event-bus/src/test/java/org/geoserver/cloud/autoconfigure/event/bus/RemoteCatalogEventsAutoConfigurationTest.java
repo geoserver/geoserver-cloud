@@ -67,6 +67,7 @@ class RemoteCatalogEventsAutoConfigurationTest {
                     assertThat(context).hasSingleBean(InfoEventResolver.class);
                     assertThat(context).hasSingleBean(RemoteCatalogEventMapper.class);
                     assertThat(context).hasSingleBean(RemoteCatalogEventBridge.class);
+                    assertThat(context).hasSingleBean(LocalInfoEventOriginSetter.class);
                 });
     }
 
@@ -79,6 +80,7 @@ class RemoteCatalogEventsAutoConfigurationTest {
                     assertThat(context).doesNotHaveBean(InfoEventResolver.class);
                     assertThat(context).doesNotHaveBean(RemoteCatalogEventMapper.class);
                     assertThat(context).doesNotHaveBean(RemoteCatalogEventBridge.class);
+                    assertThat(context).doesNotHaveBean(LocalInfoEventOriginSetter.class);
                 });
     }
 }

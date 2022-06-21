@@ -13,24 +13,29 @@ import lombok.Setter;
 
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.plugin.Patch;
+import org.geoserver.cloud.event.catalog.CatalogInfoModified;
+import org.geoserver.cloud.event.config.ConfigInfoModified;
 import org.springframework.core.style.ToStringCreator;
 
 import java.util.stream.Collectors;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = InfoPreModifyEvent.class),
-    @JsonSubTypes.Type(value = InfoPostModifyEvent.class),
+    @JsonSubTypes.Type(value = CatalogInfoModified.class),
+    @JsonSubTypes.Type(value = ConfigInfoModified.class),
 })
-public abstract class InfoModifyEvent<SELF, INFO extends Info> extends InfoEvent<SELF, INFO> {
+public abstract class InfoModified<SELF, INFO extends Info> extends InfoEvent<SELF, INFO> {
 
     private @Getter @Setter @NonNull Patch patch;
 
-    protected InfoModifyEvent() {}
+    protected InfoModified() {}
 
-    protected InfoModifyEvent(
-            @NonNull String objectId, @NonNull ConfigInfoType objectType, @NonNull Patch patch) {
-        super(objectId, objectType);
+    protected InfoModified(
+            @NonNull Long updateSequence,
+            @NonNull String objectId,
+            @NonNull ConfigInfoType objectType,
+            @NonNull Patch patch) {
+        super(updateSequence, objectId, objectType);
         this.patch = patch;
     }
 

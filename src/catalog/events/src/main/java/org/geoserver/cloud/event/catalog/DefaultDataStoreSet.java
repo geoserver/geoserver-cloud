@@ -28,17 +28,20 @@ import javax.annotation.Nullable;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("DefaultDataStoreSet")
 @EqualsAndHashCode(callSuper = true)
-public class DefaultDataStoreEvent extends CatalogInfoModifyEvent {
+public class DefaultDataStoreSet extends CatalogInfoModified {
 
     private @NonNull @Getter String workspaceId;
     private @Getter String defaultDataStoreId;
 
-    protected DefaultDataStoreEvent() {}
+    protected DefaultDataStoreSet() {}
 
-    DefaultDataStoreEvent(
-            @NonNull String workspaceId, String defaultDataStoreId, @NonNull Patch patch) {
+    DefaultDataStoreSet(
+            @NonNull Long updateSequence,
+            @NonNull String workspaceId,
+            String defaultDataStoreId,
+            @NonNull Patch patch) {
 
-        super(InfoEvent.CATALOG_ID, ConfigInfoType.Catalog, patch);
+        super(updateSequence, InfoEvent.CATALOG_ID, ConfigInfoType.Catalog, patch);
 
         this.workspaceId = workspaceId;
         this.defaultDataStoreId = defaultDataStoreId;
@@ -50,7 +53,8 @@ public class DefaultDataStoreEvent extends CatalogInfoModifyEvent {
                 .append("store", getDefaultDataStoreId());
     }
 
-    public static DefaultDataStoreEvent createLocal(@NonNull CatalogPostModifyEvent event) {
+    public static DefaultDataStoreSet createLocal(
+            @NonNull Long updateSequence, @NonNull CatalogPostModifyEvent event) {
 
         PropertyDiff diff =
                 PropertyDiff.valueOf(
@@ -70,11 +74,13 @@ public class DefaultDataStoreEvent extends CatalogInfoModifyEvent {
 
         Patch patch = diff.toPatch();
 
-        return new DefaultDataStoreEvent(workspaceId, newDefaultStoreId, patch);
+        return new DefaultDataStoreSet(updateSequence, workspaceId, newDefaultStoreId, patch);
     }
 
-    public static DefaultDataStoreEvent createLocal(
-            @NonNull WorkspaceInfo workspace, DataStoreInfo newStore) {
+    public static DefaultDataStoreSet createLocal(
+            @NonNull Long updateSequence,
+            @NonNull WorkspaceInfo workspace,
+            DataStoreInfo newStore) {
 
         Patch patch = new Patch();
         patch.add("defaultDataStore", newStore);
@@ -82,7 +88,7 @@ public class DefaultDataStoreEvent extends CatalogInfoModifyEvent {
         final @Nullable String newDefaultStoreId = resolveId(newStore);
         final @NonNull String workspaceId = resolveId(workspace);
 
-        return new DefaultDataStoreEvent(workspaceId, newDefaultStoreId, patch);
+        return new DefaultDataStoreSet(updateSequence, workspaceId, newDefaultStoreId, patch);
     }
 
     private static @NonNull WorkspaceInfo resolveWorkspace(Change change) {

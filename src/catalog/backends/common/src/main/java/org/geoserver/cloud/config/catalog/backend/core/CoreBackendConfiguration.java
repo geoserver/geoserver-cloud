@@ -14,7 +14,6 @@ import org.geoserver.cloud.autoconfigure.security.ConditionalOnGeoServerSecurity
 import org.geoserver.cloud.autoconfigure.security.ConditionalOnGeoServerSecurityEnabled;
 import org.geoserver.config.GeoServerDataDirectory;
 import org.geoserver.config.GeoServerFacade;
-import org.geoserver.config.GeoServerLoaderProxy;
 import org.geoserver.config.plugin.GeoServerImpl;
 import org.geoserver.config.util.XStreamPersisterFactory;
 import org.geoserver.platform.GeoServerExtensions;
@@ -37,11 +36,12 @@ public class CoreBackendConfiguration {
         return new XStreamPersisterFactory();
     }
 
-    @Autowired
-    @DependsOn("geoServerLoaderImpl")
-    public @Bean GeoServerLoaderProxy geoServerLoader(GeoServerResourceLoader resourceLoader) {
-        return new GeoServerLoaderProxy(resourceLoader);
-    }
+    //    @Autowired
+    //    @DependsOn("geoServerLoaderImpl")
+    //    public @Bean GeoServerLoaderProxy geoServerLoader(GeoServerResourceLoader resourceLoader)
+    // {
+    //        return new GeoServerLoaderProxy(resourceLoader);
+    //    }
 
     public @Bean GeoServerExtensions extensions() {
         return new GeoServerExtensions();

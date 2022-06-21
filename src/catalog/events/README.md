@@ -20,3 +20,118 @@ the `geoserver.catalog.events.enabled` boolean configuration property.
 As a convenience, the `@ConditionalOnCatalogEvents` annotation
 can be used to enable additional functionality on any downstream
 dependency.
+
+
+```mermaid
+classDiagram
+    direction LR
+    GeoServerEvent <|-- UpdateSequenceEvent
+    UpdateSequenceEvent <|-- InfoEvent
+    UpdateSequenceEvent <|-- SecurityConfigChanged
+    InfoEvent <|-- InfoAdded
+    InfoEvent <|-- InfoModified
+    InfoEvent <|-- InfoRemoved
+    InfoEvent o-- ConfigInfoType
+    InfoAdded <|-- CatalogInfoAdded
+    InfoAdded <|-- ConfigInfoAdded
+    ConfigInfoAdded <|-- GeoServerInfoSet
+    ConfigInfoAdded <|-- LoggingInfoSet
+    ConfigInfoAdded <|-- ServiceAdded
+    ConfigInfoAdded <|-- SettingsAdded
+    InfoModified <|-- CatalogInfoModified
+    InfoModified <|-- ConfigInfoModified
+    CatalogInfoModified <|-- DefaultNamespaceSet
+    CatalogInfoModified <|-- DefaultWorkspaceSet
+    CatalogInfoModified <|-- DefaultDataStoreSet
+    ConfigInfoModified <|-- GeoServerInfoModified
+    ConfigInfoModified <|-- LoggingInfoModified
+    ConfigInfoModified <|-- ServiceModified
+    ConfigInfoModified <|-- SettingsModified
+    InfoRemoved <|-- CatalogInfoRemoved
+    InfoRemoved <|-- ConfigInfoRemoved
+    ConfigInfoRemoved <|-- ServiceRemoved
+    ConfigInfoRemoved <|-- SettingsRemoved
+    class GeoServerEvent{
+        <<abstract>>
+        String origin
+        long timestamp
+        String author
+        String id
+    }
+    class UpdateSequenceEvent{
+        <<abstract>>
+        Long updateSequence
+    }
+    class InfoEvent{
+        <<abstract>>
+        String objectId
+        ConfigInfoType objectType
+    }
+    class InfoAdded{
+        <<abstract>>
+        ~I extends Info~ object
+    }
+    class InfoModified{
+        <<abstract>>
+        Patch patch
+    }
+    class InfoRemoved{
+        <<abstract>>
+    }
+    class ConfigInfoAdded{
+        <<abstract>>
+    }
+    class ConfigInfoModified{
+        <<abstract>>
+    }
+    class ConfigInfoRemoved{
+        <<abstract>>
+    }
+    class ServiceModified{
+      String workspaceId
+    }
+    class ServiceRemoved{
+      String workspaceId
+    }
+    class SettingsModified{
+      String workspaceId
+    }
+    class SettingsRemoved{
+      String workspaceId
+    }
+    class DefaultDataStoreSet{
+      String workspaceId
+      String defaultDataStoreId
+    }
+    class DefaultNamespaceSet{
+      newNamespaceId
+    }
+    class DefaultWorkspaceSet{
+      String newWorkspaceId
+    }
+    class SecurityConfigChanged{
+      String reason
+    }
+    class ConfigInfoType {
+        <<enumeration>>
+        Catalog
+        WorkspaceInfo
+        NamespaceInfo
+        CoverageStoreInfo
+        DataStoreInfo
+        WmsStoreInfo
+        WmtsStoreInfo
+        FeatureTypeInfo
+        CoverageInfo
+        WmsLayerInfo
+        WmtsLayerInfo
+        LayerInfo
+        LayerGroupInfo
+        MapInfo
+        StyleInfo
+        GeoServerInfo
+        ServiceInfo
+        SettingsInfo
+        LoggingInfo
+    }
+```

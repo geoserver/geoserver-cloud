@@ -86,7 +86,7 @@ public class WebMapServiceMinimalConfiguration {
 
     @Bean
     @Autowired
-    @DependsOn({"geoServerLoader", "wms"})
+    @DependsOn({"wms"})
     @ConditionalOnMissingBean(GetMapKvpRequestReader.class)
     GetMapKvpRequestReader getMapKvpReader(WMS wms) {
         return new GetMapKvpRequestReader(wms);

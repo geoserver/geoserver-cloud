@@ -11,19 +11,20 @@ import lombok.NonNull;
 
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.event.CatalogAddEvent;
-import org.geoserver.cloud.event.info.InfoAddEvent;
+import org.geoserver.cloud.event.info.InfoAdded;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("CatalogInfoAdded")
-public class CatalogInfoAddEvent extends InfoAddEvent<CatalogInfoAddEvent, CatalogInfo> {
+public class CatalogInfoAdded extends InfoAdded<CatalogInfoAdded, CatalogInfo> {
 
-    protected CatalogInfoAddEvent() {}
+    protected CatalogInfoAdded() {}
 
-    CatalogInfoAddEvent(@NonNull CatalogInfo object) {
-        super(object);
+    CatalogInfoAdded(@NonNull Long updateSequence, @NonNull CatalogInfo object) {
+        super(updateSequence, object);
     }
 
-    public static CatalogInfoAddEvent createLocal(@NonNull CatalogAddEvent event) {
-        return new CatalogInfoAddEvent(event.getSource());
+    public static CatalogInfoAdded createLocal(
+            @NonNull Long updateSequence, @NonNull CatalogAddEvent event) {
+        return new CatalogInfoAdded(updateSequence, event.getSource());
     }
 }

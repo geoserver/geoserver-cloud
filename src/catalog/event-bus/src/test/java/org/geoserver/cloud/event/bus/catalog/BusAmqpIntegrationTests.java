@@ -32,14 +32,14 @@ import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.PropertyDiff;
-import org.geoserver.cloud.event.catalog.CatalogInfoAddEvent;
-import org.geoserver.cloud.event.catalog.CatalogInfoModifyEvent;
-import org.geoserver.cloud.event.config.ConfigInfoModifyEvent;
+import org.geoserver.cloud.event.catalog.CatalogInfoAdded;
+import org.geoserver.cloud.event.catalog.CatalogInfoModified;
+import org.geoserver.cloud.event.config.ConfigInfoModified;
 import org.geoserver.cloud.event.info.ConfigInfoType;
-import org.geoserver.cloud.event.info.InfoAddEvent;
+import org.geoserver.cloud.event.info.InfoAdded;
 import org.geoserver.cloud.event.info.InfoEvent;
-import org.geoserver.cloud.event.info.InfoModifyEvent;
-import org.geoserver.cloud.event.info.InfoRemoveEvent;
+import org.geoserver.cloud.event.info.InfoModified;
+import org.geoserver.cloud.event.info.InfoRemoved;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.LoggingInfo;
@@ -155,7 +155,7 @@ public abstract class BusAmqpIntegrationTests {
     }
 
     @SuppressWarnings({"rawtypes"})
-    protected <T extends Info, E extends InfoRemoveEvent> E testRemoteRemoveEvent(
+    protected <T extends Info, E extends InfoRemoved> E testRemoteRemoveEvent(
             T info, Consumer<T> remover, Class<E> eventType) {
 
         this.eventsCaptor.clear().start();
@@ -175,28 +175,28 @@ public abstract class BusAmqpIntegrationTests {
             @NonNull T info, //
             @NonNull Consumer<T> modifier, //
             @NonNull Consumer<T> saver) {
-        return testRemoteModifyEvent(info, modifier, saver, CatalogInfoModifyEvent.class, true);
+        return testRemoteModifyEvent(info, modifier, saver, CatalogInfoModified.class, true);
     }
 
     protected <T extends Info> Patch testCatalogInfoModifyEventNoEquals( //
             @NonNull T info, //
             @NonNull Consumer<T> modifier, //
             @NonNull Consumer<T> saver) {
-        return testRemoteModifyEvent(info, modifier, saver, CatalogInfoModifyEvent.class, false);
+        return testRemoteModifyEvent(info, modifier, saver, CatalogInfoModified.class, false);
     }
 
     protected <T extends Info> Patch testConfigInfoModifyEvent( //
             @NonNull T info, //
             @NonNull Consumer<T> modifier, //
             @NonNull Consumer<T> saver) {
-        return testRemoteModifyEvent(info, modifier, saver, ConfigInfoModifyEvent.class, true);
+        return testRemoteModifyEvent(info, modifier, saver, ConfigInfoModified.class, true);
     }
 
     protected <T extends Info> Patch testConfigInfoModifyEventNoEquals( //
             @NonNull T info, //
             @NonNull Consumer<T> modifier, //
             @NonNull Consumer<T> saver) {
-        return testRemoteModifyEvent(info, modifier, saver, ConfigInfoModifyEvent.class, false);
+        return testRemoteModifyEvent(info, modifier, saver, ConfigInfoModified.class, false);
     }
 
     @SuppressWarnings({"rawtypes"})
@@ -204,7 +204,7 @@ public abstract class BusAmqpIntegrationTests {
             @NonNull T info, //
             @NonNull Consumer<T> modifier, //
             @NonNull Consumer<T> saver,
-            @NonNull Class<? extends InfoModifyEvent> eventType) {
+            @NonNull Class<? extends InfoModified> eventType) {
         return testRemoteModifyEvent(info, modifier, saver, eventType, true);
     }
 
@@ -213,7 +213,7 @@ public abstract class BusAmqpIntegrationTests {
             @NonNull T info, //
             @NonNull Consumer<T> modifier, //
             @NonNull Consumer<T> saver,
-            @NonNull Class<? extends InfoModifyEvent> eventType,
+            @NonNull Class<? extends InfoModified> eventType,
             boolean comparePatch) {
 
         this.eventsCaptor.stop().clear();
@@ -234,8 +234,8 @@ public abstract class BusAmqpIntegrationTests {
         RemoteInfoEvent sentRemoteEvent = eventsCaptor.remote().expectOne(eventType);
         assertRemoteEvent(info, sentRemoteEvent);
 
-        InfoModifyEvent localModifyEvent = (InfoModifyEvent) localRemoteEvent.getEvent();
-        InfoModifyEvent remoteModifyEvent = (InfoModifyEvent) sentRemoteEvent.getEvent();
+        InfoModified localModifyEvent = (InfoModified) localRemoteEvent.getEvent();
+        InfoModified remoteModifyEvent = (InfoModified) sentRemoteEvent.getEvent();
 
         Patch localPatch = localModifyEvent.getPatch();
         Patch remotePatch = remoteModifyEvent.getPatch();
@@ -280,12 +280,12 @@ public abstract class BusAmqpIntegrationTests {
     }
 
     protected <T extends Info> void testRemoteCatalogInfoAddEvent(T info, Consumer<T> addOp) {
-        testRemoteAddEvent(info, addOp, CatalogInfoAddEvent.class);
+        testRemoteAddEvent(info, addOp, CatalogInfoAdded.class);
     }
 
     @SuppressWarnings({"rawtypes"})
     protected <T extends Info> void testRemoteAddEvent(
-            T info, Consumer<T> addOp, Class<? extends InfoAddEvent> eventType) {
+            T info, Consumer<T> addOp, Class<? extends InfoAdded> eventType) {
 
         this.eventsCaptor.stop().clear().capureEventsOf(eventType);
         eventsCaptor.start();
@@ -336,8 +336,8 @@ public abstract class BusAmqpIntegrationTests {
         }
         assertThat(infoType.isInstance(info)).isTrue();
 
-        if (event instanceof InfoAddEvent) {
-            InfoAddEvent e = (InfoAddEvent) event;
+        if (event instanceof InfoAdded) {
+            InfoAdded e = (InfoAdded) event;
             assertThat(e.getObject()).isNotNull();
             assertThat(infoType.isInstance(e.getObject())).isTrue();
             assertThat(e.getObject().getId()).isEqualTo(info.getId());
@@ -348,8 +348,8 @@ public abstract class BusAmqpIntegrationTests {
             // testData.assertEqualsLenientConnectionParameters(info, object);
         }
 
-        if (event instanceof InfoModifyEvent) {
-            InfoModifyEvent modifyEvent = (InfoModifyEvent) event;
+        if (event instanceof InfoModified) {
+            InfoModified modifyEvent = (InfoModified) event;
             assertThat(modifyEvent.getPatch()).isNotNull();
         }
     }

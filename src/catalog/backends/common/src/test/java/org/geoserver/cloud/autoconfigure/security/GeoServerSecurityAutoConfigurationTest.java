@@ -15,6 +15,7 @@ import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerDataDirectory;
 import org.geoserver.platform.GeoServerExtensions;
 import org.geoserver.platform.GeoServerResourceLoader;
+import org.geoserver.platform.config.UpdateSequence;
 import org.geoserver.platform.resource.FileSystemResourceStore;
 import org.geoserver.platform.resource.ResourceStore;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,6 +48,7 @@ class GeoServerSecurityAutoConfigurationTest {
         ResourceStore resourceStore = new FileSystemResourceStore(tempDir);
         GeoServerResourceLoader resourceLoader = new GeoServerResourceLoader(resourceStore);
         GeoServerDataDirectory datadir = new GeoServerDataDirectory(resourceLoader);
+        UpdateSequence updateSequence = mock(UpdateSequence.class);
 
         runner =
                 new ApplicationContextRunner()
@@ -59,6 +61,7 @@ class GeoServerSecurityAutoConfigurationTest {
                         .withBean("catalog", Catalog.class, () -> catalog)
                         .withBean("rawCatalog", Catalog.class, () -> catalog)
                         .withBean("geoServer", GeoServer.class, () -> geoserver)
+                        .withBean("updateSequence", UpdateSequence.class, () -> updateSequence)
                         .withPropertyValues("logging.level.org.geoserver.platform: off");
     }
 

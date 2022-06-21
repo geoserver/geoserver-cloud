@@ -1364,7 +1364,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
         Objects.requireNonNull(inserter, "insert function");
         setId(object);
         validationSupport.validate(object, true);
-        T added;
+
         // TODO: remove synchronized block, we need transactions. Besides, it means nothing in
         // multi-process scenarios.
         CatalogOpContext<T> context = new CatalogOpContext<>(this, object);
@@ -1372,7 +1372,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
             businessRules.onBeforeAdd(context);
             fireBeforeAdded(object);
             try {
-                added = inserter.apply(object);
+                T added = inserter.apply(object);
                 fireAdded(added);
                 businessRules.onAfterAdd(context.setObject(added));
             } catch (RuntimeException error) {
@@ -1407,6 +1407,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
 
         // this could be the event's payload instead of three separate lists
         final PropertyDiff diff = PropertyDiff.valueOf(proxy).clean();
+
         // filter out no-op changes before firing pre-modified event (e.g. null to empty collection
         // property)
         final List<String> propertyNames = diff.getPropertyNames();

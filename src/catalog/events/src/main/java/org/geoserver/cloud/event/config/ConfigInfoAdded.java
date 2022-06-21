@@ -11,7 +11,7 @@ import lombok.NonNull;
 
 import org.geoserver.catalog.Info;
 import org.geoserver.cloud.event.info.ConfigInfoType;
-import org.geoserver.cloud.event.info.InfoAddEvent;
+import org.geoserver.cloud.event.info.InfoAdded;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
@@ -19,39 +19,40 @@ import org.geoserver.config.SettingsInfo;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = GeoServerInfoSetEvent.class, name = "GeoServerInfoSet"),
-    @JsonSubTypes.Type(value = LoggingInfoSetEvent.class, name = "LoggingInfoSet"),
-    @JsonSubTypes.Type(value = ServiceInfoAddEvent.class, name = "ServiceInfoAdded"),
-    @JsonSubTypes.Type(value = SettingsInfoAddEvent.class, name = "SettingsInfoAdded"),
+    @JsonSubTypes.Type(value = GeoServerInfoSet.class),
+    @JsonSubTypes.Type(value = LoggingInfoSet.class),
+    @JsonSubTypes.Type(value = ServiceAdded.class),
+    @JsonSubTypes.Type(value = SettingsAdded.class),
 })
-public abstract class ConfigInfoAddEvent<SELF, INFO extends Info> extends InfoAddEvent<SELF, INFO>
+public abstract class ConfigInfoAdded<SELF, INFO extends Info> extends InfoAdded<SELF, INFO>
         implements ConfigInfoEvent {
 
-    protected ConfigInfoAddEvent() {
+    protected ConfigInfoAdded() {
         // default constructor, needed for deserialization
     }
 
-    public ConfigInfoAddEvent(INFO object) {
-        super(object);
+    public ConfigInfoAdded(@NonNull Long updateSequence, INFO object) {
+        super(updateSequence, object);
     }
 
     @SuppressWarnings("unchecked")
-    public static @NonNull <I extends Info> ConfigInfoAddEvent<?, I> createLocal(@NonNull I info) {
+    public static @NonNull <I extends Info> ConfigInfoAdded<?, I> createLocal(
+            @NonNull Long updateSequence, @NonNull I info) {
 
         final ConfigInfoType type = ConfigInfoType.valueOf(info);
         switch (type) {
             case GeoServerInfo:
-                return (ConfigInfoAddEvent<?, I>)
-                        GeoServerInfoSetEvent.createLocal((GeoServerInfo) info);
+                return (ConfigInfoAdded<?, I>)
+                        GeoServerInfoSet.createLocal(updateSequence, (GeoServerInfo) info);
             case ServiceInfo:
-                return (ConfigInfoAddEvent<?, I>)
-                        ServiceInfoAddEvent.createLocal((ServiceInfo) info);
+                return (ConfigInfoAdded<?, I>)
+                        ServiceAdded.createLocal(updateSequence, (ServiceInfo) info);
             case SettingsInfo:
-                return (ConfigInfoAddEvent<?, I>)
-                        SettingsInfoAddEvent.createLocal((SettingsInfo) info);
+                return (ConfigInfoAdded<?, I>)
+                        SettingsAdded.createLocal(updateSequence, (SettingsInfo) info);
             case LoggingInfo:
-                return (ConfigInfoAddEvent<?, I>)
-                        LoggingInfoSetEvent.createLocal((LoggingInfo) info);
+                return (ConfigInfoAdded<?, I>)
+                        LoggingInfoSet.createLocal(updateSequence, (LoggingInfo) info);
             default:
                 throw new IllegalArgumentException(
                         "Uknown or unsupported config Info type: " + type + ". " + info);

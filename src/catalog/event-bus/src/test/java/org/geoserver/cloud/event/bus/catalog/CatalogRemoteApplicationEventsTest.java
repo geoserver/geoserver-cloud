@@ -26,13 +26,13 @@ import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.Patch.Property;
 import org.geoserver.catalog.plugin.PropertyDiffTestSupport;
-import org.geoserver.cloud.event.catalog.CatalogInfoRemoveEvent;
-import org.geoserver.cloud.event.catalog.DefaultDataStoreEvent;
-import org.geoserver.cloud.event.catalog.DefaultNamespaceEvent;
-import org.geoserver.cloud.event.catalog.DefaultWorkspaceEvent;
+import org.geoserver.cloud.event.catalog.CatalogInfoRemoved;
+import org.geoserver.cloud.event.catalog.DefaultDataStoreSet;
+import org.geoserver.cloud.event.catalog.DefaultNamespaceSet;
+import org.geoserver.cloud.event.catalog.DefaultWorkspaceSet;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoEvent;
-import org.geoserver.cloud.event.info.InfoModifyEvent;
+import org.geoserver.cloud.event.info.InfoModified;
 import org.geotools.data.DataUtilities;
 import org.geotools.feature.SchemaException;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -52,7 +52,7 @@ public class CatalogRemoteApplicationEventsTest extends BusAmqpIntegrationTests 
     public @Test void testCatalogSetDefaultWorkspace() {
         catalog.add(testData.workspaceA);
         catalog.add(testData.workspaceC);
-        final Class<DefaultWorkspaceEvent> eventType = DefaultWorkspaceEvent.class;
+        final Class<DefaultWorkspaceSet> eventType = DefaultWorkspaceSet.class;
         {
             Patch expected =
                     new PropertyDiffTestSupport()
@@ -61,7 +61,7 @@ public class CatalogRemoteApplicationEventsTest extends BusAmqpIntegrationTests 
                             .toPatch();
 
             Consumer<Catalog> modifier = c -> c.setDefaultWorkspace(testData.workspaceC);
-            Predicate<DefaultWorkspaceEvent> filter =
+            Predicate<DefaultWorkspaceSet> filter =
                     e -> testData.workspaceC.getId().equals(e.getNewWorkspaceId());
 
             testCatalogModifiedEvent(catalog, modifier, expected, eventType, filter);
@@ -73,7 +73,7 @@ public class CatalogRemoteApplicationEventsTest extends BusAmqpIntegrationTests 
                             .toPatch();
 
             Consumer<Catalog> modifier = c -> c.setDefaultWorkspace(null);
-            Predicate<DefaultWorkspaceEvent> filter = e -> e.getNewWorkspaceId() == null;
+            Predicate<DefaultWorkspaceSet> filter = e -> e.getNewWorkspaceId() == null;
             testCatalogModifiedEvent(catalog, modifier, expected, eventType, filter);
         }
     }
@@ -82,11 +82,11 @@ public class CatalogRemoteApplicationEventsTest extends BusAmqpIntegrationTests 
         catalog.add(testData.namespaceA);
         catalog.add(testData.namespaceB);
 
-        final Class<DefaultNamespaceEvent> eventType = DefaultNamespaceEvent.class;
+        final Class<DefaultNamespaceSet> eventType = DefaultNamespaceSet.class;
 
         {
             Consumer<Catalog> modifier = c -> c.setDefaultNamespace(testData.namespaceB);
-            Predicate<DefaultNamespaceEvent> filter =
+            Predicate<DefaultNamespaceSet> filter =
                     e -> testData.namespaceB.getId().equals(e.getNewNamespaceId());
             Patch expected =
                     new PropertyDiffTestSupport()
@@ -103,7 +103,7 @@ public class CatalogRemoteApplicationEventsTest extends BusAmqpIntegrationTests 
                             .toPatch();
 
             Consumer<Catalog> modifier = c -> c.setDefaultNamespace(null);
-            Predicate<DefaultNamespaceEvent> filter = e -> null == e.getNewNamespaceId();
+            Predicate<DefaultNamespaceSet> filter = e -> null == e.getNewNamespaceId();
 
             testCatalogModifiedEvent(catalog, modifier, expected, eventType, filter);
         }
@@ -116,7 +116,7 @@ public class CatalogRemoteApplicationEventsTest extends BusAmqpIntegrationTests 
         catalog.add(workspace);
         catalog.add(testData.namespaceA);
 
-        final Class<DefaultDataStoreEvent> eventType = DefaultDataStoreEvent.class;
+        final Class<DefaultDataStoreSet> eventType = DefaultDataStoreSet.class;
 
         {
             Patch expected =
@@ -124,9 +124,9 @@ public class CatalogRemoteApplicationEventsTest extends BusAmqpIntegrationTests 
                             .createTestDiff("defaultDataStore", null, dataStore)
                             .toPatch();
 
-            Predicate<DefaultDataStoreEvent> filter =
+            Predicate<DefaultDataStoreSet> filter =
                     e -> dataStore.getId().equals(e.getDefaultDataStoreId());
-            DefaultDataStoreEvent event =
+            DefaultDataStoreSet event =
                     testCatalogModifiedEvent(
                             catalog, c -> c.add(dataStore), expected, eventType, filter);
 
@@ -139,9 +139,9 @@ public class CatalogRemoteApplicationEventsTest extends BusAmqpIntegrationTests 
                             .createTestDiff("defaultDataStore", dataStore, null)
                             .toPatch();
 
-            Predicate<DefaultDataStoreEvent> filter = e -> null == e.getDefaultDataStoreId();
+            Predicate<DefaultDataStoreSet> filter = e -> null == e.getDefaultDataStoreId();
 
-            DefaultDataStoreEvent event =
+            DefaultDataStoreSet event =
                     testCatalogModifiedEvent(
                             catalog, c -> c.remove(dataStore), expected, eventType, filter);
 
@@ -411,7 +411,7 @@ public class CatalogRemoteApplicationEventsTest extends BusAmqpIntegrationTests 
     public @Test void testRemoveEvents() {
         setupClean();
 
-        Class<CatalogInfoRemoveEvent> eventType = CatalogInfoRemoveEvent.class;
+        Class<CatalogInfoRemoved> eventType = CatalogInfoRemoved.class;
 
         testRemoteRemoveEvent(testData.layerGroup1, catalog::remove, eventType);
         testRemoteRemoveEvent(testData.layerFeatureTypeA, catalog::remove, eventType);
@@ -443,13 +443,13 @@ public class CatalogRemoteApplicationEventsTest extends BusAmqpIntegrationTests 
         RemoteInfoEvent localRemoteEvent = eventsCaptor.local().expectOne(eventType, filter);
         RemoteInfoEvent sentEvent = eventsCaptor.remote().expectOne(eventType, filter);
 
-        assertCatalogEvent(catalog, (InfoModifyEvent) localRemoteEvent.getEvent(), expected);
-        assertCatalogEvent(catalog, (InfoModifyEvent) sentEvent.getEvent(), expected);
+        assertCatalogEvent(catalog, (InfoModified) localRemoteEvent.getEvent(), expected);
+        assertCatalogEvent(catalog, (InfoModified) sentEvent.getEvent(), expected);
         return eventType.cast(sentEvent.getEvent());
     }
 
     @SuppressWarnings("rawtypes")
-    private void assertCatalogEvent(Catalog catalog, InfoModifyEvent event, Patch expected) {
+    private void assertCatalogEvent(Catalog catalog, InfoModified event, Patch expected) {
         assertThat(event.getObjectId()).isEqualTo("catalog"); // i.e. InfoEvent.CATALOG_ID
         assertThat(event.getObjectType()).isEqualTo(ConfigInfoType.Catalog);
 

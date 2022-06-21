@@ -7,7 +7,7 @@ package org.geoserver.cloud.security;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
-import org.geoserver.cloud.event.security.SecurityConfigEvent;
+import org.geoserver.cloud.event.security.SecurityConfigChanged;
 import org.geoserver.config.GeoServerDataDirectory;
 import org.geoserver.security.GeoServerSecurityManager;
 import org.geoserver.security.config.PasswordPolicyConfig;
@@ -19,11 +19,11 @@ import org.geoserver.security.config.SecurityUserGroupServiceConfig;
 import org.geoserver.security.password.MasterPasswordConfig;
 import org.geoserver.security.password.MasterPasswordProviderConfig;
 import org.geoserver.security.validation.SecurityConfigException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 
 import java.io.IOException;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * Extends {@link GeoServerSecurityManager} to {@link #fireRemoteChangedEvent(String) notify} other
@@ -34,13 +34,20 @@ import java.io.IOException;
 @Slf4j(topic = "org.geoserver.cloud.security")
 public class CloudGeoServerSecurityManager extends GeoServerSecurityManager {
 
-    private @Autowired ApplicationEventPublisher eventPublisher;
+    private final Consumer<SecurityConfigChanged> eventPublisher;
+    private final Supplier<Long> updateSequenceIncrementor;
 
     private boolean reloading = false;
     private boolean changedDuringReload = false;
 
-    public CloudGeoServerSecurityManager(GeoServerDataDirectory dataDir) throws Exception {
+    public CloudGeoServerSecurityManager(
+            GeoServerDataDirectory dataDir,
+            @NonNull Consumer<SecurityConfigChanged> eventPublisher,
+            @NonNull Supplier<Long> updateSequenceIncrementor)
+            throws Exception {
         super(dataDir);
+        this.eventPublisher = eventPublisher;
+        this.updateSequenceIncrementor = updateSequenceIncrementor;
     }
 
     public @Override void reload() {
@@ -56,22 +63,22 @@ public class CloudGeoServerSecurityManager extends GeoServerSecurityManager {
         }
     }
 
-    /** Fires a {@link SecurityConfigEvent} for other services to react accordingly. */
+    /** Fires a {@link SecurityConfigChanged} for other services to react accordingly. */
     public void fireRemoteChangedEvent(@NonNull String reason) {
         if (reloading) {
             changedDuringReload = true;
         } else {
             log.debug("Publishing remote security event due to {}", reason);
-            eventPublisher.publishEvent(event(reason));
+            eventPublisher.accept(event(reason));
         }
     }
 
     /**
-     * Listens to {@link SecurityConfigEvent} sent by other services and {@link #reload() reloads}
+     * Listens to {@link SecurityConfigChanged} sent by other services and {@link #reload() reloads}
      * the configuration
      */
-    @EventListener(SecurityConfigEvent.class)
-    public void onRemoteSecurityConfigChangeEvent(SecurityConfigEvent event) {
+    @EventListener(SecurityConfigChanged.class)
+    public void onRemoteSecurityConfigChangeEvent(SecurityConfigChanged event) {
         if (event.isLocal()) {
             return;
         }
@@ -88,48 +95,48 @@ public class CloudGeoServerSecurityManager extends GeoServerSecurityManager {
         }
     }
 
-    /** Override to {@link #fireChanged fire} a remote {@link SecurityConfigEvent} */
+    /** Override to {@link #fireChanged fire} a remote {@link SecurityConfigChanged} */
     public @Override void saveRoleService(SecurityRoleServiceConfig config)
             throws IOException, SecurityConfigException {
         super.saveRoleService(config);
         fireRemoteChangedEvent("SecurityRoleServiceConfig changed");
     }
 
-    /** Override to {@link #fireChanged fire} a remote {@link SecurityConfigEvent} */
+    /** Override to {@link #fireChanged fire} a remote {@link SecurityConfigChanged} */
     public @Override void savePasswordPolicy(PasswordPolicyConfig config)
             throws IOException, SecurityConfigException {
         super.savePasswordPolicy(config);
         fireRemoteChangedEvent("PasswordPolicyConfig changed");
     }
 
-    /** Override to {@link #fireChanged fire} a remote {@link SecurityConfigEvent} */
+    /** Override to {@link #fireChanged fire} a remote {@link SecurityConfigChanged} */
     public @Override void saveUserGroupService(SecurityUserGroupServiceConfig config)
             throws IOException, SecurityConfigException {
         super.saveUserGroupService(config);
         fireRemoteChangedEvent("SecurityUserGroupServiceConfig changed");
     }
 
-    /** Override to {@link #fireChanged fire} a remote {@link SecurityConfigEvent} */
+    /** Override to {@link #fireChanged fire} a remote {@link SecurityConfigChanged} */
     public @Override void saveAuthenticationProvider(SecurityAuthProviderConfig config)
             throws IOException, SecurityConfigException {
         super.saveAuthenticationProvider(config);
         fireRemoteChangedEvent("SecurityAuthProviderConfig changed");
     }
 
-    /** Override to {@link #fireChanged fire} a remote {@link SecurityConfigEvent} */
+    /** Override to {@link #fireChanged fire} a remote {@link SecurityConfigChanged} */
     public @Override void saveFilter(SecurityNamedServiceConfig config)
             throws IOException, SecurityConfigException {
         super.saveFilter(config);
         fireRemoteChangedEvent("SecurityNamedServiceConfig changed");
     }
 
-    /** Override to {@link #fireChanged fire} a remote {@link SecurityConfigEvent} */
+    /** Override to {@link #fireChanged fire} a remote {@link SecurityConfigChanged} */
     public @Override void saveSecurityConfig(SecurityManagerConfig config) throws Exception {
         super.saveSecurityConfig(config);
         fireRemoteChangedEvent("SecurityManagerConfig changed");
     }
 
-    /** Override to {@link #fireChanged fire} a remote {@link SecurityConfigEvent} */
+    /** Override to {@link #fireChanged fire} a remote {@link SecurityConfigChanged} */
     public @Override void saveMasterPasswordConfig(
             MasterPasswordConfig config,
             char[] currPasswd,
@@ -140,20 +147,21 @@ public class CloudGeoServerSecurityManager extends GeoServerSecurityManager {
         fireRemoteChangedEvent("MasterPasswordConfig changed");
     }
 
-    /** Override to {@link #fireChanged fire} a remote {@link SecurityConfigEvent} */
+    /** Override to {@link #fireChanged fire} a remote {@link SecurityConfigChanged} */
     public @Override void saveMasterPasswordConfig(MasterPasswordConfig config) throws IOException {
         super.saveMasterPasswordConfig(config);
         fireRemoteChangedEvent("MasterPasswordConfig changed");
     }
 
-    /** Override to {@link #fireChanged fire} a remote {@link SecurityConfigEvent} */
+    /** Override to {@link #fireChanged fire} a remote {@link SecurityConfigChanged} */
     public @Override void saveMasterPasswordProviderConfig(MasterPasswordProviderConfig config)
             throws IOException, SecurityConfigException {
         super.saveMasterPasswordProviderConfig(config);
         fireRemoteChangedEvent("MasterPasswordProviderConfig changed");
     }
 
-    protected SecurityConfigEvent event(@NonNull String reason) {
-        return SecurityConfigEvent.createLocal(reason);
+    protected SecurityConfigChanged event(@NonNull String reason) {
+        long sequence = updateSequenceIncrementor.get();
+        return SecurityConfigChanged.createLocal(sequence, reason);
     }
 }

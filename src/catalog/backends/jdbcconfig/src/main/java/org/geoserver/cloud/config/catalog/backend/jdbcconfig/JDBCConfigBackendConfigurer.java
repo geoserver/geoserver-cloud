@@ -30,6 +30,7 @@ import org.geoserver.jdbcstore.cache.SimpleResourceCache;
 import org.geoserver.jdbcstore.internal.JDBCQueryHelper;
 import org.geoserver.jdbcstore.locks.LockRegistryAdapter;
 import org.geoserver.platform.GeoServerResourceLoader;
+import org.geoserver.platform.config.UpdateSequence;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.ResourceNotificationDispatcher;
 import org.geoserver.platform.resource.ResourceStore;
@@ -128,9 +129,17 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
                 JDBCConfigBackendConfigurer.class.getSimpleName());
     }
 
+    @Bean
+    @DependsOn("jdbcConfigDataSourceStartupValidator")
+    public @Override UpdateSequence updateSequence() {
+        DataSource dataSource = jdbcConfigDataSource();
+        CloudJdbcConfigProperties props = jdbcConfigProperties();
+        return new JdbcConfigUpdateSequence(dataSource, props);
+    }
+
     @DependsOn("jdbcConfigDataSourceStartupValidator")
     @ConfigurationProperties(prefix = "geoserver.backend.jdbcconfig")
-    public @Bean("JDBCConfigProperties") JDBCConfigProperties jdbcConfigProperties() {
+    public @Bean("JDBCConfigProperties") CloudJdbcConfigProperties jdbcConfigProperties() {
         DataSource dataSource = jdbcConfigDataSource();
         CloudJdbcConfigProperties props = new CloudJdbcConfigProperties(dataSource);
 

@@ -17,25 +17,26 @@ import org.geoserver.config.ServiceInfo;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("ServiceInfoRemoved")
 @EqualsAndHashCode(callSuper = true)
-public class ServiceInfoRemoveEvent
-        extends ConfigInfoRemoveEvent<ServiceInfoRemoveEvent, ServiceInfo> {
+public class ServiceRemoved extends ConfigInfoRemoved<ServiceRemoved, ServiceInfo> {
 
     private @Getter String workspaceId;
 
-    protected ServiceInfoRemoveEvent() {
+    protected ServiceRemoved() {
         // default constructor, needed for deserialization
     }
 
-    protected ServiceInfoRemoveEvent(@NonNull String objectId, String workspaceId) {
+    protected ServiceRemoved(
+            @NonNull Long updateSequence, @NonNull String objectId, String workspaceId) {
 
-        super(objectId, ConfigInfoType.ServiceInfo);
+        super(updateSequence, objectId, ConfigInfoType.ServiceInfo);
         this.workspaceId = workspaceId;
     }
 
-    public static ServiceInfoRemoveEvent createLocal(@NonNull ServiceInfo info) {
+    public static ServiceRemoved createLocal(
+            @NonNull Long updateSequence, @NonNull ServiceInfo info) {
 
         final @NonNull String serviceId = info.getId();
         final String workspaceId = resolveId(info.getWorkspace());
-        return new ServiceInfoRemoveEvent(serviceId, workspaceId);
+        return new ServiceRemoved(updateSequence, serviceId, workspaceId);
     }
 }

@@ -15,26 +15,27 @@ import org.geoserver.config.SettingsInfo;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("SettingsInfoRemoved")
-public class SettingsInfoRemoveEvent
-        extends ConfigInfoRemoveEvent<SettingsInfoRemoveEvent, SettingsInfo> {
+public class SettingsRemoved extends ConfigInfoRemoved<SettingsRemoved, SettingsInfo> {
 
     private @Getter @NonNull String workspaceId;
 
-    protected SettingsInfoRemoveEvent() {
+    protected SettingsRemoved() {
         // default constructor, needed for deserialization
     }
 
-    protected SettingsInfoRemoveEvent(@NonNull String objectId, @NonNull String workspaceId) {
+    protected SettingsRemoved(
+            @NonNull Long updateSequence, @NonNull String objectId, @NonNull String workspaceId) {
 
-        super(objectId, ConfigInfoType.SettingsInfo);
+        super(updateSequence, objectId, ConfigInfoType.SettingsInfo);
         this.workspaceId = workspaceId;
     }
 
-    public static SettingsInfoRemoveEvent createLocal(@NonNull SettingsInfo settings) {
+    public static SettingsRemoved createLocal(
+            @NonNull Long updateSequence, @NonNull SettingsInfo settings) {
 
         final @NonNull String settingsId = settings.getId();
         final @NonNull String workspaceId = settings.getWorkspace().getId();
 
-        return new SettingsInfoRemoveEvent(settingsId, workspaceId);
+        return new SettingsRemoved(updateSequence, settingsId, workspaceId);
     }
 }

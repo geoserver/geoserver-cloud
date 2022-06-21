@@ -18,22 +18,24 @@ import org.geoserver.config.SettingsInfo;
 import org.springframework.core.style.ToStringCreator;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
-@JsonTypeName("SettingsInfoModified")
+@JsonTypeName("SettingsModified")
 @EqualsAndHashCode(callSuper = true)
-public class SettingsInfoModifyEvent
-        extends ConfigInfoModifyEvent<SettingsInfoModifyEvent, SettingsInfo>
+public class SettingsModified extends ConfigInfoModified<SettingsModified, SettingsInfo>
         implements ConfigInfoEvent {
 
     private @Getter @NonNull String workspaceId;
 
-    protected SettingsInfoModifyEvent() {
+    protected SettingsModified() {
         // default constructor, needed for deserialization
     }
 
-    public SettingsInfoModifyEvent(
-            @NonNull String objectId, @NonNull Patch patch, @NonNull String workspaceId) {
+    public SettingsModified(
+            @NonNull Long updateSequence,
+            @NonNull String objectId,
+            @NonNull Patch patch,
+            @NonNull String workspaceId) {
 
-        super(objectId, ConfigInfoType.SettingsInfo, patch);
+        super(updateSequence, objectId, ConfigInfoType.SettingsInfo, patch);
         this.workspaceId = workspaceId;
     }
 
@@ -41,12 +43,12 @@ public class SettingsInfoModifyEvent
         return super.toStringBuilder().append("workspace", getWorkspaceId());
     }
 
-    public static SettingsInfoModifyEvent createLocal(
-            @NonNull SettingsInfo object, @NonNull Patch patch) {
+    public static SettingsModified createLocal(
+            @NonNull Long updateSequence, @NonNull SettingsInfo object, @NonNull Patch patch) {
 
         final String settingsId = object.getId();
         final String workspaceId = InfoEvent.resolveId(object.getWorkspace());
 
-        return new SettingsInfoModifyEvent(settingsId, patch, workspaceId);
+        return new SettingsModified(updateSequence, settingsId, patch, workspaceId);
     }
 }

@@ -6,8 +6,10 @@ package org.geoserver.cloud.config.catalog.backend.jdbcconfig;
 
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.plugin.CatalogPlugin;
+import org.geoserver.cloud.config.catalog.backend.core.CoreBackendConfiguration;
 import org.geoserver.config.DefaultGeoServerLoader;
 import org.geoserver.config.GeoServer;
+import org.geoserver.config.GeoServerLoaderProxy;
 import org.geoserver.config.GeoServerResourcePersister;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.impl.GeoServerImpl;
@@ -19,17 +21,32 @@ import org.geoserver.jdbcconfig.internal.JDBCConfigProperties;
 import org.geoserver.platform.GeoServerExtensions;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.Resource.Lock;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.io.IOException;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
 /**
- * Overrides {@link #loadGeoServer(GeoServer, XStreamPersister)} to avoid a class cast exception on
- * {@link GeoServerImpl} (we're using {@link org.geoserver.config.plugin.GeoServerImpl}), and
+ * {@link Catalog} and {@link GeoServer config} loader for the jdbcconfig backend, loads the
+ * configuration as soon as the spring bean wiring is {@link #load() ready}; {@link
+ * GeoServerLoaderProxy} is excluded from {@link CoreBackendConfiguration}.
+ *
+ * <p>Overrides {@link #loadGeoServer(GeoServer, XStreamPersister)} to avoid a class cast exception
+ * on {@link GeoServerImpl} (we're using {@link org.geoserver.config.plugin.GeoServerImpl}), and
  * because we don't do import, and other methods to avoid coupling on {@link JDBCCatalogFacade} just
  * to get a handle to the {@link ConfigDatabase}
+ *
+ * <p>Overrides {@link #initializeDefaultStyles} to run inside a lock on "styles" to avoid multiple
+ * instances starting up off an empty database trying to create the same default styles, which
+ * results in either a startup error or multiple styles named the same.
  */
 public class CloudJdbcGeoServerLoader extends DefaultGeoServerLoader {
+
+    private @Autowired @Qualifier("rawCatalog") Catalog rawCatalog;
+    private @Autowired GeoServer geoserver;
 
     private JDBCConfigProperties config;
 
@@ -43,6 +60,11 @@ public class CloudJdbcGeoServerLoader extends DefaultGeoServerLoader {
         super(resourceLoader);
         this.config = config;
         this.configdb = configdb;
+    }
+
+    public @PostConstruct void load() {
+        postProcessBeforeInitialization(rawCatalog, "rawCatalog");
+        postProcessBeforeInitialization(geoserver, "geoServer");
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})

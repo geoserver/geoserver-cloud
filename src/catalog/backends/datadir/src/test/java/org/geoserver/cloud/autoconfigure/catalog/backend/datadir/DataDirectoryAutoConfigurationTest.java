@@ -14,12 +14,14 @@ import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.cloud.config.catalog.backend.datadirectory.DataDirectoryBackendConfiguration;
 import org.geoserver.cloud.config.catalog.backend.datadirectory.DataDirectoryProperties;
+import org.geoserver.cloud.config.catalog.backend.datadirectory.DataDirectoryUpdateSequence;
 import org.geoserver.cloud.config.catalog.backend.datadirectory.NoServletContextDataDirectoryResourceStore;
 import org.geoserver.config.DefaultGeoServerLoader;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerFacade;
 import org.geoserver.config.GeoServerLoader;
 import org.geoserver.platform.GeoServerResourceLoader;
+import org.geoserver.platform.config.UpdateSequence;
 import org.geoserver.platform.resource.ResourceStore;
 import org.junit.Assume;
 import org.junit.Test;
@@ -103,5 +105,11 @@ public class DataDirectoryAutoConfigurationTest {
 
     public @Test void testResourceStoreImpl() {
         assertThat(resourceStoreImpl, instanceOf(NoServletContextDataDirectoryResourceStore.class));
+    }
+
+    public @Test void testUpdateSequence() {
+        assertThat(
+                context.getBean(UpdateSequence.class),
+                instanceOf(DataDirectoryUpdateSequence.class));
     }
 }

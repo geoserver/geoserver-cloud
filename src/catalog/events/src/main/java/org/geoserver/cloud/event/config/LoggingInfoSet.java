@@ -7,24 +7,26 @@ package org.geoserver.cloud.event.config;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
+import lombok.NonNull;
+
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.LoggingInfo;
 
 /** Event sent when {@link GeoServer#setLogging(LoggingInfo)} is called on a node */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("LoggingInfoSet")
-public class LoggingInfoSetEvent extends ConfigInfoAddEvent<LoggingInfoSetEvent, LoggingInfo>
+public class LoggingInfoSet extends ConfigInfoAdded<LoggingInfoSet, LoggingInfo>
         implements ConfigInfoEvent {
 
-    protected LoggingInfoSetEvent() {
+    protected LoggingInfoSet() {
         // default constructor, needed for deserialization
     }
 
-    protected LoggingInfoSetEvent(LoggingInfo object) {
-        super(object);
+    protected LoggingInfoSet(@NonNull Long updateSequence, LoggingInfo object) {
+        super(updateSequence, object);
     }
 
-    public static LoggingInfoSetEvent createLocal(LoggingInfo value) {
-        return new LoggingInfoSetEvent(value);
+    public static LoggingInfoSet createLocal(@NonNull Long updateSequence, LoggingInfo value) {
+        return new LoggingInfoSet(updateSequence, value);
     }
 }

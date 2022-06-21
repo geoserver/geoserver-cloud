@@ -4,7 +4,6 @@
  */
 package org.geoserver.cloud.event.config;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -17,26 +16,23 @@ import org.geoserver.config.GeoServerInfo;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("GeoServerInfoModified")
-@JsonSubTypes({
-    @JsonSubTypes.Type(value = UpdateSequenceEvent.class),
-})
 @EqualsAndHashCode(callSuper = true)
-public class GeoServerInfoModifyEvent
-        extends ConfigInfoModifyEvent<GeoServerInfoModifyEvent, GeoServerInfo>
+public class GeoServerInfoModified extends ConfigInfoModified<GeoServerInfoModified, GeoServerInfo>
         implements ConfigInfoEvent {
 
-    protected GeoServerInfoModifyEvent() {
+    protected GeoServerInfoModified() {
         // default constructor, needed for deserialization
     }
 
-    protected GeoServerInfoModifyEvent(@NonNull String id, @NonNull Patch patch) {
-        super(id, ConfigInfoType.GeoServerInfo, patch);
+    protected GeoServerInfoModified(
+            @NonNull Long updateSequence, @NonNull String id, @NonNull Patch patch) {
+        super(updateSequence, id, ConfigInfoType.GeoServerInfo, patch);
     }
 
-    public static GeoServerInfoModifyEvent createLocal(GeoServerInfo info, @NonNull Patch patch) {
+    public static GeoServerInfoModified createLocal(
+            @NonNull Long updateSequence, GeoServerInfo info, @NonNull Patch patch) {
         final String id = resolveId(info);
-        return patch.get("updateSequence")
-                .map(p -> (GeoServerInfoModifyEvent) UpdateSequenceEvent.createLocal(id, patch))
-                .orElseGet(() -> new GeoServerInfoModifyEvent(id, patch));
+
+        return new GeoServerInfoModified(updateSequence, id, patch);
     }
 }

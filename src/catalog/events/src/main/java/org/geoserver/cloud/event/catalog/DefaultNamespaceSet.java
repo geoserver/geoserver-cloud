@@ -18,14 +18,14 @@ import org.springframework.core.style.ToStringCreator;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("DefaultNamespaceSet")
-public class DefaultNamespaceEvent extends CatalogInfoModifyEvent {
+public class DefaultNamespaceSet extends CatalogInfoModified {
 
     private @Getter String newNamespaceId;
 
-    protected DefaultNamespaceEvent() {}
+    protected DefaultNamespaceSet() {}
 
-    DefaultNamespaceEvent(String newNamespaceId, @NonNull Patch patch) {
-        super(InfoEvent.CATALOG_ID, ConfigInfoType.Catalog, patch);
+    DefaultNamespaceSet(@NonNull Long updateSequence, String newNamespaceId, @NonNull Patch patch) {
+        super(updateSequence, InfoEvent.CATALOG_ID, ConfigInfoType.Catalog, patch);
         this.newNamespaceId = newNamespaceId;
     }
 
@@ -33,11 +33,12 @@ public class DefaultNamespaceEvent extends CatalogInfoModifyEvent {
         return super.toStringBuilder().append("namespace", getNewNamespaceId());
     }
 
-    public static DefaultNamespaceEvent createLocal(NamespaceInfo defaultNamespace) {
+    public static DefaultNamespaceSet createLocal(
+            @NonNull Long updateSequence, NamespaceInfo defaultNamespace) {
 
         String namespaceId = resolveId(defaultNamespace);
         Patch patch = new Patch();
         patch.add("defaultNamespace", defaultNamespace);
-        return new DefaultNamespaceEvent(namespaceId, patch);
+        return new DefaultNamespaceSet(updateSequence, namespaceId, patch);
     }
 }

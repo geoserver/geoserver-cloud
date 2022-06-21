@@ -2,47 +2,75 @@
  * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
  * GPL 2.0 license, available at the root application directory.
  */
-package org.geoserver.cloud.event.info;
+package org.geoserver.cloud.event;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.Info;
-import org.geoserver.cloud.event.UpdateSequenceEvent;
+import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.LoggingInfo;
 import org.springframework.core.style.ToStringCreator;
 
+import java.util.Optional;
+
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
-@JsonSubTypes({
-    @JsonSubTypes.Type(value = InfoAdded.class),
-    @JsonSubTypes.Type(value = InfoModified.class),
-    @JsonSubTypes.Type(value = InfoRemoved.class)
-})
-public abstract class InfoEvent<SELF, INFO extends Info> extends UpdateSequenceEvent<SELF> {
+@JsonSubTypes({@JsonSubTypes.Type(value = UpdateSequenceEvent.class)})
+public abstract class GeoServerEvent<SELF> {
 
-    private @Getter String objectId;
+    @JsonIgnore private @Setter boolean remote;
 
-    private @Getter ConfigInfoType objectType;
+    @JsonIgnore private @Setter @Getter String origin;
 
-    protected InfoEvent() {}
+    /** System time when the event happened. */
+    private @Getter long timestamp;
 
-    protected InfoEvent(
-            @NonNull Long updateSequence,
-            @NonNull String objectId,
-            @NonNull ConfigInfoType objectType) {
-        super(updateSequence);
-        // this.source = source;
-        this.objectId = objectId;
-        this.objectType = objectType;
+    private @Getter String author;
+
+    private @Getter @Setter String id;
+
+    protected GeoServerEvent() {}
+
+    protected GeoServerEvent(long timestamp, String author) {
+        this.timestamp = timestamp;
+        this.author = author;
     }
 
-    protected @Override ToStringCreator toStringBuilder() {
-        return super.toStringBuilder().append("type", getObjectType()).append("id", getObjectId());
+    @SuppressWarnings("unchecked")
+    public Optional<SELF> local() {
+        return Optional.ofNullable(isLocal() ? (SELF) this : null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public Optional<SELF> remote() {
+        return Optional.ofNullable(isRemote() ? (SELF) this : null);
+    }
+
+    public boolean isLocal() {
+        return !isRemote(); // source != null;
+    }
+
+    public boolean isRemote() {
+        return remote;
+    }
+
+    public @Override String toString() {
+        return toStringBuilder().toString();
+    }
+
+    protected ToStringCreator toStringBuilder() {
+        return new ToStringCreator(this)
+                .append("id", getId())
+                .append("remote", isRemote())
+                .append("origin", getOrigin())
+                .append("author", getAuthor());
     }
 
     /**

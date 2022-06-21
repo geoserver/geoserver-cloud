@@ -12,22 +12,22 @@ import lombok.NonNull;
 import lombok.Setter;
 
 import org.geoserver.catalog.Info;
-import org.geoserver.cloud.event.catalog.CatalogInfoAddEvent;
-import org.geoserver.cloud.event.config.ConfigInfoAddEvent;
+import org.geoserver.cloud.event.catalog.CatalogInfoAdded;
+import org.geoserver.cloud.event.config.ConfigInfoAdded;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = CatalogInfoAddEvent.class, name = "CatalogInfoAdded"),
-    @JsonSubTypes.Type(value = ConfigInfoAddEvent.class),
+    @JsonSubTypes.Type(value = CatalogInfoAdded.class),
+    @JsonSubTypes.Type(value = ConfigInfoAdded.class),
 })
-public abstract class InfoAddEvent<SELF, I extends Info> extends InfoEvent<SELF, I> {
+public abstract class InfoAdded<SELF, I extends Info> extends InfoEvent<SELF, I> {
 
     private @Getter @Setter @NonNull I object;
 
-    protected InfoAddEvent() {}
+    protected InfoAdded() {}
 
-    protected InfoAddEvent(@NonNull I object) {
-        super(resolveId(object), typeOf(object));
+    protected InfoAdded(@NonNull Long updateSequence, @NonNull I object) {
+        super(updateSequence, resolveId(object), typeOf(object));
         this.object = object;
     }
 }

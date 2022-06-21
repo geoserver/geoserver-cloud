@@ -17,21 +17,22 @@ import org.geoserver.config.LoggingInfo;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("LoggingInfoModified")
 @EqualsAndHashCode(callSuper = true)
-public class LoggingInfoModifyEvent
-        extends ConfigInfoModifyEvent<LoggingInfoModifyEvent, LoggingInfo>
+public class LoggingInfoModified extends ConfigInfoModified<LoggingInfoModified, LoggingInfo>
         implements ConfigInfoEvent {
 
-    protected LoggingInfoModifyEvent() {
+    protected LoggingInfoModified() {
         // default constructor, needed for deserialization
     }
 
-    protected LoggingInfoModifyEvent(@NonNull String id, @NonNull Patch patch) {
+    protected LoggingInfoModified(
+            @NonNull Long updateSequence, @NonNull String id, @NonNull Patch patch) {
 
-        super(id, ConfigInfoType.LoggingInfo, patch);
+        super(updateSequence, id, ConfigInfoType.LoggingInfo, patch);
     }
 
-    public static LoggingInfoModifyEvent createLocal(LoggingInfo info, @NonNull Patch patch) {
+    public static LoggingInfoModified createLocal(
+            @NonNull Long updateSequence, LoggingInfo info, @NonNull Patch patch) {
         String id = resolveId(info);
-        return new LoggingInfoModifyEvent(id, patch);
+        return new LoggingInfoModified(updateSequence, id, patch);
     }
 }
