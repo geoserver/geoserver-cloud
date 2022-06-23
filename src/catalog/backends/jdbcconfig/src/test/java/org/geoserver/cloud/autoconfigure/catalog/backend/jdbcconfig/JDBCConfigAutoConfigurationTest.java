@@ -6,9 +6,9 @@ package org.geoserver.cloud.autoconfigure.catalog.backend.jdbcconfig;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.WorkspaceInfo;
@@ -24,11 +24,9 @@ import org.geoserver.jdbcconfig.catalog.JDBCCatalogFacade;
 import org.geoserver.jdbcstore.JDBCResourceStore;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.config.UpdateSequence;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
 /**
  * Test {@link JDBCConfigBackendConfigurer} through {@link JDBCConfigAutoConfiguration} when {@code
@@ -37,7 +35,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest(
         classes = AutoConfigurationTestConfiguration.class,
         properties = "geoserver.backend.jdbcconfig.enabled=true")
-@RunWith(SpringRunner.class)
 public class JDBCConfigAutoConfigurationTest extends JDBCConfigTest {
 
     private @Autowired JdbcConfigConfigurationProperties configProperties;

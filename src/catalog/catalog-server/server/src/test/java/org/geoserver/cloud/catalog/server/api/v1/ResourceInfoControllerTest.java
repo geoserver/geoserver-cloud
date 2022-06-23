@@ -4,9 +4,10 @@
  */
 package org.geoserver.cloud.catalog.server.api.v1;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import java.io.IOException;
+import java.util.List;
 import org.geoserver.catalog.CoverageInfo;
 import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.NamespaceInfo;
@@ -17,14 +18,11 @@ import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.impl.WMSLayerInfoImpl;
 import org.geoserver.cloud.catalog.server.test.CatalogTestClient;
 import org.geoserver.ows.util.OwsUtils;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.opengis.filter.Filter;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.http.MediaType;
-
-import java.io.IOException;
-import java.util.List;
 
 @AutoConfigureWebTestClient(timeout = "360000")
 public class ResourceInfoControllerTest
@@ -141,7 +139,7 @@ public class ResourceInfoControllerTest
      * org.geoserver.catalog.impl.ModificationProxyCloner cannot access a member of class
      * java.util.Collections$EmptySet (in module java.base) with modifiers "private"}
      */
-    @Ignore
+    @Disabled
     public @Test void testResourceInfoCRUD_WMSLayerInfo() {
         WMSLayerInfo toCreate =
                 testData.createWMSLayer(

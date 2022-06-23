@@ -18,16 +18,14 @@ import org.geoserver.config.GeoServerConfigConformanceTest;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.plugin.GeoServerImpl;
 import org.geoserver.wms.WMSInfoImpl;
-import org.junit.After;
-import org.junit.Assume;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 
 /**
  * API {@link GeoServerConfigConformanceTest conformance test} for a {@link GeoServer} configuration
@@ -47,7 +45,6 @@ import org.springframework.test.context.junit4.SpringRunner;
             "server.port=15555",
             "geoserver.backend.catalog-service.uri=http://localhost:${server.port}"
         })
-@RunWith(SpringRunner.class)
 @ActiveProfiles("it.catalog-service")
 public class CatalogClientGeoServerFacadeConformanceTest extends GeoServerConfigConformanceTest {
 
@@ -76,7 +73,7 @@ public class CatalogClientGeoServerFacadeConformanceTest extends GeoServerConfig
     }
 
     /** prune the server catalog */
-    @After
+    @AfterEach
     public void deleteAll() {
         CatalogTestData.empty(() -> serverCatalog, () -> serverConfig).deleteAll();
     }
@@ -85,7 +82,7 @@ public class CatalogClientGeoServerFacadeConformanceTest extends GeoServerConfig
      * Test works if run alone, but not if it runs after other tests cause server config is not null
      */
     public @Override @Test void testGlobal() throws Exception {
-        Assume.assumeTrue(serverConfig.getGlobal() == null);
+        Assumptions.assumeTrue(serverConfig.getGlobal() == null);
         super.testGlobal();
     }
 
@@ -93,7 +90,7 @@ public class CatalogClientGeoServerFacadeConformanceTest extends GeoServerConfig
      * Test works if run alone, but not if it runs after other tests cause server config is not null
      */
     public @Override @Test void testModifyGlobal() throws Exception {
-        Assume.assumeTrue(serverConfig.getGlobal() == null);
+        Assumptions.assumeTrue(serverConfig.getGlobal() == null);
         super.testModifyGlobal();
     }
 }

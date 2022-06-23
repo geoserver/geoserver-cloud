@@ -4,7 +4,7 @@
  */
 package org.geoserver.cloud.integration.jdbcconfig;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.util.Collection;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -27,19 +27,14 @@ import org.geoserver.catalog.WMTSStoreInfo;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.cloud.integration.catalog.IntegrationTestConfiguration;
 import org.geoserver.config.GeoServer;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.extern.slf4j.Slf4j;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest(classes = IntegrationTestConfiguration.class, properties = {//
         "geoserver.backend.jdbcconfig.enabled=true"//
         , "geoserver.backend.jdbcconfig.datasource.minimumIdle=1"//
@@ -52,8 +47,6 @@ import lombok.extern.slf4j.Slf4j;
 })
 @Slf4j
 public class JDBCConfigCatalogConcurrencyIT {
-
-    public @Rule TemporaryFolder tmpFolder = new TemporaryFolder();
 
     private @Autowired @Qualifier("catalogFacade") ExtendedCatalogFacade jdbcCatalogFacade;
     private @Autowired @Qualifier("rawCatalog") Catalog rawCatalog;
@@ -68,13 +61,13 @@ public class JDBCConfigCatalogConcurrencyIT {
     // GeoServerExtensionsHelper.singleton("sldHandler", new SLDHandler(), StyleHandler.class);
     // }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         data = CatalogTestData.empty(() -> rawCatalog, () -> geoServer).initialize();
         data.deleteAll();
     }
 
-    public @Before void prepare() {
+    public @BeforeEach void prepare() {
         data.deleteAll(rawCatalog);
         jdbcCatalogFacade.dispose(); // disposes internal caches
     }

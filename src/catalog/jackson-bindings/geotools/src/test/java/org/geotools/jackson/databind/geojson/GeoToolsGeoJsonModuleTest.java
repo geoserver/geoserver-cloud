@@ -4,8 +4,8 @@
  */
 package org.geotools.jackson.databind.geojson;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,8 +13,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 
 import org.geotools.jackson.databind.util.ObjectMapperUtil;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.CoordinateSequence;
 import org.locationtech.jts.geom.CoordinateSequenceFactory;
@@ -45,7 +45,7 @@ public class GeoToolsGeoJsonModuleTest {
 
     private static ObjectMapper objectMapper;
 
-    public static @BeforeClass void beforeAll() {
+    public static @BeforeAll void beforeAll() {
         objectMapper = ObjectMapperUtil.newObjectMapper();
     }
 
@@ -151,7 +151,7 @@ public class GeoToolsGeoJsonModuleTest {
         for (int i = 0; i < cs1.length; i++) {
             Coordinate c1 = cs1[i];
             Coordinate c2 = cs2[i];
-            assertTrue(String.format("expected %s, got %s", c1, c2), c1.equals3D(c2));
+            assertTrue(c1.equals3D(c2), String.format("expected %s, got %s", c1, c2));
             assertEquals(c1.getM(), c2.getM(), 1e-9d);
         }
     }

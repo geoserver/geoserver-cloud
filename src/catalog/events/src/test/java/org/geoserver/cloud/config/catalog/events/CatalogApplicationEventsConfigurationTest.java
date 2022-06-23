@@ -4,10 +4,10 @@
  */
 package org.geoserver.cloud.config.catalog.events;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import lombok.NonNull;
 
@@ -44,14 +44,12 @@ import org.geoserver.config.SettingsInfo;
 import org.geoserver.config.impl.CoverageAccessInfoImpl;
 import org.geoserver.config.impl.SettingsInfoImpl;
 import org.geoserver.wms.WMSInfoImpl;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
 import java.util.Optional;
@@ -62,7 +60,6 @@ import java.util.function.Consumer;
             TestConfigurationAutoConfiguration.class,
             ApplicationEventCapturingListener.class
         })
-@RunWith(SpringRunner.class)
 @EnableAutoConfiguration
 public class CatalogApplicationEventsConfigurationTest {
 
@@ -73,14 +70,14 @@ public class CatalogApplicationEventsConfigurationTest {
 
     private CatalogTestData testData;
 
-    public @Before void before() {
+    public @BeforeEach void before() {
         listener.setCapureEventsOf(InfoEvent.class);
         catalog.dispose();
         listener.clear();
         testData = CatalogTestData.empty(() -> catalog, () -> geoserver).initialize();
     }
 
-    public @After void after() {
+    public @AfterEach void after() {
         testData.after();
     }
 
@@ -355,7 +352,7 @@ public class CatalogApplicationEventsConfigurationTest {
         List<String> propertyNames = h.getPropertyNames();
         List<Object> newValues = h.getNewValues();
         List<Object> oldValues = h.getOldValues();
-        assertFalse("Test should change at least one property", propertyNames.isEmpty());
+        assertFalse(propertyNames.isEmpty(), "Test should change at least one property");
 
         Patch expected = PropertyDiff.valueOf(propertyNames, oldValues, newValues).toPatch();
 

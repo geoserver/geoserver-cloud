@@ -15,14 +15,14 @@ import static org.geoserver.catalog.Predicates.or;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -51,17 +51,17 @@ import org.geoserver.security.impl.DataAccessRule;
 import org.geoserver.security.impl.DataAccessRuleDAO;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.util.logging.Logging;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.MultiValuedFilter.MatchAction;
 import org.opengis.filter.sort.SortBy;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
@@ -97,7 +97,7 @@ public abstract class CatalogConformanceTest {
 
     private DataAccessRuleDAO dataAccessRuleDAO;
 
-    public @Rule TemporaryFolder tmpFolder = new TemporaryFolder();
+    @TempDir public File tmpFolder;
 
     protected void addLayerAccessRule(
             String workspace, String layer, AccessMode mode, String... roles) throws IOException {
@@ -113,17 +113,17 @@ public abstract class CatalogConformanceTest {
 
     protected abstract Catalog createCatalog();
 
-    public static @BeforeClass void oneTimeSetup() {
+    public static @BeforeAll void oneTimeSetup() {
         GeoServerExtensionsHelper.setIsSpringContext(false);
         if (null == GeoServerExtensions.bean("sldHandler"))
             GeoServerExtensionsHelper.singleton("sldHandler", new SLDHandler(), StyleHandler.class);
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         rawCatalog = createCatalog();
         rawCatalog.setResourceLoader(new GeoServerResourceLoader());
-        GeoServerDataDirectory dd = new GeoServerDataDirectory(tmpFolder.getRoot());
+        GeoServerDataDirectory dd = new GeoServerDataDirectory(tmpFolder);
         dataAccessRuleDAO = new DataAccessRuleDAO(dd, rawCatalog);
         dataAccessRuleDAO.reload();
 
@@ -2022,7 +2022,7 @@ public abstract class CatalogConformanceTest {
      * Revisit.
      */
     @Test
-    @Ignore
+    @Disabled
     public void testGetLayerByIdWithConcurrentAdd() throws Exception {
         addDataStore();
         addNamespace();
@@ -2127,8 +2127,8 @@ public abstract class CatalogConformanceTest {
         rawCatalog.setDefaultWorkspace(ws2);
 
         assertNull(
-                "layerGroup2 is not global, should not be found",
-                rawCatalog.getLayerGroupByName("layerGroup2"));
+                rawCatalog.getLayerGroupByName("layerGroup2"),
+                "layerGroup2 is not global, should not be found");
         assertNotNull(rawCatalog.getLayerGroupByName(data.workspaceA.getName() + ":layerGroup2"));
         assertNotNull(rawCatalog.getLayerGroupByName(data.workspaceA, "layerGroup2"));
         assertNull(rawCatalog.getLayerGroupByName("cite", "layerGroup2"));
@@ -2173,8 +2173,8 @@ public abstract class CatalogConformanceTest {
 
         // lg is not global, should not be found at least we specify a prefixed name
         assertNull(
-                "MyFakeWorkspace:layerGroup is not global, should not be found",
-                rawCatalog.getLayerGroupByName(lgName));
+                rawCatalog.getLayerGroupByName(lgName),
+                "MyFakeWorkspace:layerGroup is not global, should not be found");
 
         assertEquals(lg, rawCatalog.getLayerGroupByName(data.workspaceA.getName(), lgName));
         assertEquals(lg, rawCatalog.getLayerGroupByName(data.workspaceA, lgName));
@@ -3314,10 +3314,10 @@ public abstract class CatalogConformanceTest {
                             // make sure each listener actually got the message
                             for (TestListener testListener : listeners) {
                                 assertTrue(
-                                        "Did not find the expected even in the listener",
                                         testListener.removed.stream()
                                                 .anyMatch(
-                                                        event -> event.getSource() == catalogInfo));
+                                                        event -> event.getSource() == catalogInfo),
+                                        "Did not find the expected even in the listener");
                             }
 
                             // clear the listeners

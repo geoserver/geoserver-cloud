@@ -6,8 +6,8 @@ package org.geoserver.catalog.plugin;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogConformanceTest;
@@ -15,7 +15,7 @@ import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.impl.DefaultCatalogFacade;
 import org.geoserver.catalog.plugin.CatalogFacadeExtensionAdapter.SilentCatalog;
 import org.geoserver.catalog.plugin.forwarding.ResolvingCatalogFacadeDecorator;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Asserts that a {@link CatalogFacadeExtensionAdapter} does not result in double publishing of

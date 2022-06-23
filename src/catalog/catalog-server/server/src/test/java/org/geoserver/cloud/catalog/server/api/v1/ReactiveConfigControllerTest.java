@@ -7,12 +7,14 @@ package org.geoserver.cloud.catalog.server.api.v1;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_STREAM_JSON;
-
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.geoserver.catalog.CatalogTestData;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.WorkspaceInfo;
@@ -20,7 +22,6 @@ import org.geoserver.catalog.impl.MetadataLinkInfoImpl;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.PropertyDiff;
-import org.geoserver.cloud.catalog.server.api.v1.ReactiveConfigController;
 import org.geoserver.cloud.catalog.server.config.CatalogServerConfiguration;
 import org.geoserver.cloud.catalog.server.test.WebTestClientSupportConfiguration;
 import org.geoserver.config.GeoServer;
@@ -33,10 +34,9 @@ import org.geoserver.wfs.WFSInfo;
 import org.geoserver.wms.WMSInfo;
 import org.geoserver.wps.WPSInfo;
 import org.hamcrest.Matchers;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -44,21 +44,12 @@ import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWeb
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.reactive.server.WebTestClient.ResponseSpec;
 
-import java.util.Arrays;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 @SpringBootTest(
-        classes = {
-            CatalogServerConfiguration.class,
-            WebTestClientSupportConfiguration.class
-        })
+        classes = {CatalogServerConfiguration.class, WebTestClientSupportConfiguration.class})
 @ActiveProfiles("test") // see bootstrap-test.yml
-@RunWith(SpringRunner.class)
 @AutoConfigureWebTestClient(timeout = "360000")
 public class ReactiveConfigControllerTest {
 
@@ -72,18 +63,19 @@ public class ReactiveConfigControllerTest {
 
     private CatalogTestData testData;
 
-    public @Before void before() {
+    public @BeforeEach void before() {
         testData =
                 CatalogTestData.empty(() -> geoServer.getCatalog(), () -> geoServer).initialize();
         geoServer.getCatalog().add(testData.workspaceA);
         geoServer.getCatalog().add(testData.workspaceB);
     }
 
-    public @After void after() {
+    public @AfterEach void after() {
         testData.deleteAll(geoServer.getCatalog());
         WorkspaceInfo workspace = testData.workspaceA;
         SettingsInfo settings = geoServer.getSettings(workspace);
-        if (settings != null) geoServer.remove(settings);
+        if (settings != null)
+            geoServer.remove(settings);
 
         geoServer.getServices().forEach(geoServer::remove);
         geoServer.getServices(workspace).forEach(geoServer::remove);
@@ -93,13 +85,8 @@ public class ReactiveConfigControllerTest {
     public @Test void getGlobal() {
         GeoServerInfo global = controller.getGlobal().block();
         assertNotNull(global);
-        GeoServerInfo responseBody =
-                get("/global")
-                        .expectStatus()
-                        .isOk()
-                        .expectBody(GeoServerInfo.class)
-                        .returnResult()
-                        .getResponseBody();
+        GeoServerInfo responseBody = get("/global").expectStatus().isOk()
+                .expectBody(GeoServerInfo.class).returnResult().getResponseBody();
         assertEquals(global, responseBody);
 
         Mockito.doReturn(null).when(geoServer).getGlobal();
@@ -135,9 +122,7 @@ public class ReactiveConfigControllerTest {
         geoServer.add(settings);
 
         final SettingsInfo expected = geoServer.getSettings(workspace);
-        get("/workspaces/{workspaceId}/settings", workspace.getId())
-                .expectStatus()
-                .isOk()
+        get("/workspaces/{workspaceId}/settings", workspace.getId()).expectStatus().isOk()
                 .expectBody(SettingsInfo.class)
                 .consumeWith(result -> assertEquals(expected, result.getResponseBody()));
     }
@@ -148,8 +133,7 @@ public class ReactiveConfigControllerTest {
         assertNull(geoServer.getSettings(workspace));
         SettingsInfo settings = testData.workspaceASettings;
         settings.setWorkspace(null); // should work even if workspace is not set beforehand
-        post(settings, "/workspaces/{workspaceId}/settings", workspace.getId())
-                .expectStatus()
+        post(settings, "/workspaces/{workspaceId}/settings", workspace.getId()).expectStatus()
                 .isCreated();
 
         assertNotNull(geoServer.getSettings(workspace));
@@ -166,9 +150,7 @@ public class ReactiveConfigControllerTest {
         settings.setTitle("new title set through api");
         Patch patch = PropertyDiff.valueOf(ModificationProxy.handler(settings)).toPatch();
 
-        patch(patch, "/workspaces/{workspaceId}/settings", workspace.getId())
-                .expectStatus()
-                .isOk()
+        patch(patch, "/workspaces/{workspaceId}/settings", workspace.getId()).expectStatus().isOk()
                 .expectBody(SettingsInfo.class)
                 .value(s -> s.getTitle(), equalTo("new title set through api"));
         assertEquals(settings.getTitle(), geoServer.getSettings(workspace).getTitle());
@@ -181,14 +163,10 @@ public class ReactiveConfigControllerTest {
         settings.setWorkspace(workspace);
         geoServer.add(settings);
         assertNotNull(geoServer.getSettings(workspace));
-        delete("/workspaces/{workspaceId}/settings", workspace.getId())
-                .expectStatus()
-                .isOk()
-                .expectBody()
-                .isEmpty();
+        delete("/workspaces/{workspaceId}/settings", workspace.getId()).expectStatus().isOk()
+                .expectBody().isEmpty();
         assertNull(geoServer.getSettings(workspace));
-        delete("/workspaces/{workspaceId}/settings", workspace.getId())
-                .expectStatus()
+        delete("/workspaces/{workspaceId}/settings", workspace.getId()).expectStatus()
                 .isNoContent();
     }
 
@@ -197,13 +175,8 @@ public class ReactiveConfigControllerTest {
         geoServer.setLogging(testData.logging);
         LoggingInfo logging = geoServer.getLogging();
         assertNotNull(logging);
-        LoggingInfo responseBody =
-                get("/logging")
-                        .expectStatus()
-                        .isOk()
-                        .expectBody(LoggingInfo.class)
-                        .returnResult()
-                        .getResponseBody();
+        LoggingInfo responseBody = get("/logging").expectStatus().isOk()
+                .expectBody(LoggingInfo.class).returnResult().getResponseBody();
         assertEquals(logging, responseBody);
     }
 
@@ -244,11 +217,8 @@ public class ReactiveConfigControllerTest {
         WMSInfo service = testData.wmsService;
         service.setWorkspace(null); // should work regardless
         service.setTitle("created from api for workspace");
-        post(service, "/workspaces/{workspaceId}/services", workspace.getId())
-                .expectStatus()
-                .isCreated()
-                .expectBody()
-                .isEmpty();
+        post(service, "/workspaces/{workspaceId}/services", workspace.getId()).expectStatus()
+                .isCreated().expectBody().isEmpty();
 
         WMSInfo stored = geoServer.getService(workspace, WMSInfo.class);
         assertNotNull(stored);
@@ -258,13 +228,11 @@ public class ReactiveConfigControllerTest {
     // DELETE /services/{serviceId}
     public @Test void deleteServiceById() {
         WMSInfo service = testData.wmsService;
-        if (null == geoServer.getService(WMSInfo.class)) geoServer.add(service);
+        if (null == geoServer.getService(WMSInfo.class))
+            geoServer.add(service);
         assertNotNull(geoServer.getService(WMSInfo.class));
 
-        delete("/services/{serviceId}", service.getId())
-                .expectStatus()
-                .isOk()
-                .expectBody()
+        delete("/services/{serviceId}", service.getId()).expectStatus().isOk().expectBody()
                 .isEmpty();
 
         assertNull(geoServer.getService(WMSInfo.class));
@@ -286,24 +254,16 @@ public class ReactiveConfigControllerTest {
         geoServer.add(wfsService);
         geoServer.add(wpsService);
 
-        get("/services/{serviceId}", wmsService.getId())
-                .expectStatus()
-                .isOk()
+        get("/services/{serviceId}", wmsService.getId()).expectStatus().isOk()
                 .expectBody(WMSInfo.class)
                 .value(s -> s.getId(), Matchers.equalTo(wmsService.getId()));
-        get("/services/{serviceId}", wcsService.getId())
-                .expectStatus()
-                .isOk()
+        get("/services/{serviceId}", wcsService.getId()).expectStatus().isOk()
                 .expectBody(WCSInfo.class)
                 .value(s -> s.getId(), Matchers.equalTo(wcsService.getId()));
-        get("/services/{serviceId}", wfsService.getId())
-                .expectStatus()
-                .isOk()
+        get("/services/{serviceId}", wfsService.getId()).expectStatus().isOk()
                 .expectBody(WFSInfo.class)
                 .value(s -> s.getId(), Matchers.equalTo(wfsService.getId()));
-        get("/services/{serviceId}", wpsService.getId())
-                .expectStatus()
-                .isOk()
+        get("/services/{serviceId}", wpsService.getId()).expectStatus().isOk()
                 .expectBody(WPSInfo.class)
                 .value(s -> s.getId(), Matchers.equalTo(wpsService.getId()));
     }
@@ -351,13 +311,8 @@ public class ReactiveConfigControllerTest {
         service.setMetadataLink(metadataLink);
 
         Patch patch = asPatch(service);
-        ServiceInfo returned =
-                patch(patch, "/services/{id}", service.getId())
-                        .expectStatus()
-                        .isOk()
-                        .expectBody(ServiceInfo.class)
-                        .returnResult()
-                        .getResponseBody();
+        ServiceInfo returned = patch(patch, "/services/{id}", service.getId()).expectStatus().isOk()
+                .expectBody(ServiceInfo.class).returnResult().getResponseBody();
 
         @SuppressWarnings("unchecked")
         Class<S> origType = (Class<S>) ModificationProxy.unwrap(service).getClass();
@@ -378,15 +333,8 @@ public class ReactiveConfigControllerTest {
         WorkspaceInfo ws = testData.workspaceA;
         geoServer.getServices(ws).forEach(geoServer::remove);
 
-        get("/workspaces/{workspaceId}/services", ws.getId())
-                .expectStatus()
-                .isOk()
-                .expectHeader()
-                .contentType(APPLICATION_STREAM_JSON)
-                .expectStatus()
-                .isOk()
-                .expectBody()
-                .isEmpty();
+        get("/workspaces/{workspaceId}/services", ws.getId()).expectStatus().isOk().expectHeader()
+                .contentType(APPLICATION_STREAM_JSON).expectStatus().isOk().expectBody().isEmpty();
 
         testData.wmsService.setWorkspace(ws);
         geoServer.add(testData.wmsService);
@@ -398,17 +346,13 @@ public class ReactiveConfigControllerTest {
 
         testData.wcsService.setWorkspace(ws);
         geoServer.add(testData.wcsService);
-        testGetServicesByWorkspace(
-                ws, testData.wmsService, testData.wfsService, testData.wcsService);
+        testGetServicesByWorkspace(ws, testData.wmsService, testData.wfsService,
+                testData.wcsService);
 
         testData.wpsService.setWorkspace(ws);
         geoServer.add(testData.wpsService);
-        testGetServicesByWorkspace(
-                ws,
-                testData.wmsService,
-                testData.wfsService,
-                testData.wcsService,
-                testData.wpsService);
+        testGetServicesByWorkspace(ws, testData.wmsService, testData.wfsService,
+                testData.wcsService, testData.wpsService);
     }
 
     private void testGetServicesByWorkspace(WorkspaceInfo ws, ServiceInfo... expected) {
@@ -416,14 +360,9 @@ public class ReactiveConfigControllerTest {
         Set<String> expectedIds =
                 Arrays.stream(expected).map(ServiceInfo::getId).collect(Collectors.toSet());
 
-        get("/workspaces/{workspaceId}/services", ws.getId())
-                .expectStatus()
-                .isOk()
-                .expectHeader()
-                .contentType(APPLICATION_STREAM_JSON)
-                .expectBodyList(ServiceInfo.class)
-                .value(
-                        l -> l.stream().map(ServiceInfo::getId).collect(Collectors.toSet()),
+        get("/workspaces/{workspaceId}/services", ws.getId()).expectStatus().isOk().expectHeader()
+                .contentType(APPLICATION_STREAM_JSON).expectBodyList(ServiceInfo.class)
+                .value(l -> l.stream().map(ServiceInfo::getId).collect(Collectors.toSet()),
                         Matchers.equalTo(expectedIds));
     }
 
@@ -431,15 +370,8 @@ public class ReactiveConfigControllerTest {
     public @Test void getGlobalServices() {
         geoServer.getServices().forEach(geoServer::remove);
 
-        get("/services")
-                .expectStatus()
-                .isOk()
-                .expectHeader()
-                .contentType(APPLICATION_STREAM_JSON)
-                .expectStatus()
-                .isOk()
-                .expectBody()
-                .isEmpty();
+        get("/services").expectStatus().isOk().expectHeader().contentType(APPLICATION_STREAM_JSON)
+                .expectStatus().isOk().expectBody().isEmpty();
 
         geoServer.add(testData.wmsService);
         testGetServices(testData.wmsService);
@@ -451,8 +383,8 @@ public class ReactiveConfigControllerTest {
         testGetServices(testData.wmsService, testData.wfsService, testData.wcsService);
 
         geoServer.add(testData.wpsService);
-        testGetServices(
-                testData.wmsService, testData.wfsService, testData.wcsService, testData.wpsService);
+        testGetServices(testData.wmsService, testData.wfsService, testData.wcsService,
+                testData.wpsService);
     }
 
     private void testGetServices(ServiceInfo... expected) {
@@ -460,14 +392,9 @@ public class ReactiveConfigControllerTest {
         Set<String> expectedIds =
                 Arrays.stream(expected).map(ServiceInfo::getId).collect(Collectors.toSet());
 
-        get("/services")
-                .expectStatus()
-                .isOk()
-                .expectHeader()
-                .contentType(APPLICATION_STREAM_JSON)
+        get("/services").expectStatus().isOk().expectHeader().contentType(APPLICATION_STREAM_JSON)
                 .expectBodyList(ServiceInfo.class)
-                .value(
-                        l -> l.stream().map(ServiceInfo::getId).collect(Collectors.toSet()),
+                .value(l -> l.stream().map(ServiceInfo::getId).collect(Collectors.toSet()),
                         Matchers.equalTo(expectedIds));
     }
 
@@ -481,15 +408,13 @@ public class ReactiveConfigControllerTest {
 
     private <S extends ServiceInfo> void testGetGlobalService(S service, Class<S> type) {
         S existing = geoServer.getService(type);
-        if (existing != null) geoServer.remove(existing);
+        if (existing != null)
+            geoServer.remove(existing);
 
         String typeName = type.getName();
         get("/services/type/{type}", typeName).expectStatus().isNoContent();
         geoServer.add(service);
-        get("/services/type/{type}", typeName)
-                .expectStatus()
-                .isOk()
-                .expectBody(type)
+        get("/services/type/{type}", typeName).expectStatus().isOk().expectBody(type)
                 .value(s -> s.getId(), equalTo(service.getId()));
     }
 
@@ -503,27 +428,20 @@ public class ReactiveConfigControllerTest {
         testGetServiceByWorkspaceAndType(ws, WPSInfo.class, testData.wpsService);
     }
 
-    private <S extends ServiceInfo> void testGetServiceByWorkspaceAndType(
-            WorkspaceInfo ws, Class<S> type, S service) {
+    private <S extends ServiceInfo> void testGetServiceByWorkspaceAndType(WorkspaceInfo ws,
+            Class<S> type, S service) {
 
         String workspaceId = ws.getId();
         String typeParam = type.getName();
 
-        get("/workspaces/{workspaceId}/services/type/{type}", workspaceId, typeParam)
-                .expectStatus()
-                .isNoContent()
-                .expectHeader()
-                .contentType(APPLICATION_JSON);
+        get("/workspaces/{workspaceId}/services/type/{type}", workspaceId, typeParam).expectStatus()
+                .isNoContent().expectHeader().contentType(APPLICATION_JSON);
 
         service.setWorkspace(ws);
         geoServer.add(service);
 
-        get("/workspaces/{workspaceId}/services/type/{type}", workspaceId, typeParam)
-                .expectStatus()
-                .isOk()
-                .expectHeader()
-                .contentType(APPLICATION_JSON)
-                .expectBody(type)
+        get("/workspaces/{workspaceId}/services/type/{type}", workspaceId, typeParam).expectStatus()
+                .isOk().expectHeader().contentType(APPLICATION_JSON).expectBody(type)
                 .value(ServiceInfo::getId, equalTo(service.getId()));
     }
 
@@ -540,20 +458,13 @@ public class ReactiveConfigControllerTest {
 
         final String name = service.getName();
 
-        get("/services/name/{name}", name)
-                .expectHeader()
-                .contentType(APPLICATION_JSON)
-                .expectStatus()
-                .isNoContent();
+        get("/services/name/{name}", name).expectHeader().contentType(APPLICATION_JSON)
+                .expectStatus().isNoContent();
 
         geoServer.add(service);
 
-        get("/services/name/{name}", name)
-                .expectStatus()
-                .isOk()
-                .expectHeader()
-                .contentType(APPLICATION_JSON)
-                .expectBody(ServiceInfo.class)
+        get("/services/name/{name}", name).expectStatus().isOk().expectHeader()
+                .contentType(APPLICATION_JSON).expectBody(ServiceInfo.class)
                 .value(ServiceInfo::getId, equalTo(service.getId()))
                 .value(ServiceInfo::getName, equalTo(service.getName()));
 
@@ -561,11 +472,8 @@ public class ReactiveConfigControllerTest {
         service.setName(service.getName() + "-changed");
         geoServer.save(service);
 
-        get("/services/name/{name}", name)
-                .expectHeader()
-                .contentType(APPLICATION_JSON)
-                .expectStatus()
-                .isNoContent();
+        get("/services/name/{name}", name).expectHeader().contentType(APPLICATION_JSON)
+                .expectStatus().isNoContent();
     }
 
     // GET /workspaces/{workspaceId}/services/name/{name}
@@ -596,65 +504,40 @@ public class ReactiveConfigControllerTest {
         WorkspaceInfo ws = testData.workspaceA;
 
         get("/workspaces/{workspaceId}/services/name/{name}", ws.getId(), service.getName())
-                .expectStatus()
-                .isOk()
-                .expectHeader()
-                .contentType(APPLICATION_JSON)
-                .expectBody(ServiceInfo.class)
-                .value(s -> s.getId(), equalTo(service.getId()));
+                .expectStatus().isOk().expectHeader().contentType(APPLICATION_JSON)
+                .expectBody(ServiceInfo.class).value(s -> s.getId(), equalTo(service.getId()));
 
         String emptyWsId = testData.workspaceB.getId();
         get("/workspaces/{workspaceId}/services/name/{name}", emptyWsId, service.getName())
-                .expectStatus()
-                .isNoContent()
-                .expectHeader()
-                .contentType(APPLICATION_JSON);
+                .expectStatus().isNoContent().expectHeader().contentType(APPLICATION_JSON);
     }
 
-    private <T extends Info> ResponseSpec put(
-            Object requestBody, String uri, Object... uriVariables) {
-        return testClient
-                .put()
-                .uri(toAbsoluteURI(uri), uriVariables)
-                .bodyValue(requestBody)
-                .accept(APPLICATION_JSON, APPLICATION_STREAM_JSON)
-                .exchange();
+    private <T extends Info> ResponseSpec put(Object requestBody, String uri,
+            Object... uriVariables) {
+        return testClient.put().uri(toAbsoluteURI(uri), uriVariables).bodyValue(requestBody)
+                .accept(APPLICATION_JSON, APPLICATION_STREAM_JSON).exchange();
     }
 
-    private <T extends Info> ResponseSpec post(
-            Object requestBody, String uri, Object... uriVariables) {
-        return testClient
-                .post()
-                .uri(toAbsoluteURI(uri), uriVariables)
-                .bodyValue(requestBody)
-                .accept(APPLICATION_JSON, APPLICATION_STREAM_JSON)
-                .exchange();
+    private <T extends Info> ResponseSpec post(Object requestBody, String uri,
+            Object... uriVariables) {
+        return testClient.post().uri(toAbsoluteURI(uri), uriVariables).bodyValue(requestBody)
+                .accept(APPLICATION_JSON, APPLICATION_STREAM_JSON).exchange();
     }
 
-    private <T extends Info> ResponseSpec patch(
-            Object requestBody, String uri, Object... uriVariables) {
-        return testClient
-                .patch()
-                .uri(toAbsoluteURI(uri), uriVariables)
-                .bodyValue(requestBody)
-                .accept(APPLICATION_JSON, APPLICATION_STREAM_JSON)
-                .exchange();
+    private <T extends Info> ResponseSpec patch(Object requestBody, String uri,
+            Object... uriVariables) {
+        return testClient.patch().uri(toAbsoluteURI(uri), uriVariables).bodyValue(requestBody)
+                .accept(APPLICATION_JSON, APPLICATION_STREAM_JSON).exchange();
     }
 
     private <T extends Info> ResponseSpec get(String uri, Object... uriVariables) {
-        return testClient
-                .get()
-                .uri(toAbsoluteURI(uri), uriVariables)
-                .accept(APPLICATION_JSON, APPLICATION_STREAM_JSON)
-                .exchange();
+        return testClient.get().uri(toAbsoluteURI(uri), uriVariables)
+                .accept(APPLICATION_JSON, APPLICATION_STREAM_JSON).exchange();
     }
 
     private <T extends Info> ResponseSpec delete(String uri, Object... uriVariables) {
-        return testClient
-                .delete()
-                .uri(toAbsoluteURI(uri), uriVariables)
-                .accept(APPLICATION_JSON, APPLICATION_STREAM_JSON)
-                .exchange();
+        return testClient.delete().uri(toAbsoluteURI(uri), uriVariables)
+                .accept(APPLICATION_JSON, APPLICATION_STREAM_JSON).exchange();
     }
 
     private String toAbsoluteURI(String relative) {

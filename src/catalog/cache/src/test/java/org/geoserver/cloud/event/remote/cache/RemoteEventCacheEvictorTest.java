@@ -6,10 +6,10 @@ package org.geoserver.cloud.event.remote.cache;
 
 import static org.geoserver.cloud.catalog.cache.CachingCatalogFacade.DEFAULT_NAMESPACE_CACHE_KEY;
 import static org.geoserver.cloud.catalog.cache.CachingCatalogFacade.DEFAULT_WORKSPACE_CACHE_KEY;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.times;
 
@@ -52,10 +52,9 @@ import org.geoserver.config.impl.SettingsInfoImpl;
 import org.geoserver.config.plugin.GeoServerImpl;
 import org.geoserver.security.SecuredResourceNameChangeListener;
 import org.geoserver.wms.WMSInfoImpl;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -64,7 +63,6 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Date;
 import java.util.function.Function;
@@ -86,7 +84,6 @@ import javax.annotation.Nullable;
             "logging.level.org.springframework.cache=DEBUG",
             "logging.level.org.geoserver.cloud.events=DEBUG"
         })
-@RunWith(SpringRunner.class)
 public class RemoteEventCacheEvictorTest {
 
     /** Spring-cache for CatalogInfo objects, named after {@link CachingCatalogFacade#CACHE_NAME} */
@@ -111,7 +108,7 @@ public class RemoteEventCacheEvictorTest {
 
     private @SpyBean RemoteEventCacheEvictor evictor;
 
-    public @Before void before() {
+    public @BeforeEach void before() {
         assertTrue(rawCatalog.getRawFacade() instanceof CachingCatalogFacade);
         assertTrue(geoServer.getFacade() instanceof CachingGeoServerFacade);
         data = CatalogTestData.initialized(() -> rawCatalog, () -> geoServer).initialize();
@@ -124,7 +121,7 @@ public class RemoteEventCacheEvictorTest {
         catalog.removeListeners(SecuredResourceNameChangeListener.class);
     }
 
-    public @After void after() {
+    public @AfterEach void after() {
         // data.after();
     }
 
@@ -166,12 +163,12 @@ public class RemoteEventCacheEvictorTest {
         assertNull(catalogCache.get(key));
 
         catalog.getDefaultDataStore(data.workspaceA);
-        assertNotNull("expected cache hit", catalogCache.get(key));
+        assertNotNull(catalogCache.get(key), "expected cache hit");
 
         publishRemote(DefaultDataStoreSet.createLocal(123L, data.workspaceA, (DataStoreInfo) null));
 
         assertNull(
-                "expected key evicted after setting null default datastore", catalogCache.get(key));
+                catalogCache.get(key), "expected key evicted after setting null default datastore");
 
         assertNull(catalogCache.get(key));
 
@@ -277,9 +274,9 @@ public class RemoteEventCacheEvictorTest {
 
         Mockito.verify(this.evictor, times(1)).onServiceInfoModifyEvent(same(event));
 
-        assertNull("service by id not evicted", configCache.get(idKey));
-        assertNull("service by name not evicted", configCache.get(nameKey));
-        assertNull("service by type not evicted", configCache.get(typeKey));
+        assertNull(configCache.get(idKey), "service by id not evicted");
+        assertNull(configCache.get(nameKey), "service by name not evicted");
+        assertNull(configCache.get(typeKey), "service by type not evicted");
     }
 
     public @Test void testRemoteServiceInfoRemoveEvent_global_service() {
@@ -319,9 +316,9 @@ public class RemoteEventCacheEvictorTest {
 
         Mockito.verify(this.evictor, times(1)).onServiceInfoRemoveEvent(same(event));
 
-        assertNull("service by id not evicted", configCache.get(idKey));
-        assertNull("service by name not evicted", configCache.get(nameKey));
-        assertNull("service by type not evicted", configCache.get(typeKey));
+        assertNull(configCache.get(idKey), "service by id not evicted");
+        assertNull(configCache.get(nameKey), "service by name not evicted");
+        assertNull(configCache.get(typeKey), "service by type not evicted");
     }
 
     public @Test void testRemoteSettingsInfoModifyEvent() {
@@ -351,10 +348,10 @@ public class RemoteEventCacheEvictorTest {
 
         Mockito.verify(evictor, times(1)).onSettingsInfoModifyEvent(same(event));
 
-        assertNull("expected entry to be evicted", configCache.get(settings.getId()));
+        assertNull(configCache.get(settings.getId()), "expected entry to be evicted");
         assertNull(
-                "expected workspace settings entry to be evicted",
-                configCache.get(workspaceSettingsKey));
+                configCache.get(workspaceSettingsKey),
+                "expected workspace settings entry to be evicted");
     }
 
     public @Test void testRemoteSettingsInfoRemoveEvent() {
@@ -381,10 +378,10 @@ public class RemoteEventCacheEvictorTest {
 
         Mockito.verify(evictor, times(1)).onSettingsInfoRemoveEvent(same(event));
 
-        assertNull("expected entry to be evicted", configCache.get(settings.getId()));
+        assertNull(configCache.get(settings.getId()), "expected entry to be evicted");
         assertNull(
-                "expected workspace settings entry to be evicted",
-                configCache.get(workspaceSettingsKey));
+                configCache.get(workspaceSettingsKey),
+                "expected workspace settings entry to be evicted");
     }
 
     public @Test void testRemoteLoggingInfoSetEvent() {
@@ -401,7 +398,7 @@ public class RemoteEventCacheEvictorTest {
 
         Mockito.verify(evictor, times(1)).onSetLoggingInfoEvent(same(event));
 
-        assertNull("logging not evicted", configCache.get(key));
+        assertNull(configCache.get(key), "logging not evicted");
     }
 
     public @Test void testRemoteLoggingInfoModifyEvent() {
@@ -416,7 +413,7 @@ public class RemoteEventCacheEvictorTest {
                 publishRemote(LoggingInfoModified.createLocal(123L, info, patch("level", "DEBUG")));
         Mockito.verify(evictor, times(1)).onLoggingInfoModifyEvent(same(event));
 
-        assertNull("logging not evicted", configCache.get(key));
+        assertNull(configCache.get(key), "logging not evicted");
     }
 
     public @Test void testRemoteGeoServerInfoSetEvent() {
@@ -433,7 +430,7 @@ public class RemoteEventCacheEvictorTest {
 
         Mockito.verify(evictor, times(1)).onSetGlobalInfoEvent(same(event));
 
-        assertNull("global not evicted", configCache.get(key));
+        assertNull(configCache.get(key), "global not evicted");
     }
 
     public @Test void testRemoteGeoServerInfoModifyEvent() {
@@ -450,7 +447,7 @@ public class RemoteEventCacheEvictorTest {
                                 123L, info, patch("xmlExternalEntitiesEnabled", true)));
         Mockito.verify(evictor, times(1)).onGeoServerInfoModifyEvent(same(event));
 
-        assertNull("global not evicted", configCache.get(key));
+        assertNull(configCache.get(key), "global not evicted");
     }
 
     public @Test void testUpdateSequenceModifyEvent_evicts_but_applies_update_sequence_in_place() {

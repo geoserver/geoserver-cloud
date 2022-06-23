@@ -6,7 +6,7 @@ package org.geoserver.cloud.integration.catalogservice;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.google.common.collect.Lists;
 
@@ -24,8 +24,8 @@ import org.geoserver.cloud.catalog.app.CatalogServiceApplication;
 import org.geoserver.cloud.catalog.client.impl.CatalogClientConfiguration;
 import org.geoserver.cloud.catalog.client.repository.CatalogClientRepository;
 import org.geoserver.cloud.integration.catalog.AbstractCatalogBackendIT;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opengis.filter.Filter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -78,7 +78,7 @@ public class CatalogClientBackendIntegrationTest extends AbstractCatalogBackendI
         return clientCatalog;
     }
 
-    public @Before void purgeServerCatalog() {
+    public @BeforeEach void purgeServerCatalog() {
         serverCatalog.removeListeners(TestListener.class);
         serverCatalog.removeListeners(ExceptionThrowingListener.class);
         super.data.deleteAll(serverCatalog);

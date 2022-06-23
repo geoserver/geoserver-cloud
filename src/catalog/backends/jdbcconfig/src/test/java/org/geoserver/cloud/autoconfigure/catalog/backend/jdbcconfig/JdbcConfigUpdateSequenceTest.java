@@ -4,33 +4,31 @@
  */
 package org.geoserver.cloud.autoconfigure.catalog.backend.jdbcconfig;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.geoserver.cloud.config.catalog.backend.jdbcconfig.JdbcConfigUpdateSequence;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
 @SpringBootTest(
         classes = AutoConfigurationTestConfiguration.class,
         properties = "geoserver.backend.jdbcconfig.enabled=true")
-@RunWith(SpringRunner.class)
 public class JdbcConfigUpdateSequenceTest extends JDBCConfigTest {
 
     private @Autowired JdbcConfigUpdateSequence updateSequence;
 
     public @Test void testUpdateSequence() {
+        final long initial = updateSequence.get();
         long v = updateSequence.get();
-        assertEquals(0, v);
+        assertEquals(initial, v);
         v = updateSequence.incrementAndGet();
-        assertEquals(1, v);
+        assertEquals(1 + initial, v);
         v = updateSequence.get();
-        assertEquals(1, v);
+        assertEquals(1 + initial, v);
         v = updateSequence.incrementAndGet();
-        assertEquals(2, v);
+        assertEquals(2 + initial, v);
         v = updateSequence.get();
-        assertEquals(2, v);
+        assertEquals(2 + initial, v);
     }
 }

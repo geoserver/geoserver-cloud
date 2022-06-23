@@ -4,10 +4,11 @@
  */
 package org.geoserver.cloud.integration.catalog;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import java.io.IOException;
+import java.util.List;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogConformanceTest;
 import org.geoserver.catalog.LayerInfo;
@@ -18,15 +19,9 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geotools.ows.wmts.WebMapTileServer;
 import org.geotools.ows.wmts.model.WMTSCapabilities;
 import org.geotools.ows.wmts.model.WMTSLayer;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.opengis.util.ProgressListener;
-import org.springframework.test.context.junit4.SpringRunner;
 
-import java.io.IOException;
-import java.util.List;
-
-@RunWith(SpringRunner.class)
 public abstract class AbstractCatalogBackendIT extends CatalogConformanceTest {
 
     final String LIVE_WMTS_GETCAPS_URL =

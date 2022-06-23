@@ -6,11 +6,11 @@ package org.geoserver.cloud.catalog.client.repository;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
@@ -48,17 +48,15 @@ import org.geotools.filter.function.math.FilterFunction_abs;
 import org.geotools.filter.function.math.FilterFunction_acos;
 import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.filter.text.ecql.ECQL;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opengis.filter.Filter;
 import org.opengis.filter.capability.FunctionName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -68,7 +66,6 @@ import java.util.List;
 import java.util.Optional;
 
 @SpringBootTest(classes = CatalogClientRepositoryConfiguration.class)
-@RunWith(SpringRunner.class)
 @ActiveProfiles("test")
 public class CatalogClientRepositoryTest {
 
@@ -85,7 +82,7 @@ public class CatalogClientRepositoryTest {
     private static final Catalog fakeCatalog = new CatalogPlugin();
     protected CatalogTestData testData;
 
-    public @Before void before() {
+    public @BeforeEach void before() {
         List<FunctionName> functions =
                 Arrays.asList(
                         IsInstanceOf.NAME,
@@ -97,7 +94,7 @@ public class CatalogClientRepositoryTest {
                 CatalogTestData.empty(() -> fakeCatalog, () -> null).initConfig(false).initialize();
     }
 
-    public @After void after() {
+    public @AfterEach void after() {
         testData.after();
     }
 
