@@ -47,7 +47,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
-public class CatalogRemoteApplicationEventsTest extends BusAmqpIntegrationTests {
+public class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
 
     public @Test void testCatalogSetDefaultWorkspace() {
         catalog.add(testData.workspaceA);
