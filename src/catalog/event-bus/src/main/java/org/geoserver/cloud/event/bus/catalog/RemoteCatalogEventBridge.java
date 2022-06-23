@@ -77,21 +77,26 @@ public class RemoteCatalogEventBridge {
         }
 
         private void publishRemoteEvent(RemoteInfoEvent remoteEvent) {
-            InfoEvent<?, ?> event = remoteEvent.getEvent();
-            if (event instanceof InfoModified) {
-                Patch patch = ((InfoModified<?, ?>) event).getPatch();
-                if (patch.isEmpty()) {
-                    log.info("Not broadcasting no-change event {}", remoteEvent);
-                    return;
-                }
-            }
-            log.debug("{}: broadcasting {}", localBusId.get(), remoteEvent);
+            logOutgoing(remoteEvent);
             try {
                 remoteEventPublisher.accept(remoteEvent);
             } catch (RuntimeException e) {
                 log.error("{}: error broadcasting {}", localBusId.get(), remoteEvent, e);
                 throw e;
             }
+        }
+
+        protected void logOutgoing(RemoteInfoEvent remoteEvent) {
+            InfoEvent<?, ?> event = remoteEvent.getEvent();
+            String logMsg = "{}: broadcasting {}";
+            if (event instanceof InfoModified) {
+                Patch patch = ((InfoModified<?, ?>) event).getPatch();
+                if (patch.isEmpty()) {
+                    logMsg = "{}: broadcasting no-change event {}";
+                }
+            }
+            final String busId = localBusId.get();
+            log.debug(logMsg, busId, remoteEvent);
         }
     }
 
@@ -117,9 +122,9 @@ public class RemoteCatalogEventBridge {
         }
 
         private void publishLocalEvent(RemoteInfoEvent incoming) {
-
+            log.trace("Received remote event {}", incoming);
             InfoEvent<?, ?> localRemoteEvent = mapper.toLocalRemote(incoming);
-            log.debug("{}: publishing as local-remote {}", localBusId.get(), incoming);
+            log.debug("{}: publishing as local event {}", localBusId.get(), incoming);
             try {
                 localRemoteEventPublisher.accept(localRemoteEvent);
             } catch (RuntimeException e) {
