@@ -1373,6 +1373,10 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
             fireBeforeAdded(object);
             try {
                 T added = inserter.apply(object);
+                // fire the event before the post-rules are processed, since they may result in
+                // other objects removed/modified, and hence avoid a secondary event to be notified
+                // before the primary one. For example, a post-rule may result in a call to
+                // setDefaultWorspace/Namespace/DataStore
                 fireAdded(added);
                 businessRules.onAfterAdd(context.setObject(added));
             } catch (RuntimeException error) {
@@ -1428,6 +1432,10 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
             // commit proxy, making effective the change in the provided object. Has no effect in
             // what's been passed to the facade
             proxy.commit();
+            // fire the event before the post-rules are processed, since they may result in other
+            // objects removed/modified, and hence avoid a secondary event to be notified before the
+            // primary one. For example, a post-rule may result in a call to
+            // setDefaultWorspace/Namespace/DataStore
             firePostModified(updated, propertyNames, oldValues, newValues);
             businessRules.onAfterSave(context.setObject(updated));
         } catch (RuntimeException error) {
@@ -1444,6 +1452,10 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
             businessRules.onBeforeRemove(context);
             try {
                 remover.accept(object);
+                // fire the event before the post-rules are processed, since they may result in
+                // other objects removed/modified, and hence avoid a secondary event to be notified
+                // before the primary one. For example, a post-rule may result in a call to
+                // setDefaultWorspace/Namespace/DataStore
                 fireRemoved(object);
                 businessRules.onRemoved(context);
             } catch (RuntimeException error) {
