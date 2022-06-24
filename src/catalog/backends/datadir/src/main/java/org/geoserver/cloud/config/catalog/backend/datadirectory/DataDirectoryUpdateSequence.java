@@ -5,9 +5,15 @@
 package org.geoserver.cloud.config.catalog.backend.datadirectory;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+import org.geoserver.catalog.Catalog;
+import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.config.GeoServer;
+import org.geoserver.config.GeoServerDataDirectory;
 import org.geoserver.config.GeoServerInfo;
+import org.geoserver.config.util.XStreamPersister;
+import org.geoserver.config.util.XStreamPersisterFactory;
 import org.geoserver.platform.config.UpdateSequence;
 import org.geoserver.platform.resource.LockProvider;
 import org.geoserver.platform.resource.Resource;
@@ -29,6 +35,7 @@ import java.util.Properties;
 /**
  * @since 1.0
  */
+@Slf4j
 @RequiredArgsConstructor
 public class DataDirectoryUpdateSequence implements UpdateSequence {
 
@@ -40,8 +47,12 @@ public class DataDirectoryUpdateSequence implements UpdateSequence {
 
     private @Autowired @Qualifier("resourceStoreImpl") ResourceStore resourceStore;
     private @Autowired @Qualifier("geoServer") GeoServer geoServer;
+    private @Autowired GeoServerDataDirectory dd;
+    private @Autowired XStreamPersisterFactory xpf;
 
-    public @Override long get() {
+    private XStreamPersister xp;
+
+    public @Override long currValue() {
         try {
             Resource resource = resource();
             if (!Resources.exists(resource)) {
@@ -64,23 +75,53 @@ public class DataDirectoryUpdateSequence implements UpdateSequence {
         }
     }
 
-    public @Override long incrementAndGet() {
+    public @Override long nextValue() {
         org.geoserver.platform.resource.Resource.Lock clusterLock = lock();
         try {
-            Resource resource = resource();
-            if (!Resources.exists(resource)) {
-                initialize(resource);
-            }
-            Properties props = load(resource);
-            final long currentValue = getValue(props);
-            final long newValue = currentValue + 1;
-            save(resource, newValue);
+            final long newValue = computeAndSaveNewValue();
+            persistGeoServerInfo(newValue);
             return newValue;
         } catch (IOException e) {
             throw new IllegalStateException(e);
         } finally {
             clusterLock.release();
         }
+    }
+
+    protected long computeAndSaveNewValue() throws IOException {
+        Resource resource = resource();
+        if (!Resources.exists(resource)) {
+            initialize(resource);
+        }
+        Properties props = load(resource);
+        final long currentValue = getValue(props);
+        final long newValue = currentValue + 1;
+        save(resource, newValue);
+        return newValue;
+    }
+
+    private void persistGeoServerInfo(long newValue) {
+        log.debug("Saving update sequence {}", newValue);
+        GeoServerInfo info = ModificationProxy.unwrap(geoServer.getGlobal());
+        info.setUpdateSequence(newValue);
+        Resource resource = dd.config(info);
+        XStreamPersister xp = persister();
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            xp.save(info, out);
+            resource.setContents(out.toByteArray());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private XStreamPersister persister() {
+        if (null == xp) {
+            xp = xpf.createXMLPersister();
+            Catalog catalog = geoServer.getCatalog();
+            xp.setCatalog(catalog);
+        }
+        return xp;
     }
 
     private Long getValue(Properties props) {

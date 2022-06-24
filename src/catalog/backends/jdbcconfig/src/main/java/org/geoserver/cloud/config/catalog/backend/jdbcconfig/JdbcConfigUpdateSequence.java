@@ -34,12 +34,12 @@ public class JdbcConfigUpdateSequence implements UpdateSequence, InitializingBea
     private String getQuery;
 
     @Override
-    public long get() {
+    public long currValue() {
         return runAndGetLong(this.getQuery);
     }
 
     @Override
-    public long incrementAndGet() {
+    public long nextValue() {
         return runAndGetLong(this.incrementAndGetQuery);
     }
 

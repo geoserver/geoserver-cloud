@@ -18,6 +18,7 @@ gwc:
 # and usually loaded from gs-gwc.jar's application.properties.
 # This won't be the case since we declare spring.config.name=geoserver
 gwc.context.suffix: gwc
+geoserver.base-path: /gwc
 
 info:
   component: GeoWebcache

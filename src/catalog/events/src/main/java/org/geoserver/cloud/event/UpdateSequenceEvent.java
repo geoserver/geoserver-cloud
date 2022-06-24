@@ -6,6 +6,7 @@ package org.geoserver.cloud.event;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import lombok.Getter;
 import lombok.NonNull;
@@ -22,7 +23,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
     @JsonSubTypes.Type(value = InfoEvent.class),
     @JsonSubTypes.Type(value = SecurityConfigChanged.class)
 })
-public abstract class UpdateSequenceEvent<SELF> extends GeoServerEvent<SELF> {
+@JsonTypeName("UpdateSequence")
+public class UpdateSequenceEvent<SELF> extends GeoServerEvent<SELF> {
     /**
      * The provided {@link GeoServerInfo}'s {@link GeoServerInfo#getUpdateSequence() update
      * sequence}. Being the most frequently updated property, it's readily available for remote
@@ -44,5 +46,10 @@ public abstract class UpdateSequenceEvent<SELF> extends GeoServerEvent<SELF> {
     private static String resolveAuthor() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return null == authentication ? null : authentication.getName();
+    }
+
+    @SuppressWarnings("rawtypes")
+    public static UpdateSequenceEvent<UpdateSequenceEvent> createLocal(long value) {
+        return new UpdateSequenceEvent<>(value);
     }
 }

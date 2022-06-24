@@ -12,7 +12,7 @@
  * the License.
  */
 
-package org.geoserver.cloud.event.bus.catalog;
+package org.geoserver.cloud.event.bus;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -32,6 +32,7 @@ import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.PropertyDiff;
+import org.geoserver.cloud.event.GeoServerEvent;
 import org.geoserver.cloud.event.catalog.CatalogInfoAdded;
 import org.geoserver.cloud.event.catalog.CatalogInfoModified;
 import org.geoserver.cloud.event.config.ConfigInfoModified;
@@ -161,12 +162,12 @@ public abstract class BusAmqpIntegrationTests {
         this.eventsCaptor.clear().start();
         remover.accept(info);
 
-        RemoteInfoEvent event = eventsCaptor.local().expectOne(eventType);
+        RemoteGeoServerEvent event = eventsCaptor.local().expectOne(eventType);
         assertRemoteEvent(info, event);
 
         // local-remote event ok, check the one sent over the wire
 
-        RemoteInfoEvent parsedSentEvent = eventsCaptor.remote().expectOne(eventType);
+        RemoteGeoServerEvent parsedSentEvent = eventsCaptor.remote().expectOne(eventType);
         assertRemoteEvent(info, parsedSentEvent);
         return eventType.cast(event.getEvent());
     }
@@ -228,10 +229,10 @@ public abstract class BusAmqpIntegrationTests {
         this.eventsCaptor.start();
         saver.accept(proxy);
 
-        RemoteInfoEvent localRemoteEvent = eventsCaptor.local().expectOne(eventType);
+        RemoteGeoServerEvent localRemoteEvent = eventsCaptor.local().expectOne(eventType);
         assertRemoteEvent(info, localRemoteEvent);
 
-        RemoteInfoEvent sentRemoteEvent = eventsCaptor.remote().expectOne(eventType);
+        RemoteGeoServerEvent sentRemoteEvent = eventsCaptor.remote().expectOne(eventType);
         assertRemoteEvent(info, sentRemoteEvent);
 
         InfoModified localModifyEvent = (InfoModified) localRemoteEvent.getEvent();
@@ -293,7 +294,7 @@ public abstract class BusAmqpIntegrationTests {
 
         final ConfigInfoType infoType = ConfigInfoType.valueOf(info);
 
-        RemoteInfoEvent localRemoteEvent = eventsCaptor.local().expectOne(eventType, infoType);
+        RemoteGeoServerEvent localRemoteEvent = eventsCaptor.local().expectOne(eventType, infoType);
         assertThat(localRemoteEvent.getEvent().isRemote()).isFalse();
         assertThat(localRemoteEvent.getEvent().isLocal()).isTrue();
         assertRemoteEvent(info, localRemoteEvent);
@@ -301,25 +302,26 @@ public abstract class BusAmqpIntegrationTests {
         // ok, that's the event published to the local application context, and which
         // spring-cloud-bus took care of not re-publishing. Let's capture the actual out-bound
         // message that traveled through the bus channel to the second application
-        RemoteInfoEvent remoteRemoteEvent = eventsCaptor.remote().expectOne(eventType, infoType);
+        RemoteGeoServerEvent remoteRemoteEvent =
+                eventsCaptor.remote().expectOne(eventType, infoType);
         assertThat(remoteRemoteEvent.getEvent().isRemote()).isTrue();
         assertThat(remoteRemoteEvent.getEvent().isLocal()).isFalse();
         assertRemoteEvent(info, remoteRemoteEvent);
     }
 
     @SuppressWarnings("rawtypes")
-    protected <T extends Info> void assertRemoteEvent(T info, RemoteInfoEvent busEvent) {
+    protected <T extends Info> void assertRemoteEvent(T info, RemoteGeoServerEvent busEvent) {
         assertNotNull(busEvent.getId());
         assertNotNull(busEvent.getOriginService());
         assertEquals("**", busEvent.getDestinationService());
 
-        InfoEvent<?, ?> event = busEvent.getEvent();
+        GeoServerEvent<?> event = busEvent.getEvent();
         assertNotNull(event);
-        assertNotNull(event.getObjectId());
+        assertNotNull(((InfoEvent) event).getObjectId());
         // assertNotNull(event.getTarget());
         // assertNull(event.getSource());
 
-        final ConfigInfoType infoType = event.getObjectType();
+        final ConfigInfoType infoType = ((InfoEvent) event).getObjectType();
         assertThat(infoType).isNotNull();
         ConfigInfoType expectedType = ConfigInfoType.valueOf(info);
         assertThat(infoType).isEqualTo(expectedType);
@@ -328,10 +330,10 @@ public abstract class BusAmqpIntegrationTests {
             case Catalog:
             case GeoServerInfo:
             case LoggingInfo:
-                assertNotNull(event.getObjectId());
+                assertNotNull(((InfoEvent) event).getObjectId());
                 break;
             default:
-                assertEquals(info.getId(), event.getObjectId());
+                assertEquals(info.getId(), ((InfoEvent) event).getObjectId());
                 break;
         }
         assertThat(infoType.isInstance(info)).isTrue();

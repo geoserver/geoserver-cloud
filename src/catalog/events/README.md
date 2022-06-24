@@ -59,7 +59,6 @@ classDiagram
         String id
     }
     class UpdateSequenceEvent{
-        <<abstract>>
         Long updateSequence
     }
     class InfoEvent{

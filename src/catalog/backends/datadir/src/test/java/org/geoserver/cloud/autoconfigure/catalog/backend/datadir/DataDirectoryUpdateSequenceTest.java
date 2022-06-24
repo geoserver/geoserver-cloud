@@ -2,28 +2,35 @@
  * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
  * GPL 2.0 license, available at the root application directory.
  */
-package org.geoserver.cloud.autoconfigure.catalog.backend.jdbcconfig;
+package org.geoserver.cloud.autoconfigure.catalog.backend.datadir;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.geoserver.cloud.config.catalog.backend.jdbcconfig.JdbcConfigUpdateSequence;
-import org.junit.jupiter.api.Disabled;
+import org.geoserver.cloud.config.catalog.backend.datadirectory.DataDirectoryBackendConfiguration;
+import org.geoserver.cloud.config.catalog.backend.datadirectory.DataDirectoryUpdateSequence;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.stream.IntStream;
 
+/**
+ * Test {@link DataDirectoryBackendConfiguration} through {@link DataDirectoryAutoConfiguration}
+ * when {@code geoserver.backend.data-directory.enabled=true}
+ */
 @SpringBootTest(
-        classes = AutoConfigurationTestConfiguration.class,
-        properties = "geoserver.backend.jdbcconfig.enabled=true")
-public class JdbcConfigUpdateSequenceTest extends JDBCConfigTest {
+        classes = DataDirectoryTestConfiguration.class, //
+        properties = {
+            "geoserver.backend.dataDirectory.enabled=true",
+            "geoserver.backend.dataDirectory.location=/tmp/data_dir_autoconfiguration_test"
+        })
+@ActiveProfiles("test")
+public class DataDirectoryUpdateSequenceTest {
 
-    private @Autowired JdbcConfigUpdateSequence updateSequence;
+    private @Autowired DataDirectoryUpdateSequence updateSequence;
 
-    @Disabled(
-            "Couldn't get rid of the DB closed error if running more than one test, so better run the parallel one")
-    public @Test void testUpdateSequence() {
+    public @Test void sequentialTest() {
         final long initial = updateSequence.currValue();
         long v = updateSequence.currValue();
         assertEquals(initial, v);

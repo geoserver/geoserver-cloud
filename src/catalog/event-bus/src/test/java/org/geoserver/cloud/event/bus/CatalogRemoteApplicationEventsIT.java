@@ -2,7 +2,7 @@
  * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
  * GPL 2.0 license, available at the root application directory.
  */
-package org.geoserver.cloud.event.bus.catalog;
+package org.geoserver.cloud.event.bus;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -440,8 +440,8 @@ public class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
 
         modifier.accept(catalog);
 
-        RemoteInfoEvent localRemoteEvent = eventsCaptor.local().expectOne(eventType, filter);
-        RemoteInfoEvent sentEvent = eventsCaptor.remote().expectOne(eventType, filter);
+        RemoteGeoServerEvent localRemoteEvent = eventsCaptor.local().expectOne(eventType, filter);
+        RemoteGeoServerEvent sentEvent = eventsCaptor.remote().expectOne(eventType, filter);
 
         assertCatalogEvent(catalog, (InfoModified) localRemoteEvent.getEvent(), expected);
         assertCatalogEvent(catalog, (InfoModified) sentEvent.getEvent(), expected);

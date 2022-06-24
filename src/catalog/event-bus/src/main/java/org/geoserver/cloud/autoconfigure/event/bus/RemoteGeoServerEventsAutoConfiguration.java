@@ -11,11 +11,11 @@ import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.impl.ResolvingProxy;
 import org.geoserver.cloud.autoconfigure.catalog.event.ConditionalOnCatalogEvents;
-import org.geoserver.cloud.event.bus.catalog.InfoEventResolver;
-import org.geoserver.cloud.event.bus.catalog.RemoteCatalogEventBridge;
-import org.geoserver.cloud.event.bus.catalog.RemoteCatalogEventMapper;
-import org.geoserver.cloud.event.bus.catalog.RemoteInfoEvent;
-import org.geoserver.cloud.event.info.InfoEvent;
+import org.geoserver.cloud.event.GeoServerEvent;
+import org.geoserver.cloud.event.bus.InfoEventResolver;
+import org.geoserver.cloud.event.bus.RemoteGeoServerEvent;
+import org.geoserver.cloud.event.bus.RemoteGeoServerEventBridge;
+import org.geoserver.cloud.event.bus.RemoteGeoServerEventMapper;
 import org.geoserver.config.GeoServer;
 import org.geoserver.jackson.databind.catalog.GeoServerCatalogModule;
 import org.geoserver.jackson.databind.config.GeoServerConfigModule;
@@ -26,6 +26,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.cloud.bus.BusAutoConfiguration;
 import org.springframework.cloud.bus.ServiceMatcher;
 import org.springframework.cloud.bus.event.Destination;
+import org.springframework.cloud.bus.event.RemoteApplicationEvent;
 import org.springframework.cloud.bus.jackson.RemoteApplicationEventScan;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
@@ -42,13 +43,13 @@ import java.util.function.Supplier;
 @ConditionalOnCatalogEvents
 @ConditionalOnGeoServerRemoteEventsEnabled
 @AutoConfigureAfter(BusAutoConfiguration.class)
-@RemoteApplicationEventScan(basePackageClasses = {RemoteInfoEvent.class})
+@RemoteApplicationEventScan(basePackageClasses = {RemoteGeoServerEvent.class})
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.bus.catalog")
-public class RemoteCatalogEventsAutoConfiguration {
+public class RemoteGeoServerEventsAutoConfiguration {
 
     /**
      * Add a {@link GeoServerCatalogModule} to the default jackson spring codecs if not already
-     * present, so {@link CatalogInfo} objects can be used as {@link RemoteInfoEvent} payload
+     * present, so {@link CatalogInfo} objects can be used as {@link RemoteGeoServerEvent} payload
      */
     @ConditionalOnMissingBean(GeoServerCatalogModule.class)
     public @Bean GeoServerCatalogModule geoServerCatalogJacksonModule() {
@@ -57,7 +58,8 @@ public class RemoteCatalogEventsAutoConfiguration {
 
     /**
      * Add a {@link GeoServerConfigModule} to the default jackson spring codecs if not already
-     * present, so configuration {@link Info} objects can be used as {@link RemoteInfoEvent} payload
+     * present, so configuration {@link Info} objects can be used as {@link RemoteGeoServerEvent}
+     * payload
      */
     @ConditionalOnMissingBean(GeoServerConfigModule.class)
     public @Bean GeoServerConfigModule geoServerConfigJacksonModule() {
@@ -65,9 +67,9 @@ public class RemoteCatalogEventsAutoConfiguration {
     }
 
     /**
-     * Highest priority listener for incoming {@link RemoteInfoEvent} events to resolve the payload
-     * {@link CatalogInfo} properties, as they may come either as {@link ResolvingProxy} proxies, or
-     * {@code null} in case of collection properties.
+     * Highest priority listener for incoming {@link RemoteGeoServerEvent} events to resolve the
+     * payload {@link CatalogInfo} properties, as they may come either as {@link ResolvingProxy}
+     * proxies, or {@code null} in case of collection properties.
      *
      * <p>This listener ensures the payload object properties are resolved before being catch up by
      * other listeners.
@@ -77,32 +79,26 @@ public class RemoteCatalogEventsAutoConfiguration {
         return new InfoEventResolver(rawCatalog, geoserver);
     }
 
-    public @Bean RemoteCatalogEventMapper remoteGeoServerEventMapper(
+    public @Bean RemoteGeoServerEventMapper remoteGeoServerEventMapper(
             InfoEventResolver remoteEventPropertiesResolver,
             ServiceMatcher serviceMatcher,
             Destination.Factory destinationFactory) {
 
-        return new RemoteCatalogEventMapper(
+        return new RemoteGeoServerEventMapper(
                 remoteEventPropertiesResolver, serviceMatcher, destinationFactory);
     }
 
-    @Bean
-    LocalInfoEventOriginSetter remoteEventOriginSetter(ServiceMatcher serviceMatcher) {
-        return new LocalInfoEventOriginSetter(serviceMatcher::getBusId);
-    }
-
-    public @Bean RemoteCatalogEventBridge remoteEventBroadcaster(
+    public @Bean RemoteGeoServerEventBridge remoteEventBroadcaster(
             ApplicationEventPublisher eventPublisher,
-            RemoteCatalogEventMapper eventMapper,
+            RemoteGeoServerEventMapper eventMapper,
             ServiceMatcher serviceMatcher) {
 
         log.info("Configuring GeoServer Catalog distributed events.");
 
-        Consumer<RemoteInfoEvent> remoteEventPublisher = eventPublisher::publishEvent;
-        @SuppressWarnings("rawtypes")
-        Consumer<InfoEvent> localEventPublisher = eventPublisher::publishEvent;
+        Consumer<GeoServerEvent<?>> localEventPublisher = eventPublisher::publishEvent;
+        Consumer<RemoteApplicationEvent> remoteEventPublisher = eventPublisher::publishEvent;
         Supplier<String> busId = serviceMatcher::getBusId;
-        return new RemoteCatalogEventBridge(
+        return new RemoteGeoServerEventBridge(
                 localEventPublisher, remoteEventPublisher, eventMapper, busId);
     }
 }

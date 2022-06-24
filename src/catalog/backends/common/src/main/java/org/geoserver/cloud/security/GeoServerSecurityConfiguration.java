@@ -78,7 +78,7 @@ public class GeoServerSecurityConfiguration {
             ) throws Exception {
 
         Consumer<SecurityConfigChanged> publisher = localContextPublisher::publishEvent;
-        Supplier<Long> updateSequenceIncrementor = updateSequence::incrementAndGet;
+        Supplier<Long> updateSequenceIncrementor = updateSequence::nextValue;
 
         return new CloudGeoServerSecurityManager(dataDir, publisher, updateSequenceIncrementor);
     }

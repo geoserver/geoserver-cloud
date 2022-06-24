@@ -27,7 +27,7 @@ public class CatalogApplicationEventsConfiguration {
             ) {
 
         Consumer<? super InfoEvent<?, ?>> publisher = localContextPublisher::publishEvent;
-        Supplier<Long> updateSequenceIncrementor = updateSequence::incrementAndGet;
+        Supplier<Long> updateSequenceIncrementor = updateSequence::nextValue;
         return new CatalogApplicationEventPublisher(
                 publisher, catalog, geoServer, updateSequenceIncrementor);
     }

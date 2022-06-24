@@ -105,7 +105,7 @@ import javax.annotation.Nullable;
  *       use of {@link ExtendedCatalogFacade#query query(Query&lt;T&gt;):Stream&lt;T&gt;} and {@link
  *       ExtendedCatalogFacade#update update(CatalogInfo, Patch)}
  *   <li>Enables setting a {@link RepositoryCatalogFacade}, which allows to easily abstract out the
- *       underlying backend storage using {@link CatalogInfoRepository} implemenatations
+ *       underlying backend storage using {@link CatalogInfoRepository} implementations
  *   <li>Uses {@link DefaultMemoryCatalogFacade} as the default facade implementation for attached,
  *       on-heap {@link CatalogInfo} storage
  *   <li>Implements all business-logic, like event handling and ensuring no {@link CatalogInfo}

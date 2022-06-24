@@ -47,20 +47,17 @@ public class RemoteEventDataDirectoryProcessor {
     private final @NonNull RepositoryGeoServerFacade configFacade;
     private final @NonNull ExtendedCatalogFacade catalogFacade;
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    @SuppressWarnings({"rawtypes"})
     @EventListener(classes = {UpdateSequenceEvent.class})
     public void onUpdateSequenceEvent(UpdateSequenceEvent updateSequenceEvent) {
-        final Long updateSequence = updateSequenceEvent.getUpdateSequence();
-        updateSequenceEvent
-                .remote()
-                .ifPresent(
-                        remote -> {
-                            log.info("applying update sequence {} from {}", updateSequence, remote);
-                            GeoServerInfo info = ModificationProxy.unwrap(configFacade.getGlobal());
-                            long current = info.getUpdateSequence();
-                            info.setUpdateSequence(updateSequence);
-                            log.info("replaced update sequence {} by {}", current, updateSequence);
-                        });
+        if (updateSequenceEvent.isRemote()) {
+            final Long updateSequence = updateSequenceEvent.getUpdateSequence();
+            log.info("applying update sequence {} from {}", updateSequence, updateSequenceEvent);
+            GeoServerInfo info = ModificationProxy.unwrap(configFacade.getGlobal());
+            long current = info.getUpdateSequence();
+            info.setUpdateSequence(updateSequence);
+            log.info("replaced update sequence {} by {}", current, updateSequence);
+        }
     }
 
     @EventListener(InfoRemoved.class)

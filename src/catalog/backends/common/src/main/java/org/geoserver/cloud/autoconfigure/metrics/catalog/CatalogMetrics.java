@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerInfo;
+import org.geoserver.platform.config.UpdateSequence;
 
 import java.util.function.Supplier;
 
@@ -48,6 +49,7 @@ class CatalogMetrics implements MeterBinder {
     private final @NonNull GeoSeverMetricsConfigProperties metricsConfig;
     private final @NonNull Catalog catalog;
     private final @NonNull GeoServer config;
+    private final @NonNull UpdateSequence realUpdateSequence;
 
     private MetricsCatalogListener listener;
 
@@ -60,17 +62,31 @@ class CatalogMetrics implements MeterBinder {
             final String instanceIdTag = metricsConfig.getInstanceId();
             catalog.addListener(listener = new MetricsCatalogListener(registry, instanceIdTag));
 
+            registerObservedUpdateSequence(registry, instanceIdTag);
             registerUpdateSequence(registry, instanceIdTag);
 
             log.info("GeoServer Catalog and config metrics enabled.");
         }
     }
 
-    private void registerUpdateSequence(MeterRegistry registry, final String instanceIdTag) {
+    private void registerObservedUpdateSequence(
+            MeterRegistry registry, final String instanceIdTag) {
         Supplier<Number> updateSequence = () -> config.getGlobal().getUpdateSequence();
         Gauge.Builder<Supplier<Number>> updateSeqBuilder =
                 Gauge.builder("geoserver.config.update_sequence", updateSequence)
                         .description("GeoServer configuration update sequence")
+                        .baseUnit("sequence");
+
+        if (null != instanceIdTag)
+            updateSeqBuilder = updateSeqBuilder.tag("instance-id", instanceIdTag);
+        updateSeqBuilder.register(registry);
+    }
+
+    private void registerUpdateSequence(MeterRegistry registry, final String instanceIdTag) {
+        Supplier<Number> updateSequence = realUpdateSequence::currValue;
+        Gauge.Builder<Supplier<Number>> updateSeqBuilder =
+                Gauge.builder("geoserver.config.update_sequence.real", updateSequence)
+                        .description("Cluster-wide, canonical update sequence value")
                         .baseUnit("sequence");
 
         if (null != instanceIdTag)

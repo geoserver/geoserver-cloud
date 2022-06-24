@@ -12,7 +12,7 @@ public interface UpdateSequence {
     /**
      * @return the currently observed update sequence value
      */
-    long get();
+    long currValue();
 
-    long incrementAndGet();
+    long nextValue();
 }

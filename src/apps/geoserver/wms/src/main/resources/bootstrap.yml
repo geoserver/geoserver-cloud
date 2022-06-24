@@ -12,6 +12,7 @@ server:
     whitelabel:
       enabled: true
 management.server.port: 8081
+geoserver.base-path: /wms
 spring:
   config:
     import:

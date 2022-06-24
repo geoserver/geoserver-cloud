@@ -26,11 +26,11 @@ public class DefaultUpdateSequence implements UpdateSequence {
 
     private @Autowired GeoServer geoServer;
 
-    public @Override long get() {
+    public @Override long currValue() {
         return info().map(GeoServerInfo::getUpdateSequence).orElse(0L);
     }
 
-    public @Override long incrementAndGet() {
+    public @Override long nextValue() {
         lock.lock();
         try {
             GeoServerInfo global = info().orElse(null);
