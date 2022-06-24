@@ -21,6 +21,7 @@ import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.security.SecureCatalogImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -47,6 +48,7 @@ public class CoreBackendConfiguration {
         return new GeoServerExtensions();
     }
 
+    @ConditionalOnMissingBean(CatalogPlugin.class)
     @DependsOn({"resourceLoader", "catalogFacade"})
     public @Bean CatalogPlugin rawCatalog(
             GeoServerResourceLoader resourceLoader,
@@ -106,7 +108,7 @@ public class CoreBackendConfiguration {
                 : advertisedCatalog;
     }
 
-    @Autowired
+    @ConditionalOnMissingBean(GeoServerImpl.class)
     public @Bean(name = "geoServer") GeoServerImpl geoServer(
             @Qualifier("catalog") Catalog catalog,
             @Qualifier("geoserverFacade") GeoServerFacade facade)

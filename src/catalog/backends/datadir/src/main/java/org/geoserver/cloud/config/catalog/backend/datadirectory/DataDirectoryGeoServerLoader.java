@@ -4,8 +4,10 @@
  */
 package org.geoserver.cloud.config.catalog.backend.datadirectory;
 
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
+import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.Info;
@@ -14,6 +16,8 @@ import org.geoserver.catalog.event.impl.CatalogModifyEventImpl;
 import org.geoserver.catalog.impl.DefaultCatalogFacade;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.plugin.CatalogPlugin;
+import org.geoserver.cloud.catalog.locking.LockingGeoServer;
+import org.geoserver.cloud.catalog.locking.LockingSupport;
 import org.geoserver.cloud.config.catalog.backend.core.CoreBackendConfiguration;
 import org.geoserver.config.ConfigurationListener;
 import org.geoserver.config.DefaultGeoServerLoader;
@@ -27,12 +31,11 @@ import org.geoserver.config.util.XStreamPersister;
 import org.geoserver.config.util.XStreamServiceLoader;
 import org.geoserver.platform.GeoServerExtensions;
 import org.geoserver.platform.GeoServerResourceLoader;
+import org.geoserver.platform.config.UpdateSequence;
 import org.geoserver.platform.resource.Resource;
-import org.geoserver.platform.resource.Resource.Lock;
 import org.geoserver.platform.resource.Resources;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -48,16 +51,47 @@ import javax.annotation.PostConstruct;
 @Slf4j
 public class DataDirectoryGeoServerLoader extends DefaultGeoServerLoader {
 
-    private @Autowired @Qualifier("rawCatalog") Catalog rawCatalog;
-    private @Autowired GeoServer geoserver;
+    private final UpdateSequence updateSequence;
+    private final Catalog rawCatalog;
+    private final LockingGeoServer geoserver;
 
-    public DataDirectoryGeoServerLoader(GeoServerResourceLoader resourceLoader) {
+    public DataDirectoryGeoServerLoader( //
+            @NonNull UpdateSequence updateSequence,
+            @NonNull GeoServerResourceLoader resourceLoader,
+            @NonNull LockingGeoServer geoserver,
+            @NonNull Catalog rawCatalog) {
+
         super(resourceLoader);
+
+        this.updateSequence = updateSequence;
+        this.geoserver = geoserver;
+        this.rawCatalog = rawCatalog;
     }
 
     public @PostConstruct void load() {
+        final long initialSequence = updateSequence.currValue();
         postProcessBeforeInitialization(rawCatalog, "rawCatalog");
         postProcessBeforeInitialization(geoserver, "geoServer");
+        final long finalSequence = updateSequence.currValue();
+        if (initialSequence != finalSequence) {
+            log.warn(
+                    "updateSequence changed during startup. Initial value: %,d. Post load value: %,d",
+                    initialSequence, finalSequence);
+        }
+    }
+
+    protected @Override void initializeDefaultStyles(Catalog catalog) throws IOException {
+
+        GeoServerConfigurationLock configLock = geoserver.getConfigurationLock();
+        LockingSupport lockingSupport = LockingSupport.locking(configLock);
+
+        lockingSupport.callInWriteLock(
+                IOException.class,
+                () -> {
+                    super.initializeDefaultStyles(catalog);
+                    return null;
+                },
+                "initializeDefaultStyles()");
     }
 
     /**
@@ -75,18 +109,27 @@ public class DataDirectoryGeoServerLoader extends DefaultGeoServerLoader {
      */
     @Override
     protected void loadGeoServer(final GeoServer geoServer, XStreamPersister xp) throws Exception {
-        final Lock lock = resourceLoader.getLockProvider().acquire("GLOBAL");
+        // disable locking just on the GeoServer mutating operations while loading the config
+        geoserver.disableLocking();
         try {
+            GeoServerConfigurationLock configLock = geoserver.getConfigurationLock();
+            LockingSupport lockingSupport = LockingSupport.locking(configLock);
 
-            Set<String> existing = preloadServiceNames(geoServer);
-            super.loadGeoServer(geoServer, xp);
-            replaceCatalogInfoPersisterWithFixedVersion(geoServer, xp);
+            lockingSupport.callInWriteLock(
+                    Exception.class,
+                    () -> {
+                        Set<String> existing = preloadServiceNames(geoServer);
+                        super.loadGeoServer(geoServer, xp);
+                        replaceCatalogInfoPersisterWithFixedVersion(geoServer, xp);
 
-            persistNewlyCreatedServices(geoServer, existing);
+                        persistNewlyCreatedServices(geoServer, existing);
 
-            initializeEmptyConfig(geoServer);
+                        initializeEmptyConfig(geoServer);
+                        return null;
+                    },
+                    "loadGeoServer()");
         } finally {
-            lock.release();
+            geoserver.enableLocking();
         }
     }
 

@@ -52,7 +52,7 @@ public class RemoteEventDataDirectoryProcessor {
     public void onUpdateSequenceEvent(UpdateSequenceEvent updateSequenceEvent) {
         if (updateSequenceEvent.isRemote()) {
             final Long updateSequence = updateSequenceEvent.getUpdateSequence();
-            log.info("applying update sequence {} from {}", updateSequence, updateSequenceEvent);
+            log.debug("processing update sequence {} from {}", updateSequence, updateSequenceEvent);
             GeoServerInfo info = ModificationProxy.unwrap(configFacade.getGlobal());
             long current = info.getUpdateSequence();
             info.setUpdateSequence(updateSequence);

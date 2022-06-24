@@ -28,3 +28,4 @@ logging:
     org.geoserver.cloud.config.factory: warn
     org.geoserver.jdbcconfig: warn
     org.geoserver.jdbcstore: warn
+    org.geoserver.cloud.catalog.locking: debug

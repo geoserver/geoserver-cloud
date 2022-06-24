@@ -6,6 +6,8 @@ package org.geoserver.catalog.plugin;
 
 import static java.util.Collections.unmodifiableList;
 
+import lombok.NonNull;
+
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogCapabilities;
 import org.geoserver.catalog.CatalogException;
@@ -59,16 +61,18 @@ import org.geoserver.catalog.plugin.validation.CatalogValidationRules;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.catalog.util.CloseableIteratorAdapter;
 import org.geoserver.config.GeoServerLoader;
-import org.geoserver.config.impl.GeoServerImpl;
+import org.geoserver.config.plugin.GeoServerImpl;
 import org.geoserver.config.util.XStreamPersister;
 import org.geoserver.ows.util.OwsUtils;
 import org.geoserver.platform.ExtensionPriority;
 import org.geoserver.platform.GeoServerResourceLoader;
+import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.util.Converters;
 import org.geotools.util.SuppressFBWarnings;
 import org.geotools.util.logging.Logging;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
+import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.Id;
 import org.opengis.filter.PropertyIsEqualTo;
 import org.opengis.filter.expression.Literal;
@@ -1263,6 +1267,24 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
         return new CloseableIteratorAdapter<>(stream.iterator(), () -> stream.close());
     }
 
+    public Optional<? extends CatalogInfo> findById(@NonNull String id) {
+        FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2();
+        final Filter filter = ff.id(ff.featureId(id));
+
+        return Stream.of(
+                        WorkspaceInfo.class,
+                        NamespaceInfo.class,
+                        StoreInfo.class,
+                        ResourceInfo.class,
+                        LayerInfo.class,
+                        LayerGroupInfo.class,
+                        StyleInfo.class,
+                        MapInfo.class)
+                .map(type -> get(type, filter))
+                .filter(Objects::nonNull)
+                .findFirst();
+    }
+
     public @Override <T extends CatalogInfo> T get(Class<T> type, Filter filter)
             throws IllegalArgumentException {
         // try optimizing by querying by id first, defer to regular filter query if filter is not
@@ -1279,7 +1301,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
             List<T> matches = stream.limit(2).toList();
             switch (matches.size()) {
                 case 0:
-                    Optional.empty();
+                    return Optional.empty();
                 case 1:
                     return Optional.of(matches.get(0));
                 default:
@@ -1365,24 +1387,20 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
         setId(object);
         validationSupport.validate(object, true);
 
-        // TODO: remove synchronized block, we need transactions. Besides, it means nothing in
-        // multi-process scenarios.
         CatalogOpContext<T> context = new CatalogOpContext<>(this, object);
-        synchronized (facade) {
-            businessRules.onBeforeAdd(context);
-            fireBeforeAdded(object);
-            try {
-                T added = inserter.apply(object);
-                // fire the event before the post-rules are processed, since they may result in
-                // other objects removed/modified, and hence avoid a secondary event to be notified
-                // before the primary one. For example, a post-rule may result in a call to
-                // setDefaultWorspace/Namespace/DataStore
-                fireAdded(added);
-                businessRules.onAfterAdd(context.setObject(added));
-            } catch (RuntimeException error) {
-                businessRules.onAfterAdd(context.setError(error));
-                throw error;
-            }
+        businessRules.onBeforeAdd(context);
+        fireBeforeAdded(object);
+        try {
+            T added = inserter.apply(object);
+            // fire the event before the post-rules are processed, since they may result in
+            // other objects removed/modified, and hence avoid a secondary event to be notified
+            // before the primary one. For example, a post-rule may result in a call to
+            // setDefaultWorspace/Namespace/DataStore
+            fireAdded(added);
+            businessRules.onAfterAdd(context.setObject(added));
+        } catch (RuntimeException error) {
+            businessRules.onAfterAdd(context.setError(error));
+            throw error;
         }
     }
 
@@ -1427,7 +1445,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
         try {
             // note info will be unwrapped before being given to the raw facade by the inbound
             // resolving function set at #setFacade
-            I updated = ((ResolvingCatalogFacadeDecorator) facade).update(info, patch);
+            I updated = getFacade().update(info, patch);
 
             // commit proxy, making effective the change in the provided object. Has no effect in
             // what's been passed to the facade
@@ -1447,21 +1465,19 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
     protected <T extends CatalogInfo> void doRemove(T object, Consumer<T> remover) {
         validationSupport.beforeRemove(object);
         CatalogOpContext<T> context = new CatalogOpContext<>(this, object);
-        // TODO: remove synchronized block, need transactions
-        synchronized (facade) {
-            businessRules.onBeforeRemove(context);
-            try {
-                remover.accept(object);
-                // fire the event before the post-rules are processed, since they may result in
-                // other objects removed/modified, and hence avoid a secondary event to be notified
-                // before the primary one. For example, a post-rule may result in a call to
-                // setDefaultWorspace/Namespace/DataStore
-                fireRemoved(object);
-                businessRules.onRemoved(context);
-            } catch (RuntimeException error) {
-                businessRules.onRemoved(context.setError(error));
-                throw error;
-            }
+
+        businessRules.onBeforeRemove(context);
+        try {
+            remover.accept(object);
+            // fire the event before the post-rules are processed, since they may result in
+            // other objects removed/modified, and hence avoid a secondary event to be notified
+            // before the primary one. For example, a post-rule may result in a call to
+            // setDefaultWorspace/Namespace/DataStore
+            fireRemoved(object);
+            businessRules.onRemoved(context);
+        } catch (RuntimeException error) {
+            businessRules.onRemoved(context.setError(error));
+            throw error;
         }
     }
 
@@ -1482,5 +1498,50 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
     // if value is null, the list is a singleton list with a null member
     private <T> List<T> asList(@Nullable T value) {
         return Collections.singletonList(value);
+    }
+
+    public void save(CatalogInfo info) {
+        doSave(info);
+    }
+
+    public void remove(CatalogInfo info) {
+        ClassMappings cm =
+                classMapping(ModificationProxy.unwrap((CatalogInfo) info).getClass()).orElseThrow();
+        switch (cm) {
+            case WORKSPACE:
+                remove((WorkspaceInfo) info);
+                break;
+            case NAMESPACE:
+                remove((NamespaceInfo) info);
+                break;
+            case STORE:
+            case COVERAGESTORE:
+            case DATASTORE:
+            case WMSSTORE:
+            case WMTSSTORE:
+                remove((StoreInfo) info);
+                break;
+            case RESOURCE:
+            case FEATURETYPE:
+            case COVERAGE:
+            case WMSLAYER:
+            case WMTSLAYER:
+                remove((ResourceInfo) info);
+                break;
+            case LAYER:
+                remove((LayerInfo) info);
+                break;
+            case LAYERGROUP:
+                remove((LayerGroupInfo) info);
+                break;
+            case STYLE:
+                remove((StyleInfo) info);
+                break;
+            case MAP:
+                remove((MapInfo) info);
+                break;
+            default:
+                throw new IllegalArgumentException("Unexpected value: " + cm);
+        }
     }
 }

@@ -90,6 +90,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -187,6 +188,10 @@ public class CatalogFaker {
         return lyr;
     }
 
+    public StyleInfo styleInfo() {
+        return styleInfo(name());
+    }
+
     public StyleInfo styleInfo(@NonNull String name) {
         return styleInfo(name, (WorkspaceInfo) null);
     }
@@ -276,6 +281,19 @@ public class CatalogFaker {
         return cstore;
     }
 
+    public FeatureTypeInfo featureTypeInfo(DataStoreInfo ds) {
+        String prefix = ds.getWorkspace().getName();
+        NamespaceInfo ns = catalog().getNamespaceByPrefix(prefix);
+        Objects.requireNonNull(ns, "Namespace " + prefix + " does not exist");
+
+        String id = "FeatureType." + id();
+        String name = name();
+        String abstracT = faker().company().bs();
+        String description = faker().company().buzzword();
+        boolean enabled = true;
+        return featureTypeInfo(id, ds, ns, name, abstracT, description, enabled);
+    }
+
     public FeatureTypeInfo featureTypeInfo(
             String id,
             DataStoreInfo ds,
@@ -296,8 +314,12 @@ public class CatalogFaker {
         return fttype;
     }
 
+    public DataStoreInfo dataStoreInfo(WorkspaceInfo ws) {
+        return dataStoreInfo(name(), ws);
+    }
+
     public DataStoreInfo dataStoreInfo(String name, WorkspaceInfo ws) {
-        return dataStoreInfo(name + "-id", ws, name, name + " description", true);
+        return dataStoreInfo("DataStoreInfo." + id(), ws, name, name + " description", true);
     }
 
     public DataStoreInfo dataStoreInfo(
@@ -317,8 +339,16 @@ public class CatalogFaker {
         return dstore;
     }
 
+    public WorkspaceInfo workspaceInfo() {
+        return workspaceInfo(name());
+    }
+
+    public String name() {
+        return faker.internet().domainName() + "_" + faker.random().hex();
+    }
+
     public WorkspaceInfo workspaceInfo(String name) {
-        return workspaceInfo(name + "-id", name);
+        return workspaceInfo("WorkspaceInfo." + id(), name);
     }
 
     public WorkspaceInfo workspaceInfo(String id, String name) {
@@ -329,8 +359,8 @@ public class CatalogFaker {
         return workspace;
     }
 
-    private String url() {
-        return faker().company().url();
+    public String url() {
+        return faker().company().url() + "/" + faker.random().hex();
     }
 
     private String id() {

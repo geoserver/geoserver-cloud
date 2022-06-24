@@ -6,6 +6,7 @@ package org.geoserver.cloud.config.catalog.backend.catalogservice;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.cloud.catalog.client.impl.CatalogClientCatalogFacade;
 import org.geoserver.cloud.catalog.client.impl.CatalogClientConfiguration;
@@ -48,6 +49,11 @@ public class CatalogClientBackendConfigurer implements GeoServerBackendConfigure
 
     @Bean
     public @Override UpdateSequence updateSequence() {
+        throw new UnsupportedOperationException("implement");
+    }
+
+    @Bean
+    public @Override GeoServerConfigurationLock configurationLock() {
         throw new UnsupportedOperationException("implement");
     }
 

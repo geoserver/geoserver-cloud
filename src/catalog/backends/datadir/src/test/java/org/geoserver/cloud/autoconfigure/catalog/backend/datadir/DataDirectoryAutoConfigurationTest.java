@@ -10,13 +10,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
+import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogFacade;
+import org.geoserver.cloud.catalog.locking.LockProviderGeoServerConfigurationLock;
+import org.geoserver.cloud.catalog.locking.LockingCatalog;
+import org.geoserver.cloud.catalog.locking.LockingGeoServer;
 import org.geoserver.cloud.config.catalog.backend.datadirectory.DataDirectoryBackendConfiguration;
+import org.geoserver.cloud.config.catalog.backend.datadirectory.DataDirectoryGeoServerLoader;
 import org.geoserver.cloud.config.catalog.backend.datadirectory.DataDirectoryProperties;
 import org.geoserver.cloud.config.catalog.backend.datadirectory.DataDirectoryUpdateSequence;
 import org.geoserver.cloud.config.catalog.backend.datadirectory.NoServletContextDataDirectoryResourceStore;
-import org.geoserver.config.DefaultGeoServerLoader;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerFacade;
 import org.geoserver.config.GeoServerLoader;
@@ -64,7 +68,11 @@ public class DataDirectoryAutoConfigurationTest {
     }
 
     public @Test void testCatalog() {
-        assertThat(rawCatalog, instanceOf(org.geoserver.catalog.plugin.CatalogPlugin.class));
+        assertThat(rawCatalog, instanceOf(LockingCatalog.class));
+    }
+
+    public @Test void testGeoServer() {
+        assertThat(geoServer, instanceOf(LockingGeoServer.class));
     }
 
     public @Test void testCatalogFacadeIsRawCatalogFacade() {
@@ -93,7 +101,7 @@ public class DataDirectoryAutoConfigurationTest {
     }
 
     public @Test void testGeoserverLoader() {
-        assertThat(geoserverLoader, instanceOf(DefaultGeoServerLoader.class));
+        assertThat(geoserverLoader, instanceOf(DataDirectoryGeoServerLoader.class));
     }
 
     public @Test void testResourceStoreImpl() {
@@ -104,5 +112,11 @@ public class DataDirectoryAutoConfigurationTest {
         assertThat(
                 context.getBean(UpdateSequence.class),
                 instanceOf(DataDirectoryUpdateSequence.class));
+    }
+
+    public @Test void testGeoServerConfigurationLock() {
+        assertThat(
+                context.getBean(GeoServerConfigurationLock.class),
+                instanceOf(LockProviderGeoServerConfigurationLock.class));
     }
 }

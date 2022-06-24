@@ -116,6 +116,7 @@ public class GeoServerCatalogModuleTest {
     public @BeforeEach void before() {
         catalog = new CatalogPlugin();
         geoserver = new GeoServerImpl();
+        geoserver.setCatalog(catalog);
         data = CatalogTestData.initialized(() -> catalog, () -> geoserver).initialize();
         proxyResolver = new ProxyUtils(catalog, geoserver);
     }

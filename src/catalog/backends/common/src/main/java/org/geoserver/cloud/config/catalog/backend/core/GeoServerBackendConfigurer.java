@@ -4,6 +4,7 @@
  */
 package org.geoserver.cloud.config.catalog.backend.core;
 
+import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.config.GeoServerFacade;
 import org.geoserver.config.GeoServerLoader;
@@ -34,6 +35,9 @@ import org.springframework.context.annotation.Bean;
  * etc.
  */
 public interface GeoServerBackendConfigurer {
+
+    @Bean
+    GeoServerConfigurationLock configurationLock();
 
     @Bean
     UpdateSequence updateSequence();
