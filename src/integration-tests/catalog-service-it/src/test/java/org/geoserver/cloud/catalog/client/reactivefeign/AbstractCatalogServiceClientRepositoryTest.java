@@ -4,15 +4,22 @@
  */
 package org.geoserver.cloud.catalog.client.reactivefeign;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import lombok.NonNull;
-
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.io.IOException;
+import java.lang.reflect.Proxy;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.CatalogTestData;
@@ -28,10 +35,9 @@ import org.geoserver.cloud.catalog.client.impl.CatalogClientConfiguration;
 import org.geoserver.cloud.catalog.client.impl.InnerResolvingProxy;
 import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.filter.text.ecql.ECQL;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opengis.filter.Filter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -39,37 +45,19 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
+import lombok.NonNull;
 
-import java.io.IOException;
-import java.lang.reflect.Proxy;
-import java.util.Arrays;
-import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-@SpringBootTest(
-        classes = { //
-            CatalogServiceApplication.class, //
-            CatalogClientConfiguration.class //
-        },
-        webEnvironment = WebEnvironment.DEFINED_PORT,
-        properties = {
-            "reactive.feign.hystrix.enabled=false",
-            "spring.cloud.circuitbreaker.hystrix.enabled=false",
-            "spring.main.web-application-type=reactive",
-            "server.port=15556",
-            "geoserver.backend.catalog-service.uri=http://localhost:${server.port}"
-        })
-@RunWith(SpringRunner.class)
+@SpringBootTest(classes = { //
+        CatalogServiceApplication.class, //
+        CatalogClientConfiguration.class //
+}, webEnvironment = WebEnvironment.DEFINED_PORT,
+        properties = {"reactive.feign.hystrix.enabled=false",
+                "spring.cloud.circuitbreaker.hystrix.enabled=false",
+                "spring.main.web-application-type=reactive", "server.port=15556",
+                "geoserver.backend.catalog-service.uri=http://localhost:${server.port}"})
 @ActiveProfiles("it.catalog-service")
 @EnableAutoConfiguration
-public abstract class AbstractCatalogServiceClientRepositoryTest<
-        C extends CatalogInfo, CL extends CatalogInfoRepository<C>> {
+public abstract class AbstractCatalogServiceClientRepositoryTest<C extends CatalogInfo, CL extends CatalogInfoRepository<C>> {
 
     /**
      * WebFlux catalog-service catalog with backend as configured by
@@ -89,18 +77,16 @@ public abstract class AbstractCatalogServiceClientRepositoryTest<
         this.infoType = infoType;
     }
 
-    public @Before void setup() {
-        testData =
-                CatalogTestData.initialized(() -> serverCatalog, () -> null)
-                        .initConfig(false)
-                        .initialize();
+    public @BeforeEach void setup() {
+        testData = CatalogTestData.initialized(() -> serverCatalog, () -> null).initConfig(false)
+                .initialize();
         this.proxyResolver = new InnerResolvingProxy(rawCatalogServiceFacade, null);
         // proxyResolver = new ProxyUtils(catalog, geoServer).failOnMissingReference(true);
         // clientCatalog = new CatalogImpl(clientFacade);
     }
 
     /** Prune the server catalog */
-    public @After void tearDown() {
+    public @AfterEach void tearDown() {
         testData.deleteAll(serverCatalog);
     }
 
@@ -114,8 +100,8 @@ public abstract class AbstractCatalogServiceClientRepositoryTest<
 
     public abstract @Test void testQueryFilter();
 
-    protected void testFind(
-            Supplier<Stream<? extends C>> command, @SuppressWarnings("unchecked") C... expected) {
+    protected void testFind(Supplier<Stream<? extends C>> command,
+            @SuppressWarnings("unchecked") C... expected) {
 
         Set<String> expectedIds =
                 Arrays.stream(expected).map(CatalogInfo::getId).collect(Collectors.toSet());
@@ -127,19 +113,19 @@ public abstract class AbstractCatalogServiceClientRepositoryTest<
         testFind(() -> repository().findAll(), expected);
     }
 
-    protected <S extends C> void testFindAllIncludeFilter(
-            Class<S> type, @SuppressWarnings("unchecked") S... expected) {
+    protected <S extends C> void testFindAllIncludeFilter(Class<S> type,
+            @SuppressWarnings("unchecked") S... expected) {
 
         testFind(() -> repository().findAll(Query.all(type)), expected);
     }
 
-    protected <S extends C> void testQueryFilter(
-            String ecqlFilter, @SuppressWarnings("unchecked") S... expected) {
+    protected <S extends C> void testQueryFilter(String ecqlFilter,
+            @SuppressWarnings("unchecked") S... expected) {
         testQueryFilter(this.infoType, ecqlFilter, expected);
     }
 
-    protected <S extends C> void testQueryFilter(
-            Class<S> type, String ecqlFilter, @SuppressWarnings("unchecked") S... expected) {
+    protected <S extends C> void testQueryFilter(Class<S> type, String ecqlFilter,
+            @SuppressWarnings("unchecked") S... expected) {
         Filter filter;
         try {
             filter = ECQL.toFilter(ecqlFilter);
@@ -149,8 +135,8 @@ public abstract class AbstractCatalogServiceClientRepositoryTest<
         this.testQueryFilter(type, filter, expected);
     }
 
-    protected <S extends C> void testQueryFilter(
-            Class<S> type, Filter filter, @SuppressWarnings("unchecked") S... expected) {
+    protected <S extends C> void testQueryFilter(Class<S> type, Filter filter,
+            @SuppressWarnings("unchecked") S... expected) {
 
         Query<S> query = Query.valueOf(type, filter);
         Stream<S> found = repository().findAll(query);
@@ -187,11 +173,8 @@ public abstract class AbstractCatalogServiceClientRepositoryTest<
         assertTrue(repository().findById("non-existent-ws-id", infoType).isEmpty());
     }
 
-    protected void crudTest(
-            final C toCreate,
-            Function<String, C> catalogLookup,
-            Consumer<C> modifyingConsumer,
-            BiConsumer<C, C> updateVerifier) {
+    protected void crudTest(final C toCreate, Function<String, C> catalogLookup,
+            Consumer<C> modifyingConsumer, BiConsumer<C, C> updateVerifier) {
 
         C created = testCreate(toCreate, catalogLookup);
 
@@ -200,8 +183,8 @@ public abstract class AbstractCatalogServiceClientRepositoryTest<
         testDelete(updated, catalogLookup);
     }
 
-    protected C testUpdate(
-            C created, Consumer<C> modifyingConsumer, BiConsumer<C, C> updateVerifier) {
+    protected C testUpdate(C created, Consumer<C> modifyingConsumer,
+            BiConsumer<C, C> updateVerifier) {
 
         Patch patch = createPatch(created, modifyingConsumer);
         C updated = repository().update(created, patch);
@@ -235,12 +218,13 @@ public abstract class AbstractCatalogServiceClientRepositoryTest<
         final String providedId = toCreate.getId();
         assertNotNull("id must be provided", providedId);
         assertNull(
-                "Object to be created shall not already exist in catalog",
-                catalogLookup.apply(toCreate.getId()));
+
+                catalogLookup.apply(toCreate.getId()),
+                "Object to be created shall not already exist in catalog");
 
         repository().add(toCreate);
         C created = repository().findById(providedId, infoType).get();
-        assertNotNull("Object not found after added: " + toCreate, created);
+        assertNotNull(created, "Object not found after added: " + toCreate);
         created = resolveProxies(created);
         assertCatalogInfoEquals(toCreate, created);
         return created;
@@ -253,8 +237,9 @@ public abstract class AbstractCatalogServiceClientRepositoryTest<
         assertNotNull(foundBeforeDelete);
         repository().remove(toDelete);
         assertFalse(
-                "object not deleted from backend catalog",
-                repository().findById(toDelete.getId(), infoType).isPresent());
+
+                repository().findById(toDelete.getId(), infoType).isPresent(),
+                "object not deleted from backend catalog");
 
         return foundBeforeDelete;
     }

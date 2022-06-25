@@ -10,8 +10,8 @@ import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.Info;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoEvent;
-import org.geoserver.cloud.event.info.InfoModifyEvent;
-import org.geoserver.cloud.event.info.InfoRemoveEvent;
+import org.geoserver.cloud.event.info.InfoModified;
+import org.geoserver.cloud.event.info.InfoRemoved;
 import org.geoserver.jdbcconfig.internal.ConfigDatabase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
@@ -24,13 +24,13 @@ import org.springframework.context.event.EventListener;
 public class RemoteEventJdbcConfigProcessor {
     private @Autowired ConfigDatabase jdbcConfigDatabase;
 
-    @EventListener(InfoRemoveEvent.class)
-    public void onRemoteRemoveEvent(InfoRemoveEvent<?, ?> event) {
+    @EventListener(InfoRemoved.class)
+    public void onRemoteRemoveEvent(InfoRemoved<?, ?> event) {
         evictConfigDatabaseEntry(event);
     }
 
-    @EventListener(InfoModifyEvent.class)
-    public void onRemoteModifyEvent(InfoModifyEvent<?, ? extends Info> event) {
+    @EventListener(InfoModified.class)
+    public void onRemoteModifyEvent(InfoModified<?, ? extends Info> event) {
         evictConfigDatabaseEntry(event);
     }
 

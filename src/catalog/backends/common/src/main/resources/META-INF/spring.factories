@@ -6,6 +6,7 @@ org.geoserver.cloud.autoconfigure.geotools.GeoToolsStaticContextInitializer
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 org.geoserver.cloud.autoconfigure.geotools.GeoToolsHttpClientAutoConfiguration,\
 org.geoserver.cloud.autoconfigure.catalog.backend.core.GeoServerBackendAutoConfiguration,\
+org.geoserver.cloud.autoconfigure.catalog.backend.core.DefaultUpdateSequenceAutoConfiguration,\
 org.geoserver.cloud.autoconfigure.catalog.backend.core.XstreamServiceLoadersAutoConfiguration,\
 org.geoserver.cloud.autoconfigure.catalog.backend.core.RemoteEventResourcePoolCleaupUpAutoConfiguration,\
 org.geoserver.cloud.autoconfigure.security.GeoServerSecurityAutoConfiguration,\

@@ -4,24 +4,20 @@
  */
 package org.geoserver.cloud.catalog.client.reactivefeign;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import com.google.common.collect.Sets;
-
-import lombok.Getter;
-import lombok.experimental.Accessors;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.Set;
 import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerRepository;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-
-import java.util.Set;
+import com.google.common.collect.Sets;
+import lombok.Getter;
+import lombok.experimental.Accessors;
 
 @EnableAutoConfiguration
 @Accessors(fluent = true)
@@ -45,7 +41,7 @@ public class LayerRepositoryTest
         assertEquals(expected.getStyles(), actual.getStyles());
     }
 
-    public @Before void removeExisitng() {
+    public @BeforeEach void removeExisitng() {
         // can't create the layer with testData.ft as its resource otherwise, it's a 1:1
         // relationship
         serverCatalog.remove(testData.layerGroup1);
@@ -93,16 +89,8 @@ public class LayerRepositoryTest
         layer1.getStyles().add(style4);
         layer1.getStyles().add(style2);
         serverCatalog.save(layer1);
-        LayerInfo layer2 =
-                testData.createLayer(
-                        "cov-layer-id",
-                        testData.coverageA,
-                        "coverage layer",
-                        true,
-                        style2,
-                        style1,
-                        style3,
-                        style4);
+        LayerInfo layer2 = testData.createLayer("cov-layer-id", testData.coverageA,
+                "coverage layer", true, style2, style1, style3, style4);
         serverCatalog.add(layer1);
         serverCatalog.add(layer2);
 
@@ -115,15 +103,11 @@ public class LayerRepositoryTest
 
     public @Test void testLayerCRUD() {
         LayerInfo layer = testData.layerFeatureTypeA;
-        crudTest(
-                layer,
-                serverCatalog::getLayer,
-                l -> {
-                    l.setDefaultStyle(testData.style2);
-                },
-                (orig, updated) -> {
-                    assertEquals(testData.style2, updated.getDefaultStyle());
-                });
+        crudTest(layer, serverCatalog::getLayer, l -> {
+            l.setDefaultStyle(testData.style2);
+        }, (orig, updated) -> {
+            assertEquals(testData.style2, updated.getDefaultStyle());
+        });
     }
 
     public @Test void testUpdateStyles() {
@@ -131,24 +115,21 @@ public class LayerRepositoryTest
         serverCatalog.add(layer);
         layer = serverCatalog.getLayer(layer.getId());
 
-        testUpdate(
-                layer,
-                l -> {
-                    // AttributionInfoImpl attribution = new AttributionInfoImpl();
-                    // attribution.setHref("http://test.com");
-                    // attribution.setLogoHeight(20);
-                    // attribution.setLogoWidth(10);
-                    // l.setAttribution(attribution);
-                    // l.setPath("/llll");
-                    l.getStyles().clear();
-                    l.getStyles().add(testData.style1);
-                    l.getStyles().add(testData.style2);
-                },
-                (orig, updated) -> {
-                    assertEquals(2, updated.getStyles().size());
-                    Set<StyleInfo> expected = Sets.newHashSet(testData.style2, testData.style1);
-                    assertEquals(expected, updated.getStyles());
-                });
+        testUpdate(layer, l -> {
+            // AttributionInfoImpl attribution = new AttributionInfoImpl();
+            // attribution.setHref("http://test.com");
+            // attribution.setLogoHeight(20);
+            // attribution.setLogoWidth(10);
+            // l.setAttribution(attribution);
+            // l.setPath("/llll");
+            l.getStyles().clear();
+            l.getStyles().add(testData.style1);
+            l.getStyles().add(testData.style2);
+        }, (orig, updated) -> {
+            assertEquals(2, updated.getStyles().size());
+            Set<StyleInfo> expected = Sets.newHashSet(testData.style2, testData.style1);
+            assertEquals(expected, updated.getStyles());
+        });
     }
 
     public @Test void testFindLayersByResource() {
@@ -174,15 +155,8 @@ public class LayerRepositoryTest
         serverCatalog.add(style4);
 
         LayerInfo layer1 = testData.layerFeatureTypeA;
-        LayerInfo layer2 =
-                testData.createLayer(
-                        "cov-layer-id",
-                        testData.coverageA,
-                        "coverage layer",
-                        true,
-                        style2,
-                        style1,
-                        style3);
+        LayerInfo layer2 = testData.createLayer("cov-layer-id", testData.coverageA,
+                "coverage layer", true, style2, style1, style3);
         serverCatalog.add(layer1);
         serverCatalog.add(layer2);
 

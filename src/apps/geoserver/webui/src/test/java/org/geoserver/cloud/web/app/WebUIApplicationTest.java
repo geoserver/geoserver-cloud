@@ -4,8 +4,8 @@
  */
 package org.geoserver.cloud.web.app;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
@@ -141,6 +141,6 @@ public class WebUIApplicationTest {
                 "expected custom 'unused' css class to hide the "
                         + id
                         + " form inputs in custom GlobalSettingsPage.html";
-        assertEquals(msg, "unused", tag.getAttribute("class"));
+        assertEquals("unused", tag.getAttribute("class"), msg);
     }
 }

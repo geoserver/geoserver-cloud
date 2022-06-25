@@ -8,6 +8,26 @@ The remote event notification mechanism is agnostic of the transport layer, whic
 
 We're using [RabbitMQ](https://www.rabbitmq.com/) as the message broker in the default configuration, by means of including the `gs-cloud-catalog-event-bus-amqp` dependency in all services, which this particular module does not depend on.
 
+```mermaid
+classDiagram
+    RemoteApplicationEvent <|-- RemoteSecurityConfigEvent
+    RemoteApplicationEvent <|-- RemoteInfoEvent
+    class RemoteApplicationEvent{
+        <<org.springframework.cloud.bus.event>>
+    }
+    class RemoteSecurityConfigEvent{
+        <<org.geoserver.cloud.event.bus.security>>
+        org.geoserver.cloud.event.security.SecurityConfigChanged event
+    }
+    class RemoteInfoEvent{
+        <<org.geoserver.cloud.event.bus.catalog>>
+        org.geoserver.cloud.event.info.InfoEvent event
+    }
+    link RemoteApplicationEvent "https://cloud.spring.io/spring-cloud-bus/reference/html/#broadcasting-your-own-events" "Spring Cloud Bus remote application events"
+    link RemoteInfoEvent "https://github.com/geoserver/geoserver-cloud/blob/main/src/catalog/events" "GeoServer Cloud events model"
+    link RemoteSecurityConfigEvent "https://github.com/geoserver/geoserver-cloud/blob/main/src/catalog/events" "GeoServer Cloud events model"
+```
+
 ## Configuration
 
 Enabling event-bus propagation of `RemoteApplicationEvent`s depends on `spring-cloud-bus` auto-configuration through the externalized configuration property `spring.cloud.bus.enabled=true`. Additionally, the transport layer should be configured, like in the following example:

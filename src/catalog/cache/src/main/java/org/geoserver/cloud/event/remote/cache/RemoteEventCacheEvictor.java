@@ -16,20 +16,20 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ResolvingProxy;
 import org.geoserver.cloud.catalog.cache.CachingCatalogFacade;
 import org.geoserver.cloud.catalog.cache.CachingGeoServerFacade;
-import org.geoserver.cloud.event.catalog.CatalogInfoModifyEvent;
-import org.geoserver.cloud.event.catalog.CatalogInfoRemoveEvent;
-import org.geoserver.cloud.event.catalog.DefaultDataStoreEvent;
-import org.geoserver.cloud.event.catalog.DefaultNamespaceEvent;
-import org.geoserver.cloud.event.catalog.DefaultWorkspaceEvent;
-import org.geoserver.cloud.event.config.GeoServerInfoModifyEvent;
-import org.geoserver.cloud.event.config.GeoServerInfoSetEvent;
-import org.geoserver.cloud.event.config.LoggingInfoModifyEvent;
-import org.geoserver.cloud.event.config.LoggingInfoSetEvent;
-import org.geoserver.cloud.event.config.ServiceInfoModifyEvent;
-import org.geoserver.cloud.event.config.ServiceInfoRemoveEvent;
-import org.geoserver.cloud.event.config.SettingsInfoModifyEvent;
-import org.geoserver.cloud.event.config.SettingsInfoRemoveEvent;
-import org.geoserver.cloud.event.config.UpdateSequenceEvent;
+import org.geoserver.cloud.event.UpdateSequenceEvent;
+import org.geoserver.cloud.event.catalog.CatalogInfoModified;
+import org.geoserver.cloud.event.catalog.CatalogInfoRemoved;
+import org.geoserver.cloud.event.catalog.DefaultDataStoreSet;
+import org.geoserver.cloud.event.catalog.DefaultNamespaceSet;
+import org.geoserver.cloud.event.catalog.DefaultWorkspaceSet;
+import org.geoserver.cloud.event.config.GeoServerInfoModified;
+import org.geoserver.cloud.event.config.GeoServerInfoSet;
+import org.geoserver.cloud.event.config.LoggingInfoModified;
+import org.geoserver.cloud.event.config.LoggingInfoSet;
+import org.geoserver.cloud.event.config.ServiceModified;
+import org.geoserver.cloud.event.config.ServiceRemoved;
+import org.geoserver.cloud.event.config.SettingsModified;
+import org.geoserver.cloud.event.config.SettingsRemoved;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoEvent;
 import org.geoserver.config.GeoServerInfo;
@@ -50,18 +50,25 @@ public @Service class RemoteEventCacheEvictor {
     private final CachingCatalogFacade catalog;
     private final CachingGeoServerFacade config;
 
-    @EventListener(classes = {DefaultWorkspaceEvent.class})
-    public void onSetDefaultWorkspaceEvent(DefaultWorkspaceEvent event) {
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    @EventListener(classes = {UpdateSequenceEvent.class})
+    public void onUpdateSequenceEvent(UpdateSequenceEvent updateSequenceEvent) {
+        final Long updateSequence = updateSequenceEvent.getUpdateSequence();
+        updateSequenceEvent.remote().ifPresent(remote -> applyUpdateSequence(updateSequence));
+    }
+
+    @EventListener(classes = {DefaultWorkspaceSet.class})
+    public void onSetDefaultWorkspaceEvent(DefaultWorkspaceSet event) {
         evictEntry(event, () -> catalog.evict(DEFAULT_WORKSPACE_CACHE_KEY));
     }
 
-    @EventListener(classes = {DefaultNamespaceEvent.class})
-    public void onSetDefaultNamespaceEvent(DefaultNamespaceEvent event) {
+    @EventListener(classes = {DefaultNamespaceSet.class})
+    public void onSetDefaultNamespaceEvent(DefaultNamespaceSet event) {
         evictEntry(event, () -> catalog.evict(DEFAULT_NAMESPACE_CACHE_KEY));
     }
 
-    @EventListener(classes = {DefaultDataStoreEvent.class})
-    public void onSetDefaultDataStoreEvent(DefaultDataStoreEvent event) {
+    @EventListener(classes = {DefaultDataStoreSet.class})
+    public void onSetDefaultDataStoreEvent(DefaultDataStoreSet event) {
         evictEntry(
                 event,
                 () -> {
@@ -73,66 +80,57 @@ public @Service class RemoteEventCacheEvictor {
                 });
     }
 
-    @EventListener(classes = {CatalogInfoRemoveEvent.class})
-    public void onCatalogInfoRemoveEvent(CatalogInfoRemoveEvent event) {
+    @EventListener(classes = {CatalogInfoRemoved.class})
+    public void onCatalogInfoRemoveEvent(CatalogInfoRemoved event) {
         evictCatalogInfo(event);
     }
 
-    @EventListener(classes = {CatalogInfoModifyEvent.class})
-    public void onCatalogInfoModifyEvent(CatalogInfoModifyEvent event) {
-        if (CatalogInfoModifyEvent.class.equals(event.getClass())) {
+    @EventListener(classes = {CatalogInfoModified.class})
+    public void onCatalogInfoModifyEvent(CatalogInfoModified event) {
+        if (CatalogInfoModified.class.equals(event.getClass())) {
             evictCatalogInfo(event);
         }
     }
 
-    @EventListener(classes = {GeoServerInfoModifyEvent.class})
-    public void onGeoServerInfoModifyEvent(GeoServerInfoModifyEvent event) {
-        if (GeoServerInfoModifyEvent.class.equals(event.getClass())) {
+    @EventListener(classes = {GeoServerInfoModified.class})
+    public void onGeoServerInfoModifyEvent(GeoServerInfoModified event) {
+        if (GeoServerInfoModified.class.equals(event.getClass())) {
             evictConfigEntry(event);
         }
     }
 
-    @EventListener(classes = {UpdateSequenceEvent.class})
-    public void onUpdateSequenceEvent(UpdateSequenceEvent event) {
-        event.remote()
-                .ifPresent(
-                        evt -> {
-                            applyUpdateSequence((UpdateSequenceEvent) evt);
-                        });
-    }
-
-    @EventListener(classes = {LoggingInfoModifyEvent.class})
-    public void onLoggingInfoModifyEvent(LoggingInfoModifyEvent event) {
+    @EventListener(classes = {LoggingInfoModified.class})
+    public void onLoggingInfoModifyEvent(LoggingInfoModified event) {
         evictConfigEntry(event);
     }
 
-    @EventListener(classes = {SettingsInfoModifyEvent.class})
-    public void onSettingsInfoModifyEvent(SettingsInfoModifyEvent event) {
+    @EventListener(classes = {SettingsModified.class})
+    public void onSettingsInfoModifyEvent(SettingsModified event) {
         evictConfigEntry(event);
     }
 
-    @EventListener(classes = {ServiceInfoModifyEvent.class})
-    public void onServiceInfoModifyEvent(ServiceInfoModifyEvent event) {
+    @EventListener(classes = {ServiceModified.class})
+    public void onServiceInfoModifyEvent(ServiceModified event) {
         evictConfigEntry(event);
     }
 
-    @EventListener(classes = {SettingsInfoRemoveEvent.class})
-    public void onSettingsInfoRemoveEvent(SettingsInfoRemoveEvent event) {
+    @EventListener(classes = {SettingsRemoved.class})
+    public void onSettingsInfoRemoveEvent(SettingsRemoved event) {
         evictConfigEntry(event);
     }
 
-    @EventListener(classes = {ServiceInfoRemoveEvent.class})
-    public void onServiceInfoRemoveEvent(ServiceInfoRemoveEvent event) {
+    @EventListener(classes = {ServiceRemoved.class})
+    public void onServiceInfoRemoveEvent(ServiceRemoved event) {
         evictConfigEntry(event);
     }
 
-    @EventListener(classes = {GeoServerInfoSetEvent.class})
-    public void onSetGlobalInfoEvent(GeoServerInfoSetEvent event) {
+    @EventListener(classes = {GeoServerInfoSet.class})
+    public void onSetGlobalInfoEvent(GeoServerInfoSet event) {
         evictConfigEntry(event);
     }
 
-    @EventListener(classes = {LoggingInfoSetEvent.class})
-    public void onSetLoggingInfoEvent(LoggingInfoSetEvent event) {
+    @EventListener(classes = {LoggingInfoSet.class})
+    public void onSetLoggingInfoEvent(LoggingInfoSet event) {
         evictConfigEntry(event);
     }
 
@@ -140,26 +138,18 @@ public @Service class RemoteEventCacheEvictor {
      * Called when the only change to {@link GeoServerInfo} is its update sequence number, in order
      * to avoid evicting the locally cached object and apply the new update sequence to it instead.
      */
-    private void applyUpdateSequence(UpdateSequenceEvent event) {
-        GeoServerInfo global = config.getGlobal();
-        long current = global.getUpdateSequence();
-        long updateSequence = event.getUpdateSequence();
-        if (updateSequence == current) {
-            log.debug(
-                    "Ignoring update sequence event, local value is up to date ({})",
-                    updateSequence);
-        } else if (updateSequence > current) {
-            log.debug(
-                    "Applying update sequence instead of evicting. Old: {}, new: {}",
-                    current,
-                    updateSequence);
-            global.setUpdateSequence(updateSequence);
-        } else {
-            log.info(
-                    "Ignoring update sequence event, current sequence ({}) is bigger than remote event's ({})",
-                    current,
-                    updateSequence);
-        }
+    private void applyUpdateSequence(Long updateSequence) {
+        config.evictGlobal()
+                .ifPresent(
+                        gsinfo -> {
+                            log.debug(
+                                    """
+                    Evicted cached GeoServerInfo with updateSequence {} \
+                    upon remote event carrying new value {}
+                    """,
+                                    gsinfo.getUpdateSequence(),
+                                    updateSequence);
+                        });
     }
 
     private void evictCatalogInfo(InfoEvent<?, ?> event) {

@@ -4,9 +4,9 @@
  */
 package org.geotools.jackson.databind.filter;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,8 +21,8 @@ import org.geotools.jackson.databind.filter.dto.Expression.Literal;
 import org.geotools.jackson.databind.filter.dto.Expression.Multiply;
 import org.geotools.jackson.databind.filter.dto.Expression.PropertyName;
 import org.geotools.jackson.databind.filter.dto.Expression.Subtract;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.io.ParseException;
@@ -145,7 +145,7 @@ public abstract class ExpressionRoundtripTest {
                                 .subtract(BigInteger.valueOf(Long.MAX_VALUE))));
     }
 
-    @Ignore
+    @Disabled
     public @Test void literalBigDecimal() throws Exception {
         roundtripTest(
                 literal(
@@ -168,7 +168,7 @@ public abstract class ExpressionRoundtripTest {
         roundtripTest(literal(literal));
     }
 
-    @Ignore("no jackson module can handle serialization/deserialization")
+    @Disabled("no jackson module can handle serialization/deserialization")
     public @Test void literalAwtColor() throws Exception {
         roundtripTest(literal(Color.GREEN));
     }
@@ -177,7 +177,7 @@ public abstract class ExpressionRoundtripTest {
         roundtripTest(literal(Geometries.MULTILINESTRING));
     }
 
-    @Ignore("no jackson module can handle serialization/deserialization")
+    @Disabled("no jackson module can handle serialization/deserialization")
     public @Test void literalJavaxMeassureUnit() throws Exception {
         roundtripTest(literal(SI.ASTRONOMICAL_UNIT));
     }
@@ -281,7 +281,7 @@ public abstract class ExpressionRoundtripTest {
         assertNotNull(argumentNames);
         assertNotNull(arguments);
         assertNotNull(returnValueDescriptor);
-        assertNull("Unexpected non-null function name nsURI", functionName.getNamespaceURI());
+        assertNull(functionName.getNamespaceURI(), "Unexpected non-null function name nsURI");
         assertEquals(name, functionName.getLocalPart());
 
         List<Expression> parameters = buildParameters(argumentCount, arguments);

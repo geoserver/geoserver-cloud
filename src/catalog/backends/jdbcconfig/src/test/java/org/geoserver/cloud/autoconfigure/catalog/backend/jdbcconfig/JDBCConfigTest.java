@@ -13,13 +13,11 @@ import org.geoserver.config.GeoServerFacade;
 import org.geoserver.config.GeoServerLoader;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.ResourceStore;
-import org.junit.After;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.sql.DataSource;
 
@@ -28,7 +26,6 @@ import javax.sql.DataSource;
  * configured in {@code bootstrap-test.yml}) the first test class will succeed and the following
  * ones will fail, looks like the db got empty but wasn't closed.
  */
-@RunWith(SpringRunner.class)
 @ActiveProfiles("test")
 public abstract class JDBCConfigTest {
 
@@ -45,7 +42,7 @@ public abstract class JDBCConfigTest {
     protected @Autowired @Qualifier("geoServerLoaderImpl") GeoServerLoader geoserverLoader;
     protected @Autowired @Qualifier("resourceStoreImpl") ResourceStore resourceStoreImpl;
 
-    public @After void close() {
+    public @AfterEach void close() {
         ((HikariDataSource) dataSource).close();
     }
 }

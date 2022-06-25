@@ -11,19 +11,16 @@ import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.impl.CatalogImpl;
 import org.geoserver.cloud.test.TestConfiguration;
 import org.geoserver.security.SecureCatalogImpl;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 
 /** Smoke test to load the main context without auto-configuration enabled and without security */
 @SpringBootTest(
         classes = {TestConfiguration.class},
         properties = "reactive.feign.loadbalancer.enabled=false")
-@RunWith(SpringRunner.class)
 @ActiveProfiles("test")
 public class GeoServerMainConfigurationSmokeTest {
 

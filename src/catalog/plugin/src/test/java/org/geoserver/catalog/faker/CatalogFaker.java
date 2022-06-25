@@ -371,7 +371,7 @@ public class CatalogFaker {
         g.setMetadata(metadataMap("k1", Integer.valueOf(1), "k2", "2", "k3", Boolean.FALSE));
         g.setResourceErrorHandling(ResourceErrorHandling.OGC_EXCEPTION_REPORT);
         g.setSettings(settingsInfo(null));
-        g.setUpdateSequence(999);
+        g.setUpdateSequence(faker().random().nextLong(1000L));
         g.setUseHeadersProxyURL(true);
         g.setWebUIMode(WebUIMode.DO_NOT_REDIRECT);
         g.setXmlExternalEntitiesEnabled(Boolean.TRUE);

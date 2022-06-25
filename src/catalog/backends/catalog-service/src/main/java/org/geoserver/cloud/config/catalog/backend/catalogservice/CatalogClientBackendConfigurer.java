@@ -15,6 +15,7 @@ import org.geoserver.cloud.config.catalog.backend.core.GeoServerBackendConfigure
 import org.geoserver.config.GeoServerFacade;
 import org.geoserver.config.GeoServerLoader;
 import org.geoserver.platform.GeoServerResourceLoader;
+import org.geoserver.platform.config.UpdateSequence;
 import org.geoserver.platform.resource.FileSystemResourceStore;
 import org.geoserver.platform.resource.ResourceStore;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,11 @@ public class CatalogClientBackendConfigurer implements GeoServerBackendConfigure
         log.info(
                 "Loading geoserver config backend with {}",
                 CatalogClientBackendConfigurer.class.getSimpleName());
+    }
+
+    @Bean
+    public @Override UpdateSequence updateSequence() {
+        throw new UnsupportedOperationException("implement");
     }
 
     public @Override @Bean ExtendedCatalogFacade catalogFacade() {

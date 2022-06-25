@@ -8,6 +8,7 @@ import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.config.GeoServerFacade;
 import org.geoserver.config.GeoServerLoader;
 import org.geoserver.platform.GeoServerResourceLoader;
+import org.geoserver.platform.config.UpdateSequence;
 import org.geoserver.platform.resource.ResourceStore;
 import org.geoserver.platform.resource.ResourceStoreFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -33,6 +34,9 @@ import org.springframework.context.annotation.Bean;
  * etc.
  */
 public interface GeoServerBackendConfigurer {
+
+    @Bean
+    UpdateSequence updateSequence();
 
     @Bean
     ExtendedCatalogFacade catalogFacade();

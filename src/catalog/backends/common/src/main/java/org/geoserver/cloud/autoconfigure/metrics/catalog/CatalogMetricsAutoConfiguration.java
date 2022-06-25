@@ -4,8 +4,11 @@
  */
 package org.geoserver.cloud.autoconfigure.metrics.catalog;
 
+import lombok.NonNull;
+
 import org.geoserver.catalog.Catalog;
 import org.geoserver.config.GeoServer;
+import org.geoserver.platform.config.UpdateSequence;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.actuate.autoconfigure.metrics.CompositeMeterRegistryAutoConfiguration;
 import org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration;
@@ -32,8 +35,9 @@ public class CatalogMetricsAutoConfiguration {
     CatalogMetrics geoserverCatalogMetrics( //
             GeoSeverMetricsConfigProperties metricsConfig, //
             @Qualifier("catalog") Catalog catalog, //
-            @Qualifier("geoServer") GeoServer config) {
+            @Qualifier("geoServer") GeoServer config,
+            @NonNull UpdateSequence updateSequence) {
 
-        return new CatalogMetrics(metricsConfig, catalog, config);
+        return new CatalogMetrics(metricsConfig, catalog, config, updateSequence);
     }
 }

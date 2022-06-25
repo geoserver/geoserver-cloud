@@ -14,6 +14,9 @@ hystrix.command.default.execution.timeout.enabled: false
 hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds: 50000
 
 geoserver:
+  catalog:
+    secure: false
+    advertised: false
   backend:
     data-directory:
       enabled: true

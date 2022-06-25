@@ -6,16 +6,14 @@ package org.geoserver.cloud.autoconfigure.catalog.backend.jdbcconfig;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.zaxxer.hikari.HikariDataSource;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -32,13 +30,13 @@ import javax.sql.DataSource;
             "geoserver.backend.jdbcconfig.datasource.connectionTimeout=250", // 250ms
             "geoserver.backend.jdbcconfig.datasource.idleTimeout=10000", // 10 secs
         })
-@RunWith(SpringRunner.class)
 public class JdbcConfigDataSourceTest extends JDBCConfigTest {
 
     public @Test void testDataSource() throws SQLException {
         DataSource ds = context.getBean("jdbcConfigDataSource", DataSource.class);
         assertSame(ds, context.getBean("jdbcStoreDataSource", DataSource.class));
         assertThat(ds, instanceOf(HikariDataSource.class));
+        @SuppressWarnings("resource")
         HikariDataSource hds = (HikariDataSource) ds;
         assertEquals(2, hds.getMaximumPoolSize());
         assertEquals(1, hds.getMinimumIdle());

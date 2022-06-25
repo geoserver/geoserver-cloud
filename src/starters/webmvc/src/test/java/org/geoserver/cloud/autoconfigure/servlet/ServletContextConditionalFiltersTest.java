@@ -4,7 +4,8 @@
  */
 package org.geoserver.cloud.autoconfigure.servlet;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.geoserver.cloud.config.servlet.GeoServerServletInitializer;
 import org.geoserver.cloud.test.TestConfiguration;
@@ -13,8 +14,7 @@ import org.geoserver.filters.SessionDebugFilter;
 import org.geoserver.filters.SpringDelegatingFilter;
 import org.geoserver.filters.ThreadLocalsCleanupFilter;
 import org.geoserver.platform.AdvancedDispatchFilter;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -23,12 +23,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.context.request.RequestContextListener;
 
 @SpringBootTest(classes = TestConfiguration.class)
 @EnableAutoConfiguration(exclude = {SecurityAutoConfiguration.class})
-@RunWith(SpringRunner.class)
 @TestPropertySource(
         properties = {
             "reactive.feign.loadbalancer.enabled=false",
@@ -40,14 +38,15 @@ public class ServletContextConditionalFiltersTest {
 
     private @Autowired ApplicationContext context;
 
-    @Test(expected = NoSuchBeanDefinitionException.class)
     public void flushSafeFilter() {
-        context.getBean(FlushSafeFilter.class);
+        assertThrows(
+                NoSuchBeanDefinitionException.class, () -> context.getBean(FlushSafeFilter.class));
     }
 
-    @Test(expected = NoSuchBeanDefinitionException.class)
     public void sessionDebugFilter() {
-        context.getBean(SessionDebugFilter.class);
+        assertThrows(
+                NoSuchBeanDefinitionException.class,
+                () -> context.getBean(SessionDebugFilter.class));
     }
 
     public @Test void contextLoaderListener() {

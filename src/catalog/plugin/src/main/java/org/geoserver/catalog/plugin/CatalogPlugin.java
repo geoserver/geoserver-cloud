@@ -105,7 +105,7 @@ import javax.annotation.Nullable;
  *       use of {@link ExtendedCatalogFacade#query query(Query&lt;T&gt;):Stream&lt;T&gt;} and {@link
  *       ExtendedCatalogFacade#update update(CatalogInfo, Patch)}
  *   <li>Enables setting a {@link RepositoryCatalogFacade}, which allows to easily abstract out the
- *       underlying backend storage using {@link CatalogInfoRepository} implemenatations
+ *       underlying backend storage using {@link CatalogInfoRepository} implementations
  *   <li>Uses {@link DefaultMemoryCatalogFacade} as the default facade implementation for attached,
  *       on-heap {@link CatalogInfo} storage
  *   <li>Implements all business-logic, like event handling and ensuring no {@link CatalogInfo}
@@ -1364,7 +1364,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
         Objects.requireNonNull(inserter, "insert function");
         setId(object);
         validationSupport.validate(object, true);
-        T added;
+
         // TODO: remove synchronized block, we need transactions. Besides, it means nothing in
         // multi-process scenarios.
         CatalogOpContext<T> context = new CatalogOpContext<>(this, object);
@@ -1372,7 +1372,11 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
             businessRules.onBeforeAdd(context);
             fireBeforeAdded(object);
             try {
-                added = inserter.apply(object);
+                T added = inserter.apply(object);
+                // fire the event before the post-rules are processed, since they may result in
+                // other objects removed/modified, and hence avoid a secondary event to be notified
+                // before the primary one. For example, a post-rule may result in a call to
+                // setDefaultWorspace/Namespace/DataStore
                 fireAdded(added);
                 businessRules.onAfterAdd(context.setObject(added));
             } catch (RuntimeException error) {
@@ -1407,6 +1411,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
 
         // this could be the event's payload instead of three separate lists
         final PropertyDiff diff = PropertyDiff.valueOf(proxy).clean();
+
         // filter out no-op changes before firing pre-modified event (e.g. null to empty collection
         // property)
         final List<String> propertyNames = diff.getPropertyNames();
@@ -1427,6 +1432,10 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
             // commit proxy, making effective the change in the provided object. Has no effect in
             // what's been passed to the facade
             proxy.commit();
+            // fire the event before the post-rules are processed, since they may result in other
+            // objects removed/modified, and hence avoid a secondary event to be notified before the
+            // primary one. For example, a post-rule may result in a call to
+            // setDefaultWorspace/Namespace/DataStore
             firePostModified(updated, propertyNames, oldValues, newValues);
             businessRules.onAfterSave(context.setObject(updated));
         } catch (RuntimeException error) {
@@ -1443,6 +1452,10 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
             businessRules.onBeforeRemove(context);
             try {
                 remover.accept(object);
+                // fire the event before the post-rules are processed, since they may result in
+                // other objects removed/modified, and hence avoid a secondary event to be notified
+                // before the primary one. For example, a post-rule may result in a call to
+                // setDefaultWorspace/Namespace/DataStore
                 fireRemoved(object);
                 businessRules.onRemoved(context);
             } catch (RuntimeException error) {

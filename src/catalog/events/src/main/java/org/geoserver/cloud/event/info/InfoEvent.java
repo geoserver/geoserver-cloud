@@ -9,28 +9,21 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.Setter;
 
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.Info;
+import org.geoserver.cloud.event.UpdateSequenceEvent;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.LoggingInfo;
 import org.springframework.core.style.ToStringCreator;
 
-import java.util.Optional;
-
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = InfoAddEvent.class),
-    @JsonSubTypes.Type(value = InfoModifyEvent.class),
-    @JsonSubTypes.Type(value = InfoRemoveEvent.class)
+    @JsonSubTypes.Type(value = InfoAdded.class),
+    @JsonSubTypes.Type(value = InfoModified.class),
+    @JsonSubTypes.Type(value = InfoRemoved.class)
 })
-public abstract class InfoEvent<SELF, INFO extends Info> {
-
-    private @Setter boolean remote;
-
-    /** System time when the event happened. */
-    private @Getter long timestamp;
+public abstract class InfoEvent<SELF, INFO extends Info> extends UpdateSequenceEvent<SELF> {
 
     private @Getter String objectId;
 
@@ -38,40 +31,18 @@ public abstract class InfoEvent<SELF, INFO extends Info> {
 
     protected InfoEvent() {}
 
-    protected InfoEvent(@NonNull String objectId, @NonNull ConfigInfoType objectType) {
+    protected InfoEvent(
+            @NonNull Long updateSequence,
+            @NonNull String objectId,
+            @NonNull ConfigInfoType objectType) {
+        super(updateSequence);
         // this.source = source;
         this.objectId = objectId;
         this.objectType = objectType;
-        this.timestamp = System.currentTimeMillis();
     }
 
-    @SuppressWarnings("unchecked")
-    public Optional<SELF> local() {
-        return Optional.ofNullable(isLocal() ? (SELF) this : null);
-    }
-
-    @SuppressWarnings("unchecked")
-    public Optional<SELF> remote() {
-        return Optional.ofNullable(isRemote() ? (SELF) this : null);
-    }
-
-    public boolean isLocal() {
-        return !isRemote(); // source != null;
-    }
-
-    public boolean isRemote() {
-        return remote;
-    }
-
-    public @Override String toString() {
-        return toStringBuilder().toString();
-    }
-
-    protected ToStringCreator toStringBuilder() {
-        return new ToStringCreator(this)
-                .append("remote", isRemote())
-                .append("type", getObjectType())
-                .append("id", getObjectId());
+    protected @Override ToStringCreator toStringBuilder() {
+        return super.toStringBuilder().append("type", getObjectType()).append("id", getObjectId());
     }
 
     /**

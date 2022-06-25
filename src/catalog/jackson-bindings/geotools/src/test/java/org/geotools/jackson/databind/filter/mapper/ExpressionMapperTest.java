@@ -4,20 +4,20 @@
  */
 package org.geotools.jackson.databind.filter.mapper;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.geotools.jackson.databind.filter.ExpressionRoundtripTest;
 import org.geotools.jackson.databind.filter.dto.Expression;
 import org.geotools.jackson.databind.filter.dto.Expression.FunctionName;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.mapstruct.factory.Mappers;
 
 public class ExpressionMapperTest extends ExpressionRoundtripTest {
 
     private ExpressionMapper expressions;
 
-    public @Before void before() {
+    public @BeforeEach void before() {
         expressions = Mappers.getMapper(ExpressionMapper.class);
     }
 

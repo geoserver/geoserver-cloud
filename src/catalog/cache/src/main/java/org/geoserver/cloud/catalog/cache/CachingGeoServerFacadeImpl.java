@@ -24,6 +24,8 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 
+import java.util.Optional;
+
 /** */
 @CacheConfig(cacheNames = CachingGeoServerFacade.CACHE_NAME)
 @Slf4j(topic = "org.geoserver.cloud.catalog.caching")
@@ -33,10 +35,20 @@ class CachingGeoServerFacadeImpl extends ForwardingGeoServerFacade
     private Cache cache;
 
     @Override
+    public Optional<GeoServerInfo> evictGlobal() {
+        Optional<GeoServerInfo> ret =
+                Optional.ofNullable(cache.get(GEOSERVERINFO_KEY))
+                        .map(ValueWrapper::get)
+                        .map(GeoServerInfo.class::cast);
+        cache.evict(GEOSERVERINFO_KEY);
+        return ret;
+    }
+
+    @Override
     public boolean evict(Info info) {
         log.debug("Evict cache entry for {}", info.getId());
         if (info instanceof GeoServerInfo) {
-            return cache.evictIfPresent(GEOSERVERINFO_KEY);
+            return evictGlobal().isPresent();
         }
         if (info instanceof LoggingInfo) {
             return cache.evictIfPresent(LOGGINGINFO_KEY);

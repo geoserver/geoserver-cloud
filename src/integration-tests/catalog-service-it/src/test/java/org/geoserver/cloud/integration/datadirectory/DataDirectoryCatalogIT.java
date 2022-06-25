@@ -10,18 +10,15 @@ import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.cloud.integration.catalog.AbstractCatalogBackendIT;
 import org.geoserver.cloud.integration.catalog.IntegrationTestConfiguration;
 import org.geoserver.platform.GeoServerResourceLoader;
-import org.junit.After;
+import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest(
-        classes = IntegrationTestConfiguration.class,
-        properties = {
-            "geoserver.backend.data-directory.enabled=true",
-            "spring.cloud.circuitbreaker.hystrix.enabled=false",
-            "spring.cloud.config.retry.max-attempts=1"
-        })
+@SpringBootTest(classes = IntegrationTestConfiguration.class,
+        properties = {"geoserver.backend.data-directory.enabled=true",
+                "spring.cloud.circuitbreaker.hystrix.enabled=false",
+                "spring.cloud.config.retry.max-attempts=1"})
 public class DataDirectoryCatalogIT extends AbstractCatalogBackendIT {
 
     private @Autowired @Qualifier("catalogFacade") CatalogFacade rawCatalogFacade;
@@ -34,7 +31,7 @@ public class DataDirectoryCatalogIT extends AbstractCatalogBackendIT {
         return catalog;
     }
 
-    public @After void deleteAll() {
+    public @AfterEach void deleteAll() {
         data.deleteAll(rawCatalog);
     }
 }

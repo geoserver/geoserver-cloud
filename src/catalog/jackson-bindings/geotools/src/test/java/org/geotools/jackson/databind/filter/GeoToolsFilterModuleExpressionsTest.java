@@ -4,8 +4,8 @@
  */
 package org.geotools.jackson.databind.filter;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -15,7 +15,7 @@ import org.geotools.jackson.databind.filter.dto.Expression;
 import org.geotools.jackson.databind.filter.dto.Expression.FunctionName;
 import org.geotools.jackson.databind.filter.mapper.ExpressionMapper;
 import org.geotools.jackson.databind.util.ObjectMapperUtil;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 import org.mapstruct.factory.Mappers;
 import org.opengis.filter.expression.Function;
 
@@ -34,7 +34,7 @@ public class GeoToolsFilterModuleExpressionsTest extends ExpressionRoundtripTest
     private static ObjectMapper objectMapper;
     private static ExpressionMapper expressionMapper;
 
-    public static @BeforeClass void beforeAll() {
+    public static @BeforeAll void beforeAll() {
         objectMapper = ObjectMapperUtil.newObjectMapper();
         expressionMapper = Mappers.getMapper(ExpressionMapper.class);
     }

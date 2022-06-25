@@ -6,7 +6,7 @@ package org.geoserver.cloud.autoconfigure.catalog.backend.catalogservice;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.plugin.CatalogPlugin;
@@ -18,8 +18,8 @@ import org.geoserver.cloud.catalog.client.impl.CatalogClientResourceStore;
 import org.geoserver.cloud.config.catalog.backend.catalogservice.CatalogClientBackendConfigurer;
 import org.geoserver.cloud.config.catalog.backend.catalogservice.CatalogClientGeoServerLoader;
 import org.geoserver.platform.GeoServerResourceLoader;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientAutoConfiguration;
@@ -31,7 +31,7 @@ import reactivefeign.spring.config.ReactiveFeignAutoConfiguration;
  * Test {@link CatalogClientBackendConfigurer} through {@link CatalogClientBackendAutoConfiguration}
  * when {@code geoserver.backend.catalog-service.enabled=true}
  */
-@Ignore("Make it run without ReactiveCatalogClient trying to connect")
+@Disabled("Make it run without ReactiveCatalogClient trying to connect")
 public class CatalogClientBackendAutoConfigurationTest {
 
     // geoserver.security.enabled=false to avoid calling the catalog during bean initialization,

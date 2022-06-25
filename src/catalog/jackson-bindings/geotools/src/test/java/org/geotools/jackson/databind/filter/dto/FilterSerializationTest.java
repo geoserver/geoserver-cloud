@@ -4,7 +4,7 @@
  */
 package org.geotools.jackson.databind.filter.dto;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.geotools.jackson.databind.filter.FilterRoundtripTest;
 import org.geotools.jackson.databind.util.ObjectMapperUtil;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 
 @Slf4j
 public class FilterSerializationTest extends FilterRoundtripTest {
@@ -24,7 +24,7 @@ public class FilterSerializationTest extends FilterRoundtripTest {
 
     private static ObjectMapper objectMapper;
 
-    public static @BeforeClass void beforeAll() {
+    public static @BeforeAll void beforeAll() {
         objectMapper = ObjectMapperUtil.newObjectMapper();
     }
 

@@ -4,7 +4,7 @@
  */
 package org.geotools.jackson.databind.filter;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -14,9 +14,9 @@ import org.geotools.jackson.databind.filter.dto.Filter;
 import org.geotools.jackson.databind.filter.dto.SortBy;
 import org.geotools.jackson.databind.filter.mapper.FilterMapper;
 import org.geotools.jackson.databind.util.ObjectMapperUtil;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 
 /**
@@ -34,7 +34,7 @@ public class GeoToolsFilterModuleFiltersTest extends FilterRoundtripTest {
     private static ObjectMapper objectMapper;
     private static FilterMapper filterMapper;
 
-    public static @BeforeClass void beforeAll() {
+    public static @BeforeAll void beforeAll() {
         objectMapper = ObjectMapperUtil.newObjectMapper();
         filterMapper = Mappers.getMapper(FilterMapper.class);
     }
@@ -58,7 +58,7 @@ public class GeoToolsFilterModuleFiltersTest extends FilterRoundtripTest {
         assertEquals(expected, deserialized);
     }
 
-    @Ignore("revisit, ResourceIdImpl equals issue")
+    @Disabled("revisit, ResourceIdImpl equals issue")
     @Override
     public @Test void idFilter_ResourceId_Date() throws Exception {}
 }

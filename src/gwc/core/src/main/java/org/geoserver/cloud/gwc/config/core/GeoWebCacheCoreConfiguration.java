@@ -123,8 +123,7 @@ public class GeoWebCacheCoreConfiguration {
      * @throws BeanInitializationException if the directory supplied through the {@literal
      *     gwc.config-directory} config property is invalid
      */
-    @Bean
-    Supplier<Resource> gwcDefaultConfigDirectory(
+    private Supplier<Resource> gwcDefaultConfigDirectory(
             GeoWebCacheConfigurationProperties config,
             @Qualifier("resourceStoreImpl") ResourceStore resourceStore)
             throws FatalBeanException {
@@ -164,10 +163,13 @@ public class GeoWebCacheCoreConfiguration {
      * #gwcDefaultConfigDirectory}
      */
     public @Bean ConfigurationResourceProvider gwcXmlConfigResourceProvider(
-            @Qualifier("gwcDefaultConfigDirectory") Supplier<Resource> gwcDefaultConfigDirectory)
+            GeoWebCacheConfigurationProperties config,
+            @Qualifier("resourceStoreImpl") ResourceStore resourceStore)
             throws ConfigurationException {
 
-        return new CloudXMLResourceProvider(gwcDefaultConfigDirectory);
+        Supplier<Resource> configDirSupplier =
+                this.gwcDefaultConfigDirectory(config, resourceStore);
+        return new CloudXMLResourceProvider(configDirSupplier);
     }
 
     /**

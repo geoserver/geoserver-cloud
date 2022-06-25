@@ -4,13 +4,12 @@
  */
 package org.geoserver.cloud.catalog.client.reactivefeign;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import lombok.Getter;
-import lombok.experimental.Accessors;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.geoserver.catalog.CoverageInfo;
 import org.geoserver.catalog.CoverageStoreInfo;
 import org.geoserver.catalog.DataStoreInfo;
@@ -23,15 +22,13 @@ import org.geoserver.catalog.impl.WMSLayerInfoImpl;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.ResourceRepository;
 import org.geoserver.catalog.plugin.Query;
 import org.geoserver.ows.util.OwsUtils;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.opengis.filter.Filter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
+import lombok.Getter;
+import lombok.experimental.Accessors;
 
 @EnableAutoConfiguration
 @Accessors(fluent = true)
@@ -211,7 +208,7 @@ public class ResourceRepositoryTest
      * org.geoserver.catalog.impl.ModificationProxyCloner cannot access a member of class
      * java.util.Collections$EmptySet (in module java.base) with modifiers "private"}
      */
-    @Ignore
+    @Disabled
     public @Test void testResourceInfoCRUD_WMSLayerInfo() {
         WMSLayerInfo toCreate =
                 testData.createWMSLayer(

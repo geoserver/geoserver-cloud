@@ -9,7 +9,7 @@ import static org.hamcrest.Matchers.instanceOf;
 
 import org.geoserver.cloud.config.catalog.backend.jdbcconfig.JDBCConfigWebConfiguration;
 import org.geoserver.jdbcconfig.web.JDBCConfigStatusProvider;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 

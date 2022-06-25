@@ -15,9 +15,9 @@ import org.geoserver.catalog.ResourcePool;
 import org.geoserver.catalog.ResourcePool.CacheClearingListener;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
-import org.geoserver.cloud.event.catalog.CatalogInfoAddEvent;
-import org.geoserver.cloud.event.catalog.CatalogInfoModifyEvent;
-import org.geoserver.cloud.event.catalog.CatalogInfoRemoveEvent;
+import org.geoserver.cloud.event.catalog.CatalogInfoAdded;
+import org.geoserver.cloud.event.catalog.CatalogInfoModified;
+import org.geoserver.cloud.event.catalog.CatalogInfoRemoved;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoEvent;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +26,8 @@ import org.springframework.context.event.EventListener;
 import java.util.Optional;
 
 /**
- * Cleans up cached {@link ResourcePool} entries upon remote {@link CatalogInfoAddEvent}s, {@link
- * CatalogInfoModifyEvent}s, and {@link CatalogInfoRemoveEvent}s.
+ * Cleans up cached {@link ResourcePool} entries upon remote {@link CatalogInfoAdded}s, {@link
+ * CatalogInfoModified}s, and {@link CatalogInfoRemoved}s.
  *
  * @since 1.0
  */
@@ -48,21 +48,21 @@ public class RemoteEventResourcePoolProcessor {
      * no-op, really, what do we care if a CatalogInfo has been added until an incoming service
      * request needs it
      */
-    @EventListener(CatalogInfoAddEvent.class)
-    public void onCatalogRemoteAddEvent(CatalogInfoAddEvent event) {
+    @EventListener(CatalogInfoAdded.class)
+    public void onCatalogRemoteAddEvent(CatalogInfoAdded event) {
         event.remote().ifPresent(e -> log.trace("ignoring {}", e));
     }
 
-    @EventListener(CatalogInfoRemoveEvent.class)
-    public void onCatalogRemoteRemoveEvent(CatalogInfoRemoveEvent event) {
+    @EventListener(CatalogInfoRemoved.class)
+    public void onCatalogRemoteRemoveEvent(CatalogInfoRemoved event) {
         event.remote()
                 .ifPresentOrElse(
                         this::evictFromResourcePool,
                         () -> log.trace("Ignoring event from self: {}", event));
     }
 
-    @EventListener(CatalogInfoModifyEvent.class)
-    public void onCatalogRemoteModifyEvent(CatalogInfoModifyEvent event) {
+    @EventListener(CatalogInfoModified.class)
+    public void onCatalogRemoteModifyEvent(CatalogInfoModified event) {
         event.remote()
                 .ifPresentOrElse(
                         this::evictFromResourcePool,

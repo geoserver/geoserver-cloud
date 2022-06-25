@@ -36,6 +36,16 @@ public class CloudJdbcConfigProperties extends JDBCConfigProperties {
         // factory.saveConfig(this);
     }
 
+    public boolean isH2() {
+        final String driverClassName = getProperty("datasource.driverClassname");
+        return "org.h2.Driver".equals(driverClassName);
+    }
+
+    public boolean isPostgreSQL() {
+        final String driverClassName = getProperty("datasource.driverClassname");
+        return "org.postgresql.Driver".equals(driverClassName);
+    }
+
     /** Override to return {@code true} only if the db schema is not already created */
     public @Override boolean isInitDb() {
         boolean initDb = Boolean.parseBoolean(getProperty("initdb", "false"));
@@ -60,18 +70,15 @@ public class CloudJdbcConfigProperties extends JDBCConfigProperties {
      * gs-jdbcconfig.jar)
      */
     public @Override Resource getInitScript() {
-        final String driverClassName = getProperty("datasource.driverClassname");
         String scriptName;
-        switch (driverClassName) {
-            case "org.h2.Driver":
-                scriptName = "initdb.h2.sql";
-                break;
-            case "org.postgresql.Driver":
-                scriptName = "initdb.postgres.sql";
-                break;
-            default:
-                scriptName = null;
+        if (isH2()) {
+            scriptName = "initdb.h2.sql";
+        } else if (isPostgreSQL()) {
+            scriptName = "initdb.postgres.sql";
+        } else {
+            scriptName = null;
         }
+
         if (scriptName == null) {
             return null;
         }

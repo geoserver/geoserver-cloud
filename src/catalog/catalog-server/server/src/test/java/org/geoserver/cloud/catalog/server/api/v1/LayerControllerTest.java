@@ -4,22 +4,19 @@
  */
 package org.geoserver.cloud.catalog.server.api.v1;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import com.google.common.collect.Sets;
-
-import org.geoserver.catalog.LayerInfo;
-import org.geoserver.catalog.StyleInfo;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
-import org.springframework.http.MediaType;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.geoserver.catalog.LayerInfo;
+import org.geoserver.catalog.StyleInfo;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
+import org.springframework.http.MediaType;
+import com.google.common.collect.Sets;
 
 @AutoConfigureWebTestClient(timeout = "360000")
 public class LayerControllerTest extends AbstractReactiveCatalogControllerTest<LayerInfo> {
@@ -35,7 +32,7 @@ public class LayerControllerTest extends AbstractReactiveCatalogControllerTest<L
         assertEquals(expected.getStyles(), actual.getStyles());
     }
 
-    public @Before void removeExisitng() {
+    public @BeforeEach void removeExisitng() {
         // can't create the layer with testData.ft as its resource otherwise, it's a 1:1
         // relationship
         catalog.remove(testData.layerGroup1);

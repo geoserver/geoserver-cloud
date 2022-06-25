@@ -4,8 +4,8 @@
  */
 package org.geoserver.cloud.catalog.server.api.v1;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
@@ -24,7 +24,7 @@ import org.geoserver.catalog.WMTSStoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.cloud.catalog.server.test.CatalogTestClient;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opengis.filter.Filter;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.http.MediaType;

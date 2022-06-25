@@ -4,8 +4,8 @@
  */
 package org.geoserver.cloud.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.event.EventListener;
@@ -63,7 +63,7 @@ public class ApplicationEventCapturingListener {
 
     public <T> T expectOne(Class<T> type) {
         List<T> list = allOf(type);
-        assertEquals("exactly only one " + type.getSimpleName(), 1, list.size());
+        assertEquals(1, list.size(), "exactly only one " + type.getSimpleName());
         return list.get(0);
     }
 

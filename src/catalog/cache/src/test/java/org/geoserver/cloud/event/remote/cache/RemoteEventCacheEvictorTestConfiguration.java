@@ -12,6 +12,8 @@ import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerFacade;
 import org.geoserver.config.plugin.GeoServerImpl;
 import org.geoserver.config.plugin.RepositoryGeoServerFacadeImpl;
+import org.geoserver.platform.config.DefaultUpdateSequence;
+import org.geoserver.platform.config.UpdateSequence;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration;
@@ -30,6 +32,11 @@ import org.springframework.context.annotation.Configuration;
             FreeMarkerAutoConfiguration.class
         })
 public class RemoteEventCacheEvictorTestConfiguration {
+
+    @Bean
+    UpdateSequence defaultUpdateSequence() {
+        return new DefaultUpdateSequence();
+    }
 
     @Bean(name = {"rawCatalog"})
     public Catalog rawCatalog(@Qualifier("catalogFacade") CatalogFacade facade) {

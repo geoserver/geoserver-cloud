@@ -16,7 +16,7 @@ import org.geotools.jackson.databind.filter.dto.Filter.MultiValuedFilter;
 import org.geotools.jackson.databind.filter.dto.Filter.MultiValuedFilter.MatchAction;
 import org.geotools.jackson.databind.filter.dto.Filter.PropertyIsNull;
 import org.geotools.jackson.databind.filter.dto.SortBy;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.CoordinateSequenceFactory;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;

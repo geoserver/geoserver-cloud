@@ -10,7 +10,7 @@ import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.cloud.integration.catalog.AbstractCatalogBackendIT;
 import org.geoserver.cloud.integration.catalog.IntegrationTestConfiguration;
 import org.geoserver.platform.GeoServerResourceLoader;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -33,7 +33,7 @@ public class JDBCConfigCatalogIT extends AbstractCatalogBackendIT {
         return catalog;
     }
 
-    public @Before void prepare() {
+    public @BeforeEach void prepare() {
         data.deleteAll(rawCatalog);
         jdbcCatalogFacade.dispose(); // disposes internal caches
     }

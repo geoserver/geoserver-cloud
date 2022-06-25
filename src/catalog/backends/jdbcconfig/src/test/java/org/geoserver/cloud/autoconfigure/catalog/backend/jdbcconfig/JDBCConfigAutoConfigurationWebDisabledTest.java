@@ -4,9 +4,11 @@
  */
 package org.geoserver.cloud.autoconfigure.catalog.backend.jdbcconfig;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import org.geoserver.cloud.config.catalog.backend.jdbcconfig.JDBCConfigWebConfiguration;
 import org.geoserver.jdbcconfig.web.JDBCConfigStatusProvider;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -23,8 +25,10 @@ import org.springframework.boot.test.context.SpringBootTest;
         })
 public class JDBCConfigAutoConfigurationWebDisabledTest extends JDBCConfigTest {
 
-    @Test(expected = NoSuchBeanDefinitionException.class)
+    @Test
     public void testJDBCConfigStatusProvider() {
-        context.getBean(JDBCConfigStatusProvider.class);
+        assertThrows(
+                NoSuchBeanDefinitionException.class,
+                () -> context.getBean(JDBCConfigStatusProvider.class));
     }
 }

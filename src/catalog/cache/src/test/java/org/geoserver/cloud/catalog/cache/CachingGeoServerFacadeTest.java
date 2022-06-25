@@ -1,9 +1,10 @@
 package org.geoserver.cloud.catalog.cache;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.doReturn;
@@ -23,10 +24,8 @@ import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
 import org.geoserver.config.plugin.GeoServerImpl;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -35,7 +34,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Arrays;
 import java.util.function.Function;
@@ -43,7 +41,6 @@ import java.util.function.Supplier;
 
 @SpringBootTest(classes = GeoServerBackendCacheConfiguration.class)
 @EnableAutoConfiguration(exclude = LocalCatalogEventsAutoConfiguration.class)
-@RunWith(SpringRunner.class)
 public class CachingGeoServerFacadeTest {
 
     private @MockBean @Qualifier("rawCatalog") CatalogPlugin rawCatalog;
@@ -68,7 +65,7 @@ public class CachingGeoServerFacadeTest {
 
     public static interface TestService2 extends ServiceInfo {}
 
-    public @Before void before() {
+    public @BeforeEach void before() {
         global = stub(GeoServerInfo.class);
         ws = stub(WorkspaceInfo.class);
         settings = stub(SettingsInfo.class);
@@ -195,7 +192,7 @@ public class CachingGeoServerFacadeTest {
     public @Test void testRemoveServiceInfo() {
         testEvictsServiceInfo(service1, () -> caching.remove(service1));
 
-        assertNotNull("preflight check failure", wsService1.getWorkspace());
+        assertNotNull(wsService1.getWorkspace(), "preflight check failure");
 
         testEvictsServiceInfo(wsService1, () -> caching.remove(wsService1));
     }
@@ -203,7 +200,7 @@ public class CachingGeoServerFacadeTest {
     public @Test void testSaveServiceInfo() {
         testEvictsServiceInfo(service1, () -> caching.save(service1));
 
-        assertNotNull("preflight check failure", wsService1.getWorkspace());
+        assertNotNull(wsService1.getWorkspace(), "preflight check failure");
 
         testEvictsServiceInfo(wsService1, () -> caching.save(wsService1));
     }
@@ -252,7 +249,7 @@ public class CachingGeoServerFacadeTest {
     public @Test void testGetServiceByWorkspaceAndType() {
         TestService1 service = wsService1;
         WorkspaceInfo ws = service.getWorkspace();
-        assertNotNull("preflight check failure", ws);
+        assertNotNull(ws, "preflight check failure");
         when(mock.getService(same(ws), eq(TestService1.class))).thenReturn(service);
 
         ServiceInfoKey idKey = ServiceInfoKey.byId(service.getId());
@@ -320,8 +317,8 @@ public class CachingGeoServerFacadeTest {
         TestService1 service = wsService1;
         String name = service.getName();
         WorkspaceInfo ws = service.getWorkspace();
-        assertNotNull("preflight check failure", name);
-        assertNotNull("preflight check failure", ws);
+        assertNotNull(name, "preflight check failure");
+        assertNotNull(ws, "preflight check failure");
         when(mock.getServiceByName(eq(name), eq(ws), eq(TestService1.class))).thenReturn(service);
 
         ServiceInfoKey idKey = ServiceInfoKey.byId(service.getId());
@@ -411,7 +408,7 @@ public class CachingGeoServerFacadeTest {
     private <T extends Info> void assertSameTimesN(T info, Function<String, T> query, int times) {
         for (int i = 0; i < times; i++) {
             T result = query.apply(info.getId());
-            Assert.assertSame(info, result);
+            assertSame(info, result);
         }
     }
 
