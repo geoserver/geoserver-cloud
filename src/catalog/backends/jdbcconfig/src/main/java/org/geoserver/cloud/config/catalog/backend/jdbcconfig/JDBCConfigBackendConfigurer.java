@@ -13,6 +13,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
+import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.catalog.plugin.CatalogFacadeExtensionAdapter;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.cloud.config.catalog.backend.core.GeoServerBackendConfigurer;
@@ -135,6 +136,11 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
         DataSource dataSource = jdbcConfigDataSource();
         CloudJdbcConfigProperties props = jdbcConfigProperties();
         return new JdbcConfigUpdateSequence(dataSource, props);
+    }
+
+    @Bean
+    public @Override GeoServerConfigurationLock configurationLock() {
+        return new GeoServerConfigurationLock();
     }
 
     @DependsOn("jdbcConfigDataSourceStartupValidator")

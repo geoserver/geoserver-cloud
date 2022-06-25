@@ -37,6 +37,7 @@ import org.springframework.context.ApplicationContextAware;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -180,10 +181,20 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
     }
 
     void validate(SettingsInfo settings) {
-        WorkspaceInfo workspace = settings.getWorkspace();
+        final WorkspaceInfo workspace = settings.getWorkspace();
         if (workspace == null) {
             throw new IllegalArgumentException("Settings must be part of a workspace");
         }
+        Catalog catalog = getCatalog();
+        // make sure the workspace exists and is not dettached from the catalog
+        final WorkspaceInfo realws = catalog.getWorkspace(workspace.getId());
+        Objects.requireNonNull(
+                realws,
+                () ->
+                        String.format(
+                                "Workspace %s(%s) attached to SettingsInfo does not exist",
+                                workspace.getName(), workspace.getId()));
+        settings.setWorkspace(realws);
     }
 
     void resolve(SettingsInfo settings) {

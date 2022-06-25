@@ -45,7 +45,9 @@ public class DataDirectoryUpdateSequence implements UpdateSequence {
 
     private static final String CLUSTER_LOCK_NAME = "UPDATE_SEQUENCE";
 
+    /** Provides the cluster aware {@link ResourceStore#getLockProvider LockProvider} */
     private @Autowired @Qualifier("resourceStoreImpl") ResourceStore resourceStore;
+
     private @Autowired @Qualifier("geoServer") GeoServer geoServer;
     private @Autowired GeoServerDataDirectory dd;
     private @Autowired XStreamPersisterFactory xpf;

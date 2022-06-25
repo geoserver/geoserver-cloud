@@ -7,9 +7,11 @@ package org.geoserver.cloud.event.bus;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.config.GeoServer;
+import org.geoserver.config.plugin.GeoServerImpl;
 import org.geoserver.config.util.XStreamPersisterFactory;
 import org.geoserver.platform.config.DefaultUpdateSequence;
 import org.geoserver.platform.config.UpdateSequence;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -31,7 +33,9 @@ public class TestConfigurationAutoConfiguration {
         return new CatalogPlugin(false);
     }
 
-    public @Bean GeoServer geoServer() {
-        return new org.geoserver.config.plugin.GeoServerImpl();
+    public @Bean GeoServer geoServer(@Qualifier("catalog") Catalog catalog) {
+        GeoServerImpl gs = new org.geoserver.config.plugin.GeoServerImpl();
+        gs.setCatalog(catalog);
+        return gs;
     }
 }

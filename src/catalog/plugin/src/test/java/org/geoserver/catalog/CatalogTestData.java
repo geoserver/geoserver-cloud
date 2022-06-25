@@ -304,6 +304,9 @@ public class CatalogTestData {
                 throw new IllegalStateException(
                         "No GeoServer provided, either disable config initialization or provide a GeoServer instance");
             }
+            if (geoServer.getCatalog() == null) {
+                throw new IllegalStateException("GeoServer.getCatalog() is null");
+            }
             deleteAll(geoServer);
 
             geoServer.setGlobal(global);

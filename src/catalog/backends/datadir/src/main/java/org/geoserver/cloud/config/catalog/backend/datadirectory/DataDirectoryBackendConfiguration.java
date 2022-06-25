@@ -7,14 +7,24 @@ package org.geoserver.cloud.config.catalog.backend.datadirectory;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
+import org.geoserver.GeoServerConfigurationLock;
+import org.geoserver.catalog.Catalog;
+import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.DefaultMemoryCatalogFacade;
+import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
+import org.geoserver.cloud.catalog.locking.LockProviderGeoServerConfigurationLock;
+import org.geoserver.cloud.catalog.locking.LockingCatalog;
+import org.geoserver.cloud.catalog.locking.LockingGeoServer;
+import org.geoserver.cloud.config.catalog.backend.core.CatalogProperties;
 import org.geoserver.cloud.config.catalog.backend.core.GeoServerBackendConfigurer;
 import org.geoserver.config.GeoServerLoader;
 import org.geoserver.config.plugin.RepositoryGeoServerFacade;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.config.UpdateSequence;
+import org.geoserver.platform.resource.LockProvider;
 import org.geoserver.platform.resource.ResourceStore;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,6 +40,8 @@ import java.util.Objects;
 @Slf4j(topic = "org.geoserver.cloud.config.datadirectory")
 public class DataDirectoryBackendConfiguration implements GeoServerBackendConfigurer {
 
+    private @Autowired CatalogProperties properties;
+
     private DataDirectoryProperties dataDirectoryConfig;
 
     @Autowired
@@ -40,9 +52,34 @@ public class DataDirectoryBackendConfiguration implements GeoServerBackendConfig
                 DataDirectoryBackendConfiguration.class.getSimpleName());
     }
 
+    public @Bean CatalogPlugin rawCatalog() {
+        boolean isolated = properties.isIsolated();
+        GeoServerConfigurationLock configurationLock = configurationLock();
+        ExtendedCatalogFacade catalogFacade = catalogFacade();
+        GeoServerResourceLoader resourceLoader = resourceLoader();
+        CatalogPlugin rawCatalog = new LockingCatalog(configurationLock, catalogFacade, isolated);
+        rawCatalog.setResourceLoader(resourceLoader);
+        return rawCatalog;
+    }
+
+    @Bean(name = "geoServer")
+    public LockingGeoServer geoServer(@Qualifier("catalog") Catalog catalog) {
+
+        GeoServerConfigurationLock configurationLock = configurationLock();
+        LockingGeoServer gs = new LockingGeoServer(configurationLock, geoserverFacade());
+        gs.setCatalog(catalog);
+        return gs;
+    }
+
     @Bean
     public @Override UpdateSequence updateSequence() {
         return new DataDirectoryUpdateSequence();
+    }
+
+    @Bean
+    public @Override GeoServerConfigurationLock configurationLock() {
+        LockProvider lockProvider = resourceStoreImpl().getLockProvider();
+        return new LockProviderGeoServerConfigurationLock(lockProvider);
     }
 
     public @Override @Bean DefaultMemoryCatalogFacade catalogFacade() {
@@ -62,14 +99,19 @@ public class DataDirectoryBackendConfiguration implements GeoServerBackendConfig
         "wmtsLoader"
     })
     public @Override @Bean GeoServerLoader geoServerLoaderImpl() {
-        return new DataDirectoryGeoServerLoader(resourceLoader());
+        UpdateSequence updateSequence = updateSequence();
+        GeoServerResourceLoader resourceLoader = resourceLoader();
+        Catalog rawCatalog = rawCatalog();
+        LockingGeoServer geoserver = geoServer(rawCatalog);
+        return new DataDirectoryGeoServerLoader(
+                updateSequence, resourceLoader, geoserver, rawCatalog);
     }
 
     public @Override @Bean GeoServerResourceLoader resourceLoader() {
         ResourceStore resourceStoreImpl = resourceStoreImpl();
         GeoServerResourceLoader resourceLoader = new GeoServerResourceLoader(resourceStoreImpl);
         final @NonNull Path datadir = dataDirectoryFile();
-        log.debug("geoserver.backend.data-directory.location:" + datadir);
+        log.debug("geoserver.backend.data-directory.location: {}", datadir);
         resourceLoader.setBaseDirectory(datadir.toFile());
         return resourceLoader;
     }

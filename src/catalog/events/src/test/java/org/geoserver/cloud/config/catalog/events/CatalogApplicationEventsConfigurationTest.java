@@ -4,7 +4,7 @@
  */
 package org.geoserver.cloud.config.catalog.events;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -162,6 +162,8 @@ public class CatalogApplicationEventsConfigurationTest {
 
     public @Test void testConfigAddEvents() {
         catalog.add(testData.workspaceB);
+        assertNotNull(catalog.getWorkspace(testData.workspaceB.getId()));
+        assertSame(catalog, geoserver.getCatalog());
 
         @SuppressWarnings("rawtypes")
         Class<ConfigInfoAdded> eventType = ConfigInfoAdded.class;

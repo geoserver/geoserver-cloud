@@ -93,6 +93,7 @@ public class GeoServerMainModuleConfiguration {
             |resourceStoreImpl\
             |xstreamPersisterFactory\
             |loggingInitializer\
+            |configurationLock\
             """;
 
     static final String EXCLUDE_BEANS_REGEX =
