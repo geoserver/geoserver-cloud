@@ -4,6 +4,8 @@
  */
 package org.geoserver.jackson.databind.config.dto;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Generated;
@@ -12,6 +14,7 @@ import org.geoserver.config.LoggingInfo;
 
 /** DTO for {@link LoggingInfo} */
 @EqualsAndHashCode(callSuper = true)
+@JsonTypeName("LoggingInfo")
 public @Data @Generated class Logging extends ConfigInfoDto {
     private String level;
     private String location;

@@ -6,7 +6,9 @@ package org.geoserver.jackson.databind.catalog;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -57,7 +59,6 @@ import org.geotools.data.DataUtilities;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.SchemaException;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.jackson.databind.util.ObjectMapperUtil;
 import org.geotools.jdbc.VirtualTable;
 import org.geotools.measure.Measure;
 import org.geotools.referencing.CRS;
@@ -89,7 +90,7 @@ import java.util.Locale;
  * thanks to {@link GeoServerCatalogModule} jackcon-databind module
  */
 @Slf4j
-public class GeoServerCatalogModuleTest {
+public abstract class GeoServerCatalogModuleTest {
 
     private FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2();
 
@@ -99,7 +100,7 @@ public class GeoServerCatalogModuleTest {
         if (debug) log.debug(logmsg, args);
     }
 
-    private static ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;
 
     private Catalog catalog;
     private CatalogTestData data;
@@ -110,10 +111,10 @@ public class GeoServerCatalogModuleTest {
         // avoid the chatty warning logs due to catalog looking up a bean of type
         // GeoServerConfigurationLock
         GeoServerExtensionsHelper.setIsSpringContext(false);
-        objectMapper = ObjectMapperUtil.newObjectMapper();
     }
 
     public @BeforeEach void before() {
+        objectMapper = newObjectMapper();
         catalog = new CatalogPlugin();
         geoserver = new GeoServerImpl();
         geoserver.setCatalog(catalog);
@@ -121,6 +122,9 @@ public class GeoServerCatalogModuleTest {
         proxyResolver = new ProxyUtils(catalog, geoserver);
     }
 
+    protected abstract ObjectMapper newObjectMapper();
+
+    @SuppressWarnings("unchecked")
     private <T extends CatalogInfo> void catalogInfoRoundtripTest(final T orig)
             throws JsonProcessingException {
         ObjectWriter writer = objectMapper.writer();
@@ -129,7 +133,7 @@ public class GeoServerCatalogModuleTest {
         T unproxied = ModificationProxy.unwrap(orig);
 
         ClassMappings classMappings = ClassMappings.fromImpl(unproxied.getClass());
-        @SuppressWarnings("unchecked")
+
         Class<T> abstractType = (Class<T>) classMappings.getInterface();
 
         String encoded = writer.writeValueAsString(orig);

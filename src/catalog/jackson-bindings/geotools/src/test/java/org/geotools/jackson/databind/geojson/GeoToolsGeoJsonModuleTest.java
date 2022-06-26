@@ -12,8 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.geotools.jackson.databind.util.ObjectMapperUtil;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.CoordinateSequence;
@@ -36,18 +35,20 @@ import java.util.EnumSet;
  * Test suite for {@link GeoToolsGeoJsonModule}, assuming it's registered to an {@link ObjectMapper}
  */
 @Slf4j
-public class GeoToolsGeoJsonModuleTest {
-    private boolean debug = Boolean.valueOf(System.getProperty("debug", "false"));
+public abstract class GeoToolsGeoJsonModuleTest {
+    private boolean debug = Boolean.valueOf(System.getProperty("debug", "true"));
 
     protected void print(String logmsg, Object... args) {
         if (debug) log.debug(logmsg, args);
     }
 
-    private static ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;
 
-    public static @BeforeAll void beforeAll() {
-        objectMapper = ObjectMapperUtil.newObjectMapper();
+    public @BeforeEach void beforeAll() {
+        objectMapper = newObjectMapper();
     }
+
+    protected abstract ObjectMapper newObjectMapper();
 
     public @Test void testEmptyGeometries() throws JsonProcessingException {
         roundtripTest("POINT EMPTY");

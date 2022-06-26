@@ -5,6 +5,7 @@
 package org.geotools.jackson.databind.filter.mapper;
 
 import org.geotools.jackson.databind.filter.dto.Filter.MultiValuedFilter.MatchAction;
+import org.geotools.util.Converters;
 import org.geotools.util.SimpleInternationalString;
 import org.mapstruct.Mapper;
 import org.opengis.util.InternationalString;
@@ -65,5 +66,15 @@ public abstract class ValueMappers {
 
     private <F, T> T convert(F value, Function<F, T> nonnNullMapper) {
         return value == null ? null : nonnNullMapper.apply(value);
+    }
+
+    public String awtColorToString(java.awt.Color color) {
+        if (null == color) return null;
+        return Converters.convert(color, String.class);
+    }
+
+    public java.awt.Color stringToAwtColor(String color) {
+        if (null == color) return null;
+        return Converters.convert(color, java.awt.Color.class);
     }
 }

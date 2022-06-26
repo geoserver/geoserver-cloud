@@ -4,6 +4,8 @@
  */
 package org.geoserver.jackson.databind.catalog.dto;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Generated;
@@ -13,6 +15,7 @@ import java.util.Set;
 @Data
 @Generated
 @EqualsAndHashCode(callSuper = true)
+@JsonTypeName("LayerInfo")
 public class Layer extends Published {
     public enum WMSInterpolation {
         Nearest,

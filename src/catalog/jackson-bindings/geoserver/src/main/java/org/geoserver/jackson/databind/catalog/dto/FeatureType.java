@@ -4,6 +4,8 @@
  */
 package org.geoserver.jackson.databind.catalog.dto;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Generated;
@@ -13,6 +15,7 @@ import java.util.List;
 @Data
 @Generated
 @EqualsAndHashCode(callSuper = true)
+@JsonTypeName("FeatureTypeInfo")
 public class FeatureType extends Resource {
     private String cqlFilter;
 

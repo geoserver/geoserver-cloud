@@ -145,7 +145,6 @@ public abstract class ExpressionRoundtripTest {
                                 .subtract(BigInteger.valueOf(Long.MAX_VALUE))));
     }
 
-    @Disabled
     public @Test void literalBigDecimal() throws Exception {
         roundtripTest(
                 literal(
@@ -168,7 +167,6 @@ public abstract class ExpressionRoundtripTest {
         roundtripTest(literal(literal));
     }
 
-    @Disabled("no jackson module can handle serialization/deserialization")
     public @Test void literalAwtColor() throws Exception {
         roundtripTest(literal(Color.GREEN));
     }

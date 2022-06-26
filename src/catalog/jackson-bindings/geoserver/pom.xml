@@ -15,6 +15,10 @@
       <artifactId>gt-jackson-bindings</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.fasterxml.jackson.dataformat</groupId>
+      <artifactId>jackson-dataformat-yaml</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.geoserver.cloud.catalog</groupId>
       <artifactId>gs-cloud-catalog-plugin</artifactId>
     </dependency>

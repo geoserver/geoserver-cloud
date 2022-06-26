@@ -4,6 +4,8 @@
  */
 package org.geoserver.jackson.databind.config.dto;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Generated;
@@ -17,6 +19,7 @@ import java.util.Map;
 
 /** DTO for {@link SettingsInfo} */
 @EqualsAndHashCode(callSuper = true)
+@JsonTypeName("SettingsInfo")
 public @Data @Generated class Settings extends ConfigInfoDto {
     private InfoReference workspace;
     private String title;

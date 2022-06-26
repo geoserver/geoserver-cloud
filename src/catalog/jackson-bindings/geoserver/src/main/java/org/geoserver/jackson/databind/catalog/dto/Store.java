@@ -5,7 +5,6 @@
 package org.geoserver.jackson.databind.catalog.dto;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,10 +13,9 @@ import lombok.Generated;
 import java.io.Serializable;
 import java.util.Map;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = CoverageStore.class, name = "CoverageStoreInfo"),
-    @JsonSubTypes.Type(value = DataStore.class, name = "DataStoreInfo"),
+    @JsonSubTypes.Type(value = CoverageStore.class),
+    @JsonSubTypes.Type(value = DataStore.class),
     @JsonSubTypes.Type(value = HTTPStore.class)
 })
 @Data

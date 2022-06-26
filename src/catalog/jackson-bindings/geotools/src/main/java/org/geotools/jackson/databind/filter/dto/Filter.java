@@ -78,7 +78,6 @@ public @Data @Generated class Filter {
         private Filter filter;
     }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
     @JsonSubTypes({
         @JsonSubTypes.Type(value = BinaryLogicOperator.And.class, name = "And"),
         @JsonSubTypes.Type(value = BinaryLogicOperator.Or.class, name = "Or")
@@ -108,7 +107,6 @@ public @Data @Generated class Filter {
         private Expression expression;
     }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
     @JsonSubTypes({
         @JsonSubTypes.Type(value = PropertyIsBetween.class, name = "PropertyIsBetween"),
         @JsonSubTypes.Type(value = PropertyIsLike.class, name = "PropertyIsLike"),
@@ -126,7 +124,6 @@ public @Data @Generated class Filter {
         private MatchAction matchAction;
     }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
     @JsonSubTypes({
         @JsonSubTypes.Type(value = BinaryComparisonOperator.class),
         @JsonSubTypes.Type(value = BinarySpatialOperator.class),
@@ -158,7 +155,6 @@ public @Data @Generated class Filter {
         private boolean matchingCase;
     }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
     @JsonSubTypes({
         @JsonSubTypes.Type(
                 value = BinaryComparisonOperator.PropertyIsEqualTo.class,
@@ -207,7 +203,6 @@ public @Data @Generated class Filter {
                 extends BinaryComparisonOperator {}
     }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
     @JsonSubTypes({
         @JsonSubTypes.Type(value = Filter.BinarySpatialOperator.BBOX.class, name = "BBOX"),
         @JsonSubTypes.Type(value = Filter.BinarySpatialOperator.Contains.class, name = "Contains"),
@@ -253,7 +248,6 @@ public @Data @Generated class Filter {
         @EqualsAndHashCode(callSuper = true)
         public static @Data @Generated class Within extends BinarySpatialOperator {}
 
-        @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
         @JsonSubTypes({
             @JsonSubTypes.Type(
                     value = Filter.BinarySpatialOperator.DWithin.class,
@@ -274,7 +268,6 @@ public @Data @Generated class Filter {
         public static @Data @Generated class DWithin extends DistanceBufferOperator {}
     }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
     @JsonSubTypes({
         @JsonSubTypes.Type(value = Filter.BinaryTemporalOperator.After.class, name = "After"),
         @JsonSubTypes.Type(

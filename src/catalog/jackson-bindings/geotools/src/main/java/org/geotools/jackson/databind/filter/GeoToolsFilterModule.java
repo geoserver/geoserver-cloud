@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.geotools.jackson.databind.filter.mapper.ExpressionMapper;
 import org.geotools.jackson.databind.filter.mapper.FilterMapper;
+import org.geotools.jackson.databind.filter.mapper.ValueMappers;
 import org.geotools.jackson.databind.geojson.GeoToolsGeoJsonModule;
 import org.geotools.jackson.databind.util.MapperDeserializer;
 import org.geotools.jackson.databind.util.MapperSerializer;
@@ -21,6 +22,8 @@ import org.opengis.filter.Filter;
 import org.opengis.filter.capability.FunctionName;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.sort.SortBy;
+
+import java.util.function.Function;
 
 /**
  * Jackson {@link com.fasterxml.jackson.databind.Module} to handle GeoTools {@link Filter} and
@@ -58,6 +61,7 @@ public class GeoToolsFilterModule extends SimpleModule {
 
     private static final FilterMapper FILTERS = Mappers.getMapper(FilterMapper.class);
     private static final ExpressionMapper EXPRESSIONS = Mappers.getMapper(ExpressionMapper.class);
+    private static final ValueMappers VALUES = Mappers.getMapper(ValueMappers.class);
 
     public GeoToolsFilterModule() {
         super(GeoToolsFilterModule.class.getSimpleName(), new Version(1, 0, 0, null, null, null));
@@ -90,5 +94,29 @@ public class GeoToolsFilterModule extends SimpleModule {
                 new MapperDeserializer<>(
                         org.geotools.jackson.databind.filter.dto.Expression.FunctionName.class,
                         EXPRESSIONS::map));
+
+        addCustomLiteralValueSerializers();
+    }
+
+    /** */
+    private void addCustomLiteralValueSerializers() {
+        addMapperSerializer(
+                java.awt.Color.class,
+                VALUES::awtColorToString,
+                String.class,
+                VALUES::stringToAwtColor);
+    }
+
+    private <T, DTO> void addMapperSerializer(
+            Class<T> type,
+            Function<T, DTO> serializerMapper,
+            Class<DTO> dtoType,
+            Function<DTO, T> deserializerMapper) {
+
+        MapperSerializer<T, DTO> serializer = new MapperSerializer<>(type, serializerMapper);
+        MapperDeserializer<DTO, T> deserializer =
+                new MapperDeserializer<>(dtoType, deserializerMapper);
+        super.addSerializer(type, serializer);
+        super.addDeserializer(type, deserializer);
     }
 }

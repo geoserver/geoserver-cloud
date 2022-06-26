@@ -4,6 +4,8 @@
  */
 package org.geoserver.jackson.databind.catalog.dto;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Generated;
@@ -14,6 +16,7 @@ import java.util.Map;
 @Data
 @Generated
 @EqualsAndHashCode(callSuper = true)
+@JsonTypeName("LayerGroupInfo")
 public class LayerGroup extends Published {
 
     public enum Mode {
