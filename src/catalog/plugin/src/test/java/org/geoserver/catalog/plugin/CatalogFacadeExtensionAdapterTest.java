@@ -9,8 +9,6 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
-import org.geoserver.catalog.Catalog;
-import org.geoserver.catalog.CatalogConformanceTest;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.impl.DefaultCatalogFacade;
 import org.geoserver.catalog.plugin.CatalogFacadeExtensionAdapter.SilentCatalog;
@@ -28,7 +26,7 @@ public class CatalogFacadeExtensionAdapterTest extends CatalogConformanceTest {
 
     private CatalogFacade legacyFacade;
 
-    protected @Override Catalog createCatalog() {
+    protected @Override CatalogPlugin createCatalog() {
         catalog = new CatalogPlugin();
         legacyFacade = new DefaultCatalogFacade(catalog);
         catalog.setFacade(new CatalogFacadeExtensionAdapter(legacyFacade));

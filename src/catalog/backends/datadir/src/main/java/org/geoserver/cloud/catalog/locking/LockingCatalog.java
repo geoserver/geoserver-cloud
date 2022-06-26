@@ -17,6 +17,7 @@ import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.LockingCatalogFacade;
 import org.geoserver.catalog.NamespaceInfo;
+import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 
@@ -121,5 +122,12 @@ public class LockingCatalog extends CatalogPlugin {
         locking.runInWriteLock(
                 () -> super.doRemove(info, remover),
                 format("remove(%s[%s])", typeOf(info), nameOf(info)));
+    }
+
+    // TODO: Remove once CatalogPlugin moves the namespace update logic to
+    // validationrules.onBefore/AfterSave and just call doSave(store)
+    public @Override void save(StoreInfo store) {
+        locking.runInWriteLock(
+                () -> super.save(store), format("save(%s[%s])", typeOf(store), nameOf(store)));
     }
 }

@@ -4,12 +4,9 @@
  */
 package org.geoserver.catalog.plugin;
 
-import org.geoserver.catalog.Catalog;
-import org.geoserver.catalog.CatalogConformanceTest;
-
 public class CatalogPluginConformanceTest extends CatalogConformanceTest {
 
-    protected @Override Catalog createCatalog() {
+    protected @Override CatalogPlugin createCatalog() {
         return new org.geoserver.catalog.plugin.CatalogPlugin();
     }
 }

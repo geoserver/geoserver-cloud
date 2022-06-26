@@ -4,10 +4,9 @@
  */
 package org.geoserver.config.impl;
 
-import org.geoserver.catalog.Catalog;
-import org.geoserver.catalog.CatalogConformanceTest;
 import org.geoserver.catalog.impl.CatalogImpl;
 import org.geoserver.catalog.impl.DefaultCatalogFacade;
+import org.geoserver.catalog.plugin.CatalogConformanceTest;
 
 /**
  * {@link CatalogConformanceTest} for the traditional {@link CatalogImpl} with {@link
@@ -15,7 +14,7 @@ import org.geoserver.catalog.impl.DefaultCatalogFacade;
  */
 public class CatalogImplConformanceTest extends CatalogConformanceTest {
 
-    protected @Override Catalog createCatalog() {
+    protected @Override CatalogImpl createCatalog() {
         return new org.geoserver.catalog.impl.CatalogImpl();
     }
 }

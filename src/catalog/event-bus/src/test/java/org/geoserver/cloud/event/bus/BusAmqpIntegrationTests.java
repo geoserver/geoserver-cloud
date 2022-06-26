@@ -219,7 +219,8 @@ public abstract class BusAmqpIntegrationTests {
 
         this.eventsCaptor.stop().clear();
 
-        Class<T> type = resolveInfoInterface(info);
+        final Class<T> type = resolveInfoInterface(info);
+        final ConfigInfoType infoType = ConfigInfoType.valueOf(info);
         T proxy = ModificationProxy.create(ModificationProxy.unwrap(info), type);
         modifier.accept(proxy);
 
@@ -229,10 +230,10 @@ public abstract class BusAmqpIntegrationTests {
         this.eventsCaptor.start();
         saver.accept(proxy);
 
-        RemoteGeoServerEvent localRemoteEvent = eventsCaptor.local().expectOne(eventType);
+        RemoteGeoServerEvent localRemoteEvent = eventsCaptor.local().expectOne(eventType, infoType);
         assertRemoteEvent(info, localRemoteEvent);
 
-        RemoteGeoServerEvent sentRemoteEvent = eventsCaptor.remote().expectOne(eventType);
+        RemoteGeoServerEvent sentRemoteEvent = eventsCaptor.remote().expectOne(eventType, infoType);
         assertRemoteEvent(info, sentRemoteEvent);
 
         InfoModified localModifyEvent = (InfoModified) localRemoteEvent.getEvent();
