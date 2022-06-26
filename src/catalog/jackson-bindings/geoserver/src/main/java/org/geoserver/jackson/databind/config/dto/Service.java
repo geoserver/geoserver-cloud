@@ -5,7 +5,7 @@
 package org.geoserver.jackson.databind.config.dto;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -36,13 +36,12 @@ import java.util.Map;
 import java.util.Set;
 
 /** DTO for {@link ServiceInfo} */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = Service.WmsService.class, name = "WMSInfo"),
-    @JsonSubTypes.Type(value = Service.WfsService.class, name = "WFSInfo"),
-    @JsonSubTypes.Type(value = Service.WcsService.class, name = "WCSInfo"),
-    @JsonSubTypes.Type(value = Service.WpsService.class, name = "WPSInfo"),
-    @JsonSubTypes.Type(value = Service.WmtsService.class, name = "WMTSInfo")
+    @JsonSubTypes.Type(value = Service.WmsService.class),
+    @JsonSubTypes.Type(value = Service.WfsService.class),
+    @JsonSubTypes.Type(value = Service.WcsService.class),
+    @JsonSubTypes.Type(value = Service.WpsService.class),
+    @JsonSubTypes.Type(value = Service.WmtsService.class)
 })
 @EqualsAndHashCode(callSuper = true)
 public abstract @Data @Generated class Service extends ConfigInfoDto {
@@ -81,6 +80,7 @@ public abstract @Data @Generated class Service extends ConfigInfoDto {
     private Map<String, String> internationalAbstract;
 
     @EqualsAndHashCode(callSuper = true)
+    @JsonTypeName("WMSInfo")
     public static @Data @Generated class WmsService extends Service {
         // Works well as POJO, no need to create a separate DTO
         private WatermarkInfoImpl watermark;
@@ -124,6 +124,7 @@ public abstract @Data @Generated class Service extends ConfigInfoDto {
     }
 
     @EqualsAndHashCode(callSuper = true)
+    @JsonTypeName("WFSInfo")
     public static @Data @Generated class WfsService extends Service {
         private Map<Version, GMLInfoImpl> GML;
         private int maxFeatures;
@@ -140,6 +141,7 @@ public abstract @Data @Generated class Service extends ConfigInfoDto {
     }
 
     @EqualsAndHashCode(callSuper = true)
+    @JsonTypeName("WCSInfo")
     public static @Data @Generated class WcsService extends Service {
         private boolean GMLPrefixing;
         private long maxInputMemory;
@@ -153,6 +155,7 @@ public abstract @Data @Generated class Service extends ConfigInfoDto {
     }
 
     @EqualsAndHashCode(callSuper = true)
+    @JsonTypeName("WPSInfo")
     public static @Data @Generated class WpsService extends Service {
         private double connectionTimeout;
         private int resourceExpirationTimeout;
@@ -188,5 +191,6 @@ public abstract @Data @Generated class Service extends ConfigInfoDto {
 
     /** DTO for {@link WMTSInfo} */
     @EqualsAndHashCode(callSuper = true)
+    @JsonTypeName("WMTSInfo")
     public static @Data @Generated class WmtsService extends Service {}
 }

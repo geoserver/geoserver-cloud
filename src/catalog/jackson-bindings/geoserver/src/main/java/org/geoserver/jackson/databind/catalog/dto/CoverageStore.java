@@ -4,6 +4,8 @@
  */
 package org.geoserver.jackson.databind.catalog.dto;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Generated;
@@ -11,6 +13,7 @@ import lombok.Generated;
 @Data
 @Generated
 @EqualsAndHashCode(callSuper = true)
+@JsonTypeName("CoverageStoreInfo")
 public class CoverageStore extends Store {
 
     private String URL;

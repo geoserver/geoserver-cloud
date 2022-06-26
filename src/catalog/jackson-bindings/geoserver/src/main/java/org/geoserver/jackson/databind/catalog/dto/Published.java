@@ -5,7 +5,6 @@
 package org.geoserver.jackson.databind.catalog.dto;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -15,10 +14,9 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = Layer.class, name = "LayerInfo"),
-    @JsonSubTypes.Type(value = LayerGroup.class, name = "LayerGroupInfo")
+    @JsonSubTypes.Type(value = Layer.class),
+    @JsonSubTypes.Type(value = LayerGroup.class)
 })
 @Data
 @Generated

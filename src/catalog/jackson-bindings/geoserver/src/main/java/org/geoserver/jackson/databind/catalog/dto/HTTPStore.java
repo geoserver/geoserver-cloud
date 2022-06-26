@@ -5,16 +5,14 @@
 package org.geoserver.jackson.databind.catalog.dto;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Generated;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = WMSStore.class, name = "WMSStoreInfo"),
-    @JsonSubTypes.Type(value = WMTSStore.class, name = "WMTSStoreInfo")
+    @JsonSubTypes.Type(value = WMSStore.class),
+    @JsonSubTypes.Type(value = WMTSStore.class)
 })
 @Data
 @Generated

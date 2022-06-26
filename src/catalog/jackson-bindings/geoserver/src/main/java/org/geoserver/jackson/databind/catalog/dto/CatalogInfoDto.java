@@ -5,7 +5,6 @@
 package org.geoserver.jackson.databind.catalog.dto;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,12 +12,11 @@ import lombok.Generated;
 
 import java.util.Date;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = Workspace.class, name = "WorkspaceInfo"),
-    @JsonSubTypes.Type(value = Namespace.class, name = "NamespaceInfo"),
-    @JsonSubTypes.Type(value = Style.class, name = "StyleInfo"),
-    @JsonSubTypes.Type(value = Map.class, name = "MapInfo"),
+    @JsonSubTypes.Type(value = Workspace.class),
+    @JsonSubTypes.Type(value = Namespace.class),
+    @JsonSubTypes.Type(value = Style.class),
+    @JsonSubTypes.Type(value = Map.class),
     @JsonSubTypes.Type(value = Store.class),
     @JsonSubTypes.Type(value = Resource.class),
     @JsonSubTypes.Type(value = Published.class)

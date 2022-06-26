@@ -14,8 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.geotools.jackson.databind.filter.dto.Expression;
 import org.geotools.jackson.databind.filter.dto.Expression.FunctionName;
 import org.geotools.jackson.databind.filter.mapper.ExpressionMapper;
-import org.geotools.jackson.databind.util.ObjectMapperUtil;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.mapstruct.factory.Mappers;
 import org.opengis.filter.expression.Function;
 
@@ -24,20 +23,26 @@ import org.opengis.filter.expression.Function;
  * org.opengis.filter.expression.Expression}s
  */
 @Slf4j
-public class GeoToolsFilterModuleExpressionsTest extends ExpressionRoundtripTest {
+public abstract class GeoToolsFilterModuleExpressionsTest extends ExpressionRoundtripTest {
     private boolean debug = Boolean.valueOf(System.getProperty("debug", "false"));
 
     protected void print(String logmsg, Object... args) {
         if (debug) log.debug(logmsg, args);
     }
 
-    private static ObjectMapper objectMapper;
-    private static ExpressionMapper expressionMapper;
+    private ObjectMapper objectMapper;
+    private ExpressionMapper expressionMapper;
 
-    public static @BeforeAll void beforeAll() {
-        objectMapper = ObjectMapperUtil.newObjectMapper();
+    public @BeforeEach void beforeEach() {
+        objectMapper = newObjectMapper();
         expressionMapper = Mappers.getMapper(ExpressionMapper.class);
     }
+
+    public @BeforeEach void beforeAll() {
+        objectMapper = newObjectMapper();
+    }
+
+    protected abstract ObjectMapper newObjectMapper();
 
     protected @Override <E extends Expression> E roundtripTest(E dto) throws Exception {
         final org.opengis.filter.expression.Expression expected = expressionMapper.map(dto);

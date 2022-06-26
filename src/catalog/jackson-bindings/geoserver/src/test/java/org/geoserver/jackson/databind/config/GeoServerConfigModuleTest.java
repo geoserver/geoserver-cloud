@@ -18,6 +18,7 @@ import org.geoserver.catalog.CatalogTestData;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.plugin.CatalogPlugin;
+import org.geoserver.config.ContactInfo;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.SettingsInfo;
@@ -29,7 +30,6 @@ import org.geoserver.ows.util.OwsUtils;
 import org.geoserver.platform.GeoServerExtensionsHelper;
 import org.geoserver.wcs.WCSInfo;
 import org.geoserver.wfs.WFSInfo;
-import org.geotools.jackson.databind.util.ObjectMapperUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,7 +40,7 @@ import org.junit.jupiter.api.Test;
  * module
  */
 @Slf4j
-public class GeoServerConfigModuleTest {
+public abstract class GeoServerConfigModuleTest {
 
     private boolean debug = Boolean.valueOf(System.getProperty("debug", "false"));
 
@@ -48,7 +48,7 @@ public class GeoServerConfigModuleTest {
         if (debug) log.debug(logmsg, args);
     }
 
-    private static ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;
 
     private Catalog catalog;
     private CatalogTestData testData;
@@ -59,10 +59,12 @@ public class GeoServerConfigModuleTest {
         // avoid the chatty warning logs due to catalog looking up a bean of type
         // GeoServerConfigurationLock
         GeoServerExtensionsHelper.setIsSpringContext(false);
-        objectMapper = ObjectMapperUtil.newObjectMapper();
     }
 
+    protected abstract ObjectMapper newObjectMapper();
+
     public @BeforeEach void before() {
+        objectMapper = newObjectMapper();
         catalog = new CatalogPlugin();
         geoserver = new GeoServerImpl();
         testData =
@@ -72,14 +74,16 @@ public class GeoServerConfigModuleTest {
         proxyResolver = new ProxyUtils(catalog, geoserver);
     }
 
-    private <T extends Info> void roundtripTest(@NonNull T orig) throws JsonProcessingException {
+    private <T extends Info> void roundtripTest(@NonNull final T orig)
+            throws JsonProcessingException {
         ObjectWriter writer = objectMapper.writer();
         writer = writer.withDefaultPrettyPrinter();
         String encoded = writer.writeValueAsString(orig);
         print("encoded: {}", encoded);
 
+        ClassMappings cm = ClassMappings.fromImpl(orig.getClass());
         @SuppressWarnings("unchecked")
-        Class<T> type = (Class<T>) ClassMappings.fromImpl(orig.getClass()).getInterface();
+        Class<T> type = cm == null ? (Class<T>) orig.getClass() : (Class<T>) cm.getInterface();
 
         T decoded = objectMapper.readValue(encoded, type);
         print("decoded: {}", decoded);
@@ -100,7 +104,9 @@ public class GeoServerConfigModuleTest {
     }
 
     public @Test void geoServerInfo() throws Exception {
-        roundtripTest(testData.global);
+        GeoServerInfo global = testData.global;
+        global.setJAI(null);
+        roundtripTest(global);
     }
 
     public @Test void settingsInfo() throws Exception {
@@ -136,5 +142,19 @@ public class GeoServerConfigModuleTest {
     public @Test void wmtsServiceInfo() throws Exception {
         WMTSInfo wmtsService = testData.faker().serviceInfo("wmts", WMTSInfoImpl::new);
         roundtripTest(wmtsService);
+    }
+
+    public @Test void contactInfo() throws Exception {
+        ContactInfo contact = testData.faker().contactInfo();
+        roundtripTest(contact);
+    }
+
+    public @Test void setingsInfo() throws Exception {
+        roundtripTest(testData.faker().settingsInfo(null));
+    }
+
+    public @Test void setingsInfoWithWorkspace() throws Exception {
+        SettingsInfo settings = testData.faker().settingsInfo(testData.workspaceA);
+        roundtripTest(settings);
     }
 }

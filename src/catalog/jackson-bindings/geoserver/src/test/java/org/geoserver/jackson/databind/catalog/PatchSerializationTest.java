@@ -63,7 +63,6 @@ import org.geotools.data.DataUtilities;
 import org.geotools.feature.NameImpl;
 import org.geotools.feature.SchemaException;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.jackson.databind.util.ObjectMapperUtil;
 import org.geotools.measure.Measure;
 import org.geotools.referencing.CRS;
 import org.geotools.util.GrowableInternationalString;
@@ -92,7 +91,7 @@ import java.util.function.Supplier;
  * CatalogInfoMapper} as possible.
  */
 @Slf4j
-public class PatchSerializationTest {
+public abstract class PatchSerializationTest {
 
     private boolean debug = Boolean.valueOf(System.getProperty("debug", "false"));
 
@@ -100,7 +99,7 @@ public class PatchSerializationTest {
         if (debug) log.debug(logmsg, args);
     }
 
-    public static ObjectMapper objectMapper;
+    public ObjectMapper objectMapper;
 
     private Catalog catalog;
     private CatalogTestData data;
@@ -111,16 +110,18 @@ public class PatchSerializationTest {
         // avoid the chatty warning logs due to catalog looking up a bean of type
         // GeoServerConfigurationLock
         GeoServerExtensionsHelper.setIsSpringContext(false);
-        objectMapper = ObjectMapperUtil.newObjectMapper();
     }
 
     public @BeforeEach void before() {
+        objectMapper = newObjectMapper();
         catalog = new CatalogPlugin();
         geoserver = new GeoServerImpl();
         geoserver.setCatalog(catalog);
         data = CatalogTestData.initialized(() -> catalog, () -> geoserver).initialize();
         proxyResolver = new ProxyUtils(catalog, geoserver);
     }
+
+    protected abstract ObjectMapper newObjectMapper();
 
     private List<AttributeTypeInfo> createTestAttributes(FeatureTypeInfo info)
             throws SchemaException {
@@ -649,7 +650,6 @@ public class PatchSerializationTest {
         return encoded;
     }
 
-    @SuppressWarnings("unchecked")
     private <T extends Info> T forceProxy(T info, Class<T> iface) {
         info = ModificationProxy.unwrap(info);
         return (T) ModificationProxy.create(info, iface);

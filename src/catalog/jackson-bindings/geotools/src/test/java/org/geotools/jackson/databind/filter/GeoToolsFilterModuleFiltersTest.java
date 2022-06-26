@@ -13,8 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.geotools.jackson.databind.filter.dto.Filter;
 import org.geotools.jackson.databind.filter.dto.SortBy;
 import org.geotools.jackson.databind.filter.mapper.FilterMapper;
-import org.geotools.jackson.databind.util.ObjectMapperUtil;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
@@ -24,20 +23,22 @@ import org.mapstruct.factory.Mappers;
  * org.opengis.filter.Filter}s
  */
 @Slf4j
-public class GeoToolsFilterModuleFiltersTest extends FilterRoundtripTest {
+public abstract class GeoToolsFilterModuleFiltersTest extends FilterRoundtripTest {
     private boolean debug = Boolean.valueOf(System.getProperty("debug", "false"));
 
     protected void print(String logmsg, Object... args) {
         if (debug) log.debug(logmsg, args);
     }
 
-    private static ObjectMapper objectMapper;
-    private static FilterMapper filterMapper;
+    private ObjectMapper objectMapper;
+    private FilterMapper filterMapper;
 
-    public static @BeforeAll void beforeAll() {
-        objectMapper = ObjectMapperUtil.newObjectMapper();
+    public @BeforeEach void beforeEach() {
+        objectMapper = newObjectMapper();
         filterMapper = Mappers.getMapper(FilterMapper.class);
     }
+
+    protected abstract ObjectMapper newObjectMapper();
 
     protected @Override <F extends Filter> F roundtripTest(F dto) throws Exception {
         final org.opengis.filter.Filter expected = filterMapper.map(dto);
