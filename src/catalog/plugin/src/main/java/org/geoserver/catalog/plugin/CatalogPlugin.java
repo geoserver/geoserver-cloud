@@ -6,6 +6,8 @@ package org.geoserver.catalog.plugin;
 
 import static java.util.Collections.unmodifiableList;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import lombok.NonNull;
 
 import org.geoserver.catalog.Catalog;
@@ -277,13 +279,80 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
         doRemove(store, facade::remove);
     }
 
+    // TODO: move the namespace update logic to validationrules.onBefore/AfterSave and just call
+    // doSave(store)
     public @Override void save(StoreInfo store) {
         if (store.getId() == null) {
             // some code uses save() when it should use add()
             add(store);
-        } else {
-            doSave(store);
+            return;
         }
+
+        final StoreInfo oldState = getStore(store.getId(), StoreInfo.class);
+        final WorkspaceInfo oldWorkspace = oldState.getWorkspace();
+
+        // figure out if the store's workspace changed before saving it and get the namespace to
+        // update its ResourceInfos
+        final Optional<NamespaceInfo> namespaceChange = findNamespaceChange(store, oldWorkspace);
+        // save a copy of the store's state before saving in case it has to be rolled back
+        final StoreInfo rollbackCopy =
+                namespaceChange.map(ns -> cloneForRollback(oldState)).orElse(null);
+
+        // save the store before updating the resources namespace, don't risk a listener getting an
+        // inconsistent state while saving a ResourceInfo if the workspace changed
+        doSave(store);
+
+        // if updateResourcesNamespace returns, all its resources have been updated, if it fails
+        // they've been rolled back
+        try {
+            namespaceChange.ifPresent(
+                    newNamespace ->
+                            updateResourcesNamespace(store, oldWorkspace.getName(), newNamespace));
+        } catch (RuntimeException e) {
+            rollback(store, rollbackCopy);
+            throw e;
+        }
+    }
+
+    protected @Override void updateResourcesNamespace(
+            StoreInfo store, String oldNamespacePrefix, NamespaceInfo newNamespace) {
+        List<ResourceInfo> storeResources = getResourcesByStore(store, ResourceInfo.class);
+        try {
+            storeResources.stream().forEach(resource -> updateNamespace(resource, newNamespace));
+        } catch (RuntimeException e) {
+            rollbackNamespaces(storeResources, oldNamespacePrefix, newNamespace);
+            throw e;
+        }
+    }
+
+    protected @Override void rollbackNamespaces(
+            List<ResourceInfo> storeResources,
+            String oldNamespacePrefix,
+            NamespaceInfo newNamespace) {
+        // rolback the namespace on all the resources that got it changed
+        final NamespaceInfo rolbackNamespace = getNamespaceByPrefix(oldNamespacePrefix);
+        Objects.requireNonNull(rolbackNamespace);
+
+        final String newNsId = newNamespace.getId();
+        storeResources.stream()
+                .filter(r -> newNsId.equals(r.getNamespace().getId()))
+                .forEach(
+                        resource -> {
+                            updateNamespace(resource, rolbackNamespace);
+                        });
+    }
+    // override, super calls facade.save and depends on it throwing the events
+    protected @Override void rollback(StoreInfo store, StoreInfo rollbackTo) {
+        // apply the rollback object properties to the real store
+        OwsUtils.copy(rollbackTo, store, infoInterfaceOf(rollbackTo));
+        doSave(store);
+    }
+
+    // override, super calls facade.save and depends on it throwing the events
+    @VisibleForTesting
+    public @Override void updateNamespace(ResourceInfo resource, NamespaceInfo newNamespace) {
+        resource.setNamespace(newNamespace);
+        doSave(resource);
     }
 
     public @Override <T extends StoreInfo> T detach(T store) {
@@ -1445,7 +1514,8 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
         try {
             // note info will be unwrapped before being given to the raw facade by the inbound
             // resolving function set at #setFacade
-            I updated = getFacade().update(info, patch);
+            ExtendedCatalogFacade facade = getFacade();
+            I updated = facade.update(info, patch);
 
             // commit proxy, making effective the change in the provided object. Has no effect in
             // what's been passed to the facade

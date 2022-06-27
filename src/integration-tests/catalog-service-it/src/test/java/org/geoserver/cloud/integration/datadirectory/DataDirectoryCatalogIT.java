@@ -4,7 +4,6 @@
  */
 package org.geoserver.cloud.integration.datadirectory;
 
-import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.cloud.integration.catalog.AbstractCatalogBackendIT;
@@ -25,13 +24,13 @@ public class DataDirectoryCatalogIT extends AbstractCatalogBackendIT {
     private @Autowired GeoServerResourceLoader resourceLoader;
 
     @Override
-    protected Catalog createCatalog() {
+    protected CatalogPlugin createCatalog() {
         CatalogPlugin catalog = new CatalogPlugin(rawCatalogFacade);
         catalog.setResourceLoader(resourceLoader);
         return catalog;
     }
 
     public @AfterEach void deleteAll() {
-        data.deleteAll(rawCatalog);
+        data.deleteAll(super.catalog);
     }
 }

@@ -4,7 +4,6 @@
  */
 package org.geoserver.cloud.integration.jdbcconfig;
 
-import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.cloud.integration.catalog.AbstractCatalogBackendIT;
@@ -27,14 +26,14 @@ public class JDBCConfigCatalogIT extends AbstractCatalogBackendIT {
     private @Autowired GeoServerResourceLoader resourceLoader;
 
     @Override
-    protected Catalog createCatalog() {
+    protected CatalogPlugin createCatalog() {
         CatalogPlugin catalog = new CatalogPlugin(jdbcCatalogFacade);
         catalog.setResourceLoader(resourceLoader);
         return catalog;
     }
 
     public @BeforeEach void prepare() {
-        data.deleteAll(rawCatalog);
+        data.deleteAll(super.catalog);
         jdbcCatalogFacade.dispose(); // disposes internal caches
     }
 }

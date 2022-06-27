@@ -10,12 +10,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.io.IOException;
 import java.util.List;
 import org.geoserver.catalog.Catalog;
-import org.geoserver.catalog.CatalogConformanceTest;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.WMTSLayerInfo;
 import org.geoserver.catalog.WMTSStoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
+import org.geoserver.catalog.plugin.CatalogConformanceTest;
 import org.geotools.ows.wmts.WebMapTileServer;
 import org.geotools.ows.wmts.model.WMTSCapabilities;
 import org.geotools.ows.wmts.model.WMTSLayer;
@@ -59,7 +59,7 @@ public abstract class AbstractCatalogBackendIT extends CatalogConformanceTest {
         assertEquals(layerName, resource.getName());
         assertEquals(layerName, resource.getNativeName());
 
-        final Catalog catalog = super.rawCatalog;
+        final Catalog catalog = super.catalog;
         WMTSLayerInfo resourceByName =
                 catalog.getResourceByName(ns, layerName, WMTSLayerInfo.class);
         assertEquals(resource, resourceByName);
@@ -81,7 +81,7 @@ public abstract class AbstractCatalogBackendIT extends CatalogConformanceTest {
         final String layerName = wmtsLayer.getName();
         final WMTSLayerInfo resource = addWMTSLayer(ns, store, layerName);
 
-        final Catalog catalog = super.rawCatalog;
+        final Catalog catalog = super.catalog;
         LayerInfo layer = catalog.getFactory().createLayer();
         layer.setResource(resource);
         layer.setName(layerName);
@@ -92,21 +92,21 @@ public abstract class AbstractCatalogBackendIT extends CatalogConformanceTest {
     }
 
     protected WMTSStoreInfo addWMTSStore(WorkspaceInfo workspace, String getCapsUrl) {
-        WMTSStoreInfo store = rawCatalog.getFactory().createWebMapTileServer();
+        WMTSStoreInfo store = catalog.getFactory().createWebMapTileServer();
         store.setWorkspace(workspace);
         store.setName("wmtsstore");
         store.setCapabilitiesURL(getCapsUrl);
         store.setUseConnectionPooling(true);
-        return add(store, rawCatalog::add, id -> rawCatalog.getStore(id, WMTSStoreInfo.class));
+        return add(store, catalog::add, id -> catalog.getStore(id, WMTSStoreInfo.class));
     }
 
     protected WMTSLayerInfo addWMTSLayer(NamespaceInfo ns, WMTSStoreInfo wmts, String layerName) {
-        WMTSLayerInfo resource = rawCatalog.getFactory().createWMTSLayer();
+        WMTSLayerInfo resource = catalog.getFactory().createWMTSLayer();
         resource.setName(layerName);
         resource.setStore(wmts);
         resource.setNamespace(ns);
         resource.setEnabled(true);
         return add(
-                resource, rawCatalog::add, id -> rawCatalog.getResource(id, WMTSLayerInfo.class));
+                resource, catalog::add, id -> catalog.getResource(id, WMTSLayerInfo.class));
     }
 }

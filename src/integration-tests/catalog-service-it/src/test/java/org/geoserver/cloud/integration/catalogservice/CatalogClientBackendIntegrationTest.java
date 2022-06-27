@@ -71,9 +71,9 @@ public class CatalogClientBackendIntegrationTest extends AbstractCatalogBackendI
     private @Autowired @Qualifier("rawCatalogServiceFacade") CatalogFacade clientFacade;
 
     /** Client catalog through which to hit the server catalog */
-    private Catalog clientCatalog;
+    private CatalogPlugin clientCatalog;
 
-    protected @Override Catalog createCatalog() {
+    protected @Override CatalogPlugin createCatalog() {
         clientCatalog = new CatalogPlugin(clientFacade);
         return clientCatalog;
     }
@@ -90,23 +90,23 @@ public class CatalogClientBackendIntegrationTest extends AbstractCatalogBackendI
         assertThat(expected, greaterThan(0));
 
         Filter filter = Predicates.isInstanceOf(DataStoreInfo.class);
-        ArrayList<StoreInfo> list = Lists.newArrayList(rawCatalog.list(StoreInfo.class, filter));
+        ArrayList<StoreInfo> list = Lists.newArrayList(catalog.list(StoreInfo.class, filter));
         assertEquals(3, list.size());
 
         filter = Predicates.isInstanceOf(CoverageStoreInfo.class);
-        list = Lists.newArrayList(rawCatalog.list(StoreInfo.class, filter));
+        list = Lists.newArrayList(catalog.list(StoreInfo.class, filter));
         assertEquals(1, list.size());
 
         filter = Predicates.isInstanceOf(WMSStoreInfo.class);
-        list = Lists.newArrayList(rawCatalog.list(StoreInfo.class, filter));
+        list = Lists.newArrayList(catalog.list(StoreInfo.class, filter));
         assertEquals(1, list.size());
 
         filter = Predicates.isInstanceOf(WMTSStoreInfo.class);
-        list = Lists.newArrayList(rawCatalog.list(StoreInfo.class, filter));
+        list = Lists.newArrayList(catalog.list(StoreInfo.class, filter));
         assertEquals(1, list.size());
 
         filter = Predicates.isInstanceOf(StoreInfo.class);
-        list = Lists.newArrayList(rawCatalog.list(StoreInfo.class, filter));
+        list = Lists.newArrayList(catalog.list(StoreInfo.class, filter));
         assertEquals(6, list.size());
     }
 }
