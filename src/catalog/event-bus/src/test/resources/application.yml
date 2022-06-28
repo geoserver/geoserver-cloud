@@ -4,10 +4,6 @@ spring:
     allow-bean-definition-overriding: true
     allow-circular-references: true # false by default since spring-boot 2.6.0, breaks geoserver initialization
   cloud.bus.enabled: true
-geoserver:
-  bus:
-    send-object: false
-    send-diff: false
 
 logging:
   level:
