@@ -29,17 +29,19 @@ jobs:
         cache: 'maven'
 
     - name: Validate source code formatting
-      run: ./mvnw -f src/ fmt:check -ntp
+      run: make check
 
     - name: Build GeoServer 2.21.0-CLOUD
       run: |
-        ./mvnw install -f ./geoserver_submodule -ntp -DskipTests -Dfmt.skip -T1C 
+        make deps 
 
     - name: Build without tests
-      run: ./mvnw -f src/ install -P-docker,-docker-openj9 -ntp -Dfmt.skip -T1C -DskipTests
+      run: |
+        make install
 
     - name: Test
-      run: ./mvnw -f src/ verify -P-docker,-docker-openj9 -ntp -T1C -fae
+      run: |
+        make test
 
     - name: Remove project jars from cached repository
       run: |
