@@ -706,7 +706,7 @@
             </execution>
             <execution>
               <id>push</id>
-              <phase>install</phase>
+              <phase>package</phase>
               <goals>
                 <goal>push</goal>
               </goals>

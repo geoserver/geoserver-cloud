@@ -47,16 +47,25 @@ Requirements:
  * [Docker](https://docs.docker.com/engine/install/) version >= `19.03.3`
  * [docker-compose](https://docs.docker.com/compose/) version >= `1.26.2`
 
-The simple `./mvnw install` command from the project root directory will
+The simple `make` command from the project root directory will
 build and install all the required components, including upstream GeoServer
-dependencies and GeoServer-Cloud Docker images.
-
-If its your first run, you may want to build without running tests to
-speed up the build, not including a full upstream GeoServer build. Read
-the sections bellow for more information.
+dependencies and GeoServer-Cloud Docker images. So for a full build just run:
 
 ```bash
-$ ./mvnw clean install -DskipTests
+make
+```
+
+Then for further builds, unless the `geoserver_submodule/` has changed,
+you can build without running tests with
+
+```bash
+make install
+```
+
+and run tests with
+
+```bash
+make test
 ```
 
 ### Custom upstream GeoServer version
@@ -85,7 +94,17 @@ So in general, you may chose to only eventually build the
 frequently, with
 
 ```bash
-./mvnw clean install -f geoserver_submodule -DskipTests
+make deps
+```
+
+### Build the docker images
+
+As mentioned above, a `make` with no arguments will build everything.
+
+But to build only the docker images, run:
+
+```bash
+make build-image
 ```
 
 ### Targeted builds
@@ -105,7 +124,7 @@ Or
 
 ```bash
 $ cd src/
-$ ./mvnw clean install
+$ ../mvnw clean install
 ```
 
 ## Running

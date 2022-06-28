@@ -35,7 +35,10 @@
     <profile>
       <id>docker</id>
       <activation>
-        <activeByDefault>true</activeByDefault>
+        <activeByDefault>false</activeByDefault>
+        <property>
+          <name>docker</name>
+        </property>
       </activation>
       <build>
         <plugins>
@@ -49,7 +52,10 @@
     <profile>
       <id>docker-openj9</id>
       <activation>
-        <activeByDefault>true</activeByDefault>
+        <activeByDefault>false</activeByDefault>
+        <property>
+          <name>openj9</name>
+        </property>
       </activation>
       <build>
         <plugins>
@@ -73,7 +79,7 @@
               </execution>
               <execution>
                 <id>push-openj9-image</id>
-                <phase>install</phase>
+                <phase>package</phase>
                 <goals>
                   <goal>push</goal>
                 </goals>
