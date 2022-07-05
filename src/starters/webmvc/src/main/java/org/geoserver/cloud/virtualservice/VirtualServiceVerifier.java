@@ -11,6 +11,7 @@ import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -23,7 +24,7 @@ import java.util.Optional;
  */
 public class VirtualServiceVerifier {
 
-    private @Autowired Catalog catalog;
+    private @Autowired @Qualifier("rawCatalog") Catalog catalog;
 
     /**
      * @throws 404 ResponseStatusException if {@code virtualService} can't be mapped to a workspace
