@@ -12,12 +12,14 @@ import org.geoserver.rest.CallbackInterceptor;
 import org.geoserver.rest.PutIgnoringExtensionContentNegotiationStrategy;
 import org.geoserver.rest.RequestInfo;
 import org.geoserver.rest.RestInterceptor;
+import org.geoserver.rest.catalog.AdminRequestCallback;
 import org.geoserver.rest.catalog.StyleController;
 import org.geoserver.rest.resources.ResourceController;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Primary;
 import org.springframework.format.support.FormattingConversionService;
 import org.springframework.http.MediaType;
@@ -43,7 +45,17 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 
 @Configuration
-@ComponentScan(basePackageClasses = org.geoserver.rest.AbstractGeoServerController.class)
+@ComponentScan(
+        basePackageClasses = org.geoserver.rest.AbstractGeoServerController.class, //
+        /*
+         * Exclude AdminRequestCallback from component-scan. For some reason it's not being loaded in
+         * vanilla geoserver (from gs-restconfig's applicationContext.xml) and causes a difference in behavior. At some
+         * point it'll have to be fixed upstream and re-enabled here.
+         */
+        excludeFilters =
+                @ComponentScan.Filter(
+                        type = FilterType.ASSIGNABLE_TYPE,
+                        classes = AdminRequestCallback.class))
 public class RestConfigApplicationConfiguration extends WebMvcConfigurationSupport {
 
     @Override
