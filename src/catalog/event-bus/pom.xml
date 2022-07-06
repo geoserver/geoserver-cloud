@@ -9,9 +9,6 @@
   <artifactId>gs-cloud-catalog-event-bus</artifactId>
   <packaging>jar</packaging>
   <description>Event bus catalog notification support</description>
-  <properties>
-    <testcontainers.version>1.15.1</testcontainers.version>
-  </properties>
   <dependencies>
     <dependency>
       <groupId>org.springframework.cloud</groupId>
@@ -59,13 +56,11 @@
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>junit-jupiter</artifactId>
-      <version>${testcontainers.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>rabbitmq</artifactId>
-      <version>${testcontainers.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>

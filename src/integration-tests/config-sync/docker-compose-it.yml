@@ -1,0 +1,79 @@
+version: "3.8"
+
+services:
+  rabbitmq:
+    image: rabbitmq:3.9-management
+    user: ${GS_USER}
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+
+  gateway:
+    image: geoservercloud/geoserver-cloud-gateway:1.0-SNAPSHOT
+    user: ${GS_USER}
+    environment:
+      SPRING_PROFILES_ACTIVE: standalone
+      RETRY_MAX_ATTEMPTS: 100
+      # eat our own dogfood and set a base path
+      GEOSERVER_BASE_PATH: /geoserver/cloud
+    volumes:
+      - ./config:/etc/gscloud
+    ports:
+      - 7777:8080
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 1G
+  wfs:
+    image: geoservercloud/geoserver-cloud-wfs:1.0-SNAPSHOT
+    user: ${GS_USER}
+    depends_on:
+      - rabbitmq
+    environment:
+      SPRING_PROFILES_ACTIVE: standalone,datadir
+      RETRY_MAX_ATTEMPTS: 100
+    volumes:
+      - ./config:/etc/gscloud
+      - ${TMP_DATADIR}:/opt/app/data_directory
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+
+  wms:
+    image: geoservercloud/geoserver-cloud-wms:1.0-SNAPSHOT
+    user: ${GS_USER}
+    depends_on:
+      - rabbitmq
+    environment:
+      SPRING_PROFILES_ACTIVE: standalone,datadir
+      RETRY_MAX_ATTEMPTS: 100
+    volumes:
+      - ./config:/etc/gscloud
+      - ${TMP_DATADIR}:/opt/app/data_directory
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+
+  webui:
+    image: geoservercloud/geoserver-cloud-webui:1.0-SNAPSHOT
+    user: ${GS_USER}
+    depends_on:
+      - rabbitmq
+    environment:
+      SPRING_PROFILES_ACTIVE: standalone,datadir
+      RETRY_MAX_ATTEMPTS: 100
+    volumes:
+      - ./config:/etc/gscloud
+      - ${TMP_DATADIR}:/opt/app/data_directory
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G

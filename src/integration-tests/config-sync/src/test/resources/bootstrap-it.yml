@@ -1,0 +1,23 @@
+spring:
+  main:
+  cloud.config.enabled: false
+  cloud.config.discovery.enabled: false
+  cloud.discovery.enabled: false
+eureka.client.enabled: false
+
+#gwc.cache-directory: ${java.io.tmpdir}/gwc-it
+
+geoserver:
+  backend:
+    data-directory:
+      enabled: true
+      location: ${data_directory}
+
+logging:
+  level:
+    root: WARN
+    org.geoserver.platform: error
+    org.geoserver.cloud: info
+    org.geoserver.cloud.config.factory: info
+    org.springframework.test: error
+

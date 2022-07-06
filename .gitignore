@@ -37,4 +37,3 @@ docker-compose_datadir*
 /.metadata/
 
 .vscode
-datadir

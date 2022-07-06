@@ -6,12 +6,14 @@
     <artifactId>gs-cloud</artifactId>
     <version>${revision}</version>
   </parent>
+  <groupId>org.geoserver.cloud.it</groupId>
   <artifactId>integration-tests</artifactId>
   <packaging>pom</packaging>
   <name>Integration Tests</name>
   <modules>
     <!-- temporarily disabled -->
     <!-- <module>catalog-service-it</module>-->
+    <module>config-sync</module>
   </modules>
   <dependencies>
     <dependency>
