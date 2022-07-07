@@ -6,8 +6,9 @@ on:
     branches:
       - main
     paths:
-      - ".github/workflows/build-and-push.yaml"
+      - "Makefile"
       - "pom.xml"
+      - ".github/workflows/build-and-push.yaml"
       - "geoserver_submodule/**"
       - "src/**"
     tags:
@@ -42,10 +43,15 @@ jobs:
 
     - name: Build GeoServer 2.21.0-CLOUD
       run: |
-        make install 
+        make deps 
 
-    - name: Build and push Hotspot and OpenJ9 docker images
-      run: ./mvnw install -f src/ -Ddockerfile.push.skip=false -ntp -Dfmt.skip -T1 -DskipTests
+    - name: Build without tests
+      run: |
+        make install
+
+    - name: Build and push Hotspot docker images
+      run: |
+        make build-image SKIP_PUSH=false
 
     - name: Remove project jars from cached repository
       run: |
