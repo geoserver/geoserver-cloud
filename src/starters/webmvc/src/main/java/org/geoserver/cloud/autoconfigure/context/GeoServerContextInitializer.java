@@ -29,8 +29,11 @@ public class GeoServerContextInitializer
 
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
+        // tell geoserver not to control logging, spring-boot will do
         System.setProperty("RELINQUISH_LOG4J_CONTROL", "true");
-
+        // and tell geotools not to redirect to Log4J nor any other framework, we'll use
+        // spring-boot's logging redirection
+        System.setProperty("GT2_LOGGING_REDIRECTION", "JavaLogging");
         ServletContext source = mockServletContext();
         ServletContextEvent sce = new ServletContextEvent(source);
         GeoserverInitStartupListener startupInitializer = new GeoserverInitStartupListener();
