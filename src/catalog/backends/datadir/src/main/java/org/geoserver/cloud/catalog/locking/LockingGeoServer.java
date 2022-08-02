@@ -85,7 +85,7 @@ public class LockingGeoServer extends GeoServerImpl {
     }
 
     public @Override void save(LoggingInfo logging) {
-        lockingSupport.runInWriteLock(() -> super.setLogging(logging), "save(LoggingInfo)");
+        lockingSupport.runInWriteLock(() -> super.save(logging), "save(LoggingInfo)");
     }
 
     public @Override void add(ServiceInfo service) {

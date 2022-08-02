@@ -34,7 +34,7 @@ public class RemoteGeoServerEvent extends RemoteApplicationEvent {
     @Override
     public String toString() {
         return String.format(
-                "[%s id: '%s', originService: '%sd', destinationService: '%s', payload: %s]",
+                "[%s id: '%s', originService: '%s', destinationService: '%s', payload: %s]",
                 getClass().getSimpleName(),
                 getId(),
                 getOriginService(),

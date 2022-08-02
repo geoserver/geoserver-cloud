@@ -2,9 +2,9 @@
  * (c) 2021 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
  * GPL 2.0 license, available at the root application directory.
  */
-package org.geoserver.cloud.autoconfigure.wms;
+package org.geoserver.cloud.autoconfigure.wms.extensions;
 
-import org.geoserver.cloud.autoconfigure.wms.WmsExtensionsConfigProperties.Wms.WmsOutputFormatsConfigProperties.VectorTilesConfigProperties;
+import org.geoserver.cloud.autoconfigure.wms.extensions.WmsExtensionsConfigProperties.Wms.WmsOutputFormatsConfigProperties.VectorTilesConfigProperties;
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
 import org.geoserver.wms.vector.VectorTileMapOutputFormat;
 import org.springframework.beans.factory.annotation.Autowired;
