@@ -22,6 +22,7 @@ import org.geoserver.security.validation.SecurityConfigException;
 import org.springframework.context.event.EventListener;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -37,7 +38,7 @@ public class CloudGeoServerSecurityManager extends GeoServerSecurityManager {
     private final Consumer<SecurityConfigChanged> eventPublisher;
     private final Supplier<Long> updateSequenceIncrementor;
 
-    private boolean reloading = false;
+    private final AtomicBoolean reloading = new AtomicBoolean(false);
     private boolean changedDuringReload = false;
 
     public CloudGeoServerSecurityManager(
@@ -50,26 +51,19 @@ public class CloudGeoServerSecurityManager extends GeoServerSecurityManager {
         this.updateSequenceIncrementor = updateSequenceIncrementor;
     }
 
-    public synchronized @Override void reload() {
-        reloading = true;
-        changedDuringReload = false;
-        try {
-            super.reload();
-        } finally {
-            reloading = false;
-        }
-        if (changedDuringReload) {
-            fireRemoteChangedEvent("Changed during reload");
-        }
-    }
-
-    /** Fires a {@link SecurityConfigChanged} for other services to react accordingly. */
-    public void fireRemoteChangedEvent(@NonNull String reason) {
-        if (reloading) {
-            changedDuringReload = true;
+    public @Override void reload() {
+        if (reloading.compareAndSet(false, true)) {
+            changedDuringReload = false;
+            try {
+                super.reload();
+            } finally {
+                reloading.set(false);
+            }
+            if (changedDuringReload) {
+                fireRemoteChangedEvent("Changed during reload");
+            }
         } else {
-            log.debug("Publishing remote security event due to {}", reason);
-            eventPublisher.accept(event(reason));
+            log.warn("Config already being reloaded, ignoring");
         }
     }
 
@@ -88,10 +82,18 @@ public class CloudGeoServerSecurityManager extends GeoServerSecurityManager {
                     event);
             return;
         }
-        synchronized (this) {
-            log.info("Reloading security configuration due to change event: {}", event);
-            reload();
-            log.debug("Security configuration reloaded due to change event:", event);
+        log.info("Reloading security configuration due to change event: {}", event);
+        reload();
+        log.debug("Security configuration reloaded due to change event:", event);
+    }
+
+    /** Fires a {@link SecurityConfigChanged} for other services to react accordingly. */
+    public void fireRemoteChangedEvent(@NonNull String reason) {
+        if (reloading.get()) {
+            changedDuringReload = true;
+        } else {
+            log.debug("Publishing remote security event due to {}", reason);
+            eventPublisher.accept(event(reason));
         }
     }
 

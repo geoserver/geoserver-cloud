@@ -37,6 +37,7 @@ import org.geoserver.platform.resource.ResourceNotificationDispatcher;
 import org.geoserver.platform.resource.ResourceStore;
 import org.geoserver.platform.resource.SimpleResourceNotificationDispatcher;
 import org.geoserver.util.CacheProvider;
+import org.geoserver.util.DefaultCacheProvider;
 import org.springframework.beans.BeanInstantiationException;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -173,9 +174,17 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
         return loader;
     }
 
-    @DependsOn({"extensions", "JDBCConfigDB", "jdbcConfigDataSourceStartupValidator"})
+    @DependsOn({
+        "extensions",
+        "JDBCConfigDB",
+        "jdbcConfigDataSourceStartupValidator",
+        "noopCacheProvider"
+    })
     @Bean(name = {"resourceStoreImpl"})
     public @Override @NonNull ResourceStore resourceStoreImpl() {
+
+        System.setProperty(DefaultCacheProvider.BEAN_NAME_PROPERTY, "noopCacheProvider");
+
         final JDBCConfigProperties jdbcConfigProperties = jdbcConfigProperties();
         final CloudJdbcStoreProperties jdbcStoreProperties = jdbcStoreProperties();
         final ConfigDatabase jdbcConfigDB = jdbcConfigDB();
@@ -335,6 +344,21 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
     @DependsOn({"extensions"})
     public @Bean("JDBCCacheProvider") CacheProvider jdbcCacheProvider() {
         return new CloudJdbcConfigCacheProvider();
+    }
+
+    public @Bean CacheProvider noopCacheProvider() {
+        return new CacheProvider() {
+
+            @SuppressWarnings("rawtypes")
+            private final Cache noOpCache = CacheBuilder.newBuilder().maximumSize(0).build();
+
+            @SuppressWarnings("unchecked")
+            @Override
+            public <K extends Serializable, V extends Serializable> Cache<K, V> getCache(
+                    String cacheName) {
+                return noOpCache;
+            }
+        };
     }
 
     private static class CloudJdbcConfigCacheProvider implements org.geoserver.util.CacheProvider {
