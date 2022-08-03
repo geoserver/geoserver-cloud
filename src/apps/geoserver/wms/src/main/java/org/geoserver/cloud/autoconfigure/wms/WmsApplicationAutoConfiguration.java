@@ -58,7 +58,7 @@ public class WmsApplicationAutoConfiguration {
             prefix = "geoserver.wms",
             name = "reflector.enabled",
             havingValue = "true",
-            matchIfMissing = false)
+            matchIfMissing = true)
     public @Bean GetMapReflectorController getMapReflectorController() {
         return new GetMapReflectorController();
     }

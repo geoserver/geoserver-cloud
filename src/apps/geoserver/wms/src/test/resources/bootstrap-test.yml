@@ -6,26 +6,10 @@ spring:
   cloud.config.enabled: false
   cloud.config.discovery.enabled: false
   cloud.discovery.enabled: false
+  cloud.bus.enabled: false
 eureka.client.enabled: false
 
-gwc:
-  cache-directory: ${java.io.tmpdir}/gs-wms-tmp
-
-geoserver:
-  backend:
-    data-directory:
-      enabled: true
-      location: ${data_directory:${java.io.tmpdir}/geoserver_cloud_data_directory}
-    jdbcconfig:
-      enabled: false
-      web.enabled: false
-      initdb: true
-      cache-directory: ${java.io.tmpdir}/geoserver-jdbcconfig-cache
-      datasource:
-        driverClassname: org.h2.Driver
-        url: jdbc:h2:mem:test;DB_CLOSE_DELAY=-1
-        username: sa
-        password:
+gwc.cache-directory: ${java.io.tmpdir}/gs-wms-tmp
 
 logging:
   level:

@@ -50,7 +50,7 @@ public class CloudGeoServerSecurityManager extends GeoServerSecurityManager {
         this.updateSequenceIncrementor = updateSequenceIncrementor;
     }
 
-    public @Override void reload() {
+    public synchronized @Override void reload() {
         reloading = true;
         changedDuringReload = false;
         try {
@@ -88,9 +88,9 @@ public class CloudGeoServerSecurityManager extends GeoServerSecurityManager {
                     event);
             return;
         }
-        log.info("Reloading security configuration due to change event: {}", event);
         synchronized (this) {
-            super.reload();
+            log.info("Reloading security configuration due to change event: {}", event);
+            reload();
             log.debug("Security configuration reloaded due to change event:", event);
         }
     }
