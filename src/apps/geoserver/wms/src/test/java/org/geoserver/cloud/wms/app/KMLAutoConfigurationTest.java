@@ -19,7 +19,7 @@ import org.springframework.test.context.ActiveProfiles;
  * @since 1.0
  */
 @SpringBootTest
-@ActiveProfiles("test")
+@ActiveProfiles({"test", "testdatadir"})
 class KMLAutoConfigurationTest {
 
     private @Autowired ConfigurableApplicationContext context;

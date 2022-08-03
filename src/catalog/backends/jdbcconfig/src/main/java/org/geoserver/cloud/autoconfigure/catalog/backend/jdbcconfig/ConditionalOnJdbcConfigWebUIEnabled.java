@@ -4,7 +4,6 @@
  */
 package org.geoserver.cloud.autoconfigure.catalog.backend.jdbcconfig;
 
-import org.geoserver.web.GeoServerHomePageContentProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
@@ -18,10 +17,10 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Documented
 @ConditionalOnJdbcConfigEnabled
+@ConditionalOnClass(name = "org.geoserver.web.GeoServerHomePageContentProvider")
 @ConditionalOnProperty(
         prefix = "geoserver.backend.jdbcconfig.web",
         name = "enabled",
         havingValue = "true",
         matchIfMissing = true)
-@ConditionalOnClass(GeoServerHomePageContentProvider.class)
 public @interface ConditionalOnJdbcConfigWebUIEnabled {}

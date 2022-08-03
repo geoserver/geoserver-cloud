@@ -6,23 +6,33 @@ package org.geoserver.cloud.wms.app;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.geoserver.cloud.virtualservice.VirtualServiceVerifier;
+import org.geoserver.cloud.wms.controller.GetMapReflectorController;
+import org.geoserver.cloud.wms.controller.WMSController;
 import org.geoserver.ows.FlatKvpParser;
 import org.geoserver.ows.kvp.CQLFilterKvpParser;
 import org.geoserver.ows.kvp.SortByKvpParser;
 import org.geoserver.ows.kvp.ViewParamsKvpParser;
 import org.geoserver.ows.util.NumericKvpParser;
 import org.geoserver.wfs.kvp.BBoxKvpParser;
+import org.geoserver.wfs.xml.v1_1_0.WFSConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
-@ActiveProfiles("test")
-public class WmsApplicationTest {
+abstract class WmsApplicationTest {
 
-    private @Autowired ConfigurableApplicationContext context;
+    protected @Autowired ConfigurableApplicationContext context;
+
+    @Test
+    void testExpectedBeansFromWmsApplicationAutoConfiguration() {
+        expecteBean("wfsConfiguration", WFSConfiguration.class);
+        expecteBean("webMapServiceController", WMSController.class);
+        expecteBean("virtualServiceVerifier", VirtualServiceVerifier.class);
+        expecteBean("getMapReflectorController", GetMapReflectorController.class);
+    }
 
     @Test
     void testExpectedBeansFromGsWfsJarFile() {
@@ -54,7 +64,7 @@ public class WmsApplicationTest {
         expecteBean("gml32OutputFormat", org.geoserver.wfs.xml.GML32OutputFormat.class);
     }
 
-    private void expecteBean(String name, Class<?> type) {
+    protected void expecteBean(String name, Class<?> type) {
         assertThat(context.getBean(name)).isInstanceOf(type);
     }
 }
