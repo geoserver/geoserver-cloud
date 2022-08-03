@@ -2,7 +2,7 @@
  * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
  * GPL 2.0 license, available at the root application directory.
  */
-package org.geoserver.cloud.wms.app;
+package org.geoserver.cloud.autoconfigure.wms;
 
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
 import org.geoserver.cloud.virtualservice.VirtualServiceVerifier;
@@ -23,9 +23,9 @@ import org.springframework.context.annotation.ImportResource;
         locations = { //
             "jar:gs-wms-.*!/applicationContext.xml", //
             "jar:gs-wfs-.*!/applicationContext.xml#name="
-                    + WmsApplicationConfiguration.WFS_INCLUDED_BEANS_REGEX //
+                    + WmsApplicationAutoConfiguration.WFS_INCLUDED_BEANS_REGEX //
         })
-public class WmsApplicationConfiguration {
+public class WmsApplicationAutoConfiguration {
 
     static final String WFS_INCLUDED_BEANS_REGEX =
             "^(gml.*OutputFormat"

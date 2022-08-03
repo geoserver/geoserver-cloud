@@ -29,7 +29,7 @@ jobs:
         cache: 'maven'
 
     - name: Validate source code formatting
-      run: make check
+      run: make lint
 
     - name: Build GeoServer 2.21.0-CLOUD
       run: |

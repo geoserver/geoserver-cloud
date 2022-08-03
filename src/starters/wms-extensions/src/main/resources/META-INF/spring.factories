@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-org.geoserver.cloud.autoconfigure.wms.WmsExtensionsAutoConfiguration
+org.geoserver.cloud.autoconfigure.wms.extensions.WmsExtensionsAutoConfiguration

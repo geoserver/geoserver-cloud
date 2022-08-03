@@ -25,9 +25,6 @@ public class WmsApplicationTest {
     private @Autowired ConfigurableApplicationContext context;
 
     @Test
-    public void contextLoads() {}
-
-    @Test
     void testExpectedBeansFromGsWfsJarFile() {
         expecteBean("bboxKvpParser", BBoxKvpParser.class);
         expecteBean("featureIdKvpParser", FlatKvpParser.class);

@@ -11,6 +11,8 @@
   </modules>
   <properties>
     <revision>1.0-SNAPSHOT</revision>
+    <fmt.action>format</fmt.action>
+    <fmt.skip>false</fmt.skip>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -231,25 +233,14 @@
     <pluginManagement>
       <plugins>
         <plugin>
+          <groupId>com.spotify.fmt</groupId>
+          <artifactId>fmt-maven-plugin</artifactId>
+          <version>2.15</version>
+        </plugin>
+        <plugin>
           <groupId>com.github.ekryd.sortpom</groupId>
           <artifactId>sortpom-maven-plugin</artifactId>
           <version>2.13.1</version>
-          <executions>
-            <execution>
-              <id>sort</id>
-              <phase>validate</phase>
-              <goals>
-                <goal>sort</goal>
-              </goals>
-            </execution>
-          </executions>
-          <inherited>true</inherited>
-          <configuration>
-            <encoding>UTF-8</encoding>
-            <createBackupFile>false</createBackupFile>
-            <lineSeparator>\n</lineSeparator>
-            <nrOfIndentSpace>2</nrOfIndentSpace>
-          </configuration>
         </plugin>
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
@@ -262,6 +253,40 @@
       <plugin>
         <groupId>com.github.ekryd.sortpom</groupId>
         <artifactId>sortpom-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>sort</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>sort</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <encoding>UTF-8</encoding>
+          <createBackupFile>false</createBackupFile>
+          <lineSeparator>\n</lineSeparator>
+          <nrOfIndentSpace>2</nrOfIndentSpace>
+          <verifyFail>stop</verifyFail>
+          <verifyFailOn>strict</verifyFailOn>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>com.spotify.fmt</groupId>
+        <artifactId>fmt-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>${fmt.action}</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <verbose>false</verbose>
+          <filesNamePattern>.*\.java</filesNamePattern>
+          <skip>${fmt.skip}</skip>
+          <style>aosp</style>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>

@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+org.geoserver.cloud.autoconfigure.wms.WmsApplicationAutoConfiguration,\
+org.geoserver.cloud.autoconfigure.wms.KMLAutoConfiguration

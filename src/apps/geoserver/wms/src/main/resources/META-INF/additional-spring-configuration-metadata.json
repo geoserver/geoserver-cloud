@@ -1,5 +1,0 @@
-{"properties": [{
-  "name": "eureka.server.url",
-  "type": "java.lang.String",
-  "description": "User provided shortcut for 'eureka.client.serviceUrl.defaultZone'"
-}]}
