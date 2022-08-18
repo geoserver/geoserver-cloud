@@ -13,7 +13,7 @@ import org.springframework.test.context.DynamicPropertySource;
 import java.io.File;
 
 /** See {@code src/test/resources/bootstrap-testdatadir.yml} */
-@SpringBootTest
+@SpringBootTest(properties = "gwc.wms-integration=true")
 @ActiveProfiles({"test", "testdatadir"})
 public class WmsApplicationDataDirectoryTest extends WmsApplicationTest {
 
@@ -23,5 +23,6 @@ public class WmsApplicationDataDirectoryTest extends WmsApplicationTest {
     static void registerPgProperties(DynamicPropertyRegistry registry) {
         String datadir = tmpDataDir.getAbsolutePath();
         registry.add("data_directory", () -> datadir);
+        registry.add("gwc.wms-integration", () -> "true");
     }
 }
