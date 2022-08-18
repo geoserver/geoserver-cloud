@@ -129,7 +129,7 @@ public class WMSIntegrationAutoConfiguration {
     @Aspect
     @Slf4j(topic = "org.geoserver.cloud.gwc.integration.wms")
     @RequiredArgsConstructor
-    static class ForwardGetMapToGwcAspect {
+    public static class ForwardGetMapToGwcAspect {
 
         private final GWC gwc;
 

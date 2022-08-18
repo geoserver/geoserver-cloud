@@ -6,9 +6,11 @@ package org.geoserver.cloud.wms.app;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.geoserver.cloud.autoconfigure.gwc.integration.WMSIntegrationAutoConfiguration.ForwardGetMapToGwcAspect;
 import org.geoserver.cloud.virtualservice.VirtualServiceVerifier;
 import org.geoserver.cloud.wms.controller.GetMapReflectorController;
 import org.geoserver.cloud.wms.controller.WMSController;
+import org.geoserver.gwc.wms.CachingExtendedCapabilitiesProvider;
 import org.geoserver.ows.FlatKvpParser;
 import org.geoserver.ows.kvp.CQLFilterKvpParser;
 import org.geoserver.ows.kvp.SortByKvpParser;
@@ -18,24 +20,25 @@ import org.geoserver.wfs.kvp.BBoxKvpParser;
 import org.geoserver.wfs.xml.v1_1_0.WFSConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ConfigurableApplicationContext;
 
-@SpringBootTest
 abstract class WmsApplicationTest {
 
     protected @Autowired ConfigurableApplicationContext context;
 
     @Test
-    void testExpectedBeansFromWmsApplicationAutoConfiguration() {
+    public void testExpectedBeansFromWmsApplicationAutoConfiguration() {
         expecteBean("wfsConfiguration", WFSConfiguration.class);
         expecteBean("webMapServiceController", WMSController.class);
         expecteBean("virtualServiceVerifier", VirtualServiceVerifier.class);
         expecteBean("getMapReflectorController", GetMapReflectorController.class);
+        expecteBean(
+                "wms_1_1_1_GetCapabilitiesResponse",
+                org.geoserver.wms.capabilities.GetCapabilitiesResponse.class);
     }
 
     @Test
-    void testExpectedBeansFromGsWfsJarFile() {
+    public void testExpectedBeansFromGsWfsJarFile() {
         expecteBean("bboxKvpParser", BBoxKvpParser.class);
         expecteBean("featureIdKvpParser", FlatKvpParser.class);
         expecteBean("cqlKvpParser", CQLFilterKvpParser.class);
@@ -62,6 +65,13 @@ abstract class WmsApplicationTest {
         expecteBean("gml2OutputFormat", org.geoserver.wfs.xml.GML2OutputFormat.class);
         expecteBean("gml3OutputFormat", org.geoserver.wfs.xml.GML3OutputFormat.class);
         expecteBean("gml32OutputFormat", org.geoserver.wfs.xml.GML32OutputFormat.class);
+    }
+
+    @Test
+    public void testGwcWmsIntegration() {
+        expecteBean(
+                "gwcWMSExtendedCapabilitiesProvider", CachingExtendedCapabilitiesProvider.class);
+        expecteBean("gwcGetMapAdvise", ForwardGetMapToGwcAspect.class);
     }
 
     protected void expecteBean(String name, Class<?> type) {
