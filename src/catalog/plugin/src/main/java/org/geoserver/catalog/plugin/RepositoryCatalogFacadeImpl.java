@@ -411,7 +411,7 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
 
     public @Override StyleInfo getStyleByName(String name) {
         Optional<StyleInfo> match = styles.findByNameAndWordkspaceNull(name);
-        if (match == null) {
+        if (match.isEmpty()) {
             match = styles.findFirstByName(name, StyleInfo.class);
         }
         return match.orElse(null);
