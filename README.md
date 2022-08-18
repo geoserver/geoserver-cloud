@@ -181,7 +181,7 @@ Follow the [developer's guide](docs/develop/index.md) to know more about the pro
 
 ## Status
 
-`v1.0-RC24` released against GeoServer `2.21.0`.
+`v1.0-RC25` released against GeoServer `2.21.0`.
 
 Read the [changelog](https://github.com/geoserver/geoserver-cloud/releases/tag/v1.0-RC14) for more information.
 
