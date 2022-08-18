@@ -82,6 +82,11 @@ public class CatalogOpContext<T extends CatalogInfo> {
         return diff;
     }
 
+    public void setDiff(PropertyDiff diff) {
+        requireNonNull(diff);
+        this.diff = diff;
+    }
+
     public CatalogOpContext<T> setError(RuntimeException error) {
         this.error = error;
         return this;

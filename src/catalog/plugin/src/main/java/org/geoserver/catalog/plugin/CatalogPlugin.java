@@ -1487,7 +1487,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
      *     properties
      */
     protected <I extends CatalogInfo> void doSave(final I info) {
-        ModificationProxy proxy = ProxyUtils.handler(info, ModificationProxy.class);
+        final ModificationProxy proxy = ProxyUtils.handler(info, ModificationProxy.class);
         if (null == proxy) {
             throw new IllegalArgumentException(
                     "The object to save ("
@@ -1496,21 +1496,22 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
         }
         validationSupport.validate(info, false);
 
-        // this could be the event's payload instead of three separate lists
-        final PropertyDiff diff = PropertyDiff.valueOf(proxy).clean();
+        // use the proxied object, may some listener change it
+        fireModified(info, proxy.getPropertyNames(), proxy.getOldValues(), proxy.getNewValues());
 
-        // filter out no-op changes before firing pre-modified event (e.g. null to empty collection
-        // property)
+        // this could be the event's payload instead of three separate lists
+        PropertyDiff diff = PropertyDiff.valueOf(proxy).clean();
+
+        CatalogOpContext<I> context = new CatalogOpContext<>(this, info, diff);
+        businessRules.onBeforeSave(context);
+        // recompute diff in case a business rule changed info
+        diff = PropertyDiff.valueOf(proxy).clean();
+        context.setDiff(diff);
+
         final List<String> propertyNames = diff.getPropertyNames();
         final List<Object> oldValues = diff.getOldValues();
         final List<Object> newValues = diff.getNewValues();
         final Patch patch = diff.toPatch();
-
-        // use the proxied object, may some listener change it
-        fireModified(info, propertyNames, oldValues, newValues);
-
-        CatalogOpContext<I> context = new CatalogOpContext<>(this, info, diff);
-        businessRules.onBeforeSave(context);
         try {
             // note info will be unwrapped before being given to the raw facade by the inbound
             // resolving function set at #setFacade
