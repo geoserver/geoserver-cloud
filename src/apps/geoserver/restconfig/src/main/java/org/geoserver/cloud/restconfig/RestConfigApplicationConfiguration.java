@@ -53,17 +53,6 @@ public class RestConfigApplicationConfiguration extends WebMvcConfigurationSuppo
     }
 
     /**
-     * Override {@link PutIgnoringExtensionContentNegotiationStrategy} defined in {@link
-     * StyleController StyleController$StyleControllerConfiguration} as it causes a {@literal
-     * java.lang.IllegalArgumentException: Expected lookupPath in request attribute
-     * "org.springframework.web.util.UrlPathHelper.PATH".} exception for {@literal /actuator/*}
-     * requests.
-     *
-     * <p>REVISIT: should no longer be needed since we're running the actuator on a separate port to
-     * avoid any such conflict with geoserver beans/filters
-     */
-
-    /**
      * "Deprecate use of path extensions in request mapping and content negotiation" {@code
      * https://github.com/spring-projects/spring-framework/issues/24179}
      */
