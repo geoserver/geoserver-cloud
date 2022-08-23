@@ -4,7 +4,6 @@
  */
 package org.geoserver.cloud.restconfig;
 
-
 import org.geoserver.rest.CallbackInterceptor;
 import org.geoserver.rest.RequestInfo;
 import org.geoserver.rest.RestInterceptor;
