@@ -4,37 +4,24 @@
  */
 package org.geoserver.cloud.restconfig;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.http.MediaType.APPLICATION_XML;
-import static org.springframework.http.MediaType.TEXT_HTML;
-
 import org.geoserver.rest.CallbackInterceptor;
-import org.geoserver.rest.PutIgnoringExtensionContentNegotiationStrategy;
 import org.geoserver.rest.RequestInfo;
 import org.geoserver.rest.RestInterceptor;
 import org.geoserver.rest.catalog.AdminRequestCallback;
-import org.geoserver.rest.catalog.StyleController;
 import org.geoserver.rest.resources.ResourceController;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
-import org.springframework.context.annotation.Primary;
 import org.springframework.format.support.FormattingConversionService;
-import org.springframework.http.MediaType;
-import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.accept.ContentNegotiationManager;
-import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
-import org.springframework.web.servlet.mvc.condition.PatternsRequestCondition;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.servlet.resource.ResourceUrlProvider;
-import org.springframework.web.util.UrlPathHelper;
 
 import java.io.IOException;
-import java.util.List;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -62,37 +49,6 @@ public class RestConfigApplicationConfiguration extends WebMvcConfigurationSuppo
     protected void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new RestInterceptor());
         registry.addInterceptor(new CallbackInterceptor());
-    }
-
-    /**
-     * Override {@link PutIgnoringExtensionContentNegotiationStrategy} defined in {@link
-     * StyleController StyleController$StyleControllerConfiguration} as it causes a {@literal
-     * java.lang.IllegalArgumentException: Expected lookupPath in request attribute
-     * "org.springframework.web.util.UrlPathHelper.PATH".} exception for {@literal /actuator/*}
-     * requests.
-     *
-     * <p>REVISIT: should no longer be needed since we're running the actuator on a separate port to
-     * avoid any such conflict with geoserver beans/filters
-     */
-    @Bean
-    @Primary
-    PutIgnoringExtensionContentNegotiationStrategy stylePutContentNegotiationStrategy() {
-        return new PutIgnoringExtensionContentNegotiationStrategy(
-                new PatternsRequestCondition(
-                        "/styles/{styleName}", "/workspaces/{workspaceName}/styles/{styleName}"),
-                List.of(APPLICATION_JSON, APPLICATION_XML, TEXT_HTML)) {
-
-            @Override
-            public List<MediaType> resolveMediaTypes(NativeWebRequest webRequest)
-                    throws HttpMediaTypeNotAcceptableException {
-                HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
-                String lookupPath = (String) request.getAttribute(UrlPathHelper.PATH_ATTRIBUTE);
-                if (null == lookupPath) {
-                    return List.of(MediaType.APPLICATION_JSON);
-                }
-                return super.resolveMediaTypes(webRequest);
-            }
-        };
     }
 
     /**
