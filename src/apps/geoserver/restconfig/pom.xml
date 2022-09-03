@@ -47,6 +47,10 @@
       <groupId>org.geoserver</groupId>
       <artifactId>gs-restconfig-wms</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-starter-wms-extensions</artifactId>
+    </dependency>
     <!--    <dependency>-->
     <!--      <groupId>org.geoserver</groupId>-->
     <!--      <artifactId>gs-restconfig-wmts</artifactId>-->
