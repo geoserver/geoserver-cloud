@@ -36,9 +36,9 @@ import java.util.EnumSet;
  */
 @Slf4j
 public abstract class GeoToolsGeoJsonModuleTest {
-    private boolean debug = Boolean.valueOf(System.getProperty("debug", "true"));
 
     protected void print(String logmsg, Object... args) {
+        boolean debug = Boolean.getBoolean("debug");
         if (debug) log.debug(logmsg, args);
     }
 

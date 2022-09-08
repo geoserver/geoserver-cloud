@@ -11,10 +11,10 @@ import org.geotools.jackson.databind.filter.dto.Expression;
 import org.geotools.jackson.databind.filter.dto.Expression.Add;
 import org.geotools.jackson.databind.filter.dto.Expression.Divide;
 import org.geotools.jackson.databind.filter.dto.Expression.Function;
-import org.geotools.jackson.databind.filter.dto.Expression.Literal;
 import org.geotools.jackson.databind.filter.dto.Expression.Multiply;
 import org.geotools.jackson.databind.filter.dto.Expression.PropertyName;
 import org.geotools.jackson.databind.filter.dto.Expression.Subtract;
+import org.geotools.jackson.databind.filter.dto.Literal;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ObjectFactory;
@@ -125,8 +125,6 @@ public abstract class ExpressionMapper {
 
     public abstract org.opengis.filter.expression.Literal map(Literal dto);
 
-    @Mapping(target = "list", ignore = true)
-    @Mapping(target = "set", ignore = true)
     public abstract Literal map(org.opengis.filter.expression.Literal expression);
 
     protected org.opengis.filter.expression.Function map(Function dto) {

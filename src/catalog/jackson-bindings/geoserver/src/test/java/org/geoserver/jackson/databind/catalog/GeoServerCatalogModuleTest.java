@@ -58,6 +58,7 @@ import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.data.DataUtilities;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.SchemaException;
+import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.jdbc.VirtualTable;
 import org.geotools.measure.Measure;
@@ -94,10 +95,9 @@ public abstract class GeoServerCatalogModuleTest {
 
     private FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2();
 
-    private boolean debug = Boolean.valueOf(System.getProperty("debug", "false"));
-
     protected void print(String logmsg, Object... args) {
-        if (debug) log.debug(logmsg, args);
+        boolean debug = Boolean.getBoolean("debug");
+        if (debug) log.info(logmsg, args);
     }
 
     private ObjectMapper objectMapper;
@@ -233,6 +233,17 @@ public abstract class GeoServerCatalogModuleTest {
         String typeSpec =
                 "name:string,id:String,polygonProperty:Polygon:srid=32615,centroid:Point,url:java.net.URL,uuid:UUID";
         SimpleFeatureType ft = DataUtilities.createType("TestType", typeSpec);
+        SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
+        builder.init(ft);
+        builder.add("boola", boolean[].class);
+        builder.add("bytea", byte[].class);
+        builder.add("shorta", short[].class);
+        builder.add("inta", int[].class);
+        builder.add("longa", long[].class);
+        builder.add("floata", float[].class);
+        builder.add("doublea", double[].class);
+        builder.add("stringa", String[].class);
+        ft = builder.buildFeatureType();
         return new CatalogBuilder(new CatalogPlugin()).getAttributes(ft, info);
     }
 

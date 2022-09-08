@@ -4,12 +4,11 @@
  */
 package org.geotools.jackson.databind.filter;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import lombok.extern.slf4j.Slf4j;
 
 import org.geotools.jackson.databind.filter.dto.Expression;
 import org.geotools.jackson.databind.filter.dto.Expression.FunctionName;
@@ -17,18 +16,13 @@ import org.geotools.jackson.databind.filter.mapper.ExpressionMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.mapstruct.factory.Mappers;
 import org.opengis.filter.expression.Function;
+import org.opengis.filter.expression.Literal;
 
 /**
  * Test suite for {@link GeoToolsFilterModule} serialization and deserialization of {@link
  * org.opengis.filter.expression.Expression}s
  */
-@Slf4j
 public abstract class GeoToolsFilterModuleExpressionsTest extends ExpressionRoundtripTest {
-    private boolean debug = Boolean.valueOf(System.getProperty("debug", "false"));
-
-    protected void print(String logmsg, Object... args) {
-        if (debug) log.debug(logmsg, args);
-    }
 
     private ObjectMapper objectMapper;
     private ExpressionMapper expressionMapper;
@@ -58,6 +52,13 @@ public abstract class GeoToolsFilterModuleExpressionsTest extends ExpressionRoun
             Function f2 = (Function) deserialized;
             assertEquals(f1.getName(), f2.getName());
             assertEquals(f1.getParameters(), f2.getParameters());
+        } else if (expected instanceof Literal) {
+            assertThat(deserialized).isInstanceOf(Literal.class);
+            Object v1 = ((Literal) expected).getValue();
+            Object v2 = ((Literal) deserialized).getValue();
+            boolean valueEquals =
+                    org.geotools.jackson.databind.filter.dto.Literal.valueEquals(v1, v2);
+            assertTrue(valueEquals);
         } else {
             assertEquals(expected, deserialized);
         }

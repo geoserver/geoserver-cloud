@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.Data;
 import lombok.Generated;
 
-import org.geotools.jackson.databind.filter.dto.Expression;
+import org.geotools.jackson.databind.filter.dto.Literal;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +24,6 @@ public @Data @Generated class PatchDto {
     @JsonTypeName("Property")
     public static @Data class PatchPropertyDto {
         private String name;
-        private Expression.Literal value;
+        private Literal value;
     }
 }

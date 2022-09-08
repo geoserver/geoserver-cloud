@@ -15,6 +15,7 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +35,47 @@ public @Data class Patch implements Serializable {
         public <V> V value() {
             return (V) value;
         }
+
+        public @Override boolean equals(Object o) {
+            return o instanceof Property && valueEquals(value(), ((Property) o).value());
+        }
+
+        public @Override int hashCode() {
+            return Objects.hash(Property.class, value);
+        }
+
+        public static boolean valueEquals(final Object v1, final Object v2) {
+            if (Objects.equals(v1, v2)) {
+                return true;
+            }
+
+            if (v1 != null && v1.getClass().isArray() && v2 != null && v2.getClass().isArray()) {
+                if (!v1.getClass().equals(v2.getClass())) return false;
+                final Class<?> componentType = v1.getClass().getComponentType();
+
+                if (componentType.isPrimitive()) {
+                    boolean equals =
+                            switch (componentType.getCanonicalName()) {
+                                case "byte" -> Arrays.equals((byte[]) v1, (byte[]) v2);
+                                case "boolean" -> Arrays.equals((boolean[]) v1, (boolean[]) v2);
+                                case "char" -> Arrays.equals((char[]) v1, (char[]) v2);
+                                case "short" -> Arrays.equals((short[]) v1, (short[]) v2);
+                                case "int" -> Arrays.equals((int[]) v1, (int[]) v2);
+                                case "long" -> Arrays.equals((long[]) v1, (long[]) v2);
+                                case "float" -> Arrays.equals((float[]) v1, (float[]) v2);
+                                case "double" -> Arrays.equals((double[]) v1, (double[]) v2);
+                                default -> throw new IllegalArgumentException(
+                                        "Unexpected value: " + componentType);
+                            };
+                    return equals;
+                } else {
+                    Object[] a1 = (Object[]) v1;
+                    Object[] a2 = (Object[]) v2;
+                    return Arrays.deepEquals(a1, a2);
+                }
+            }
+            return false;
+        }
     }
 
     private final List<Property> patches = new ArrayList<>();
@@ -41,10 +83,6 @@ public @Data class Patch implements Serializable {
     public Patch(List<Property> patches) {
         patches.forEach(this::add);
     }
-
-    //    public List<Property> getPatches() {
-    //        return new ArrayList<Patch.Property>(patches.values());
-    //    }
 
     public int size() {
         return patches.size();

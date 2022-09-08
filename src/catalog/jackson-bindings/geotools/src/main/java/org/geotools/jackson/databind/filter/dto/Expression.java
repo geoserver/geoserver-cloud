@@ -15,67 +15,18 @@ import lombok.ToString;
 import lombok.experimental.Accessors;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonSubTypes({
     @JsonSubTypes.Type(value = Expression.PropertyName.class, name = "PropertyName"),
-    @JsonSubTypes.Type(value = Expression.Literal.class, name = "Literal"),
+    @JsonSubTypes.Type(value = Literal.class, name = "Literal"),
     @JsonSubTypes.Type(value = Expression.Function.class, name = "Function"),
     @JsonSubTypes.Type(value = Expression.BinaryExpression.class, name = "BinaryExpression")
 })
 @Accessors(chain = true)
 public @Data @Generated abstract class Expression {
-
-    @EqualsAndHashCode(callSuper = true)
-    public static @Data @Generated class Literal extends Expression {
-        /**
-         * JsonTypeInfo necessary for jackson to resolve which deserializer to use, adds an "@type"
-         * property to the {@code Literal} object, without messing with the value representation.
-         */
-        //        @JsonTypeInfo(
-        //                use = JsonTypeInfo.Id.CLASS,
-        //                include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
-        //                property = "@type")
-        // REVISIT: @type produces an exception for null values: "Missing external type id property
-        // '@type' (and no 'defaultImpl' specified)"
-        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT)
-        private Object value;
-
-        private List<Literal> list;
-        private Set<Literal> set;
-
-        public Literal setValue(Object value) {
-            if (value instanceof List)
-                list =
-                        ((List<?>) value)
-                                .stream()
-                                        .map(v -> new Literal().setValue(v))
-                                        .collect(Collectors.toList());
-            else if (value instanceof Set)
-                set =
-                        ((Set<?>) value)
-                                .stream()
-                                        .map(v -> new Literal().setValue(v))
-                                        .collect(Collectors.toCollection(LinkedHashSet::new));
-            else this.value = value;
-            return this;
-        }
-
-        public Object resolveValue() {
-            if (set != null)
-                return set.stream()
-                        .map(Literal::resolveValue)
-                        .collect(Collectors.toCollection(LinkedHashSet::new));
-            if (list != null)
-                return list.stream().map(Literal::resolveValue).collect(Collectors.toList());
-            return value;
-        }
-    }
 
     @EqualsAndHashCode(callSuper = true)
     public static @Data @Generated class PropertyName extends Expression {

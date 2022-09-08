@@ -16,9 +16,9 @@ import org.junit.jupiter.api.BeforeAll;
 
 @Slf4j
 public class FilterSerializationTest extends FilterRoundtripTest {
-    private boolean debug = Boolean.valueOf(System.getProperty("debug", "false"));
 
     protected void print(String logmsg, Object... args) {
+        boolean debug = Boolean.getBoolean("debug");
         if (debug) log.debug(logmsg, args);
     }
 

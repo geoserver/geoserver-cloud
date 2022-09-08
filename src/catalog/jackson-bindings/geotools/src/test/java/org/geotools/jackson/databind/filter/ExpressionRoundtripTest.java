@@ -17,10 +17,10 @@ import org.geotools.jackson.databind.filter.dto.Expression.Add;
 import org.geotools.jackson.databind.filter.dto.Expression.BinaryExpression;
 import org.geotools.jackson.databind.filter.dto.Expression.Divide;
 import org.geotools.jackson.databind.filter.dto.Expression.Function;
-import org.geotools.jackson.databind.filter.dto.Expression.Literal;
 import org.geotools.jackson.databind.filter.dto.Expression.Multiply;
 import org.geotools.jackson.databind.filter.dto.Expression.PropertyName;
 import org.geotools.jackson.databind.filter.dto.Expression.Subtract;
+import org.geotools.jackson.databind.filter.dto.Literal;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Geometry;
@@ -56,10 +56,10 @@ import java.util.stream.IntStream;
  */
 @Slf4j
 public abstract class ExpressionRoundtripTest {
-    private boolean debug = Boolean.valueOf(System.getProperty("debug", "false"));
 
     protected void print(String logmsg, Object... args) {
-        if (debug) log.debug(logmsg, args);
+        boolean debug = Boolean.getBoolean("debug");
+        if (debug) log.info(logmsg, args);
     }
 
     protected abstract <E extends Expression> E roundtripTest(E dto) throws Exception;
@@ -181,11 +181,85 @@ public abstract class ExpressionRoundtripTest {
     }
 
     public @Test void literalList() throws Exception {
-        List<Object> l1 = Arrays.asList(1, 2, 3, 4);
-        roundtripTest(literal(l1));
+        roundtripTest(literal(List.of(1, 2, 3, 4)));
+        roundtripTest(literal(List.of(new Date(1), new Date(2), new Date(3))));
+    }
 
-        List<Object> l2 = Arrays.asList(new Date(1), new Date(2), new Date(3));
-        roundtripTest(literal(l2));
+    public @Test void literalListEmpty() throws Exception {
+        roundtripTest(literal(List.of()));
+    }
+
+    public @Test void literalListMixedContent() throws Exception {
+        List<Object> value = Arrays.asList(1, null, new java.util.Date(1), List.of(4, 5, 6));
+        try {
+            roundtripTest(literal(value));
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    public @Test void literalSetEmpty() throws Exception {
+        roundtripTest(literal(Set.of()));
+    }
+
+    public @Test void literalSet() throws Exception {
+        roundtripTest(literal(Set.of(1, 2, 3, 4)));
+        roundtripTest(literal(Set.of(new Date(1), new Date(2), new Date(3))));
+    }
+
+    public @Test void literalSetMixedContent() throws Exception {
+        Set<Object> value = Set.of(1, new java.util.Date(1), Set.of(4, 5, 6));
+        roundtripTest(literal(value));
+    }
+
+    public @Test void literalMapEmpty() throws Exception {
+        roundtripTest(literal(Map.of()));
+        roundtripTest(literal(Collections.emptyMap()));
+        roundtripTest(literal(new HashMap<>()));
+    }
+
+    public @Test void literalMapSingle() throws Exception {
+        roundtripTest(literal(Map.of("k1", 1)));
+    }
+
+    public @Test void literalMap() throws Exception {
+        roundtripTest(literal(Map.of("k1", 1, "k2", 2, "k3", 3, "k4", 4)));
+    }
+
+    public @Test void literalMapMixedContent() throws Exception {
+        roundtripTest(literal(Map.of("k1", 1, "k2", 2L, "k3", 3F, "k4", 4D, "k5", "svalue")));
+    }
+
+    public @Test void literalArrayEmpty() throws Exception {
+        roundtripTest(literal(new byte[0]));
+        roundtripTest(literal(new char[0]));
+        roundtripTest(literal(new boolean[0]));
+        roundtripTest(literal(new short[0]));
+        roundtripTest(literal(new int[0]));
+        roundtripTest(literal(new long[0]));
+        roundtripTest(literal(new float[0]));
+        roundtripTest(literal(new double[0]));
+        roundtripTest(literal(new String[0]));
+        roundtripTest(literal(new Date[0]));
+    }
+
+    public @Test void literalArray() throws Exception {
+        roundtripTest(literal(new byte[] {1}));
+        roundtripTest(literal(new byte[] {0, 1, 2, 3}));
+
+        roundtripTest(literal(new char[] {1}));
+        roundtripTest(literal(new char[] {0, 1, 2, 3}));
+
+        roundtripTest(literal(new boolean[] {false, true, false}));
+        roundtripTest(literal(new short[] {Short.MIN_VALUE, 0, Short.MAX_VALUE}));
+        roundtripTest(literal(new int[] {Integer.MIN_VALUE, 0, Integer.MAX_VALUE}));
+        roundtripTest(literal(new long[] {Long.MIN_VALUE, 0L, Long.MAX_VALUE}));
+        roundtripTest(literal(new float[] {Float.MIN_VALUE, 0f, Float.MAX_VALUE}));
+        roundtripTest(literal(new double[] {Double.MIN_VALUE, 0d, Double.MAX_VALUE}));
+
+        roundtripTest(literal(new String[] {"S1", null, "S2", null, "S3"}));
+        roundtripTest(literal(new Date[] {new Date(1), new Date(2), null, new Date(3)}));
     }
 
     private Literal literal(Object value) {

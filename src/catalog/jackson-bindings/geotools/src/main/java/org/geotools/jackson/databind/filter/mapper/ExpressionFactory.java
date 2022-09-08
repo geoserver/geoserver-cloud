@@ -5,8 +5,8 @@
 package org.geotools.jackson.databind.filter.mapper;
 
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.jackson.databind.filter.dto.Expression.Literal;
 import org.geotools.jackson.databind.filter.dto.Expression.PropertyName;
+import org.geotools.jackson.databind.filter.dto.Literal;
 import org.mapstruct.ObjectFactory;
 import org.mapstruct.factory.Mappers;
 import org.opengis.filter.FilterFactory2;
@@ -25,6 +25,6 @@ public class ExpressionFactory {
     }
 
     public @ObjectFactory org.opengis.filter.expression.Literal literal(Literal source) {
-        return factory.literal(source.resolveValue());
+        return factory.literal(source.getValue());
     }
 }

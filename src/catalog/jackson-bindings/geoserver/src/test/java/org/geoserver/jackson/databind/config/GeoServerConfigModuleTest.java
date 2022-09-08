@@ -42,9 +42,8 @@ import org.junit.jupiter.api.Test;
 @Slf4j
 public abstract class GeoServerConfigModuleTest {
 
-    private boolean debug = Boolean.valueOf(System.getProperty("debug", "false"));
-
     protected void print(String logmsg, Object... args) {
+        boolean debug = Boolean.getBoolean("debug");
         if (debug) log.debug(logmsg, args);
     }
 
