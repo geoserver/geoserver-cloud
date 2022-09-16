@@ -14,6 +14,7 @@
     <module>geoserver/src</module>
     <module>geoserver/src/community/jdbcconfig</module>
     <module>geoserver/src/community/jdbcstore</module>
+    <module>geoserver/src/community/pgraster</module>
     <!-- all other required deps -->
     <module>geoserver/src/extension/authkey</module>
     <module>geoserver/src/extension/web-resource</module>
