@@ -579,6 +579,11 @@
         <version>${gs.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.geoserver.community</groupId>
+        <artifactId>gs-pgraster</artifactId>
+        <version>${gs.community.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.geotools</groupId>
         <artifactId>gt-main</artifactId>
         <version>${gt.version}</version>
