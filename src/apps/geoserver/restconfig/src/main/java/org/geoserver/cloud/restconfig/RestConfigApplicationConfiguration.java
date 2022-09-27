@@ -4,9 +4,8 @@
  */
 package org.geoserver.cloud.restconfig;
 
-import org.geoserver.rest.CallbackInterceptor;
 import org.geoserver.rest.RequestInfo;
-import org.geoserver.rest.RestInterceptor;
+import org.geoserver.rest.RestConfiguration;
 import org.geoserver.rest.catalog.AdminRequestCallback;
 import org.geoserver.rest.resources.ResourceController;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -16,8 +15,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.format.support.FormattingConversionService;
 import org.springframework.web.accept.ContentNegotiationManager;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
+import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.servlet.resource.ResourceUrlProvider;
 
@@ -39,16 +37,18 @@ import javax.servlet.http.HttpServletRequestWrapper;
          * vanilla geoserver (from gs-restconfig's applicationContext.xml) and causes a difference in behavior. At some
          * point it'll have to be fixed upstream and re-enabled here.
          */
-        excludeFilters =
-                @ComponentScan.Filter(
-                        type = FilterType.ASSIGNABLE_TYPE,
-                        classes = AdminRequestCallback.class))
-public class RestConfigApplicationConfiguration extends WebMvcConfigurationSupport {
+        excludeFilters = {
+            @ComponentScan.Filter(
+                    type = FilterType.ASSIGNABLE_TYPE,
+                    classes = AdminRequestCallback.class)
+        })
+@SuppressWarnings("deprecation")
+public class RestConfigApplicationConfiguration extends RestConfiguration {
 
     @Override
-    protected void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new RestInterceptor());
-        registry.addInterceptor(new CallbackInterceptor());
+    public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
+        super.configureContentNegotiation(configurer);
+        configurer.favorPathExtension(true);
     }
 
     /**
@@ -67,6 +67,7 @@ public class RestConfigApplicationConfiguration extends WebMvcConfigurationSuppo
                         contentNegotiationManager, conversionService, resourceUrlProvider);
 
         handlerMapping.setUseSuffixPatternMatch(true);
+        handlerMapping.setUseRegisteredSuffixPatternMatch(true);
         // handlerMapping.setUseTrailingSlashMatch(true);
         // handlerMapping.setAlwaysUseFullPath(true);
 
