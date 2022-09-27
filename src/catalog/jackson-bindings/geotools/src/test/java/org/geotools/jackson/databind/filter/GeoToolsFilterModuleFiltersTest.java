@@ -24,9 +24,9 @@ import org.mapstruct.factory.Mappers;
  */
 @Slf4j
 public abstract class GeoToolsFilterModuleFiltersTest extends FilterRoundtripTest {
-    private boolean debug = Boolean.valueOf(System.getProperty("debug", "false"));
 
     protected void print(String logmsg, Object... args) {
+        boolean debug = Boolean.getBoolean("debug");
         if (debug) log.debug(logmsg, args);
     }
 

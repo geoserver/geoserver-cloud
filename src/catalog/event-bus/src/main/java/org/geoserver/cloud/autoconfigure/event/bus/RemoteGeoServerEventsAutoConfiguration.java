@@ -19,6 +19,10 @@ import org.geoserver.cloud.event.bus.RemoteGeoServerEventMapper;
 import org.geoserver.config.GeoServer;
 import org.geoserver.jackson.databind.catalog.GeoServerCatalogModule;
 import org.geoserver.jackson.databind.config.GeoServerConfigModule;
+import org.geotools.jackson.databind.filter.GeoToolsFilterModule;
+import org.opengis.filter.Filter;
+import org.opengis.filter.expression.Expression;
+import org.opengis.filter.expression.Literal;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -46,6 +50,16 @@ import java.util.function.Supplier;
 @RemoteApplicationEventScan(basePackageClasses = {RemoteGeoServerEvent.class})
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.bus.catalog")
 public class RemoteGeoServerEventsAutoConfiguration {
+
+    /**
+     * Add a {@link GeoToolsFilterModule} to the default jackson spring codecs if not already
+     * present, so {@link Expression} and {@link Filter} objects can be used as {@link
+     * RemoteGeoServerEvent} payload, especially {@link Literal} expressions.
+     */
+    @ConditionalOnMissingBean(GeoToolsFilterModule.class)
+    public @Bean GeoToolsFilterModule geoToolsFilterModule() {
+        return new GeoToolsFilterModule();
+    }
 
     /**
      * Add a {@link GeoServerCatalogModule} to the default jackson spring codecs if not already

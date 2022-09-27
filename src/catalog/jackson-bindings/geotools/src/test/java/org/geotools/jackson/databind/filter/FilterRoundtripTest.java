@@ -5,7 +5,6 @@
 package org.geotools.jackson.databind.filter;
 
 import org.geotools.jackson.databind.filter.dto.Expression;
-import org.geotools.jackson.databind.filter.dto.Expression.Literal;
 import org.geotools.jackson.databind.filter.dto.Filter;
 import org.geotools.jackson.databind.filter.dto.Filter.BinaryComparisonOperator;
 import org.geotools.jackson.databind.filter.dto.Filter.BinarySpatialOperator;
@@ -15,6 +14,7 @@ import org.geotools.jackson.databind.filter.dto.Filter.Id.FeatureId;
 import org.geotools.jackson.databind.filter.dto.Filter.MultiValuedFilter;
 import org.geotools.jackson.databind.filter.dto.Filter.MultiValuedFilter.MatchAction;
 import org.geotools.jackson.databind.filter.dto.Filter.PropertyIsNull;
+import org.geotools.jackson.databind.filter.dto.Literal;
 import org.geotools.jackson.databind.filter.dto.SortBy;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.CoordinateSequenceFactory;
@@ -250,7 +250,7 @@ public abstract class FilterRoundtripTest {
     }
 
     private Literal literal(Object literal) {
-        return new Expression.Literal().setValue(literal);
+        return new Literal().setValue(literal);
     }
 
     private Expression geometry() {

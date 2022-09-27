@@ -30,8 +30,10 @@ import org.geoserver.catalog.DimensionInfo;
 import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.LayerInfo;
+import org.geoserver.catalog.LayerInfo.WMSInterpolation;
 import org.geoserver.catalog.LegendInfo;
 import org.geoserver.catalog.NamespaceInfo;
+import org.geoserver.catalog.PublishedType;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
@@ -62,6 +64,7 @@ import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.data.DataUtilities;
 import org.geotools.feature.NameImpl;
 import org.geotools.feature.SchemaException;
+import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.measure.Measure;
 import org.geotools.referencing.CRS;
@@ -93,10 +96,9 @@ import java.util.function.Supplier;
 @Slf4j
 public abstract class PatchSerializationTest {
 
-    private boolean debug = Boolean.valueOf(System.getProperty("debug", "false"));
-
     protected void print(String logmsg, Object... args) {
-        if (debug) log.debug(logmsg, args);
+        boolean debug = Boolean.getBoolean("debug");
+        if (debug) log.info(logmsg, args);
     }
 
     public ObjectMapper objectMapper;
@@ -128,6 +130,17 @@ public abstract class PatchSerializationTest {
         String typeSpec =
                 "name:string,id:String,polygonProperty:Polygon:srid=32615,centroid:Point,url:java.net.URL,uuid:UUID";
         SimpleFeatureType ft = DataUtilities.createType("TestType", typeSpec);
+        SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
+        builder.init(ft);
+        builder.add("boola", boolean[].class);
+        builder.add("bytea", byte[].class);
+        builder.add("shorta", short[].class);
+        builder.add("inta", int[].class);
+        builder.add("longa", long[].class);
+        builder.add("floata", float[].class);
+        builder.add("doublea", double[].class);
+        builder.add("stringa", String[].class);
+        ft = builder.buildFeatureType();
         return new CatalogBuilder(new CatalogPlugin()).getAttributes(ft, info);
     }
 
@@ -137,6 +150,18 @@ public abstract class PatchSerializationTest {
         testPatch("long", Long.MAX_VALUE);
         testPatch("date", new Date(10_000_000));
         testPatch("string", "string value");
+    }
+
+    public @Test void arrayTypes_scalar() throws Exception {
+        testPatch("bytea", new byte[] {0x01, 0x02, 0x03});
+        testPatch("booleana", new boolean[] {false, true, false});
+        testPatch("chararray", new char[] {'a', 'b', 'c', 'd'});
+    }
+
+    public @Test void arrayTypes_non_scalar() throws Exception {
+        testPatch(
+                "ns_array",
+                new NamespaceInfo[] {data.namespaceA, data.namespaceB, data.namespaceC});
     }
 
     public @Test void workspace() throws Exception {
@@ -531,6 +556,16 @@ public abstract class PatchSerializationTest {
         testPatch("jaiInfo", jaiInfo);
     }
 
+    public @Test void wmsInterpolation() throws Exception {
+        WMSInterpolation v = WMSInterpolation.Bicubic;
+        testPatch("defaultWmsInterpolation", v);
+    }
+
+    public @Test void publishedType() throws Exception {
+        PublishedType v = PublishedType.REMOTE;
+        testPatch("publishedType", v);
+    }
+
     public @Test void growableInternationalString() throws Exception {
         GrowableInternationalString growableI18n = new GrowableInternationalString("default lang");
         growableI18n.add(Locale.forLanguageTag("es-AR"), "en argentino");
@@ -581,6 +616,7 @@ public abstract class PatchSerializationTest {
 
     private Patch testPatch(Patch patch) throws JsonProcessingException, JsonMappingException {
         Patch resolved = testPatchNoEquals(patch);
+
         assertEquals(patch, resolved);
         return resolved;
     }

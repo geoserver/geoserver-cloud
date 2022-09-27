@@ -34,6 +34,7 @@ import org.geotools.referencing.wkt.Formattable;
 import org.geotools.util.Version;
 import org.mapstruct.Mapper;
 import org.mapstruct.ObjectFactory;
+import org.mapstruct.factory.Mappers;
 import org.opengis.feature.type.Name;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -95,16 +96,14 @@ public abstract class SharedMappers {
     }
 
     public String classToCanonicalName(Class<?> value) {
-        return value == null ? null : value.getCanonicalName();
+        return Mappers.getMapper(org.geotools.jackson.databind.filter.mapper.ValueMappers.class)
+                .classToCanonicalName(value);
     }
 
     @SuppressWarnings("rawtypes")
     public Class canonicalNameToClass(String value) {
-        try {
-            return value == null ? null : Class.forName(value);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+        return Mappers.getMapper(org.geotools.jackson.databind.filter.mapper.ValueMappers.class)
+                .canonicalNameToClass(value);
     }
 
     public @ObjectFactory KeywordInfo keywordInfo(Keyword source) {

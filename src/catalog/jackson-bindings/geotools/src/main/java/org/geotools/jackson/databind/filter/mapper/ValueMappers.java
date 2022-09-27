@@ -14,6 +14,7 @@ import org.xml.sax.helpers.NamespaceSupport;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 @Mapper(config = FilterMapperConfig.class)
@@ -52,15 +53,60 @@ public abstract class ValueMappers {
         return convert(clazz, Class::getCanonicalName);
     }
 
-    public Class toClass(String clazz) {
-        return convert(
-                clazz,
-                t -> {
-                    try {
-                        return Class.forName(t);
-                    } catch (ClassNotFoundException e) {
-                        return null;
-                    }
+    public String classToCanonicalName(Class<?> value) {
+        //        if (null == value)
+        //            return null;
+        //        if (value.isArray())
+        //            return value.getCanonicalName();
+        //        if (value.isPrimitive())
+        //            return value.getCanonicalName();
+
+        return value.getName();
+    }
+
+    @SuppressWarnings("rawtypes")
+    public Class canonicalNameToClass(String value) {
+        if (null == value) return null;
+
+        try {
+            Class<?> clazz = Class.forName(value);
+            return clazz;
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        //
+        //        final boolean isArray = value.endsWith("[]");
+        //        final String className = isArray ? value.substring(0, value.indexOf('[')) : value;
+        //        try {
+        //            Class<?> binding;
+        //            if (isArray) {
+        //                Optional<Class<?>> primitiveArrayType = primitiveArrayType(className);
+        //                if (primitiveArrayType.isPresent()) {
+        //                    binding = primitiveArrayType.get();
+        //                } else {
+        //                    binding = Class.forName(className).arrayType();
+        //                }
+        //            } else {
+        //                binding = Class.forName(className);
+        //            }
+        //            return binding;
+        //        } catch (ClassNotFoundException e) {
+        //            throw new RuntimeException(e);
+        //        }
+    }
+
+    private Optional<Class<?>> primitiveArrayType(String className) {
+        return Optional.ofNullable(
+                switch (className) {
+                    case "byte" -> byte[].class;
+                    case "boolean" -> boolean[].class;
+                    case "char" -> char[].class;
+                    case "short" -> short[].class;
+                    case "int" -> int[].class;
+                    case "long" -> long[].class;
+                    case "float" -> float[].class;
+                    case "double" -> double[].class;
+                    default -> null;
                 });
     }
 

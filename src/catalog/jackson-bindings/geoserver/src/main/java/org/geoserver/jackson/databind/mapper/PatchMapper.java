@@ -16,7 +16,7 @@ import org.geoserver.jackson.databind.catalog.mapper.ValueMappers;
 import org.geoserver.jackson.databind.config.dto.mapper.GeoServerConfigMapper;
 import org.geoserver.jackson.databind.config.dto.mapper.ObjectFacotries;
 import org.geoserver.jackson.databind.config.dto.mapper.WPSMapper;
-import org.geotools.jackson.databind.filter.dto.Expression;
+import org.geotools.jackson.databind.filter.dto.Literal;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
@@ -42,13 +42,13 @@ public abstract class PatchMapper {
 
     public abstract PatchDto patchToDto(Patch patch);
 
-    protected @NonNull Expression.Literal literalValueToDto(final Object value) {
+    protected @NonNull Literal literalValueToDto(final Object value) {
         Object proxified = valueToDto(value);
-        return new Expression.Literal().setValue(proxified);
+        return Literal.valueOf(proxified);
     }
 
-    protected Object literalDtoToValueObject(Expression.Literal l) {
-        Object value = l == null ? null : l.resolveValue();
+    protected Object literalDtoToValueObject(Literal l) {
+        Object value = l == null ? null : l.getValue();
         return dtoToValue(value);
     }
 

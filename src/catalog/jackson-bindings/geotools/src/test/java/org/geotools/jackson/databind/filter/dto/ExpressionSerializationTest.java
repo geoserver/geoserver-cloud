@@ -8,20 +8,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.geotools.jackson.databind.filter.ExpressionRoundtripTest;
 import org.geotools.jackson.databind.filter.dto.Expression.FunctionName;
 import org.geotools.jackson.databind.util.ObjectMapperUtil;
 import org.junit.jupiter.api.BeforeAll;
 
-@Slf4j
 public class ExpressionSerializationTest extends ExpressionRoundtripTest {
-    private boolean debug = Boolean.valueOf(System.getProperty("debug", "false"));
-
-    protected void print(String logmsg, Object... args) {
-        if (debug) log.debug(logmsg, args);
-    }
 
     private static ObjectMapper objectMapper;
 
@@ -31,7 +23,7 @@ public class ExpressionSerializationTest extends ExpressionRoundtripTest {
 
     @SuppressWarnings("unchecked")
     protected @Override <E extends Expression> E roundtripTest(E dto) throws Exception {
-        String serialized = objectMapper.writeValueAsString(dto);
+        String serialized = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(dto);
         print("serialized: {}", serialized);
         Expression deserialized = objectMapper.readValue(serialized, Expression.class);
         assertEquals(dto, deserialized);

@@ -10,6 +10,9 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.geotools.jackson.databind.filter.dto.Literal;
+import org.geotools.jackson.databind.filter.dto.LiteralDeserializer;
+import org.geotools.jackson.databind.filter.dto.LiteralSerializer;
 import org.geotools.jackson.databind.filter.mapper.ExpressionMapper;
 import org.geotools.jackson.databind.filter.mapper.FilterMapper;
 import org.geotools.jackson.databind.filter.mapper.ValueMappers;
@@ -68,12 +71,17 @@ public class GeoToolsFilterModule extends SimpleModule {
 
         log.debug("registering jackson de/serializers for geotools Filter and Expression");
 
-        addSerializer(Expression.class, new MapperSerializer<>(Expression.class, EXPRESSIONS::map));
+        addSerializer(
+                Expression.class,
+                new MapperSerializer<>(
+                        org.opengis.filter.expression.Expression.class, EXPRESSIONS::map));
+        addSerializer(Literal.class, new LiteralSerializer());
         addDeserializer(
                 Expression.class,
                 new MapperDeserializer<>(
                         org.geotools.jackson.databind.filter.dto.Expression.class,
                         EXPRESSIONS::map));
+        addDeserializer(Literal.class, new LiteralDeserializer());
 
         addSerializer(Filter.class, new MapperSerializer<>(Filter.class, FILTERS::map));
         addDeserializer(
