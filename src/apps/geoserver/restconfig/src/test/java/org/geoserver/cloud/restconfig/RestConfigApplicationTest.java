@@ -33,6 +33,13 @@ public class RestConfigApplicationTest {
     }
 
     @Test
+    public void testDefaultContentType() {
+
+        testPathExtensionContentType("/rest/workspaces", APPLICATION_JSON);
+        testPathExtensionContentType("/rest/layers", APPLICATION_JSON);
+    }
+
+    @Test
     public void testPathExtensionContentNegotiation() {
 
         testPathExtensionContentType("/rest/styles/line.json", APPLICATION_JSON);
