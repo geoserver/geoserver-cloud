@@ -1,3 +1,7 @@
+/*
+ * (c) 2022 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
+ * GPL 2.0 license, available at the root application directory.
+ */
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.cloud.gateway.filter.RouteToRequestUrlFilter;
@@ -12,6 +16,10 @@ import java.net.URI;
 import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR;
 import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.GATEWAY_ROUTE_ATTR;
 
+/**
+ * See gateway's issue <a
+ * href="https://github.com/spring-cloud/spring-cloud-gateway/issues/2065">#2065</a> "Double Encoded URLs"
+ */
 @Component
 public class GlobalUriFilter implements GlobalFilter, Ordered {
 
