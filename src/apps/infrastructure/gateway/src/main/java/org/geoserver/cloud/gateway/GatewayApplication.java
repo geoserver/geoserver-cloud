@@ -4,6 +4,7 @@
  */
 package org.geoserver.cloud.gateway;
 
+import org.geoserver.cloud.gateway.filter.GlobalUriFilter
 import org.geoserver.cloud.gateway.filter.RouteProfileGatewayFilterFactory;
 import org.geoserver.cloud.gateway.filter.StripBasePathGatewayFilterFactory;
 import org.geoserver.cloud.gateway.predicate.RegExpQueryRoutePredicateFactory;
