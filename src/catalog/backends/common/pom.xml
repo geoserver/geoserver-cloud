@@ -15,6 +15,10 @@
       <artifactId>spring-boot-starter</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-spring-factory</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.geoserver.cloud.catalog</groupId>
       <artifactId>gs-cloud-catalog-plugin</artifactId>
     </dependency>

@@ -17,6 +17,11 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
+        <groupId>org.geoserver.cloud</groupId>
+        <artifactId>gs-cloud-spring-factory</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.geoserver.cloud.catalog.jackson</groupId>
         <artifactId>gt-jackson-bindings</artifactId>
         <version>${project.version}</version>
