@@ -16,4 +16,4 @@
     <property name="componentClass" value="org.geoserver.web.data.store.pgraster.PGRasterCoverageStoreEditPanel"/>
   </bean>
 
- </beans>
+</beans>

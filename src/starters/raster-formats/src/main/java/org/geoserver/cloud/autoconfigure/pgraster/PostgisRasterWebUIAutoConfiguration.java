@@ -4,6 +4,10 @@
  */
 package org.geoserver.cloud.autoconfigure.pgraster;
 
+import org.geoserver.web.GeoServerApplication;
+import org.geoserver.web.data.resource.DataStorePanelInfo;
+import org.geoserver.web.data.store.pgraster.PGRasterCoverageStoreEditPanel;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 
@@ -15,7 +19,10 @@ import org.springframework.context.annotation.ImportResource;
  *     org.geoserver.web.data.resource.DataStorePanelInfo#setComponentClass(Class)}
  */
 @Configuration(proxyBeanMethods = false)
-@ConditionalOnPostgisRasterWebUI
-@ImportResource( //
-        locations = "classpath:pgrasterApplicationContext.xml")
+@ConditionalOnClass({
+    GeoServerApplication.class,
+    DataStorePanelInfo.class,
+    PGRasterCoverageStoreEditPanel.class
+})
+@ImportResource(locations = "classpath:pgrasterApplicationContext.xml")
 public class PostgisRasterWebUIAutoConfiguration {}
