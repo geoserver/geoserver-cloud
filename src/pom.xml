@@ -585,6 +585,17 @@
         <version>${gs.community.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.geoserver.community</groupId>
+        <artifactId>gs-cog</artifactId>
+        <version>${gs.community.version}</version>
+        <exclusions>
+          <exclusion>
+            <artifactId>gs-web-core</artifactId>
+            <groupId>org.geoserver.web</groupId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
         <groupId>org.geotools</groupId>
         <artifactId>gt-main</artifactId>
         <version>${gt.version}</version>

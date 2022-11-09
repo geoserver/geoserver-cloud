@@ -11,8 +11,12 @@
   <description>Curated list of supported raster data formats</description>
   <dependencies>
     <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-spring-factory</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-actuator-autoconfigure</artifactId>
+      <artifactId>spring-boot-autoconfigure</artifactId>
     </dependency>
     <dependency>
       <groupId>org.geotools</groupId>
@@ -31,7 +35,11 @@
       <artifactId>gs-pgraster</artifactId>
     </dependency>
     <dependency>
-      <!-- provided scope for pgraster's autoconfiguration when in web-ui -->
+      <groupId>org.geoserver.community</groupId>
+      <artifactId>gs-cog</artifactId>
+    </dependency>
+    <dependency>
+      <!-- provided scope for pgraster's and cog autoconfiguration when in web-ui -->
       <groupId>org.geoserver.web</groupId>
       <artifactId>gs-web-core</artifactId>
       <scope>provided</scope>
