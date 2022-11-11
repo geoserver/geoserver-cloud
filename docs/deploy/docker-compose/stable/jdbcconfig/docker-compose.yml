@@ -45,7 +45,7 @@ services:
   # Browse to http://localhost:8761 to check all services are registered.
   # Run docker-compose -f docker-compose.yml -f docker-compose-discovery-ha.yml to run extra discovery service instances for HA
   discovery:
-    image: geoservercloud/geoserver-cloud-discovery:1.0-RC26
+    image: geoservercloud/geoserver-cloud-discovery:1.0-RC27
     user: 1000:1000 # set the userid:groupid the container runs as
     ports:
       - 8761:8761
@@ -62,7 +62,7 @@ services:
   # microservices. Being a Discovery First Bootstrap configuration, it'll
   # register itself with the Eureka discovery service and can be scaled
   config:
-    image: geoservercloud/geoserver-cloud-config:1.0-RC26
+    image: geoservercloud/geoserver-cloud-config:1.0-RC27
     user: 1000:1000 # set the userid:groupid the container runs as
     depends_on:
       - discovery
@@ -75,8 +75,8 @@ services:
       SPRING_PROFILES_ACTIVE: git
       # 'git' profile config
       CONFIG_GIT_URI: https://github.com/geoserver/geoserver-cloud-config.git
-      # get the config for this release from the v1.0-RC26 tag
-      SPRING_CLOUD_CONFIG_SERVER_GIT_DEFAULT_LABEL: v1.0-RC26
+      # get the config for this release from the v1.0-RC27 tag
+      SPRING_CLOUD_CONFIG_SERVER_GIT_DEFAULT_LABEL: v1.0-RC27
       # where to store the cloned repository, if unset, it'll use /tmp/config-repo-<randomid>
       CONFIG_GIT_BASEDIR: /tmp/git_config
       # 'native' profile config
@@ -95,7 +95,7 @@ services:
           memory: 512M
 
   admin:
-    image: geoservercloud/geoserver-cloud-admin-server:1.0-RC26
+    image: geoservercloud/geoserver-cloud-admin-server:1.0-RC27
     user: 1000:1000 # set the userid:groupid the container runs as
     depends_on:
       - config
@@ -112,7 +112,7 @@ services:
   # Application facade, provides a single entry point routing to all
   # microservices (e.g. http://localhost:9090/geoserver/wms, http://localhost:9090/geoserver/wfs, etc)
   gateway:
-    image: geoservercloud/geoserver-cloud-gateway:1.0-RC26
+    image: geoservercloud/geoserver-cloud-gateway:1.0-RC27
     user: 1000:1000 # set the userid:groupid the container runs as
     depends_on:
       - config
@@ -130,7 +130,7 @@ services:
 
   # WFS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wfs=5)
   wfs:
-    image: geoservercloud/geoserver-cloud-wfs:1.0-RC26
+    image: geoservercloud/geoserver-cloud-wfs:1.0-RC27
     user: 1000:1000 # set the userid:groupid the container runs as
     depends_on:
       - config
@@ -146,7 +146,7 @@ services:
 
   # WMS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wms=5)
   wms:
-    image: geoservercloud/geoserver-cloud-wms:1.0-RC26
+    image: geoservercloud/geoserver-cloud-wms:1.0-RC27
     user: 1000:1000 # set the userid:groupid the container runs as
     depends_on:
       - config
@@ -162,7 +162,7 @@ services:
 
   # WCS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wcs=5)
   wcs:
-    image: geoservercloud/geoserver-cloud-wcs:1.0-RC26
+    image: geoservercloud/geoserver-cloud-wcs:1.0-RC27
     user: 1000:1000 # set the userid:groupid the container runs as
     depends_on:
       - config
@@ -178,7 +178,7 @@ services:
 
   # REST config microservice, port dynamically allocated to allow scaling (e.g docker-compose scale rest=5)
   rest:
-    image: geoservercloud/geoserver-cloud-rest:1.0-RC26
+    image: geoservercloud/geoserver-cloud-rest:1.0-RC27
     user: 1000:1000 # set the userid:groupid the container runs as
     depends_on:
       - config
@@ -196,7 +196,7 @@ services:
 
   # WEB UI microservice
   webui:
-    image: geoservercloud/geoserver-cloud-webui:1.0-RC26
+    image: geoservercloud/geoserver-cloud-webui:1.0-RC27
     user: 1000:1000 # set the userid:groupid the container runs as
     depends_on:
       - rabbitmq
@@ -211,7 +211,7 @@ services:
           cpus: '2.0'
           memory: 1G
   gwc:
-    image: geoservercloud/geoserver-cloud-gwc:1.0-RC26
+    image: geoservercloud/geoserver-cloud-gwc:1.0-RC27
     user: 1000:1000 # set the userid:groupid the container runs as
     depends_on:
       - config
