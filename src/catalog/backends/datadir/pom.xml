@@ -11,6 +11,10 @@
   <description>Autoconfigurations for using a shared data-directory as Catalog and config backend</description>
   <dependencies>
     <dependency>
+      <groupId>org.geoserver.community</groupId>
+      <artifactId>gs-datadir-catalog-loader</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.geoserver.cloud.catalog.backend</groupId>
       <artifactId>gs-cloud-catalog-backend-common</artifactId>
     </dependency>

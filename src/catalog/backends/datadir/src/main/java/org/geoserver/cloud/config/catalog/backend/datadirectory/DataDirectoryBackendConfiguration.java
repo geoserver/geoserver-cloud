@@ -20,11 +20,14 @@ import org.geoserver.cloud.config.catalog.backend.core.GeoServerBackendConfigure
 import org.geoserver.config.GeoServerLoader;
 import org.geoserver.config.plugin.RepositoryGeoServerFacade;
 import org.geoserver.platform.GeoServerResourceLoader;
+import org.geoserver.platform.ModuleStatusImpl;
 import org.geoserver.platform.config.UpdateSequence;
 import org.geoserver.platform.resource.LockProvider;
 import org.geoserver.platform.resource.ResourceStore;
+import org.geoserver.security.GeoServerSecurityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -50,6 +53,15 @@ public class DataDirectoryBackendConfiguration implements GeoServerBackendConfig
         log.info(
                 "Loading geoserver config backend with {}",
                 DataDirectoryBackendConfiguration.class.getSimpleName());
+    }
+
+    @Bean
+    public ModuleStatusImpl moduleStatus() {
+        ModuleStatusImpl module =
+                new ModuleStatusImpl("gs-cloud-backend-datadir", "DataDirectory loader");
+        module.setAvailable(true);
+        module.setEnabled(true);
+        return module;
     }
 
     public @Bean CatalogPlugin rawCatalog() {
@@ -90,21 +102,61 @@ public class DataDirectoryBackendConfiguration implements GeoServerBackendConfig
         return new org.geoserver.config.plugin.RepositoryGeoServerFacadeImpl();
     }
 
+    /**
+     * Contributes the default {@link GeoServerLoader} if {@code
+     * geoserver.backend.data-directory.parallel-loader=false}
+     */
     @DependsOn({
         "extensions",
         "wmsLoader",
         "wfsLoader",
         "wcsLoader",
         "wpsServiceLoader",
-        "wmtsLoader"
+        "wmtsLoader",
+        "geoServerSecurityManager"
     })
-    public @Override @Bean GeoServerLoader geoServerLoaderImpl() {
+    @Bean(name = "geoServerLoaderImpl")
+    @ConditionalOnProperty(
+            name = "geoserver.backend.data-directory.parallel-loader",
+            havingValue = "false",
+            matchIfMissing = false)
+    public @Override GeoServerLoader geoServerLoaderImpl() {
+        log.info("Using default data directory config loader");
         UpdateSequence updateSequence = updateSequence();
         GeoServerResourceLoader resourceLoader = resourceLoader();
         Catalog rawCatalog = rawCatalog();
         LockingGeoServer geoserver = geoServer(rawCatalog);
         return new DataDirectoryGeoServerLoader(
                 updateSequence, resourceLoader, geoserver, rawCatalog);
+    }
+
+    /**
+     * Contributes the optimized parallel {@link GeoServerLoader} if {@code
+     * geoserver.backend.data-directory.parallel-loader=true} (default behavior).
+     */
+    @DependsOn({
+        "extensions",
+        "wmsLoader",
+        "wfsLoader",
+        "wcsLoader",
+        "wpsServiceLoader",
+        "wmtsLoader",
+        "geoServerSecurityManager"
+    })
+    @Bean(name = "geoServerLoaderImpl")
+    @ConditionalOnProperty(
+            name = "geoserver.backend.data-directory.parallel-loader",
+            havingValue = "true",
+            matchIfMissing = true)
+    public GeoServerLoader geoServerLoaderImplParallel(GeoServerSecurityManager securityManager) {
+        log.info("Using optimized parallel data directory config loader");
+        UpdateSequence updateSequence = updateSequence();
+        GeoServerResourceLoader resourceLoader = resourceLoader();
+        Catalog rawCatalog = rawCatalog();
+        LockingGeoServer geoserver = geoServer(rawCatalog);
+
+        return new ParallelDataDirectoryGeoServerLoader(
+                updateSequence, resourceLoader, geoserver, rawCatalog, securityManager);
     }
 
     public @Override @Bean GeoServerResourceLoader resourceLoader() {
