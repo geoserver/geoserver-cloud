@@ -11,6 +11,7 @@
   <name>Misc libs</name>
   <modules>
     <module>spring-factory</module>
+    <module>spring-boot-simplejndi</module>
   </modules>
   <dependencies>
     <dependency>

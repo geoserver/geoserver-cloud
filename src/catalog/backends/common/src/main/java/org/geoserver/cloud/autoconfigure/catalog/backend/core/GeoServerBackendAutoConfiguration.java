@@ -6,6 +6,7 @@ package org.geoserver.cloud.autoconfigure.catalog.backend.core;
 
 import org.geoserver.cloud.autoconfigure.geotools.GeoToolsHttpClientAutoConfiguration;
 import org.geoserver.cloud.config.catalog.backend.core.CoreBackendConfiguration;
+import org.geoserver.cloud.config.jndidatasource.JNDIDataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -22,6 +23,9 @@ import org.springframework.context.annotation.Import;
  * @see CoreBackendConfiguration
  */
 @Configuration(proxyBeanMethods = false)
-@AutoConfigureAfter(GeoToolsHttpClientAutoConfiguration.class)
+@AutoConfigureAfter({
+    GeoToolsHttpClientAutoConfiguration.class,
+    JNDIDataSourceAutoConfiguration.class
+})
 @Import(CoreBackendConfiguration.class)
 public class GeoServerBackendAutoConfiguration {}

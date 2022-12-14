@@ -1,0 +1,7 @@
+# Initializers
+org.springframework.context.ApplicationContextInitializer=\
+org.geoserver.cloud.config.jndi.SimpleJNDIStaticContextInitializer
+
+# Auto Configure
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+org.geoserver.cloud.config.jndidatasource.JNDIDataSourceAutoConfiguration

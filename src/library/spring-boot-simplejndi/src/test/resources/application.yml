@@ -1,0 +1,20 @@
+
+
+jndi:
+  datasources:
+    # the data source names (i.e. ds1, ds2) will be bound as java:comp/env/jdbc/ds1 and java:comp/env/jdbc/ds2:
+    ds1:
+      enabled: true
+      wait-for-it: true
+      wait-timeout: 60
+      url: jdbc:h2:mem:ds1
+      username: sa
+      password: sa
+      connection-timeout: 250
+      idle-timeout: 60000
+    ds2:
+      url: jdbc:h2:mem:ds2
+      username: sa
+      password: sa
+      connection-timeout: 250
+      idle-timeout: 60000      

@@ -10,6 +10,26 @@
 
 TBD
 
+## JNDI Datasources
+
+A custom and very simple JNDI implementation is used through the `org.geoserver.cloud:spring-boot-simplejndi` maven module,
+allowing to configure JNDI data sources through Spring-Boot's configuration properties.
+
+```yaml
+jndi:
+  datasources:
+    # the data source names (i.e. ds1, ds2) will be bound as java:comp/env/jdbc/ds1 and java:comp/env/jdbc/ds2:
+    ds1:
+      enabled: true
+      wait-for-it: true
+      wait-timeout: 60
+      url: jdbc:postgresql://host:5432/database
+      username: sa
+      password: sa
+      connection-timeout: 250
+      idle-timeout: 60000
+```
+
 ## GeoServer configuration properties
 
 ## HTTP proxy for cascaded OWS (WMS/WMTS/WFS) Stores

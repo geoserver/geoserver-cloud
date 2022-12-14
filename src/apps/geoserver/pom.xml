@@ -23,6 +23,10 @@
   <dependencies>
     <dependency>
       <groupId>org.geoserver.cloud</groupId>
+      <artifactId>spring-boot-simplejndi</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.cloud</groupId>
       <artifactId>gs-cloud-starter-event-bus</artifactId>
     </dependency>
     <dependency>
