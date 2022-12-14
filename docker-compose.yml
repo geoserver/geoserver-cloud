@@ -78,6 +78,8 @@ services:
       - 8761:8761 # for development, so services can be run from localhost and find the discovery service running on docker
     networks:
       - gs-cloud-network
+    depends_on:
+      - config
     deploy:
       resources:
         limits:
@@ -118,7 +120,7 @@ services:
     image: geoservercloud/geoserver-cloud-admin-server:${TAG}
     user: ${GS_USER}
     depends_on:
-      - config
+      - discovery
     ports:
       - 9091:8080
     networks:
@@ -135,7 +137,7 @@ services:
     image: geoservercloud/geoserver-cloud-gateway:${TAG}
     user: ${GS_USER}
     depends_on:
-      - config
+      - discovery
     environment:
       JAVA_OPTS: ${GATEWAY_JAVA_OPTS}
       SPRING_PROFILES_ACTIVE: dev #exposes the catalog and config API at /api/v1/**
@@ -186,6 +188,7 @@ services:
     user: ${GS_USER}
     depends_on:
       - rabbitmq
+      - discovery
     environment:
       JAVA_OPTS: "${WFS_JAVA_OPTS}"
       RETRY_MAX_ATTEMPTS: 100
@@ -205,6 +208,7 @@ services:
     user: ${GS_USER}
     depends_on:
       - rabbitmq
+      - discovery
     environment:
       JAVA_OPTS: "${WMS_JAVA_OPTS}"
       RETRY_MAX_ATTEMPTS: 100
@@ -222,6 +226,7 @@ services:
     user: ${GS_USER}
     depends_on:
       - rabbitmq
+      - discovery
     environment:
       JAVA_OPTS: "${WCS_JAVA_OPTS}"
       RETRY_MAX_ATTEMPTS: 100
@@ -249,6 +254,7 @@ services:
     user: ${GS_USER}
     depends_on:
       - rabbitmq
+      - discovery
     environment:
       JAVA_OPTS: "${REST_JAVA_OPTS}"
       RETRY_MAX_ATTEMPTS: 100
@@ -268,6 +274,7 @@ services:
     user: ${GS_USER}
     depends_on:
       - rabbitmq
+      - discovery
     environment:
       JAVA_OPTS: "${WEBUI_JAVA_OPTS}"
       RETRY_MAX_ATTEMPTS: 100
@@ -285,6 +292,7 @@ services:
     user: ${GS_USER}
     depends_on:
       - rabbitmq
+      - discovery
     environment:
       RETRY_MAX_ATTEMPTS: 100
     networks:
