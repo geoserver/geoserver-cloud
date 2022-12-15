@@ -17,6 +17,7 @@ services:
       POSTGRES_DB: postgis
       POSTGRES_USER: postgis
       POSTGRES_PASSWORD: postgis
+      POSTGIS_GDAL_ENABLED_DRIVERS: ENABLE_ALL
     networks:
       - gs-cloud-network
     volumes:
