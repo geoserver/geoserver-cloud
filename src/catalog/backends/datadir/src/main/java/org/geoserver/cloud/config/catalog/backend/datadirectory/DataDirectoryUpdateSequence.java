@@ -140,8 +140,7 @@ public class DataDirectoryUpdateSequence implements UpdateSequence {
     /** Precondition: be called while holding the {@link #lock()} */
     private void save(Resource resource, Properties props) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        String comments = """
-                """;
+        String comments = "";
         props.store(new OutputStreamWriter(out, CHARSET), comments);
         byte[] contents = out.toByteArray();
         resource.setContents(contents);

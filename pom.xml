@@ -22,6 +22,11 @@
         <version>${project.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.geoserver.cloud</groupId>
+        <artifactId>spring-boot-simplejndi</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.geoserver.cloud.catalog.jackson</groupId>
         <artifactId>gt-jackson-bindings</artifactId>
         <version>${project.version}</version>

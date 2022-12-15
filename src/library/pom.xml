@@ -6,22 +6,14 @@
     <artifactId>gs-cloud</artifactId>
     <version>${revision}</version>
   </parent>
-  <artifactId>gs-cloud-spring-factory</artifactId>
-  <packaging>jar</packaging>
-  <description>Customizable xml bean definition reader</description>
+  <artifactId>gs-cloud-lib</artifactId>
+  <packaging>pom</packaging>
+  <name>Misc libs</name>
+  <modules>
+    <module>spring-factory</module>
+    <module>spring-boot-simplejndi</module>
+  </modules>
   <dependencies>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-context</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-beans</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-    </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
