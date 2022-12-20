@@ -39,6 +39,7 @@ import org.geoserver.cloud.autoconfigure.catalog.event.LocalCatalogEventsAutoCon
 import org.geoserver.config.GeoServerFacade;
 import org.geoserver.config.plugin.GeoServerImpl;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -329,6 +330,7 @@ public class CachingCatalogFacadeTest {
         assertEquals(expected, layersWrapper.get());
     }
 
+    @Disabled("LayerGroups are not cached")
     public @Test void testAddLayerGroupInfo() {
         LayerGroupInfo info = this.lg;
         LayerGroupInfo added = stub(LayerGroupInfo.class, 1); // same id
@@ -337,14 +339,17 @@ public class CachingCatalogFacadeTest {
         assertSame(added, cache.get(new CatalogInfoKey(info)).get(), "expected cache put");
     }
 
+    @Disabled("LayerGroups are not cached")
     public @Test void testRemoveLayerGroupInfo() {
         testEvicts(lg, caching::remove);
     }
 
+    @Disabled("LayerGroups are not cached")
     public @Test void testSaveLayerGroupInfo() {
         testEvicts(lg, caching::save);
     }
 
+    @Disabled("LayerGroups are not cached")
     public @Test void testGetLayerGroup() {
         CatalogInfo info = lg;
         assertSameTimesN(info, caching::getLayerGroup, 3);
