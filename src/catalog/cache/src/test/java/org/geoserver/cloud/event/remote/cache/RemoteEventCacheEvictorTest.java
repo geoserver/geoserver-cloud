@@ -180,7 +180,8 @@ public class RemoteEventCacheEvictorTest {
     }
 
     public @Test void testCatalogInfoEvictingEvents() {
-        testModifyThenRemoveCatalogInfo(data.layerGroup1, catalog::getLayerGroup);
+        // layergroups are not cached
+        // testModifyThenRemoveCatalogInfo(data.layerGroup1, catalog::getLayerGroup);
         testModifyThenRemoveCatalogInfo(data.layerFeatureTypeA, catalog::getLayer);
         testModifyThenRemoveCatalogInfo(data.style1, catalog::getStyle);
         testModifyThenRemoveCatalogInfo(data.coverageA, catalog::getCoverage);
