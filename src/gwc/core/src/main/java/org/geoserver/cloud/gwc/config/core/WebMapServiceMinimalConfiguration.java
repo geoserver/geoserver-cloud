@@ -38,7 +38,8 @@ public class WebMapServiceMinimalConfiguration {
     private static final String WMS_BEANS_REGEX =
             """
             ^(?!\
-            getMapKvpReader\
+            legendSample\
+            |getMapKvpReader\
             |wmsCapabilitiesXmlReader\
             |getMapXmlReader\
             |sldXmlReader\

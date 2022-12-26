@@ -4,9 +4,16 @@
  */
 package org.geoserver.cloud.gwc.app;
 
+import org.geoserver.catalog.Catalog;
+import org.geoserver.cloud.gwc.config.core.WebMapServiceMinimalConfiguration;
+import org.geoserver.gwc.layer.GeoServerTileLayer;
+import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.rest.RequestInfo;
 import org.geoserver.rest.RestConfiguration;
+import org.geoserver.wms.capabilities.LegendSample;
+import org.geoserver.wms.capabilities.LegendSampleImpl;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.support.FormattingConversionService;
@@ -27,6 +34,20 @@ import javax.servlet.http.HttpServletRequestWrapper;
 
 @Configuration
 public class GeoWebCacheApplicationConfiguration extends RestConfiguration {
+
+    /**
+     * Required by {@link GeoServerTileLayer#getLegendSample}, excluded by {@link
+     * WebMapServiceMinimalConfiguration}
+     *
+     * @param catalog using {@code rawCatalog} instead of {@code catalog}, to avoid the local
+     *     workspace and secured catalog decorators
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    public LegendSample legendSample(
+            @Qualifier("rawCatalog") Catalog catalog, GeoServerResourceLoader loader) {
+        return new LegendSampleImpl(catalog, loader);
+    }
 
     @SuppressWarnings("deprecation")
     @Override
@@ -99,27 +120,4 @@ public class GeoWebCacheApplicationConfiguration extends RestConfiguration {
             return request;
         }
     }
-
-    /**
-     * "Deprecate use of path extensions in request mapping and content negotiation" {@code
-     * https://github.com/spring-projects/spring-framework/issues/24179}
-     */
-    //    @Bean
-    //    public RequestMappingHandlerMapping requestMappingHandlerMapping(
-    //            @Qualifier("mvcContentNegotiationManager")
-    //                    ContentNegotiationManager contentNegotiationManager,
-    //            @Qualifier("mvcConversionService") FormattingConversionService conversionService,
-    //            @Qualifier("mvcResourceUrlProvider") ResourceUrlProvider resourceUrlProvider) {
-    //
-    //        RequestMappingHandlerMapping handlerMapping =
-    //                super.requestMappingHandlerMapping(
-    //                        contentNegotiationManager, conversionService, resourceUrlProvider);
-    //
-    //        handlerMapping.setUseSuffixPatternMatch(true);
-    //        handlerMapping.setUseRegisteredSuffixPatternMatch(true);
-    //        // handlerMapping.setUseTrailingSlashMatch(true);
-    //        // handlerMapping.setAlwaysUseFullPath(true);
-    //
-    //        return handlerMapping;
-    //    }
 }
