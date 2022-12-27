@@ -4,6 +4,7 @@
  */
 package org.geoserver.cloud.web.service;
 
+import org.geoserver.cloud.web.ui.GeoServerCloudHomePageContentProvider;
 import org.geoserver.cloud.web.ui.ServiceRegistryPage;
 import org.geoserver.web.Category;
 import org.geoserver.web.ComponentAuthorizer;
@@ -54,5 +55,9 @@ public class WebUiCloudServicesConfiguration {
         menu.setOrder(1000);
         menu.setAuthorizer(ComponentAuthorizer.ADMIN);
         return menu;
+    }
+
+    public @Bean GeoServerCloudHomePageContentProvider geoServerCloudHomePageContentProvider() {
+        return new GeoServerCloudHomePageContentProvider();
     }
 }
