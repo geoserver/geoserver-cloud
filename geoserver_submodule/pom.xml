@@ -29,5 +29,6 @@
     <module>geoserver/src/community/geostyler</module>
     <module>geoserver/src/community/gwc-azure-blob</module>
     <module>geoserver/src/community/cog</module>
+    <module>geoserver/src/community/datadir-catalog-loader</module>
   </modules>
 </project>

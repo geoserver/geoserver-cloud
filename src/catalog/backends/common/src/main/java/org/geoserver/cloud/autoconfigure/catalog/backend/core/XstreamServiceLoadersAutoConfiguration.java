@@ -30,7 +30,7 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration(proxyBeanMethods = false)
 @Slf4j(topic = "org.geoserver.cloud.config.catalog")
-class XstreamServiceLoadersAutoConfiguration {
+public class XstreamServiceLoadersAutoConfiguration {
 
     @ConditionalOnMissingBean(WFSXStreamLoader.class)
     public @Bean WFSXStreamLoader wfsLoader(GeoServerResourceLoader resourceLoader) {

@@ -24,4 +24,5 @@ public @Data class DataDirectoryProperties {
 
     private boolean enabled;
     private Path location;
+    private boolean parallelLoader = true;
 }
