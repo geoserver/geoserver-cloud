@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.ImportResource;
 
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -61,6 +62,11 @@ public class GeoServerSecurityConfiguration {
                 "GeoServer security being configured through classpath*:/applicationSecurityContext.xml");
     }
 
+    @Bean
+    public EnvironmentAdminAuthenticationProvider environmentAdminAuthenticationProvider() {
+        return new EnvironmentAdminAuthenticationProvider();
+    }
+
     /**
      * Override the {@code authenticationManager} bean defined in {@code gs-main}'s {@code
      * applicationSecurityContext.xml} with a version that notifies other services of any security
@@ -74,12 +80,14 @@ public class GeoServerSecurityConfiguration {
     public CloudGeoServerSecurityManager cloudAuthenticationManager( //
             GeoServerDataDirectory dataDir, //
             ApplicationEventPublisher localContextPublisher, //
-            UpdateSequence updateSequence //
+            UpdateSequence updateSequence, //
+            EnvironmentAdminAuthenticationProvider envAuth //
             ) throws Exception {
 
         Consumer<SecurityConfigChanged> publisher = localContextPublisher::publishEvent;
         Supplier<Long> updateSequenceIncrementor = updateSequence::nextValue;
 
-        return new CloudGeoServerSecurityManager(dataDir, publisher, updateSequenceIncrementor);
+        return new CloudGeoServerSecurityManager(
+                dataDir, publisher, updateSequenceIncrementor, List.of(envAuth));
     }
 }
