@@ -4,6 +4,8 @@
  */
 package org.geoserver.cloud.config.catalog.backend.datadirectory;
 
+import static org.geoserver.catalog.StyleInfo.*;
+
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
@@ -29,6 +31,7 @@ import org.opengis.referencing.FactoryException;
 import org.vfny.geoserver.util.DataStoreUtils;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
@@ -149,19 +152,17 @@ public class ParallelDataDirectoryGeoServerLoader
         // disable locking just on the GeoServer mutating operations while loading the config
         geoserver.disableLocking();
         try {
+            final Set<String> existing = support.preloadServiceNames(geoServer);
+            super.loadGeoServer(geoServer, xp);
+            support.replaceCatalogInfoPersisterWithFixedVersion(geoServer, xp);
+
             GeoServerConfigurationLock configLock = geoserver.getConfigurationLock();
             LockingSupport lockingSupport = LockingSupport.locking(configLock);
 
             lockingSupport.callInWriteLock(
                     Exception.class,
                     () -> {
-                        Set<String> existing = support.preloadServiceNames(geoServer);
-                        super.loadGeoServer(geoServer, xp);
-
-                        support.replaceCatalogInfoPersisterWithFixedVersion(geoServer, xp);
-
                         support.persistNewlyCreatedServices(geoServer, existing);
-
                         support.initializeEmptyConfig(geoServer);
                         return null;
                     },
@@ -177,16 +178,31 @@ public class ParallelDataDirectoryGeoServerLoader
      */
     @Override
     protected void initializeDefaultStyles(Catalog catalog) throws IOException {
+        if (styleMissing(
+                catalog,
+                DEFAULT_POINT,
+                DEFAULT_LINE,
+                DEFAULT_POLYGON,
+                DEFAULT_RASTER,
+                DEFAULT_GENERIC)) {
 
-        GeoServerConfigurationLock configLock = geoserver.getConfigurationLock();
-        LockingSupport lockingSupport = LockingSupport.locking(configLock);
+            log.info("Initializing default styles");
+            GeoServerConfigurationLock configLock = geoserver.getConfigurationLock();
+            LockingSupport lockingSupport = LockingSupport.locking(configLock);
 
-        lockingSupport.callInWriteLock(
-                IOException.class,
-                () -> {
-                    super.initializeDefaultStyles(catalog);
-                    return null;
-                },
-                "initializeDefaultStyles()");
+            lockingSupport.callInWriteLock(
+                    IOException.class,
+                    () -> {
+                        super.initializeDefaultStyles(catalog);
+                        return null;
+                    },
+                    "initializeDefaultStyles()");
+        } else {
+            log.info("Default styles already present");
+        }
+    }
+
+    private boolean styleMissing(Catalog catalog, String... styleNames) {
+        return Arrays.stream(styleNames).anyMatch(name -> null == catalog.getStyleByName(name));
     }
 }
