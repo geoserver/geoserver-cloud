@@ -21,7 +21,7 @@ import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.Resources;
 
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -41,23 +41,24 @@ class DataDirectoryLoaderSupport {
 
         return loaders.stream()
                 .map(loader -> preload(gs, loader))
-                .filter(Objects::nonNull)
+                .filter(Optional::isPresent)
+                .map(Optional::orElseThrow)
                 .map(ServiceInfo::getName)
                 .collect(Collectors.toSet());
     }
 
-    public ServiceInfo preload(GeoServer gs, XStreamServiceLoader<?> loader) {
+    public Optional<ServiceInfo> preload(GeoServer gs, XStreamServiceLoader<?> loader) {
         Resource root = resourceLoader.get("");
         Resource file = root.get(loader.getFilename());
 
         if (Resources.exists(file)) {
             try {
-                return loader.load(gs);
+                return Optional.of(loader.load(gs));
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                log.warn("Error loading service " + file);
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     public void persistNewlyCreatedServices(GeoServer geoServer, Set<String> existingServiceNames) {
