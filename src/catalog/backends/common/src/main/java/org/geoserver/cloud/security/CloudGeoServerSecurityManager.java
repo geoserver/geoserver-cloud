@@ -20,8 +20,11 @@ import org.geoserver.security.password.MasterPasswordConfig;
 import org.geoserver.security.password.MasterPasswordProviderConfig;
 import org.geoserver.security.validation.SecurityConfigException;
 import org.springframework.context.event.EventListener;
+import org.springframework.security.authentication.AuthenticationProvider;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -40,15 +43,25 @@ public class CloudGeoServerSecurityManager extends GeoServerSecurityManager {
 
     private final AtomicBoolean reloading = new AtomicBoolean(false);
     private boolean changedDuringReload = false;
+    private List<AuthenticationProvider> additionalAuthenticationProviders;
 
     public CloudGeoServerSecurityManager(
             GeoServerDataDirectory dataDir,
             @NonNull Consumer<SecurityConfigChanged> eventPublisher,
-            @NonNull Supplier<Long> updateSequenceIncrementor)
+            @NonNull Supplier<Long> updateSequenceIncrementor,
+            @NonNull List<AuthenticationProvider> additionalAuthenticationProviders)
             throws Exception {
         super(dataDir);
+        this.additionalAuthenticationProviders = additionalAuthenticationProviders;
         this.eventPublisher = eventPublisher;
         this.updateSequenceIncrementor = updateSequenceIncrementor;
+    }
+
+    @Override
+    public void setProviders(List<AuthenticationProvider> providers) throws Exception {
+        providers = new ArrayList<>(providers);
+        providers.addAll(0, additionalAuthenticationProviders);
+        super.setProviders(providers);
     }
 
     public @Override void reload() {
