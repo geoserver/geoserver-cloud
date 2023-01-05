@@ -47,10 +47,6 @@
       <artifactId>spring-boot-starter-aop</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.springframework.experimental</groupId>
-      <artifactId>spring-native</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
@@ -246,72 +242,6 @@
           </plugin>
         </plugins>
       </build>
-    </profile>
-    <profile>
-      <id>native</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-maven-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>build-native-image</id>
-                <goals>
-                  <goal>build-image</goal>
-                </goals>
-              </execution>
-            </executions>
-            <configuration>
-              <image>
-                <builder>paketobuildpacks/builder:tiny</builder>
-                <env>
-                  <!-- Builder config options -->
-                  <BP_NATIVE_IMAGE>true</BP_NATIVE_IMAGE>
-                </env>
-              </image>
-            </configuration>
-          </plugin>
-          <plugin>
-            <groupId>org.springframework.experimental</groupId>
-            <artifactId>spring-aot-maven-plugin</artifactId>
-            <executions>
-              <!-- <execution> -->
-              <!-- <id>test-generate</id> -->
-              <!-- <goals> -->
-              <!-- <goal>test-generate</goal> -->
-              <!-- </goals> -->
-              <!-- </execution> -->
-              <execution>
-                <id>generate</id>
-                <goals>
-                  <goal>generate</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.graalvm.buildtools</groupId>
-            <artifactId>native-maven-plugin</artifactId>
-          </plugin>
-        </plugins>
-      </build>
-      <properties>
-        <spring-boot.build-image.imageName>geoservercloud/geoserver-cloud-config:${project.version}-native</spring-boot.build-image.imageName>
-        <start-class>org.geoserver.cloud.config.ConfigApplication</start-class>
-      </properties>
-      <dependencies>
-        <dependency>
-          <groupId>org.springframework.experimental</groupId>
-          <artifactId>spring-native</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.graalvm.buildtools</groupId>
-          <artifactId>junit-platform-native</artifactId>
-          <version>${native-buildtools.version}</version>
-          <scope>test</scope>
-        </dependency>
-      </dependencies>
     </profile>
   </profiles>
 </project>

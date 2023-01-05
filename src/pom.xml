@@ -22,8 +22,6 @@
     <maven.compiler.target>17</maven.compiler.target>
     <spring-cloud.version>2021.0.1</spring-cloud.version>
     <spring-boot.version>2.6.6</spring-boot.version>
-    <spring-native.version>0.11.3</spring-native.version>
-    <native-buildtools.version>0.9.10</native-buildtools.version>
     <feign-reactor.version>3.1.5</feign-reactor.version>
     <gs.version>2.21.0-CLOUD</gs.version>
     <gs.community.version>2.21.0-CLOUD</gs.community.version>
@@ -64,11 +62,6 @@
         <version>${spring-boot.version}</version>
         <type>pom</type>
         <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework.experimental</groupId>
-        <artifactId>spring-native</artifactId>
-        <version>${spring-native.version}</version>
       </dependency>
       <dependency>
         <groupId>com.playtika.reactivefeign</groupId>
@@ -817,16 +810,6 @@
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>versions-maven-plugin</artifactId>
           <version>2.8.1</version>
-        </plugin>
-        <plugin>
-          <groupId>org.springframework.experimental</groupId>
-          <artifactId>spring-aot-maven-plugin</artifactId>
-          <version>${spring-native.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>org.graalvm.buildtools</groupId>
-          <artifactId>native-maven-plugin</artifactId>
-          <version>${native-buildtools.version}</version>
         </plugin>
       </plugins>
     </pluginManagement>
