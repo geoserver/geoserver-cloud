@@ -92,7 +92,6 @@ services:
   # register itself with the Eureka discovery service and can be scaled
   config:
     image: geoservercloud/geoserver-cloud-config:${TAG}
-    #image: geoservercloud/geoserver-cloud-config:${TAG}-native
     user: ${GS_USER}
     environment:
       JAVA_OPTS: "${CONFIG_JAVA_OPTS}"
