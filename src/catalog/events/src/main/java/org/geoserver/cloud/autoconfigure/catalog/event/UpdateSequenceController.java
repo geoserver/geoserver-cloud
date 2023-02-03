@@ -5,12 +5,13 @@
 package org.geoserver.cloud.autoconfigure.catalog.event;
 
 import lombok.Data;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
 
 import org.geoserver.cloud.event.UpdateSequenceEvent;
 import org.geoserver.config.GeoServer;
 import org.geoserver.platform.config.UpdateSequence;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,11 +25,12 @@ import javax.annotation.security.RolesAllowed;
  */
 @RestController
 @RequestMapping("${geoserver.base-path:}")
+@RequiredArgsConstructor
 public class UpdateSequenceController {
 
-    private @Autowired UpdateSequence updateSequence;
-    private @Autowired ApplicationEventPublisher eventPublisher;
-    private @Autowired GeoServer geoServer;
+    private final @NonNull UpdateSequence updateSequence;
+    private final @NonNull ApplicationEventPublisher eventPublisher;
+    private final @NonNull GeoServer geoServer;
 
     @Accessors(chain = true)
     public static @Data class UpdateSeq {

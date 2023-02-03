@@ -42,4 +42,9 @@ public @Data @Generated class Settings extends ConfigInfoDto {
      * @since geoserver 2.20.0
      */
     private Locale defaultLocale;
+
+    /**
+     * @since geoserver 2.22.0
+     */
+    private boolean useHeadersProxyURL;
 }

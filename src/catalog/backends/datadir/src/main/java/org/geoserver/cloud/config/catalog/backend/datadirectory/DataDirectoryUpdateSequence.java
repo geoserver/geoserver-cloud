@@ -21,6 +21,7 @@ import org.geoserver.platform.resource.ResourceStore;
 import org.geoserver.platform.resource.Resources;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Lazy;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -48,7 +49,7 @@ public class DataDirectoryUpdateSequence implements UpdateSequence {
     /** Provides the cluster aware {@link ResourceStore#getLockProvider LockProvider} */
     private @Autowired @Qualifier("resourceStoreImpl") ResourceStore resourceStore;
 
-    private @Autowired @Qualifier("geoServer") GeoServer geoServer;
+    private @Autowired @Lazy @Qualifier("geoServer") GeoServer geoServer;
     private @Autowired GeoServerDataDirectory dd;
     private @Autowired XStreamPersisterFactory xpf;
 

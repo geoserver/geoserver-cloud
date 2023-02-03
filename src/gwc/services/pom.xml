@@ -17,5 +17,9 @@
       <groupId>org.geoserver.cloud</groupId>
       <artifactId>gwc-cloud-core</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.geoserver</groupId>
+      <artifactId>gs-gwc-rest</artifactId>
+    </dependency>
   </dependencies>
 </project>

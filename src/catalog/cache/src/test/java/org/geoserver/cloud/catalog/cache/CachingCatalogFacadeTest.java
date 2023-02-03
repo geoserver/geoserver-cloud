@@ -38,6 +38,7 @@ import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.cloud.autoconfigure.catalog.event.LocalCatalogEventsAutoConfiguration;
 import org.geoserver.config.GeoServerFacade;
 import org.geoserver.config.plugin.GeoServerImpl;
+import org.geoserver.platform.config.UpdateSequence;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -61,6 +62,7 @@ import java.util.function.Function;
 @SuppressWarnings("deprecation")
 public class CachingCatalogFacadeTest {
 
+    private @MockBean @Qualifier("defaultUpdateSequence") UpdateSequence updateSequence;
     private @MockBean @Qualifier("rawCatalog") CatalogPlugin rawCatalog;
     private @MockBean @Qualifier("geoServer") GeoServerImpl rawGeoServer;
     private @MockBean @Qualifier("geoserverFacade") GeoServerFacade rawGeoServerFacade;

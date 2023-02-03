@@ -26,7 +26,6 @@ The following profiles are enabled by default:
 * `wps`
 * `gwc` (not yet functional)
 * `web-resource`
-* `geostyler`
 * `importer`
 
 And the following profiles can be enabled explicitly at build time:

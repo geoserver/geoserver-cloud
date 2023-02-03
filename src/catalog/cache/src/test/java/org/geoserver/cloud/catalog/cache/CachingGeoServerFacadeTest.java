@@ -24,6 +24,7 @@ import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
 import org.geoserver.config.plugin.GeoServerImpl;
+import org.geoserver.platform.config.UpdateSequence;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -43,6 +44,7 @@ import java.util.function.Supplier;
 @EnableAutoConfiguration(exclude = LocalCatalogEventsAutoConfiguration.class)
 public class CachingGeoServerFacadeTest {
 
+    private @MockBean @Qualifier("defaultUpdateSequence") UpdateSequence updateSequence;
     private @MockBean @Qualifier("rawCatalog") CatalogPlugin rawCatalog;
     private @MockBean @Qualifier("geoServer") GeoServerImpl rawGeoServer;
     private @MockBean @Qualifier("catalogFacade") ExtendedCatalogFacade catalogFacade;
