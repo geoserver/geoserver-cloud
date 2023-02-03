@@ -4,6 +4,7 @@
  */
 package org.geoserver.cloud.autoconfigure.cog;
 
+import org.geoserver.cloud.autoconfigure.cog.jackson.CogSettingsModule;
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
 import org.geoserver.cog.CogSettings;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -16,6 +17,7 @@ import org.springframework.context.annotation.ImportResource;
  * @implNote importing {@literal classpath:pgrasterApplicationContext.xml} instead of defining the
  *     bean in place because of parameterized class incompatibility on {@link
  *     org.geoserver.web.data.resource.DataStorePanelInfo#setComponentClass(Class)}
+ * @see CogSettingsModule
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnClass({CogSettings.class})
