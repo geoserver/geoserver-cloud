@@ -29,4 +29,9 @@ public abstract class Store extends CatalogInfoDto {
     private boolean enabled;
     private Map<String, Serializable> connectionParameters;
     private Map<String, Serializable> metadata;
+
+    /**
+     * @since geoserver 2.22.0
+     */
+    private boolean disableOnConnFailure;
 }

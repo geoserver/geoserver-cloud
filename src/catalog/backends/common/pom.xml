@@ -37,18 +37,6 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-      <!-- revisit, is it still needed? -->
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-webmvc</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <!-- revisit, is it still needed? -->
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-configuration-processor</artifactId>
       <optional>true</optional>

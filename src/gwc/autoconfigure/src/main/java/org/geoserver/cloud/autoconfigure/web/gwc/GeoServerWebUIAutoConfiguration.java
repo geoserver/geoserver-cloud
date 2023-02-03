@@ -16,7 +16,6 @@ import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
 import org.geoserver.config.GeoServer;
 import org.geoserver.gwc.GWC;
 import org.geoserver.gwc.config.GWCConfig;
-import org.geoserver.gwc.web.GWCCapabilitiesHomePageProvider;
 import org.geoserver.gwc.wmts.WMTSInfo;
 import org.geoserver.web.CapabilitiesHomePageLinkProvider;
 import org.geoserver.web.CapabilitiesHomePagePanel;

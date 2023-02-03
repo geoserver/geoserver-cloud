@@ -80,10 +80,6 @@
       <artifactId>gs-importer-web</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.geoserver.community</groupId>
-      <artifactId>gs-geostyler</artifactId>
-    </dependency>
-    <dependency>
       <!-- explicitly required by wicket component 'geotiffStorePanel' in web-core, should be optional -->
       <groupId>org.geotools</groupId>
       <artifactId>gt-geotiff</artifactId>

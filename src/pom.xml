@@ -23,9 +23,9 @@
     <spring-cloud.version>2021.0.5</spring-cloud.version>
     <spring-boot.version>2.6.14</spring-boot.version>
     <feign-reactor.version>3.2.6</feign-reactor.version>
-    <gs.version>2.21.0-CLOUD</gs.version>
-    <gs.community.version>2.21.0-CLOUD</gs.community.version>
-    <gt.version>27.0</gt.version>
+    <gs.version>2.22.1-CLOUD</gs.version>
+    <gs.community.version>2.22.1-CLOUD</gs.community.version>
+    <gt.version>28.1</gt.version>
     <lombok.version>1.18.24</lombok.version>
     <mapstruct.version>1.4.2.Final</mapstruct.version>
     <fork.javac>true</fork.javac>
@@ -463,6 +463,42 @@
         </exclusions>
       </dependency>
       <dependency>
+        <groupId>org.geoserver</groupId>
+        <artifactId>gs-gwc-rest</artifactId>
+        <version>${gs.version}</version>
+        <exclusions>
+          <exclusion>
+            <artifactId>h2</artifactId>
+            <groupId>com.h2database</groupId>
+          </exclusion>
+          <!-- exclude log4j dependencies, spring-boot-starter-logging provides everything we need -->
+          <exclusion>
+            <artifactId>log4j-api</artifactId>
+            <groupId>org.apache.logging.log4j</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>log4j-core</artifactId>
+            <groupId>org.apache.logging.log4j</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>log4j-jcl</artifactId>
+            <groupId>org.apache.logging.log4j</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>log4j-jul</artifactId>
+            <groupId>org.apache.logging.log4j</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <groupId>org.apache.logging.log4j</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>log4j-1.2-api</artifactId>
+            <groupId>org.apache.logging.log4j</groupId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
         <groupId>org.geoserver.extension</groupId>
         <artifactId>gs-gwc-s3</artifactId>
         <version>${gs.version}</version>
@@ -556,11 +592,6 @@
         <groupId>org.geoserver.extension</groupId>
         <artifactId>gs-ysld</artifactId>
         <version>${gs.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.geoserver.community</groupId>
-        <artifactId>gs-geostyler</artifactId>
-        <version>${gs.community.version}</version>
       </dependency>
       <dependency>
         <groupId>org.geoserver.extension</groupId>

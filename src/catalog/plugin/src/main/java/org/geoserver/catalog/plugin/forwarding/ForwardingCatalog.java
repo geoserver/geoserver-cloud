@@ -23,6 +23,8 @@ import org.geoserver.catalog.ResourcePool;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.ValidationResult;
+import org.geoserver.catalog.WMSStoreInfo;
+import org.geoserver.catalog.WMTSStoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.event.CatalogListener;
 import org.geoserver.catalog.util.CloseableIterator;
@@ -134,6 +136,22 @@ public class ForwardingCatalog implements Catalog {
 
     public @Override <T extends StoreInfo> List<T> getStores(Class<T> clazz) {
         return catalog.getStores(clazz);
+    }
+
+    public @Override WMSStoreInfo getWMSStore(String id) {
+        return catalog.getWMSStore(id);
+    }
+
+    public @Override WMSStoreInfo getWMSStoreByName(String name) {
+        return catalog.getWMSStoreByName(name);
+    }
+
+    public @Override WMTSStoreInfo getWMTSStore(String id) {
+        return catalog.getWMTSStore(id);
+    }
+
+    public @Override WMTSStoreInfo getWMTSStoreByName(String name) {
+        return catalog.getWMTSStoreByName(name);
     }
 
     public @Override <T extends StoreInfo> List<T> getStoresByWorkspace(

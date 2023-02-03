@@ -41,7 +41,7 @@ jobs:
     - name: Validate source code formatting
       run: make lint
 
-    - name: Build GeoServer 2.21.0-CLOUD
+    - name: Build GeoServer 2.22.1-CLOUD
       run: |
         make deps 
 

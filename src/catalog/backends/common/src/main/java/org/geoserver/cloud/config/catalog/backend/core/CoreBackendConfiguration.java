@@ -4,6 +4,8 @@
  */
 package org.geoserver.cloud.config.catalog.backend.core;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.LayerGroupVisibilityPolicy;
 import org.geoserver.catalog.impl.AdvertisedCatalog;
@@ -16,13 +18,18 @@ import org.geoserver.config.GeoServerDataDirectory;
 import org.geoserver.config.GeoServerFacade;
 import org.geoserver.config.plugin.GeoServerImpl;
 import org.geoserver.config.util.XStreamPersisterFactory;
+import org.geoserver.platform.GeoServerEnvironment;
 import org.geoserver.platform.GeoServerExtensions;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.security.SecureCatalogImpl;
+import org.geoserver.security.impl.DataAccessRuleDAO;
+import org.geoserver.security.impl.DefaultResourceAccessManager;
+import org.geoserver.security.impl.LayerGroupContainmentCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ApplicationEvent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
@@ -31,6 +38,7 @@ import org.springframework.context.annotation.DependsOn;
 // GeoServerExtensions still being created
 @Configuration(proxyBeanMethods = true)
 @EnableConfigurationProperties(CatalogProperties.class)
+@Slf4j
 public class CoreBackendConfiguration {
 
     public @Bean XStreamPersisterFactory xstreamPersisterFactory() {
@@ -46,6 +54,13 @@ public class CoreBackendConfiguration {
 
     public @Bean GeoServerExtensions extensions() {
         return new GeoServerExtensions();
+    }
+
+    /** Usually provided by gs-main */
+    @ConditionalOnMissingBean
+    @DependsOn("extensions")
+    public @Bean GeoServerEnvironment environments() {
+        return new GeoServerEnvironment();
     }
 
     @ConditionalOnMissingBean(CatalogPlugin.class)
@@ -72,6 +87,49 @@ public class CoreBackendConfiguration {
             throws Exception {
         if (properties.isSecure()) return new SecureCatalogImpl(rawCatalog);
         return rawCatalog;
+    }
+
+    // Added in 2.22.x
+    //  <bean id="defaultResourceAccessManager"
+    // class="org.geoserver.security.impl.DefaultResourceAccessManager">
+    //    <constructor-arg ref="accessRulesDao"/>
+    //    <constructor-arg ref="rawCatalog"/>
+    //    <property name="groupsCache" ref="layerGroupContainmentCache"/>
+    //  </bean>
+    @ConditionalOnMissingBean
+    @DependsOn("layerGroupContainmentCache")
+    public @Bean DefaultResourceAccessManager defaultResourceAccessManager( //
+            DataAccessRuleDAO dao, //
+            @Qualifier("rawCatalog") Catalog rawCatalog) {
+        return new DefaultResourceAccessManager(dao, rawCatalog);
+    }
+
+    // Added in 2.22.x
+    //  <bean id="layerGroupContainmentCache"
+    // class="org.geoserver.security.impl.LayerGroupContainmentCache">
+    //    <constructor-arg ref="rawCatalog"/>
+    //  </bean>
+    @ConditionalOnMissingBean
+    public @Bean LayerGroupContainmentCache layerGroupContainmentCache(
+            @Qualifier("rawCatalog") Catalog rawCatalog) {
+        return new LayerGroupContainmentCache(rawCatalog) {
+
+            @Override
+            public void onApplicationEvent(ApplicationEvent applicationEvent) {
+                try {
+                    super.onApplicationEvent(applicationEvent);
+                } catch (RuntimeException e) {
+                    String p = applicationEvent.getClass().getPackage().getName();
+                    if (p.startsWith("org.springframework.test.context.event")) {
+                        // ignore, spring-test sends events when the catalog is unavailable (e.g.
+                        // jdbcconfig db closed)
+                        log.debug("Error handling " + applicationEvent, e);
+                    } else {
+                        throw e;
+                    }
+                }
+            }
+        };
     }
 
     @ConditionalOnGeoServerSecurityDisabled

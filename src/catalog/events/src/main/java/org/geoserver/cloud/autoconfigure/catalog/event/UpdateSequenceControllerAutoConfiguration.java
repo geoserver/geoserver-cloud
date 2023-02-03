@@ -4,7 +4,10 @@
  */
 package org.geoserver.cloud.autoconfigure.catalog.event;
 
+import org.geoserver.config.GeoServer;
+import org.geoserver.platform.config.UpdateSequence;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -17,7 +20,11 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 @EnableGlobalMethodSecurity(jsr250Enabled = true)
 public class UpdateSequenceControllerAutoConfiguration {
 
-    public @Bean UpdateSequenceController updateSequenceController() {
-        return new UpdateSequenceController();
+    public @Bean UpdateSequenceController updateSequenceController( //
+            UpdateSequence updateSequence, //
+            ApplicationEventPublisher eventPublisher, //
+            GeoServer geoServer //
+            ) {
+        return new UpdateSequenceController(updateSequence, eventPublisher, geoServer);
     }
 }

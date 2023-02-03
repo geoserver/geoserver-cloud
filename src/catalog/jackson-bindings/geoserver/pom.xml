@@ -11,6 +11,11 @@
   <description>GeoServer Catalog/Config Jackson databind bindings</description>
   <dependencies>
     <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.geoserver.cloud.catalog.jackson</groupId>
       <artifactId>gt-jackson-bindings</artifactId>
     </dependency>

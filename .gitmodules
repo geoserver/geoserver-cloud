@@ -5,5 +5,5 @@
 [submodule "geoserver"]
 	path = geoserver_submodule/geoserver
 	url = https://github.com/groldan/geoserver.git
-	branch = geoserver-cloud_integration
+	branch = gscloud/2.22.x/integration
 	shallow = true

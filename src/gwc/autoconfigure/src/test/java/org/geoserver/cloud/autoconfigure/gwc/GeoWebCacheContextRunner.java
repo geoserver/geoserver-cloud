@@ -12,6 +12,7 @@ import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerDataDirectory;
 import org.geoserver.config.plugin.GeoServerImpl;
 import org.geoserver.config.util.XStreamPersisterFactory;
+import org.geoserver.platform.GeoServerEnvironment;
 import org.geoserver.platform.GeoServerExtensions;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.ResourceStore;
@@ -56,6 +57,10 @@ public class GeoWebCacheContextRunner {
                 .withBean("resourceStoreImpl", ResourceStore.class, () -> store)
                 .withBean("resourceLoader", GeoServerResourceLoader.class, () -> gsReourceLoader)
                 .withBean("extensions", GeoServerExtensions.class, () -> new GeoServerExtensions())
+                .withBean(
+                        "environments",
+                        GeoServerEnvironment.class,
+                        () -> new GeoServerEnvironment())
                 .withBean(
                         "geoServerSecurityManager",
                         GeoServerSecurityManager.class,

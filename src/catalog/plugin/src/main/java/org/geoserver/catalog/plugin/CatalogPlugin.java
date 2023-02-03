@@ -420,8 +420,24 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
         return unmodifiableList(facade.getStoresByWorkspace(workspace, clazz));
     }
 
-    public @Override /* <T extends StoreInfo> List<T> */ List getStores(Class /* <T> */ clazz) {
+    public @Override <T extends StoreInfo> List<T> getStores(Class<T> clazz) {
         return unmodifiableList(facade.getStores(clazz));
+    }
+
+    public @Override WMSStoreInfo getWMSStore(String id) {
+        return getStore(id, WMSStoreInfo.class);
+    }
+
+    public @Override WMSStoreInfo getWMSStoreByName(String name) {
+        return getStoreByName(name, WMSStoreInfo.class);
+    }
+
+    public @Override WMTSStoreInfo getWMTSStore(String id) {
+        return getStore(id, WMTSStoreInfo.class);
+    }
+
+    public @Override WMTSStoreInfo getWMTSStoreByName(String name) {
+        return getStoreByName(name, WMTSStoreInfo.class);
     }
 
     public @Override DataStoreInfo getDataStore(String id) {

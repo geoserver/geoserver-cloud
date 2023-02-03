@@ -30,6 +30,7 @@ import org.geoserver.wps.ProcessInfo;
 import org.geotools.coverage.grid.io.OverviewPolicy;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -121,6 +122,16 @@ public abstract @Data @Generated class Service extends ConfigInfoDto {
          * @since geoserver 2.20.0
          */
         private Map<String, String> internationalRootLayerAbstract;
+
+        /**
+         * @since geoserver 2.22.0
+         */
+        private List<String> allowedURLsForAuthForwarding;
+
+        /**
+         * @since geoserver 2.22.0
+         */
+        private boolean autoEscapeTemplateValues;
     }
 
     @EqualsAndHashCode(callSuper = true)
@@ -138,6 +149,15 @@ public abstract @Data @Generated class Service extends ConfigInfoDto {
         private List<String> SRS;
         private Boolean allowGlobalQueries;
         private boolean simpleConversionEnabled;
+
+        /**
+         * @since geoserver 2.22.0
+         */
+        private boolean getFeatureOutputTypeCheckingEnabled;
+        /**
+         * @since geoserver 2.22.0
+         */
+        private Set<String> getFeatureOutputTypes = new HashSet<>();
     }
 
     @EqualsAndHashCode(callSuper = true)

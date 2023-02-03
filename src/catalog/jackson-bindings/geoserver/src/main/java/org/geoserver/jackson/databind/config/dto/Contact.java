@@ -85,4 +85,14 @@ public @Data @Generated class Contact {
      * @since geoserver 2.20.0
      */
     private Map<String, String> internationalContactEmail;
+
+    /**
+     * @since geoserver 2.22.0
+     */
+    private String welcome;
+
+    /**
+     * @since geoserver 2.22.0
+     */
+    private Map<String, String> internationalWelcome;
 }

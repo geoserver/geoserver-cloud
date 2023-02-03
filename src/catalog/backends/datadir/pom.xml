@@ -11,6 +11,11 @@
   <description>Autoconfigurations for using a shared data-directory as Catalog and config backend</description>
   <dependencies>
     <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.geoserver.community</groupId>
       <artifactId>gs-datadir-catalog-loader</artifactId>
     </dependency>
