@@ -12,10 +12,9 @@ import lombok.Generated;
 
 import org.geoserver.config.SettingsInfo;
 import org.geoserver.jackson.databind.catalog.dto.InfoReference;
+import org.geoserver.jackson.databind.catalog.dto.MetadataMapDto;
 
-import java.io.Serializable;
 import java.util.Locale;
-import java.util.Map;
 
 /** DTO for {@link SettingsInfo} */
 @EqualsAndHashCode(callSuper = true)
@@ -31,7 +30,7 @@ public @Data @Generated class Settings extends ConfigInfoDto {
     private String schemaBaseUrl;
     private boolean verbose;
     private boolean verboseExceptions;
-    private Map<String, Serializable> metadata;
+    private MetadataMapDto metadata;
     // seems not to be used at all in geoserver
     // Map<Object, Object> clientProperties;
     private boolean localWorkspaceIncludesPrefix;

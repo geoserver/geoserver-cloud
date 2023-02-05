@@ -10,7 +10,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Generated;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -48,7 +47,7 @@ public abstract class Resource extends CatalogInfoDto {
     private ProjectionPolicy projectionPolicy;
     private boolean enabled;
     private Boolean advertised;
-    private Map<String, Serializable> metadata;
+    private MetadataMapDto metadata;
     private boolean serviceConfiguration;
     private List<String> disabledServices;
     private Boolean simpleConversionEnabled;

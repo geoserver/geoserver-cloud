@@ -6,6 +6,8 @@ package org.geoserver.jackson.databind.config.dto.mapper;
 
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.Info;
+import org.geoserver.cog.CogSettings;
+import org.geoserver.cog.CogSettingsStore;
 import org.geoserver.config.ContactInfo;
 import org.geoserver.config.CoverageAccessInfo;
 import org.geoserver.config.GeoServerInfo;
@@ -18,6 +20,8 @@ import org.geoserver.gwc.wmts.WMTSInfoImpl;
 import org.geoserver.jackson.databind.catalog.dto.CatalogInfoDto;
 import org.geoserver.jackson.databind.catalog.dto.InfoDto;
 import org.geoserver.jackson.databind.catalog.mapper.CatalogInfoMapper;
+import org.geoserver.jackson.databind.config.dto.CogSettingsDto;
+import org.geoserver.jackson.databind.config.dto.CogSettingsStoreDto;
 import org.geoserver.jackson.databind.config.dto.ConfigInfoDto;
 import org.geoserver.jackson.databind.config.dto.Contact;
 import org.geoserver.jackson.databind.config.dto.CoverageAccess;
@@ -180,4 +184,12 @@ public interface GeoServerConfigMapper {
     WMTSInfoImpl toInfo(Service.WmtsService dto);
 
     Service.WmtsService toDto(WMTSInfo info);
+
+    CogSettings cogSettings(CogSettingsDto dto);
+
+    CogSettingsDto cogSettings(CogSettings info);
+
+    CogSettingsStore cogSettingsStore(CogSettingsStoreDto dto);
+
+    CogSettingsStoreDto cogSettingsStore(CogSettingsStore info);
 }
