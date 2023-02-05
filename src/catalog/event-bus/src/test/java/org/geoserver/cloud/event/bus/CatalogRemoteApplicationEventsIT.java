@@ -13,19 +13,23 @@ import org.geoserver.catalog.AttributeTypeInfo;
 import org.geoserver.catalog.AttributionInfo;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogBuilder;
+import org.geoserver.catalog.CoverageStoreInfo;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.LayerInfo.WMSInterpolation;
+import org.geoserver.catalog.MetadataMap;
 import org.geoserver.catalog.PublishedType;
 import org.geoserver.catalog.WMSLayerInfo;
 import org.geoserver.catalog.WMTSLayerInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.AttributionInfoImpl;
+import org.geoserver.catalog.impl.CoverageStoreInfoImpl;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.Patch.Property;
 import org.geoserver.catalog.plugin.PropertyDiffTestSupport;
+import org.geoserver.cloud.event.catalog.CatalogInfoAdded;
 import org.geoserver.cloud.event.catalog.CatalogInfoRemoved;
 import org.geoserver.cloud.event.catalog.DefaultDataStoreSet;
 import org.geoserver.cloud.event.catalog.DefaultNamespaceSet;
@@ -33,6 +37,8 @@ import org.geoserver.cloud.event.catalog.DefaultWorkspaceSet;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoEvent;
 import org.geoserver.cloud.event.info.InfoModified;
+import org.geoserver.cog.CogSettings.RangeReaderType;
+import org.geoserver.cog.CogSettingsStore;
 import org.geotools.data.DataUtilities;
 import org.geotools.feature.SchemaException;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -43,6 +49,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
@@ -253,6 +260,68 @@ public class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
                     cs.getMetadata().put("md-int-key", 1000);
                 },
                 catalog::save);
+    }
+
+    public @Test void tesAddCoverageStore_COG() {
+        CoverageStoreInfo store = createCOGStoreInfo();
+        RemoteGeoServerEvent remoteEvent = testRemoteCatalogInfoAddEvent(store, catalog::add);
+
+        store = catalog.getCoverageStoreByName(testData.workspaceA.getName(), store.getName());
+        assertNotNull(store);
+
+        CatalogInfoAdded event = (CatalogInfoAdded) remoteEvent.getEvent();
+        CoverageStoreInfo sentObject = (CoverageStoreInfo) event.getObject();
+        MetadataMap metadata = sentObject.getMetadata();
+        assertThat(metadata).containsKey("cogSettings");
+        assertThat(metadata.get("cogSettings")).isInstanceOf(CogSettingsStore.class);
+    }
+
+    private CoverageStoreInfo createCOGStoreInfo() {
+        setupClean();
+        catalog.add(testData.workspaceA);
+        catalog.add(testData.namespaceA);
+
+        final String cogUrl =
+                "https://s3-us-west-2.amazonaws.com/sentinel-cogs/sentinel-s2-l2a-cogs/5/C/MK/2018/10/S2B_5CMK_20181020_0_L2A/B01.tif";
+        CoverageStoreInfo store = new CoverageStoreInfoImpl(catalog);
+        store.setWorkspace(testData.workspaceA);
+        store.setName("COG");
+        store.setEnabled(true);
+        store.setDisableOnConnFailure(true);
+        store.setType("GeoTIFF");
+        store.setURL(cogUrl);
+
+        CogSettingsStore cogSettings = new CogSettingsStore();
+        cogSettings.setRangeReaderSettings(RangeReaderType.HTTP);
+        store.getMetadata().put("cogSettings", cogSettings);
+
+        return store;
+    }
+
+    public @Test void testModifyEventsCoverageStore_COG() {
+        setupClean();
+        CoverageStoreInfo store = testData.coverageStoreA;
+
+        CogSettingsStore cogSettings = new CogSettingsStore();
+        cogSettings.setRangeReaderSettings(RangeReaderType.S3);
+        cogSettings.setUsername("user");
+
+        Patch patch =
+                testCatalogInfoModifyEventNoEquals(
+                        store,
+                        cs -> {
+                            cs.getMetadata().put("cogSettings", cogSettings);
+                        },
+                        catalog::save);
+
+        store = catalog.getCoverageStoreByName(testData.workspaceA.getName(), store.getName());
+        assertNotNull(store);
+
+        Map<?, ?> md = (Map<?, ?>) patch.get("metadata").orElseThrow().getValue();
+        CogSettingsStore settings = (CogSettingsStore) md.get("cogSettings");
+        assertThat(settings).isNotNull();
+        assertThat(settings.getUsername()).isEqualTo("user");
+        assertThat(settings.getRangeReaderSettings()).isEqualTo(RangeReaderType.S3);
     }
 
     public @Test void testModifyEventsWMSStore() {

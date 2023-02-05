@@ -20,6 +20,7 @@ import org.geoserver.catalog.KeywordInfo;
 import org.geoserver.catalog.LayerIdentifierInfo;
 import org.geoserver.catalog.LegendInfo;
 import org.geoserver.catalog.MetadataLinkInfo;
+import org.geoserver.catalog.MetadataMap;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.Query;
@@ -35,6 +36,7 @@ import org.geoserver.jackson.databind.catalog.dto.Keyword;
 import org.geoserver.jackson.databind.catalog.dto.LayerIdentifier;
 import org.geoserver.jackson.databind.catalog.dto.Legend;
 import org.geoserver.jackson.databind.catalog.dto.MetadataLink;
+import org.geoserver.jackson.databind.catalog.dto.MetadataMapDto;
 import org.geoserver.jackson.databind.catalog.dto.NumberRangeDto;
 import org.geoserver.jackson.databind.catalog.dto.PatchDto;
 import org.geoserver.jackson.databind.catalog.dto.QueryDto;
@@ -229,6 +231,12 @@ public class GeoServerCatalogModule extends SimpleModule {
                 VALUE_MAPPER::infoToDto,
                 AttributeType.class,
                 VALUE_MAPPER::dtoToInfo);
+
+        addMapperSerializer(
+                MetadataMap.class,
+                VALUE_MAPPER::metadataMap,
+                MetadataMapDto.class,
+                VALUE_MAPPER::metadataMap);
     }
 
     private void registerSharedMappers() {

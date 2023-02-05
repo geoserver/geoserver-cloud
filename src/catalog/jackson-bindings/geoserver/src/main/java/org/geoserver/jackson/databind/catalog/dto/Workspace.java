@@ -10,9 +10,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Generated;
 
-import java.io.Serializable;
-import java.util.Map;
-
 @Data
 @Generated
 @EqualsAndHashCode(callSuper = true)
@@ -20,5 +17,5 @@ import java.util.Map;
 public class Workspace extends CatalogInfoDto {
     private String name;
     private boolean isolated;
-    private Map<String, Serializable> metadata;
+    private MetadataMapDto metadata;
 }

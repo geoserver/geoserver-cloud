@@ -281,12 +281,13 @@ public abstract class BusAmqpIntegrationTests {
         return type;
     }
 
-    protected <T extends Info> void testRemoteCatalogInfoAddEvent(T info, Consumer<T> addOp) {
-        testRemoteAddEvent(info, addOp, CatalogInfoAdded.class);
+    protected <T extends Info> RemoteGeoServerEvent testRemoteCatalogInfoAddEvent(
+            T info, Consumer<T> addOp) {
+        return testRemoteAddEvent(info, addOp, CatalogInfoAdded.class);
     }
 
     @SuppressWarnings({"rawtypes"})
-    protected <T extends Info> void testRemoteAddEvent(
+    protected <T extends Info> RemoteGeoServerEvent testRemoteAddEvent(
             T info, Consumer<T> addOp, Class<? extends InfoAdded> eventType) {
 
         this.eventsCaptor.stop().clear().capureEventsOf(eventType);
@@ -308,6 +309,7 @@ public abstract class BusAmqpIntegrationTests {
         assertThat(remoteRemoteEvent.getEvent().isRemote()).isTrue();
         assertThat(remoteRemoteEvent.getEvent().isLocal()).isFalse();
         assertRemoteEvent(info, remoteRemoteEvent);
+        return remoteRemoteEvent;
     }
 
     @SuppressWarnings("rawtypes")

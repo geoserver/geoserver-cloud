@@ -14,6 +14,6 @@ import org.geotools.jackson.databind.util.ObjectMapperUtil;
 public class GeoServerCatalogModule_JsonTest extends GeoServerCatalogModuleTest {
 
     protected @Override ObjectMapper newObjectMapper() {
-        return ObjectMapperUtil.newYAMLObjectMapper();
+        return ObjectMapperUtil.newObjectMapper();
     }
 }

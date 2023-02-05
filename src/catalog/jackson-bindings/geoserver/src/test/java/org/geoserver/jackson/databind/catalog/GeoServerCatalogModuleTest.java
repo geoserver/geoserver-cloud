@@ -24,6 +24,7 @@ import org.geoserver.catalog.CatalogBuilder;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.CatalogTestData;
 import org.geoserver.catalog.CoverageDimensionInfo;
+import org.geoserver.catalog.CoverageStoreInfo;
 import org.geoserver.catalog.DataLinkInfo;
 import org.geoserver.catalog.DimensionInfo;
 import org.geoserver.catalog.FeatureTypeInfo;
@@ -35,6 +36,7 @@ import org.geoserver.catalog.LayerIdentifierInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.LegendInfo;
 import org.geoserver.catalog.MetadataLinkInfo;
+import org.geoserver.catalog.MetadataMap;
 import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.SLDHandler;
@@ -49,6 +51,8 @@ import org.geoserver.catalog.impl.LegendInfoImpl;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.Query;
+import org.geoserver.cog.CogSettings.RangeReaderType;
+import org.geoserver.cog.CogSettingsStore;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.impl.ContactInfoImpl;
 import org.geoserver.config.plugin.GeoServerImpl;
@@ -64,6 +68,7 @@ import org.geotools.jdbc.VirtualTable;
 import org.geotools.measure.Measure;
 import org.geotools.referencing.CRS;
 import org.geotools.util.NumberRange;
+import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -80,11 +85,13 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import si.uom.SI;
 
+import java.io.Serializable;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * Verifies that all {@link CatalogInfo} can be sent over the wire and parsed back using jackson,
@@ -125,7 +132,7 @@ public abstract class GeoServerCatalogModuleTest {
     protected abstract ObjectMapper newObjectMapper();
 
     @SuppressWarnings("unchecked")
-    private <T extends CatalogInfo> void catalogInfoRoundtripTest(final T orig)
+    private <T extends CatalogInfo> T catalogInfoRoundtripTest(final T orig)
             throws JsonProcessingException {
         ObjectWriter writer = objectMapper.writer();
         writer = writer.withDefaultPrettyPrinter();
@@ -162,6 +169,8 @@ public abstract class GeoServerCatalogModuleTest {
 
         data.assertEqualsLenientConnectionParameters(unproxied, decoded);
         data.assertInternationalStringPropertiesEqual(unproxied, decoded);
+
+        return decoded;
     }
 
     public @Test void testWorkspace() throws Exception {
@@ -190,6 +199,19 @@ public abstract class GeoServerCatalogModuleTest {
 
     public @Test void testCoverageStore() throws Exception {
         catalogInfoRoundtripTest(data.coverageStoreA);
+    }
+
+    public @Test void testCoverageStore_COG() throws Exception {
+        CoverageStoreInfo store = data.coverageStoreA;
+        CogSettingsStore cogSettings = new CogSettingsStore();
+        cogSettings.setRangeReaderSettings(RangeReaderType.Azure);
+        cogSettings.setUseCachingStream(true);
+        store.getMetadata().put("cogSettings", cogSettings);
+
+        CoverageStoreInfo decoded = catalogInfoRoundtripTest(store);
+
+        Serializable deserializedCogSettings = decoded.getMetadata().get("cogSettings");
+        assertThat(deserializedCogSettings, CoreMatchers.instanceOf(CogSettingsStore.class));
     }
 
     public @Test void testWmsStore() throws Exception {
@@ -410,6 +432,11 @@ public abstract class GeoServerCatalogModuleTest {
             expectedDecodedType = unwrap.getClass();
         }
 
+        return testFilterLiteral(value, expectedDecodedType);
+    }
+
+    protected <T> T testFilterLiteral(T value, Class<? extends Object> expectedDecodedType)
+            throws JsonProcessingException {
         PropertyIsEqualTo filter = equals("literalTestProp", value);
         PropertyIsEqualTo decodedFilter = roundTrip(filter, Filter.class);
         assertEquals(filter.getExpression1(), decodedFilter.getExpression1());
@@ -442,12 +469,17 @@ public abstract class GeoServerCatalogModuleTest {
     }
 
     private <T> T roundTrip(T orig, Class<? super T> clazz) throws JsonProcessingException {
+        return roundTrip(orig, clazz, clazz);
+    }
+
+    private <T, V> V roundTrip(T orig, Class<? super T> source, Class<? super V> target)
+            throws JsonProcessingException {
         ObjectWriter writer = objectMapper.writer();
         writer = writer.withDefaultPrettyPrinter();
         String encoded = writer.writeValueAsString(orig);
         print("encoded: {}", encoded);
         @SuppressWarnings("unchecked")
-        T decoded = (T) objectMapper.readValue(encoded, clazz);
+        V decoded = (V) objectMapper.readValue(encoded, target);
         print("decoded: {}", decoded);
         return decoded;
     }
@@ -622,6 +654,18 @@ public abstract class GeoServerCatalogModuleTest {
     public @Test void testValueVirtualTable() throws Exception {
         VirtualTable vt = new VirtualTable("testvt", "select * from test;", true);
         testValueWithEquals(vt, VirtualTable.class);
+    }
+
+    public @Test void testValueMetadataMap() throws Exception {
+        MetadataMap mdm = new MetadataMap();
+        mdm.put("k1", "v1");
+        mdm.put("k2", "v2");
+        mdm.put("k3", null);
+
+        var decoded = roundTrip(mdm, MetadataMap.class);
+        assertEquals(mdm, decoded);
+        decoded = testFilterLiteral(mdm, Map.class);
+        assertEquals(mdm, decoded);
     }
 
     public @Test void testQuery() throws Exception {

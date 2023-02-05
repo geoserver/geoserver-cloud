@@ -14,6 +14,7 @@ import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.LayerIdentifierInfo;
 import org.geoserver.catalog.LegendInfo;
 import org.geoserver.catalog.MetadataLinkInfo;
+import org.geoserver.catalog.MetadataMap;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.plugin.Query;
 import org.geoserver.config.util.XStreamPersister;
@@ -28,6 +29,7 @@ import org.geoserver.jackson.databind.catalog.dto.GridGeometryDto;
 import org.geoserver.jackson.databind.catalog.dto.LayerIdentifier;
 import org.geoserver.jackson.databind.catalog.dto.Legend;
 import org.geoserver.jackson.databind.catalog.dto.MetadataLink;
+import org.geoserver.jackson.databind.catalog.dto.MetadataMapDto;
 import org.geoserver.jackson.databind.catalog.dto.NumberRangeDto;
 import org.geoserver.jackson.databind.catalog.dto.QueryDto;
 import org.geoserver.jackson.databind.catalog.dto.VirtualTableDto;
@@ -35,6 +37,7 @@ import org.geoserver.jackson.databind.mapper.SharedMappers;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.data.util.MeasureConverterFactory;
+import org.geotools.jackson.databind.filter.dto.Literal;
 import org.geotools.jdbc.VirtualTable;
 import org.geotools.measure.Measure;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
@@ -54,6 +57,7 @@ import org.opengis.util.InternationalString;
 import org.slf4j.LoggerFactory;
 
 import java.awt.geom.AffineTransform;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
@@ -190,7 +194,7 @@ public interface ValueMappers {
 
     AttributeType infoToDto(AttributeTypeInfo o);
 
-    //    @Mapping(target = "featureType", ignore = true)
+    // @Mapping(target = "featureType", ignore = true)
     @Mapping(target = "attribute", ignore = true)
     AttributeTypeInfo dtoToInfo(AttributeType o);
 
@@ -282,5 +286,27 @@ public interface ValueMappers {
         GrowableInternationalString gs = new GrowableInternationalString();
         s.forEach((locale, value) -> gs.add(stringToLocale(locale), value));
         return gs;
+    }
+
+    default MetadataMapDto metadataMap(MetadataMap md) {
+        if (md == null) return null;
+        MetadataMapDto dto = new MetadataMapDto();
+        md.forEach(
+                (k, v) -> {
+                    Literal l = Literal.valueOf(v);
+                    dto.put(k, l);
+                });
+        return dto;
+    }
+
+    default MetadataMap metadataMap(MetadataMapDto dto) {
+        if (dto == null) return null;
+        MetadataMap md = new MetadataMap();
+        dto.forEach(
+                (k, l) -> {
+                    Object v = l.getValue();
+                    md.put(k, (Serializable) v);
+                });
+        return md;
     }
 }

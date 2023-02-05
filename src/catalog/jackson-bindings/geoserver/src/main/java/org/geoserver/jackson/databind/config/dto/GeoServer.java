@@ -11,9 +11,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Generated;
 
 import org.geoserver.config.GeoServerInfo;
-
-import java.io.Serializable;
-import java.util.Map;
+import org.geoserver.jackson.databind.catalog.dto.MetadataMapDto;
 
 /** DTO for {@link GeoServerInfo} */
 @EqualsAndHashCode(callSuper = true)
@@ -33,7 +31,7 @@ public @Data @Generated class GeoServer extends ConfigInfoDto {
     private Settings settings;
     private JaiDto JAI;
     private CoverageAccess coverageAccess;
-    private Map<String, Serializable> metadata;
+    private MetadataMapDto metadata;
     // not used
     // private Map<Object, Object> clientProperties;
     private long updateSequence;

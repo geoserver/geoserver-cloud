@@ -10,9 +10,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Generated;
 
-import java.io.Serializable;
-import java.util.Map;
-
 @Data
 @Generated
 @EqualsAndHashCode(callSuper = true)
@@ -25,5 +22,5 @@ public class Style extends CatalogInfoDto {
     private VersionDto formatVersion;
     private String filename;
     private Legend legend;
-    private Map<String, Serializable> metadata;
+    private MetadataMapDto metadata;
 }

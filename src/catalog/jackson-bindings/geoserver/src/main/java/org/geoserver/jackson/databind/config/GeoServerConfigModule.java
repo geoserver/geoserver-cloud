@@ -11,6 +11,8 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import lombok.extern.slf4j.Slf4j;
 
 import org.geoserver.catalog.Info;
+import org.geoserver.cog.CogSettings;
+import org.geoserver.cog.CogSettingsStore;
 import org.geoserver.config.ContactInfo;
 import org.geoserver.config.CoverageAccessInfo;
 import org.geoserver.config.GeoServerInfo;
@@ -21,6 +23,8 @@ import org.geoserver.config.SettingsInfo;
 import org.geoserver.gwc.wmts.WMTSInfo;
 import org.geoserver.jackson.databind.catalog.GeoServerCatalogModule;
 import org.geoserver.jackson.databind.catalog.dto.InfoDto;
+import org.geoserver.jackson.databind.config.dto.CogSettingsDto;
+import org.geoserver.jackson.databind.config.dto.CogSettingsStoreDto;
 import org.geoserver.jackson.databind.config.dto.Contact;
 import org.geoserver.jackson.databind.config.dto.CoverageAccess;
 import org.geoserver.jackson.databind.config.dto.GeoServer;
@@ -120,6 +124,17 @@ public class GeoServerConfigModule extends SimpleModule {
                 VALUE_MAPPER::contactInfo,
                 Contact.class,
                 VALUE_MAPPER::contactInfo);
+
+        addMapperSerializer(
+                CogSettings.class,
+                VALUE_MAPPER::cogSettings,
+                CogSettingsDto.class,
+                VALUE_MAPPER::cogSettings);
+        addMapperSerializer(
+                CogSettingsStore.class,
+                VALUE_MAPPER::cogSettingsStore,
+                CogSettingsStoreDto.class,
+                VALUE_MAPPER::cogSettingsStore);
     }
 
     private <T, DTO> void addMapperSerializer(

@@ -16,6 +16,8 @@ import org.geoserver.cloud.event.config.ServiceModified;
 import org.geoserver.cloud.event.config.ServiceRemoved;
 import org.geoserver.cloud.event.config.SettingsAdded;
 import org.geoserver.cloud.event.config.SettingsRemoved;
+import org.geoserver.cog.CogSettings;
+import org.geoserver.cog.CogSettings.RangeReaderType;
 import org.geoserver.config.CoverageAccessInfo;
 import org.geoserver.config.CoverageAccessInfo.QueueType;
 import org.geoserver.config.GeoServerInfo;
@@ -32,6 +34,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Locale;
+import java.util.Map;
 
 public class ConfigRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
 
@@ -203,5 +206,26 @@ public class ConfigRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
                 testRemoteRemoveEvent(service, geoserver::remove, ServiceRemoved.class);
 
         assertThat(event.getWorkspaceId()).isEqualTo(testData.workspaceC.getId());
+    }
+
+    public @Test void testGeoServerInfoMetadatamapWithCogSettings() {
+        GeoServerInfo global = geoserver.getGlobal();
+        assertNotNull(global);
+
+        CogSettings cogSettings = new CogSettings();
+        cogSettings.setRangeReaderSettings(RangeReaderType.S3);
+        cogSettings.setUseCachingStream(true);
+
+        Patch patch =
+                testConfigInfoModifyEventNoEquals(
+                        global,
+                        gs -> gs.getMetadata().put("cogSettings", cogSettings),
+                        geoserver::save);
+
+        Map<?, ?> md = (Map<?, ?>) patch.get("metadata").orElseThrow().getValue();
+        CogSettings settings = (CogSettings) md.get("cogSettings");
+        assertThat(settings).isNotNull();
+        assertThat(settings.isUseCachingStream()).isTrue();
+        assertThat(settings.getRangeReaderSettings()).isEqualTo(RangeReaderType.S3);
     }
 }

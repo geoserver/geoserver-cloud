@@ -19,6 +19,7 @@ import org.geoserver.gwc.wmts.WMTSInfo;
 import org.geoserver.jackson.databind.catalog.dto.InfoReference;
 import org.geoserver.jackson.databind.catalog.dto.Keyword;
 import org.geoserver.jackson.databind.catalog.dto.MetadataLink;
+import org.geoserver.jackson.databind.catalog.dto.MetadataMapDto;
 import org.geoserver.security.CatalogMode;
 import org.geoserver.wfs.GMLInfoImpl;
 import org.geoserver.wfs.WFSInfo.ServiceLevel;
@@ -29,7 +30,6 @@ import org.geoserver.wps.ProcessGroupInfo;
 import org.geoserver.wps.ProcessInfo;
 import org.geotools.coverage.grid.io.OverviewPolicy;
 
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -63,7 +63,7 @@ public abstract @Data @Generated class Service extends ConfigInfoDto {
     private String outputStrategy;
     private String schemaBaseURL;
     private boolean verbose;
-    private Map<String, Serializable> metadata;
+    private MetadataMapDto metadata;
     // not used
     // Map<Object, Object> clientProperties;
 
@@ -198,7 +198,7 @@ public abstract @Data @Generated class Service extends ConfigInfoDto {
             private String factoryClass;
             private boolean isEnabled;
             private List<WpsService.Process> filteredProcesses;
-            private Map<String, Serializable> metadata;
+            private MetadataMapDto metadata;
             private List<String> roles;
         }
         /** DTO for {@link ProcessInfo} */

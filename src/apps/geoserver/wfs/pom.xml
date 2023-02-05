@@ -32,12 +32,6 @@
       <artifactId>gs-cloud-starter-vector-formats</artifactId>
     </dependency>
     <dependency>
-      <!-- the catalog and distributed catalog change events could eventually need access to raster formats -->
-      <!-- in the future some sort of limited catalog support could be implemented to ignore certain store types -->
-      <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-starter-raster-formats</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.geoserver</groupId>
       <artifactId>gs-wfs</artifactId>
     </dependency>

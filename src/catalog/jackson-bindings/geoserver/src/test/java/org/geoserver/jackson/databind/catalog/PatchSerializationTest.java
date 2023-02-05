@@ -7,6 +7,7 @@ package org.geoserver.jackson.databind.catalog;
 import static com.google.common.collect.Lists.newArrayList;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -32,15 +33,20 @@ import org.geoserver.catalog.Info;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.LayerInfo.WMSInterpolation;
 import org.geoserver.catalog.LegendInfo;
+import org.geoserver.catalog.MetadataMap;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.PublishedType;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.faker.CatalogFaker;
+import org.geoserver.catalog.impl.CoverageStoreInfoImpl;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.Patch;
+import org.geoserver.cog.CogSettings;
+import org.geoserver.cog.CogSettings.RangeReaderType;
+import org.geoserver.cog.CogSettingsStore;
 import org.geoserver.config.ContactInfo;
 import org.geoserver.config.CoverageAccessInfo;
 import org.geoserver.config.CoverageAccessInfo.QueueType;
@@ -71,6 +77,7 @@ import org.geotools.referencing.CRS;
 import org.geotools.util.GrowableInternationalString;
 import org.geotools.util.NumberRange;
 import org.geotools.util.SimpleInternationalString;
+import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -83,8 +90,10 @@ import si.uom.SI;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -607,6 +616,59 @@ public abstract class PatchSerializationTest {
 
     public @Test void layerIdentifierInfo() throws Exception {
         testPatch("layerIdentifier", data.faker().layerIdentifierInfo());
+    }
+
+    public @Test void metadataMap() throws Exception {
+        MetadataMap md = data.faker().metadataMap("k1", "v1", "k2", 2);
+        Patch patch = testPatch("metadata", md);
+        assertThat(patch.get("metadata").orElseThrow().getValue()).isInstanceOf(HashMap.class);
+        CoverageStoreInfo s = new CoverageStoreInfoImpl(null);
+        patch.applyTo(s);
+        assertEquals(md, s.getMetadata());
+    }
+
+    public @Test void metadataMapWithCogSettings() throws Exception {
+        CogSettings cog = new CogSettings();
+        cog.setRangeReaderSettings(RangeReaderType.Azure);
+        cog.setUseCachingStream(true);
+
+        CogSettingsStore cogs = new CogSettingsStore(cog);
+        cogs.setUsername(null);
+        cogs.setPassword(null);
+
+        metadataMapWithCogSettings(cog, cogs);
+
+        cogs.setUsername("user");
+        cogs.setUsername("pwd");
+        metadataMapWithCogSettings(cog, cogs);
+    }
+
+    protected void metadataMapWithCogSettings(CogSettings cog, CogSettingsStore cogs)
+            throws JsonProcessingException {
+
+        MetadataMap mdm = new MetadataMap(Map.of("cogSettings", cog, "cogSettingsStore", cogs));
+
+        Patch patch = testPatchNoEquals(patch("metadata", mdm));
+        assertThat(patch.get("metadata").orElseThrow().getValue()).isInstanceOf(HashMap.class);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> decoded =
+                (Map<String, Object>) patch.get("metadata").orElseThrow().getValue();
+
+        assertThat(decoded.get("cogSettings"), CoreMatchers.instanceOf(CogSettings.class));
+        assertThat(
+                decoded.get("cogSettingsStore"), CoreMatchers.instanceOf(CogSettingsStore.class));
+        var c = (CogSettings) decoded.get("cogSettings");
+        var s = (CogSettingsStore) decoded.get("cogSettingsStore");
+        assertNotNull(c);
+        assertNotNull(s);
+
+        assertEquals(cog.getRangeReaderSettings(), c.getRangeReaderSettings());
+        assertEquals(cog.isUseCachingStream(), c.isUseCachingStream());
+
+        assertEquals(cogs.getRangeReaderSettings(), s.getRangeReaderSettings());
+        assertEquals(cogs.isUseCachingStream(), s.isUseCachingStream());
+        assertEquals(cogs.getUsername(), s.getUsername());
+        assertEquals(cogs.getPassword(), s.getPassword());
     }
 
     private Patch testPatch(String name, Object value) throws Exception {

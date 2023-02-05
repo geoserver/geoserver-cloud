@@ -10,9 +10,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Generated;
 
-import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 
 @JsonSubTypes({
     @JsonSubTypes.Type(value = Layer.class),
@@ -40,5 +38,5 @@ public abstract class Published extends CatalogInfoDto {
     private List<AuthorityURL> authorityURLs;
     private List<LayerIdentifier> identifiers;
     private Attribution attribution;
-    private Map<String, Serializable> metadata;
+    private MetadataMapDto metadata;
 }
