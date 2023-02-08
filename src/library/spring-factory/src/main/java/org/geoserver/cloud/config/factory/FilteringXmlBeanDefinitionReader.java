@@ -9,6 +9,7 @@ import static org.springframework.util.StringUtils.tokenizeToStringArray;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.geoserver.cloud.autoconfigure.factory.FilteringXmlBeanDefinitionReaderAutoConfiguration;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.xml.BeanDefinitionParserDelegate;
@@ -19,8 +20,11 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.lang.Nullable;
+import org.springframework.util.StopWatch;
 import org.springframework.util.StringUtils;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.xml.sax.InputSource;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -78,8 +82,56 @@ import java.util.regex.Pattern;
 @Slf4j(topic = "org.geoserver.cloud.config.factory")
 public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
 
+    /**
+     * Cache parsed XML documents by Resource URI, since many configurations can try to load
+     * different sets of beans from the same xml document
+     *
+     * @see FilteringXmlBeanDefinitionReaderAutoConfiguration
+     * @see #clearCaches()
+     */
+    private static Map<String, Document> classpathDocuments = new HashMap<>();
+
+    /**
+     * To be used by {@link #getAllClasspathResources}, caches all classpath resources to avoid
+     * loading them all for each location
+     *
+     * @see FilteringXmlBeanDefinitionReaderAutoConfiguration
+     * @see #clearCaches()
+     */
+    private static Resource[] allClasspathBaseResources;
+
     public FilteringXmlBeanDefinitionReader(BeanDefinitionRegistry registry) {
         super(registry);
+    }
+
+    /**
+     * Clears any cached resource, expected to be called after the application context is refreshed
+     */
+    public static void clearCaches() {
+        if (!classpathDocuments.isEmpty() || null != allClasspathBaseResources) {
+            log.debug(
+                    "Clearing cache of {} parsed xml documents and {} classpath resources",
+                    classpathDocuments.size(),
+                    null == allClasspathBaseResources ? 0 : allClasspathBaseResources.length);
+            classpathDocuments.clear();
+            allClasspathBaseResources = null;
+        }
+    }
+
+    protected @Override Document doLoadDocument(InputSource inputSource, Resource resource)
+            throws Exception {
+        return classpathDocuments.computeIfAbsent(
+                resource.getURI().toString(),
+                r -> {
+                    try {
+                        log.trace("Loading document {}", r);
+                        return super.doLoadDocument(inputSource, resource);
+                    } catch (Exception e) {
+                        if (e instanceof RuntimeException) throw (RuntimeException) e;
+                        throw (RuntimeException)
+                                new BeanDefinitionStoreException(e.getMessage()).initCause(e);
+                    }
+                });
     }
 
     public @Override int loadBeanDefinitions(
@@ -107,7 +159,6 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
 
         // Resource pattern matching available.
         try {
-            ResourcePatternResolver patternResolver = (ResourcePatternResolver) resourceLoader;
             final boolean excludeJar = location.startsWith("!");
             if (excludeJar) {
                 location = location.substring(1);
@@ -122,8 +173,11 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
 
             Pattern jarNamePattern = Pattern.compile(jarNameExpression);
             // the resource to load, e.g. applicationContext.xml
-            String resourcePattern = location.substring(2 + location.indexOf("!/"));
-            Resource[] allClasspathBaseResources = patternResolver.getResources("classpath*:");
+            final String resourcePattern = location.substring(2 + location.indexOf("!/"));
+            final Resource[] allClasspathBaseResources =
+                    getAllClasspathResources((ResourcePatternResolver) resourceLoader);
+            log.trace("looking for {}", location);
+
             int count = 0;
             for (Resource root : allClasspathBaseResources) {
                 String uri = root.getURI().toString();
@@ -154,6 +208,28 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
             throw new BeanDefinitionStoreException(
                     "Could not resolve bean definition resource pattern [" + location + "]", ex);
         }
+    }
+
+    /**
+     * @param resourceLoader
+     * @return
+     * @throws IOException
+     */
+    private Resource[] getAllClasspathResources(ResourcePatternResolver patternResolver)
+            throws IOException {
+        if (null == allClasspathBaseResources) {
+            StopWatch sw = new StopWatch();
+            sw.start();
+            allClasspathBaseResources = patternResolver.getResources("classpath*:");
+            sw.stop();
+            if (log.isTraceEnabled()) {
+                log.trace(
+                        String.format(
+                                "Loaded %,d classpath resources in %,dms",
+                                allClasspathBaseResources.length, sw.getTotalTimeMillis()));
+            }
+        }
+        return allClasspathBaseResources;
     }
 
     private String removeBeanFilterExpressions(String location) {
