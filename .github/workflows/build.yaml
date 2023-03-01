@@ -1,19 +1,21 @@
-# Triggers the workflow on pull request events to the main branch
-name: Pull Request on Main Branch
+# Builds and pushes docker images on main and tags
+
+name: Build on any branch
 on:
-  pull_request:
-    branches: [ main ]
+  push:
+    branches:
+      - '*'
+      - "!main"
     paths:
-      - ".github/workflows/pull-request.yaml"
-      - ".github/workflows/build-and-push.yaml"
-      - "pom.xml"
       - "Makefile"
+      - "pom.xml"
+      - ".github/workflows/build.yaml"
+      - "geoserver_submodule/**"
       - "src/**"
 
 jobs:
   build:
-    name: Build and Test Pull Request
-    if: github.repository == 'geoserver/geoserver-cloud'
+    name: Build
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -31,17 +33,17 @@ jobs:
     - name: Validate source code formatting
       run: make lint
 
-    - name: Build GeoServer 2.22.1-CLOUD
+    - name: Build customized GeoServer version
       run: |
         make deps 
 
-    - name: Build without tests
+    - name: Build and test
       run: |
-        make install
+        make install test
 
-    - name: Test
+    - name: Build docker images
       run: |
-        make test
+        make build-image
 
     - name: Remove project jars from cached repository
       run: |

@@ -15,6 +15,7 @@
     <module>geoserver/src/community/jdbcconfig</module>
     <module>geoserver/src/community/jdbcstore</module>
     <module>geoserver/src/community/pgraster</module>
+    <module>geoserver/src/community/datadir-catalog-loader</module>
     <!-- all other required deps -->
     <module>geoserver/src/extension/authkey</module>
     <module>geoserver/src/extension/web-resource</module>
@@ -28,6 +29,5 @@
     <module>geoserver/src/community/flatgeobuf</module>
     <module>geoserver/src/community/gwc-azure-blob</module>
     <module>geoserver/src/community/cog</module>
-    <module>geoserver/src/community/datadir-catalog-loader</module>
   </modules>
 </project>

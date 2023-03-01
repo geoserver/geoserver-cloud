@@ -1,4 +1,4 @@
-all: deps install test docker
+all: deps install test build-image
 
 # run `make build-image[-*] SKIP_PUSH=false` to push the images to dockerhub
 SKIP_PUSH?="true"

@@ -1,7 +1,6 @@
 version: "3.8"
 
 volumes:
-  postgresql_config_data: # volume for postgresql data, used to store the geoserver config through jdbcconfig
   rabbitmq_data: # volume for rabbitmq data, so it doesn't create an anonymous one on each container
   postgis_data:
   geowebcache_data:
@@ -41,25 +40,6 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
-    deploy:
-      resources:
-        limits:
-          cpus: '2.0'
-          memory: 1G
-
-  database:
-    # be sure geoserver.backend.jdbcconfig.initdb is set to true in application.yml at lease for the first app run
-    image: postgres:13-alpine
-    environment:
-      POSTGRES_DB: "${JDBCCONFIG_DBNAME}"
-      POSTGRES_USER: "${JDBCCONFIG_USERNAME}"
-      POSTGRES_PASSWORD: "${JDBCCONFIG_PASSWORD}"
-    ports:
-      - 54321:5432
-    networks:
-      - gs-cloud-network
-    volumes:
-      - postgresql_config_data:/var/lib/postgresql/data
     deploy:
       resources:
         limits:
@@ -160,7 +140,6 @@ services:
   #  user: ${GS_USER}
   #  depends_on:
   #    - config
-  #    - database
   #    - rabbitmq
   #  environment:
   #    # Force the max RAM (-XX:MaxRAM) seen by the JVM in case --compatibility wasn't used to launch the composition

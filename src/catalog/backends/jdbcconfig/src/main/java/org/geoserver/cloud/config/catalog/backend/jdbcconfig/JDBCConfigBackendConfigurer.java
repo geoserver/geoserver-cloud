@@ -297,10 +297,12 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
 
     @DependsOn({"jdbcConfigDataSourceStartupValidator", "jdbcConfigDataSource"})
     public @Bean(name = "JDBCConfigDB") ConfigDatabase jdbcConfigDB() {
+        CloudJdbcConfigProperties config = jdbcConfigProperties();
         DataSource dataSource = jdbcConfigDataSource();
         XStreamInfoSerialBinding binding = jdbcPersistenceBinding();
         CacheProvider cacheProvider = jdbcCacheProvider();
-        ConfigDatabase configDb = new CloudJdbcConfigDatabase(dataSource, binding, cacheProvider);
+        ConfigDatabase configDb =
+                new CloudJdbcConfigDatabase(config, dataSource, binding, cacheProvider);
         return configDb;
     }
 
