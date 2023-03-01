@@ -24,10 +24,11 @@ import javax.sql.DataSource;
 class CloudJdbcConfigDatabase extends ConfigDatabase {
 
     public CloudJdbcConfigDatabase(
+            final CloudJdbcConfigProperties config,
             final DataSource dataSource,
             final XStreamInfoSerialBinding binding,
             final CacheProvider cacheProvider) {
-        super(dataSource, binding, cacheProvider);
+        super(config, dataSource, binding, cacheProvider);
     }
 
     /**
