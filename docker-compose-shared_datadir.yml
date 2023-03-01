@@ -15,9 +15,6 @@ volumes:
       device: $PWD/docker-compose_datadir
   
 services:
-  database:
-    entrypoint: echo "database-service disabled."
-
   #catalog:
   #  command: echo "catalog-service disabled."
 
