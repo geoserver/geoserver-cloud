@@ -77,8 +77,10 @@
       <artifactId>postgresql</artifactId>
     </dependency>
     <dependency>
+      <!-- jdbcconfig can't create the tables with a newer version than this old one used in geoserver -->
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
+      <version>1.4.200</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
