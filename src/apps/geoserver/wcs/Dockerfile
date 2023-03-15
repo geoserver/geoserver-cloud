@@ -23,7 +23,8 @@ ENV JAVA_TOOL_OPTS="\
 --add-opens=java.base/java.text=ALL-UNNAMED \
 --add-opens=java.desktop/java.awt.font=ALL-UNNAMED \
 --add-opens=java.desktop/sun.awt.image=ALL-UNNAMED \
---add-opens=java.naming/com.sun.jndi.ldap=ALL-UNNAMED"
+--add-opens=java.naming/com.sun.jndi.ldap=ALL-UNNAMED \
+-Djava.awt.headless=true"
 ENV JAVA_OPTS=
 EXPOSE 8080
 EXPOSE 8081
