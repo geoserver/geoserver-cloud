@@ -70,7 +70,6 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
     public @Override void resolve() {
         // no-op, override as appropriate
     }
-    ;
 
     protected <I extends CatalogInfo> I add(
             I info, Class<I> type, CatalogInfoRepository<I> repository) {
