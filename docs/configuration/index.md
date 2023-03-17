@@ -114,7 +114,7 @@ services:
 
 For Cloud-Native deployments, an `AuthenticationProvider` exists 
 that allows to set an administrator account (username and password)
-through environment variables `GEOSERVER_ADMIN_USERNAME`/`GOSERVER_ADMIN_PASSWORD`,
+through environment variables `GEOSERVER_ADMIN_USERNAME`/`GEOSERVER_ADMIN_PASSWORD`,
 or Java System Properties `geoserver.admin.username` and `geoserver.admin.password`.
 
 Useful for devOps to set the admin password through a Kubernetes secret,
