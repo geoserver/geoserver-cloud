@@ -121,11 +121,15 @@ Useful for devOps to set the admin password through a Kubernetes secret,
 instead of having to tweak the security configuration XML files with an init container or similar.
 
 This authentication provider will be the first one tested for an HTTP Basic authorization, only
-if a password is provided, and regardless of the authentication chain configured in GeoServer.
+if both the above mentioned username and password config properties are provided,
+and regardless of the authentication chain configured in GeoServer.
 
-If enabled (i.e. password provided), a failed attempt to log in will cancel the authentication
-chain, and no other authentication providers will be tested.
+If only one of the `geoserver.admin.username` and `geoserver.admin.password` config properties
+is provided, the application will fail to start.
+
+If enabled (i.e. both admin username and password provided), a failed attempt to log
+in will cancel the authentication chain, and no other authentication providers will be tested.
 
 If the default `admin` username is used, it effectively overrides the admin password set in the
 xml configuration. If a separate administrator username is given, the regular
-`admin` user is still active, so it's up to the devOps to handle its password as usual.
+`admin` user is **disabled**.
