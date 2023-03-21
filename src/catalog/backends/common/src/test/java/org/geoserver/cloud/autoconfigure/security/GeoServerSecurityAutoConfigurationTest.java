@@ -43,6 +43,10 @@ class GeoServerSecurityAutoConfigurationTest {
 
     @BeforeEach
     void setUp() throws Exception {
+        runner = createContextRunner(tempDir);
+    }
+
+    static ApplicationContextRunner createContextRunner(File tempDir) {
         Catalog catalog = mock(Catalog.class);
         GeoServer geoserver = mock(GeoServer.class);
         ResourceStore resourceStore = new FileSystemResourceStore(tempDir);
@@ -50,19 +54,17 @@ class GeoServerSecurityAutoConfigurationTest {
         GeoServerDataDirectory datadir = new GeoServerDataDirectory(resourceLoader);
         UpdateSequence updateSequence = mock(UpdateSequence.class);
 
-        runner =
-                new ApplicationContextRunner()
-                        .withConfiguration(
-                                AutoConfigurations.of(GeoServerSecurityAutoConfiguration.class))
-                        .withBean("extensions", GeoServerExtensions.class)
-                        .withBean(ResourceStore.class, () -> resourceStore)
-                        .withBean(GeoServerResourceLoader.class, () -> resourceLoader)
-                        .withBean("dataDirectory", GeoServerDataDirectory.class, () -> datadir)
-                        .withBean("catalog", Catalog.class, () -> catalog)
-                        .withBean("rawCatalog", Catalog.class, () -> catalog)
-                        .withBean("geoServer", GeoServer.class, () -> geoserver)
-                        .withBean("updateSequence", UpdateSequence.class, () -> updateSequence)
-                        .withPropertyValues("logging.level.org.geoserver.platform: off");
+        return new ApplicationContextRunner()
+                .withConfiguration(AutoConfigurations.of(GeoServerSecurityAutoConfiguration.class))
+                .withBean("extensions", GeoServerExtensions.class)
+                .withBean(ResourceStore.class, () -> resourceStore)
+                .withBean(GeoServerResourceLoader.class, () -> resourceLoader)
+                .withBean("dataDirectory", GeoServerDataDirectory.class, () -> datadir)
+                .withBean("catalog", Catalog.class, () -> catalog)
+                .withBean("rawCatalog", Catalog.class, () -> catalog)
+                .withBean("geoServer", GeoServer.class, () -> geoserver)
+                .withBean("updateSequence", UpdateSequence.class, () -> updateSequence)
+                .withPropertyValues("logging.level.org.geoserver.platform: off");
     }
 
     @Test
