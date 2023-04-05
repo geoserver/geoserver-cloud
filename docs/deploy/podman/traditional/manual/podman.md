@@ -71,7 +71,7 @@ podman run -d --name=config --hostname=config \
   --network gs-cloud-network \
   -e SPRING_PROFILES_ACTIVE=git \
   -e CONFIG_GIT_URI=https://github.com/geoserver/geoserver-cloud-config.git \
-  -e SPRING_CLOUD_CONFIG_SERVER_GIT_DEFAULT_LABEL=v1.0-RC31 \
+  -e SPRING_CLOUD_CONFIG_SERVER_GIT_DEFAULT_LABEL=v1.0-RC32 \
   -e CONFIG_GIT_BASEDIR=/opt/app/git_config \
   geoservercloud/geoserver-cloud-config:$GSCLOUD_VERSION
 ```
