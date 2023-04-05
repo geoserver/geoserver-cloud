@@ -10,7 +10,7 @@ format:
 	./mvnw -P-geoserver sortpom:sort fmt:format -ntp
 
 deps:
-	./mvnw -f geoserver_submodule/ clean install -DskipTests -ntp -T4
+	./mvnw -U -f geoserver_submodule/ clean install -DskipTests -ntp -T4
 
 install:
 	./mvnw clean install -P-geoserver -DskipTests -ntp -T4
