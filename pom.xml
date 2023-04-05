@@ -10,7 +10,7 @@
     <module>src</module>
   </modules>
   <properties>
-    <revision>v1.0-RC32</revision>
+    <revision>1.0-SNAPSHOT</revision>
     <fmt.action>format</fmt.action>
     <fmt.skip>false</fmt.skip>
   </properties>
