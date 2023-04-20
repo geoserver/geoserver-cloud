@@ -22,6 +22,7 @@
     <maven.compiler.target>17</maven.compiler.target>
     <spring-cloud.version>2021.0.6</spring-cloud.version>
     <spring-boot.version>2.7.10</spring-boot.version>
+    <jackson.version>2.14.2</jackson.version>
     <feign-reactor.version>3.2.6</feign-reactor.version>
     <gs.version>2.23.0-CLOUD</gs.version>
     <gs.community.version>2.23.0-CLOUD</gs.community.version>
@@ -48,6 +49,21 @@
         <version>2.17.1</version>
         <type>pom</type>
         <scope>import</scope>
+      </dependency>
+      <dependency>
+        <!-- Upgrade jackson from the 2.13.5 version provided by spring-boot to 2.14.2 which supports snakeyaml 2.0 -->
+        <!-- Note the trick for it to take effect and override all jackson deps is to declare it before the spring-boot bom -->
+        <groupId>com.fasterxml.jackson</groupId>
+        <artifactId>jackson-bom</artifactId>
+        <version>${jackson.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <!-- Upgrade to snakeyaml 2.0 to get rid of several CVE's from the 1.30 version included with spring-boot -->
+        <groupId>org.yaml</groupId>
+        <artifactId>snakeyaml</artifactId>
+        <version>2.0</version>
       </dependency>
       <dependency>
         <groupId>org.springframework.cloud</groupId>
