@@ -30,7 +30,7 @@ services:
           memory: 1G
     
   rabbitmq:
-    image: rabbitmq:3.9-management
+    image: rabbitmq:3.11-management
     user: ${GS_USER}
     restart: always
     volumes:

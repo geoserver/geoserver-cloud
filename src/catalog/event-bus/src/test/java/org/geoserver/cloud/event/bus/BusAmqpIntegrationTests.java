@@ -79,7 +79,7 @@ public abstract class BusAmqpIntegrationTests {
 
     @Container
     private static final RabbitMQContainer rabbitMQContainer =
-            new RabbitMQContainer("rabbitmq:3.9-management");
+            new RabbitMQContainer("rabbitmq:3.11-management");
 
     protected static ConfigurableApplicationContext remoteAppContext;
     private @Autowired ConfigurableApplicationContext localAppContext;
