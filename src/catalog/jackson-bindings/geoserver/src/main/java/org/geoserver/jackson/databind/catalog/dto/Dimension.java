@@ -30,4 +30,13 @@ public @Data @Generated class Dimension {
     private DimensionDefaultValueSetting.Strategy defaultValueStrategy;
     // defaultValue.referenceValue
     private String defaultValueReferenceValue;
+
+    /**
+     * @since geoserver 2.23.0
+     */
+    private String startValue;
+    /**
+     * @since geoserver 2.23.0
+     */
+    private String endValue;
 }

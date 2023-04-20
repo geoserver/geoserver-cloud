@@ -30,4 +30,9 @@ public class AttributeType {
      * @since GeoServer 2.21
      */
     private String source;
+
+    /**
+     * @since geoserver 2.23.0
+     */
+    private Map<String, String> description;
 }

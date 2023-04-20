@@ -23,9 +23,9 @@
     <spring-cloud.version>2021.0.6</spring-cloud.version>
     <spring-boot.version>2.7.9</spring-boot.version>
     <feign-reactor.version>3.2.6</feign-reactor.version>
-    <gs.version>2.22.3-SNAPSHOT</gs.version>
-    <gs.community.version>2.22.3-SNAPSHOT</gs.community.version>
-    <gt.version>28-SNAPSHOT</gt.version>
+    <gs.version>2.23.0-CLOUD</gs.version>
+    <gs.community.version>2.23.0-CLOUD</gs.community.version>
+    <gt.version>29.0</gt.version>
     <lombok.version>1.18.24</lombok.version>
     <mapstruct.version>1.4.2.Final</mapstruct.version>
     <fork.javac>true</fork.javac>
