@@ -15,6 +15,10 @@
       <artifactId>gs-cloud-starter-catalog-backend</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.geoserver.acl.plugin</groupId>
+      <artifactId>gs-acl-client-plugin</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.geoserver.extension</groupId>
       <artifactId>gs-authkey</artifactId>
       <exclusions>

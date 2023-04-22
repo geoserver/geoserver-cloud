@@ -12,6 +12,7 @@ gwc:
   cache-directory: ${java.io.tmpdir}/gs-webui-tmp
   
 geoserver:
+  acl.enabled: false
   security.enabled: true
   backend:
     data-directory:

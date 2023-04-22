@@ -9,6 +9,7 @@ spring:
 eureka.client.enabled: false
 
 geoserver:
+  acl.enabled: false
   backend:
     data-directory:
       enabled: true

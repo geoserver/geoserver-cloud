@@ -13,7 +13,7 @@ deps:
 	./mvnw -U -f geoserver_submodule/ clean install -DskipTests -ntp -T4
 
 install:
-	./mvnw clean install -P-geoserver -DskipTests -ntp -T4
+	./mvnw clean install -P-geoserver -DskipTests -ntp -T4 -U
 
 test:
 	./mvnw verify -P-geoserver -ntp -T4
