@@ -198,7 +198,7 @@ public class ParallelDataDirectoryGeoServerLoader
                     },
                     "initializeDefaultStyles()");
         } else {
-            log.info("Default styles already present");
+            log.debug("Default styles already present");
         }
     }
 

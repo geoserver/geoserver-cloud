@@ -32,8 +32,12 @@ public class GeoServerContextInitializer
         // tell geoserver not to control logging, spring-boot will do
         System.setProperty("RELINQUISH_LOG4J_CONTROL", "true");
         // and tell geotools not to redirect to Log4J nor any other framework, we'll use
-        // spring-boot's logging redirection
-        System.setProperty("GT2_LOGGING_REDIRECTION", "JavaLogging");
+        // spring-boot's logging redirection. Use Log4J2 redirection policy, JavaLogging
+        // will make GeoserverInitStartupListener's call to GeoTools.init() heuristically set
+        // Logging.ALL.setLoggerFactory("org.geotools.util.logging.LogbackLoggerFactory")
+        // with the caveat that it wrongly maps logging levels and hence if, for example, a logger
+        // with level FINE is called with INFO, it doesn't log at all
+        System.setProperty("GT2_LOGGING_REDIRECTION", "Log4J2");
         ServletContext source = mockServletContext();
         ServletContextEvent sce = new ServletContextEvent(source);
         GeoserverInitStartupListener startupInitializer = new GeoserverInitStartupListener();
