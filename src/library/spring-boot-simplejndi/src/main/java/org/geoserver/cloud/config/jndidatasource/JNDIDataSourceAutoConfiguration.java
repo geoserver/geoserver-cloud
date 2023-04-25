@@ -25,7 +25,7 @@ import javax.sql.DataSource;
 /**
  * @since 1.0
  */
-@Slf4j
+@Slf4j(topic = "org.geoserver.cloud.config.jndidatasource")
 @Configuration
 @EnableConfigurationProperties(JNDIDataSourcesConfigurationProperties.class)
 public class JNDIDataSourceAutoConfiguration implements InitializingBean {

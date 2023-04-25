@@ -20,7 +20,7 @@ import javax.naming.spi.NamingManager;
  *
  * @since 1.0
  */
-@Slf4j
+@Slf4j(topic = "org.geoserver.cloud.config.jndi")
 public class SimpleJNDIStaticContextInitializer
         implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
