@@ -12,7 +12,6 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.configuration.DefaultConfigurationBuilder.XMLConfigurationProvider;
 import org.geoserver.config.util.SecureXStream;
 import org.geoserver.gwc.layer.GeoServerTileLayerInfo;
 import org.geoserver.gwc.layer.TileLayerCatalog;
@@ -65,8 +64,8 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
 
     /**
      * Used by {@link XMLConfiguration#getConfiguredXStreamWithContext}, at {@link #initialize()},
-     * to lookup implementations of {@link XMLConfigurationProvider}, such as {@code
-     * S3BlobStoreConfigProvider}, etc. This could be improved.
+     * to lookup implementations of {@link org.geowebcache.config.XMLConfigurationProvider}, such as
+     * {@code S3BlobStoreConfigProvider}, etc. This could be improved.
      */
     private @Autowired WebApplicationContext applicationContext;
 
