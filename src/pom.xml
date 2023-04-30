@@ -54,15 +54,6 @@
         <scope>import</scope>
       </dependency>
       <dependency>
-        <!-- downgrade netty.version used by spring-boot to the one used by geoserver azure client -->
-        <!-- (software.amazon.awssdk:netty-nio-client:jar:2.9.24) for COG and GWC Azure plugin -->
-        <groupId>io.netty</groupId>
-        <artifactId>netty-bom</artifactId>
-        <version>${netty.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
         <!-- Upgrade jackson from the 2.13.5 version provided by spring-boot to 2.14.2 which supports snakeyaml 2.0 -->
         <!-- Note the trick for it to take effect and override all jackson deps is to declare it before the spring-boot bom -->
         <groupId>com.fasterxml.jackson</groupId>
