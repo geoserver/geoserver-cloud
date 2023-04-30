@@ -16,7 +16,6 @@
     <module>cache</module>
     <module>jackson-bindings</module>
     <module>event-bus</module>
-    <module>catalog-server</module>
     <module>backends</module>
   </modules>
   <dependencies>
@@ -26,4 +25,15 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+  <profiles>
+    <profile>
+      <id>catalog-service</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <modules>
+        <module>catalog-server</module>
+      </modules>
+    </profile>
+  </profiles>
 </project>
