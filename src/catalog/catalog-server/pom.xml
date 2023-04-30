@@ -12,7 +12,6 @@
   <name>Reactive Catalog Server and Client Libraries</name>
   <modules>
     <module>client</module>
-    <!-- temporarily disabled -->
-    <!---module>server</module-->
+    <module>server</module>
   </modules>
 </project>

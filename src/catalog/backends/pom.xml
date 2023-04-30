@@ -14,7 +14,6 @@
     <module>common</module>
     <module>datadir</module>
     <module>jdbcconfig</module>
-    <module>catalog-service</module>
   </modules>
   <dependencies>
     <dependency>
@@ -41,4 +40,15 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+  <profiles>
+    <profile>
+      <id>catalog-service</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <modules>
+        <module>catalog-service</module>
+      </modules>
+    </profile>
+  </profiles>
 </project>
