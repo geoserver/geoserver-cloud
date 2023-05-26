@@ -43,6 +43,12 @@
     <dockerfile.skip>true</dockerfile.skip>
     <dockerfile.build.pullNewerImage>false</dockerfile.build.pullNewerImage>
     <dockerfile.push.skip>true</dockerfile.push.skip>
+    <!-- 
+    aws.version overrides the old version provided by gs-cog->imageio-ext-cog (2.9.24), which
+    doesn't support IAM roles for service accounts (min version 2.10.11 as explained in
+    https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts-minimum-sdk.html)
+    -->
+    <aws.version>2.20.73</aws.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -637,6 +643,18 @@
             <groupId>org.geoserver.web</groupId>
           </exclusion>
         </exclusions>
+      </dependency>
+      <dependency>
+        <!--- Override  old aws version withou support for "IAM roles for service accounts" -->
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>s3</artifactId>
+        <version>${aws.version}</version>
+      </dependency>
+      <dependency>
+        <!--- Override  old aws version withou support for "IAM roles for service accounts" -->
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>auth</artifactId>
+        <version>${aws.version}</version>
       </dependency>
       <dependency>
         <groupId>org.geoserver.community</groupId>
