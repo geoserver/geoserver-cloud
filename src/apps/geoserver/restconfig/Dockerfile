@@ -15,6 +15,7 @@ RUN java -Djarmode=layertools -jar application.jar extract
 
 ##########
 FROM eclipse-temurin:17-jre
+COPY target/config/ /etc/gscloud/
 
 LABEL maintainer="GeoServer PSC <geoserver-users@lists.sourceforge.net>"
 
