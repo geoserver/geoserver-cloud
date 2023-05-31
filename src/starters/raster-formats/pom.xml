@@ -39,6 +39,11 @@
       <artifactId>gs-cog</artifactId>
     </dependency>
     <dependency>
+      <!--- Additional dependency required to support "IAM roles for service accounts" -->
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>sts</artifactId>
+    </dependency>
+    <dependency>
       <!-- provided scope for pgraster's and cog autoconfiguration when in web-ui -->
       <groupId>org.geoserver.web</groupId>
       <artifactId>gs-web-core</artifactId>
