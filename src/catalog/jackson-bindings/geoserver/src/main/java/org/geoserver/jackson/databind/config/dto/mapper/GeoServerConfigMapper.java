@@ -15,6 +15,7 @@ import org.geoserver.config.JAIInfo;
 import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
+import org.geoserver.config.impl.ServiceInfoImpl;
 import org.geoserver.gwc.wmts.WMTSInfo;
 import org.geoserver.gwc.wmts.WMTSInfoImpl;
 import org.geoserver.jackson.databind.catalog.dto.CatalogInfoDto;
@@ -125,6 +126,7 @@ public interface GeoServerConfigMapper {
         if (dto instanceof Service.WcsService) return toInfo((Service.WcsService) dto);
         if (dto instanceof Service.WpsService) return toInfo((Service.WpsService) dto);
         if (dto instanceof Service.WmtsService) return toInfo((Service.WmtsService) dto);
+        if (dto instanceof Service.GenericService) return toInfo((Service.GenericService) dto);
 
         throw new IllegalArgumentException(
                 "Unknown ServiceInfo type: " + dto.getClass().getCanonicalName());
@@ -137,6 +139,7 @@ public interface GeoServerConfigMapper {
         if (info instanceof WCSInfo) return toDto((WCSInfo) info);
         if (info instanceof WPSInfo) return toDto((WPSInfo) info);
         if (info instanceof WMTSInfo) return toDto((WMTSInfo) info);
+        if (info.getClass().equals(ServiceInfoImpl.class)) return toGenericService(info);
 
         throw new IllegalArgumentException(
                 "Unknown ServiceInfo type: " + info.getClass().getCanonicalName());
@@ -182,6 +185,13 @@ public interface GeoServerConfigMapper {
     @Mapping(target = "geoServer", ignore = true)
     @Mapping(target = "versions", expression = "java(stringListToVersionList(dto.getVersions()))")
     WMTSInfoImpl toInfo(Service.WmtsService dto);
+
+    @Mapping(target = "clientProperties", ignore = true)
+    @Mapping(target = "geoServer", ignore = true)
+    @Mapping(target = "versions", expression = "java(stringListToVersionList(dto.getVersions()))")
+    ServiceInfoImpl toInfo(Service.GenericService dto);
+
+    Service.GenericService toGenericService(ServiceInfo info);
 
     Service.WmtsService toDto(WMTSInfo info);
 

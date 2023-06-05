@@ -13,13 +13,14 @@ import org.geoserver.catalog.impl.ResolvingProxy;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.resolving.CatalogPropertyResolver;
 import org.geoserver.catalog.plugin.resolving.CollectionPropertiesInitializer;
+import org.geoserver.catalog.plugin.resolving.ProxyUtils;
 import org.geoserver.catalog.plugin.resolving.ResolvingProxyResolver;
 import org.geoserver.cloud.event.info.InfoAdded;
 import org.geoserver.cloud.event.info.InfoEvent;
 import org.geoserver.cloud.event.info.InfoModified;
 import org.geoserver.config.GeoServer;
-import org.geoserver.jackson.databind.catalog.ProxyUtils;
 
+import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -43,7 +44,7 @@ public class InfoEventResolver {
     public InfoEventResolver(@NonNull Catalog rawCatalog, @NonNull GeoServer geoserverConfig) {
         this.rawCatalog = rawCatalog;
         this.geoserverConfig = geoserverConfig;
-        proxyUtils = new ProxyUtils(rawCatalog, geoserverConfig);
+        proxyUtils = new ProxyUtils(rawCatalog, Optional.of(geoserverConfig));
 
         configInfoResolver =
                 CollectionPropertiesInitializer.<Info>instance()

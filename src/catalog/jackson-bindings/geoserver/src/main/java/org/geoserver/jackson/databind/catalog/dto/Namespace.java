@@ -15,7 +15,7 @@ import lombok.Generated;
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("NamespaceInfo")
 public class Namespace extends CatalogInfoDto {
-    private String prefix;
+    private String name;
     private String URI;
     private boolean isolated;
     private MetadataMapDto metadata;

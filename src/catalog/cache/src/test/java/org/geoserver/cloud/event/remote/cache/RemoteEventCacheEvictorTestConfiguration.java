@@ -34,8 +34,8 @@ import org.springframework.context.annotation.Configuration;
 public class RemoteEventCacheEvictorTestConfiguration {
 
     @Bean
-    UpdateSequence defaultUpdateSequence() {
-        return new DefaultUpdateSequence();
+    UpdateSequence defaultUpdateSequence(GeoServer geoserver) {
+        return new DefaultUpdateSequence(geoserver);
     }
 
     @Bean(name = {"rawCatalog"})

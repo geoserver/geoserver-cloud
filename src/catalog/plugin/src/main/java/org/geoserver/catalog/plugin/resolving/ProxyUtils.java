@@ -2,7 +2,7 @@
  * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
  * GPL 2.0 license, available at the root application directory.
  */
-package org.geoserver.jackson.databind.catalog;
+package org.geoserver.catalog.plugin.resolving;
 
 import lombok.Getter;
 import lombok.NonNull;
@@ -37,7 +37,6 @@ import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
-import org.geoserver.jackson.databind.catalog.dto.InfoReference;
 
 import java.lang.reflect.Proxy;
 import java.util.HashSet;
@@ -73,7 +72,7 @@ public class ProxyUtils {
                     ServiceInfo.class);
 
     private final @NonNull @Getter Catalog catalog;
-    private final @NonNull @Getter GeoServer config;
+    private final @NonNull @Getter Optional<GeoServer> config;
 
     private boolean failOnNotFound = false;
 
@@ -161,10 +160,12 @@ public class ProxyUtils {
         T info = unwrap(unresolved);
         if (isResolvingProxy) {
             if (info instanceof CatalogInfo) info = resolve(catalog, info);
-            else if (info instanceof GeoServerInfo) info = (T) this.config.getGlobal();
-            else if (info instanceof LoggingInfo) info = (T) this.config.getLogging();
-            else if (info instanceof ServiceInfo)
-                info = (T) this.config.getService(info.getId(), ServiceInfo.class);
+            else if (info instanceof GeoServerInfo && this.config.isPresent())
+                info = (T) this.config.get().getGlobal();
+            else if (info instanceof LoggingInfo && this.config.isPresent())
+                info = (T) this.config.get().getLogging();
+            else if (info instanceof ServiceInfo && this.config.isPresent())
+                info = (T) this.config.get().getService(info.getId(), ServiceInfo.class);
         }
 
         if (info == null) {

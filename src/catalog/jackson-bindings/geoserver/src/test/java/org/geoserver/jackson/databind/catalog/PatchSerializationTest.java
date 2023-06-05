@@ -44,6 +44,7 @@ import org.geoserver.catalog.impl.CoverageStoreInfoImpl;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.Patch;
+import org.geoserver.catalog.plugin.resolving.ProxyUtils;
 import org.geoserver.cog.CogSettings;
 import org.geoserver.cog.CogSettings.RangeReaderType;
 import org.geoserver.cog.CogSettingsStore;
@@ -94,6 +95,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -129,7 +131,7 @@ public abstract class PatchSerializationTest {
         geoserver = new GeoServerImpl();
         geoserver.setCatalog(catalog);
         data = CatalogTestData.initialized(() -> catalog, () -> geoserver).initialize();
-        proxyResolver = new ProxyUtils(catalog, geoserver);
+        proxyResolver = new ProxyUtils(catalog, Optional.of(geoserver));
     }
 
     protected abstract ObjectMapper newObjectMapper();

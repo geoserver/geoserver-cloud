@@ -120,7 +120,7 @@ public @Data class Patch implements Serializable {
         return get(propertyName).map(Property::getValue);
     }
 
-    public void applyTo(Object target) {
+    public <T> T applyTo(T target) {
         Objects.requireNonNull(target);
         Class<?> targetType = target.getClass();
         if (Proxy.isProxyClass(targetType)) {
@@ -130,11 +130,12 @@ public @Data class Patch implements Serializable {
                         "Argument object is a dynamic proxy and couldn't determine it's surrogate type, use applyTo(Object, Class) instead");
             }
         }
-        applyTo(target, targetType);
+        return applyTo(target, targetType);
     }
 
-    public void applyTo(Object target, Class<?> objectType) {
+    public <T> T applyTo(T target, Class<?> objectType) {
         patches.forEach(p -> apply(target, objectType, p));
+        return target;
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})

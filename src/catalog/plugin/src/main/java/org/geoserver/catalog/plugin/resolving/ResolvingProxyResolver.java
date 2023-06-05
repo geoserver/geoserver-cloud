@@ -29,6 +29,7 @@ import java.lang.reflect.Proxy;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.UnaryOperator;
@@ -52,6 +53,7 @@ public class ResolvingProxyResolver<T extends Info> implements UnaryOperator<T> 
 
     private final Catalog catalog;
     private final BiConsumer<CatalogInfo, ResolvingProxy> onNotFound;
+    private final ProxyUtils proxyUtils;
 
     public ResolvingProxyResolver(Catalog catalog) {
         this(
@@ -69,6 +71,7 @@ public class ResolvingProxyResolver<T extends Info> implements UnaryOperator<T> 
         requireNonNull(onNotFound);
         this.catalog = catalog;
         this.onNotFound = onNotFound;
+        this.proxyUtils = new ProxyUtils(catalog, Optional.empty());
     }
 
     public static <I extends Info> ResolvingProxyResolver<I> of(
@@ -137,7 +140,7 @@ public class ResolvingProxyResolver<T extends Info> implements UnaryOperator<T> 
     }
 
     protected <I extends Info> I doResolveProxy(final I orig) {
-        return ResolvingProxy.resolve(catalog, orig);
+        return proxyUtils.resolve(orig);
     }
 
     protected boolean isResolvingProxy(final CatalogInfo unresolved) {
@@ -204,6 +207,8 @@ public class ResolvingProxyResolver<T extends Info> implements UnaryOperator<T> 
             }
         }
         lg.setWorkspace(resolve(lg.getWorkspace()));
+        lg.setRootLayer(resolve(lg.getRootLayer()));
+        lg.setRootLayerStyle(resolve(lg.getRootLayerStyle()));
         return lg;
     }
 

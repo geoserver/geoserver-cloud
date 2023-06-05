@@ -18,6 +18,7 @@ import org.geoserver.catalog.CatalogTestData;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.plugin.CatalogPlugin;
+import org.geoserver.catalog.plugin.resolving.ProxyUtils;
 import org.geoserver.config.ContactInfo;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerInfo;
@@ -25,7 +26,6 @@ import org.geoserver.config.SettingsInfo;
 import org.geoserver.config.plugin.GeoServerImpl;
 import org.geoserver.gwc.wmts.WMTSInfo;
 import org.geoserver.gwc.wmts.WMTSInfoImpl;
-import org.geoserver.jackson.databind.catalog.ProxyUtils;
 import org.geoserver.ows.util.OwsUtils;
 import org.geoserver.platform.GeoServerExtensionsHelper;
 import org.geoserver.wcs.WCSInfo;
@@ -33,6 +33,8 @@ import org.geoserver.wfs.WFSInfo;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.Optional;
 
 /**
  * Verifies that all GeoServer config ({@link GeoServerInfo}, etc) object types can be sent over the
@@ -70,7 +72,7 @@ public abstract class GeoServerConfigModuleTest {
                 CatalogTestData.initialized(() -> catalog, () -> geoserver)
                         .initConfig(false)
                         .initialize();
-        proxyResolver = new ProxyUtils(catalog, geoserver);
+        proxyResolver = new ProxyUtils(catalog, Optional.of(geoserver));
     }
 
     private <T extends Info> void roundtripTest(@NonNull final T orig)

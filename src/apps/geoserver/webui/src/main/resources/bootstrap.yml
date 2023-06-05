@@ -42,6 +42,7 @@ spring:
       - org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration
       - org.springframework.boot.autoconfigure.ldap.LdapAutoConfiguration
       - org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration
+      - org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration
       # Force disabling GWC UI, it's embedded in gwc-core, so can't have a ConditionalOnClass
       - org.geoserver.cloud.autoconfigure.web.gwc.GeoWebCacheUIAutoConfiguration
 

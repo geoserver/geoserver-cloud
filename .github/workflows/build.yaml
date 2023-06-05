@@ -4,7 +4,7 @@ name: Build on any branch
 on:
   push:
     branches:
-      - '*'
+      - '**'
       - "!main"
     paths:
       - "Makefile"

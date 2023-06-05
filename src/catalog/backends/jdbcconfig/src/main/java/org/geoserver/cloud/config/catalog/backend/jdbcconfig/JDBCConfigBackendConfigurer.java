@@ -136,7 +136,9 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
     public @Override UpdateSequence updateSequence() {
         DataSource dataSource = jdbcConfigDataSource();
         CloudJdbcConfigProperties props = jdbcConfigProperties();
-        return new JdbcConfigUpdateSequence(dataSource, props);
+        GeoServerFacade geoserverFacade = geoserverFacade();
+        ConfigDatabase db = jdbcConfigDB();
+        return new JdbcConfigUpdateSequence(dataSource, props, geoserverFacade, db);
     }
 
     @Bean

@@ -4,9 +4,11 @@
  */
 package org.geoserver.platform.config;
 
+import lombok.NonNull;
+
+import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerInfo;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
@@ -24,7 +26,15 @@ public class DefaultUpdateSequence implements UpdateSequence {
 
     private final Lock lock = new ReentrantLock();
 
-    private @Autowired GeoServer geoServer;
+    private final GeoServer geoServer;
+
+    public DefaultUpdateSequence(@NonNull GeoServer gs) {
+        this.geoServer = gs;
+        sequence.set(
+                Optional.ofNullable(gs.getGlobal())
+                        .map(GeoServerInfo::getUpdateSequence)
+                        .orElse(0L));
+    }
 
     public @Override long currValue() {
         return info().map(GeoServerInfo::getUpdateSequence).orElse(0L);
@@ -37,6 +47,7 @@ public class DefaultUpdateSequence implements UpdateSequence {
             if (global == null) return 0;
             long nextVal = sequence.incrementAndGet();
             if (global != null) {
+                global = ModificationProxy.unwrap(global);
                 global.setUpdateSequence(nextVal);
             }
             return nextVal;

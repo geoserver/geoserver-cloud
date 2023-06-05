@@ -4,6 +4,7 @@
  */
 package org.geoserver.cloud.autoconfigure.catalog.backend.core;
 
+import org.geoserver.config.GeoServer;
 import org.geoserver.platform.config.DefaultUpdateSequence;
 import org.geoserver.platform.config.UpdateSequence;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -14,7 +15,7 @@ import org.springframework.context.annotation.Bean;
 @ConditionalOnMissingBean(UpdateSequence.class)
 public class DefaultUpdateSequenceAutoConfiguration {
     @Bean
-    UpdateSequence defaultUpdateSequence() {
-        return new DefaultUpdateSequence();
+    UpdateSequence defaultUpdateSequence(GeoServer gs) {
+        return new DefaultUpdateSequence(gs);
     }
 }

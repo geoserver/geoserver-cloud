@@ -20,8 +20,8 @@ import org.springframework.context.annotation.Bean;
 @SpringBootConfiguration
 public class TestConfigurationAutoConfiguration {
 
-    public @Bean UpdateSequence testUpdateSequence() {
-        return new DefaultUpdateSequence();
+    public @Bean UpdateSequence testUpdateSequence(GeoServer gs) {
+        return new DefaultUpdateSequence(gs);
     }
 
     public @Bean XStreamPersisterFactory xStreamPersisterFactory() {

@@ -41,7 +41,8 @@ import java.util.Set;
     @JsonSubTypes.Type(value = Service.WfsService.class),
     @JsonSubTypes.Type(value = Service.WcsService.class),
     @JsonSubTypes.Type(value = Service.WpsService.class),
-    @JsonSubTypes.Type(value = Service.WmtsService.class)
+    @JsonSubTypes.Type(value = Service.WmtsService.class),
+    @JsonSubTypes.Type(value = Service.GenericService.class)
 })
 @EqualsAndHashCode(callSuper = true)
 public abstract @Data @Generated class Service extends ConfigInfoDto {
@@ -78,6 +79,10 @@ public abstract @Data @Generated class Service extends ConfigInfoDto {
      * @since geoserver 2.20.0
      */
     private Map<String, String> internationalAbstract;
+
+    @EqualsAndHashCode(callSuper = true)
+    @JsonTypeName("ServiceInfo")
+    public static @Data @Generated class GenericService extends Service {}
 
     @EqualsAndHashCode(callSuper = true)
     @JsonTypeName("WMSInfo")

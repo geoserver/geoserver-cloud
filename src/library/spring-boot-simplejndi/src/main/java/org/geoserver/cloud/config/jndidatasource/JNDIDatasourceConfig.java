@@ -23,4 +23,9 @@ public class JNDIDatasourceConfig extends DataSourceProperties {
     int maximumPoolSize = 10;
     long connectionTimeout = 250; // ms
     long idleTimeout = 60_000; // ms
+
+    /**
+     * @since 1.3
+     */
+    String schema;
 }

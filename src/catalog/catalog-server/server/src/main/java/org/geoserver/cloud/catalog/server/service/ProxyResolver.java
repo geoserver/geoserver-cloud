@@ -7,12 +7,14 @@ package org.geoserver.cloud.catalog.server.service;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.plugin.Patch;
+import org.geoserver.catalog.plugin.resolving.ProxyUtils;
 import org.geoserver.config.GeoServer;
-import org.geoserver.jackson.databind.catalog.ProxyUtils;
 import org.springframework.stereotype.Service;
 
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
+
+import java.util.Optional;
 
 /** */
 @Service
@@ -21,7 +23,7 @@ public class ProxyResolver {
     private ProxyUtils blockingResolver;
 
     public ProxyResolver(Catalog catalog, GeoServer config) {
-        this.blockingResolver = new ProxyUtils(catalog, config);
+        this.blockingResolver = new ProxyUtils(catalog, Optional.of(config));
     }
 
     public <C extends Info> Mono<C> resolve(C info) {
