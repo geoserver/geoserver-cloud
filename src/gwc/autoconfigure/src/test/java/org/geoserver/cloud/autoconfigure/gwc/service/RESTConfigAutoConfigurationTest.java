@@ -7,6 +7,8 @@ package org.geoserver.cloud.autoconfigure.gwc.service;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.geoserver.cloud.autoconfigure.gwc.GeoWebCacheContextRunner;
+import org.geoserver.gwc.controller.GwcUrlHandlerMapping;
+import org.geoserver.gwc.layer.GWCGeoServerRESTConfigurationProvider;
 import org.geowebcache.rest.controller.TileLayerController;
 import org.geowebcache.rest.converter.GWCConverter;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,8 +53,11 @@ class RESTConfigAutoConfigurationTest {
         runner.withPropertyValues("gwc.rest-config=true")
                 .run(
                         context -> {
-                            assertThat(context).hasSingleBean(GWCConverter.class);
-                            assertThat(context).hasSingleBean(TileLayerController.class);
+                            assertThat(context)
+                                    .hasSingleBean(GWCConverter.class)
+                                    .hasSingleBean(TileLayerController.class)
+                                    .hasSingleBean(GWCGeoServerRESTConfigurationProvider.class)
+                                    .hasSingleBean(GwcUrlHandlerMapping.class);
                         });
     }
 
