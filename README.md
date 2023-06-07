@@ -75,9 +75,9 @@ make test
 GeoServer that have not yet been integrated into the mainstream
 `main` branch. Additionally, the `geoserver-cloud_integration`
 GeoServer branch changes the artifact versions from `2.21-SNAPSHOT`
-to `2.21.0-CLOUD`, to avoid confusing maven if you also work
+to `2.23.0-CLOUD`, to avoid confusing maven if you also work
 with vanilla GeoServer, and to avoid your IDE downloading the
-latest `2.21-SNAPSHOT` artifacts from the OsGeo maven repository,
+latest `2.23-SNAPSHOT` artifacts from the OsGeo maven repository,
 overriding your local maven repository ones, and having
 confusing compilation errors that would require re-building
 the branch we need.
@@ -112,7 +112,7 @@ make build-image
 *Cloud Native GeoServer*-specific modules source code
 is under the `src/` directory.
 
-When you already have the `2.21.0-CLOUD` GeoServer artifacts,
+When you already have the `2.23.0-CLOUD` GeoServer artifacts,
 you can chose to only build these projects, either by:
 
 
@@ -181,9 +181,9 @@ Follow the [developer's guide](docs/develop/index.md) to know more about the pro
 
 ## Status
 
-`v1.0.4` released against GeoServer `2.23.0`.
+`v1.1.0` released against GeoServer `2.23.0`.
 
-Read the [changelog](https://github.com/geoserver/geoserver-cloud/releases/tag/v1.0.2) for more information.
+Read the [changelog](https://github.com/geoserver/geoserver-cloud/releases/tag/v1.1.0) for more information.
 
 ## Bugs
 
