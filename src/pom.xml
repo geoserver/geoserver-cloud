@@ -27,6 +27,7 @@
     <gs.version>2.23.0-CLOUD</gs.version>
     <gs.community.version>2.23.0-CLOUD</gs.community.version>
     <gt.version>29.0</gt.version>
+    <acl.version>1.0.0</acl.version>
     <!-- downgrade netty.version used by spring-boot to the one used by geoserver azure client -->
     <!-- (software.amazon.awssdk:netty-nio-client:jar:2.9.24) for COG and GWC Azure plugin -->
     <netty.version>4.1.41.Final</netty.version>
@@ -85,6 +86,13 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-dependencies</artifactId>
         <version>${spring-boot.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.acl</groupId>
+        <artifactId>gs-acl-bom</artifactId>
+        <version>${acl.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -554,6 +562,12 @@
         <groupId>org.geoserver.community</groupId>
         <artifactId>gs-flatgeobuf</artifactId>
         <version>${gs.version}</version>
+        <exclusions>
+          <exclusion>
+            <artifactId>gs-web-core</artifactId>
+            <groupId>org.geoserver.web</groupId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.geoserver.extension</groupId>

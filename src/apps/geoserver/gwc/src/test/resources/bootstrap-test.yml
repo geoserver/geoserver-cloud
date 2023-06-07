@@ -4,6 +4,7 @@ spring:
   cloud.discovery.enabled: false
 eureka.client.enabled: false
 geoserver:
+  acl.enabled: false
   security.enabled: true
   backend:
     data-directory:

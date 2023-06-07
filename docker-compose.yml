@@ -4,7 +4,8 @@ volumes:
   rabbitmq_data: # volume for rabbitmq data, so it doesn't create an anonymous one on each container
   postgis_data:
   geowebcache_data:
-  
+  acl_data:
+    
 networks:
   gs-cloud-network:
 #    driver: bridge
@@ -23,6 +24,23 @@ services:
       - postgis_data:/var/lib/postgresql/data
     ports:
       - 5432:5432
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+  acldb:
+    image: postgis/postgis:latest
+    environment:
+      - POSTGRES_DB=acl
+      - POSTGRES_USER=acl
+      - POSTGRES_PASSWORD=acls3cr3t
+    networks:
+      - gs-cloud-network
+    volumes:
+      - acl_data:/var/lib/postgresql/data
+    ports:
+      - 6432:5432
     deploy:
       resources:
         limits:
@@ -123,7 +141,7 @@ services:
       SPRING_PROFILES_ACTIVE: dev #exposes the catalog and config API at /api/v1/**
       RETRY_MAX_ATTEMPTS: 100
       # eat our own dogfood and set a base path
-      GEOSERVER_BASE_PATH: /geoserver/cloud
+      GEOSERVER_BASE_PATH: ${BASE_PATH}
     ports:
       - 9090:8080
     networks:
@@ -161,6 +179,24 @@ services:
   #        cpus: '2.0'
   #        memory: 1G
 
+  acl:
+    image: geoservercloud/geoserver-acl:1.0.0
+    volumes:
+      - ./config/acl-service.yml:/opt/app/bin/acl.yml
+    depends_on:
+      - acldb
+    environment:
+      GEOSERVER_BASE_PATH: ${BASE_PATH}
+    networks:
+      - gs-cloud-network
+    ports:
+      - 9000:8080
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 2G
+
   # WFS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wfs=5)
   wfs:
     image: geoservercloud/geoserver-cloud-wfs:${TAG}
@@ -169,6 +205,7 @@ services:
       - rabbitmq
       - discovery
     environment:
+      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES}"
       JAVA_OPTS: "${WFS_JAVA_OPTS}"
       RETRY_MAX_ATTEMPTS: 100
     networks:
@@ -189,6 +226,7 @@ services:
       - rabbitmq
       - discovery
     environment:
+      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES}"
       JAVA_OPTS: "${WMS_JAVA_OPTS}"
       RETRY_MAX_ATTEMPTS: 100
     networks:
@@ -207,6 +245,7 @@ services:
       - rabbitmq
       - discovery
     environment:
+      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES}"
       JAVA_OPTS: "${WCS_JAVA_OPTS}"
       RETRY_MAX_ATTEMPTS: 100
     networks:
@@ -235,6 +274,7 @@ services:
       - rabbitmq
       - discovery
     environment:
+      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES}"
       JAVA_OPTS: "${REST_JAVA_OPTS}"
       RETRY_MAX_ATTEMPTS: 100
     networks:
@@ -255,6 +295,7 @@ services:
       - rabbitmq
       - discovery
     environment:
+      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES}"
       JAVA_OPTS: "${WEBUI_JAVA_OPTS}"
       RETRY_MAX_ATTEMPTS: 100
     networks:
@@ -273,6 +314,7 @@ services:
       - rabbitmq
       - discovery
     environment:
+      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES}"
       RETRY_MAX_ATTEMPTS: 100
     networks:
       - gs-cloud-network

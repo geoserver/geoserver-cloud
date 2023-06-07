@@ -11,22 +11,17 @@ services:
   discovery:
     environment:
       SPRING_PROFILES_ACTIVE: "standalone"
-    volumes:
-      - config:/etc/gscloud
     entrypoint: echo "discovery-service disabled."
 
   config:
     environment:
       SPRING_PROFILES_ACTIVE: "standalone"
-    volumes:
-      - config:/etc/gscloud
     entrypoint: echo "config-service disabled."
 
   admin:
     environment:
       SPRING_PROFILES_ACTIVE: "standalone"
-    volumes:
-      - config:/etc/gscloud
+    entrypoint: echo "admin-service disabled for standalone mode, requires discovery-service."
 
   gateway:
     environment:
@@ -42,36 +37,36 @@ services:
 
   wfs:
     environment:
-      SPRING_PROFILES_ACTIVE: "standalone,datadir"
+      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES},standalone"
     volumes:
       - config:/etc/gscloud
 
   wms:
     environment:
-      SPRING_PROFILES_ACTIVE: "standalone,datadir"
+      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES},standalone"
     volumes:
       - config:/etc/gscloud
 
   wcs:
     environment:
-      SPRING_PROFILES_ACTIVE: "standalone,datadir"
+      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES},standalone"
     volumes:
       - config:/etc/gscloud
 
   rest:
     environment:
-      SPRING_PROFILES_ACTIVE: "standalone,datadir"
+      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES},standalone"
     volumes:
       - config:/etc/gscloud
 
   webui:
     environment:
-      SPRING_PROFILES_ACTIVE: "standalone,datadir"
+      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES},standalone"
     volumes:
       - config:/etc/gscloud
 
   gwc:
     environment:
-      SPRING_PROFILES_ACTIVE: "standalone,datadir"
+      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES},standalone"
     volumes:
       - config:/etc/gscloud
