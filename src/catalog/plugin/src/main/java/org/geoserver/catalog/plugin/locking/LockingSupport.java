@@ -2,7 +2,7 @@
  * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
  * GPL 2.0 license, available at the root application directory.
  */
-package org.geoserver.cloud.catalog.locking;
+package org.geoserver.catalog.plugin.locking;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +14,6 @@ import org.geoserver.catalog.Info;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ModificationProxy;
-import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.config.SettingsInfo;
 import org.geoserver.ows.util.OwsUtils;
 

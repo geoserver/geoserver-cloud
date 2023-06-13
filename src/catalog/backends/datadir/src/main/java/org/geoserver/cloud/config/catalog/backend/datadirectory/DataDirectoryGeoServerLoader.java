@@ -9,9 +9,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.catalog.Catalog;
-import org.geoserver.cloud.catalog.locking.LockingCatalog;
-import org.geoserver.cloud.catalog.locking.LockingGeoServer;
-import org.geoserver.cloud.catalog.locking.LockingSupport;
+import org.geoserver.catalog.plugin.locking.LockingCatalog;
+import org.geoserver.catalog.plugin.locking.LockingGeoServer;
+import org.geoserver.catalog.plugin.locking.LockingSupport;
 import org.geoserver.cloud.config.catalog.backend.core.CoreBackendConfiguration;
 import org.geoserver.config.DefaultGeoServerLoader;
 import org.geoserver.config.GeoServer;

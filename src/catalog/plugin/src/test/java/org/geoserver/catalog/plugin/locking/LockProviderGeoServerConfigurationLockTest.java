@@ -2,7 +2,7 @@
  * (c) 2022 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
  * GPL 2.0 license, available at the root application directory.
  */
-package org.geoserver.cloud.catalog.locking;
+package org.geoserver.catalog.plugin.locking;
 
 import static org.geoserver.GeoServerConfigurationLock.LockType.READ;
 import static org.geoserver.GeoServerConfigurationLock.LockType.WRITE;
@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.geoserver.GeoServerConfigurationLock.LockType;
-import org.geoserver.cloud.config.catalog.backend.datadirectory.NoServletContextFileLockProvider;
+import org.geoserver.platform.resource.FileLockProvider;
 import org.geoserver.platform.resource.LockProvider;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,7 +40,7 @@ class LockProviderGeoServerConfigurationLockTest {
     @BeforeEach
     public void beforeEach() {
         System.setProperty("CONFIGURATION_TRYLOCK_TIMEOUT", "100");
-        LockProvider lockProvider = new NoServletContextFileLockProvider(mockDataDir);
+        LockProvider lockProvider = new FileLockProvider(mockDataDir);
         lock = new LockProviderGeoServerConfigurationLock(lockProvider);
     }
 

@@ -2,10 +2,10 @@
  * (c) 2022 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
  * GPL 2.0 license, available at the root application directory.
  */
-package org.geoserver.cloud.catalog.locking;
+package org.geoserver.catalog.plugin.locking;
 
 import org.geoserver.GeoServerConfigurationLock;
-import org.geoserver.cloud.config.catalog.backend.datadirectory.NoServletContextFileLockProvider;
+import org.geoserver.platform.resource.FileLockProvider;
 import org.geoserver.platform.resource.LockProvider;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -29,7 +29,7 @@ public class LockingCatalogDataDirectoryTest extends LockingCatalogTest {
     }
 
     protected @Override GeoServerConfigurationLock createConfigLock() {
-        LockProvider lockProvider = new NoServletContextFileLockProvider(tmpDir);
+        LockProvider lockProvider = new FileLockProvider(tmpDir);
         return new LockProviderGeoServerConfigurationLock(lockProvider);
     }
 }

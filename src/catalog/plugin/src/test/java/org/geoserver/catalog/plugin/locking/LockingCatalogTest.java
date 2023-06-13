@@ -2,7 +2,7 @@
  * (c) 2022 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
  * GPL 2.0 license, available at the root application directory.
  */
-package org.geoserver.cloud.catalog.locking;
+package org.geoserver.catalog.plugin.locking;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -21,7 +21,6 @@ import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.faker.CatalogFaker;
 import org.geoserver.catalog.plugin.CatalogPlugin;
-import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.plugin.GeoServerImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -157,34 +156,20 @@ class LockingCatalogTest {
         configLock.lock(LockType.WRITE);
         try {
             for (CatalogInfo info : infos) {
-                final ConfigInfoType type = ConfigInfoType.valueOf(info);
-                switch (type) {
-                    case WorkspaceInfo:
-                        ((WorkspaceInfo) info).setName(faker.name());
-                        break;
-                    case NamespaceInfo:
-                        ((NamespaceInfo) info).setURI(faker.url());
-                        break;
-                    case DataStoreInfo:
-                        ((DataStoreInfo) info).setName(faker.name());
-                        ((DataStoreInfo) info)
-                                .getConnectionParameters()
-                                .put("someparam", "somevalue");
-                        ((DataStoreInfo) info).getMetadata().put("somekey", "key value");
-                        break;
-                    case FeatureTypeInfo:
-                        ((FeatureTypeInfo) info).setName(faker.name());
-                        break;
-                    case LayerInfo:
-                        // ((LayerInfo) info).setName(faker.name());
-                        ((LayerInfo) info).setAdvertised(false);
-                        break;
-                    case StyleInfo:
-                        ((StyleInfo) info).setDateModified(new Date());
-                        ((StyleInfo) info).getMetadata().put("somekey", "key value");
-                        break;
-                    default:
-                        throw new IllegalStateException("Unexpected catalog info type " + type);
+                if (info instanceof WorkspaceInfo) ((WorkspaceInfo) info).setName(faker.name());
+                else if (info instanceof NamespaceInfo) ((NamespaceInfo) info).setURI(faker.url());
+                else if (info instanceof DataStoreInfo) {
+                    ((DataStoreInfo) info).setName(faker.name());
+                    ((DataStoreInfo) info).getConnectionParameters().put("someparam", "somevalue");
+                    ((DataStoreInfo) info).getMetadata().put("somekey", "key value");
+                } else if (info instanceof FeatureTypeInfo)
+                    ((FeatureTypeInfo) info).setName(faker.name());
+                else if (info instanceof LayerInfo) ((LayerInfo) info).setAdvertised(false);
+                else if (info instanceof StyleInfo) {
+                    ((StyleInfo) info).setDateModified(new Date());
+                    ((StyleInfo) info).getMetadata().put("somekey", "key value");
+                } else {
+                    throw new IllegalStateException("Unexpected catalog info type " + info);
                 }
                 catalog.save(info);
             }
