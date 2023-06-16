@@ -16,7 +16,6 @@ import org.geoserver.catalog.impl.AuthorityURL;
 import org.geoserver.catalog.impl.LayerIdentifier;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.gwc.wmts.WMTSInfo;
-import org.geoserver.jackson.databind.catalog.dto.InfoReference;
 import org.geoserver.jackson.databind.catalog.dto.Keyword;
 import org.geoserver.jackson.databind.catalog.dto.MetadataLink;
 import org.geoserver.jackson.databind.catalog.dto.MetadataMapDto;
@@ -47,7 +46,7 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = true)
 public abstract @Data @Generated class Service extends ConfigInfoDto {
     private String name;
-    private InfoReference workspace;
+    private String workspace;
     private boolean citeCompliant;
     private boolean enabled;
     private String onlineResource;
@@ -206,6 +205,7 @@ public abstract @Data @Generated class Service extends ConfigInfoDto {
             private NameDto name;
             private boolean enabled;
             private List<String> roles;
+            private MetadataMapDto metadata;
         }
     }
 

@@ -26,10 +26,10 @@ public class LayerGroupStyle {
     private Style name;
 
     /** The list of contained PublishedInfo. */
-    private List<InfoReference> layers;
+    private List<String> layers;
 
     /** The List of StyleInfo for {@link #getLayers() the layers} */
-    private List<InfoReference> styles;
+    private List<String> styles;
 
     private String title;
     private Map<String, String> internationalTitle;

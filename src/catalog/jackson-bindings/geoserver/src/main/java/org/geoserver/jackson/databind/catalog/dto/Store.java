@@ -23,7 +23,7 @@ import java.util.Map;
 @EqualsAndHashCode(callSuper = true)
 public abstract class Store extends CatalogInfoDto {
     private String name;
-    private InfoReference workspace;
+    private String workspace;
     private String description;
     private String type;
     private boolean enabled;

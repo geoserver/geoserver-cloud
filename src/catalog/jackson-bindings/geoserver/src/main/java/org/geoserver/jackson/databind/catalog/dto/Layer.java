@@ -24,9 +24,9 @@ public class Layer extends Published {
     }
 
     protected String path;
-    protected InfoReference defaultStyle;
-    protected Set<InfoReference> styles;
-    protected InfoReference resource;
+    protected String defaultStyle;
+    protected Set<String> styles;
+    protected String resource;
     protected Legend legend;
     private PublishedType type;
     protected Boolean queryable;

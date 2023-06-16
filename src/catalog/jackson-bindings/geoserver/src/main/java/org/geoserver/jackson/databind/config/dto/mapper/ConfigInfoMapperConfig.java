@@ -5,6 +5,7 @@
 package org.geoserver.jackson.databind.config.dto.mapper;
 
 import org.geoserver.jackson.databind.catalog.mapper.ValueMappers;
+import org.geoserver.jackson.databind.mapper.InfoReferenceMapper;
 import org.geoserver.jackson.databind.mapper.PatchMapper;
 import org.geoserver.jackson.databind.mapper.SharedMappers;
 import org.mapstruct.MapperConfig;
@@ -18,6 +19,7 @@ import org.mapstruct.ReportingPolicy;
             WPSMapper.class,
             ValueMappers.class,
             SharedMappers.class,
+            InfoReferenceMapper.class,
             PatchMapper.class
         })
 public class ConfigInfoMapperConfig {}

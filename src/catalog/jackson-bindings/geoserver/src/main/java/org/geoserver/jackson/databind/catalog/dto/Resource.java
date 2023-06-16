@@ -30,8 +30,8 @@ public abstract class Resource extends CatalogInfoDto {
     }
 
     private String name;
-    private InfoReference namespace;
-    private InfoReference store;
+    private String namespace;
+    private String store;
     private String nativeName;
     private List<String> alias;
     private String title;

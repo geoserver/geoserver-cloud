@@ -7,6 +7,7 @@ package org.geoserver.jackson.databind.catalog.mapper;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.PublishedInfo;
+import org.geoserver.catalog.impl.LayerGroupStyle;
 import org.geoserver.jackson.databind.catalog.dto.Layer;
 import org.geoserver.jackson.databind.catalog.dto.LayerGroup;
 import org.geoserver.jackson.databind.catalog.dto.Published;
@@ -42,11 +43,18 @@ public interface PublishedMapper {
     @Mapping(target = "advertised", ignore = true)
     @Mapping(target = "internationalTitle", ignore = true)
     @Mapping(target = "internationalAbstract", ignore = true)
+    @Mapping(target = "resource", source = "resource", qualifiedByName = "resourceInfo")
     LayerInfo map(Layer o);
 
     Layer map(LayerInfo o);
 
+    @Mapping(source = "layers", target = "layers", qualifiedByName = "publishedInfo")
     LayerGroupInfo map(LayerGroup o);
 
     LayerGroup map(LayerGroupInfo o);
+
+    @Mapping(source = "layers", target = "layers", qualifiedByName = "publishedInfo")
+    LayerGroupStyle map(org.geoserver.jackson.databind.catalog.dto.LayerGroupStyle o);
+
+    org.geoserver.jackson.databind.catalog.dto.LayerGroupStyle map(LayerGroupStyle o);
 }
