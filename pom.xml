@@ -311,7 +311,7 @@
     <profile>
       <id>geoserver</id>
       <activation>
-        <activeByDefault>true</activeByDefault>
+        <activeByDefault>false</activeByDefault>
       </activation>
       <modules>
         <module>geoserver_submodule</module>
