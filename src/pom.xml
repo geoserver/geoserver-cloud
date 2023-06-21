@@ -20,9 +20,9 @@
   <properties>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
-    <spring-cloud.version>2021.0.6</spring-cloud.version>
-    <spring-boot.version>2.7.11</spring-boot.version>
-    <jackson.version>2.15.0</jackson.version>
+    <spring-cloud.version>2021.0.7</spring-cloud.version>
+    <spring-boot.version>2.7.12</spring-boot.version>
+    <jackson.version>2.15.2</jackson.version>
     <feign-reactor.version>3.2.6</feign-reactor.version>
     <gs.version>2.23.0-CLOUD</gs.version>
     <gs.community.version>2.23.0-CLOUD</gs.community.version>
