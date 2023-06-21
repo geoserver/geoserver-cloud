@@ -4,13 +4,13 @@
  */
 package org.geoserver.cloud.wps;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-@Disabled("Ignore until the app it functional")
 @SpringBootTest
+@EnableAutoConfiguration
 @ActiveProfiles("test")
 public class WpsApplicationTest {
 

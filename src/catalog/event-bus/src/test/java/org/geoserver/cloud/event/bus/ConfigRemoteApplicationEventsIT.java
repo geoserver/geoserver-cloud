@@ -30,6 +30,8 @@ import org.geoserver.config.impl.SettingsInfoImpl;
 import org.geoserver.wms.CacheConfiguration;
 import org.geoserver.wms.WMSInfo;
 import org.geoserver.wms.WMSInfoImpl;
+import org.geoserver.wps.WPSInfo;
+import org.geoserver.wps.WPSInfoImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -47,6 +49,13 @@ public class ConfigRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
     public @Test void testConfigAddEvent_ServiceInfo() {
         WMSInfoImpl service = new WMSInfoImpl();
         service.setName("WMS");
+        testRemoteAddEvent(service, geoserver::add, ServiceAdded.class);
+    }
+
+    public @Test void testConfigAddEvent_WPSInfo() {
+        WPSInfoImpl service = new WPSInfoImpl();
+        service.setName("WPS");
+        service.setTitle("My WPS");
         testRemoteAddEvent(service, geoserver::add, ServiceAdded.class);
     }
 
@@ -69,6 +78,20 @@ public class ConfigRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
                 s -> {
                     s.setCacheConfiguration(cacheCfg);
                     s.getAuthorityURLs().addAll(testData.faker().authUrls(2));
+                },
+                geoserver::save,
+                ServiceModified.class);
+    }
+
+    public @Test void testConfigRemoteModifyEvent_WPSInfo() {
+        WPSInfo service = testData.faker().serviceInfo("WPS_WS_TEST", WPSInfoImpl::new);
+        service.setWorkspace(testData.workspaceB);
+        geoserver.add(service);
+
+        testRemoteModifyEvent(
+                service,
+                s -> {
+                    s.setTitle("My WPS");
                 },
                 geoserver::save,
                 ServiceModified.class);
