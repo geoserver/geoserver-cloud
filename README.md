@@ -152,6 +152,14 @@ $ mkdir docker-compose_datadir
 $ alias dcd="docker-compose -f docker-compose.yml -f docker-compose-shared_datadir.yml"
 $ dcd up -d
 ```
+Note: In case you want to start the docker composition and being able to test some layers, 
+you can copy data/release datadir that is part of the geoserver_submodule
+instead of creating the docker-compose_datadir emtpy folder, as follow:
+
+```bash
+$ cp -rf ./geoserver_submodule/geoserver/data/release /tmp/datadir
+$ ln -s /tmp/datadir docker-compose_datadir
+```
 
 Verify the services are running with `dcd ps`.
 Healthckecks use `curl` hitting the `http:localhost:8081/actuator/health`.

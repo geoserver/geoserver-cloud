@@ -256,15 +256,24 @@ services:
           cpus: '2.0'
           memory: 2G
 
-#  # WPS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wps=5)
-#  wps:
-#    image: geoservercloud/geoserver-cloud-wps:${TAG}
-#    depends_on:
-#      - rabbitmq
-#    environment:
-#      JAVA_OPTS: ${WPS_JAVA_OPTS}
-#    networks:
-#      - gs-cloud-network
+  # WPS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wps=5)
+  wps:
+    image: geoservercloud/geoserver-cloud-wps:${TAG}
+    user: ${GS_USER}
+    depends_on:
+      - rabbitmq
+      - discovery
+    environment:
+      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES}"
+      JAVA_OPTS: "${WPS_JAVA_OPTS}"
+      RETRY_MAX_ATTEMPTS: 100
+    networks:
+      - gs-cloud-network
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
 
   # REST config microservice, port dynamically allocated to allow scaling (e.g docker-compose scale rest=5)
   rest:
