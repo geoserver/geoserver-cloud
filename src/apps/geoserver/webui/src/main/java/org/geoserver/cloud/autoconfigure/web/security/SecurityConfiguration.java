@@ -35,13 +35,6 @@ import javax.servlet.ServletResponse;
         )
 public class SecurityConfiguration {
 
-    //	@Bean
-    //	@ConditionalOnProperty("geoserver.web-ui.security.logout-url")
-    //	ConfigurableLogoutUrlFilter configurableLogoutUrlFilter(
-    //			@Value("${geoserver.web-ui.security.logout-url}") String logoutUrl) {
-    //	}
-    //
-
     @Bean
     @ConditionalOnProperty("geoserver.web-ui.security.logout-url")
     FilterRegistrationBean<ConfigurableLogoutUrlFilter> configurableLogoutUrlFilterRegistration(
