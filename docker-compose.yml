@@ -152,33 +152,6 @@ services:
           cpus: '4.0'
           memory: 1G
 
-  # catalog microservice, provides a unified catalog backend to all services
-  #catalog:
-  #  image: geoservercloud/geoserver-cloud-catalog:${TAG}
-  #  user: ${GS_USER}
-  #  depends_on:
-  #    - config
-  #    - rabbitmq
-  #  environment:
-  #    # Force the max RAM (-XX:MaxRAM) seen by the JVM in case --compatibility wasn't used to launch the composition
-  #    JAVA_OPTS: "${CATALOG_JAVA_OPTS}"
-  #    CATALOG_IO_THREADS: 8
-  #    CATALOG_IO_MAX_QUEUED: 10000
-  #    BACKEND_JDBCCONFIG: "true"
-  #    JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
-  #    JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
-  #    JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
-  #    JDBCCONFIG_MIN_CONNECTIONS: 2
-  #    JDBCCONFIG_MAX_CONNECTIONS: 16 # 2 x CATALOG_IO_THREADS
-  #    RETRY_MAX_ATTEMPTS: 100
-  #  networks:
-  #    - gs-cloud-network
-  #  deploy:
-  #    resources:
-  #      limits:
-  #        cpus: '2.0'
-  #        memory: 1G
-
   acl:
     image: geoservercloud/geoserver-acl:1.0.0
     volumes:
