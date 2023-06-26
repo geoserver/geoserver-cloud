@@ -36,7 +36,7 @@ jobs:
       with:
         distribution: 'temurin'
         java-version: '17'
-        cache: 'maven'
+        #cache: 'maven'
 
     - name: Validate source code formatting
       run: make lint
