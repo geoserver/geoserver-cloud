@@ -4,8 +4,6 @@
  */
 package org.geoserver.cloud.config.catalog.backend.core;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.LayerGroupVisibilityPolicy;
 import org.geoserver.catalog.impl.AdvertisedCatalog;
@@ -33,24 +31,25 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.event.ApplicationContextEvent;
+import org.springframework.context.event.ContextRefreshedEvent;
 
 // proxyBeanMethods = true required to avoid circular reference exceptions, especially related to
 // GeoServerExtensions still being created
 @Configuration(proxyBeanMethods = true)
 @EnableConfigurationProperties(CatalogProperties.class)
-@Slf4j
 public class CoreBackendConfiguration {
 
     public @Bean XStreamPersisterFactory xstreamPersisterFactory() {
         return new XStreamPersisterFactory();
     }
 
-    //    @Autowired
-    //    @DependsOn("geoServerLoaderImpl")
-    //    public @Bean GeoServerLoaderProxy geoServerLoader(GeoServerResourceLoader resourceLoader)
+    // @Autowired
+    // @DependsOn("geoServerLoaderImpl")
+    // public @Bean GeoServerLoaderProxy geoServerLoader(GeoServerResourceLoader resourceLoader)
     // {
-    //        return new GeoServerLoaderProxy(resourceLoader);
-    //    }
+    // return new GeoServerLoaderProxy(resourceLoader);
+    // }
 
     public @Bean GeoServerExtensions extensions() {
         return new GeoServerExtensions();
@@ -89,43 +88,55 @@ public class CoreBackendConfiguration {
         return rawCatalog;
     }
 
-    // Added in 2.22.x
-    //  <bean id="defaultResourceAccessManager"
-    // class="org.geoserver.security.impl.DefaultResourceAccessManager">
-    //    <constructor-arg ref="accessRulesDao"/>
-    //    <constructor-arg ref="rawCatalog"/>
-    //    <property name="groupsCache" ref="layerGroupContainmentCache"/>
-    //  </bean>
+    /**
+     * Added to {@literal gs-main.jar} in 2.22.x as
+     *
+     * <pre>
+     * {@code
+     *  <bean id="defaultResourceAccessManager" class="org.geoserver.security.impl.DefaultResourceAccessManager">
+     *      <constructor-arg ref="accessRulesDao"/>
+     *      <constructor-arg ref="rawCatalog"/>
+     *      <property name="groupsCache" ref="layerGroupContainmentCache"/>
+     *  </bean>
+     * }
+     */
     @ConditionalOnMissingBean
     @DependsOn("layerGroupContainmentCache")
     public @Bean DefaultResourceAccessManager defaultResourceAccessManager( //
             DataAccessRuleDAO dao, //
-            @Qualifier("rawCatalog") Catalog rawCatalog) {
-        return new DefaultResourceAccessManager(dao, rawCatalog);
+            @Qualifier("rawCatalog") Catalog rawCatalog,
+            LayerGroupContainmentCache layerGroupContainmentCache) {
+
+        DefaultResourceAccessManager accessManager =
+                new DefaultResourceAccessManager(dao, rawCatalog);
+        accessManager.setGroupsCache(layerGroupContainmentCache);
+        return accessManager;
     }
 
-    // Added in 2.22.x
-    //  <bean id="layerGroupContainmentCache"
-    // class="org.geoserver.security.impl.LayerGroupContainmentCache">
-    //    <constructor-arg ref="rawCatalog"/>
-    //  </bean>
-    @ConditionalOnMissingBean
+    /**
+     * Added to {@literal gs-main.jar} in 2.22.x as
+     *
+     * <pre>
+     * {@code
+     *  <bean id="layerGroupContainmentCache" class="org.geoserver.security.impl.LayerGroupContainmentCache">
+     *      <constructor-arg ref="rawCatalog"/>
+     *  </bean>
+     * }
+     * <p>
+     * <strong>Overridden</strong> here to act only upon {@link ContextRefreshedEvent}
+     * instead of on every {@link ApplicationContextEvent},
+     * especially due to {@code org.springframework.cloud.client.discovery.event.HeartbeatEvent} and possibly
+     * others.
+     */
     public @Bean LayerGroupContainmentCache layerGroupContainmentCache(
             @Qualifier("rawCatalog") Catalog rawCatalog) {
         return new LayerGroupContainmentCache(rawCatalog) {
 
             @Override
             public void onApplicationEvent(ApplicationEvent applicationEvent) {
-                try {
-                    super.onApplicationEvent(applicationEvent);
-                } catch (RuntimeException e) {
-                    String p = applicationEvent.getClass().getPackage().getName();
-                    if (p.startsWith("org.springframework.test.context.event")) {
-                        // ignore, spring-test sends events when the catalog is unavailable (e.g.
-                        // jdbcconfig db closed)
-                        log.debug("Error handling " + applicationEvent, e);
-                    } else {
-                        throw e;
+                if (applicationEvent instanceof ContextRefreshedEvent) {
+                    if (applicationEvent instanceof ContextRefreshedEvent) {
+                        super.onApplicationEvent(applicationEvent);
                     }
                 }
             }
