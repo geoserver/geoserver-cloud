@@ -94,6 +94,7 @@ public class GeoServerMainModuleConfiguration {
             |xstreamPersisterFactory\
             |loggingInitializer\
             |configurationLock\
+            |layerGroupContainmentCache\
             """;
 
     static final String EXCLUDE_BEANS_REGEX =
