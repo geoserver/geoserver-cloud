@@ -17,7 +17,7 @@ import lombok.Generated;
 public class Style extends CatalogInfoDto {
 
     private String name;
-    private InfoReference workspace;
+    private String workspace;
     private String format;
     private VersionDto formatVersion;
     private String filename;

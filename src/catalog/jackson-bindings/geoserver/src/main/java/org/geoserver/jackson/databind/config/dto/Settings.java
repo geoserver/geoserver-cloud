@@ -11,7 +11,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Generated;
 
 import org.geoserver.config.SettingsInfo;
-import org.geoserver.jackson.databind.catalog.dto.InfoReference;
 import org.geoserver.jackson.databind.catalog.dto.MetadataMapDto;
 
 import java.util.Locale;
@@ -20,7 +19,7 @@ import java.util.Locale;
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("SettingsInfo")
 public @Data @Generated class Settings extends ConfigInfoDto {
-    private InfoReference workspace;
+    private String workspace;
     private String title;
     private Contact contact;
     private String charset;

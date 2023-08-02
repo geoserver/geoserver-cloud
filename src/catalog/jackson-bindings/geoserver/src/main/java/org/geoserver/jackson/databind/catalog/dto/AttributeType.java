@@ -14,7 +14,7 @@ import java.util.Map;
 @Generated
 public class AttributeType {
     private String name;
-    private InfoReference featureType;
+    private String featureType;
 
     private int minOccurs;
     private int maxOccurs;

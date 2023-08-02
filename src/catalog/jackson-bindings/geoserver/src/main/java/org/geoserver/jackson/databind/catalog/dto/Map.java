@@ -20,5 +20,5 @@ public class Map extends CatalogInfoDto {
 
     private String name;
     private boolean enabled;
-    private List<InfoReference> layers;
+    private List<String> layers;
 }

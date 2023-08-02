@@ -160,7 +160,7 @@ public class ProxyUtils {
         boolean isResolvingProxy = isResolvingProxy(unresolved);
         T info = unwrap(unresolved);
         if (isResolvingProxy) {
-            if (info instanceof CatalogInfo) info = ResolvingProxy.resolve(catalog, info);
+            if (info instanceof CatalogInfo) info = resolve(catalog, info);
             else if (info instanceof GeoServerInfo) info = (T) this.config.getGlobal();
             else if (info instanceof LoggingInfo) info = (T) this.config.getLogging();
             else if (info instanceof ServiceInfo)
@@ -183,6 +183,24 @@ public class ProxyUtils {
             if (info instanceof LoggingInfo) resolveInternal((LoggingInfo) info);
         }
         return info;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T extends Info> T resolve(@NonNull Catalog catalog, T info) {
+        // Workaround for a bug in ResolvingProxy.resolve(), if info is a PublishedInfo (as opposed
+        // to a concrete LayerInfo or LayerGroupInfo) it does nothing.
+        if (info instanceof PublishedInfo) {
+            PublishedInfo l =
+                    ResolvingProxy.resolve(
+                            catalog, ResolvingProxy.create(info.getId(), LayerInfo.class));
+            if (null == l) {
+                l =
+                        ResolvingProxy.resolve(
+                                catalog, ResolvingProxy.create(info.getId(), LayerGroupInfo.class));
+            }
+            return (T) l;
+        }
+        return ResolvingProxy.resolve(catalog, info);
     }
 
     public static <T extends Info> boolean isResolvingProxy(final T info) {

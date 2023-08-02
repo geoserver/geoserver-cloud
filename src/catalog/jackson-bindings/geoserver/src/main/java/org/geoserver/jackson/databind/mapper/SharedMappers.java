@@ -4,25 +4,16 @@
  */
 package org.geoserver.jackson.databind.mapper;
 
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 import org.geoserver.catalog.AuthorityURLInfo;
-import org.geoserver.catalog.Info;
 import org.geoserver.catalog.KeywordInfo;
 import org.geoserver.catalog.LayerIdentifierInfo;
-import org.geoserver.catalog.MetadataMap;
-import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.impl.AuthorityURL;
-import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.impl.LayerIdentifier;
 import org.geoserver.catalog.impl.MetadataLinkInfoImpl;
-import org.geoserver.catalog.impl.ModificationProxy;
-import org.geoserver.catalog.impl.ResolvingProxy;
-import org.geoserver.catalog.impl.StyleInfoImpl;
 import org.geoserver.jackson.databind.catalog.dto.CRS;
 import org.geoserver.jackson.databind.catalog.dto.Envelope;
-import org.geoserver.jackson.databind.catalog.dto.InfoReference;
 import org.geoserver.jackson.databind.catalog.dto.Keyword;
 import org.geoserver.jackson.databind.catalog.dto.VersionDto;
 import org.geoserver.jackson.databind.config.dto.NameDto;
@@ -34,15 +25,15 @@ import org.geotools.referencing.wkt.Formattable;
 import org.geotools.util.Version;
 import org.mapstruct.Mapper;
 import org.mapstruct.ObjectFactory;
+import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
 import org.opengis.feature.type.Name;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import java.util.Objects;
 import java.util.Optional;
 
-@Mapper
+@Mapper(unmappedTargetPolicy = ReportingPolicy.ERROR)
 @Slf4j
 public abstract class SharedMappers {
 
@@ -60,39 +51,6 @@ public abstract class SharedMappers {
 
     public Version dtoToVersion(VersionDto v) {
         return v == null ? null : new Version(v.getValue());
-    }
-
-    public <T extends Info> InfoReference infoToReference(final T info) {
-        if (info == null) return null;
-        final String id = info.getId();
-        final ClassMappings type = resolveType(info);
-
-        // beware of remote styles that have no id
-        if (ClassMappings.STYLE.equals(type)) {
-            StyleInfo s = (StyleInfo) info;
-            MetadataMap metadata = s.getMetadata();
-            boolean isRemoteStyle =
-                    metadata != null
-                            && Boolean.valueOf(
-                                    metadata.getOrDefault(StyleInfoImpl.IS_REMOTE, "false")
-                                            .toString());
-            if (isRemoteStyle) {
-                return null;
-            }
-        }
-        Objects.requireNonNull(id, () -> "Object has no id: " + info);
-        Objects.requireNonNull(type, "Bad info class: " + info.getClass());
-        return new InfoReference(type, id);
-    }
-
-    public <T extends Info> T referenceToInfo(InfoReference ref) {
-        if (ref == null) return null;
-        String id = ref.getId();
-        Objects.requireNonNull(id, () -> "Object Reference has no id: " + ref);
-        @SuppressWarnings("unchecked")
-        Class<T> type = (Class<T>) ref.getType().getInterface();
-        T proxy = ResolvingProxy.create(id, type);
-        return proxy;
     }
 
     public String classToCanonicalName(Class<?> value) {
@@ -139,25 +97,6 @@ public abstract class SharedMappers {
 
     public Name map(NameDto dto) {
         return new NameImpl(dto.getNamespaceURI(), dto.getLocalPart());
-    }
-
-    private ClassMappings resolveType(@NonNull Info value) {
-        value = ModificationProxy.unwrap(value);
-        ClassMappings type = ClassMappings.fromImpl(value.getClass());
-        if (type == null) {
-            Class<?>[] interfaces = value.getClass().getInterfaces();
-            for (Class<?> i : interfaces) {
-                if (Info.class.isAssignableFrom(i)) {
-                    @SuppressWarnings("unchecked")
-                    Class<? extends Info> infoClass = (Class<? extends Info>) i;
-                    type = ClassMappings.fromInterface(infoClass);
-                    if (type != null) {
-                        break;
-                    }
-                }
-            }
-        }
-        return type;
     }
 
     public CoordinateReferenceSystem crs(CRS source) {

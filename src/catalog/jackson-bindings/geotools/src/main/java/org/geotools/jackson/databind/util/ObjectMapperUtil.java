@@ -38,6 +38,7 @@ public class ObjectMapperUtil {
         objectMapper.setDefaultPropertyInclusion(Include.NON_EMPTY);
         objectMapper.disable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN);
         objectMapper.findAndRegisterModules();
+
         return objectMapper;
     }
 }

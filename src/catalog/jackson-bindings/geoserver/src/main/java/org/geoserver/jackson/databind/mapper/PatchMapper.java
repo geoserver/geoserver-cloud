@@ -19,6 +19,7 @@ import org.geoserver.jackson.databind.config.dto.mapper.WPSMapper;
 import org.geotools.jackson.databind.filter.dto.Literal;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
 
 import java.util.Collection;
@@ -26,16 +27,18 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Mapper(
+        unmappedTargetPolicy = ReportingPolicy.ERROR,
         uses = {
             ObjectFacotries.class,
             WPSMapper.class,
             ValueMappers.class,
             SharedMappers.class,
+            InfoReferenceMapper.class,
             GeoServerConfigMapper.class
         })
 public abstract class PatchMapper {
 
-    private static SharedMappers SHARED = Mappers.getMapper(SharedMappers.class);
+    private static InfoReferenceMapper REFS = Mappers.getMapper(InfoReferenceMapper.class);
 
     @Mapping(target = "propertyNames", ignore = true)
     public abstract Patch dtoToPatch(PatchDto dto);
@@ -55,7 +58,7 @@ public abstract class PatchMapper {
     private Object dtoToValue(final Object valueDto) {
         Object value = valueDto;
         if (valueDto instanceof InfoReference) {
-            value = SHARED.referenceToInfo((InfoReference) valueDto);
+            value = REFS.referenceToInfo((InfoReference) valueDto);
         } else if (valueDto instanceof Collection) {
             Collection<?> c = (Collection<?>) valueDto;
             value = copyOf(c, this::dtoToValue);
@@ -78,7 +81,7 @@ public abstract class PatchMapper {
         if (value instanceof Info) {
             Info info = (Info) dto;
             if (ProxyUtils.encodeByReference(info)) {
-                dto = (R) SHARED.infoToReference(info);
+                dto = (R) REFS.infoToReference(info);
             }
         } else if (value instanceof Collection) {
             Collection<?> c = (Collection<?>) value;

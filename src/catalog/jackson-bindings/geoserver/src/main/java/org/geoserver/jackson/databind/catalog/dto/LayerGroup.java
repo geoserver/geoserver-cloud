@@ -29,11 +29,11 @@ public class LayerGroup extends Published {
 
     protected Mode mode = Mode.SINGLE;
     protected Boolean queryDisabled;
-    protected InfoReference workspace;
-    protected InfoReference rootLayer;
-    protected InfoReference rootLayerStyle;
-    protected List<InfoReference> layers;
-    protected List<InfoReference> styles;
+    protected String workspace;
+    protected String rootLayer;
+    protected String rootLayerStyle;
+    protected List<String> layers;
+    protected List<String> styles;
     protected List<MetadataLink> metadataLinks;
     protected Envelope bounds;
     private List<Keyword> keywords;

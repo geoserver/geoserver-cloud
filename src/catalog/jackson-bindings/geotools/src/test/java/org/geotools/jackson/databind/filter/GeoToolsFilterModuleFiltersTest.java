@@ -27,7 +27,7 @@ public abstract class GeoToolsFilterModuleFiltersTest extends FilterRoundtripTes
 
     protected void print(String logmsg, Object... args) {
         boolean debug = Boolean.getBoolean("debug");
-        if (debug) log.debug(logmsg, args);
+        if (debug) log.info(logmsg, args);
     }
 
     private ObjectMapper objectMapper;

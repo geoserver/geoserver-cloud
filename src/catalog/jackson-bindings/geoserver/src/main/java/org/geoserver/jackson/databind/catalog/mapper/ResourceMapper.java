@@ -40,11 +40,13 @@ public interface ResourceMapper {
 
     @Mapping(target = "catalog", ignore = true)
     @Mapping(target = "featureType", ignore = true)
+    @Mapping(source = "store", target = "store", qualifiedByName = "dataStoreInfo")
     FeatureTypeInfo map(FeatureType o);
 
     FeatureType map(FeatureTypeInfo o);
 
     @Mapping(target = "catalog", ignore = true)
+    @Mapping(source = "store", target = "store", qualifiedByName = "coverageStoreInfo")
     CoverageInfo map(Coverage o);
 
     Coverage map(CoverageInfo o);
@@ -53,11 +55,13 @@ public interface ResourceMapper {
     @Mapping(target = "remoteStyleInfos", ignore = true)
     @Mapping(target = "styles", ignore = true)
     @Mapping(target = "allAvailableRemoteStyles", ignore = true)
+    @Mapping(source = "store", target = "store", qualifiedByName = "wmsStoreInfo")
     WMSLayerInfo map(WMSLayer o);
 
     WMSLayer map(WMSLayerInfo o);
 
     @Mapping(target = "catalog", ignore = true)
+    @Mapping(source = "store", target = "store", qualifiedByName = "wmtsStoreInfo")
     WMTSLayerInfo map(WMTSLayer o);
 
     WMTSLayer map(WMTSLayerInfo o);
