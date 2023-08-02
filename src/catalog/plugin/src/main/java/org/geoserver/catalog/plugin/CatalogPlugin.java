@@ -12,7 +12,6 @@ import lombok.NonNull;
 
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogCapabilities;
-import org.geoserver.catalog.CatalogException;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogFactory;
 import org.geoserver.catalog.CatalogInfo;
@@ -36,13 +35,7 @@ import org.geoserver.catalog.WMSStoreInfo;
 import org.geoserver.catalog.WMTSLayerInfo;
 import org.geoserver.catalog.WMTSStoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
-import org.geoserver.catalog.event.CatalogAddEvent;
-import org.geoserver.catalog.event.CatalogBeforeAddEvent;
-import org.geoserver.catalog.event.CatalogEvent;
 import org.geoserver.catalog.event.CatalogListener;
-import org.geoserver.catalog.event.CatalogModifyEvent;
-import org.geoserver.catalog.event.CatalogPostModifyEvent;
-import org.geoserver.catalog.event.CatalogRemoveEvent;
 import org.geoserver.catalog.event.impl.CatalogAddEventImpl;
 import org.geoserver.catalog.event.impl.CatalogBeforeAddEventImpl;
 import org.geoserver.catalog.event.impl.CatalogModifyEventImpl;
@@ -54,7 +47,6 @@ import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.impl.DefaultCatalogFacade;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.impl.ProxyUtils;
-import org.geoserver.catalog.impl.ResolvingProxy;
 import org.geoserver.catalog.plugin.forwarding.ResolvingCatalogFacadeDecorator;
 import org.geoserver.catalog.plugin.resolving.ModificationProxyDecorator;
 import org.geoserver.catalog.plugin.rules.CatalogBusinessRules;
@@ -66,7 +58,6 @@ import org.geoserver.config.GeoServerLoader;
 import org.geoserver.config.plugin.GeoServerImpl;
 import org.geoserver.config.util.XStreamPersister;
 import org.geoserver.ows.util.OwsUtils;
-import org.geoserver.platform.ExtensionPriority;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.util.Converters;
@@ -82,7 +73,6 @@ import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.identity.Identifier;
 import org.opengis.filter.sort.SortBy;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -92,7 +82,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -167,7 +156,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
     /** Handles {@link CatalogInfo} validation rules before adding or updating an object */
     protected final CatalogValidationRules validationSupport;
 
-    private CatalogBusinessRules businessRules;
+    private final CatalogBusinessRules businessRules = new CatalogBusinessRules();
 
     protected final boolean isolated;
 
@@ -189,7 +178,27 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
         setFacade(facade);
         resourcePool = ResourcePool.create(this);
         validationSupport = new CatalogValidationRules(this);
-        businessRules = new CatalogBusinessRules();
+    }
+
+    /** Constructor for {@link #getRawCatalog()} */
+    private CatalogPlugin(CatalogPlugin catalog) {
+        super(catalog); // sets dispatcher and resourcePool
+        this.isolated = false;
+        super.resourcePool = catalog.resourcePool;
+        super.resourceLoader = catalog.resourceLoader;
+        validationSupport = new CatalogValidationRules(this);
+        // use setFacade to wrap it in a modificationproxy resolver if needed
+        // sets both rawFacade and facade
+        setFacade(catalog.getRawFacade());
+    }
+
+    /**
+     * Returns a truly raw version of the CatalogImpl, that means with a raw catalog facade instead
+     * of the Isolated Workspace one, nothing is filtered or hidden. Only for usage by the
+     * ResolvingProxy, should otherwise never be used.
+     */
+    public @Override CatalogPlugin getRawCatalog() {
+        return new CatalogPlugin(this);
     }
 
     public @Override ExtendedCatalogFacade getFacade() {
@@ -1159,23 +1168,19 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
 
     // Event methods
     public @Override Collection<CatalogListener> getListeners() {
-        return Collections.unmodifiableCollection(listeners);
+        return super.getListeners();
     }
 
     public @Override void addListener(CatalogListener listener) {
-        listeners.add(listener);
-        Collections.sort(listeners, ExtensionPriority.COMPARATOR);
+        super.addListener(listener);
     }
 
     public @Override void removeListener(CatalogListener listener) {
-        listeners.remove(listener);
+        super.removeListener(listener);
     }
 
     public @Override void removeListeners(Class listenerClass) {
-        new ArrayList<>(listeners)
-                .stream()
-                        .filter(l -> listenerClass.isInstance(l))
-                        .forEach(l -> listeners.remove(l));
+        super.removeListeners(listenerClass);
     }
 
     public @Override ResourcePool getResourcePool() {
@@ -1242,67 +1247,10 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
         event(event);
     }
 
-    protected void event(CatalogEvent event) {
-        CatalogException toThrow = null;
-
-        for (CatalogListener listener : listeners) {
-            try {
-                if (event instanceof CatalogAddEvent) {
-                    listener.handleAddEvent((CatalogAddEvent) event);
-                } else if (event instanceof CatalogRemoveEvent) {
-                    listener.handleRemoveEvent((CatalogRemoveEvent) event);
-                } else if (event instanceof CatalogModifyEvent) {
-                    listener.handleModifyEvent((CatalogModifyEvent) event);
-                } else if (event instanceof CatalogPostModifyEvent) {
-                    listener.handlePostModifyEvent((CatalogPostModifyEvent) event);
-                } else if (event instanceof CatalogBeforeAddEvent) {
-                    listener.handlePreAddEvent((CatalogBeforeAddEvent) event);
-                }
-            } catch (Throwable t) {
-                if (t instanceof CatalogException && toThrow == null) {
-                    toThrow = (CatalogException) t;
-                } else if (LOGGER.isLoggable(Level.WARNING)) {
-                    LOGGER.log(
-                            Level.WARNING, "Catalog listener threw exception handling event.", t);
-                }
-            }
-        }
-
-        if (toThrow != null) {
-            throw toThrow;
-        }
-    }
-
-    public static Object unwrap(Object obj) {
-        return obj;
-    }
-
-    /**
-     * Implementation method for resolving all {@link ResolvingProxy} instances.
-     *
-     * <p>(GR)REVISIT: what do ResolvingProxy instances have to do with a default catalog
-     * implementation? this is not even API. It's up to the calling code to resolve objects and
-     * provide valid input. The {@link ResolvingCatalogFacadeDecorator} can be of good use for the
-     * default geoserver loader here, while it should load in order to guarantee presence of
-     * dependent objects.
-     */
-    public void resolve() {
-        facade.setCatalog(this);
-        facade.resolve();
-
-        if (listeners == null) {
-            listeners = new ArrayList<CatalogListener>();
-        }
-
-        if (resourcePool == null) {
-            resourcePool = ResourcePool.create(this);
-        }
-    }
-
-    public void sync(Catalog other) {
+    public @Override void sync(CatalogImpl other) {
         other.getFacade().syncTo(facade);
-        listeners.clear();
-        listeners.addAll(other.getListeners());
+        removeListeners(CatalogListener.class);
+        other.getListeners().forEach(this::addListener);
 
         ResourcePool resourcePool = other.getResourcePool();
         // REVISIT: this still sounds wrong... looks like an old assumption that both catalogs are

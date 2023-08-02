@@ -9,8 +9,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.autoconfigure.catalog.backend.core.GeoServerBackendAutoConfiguration;
 import org.geoserver.cloud.event.security.SecurityConfigChanged;
 import org.geoserver.cloud.security.GeoServerSecurityConfiguration;
+import org.geoserver.config.util.XStreamPersisterFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.event.EventListener;
@@ -45,6 +48,15 @@ public class GeoServerSecurityAutoConfiguration {
                         GeoServer security auto-configuration enabled \
                         explicitly through geoserver.security.enabled: true
                         """);
+        }
+
+        /**
+         * @since 1.3, required since geoserver 2.23.2
+         */
+        @Bean
+        @ConditionalOnMissingBean
+        XStreamPersisterFactory xstreamPersisterFactory() {
+            return new XStreamPersisterFactory();
         }
     }
 
