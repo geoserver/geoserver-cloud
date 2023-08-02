@@ -6,6 +6,7 @@ package org.geoserver.catalog.plugin;
 
 import static java.util.Objects.requireNonNull;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Ordering;
 
 import org.geoserver.catalog.CatalogInfo;
@@ -43,6 +44,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
@@ -376,6 +379,10 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
         return result.stream();
     }
 
+    public Optional<T> findById(String id) {
+        return findById(id, infoType);
+    }
+
     /** Looks up a CatalogInfo by class and identifier */
     public @Override <U extends T> Optional<U> findById(String id, Class<U> clazz) {
         requireNonNull(id, () -> "id is null, class: " + clazz);
@@ -454,6 +461,14 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
 
     static class NamespaceInfoLookup extends CatalogInfoLookup<NamespaceInfo>
             implements NamespaceRepository {
+
+        private ConcurrentHashMap<String, List<NamespaceInfo>> index = new ConcurrentHashMap<>();
+        private static Comparator<NamespaceInfo> VALUE_ORDER =
+                (n1, n2) -> n1.getId().compareTo(n2.getId());
+
+        /** guards modifications to the index and its ArrayList values */
+        private ReadWriteLock lock = new ReentrantReadWriteLock();
+
         private NamespaceInfo defaultNamespace;
 
         public NamespaceInfoLookup() {
@@ -467,22 +482,113 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
                             .orElseThrow(NoSuchElementException::new);
         }
 
+        public @Override void unsetDefaultNamespace() {
+            defaultNamespace = null;
+        }
+
         public @Override Optional<NamespaceInfo> getDefaultNamespace() {
             return Optional.ofNullable(defaultNamespace);
         }
 
         public @Override Optional<NamespaceInfo> findOneByURI(String uri) {
             requireNonNull(uri);
-            return findFirst(NamespaceInfo.class, ns -> uri.equals(ns.getURI()));
+            return valueList(uri, false).stream().findFirst();
         }
 
         public @Override Stream<NamespaceInfo> findAllByURI(String uri) {
             requireNonNull(uri);
-            return list(NamespaceInfo.class, ns -> ns.getURI().equals(uri));
+            lock.readLock().lock();
+            try {
+                return List.copyOf(valueList(uri, false)).stream();
+            } finally {
+                lock.readLock().unlock();
+            }
         }
 
-        public @Override void unsetDefaultNamespace() {
-            defaultNamespace = null;
+        @Override
+        public void add(NamespaceInfo value) {
+            lock.writeLock().lock();
+            try {
+                super.add(value);
+                addInternal(value);
+            } finally {
+                lock.writeLock().unlock();
+            }
+        }
+
+        private void addInternal(NamespaceInfo value) {
+            List<NamespaceInfo> values = valueList(value.getURI(), true);
+            values.add(value);
+            values.sort(VALUE_ORDER);
+        }
+
+        @Override
+        public void clear() {
+            lock.writeLock().lock();
+            try {
+                super.clear();
+                index.clear();
+            } finally {
+                lock.writeLock().unlock();
+            }
+        }
+
+        @Override
+        public void remove(NamespaceInfo value) {
+            lock.writeLock().lock();
+            try {
+                String uri = value.getURI();
+                super.remove(value);
+                removeInternal(value, uri);
+            } finally {
+                lock.writeLock().unlock();
+            }
+        }
+
+        private void removeInternal(NamespaceInfo value, String uri) {
+            List<NamespaceInfo> list = valueList(uri, false);
+            if (!list.isEmpty()) list.remove(value);
+            if (list.isEmpty()) {
+                index.remove(uri);
+            }
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public NamespaceInfo update(final NamespaceInfo value, Patch patch) {
+            lock.writeLock().lock();
+            try {
+                Optional<Object> newValue = patch.get("uri").map(Patch.Property::getValue);
+                String oldUri = value.getURI();
+
+                NamespaceInfo updated = super.update(value, patch);
+
+                if (newValue.isPresent()) {
+                    if (!Objects.equals(oldUri, updated.getURI())) {
+                        removeInternal(updated, oldUri);
+                        addInternal(updated);
+                    }
+                }
+                return updated;
+            } finally {
+                lock.writeLock().unlock();
+            }
+        }
+
+        /**
+         * Looks up the list of values associated to the given {@code uri}
+         *
+         * @param uri the index key
+         * @param create whether to create the index entry list if it doesn't exist
+         * @return the index entry, may an unmodifiable empty list if it doesn't exist and {@code
+         *     create == false}
+         */
+        @VisibleForTesting
+        List<NamespaceInfo> valueList(String uri, boolean create) {
+            if (create) {
+                return index.computeIfAbsent(uri, v -> new ArrayList<>());
+            }
+            return index.getOrDefault(uri, List.of());
         }
     }
 
