@@ -408,7 +408,7 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
         return findFirst(clazz, i -> name.equals(nameMapper.apply(i).getLocalPart()));
     }
 
-    protected <U extends T> Optional<U> findFirstByName(Name name, @Nullable Class<U> clazz) {
+    protected <U extends T> Optional<U> findByName(Name name, @Nullable Class<U> clazz) {
         for (Class<? extends T> key : nameMultiMap.keySet()) {
             if (clazz.isAssignableFrom(key)) {
                 Map<Name, T> valueMap = getMapForType(nameMultiMap, key);
@@ -473,6 +473,13 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
 
         public NamespaceInfoLookup() {
             super(NamespaceInfo.class, NAMESPACE_NAME_MAPPER);
+        }
+
+        public @Override <U extends NamespaceInfo> Optional<U> findFirstByName(
+                String name, @Nullable Class<U> clazz) {
+            requireNonNull(name);
+            requireNonNull(clazz);
+            return findByName(new NameImpl(name), clazz);
         }
 
         public @Override void setDefaultNamespace(NamespaceInfo namespace) {
@@ -601,6 +608,13 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
             super(WorkspaceInfo.class, WORKSPACE_NAME_MAPPER);
         }
 
+        public @Override <U extends WorkspaceInfo> Optional<U> findFirstByName(
+                String name, @Nullable Class<U> clazz) {
+            requireNonNull(name);
+            requireNonNull(clazz);
+            return findByName(new NameImpl(name), clazz);
+        }
+
         public @Override void setDefaultWorkspace(WorkspaceInfo workspace) {
             this.defaultWorkspace =
                     findById(workspace.getId(), WorkspaceInfo.class)
@@ -669,7 +683,7 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
             requireNonNull(name);
             requireNonNull(workspace);
             requireNonNull(clazz);
-            return findFirstByName(new NameImpl(workspace.getId(), name), clazz);
+            return findByName(new NameImpl(workspace.getId(), name), clazz);
         }
     }
 
@@ -694,14 +708,14 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
 
         public @Override Optional<LayerGroupInfo> findByNameAndWorkspaceIsNull(String name) {
             requireNonNull(name);
-            return findFirstByName(new NameImpl(null, name), LayerGroupInfo.class);
+            return findByName(new NameImpl(null, name), LayerGroupInfo.class);
         }
 
         public @Override Optional<LayerGroupInfo> findByNameAndWorkspace(
                 String name, WorkspaceInfo workspace) {
             requireNonNull(name);
             requireNonNull(workspace);
-            return findFirstByName(new NameImpl(workspace.getId(), name), LayerGroupInfo.class);
+            return findByName(new NameImpl(workspace.getId(), name), LayerGroupInfo.class);
         }
     }
 
@@ -771,7 +785,7 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
             requireNonNull(name);
             requireNonNull(namespace);
             requireNonNull(clazz);
-            return findFirstByName(new NameImpl(namespace.getId(), name), clazz);
+            return findByName(new NameImpl(namespace.getId(), name), clazz);
         }
     }
 
@@ -827,7 +841,7 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
             // resource, as they would all share the same name (the one of the resource) so
             // a direct lookup becomes possible
             Name name = RESOURCE_NAME_MAPPER.apply(resource);
-            return findFirstByName(name, LayerInfo.class).map(Stream::of).orElse(Stream.empty());
+            return findByName(name, LayerInfo.class).map(Stream::of).orElse(Stream.empty());
         }
     }
 
@@ -849,14 +863,14 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
 
         public @Override Optional<StyleInfo> findByNameAndWordkspaceNull(String name) {
             requireNonNull(name);
-            return findFirstByName(new NameImpl(null, name), StyleInfo.class);
+            return findByName(new NameImpl(null, name), StyleInfo.class);
         }
 
         public @Override Optional<StyleInfo> findByNameAndWorkspace(
                 String name, WorkspaceInfo workspace) {
             requireNonNull(name);
             requireNonNull(workspace);
-            return findFirstByName(new NameImpl(workspace.getId(), name), StyleInfo.class);
+            return findByName(new NameImpl(workspace.getId(), name), StyleInfo.class);
         }
     }
 }
