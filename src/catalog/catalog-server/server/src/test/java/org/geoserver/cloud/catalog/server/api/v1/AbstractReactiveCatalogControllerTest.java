@@ -8,15 +8,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import javax.annotation.Nullable;
+
+import lombok.NonNull;
+
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.CatalogTestData;
@@ -41,7 +35,17 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import lombok.NonNull;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import javax.annotation.Nullable;
 
 @SpringBootTest(classes = {TestConfiguration.class, WebTestClientSupportConfiguration.class})
 @ActiveProfiles("test") // see bootstrap-test.yml
@@ -64,15 +68,15 @@ public abstract class AbstractReactiveCatalogControllerTest<C extends CatalogInf
 
     public @BeforeEach void setup() {
         proxyResolver = new ProxyUtils(catalog, geoServer).failOnMissingReference(true);
-        testData = CatalogTestData.initialized(() -> catalog, () -> null).initConfig(false)
-                .initialize();
+        testData =
+                CatalogTestData.initialized(() -> catalog, () -> null)
+                        .initConfig(false)
+                        .initialize();
     }
 
     public @AfterEach void after() {
-        if (null != testData)
-            testData.after();
+        if (null != testData) testData.after();
     }
-
 
     public abstract @Test void testFindAll();
 
@@ -90,23 +94,25 @@ public abstract class AbstractReactiveCatalogControllerTest<C extends CatalogInf
         assertEquals(expectedIds, actual);
     }
 
-    protected <S extends C> void testFindAll(Class<S> type,
-            @SuppressWarnings("unchecked") S... expected) {
+    protected <S extends C> void testFindAll(
+            Class<S> type, @SuppressWarnings("unchecked") S... expected) {
         Set<String> expectedIds =
                 Arrays.stream(expected).map(CatalogInfo::getId).collect(Collectors.toSet());
         ClassMappings classMappings = ClassMappings.fromInterface(type);
-        Set<String> actual = this.findAll(classMappings).stream().map(CatalogInfo::getId)
-                .collect(Collectors.toSet());
+        Set<String> actual =
+                this.findAll(classMappings).stream()
+                        .map(CatalogInfo::getId)
+                        .collect(Collectors.toSet());
         assertEquals(expectedIds, actual);
     }
 
-    protected <S extends C> void testQueryFilter(String ecqlFilter,
-            @SuppressWarnings("unchecked") S... expected) {
+    protected <S extends C> void testQueryFilter(
+            String ecqlFilter, @SuppressWarnings("unchecked") S... expected) {
         testQueryFilter(this.infoType, ecqlFilter, expected);
     }
 
-    protected <S extends C> void testQueryFilter(Class<S> type, String ecqlFilter,
-            @SuppressWarnings("unchecked") S... expected) {
+    protected <S extends C> void testQueryFilter(
+            Class<S> type, String ecqlFilter, @SuppressWarnings("unchecked") S... expected) {
         Filter filter;
         try {
             filter = ECQL.toFilter(ecqlFilter);
@@ -116,28 +122,42 @@ public abstract class AbstractReactiveCatalogControllerTest<C extends CatalogInf
         this.testQueryFilter(type, filter, expected);
     }
 
-    protected <S extends C> void testQueryFilter(@NonNull Class<S> type, Filter filter,
-            @SuppressWarnings("unchecked") S... expected) {
+    protected <S extends C> void testQueryFilter(
+            @NonNull Class<S> type, Filter filter, @SuppressWarnings("unchecked") S... expected) {
         String endpoint = endpoint();
 
         Query<S> query = Query.valueOf(type, filter);
 
-        client().doPost(query, "/{endpoint}/query", endpoint).expectStatus().isOk().expectHeader()
-                .contentType(MediaType.APPLICATION_STREAM_JSON).expectBodyList(type)
-                .consumeWith(response -> {
-                    List<S> responseBody = response.getResponseBody();
+        client().doPost(query, "/{endpoint}/query", endpoint)
+                .expectStatus()
+                .isOk()
+                .expectHeader()
+                .contentType(MediaType.APPLICATION_STREAM_JSON)
+                .expectBodyList(type)
+                .consumeWith(
+                        response -> {
+                            List<S> responseBody = response.getResponseBody();
 
-                    Set<String> expectedIds = Arrays.stream(expected).map(CatalogInfo::getId)
-                            .collect(Collectors.toSet());
-                    Set<String> returnedIds = responseBody.stream().map(CatalogInfo::getId)
-                            .collect(Collectors.toSet());
-                    assertEquals(expectedIds, returnedIds);
-                });
+                            Set<String> expectedIds =
+                                    Arrays.stream(expected)
+                                            .map(CatalogInfo::getId)
+                                            .collect(Collectors.toSet());
+                            Set<String> returnedIds =
+                                    responseBody.stream()
+                                            .map(CatalogInfo::getId)
+                                            .collect(Collectors.toSet());
+                            assertEquals(expectedIds, returnedIds);
+                        });
     }
 
     protected void testFindById(C expected) {
-        C responseBody = client().findById(expected).expectStatus().isOk().expectBody(infoType)
-                .returnResult().getResponseBody();
+        C responseBody =
+                client().findById(expected)
+                        .expectStatus()
+                        .isOk()
+                        .expectBody(infoType)
+                        .returnResult()
+                        .getResponseBody();
         C resolved = resolveProxies(responseBody);
         assertCatalogInfoEquals(expected, resolved);
     }
@@ -183,13 +203,21 @@ public abstract class AbstractReactiveCatalogControllerTest<C extends CatalogInf
 
     protected List<C> findAll(@Nullable ClassMappings subType) {
         String endpoint = endpoint();
-        return client().getRelative("/{endpoint}?type={type}", endpoint, subType).expectStatus()
-                .isOk().expectHeader().contentType(MediaType.APPLICATION_STREAM_JSON)
-                .expectBodyList(infoType).returnResult().getResponseBody();
+        return client().getRelative("/{endpoint}?type={type}", endpoint, subType)
+                .expectStatus()
+                .isOk()
+                .expectHeader()
+                .contentType(MediaType.APPLICATION_STREAM_JSON)
+                .expectBodyList(infoType)
+                .returnResult()
+                .getResponseBody();
     }
 
-    protected void crudTest(final C toCreate, Function<String, C> catalogLookup,
-            Consumer<C> modifyingConsumer, BiConsumer<C, C> updateVerifier) {
+    protected void crudTest(
+            final C toCreate,
+            Function<String, C> catalogLookup,
+            Consumer<C> modifyingConsumer,
+            BiConsumer<C, C> updateVerifier) {
 
         C created = testCreate(toCreate, catalogLookup);
 
@@ -198,17 +226,27 @@ public abstract class AbstractReactiveCatalogControllerTest<C extends CatalogInf
         testDelete(updated, catalogLookup);
     }
 
-    protected C testUpdate(C created, Consumer<C> modifyingConsumer,
-            BiConsumer<C, C> updateVerifier) {
+    protected C testUpdate(
+            C created, Consumer<C> modifyingConsumer, BiConsumer<C, C> updateVerifier) {
         final Class<? extends C> expectedType = expectedType(created);
-        C updated = client().update(created, modifyingConsumer).expectStatus().isOk()
-                .expectBody(expectedType).returnResult().getResponseBody();
+        C updated =
+                client().update(created, modifyingConsumer)
+                        .expectStatus()
+                        .isOk()
+                        .expectBody(expectedType)
+                        .returnResult()
+                        .getResponseBody();
         assertNotSame(created, updated);
         updated = resolveProxies(updated);
         updateVerifier.accept(created, updated);
 
-        C foundAfterUpdate = client().findById(updated).expectStatus().isOk()
-                .expectBody(expectedType).returnResult().getResponseBody();
+        C foundAfterUpdate =
+                client().findById(updated)
+                        .expectStatus()
+                        .isOk()
+                        .expectBody(expectedType)
+                        .returnResult()
+                        .getResponseBody();
         foundAfterUpdate = resolveProxies(foundAfterUpdate);
         updateVerifier.accept(created, foundAfterUpdate);
 
@@ -221,29 +259,35 @@ public abstract class AbstractReactiveCatalogControllerTest<C extends CatalogInf
         CatalogTestClient<C> testClient = this.client();
 
         assertNull(
-
                 catalogLookup.apply(toCreate.getId()),
                 "Object to be created shall not already exist in catalog");
 
         final Class<? extends C> expectedType = expectedType(toCreate);
 
-        C created = testClient.create(toCreate).expectStatus().isCreated().expectBody(expectedType)
-                .returnResult().getResponseBody();
+        C created =
+                testClient
+                        .create(toCreate)
+                        .expectStatus()
+                        .isCreated()
+                        .expectBody(expectedType)
+                        .returnResult()
+                        .getResponseBody();
         created = resolveProxies(created);
         assertNotNull(
-
                 catalogLookup.apply(created.getId()),
                 "created object not found in service backend catalog");
 
         assertNotSame(toCreate, created);
-        if (providedId == null)
-            assertNotNull(created.getId());
-        else
-            assertEquals(providedId, created.getId());
+        if (providedId == null) assertNotNull(created.getId());
+        else assertEquals(providedId, created.getId());
 
         assertCatalogInfoEquals(toCreate, created);
 
-        testClient.findById(created).expectStatus().isOk().expectBody(expectedType)
+        testClient
+                .findById(created)
+                .expectStatus()
+                .isOk()
+                .expectBody(expectedType)
                 .consumeWith(Assertions::assertNotNull);
 
         // try to create it again?
@@ -256,10 +300,15 @@ public abstract class AbstractReactiveCatalogControllerTest<C extends CatalogInf
 
         client().findById(toDelete).expectStatus().isOk();
 
-        C deleted = client().delete(toDelete).expectStatus().isOk().expectBody(expectedType)
-                .returnResult().getResponseBody();
-        assertNull(catalogLookup.apply(toDelete.getId()),
-                "object not deleted from backend catalog");
+        C deleted =
+                client().delete(toDelete)
+                        .expectStatus()
+                        .isOk()
+                        .expectBody(expectedType)
+                        .returnResult()
+                        .getResponseBody();
+        assertNull(
+                catalogLookup.apply(toDelete.getId()), "object not deleted from backend catalog");
 
         client().findById(deleted).expectStatus().isNoContent();
 

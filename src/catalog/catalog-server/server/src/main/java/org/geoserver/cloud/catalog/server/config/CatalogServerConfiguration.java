@@ -4,6 +4,8 @@
  */
 package org.geoserver.cloud.catalog.server.config;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.cloud.catalog.server.api.v1.ReactiveCatalogController;
 import org.geoserver.cloud.catalog.server.config.CatalogServerConfigProperties.SchedulerConfig;
 import org.geoserver.cloud.catalog.server.service.ReactiveCatalog;
@@ -12,7 +14,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
-import lombok.extern.slf4j.Slf4j;
+
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
@@ -51,10 +53,9 @@ public class CatalogServerConfiguration implements WebFluxConfigurer {
     }
 
     /**
-     * Configures the {@link ObjectMapper} used by {@link Jackson2JsonEncoder} and
-     * {@link Jackson2JsonDecoder} to handle http message payloads, especially in order to set
-     * {@link SerializationFeature#WRAP_ROOT_VALUE} to {@code false}, or the responses are like
-     * <code>
+     * Configures the {@link ObjectMapper} used by {@link Jackson2JsonEncoder} and {@link
+     * Jackson2JsonDecoder} to handle http message payloads, especially in order to set {@link
+     * SerializationFeature#WRAP_ROOT_VALUE} to {@code false}, or the responses are like <code>
      * {"WorkspaceInfoImpl" : {"Workspace" : {"WorkspaceInfo" : {...}}}}
      * </code> instead of like <code>
      * {"WorkspaceInfo" : {...}}

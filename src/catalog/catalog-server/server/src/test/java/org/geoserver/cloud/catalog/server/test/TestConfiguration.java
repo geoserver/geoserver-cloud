@@ -17,7 +17,4 @@ import org.springframework.context.annotation.Configuration;
             ReactiveUserDetailsServiceAutoConfiguration.class, //
             ReactiveManagementWebSecurityAutoConfiguration.class //
         })
-public class TestConfiguration {
-    
-
-}
+public class TestConfiguration {}
