@@ -5,7 +5,7 @@
 package org.geoserver.cloud.autoconfigure.factory;
 
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 
@@ -13,7 +13,7 @@ import org.springframework.context.event.EventListener;
  * Calls {@link FilteringXmlBeanDefinitionReader#clearCaches()} once the application context is
  * refreshed
  */
-@Configuration
+@AutoConfiguration
 public class FilteringXmlBeanDefinitionReaderAutoConfiguration {
 
     @EventListener

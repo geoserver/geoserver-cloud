@@ -9,10 +9,10 @@ import org.geoserver.cloud.autoconfigure.catalog.event.ConditionalOnCatalogEvent
 import org.geoserver.cloud.event.remote.datadir.RemoteEventDataDirectoryProcessor;
 import org.geoserver.config.plugin.RepositoryGeoServerFacade;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
-@Configuration(proxyBeanMethods = false)
+@AutoConfiguration
 @ConditionalOnDataDirectoryEnabled
 @ConditionalOnCatalogEvents
 public class RemoteEventDataDirectoryAutoConfiguration {

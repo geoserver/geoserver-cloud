@@ -4,9 +4,9 @@
  */
 package org.geoserver.cloud.app;
 
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
 /**
@@ -17,7 +17,7 @@ import org.springframework.core.env.Environment;
  *
  * @since 1.0
  */
-@Configuration(proxyBeanMethods = false)
+@AutoConfiguration
 public class StartupLoggerAutoConfiguration {
 
     @Bean

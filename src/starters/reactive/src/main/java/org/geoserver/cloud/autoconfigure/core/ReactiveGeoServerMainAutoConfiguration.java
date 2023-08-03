@@ -7,9 +7,8 @@ package org.geoserver.cloud.autoconfigure.core;
 import org.geoserver.cloud.autoconfigure.catalog.backend.core.GeoServerBackendAutoConfiguration;
 import org.geoserver.cloud.config.catalog.backend.core.GeoServerBackendConfigurer;
 import org.geoserver.cloud.config.main.GeoServerMainModuleConfiguration;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 /**
@@ -21,7 +20,6 @@ import org.springframework.context.annotation.Import;
  *
  * @see GeoServerMainModuleConfiguration
  */
-@Configuration
-@AutoConfigureAfter(value = GeoServerBackendAutoConfiguration.class)
+@AutoConfiguration(after = GeoServerBackendAutoConfiguration.class)
 @Import({GeoServerMainModuleConfiguration.class})
 public class ReactiveGeoServerMainAutoConfiguration {}

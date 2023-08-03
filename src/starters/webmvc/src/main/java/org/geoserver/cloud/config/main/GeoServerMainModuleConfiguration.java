@@ -53,7 +53,7 @@ import org.springframework.context.annotation.ImportResource;
  *       microservices approach, as it reads from {@literal <datadir>/logs/geoserver.log}
  * </ul>
  */
-@Configuration(proxyBeanMethods = true)
+@Configuration(proxyBeanMethods = false)
 @ImportResource( //
         reader = FilteringXmlBeanDefinitionReader.class, //
         // exclude beans

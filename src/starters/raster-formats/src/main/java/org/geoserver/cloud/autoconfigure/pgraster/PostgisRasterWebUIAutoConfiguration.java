@@ -7,8 +7,8 @@ package org.geoserver.cloud.autoconfigure.pgraster;
 import org.geoserver.web.GeoServerApplication;
 import org.geoserver.web.data.resource.DataStorePanelInfo;
 import org.geoserver.web.data.store.pgraster.PGRasterCoverageStoreEditPanel;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 
 /**
@@ -18,7 +18,7 @@ import org.springframework.context.annotation.ImportResource;
  *     bean in place because of parameterized class incompatibility on {@link
  *     org.geoserver.web.data.resource.DataStorePanelInfo#setComponentClass(Class)}
  */
-@Configuration(proxyBeanMethods = false)
+@AutoConfiguration
 @ConditionalOnClass({
     GeoServerApplication.class,
     DataStorePanelInfo.class,

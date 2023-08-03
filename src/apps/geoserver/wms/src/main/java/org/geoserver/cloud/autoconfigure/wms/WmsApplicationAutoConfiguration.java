@@ -19,16 +19,14 @@ import org.geoserver.wms.capabilities.GetCapabilitiesTransformer;
 import org.geoserver.wms.capabilities.LegendSample;
 import org.geoserver.wms.capabilities.LegendSampleImpl;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 
-@Configuration
 // auto-configure before GWC's wms-integration to avoid it precluding to load beans from
 // jar:gs-wms-.*
-@AutoConfigureBefore(WMSIntegrationAutoConfiguration.class)
+@AutoConfiguration(before = WMSIntegrationAutoConfiguration.class)
 @ImportResource( //
         reader = FilteringXmlBeanDefinitionReader.class, //
         locations = { //

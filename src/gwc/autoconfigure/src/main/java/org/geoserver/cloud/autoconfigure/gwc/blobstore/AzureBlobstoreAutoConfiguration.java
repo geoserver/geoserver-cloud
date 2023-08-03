@@ -12,6 +12,7 @@ import org.geoserver.cloud.autoconfigure.gwc.blobstore.S3BlobstoreAutoConfigurat
 import org.geoserver.cloud.gwc.config.blobstore.AzureBlobstoreConfiguration;
 import org.geoserver.cloud.gwc.config.blobstore.AzureBlobstoreGsWebUIConfiguration;
 import org.geoserver.gwc.web.blob.BlobStorePage;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -22,7 +23,7 @@ import javax.annotation.PostConstruct;
  * @see ConditionalOnAzureBlobstoreEnabled
  * @since 1.0
  */
-@Configuration(proxyBeanMethods = false)
+@AutoConfiguration
 @ConditionalOnAzureBlobstoreEnabled
 @Import({AzureBlobstoreConfiguration.class, GsWebUIAutoConfiguration.class})
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.gwc.blobstore")

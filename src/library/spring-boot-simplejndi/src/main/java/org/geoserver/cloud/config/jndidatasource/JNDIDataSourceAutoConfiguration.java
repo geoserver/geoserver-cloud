@@ -10,9 +10,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContextException;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.support.DatabaseStartupValidator;
 
 import java.util.Map;
@@ -25,9 +25,9 @@ import javax.sql.DataSource;
 /**
  * @since 1.0
  */
-@Slf4j(topic = "org.geoserver.cloud.config.jndidatasource")
-@Configuration
+@AutoConfiguration
 @EnableConfigurationProperties(JNDIDataSourcesConfigurationProperties.class)
+@Slf4j(topic = "org.geoserver.cloud.config.jndidatasource")
 public class JNDIDataSourceAutoConfiguration implements InitializingBean {
 
     private @Autowired JNDIDataSourcesConfigurationProperties config;

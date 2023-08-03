@@ -10,8 +10,8 @@ import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnGeoWebCacheRestConfigE
 import org.geoserver.cloud.autoconfigure.gwc.core.DiskQuotaAutoConfiguration;
 import org.geoserver.cloud.gwc.config.core.GeoWebCacheConfigurationProperties;
 import org.geoserver.cloud.gwc.config.services.RESTConfigConfiguration;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 import javax.annotation.PostConstruct;
@@ -37,7 +37,7 @@ import javax.annotation.PostConstruct;
  *
  * @since 1.0
  */
-@Configuration(proxyBeanMethods = false)
+@AutoConfiguration
 @ConditionalOnGeoWebCacheRestConfigEnabled
 @ConditionalOnClass(RESTConfigConfiguration.class)
 @Import(RESTConfigConfiguration.class)

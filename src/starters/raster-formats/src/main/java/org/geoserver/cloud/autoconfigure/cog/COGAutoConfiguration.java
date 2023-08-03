@@ -6,12 +6,12 @@ package org.geoserver.cloud.autoconfigure.cog;
 
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
 import org.geoserver.cog.CogSettings;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 
 /** Auto configuration to enable the COG (Cloud Optimized GeoTIFF) support as raster data format. */
-@Configuration(proxyBeanMethods = false)
+@AutoConfiguration
 @ConditionalOnClass({CogSettings.class})
 @ImportResource(
         reader = FilteringXmlBeanDefinitionReader.class, //

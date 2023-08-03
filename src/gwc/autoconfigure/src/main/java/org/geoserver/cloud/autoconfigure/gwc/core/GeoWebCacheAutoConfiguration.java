@@ -6,8 +6,7 @@ package org.geoserver.cloud.autoconfigure.gwc.core;
 
 import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnGeoWebCacheEnabled;
 import org.geoserver.cloud.gwc.config.core.GeoWebCacheConfigurationProperties;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Import;
 
 /**
@@ -19,9 +18,8 @@ import org.springframework.context.annotation.Import;
  * @see GeoServerIntegrationAutoConfiguration
  * @since 1.0
  */
-@Configuration(proxyBeanMethods = false)
+@AutoConfiguration(after = CacheSeedingWebMapServiceAutoConfiguration.class)
 @ConditionalOnGeoWebCacheEnabled
-@AutoConfigureAfter(CacheSeedingWebMapServiceAutoConfiguration.class)
 @Import({ //
     GeoWebCacheCoreAutoConfiguration.class, //
     GeoServerIntegrationAutoConfiguration.class

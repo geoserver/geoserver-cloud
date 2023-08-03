@@ -12,11 +12,10 @@ import org.geoserver.platform.config.UpdateSequence;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.actuate.autoconfigure.metrics.CompositeMeterRegistryAutoConfiguration;
 import org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for {@link Catalog} and {@link GeoServer}
@@ -25,8 +24,8 @@ import org.springframework.context.annotation.Configuration;
  * @see CatalogMetrics
  * @since 1.0
  */
-@Configuration(proxyBeanMethods = false)
-@AutoConfigureAfter({MetricsAutoConfiguration.class, CompositeMeterRegistryAutoConfiguration.class})
+@AutoConfiguration(
+        after = {MetricsAutoConfiguration.class, CompositeMeterRegistryAutoConfiguration.class})
 @ConditionalOnGeoServerMetricsEnabled
 @EnableConfigurationProperties(GeoSeverMetricsConfigProperties.class)
 public class CatalogMetricsAutoConfiguration {

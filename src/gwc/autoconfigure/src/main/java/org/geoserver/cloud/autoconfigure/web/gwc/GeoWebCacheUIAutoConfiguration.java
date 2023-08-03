@@ -11,13 +11,13 @@ import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnWebUIEnabled;
 import org.geoserver.cloud.gwc.config.core.GeoWebCacheConfigurationProperties;
 import org.geowebcache.rest.controller.ByteStreamController;
 import org.gwc.web.rest.GeoWebCacheController;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
 
-@Configuration
+@AutoConfiguration
 @ConditionalOnWebUIEnabled
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.web.gwc")
 public class GeoWebCacheUIAutoConfiguration {

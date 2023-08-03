@@ -18,9 +18,9 @@ import org.geoserver.wms.WMSFactoryExtension;
 import org.geoserver.wms.WMSXStreamLoader;
 import org.geoserver.wps.WPSFactoryExtension;
 import org.geoserver.wps.WPSXStreamLoader;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 /**
  * Configuration to make sure all {@link XStreamServiceLoader} extensions are loaded regardless of
@@ -28,7 +28,7 @@ import org.springframework.context.annotation.Configuration;
  *
  * @since 1.0
  */
-@Configuration(proxyBeanMethods = false)
+@AutoConfiguration
 @Slf4j(topic = "org.geoserver.cloud.config.catalog")
 public class XstreamServiceLoadersAutoConfiguration {
 

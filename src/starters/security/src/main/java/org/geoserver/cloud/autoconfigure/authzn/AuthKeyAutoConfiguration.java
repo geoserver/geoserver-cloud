@@ -11,6 +11,7 @@ import org.geoserver.platform.ModuleStatus;
 import org.geoserver.platform.ModuleStatusImpl;
 import org.geoserver.security.web.auth.AuthenticationFilterPanel;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,7 +23,7 @@ import javax.annotation.PostConstruct;
 /**
  * @since 1.0
  */
-@Configuration(proxyBeanMethods = false)
+@AutoConfiguration
 @Import({AuthKeyAutoConfiguration.Enabled.class, AuthKeyAutoConfiguration.WebUI.class})
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.authzn")
 public class AuthKeyAutoConfiguration {

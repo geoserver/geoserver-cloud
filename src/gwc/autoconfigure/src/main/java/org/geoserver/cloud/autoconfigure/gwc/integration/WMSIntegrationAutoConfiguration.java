@@ -37,6 +37,7 @@ import org.geowebcache.conveyor.ConveyorTile;
 import org.geowebcache.io.ByteArrayResource;
 import org.geowebcache.io.Resource;
 import org.geowebcache.layer.TileLayer;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -57,7 +58,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @since 1.0
  */
-@Configuration(proxyBeanMethods = false)
+@AutoConfiguration
 @Import({
     WMSIntegrationAutoConfiguration.Enabled.class,
     WMSIntegrationAutoConfiguration.Disabled.class
