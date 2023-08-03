@@ -27,7 +27,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.ApplicationEvent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
@@ -127,20 +126,12 @@ public class CoreBackendConfiguration {
      * instead of on every {@link ApplicationContextEvent},
      * especially due to {@code org.springframework.cloud.client.discovery.event.HeartbeatEvent} and possibly
      * others.
+     * <p>
+     * Update: as of geoserver 2.23.2, {@code LayerGroupContainmentCache} implements {@code ApplicationListener<ContextRefreshedEvent>}
      */
     public @Bean LayerGroupContainmentCache layerGroupContainmentCache(
             @Qualifier("rawCatalog") Catalog rawCatalog) {
-        return new LayerGroupContainmentCache(rawCatalog) {
-
-            @Override
-            public void onApplicationEvent(ApplicationEvent applicationEvent) {
-                if (applicationEvent instanceof ContextRefreshedEvent) {
-                    if (applicationEvent instanceof ContextRefreshedEvent) {
-                        super.onApplicationEvent(applicationEvent);
-                    }
-                }
-            }
-        };
+        return new LayerGroupContainmentCache(rawCatalog);
     }
 
     @ConditionalOnGeoServerSecurityDisabled

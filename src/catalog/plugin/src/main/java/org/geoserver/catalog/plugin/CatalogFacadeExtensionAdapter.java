@@ -153,7 +153,7 @@ public class CatalogFacadeExtensionAdapter extends ForwardingCatalogFacade
             this.orig = orig;
             super.resourceLoader = orig.getResourceLoader();
             super.resourcePool = orig.getResourcePool();
-            super.listeners.clear();
+            super.removeListeners(CatalogListener.class);
         }
 
         public CatalogImpl getSubject() {
