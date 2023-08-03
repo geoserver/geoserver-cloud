@@ -6,12 +6,10 @@ package org.geoserver.cloud.autoconfigure.core;
 
 import org.geoserver.cloud.autoconfigure.catalog.backend.core.GeoServerBackendAutoConfiguration;
 import org.geoserver.cloud.config.main.GeoServerMainModuleConfiguration;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Import;
 
 /** Autoconfiguration for GeoServer's main module on servlet/webmvc applications */
-@Configuration
-@AutoConfigureAfter(GeoServerBackendAutoConfiguration.class)
+@AutoConfiguration(after = GeoServerBackendAutoConfiguration.class)
 @Import({GeoServerMainModuleConfiguration.class})
 public class GeoServerWebMvcMainAutoConfiguration {}

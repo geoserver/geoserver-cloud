@@ -13,6 +13,7 @@ import org.geoserver.cloud.gwc.config.core.WebMapServiceMinimalConfiguration;
 import org.geoserver.gwc.layer.GeoServerTileLayer;
 import org.geoserver.wms.DefaultWebMapService;
 import org.geoserver.wms.WebMapService;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Configuration;
@@ -26,7 +27,7 @@ import javax.annotation.PostConstruct;
  *
  * @since 1.0
  */
-@Configuration
+@AutoConfiguration
 @ConditionalOnGeoWebCacheEnabled
 @Import({MinimalWebMapServiceAutoConfiguration.class, WebMapServiceCacheSeedingConfiguration.class})
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.gwc.integration")

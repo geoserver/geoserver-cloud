@@ -7,13 +7,11 @@ package org.geoserver.cloud.wfs.config;
 import org.geoserver.cloud.autoconfigure.core.GeoServerWebMvcMainAutoConfiguration;
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
 import org.geoserver.cloud.virtualservice.VirtualServiceVerifier;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 
-@Configuration(proxyBeanMethods = true)
-@AutoConfigureAfter({GeoServerWebMvcMainAutoConfiguration.class})
+@AutoConfiguration(after = GeoServerWebMvcMainAutoConfiguration.class)
 @ImportResource( //
         reader = FilteringXmlBeanDefinitionReader.class, //
         locations = {

@@ -6,12 +6,10 @@ package org.geoserver.cloud.autoconfigure.catalog.backend.jdbcconfig;
 
 import org.geoserver.cloud.autoconfigure.catalog.backend.core.DefaultUpdateSequenceAutoConfiguration;
 import org.geoserver.cloud.config.catalog.backend.jdbcconfig.JDBCConfigBackendConfigurer;
-import org.springframework.boot.autoconfigure.AutoConfigureBefore;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Import;
 
-@Configuration(proxyBeanMethods = false)
+@AutoConfiguration(before = DefaultUpdateSequenceAutoConfiguration.class)
 @ConditionalOnJdbcConfigEnabled
 @Import(JDBCConfigBackendConfigurer.class)
-@AutoConfigureBefore(DefaultUpdateSequenceAutoConfiguration.class)
 public class JDBCConfigAutoConfiguration {}

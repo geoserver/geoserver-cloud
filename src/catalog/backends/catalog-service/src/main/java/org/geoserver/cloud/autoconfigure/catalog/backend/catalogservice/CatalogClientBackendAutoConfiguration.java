@@ -7,9 +7,8 @@ package org.geoserver.cloud.autoconfigure.catalog.backend.catalogservice;
 import org.geoserver.cloud.autoconfigure.catalog.backend.core.DefaultUpdateSequenceAutoConfiguration;
 import org.geoserver.cloud.config.catalog.backend.catalogservice.CatalogClientBackendConfigurer;
 import org.geoserver.cloud.config.catalog.backend.core.GeoServerBackendConfigurer;
-import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 /**
@@ -22,8 +21,7 @@ import org.springframework.context.annotation.Import;
  *
  * @see ConditionalOnCatalogServiceClientEnabled
  */
-@Configuration(proxyBeanMethods = false)
+@AutoConfiguration(before = DefaultUpdateSequenceAutoConfiguration.class)
 @ConditionalOnCatalogServiceClientEnabled
 @Import(CatalogClientBackendConfigurer.class)
-@AutoConfigureBefore(DefaultUpdateSequenceAutoConfiguration.class)
 public class CatalogClientBackendAutoConfiguration {}

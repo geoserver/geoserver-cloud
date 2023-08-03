@@ -19,15 +19,13 @@ import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.GeoServerInfo.WebUIMode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.env.Environment;
 
 import javax.annotation.PostConstruct;
 
-@Configuration
-@AutoConfigureAfter({GeoServerWebMvcMainAutoConfiguration.class})
+@AutoConfiguration(after = {GeoServerWebMvcMainAutoConfiguration.class})
 @Import({ //
     WebCoreConfiguration.class, // this one is mandatory
     SecurityAutoConfiguration.class,

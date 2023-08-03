@@ -5,9 +5,11 @@
 package org.geoserver.cloud.autoconfigure.catalog.backend.jdbcconfig;
 
 import org.geoserver.cloud.config.catalog.backend.jdbcconfig.JDBCConfigWebConfiguration;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Import;
 
 /** Auto configuration for the wicket ui components of the jdbcconfig extension */
+@AutoConfiguration
 @ConditionalOnJdbcConfigWebUIEnabled
 @Import({JDBCConfigWebConfiguration.class})
 public class JDBCConfigWebAutoConfiguration {}

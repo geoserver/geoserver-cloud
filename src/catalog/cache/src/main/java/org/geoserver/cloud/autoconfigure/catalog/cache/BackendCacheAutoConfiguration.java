@@ -5,9 +5,9 @@
 package org.geoserver.cloud.autoconfigure.catalog.cache;
 
 import org.geoserver.cloud.catalog.cache.GeoServerBackendCacheConfiguration;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.cache.CacheManager;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 /**
@@ -19,7 +19,7 @@ import org.springframework.context.annotation.Import;
  *
  * @see GeoServerBackendCacheConfiguration
  */
-@Configuration
+@AutoConfiguration
 @ConditionalOnBackendCacheEnabled
 @Import(GeoServerBackendCacheConfiguration.class)
 public class BackendCacheAutoConfiguration {}

@@ -8,9 +8,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.geoserver.cloud.gwc.config.core.GeoWebCacheConfigurationProperties;
 import org.geoserver.cloud.gwc.config.services.WebMapServiceConfiguration;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 import javax.annotation.PostConstruct;
@@ -18,7 +18,7 @@ import javax.annotation.PostConstruct;
 /**
  * @since 1.0
  */
-@Configuration(proxyBeanMethods = false)
+@AutoConfiguration
 @ConditionalOnProperty(
         name = GeoWebCacheConfigurationProperties.SERVICE_WMS_ENABLED,
         havingValue = "true",

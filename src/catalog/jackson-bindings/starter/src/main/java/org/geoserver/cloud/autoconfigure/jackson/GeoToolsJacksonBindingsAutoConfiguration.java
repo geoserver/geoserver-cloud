@@ -9,11 +9,11 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import org.geotools.jackson.databind.filter.GeoToolsFilterModule;
 import org.geotools.jackson.databind.geojson.GeoToolsGeoJsonModule;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 /**
  * Spring boot {@link EnableAutoConfiguration @EnableAutoConfiguration} to register GeoTools and
@@ -26,7 +26,7 @@ import org.springframework.context.annotation.Configuration;
  * despite them being register-able through Jackson's SPI; a configuration like this is needed to
  * set up the application required ones.
  */
-@Configuration
+@AutoConfiguration
 @ConditionalOnClass(GeoToolsFilterModule.class)
 public class GeoToolsJacksonBindingsAutoConfiguration {
 

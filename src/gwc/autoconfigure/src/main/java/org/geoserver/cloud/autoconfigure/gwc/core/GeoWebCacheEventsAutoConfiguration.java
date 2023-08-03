@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnGeoWebCacheEnabled;
 import org.geoserver.cloud.gwc.config.core.GeoWebCacheLocalEventsConfiguration;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Import;
 
 import javax.annotation.PostConstruct;
@@ -18,7 +18,7 @@ import javax.annotation.PostConstruct;
  * @see ConditionalOnGeoWebCacheEnabled
  * @since 1.0
  */
-@Configuration(proxyBeanMethods = false)
+@AutoConfiguration
 @ConditionalOnGeoWebCacheEnabled
 @Import(GeoWebCacheLocalEventsConfiguration.class)
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.gwc.core")

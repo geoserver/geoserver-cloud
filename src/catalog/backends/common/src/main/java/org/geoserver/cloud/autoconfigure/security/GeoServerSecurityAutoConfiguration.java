@@ -11,7 +11,7 @@ import org.geoserver.cloud.event.security.SecurityConfigChanged;
 import org.geoserver.cloud.security.GeoServerSecurityConfiguration;
 import org.geoserver.config.util.XStreamPersisterFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,8 +20,7 @@ import org.springframework.context.event.EventListener;
 
 import javax.annotation.PostConstruct;
 
-@Configuration
-@AutoConfigureAfter(GeoServerBackendAutoConfiguration.class)
+@AutoConfiguration(after = GeoServerBackendAutoConfiguration.class)
 @Import({
     GeoServerSecurityAutoConfiguration.Enabled.class,
     GeoServerSecurityAutoConfiguration.Disabled.class

@@ -5,15 +5,15 @@
 package org.geoserver.cloud.autoconfigure.catalog.event;
 
 import org.geoserver.cloud.config.catalog.events.CatalogApplicationEventsConfiguration;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 /**
  * {@link EnableAutoConfiguration auto-configuration} for {@link
  * CatalogApplicationEventsConfiguration}
  */
-@Configuration
+@AutoConfiguration
 @ConditionalOnCatalogEvents
 @Import(CatalogApplicationEventsConfiguration.class)
 public class LocalCatalogEventsAutoConfiguration {}

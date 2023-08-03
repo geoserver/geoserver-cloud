@@ -9,11 +9,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.autoconfigure.geotools.GeoToolsHttpClientProxyConfigurationProperties.ProxyHostConfig;
 import org.geotools.http.HTTPClientFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 /**
  * {@link EnableAutoConfiguration @EnableAutoConfiguration} auto configuration for a GeoTools {@link
@@ -66,7 +66,7 @@ import org.springframework.context.annotation.Configuration;
  * </code>
  * </pre>
  */
-@Configuration(proxyBeanMethods = false)
+@AutoConfiguration
 @EnableConfigurationProperties(GeoToolsHttpClientProxyConfigurationProperties.class)
 @ConditionalOnProperty(
         name = "geotools.httpclient.proxy.enabled",
