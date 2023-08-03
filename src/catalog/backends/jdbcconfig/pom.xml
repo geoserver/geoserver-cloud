@@ -55,20 +55,20 @@
       <artifactId>gs-jdbcconfig</artifactId>
       <exclusions>
         <exclusion>
-          <artifactId>slf4j-log4j12</artifactId>
           <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-log4j12</artifactId>
         </exclusion>
         <exclusion>
-          <artifactId>gs-web-core</artifactId>
           <groupId>org.geoserver.web</groupId>
+          <artifactId>gs-web-core</artifactId>
         </exclusion>
         <exclusion>
-          <artifactId>compress-lzf</artifactId>
           <groupId>com.ning</groupId>
+          <artifactId>compress-lzf</artifactId>
         </exclusion>
         <exclusion>
-          <artifactId>commons-dbcp</artifactId>
           <groupId>commons-dbcp</groupId>
+          <artifactId>commons-dbcp</artifactId>
         </exclusion>
       </exclusions>
     </dependency>

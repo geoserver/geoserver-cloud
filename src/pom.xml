@@ -130,28 +130,28 @@
         <exclusions>
           <!-- exclude log4j dependencies, spring-boot-starter-logging provides everything we need -->
           <exclusion>
+            <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
-            <groupId>org.apache.logging.log4j</groupId>
           </exclusion>
           <exclusion>
+            <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <groupId>org.apache.logging.log4j</groupId>
           </exclusion>
           <exclusion>
+            <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-jcl</artifactId>
-            <groupId>org.apache.logging.log4j</groupId>
           </exclusion>
           <exclusion>
+            <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-jul</artifactId>
-            <groupId>org.apache.logging.log4j</groupId>
           </exclusion>
           <exclusion>
+            <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j-impl</artifactId>
-            <groupId>org.apache.logging.log4j</groupId>
           </exclusion>
           <exclusion>
-            <artifactId>log4j-1.2-api</artifactId>
             <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-1.2-api</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -161,50 +161,50 @@
         <version>${gs.version}</version>
         <exclusions>
           <exclusion>
-            <artifactId>spring-webmvc</artifactId>
             <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
           </exclusion>
           <!-- exclude log4j dependencies, spring-boot-starter-logging provides everything we need -->
           <exclusion>
+            <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
-            <groupId>org.apache.logging.log4j</groupId>
           </exclusion>
           <exclusion>
+            <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <groupId>org.apache.logging.log4j</groupId>
           </exclusion>
           <exclusion>
+            <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-jcl</artifactId>
-            <groupId>org.apache.logging.log4j</groupId>
           </exclusion>
           <exclusion>
+            <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-jul</artifactId>
-            <groupId>org.apache.logging.log4j</groupId>
           </exclusion>
           <exclusion>
+            <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j-impl</artifactId>
-            <groupId>org.apache.logging.log4j</groupId>
           </exclusion>
           <exclusion>
-            <artifactId>log4j-1.2-api</artifactId>
             <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-1.2-api</artifactId>
           </exclusion>
           <!-- exclude data formats, let them be managed by the ones explicitly imported by each service -->
           <exclusion>
+            <groupId>org.geotools</groupId>
             <artifactId>gt-property</artifactId>
-            <groupId>org.geotools</groupId>
           </exclusion>
           <exclusion>
+            <groupId>org.geotools</groupId>
             <artifactId>gt-arcgrid</artifactId>
-            <groupId>org.geotools</groupId>
           </exclusion>
           <exclusion>
+            <groupId>org.geotools</groupId>
             <artifactId>gt-imagemosaic</artifactId>
-            <groupId>org.geotools</groupId>
           </exclusion>
           <exclusion>
-            <artifactId>gt-geotiff</artifactId>
             <groupId>org.geotools</groupId>
+            <artifactId>gt-geotiff</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -215,8 +215,8 @@
         <!-- exclude data formats, let them be managed by the ones explicitly imported by this module -->
         <exclusions>
           <exclusion>
-            <artifactId>gt-geotiff</artifactId>
             <groupId>org.geotools</groupId>
+            <artifactId>gt-geotiff</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -226,14 +226,14 @@
         <version>${gs.version}</version>
         <exclusions>
           <exclusion>
+            <groupId>org.geoserver</groupId>
             <!-- exclude wms, the runtime dependency is the other way around, -->
             <artifactId>gt-wms</artifactId>
-            <groupId>org.geoserver</groupId>
           </exclusion>
           <exclusion>
+            <groupId>xmlunit</groupId>
             <!-- exclude xmlunit, it has compile instead of test scope upstream -->
             <artifactId>xmlunit</artifactId>
-            <groupId>xmlunit</groupId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -244,8 +244,8 @@
         <exclusions>
           <!-- exclude data formats, let them be managed by the ones explicitly imported by each service -->
           <exclusion>
-            <artifactId>gt-shapefile</artifactId>
             <groupId>org.geotools</groupId>
+            <artifactId>gt-shapefile</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -256,20 +256,20 @@
         <exclusions>
           <!-- exclude data formats, let them be managed by the ones explicitly imported by this module -->
           <exclusion>
+            <groupId>org.geotools</groupId>
             <artifactId>gt-geotiff</artifactId>
-            <groupId>org.geotools</groupId>
           </exclusion>
           <exclusion>
+            <groupId>org.geotools</groupId>
             <artifactId>gt-arcgrid</artifactId>
-            <groupId>org.geotools</groupId>
           </exclusion>
           <exclusion>
+            <groupId>org.geotools</groupId>
             <artifactId>gt-imagemosaic</artifactId>
-            <groupId>org.geotools</groupId>
           </exclusion>
           <exclusion>
-            <artifactId>gt-image</artifactId>
             <groupId>org.geotools</groupId>
+            <artifactId>gt-image</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -295,16 +295,16 @@
         <exclusions>
           <!-- exclude data formats, let them be managed by the ones explicitly imported by this module -->
           <exclusion>
+            <groupId>org.geotools</groupId>
             <artifactId>gt-geotiff</artifactId>
-            <groupId>org.geotools</groupId>
           </exclusion>
           <exclusion>
+            <groupId>org.geotools</groupId>
             <artifactId>gt-arcgrid</artifactId>
-            <groupId>org.geotools</groupId>
           </exclusion>
           <exclusion>
-            <artifactId>gt-csv</artifactId>
             <groupId>org.geotools</groupId>
+            <artifactId>gt-csv</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -315,57 +315,57 @@
         <exclusions>
           <!-- exclude log4j dependencies, spring-boot-starter-logging provides everything we need -->
           <exclusion>
+            <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
-            <groupId>org.apache.logging.log4j</groupId>
           </exclusion>
           <exclusion>
+            <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <groupId>org.apache.logging.log4j</groupId>
           </exclusion>
           <exclusion>
+            <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-jcl</artifactId>
-            <groupId>org.apache.logging.log4j</groupId>
           </exclusion>
           <exclusion>
+            <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-jul</artifactId>
-            <groupId>org.apache.logging.log4j</groupId>
           </exclusion>
           <exclusion>
+            <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j-impl</artifactId>
-            <groupId>org.apache.logging.log4j</groupId>
           </exclusion>
           <exclusion>
-            <artifactId>log4j-1.2-api</artifactId>
             <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-1.2-api</artifactId>
           </exclusion>
           <!-- exclude data formats, let them be managed by the ones explicitly imported by this module -->
           <exclusion>
+            <groupId>org.geotools</groupId>
             <artifactId>gt-shapefile</artifactId>
-            <groupId>org.geotools</groupId>
           </exclusion>
           <exclusion>
-            <artifactId>gt-jdbc-postgis</artifactId>
             <groupId>org.geotools.jdbc</groupId>
+            <artifactId>gt-jdbc-postgis</artifactId>
           </exclusion>
           <exclusion>
+            <groupId>org.geotools</groupId>
             <artifactId>gt-wfs-ng</artifactId>
-            <groupId>org.geotools</groupId>
           </exclusion>
           <exclusion>
+            <groupId>org.geotools</groupId>
             <artifactId>gt-arcgrid</artifactId>
-            <groupId>org.geotools</groupId>
           </exclusion>
           <exclusion>
+            <groupId>org.geotools</groupId>
             <artifactId>gt-geotiff</artifactId>
-            <groupId>org.geotools</groupId>
           </exclusion>
           <exclusion>
+            <groupId>org.geotools</groupId>
             <artifactId>gt-image</artifactId>
-            <groupId>org.geotools</groupId>
           </exclusion>
           <exclusion>
-            <artifactId>gt-geopkg</artifactId>
             <groupId>org.geotools</groupId>
+            <artifactId>gt-geopkg</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -430,12 +430,12 @@
         <version>${gs.community.version}</version>
         <exclusions>
           <exclusion>
-            <artifactId>spring-webmvc</artifactId>
             <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
           </exclusion>
           <exclusion>
-            <artifactId>log4j</artifactId>
             <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -445,12 +445,12 @@
         <version>${gs.community.version}</version>
         <exclusions>
           <exclusion>
-            <artifactId>spring-webmvc</artifactId>
             <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
           </exclusion>
           <exclusion>
-            <artifactId>log4j</artifactId>
             <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -465,33 +465,33 @@
         <version>${gs.version}</version>
         <exclusions>
           <exclusion>
-            <artifactId>h2</artifactId>
             <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
           </exclusion>
           <!-- exclude log4j dependencies, spring-boot-starter-logging provides everything we need -->
           <exclusion>
+            <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
-            <groupId>org.apache.logging.log4j</groupId>
           </exclusion>
           <exclusion>
+            <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <groupId>org.apache.logging.log4j</groupId>
           </exclusion>
           <exclusion>
+            <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-jcl</artifactId>
-            <groupId>org.apache.logging.log4j</groupId>
           </exclusion>
           <exclusion>
+            <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-jul</artifactId>
-            <groupId>org.apache.logging.log4j</groupId>
           </exclusion>
           <exclusion>
+            <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j-impl</artifactId>
-            <groupId>org.apache.logging.log4j</groupId>
           </exclusion>
           <exclusion>
-            <artifactId>log4j-1.2-api</artifactId>
             <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-1.2-api</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -501,33 +501,33 @@
         <version>${gs.version}</version>
         <exclusions>
           <exclusion>
-            <artifactId>h2</artifactId>
             <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
           </exclusion>
           <!-- exclude log4j dependencies, spring-boot-starter-logging provides everything we need -->
           <exclusion>
+            <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
-            <groupId>org.apache.logging.log4j</groupId>
           </exclusion>
           <exclusion>
+            <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <groupId>org.apache.logging.log4j</groupId>
           </exclusion>
           <exclusion>
+            <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-jcl</artifactId>
-            <groupId>org.apache.logging.log4j</groupId>
           </exclusion>
           <exclusion>
+            <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-jul</artifactId>
-            <groupId>org.apache.logging.log4j</groupId>
           </exclusion>
           <exclusion>
+            <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j-impl</artifactId>
-            <groupId>org.apache.logging.log4j</groupId>
           </exclusion>
           <exclusion>
-            <artifactId>log4j-1.2-api</artifactId>
             <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-1.2-api</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -537,8 +537,8 @@
         <version>${gs.version}</version>
         <exclusions>
           <exclusion>
-            <artifactId>gs-web-gwc</artifactId>
             <groupId>org.geoserver.web</groupId>
+            <artifactId>gs-web-gwc</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -548,13 +548,13 @@
         <version>${gs.community.version}</version>
         <exclusions>
           <exclusion>
-            <artifactId>gs-web-gwc</artifactId>
             <groupId>org.geoserver.web</groupId>
+            <artifactId>gs-web-gwc</artifactId>
           </exclusion>
           <exclusion>
+            <groupId>org.apache.logging.log4j</groupId>
             <!-- exclude transitive from com.microsoft.azure:azure-storage-blob:jar:11.0.0 -->
             <artifactId>log4j-slf4j-impl</artifactId>
-            <groupId>org.apache.logging.log4j</groupId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -564,8 +564,8 @@
         <version>${gs.version}</version>
         <exclusions>
           <exclusion>
-            <artifactId>gs-web-core</artifactId>
             <groupId>org.geoserver.web</groupId>
+            <artifactId>gs-web-core</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -581,24 +581,24 @@
         <!-- exclude data formats, let them be managed by the ones explicitly imported by the service that uses it -->
         <exclusions>
           <exclusion>
+            <groupId>org.geotools</groupId>
             <artifactId>gt-csv</artifactId>
-            <groupId>org.geotools</groupId>
           </exclusion>
           <exclusion>
+            <groupId>org.geotools</groupId>
             <artifactId>gt-shapefile</artifactId>
-            <groupId>org.geotools</groupId>
           </exclusion>
           <exclusion>
+            <groupId>org.geotools.jdbc</groupId>
             <artifactId>gt-jdbc-h2</artifactId>
-            <groupId>org.geotools.jdbc</groupId>
           </exclusion>
           <exclusion>
+            <groupId>org.geotools.jdbc</groupId>
             <artifactId>gt-jdbc-oracle</artifactId>
-            <groupId>org.geotools.jdbc</groupId>
           </exclusion>
           <exclusion>
-            <artifactId>gt-jdbc-sqlserver</artifactId>
             <groupId>org.geotools.jdbc</groupId>
+            <artifactId>gt-jdbc-sqlserver</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -653,8 +653,8 @@
         <version>${gs.community.version}</version>
         <exclusions>
           <exclusion>
-            <artifactId>gs-web-core</artifactId>
             <groupId>org.geoserver.web</groupId>
+            <artifactId>gs-web-core</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -813,24 +813,6 @@
           <groupId>com.spotify</groupId>
           <artifactId>dockerfile-maven-plugin</artifactId>
           <version>1.4.13</version>
-          <executions>
-            <execution>
-              <id>build</id>
-              <goals>
-                <goal>build</goal>
-              </goals>
-            </execution>
-            <execution>
-              <id>push</id>
-              <phase>package</phase>
-              <goals>
-                <goal>push</goal>
-              </goals>
-              <configuration>
-                <skip>${dockerfile.push.skip}</skip>
-              </configuration>
-            </execution>
-          </executions>
           <inherited>true</inherited>
           <configuration>
             <repository>${docker.image.repository}</repository>
@@ -840,6 +822,24 @@
               <JAR_FILE>target/${project.build.finalName}-bin.jar</JAR_FILE>
             </buildArgs>
           </configuration>
+          <executions>
+            <execution>
+              <id>build</id>
+              <goals>
+                <goal>build</goal>
+              </goals>
+            </execution>
+            <execution>
+              <id>push</id>
+              <goals>
+                <goal>push</goal>
+              </goals>
+              <phase>package</phase>
+              <configuration>
+                <skip>${dockerfile.push.skip}</skip>
+              </configuration>
+            </execution>
+          </executions>
         </plugin>
         <plugin>
           <groupId>org.springframework.boot</groupId>
@@ -864,6 +864,7 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-failsafe-plugin</artifactId>
           <version>3.0.0-M7</version>
+          <inherited>true</inherited>
           <executions>
             <execution>
               <goals>
@@ -872,7 +873,6 @@
               </goals>
             </execution>
           </executions>
-          <inherited>true</inherited>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>

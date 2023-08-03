@@ -27,8 +27,8 @@
       <artifactId>gs-css</artifactId>
       <exclusions>
         <exclusion>
-          <artifactId>wicket-extensions</artifactId>
           <groupId>org.apache.wicket</groupId>
+          <artifactId>wicket-extensions</artifactId>
         </exclusion>
       </exclusions>
     </dependency>

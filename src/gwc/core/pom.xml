@@ -18,8 +18,8 @@
       <artifactId>gs-cloud-starter-catalog-backend</artifactId>
       <exclusions>
         <exclusion>
-          <artifactId>gs-gwc</artifactId>
           <groupId>org.geoserver</groupId>
+          <artifactId>gs-gwc</artifactId>
         </exclusion>
       </exclusions>
     </dependency>

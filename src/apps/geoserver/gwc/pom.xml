@@ -85,11 +85,11 @@
         <executions>
           <execution>
             <id>copy-resources</id>
-            <!-- here the phase you need -->
-            <phase>validate</phase>
             <goals>
               <goal>copy-resources</goal>
             </goals>
+            <!-- here the phase you need -->
+            <phase>validate</phase>
             <configuration>
               <outputDirectory>${basedir}/target/config</outputDirectory>
               <resources>
@@ -152,10 +152,10 @@
               </execution>
               <execution>
                 <id>push-openj9-image</id>
-                <phase>install</phase>
                 <goals>
                   <goal>package</goal>
                 </goals>
+                <phase>install</phase>
                 <configuration>
                   <skip>${dockerfile.push.skip}</skip>
                   <tag>${project.version}-openj9</tag>

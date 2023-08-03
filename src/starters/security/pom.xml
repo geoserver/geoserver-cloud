@@ -23,12 +23,12 @@
       <artifactId>gs-authkey</artifactId>
       <exclusions>
         <exclusion>
-          <artifactId>gs-rest</artifactId>
           <groupId>org.geoserver</groupId>
+          <artifactId>gs-rest</artifactId>
         </exclusion>
         <exclusion>
-          <artifactId>gs-web-sec-core</artifactId>
           <groupId>org.geoserver.web</groupId>
+          <artifactId>gs-web-sec-core</artifactId>
         </exclusion>
       </exclusions>
     </dependency>

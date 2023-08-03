@@ -101,10 +101,10 @@
               </execution>
               <execution>
                 <id>push-openj9-image</id>
-                <phase>package</phase>
                 <goals>
                   <goal>push</goal>
                 </goals>
+                <phase>package</phase>
                 <configuration>
                   <skip>${dockerfile.push.skip}</skip>
                   <tag>${project.version}-openj9</tag>

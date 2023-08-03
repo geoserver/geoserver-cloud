@@ -64,11 +64,11 @@
         <executions>
           <execution>
             <id>copy-resources</id>
-            <!-- here the phase you need -->
-            <phase>validate</phase>
             <goals>
               <goal>copy-resources</goal>
             </goals>
+            <!-- here the phase you need -->
+            <phase>validate</phase>
             <configuration>
               <outputDirectory>${basedir}/target/config</outputDirectory>
               <resources>
@@ -131,10 +131,10 @@
               </execution>
               <execution>
                 <id>push-openj9-image</id>
-                <phase>install</phase>
                 <goals>
                   <goal>package</goal>
                 </goals>
+                <phase>install</phase>
                 <configuration>
                   <skip>${dockerfile.push.skip}</skip>
                   <tag>${project.version}-openj9</tag>
@@ -157,20 +157,20 @@
           <!-- exclude data formats, let them be managed by the ones explicitly imported by this module -->
           <exclusions>
             <exclusion>
-              <artifactId>gt-shapefile</artifactId>
               <groupId>org.geotools</groupId>
+              <artifactId>gt-shapefile</artifactId>
             </exclusion>
             <exclusion>
+              <groupId>org.geotools.jdbc</groupId>
               <artifactId>gt-jdbc-h2</artifactId>
-              <groupId>org.geotools.jdbc</groupId>
             </exclusion>
             <exclusion>
+              <groupId>org.geotools.jdbc</groupId>
               <artifactId>gt-jdbc-oracle</artifactId>
-              <groupId>org.geotools.jdbc</groupId>
             </exclusion>
             <exclusion>
-              <artifactId>gt-jdbc-sqlserver</artifactId>
               <groupId>org.geotools.jdbc</groupId>
+              <artifactId>gt-jdbc-sqlserver</artifactId>
             </exclusion>
           </exclusions>
         </dependency>

@@ -24,8 +24,8 @@
       <artifactId>gs-cloud-starter-webmvc</artifactId>
       <exclusions>
         <exclusion>
-          <artifactId>gs-gwc</artifactId>
           <groupId>org.geoserver</groupId>
+          <artifactId>gs-gwc</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -70,11 +70,11 @@
         <executions>
           <execution>
             <id>copy-resources</id>
-            <!-- here the phase you need -->
-            <phase>validate</phase>
             <goals>
               <goal>copy-resources</goal>
             </goals>
+            <!-- here the phase you need -->
+            <phase>validate</phase>
             <configuration>
               <outputDirectory>${basedir}/target/config</outputDirectory>
               <resources>
@@ -137,10 +137,10 @@
               </execution>
               <execution>
                 <id>push-openj9-image</id>
-                <phase>package</phase>
                 <goals>
                   <goal>push</goal>
                 </goals>
+                <phase>package</phase>
                 <configuration>
                   <skip>${dockerfile.push.skip}</skip>
                   <tag>${project.version}-openj9</tag>
