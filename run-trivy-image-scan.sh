@@ -1,6 +1,6 @@
 #!/bin/sh
 
-v1=1.0-RC16
+v1=1.2.0
 echo Gettig current version...
 v2=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
 
@@ -11,8 +11,8 @@ for i in `docker images|grep geoservercloud|grep "$v2 "|sort|cut -d" " -f1`
 do
   export image=$i
   echo "* $image:"
-  echo "\t\`$v1\`": $(trivy image --vuln-type library --no-progress --light $image:$v1 | grep Total) 
-  echo "\t\`$v2\`": $(trivy image --vuln-type library --no-progress --light $image:$v2 | grep Total)
+  echo "\t\`$v1\`": $(trivy image --vuln-type library --no-progress $image:$v1 | grep Total) 
+  echo "\t\`$v2\`": $(trivy image --vuln-type library --no-progress $image:$v2 | grep Total)
 done
 
 echo $v2 library vulnerabilities
@@ -21,5 +21,5 @@ do
   export image=$i
   echo "--------------------------------------------------"
   echo "$image:"
-  trivy image --light --vuln-type library --no-progress -s "HIGH,CRITICAL" $image:$v2 |grep -v INFO
+  trivy image --vuln-type library --no-progress -s "HIGH,CRITICAL" $image:$v2 |grep -v INFO
 done
