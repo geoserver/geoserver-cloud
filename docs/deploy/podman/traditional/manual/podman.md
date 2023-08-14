@@ -28,7 +28,7 @@ In order to speed up the "starting" part of the documentation we are going to do
 
 ```bash
 podman pull docker.io/library/rabbitmq:3.9-management 
-export GSCLOUD_VERSION=1.2.0
+export GSCLOUD_VERSION=1.3.0
 
 for service in discovery config gateway admin-server rest webui wms wfs wcs
 do
@@ -71,7 +71,7 @@ podman run -d --name=config --hostname=config \
   --network gs-cloud-network \
   -e SPRING_PROFILES_ACTIVE=git \
   -e CONFIG_GIT_URI=https://github.com/geoserver/geoserver-cloud-config.git \
-  -e SPRING_CLOUD_CONFIG_SERVER_GIT_DEFAULT_LABEL=v1.2.0 \
+  -e SPRING_CLOUD_CONFIG_SERVER_GIT_DEFAULT_LABEL=v1.3.0 \
   -e CONFIG_GIT_BASEDIR=/opt/app/git_config \
   geoservercloud/geoserver-cloud-config:$GSCLOUD_VERSION
 ```
