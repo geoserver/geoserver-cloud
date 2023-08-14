@@ -55,5 +55,5 @@ jobs:
 
     - name: Remove project jars from cached repository
       run: |
-        rm -rf .m2/repository/org/geoserver
-        find .m2/repository -name "*SNAPSHOT*" -type d | xargs rm -rf {}
+        rm -rf ~/.m2/repository/org/geoserver
+        find ~/.m2/repository -name "*SNAPSHOT*" -type d | xargs rm -rf {}
