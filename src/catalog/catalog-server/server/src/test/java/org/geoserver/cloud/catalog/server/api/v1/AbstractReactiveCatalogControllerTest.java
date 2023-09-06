@@ -16,12 +16,12 @@ import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.CatalogTestData;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.plugin.Query;
+import org.geoserver.catalog.plugin.resolving.ProxyUtils;
 import org.geoserver.cloud.catalog.server.test.CatalogTestClient;
 import org.geoserver.cloud.catalog.server.test.TestConfiguration;
 import org.geoserver.cloud.catalog.server.test.WebTestClientSupport;
 import org.geoserver.cloud.catalog.server.test.WebTestClientSupportConfiguration;
 import org.geoserver.config.GeoServer;
-import org.geoserver.jackson.databind.catalog.ProxyUtils;
 import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.filter.text.ecql.ECQL;
 import org.junit.jupiter.api.AfterEach;
@@ -39,6 +39,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -67,7 +68,8 @@ public abstract class AbstractReactiveCatalogControllerTest<C extends CatalogInf
     }
 
     public @BeforeEach void setup() {
-        proxyResolver = new ProxyUtils(catalog, geoServer).failOnMissingReference(true);
+        proxyResolver =
+                new ProxyUtils(catalog, Optional.of(geoServer)).failOnMissingReference(true);
         testData =
                 CatalogTestData.initialized(() -> catalog, () -> null)
                         .initConfig(false)

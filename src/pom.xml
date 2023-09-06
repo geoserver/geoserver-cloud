@@ -35,6 +35,8 @@
     <netty.version>4.1.41.Final</netty.version>
     <lombok.version>1.18.24</lombok.version>
     <mapstruct.version>1.4.2.Final</mapstruct.version>
+    <flyway.version>9.19.4</flyway.version>
+    <testcontainers.version>1.18.3</testcontainers.version>
     <fork.javac>true</fork.javac>
     <javac.maxHeapSize>256M</javac.maxHeapSize>
     <!-- docker.image.prefix: dockerhub organization name -->
@@ -93,6 +95,13 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-dependencies</artifactId>
         <version>${spring-boot.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.testcontainers</groupId>
+        <artifactId>testcontainers-bom</artifactId>
+        <version>${testcontainers.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -778,6 +787,11 @@
         <groupId>org.mapstruct</groupId>
         <artifactId>mapstruct</artifactId>
         <version>${mapstruct.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.flywaydb</groupId>
+        <artifactId>flyway-core</artifactId>
+        <version>${flyway.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

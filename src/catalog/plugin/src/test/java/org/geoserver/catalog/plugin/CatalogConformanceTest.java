@@ -71,8 +71,10 @@ import org.geoserver.catalog.event.CatalogRemoveEvent;
 import org.geoserver.catalog.impl.CatalogImpl;
 import org.geoserver.catalog.impl.CatalogPropertyAccessor;
 import org.geoserver.catalog.impl.CoverageInfoImpl;
+import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.impl.NamespaceInfoImpl;
 import org.geoserver.catalog.impl.RunnerBase;
+import org.geoserver.catalog.impl.StyleInfoImpl;
 import org.geoserver.catalog.impl.WorkspaceInfoImpl;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.config.GeoServerDataDirectory;
@@ -1539,6 +1541,10 @@ public abstract class CatalogConformanceTest {
         assertNotSame(data.layerFeatureTypeA, l2);
         assertEquals(data.layerFeatureTypeA, l2);
         assertSame(catalog, l2.getResource().getCatalog());
+        StyleInfo defaultStyle = l2.getDefaultStyle();
+        defaultStyle = ModificationProxy.unwrap(defaultStyle);
+        if (defaultStyle instanceof StyleInfoImpl)
+            assertSame(catalog, ((StyleInfoImpl) defaultStyle).getCatalog());
     }
 
     @Test
@@ -1661,6 +1667,8 @@ public abstract class CatalogConformanceTest {
         l.setDefaultStyle(data.style1);
 
         catalog.add(l);
+        assertEquals("foo:bar", l.getName());
+        assertEquals("wsName:foo:bar", l.prefixedName());
         assertNotNull(catalog.getLayerByName("foo:bar"));
     }
 
@@ -2452,7 +2460,8 @@ public abstract class CatalogConformanceTest {
 
         // lg is not global, but it is in the default workspace, so it should be found if we don't
         // specify the workspace
-        assertEquals(lg1, catalog.getLayerGroupByName("lg"));
+        LayerGroupInfo layerGroupByName = catalog.getLayerGroupByName("lg");
+        assertEquals(lg1, layerGroupByName);
 
         assertEquals(lg1, catalog.getLayerGroupByName(data.workspaceA.getName(), "lg"));
         assertEquals(lg1, catalog.getLayerGroupByName(data.workspaceA, "lg"));
@@ -2870,6 +2879,8 @@ public abstract class CatalogConformanceTest {
             assertTrue(true);
         }
 
+        assertEquals(
+                s1.getId(), catalog.get(StyleInfo.class, equal("filename", "s1Filename")).getId());
         filter = equal("defaultStyle.filename", "s1Filename");
         assertEquals(l1.getId(), catalog.get(LayerInfo.class, filter).getId());
 
@@ -3271,8 +3282,8 @@ public abstract class CatalogConformanceTest {
 
         CatalogPropertyAccessor pe = new CatalogPropertyAccessor();
 
-        List<Object> props = new ArrayList<Object>();
-        List<Object> actual = new ArrayList<Object>();
+        List<Object> props = new ArrayList<>();
+        List<Object> actual = new ArrayList<>();
         String sortProperty = sortOrder.getPropertyName().getPropertyName();
         for (T info : expected) {
             Object pval = pe.getProperty(info, sortProperty);

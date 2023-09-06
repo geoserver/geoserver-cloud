@@ -14,6 +14,7 @@
     <module>common</module>
     <module>datadir</module>
     <module>jdbcconfig</module>
+    <module>pgsql</module>
   </modules>
   <dependencies>
     <dependency>

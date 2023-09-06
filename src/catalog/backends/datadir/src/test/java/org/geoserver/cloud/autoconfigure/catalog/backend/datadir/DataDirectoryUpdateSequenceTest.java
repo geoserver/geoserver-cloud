@@ -4,16 +4,14 @@
  */
 package org.geoserver.cloud.autoconfigure.catalog.backend.datadir;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import org.geoserver.cloud.config.catalog.backend.datadirectory.DataDirectoryBackendConfiguration;
 import org.geoserver.cloud.config.catalog.backend.datadirectory.DataDirectoryUpdateSequence;
-import org.junit.jupiter.api.Test;
+import org.geoserver.config.GeoServer;
+import org.geoserver.platform.config.UpdateSequence;
+import org.geoserver.platform.config.UpdateSequenceConformanceTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-
-import java.util.stream.IntStream;
 
 /**
  * Test {@link DataDirectoryBackendConfiguration} through {@link DataDirectoryAutoConfiguration}
@@ -26,32 +24,18 @@ import java.util.stream.IntStream;
             "geoserver.backend.dataDirectory.location=/tmp/data_dir_autoconfiguration_test"
         })
 @ActiveProfiles("test")
-public class DataDirectoryUpdateSequenceTest {
+public class DataDirectoryUpdateSequenceTest implements UpdateSequenceConformanceTest {
 
     private @Autowired DataDirectoryUpdateSequence updateSequence;
+    private @Autowired GeoServer geoserver;
 
-    public @Test void sequentialTest() {
-        final long initial = updateSequence.currValue();
-        long v = updateSequence.currValue();
-        assertEquals(initial, v);
-        v = updateSequence.nextValue();
-        assertEquals(1 + initial, v);
-        v = updateSequence.currValue();
-        assertEquals(1 + initial, v);
-        v = updateSequence.nextValue();
-        assertEquals(2 + initial, v);
-        v = updateSequence.currValue();
-        assertEquals(2 + initial, v);
+    @Override
+    public UpdateSequence getUpdataSequence() {
+        return updateSequence;
     }
 
-    public @Test void multiThreadedTest() {
-        final int incrementCount = 10_000;
-        final long initial = updateSequence.currValue();
-        final long expected = initial + incrementCount;
-
-        IntStream.range(0, incrementCount).parallel().forEach(i -> updateSequence.nextValue());
-
-        long v = updateSequence.currValue();
-        assertEquals(expected, v);
+    @Override
+    public GeoServer getGeoSever() {
+        return geoserver;
     }
 }

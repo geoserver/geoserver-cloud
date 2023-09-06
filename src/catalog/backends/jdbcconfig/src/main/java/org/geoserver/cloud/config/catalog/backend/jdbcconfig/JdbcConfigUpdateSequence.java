@@ -9,6 +9,9 @@ import static java.lang.String.format;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
+import org.geoserver.config.GeoServerFacade;
+import org.geoserver.config.GeoServerInfo;
+import org.geoserver.jdbcconfig.internal.ConfigDatabase;
 import org.geoserver.platform.config.UpdateSequence;
 import org.springframework.beans.factory.InitializingBean;
 
@@ -29,6 +32,8 @@ public class JdbcConfigUpdateSequence implements UpdateSequence, InitializingBea
 
     private final @NonNull DataSource dataSource;
     private final @NonNull CloudJdbcConfigProperties props;
+    private final @NonNull GeoServerFacade geoServer;
+    private final @NonNull ConfigDatabase db;
 
     private String incrementAndGetQuery;
     private String getQuery;
@@ -39,8 +44,14 @@ public class JdbcConfigUpdateSequence implements UpdateSequence, InitializingBea
     }
 
     @Override
-    public long nextValue() {
-        return runAndGetLong(this.incrementAndGetQuery);
+    public synchronized long nextValue() {
+        long nextValue = runAndGetLong(this.incrementAndGetQuery);
+        GeoServerInfo global = geoServer.getGlobal();
+        if (global != null) {
+            global.setUpdateSequence(nextValue);
+            db.save(global);
+        }
+        return nextValue;
     }
 
     @Override

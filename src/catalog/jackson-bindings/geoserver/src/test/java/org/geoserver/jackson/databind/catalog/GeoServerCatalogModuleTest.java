@@ -51,6 +51,7 @@ import org.geoserver.catalog.impl.LegendInfoImpl;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.Query;
+import org.geoserver.catalog.plugin.resolving.ProxyUtils;
 import org.geoserver.cog.CogSettings.RangeReaderType;
 import org.geoserver.cog.CogSettingsStore;
 import org.geoserver.config.GeoServer;
@@ -92,6 +93,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Verifies that all {@link CatalogInfo} can be sent over the wire and parsed back using jackson,
@@ -126,7 +128,7 @@ public abstract class GeoServerCatalogModuleTest {
         geoserver = new GeoServerImpl();
         geoserver.setCatalog(catalog);
         data = CatalogTestData.initialized(() -> catalog, () -> geoserver).initialize();
-        proxyResolver = new ProxyUtils(catalog, geoserver);
+        proxyResolver = new ProxyUtils(catalog, Optional.of(geoserver));
     }
 
     protected abstract ObjectMapper newObjectMapper();

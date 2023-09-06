@@ -5,19 +5,14 @@ spring:
     allow-bean-definition-overriding: true
     # false by default since spring-boot 2.6.0, breaks geoserver initialization
     allow-circular-references: true
-  cloud.bus.enabled: false
   autoconfigure:
     exclude:
     - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
-
-
-eureka.client.enabled: false
 
 geoserver:
   backend:
     jdbcconfig:
       enabled: false
-      web.enabled: false
       initdb: true
       cache-directory: ${java.io.tmpdir}/geoserver-jdbcconfig-cache
       datasource:

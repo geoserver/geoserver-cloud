@@ -1,0 +1,10 @@
+
+
+geoserver:
+  backend:
+    pgsql:
+      initialize: true
+      schema: gscatalog
+      create-schema: true
+      datasource:
+        jndi-name: java:comp/env/jdbc/test

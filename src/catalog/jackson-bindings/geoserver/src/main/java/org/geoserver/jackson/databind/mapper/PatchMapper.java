@@ -9,7 +9,7 @@ import lombok.NonNull;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.PropertyDiff;
-import org.geoserver.jackson.databind.catalog.ProxyUtils;
+import org.geoserver.catalog.plugin.resolving.ProxyUtils;
 import org.geoserver.jackson.databind.catalog.dto.InfoReference;
 import org.geoserver.jackson.databind.catalog.dto.PatchDto;
 import org.geoserver.jackson.databind.catalog.mapper.ValueMappers;
