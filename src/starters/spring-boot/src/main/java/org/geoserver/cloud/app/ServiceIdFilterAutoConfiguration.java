@@ -47,8 +47,7 @@ public class ServiceIdFilterAutoConfiguration {
         public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
                 throws IOException, ServletException {
 
-            if (response instanceof HttpServletResponse) {
-                HttpServletResponse httpServletResponse = (HttpServletResponse) response;
+            if (response instanceof HttpServletResponse httpServletResponse) {
                 httpServletResponse.addHeader("X-gs-cloud-service-id", instanceId);
             }
             chain.doFilter(request, response);
