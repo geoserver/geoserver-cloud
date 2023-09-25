@@ -147,6 +147,9 @@ Github repository.
 To run the development docker composition using a shared data directory.
 GeoServer-Cloud can start from an empty directory.
 
+Edit your ```.env``` file to set the ```GS_USER``` variable to your user id and group,
+then do:
+
 ```bash
 $ mkdir docker-compose_datadir
 $ alias dcd="docker-compose -f docker-compose.yml -f docker-compose-shared_datadir.yml"
@@ -173,7 +176,7 @@ $ curl "http://localhost:9090/geoserver/cloud/ows?request=getcapabilities&servic
 $ curl -u admin:geoserver "http://localhost:9090/geoserver/cloud/rest/workspaces.json"
 ```
 
-Browse to [http://localhost:9090/geoserver/cloud](http://localhost:9090/geoserver/cloud)
+Browse to [http://localhost:9090/geoserver/cloud/](http://localhost:9090/geoserver/cloud/)
 
 > Note the `/geoserver/cloud` context path is set up in the `gateway-service`'s externalized
 > configuration, and enforced through the `GEOSERVER_BASE_PATH` in `docker-compose.yml`.
