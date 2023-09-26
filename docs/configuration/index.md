@@ -12,8 +12,7 @@ TBD
 
 ## JNDI Datasources
 
-A custom and very simple JNDI implementation is used through the `org.geoserver.cloud:spring-boot-simplejndi` maven module,
-allowing to configure JNDI data sources through Spring-Boot's configuration properties.
+A custom and very simple JNDI implementation is used through the `org.geoserver.cloud:spring-boot-simplejndi` maven module, allowing to configure JNDI data sources through Spring-Boot's configuration properties.
 
 ```yaml
 jndi:
@@ -30,22 +29,20 @@ jndi:
       idle-timeout: 60000
 ```
 
+On Kubernetes, you can for example mount it as a config map in all the services.
+
 ## GeoServer configuration properties
 
 ## HTTP proxy for cascaded OWS (WMS/WMTS/WFS) Stores
 
-Cascaded OWS stores make use of a SPI (Service Provider Interface)
-extension point to configure the appropriate GeoTools `HTTPClientFactory`.
+Cascaded OWS stores make use of a SPI (Service Provider Interface) extension point to configure the appropriate GeoTools `HTTPClientFactory`.
 
-We provide a Spring Boot Auto-configuration that can be configured
-through regular spring-boot externalized properties and only affects 
-GeoTools HTTP clients instead of the whole JVM.
+We provide a Spring Boot Auto-configuration that can be configured through regular spring-boot externalized properties and only affects GeoTools HTTP clients instead of the whole JVM.
 
 The usual way to set an http proxy is through the `http.proxyHost`, `http.proxyPort`,
 `http.proxyUser`, `http.proxyPassword` Java System Properties.
 
-In the context of Cloud Native GeoServer containerized applications,
-this presents a number of drawbacks:
+In the context of Cloud Native GeoServer containerized applications, this presents a number of drawbacks:
 
 * Standard Java proxy parameters only work with System properties,
   not OS environment variables, and setting system properties is more
@@ -112,9 +109,7 @@ services:
 
 ## Configure admin user through environment variables
 
-For Cloud-Native deployments, an `AuthenticationProvider` exists 
-that allows to set an administrator account (username and password)
-through environment variables `GEOSERVER_ADMIN_USERNAME`/`GEOSERVER_ADMIN_PASSWORD`,
+For Cloud-Native deployments, an `AuthenticationProvider` exists that allows to set an administrator account (username and password) through environment variables `GEOSERVER_ADMIN_USERNAME`/`GEOSERVER_ADMIN_PASSWORD`,
 or Java System Properties `geoserver.admin.username` and `geoserver.admin.password`.
 
 Useful for devOps to set the admin password through a Kubernetes secret,
@@ -133,3 +128,18 @@ in will cancel the authentication chain, and no other authentication providers w
 If the default `admin` username is used, it effectively overrides the admin password set in the
 xml configuration. If a separate administrator username is given, the regular
 `admin` user is **disabled**.
+
+## Change the default geoserver path
+
+By default, GeoServer Cloud services are available under `geoserver/cloud/web` path. You can change it by using the `GEOSERVER_BASE_PATH` or Java System Properties `geoserver.base-path`.
+
+## Use GeoServer ACL
+
+To use GeoServer ACL with GeoServer Cloud, you need to do the following steps:
+- Have a database available for storing the GeoServer ACL configuration
+- Add a GeoServer ACL instance to your deployment
+- Update the GeoServer spring configuration to enable ACL based security (you can use the `acl` spring profile)
+
+## Use OAuth authentication
+
+You can enable OAuth authentication by replacing the default `gateway` image by the geOrchestra gateway (for example `georchestra/gateway:23.1-RC1`).
