@@ -28,10 +28,8 @@
     <gs.community.version>2.23-CLOUD</gs.community.version>
     <gt.version>29-SNAPSHOT</gt.version>
     <acl.version>1.0.2</acl.version>
-    <!-- downgrade netty.version used by spring-boot to the one used by
-		geoserver azure client -->
-    <!-- (software.amazon.awssdk:netty-nio-client:jar:2.9.24) for COG and
-		GWC Azure plugin -->
+    <!-- Downgrade netty.version used by spring-boot to the one used by geoserver azure client
+    (software.amazon.awssdk:netty-nio-client:jar:2.9.24) for COG and GWC Azure plugin -->
     <netty.version>4.1.41.Final</netty.version>
     <lombok.version>1.18.30</lombok.version>
     <mapstruct.version>1.4.2.Final</mapstruct.version>
@@ -904,6 +902,7 @@
           <inherited>true</inherited>
           <configuration>
             <reuseForks>false</reuseForks>
+            <argLine>--add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.text=ALL-UNNAMED --add-opens=java.desktop/java.awt.font=ALL-UNNAMED  --add-opens=java.desktop/sun.awt.image=ALL-UNNAMED --add-opens=java.naming/com.sun.jndi.ldap=ALL-UNNAMED</argLine>
           </configuration>
         </plugin>
         <plugin>
@@ -1113,57 +1112,57 @@
           <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-buffer</artifactId>
-            <version>4.1.94.Final</version>
+            <version>${netty.version}</version>
           </dependency>
           <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-codec</artifactId>
-            <version>4.1.94.Final</version>
+            <version>${netty.version}</version>
           </dependency>
           <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-codec-http</artifactId>
-            <version>4.1.94.Final</version>
+            <version>${netty.version}</version>
           </dependency>
           <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-codec-http2</artifactId>
-            <version>4.1.94.Final</version>
+            <version>${netty.version}</version>
           </dependency>
           <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-codec-socks</artifactId>
-            <version>4.1.94.Final</version>
+            <version>${netty.version}</version>
           </dependency>
           <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-common</artifactId>
-            <version>4.1.94.Final</version>
+            <version>${netty.version}</version>
           </dependency>
           <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-handler</artifactId>
-            <version>4.1.94.Final</version>
+            <version>${netty.version}</version>
           </dependency>
           <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-handler-proxy</artifactId>
-            <version>4.1.94.Final</version>
+            <version>${netty.version}</version>
           </dependency>
           <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-resolver</artifactId>
-            <version>4.1.94.Final</version>
+            <version>${netty.version}</version>
           </dependency>
           <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-transport</artifactId>
-            <version>4.1.94.Final</version>
+            <version>${netty.version}</version>
           </dependency>
           <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-transport-native-unix-common</artifactId>
-            <version>4.1.94.Final</version>
+            <version>${netty.version}</version>
           </dependency>
         </dependencies>
       </dependencyManagement>
