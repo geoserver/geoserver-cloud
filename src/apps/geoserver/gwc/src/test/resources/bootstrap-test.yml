@@ -2,6 +2,7 @@ spring:
   cloud.config.enabled: false
   cloud.config.discovery.enabled: false
   cloud.discovery.enabled: false
+  cloud.bus.enabled: false
 eureka.client.enabled: false
 geoserver:
   acl.enabled: false
@@ -16,7 +17,9 @@ logging:
     root: warn
     org.geotools: warn
     org.geoserver: warn
+    org.geoserver.security: error
     org.geoserver.cloud: info
+    org.geoserver.cloud.config.catalog: warn
     org.geoserver.cloud.config.factory: info
     org.geowebcache.config.XMLConfiguration: off
     org.springframework.test: info
