@@ -1,10 +1,10 @@
 # Introduction
 
-*Cloud Native GeoServer* is  [GeoServer](http://geoserver.org/) ready to use in the cloud through dockerized microservices.
+*GeoServer Cloud* is  [GeoServer](http://geoserver.org/) ready to use in the cloud through dockerized microservices.
 
-The *Cloud Native GeoServer* project splits the GeoServer geospatial services and API offerings into individually deployable components of a [microservices based architecture](https://microservices.io/). This project provides clear constructive changes to GeoServer when required, based on prior experience with GeoServer clustering solutions.
+The *GeoServer Cloud* project splits the GeoServer geospatial services and API offerings into individually deployable components of a [microservices based architecture](https://microservices.io/). This project provides clear constructive changes to GeoServer when required, based on prior experience with GeoServer clustering solutions.
 
-*Cloud Native GeoServer* is built with GeoServer software components. Components are adapted and/or extended in a [functional decomposition by business capability](https://microservices.io/patterns/decomposition/decompose-by-business-capability.html). The result is each service (OWS service, the Web UI, the REST API ) is available as a self-contained, individually deployable and scalable micro-services.
+*GeoServer Cloud* is built with GeoServer software components. Components are adapted and/or extended in a [functional decomposition by business capability](https://microservices.io/patterns/decomposition/decompose-by-business-capability.html). The result is each service (OWS service, the Web UI, the REST API ) is available as a self-contained, individually deployable and scalable micro-services.
 
 > Q: Does that mean *GeoServer*'s `.war` is deployed several times, with each instance exposing a given "business capability"?
 > 
@@ -33,9 +33,9 @@ Though a gateway/load balancer can be put in front and still make the cluster in
 
 # Vision
 
-*Cloud Native GeoServer* is a sibling project to GeoServer, targeting organizations and system administrators in seek of a steady, prescribed way of provisioning GeoServer capabilities in a dynamic environment, where each business capability can be enabled, configured, dimensioned, and deployed independently.
+*GeoServer Cloud* is a sibling project to GeoServer, targeting organizations and system administrators in seek of a steady, prescribed way of provisioning GeoServer capabilities in a dynamic environment, where each business capability can be enabled, configured, dimensioned, and deployed independently.
 
-*Cloud Native GeoServer* is not a re-write of GeoServer. On the contrary, it builds on top of existing *GeoServer* software components, adapting and/or extending them, feeding from, and contributing back to GeoServer's mainline development. Traditional GeoServer installations are still recommended for simple deployments that can/need to expose all its capabilities.
+*GeoServer Cloud* is not a re-write of GeoServer. On the contrary, it builds on top of existing *GeoServer* software components, adapting and/or extending them, feeding from, and contributing back to GeoServer's mainline development. Traditional GeoServer installations are still recommended for simple deployments that can/need to expose all its capabilities.
 
 This project reformulates how these capabilities are bundled together, in an attempt to achieve [functional decomposition by business capability](https://microservices.io/patterns/decomposition/decompose-by-business-capability.html); which roughly means each OWS service, the Web UI, the REST API, and probably other components such as the *Catalog and Configuration subsystem*, become self-contained, individually deployable and scalable micro-services, loosely coupled through an [event based architecture](https://en.wikipedia.org/wiki/Event-driven_architecture).
 
@@ -72,9 +72,7 @@ These containerized applications allow deployment strategies to vary from single
 
 # Quick Start
 
-The following instructions are meant as quick start up guide to run the 
-system as a docker composition on a single machine. For more advanced deployment 
-options and strategies, check out the [Deployment Guide](deploy/index.md).
+The following instructions are meant as quick start up guide to run the system as a docker composition on a single machine. For more advanced deployment options and strategies, check out the [Deployment Guide](deploy/index.md).
 
 Make sure you have `docker` and `docker-compose` installed:
 
@@ -161,7 +159,7 @@ Only a curated list of the [vast amount](http://geoserver.org/release/stable/) o
 
 The following diagram depicts the System's general architecture:
 
-![Cloud Native GeoServer Architecture Diagram](img/gs_cloud_architecture_diagram.svg  "Cloud Native GeoServer Architecture Diagram")
+![GeoServer Cloud Architecture Diagram](img/gs_cloud_architecture_diagram.svg  "GeoServer Cloud Architecture Diagram")
 
 > - Hexagons represent microservices;
 > - coloured rectangles, logical groupings of components;
@@ -188,14 +186,7 @@ Project is being deployed in production since `v0.1.0`.
 [Camptocamp](https://camptocamp.com/), as the original author, is in process of donating the project to OsGeo/Geoserver.
 
 > Q: So, is this **production ready**?
-> Not at all. *Cloud Native GeoServer* is being used in production for the functionalities needed by Camptocamp's customer funding this project so far. That does not mean it's ready for general availability. For instance, these are the most outstanding issues:
-> 
-> * The WPS is non functional and temporarily removed from the build
-> * There's no GWC integration so far
-> * The `catalog-service` is temporarily out of commission, until it can deal
-> with distributed locking on behalf of its clients applications. Hence only
-> the jdbcconfig and shared-data-directory backend configurations are supported for the time being.
-> Additionally, we need to work on centralized logging, tracing, and monitoring.
+> GeoServer Cloud is **production ready**. It is currently used by several private companies and public authorities in Europe. It has been deployed successfully on AWS, Azure, GKE, OpenShift and Scaleway.
 
 # Developer's Guide
 

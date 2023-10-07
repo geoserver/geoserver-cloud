@@ -1,26 +1,33 @@
 [![Build and Push Docker images](https://github.com/geoserver/geoserver-cloud/actions/workflows/build-and-push.yaml/badge.svg)](https://github.com/geoserver/geoserver-cloud/actions/workflows/build-and-push.yaml)
 
-# Cloud Native GeoServer
+# GeoServer Cloud
 
-*Cloud Native GeoServer* is  [GeoServer](http://geoserver.org/) ready to use in the cloud through dockerized microservices.
+*GeoServer Cloud* is  [GeoServer](http://geoserver.org/) ready to use in the cloud through dockerized microservices.
 
 This project is an opinionated effort to split *GeoServer*'s geospatial services and API offerings as individually deployable components of a [microservices based architecture](https://microservices.io/).
 
 As such, it builds on top of existing *GeoServer* software components, adapting and/or extending them in an attempt to achieve functional decomposition by business capability; which roughly means each OWS service, the Web UI, the REST API, and probably other components such as the *Catalog and Configuration subsystem*, become self-contained, individually deployable and scalable micro-services.
 
+## Quick start
 
+You can easiliy deploy and test locally GeoServer Cloud after cloning these repo on your computer by running the following command:
 
-https://user-images.githubusercontent.com/207423/144188466-54a1695f-129e-44c2-b6d6-09bf34b96f84.mp4
+```bash
+docker-compose -f docker-compose.yml -f docker-compose-shared_datadir.yml up -d
+```
 
+This will start a GeoServer Cloud stack using a file based backend as catalog system.
+
+Browse to [http://localhost:9090/geoserver/cloud](http://localhost:9090/geoserver/cloud) to access the GeoServer UI.
 
 
 ## Architecture
 
 The following diagram depicts the System's general architecture.
 
-<img src="docs/img/gs_cloud_architecture_diagram.svg" alt="Cloud Native GeoServer Architecture Diagram" width="740" />
+<img src="docs/img/gs_cloud_architecture_diagram.svg" alt="GeoServer Cloud Architecture Diagram" width="740" />
 
-*Cloud Native GeoServer Architecture Diagram*
+*GeoServer Cloud Architecture Diagram*
 
 Does that mean *GeoServer*'s `.war` is deployed several times, with each instance exposing a given "business capability"?
 ABSOLUTELY NOT.
@@ -32,11 +39,30 @@ With *GeoServer* being a traditional, [Spring Framework](https://spring.io/) bas
 
 Additionally, [Spring Cloud](https://spring.io/projects/spring-cloud) technologies enable crucial capabilities such as [dynamic service discovery](https://spring.io/projects/spring-cloud-netflix), [externalized configuration](https://spring.io/projects/spring-cloud-config), [distributed events](https://spring.io/projects/spring-cloud-bus), [API gateway](https://spring.io/projects/spring-cloud-gateway), and more.
 
-Only a curated list of the [vast amount](http://geoserver.org/release/stable/) of GeoServer extensions will be supported, as they are verified and possibly adapted to work with this project's architecture.
+Only a curated list of the [vast amount](http://geoserver.org/release/stable/) of GeoServer extensions will be supported, as they are verified and possibly adapted to work with this project's architecture. The current version supports the following extensions:
+- jdbc config
+- jdbc store
+- pgraster
+- datadir-catalog-loader
+- authkey authentication
+- web-resource explorer
+- css style
+- mb style
+- GWC S3 Storage
+- GWC Azure Blob Storage
+- Pregeneralized feature datastore
+- vectortiles
+- flatgeobuf
+- cog
+- importer
+
+Advanced ACL system is available through the project [GeoServer ACL](https://github.com/geoserver/geoserver-acl) which offers the same capacities as GeoFence.
+
+OAuth is available by using the geOrchestra Gateway in replacement of the GeoServer Cloud one.
 
 ## License
 
-*CN GeoServer* licensed under the [GPLv2](LICENSE.txt).
+*GeoServer Cloud* licensed under the [GPLv2](LICENSE.txt).
 
 ## Building
 
@@ -47,16 +73,13 @@ Requirements:
  * [Docker](https://docs.docker.com/engine/install/) version >= `19.03.3`
  * [docker-compose](https://docs.docker.com/compose/) version >= `1.26.2`
 
-The simple `make` command from the project root directory will
-build and install all the required components, including upstream GeoServer
-dependencies and GeoServer-Cloud Docker images. So for a full build just run:
+The simple `make` command from the project root directory will build and install all the required components, including upstream GeoServer dependencies and GeoServer-Cloud Docker images. So for a full build just run:
 
 ```bash
 make
 ```
 
-Then for further builds, unless the `geoserver_submodule/` has changed,
-you can build without running tests with
+Then for further builds, unless the `geoserver_submodule/` has changed, you can build without running tests with
 
 ```bash
 make install
@@ -70,27 +93,15 @@ make test
 
 ### Custom upstream GeoServer version
 
-*Cloud Native GeoServer* depends on a custom GeoServer branch,
-`geoserver-cloud_integration`, which contains patches to upstream
-GeoServer that have not yet been integrated into the mainstream
-`main` branch. Additionally, the `geoserver-cloud_integration`
-GeoServer branch changes the artifact versions from `2.21-SNAPSHOT`
-to `2.23.0-CLOUD`, to avoid confusing maven if you also work
-with vanilla GeoServer, and to avoid your IDE downloading the
-latest `2.23-SNAPSHOT` artifacts from the OsGeo maven repository,
-overriding your local maven repository ones, and having
-confusing compilation errors that would require re-building
-the branch we need.
+*GeoServer Cloud* depends on a custom GeoServer branch, `gscloud/gs_version/integration`, which contains patches to upstream GeoServer that have not yet been integrated into the mainstream `main` branch.
 
-The `geoserver-cloud_integration` branch is checked out as a
-submodule under the `geoserver_submodule/geoserver` directory.
+Additionally, this branch changes the artifact versions from `2.23-SNAPSHOT` to `2.23.0-CLOUD`, to avoid confusing maven if you also work with vanilla GeoServer, and to avoid your IDE downloading the latest `2.23-SNAPSHOT` artifacts from the OsGeo maven repository, overriding your local maven repository ones, and having confusing compilation errors that would require re-building the branch we need.
 
-The root `pom.xml` defines a `geoserver` maven profile, active
-by default, that includes the module `geoserver_submodule`, which
-in turn includes all the required `geoserver` modules for this project.
+The `gscloud/gs_version/integration` branch is checked out as a submodule under the `geoserver_submodule/geoserver` directory.
 
-So in general, you may chose to only eventually build the
-`geoserver_submodule` subproject, since it won't change
+The root `pom.xml` defines a `geoserver` maven profile, active by default, that includes the module `geoserver_submodule`, which in turn includes all the required `geoserver` modules for this project.
+
+So in general, you may chose to only eventually build the `geoserver_submodule` subproject, since it won't change
 frequently, with
 
 ```bash
@@ -109,11 +120,9 @@ make build-image
 
 ### Targeted builds
 
-*Cloud Native GeoServer*-specific modules source code
-is under the `src/` directory.
+*GeoServer Cloud*-specific modules source code is under the `src/` directory.
 
-When you already have the `2.23.0-CLOUD` GeoServer artifacts,
-you can chose to only build these projects, either by:
+When you already have the `2.23.0-CLOUD` GeoServer artifacts, you can chose to only build these projects, either by:
 
 
 ```bash
@@ -127,24 +136,10 @@ $ cd src/
 $ ../mvnw clean install
 ```
 
-## Running
-
-The `docker-compose.yml` file and the accompanying overrides
-`docker-compose-shared_datadir.yml`, `docker-compose-jdbcconfig.yml`,
-and `docker-compose-standalone.yml` at the project's root
-directory are meant for development and testing purposes, not
-for production use.
-
-You'll find more production-suitable deployment files for
-docker-compose and podman under the [docs/deploy](docs/deploy) folder.
-
-Also, a ready-to-use Helm chart for Kubernetes is available
-at the [camptocamp/helm-geoserver-cloud](https://github.com/camptocamp/helm-geoserver-cloud)
-Github repository.
-
 ### Development runs
 
 To run the development docker composition using a shared data directory.
+
 GeoServer-Cloud can start from an empty directory.
 
 Edit your ```.env``` file to set the ```GS_USER``` variable to your user id and group,
@@ -155,9 +150,7 @@ $ mkdir docker-compose_datadir
 $ alias dcd="docker-compose -f docker-compose.yml -f docker-compose-shared_datadir.yml"
 $ dcd up -d
 ```
-Note: In case you want to start the docker composition and being able to test some layers, 
-you can copy data/release datadir that is part of the geoserver_submodule
-instead of creating the docker-compose_datadir emtpy folder, as follow:
+Note: In case you want to start the docker composition and being able to test some layers, you can copy data/release datadir that is part of the geoserver_submodule instead of creating the docker-compose_datadir emtpy folder, as follow:
 
 ```bash
 $ cp -rf ./geoserver_submodule/geoserver/data/release /tmp/datadir
@@ -165,9 +158,10 @@ $ ln -s /tmp/datadir docker-compose_datadir
 ```
 
 Verify the services are running with `dcd ps`.
+
 Healthckecks use `curl` hitting the `http:localhost:8081/actuator/health`.
-The services run on the `8080` port, and are exposed using different
-host ports. The spring-boot-actuator is set up at port `8081`.
+
+The services run on the `8080` port, and are exposed using different host ports. The spring-boot-actuator is set up at port `8081`.
 
 The `gateway-service` proxies requests from the `9090` local port:
 
@@ -184,9 +178,23 @@ Browse to [http://localhost:9090/geoserver/cloud/](http://localhost:9090/geoserv
 > configuration file does not set up a context path at all, and hence GeoServer will
 > be available at the root URL.
 
+To test GeoServer Cloud with different catalog backends, change the alias to replace the `docker-compose-shared_datadir.yml` file by one of the following:
+- Use `docker-compose-jdbcconfig.yml` for a JDBC based catalog backend (uses jdbc config and jdbc store modules)
+- Use `docker-compose-pgconfig.yml` for a JNDI based catalog backend
+
+You can also run `docker-compose -f docker-compose.yml -f docker-compose-discovery-ha.yml` to run extra discovery service instances for HA.
+
+## Deployment
+
+Docker images for all the services are available on DockerHub, under the GeoServer Cloud organization (https://hub.docker.com/u/geoservercloud/).
+
+You can find  production-suitable deployment files for docker-compose and podman under the [docs/deploy](docs/deploy) folder.
+
+Also, a ready-to-use Helm chart for Kubernetes is available at the [camptocamp/helm-geoserver-cloud](https://github.com/camptocamp/helm-geoserver-cloud) Github repository.
+
 ## Contributing
 
-Please read [the contribution guidelines](CONTRIBUTING.md) before contributing pull requests to the CN GeoServer project.
+Please read [the contribution guidelines](CONTRIBUTING.md) before contributing pull requests to the GeoServer Cloud project.
 
 Follow the [developer's guide](docs/develop/index.md) to know more about the project's technical details.
 
@@ -194,11 +202,11 @@ Follow the [developer's guide](docs/develop/index.md) to know more about the pro
 
 `v1.3.0` released against GeoServer `2.23.2`.
 
-Read the [changelog](https://github.com/geoserver/geoserver-cloud/releases/tag/v1.2.0) for more information.
+Read the [changelog](https://github.com/geoserver/geoserver-cloud/releases/tag/v1.3.0) for more information.
 
 ## Bugs
 
-*CN GeoServer*'s issue tracking is at this [GitHub](https://github.com/geoserver/geoserver-cloud/issues) repository.
+*GeoServer Cloud*'s issue tracking is at this [GitHub](https://github.com/geoserver/geoserver-cloud/issues) repository.
 
 ## Roadmap
 
