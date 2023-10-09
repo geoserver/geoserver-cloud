@@ -1,7 +1,7 @@
 version: "3.8"
 
 volumes:
-  pgconfig_data: # volume for postgresql data, used to store the geoserver config through pgsqlconfig backend
+  pgconfigdb_data: # volume for postgresql data, used to store the geoserver config through pgsqlconfig backend
 
 #
 # Configures all geoserver services to use the postgresql database server with jdbcconfig as catalog backend.
@@ -21,7 +21,7 @@ services:
     networks:
       - gs-cloud-network
     volumes:
-      - pgconfig_data:/var/lib/postgresql/data
+      - pgconfigdb_data:/var/lib/postgresql/data
     deploy:
       resources:
         limits:
