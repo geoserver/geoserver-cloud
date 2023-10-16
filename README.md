@@ -200,9 +200,9 @@ Follow the [developer's guide](docs/develop/index.md) to know more about the pro
 
 ## Status
 
-`v1.3.0` released against GeoServer `2.23.2`.
+`v1.3.1` released against GeoServer `2.23.2`.
 
-Read the [changelog](https://github.com/geoserver/geoserver-cloud/releases/tag/v1.3.0) for more information.
+Read the [changelog](https://github.com/geoserver/geoserver-cloud/releases/tag/v1.3.1) for more information.
 
 ## Bugs
 
