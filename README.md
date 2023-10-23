@@ -10,7 +10,7 @@ As such, it builds on top of existing *GeoServer* software components, adapting 
 
 ## Quick start
 
-You can easiliy deploy and test locally GeoServer Cloud after cloning these repo on your computer by running the following command:
+You can easily deploy and test locally GeoServer Cloud after cloning this repository on your computer by running the following command:
 
 ```bash
 docker-compose -f docker-compose.yml -f docker-compose-shared_datadir.yml up -d
@@ -23,7 +23,7 @@ Browse to [http://localhost:9090/geoserver/cloud](http://localhost:9090/geoserve
 
 ## Architecture
 
-The following diagram depicts the System's general architecture.
+The following diagram depicts the system's general architecture.
 
 <img src="docs/img/gs_cloud_architecture_diagram.svg" alt="GeoServer Cloud Architecture Diagram" width="740" />
 
@@ -101,7 +101,7 @@ The `gscloud/gs_version/integration` branch is checked out as a submodule under 
 
 The root `pom.xml` defines a `geoserver` maven profile, active by default, that includes the module `geoserver_submodule`, which in turn includes all the required `geoserver` modules for this project.
 
-So in general, you may chose to only eventually build the `geoserver_submodule` subproject, since it won't change
+So in general, you may choose to only eventually build the `geoserver_submodule` subproject, since it won't change
 frequently, with
 
 ```bash
@@ -122,7 +122,7 @@ make build-image
 
 *GeoServer Cloud*-specific modules source code is under the `src/` directory.
 
-When you already have the `2.23.0-CLOUD` GeoServer artifacts, you can chose to only build these projects, either by:
+When you already have the `2.23.0-CLOUD` GeoServer artifacts, you can choose to only build these projects, either by:
 
 
 ```bash
@@ -150,7 +150,7 @@ $ mkdir docker-compose_datadir
 $ alias dcd="docker-compose -f docker-compose.yml -f docker-compose-shared_datadir.yml"
 $ dcd up -d
 ```
-Note: In case you want to start the docker composition and being able to test some layers, you can copy data/release datadir that is part of the geoserver_submodule instead of creating the docker-compose_datadir emtpy folder, as follow:
+Note: In case you want to start the docker composition and be able to test some layers, you can copy data/release datadir that is part of the geoserver_submodule instead of creating the docker-compose_datadir emtpy folder, as follows:
 
 ```bash
 $ cp -rf ./geoserver_submodule/geoserver/data/release /tmp/datadir
@@ -159,7 +159,7 @@ $ ln -s /tmp/datadir docker-compose_datadir
 
 Verify the services are running with `dcd ps`.
 
-Healthckecks use `curl` hitting the `http:localhost:8081/actuator/health`.
+Healthchecks use `curl` hitting the `http:localhost:8081/actuator/health`.
 
 The services run on the `8080` port, and are exposed using different host ports. The spring-boot-actuator is set up at port `8081`.
 
