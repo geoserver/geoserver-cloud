@@ -46,4 +46,9 @@ public @Data @Generated class GeoServer extends ConfigInfoDto {
     private WebUIMode webUIMode;
     private Boolean allowStoredQueriesPerWorkspace;
     private ResourceErrorHandling resourceErrorHandling;
+
+    /**
+     * @since geoserver 2.24.0
+     */
+    private boolean trailingSlashMatch;
 }
