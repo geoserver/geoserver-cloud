@@ -12,8 +12,8 @@ import lombok.experimental.Accessors;
 
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.Info;
-import org.opengis.filter.Filter;
-import org.opengis.filter.sort.SortBy;
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.sort.SortBy;
 
 import java.util.ArrayList;
 import java.util.Arrays;

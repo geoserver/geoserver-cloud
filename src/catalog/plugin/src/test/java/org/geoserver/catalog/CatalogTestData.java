@@ -35,10 +35,10 @@ import org.geoserver.wps.ProcessGroupInfo;
 import org.geoserver.wps.ProcessGroupInfoImpl;
 import org.geoserver.wps.WPSInfo;
 import org.geoserver.wps.WPSInfoImpl;
+import org.geotools.api.util.InternationalString;
 import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.process.factory.AnnotationDrivenProcessFactory;
 import org.geotools.util.Converters;
-import org.opengis.util.InternationalString;
 
 import java.io.Serializable;
 import java.util.HashMap;

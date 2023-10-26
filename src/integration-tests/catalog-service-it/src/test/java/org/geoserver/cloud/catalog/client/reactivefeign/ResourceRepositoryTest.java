@@ -24,7 +24,7 @@ import org.geoserver.catalog.plugin.Query;
 import org.geoserver.ows.util.OwsUtils;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.opengis.filter.Filter;
+import org.geotools.api.filter.Filter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import lombok.Getter;

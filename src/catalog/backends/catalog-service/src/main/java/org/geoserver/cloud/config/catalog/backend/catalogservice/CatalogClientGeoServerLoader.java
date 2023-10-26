@@ -13,7 +13,7 @@ import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.GeoServerLoader;
 import org.geoserver.config.util.XStreamPersister;
 import org.geoserver.platform.GeoServerResourceLoader;
-import org.opengis.filter.Filter;
+import org.geotools.api.filter.Filter;
 
 import java.io.IOException;
 

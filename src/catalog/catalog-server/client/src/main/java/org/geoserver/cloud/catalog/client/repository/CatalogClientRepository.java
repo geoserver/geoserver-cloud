@@ -19,8 +19,8 @@ import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.Query;
 import org.geoserver.cloud.catalog.client.reactivefeign.ReactiveCatalogClient;
 import org.geoserver.cloud.catalog.client.repository.CatalogClientFilterSupport.PrePostFilterTuple;
-import org.opengis.filter.Filter;
-import org.opengis.filter.capability.FunctionName;
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.capability.FunctionName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
 

@@ -6,6 +6,10 @@ package org.geoserver.cloud.backend.pgsql.catalog.filter;
 
 import lombok.Value;
 
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.PropertyIsLike;
+import org.geotools.api.filter.expression.Expression;
+import org.geotools.api.filter.expression.Function;
 import org.geotools.filter.LengthFunction;
 import org.geotools.filter.LikeFilterImpl;
 import org.geotools.filter.function.FilterFunction_strConcat;
@@ -24,10 +28,6 @@ import org.geotools.filter.function.math.FilterFunction_abs_2;
 import org.geotools.filter.function.math.FilterFunction_abs_3;
 import org.geotools.filter.function.math.FilterFunction_abs_4;
 import org.geotools.jdbc.PreparedFilterToSQL;
-import org.opengis.filter.Filter;
-import org.opengis.filter.PropertyIsLike;
-import org.opengis.filter.expression.Expression;
-import org.opengis.filter.expression.Function;
 
 import java.io.IOException;
 import java.io.StringWriter;

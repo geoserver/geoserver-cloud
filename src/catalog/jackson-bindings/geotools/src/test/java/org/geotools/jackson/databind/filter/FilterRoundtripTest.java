@@ -34,7 +34,8 @@ import java.util.function.Supplier;
 
 /**
  * Abstract test suite for {@link Filter} Data Transfer Objects or POJOS; to be used both for
- * testing serialization/deserialization and mapping to and from {@link org.opengis.filter.Filter}
+ * testing serialization/deserialization and mapping to and from {@link
+ * org.geotools.api.filter.Filter}
  */
 public abstract class FilterRoundtripTest {
 

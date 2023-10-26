@@ -4,10 +4,10 @@
  */
 package org.geotools.jackson.databind.filter.mapper;
 
+import org.geotools.api.filter.ExcludeFilter;
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.IncludeFilter;
 import org.mapstruct.ObjectFactory;
-import org.opengis.filter.ExcludeFilter;
-import org.opengis.filter.Filter;
-import org.opengis.filter.IncludeFilter;
 
 public class FilterFactory {
 

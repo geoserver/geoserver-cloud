@@ -59,19 +59,19 @@ import org.geoserver.config.plugin.GeoServerImpl;
 import org.geoserver.config.util.XStreamPersister;
 import org.geoserver.ows.util.OwsUtils;
 import org.geoserver.platform.GeoServerResourceLoader;
+import org.geotools.api.feature.type.Name;
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.FilterFactory;
+import org.geotools.api.filter.Id;
+import org.geotools.api.filter.PropertyIsEqualTo;
+import org.geotools.api.filter.expression.Literal;
+import org.geotools.api.filter.expression.PropertyName;
+import org.geotools.api.filter.identity.Identifier;
+import org.geotools.api.filter.sort.SortBy;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.util.Converters;
 import org.geotools.util.SuppressFBWarnings;
 import org.geotools.util.logging.Logging;
-import org.opengis.feature.type.Name;
-import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory2;
-import org.opengis.filter.Id;
-import org.opengis.filter.PropertyIsEqualTo;
-import org.opengis.filter.expression.Literal;
-import org.opengis.filter.expression.PropertyName;
-import org.opengis.filter.identity.Identifier;
-import org.opengis.filter.sort.SortBy;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -1301,7 +1301,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
     }
 
     public Optional<? extends CatalogInfo> findById(@NonNull String id) {
-        FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2();
+        FilterFactory ff = CommonFactoryFinder.getFilterFactory();
         final Filter filter = ff.id(ff.featureId(id));
 
         return Stream.of(

@@ -58,6 +58,16 @@ import org.geoserver.config.GeoServer;
 import org.geoserver.config.impl.ContactInfoImpl;
 import org.geoserver.config.plugin.GeoServerImpl;
 import org.geoserver.platform.GeoServerExtensionsHelper;
+import org.geotools.api.coverage.grid.GridEnvelope;
+import org.geotools.api.coverage.grid.GridGeometry;
+import org.geotools.api.feature.simple.SimpleFeatureType;
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.FilterFactory;
+import org.geotools.api.filter.PropertyIsEqualTo;
+import org.geotools.api.filter.expression.Expression;
+import org.geotools.api.filter.expression.Literal;
+import org.geotools.api.filter.sort.SortOrder;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.data.DataUtilities;
@@ -73,16 +83,6 @@ import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.opengis.coverage.grid.GridEnvelope;
-import org.opengis.coverage.grid.GridGeometry;
-import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory2;
-import org.opengis.filter.PropertyIsEqualTo;
-import org.opengis.filter.expression.Expression;
-import org.opengis.filter.expression.Literal;
-import org.opengis.filter.sort.SortOrder;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import si.uom.SI;
 
@@ -102,7 +102,7 @@ import java.util.Optional;
 @Slf4j
 public abstract class GeoServerCatalogModuleTest {
 
-    private FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2();
+    private FilterFactory ff = CommonFactoryFinder.getFilterFactory();
 
     protected void print(String logmsg, Object... args) {
         boolean debug = Boolean.getBoolean("debug");

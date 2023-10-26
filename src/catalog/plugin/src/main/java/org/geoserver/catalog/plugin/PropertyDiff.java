@@ -20,9 +20,9 @@ import org.geoserver.catalog.impl.ProxyUtils;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.ows.util.ClassProperties;
 import org.geoserver.ows.util.OwsUtils;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.util.InternationalString;
 import org.geotools.referencing.CRS;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.util.InternationalString;
 
 import java.io.Serializable;
 import java.lang.reflect.Proxy;

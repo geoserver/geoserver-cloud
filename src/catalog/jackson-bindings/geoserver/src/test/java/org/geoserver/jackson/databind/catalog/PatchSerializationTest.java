@@ -66,6 +66,10 @@ import org.geoserver.ows.util.OwsUtils;
 import org.geoserver.platform.GeoServerExtensionsHelper;
 import org.geoserver.wfs.WFSInfo;
 import org.geoserver.wms.WMSInfo;
+import org.geotools.api.coverage.grid.GridEnvelope;
+import org.geotools.api.feature.simple.SimpleFeatureType;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.util.InternationalString;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.data.DataUtilities;
@@ -82,10 +86,6 @@ import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.opengis.coverage.grid.GridEnvelope;
-import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.util.InternationalString;
 
 import si.uom.SI;
 
@@ -339,12 +339,12 @@ public abstract class PatchSerializationTest {
     }
 
     public @Test void name() throws Exception {
-        org.opengis.feature.type.Name name = new NameImpl("localname");
+        org.geotools.api.feature.type.Name name = new NameImpl("localname");
         testPatch("name", name);
     }
 
     public @Test void name_with_ns() throws Exception {
-        org.opengis.feature.type.Name name = new NameImpl("http://name.space", "localname");
+        org.geotools.api.feature.type.Name name = new NameImpl("http://name.space", "localname");
         testPatch("name", name);
     }
 

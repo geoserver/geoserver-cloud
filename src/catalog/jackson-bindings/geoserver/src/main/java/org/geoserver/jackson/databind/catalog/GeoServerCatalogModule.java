@@ -46,6 +46,9 @@ import org.geoserver.jackson.databind.catalog.mapper.ValueMappers;
 import org.geoserver.jackson.databind.config.dto.NameDto;
 import org.geoserver.jackson.databind.mapper.PatchMapper;
 import org.geoserver.jackson.databind.mapper.SharedMappers;
+import org.geotools.api.coverage.grid.GridGeometry;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.util.InternationalString;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.jackson.databind.filter.GeoToolsFilterModule;
 import org.geotools.jackson.databind.geojson.GeoToolsGeoJsonModule;
@@ -55,9 +58,6 @@ import org.geotools.jdbc.VirtualTable;
 import org.geotools.measure.Measure;
 import org.geotools.util.NumberRange;
 import org.mapstruct.factory.Mappers;
-import org.opengis.coverage.grid.GridGeometry;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.util.InternationalString;
 
 import java.util.Arrays;
 import java.util.Locale;
@@ -262,7 +262,7 @@ public class GeoServerCatalogModule extends SimpleModule {
                 KeywordInfo.class, SHARED_MAPPER::keyword, Keyword.class, SHARED_MAPPER::keyword);
 
         addMapperSerializer(
-                org.opengis.feature.type.Name.class,
+                org.geotools.api.feature.type.Name.class,
                 SHARED_MAPPER::map,
                 NameDto.class,
                 SHARED_MAPPER::map);

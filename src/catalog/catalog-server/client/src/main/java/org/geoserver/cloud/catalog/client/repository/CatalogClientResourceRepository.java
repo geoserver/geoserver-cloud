@@ -13,9 +13,9 @@ import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.ResourceRepository;
 import org.geoserver.catalog.plugin.Query;
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.FilterFactory;
 import org.geotools.factory.CommonFactoryFinder;
-import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory2;
 import org.springframework.lang.Nullable;
 
 import java.util.Optional;
@@ -27,7 +27,7 @@ public class CatalogClientResourceRepository extends CatalogClientRepository<Res
     private final @Getter Class<ResourceInfo> contentType = ResourceInfo.class;
 
     // REVISIT: used to build filters on methods that miss a counterpart on ReactiveCatalogClient
-    private final FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2();
+    private final FilterFactory ff = CommonFactoryFinder.getFilterFactory();
 
     public @Override <T extends ResourceInfo> Stream<T> findAllByType(@Nullable Class<T> clazz) {
         return toStream(client().findAll(endpoint(), typeEnum(clazz)).map(clazz::cast));

@@ -11,8 +11,8 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 import org.geoserver.catalog.plugin.Query;
-import org.opengis.filter.Filter;
-import org.opengis.filter.sort.SortBy;
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.sort.SortBy;
 
 import java.util.ArrayList;
 import java.util.List;

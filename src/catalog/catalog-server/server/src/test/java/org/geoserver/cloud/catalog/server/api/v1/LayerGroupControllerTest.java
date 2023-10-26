@@ -11,8 +11,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
+import org.geotools.api.filter.Filter;
 import org.junit.jupiter.api.Test;
-import org.opengis.filter.Filter;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 
 @AutoConfigureWebTestClient(timeout = "360000")

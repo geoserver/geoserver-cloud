@@ -39,13 +39,13 @@ import org.geoserver.cloud.event.info.InfoEvent;
 import org.geoserver.cloud.event.info.InfoModified;
 import org.geoserver.cog.CogSettings.RangeReaderType;
 import org.geoserver.cog.CogSettingsStore;
+import org.geotools.api.feature.simple.SimpleFeatureType;
 import org.geotools.data.DataUtilities;
 import org.geotools.feature.SchemaException;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.util.List;
 import java.util.Locale;

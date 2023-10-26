@@ -25,7 +25,7 @@ import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.Query;
 import org.geoserver.cloud.catalog.server.service.ProxyResolver;
 import org.geoserver.cloud.catalog.server.service.ReactiveCatalog;
-import org.opengis.filter.capability.FunctionName;
+import org.geotools.api.filter.capability.FunctionName;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;

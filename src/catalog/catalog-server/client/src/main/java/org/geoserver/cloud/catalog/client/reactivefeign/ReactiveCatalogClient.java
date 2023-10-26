@@ -16,7 +16,7 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.Query;
-import org.opengis.filter.capability.FunctionName;
+import org.geotools.api.filter.capability.FunctionName;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;

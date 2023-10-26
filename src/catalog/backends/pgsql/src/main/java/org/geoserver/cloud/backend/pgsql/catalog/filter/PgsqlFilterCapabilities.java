@@ -4,6 +4,18 @@
  */
 package org.geoserver.cloud.backend.pgsql.catalog.filter;
 
+import org.geotools.api.filter.ExcludeFilter;
+import org.geotools.api.filter.Id;
+import org.geotools.api.filter.IncludeFilter;
+import org.geotools.api.filter.PropertyIsBetween;
+import org.geotools.api.filter.PropertyIsLike;
+import org.geotools.api.filter.PropertyIsNull;
+import org.geotools.api.filter.expression.Add;
+import org.geotools.api.filter.expression.Divide;
+import org.geotools.api.filter.expression.Literal;
+import org.geotools.api.filter.expression.Multiply;
+import org.geotools.api.filter.expression.PropertyName;
+import org.geotools.api.filter.expression.Subtract;
 import org.geotools.filter.FilterCapabilities;
 import org.geotools.filter.LengthFunction;
 import org.geotools.filter.function.DateDifferenceFunction;
@@ -29,18 +41,6 @@ import org.geotools.filter.function.math.FilterFunction_abs_3;
 import org.geotools.filter.function.math.FilterFunction_abs_4;
 import org.geotools.filter.function.math.FilterFunction_ceil;
 import org.geotools.filter.function.math.FilterFunction_floor;
-import org.opengis.filter.ExcludeFilter;
-import org.opengis.filter.Id;
-import org.opengis.filter.IncludeFilter;
-import org.opengis.filter.PropertyIsBetween;
-import org.opengis.filter.PropertyIsLike;
-import org.opengis.filter.PropertyIsNull;
-import org.opengis.filter.expression.Add;
-import org.opengis.filter.expression.Divide;
-import org.opengis.filter.expression.Literal;
-import org.opengis.filter.expression.Multiply;
-import org.opengis.filter.expression.PropertyName;
-import org.opengis.filter.expression.Subtract;
 
 /**
  * @since 1.4

@@ -4,11 +4,11 @@
  */
 package org.geotools.jackson.databind.filter.mapper;
 
+import org.geotools.api.util.InternationalString;
 import org.geotools.jackson.databind.filter.dto.Filter.MultiValuedFilter.MatchAction;
 import org.geotools.util.Converters;
 import org.geotools.util.SimpleInternationalString;
 import org.mapstruct.Mapper;
-import org.opengis.util.InternationalString;
 import org.xml.sax.helpers.NamespaceSupport;
 
 import java.util.Collections;
@@ -21,9 +21,9 @@ import java.util.function.Function;
 public abstract class ValueMappers {
 
     public abstract MatchAction matchAction(
-            org.opengis.filter.MultiValuedFilter.MatchAction matchAction);
+            org.geotools.api.filter.MultiValuedFilter.MatchAction matchAction);
 
-    public abstract org.opengis.filter.MultiValuedFilter.MatchAction matchAction(
+    public abstract org.geotools.api.filter.MultiValuedFilter.MatchAction matchAction(
             MatchAction matchAction);
 
     public NamespaceSupport map(Map<String, String> map) {

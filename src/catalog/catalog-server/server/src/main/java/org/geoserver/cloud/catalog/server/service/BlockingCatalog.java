@@ -26,8 +26,8 @@ import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.Query;
 import org.geoserver.catalog.plugin.forwarding.ForwardingCatalogFacade;
 import org.geoserver.catalog.util.CloseableIterator;
-import org.opengis.filter.Filter;
-import org.opengis.filter.sort.SortBy;
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.sort.SortBy;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
