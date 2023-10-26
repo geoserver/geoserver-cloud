@@ -5,5 +5,5 @@
 [submodule "geoserver"]
 	path = geoserver_submodule/geoserver
 	url = https://github.com/camptocamp/geoserver.git
-	branch = gscloud/2.23.x/integration
+	branch = gscloud/2.24.x/integration
 	shallow = true
