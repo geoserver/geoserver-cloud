@@ -32,6 +32,7 @@ class PgsqlCatalogFilterSplitter extends PostPreProcessFilterSplittingVisitor {
         filter.accept(splitter, null);
         return splitter;
     }
+
     /**
      * If the property name is supported, proceeds with the splitting, otherwise aborts splitting
      * the current filter making it part of the unsupported filter result.

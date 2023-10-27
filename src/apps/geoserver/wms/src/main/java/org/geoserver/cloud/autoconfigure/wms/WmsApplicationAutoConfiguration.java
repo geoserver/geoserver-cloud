@@ -61,6 +61,7 @@ public class WmsApplicationAutoConfiguration {
             legendSample\
             ).*$\
             """;
+
     /**
      * Required by {@link GetCapabilitiesTransformer}, excluded from gs-wms.jar
      *

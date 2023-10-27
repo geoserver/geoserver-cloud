@@ -66,6 +66,7 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
 
     /** constant no-op Comparator for {@link #providedOrder()} */
     static final Ordering<?> PROVIDED_ORDER = Ordering.allEqual();
+
     /**
      * Name mapper for {@link MapInfo}, uses simple name mapping on {@link MapInfo#getName()} as it
      * doesn't have a namespace component

@@ -35,8 +35,10 @@ public interface CachingGeoServerFacade extends GeoServerFacade {
      * through {@link CacheManager#getCache(String)}
      */
     String CACHE_NAME = "gs-config";
+
     /** Key used to cache and evict the {@link GeoServerInfo global configuration} object */
     String GEOSERVERINFO_KEY = "global_GeoServer";
+
     /** Key used to cache and evict the {@link LoggingInfo global logging} settings object */
     String LOGGINGINFO_KEY = "global_Logging";
 

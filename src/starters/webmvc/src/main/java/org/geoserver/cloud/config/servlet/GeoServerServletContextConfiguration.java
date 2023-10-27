@@ -36,6 +36,7 @@ public class GeoServerServletContextConfiguration {
     public @Bean RequestContextListener requestContextListener() {
         return new RequestContextListener();
     }
+
     // Filters
 
     /**

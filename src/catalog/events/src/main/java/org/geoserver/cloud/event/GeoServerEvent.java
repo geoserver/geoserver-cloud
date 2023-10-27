@@ -84,6 +84,7 @@ public abstract class GeoServerEvent<SELF> {
      * global config} itself (e.g. {@code updateSequence} and the like)
      */
     private static final String GEOSERVER_ID = "geoserver";
+
     /**
      * {@link #getObjectId() object identifier} for changes performed to the {@link LoggingInfo}
      * config
