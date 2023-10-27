@@ -10,7 +10,7 @@
     <module>src</module>
   </modules>
   <properties>
-    <revision>1.4-SNAPSHOT</revision>
+    <revision>1.4.0</revision>
     <fmt.action>format</fmt.action>
     <fmt.skip>false</fmt.skip>
   </properties>
