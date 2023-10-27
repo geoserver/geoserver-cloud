@@ -76,12 +76,12 @@ import org.geoserver.ows.util.OwsUtils;
 import org.geoserver.wfs.GMLInfo;
 import org.geoserver.wfs.GMLInfo.SrsNameStyle;
 import org.geoserver.wfs.GMLInfoImpl;
+import org.geotools.api.coverage.SampleDimensionType;
+import org.geotools.api.util.InternationalString;
 import org.geotools.util.GrowableInternationalString;
 import org.geotools.util.NumberRange;
 import org.geotools.util.SimpleInternationalString;
 import org.geotools.util.Version;
-import org.opengis.coverage.SampleDimensionType;
-import org.opengis.util.InternationalString;
 import org.springframework.util.Assert;
 
 import java.io.Serializable;

@@ -38,7 +38,7 @@ import org.geotools.filter.text.ecql.ECQL;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.opengis.filter.Filter;
+import org.geotools.api.filter.Filter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;

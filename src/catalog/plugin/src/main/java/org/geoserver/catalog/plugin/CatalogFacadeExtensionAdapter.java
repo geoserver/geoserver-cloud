@@ -27,9 +27,9 @@ import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.plugin.forwarding.ForwardingCatalog;
 import org.geoserver.catalog.plugin.forwarding.ForwardingCatalogFacade;
 import org.geoserver.catalog.util.CloseableIterator;
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.sort.SortBy;
 import org.geotools.util.logging.Logging;
-import org.opengis.filter.Filter;
-import org.opengis.filter.sort.SortBy;
 
 import java.util.List;
 import java.util.Spliterator;

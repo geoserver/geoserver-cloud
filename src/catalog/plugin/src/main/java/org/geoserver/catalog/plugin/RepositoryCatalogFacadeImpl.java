@@ -22,9 +22,9 @@ import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ProxyUtils;
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.sort.SortBy;
 import org.geotools.util.logging.Logging;
-import org.opengis.filter.Filter;
-import org.opengis.filter.sort.SortBy;
 import org.springframework.util.Assert;
 
 import java.lang.reflect.Proxy;

@@ -10,7 +10,7 @@ import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.Query;
-import org.opengis.filter.Filter;
+import org.geotools.api.filter.Filter;
 
 import java.util.Optional;
 import java.util.stream.Stream;

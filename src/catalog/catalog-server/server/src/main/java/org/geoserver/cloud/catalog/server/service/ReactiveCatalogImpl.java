@@ -20,13 +20,13 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.Query;
 import org.geoserver.function.IsInstanceOf;
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.capability.FunctionName;
+import org.geotools.api.parameter.Parameter;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 import org.geotools.filter.FunctionFinder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.locationtech.jts.geom.Geometry;
-import org.opengis.filter.Filter;
-import org.opengis.filter.capability.FunctionName;
-import org.opengis.parameter.Parameter;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 

@@ -18,6 +18,9 @@ import org.geoserver.jackson.databind.catalog.dto.Keyword;
 import org.geoserver.jackson.databind.catalog.dto.VersionDto;
 import org.geoserver.jackson.databind.config.dto.NameDto;
 import org.geoserver.wfs.GMLInfo;
+import org.geotools.api.feature.type.Name;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 import org.geotools.feature.NameImpl;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS.AxisOrder;
@@ -27,9 +30,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.ObjectFactory;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
-import org.opengis.feature.type.Name;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.util.Optional;
 
@@ -93,7 +93,7 @@ public abstract class SharedMappers {
         return Optional.ofNullable(value);
     }
 
-    public abstract NameDto map(org.opengis.feature.type.Name name);
+    public abstract NameDto map(org.geotools.api.feature.type.Name name);
 
     public Name map(NameDto dto) {
         return new NameImpl(dto.getNamespaceURI(), dto.getLocalPart());

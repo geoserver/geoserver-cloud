@@ -10,6 +10,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.geotools.api.feature.type.Name;
+import org.geotools.api.filter.capability.FunctionName;
+import org.geotools.api.parameter.Parameter;
 import org.geotools.filter.FunctionFinder;
 import org.geotools.geometry.jts.Geometries;
 import org.geotools.jackson.databind.filter.dto.Expression;
@@ -27,9 +30,6 @@ import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
-import org.opengis.feature.type.Name;
-import org.opengis.filter.capability.FunctionName;
-import org.opengis.parameter.Parameter;
 
 import si.uom.SI;
 
@@ -52,7 +52,7 @@ import java.util.stream.IntStream;
 /**
  * Abstract test suite for {@link Expression} Data Transfer Objects or POJOS; to be used both for
  * testing serialization/deserialization and mapping to and from {@link
- * org.opengis.filter.expression.Expression}
+ * org.geotools.api.filter.expression.Expression}
  */
 @Slf4j
 public abstract class ExpressionRoundtripTest {

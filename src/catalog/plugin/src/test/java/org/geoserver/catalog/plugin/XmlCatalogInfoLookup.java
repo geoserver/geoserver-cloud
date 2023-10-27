@@ -20,10 +20,10 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.config.util.XStreamPersister;
 import org.geoserver.ows.util.OwsUtils;
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.sort.SortBy;
+import org.geotools.api.filter.sort.SortOrder;
 import org.geotools.util.logging.Logging;
-import org.opengis.filter.Filter;
-import org.opengis.filter.sort.SortBy;
-import org.opengis.filter.sort.SortOrder;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

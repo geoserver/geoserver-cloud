@@ -15,7 +15,7 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerGroupRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.opengis.filter.Filter;
+import org.geotools.api.filter.Filter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import lombok.Getter;

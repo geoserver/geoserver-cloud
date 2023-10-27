@@ -8,8 +8,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.geoserver.cloud.backend.pgsql.catalog.filter.PgsqlFilterToSQL.Result;
+import org.geotools.api.filter.Filter;
 import org.geotools.filter.visitor.SimplifyingFilterVisitor;
-import org.opengis.filter.Filter;
 
 import java.util.List;
 import java.util.Set;

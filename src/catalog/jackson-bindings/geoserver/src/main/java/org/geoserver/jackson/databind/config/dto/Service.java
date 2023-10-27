@@ -136,6 +136,11 @@ public abstract @Data @Generated class Service extends ConfigInfoDto {
          * @since geoserver 2.22.0
          */
         private boolean autoEscapeTemplateValues;
+
+        /**
+         * @since geoserver 2.24.0
+         */
+        private boolean transformFeatureInfoDisabled;
     }
 
     @EqualsAndHashCode(callSuper = true)
@@ -162,6 +167,11 @@ public abstract @Data @Generated class Service extends ConfigInfoDto {
          * @since geoserver 2.22.0
          */
         private Set<String> getFeatureOutputTypes = new HashSet<>();
+
+        /**
+         * @since geoserver 2.24.0
+         */
+        private String csvDateFormat;
     }
 
     @EqualsAndHashCode(callSuper = true)

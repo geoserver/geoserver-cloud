@@ -17,8 +17,8 @@ import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.Query;
-import org.opengis.filter.Filter;
-import org.opengis.filter.capability.FunctionName;
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.capability.FunctionName;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

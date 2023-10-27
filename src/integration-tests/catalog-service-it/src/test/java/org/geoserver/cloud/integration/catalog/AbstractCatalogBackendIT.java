@@ -20,7 +20,7 @@ import org.geotools.ows.wmts.WebMapTileServer;
 import org.geotools.ows.wmts.model.WMTSCapabilities;
 import org.geotools.ows.wmts.model.WMTSLayer;
 import org.junit.jupiter.api.Test;
-import org.opengis.util.ProgressListener;
+import org.geotools.api.util.ProgressListener;
 
 public abstract class AbstractCatalogBackendIT extends CatalogConformanceTest {
 

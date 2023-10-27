@@ -9,7 +9,7 @@ import lombok.Data;
 import lombok.Generated;
 import lombok.NoArgsConstructor;
 
-/** DTO for {@link org.opengis.filter.sort.SortBy} */
+/** DTO for {@link org.geotools.api.filter.sort.SortBy} */
 @NoArgsConstructor
 @AllArgsConstructor
 public @Data @Generated class SortBy {

@@ -24,10 +24,10 @@
     <spring-boot.version>2.7.14</spring-boot.version>
     <jackson.version>2.15.2</jackson.version>
     <feign-reactor.version>3.2.6</feign-reactor.version>
-    <gs.version>2.23-CLOUD</gs.version>
-    <gs.community.version>2.23-CLOUD</gs.community.version>
-    <gt.version>29-SNAPSHOT</gt.version>
-    <acl.version>1.0.2</acl.version>
+    <gs.version>2.24.0-CLOUD</gs.version>
+    <gs.community.version>2.24.0-CLOUD</gs.community.version>
+    <gt.version>30.0</gt.version>
+    <acl.version>1.2.0</acl.version>
     <!-- Downgrade netty.version used by spring-boot to the one used by geoserver azure client
     (software.amazon.awssdk:netty-nio-client:jar:2.9.24) for COG and GWC Azure plugin -->
     <netty.version>4.1.41.Final</netty.version>
@@ -1037,7 +1037,7 @@
           <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>findbugs</artifactId>
-            <version>3.0.1</version>
+            <version>3.0.2</version>
           </dependency>
           <dependency>
             <groupId>com.google.code.findbugs</groupId>
@@ -1103,11 +1103,6 @@
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm</artifactId>
             <version>9.5</version>
-          </dependency>
-          <dependency>
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-java</artifactId>
-            <version>3.19.4</version>
           </dependency>
           <dependency>
             <groupId>io.netty</groupId>
@@ -1177,7 +1172,7 @@
           <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-s3</artifactId>
-            <version>1.12.520</version>
+            <version>1.12.261</version>
           </dependency>
           <dependency>
             <groupId>com.google.oauth-client</groupId>
@@ -1192,12 +1187,12 @@
           <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
-            <version>3.23.4</version>
+            <version>3.19.4</version>
           </dependency>
           <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java-util</artifactId>
-            <version>3.23.4</version>
+            <version>3.19.4</version>
           </dependency>
           <dependency>
             <groupId>org.hsqldb</groupId>
@@ -1216,7 +1211,7 @@
             <version>4.10.0</version>
           </dependency>
           <dependency>
-            <groupId>org.json</groupId>
+            <groupId>org.jssqlite-jdbcon</groupId>
             <artifactId>json</artifactId>
             <version>20230618</version>
           </dependency>

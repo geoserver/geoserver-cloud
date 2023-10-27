@@ -4,19 +4,19 @@
  */
 package org.geotools.jackson.databind.filter.mapper;
 
+import org.geotools.api.filter.FilterFactory;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.jackson.databind.filter.dto.Expression.PropertyName;
 import org.geotools.jackson.databind.filter.dto.Literal;
 import org.mapstruct.ObjectFactory;
 import org.mapstruct.factory.Mappers;
-import org.opengis.filter.FilterFactory2;
 import org.xml.sax.helpers.NamespaceSupport;
 
 public class ExpressionFactory {
 
-    private final FilterFactory2 factory = CommonFactoryFinder.getFilterFactory2();
+    private final FilterFactory factory = CommonFactoryFinder.getFilterFactory();
 
-    public @ObjectFactory org.opengis.filter.expression.PropertyName propertyName(
+    public @ObjectFactory org.geotools.api.filter.expression.PropertyName propertyName(
             PropertyName source) {
         ValueMappers values = Mappers.getMapper(ValueMappers.class);
         String localName = source.getPropertyName();
@@ -24,7 +24,7 @@ public class ExpressionFactory {
         return factory.property(localName, namespaceSupport);
     }
 
-    public @ObjectFactory org.opengis.filter.expression.Literal literal(Literal source) {
+    public @ObjectFactory org.geotools.api.filter.expression.Literal literal(Literal source) {
         return factory.literal(source.getValue());
     }
 }

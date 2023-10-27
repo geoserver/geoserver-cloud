@@ -4,21 +4,21 @@
  */
 package org.geoserver.cloud.backend.pgsql.catalog.filter;
 
+import org.geotools.api.filter.BinaryComparisonOperator;
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.MultiValuedFilter.MatchAction;
+import org.geotools.api.filter.PropertyIsBetween;
+import org.geotools.api.filter.PropertyIsEqualTo;
+import org.geotools.api.filter.PropertyIsGreaterThan;
+import org.geotools.api.filter.PropertyIsGreaterThanOrEqualTo;
+import org.geotools.api.filter.PropertyIsLessThan;
+import org.geotools.api.filter.PropertyIsLessThanOrEqualTo;
+import org.geotools.api.filter.PropertyIsLike;
+import org.geotools.api.filter.PropertyIsNotEqualTo;
+import org.geotools.api.filter.expression.Expression;
+import org.geotools.api.filter.expression.Literal;
+import org.geotools.api.filter.expression.PropertyName;
 import org.geotools.filter.visitor.DuplicatingFilterVisitor;
-import org.opengis.filter.BinaryComparisonOperator;
-import org.opengis.filter.Filter;
-import org.opengis.filter.MultiValuedFilter.MatchAction;
-import org.opengis.filter.PropertyIsBetween;
-import org.opengis.filter.PropertyIsEqualTo;
-import org.opengis.filter.PropertyIsGreaterThan;
-import org.opengis.filter.PropertyIsGreaterThanOrEqualTo;
-import org.opengis.filter.PropertyIsLessThan;
-import org.opengis.filter.PropertyIsLessThanOrEqualTo;
-import org.opengis.filter.PropertyIsLike;
-import org.opengis.filter.PropertyIsNotEqualTo;
-import org.opengis.filter.expression.Expression;
-import org.opengis.filter.expression.Literal;
-import org.opengis.filter.expression.PropertyName;
 
 import java.util.ArrayList;
 import java.util.Collection;

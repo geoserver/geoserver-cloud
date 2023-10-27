@@ -23,8 +23,8 @@ import org.geoserver.config.SettingsInfo;
 import org.geoserver.jdbcconfig.config.JDBCGeoServerFacade;
 import org.geoserver.jdbcconfig.internal.ConfigDatabase;
 import org.geoserver.ows.util.OwsUtils;
+import org.geotools.api.filter.Filter;
 import org.geotools.util.logging.Logging;
-import org.opengis.filter.Filter;
 
 import java.lang.reflect.Proxy;
 import java.rmi.server.UID;

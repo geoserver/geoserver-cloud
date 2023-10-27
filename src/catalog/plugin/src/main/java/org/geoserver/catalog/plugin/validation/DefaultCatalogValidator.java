@@ -24,7 +24,7 @@ import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogPlugin;
-import org.geotools.styling.StyledLayerDescriptor;
+import org.geotools.api.style.StyledLayerDescriptor;
 import org.geotools.util.logging.Logging;
 
 import java.io.IOException;

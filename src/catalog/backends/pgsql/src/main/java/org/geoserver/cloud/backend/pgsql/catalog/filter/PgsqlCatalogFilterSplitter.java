@@ -4,9 +4,9 @@
  */
 package org.geoserver.cloud.backend.pgsql.catalog.filter;
 
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.expression.PropertyName;
 import org.geotools.filter.visitor.PostPreProcessFilterSplittingVisitor;
-import org.opengis.filter.Filter;
-import org.opengis.filter.expression.PropertyName;
 
 import java.util.Set;
 

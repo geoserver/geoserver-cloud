@@ -23,7 +23,7 @@ public class FilterMapperTest extends FilterRoundtripTest {
 
     @SuppressWarnings("unchecked")
     protected @Override <F extends Filter> F roundtripTest(F dto) throws Exception {
-        org.opengis.filter.Filter ogcFilter = filterMapper.map(dto);
+        org.geotools.api.filter.Filter ogcFilter = filterMapper.map(dto);
         assertNotNull(ogcFilter);
 
         Filter roundTrippedDto = filterMapper.map(ogcFilter);
@@ -32,7 +32,7 @@ public class FilterMapperTest extends FilterRoundtripTest {
     }
 
     protected @Override void roundtripTest(SortBy dto) throws Exception {
-        org.opengis.filter.sort.SortBy ogcSortBy = filterMapper.map(dto);
+        org.geotools.api.filter.sort.SortBy ogcSortBy = filterMapper.map(dto);
         assertNotNull(ogcSortBy);
 
         SortBy roundTrippedDto = filterMapper.map(ogcSortBy);

@@ -27,7 +27,7 @@ import org.geoserver.platform.GeoServerExtensions;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.config.UpdateSequence;
 import org.geoserver.security.GeoServerSecurityManager;
-import org.opengis.referencing.FactoryException;
+import org.geotools.api.referencing.FactoryException;
 import org.vfny.geoserver.util.DataStoreUtils;
 
 import java.io.IOException;

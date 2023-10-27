@@ -10,6 +10,10 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.capability.FunctionName;
+import org.geotools.api.filter.expression.Expression;
+import org.geotools.api.filter.sort.SortBy;
 import org.geotools.jackson.databind.filter.dto.Literal;
 import org.geotools.jackson.databind.filter.dto.LiteralDeserializer;
 import org.geotools.jackson.databind.filter.dto.LiteralSerializer;
@@ -21,10 +25,6 @@ import org.geotools.jackson.databind.util.MapperDeserializer;
 import org.geotools.jackson.databind.util.MapperSerializer;
 import org.locationtech.jts.geom.Geometry;
 import org.mapstruct.factory.Mappers;
-import org.opengis.filter.Filter;
-import org.opengis.filter.capability.FunctionName;
-import org.opengis.filter.expression.Expression;
-import org.opengis.filter.sort.SortBy;
 
 import java.util.function.Function;
 
@@ -74,7 +74,7 @@ public class GeoToolsFilterModule extends SimpleModule {
         addSerializer(
                 Expression.class,
                 new MapperSerializer<>(
-                        org.opengis.filter.expression.Expression.class, EXPRESSIONS::map));
+                        org.geotools.api.filter.expression.Expression.class, EXPRESSIONS::map));
         addSerializer(Literal.class, new LiteralSerializer());
         addDeserializer(
                 Expression.class,

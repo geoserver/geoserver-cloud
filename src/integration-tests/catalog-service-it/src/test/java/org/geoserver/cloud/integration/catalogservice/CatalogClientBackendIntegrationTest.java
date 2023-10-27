@@ -26,7 +26,7 @@ import org.geoserver.cloud.catalog.client.repository.CatalogClientRepository;
 import org.geoserver.cloud.integration.catalog.AbstractCatalogBackendIT;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.opengis.filter.Filter;
+import org.geotools.api.filter.Filter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;

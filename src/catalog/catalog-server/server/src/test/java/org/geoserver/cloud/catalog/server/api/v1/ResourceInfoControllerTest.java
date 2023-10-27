@@ -17,9 +17,9 @@ import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.impl.WMSLayerInfoImpl;
 import org.geoserver.cloud.catalog.server.test.CatalogTestClient;
 import org.geoserver.ows.util.OwsUtils;
+import org.geotools.api.filter.Filter;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.opengis.filter.Filter;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.http.MediaType;
 

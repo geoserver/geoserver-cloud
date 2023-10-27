@@ -26,8 +26,8 @@ import org.geoserver.catalog.plugin.Query;
 import org.geoserver.catalog.plugin.resolving.ResolvingCatalogFacade;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.catalog.util.CloseableIteratorAdapter;
-import org.opengis.filter.Filter;
-import org.opengis.filter.sort.SortBy;
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.sort.SortBy;
 
 import java.util.List;
 import java.util.Objects;

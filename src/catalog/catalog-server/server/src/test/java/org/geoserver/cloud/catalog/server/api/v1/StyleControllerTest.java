@@ -12,8 +12,8 @@ import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.LegendInfoImpl;
 import org.geoserver.catalog.impl.StyleInfoImpl;
+import org.geotools.api.filter.Filter;
 import org.junit.jupiter.api.Test;
-import org.opengis.filter.Filter;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.http.MediaType;
 

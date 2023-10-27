@@ -14,7 +14,7 @@ import org.geoserver.catalog.impl.LegendInfoImpl;
 import org.geoserver.catalog.impl.StyleInfoImpl;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.StyleRepository;
 import org.junit.jupiter.api.Test;
-import org.opengis.filter.Filter;
+import org.geotools.api.filter.Filter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import lombok.Getter;
