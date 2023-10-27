@@ -15,6 +15,9 @@
     <module>gateway</module>
     <module>admin</module>
   </modules>
+  <properties>
+    <netty.version>4.1.94.Final</netty.version>
+  </properties>
   <dependencies>
     <dependency>
       <groupId>org.springframework.boot</groupId>

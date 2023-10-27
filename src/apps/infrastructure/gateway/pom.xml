@@ -12,7 +12,6 @@
   <properties>
     <dockerfile.skip>false</dockerfile.skip>
     <docker.image.name>geoserver-cloud-gateway</docker.image.name>
-    <netty.version>4.1.94.Final</netty.version>
   </properties>
   <dependencies>
     <dependency>
