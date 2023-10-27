@@ -64,6 +64,7 @@ public abstract @Data @Generated class Service extends ConfigInfoDto {
     private String schemaBaseURL;
     private boolean verbose;
     private MetadataMapDto metadata;
+
     // not used
     // Map<Object, Object> clientProperties;
 
@@ -71,10 +72,12 @@ public abstract @Data @Generated class Service extends ConfigInfoDto {
      * @since geoserver 2.20.0
      */
     private Locale defaultLocale;
+
     /**
      * @since geoserver 2.20.0
      */
     private Map<String, String> internationalTitle;
+
     /**
      * @since geoserver 2.20.0
      */
@@ -122,6 +125,7 @@ public abstract @Data @Generated class Service extends ConfigInfoDto {
          * @since geoserver 2.20.0
          */
         private Map<String, String> internationalRootLayerTitle;
+
         /**
          * @since geoserver 2.20.0
          */
@@ -163,6 +167,7 @@ public abstract @Data @Generated class Service extends ConfigInfoDto {
          * @since geoserver 2.22.0
          */
         private boolean getFeatureOutputTypeCheckingEnabled;
+
         /**
          * @since geoserver 2.22.0
          */
@@ -215,6 +220,7 @@ public abstract @Data @Generated class Service extends ConfigInfoDto {
             private MetadataMapDto metadata;
             private List<String> roles;
         }
+
         /** DTO for {@link ProcessInfo} */
         public static @Data @Generated class Process {
             private NameDto name;

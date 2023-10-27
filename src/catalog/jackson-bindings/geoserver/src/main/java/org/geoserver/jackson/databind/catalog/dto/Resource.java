@@ -56,6 +56,7 @@ public abstract class Resource extends CatalogInfoDto {
      * @since geoserver 2.20.0
      */
     private Map<String, String> internationalTitle;
+
     /**
      * @since geoserver 2.20.0
      */

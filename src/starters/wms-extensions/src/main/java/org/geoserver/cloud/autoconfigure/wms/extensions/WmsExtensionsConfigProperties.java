@@ -55,8 +55,10 @@ public @Data class WmsExtensionsConfigProperties {
             public static @Data class VectorTilesConfigProperties {
                 /** Enable or disable MapBox VectorTiles output format */
                 private EnabledProperty mapbox = new EnabledProperty(true);
+
                 /** Enable or disable GeoJSON VectorTiles output format */
                 private EnabledProperty geojson = new EnabledProperty(true);
+
                 /** Enable or disable TopoJSON VectorTiles output format */
                 private EnabledProperty topojson = new EnabledProperty(true);
 

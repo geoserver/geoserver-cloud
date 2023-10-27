@@ -350,6 +350,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
                             updateNamespace(resource, rolbackNamespace);
                         });
     }
+
     // override, super calls facade.save and depends on it throwing the events
     protected @Override void rollback(StoreInfo store, StoreInfo rollbackTo) {
         // apply the rollback object properties to the real store

@@ -35,6 +35,7 @@ public @Data @Generated class Dimension {
      * @since geoserver 2.23.0
      */
     private String startValue;
+
     /**
      * @since geoserver 2.23.0
      */
