@@ -7,6 +7,7 @@ package org.geoserver.cloud.autoconfigure.context;
 import org.geoserver.GeoserverInitStartupListener;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.web.context.support.GenericWebApplicationContext;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -29,15 +30,22 @@ public class GeoServerContextInitializer
 
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
+        // run once for the webapp context, ignore the actuator context
+        if (!(applicationContext instanceof GenericWebApplicationContext)) {
+            return;
+        }
+
         // tell geoserver not to control logging, spring-boot will do
         System.setProperty("RELINQUISH_LOG4J_CONTROL", "true");
         // and tell geotools not to redirect to Log4J nor any other framework, we'll use
-        // spring-boot's logging redirection. Use Log4J2 redirection policy, JavaLogging
+        // spring-boot's logging redirection. Use Logback redirection policy, JavaLogging
         // will make GeoserverInitStartupListener's call to GeoTools.init() heuristically set
         // Logging.ALL.setLoggerFactory("org.geotools.util.logging.LogbackLoggerFactory")
         // with the caveat that it wrongly maps logging levels and hence if, for example, a logger
-        // with level FINE is called with INFO, it doesn't log at all
-        System.setProperty("GT2_LOGGING_REDIRECTION", "Log4J2");
+        // with level FINE is called with INFO, it doesn't log at all.
+        // Log4J2 redirection policy will fail when calling java.util.logging.Logger.setLevel(..)
+        // because our version of Log4j2 is newer than GeoTools' and the API changed
+        System.setProperty("GT2_LOGGING_REDIRECTION", "Logback");
         ServletContext source = mockServletContext();
         ServletContextEvent sce = new ServletContextEvent(source);
         GeoserverInitStartupListener startupInitializer = new GeoserverInitStartupListener();
