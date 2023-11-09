@@ -5,20 +5,20 @@
 package org.geoserver.cloud.autoconfigure.geotools;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
-import org.springframework.boot.test.context.runner.ApplicationContextRunner;
+import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 
 /**
  * @since 1.0
  */
 class GeoToolsHttpClientAutoConfigurationTest {
 
-    private ApplicationContextRunner runner =
-            new ApplicationContextRunner() //
+    private WebApplicationContextRunner runner =
+            new WebApplicationContextRunner() //
                     .withInitializer(new GeoToolsStaticContextInitializer()) //
                     .withConfiguration(
                             AutoConfigurations.of(GeoToolsHttpClientAutoConfiguration.class));

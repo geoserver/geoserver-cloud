@@ -7,6 +7,7 @@ package org.geoserver.cloud.autoconfigure.geotools;
 import org.geoserver.GeoserverInitStartupListener;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.web.context.support.GenericWebApplicationContext;
 
 /**
  * {@link ApplicationContextInitializer} replacing upstream's {@link GeoserverInitStartupListener},
@@ -22,6 +23,10 @@ public class GeoToolsStaticContextInitializer
 
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
+        // run once for the webapp context, ignore the actuator context
+        if (!(applicationContext instanceof GenericWebApplicationContext)) {
+            return;
+        }
         System.setProperty("org.geotools.referencing.forceXY", "true");
 
         Boolean useEnvAwareHttpClient =

@@ -24,6 +24,8 @@ import javax.naming.spi.NamingManager;
 public class SimpleJNDIStaticContextInitializer
         implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
+    private static boolean initialized;
+
     /**
      * Register the context builder by registering it with the JNDI NamingManager. Note that once
      * this has been done, {@code new InitialContext()} will always return a context from this
@@ -36,6 +38,8 @@ public class SimpleJNDIStaticContextInitializer
      */
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
+        if (initialized) return;
+        initialized = true;
         if (NamingManager.hasInitialContextFactoryBuilder()) {
             log.info("JNDI InitialContextFactoryBuilder already set");
             return;
