@@ -153,7 +153,7 @@ services:
           memory: 1G
 
   acl:
-    image: geoservercloud/geoserver-acl:1.0.0
+    image: geoservercloud/geoserver-acl:1.2.0
     volumes:
       - ./config/acl-service.yml:/opt/app/bin/acl.yml
     depends_on:
