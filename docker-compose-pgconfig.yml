@@ -9,7 +9,7 @@ volumes:
 #
 
 services:
-  pgconfig:
+  pgconfigdb:
     image: postgres:15
     shm_size: 2g
     environment:
@@ -33,40 +33,40 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES},pgconfig"
     depends_on:
-      - pgconfig
+      - pgconfigdb
 
   wms:
     environment:
       SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES},pgconfig"
     depends_on:
-      - pgconfig
+      - pgconfigdb
 
   wcs:
     environment:
       SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES},pgconfig"
     depends_on:
-      - pgconfig
+      - pgconfigdb
 
   rest:
     environment:
       SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES},pgconfig"
     depends_on:
-      - pgconfig
+      - pgconfigdb
 
   webui:
     environment:
       SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES},pgconfig"
     depends_on:
-      - pgconfig
+      - pgconfigdb
 
   gwc:
     environment:
       SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES},pgconfig"
     depends_on:
-      - pgconfig
+      - pgconfigdb
 
   wps:
     environment:
       SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES},pgconfig"
     depends_on:
-      - pgconfig
+      - pgconfigdb
