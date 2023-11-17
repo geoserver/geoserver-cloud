@@ -1,0 +1,222 @@
+version: "3.8"
+
+volumes:
+  rabbitmq_data: # volume for rabbitmq data, so it doesn't create an anonymous one on each container
+  geowebcache_data:
+  pgconfig_data: # volume for postgresql data, used to store the geoserver config through pgsqlconfig backend
+        
+services:
+  pgconfigdb:
+    image: postgis/postgis:latest
+    # host config for both geoserver catalog and acl
+    shm_size: 2g
+    environment:
+      POSTGRES_DB: pgconfig
+      POSTGRES_USER: pgconfig
+      POSTGRES_PASSWORD: pgconfig
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pgconfig"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - pgconfig_data:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 4G
+    
+  acl:
+    image: geoservercloud/geoserver-acl:2.0-SNAPSHOT
+    user: 1000:1000
+    depends_on:
+      pgconfigdb:
+        condition: service_healthy
+    environment:
+      ACL_DB_URL: jdbc:postgresql://pgconfigdb:5432/pgconfig
+      ACL_DB_SCHEMA: acl
+      ACL_DB_USERNAME: pgconfig
+      ACL_DB_PASSWORD: pgconfig
+      ACL_SECURITY_BASIC_ENABLED: true
+      ACL_USERS_ADMIN_ENABLED: true
+      ACL_USERS_ADMIN_PASSWORD: "{noop}s3cr3t"
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 2G
+    ports:
+       - 9092:8080
+       
+  rabbitmq:
+    image: rabbitmq:3.11-management
+    user: 1000:1000
+    restart: always
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+
+  # Eureka service discovery. This is a Discovery First Bootstrap configuration.
+  # The discovery service is the only fixed entry point.
+  # Browse to http://localhost:8761 to check all services are registered.
+  # Run docker-compose -f docker-compose.yml -f docker-compose-discovery-ha.yml to run extra discovery service instances for HA
+  discovery:
+    image: geoservercloud/geoserver-cloud-discovery:1.5-SNAPSHOT
+    user: 1000:1000
+    depends_on:
+      - config
+    ports:
+      - 8761:8761 # for development, so services can be run from localhost and find the discovery service running on docker
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 512M
+
+  # Spring Cloud Config service, provides centralized configuration to all
+  # microservices. Being a Discovery First Bootstrap configuration, it'll
+  # register itself with the Eureka discovery service and can be scaled
+  config:
+    image: geoservercloud/geoserver-cloud-config:1.5-SNAPSHOT
+    user: 1000:1000 # set the userid:groupid the container runs as
+    environment:
+      # Either 'git' or 'native'. Use the default sample git repository to download the services configuration from
+      # If 'git', BEWARE config server will look for a branch called "master", and github changed the default branch name to "main"
+      # For more information, see https://cloud.spring.io/spring-cloud-config/multi/multi__spring_cloud_config_server.html#_git_backend
+      SPRING_PROFILES_ACTIVE: git
+      # 'git' profile config
+      CONFIG_GIT_URI: https://github.com/geoserver/geoserver-cloud-config.git
+      # get the config for this release from the v1.4.0 tag
+      SPRING_CLOUD_CONFIG_SERVER_GIT_DEFAULT_LABEL: master
+      # where to store the cloned repository, if unset, it'll use /tmp/config-repo-<randomid>
+      CONFIG_GIT_BASEDIR: /tmp/git_config
+      # 'native' profile config
+      CONFIG_NATIVE_PATH: /tmp/config
+      # avoid stack trace due to jgit not being able of creating a .config dir at $HOME
+      XDG_CONFIG_HOME: /tmp
+    # Uncoment to bind to a local filesystem directory if using the 'native' profile
+    #volumes:
+    #  - ./config:/tmp/config
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 512M
+
+  admin:
+    image: geoservercloud/geoserver-cloud-admin-server:1.5-SNAPSHOT
+    user: 1000:1000
+    depends_on:
+      - discovery
+    ports:
+      - 9091:8080
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 512M
+    
+  # Application facade, provides a single entry point routing to all
+  # microservices (e.g. http://localhost:9090/geoserver/wms, http://localhost:9090/geoserver/wfs, etc)
+  gateway:
+    image: geoservercloud/geoserver-cloud-gateway:1.5-SNAPSHOT
+    user: 1000:1000
+    depends_on:
+      - discovery
+    environment:
+      # eat our own dogfood and set a base path
+      GEOSERVER_BASE_PATH: /geoserver/cloud
+    ports:
+      - 9090:8080
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 1G
+
+  # WFS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wfs=5)
+  wfs:
+    image: geoservercloud/geoserver-cloud-wfs:1.5-SNAPSHOT
+    extends:
+      service: geoserver
+    deploy:
+      replicas: 1
+
+  # WMS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wms=5)
+  wms:
+    image: geoservercloud/geoserver-cloud-wms:1.5-SNAPSHOT
+    extends:
+      service: geoserver
+    deploy:
+      replicas: 1
+
+  # WCS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wcs=5)
+  wcs:
+    image: geoservercloud/geoserver-cloud-wcs:1.5-SNAPSHOT
+    extends:
+      service: geoserver
+    deploy:
+      replicas: 1
+
+  # WPS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wps=5)
+  wps:
+    image: geoservercloud/geoserver-cloud-wps:1.5-SNAPSHOT
+    extends:
+      service: geoserver
+    deploy:
+      replicas: 1
+
+  # REST config microservice, port dynamically allocated to allow scaling (e.g docker-compose scale rest=5)
+  rest:
+    image: geoservercloud/geoserver-cloud-rest:1.5-SNAPSHOT
+    extends:
+      service: geoserver
+    deploy:
+      replicas: 1
+
+  # WEB UI microservice
+  webui:
+    image: geoservercloud/geoserver-cloud-webui:1.5-SNAPSHOT
+    extends:
+      service: geoserver
+    volumes:
+      - geowebcache_data:/data/geowebcache
+    deploy:
+      replicas: 1
+
+  gwc:
+    image: geoservercloud/geoserver-cloud-gwc:1.5-SNAPSHOT
+    extends:
+      service: geoserver
+    volumes:
+      - geowebcache_data:/data/geowebcache
+    deploy:
+      replicas: 1
+
+  geoserver:
+    image: geoservercloud/geoserver-cloud-webui:1.5-SNAPSHOT
+    user: 1000:1000 # set the userid:groupid the container runs as
+    environment:
+      JAVA_OPTS: -XX:MaxRAMPercentage=80 -XshowSettings:system 
+      SPRING_PROFILES_ACTIVE: "pgconfig,acl"
+      ACL_URL: http://acl:8080/acl/api
+      ACL_USERNAME: admin
+      ACL_PASSWORD: s3cr3t
+    depends_on:
+      - pgconfigdb
+      - rabbitmq
+      - discovery
+      - config
+      - acl
+    deploy:
+      mode: replicated
+      replicas: 0
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
