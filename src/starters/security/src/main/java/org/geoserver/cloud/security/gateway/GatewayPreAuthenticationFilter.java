@@ -10,6 +10,7 @@ import org.geoserver.security.filter.GeoServerRequestHeaderAuthenticationFilter;
 import org.geoserver.security.filter.GeoServerSecurityFilter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
 import java.io.IOException;
 
@@ -36,6 +37,14 @@ public class GatewayPreAuthenticationFilter extends GeoServerRequestHeaderAuthen
         String principalName = getPreAuthenticatedPrincipalName((HttpServletRequest) request);
 
         Authentication preAuth = SecurityContextHolder.getContext().getAuthentication();
+
+        // If a pre-auth token exists but the request has no principal name anymore, clear the
+        // context, or the user will stay authenticated
+        if (preAuth instanceof PreAuthenticatedAuthenticationToken && null == principalName) {
+            SecurityContextHolder.clearContext();
+            preAuth = null;
+        }
+
         if (preAuth == null || principalName != null) {
             log.debug("Authenticating as {}", principalName);
             doAuthenticate((HttpServletRequest) request, (HttpServletResponse) response);
