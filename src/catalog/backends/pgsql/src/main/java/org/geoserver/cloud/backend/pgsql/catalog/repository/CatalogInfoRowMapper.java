@@ -320,7 +320,11 @@ class CatalogInfoRowMapper {
         if (null != defaultStyle) {
             String styleId = defaultStyle.getId();
             defaultStyle = mapStyle(styleId, "defaultStyle", rs);
-            layer.setDefaultStyle(ModificationProxy.create(defaultStyle, StyleInfo.class));
+            if (null == defaultStyle) {
+                layer.setDefaultStyle(null);
+            } else {
+                layer.setDefaultStyle(ModificationProxy.create(defaultStyle, StyleInfo.class));
+            }
         }
     }
 

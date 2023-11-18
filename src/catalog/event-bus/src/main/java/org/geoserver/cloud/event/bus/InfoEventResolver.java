@@ -33,17 +33,13 @@ import java.util.function.Function;
  */
 public class InfoEventResolver {
 
-    private final Catalog rawCatalog;
-    private final GeoServer geoserverConfig;
-
     private Function<Info, Info> configInfoResolver;
     private Function<CatalogInfo, CatalogInfo> catalogInfoResolver;
     // REVISIT: merge ProxyUtils with ResolvingProxyResolver
     private ProxyUtils proxyUtils;
 
     public InfoEventResolver(@NonNull Catalog rawCatalog, @NonNull GeoServer geoserverConfig) {
-        this.rawCatalog = rawCatalog;
-        this.geoserverConfig = geoserverConfig;
+
         proxyUtils = new ProxyUtils(rawCatalog, Optional.of(geoserverConfig));
 
         configInfoResolver =
