@@ -158,8 +158,6 @@ services:
       - ./config/acl-service.yml:/opt/app/bin/acl.yml
     depends_on:
       - acldb
-    environment:
-      GEOSERVER_BASE_PATH: ${BASE_PATH}
     networks:
       - gs-cloud-network
     ports:
