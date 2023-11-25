@@ -20,7 +20,8 @@ import org.vfny.geoserver.wfs.servlets.TestWfsPost;
         reader = FilteringXmlBeanDefinitionReader.class, //
         locations = { //
             "jar:gs-web-core-.*!/applicationContext.xml#name="
-                    + WebCoreConfiguration.EXCLUDED_BEANS_PATTERN //
+                    + WebCoreConfiguration.EXCLUDED_BEANS_PATTERN, //
+            "jar:gs-web-rest-.*!/applicationContext.xml" //
         })
 public class WebCoreConfiguration {
 
