@@ -64,16 +64,16 @@ geoserver:
     file-browser.hide-file-system: true
     # These are all default values, here just for reference. You can omit them and add only the ones to disable or further configure
     security.enabled: true
-    wfs.enabled: true
-    wms.enabled: true
-    wcs.enabled: true
-    wps.enabled: false # not working yet
+    wfs.enabled: ${webui.wfs.enabled:true}
+    wms.enabled: ${webui.wms.enabled:true}
+    wcs.enabled: ${webui.wcs.enabled:true}
+    wps.enabled: ${webui.wps.enabled:true}
     gwc:
-      enabled: true
+      enabled: ${gwc.enabled:true}
       capabilities:
-        tms: true
-        wmts: true
-        wmsc: true
+        tms: ${gwc.services.tms:true}
+        wmts: ${gwc.services.wmts:true}
+        wmsc: ${gwc.services.wms:false}
     extensions:
       importer.enabled: true
     demos:
