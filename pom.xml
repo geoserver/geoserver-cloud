@@ -13,6 +13,7 @@
     <revision>1.5-SNAPSHOT</revision>
     <fmt.action>format</fmt.action>
     <fmt.skip>false</fmt.skip>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
   <dependencyManagement>
     <dependencies>
