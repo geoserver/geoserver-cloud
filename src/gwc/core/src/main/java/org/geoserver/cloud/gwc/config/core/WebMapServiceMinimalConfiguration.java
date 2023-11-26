@@ -62,7 +62,7 @@ public class WebMapServiceMinimalConfiguration {
             |.*LegendGraphicResponse\
             |wmsGIFLegendOutputFormat\
             |wmsJPEGLegendGraphicOutputFormat\
-            |wmsJSONLegendOutputFormat
+            |wmsJSONLegendOutputFormat\
             ).*$\
             """;
 
