@@ -360,20 +360,18 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
 
         protected @Override void processBeanDefinition(
                 Element ele, BeanDefinitionParserDelegate delegate) {
-            if (!isFiltering()) {
-                super.processBeanDefinition(ele, delegate);
-                return;
-            }
-
             final String beanNameOrId = getBeanNameOrId(ele);
-            if (shallInclude(beanNameOrId, ele)) {
-                if (hasText(beanNameOrId)) {
+            if (isFiltering()) {
+                if (shallInclude(beanNameOrId, ele)) {
                     logIncludingBeanMessage(beanNameOrId);
+                    super.processBeanDefinition(ele, delegate);
+                } else if (hasText(beanNameOrId)) {
+                    blackListedBeanNames.add(beanNameOrId);
+                    logExcludedBeanMessage(beanNameOrId);
                 }
+            } else {
+                logUnfiltered(beanNameOrId);
                 super.processBeanDefinition(ele, delegate);
-            } else if (hasText(beanNameOrId)) {
-                blackListedBeanNames.add(beanNameOrId);
-                logExcludedBeanMessage(beanNameOrId);
             }
         }
 
@@ -404,14 +402,25 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
             return nameAtt;
         }
 
+        private void logUnfiltered(String beanName) {
+            if (hasText(beanName)) {
+                String msgFormat = "Include bean '{}', no regular expression provided";
+                log.trace(msgFormat, beanName);
+            }
+        }
+
         private void logIncludingBeanMessage(String beanName) {
-            String msgFormat = "Registering   '{}', matches regular expression";
-            log.trace(msgFormat, beanName);
+            if (hasText(beanName)) {
+                String msgFormat = "Include bean '{}', matches regular expression";
+                log.trace(msgFormat, beanName);
+            }
         }
 
         private void logExcludedBeanMessage(String beanName) {
-            String msgFormat = "Excluded bean '{}', no regular expression matches";
-            log.trace(msgFormat, beanName);
+            if (hasText(beanName)) {
+                String msgFormat = "Exclude bean '{}', no regular expression matches";
+                log.trace(msgFormat, beanName);
+            }
         }
     }
 }

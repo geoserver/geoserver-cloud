@@ -24,7 +24,7 @@ public class WmsConfiguration {
     static final String WMS_BEANS_REGEX =
             """
             ^(?!\
-            |legendSample\
+            legendSample\
             |getMapKvpReader\
             |wmsCapabilitiesXmlReader\
             |getMapXmlReader\
@@ -48,7 +48,7 @@ public class WmsConfiguration {
             |.*LegendGraphicResponse\
             |wmsGIFLegendOutputFormat\
             |wmsJPEGLegendGraphicOutputFormat\
-            |wmsJSONLegendOutputFormat
+            |wmsJSONLegendOutputFormat\
             ).*$\
             """;
 }
