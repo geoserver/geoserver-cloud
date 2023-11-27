@@ -63,7 +63,7 @@ public class GeoServerSecurityConfiguration {
     }
 
     @Bean
-    public EnvironmentAdminAuthenticationProvider environmentAdminAuthenticationProvider() {
+    EnvironmentAdminAuthenticationProvider environmentAdminAuthenticationProvider() {
         return new EnvironmentAdminAuthenticationProvider();
     }
 
@@ -77,7 +77,7 @@ public class GeoServerSecurityConfiguration {
      */
     @Bean(name = {"authenticationManager", "geoServerSecurityManager"})
     @DependsOn({"extensions"})
-    public CloudGeoServerSecurityManager cloudAuthenticationManager( //
+    CloudGeoServerSecurityManager cloudAuthenticationManager( //
             GeoServerDataDirectory dataDir, //
             ApplicationEventPublisher localContextPublisher, //
             UpdateSequence updateSequence, //

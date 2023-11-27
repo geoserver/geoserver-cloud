@@ -30,11 +30,13 @@ import org.springframework.context.annotation.ImportResource;
         })
 public class KMLAutoConfiguration {
 
-    public @Bean KMLIconsController kmlIconsController() {
+    @Bean
+    KMLIconsController kmlIconsController() {
         return new KMLIconsController();
     }
 
-    public @Bean KMLReflectorController kmlReflectorController() {
+    @Bean
+    KMLReflectorController kmlReflectorController() {
         return new KMLReflectorController();
     }
 }

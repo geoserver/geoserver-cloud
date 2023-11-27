@@ -41,13 +41,12 @@ import java.util.Objects;
 @Configuration(proxyBeanMethods = true)
 @EnableConfigurationProperties(DataDirectoryProperties.class)
 @Slf4j(topic = "org.geoserver.cloud.config.datadirectory")
-public class DataDirectoryBackendConfiguration implements GeoServerBackendConfigurer {
+public class DataDirectoryBackendConfiguration extends GeoServerBackendConfigurer {
 
     private @Autowired CatalogProperties properties;
 
     private DataDirectoryProperties dataDirectoryConfig;
 
-    @Autowired
     public DataDirectoryBackendConfiguration(DataDirectoryProperties dataDirectoryConfig) {
         this.dataDirectoryConfig = dataDirectoryConfig;
         log.info(
@@ -56,7 +55,7 @@ public class DataDirectoryBackendConfiguration implements GeoServerBackendConfig
     }
 
     @Bean
-    public ModuleStatusImpl moduleStatus() {
+    ModuleStatusImpl moduleStatus() {
         ModuleStatusImpl module =
                 new ModuleStatusImpl("gs-cloud-backend-datadir", "DataDirectory loader");
         module.setAvailable(true);
@@ -64,7 +63,8 @@ public class DataDirectoryBackendConfiguration implements GeoServerBackendConfig
         return module;
     }
 
-    public @Bean CatalogPlugin rawCatalog() {
+    @Bean
+    CatalogPlugin rawCatalog() {
         boolean isolated = properties.isIsolated();
         GeoServerConfigurationLock configurationLock = configurationLock();
         ExtendedCatalogFacade catalogFacade = catalogFacade();
@@ -75,7 +75,7 @@ public class DataDirectoryBackendConfiguration implements GeoServerBackendConfig
     }
 
     @Bean(name = "geoServer")
-    public LockingGeoServer geoServer(@Qualifier("catalog") Catalog catalog) {
+    LockingGeoServer geoServer(@Qualifier("catalog") Catalog catalog) {
 
         GeoServerConfigurationLock configurationLock = configurationLock();
         LockingGeoServer gs = new LockingGeoServer(configurationLock, geoserverFacade());
@@ -83,22 +83,20 @@ public class DataDirectoryBackendConfiguration implements GeoServerBackendConfig
         return gs;
     }
 
-    @Bean
-    public @Override UpdateSequence updateSequence() {
+    protected @Bean @Override UpdateSequence updateSequence() {
         return new DataDirectoryUpdateSequence();
     }
 
-    @Bean
-    public @Override GeoServerConfigurationLock configurationLock() {
+    protected @Bean @Override GeoServerConfigurationLock configurationLock() {
         LockProvider lockProvider = resourceStoreImpl().getLockProvider();
         return new LockProviderGeoServerConfigurationLock(lockProvider);
     }
 
-    public @Override @Bean DefaultMemoryCatalogFacade catalogFacade() {
+    protected @Bean @Override DefaultMemoryCatalogFacade catalogFacade() {
         return new org.geoserver.catalog.plugin.DefaultMemoryCatalogFacade();
     }
 
-    public @Override @Bean RepositoryGeoServerFacade geoserverFacade() {
+    protected @Bean @Override RepositoryGeoServerFacade geoserverFacade() {
         return new org.geoserver.config.plugin.RepositoryGeoServerFacadeImpl();
     }
 
@@ -120,7 +118,7 @@ public class DataDirectoryBackendConfiguration implements GeoServerBackendConfig
             name = "geoserver.backend.data-directory.parallel-loader",
             havingValue = "false",
             matchIfMissing = false)
-    public @Override GeoServerLoader geoServerLoaderImpl() {
+    protected @Override GeoServerLoader geoServerLoaderImpl() {
         log.info("Using default data directory config loader");
         UpdateSequence updateSequence = updateSequence();
         GeoServerResourceLoader resourceLoader = resourceLoader();
@@ -148,7 +146,7 @@ public class DataDirectoryBackendConfiguration implements GeoServerBackendConfig
             name = "geoserver.backend.data-directory.parallel-loader",
             havingValue = "true",
             matchIfMissing = true)
-    public GeoServerLoader geoServerLoaderImplParallel(GeoServerSecurityManager securityManager) {
+    GeoServerLoader geoServerLoaderImplParallel(GeoServerSecurityManager securityManager) {
         log.info("Using optimized parallel data directory config loader");
         UpdateSequence updateSequence = updateSequence();
         GeoServerResourceLoader resourceLoader = resourceLoader();
@@ -159,7 +157,7 @@ public class DataDirectoryBackendConfiguration implements GeoServerBackendConfig
                 updateSequence, resourceLoader, geoserver, rawCatalog, securityManager);
     }
 
-    public @Override @Bean GeoServerResourceLoader resourceLoader() {
+    protected @Bean @Override GeoServerResourceLoader resourceLoader() {
         ResourceStore resourceStoreImpl = resourceStoreImpl();
         GeoServerResourceLoader resourceLoader = new GeoServerResourceLoader(resourceStoreImpl);
         final @NonNull Path datadir = dataDirectoryFile();
@@ -169,7 +167,7 @@ public class DataDirectoryBackendConfiguration implements GeoServerBackendConfig
     }
 
     @Bean(name = {"resourceStoreImpl"})
-    public @Override ResourceStore resourceStoreImpl() {
+    protected @Override ResourceStore resourceStoreImpl() {
         final @NonNull File dataDirectory = dataDirectoryFile().toFile();
         NoServletContextDataDirectoryResourceStore store =
                 new NoServletContextDataDirectoryResourceStore(dataDirectory);

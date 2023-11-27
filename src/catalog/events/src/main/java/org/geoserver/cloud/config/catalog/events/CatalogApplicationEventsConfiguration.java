@@ -19,7 +19,8 @@ import java.util.function.Supplier;
 @Configuration(proxyBeanMethods = false)
 public class CatalogApplicationEventsConfiguration {
 
-    public @Bean CatalogApplicationEventPublisher localApplicationEventPublisher( //
+    @Bean
+    CatalogApplicationEventPublisher localApplicationEventPublisher( //
             @Qualifier("catalog") Catalog catalog, //
             @Qualifier("geoServer") GeoServer geoServer, //
             ApplicationEventPublisher localContextPublisher, //

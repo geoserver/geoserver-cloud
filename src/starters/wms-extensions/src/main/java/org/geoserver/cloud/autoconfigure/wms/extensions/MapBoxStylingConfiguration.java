@@ -49,7 +49,8 @@ class MapBoxStylingConfiguration {
     @ConditionalOnClass(MBStyleHandler.class)
     static class Disabled {
 
-        public @Bean(name = "MBStyleExtension") ModuleStatus mbStyleDisabledModuleStatus() {
+        @Bean(name = "MBStyleExtension")
+        ModuleStatus mbStyleDisabledModuleStatus() {
             ModuleStatusImpl mod = new ModuleStatusImpl();
             mod.setAvailable(true);
             mod.setEnabled(false);

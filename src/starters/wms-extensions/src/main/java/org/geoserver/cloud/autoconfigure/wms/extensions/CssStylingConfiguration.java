@@ -27,6 +27,7 @@ import org.springframework.context.annotation.ImportResource;
 @Import(value = {CssStylingConfiguration.Enabled.class, CssStylingConfiguration.Disabled.class})
 class CssStylingConfiguration {
 
+    @Configuration
     @ConditionalOnBean(name = "sldHandler")
     @ConditionalOnProperty(
             name = "geoserver.styling.css.enabled",
@@ -45,6 +46,7 @@ class CssStylingConfiguration {
      *
      * @since 1.0
      */
+    @Configuration
     @ConditionalOnBean(name = "sldHandler")
     @ConditionalOnProperty(
             name = "geoserver.styling.css.enabled",
@@ -52,7 +54,8 @@ class CssStylingConfiguration {
             matchIfMissing = false)
     static class Disabled {
 
-        public @Bean ModuleStatus cssDisabledModuleStatus() {
+        @Bean
+        ModuleStatus cssDisabledModuleStatus() {
             ModuleStatusImpl mod = new ModuleStatusImpl();
             mod.setAvailable(true);
             mod.setEnabled(false);

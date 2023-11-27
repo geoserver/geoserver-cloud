@@ -21,7 +21,8 @@ import org.springframework.context.annotation.ImportResource;
         )
 public class WfsAutoConfiguration {
 
-    public @Bean VirtualServiceVerifier virtualServiceVerifier() {
+    @Bean
+    VirtualServiceVerifier virtualServiceVerifier() {
         return new VirtualServiceVerifier();
     }
 }

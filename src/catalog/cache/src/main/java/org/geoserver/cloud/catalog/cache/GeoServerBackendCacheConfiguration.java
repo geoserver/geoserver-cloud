@@ -35,7 +35,8 @@ public class GeoServerBackendCacheConfiguration implements BeanPostProcessor {
         return new CacheConfigurationPostProcessor();
     }
 
-    public @Bean CachingCatalogFacade cachingCatalogFacade(
+    @Bean
+    CachingCatalogFacade cachingCatalogFacade(
             @Qualifier("catalogFacade") CatalogFacade rawCatalogFacade) {
         CatalogFacade raw = rawCatalogFacade;
         ExtendedCatalogFacade facade;
@@ -47,7 +48,8 @@ public class GeoServerBackendCacheConfiguration implements BeanPostProcessor {
         return new CachingCatalogFacadeImpl(facade);
     }
 
-    public @Bean CachingGeoServerFacade cachingGeoServerFacade(
+    @Bean
+    CachingGeoServerFacade cachingGeoServerFacade(
             @Qualifier("geoserverFacade") GeoServerFacade rawGeoServerFacade) {
         return new CachingGeoServerFacadeImpl(rawGeoServerFacade);
     }

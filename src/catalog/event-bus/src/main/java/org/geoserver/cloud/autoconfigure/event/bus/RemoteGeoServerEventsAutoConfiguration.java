@@ -57,7 +57,8 @@ public class RemoteGeoServerEventsAutoConfiguration {
      * RemoteGeoServerEvent} payload, especially {@link Literal} expressions.
      */
     @ConditionalOnMissingBean(GeoToolsFilterModule.class)
-    public @Bean GeoToolsFilterModule geoToolsFilterModule() {
+    @Bean
+    GeoToolsFilterModule geoToolsFilterModule() {
         return new GeoToolsFilterModule();
     }
 
@@ -66,7 +67,8 @@ public class RemoteGeoServerEventsAutoConfiguration {
      * present, so {@link CatalogInfo} objects can be used as {@link RemoteGeoServerEvent} payload
      */
     @ConditionalOnMissingBean(GeoServerCatalogModule.class)
-    public @Bean GeoServerCatalogModule geoServerCatalogJacksonModule() {
+    @Bean
+    GeoServerCatalogModule geoServerCatalogJacksonModule() {
         return new GeoServerCatalogModule();
     }
 
@@ -76,7 +78,8 @@ public class RemoteGeoServerEventsAutoConfiguration {
      * payload
      */
     @ConditionalOnMissingBean(GeoServerConfigModule.class)
-    public @Bean GeoServerConfigModule geoServerConfigJacksonModule() {
+    @Bean
+    GeoServerConfigModule geoServerConfigJacksonModule() {
         return new GeoServerConfigModule();
     }
 
@@ -88,12 +91,14 @@ public class RemoteGeoServerEventsAutoConfiguration {
      * <p>This listener ensures the payload object properties are resolved before being catch up by
      * other listeners.
      */
-    public @Bean InfoEventResolver remoteInfoEventInboundResolver(
+    @Bean
+    InfoEventResolver remoteInfoEventInboundResolver(
             @Qualifier("rawCatalog") Catalog rawCatalog, GeoServer geoserver) {
         return new InfoEventResolver(rawCatalog, geoserver);
     }
 
-    public @Bean RemoteGeoServerEventMapper remoteGeoServerEventMapper(
+    @Bean
+    RemoteGeoServerEventMapper remoteGeoServerEventMapper(
             InfoEventResolver remoteEventPropertiesResolver,
             ServiceMatcher serviceMatcher,
             Destination.Factory destinationFactory) {
@@ -102,7 +107,8 @@ public class RemoteGeoServerEventsAutoConfiguration {
                 remoteEventPropertiesResolver, serviceMatcher, destinationFactory);
     }
 
-    public @Bean RemoteGeoServerEventBridge remoteEventBroadcaster(
+    @Bean
+    RemoteGeoServerEventBridge remoteEventBroadcaster(
             ApplicationEventPublisher eventPublisher,
             RemoteGeoServerEventMapper eventMapper,
             ServiceMatcher serviceMatcher) {

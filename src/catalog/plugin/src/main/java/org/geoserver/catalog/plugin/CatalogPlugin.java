@@ -1517,7 +1517,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
         }
     }
 
-    <T extends CatalogInfo> T detached(T original, T detached) {
+    private <T extends CatalogInfo> T detached(T original, T detached) {
         return detached != null ? detached : original;
     }
 

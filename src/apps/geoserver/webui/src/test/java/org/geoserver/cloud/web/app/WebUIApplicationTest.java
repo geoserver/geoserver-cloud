@@ -88,6 +88,7 @@ public class WebUIApplicationTest {
                 .setAuthentication(new UsernamePasswordAuthenticationToken(username, password, l));
     }
 
+    @SuppressWarnings("unused")
     private void print(Component component) {
         boolean dumpClass = true;
         boolean dumpValue = false;
@@ -129,6 +130,7 @@ public class WebUIApplicationTest {
         tester.startPage(GlobalSettingsPage.class);
         tester.assertRenderedPage(GlobalSettingsPage.class);
         GlobalSettingsPage page = (GlobalSettingsPage) tester.getLastRenderedPage();
+        assertNotNull(page);
         // print(page);
         assertHidden("proxyBaseUrlContainer");
         assertHidden("useHeadersProxyURL");

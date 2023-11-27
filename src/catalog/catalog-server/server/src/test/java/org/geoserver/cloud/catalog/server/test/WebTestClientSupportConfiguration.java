@@ -16,7 +16,8 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 @AutoConfigureWebTestClient(timeout = "360000")
 public class WebTestClientSupportConfiguration {
 
-    public @Bean WebTestClientSupport webTestClientSupport() {
+    @Bean
+    WebTestClientSupport webTestClientSupport() {
         return new WebTestClientSupport();
     }
 }

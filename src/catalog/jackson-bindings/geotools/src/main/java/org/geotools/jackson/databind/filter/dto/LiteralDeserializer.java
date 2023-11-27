@@ -77,7 +77,7 @@ public class LiteralDeserializer extends JsonDeserializer<Literal> {
         } else if (Map.class.isAssignableFrom(type)) {
             value = readMap(parser, ctxt);
         } else {
-            JsonToken token = parser.nextToken();
+            parser.nextToken();
             value = ctxt.readValue(parser, type);
         }
         JsonToken token = parser.nextToken();

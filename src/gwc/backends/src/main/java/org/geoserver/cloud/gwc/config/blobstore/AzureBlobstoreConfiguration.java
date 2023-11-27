@@ -29,7 +29,7 @@ import org.springframework.context.annotation.Configuration;
 public class AzureBlobstoreConfiguration {
 
     @Bean(name = "AzureBlobStoreConfigProvider")
-    public AzureBlobStoreConfigProvider azureBlobStoreConfigProvider() {
+    AzureBlobStoreConfigProvider azureBlobStoreConfigProvider() {
         return new AzureBlobStoreConfigProvider();
     }
 }

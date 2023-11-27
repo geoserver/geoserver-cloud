@@ -703,7 +703,7 @@ public class ForwardingCatalog implements Catalog {
         return catalog.list(of, filter, offset, count, sortBy);
     }
 
-    public @Override void removeListeners(@SuppressWarnings("rawtypes") Class listenerClass) {
+    public @Override void removeListeners(Class<? extends CatalogListener> listenerClass) {
         catalog.removeListeners(listenerClass);
     }
 

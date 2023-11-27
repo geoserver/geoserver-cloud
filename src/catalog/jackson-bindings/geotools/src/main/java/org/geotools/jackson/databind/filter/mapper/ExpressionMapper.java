@@ -4,7 +4,6 @@
  */
 package org.geotools.jackson.databind.filter.mapper;
 
-import org.geotools.api.filter.FilterFactory;
 import org.geotools.api.filter.expression.ExpressionVisitor;
 import org.geotools.api.filter.expression.NilExpression;
 import org.geotools.factory.CommonFactoryFinder;
@@ -21,13 +20,17 @@ import org.geotools.jackson.databind.filter.dto.Literal;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ObjectFactory;
+import org.mapstruct.ReportingPolicy;
 
 import java.util.List;
 
-@Mapper(config = FilterMapperConfig.class)
+@Mapper(
+        componentModel = "default",
+        unmappedTargetPolicy = ReportingPolicy.ERROR,
+        uses = {ExpressionFactory.class, FilterFactory.class, ValueMappers.class})
 public abstract class ExpressionMapper {
 
-    private final FilterFactory ff = CommonFactoryFinder.getFilterFactory();
+    private final org.geotools.api.filter.FilterFactory ff = CommonFactoryFinder.getFilterFactory();
 
     private final ExpressionVisitor visitor =
             new ExpressionVisitor() {

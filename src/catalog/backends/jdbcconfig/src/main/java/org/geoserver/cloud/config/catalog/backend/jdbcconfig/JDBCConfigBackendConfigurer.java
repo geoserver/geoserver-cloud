@@ -40,7 +40,6 @@ import org.geoserver.util.CacheProvider;
 import org.geoserver.util.DefaultCacheProvider;
 import org.springframework.beans.BeanInstantiationException;
 import org.springframework.beans.factory.BeanInitializationException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -115,12 +114,11 @@ import javax.sql.DataSource;
 @EnableTransactionManagement
 @EnableConfigurationProperties(JdbcConfigConfigurationProperties.class)
 @Slf4j(topic = "org.geoserver.cloud.config.jdbcconfig")
-public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
+public class JDBCConfigBackendConfigurer extends GeoServerBackendConfigurer {
 
     private String instanceId;
     private JdbcConfigConfigurationProperties jdbcconfigConfig;
 
-    @Autowired
     public JDBCConfigBackendConfigurer(
             JdbcConfigConfigurationProperties backendConfig,
             @Value("${info.instance-id:}") String instanceId) {
@@ -131,9 +129,8 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
                 JDBCConfigBackendConfigurer.class.getSimpleName());
     }
 
-    @Bean
     @DependsOn("jdbcConfigDataSourceStartupValidator")
-    public @Override UpdateSequence updateSequence() {
+    protected @Bean @Override UpdateSequence updateSequence() {
         DataSource dataSource = jdbcConfigDataSource();
         CloudJdbcConfigProperties props = jdbcConfigProperties();
         GeoServerFacade geoserverFacade = geoserverFacade();
@@ -141,14 +138,14 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
         return new JdbcConfigUpdateSequence(dataSource, props, geoserverFacade, db);
     }
 
-    @Bean
-    public @Override GeoServerConfigurationLock configurationLock() {
+    protected @Bean @Override GeoServerConfigurationLock configurationLock() {
         return new GeoServerConfigurationLock();
     }
 
     @DependsOn("jdbcConfigDataSourceStartupValidator")
     @ConfigurationProperties(prefix = "geoserver.backend.jdbcconfig")
-    public @Bean("JDBCConfigProperties") CloudJdbcConfigProperties jdbcConfigProperties() {
+    @Bean("JDBCConfigProperties")
+    CloudJdbcConfigProperties jdbcConfigProperties() {
         DataSource dataSource = jdbcConfigDataSource();
         CloudJdbcConfigProperties props = new CloudJdbcConfigProperties(dataSource);
 
@@ -162,12 +159,13 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
 
     @DependsOn("jdbcConfigDataSourceStartupValidator")
     @ConfigurationProperties(prefix = "geoserver.backend.jdbcconfig")
-    public @Bean CloudJdbcStoreProperties jdbcStoreProperties() {
+    @Bean
+    CloudJdbcStoreProperties jdbcStoreProperties() {
         return new CloudJdbcStoreProperties(jdbcConfigDataSource());
     }
 
     @DependsOn({"extensions", "jdbcConfigDataSourceStartupValidator"})
-    public @Override @Bean GeoServerResourceLoader resourceLoader() {
+    protected @Bean @Override GeoServerResourceLoader resourceLoader() {
         JdbcConfigConfigurationProperties configProperties = this.jdbcconfigConfig;
         Path path = configProperties.getCacheDirectory();
         File dataDirectory = path == null ? null : path.toFile();
@@ -183,7 +181,7 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
         "noopCacheProvider"
     })
     @Bean(name = {"resourceStoreImpl"})
-    public @Override @NonNull ResourceStore resourceStoreImpl() {
+    protected @Override ResourceStore resourceStoreImpl() {
 
         System.setProperty(DefaultCacheProvider.BEAN_NAME_PROPERTY, "noopCacheProvider");
 
@@ -207,17 +205,20 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
     }
 
     @DependsOn({"extensions", "jdbcConfigDataSourceStartupValidator"})
-    public @Bean LockRegistryAdapter jdbcStoreLockProvider() {
+    @Bean
+    LockRegistryAdapter jdbcStoreLockProvider() {
         return new LockRegistryAdapter(jdbcLockRegistry());
     }
 
     @DependsOn("jdbcConfigDataSourceStartupValidator")
-    public @Bean JdbcLockRegistry jdbcLockRegistry() {
+    @Bean
+    JdbcLockRegistry jdbcLockRegistry() {
         return new JdbcLockRegistry(jdbcLockRepository());
     }
 
     @DependsOn("jdbcConfigDataSourceStartupValidator")
-    public @Bean DefaultLockRepository jdbcLockRepository() {
+    @Bean
+    DefaultLockRepository jdbcLockRepository() {
         String id = this.instanceId;
         DefaultLockRepository lockRepository;
         if (StringUtils.hasLength(id)) {
@@ -235,7 +236,7 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
 
     @DependsOn("jdbcConfigDataSourceStartupValidator")
     @Bean(name = {"catalogFacade", "JDBCCatalogFacade"})
-    public @Override ExtendedCatalogFacade catalogFacade() {
+    protected @Override ExtendedCatalogFacade catalogFacade() {
         ConfigDatabase configDB = jdbcConfigDB();
         JDBCConfigProperties catalogConfig = jdbcConfigProperties();
         CloudJdbcStoreProperties storeConfig = jdbcStoreProperties();
@@ -254,7 +255,7 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
 
     @DependsOn("jdbcConfigDataSourceStartupValidator")
     @Bean(name = {"geoserverFacade", "JDBCGeoServerFacade"})
-    public @Override GeoServerFacade geoserverFacade() {
+    protected @Override GeoServerFacade geoserverFacade() {
         initDbSchema(jdbcConfigProperties(), jdbcStoreProperties(), jdbcConfigDB());
         ConfigDatabase configDB = jdbcConfigDB();
         CloudJdbcGeoserverFacade facade = new CloudJdbcGeoserverFacade(configDB);
@@ -272,7 +273,7 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
         "wpsServiceLoader",
         "wmtsLoader"
     })
-    public @Override CloudJdbcGeoServerLoader geoServerLoaderImpl() {
+    protected @Override CloudJdbcGeoServerLoader geoServerLoaderImpl() {
         JDBCConfigProperties config = jdbcConfigProperties();
         ConfigDatabase configdb = jdbcConfigDB();
         try {
@@ -288,17 +289,20 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
         return new SimpleResourceCache(baseDirectory);
     }
 
-    public @Bean XStreamPersisterFactory xstreamPersisterFactory() {
+    @Bean
+    XStreamPersisterFactory xstreamPersisterFactory() {
         return new XStreamPersisterFactory();
     }
 
     @DependsOn({"jdbcConfigDataSourceStartupValidator", "xstreamPersisterFactory"})
-    public @Bean XStreamInfoSerialBinding jdbcPersistenceBinding() {
+    @Bean
+    XStreamInfoSerialBinding jdbcPersistenceBinding() {
         return new XStreamInfoSerialBinding(xstreamPersisterFactory());
     }
 
     @DependsOn({"jdbcConfigDataSourceStartupValidator", "jdbcConfigDataSource"})
-    public @Bean(name = "JDBCConfigDB") ConfigDatabase jdbcConfigDB() {
+    @Bean(name = "JDBCConfigDB")
+    ConfigDatabase jdbcConfigDB() {
         CloudJdbcConfigProperties config = jdbcConfigProperties();
         DataSource dataSource = jdbcConfigDataSource();
         XStreamInfoSerialBinding binding = jdbcPersistenceBinding();
@@ -346,11 +350,13 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
     // <bean id="JDBCCacheProvider"
     // class="org.geoserver.jdbcconfig.internal.JDBCCacheProvider"/>
     @DependsOn({"extensions"})
-    public @Bean("JDBCCacheProvider") CacheProvider jdbcCacheProvider() {
+    @Bean("JDBCCacheProvider")
+    CacheProvider jdbcCacheProvider() {
         return new CloudJdbcConfigCacheProvider();
     }
 
-    public @Bean CacheProvider noopCacheProvider() {
+    @Bean
+    CacheProvider noopCacheProvider() {
         return new CacheProvider() {
 
             @SuppressWarnings("rawtypes")
@@ -405,13 +411,14 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
     // <bean id="JDBCConfigXStreamPersisterInitializer"
     // class="org.geoserver.jdbcconfig.internal.JDBCConfigXStreamPersisterInitializer"/>
     @DependsOn("jdbcConfigDataSourceStartupValidator")
-    public @Bean("JDBCConfigXStreamPersisterInitializer") JDBCConfigXStreamPersisterInitializer
-            jdbcConfigXStreamPersisterInitializer() {
+    @Bean("JDBCConfigXStreamPersisterInitializer")
+    JDBCConfigXStreamPersisterInitializer jdbcConfigXStreamPersisterInitializer() {
         return new JDBCConfigXStreamPersisterInitializer();
     }
 
     @ConditionalOnMissingBean(ResourceNotificationDispatcher.class)
-    public @Bean ResourceNotificationDispatcher resourceNotificationDispatcher() {
+    @Bean
+    ResourceNotificationDispatcher resourceNotificationDispatcher() {
         return new SimpleResourceNotificationDispatcher();
     }
 
@@ -422,7 +429,8 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
      *
      * @see DatabaseStartupValidator
      */
-    public @Bean DatabaseStartupValidator jdbcConfigDataSourceStartupValidator() {
+    @Bean
+    DatabaseStartupValidator jdbcConfigDataSourceStartupValidator() {
         DatabaseStartupValidator jdbcConfigDataSourceValidator = new DatabaseStartupValidator();
         jdbcConfigDataSourceValidator.setDataSource(jdbcConfigDataSource());
         return jdbcConfigDataSourceValidator;
@@ -430,7 +438,7 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
 
     @Data
     @EqualsAndHashCode(callSuper = true)
-    public static class ExtendedDataSourceProperties extends DataSourceProperties {
+    static class ExtendedDataSourceProperties extends DataSourceProperties {
         int minimumIdle = 2;
         int maximumPoolSize = 10;
         long connectionTimeout = 250; // ms
@@ -439,13 +447,13 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
 
     @Bean
     @ConfigurationProperties("geoserver.backend.jdbcconfig.datasource")
-    public ExtendedDataSourceProperties jdbcconfigDataSourceProperties() {
+    ExtendedDataSourceProperties jdbcconfigDataSourceProperties() {
         return new ExtendedDataSourceProperties();
     }
 
     @Bean(name = {"jdbcConfigDataSource", "jdbcStoreDataSource"})
     @ConfigurationProperties(prefix = "geoserver.backend.jdbcconfig.datasource")
-    public DataSource jdbcConfigDataSource() {
+    DataSource jdbcConfigDataSource() {
         ExtendedDataSourceProperties props = jdbcconfigDataSourceProperties();
         HikariDataSource dataSource =
                 props.initializeDataSourceBuilder() //
@@ -470,7 +478,7 @@ public class JDBCConfigBackendConfigurer implements GeoServerBackendConfigurer {
 
     @Bean
     @DependsOn("jdbcConfigDataSourceStartupValidator")
-    public DataSourceTransactionManager jdbcConfigTransactionManager(
+    DataSourceTransactionManager jdbcConfigTransactionManager(
             @Qualifier("jdbcConfigDataSource") DataSource dataSource) {
         return new DataSourceTransactionManager(dataSource);
     }

@@ -17,7 +17,8 @@ import org.springframework.context.annotation.Bean;
 @ConditionalOnCatalogEvents
 public class RemoteEventDataDirectoryAutoConfiguration {
 
-    public @Bean RemoteEventDataDirectoryProcessor dataDirectoryRemoteEventProcessor(
+    @Bean
+    RemoteEventDataDirectoryProcessor dataDirectoryRemoteEventProcessor(
             @Qualifier("geoserverFacade") RepositoryGeoServerFacade configFacade,
             @Qualifier("catalogFacade") ExtendedCatalogFacade catalogFacade) {
         return new RemoteEventDataDirectoryProcessor(configFacade, catalogFacade);

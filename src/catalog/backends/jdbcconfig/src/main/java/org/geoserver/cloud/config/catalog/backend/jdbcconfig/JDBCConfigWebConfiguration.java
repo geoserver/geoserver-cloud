@@ -17,7 +17,7 @@ public class JDBCConfigWebConfiguration {
      * geoserver.backend.jdbcconfig.web.enabled} is true, defaulting to true
      */
     @Bean("JDBCConfigStatusProvider")
-    public JDBCConfigStatusProvider jdbcConfigStatusProvider(JDBCConfigProperties config) {
+    JDBCConfigStatusProvider jdbcConfigStatusProvider(JDBCConfigProperties config) {
         return new JDBCConfigStatusProvider(config);
     }
 }

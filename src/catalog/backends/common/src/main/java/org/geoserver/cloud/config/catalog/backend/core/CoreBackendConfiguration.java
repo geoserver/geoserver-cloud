@@ -39,31 +39,35 @@ import org.springframework.context.event.ContextRefreshedEvent;
 @EnableConfigurationProperties(CatalogProperties.class)
 public class CoreBackendConfiguration {
 
-    public @Bean XStreamPersisterFactory xstreamPersisterFactory() {
+    @Bean
+    XStreamPersisterFactory xstreamPersisterFactory() {
         return new XStreamPersisterFactory();
     }
 
     // @Autowired
     // @DependsOn("geoServerLoaderImpl")
-    // public @Bean GeoServerLoaderProxy geoServerLoader(GeoServerResourceLoader resourceLoader)
+    // @Bean GeoServerLoaderProxy geoServerLoader(GeoServerResourceLoader resourceLoader)
     // {
     // return new GeoServerLoaderProxy(resourceLoader);
     // }
 
-    public @Bean GeoServerExtensions extensions() {
+    @Bean
+    GeoServerExtensions extensions() {
         return new GeoServerExtensions();
     }
 
     /** Usually provided by gs-main */
     @ConditionalOnMissingBean
     @DependsOn("extensions")
-    public @Bean GeoServerEnvironment environments() {
+    @Bean
+    GeoServerEnvironment environments() {
         return new GeoServerEnvironment();
     }
 
     @ConditionalOnMissingBean(CatalogPlugin.class)
     @DependsOn({"resourceLoader", "catalogFacade"})
-    public @Bean CatalogPlugin rawCatalog(
+    @Bean
+    CatalogPlugin rawCatalog(
             GeoServerResourceLoader resourceLoader,
             @Qualifier("catalogFacade") ExtendedCatalogFacade catalogFacade,
             CatalogProperties properties) {
@@ -80,8 +84,8 @@ public class CoreBackendConfiguration {
      */
     @DependsOn({"extensions", "dataDirectory", "accessRulesDao"})
     @ConditionalOnGeoServerSecurityEnabled
-    public @Bean Catalog secureCatalog(
-            @Qualifier("rawCatalog") Catalog rawCatalog, CatalogProperties properties)
+    @Bean
+    Catalog secureCatalog(@Qualifier("rawCatalog") Catalog rawCatalog, CatalogProperties properties)
             throws Exception {
         if (properties.isSecure()) return new SecureCatalogImpl(rawCatalog);
         return rawCatalog;
@@ -101,7 +105,8 @@ public class CoreBackendConfiguration {
      */
     @ConditionalOnMissingBean
     @DependsOn("layerGroupContainmentCache")
-    public @Bean DefaultResourceAccessManager defaultResourceAccessManager( //
+    @Bean
+    DefaultResourceAccessManager defaultResourceAccessManager( //
             DataAccessRuleDAO dao, //
             @Qualifier("rawCatalog") Catalog rawCatalog,
             LayerGroupContainmentCache layerGroupContainmentCache) {
@@ -129,14 +134,15 @@ public class CoreBackendConfiguration {
      * <p>
      * Update: as of geoserver 2.23.2, {@code LayerGroupContainmentCache} implements {@code ApplicationListener<ContextRefreshedEvent>}
      */
-    public @Bean LayerGroupContainmentCache layerGroupContainmentCache(
+    @Bean
+    LayerGroupContainmentCache layerGroupContainmentCache(
             @Qualifier("rawCatalog") Catalog rawCatalog) {
         return new LayerGroupContainmentCache(rawCatalog);
     }
 
     @ConditionalOnGeoServerSecurityDisabled
     @Bean(name = {"catalog", "secureCatalog"})
-    public Catalog secureCatalogDisabled(@Qualifier("rawCatalog") Catalog rawCatalog) {
+    Catalog secureCatalogDisabled(@Qualifier("rawCatalog") Catalog rawCatalog) {
         return rawCatalog;
     }
 
@@ -144,7 +150,8 @@ public class CoreBackendConfiguration {
      * @return {@link AdvertisedCatalog} decorator if {@code properties.isAdvertised() == true},
      *     {@code secureCatalog} otherwise.
      */
-    public @Bean Catalog advertisedCatalog(
+    @Bean
+    Catalog advertisedCatalog(
             @Qualifier("secureCatalog") Catalog secureCatalog, CatalogProperties properties)
             throws Exception {
         if (properties.isAdvertised()) {
@@ -160,7 +167,7 @@ public class CoreBackendConfiguration {
      *     true}, {@code advertisedCatalog} otherwise
      */
     @Bean(name = {"catalog", "localWorkspaceCatalog"})
-    public Catalog localWorkspaceCatalog(
+    Catalog localWorkspaceCatalog(
             @Qualifier("advertisedCatalog") Catalog advertisedCatalog, CatalogProperties properties)
             throws Exception {
         return properties.isLocalWorkspace()
@@ -169,7 +176,8 @@ public class CoreBackendConfiguration {
     }
 
     @ConditionalOnMissingBean(GeoServerImpl.class)
-    public @Bean(name = "geoServer") GeoServerImpl geoServer(
+    @Bean(name = "geoServer")
+    GeoServerImpl geoServer(
             @Qualifier("catalog") Catalog catalog,
             @Qualifier("geoserverFacade") GeoServerFacade facade)
             throws Exception {
@@ -179,7 +187,8 @@ public class CoreBackendConfiguration {
     }
 
     @Autowired
-    public @Bean GeoServerDataDirectory dataDirectory(GeoServerResourceLoader resourceLoader) {
+    @Bean
+    GeoServerDataDirectory dataDirectory(GeoServerResourceLoader resourceLoader) {
         return new GeoServerDataDirectory(resourceLoader);
     }
 }

@@ -24,7 +24,8 @@ import org.springframework.context.annotation.Bean;
 @ConditionalOnCatalogEvents
 public class RemoteEventResourcePoolCleaupUpAutoConfiguration {
 
-    public @Bean RemoteEventResourcePoolProcessor remoteEventResourcePoolProcessor(
+    @Bean
+    RemoteEventResourcePoolProcessor remoteEventResourcePoolProcessor(
             @Qualifier("rawCatalog") CatalogPlugin rawCatalog) {
 
         return new RemoteEventResourcePoolProcessor(rawCatalog);

@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Configuration;
 public class RemoteEventJdbcConfigAutoConfiguration {
 
     @Bean
-    public RemoteEventJdbcConfigProcessor jdbcConfigRemoteEventProcessor() {
+    RemoteEventJdbcConfigProcessor jdbcConfigRemoteEventProcessor() {
         return new RemoteEventJdbcConfigProcessor();
     }
 }

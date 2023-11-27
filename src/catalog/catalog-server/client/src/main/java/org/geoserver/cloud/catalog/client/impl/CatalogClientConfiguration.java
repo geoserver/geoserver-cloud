@@ -40,7 +40,8 @@ public class CatalogClientConfiguration {
     private @Autowired ReactiveConfigClient configClient;
     private @Autowired ReactiveResourceStoreClient resourceStoreClient;
 
-    public @Bean CatalogClientCatalogFacade rawCatalogServiceFacade() {
+    @Bean
+    CatalogClientCatalogFacade rawCatalogServiceFacade() {
         RepositoryCatalogFacade rawFacade = new RepositoryCatalogFacadeImpl();
         rawFacade.setWorkspaceRepository(cloudWorkspaceRepository);
         rawFacade.setNamespaceRepository(cloudNamespaceRepository);
@@ -55,22 +56,25 @@ public class CatalogClientConfiguration {
         return facade;
     }
 
-    public @Bean CatalogClientConfigRepository catalogServiceConfigRepository() {
+    @Bean
+    CatalogClientConfigRepository catalogServiceConfigRepository() {
         return new CatalogClientConfigRepository(configClient);
     }
 
-    public @Bean CatalogClientGeoServerFacade catalogServiceGeoServerFacade() {
+    @Bean
+    CatalogClientGeoServerFacade catalogServiceGeoServerFacade() {
         return new CatalogClientGeoServerFacade(catalogServiceConfigRepository());
     }
 
-    public @Bean CatalogClientResourceStore catalogServiceResourceStore() {
+    @Bean
+    CatalogClientResourceStore catalogServiceResourceStore() {
         BlockingResourceStoreClient blockingClient =
                 new BlockingResourceStoreClient(resourceStoreClient);
         return new CatalogClientResourceStore(blockingClient);
     }
 
     // @ConditionalOnProperty(name = "reactive.feign.jetty", havingValue = "true")
-    // public @Bean JettyHttpClientFactory jettyHttpClientFactory() {
+    // @Bean JettyHttpClientFactory jettyHttpClientFactory() {
     // return new JettyHttpClientFactory() {
     //
     // @Override

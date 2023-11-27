@@ -14,7 +14,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -43,9 +42,7 @@ public @Controller class WMSController {
      *   <li>{@code /schemas/wms/1.1.1/WMS_MS_Capabilities.dtd}
      * </ul>
      */
-    @RequestMapping(
-            method = RequestMethod.GET,
-            path = {"/schemas/wms/**"})
+    @GetMapping(path = {"/schemas/wms/**"})
     public void getWmsSchema(HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         classPathPublisher.handleRequest(request, response);
@@ -61,9 +58,7 @@ public @Controller class WMSController {
      *   <li>{@code /openlayers3/**}
      * </ul>
      */
-    @RequestMapping(
-            method = RequestMethod.GET,
-            path = {"/openlayers/**", "/openlayers3/**"})
+    @GetMapping(path = {"/openlayers/**", "/openlayers3/**"})
     public void getStaticResource(HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         classPathPublisher.handleRequest(request, response);

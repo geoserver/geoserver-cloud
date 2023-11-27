@@ -33,6 +33,7 @@ import org.geoserver.jackson.databind.catalog.dto.MetadataMapDto;
 import org.geoserver.jackson.databind.catalog.dto.NumberRangeDto;
 import org.geoserver.jackson.databind.catalog.dto.QueryDto;
 import org.geoserver.jackson.databind.catalog.dto.VirtualTableDto;
+import org.geoserver.jackson.databind.mapper.InfoReferenceMapper;
 import org.geoserver.jackson.databind.mapper.SharedMappers;
 import org.geotools.api.coverage.SampleDimensionType;
 import org.geotools.api.coverage.grid.GridEnvelope;
@@ -53,6 +54,7 @@ import org.geotools.util.SimpleInternationalString;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +66,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-@Mapper(config = CatalogInfoMapperConfig.class)
+@Mapper(
+        componentModel = "default",
+        unmappedTargetPolicy = ReportingPolicy.ERROR,
+        uses = {ObjectFacotries.class, SharedMappers.class, InfoReferenceMapper.class})
 public interface ValueMappers {
 
     org.geotools.util.Converter str2Measure =

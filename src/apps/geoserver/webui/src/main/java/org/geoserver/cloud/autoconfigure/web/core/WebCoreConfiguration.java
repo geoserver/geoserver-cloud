@@ -27,17 +27,19 @@ public class WebCoreConfiguration {
 
     static final String EXCLUDED_BEANS_PATTERN = "^(?!logsPage).*$";
 
-    public @Bean GeoServerWicketServlet geoServerWicketServlet() {
+    @Bean
+    GeoServerWicketServlet geoServerWicketServlet() {
         return new GeoServerWicketServlet();
     }
 
-    public @Bean TestWfsPost testWfsPostServlet() {
+    @Bean
+    TestWfsPost testWfsPostServlet() {
         return new TestWfsPost();
     }
 
     /** Register the {@link WicketServlet} */
-    public @Bean ServletRegistrationBean<GeoServerWicketServlet>
-            geoServerWicketServletRegistration() {
+    @Bean
+    ServletRegistrationBean<GeoServerWicketServlet> geoServerWicketServletRegistration() {
         GeoServerWicketServlet servlet = geoServerWicketServlet();
         ServletRegistrationBean<GeoServerWicketServlet> registration;
         registration =
@@ -47,7 +49,8 @@ public class WebCoreConfiguration {
     }
 
     /** Register the {@link TestWfsPost servlet} */
-    public @Bean ServletRegistrationBean<TestWfsPost> wfsTestServletRegistration() {
+    @Bean
+    ServletRegistrationBean<TestWfsPost> wfsTestServletRegistration() {
         TestWfsPost servlet = testWfsPostServlet();
         ServletRegistrationBean<TestWfsPost> registration;
         registration = new ServletRegistrationBean<TestWfsPost>(servlet, "/TestWfsPost");
@@ -55,7 +58,8 @@ public class WebCoreConfiguration {
         return registration;
     }
 
-    public @Bean HeaderContribution geoserverCloudCssTheme() {
+    @Bean
+    HeaderContribution geoserverCloudCssTheme() {
         HeaderContribution contribution = new HeaderContribution();
         contribution.setScope(GeoServerBasePage.class);
         contribution.setCSSFilename("geoserver-cloud.css");

@@ -27,7 +27,8 @@ import java.util.function.Supplier;
 @RemoteApplicationEventScan(basePackageClasses = {RemoteGeoWebCacheEvent.class})
 public class GeoWebCacheRemoteEventsConfiguration {
 
-    public @Bean GeoWebCacheRemoteEventsBroker tileLayerRemoteEventBroadcaster( //
+    @Bean
+    GeoWebCacheRemoteEventsBroker tileLayerRemoteEventBroadcaster( //
             ApplicationEventPublisher eventPublisher, ServiceMatcher busServiceMatcher) {
 
         Supplier<String> originServiceId = busServiceMatcher::getBusId;

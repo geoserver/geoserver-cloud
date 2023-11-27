@@ -20,11 +20,13 @@ import org.springframework.context.annotation.Configuration;
 @Configuration(proxyBeanMethods = true)
 public class WebUiCloudServicesConfiguration {
 
-    public @Bean ServiceInstanceRegistry cloudServiceRegistry(DiscoveryClient client) {
+    @Bean
+    ServiceInstanceRegistry cloudServiceRegistry(DiscoveryClient client) {
         return new ServiceInstanceRegistry(client);
     }
 
-    public @Bean Category cloudCategory() {
+    @Bean
+    Category cloudCategory() {
         Category category = new Category();
         category.setNameKey("category.cloud");
         category.setOrder(150);
@@ -43,7 +45,8 @@ public class WebUiCloudServicesConfiguration {
     // <property name="authorizer" ref="workspaceAdminAuthorizer"/>
     // </bean>
 
-    public @Bean MenuPageInfo<ServiceRegistryPage> serviceRegistryMenuPage(
+    @Bean
+    MenuPageInfo<ServiceRegistryPage> serviceRegistryMenuPage(
             @Qualifier("aboutStatusCategory") Category aboutStatusCategory) {
         MenuPageInfo<ServiceRegistryPage> menu = new MenuPageInfo<>();
         menu.setId("serviceRegistry");
@@ -57,7 +60,8 @@ public class WebUiCloudServicesConfiguration {
         return menu;
     }
 
-    public @Bean GeoServerCloudHomePageContentProvider geoServerCloudHomePageContentProvider() {
+    @Bean
+    GeoServerCloudHomePageContentProvider geoServerCloudHomePageContentProvider() {
         return new GeoServerCloudHomePageContentProvider();
     }
 }

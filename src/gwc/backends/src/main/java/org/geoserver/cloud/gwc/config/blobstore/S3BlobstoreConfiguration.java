@@ -35,7 +35,7 @@ import org.springframework.context.annotation.Configuration;
 public class S3BlobstoreConfiguration {
 
     @Bean(name = "S3BlobStoreConfigProvider")
-    public S3BlobStoreConfigProvider s3BlobStoreConfigProvider() {
+    S3BlobStoreConfigProvider s3BlobStoreConfigProvider() {
         return new S3BlobStoreConfigProvider();
     }
 }

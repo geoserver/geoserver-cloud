@@ -13,12 +13,12 @@ import org.springframework.context.annotation.Configuration;
 public class AzureBlobstoreGsWebUIConfiguration {
 
     @Bean(name = "AzureBlobStoreType")
-    public AzureBlobStoreType azureBlobStoreType() {
+    AzureBlobStoreType azureBlobStoreType() {
         return new AzureBlobStoreType();
     }
 
     @Bean(name = "GWC-AzureExtension")
-    public ModuleStatusImpl gwcAzureExtension() {
+    ModuleStatusImpl gwcAzureExtension() {
         ModuleStatusImpl module = new ModuleStatusImpl();
         module.setModule("gs-gwc-azure");
         module.setName("GeoWebCache Azure Extension");
