@@ -33,56 +33,66 @@ import org.springframework.context.annotation.Bean;
 public class XstreamServiceLoadersAutoConfiguration {
 
     @ConditionalOnMissingBean(WFSXStreamLoader.class)
-    public @Bean WFSXStreamLoader wfsLoader(GeoServerResourceLoader resourceLoader) {
+    @Bean
+    WFSXStreamLoader wfsLoader(GeoServerResourceLoader resourceLoader) {
         return log(new WFSXStreamLoader(resourceLoader));
     }
 
     @ConditionalOnMissingBean(WFSFactoryExtension.class)
-    public @Bean WFSFactoryExtension wfsFactoryExtension(GeoServerResourceLoader resourceLoader) {
+    @Bean
+    WFSFactoryExtension wfsFactoryExtension(GeoServerResourceLoader resourceLoader) {
         log.info("Automatically contributing {}", WFSFactoryExtension.class.getSimpleName());
         return new WFSFactoryExtension() {}; // constructor is protected!
     }
 
     @ConditionalOnMissingBean(WMSXStreamLoader.class)
-    public @Bean WMSXStreamLoader wmsLoader(GeoServerResourceLoader resourceLoader) {
+    @Bean
+    WMSXStreamLoader wmsLoader(GeoServerResourceLoader resourceLoader) {
         return log(new WMSXStreamLoader(resourceLoader));
     }
 
     @ConditionalOnMissingBean(WMSFactoryExtension.class)
-    public @Bean WMSFactoryExtension wmsFactoryExtension() {
+    @Bean
+    WMSFactoryExtension wmsFactoryExtension() {
         log.info("Automatically contributing {}", WMSFactoryExtension.class.getSimpleName());
         return new WMSFactoryExtension();
     }
 
     @ConditionalOnMissingBean(WCSXStreamLoader.class)
-    public @Bean WCSXStreamLoader wcsLoader(GeoServerResourceLoader resourceLoader) {
+    @Bean
+    WCSXStreamLoader wcsLoader(GeoServerResourceLoader resourceLoader) {
         return log(new WCSXStreamLoader(resourceLoader));
     }
 
     @ConditionalOnMissingBean(WCSFactoryExtension.class)
-    public @Bean WCSFactoryExtension wcsFactoryExtension() {
+    @Bean
+    WCSFactoryExtension wcsFactoryExtension() {
         log.info("Automatically contributing {}", WCSFactoryExtension.class.getSimpleName());
         return new WCSFactoryExtension();
     }
 
     @ConditionalOnMissingBean(WMTSXStreamLoader.class)
-    public @Bean WMTSXStreamLoader wmtsLoader(GeoServerResourceLoader resourceLoader) {
+    @Bean
+    WMTSXStreamLoader wmtsLoader(GeoServerResourceLoader resourceLoader) {
         return log(new WMTSXStreamLoader(resourceLoader));
     }
 
     @ConditionalOnMissingBean(WMTSFactoryExtension.class)
-    public @Bean WMTSFactoryExtension wmtsFactoryExtension() {
+    @Bean
+    WMTSFactoryExtension wmtsFactoryExtension() {
         log.info("Automatically contributing {}", WMTSFactoryExtension.class.getSimpleName());
         return new WMTSFactoryExtension() {}; // constructor is protected!
     }
 
     @ConditionalOnMissingBean(WPSXStreamLoader.class)
-    public @Bean WPSXStreamLoader wpsServiceLoader(GeoServerResourceLoader resourceLoader) {
+    @Bean
+    WPSXStreamLoader wpsServiceLoader(GeoServerResourceLoader resourceLoader) {
         return log(new WPSXStreamLoader(resourceLoader));
     }
 
     @ConditionalOnMissingBean(WPSFactoryExtension.class)
-    public @Bean WPSFactoryExtension WPSFactoryExtension() {
+    @Bean
+    WPSFactoryExtension WPSFactoryExtension() {
         log.info("Automatically contributing {}", WPSFactoryExtension.class.getSimpleName());
         return new WPSFactoryExtension() {}; // constructor is protected!
     }

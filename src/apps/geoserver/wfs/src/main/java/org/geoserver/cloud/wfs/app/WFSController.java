@@ -14,7 +14,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -35,7 +34,7 @@ public class WFSController {
     }
 
     /** Serve only WFS schemas from classpath (e.g. {@code /schemas/wfs/2.0/wfs.xsd}) */
-    @RequestMapping(method = RequestMethod.GET, path = "/schemas/wfs/**")
+    @GetMapping(path = "/schemas/wfs/**")
     public void getSchema(HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         classPathPublisher.handleRequest(request, response);

@@ -69,21 +69,24 @@ public class WmsApplicationAutoConfiguration {
      *     workspace and secured catalog decorators
      */
     @Bean
-    public LegendSample legendSample(
+    LegendSample legendSample(
             @Qualifier("rawCatalog") Catalog catalog, GeoServerResourceLoader loader) {
         return new LegendSampleImpl(catalog, loader);
     }
 
-    public @Bean WFSConfiguration wfsConfiguration(GeoServer geoServer) {
+    @Bean
+    WFSConfiguration wfsConfiguration(GeoServer geoServer) {
         FeatureTypeSchemaBuilder schemaBuilder = new FeatureTypeSchemaBuilder.GML3(geoServer);
         return new WFSConfiguration(geoServer, schemaBuilder, new WFS(schemaBuilder));
     }
 
-    public @Bean WMSController webMapServiceController() {
+    @Bean
+    WMSController webMapServiceController() {
         return new WMSController();
     }
 
-    public @Bean VirtualServiceVerifier virtualServiceVerifier() {
+    @Bean
+    VirtualServiceVerifier virtualServiceVerifier() {
         return new VirtualServiceVerifier();
     }
 
@@ -92,7 +95,8 @@ public class WmsApplicationAutoConfiguration {
             name = "reflector.enabled",
             havingValue = "true",
             matchIfMissing = true)
-    public @Bean GetMapReflectorController getMapReflectorController() {
+    @Bean
+    GetMapReflectorController getMapReflectorController() {
         return new GetMapReflectorController();
     }
 }

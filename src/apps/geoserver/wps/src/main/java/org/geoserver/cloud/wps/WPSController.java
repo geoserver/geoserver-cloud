@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -30,7 +29,7 @@ public @Controller class WPSController {
     }
 
     /** Serve only WPS schemas from classpath (e.g. {@code /schemas/wps/1.0.0/wpsAll.xsd}) */
-    @RequestMapping(method = RequestMethod.GET, path = "/schemas/wps/**")
+    @GetMapping(path = "/schemas/wps/**")
     public void getSchema(HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         classPathPublisher.handleRequest(request, response);

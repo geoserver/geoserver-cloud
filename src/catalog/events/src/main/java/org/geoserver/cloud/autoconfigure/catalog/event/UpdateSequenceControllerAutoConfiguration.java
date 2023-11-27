@@ -20,7 +20,8 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 @EnableGlobalMethodSecurity(jsr250Enabled = true)
 public class UpdateSequenceControllerAutoConfiguration {
 
-    public @Bean UpdateSequenceController updateSequenceController( //
+    @Bean
+    UpdateSequenceController updateSequenceController( //
             UpdateSequence updateSequence, //
             ApplicationEventPublisher eventPublisher, //
             GeoServer geoServer //

@@ -44,7 +44,7 @@ public class GeoWebCacheApplicationConfiguration extends RestConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean
-    public LegendSample legendSample(
+    LegendSample legendSample(
             @Qualifier("rawCatalog") Catalog catalog, GeoServerResourceLoader loader) {
         return new LegendSampleImpl(catalog, loader);
     }

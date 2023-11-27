@@ -30,12 +30,14 @@ import org.springframework.context.annotation.Bean;
 public class GeoServerJacksonBindingsAutoConfiguration {
 
     @ConditionalOnMissingBean(GeoServerCatalogModule.class)
-    public @Bean GeoServerCatalogModule geoServerCatalogJacksonModule() {
+    @Bean
+    GeoServerCatalogModule geoServerCatalogJacksonModule() {
         return new GeoServerCatalogModule();
     }
 
     @ConditionalOnMissingBean(GeoServerConfigModule.class)
-    public @Bean GeoServerConfigModule geoServerConfigJacksonModule() {
+    @Bean
+    GeoServerConfigModule geoServerConfigJacksonModule() {
         return new GeoServerConfigModule();
     }
 }

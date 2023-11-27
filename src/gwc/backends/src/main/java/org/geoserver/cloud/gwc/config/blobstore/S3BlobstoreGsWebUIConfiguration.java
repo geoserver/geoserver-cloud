@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 public class S3BlobstoreGsWebUIConfiguration {
 
     @Bean(name = "GWC-S3Extension")
-    public ModuleStatusImpl gwcS3Extension() {
+    ModuleStatusImpl gwcS3Extension() {
         ModuleStatusImpl module = new ModuleStatusImpl();
         module.setModule("gs-gwc-s3");
         module.setName("GeoWebCache S3 Extension");
@@ -24,7 +24,7 @@ public class S3BlobstoreGsWebUIConfiguration {
     }
 
     @Bean(name = "S3BlobStoreType")
-    public S3BlobStoreType s3BlobStoreType() {
+    S3BlobStoreType s3BlobStoreType() {
         return new S3BlobStoreType();
     }
 }

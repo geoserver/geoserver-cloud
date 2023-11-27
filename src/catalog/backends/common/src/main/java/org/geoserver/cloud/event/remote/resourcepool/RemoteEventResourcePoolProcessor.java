@@ -20,7 +20,6 @@ import org.geoserver.cloud.event.catalog.CatalogInfoModified;
 import org.geoserver.cloud.event.catalog.CatalogInfoRemoved;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoEvent;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 
 import java.util.Optional;
@@ -40,7 +39,7 @@ public class RemoteEventResourcePoolProcessor {
      * @param rawCatalog used to evict cached live data sources from its {@link
      *     Catalog#getResourcePool() ResourcePool}
      */
-    public @Autowired RemoteEventResourcePoolProcessor(Catalog rawCatalog) {
+    public RemoteEventResourcePoolProcessor(Catalog rawCatalog) {
         this.rawCatalog = rawCatalog;
     }
 

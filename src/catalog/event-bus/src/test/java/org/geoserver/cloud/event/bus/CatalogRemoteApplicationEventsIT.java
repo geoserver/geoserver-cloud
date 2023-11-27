@@ -374,6 +374,7 @@ public class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
                         catalog::save);
 
         Property atts = patch.get("attributes").orElseThrow();
+        @SuppressWarnings("unchecked")
         List<AttributeTypeInfo> decodedAtts = (List<AttributeTypeInfo>) atts.getValue();
         assertEquals(attributes.size(), decodedAtts.size());
         IntStream.range(0, attributes.size())

@@ -43,7 +43,8 @@ public class WebMapServiceCacheSeedingConfiguration {
      * before the catalog is initialized, making {@link GetMapKvpRequestReader} constructor throw a
      * NPE.
      */
-    public @Bean WmsGetMapSeedingAspect gwcSeedingGetMapAdvise() {
+    @Bean
+    WmsGetMapSeedingAspect gwcSeedingGetMapAdvise() {
         return new WmsGetMapSeedingAspect();
     }
 

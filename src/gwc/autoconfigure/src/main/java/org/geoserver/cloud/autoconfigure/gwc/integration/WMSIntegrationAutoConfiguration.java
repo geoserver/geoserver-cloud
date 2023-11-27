@@ -78,8 +78,8 @@ public class WMSIntegrationAutoConfiguration {
          * @param gwc
          */
         @ConditionalOnBean(name = {"wmsServiceTarget", "wms_1_1_1_GetCapabilitiesResponse"})
-        public @Bean CachingExtendedCapabilitiesProvider gwcWMSExtendedCapabilitiesProvider(
-                GWC gwc) {
+        @Bean
+        CachingExtendedCapabilitiesProvider gwcWMSExtendedCapabilitiesProvider(GWC gwc) {
             log.info("GeoWebCache direct WMS integration enabled");
             return new CachingExtendedCapabilitiesProvider(gwc);
         }
@@ -97,7 +97,8 @@ public class WMSIntegrationAutoConfiguration {
          * @param gwc
          */
         @ConditionalOnBean(name = {"wmsServiceTarget", "wms_1_1_1_GetCapabilitiesResponse"})
-        public @Bean ForwardGetMapToGwcAspect gwcGetMapAdvise(GWC gwc) {
+        @Bean
+        ForwardGetMapToGwcAspect gwcGetMapAdvise(GWC gwc) {
             return new ForwardGetMapToGwcAspect(gwc);
         }
     }
@@ -117,7 +118,8 @@ public class WMSIntegrationAutoConfiguration {
         @ConditionalOnGeoServerWebUIEnabled
         static @Configuration class GeoServerWebUI {
 
-            public @Bean HeaderContribution GWCSettingsPage_WMSIntegationDisabledCssContribution() {
+            @Bean
+            HeaderContribution GWCSettingsPage_WMSIntegationDisabledCssContribution() {
                 log.info("GeoWebCache direct WMS integration disabled in GWCSettingsPage");
                 HeaderContribution contribution = new HeaderContribution();
                 contribution.setScope(GWCSettingsPage.class);

@@ -162,7 +162,8 @@ public class GeoWebCacheCoreConfiguration {
      * With one that resolves the default {@literal geowebcache.xml} file from {@link
      * #gwcDefaultConfigDirectory}
      */
-    public @Bean ConfigurationResourceProvider gwcXmlConfigResourceProvider(
+    @Bean
+    ConfigurationResourceProvider gwcXmlConfigResourceProvider(
             GeoWebCacheConfigurationProperties config,
             @Qualifier("resourceStoreImpl") ResourceStore resourceStore)
             throws ConfigurationException {
@@ -189,7 +190,7 @@ public class GeoWebCacheCoreConfiguration {
      * @param inFac
      */
     @Bean(name = "gwcXmlConfig")
-    public XMLConfiguration gwcXmlConfig( //
+    XMLConfiguration gwcXmlConfig( //
             ApplicationContextProvider appCtx, //
             @Qualifier("gwcXmlConfigResourceProvider") ConfigurationResourceProvider inFac) {
         return new CloudGwcXmlConfiguration(appCtx, inFac);
@@ -204,7 +205,8 @@ public class GeoWebCacheCoreConfiguration {
      * @param defaultCacheDirectory
      * @param environment
      */
-    public @Bean DefaultStorageFinder gwcDefaultStorageFinder(
+    @Bean
+    DefaultStorageFinder gwcDefaultStorageFinder(
             @Qualifier("gwcDefaultCacheDirectory") Path defaultCacheDirectory,
             Environment environment) {
         return new CloudDefaultStorageFinder(defaultCacheDirectory, environment);

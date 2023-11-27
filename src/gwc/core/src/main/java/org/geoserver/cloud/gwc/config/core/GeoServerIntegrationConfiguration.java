@@ -61,12 +61,13 @@ public class GeoServerIntegrationConfiguration {
 
     @Primary
     @Bean(name = "GeoSeverTileLayerCatalog")
-    public TileLayerCatalog cachingTileLayerCatalog(ResourceStoreTileLayerCatalog delegate) {
+    TileLayerCatalog cachingTileLayerCatalog(ResourceStoreTileLayerCatalog delegate) {
         CacheManager cacheManager = new CaffeineCacheManager();
         return new CachingTileLayerCatalog(cacheManager, delegate);
     }
 
-    public @Bean ResourceStoreTileLayerCatalog resourceStoreTileLayerCatalog(
+    @Bean
+    ResourceStoreTileLayerCatalog resourceStoreTileLayerCatalog(
             @Qualifier("resourceStoreImpl") ResourceStore resourceStore) {
         return new ResourceStoreTileLayerCatalog(resourceStore);
     }

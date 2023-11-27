@@ -20,11 +20,13 @@ import org.springframework.context.annotation.Bean;
 @SpringBootConfiguration
 public class TestConfigurationAutoConfiguration {
 
-    public @Bean UpdateSequence testUpdateSequence(GeoServer gs) {
+    @Bean
+    UpdateSequence testUpdateSequence(GeoServer gs) {
         return new DefaultUpdateSequence(gs);
     }
 
-    public @Bean XStreamPersisterFactory xStreamPersisterFactory() {
+    @Bean
+    XStreamPersisterFactory xStreamPersisterFactory() {
         return new XStreamPersisterFactory();
     }
 
@@ -33,7 +35,8 @@ public class TestConfigurationAutoConfiguration {
         return new CatalogPlugin(false);
     }
 
-    public @Bean GeoServer geoServer(@Qualifier("catalog") Catalog catalog) {
+    @Bean
+    GeoServer geoServer(@Qualifier("catalog") Catalog catalog) {
         GeoServerImpl gs = new org.geoserver.config.plugin.GeoServerImpl();
         gs.setCatalog(catalog);
         return gs;

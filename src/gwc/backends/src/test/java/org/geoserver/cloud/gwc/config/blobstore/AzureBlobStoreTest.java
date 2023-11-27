@@ -9,7 +9,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.apache.commons.io.IOUtils;
 import org.geowebcache.GeoWebCacheEnvironment;
 import org.geowebcache.GeoWebCacheExtensions;
 import org.geowebcache.azure.AzureBlobStore;
@@ -106,14 +105,16 @@ public class AzureBlobStoreTest {
                         layerName, xyz, gridSetId, format, parameters, blob);
         store.put(tile);
 
+        @SuppressWarnings("unused")
         TileObject query =
                 TileObject.createQueryTileObject(layerName, xyz, gridSetId, format, parameters);
 
         // can't really test get, see https://github.com/Azure/Azurite/issues/217
-        if (true) return;
+        /*
         assertThat(store.get(query)).isTrue();
         assertThat(query.getBlob()).isNotNull();
         byte[] readContents = IOUtils.toByteArray(query.getBlob().getInputStream());
         assertThat(readContents).isEqualTo(contents);
+        */
     }
 }

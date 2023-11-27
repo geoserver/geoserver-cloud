@@ -14,7 +14,6 @@ import org.geoserver.platform.resource.ResourceStore;
 import org.geoserver.platform.resource.ResourceStoreFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Bean;
 
 /**
  * Unified provider interface for the complete GeoServer backend storage (catalog and config).
@@ -34,31 +33,24 @@ import org.springframework.context.annotation.Bean;
  * ConditionalOnProperty @ConditionalOnProperty}, {@link ConditionalOnClass @ConditionalOnClass},
  * etc.
  */
-public interface GeoServerBackendConfigurer {
+public abstract class GeoServerBackendConfigurer {
 
-    @Bean
-    GeoServerConfigurationLock configurationLock();
+    protected abstract GeoServerConfigurationLock configurationLock();
 
-    @Bean
-    UpdateSequence updateSequence();
+    protected abstract UpdateSequence updateSequence();
 
-    @Bean
-    ExtendedCatalogFacade catalogFacade();
+    protected abstract ExtendedCatalogFacade catalogFacade();
 
-    @Bean
-    GeoServerLoader geoServerLoaderImpl();
+    protected abstract GeoServerLoader geoServerLoaderImpl();
 
-    @Bean
-    GeoServerFacade geoserverFacade();
+    protected abstract GeoServerFacade geoserverFacade();
 
     /**
      * {@link ResourceStore} named {@code resourceStoreImpl}, as looked up in the application
      * context by {@link ResourceStoreFactory}. With this, we don't need a bean called
      * "dataDirectoryResourceStore" at all.
      */
-    @Bean
-    ResourceStore resourceStoreImpl();
+    protected abstract ResourceStore resourceStoreImpl();
 
-    @Bean
-    GeoServerResourceLoader resourceLoader();
+    protected abstract GeoServerResourceLoader resourceLoader();
 }

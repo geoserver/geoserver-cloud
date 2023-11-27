@@ -9,8 +9,7 @@ import org.geoserver.wms.icons.IconService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
@@ -42,7 +41,7 @@ public @Controller class KMLIconsController {
 
     private @Autowired @Qualifier("kmlIconService") IconService kmlIconService;
 
-    @RequestMapping(method = RequestMethod.GET, path = "/kml/icon/**")
+    @GetMapping(path = "/kml/icon/**")
     public void getKmlIcon(HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         kmlIconService.handleRequest(adaptRequest(request), response);

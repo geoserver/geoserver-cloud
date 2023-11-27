@@ -28,13 +28,14 @@ import org.springframework.context.annotation.Configuration;
 public class GeoServerMainModuleConfiguration {
 
     // TODO: revisit, provide an appropriate notification dispatcher in for the event bus
-    public @Bean org.geoserver.platform.resource.ResourceNotificationDispatcher
+    @Bean
+    org.geoserver.platform.resource.ResourceNotificationDispatcher
             resourceNotificationDispatcher() {
         return new SimpleResourceNotificationDispatcher();
     }
 
-    public @Bean CatalogTimeStampUpdater catalogTimeStampUpdater(
-            @Qualifier("catalog") Catalog catalog) {
+    @Bean
+    CatalogTimeStampUpdater catalogTimeStampUpdater(@Qualifier("catalog") Catalog catalog) {
         return new CatalogTimeStampUpdater(catalog);
     }
 
@@ -42,11 +43,13 @@ public class GeoServerMainModuleConfiguration {
     // <bean id="sldPackageHandler" class="org.geoserver.catalog.SLDPackageHandler">
     // <constructor-arg ref="sldHandler"/>
     // </bean>
-    public @Bean SLDHandler sldHandler() {
+    @Bean
+    SLDHandler sldHandler() {
         return new SLDHandler();
     }
 
-    public @Bean SLDPackageHandler sldPackageHandler() {
+    @Bean
+    SLDPackageHandler sldPackageHandler() {
         return new SLDPackageHandlerHack(sldHandler());
     }
 

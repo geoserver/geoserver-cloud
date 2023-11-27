@@ -28,7 +28,8 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnCatalogEvents
 public class RemoteEventCacheAutoConfiguration {
 
-    public @Bean RemoteEventCacheEvictor remoteEventCacheEvictor(
+    @Bean
+    RemoteEventCacheEvictor remoteEventCacheEvictor(
             CachingCatalogFacade cachingCatalogFacade,
             CachingGeoServerFacade cachingGeoServerFacade) {
 

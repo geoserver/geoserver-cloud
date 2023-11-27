@@ -19,7 +19,8 @@ import java.util.List;
 @Configuration
 public class ReactiveFeignConfigurationOverrides {
 
-    public @Bean Contract reactiveFeignClientContract() {
+    @Bean
+    Contract reactiveFeignClientContract() {
         return new FallbackContract(new SpringMvcContract(), new Contract.Default());
     }
 

@@ -31,15 +31,18 @@ import org.springframework.context.annotation.Bean;
 public class GeoToolsJacksonBindingsAutoConfiguration {
 
     @ConditionalOnMissingBean(JavaTimeModule.class)
-    public @Bean JavaTimeModule javaTimeModule() {
+    @Bean
+    JavaTimeModule javaTimeModule() {
         return new JavaTimeModule();
     }
 
-    public @Bean GeoToolsGeoJsonModule geoToolsGeoJsonModule() {
+    @Bean
+    GeoToolsGeoJsonModule geoToolsGeoJsonModule() {
         return new GeoToolsGeoJsonModule();
     }
 
-    public @Bean GeoToolsFilterModule geoToolsFilterModule() {
+    @Bean
+    GeoToolsFilterModule geoToolsFilterModule() {
         return new GeoToolsFilterModule();
     }
 }

@@ -4,8 +4,6 @@
  */
 package org.geoserver.cloud.config.catalog.backend.pgsql;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
@@ -42,9 +40,8 @@ import javax.sql.DataSource;
 /**
  * @since 1.4
  */
-@Slf4j
 @Configuration(proxyBeanMethods = true)
-public class PgsqlBackendConfiguration implements GeoServerBackendConfigurer {
+public class PgsqlBackendConfiguration extends GeoServerBackendConfigurer {
 
     private String instanceId;
     private DataSource dataSource;
@@ -80,28 +77,20 @@ public class PgsqlBackendConfiguration implements GeoServerBackendConfigurer {
         return template;
     }
 
-    @Bean
-    @Override
-    public GeoServerConfigurationLock configurationLock() {
+    protected @Bean @Override GeoServerConfigurationLock configurationLock() {
         LockProvider lockProvider = pgsqlLockProvider();
         return new LockProviderGeoServerConfigurationLock(lockProvider);
     }
 
-    @Bean
-    @Override
-    public PgsqlUpdateSequence updateSequence() {
+    protected @Bean @Override PgsqlUpdateSequence updateSequence() {
         return new PgsqlUpdateSequence(dataSource, geoserverFacade());
     }
 
-    @Bean
-    @Override
-    public PgsqlCatalogFacade catalogFacade() {
+    protected @Bean @Override PgsqlCatalogFacade catalogFacade() {
         return new PgsqlCatalogFacade(template());
     }
 
-    @Bean
-    @Override
-    public GeoServerLoader geoServerLoaderImpl() {
+    protected @Bean @Override GeoServerLoader geoServerLoaderImpl() {
         return new PgsqlGeoServerLoader(resourceLoader(), configurationLock());
     }
 
@@ -110,15 +99,11 @@ public class PgsqlBackendConfiguration implements GeoServerBackendConfigurer {
         return new PgsqlConfigRepository(template());
     }
 
-    @Bean
-    @Override
-    public PgsqlGeoServerFacade geoserverFacade() {
+    protected @Bean @Override PgsqlGeoServerFacade geoserverFacade() {
         return new PgsqlGeoServerFacade(configRepository());
     }
 
-    @Bean
-    @Override
-    public ResourceStore resourceStoreImpl() {
+    protected @Bean @Override ResourceStore resourceStoreImpl() {
         FileSystemResourceStoreCache resourceStoreCache = pgsqlFileSystemResourceStoreCache();
         JdbcTemplate template = template();
         PgsqlLockProvider lockProvider = pgsqlLockProvider();
@@ -130,9 +115,7 @@ public class PgsqlBackendConfiguration implements GeoServerBackendConfigurer {
         return FileSystemResourceStoreCache.newTempDirInstance();
     }
 
-    @Bean
-    @Override
-    public PgsqlGeoServerResourceLoader resourceLoader() {
+    protected @Bean @Override PgsqlGeoServerResourceLoader resourceLoader() {
         return new PgsqlGeoServerResourceLoader(resourceStoreImpl());
     }
 

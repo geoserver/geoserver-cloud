@@ -33,7 +33,7 @@ import java.io.File;
 @EnableConfigurationProperties(CatalogClientProperties.class)
 @Import(CatalogClientConfiguration.class)
 @Slf4j(topic = "org.geoserver.cloud.config.catalogclient")
-public class CatalogClientBackendConfigurer implements GeoServerBackendConfigurer {
+public class CatalogClientBackendConfigurer extends GeoServerBackendConfigurer {
 
     private @Autowired CatalogClientCatalogFacade catalogClientFacade;
     private @Autowired CatalogClientGeoServerFacade configClientFacade;
@@ -47,26 +47,24 @@ public class CatalogClientBackendConfigurer implements GeoServerBackendConfigure
                 CatalogClientBackendConfigurer.class.getSimpleName());
     }
 
-    @Bean
-    public @Override UpdateSequence updateSequence() {
+    protected @Bean @Override UpdateSequence updateSequence() {
         throw new UnsupportedOperationException("implement");
     }
 
-    @Bean
-    public @Override GeoServerConfigurationLock configurationLock() {
+    protected @Bean @Override GeoServerConfigurationLock configurationLock() {
         throw new UnsupportedOperationException("implement");
     }
 
-    public @Override @Bean ExtendedCatalogFacade catalogFacade() {
+    protected @Bean @Override ExtendedCatalogFacade catalogFacade() {
         return catalogClientFacade;
     }
 
-    public @Override @Bean GeoServerFacade geoserverFacade() {
+    protected @Bean @Override GeoServerFacade geoserverFacade() {
         return configClientFacade;
     }
 
     @Bean(name = {"resourceStoreImpl"})
-    public @Override CatalogClientResourceStore resourceStoreImpl() {
+    protected @Override CatalogClientResourceStore resourceStoreImpl() {
         CatalogClientResourceStore store = catalogServiceResourceStore;
         File cacheDirectory = catalogClientConfig.getCacheDirectory();
         if (null != cacheDirectory) {
@@ -83,11 +81,11 @@ public class CatalogClientBackendConfigurer implements GeoServerBackendConfigure
         "wpsServiceLoader",
         "wmtsLoader"
     })
-    public @Override @Bean GeoServerLoader geoServerLoaderImpl() {
+    protected @Bean @Override GeoServerLoader geoServerLoaderImpl() {
         return new CatalogClientGeoServerLoader(resourceLoader());
     }
 
-    public @Override @Bean GeoServerResourceLoader resourceLoader() {
+    protected @Bean @Override GeoServerResourceLoader resourceLoader() {
         CatalogClientResourceStore resourceStore = resourceStoreImpl();
         GeoServerResourceLoader resourceLoader = new GeoServerResourceLoader(resourceStore);
         File cacheDirectory = catalogClientConfig.getCacheDirectory();
@@ -97,8 +95,8 @@ public class CatalogClientBackendConfigurer implements GeoServerBackendConfigure
         return resourceLoader;
     }
 
-    public @Bean ResourceStore catalogServiceFallbackResourceStore(
-            @Autowired Environment springEnv) {
+    @Bean
+    ResourceStore catalogServiceFallbackResourceStore(@Autowired Environment springEnv) {
         File dir =
                 springEnv.getProperty(
                         "geoserver.backend.catalog-service.fallback-resource-directory",

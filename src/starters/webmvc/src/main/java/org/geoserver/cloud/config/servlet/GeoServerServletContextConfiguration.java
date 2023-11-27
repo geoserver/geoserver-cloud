@@ -28,12 +28,14 @@ public class GeoServerServletContextConfiguration {
     private static final int THREAD_LOCALS_CLEANUP_FILTER_ORDER = 5;
 
     // Listeners
-    public @Bean GeoServerServletInitializer contextLoaderListener() {
+    @Bean
+    GeoServerServletInitializer contextLoaderListener() {
         return new GeoServerServletInitializer();
     }
 
     @ConditionalOnMissingBean(RequestContextListener.class)
-    public @Bean RequestContextListener requestContextListener() {
+    @Bean
+    RequestContextListener requestContextListener() {
         return new RequestContextListener();
     }
 
@@ -48,7 +50,8 @@ public class GeoServerServletContextConfiguration {
             name = "enabled",
             havingValue = "true",
             matchIfMissing = true)
-    public @Bean FlushSafeFilter flushSafeFilter() {
+    @Bean
+    FlushSafeFilter flushSafeFilter() {
         return new FlushSafeFilter();
     }
 
@@ -57,7 +60,8 @@ public class GeoServerServletContextConfiguration {
             name = "enabled",
             havingValue = "true",
             matchIfMissing = true)
-    public @Bean FilterRegistrationBean<FlushSafeFilter> flushSafeFilterReg() {
+    @Bean
+    FilterRegistrationBean<FlushSafeFilter> flushSafeFilterReg() {
         return newRegistration(flushSafeFilter(), FLUSH_SAFE_FILTER_ORDER);
     }
 
@@ -66,7 +70,8 @@ public class GeoServerServletContextConfiguration {
             name = "enabled",
             havingValue = "true",
             matchIfMissing = true)
-    public @Bean SessionDebugFilter sessionDebugFilter() {
+    @Bean
+    SessionDebugFilter sessionDebugFilter() {
         return new SessionDebugFilter();
     }
 
@@ -75,7 +80,8 @@ public class GeoServerServletContextConfiguration {
             name = "enabled",
             havingValue = "true",
             matchIfMissing = true)
-    public @Bean FilterRegistrationBean<SessionDebugFilter> sessionDebugFilterFilterReg() {
+    @Bean
+    FilterRegistrationBean<SessionDebugFilter> sessionDebugFilterFilterReg() {
         return newRegistration(sessionDebugFilter(), SESSION_DEBUG_FILTER_ORDER);
     }
 
@@ -89,11 +95,13 @@ public class GeoServerServletContextConfiguration {
      * properly, instead of getting {@code null} from {@code
      * HttpServletRequest.request.getPathInfo()}
      */
-    public @Bean AdvancedDispatchFilter advancedDispatchFilter() {
+    @Bean
+    AdvancedDispatchFilter advancedDispatchFilter() {
         return new AdvancedDispatchFilter();
     }
 
-    public @Bean FilterRegistrationBean<AdvancedDispatchFilter> advancedDispatchFilterReg() {
+    @Bean
+    FilterRegistrationBean<AdvancedDispatchFilter> advancedDispatchFilterReg() {
         return newRegistration(advancedDispatchFilter(), ADVANCED_DISPATCH_FILTER_ORDER);
     }
 
@@ -102,20 +110,24 @@ public class GeoServerServletContextConfiguration {
      * to note is that for such filters init() is not called. INstead any initialization is
      * performed via spring ioc.
      */
-    public @Bean SpringDelegatingFilter springDelegatingFilter() {
+    @Bean
+    SpringDelegatingFilter springDelegatingFilter() {
         return new SpringDelegatingFilter();
     }
 
-    public @Bean FilterRegistrationBean<SpringDelegatingFilter> springDelegatingFilterReg() {
+    @Bean
+    FilterRegistrationBean<SpringDelegatingFilter> springDelegatingFilterReg() {
         return newRegistration(springDelegatingFilter(), SPRING_DELEGATING_FILTER_ORDER);
     }
 
     /** Cleans up thread locals GeoTools is setting up for concurrency and performance reasons */
-    public @Bean ThreadLocalsCleanupFilter threadLocalsCleanupFilter() {
+    @Bean
+    ThreadLocalsCleanupFilter threadLocalsCleanupFilter() {
         return new ThreadLocalsCleanupFilter();
     }
 
-    public @Bean FilterRegistrationBean<ThreadLocalsCleanupFilter> threadLocalsCleanupFilterReg() {
+    @Bean
+    FilterRegistrationBean<ThreadLocalsCleanupFilter> threadLocalsCleanupFilterReg() {
         return newRegistration(threadLocalsCleanupFilter(), THREAD_LOCALS_CLEANUP_FILTER_ORDER);
     }
 

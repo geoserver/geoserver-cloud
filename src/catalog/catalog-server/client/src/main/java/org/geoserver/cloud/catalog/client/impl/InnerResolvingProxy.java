@@ -114,7 +114,7 @@ public class InnerResolvingProxy {
     }
 
     @SuppressWarnings("unchecked")
-    private Set<Object> newSet(Class<? extends Set> class1) {
+    private Set<Object> newSet(@SuppressWarnings("rawtypes") Class<? extends Set> class1) {
         try {
             return class1.getConstructor().newInstance();
         } catch (Exception e) {

@@ -27,7 +27,8 @@ public class CatalogServerConfiguration implements WebFluxConfigurer {
     // private @Autowired ObjectMapper objectMapper;
 
     @ConfigurationProperties(prefix = "geoserver.catalog-service")
-    public @Bean CatalogServerConfigProperties applicationConfig() {
+    @Bean
+    CatalogServerConfigProperties applicationConfig() {
         return new CatalogServerConfigProperties();
     }
 
@@ -35,7 +36,8 @@ public class CatalogServerConfiguration implements WebFluxConfigurer {
      * Configures the reactive Scheduler thread pool on which {@link ReactiveCatalogService}
      * performs the blocking catalog calls
      */
-    public @Bean Scheduler catalogScheduler() {
+    @Bean
+    Scheduler catalogScheduler() {
         CatalogServerConfigProperties config = applicationConfig();
         SchedulerConfig schedulerConfig = config.getIoThreads();
         int maxThreads = schedulerConfig.getMaxSize();
@@ -61,7 +63,7 @@ public class CatalogServerConfiguration implements WebFluxConfigurer {
      * {"WorkspaceInfo" : {...}}
      * </code>
      */
-    // public @Bean ObjectMapper objectMapper() {
+    // @Bean ObjectMapper objectMapper() {
     // ObjectMapper objectMapper = new ObjectMapper();
     // objectMapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
     // objectMapper.configure(DeserializationFeature.UNWRAP_ROOT_VALUE, false);

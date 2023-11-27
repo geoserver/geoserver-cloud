@@ -14,7 +14,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -34,7 +33,7 @@ public @Controller class WCSController {
     }
 
     /** Serve only WCS schemas from classpath (e.g. {@code /schemas/wcs/1.1.1/wcsAll.xsd}) */
-    @RequestMapping(method = RequestMethod.GET, path = "/schemas/wcs/**")
+    @GetMapping(path = "/schemas/wcs/**")
     public void getSchema(HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         classPathPublisher.handleRequest(request, response);

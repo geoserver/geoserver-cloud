@@ -13,35 +13,43 @@ import org.springframework.context.annotation.Import;
 @Import(ReactiveCatalogApiClientConfiguration.class)
 public class CatalogClientRepositoryConfiguration {
 
-    public @Bean CatalogClientWorkspaceRepository cloudWorkspaceRepository() {
+    @Bean
+    CatalogClientWorkspaceRepository cloudWorkspaceRepository() {
         return new CatalogClientWorkspaceRepository();
     }
 
-    public @Bean CatalogClientNamespaceRepository cloudNamespaceRepository() {
+    @Bean
+    CatalogClientNamespaceRepository cloudNamespaceRepository() {
         return new CatalogClientNamespaceRepository();
     }
 
-    public @Bean CatalogClientStoreRepository cloudStoreRepository() {
+    @Bean
+    CatalogClientStoreRepository cloudStoreRepository() {
         return new CatalogClientStoreRepository();
     }
 
-    public @Bean CatalogClientResourceRepository cloudResourceRepository() {
+    @Bean
+    CatalogClientResourceRepository cloudResourceRepository() {
         return new CatalogClientResourceRepository();
     }
 
-    public @Bean CatalogClientLayerRepository cloudLayerRepository() {
+    @Bean
+    CatalogClientLayerRepository cloudLayerRepository() {
         return new CatalogClientLayerRepository();
     }
 
-    public @Bean CatalogClientLayerGroupRepository cloudLayerGroupRepository() {
+    @Bean
+    CatalogClientLayerGroupRepository cloudLayerGroupRepository() {
         return new CatalogClientLayerGroupRepository();
     }
 
-    public @Bean CatalogClientStyleRepository cloudStyleRepository() {
+    @Bean
+    CatalogClientStyleRepository cloudStyleRepository() {
         return new CatalogClientStyleRepository();
     }
 
-    public @Bean CatalogClientMapRepository cloudMapRepository() {
+    @Bean
+    CatalogClientMapRepository cloudMapRepository() {
         return new CatalogClientMapRepository();
     }
 }

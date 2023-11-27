@@ -69,11 +69,5 @@
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <!-- trivy: override commons-collections:3.2.1 by 3.2.2 due to CVE-2015-7501 (CRITICAL), and CVE-2015-6420 (HIGH) -->
-      <groupId>commons-collections</groupId>
-      <artifactId>commons-collections</artifactId>
-      <version>3.2.2</version>
-    </dependency>
   </dependencies>
 </project>
