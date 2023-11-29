@@ -39,6 +39,10 @@
       <artifactId>gs-cog</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-imagepyramid</artifactId>
+    </dependency>
+    <dependency>
       <!--- Additional dependency required to support "IAM roles for service accounts" -->
       <groupId>software.amazon.awssdk</groupId>
       <artifactId>sts</artifactId>
