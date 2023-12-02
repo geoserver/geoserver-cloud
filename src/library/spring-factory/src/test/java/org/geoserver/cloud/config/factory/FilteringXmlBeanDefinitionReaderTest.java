@@ -16,7 +16,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-public class FilteringXmlBeanDefinitionReaderTest {
+class FilteringXmlBeanDefinitionReaderTest {
 
     private final String baseResource =
             "classpath:/org/geoserver/cloud/config/factory/FilteringXmlBeanDefinitionReaderTestData.xml";

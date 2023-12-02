@@ -61,7 +61,7 @@ import java.util.ArrayList;
 @ActiveProfiles("it.catalog-service")
 // REVISIT: fails if run with failsafe "ClassNotFoundException:
 // org.geoserver.cloud.catalog.client.reactivefeign.ReactiveCatalogClient"
-public class CatalogClientBackendIntegrationTest extends AbstractCatalogBackendIT {
+class CatalogClientBackendIntegrationTest extends AbstractCatalogBackendIT {
     /**
      * WebFlux catalog-service catalog with backend as configured by
      * bootstrap-it.catalog-service.yml

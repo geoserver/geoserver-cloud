@@ -20,7 +20,7 @@ import lombok.experimental.Accessors;
 
 @EnableAutoConfiguration
 @Accessors(fluent = true)
-public class WorkspaceRepositoryTest
+class WorkspaceRepositoryTest
         extends AbstractCatalogServiceClientRepositoryTest<WorkspaceInfo, WorkspaceRepository> {
 
     private @Autowired @Getter WorkspaceRepository repository;

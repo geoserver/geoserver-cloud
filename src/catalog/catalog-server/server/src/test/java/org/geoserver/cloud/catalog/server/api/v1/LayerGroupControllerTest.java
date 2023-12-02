@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 
 @AutoConfigureWebTestClient(timeout = "360000")
-public class LayerGroupControllerTest
+class LayerGroupControllerTest
         extends AbstractReactiveCatalogControllerTest<LayerGroupInfo> {
 
     public LayerGroupControllerTest() {

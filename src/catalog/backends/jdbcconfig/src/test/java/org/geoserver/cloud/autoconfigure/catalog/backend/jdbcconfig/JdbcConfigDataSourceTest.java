@@ -30,7 +30,7 @@ import javax.sql.DataSource;
             "geoserver.backend.jdbcconfig.datasource.connectionTimeout=250", // 250ms
             "geoserver.backend.jdbcconfig.datasource.idleTimeout=10000", // 10 secs
         })
-public class JdbcConfigDataSourceTest extends JDBCConfigTest {
+class JdbcConfigDataSourceTest extends JDBCConfigTest {
 
     @Test
     void testDataSource() throws SQLException {

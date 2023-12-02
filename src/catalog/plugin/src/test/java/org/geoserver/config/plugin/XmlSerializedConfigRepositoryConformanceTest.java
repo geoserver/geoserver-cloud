@@ -11,7 +11,7 @@ import org.geoserver.config.GeoServerConfigConformanceTest;
 import org.geoserver.config.util.XStreamPersister;
 import org.geoserver.config.util.XStreamPersisterFactory;
 
-public class XmlSerializedConfigRepositoryConformanceTest extends GeoServerConfigConformanceTest {
+class XmlSerializedConfigRepositoryConformanceTest extends GeoServerConfigConformanceTest {
 
     protected @Override GeoServer createGeoServer() {
         Catalog catalog = new CatalogPlugin();

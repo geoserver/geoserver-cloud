@@ -23,7 +23,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @AutoConfigureWebTestClient(timeout = "360000")
-public class StyleControllerTest extends AbstractReactiveCatalogControllerTest<StyleInfo> {
+class StyleControllerTest extends AbstractReactiveCatalogControllerTest<StyleInfo> {
 
     public StyleControllerTest() {
         super(StyleInfo.class);

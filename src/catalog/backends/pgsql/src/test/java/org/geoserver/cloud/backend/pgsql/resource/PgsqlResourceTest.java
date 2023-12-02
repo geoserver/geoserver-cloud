@@ -36,7 +36,7 @@ import java.util.Objects;
 import javax.sql.DataSource;
 
 @RunWith(Theories.class)
-public class PgsqlResourceTest extends ResourceTheoryTest {
+class PgsqlResourceTest extends ResourceTheoryTest {
 
     public @ClassRule static PostgreSQLContainer<?> container =
             new PostgreSQLContainer<>("postgres:15");

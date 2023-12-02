@@ -20,7 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
             "geoserver.backend.jdbcconfig.enabled=true",
             "logging.level.org.geoserver.cloud.autoconfigure.bus=ERROR"
         })
-public class JDBCConfigCatalogIT extends AbstractCatalogBackendIT {
+class JDBCConfigCatalogIT extends AbstractCatalogBackendIT {
 
     private @Autowired @Qualifier("catalogFacade") ExtendedCatalogFacade jdbcCatalogFacade;
     private @Autowired GeoServerResourceLoader resourceLoader;

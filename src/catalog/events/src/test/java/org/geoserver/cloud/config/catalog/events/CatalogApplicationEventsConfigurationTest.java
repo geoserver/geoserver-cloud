@@ -61,7 +61,7 @@ import java.util.function.Consumer;
             ApplicationEventCapturingListener.class
         })
 @EnableAutoConfiguration
-public class CatalogApplicationEventsConfigurationTest {
+class CatalogApplicationEventsConfigurationTest {
 
     private @Autowired GeoServer geoserver;
     private @Autowired Catalog catalog;

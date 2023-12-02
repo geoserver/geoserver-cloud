@@ -22,7 +22,7 @@ import lombok.experimental.Accessors;
 
 @EnableAutoConfiguration
 @Accessors(fluent = true)
-public class StyleRepositoryTest
+class StyleRepositoryTest
         extends AbstractCatalogServiceClientRepositoryTest<StyleInfo, StyleRepository> {
 
     private @Autowired @Getter StyleRepository repository;

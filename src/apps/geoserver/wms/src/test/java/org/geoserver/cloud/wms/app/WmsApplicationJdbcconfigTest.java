@@ -10,4 +10,4 @@ import org.springframework.test.context.ActiveProfiles;
 /** See {@code src/test/resources/bootstrap-testjdbcconfig.yml} */
 @SpringBootTest(properties = "gwc.wms-integration=true")
 @ActiveProfiles({"test", "testjdbcconfig"})
-public class WmsApplicationJdbcconfigTest extends WmsApplicationTest {}
+class WmsApplicationJdbcconfigTest extends WmsApplicationTest {}

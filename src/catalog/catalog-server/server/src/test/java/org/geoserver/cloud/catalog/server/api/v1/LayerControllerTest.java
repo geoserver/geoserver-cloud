@@ -22,7 +22,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @AutoConfigureWebTestClient(timeout = "360000")
-public class LayerControllerTest extends AbstractReactiveCatalogControllerTest<LayerInfo> {
+class LayerControllerTest extends AbstractReactiveCatalogControllerTest<LayerInfo> {
 
     public LayerControllerTest() {
         super(LayerInfo.class);

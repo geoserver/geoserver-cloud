@@ -36,7 +36,7 @@ import lombok.experimental.Accessors;
 
 @EnableAutoConfiguration
 @Accessors(fluent = true)
-public class StoreRepositoryTest
+class StoreRepositoryTest
         extends AbstractCatalogServiceClientRepositoryTest<StoreInfo, StoreRepository> {
 
     private @Autowired @Getter StoreRepository repository;

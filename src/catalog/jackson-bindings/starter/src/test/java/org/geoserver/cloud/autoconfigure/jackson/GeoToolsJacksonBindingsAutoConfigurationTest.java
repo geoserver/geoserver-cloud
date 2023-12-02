@@ -22,7 +22,7 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
 import java.util.Set;
 
-public class GeoToolsJacksonBindingsAutoConfigurationTest {
+class GeoToolsJacksonBindingsAutoConfigurationTest {
 
     private final ApplicationContextRunner contextRunner =
             new ApplicationContextRunner()

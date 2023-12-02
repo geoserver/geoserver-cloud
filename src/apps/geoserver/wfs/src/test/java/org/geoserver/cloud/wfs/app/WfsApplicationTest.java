@@ -12,7 +12,7 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest
 @EnableAutoConfiguration
 @ActiveProfiles("test")
-public class WfsApplicationTest {
+class WfsApplicationTest {
 
     @Test
     void contextLoads() {}

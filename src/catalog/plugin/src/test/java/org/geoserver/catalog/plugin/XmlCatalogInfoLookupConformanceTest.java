@@ -13,7 +13,7 @@ import org.geoserver.config.util.XStreamPersister;
 import org.geoserver.config.util.XStreamPersisterFactory;
 import org.junit.jupiter.api.Disabled;
 
-public class XmlCatalogInfoLookupConformanceTest extends CatalogConformanceTest {
+class XmlCatalogInfoLookupConformanceTest extends CatalogConformanceTest {
 
     protected @Override CatalogPlugin createCatalog() {
         CatalogPlugin catalog = new org.geoserver.catalog.plugin.CatalogPlugin();

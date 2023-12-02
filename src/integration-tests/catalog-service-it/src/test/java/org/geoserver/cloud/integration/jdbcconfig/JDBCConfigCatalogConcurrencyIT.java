@@ -46,7 +46,7 @@ import lombok.extern.slf4j.Slf4j;
         , "logging.level.org.geoserver.jdbcconfig=info"//
 })
 @Slf4j
-public class JDBCConfigCatalogConcurrencyIT {
+class JDBCConfigCatalogConcurrencyIT {
 
     private @Autowired @Qualifier("catalogFacade") ExtendedCatalogFacade jdbcCatalogFacade;
     private @Autowired @Qualifier("rawCatalog") Catalog rawCatalog;

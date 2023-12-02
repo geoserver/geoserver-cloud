@@ -17,7 +17,7 @@ import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWeb
 import org.springframework.http.MediaType;
 
 @AutoConfigureWebTestClient(timeout = "360000")
-public class WorkspaceControllerTest extends AbstractReactiveCatalogControllerTest<WorkspaceInfo> {
+class WorkspaceControllerTest extends AbstractReactiveCatalogControllerTest<WorkspaceInfo> {
 
     public WorkspaceControllerTest() {
         super(WorkspaceInfo.class);

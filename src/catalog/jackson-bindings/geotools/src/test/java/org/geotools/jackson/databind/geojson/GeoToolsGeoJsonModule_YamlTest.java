@@ -11,7 +11,7 @@ import org.geotools.jackson.databind.util.ObjectMapperUtil;
 /**
  * @since 1.0
  */
-public class GeoToolsGeoJsonModule_YamlTest extends GeoToolsGeoJsonModuleTest {
+class GeoToolsGeoJsonModule_YamlTest extends GeoToolsGeoJsonModuleTest {
 
     protected @Override ObjectMapper newObjectMapper() {
         return ObjectMapperUtil.newObjectMapper();

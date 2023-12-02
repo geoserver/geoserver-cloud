@@ -25,7 +25,7 @@ import org.springframework.test.context.ActiveProfiles;
 @Slf4j
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @ActiveProfiles({"native", "test"})
-public class ConfigApplicationTest {
+class ConfigApplicationTest {
 
     @LocalServerPort private int port;
 

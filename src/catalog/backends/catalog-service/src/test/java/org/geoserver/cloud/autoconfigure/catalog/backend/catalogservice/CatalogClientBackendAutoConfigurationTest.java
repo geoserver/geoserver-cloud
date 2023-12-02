@@ -32,7 +32,7 @@ import reactivefeign.spring.config.ReactiveFeignAutoConfiguration;
  * when {@code geoserver.backend.catalog-service.enabled=true}
  */
 @Disabled("Make it run without ReactiveCatalogClient trying to connect")
-public class CatalogClientBackendAutoConfigurationTest {
+class CatalogClientBackendAutoConfigurationTest {
 
     // geoserver.security.enabled=false to avoid calling the catalog during bean initialization,
     // since there's no backend service to connect to

@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.util.List;
 
 @AutoConfigureWebTestClient(timeout = "360000")
-public class ResourceInfoControllerTest
+class ResourceInfoControllerTest
         extends AbstractReactiveCatalogControllerTest<ResourceInfo> {
 
     public ResourceInfoControllerTest() {

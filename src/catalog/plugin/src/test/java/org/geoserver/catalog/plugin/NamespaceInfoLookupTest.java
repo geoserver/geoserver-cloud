@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 /** Test suite for {@link NamespaceInfoLookup} */
-public class NamespaceInfoLookupTest {
+class NamespaceInfoLookupTest {
 
     private static final String URI_1 = "http://gs.test.com/ns1";
     private static final String URI_2 = "http://gs.test.com/ns2";

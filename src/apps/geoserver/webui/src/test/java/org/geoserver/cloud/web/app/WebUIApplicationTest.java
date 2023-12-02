@@ -44,7 +44,7 @@ import java.util.Locale;
             "eureka.client.enabled: false"
         })
 @ActiveProfiles("test") // see bootstrap-test.yml
-public class WebUIApplicationTest {
+class WebUIApplicationTest {
 
     private @Autowired GeoServerApplication app;
     private WicketTester tester;

@@ -34,7 +34,7 @@ import org.springframework.web.context.request.RequestContextListener;
             "geoserver.servlet.filter.flush-safe.enabled=false"
         })
 @ActiveProfiles("test")
-public class ServletContextConditionalFiltersTest {
+class ServletContextConditionalFiltersTest {
 
     private @Autowired ApplicationContext context;
 

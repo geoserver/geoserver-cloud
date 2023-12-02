@@ -25,7 +25,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
-public class GeoWebCacheApplicationTest {
+class GeoWebCacheApplicationTest {
 
     @Autowired private TestRestTemplate restTemplate;
 

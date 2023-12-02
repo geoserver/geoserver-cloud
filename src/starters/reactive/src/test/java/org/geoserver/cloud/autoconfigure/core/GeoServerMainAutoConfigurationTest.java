@@ -25,7 +25,7 @@ import org.springframework.web.context.WebApplicationContext;
 @SpringBootTest(classes = TestConfiguration.class)
 @EnableAutoConfiguration
 @ActiveProfiles("test") // see bootstrap-test.yml
-public class GeoServerMainAutoConfigurationTest {
+class GeoServerMainAutoConfigurationTest {
 
     private @Autowired ApplicationContext context;
 

@@ -32,7 +32,7 @@ import lombok.experimental.Accessors;
 
 @EnableAutoConfiguration
 @Accessors(fluent = true)
-public class ResourceRepositoryTest
+class ResourceRepositoryTest
         extends AbstractCatalogServiceClientRepositoryTest<ResourceInfo, ResourceRepository> {
 
     private @Autowired @Getter ResourceRepository repository;

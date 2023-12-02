@@ -33,7 +33,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @AutoConfigureWebTestClient(timeout = "360000")
-public class StoreControllerTest extends AbstractReactiveCatalogControllerTest<StoreInfo> {
+class StoreControllerTest extends AbstractReactiveCatalogControllerTest<StoreInfo> {
 
     public StoreControllerTest() {
         super(StoreInfo.class);

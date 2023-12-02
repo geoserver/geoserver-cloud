@@ -28,7 +28,7 @@ import org.springframework.web.context.request.RequestContextListener;
         properties = "reactive.feign.loadbalancer.enabled=false")
 @EnableAutoConfiguration(exclude = SecurityAutoConfiguration.class)
 @ActiveProfiles("test")
-public class ServletContextEnabledSmokeTest {
+class ServletContextEnabledSmokeTest {
 
     private @Autowired ApplicationContext context;
 

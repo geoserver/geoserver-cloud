@@ -21,7 +21,7 @@ import lombok.experimental.Accessors;
 
 @EnableAutoConfiguration
 @Accessors(fluent = true)
-public class LayerRepositoryTest
+class LayerRepositoryTest
         extends AbstractCatalogServiceClientRepositoryTest<LayerInfo, LayerRepository> {
 
     private @Autowired @Getter LayerRepository repository;

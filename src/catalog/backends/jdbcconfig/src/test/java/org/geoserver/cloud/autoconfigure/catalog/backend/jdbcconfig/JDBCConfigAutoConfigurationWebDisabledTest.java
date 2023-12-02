@@ -23,7 +23,7 @@ import org.springframework.boot.test.context.SpringBootTest;
             "geoserver.backend.jdbcconfig.enabled=true",
             "geoserver.backend.jdbcconfig.web.enabled=false"
         })
-public class JDBCConfigAutoConfigurationWebDisabledTest extends JDBCConfigTest {
+class JDBCConfigAutoConfigurationWebDisabledTest extends JDBCConfigTest {
 
     @Test
     void testJDBCConfigStatusProvider() {

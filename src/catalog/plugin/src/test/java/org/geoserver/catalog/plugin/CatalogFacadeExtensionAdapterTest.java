@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
  * catalog events, and that {@link CatalogFacadeExtensionAdapter#update} correctly forwards to
  * legacy {@link CatalogFacade#save} methods
  */
-public class CatalogFacadeExtensionAdapterTest extends CatalogConformanceTest {
+class CatalogFacadeExtensionAdapterTest extends CatalogConformanceTest {
 
     private CatalogPlugin catalog;
 

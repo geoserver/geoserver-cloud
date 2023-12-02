@@ -23,7 +23,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
-public class RestConfigApplicationTest {
+class RestConfigApplicationTest {
 
     @Autowired private TestRestTemplate restTemplate;
 

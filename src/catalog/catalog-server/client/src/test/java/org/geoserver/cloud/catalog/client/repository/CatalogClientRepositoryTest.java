@@ -67,7 +67,7 @@ import java.util.Optional;
 
 @SpringBootTest(classes = CatalogClientRepositoryConfiguration.class)
 @ActiveProfiles("test")
-public class CatalogClientRepositoryTest {
+class CatalogClientRepositoryTest {
 
     private @MockBean ReactiveCatalogClient mockClient;
 

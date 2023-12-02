@@ -12,7 +12,7 @@ import org.geoserver.catalog.plugin.CatalogConformanceTest;
  * {@link CatalogConformanceTest} for the traditional {@link CatalogImpl} with {@link
  * DefaultCatalogFacade}
  */
-public class CatalogImplConformanceTest extends CatalogConformanceTest {
+class CatalogImplConformanceTest extends CatalogConformanceTest {
 
     protected @Override CatalogImpl createCatalog() {
         return new org.geoserver.catalog.impl.CatalogImpl();

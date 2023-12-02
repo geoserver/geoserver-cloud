@@ -60,7 +60,7 @@ import java.util.function.Function;
 @SpringBootTest(classes = GeoServerBackendCacheConfiguration.class)
 @EnableAutoConfiguration(exclude = LocalCatalogEventsAutoConfiguration.class)
 @SuppressWarnings("deprecation")
-public class CachingCatalogFacadeTest {
+class CachingCatalogFacadeTest {
 
     private @MockBean @Qualifier("defaultUpdateSequence") UpdateSequence updateSequence;
     private @MockBean @Qualifier("rawCatalog") CatalogPlugin rawCatalog;

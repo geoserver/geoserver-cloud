@@ -46,7 +46,7 @@ import org.springframework.test.context.ActiveProfiles;
             "geoserver.backend.catalog-service.uri=http://localhost:${server.port}"
         })
 @ActiveProfiles("it.catalog-service")
-public class CatalogClientGeoServerFacadeConformanceTest extends GeoServerConfigConformanceTest {
+class CatalogClientGeoServerFacadeConformanceTest extends GeoServerConfigConformanceTest {
 
     /**
      * WebFlux catalog-service catalog with backend as configured by

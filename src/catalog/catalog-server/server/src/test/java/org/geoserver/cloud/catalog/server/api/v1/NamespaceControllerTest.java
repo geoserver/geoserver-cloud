@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.util.List;
 
 @AutoConfigureWebTestClient(timeout = "360000")
-public class NamespaceControllerTest extends AbstractReactiveCatalogControllerTest<NamespaceInfo> {
+class NamespaceControllerTest extends AbstractReactiveCatalogControllerTest<NamespaceInfo> {
 
     public NamespaceControllerTest() {
         super(NamespaceInfo.class);

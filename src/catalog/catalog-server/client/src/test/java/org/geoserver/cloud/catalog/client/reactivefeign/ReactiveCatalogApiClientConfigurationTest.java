@@ -16,7 +16,7 @@ import org.springframework.cloud.openfeign.FeignAutoConfiguration;
 
 import reactivefeign.spring.config.ReactiveFeignAutoConfiguration;
 
-public class ReactiveCatalogApiClientConfigurationTest {
+class ReactiveCatalogApiClientConfigurationTest {
 
     private final ApplicationContextRunner contextRunner =
             new ApplicationContextRunner() //

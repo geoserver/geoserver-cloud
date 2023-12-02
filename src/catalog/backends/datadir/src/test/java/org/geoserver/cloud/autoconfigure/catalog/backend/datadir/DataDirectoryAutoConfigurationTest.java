@@ -33,7 +33,7 @@ import java.nio.file.Paths;
  * Test {@link DataDirectoryBackendConfiguration} through {@link DataDirectoryAutoConfiguration}
  * when {@code geoserver.backend.data-directory.enabled=true}
  */
-public class DataDirectoryAutoConfigurationTest {
+class DataDirectoryAutoConfigurationTest {
 
     private ApplicationContextRunner runner =
             new ApplicationContextRunner()

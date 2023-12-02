@@ -84,7 +84,7 @@ import javax.annotation.Nullable;
             "logging.level.org.springframework.cache=DEBUG",
             "logging.level.org.geoserver.cloud.events=DEBUG"
         })
-public class RemoteEventCacheEvictorTest {
+class RemoteEventCacheEvictorTest {
 
     /** Spring-cache for CatalogInfo objects, named after {@link CachingCatalogFacade#CACHE_NAME} */
     private Cache catalogCache;

@@ -15,7 +15,7 @@ import org.geotools.jackson.databind.util.ObjectMapperUtil;
 import org.junit.jupiter.api.BeforeAll;
 
 @Slf4j
-public class FilterSerializationTest extends FilterRoundtripTest {
+class FilterSerializationTest extends FilterRoundtripTest {
 
     protected void print(String logmsg, Object... args) {
         boolean debug = Boolean.getBoolean("debug");

@@ -11,7 +11,7 @@ import org.geotools.jackson.databind.util.ObjectMapperUtil;
 /**
  * @since 1.0
  */
-public class GeoSeververConfigModule_YamlTest extends GeoServerConfigModuleTest {
+class GeoSeververConfigModule_YamlTest extends GeoServerConfigModuleTest {
 
     protected @Override ObjectMapper newObjectMapper() {
         return ObjectMapperUtil.newYAMLObjectMapper();

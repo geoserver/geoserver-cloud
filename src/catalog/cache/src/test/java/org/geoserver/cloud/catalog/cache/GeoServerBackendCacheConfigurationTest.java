@@ -17,7 +17,7 @@ import org.springframework.boot.context.annotation.UserConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
 /** */
-public class GeoServerBackendCacheConfigurationTest {
+class GeoServerBackendCacheConfigurationTest {
 
     private final ApplicationContextRunner contextRunner =
             new ApplicationContextRunner()

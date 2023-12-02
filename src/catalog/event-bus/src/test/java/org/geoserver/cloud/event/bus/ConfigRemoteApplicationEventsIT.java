@@ -38,7 +38,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Locale;
 import java.util.Map;
 
-public class ConfigRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
+class ConfigRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
 
     @BeforeEach
     public void before() {

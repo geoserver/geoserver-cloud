@@ -53,7 +53,7 @@ import java.util.stream.Collectors;
         classes = {CatalogServerConfiguration.class, WebTestClientSupportConfiguration.class})
 @ActiveProfiles("test") // see bootstrap-test.yml
 @AutoConfigureWebTestClient(timeout = "360000")
-public class ReactiveConfigControllerTest {
+class ReactiveConfigControllerTest {
 
     private @Autowired WebTestClient testClient;
 

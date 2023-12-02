@@ -30,7 +30,7 @@ import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
  *
  * @since 1.0
  */
-public class AuthKeyAutoConfigurationTest {
+class AuthKeyAutoConfigurationTest {
 
     private WebApplicationContextRunner contextRunner =
             new WebApplicationContextRunner()

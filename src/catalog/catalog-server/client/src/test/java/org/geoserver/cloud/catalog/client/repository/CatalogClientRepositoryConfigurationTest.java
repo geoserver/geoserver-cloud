@@ -17,7 +17,7 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
 import reactivefeign.spring.config.ReactiveFeignAutoConfiguration;
 
-public class CatalogClientRepositoryConfigurationTest {
+class CatalogClientRepositoryConfigurationTest {
 
     private final ApplicationContextRunner contextRunner =
             new ApplicationContextRunner()

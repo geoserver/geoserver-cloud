@@ -22,7 +22,7 @@ import org.springframework.test.context.ActiveProfiles;
         classes = {TestConfiguration.class},
         properties = "reactive.feign.loadbalancer.enabled=false")
 @ActiveProfiles("test")
-public class GeoServerMainConfigurationSmokeTest {
+class GeoServerMainConfigurationSmokeTest {
 
     private @Autowired @Qualifier("rawCatalog") Catalog rawCatalog;
     private @Autowired @Qualifier("secureCatalog") Catalog secureCatalog;

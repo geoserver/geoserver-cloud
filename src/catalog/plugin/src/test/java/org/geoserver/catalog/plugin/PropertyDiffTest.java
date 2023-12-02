@@ -30,7 +30,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 
-public class PropertyDiffTest {
+class PropertyDiffTest {
     private PropertyDiffTestSupport support = new PropertyDiffTestSupport();
 
     public CatalogTestData data;

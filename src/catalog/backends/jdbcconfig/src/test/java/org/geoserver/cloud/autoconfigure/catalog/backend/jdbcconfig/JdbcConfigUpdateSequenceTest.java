@@ -16,8 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest(
         classes = AutoConfigurationTestConfiguration.class,
         properties = "geoserver.backend.jdbcconfig.enabled=true")
-public class JdbcConfigUpdateSequenceTest extends JDBCConfigTest
-        implements UpdateSequenceConformanceTest {
+class JdbcConfigUpdateSequenceTest extends JDBCConfigTest implements UpdateSequenceConformanceTest {
 
     private @Autowired JdbcConfigUpdateSequence updateSequence;
 

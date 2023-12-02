@@ -19,7 +19,7 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest(classes = CatalogClientConfiguration.class)
 @EnableAutoConfiguration
 @ActiveProfiles("test")
-public class CatalogClientConfigurationTest {
+class CatalogClientConfigurationTest {
 
     private @Autowired CatalogClientCatalogFacade rawCatalogServiceFacade;
 

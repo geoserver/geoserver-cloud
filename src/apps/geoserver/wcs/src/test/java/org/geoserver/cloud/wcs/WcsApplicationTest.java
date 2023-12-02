@@ -10,7 +10,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
 @ActiveProfiles("test")
-public class WcsApplicationTest {
+class WcsApplicationTest {
 
     @Test
     void contextLoads() {}

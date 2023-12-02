@@ -22,7 +22,7 @@ import lombok.experimental.Accessors;
 
 @EnableAutoConfiguration
 @Accessors(fluent = true)
-public class NamespaceRepositoryTest
+class NamespaceRepositoryTest
         extends AbstractCatalogServiceClientRepositoryTest<NamespaceInfo, NamespaceRepository> {
 
     private @Autowired @Getter NamespaceRepository repository;

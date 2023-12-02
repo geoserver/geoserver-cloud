@@ -36,7 +36,7 @@ import java.util.Map;
  * @see AzuriteContainer
  */
 @Testcontainers
-public class AzureBlobStoreTest {
+class AzureBlobStoreTest {
 
     @Container static AzuriteContainer azurite = new AzuriteContainer();
 

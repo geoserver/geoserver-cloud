@@ -24,7 +24,7 @@ import org.springframework.test.context.ActiveProfiles;
             "geoserver.backend.dataDirectory.location=/tmp/data_dir_autoconfiguration_test"
         })
 @ActiveProfiles("test")
-public class DataDirectoryUpdateSequenceTest implements UpdateSequenceConformanceTest {
+class DataDirectoryUpdateSequenceTest implements UpdateSequenceConformanceTest {
 
     private @Autowired DataDirectoryUpdateSequence updateSequence;
     private @Autowired GeoServer geoserver;
