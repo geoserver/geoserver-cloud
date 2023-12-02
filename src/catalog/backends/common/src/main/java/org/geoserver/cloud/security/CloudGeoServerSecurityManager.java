@@ -146,13 +146,14 @@ public class CloudGeoServerSecurityManager extends GeoServerSecurityManager {
     }
 
     /** Override to {@link #fireChanged fire} a remote {@link SecurityConfigChanged} */
-    public @Override void saveSecurityConfig(SecurityManagerConfig config) throws Exception {
+    public @Override synchronized void saveSecurityConfig(SecurityManagerConfig config)
+            throws Exception {
         super.saveSecurityConfig(config);
         fireRemoteChangedEvent("SecurityManagerConfig changed");
     }
 
     /** Override to {@link #fireChanged fire} a remote {@link SecurityConfigChanged} */
-    public @Override void saveMasterPasswordConfig(
+    public @Override synchronized void saveMasterPasswordConfig(
             MasterPasswordConfig config,
             char[] currPasswd,
             char[] newPasswd,

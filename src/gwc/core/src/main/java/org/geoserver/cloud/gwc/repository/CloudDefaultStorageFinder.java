@@ -34,7 +34,7 @@ public class CloudDefaultStorageFinder extends DefaultStorageFinder {
         this.environment = environment;
     }
 
-    public @Override String getDefaultPath() throws ConfigurationException {
+    public @Override String getDefaultPath() throws ConfigurationException { // NOSONAR
         return defaultCacheDirectory.toString();
     }
 
