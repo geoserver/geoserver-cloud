@@ -22,11 +22,11 @@ import org.springframework.core.style.ToStringCreator;
 @JsonTypeName("SecurityConfigChanged")
 public class SecurityConfigChanged extends UpdateSequenceEvent<SecurityConfigChanged> {
 
-    private @NonNull @Getter String reason;
+    private @Getter String reason;
 
     protected SecurityConfigChanged() {}
 
-    protected SecurityConfigChanged(@NonNull Long updateSequence, @NonNull String reason) {
+    protected SecurityConfigChanged(long updateSequence, @NonNull String reason) {
         super(updateSequence);
         this.reason = reason;
     }
@@ -35,8 +35,7 @@ public class SecurityConfigChanged extends UpdateSequenceEvent<SecurityConfigCha
         return super.toStringBuilder().append("reason", reason);
     }
 
-    public static SecurityConfigChanged createLocal(
-            @NonNull Long updateSequence, @NonNull String reason) {
+    public static SecurityConfigChanged createLocal(long updateSequence, @NonNull String reason) {
         return new SecurityConfigChanged(updateSequence, reason);
     }
 }

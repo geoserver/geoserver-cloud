@@ -25,15 +25,13 @@ public class ServiceRemoved extends ConfigInfoRemoved<ServiceRemoved, ServiceInf
         // default constructor, needed for deserialization
     }
 
-    protected ServiceRemoved(
-            @NonNull Long updateSequence, @NonNull String objectId, String workspaceId) {
+    protected ServiceRemoved(long updateSequence, @NonNull String objectId, String workspaceId) {
 
         super(updateSequence, objectId, ConfigInfoType.ServiceInfo);
         this.workspaceId = workspaceId;
     }
 
-    public static ServiceRemoved createLocal(
-            @NonNull Long updateSequence, @NonNull ServiceInfo info) {
+    public static ServiceRemoved createLocal(long updateSequence, @NonNull ServiceInfo info) {
 
         final @NonNull String serviceId = info.getId();
         final String workspaceId = resolveId(info.getWorkspace());

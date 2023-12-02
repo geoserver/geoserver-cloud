@@ -43,6 +43,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -191,8 +192,8 @@ class CatalogApplicationEventPublisher {
             push(id, patch);
         }
 
-        private void publishPostModify(@NonNull String id, Info info) {
-            Patch patch = pop(id);
+        private void publishPostModify(@NonNull String id, @NonNull Info info) {
+            Patch patch = Objects.requireNonNull(pop(id));
             publish(ConfigInfoModified.createLocal(incrementSequence(), info, patch));
         }
 

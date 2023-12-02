@@ -31,7 +31,7 @@ public class ServiceModified extends ConfigInfoModified<ServiceModified, Logging
     }
 
     protected ServiceModified(
-            @NonNull Long updateSequence,
+            long updateSequence,
             @NonNull String objectId,
             @NonNull Patch patch,
             String workspaceId) {
@@ -45,7 +45,7 @@ public class ServiceModified extends ConfigInfoModified<ServiceModified, Logging
     }
 
     public static ServiceModified createLocal(
-            @NonNull Long updateSequence, @NonNull ServiceInfo object, @NonNull Patch patch) {
+            long updateSequence, @NonNull ServiceInfo object, @NonNull Patch patch) {
 
         final @NonNull String serviceId = InfoEvent.resolveId(object);
         final String workspaceId = InfoEvent.resolveId(object.getWorkspace());

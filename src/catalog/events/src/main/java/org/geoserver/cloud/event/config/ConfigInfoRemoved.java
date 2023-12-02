@@ -28,13 +28,13 @@ public abstract class ConfigInfoRemoved<SELF, INFO extends Info> extends InfoRem
     }
 
     public ConfigInfoRemoved(
-            @NonNull Long updateSequence, @NonNull String objectId, @NonNull ConfigInfoType type) {
+            long updateSequence, @NonNull String objectId, @NonNull ConfigInfoType type) {
         super(updateSequence, objectId, type);
     }
 
     @SuppressWarnings("unchecked")
     public static @NonNull <I extends Info> ConfigInfoRemoved<?, I> createLocal(
-            @NonNull Long updateSequence, @NonNull I info) {
+            long updateSequence, @NonNull I info) {
 
         final ConfigInfoType type = ConfigInfoType.valueOf(info);
         switch (type) {

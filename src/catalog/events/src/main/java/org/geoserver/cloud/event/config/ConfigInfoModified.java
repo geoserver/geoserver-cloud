@@ -33,7 +33,7 @@ public abstract class ConfigInfoModified<SELF, INFO extends Info> extends InfoMo
     }
 
     protected ConfigInfoModified(
-            @NonNull Long updateSequence,
+            long updateSequence,
             @NonNull String objectId,
             @NonNull ConfigInfoType objectType,
             @NonNull Patch patch) {
@@ -42,7 +42,7 @@ public abstract class ConfigInfoModified<SELF, INFO extends Info> extends InfoMo
 
     @SuppressWarnings("unchecked")
     public static @NonNull <I extends Info> ConfigInfoModified<?, I> createLocal(
-            @NonNull Long updateSequence, @NonNull Info info, @NonNull Patch patch) {
+            long updateSequence, @NonNull Info info, @NonNull Patch patch) {
 
         final ConfigInfoType type = ConfigInfoType.valueOf(info);
         switch (type) {

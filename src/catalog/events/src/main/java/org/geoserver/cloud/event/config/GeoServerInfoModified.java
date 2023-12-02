@@ -24,13 +24,12 @@ public class GeoServerInfoModified extends ConfigInfoModified<GeoServerInfoModif
         // default constructor, needed for deserialization
     }
 
-    protected GeoServerInfoModified(
-            @NonNull Long updateSequence, @NonNull String id, @NonNull Patch patch) {
+    protected GeoServerInfoModified(long updateSequence, @NonNull String id, @NonNull Patch patch) {
         super(updateSequence, id, ConfigInfoType.GeoServerInfo, patch);
     }
 
     public static GeoServerInfoModified createLocal(
-            @NonNull Long updateSequence, GeoServerInfo info, @NonNull Patch patch) {
+            long updateSequence, GeoServerInfo info, @NonNull Patch patch) {
         final String id = resolveId(info);
 
         return new GeoServerInfoModified(updateSequence, id, patch);

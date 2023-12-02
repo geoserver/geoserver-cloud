@@ -22,11 +22,11 @@ import org.geoserver.cloud.event.config.ConfigInfoAdded;
 })
 public abstract class InfoAdded<SELF, I extends Info> extends InfoEvent<SELF, I> {
 
-    private @Getter @Setter @NonNull I object;
+    private @Getter @Setter I object;
 
     protected InfoAdded() {}
 
-    protected InfoAdded(@NonNull Long updateSequence, @NonNull I object) {
+    protected InfoAdded(long updateSequence, @NonNull I object) {
         super(updateSequence, resolveId(object), typeOf(object));
         this.object = object;
     }

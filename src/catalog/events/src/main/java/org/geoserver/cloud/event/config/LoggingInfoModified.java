@@ -24,14 +24,13 @@ public class LoggingInfoModified extends ConfigInfoModified<LoggingInfoModified,
         // default constructor, needed for deserialization
     }
 
-    protected LoggingInfoModified(
-            @NonNull Long updateSequence, @NonNull String id, @NonNull Patch patch) {
+    protected LoggingInfoModified(long updateSequence, @NonNull String id, @NonNull Patch patch) {
 
         super(updateSequence, id, ConfigInfoType.LoggingInfo, patch);
     }
 
     public static LoggingInfoModified createLocal(
-            @NonNull Long updateSequence, LoggingInfo info, @NonNull Patch patch) {
+            long updateSequence, LoggingInfo info, @NonNull Patch patch) {
         String id = resolveId(info);
         return new LoggingInfoModified(updateSequence, id, patch);
     }

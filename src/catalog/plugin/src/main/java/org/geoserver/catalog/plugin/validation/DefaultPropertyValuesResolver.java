@@ -98,15 +98,17 @@ public class DefaultPropertyValuesResolver {
     }
 
     private CoverageInfo resolve(CoverageInfo r) {
-        CoverageInfoImpl c = (CoverageInfoImpl) r;
-        if (c.getDimensions() != null) {
-            for (CoverageDimensionInfo dim : c.getDimensions()) {
-                if (dim.getNullValues() == null) {
-                    ((CoverageDimensionImpl) dim).setNullValues(new ArrayList<Double>());
+        if (r instanceof CoverageInfoImpl) {
+            CoverageInfoImpl c = (CoverageInfoImpl) r;
+            if (c.getDimensions() != null) {
+                for (CoverageDimensionInfo dim : c.getDimensions()) {
+                    if (dim.getNullValues() == null) {
+                        ((CoverageDimensionImpl) dim).setNullValues(new ArrayList<Double>());
+                    }
                 }
             }
+            resolveCollections(r);
         }
-        resolveCollections(r);
         return r;
     }
 
@@ -120,14 +122,18 @@ public class DefaultPropertyValuesResolver {
     }
 
     private WMSLayerInfo resolve(WMSLayerInfo wmsLayer) {
-        WMSLayerInfoImpl impl = (WMSLayerInfoImpl) wmsLayer;
-        resolveCollections(impl);
+        if (wmsLayer instanceof WMSLayerInfoImpl) {
+            WMSLayerInfoImpl impl = (WMSLayerInfoImpl) wmsLayer;
+            resolveCollections(impl);
+        }
         return wmsLayer;
     }
 
     private WMTSLayerInfo resolve(WMTSLayerInfo wmtsLayer) {
-        WMTSLayerInfoImpl impl = (WMTSLayerInfoImpl) wmtsLayer;
-        resolveCollections(impl);
+        if (wmtsLayer instanceof WMTSLayerInfoImpl) {
+            WMTSLayerInfoImpl impl = (WMTSLayerInfoImpl) wmtsLayer;
+            resolveCollections(impl);
+        }
         return wmtsLayer;
     }
 

@@ -150,9 +150,13 @@ public class PgsqlResourceStore implements ResourceStore {
     }
 
     public long getLastmodified(long resourceId) {
-        return template.queryForObject(
-                        "SELECT mtime FROM resourcestore WHERE id = ?", Timestamp.class, resourceId)
-                .getTime();
+        Long mtime =
+                template.queryForObject(
+                                "SELECT mtime FROM resourcestore WHERE id = ?",
+                                Timestamp.class,
+                                resourceId)
+                        .getTime();
+        return null == mtime ? 0L : mtime.longValue();
     }
 
     @Override

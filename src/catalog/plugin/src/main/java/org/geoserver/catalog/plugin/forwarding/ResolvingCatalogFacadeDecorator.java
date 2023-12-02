@@ -127,7 +127,7 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
      * add traits to the current resolver
      */
     public @Override Function<CatalogInfo, CatalogInfo> getInboundResolver() {
-        return this.outboundResolver;
+        return this.inboundResolver;
     }
 
     @SuppressWarnings("unchecked")

@@ -32,9 +32,7 @@ public abstract class InfoEvent<SELF, INFO extends Info> extends UpdateSequenceE
     protected InfoEvent() {}
 
     protected InfoEvent(
-            @NonNull Long updateSequence,
-            @NonNull String objectId,
-            @NonNull ConfigInfoType objectType) {
+            long updateSequence, @NonNull String objectId, @NonNull ConfigInfoType objectType) {
         super(updateSequence);
         // this.source = source;
         this.objectId = objectId;

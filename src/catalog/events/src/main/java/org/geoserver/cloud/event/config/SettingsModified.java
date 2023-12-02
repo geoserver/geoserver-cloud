@@ -23,14 +23,14 @@ import org.springframework.core.style.ToStringCreator;
 public class SettingsModified extends ConfigInfoModified<SettingsModified, SettingsInfo>
         implements ConfigInfoEvent {
 
-    private @Getter @NonNull String workspaceId;
+    private @Getter String workspaceId;
 
     protected SettingsModified() {
         // default constructor, needed for deserialization
     }
 
     public SettingsModified(
-            @NonNull Long updateSequence,
+            long updateSequence,
             @NonNull String objectId,
             @NonNull Patch patch,
             @NonNull String workspaceId) {
@@ -44,7 +44,7 @@ public class SettingsModified extends ConfigInfoModified<SettingsModified, Setti
     }
 
     public static SettingsModified createLocal(
-            @NonNull Long updateSequence, @NonNull SettingsInfo object, @NonNull Patch patch) {
+            long updateSequence, @NonNull SettingsInfo object, @NonNull Patch patch) {
 
         final String settingsId = object.getId();
         final String workspaceId = InfoEvent.resolveId(object.getWorkspace());

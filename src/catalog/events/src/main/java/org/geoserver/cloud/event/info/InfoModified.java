@@ -26,12 +26,12 @@ import java.util.stream.Collectors;
 })
 public abstract class InfoModified<SELF, INFO extends Info> extends InfoEvent<SELF, INFO> {
 
-    private @Getter @Setter @NonNull Patch patch;
+    private @Getter @Setter Patch patch;
 
     protected InfoModified() {}
 
     protected InfoModified(
-            @NonNull Long updateSequence,
+            long updateSequence,
             @NonNull String objectId,
             @NonNull ConfigInfoType objectType,
             @NonNull Patch patch) {

@@ -17,7 +17,7 @@ public class RemoteGeoServerEvent extends RemoteApplicationEvent {
 
     private static final long serialVersionUID = 1L;
 
-    private @Getter @NonNull GeoServerEvent<?> event;
+    private @Getter GeoServerEvent<?> event;
 
     /** Deserialization-time constructor, {@link #getSource()} will be {@code null} */
     protected RemoteGeoServerEvent() {
@@ -26,7 +26,10 @@ public class RemoteGeoServerEvent extends RemoteApplicationEvent {
 
     /** Publish-time constructor, {@link #getSource()} won't be {@code null} */
     public RemoteGeoServerEvent(
-            Object source, GeoServerEvent<?> event, String originService, Destination destination) {
+            Object source,
+            @NonNull GeoServerEvent<?> event,
+            @NonNull String originService,
+            @NonNull Destination destination) {
         super(source, originService, destination);
         this.event = event;
     }

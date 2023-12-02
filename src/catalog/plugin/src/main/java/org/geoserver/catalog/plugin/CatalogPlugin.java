@@ -366,7 +366,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
     }
 
     public @Override <T extends StoreInfo> T detach(T store) {
-        return detached(store, facade.detach(store));
+        return detach(store, facade.detach(store));
     }
 
     public @Override <T extends StoreInfo> T getStore(String id, Class<T> clazz) {
@@ -564,7 +564,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
     }
 
     public @Override <T extends ResourceInfo> T detach(T resource) {
-        return detached(resource, facade.detach(resource));
+        return detach(resource, facade.detach(resource));
     }
 
     public @Override <T extends ResourceInfo> T getResource(String id, Class<T> clazz) {
@@ -759,7 +759,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
     }
 
     public @Override LayerInfo detach(LayerInfo layer) {
-        return detached(layer, facade.detach(layer));
+        return detach(layer, facade.detach(layer));
     }
 
     public @Override LayerInfo getLayer(String id) {
@@ -856,7 +856,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
     }
 
     public @Override LayerGroupInfo detach(LayerGroupInfo layerGroup) {
-        return detached(layerGroup, facade.detach(layerGroup));
+        return detach(layerGroup, facade.detach(layerGroup));
     }
 
     public @Override List<LayerGroupInfo> getLayerGroups() {
@@ -944,7 +944,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
     }
 
     public @Override MapInfo detach(MapInfo map) {
-        return detached(map, facade.detach(map));
+        return detach(map, facade.detach(map));
     }
 
     // Namespace methods
@@ -988,7 +988,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
     }
 
     public @Override NamespaceInfo detach(NamespaceInfo namespace) {
-        return detached(namespace, facade.detach(namespace));
+        return detach(namespace, facade.detach(namespace));
     }
 
     public @Override NamespaceInfo getDefaultNamespace() {
@@ -1034,7 +1034,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
     }
 
     public @Override WorkspaceInfo detach(WorkspaceInfo workspace) {
-        return detached(workspace, facade.detach(workspace));
+        return detach(workspace, facade.detach(workspace));
     }
 
     public @Override WorkspaceInfo getDefaultWorkspace() {
@@ -1164,7 +1164,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
     }
 
     public @Override StyleInfo detach(StyleInfo style) {
-        return detached(style, facade.detach(style));
+        return detach(style, facade.detach(style));
     }
 
     // Event methods
@@ -1517,7 +1517,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
         }
     }
 
-    private <T extends CatalogInfo> T detached(T original, T detached) {
+    private <T extends CatalogInfo> T detach(T original, T detached) {
         return detached != null ? detached : original;
     }
 

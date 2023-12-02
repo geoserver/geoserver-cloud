@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import lombok.EqualsAndHashCode;
-import lombok.NonNull;
 
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.ServiceInfo;
@@ -24,11 +23,11 @@ public class ServiceAdded extends ConfigInfoAdded<ServiceAdded, ServiceInfo>
         // default constructor, needed for deserialization
     }
 
-    protected ServiceAdded(@NonNull Long updateSequence, ServiceInfo object) {
+    protected ServiceAdded(long updateSequence, ServiceInfo object) {
         super(updateSequence, object);
     }
 
-    public static ServiceAdded createLocal(@NonNull Long updateSequence, ServiceInfo value) {
+    public static ServiceAdded createLocal(long updateSequence, ServiceInfo value) {
         return new ServiceAdded(updateSequence, value);
     }
 }

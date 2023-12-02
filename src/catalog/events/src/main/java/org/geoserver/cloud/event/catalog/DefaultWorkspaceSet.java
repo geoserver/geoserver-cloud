@@ -28,7 +28,7 @@ public class DefaultWorkspaceSet extends CatalogInfoModified {
         //
     }
 
-    DefaultWorkspaceSet(@NonNull Long updateSequence, String newWorkspaceId, @NonNull Patch patch) {
+    DefaultWorkspaceSet(long updateSequence, String newWorkspaceId, @NonNull Patch patch) {
         super(updateSequence, InfoEvent.CATALOG_ID, ConfigInfoType.Catalog, patch);
         this.newWorkspaceId = newWorkspaceId;
     }
@@ -38,7 +38,7 @@ public class DefaultWorkspaceSet extends CatalogInfoModified {
     }
 
     public static DefaultWorkspaceSet createLocal(
-            @NonNull Long updateSequence, WorkspaceInfo defaultWorkspace) {
+            long updateSequence, WorkspaceInfo defaultWorkspace) {
 
         String workspaceId = resolveId(defaultWorkspace);
         Patch patch = new Patch();
