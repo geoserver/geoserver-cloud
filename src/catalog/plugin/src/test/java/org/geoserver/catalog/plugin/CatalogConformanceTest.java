@@ -1542,8 +1542,7 @@ public abstract class CatalogConformanceTest {
         assertSame(catalog, l2.getResource().getCatalog());
         StyleInfo defaultStyle = l2.getDefaultStyle();
         defaultStyle = ModificationProxy.unwrap(defaultStyle);
-        if (defaultStyle instanceof StyleInfoImpl)
-            assertSame(catalog, ((StyleInfoImpl) defaultStyle).getCatalog());
+        if (defaultStyle instanceof StyleInfoImpl impl) assertSame(catalog, impl.getCatalog());
     }
 
     @Test
@@ -3620,8 +3619,7 @@ public abstract class CatalogConformanceTest {
                         List<PublishedInfo> layers = g.getLayers();
                         layers.forEach(
                                 p -> {
-                                    if (p instanceof LayerInfo) {
-                                        LayerInfo l = (LayerInfo) p;
+                                    if (p instanceof LayerInfo l) {
                                         assertSame(catalog, l.getResource().getCatalog());
                                         assertSame(
                                                 catalog, l.getResource().getStore().getCatalog());

@@ -43,22 +43,22 @@ public class DefaultPropertyValuesResolver {
     }
 
     public void resolve(CatalogInfo info) {
-        if (info instanceof LayerGroupInfo) {
-            resolve((LayerGroupInfo) info);
-        } else if (info instanceof LayerInfo) {
-            resolve((LayerInfo) info);
-        } else if (info instanceof MapInfo) {
-            resolve((MapInfo) info);
-        } else if (info instanceof NamespaceInfo) {
-            resolve((NamespaceInfo) info);
-        } else if (info instanceof ResourceInfo) {
-            resolve((ResourceInfo) info);
-        } else if (info instanceof StoreInfo) {
-            resolve((StoreInfo) info);
-        } else if (info instanceof StyleInfo) {
-            resolve((StyleInfo) info);
-        } else if (info instanceof WorkspaceInfo) {
-            resolve((WorkspaceInfo) info);
+        if (info instanceof LayerGroupInfo lg) {
+            resolve(lg);
+        } else if (info instanceof LayerInfo l) {
+            resolve(l);
+        } else if (info instanceof MapInfo m) {
+            resolve(m);
+        } else if (info instanceof NamespaceInfo ns) {
+            resolve(ns);
+        } else if (info instanceof ResourceInfo res) {
+            resolve(res);
+        } else if (info instanceof StoreInfo st) {
+            resolve(st);
+        } else if (info instanceof StyleInfo style) {
+            resolve(style);
+        } else if (info instanceof WorkspaceInfo ws) {
+            resolve(ws);
         } else {
             throw new IllegalArgumentException("Unknown resource type: " + info);
         }
@@ -83,17 +83,17 @@ public class DefaultPropertyValuesResolver {
         ResourceInfoImpl r = (ResourceInfoImpl) resource;
         r.setCatalog(catalog);
 
-        if (resource instanceof FeatureTypeInfo) {
-            resolve((FeatureTypeInfo) resource);
+        if (resource instanceof FeatureTypeInfo ft) {
+            resolve(ft);
         }
-        if (r instanceof CoverageInfo) {
-            resolve((CoverageInfo) resource);
+        if (r instanceof CoverageInfo c) {
+            resolve(c);
         }
-        if (r instanceof WMSLayerInfo) {
-            resolve((WMSLayerInfo) resource);
+        if (r instanceof WMSLayerInfo wms) {
+            resolve(wms);
         }
-        if (r instanceof WMTSLayerInfo) {
-            resolve((WMTSLayerInfo) resource);
+        if (r instanceof WMTSLayerInfo wmts) {
+            resolve(wmts);
         }
     }
 
@@ -130,8 +130,7 @@ public class DefaultPropertyValuesResolver {
     }
 
     private WMTSLayerInfo resolve(WMTSLayerInfo wmtsLayer) {
-        if (wmtsLayer instanceof WMTSLayerInfoImpl) {
-            WMTSLayerInfoImpl impl = (WMTSLayerInfoImpl) wmtsLayer;
+        if (wmtsLayer instanceof WMTSLayerInfoImpl impl) {
             resolveCollections(impl);
         }
         return wmtsLayer;

@@ -125,17 +125,17 @@ public class ResolvingProxyResolver<T extends Info> implements UnaryOperator<T> 
             return resolved;
         }
 
-        if (orig instanceof StyleInfo) return (I) resolveInternal((StyleInfo) orig);
+        if (orig instanceof StyleInfo style) return (I) resolveInternal(style);
 
-        if (orig instanceof PublishedInfo) return (I) resolveInternal((PublishedInfo) orig);
+        if (orig instanceof PublishedInfo published) return (I) resolveInternal(published);
 
-        if (orig instanceof ResourceInfo) return (I) resolveInternal((ResourceInfo) orig);
+        if (orig instanceof ResourceInfo resource) return (I) resolveInternal(resource);
 
-        if (orig instanceof StoreInfo) return (I) resolveInternal((StoreInfo) orig);
+        if (orig instanceof StoreInfo store) return (I) resolveInternal(store);
 
-        if (orig instanceof SettingsInfo) return (I) resolveInternal((SettingsInfo) orig);
+        if (orig instanceof SettingsInfo settings) return (I) resolveInternal(settings);
 
-        if (orig instanceof ServiceInfo) return (I) resolveInternal((ServiceInfo) orig);
+        if (orig instanceof ServiceInfo service) return (I) resolveInternal(service);
 
         return orig;
     }
@@ -153,8 +153,8 @@ public class ResolvingProxyResolver<T extends Info> implements UnaryOperator<T> 
             boolean isProxy = Proxy.isProxyClass(unresolved.getClass());
             if (isProxy) {
                 InvocationHandler invocationHandler = Proxy.getInvocationHandler(unresolved);
-                if (invocationHandler instanceof ResolvingProxy) {
-                    return (ResolvingProxy) invocationHandler;
+                if (invocationHandler instanceof ResolvingProxy resolvingProxy) {
+                    return resolvingProxy;
                 }
             }
         }
@@ -163,10 +163,9 @@ public class ResolvingProxyResolver<T extends Info> implements UnaryOperator<T> 
 
     @SuppressWarnings("unchecked")
     protected <P extends PublishedInfo> P resolveInternal(P published) {
-        if (published instanceof LayerInfo) return (P) resolveInternal((LayerInfo) published);
+        if (published instanceof LayerInfo layer) return (P) resolveInternal(layer);
 
-        if (published instanceof LayerGroupInfo)
-            return (P) resolveInternal((LayerGroupInfo) published);
+        if (published instanceof LayerGroupInfo lg) return (P) resolveInternal(lg);
 
         return published;
     }

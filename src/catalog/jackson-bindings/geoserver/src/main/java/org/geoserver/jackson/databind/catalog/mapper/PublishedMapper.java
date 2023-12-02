@@ -19,8 +19,8 @@ public interface PublishedMapper {
 
     default PublishedInfo map(Published dto) {
         if (dto == null) return null;
-        if (dto instanceof Layer) return map((Layer) dto);
-        if (dto instanceof LayerGroup) return map((LayerGroup) dto);
+        if (dto instanceof Layer l) return map(l);
+        if (dto instanceof LayerGroup lg) return map(lg);
 
         throw new IllegalArgumentException(
                 "Unknown Published type: " + dto.getClass().getCanonicalName());
@@ -28,8 +28,8 @@ public interface PublishedMapper {
 
     default Published map(PublishedInfo info) {
         if (info == null) return null;
-        if (info instanceof LayerInfo) return map((LayerInfo) info);
-        if (info instanceof LayerGroupInfo) return map((LayerGroupInfo) info);
+        if (info instanceof LayerInfo l) return map(l);
+        if (info instanceof LayerGroupInfo lg) return map(lg);
 
         throw new IllegalArgumentException(
                 "Unknown PublishedInfo type: " + info.getClass().getCanonicalName());

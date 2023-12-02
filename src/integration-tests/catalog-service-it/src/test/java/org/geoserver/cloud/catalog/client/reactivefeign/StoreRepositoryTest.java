@@ -62,12 +62,12 @@ public class StoreRepositoryTest
         assertEquals(expected.getType(), actual.getType());
         assertEquals(expected.getWorkspace(), actual.getWorkspace());
         assertEquals(expected.isEnabled(), actual.isEnabled());
-        if (expected instanceof CoverageStoreInfo)
+        if (expected instanceof CoverageStoreInfo cov)
             assertEquals(
-                    ((CoverageStoreInfo) expected).getURL(), ((CoverageStoreInfo) actual).getURL());
-        if (expected instanceof HTTPStoreInfo)
+                    cov.getURL(), ((CoverageStoreInfo) actual).getURL());
+        if (expected instanceof HTTPStoreInfo httpStore)
             assertEquals(
-                    ((HTTPStoreInfo) expected).getCapabilitiesURL(),
+            		httpStore.getCapabilitiesURL(),
                     ((HTTPStoreInfo) actual).getCapabilitiesURL());
     }
 

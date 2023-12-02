@@ -89,16 +89,16 @@ public class GeometryDeserializer<T extends Geometry> extends JsonDeserializer<T
 
     private int getDimensions(ObjectNode geometryNode) {
         JsonNode dimensionsProperty = geometryNode.findValue("dimensions");
-        if (dimensionsProperty instanceof NumericNode) {
-            return ((NumericNode) dimensionsProperty).asInt();
+        if (dimensionsProperty instanceof NumericNode numericNode) {
+            return numericNode.asInt();
         }
         return 2;
     }
 
     private boolean resolveHasM(ObjectNode geometryNode) {
         JsonNode hasMProperty = geometryNode.findValue("hasM");
-        if (hasMProperty instanceof BooleanNode) {
-            return ((BooleanNode) hasMProperty).asBoolean();
+        if (hasMProperty instanceof BooleanNode booleanNode) {
+            return booleanNode.asBoolean();
         }
         return false;
     }

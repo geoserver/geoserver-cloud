@@ -529,8 +529,7 @@ public class CatalogTestData {
 
     public void assertEqualsLenientConnectionParameters(Info info1, Info info2) {
         if (info1 != null && info2 != null) {
-            if (info1 instanceof DataStoreInfo) {
-                DataStoreInfo ds1 = (DataStoreInfo) info1;
+            if (info1 instanceof DataStoreInfo ds1) {
                 DataStoreInfo ds2 = (DataStoreInfo) info2;
                 Map<String, Serializable> p1 = new HashMap<>(ds1.getConnectionParameters());
                 Map<String, Serializable> p2 = new HashMap<>(ds2.getConnectionParameters());

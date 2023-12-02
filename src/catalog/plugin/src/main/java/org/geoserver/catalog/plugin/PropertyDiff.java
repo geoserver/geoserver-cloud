@@ -166,9 +166,9 @@ public @Data class PropertyDiff implements Serializable {
 
         private boolean isNullOrEmpty(Object o) {
             if (o == null) return true;
-            if (o instanceof String) return ((String) o).isEmpty();
-            if (o instanceof Collection) return ((Collection<?>) o).isEmpty();
-            if (o instanceof Map) return ((Map<?, ?>) o).isEmpty();
+            if (o instanceof String s) return s.isEmpty();
+            if (o instanceof Collection c) return c.isEmpty();
+            if (o instanceof Map m) return m.isEmpty();
             return false;
         }
 
@@ -323,12 +323,10 @@ public @Data class PropertyDiff implements Serializable {
             return this;
         }
 
-        @SuppressWarnings({"unchecked", "rawtypes"})
+        @SuppressWarnings({"unchecked"})
         public static <V> V copySafe(V val) {
-            if (val instanceof Collection) return (V) copyOf((Collection) val);
-            if (val instanceof Map) {
-                return (V) copyOf((Map<?, ?>) val);
-            }
+            if (val instanceof Collection c) return (V) copyOf(c);
+            if (val instanceof Map m) return (V) copyOf(m);
             return val;
         }
 
@@ -341,9 +339,9 @@ public @Data class PropertyDiff implements Serializable {
 
             Stream<R> stream = val.stream().map(PropertyDiffBuilder::copySafe).map(mapper);
 
-            if (val instanceof SortedSet) {
+            if (val instanceof SortedSet set) {
                 @SuppressWarnings("unchecked")
-                Comparator<Object> comparator = ((SortedSet<Object>) val).comparator();
+                Comparator<Object> comparator = set.comparator();
                 return stream.collect(Collectors.toCollection(() -> new TreeSet<>(comparator)));
             }
             if (val instanceof Set) {
@@ -361,8 +359,8 @@ public @Data class PropertyDiff implements Serializable {
             Map target;
             if (val instanceof MetadataMap) {
                 target = new MetadataMap();
-            } else if (val instanceof SortedMap) {
-                Comparator comparator = ((SortedMap) val).comparator();
+            } else if (val instanceof SortedMap sortedMap) {
+                Comparator comparator = sortedMap.comparator();
                 target = new TreeMap<>(comparator);
             } else {
                 target = new HashMap<>();

@@ -399,10 +399,10 @@ public class DefaultCatalogValidator implements CatalogValidator {
         checkLayerGroupResourceIsInWorkspace(layerGroup.getRootLayerStyle(), ws);
         if (layerGroup.getLayers() != null) {
             for (PublishedInfo p : layerGroup.getLayers()) {
-                if (p instanceof LayerGroupInfo) {
-                    checkLayerGroupResourceIsInWorkspace((LayerGroupInfo) p, ws);
-                } else if (p instanceof LayerInfo) {
-                    checkLayerGroupResourceIsInWorkspace((LayerInfo) p, ws);
+                if (p instanceof LayerGroupInfo lg) {
+                    checkLayerGroupResourceIsInWorkspace(lg, ws);
+                } else if (p instanceof LayerInfo l) {
+                    checkLayerGroupResourceIsInWorkspace(l, ws);
                 }
             }
         }

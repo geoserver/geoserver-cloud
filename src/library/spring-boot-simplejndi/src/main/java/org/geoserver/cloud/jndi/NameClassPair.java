@@ -19,10 +19,11 @@ class NameClassPair extends javax.naming.NameClassPair {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof javax.naming.NameClassPair)) return false;
-        javax.naming.NameClassPair p = (javax.naming.NameClassPair) o;
-        return Objects.equals(getName(), p.getName())
-                && Objects.equals(getClassName(), p.getClassName());
+        if (o instanceof javax.naming.NameClassPair p) {
+            return Objects.equals(getName(), p.getName())
+                    && Objects.equals(getClassName(), p.getClassName());
+        }
+        return false;
     }
 
     @Override

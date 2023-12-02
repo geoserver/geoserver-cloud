@@ -461,8 +461,7 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
     @Override
     public void syncTo(CatalogInfoRepository<T> target) {
         requireNonNull(target);
-        if (target instanceof CatalogInfoLookup) {
-            CatalogInfoLookup<T> other = (CatalogInfoLookup<T>) target;
+        if (target instanceof CatalogInfoLookup<T> other) {
             other.clear();
             other.idMultiMap.putAll(this.idMultiMap);
             other.nameMultiMap.putAll(this.nameMultiMap);

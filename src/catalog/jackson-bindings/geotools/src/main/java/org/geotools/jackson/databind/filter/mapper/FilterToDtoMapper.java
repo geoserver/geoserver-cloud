@@ -123,8 +123,7 @@ interface FilterToDtoMapper {
     default Filter.Id.FeatureId map(org.geotools.api.filter.identity.Identifier id) {
         if (id == null) return null;
         Filter.Id.FeatureId fid;
-        if (id instanceof ResourceId) {
-            ResourceId rid = (ResourceId) id;
+        if (id instanceof ResourceId rid) {
             Filter.Id.ResourceId resourceId = new Filter.Id.ResourceId();
             fid = resourceId;
             resourceId.setStartTime(rid.getStartTime()).setEndTime(rid.getEndTime());

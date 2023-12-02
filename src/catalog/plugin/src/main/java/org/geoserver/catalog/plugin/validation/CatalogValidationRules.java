@@ -95,32 +95,32 @@ public class CatalogValidationRules {
     private <T extends CatalogInfo>
             T workAroundModificationProxyBugCallingVisitorWithUnwrappedObject(
                     T info, CatalogVisitor visitor) {
-        if (info instanceof LayerGroupInfo) {
-            visitor.visit((LayerGroupInfo) info);
-        } else if (info instanceof LayerInfo) {
-            visitor.visit((LayerInfo) info);
-        } else if (info instanceof NamespaceInfo) {
-            visitor.visit((NamespaceInfo) info);
-        } else if (info instanceof CoverageInfo) {
-            visitor.visit((CoverageInfo) info);
-        } else if (info instanceof FeatureTypeInfo) {
-            visitor.visit((FeatureTypeInfo) info);
-        } else if (info instanceof WMSLayerInfo) {
-            visitor.visit((WMSLayerInfo) info);
-        } else if (info instanceof WMTSLayerInfo) {
-            visitor.visit((WMTSLayerInfo) info);
-        } else if (info instanceof CoverageStoreInfo) {
-            visitor.visit((CoverageStoreInfo) info);
-        } else if (info instanceof DataStoreInfo) {
-            visitor.visit((DataStoreInfo) info);
-        } else if (info instanceof WMSStoreInfo) {
-            visitor.visit((WMSStoreInfo) info);
-        } else if (info instanceof WMTSStoreInfo) {
-            visitor.visit((WMTSStoreInfo) info);
-        } else if (info instanceof StyleInfo) {
-            visitor.visit((StyleInfo) info);
-        } else if (info instanceof WorkspaceInfo) {
-            visitor.visit((WorkspaceInfo) info);
+        if (info instanceof LayerGroupInfo lg) {
+            visitor.visit(lg);
+        } else if (info instanceof LayerInfo l) {
+            visitor.visit(l);
+        } else if (info instanceof NamespaceInfo ns) {
+            visitor.visit(ns);
+        } else if (info instanceof CoverageInfo coverage) {
+            visitor.visit(coverage);
+        } else if (info instanceof FeatureTypeInfo ft) {
+            visitor.visit(ft);
+        } else if (info instanceof WMSLayerInfo wmsLayer) {
+            visitor.visit(wmsLayer);
+        } else if (info instanceof WMTSLayerInfo wmtsLayer) {
+            visitor.visit(wmtsLayer);
+        } else if (info instanceof CoverageStoreInfo cs) {
+            visitor.visit(cs);
+        } else if (info instanceof DataStoreInfo ds) {
+            visitor.visit(ds);
+        } else if (info instanceof WMSStoreInfo wmss) {
+            visitor.visit(wmss);
+        } else if (info instanceof WMTSStoreInfo wmtss) {
+            visitor.visit(wmtss);
+        } else if (info instanceof StyleInfo style) {
+            visitor.visit(style);
+        } else if (info instanceof WorkspaceInfo ws) {
+            visitor.visit(ws);
         } else {
             throw new IllegalArgumentException("Unknown resource type: " + info);
         }
@@ -128,22 +128,22 @@ public class CatalogValidationRules {
     }
 
     public <T extends CatalogInfo> void beforeRemove(T info) {
-        if (info instanceof LayerGroupInfo) {
-            beforeRemove((LayerGroupInfo) info);
-        } else if (info instanceof LayerInfo) {
-            beforeRemove((LayerInfo) info);
-        } else if (info instanceof MapInfo) {
-            beforeRemove((MapInfo) info);
-        } else if (info instanceof NamespaceInfo) {
-            beforeRemove((NamespaceInfo) info);
-        } else if (info instanceof ResourceInfo) {
-            beforeRemove((ResourceInfo) info);
-        } else if (info instanceof StoreInfo) {
-            beforeRemove((StoreInfo) info);
-        } else if (info instanceof StyleInfo) {
-            beforeRemove((StyleInfo) info);
-        } else if (info instanceof WorkspaceInfo) {
-            beforeRemove((WorkspaceInfo) info);
+        if (info instanceof LayerGroupInfo lg) {
+            beforeRemove(lg);
+        } else if (info instanceof LayerInfo l) {
+            beforeRemove(l);
+        } else if (info instanceof MapInfo map) {
+            beforeRemove(map);
+        } else if (info instanceof NamespaceInfo ns) {
+            beforeRemove(ns);
+        } else if (info instanceof ResourceInfo res) {
+            beforeRemove(res);
+        } else if (info instanceof StoreInfo s) {
+            beforeRemove(s);
+        } else if (info instanceof StyleInfo style) {
+            beforeRemove(style);
+        } else if (info instanceof WorkspaceInfo ws) {
+            beforeRemove(ws);
         } else {
             throw new IllegalArgumentException("Unknown resource type: " + info);
         }

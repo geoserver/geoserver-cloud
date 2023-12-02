@@ -121,8 +121,8 @@ public abstract class LockingSupport {
 
     public static String nameOf(Info object) {
         if (null == object) return null;
-        if (object instanceof SettingsInfo) {
-            WorkspaceInfo ws = ((SettingsInfo) object).getWorkspace();
+        if (object instanceof SettingsInfo settings) {
+            WorkspaceInfo ws = settings.getWorkspace();
             if (ws != null) return ws.getName();
         }
         String property = object instanceof NamespaceInfo ? "prefix" : "name";

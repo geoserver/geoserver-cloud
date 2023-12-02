@@ -127,7 +127,7 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
                         log.trace("Loading document {}", r);
                         return super.doLoadDocument(inputSource, resource);
                     } catch (Exception e) {
-                        if (e instanceof RuntimeException) throw (RuntimeException) e;
+                        if (e instanceof RuntimeException rte) throw rte;
                         throw (RuntimeException)
                                 new BeanDefinitionStoreException(e.getMessage()).initCause(e);
                     }

@@ -54,8 +54,8 @@ public class RemoteGeoServerEventMapper {
         GeoServerEvent<?> event = incoming.getEvent();
         event.setRemote(true);
         event.setOrigin(incoming.getOriginService());
-        if (event instanceof InfoEvent)
-            event = remoteEventsPropertyResolver.resolve((InfoEvent<?, ?>) event);
+        if (event instanceof InfoEvent infoEvent)
+            event = remoteEventsPropertyResolver.resolve(infoEvent);
         return event;
     }
 }

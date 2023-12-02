@@ -66,8 +66,7 @@ class CachingGeoServerFacadeImpl extends ForwardingGeoServerFacade
                 return true;
             }
         }
-        if (info instanceof ServiceInfo) {
-            ServiceInfo service = (ServiceInfo) info;
+        if (info instanceof ServiceInfo service) {
             Object idKey = CachingGeoServerFacade.serviceByIdKey(service.getId());
             ValueWrapper cachedValue = cache.get(idKey);
             if (cachedValue != null) {

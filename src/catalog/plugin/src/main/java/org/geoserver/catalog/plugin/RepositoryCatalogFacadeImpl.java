@@ -540,9 +540,8 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
     @Override
     public void syncTo(CatalogFacade to) {
         final CatalogFacade dao = ProxyUtils.unwrap(to, LockingCatalogFacade.class);
-        if (dao instanceof CatalogInfoRepositoryHolder) {
+        if (dao instanceof CatalogInfoRepositoryHolder other) {
             // do an optimized sync
-            CatalogInfoRepositoryHolder other = (CatalogInfoRepositoryHolder) dao;
             this.workspaces.syncTo(other.getWorkspaceRepository());
             this.namespaces.syncTo(other.getNamespaceRepository());
             this.stores.syncTo(other.getStoreRepository());

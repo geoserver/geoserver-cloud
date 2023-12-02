@@ -99,11 +99,11 @@ public class ProxyUtils {
     }
 
     private Object resolvePatchPropertyValue(Object orig) {
-        if (orig instanceof Info) {
-            return resolve((Info) orig);
+        if (orig instanceof Info info) {
+            return resolve(info);
         }
-        if (orig instanceof AttributeTypeInfo) {
-            return resolve((AttributeTypeInfo) orig);
+        if (orig instanceof AttributeTypeInfo att) {
+            return resolve(att);
         }
         if (orig instanceof List) {
             @SuppressWarnings("unchecked")
@@ -173,15 +173,15 @@ public class ProxyUtils {
                 throw new IllegalArgumentException("Reference to " + unresolved.getId());
             return null;
         } else if (!Proxy.isProxyClass(info.getClass())) {
-            if (info instanceof StyleInfo) resolveInternal((StyleInfo) info);
-            if (info instanceof LayerInfo) resolveInternal((LayerInfo) info);
-            if (info instanceof LayerGroupInfo) resolveInternal((LayerGroupInfo) info);
-            if (info instanceof ResourceInfo) resolveInternal((ResourceInfo) info);
-            if (info instanceof StoreInfo) resolveInternal((StoreInfo) info);
-            if (info instanceof SettingsInfo) resolveInternal((SettingsInfo) info);
-            if (info instanceof ServiceInfo) resolveInternal((ServiceInfo) info);
-            if (info instanceof GeoServerInfo) resolveInternal((GeoServerInfo) info);
-            if (info instanceof LoggingInfo) resolveInternal((LoggingInfo) info);
+            if (info instanceof StyleInfo s) resolveInternal(s);
+            if (info instanceof LayerInfo l) resolveInternal(l);
+            if (info instanceof LayerGroupInfo lg) resolveInternal(lg);
+            if (info instanceof ResourceInfo r) resolveInternal(r);
+            if (info instanceof StoreInfo s) resolveInternal(s);
+            if (info instanceof SettingsInfo s) resolveInternal(s);
+            if (info instanceof ServiceInfo s) resolveInternal(s);
+            if (info instanceof GeoServerInfo g) resolveInternal(g);
+            if (info instanceof LoggingInfo l) resolveInternal(l);
         }
         return info;
     }
@@ -239,8 +239,8 @@ public class ProxyUtils {
     }
 
     protected <T extends PublishedInfo> T resolveInternal(T published) {
-        if (published instanceof LayerInfo) resolve((LayerInfo) published);
-        else if (published instanceof LayerGroupInfo) resolve((LayerGroupInfo) published);
+        if (published instanceof LayerInfo l) resolve(l);
+        else if (published instanceof LayerGroupInfo lg) resolve(lg);
         return published;
     }
 

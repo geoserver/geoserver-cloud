@@ -825,8 +825,7 @@ public abstract class PatchSerializationTest {
 
     protected String typeName(Object mp) {
         if (mp == null) return null;
-        if (mp instanceof Info) {
-            Info info = (Info) mp;
+        if (mp instanceof Info info) {
             if (ProxyUtils.isResolvingProxy(info)) return "ResolvingProxy";
             if (ProxyUtils.isModificationProxy(info)) return "ModificationProxy";
         }
@@ -840,8 +839,7 @@ public abstract class PatchSerializationTest {
     }
 
     protected void assertNotAProxy(Object value) {
-        if (value instanceof Info) {
-            Info info = (Info) value;
+        if (value instanceof Info info) {
             assertThat(ProxyUtils.isResolvingProxy(info))
                     .as(
                             () ->
@@ -891,14 +889,14 @@ public abstract class PatchSerializationTest {
     }
 
     private void assertValueObject(Object valueObject, Class<?> valueType) {
-        if (valueObject instanceof Info) {
+        if (valueObject instanceof Info info) {
             Supplier<String> msg =
                     () ->
                             String.format(
                                     "expected pure value object of type %s, got %s",
                                     valueType.getCanonicalName(), typeName(valueObject));
-            assertThat(ProxyUtils.isResolvingProxy((Info) valueObject)).as(msg).isFalse();
-            assertThat(ProxyUtils.isModificationProxy((Info) valueObject)).as(msg).isFalse();
+            assertThat(ProxyUtils.isResolvingProxy(info)).as(msg).isFalse();
+            assertThat(ProxyUtils.isModificationProxy(info)).as(msg).isFalse();
         }
         assertThat(valueObject).isInstanceOf(valueType);
     }

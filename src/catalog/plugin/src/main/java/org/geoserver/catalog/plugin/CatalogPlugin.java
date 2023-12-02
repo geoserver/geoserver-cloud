@@ -235,8 +235,8 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
         ExtendedCatalogFacade efacade;
         Function<CatalogInfo, CatalogInfo> outboundResolver;
         Function<CatalogInfo, CatalogInfo> inboundResolver;
-        if (facade instanceof ExtendedCatalogFacade) {
-            efacade = (ExtendedCatalogFacade) rawFacade;
+        if (facade instanceof ExtendedCatalogFacade extended) {
+            efacade = extended;
             // make sure no object leaves the catalog without being proxied, nor enters the facade
             // as a proxy. Note it is ok if the provided facade is already a ResolvingCatalogFacade.
             // This catalog doesn't care which object resolution chain the provided facade needs to
@@ -1536,13 +1536,12 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
 
     private Optional<String> getIdIfIdFilter(Filter filter) {
         String id = null;
-        if (filter instanceof Id) {
-            Set<Identifier> identifiers = ((Id) filter).getIdentifiers();
+        if (filter instanceof Id idFilter) {
+            Set<Identifier> identifiers = idFilter.getIdentifiers();
             if (identifiers.size() == 1) {
                 id = identifiers.iterator().next().toString();
             }
-        } else if (filter instanceof PropertyIsEqualTo) {
-            PropertyIsEqualTo eq = (PropertyIsEqualTo) filter;
+        } else if (filter instanceof PropertyIsEqualTo eq) {
             boolean idProperty =
                     (eq.getExpression1() instanceof PropertyName)
                             && "id".equals(((PropertyName) eq.getExpression1()).getPropertyName());

@@ -36,13 +36,13 @@ public interface CatalogInfoMapper {
     @SuppressWarnings("unchecked")
     default <I extends CatalogInfo> I map(CatalogInfoDto dto) {
         if (dto == null) return null;
-        if (dto instanceof Workspace) return (I) WORKSPACE_MAPPER.map((Workspace) dto);
-        if (dto instanceof Namespace) return (I) NAMESPACE_MAPPER.map((Namespace) dto);
-        if (dto instanceof Store) return (I) STORE_MAPPER.map((Store) dto);
-        if (dto instanceof Resource) return (I) RESOURCE_MAPPER.map((Resource) dto);
-        if (dto instanceof Published) return (I) PUBLISHED_MAPPER.map((Published) dto);
-        if (dto instanceof Style) return (I) STYLE_MAPPER.map((Style) dto);
-        if (dto instanceof Map) return (I) MAP_MAPPER.map((Map) dto);
+        if (dto instanceof Workspace ws) return (I) WORKSPACE_MAPPER.map(ws);
+        if (dto instanceof Namespace ns) return (I) NAMESPACE_MAPPER.map(ns);
+        if (dto instanceof Store store) return (I) STORE_MAPPER.map(store);
+        if (dto instanceof Resource res) return (I) RESOURCE_MAPPER.map(res);
+        if (dto instanceof Published published) return (I) PUBLISHED_MAPPER.map(published);
+        if (dto instanceof Style style) return (I) STYLE_MAPPER.map(style);
+        if (dto instanceof Map map) return (I) MAP_MAPPER.map(map);
 
         throw new IllegalArgumentException(
                 "Unknown CatalogInfoDto type: " + dto.getClass().getCanonicalName());
@@ -50,13 +50,13 @@ public interface CatalogInfoMapper {
 
     default CatalogInfoDto map(CatalogInfo info) {
         if (info == null) return null;
-        if (info instanceof WorkspaceInfo) return WORKSPACE_MAPPER.map((WorkspaceInfo) info);
-        if (info instanceof NamespaceInfo) return NAMESPACE_MAPPER.map((NamespaceInfo) info);
-        if (info instanceof StoreInfo) return STORE_MAPPER.map((StoreInfo) info);
-        if (info instanceof ResourceInfo) return RESOURCE_MAPPER.map((ResourceInfo) info);
-        if (info instanceof PublishedInfo) return PUBLISHED_MAPPER.map((PublishedInfo) info);
-        if (info instanceof StyleInfo) return STYLE_MAPPER.map((StyleInfo) info);
-        if (info instanceof MapInfo) return MAP_MAPPER.map((MapInfo) info);
+        if (info instanceof WorkspaceInfo ws) return WORKSPACE_MAPPER.map(ws);
+        if (info instanceof NamespaceInfo ns) return NAMESPACE_MAPPER.map(ns);
+        if (info instanceof StoreInfo store) return STORE_MAPPER.map(store);
+        if (info instanceof ResourceInfo res) return RESOURCE_MAPPER.map(res);
+        if (info instanceof PublishedInfo published) return PUBLISHED_MAPPER.map(published);
+        if (info instanceof StyleInfo style) return STYLE_MAPPER.map(style);
+        if (info instanceof MapInfo map) return MAP_MAPPER.map(map);
         if (info instanceof CatalogInfo) return null;
         throw new IllegalArgumentException(
                 "Unknown CatalogInfo type: " + info.getClass().getCanonicalName());

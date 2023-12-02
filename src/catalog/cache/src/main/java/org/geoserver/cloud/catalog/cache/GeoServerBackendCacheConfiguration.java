@@ -38,12 +38,11 @@ public class GeoServerBackendCacheConfiguration implements BeanPostProcessor {
     @Bean
     CachingCatalogFacade cachingCatalogFacade(
             @Qualifier("catalogFacade") CatalogFacade rawCatalogFacade) {
-        CatalogFacade raw = rawCatalogFacade;
         ExtendedCatalogFacade facade;
-        if (raw instanceof ExtendedCatalogFacade) {
-            facade = (ExtendedCatalogFacade) rawCatalogFacade;
+        if (rawCatalogFacade instanceof ExtendedCatalogFacade ecf) {
+            facade = ecf;
         } else {
-            facade = new CatalogFacadeExtensionAdapter(raw);
+            facade = new CatalogFacadeExtensionAdapter(rawCatalogFacade);
         }
         return new CachingCatalogFacadeImpl(facade);
     }

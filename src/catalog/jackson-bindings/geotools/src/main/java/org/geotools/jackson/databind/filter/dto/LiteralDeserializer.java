@@ -159,8 +159,8 @@ public class LiteralDeserializer extends JsonDeserializer<Literal> {
                     item = null;
                 } else {
                     item = ctxt.readValue(parser, contentType);
-                    if (item instanceof Literal) {
-                        item = ((Literal) item).getValue();
+                    if (item instanceof Literal literal) {
+                        item = literal.getValue();
                     }
                 }
                 value.add(item);

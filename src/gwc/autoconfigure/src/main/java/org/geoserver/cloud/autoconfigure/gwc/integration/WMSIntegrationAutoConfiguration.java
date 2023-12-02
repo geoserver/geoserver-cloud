@@ -171,8 +171,8 @@ public class WMSIntegrationAutoConfiguration {
             final byte[] tileBytes;
             {
                 final Resource mapContents = cachedTile.getBlob();
-                if (mapContents instanceof ByteArrayResource) {
-                    tileBytes = ((ByteArrayResource) mapContents).getContents();
+                if (mapContents instanceof ByteArrayResource bar) {
+                    tileBytes = bar.getContents();
                 } else {
                     ByteArrayOutputStream out = new ByteArrayOutputStream();
                     mapContents.transferTo(Channels.newChannel(out));

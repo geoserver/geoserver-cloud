@@ -185,12 +185,12 @@ public abstract class GeoToolsGeoJsonModuleTest {
 
     private CoordinateSequence findCoordSeq(Geometry g) {
         if (g == null || g.isEmpty()) return null;
-        if (g instanceof GeometryCollection) {
-            return findCoordSeq(g.getGeometryN(0));
+        if (g instanceof GeometryCollection col) {
+            return findCoordSeq(col.getGeometryN(0));
         }
-        if (g instanceof Point) return ((Point) g).getCoordinateSequence();
-        if (g instanceof LineString) return ((LineString) g).getCoordinateSequence();
-        if (g instanceof Polygon) return findCoordSeq(((Polygon) g).getExteriorRing());
+        if (g instanceof Point point) return point.getCoordinateSequence();
+        if (g instanceof LineString line) return line.getCoordinateSequence();
+        if (g instanceof Polygon poly) return findCoordSeq(poly.getExteriorRing());
         return null;
     }
 

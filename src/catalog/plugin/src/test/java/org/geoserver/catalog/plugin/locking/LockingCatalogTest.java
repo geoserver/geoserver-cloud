@@ -156,18 +156,17 @@ class LockingCatalogTest {
         configLock.lock(LockType.WRITE);
         try {
             for (CatalogInfo info : infos) {
-                if (info instanceof WorkspaceInfo) ((WorkspaceInfo) info).setName(faker.name());
-                else if (info instanceof NamespaceInfo) ((NamespaceInfo) info).setURI(faker.url());
-                else if (info instanceof DataStoreInfo) {
-                    ((DataStoreInfo) info).setName(faker.name());
-                    ((DataStoreInfo) info).getConnectionParameters().put("someparam", "somevalue");
-                    ((DataStoreInfo) info).getMetadata().put("somekey", "key value");
-                } else if (info instanceof FeatureTypeInfo)
-                    ((FeatureTypeInfo) info).setName(faker.name());
-                else if (info instanceof LayerInfo) ((LayerInfo) info).setAdvertised(false);
-                else if (info instanceof StyleInfo) {
-                    ((StyleInfo) info).setDateModified(new Date());
-                    ((StyleInfo) info).getMetadata().put("somekey", "key value");
+                if (info instanceof WorkspaceInfo ws) ws.setName(faker.name());
+                else if (info instanceof NamespaceInfo ns) ns.setURI(faker.url());
+                else if (info instanceof DataStoreInfo ds) {
+                    ds.setName(faker.name());
+                    ds.getConnectionParameters().put("someparam", "somevalue");
+                    ds.getMetadata().put("somekey", "key value");
+                } else if (info instanceof FeatureTypeInfo ft) ft.setName(faker.name());
+                else if (info instanceof LayerInfo l) l.setAdvertised(false);
+                else if (info instanceof StyleInfo s) {
+                    s.setDateModified(new Date());
+                    s.getMetadata().put("somekey", "key value");
                 } else {
                     throw new IllegalStateException("Unexpected catalog info type " + info);
                 }

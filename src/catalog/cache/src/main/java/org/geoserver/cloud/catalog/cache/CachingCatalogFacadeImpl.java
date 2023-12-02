@@ -57,18 +57,16 @@ class CachingCatalogFacadeImpl extends ForwardingExtendedCatalogFacade
             return evicted;
         }
 
-        if (info instanceof ResourceInfo) {
-            CatalogInfoKey layersByResourceKey = generateLayersByResourceKey((ResourceInfo) info);
+        if (info instanceof ResourceInfo ri) {
+            CatalogInfoKey layersByResourceKey = generateLayersByResourceKey(ri);
             idCache.evict(layersByResourceKey);
-        } else if (info instanceof LayerInfo) {
-            LayerInfo l = (LayerInfo) info;
+        } else if (info instanceof LayerInfo l) {
             ResourceInfo r = l.getResource();
             if (r != null) {
                 CatalogInfoKey layersByResourceKey = generateLayersByResourceKey(r);
                 idCache.evict(layersByResourceKey);
             }
-        } else if (info instanceof WorkspaceInfo) {
-            WorkspaceInfo workspace = (WorkspaceInfo) info;
+        } else if (info instanceof WorkspaceInfo workspace) {
             idCache.evictIfPresent(CachingCatalogFacade.generateDefaultDataStoreKey(workspace));
         }
 

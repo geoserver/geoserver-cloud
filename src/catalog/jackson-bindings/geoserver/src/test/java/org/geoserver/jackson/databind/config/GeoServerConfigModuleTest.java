@@ -97,10 +97,9 @@ public abstract class GeoServerConfigModuleTest {
         OwsUtils.resolveCollections(resolved);
         assertEquals(orig, resolved);
         testData.assertInternationalStringPropertiesEqual(orig, resolved);
-        if (orig instanceof SettingsInfo) {
+        if (orig instanceof SettingsInfo settings) {
             // SettingsInfoImpl's equals() doesn't check workspace
-            assertEquals(
-                    ((SettingsInfo) orig).getWorkspace(), ((SettingsInfo) resolved).getWorkspace());
+            assertEquals(settings.getWorkspace(), ((SettingsInfo) resolved).getWorkspace());
         }
     }
 

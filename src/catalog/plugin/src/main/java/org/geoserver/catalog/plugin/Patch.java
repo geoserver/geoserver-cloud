@@ -38,7 +38,7 @@ public @Data class Patch implements Serializable {
 
         @Override
         public boolean equals(Object o) {
-            return o instanceof Property && valueEquals(value(), ((Property) o).value());
+            return o instanceof Property p && valueEquals(value(), p.value());
         }
 
         @Override

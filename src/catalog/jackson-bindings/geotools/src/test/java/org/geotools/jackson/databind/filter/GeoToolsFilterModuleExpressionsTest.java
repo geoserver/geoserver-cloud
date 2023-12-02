@@ -47,15 +47,14 @@ public abstract class GeoToolsFilterModuleExpressionsTest extends ExpressionRoun
                 objectMapper.readValue(
                         serialized, org.geotools.api.filter.expression.Expression.class);
 
-        if (expected instanceof Function) {
-            assertTrue(deserialized instanceof Function);
-            Function f1 = (Function) expected;
+        if (expected instanceof Function f1) {
+            assertThat(deserialized).isInstanceOf(Function.class);
             Function f2 = (Function) deserialized;
             assertEquals(f1.getName(), f2.getName());
             assertEquals(f1.getParameters(), f2.getParameters());
-        } else if (expected instanceof Literal) {
+        } else if (expected instanceof Literal literal) {
             assertThat(deserialized).isInstanceOf(Literal.class);
-            Object v1 = ((Literal) expected).getValue();
+            Object v1 = literal.getValue();
             Object v2 = ((Literal) deserialized).getValue();
             boolean valueEquals =
                     org.geotools.jackson.databind.filter.dto.Literal.valueEquals(v1, v2);

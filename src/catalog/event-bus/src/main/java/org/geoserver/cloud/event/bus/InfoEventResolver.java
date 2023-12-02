@@ -54,12 +54,10 @@ public class InfoEventResolver {
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     public InfoEvent<?, ?> resolve(InfoEvent event) {
-        if (event instanceof InfoAdded) {
-            InfoAdded addEvent = (InfoAdded) event;
+        if (event instanceof InfoAdded addEvent) {
             Info object = addEvent.getObject();
             addEvent.setObject(resolve(object));
-        } else if (event instanceof InfoModified) {
-            InfoModified modifyEvent = (InfoModified) event;
+        } else if (event instanceof InfoModified modifyEvent) {
             modifyEvent.setPatch(resolve(modifyEvent.getPatch()));
         }
         return event;
@@ -68,8 +66,8 @@ public class InfoEventResolver {
     @SuppressWarnings("unchecked")
     private <I extends Info> I resolve(I object) {
         if (object == null) return null;
-        if (object instanceof CatalogInfo) {
-            return (I) resolve((CatalogInfo) object);
+        if (object instanceof CatalogInfo i) {
+            return (I) resolve(i);
         }
         return (I) configInfoResolver.apply(object);
     }

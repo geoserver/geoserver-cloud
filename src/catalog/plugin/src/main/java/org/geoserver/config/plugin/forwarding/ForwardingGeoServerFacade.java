@@ -36,8 +36,8 @@ public class ForwardingGeoServerFacade implements RepositoryGeoServerFacade {
 
     @Override
     public void setRepository(ConfigRepository repository) {
-        if (facade instanceof RepositoryGeoServerFacade)
-            ((RepositoryGeoServerFacade) facade).setRepository(repository);
+        if (facade instanceof RepositoryGeoServerFacade repoFacade)
+            repoFacade.setRepository(repository);
 
         throw new IllegalStateException(
                 "subject GeoServerFacade is not a RepositoryGeoServerFacade");
@@ -161,8 +161,7 @@ public class ForwardingGeoServerFacade implements RepositoryGeoServerFacade {
 
     @Override
     public SettingsInfo getSettings(String id) {
-        if (facade instanceof RepositoryGeoServerFacade)
-            ((RepositoryGeoServerFacade) facade).getSettings(id);
+        if (facade instanceof RepositoryGeoServerFacade repoFacade) repoFacade.getSettings(id);
 
         throw new UnsupportedOperationException();
     }

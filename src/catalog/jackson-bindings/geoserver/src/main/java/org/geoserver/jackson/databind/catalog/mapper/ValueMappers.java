@@ -183,8 +183,7 @@ public interface ValueMappers {
 
     default double[] affineTransform(MathTransform tx) {
         double[] flatmatrix = null;
-        if (tx instanceof AffineTransform) {
-            AffineTransform atx = (AffineTransform) tx;
+        if (tx instanceof AffineTransform atx) {
             flatmatrix = new double[6];
             atx.getMatrix(flatmatrix);
         }
@@ -265,8 +264,7 @@ public interface ValueMappers {
     }
 
     default Map<String, String> internationalStringToDto(InternationalString s) {
-        if (s instanceof GrowableInternationalString) {
-            GrowableInternationalString gs = (GrowableInternationalString) s;
+        if (s instanceof GrowableInternationalString gs) {
             Set<Locale> locales = gs.getLocales();
             Map<String, String> dto = new HashMap<>(locales.size());
             locales.forEach(locale -> dto.put(localeToString(locale), gs.toString(locale)));

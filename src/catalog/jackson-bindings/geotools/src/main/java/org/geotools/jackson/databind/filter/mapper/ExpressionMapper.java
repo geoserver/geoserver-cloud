@@ -90,13 +90,13 @@ public abstract class ExpressionMapper {
 
     public org.geotools.api.filter.expression.Expression map(Expression source) {
         if (source == null) return null;
-        if (source instanceof Literal) return map((Literal) source);
-        if (source instanceof PropertyName) return map((PropertyName) source);
-        if (source instanceof Add) return map((Add) source);
-        if (source instanceof Subtract) return map((Subtract) source);
-        if (source instanceof Multiply) return map((Multiply) source);
-        if (source instanceof Divide) return map((Divide) source);
-        if (source instanceof Function) return map((Function) source);
+        if (source instanceof Literal literal) return map(literal);
+        if (source instanceof PropertyName prop) return map(prop);
+        if (source instanceof Add add) return map(add);
+        if (source instanceof Subtract subtract) return map(subtract);
+        if (source instanceof Multiply multiply) return map(multiply);
+        if (source instanceof Divide divide) return map(divide);
+        if (source instanceof Function function) return map(function);
         throw new IllegalArgumentException(
                 "Unrecognized expression type " + source.getClass().getName() + ": " + source);
     }
