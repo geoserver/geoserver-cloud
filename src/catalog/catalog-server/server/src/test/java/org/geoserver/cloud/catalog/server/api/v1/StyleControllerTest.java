@@ -48,7 +48,7 @@ public class StyleControllerTest extends AbstractReactiveCatalogControllerTest<S
         }
     }
 
-    public @Test void testStyleCRUD_NoWorkspace() {
+    @Test void testStyleCRUD_NoWorkspace() {
         StyleInfo style = testData.createStyle("styleCRUD", null, "styleCRUD", "styleCRUD.sld");
         ((StyleInfoImpl) style).setFormat(SLDHandler.FORMAT);
         ((StyleInfoImpl) style).setFormatVersion(SLDHandler.VERSION_10);
@@ -83,7 +83,7 @@ public class StyleControllerTest extends AbstractReactiveCatalogControllerTest<S
                 });
     }
 
-    public @Test void testStyleCRUD_Workspace() {
+    @Test void testStyleCRUD_Workspace() {
         StyleInfo style =
                 testData.createStyle(
                         "styleCRUD_Workspace",
@@ -155,7 +155,7 @@ public class StyleControllerTest extends AbstractReactiveCatalogControllerTest<S
         super.testQueryFilter(cql, ws1s1, ws1s2);
     }
 
-    public @Test void testFindStyleByNameAndNullWorkspace() {
+    @Test void testFindStyleByNameAndNullWorkspace() {
         WorkspaceInfo ws1 = testData.workspaceA;
         StyleInfo ws1s1 = testData.createStyle("s1ws1", ws1);
         catalog.add(ws1s1);
@@ -178,7 +178,7 @@ public class StyleControllerTest extends AbstractReactiveCatalogControllerTest<S
                 .consumeWith(r -> assertEquals(style.getId(), r.getResponseBody().getId()));
     }
 
-    public @Test void testfindStyleByWorkspaceIdAndName() {
+    @Test void testfindStyleByWorkspaceIdAndName() {
         WorkspaceInfo ws1 = testData.workspaceA;
         WorkspaceInfo ws2 = testData.workspaceB;
         StyleInfo ws1s1 = testData.createStyle("s1ws1", ws1);
@@ -205,7 +205,7 @@ public class StyleControllerTest extends AbstractReactiveCatalogControllerTest<S
                 .consumeWith(r -> assertEquals(style.getId(), r.getResponseBody().getId()));
     }
 
-    public @Test void testFindStylesByNullWorkspace() {
+    @Test void testFindStylesByNullWorkspace() {
         StyleInfo ws1s1 = testData.createStyle("s1ws1", testData.workspaceA);
         catalog.add(ws1s1);
 
@@ -231,7 +231,7 @@ public class StyleControllerTest extends AbstractReactiveCatalogControllerTest<S
                         });
     }
 
-    public @Test void testFindStylesByWorkspaceId() {
+    @Test void testFindStylesByWorkspaceId() {
         WorkspaceInfo ws1 = testData.workspaceA;
         WorkspaceInfo ws2 = testData.workspaceB;
 

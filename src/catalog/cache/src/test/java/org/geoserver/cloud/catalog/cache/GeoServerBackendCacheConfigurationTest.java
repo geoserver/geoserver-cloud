@@ -36,12 +36,14 @@ public class GeoServerBackendCacheConfigurationTest {
                             UserConfigurations.of(GeoServerBackendCacheConfiguration.class))
                     .withConfiguration(AutoConfigurations.of(CacheAutoConfiguration.class));
 
-    public @Test void testCachingCatalogFacade() {
+    @Test
+    void testCachingCatalogFacade() {
         contextRunner.run(
                 context -> context.isTypeMatch("cachingCatalogFacade", CachingCatalogFacade.class));
     }
 
-    public @Test void testCachingGeoServerFacade() {
+    @Test
+    void testCachingGeoServerFacade() {
         contextRunner.run(
                 context ->
                         context.isTypeMatch(

@@ -124,12 +124,14 @@ public class CachingGeoServerFacadeTest {
         this.cache.clear();
     }
 
-    public @Test void testGetGlobal() {
+    @Test
+    void testGetGlobal() {
         assertSameTimesN(global, caching::getGlobal, 3);
         verify(mock, times(1)).getGlobal();
     }
 
-    public @Test void testSetGlobal() {
+    @Test
+    void testSetGlobal() {
         assertSameTimesN(global, caching::getGlobal, 3);
         assertNotNull(cache.get(CachingGeoServerFacade.GEOSERVERINFO_KEY));
 
@@ -137,7 +139,8 @@ public class CachingGeoServerFacadeTest {
         assertNull(cache.get(CachingGeoServerFacade.GEOSERVERINFO_KEY));
     }
 
-    public @Test void testSaveGeoServerInfo() {
+    @Test
+    void testSaveGeoServerInfo() {
         assertSameTimesN(global, caching::getGlobal, 3);
         assertNotNull(cache.get(CachingGeoServerFacade.GEOSERVERINFO_KEY));
 
@@ -145,13 +148,15 @@ public class CachingGeoServerFacadeTest {
         assertNull(cache.get(CachingGeoServerFacade.GEOSERVERINFO_KEY));
     }
 
-    public @Test void testGetSettings() {
+    @Test
+    void testGetSettings() {
         assertSameTimesN(settings, () -> caching.getSettings(ws), 3);
         verify(mock, times(1)).getSettings(same(ws));
         assertNotNull(cache.get(CachingGeoServerFacade.settingsKey(ws)));
     }
 
-    public @Test void testSaveSettingsInfo() {
+    @Test
+    void testSaveSettingsInfo() {
         assertSameTimesN(settings, () -> caching.getSettings(ws), 3);
         verify(mock, times(1)).getSettings(same(ws));
         assertNotNull(cache.get(CachingGeoServerFacade.settingsKey(ws)));
@@ -160,7 +165,8 @@ public class CachingGeoServerFacadeTest {
         assertNull(cache.get(CachingGeoServerFacade.settingsKey(ws)));
     }
 
-    public @Test void testRemoveSettingsInfo() {
+    @Test
+    void testRemoveSettingsInfo() {
         assertSameTimesN(settings, () -> caching.getSettings(ws), 3);
         verify(mock, times(1)).getSettings(same(ws));
         assertNotNull(cache.get(CachingGeoServerFacade.settingsKey(ws)));
@@ -169,13 +175,15 @@ public class CachingGeoServerFacadeTest {
         assertNull(cache.get(CachingGeoServerFacade.settingsKey(ws)));
     }
 
-    public @Test void testGetLogging() {
+    @Test
+    void testGetLogging() {
         assertSameTimesN(logging, caching::getLogging, 3);
         verify(mock, times(1)).getLogging();
         assertNotNull(cache.get(CachingGeoServerFacade.LOGGINGINFO_KEY));
     }
 
-    public @Test void testSetLogging() {
+    @Test
+    void testSetLogging() {
         assertSameTimesN(logging, caching::getLogging, 3);
         verify(mock, times(1)).getLogging();
         assertNotNull(cache.get(CachingGeoServerFacade.LOGGINGINFO_KEY));
@@ -183,7 +191,8 @@ public class CachingGeoServerFacadeTest {
         assertNull(cache.get(CachingGeoServerFacade.LOGGINGINFO_KEY));
     }
 
-    public @Test void testSaveLoggingInfo() {
+    @Test
+    void testSaveLoggingInfo() {
         assertSameTimesN(logging, caching::getLogging, 3);
         verify(mock, times(1)).getLogging();
         assertNotNull(cache.get(CachingGeoServerFacade.LOGGINGINFO_KEY));
@@ -191,7 +200,8 @@ public class CachingGeoServerFacadeTest {
         assertNull(cache.get(CachingGeoServerFacade.LOGGINGINFO_KEY));
     }
 
-    public @Test void testRemoveServiceInfo() {
+    @Test
+    void testRemoveServiceInfo() {
         testEvictsServiceInfo(service1, () -> caching.remove(service1));
 
         assertNotNull(wsService1.getWorkspace(), "preflight check failure");
@@ -199,7 +209,8 @@ public class CachingGeoServerFacadeTest {
         testEvictsServiceInfo(wsService1, () -> caching.remove(wsService1));
     }
 
-    public @Test void testSaveServiceInfo() {
+    @Test
+    void testSaveServiceInfo() {
         testEvictsServiceInfo(service1, () -> caching.save(service1));
 
         assertNotNull(wsService1.getWorkspace(), "preflight check failure");
@@ -227,7 +238,8 @@ public class CachingGeoServerFacadeTest {
     }
 
     /** {@link GeoServerFacade#getService(Class)} */
-    public @Test void testGetServiceByType() {
+    @Test
+    void testGetServiceByType() {
         ServiceInfo service = service1;
         ServiceInfoKey idKey = ServiceInfoKey.byId(service.getId());
         ServiceInfoKey nameKey = ServiceInfoKey.byName(service.getWorkspace(), service.getName());
@@ -248,7 +260,8 @@ public class CachingGeoServerFacadeTest {
     /**
      * {@link GeoServerFacade#getService(WorkspaceInfo, Class)
      */
-    public @Test void testGetServiceByWorkspaceAndType() {
+    @Test
+    void testGetServiceByWorkspaceAndType() {
         TestService1 service = wsService1;
         WorkspaceInfo ws = service.getWorkspace();
         assertNotNull(ws, "preflight check failure");
@@ -273,7 +286,8 @@ public class CachingGeoServerFacadeTest {
     /**
      * {@link GeoServerFacade#getService(String, Class)
      */
-    public @Test void testGetServiceByIdAndType() {
+    @Test
+    void testGetServiceByIdAndType() {
         TestService1 service = service1;
         when(mock.getService(eq(service.getId()), eq(TestService1.class))).thenReturn(service);
 
@@ -293,7 +307,8 @@ public class CachingGeoServerFacadeTest {
         assertNotNull(cache.get(typeKey));
     }
 
-    public @Test void testGetServiceByNameAndType() {
+    @Test
+    void testGetServiceByNameAndType() {
         TestService1 service = service1;
         String name = service.getName();
         assertNotNull("preflight check failure", name);
@@ -315,7 +330,8 @@ public class CachingGeoServerFacadeTest {
         assertNotNull(cache.get(typeKey));
     }
 
-    public @Test void testGetServiceByNameAndWorkspaceAndType() {
+    @Test
+    void testGetServiceByNameAndWorkspaceAndType() {
         TestService1 service = wsService1;
         String name = service.getName();
         WorkspaceInfo ws = service.getWorkspace();
@@ -340,7 +356,8 @@ public class CachingGeoServerFacadeTest {
     }
 
     /** {@link CachingGeoServerFacade#evict(Info)} manual eviction aid */
-    public @Test void testEvict_GeoServerInfo() {
+    @Test
+    void testEvict_GeoServerInfo() {
         GeoServerInfo gsProxy = ResolvingProxy.create("someid", GeoServerInfo.class);
         assertFalse(caching.evict(gsProxy));
         cache.put(CachingGeoServerFacade.GEOSERVERINFO_KEY, global);
@@ -350,7 +367,8 @@ public class CachingGeoServerFacadeTest {
     }
 
     /** {@link CachingGeoServerFacade#evict(Info)} manual eviction aid */
-    public @Test void testEvict_LoggingInfo() {
+    @Test
+    void testEvict_LoggingInfo() {
         LoggingInfo loggingProxy = ResolvingProxy.create(settings.getId(), LoggingInfo.class);
         assertFalse(caching.evict(loggingProxy));
         cache.put(CachingGeoServerFacade.LOGGINGINFO_KEY, logging);
@@ -360,7 +378,8 @@ public class CachingGeoServerFacadeTest {
     }
 
     /** {@link CachingGeoServerFacade#evict(Info)} manual eviction aid */
-    public @Test void testEvict_SettingsInfo() {
+    @Test
+    void testEvict_SettingsInfo() {
         assertNotNull(settings.getWorkspace());
         Object wsKey = CachingGeoServerFacade.settingsKey(settings.getWorkspace());
         final String id = settings.getId();
@@ -382,7 +401,8 @@ public class CachingGeoServerFacadeTest {
     }
 
     /** {@link CachingGeoServerFacade#evict(Info)} manual eviction aid */
-    public @Test void testEvict_ServiceInfo() {
+    @Test
+    void testEvict_ServiceInfo() {
         TestService1 service = service1;
         ServiceInfoKey idKey = ServiceInfoKey.byId(service.getId());
         ServiceInfoKey nameKey = ServiceInfoKey.byName(service.getWorkspace(), service.getName());

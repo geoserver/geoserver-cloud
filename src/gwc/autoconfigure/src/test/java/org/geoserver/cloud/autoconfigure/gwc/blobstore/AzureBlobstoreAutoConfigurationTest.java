@@ -38,7 +38,8 @@ class AzureBlobstoreAutoConfigurationTest {
                                 AutoConfigurations.of(AzureBlobstoreAutoConfiguration.class));
     }
 
-    public @Test void disabledByDefault() {
+    @Test
+    void disabledByDefault() {
         runner.run(
                 context -> {
                     assertThat(context).doesNotHaveBean(AzureBlobStoreConfigProvider.class);
@@ -47,7 +48,8 @@ class AzureBlobstoreAutoConfigurationTest {
                 });
     }
 
-    public @Test void blobstoreEnabledGeoServerWebUiDisabled() {
+    @Test
+    void blobstoreEnabledGeoServerWebUiDisabled() {
         runner.withPropertyValues("gwc.blobstores.azure=true", "geoserver.web-ui.gwc.enabled=false")
                 .run(
                         context -> {
@@ -57,7 +59,8 @@ class AzureBlobstoreAutoConfigurationTest {
                         });
     }
 
-    public @Test void blobstoreEnabledGeoServerWebUiEnabled() {
+    @Test
+    void blobstoreEnabledGeoServerWebUiEnabled() {
         runner.withPropertyValues("gwc.blobstores.azure=true", "geoserver.web-ui.gwc.enabled=true")
                 .run(
                         context -> {
@@ -67,7 +70,8 @@ class AzureBlobstoreAutoConfigurationTest {
                         });
     }
 
-    public @Test void blobstoreEnabledGeoServerWebUiEnabledGsWebGwcNotInClassPath() {
+    @Test
+    void blobstoreEnabledGeoServerWebUiEnabledGsWebGwcNotInClassPath() {
         runner.withClassLoader(new FilteredClassLoader(GWCSettingsPage.class))
                 .withPropertyValues(
                         "gwc.blobstores.azure=true", "geoserver.web-ui.gwc.enabled=true")

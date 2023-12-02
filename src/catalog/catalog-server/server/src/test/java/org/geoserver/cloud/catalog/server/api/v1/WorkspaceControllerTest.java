@@ -43,7 +43,7 @@ public class WorkspaceControllerTest extends AbstractReactiveCatalogControllerTe
                 WorkspaceInfo.class, testData.workspaceA, testData.workspaceB, testData.workspaceC);
     }
 
-    public @Test void testFindByName() {
+    @Test void testFindByName() {
         WorkspaceInfo ws1 = testData.workspaceA;
         assertEquals(ws1, client().getFirstByName(ws1.getName()));
     }
@@ -63,7 +63,7 @@ public class WorkspaceControllerTest extends AbstractReactiveCatalogControllerTe
         super.testQueryFilter(format("\"id\" = '%s'", wsA.getId()), wsA);
     }
 
-    public @Test void testWorkspaceCRUD() {
+    @Test void testWorkspaceCRUD() {
         WorkspaceInfo ws = testData.faker().workspaceInfo("workspaceCRUD");
         crudTest(
                 ws,
@@ -78,7 +78,7 @@ public class WorkspaceControllerTest extends AbstractReactiveCatalogControllerTe
                 });
     }
 
-    public @Test void testGetDefaultWorkspace() {
+    @Test void testGetDefaultWorkspace() {
         WorkspaceInfo expected = catalog.getDefaultWorkspace();
         assertNotNull(expected);
         WorkspaceInfo actual =
@@ -93,7 +93,7 @@ public class WorkspaceControllerTest extends AbstractReactiveCatalogControllerTe
         assertEquals(expected, actual);
     }
 
-    public @Test void testGetDefaultWorkspaceIsNullOnEmptyCatalog() {
+    @Test void testGetDefaultWorkspaceIsNullOnEmptyCatalog() {
         testData.deleteAll();
         assertNull(catalog.getDefaultWorkspace());
 
@@ -104,7 +104,7 @@ public class WorkspaceControllerTest extends AbstractReactiveCatalogControllerTe
                 .contentType(MediaType.APPLICATION_JSON);
     }
 
-    public @Test void testSetDefaultWorkspace() {
+    @Test void testSetDefaultWorkspace() {
         WorkspaceInfo current = catalog.getDefaultWorkspace();
         assertNotNull(current);
         assertEquals(testData.workspaceA.getId(), current.getId());

@@ -74,14 +74,16 @@ public class AzureBlobStoreTest {
         stubAppContext.close();
     }
 
-    public @Test void createBlobStore() throws StorageException {
+    @Test
+    void createBlobStore() throws StorageException {
         AzureBlobStoreInfo info = newAzureBlobStoreInfo();
         BlobStore store =
                 info.createInstance(mock(TileLayerDispatcher.class), new MemoryLockProvider());
         assertThat(store).isInstanceOf(AzureBlobStore.class);
     }
 
-    public @Test void testPutGet() throws Exception {
+    @Test
+    void testPutGet() throws Exception {
         TileLayerDispatcher layers = mock(TileLayerDispatcher.class);
 
         AzureBlobStoreInfo info = newAzureBlobStoreInfo();

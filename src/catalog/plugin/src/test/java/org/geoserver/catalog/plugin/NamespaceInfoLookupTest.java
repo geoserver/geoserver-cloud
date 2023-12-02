@@ -49,7 +49,7 @@ public class NamespaceInfoLookupTest {
     }
 
     @Test
-    public void testAdd() {
+    void testAdd() {
         lookup.add(uri1_2);
         assertEquals(List.of(uri1_2), lookup.valueList(URI_1, false));
 
@@ -61,14 +61,14 @@ public class NamespaceInfoLookupTest {
     }
 
     @Test
-    public void testClear() {
+    void testClear() {
         addAll(uri1_1, uri1_2, uri2_1, uri2_2);
         lookup.clear();
         assertEquals(List.of(), lookup.findAll().toList());
     }
 
     @Test
-    public void testRemove() {
+    void testRemove() {
         addAll(uri1_1, uri1_2, uri2_1, uri2_2);
         testRemove(uri1_1);
         testRemove(uri1_2);
@@ -84,7 +84,7 @@ public class NamespaceInfoLookupTest {
     }
 
     @Test
-    public void testUpdate() {
+    void testUpdate() {
         addAll(uri1_1, uri1_2, uri2_1, uri2_2);
 
         testUpdate(uri1_1, URI_2, List.of(uri1_1, uri2_1, uri2_2));
@@ -104,7 +104,7 @@ public class NamespaceInfoLookupTest {
     }
 
     @Test
-    public void testFindAllByUri() {
+    void testFindAllByUri() {
         assertThat(lookup.findAllByURI(URI_1)).isEmpty();
         assertThat(lookup.findAllByURI(URI_2)).isEmpty();
 
@@ -122,7 +122,7 @@ public class NamespaceInfoLookupTest {
     }
 
     @Test
-    public void testFindAllByUri_stable_order() {
+    void testFindAllByUri_stable_order() {
         addAll(uri1_1, uri1_2);
 
         final List<NamespaceInfo> expected = List.of(uri1_1, uri1_2);
@@ -136,7 +136,7 @@ public class NamespaceInfoLookupTest {
     }
 
     @Test
-    public void testFindOneByURI() {
+    void testFindOneByURI() {
         addAll(uri1_1);
         assertThat(lookup.findOneByURI(URI_1)).get().isEqualTo(uri1_1);
         addAll(uri1_1, uri2_1);

@@ -27,7 +27,7 @@ import org.springframework.test.context.ActiveProfiles;
 public class JDBCConfigAutoConfigurationWebEnabledTest extends JDBCConfigTest {
 
     @Test
-    public void testJDBCConfigStatusProvider() {
+    void testJDBCConfigStatusProvider() {
         assertThat(
                 context.getBean("JDBCConfigStatusProvider"),
                 instanceOf(JDBCConfigStatusProvider.class));

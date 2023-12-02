@@ -126,7 +126,8 @@ public class CachingCatalogFacadeTest {
         this.cache.clear();
     }
 
-    public @Test void testEvict() {
+    @Test
+    void testEvict() {
         testEvicts(ws, caching::evict);
         testEvicts(ns, caching::evict);
         testEvicts(ds, caching::evict);
@@ -135,7 +136,8 @@ public class CachingCatalogFacadeTest {
         testEvicts(c, caching::evict);
     }
 
-    public @Test void testSuperTypeEvicts() {
+    @Test
+    void testSuperTypeEvicts() {
         CatalogInfoKey concreteTypeKey = new CatalogInfoKey(ds);
         CatalogInfoKey abstractTypeKey = new CatalogInfoKey(ds.getId(), StoreInfo.class);
 
@@ -147,7 +149,8 @@ public class CachingCatalogFacadeTest {
         assertNull(cache.get(concreteTypeKey));
     }
 
-    public @Test void testSubTypeEvicts() {
+    @Test
+    void testSubTypeEvicts() {
         CatalogInfoKey concreteTypeKey = new CatalogInfoKey(ft);
         CatalogInfoKey abstractTypeKey = new CatalogInfoKey(ft.getId(), ResourceInfo.class);
 
@@ -160,7 +163,8 @@ public class CachingCatalogFacadeTest {
         assertNull(cache.get(abstractTypeKey));
     }
 
-    public @Test void testPublishedInfoEvicts() {
+    @Test
+    void testPublishedInfoEvicts() {
         CatalogInfoKey concreteTypeKey = new CatalogInfoKey(layer);
         CatalogInfoKey abstractTypeKey = new CatalogInfoKey(layer.getId(), PublishedInfo.class);
 
@@ -173,7 +177,8 @@ public class CachingCatalogFacadeTest {
         assertNull(cache.get(concreteTypeKey));
     }
 
-    public @Test void testAddStoreInfo() {
+    @Test
+    void testAddStoreInfo() {
         DataStoreInfo info = this.ds;
         DataStoreInfo added = stub(DataStoreInfo.class, 1); // same id
         when(mock.add(same(info))).thenReturn(added);
@@ -181,17 +186,20 @@ public class CachingCatalogFacadeTest {
         assertSame(added, cache.get(new CatalogInfoKey(info)).get(), "expected cache put");
     }
 
-    public @Test void testRemoveStoreInfo() {
+    @Test
+    void testRemoveStoreInfo() {
         testEvicts(ds, caching::remove);
         testEvicts(cs, caching::remove);
     }
 
-    public @Test void testSaveStoreInfo() {
+    @Test
+    void testSaveStoreInfo() {
         testEvicts(ds, caching::save);
         testEvicts(cs, caching::save);
     }
 
-    public @Test void testGetStore() {
+    @Test
+    void testGetStore() {
         assertSameTimesN(ds, id -> caching.getStore(id, DataStoreInfo.class), 3);
         verify(mock, times(1)).getStore(eq(ds.getId()), eq(DataStoreInfo.class));
 
@@ -211,7 +219,8 @@ public class CachingCatalogFacadeTest {
         assertNull(caching.getStore(cs.getId(), DataStoreInfo.class));
     }
 
-    public @Test void testGetDefaultDataStore() {
+    @Test
+    void testGetDefaultDataStore() {
         final Object key = CachingCatalogFacade.generateDefaultDataStoreKey(ws);
         assertNull(caching.getDefaultDataStore(ws));
         assertNull(cache.get(key), "null return value should have not been cached");
@@ -231,7 +240,8 @@ public class CachingCatalogFacadeTest {
         verify(mock, times(1)).getDefaultDataStore(same(ws));
     }
 
-    public @Test void testSetDefaultDataStore() {
+    @Test
+    void testSetDefaultDataStore() {
         final Object key = CachingCatalogFacade.generateDefaultDataStoreKey(ws);
         when(mock.getDefaultDataStore(same(ws))).thenReturn(ds);
         assertSame(ds, caching.getDefaultDataStore(ws));
@@ -248,7 +258,8 @@ public class CachingCatalogFacadeTest {
         assertNull(cache.get(key), "expected cache evict");
     }
 
-    public @Test void testAddResourceInfo() {
+    @Test
+    void testAddResourceInfo() {
         FeatureTypeInfo info = this.ft;
         FeatureTypeInfo added = stub(FeatureTypeInfo.class, 1); // same id
         when(mock.add(same(info))).thenReturn(added);
@@ -256,17 +267,20 @@ public class CachingCatalogFacadeTest {
         assertSame(added, cache.get(new CatalogInfoKey(info)).get(), "expected cache put");
     }
 
-    public @Test void testRemoveResourceInfo() {
+    @Test
+    void testRemoveResourceInfo() {
         testEvicts(ft, caching::remove);
         testEvicts(c, caching::remove);
     }
 
-    public @Test void testSaveResourceInfo() {
+    @Test
+    void testSaveResourceInfo() {
         testEvicts(ft, caching::save);
         testEvicts(c, caching::save);
     }
 
-    public @Test void testGetResource() {
+    @Test
+    void testGetResource() {
         CatalogInfo info = ft;
         assertSameTimesN(info, id -> caching.getResource(id, ResourceInfo.class), 3);
         verify(mock, times(1)).getResource(eq(info.getId()), eq(ResourceInfo.class));
@@ -278,7 +292,8 @@ public class CachingCatalogFacadeTest {
         assertNull(caching.getResource(c.getId(), FeatureTypeInfo.class));
     }
 
-    public @Test void testAddLayerInfo() {
+    @Test
+    void testAddLayerInfo() {
         LayerInfo info = this.layer;
         LayerInfo added = stub(LayerInfo.class, 1); // same id
         when(mock.add(same(info))).thenReturn(added);
@@ -286,11 +301,13 @@ public class CachingCatalogFacadeTest {
         assertSame(added, cache.get(new CatalogInfoKey(info)).get(), "expected cache put");
     }
 
-    public @Test void testRemoveLayerInfo() {
+    @Test
+    void testRemoveLayerInfo() {
         testEvicts(layer, caching::remove);
     }
 
-    public @Test void testRemoveLayerEvictsLayersPerResource() {
+    @Test
+    void testRemoveLayerEvictsLayersPerResource() {
         assertNotNull(layer.getResource());
         List<LayerInfo> layers = Collections.singletonList(layer);
         when(mock.getLayers(same(ft))).thenReturn(layers);
@@ -306,17 +323,20 @@ public class CachingCatalogFacadeTest {
         assertNull(cache.get(layersKey), "layers by resource not evicted then layer deleted");
     }
 
-    public @Test void testSaveLayerInfo() {
+    @Test
+    void testSaveLayerInfo() {
         testEvicts(layer, caching::save);
     }
 
-    public @Test void testGetLayer() {
+    @Test
+    void testGetLayer() {
         CatalogInfo info = layer;
         assertSameTimesN(info, caching::getLayer, 3);
         verify(mock, times(1)).getLayer(eq(info.getId()));
     }
 
-    public @Test void testGetLayersByResource() {
+    @Test
+    void testGetLayersByResource() {
         List<LayerInfo> expected = Collections.singletonList(layer);
         when(mock.getLayers(same(ft))).thenReturn(expected);
 
@@ -333,7 +353,8 @@ public class CachingCatalogFacadeTest {
     }
 
     @Disabled("LayerGroups are not cached")
-    public @Test void testAddLayerGroupInfo() {
+    @Test
+    void testAddLayerGroupInfo() {
         LayerGroupInfo info = this.lg;
         LayerGroupInfo added = stub(LayerGroupInfo.class, 1); // same id
         when(mock.add(same(info))).thenReturn(added);
@@ -342,23 +363,27 @@ public class CachingCatalogFacadeTest {
     }
 
     @Disabled("LayerGroups are not cached")
-    public @Test void testRemoveLayerGroupInfo() {
+    @Test
+    void testRemoveLayerGroupInfo() {
         testEvicts(lg, caching::remove);
     }
 
     @Disabled("LayerGroups are not cached")
-    public @Test void testSaveLayerGroupInfo() {
+    @Test
+    void testSaveLayerGroupInfo() {
         testEvicts(lg, caching::save);
     }
 
     @Disabled("LayerGroups are not cached")
-    public @Test void testGetLayerGroup() {
+    @Test
+    void testGetLayerGroup() {
         CatalogInfo info = lg;
         assertSameTimesN(info, caching::getLayerGroup, 3);
         verify(mock, times(1)).getLayerGroup(eq(info.getId()));
     }
 
-    public @Test void testAddNamespaceInfo() {
+    @Test
+    void testAddNamespaceInfo() {
         NamespaceInfo info = this.ns2;
         NamespaceInfo added = stub(NamespaceInfo.class, 2); // same id
         when(mock.add(same(info))).thenReturn(added);
@@ -366,15 +391,18 @@ public class CachingCatalogFacadeTest {
         assertSame(added, cache.get(new CatalogInfoKey(info)).get(), "expected cache put");
     }
 
-    public @Test void testRemoveNamespaceInfo() {
+    @Test
+    void testRemoveNamespaceInfo() {
         testEvicts(ns, caching::remove);
     }
 
-    public @Test void testSaveNamespaceInfo() {
+    @Test
+    void testSaveNamespaceInfo() {
         testEvicts(ns, caching::save);
     }
 
-    public @Test void testGetDefaultNamespace() {
+    @Test
+    void testGetDefaultNamespace() {
         final String key = CachingCatalogFacade.DEFAULT_NAMESPACE_CACHE_KEY;
         assertNull(caching.getDefaultNamespace());
         assertNull(cache.get(key));
@@ -388,7 +416,8 @@ public class CachingCatalogFacadeTest {
         verify(mock, times(1)).getDefaultNamespace();
     }
 
-    public @Test void testSetDefaultNamespace() {
+    @Test
+    void testSetDefaultNamespace() {
         final String key = CachingCatalogFacade.DEFAULT_NAMESPACE_CACHE_KEY;
         when(mock.getDefaultNamespace()).thenReturn(ns);
         assertSame(ns, caching.getDefaultNamespace());
@@ -403,18 +432,21 @@ public class CachingCatalogFacadeTest {
         assertNull(cache.get(key), "expected cache evict");
     }
 
-    public @Test void testGetNamespace() {
+    @Test
+    void testGetNamespace() {
         CatalogInfo info = ns;
         assertSameTimesN(info, caching::getNamespace, 3);
         verify(mock, times(1)).getNamespace(eq(info.getId()));
     }
 
-    public @Test void testGetWorkspace() {
+    @Test
+    void testGetWorkspace() {
         assertSameTimesN(ws, caching::getWorkspace, 3);
         verify(mock, times(1)).getWorkspace(eq(ws.getId()));
     }
 
-    public @Test void testAddWorkspaceInfo() {
+    @Test
+    void testAddWorkspaceInfo() {
         WorkspaceInfo info = this.ws;
         WorkspaceInfo added = stub(WorkspaceInfo.class, 1); // same id than ws
         when(mock.add(same(info))).thenReturn(added);
@@ -422,15 +454,18 @@ public class CachingCatalogFacadeTest {
         assertSame(added, cache.get(new CatalogInfoKey(info)).get(), "expected cache put");
     }
 
-    public @Test void testRemoveWorkspaceInfo() {
+    @Test
+    void testRemoveWorkspaceInfo() {
         testEvicts(ws, caching::remove);
     }
 
-    public @Test void testSaveWorkspaceInfo() {
+    @Test
+    void testSaveWorkspaceInfo() {
         testEvicts(ws, caching::save);
     }
 
-    public @Test void testGetDefaultWorkspace() {
+    @Test
+    void testGetDefaultWorkspace() {
         assertNull(caching.getDefaultWorkspace());
         assertNull(cache.get(CachingCatalogFacade.DEFAULT_WORKSPACE_CACHE_KEY));
 
@@ -443,7 +478,8 @@ public class CachingCatalogFacadeTest {
         verify(mock, times(1)).getDefaultWorkspace();
     }
 
-    public @Test void testSetDefaultWorkspace() {
+    @Test
+    void testSetDefaultWorkspace() {
         final String key = CachingCatalogFacade.DEFAULT_WORKSPACE_CACHE_KEY;
         when(mock.getDefaultWorkspace()).thenReturn(ws);
         assertSame(ws, caching.getDefaultWorkspace());
@@ -458,7 +494,8 @@ public class CachingCatalogFacadeTest {
         assertNull(cache.get(key), "expected cache evict");
     }
 
-    public @Test void testAddStyleInfo() {
+    @Test
+    void testAddStyleInfo() {
         StyleInfo info = this.style;
         StyleInfo added = stub(StyleInfo.class, 1); // same id
         when(mock.add(same(info))).thenReturn(added);
@@ -466,21 +503,25 @@ public class CachingCatalogFacadeTest {
         assertSame(added, cache.get(new CatalogInfoKey(info)).get(), "expected cache put");
     }
 
-    public @Test void testRemoveStyleInfo() {
+    @Test
+    void testRemoveStyleInfo() {
         testEvicts(style, caching::remove);
     }
 
-    public @Test void testSaveStyleInfo() {
+    @Test
+    void testSaveStyleInfo() {
         testEvicts(style, caching::save);
     }
 
-    public @Test void testGetStyle() {
+    @Test
+    void testGetStyle() {
         CatalogInfo info = style;
         assertSameTimesN(info, caching::getStyle, 3);
         verify(mock, times(1)).getStyle(eq(info.getId()));
     }
 
-    public @Test void testUpdate() {
+    @Test
+    void testUpdate() {
         DataStoreInfo info = this.ds;
         DataStoreInfo updated = stub(DataStoreInfo.class, 1); // same id
         when(mock.update(same(info), any())).thenReturn(updated);

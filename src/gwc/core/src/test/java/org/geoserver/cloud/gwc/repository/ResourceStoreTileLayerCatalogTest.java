@@ -54,7 +54,7 @@ class ResourceStoreTileLayerCatalogTest {
     }
 
     @Test
-    public void testGetLayerById() {
+    void testGetLayerById() {
         GeoServerTileLayerInfo info = new GeoServerTileLayerInfoImpl();
         info.setId("id1");
         info.setName("name1");
@@ -65,7 +65,7 @@ class ResourceStoreTileLayerCatalogTest {
     }
 
     @Test
-    public void testGetLayerByName() {
+    void testGetLayerByName() {
         GeoServerTileLayerInfo info = new GeoServerTileLayerInfoImpl();
         info.setId("id1");
         info.setName("name1");
@@ -76,7 +76,7 @@ class ResourceStoreTileLayerCatalogTest {
     }
 
     @Test
-    public void testDelete() {
+    void testDelete() {
         GeoServerTileLayerInfo info = new GeoServerTileLayerInfoImpl();
         info.setId("id1");
         info.setName("name1");
@@ -93,7 +93,7 @@ class ResourceStoreTileLayerCatalogTest {
     }
 
     @Test
-    public void testSave() {
+    void testSave() {
         final GeoServerTileLayerInfo original;
         {
             final GeoServerTileLayerInfo info = new GeoServerTileLayerInfoImpl();
@@ -126,7 +126,7 @@ class ResourceStoreTileLayerCatalogTest {
     }
 
     @Test
-    public void testSaveWithEmptyStyleParamFilter() {
+    void testSaveWithEmptyStyleParamFilter() {
         final GeoServerTileLayerInfo original;
         {
             final GeoServerTileLayerInfo info = new GeoServerTileLayerInfoImpl();
@@ -163,7 +163,7 @@ class ResourceStoreTileLayerCatalogTest {
     }
 
     @Test
-    public void testEvents() throws IOException, InterruptedException {
+    void testEvents() throws IOException, InterruptedException {
         AtomicBoolean hasBeenCreated = new AtomicBoolean(false);
         AtomicBoolean hasBeenModified = new AtomicBoolean(false);
         AtomicBoolean hasBeenDeleted = new AtomicBoolean(false);
@@ -216,7 +216,7 @@ class ResourceStoreTileLayerCatalogTest {
     }
 
     @Test
-    public void testSavedXML() throws Exception {
+    void testSavedXML() throws Exception {
         // checking that the persistence looks as expected
         final GeoServerTileLayerInfo original;
         {

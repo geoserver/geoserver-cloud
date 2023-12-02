@@ -155,7 +155,8 @@ public abstract class PatchSerializationTest {
         return new CatalogBuilder(new CatalogPlugin()).getAttributes(ft, info);
     }
 
-    public @Test void simpleTypes() throws Exception {
+    @Test
+    void simpleTypes() throws Exception {
         testPatch("nullvalue", null);
         testPatch("int", Integer.MAX_VALUE);
         testPatch("long", Long.MAX_VALUE);
@@ -163,67 +164,82 @@ public abstract class PatchSerializationTest {
         testPatch("string", "string value");
     }
 
-    public @Test void arrayTypes_scalar() throws Exception {
+    @Test
+    void arrayTypes_scalar() throws Exception {
         testPatch("bytea", new byte[] {0x01, 0x02, 0x03});
         testPatch("booleana", new boolean[] {false, true, false});
         testPatch("chararray", new char[] {'a', 'b', 'c', 'd'});
     }
 
-    public @Test void arrayTypes_non_scalar() throws Exception {
+    @Test
+    void arrayTypes_non_scalar() throws Exception {
         testPatch(
                 "ns_array",
                 new NamespaceInfo[] {data.namespaceA, data.namespaceB, data.namespaceC});
     }
 
-    public @Test void workspace() throws Exception {
+    @Test
+    void workspace() throws Exception {
         testPatch("workspace", data.workspaceA);
     }
 
-    public @Test void namespaceInfo() throws Exception {
+    @Test
+    void namespaceInfo() throws Exception {
         testPatch("namespace", data.namespaceA);
     }
 
-    public @Test void dataStoreInfo() throws Exception {
+    @Test
+    void dataStoreInfo() throws Exception {
         testPatch("dataStore", data.dataStoreA);
     }
 
-    public @Test void coverageStoreInfo() throws Exception {
+    @Test
+    void coverageStoreInfo() throws Exception {
         testPatch("coverageStore", data.coverageStoreA);
     }
 
-    public @Test void wmsStoreInfo() throws Exception {
+    @Test
+    void wmsStoreInfo() throws Exception {
         testPatch("wms", data.wmsStoreA);
     }
 
-    public @Test void wmtsStoreInfo() throws Exception {
+    @Test
+    void wmtsStoreInfo() throws Exception {
         testPatch("wmts", data.wmtsStoreA);
     }
 
-    public @Test void featureTypeInfo() throws Exception {
+    @Test
+    void featureTypeInfo() throws Exception {
         testPatch("ft", data.featureTypeA);
     }
 
-    public @Test void coverageInfo() throws Exception {
+    @Test
+    void coverageInfo() throws Exception {
         testPatch("coverage", data.coverageA);
     }
 
-    public @Test void wmsLayerInfo() throws Exception {
+    @Test
+    void wmsLayerInfo() throws Exception {
         testPatch("wmsl", data.wmsLayerA);
     }
 
-    public @Test void wmtsLayerInfo() throws Exception {
+    @Test
+    void wmtsLayerInfo() throws Exception {
         testPatch("wmtsl", data.wmtsLayerA);
     }
 
-    public @Test void layerInfo() throws Exception {
+    @Test
+    void layerInfo() throws Exception {
         testPatch("layer", data.layerFeatureTypeA);
     }
 
-    public @Test void layerGroupInfo() throws Exception {
+    @Test
+    void layerGroupInfo() throws Exception {
         testPatch("layer", data.layerGroup1);
     }
 
-    public @Test void layerInfo_references() throws Exception {
+    @Test
+    void layerInfo_references() throws Exception {
         LayerInfo layer = data.layerFeatureTypeA;
         StyleInfo s1 = data.faker().styleInfo("s1");
         StyleInfo s2 = data.faker().styleInfo("s2");
@@ -255,7 +271,8 @@ public abstract class PatchSerializationTest {
         styles.forEach(this::assertResolvingProxy);
     }
 
-    public @Test void layerInfo_value_object_properties() throws Exception {
+    @Test
+    void layerInfo_value_object_properties() throws Exception {
         LayerInfo layer = data.layerFeatureTypeA;
 
         layer.setLegend(data.faker().legendInfo());
@@ -279,80 +296,97 @@ public abstract class PatchSerializationTest {
         assertValueObject(legend, LegendInfo.class);
     }
 
-    public @Test void styleInfo() throws Exception {
+    @Test
+    void styleInfo() throws Exception {
         testPatch("style", data.style1);
     }
 
-    public @Test void geoserverInfo() throws Exception {
+    @Test
+    void geoserverInfo() throws Exception {
         testPatch("global", data.global);
     }
 
-    public @Test void loggingInfo() throws Exception {
+    @Test
+    void loggingInfo() throws Exception {
         testPatch("logging", data.logging);
     }
 
-    public @Test void settingsInfo() throws Exception {
+    @Test
+    void settingsInfo() throws Exception {
         testPatch("settings", data.faker().settingsInfo(null));
     }
 
-    public @Test void settingsInfo_workspace() throws Exception {
+    @Test
+    void settingsInfo_workspace() throws Exception {
         Patch resolved = testPatch("settings", data.faker().settingsInfo(data.workspaceA));
         SettingsInfo setting = resolved.get("settings").orElseThrow().value();
         assertModificationProxy(setting.getWorkspace());
     }
 
-    public @Test void wmsInfo() throws Exception {
+    @Test
+    void wmsInfo() throws Exception {
         testPatch("wmsService", data.wmsService);
     }
 
-    public @Test void wcsInfo() throws Exception {
+    @Test
+    void wcsInfo() throws Exception {
         // WCSInfoImpl.equals is broken, we're still checking it's sent as a reference
         testPatchNoEquals(patch("wcsService", data.wcsService));
     }
 
-    public @Test void wfsInfo() throws Exception {
+    @Test
+    void wfsInfo() throws Exception {
         testPatch("wfsService", data.wfsService);
     }
 
-    public @Test void wpsInfo() throws Exception {
+    @Test
+    void wpsInfo() throws Exception {
         Patch patch = patch("wpsService", data.wpsService);
         // WPSInfoImpl.equals is broken, we're still checking it's sent as a reference
         testPatchNoEquals(patch);
     }
 
-    public @Test void attributionInfo() throws Exception {
+    @Test
+    void attributionInfo() throws Exception {
         testPatch("attribution", data.faker().attributionInfo());
     }
 
-    public @Test void contactInfo() throws Exception {
+    @Test
+    void contactInfo() throws Exception {
         testPatch("contact", data.faker().contactInfo());
     }
 
-    public @Test void keywordInfo() throws Exception {
+    @Test
+    void keywordInfo() throws Exception {
         CatalogFaker faker = data.faker();
         testPatch("kw", faker.keywordInfo());
     }
 
-    public @Test void keywordInfo_list() throws Exception {
+    @Test
+    void keywordInfo_list() throws Exception {
         CatalogFaker faker = data.faker();
         testPatch("keywords", Arrays.asList(faker.keywordInfo(), null, faker.keywordInfo()));
     }
 
-    public @Test void name() throws Exception {
+    @Test
+    void name() throws Exception {
         org.geotools.api.feature.type.Name name = new NameImpl("localname");
         testPatch("name", name);
     }
 
-    public @Test void name_with_ns() throws Exception {
+    @Test
+    void name_with_ns() throws Exception {
         org.geotools.api.feature.type.Name name = new NameImpl("http://name.space", "localname");
         testPatch("name", name);
     }
 
-    public @Test void version() throws Exception {
+    @Test
+    void version() throws Exception {
         testPatch("version", new org.geotools.util.Version("1.0.1"));
     }
 
-    public @Test void version_list() throws Exception {
+    @Test
+    void version_list() throws Exception {
         testPatch(
                 "version",
                 List.of(
@@ -360,15 +394,18 @@ public abstract class PatchSerializationTest {
                         new org.geotools.util.Version("1.0.2")));
     }
 
-    public @Test void class_property() throws Exception {
+    @Test
+    void class_property() throws Exception {
         testPatch("binding", org.geotools.util.Version.class);
     }
 
-    public @Test void metadataLinkInfo() throws Exception {
+    @Test
+    void metadataLinkInfo() throws Exception {
         testPatch("metadataLink", data.faker().metadataLink());
     }
 
-    public @Test void coordinateReferenceSystem() throws Exception {
+    @Test
+    void coordinateReferenceSystem() throws Exception {
         final boolean longitudeFirst = true;
         CoordinateReferenceSystem crs = CRS.decode("EPSG:3857", longitudeFirst);
         Patch resolved = testPatchNoEquals(patch("crs", crs));
@@ -378,26 +415,30 @@ public abstract class PatchSerializationTest {
         assertTrue(CRS.equalsIgnoreMetadata(crs, roundtripped));
     }
 
-    public @Test void referencedEnvelope() throws Exception {
+    @Test
+    void referencedEnvelope() throws Exception {
         final boolean longitudeFirst = true;
         CoordinateReferenceSystem crs = CRS.decode("EPSG:3857", longitudeFirst);
         ReferencedEnvelope env = new ReferencedEnvelope(0, 1000, -1, -1000, crs);
         testPatch("bounds", env);
     }
 
-    public @Test void numberRange() throws Exception {
+    @Test
+    void numberRange() throws Exception {
         testPatch("range", NumberRange.create(-1, 1));
         // testPatch("range", NumberRange.create(-1.1f, 1.1f));
         // testPatch("range", NumberRange.create((short) 10, (short) 15));
         testPatch("range", NumberRange.create(Double.MIN_VALUE, 1.01));
     }
 
-    public @Test void measure() throws Exception {
+    @Test
+    void measure() throws Exception {
         testPatch("meters", new Measure(1000, SI.METRE));
         testPatch("radians", new Measure(.75, SI.RADIAN_PER_SECOND));
     }
 
-    public @Test void gridGeometry() throws Exception {
+    @Test
+    void gridGeometry() throws Exception {
         CoordinateReferenceSystem crs = CRS.decode("EPSG:4326", true);
         ReferencedEnvelope env = new ReferencedEnvelope(-180, 180, -90, 90, crs);
         GridEnvelope range = new GeneralGridEnvelope(new int[] {0, 0}, new int[] {1024, 768});
@@ -405,46 +446,56 @@ public abstract class PatchSerializationTest {
         testPatch("gridGeometry", gridGeometry);
     }
 
-    public @Test void modificationProxy_workspace() throws Exception {
+    @Test
+    void modificationProxy_workspace() throws Exception {
         testPatch("workspace", forceProxy(data.workspaceA, WorkspaceInfo.class));
     }
 
-    public @Test void modificationProxy_namespace() throws Exception {
+    @Test
+    void modificationProxy_namespace() throws Exception {
         testPatch("namespace", forceProxy(data.namespaceA, NamespaceInfo.class));
     }
 
-    public @Test void modificationProxy_dataStore() throws Exception {
+    @Test
+    void modificationProxy_dataStore() throws Exception {
         testPatch("dataStore", forceProxy(data.dataStoreA, DataStoreInfo.class));
     }
 
-    public @Test void modificationProxy_coverageStore() throws Exception {
+    @Test
+    void modificationProxy_coverageStore() throws Exception {
         testPatch("coverageStore", forceProxy(data.coverageStoreA, CoverageStoreInfo.class));
     }
 
-    public @Test void modificationProxy_layer() throws Exception {
+    @Test
+    void modificationProxy_layer() throws Exception {
         testPatch("layer", forceProxy(data.layerFeatureTypeA, LayerInfo.class));
     }
 
-    public @Test void modificationProxy_style() throws Exception {
+    @Test
+    void modificationProxy_style() throws Exception {
         testPatch("style", forceProxy(data.style1, StyleInfo.class));
     }
 
-    public @Test void modificationProxy_geoserverInfo() throws Exception {
+    @Test
+    void modificationProxy_geoserverInfo() throws Exception {
         testPatch("global", forceProxy(data.global, GeoServerInfo.class));
     }
 
-    public @Test void modificationProxy_wmsInfo() throws Exception {
+    @Test
+    void modificationProxy_wmsInfo() throws Exception {
         testPatch("wmsService", forceProxy(data.wmsService, WMSInfo.class));
     }
 
-    public @Test void modificationProxy_settingsInfo() throws Exception {
+    @Test
+    void modificationProxy_settingsInfo() throws Exception {
         testPatch(
                 "settings",
                 forceProxy(data.faker().settingsInfo(data.workspaceA), SettingsInfo.class));
     }
 
     /** Though ContactInfo is a value object, webui will save a ModificationProxy */
-    public @Test void modificationProxy_settingsInfo_with_proxy_contact_info() throws Exception {
+    @Test
+    void modificationProxy_settingsInfo_with_proxy_contact_info() throws Exception {
         WorkspaceInfo workspaceProxy = forceProxy(data.workspaceA, WorkspaceInfo.class);
         SettingsInfo settings = data.faker().settingsInfo(workspaceProxy);
         ContactInfo contactInfo = data.faker().contactInfo();
@@ -461,13 +512,15 @@ public abstract class PatchSerializationTest {
     }
 
     /** Though ContactInfo is a value object, webui will save a ModificationProxy */
-    public @Test void modificationProxy_contactInfo() throws Exception {
+    @Test
+    void modificationProxy_contactInfo() throws Exception {
         ContactInfo contactInfo = data.faker().contactInfo();
         Patch received = testPatch("contact", forceProxy(contactInfo, ContactInfo.class));
         assertValueObject(received.get("contact").orElseThrow().getValue(), ContactInfo.class);
     }
 
-    public @Test void testPatchWithListProperty() throws Exception {
+    @Test
+    void testPatchWithListProperty() throws Exception {
         testPatch("nullvalue", newArrayList(null, null));
         testPatch("int", List.of(Integer.MAX_VALUE, Integer.MIN_VALUE));
         testPatch("long", List.of(Long.MAX_VALUE, Long.MIN_VALUE));
@@ -491,7 +544,8 @@ public abstract class PatchSerializationTest {
         // testPatch("serviceInfos", List.of(data.wcsService));
     }
 
-    public @Test void attributeTypeInfo_list() throws Exception {
+    @Test
+    void attributeTypeInfo_list() throws Exception {
         FeatureTypeInfo ft = data.featureTypeA;
         List<AttributeTypeInfo> attributes = createTestAttributes(ft);
 
@@ -504,7 +558,8 @@ public abstract class PatchSerializationTest {
         }
     }
 
-    public @Test void testPatchWithSetProperty() throws Exception {
+    @Test
+    void testPatchWithSetProperty() throws Exception {
         WorkspaceInfo wsa = catalog.getWorkspace(data.workspaceA.getId());
         WorkspaceInfo wsb = catalog.getWorkspace(data.workspaceB.getId());
         Set<WorkspaceInfo> workspaces = Set.of(wsa, wsb);
@@ -535,7 +590,8 @@ public abstract class PatchSerializationTest {
         testPatch("serviceInfos", services);
     }
 
-    public @Test void simpleInternationalString() throws Exception {
+    @Test
+    void simpleInternationalString() throws Exception {
         InternationalString simpleI18n = new SimpleInternationalString("simpleI18n");
         Patch patch = new Patch();
         patch.add("simpleI18n", simpleI18n);
@@ -550,11 +606,13 @@ public abstract class PatchSerializationTest {
         assertEquals(expected, decoded);
     }
 
-    public @Test void authorityURLInfo() throws Exception {
+    @Test
+    void authorityURLInfo() throws Exception {
         testPatch("authorityURL", data.faker().authorityURLInfo());
     }
 
-    public @Test void coverageAccessInfo() throws Exception {
+    @Test
+    void coverageAccessInfo() throws Exception {
         CoverageAccessInfo coverageInfo = new CoverageAccessInfoImpl();
         coverageInfo.setCorePoolSize(10);
         coverageInfo.setQueueType(QueueType.UNBOUNDED);
@@ -562,33 +620,39 @@ public abstract class PatchSerializationTest {
         testPatch("coverageInfo", coverageInfo);
     }
 
-    public @Test void jaiInfo() throws Exception {
+    @Test
+    void jaiInfo() throws Exception {
         JAIInfo jaiInfo = data.faker().jaiInfo();
         testPatch("jaiInfo", jaiInfo);
     }
 
-    public @Test void wmsInterpolation() throws Exception {
+    @Test
+    void wmsInterpolation() throws Exception {
         WMSInterpolation v = WMSInterpolation.Bicubic;
         testPatch("defaultWmsInterpolation", v);
     }
 
-    public @Test void publishedType() throws Exception {
+    @Test
+    void publishedType() throws Exception {
         PublishedType v = PublishedType.REMOTE;
         testPatch("publishedType", v);
     }
 
-    public @Test void growableInternationalString() throws Exception {
+    @Test
+    void growableInternationalString() throws Exception {
         GrowableInternationalString growableI18n = new GrowableInternationalString("default lang");
         growableI18n.add(Locale.forLanguageTag("es-AR"), "en argentino");
         growableI18n.add(Locale.forLanguageTag("es"), "en español");
         testPatch("growableI18n", growableI18n);
     }
 
-    public @Test void coverageDimensionInfo() throws Exception {
+    @Test
+    void coverageDimensionInfo() throws Exception {
         testPatch("coverageDimensionInfo", data.faker().coverageDimensionInfo());
     }
 
-    public @Test void dimensionInfo() throws Exception {
+    @Test
+    void dimensionInfo() throws Exception {
         // equals is broken
         DimensionInfo expected = data.faker().dimensionInfo();
         Patch patch = testPatchNoEquals(patch("dimensionInfo", expected));
@@ -612,15 +676,18 @@ public abstract class PatchSerializationTest {
         assertEquals(expected.getPresentation(), actual.getPresentation());
     }
 
-    public @Test void dataLinkInfo() throws Exception {
+    @Test
+    void dataLinkInfo() throws Exception {
         testPatch("dl", data.faker().dataLinkInfo());
     }
 
-    public @Test void layerIdentifierInfo() throws Exception {
+    @Test
+    void layerIdentifierInfo() throws Exception {
         testPatch("layerIdentifier", data.faker().layerIdentifierInfo());
     }
 
-    public @Test void metadataMap() throws Exception {
+    @Test
+    void metadataMap() throws Exception {
         MetadataMap md = data.faker().metadataMap("k1", "v1", "k2", 2);
         Patch patch = testPatch("metadata", md);
         assertThat(patch.get("metadata").orElseThrow().getValue()).isInstanceOf(HashMap.class);
@@ -629,7 +696,8 @@ public abstract class PatchSerializationTest {
         assertEquals(md, s.getMetadata());
     }
 
-    public @Test void metadataMapWithCogSettings() throws Exception {
+    @Test
+    void metadataMapWithCogSettings() throws Exception {
         CogSettings cog = new CogSettings();
         cog.setRangeReaderSettings(RangeReaderType.Azure);
         cog.setUseCachingStream(true);

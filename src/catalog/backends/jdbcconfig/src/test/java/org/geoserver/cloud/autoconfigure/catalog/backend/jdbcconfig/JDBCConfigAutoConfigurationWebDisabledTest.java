@@ -26,7 +26,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 public class JDBCConfigAutoConfigurationWebDisabledTest extends JDBCConfigTest {
 
     @Test
-    public void testJDBCConfigStatusProvider() {
+    void testJDBCConfigStatusProvider() {
         assertThrows(
                 NoSuchBeanDefinitionException.class,
                 () -> context.getBean(JDBCConfigStatusProvider.class));

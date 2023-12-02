@@ -175,7 +175,8 @@ public abstract class GeoServerCatalogModuleTest {
         return decoded;
     }
 
-    public @Test void testWorkspace() throws Exception {
+    @Test
+    void testWorkspace() throws Exception {
         catalogInfoRoundtripTest(data.workspaceA);
 
         data.workspaceB.setIsolated(true);
@@ -184,7 +185,8 @@ public abstract class GeoServerCatalogModuleTest {
         catalogInfoRoundtripTest(data.workspaceB);
     }
 
-    public @Test void testNamespace() throws Exception {
+    @Test
+    void testNamespace() throws Exception {
         catalogInfoRoundtripTest(data.namespaceA);
 
         data.namespaceB.setIsolated(true);
@@ -193,17 +195,20 @@ public abstract class GeoServerCatalogModuleTest {
         catalogInfoRoundtripTest(data.workspaceB);
     }
 
-    public @Test void testDataStore() throws Exception {
+    @Test
+    void testDataStore() throws Exception {
         catalogInfoRoundtripTest(data.dataStoreA);
         catalogInfoRoundtripTest(data.dataStoreB);
         catalogInfoRoundtripTest(data.dataStoreC);
     }
 
-    public @Test void testCoverageStore() throws Exception {
+    @Test
+    void testCoverageStore() throws Exception {
         catalogInfoRoundtripTest(data.coverageStoreA);
     }
 
-    public @Test void testCoverageStore_COG() throws Exception {
+    @Test
+    void testCoverageStore_COG() throws Exception {
         CoverageStoreInfo store = data.coverageStoreA;
         CogSettingsStore cogSettings = new CogSettingsStore();
         cogSettings.setRangeReaderSettings(RangeReaderType.Azure);
@@ -216,15 +221,18 @@ public abstract class GeoServerCatalogModuleTest {
         assertThat(deserializedCogSettings, CoreMatchers.instanceOf(CogSettingsStore.class));
     }
 
-    public @Test void testWmsStore() throws Exception {
+    @Test
+    void testWmsStore() throws Exception {
         catalogInfoRoundtripTest(data.wmsStoreA);
     }
 
-    public @Test void testWmtsStore() throws Exception {
+    @Test
+    void testWmtsStore() throws Exception {
         catalogInfoRoundtripTest(data.wmtsStoreA);
     }
 
-    public @Test void testFeatureType() throws Exception {
+    @Test
+    void testFeatureType() throws Exception {
         KeywordInfo k = new Keyword("value");
         k.setLanguage("es");
         FeatureTypeInfo ft = data.featureTypeA;
@@ -271,26 +279,31 @@ public abstract class GeoServerCatalogModuleTest {
         return new CatalogBuilder(new CatalogPlugin()).getAttributes(ft, info);
     }
 
-    public @Test void testCoverage() throws Exception {
+    @Test
+    void testCoverage() throws Exception {
         catalogInfoRoundtripTest(data.coverageA);
     }
 
-    public @Test void testWmsLayer() throws Exception {
+    @Test
+    void testWmsLayer() throws Exception {
         catalogInfoRoundtripTest(data.wmsLayerA);
     }
 
-    public @Test void testWtmsLayer() throws Exception {
+    @Test
+    void testWtmsLayer() throws Exception {
         catalogInfoRoundtripTest(data.wmtsLayerA);
     }
 
-    public @Test void testLayer() throws Exception {
+    @Test
+    void testLayer() throws Exception {
         LayerInfo layer = data.layerFeatureTypeA;
         layer.getStyles().add(data.style1);
         layer.getStyles().add(data.style2);
         catalogInfoRoundtripTest(layer);
     }
 
-    public @Test void testLayerGroup() throws Exception {
+    @Test
+    void testLayerGroup() throws Exception {
         LayerGroupInfo lg = data.layerGroup1;
         lg.setTitle("LG Title");
         lg.setAbstract("LG abstract");
@@ -333,12 +346,14 @@ public abstract class GeoServerCatalogModuleTest {
         catalogInfoRoundtripTest(lg);
     }
 
-    public @Test void testLayerGroupWorkspace() throws Exception {
+    @Test
+    void testLayerGroupWorkspace() throws Exception {
         data.layerGroup1.setWorkspace(data.workspaceC);
         catalogInfoRoundtripTest(data.layerGroup1);
     }
 
-    public @Test void testStyle() throws Exception {
+    @Test
+    void testStyle() throws Exception {
         StyleInfo style1 = data.style1;
         style1.setFormatVersion(SLDHandler.VERSION_10);
         style1.setFormat(SLDHandler.FORMAT);
@@ -351,7 +366,8 @@ public abstract class GeoServerCatalogModuleTest {
         catalogInfoRoundtripTest(style2);
     }
 
-    public @Test void testStyleWorkspace() throws Exception {
+    @Test
+    void testStyleWorkspace() throws Exception {
         data.style1.setWorkspace(data.workspaceA);
         data.style2.setWorkspace(data.workspaceB);
         catalogInfoRoundtripTest(data.style1);
@@ -373,7 +389,8 @@ public abstract class GeoServerCatalogModuleTest {
         return attinfo;
     }
 
-    public @Test void testFilterWithInfoLiterals() throws JsonProcessingException {
+    @Test
+    void testFilterWithInfoLiterals() throws JsonProcessingException {
         testFilterLiteral(forceNonProxy(data.workspaceA));
         testFilterLiteral(forceProxy(data.workspaceA));
 
@@ -486,7 +503,8 @@ public abstract class GeoServerCatalogModuleTest {
         return decoded;
     }
 
-    public @Test void testValueKeywordInfo() throws JsonProcessingException {
+    @Test
+    void testValueKeywordInfo() throws JsonProcessingException {
         KeywordInfo keyword = new org.geoserver.catalog.Keyword("value");
         keyword.setLanguage("en");
         keyword.setVocabulary("bad");
@@ -495,22 +513,26 @@ public abstract class GeoServerCatalogModuleTest {
         assertEquals(keyword, testFilterLiteral(keyword));
     }
 
-    public @Test void testValueCoordinateReferenceSystemGeographicLatLon() throws Exception {
+    @Test
+    void testValueCoordinateReferenceSystemGeographicLatLon() throws Exception {
         CoordinateReferenceSystem wgs84LatLon = CRS.decode("EPSG:4326", false);
         testValueCoordinateReferenceSystem(wgs84LatLon);
     }
 
-    public @Test void testValueCoordinateReferenceSystemGeographicLonLat() throws Exception {
+    @Test
+    void testValueCoordinateReferenceSystemGeographicLonLat() throws Exception {
         CoordinateReferenceSystem wgs84LonLat = CRS.decode("EPSG:4326", true);
         testValueCoordinateReferenceSystem(wgs84LonLat);
     }
 
-    public @Test void testValueCoordinateReferenceSystemProjected() throws Exception {
+    @Test
+    void testValueCoordinateReferenceSystemProjected() throws Exception {
         CoordinateReferenceSystem webMercator = CRS.decode("EPSG:3857", true);
         testValueCoordinateReferenceSystem(webMercator);
     }
 
-    public @Test void testValueCoordinateReferenceSystemCustomCRS() throws Exception {
+    @Test
+    void testValueCoordinateReferenceSystemCustomCRS() throws Exception {
         String customWKT =
                 "PROJCS[ \"UTM Zone 10, Northern Hemisphere\",\n"
                         + "  GEOGCS[\"GRS 1980(IUGG, 1980)\",\n"
@@ -559,7 +581,8 @@ public abstract class GeoServerCatalogModuleTest {
         assertEquals(value, decoded);
     }
 
-    public @Test void testValueNumberRange() throws Exception {
+    @Test
+    void testValueNumberRange() throws Exception {
         testValueWithEquals(NumberRange.create(Double.MIN_VALUE, 0d), NumberRange.class);
         testValueWithEquals(NumberRange.create(0L, false, Long.MAX_VALUE, true), NumberRange.class);
         testValueWithEquals(
@@ -567,12 +590,14 @@ public abstract class GeoServerCatalogModuleTest {
                 NumberRange.class);
     }
 
-    public @Test void testValueMeasure() throws Exception {
+    @Test
+    void testValueMeasure() throws Exception {
         testValueWithEquals(new Measure(1000, SI.METRE), Measure.class);
         testValueWithEquals(new Measure(.75, SI.RADIAN_PER_SECOND), Measure.class);
     }
 
-    public @Test void testValueReferencedEnvelope() throws Exception {
+    @Test
+    void testValueReferencedEnvelope() throws Exception {
         CoordinateReferenceSystem wgs84LatLon = CRS.decode("EPSG:4326", false);
         CoordinateReferenceSystem wgs84LonLat = CRS.decode("EPSG:4326", true);
 
@@ -582,7 +607,8 @@ public abstract class GeoServerCatalogModuleTest {
                 new ReferencedEnvelope(-90, 90, -180, 180, wgs84LatLon), ReferencedEnvelope.class);
     }
 
-    public @Test void testValueGridGeometry2D() throws Exception {
+    @Test
+    void testValueGridGeometry2D() throws Exception {
         CoordinateReferenceSystem crs = CRS.decode("EPSG:4326", true);
         ReferencedEnvelope env = new ReferencedEnvelope(-180, 180, -90, 90, crs);
         GridEnvelope range = new GeneralGridEnvelope(new int[] {0, 0}, new int[] {1024, 768});
@@ -590,19 +616,22 @@ public abstract class GeoServerCatalogModuleTest {
         testValueWithEquals(gridGeometry, GridGeometry.class);
     }
 
-    public @Test void testValueAuthorityURLInfo() throws Exception {
+    @Test
+    void testValueAuthorityURLInfo() throws Exception {
         AuthorityURL info = new AuthorityURL();
         info.setHref("href");
         info.setName("name");
         testValueWithEquals(info, AuthorityURLInfo.class);
     }
 
-    public @Test void testValueCoverageDimensionInfo() throws Exception {
+    @Test
+    void testValueCoverageDimensionInfo() throws Exception {
         CoverageDimensionInfo cdi = data.faker().coverageDimensionInfo();
         testValueWithEquals(cdi, CoverageDimensionInfo.class);
     }
 
-    public @Test void testValueDimensionInfo() throws Exception {
+    @Test
+    void testValueDimensionInfo() throws Exception {
         DimensionInfo di = data.faker().dimensionInfo();
 
         // bad equals implementation on DimensionInfoImpl
@@ -623,17 +652,20 @@ public abstract class GeoServerCatalogModuleTest {
         assertEquals(di.getPresentation(), actual.getPresentation());
     }
 
-    public @Test void testValueDataLinkInfo() throws Exception {
+    @Test
+    void testValueDataLinkInfo() throws Exception {
         DataLinkInfo dl = data.faker().dataLinkInfo();
         testValueWithEquals(dl, DataLinkInfo.class);
     }
 
-    public @Test void testValueLayerIdentifierInfo() throws Exception {
+    @Test
+    void testValueLayerIdentifierInfo() throws Exception {
         org.geoserver.catalog.impl.LayerIdentifier li = data.faker().layerIdentifierInfo();
         testValueWithEquals(li, LayerIdentifierInfo.class);
     }
 
-    public @Test void testValueLegendInfo() throws Exception {
+    @Test
+    void testValueLegendInfo() throws Exception {
         LegendInfoImpl l = new LegendInfoImpl();
         l.setFormat("format");
         l.setHeight(10);
@@ -649,16 +681,19 @@ public abstract class GeoServerCatalogModuleTest {
         assertEquals(l.getOnlineResource(), parsed.getOnlineResource());
     }
 
-    public @Test void testValueMetadataLinkInfo() throws Exception {
+    @Test
+    void testValueMetadataLinkInfo() throws Exception {
         testValueWithEquals(data.faker().metadataLink(), MetadataLinkInfo.class);
     }
 
-    public @Test void testValueVirtualTable() throws Exception {
+    @Test
+    void testValueVirtualTable() throws Exception {
         VirtualTable vt = new VirtualTable("testvt", "select * from test;", true);
         testValueWithEquals(vt, VirtualTable.class);
     }
 
-    public @Test void testValueMetadataMap() throws Exception {
+    @Test
+    void testValueMetadataMap() throws Exception {
         MetadataMap mdm = new MetadataMap();
         mdm.put("k1", "v1");
         mdm.put("k2", "v2");
@@ -670,7 +705,8 @@ public abstract class GeoServerCatalogModuleTest {
         assertEquals(mdm, decoded);
     }
 
-    public @Test void testQuery() throws Exception {
+    @Test
+    void testQuery() throws Exception {
         Arrays.stream(ClassMappings.values())
                 .map(ClassMappings::getInterface)
                 .filter(CatalogInfo.class::isAssignableFrom)

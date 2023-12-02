@@ -15,5 +15,5 @@ import org.springframework.test.context.ActiveProfiles;
 public class WpsApplicationTest {
 
     @Test
-    public void contextLoads() {}
+    void contextLoads() {}
 }

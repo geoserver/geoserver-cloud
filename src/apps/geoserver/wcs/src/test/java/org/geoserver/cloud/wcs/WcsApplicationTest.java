@@ -13,5 +13,5 @@ import org.springframework.test.context.ActiveProfiles;
 public class WcsApplicationTest {
 
     @Test
-    public void contextLoads() {}
+    void contextLoads() {}
 }

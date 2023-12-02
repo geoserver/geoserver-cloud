@@ -44,22 +44,26 @@ public abstract class FilterRoundtripTest {
     protected abstract void roundtripTest(org.geotools.jackson.databind.filter.dto.SortBy dto)
             throws Exception;
 
-    public @Test void include() throws Exception {
+    @Test
+    void include() throws Exception {
         Filter filter = Filter.INCLUDE;
         roundtripTest(filter);
     }
 
-    public @Test void exclude() throws Exception {
+    @Test
+    void exclude() throws Exception {
         Filter filter = Filter.EXCLUDE;
         roundtripTest(filter);
     }
 
-    public @Test void nativeFilter() throws Exception {
+    @Test
+    void nativeFilter() throws Exception {
         Filter filter = new Filter.NativeFilter().setNative("select * from test_data;");
         roundtripTest(filter);
     }
 
-    public @Test void idFilter_FeatureId_Simple() throws Exception {
+    @Test
+    void idFilter_FeatureId_Simple() throws Exception {
         Set<FeatureId> identifiers = new HashSet<>();
         identifiers.add(new Filter.Id.FeatureId().setId("states.1"));
         identifiers.add(new Filter.Id.FeatureId().setId("states.2"));
@@ -67,7 +71,8 @@ public abstract class FilterRoundtripTest {
         roundtripTest(filter);
     }
 
-    public @Test void idFilter_FeatureId_FeatureVersion() throws Exception {
+    @Test
+    void idFilter_FeatureId_FeatureVersion() throws Exception {
         Set<FeatureId> identifiers = new HashSet<>();
         identifiers.add(new Filter.Id.FeatureId().setFeatureVersion("v1").setId("states.1"));
         identifiers.add(new Filter.Id.FeatureId().setFeatureVersion("v1.1").setId("states.2"));
@@ -75,7 +80,8 @@ public abstract class FilterRoundtripTest {
         roundtripTest(filter);
     }
 
-    public @Test void idFilter_ResourceId_Date() throws Exception {
+    @Test
+    void idFilter_ResourceId_Date() throws Exception {
         Set<FeatureId> identifiers = new HashSet<>();
         identifiers.add(
                 new Filter.Id.ResourceId()
@@ -93,7 +99,8 @@ public abstract class FilterRoundtripTest {
         roundtripTest(filter);
     }
 
-    public @Test void notFilter() throws Exception {
+    @Test
+    void notFilter() throws Exception {
         Set<FeatureId> identifiers = new HashSet<>();
         identifiers.add(new Filter.Id.FeatureId().setId("states.1"));
         identifiers.add(new Filter.Id.FeatureId().setId("states.2"));
@@ -102,12 +109,14 @@ public abstract class FilterRoundtripTest {
         roundtripTest(notInFilter);
     }
 
-    public @Test void propertyIsNul() throws Exception {
+    @Test
+    void propertyIsNul() throws Exception {
         Filter filter = isNullFilter();
         roundtripTest(filter);
     }
 
-    public @Test void sortBy() throws Exception {
+    @Test
+    void sortBy() throws Exception {
         SortBy dto = new SortBy(propertyName("some.property.name"), SortBy.SortOrder.ASCENDING);
         roundtripTest(dto);
         dto = new SortBy(propertyName("collprop[1]"), SortBy.SortOrder.DESCENDING);
@@ -119,7 +128,8 @@ public abstract class FilterRoundtripTest {
                 .setExpression(new Expression.PropertyName().setPropertyName("name"));
     }
 
-    public @Test void propertyIsNil() throws Exception {
+    @Test
+    void propertyIsNil() throws Exception {
         Filter filter =
                 new Filter.PropertyIsNil()
                         .setExpression(new Expression.PropertyName().setPropertyName("name"))
@@ -127,7 +137,8 @@ public abstract class FilterRoundtripTest {
         roundtripTest(filter);
     }
 
-    public @Test void propertyIsLike() throws Exception {
+    @Test
+    void propertyIsLike() throws Exception {
         MultiValuedFilter filter =
                 new Filter.PropertyIsLike()
                         .setExpression(propertyName("text"))
@@ -140,7 +151,8 @@ public abstract class FilterRoundtripTest {
         roundtripTest(filter);
     }
 
-    public @Test void propertyIsBetween() throws Exception {
+    @Test
+    void propertyIsBetween() throws Exception {
         MultiValuedFilter dto =
                 new Filter.PropertyIsBetween()
                         .setExpression(propertyName("count"))
@@ -150,19 +162,22 @@ public abstract class FilterRoundtripTest {
         roundtripTest(dto);
     }
 
-    public @Test void andFilter() throws Exception {
+    @Test
+    void andFilter() throws Exception {
         List<Filter> children = Arrays.asList(Filter.INCLUDE, isNullFilter());
         Filter filter = new Filter.BinaryLogicOperator.And().setChildren(children);
         roundtripTest(filter);
     }
 
-    public @Test void orFilter() throws Exception {
+    @Test
+    void orFilter() throws Exception {
         List<Filter> children = Arrays.asList(Filter.INCLUDE, isNullFilter());
         Filter filter = new Filter.BinaryLogicOperator.Or().setChildren(children);
         roundtripTest(filter);
     }
 
-    public @Test void binaryComparisonOperators() throws Exception {
+    @Test
+    void binaryComparisonOperators() throws Exception {
         testBinaryComparisonOperator(Filter.BinaryComparisonOperator.PropertyIsEqualTo::new);
         testBinaryComparisonOperator(Filter.BinaryComparisonOperator.PropertyIsNotEqualTo::new);
         testBinaryComparisonOperator(Filter.BinaryComparisonOperator.PropertyIsLessThan::new);
@@ -183,7 +198,8 @@ public abstract class FilterRoundtripTest {
         roundtripTest(filter);
     }
 
-    public @Test void binarySpatialOperators() throws Exception {
+    @Test
+    void binarySpatialOperators() throws Exception {
         testBinarySpatialOperator(Filter.BinarySpatialOperator.BBOX::new);
         testBinarySpatialOperator(Filter.BinarySpatialOperator.Contains::new);
         testBinarySpatialOperator(Filter.BinarySpatialOperator.Crosses::new);
@@ -195,7 +211,8 @@ public abstract class FilterRoundtripTest {
         testBinarySpatialOperator(Filter.BinarySpatialOperator.Within::new);
     }
 
-    public @Test void binaryTemporalOperators() throws Exception {
+    @Test
+    void binaryTemporalOperators() throws Exception {
         testBinaryTemporalOperator(Filter.BinaryTemporalOperator.After::new);
         testBinaryTemporalOperator(Filter.BinaryTemporalOperator.AnyInteracts::new);
         testBinaryTemporalOperator(Filter.BinaryTemporalOperator.Before::new);
@@ -212,7 +229,8 @@ public abstract class FilterRoundtripTest {
         testBinaryTemporalOperator(Filter.BinaryTemporalOperator.TOverlaps::new);
     }
 
-    public @Test void distanceBufferOperators() throws Exception {
+    @Test
+    void distanceBufferOperators() throws Exception {
         testDistanceBufferOperator(Filter.BinarySpatialOperator.Beyond::new);
         testDistanceBufferOperator(Filter.BinarySpatialOperator.DWithin::new);
     }

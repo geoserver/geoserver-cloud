@@ -45,7 +45,8 @@ public class FilteringXmlBeanDefinitionReaderTest {
         reader = new FilteringXmlBeanDefinitionReader(registry);
     }
 
-    public @Test void noFilterIncludesdAll() {
+    @Test
+    void noFilterIncludesdAll() {
         verify(
                 baseResource,
                 "filterFactory",
@@ -54,51 +55,60 @@ public class FilteringXmlBeanDefinitionReaderTest {
                 "nullLockProvider");
     }
 
-    public @Test void includedAll_AnyWord() {
+    @Test
+    void includedAll_AnyWord() {
         String location = baseResource + "#name=\\w+";
         verify(location, "filterFactory", "geoServer", "memoryLockProvider", "nullLockProvider");
     }
 
-    public @Test void excludeAll_AnyWord() {
+    @Test
+    void excludeAll_AnyWord() {
         String location = baseResource + "#name=^(?!\\w+).*$";
         verify(location);
     }
 
-    public @Test void excludeByName() {
+    @Test
+    void excludeByName() {
         String location = baseResource + "#name=^(?!nullLockProvider|memoryLockProvider).*$";
         verify(location, "filterFactory", "geoServer");
     }
 
-    public @Test void excludeAllExplicitlyByName() {
+    @Test
+    void excludeAllExplicitlyByName() {
         String location =
                 baseResource
                         + "#name=^(?!nullLockProvider|memoryLockProvider|filterFactory|geoServer)$";
         verify(location);
     }
 
-    public @Test void includeAllExplicitly() {
+    @Test
+    void includeAllExplicitly() {
         String location =
                 baseResource
                         + "#name=^(nullLockProvider|memoryLockProvider|filterFactory|geoServer)$";
         verify(location, "filterFactory", "geoServer", "memoryLockProvider", "nullLockProvider");
     }
 
-    public @Test void excludeAllEndingWithProviderOrStartingWithFilter() {
+    @Test
+    void excludeAllEndingWithProviderOrStartingWithFilter() {
         String location = baseResource + "#name=^(?!.*Provider|.*Factory).*$";
         verify(location, "geoServer");
     }
 
-    public @Test void excludeByIdAttribute() {
+    @Test
+    void excludeByIdAttribute() {
         String location = baseResource + "#name=^(?!nullLockProvider|memoryLockProvider).*$";
         verify(location, "filterFactory", "geoServer");
     }
 
-    public @Test void excludeByNameAttribute() {
+    @Test
+    void excludeByNameAttribute() {
         String location = baseResource + "#name=^(?!filterFactory|geoServer).*$";
         verify(location, "memoryLockProvider", "nullLockProvider");
     }
 
-    public @Test void includeByNameAttribute() {
+    @Test
+    void includeByNameAttribute() {
         String location = baseResource + "#name=^(filterFactory|geoServer).*$";
         verify(location, "filterFactory", "geoServer");
     }

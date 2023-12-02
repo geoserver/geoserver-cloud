@@ -81,7 +81,7 @@ public class AclIntegrationTest {
     }
 
     @Test
-    public void HomePage_ACL_enabled_smoke_test() {
+    void HomePage_ACL_enabled_smoke_test() {
         login();
         GeoServerHomePage page = tester.startPage(GeoServerHomePage.class);
         assertNotNull(page);

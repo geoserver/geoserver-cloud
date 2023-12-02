@@ -38,13 +38,15 @@ public class ConfigApplicationTest {
         baseUri = "http://localhost:" + port + "/test-service";
     }
 
-    public @Test void testNoProfile() throws Exception {
+    @Test
+    void testNoProfile() throws Exception {
         assertThat(
                 this.restTemplate.getForEntity(baseUri, String.class).getStatusCode(),
                 equalTo(HttpStatus.NOT_FOUND));
     }
 
-    public @Test void testDefaultProfile() throws Exception {
+    @Test
+    void testDefaultProfile() throws Exception {
         String uri = baseUri + "/default";
         ResponseEntity<String> response = this.restTemplate.getForEntity(uri, String.class);
         assertThat(response.getStatusCode(), equalTo(HttpStatus.OK));
@@ -58,7 +60,8 @@ public class ConfigApplicationTest {
         JSONAssert.assertEquals(expected, config, JSONCompareMode.LENIENT);
     }
 
-    public @Test void testProfile() throws Exception {
+    @Test
+    void testProfile() throws Exception {
         String uri = baseUri + "/profile1";
         ResponseEntity<String> response = this.restTemplate.getForEntity(uri, String.class);
         assertThat(response.getStatusCode(), equalTo(HttpStatus.OK));

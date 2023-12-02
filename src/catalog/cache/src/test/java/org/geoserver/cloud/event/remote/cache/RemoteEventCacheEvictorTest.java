@@ -125,7 +125,8 @@ public class RemoteEventCacheEvictorTest {
         // data.after();
     }
 
-    public @Test void testRemoteDefaultWorkspaceEvent() {
+    @Test
+    void testRemoteDefaultWorkspaceEvent() {
         assertNull(catalogCache.get(DEFAULT_WORKSPACE_CACHE_KEY));
 
         catalog.getDefaultWorkspace();
@@ -147,7 +148,8 @@ public class RemoteEventCacheEvictorTest {
         return event;
     }
 
-    public @Test void testRemoteDefaultNamespaceEvent() {
+    @Test
+    void testRemoteDefaultNamespaceEvent() {
         assertNull(catalogCache.get(DEFAULT_NAMESPACE_CACHE_KEY));
 
         catalog.getDefaultNamespace();
@@ -158,7 +160,8 @@ public class RemoteEventCacheEvictorTest {
         assertNull(catalogCache.get(DEFAULT_NAMESPACE_CACHE_KEY));
     }
 
-    public @Test void testRemoteDefaultDataStoreEvent() {
+    @Test
+    void testRemoteDefaultDataStoreEvent() {
         final Object key = CachingCatalogFacade.generateDefaultDataStoreKey(data.workspaceA);
         assertNull(catalogCache.get(key));
 
@@ -179,7 +182,8 @@ public class RemoteEventCacheEvictorTest {
         assertNotNull(catalogCache.get(key));
     }
 
-    public @Test void testCatalogInfoEvictingEvents() {
+    @Test
+    void testCatalogInfoEvictingEvents() {
         // layergroups are not cached
         // testModifyThenRemoveCatalogInfo(data.layerGroup1, catalog::getLayerGroup);
         testModifyThenRemoveCatalogInfo(data.layerFeatureTypeA, catalog::getLayer);
@@ -235,7 +239,8 @@ public class RemoteEventCacheEvictorTest {
         assertNull(catalogCache.get(key));
     }
 
-    public @Test void testRemoteServiceInfoModifyEvent_global_service() {
+    @Test
+    void testRemoteServiceInfoModifyEvent_global_service() {
         WMSInfoImpl globalService = new WMSInfoImpl();
         globalService.setId("wms-global");
         globalService.setName("WMS");
@@ -243,7 +248,8 @@ public class RemoteEventCacheEvictorTest {
         testRemoteServiceInfoModifyEvent(globalService);
     }
 
-    public @Test void testRemoteServiceInfoModifyEvent_workspace_service() {
+    @Test
+    void testRemoteServiceInfoModifyEvent_workspace_service() {
         WorkspaceInfoImpl workspace = new WorkspaceInfoImpl();
         workspace.setId("fake-ws");
 
@@ -280,7 +286,8 @@ public class RemoteEventCacheEvictorTest {
         assertNull(configCache.get(typeKey), "service by type not evicted");
     }
 
-    public @Test void testRemoteServiceInfoRemoveEvent_global_service() {
+    @Test
+    void testRemoteServiceInfoRemoveEvent_global_service() {
         WMSInfoImpl globalService = new WMSInfoImpl();
         globalService.setId("wms-global");
         globalService.setName("WMS");
@@ -288,7 +295,8 @@ public class RemoteEventCacheEvictorTest {
         testRemoteServiceInfoRemoveEvent(globalService);
     }
 
-    public @Test void testRemoteServiceInfoRemoveEvent_workspace_service() {
+    @Test
+    void testRemoteServiceInfoRemoveEvent_workspace_service() {
         WorkspaceInfoImpl workspace = new WorkspaceInfoImpl();
         workspace.setId("fake-ws");
 
@@ -322,7 +330,8 @@ public class RemoteEventCacheEvictorTest {
         assertNull(configCache.get(typeKey), "service by type not evicted");
     }
 
-    public @Test void testRemoteSettingsInfoModifyEvent() {
+    @Test
+    void testRemoteSettingsInfoModifyEvent() {
         WorkspaceInfoImpl ws = new WorkspaceInfoImpl();
         ws.setId("fakews");
         SettingsInfoImpl settings = new SettingsInfoImpl();
@@ -355,7 +364,8 @@ public class RemoteEventCacheEvictorTest {
                 "expected workspace settings entry to be evicted");
     }
 
-    public @Test void testRemoteSettingsInfoRemoveEvent() {
+    @Test
+    void testRemoteSettingsInfoRemoveEvent() {
         WorkspaceInfoImpl ws = new WorkspaceInfoImpl();
         ws.setId("fakews");
         SettingsInfoImpl settings = new SettingsInfoImpl();
@@ -385,7 +395,8 @@ public class RemoteEventCacheEvictorTest {
                 "expected workspace settings entry to be evicted");
     }
 
-    public @Test void testRemoteLoggingInfoSetEvent() {
+    @Test
+    void testRemoteLoggingInfoSetEvent() {
         LoggingInfo info = geoServer.getLogging();
         assertNotNull(info);
         final String key = CachingGeoServerFacade.LOGGINGINFO_KEY;
@@ -402,7 +413,8 @@ public class RemoteEventCacheEvictorTest {
         assertNull(configCache.get(key), "logging not evicted");
     }
 
-    public @Test void testRemoteLoggingInfoModifyEvent() {
+    @Test
+    void testRemoteLoggingInfoModifyEvent() {
         LoggingInfo info = geoServer.getLogging();
         assertNotNull(info);
         final String key = CachingGeoServerFacade.LOGGINGINFO_KEY;
@@ -417,7 +429,8 @@ public class RemoteEventCacheEvictorTest {
         assertNull(configCache.get(key), "logging not evicted");
     }
 
-    public @Test void testRemoteGeoServerInfoSetEvent() {
+    @Test
+    void testRemoteGeoServerInfoSetEvent() {
         GeoServerInfo info = geoServer.getGlobal();
         assertNotNull(info);
         final String key = CachingGeoServerFacade.GEOSERVERINFO_KEY;
@@ -434,7 +447,8 @@ public class RemoteEventCacheEvictorTest {
         assertNull(configCache.get(key), "global not evicted");
     }
 
-    public @Test void testRemoteGeoServerInfoModifyEvent() {
+    @Test
+    void testRemoteGeoServerInfoModifyEvent() {
         GeoServerInfo info = geoServer.getGlobal();
         assertNotNull(info);
         final String key = CachingGeoServerFacade.GEOSERVERINFO_KEY;
@@ -451,7 +465,8 @@ public class RemoteEventCacheEvictorTest {
         assertNull(configCache.get(key), "global not evicted");
     }
 
-    public @Test void testUpdateSequenceModifyEvent_evicts_but_applies_update_sequence_in_place() {
+    @Test
+    void testUpdateSequenceModifyEvent_evicts_but_applies_update_sequence_in_place() {
         GeoServerInfo local = geoServer.getGlobal();
         assertNotNull(local);
         final String key = CachingGeoServerFacade.GEOSERVERINFO_KEY;

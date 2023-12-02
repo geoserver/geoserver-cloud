@@ -27,7 +27,7 @@ abstract class WmsApplicationTest {
     protected @Autowired ConfigurableApplicationContext context;
 
     @Test
-    public void testExpectedBeansFromWmsApplicationAutoConfiguration() {
+    void testExpectedBeansFromWmsApplicationAutoConfiguration() {
         expecteBean("wfsConfiguration", WFSConfiguration.class);
         expecteBean("webMapServiceController", WMSController.class);
         expecteBean("virtualServiceVerifier", VirtualServiceVerifier.class);
@@ -38,7 +38,7 @@ abstract class WmsApplicationTest {
     }
 
     @Test
-    public void testExpectedBeansFromGsWfsJarFile() {
+    void testExpectedBeansFromGsWfsJarFile() {
         expecteBean("bboxKvpParser", BBoxKvpParser.class);
         expecteBean("featureIdKvpParser", FlatKvpParser.class);
         expecteBean("cqlKvpParser", CQLFilterKvpParser.class);
@@ -68,7 +68,7 @@ abstract class WmsApplicationTest {
     }
 
     @Test
-    public void testGwcWmsIntegration() {
+    void testGwcWmsIntegration() {
         expecteBean(
                 "gwcWMSExtendedCapabilitiesProvider", CachingExtendedCapabilitiesProvider.class);
         expecteBean("gwcGetMapAdvise", ForwardGetMapToGwcAspect.class);

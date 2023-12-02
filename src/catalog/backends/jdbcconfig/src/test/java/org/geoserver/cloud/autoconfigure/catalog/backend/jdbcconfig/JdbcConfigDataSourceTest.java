@@ -32,7 +32,8 @@ import javax.sql.DataSource;
         })
 public class JdbcConfigDataSourceTest extends JDBCConfigTest {
 
-    public @Test void testDataSource() throws SQLException {
+    @Test
+    void testDataSource() throws SQLException {
         DataSource ds = context.getBean("jdbcConfigDataSource", DataSource.class);
         assertSame(ds, context.getBean("jdbcStoreDataSource", DataSource.class));
         assertThat(ds, instanceOf(HikariDataSource.class));

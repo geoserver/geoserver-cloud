@@ -29,12 +29,14 @@ public class GeoServerMainAutoConfigurationTest {
 
     private @Autowired ApplicationContext context;
 
-    public @Test void testContext() {
+    @Test
+    void testContext() {
         assertFalse(context instanceof WebApplicationContext);
         assertTrue(context instanceof ReactiveWebApplicationContext);
     }
 
-    public @Test void rawCatalog() {
+    @Test
+    void rawCatalog() {
         Catalog catalog = (Catalog) context.getBean("rawCatalog");
 
         assertThat(catalog, instanceOf(org.geoserver.catalog.plugin.CatalogPlugin.class));
@@ -44,7 +46,8 @@ public class GeoServerMainAutoConfigurationTest {
                 instanceOf(org.geoserver.catalog.plugin.DefaultMemoryCatalogFacade.class));
     }
 
-    public @Test void catalog() {
+    @Test
+    void catalog() {
         Catalog catalog = (Catalog) context.getBean("catalog");
         assertThat(catalog, instanceOf(LocalWorkspaceCatalog.class));
     }

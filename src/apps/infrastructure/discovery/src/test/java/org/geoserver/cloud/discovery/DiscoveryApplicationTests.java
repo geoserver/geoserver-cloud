@@ -11,5 +11,5 @@ import org.springframework.boot.test.context.SpringBootTest;
 public class DiscoveryApplicationTests {
 
     @Test
-    public void contextLoads() {}
+    void contextLoads() {}
 }

@@ -72,22 +72,22 @@ public class JDBCConfigCatalogConcurrencyIT {
         jdbcCatalogFacade.dispose(); // disposes internal caches
     }
 
-    public @Test void catalogConcurrency_1() {
+    @Test void catalogConcurrency_1() {
         data.addObjects();
         concurrencyTest(1);
     }
 
-    public @Test void catalogConcurrency_4() {
+    @Test void catalogConcurrency_4() {
         data.addObjects();
         concurrencyTest(4);
     }
 
-    public @Test void catalogConcurrency_16() {
+    @Test void catalogConcurrency_16() {
         data.addObjects();
         concurrencyTest(16);
     }
 
-    public @Test void catalogConcurrency_32() {
+    @Test void catalogConcurrency_32() {
         data.addObjects();
         concurrencyTest(32);
     }

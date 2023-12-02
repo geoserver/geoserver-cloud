@@ -114,7 +114,7 @@ public class LayerControllerTest extends AbstractReactiveCatalogControllerTest<L
         super.testQueryFilter(cql, layer1, layer2);
     }
 
-    public @Test void testLayerCRUD() {
+    @Test void testLayerCRUD() {
         LayerInfo layer = testData.layerFeatureTypeA;
         crudTest(
                 layer,
@@ -127,7 +127,7 @@ public class LayerControllerTest extends AbstractReactiveCatalogControllerTest<L
                 });
     }
 
-    public @Test void testUpdateStyles() {
+    @Test void testUpdateStyles() {
         LayerInfo layer = testData.layerFeatureTypeA;
         catalog.add(layer);
 
@@ -145,7 +145,7 @@ public class LayerControllerTest extends AbstractReactiveCatalogControllerTest<L
                 });
     }
 
-    public @Test void testFindLayersByResource() {
+    @Test void testFindLayersByResource() {
         LayerInfo layer = testData.layerFeatureTypeA;
         catalog.add(layer);
 
@@ -159,13 +159,13 @@ public class LayerControllerTest extends AbstractReactiveCatalogControllerTest<L
                 .consumeWith(res -> assertEquals(1, res.getResponseBody().size()));
     }
 
-    public @Test void testFindLayersByResource_NonExistentResourceId() {
+    @Test void testFindLayersByResource_NonExistentResourceId() {
         client().getRelative("/layers/resource/{id}", "bad-resource-id")
                 .expectStatus()
                 .isNoContent();
     }
 
-    public @Test void testFindLayersWithStyle() {
+    @Test void testFindLayersWithStyle() {
         StyleInfo style1 = testData.style1; // on layer1 and layer2
         StyleInfo style2 = testData.style2; // layer2's default style
         StyleInfo style3 = testData.createStyle("style3"); // on layer2

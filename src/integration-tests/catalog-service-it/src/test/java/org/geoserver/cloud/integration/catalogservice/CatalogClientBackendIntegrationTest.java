@@ -84,7 +84,7 @@ public class CatalogClientBackendIntegrationTest extends AbstractCatalogBackendI
         super.data.deleteAll(serverCatalog);
     }
 
-    public @Test void testQueryFilterInstanceOf() {
+    @Test void testQueryFilterInstanceOf() {
         super.data.addObjects();
         int expected = serverCatalog.getDataStores().size();
         assertThat(expected, greaterThan(0));

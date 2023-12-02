@@ -37,7 +37,7 @@ public class GeoWebCacheApplicationTest {
     }
 
     @Test
-    public void testRESTDefaultContentType() throws ParseException {
+    void testRESTDefaultContentType() throws ParseException {
         ResponseEntity<String> response =
                 testGetRequestContentType("/gwc/rest/layers", APPLICATION_JSON);
         JsonElement parsed = JsonParser.parseString(response.getBody());
@@ -45,7 +45,7 @@ public class GeoWebCacheApplicationTest {
     }
 
     @Test
-    public void testRESTPathExtensionContentNegotiation() {
+    void testRESTPathExtensionContentNegotiation() {
         ResponseEntity<String> response =
                 testGetRequestContentType("/gwc/rest/layers.json", APPLICATION_JSON);
         JsonElement parsed = JsonParser.parseString(response.getBody());

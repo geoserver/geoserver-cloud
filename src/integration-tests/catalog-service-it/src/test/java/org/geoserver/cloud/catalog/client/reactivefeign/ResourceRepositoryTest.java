@@ -75,7 +75,7 @@ public class ResourceRepositoryTest
         super.testFindAllIncludeFilter(WMTSLayerInfo.class, testData.wmtsLayerA);
     }
 
-    public @Test void testFindAllByNamespace() {
+    @Test void testFindAllByNamespace() {
         testFind(
                 () -> repository.findAllByNamespace(testData.namespaceA, ResourceInfo.class),
                 testData.featureTypeA,
@@ -88,7 +88,7 @@ public class ResourceRepositoryTest
                 testData.featureTypeA);
     }
 
-    public @Test void testFindByStoreAndName() {
+    @Test void testFindByStoreAndName() {
         DataStoreInfo ds = testData.dataStoreA;
         FeatureTypeInfo ft = testData.featureTypeA;
         CoverageStoreInfo cs = testData.coverageStoreA;
@@ -115,7 +115,7 @@ public class ResourceRepositoryTest
                 repository.findByStoreAndName(cs, cv.getName(), FeatureTypeInfo.class).isEmpty());
     }
 
-    public @Test void testFindAllByStore() {
+    @Test void testFindAllByStore() {
         FeatureTypeInfo ftA2 = testData.createFeatureType("ftA2");
         CoverageInfo cvA2 = testData.createCoverage("cvA2");
         serverCatalog.add(ftA2);
@@ -155,7 +155,7 @@ public class ResourceRepositoryTest
         super.testQueryFilter("enabled = false", wms, wmts);
     }
 
-    public @Test void testResourceInfoCRUD_FeatureTypeInfo() {
+    @Test void testResourceInfoCRUD_FeatureTypeInfo() {
         FeatureTypeInfo toCreate =
                 testData.createFeatureType(
                         "featureTypeCRUD",
@@ -180,7 +180,7 @@ public class ResourceRepositoryTest
                 });
     }
 
-    public @Test void testResourceInfoCRUD_CoverageInfo() {
+    @Test void testResourceInfoCRUD_CoverageInfo() {
         CoverageInfo toCreate =
                 testData.createCoverage(
                         "coverageCRUD", testData.coverageStoreA, "coverageCRUD_name");
@@ -209,7 +209,7 @@ public class ResourceRepositoryTest
      * java.util.Collections$EmptySet (in module java.base) with modifiers "private"}
      */
     @Disabled
-    public @Test void testResourceInfoCRUD_WMSLayerInfo() {
+    @Test void testResourceInfoCRUD_WMSLayerInfo() {
         WMSLayerInfo toCreate =
                 testData.createWMSLayer(
                         "wmsLayerCRUD",
@@ -232,7 +232,7 @@ public class ResourceRepositoryTest
                 });
     }
 
-    public @Test void testResourceInfoCRUD_WMTSLayerInfo() {
+    @Test void testResourceInfoCRUD_WMTSLayerInfo() {
         WMTSLayerInfo toCreate =
                 testData.createWMTSLayer(
                         "wmtsLayerCRUD",
@@ -255,14 +255,14 @@ public class ResourceRepositoryTest
                 });
     }
 
-    public @Test void testFindResourceInfoById() {
+    @Test void testFindResourceInfoById() {
         testFindById(testData.featureTypeA);
         testFindById(testData.coverageA);
         testFindById(testData.wmsLayerA);
         testFindById(testData.wmtsLayerA);
     }
 
-    public @Test void testFindResourceInfoById_SubtypeMismatch() throws IOException {
+    @Test void testFindResourceInfoById_SubtypeMismatch() throws IOException {
         ResourceRepository client = repository;
         assertTrue(client.findById(testData.featureTypeA.getId(), CoverageInfo.class).isEmpty());
         assertTrue(client.findById(testData.coverageA.getId(), FeatureTypeInfo.class).isEmpty());
@@ -270,7 +270,7 @@ public class ResourceRepositoryTest
         assertTrue(client.findById(testData.wmtsLayerA.getId(), WMSLayerInfo.class).isEmpty());
     }
 
-    public @Test void testFindResourceByNamespaceIdAndName() {
+    @Test void testFindResourceByNamespaceIdAndName() {
         NamespaceInfo ns = testData.namespaceA;
         ResourceInfo ftA = testData.featureTypeA;
 
@@ -286,7 +286,7 @@ public class ResourceRepositoryTest
         assertTrue(client.findByNameAndNamespace(name, ns, CoverageInfo.class).isEmpty());
     }
 
-    public @Test void testFindAllBySubtype() {
+    @Test void testFindAllBySubtype() {
         ResourceRepository client = repository;
 
         List<ResourceInfo> all =

@@ -40,13 +40,15 @@ public class PropertyDiffTest {
         data = CatalogTestData.empty(() -> catalog, () -> null).initConfig(false).initialize();
     }
 
-    public @Test void empty() {
+    @Test
+    void empty() {
         PropertyDiff diff = support.createTestDiff();
         assertTrue(diff.isEmpty());
         assertTrue(diff.getChanges().isEmpty());
     }
 
-    public @Test void simpleStringProp() {
+    @Test
+    void simpleStringProp() {
         PropertyDiff diff = support.createTestDiff("prop1", "oldValue", "newValue");
         assertEquals(1, diff.size());
         Change change = diff.get(0);
@@ -56,7 +58,8 @@ public class PropertyDiffTest {
         assertEquals("newValue", change.getNewValue());
     }
 
-    public @Test void cleanToEmpty() {
+    @Test
+    void cleanToEmpty() {
         PropertyDiff diff =
                 support.createTestDiff( //
                         "leftListNull",
@@ -88,7 +91,8 @@ public class PropertyDiffTest {
         assertEquals(0, clean.getChanges().size());
     }
 
-    public @Test void cleanToEmpty_InternationalString() {
+    @Test
+    void cleanToEmpty_InternationalString() {
         PropertyDiff diff =
                 support.createTestDiff( //
                         "leftListNull",
@@ -111,7 +115,8 @@ public class PropertyDiffTest {
         assertEquals(0, clean.getChanges().size());
     }
 
-    public @Test void clean() {
+    @Test
+    void clean() {
         PropertyDiff diff =
                 support.createTestDiff( //
                         "prop1",
@@ -143,7 +148,8 @@ public class PropertyDiffTest {
         assertEquals(Integer.valueOf(2), clean.get(1).getNewValue());
     }
 
-    public @Test void builderToEmpty() {
+    @Test
+    void builderToEmpty() {
         WorkspaceInfo ws = data.workspaceA;
         ws.setDateCreated(new Date());
 
@@ -158,7 +164,8 @@ public class PropertyDiffTest {
         assertTrue(diff.clean().isEmpty());
     }
 
-    public @Test void applyWorkspace() {
+    @Test
+    void applyWorkspace() {
         WorkspaceInfo ws = data.workspaceA;
         ws.setDateCreated(null);
         ws.setDateModified(null);

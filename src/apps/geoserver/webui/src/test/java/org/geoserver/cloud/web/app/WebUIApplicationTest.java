@@ -97,7 +97,7 @@ public class WebUIApplicationTest {
     }
 
     @Test
-    public void GeoServerHomePage_smoke_test_anonymous() {
+    void GeoServerHomePage_smoke_test_anonymous() {
         GeoServerHomePage page = tester.startPage(GeoServerHomePage.class);
         assertNotNull(page);
         // print(page);
@@ -106,7 +106,7 @@ public class WebUIApplicationTest {
     }
 
     @Test
-    public void GeoServerHomePage_smoke_test_logged_in() {
+    void GeoServerHomePage_smoke_test_logged_in() {
         login();
         GeoServerHomePage page = tester.startPage(GeoServerHomePage.class);
         assertNotNull(page);
@@ -118,14 +118,14 @@ public class WebUIApplicationTest {
     }
 
     @Test
-    public void GlobalSettingsPage_smoke_test_loggedout() {
+    void GlobalSettingsPage_smoke_test_loggedout() {
         logout();
         tester.startPage(GlobalSettingsPage.class);
         tester.assertRenderedPage(GeoServerLoginPage.class);
     }
 
     @Test
-    public void GlobalSettingsPage_smoke_test() {
+    void GlobalSettingsPage_smoke_test() {
         login();
         tester.startPage(GlobalSettingsPage.class);
         tester.assertRenderedPage(GlobalSettingsPage.class);
@@ -140,7 +140,7 @@ public class WebUIApplicationTest {
     }
 
     @Test
-    public void GeoServerHomePage_smoke_test_service_links() {
+    void GeoServerHomePage_smoke_test_service_links() {
         GeoServerHomePage page = tester.startPage(GeoServerHomePage.class);
         assertNotNull(page);
         // print(page);

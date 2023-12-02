@@ -64,12 +64,12 @@ public class WorkspaceRepositoryTest
         super.testQueryFilter(format("\"id\" = '%s'", wsA.getId()), wsA);
     }
 
-    public @Test void testFindByName() {
+    @Test void testFindByName() {
         WorkspaceInfo ws1 = testData.workspaceA;
         assertEquals(ws1, repository.findFirstByName(ws1.getName(), infoType).get());
     }
 
-    public @Test void testWorkspaceCRUD() {
+    @Test void testWorkspaceCRUD() {
         WorkspaceInfo ws = testData.faker().workspaceInfo("workspaceCRUD");
         crudTest(
                 ws,
@@ -84,20 +84,20 @@ public class WorkspaceRepositoryTest
                 });
     }
 
-    public @Test void testGetDefaultWorkspace() {
+    @Test void testGetDefaultWorkspace() {
         WorkspaceInfo expected = serverCatalog.getDefaultWorkspace();
         assertNotNull(expected);
         WorkspaceInfo actual = repository.getDefaultWorkspace().get();
         assertEquals(expected, actual);
     }
 
-    public @Test void testGetDefaultWorkspaceIsNullOnEmptyCatalog() {
+    @Test void testGetDefaultWorkspaceIsNullOnEmptyCatalog() {
         testData.deleteAll();
         assertNull(serverCatalog.getDefaultWorkspace());
         assertFalse(repository.getDefaultWorkspace().isPresent());
     }
 
-    public @Test void testSetDefaultWorkspace() {
+    @Test void testSetDefaultWorkspace() {
         WorkspaceInfo current = serverCatalog.getDefaultWorkspace();
         assertNotNull(current);
         assertEquals(testData.workspaceA.getId(), current.getId());
@@ -110,7 +110,7 @@ public class WorkspaceRepositoryTest
         assertEquals(expected, repository.getDefaultWorkspace().get());
     }
 
-    public @Test void testUnsetDefaultWorkspace() {
+    @Test void testUnsetDefaultWorkspace() {
         WorkspaceInfo ws2 = testData.workspaceB;
         // preflight check
         serverCatalog.setDefaultWorkspace(null);

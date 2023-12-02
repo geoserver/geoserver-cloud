@@ -40,7 +40,7 @@ public class ServletContextDisabledSmokeTest {
     private @Autowired ApplicationContext context;
 
     @Test
-    public void contextLoaderListener() {
+    void contextLoaderListener() {
         assertThrows(
                 NoSuchBeanDefinitionException.class,
                 () -> context.getBean(GeoServerServletInitializer.class));

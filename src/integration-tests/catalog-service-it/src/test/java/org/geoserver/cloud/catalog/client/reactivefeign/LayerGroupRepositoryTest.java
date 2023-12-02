@@ -88,7 +88,7 @@ public class LayerGroupRepositoryTest
         super.testQueryFilter(cql, lg1);
     }
 
-    public @Test void testLayerGroupCRUD_NoWorkspace() {
+    @Test void testLayerGroupCRUD_NoWorkspace() {
         WorkspaceInfo workspace = null;
         LayerGroupInfo layerGroup =
                 testData.createLayerGroup(
@@ -116,7 +116,7 @@ public class LayerGroupRepositoryTest
                 });
     }
 
-    public @Test void testLayerGroupCRUD_Workspace() {
+    @Test void testLayerGroupCRUD_Workspace() {
         final WorkspaceInfo workspace = testData.workspaceA;
         LayerGroupInfo layerGroup =
                 testData.createLayerGroup(
@@ -137,7 +137,7 @@ public class LayerGroupRepositoryTest
                 });
     }
 
-    public @Test void testUpdateLayers() {
+    @Test void testUpdateLayers() {
         WorkspaceInfo workspace = null;
         LayerGroupInfo layerGroup =
                 testData.createLayerGroup(
@@ -173,7 +173,7 @@ public class LayerGroupRepositoryTest
                 });
     }
 
-    public @Test void testFindAllByWorkspaceIsNull() {
+    @Test void testFindAllByWorkspaceIsNull() {
         testFind(() -> repository.findAllByWorkspaceIsNull(), testData.layerGroup1);
         serverCatalog.add(lg1WorkspaceA);
         testFind(() -> repository.findAllByWorkspaceIsNull(), testData.layerGroup1);
@@ -184,7 +184,7 @@ public class LayerGroupRepositoryTest
         testFind(() -> repository.findAllByWorkspaceIsNull(), testData.layerGroup1, lg2);
     }
 
-    public @Test void testFindAllByWorkspace() {
+    @Test void testFindAllByWorkspace() {
         WorkspaceInfo workspace = testData.workspaceA;
         testFind(() -> repository.findAllByWorkspace(testData.workspaceA));
         serverCatalog.add(lg1WorkspaceA);
@@ -196,7 +196,7 @@ public class LayerGroupRepositoryTest
         testFind(() -> repository.findAllByWorkspace(workspace), lg1WorkspaceA, lg2WorkspaceA);
     }
 
-    public @Test void testFindByNameAndWorkspaceIsNull() {
+    @Test void testFindByNameAndWorkspaceIsNull() {
         LayerGroupInfo global = testData.layerGroup1;
         assertEquals(
                 global.getId(),
@@ -205,7 +205,7 @@ public class LayerGroupRepositoryTest
         assertTrue(repository.findByNameAndWorkspaceIsNull(lg1WorkspaceA.getName()).isEmpty());
     }
 
-    public @Test void testFindByNameAndWorkspace() {
+    @Test void testFindByNameAndWorkspace() {
         LayerGroupInfo globalGroup = serverCatalog.getLayerGroup(testData.layerGroup1.getId());
         WorkspaceInfo workspace = testData.workspaceA;
         serverCatalog.add(lg1WorkspaceA);

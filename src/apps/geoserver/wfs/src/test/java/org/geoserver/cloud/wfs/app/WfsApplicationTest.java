@@ -15,5 +15,5 @@ import org.springframework.test.context.ActiveProfiles;
 public class WfsApplicationTest {
 
     @Test
-    public void contextLoads() {}
+    void contextLoads() {}
 }

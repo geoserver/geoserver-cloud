@@ -38,7 +38,8 @@ class S3BlobstoreAutoConfigurationTest {
                                 AutoConfigurations.of(S3BlobstoreAutoConfiguration.class));
     }
 
-    public @Test void disabledByDefault() {
+    @Test
+    void disabledByDefault() {
         runner.run(
                 context -> {
                     assertThat(context).doesNotHaveBean(S3BlobStoreConfigProvider.class);
@@ -47,7 +48,8 @@ class S3BlobstoreAutoConfigurationTest {
                 });
     }
 
-    public @Test void blobstoreEnabledGeoServerWebUiDisabled() {
+    @Test
+    void blobstoreEnabledGeoServerWebUiDisabled() {
         runner.withPropertyValues("gwc.blobstores.s3=true", "geoserver.web-ui.gwc.enabled=false")
                 .run(
                         context -> {
@@ -57,7 +59,8 @@ class S3BlobstoreAutoConfigurationTest {
                         });
     }
 
-    public @Test void blobstoreEnabledGeoServerWebUiEnabled() {
+    @Test
+    void blobstoreEnabledGeoServerWebUiEnabled() {
         runner.withPropertyValues("gwc.blobstores.s3=true", "geoserver.web-ui.gwc.enabled=true")
                 .run(
                         context -> {
@@ -67,7 +70,8 @@ class S3BlobstoreAutoConfigurationTest {
                         });
     }
 
-    public @Test void blobstoreEnabledGeoServerWebUiEnabledGsWebGwcNotInClassPath() {
+    @Test
+    void blobstoreEnabledGeoServerWebUiEnabledGsWebGwcNotInClassPath() {
         runner.withClassLoader(new FilteredClassLoader(GWCSettingsPage.class))
                 .withPropertyValues("gwc.blobstores.s3=true", "geoserver.web-ui.gwc.enabled=true")
                 .run(

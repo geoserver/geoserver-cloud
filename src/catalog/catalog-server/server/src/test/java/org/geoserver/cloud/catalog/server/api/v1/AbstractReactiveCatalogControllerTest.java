@@ -187,7 +187,7 @@ public abstract class AbstractReactiveCatalogControllerTest<C extends CatalogInf
         return this.clientSupport.get();
     }
 
-    public @Test void testFindByIdNotFound() throws IOException {
+    @Test void testFindByIdNotFound() throws IOException {
         client().findById("non-existent-ws-id", infoType).expectStatus().isNoContent();
     }
 

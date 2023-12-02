@@ -27,7 +27,8 @@ public class GeoServerMainConfigurationSmokeTest {
     private @Autowired @Qualifier("rawCatalog") Catalog rawCatalog;
     private @Autowired @Qualifier("secureCatalog") Catalog secureCatalog;
 
-    public @Test void contextLoads() {
+    @Test
+    void contextLoads() {
         assertThat(rawCatalog, instanceOf(CatalogImpl.class));
         assertThat(secureCatalog, instanceOf(SecureCatalogImpl.class));
     }

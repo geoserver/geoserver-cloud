@@ -73,7 +73,7 @@ public class LayerGroupControllerTest
         super.testQueryFilter(cql, lg1);
     }
 
-    public @Test void testLayerGroupCRUD_NoWorkspace() {
+    @Test void testLayerGroupCRUD_NoWorkspace() {
         WorkspaceInfo workspace = null;
         LayerGroupInfo layerGroup =
                 testData.createLayerGroup(
@@ -101,7 +101,7 @@ public class LayerGroupControllerTest
                 });
     }
 
-    public @Test void testLayerGroupCRUD_Workspace() {
+    @Test void testLayerGroupCRUD_Workspace() {
         final WorkspaceInfo workspace = testData.workspaceA;
         LayerGroupInfo layerGroup =
                 testData.createLayerGroup(
@@ -122,7 +122,7 @@ public class LayerGroupControllerTest
                 });
     }
 
-    public @Test void testUpdateLayers() {
+    @Test void testUpdateLayers() {
         WorkspaceInfo workspace = null;
         LayerGroupInfo layerGroup =
                 testData.createLayerGroup(
