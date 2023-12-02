@@ -30,7 +30,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.ObjectFactory;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
-import org.springframework.lang.Nullable;
 
 import java.util.Optional;
 
@@ -86,8 +85,8 @@ public abstract class SharedMappers {
     }
 
     /** Added due to {@link GMLInfo#getMimeTypeToForce()} */
-    public String optToString(@Nullable Optional<String> value) {
-        return value == null ? null : value.orElse(null);
+    public String optToString(Optional<String> value) {
+        return value.orElse(null);
     }
 
     public Optional<String> stringToOpt(String value) {

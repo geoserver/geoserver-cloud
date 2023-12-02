@@ -5,6 +5,8 @@
 package org.geoserver.cloud.wps;
 
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
+import org.geoserver.cloud.virtualservice.VirtualServiceVerifier;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 
@@ -22,4 +24,10 @@ import org.springframework.context.annotation.ImportResource;
             // "jar:gs-web-core-.*!/applicationContext.xml", //
             // "jar:gs-web-wps-.*!/applicationContext.xml", //
         })
-public class WpsApplicationConfiguration {}
+public class WpsApplicationConfiguration {
+
+    @Bean
+    VirtualServiceVerifier virtualServiceVerifier() {
+        return new VirtualServiceVerifier();
+    }
+}

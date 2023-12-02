@@ -4,6 +4,7 @@
  */
 package org.geoserver.cloud.web.app;
 
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -19,8 +20,11 @@ public class WebUIApplication {
         try {
             SpringApplication.run(WebUIApplication.class, args);
         } catch (RuntimeException e) {
-            e.printStackTrace();
-            System.exit(-1);
+            try {
+                LoggerFactory.getLogger(WebUIApplication.class).error("Application run failed", e);
+            } finally {
+                System.exit(-1);
+            }
         }
     }
 
