@@ -22,26 +22,29 @@ public class ForwardingResourceRepository
         super(subject);
     }
 
-    public @Override <T extends ResourceInfo> Stream<T> findAllByType(Class<T> clazz) {
+    @Override
+    public <T extends ResourceInfo> Stream<T> findAllByType(Class<T> clazz) {
         return subject.findAllByType(clazz);
     }
 
-    public @Override <T extends ResourceInfo> Stream<T> findAllByNamespace(
-            NamespaceInfo ns, Class<T> clazz) {
+    @Override
+    public <T extends ResourceInfo> Stream<T> findAllByNamespace(NamespaceInfo ns, Class<T> clazz) {
         return subject.findAllByNamespace(ns, clazz);
     }
 
-    public @Override <T extends ResourceInfo> Optional<T> findByStoreAndName(
+    @Override
+    public <T extends ResourceInfo> Optional<T> findByStoreAndName(
             StoreInfo store, String name, Class<T> clazz) {
         return subject.findByStoreAndName(store, name, clazz);
     }
 
-    public @Override <T extends ResourceInfo> Stream<T> findAllByStore(
-            StoreInfo store, Class<T> clazz) {
+    @Override
+    public <T extends ResourceInfo> Stream<T> findAllByStore(StoreInfo store, Class<T> clazz) {
         return subject.findAllByStore(store, clazz);
     }
 
-    public @Override <T extends ResourceInfo> Optional<T> findByNameAndNamespace(
+    @Override
+    public <T extends ResourceInfo> Optional<T> findByNameAndNamespace(
             @NonNull String name, @NonNull NamespaceInfo namespace, Class<T> clazz) {
         return subject.findByNameAndNamespace(name, namespace, clazz);
     }

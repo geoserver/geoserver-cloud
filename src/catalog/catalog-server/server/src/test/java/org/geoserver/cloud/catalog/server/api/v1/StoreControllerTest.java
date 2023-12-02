@@ -65,7 +65,7 @@ public class StoreControllerTest extends AbstractReactiveCatalogControllerTest<S
                     ((HTTPStoreInfo) actual).getCapabilitiesURL());
     }
 
-    public @Override @Test void testFindAll() {
+    @Override public  @Test void testFindAll() {
         super.testFindAll(
                 testData.dataStoreA,
                 testData.dataStoreB,
@@ -75,14 +75,14 @@ public class StoreControllerTest extends AbstractReactiveCatalogControllerTest<S
                 testData.wmtsStoreA);
     }
 
-    public @Override @Test void testFindById() {
+    @Override public  @Test void testFindById() {
         super.testFindById(testData.dataStoreA);
         super.testFindById(testData.coverageStoreA);
         super.testFindById(testData.wmsStoreA);
         super.testFindById(testData.wmtsStoreA);
     }
 
-    public @Override @Test void testFindAllByType() {
+    @Override public  @Test void testFindAllByType() {
         super.testFindAll(
                 StoreInfo.class,
                 testData.dataStoreA,
@@ -99,7 +99,7 @@ public class StoreControllerTest extends AbstractReactiveCatalogControllerTest<S
         super.testFindAll(WMTSStoreInfo.class, testData.wmtsStoreA);
     }
 
-    public @Override @Test void testQueryFilter() {
+    @Override public  @Test void testQueryFilter() {
         DataStoreInfo ds1 = catalog.getDataStore(testData.dataStoreA.getId());
         DataStoreInfo ds2 = catalog.getDataStore(testData.dataStoreB.getId());
         DataStoreInfo ds3 = catalog.getDataStore(testData.dataStoreC.getId());

@@ -52,7 +52,8 @@ public class DefaultCatalogValidator implements CatalogValidator {
         this.newObjectPropertiesResolver = new DefaultPropertyValuesResolver(catalog);
     }
 
-    public @Override void validate(WorkspaceInfo workspace, boolean isNew) {
+    @Override
+    public void validate(WorkspaceInfo workspace, boolean isNew) {
         checkNotEmpty(workspace.getName(), "workspace name must not be null");
         checkArgument(
                 !Catalog.DEFAULT.equals(workspace.getName()),
@@ -75,7 +76,8 @@ public class DefaultCatalogValidator implements CatalogValidator {
                 workspace.getName());
     }
 
-    public @Override void validate(NamespaceInfo namespace, boolean isNew) {
+    @Override
+    public void validate(NamespaceInfo namespace, boolean isNew) {
         checkNotEmpty(namespace.getPrefix(), "Namespace prefix must not be null");
         checkNotEmpty(namespace.getURI(), "Namespace uri must not be null");
         if (isNew) {
@@ -120,7 +122,8 @@ public class DefaultCatalogValidator implements CatalogValidator {
         }
     }
 
-    public @Override void validate(StoreInfo store, boolean isNew) {
+    @Override
+    public void validate(StoreInfo store, boolean isNew) {
         if (isNew) {
             newObjectPropertiesResolver.resolve(store);
         }
@@ -140,7 +143,8 @@ public class DefaultCatalogValidator implements CatalogValidator {
         }
     }
 
-    public @Override void validate(ResourceInfo resource, boolean isNew) {
+    @Override
+    public void validate(ResourceInfo resource, boolean isNew) {
         checkNotEmpty(resource.getName(), "Resource name must not be null");
         if (isNew) {
             newObjectPropertiesResolver.resolve(resource);
@@ -173,7 +177,8 @@ public class DefaultCatalogValidator implements CatalogValidator {
         validateKeywords(resource.getKeywords());
     }
 
-    public @Override void validate(LayerInfo layer, boolean isNew) {
+    @Override
+    public void validate(LayerInfo layer, boolean isNew) {
         // TODO: bring back when the layer/publishing split is in act
         // if ( isNull(layer.getName()) ) {
         // throw new NullPointerException( "Layer name must not be null" );
@@ -231,7 +236,8 @@ public class DefaultCatalogValidator implements CatalogValidator {
         }
     }
 
-    public @Override void validate(LayerGroupInfo layerGroup, boolean isNew) {
+    @Override
+    public void validate(LayerGroupInfo layerGroup, boolean isNew) {
         checkNotEmpty(layerGroup.getName(), "Layer group name must not be null");
         if (isNew) {
             newObjectPropertiesResolver.resolve(layerGroup);
@@ -323,7 +329,8 @@ public class DefaultCatalogValidator implements CatalogValidator {
         }
     }
 
-    public @Override void validate(StyleInfo style, boolean isNew) {
+    @Override
+    public void validate(StyleInfo style, boolean isNew) {
         if (isNew) {
             newObjectPropertiesResolver.resolve(style);
         }

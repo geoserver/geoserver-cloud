@@ -16,7 +16,8 @@ import java.io.IOException;
 
 public class VersionDeserializer extends JsonDeserializer<Version> {
 
-    public @Override Version deserialize(JsonParser parser, DeserializationContext ctxt)
+    @Override
+    public Version deserialize(JsonParser parser, DeserializationContext ctxt)
             throws IOException, JsonProcessingException {
 
         VersionDto dto = parser.readValueAs(VersionDto.class);

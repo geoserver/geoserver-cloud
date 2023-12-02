@@ -55,19 +55,23 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
         setCatalog(catalog);
     }
 
-    public @Override CatalogCapabilities getCatalogCapabilities() {
+    @Override
+    public CatalogCapabilities getCatalogCapabilities() {
         return capabilities;
     }
 
-    public @Override void setCatalog(Catalog catalog) {
+    @Override
+    public void setCatalog(Catalog catalog) {
         this.catalog = catalog;
     }
 
-    public @Override Catalog getCatalog() {
+    @Override
+    public Catalog getCatalog() {
         return catalog;
     }
 
-    public @Override void resolve() {
+    @Override
+    public void resolve() {
         // no-op, override as appropriate
     }
 
@@ -82,19 +86,23 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
     //
     // Stores
     //
-    public @Override StoreInfo add(StoreInfo store) {
+    @Override
+    public StoreInfo add(StoreInfo store) {
         return add(store, StoreInfo.class, stores);
     }
 
-    public @Override void remove(StoreInfo store) {
+    @Override
+    public void remove(StoreInfo store) {
         stores.remove(store);
     }
 
-    public @Override <T extends StoreInfo> T getStore(String id, Class<T> clazz) {
+    @Override
+    public <T extends StoreInfo> T getStore(String id, Class<T> clazz) {
         return stores.findById(id, clazz).orElse(null);
     }
 
-    public @Override <T extends StoreInfo> T getStoreByName(
+    @Override
+    public <T extends StoreInfo> T getStoreByName(
             WorkspaceInfo workspace, String name, Class<T> clazz) {
 
         Optional<T> result;
@@ -106,7 +114,8 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
         return result.orElse(null);
     }
 
-    public @Override <T extends StoreInfo> List<T> getStoresByWorkspace(
+    @Override
+    public <T extends StoreInfo> List<T> getStoresByWorkspace(
             WorkspaceInfo workspace, Class<T> clazz) {
         // TODO: support ANY_WORKSPACE?
         final WorkspaceInfo ws;
@@ -119,15 +128,18 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
         return toList(() -> stores.findAllByWorkspace(ws, clazz));
     }
 
-    public @Override <T extends StoreInfo> List<T> getStores(Class<T> clazz) {
+    @Override
+    public <T extends StoreInfo> List<T> getStores(Class<T> clazz) {
         return toList(() -> stores.findAllByType(clazz));
     }
 
-    public @Override DataStoreInfo getDefaultDataStore(WorkspaceInfo workspace) {
+    @Override
+    public DataStoreInfo getDefaultDataStore(WorkspaceInfo workspace) {
         return stores.getDefaultDataStore(workspace).orElse(null);
     }
 
-    public @Override void setDefaultDataStore(WorkspaceInfo workspace, DataStoreInfo store) {
+    @Override
+    public void setDefaultDataStore(WorkspaceInfo workspace, DataStoreInfo store) {
         if (store != null) {
             Objects.requireNonNull(store.getWorkspace());
             Assert.isTrue(
@@ -142,19 +154,23 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
     //
     // Resources
     //
-    public @Override ResourceInfo add(ResourceInfo resource) {
+    @Override
+    public ResourceInfo add(ResourceInfo resource) {
         return add(resource, ResourceInfo.class, resources);
     }
 
-    public @Override void remove(ResourceInfo resource) {
+    @Override
+    public void remove(ResourceInfo resource) {
         resources.remove(resource);
     }
 
-    public @Override <T extends ResourceInfo> T getResource(String id, Class<T> clazz) {
+    @Override
+    public <T extends ResourceInfo> T getResource(String id, Class<T> clazz) {
         return resources.findById(id, clazz).orElse(null);
     }
 
-    public @Override <T extends ResourceInfo> T getResourceByName(
+    @Override
+    public <T extends ResourceInfo> T getResourceByName(
             NamespaceInfo namespace, String name, Class<T> clazz) {
         Optional<T> result;
         if (namespace == ANY_NAMESPACE) {
@@ -166,18 +182,21 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
         return result.orElse(null);
     }
 
-    public @Override <T extends ResourceInfo> List<T> getResources(Class<T> clazz) {
+    @Override
+    public <T extends ResourceInfo> List<T> getResources(Class<T> clazz) {
         return toList(() -> resources.findAllByType(clazz));
     }
 
-    public @Override <T extends ResourceInfo> List<T> getResourcesByNamespace(
+    @Override
+    public <T extends ResourceInfo> List<T> getResourcesByNamespace(
             NamespaceInfo namespace, Class<T> clazz) {
         // TODO: support ANY_NAMESPACE?
         NamespaceInfo ns = namespace == null ? getDefaultNamespace() : namespace;
         return toList(() -> resources.findAllByNamespace(ns, clazz));
     }
 
-    public @Override <T extends ResourceInfo> T getResourceByStore(
+    @Override
+    public <T extends ResourceInfo> T getResourceByStore(
             StoreInfo store, String name, Class<T> clazz) {
         Optional<T> resource;
         NamespaceInfo ns = null;
@@ -198,81 +217,97 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
         return resource.orElse(null);
     }
 
-    public @Override <T extends ResourceInfo> List<T> getResourcesByStore(
-            StoreInfo store, Class<T> clazz) {
+    @Override
+    public <T extends ResourceInfo> List<T> getResourcesByStore(StoreInfo store, Class<T> clazz) {
         return toList(() -> resources.findAllByStore(store, clazz));
     }
 
     //
     // Layers
     //
-    public @Override LayerInfo add(LayerInfo layer) {
+    @Override
+    public LayerInfo add(LayerInfo layer) {
         return add(layer, LayerInfo.class, layers);
     }
 
-    public @Override void remove(LayerInfo layer) {
+    @Override
+    public void remove(LayerInfo layer) {
         layers.remove(layer);
     }
 
-    public @Override LayerInfo getLayer(String id) {
+    @Override
+    public LayerInfo getLayer(String id) {
         return layers.findById(id, LayerInfo.class).orElse(null);
     }
 
-    public @Override LayerInfo getLayerByName(String name) {
+    @Override
+    public LayerInfo getLayerByName(String name) {
         return layers.findOneByName(name).orElse(null);
     }
 
-    public @Override List<LayerInfo> getLayers(ResourceInfo resource) {
+    @Override
+    public List<LayerInfo> getLayers(ResourceInfo resource) {
         return toList(() -> layers.findAllByResource(resource));
     }
 
-    public @Override List<LayerInfo> getLayers(StyleInfo style) {
+    @Override
+    public List<LayerInfo> getLayers(StyleInfo style) {
         return toList(() -> layers.findAllByDefaultStyleOrStyles(style));
     }
 
-    public @Override List<LayerInfo> getLayers() {
+    @Override
+    public List<LayerInfo> getLayers() {
         return toList(layers::findAll);
     }
 
     //
     // Maps
     //
-    public @Override MapInfo add(MapInfo map) {
+    @Override
+    public MapInfo add(MapInfo map) {
         return add(map, MapInfo.class, maps);
     }
 
-    public @Override void remove(MapInfo map) {
+    @Override
+    public void remove(MapInfo map) {
         maps.remove(map);
     }
 
-    public @Override MapInfo getMap(String id) {
+    @Override
+    public MapInfo getMap(String id) {
         return maps.findById(id, MapInfo.class).orElse(null);
     }
 
-    public @Override MapInfo getMapByName(String name) {
+    @Override
+    public MapInfo getMapByName(String name) {
         return maps.findFirstByName(name, MapInfo.class).orElse(null);
     }
 
-    public @Override List<MapInfo> getMaps() {
+    @Override
+    public List<MapInfo> getMaps() {
         return toList(maps::findAll);
     }
 
     //
     // Layer groups
     //
-    public @Override LayerGroupInfo add(LayerGroupInfo layerGroup) {
+    @Override
+    public LayerGroupInfo add(LayerGroupInfo layerGroup) {
         return add(layerGroup, LayerGroupInfo.class, getLayerGroupRepository());
     }
 
-    public @Override void remove(LayerGroupInfo layerGroup) {
+    @Override
+    public void remove(LayerGroupInfo layerGroup) {
         getLayerGroupRepository().remove(layerGroup);
     }
 
-    public @Override List<LayerGroupInfo> getLayerGroups() {
+    @Override
+    public List<LayerGroupInfo> getLayerGroups() {
         return toList(getLayerGroupRepository()::findAll);
     }
 
-    public @Override List<LayerGroupInfo> getLayerGroupsByWorkspace(WorkspaceInfo workspace) {
+    @Override
+    public List<LayerGroupInfo> getLayerGroupsByWorkspace(WorkspaceInfo workspace) {
         // TODO: support ANY_WORKSPACE?
 
         WorkspaceInfo ws;
@@ -290,15 +325,18 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
         return toList(() -> matches);
     }
 
-    public @Override LayerGroupInfo getLayerGroup(String id) {
+    @Override
+    public LayerGroupInfo getLayerGroup(String id) {
         return getLayerGroupRepository().findById(id, LayerGroupInfo.class).orElse(null);
     }
 
-    public @Override LayerGroupInfo getLayerGroupByName(String name) {
+    @Override
+    public LayerGroupInfo getLayerGroupByName(String name) {
         return getLayerGroupByName(NO_WORKSPACE, name);
     }
 
-    public @Override LayerGroupInfo getLayerGroupByName(WorkspaceInfo workspace, String name) {
+    @Override
+    public LayerGroupInfo getLayerGroupByName(WorkspaceInfo workspace, String name) {
 
         if (workspace == NO_WORKSPACE)
             return getLayerGroupRepository().findByNameAndWorkspaceIsNull(name).orElse(null);
@@ -314,11 +352,13 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
     //
     // Namespaces
     //
-    public @Override NamespaceInfo add(NamespaceInfo namespace) {
+    @Override
+    public NamespaceInfo add(NamespaceInfo namespace) {
         return add(namespace, NamespaceInfo.class, namespaces);
     }
 
-    public @Override void remove(NamespaceInfo namespace) {
+    @Override
+    public void remove(NamespaceInfo namespace) {
         NamespaceInfo defaultNamespace = getDefaultNamespace();
         if (defaultNamespace != null && namespace.getId().equals(defaultNamespace.getId())) {
             setDefaultNamespace(null);
@@ -326,32 +366,39 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
         namespaces.remove(namespace);
     }
 
-    public @Override NamespaceInfo getDefaultNamespace() {
+    @Override
+    public NamespaceInfo getDefaultNamespace() {
         return namespaces.getDefaultNamespace().orElse(null);
     }
 
-    public @Override void setDefaultNamespace(NamespaceInfo defaultNamnespace) {
+    @Override
+    public void setDefaultNamespace(NamespaceInfo defaultNamnespace) {
         if (defaultNamnespace == null) namespaces.unsetDefaultNamespace();
         else namespaces.setDefaultNamespace(defaultNamnespace);
     }
 
-    public @Override NamespaceInfo getNamespace(String id) {
+    @Override
+    public NamespaceInfo getNamespace(String id) {
         return namespaces.findById(id, NamespaceInfo.class).orElse(null);
     }
 
-    public @Override NamespaceInfo getNamespaceByPrefix(String prefix) {
+    @Override
+    public NamespaceInfo getNamespaceByPrefix(String prefix) {
         return namespaces.findFirstByName(prefix, NamespaceInfo.class).orElse(null);
     }
 
-    public @Override NamespaceInfo getNamespaceByURI(String uri) {
+    @Override
+    public NamespaceInfo getNamespaceByURI(String uri) {
         return namespaces.findOneByURI(uri).orElse(null);
     }
 
-    public @Override List<NamespaceInfo> getNamespacesByURI(String uri) {
+    @Override
+    public List<NamespaceInfo> getNamespacesByURI(String uri) {
         return toList(() -> namespaces.findAllByURI(uri));
     }
 
-    public @Override List<NamespaceInfo> getNamespaces() {
+    @Override
+    public List<NamespaceInfo> getNamespaces() {
         return toList(namespaces::findAll);
     }
 
@@ -359,11 +406,13 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
     // Workspaces
     //
     // Workspace methods
-    public @Override WorkspaceInfo add(WorkspaceInfo workspace) {
+    @Override
+    public WorkspaceInfo add(WorkspaceInfo workspace) {
         return add(workspace, WorkspaceInfo.class, workspaces);
     }
 
-    public @Override void remove(WorkspaceInfo workspace) {
+    @Override
+    public void remove(WorkspaceInfo workspace) {
         WorkspaceInfo defaultWorkspace = getDefaultWorkspace();
         if (defaultWorkspace != null && workspace.getId().equals(defaultWorkspace.getId())) {
             workspaces.unsetDefaultWorkspace();
@@ -371,44 +420,53 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
         workspaces.remove(workspace);
     }
 
-    public @Override WorkspaceInfo getDefaultWorkspace() {
+    @Override
+    public WorkspaceInfo getDefaultWorkspace() {
         return workspaces.getDefaultWorkspace().orElse(null);
     }
 
-    public @Override void setDefaultWorkspace(WorkspaceInfo workspace) {
+    @Override
+    public void setDefaultWorkspace(WorkspaceInfo workspace) {
         WorkspaceInfo ws = workspace;
         if (ws == null) workspaces.unsetDefaultWorkspace();
         else workspaces.setDefaultWorkspace(ws);
     }
 
-    public @Override List<WorkspaceInfo> getWorkspaces() {
+    @Override
+    public List<WorkspaceInfo> getWorkspaces() {
         return toList(workspaces::findAll);
     }
 
-    public @Override WorkspaceInfo getWorkspace(String id) {
+    @Override
+    public WorkspaceInfo getWorkspace(String id) {
         return workspaces.findById(id, WorkspaceInfo.class).orElse(null);
     }
 
-    public @Override WorkspaceInfo getWorkspaceByName(String name) {
+    @Override
+    public WorkspaceInfo getWorkspaceByName(String name) {
         return workspaces.findFirstByName(name, WorkspaceInfo.class).orElse(null);
     }
 
     //
     // Styles
     //
-    public @Override StyleInfo add(StyleInfo style) {
+    @Override
+    public StyleInfo add(StyleInfo style) {
         return add(style, StyleInfo.class, styles);
     }
 
-    public @Override void remove(StyleInfo style) {
+    @Override
+    public void remove(StyleInfo style) {
         styles.remove(style);
     }
 
-    public @Override StyleInfo getStyle(String id) {
+    @Override
+    public StyleInfo getStyle(String id) {
         return styles.findById(id, StyleInfo.class).orElse(null);
     }
 
-    public @Override StyleInfo getStyleByName(String name) {
+    @Override
+    public StyleInfo getStyleByName(String name) {
         Optional<StyleInfo> match = styles.findByNameAndWordkspaceNull(name);
         if (match.isEmpty()) {
             match = styles.findFirstByName(name, StyleInfo.class);
@@ -416,7 +474,8 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
         return match.orElse(null);
     }
 
-    public @Override StyleInfo getStyleByName(WorkspaceInfo workspace, String name) {
+    @Override
+    public StyleInfo getStyleByName(WorkspaceInfo workspace, String name) {
         Objects.requireNonNull(workspace, "workspace");
         Objects.requireNonNull(name, "name");
 
@@ -432,11 +491,13 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
         return match.orElse(null);
     }
 
-    public @Override List<StyleInfo> getStyles() {
+    @Override
+    public List<StyleInfo> getStyles() {
         return toList(styles::findAll);
     }
 
-    public @Override List<StyleInfo> getStylesByWorkspace(WorkspaceInfo workspace) {
+    @Override
+    public List<StyleInfo> getStylesByWorkspace(WorkspaceInfo workspace) {
         // TODO: support ANY_WORKSPACE?
         Stream<StyleInfo> matches;
         if (workspace == NO_WORKSPACE) {
@@ -460,7 +521,8 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
         }
     }
 
-    public @Override void dispose() {
+    @Override
+    public void dispose() {
         dispose(stores);
         dispose(resources);
         dispose(namespaces);
@@ -475,7 +537,8 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
         if (repository != null) repository.dispose();
     }
 
-    public @Override void syncTo(CatalogFacade to) {
+    @Override
+    public void syncTo(CatalogFacade to) {
         final CatalogFacade dao = ProxyUtils.unwrap(to, LockingCatalogFacade.class);
         if (dao instanceof CatalogInfoRepositoryHolder) {
             // do an optimized sync
@@ -514,7 +577,8 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
         }
     }
 
-    public @Override <T extends CatalogInfo> int count(final Class<T> of, final Filter filter) {
+    @Override
+    public <T extends CatalogInfo> int count(final Class<T> of, final Filter filter) {
         long count;
         if (PublishedInfo.class.equals(of)) {
             long layers = count(LayerInfo.class, filter);
@@ -544,8 +608,8 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
      * @param propertyName the property name of the objects of type {@code type} to sort by
      * @see CatalogInfoRepository#canSortBy(String)
      */
-    public @Override boolean canSort(
-            final Class<? extends CatalogInfo> type, final String propertyName) {
+    @Override
+    public boolean canSort(final Class<? extends CatalogInfo> type, final String propertyName) {
         if (PublishedInfo.class.equals(type)) {
             return canSort(LayerInfo.class, propertyName)
                     || canSort(LayerGroupInfo.class, propertyName);
@@ -566,7 +630,8 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
         }
     }
 
-    public @Override <T extends CatalogInfo> Stream<T> query(Query<T> query) {
+    @Override
+    public <T extends CatalogInfo> Stream<T> query(Query<T> query) {
         Stream<T> stream;
         if (PublishedInfo.class.equals(query.getType())) {
             Query<LayerInfo> lq = new Query<>(LayerInfo.class, query);
@@ -587,7 +652,8 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
         return stream;
     }
 
-    public @Override <I extends CatalogInfo> I update(I info, Patch patch) {
+    @Override
+    public <I extends CatalogInfo> I update(I info, Patch patch) {
         checkNotAProxy(info);
         CatalogInfoRepository<I> repo = repositoryFor(info);
         return repo.update(info, patch);

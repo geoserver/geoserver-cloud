@@ -18,23 +18,28 @@ public class ForwardingNamespaceRepository
         super(subject);
     }
 
-    public @Override void setDefaultNamespace(NamespaceInfo namespace) {
+    @Override
+    public void setDefaultNamespace(NamespaceInfo namespace) {
         subject.setDefaultNamespace(namespace);
     }
 
-    public @Override Optional<NamespaceInfo> getDefaultNamespace() {
+    @Override
+    public Optional<NamespaceInfo> getDefaultNamespace() {
         return subject.getDefaultNamespace();
     }
 
-    public @Override Optional<NamespaceInfo> findOneByURI(String uri) {
+    @Override
+    public Optional<NamespaceInfo> findOneByURI(String uri) {
         return subject.findOneByURI(uri);
     }
 
-    public @Override Stream<NamespaceInfo> findAllByURI(String uri) {
+    @Override
+    public Stream<NamespaceInfo> findAllByURI(String uri) {
         return subject.findAllByURI(uri);
     }
 
-    public @Override void unsetDefaultNamespace() {
+    @Override
+    public void unsetDefaultNamespace() {
         subject.unsetDefaultNamespace();
     }
 }

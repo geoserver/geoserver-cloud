@@ -74,7 +74,8 @@ class XmlSerializedConfigRepository implements ConfigRepository {
         return deserialize(serialized, ServiceInfo.class);
     }
 
-    public @Override Optional<GeoServerInfo> getGlobal() {
+    @Override
+    public Optional<GeoServerInfo> getGlobal() {
         return Optional.ofNullable(deserialize(global, GeoServerInfo.class));
     }
 
@@ -85,29 +86,34 @@ class XmlSerializedConfigRepository implements ConfigRepository {
         }
     }
 
-    public @Override void setGlobal(GeoServerInfo global) {
+    @Override
+    public void setGlobal(GeoServerInfo global) {
         checkNotAProxy(global);
         this.global = serialize(global);
     }
 
-    public @Override Optional<SettingsInfo> getSettingsById(String id) {
+    @Override
+    public Optional<SettingsInfo> getSettingsById(String id) {
         return Optional.ofNullable(toSettings(settings.get(id)));
     }
 
-    public @Override Optional<SettingsInfo> getSettingsByWorkspace(WorkspaceInfo workspace) {
+    @Override
+    public Optional<SettingsInfo> getSettingsByWorkspace(WorkspaceInfo workspace) {
         return settings.values().stream()
                 .map(this::toSettings)
                 .filter(s -> s.getWorkspace().getId().equals(workspace.getId()))
                 .findFirst();
     }
 
-    public @Override void add(SettingsInfo settings) {
+    @Override
+    public void add(SettingsInfo settings) {
         checkNotAProxy(settings);
         String serialized = serialize(settings);
         this.settings.put(settings.getId(), serialized);
     }
 
-    public @Override SettingsInfo update(SettingsInfo settings, Patch patch) {
+    @Override
+    public SettingsInfo update(SettingsInfo settings, Patch patch) {
         checkNotAProxy(settings);
 
         String localCopy = this.settings.get(settings.getId());
@@ -119,31 +125,37 @@ class XmlSerializedConfigRepository implements ConfigRepository {
         }
     }
 
-    public @Override void remove(SettingsInfo settings) {
+    @Override
+    public void remove(SettingsInfo settings) {
         this.services.remove(settings.getId());
     }
 
-    public @Override Optional<LoggingInfo> getLogging() {
+    @Override
+    public Optional<LoggingInfo> getLogging() {
         return Optional.ofNullable(deserialize(logging, LoggingInfo.class));
     }
 
-    public @Override void setLogging(LoggingInfo logging) {
+    @Override
+    public void setLogging(LoggingInfo logging) {
         this.logging = serialize(logging);
     }
 
-    public @Override void add(ServiceInfo service) {
+    @Override
+    public void add(ServiceInfo service) {
         checkNotAProxy(service);
 
         String serialized = serialize(service);
         this.services.put(service.getId(), serialized);
     }
 
-    public @Override void remove(ServiceInfo service) {
+    @Override
+    public void remove(ServiceInfo service) {
         this.services.remove(service.getId());
     }
 
     @SuppressWarnings("unchecked")
-    public @Override <S extends ServiceInfo> S update(S service, Patch patch) {
+    @Override
+    public <S extends ServiceInfo> S update(S service, Patch patch) {
         checkNotAProxy(service);
 
         String localCopy = services.get(service.getId());
@@ -155,17 +167,20 @@ class XmlSerializedConfigRepository implements ConfigRepository {
         }
     }
 
-    public @Override Stream<? extends ServiceInfo> getGlobalServices() {
+    @Override
+    public Stream<? extends ServiceInfo> getGlobalServices() {
         return services().filter(s -> s.getWorkspace() == null);
     }
 
-    public @Override Stream<? extends ServiceInfo> getServicesByWorkspace(WorkspaceInfo workspace) {
+    @Override
+    public Stream<? extends ServiceInfo> getServicesByWorkspace(WorkspaceInfo workspace) {
         return services()
                 .filter(s -> s.getWorkspace() != null)
                 .filter(s -> workspace.getId().equals(s.getWorkspace().getId()));
     }
 
-    public @Override <T extends ServiceInfo> Optional<T> getGlobalService(Class<T> clazz) {
+    @Override
+    public <T extends ServiceInfo> Optional<T> getGlobalService(Class<T> clazz) {
         return services()
                 .filter(clazz::isInstance)
                 .filter(s -> s.getWorkspace() == null)
@@ -173,7 +188,8 @@ class XmlSerializedConfigRepository implements ConfigRepository {
                 .findFirst();
     }
 
-    public @Override <T extends ServiceInfo> Optional<T> getServiceByWorkspace(
+    @Override
+    public <T extends ServiceInfo> Optional<T> getServiceByWorkspace(
             WorkspaceInfo workspace, Class<T> clazz) {
 
         return getServicesByWorkspace(workspace)
@@ -182,14 +198,15 @@ class XmlSerializedConfigRepository implements ConfigRepository {
                 .findFirst();
     }
 
-    public @Override <T extends ServiceInfo> Optional<T> getServiceById(String id, Class<T> clazz) {
+    @Override
+    public <T extends ServiceInfo> Optional<T> getServiceById(String id, Class<T> clazz) {
 
         ServiceInfo service = toService(services.get(id));
         return clazz.isInstance(service) ? Optional.of(clazz.cast(service)) : Optional.empty();
     }
 
-    public @Override <T extends ServiceInfo> Optional<T> getServiceByName(
-            String name, Class<T> clazz) {
+    @Override
+    public <T extends ServiceInfo> Optional<T> getServiceByName(String name, Class<T> clazz) {
 
         return getGlobalServices()
                 .filter(clazz::isInstance)
@@ -198,7 +215,8 @@ class XmlSerializedConfigRepository implements ConfigRepository {
                 .findFirst();
     }
 
-    public @Override <T extends ServiceInfo> Optional<T> getServiceByNameAndWorkspace(
+    @Override
+    public <T extends ServiceInfo> Optional<T> getServiceByNameAndWorkspace(
             String name, WorkspaceInfo workspace, Class<T> clazz) {
 
         return getServicesByWorkspace(workspace)
@@ -212,7 +230,8 @@ class XmlSerializedConfigRepository implements ConfigRepository {
         return this.services.values().stream().map(this::toService);
     }
 
-    public @Override void dispose() {
+    @Override
+    public void dispose() {
         global = null;
         logging = null;
         settings.clear();

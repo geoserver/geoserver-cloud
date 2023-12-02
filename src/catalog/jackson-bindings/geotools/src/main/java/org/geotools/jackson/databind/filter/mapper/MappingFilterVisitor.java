@@ -58,175 +58,218 @@ class MappingFilterVisitor implements FilterVisitor {
         this.mapper = mapper;
     }
 
-    public @Override Object visitNullFilter(Object extraData) {
+    @Override
+    public Object visitNullFilter(Object extraData) {
         throw new UnsupportedOperationException("not yet implemented");
     }
 
-    public @Override Object visit(NativeFilter filter, Object extraData) {
+    @Override
+    public Object visit(NativeFilter filter, Object extraData) {
         return mapper.toDto(filter);
     }
 
-    public @Override Object visit(TOverlaps filter, Object extraData) {
+    @Override
+    public Object visit(TOverlaps filter, Object extraData) {
         return mapper.toDto(filter);
     }
 
-    public @Override Object visit(TEquals filter, Object extraData) {
+    @Override
+    public Object visit(TEquals filter, Object extraData) {
         return mapper.toDto(filter);
     }
 
-    public @Override Object visit(TContains filter, Object extraData) {
+    @Override
+    public Object visit(TContains filter, Object extraData) {
         return mapper.toDto(filter);
     }
 
-    public @Override Object visit(OverlappedBy filter, Object extraData) {
+    @Override
+    public Object visit(OverlappedBy filter, Object extraData) {
         return mapper.toDto(filter);
     }
 
-    public @Override Object visit(MetBy filter, Object extraData) {
+    @Override
+    public Object visit(MetBy filter, Object extraData) {
         return mapper.toDto(filter);
     }
 
-    public @Override Object visit(Meets filter, Object extraData) {
+    @Override
+    public Object visit(Meets filter, Object extraData) {
         return mapper.toDto(filter);
     }
 
-    public @Override Object visit(Ends filter, Object extraData) {
+    @Override
+    public Object visit(Ends filter, Object extraData) {
         return mapper.toDto(filter);
     }
 
-    public @Override Object visit(EndedBy filter, Object extraData) {
+    @Override
+    public Object visit(EndedBy filter, Object extraData) {
         return mapper.toDto(filter);
     }
 
-    public @Override Object visit(During filter, Object extraData) {
+    @Override
+    public Object visit(During filter, Object extraData) {
         return mapper.toDto(filter);
     }
 
-    public @Override Object visit(BegunBy filter, Object extraData) {
+    @Override
+    public Object visit(BegunBy filter, Object extraData) {
         return mapper.toDto(filter);
     }
 
-    public @Override Object visit(Begins filter, Object extraData) {
+    @Override
+    public Object visit(Begins filter, Object extraData) {
         return mapper.toDto(filter);
     }
 
-    public @Override Object visit(Before filter, Object extraData) {
+    @Override
+    public Object visit(Before filter, Object extraData) {
         return mapper.toDto(filter);
     }
 
-    public @Override Object visit(AnyInteracts filter, Object extraData) {
+    @Override
+    public Object visit(AnyInteracts filter, Object extraData) {
         return mapper.toDto(filter);
     }
 
-    public @Override Object visit(After filter, Object extraData) {
+    @Override
+    public Object visit(After filter, Object extraData) {
         return mapper.toDto(filter);
     }
 
-    public @Override Object visit(Within filter, Object extraData) {
+    @Override
+    public Object visit(Within filter, Object extraData) {
         return mapper.toDto(filter);
     }
 
-    public @Override Object visit(Touches filter, Object extraData) {
+    @Override
+    public Object visit(Touches filter, Object extraData) {
         return mapper.toDto(filter);
     }
 
-    public @Override Object visit(Overlaps filter, Object extraData) {
+    @Override
+    public Object visit(Overlaps filter, Object extraData) {
         return mapper.toDto(filter);
     }
 
-    public @Override Object visit(Intersects filter, Object extraData) {
+    @Override
+    public Object visit(Intersects filter, Object extraData) {
         return mapper.toDto(filter);
     }
 
-    public @Override Object visit(Equals filter, Object extraData) {
+    @Override
+    public Object visit(Equals filter, Object extraData) {
         return mapper.toDto(filter);
     }
 
-    public @Override Object visit(DWithin filter, Object extraData) {
+    @Override
+    public Object visit(DWithin filter, Object extraData) {
         return mapper.toDto(filter);
     }
 
-    public @Override Object visit(Disjoint filter, Object extraData) {
+    @Override
+    public Object visit(Disjoint filter, Object extraData) {
         return mapper.toDto(filter);
     }
 
-    public @Override Object visit(Crosses filter, Object extraData) {
+    @Override
+    public Object visit(Crosses filter, Object extraData) {
         return mapper.toDto(filter);
     }
 
-    public @Override Object visit(Contains filter, Object extraData) {
+    @Override
+    public Object visit(Contains filter, Object extraData) {
         return mapper.toDto(filter);
     }
 
-    public @Override Object visit(Beyond filter, Object extraData) {
+    @Override
+    public Object visit(Beyond filter, Object extraData) {
         return mapper.toDto(filter);
     }
 
-    public @Override Object visit(BBOX filter, Object extraData) {
+    @Override
+    public Object visit(BBOX filter, Object extraData) {
         return mapper.toDto(filter);
     }
 
-    public @Override Object visit(PropertyIsNil filter, Object extraData) {
+    @Override
+    public Object visit(PropertyIsNil filter, Object extraData) {
         return mapper.toDto(filter);
     }
 
-    public @Override Object visit(PropertyIsNull filter, Object extraData) {
+    @Override
+    public Object visit(PropertyIsNull filter, Object extraData) {
         return mapper.toDto(filter);
     }
 
-    public @Override Object visit(PropertyIsLike filter, Object extraData) {
+    @Override
+    public Object visit(PropertyIsLike filter, Object extraData) {
         return mapper.toDto(filter);
     }
 
-    public @Override Object visit(PropertyIsLessThanOrEqualTo filter, Object extraData) {
+    @Override
+    public Object visit(PropertyIsLessThanOrEqualTo filter, Object extraData) {
         return mapper.toDto(filter);
     }
 
-    public @Override Object visit(PropertyIsLessThan filter, Object extraData) {
+    @Override
+    public Object visit(PropertyIsLessThan filter, Object extraData) {
         return mapper.toDto(filter);
     }
 
-    public @Override Object visit(PropertyIsGreaterThanOrEqualTo filter, Object extraData) {
+    @Override
+    public Object visit(PropertyIsGreaterThanOrEqualTo filter, Object extraData) {
         return mapper.toDto(filter);
     }
 
-    public @Override Object visit(PropertyIsGreaterThan filter, Object extraData) {
+    @Override
+    public Object visit(PropertyIsGreaterThan filter, Object extraData) {
         return mapper.toDto(filter);
     }
 
-    public @Override Object visit(PropertyIsNotEqualTo filter, Object extraData) {
+    @Override
+    public Object visit(PropertyIsNotEqualTo filter, Object extraData) {
         return mapper.toDto(filter);
     }
 
-    public @Override Object visit(PropertyIsEqualTo filter, Object extraData) {
+    @Override
+    public Object visit(PropertyIsEqualTo filter, Object extraData) {
         return mapper.toDto(filter);
     }
 
-    public @Override Object visit(PropertyIsBetween filter, Object extraData) {
+    @Override
+    public Object visit(PropertyIsBetween filter, Object extraData) {
         return mapper.toDto(filter);
     }
 
-    public @Override Object visit(Or filter, Object extraData) {
+    @Override
+    public Object visit(Or filter, Object extraData) {
         return mapper.toDto(filter);
     }
 
-    public @Override Object visit(Not filter, Object extraData) {
+    @Override
+    public Object visit(Not filter, Object extraData) {
         return mapper.toDto(filter);
     }
 
-    public @Override Object visit(Id filter, Object extraData) {
+    @Override
+    public Object visit(Id filter, Object extraData) {
         return mapper.toDto(filter);
     }
 
-    public @Override Object visit(And filter, Object extraData) {
+    @Override
+    public Object visit(And filter, Object extraData) {
         return mapper.toDto(filter);
     }
 
-    public @Override Object visit(IncludeFilter filter, Object extraData) {
+    @Override
+    public Object visit(IncludeFilter filter, Object extraData) {
         return mapper.toDto(filter);
     }
 
-    public @Override Object visit(ExcludeFilter filter, Object extraData) {
+    @Override
+    public Object visit(ExcludeFilter filter, Object extraData) {
         return mapper.toDto(filter);
     }
 }

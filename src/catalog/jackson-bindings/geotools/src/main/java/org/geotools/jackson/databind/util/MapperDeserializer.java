@@ -27,7 +27,8 @@ public class MapperDeserializer<DTO, T> extends JsonDeserializer<T> {
     private final @NonNull Class<DTO> from;
     private final Function<DTO, T> mapper;
 
-    public @Override T deserialize(JsonParser parser, DeserializationContext ctxt)
+    @Override
+    public T deserialize(JsonParser parser, DeserializationContext ctxt)
             throws IOException, JsonProcessingException {
 
         DTO dto;

@@ -128,7 +128,7 @@ public abstract class CatalogClientRepository<CI extends CatalogInfo>
 
     private final ConcurrentMap<String, Boolean> positiveCanSortByCache = new ConcurrentHashMap<>();
 
-    public @Override boolean canSortBy(@NonNull String propertyName) {
+    @Override public  boolean canSortBy(@NonNull String propertyName) {
         Boolean canSort = positiveCanSortByCache.computeIfAbsent(propertyName, this::callCanSort);
         return canSort == null ? false : canSort.booleanValue();
     }
@@ -139,33 +139,33 @@ public abstract class CatalogClientRepository<CI extends CatalogInfo>
         return canSort.booleanValue() ? Boolean.TRUE : null;
     }
 
-    public @Override void add(@NonNull CI value) {
+    @Override public  void add(@NonNull CI value) {
         blockAndReturn(client.create(endpoint(), value));
     }
 
-    public @Override void remove(@NonNull CI value) {
+    @Override public  void remove(@NonNull CI value) {
         blockAndReturn(client.deleteById(endpoint(), value.getId()));
     }
 
-    public @Override <T extends CI> T update(@NonNull T value, @NonNull Patch patch) {
+    @Override public  <T extends CI> T update(@NonNull T value, @NonNull Patch patch) {
         Mono<T> updated = client.update(endpoint(), value.getId(), patch);
         return blockAndReturn(updated).get();
     }
 
-    public @Override <U extends CI> Optional<U> findFirstByName(
+    @Override public  <U extends CI> Optional<U> findFirstByName(
             @NonNull String name, @NonNull Class<U> infoType) {
         ClassMappings typeArg = typeEnum(infoType);
         Mono<U> found = client.findFirstByName(endpoint(), name, typeArg);
         return blockAndReturn(found);
     }
 
-    public @Override Stream<CI> findAll() {
+    @Override public  Stream<CI> findAll() {
         ClassMappings typeArg = typeEnum(getContentType());
         Flux<CI> flux = client.findAll(endpoint(), typeArg);
         return toStream(flux);
     }
 
-    public @Override <U extends CI> Stream<U> findAll(Query<U> query) {
+    @Override public  <U extends CI> Stream<U> findAll(Query<U> query) {
         final Filter rawFilter = query.getFilter();
         if (Filter.EXCLUDE.equals(rawFilter)) {
             return Stream.empty(); // don't even bother
@@ -193,7 +193,7 @@ public abstract class CatalogClientRepository<CI extends CatalogInfo>
         return stream;
     }
 
-    public @Override <U extends CI> long count(@NonNull Class<U> of, @NonNull Filter rawFilter) {
+    @Override public  <U extends CI> long count(@NonNull Class<U> of, @NonNull Filter rawFilter) {
         if (Filter.EXCLUDE.equals(rawFilter)) {
             return 0L;
         }
@@ -229,7 +229,7 @@ public abstract class CatalogClientRepository<CI extends CatalogInfo>
         }
     }
 
-    public @Override <U extends CI> Optional<U> findById(
+    @Override public  <U extends CI> Optional<U> findById(
             @NonNull String id, @NonNull Class<U> clazz) {
         ClassMappings typeArg = typeEnum(clazz);
 
@@ -237,11 +237,11 @@ public abstract class CatalogClientRepository<CI extends CatalogInfo>
         return ret;
     }
 
-    public @Override void dispose() {
+    @Override public  void dispose() {
         // no-op...?
     }
 
-    public @Override void syncTo(@NonNull CatalogInfoRepository<CI> target) {
+    @Override public  void syncTo(@NonNull CatalogInfoRepository<CI> target) {
         findAll().forEach(target::add);
     }
 

@@ -47,7 +47,8 @@ public class LiteralDeserializer extends JsonDeserializer<Literal> {
 
     private ValueMappers classNameMapper = Mappers.getMapper(ValueMappers.class);
 
-    public @Override Literal deserialize(JsonParser parser, DeserializationContext ctxt)
+    @Override
+    public Literal deserialize(JsonParser parser, DeserializationContext ctxt)
             throws IOException, JsonProcessingException {
 
         expect(parser.currentToken(), JsonToken.START_OBJECT);

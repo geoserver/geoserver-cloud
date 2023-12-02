@@ -56,6 +56,7 @@ public class RestConfigApplicationConfiguration extends RestConfiguration {
      * https://github.com/spring-projects/spring-framework/issues/24179}
      */
     @Bean
+    @Override
     public RequestMappingHandlerMapping requestMappingHandlerMapping(
             @Qualifier("mvcContentNegotiationManager")
                     ContentNegotiationManager contentNegotiationManager,
@@ -104,11 +105,13 @@ public class RestConfigApplicationConfiguration extends RestConfiguration {
                 final String pathInfo = requestURI.substring(pathToRest.length());
 
                 return new HttpServletRequestWrapper(request) {
-                    public @Override String getServletPath() {
+                    @Override
+                    public String getServletPath() {
                         return "/rest";
                     }
 
-                    public @Override String getPathInfo() {
+                    @Override
+                    public String getPathInfo() {
                         return pathInfo;
                     }
                 };

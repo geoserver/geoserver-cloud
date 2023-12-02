@@ -61,11 +61,13 @@ public class SimpleNamingContext implements Context {
         }
     }
 
-    public @Override NamingEnumeration<NameClassPair> list(String root) throws NamingException {
+    @Override
+    public NamingEnumeration<NameClassPair> list(String root) throws NamingException {
         return new NameClassPairEnumeration(this, rootName(root));
     }
 
-    public @Override NamingEnumeration<Binding> listBindings(String root) throws NamingException {
+    @Override
+    public NamingEnumeration<Binding> listBindings(String root) throws NamingException {
         return new BindingEnumeration(this, rootName(root));
     }
 
@@ -74,7 +76,8 @@ public class SimpleNamingContext implements Context {
         return root + "/";
     }
 
-    public @Override Object lookup(@NonNull String lookupName) throws NameNotFoundException {
+    @Override
+    public Object lookup(@NonNull String lookupName) throws NameNotFoundException {
         final String name = this.contextRoot + lookupName;
         if (name.isEmpty()) {
             return new SimpleNamingContext(this.contextRoot, this.bindings, this.environment);
@@ -94,29 +97,35 @@ public class SimpleNamingContext implements Context {
                 "'" + name + "' not bound. Bindings: " + this.bindings.keySet());
     }
 
-    public @Override Object lookupLink(String name) throws NameNotFoundException {
+    @Override
+    public Object lookupLink(String name) throws NameNotFoundException {
         return lookup(name);
     }
 
-    public @Override void bind(String name, Object obj) {
+    @Override
+    public void bind(String name, Object obj) {
         this.bindings.put(this.contextRoot + name, obj);
     }
 
-    public @Override void unbind(String name) {
+    @Override
+    public void unbind(String name) {
         this.bindings.remove(this.contextRoot + name);
     }
 
-    public @Override void rebind(String name, Object obj) {
+    @Override
+    public void rebind(String name, Object obj) {
         bind(name, obj);
     }
 
-    public @Override void rename(String oldName, String newName) throws NameNotFoundException {
+    @Override
+    public void rename(String oldName, String newName) throws NameNotFoundException {
         Object obj = lookup(oldName);
         unbind(oldName);
         bind(newName, obj);
     }
 
-    public @Override Context createSubcontext(String name) {
+    @Override
+    public Context createSubcontext(String name) {
         final String subcontextName = rootName(this.contextRoot + name);
         Context subcontext =
                 new SimpleNamingContext(subcontextName, this.bindings, this.environment);
@@ -124,123 +133,143 @@ public class SimpleNamingContext implements Context {
         return subcontext;
     }
 
-    public @Override void destroySubcontext(String name) {
+    @Override
+    public void destroySubcontext(String name) {
         unbind(name);
     }
 
-    public @Override String composeName(String name, String prefix) {
+    @Override
+    public String composeName(String name, String prefix) {
         return prefix + name;
     }
 
-    public @Override Hashtable<String, Object> getEnvironment() {
+    @Override
+    public Hashtable<String, Object> getEnvironment() {
         return this.environment;
     }
 
-    public @Override Object addToEnvironment(String propName, Object propVal) {
+    @Override
+    public Object addToEnvironment(String propName, Object propVal) {
         return this.environment.put(propName, propVal);
     }
 
-    public @Override Object removeFromEnvironment(String propName) {
+    @Override
+    public Object removeFromEnvironment(String propName) {
         return this.environment.remove(propName);
     }
 
-    public @Override void close() {}
+    @Override
+    public void close() {}
 
     /**
      * @throws OperationNotSupportedException javax.naming.Name is not supported
      */
-    public @Override NamingEnumeration<NameClassPair> list(Name name) throws NamingException {
+    @Override
+    public NamingEnumeration<NameClassPair> list(Name name) throws NamingException {
         throw nameUnsupported();
     }
 
     /**
      * @throws OperationNotSupportedException javax.naming.Name is not supported
      */
-    public @Override NamingEnumeration<Binding> listBindings(Name name) throws NamingException {
+    @Override
+    public NamingEnumeration<Binding> listBindings(Name name) throws NamingException {
         throw nameUnsupported();
     }
 
     /**
      * @throws OperationNotSupportedException javax.naming.Name is not supported
      */
-    public @Override Object lookup(Name name) throws NamingException {
+    @Override
+    public Object lookup(Name name) throws NamingException {
         throw nameUnsupported();
     }
 
     /**
      * @throws OperationNotSupportedException javax.naming.Name is not supported
      */
-    public @Override Object lookupLink(Name name) throws NamingException {
+    @Override
+    public Object lookupLink(Name name) throws NamingException {
         throw nameUnsupported();
     }
 
     /**
      * @throws OperationNotSupportedException javax.naming.Name is not supported
      */
-    public @Override void bind(Name name, Object obj) throws NamingException {
+    @Override
+    public void bind(Name name, Object obj) throws NamingException {
         throw nameUnsupported();
     }
 
     /**
      * @throws OperationNotSupportedException javax.naming.Name is not supported
      */
-    public @Override void unbind(Name name) throws NamingException {
+    @Override
+    public void unbind(Name name) throws NamingException {
         throw nameUnsupported();
     }
 
     /**
      * @throws OperationNotSupportedException javax.naming.Name is not supported
      */
-    public @Override void rebind(Name name, Object obj) throws NamingException {
+    @Override
+    public void rebind(Name name, Object obj) throws NamingException {
         throw nameUnsupported();
     }
 
     /**
      * @throws OperationNotSupportedException javax.naming.Name is not supported
      */
-    public @Override void rename(Name oldName, Name newName) throws NamingException {
+    @Override
+    public void rename(Name oldName, Name newName) throws NamingException {
         throw nameUnsupported();
     }
 
     /**
      * @throws OperationNotSupportedException javax.naming.Name is not supported
      */
-    public @Override Context createSubcontext(Name name) throws NamingException {
+    @Override
+    public Context createSubcontext(Name name) throws NamingException {
         throw nameUnsupported();
     }
 
     /**
      * @throws OperationNotSupportedException javax.naming.Name is not supported
      */
-    public @Override void destroySubcontext(Name name) throws NamingException {
+    @Override
+    public void destroySubcontext(Name name) throws NamingException {
         throw nameUnsupported();
     }
 
     /**
      * @throws OperationNotSupportedException javax.naming.Name is not supported
      */
-    public @Override String getNameInNamespace() throws NamingException {
+    @Override
+    public String getNameInNamespace() throws NamingException {
         throw nameUnsupported();
     }
 
     /**
      * @throws OperationNotSupportedException javax.naming.Name is not supported
      */
-    public @Override NameParser getNameParser(Name name) throws NamingException {
+    @Override
+    public NameParser getNameParser(Name name) throws NamingException {
         throw nameUnsupported();
     }
 
     /**
      * @throws OperationNotSupportedException javax.naming.Name is not supported
      */
-    public @Override NameParser getNameParser(String name) throws NamingException {
+    @Override
+    public NameParser getNameParser(String name) throws NamingException {
         throw nameUnsupported();
     }
 
     /**
      * @throws OperationNotSupportedException javax.naming.Name is not supported
      */
-    public @Override Name composeName(Name name, Name prefix) throws NamingException {
+    @Override
+    public Name composeName(Name name, Name prefix) throws NamingException {
         throw nameUnsupported();
     }
 
@@ -294,23 +323,28 @@ public class SimpleNamingContext implements Context {
 
         protected abstract T createObject(String simpleName, Object obj);
 
-        public @Override boolean hasMore() {
+        @Override
+        public boolean hasMore() {
             return this.iterator.hasNext();
         }
 
-        public @Override T next() {
+        @Override
+        public T next() {
             return this.iterator.next();
         }
 
-        public @Override boolean hasMoreElements() {
+        @Override
+        public boolean hasMoreElements() {
             return this.iterator.hasNext();
         }
 
-        public @Override T nextElement() {
+        @Override
+        public T nextElement() {
             return this.iterator.next();
         }
 
-        public @Override void close() {}
+        @Override
+        public void close() {}
     }
 
     private static final class NameClassPairEnumeration

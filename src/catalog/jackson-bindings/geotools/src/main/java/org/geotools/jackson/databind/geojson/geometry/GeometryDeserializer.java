@@ -51,7 +51,8 @@ public class GeometryDeserializer<T extends Geometry> extends JsonDeserializer<T
     }
 
     @SuppressWarnings("unchecked")
-    public @Override T deserialize(JsonParser p, DeserializationContext ctxt)
+    @Override
+    public T deserialize(JsonParser p, DeserializationContext ctxt)
             throws IOException, JsonProcessingException {
 
         return (T) readGeometry(p.readValueAsTree());

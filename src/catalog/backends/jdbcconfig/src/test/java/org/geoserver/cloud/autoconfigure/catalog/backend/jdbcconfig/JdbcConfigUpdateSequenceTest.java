@@ -33,7 +33,8 @@ public class JdbcConfigUpdateSequenceTest extends JDBCConfigTest
 
     @Disabled(
             "Couldn't get rid of the DB closed error if running more than one test, so better just run the parallel one")
-    public @Override @Test void testUpdateSequence() {
+    @Override
+    public @Test void testUpdateSequence() {
         // no-op
     }
 }

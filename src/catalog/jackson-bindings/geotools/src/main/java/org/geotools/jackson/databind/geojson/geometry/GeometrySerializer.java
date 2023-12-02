@@ -32,7 +32,8 @@ public class GeometrySerializer extends StdSerializer<Geometry> {
         super(Geometry.class);
     }
 
-    public @Override void serializeWithType(
+    @Override
+    public void serializeWithType(
             Geometry value,
             JsonGenerator gen,
             SerializerProvider serializers,
@@ -47,8 +48,9 @@ public class GeometrySerializer extends StdSerializer<Geometry> {
         typeSer.writeTypeSuffix(gen, typeIdDef);
     }
 
-    public @Override void serialize(
-            Geometry value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+    @Override
+    public void serialize(Geometry value, JsonGenerator gen, SerializerProvider serializers)
+            throws IOException {
 
         serialize(value, gen);
     }
@@ -162,15 +164,18 @@ public class GeometrySerializer extends StdSerializer<Geometry> {
         final AtomicReference<CoordinateSequence> seqRef = new AtomicReference<>();
         simpleGeom.apply(
                 new CoordinateSequenceFilter() {
-                    public @Override void filter(CoordinateSequence seq, int i) {
+                    @Override
+                    public void filter(CoordinateSequence seq, int i) {
                         seqRef.set(seq);
                     }
 
-                    public @Override boolean isGeometryChanged() {
+                    @Override
+                    public boolean isGeometryChanged() {
                         return false;
                     }
 
-                    public @Override boolean isDone() {
+                    @Override
+                    public boolean isDone() {
                         return true;
                     }
                 });

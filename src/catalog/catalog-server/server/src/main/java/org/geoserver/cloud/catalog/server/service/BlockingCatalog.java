@@ -59,7 +59,7 @@ public class BlockingCatalog extends AbstractCatalogDecorator {
             super(facade);
         }
 
-        public @Override CatalogCapabilities getCatalogCapabilities() {
+        @Override public  CatalogCapabilities getCatalogCapabilities() {
             return CATALOG_CAPABILITIES;
         }
     }

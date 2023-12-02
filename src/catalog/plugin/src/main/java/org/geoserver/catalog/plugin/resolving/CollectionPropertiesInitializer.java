@@ -21,7 +21,8 @@ public class CollectionPropertiesInitializer<T> implements UnaryOperator<T> {
     private static CollectionPropertiesInitializer<?> INSTANCE =
             new CollectionPropertiesInitializer<>();
 
-    public @Override T apply(T value) {
+    @Override
+    public T apply(T value) {
         if (value != null) {
             OwsUtils.resolveCollections(value);
         }

@@ -37,22 +37,22 @@ public class NamespaceRepositoryTest
         assertEquals(expected.getURI(), actual.getURI());
     }
 
-    public @Override @Test void testFindAll() {
+    @Override public  @Test void testFindAll() {
         super.testFindAll(testData.namespaceA, testData.namespaceB, testData.namespaceC);
     }
 
-    public @Override @Test void testFindAllByType() {
+    @Override public  @Test void testFindAllByType() {
         super.testFindAllIncludeFilter(NamespaceInfo.class, testData.namespaceA,
                 testData.namespaceB, testData.namespaceC);
     }
 
-    public @Override @Test void testFindById() {
+    @Override public  @Test void testFindById() {
         super.testFindById(testData.namespaceA);
         super.testFindById(testData.namespaceB);
         super.testFindById(testData.namespaceC);
     }
 
-    public @Override @Test void testQueryFilter() {
+    @Override public  @Test void testQueryFilter() {
         NamespaceInfo ns1 = serverCatalog.getNamespace(testData.namespaceA.getId());
         NamespaceInfo ns2 = serverCatalog.getNamespace(testData.namespaceB.getId());
         NamespaceInfo ns3 = serverCatalog.getNamespace(testData.namespaceC.getId());

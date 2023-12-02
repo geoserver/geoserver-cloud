@@ -333,7 +333,8 @@ public class JDBCConfigBackendConfigurer extends GeoServerBackendConfigurer {
                         super(ds);
                     }
 
-                    public @Override void runScript(Resource script) {
+                    @Override
+                    public void runScript(Resource script) {
                         super.runScript(script);
                     }
                 }

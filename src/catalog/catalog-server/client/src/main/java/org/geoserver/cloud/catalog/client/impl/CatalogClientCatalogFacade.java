@@ -67,7 +67,7 @@ public class CatalogClientCatalogFacade extends ResolvingCatalogFacadeDecorator 
     }
 
     // set up resolving chain
-    public @Override void setCatalog(Catalog catalog) {
+    @Override public  void setCatalog(Catalog catalog) {
         super.setCatalog(catalog);
 
         final ResolvingProxyResolver<CatalogInfo> proxyResolver =

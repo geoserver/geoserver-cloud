@@ -34,22 +34,22 @@ public class WorkspaceRepositoryTest
         assertEquals(expected.isIsolated(), actual.isIsolated());
     }
 
-    public @Override @Test void testFindById() {
+    @Override public  @Test void testFindById() {
         testFindById(testData.workspaceA);
         testFindById(testData.workspaceB);
         testFindById(testData.workspaceC);
     }
 
-    public @Override @Test void testFindAll() {
+    @Override public  @Test void testFindAll() {
         super.testFindAll(testData.workspaceA, testData.workspaceB, testData.workspaceC);
     }
 
-    public @Override @Test void testFindAllByType() {
+    @Override public  @Test void testFindAllByType() {
         super.testFindAllIncludeFilter(
                 WorkspaceInfo.class, testData.workspaceA, testData.workspaceB, testData.workspaceC);
     }
 
-    public @Override @Test void testQueryFilter() {
+    @Override public  @Test void testQueryFilter() {
         WorkspaceInfo wsA = serverCatalog.getWorkspace(testData.workspaceA.getId());
         WorkspaceInfo wsB = serverCatalog.getWorkspace(testData.workspaceB.getId());
         WorkspaceInfo wsC = serverCatalog.getWorkspace(testData.workspaceC.getId());

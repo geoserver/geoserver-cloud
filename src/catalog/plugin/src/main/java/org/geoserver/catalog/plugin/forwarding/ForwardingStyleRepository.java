@@ -18,20 +18,23 @@ public class ForwardingStyleRepository
         super(subject);
     }
 
-    public @Override Stream<StyleInfo> findAllByNullWorkspace() {
+    @Override
+    public Stream<StyleInfo> findAllByNullWorkspace() {
         return subject.findAllByNullWorkspace();
     }
 
-    public @Override Stream<StyleInfo> findAllByWorkspace(WorkspaceInfo ws) {
+    @Override
+    public Stream<StyleInfo> findAllByWorkspace(WorkspaceInfo ws) {
         return subject.findAllByWorkspace(ws);
     }
 
-    public @Override Optional<StyleInfo> findByNameAndWordkspaceNull(String name) {
+    @Override
+    public Optional<StyleInfo> findByNameAndWordkspaceNull(String name) {
         return subject.findByNameAndWordkspaceNull(name);
     }
 
-    public @Override Optional<StyleInfo> findByNameAndWorkspace(
-            String name, WorkspaceInfo workspace) {
+    @Override
+    public Optional<StyleInfo> findByNameAndWorkspace(String name, WorkspaceInfo workspace) {
         return subject.findByNameAndWorkspace(name, workspace);
     }
 }

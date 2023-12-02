@@ -31,7 +31,7 @@ public class LayerGroupControllerTest
         assertEquals(expected.getLayers(), actual.getLayers());
     }
 
-    public @Override @Test void testFindAll() {
+    @Override public  @Test void testFindAll() {
         super.testFindAll(testData.layerGroup1);
         LayerGroupInfo lg2 =
                 testData.createLayerGroup(
@@ -44,15 +44,15 @@ public class LayerGroupControllerTest
         super.testFindAll(testData.layerGroup1, lg2);
     }
 
-    public @Override @Test void testFindById() {
+    @Override public  @Test void testFindById() {
         super.testFindById(testData.layerGroup1);
     }
 
-    public @Override @Test void testFindAllByType() {
+    @Override public  @Test void testFindAllByType() {
         super.testFindAll(LayerGroupInfo.class, testData.layerGroup1);
     }
 
-    public @Override @Test void testQueryFilter() {
+    @Override public  @Test void testQueryFilter() {
         LayerGroupInfo lg1 = testData.layerGroup1;
         LayerGroupInfo lg2 =
                 testData.createLayerGroup(

@@ -55,7 +55,8 @@ public class DataDirectoryUpdateSequence implements UpdateSequence {
 
     private XStreamPersister xp;
 
-    public @Override long currValue() {
+    @Override
+    public long currValue() {
         try {
             Resource resource = resource();
             if (!Resources.exists(resource)) {
@@ -78,7 +79,8 @@ public class DataDirectoryUpdateSequence implements UpdateSequence {
         }
     }
 
-    public @Override long nextValue() {
+    @Override
+    public long nextValue() {
         org.geoserver.platform.resource.Resource.Lock clusterLock = lock();
         try {
             final long newValue = computeAndSaveNewValue();

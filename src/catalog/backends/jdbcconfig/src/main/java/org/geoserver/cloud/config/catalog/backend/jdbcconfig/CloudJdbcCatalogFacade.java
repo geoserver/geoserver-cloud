@@ -22,7 +22,8 @@ public class CloudJdbcCatalogFacade extends JDBCCatalogFacade {
         this.db = db;
     }
 
-    public @Override void setCatalog(Catalog catalog) {
+    @Override
+    public void setCatalog(Catalog catalog) {
         this.catalog = catalog;
         CatalogImpl catalogForResolvingCatalogProperties = (CatalogImpl) catalog;
         if (catalog instanceof CatalogFacadeExtensionAdapter.SilentCatalog) {
@@ -31,7 +32,8 @@ public class CloudJdbcCatalogFacade extends JDBCCatalogFacade {
         db.setCatalog(catalogForResolvingCatalogProperties);
     }
 
-    public @Override Catalog getCatalog() {
+    @Override
+    public Catalog getCatalog() {
         return this.catalog;
     }
 }

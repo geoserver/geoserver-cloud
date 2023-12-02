@@ -52,54 +52,64 @@ public class LockingGeoServer extends GeoServerImpl {
         return this.configurationLock;
     }
 
-    public @Override void setGlobal(GeoServerInfo global) {
+    @Override
+    public void setGlobal(GeoServerInfo global) {
         lockingSupport.runInWriteLock(
                 () -> super.setGlobal(global), format("setGlobal(%s)", nameOf(global)));
     }
 
-    public @Override void save(GeoServerInfo geoServer) {
+    @Override
+    public void save(GeoServerInfo geoServer) {
         lockingSupport.runInWriteLock(
                 () -> super.save(geoServer), format("save(%s)", nameOf(geoServer)));
     }
 
-    public @Override void add(SettingsInfo settings) {
+    @Override
+    public void add(SettingsInfo settings) {
         lockingSupport.runInWriteLock(
                 () -> super.add(settings),
                 format("add(%s[%s])", typeOf(settings), nameOf(settings)));
     }
 
-    public @Override void save(SettingsInfo settings) {
+    @Override
+    public void save(SettingsInfo settings) {
         lockingSupport.runInWriteLock(
                 () -> super.save(settings),
                 format("save(%s[%s])", typeOf(settings), nameOf(settings)));
     }
 
-    public @Override void remove(SettingsInfo settings) {
+    @Override
+    public void remove(SettingsInfo settings) {
         lockingSupport.runInWriteLock(
                 () -> super.remove(settings),
                 format("remove(%s[%s])", typeOf(settings), nameOf(settings)));
     }
 
-    public @Override void setLogging(LoggingInfo logging) {
+    @Override
+    public void setLogging(LoggingInfo logging) {
         lockingSupport.runInWriteLock(() -> super.setLogging(logging), "setLogging(LoggingInfo)");
     }
 
-    public @Override void save(LoggingInfo logging) {
+    @Override
+    public void save(LoggingInfo logging) {
         lockingSupport.runInWriteLock(() -> super.save(logging), "save(LoggingInfo)");
     }
 
-    public @Override void add(ServiceInfo service) {
+    @Override
+    public void add(ServiceInfo service) {
         lockingSupport.runInWriteLock(
                 () -> super.add(service), format("add(%s[%s])", typeOf(service), nameOf(service)));
     }
 
-    public @Override void remove(ServiceInfo service) {
+    @Override
+    public void remove(ServiceInfo service) {
         lockingSupport.runInWriteLock(
                 () -> super.remove(service),
                 format("remove(%s[%s])", typeOf(service), nameOf(service)));
     }
 
-    public @Override void save(ServiceInfo service) {
+    @Override
+    public void save(ServiceInfo service) {
         lockingSupport.runInWriteLock(
                 () -> super.save(service),
                 format("save(%s[%s])", typeOf(service), nameOf(service)));

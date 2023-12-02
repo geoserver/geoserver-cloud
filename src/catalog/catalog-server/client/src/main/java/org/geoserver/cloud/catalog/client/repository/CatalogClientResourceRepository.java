@@ -29,11 +29,11 @@ public class CatalogClientResourceRepository extends CatalogClientRepository<Res
     // REVISIT: used to build filters on methods that miss a counterpart on ReactiveCatalogClient
     private final FilterFactory ff = CommonFactoryFinder.getFilterFactory();
 
-    public @Override <T extends ResourceInfo> Stream<T> findAllByType(@Nullable Class<T> clazz) {
+    @Override public  <T extends ResourceInfo> Stream<T> findAllByType(@Nullable Class<T> clazz) {
         return toStream(client().findAll(endpoint(), typeEnum(clazz)).map(clazz::cast));
     }
 
-    public @Override <T extends ResourceInfo> Stream<T> findAllByNamespace(
+    @Override public  <T extends ResourceInfo> Stream<T> findAllByNamespace(
             @NonNull NamespaceInfo ns, @Nullable Class<T> clazz) {
 
         // REVISIT: missed custom method on ReactiveCatalogClient
@@ -42,7 +42,7 @@ public class CatalogClientResourceRepository extends CatalogClientRepository<Res
         return findAll(query);
     }
 
-    public @Override @Nullable <T extends ResourceInfo> Optional<T> findByStoreAndName(
+    @Override public  @Nullable <T extends ResourceInfo> Optional<T> findByStoreAndName(
             @NonNull StoreInfo store, @NonNull String name, @Nullable Class<T> clazz) {
         // REVISIT: missed custom method on ReactiveCatalogClient
         Filter filter =
@@ -56,7 +56,7 @@ public class CatalogClientResourceRepository extends CatalogClientRepository<Res
         }
     }
 
-    public @Override <T extends ResourceInfo> Stream<T> findAllByStore(
+    @Override public  <T extends ResourceInfo> Stream<T> findAllByStore(
             StoreInfo store, Class<T> clazz) {
 
         // REVISIT: missed custom method on ReactiveCatalogClient
@@ -65,7 +65,7 @@ public class CatalogClientResourceRepository extends CatalogClientRepository<Res
         return findAll(query);
     }
 
-    public @Override <T extends ResourceInfo> Optional<T> findByNameAndNamespace(
+    @Override public  <T extends ResourceInfo> Optional<T> findByNameAndNamespace(
             @NonNull String name, @NonNull NamespaceInfo namespace, @NonNull Class<T> clazz) {
 
         String namespaceId = namespace.getId();

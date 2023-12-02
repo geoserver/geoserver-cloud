@@ -40,7 +40,8 @@ public abstract class RemoteGeoWebCacheEvent extends RemoteApplicationEvent {
         this.eventType = eventType;
     }
 
-    public @Override String toString() {
+    @Override
+    public String toString() {
         return String.format(
                 "%s[%s '%s' id: %s origin: %s destination: %s timestamp: %s]",
                 getClass().getSimpleName(),

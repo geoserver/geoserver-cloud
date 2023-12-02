@@ -100,7 +100,8 @@ public class ResolvingProxyResolver<T extends Info> implements UnaryOperator<T> 
         return (ResolvingProxyResolver<I>) new MemoizingProxyResolver(catalog, onNotFound);
     }
 
-    public @Override T apply(T info) {
+    @Override
+    public T apply(T info) {
         return resolve(info);
     }
 

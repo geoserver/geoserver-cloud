@@ -200,7 +200,8 @@ public @Data class PropertyDiff implements Serializable {
             return new Change(propertyName, oldValue, newValue);
         }
 
-        public @Override String toString() {
+        @Override
+        public String toString() {
             return String.format("%s: {old: %s, new: %s}", propertyName, oldValue, newValue);
         }
     }

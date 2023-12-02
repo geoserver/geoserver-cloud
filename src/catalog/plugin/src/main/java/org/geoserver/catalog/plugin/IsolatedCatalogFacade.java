@@ -246,7 +246,8 @@ public final class IsolatedCatalogFacade extends ForwardingExtendedCatalogFacade
         return new CloseableIteratorAdapter<>(filtered, (Closeable) all);
     }
 
-    public @Override <T extends CatalogInfo> Stream<T> query(Query<T> query) {
+    @Override
+    public <T extends CatalogInfo> Stream<T> query(Query<T> query) {
         return ((ExtendedCatalogFacade) facade)
                 .query(query)
                 .map(this::enforceIsolation)

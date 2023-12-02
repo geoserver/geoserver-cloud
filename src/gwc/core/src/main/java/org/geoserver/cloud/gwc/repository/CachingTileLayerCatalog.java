@@ -65,7 +65,8 @@ public class CachingTileLayerCatalog implements TileLayerCatalog {
         }
     }
 
-    public @Override synchronized void initialize() {
+    @Override
+    public synchronized void initialize() {
         delegate.initialize();
         idCache = cacheManager.getCache(TILE_LAYERS_BY_ID);
         nameCache = cacheManager.getCache(TILE_LAYERS_BY_NAME);
@@ -73,7 +74,8 @@ public class CachingTileLayerCatalog implements TileLayerCatalog {
         preLoad();
     }
 
-    public @Override synchronized void reset() {
+    @Override
+    public synchronized void reset() {
         if (idCache != null) {
             idCache.clear();
             idCache = null;
@@ -103,28 +105,34 @@ public class CachingTileLayerCatalog implements TileLayerCatalog {
         namesById.put(info.getId(), info.getName());
     }
 
-    public @Override void addListener(TileLayerCatalogListener listener) {
+    @Override
+    public void addListener(TileLayerCatalogListener listener) {
         delegate.addListener(listener);
     }
 
-    public @Override Set<String> getLayerIds() {
+    @Override
+    public Set<String> getLayerIds() {
         return new HashSet<>(namesById.keySet());
     }
 
-    public @Override Set<String> getLayerNames() {
+    @Override
+    public Set<String> getLayerNames() {
         return new HashSet<>(namesById.values());
     }
 
-    public @Override String getLayerId(@NonNull String layerName) {
+    @Override
+    public String getLayerId(@NonNull String layerName) {
         GeoServerTileLayerInfo layer = getLayerByName(layerName);
         return layer == null ? null : layer.getId();
     }
 
-    public @Override String getLayerName(@NonNull String layerId) {
+    @Override
+    public String getLayerName(@NonNull String layerId) {
         return namesById.get(layerId);
     }
 
-    public @Override GeoServerTileLayerInfo getLayerById(@NonNull String id) {
+    @Override
+    public GeoServerTileLayerInfo getLayerById(@NonNull String id) {
         try {
             return idCache.get(id, () -> loadLayerById(id));
         } catch (ValueRetrievalException e) {
@@ -133,7 +141,8 @@ public class CachingTileLayerCatalog implements TileLayerCatalog {
         }
     }
 
-    public @Override GeoServerTileLayerInfo getLayerByName(@NonNull String layerName) {
+    @Override
+    public GeoServerTileLayerInfo getLayerByName(@NonNull String layerName) {
         try {
             return nameCache.get(layerName, () -> loadLayerByName(layerName));
         } catch (ValueRetrievalException e) {
@@ -160,19 +169,23 @@ public class CachingTileLayerCatalog implements TileLayerCatalog {
         return info;
     }
 
-    public @Override GeoServerTileLayerInfo delete(@NonNull String tileLayerId) {
+    @Override
+    public GeoServerTileLayerInfo delete(@NonNull String tileLayerId) {
         return delegate.delete(tileLayerId);
     }
 
-    public @Override GeoServerTileLayerInfo save(@NonNull GeoServerTileLayerInfo newValue) {
+    @Override
+    public GeoServerTileLayerInfo save(@NonNull GeoServerTileLayerInfo newValue) {
         return delegate.save(newValue);
     }
 
-    public @Override boolean exists(@NonNull String layerId) {
+    @Override
+    public boolean exists(@NonNull String layerId) {
         return delegate.exists(layerId);
     }
 
-    public @Override String getPersistenceLocation() {
+    @Override
+    public String getPersistenceLocation() {
         return delegate.getPersistenceLocation();
     }
 }

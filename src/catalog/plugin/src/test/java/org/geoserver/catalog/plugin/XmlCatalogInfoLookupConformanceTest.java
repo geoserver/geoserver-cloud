@@ -47,9 +47,11 @@ public class XmlCatalogInfoLookupConformanceTest extends CatalogConformanceTest 
             revisit, seems to be just a problem of ordering or equals with the \
             returned ft/ft2 where mockito is not throwing the expected exception
             """)
-    public @Override void testSaveDataStoreRollbacksBothStoreAndResources() throws Exception {}
+    @Override
+    public void testSaveDataStoreRollbacksBothStoreAndResources() throws Exception {}
 
     @Disabled(
             "don't care it can't save the resourceinfo when saving a layer, it's just a demo implementation")
-    public @Override void testEnableLayer() {}
+    @Override
+    public void testEnableLayer() {}
 }

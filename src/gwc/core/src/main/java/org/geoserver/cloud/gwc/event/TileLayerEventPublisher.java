@@ -67,7 +67,8 @@ public class TileLayerEventPublisher {
     static class LocalTileEventPublisher implements TileLayerCatalogListener {
         private final TileLayerEventPublisher publisher;
 
-        public @Override void onEvent(String layerId, TileLayerCatalogListener.Type type) {
+        @Override
+        public void onEvent(String layerId, TileLayerCatalogListener.Type type) {
             TileLayerEvent event = publisher.toEvent(layerId, type);
             publisher.publish(event);
         }

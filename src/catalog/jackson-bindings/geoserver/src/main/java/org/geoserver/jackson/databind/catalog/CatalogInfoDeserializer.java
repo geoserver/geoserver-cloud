@@ -20,7 +20,8 @@ public class CatalogInfoDeserializer<I extends CatalogInfo> extends JsonDeserial
 
     private static final CatalogInfoMapper mapper = Mappers.getMapper(CatalogInfoMapper.class);
 
-    public @Override I deserialize(JsonParser parser, DeserializationContext ctxt)
+    @Override
+    public I deserialize(JsonParser parser, DeserializationContext ctxt)
             throws IOException, JsonProcessingException {
 
         CatalogInfoDto dto = parser.readValueAs(CatalogInfoDto.class);

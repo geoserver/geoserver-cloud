@@ -134,8 +134,8 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
                 });
     }
 
-    public @Override int loadBeanDefinitions(
-            String location, @Nullable Set<Resource> actualResources)
+    @Override
+    public int loadBeanDefinitions(String location, @Nullable Set<Resource> actualResources)
             throws BeanDefinitionStoreException {
 
         super.setDocumentReaderClass(FilteringBeanDefinitionDocumentReader.class);

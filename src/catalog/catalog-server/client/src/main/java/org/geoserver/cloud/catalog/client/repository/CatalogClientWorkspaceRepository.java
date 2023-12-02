@@ -19,16 +19,16 @@ public class CatalogClientWorkspaceRepository extends CatalogClientRepository<Wo
 
     private final @Getter Class<WorkspaceInfo> contentType = WorkspaceInfo.class;
 
-    public @Override void setDefaultWorkspace(@NonNull WorkspaceInfo workspace) {
+    @Override public  void setDefaultWorkspace(@NonNull WorkspaceInfo workspace) {
         Objects.requireNonNull(workspace.getId(), "workspace id can't be null");
         blockAndReturn(client().setDefaultWorkspace(workspace.getId()));
     }
 
-    public @Override void unsetDefaultWorkspace() {
+    @Override public  void unsetDefaultWorkspace() {
         block(client().unsetDefaultWorkspace());
     }
 
-    public @Override @Nullable Optional<WorkspaceInfo> getDefaultWorkspace() {
+    @Override public  @Nullable Optional<WorkspaceInfo> getDefaultWorkspace() {
         return blockAndReturn(client().getDefaultWorkspace());
     }
 }

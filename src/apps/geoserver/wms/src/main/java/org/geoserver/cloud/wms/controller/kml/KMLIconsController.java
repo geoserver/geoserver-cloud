@@ -60,11 +60,13 @@ public @Controller class KMLIconsController {
             final String pathInfo = requestURI.substring(pathToKml.length());
 
             return new HttpServletRequestWrapper(request) {
-                public @Override String getServletPath() {
+                @Override
+                public String getServletPath() {
                     return servletPath;
                 }
 
-                public @Override String getPathInfo() {
+                @Override
+                public String getPathInfo() {
                     return pathInfo;
                 }
             };

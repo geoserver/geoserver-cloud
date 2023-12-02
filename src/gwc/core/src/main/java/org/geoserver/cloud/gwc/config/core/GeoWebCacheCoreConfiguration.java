@@ -291,7 +291,8 @@ public class GeoWebCacheCoreConfiguration {
                 final String pathInfo = requestURI.substring(pathToGwc.length());
 
                 return new HttpServletRequestWrapper(request) {
-                    public @Override String getPathInfo() {
+                    @Override
+                    public String getPathInfo() {
                         return pathInfo;
                     }
                 };

@@ -21,7 +21,8 @@ public class CloudDefaultStorageFinder extends DefaultStorageFinder {
 
     static final ApplicationContextProvider NOOP =
             new ApplicationContextProvider() {
-                public @Override WebApplicationContext getApplicationContext() {
+                @Override
+                public WebApplicationContext getApplicationContext() {
                     return null;
                 }
             };
@@ -34,11 +35,13 @@ public class CloudDefaultStorageFinder extends DefaultStorageFinder {
         this.environment = environment;
     }
 
-    public @Override String getDefaultPath() throws ConfigurationException { // NOSONAR
+    @Override
+    public String getDefaultPath() throws ConfigurationException { // NOSONAR
         return defaultCacheDirectory.toString();
     }
 
-    public @Override String findEnvVar(String varStr) {
+    @Override
+    public String findEnvVar(String varStr) {
         return environment.getProperty(varStr);
     }
 }

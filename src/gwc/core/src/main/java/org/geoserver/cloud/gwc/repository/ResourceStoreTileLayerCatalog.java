@@ -76,14 +76,16 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
     private XStream serializer;
     private String baseDirectory;
 
-    public @Override void reset() {
+    @Override
+    public void reset() {
         if (initialized.compareAndSet(true, false)) {
             xstreamProvider = null;
             serializer = null;
         }
     }
 
-    public @Override void initialize() {
+    @Override
+    public void initialize() {
         if (initialized.compareAndSet(false, true)) {
             this.baseDirectory = "gwc-layers";
             this.xstreamProvider =
@@ -94,25 +96,29 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
         }
     }
 
-    public @Override void addListener(TileLayerCatalogListener listener) {
+    @Override
+    public void addListener(TileLayerCatalogListener listener) {
         if (null != listener) listeners.add(listener);
     }
 
-    public @Override Set<String> getLayerIds() {
+    @Override
+    public Set<String> getLayerIds() {
         checkInitialized();
         try (Stream<GeoServerTileLayerInfo> all = findAll()) {
             return all.map(GeoServerTileLayerInfo::getId).collect(Collectors.toSet());
         }
     }
 
-    public @Override Set<String> getLayerNames() {
+    @Override
+    public Set<String> getLayerNames() {
         checkInitialized();
         try (Stream<GeoServerTileLayerInfo> all = findAll()) {
             return all.map(GeoServerTileLayerInfo::getName).collect(Collectors.toSet());
         }
     }
 
-    public @Override String getLayerId(@NonNull String layerName) {
+    @Override
+    public String getLayerId(@NonNull String layerName) {
         checkInitialized();
         try (Stream<GeoServerTileLayerInfo> all = findAll()) {
             return all.filter(l -> layerName.equals(l.getName()))
@@ -122,7 +128,8 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
         }
     }
 
-    public @Override String getLayerName(String layerId) {
+    @Override
+    public String getLayerName(String layerId) {
         checkInitialized();
         try (Stream<GeoServerTileLayerInfo> all = findAll()) {
             return all.filter(l -> layerId.equals(l.getId()))
@@ -132,19 +139,22 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
         }
     }
 
-    public @Override GeoServerTileLayerInfo getLayerById(@NonNull String id) {
+    @Override
+    public GeoServerTileLayerInfo getLayerById(@NonNull String id) {
         checkInitialized();
         return findFile(id).map(this::depersist).orElse(null);
     }
 
-    public @Override GeoServerTileLayerInfo getLayerByName(String layerName) {
+    @Override
+    public GeoServerTileLayerInfo getLayerByName(String layerName) {
         checkInitialized();
         try (Stream<GeoServerTileLayerInfo> all = findAll()) {
             return all.filter(l -> layerName.equals(l.getName())).findFirst().orElse(null);
         }
     }
 
-    public @Override GeoServerTileLayerInfo delete(@NonNull String tileLayerId) {
+    @Override
+    public GeoServerTileLayerInfo delete(@NonNull String tileLayerId) {
         checkInitialized();
         GeoServerTileLayerInfo info = null;
         Optional<Resource> resource = findFile(tileLayerId);
@@ -164,7 +174,8 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
         return null;
     }
 
-    public @Override GeoServerTileLayerInfo save(@NonNull GeoServerTileLayerInfo newValue) {
+    @Override
+    public GeoServerTileLayerInfo save(@NonNull GeoServerTileLayerInfo newValue) {
         checkInitialized();
         final String layerId = newValue.getId();
         Objects.requireNonNull(layerId);
@@ -175,12 +186,14 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
         return prev;
     }
 
-    public @Override boolean exists(String layerId) {
+    @Override
+    public boolean exists(String layerId) {
         checkInitialized();
         return findFile(layerId).isPresent();
     }
 
-    public @Override String getPersistenceLocation() {
+    @Override
+    public String getPersistenceLocation() {
         return resourceStore.get(baseDirectory).path();
     }
 

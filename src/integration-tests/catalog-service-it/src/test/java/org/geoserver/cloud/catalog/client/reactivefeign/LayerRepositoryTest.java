@@ -59,24 +59,24 @@ public class LayerRepositoryTest
         serverCatalog.add(layerWMTSA);
     }
 
-    public @Override @Test void testFindAll() {
+    @Override public  @Test void testFindAll() {
         assertEquals(0, repository.findAll().count());
         addLayers();
         super.testFindAll(layerFTA, layerWMTSA, layerCVA);
     }
 
-    public @Override @Test void testFindAllByType() {
+    @Override public  @Test void testFindAllByType() {
         testFindAllIncludeFilter(LayerInfo.class);
         addLayers();
         testFindAllIncludeFilter(LayerInfo.class, layerFTA, layerCVA, layerWMTSA);
     }
 
-    public @Override @Test void testFindById() {
+    @Override public  @Test void testFindById() {
         serverCatalog.add(testData.layerFeatureTypeA);
         super.testFindById(testData.layerFeatureTypeA);
     }
 
-    public @Override @Test void testQueryFilter() {
+    @Override public  @Test void testQueryFilter() {
         serverCatalog.add(testData.layerFeatureTypeA);
         StyleInfo style1 = testData.style1;
         StyleInfo style2 = testData.style2;

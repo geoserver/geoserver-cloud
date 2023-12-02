@@ -36,11 +36,13 @@ public @Data class Patch implements Serializable {
             return (V) value;
         }
 
-        public @Override boolean equals(Object o) {
+        @Override
+        public boolean equals(Object o) {
             return o instanceof Property && valueEquals(value(), ((Property) o).value());
         }
 
-        public @Override int hashCode() {
+        @Override
+        public int hashCode() {
             return Objects.hash(Property.class, value);
         }
 
@@ -181,7 +183,8 @@ public @Data class Patch implements Serializable {
         return Collection.class.isAssignableFrom(getter.getReturnType());
     }
 
-    public @Override String toString() {
+    @Override
+    public String toString() {
         String props =
                 this.getPatches().stream()
                         .map(p -> String.format("(%s: %s)", p.getName(), p.getValue()))

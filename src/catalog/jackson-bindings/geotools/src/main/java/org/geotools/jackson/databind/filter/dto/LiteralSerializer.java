@@ -73,8 +73,9 @@ public class LiteralSerializer extends StdSerializer<Literal> {
         typeSer.writeTypeSuffix(g, typeIdDef);
     }
 
-    public @Override void serialize(
-            Literal literal, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+    @Override
+    public void serialize(Literal literal, JsonGenerator gen, SerializerProvider serializers)
+            throws IOException {
 
         final Object value = literal.getValue();
 

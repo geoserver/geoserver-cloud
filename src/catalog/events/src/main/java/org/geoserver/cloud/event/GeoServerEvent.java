@@ -61,7 +61,8 @@ public abstract class GeoServerEvent<SELF> {
         return remote;
     }
 
-    public @Override String toString() {
+    @Override
+    public String toString() {
         return toStringBuilder().toString();
     }
 

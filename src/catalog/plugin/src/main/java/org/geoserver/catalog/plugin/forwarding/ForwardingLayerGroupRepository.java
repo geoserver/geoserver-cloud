@@ -21,20 +21,23 @@ public class ForwardingLayerGroupRepository
         super(subject);
     }
 
-    public @Override Stream<LayerGroupInfo> findAllByWorkspaceIsNull() {
+    @Override
+    public Stream<LayerGroupInfo> findAllByWorkspaceIsNull() {
         return subject.findAllByWorkspaceIsNull();
     }
 
-    public @Override Stream<LayerGroupInfo> findAllByWorkspace(WorkspaceInfo workspace) {
+    @Override
+    public Stream<LayerGroupInfo> findAllByWorkspace(WorkspaceInfo workspace) {
         return subject.findAllByWorkspace(workspace);
     }
 
-    public @Override Optional<LayerGroupInfo> findByNameAndWorkspaceIsNull(@NonNull String name) {
+    @Override
+    public Optional<LayerGroupInfo> findByNameAndWorkspaceIsNull(@NonNull String name) {
         return subject.findByNameAndWorkspaceIsNull(name);
     }
 
-    public @Override Optional<LayerGroupInfo> findByNameAndWorkspace(
-            String name, WorkspaceInfo workspace) {
+    @Override
+    public Optional<LayerGroupInfo> findByNameAndWorkspace(String name, WorkspaceInfo workspace) {
         return subject.findByNameAndWorkspace(name, workspace);
     }
 }

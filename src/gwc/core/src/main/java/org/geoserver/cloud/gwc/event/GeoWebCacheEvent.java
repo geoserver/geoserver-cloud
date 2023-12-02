@@ -39,7 +39,8 @@ public abstract class GeoWebCacheEvent extends ApplicationEvent {
         this.eventType = eventType;
     }
 
-    public @Override String toString() {
+    @Override
+    public String toString() {
         return String.format(
                 "%s[%s '%s' id: %s timestamp: %s]",
                 getClass().getSimpleName(), getEventType(), getObjectId(), getId(), getTimestamp());

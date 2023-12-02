@@ -60,21 +60,21 @@ public class LayerGroupRepositoryTest
         assertEquals(expected.getLayers(), actual.getLayers());
     }
 
-    public @Override @Test void testFindAll() {
+    @Override public  @Test void testFindAll() {
         super.testFindAll(testData.layerGroup1);
         serverCatalog.add(lg1WorkspaceA);
         super.testFindAll(testData.layerGroup1, lg1WorkspaceA);
     }
 
-    public @Override @Test void testFindById() {
+    @Override public  @Test void testFindById() {
         super.testFindById(testData.layerGroup1);
     }
 
-    public @Override @Test void testFindAllByType() {
+    @Override public  @Test void testFindAllByType() {
         testFindAll(testData.layerGroup1);
     }
 
-    public @Override @Test void testQueryFilter() {
+    @Override public  @Test void testQueryFilter() {
         LayerGroupInfo lg1 = testData.layerGroup1;
         serverCatalog.add(lg1WorkspaceA);
 

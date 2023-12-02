@@ -25,7 +25,8 @@ public @Data @Generated class Literal extends Expression {
         return value instanceof Literal ? (Literal) value : new Literal().setValue(value);
     }
 
-    public @Override boolean equals(Object o) {
+    @Override
+    public boolean equals(Object o) {
         if (!(o instanceof Literal)) return false;
 
         final Object v1 = value;
@@ -66,7 +67,8 @@ public @Data @Generated class Literal extends Expression {
         return false;
     }
 
-    public @Override int hashCode() {
+    @Override
+    public int hashCode() {
         return Objects.hash(Literal.class, value);
     }
 }

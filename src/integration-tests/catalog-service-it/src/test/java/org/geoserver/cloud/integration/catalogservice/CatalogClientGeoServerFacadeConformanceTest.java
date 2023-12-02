@@ -81,7 +81,7 @@ public class CatalogClientGeoServerFacadeConformanceTest extends GeoServerConfig
     /**
      * Test works if run alone, but not if it runs after other tests cause server config is not null
      */
-    public @Override @Test void testGlobal() throws Exception {
+    @Override public  @Test void testGlobal() throws Exception {
         Assumptions.assumeTrue(serverConfig.getGlobal() == null);
         super.testGlobal();
     }
@@ -89,7 +89,7 @@ public class CatalogClientGeoServerFacadeConformanceTest extends GeoServerConfig
     /**
      * Test works if run alone, but not if it runs after other tests cause server config is not null
      */
-    public @Override @Test void testModifyGlobal() throws Exception {
+    @Override public  @Test void testModifyGlobal() throws Exception {
         Assumptions.assumeTrue(serverConfig.getGlobal() == null);
         super.testModifyGlobal();
     }

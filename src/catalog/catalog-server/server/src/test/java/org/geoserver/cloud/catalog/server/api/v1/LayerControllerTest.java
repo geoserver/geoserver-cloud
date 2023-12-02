@@ -42,7 +42,7 @@ public class LayerControllerTest extends AbstractReactiveCatalogControllerTest<L
         catalog.remove(testData.layerFeatureTypeA);
     }
 
-    public @Override @Test void testFindAll() {
+    @Override public  @Test void testFindAll() {
         assertTrue(super.findAll().isEmpty());
         LayerInfo layer1 = testData.layerFeatureTypeA;
         LayerInfo layer2 =
@@ -59,7 +59,7 @@ public class LayerControllerTest extends AbstractReactiveCatalogControllerTest<L
         super.testFindAll(layer1, layer2);
     }
 
-    public @Override @Test void testFindAllByType() {
+    @Override public  @Test void testFindAllByType() {
         assertTrue(super.findAll().isEmpty());
         LayerInfo layer1 = testData.layerFeatureTypeA;
         LayerInfo layer2 =
@@ -76,12 +76,12 @@ public class LayerControllerTest extends AbstractReactiveCatalogControllerTest<L
         super.testFindAll(LayerInfo.class, layer1, layer2);
     }
 
-    public @Override @Test void testFindById() {
+    @Override public  @Test void testFindById() {
         catalog.add(testData.layerFeatureTypeA);
         super.testFindById(testData.layerFeatureTypeA);
     }
 
-    public @Override @Test void testQueryFilter() {
+    @Override public  @Test void testQueryFilter() {
         catalog.add(testData.layerFeatureTypeA);
         StyleInfo style1 = testData.style1;
         StyleInfo style2 = testData.style2;

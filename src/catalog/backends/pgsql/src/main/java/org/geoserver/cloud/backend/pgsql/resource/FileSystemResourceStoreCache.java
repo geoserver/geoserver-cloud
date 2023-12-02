@@ -49,7 +49,8 @@ public class FileSystemResourceStoreCache implements DisposableBean {
         return new FileSystemResourceStoreCache(cacheDirectory, disposable);
     }
 
-    public @Override void destroy() {
+    @Override
+    public void destroy() {
         if (disposable && Files.isDirectory(this.base)) {
             try {
                 log.info("Deleting resource store cache directory {}", base);

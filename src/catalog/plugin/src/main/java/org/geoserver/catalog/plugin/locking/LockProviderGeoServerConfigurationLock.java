@@ -69,7 +69,8 @@ public class LockProviderGeoServerConfigurationLock extends GeoServerConfigurati
         this.lockProvider = lockProvider;
     }
 
-    public @Override boolean isWriteLocked() {
+    @Override
+    public boolean isWriteLocked() {
         if (isEnabled()) {
             final boolean jvmWriteLocked = super.isWriteLocked();
             final boolean globalWriteLocked = GLOBAL.get().isWriteLocked();
@@ -103,7 +104,8 @@ public class LockProviderGeoServerConfigurationLock extends GeoServerConfigurati
         }
     }
 
-    public @Override void lock(LockType type) {
+    @Override
+    public void lock(LockType type) {
         if (isEnabled()) {
             // JVM lock
             super.lock(type);
@@ -114,7 +116,8 @@ public class LockProviderGeoServerConfigurationLock extends GeoServerConfigurati
         }
     }
 
-    public @Override boolean tryLock(LockType type) {
+    @Override
+    public boolean tryLock(LockType type) {
         if (isEnabled()) {
             final boolean jvmLock = super.tryLock(type);
             if (jvmLock && WRITE == type) {
@@ -125,13 +128,15 @@ public class LockProviderGeoServerConfigurationLock extends GeoServerConfigurati
         return true;
     }
 
-    public @Override void tryUpgradeLock() {
+    @Override
+    public void tryUpgradeLock() {
         if (isEnabled()) {
             super.tryUpgradeLock();
         }
     }
 
-    public @Override void unlock() {
+    @Override
+    public void unlock() {
         if (isEnabled()) {
             try {
                 unlockGloblal();

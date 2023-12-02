@@ -19,15 +19,18 @@ public class ForwardingLayerRepository
         super(subject);
     }
 
-    public @Override Optional<LayerInfo> findOneByName(String name) {
+    @Override
+    public Optional<LayerInfo> findOneByName(String name) {
         return subject.findOneByName(name);
     }
 
-    public @Override Stream<LayerInfo> findAllByDefaultStyleOrStyles(StyleInfo style) {
+    @Override
+    public Stream<LayerInfo> findAllByDefaultStyleOrStyles(StyleInfo style) {
         return subject.findAllByDefaultStyleOrStyles(style);
     }
 
-    public @Override Stream<LayerInfo> findAllByResource(ResourceInfo resource) {
+    @Override
+    public Stream<LayerInfo> findAllByResource(ResourceInfo resource) {
         return subject.findAllByResource(resource);
     }
 }

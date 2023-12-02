@@ -49,12 +49,14 @@ public class CloudJdbcStoreProperties extends JDBCResourceStoreProperties {
      * Override to not save at all, the canonical source of config settings is the spring boot
      * configuration properties
      */
-    public @Override void save() throws IOException {
+    @Override
+    public void save() throws IOException {
         // factory.saveConfig(this);
     }
 
     /** Override to return {@code true} only if the db schema is not already created */
-    public @Override boolean isInitDb() {
+    @Override
+    public boolean isInitDb() {
         boolean initDb = Boolean.parseBoolean(getProperty("initdb", "false"));
         if (initDb) {
             try (Connection c = dataSource.getConnection();
@@ -76,7 +78,8 @@ public class CloudJdbcStoreProperties extends JDBCResourceStoreProperties {
      * Override to get the init script directly from the ones in the classpath (inside
      * gs-jdbcconfig.jar)
      */
-    public @Override Resource getInitScript() {
+    @Override
+    public Resource getInitScript() {
         final String driverClassName = getProperty("datasource.driverClassname");
         String scriptName;
         switch (driverClassName) {
@@ -107,7 +110,8 @@ public class CloudJdbcStoreProperties extends JDBCResourceStoreProperties {
      * Override to throw an {@link UnsupportedOperationException}, we're not using {@link
      * DataSourceFactoryBean}, the datasource is provided by spring instead
      */
-    public @Override Optional<String> getJdbcUrl() {
+    @Override
+    public Optional<String> getJdbcUrl() {
         throw new UnsupportedOperationException(
                 "shouldn't be called, this module doesn't use org.geoserver.jdbcloader.DataSourceFactoryBean");
     }

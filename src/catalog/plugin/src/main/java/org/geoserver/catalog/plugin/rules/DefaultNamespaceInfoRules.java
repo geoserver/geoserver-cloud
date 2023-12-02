@@ -22,7 +22,8 @@ public class DefaultNamespaceInfoRules implements CatalogInfoBusinessRules<Names
      * was no default namespace when the method was entered, then the created one is set as the
      * default when the method returns.
      */
-    public @Override void beforeAdd(CatalogOpContext<NamespaceInfo> context) {
+    @Override
+    public void beforeAdd(CatalogOpContext<NamespaceInfo> context) {
         NamespaceInfo defaultNamespace = context.getCatalog().getDefaultNamespace();
         Boolean needsSetDefault = defaultNamespace == null;
         context.setContextOption(SET_DEFAULT, needsSetDefault);
@@ -32,7 +33,8 @@ public class DefaultNamespaceInfoRules implements CatalogInfoBusinessRules<Names
      * Sets the created namespace as the catalog's default namespace if so determined in {@link
      * #beforeAdd} and the operation was successful.
      */
-    public @Override void afterAdd(CatalogOpContext<NamespaceInfo> context) {
+    @Override
+    public void afterAdd(CatalogOpContext<NamespaceInfo> context) {
         setAsDefaultIfThereWasNoDefaultNamespace(context);
     }
 
@@ -50,7 +52,8 @@ public class DefaultNamespaceInfoRules implements CatalogInfoBusinessRules<Names
      * Selects a new catalog default namespace if as the result of removing the namespace referred
      * to by {@code context.getObject()}, the catalog has no default one.
      */
-    public @Override void afterRemove(CatalogOpContext<NamespaceInfo> context) {
+    @Override
+    public void afterRemove(CatalogOpContext<NamespaceInfo> context) {
         if (context.isSuccess()) {
             selectNewDefaultNamespaceIfRemoved(context.getCatalog(), context.getObject());
         }

@@ -60,23 +60,28 @@ class MetricsCatalogListener implements CatalogListener {
         return builder;
     }
 
-    public @Override void handleAddEvent(CatalogAddEvent event) throws CatalogException {
+    @Override
+    public void handleAddEvent(CatalogAddEvent event) throws CatalogException {
         added.increment();
     }
 
-    public @Override void handleRemoveEvent(CatalogRemoveEvent event) {
+    @Override
+    public void handleRemoveEvent(CatalogRemoveEvent event) {
         removed.increment();
     }
 
-    public @Override void reloaded() {
+    @Override
+    public void reloaded() {
         reloads.increment();
     }
 
-    public @Override void handlePostModifyEvent(CatalogPostModifyEvent event) {
+    @Override
+    public void handlePostModifyEvent(CatalogPostModifyEvent event) {
         modified.increment();
     }
 
-    public @Override void handleModifyEvent(CatalogModifyEvent event) {
+    @Override
+    public void handleModifyEvent(CatalogModifyEvent event) {
         // no-op, see #handlePostModifyEvent
     }
 }

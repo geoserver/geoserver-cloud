@@ -101,11 +101,13 @@ public abstract class LockingSupport {
 
     private static class Calling extends LockingSupport {
 
-        public @Override void runInWriteLock(Runnable action, String reason) {
+        @Override
+        public void runInWriteLock(Runnable action, String reason) {
             action.run();
         }
 
-        public @Override <V, E extends Exception> V callInWriteLock(
+        @Override
+        public <V, E extends Exception> V callInWriteLock(
                 Class<E> exceptionType, Callable<V> action, String reason) throws E {
 
             try {

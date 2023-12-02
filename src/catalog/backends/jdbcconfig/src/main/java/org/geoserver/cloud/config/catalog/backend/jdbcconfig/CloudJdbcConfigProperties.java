@@ -32,7 +32,8 @@ public class CloudJdbcConfigProperties extends JDBCConfigProperties {
     }
 
     /** Override to not save at all */
-    public @Override void save() throws IOException {
+    @Override
+    public void save() throws IOException {
         // factory.saveConfig(this);
     }
 
@@ -47,7 +48,8 @@ public class CloudJdbcConfigProperties extends JDBCConfigProperties {
     }
 
     /** Override to return {@code true} only if the db schema is not already created */
-    public @Override boolean isInitDb() {
+    @Override
+    public boolean isInitDb() {
         boolean initDb = Boolean.parseBoolean(getProperty("initdb", "false"));
         if (initDb) {
             try (Connection c = dataSource.getConnection();
@@ -69,7 +71,8 @@ public class CloudJdbcConfigProperties extends JDBCConfigProperties {
      * Override to get the init script directly from the ones in the classpath (inside
      * gs-jdbcconfig.jar)
      */
-    public @Override Resource getInitScript() {
+    @Override
+    public Resource getInitScript() {
         String scriptName;
         if (isH2()) {
             scriptName = "initdb.h2.sql";
@@ -97,7 +100,8 @@ public class CloudJdbcConfigProperties extends JDBCConfigProperties {
      * Override to throw an {@link UnsupportedOperationException}, we're not using {@link
      * DataSourceFactoryBean}, the datasource is provided by spring instead
      */
-    public @Override Optional<String> getJdbcUrl() {
+    @Override
+    public Optional<String> getJdbcUrl() {
         throw new UnsupportedOperationException(
                 "shouldn't be called, this module doesn't use org.geoserver.jdbcloader.DataSourceFactoryBean");
     }

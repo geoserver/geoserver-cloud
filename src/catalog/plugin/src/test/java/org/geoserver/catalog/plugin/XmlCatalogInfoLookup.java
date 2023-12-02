@@ -106,7 +106,8 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
         return deserialize(serialized, getContentType());
     }
 
-    public @Override void add(T value) {
+    @Override
+    public void add(T value) {
         checkNotAProxy(value);
 
         String serialized = serialize(value);
@@ -119,12 +120,14 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
         }
     }
 
-    public @Override void remove(T value) {
+    @Override
+    public void remove(T value) {
         checkNotAProxy(value);
         idMap.remove(value.getId());
     }
 
-    public @Override <I extends T> I update(final I value, Patch patch) {
+    @Override
+    public <I extends T> I update(final I value, Patch patch) {
         checkNotAProxy(value);
         T storedValue;
         // for the sake of correctness, get the stored value, contract does not force the supplied
@@ -155,15 +158,18 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
         return all().filter(clazz::isInstance).map(clazz::cast);
     }
 
-    public @Override void dispose() {
+    @Override
+    public void dispose() {
         idMap.clear();
     }
 
-    public @Override boolean canSortBy(String propertyName) {
+    @Override
+    public boolean canSortBy(String propertyName) {
         return CatalogInfoLookup.canSort(propertyName, getContentType());
     }
 
-    public @Override <U extends T> Stream<U> findAll(Query<U> query) {
+    @Override
+    public <U extends T> Stream<U> findAll(Query<U> query) {
         Comparator<U> comparator = toComparator(query);
         Predicate<U> predicate = toPredicate(query.getFilter());
         Stream<U> stream =
@@ -173,7 +179,8 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
         return stream;
     }
 
-    public @Override <U extends T> long count(Class<U> type, Filter filter) {
+    @Override
+    public <U extends T> long count(Class<U> type, Filter filter) {
         return Filter.INCLUDE.equals(filter) && getContentType().equals(type)
                 ? idMap.size()
                 : findAll(Query.valueOf(type, filter)).count();
@@ -202,7 +209,8 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
     private static <U extends CatalogInfo> Comparator<U> comparator(final SortBy sortOrder) {
         Comparator<U> comparator =
                 new Comparator<>() {
-                    public @Override int compare(U o1, U o2) {
+                    @Override
+                    public int compare(U o1, U o2) {
                         Object v1 = OwsUtils.get(o1, sortOrder.getPropertyName().getPropertyName());
                         Object v2 = OwsUtils.get(o2, sortOrder.getPropertyName().getPropertyName());
                         if (v1 == null) {
@@ -238,7 +246,8 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
     }
 
     /** Looks up a CatalogInfo by class and identifier */
-    public @Override <U extends T> Optional<U> findById(String id, Class<U> clazz) {
+    @Override
+    public <U extends T> Optional<U> findById(String id, Class<U> clazz) {
         T deserialized = deserialize(idMap.get(id));
         return Optional.ofNullable(
                 clazz.isInstance(deserialized) ? clazz.cast(deserialized) : null);
@@ -248,7 +257,8 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
         return allOf(clazz).filter(predicate).findFirst();
     }
 
-    public @Override void syncTo(CatalogInfoRepository<T> target) {
+    @Override
+    public void syncTo(CatalogInfoRepository<T> target) {
         all().forEach(target::add);
     }
 
@@ -261,37 +271,43 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
 
         private String defaultNamespaceId;
 
-        public @Override void setDefaultNamespace(NamespaceInfo namespace) {
+        @Override
+        public void setDefaultNamespace(NamespaceInfo namespace) {
             this.defaultNamespaceId =
                     findById(namespace.getId(), NamespaceInfo.class)
                             .map(NamespaceInfo::getId)
                             .orElseThrow(NoSuchElementException::new);
         }
 
-        public @Override Optional<NamespaceInfo> getDefaultNamespace() {
+        @Override
+        public Optional<NamespaceInfo> getDefaultNamespace() {
             return defaultNamespaceId == null
                     ? Optional.empty()
                     : findById(defaultNamespaceId, NamespaceInfo.class);
         }
 
-        public @Override Optional<NamespaceInfo> findOneByURI(String uri) {
+        @Override
+        public Optional<NamespaceInfo> findOneByURI(String uri) {
             return findFirst(NamespaceInfo.class, ns -> uri.equals(ns.getURI()));
         }
 
-        public @Override Stream<NamespaceInfo> findAllByURI(String uri) {
+        @Override
+        public Stream<NamespaceInfo> findAllByURI(String uri) {
             return all().filter(ns -> ns.getURI().equals(uri));
         }
 
-        public @Override void unsetDefaultNamespace() {
+        @Override
+        public void unsetDefaultNamespace() {
             defaultNamespaceId = null;
         }
 
-        public @Override Class<NamespaceInfo> getContentType() {
+        @Override
+        public Class<NamespaceInfo> getContentType() {
             return NamespaceInfo.class;
         }
 
-        public @Override <U extends NamespaceInfo> Optional<U> findFirstByName(
-                String name, Class<U> clazz) {
+        @Override
+        public <U extends NamespaceInfo> Optional<U> findFirstByName(String name, Class<U> clazz) {
             return allOf(clazz).filter(ns -> ns.getPrefix().equals(name)).findFirst();
         }
     }
@@ -305,26 +321,30 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
 
         private WorkspaceInfo defaultWorkspace;
 
-        public @Override void setDefaultWorkspace(WorkspaceInfo workspace) {
+        @Override
+        public void setDefaultWorkspace(WorkspaceInfo workspace) {
             this.defaultWorkspace =
                     findById(workspace.getId(), WorkspaceInfo.class)
                             .orElseThrow(NoSuchElementException::new);
         }
 
-        public @Override Optional<WorkspaceInfo> getDefaultWorkspace() {
+        @Override
+        public Optional<WorkspaceInfo> getDefaultWorkspace() {
             return Optional.ofNullable(defaultWorkspace);
         }
 
-        public @Override void unsetDefaultWorkspace() {
+        @Override
+        public void unsetDefaultWorkspace() {
             defaultWorkspace = null;
         }
 
-        public @Override Class<WorkspaceInfo> getContentType() {
+        @Override
+        public Class<WorkspaceInfo> getContentType() {
             return WorkspaceInfo.class;
         }
 
-        public @Override <U extends WorkspaceInfo> Optional<U> findFirstByName(
-                String name, Class<U> clazz) {
+        @Override
+        public <U extends WorkspaceInfo> Optional<U> findFirstByName(String name, Class<U> clazz) {
             return all().map(clazz::cast).filter(w -> name.equals(w.getName())).findFirst();
         }
     }
@@ -339,7 +359,8 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
         /** The default store id keyed by workspace id */
         protected ConcurrentMap<String, String> defaultStores = new ConcurrentHashMap<>();
 
-        public @Override void setDefaultDataStore(WorkspaceInfo workspace, DataStoreInfo store) {
+        @Override
+        public void setDefaultDataStore(WorkspaceInfo workspace, DataStoreInfo store) {
             String wsId = workspace.getId();
             final DataStoreInfo localStore =
                     super.findById(store.getId(), DataStoreInfo.class)
@@ -347,25 +368,30 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
             defaultStores.put(wsId, localStore.getId());
         }
 
-        public @Override void unsetDefaultDataStore(WorkspaceInfo workspace) {
+        @Override
+        public void unsetDefaultDataStore(WorkspaceInfo workspace) {
             defaultStores.remove(workspace.getId());
         }
 
-        public @Override Optional<DataStoreInfo> getDefaultDataStore(WorkspaceInfo workspace) {
+        @Override
+        public Optional<DataStoreInfo> getDefaultDataStore(WorkspaceInfo workspace) {
             String storeId = defaultStores.get(workspace.getId());
             return storeId == null ? Optional.empty() : findById(storeId, DataStoreInfo.class);
         }
 
-        public @Override Stream<DataStoreInfo> getDefaultDataStores() {
+        @Override
+        public Stream<DataStoreInfo> getDefaultDataStores() {
             return defaultStores.values().stream().map(s -> deserialize(s, DataStoreInfo.class));
         }
 
-        public @Override void dispose() {
+        @Override
+        public void dispose() {
             super.dispose();
             defaultStores.clear();
         }
 
-        public @Override <T extends StoreInfo> Stream<T> findAllByWorkspace(
+        @Override
+        public <T extends StoreInfo> Stream<T> findAllByWorkspace(
                 WorkspaceInfo workspace, Class<T> clazz) {
 
             return all().filter(clazz::isInstance)
@@ -373,11 +399,13 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
                     .filter(s -> s.getWorkspace().getId().equals(workspace.getId()));
         }
 
-        public @Override <T extends StoreInfo> Stream<T> findAllByType(Class<T> clazz) {
+        @Override
+        public <T extends StoreInfo> Stream<T> findAllByType(Class<T> clazz) {
             return all().filter(clazz::isInstance).map(clazz::cast);
         }
 
-        public @Override <T extends StoreInfo> Optional<T> findByNameAndWorkspace(
+        @Override
+        public <T extends StoreInfo> Optional<T> findByNameAndWorkspace(
                 String name, WorkspaceInfo workspace, Class<T> clazz) {
 
             return findAllByWorkspace(workspace, clazz)
@@ -385,12 +413,13 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
                     .findFirst();
         }
 
-        public @Override Class<StoreInfo> getContentType() {
+        @Override
+        public Class<StoreInfo> getContentType() {
             return StoreInfo.class;
         }
 
-        public @Override <U extends StoreInfo> Optional<U> findFirstByName(
-                String name, Class<U> clazz) {
+        @Override
+        public <U extends StoreInfo> Optional<U> findFirstByName(String name, Class<U> clazz) {
             return all().filter(clazz::isInstance)
                     .map(clazz::cast)
                     .filter(s -> name.equals(s.getName()))
@@ -405,11 +434,13 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
             super(codec);
         }
 
-        public @Override Stream<LayerGroupInfo> findAllByWorkspaceIsNull() {
+        @Override
+        public Stream<LayerGroupInfo> findAllByWorkspaceIsNull() {
             return all().filter(lg -> lg.getWorkspace() == null);
         }
 
-        public @Override Stream<LayerGroupInfo> findAllByWorkspace(WorkspaceInfo workspace) {
+        @Override
+        public Stream<LayerGroupInfo> findAllByWorkspace(WorkspaceInfo workspace) {
             Predicate<LayerGroupInfo> predicate =
                     lg ->
                             lg.getWorkspace() != null
@@ -417,23 +448,26 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
             return all().filter(predicate);
         }
 
-        public @Override Optional<LayerGroupInfo> findByNameAndWorkspaceIsNull(String name) {
+        @Override
+        public Optional<LayerGroupInfo> findByNameAndWorkspaceIsNull(String name) {
             return findAllByWorkspaceIsNull().filter(lg -> lg.getName().equals(name)).findFirst();
         }
 
-        public @Override Optional<LayerGroupInfo> findByNameAndWorkspace(
+        @Override
+        public Optional<LayerGroupInfo> findByNameAndWorkspace(
                 String name, WorkspaceInfo workspace) {
             return findAllByWorkspace(workspace)
                     .filter(lg -> lg.getName().equals(name))
                     .findFirst();
         }
 
-        public @Override Class<LayerGroupInfo> getContentType() {
+        @Override
+        public Class<LayerGroupInfo> getContentType() {
             return LayerGroupInfo.class;
         }
 
-        public @Override <U extends LayerGroupInfo> Optional<U> findFirstByName(
-                String name, Class<U> clazz) {
+        @Override
+        public <U extends LayerGroupInfo> Optional<U> findFirstByName(String name, Class<U> clazz) {
             return all().filter(clazz::isInstance)
                     .map(clazz::cast)
                     .filter(s -> name.equals(s.getName()))
@@ -448,12 +482,13 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
             super(codec);
         }
 
-        public @Override Class<MapInfo> getContentType() {
+        @Override
+        public Class<MapInfo> getContentType() {
             return MapInfo.class;
         }
 
-        public @Override <U extends MapInfo> Optional<U> findFirstByName(
-                String name, Class<U> clazz) {
+        @Override
+        public <U extends MapInfo> Optional<U> findFirstByName(String name, Class<U> clazz) {
             return all().filter(clazz::isInstance)
                     .map(clazz::cast)
                     .filter(s -> name.equals(s.getName()))
@@ -468,29 +503,33 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
             super(codec);
         }
 
-        public @Override <T extends ResourceInfo> Stream<T> findAllByType(Class<T> clazz) {
+        @Override
+        public <T extends ResourceInfo> Stream<T> findAllByType(Class<T> clazz) {
             return allOf(clazz);
         }
 
-        public @Override <T extends ResourceInfo> Stream<T> findAllByNamespace(
+        @Override
+        public <T extends ResourceInfo> Stream<T> findAllByNamespace(
                 NamespaceInfo ns, Class<T> clazz) {
 
             return allOf(clazz).filter(r -> ns.getId().equals(r.getNamespace().getId()));
         }
 
-        public @Override <T extends ResourceInfo> Optional<T> findByStoreAndName(
+        @Override
+        public <T extends ResourceInfo> Optional<T> findByStoreAndName(
                 StoreInfo store, String name, Class<T> clazz) {
 
             return findAllByStore(store, clazz).filter(r -> name.equals(r.getName())).findFirst();
         }
 
-        public @Override <T extends ResourceInfo> Stream<T> findAllByStore(
-                StoreInfo store, Class<T> clazz) {
+        @Override
+        public <T extends ResourceInfo> Stream<T> findAllByStore(StoreInfo store, Class<T> clazz) {
 
             return allOf(clazz).filter(r -> store.getId().equals(r.getStore().getId()));
         }
 
-        public @Override <T extends ResourceInfo> Optional<T> findByNameAndNamespace(
+        @Override
+        public <T extends ResourceInfo> Optional<T> findByNameAndNamespace(
                 String name, NamespaceInfo namespace, Class<T> clazz) {
 
             return findAllByNamespace(namespace, clazz)
@@ -498,12 +537,13 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
                     .findFirst();
         }
 
-        public @Override Class<ResourceInfo> getContentType() {
+        @Override
+        public Class<ResourceInfo> getContentType() {
             return ResourceInfo.class;
         }
 
-        public @Override <U extends ResourceInfo> Optional<U> findFirstByName(
-                String name, Class<U> clazz) {
+        @Override
+        public <U extends ResourceInfo> Optional<U> findFirstByName(String name, Class<U> clazz) {
             return all().filter(clazz::isInstance)
                     .map(clazz::cast)
                     .filter(s -> name.equals(s.getName()))
@@ -518,11 +558,13 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
             super(codec);
         }
 
-        public @Override Optional<LayerInfo> findOneByName(String name) {
+        @Override
+        public Optional<LayerInfo> findOneByName(String name) {
             return findFirst(LayerInfo.class, li -> name.equals(li.getName()));
         }
 
-        public @Override Stream<LayerInfo> findAllByDefaultStyleOrStyles(StyleInfo style) {
+        @Override
+        public Stream<LayerInfo> findAllByDefaultStyleOrStyles(StyleInfo style) {
             String id = style.getId();
             Predicate<? super LayerInfo> predicate =
                     li ->
@@ -534,7 +576,8 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
             return all().filter(predicate);
         }
 
-        public @Override Stream<LayerInfo> findAllByResource(ResourceInfo resource) {
+        @Override
+        public Stream<LayerInfo> findAllByResource(ResourceInfo resource) {
             return all().filter(l -> l.getResource().getId().equals(resource.getId()));
         }
 
@@ -542,8 +585,8 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
             return LayerInfo.class;
         }
 
-        public @Override <U extends LayerInfo> Optional<U> findFirstByName(
-                String name, Class<U> clazz) {
+        @Override
+        public <U extends LayerInfo> Optional<U> findFirstByName(String name, Class<U> clazz) {
             return all().filter(clazz::isInstance)
                     .map(clazz::cast)
                     .filter(s -> name.equals(s.getName()))
@@ -558,31 +601,35 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
             super(codec);
         }
 
-        public @Override Stream<StyleInfo> findAllByNullWorkspace() {
+        @Override
+        public Stream<StyleInfo> findAllByNullWorkspace() {
             return all().filter(s -> s.getWorkspace() == null);
         }
 
-        public @Override Stream<StyleInfo> findAllByWorkspace(WorkspaceInfo ws) {
+        @Override
+        public Stream<StyleInfo> findAllByWorkspace(WorkspaceInfo ws) {
             return all().filter(s -> s.getWorkspace() != null)
                     .filter(s -> s.getWorkspace().getId().equals(ws.getId()));
         }
 
-        public @Override Optional<StyleInfo> findByNameAndWordkspaceNull(String name) {
+        @Override
+        public Optional<StyleInfo> findByNameAndWordkspaceNull(String name) {
             return findAllByNullWorkspace().filter(s -> s.getName().equals(name)).findFirst();
         }
 
-        public @Override Optional<StyleInfo> findByNameAndWorkspace(
-                String name, WorkspaceInfo workspace) {
+        @Override
+        public Optional<StyleInfo> findByNameAndWorkspace(String name, WorkspaceInfo workspace) {
 
             return findAllByWorkspace(workspace).filter(s -> s.getName().equals(name)).findFirst();
         }
 
-        public @Override Class<StyleInfo> getContentType() {
+        @Override
+        public Class<StyleInfo> getContentType() {
             return StyleInfo.class;
         }
 
-        public @Override <U extends StyleInfo> Optional<U> findFirstByName(
-                String name, Class<U> clazz) {
+        @Override
+        public <U extends StyleInfo> Optional<U> findFirstByName(String name, Class<U> clazz) {
             return all().filter(clazz::isInstance)
                     .map(clazz::cast)
                     .filter(s -> name.equals(s.getName()))

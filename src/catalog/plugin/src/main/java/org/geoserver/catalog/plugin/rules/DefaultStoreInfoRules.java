@@ -24,7 +24,8 @@ public class DefaultStoreInfoRules implements CatalogInfoBusinessRules<StoreInfo
      * default data store when the method was entered, then the created one is set as the default
      * when the method returns.
      */
-    public @Override void beforeAdd(CatalogOpContext<StoreInfo> context) {
+    @Override
+    public void beforeAdd(CatalogOpContext<StoreInfo> context) {
         if (context.getObject() instanceof DataStoreInfo) {
             WorkspaceInfo workspace = context.getObject().getWorkspace();
             Catalog catalog = context.getCatalog();
@@ -36,13 +37,15 @@ public class DefaultStoreInfoRules implements CatalogInfoBusinessRules<StoreInfo
      * If the context object is a {@link DataStoreInfo} and its workspace has no default datastore,
      * sets it as the workspace's default data store.
      */
-    public @Override void afterAdd(CatalogOpContext<StoreInfo> context) {
+    @Override
+    public void afterAdd(CatalogOpContext<StoreInfo> context) {
         if (context.getObject() instanceof DataStoreInfo) {
             setAsDefaultDataStoreInWorkspace(context.as(DataStoreInfo.class));
         }
     }
 
-    public @Override void beforeRemove(CatalogOpContext<StoreInfo> context) {
+    @Override
+    public void beforeRemove(CatalogOpContext<StoreInfo> context) {
         if (context.getObject() instanceof DataStoreInfo) {
             StoreInfo toRemove = context.getObject();
             WorkspaceInfo workspace = toRemove.getWorkspace();
@@ -60,7 +63,8 @@ public class DefaultStoreInfoRules implements CatalogInfoBusinessRules<StoreInfo
      * datastore, establishes a new default datastore for that workspace, if there's some datastore
      * remaining, otherwise sets the workspace's default datastore to {@code null}
      */
-    public @Override void afterRemove(CatalogOpContext<StoreInfo> context) {
+    @Override
+    public void afterRemove(CatalogOpContext<StoreInfo> context) {
         if (context.getObject() instanceof DataStoreInfo) {
             selectNewDefaultDataStoreIfRemoved(context.as(DataStoreInfo.class));
         }

@@ -32,7 +32,8 @@ public class TileLayerEvent extends GeoWebCacheEvent {
         this.layerId = layerId;
     }
 
-    public @Override String toString() {
+    @Override
+    public String toString() {
         return String.format("%s[%s]", getClass().getSimpleName(), getLayerId());
     }
 

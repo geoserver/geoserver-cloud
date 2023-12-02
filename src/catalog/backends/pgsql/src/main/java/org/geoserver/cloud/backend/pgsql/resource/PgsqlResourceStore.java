@@ -312,7 +312,8 @@ public class PgsqlResourceStore implements ResourceStore {
             res.type = Type.RESOURCE;
         }
         return new ByteArrayOutputStream() {
-            public @Override void close() {
+            @Override
+            public void close() {
                 if (!res.exists()) {
                     String path = res.path();
                     save(res);

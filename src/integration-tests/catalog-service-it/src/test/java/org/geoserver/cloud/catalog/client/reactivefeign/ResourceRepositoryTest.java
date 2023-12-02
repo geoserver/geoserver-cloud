@@ -50,19 +50,19 @@ public class ResourceRepositoryTest
         assertEquals(expected.getStore().getId(), actual.getStore().getId());
     }
 
-    public @Override @Test void testFindAll() {
+    @Override public  @Test void testFindAll() {
         super.testFindAll(
                 testData.featureTypeA, testData.coverageA, testData.wmsLayerA, testData.wmtsLayerA);
     }
 
-    public @Override @Test void testFindById() {
+    @Override public  @Test void testFindById() {
         super.testFindById(testData.featureTypeA);
         super.testFindById(testData.coverageA);
         super.testFindById(testData.wmsLayerA);
         super.testFindById(testData.wmtsLayerA);
     }
 
-    public @Override @Test void testFindAllByType() {
+    @Override public  @Test void testFindAllByType() {
         super.testFindAllIncludeFilter(
                 ResourceInfo.class,
                 testData.featureTypeA,
@@ -134,7 +134,7 @@ public class ResourceRepositoryTest
         testFind(() -> repository.findAllByStore(testData.coverageStoreA, FeatureTypeInfo.class));
     }
 
-    public @Override @Test void testQueryFilter() {
+    @Override public  @Test void testQueryFilter() {
         FeatureTypeInfo ft = serverCatalog.getFeatureType(testData.featureTypeA.getId());
         CoverageInfo cv = serverCatalog.getCoverage(testData.coverageA.getId());
         WMSLayerInfo wms =

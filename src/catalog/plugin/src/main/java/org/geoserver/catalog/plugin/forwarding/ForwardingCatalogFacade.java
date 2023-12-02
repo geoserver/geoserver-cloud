@@ -50,337 +50,418 @@ public class ForwardingCatalogFacade implements CatalogFacade {
         return facade;
     }
 
-    public @Override Catalog getCatalog() {
+    @Override
+    public Catalog getCatalog() {
         return facade.getCatalog();
     }
 
-    public @Override void setCatalog(Catalog catalog) {
+    @Override
+    public void setCatalog(Catalog catalog) {
         facade.setCatalog(catalog);
     }
 
-    public @Override StoreInfo add(StoreInfo store) {
+    @Override
+    public StoreInfo add(StoreInfo store) {
         return facade.add(store);
     }
 
-    public @Override void remove(StoreInfo store) {
+    @Override
+    public void remove(StoreInfo store) {
         facade.remove(store);
     }
 
-    public @Override void save(StoreInfo store) {
+    @Override
+    public void save(StoreInfo store) {
         facade.save(store);
     }
 
-    public @Override <T extends StoreInfo> T detach(T store) {
+    @Override
+    public <T extends StoreInfo> T detach(T store) {
         return facade.detach(store);
     }
 
-    public @Override <T extends StoreInfo> T getStore(String id, Class<T> clazz) {
+    @Override
+    public <T extends StoreInfo> T getStore(String id, Class<T> clazz) {
         return facade.getStore(id, clazz);
     }
 
-    public @Override <T extends StoreInfo> T getStoreByName(
+    @Override
+    public <T extends StoreInfo> T getStoreByName(
             WorkspaceInfo workspace, String name, Class<T> clazz) {
         return facade.getStoreByName(workspace, name, clazz);
     }
 
-    public @Override <T extends StoreInfo> List<T> getStoresByWorkspace(
+    @Override
+    public <T extends StoreInfo> List<T> getStoresByWorkspace(
             WorkspaceInfo workspace, Class<T> clazz) {
         return facade.getStoresByWorkspace(workspace, clazz);
     }
 
-    public @Override <T extends StoreInfo> List<T> getStores(Class<T> clazz) {
+    @Override
+    public <T extends StoreInfo> List<T> getStores(Class<T> clazz) {
         return facade.getStores(clazz);
     }
 
-    public @Override DataStoreInfo getDefaultDataStore(WorkspaceInfo workspace) {
+    @Override
+    public DataStoreInfo getDefaultDataStore(WorkspaceInfo workspace) {
         return facade.getDefaultDataStore(workspace);
     }
 
-    public @Override void setDefaultDataStore(WorkspaceInfo workspace, DataStoreInfo store) {
+    @Override
+    public void setDefaultDataStore(WorkspaceInfo workspace, DataStoreInfo store) {
         facade.setDefaultDataStore(workspace, store);
     }
 
-    public @Override ResourceInfo add(ResourceInfo resource) {
+    @Override
+    public ResourceInfo add(ResourceInfo resource) {
         return facade.add(resource);
     }
 
-    public @Override void remove(ResourceInfo resource) {
+    @Override
+    public void remove(ResourceInfo resource) {
         facade.remove(resource);
     }
 
-    public @Override void save(ResourceInfo resource) {
+    @Override
+    public void save(ResourceInfo resource) {
         facade.save(resource);
     }
 
-    public @Override <T extends ResourceInfo> T detach(T resource) {
+    @Override
+    public <T extends ResourceInfo> T detach(T resource) {
         return facade.detach(resource);
     }
 
-    public @Override <T extends ResourceInfo> T getResource(String id, Class<T> clazz) {
+    @Override
+    public <T extends ResourceInfo> T getResource(String id, Class<T> clazz) {
         return facade.getResource(id, clazz);
     }
 
-    public @Override <T extends ResourceInfo> T getResourceByName(
+    @Override
+    public <T extends ResourceInfo> T getResourceByName(
             NamespaceInfo namespace, String name, Class<T> clazz) {
         return facade.getResourceByName(namespace, name, clazz);
     }
 
-    public @Override <T extends ResourceInfo> List<T> getResources(Class<T> clazz) {
+    @Override
+    public <T extends ResourceInfo> List<T> getResources(Class<T> clazz) {
         return facade.getResources(clazz);
     }
 
-    public @Override <T extends ResourceInfo> List<T> getResourcesByNamespace(
+    @Override
+    public <T extends ResourceInfo> List<T> getResourcesByNamespace(
             NamespaceInfo namespace, Class<T> clazz) {
         return facade.getResourcesByNamespace(namespace, clazz);
     }
 
-    public @Override <T extends ResourceInfo> T getResourceByStore(
+    @Override
+    public <T extends ResourceInfo> T getResourceByStore(
             StoreInfo store, String name, Class<T> clazz) {
         return facade.getResourceByStore(store, name, clazz);
     }
 
-    public @Override <T extends ResourceInfo> List<T> getResourcesByStore(
-            StoreInfo store, Class<T> clazz) {
+    @Override
+    public <T extends ResourceInfo> List<T> getResourcesByStore(StoreInfo store, Class<T> clazz) {
         return facade.getResourcesByStore(store, clazz);
     }
 
-    public @Override LayerInfo add(LayerInfo layer) {
+    @Override
+    public LayerInfo add(LayerInfo layer) {
         return facade.add(layer);
     }
 
-    public @Override void remove(LayerInfo layer) {
+    @Override
+    public void remove(LayerInfo layer) {
         facade.remove(layer);
     }
 
-    public @Override void save(LayerInfo layer) {
+    @Override
+    public void save(LayerInfo layer) {
         facade.save(layer);
     }
 
-    public @Override LayerInfo detach(LayerInfo layer) {
+    @Override
+    public LayerInfo detach(LayerInfo layer) {
         return facade.detach(layer);
     }
 
-    public @Override LayerInfo getLayer(String id) {
+    @Override
+    public LayerInfo getLayer(String id) {
         return facade.getLayer(id);
     }
 
-    public @Override LayerInfo getLayerByName(String name) {
+    @Override
+    public LayerInfo getLayerByName(String name) {
         return facade.getLayerByName(name);
     }
 
-    public @Override List<LayerInfo> getLayers(ResourceInfo resource) {
+    @Override
+    public List<LayerInfo> getLayers(ResourceInfo resource) {
         return facade.getLayers(resource);
     }
 
-    public @Override List<LayerInfo> getLayers(StyleInfo style) {
+    @Override
+    public List<LayerInfo> getLayers(StyleInfo style) {
         return facade.getLayers(style);
     }
 
-    public @Override List<LayerInfo> getLayers() {
+    @Override
+    public List<LayerInfo> getLayers() {
         return facade.getLayers();
     }
 
-    public @Override MapInfo add(MapInfo map) {
+    @Override
+    public MapInfo add(MapInfo map) {
         return facade.add(map);
     }
 
-    public @Override void remove(MapInfo map) {
+    @Override
+    public void remove(MapInfo map) {
         facade.remove(map);
     }
 
-    public @Override void save(MapInfo map) {
+    @Override
+    public void save(MapInfo map) {
         facade.save(map);
     }
 
-    public @Override MapInfo detach(MapInfo map) {
+    @Override
+    public MapInfo detach(MapInfo map) {
         return facade.detach(map);
     }
 
-    public @Override MapInfo getMap(String id) {
+    @Override
+    public MapInfo getMap(String id) {
         return facade.getMap(id);
     }
 
-    public @Override MapInfo getMapByName(String name) {
+    @Override
+    public MapInfo getMapByName(String name) {
         return facade.getMapByName(name);
     }
 
-    public @Override List<MapInfo> getMaps() {
+    @Override
+    public List<MapInfo> getMaps() {
         return facade.getMaps();
     }
 
-    public @Override LayerGroupInfo add(LayerGroupInfo layerGroup) {
+    @Override
+    public LayerGroupInfo add(LayerGroupInfo layerGroup) {
         return facade.add(layerGroup);
     }
 
-    public @Override void remove(LayerGroupInfo layerGroup) {
+    @Override
+    public void remove(LayerGroupInfo layerGroup) {
         facade.remove(layerGroup);
     }
 
-    public @Override void save(LayerGroupInfo layerGroup) {
+    @Override
+    public void save(LayerGroupInfo layerGroup) {
         facade.save(layerGroup);
     }
 
-    public @Override LayerGroupInfo detach(LayerGroupInfo layerGroup) {
+    @Override
+    public LayerGroupInfo detach(LayerGroupInfo layerGroup) {
         return facade.detach(layerGroup);
     }
 
-    public @Override LayerGroupInfo getLayerGroup(String id) {
+    @Override
+    public LayerGroupInfo getLayerGroup(String id) {
         return facade.getLayerGroup(id);
     }
 
-    public @Override LayerGroupInfo getLayerGroupByName(String name) {
+    @Override
+    public LayerGroupInfo getLayerGroupByName(String name) {
         return facade.getLayerGroupByName(name);
     }
 
-    public @Override LayerGroupInfo getLayerGroupByName(WorkspaceInfo workspace, String name) {
+    @Override
+    public LayerGroupInfo getLayerGroupByName(WorkspaceInfo workspace, String name) {
         return facade.getLayerGroupByName(workspace, name);
     }
 
-    public @Override List<LayerGroupInfo> getLayerGroups() {
+    @Override
+    public List<LayerGroupInfo> getLayerGroups() {
         return facade.getLayerGroups();
     }
 
-    public @Override List<LayerGroupInfo> getLayerGroupsByWorkspace(WorkspaceInfo workspace) {
+    @Override
+    public List<LayerGroupInfo> getLayerGroupsByWorkspace(WorkspaceInfo workspace) {
         return facade.getLayerGroupsByWorkspace(workspace);
     }
 
-    public @Override NamespaceInfo add(NamespaceInfo namespace) {
+    @Override
+    public NamespaceInfo add(NamespaceInfo namespace) {
         return facade.add(namespace);
     }
 
-    public @Override void remove(NamespaceInfo namespace) {
+    @Override
+    public void remove(NamespaceInfo namespace) {
         facade.remove(namespace);
     }
 
-    public @Override void save(NamespaceInfo namespace) {
+    @Override
+    public void save(NamespaceInfo namespace) {
         facade.save(namespace);
     }
 
-    public @Override NamespaceInfo detach(NamespaceInfo namespace) {
+    @Override
+    public NamespaceInfo detach(NamespaceInfo namespace) {
         return facade.detach(namespace);
     }
 
-    public @Override NamespaceInfo getDefaultNamespace() {
+    @Override
+    public NamespaceInfo getDefaultNamespace() {
         return facade.getDefaultNamespace();
     }
 
-    public @Override void setDefaultNamespace(NamespaceInfo defaultNamespace) {
+    @Override
+    public void setDefaultNamespace(NamespaceInfo defaultNamespace) {
         facade.setDefaultNamespace(defaultNamespace);
     }
 
-    public @Override NamespaceInfo getNamespace(String id) {
+    @Override
+    public NamespaceInfo getNamespace(String id) {
         return facade.getNamespace(id);
     }
 
-    public @Override NamespaceInfo getNamespaceByPrefix(String prefix) {
+    @Override
+    public NamespaceInfo getNamespaceByPrefix(String prefix) {
         return facade.getNamespaceByPrefix(prefix);
     }
 
-    public @Override NamespaceInfo getNamespaceByURI(String uri) {
+    @Override
+    public NamespaceInfo getNamespaceByURI(String uri) {
         return facade.getNamespaceByURI(uri);
     }
 
-    public @Override List<NamespaceInfo> getNamespacesByURI(String uri) {
+    @Override
+    public List<NamespaceInfo> getNamespacesByURI(String uri) {
         return facade.getNamespacesByURI(uri);
     }
 
-    public @Override List<NamespaceInfo> getNamespaces() {
+    @Override
+    public List<NamespaceInfo> getNamespaces() {
         return facade.getNamespaces();
     }
 
-    public @Override WorkspaceInfo add(WorkspaceInfo workspace) {
+    @Override
+    public WorkspaceInfo add(WorkspaceInfo workspace) {
         return facade.add(workspace);
     }
 
-    public @Override void remove(WorkspaceInfo workspace) {
+    @Override
+    public void remove(WorkspaceInfo workspace) {
         facade.remove(workspace);
     }
 
-    public @Override void save(WorkspaceInfo workspace) {
+    @Override
+    public void save(WorkspaceInfo workspace) {
         facade.save(workspace);
     }
 
-    public @Override WorkspaceInfo detach(WorkspaceInfo workspace) {
+    @Override
+    public WorkspaceInfo detach(WorkspaceInfo workspace) {
         return facade.detach(workspace);
     }
 
-    public @Override WorkspaceInfo getDefaultWorkspace() {
+    @Override
+    public WorkspaceInfo getDefaultWorkspace() {
         return facade.getDefaultWorkspace();
     }
 
-    public @Override void setDefaultWorkspace(WorkspaceInfo workspace) {
+    @Override
+    public void setDefaultWorkspace(WorkspaceInfo workspace) {
         facade.setDefaultWorkspace(workspace);
     }
 
-    public @Override WorkspaceInfo getWorkspace(String id) {
+    @Override
+    public WorkspaceInfo getWorkspace(String id) {
         return facade.getWorkspace(id);
     }
 
-    public @Override WorkspaceInfo getWorkspaceByName(String name) {
+    @Override
+    public WorkspaceInfo getWorkspaceByName(String name) {
         return facade.getWorkspaceByName(name);
     }
 
-    public @Override List<WorkspaceInfo> getWorkspaces() {
+    @Override
+    public List<WorkspaceInfo> getWorkspaces() {
         return facade.getWorkspaces();
     }
 
-    public @Override StyleInfo add(StyleInfo style) {
+    @Override
+    public StyleInfo add(StyleInfo style) {
         return facade.add(style);
     }
 
-    public @Override void remove(StyleInfo style) {
+    @Override
+    public void remove(StyleInfo style) {
         facade.remove(style);
     }
 
-    public @Override void save(StyleInfo style) {
+    @Override
+    public void save(StyleInfo style) {
         facade.save(style);
     }
 
-    public @Override StyleInfo detach(StyleInfo style) {
+    @Override
+    public StyleInfo detach(StyleInfo style) {
         return facade.detach(style);
     }
 
-    public @Override StyleInfo getStyle(String id) {
+    @Override
+    public StyleInfo getStyle(String id) {
         return facade.getStyle(id);
     }
 
-    public @Override StyleInfo getStyleByName(String name) {
+    @Override
+    public StyleInfo getStyleByName(String name) {
         return facade.getStyleByName(name);
     }
 
-    public @Override StyleInfo getStyleByName(WorkspaceInfo workspace, String name) {
+    @Override
+    public StyleInfo getStyleByName(WorkspaceInfo workspace, String name) {
         return facade.getStyleByName(workspace, name);
     }
 
-    public @Override List<StyleInfo> getStyles() {
+    @Override
+    public List<StyleInfo> getStyles() {
         return facade.getStyles();
     }
 
-    public @Override List<StyleInfo> getStylesByWorkspace(WorkspaceInfo workspace) {
+    @Override
+    public List<StyleInfo> getStylesByWorkspace(WorkspaceInfo workspace) {
         return facade.getStylesByWorkspace(workspace);
     }
 
-    public @Override void dispose() {
+    @Override
+    public void dispose() {
         facade.dispose();
     }
 
-    public @Override void resolve() {
+    @Override
+    public void resolve() {
         facade.resolve();
     }
 
-    public @Override void syncTo(CatalogFacade other) {
+    @Override
+    public void syncTo(CatalogFacade other) {
         facade.syncTo(other);
     }
 
-    public @Override <T extends CatalogInfo> int count(Class<T> of, Filter filter) {
+    @Override
+    public <T extends CatalogInfo> int count(Class<T> of, Filter filter) {
         return facade.count(of, filter);
     }
 
-    public @Override boolean canSort(Class<? extends CatalogInfo> type, String propertyName) {
+    @Override
+    public boolean canSort(Class<? extends CatalogInfo> type, String propertyName) {
         return facade.canSort(type, propertyName);
     }
 
-    public @Override <T extends CatalogInfo> CloseableIterator<T> list(
+    @Override
+    public <T extends CatalogInfo> CloseableIterator<T> list(
             Class<T> of,
             Filter filter,
             @Nullable Integer offset,
@@ -389,7 +470,8 @@ public class ForwardingCatalogFacade implements CatalogFacade {
         return facade.list(of, filter, offset, count, sortOrder);
     }
 
-    public @Override CatalogCapabilities getCatalogCapabilities() {
+    @Override
+    public CatalogCapabilities getCatalogCapabilities() {
         return facade.getCatalogCapabilities();
     }
 }

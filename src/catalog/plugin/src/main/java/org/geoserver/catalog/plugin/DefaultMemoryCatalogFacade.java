@@ -66,7 +66,8 @@ public class DefaultMemoryCatalogFacade extends RepositoryCatalogFacadeImpl
         setStyleRepository(new StyleInfoLookup());
     }
 
-    public @Override void resolve() {
+    @Override
+    public void resolve() {
         // JD creation checks are done here b/c when xstream depersists
         // some members may be left null
         workspaces = resolve(workspaces, WorkspaceInfoLookup::new);

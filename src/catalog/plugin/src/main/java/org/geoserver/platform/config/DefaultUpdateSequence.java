@@ -36,11 +36,13 @@ public class DefaultUpdateSequence implements UpdateSequence {
                         .orElse(0L));
     }
 
-    public @Override long currValue() {
+    @Override
+    public long currValue() {
         return info().map(GeoServerInfo::getUpdateSequence).orElse(0L);
     }
 
-    public @Override long nextValue() {
+    @Override
+    public long nextValue() {
         lock.lock();
         try {
             GeoServerInfo global = info().orElse(null);

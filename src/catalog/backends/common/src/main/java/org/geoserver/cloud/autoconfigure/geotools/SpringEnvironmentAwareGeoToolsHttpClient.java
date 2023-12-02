@@ -170,7 +170,8 @@ class SpringEnvironmentAwareGeoToolsHttpClient
         return builder;
     }
 
-    public @Override HttpMethodResponse post(
+    @Override
+    public HttpMethodResponse post(
             final URL url, final InputStream postContent, final String postContentType)
             throws IOException {
 
@@ -235,11 +236,13 @@ class SpringEnvironmentAwareGeoToolsHttpClient
         return response;
     }
 
-    public @Override HTTPResponse get(final URL url) throws IOException {
+    @Override
+    public HTTPResponse get(final URL url) throws IOException {
         return this.get(url, null);
     }
 
-    public @Override HTTPResponse get(URL url, Map<String, String> headers) throws IOException {
+    @Override
+    public HTTPResponse get(URL url, Map<String, String> headers) throws IOException {
         HttpGet getMethod = new HttpGet(url.toExternalForm());
         getMethod.setConfig(connectionConfig(url));
 
@@ -271,51 +274,61 @@ class SpringEnvironmentAwareGeoToolsHttpClient
         return response;
     }
 
-    public @Override String getUser() {
+    @Override
+    public String getUser() {
         return user;
     }
 
-    public @Override void setUser(String user) {
+    @Override
+    public void setUser(String user) {
         this.user = user;
         resetCredentials();
     }
 
-    public @Override String getPassword() {
+    @Override
+    public String getPassword() {
         return password;
     }
 
-    public @Override void setPassword(String password) {
+    @Override
+    public void setPassword(String password) {
         this.password = password;
         resetCredentials();
     }
 
-    public @Override int getConnectTimeout() {
+    @Override
+    public int getConnectTimeout() {
         return (int) ofMillis(connectionConfig.getConnectionRequestTimeout()).toSeconds();
     }
 
-    public @Override void setConnectTimeout(int connectTimeout) {
+    @Override
+    public void setConnectTimeout(int connectTimeout) {
         connectionConfig =
                 RequestConfig.copy(connectionConfig)
                         .setConnectionRequestTimeout((int) ofSeconds(connectTimeout).toMillis())
                         .build();
     }
 
-    public @Override int getReadTimeout() {
+    @Override
+    public int getReadTimeout() {
         return (int) ofMillis(connectionConfig.getSocketTimeout()).toSeconds();
     }
 
-    public @Override void setReadTimeout(int readTimeout) {
+    @Override
+    public void setReadTimeout(int readTimeout) {
         connectionConfig =
                 RequestConfig.copy(connectionConfig)
                         .setSocketTimeout((int) ofSeconds(readTimeout).toMillis())
                         .build();
     }
 
-    public @Override int getMaxConnections() {
+    @Override
+    public int getMaxConnections() {
         return connectionManager.getDefaultMaxPerRoute();
     }
 
-    public @Override void setMaxConnections(final int maxConnections) {
+    @Override
+    public void setMaxConnections(final int maxConnections) {
         connectionManager.setDefaultMaxPerRoute(maxConnections);
         connectionManager.setMaxTotal(maxConnections);
     }
@@ -339,7 +352,8 @@ class SpringEnvironmentAwareGeoToolsHttpClient
             }
         }
 
-        public @Override void dispose() {
+        @Override
+        public void dispose() {
             if (responseBodyAsStream != null) {
                 try {
                     responseBodyAsStream.close();
@@ -353,16 +367,19 @@ class SpringEnvironmentAwareGeoToolsHttpClient
             }
         }
 
-        public @Override String getContentType() {
+        @Override
+        public String getContentType() {
             return getResponseHeader("Content-Type");
         }
 
-        public @Override String getResponseHeader(final String headerName) {
+        @Override
+        public String getResponseHeader(final String headerName) {
             Header responseHeader = methodResponse.getFirstHeader(headerName);
             return responseHeader == null ? null : responseHeader.getValue();
         }
 
-        public @Override InputStream getResponseStream() throws IOException {
+        @Override
+        public InputStream getResponseStream() throws IOException {
             if (responseBodyAsStream == null) {
                 responseBodyAsStream = methodResponse.getEntity().getContent();
                 // commons httpclient does not handle gzip encoding automatically, we have to check
@@ -375,21 +392,25 @@ class SpringEnvironmentAwareGeoToolsHttpClient
             return responseBodyAsStream;
         }
 
-        public @Override String getResponseCharset() {
+        @Override
+        public String getResponseCharset() {
             final Header encoding = methodResponse.getEntity().getContentEncoding();
             return encoding == null ? null : encoding.getValue();
         }
     }
 
-    public @Override void setTryGzip(boolean tryGZIP) {
+    @Override
+    public void setTryGzip(boolean tryGZIP) {
         this.tryGzip = tryGZIP;
     }
 
-    public @Override boolean isTryGzip() {
+    @Override
+    public boolean isTryGzip() {
         return tryGzip;
     }
 
-    public @Override void close() {
+    @Override
+    public void close() {
         this.connectionManager.shutdown();
     }
 }

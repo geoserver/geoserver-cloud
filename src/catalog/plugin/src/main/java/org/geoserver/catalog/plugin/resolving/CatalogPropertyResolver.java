@@ -48,7 +48,8 @@ public class CatalogPropertyResolver<T extends Info> implements UnaryOperator<T>
         return new CatalogPropertyResolver<>(catalog);
     }
 
-    public @Override T apply(T i) {
+    @Override
+    public T apply(T i) {
         return resolve(i);
     }
 

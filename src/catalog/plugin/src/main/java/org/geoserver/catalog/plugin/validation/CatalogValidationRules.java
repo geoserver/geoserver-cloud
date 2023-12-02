@@ -255,57 +255,71 @@ public class CatalogValidationRules {
             this.isNew = isNew;
         }
 
-        public @Override void visit(Catalog catalog) {}
+        @Override
+        public void visit(Catalog catalog) {}
 
-        public @Override void visit(WorkspaceInfo workspace) {
+        @Override
+        public void visit(WorkspaceInfo workspace) {
             validator.validate(workspace, isNew);
         }
 
-        public @Override void visit(NamespaceInfo namespace) {
+        @Override
+        public void visit(NamespaceInfo namespace) {
             validator.validate(namespace, isNew);
         }
 
-        public @Override void visit(DataStoreInfo dataStore) {
+        @Override
+        public void visit(DataStoreInfo dataStore) {
             validator.validate(dataStore, isNew);
         }
 
-        public @Override void visit(CoverageStoreInfo coverageStore) {
+        @Override
+        public void visit(CoverageStoreInfo coverageStore) {
             validator.validate(coverageStore, isNew);
         }
 
-        public @Override void visit(WMSStoreInfo wmsStore) {
+        @Override
+        public void visit(WMSStoreInfo wmsStore) {
             validator.validate(wmsStore, isNew);
         }
 
-        public @Override void visit(WMTSStoreInfo wmtsStore) {
+        @Override
+        public void visit(WMTSStoreInfo wmtsStore) {
             validator.validate(wmtsStore, isNew);
         }
 
-        public @Override void visit(FeatureTypeInfo featureType) {
+        @Override
+        public void visit(FeatureTypeInfo featureType) {
             validator.validate(featureType, isNew);
         }
 
-        public @Override void visit(CoverageInfo coverage) {
+        @Override
+        public void visit(CoverageInfo coverage) {
             validator.validate(coverage, isNew);
         }
 
-        public @Override void visit(LayerInfo layer) {
+        @Override
+        public void visit(LayerInfo layer) {
             validator.validate(layer, isNew);
         }
 
-        public @Override void visit(StyleInfo style) {
+        @Override
+        public void visit(StyleInfo style) {
             validator.validate(style, isNew);
         }
 
-        public @Override void visit(LayerGroupInfo layerGroup) {
+        @Override
+        public void visit(LayerGroupInfo layerGroup) {
             validator.validate(layerGroup, isNew);
         }
 
-        public @Override void visit(WMSLayerInfo wmsLayer) {
+        @Override
+        public void visit(WMSLayerInfo wmsLayer) {
             validator.validate(wmsLayer, isNew);
         }
 
-        public @Override void visit(WMTSLayerInfo wmtsLayer) {
+        @Override
+        public void visit(WMTSLayerInfo wmtsLayer) {
             validator.validate(wmtsLayer, isNew);
         }
     }

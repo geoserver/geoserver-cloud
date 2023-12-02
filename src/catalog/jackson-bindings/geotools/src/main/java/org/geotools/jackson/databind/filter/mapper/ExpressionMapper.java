@@ -35,43 +35,51 @@ public abstract class ExpressionMapper {
     private final ExpressionVisitor visitor =
             new ExpressionVisitor() {
 
-                public @Override Subtract visit(
+                @Override
+                public Subtract visit(
                         org.geotools.api.filter.expression.Subtract expression, Object extraData) {
                     return map(expression);
                 }
 
-                public @Override PropertyName visit(
+                @Override
+                public PropertyName visit(
                         org.geotools.api.filter.expression.PropertyName expression,
                         Object extraData) {
                     return map(expression);
                 }
 
-                public @Override Multiply visit(
+                @Override
+                public Multiply visit(
                         org.geotools.api.filter.expression.Multiply expression, Object extraData) {
                     return map(expression);
                 }
 
-                public @Override Literal visit(
+                @Override
+                public Literal visit(
                         org.geotools.api.filter.expression.Literal expression, Object extraData) {
                     return map(expression);
                 }
 
-                public @Override Function visit(
+                @Override
+                public Function visit(
                         org.geotools.api.filter.expression.Function expression, Object extraData) {
                     return map(expression);
                 }
 
-                public @Override Divide visit(
+                @Override
+                public Divide visit(
                         org.geotools.api.filter.expression.Divide expression, Object extraData) {
                     return map(expression);
                 }
 
-                public @Override Add visit(
+                @Override
+                public Add visit(
                         org.geotools.api.filter.expression.Add expression, Object extraData) {
                     return map(expression);
                 }
 
-                public @Override Expression visit(NilExpression expression, Object extraData) {
+                @Override
+                public Expression visit(NilExpression expression, Object extraData) {
                     return map(expression);
                 }
             };
