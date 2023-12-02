@@ -7,8 +7,6 @@ package org.geoserver.cloud.event.config;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
-import lombok.NonNull;
-
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.LoggingInfo;
 
@@ -22,11 +20,11 @@ public class LoggingInfoSet extends ConfigInfoAdded<LoggingInfoSet, LoggingInfo>
         // default constructor, needed for deserialization
     }
 
-    protected LoggingInfoSet(@NonNull Long updateSequence, LoggingInfo object) {
+    protected LoggingInfoSet(long updateSequence, LoggingInfo object) {
         super(updateSequence, object);
     }
 
-    public static LoggingInfoSet createLocal(@NonNull Long updateSequence, LoggingInfo value) {
+    public static LoggingInfoSet createLocal(long updateSequence, LoggingInfo value) {
         return new LoggingInfoSet(updateSequence, value);
     }
 }

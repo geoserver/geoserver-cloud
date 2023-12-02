@@ -179,7 +179,7 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
 
     public @Override <T extends ResourceInfo> T getResourceByStore(
             StoreInfo store, String name, Class<T> clazz) {
-        Optional<T> resource = null;
+        Optional<T> resource;
         NamespaceInfo ns = null;
         if (store.getWorkspace() != null
                 && store.getWorkspace().getName() != null

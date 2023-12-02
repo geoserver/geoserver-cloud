@@ -31,13 +31,13 @@ public abstract class ConfigInfoAdded<SELF, INFO extends Info> extends InfoAdded
         // default constructor, needed for deserialization
     }
 
-    public ConfigInfoAdded(@NonNull Long updateSequence, INFO object) {
+    public ConfigInfoAdded(long updateSequence, INFO object) {
         super(updateSequence, object);
     }
 
     @SuppressWarnings("unchecked")
     public static @NonNull <I extends Info> ConfigInfoAdded<?, I> createLocal(
-            @NonNull Long updateSequence, @NonNull I info) {
+            long updateSequence, @NonNull I info) {
 
         final ConfigInfoType type = ConfigInfoType.valueOf(info);
         switch (type) {

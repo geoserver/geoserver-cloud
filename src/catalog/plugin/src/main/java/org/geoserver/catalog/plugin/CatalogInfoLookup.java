@@ -409,7 +409,9 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
         return findFirst(clazz, i -> name.equals(nameMapper.apply(i).getLocalPart()));
     }
 
-    protected <U extends T> Optional<U> findByName(Name name, @Nullable Class<U> clazz) {
+    protected <U extends T> Optional<U> findByName(Name name, Class<U> clazz) {
+        requireNonNull(name);
+        requireNonNull(clazz);
         for (Class<? extends T> key : nameMultiMap.keySet()) {
             if (clazz.isAssignableFrom(key)) {
                 Map<Name, T> valueMap = getMapForType(nameMultiMap, key);
@@ -477,7 +479,7 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
         }
 
         public @Override <U extends NamespaceInfo> Optional<U> findFirstByName(
-                String name, @Nullable Class<U> clazz) {
+                String name, Class<U> clazz) {
             requireNonNull(name);
             requireNonNull(clazz);
             return findByName(new NameImpl(name), clazz);

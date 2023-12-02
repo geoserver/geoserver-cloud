@@ -19,13 +19,11 @@ public class CatalogInfoRemoved extends InfoRemoved<CatalogInfoRemoved, CatalogI
 
     protected CatalogInfoRemoved() {}
 
-    CatalogInfoRemoved(
-            @NonNull Long updateSequence, @NonNull String id, @NonNull ConfigInfoType type) {
+    CatalogInfoRemoved(long updateSequence, @NonNull String id, @NonNull ConfigInfoType type) {
         super(updateSequence, id, type);
     }
 
-    public static CatalogInfoRemoved createLocal(
-            @NonNull Long updateSequence, @NonNull CatalogInfo info) {
+    public static CatalogInfoRemoved createLocal(long updateSequence, @NonNull CatalogInfo info) {
         String id = resolveId(info);
         ConfigInfoType type = ConfigInfoType.valueOf(info);
         return new CatalogInfoRemoved(updateSequence, id, type);

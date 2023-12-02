@@ -30,13 +30,13 @@ import javax.annotation.Nullable;
 @EqualsAndHashCode(callSuper = true)
 public class DefaultDataStoreSet extends CatalogInfoModified {
 
-    private @NonNull @Getter String workspaceId;
+    private @Getter String workspaceId;
     private @Getter String defaultDataStoreId;
 
     protected DefaultDataStoreSet() {}
 
     DefaultDataStoreSet(
-            @NonNull Long updateSequence,
+            long updateSequence,
             @NonNull String workspaceId,
             String defaultDataStoreId,
             @NonNull Patch patch) {
@@ -54,7 +54,7 @@ public class DefaultDataStoreSet extends CatalogInfoModified {
     }
 
     public static DefaultDataStoreSet createLocal(
-            @NonNull Long updateSequence, @NonNull CatalogPostModifyEvent event) {
+            long updateSequence, @NonNull CatalogPostModifyEvent event) {
 
         PropertyDiff diff =
                 PropertyDiff.valueOf(
@@ -78,9 +78,7 @@ public class DefaultDataStoreSet extends CatalogInfoModified {
     }
 
     public static DefaultDataStoreSet createLocal(
-            @NonNull Long updateSequence,
-            @NonNull WorkspaceInfo workspace,
-            DataStoreInfo newStore) {
+            long updateSequence, @NonNull WorkspaceInfo workspace, DataStoreInfo newStore) {
 
         Patch patch = new Patch();
         patch.add("defaultDataStore", newStore);

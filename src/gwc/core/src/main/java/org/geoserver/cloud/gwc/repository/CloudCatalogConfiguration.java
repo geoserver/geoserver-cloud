@@ -63,7 +63,7 @@ public class CloudCatalogConfiguration extends CatalogConfiguration {
     }
 
     @Override
-    public void addLayer(final TileLayer tl) {
+    public synchronized void addLayer(final TileLayer tl) {
         checkNotNull(tl);
         checkArgument(canSave(tl), "Can't save TileLayer of type ", tl.getClass());
 

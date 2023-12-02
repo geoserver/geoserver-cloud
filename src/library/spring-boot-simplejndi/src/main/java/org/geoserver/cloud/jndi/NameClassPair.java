@@ -24,6 +24,10 @@ class NameClassPair extends javax.naming.NameClassPair {
                 && Objects.equals(getClassName(), p.getClassName());
     }
 
+    public @Override int hashCode() {
+        return Objects.hash(getName(), getClassName());
+    }
+
     public @Override String toString() {
         return super.toString();
     }

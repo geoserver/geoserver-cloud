@@ -196,7 +196,7 @@ public class PropertyDiffTest {
         assertEquals(metadata, copy.getMetadata());
 
         assertNotEquals(ws.getName(), copy.getName());
-        assertNotEquals(ws.isIsolated(), copy.getName());
+        assertNotEquals(ws.isIsolated(), copy.isIsolated());
         assertNotEquals(ws.getDateCreated(), copy.getDateCreated());
         assertNotEquals(ws.getDateModified(), copy.getDateModified());
         assertNotEquals(ws.getMetadata(), copy.getMetadata());

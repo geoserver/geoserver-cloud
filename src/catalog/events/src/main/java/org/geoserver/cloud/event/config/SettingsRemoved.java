@@ -17,21 +17,20 @@ import org.geoserver.config.SettingsInfo;
 @JsonTypeName("SettingsInfoRemoved")
 public class SettingsRemoved extends ConfigInfoRemoved<SettingsRemoved, SettingsInfo> {
 
-    private @Getter @NonNull String workspaceId;
+    private @Getter String workspaceId;
 
     protected SettingsRemoved() {
         // default constructor, needed for deserialization
     }
 
     protected SettingsRemoved(
-            @NonNull Long updateSequence, @NonNull String objectId, @NonNull String workspaceId) {
+            long updateSequence, @NonNull String objectId, @NonNull String workspaceId) {
 
         super(updateSequence, objectId, ConfigInfoType.SettingsInfo);
         this.workspaceId = workspaceId;
     }
 
-    public static SettingsRemoved createLocal(
-            @NonNull Long updateSequence, @NonNull SettingsInfo settings) {
+    public static SettingsRemoved createLocal(long updateSequence, @NonNull SettingsInfo settings) {
 
         final @NonNull String settingsId = settings.getId();
         final @NonNull String workspaceId = settings.getWorkspace().getId();

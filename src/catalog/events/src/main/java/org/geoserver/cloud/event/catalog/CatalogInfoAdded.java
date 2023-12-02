@@ -19,12 +19,12 @@ public class CatalogInfoAdded extends InfoAdded<CatalogInfoAdded, CatalogInfo> {
 
     protected CatalogInfoAdded() {}
 
-    CatalogInfoAdded(@NonNull Long updateSequence, @NonNull CatalogInfo object) {
+    CatalogInfoAdded(long updateSequence, @NonNull CatalogInfo object) {
         super(updateSequence, object);
     }
 
     public static CatalogInfoAdded createLocal(
-            @NonNull Long updateSequence, @NonNull CatalogAddEvent event) {
+            long updateSequence, @NonNull CatalogAddEvent event) {
         return new CatalogInfoAdded(updateSequence, event.getSource());
     }
 }

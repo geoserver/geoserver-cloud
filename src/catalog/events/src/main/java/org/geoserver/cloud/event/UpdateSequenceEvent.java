@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import lombok.Getter;
-import lombok.NonNull;
 
 import org.geoserver.cloud.event.info.InfoEvent;
 import org.geoserver.cloud.event.security.SecurityConfigChanged;
@@ -30,11 +29,11 @@ public class UpdateSequenceEvent<SELF> extends GeoServerEvent<SELF> {
      * sequence}. Being the most frequently updated property, it's readily available for remote
      * listeners even when the {@link #getPatch() patch} is not sent over the wire.
      */
-    private @Getter @NonNull Long updateSequence;
+    private @Getter long updateSequence;
 
     protected UpdateSequenceEvent() {}
 
-    protected UpdateSequenceEvent(@NonNull Long updateSequence) {
+    protected UpdateSequenceEvent(long updateSequence) {
         super(System.currentTimeMillis(), resolveAuthor());
         this.updateSequence = updateSequence;
     }

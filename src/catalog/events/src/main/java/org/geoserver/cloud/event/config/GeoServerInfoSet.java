@@ -7,8 +7,6 @@ package org.geoserver.cloud.event.config;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
-import lombok.NonNull;
-
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerInfo;
 
@@ -22,11 +20,11 @@ public class GeoServerInfoSet extends ConfigInfoAdded<GeoServerInfoSet, GeoServe
         // default constructor, needed for deserialization
     }
 
-    protected GeoServerInfoSet(@NonNull Long updateSequence, GeoServerInfo object) {
+    protected GeoServerInfoSet(long updateSequence, GeoServerInfo object) {
         super(updateSequence, object);
     }
 
-    public static GeoServerInfoSet createLocal(@NonNull Long updateSequence, GeoServerInfo value) {
+    public static GeoServerInfoSet createLocal(long updateSequence, GeoServerInfo value) {
         return new GeoServerInfoSet(updateSequence, value);
     }
 }

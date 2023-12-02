@@ -35,7 +35,7 @@ public class CatalogInfoModified extends InfoModified<CatalogInfoModified, Catal
     protected CatalogInfoModified() {}
 
     protected CatalogInfoModified(
-            @NonNull Long updateSequence,
+            long updateSequence,
             @NonNull String objectId,
             @NonNull ConfigInfoType objectType,
             @NonNull Patch patch) {
@@ -43,7 +43,7 @@ public class CatalogInfoModified extends InfoModified<CatalogInfoModified, Catal
     }
 
     public static CatalogInfoModified createLocal(
-            @NonNull Long updateSequence, @NonNull CatalogInfo info, @NonNull Patch patch) {
+            long updateSequence, @NonNull CatalogInfo info, @NonNull Patch patch) {
 
         if (info instanceof Catalog) {
             if (patch.get("defaultWorkspace").isPresent()) {
@@ -63,7 +63,7 @@ public class CatalogInfoModified extends InfoModified<CatalogInfoModified, Catal
     }
 
     public static CatalogInfoModified createLocal(
-            @NonNull Long updateSequence, @NonNull CatalogPostModifyEvent event) {
+            long updateSequence, @NonNull CatalogPostModifyEvent event) {
 
         final CatalogInfo info = event.getSource();
         final Patch patch =
