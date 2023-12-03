@@ -10,7 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.times;
@@ -102,25 +101,25 @@ class CachingCatalogFacadeTest {
         lg = stub(LayerGroupInfo.class);
         style = stub(StyleInfo.class);
 
-        when(mock.getWorkspace(eq(ws.getId()))).thenReturn(ws);
-        when(mock.getNamespace(eq(ns.getId()))).thenReturn(ns);
+        when(mock.getWorkspace(ws.getId())).thenReturn(ws);
+        when(mock.getNamespace(ns.getId())).thenReturn(ns);
 
-        when(mock.getStore(eq(ds.getId()), eq(StoreInfo.class))).thenReturn(ds);
-        when(mock.getStore(eq(ds.getId()), eq(DataStoreInfo.class))).thenReturn(ds);
+        when(mock.getStore(ds.getId(), StoreInfo.class)).thenReturn(ds);
+        when(mock.getStore(ds.getId(), DataStoreInfo.class)).thenReturn(ds);
 
-        when(mock.getStore(eq(cs.getId()), eq(StoreInfo.class))).thenReturn(cs);
-        when(mock.getStore(eq(cs.getId()), eq(CoverageStoreInfo.class))).thenReturn(cs);
+        when(mock.getStore(cs.getId(), StoreInfo.class)).thenReturn(cs);
+        when(mock.getStore(cs.getId(), CoverageStoreInfo.class)).thenReturn(cs);
 
-        when(mock.getResource(eq(ft.getId()), eq(ResourceInfo.class))).thenReturn(ft);
-        when(mock.getResource(eq(ft.getId()), eq(FeatureTypeInfo.class))).thenReturn(ft);
+        when(mock.getResource(ft.getId(), ResourceInfo.class)).thenReturn(ft);
+        when(mock.getResource(ft.getId(), FeatureTypeInfo.class)).thenReturn(ft);
 
-        when(mock.getResource(eq(c.getId()), eq(ResourceInfo.class))).thenReturn(c);
-        when(mock.getResource(eq(c.getId()), eq(CoverageInfo.class))).thenReturn(c);
+        when(mock.getResource(c.getId(), ResourceInfo.class)).thenReturn(c);
+        when(mock.getResource(c.getId(), CoverageInfo.class)).thenReturn(c);
 
-        when(mock.getLayer(eq(layer.getId()))).thenReturn(layer);
-        when(mock.getLayerGroup(eq(lg.getId()))).thenReturn(lg);
+        when(mock.getLayer(layer.getId())).thenReturn(layer);
+        when(mock.getLayerGroup(lg.getId())).thenReturn(lg);
 
-        when(mock.getStyle(eq(style.getId()))).thenReturn(style);
+        when(mock.getStyle(style.getId())).thenReturn(style);
 
         this.cache = cacheManager.getCache(CachingCatalogFacade.CACHE_NAME);
         this.cache.clear();
@@ -201,17 +200,17 @@ class CachingCatalogFacadeTest {
     @Test
     void testGetStore() {
         assertSameTimesN(ds, id -> caching.getStore(id, DataStoreInfo.class), 3);
-        verify(mock, times(1)).getStore(eq(ds.getId()), eq(DataStoreInfo.class));
+        verify(mock, times(1)).getStore(ds.getId(), DataStoreInfo.class);
 
         assertSameTimesN(ds, id -> caching.getStore(id, StoreInfo.class), 3);
         // assertSame(ds, caching.getStore(ds.getId(), StoreInfo.class));
-        verify(mock, times(0)).getStore(eq(ds.getId()), eq(StoreInfo.class));
+        verify(mock, times(0)).getStore(ds.getId(), StoreInfo.class);
 
         assertSameTimesN(cs, id -> caching.getStore(id, StoreInfo.class), 3);
-        verify(mock, times(1)).getStore(eq(cs.getId()), eq(StoreInfo.class));
+        verify(mock, times(1)).getStore(cs.getId(), StoreInfo.class);
 
         assertSameTimesN(cs, id -> caching.getStore(id, CoverageStoreInfo.class), 3);
-        verify(mock, times(0)).getStore(eq(cs.getId()), eq(CoverageStoreInfo.class));
+        verify(mock, times(0)).getStore(cs.getId(), CoverageStoreInfo.class);
 
         verifyNoMoreInteractions(mock);
 
@@ -283,10 +282,10 @@ class CachingCatalogFacadeTest {
     void testGetResource() {
         CatalogInfo info = ft;
         assertSameTimesN(info, id -> caching.getResource(id, ResourceInfo.class), 3);
-        verify(mock, times(1)).getResource(eq(info.getId()), eq(ResourceInfo.class));
+        verify(mock, times(1)).getResource(info.getId(), ResourceInfo.class);
 
         assertSameTimesN(info, id -> caching.getResource(id, FeatureTypeInfo.class), 3);
-        verify(mock, times(0)).getResource(eq(info.getId()), eq(FeatureTypeInfo.class));
+        verify(mock, times(0)).getResource(info.getId(), FeatureTypeInfo.class);
 
         assertNull(caching.getResource(ft.getId(), CoverageInfo.class));
         assertNull(caching.getResource(c.getId(), FeatureTypeInfo.class));
@@ -332,7 +331,7 @@ class CachingCatalogFacadeTest {
     void testGetLayer() {
         CatalogInfo info = layer;
         assertSameTimesN(info, caching::getLayer, 3);
-        verify(mock, times(1)).getLayer(eq(info.getId()));
+        verify(mock, times(1)).getLayer(info.getId());
     }
 
     @Test
@@ -379,7 +378,7 @@ class CachingCatalogFacadeTest {
     void testGetLayerGroup() {
         CatalogInfo info = lg;
         assertSameTimesN(info, caching::getLayerGroup, 3);
-        verify(mock, times(1)).getLayerGroup(eq(info.getId()));
+        verify(mock, times(1)).getLayerGroup(info.getId());
     }
 
     @Test
@@ -436,13 +435,13 @@ class CachingCatalogFacadeTest {
     void testGetNamespace() {
         CatalogInfo info = ns;
         assertSameTimesN(info, caching::getNamespace, 3);
-        verify(mock, times(1)).getNamespace(eq(info.getId()));
+        verify(mock, times(1)).getNamespace(info.getId());
     }
 
     @Test
     void testGetWorkspace() {
         assertSameTimesN(ws, caching::getWorkspace, 3);
-        verify(mock, times(1)).getWorkspace(eq(ws.getId()));
+        verify(mock, times(1)).getWorkspace(ws.getId());
     }
 
     @Test
@@ -517,7 +516,7 @@ class CachingCatalogFacadeTest {
     void testGetStyle() {
         CatalogInfo info = style;
         assertSameTimesN(info, caching::getStyle, 3);
-        verify(mock, times(1)).getStyle(eq(info.getId()));
+        verify(mock, times(1)).getStyle(info.getId());
     }
 
     @Test

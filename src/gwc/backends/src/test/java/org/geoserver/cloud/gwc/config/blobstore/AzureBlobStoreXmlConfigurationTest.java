@@ -10,7 +10,6 @@ import static org.geoserver.cloud.gwc.event.GeoWebCacheEvent.Type.MODIFIED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -95,7 +94,7 @@ class AzureBlobStoreXmlConfigurationTest {
         remote.addBlobStore(bsi);
         assertTrue(remote.getBlobStore(bsi.getName()).isPresent());
         assertFalse(local.getBlobStore(bsi.getName()).isPresent());
-        verify(remoteListener).handleAddBlobStore(eq(bsi));
+        verify(remoteListener).handleAddBlobStore(bsi);
 
         final Object unknownSource = new Object();
         BlobStoreEvent event = new BlobStoreEvent(unknownSource);
@@ -105,7 +104,7 @@ class AzureBlobStoreXmlConfigurationTest {
         local.onBlobStoreEvent(event);
         BlobStoreInfo actual = local.getBlobStore(bsi.getName()).orElse(null);
         assertEquals(bsi, actual);
-        verify(localListener).handleAddBlobStore(eq(bsi));
+        verify(localListener).handleAddBlobStore(bsi);
     }
 
     @Test
@@ -137,7 +136,7 @@ class AzureBlobStoreXmlConfigurationTest {
         bsi.setServiceURL("http://fake/modified");
 
         remote.modifyBlobStore(bsi);
-        verify(remoteListener).handleModifyBlobStore(eq(bsi));
+        verify(remoteListener).handleModifyBlobStore(bsi);
 
         final Object unknownSource = new Object();
         BlobStoreEvent event = new BlobStoreEvent(unknownSource);
@@ -147,7 +146,7 @@ class AzureBlobStoreXmlConfigurationTest {
         local.onBlobStoreEvent(event);
         BlobStoreInfo actual = local.getBlobStore(bsi.getName()).orElse(null);
         assertEquals(bsi, actual);
-        verify(localListener).handleModifyBlobStore(eq(bsi));
+        verify(localListener).handleModifyBlobStore(bsi);
     }
 
     protected AzureBlobStoreInfo newAzureBlobStoreInfo() {
@@ -213,7 +212,7 @@ class AzureBlobStoreXmlConfigurationTest {
         remote.removeBlobStore(bsi.getName());
         assertFalse(remote.getBlobStore(bsi.getName()).isPresent());
         assertTrue(local.getBlobStore(bsi.getName()).isPresent());
-        verify(remoteListener).handleRemoveBlobStore(eq(bsi));
+        verify(remoteListener).handleRemoveBlobStore(bsi);
 
         final Object unknownSource = new Object();
         BlobStoreEvent event = new BlobStoreEvent(unknownSource);
@@ -222,6 +221,6 @@ class AzureBlobStoreXmlConfigurationTest {
 
         local.onBlobStoreEvent(event);
         assertFalse(local.getBlobStore(bsi.getName()).isPresent());
-        verify(localListener).handleRemoveBlobStore(eq(bsi));
+        verify(localListener).handleRemoveBlobStore(bsi);
     }
 }

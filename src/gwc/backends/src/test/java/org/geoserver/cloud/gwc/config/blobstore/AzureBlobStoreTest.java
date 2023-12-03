@@ -5,7 +5,6 @@
 package org.geoserver.cloud.gwc.config.blobstore;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -100,7 +99,7 @@ class AzureBlobStoreTest {
 
         TileLayer tileLayer = mock(TileLayer.class);
         when(tileLayer.getId()).thenReturn(layerName);
-        when(layers.getTileLayer(eq(layerName))).thenReturn(tileLayer);
+        when(layers.getTileLayer(layerName)).thenReturn(tileLayer);
 
         TileObject tile =
                 TileObject.createCompleteTileObject(

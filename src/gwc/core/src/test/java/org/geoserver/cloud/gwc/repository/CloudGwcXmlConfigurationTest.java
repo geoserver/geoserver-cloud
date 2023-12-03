@@ -13,7 +13,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -273,7 +272,7 @@ class CloudGwcXmlConfigurationTest {
         remote.addBlobStore(bsi);
         assertTrue(remote.getBlobStore(bsi.getName()).isPresent());
         assertFalse(local.getBlobStore(bsi.getName()).isPresent());
-        verify(remoteListener).handleAddBlobStore(eq(bsi));
+        verify(remoteListener).handleAddBlobStore(bsi);
 
         final Object unknownSource = new Object();
         BlobStoreEvent event = new BlobStoreEvent(unknownSource);
@@ -283,7 +282,7 @@ class CloudGwcXmlConfigurationTest {
         local.onBlobStoreEvent(event);
         BlobStoreInfo actual = local.getBlobStore(bsi.getName()).orElse(null);
         assertEquals(bsi, actual);
-        verify(localListener).handleAddBlobStore(eq(bsi));
+        verify(localListener).handleAddBlobStore(bsi);
     }
 
     @Test
@@ -308,7 +307,7 @@ class CloudGwcXmlConfigurationTest {
         bsi.setBaseDirectory("/tmp/newdir");
 
         remote.modifyBlobStore(bsi);
-        verify(remoteListener).handleModifyBlobStore(eq(bsi));
+        verify(remoteListener).handleModifyBlobStore(bsi);
 
         final Object unknownSource = new Object();
         BlobStoreEvent event = new BlobStoreEvent(unknownSource);
@@ -318,7 +317,7 @@ class CloudGwcXmlConfigurationTest {
         local.onBlobStoreEvent(event);
         BlobStoreInfo actual = local.getBlobStore(bsi.getName()).orElse(null);
         assertEquals(bsi, actual);
-        verify(localListener).handleModifyBlobStore(eq(bsi));
+        verify(localListener).handleModifyBlobStore(bsi);
     }
 
     @Test
@@ -373,7 +372,7 @@ class CloudGwcXmlConfigurationTest {
         remote.removeBlobStore(bsi.getName());
         assertFalse(remote.getBlobStore(bsi.getName()).isPresent());
         assertTrue(local.getBlobStore(bsi.getName()).isPresent());
-        verify(remoteListener).handleRemoveBlobStore(eq(bsi));
+        verify(remoteListener).handleRemoveBlobStore(bsi);
 
         final Object unknownSource = new Object();
         BlobStoreEvent event = new BlobStoreEvent(unknownSource);
@@ -382,7 +381,7 @@ class CloudGwcXmlConfigurationTest {
 
         local.onBlobStoreEvent(event);
         assertFalse(local.getBlobStore(bsi.getName()).isPresent());
-        verify(localListener).handleRemoveBlobStore(eq(bsi));
+        verify(localListener).handleRemoveBlobStore(bsi);
     }
 
     private void expect(GridsetEvent expected) {
