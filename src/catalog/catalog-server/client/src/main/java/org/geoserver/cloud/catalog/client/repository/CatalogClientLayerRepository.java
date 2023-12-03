@@ -20,15 +20,18 @@ public class CatalogClientLayerRepository extends CatalogClientRepository<LayerI
 
     private final @Getter Class<LayerInfo> contentType = LayerInfo.class;
 
-    @Override public  Stream<LayerInfo> findAllByDefaultStyleOrStyles(StyleInfo style) {
+    @Override
+    public Stream<LayerInfo> findAllByDefaultStyleOrStyles(StyleInfo style) {
         return toStream(client().findLayersWithStyle(style.getId()));
     }
 
-    @Override public  Stream<LayerInfo> findAllByResource(ResourceInfo resource) {
+    @Override
+    public Stream<LayerInfo> findAllByResource(ResourceInfo resource) {
         return toStream(client().findLayersByResourceId(resource.getId()));
     }
 
-    @Override public  Optional<LayerInfo> findOneByName(@NonNull String name) {
+    @Override
+    public Optional<LayerInfo> findOneByName(@NonNull String name) {
         return findFirstByName(name, LayerInfo.class);
     }
 }

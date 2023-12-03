@@ -52,19 +52,22 @@ class CatalogClientBackendAutoConfigurationTest {
                                     WebClientAutoConfiguration.class,
                                     CacheAutoConfiguration.class));
 
-    @Test void testCatalog() {
+    @Test
+    void testCatalog() {
         contextRunner.run(
                 context ->
                         context.isTypeMatch(
                                 "rawCatalog", org.geoserver.catalog.plugin.CatalogPlugin.class));
     }
 
-    @Test void testCatalogFacade() {
+    @Test
+    void testCatalogFacade() {
         contextRunner.run(
                 context -> context.isTypeMatch("catalogFacade", CatalogClientCatalogFacade.class));
     }
 
-    @Test void testCatalogFacadeIsRawCatalogFacade() {
+    @Test
+    void testCatalogFacadeIsRawCatalogFacade() {
         contextRunner.run(
                 context -> {
                     CatalogPlugin catalog = context.getBean("rawCatalog", CatalogPlugin.class);
@@ -74,13 +77,15 @@ class CatalogClientBackendAutoConfigurationTest {
                 });
     }
 
-    @Test void testResourceStore() {
+    @Test
+    void testResourceStore() {
         contextRunner.run(
                 context ->
                         context.isTypeMatch("resourceStoreImpl", CatalogClientResourceStore.class));
     }
 
-    @Test void testResourceLoadersResourceStore() {
+    @Test
+    void testResourceLoadersResourceStore() {
         contextRunner.run(
                 context -> {
                     GeoServerResourceLoader resourceLoader =
@@ -91,13 +96,15 @@ class CatalogClientBackendAutoConfigurationTest {
                 });
     }
 
-    @Test void testGeoserverFacade() {
+    @Test
+    void testGeoserverFacade() {
         contextRunner.run(
                 context ->
                         context.isTypeMatch("geoserverFacade", CatalogClientGeoServerFacade.class));
     }
 
-    @Test void testGeoserverLoader() {
+    @Test
+    void testGeoserverLoader() {
         contextRunner.run(
                 context ->
                         context.isTypeMatch(

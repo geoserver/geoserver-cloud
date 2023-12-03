@@ -20,12 +20,14 @@ public class CatalogClientNamespaceRepository extends CatalogClientRepository<Na
 
     private final @Getter Class<NamespaceInfo> contentType = NamespaceInfo.class;
 
-    @Override public  void setDefaultNamespace(@NonNull NamespaceInfo namespace) {
+    @Override
+    public void setDefaultNamespace(@NonNull NamespaceInfo namespace) {
         Objects.requireNonNull(namespace.getId(), "provided null namespace id");
         blockAndReturn(client().setDefaultNamespace(namespace.getId()));
     }
 
-    @Override public  <U extends NamespaceInfo> Optional<U> findFirstByName(
+    @Override
+    public <U extends NamespaceInfo> Optional<U> findFirstByName(
             @NonNull String name, @NonNull Class<U> infoType) {
         // geoserver has this tendency to loose method contracts...
         if (name.indexOf(':') > -1) {
@@ -34,19 +36,23 @@ public class CatalogClientNamespaceRepository extends CatalogClientRepository<Na
         return super.findFirstByName(name, infoType);
     }
 
-    @Override public  void unsetDefaultNamespace() {
+    @Override
+    public void unsetDefaultNamespace() {
         block(client().unsetDefaultNamespace());
     }
 
-    @Override public  @Nullable Optional<NamespaceInfo> getDefaultNamespace() {
+    @Override
+    public @Nullable Optional<NamespaceInfo> getDefaultNamespace() {
         return blockAndReturn(client().getDefaultNamespace());
     }
 
-    @Override public  @Nullable Optional<NamespaceInfo> findOneByURI(@NonNull String uri) {
+    @Override
+    public @Nullable Optional<NamespaceInfo> findOneByURI(@NonNull String uri) {
         return blockAndReturn(client().findOneNamespaceByURI(uri));
     }
 
-    @Override public  Stream<NamespaceInfo> findAllByURI(@NonNull String uri) {
+    @Override
+    public Stream<NamespaceInfo> findAllByURI(@NonNull String uri) {
         return toStream(client().findAllNamespacesByURI(uri));
     }
 }

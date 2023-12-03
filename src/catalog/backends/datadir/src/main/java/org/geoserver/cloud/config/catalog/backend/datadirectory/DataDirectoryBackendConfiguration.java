@@ -17,18 +17,18 @@ import org.geoserver.catalog.plugin.locking.LockingCatalog;
 import org.geoserver.catalog.plugin.locking.LockingGeoServer;
 import org.geoserver.cloud.config.catalog.backend.core.CatalogProperties;
 import org.geoserver.cloud.config.catalog.backend.core.GeoServerBackendConfigurer;
+import org.geoserver.config.GeoServerDataDirectory;
 import org.geoserver.config.GeoServerLoader;
 import org.geoserver.config.plugin.RepositoryGeoServerFacade;
+import org.geoserver.config.util.XStreamPersisterFactory;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.ModuleStatusImpl;
 import org.geoserver.platform.config.UpdateSequence;
 import org.geoserver.platform.resource.LockProvider;
 import org.geoserver.platform.resource.ResourceStore;
 import org.geoserver.security.GeoServerSecurityManager;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
@@ -39,16 +39,17 @@ import java.util.Objects;
 
 /** */
 @Configuration(proxyBeanMethods = true)
-@EnableConfigurationProperties(DataDirectoryProperties.class)
 @Slf4j(topic = "org.geoserver.cloud.config.datadirectory")
 public class DataDirectoryBackendConfiguration extends GeoServerBackendConfigurer {
 
-    private @Autowired CatalogProperties properties;
+    private final CatalogProperties catalogProperties;
 
-    private DataDirectoryProperties dataDirectoryConfig;
+    private final DataDirectoryProperties dataDirectoryConfig;
 
-    public DataDirectoryBackendConfiguration(DataDirectoryProperties dataDirectoryConfig) {
+    public DataDirectoryBackendConfiguration(
+            DataDirectoryProperties dataDirectoryConfig, CatalogProperties catalogProperties) {
         this.dataDirectoryConfig = dataDirectoryConfig;
+        this.catalogProperties = catalogProperties;
         log.info(
                 "Loading geoserver config backend with {}",
                 DataDirectoryBackendConfiguration.class.getSimpleName());
@@ -65,7 +66,7 @@ public class DataDirectoryBackendConfiguration extends GeoServerBackendConfigure
 
     @Bean
     CatalogPlugin rawCatalog() {
-        boolean isolated = properties.isIsolated();
+        boolean isolated = catalogProperties.isIsolated();
         GeoServerConfigurationLock configurationLock = configurationLock();
         ExtendedCatalogFacade catalogFacade = catalogFacade();
         GeoServerResourceLoader resourceLoader = resourceLoader();
@@ -84,7 +85,10 @@ public class DataDirectoryBackendConfiguration extends GeoServerBackendConfigure
     }
 
     protected @Bean @Override UpdateSequence updateSequence() {
-        return new DataDirectoryUpdateSequence();
+        ResourceStore resourceStore = resourceStoreImpl();
+        GeoServerDataDirectory dd = new GeoServerDataDirectory(resourceLoader());
+        XStreamPersisterFactory xpf = new XStreamPersisterFactory();
+        return new DataDirectoryUpdateSequence(resourceStore, dd, xpf);
     }
 
     protected @Bean @Override GeoServerConfigurationLock configurationLock() {

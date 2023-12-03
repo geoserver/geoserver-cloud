@@ -22,6 +22,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.Primary;
+import org.springframework.web.context.WebApplicationContext;
+
+import java.util.Optional;
 
 import javax.annotation.PostConstruct;
 
@@ -68,7 +71,8 @@ public class GeoServerIntegrationConfiguration {
 
     @Bean
     ResourceStoreTileLayerCatalog resourceStoreTileLayerCatalog(
-            @Qualifier("resourceStoreImpl") ResourceStore resourceStore) {
-        return new ResourceStoreTileLayerCatalog(resourceStore);
+            @Qualifier("resourceStoreImpl") ResourceStore resourceStore,
+            Optional<WebApplicationContext> webappCtx) {
+        return new ResourceStoreTileLayerCatalog(resourceStore, webappCtx);
     }
 }

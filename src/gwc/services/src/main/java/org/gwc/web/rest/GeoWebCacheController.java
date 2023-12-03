@@ -4,10 +4,12 @@
  */
 package org.gwc.web.rest;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
 import org.geoserver.gwc.dispatch.GeoServerGWCDispatcherController;
 import org.geowebcache.GeoWebCacheDispatcher;
 import org.geowebcache.controller.GeoWebCacheDispatcherController;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,9 +26,10 @@ import javax.servlet.http.HttpServletResponse;
  */
 @Controller
 @RequestMapping("/gwc")
+@RequiredArgsConstructor
 public class GeoWebCacheController {
 
-    private @Autowired GeoWebCacheDispatcher gwcDispatcher;
+    private final @NonNull GeoWebCacheDispatcher gwcDispatcher;
 
     @GetMapping(
             path = {

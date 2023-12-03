@@ -42,7 +42,8 @@ class LayerControllerTest extends AbstractReactiveCatalogControllerTest<LayerInf
         catalog.remove(testData.layerFeatureTypeA);
     }
 
-    @Override public  @Test void testFindAll() {
+    @Override
+    public @Test void testFindAll() {
         assertTrue(super.findAll().isEmpty());
         LayerInfo layer1 = testData.layerFeatureTypeA;
         LayerInfo layer2 =
@@ -59,7 +60,8 @@ class LayerControllerTest extends AbstractReactiveCatalogControllerTest<LayerInf
         super.testFindAll(layer1, layer2);
     }
 
-    @Override public  @Test void testFindAllByType() {
+    @Override
+    public @Test void testFindAllByType() {
         assertTrue(super.findAll().isEmpty());
         LayerInfo layer1 = testData.layerFeatureTypeA;
         LayerInfo layer2 =
@@ -76,12 +78,14 @@ class LayerControllerTest extends AbstractReactiveCatalogControllerTest<LayerInf
         super.testFindAll(LayerInfo.class, layer1, layer2);
     }
 
-    @Override public  @Test void testFindById() {
+    @Override
+    public @Test void testFindById() {
         catalog.add(testData.layerFeatureTypeA);
         super.testFindById(testData.layerFeatureTypeA);
     }
 
-    @Override public  @Test void testQueryFilter() {
+    @Override
+    public @Test void testQueryFilter() {
         catalog.add(testData.layerFeatureTypeA);
         StyleInfo style1 = testData.style1;
         StyleInfo style2 = testData.style2;
@@ -114,7 +118,8 @@ class LayerControllerTest extends AbstractReactiveCatalogControllerTest<LayerInf
         super.testQueryFilter(cql, layer1, layer2);
     }
 
-    @Test void testLayerCRUD() {
+    @Test
+    void testLayerCRUD() {
         LayerInfo layer = testData.layerFeatureTypeA;
         crudTest(
                 layer,
@@ -127,7 +132,8 @@ class LayerControllerTest extends AbstractReactiveCatalogControllerTest<LayerInf
                 });
     }
 
-    @Test void testUpdateStyles() {
+    @Test
+    void testUpdateStyles() {
         LayerInfo layer = testData.layerFeatureTypeA;
         catalog.add(layer);
 
@@ -145,7 +151,8 @@ class LayerControllerTest extends AbstractReactiveCatalogControllerTest<LayerInf
                 });
     }
 
-    @Test void testFindLayersByResource() {
+    @Test
+    void testFindLayersByResource() {
         LayerInfo layer = testData.layerFeatureTypeA;
         catalog.add(layer);
 
@@ -159,13 +166,15 @@ class LayerControllerTest extends AbstractReactiveCatalogControllerTest<LayerInf
                 .consumeWith(res -> assertEquals(1, res.getResponseBody().size()));
     }
 
-    @Test void testFindLayersByResource_NonExistentResourceId() {
+    @Test
+    void testFindLayersByResource_NonExistentResourceId() {
         client().getRelative("/layers/resource/{id}", "bad-resource-id")
                 .expectStatus()
                 .isNoContent();
     }
 
-    @Test void testFindLayersWithStyle() {
+    @Test
+    void testFindLayersWithStyle() {
         StyleInfo style1 = testData.style1; // on layer1 and layer2
         StyleInfo style2 = testData.style2; // layer2's default style
         StyleInfo style3 = testData.createStyle("style3"); // on layer2

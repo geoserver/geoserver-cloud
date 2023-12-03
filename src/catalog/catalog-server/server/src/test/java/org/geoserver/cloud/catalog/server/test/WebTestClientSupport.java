@@ -41,7 +41,8 @@ public class WebTestClientSupport implements Supplier<WebTestClient> {
         // .build();
     }
 
-    @Override public  WebTestClient get() {
+    @Override
+    public WebTestClient get() {
         return client;
     }
 

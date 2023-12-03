@@ -4,10 +4,11 @@
  */
 package org.geoserver.cloud.wms.controller.kml;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
 import org.geoserver.kml.KMLReflector;
 import org.geoserver.wms.icons.IconService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -26,7 +27,9 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @since 1.0
  */
-public @Controller class KMLIconsController {
+@Controller
+@RequiredArgsConstructor
+public class KMLIconsController {
     // <bean id="kmlURLMapping" class="org.geoserver.ows.OWSHandlerMapping">
     // <constructor-arg ref="catalog" />
     // <property name="alwaysUseFullPath" value="true" />
@@ -38,8 +41,7 @@ public @Controller class KMLIconsController {
     // </props>
     // </property>
     // </bean>
-
-    private @Autowired @Qualifier("kmlIconService") IconService kmlIconService;
+    private final @NonNull IconService kmlIconService;
 
     @GetMapping(path = "/kml/icon/**")
     public void getKmlIcon(HttpServletRequest request, HttpServletResponse response)

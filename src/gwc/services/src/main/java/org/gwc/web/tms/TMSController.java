@@ -4,8 +4,10 @@
  */
 package org.gwc.web.tms;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
 import org.geoserver.ows.Dispatcher;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,9 +22,10 @@ import javax.servlet.http.HttpServletResponse;
             "/{virtualservice}/gwc/service/tms",
             "/{virtualservice}/{layer}/gwc/service/tms"
         })
+@RequiredArgsConstructor
 public class TMSController {
 
-    private @Autowired Dispatcher geoserverDispatcher;
+    private final @NonNull Dispatcher geoserverDispatcher;
 
     @GetMapping(path = "/**")
     public void serviceRequest(HttpServletRequest request, HttpServletResponse response)

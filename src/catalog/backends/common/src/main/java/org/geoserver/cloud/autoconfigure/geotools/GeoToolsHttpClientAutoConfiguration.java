@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.geoserver.cloud.autoconfigure.geotools.GeoToolsHttpClientProxyConfigurationProperties.ProxyHostConfig;
 import org.geotools.http.HTTPClientFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -77,7 +76,7 @@ public class GeoToolsHttpClientAutoConfiguration {
 
     @Bean
     SpringEnvironmentAwareGeoToolsHttpClientFactory springEnvironmentAwareGeoToolsHttpClientFactory(
-            @Autowired GeoToolsHttpClientProxyConfigurationProperties proxyConfig) {
+            GeoToolsHttpClientProxyConfigurationProperties proxyConfig) {
 
         log.info("Using spring environment aware GeoTools HTTPClientFactory");
         log(proxyConfig.getHttp(), "HTTP");

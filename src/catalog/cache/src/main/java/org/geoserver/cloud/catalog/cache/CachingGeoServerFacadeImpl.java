@@ -15,7 +15,6 @@ import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
 import org.geoserver.config.plugin.forwarding.ForwardingGeoServerFacade;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.Cache.ValueWrapper;
 import org.springframework.cache.CacheManager;
@@ -110,11 +109,8 @@ class CachingGeoServerFacadeImpl extends ForwardingGeoServerFacade
         return service;
     }
 
-    public CachingGeoServerFacadeImpl(GeoServerFacade facade) {
+    public CachingGeoServerFacadeImpl(GeoServerFacade facade, CacheManager cacheManager) {
         super(facade);
-    }
-
-    public @Autowired void setCacheManager(CacheManager cacheManager) {
         cache = cacheManager.getCache(CACHE_NAME);
     }
 

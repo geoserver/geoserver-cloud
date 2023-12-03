@@ -71,7 +71,8 @@ public class ReactiveCatalogImpl implements ReactiveCatalog {
         return Mono.fromRunnable(runnable).subscribeOn(catalogScheduler).thenReturn(returnValue);
     }
 
-    @Override public  <C extends CatalogInfo> Mono<C> create(@NonNull Mono<C> info) {
+    @Override
+    public <C extends CatalogInfo> Mono<C> create(@NonNull Mono<C> info) {
         return info.subscribeOn(catalogScheduler).map(blockingCatalog::add);
     }
 
@@ -79,32 +80,36 @@ public class ReactiveCatalogImpl implements ReactiveCatalog {
         return patch.subscribeOn(catalogScheduler).map(p -> blockingCatalog.update(info, p));
     }
 
-    @Override public  <C extends CatalogInfo> Mono<C> delete(@NonNull C info) {
+    @Override
+    public <C extends CatalogInfo> Mono<C> delete(@NonNull C info) {
         return Mono.just(info).subscribeOn(catalogScheduler).map(blockingCatalog::delete);
     }
 
-    @Override public  <C extends CatalogInfo> Flux<C> getAll(@NonNull Class<C> type) {
+    @Override
+    public <C extends CatalogInfo> Flux<C> getAll(@NonNull Class<C> type) {
         return query(Query.all(type));
     }
 
-    @Override public  <C extends CatalogInfo> Mono<C> getById(
-            @NonNull String id, @NonNull Class<C> type) {
+    @Override
+    public <C extends CatalogInfo> Mono<C> getById(@NonNull String id, @NonNull Class<C> type) {
 
         return async(() -> blockingCatalog.get(id, type));
     }
 
-    @Override public  <C extends CatalogInfo> Mono<C> getFirstByName(
+    @Override
+    public <C extends CatalogInfo> Mono<C> getFirstByName(
             @NonNull String name, @NonNull Class<C> type) {
 
         return async(() -> blockingCatalog.getByName(name, type));
     }
 
-    @Override public  Mono<Boolean> canSortBy(
-            Class<? extends CatalogInfo> type, String propertyName) {
+    @Override
+    public Mono<Boolean> canSortBy(Class<? extends CatalogInfo> type, String propertyName) {
         return async(() -> blockingCatalog.getFacade().canSort(type, propertyName));
     }
 
-    @Override public  <C extends CatalogInfo> Flux<C> query(@NonNull Query<C> query) {
+    @Override
+    public <C extends CatalogInfo> Flux<C> query(@NonNull Query<C> query) {
         log.debug(
                 "Processing request query of {} with filter {}",
                 query.getType().getSimpleName(),
@@ -112,13 +117,15 @@ public class ReactiveCatalogImpl implements ReactiveCatalog {
         return Flux.fromStream(() -> blockingCatalog.query(query)).subscribeOn(catalogScheduler);
     }
 
-    @Override public  <C extends CatalogInfo> Mono<Long> count(
+    @Override
+    public <C extends CatalogInfo> Mono<Long> count(
             @NonNull Class<C> type, @NonNull Filter filter) {
 
         return async(() -> (long) blockingCatalog.count(type, filter));
     }
 
-    @Override public  Flux<FunctionName> getSupportedFunctionNames() {
+    @Override
+    public Flux<FunctionName> getSupportedFunctionNames() {
         return Flux.fromStream(this::supportedFunctionNames).subscribeOn(catalogScheduler);
     }
 
@@ -177,89 +184,107 @@ public class ReactiveCatalogImpl implements ReactiveCatalog {
                 .anyMatch(c -> c.isAssignableFrom(type));
     }
 
-    @Override public  Mono<WorkspaceInfo> setDefaultWorkspace(@NonNull WorkspaceInfo workspace) {
+    @Override
+    public Mono<WorkspaceInfo> setDefaultWorkspace(@NonNull WorkspaceInfo workspace) {
         return async(() -> blockingCatalog.setDefaultWorkspace(workspace), workspace);
     }
 
-    @Override public  Mono<WorkspaceInfo> unsetDefaultWorkspace() {
+    @Override
+    public Mono<WorkspaceInfo> unsetDefaultWorkspace() {
         return getDefaultWorkspace().doOnSuccess(ns -> blockingCatalog.setDefaultWorkspace(null));
     }
 
-    @Override public  Mono<NamespaceInfo> unsetDefaultNamespace() {
+    @Override
+    public Mono<NamespaceInfo> unsetDefaultNamespace() {
         return getDefaultNamespace().doOnSuccess(ns -> blockingCatalog.setDefaultNamespace(null));
     }
 
-    @Override public  Mono<DataStoreInfo> unsetDefaultDataStore(@NonNull WorkspaceInfo workspace) {
+    @Override
+    public Mono<DataStoreInfo> unsetDefaultDataStore(@NonNull WorkspaceInfo workspace) {
         return getDefaultDataStore(workspace)
                 .doOnSuccess(ds -> blockingCatalog.setDefaultDataStore(workspace, null));
     }
 
-    @Override public  Mono<WorkspaceInfo> getDefaultWorkspace() {
+    @Override
+    public Mono<WorkspaceInfo> getDefaultWorkspace() {
         return async(blockingCatalog::getDefaultWorkspace);
     }
 
-    @Override public  Mono<NamespaceInfo> setDefaultNamespace(@NonNull NamespaceInfo namespace) {
+    @Override
+    public Mono<NamespaceInfo> setDefaultNamespace(@NonNull NamespaceInfo namespace) {
         return async(() -> blockingCatalog.setDefaultNamespace(namespace), namespace);
     }
 
-    @Override public  Mono<NamespaceInfo> getDefaultNamespace() {
+    @Override
+    public Mono<NamespaceInfo> getDefaultNamespace() {
         return async(blockingCatalog::getDefaultNamespace);
     }
 
-    @Override public  Mono<NamespaceInfo> getOneNamespaceByURI(@NonNull String uri) {
+    @Override
+    public Mono<NamespaceInfo> getOneNamespaceByURI(@NonNull String uri) {
         return Mono.just(uri).subscribeOn(catalogScheduler).map(blockingCatalog::getNamespaceByURI);
     }
 
-    @Override public  Flux<NamespaceInfo> getAllNamespacesByURI(@NonNull String uri) {
+    @Override
+    public Flux<NamespaceInfo> getAllNamespacesByURI(@NonNull String uri) {
         return Flux.just(uri)
                 .subscribeOn(catalogScheduler)
                 .map(blockingCatalog::getNamespacesByURI)
                 .flatMap(Flux::fromStream);
     }
 
-    @Override public  Flux<DataStoreInfo> getDefaultDataStores() {
+    @Override
+    public Flux<DataStoreInfo> getDefaultDataStores() {
         return Flux.fromStream(blockingCatalog::getDefaultDataStores).subscribeOn(catalogScheduler);
     }
 
-    @Override public  Mono<DataStoreInfo> setDefaultDataStore(
+    @Override
+    public Mono<DataStoreInfo> setDefaultDataStore(
             @NonNull WorkspaceInfo workspace, @NonNull DataStoreInfo dataStore) {
         return async(() -> blockingCatalog.setDefaultDataStore(workspace, dataStore), dataStore);
     }
 
-    @Override public  Mono<DataStoreInfo> getDefaultDataStore(@NonNull WorkspaceInfo workspace) {
+    @Override
+    public Mono<DataStoreInfo> getDefaultDataStore(@NonNull WorkspaceInfo workspace) {
         return async(() -> blockingCatalog.getDefaultDataStore(workspace));
     }
 
-    @Override public  <S extends StoreInfo> Flux<S> getStoresByWorkspace(
+    @Override
+    public <S extends StoreInfo> Flux<S> getStoresByWorkspace(
             @NonNull WorkspaceInfo workspace, @NonNull Class<S> type) {
 
         return Flux.fromStream(() -> blockingCatalog.getStoresByWorkspace(workspace, type).stream())
                 .subscribeOn(catalogScheduler);
     }
 
-    @Override public  <S extends StoreInfo> Mono<S> getStoreByName(
+    @Override
+    public <S extends StoreInfo> Mono<S> getStoreByName(
             @NonNull WorkspaceInfo workspace, @NonNull String name, Class<S> type) {
 
         return async(() -> blockingCatalog.getStoreByName(workspace, name, type));
     }
 
-    @Override public  <R extends ResourceInfo> Mono<R> getResourceByName(
+    @Override
+    public <R extends ResourceInfo> Mono<R> getResourceByName(
             @NonNull NamespaceInfo namespace, @NonNull String name, @NonNull Class<R> type) {
 
         return async(() -> blockingCatalog.getResourceByName(namespace, name, type));
     }
 
-    @Override public  Flux<LayerInfo> getLayersWithStyle(@NonNull StyleInfo style) {
+    @Override
+    public Flux<LayerInfo> getLayersWithStyle(@NonNull StyleInfo style) {
         return Flux.fromStream(() -> blockingCatalog.getLayers(style).stream())
                 .subscribeOn(catalogScheduler);
     }
 
-    @Override public  Flux<LayerInfo> getLayersByResource(@NonNull ResourceInfo resource) {
+    @Override
+    public Flux<LayerInfo> getLayersByResource(@NonNull ResourceInfo resource) {
         return Flux.fromStream(() -> blockingCatalog.getLayers(resource).stream())
                 .subscribeOn(catalogScheduler);
     }
 
-    @Override public  Flux<LayerGroupInfo> getLayerGroupsWithNoWoskspace() {
+    @Override
+    public Flux<LayerGroupInfo> getLayerGroupsWithNoWoskspace() {
         return Flux.fromStream(
                         () ->
                                 blockingCatalog
@@ -268,24 +293,27 @@ public class ReactiveCatalogImpl implements ReactiveCatalog {
                 .subscribeOn(catalogScheduler);
     }
 
-    @Override public  Flux<LayerGroupInfo> getLayerGroupsByWoskspace(
-            @NonNull WorkspaceInfo workspace) {
+    @Override
+    public Flux<LayerGroupInfo> getLayerGroupsByWoskspace(@NonNull WorkspaceInfo workspace) {
         return Flux.fromStream(() -> blockingCatalog.getLayerGroupsByWorkspace(workspace).stream())
                 .subscribeOn(catalogScheduler);
     }
 
-    @Override public  Mono<LayerGroupInfo> getLayerGroupByName(@NonNull String name) {
+    @Override
+    public Mono<LayerGroupInfo> getLayerGroupByName(@NonNull String name) {
         return Mono.just(name)
                 .subscribeOn(catalogScheduler)
                 .map(blockingCatalog::getLayerGroupByName);
     }
 
-    @Override public  Mono<LayerGroupInfo> getLayerGroupByName(
+    @Override
+    public Mono<LayerGroupInfo> getLayerGroupByName(
             @NonNull WorkspaceInfo workspace, @NonNull String name) {
         return async(() -> blockingCatalog.getLayerGroupByName(workspace, name));
     }
 
-    @Override public  Flux<StyleInfo> getStylesWithNoWorkspace() {
+    @Override
+    public Flux<StyleInfo> getStylesWithNoWorkspace() {
         return Flux.fromStream(
                         () ->
                                 blockingCatalog
@@ -294,19 +322,21 @@ public class ReactiveCatalogImpl implements ReactiveCatalog {
                 .subscribeOn(catalogScheduler);
     }
 
-    @Override public  Flux<StyleInfo> getStylesByWorkspace(@NonNull WorkspaceInfo workspace) {
+    @Override
+    public Flux<StyleInfo> getStylesByWorkspace(@NonNull WorkspaceInfo workspace) {
         return Flux.just(workspace)
                 .subscribeOn(catalogScheduler)
                 .map(blockingCatalog::getStylesByWorkspace)
                 .flatMap(Flux::fromIterable);
     }
 
-    @Override public  Mono<StyleInfo> getStyleByName(
-            @NonNull WorkspaceInfo workspace, @NonNull String name) {
+    @Override
+    public Mono<StyleInfo> getStyleByName(@NonNull WorkspaceInfo workspace, @NonNull String name) {
         return async(() -> blockingCatalog.getStyleByName(workspace, name));
     }
 
-    @Override public  Mono<StyleInfo> getStyleByName(@NonNull String name) {
+    @Override
+    public Mono<StyleInfo> getStyleByName(@NonNull String name) {
         return async(() -> blockingCatalog.getStyleByName(CatalogFacade.NO_WORKSPACE, name));
     }
 }

@@ -4,17 +4,21 @@
  */
 package org.geoserver.cloud.wms.controller;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
 import org.geoserver.ows.Dispatcher;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public @Controller class GetMapReflectorController {
+@Controller
+@RequiredArgsConstructor
+public class GetMapReflectorController {
 
-    private @Autowired Dispatcher geoserverDispatcher;
+    private final @NonNull Dispatcher geoserverDispatcher;
 
     @GetMapping(path = {"/wms/reflect", "/{workspace}/wms/reflect"})
     public void getMapReflect(HttpServletRequest request, HttpServletResponse response)

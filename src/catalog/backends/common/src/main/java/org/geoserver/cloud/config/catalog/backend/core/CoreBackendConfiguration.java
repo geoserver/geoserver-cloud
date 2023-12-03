@@ -23,7 +23,6 @@ import org.geoserver.security.SecureCatalogImpl;
 import org.geoserver.security.impl.DataAccessRuleDAO;
 import org.geoserver.security.impl.DefaultResourceAccessManager;
 import org.geoserver.security.impl.LayerGroupContainmentCache;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -186,7 +185,6 @@ public class CoreBackendConfiguration {
         return gs;
     }
 
-    @Autowired
     @Bean
     GeoServerDataDirectory dataDirectory(GeoServerResourceLoader resourceLoader) {
         return new GeoServerDataDirectory(resourceLoader);

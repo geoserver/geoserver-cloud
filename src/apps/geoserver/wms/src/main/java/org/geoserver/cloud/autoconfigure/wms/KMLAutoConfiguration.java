@@ -8,6 +8,9 @@ import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
 import org.geoserver.cloud.wms.controller.kml.KMLIconsController;
 import org.geoserver.cloud.wms.controller.kml.KMLReflectorController;
 import org.geoserver.community.mbstyle.MBStyleHandler;
+import org.geoserver.ows.Dispatcher;
+import org.geoserver.wms.icons.IconService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -31,12 +34,12 @@ import org.springframework.context.annotation.ImportResource;
 public class KMLAutoConfiguration {
 
     @Bean
-    KMLIconsController kmlIconsController() {
-        return new KMLIconsController();
+    KMLIconsController kmlIconsController(@Qualifier("kmlIconService") IconService kmlIconService) {
+        return new KMLIconsController(kmlIconService);
     }
 
     @Bean
-    KMLReflectorController kmlReflectorController() {
-        return new KMLReflectorController();
+    KMLReflectorController kmlReflectorController(Dispatcher geoserverDispatcher) {
+        return new KMLReflectorController(geoserverDispatcher);
     }
 }

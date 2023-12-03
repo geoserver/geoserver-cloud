@@ -4,8 +4,10 @@
  */
 package org.geoserver.cloud.autoconfigure.catalog.backend.pgsql;
 
+import org.geoserver.cloud.config.catalog.backend.core.CatalogProperties;
 import org.geoserver.cloud.config.catalog.backend.pgsql.PgsqlBackendConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Import;
 
 /**
@@ -13,5 +15,6 @@ import org.springframework.context.annotation.Import;
  */
 @AutoConfiguration(after = PgsqlMigrationAutoConfiguration.class)
 @ConditionalOnPgsqlBackendEnabled
+@EnableConfigurationProperties(CatalogProperties.class)
 @Import(PgsqlBackendConfiguration.class)
 public class PgsqlBackendAutoConfiguration {}

@@ -28,7 +28,8 @@ class CatalogClientConfigurationTest {
     private @Autowired GeoToolsFilterModule geotoolsFilterModule;
     private @Autowired GeoToolsGeoJsonModule geotoolsGeoJSONModule;
 
-    @Test void smokeTest() {
+    @Test
+    void smokeTest() {
         assertNotNull(rawCatalogServiceFacade);
         assertNotNull(catalogJacksonModule);
         assertNotNull(configJacksonModule);

@@ -46,35 +46,43 @@ class CatalogClientRepositoryConfigurationTest {
                                         }));
     }
 
-    @Test void workspaceRepository() {
+    @Test
+    void workspaceRepository() {
         verify(CatalogClientWorkspaceRepository.class);
     }
 
-    @Test void namespaceRepository() {
+    @Test
+    void namespaceRepository() {
         verify(CatalogClientNamespaceRepository.class);
     }
 
-    @Test void storeRepository() {
+    @Test
+    void storeRepository() {
         verify(CatalogClientStoreRepository.class);
     }
 
-    @Test void resourceRepository() {
+    @Test
+    void resourceRepository() {
         verify(CatalogClientResourceRepository.class);
     }
 
-    @Test void layerRepository() {
+    @Test
+    void layerRepository() {
         verify(CatalogClientLayerRepository.class);
     }
 
-    @Test void layerGroupRepository() {
+    @Test
+    void layerGroupRepository() {
         verify(CatalogClientLayerGroupRepository.class);
     }
 
-    @Test void styleRepository() {
+    @Test
+    void styleRepository() {
         verify(CatalogClientNamespaceRepository.class);
     }
 
-    @Test void mapRepository() {
+    @Test
+    void mapRepository() {
         verify(CatalogClientMapRepository.class);
     }
 }

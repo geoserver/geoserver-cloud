@@ -25,7 +25,6 @@ import org.geoserver.util.DimensionWarning;
 import org.geowebcache.config.ContextualConfigurationProvider.Context;
 import org.geowebcache.config.XMLConfiguration;
 import org.geowebcache.storage.blobstore.file.FilePathUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.io.IOException;
@@ -67,7 +66,7 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
      * to lookup implementations of {@link org.geowebcache.config.XMLConfigurationProvider}, such as
      * {@code S3BlobStoreConfigProvider}, etc. This could be improved.
      */
-    private @Autowired WebApplicationContext applicationContext;
+    private final Optional<WebApplicationContext> applicationContext;
 
     private final AtomicBoolean initialized = new AtomicBoolean();
     private final List<TileLayerCatalogListener> listeners = new CopyOnWriteArrayList<>();
@@ -91,7 +90,9 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
             this.xstreamProvider =
                     () ->
                             XMLConfiguration.getConfiguredXStreamWithContext(
-                                    new SecureXStream(), applicationContext, Context.PERSIST);
+                                    new SecureXStream(),
+                                    applicationContext.orElse(null),
+                                    Context.PERSIST);
             this.serializer = newXStream();
         }
     }

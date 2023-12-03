@@ -16,8 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 
 @AutoConfigureWebTestClient(timeout = "360000")
-class LayerGroupControllerTest
-        extends AbstractReactiveCatalogControllerTest<LayerGroupInfo> {
+class LayerGroupControllerTest extends AbstractReactiveCatalogControllerTest<LayerGroupInfo> {
 
     public LayerGroupControllerTest() {
         super(LayerGroupInfo.class);
@@ -31,7 +30,8 @@ class LayerGroupControllerTest
         assertEquals(expected.getLayers(), actual.getLayers());
     }
 
-    @Override public  @Test void testFindAll() {
+    @Override
+    public @Test void testFindAll() {
         super.testFindAll(testData.layerGroup1);
         LayerGroupInfo lg2 =
                 testData.createLayerGroup(
@@ -44,15 +44,18 @@ class LayerGroupControllerTest
         super.testFindAll(testData.layerGroup1, lg2);
     }
 
-    @Override public  @Test void testFindById() {
+    @Override
+    public @Test void testFindById() {
         super.testFindById(testData.layerGroup1);
     }
 
-    @Override public  @Test void testFindAllByType() {
+    @Override
+    public @Test void testFindAllByType() {
         super.testFindAll(LayerGroupInfo.class, testData.layerGroup1);
     }
 
-    @Override public  @Test void testQueryFilter() {
+    @Override
+    public @Test void testQueryFilter() {
         LayerGroupInfo lg1 = testData.layerGroup1;
         LayerGroupInfo lg2 =
                 testData.createLayerGroup(
@@ -73,7 +76,8 @@ class LayerGroupControllerTest
         super.testQueryFilter(cql, lg1);
     }
 
-    @Test void testLayerGroupCRUD_NoWorkspace() {
+    @Test
+    void testLayerGroupCRUD_NoWorkspace() {
         WorkspaceInfo workspace = null;
         LayerGroupInfo layerGroup =
                 testData.createLayerGroup(
@@ -101,7 +105,8 @@ class LayerGroupControllerTest
                 });
     }
 
-    @Test void testLayerGroupCRUD_Workspace() {
+    @Test
+    void testLayerGroupCRUD_Workspace() {
         final WorkspaceInfo workspace = testData.workspaceA;
         LayerGroupInfo layerGroup =
                 testData.createLayerGroup(
@@ -122,7 +127,8 @@ class LayerGroupControllerTest
                 });
     }
 
-    @Test void testUpdateLayers() {
+    @Test
+    void testUpdateLayers() {
         WorkspaceInfo workspace = null;
         LayerGroupInfo layerGroup =
                 testData.createLayerGroup(

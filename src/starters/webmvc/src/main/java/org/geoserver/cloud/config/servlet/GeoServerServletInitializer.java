@@ -4,9 +4,11 @@
  */
 package org.geoserver.cloud.config.servlet;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
 import org.geoserver.platform.ContextLoadedEvent;
 import org.geoserver.platform.GeoServerContextLoaderListener;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
@@ -22,13 +24,14 @@ import org.springframework.context.event.ContextRefreshedEvent;
  * ContextRefreshedEvent}, since servlet context initialization happens too early during application
  * context initialization and some things like the event bus may not be ready.
  */
+@RequiredArgsConstructor
 public class GeoServerServletInitializer implements ApplicationListener<ContextRefreshedEvent> {
 
     /**
      * Actual application context, held to check whether the context being refreshed is this one and
      * avoid sending multiple geoserver-specific {@link ContextLoadedEvent}s
      */
-    private @Autowired ApplicationContext appContext;
+    private final @NonNull ApplicationContext appContext;
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {

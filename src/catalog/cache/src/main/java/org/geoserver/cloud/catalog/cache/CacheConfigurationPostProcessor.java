@@ -4,20 +4,22 @@
  */
 package org.geoserver.cloud.catalog.cache;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.config.plugin.GeoServerImpl;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 
 /** */
+@RequiredArgsConstructor
 @Slf4j(topic = "org.geoserver.cloud.catalog.caching")
 class CacheConfigurationPostProcessor implements BeanPostProcessor {
 
-    private @Autowired CachingCatalogFacade cachingCatalogFacade;
-    private @Autowired CachingGeoServerFacade cachingGeoServerFacade;
+    private final @NonNull CachingCatalogFacade cachingCatalogFacade;
+    private final @NonNull CachingGeoServerFacade cachingGeoServerFacade;
 
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName)

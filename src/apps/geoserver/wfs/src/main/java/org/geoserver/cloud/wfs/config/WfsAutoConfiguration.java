@@ -4,9 +4,11 @@
  */
 package org.geoserver.cloud.wfs.config;
 
+import org.geoserver.catalog.Catalog;
 import org.geoserver.cloud.autoconfigure.core.GeoServerWebMvcMainAutoConfiguration;
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
 import org.geoserver.cloud.virtualservice.VirtualServiceVerifier;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ImportResource;
@@ -22,7 +24,7 @@ import org.springframework.context.annotation.ImportResource;
 public class WfsAutoConfiguration {
 
     @Bean
-    VirtualServiceVerifier virtualServiceVerifier() {
-        return new VirtualServiceVerifier();
+    VirtualServiceVerifier virtualServiceVerifier(@Qualifier("rawCatalog") Catalog catalog) {
+        return new VirtualServiceVerifier(catalog);
     }
 }

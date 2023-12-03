@@ -20,19 +20,23 @@ public class CatalogClientLayerGroupRepository extends CatalogClientRepository<L
 
     private final @Getter Class<LayerGroupInfo> contentType = LayerGroupInfo.class;
 
-    @Override public  Stream<LayerGroupInfo> findAllByWorkspaceIsNull() {
+    @Override
+    public Stream<LayerGroupInfo> findAllByWorkspaceIsNull() {
         return toStream(client().findLayerGroupsByNullWoskspace());
     }
 
-    @Override public  Stream<LayerGroupInfo> findAllByWorkspace(@NonNull WorkspaceInfo workspace) {
+    @Override
+    public Stream<LayerGroupInfo> findAllByWorkspace(@NonNull WorkspaceInfo workspace) {
         return toStream(client().findLayerGroupsByWoskspaceId(workspace.getId()));
     }
 
-    @Override public  Optional<LayerGroupInfo> findByNameAndWorkspaceIsNull(@NonNull String name) {
+    @Override
+    public Optional<LayerGroupInfo> findByNameAndWorkspaceIsNull(@NonNull String name) {
         return blockAndReturn(client().findLayerGroupByNameAndNullWorkspace(name));
     }
 
-    @Override public  Optional<LayerGroupInfo> findByNameAndWorkspace(
+    @Override
+    public Optional<LayerGroupInfo> findByNameAndWorkspace(
             @NonNull String name, @NonNull WorkspaceInfo workspace) {
         Objects.requireNonNull(workspace.getId());
         return blockAndReturn(client().findLayerGroupByWorkspaceIdAndName(workspace.getId(), name));

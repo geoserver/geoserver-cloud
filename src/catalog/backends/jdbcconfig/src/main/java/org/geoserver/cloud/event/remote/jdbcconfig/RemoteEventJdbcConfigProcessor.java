@@ -4,6 +4,8 @@
  */
 package org.geoserver.cloud.event.remote.jdbcconfig;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.geoserver.catalog.CatalogInfo;
@@ -13,7 +15,6 @@ import org.geoserver.cloud.event.info.InfoEvent;
 import org.geoserver.cloud.event.info.InfoModified;
 import org.geoserver.cloud.event.info.InfoRemoved;
 import org.geoserver.jdbcconfig.internal.ConfigDatabase;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 
 /**
@@ -21,8 +22,10 @@ import org.springframework.context.event.EventListener;
  * from the {@link ConfigDatabase} cache
  */
 @Slf4j(topic = "org.geoserver.cloud.bus.incoming.jdbcconfig")
+@RequiredArgsConstructor
 public class RemoteEventJdbcConfigProcessor {
-    private @Autowired ConfigDatabase jdbcConfigDatabase;
+
+    private final @NonNull ConfigDatabase jdbcConfigDatabase;
 
     @EventListener(InfoRemoved.class)
     public void onRemoteRemoveEvent(InfoRemoved<?, ?> event) {

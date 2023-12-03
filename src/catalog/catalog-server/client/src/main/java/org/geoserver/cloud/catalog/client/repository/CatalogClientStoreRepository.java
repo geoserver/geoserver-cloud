@@ -24,7 +24,8 @@ public class CatalogClientStoreRepository extends CatalogClientRepository<StoreI
 
     private final @Getter Class<StoreInfo> contentType = StoreInfo.class;
 
-    @Override public  void setDefaultDataStore(
+    @Override
+    public void setDefaultDataStore(
             @NonNull WorkspaceInfo workspace, @NonNull DataStoreInfo dataStore) {
 
         String workspaceId = workspace.getId();
@@ -32,21 +33,25 @@ public class CatalogClientStoreRepository extends CatalogClientRepository<StoreI
         blockAndReturn(client().setDefaultDataStoreByWorkspaceId(workspaceId, dataStoreId));
     }
 
-    @Override public  void unsetDefaultDataStore(@NonNull WorkspaceInfo workspace) {
+    @Override
+    public void unsetDefaultDataStore(@NonNull WorkspaceInfo workspace) {
         String workspaceId = workspace.getId();
         blockAndReturn(client().unsetDefaultDataStore(workspaceId));
     }
 
-    @Override public  Optional<DataStoreInfo> getDefaultDataStore(@NonNull WorkspaceInfo workspace) {
+    @Override
+    public Optional<DataStoreInfo> getDefaultDataStore(@NonNull WorkspaceInfo workspace) {
         String workspaceId = workspace.getId();
         return blockAndReturn(client().findDefaultDataStoreByWorkspaceId(workspaceId));
     }
 
-    @Override public  Stream<DataStoreInfo> getDefaultDataStores() {
+    @Override
+    public Stream<DataStoreInfo> getDefaultDataStores() {
         return toStream(client().getDefaultDataStores());
     }
 
-    @Override public  <T extends StoreInfo> Stream<T> findAllByWorkspace(
+    @Override
+    public <T extends StoreInfo> Stream<T> findAllByWorkspace(
             @NonNull WorkspaceInfo workspace, @Nullable Class<T> clazz) {
 
         String workspaceId = workspace.getId();
@@ -56,12 +61,14 @@ public class CatalogClientStoreRepository extends CatalogClientRepository<StoreI
         return toStream(flux);
     }
 
-    @Override public  <T extends StoreInfo> Stream<T> findAllByType(@NonNull Class<T> clazz) {
+    @Override
+    public <T extends StoreInfo> Stream<T> findAllByType(@NonNull Class<T> clazz) {
 
         return toStream(client().findAll(endpoint(), typeEnum(clazz)).map(clazz::cast));
     }
 
-    @Override public  <T extends StoreInfo> Optional<T> findByNameAndWorkspace(
+    @Override
+    public <T extends StoreInfo> Optional<T> findByNameAndWorkspace(
             @NonNull String name, @NonNull WorkspaceInfo workspace, @NonNull Class<T> clazz) {
 
         String workspaceId = workspace.getId();

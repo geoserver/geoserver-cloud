@@ -91,8 +91,8 @@ public class CatalogClientResourceStore implements ResourceStore {
     private FileSystemResourceStore createLocalStore(@NonNull File localCache) {
         FileSystemResourceStore local =
                 new FileSystemResourceStore(localCache) {
-                    @Override public  ResourceNotificationDispatcher
-                            getResourceNotificationDispatcher() {
+                    @Override
+                    public ResourceNotificationDispatcher getResourceNotificationDispatcher() {
                         return NullResourceNotificationDispatcher.INSTANCE;
                     }
                 };
@@ -102,7 +102,8 @@ public class CatalogClientResourceStore implements ResourceStore {
 
     private Map<String, ResourceDescriptor> dumbCache = new ConcurrentHashMap<>();
 
-    @Override public  CatalogClientResource get(String path) {
+    @Override
+    public CatalogClientResource get(String path) {
         try {
             // ResourceDescriptor descriptor = remoteStore.describe(path);
             ResourceDescriptor descriptor = dumbCache.computeIfAbsent(path, remoteStore::describe);
@@ -113,7 +114,8 @@ public class CatalogClientResourceStore implements ResourceStore {
         }
     }
 
-    @Override public  boolean remove(String path) {
+    @Override
+    public boolean remove(String path) {
         boolean deleted = remoteStore.delete(path);
         if (deleted) {
             localStore.get(path).delete();
@@ -121,13 +123,15 @@ public class CatalogClientResourceStore implements ResourceStore {
         return deleted;
     }
 
-    @Override public  boolean move(String path, String target) {
+    @Override
+    public boolean move(String path, String target) {
         ResourceDescriptor moved = remoteStore.move(path, target).orElse(null);
         localStore.move(path, target);
         return moved != null && target.equals(moved.getPath());
     }
 
-    @Override public  ResourceNotificationDispatcher getResourceNotificationDispatcher() {
+    @Override
+    public ResourceNotificationDispatcher getResourceNotificationDispatcher() {
         return resourceNotificationDispatcher;
     }
 
@@ -137,13 +141,16 @@ public class CatalogClientResourceStore implements ResourceStore {
         static final NullResourceNotificationDispatcher INSTANCE =
                 new NullResourceNotificationDispatcher();
 
-        @Override public  void addListener(String resource, ResourceListener listener) {}
+        @Override
+        public void addListener(String resource, ResourceListener listener) {}
 
-        @Override public  boolean removeListener(String resource, ResourceListener listener) {
+        @Override
+        public boolean removeListener(String resource, ResourceListener listener) {
             return true;
         }
 
-        @Override public  void changed(ResourceNotification notification) {}
+        @Override
+        public void changed(ResourceNotification notification) {}
     }
 
     org.springframework.core.io.Resource getFileContent(String path) throws IOException {

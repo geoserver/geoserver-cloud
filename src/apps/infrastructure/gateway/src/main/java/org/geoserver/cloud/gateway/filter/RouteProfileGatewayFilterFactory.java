@@ -11,7 +11,6 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
@@ -36,10 +35,11 @@ public class RouteProfileGatewayFilterFactory
     private static final List<String> SHORTCUT_FIELD_ORDER =
             Collections.unmodifiableList(Arrays.asList(Config.PROFILE_KEY, Config.HTTPSTATUS_KEY));
 
-    @Autowired private Environment environment;
+    private final Environment environment;
 
-    public RouteProfileGatewayFilterFactory() {
+    public RouteProfileGatewayFilterFactory(@NonNull Environment environment) {
         super(Config.class);
+        this.environment = environment;
     }
 
     @Override

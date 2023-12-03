@@ -30,22 +30,26 @@ class NamespaceControllerTest extends AbstractReactiveCatalogControllerTest<Name
         assertEquals(expected.getURI(), actual.getURI());
     }
 
-    @Override public  @Test void testFindAll() {
+    @Override
+    public @Test void testFindAll() {
         super.testFindAll(testData.namespaceA, testData.namespaceB, testData.namespaceC);
     }
 
-    @Override public  @Test void testFindAllByType() {
+    @Override
+    public @Test void testFindAllByType() {
         super.testFindAll(
                 NamespaceInfo.class, testData.namespaceA, testData.namespaceB, testData.namespaceC);
     }
 
-    @Override public  @Test void testFindById() {
+    @Override
+    public @Test void testFindById() {
         super.testFindById(testData.namespaceA);
         super.testFindById(testData.namespaceB);
         super.testFindById(testData.namespaceC);
     }
 
-    @Override public  @Test void testQueryFilter() {
+    @Override
+    public @Test void testQueryFilter() {
         NamespaceInfo ns1 = catalog.getNamespace(testData.namespaceA.getId());
         NamespaceInfo ns2 = catalog.getNamespace(testData.namespaceB.getId());
         NamespaceInfo ns3 = catalog.getNamespace(testData.namespaceC.getId());
@@ -59,13 +63,15 @@ class NamespaceControllerTest extends AbstractReactiveCatalogControllerTest<Name
         super.testQueryFilter(String.format("URI = '%s'", ns1.getURI()), ns1, ns3);
     }
 
-    @Test void testFindNamespaceById() {
+    @Test
+    void testFindNamespaceById() {
         testFindById(testData.namespaceA);
         testFindById(testData.namespaceB);
         testFindById(testData.namespaceC);
     }
 
-    @Test void testFindNamespacePrefix() {
+    @Test
+    void testFindNamespacePrefix() {
         testFindByPrefix(testData.namespaceA);
         testFindByPrefix(testData.namespaceB);
         testFindByPrefix(testData.namespaceC);
@@ -75,7 +81,8 @@ class NamespaceControllerTest extends AbstractReactiveCatalogControllerTest<Name
         assertEquals(expected, client().getFirstByName(expected.getPrefix()));
     }
 
-    @Test void testNamespaceInfo_CRUD() throws IOException {
+    @Test
+    void testNamespaceInfo_CRUD() throws IOException {
         NamespaceInfo ns = testData.faker().namespace();
         crudTest(
                 ns,
@@ -84,7 +91,8 @@ class NamespaceControllerTest extends AbstractReactiveCatalogControllerTest<Name
                 (old, updated) -> assertEquals("modified-prefix", updated.getPrefix()));
     }
 
-    @Test void testSetDefaultNamespace() {
+    @Test
+    void testSetDefaultNamespace() {
         assertEquals(testData.namespaceA, catalog.getDefaultNamespace());
 
         NamespaceInfo returned =
@@ -100,7 +108,8 @@ class NamespaceControllerTest extends AbstractReactiveCatalogControllerTest<Name
         assertEquals(testData.namespaceB, returned);
     }
 
-    @Test void testSetDefaultNamespaceNonExistent() {
+    @Test
+    void testSetDefaultNamespaceNonExistent() {
         assertEquals(testData.namespaceA, catalog.getDefaultNamespace());
 
         client().put("/namespaces/default/{id}", "non-existent-id")
@@ -110,7 +119,8 @@ class NamespaceControllerTest extends AbstractReactiveCatalogControllerTest<Name
                 .contentType(APPLICATION_JSON);
     }
 
-    @Test void testGetDefaultNamespace() {
+    @Test
+    void testGetDefaultNamespace() {
         NamespaceInfo returned =
                 client().getRelative("/namespaces/default")
                         .expectStatus()
@@ -137,7 +147,8 @@ class NamespaceControllerTest extends AbstractReactiveCatalogControllerTest<Name
         assertEquals(testData.namespaceB, returned);
     }
 
-    @Test void testGetDefaultNamespaceNoDefaultExists() {
+    @Test
+    void testGetDefaultNamespaceNoDefaultExists() {
         testData.deleteAll();
         client().getRelative("/namespaces/default")
                 .expectStatus()
@@ -146,7 +157,8 @@ class NamespaceControllerTest extends AbstractReactiveCatalogControllerTest<Name
                 .contentType(APPLICATION_JSON);
     }
 
-    @Test void testFindOneNamespaceByURI() {
+    @Test
+    void testFindOneNamespaceByURI() {
         NamespaceInfo ns1 = testData.namespaceA;
         NamespaceInfo ns2 =
                 testData.faker().namespace("second-ns-with-duplicate-uri", "prefix2", ns1.getURI());
@@ -171,7 +183,8 @@ class NamespaceControllerTest extends AbstractReactiveCatalogControllerTest<Name
         return found;
     }
 
-    @Test void testFindAllNamespacesByURI() {
+    @Test
+    void testFindAllNamespacesByURI() {
         NamespaceInfo ns1 = testData.namespaceA;
         NamespaceInfo ns2 =
                 testData.faker().namespace("second-ns-with-duplicate-uri", "prefix2", ns1.getURI());
@@ -193,7 +206,8 @@ class NamespaceControllerTest extends AbstractReactiveCatalogControllerTest<Name
         assertEquals(2, found.size());
     }
 
-    @Test void testCreateNamespaceDuplicateURI() {
+    @Test
+    void testCreateNamespaceDuplicateURI() {
         NamespaceInfo ns1 = testData.namespaceA;
         NamespaceInfo ns2 =
                 testData.faker().namespace("second-ns-with-duplicate-uri", "prefix2", ns1.getURI());

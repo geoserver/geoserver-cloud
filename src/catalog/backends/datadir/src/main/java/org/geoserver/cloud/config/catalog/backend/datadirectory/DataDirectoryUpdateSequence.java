@@ -4,6 +4,7 @@
  */
 package org.geoserver.cloud.config.catalog.backend.datadirectory;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -12,6 +13,8 @@ import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerDataDirectory;
 import org.geoserver.config.GeoServerInfo;
+import org.geoserver.config.GeoServerInitializer;
+import org.geoserver.config.impl.GeoServerInfoImpl;
 import org.geoserver.config.util.XStreamPersister;
 import org.geoserver.config.util.XStreamPersisterFactory;
 import org.geoserver.platform.config.UpdateSequence;
@@ -19,15 +22,13 @@ import org.geoserver.platform.resource.LockProvider;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.ResourceStore;
 import org.geoserver.platform.resource.Resources;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Lazy;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.UncheckedIOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
@@ -38,7 +39,7 @@ import java.util.Properties;
  */
 @Slf4j
 @RequiredArgsConstructor
-public class DataDirectoryUpdateSequence implements UpdateSequence {
+public class DataDirectoryUpdateSequence implements UpdateSequence, GeoServerInitializer {
 
     private static final String UPDATE_SEQUENCE_FILE_NAME = "updateSequence.properties";
 
@@ -47,36 +48,48 @@ public class DataDirectoryUpdateSequence implements UpdateSequence {
     private static final String CLUSTER_LOCK_NAME = "UPDATE_SEQUENCE";
 
     /** Provides the cluster aware {@link ResourceStore#getLockProvider LockProvider} */
-    private @Autowired @Qualifier("resourceStoreImpl") ResourceStore resourceStore;
+    private final @NonNull ResourceStore resourceStore;
 
-    private @Autowired @Lazy @Qualifier("geoServer") GeoServer geoServer;
-    private @Autowired GeoServerDataDirectory dd;
-    private @Autowired XStreamPersisterFactory xpf;
+    private final @NonNull GeoServerDataDirectory dd;
+    private final @NonNull XStreamPersisterFactory xpf;
 
+    private GeoServer geoServer;
     private XStreamPersister xp;
+
+    @Override
+    public void initialize(GeoServer geoServer) throws Exception {
+        this.geoServer = geoServer;
+        Resource resource = getOrCreateResource();
+        log.debug("Update sequence resource is {}", resource.path());
+    }
 
     @Override
     public long currValue() {
         try {
-            Resource resource = resource();
-            if (!Resources.exists(resource)) {
-                org.geoserver.platform.resource.Resource.Lock clusterLock = lock();
-                try {
-                    resource = resource();
-                    if (!Resources.exists(resource)) {
-                        initialize(resource);
-                    }
-                } finally {
-                    clusterLock.release();
-                }
-            }
+            Resource resource = getOrCreateResource();
 
             Properties props = load(resource);
             final long currentValue = getValue(props);
             return currentValue;
         } catch (IOException e) {
-            throw new IllegalStateException(e);
+            throw new UncheckedIOException(e);
         }
+    }
+
+    private Resource getOrCreateResource() throws IOException {
+        Resource resource = resource();
+        if (!Resources.exists(resource)) {
+            org.geoserver.platform.resource.Resource.Lock clusterLock = lock();
+            try {
+                resource = resource();
+                if (!Resources.exists(resource)) {
+                    initialize(resource);
+                }
+            } finally {
+                clusterLock.release();
+            }
+        }
+        return resource;
     }
 
     @Override
@@ -161,10 +174,17 @@ public class DataDirectoryUpdateSequence implements UpdateSequence {
 
     /** Precondition: be called while holding the {@link #lock()} */
     private void initialize(Resource resource) throws IOException {
+        GeoServerInfo geoServerInfo = null;
+        if (null == geoServer) {
+            Resource configResource = dd.config(new GeoServerInfoImpl());
+            if (Resources.exists(configResource)) {
+                geoServerInfo = xp.load(configResource.in(), GeoServerInfo.class);
+            }
+        } else {
+            geoServerInfo = geoServer.getGlobal();
+        }
         final long initialValue =
-                Optional.ofNullable(geoServer.getGlobal())
-                        .map(GeoServerInfo::getUpdateSequence)
-                        .orElse(0L);
+                Optional.ofNullable(geoServerInfo).map(GeoServerInfo::getUpdateSequence).orElse(0L);
         save(resource, initialValue);
     }
 

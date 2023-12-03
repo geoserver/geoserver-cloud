@@ -6,10 +6,12 @@ package org.geoserver.cloud.web.service;
 
 import org.geoserver.cloud.web.ui.GeoServerCloudHomePageContentProvider;
 import org.geoserver.cloud.web.ui.ServiceRegistryPage;
+import org.geoserver.security.GeoServerSecurityManager;
 import org.geoserver.web.Category;
 import org.geoserver.web.ComponentAuthorizer;
 import org.geoserver.web.MenuPageInfo;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.info.BuildProperties;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -61,7 +63,8 @@ public class WebUiCloudServicesConfiguration {
     }
 
     @Bean
-    GeoServerCloudHomePageContentProvider geoServerCloudHomePageContentProvider() {
-        return new GeoServerCloudHomePageContentProvider();
+    GeoServerCloudHomePageContentProvider geoServerCloudHomePageContentProvider(
+            GeoServerSecurityManager secManager, BuildProperties props) {
+        return new GeoServerCloudHomePageContentProvider(secManager, props);
     }
 }

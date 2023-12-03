@@ -21,8 +21,6 @@ import org.geoserver.jdbcconfig.internal.JDBCConfigProperties;
 import org.geoserver.platform.GeoServerExtensions;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.Resource.Lock;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.io.IOException;
 import java.util.List;
@@ -45,19 +43,23 @@ import javax.annotation.PostConstruct;
  */
 public class CloudJdbcGeoServerLoader extends DefaultGeoServerLoader {
 
-    private @Autowired @Qualifier("rawCatalog") Catalog rawCatalog;
-    private @Autowired GeoServer geoserver;
+    private Catalog rawCatalog;
+    private GeoServer geoserver;
 
     private JDBCConfigProperties config;
 
     private ConfigDatabase configdb;
 
     public CloudJdbcGeoServerLoader(
+            Catalog rawCatalog,
+            GeoServer geoserver,
             GeoServerResourceLoader resourceLoader,
             JDBCConfigProperties config,
             ConfigDatabase configdb)
             throws Exception {
         super(resourceLoader);
+        this.rawCatalog = rawCatalog;
+        this.geoserver = geoserver;
         this.config = config;
         this.configdb = configdb;
     }

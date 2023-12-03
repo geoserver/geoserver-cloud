@@ -83,7 +83,8 @@ class ReactiveConfigControllerTest {
     }
 
     // GET /global
-    @Test void getGlobal() {
+    @Test
+    void getGlobal() {
         GeoServerInfo global = controller.getGlobal().block();
         assertNotNull(global);
         GeoServerInfo responseBody =
@@ -102,7 +103,8 @@ class ReactiveConfigControllerTest {
     }
 
     // PUT /global
-    @Test void setGlobal() {
+    @Test
+    void setGlobal() {
         GeoServerInfo newGlobal = testData.global;
         newGlobal.setAdminPassword("testme");
         newGlobal.setAdminUsername("me");
@@ -118,7 +120,8 @@ class ReactiveConfigControllerTest {
     }
 
     // GET /workspaces/{workspaceId}/settings
-    @Test void getSettingsByWorkspace() {
+    @Test
+    void getSettingsByWorkspace() {
         WorkspaceInfo workspace = testData.workspaceA;
 
         get("/workspaces/{workspaceId}/settings", workspace.getId()).expectStatus().isNoContent();
@@ -136,7 +139,8 @@ class ReactiveConfigControllerTest {
     }
 
     // POST /workspaces/{workspaceId}/settings
-    @Test void createSettings() {
+    @Test
+    void createSettings() {
         WorkspaceInfo workspace = testData.workspaceA;
         assertNull(geoServer.getSettings(workspace));
         SettingsInfo settings = testData.workspaceASettings;
@@ -149,7 +153,8 @@ class ReactiveConfigControllerTest {
     }
 
     // PATCH /workspaces/{workspaceId}/settings
-    @Test void updateSettings() {
+    @Test
+    void updateSettings() {
         WorkspaceInfo workspace = testData.workspaceA;
         SettingsInfo settings = testData.workspaceASettings;
         settings.setWorkspace(workspace);
@@ -168,7 +173,8 @@ class ReactiveConfigControllerTest {
     }
 
     // DELETE /workspaces/{workspaceId}/settings
-    @Test void deleteSettings() {
+    @Test
+    void deleteSettings() {
         WorkspaceInfo workspace = testData.workspaceA;
         SettingsInfo settings = testData.workspaceASettings;
         settings.setWorkspace(workspace);
@@ -186,7 +192,8 @@ class ReactiveConfigControllerTest {
     }
 
     // get /logging
-    @Test void getLogging() {
+    @Test
+    void getLogging() {
         geoServer.setLogging(testData.logging);
         LoggingInfo logging = geoServer.getLogging();
         assertNotNull(logging);
@@ -201,7 +208,8 @@ class ReactiveConfigControllerTest {
     }
 
     // PUT /logging
-    @Test void setLogging() {
+    @Test
+    void setLogging() {
         LoggingInfo logging = testData.logging;
         logging.setLevel("apiLevel");
         logging.setLocation("/right/there");
@@ -212,7 +220,8 @@ class ReactiveConfigControllerTest {
     }
 
     // POST /services
-    @Test void createService() {
+    @Test
+    void createService() {
         if (null != geoServer.getService(WMSInfo.class))
             geoServer.remove(geoServer.getService(WMSInfo.class));
 
@@ -228,7 +237,8 @@ class ReactiveConfigControllerTest {
     }
 
     // POST /workspaces/{workspaceId}/services
-    @Test void createServiceByWorkspace() {
+    @Test
+    void createServiceByWorkspace() {
         WorkspaceInfo workspace = testData.workspaceA;
         if (null != geoServer.getService(workspace, WMSInfo.class))
             geoServer.remove(geoServer.getService(workspace, WMSInfo.class));
@@ -249,7 +259,8 @@ class ReactiveConfigControllerTest {
     }
 
     // DELETE /services/{serviceId}
-    @Test void deleteServiceById() {
+    @Test
+    void deleteServiceById() {
         WMSInfo service = testData.wmsService;
         if (null == geoServer.getService(WMSInfo.class)) geoServer.add(service);
         assertNotNull(geoServer.getService(WMSInfo.class));
@@ -264,7 +275,8 @@ class ReactiveConfigControllerTest {
     }
 
     // GET /services/{serviceId}
-    @Test void getServiceById() {
+    @Test
+    void getServiceById() {
         WorkspaceInfo ws = testData.workspaceA;
         WMSInfo wmsService = testData.wmsService;
         WCSInfo wcsService = testData.wcsService;
@@ -302,7 +314,8 @@ class ReactiveConfigControllerTest {
     }
 
     // PATCH /services/{id}
-    @Test void updateService() {
+    @Test
+    void updateService() {
         geoServer.add(testData.wmsService);
         geoServer.add(testData.wcsService);
         geoServer.add(testData.wfsService);
@@ -318,7 +331,8 @@ class ReactiveConfigControllerTest {
     }
 
     // PATCH /services/{id}
-    @Test void updateServiceByWorkspace() {
+    @Test
+    void updateServiceByWorkspace() {
         addServicesToWorkspaceA();
         WorkspaceInfo ws = testData.workspaceA;
 
@@ -367,7 +381,8 @@ class ReactiveConfigControllerTest {
     }
 
     // GET /workspaces/{workspaceId}/services
-    @Test void getServicesByWorkspace() {
+    @Test
+    void getServicesByWorkspace() {
         WorkspaceInfo ws = testData.workspaceA;
         geoServer.getServices(ws).forEach(geoServer::remove);
 
@@ -421,7 +436,8 @@ class ReactiveConfigControllerTest {
     }
 
     // GET /services
-    @Test void getGlobalServices() {
+    @Test
+    void getGlobalServices() {
         geoServer.getServices().forEach(geoServer::remove);
 
         get("/services")
@@ -465,7 +481,8 @@ class ReactiveConfigControllerTest {
     }
 
     // GET @GetMapping("/services/type/{type}
-    @Test void getGlobalService() {
+    @Test
+    void getGlobalService() {
         testGetGlobalService(testData.wmsService, WMSInfo.class);
         testGetGlobalService(testData.wfsService, WFSInfo.class);
         testGetGlobalService(testData.wcsService, WCSInfo.class);
@@ -487,7 +504,8 @@ class ReactiveConfigControllerTest {
     }
 
     // @GetMapping("/workspaces/{workspaceId}/services/type/{type}")
-    @Test void getServiceByWorkspaceAndType() {
+    @Test
+    void getServiceByWorkspaceAndType() {
         WorkspaceInfo ws = testData.workspaceA;
         geoServer.getServices(ws).forEach(geoServer::remove);
         testGetServiceByWorkspaceAndType(ws, WMSInfo.class, testData.wmsService);
@@ -521,7 +539,8 @@ class ReactiveConfigControllerTest {
     }
 
     // GET /services/name/{name}
-    @Test void getGlobalServiceByName() {
+    @Test
+    void getGlobalServiceByName() {
         geoServer.getServices().forEach(geoServer::remove);
         testGetGlobalServiceByName(testData.wmsService);
         testGetGlobalServiceByName(testData.wfsService);
@@ -562,7 +581,8 @@ class ReactiveConfigControllerTest {
     }
 
     // GET /workspaces/{workspaceId}/services/name/{name}
-    @Test void getServiceByWorkspaceAndName() {
+    @Test
+    void getServiceByWorkspaceAndName() {
         addServicesToWorkspaceA();
 
         testGetServiceByWorkspaceAndName(testData.wmsService);

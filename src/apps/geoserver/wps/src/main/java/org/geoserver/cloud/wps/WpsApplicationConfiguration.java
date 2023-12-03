@@ -4,8 +4,10 @@
  */
 package org.geoserver.cloud.wps;
 
+import org.geoserver.catalog.Catalog;
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
 import org.geoserver.cloud.virtualservice.VirtualServiceVerifier;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
@@ -27,7 +29,7 @@ import org.springframework.context.annotation.ImportResource;
 public class WpsApplicationConfiguration {
 
     @Bean
-    VirtualServiceVerifier virtualServiceVerifier() {
-        return new VirtualServiceVerifier();
+    VirtualServiceVerifier virtualServiceVerifier(@Qualifier("rawCatalog") Catalog catalog) {
+        return new VirtualServiceVerifier(catalog);
     }
 }

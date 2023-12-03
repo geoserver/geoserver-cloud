@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnGeoWebCacheRestConfigEnabled;
 import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnWebUIEnabled;
 import org.geoserver.cloud.gwc.config.core.GeoWebCacheConfigurationProperties;
+import org.geowebcache.GeoWebCacheDispatcher;
 import org.geowebcache.rest.controller.ByteStreamController;
 import org.gwc.web.rest.GeoWebCacheController;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -27,8 +28,8 @@ public class GeoWebCacheUIAutoConfiguration {
     }
 
     @Bean
-    GeoWebCacheController gwcController() {
-        return new GeoWebCacheController();
+    GeoWebCacheController gwcController(GeoWebCacheDispatcher gwcDispatcher) {
+        return new GeoWebCacheController(gwcDispatcher);
     }
 
     /**

@@ -28,11 +28,13 @@ public class ReactiveResourceStoreImpl implements ReactiveResourceStore {
     private @Autowired @Qualifier("resourceStoreImpl") ResourceStore blockingStore;
     private @Autowired Scheduler catalogScheduler;
 
-    @Override public  Mono<Resource> get(String path) {
+    @Override
+    public Mono<Resource> get(String path) {
         return Mono.just(path).subscribeOn(catalogScheduler).map(blockingStore::get);
     }
 
-    @Override public  Mono<ByteBuffer> getContents(String path) {
+    @Override
+    public Mono<ByteBuffer> getContents(String path) {
         return get(path)
                 .map(
                         r -> {
@@ -46,7 +48,8 @@ public class ReactiveResourceStoreImpl implements ReactiveResourceStore {
                 .map(ByteBuffer::wrap);
     }
 
-    @Override public  Mono<Resource> setContents(String path, ByteBuffer contents) {
+    @Override
+    public Mono<Resource> setContents(String path, ByteBuffer contents) {
         return get(path)
                 .map(
                         resource -> {
@@ -61,14 +64,16 @@ public class ReactiveResourceStoreImpl implements ReactiveResourceStore {
                         });
     }
 
-    @Override public  Mono<Boolean> remove(String path) {
+    @Override
+    public Mono<Boolean> remove(String path) {
         return Mono.just(path).subscribeOn(catalogScheduler).map(blockingStore::remove);
     }
 
     /**
      * @return the new resource, or empty if it couldn't be moved
      */
-    @Override public  Mono<Resource> move(String path, String target) {
+    @Override
+    public Mono<Resource> move(String path, String target) {
         return Mono.just(path)
                 .subscribeOn(catalogScheduler)
                 .map(source -> blockingStore.move(source, target))

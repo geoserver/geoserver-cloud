@@ -23,7 +23,6 @@ import org.geoserver.config.GeoServerLoader;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.LockProvider;
 import org.geoserver.platform.resource.ResourceStore;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -45,19 +44,21 @@ public class PgsqlBackendConfiguration extends GeoServerBackendConfigurer {
 
     private String instanceId;
     private DataSource dataSource;
-    private @Autowired CatalogProperties properties;
+    private CatalogProperties catalogProperties;
 
     PgsqlBackendConfiguration(
             @Value("${info.instance-id:}") String instanceId,
             @Qualifier("pgsqlConfigDatasource") DataSource dataSource,
-            Migrations migrations) {
+            Migrations migrations,
+            CatalogProperties catalogProperties) {
         this.instanceId = instanceId;
         this.dataSource = dataSource;
+        this.catalogProperties = catalogProperties;
     }
 
     @Bean
     CatalogPlugin rawCatalog() {
-        boolean isolated = properties.isIsolated();
+        boolean isolated = catalogProperties.isIsolated();
         CatalogPlugin rawCatalog = new CatalogPlugin(isolated);
 
         PgsqlCatalogFacade rawFacade = catalogFacade();

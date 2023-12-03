@@ -33,7 +33,8 @@ class ReactiveCatalogApiClientConfigurationTest {
                                     ReactiveCatalogApiClientConfiguration.class //
                                     ));
 
-    @Test void testReactiveCatalogClientIsLoaded() {
+    @Test
+    void testReactiveCatalogClientIsLoaded() {
         this.contextRunner.run(
                 context -> {
                     assertThat(context).hasSingleBean(ReactiveCatalogClient.class);
@@ -42,7 +43,8 @@ class ReactiveCatalogApiClientConfigurationTest {
                 });
     }
 
-    @Test void testReactiveConfigClientIsLoaded() {
+    @Test
+    void testReactiveConfigClientIsLoaded() {
         this.contextRunner.run(
                 context -> {
                     assertThat(context).hasSingleBean(ReactiveConfigClient.class);
@@ -51,7 +53,8 @@ class ReactiveCatalogApiClientConfigurationTest {
                 });
     }
 
-    @Test void testReactiveResourceStoreClientIsLoaded() {
+    @Test
+    void testReactiveResourceStoreClientIsLoaded() {
         this.contextRunner.run(
                 context -> {
                     assertThat(context).hasSingleBean(ReactiveResourceStoreClient.class);

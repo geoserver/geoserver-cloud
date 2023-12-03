@@ -24,6 +24,7 @@ import org.geoserver.util.DimensionWarning.WarningType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,6 +32,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -49,7 +51,8 @@ class ResourceStoreTileLayerCatalogTest {
     void setUp() throws Exception {
         resourceLoader = new GeoServerResourceLoader(baseDirectory);
         new File(baseDirectory, "gwc-layers").mkdir();
-        catalog = new ResourceStoreTileLayerCatalog(resourceLoader);
+        Optional<WebApplicationContext> webappCtx = Optional.empty();
+        catalog = new ResourceStoreTileLayerCatalog(resourceLoader, webappCtx);
         catalog.initialize();
     }
 

@@ -20,7 +20,6 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.forwarding.ForwardingExtendedCatalogFacade;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.Cache.ValueWrapper;
 import org.springframework.cache.CacheManager;
@@ -39,11 +38,8 @@ class CachingCatalogFacadeImpl extends ForwardingExtendedCatalogFacade
         implements CachingCatalogFacade {
     private Cache idCache;
 
-    public CachingCatalogFacadeImpl(ExtendedCatalogFacade facade) {
+    public CachingCatalogFacadeImpl(ExtendedCatalogFacade facade, CacheManager cacheManager) {
         super(facade);
-    }
-
-    public @Autowired void setCacheManager(CacheManager cacheManager) {
         idCache = cacheManager.getCache(CachingCatalogFacade.CACHE_NAME);
     }
 

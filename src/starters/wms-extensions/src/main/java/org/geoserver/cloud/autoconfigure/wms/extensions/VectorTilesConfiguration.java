@@ -7,15 +7,12 @@ package org.geoserver.cloud.autoconfigure.wms.extensions;
 import org.geoserver.cloud.autoconfigure.wms.extensions.WmsExtensionsConfigProperties.Wms.WmsOutputFormatsConfigProperties.VectorTilesConfigProperties;
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
 import org.geoserver.wms.vector.VectorTileMapOutputFormat;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
-
-import javax.annotation.PostConstruct;
 
 /**
  * @since 1.0
@@ -30,11 +27,11 @@ class VectorTilesConfiguration {
 
     static final String PREFIX = "geoserver.wms.output-formats.vector-tiles";
 
-    private @Autowired @Qualifier("VectorTilesExtension") org.geoserver.platform.ModuleStatusImpl
-            extensionInfo;
-    private @Autowired WmsExtensionsConfigProperties config;
+    VectorTilesConfiguration(
+            @Qualifier("VectorTilesExtension")
+                    org.geoserver.platform.ModuleStatusImpl extensionInfo,
+            WmsExtensionsConfigProperties config) {
 
-    public @PostConstruct void init() {
         VectorTilesConfigProperties vt = config.getWms().getOutputFormats().getVectorTiles();
         extensionInfo.setEnabled(vt.anyEnabled());
     }

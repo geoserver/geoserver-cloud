@@ -27,8 +27,7 @@ import java.io.IOException;
 import java.util.List;
 
 @AutoConfigureWebTestClient(timeout = "360000")
-class ResourceInfoControllerTest
-        extends AbstractReactiveCatalogControllerTest<ResourceInfo> {
+class ResourceInfoControllerTest extends AbstractReactiveCatalogControllerTest<ResourceInfo> {
 
     public ResourceInfoControllerTest() {
         super(ResourceInfo.class);
@@ -43,19 +42,22 @@ class ResourceInfoControllerTest
         assertEquals(expected.getStore().getId(), actual.getStore().getId());
     }
 
-    @Override public  @Test void testFindAll() {
+    @Override
+    public @Test void testFindAll() {
         super.testFindAll(
                 testData.featureTypeA, testData.coverageA, testData.wmsLayerA, testData.wmtsLayerA);
     }
 
-    @Override public  @Test void testFindById() {
+    @Override
+    public @Test void testFindById() {
         super.testFindById(testData.featureTypeA);
         super.testFindById(testData.coverageA);
         super.testFindById(testData.wmsLayerA);
         super.testFindById(testData.wmtsLayerA);
     }
 
-    @Override public  @Test void testFindAllByType() {
+    @Override
+    public @Test void testFindAllByType() {
         super.testFindAll(
                 ResourceInfo.class,
                 testData.featureTypeA,
@@ -68,7 +70,8 @@ class ResourceInfoControllerTest
         super.testFindAll(WMTSLayerInfo.class, testData.wmtsLayerA);
     }
 
-    @Override public  @Test void testQueryFilter() {
+    @Override
+    public @Test void testQueryFilter() {
         FeatureTypeInfo ft =
                 catalog.getResource(testData.featureTypeA.getId(), FeatureTypeInfo.class);
         CoverageInfo cv = catalog.getResource(testData.coverageA.getId(), CoverageInfo.class);
@@ -88,7 +91,8 @@ class ResourceInfoControllerTest
         super.testQueryFilter("enabled = false", wms, wmts);
     }
 
-    @Test void testResourceInfoCRUD_FeatureTypeInfo() {
+    @Test
+    void testResourceInfoCRUD_FeatureTypeInfo() {
         FeatureTypeInfo toCreate =
                 testData.createFeatureType(
                         "featureTypeCRUD",
@@ -113,7 +117,8 @@ class ResourceInfoControllerTest
                 });
     }
 
-    @Test void testResourceInfoCRUD_CoverageInfo() {
+    @Test
+    void testResourceInfoCRUD_CoverageInfo() {
         CoverageInfo toCreate =
                 testData.createCoverage(
                         "coverageCRUD", testData.coverageStoreA, "coverageCRUD_name");
@@ -142,7 +147,8 @@ class ResourceInfoControllerTest
      * java.util.Collections$EmptySet (in module java.base) with modifiers "private"}
      */
     @Disabled
-    @Test void testResourceInfoCRUD_WMSLayerInfo() {
+    @Test
+    void testResourceInfoCRUD_WMSLayerInfo() {
         WMSLayerInfo toCreate =
                 testData.createWMSLayer(
                         "wmsLayerCRUD",
@@ -165,7 +171,8 @@ class ResourceInfoControllerTest
                 });
     }
 
-    @Test void testResourceInfoCRUD_WMTSLayerInfo() {
+    @Test
+    void testResourceInfoCRUD_WMTSLayerInfo() {
         WMTSLayerInfo toCreate =
                 testData.createWMTSLayer(
                         "wmtsLayerCRUD",
@@ -188,14 +195,16 @@ class ResourceInfoControllerTest
                 });
     }
 
-    @Test void testFindResourceInfoById() {
+    @Test
+    void testFindResourceInfoById() {
         testFindById(testData.featureTypeA);
         testFindById(testData.coverageA);
         testFindById(testData.wmsLayerA);
         testFindById(testData.wmtsLayerA);
     }
 
-    @Test void testFindResourceInfoById_SubtypeMismatch() throws IOException {
+    @Test
+    void testFindResourceInfoById_SubtypeMismatch() throws IOException {
         CatalogTestClient<ResourceInfo> client = client();
         client.findById(testData.featureTypeA.getId(), CoverageInfo.class)
                 .expectStatus()
@@ -211,7 +220,8 @@ class ResourceInfoControllerTest
                 .isNoContent();
     }
 
-    @Test void testFindResourceByNamespaceIdAndName() {
+    @Test
+    void testFindResourceByNamespaceIdAndName() {
         NamespaceInfo ns = testData.namespaceA;
         ResourceInfo ftA = testData.featureTypeA;
 
@@ -227,7 +237,8 @@ class ResourceInfoControllerTest
                 .consumeWith(result -> assertEquals(ftA.getId(), result.getResponseBody().getId()));
     }
 
-    @Test void testFindAllBySubtype() {
+    @Test
+    void testFindAllBySubtype() {
         List<ResourceInfo> all = super.findAll(ClassMappings.fromInterface(FeatureTypeInfo.class));
         assertEquals(catalog.getResources(FeatureTypeInfo.class).size(), all.size());
 
