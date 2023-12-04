@@ -75,8 +75,7 @@ public class FileSystemResourceStoreCache implements DisposableBean {
 
     private long getLastmodified(final Path path) throws IOException {
         BasicFileAttributes attr = Files.readAttributes(path, BasicFileAttributes.class);
-        long fileMtime = attr.lastModifiedTime().toMillis();
-        return fileMtime;
+        return attr.lastModifiedTime().toMillis();
     }
 
     public Path ensureFileExists(PgsqlResource resource) throws IOException {

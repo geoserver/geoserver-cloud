@@ -67,8 +67,7 @@ class CachingCatalogFacadeImpl extends ForwardingExtendedCatalogFacade
         }
 
         CatalogInfoKey key = new CatalogInfoKey(info);
-        boolean evicted = idCache.evictIfPresent(key);
-        return evicted;
+        return idCache.evictIfPresent(key);
     }
 
     @Override

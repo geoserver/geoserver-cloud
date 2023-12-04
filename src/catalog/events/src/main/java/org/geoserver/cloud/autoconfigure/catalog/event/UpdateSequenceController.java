@@ -54,7 +54,6 @@ public class UpdateSequenceController {
     }
 
     protected long observed() {
-        long observed = geoServer.getGlobal().getUpdateSequence();
-        return observed;
+        return geoServer.getGlobal().getUpdateSequence();
     }
 }

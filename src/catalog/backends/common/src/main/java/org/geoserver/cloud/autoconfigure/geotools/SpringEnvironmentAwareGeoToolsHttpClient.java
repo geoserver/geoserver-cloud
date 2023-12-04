@@ -230,9 +230,7 @@ class SpringEnvironmentAwareGeoToolsHttpClient
             resp = client.execute(method);
         }
 
-        HttpMethodResponse response = new HttpMethodResponse(resp);
-
-        return response;
+        return new HttpMethodResponse(resp);
     }
 
     @Override

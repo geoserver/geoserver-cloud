@@ -25,7 +25,6 @@ public class CatalogInfoDeserializer<I extends CatalogInfo> extends JsonDeserial
             throws IOException, JsonProcessingException {
 
         CatalogInfoDto dto = parser.readValueAs(CatalogInfoDto.class);
-        I info = mapper.map(dto);
-        return info;
+        return mapper.map(dto);
     }
 }

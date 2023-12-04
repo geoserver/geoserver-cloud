@@ -72,8 +72,7 @@ public class PgsqlBackendConfiguration extends GeoServerBackendConfigurer {
 
     @Bean(name = "pgsqlCongigJdbcTemplate")
     JdbcTemplate template() {
-        JdbcTemplate template = new JdbcTemplate(dataSource);
-        return template;
+        return new JdbcTemplate(dataSource);
     }
 
     protected @Bean @Override GeoServerConfigurationLock configurationLock() {

@@ -360,7 +360,6 @@ public abstract class PgsqlCatalogInfoRepository<T extends CatalogInfo>
         if (clazz.isInterface()) cm = ClassMappings.fromInterface(clazz);
         else cm = ClassMappings.fromImpl(clazz);
 
-        String infotype = cm.getInterface().getSimpleName();
-        return infotype;
+        return cm.getInterface().getSimpleName();
     }
 }

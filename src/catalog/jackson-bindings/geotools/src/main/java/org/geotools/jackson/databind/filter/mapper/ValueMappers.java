@@ -62,8 +62,7 @@ public abstract class ValueMappers {
         if (null == value) return null;
 
         try {
-            Class<?> clazz = Class.forName(value);
-            return clazz;
+            return Class.forName(value);
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }

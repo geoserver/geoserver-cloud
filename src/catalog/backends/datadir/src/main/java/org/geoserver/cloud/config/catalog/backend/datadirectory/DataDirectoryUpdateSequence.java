@@ -69,8 +69,7 @@ public class DataDirectoryUpdateSequence implements UpdateSequence, GeoServerIni
             Resource resource = getOrCreateResource();
 
             Properties props = load(resource);
-            final long currentValue = getValue(props);
-            return currentValue;
+            return getValue(props);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -194,8 +193,6 @@ public class DataDirectoryUpdateSequence implements UpdateSequence, GeoServerIni
 
     protected org.geoserver.platform.resource.Resource.Lock lock() {
         LockProvider lockProvider = resourceStore.getLockProvider();
-        org.geoserver.platform.resource.Resource.Lock lock =
-                lockProvider.acquire(CLUSTER_LOCK_NAME);
-        return lock;
+        return lockProvider.acquire(CLUSTER_LOCK_NAME);
     }
 }

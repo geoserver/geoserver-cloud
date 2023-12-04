@@ -995,8 +995,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
             workspace = DefaultCatalogFacade.NO_WORKSPACE;
         }
 
-        LayerGroupInfo layerGroup = facade.getLayerGroupByName(workspace, name);
-        return layerGroup;
+        return facade.getLayerGroupByName(workspace, name);
     }
 
     @Override
@@ -1220,8 +1219,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
         if (workspace == null) {
             workspace = DefaultCatalogFacade.NO_WORKSPACE;
         }
-        StyleInfo style = facade.getStyleByName(workspace, name);
-        return style;
+        return facade.getStyleByName(workspace, name);
     }
 
     @Override

@@ -261,8 +261,7 @@ public class JDBCConfigBackendConfigurer extends GeoServerBackendConfigurer {
     protected @Override GeoServerFacade geoserverFacade() {
         initDbSchema(jdbcConfigProperties(), jdbcStoreProperties(), jdbcConfigDB());
         ConfigDatabase configDB = jdbcConfigDB();
-        CloudJdbcGeoserverFacade facade = new CloudJdbcGeoserverFacade(configDB);
-        return facade;
+        return new CloudJdbcGeoserverFacade(configDB);
     }
 
     @Bean(name = {"geoServerLoaderImpl", "JDBCGeoServerLoader"})
@@ -313,9 +312,7 @@ public class JDBCConfigBackendConfigurer extends GeoServerBackendConfigurer {
         DataSource dataSource = jdbcConfigDataSource();
         XStreamInfoSerialBinding binding = jdbcPersistenceBinding();
         CacheProvider cacheProvider = jdbcCacheProvider();
-        ConfigDatabase configDb =
-                new CloudJdbcConfigDatabase(config, dataSource, binding, cacheProvider);
-        return configDb;
+        return new CloudJdbcConfigDatabase(config, dataSource, binding, cacheProvider);
     }
 
     private boolean initDbSchema(

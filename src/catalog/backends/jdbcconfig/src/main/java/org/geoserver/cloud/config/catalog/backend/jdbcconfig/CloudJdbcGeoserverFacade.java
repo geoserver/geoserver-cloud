@@ -68,8 +68,7 @@ public class CloudJdbcGeoserverFacade implements GeoServerFacade {
 
     @Override
     public GeoServerInfo getGlobal() {
-        GeoServerInfo global = db.getById(GLOBAL_ID, GeoServerInfo.class);
-        return global;
+        return db.getById(GLOBAL_ID, GeoServerInfo.class);
     }
 
     @Override
@@ -107,8 +106,7 @@ public class CloudJdbcGeoserverFacade implements GeoServerFacade {
 
     @Override
     public LoggingInfo getLogging() {
-        LoggingInfo loggingInfo = db.getById(GLOBAL_LOGGING_ID, LoggingInfo.class);
-        return loggingInfo;
+        return db.getById(GLOBAL_LOGGING_ID, LoggingInfo.class);
     }
 
     @Override

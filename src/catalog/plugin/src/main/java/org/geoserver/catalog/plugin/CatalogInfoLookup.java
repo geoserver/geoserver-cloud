@@ -268,8 +268,7 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
             if (i == path.length - 1) {
                 boolean primitive = clazz.isPrimitive();
                 boolean comparable = Comparable.class.isAssignableFrom(clazz);
-                boolean canSort = primitive || comparable;
-                return canSort;
+                return primitive || comparable;
             }
         }
         throw new IllegalStateException("empty property name");

@@ -102,8 +102,7 @@ public class CloudJdbcStoreProperties extends JDBCResourceStoreProperties {
                 JDBCResourceStoreProperties.class.getPackage().getName(),
                 scriptName);
 
-        Resource resource = org.geoserver.platform.resource.URIs.asResource(initScript);
-        return resource;
+        return org.geoserver.platform.resource.URIs.asResource(initScript);
     }
 
     /**

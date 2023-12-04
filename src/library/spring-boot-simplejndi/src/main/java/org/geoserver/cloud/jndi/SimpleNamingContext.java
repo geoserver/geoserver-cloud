@@ -314,11 +314,9 @@ public class SimpleNamingContext implements Context {
         protected String extractSimpleName(final String contextRoot, String boundName) {
             int startIndex = contextRoot.length();
             int endIndex = boundName.indexOf('/', startIndex);
-            String strippedName =
-                    (endIndex != -1
-                            ? boundName.substring(startIndex, endIndex)
-                            : boundName.substring(startIndex));
-            return strippedName;
+            return (endIndex != -1
+                    ? boundName.substring(startIndex, endIndex)
+                    : boundName.substring(startIndex));
         }
 
         protected abstract T createObject(String simpleName, Object obj);

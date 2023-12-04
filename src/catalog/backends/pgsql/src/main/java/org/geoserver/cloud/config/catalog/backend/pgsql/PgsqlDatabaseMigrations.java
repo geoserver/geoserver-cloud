@@ -42,14 +42,12 @@ public class PgsqlDatabaseMigrations {
     }
 
     protected Flyway buildFlyway() {
-        Flyway flyway =
-                Flyway.configure()
-                        .dataSource(dataSource)
-                        .schemas(schema)
-                        .createSchemas(createSchema)
-                        .cleanDisabled(cleanDisabled)
-                        .locations("db/pgsqlcatalog/migration")
-                        .load();
-        return flyway;
+        return Flyway.configure()
+                .dataSource(dataSource)
+                .schemas(schema)
+                .createSchemas(createSchema)
+                .cleanDisabled(cleanDisabled)
+                .locations("db/pgsqlcatalog/migration")
+                .load();
     }
 }

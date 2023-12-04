@@ -188,8 +188,7 @@ public class LiteralDeserializer extends JsonDeserializer<Literal> {
         expectFieldName(typeFieldName, TYPE_KEY);
         final String typeString = parser.nextTextValue();
         requireNonNull(typeString, "type is null");
-        final Class<?> type = classNameMapper.canonicalNameToClass(typeString);
-        return type;
+        return classNameMapper.canonicalNameToClass(typeString);
     }
 
     /**

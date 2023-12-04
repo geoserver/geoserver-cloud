@@ -149,7 +149,6 @@ public abstract class InfoReferenceMapper {
         Objects.requireNonNull(id, () -> "Object Reference has no id: " + ref);
         @SuppressWarnings("unchecked")
         Class<T> type = (Class<T>) ref.getType().getInterface();
-        T proxy = ResolvingProxy.create(id, type);
-        return proxy;
+        return ResolvingProxy.create(id, type);
     }
 }
