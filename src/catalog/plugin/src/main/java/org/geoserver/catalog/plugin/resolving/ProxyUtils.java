@@ -180,8 +180,6 @@ public class ProxyUtils {
             if (info instanceof StoreInfo s) resolveInternal(s);
             if (info instanceof SettingsInfo s) resolveInternal(s);
             if (info instanceof ServiceInfo s) resolveInternal(s);
-            if (info instanceof GeoServerInfo g) resolveInternal(g);
-            if (info instanceof LoggingInfo l) resolveInternal(l);
         }
         return info;
     }
@@ -211,10 +209,6 @@ public class ProxyUtils {
     public static <T extends Info> boolean isModificationProxy(final T info) {
         return null != org.geoserver.catalog.impl.ProxyUtils.handler(info, ModificationProxy.class);
     }
-
-    private void resolveInternal(LoggingInfo info) {}
-
-    private void resolveInternal(GeoServerInfo info) {}
 
     protected void resolveInternal(SettingsInfo settings) {
         if (settings.getWorkspace() != null) {

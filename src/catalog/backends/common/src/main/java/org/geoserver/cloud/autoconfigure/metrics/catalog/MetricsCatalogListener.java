@@ -30,17 +30,17 @@ class MetricsCatalogListener implements CatalogListener {
     public MetricsCatalogListener(@NonNull MeterRegistry registry, @Nullable String instanceId) {
 
         added =
-                counter("geoserver.catalog.added", instanceId, registry)
+                counter("geoserver.catalog.added", instanceId)
                         .description(
                                 "Number of CatalogInfo objects added to this instance's Catalog")
                         .register(registry);
         removed =
-                counter("geoserver.catalog.removed", instanceId, registry)
+                counter("geoserver.catalog.removed", instanceId)
                         .description(
                                 "Number of CatalogInfo objects removed on this instance's Catalog")
                         .register(registry);
         modified =
-                counter("geoserver.catalog.modified", instanceId, registry)
+                counter("geoserver.catalog.modified", instanceId)
                         .description(
                                 "Number of modifications to CatalogInfo objects on this instance's Catalog")
                         .register(registry);
@@ -52,7 +52,7 @@ class MetricsCatalogListener implements CatalogListener {
                         .register(registry);
     }
 
-    private Counter.Builder counter(String name, String instanceId, MeterRegistry registry) {
+    private Counter.Builder counter(String name, String instanceId) {
         Builder builder =
                 Counter.builder(name) //
                         .baseUnit(BaseUnits.OPERATIONS);

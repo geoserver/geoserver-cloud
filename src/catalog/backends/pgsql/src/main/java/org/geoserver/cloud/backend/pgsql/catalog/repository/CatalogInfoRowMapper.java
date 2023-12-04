@@ -164,7 +164,7 @@ class CatalogInfoRowMapper {
     }
 
     protected StyleInfo mapStyle(String id, String column, ResultSet rs) {
-        return resolveCached(id, StyleInfo.class, rs, r -> loadStyle(r, "defaultStyle"));
+        return resolveCached(id, StyleInfo.class, rs, r -> loadStyle(r, column));
     }
 
     /**

@@ -133,7 +133,7 @@ public class CatalogValidationRules {
         } else if (info instanceof LayerInfo l) {
             beforeRemove(l);
         } else if (info instanceof MapInfo map) {
-            beforeRemove(map);
+            // no-op
         } else if (info instanceof NamespaceInfo ns) {
             beforeRemove(ns);
         } else if (info instanceof ResourceInfo res) {
@@ -222,10 +222,6 @@ public class CatalogValidationRules {
             }
         }
         checkArgument(!isDefaultStyle(style), "Unable to delete a default style");
-    }
-
-    private void beforeRemove(MapInfo map) {
-        // no-op
     }
 
     private ValidationResult postValidate(CatalogInfo info, boolean isNew) {

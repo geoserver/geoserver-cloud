@@ -273,7 +273,7 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
                 String.format(
                         "Invalid bean filter expression (%s), expected name=<regex>>, resource: %s",
                         regex, resourceLocation);
-        throw new IllegalArgumentException(msg);
+        throw new IllegalArgumentException(msg, cause);
     }
 
     public static class FilteringBeanDefinitionDocumentReader

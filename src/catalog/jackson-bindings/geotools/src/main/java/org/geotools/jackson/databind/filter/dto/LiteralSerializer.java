@@ -97,7 +97,7 @@ public class LiteralSerializer extends StdSerializer<Literal> {
             } else if (Collection.class.isAssignableFrom(type)) {
                 writeCollection((Collection<?>) value, gen, provider);
             } else if (Map.class.isAssignableFrom(type)) {
-                writeMap((Map<?, ?>) value, gen, provider);
+                writeMap((Map<?, ?>) value, gen);
             } else {
                 if (type.isAnonymousClass()) {
                     Class<?> enclosingClass = type.getEnclosingClass();
@@ -131,8 +131,7 @@ public class LiteralSerializer extends StdSerializer<Literal> {
         return valueSerializer;
     }
 
-    private void writeMap(Map<?, ?> value, JsonGenerator gen, SerializerProvider provider)
-            throws IOException {
+    private void writeMap(Map<?, ?> value, JsonGenerator gen) throws IOException {
         gen.writeStringField(TYPE_KEY, classNameMapper.classToCanonicalName(Map.class));
 
         gen.writeFieldName(VALUE_KEY);

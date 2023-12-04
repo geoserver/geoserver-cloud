@@ -148,10 +148,9 @@ class SpringEnvironmentAwareGeoToolsHttpClient
     }
 
     private void setTargetCredentials(
-            BasicCredentialsProvider provider, String user2, String password2) {
+            BasicCredentialsProvider provider, String userName, String pwd) {
         AuthScope authscope = AuthScope.ANY;
-        Credentials credentials = new UsernamePasswordCredentials(user, password);
-        // TODO - check if this works for all types of auth or do we need to look it up?
+        Credentials credentials = new UsernamePasswordCredentials(userName, pwd);
         provider.setCredentials(authscope, credentials);
     }
 

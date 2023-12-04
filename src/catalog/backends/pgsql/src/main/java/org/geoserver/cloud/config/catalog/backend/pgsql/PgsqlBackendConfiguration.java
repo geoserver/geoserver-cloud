@@ -18,7 +18,6 @@ import org.geoserver.cloud.backend.pgsql.resource.PgsqlLockProvider;
 import org.geoserver.cloud.backend.pgsql.resource.PgsqlResourceStore;
 import org.geoserver.cloud.config.catalog.backend.core.CatalogProperties;
 import org.geoserver.cloud.config.catalog.backend.core.GeoServerBackendConfigurer;
-import org.geoserver.cloud.config.catalog.backend.pgsql.DatabaseMigrationConfiguration.Migrations;
 import org.geoserver.config.GeoServerLoader;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.LockProvider;
@@ -49,7 +48,6 @@ public class PgsqlBackendConfiguration extends GeoServerBackendConfigurer {
     PgsqlBackendConfiguration(
             @Value("${info.instance-id:}") String instanceId,
             @Qualifier("pgsqlConfigDatasource") DataSource dataSource,
-            Migrations migrations,
             CatalogProperties catalogProperties) {
         this.instanceId = instanceId;
         this.dataSource = dataSource;

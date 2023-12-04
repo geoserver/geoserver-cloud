@@ -5,7 +5,6 @@
 package org.geoserver.cloud.config.catalog.backend.jdbcconfig;
 
 import org.geoserver.catalog.Catalog;
-import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.cloud.config.catalog.backend.core.CoreBackendConfiguration;
 import org.geoserver.config.DefaultGeoServerLoader;
 import org.geoserver.config.GeoServer;
@@ -96,11 +95,11 @@ public class CloudJdbcGeoServerLoader extends DefaultGeoServerLoader {
 
     @Override
     protected void loadCatalog(Catalog catalog, XStreamPersister xp) throws Exception {
-        loadCatalogInternal((CatalogPlugin) catalog, xp);
+        loadCatalogInternal(xp);
         catalog.addListener(new GeoServerResourcePersister(catalog));
     }
 
-    private void loadCatalogInternal(CatalogPlugin catalog, XStreamPersister xp) throws Exception {
+    private void loadCatalogInternal(XStreamPersister xp) throws Exception {
         if (!config.isInitDb() && !config.isImport() && config.isRepopulate()) {
             ConfigDatabase configDatabase = this.configdb;
             configDatabase.repopulateQueryableProperties();

@@ -125,7 +125,7 @@ class PgsqlFilterToSQL extends PreparedFilterToSQL {
         super.encodingFunction = true;
         boolean encoded;
         try {
-            encoded = visitFunction(function, extraData);
+            encoded = visitFunction(function);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -169,7 +169,7 @@ class PgsqlFilterToSQL extends PreparedFilterToSQL {
      *
      * @implNote copied and adapted from org.geotools.data.postgis.FilterToSqlHelper
      */
-    protected boolean visitFunction(Function function, Object extraData) throws IOException {
+    protected boolean visitFunction(Function function) throws IOException {
         if (function instanceof FilterFunction_strConcat) {
             Expression s1 = getParameter(function, 0, true);
             Expression s2 = getParameter(function, 1, true);

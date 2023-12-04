@@ -186,7 +186,6 @@ class CatalogApplicationEventPublisher {
 
         private void preparePreModify(
                 @NonNull String id,
-                Info info,
                 List<String> propertyNames,
                 List<Object> oldValues,
                 List<Object> newValues) {
@@ -208,7 +207,7 @@ class CatalogApplicationEventPublisher {
                 List<Object> oldValues,
                 List<Object> newValues) {
             String id = InfoEvent.resolveId(global);
-            preparePreModify(id, global, propertyNames, oldValues, newValues);
+            preparePreModify(id, propertyNames, oldValues, newValues);
         }
 
         /**
@@ -247,7 +246,7 @@ class CatalogApplicationEventPublisher {
                 OwsUtils.set(settings, "id", UUID.randomUUID().toString());
             }
 
-            preparePreModify(settings.getId(), settings, propertyNames, oldValues, newValues);
+            preparePreModify(settings.getId(), propertyNames, oldValues, newValues);
         }
 
         @Override
@@ -267,8 +266,7 @@ class CatalogApplicationEventPublisher {
                 List<Object> oldValues,
                 List<Object> newValues) {
             // LoggingInfo has no-id
-            preparePreModify(
-                    InfoEvent.resolveId(logging), logging, propertyNames, oldValues, newValues);
+            preparePreModify(InfoEvent.resolveId(logging), propertyNames, oldValues, newValues);
         }
 
         @Override
@@ -292,7 +290,7 @@ class CatalogApplicationEventPublisher {
                 List<Object> oldValues,
                 List<Object> newValues) {
 
-            preparePreModify(service.getId(), service, propertyNames, oldValues, newValues);
+            preparePreModify(service.getId(), propertyNames, oldValues, newValues);
         }
 
         /**
