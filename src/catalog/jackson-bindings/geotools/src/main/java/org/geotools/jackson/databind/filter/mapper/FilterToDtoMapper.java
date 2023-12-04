@@ -127,8 +127,6 @@ interface FilterToDtoMapper {
             Filter.Id.ResourceId resourceId = new Filter.Id.ResourceId();
             fid = resourceId;
             resourceId.setStartTime(rid.getStartTime()).setEndTime(rid.getEndTime());
-            //                    .setVersion(rid.getVersion() == null ? null :
-            // rid.getVersion().toString());
         } else if (id instanceof FeatureId) {
             fid = new Filter.Id.FeatureId();
         } else {

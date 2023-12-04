@@ -79,8 +79,6 @@ public class CloudJdbcGeoserverFacade implements GeoServerFacade {
             SettingsInfo defaultSettings = geoServer.getFactory().createSettings();
             add(defaultSettings);
             global.setSettings(defaultSettings);
-            // JD: disabling this check, global settings should have an id
-            // }else if(null == global.getSettings().getId()){
         } else {
             add(global.getSettings());
         }
@@ -167,9 +165,6 @@ public class CloudJdbcGeoserverFacade implements GeoServerFacade {
 
     @Override
     public SettingsInfo getSettings(WorkspaceInfo workspace) {
-        //        Filter filter = equal("workspace.id", workspace.getId());
-        //        return db.get(SettingsInfo.class, filter);
-
         String wsId = workspace.getId();
         return db.getByIdentity(SettingsInfo.class, "workspace.id", wsId);
     }

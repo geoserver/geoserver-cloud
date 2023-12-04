@@ -32,8 +32,6 @@ public @Data @Generated class GeoServer extends ConfigInfoDto {
     private JaiDto JAI;
     private CoverageAccess coverageAccess;
     private MetadataMapDto metadata;
-    // not used
-    // private Map<Object, Object> clientProperties;
     private long updateSequence;
     private String adminUsername;
     private String adminPassword;

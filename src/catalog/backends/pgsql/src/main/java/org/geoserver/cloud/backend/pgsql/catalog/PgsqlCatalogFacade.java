@@ -29,6 +29,5 @@ public class PgsqlCatalogFacade extends RepositoryCatalogFacadeImpl {
         super.setLayerRepository(new PgsqlLayerRepository(template));
         super.setLayerGroupRepository(new PgsqlLayerGroupRepository(template));
         super.setStyleRepository(new PgsqlStyleRepository(template));
-        // super.setMapRepository(new PgsqlCatalogInfoRepository<MapInfo>(template) {});
     }
 }

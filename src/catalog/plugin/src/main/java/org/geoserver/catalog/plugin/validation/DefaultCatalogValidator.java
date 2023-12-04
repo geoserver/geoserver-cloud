@@ -179,10 +179,6 @@ public class DefaultCatalogValidator implements CatalogValidator {
 
     @Override
     public void validate(LayerInfo layer, boolean isNew) {
-        // TODO: bring back when the layer/publishing split is in act
-        // if ( isNull(layer.getName()) ) {
-        // throw new NullPointerException( "Layer name must not be null" );
-        // }
         final ResourceInfo resource = layer.getResource();
         checkNotNull(resource, "Layer resource must not be null");
         if (isNew) {

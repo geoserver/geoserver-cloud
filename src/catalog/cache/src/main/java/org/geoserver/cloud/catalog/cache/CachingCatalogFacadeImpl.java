@@ -94,11 +94,6 @@ class CachingCatalogFacadeImpl extends ForwardingExtendedCatalogFacade
         return super.add(layer);
     }
 
-    //    @CachePut(key = "new org.geoserver.cloud.catalog.cache.CatalogInfoKey(#p0)")
-    //    @Override public  LayerGroupInfo add(LayerGroupInfo layerGroup) {
-    //        return super.add(layerGroup);
-    //    }
-
     @CachePut(key = "new org.geoserver.cloud.catalog.cache.CatalogInfoKey(#p0)")
     @Override
     public NamespaceInfo add(NamespaceInfo namespace) {
@@ -143,11 +138,6 @@ class CachingCatalogFacadeImpl extends ForwardingExtendedCatalogFacade
         super.remove(layer);
     }
 
-    //    @CacheEvict(key = "new org.geoserver.cloud.catalog.cache.CatalogInfoKey(#p0)")
-    //    @Override public  void remove(LayerGroupInfo layerGroup) {
-    //        super.remove(layerGroup);
-    //    }
-
     @CacheEvict(key = "new org.geoserver.cloud.catalog.cache.CatalogInfoKey(#p0)")
     @Override
     public void remove(NamespaceInfo namespace) {
@@ -189,11 +179,6 @@ class CachingCatalogFacadeImpl extends ForwardingExtendedCatalogFacade
     public void save(LayerInfo layer) {
         super.save(layer);
     }
-
-    //    @CacheEvict(key = "new org.geoserver.cloud.catalog.cache.CatalogInfoKey(#p0)")
-    //    @Override public  void save(LayerGroupInfo layerGroup) {
-    //        super.save(layerGroup);
-    //    }
 
     @CacheEvict(key = "new org.geoserver.cloud.catalog.cache.CatalogInfoKey(#p0)")
     @Override
@@ -297,13 +282,6 @@ class CachingCatalogFacadeImpl extends ForwardingExtendedCatalogFacade
         return super.getLayers(resource);
     }
 
-    //    @Cacheable(
-    //            key = "new org.geoserver.cloud.catalog.cache.CatalogInfoKey(#id, 'LAYERGROUP')",
-    //            unless = "#result == null")
-    //    @Override public  LayerGroupInfo getLayerGroup(String id) {
-    //        return super.getLayerGroup(id);
-    //    }
-
     @Cacheable(key = "'" + DEFAULT_WORKSPACE_CACHE_KEY + "'", unless = "#result == null")
     @Override
     public WorkspaceInfo getDefaultWorkspace() {
@@ -341,16 +319,4 @@ class CachingCatalogFacadeImpl extends ForwardingExtendedCatalogFacade
     public void setDefaultDataStore(WorkspaceInfo workspace, DataStoreInfo store) {
         super.setDefaultDataStore(workspace, store);
     }
-
-    // @Override public  <T extends StoreInfo> T getStoreByName(WorkspaceInfo workspace, String
-    // name, Class<T> clazz){}
-    // @Override public  LayerInfo getLayerByName(String name){}
-    // @Override public  LayerGroupInfo getLayerGroupByName(String name){}
-    // @Override public  LayerGroupInfo getLayerGroupByName(WorkspaceInfo workspace, String
-    // name){}
-    // @Override public  NamespaceInfo getNamespaceByPrefix(String prefix){}
-    // @Override public  NamespaceInfo getNamespaceByURI(String uri){}
-    // @Override public  WorkspaceInfo getWorkspaceByName(String name){}
-    // @Override public  StyleInfo getStyleByName(String name){}
-    // @Override public  StyleInfo getStyleByName(WorkspaceInfo workspace, String name){}
 }

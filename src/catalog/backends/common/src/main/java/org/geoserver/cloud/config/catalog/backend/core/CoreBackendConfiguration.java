@@ -43,13 +43,6 @@ public class CoreBackendConfiguration {
         return new XStreamPersisterFactory();
     }
 
-    // @Autowired
-    // @DependsOn("geoServerLoaderImpl")
-    // @Bean GeoServerLoaderProxy geoServerLoader(GeoServerResourceLoader resourceLoader)
-    // {
-    // return new GeoServerLoaderProxy(resourceLoader);
-    // }
-
     @Bean
     GeoServerExtensions extensions() {
         return new GeoServerExtensions();

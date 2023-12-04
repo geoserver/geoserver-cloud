@@ -66,7 +66,6 @@ public class JdbcConfigUpdateSequence implements UpdateSequence, InitializingBea
             incrementAndGetQuery = format("SELECT NEXTVAL('%s')", SEQUENCE_NAME);
         } else if (props.isH2()) {
             createSequenceStatement = format("CREATE SEQUENCE IF NOT EXISTS %s", SEQUENCE_NAME);
-            // getQuery = format("SELECT CURRVAL('%s')", SEQUENCE_NAME);
             getQuery =
                     format(
                             """
@@ -83,7 +82,6 @@ public class JdbcConfigUpdateSequence implements UpdateSequence, InitializingBea
                 Statement st = c.createStatement()) {
             st.execute(createSequenceStatement);
         }
-        // incrementAndGet();
     }
 
     protected long runAndGetLong(String query) {

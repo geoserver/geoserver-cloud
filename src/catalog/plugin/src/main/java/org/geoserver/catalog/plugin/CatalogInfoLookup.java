@@ -175,7 +175,6 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
                                 value.getId(),
                                 nameMapper.apply(value).getLocalPart());
                 LOGGER.warning(msg);
-                // throw new IllegalArgumentException(msg);
             }
             Name name = nameMapper.apply(value);
             nameMap.put(name, value);

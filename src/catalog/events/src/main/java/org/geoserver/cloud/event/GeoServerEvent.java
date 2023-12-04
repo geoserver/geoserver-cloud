@@ -54,7 +54,7 @@ public abstract class GeoServerEvent<SELF> {
     }
 
     public boolean isLocal() {
-        return !isRemote(); // source != null;
+        return !isRemote();
     }
 
     public boolean isRemote() {

@@ -129,13 +129,6 @@ public class CatalogInfoTypeRegistry<I extends CatalogInfo, R> {
         if (cm != null) {
             return cm;
         }
-        //        // don't really care if it's a proxy, can't assume ModificationProxy and
-        //        // ResolvingProxy are the only ones
-        //        for (int i = 0; i < instanceOfLookup.size(); i++) {
-        //            if (instanceOfLookup.get(i).isAssignableFrom(type)) {
-        //                return determineKey(instanceOfLookup.get(i));
-        //            }
-        //        }
         throw new IllegalArgumentException(
                 "Unable to determine CatalogInfo subtype from class " + type.getName());
     }

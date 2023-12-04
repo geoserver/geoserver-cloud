@@ -63,7 +63,6 @@ public class WebCoreConfiguration {
         HeaderContribution contribution = new HeaderContribution();
         contribution.setScope(GeoServerBasePage.class);
         contribution.setCSSFilename("geoserver-cloud.css");
-        // contribution.setFaviconFilename("favicon.ico");
         return contribution;
     }
 }

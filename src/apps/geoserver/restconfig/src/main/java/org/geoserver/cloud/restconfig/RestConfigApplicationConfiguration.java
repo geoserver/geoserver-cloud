@@ -69,8 +69,6 @@ public class RestConfigApplicationConfiguration extends RestConfiguration {
 
         handlerMapping.setUseSuffixPatternMatch(true);
         handlerMapping.setUseRegisteredSuffixPatternMatch(true);
-        // handlerMapping.setUseTrailingSlashMatch(true);
-        // handlerMapping.setAlwaysUseFullPath(true);
 
         return handlerMapping;
     }

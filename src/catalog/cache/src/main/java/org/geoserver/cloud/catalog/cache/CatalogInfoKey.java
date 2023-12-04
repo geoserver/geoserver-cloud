@@ -80,7 +80,6 @@ public class CatalogInfoKey implements Serializable {
     @Override
     public int hashCode() {
         return id.hashCode();
-        // return 31 * id.hashCode() + (type == null ? 0 : type.hashCode());
     }
 
     @Override

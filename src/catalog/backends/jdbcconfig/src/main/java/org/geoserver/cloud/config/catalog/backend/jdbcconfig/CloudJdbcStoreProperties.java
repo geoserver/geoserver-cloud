@@ -51,7 +51,7 @@ public class CloudJdbcStoreProperties extends JDBCResourceStoreProperties {
      */
     @Override
     public void save() throws IOException {
-        // factory.saveConfig(this);
+        // no-op
     }
 
     /** Override to return {@code true} only if the db schema is not already created */

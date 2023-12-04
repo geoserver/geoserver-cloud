@@ -213,20 +213,6 @@ class PgsqlFilterToSQL extends PreparedFilterToSQL {
             out.write("::text))");
             return true;
         }
-        //        if (function instanceof FilterFunction_strToLowerCase) {
-        //            Expression first = getParameter(function, 0, true);
-        //            out.write("(lower(");
-        //            first.accept(this, String.class);
-        //            out.write("::text))");
-        //            return true;
-        //        }
-        //        if (function instanceof FilterFunction_strToUpperCase) {
-        //            Expression first = getParameter(function, 0, true);
-        //            out.write("(upper(");
-        //            first.accept(this, String.class);
-        //            out.write("::text))");
-        //            return true;
-        //        }
         if (function instanceof FilterFunction_strIndexOf) {
             Expression first = getParameter(function, 0, true);
             Expression second = getParameter(function, 1, true);
@@ -275,14 +261,6 @@ class PgsqlFilterToSQL extends PreparedFilterToSQL {
             out.write(")");
             return true;
         }
-        //        if (function instanceof JsonPointerFunction) {
-        //            encodeJsonPointer(function, extraData);
-        //            return true;
-        //        }
-        //        if (function instanceof JsonArrayContainsFunction) {
-        //            encodeJsonArrayContains(function);
-        //            return true;
-        //        }
         // function not supported
         return false;
     }

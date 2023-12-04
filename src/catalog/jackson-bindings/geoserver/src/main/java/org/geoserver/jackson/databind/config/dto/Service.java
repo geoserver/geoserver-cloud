@@ -65,9 +65,6 @@ public abstract @Data @Generated class Service extends ConfigInfoDto {
     private boolean verbose;
     private MetadataMapDto metadata;
 
-    // not used
-    // Map<Object, Object> clientProperties;
-
     /**
      * @since geoserver 2.20.0
      */

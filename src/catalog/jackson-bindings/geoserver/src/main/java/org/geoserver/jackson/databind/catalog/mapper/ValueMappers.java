@@ -252,9 +252,6 @@ public interface ValueMappers {
         return new VirtualTable(dto.getName(), dto.getSql(), dto.isEscapeSql());
     }
 
-    // there's no implementation for ImagingInfo and ImageFormatInfo, looks like dead code
-    // ImageFormatInfo infoToDto();
-
     default String localeToString(Locale locale) {
         return locale == null ? "" : locale.toLanguageTag();
     }

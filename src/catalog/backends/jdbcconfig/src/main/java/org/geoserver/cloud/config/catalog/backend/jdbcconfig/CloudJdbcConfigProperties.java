@@ -34,7 +34,7 @@ public class CloudJdbcConfigProperties extends JDBCConfigProperties {
     /** Override to not save at all */
     @Override
     public void save() throws IOException {
-        // factory.saveConfig(this);
+        // no-op
     }
 
     public boolean isH2() {

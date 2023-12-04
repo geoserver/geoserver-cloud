@@ -94,12 +94,6 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
     public void setFacade(GeoServerFacade facade) {
         this.facade = facade;
         facade.setGeoServer(this);
-        //        if (facade.getGlobal() == null) {
-        //            facade.setGlobal(getFactory().createGlobal());
-        //        }
-        //        if (facade.getLogging() == null) {
-        //            facade.setLogging(getFactory().createLogging());
-        //        }
     }
 
     @Override

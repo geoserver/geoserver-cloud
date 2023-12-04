@@ -56,7 +56,6 @@ public class WebUiCloudServicesConfiguration {
         menu.setTitleKey("ServiceRegistryPage.title");
         menu.setDescriptionKey("ServiceRegistryPage.description");
         menu.setComponentClass(ServiceRegistryPage.class);
-        // menu.setIcon(null);
         menu.setOrder(1000);
         menu.setAuthorizer(ComponentAuthorizer.ADMIN);
         return menu;

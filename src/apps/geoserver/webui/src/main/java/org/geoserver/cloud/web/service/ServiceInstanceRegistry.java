@@ -56,7 +56,6 @@ public class ServiceInstanceRegistry {
             InstanceStatus status = instanceInfo.getStatus();
             return status.toString();
         }
-        // Map<String, String> metadata = i.getMetadata();
         return "UNKNOWN";
     }
 

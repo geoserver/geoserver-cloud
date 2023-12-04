@@ -84,9 +84,6 @@ public class CloudCatalogConfiguration extends CatalogConfiguration {
 
     private void setMissingConfig(GeoServerTileLayerInfo info, GeoServerTileLayerInfo defaults) {
 
-        // defaults.isAutoCacheStyles();
-        // defaults.isEnabled();
-        // defaults.isInMemoryCached();
         String blobStoreId = defaults.getBlobStoreId();
         Set<WarningType> cacheWarningSkips = defaults.getCacheWarningSkips();
         int expireCache = defaults.getExpireCache();

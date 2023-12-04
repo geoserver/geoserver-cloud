@@ -184,8 +184,7 @@ public abstract class PgsqlCatalogInfoRepository<T extends CatalogInfo>
         if (!filterFullySupported) {
             filter = SimplifyingFilterVisitor.simplify(unsupportedFilter);
 
-            Predicate<U> predicate = toPredicate(unsupportedFilter);
-            // Predicate<U> predicate = toPredicate(filter);
+            Predicate<U> predicate = toPredicate(filter);
             stream =
                     stream.filter(predicate)
                             .skip(query.offset().orElse(0))

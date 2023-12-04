@@ -135,24 +135,6 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
      */
     protected CatalogFacade rawFacade;
 
-    /**
-     * Resolving catalog facade to use inside this catalog. The {@link #rawFacade} will be wrapped
-     * on a resolving decorator if it's not already a {@link ResolvingCatalogFacade}.
-     *
-     * <p>This catalog will add inbound and outbound traits to make sure no {@link CatalogInfo}
-     * leaves the facade without being decorated with a {@link ModificationProxy}, nor gets into the
-     * facade without its {@link ModificationProxy} decorator being removed.
-     */
-    // protected ResolvingCatalogFacade facade;
-
-    /** listeners */
-    // protected List<CatalogListener> listeners = new CopyOnWriteArrayList<>();
-
-    /** resources */
-    // protected ResourcePool resourcePool;
-
-    // protected GeoServerResourceLoader resourceLoader;
-
     /** Handles {@link CatalogInfo} validation rules before adding or updating an object */
     protected final CatalogValidationRules validationSupport;
 
@@ -226,11 +208,6 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
     }
 
     public void setFacade(CatalogFacade facade) {
-        // final GeoServerConfigurationLock configurationLock;
-        // configurationLock = GeoServerExtensions.bean(GeoServerConfigurationLock.class);
-        // if (configurationLock != null) {
-        // facade = LockingCatalogFacade.create(facade, configurationLock);
-        // }
         this.rawFacade = facade;
         ExtendedCatalogFacade efacade;
         Function<CatalogInfo, CatalogInfo> outboundResolver;
