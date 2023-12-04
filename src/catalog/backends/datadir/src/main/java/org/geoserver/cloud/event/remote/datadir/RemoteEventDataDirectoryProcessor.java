@@ -271,9 +271,9 @@ public class RemoteEventDataDirectoryProcessor {
             log.warn("Object not found on local Catalog, can't update upon {}", event);
         } else {
             patch.applyTo(info);
-            if (info instanceof CatalogInfo) {
+            if (info instanceof CatalogInfo catalogInfo) {
                 // going directly through the CatalogFacade does not produce any further event
-                this.catalogFacade.update((CatalogInfo) info, patch);
+                this.catalogFacade.update(catalogInfo, patch);
             }
             log.debug(
                     "Object updated: {}({}). Properties: {}",

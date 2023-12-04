@@ -1518,8 +1518,8 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
             }
         } else if (filter instanceof PropertyIsEqualTo eq) {
             boolean idProperty =
-                    (eq.getExpression1() instanceof PropertyName)
-                            && "id".equals(((PropertyName) eq.getExpression1()).getPropertyName());
+                    (eq.getExpression1() instanceof PropertyName prop)
+                            && "id".equals(prop.getPropertyName());
             if (idProperty && eq.getExpression2() instanceof Literal) {
                 id = Converters.convert(eq.getExpression2().evaluate(null), String.class);
             }

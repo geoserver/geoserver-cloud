@@ -26,8 +26,8 @@ public class CloudJdbcCatalogFacade extends JDBCCatalogFacade {
     public void setCatalog(Catalog catalog) {
         this.catalog = catalog;
         CatalogImpl catalogForResolvingCatalogProperties = (CatalogImpl) catalog;
-        if (catalog instanceof CatalogFacadeExtensionAdapter.SilentCatalog) {
-            catalogForResolvingCatalogProperties = ((SilentCatalog) catalog).getSubject();
+        if (catalog instanceof CatalogFacadeExtensionAdapter.SilentCatalog silentCatalog) {
+            catalogForResolvingCatalogProperties = silentCatalog.getSubject();
         }
         db.setCatalog(catalogForResolvingCatalogProperties);
     }

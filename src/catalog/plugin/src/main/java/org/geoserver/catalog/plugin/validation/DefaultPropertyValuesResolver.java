@@ -98,8 +98,7 @@ public class DefaultPropertyValuesResolver {
     }
 
     private CoverageInfo resolve(CoverageInfo r) {
-        if (r instanceof CoverageInfoImpl) {
-            CoverageInfoImpl c = (CoverageInfoImpl) r;
+        if (r instanceof CoverageInfoImpl c) {
             if (c.getDimensions() != null) {
                 for (CoverageDimensionInfo dim : c.getDimensions()) {
                     if (dim.getNullValues() == null) {
@@ -122,8 +121,7 @@ public class DefaultPropertyValuesResolver {
     }
 
     private WMSLayerInfo resolve(WMSLayerInfo wmsLayer) {
-        if (wmsLayer instanceof WMSLayerInfoImpl) {
-            WMSLayerInfoImpl impl = (WMSLayerInfoImpl) wmsLayer;
+        if (wmsLayer instanceof WMSLayerInfoImpl impl) {
             resolveCollections(impl);
         }
         return wmsLayer;

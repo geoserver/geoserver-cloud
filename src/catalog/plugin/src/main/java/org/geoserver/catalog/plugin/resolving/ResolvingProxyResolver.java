@@ -116,9 +116,9 @@ public class ResolvingProxyResolver<T extends Info> implements UnaryOperator<T> 
         if (isResolvingProxy) {
             // may the object itself be a resolving proxy
             I resolved = doResolveProxy(orig);
-            if (resolved == null && orig instanceof CatalogInfo) {
+            if (resolved == null && orig instanceof CatalogInfo cinfo) {
                 log.info("Proxy object {} not found, calling on-not-found consumer", orig.getId());
-                onNotFound.accept((CatalogInfo) orig, resolvingProxy);
+                onNotFound.accept(cinfo, resolvingProxy);
                 // return the proxied value if the consumer didn't throw an exception
                 return orig;
             }

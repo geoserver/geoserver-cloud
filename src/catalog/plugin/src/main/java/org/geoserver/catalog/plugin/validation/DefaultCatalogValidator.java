@@ -150,8 +150,8 @@ public class DefaultCatalogValidator implements CatalogValidator {
             newObjectPropertiesResolver.resolve(resource);
         }
         if (isNullOrEmpty(resource.getNativeName())
-                && !(resource instanceof CoverageInfo
-                        && ((CoverageInfo) resource).getNativeCoverageName() != null)) {
+                && !(resource instanceof CoverageInfo coverage
+                        && coverage.getNativeCoverageName() != null)) {
             throw new NullPointerException("Resource native name must not be null");
         }
         checkNotNull(resource.getStore(), "Resource must be part of a store");

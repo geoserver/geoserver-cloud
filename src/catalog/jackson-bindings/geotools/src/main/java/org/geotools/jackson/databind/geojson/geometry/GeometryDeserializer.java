@@ -231,7 +231,7 @@ public class GeometryDeserializer<T extends Geometry> extends JsonDeserializer<T
             return false;
         }
         JsonNode typeNode = value.get("type");
-        return typeNode instanceof TextNode && isGeometry(((TextNode) typeNode).asText());
+        return typeNode instanceof TextNode textNode && isGeometry(textNode.asText());
     }
 
     private static final Set<String> geomTypes =

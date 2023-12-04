@@ -79,8 +79,8 @@ public abstract class LockingSupport {
                         },
                         reason);
             } catch (Exception e) {
-                if (e instanceof IOException) throw new UncheckedIOException((IOException) e);
-                if (e instanceof RuntimeException) throw (RuntimeException) e;
+                if (e instanceof IOException ioe) throw new UncheckedIOException(ioe);
+                if (e instanceof RuntimeException rte) throw rte;
                 throw new RuntimeException(e);
             }
         }
