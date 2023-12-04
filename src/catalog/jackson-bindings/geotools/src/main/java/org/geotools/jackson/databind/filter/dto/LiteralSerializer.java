@@ -56,10 +56,15 @@ public class LiteralSerializer extends StdSerializer<Literal> {
 
     private static final long serialVersionUID = 1L;
 
-    private ValueMappers classNameMapper = Mappers.getMapper(ValueMappers.class);
+    private transient ValueMappers classNameMapper = Mappers.getMapper(ValueMappers.class);
 
     public LiteralSerializer() {
         super(Literal.class);
+    }
+
+    private ValueMappers classNameMapper() {
+        if (classNameMapper == null) classNameMapper = Mappers.getMapper(ValueMappers.class);
+        return classNameMapper;
     }
 
     @Override
@@ -112,7 +117,7 @@ public class LiteralSerializer extends StdSerializer<Literal> {
                 JsonSerializer<Object> valueSerializer = findValueSerializer(provider, type);
                 final Class<Object> handledType = valueSerializer.handledType();
                 String typeName =
-                        classNameMapper.classToCanonicalName(type.isEnum() ? type : handledType);
+                        classNameMapper().classToCanonicalName(type.isEnum() ? type : handledType);
                 gen.writeStringField(TYPE_KEY, typeName);
                 gen.writeFieldName(VALUE_KEY);
                 valueSerializer.serialize(value, gen, provider);
@@ -132,7 +137,7 @@ public class LiteralSerializer extends StdSerializer<Literal> {
     }
 
     private void writeMap(Map<?, ?> value, JsonGenerator gen) throws IOException {
-        gen.writeStringField(TYPE_KEY, classNameMapper.classToCanonicalName(Map.class));
+        gen.writeStringField(TYPE_KEY, classNameMapper().classToCanonicalName(Map.class));
 
         gen.writeFieldName(VALUE_KEY);
         gen.writeStartObject();
@@ -147,7 +152,7 @@ public class LiteralSerializer extends StdSerializer<Literal> {
     private void writeArray(Object array, JsonGenerator gen, SerializerProvider provider)
             throws IOException {
         // e.g. int[], java.lang.String[], etc.
-        final String arrayTypeStr = classNameMapper.classToCanonicalName(array.getClass());
+        final String arrayTypeStr = classNameMapper().classToCanonicalName(array.getClass());
         gen.writeStringField(TYPE_KEY, arrayTypeStr);
 
         gen.writeFieldName(VALUE_KEY);
@@ -176,7 +181,7 @@ public class LiteralSerializer extends StdSerializer<Literal> {
                 Literal.class.equals(contentType) ? Literal::valueOf : Function.identity();
 
         gen.writeStringField(
-                TYPE_KEY, classNameMapper.classToCanonicalName(collectionType(collection)));
+                TYPE_KEY, classNameMapper().classToCanonicalName(collectionType(collection)));
 
         if (null != contentType) {
             String singleContentTypeValue = classNameMapper.classToCanonicalName(contentType);

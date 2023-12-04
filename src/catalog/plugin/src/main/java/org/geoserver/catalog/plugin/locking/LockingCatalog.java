@@ -40,8 +40,8 @@ import java.util.function.Function;
 @SuppressWarnings("serial")
 public class LockingCatalog extends CatalogPlugin {
 
-    private final GeoServerConfigurationLock configurationLock;
-    private LockingSupport locking;
+    private final transient GeoServerConfigurationLock configurationLock;
+    private transient LockingSupport locking;
 
     public LockingCatalog(@NonNull GeoServerConfigurationLock configurationLock) {
         super();

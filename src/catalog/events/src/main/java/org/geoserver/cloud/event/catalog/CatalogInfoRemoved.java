@@ -15,6 +15,7 @@ import org.geoserver.cloud.event.info.InfoRemoved;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("CatalogInfoRemoved")
+@SuppressWarnings("serial")
 public class CatalogInfoRemoved extends InfoRemoved<CatalogInfoRemoved, CatalogInfo> {
 
     protected CatalogInfoRemoved() {}

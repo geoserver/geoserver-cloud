@@ -20,6 +20,7 @@ import org.geoserver.cloud.event.config.ConfigInfoAdded;
     @JsonSubTypes.Type(value = CatalogInfoAdded.class),
     @JsonSubTypes.Type(value = ConfigInfoAdded.class),
 })
+@SuppressWarnings("serial")
 public abstract class InfoAdded<SELF, I extends Info> extends InfoEvent<SELF, I> {
 
     private @Getter @Setter I object;

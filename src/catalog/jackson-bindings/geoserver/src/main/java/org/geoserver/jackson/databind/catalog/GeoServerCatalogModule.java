@@ -98,9 +98,6 @@ public class GeoServerCatalogModule extends SimpleModule {
     static final PatchMapper PATCH_MAPPER = Mappers.getMapper(PatchMapper.class);
     static final ValueMappers VALUE_MAPPER = Mappers.getMapper(ValueMappers.class);
 
-    private final CatalogInfoDeserializer<CatalogInfo> deserializer =
-            new CatalogInfoDeserializer<>();
-
     public GeoServerCatalogModule() {
         super(GeoServerCatalogModule.class.getSimpleName(), new Version(1, 0, 0, null, null, null));
 
@@ -133,10 +130,9 @@ public class GeoServerCatalogModule extends SimpleModule {
         super.addSerializer(new CatalogInfoSerializer<>(clazz));
     }
 
-    @SuppressWarnings("unchecked")
     private <T extends CatalogInfo> void addDeserializer(Class<T> clazz) {
         log.trace("registering deserializer for {}", clazz.getSimpleName());
-        super.addDeserializer(clazz, (CatalogInfoDeserializer<T>) deserializer);
+        super.addDeserializer(clazz, new CatalogInfoDeserializer<>());
     }
 
     private <T, DTO> void addMapperSerializer(

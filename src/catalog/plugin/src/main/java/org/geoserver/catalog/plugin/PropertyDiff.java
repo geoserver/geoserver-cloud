@@ -123,8 +123,8 @@ public @Data class PropertyDiff implements Serializable {
     public static @Data class Change implements Serializable {
         private static final long serialVersionUID = 1L;
         private @NonNull String propertyName;
-        private Object oldValue;
-        private Object newValue;
+        private transient Object oldValue;
+        private transient Object newValue;
 
         public boolean isNoChange() {
             if (Objects.equals(oldValue, newValue)) return true;

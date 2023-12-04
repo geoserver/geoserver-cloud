@@ -22,7 +22,7 @@ public @Data @Generated class Literal extends Expression {
     private Object value;
 
     public static Literal valueOf(Object value) {
-        return value instanceof Literal l? l : new Literal().setValue(value);
+        return value instanceof Literal l ? l : new Literal().setValue(value);
     }
 
     @Override

@@ -24,7 +24,7 @@ import javax.sql.DataSource;
 /** Extends {@link JDBCConfigProperties} to not need a {@link JDBCConfigPropertiesFactoryBean} */
 public class CloudJdbcConfigProperties extends JDBCConfigProperties {
     private static final long serialVersionUID = 1L;
-    private DataSource dataSource;
+    private transient DataSource dataSource;
 
     public CloudJdbcConfigProperties(DataSource dataSource) {
         super((JDBCConfigPropertiesFactoryBean) null);

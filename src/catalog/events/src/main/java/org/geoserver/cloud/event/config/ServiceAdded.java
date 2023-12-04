@@ -16,6 +16,7 @@ import org.geoserver.config.ServiceInfo;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("ServiceAdded")
 @EqualsAndHashCode(callSuper = true)
+@SuppressWarnings("serial")
 public class ServiceAdded extends ConfigInfoAdded<ServiceAdded, ServiceInfo>
         implements ConfigInfoEvent {
 

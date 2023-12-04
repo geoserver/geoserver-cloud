@@ -23,6 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
     @JsonSubTypes.Type(value = SecurityConfigChanged.class)
 })
 @JsonTypeName("UpdateSequence")
+@SuppressWarnings("serial")
 public class UpdateSequenceEvent<SELF> extends GeoServerEvent<SELF> {
     /**
      * The provided {@link GeoServerInfo}'s {@link GeoServerInfo#getUpdateSequence() update

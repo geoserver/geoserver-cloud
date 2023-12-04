@@ -30,6 +30,7 @@ import java.util.Optional;
     @JsonSubTypes.Type(value = DefaultWorkspaceSet.class),
     @JsonSubTypes.Type(value = DefaultDataStoreSet.class),
 })
+@SuppressWarnings("serial")
 public class CatalogInfoModified extends InfoModified<CatalogInfoModified, CatalogInfo> {
 
     protected CatalogInfoModified() {}

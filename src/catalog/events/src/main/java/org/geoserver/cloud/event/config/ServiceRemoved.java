@@ -17,6 +17,7 @@ import org.geoserver.config.ServiceInfo;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("ServiceInfoRemoved")
 @EqualsAndHashCode(callSuper = true)
+@SuppressWarnings("serial")
 public class ServiceRemoved extends ConfigInfoRemoved<ServiceRemoved, ServiceInfo> {
 
     private @Getter String workspaceId;

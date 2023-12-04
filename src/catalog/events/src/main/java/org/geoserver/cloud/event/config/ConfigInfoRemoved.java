@@ -20,6 +20,7 @@ import org.geoserver.config.SettingsInfo;
     @JsonSubTypes.Type(value = ServiceRemoved.class, name = "ServiceInfoRemoved"),
     @JsonSubTypes.Type(value = SettingsRemoved.class, name = "SettingsInfoRemoved"),
 })
+@SuppressWarnings("serial")
 public abstract class ConfigInfoRemoved<SELF, INFO extends Info> extends InfoRemoved<SELF, INFO>
         implements ConfigInfoEvent {
 

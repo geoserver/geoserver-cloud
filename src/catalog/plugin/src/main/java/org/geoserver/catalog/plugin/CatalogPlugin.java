@@ -133,12 +133,12 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
      * a {@link ResolvingCatalogFacadeDecorator}. If not, {@link #facade} will be a resolving
      * decorator to allow traits to be added.
      */
-    protected CatalogFacade rawFacade;
+    protected transient CatalogFacade rawFacade;
 
     /** Handles {@link CatalogInfo} validation rules before adding or updating an object */
-    protected final CatalogValidationRules validationSupport;
+    protected final transient CatalogValidationRules validationSupport;
 
-    private final CatalogBusinessRules businessRules = new CatalogBusinessRules();
+    private final transient CatalogBusinessRules businessRules = new CatalogBusinessRules();
 
     protected final boolean isolated;
 

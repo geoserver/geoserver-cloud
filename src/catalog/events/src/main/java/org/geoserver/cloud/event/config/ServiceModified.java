@@ -21,6 +21,7 @@ import org.springframework.core.style.ToStringCreator;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("ServiceModified")
 @EqualsAndHashCode(callSuper = true)
+@SuppressWarnings("serial")
 public class ServiceModified extends ConfigInfoModified<ServiceModified, LoggingInfo>
         implements ConfigInfoEvent {
 

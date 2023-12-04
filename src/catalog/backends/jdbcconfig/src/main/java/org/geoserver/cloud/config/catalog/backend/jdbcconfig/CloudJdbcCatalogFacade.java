@@ -7,7 +7,6 @@ package org.geoserver.cloud.config.catalog.backend.jdbcconfig;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.impl.CatalogImpl;
 import org.geoserver.catalog.plugin.CatalogFacadeExtensionAdapter;
-import org.geoserver.catalog.plugin.CatalogFacadeExtensionAdapter.SilentCatalog;
 import org.geoserver.jdbcconfig.catalog.JDBCCatalogFacade;
 import org.geoserver.jdbcconfig.internal.ConfigDatabase;
 

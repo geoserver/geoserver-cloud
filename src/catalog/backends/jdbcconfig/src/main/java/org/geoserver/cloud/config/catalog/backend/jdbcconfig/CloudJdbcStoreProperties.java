@@ -31,7 +31,7 @@ public class CloudJdbcStoreProperties extends JDBCResourceStoreProperties {
     private static final String DEFAULT_CACHE_DIRECTORY =
             System.getProperty("java.io.tmpdir") + File.separator + "geoserver-jdbcconfig-cache";
 
-    private DataSource dataSource;
+    private transient DataSource dataSource;
 
     public CloudJdbcStoreProperties(DataSource dataSource) {
         super((JDBCResourceStorePropertiesFactoryBean) null);

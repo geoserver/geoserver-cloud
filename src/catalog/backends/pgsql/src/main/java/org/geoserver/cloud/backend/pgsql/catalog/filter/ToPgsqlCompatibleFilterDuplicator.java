@@ -116,10 +116,7 @@ class ToPgsqlCompatibleFilterDuplicator extends DuplicatingFilterVisitor {
         Expression e1 = filter.getExpression1();
         Expression e2 = filter.getExpression2();
 
-        Literal literal =
-                e1 instanceof Literal l
-                        ? l
-                        : (e2 instanceof Literal l? l : null);
+        Literal literal = e1 instanceof Literal l ? l : (e2 instanceof Literal l ? l : null);
 
         Object value = null == literal ? null : literal.getValue();
         if (!(value instanceof Collection)) {

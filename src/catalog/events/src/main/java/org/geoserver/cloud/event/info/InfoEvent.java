@@ -23,6 +23,7 @@ import org.springframework.core.style.ToStringCreator;
     @JsonSubTypes.Type(value = InfoModified.class),
     @JsonSubTypes.Type(value = InfoRemoved.class)
 })
+@SuppressWarnings("serial")
 public abstract class InfoEvent<SELF, INFO extends Info> extends UpdateSequenceEvent<SELF> {
 
     private @Getter String objectId;

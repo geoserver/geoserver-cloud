@@ -24,6 +24,7 @@ import org.geoserver.config.SettingsInfo;
     @JsonSubTypes.Type(value = ServiceAdded.class),
     @JsonSubTypes.Type(value = SettingsAdded.class),
 })
+@SuppressWarnings("serial")
 public abstract class ConfigInfoAdded<SELF, INFO extends Info> extends InfoAdded<SELF, INFO>
         implements ConfigInfoEvent {
 

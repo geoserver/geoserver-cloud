@@ -20,6 +20,7 @@ import org.springframework.core.style.ToStringCreator;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("SettingsModified")
 @EqualsAndHashCode(callSuper = true)
+@SuppressWarnings("serial")
 public class SettingsModified extends ConfigInfoModified<SettingsModified, SettingsInfo>
         implements ConfigInfoEvent {
 

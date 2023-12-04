@@ -13,11 +13,10 @@ import org.springframework.cloud.bus.event.Destination;
 import org.springframework.cloud.bus.event.RemoteApplicationEvent;
 
 @EqualsAndHashCode(callSuper = true)
+@SuppressWarnings("serial")
 public class RemoteGeoServerEvent extends RemoteApplicationEvent {
 
-    private static final long serialVersionUID = 1L;
-
-    private @Getter GeoServerEvent<?> event;
+    @Getter @NonNull private GeoServerEvent<?> event;
 
     /** Deserialization-time constructor, {@link #getSource()} will be {@code null} */
     protected RemoteGeoServerEvent() {

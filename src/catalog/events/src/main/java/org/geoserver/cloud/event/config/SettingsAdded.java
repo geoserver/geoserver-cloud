@@ -19,6 +19,7 @@ import org.geoserver.config.SettingsInfo;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("SettingsAdded")
 @EqualsAndHashCode(callSuper = true)
+@SuppressWarnings("serial")
 public class SettingsAdded extends ConfigInfoAdded<SettingsAdded, SettingsInfo>
         implements ConfigInfoEvent {
 

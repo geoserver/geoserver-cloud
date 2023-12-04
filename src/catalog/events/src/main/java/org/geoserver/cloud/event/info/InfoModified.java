@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
     @JsonSubTypes.Type(value = CatalogInfoModified.class),
     @JsonSubTypes.Type(value = ConfigInfoModified.class),
 })
+@SuppressWarnings("serial")
 public abstract class InfoModified<SELF, INFO extends Info> extends InfoEvent<SELF, INFO> {
 
     private @Getter @Setter Patch patch;

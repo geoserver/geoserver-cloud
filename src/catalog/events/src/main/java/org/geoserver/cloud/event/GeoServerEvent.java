@@ -19,11 +19,13 @@ import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.LoggingInfo;
 import org.springframework.core.style.ToStringCreator;
 
+import java.io.Serializable;
 import java.util.Optional;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonSubTypes({@JsonSubTypes.Type(value = UpdateSequenceEvent.class)})
-public abstract class GeoServerEvent<SELF> {
+@SuppressWarnings("serial")
+public abstract class GeoServerEvent<SELF> implements Serializable {
 
     @JsonIgnore private @Setter boolean remote;
 
