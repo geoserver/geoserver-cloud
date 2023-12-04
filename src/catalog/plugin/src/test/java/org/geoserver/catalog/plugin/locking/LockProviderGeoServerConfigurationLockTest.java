@@ -38,21 +38,21 @@ class LockProviderGeoServerConfigurationLockTest {
     private LockProviderGeoServerConfigurationLock lock;
 
     @BeforeEach
-    public void beforeEach() {
+    void beforeEach() {
         System.setProperty("CONFIGURATION_TRYLOCK_TIMEOUT", "100");
         LockProvider lockProvider = new FileLockProvider(mockDataDir);
         lock = new LockProviderGeoServerConfigurationLock(lockProvider);
     }
 
     @AfterEach
-    public void afterEach() {
+    void afterEach() {
         System.clearProperty("CONFIGURATION_TRYLOCK_TIMEOUT");
         assertFalse(lock.isWriteLocked(), "all locks shall have been released");
     }
 
     @Test
     @Timeout(1)
-    public void testLock_WriteLock() {
+    void testLock_WriteLock() {
         assertNull(lock.getCurrentLock());
         lock.lock(WRITE);
         assertEquals(WRITE, lock.getCurrentLock());
@@ -62,7 +62,7 @@ class LockProviderGeoServerConfigurationLockTest {
 
     @Test
     @Timeout(1)
-    public void testLock_ReadLock() {
+    void testLock_ReadLock() {
         assertNull(lock.getCurrentLock());
         lock.lock(READ);
         assertEquals(READ, lock.getCurrentLock());
@@ -72,7 +72,7 @@ class LockProviderGeoServerConfigurationLockTest {
 
     @Test
     @Timeout(1)
-    public void testLock_ReadLock_preserves_write_lock_if_alread_held() {
+    void testLock_ReadLock_preserves_write_lock_if_alread_held() {
         assertNull(lock.getCurrentLock());
         lock.lock(WRITE);
         assertEquals(WRITE, lock.getCurrentLock());
@@ -87,7 +87,7 @@ class LockProviderGeoServerConfigurationLockTest {
 
     @Test
     @Timeout(1)
-    public void testTryUpgradeLock_fais_if_no_previous_lock_is_held() {
+    void testTryUpgradeLock_fais_if_no_previous_lock_is_held() {
         assertNull(lock.getCurrentLock());
         IllegalStateException ex = assertThrows(IllegalStateException.class, lock::tryUpgradeLock);
         assertThat(ex.getMessage(), containsString("No lock currently held"));
@@ -95,7 +95,7 @@ class LockProviderGeoServerConfigurationLockTest {
 
     @Test
     @Timeout(1)
-    public void testTryUpgradeLock_fails_if_already_holds_a_write_lock() {
+    void testTryUpgradeLock_fails_if_already_holds_a_write_lock() {
         assertNull(lock.getCurrentLock());
         lock.lock(WRITE);
 
@@ -109,7 +109,7 @@ class LockProviderGeoServerConfigurationLockTest {
 
     @Test
     @Timeout(1)
-    public void testTryUpgradeLock() throws InterruptedException, ExecutionException {
+    void testTryUpgradeLock() throws InterruptedException, ExecutionException {
         ExecutorService secondThread = Executors.newSingleThreadExecutor();
         try {
             lock.lock(READ);
@@ -146,7 +146,7 @@ class LockProviderGeoServerConfigurationLockTest {
 
     @Test
     @Timeout(1)
-    public void testTryLock() {
+    void testTryLock() {
         assertTrue(lock.tryLock(READ));
         assertEquals(READ, lock.getCurrentLock());
         lock.unlock();
@@ -160,7 +160,7 @@ class LockProviderGeoServerConfigurationLockTest {
 
     @Test
     @Timeout(1)
-    public void testTryLock_false_if_write_lock_requested_while_holding_a_read_lock() {
+    void testTryLock_false_if_write_lock_requested_while_holding_a_read_lock() {
         assertNull(lock.getCurrentLock());
 
         assertTrue(lock.tryLock(READ));
@@ -174,7 +174,7 @@ class LockProviderGeoServerConfigurationLockTest {
 
     @Test
     @Timeout(1)
-    public void testTryLock_true_if_read_lock_requested_while_holding_a_write_lock() {
+    void testTryLock_true_if_read_lock_requested_while_holding_a_write_lock() {
         assertTrue(lock.tryLock(WRITE));
         assertEquals(WRITE, lock.getCurrentLock());
 
@@ -191,7 +191,7 @@ class LockProviderGeoServerConfigurationLockTest {
 
     @Test
     @Timeout(1)
-    public void testUnlock() {
+    void testUnlock() {
         assertNull(lock.getCurrentLock());
         lock.unlock();
         lock.unlock();
@@ -208,13 +208,13 @@ class LockProviderGeoServerConfigurationLockTest {
 
     @Test
     @Timeout(1)
-    public void testLock_ReadLockIsReentrant() {
+    void testLock_ReadLockIsReentrant() {
         testLockIsReentrant(READ);
     }
 
     @Test
     @Timeout(1)
-    public void testLock_WriteLockIsReentrant() {
+    void testLock_WriteLockIsReentrant() {
         testLockIsReentrant(WRITE);
     }
 
@@ -244,13 +244,13 @@ class LockProviderGeoServerConfigurationLockTest {
 
     @Test
     @Timeout(1)
-    public void testTryReadLockIsReentrant() {
+    void testTryReadLockIsReentrant() {
         testTryLockIsReentrant(READ);
     }
 
     @Test
     @Timeout(1)
-    public void testTryWriteLockIsReentrant() {
+    void testTryWriteLockIsReentrant() {
         testTryLockIsReentrant(WRITE);
     }
 
