@@ -39,7 +39,7 @@ public class AuthKeyAutoConfiguration {
                             "${"
                                     + GEOSERVER_SECURITY_AUTHKEY
                                     + ":"
-                                    + ConditionalOnAuthKeyEnabled.enabledByDefault
+                                    + ConditionalOnAuthKeyEnabled.ENABLED_BY_DEFAULT
                                     + "}")
                     boolean enabled) {
 

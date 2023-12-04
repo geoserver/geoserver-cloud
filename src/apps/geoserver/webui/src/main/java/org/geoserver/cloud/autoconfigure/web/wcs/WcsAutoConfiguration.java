@@ -4,8 +4,6 @@
  */
 package org.geoserver.cloud.autoconfigure.web.wcs;
 
-import lombok.Getter;
-
 import org.geoserver.cloud.autoconfigure.web.core.AbstractWebUIAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -24,5 +22,8 @@ public class WcsAutoConfiguration extends AbstractWebUIAutoConfiguration {
 
     static final String CONFIG_PREFIX = "geoserver.web-ui.wcs";
 
-    private final @Getter String configPrefix = CONFIG_PREFIX;
+    @Override
+    public String getConfigPrefix() {
+        return CONFIG_PREFIX;
+    }
 }

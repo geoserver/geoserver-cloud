@@ -4,7 +4,6 @@
  */
 package org.geoserver.cloud.backend.pgsql.catalog.repository;
 
-import lombok.Getter;
 import lombok.NonNull;
 
 import org.geoserver.catalog.DataStoreInfo;
@@ -23,14 +22,21 @@ import java.util.stream.Stream;
 public class PgsqlStoreRepository extends PgsqlCatalogInfoRepository<StoreInfo>
         implements StoreRepository {
 
-    private final @Getter Class<StoreInfo> contentType = StoreInfo.class;
-    private final @Getter String queryTable = "storeinfos";
-
     /**
      * @param template
      */
     public PgsqlStoreRepository(@NonNull JdbcTemplate template) {
         super(template);
+    }
+
+    @Override
+    public Class<StoreInfo> getContentType() {
+        return StoreInfo.class;
+    }
+
+    @Override
+    protected String getQueryTable() {
+        return "storeinfos";
     }
 
     @Override

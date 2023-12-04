@@ -4,8 +4,6 @@
  */
 package org.geoserver.cloud.autoconfigure.web.demo;
 
-import lombok.Getter;
-
 import org.geoserver.cloud.autoconfigure.web.core.AbstractWebUIAutoConfiguration;
 import org.geoserver.cloud.autoconfigure.web.demo.LayerPreviewConfiguration.GmlCommonFormatsConfiguration;
 import org.geoserver.cloud.autoconfigure.web.demo.LayerPreviewConfiguration.KmlCommonFormatsConfiguration;
@@ -37,7 +35,10 @@ public class LayerPreviewConfiguration extends AbstractWebUIAutoConfiguration {
     static final String CONFIG_PREFIX = "geoserver.web-ui.demos.layer-preview-page";
     static final String COMMON_FORMATS_PREFIX = CONFIG_PREFIX + ".common-formats";
 
-    private final @Getter String configPrefix = CONFIG_PREFIX;
+    @Override
+    public String getConfigPrefix() {
+        return CONFIG_PREFIX;
+    }
 
     @Configuration
     @ConditionalOnProperty(
@@ -53,7 +54,10 @@ public class LayerPreviewConfiguration extends AbstractWebUIAutoConfiguration {
         static final String CONFIG_PREFIX =
                 LayerPreviewConfiguration.COMMON_FORMATS_PREFIX + ".open-layers";
 
-        private final @Getter String configPrefix = CONFIG_PREFIX;
+        @Override
+        public String getConfigPrefix() {
+            return CONFIG_PREFIX;
+        }
     }
 
     @Configuration
@@ -70,7 +74,10 @@ public class LayerPreviewConfiguration extends AbstractWebUIAutoConfiguration {
         static final String CONFIG_PREFIX =
                 LayerPreviewConfiguration.COMMON_FORMATS_PREFIX + ".gml";
 
-        private final @Getter String configPrefix = CONFIG_PREFIX;
+        @Override
+        public String getConfigPrefix() {
+            return CONFIG_PREFIX;
+        }
     }
 
     @Configuration
@@ -87,6 +94,9 @@ public class LayerPreviewConfiguration extends AbstractWebUIAutoConfiguration {
         static final String CONFIG_PREFIX =
                 LayerPreviewConfiguration.COMMON_FORMATS_PREFIX + ".kml";
 
-        private final @Getter String configPrefix = CONFIG_PREFIX;
+        @Override
+        public String getConfigPrefix() {
+            return CONFIG_PREFIX;
+        }
     }
 }
