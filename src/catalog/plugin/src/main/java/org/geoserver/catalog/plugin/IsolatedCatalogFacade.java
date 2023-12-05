@@ -26,7 +26,6 @@ import org.geoserver.ows.LocalWorkspace;
 import org.geotools.api.filter.Filter;
 import org.geotools.api.filter.sort.SortBy;
 
-import java.io.Closeable;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;

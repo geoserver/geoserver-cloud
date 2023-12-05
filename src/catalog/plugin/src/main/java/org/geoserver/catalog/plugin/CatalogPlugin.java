@@ -524,7 +524,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
 
     @Override
     public CoverageStoreInfo getCoverageStoreByName(String name) {
-    	return getStoreByName(name, CoverageStoreInfo.class);
+        return getStoreByName(name, CoverageStoreInfo.class);
     }
 
     @Override
@@ -690,12 +690,12 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
 
     @Override
     public FeatureTypeInfo getFeatureType(String id) {
-    	return getResource(id, FeatureTypeInfo.class);
+        return getResource(id, FeatureTypeInfo.class);
     }
 
     @Override
     public FeatureTypeInfo getFeatureTypeByName(String ns, String name) {
-    	return getResourceByName(ns, name, FeatureTypeInfo.class);
+        return getResourceByName(ns, name, FeatureTypeInfo.class);
     }
 
     @Override
@@ -710,7 +710,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
 
     @Override
     public FeatureTypeInfo getFeatureTypeByName(String name) {
-    	return getResourceByName(name, FeatureTypeInfo.class);
+        return getResourceByName(name, FeatureTypeInfo.class);
     }
 
     @Override
@@ -735,17 +735,17 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
 
     @Override
     public CoverageInfo getCoverage(String id) {
-    	return getResource(id, CoverageInfo.class);
+        return getResource(id, CoverageInfo.class);
     }
 
     @Override
     public CoverageInfo getCoverageByName(String ns, String name) {
-    	return getResourceByName(ns, name, CoverageInfo.class);
+        return getResourceByName(ns, name, CoverageInfo.class);
     }
 
     @Override
     public CoverageInfo getCoverageByName(NamespaceInfo ns, String name) {
-    	return getResourceByName(ns, name, CoverageInfo.class);
+        return getResourceByName(ns, name, CoverageInfo.class);
     }
 
     @Override
@@ -755,7 +755,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
 
     @Override
     public CoverageInfo getCoverageByName(String name) {
-    	return getResourceByName(name, CoverageInfo.class);
+        return getResourceByName(name, CoverageInfo.class);
     }
 
     @Override
