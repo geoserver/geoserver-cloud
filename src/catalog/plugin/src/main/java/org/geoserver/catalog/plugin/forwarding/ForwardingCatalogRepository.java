@@ -21,7 +21,7 @@ public abstract class ForwardingCatalogRepository<
 
     protected S subject;
 
-    public ForwardingCatalogRepository(S subject) {
+    protected ForwardingCatalogRepository(S subject) {
         this.subject = subject;
     }
 

@@ -28,7 +28,7 @@ public abstract class ConfigInfoRemoved<I extends Info> extends InfoRemoved<I>
         // default constructor, needed for deserialization
     }
 
-    public ConfigInfoRemoved(
+    protected ConfigInfoRemoved(
             long updateSequence, @NonNull String objectId, @NonNull ConfigInfoType type) {
         super(updateSequence, objectId, type);
     }

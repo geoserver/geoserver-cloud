@@ -55,7 +55,7 @@ public abstract class PgsqlCatalogInfoRepository<T extends CatalogInfo>
     /**
      * @param template
      */
-    public PgsqlCatalogInfoRepository(@NonNull JdbcTemplate template) {
+    protected PgsqlCatalogInfoRepository(@NonNull JdbcTemplate template) {
         this.template = template;
     }
 

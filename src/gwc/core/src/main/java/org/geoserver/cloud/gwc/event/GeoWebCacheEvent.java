@@ -30,11 +30,11 @@ public abstract class GeoWebCacheEvent extends ApplicationEvent {
     private @Getter @Setter Type eventType;
     private @Getter @Setter String id;
 
-    public GeoWebCacheEvent(Object source) {
+    protected GeoWebCacheEvent(Object source) {
         this(source, null);
     }
 
-    public GeoWebCacheEvent(Object source, Type eventType) {
+    protected GeoWebCacheEvent(Object source, Type eventType) {
         super(source);
         this.eventType = eventType;
     }

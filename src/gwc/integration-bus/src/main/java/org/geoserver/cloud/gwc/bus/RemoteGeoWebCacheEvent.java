@@ -30,11 +30,11 @@ public abstract class RemoteGeoWebCacheEvent extends RemoteApplicationEvent {
 
     private @Getter @Setter Type eventType;
 
-    public RemoteGeoWebCacheEvent(Object source, @NonNull String originService) {
+    protected RemoteGeoWebCacheEvent(Object source, @NonNull String originService) {
         super(source, originService, ALL);
     }
 
-    public RemoteGeoWebCacheEvent(
+    protected RemoteGeoWebCacheEvent(
             Object source, @NonNull String originService, @NonNull Type eventType) {
         super(source, originService, ALL);
         this.eventType = eventType;

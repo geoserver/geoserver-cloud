@@ -32,7 +32,7 @@ public abstract class ConfigInfoAdded<INFO extends Info> extends InfoAdded<INFO>
         // default constructor, needed for deserialization
     }
 
-    public ConfigInfoAdded(long updateSequence, INFO object) {
+    protected ConfigInfoAdded(long updateSequence, INFO object) {
         super(updateSequence, object);
     }
 
