@@ -122,10 +122,10 @@ public class DataDirectoryUpdateSequence implements UpdateSequence, GeoServerIni
         GeoServerInfo info = ModificationProxy.unwrap(geoServer.getGlobal());
         info.setUpdateSequence(newValue);
         Resource resource = dd.config(info);
-        XStreamPersister xp = persister();
+        XStreamPersister persister = persister();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
-            xp.save(info, out);
+            persister.save(info, out);
             resource.setContents(out.toByteArray());
         } catch (IOException e) {
             throw new UncheckedIOException(e);

@@ -257,7 +257,7 @@ public class ResolvingProxyResolver<T extends Info> implements UnaryOperator<T> 
 
     private static class MemoizingProxyResolver extends ResolvingProxyResolver<Info> {
 
-        private Map<String, Info> resolved = new ConcurrentHashMap<>();
+        private Map<String, Info> resolvedById = new ConcurrentHashMap<>();
 
         public MemoizingProxyResolver(
                 Catalog catalog, BiConsumer<CatalogInfo, ResolvingProxy> onNotFound) {
@@ -267,14 +267,20 @@ public class ResolvingProxyResolver<T extends Info> implements UnaryOperator<T> 
         @SuppressWarnings("unchecked")
         protected @Override <I extends Info> I doResolveProxy(final I orig) {
             String id = orig.getId();
-            I resolved = (I) this.resolved.get(id);
+            I resolved = (I) this.resolvedById.get(id);
             if (null == resolved) {
                 log.trace("Memoized cache miss, resolving proxy reference {}", id);
-                resolved = (I) this.resolved.computeIfAbsent(id, key -> super.doResolveProxy(orig));
+                resolved = computeIfAbsent(orig);
             } else {
                 log.trace("Memoized cache hit for {}", resolved.getId());
             }
             return resolved;
+        }
+
+        @SuppressWarnings("unchecked")
+        private <I extends Info> I computeIfAbsent(final I orig) {
+            return (I)
+                    resolvedById.computeIfAbsent(orig.getId(), key -> super.doResolveProxy(orig));
         }
     }
 }

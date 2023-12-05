@@ -74,8 +74,6 @@ public class StripBasePathGatewayFilterFactory
         private String prefix;
 
         public void checkPreconditions() {
-            final String prefix = getPrefix();
-
             if (prefix != null) {
                 checkArgument(prefix.startsWith("/"), "StripBasePath prefix must start with /");
 

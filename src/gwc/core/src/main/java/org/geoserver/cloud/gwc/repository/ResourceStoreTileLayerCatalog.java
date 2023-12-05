@@ -285,13 +285,13 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
             throw new UncheckedIOException(e);
         }
 
-        final Resource baseDirectory = baseDirectory();
+        final Resource baseDir = baseDirectory();
         return Streams.stream(directoryStream)
                 .onClose(() -> closeSilently(directoryStream))
                 .map(Path::getFileName)
                 .map(Path::toString)
                 .peek(name -> log.trace("found potential tile layer file {}", name))
-                .map(baseDirectory::get);
+                .map(baseDir::get);
     }
 
     private void closeSilently(DirectoryStream<Path> directoryStream) {
@@ -335,13 +335,13 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
     }
 
     private XStream newXStream() {
-        XStream serializer = this.xstreamProvider.get();
-        serializer.allowTypeHierarchy(GeoServerTileLayerInfo.class);
-        serializer.allowTypes(new Class[] {DimensionWarning.WarningType.class});
+        XStream xstream = this.xstreamProvider.get();
+        xstream.allowTypeHierarchy(GeoServerTileLayerInfo.class);
+        xstream.allowTypes(new Class[] {DimensionWarning.WarningType.class});
         // have to use a string here because UnmodifiableSet is private
-        serializer.allowTypes(new String[] {"java.util.Collections$UnmodifiableSet"});
-        serializer.addDefaultImplementation(LinkedHashSet.class, Set.class);
-        serializer.alias("warning", DimensionWarning.WarningType.class);
-        return serializer;
+        xstream.allowTypes(new String[] {"java.util.Collections$UnmodifiableSet"});
+        xstream.addDefaultImplementation(LinkedHashSet.class, Set.class);
+        xstream.alias("warning", DimensionWarning.WarningType.class);
+        return xstream;
     }
 }

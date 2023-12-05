@@ -180,8 +180,8 @@ public class DataDirectoryBackendConfiguration extends GeoServerBackendConfigure
     }
 
     private Path dataDirectoryFile() {
-        DataDirectoryProperties dataDirectoryConfig = this.dataDirectoryConfig;
-        Path path = dataDirectoryConfig.getLocation();
+        DataDirectoryProperties config = this.dataDirectoryConfig;
+        Path path = config.getLocation();
         Objects.requireNonNull(
                 path, "geoserver.backend.data-directory.location config property resolves to null");
         return path;

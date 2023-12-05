@@ -98,7 +98,7 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
      * @see FilteringXmlBeanDefinitionReaderAutoConfiguration
      * @see #clearCaches()
      */
-    private static Resource[] allClasspathBaseResources;
+    private static Resource[] ALLCLASSPATHBASERESOURCES;
 
     public FilteringXmlBeanDefinitionReader(BeanDefinitionRegistry registry) {
         super(registry);
@@ -107,14 +107,14 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
     /**
      * Clears any cached resource, expected to be called after the application context is refreshed
      */
-    public static void clearCaches() {
-        if (!classpathDocuments.isEmpty() || null != allClasspathBaseResources) {
+    public static synchronized void clearCaches() {
+        if (!classpathDocuments.isEmpty() || null != ALLCLASSPATHBASERESOURCES) {
             log.debug(
                     "Clearing cache of {} parsed xml documents and {} classpath resources",
                     classpathDocuments.size(),
-                    null == allClasspathBaseResources ? 0 : allClasspathBaseResources.length);
+                    null == ALLCLASSPATHBASERESOURCES ? 0 : ALLCLASSPATHBASERESOURCES.length);
             classpathDocuments.clear();
-            allClasspathBaseResources = null;
+            ALLCLASSPATHBASERESOURCES = null;
         }
     }
 
@@ -215,21 +215,21 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
      * @return
      * @throws IOException
      */
-    private Resource[] getAllClasspathResources(ResourcePatternResolver patternResolver)
-            throws IOException {
-        if (null == allClasspathBaseResources) {
+    private static synchronized Resource[] getAllClasspathResources(
+            ResourcePatternResolver patternResolver) throws IOException {
+        if (null == ALLCLASSPATHBASERESOURCES) {
             StopWatch sw = new StopWatch();
             sw.start();
-            allClasspathBaseResources = patternResolver.getResources("classpath*:");
+            ALLCLASSPATHBASERESOURCES = patternResolver.getResources("classpath*:");
             sw.stop();
             if (log.isTraceEnabled()) {
                 log.trace(
                         String.format(
                                 "Loaded %,d classpath resources in %,dms",
-                                allClasspathBaseResources.length, sw.getTotalTimeMillis()));
+                                ALLCLASSPATHBASERESOURCES.length, sw.getTotalTimeMillis()));
             }
         }
-        return allClasspathBaseResources;
+        return ALLCLASSPATHBASERESOURCES;
     }
 
     private String removeBeanFilterExpressions(String location) {

@@ -69,8 +69,8 @@ public class CatalogInfoKey implements Serializable {
     }
 
     private ClassMappings resolveTypeId(Info info) {
-        Class<? extends Info> type = CatalogInfoTypeRegistry.resolveType(info);
-        return resolveTypeId(type);
+        Class<? extends Info> infoType = CatalogInfoTypeRegistry.resolveType(info);
+        return resolveTypeId(infoType);
     }
 
     private ClassMappings resolveTypeId(Class<? extends Info> type) {

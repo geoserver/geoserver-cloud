@@ -119,15 +119,15 @@ public class EnvironmentAdminAuthenticationProvider implements AuthenticationPro
             // proceed with the authentication chain
             return null;
         }
-        final String adminUserName = this.adminUserName;
-        final String adminPassword = this.adminPassword;
+        final String expectedName = this.adminUserName;
+        final String expectedPassword = this.adminPassword;
 
         final String name = token.getName();
-        if (GeoServerUser.ADMIN_USERNAME.equals(name) && !adminUserName.equals(name)) {
+        if (GeoServerUser.ADMIN_USERNAME.equals(name) && !expectedName.equals(name)) {
             throw new InternalAuthenticationServiceException("Default admin user is disabled");
         }
 
-        final boolean sameName = hasText(adminUserName) && adminUserName.equals(name);
+        final boolean sameName = hasText(expectedName) && expectedName.equals(name);
         if (!sameName) {
             // not the configured admin username, proceed with the authentication chain
             return null;
@@ -137,11 +137,11 @@ public class EnvironmentAdminAuthenticationProvider implements AuthenticationPro
 
         final String pwd =
                 token.getCredentials() == null ? null : token.getCredentials().toString();
-        if (adminPassword.equals(pwd)) {
+        if (expectedPassword.equals(pwd)) {
             List<GrantedAuthority> adminRoles = adminRoles();
             UsernamePasswordAuthenticationToken authenticated =
                     UsernamePasswordAuthenticationToken.authenticated(
-                            adminUserName, null, adminRoles);
+                            expectedName, null, adminRoles);
             authenticated.setDetails(token.getDetails());
             return authenticated;
         }
