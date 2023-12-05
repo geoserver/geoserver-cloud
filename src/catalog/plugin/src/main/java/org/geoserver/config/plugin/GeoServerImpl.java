@@ -211,10 +211,7 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
             try {
                 l.handleSettingsAdded(settings);
             } catch (Exception e) {
-                LOGGER.log(
-                        Level.SEVERE,
-                        "Error occurred processing a configuration change listener",
-                        e);
+                logListenerError(e);
             }
         }
     }
@@ -229,10 +226,7 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
             try {
                 l.handleSettingsModified(settings, changed, oldValues, newValues);
             } catch (Exception e) {
-                LOGGER.log(
-                        Level.SEVERE,
-                        "Error occurred processing a configuration change listener",
-                        e);
+                logListenerError(e);
             }
         }
     }
@@ -242,10 +236,7 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
             try {
                 l.handleSettingsPostModified(settings);
             } catch (Exception e) {
-                LOGGER.log(
-                        Level.SEVERE,
-                        "Error occurred processing a configuration change listener",
-                        e);
+                logListenerError(e);
             }
         }
     }
@@ -255,10 +246,7 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
             try {
                 l.handleSettingsRemoved(settings);
             } catch (Exception e) {
-                LOGGER.log(
-                        Level.SEVERE,
-                        "Error occurred processing a configuration change listener",
-                        e);
+                logListenerError(e);
             }
         }
     }
@@ -397,8 +385,7 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
         try {
             l.handlePostGlobalChange(global);
         } catch (Exception e) {
-            LOGGER.log(
-                    Level.SEVERE, "Error occurred processing a configuration change listener", e);
+            logListenerError(e);
         }
     }
 
@@ -413,10 +400,7 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
             try {
                 l.handleGlobalChange(global, changed, oldValues, newValues);
             } catch (Exception e) {
-                LOGGER.log(
-                        Level.SEVERE,
-                        "Error occurred processing a configuration change listener",
-                        e);
+                logListenerError(e);
             }
         }
     }
@@ -432,10 +416,7 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
             try {
                 l.handleLoggingChange(logging, changed, oldValues, newValues);
             } catch (Exception e) {
-                LOGGER.log(
-                        Level.SEVERE,
-                        "Error occurred processing a configuration change listener",
-                        e);
+                logListenerError(e);
             }
         }
     }
@@ -449,8 +430,7 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
         try {
             l.handlePostLoggingChange(logging);
         } catch (Exception e) {
-            LOGGER.log(
-                    Level.SEVERE, "Error occurred processing a configuration change listener", e);
+            logListenerError(e);
         }
     }
 
@@ -479,10 +459,7 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
             try {
                 l.handleServiceChange(service, changed, oldValues, newValues);
             } catch (Exception e) {
-                LOGGER.log(
-                        Level.SEVERE,
-                        "Error occurred processing a configuration change listener",
-                        e);
+                logListenerError(e);
             }
         }
     }
@@ -492,10 +469,7 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
             try {
                 l.handlePostServiceChange(service);
             } catch (Exception e) {
-                LOGGER.log(
-                        Level.SEVERE,
-                        "Error occurred processing a configuration change listener",
-                        e);
+                logListenerError(e);
             }
         }
     }
@@ -505,10 +479,7 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
             try {
                 l.handleServiceRemove(service);
             } catch (Exception e) {
-                LOGGER.log(
-                        Level.SEVERE,
-                        "Error occurred processing a configuration change listener",
-                        e);
+                logListenerError(e);
             }
         }
     }
@@ -630,5 +601,9 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
                         t);
             }
         }
+    }
+
+    private void logListenerError(Exception e) {
+        LOGGER.log(Level.SEVERE, "Error occurred processing a configuration change listener", e);
     }
 }

@@ -82,6 +82,8 @@ import java.util.regex.Pattern;
 @Slf4j(topic = "org.geoserver.cloud.config.factory")
 public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
 
+    private static final String XML_SPLIT_TOKEN = ".xml#";
+
     /**
      * Cache parsed XML documents by Resource URI, since many configurations can try to load
      * different sets of beans from the same xml document
@@ -233,16 +235,19 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
     }
 
     private String removeBeanFilterExpressions(String location) {
-        if (location.contains(".xml#")) {
-            location = location.substring(0, location.indexOf(".xml#") + ".xml#".length() - 1);
+        if (location.contains(XML_SPLIT_TOKEN)) {
+            location =
+                    location.substring(
+                            0, location.indexOf(XML_SPLIT_TOKEN) + XML_SPLIT_TOKEN.length() - 1);
         }
         return location;
     }
 
     private void parseAndSetBeanInclusionFilters(String location) {
-        if (location.contains(".xml#")) {
+        if (location.contains(XML_SPLIT_TOKEN)) {
             String filterTypeAndRegularExpression =
-                    location.substring(".xml#".length() + location.indexOf(".xml#"));
+                    location.substring(
+                            XML_SPLIT_TOKEN.length() + location.indexOf(XML_SPLIT_TOKEN));
             if (hasText(filterTypeAndRegularExpression)) {
                 String[] split = filterTypeAndRegularExpression.split("=");
                 if (split.length != 2) {

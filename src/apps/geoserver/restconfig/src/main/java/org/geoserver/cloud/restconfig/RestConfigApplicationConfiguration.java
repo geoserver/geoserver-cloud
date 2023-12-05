@@ -97,15 +97,16 @@ public class RestConfigApplicationConfiguration extends RestConfiguration {
 
         protected ServletRequest adaptRequest(HttpServletRequest request) {
             final String requestURI = request.getRequestURI();
-            final int restIdx = requestURI.indexOf("/rest");
+            final String restBasePath = "/rest";
+            final int restIdx = requestURI.indexOf(restBasePath);
             if (restIdx > -1) {
-                final String pathToRest = requestURI.substring(0, restIdx + "/rest".length());
+                final String pathToRest = requestURI.substring(0, restIdx + restBasePath.length());
                 final String pathInfo = requestURI.substring(pathToRest.length());
 
                 return new HttpServletRequestWrapper(request) {
                     @Override
                     public String getServletPath() {
-                        return "/rest";
+                        return restBasePath;
                     }
 
                     @Override

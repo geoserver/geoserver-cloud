@@ -282,7 +282,9 @@ public class RepositoryGeoServerFacadeImpl implements RepositoryGeoServerFacade 
             service = repository.getServiceByWorkspace(workspace, type);
         }
         if (service.isEmpty() && LOGGER.isLoggable(Level.FINE)) {
-            LOGGER.fine("Could not locate service of type " + type + " in workspace " + workspace);
+            LOGGER.fine(
+                    "Could not locate service of type %s in workspace %s"
+                            .formatted(type, workspace));
         }
 
         return wrap(resolve(service.orElse(null)), type);
@@ -299,13 +301,8 @@ public class RepositoryGeoServerFacadeImpl implements RepositoryGeoServerFacade 
         }
         if (service.isEmpty() && LOGGER.isLoggable(Level.FINE)) {
             LOGGER.fine(
-                    "Could not locate service of type "
-                            + type
-                            + " in workspace "
-                            + workspace
-                            + " and name '"
-                            + name
-                            + "'");
+                    "Could not locate service of type %s in workspace %s and name '%s'"
+                            .formatted(type, workspace, name));
         }
         return wrap(resolve(service.orElse(null)), type);
     }
