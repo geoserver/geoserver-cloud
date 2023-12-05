@@ -5,7 +5,6 @@
 package org.geoserver.jackson.databind.catalog;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 
@@ -17,8 +16,7 @@ import java.io.IOException;
 public class VersionDeserializer extends JsonDeserializer<Version> {
 
     @Override
-    public Version deserialize(JsonParser parser, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException {
+    public Version deserialize(JsonParser parser, DeserializationContext ctxt) throws IOException {
 
         VersionDto dto = parser.readValueAs(VersionDto.class);
         return VersionSerializer.mapper.dtoToVersion(dto);

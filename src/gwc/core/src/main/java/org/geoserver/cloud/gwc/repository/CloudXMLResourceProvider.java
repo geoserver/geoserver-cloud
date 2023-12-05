@@ -69,7 +69,7 @@ public class CloudXMLResourceProvider implements ConfigurationResourceProvider {
         this.templateLocation = templateLocation;
     }
 
-    private Resource findConfigFile() throws IOException {
+    private Resource findConfigFile() {
         Resource dir = getConfigDirectory();
         return dir.get(configFileName);
     }

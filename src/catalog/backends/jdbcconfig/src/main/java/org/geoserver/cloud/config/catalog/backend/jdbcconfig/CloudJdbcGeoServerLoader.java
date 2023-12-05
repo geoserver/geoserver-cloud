@@ -54,8 +54,7 @@ public class CloudJdbcGeoServerLoader extends DefaultGeoServerLoader {
             GeoServer geoserver,
             GeoServerResourceLoader resourceLoader,
             JDBCConfigProperties config,
-            ConfigDatabase configdb)
-            throws Exception {
+            ConfigDatabase configdb) {
         super(resourceLoader);
         this.rawCatalog = rawCatalog;
         this.geoserver = geoserver;

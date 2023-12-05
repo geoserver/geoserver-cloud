@@ -187,7 +187,7 @@ public class DataDirectoryUpdateSequence implements UpdateSequence, GeoServerIni
         save(resource, initialValue);
     }
 
-    protected Resource resource() throws IOException {
+    protected Resource resource() {
         return resourceStore.get(UPDATE_SEQUENCE_FILE_NAME);
     }
 

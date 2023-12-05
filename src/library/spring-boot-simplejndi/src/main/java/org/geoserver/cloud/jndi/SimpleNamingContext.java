@@ -273,8 +273,7 @@ public class SimpleNamingContext implements Context {
         throw nameUnsupported();
     }
 
-    protected OperationNotSupportedException nameUnsupported()
-            throws OperationNotSupportedException {
+    protected OperationNotSupportedException nameUnsupported() {
         return new OperationNotSupportedException("javax.naming.Name is not supported");
     }
 

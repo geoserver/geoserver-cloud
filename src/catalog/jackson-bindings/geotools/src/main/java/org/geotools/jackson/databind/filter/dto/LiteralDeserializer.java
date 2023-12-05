@@ -4,12 +4,13 @@
  */
 package org.geotools.jackson.databind.filter.dto;
 
-import static org.geotools.jackson.databind.filter.dto.LiteralSerializer.*;
+import static org.geotools.jackson.databind.filter.dto.LiteralSerializer.COLLECTION_CONTENT_TYPE_KEY;
+import static org.geotools.jackson.databind.filter.dto.LiteralSerializer.TYPE_KEY;
+import static org.geotools.jackson.databind.filter.dto.LiteralSerializer.VALUE_KEY;
 
 import static java.util.Objects.requireNonNull;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -48,8 +49,7 @@ public class LiteralDeserializer extends JsonDeserializer<Literal> {
     private ValueMappers classNameMapper = Mappers.getMapper(ValueMappers.class);
 
     @Override
-    public Literal deserialize(JsonParser parser, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException {
+    public Literal deserialize(JsonParser parser, DeserializationContext ctxt) throws IOException {
 
         expect(parser.currentToken(), JsonToken.START_OBJECT);
         final Class<?> type = readType(parser);

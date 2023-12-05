@@ -24,7 +24,6 @@ import lombok.NonNull;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -197,12 +196,8 @@ class SpringEnvironmentAwareGeoToolsHttpClient
 
         postMethod.setEntity(requestEntity);
 
-        HttpMethodResponse response = null;
-        try {
-            response = executeMethod(postMethod);
-        } catch (HttpException e) {
-            throw new IOException(e);
-        }
+        HttpMethodResponse response = executeMethod(postMethod);
+
         if (200 != response.getStatusCode()) {
             postMethod.releaseConnection();
             throw new IOException(
@@ -218,8 +213,7 @@ class SpringEnvironmentAwareGeoToolsHttpClient
     /**
      * @return the http status code of the execution
      */
-    private HttpMethodResponse executeMethod(HttpRequestBase method)
-            throws IOException, HttpException {
+    private HttpMethodResponse executeMethod(HttpRequestBase method) throws IOException {
 
         HttpClientContext localContext = HttpClientContext.create();
         HttpResponse resp;
@@ -253,12 +247,7 @@ class SpringEnvironmentAwareGeoToolsHttpClient
             }
         }
 
-        HttpMethodResponse response = null;
-        try {
-            response = executeMethod(getMethod);
-        } catch (HttpException e) {
-            throw new IOException(e);
-        }
+        HttpMethodResponse response = executeMethod(getMethod);
 
         if (200 != response.getStatusCode()) {
             getMethod.releaseConnection();

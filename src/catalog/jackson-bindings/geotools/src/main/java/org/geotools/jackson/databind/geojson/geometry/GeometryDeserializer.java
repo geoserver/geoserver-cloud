@@ -5,7 +5,6 @@
 package org.geotools.jackson.databind.geojson.geometry;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -52,8 +51,7 @@ public class GeometryDeserializer<T extends Geometry> extends JsonDeserializer<T
 
     @SuppressWarnings("unchecked")
     @Override
-    public T deserialize(JsonParser p, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException {
+    public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
 
         return (T) readGeometry(p.readValueAsTree());
     }
