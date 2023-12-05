@@ -193,18 +193,14 @@ public class JDBCConfigBackendConfigurer extends GeoServerBackendConfigurer {
         final ConfigDatabase jdbcConfigDB = jdbcConfigDB();
 
         initDbSchema(jdbcConfigProperties, jdbcStoreProperties, jdbcConfigDB);
-        try {
-            // no fall back to data directory, jdbcconfig is either enabled and fully engaged, or
-            // not at all
-            JDBCResourceStore resourceStore;
-            resourceStore = new JDBCResourceStore(jdbcConfigDataSource(), jdbcStoreProperties);
-            resourceStore.setCache(jdbcResourceCache());
-            resourceStore.setLockProvider(jdbcStoreLockProvider());
-            resourceStore.setResourceNotificationDispatcher(resourceNotificationDispatcher());
-            return resourceStore;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        // no fall back to data directory, jdbcconfig is either enabled and fully engaged, or
+        // not at all
+        JDBCResourceStore resourceStore;
+        resourceStore = new JDBCResourceStore(jdbcConfigDataSource(), jdbcStoreProperties);
+        resourceStore.setCache(jdbcResourceCache());
+        resourceStore.setLockProvider(jdbcStoreLockProvider());
+        resourceStore.setResourceNotificationDispatcher(resourceNotificationDispatcher());
+        return resourceStore;
     }
 
     @DependsOn({"extensions", "jdbcConfigDataSourceStartupValidator"})

@@ -81,7 +81,7 @@ public abstract class LockingSupport {
             } catch (Exception e) {
                 if (e instanceof IOException ioe) throw new UncheckedIOException(ioe);
                 if (e instanceof RuntimeException rte) throw rte;
-                throw new RuntimeException(e);
+                throw new IllegalStateException(e);
             }
         }
 
@@ -92,7 +92,7 @@ public abstract class LockingSupport {
                 return action.call();
             } catch (Exception e) {
                 if (exceptionType.isInstance(e)) throw exceptionType.cast(e);
-                throw new RuntimeException(e);
+                throw new IllegalStateException(e);
             } finally {
                 unlock(reason);
             }
@@ -114,7 +114,7 @@ public abstract class LockingSupport {
                 return action.call();
             } catch (Exception e) {
                 if (exceptionType.isInstance(e)) throw exceptionType.cast(e);
-                throw new RuntimeException(e);
+                throw new IllegalStateException(e);
             }
         }
     }

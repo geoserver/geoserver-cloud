@@ -52,7 +52,7 @@ public class CloudCatalogConfiguration extends CatalogConfiguration {
                     (LoadingCache<String, GeoServerTileLayer>)
                             FieldUtils.readField(this, "layerCache", true);
         } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
+            throw new IllegalStateException(e);
         }
     }
 

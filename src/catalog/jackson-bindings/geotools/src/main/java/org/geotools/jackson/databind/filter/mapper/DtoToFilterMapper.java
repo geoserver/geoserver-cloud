@@ -112,13 +112,13 @@ abstract class DtoToFilterMapper {
         try {
             mapperMethod = getClass().getMethod("toFilter", dtoFilterType);
         } catch (NoSuchMethodException | SecurityException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
         }
         org.geotools.api.filter.Filter filter;
         try {
             filter = (org.geotools.api.filter.Filter) mapperMethod.invoke(this, dto);
-        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            throw new RuntimeException(e);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new IllegalArgumentException(e);
         }
         return filter;
     }

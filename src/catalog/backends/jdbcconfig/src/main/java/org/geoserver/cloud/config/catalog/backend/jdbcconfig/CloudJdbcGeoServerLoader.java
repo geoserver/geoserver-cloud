@@ -70,7 +70,7 @@ public class CloudJdbcGeoServerLoader extends DefaultGeoServerLoader {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
-    protected void loadGeoServer(GeoServer geoServer, XStreamPersister xp) throws Exception {
+    protected void loadGeoServer(GeoServer geoServer, XStreamPersister xp) {
         final Lock lock = resourceLoader.getLockProvider().acquire("GLOBAL");
         try {
             if (geoServer.getGlobal() == null) {
@@ -94,12 +94,12 @@ public class CloudJdbcGeoServerLoader extends DefaultGeoServerLoader {
     }
 
     @Override
-    protected void loadCatalog(Catalog catalog, XStreamPersister xp) throws Exception {
+    protected void loadCatalog(Catalog catalog, XStreamPersister xp) throws IOException {
         loadCatalogInternal(xp);
         catalog.addListener(new GeoServerResourcePersister(catalog));
     }
 
-    private void loadCatalogInternal(XStreamPersister xp) throws Exception {
+    private void loadCatalogInternal(XStreamPersister xp) throws IOException {
         if (!config.isInitDb() && !config.isImport() && config.isRepopulate()) {
             ConfigDatabase configDatabase = this.configdb;
             configDatabase.repopulateQueryableProperties();

@@ -76,7 +76,7 @@ public class CloudGwcXmlConfiguration extends XMLConfiguration {
                             FieldUtils.readField(this, "blobStoreListeners", true);
 
         } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
+            throw new IllegalStateException(e);
         }
     }
 

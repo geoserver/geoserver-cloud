@@ -68,7 +68,7 @@ public class CloudJdbcStoreProperties extends JDBCResourceStoreProperties {
                     // table not found, proceed with initialization
                 }
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                throw new IllegalStateException(e);
             }
         }
         return initDb;

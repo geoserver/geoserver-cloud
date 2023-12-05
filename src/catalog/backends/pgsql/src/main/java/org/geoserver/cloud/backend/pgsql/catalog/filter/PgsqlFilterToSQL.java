@@ -31,6 +31,7 @@ import org.geotools.jdbc.PreparedFilterToSQL;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.util.Date;
 import java.util.List;
@@ -115,7 +116,7 @@ class PgsqlFilterToSQL extends PreparedFilterToSQL {
 
             writeLiteral(pattern);
         } catch (java.io.IOException ioe) {
-            throw new RuntimeException(IO_ERROR, ioe);
+            throw new UncheckedIOException(IO_ERROR, ioe);
         }
         return extraData;
     }
@@ -127,7 +128,7 @@ class PgsqlFilterToSQL extends PreparedFilterToSQL {
         try {
             encoded = visitFunction(function);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(IO_ERROR, e);
         }
         super.encodingFunction = false;
 

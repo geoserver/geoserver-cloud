@@ -171,8 +171,7 @@ public class CoreBackendConfiguration {
     @Bean(name = "geoServer")
     GeoServerImpl geoServer(
             @Qualifier("catalog") Catalog catalog,
-            @Qualifier("geoserverFacade") GeoServerFacade facade)
-            throws Exception {
+            @Qualifier("geoserverFacade") GeoServerFacade facade) {
         GeoServerImpl gs = new GeoServerImpl(facade);
         gs.setCatalog(catalog);
         return gs;

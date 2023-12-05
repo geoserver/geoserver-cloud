@@ -23,6 +23,7 @@ import org.geoserver.catalog.impl.ModificationProxy;
 import org.geotools.jackson.databind.util.ObjectMapperUtil;
 import org.springframework.jdbc.core.RowMapper;
 
+import java.io.UncheckedIOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -370,7 +371,7 @@ class CatalogInfoRowMapper {
         try {
             return null == encoded ? null : infoMapper.readValue(encoded, valueType);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 

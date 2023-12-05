@@ -294,18 +294,10 @@ public class SimpleNamingContext implements Context {
             for (String boundName : context.bindings.keySet()) {
                 if (boundName.startsWith(contextRoot)) {
                     final String strippedName = extractSimpleName(contextRoot, boundName);
-                    contents.computeIfAbsent(
-                            strippedName,
-                            name -> {
-                                try {
-                                    return createObject(name, context.lookup(root + name));
-                                } catch (NameNotFoundException e) {
-                                    throw new RuntimeException("Should not happen", e);
-                                }
-                            });
+                    contents.computeIfAbsent(strippedName, name -> lookup(root, name, context));
                 }
             }
-            if (contents.size() == 0) {
+            if (contents.isEmpty()) {
                 throw new NamingException("Invalid root '" + contextRoot + root + "'");
             }
             this.iterator = contents.values().iterator();
@@ -317,6 +309,17 @@ public class SimpleNamingContext implements Context {
             return (endIndex != -1
                     ? boundName.substring(startIndex, endIndex)
                     : boundName.substring(startIndex));
+        }
+
+        private T lookup(String root, String name, SimpleNamingContext context) {
+            Object lookup;
+            try {
+                lookup = context.lookup(root + name);
+            } catch (NameNotFoundException shouldNotHappen) {
+                throw new IllegalStateException(
+                        "Subcontext lookup should not fail at this point", shouldNotHappen);
+            }
+            return createObject(name, lookup);
         }
 
         protected abstract T createObject(String simpleName, Object obj);

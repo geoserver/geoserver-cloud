@@ -135,7 +135,7 @@ public interface ValueMappers {
         try {
             return measure2Str.convert(value, String.class);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new IllegalStateException(e);
         }
     }
 
@@ -143,7 +143,7 @@ public interface ValueMappers {
         try {
             return str2Measure.convert(value, Measure.class);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new IllegalStateException(e);
         }
     }
 

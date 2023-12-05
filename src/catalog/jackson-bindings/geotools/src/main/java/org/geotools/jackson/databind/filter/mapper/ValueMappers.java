@@ -64,7 +64,7 @@ public abstract class ValueMappers {
         try {
             return Class.forName(value);
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
         }
     }
 

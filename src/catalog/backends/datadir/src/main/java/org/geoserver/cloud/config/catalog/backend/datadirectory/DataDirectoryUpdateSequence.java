@@ -57,7 +57,7 @@ public class DataDirectoryUpdateSequence implements UpdateSequence, GeoServerIni
     private XStreamPersister xp;
 
     @Override
-    public void initialize(GeoServer geoServer) throws Exception {
+    public void initialize(GeoServer geoServer) throws IOException {
         this.geoServer = geoServer;
         Resource resource = getOrCreateResource();
         log.debug("Update sequence resource is {}", resource.path());
@@ -128,7 +128,7 @@ public class DataDirectoryUpdateSequence implements UpdateSequence, GeoServerIni
             xp.save(info, out);
             resource.setContents(out.toByteArray());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 

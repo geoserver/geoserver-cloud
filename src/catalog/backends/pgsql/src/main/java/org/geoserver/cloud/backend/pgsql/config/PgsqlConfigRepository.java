@@ -25,6 +25,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
+import java.io.UncheckedIOException;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -297,7 +298,7 @@ public class PgsqlConfigRepository implements ConfigRepository {
         try {
             return infoMapper.writeValueAsString(info);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -305,7 +306,7 @@ public class PgsqlConfigRepository implements ConfigRepository {
         try {
             return infoMapper.readValue(value, type);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 
