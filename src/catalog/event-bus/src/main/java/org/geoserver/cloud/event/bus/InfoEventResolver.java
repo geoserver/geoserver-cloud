@@ -56,7 +56,7 @@ public class InfoEventResolver {
         if (event instanceof InfoAdded<I> addEvent) {
             I object = addEvent.getObject();
             addEvent.setObject(resolve(object));
-        } else if (event instanceof InfoModified modifyEvent) {
+        } else if (event instanceof InfoModified<I> modifyEvent) {
             modifyEvent.setPatch(resolve(modifyEvent.getPatch()));
         }
         return event;
