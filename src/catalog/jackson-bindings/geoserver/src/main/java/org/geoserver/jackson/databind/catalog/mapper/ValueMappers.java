@@ -274,9 +274,8 @@ public interface ValueMappers {
 
         LoggerFactory.getLogger(getClass())
                 .warn(
-                        "Uknown InternationalString implementation: "
-                                + s.getClass().getName()
-                                + ". Returning null");
+                        "Uknown InternationalString implementation: {}. Returning null",
+                        s.getClass().getName());
         return null;
     }
 

@@ -204,21 +204,19 @@ public class DefaultCatalogValidator implements CatalogValidator {
         // if the style is missing associate a default one, to avoid breaking WMS
         if (layer.getDefaultStyle() == null) {
             try {
-                LOGGER.log(
-                        Level.INFO,
-                        "Layer "
-                                + layer.prefixedName()
-                                + " is missing the default style, assigning one automatically");
+                LOGGER.info(
+                        () ->
+                                "Layer %s is missing the default style, assigning one automatically"
+                                        .formatted(layer.prefixedName()));
                 StyleInfo style = new CatalogBuilder(catalog).getDefaultStyle(resource);
                 layer.setDefaultStyle(style);
             } catch (IOException e) {
                 LOGGER.log(
                         Level.WARNING,
-                        "Layer "
-                                + layer.prefixedName()
-                                + " is missing the default style, "
-                                + "failed to associate one automatically",
-                        e);
+                        e,
+                        () ->
+                                "Layer %s is missing the default style, failed to associate one automatically"
+                                        .formatted(layer.prefixedName()));
             }
         }
 

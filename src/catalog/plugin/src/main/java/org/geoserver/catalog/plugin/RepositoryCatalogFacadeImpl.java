@@ -588,10 +588,10 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
             } catch (RuntimeException e) {
                 LOGGER.log(
                         Level.SEVERE,
-                        "Error obtaining count of "
-                                + of.getSimpleName()
-                                + " with filter "
-                                + filter);
+                        e,
+                        () ->
+                                "Error obtaining count of %s with filter %s"
+                                        .formatted(of.getSimpleName(), filter));
                 throw e;
             }
         }
@@ -643,7 +643,7 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
                 checkCanSort(query);
                 stream = repository(query.getType()).findAll(query);
             } catch (RuntimeException e) {
-                LOGGER.log(Level.SEVERE, "Error obtaining stream: " + query, e);
+                LOGGER.log(Level.SEVERE, e, () -> "Error obtaining stream: " + query);
                 throw e;
             }
         }
