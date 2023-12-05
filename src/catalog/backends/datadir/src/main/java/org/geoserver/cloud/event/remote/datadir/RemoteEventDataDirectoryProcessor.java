@@ -74,19 +74,13 @@ public class RemoteEventDataDirectoryProcessor {
             case WorkspaceInfo:
                 remove(objectId, catalogFacade::getWorkspace, catalogFacade::remove);
                 break;
-            case CoverageInfo:
-            case FeatureTypeInfo:
-            case WmsLayerInfo:
-            case WmtsLayerInfo:
+            case CoverageInfo, FeatureTypeInfo, WmsLayerInfo, WmtsLayerInfo:
                 remove(
                         objectId,
                         id -> catalogFacade.getResource(id, ResourceInfo.class),
                         catalogFacade::remove);
                 break;
-            case CoverageStoreInfo:
-            case DataStoreInfo:
-            case WmsStoreInfo:
-            case WmtsStoreInfo:
+            case CoverageStoreInfo, DataStoreInfo, WmsStoreInfo, WmtsStoreInfo:
                 remove(
                         objectId,
                         id -> catalogFacade.getStore(id, StoreInfo.class),

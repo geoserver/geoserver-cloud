@@ -85,9 +85,7 @@ public class CloudGwcXmlConfiguration extends XMLConfiguration {
         if (isLocal(event)) return false;
 
         switch (event.getEventType()) {
-            case CREATED:
-            case DELETED:
-            case MODIFIED:
+            case CREATED, DELETED, MODIFIED:
                 reload(event);
                 break;
             default:

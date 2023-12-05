@@ -1673,18 +1673,10 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
             case NAMESPACE:
                 remove((NamespaceInfo) info);
                 break;
-            case STORE:
-            case COVERAGESTORE:
-            case DATASTORE:
-            case WMSSTORE:
-            case WMTSSTORE:
+            case STORE, COVERAGESTORE, DATASTORE, WMSSTORE, WMTSSTORE:
                 remove((StoreInfo) info);
                 break;
-            case RESOURCE:
-            case FEATURETYPE:
-            case COVERAGE:
-            case WMSLAYER:
-            case WMTSLAYER:
+            case RESOURCE, FEATURETYPE, COVERAGE, WMSLAYER, WMTSLAYER:
                 remove((ResourceInfo) info);
                 break;
             case LAYER:
