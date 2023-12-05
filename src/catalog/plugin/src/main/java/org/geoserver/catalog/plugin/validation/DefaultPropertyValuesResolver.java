@@ -102,7 +102,7 @@ public class DefaultPropertyValuesResolver {
             if (c.getDimensions() != null) {
                 for (CoverageDimensionInfo dim : c.getDimensions()) {
                     if (dim.getNullValues() == null) {
-                        ((CoverageDimensionImpl) dim).setNullValues(new ArrayList<Double>());
+                        ((CoverageDimensionImpl) dim).setNullValues(new ArrayList<>());
                     }
                 }
             }

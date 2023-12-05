@@ -147,7 +147,7 @@ public class ProxyUtils {
         try {
             return class1.getConstructor().newInstance();
         } catch (Exception e) {
-            return new HashSet<Object>();
+            return new HashSet<>();
         }
     }
 
@@ -225,7 +225,7 @@ public class ProxyUtils {
     protected void resolveInternal(LayerInfo layer) {
         layer.setResource(resolve(layer.getResource()));
         layer.setDefaultStyle(resolve(layer.getDefaultStyle()));
-        LinkedHashSet<StyleInfo> styles = new LinkedHashSet<StyleInfo>();
+        LinkedHashSet<StyleInfo> styles = new LinkedHashSet<>();
         for (StyleInfo s : layer.getStyles()) {
             styles.add(resolve(s));
         }

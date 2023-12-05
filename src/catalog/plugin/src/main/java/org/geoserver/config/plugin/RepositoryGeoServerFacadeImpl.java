@@ -264,7 +264,7 @@ public class RepositoryGeoServerFacadeImpl implements RepositoryGeoServerFacade 
             global.setMetadata(new MetadataMap());
         }
         if (global.getClientProperties() == null) {
-            global.setClientProperties(new HashMap<Object, Object>());
+            global.setClientProperties(new HashMap<>());
         }
         if (global.getCoverageAccess() == null) {
             global.setCoverageAccess(new CoverageAccessInfoImpl());

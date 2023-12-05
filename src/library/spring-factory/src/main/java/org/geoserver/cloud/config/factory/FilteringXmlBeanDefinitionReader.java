@@ -308,8 +308,8 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
             return !MATCHERS.get().isEmpty();
         }
 
-        private Set<String> blackListedBeanNames = new HashSet<String>();
-        private Map<String, String> deferredNameToAlias = new HashMap<String, String>();
+        private Set<String> blackListedBeanNames = new HashSet<>();
+        private Map<String, String> deferredNameToAlias = new HashMap<>();
 
         protected @Override void doRegisterBeanDefinitions(Element root) {
             super.doRegisterBeanDefinitions(root);

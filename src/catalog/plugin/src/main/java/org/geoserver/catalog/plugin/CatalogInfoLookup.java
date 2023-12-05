@@ -367,7 +367,7 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
         requireNonNull(clazz);
         requireNonNull(predicate);
         requireNonNull(comparator);
-        List<U> result = new ArrayList<U>();
+        List<U> result = new ArrayList<>();
         for (Class<? extends T> key : nameMultiMap.keySet()) {
             if (clazz.isAssignableFrom(key)) {
                 Map<Name, T> valueMap = getMapForType(nameMultiMap, key);

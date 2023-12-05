@@ -225,7 +225,7 @@ public class CatalogValidationRules {
     }
 
     private ValidationResult postValidate(CatalogInfo info, boolean isNew) {
-        List<RuntimeException> errors = new ArrayList<RuntimeException>();
+        List<RuntimeException> errors = new ArrayList<>();
 
         if (!extendedValidation) {
             return new ValidationResult(null);

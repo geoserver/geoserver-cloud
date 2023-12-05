@@ -41,21 +41,14 @@ public class WebCoreConfiguration {
     @Bean
     ServletRegistrationBean<GeoServerWicketServlet> geoServerWicketServletRegistration() {
         GeoServerWicketServlet servlet = geoServerWicketServlet();
-        ServletRegistrationBean<GeoServerWicketServlet> registration;
-        registration =
-                new ServletRegistrationBean<GeoServerWicketServlet>(servlet, "/web", "/web/*");
-
-        return registration;
+        return new ServletRegistrationBean<>(servlet, "/web", "/web/*");
     }
 
     /** Register the {@link TestWfsPost servlet} */
     @Bean
     ServletRegistrationBean<TestWfsPost> wfsTestServletRegistration() {
         TestWfsPost servlet = testWfsPostServlet();
-        ServletRegistrationBean<TestWfsPost> registration;
-        registration = new ServletRegistrationBean<TestWfsPost>(servlet, "/TestWfsPost");
-
-        return registration;
+        return new ServletRegistrationBean<>(servlet, "/TestWfsPost");
     }
 
     @Bean

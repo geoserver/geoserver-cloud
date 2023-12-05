@@ -65,7 +65,7 @@ public interface ExtendedCatalogFacade extends CatalogFacade {
         Stream<T> stream = query(query);
 
         final Closeable closeable = stream::close;
-        return new CloseableIteratorAdapter<T>(stream.iterator(), closeable);
+        return new CloseableIteratorAdapter<>(stream.iterator(), closeable);
     }
 
     /**
