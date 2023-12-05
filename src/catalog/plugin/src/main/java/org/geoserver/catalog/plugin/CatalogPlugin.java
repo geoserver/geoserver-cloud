@@ -450,22 +450,22 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
 
     @Override
     public DataStoreInfo getDataStore(String id) {
-        return (DataStoreInfo) getStore(id, DataStoreInfo.class);
+        return getStore(id, DataStoreInfo.class);
     }
 
     @Override
     public DataStoreInfo getDataStoreByName(String name) {
-        return (DataStoreInfo) getStoreByName(name, DataStoreInfo.class);
+        return getStoreByName(name, DataStoreInfo.class);
     }
 
     @Override
     public DataStoreInfo getDataStoreByName(String workspaceName, String name) {
-        return (DataStoreInfo) getStoreByName(workspaceName, name, DataStoreInfo.class);
+        return getStoreByName(workspaceName, name, DataStoreInfo.class);
     }
 
     @Override
     public DataStoreInfo getDataStoreByName(WorkspaceInfo workspace, String name) {
-        return (DataStoreInfo) getStoreByName(workspace, name, DataStoreInfo.class);
+        return getStoreByName(workspace, name, DataStoreInfo.class);
     }
 
     @Override
@@ -519,12 +519,12 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
 
     @Override
     public CoverageStoreInfo getCoverageStore(String id) {
-        return (CoverageStoreInfo) getStore(id, CoverageStoreInfo.class);
+        return getStore(id, CoverageStoreInfo.class);
     }
 
     @Override
     public CoverageStoreInfo getCoverageStoreByName(String name) {
-        return (CoverageStoreInfo) getStoreByName(name, CoverageStoreInfo.class);
+    	return getStoreByName(name, CoverageStoreInfo.class);
     }
 
     @Override
@@ -690,12 +690,12 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
 
     @Override
     public FeatureTypeInfo getFeatureType(String id) {
-        return (FeatureTypeInfo) getResource(id, FeatureTypeInfo.class);
+    	return getResource(id, FeatureTypeInfo.class);
     }
 
     @Override
     public FeatureTypeInfo getFeatureTypeByName(String ns, String name) {
-        return (FeatureTypeInfo) getResourceByName(ns, name, FeatureTypeInfo.class);
+    	return getResourceByName(ns, name, FeatureTypeInfo.class);
     }
 
     @Override
@@ -710,7 +710,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
 
     @Override
     public FeatureTypeInfo getFeatureTypeByName(String name) {
-        return (FeatureTypeInfo) getResourceByName(name, FeatureTypeInfo.class);
+    	return getResourceByName(name, FeatureTypeInfo.class);
     }
 
     @Override
@@ -735,17 +735,17 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
 
     @Override
     public CoverageInfo getCoverage(String id) {
-        return (CoverageInfo) getResource(id, CoverageInfo.class);
+    	return getResource(id, CoverageInfo.class);
     }
 
     @Override
     public CoverageInfo getCoverageByName(String ns, String name) {
-        return (CoverageInfo) getResourceByName(ns, name, CoverageInfo.class);
+    	return getResourceByName(ns, name, CoverageInfo.class);
     }
 
     @Override
     public CoverageInfo getCoverageByName(NamespaceInfo ns, String name) {
-        return (CoverageInfo) getResourceByName(ns, name, CoverageInfo.class);
+    	return getResourceByName(ns, name, CoverageInfo.class);
     }
 
     @Override
@@ -755,7 +755,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
 
     @Override
     public CoverageInfo getCoverageByName(String name) {
-        return (CoverageInfo) getResourceByName(name, CoverageInfo.class);
+    	return getResourceByName(name, CoverageInfo.class);
     }
 
     @Override

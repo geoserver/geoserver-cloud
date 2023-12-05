@@ -225,7 +225,7 @@ public class DefaultCatalogValidator implements CatalogValidator {
         // clean up eventual dangling references to missing alternate styles
         Set<StyleInfo> styles = layer.getStyles();
         for (Iterator<StyleInfo> it = styles.iterator(); it.hasNext(); ) {
-            StyleInfo styleInfo = (StyleInfo) it.next();
+            StyleInfo styleInfo = it.next();
             if (styleInfo == null) {
                 it.remove();
             }

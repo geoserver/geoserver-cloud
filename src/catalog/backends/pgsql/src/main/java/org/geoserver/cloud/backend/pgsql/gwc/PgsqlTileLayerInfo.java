@@ -18,7 +18,7 @@ public class PgsqlTileLayerInfo extends GeoServerTileLayerInfoImpl {
     @Getter @Setter private String workspaceId;
 
     @Override
-    public GeoServerTileLayerInfoImpl clone() {
+    public PgsqlTileLayerInfo clone() {
         return (PgsqlTileLayerInfo) super.clone();
     }
 }

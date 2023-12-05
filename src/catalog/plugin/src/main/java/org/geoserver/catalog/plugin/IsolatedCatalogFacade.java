@@ -243,7 +243,7 @@ public final class IsolatedCatalogFacade extends ForwardingExtendedCatalogFacade
         if (count != null) {
             filtered = Iterators.limit(filtered, count.intValue());
         }
-        return new CloseableIteratorAdapter<>(filtered, (Closeable) all);
+        return new CloseableIteratorAdapter<>(filtered, all);
     }
 
     @Override
