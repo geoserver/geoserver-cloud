@@ -473,7 +473,7 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
             implements NamespaceRepository {
 
         private ConcurrentHashMap<String, List<NamespaceInfo>> index = new ConcurrentHashMap<>();
-        private static Comparator<NamespaceInfo> VALUE_ORDER =
+        private static final Comparator<NamespaceInfo> VALUE_ORDER =
                 (n1, n2) -> n1.getId().compareTo(n2.getId());
 
         /** guards modifications to the index and its ArrayList values */

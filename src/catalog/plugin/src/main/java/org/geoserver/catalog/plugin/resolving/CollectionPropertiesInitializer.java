@@ -18,7 +18,7 @@ import java.util.function.UnaryOperator;
  */
 public class CollectionPropertiesInitializer<T> implements UnaryOperator<T> {
 
-    private static CollectionPropertiesInitializer<?> INSTANCE =
+    private static final CollectionPropertiesInitializer<?> INSTANCE =
             new CollectionPropertiesInitializer<>();
 
     @Override

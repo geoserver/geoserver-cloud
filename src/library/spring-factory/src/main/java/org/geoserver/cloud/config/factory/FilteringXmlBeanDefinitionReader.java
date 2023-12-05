@@ -100,7 +100,7 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
      * @see FilteringXmlBeanDefinitionReaderAutoConfiguration
      * @see #clearCaches()
      */
-    private static Resource[] ALLCLASSPATHBASERESOURCES;
+    private static Resource[] classpathBaseResources;
 
     public FilteringXmlBeanDefinitionReader(BeanDefinitionRegistry registry) {
         super(registry);
@@ -110,13 +110,13 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
      * Clears any cached resource, expected to be called after the application context is refreshed
      */
     public static synchronized void clearCaches() {
-        if (!classpathDocuments.isEmpty() || null != ALLCLASSPATHBASERESOURCES) {
+        if (!classpathDocuments.isEmpty() || null != classpathBaseResources) {
             log.debug(
                     "Clearing cache of {} parsed xml documents and {} classpath resources",
                     classpathDocuments.size(),
-                    null == ALLCLASSPATHBASERESOURCES ? 0 : ALLCLASSPATHBASERESOURCES.length);
+                    null == classpathBaseResources ? 0 : classpathBaseResources.length);
             classpathDocuments.clear();
-            ALLCLASSPATHBASERESOURCES = null;
+            classpathBaseResources = null;
         }
     }
 
@@ -219,19 +219,19 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
      */
     private static synchronized Resource[] getAllClasspathResources(
             ResourcePatternResolver patternResolver) throws IOException {
-        if (null == ALLCLASSPATHBASERESOURCES) {
+        if (null == classpathBaseResources) {
             StopWatch sw = new StopWatch();
             sw.start();
-            ALLCLASSPATHBASERESOURCES = patternResolver.getResources("classpath*:");
+            classpathBaseResources = patternResolver.getResources("classpath*:");
             sw.stop();
             if (log.isTraceEnabled()) {
                 log.trace(
                         String.format(
                                 "Loaded %,d classpath resources in %,dms",
-                                ALLCLASSPATHBASERESOURCES.length, sw.getTotalTimeMillis()));
+                                classpathBaseResources.length, sw.getTotalTimeMillis()));
             }
         }
-        return ALLCLASSPATHBASERESOURCES;
+        return classpathBaseResources;
     }
 
     private String removeBeanFilterExpressions(String location) {
@@ -284,7 +284,7 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
     public static class FilteringBeanDefinitionDocumentReader
             extends DefaultBeanDefinitionDocumentReader {
 
-        private static ThreadLocal<List<Predicate<String>>> MATCHERS =
+        private static final ThreadLocal<List<Predicate<String>>> MATCHERS =
                 ThreadLocal.withInitial(ArrayList::new);
 
         public static void addMatcher(Predicate<String> beanDefFilter) {

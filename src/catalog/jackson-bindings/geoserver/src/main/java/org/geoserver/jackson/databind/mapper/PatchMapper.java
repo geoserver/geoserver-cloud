@@ -38,7 +38,7 @@ import java.util.function.Function;
         })
 public abstract class PatchMapper {
 
-    private static InfoReferenceMapper REFS = Mappers.getMapper(InfoReferenceMapper.class);
+    private static final InfoReferenceMapper REFS = Mappers.getMapper(InfoReferenceMapper.class);
 
     @Mapping(target = "propertyNames", ignore = true)
     public abstract Patch dtoToPatch(PatchDto dto);

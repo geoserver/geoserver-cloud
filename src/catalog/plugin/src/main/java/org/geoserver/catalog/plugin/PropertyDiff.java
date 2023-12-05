@@ -245,7 +245,7 @@ public @Data class PropertyDiff implements Serializable {
         return value;
     }
 
-    private static Set<Class<? extends Info>> IGNORE =
+    private static final Set<Class<? extends Info>> IGNORE =
             Set.of(Info.class, Catalog.class, ServiceInfo.class, PublishedInfo.class);
 
     @SuppressWarnings("unchecked")
