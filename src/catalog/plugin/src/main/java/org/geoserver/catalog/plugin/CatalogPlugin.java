@@ -199,14 +199,17 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
      * <p>This is not part of the public api, it is used for testing purposes where we have to
      * bootstrap catalog contents.
      */
+    @Override
     public void setExtendedValidation(boolean extendedValidation) {
         validationSupport.setExtendedValidation(extendedValidation);
     }
 
+    @Override
     public boolean isExtendedValidation() {
         return validationSupport.isExtendedValidation();
     }
 
+    @Override
     public void setFacade(CatalogFacade facade) {
         this.rawFacade = facade;
         ExtendedCatalogFacade efacade;
@@ -1317,7 +1320,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
         facade.dispose();
     }
 
-    // @Override TODO: add to the interface
+    @Override
     public void fireBeforeAdded(CatalogInfo object) {
         CatalogBeforeAddEventImpl event = new CatalogBeforeAddEventImpl();
         event.setSource(object);

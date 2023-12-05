@@ -111,6 +111,7 @@ public class ForwardingRepositoryCatalogFacade extends ForwardingExtendedCatalog
         return facade().getMapRepository();
     }
 
+    @Override
     protected RepositoryCatalogFacade facade() {
         return (RepositoryCatalogFacade) facade;
     }
