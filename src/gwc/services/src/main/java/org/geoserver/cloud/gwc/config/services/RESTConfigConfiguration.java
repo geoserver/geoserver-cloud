@@ -66,9 +66,9 @@ public class RESTConfigConfiguration {
      *
      * @param appCtx
      */
-    @SuppressWarnings("rawtypes")
     @Bean
-    GWCConverter<?> gwcConverter(ApplicationContextProvider appCtx) {
+    @SuppressWarnings("rawtypes")
+    GWCConverter gwcConverter(ApplicationContextProvider appCtx) {
         return new GWCConverter(appCtx);
     }
 

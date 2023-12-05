@@ -48,7 +48,7 @@ public class BusEventCollector {
             log.debug("{}: capturing is off, ignoring {}", busId, busEvent);
             return;
         }
-        GeoServerEvent<?> payloadEvent = busEvent.getEvent();
+        GeoServerEvent payloadEvent = busEvent.getEvent();
         if (!eventType.isInstance(payloadEvent)) {
             log.debug(
                     "{}: ignoring non {} event {}", busId, eventType.getSimpleName(), payloadEvent);

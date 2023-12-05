@@ -52,10 +52,9 @@ public class InfoEventResolver {
                         .andThen(ResolvingProxyResolver.of(rawCatalog));
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    public InfoEvent<?, ?> resolve(InfoEvent event) {
-        if (event instanceof InfoAdded addEvent) {
-            Info object = addEvent.getObject();
+    public <I extends Info> InfoEvent<I> resolve(InfoEvent<I> event) {
+        if (event instanceof InfoAdded<I> addEvent) {
+            I object = addEvent.getObject();
             addEvent.setObject(resolve(object));
         } else if (event instanceof InfoModified modifyEvent) {
             modifyEvent.setPatch(resolve(modifyEvent.getPatch()));

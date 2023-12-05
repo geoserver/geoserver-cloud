@@ -22,8 +22,7 @@ import org.springframework.core.style.ToStringCreator;
 @JsonTypeName("ServiceModified")
 @EqualsAndHashCode(callSuper = true)
 @SuppressWarnings("serial")
-public class ServiceModified extends ConfigInfoModified<ServiceModified, LoggingInfo>
-        implements ConfigInfoEvent {
+public class ServiceModified extends ConfigInfoModified<LoggingInfo> implements ConfigInfoEvent {
 
     private @Getter String workspaceId;
 

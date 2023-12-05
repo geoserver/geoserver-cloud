@@ -96,7 +96,7 @@ public interface ReactiveConfigClient {
 
     /** Global (no-workspace) services. */
     @GetMapping("/services")
-    Flux<? extends ServiceInfo> getGlobalServices();
+    Flux<ServiceInfo> getGlobalServices();
 
     /** GeoServer global service filtered by class. */
     @GetMapping("/services/type/{type}")

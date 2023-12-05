@@ -14,8 +14,7 @@ import org.geoserver.config.LoggingInfo;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("LoggingInfoSet")
 @SuppressWarnings("serial")
-public class LoggingInfoSet extends ConfigInfoAdded<LoggingInfoSet, LoggingInfo>
-        implements ConfigInfoEvent {
+public class LoggingInfoSet extends ConfigInfoAdded<LoggingInfo> implements ConfigInfoEvent {
 
     protected LoggingInfoSet() {
         // default constructor, needed for deserialization

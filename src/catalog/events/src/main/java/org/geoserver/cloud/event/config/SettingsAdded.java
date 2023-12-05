@@ -20,8 +20,7 @@ import org.geoserver.config.SettingsInfo;
 @JsonTypeName("SettingsAdded")
 @EqualsAndHashCode(callSuper = true)
 @SuppressWarnings("serial")
-public class SettingsAdded extends ConfigInfoAdded<SettingsAdded, SettingsInfo>
-        implements ConfigInfoEvent {
+public class SettingsAdded extends ConfigInfoAdded<SettingsInfo> implements ConfigInfoEvent {
 
     protected SettingsAdded() {
         // default constructor, needed for deserialization

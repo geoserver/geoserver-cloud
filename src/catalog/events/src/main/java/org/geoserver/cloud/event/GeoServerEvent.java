@@ -25,7 +25,7 @@ import java.util.Optional;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonSubTypes({@JsonSubTypes.Type(value = UpdateSequenceEvent.class)})
 @SuppressWarnings("serial")
-public abstract class GeoServerEvent<SELF> implements Serializable {
+public abstract class GeoServerEvent implements Serializable {
 
     @JsonIgnore private @Setter boolean remote;
 
@@ -46,13 +46,13 @@ public abstract class GeoServerEvent<SELF> implements Serializable {
     }
 
     @SuppressWarnings("unchecked")
-    public Optional<SELF> local() {
-        return Optional.ofNullable(isLocal() ? (SELF) this : null);
+    public <T extends GeoServerEvent> Optional<T> local() {
+        return Optional.ofNullable(isLocal() ? (T) this : null);
     }
 
     @SuppressWarnings("unchecked")
-    public Optional<SELF> remote() {
-        return Optional.ofNullable(isRemote() ? (SELF) this : null);
+    public <T extends GeoServerEvent> Optional<T> remote() {
+        return Optional.ofNullable(isRemote() ? (T) this : null);
     }
 
     public boolean isLocal() {

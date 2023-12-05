@@ -21,7 +21,7 @@ import org.springframework.core.style.ToStringCreator;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("SecurityConfigChanged")
 @SuppressWarnings("serial")
-public class SecurityConfigChanged extends UpdateSequenceEvent<SecurityConfigChanged> {
+public class SecurityConfigChanged extends UpdateSequenceEvent {
 
     private @Getter String reason;
 

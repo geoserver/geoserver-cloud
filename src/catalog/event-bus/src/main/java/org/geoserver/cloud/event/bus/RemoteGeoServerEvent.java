@@ -16,7 +16,7 @@ import org.springframework.cloud.bus.event.RemoteApplicationEvent;
 @SuppressWarnings("serial")
 public class RemoteGeoServerEvent extends RemoteApplicationEvent {
 
-    @Getter @NonNull private GeoServerEvent<?> event;
+    @Getter @NonNull private GeoServerEvent event;
 
     /** Deserialization-time constructor, {@link #getSource()} will be {@code null} */
     protected RemoteGeoServerEvent() {
@@ -26,7 +26,7 @@ public class RemoteGeoServerEvent extends RemoteApplicationEvent {
     /** Publish-time constructor, {@link #getSource()} won't be {@code null} */
     public RemoteGeoServerEvent(
             Object source,
-            @NonNull GeoServerEvent<?> event,
+            @NonNull GeoServerEvent event,
             @NonNull String originService,
             @NonNull Destination destination) {
         super(source, originService, destination);

@@ -1422,7 +1422,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
         return new CloseableIteratorAdapter<>(stream.iterator(), () -> stream.close());
     }
 
-    public Optional<? extends CatalogInfo> findById(@NonNull String id) {
+    public Optional<CatalogInfo> findById(@NonNull String id) {
         FilterFactory ff = CommonFactoryFinder.getFilterFactory();
         final Filter filter = ff.id(ff.featureId(id));
 
@@ -1437,6 +1437,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
                         MapInfo.class)
                 .map(type -> get(type, filter))
                 .filter(Objects::nonNull)
+                .map(CatalogInfo.class::cast)
                 .findFirst();
     }
 

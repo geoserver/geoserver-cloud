@@ -18,7 +18,7 @@ import org.geoserver.config.LoggingInfo;
 @JsonTypeName("LoggingInfoModified")
 @EqualsAndHashCode(callSuper = true)
 @SuppressWarnings("serial")
-public class LoggingInfoModified extends ConfigInfoModified<LoggingInfoModified, LoggingInfo>
+public class LoggingInfoModified extends ConfigInfoModified<LoggingInfo>
         implements ConfigInfoEvent {
 
     protected LoggingInfoModified() {

@@ -330,7 +330,7 @@ class CatalogApplicationEventsConfigurationTest {
         listener.start();
         remover.accept(info);
         @SuppressWarnings("unchecked")
-        InfoRemoved<?, T> event = listener.expectOne(eventType);
+        InfoRemoved<T> event = listener.expectOne(eventType);
         assertEquals(info.getId(), event.getObjectId());
         assertEquals(ConfigInfoType.valueOf(info), event.getObjectType());
     }
@@ -376,7 +376,7 @@ class CatalogApplicationEventsConfigurationTest {
         modifier.accept(info);
         saver.accept(info);
 
-        InfoModified<?, T> post = listener.expectOne(postEventType);
+        InfoModified<T> post = listener.expectOne(postEventType);
         assertEquals(proxy.getId(), post.getObjectId());
         assertEquals(expected, post.getPatch());
     }

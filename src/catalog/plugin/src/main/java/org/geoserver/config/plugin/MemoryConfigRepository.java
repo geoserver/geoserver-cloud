@@ -138,12 +138,12 @@ public class MemoryConfigRepository implements ConfigRepository {
     }
 
     @Override
-    public Stream<? extends ServiceInfo> getGlobalServices() {
+    public Stream<ServiceInfo> getGlobalServices() {
         return this.services.values().stream().filter(s -> s.getWorkspace() == null);
     }
 
     @Override
-    public Stream<? extends ServiceInfo> getServicesByWorkspace(WorkspaceInfo workspace) {
+    public Stream<ServiceInfo> getServicesByWorkspace(WorkspaceInfo workspace) {
         requireNonNull(workspace);
         requireNonNull(workspace.getId());
         return this.services.values().stream()

@@ -115,7 +115,7 @@ public class RemoteGeoServerEventsAutoConfiguration {
 
         log.info("Configuring GeoServer Catalog distributed events.");
 
-        Consumer<GeoServerEvent<?>> localEventPublisher = eventPublisher::publishEvent;
+        Consumer<GeoServerEvent> localEventPublisher = eventPublisher::publishEvent;
         Consumer<RemoteApplicationEvent> remoteEventPublisher = eventPublisher::publishEvent;
         Supplier<String> busId = serviceMatcher::getBusId;
         return new RemoteGeoServerEventBridge(

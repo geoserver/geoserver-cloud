@@ -14,8 +14,7 @@ import org.geoserver.config.GeoServerInfo;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("GeoServerInfoSet")
 @SuppressWarnings("serial")
-public class GeoServerInfoSet extends ConfigInfoAdded<GeoServerInfoSet, GeoServerInfo>
-        implements ConfigInfoEvent {
+public class GeoServerInfoSet extends ConfigInfoAdded<GeoServerInfo> implements ConfigInfoEvent {
 
     protected GeoServerInfoSet() {
         // default constructor, needed for deserialization

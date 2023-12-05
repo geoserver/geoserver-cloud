@@ -31,7 +31,7 @@ import java.util.Optional;
     @JsonSubTypes.Type(value = DefaultDataStoreSet.class),
 })
 @SuppressWarnings("serial")
-public class CatalogInfoModified extends InfoModified<CatalogInfoModified, CatalogInfo> {
+public class CatalogInfoModified extends InfoModified<CatalogInfo> {
 
     protected CatalogInfoModified() {}
 
@@ -41,6 +41,12 @@ public class CatalogInfoModified extends InfoModified<CatalogInfoModified, Catal
             @NonNull ConfigInfoType objectType,
             @NonNull Patch patch) {
         super(updateSequence, objectId, objectType, patch);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Optional<CatalogInfoModified> remote() {
+        return super.remote();
     }
 
     public static CatalogInfoModified createLocal(

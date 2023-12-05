@@ -18,7 +18,7 @@ import org.geoserver.config.GeoServerInfo;
 @JsonTypeName("GeoServerInfoModified")
 @EqualsAndHashCode(callSuper = true)
 @SuppressWarnings("serial")
-public class GeoServerInfoModified extends ConfigInfoModified<GeoServerInfoModified, GeoServerInfo>
+public class GeoServerInfoModified extends ConfigInfoModified<GeoServerInfo>
         implements ConfigInfoEvent {
 
     protected GeoServerInfoModified() {

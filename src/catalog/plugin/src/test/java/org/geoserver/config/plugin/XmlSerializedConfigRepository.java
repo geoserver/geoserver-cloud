@@ -168,12 +168,12 @@ class XmlSerializedConfigRepository implements ConfigRepository {
     }
 
     @Override
-    public Stream<? extends ServiceInfo> getGlobalServices() {
+    public Stream<ServiceInfo> getGlobalServices() {
         return services().filter(s -> s.getWorkspace() == null);
     }
 
     @Override
-    public Stream<? extends ServiceInfo> getServicesByWorkspace(WorkspaceInfo workspace) {
+    public Stream<ServiceInfo> getServicesByWorkspace(WorkspaceInfo workspace) {
         return services()
                 .filter(s -> s.getWorkspace() != null)
                 .filter(s -> workspace.getId().equals(s.getWorkspace().getId()));

@@ -142,7 +142,7 @@ class RemoteEventCacheEvictorTest {
         return patch;
     }
 
-    private <E extends InfoEvent<?, ?>> E publishRemote(E event) {
+    private <E extends InfoEvent<?>> E publishRemote(E event) {
         event.setRemote(true);
         publisher.publishEvent(event);
         return event;
@@ -482,7 +482,7 @@ class RemoteEventCacheEvictorTest {
 
         Mockito.clearInvocations(this.evictor);
 
-        UpdateSequenceEvent<?> event =
+        UpdateSequenceEvent event =
                 publishRemote(GeoServerInfoModified.createLocal(updateSequence, remote, patch));
 
         Mockito.verify(evictor, times(1)).onUpdateSequenceEvent(same(event));

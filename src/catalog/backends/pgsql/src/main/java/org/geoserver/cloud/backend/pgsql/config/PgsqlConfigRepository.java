@@ -195,7 +195,7 @@ public class PgsqlConfigRepository implements ConfigRepository {
     }
 
     @Override
-    public Stream<? extends ServiceInfo> getGlobalServices() {
+    public Stream<ServiceInfo> getGlobalServices() {
         return template.queryForStream(
                 """
                 SELECT info, workspace FROM serviceinfos WHERE "workspace.id" IS NULL
@@ -204,7 +204,7 @@ public class PgsqlConfigRepository implements ConfigRepository {
     }
 
     @Override
-    public Stream<? extends ServiceInfo> getServicesByWorkspace(WorkspaceInfo workspace) {
+    public Stream<ServiceInfo> getServicesByWorkspace(WorkspaceInfo workspace) {
         String workspaceId = workspace.getId();
         return template.queryForStream(
                 """

@@ -124,12 +124,12 @@ public class CatalogClientConfigRepository implements ConfigRepository {
     }
 
     @Override
-    public Stream<? extends ServiceInfo> getGlobalServices() {
+    public Stream<ServiceInfo> getGlobalServices() {
         return client.getGlobalServices().toStream();
     }
 
     @Override
-    public Stream<? extends ServiceInfo> getServicesByWorkspace(WorkspaceInfo workspace) {
+    public Stream<ServiceInfo> getServicesByWorkspace(WorkspaceInfo workspace) {
         return client.getServicesByWorkspace(workspace.getId()).toStream();
     }
 
