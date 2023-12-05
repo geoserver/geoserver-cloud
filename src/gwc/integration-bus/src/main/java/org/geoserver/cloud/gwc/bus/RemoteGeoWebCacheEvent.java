@@ -22,7 +22,7 @@ public abstract class RemoteGeoWebCacheEvent extends RemoteApplicationEvent {
 
     private static final long serialVersionUID = 1L;
 
-    public static enum Type {
+    public enum Type {
         CREATED,
         MODIFIED,
         DELETED
