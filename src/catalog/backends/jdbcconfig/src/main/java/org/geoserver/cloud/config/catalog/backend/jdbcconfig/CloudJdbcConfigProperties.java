@@ -7,6 +7,8 @@ package org.geoserver.cloud.config.catalog.backend.jdbcconfig;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
+import lombok.EqualsAndHashCode;
+
 import org.geoserver.jdbcconfig.internal.ConfigDatabase;
 import org.geoserver.jdbcconfig.internal.JDBCConfigProperties;
 import org.geoserver.jdbcconfig.internal.JDBCConfigPropertiesFactoryBean;
@@ -22,6 +24,7 @@ import java.sql.Statement;
 import javax.sql.DataSource;
 
 /** Extends {@link JDBCConfigProperties} to not need a {@link JDBCConfigPropertiesFactoryBean} */
+@EqualsAndHashCode(callSuper = true)
 public class CloudJdbcConfigProperties extends JDBCConfigProperties {
     private static final long serialVersionUID = 1L;
     private transient DataSource dataSource;

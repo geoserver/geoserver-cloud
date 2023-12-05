@@ -4,6 +4,7 @@
  */
 package org.geoserver.cloud.gwc.bus;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -13,6 +14,7 @@ import lombok.Setter;
  * @since 1.0
  */
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class RemoteBlobStoreEvent extends RemoteGeoWebCacheEvent {
 
     private static final long serialVersionUID = 1L;

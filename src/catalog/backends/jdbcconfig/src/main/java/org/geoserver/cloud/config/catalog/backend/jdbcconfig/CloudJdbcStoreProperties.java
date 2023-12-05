@@ -7,6 +7,8 @@ package org.geoserver.cloud.config.catalog.backend.jdbcconfig;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
+import lombok.EqualsAndHashCode;
+
 import org.geoserver.jdbcloader.DataSourceFactoryBean;
 import org.geoserver.jdbcstore.internal.JDBCResourceStoreProperties;
 import org.geoserver.jdbcstore.internal.JDBCResourceStorePropertiesFactoryBean;
@@ -25,6 +27,7 @@ import javax.sql.DataSource;
  * Extends {@link JDBCResourceStoreProperties} to not need a {@link
  * JDBCResourceStorePropertiesFactoryBean}
  */
+@EqualsAndHashCode(callSuper = true)
 public class CloudJdbcStoreProperties extends JDBCResourceStoreProperties {
     private static final long serialVersionUID = 1L;
 

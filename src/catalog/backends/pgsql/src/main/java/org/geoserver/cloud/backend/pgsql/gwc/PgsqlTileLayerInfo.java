@@ -4,6 +4,7 @@
  */
 package org.geoserver.cloud.backend.pgsql.gwc;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,6 +13,7 @@ import org.geoserver.gwc.layer.GeoServerTileLayerInfoImpl;
 /**
  * @since 1.4
  */
+@EqualsAndHashCode(callSuper = true)
 @SuppressWarnings("serial")
 public class PgsqlTileLayerInfo extends GeoServerTileLayerInfoImpl {
 
