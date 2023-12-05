@@ -26,7 +26,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /** */
 @AllArgsConstructor
@@ -137,7 +136,7 @@ class CatalogClientResource implements Resource {
 
     @Override
     public List<Resource> list() {
-        return store.list(path()).collect(Collectors.toList());
+        return store.list(path()).map(Resource.class::cast).toList();
     }
 
     @Override

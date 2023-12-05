@@ -46,7 +46,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 /**
  * Provides or populates a catalog; use {@link CatalogTestData#empty
@@ -552,7 +551,7 @@ public class CatalogTestData {
         List<String> istringProps =
                 props.properties().stream()
                         .filter(p -> props.getter(p, InternationalString.class) != null)
-                        .collect(Collectors.toList());
+                        .toList();
         for (String isp : istringProps) {
             InternationalString i1 = (InternationalString) OwsUtils.get(info1, isp);
             InternationalString i2 = (InternationalString) OwsUtils.get(info2, isp);

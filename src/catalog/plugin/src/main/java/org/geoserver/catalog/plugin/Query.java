@@ -16,11 +16,11 @@ import org.geotools.api.filter.Filter;
 import org.geotools.api.filter.sort.SortBy;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.OptionalInt;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /** */
 @NoArgsConstructor
@@ -83,9 +83,7 @@ public @Data class Query<T extends Info> {
         List<SortBy> sortBy =
                 sortOrder == null
                         ? Collections.emptyList()
-                        : Arrays.asList(sortOrder).stream()
-                                .filter(s -> s != null)
-                                .collect(Collectors.toList());
+                        : Stream.of(sortOrder).filter(Objects::nonNull).toList();
 
         filter = filter == null ? Filter.INCLUDE : filter;
         return new Query<>((Class<T>) type)

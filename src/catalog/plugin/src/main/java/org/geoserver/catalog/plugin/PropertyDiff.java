@@ -110,8 +110,7 @@ public @Data class PropertyDiff implements Serializable {
      * @return a "clean copy", where no-op changes are ignored
      */
     public PropertyDiff clean() {
-        return new PropertyDiff(
-                changes.stream().filter(c -> !c.isNoChange()).collect(Collectors.toList()));
+        return new PropertyDiff(changes.stream().filter(Change::isNotEmpty).toList());
     }
 
     public boolean isEmpty() {
@@ -125,6 +124,10 @@ public @Data class PropertyDiff implements Serializable {
         private @NonNull String propertyName;
         private transient Object oldValue;
         private transient Object newValue;
+
+        boolean isNotEmpty() {
+            return !isNoChange();
+        }
 
         public boolean isNoChange() {
             if (Objects.equals(oldValue, newValue)) return true;
@@ -347,7 +350,7 @@ public @Data class PropertyDiff implements Serializable {
             if (val instanceof Set) {
                 return stream.collect(Collectors.toCollection(HashSet::new));
             }
-            return stream.collect(Collectors.toList());
+            return stream.toList();
         }
 
         public static <K, V> Map<K, V> copyOf(final Map<K, V> val) {

@@ -36,7 +36,6 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
@@ -517,7 +516,7 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
 
     protected <T extends CatalogInfo> List<T> toList(Supplier<Stream<T>> supplier) {
         try (Stream<T> stream = supplier.get()) {
-            return stream.collect(Collectors.toList());
+            return stream.toList();
         }
     }
 

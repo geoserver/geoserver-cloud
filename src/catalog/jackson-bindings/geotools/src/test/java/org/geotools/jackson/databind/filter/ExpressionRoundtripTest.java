@@ -46,7 +46,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -360,7 +359,7 @@ public abstract class ExpressionRoundtripTest {
         List<FunctionName> allFunctionDescriptions =
                 finder.getAllFunctionDescriptions().stream()
                         .sorted((f1, f2) -> f1.getName().compareTo(f2.getName()))
-                        .collect(Collectors.toList());
+                        .toList();
         for (FunctionName functionName : allFunctionDescriptions) {
             testFunctionNameRoundtrip(functionName);
         }
@@ -423,9 +422,7 @@ public abstract class ExpressionRoundtripTest {
 
     private List<Expression> buildSampleParameter(Parameter<?> p) {
         int occurs = p.isRequired().booleanValue() ? p.getMinOccurs() : 1;
-        return IntStream.range(0, occurs)
-                .mapToObj(i -> buildSampleParam(i, p))
-                .collect(Collectors.toList());
+        return IntStream.range(0, occurs).mapToObj(i -> buildSampleParam(i, p)).toList();
     }
 
     // static Set<String> allFunctionParamTypes = new TreeSet<>();

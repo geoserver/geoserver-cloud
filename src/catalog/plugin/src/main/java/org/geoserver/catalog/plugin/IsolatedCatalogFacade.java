@@ -31,7 +31,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
@@ -427,8 +426,7 @@ public final class IsolatedCatalogFacade extends ForwardingExtendedCatalogFacade
         List<T> unwrapped = ModificationProxy.unwrap(objects);
         // filter the non visible catalog objects and wrap the resulting list with a modification
         // proxy
-        return ModificationProxy.createList(
-                unwrapped.stream().filter(filter).collect(Collectors.toList()), type);
+        return ModificationProxy.createList(unwrapped.stream().filter(filter).toList(), type);
     }
 
     /**

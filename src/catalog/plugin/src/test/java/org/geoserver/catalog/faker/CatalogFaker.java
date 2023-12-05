@@ -92,7 +92,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Accessors(fluent = true)
@@ -566,9 +565,7 @@ public class CatalogFaker {
     }
 
     public List<AuthorityURLInfo> authUrls(int count) {
-        return IntStream.range(0, count)
-                .mapToObj(i -> this.authorityURLInfo())
-                .collect(Collectors.toList());
+        return IntStream.range(0, count).mapToObj(i -> this.authorityURLInfo()).toList();
     }
 
     public InternationalString internationalString(String val) {

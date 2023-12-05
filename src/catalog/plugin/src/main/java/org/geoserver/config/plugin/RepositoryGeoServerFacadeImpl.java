@@ -33,7 +33,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
@@ -234,18 +233,14 @@ public class RepositoryGeoServerFacadeImpl implements RepositoryGeoServerFacade 
 
     @Override
     public Collection<? extends ServiceInfo> getServices() {
-        List<ServiceInfo> all =
-                repository.getGlobalServices().map(this::resolve).collect(Collectors.toList());
+        List<ServiceInfo> all = repository.getGlobalServices().map(this::resolve).toList();
         return ModificationProxy.createList(all, ServiceInfo.class);
     }
 
     @Override
     public Collection<? extends ServiceInfo> getServices(WorkspaceInfo workspace) {
         List<ServiceInfo> services =
-                repository
-                        .getServicesByWorkspace(workspace)
-                        .map(this::resolve)
-                        .collect(Collectors.toList());
+                repository.getServicesByWorkspace(workspace).map(this::resolve).toList();
         return ModificationProxy.createList(services, ServiceInfo.class);
     }
 

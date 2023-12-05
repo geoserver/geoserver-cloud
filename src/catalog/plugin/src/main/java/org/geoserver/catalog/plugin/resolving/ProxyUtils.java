@@ -39,11 +39,13 @@ import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
 
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /** */
 @Slf4j
@@ -108,8 +110,8 @@ public class ProxyUtils {
         if (orig instanceof List) {
             @SuppressWarnings("unchecked")
             List<Object> list = (List<Object>) orig;
-            resolve(list);
-            return list;
+            return resolve(list);
+            //            return list;
         }
         if (orig instanceof Set) {
             @SuppressWarnings("unchecked")
@@ -126,12 +128,10 @@ public class ProxyUtils {
         return orig;
     }
 
-    private void resolve(List<Object> mutableList) {
-        for (int i = 0; i < mutableList.size(); i++) {
-            Object v = mutableList.get(i);
-            Object resolved = resolvePatchPropertyValue(v);
-            mutableList.set(i, resolved);
-        }
+    private List<Object> resolve(List<Object> mutableList) {
+        return mutableList.stream()
+                .map(this::resolvePatchPropertyValue)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     private Set<Object> resolve(Set<Object> set) {

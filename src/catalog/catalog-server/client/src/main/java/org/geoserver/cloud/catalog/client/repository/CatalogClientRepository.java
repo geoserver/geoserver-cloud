@@ -37,7 +37,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -227,7 +226,7 @@ public abstract class CatalogClientRepository<CI extends CatalogInfo>
         try {
             ReactiveCatalogClient client = client();
             Flux<FunctionName> functionNames = client.getSupportedFilterFunctionNames();
-            List<FunctionName> list = functionNames.toStream().collect(Collectors.toList());
+            List<FunctionName> list = functionNames.toStream().toList();
             return list;
         } catch (Exception e) {
             log.warn(

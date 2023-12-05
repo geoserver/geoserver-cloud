@@ -10,7 +10,6 @@ import org.geoserver.web.GeoServerApplication;
 import org.geoserver.web.wicket.GeoServerDataProvider;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @since 1.0
@@ -18,11 +17,11 @@ import java.util.stream.Collectors;
 class ServiceProvider extends GeoServerDataProvider<ServiceInstance> {
     private static final long serialVersionUID = 1L;
 
-    public static Property<ServiceInstance> NAME = new BeanProperty<>("name", "name");
-    public static Property<ServiceInstance> INSTANCEID =
+    public static final Property<ServiceInstance> NAME = new BeanProperty<>("name", "name");
+    public static final Property<ServiceInstance> INSTANCEID =
             new BeanProperty<>("instanceId", "instanceId");
-    public static Property<ServiceInstance> STATUS = new BeanProperty<>("status", "status");
-    public static Property<ServiceInstance> URI = new BeanProperty<>("uri", "uri");
+    public static final Property<ServiceInstance> STATUS = new BeanProperty<>("status", "status");
+    public static final Property<ServiceInstance> URI = new BeanProperty<>("uri", "uri");
 
     protected @Override List<Property<ServiceInstance>> getProperties() {
         return List.of(NAME, STATUS, INSTANCEID, URI);
@@ -31,6 +30,6 @@ class ServiceProvider extends GeoServerDataProvider<ServiceInstance> {
     protected @Override List<ServiceInstance> getItems() {
         GeoServerApplication webApp = GeoServerApplication.get();
         ServiceInstanceRegistry registry = webApp.getBeanOfType(ServiceInstanceRegistry.class);
-        return registry.getServices().sorted().collect(Collectors.toList());
+        return registry.getServices().sorted().toList();
     }
 }
