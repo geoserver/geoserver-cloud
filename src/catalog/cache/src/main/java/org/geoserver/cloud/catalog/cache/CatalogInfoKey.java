@@ -84,7 +84,7 @@ public class CatalogInfoKey implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (!CatalogInfoKey.class.isInstance(o)) return false;
+        if (!(o instanceof CatalogInfoKey)) return false;
 
         CatalogInfoKey k = (CatalogInfoKey) o;
 

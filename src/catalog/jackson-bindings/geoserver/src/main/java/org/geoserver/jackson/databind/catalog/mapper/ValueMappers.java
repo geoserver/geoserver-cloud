@@ -114,18 +114,18 @@ public interface ValueMappers {
         Number min = source.getMin();
         Number max = source.getMax();
 
-        if (Long.class.isInstance(min) || Long.class.isInstance(max))
+        if (min instanceof Long || max instanceof Long)
             return NumberRange.create(min.longValue(), minIncluded, max.longValue(), maxIncluded);
-        if (Double.class.isInstance(min) || Double.class.isInstance(max))
+        if (min instanceof Double || max instanceof Double)
             return NumberRange.create(
                     min.doubleValue(), minIncluded, max.doubleValue(), maxIncluded);
-        if (Float.class.isInstance(min) || Float.class.isInstance(max))
+        if (min instanceof Float || max instanceof Float)
             return NumberRange.create(min.floatValue(), minIncluded, max.floatValue(), maxIncluded);
-        if (Integer.class.isInstance(min) || Integer.class.isInstance(max))
+        if (min instanceof Integer || max instanceof Integer)
             return NumberRange.create(min.intValue(), minIncluded, max.intValue(), maxIncluded);
-        if (Short.class.isInstance(min) || Short.class.isInstance(max))
+        if (min instanceof Short || max instanceof Short)
             return NumberRange.create(min.shortValue(), minIncluded, max.shortValue(), maxIncluded);
-        if (Byte.class.isInstance(min) || Byte.class.isInstance(max))
+        if (min instanceof Byte || max instanceof Byte)
             return NumberRange.create(min.byteValue(), minIncluded, max.byteValue(), maxIncluded);
 
         return NumberRange.create(min.doubleValue(), minIncluded, max.doubleValue(), maxIncluded);

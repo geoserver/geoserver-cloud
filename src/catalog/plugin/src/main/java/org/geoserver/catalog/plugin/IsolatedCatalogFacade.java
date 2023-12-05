@@ -273,13 +273,11 @@ public final class IsolatedCatalogFacade extends ForwardingExtendedCatalogFacade
 
     @SuppressWarnings("unchecked")
     private <T extends CatalogInfo> T enforceIsolation(T info) {
-        if (StoreInfo.class.isInstance(info)) return (T) enforceStoreIsolation((StoreInfo) info);
-        if (ResourceInfo.class.isInstance(info))
-            return (T) enforceResourceIsolation((ResourceInfo) info);
-        if (LayerInfo.class.isInstance(info)) return (T) enforceLayerIsolation((LayerInfo) info);
-        if (LayerGroupInfo.class.isInstance(info))
-            return (T) enforceLayerGroupIsolation((LayerGroupInfo) info);
-        if (StyleInfo.class.isInstance(info)) return (T) enforceStyleIsolation((StyleInfo) info);
+        if (info instanceof StoreInfo store) return (T) enforceStoreIsolation(store);
+        if (info instanceof ResourceInfo resource) return (T) enforceResourceIsolation(resource);
+        if (info instanceof LayerInfo layer) return (T) enforceLayerIsolation(layer);
+        if (info instanceof LayerGroupInfo lg) return (T) enforceLayerGroupIsolation(lg);
+        if (info instanceof StyleInfo style) return (T) enforceStyleIsolation(style);
 
         return info;
     }
