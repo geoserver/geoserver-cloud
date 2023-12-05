@@ -26,6 +26,18 @@ public class SimpleJNDIStaticContextInitializer
 
     private static boolean initialized;
 
+    private static synchronized boolean initialize() {
+        if (initialized) {
+            return false;
+        }
+        if (NamingManager.hasInitialContextFactoryBuilder()) {
+            log.info("JNDI InitialContextFactoryBuilder already set");
+            return false;
+        }
+        initialized = true;
+        return true;
+    }
+
     /**
      * Register the context builder by registering it with the JNDI NamingManager. Note that once
      * this has been done, {@code new InitialContext()} will always return a context from this
@@ -38,24 +50,16 @@ public class SimpleJNDIStaticContextInitializer
      */
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
-        if (initialized) return;
-        initialized = true;
-        if (NamingManager.hasInitialContextFactoryBuilder()) {
-            log.info("JNDI InitialContextFactoryBuilder already set");
-            return;
-        }
-
-        log.info("Initializing JNDI InitialContextFactoryBuilder");
-        try {
-            NamingManager.setInitialContextFactoryBuilder(new SimpleNamingContextBuilder());
-            log.info(
-                    "Registered JNDI implementation using "
-                            + SimpleNamingContextBuilder.class.getName());
-        } catch (NamingException e) {
-            throw new ApplicationContextException(
-                    "Unexpected error installing JNDI "
-                            + SimpleNamingContextBuilder.class.getSimpleName(),
-                    e);
+        if (initialize()) {
+            log.info("Initializing JNDI InitialContextFactoryBuilder");
+            final String builderClassName = SimpleNamingContextBuilder.class.getName();
+            try {
+                NamingManager.setInitialContextFactoryBuilder(new SimpleNamingContextBuilder());
+                log.info("Registered JNDI implementation using " + builderClassName);
+            } catch (NamingException e) {
+                throw new ApplicationContextException(
+                        "Unexpected error installing JNDI " + builderClassName, e);
+            }
         }
     }
 }
