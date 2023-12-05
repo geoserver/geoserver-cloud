@@ -19,6 +19,6 @@ public class ConfigInfoDeserializer<T extends Info, D extends InfoDto>
             Mappers.getMapper(GeoServerConfigMapper.class);
 
     public ConfigInfoDeserializer(@NonNull Class<D> from) {
-        super(from, dto -> mapper.toInfo(dto));
+        super(from, mapper::toInfo);
     }
 }

@@ -1422,7 +1422,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
 
         Query<T> query = Query.valueOf(of, filter, offset, count, sortOrder);
         Stream<T> stream = getFacade().query(query);
-        return new CloseableIteratorAdapter<>(stream.iterator(), () -> stream.close());
+        return new CloseableIteratorAdapter<>(stream.iterator(), stream::close);
     }
 
     public Optional<CatalogInfo> findById(@NonNull String id) {

@@ -29,7 +29,7 @@ public abstract class ValueMappers {
     public NamespaceSupport map(Map<String, String> map) {
         if (map == null) return null;
         NamespaceSupport s = new NamespaceSupport();
-        map.forEach((prefix, uri) -> s.declarePrefix(prefix, uri));
+        map.forEach(s::declarePrefix);
         return s;
     }
 

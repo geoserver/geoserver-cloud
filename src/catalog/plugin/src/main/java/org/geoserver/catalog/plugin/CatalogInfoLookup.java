@@ -318,7 +318,7 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
     }
 
     protected <V> Predicate<V> toPredicate(Filter filter) {
-        return o -> filter.evaluate(o);
+        return filter::evaluate;
     }
 
     private static <U extends CatalogInfo> Comparator<U> comparator(final SortBy sortOrder) {

@@ -202,7 +202,7 @@ public class WMSIntegrationAutoConfiguration {
             GWC.setConditionalGetHeaders(
                     headers, cachedTile, etag, request.getHttpRequestHeader("If-Modified-Since"));
             GWC.setCacheMetadataHeaders(headers, cachedTile, layer);
-            headers.forEach((k, v) -> map.setResponseHeader(k, v));
+            headers.forEach(map::setResponseHeader);
 
             return map;
         }
