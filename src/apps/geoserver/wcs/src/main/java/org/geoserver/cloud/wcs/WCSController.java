@@ -4,16 +4,13 @@
  */
 package org.geoserver.cloud.wcs;
 
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
-
 import org.geoserver.cloud.virtualservice.VirtualServiceVerifier;
 import org.geoserver.ows.Dispatcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -39,16 +36,19 @@ public @Controller class WCSController {
         classPathPublisher.handleRequest(request, response);
     }
 
-    @RequestMapping(
-            method = {GET, POST},
-            path = {"/wcs", "/ows"})
-    public void handle(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        geoserverDispatcher.handleRequest(request, response);
+    @GetMapping(path = {"/wcs", "/ows"})
+    public void handleGet(HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
+        dispatch(request, response);
     }
 
-    @RequestMapping(
-            method = {GET, POST},
-            path = {"/{virtualService}/wcs", "/{virtualService}/ows"})
+    @PostMapping(path = {"/wcs", "/ows"})
+    public void handlePost(HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
+        dispatch(request, response);
+    }
+
+    @GetMapping(path = {"/{virtualService}/wcs", "/{virtualService}/ows"})
     public void handleVirtualService(
             @PathVariable(name = "virtualService") String virtualService,
             HttpServletRequest request,
@@ -56,13 +56,21 @@ public @Controller class WCSController {
             throws Exception {
 
         virtualServiceVerifier.checkVirtualService(virtualService);
-
-        geoserverDispatcher.handleRequest(request, response);
+        dispatch(request, response);
     }
 
-    @RequestMapping(
-            method = {GET, POST},
-            path = {"/{virtualService}/{layer}/wcs", "/{virtualService}/{layer}/ows"})
+    @PostMapping(path = {"/{virtualService}/wcs", "/{virtualService}/ows"})
+    public void handleVirtualServicePost(
+            @PathVariable(name = "virtualService") String virtualService,
+            HttpServletRequest request,
+            HttpServletResponse response)
+            throws Exception {
+
+        virtualServiceVerifier.checkVirtualService(virtualService);
+        dispatch(request, response);
+    }
+
+    @GetMapping(path = {"/{virtualService}/{layer}/wcs", "/{virtualService}/{layer}/ows"})
     public void handleVirtualServiceLayer(
             @PathVariable(name = "virtualService") String virtualService,
             @PathVariable(name = "layer") String layer,
@@ -71,6 +79,23 @@ public @Controller class WCSController {
             throws Exception {
 
         virtualServiceVerifier.checkVirtualService(virtualService, layer);
+        dispatch(request, response);
+    }
+
+    @PostMapping(path = {"/{virtualService}/{layer}/wcs", "/{virtualService}/{layer}/ows"})
+    public void handleVirtualServiceLayerPost(
+            @PathVariable(name = "virtualService") String virtualService,
+            @PathVariable(name = "layer") String layer,
+            HttpServletRequest request,
+            HttpServletResponse response)
+            throws Exception {
+
+        virtualServiceVerifier.checkVirtualService(virtualService, layer);
+        dispatch(request, response);
+    }
+
+    private void dispatch(HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
         geoserverDispatcher.handleRequest(request, response);
     }
 }

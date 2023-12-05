@@ -4,7 +4,11 @@
  */
 package org.geoserver.cloud.config.catalog.backend.datadirectory;
 
-import static org.geoserver.catalog.StyleInfo.*;
+import static org.geoserver.catalog.StyleInfo.DEFAULT_GENERIC;
+import static org.geoserver.catalog.StyleInfo.DEFAULT_LINE;
+import static org.geoserver.catalog.StyleInfo.DEFAULT_POINT;
+import static org.geoserver.catalog.StyleInfo.DEFAULT_POLYGON;
+import static org.geoserver.catalog.StyleInfo.DEFAULT_RASTER;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +32,7 @@ import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.config.UpdateSequence;
 import org.geoserver.security.GeoServerSecurityManager;
 import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.NoSuchAuthorityCodeException;
 import org.vfny.geoserver.util.DataStoreUtils;
 
 import java.io.IOException;
@@ -92,8 +97,13 @@ public class ParallelDataDirectoryGeoServerLoader
         return new CatalogPlugin();
     }
 
-    /** There's no {@link GeoServerLoaderProxy} in gs-cloud */
-    public @PostConstruct void load() {
+    /**
+     * There's no {@link GeoServerLoaderProxy} in gs-cloud
+     *
+     * @throws FactoryException
+     * @throws NoSuchAuthorityCodeException
+     */
+    public @PostConstruct void load() throws FactoryException {
         triggerCollaboratorBeansLoading();
 
         final long initialSequence = updateSequence.currValue();
@@ -107,17 +117,15 @@ public class ParallelDataDirectoryGeoServerLoader
         }
     }
 
-    /** */
-    private void triggerCollaboratorBeansLoading() {
+    /**
+     * @throws FactoryException
+     * @throws NoSuchAuthorityCodeException
+     */
+    private void triggerCollaboratorBeansLoading() throws FactoryException {
         // force initializing the referencing subsystem or can get
         // "java.lang.IllegalArgumentException: NumberSystem
         // tech.units.indriya.function.DefaultNumberSystem not found" when hit in parallel
-        try {
-            org.geotools.referencing.CRS.decode("EPSG:4326");
-        } catch (FactoryException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        org.geotools.referencing.CRS.decode("EPSG:4326");
 
         // misconfigured layers may end up calling FeatureTypeInfo.getFeatureType(), which in turn
         // will trigger GeoServerExtensions and deadlock on the main thread's while spring is
