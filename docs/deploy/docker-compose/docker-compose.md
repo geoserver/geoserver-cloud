@@ -30,7 +30,6 @@ Pulling database  ... done
 Pulling discovery ... done
 Pulling config    ... done
 Pulling gateway   ... done
-Pulling catalog   ... done
 Pulling wfs       ... done
 Pulling wms       ... done
 Pulling wcs       ... done

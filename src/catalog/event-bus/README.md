@@ -74,7 +74,7 @@ Instead, the actions to be taken upon receiving remote notification events will 
 
 May the configuration backend type and topology require receiving either the full object, the diff changes (open "modify" events), or both; it's up to the `GeoServerBackendConfigurer` to complain if sending the required event payload is not enabled.
 
-There're basically two major backend topologies, regardless of the actual implementation (e.g. "data directory", "jdbcconfig", "catalog-service", etc):
+There're basically two major backend topologies, regardless of the actual implementation (e.g. "data directory", "jdbcconfig", "pgconfig", etc):
 
 - shared catalog: The catalog/config stores are shared among all geoserver services, hence typically the event payload would not be required;
 - catalog-per-service: each service instance holds on its own copy of the catalog and config objects, hence typically the remote configuration events should carry the object and/or diff payloads to keep the local version of the catalog and config in sync.

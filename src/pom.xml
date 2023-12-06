@@ -23,7 +23,6 @@
     <spring-cloud.version>2021.0.8</spring-cloud.version>
     <spring-boot.version>2.7.18</spring-boot.version>
     <jackson.version>2.15.3</jackson.version>
-    <feign-reactor.version>3.2.6</feign-reactor.version>
     <gs.version>2.24.0-CLOUD</gs.version>
     <gs.community.version>2.24.0-CLOUD</gs.community.version>
     <gt.version>30.0</gt.version>
@@ -109,21 +108,6 @@
         <version>${acl.version}</version>
         <type>pom</type>
         <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.playtika.reactivefeign</groupId>
-        <artifactId>feign-reactor-cloud</artifactId>
-        <version>${feign-reactor.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.playtika.reactivefeign</groupId>
-        <artifactId>feign-reactor-spring-configuration</artifactId>
-        <version>${feign-reactor.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.playtika.reactivefeign</groupId>
-        <artifactId>feign-reactor-webclient</artifactId>
-        <version>${feign-reactor.version}</version>
       </dependency>
       <dependency>
         <groupId>org.projectlombok</groupId>

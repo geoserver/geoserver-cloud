@@ -77,7 +77,6 @@ Each microservice is its own self-contained application, including only the GeoS
         |          |_ gwc/ ........................... GeoWebcache Service
         |          |_ restconfig/ .................... GeoServer REST config API Service
         |          |_ webui/ ......................... GeoServer administration Web User Interface
-        |          |_ catalog/ ....................... GeoServer Catalog and Configuration back-end service
         |
         |_ catalog/ .................................. Root directory for GeoServer Catalog and Config libraries
         |    |_ plugin/ .............................. Core Catalog and Config implementation and extensions
@@ -86,16 +85,11 @@ Each microservice is its own self-contained application, including only the GeoS
         |    |     |_ common/ ........................ Basic catalog and config bean wiring common to all back-ends
         |    |     |_ datadir/ ....................... Shared "data directory" catalog back-end
         |    |     |_ jdbcconfig/ .................... "jdbcconfig" catalog back-end
-        |    |     |_ catalog-service/ ............... Catalog back-end for the reactive Catalog Service
         |    |
         |    |_ jackson-bindings/ .................... Libraries to encode and decode configuration objects as JSON
         |    |     |_ geotools/ ...................... Jackson bindings for JTS Geometries and org.opengis.filter.Filter
         |    |     |_ geoserver/ ..................... Jackson bindings for GeoServer Catalog and Config object model
         |    |     |_ starter/ ....................... Spring Boot starter module to automate GeoTools and GeoServer Jackson bindings
-        |    |
-        |    |_ catalog-server/ ...................... Reactive Catalog libraries
-        |    |     |_ server/ ........................ Reactive catalog-server. Allows to decouple services from back-ends
-        |    |     |_ client/ ........................ Reactive catalog-server client library
         |    |
         |    |_ cache/ ............................... Spring Boot JCache support and auto-configurations for the Catalog
         |    |_ events/ .............................. No-framework object model and runtime for catalog and config application events
@@ -158,16 +152,15 @@ The simple build command above creates the following docker images:
 
 ```bash
 $ docker images|grep geoserver-cloud|sort
-geoservercloud/geoserver-cloud-catalog               1.0-SNAPSHOT        afed2dc4888e        39 minutes ago      403MB
-geoservercloud/geoserver-cloud-config                1.0-SNAPSHOT        be987ff2a85e        42 minutes ago      319MB
-geoservercloud/geoserver-cloud-discovery             1.0-SNAPSHOT        abc5a17cf14c        42 minutes ago      320MB
-geoservercloud/geoserver-cloud-gateway               1.0-SNAPSHOT        10f267950c15        42 minutes ago      317MB
-geoservercloud/geoserver-cloud-rest                  1.0-SNAPSHOT        29406a1e1fdb        36 minutes ago      429MB
-geoservercloud/geoserver-cloud-wcs                   1.0-SNAPSHOT        c77ac22aa522        37 minutes ago      391MB
-geoservercloud/geoserver-cloud-webui                 1.0-SNAPSHOT        876d6fc3fac0        36 minutes ago      449MB
-geoservercloud/geoserver-cloud-wfs                   1.0-SNAPSHOT        62960137eb5a        38 minutes ago      410MB
-geoservercloud/geoserver-cloud-wms                   1.0-SNAPSHOT        6686ca90b552        38 minutes ago      437MB
-geoservercloud/geoserver-cloud-wps                   1.0-SNAPSHOT        73bae600226c        37 minutes ago      416MB
+geoservercloud/geoserver-cloud-config                1.5-SNAPSHOT        be987ff2a85e        42 minutes ago      319MB
+geoservercloud/geoserver-cloud-discovery             1.5-SNAPSHOT        abc5a17cf14c        42 minutes ago      320MB
+geoservercloud/geoserver-cloud-gateway               1.5-SNAPSHOT        10f267950c15        42 minutes ago      317MB
+geoservercloud/geoserver-cloud-rest                  1.5-SNAPSHOT        29406a1e1fdb        36 minutes ago      429MB
+geoservercloud/geoserver-cloud-wcs                   1.5-SNAPSHOT        c77ac22aa522        37 minutes ago      391MB
+geoservercloud/geoserver-cloud-webui                 1.5-SNAPSHOT        876d6fc3fac0        36 minutes ago      449MB
+geoservercloud/geoserver-cloud-wfs                   1.5-SNAPSHOT        62960137eb5a        38 minutes ago      410MB
+geoservercloud/geoserver-cloud-wms                   1.5-SNAPSHOT        6686ca90b552        38 minutes ago      437MB
+geoservercloud/geoserver-cloud-wps                   1.5-SNAPSHOT        73bae600226c        37 minutes ago      416MB
 ```
 
 To run the build without building the docker images, disable the `docker` maven profile:
@@ -194,7 +187,6 @@ Watch the output of `docker-compose ps` until all services are healthy:
 $ docker-compose --compatibility ps
        Name                      Command                  State                   Ports                                                      
 -----------------------------------------------------------------------------------------------------------------
-gscloud_catalog_1     dockerize -wait http://con ...   Up (healthy)                                                                                                                   
 gscloud_config_1      dockerize -wait http://dis ...   Up (healthy)                                                                                                                   
 gscloud_database_1    docker-entrypoint.sh postgres    Up (healthy)   0.0.0.0:5432->5432/tcp                                                                                          
 gscloud_discovery_1   /bin/sh -c exec java $JAVA ...   Up (healthy)   0.0.0.0:8761->8761/tcp                                                                                          
@@ -216,7 +208,7 @@ Running a single service in "local" mode (that is, outside the docker compositio
 First, make sure at least the essential infrastructure services are running:
 
 ```bash
-$ docker-compose up -d discovery rabbitmq config database catalog gateway
+$ docker-compose up -d discovery rabbitmq config database gateway
 ```
 
 > The `gateway` service is not essential, but useful to check it's correctly proxy'ing requests to your locally running services as well as the ones in the docker composition.
@@ -231,7 +223,6 @@ To run a service through the IDE, execute the specific application class (for ex
 
 The "local" spring profile in each `config/<service>.yml` file sets a different hard-coded port for each service, which aids in debugging a locally running service:
 
-* `catalog-service`: [9100](http://localhost:9100)
 * `wfs-service`: [9101](http://localhost:9101)
 * `wms-service`: [9102](http://localhost:9102)
 * `wcs-service`: [9103](http://localhost:9103)

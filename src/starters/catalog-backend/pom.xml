@@ -31,18 +31,4 @@
       <artifactId>gs-cloud-catalog-events</artifactId>
     </dependency>
   </dependencies>
-  <profiles>
-    <profile>
-      <id>catalog-service</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>org.geoserver.cloud.catalog.backend</groupId>
-          <artifactId>gs-cloud-catalog-backend-catalog-service</artifactId>
-        </dependency>
-      </dependencies>
-    </profile>
-  </profiles>
 </project>

@@ -17,8 +17,6 @@
     <module>restconfig</module>
     <module>webui</module>
     <module>gwc</module>
-    <!-- temporarily disabled -->
-    <!-- <module>catalog</module>-->
   </modules>
   <dependencyManagement>
     <dependencies>

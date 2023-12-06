@@ -7,14 +7,14 @@ Dependency graph:
                                     ^
                                     |
  (catalog-event-bus) <-------- (catalog-backend-starter) ------> (catalog-cache)
-                                 ^  |           \
+                                 /  |           \
                                 /   |            \--> [gs-jdbcconfig]
                                /    |             \
                               /     |              \--> <other catalog backends>...
                              /      | 
-                            /       +--> (catalog-service-client)
+                            /       +--> (pgconfig)
                            /    
-                   (catalog-service)
+                   (data-directory)
 ```
 
 ## pluggable-catalog-support
@@ -28,12 +28,14 @@ Implements `spring-could-bus` based event notification of catalog and configurat
 
 ## catalog-backend-starter
 
-Provides spring atuo-configuration for several catalog back-ends. Namely: traditional file based data directory, jdbcconfig, and catalog-service-client. More can be added as implementations are developed.
+Provides spring atuo-configuration for several catalog back-ends. Namely: traditional file based data directory, jdbcconfig, and pgconfig. More can be added as implementations are developed.
  
  depends on: 
-  * catalog-event-bus
-  * gs-jdbcconfig
-  * catalog-service-client
+  * gs-cloud-catalog-events
+  * gs-cloud-catalog-cache
+  * gs-cloud-catalog-backend-datadir
+  * gs-cloud-catalog-backend-jdbcconfig
+  * gs-cloud-catalog-backend-pgsql
 
 ## catalog-cache
 
@@ -41,18 +43,6 @@ Based on `spring-boot-starter-cache`, decorates the application catalog's backen
 
  depends on: 
   * catalog-event-bus
-
-## catalog-service-client
-
-Catalog implementation to use `catalog-service` as the application's catalog backend. Hooks into the configured `Catalog` and `ResourceStore`
-  
-## catalog-service
-
-Microservice that implements the web-api to back the `catalog-service-client`.
-
- depends on: 
-  * catalog-backend-starter (hence transitively on all the supported backends)
-
 
 # Common configuration properties
 The following configuration properties apply to all *GeoServer* microservices (i.e. not edge services):
