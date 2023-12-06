@@ -16,7 +16,6 @@
     <module>vector-formats</module>
     <module>raster-formats</module>
     <module>webmvc</module>
-    <module>reactive</module>
     <module>wms-extensions</module>
     <module>security</module>
   </modules>

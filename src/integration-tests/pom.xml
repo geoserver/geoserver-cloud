@@ -9,10 +9,7 @@
   <artifactId>integration-tests</artifactId>
   <packaging>pom</packaging>
   <name>Integration Tests</name>
-  <modules>
-    <!-- temporarily disabled -->
-    <!-- <module>catalog-service-it</module>-->
-  </modules>
+  <modules></modules>
   <dependencies>
     <dependency>
       <groupId>org.springframework.boot</groupId>
