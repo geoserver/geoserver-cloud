@@ -35,15 +35,17 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest(
         classes = AutoConfigurationTestConfiguration.class,
         properties = "geoserver.backend.jdbcconfig.enabled=true")
-public class JDBCConfigAutoConfigurationTest extends JDBCConfigTest {
+class JDBCConfigAutoConfigurationTest extends JDBCConfigTest {
 
     private @Autowired JdbcConfigConfigurationProperties configProperties;
 
-    public @Test void testCatalog() {
+    @Test
+    void testCatalog() {
         assertThat(rawCatalog, instanceOf(CatalogImpl.class));
     }
 
-    public @Test void testProperties() {
+    @Test
+    void testProperties() {
         assertNotNull(configProperties);
         assertNotNull(configProperties.getDatasource());
         assertNotNull(configProperties.getCacheDirectory());
@@ -51,30 +53,36 @@ public class JDBCConfigAutoConfigurationTest extends JDBCConfigTest {
                 "/tmp/geoserver-jdbcconfig-cache", configProperties.getCacheDirectory().toString());
     }
 
-    public @Test void testCatalogFacade() {
+    @Test
+    void testCatalogFacade() {
         assertThat(rawCatalogFacade, instanceOf(CatalogFacadeExtensionAdapter.class));
         assertThat(
                 ((CatalogFacadeExtensionAdapter) rawCatalogFacade).getSubject(),
                 instanceOf(JDBCCatalogFacade.class));
     }
 
-    public @Test void testResourceLoader() {
+    @Test
+    void testResourceLoader() {
         assertThat(resourceLoader, instanceOf(GeoServerResourceLoader.class));
     }
 
-    public @Test void testGeoserverFacade() {
+    @Test
+    void testGeoserverFacade() {
         assertThat(geoserverFacade, instanceOf(CloudJdbcGeoserverFacade.class));
     }
 
-    public @Test void testGeoserverLoader() {
+    @Test
+    void testGeoserverLoader() {
         assertThat(geoserverLoader, instanceOf(CloudJdbcGeoServerLoader.class));
     }
 
-    public @Test void testResourceStoreImpl() {
+    @Test
+    void testResourceStoreImpl() {
         assertThat(resourceStoreImpl, instanceOf(JDBCResourceStore.class));
     }
 
-    public @Test void crudTest() {
+    @Test
+    void crudTest() {
         Catalog catalog = (Catalog) context.getBean("catalog");
         WorkspaceInfoImpl ws = new WorkspaceInfoImpl();
         ws.setName("test-ws");
@@ -85,7 +93,8 @@ public class JDBCConfigAutoConfigurationTest extends JDBCConfigTest {
         assertNull(catalog.getWorkspaceByName("test-ws"));
     }
 
-    public @Test void testUpdateSequence() {
+    @Test
+    void testUpdateSequence() {
         UpdateSequence updateSequence = context.getBean(UpdateSequence.class);
         assertThat(updateSequence, instanceOf(JdbcConfigUpdateSequence.class));
     }

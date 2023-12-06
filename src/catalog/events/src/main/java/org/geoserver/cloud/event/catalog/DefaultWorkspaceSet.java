@@ -19,6 +19,7 @@ import org.springframework.core.style.ToStringCreator;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("DefaultWorkspaceSet")
+@SuppressWarnings("serial")
 public class DefaultWorkspaceSet extends CatalogInfoModified {
 
     private @Getter @Setter String newWorkspaceId;

@@ -76,7 +76,7 @@ public class CloudGwcXmlConfiguration extends XMLConfiguration {
                             FieldUtils.readField(this, "blobStoreListeners", true);
 
         } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
+            throw new IllegalStateException(e);
         }
     }
 
@@ -85,9 +85,7 @@ public class CloudGwcXmlConfiguration extends XMLConfiguration {
         if (isLocal(event)) return false;
 
         switch (event.getEventType()) {
-            case CREATED:
-            case DELETED:
-            case MODIFIED:
+            case CREATED, DELETED, MODIFIED:
                 reload(event);
                 break;
             default:
@@ -147,7 +145,8 @@ public class CloudGwcXmlConfiguration extends XMLConfiguration {
         log.debug("configuration reloaded successfully");
     }
 
-    public @Override void addGridSet(GridSet gridSet) {
+    @Override
+    public void addGridSet(GridSet gridSet) {
         lock.writeLock().lock();
         try {
             super.addGridSet(gridSet);
@@ -157,7 +156,8 @@ public class CloudGwcXmlConfiguration extends XMLConfiguration {
         publisher.accept(new GridsetEvent(this, CREATED, gridSet.getName()));
     }
 
-    public @Override void modifyGridSet(GridSet gridSet) {
+    @Override
+    public void modifyGridSet(GridSet gridSet) {
         lock.writeLock().lock();
         try {
             super.modifyGridSet(gridSet);
@@ -167,7 +167,8 @@ public class CloudGwcXmlConfiguration extends XMLConfiguration {
         publisher.accept(new GridsetEvent(this, MODIFIED, gridSet.getName()));
     }
 
-    public @Override void removeGridSet(String gridSetName) {
+    @Override
+    public void removeGridSet(String gridSetName) {
         lock.writeLock().lock();
         try {
             super.removeGridSet(gridSetName);
@@ -177,7 +178,8 @@ public class CloudGwcXmlConfiguration extends XMLConfiguration {
         publisher.accept(new GridsetEvent(this, DELETED, gridSetName));
     }
 
-    public @Override void addBlobStore(final BlobStoreInfo bs) throws IllegalArgumentException {
+    @Override
+    public void addBlobStore(final BlobStoreInfo bs) throws IllegalArgumentException {
         lock.writeLock().lock();
         try {
             super.addBlobStore(bs);
@@ -187,7 +189,8 @@ public class CloudGwcXmlConfiguration extends XMLConfiguration {
         publisher.accept(new BlobStoreEvent(this, CREATED, bs.getName()));
     }
 
-    public @Override void modifyBlobStore(final BlobStoreInfo bs) {
+    @Override
+    public void modifyBlobStore(final BlobStoreInfo bs) {
         lock.writeLock().lock();
         try {
             super.modifyBlobStore(bs);
@@ -197,7 +200,8 @@ public class CloudGwcXmlConfiguration extends XMLConfiguration {
         publisher.accept(new BlobStoreEvent(this, MODIFIED, bs.getName()));
     }
 
-    public @Override void renameBlobStore(final String oldName, final String newName) {
+    @Override
+    public void renameBlobStore(final String oldName, final String newName) {
         lock.writeLock().lock();
         try {
             super.renameBlobStore(oldName, newName);
@@ -207,7 +211,8 @@ public class CloudGwcXmlConfiguration extends XMLConfiguration {
         publisher.accept(new BlobStoreEvent(this, MODIFIED, oldName, newName));
     }
 
-    public @Override void removeBlobStore(final String blobStoreName) {
+    @Override
+    public void removeBlobStore(final String blobStoreName) {
         lock.writeLock().lock();
         try {
             super.removeBlobStore(blobStoreName);
@@ -233,7 +238,8 @@ public class CloudGwcXmlConfiguration extends XMLConfiguration {
         }
     }
 
-    public @Override void afterPropertiesSet() throws GeoWebCacheException {
+    @Override
+    public void afterPropertiesSet() throws GeoWebCacheException {
         lock.writeLock().lock();
         try {
             super.afterPropertiesSet();
@@ -242,11 +248,13 @@ public class CloudGwcXmlConfiguration extends XMLConfiguration {
         }
     }
 
-    public @Override Boolean isRuntimeStatsEnabled() {
+    @Override
+    public Boolean isRuntimeStatsEnabled() {
         return runInReadLock(super::isRuntimeStatsEnabled);
     }
 
-    public @Override void setRuntimeStatsEnabled(Boolean isEnabled) throws IOException {
+    @Override
+    public void setRuntimeStatsEnabled(Boolean isEnabled) throws IOException {
         lock.writeLock().lock();
         try {
             super.setRuntimeStatsEnabled(isEnabled);
@@ -255,11 +263,13 @@ public class CloudGwcXmlConfiguration extends XMLConfiguration {
         }
     }
 
-    public @Override ServiceInformation getServiceInformation() {
+    @Override
+    public ServiceInformation getServiceInformation() {
         return runInReadLock(super::getServiceInformation);
     }
 
-    public @Override void setServiceInformation(ServiceInformation serviceInfo) throws IOException {
+    @Override
+    public void setServiceInformation(ServiceInformation serviceInfo) throws IOException {
         lock.writeLock().lock();
         try {
             super.setServiceInformation(serviceInfo);
@@ -268,7 +278,8 @@ public class CloudGwcXmlConfiguration extends XMLConfiguration {
         }
     }
 
-    public @Override void setDefaultValues(TileLayer layer) {
+    @Override
+    public void setDefaultValues(TileLayer layer) {
         lock.writeLock().lock();
         try {
             super.setDefaultValues(layer);
@@ -277,7 +288,8 @@ public class CloudGwcXmlConfiguration extends XMLConfiguration {
         }
     }
 
-    public @Override void addLayer(TileLayer tl) throws IllegalArgumentException {
+    @Override
+    public void addLayer(TileLayer tl) throws IllegalArgumentException {
         lock.writeLock().lock();
         try {
             super.addLayer(tl);
@@ -286,7 +298,8 @@ public class CloudGwcXmlConfiguration extends XMLConfiguration {
         }
     }
 
-    public @Override void modifyLayer(TileLayer tl) throws NoSuchElementException {
+    @Override
+    public void modifyLayer(TileLayer tl) throws NoSuchElementException {
         lock.writeLock().lock();
         try {
             super.modifyLayer(tl);
@@ -295,7 +308,8 @@ public class CloudGwcXmlConfiguration extends XMLConfiguration {
         }
     }
 
-    public @Override void renameLayer(String oldName, String newName)
+    @Override
+    public void renameLayer(String oldName, String newName)
             throws NoSuchElementException, IllegalArgumentException {
         lock.writeLock().lock();
         try {
@@ -305,7 +319,8 @@ public class CloudGwcXmlConfiguration extends XMLConfiguration {
         }
     }
 
-    public @Override void removeLayer(final String layerName)
+    @Override
+    public void removeLayer(final String layerName)
             throws NoSuchElementException, IllegalArgumentException {
         lock.writeLock().lock();
         try {
@@ -315,45 +330,55 @@ public class CloudGwcXmlConfiguration extends XMLConfiguration {
         }
     }
 
-    public @Override Collection<TileLayer> getLayers() {
+    @Override
+    public Collection<TileLayer> getLayers() {
         return runInReadLock(super::getLayers);
     }
 
-    public @Override Optional<TileLayer> getLayer(String layerName) {
+    @Override
+    public Optional<TileLayer> getLayer(String layerName) {
         return runInReadLock(() -> super.getLayer(layerName));
     }
 
     @SuppressWarnings("deprecation")
-    public @Override TileLayer getTileLayer(String layerName) {
+    @Override
+    public TileLayer getTileLayer(String layerName) {
         return runInReadLock(() -> super.getTileLayer(layerName));
     }
 
     @SuppressWarnings("deprecation")
-    public @Override TileLayer getTileLayerById(String layerId) {
+    @Override
+    public TileLayer getTileLayerById(String layerId) {
         return runInReadLock(() -> super.getTileLayerById(layerId));
     }
 
-    public @Override boolean containsLayer(String layerId) {
+    @Override
+    public boolean containsLayer(String layerId) {
         return runInReadLock(() -> super.containsLayer(layerId));
     }
 
-    public @Override int getLayerCount() {
+    @Override
+    public int getLayerCount() {
         return runInReadLock(super::getLayerCount);
     }
 
-    public @Override Set<String> getLayerNames() {
+    @Override
+    public Set<String> getLayerNames() {
         return runInReadLock(super::getLayerNames);
     }
 
-    public @Override String getVersion() {
+    @Override
+    public String getVersion() {
         return runInReadLock(super::getVersion);
     }
 
-    public @Override Boolean isFullWMS() {
+    @Override
+    public Boolean isFullWMS() {
         return runInReadLock(super::isFullWMS);
     }
 
-    public @Override void setFullWMS(Boolean isFullWMS) throws IOException {
+    @Override
+    public void setFullWMS(Boolean isFullWMS) throws IOException {
         lock.writeLock().lock();
         try {
             super.setFullWMS(isFullWMS);
@@ -362,31 +387,38 @@ public class CloudGwcXmlConfiguration extends XMLConfiguration {
         }
     }
 
-    public @Override List<BlobStoreInfo> getBlobStores() {
+    @Override
+    public List<BlobStoreInfo> getBlobStores() {
         return runInReadLock(super::getBlobStores);
     }
 
-    public @Override int getBlobStoreCount() {
+    @Override
+    public int getBlobStoreCount() {
         return runInReadLock(super::getBlobStoreCount);
     }
 
-    public @Override Set<String> getBlobStoreNames() {
+    @Override
+    public Set<String> getBlobStoreNames() {
         return runInReadLock(super::getBlobStoreNames);
     }
 
-    public @Override Optional<BlobStoreInfo> getBlobStore(String name) {
+    @Override
+    public Optional<BlobStoreInfo> getBlobStore(String name) {
         return runInReadLock(() -> super.getBlobStore(name));
     }
 
-    public @Override boolean containsBlobStore(String name) {
+    @Override
+    public boolean containsBlobStore(String name) {
         return runInReadLock(() -> super.containsBlobStore(name));
     }
 
-    public @Override LockProvider getLockProvider() {
+    @Override
+    public LockProvider getLockProvider() {
         return runInReadLock(super::getLockProvider);
     }
 
-    public @Override void setLockProvider(LockProvider lockProvider) throws IOException {
+    @Override
+    public void setLockProvider(LockProvider lockProvider) throws IOException {
         lock.writeLock().lock();
         try {
             super.setLockProvider(lockProvider);
@@ -395,11 +427,13 @@ public class CloudGwcXmlConfiguration extends XMLConfiguration {
         }
     }
 
-    public @Override Boolean isWmtsCiteCompliant() {
+    @Override
+    public Boolean isWmtsCiteCompliant() {
         return runInReadLock(super::isWmtsCiteCompliant);
     }
 
-    public @Override void setWmtsCiteCompliant(Boolean wmtsCiteStrictCompliant) throws IOException {
+    @Override
+    public void setWmtsCiteCompliant(Boolean wmtsCiteStrictCompliant) throws IOException {
         lock.writeLock().lock();
         try {
             super.setWmtsCiteCompliant(wmtsCiteStrictCompliant);
@@ -408,11 +442,13 @@ public class CloudGwcXmlConfiguration extends XMLConfiguration {
         }
     }
 
-    public @Override Integer getBackendTimeout() {
+    @Override
+    public Integer getBackendTimeout() {
         return runInReadLock(super::getBackendTimeout);
     }
 
-    public @Override void setBackendTimeout(Integer backendTimeout) throws IOException {
+    @Override
+    public void setBackendTimeout(Integer backendTimeout) throws IOException {
         lock.writeLock().lock();
         try {
             super.setBackendTimeout(backendTimeout);
@@ -421,11 +457,13 @@ public class CloudGwcXmlConfiguration extends XMLConfiguration {
         }
     }
 
-    public @Override Boolean isCacheBypassAllowed() {
+    @Override
+    public Boolean isCacheBypassAllowed() {
         return runInReadLock(super::isCacheBypassAllowed);
     }
 
-    public @Override void setCacheBypassAllowed(Boolean cacheBypassAllowed) throws IOException {
+    @Override
+    public void setCacheBypassAllowed(Boolean cacheBypassAllowed) throws IOException {
         lock.writeLock().lock();
         try {
             super.setCacheBypassAllowed(cacheBypassAllowed);
@@ -434,11 +472,13 @@ public class CloudGwcXmlConfiguration extends XMLConfiguration {
         }
     }
 
-    public @Override Optional<GridSet> getGridSet(String name) {
+    @Override
+    public Optional<GridSet> getGridSet(String name) {
         return runInReadLock(() -> super.getGridSet(name));
     }
 
-    public @Override Collection<GridSet> getGridSets() {
+    @Override
+    public Collection<GridSet> getGridSets() {
         return runInReadLock(super::getGridSets);
     }
 }

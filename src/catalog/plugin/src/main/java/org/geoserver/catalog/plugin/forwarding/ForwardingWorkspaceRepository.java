@@ -17,15 +17,18 @@ public class ForwardingWorkspaceRepository
         super(subject);
     }
 
-    public @Override void setDefaultWorkspace(WorkspaceInfo workspace) {
+    @Override
+    public void setDefaultWorkspace(WorkspaceInfo workspace) {
         subject.setDefaultWorkspace(workspace);
     }
 
-    public @Override Optional<WorkspaceInfo> getDefaultWorkspace() {
+    @Override
+    public Optional<WorkspaceInfo> getDefaultWorkspace() {
         return subject.getDefaultWorkspace();
     }
 
-    public @Override void unsetDefaultWorkspace() {
+    @Override
+    public void unsetDefaultWorkspace() {
         subject.unsetDefaultWorkspace();
     }
 }

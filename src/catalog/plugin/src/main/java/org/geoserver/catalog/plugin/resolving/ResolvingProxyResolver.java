@@ -100,7 +100,8 @@ public class ResolvingProxyResolver<T extends Info> implements UnaryOperator<T> 
         return (ResolvingProxyResolver<I>) new MemoizingProxyResolver(catalog, onNotFound);
     }
 
-    public @Override T apply(T info) {
+    @Override
+    public T apply(T info) {
         return resolve(info);
     }
 
@@ -115,26 +116,26 @@ public class ResolvingProxyResolver<T extends Info> implements UnaryOperator<T> 
         if (isResolvingProxy) {
             // may the object itself be a resolving proxy
             I resolved = doResolveProxy(orig);
-            if (resolved == null && orig instanceof CatalogInfo) {
+            if (resolved == null && orig instanceof CatalogInfo cinfo) {
                 log.info("Proxy object {} not found, calling on-not-found consumer", orig.getId());
-                onNotFound.accept((CatalogInfo) orig, resolvingProxy);
+                onNotFound.accept(cinfo, resolvingProxy);
                 // return the proxied value if the consumer didn't throw an exception
                 return orig;
             }
             return resolved;
         }
 
-        if (orig instanceof StyleInfo) return (I) resolveInternal((StyleInfo) orig);
+        if (orig instanceof StyleInfo style) return (I) resolveInternal(style);
 
-        if (orig instanceof PublishedInfo) return (I) resolveInternal((PublishedInfo) orig);
+        if (orig instanceof PublishedInfo published) return (I) resolveInternal(published);
 
-        if (orig instanceof ResourceInfo) return (I) resolveInternal((ResourceInfo) orig);
+        if (orig instanceof ResourceInfo resource) return (I) resolveInternal(resource);
 
-        if (orig instanceof StoreInfo) return (I) resolveInternal((StoreInfo) orig);
+        if (orig instanceof StoreInfo store) return (I) resolveInternal(store);
 
-        if (orig instanceof SettingsInfo) return (I) resolveInternal((SettingsInfo) orig);
+        if (orig instanceof SettingsInfo settings) return (I) resolveInternal(settings);
 
-        if (orig instanceof ServiceInfo) return (I) resolveInternal((ServiceInfo) orig);
+        if (orig instanceof ServiceInfo service) return (I) resolveInternal(service);
 
         return orig;
     }
@@ -152,8 +153,8 @@ public class ResolvingProxyResolver<T extends Info> implements UnaryOperator<T> 
             boolean isProxy = Proxy.isProxyClass(unresolved.getClass());
             if (isProxy) {
                 InvocationHandler invocationHandler = Proxy.getInvocationHandler(unresolved);
-                if (invocationHandler instanceof ResolvingProxy) {
-                    return (ResolvingProxy) invocationHandler;
+                if (invocationHandler instanceof ResolvingProxy resolvingProxy) {
+                    return resolvingProxy;
                 }
             }
         }
@@ -162,10 +163,9 @@ public class ResolvingProxyResolver<T extends Info> implements UnaryOperator<T> 
 
     @SuppressWarnings("unchecked")
     protected <P extends PublishedInfo> P resolveInternal(P published) {
-        if (published instanceof LayerInfo) return (P) resolveInternal((LayerInfo) published);
+        if (published instanceof LayerInfo layer) return (P) resolveInternal(layer);
 
-        if (published instanceof LayerGroupInfo)
-            return (P) resolveInternal((LayerGroupInfo) published);
+        if (published instanceof LayerGroupInfo lg) return (P) resolveInternal(lg);
 
         return published;
     }
@@ -257,7 +257,7 @@ public class ResolvingProxyResolver<T extends Info> implements UnaryOperator<T> 
 
     private static class MemoizingProxyResolver extends ResolvingProxyResolver<Info> {
 
-        private Map<String, Info> resolved = new ConcurrentHashMap<>();
+        private Map<String, Info> resolvedById = new ConcurrentHashMap<>();
 
         public MemoizingProxyResolver(
                 Catalog catalog, BiConsumer<CatalogInfo, ResolvingProxy> onNotFound) {
@@ -267,14 +267,20 @@ public class ResolvingProxyResolver<T extends Info> implements UnaryOperator<T> 
         @SuppressWarnings("unchecked")
         protected @Override <I extends Info> I doResolveProxy(final I orig) {
             String id = orig.getId();
-            I resolved = (I) this.resolved.get(id);
+            I resolved = (I) this.resolvedById.get(id);
             if (null == resolved) {
                 log.trace("Memoized cache miss, resolving proxy reference {}", id);
-                resolved = (I) this.resolved.computeIfAbsent(id, key -> super.doResolveProxy(orig));
+                resolved = computeIfAbsent(orig);
             } else {
                 log.trace("Memoized cache hit for {}", resolved.getId());
             }
             return resolved;
+        }
+
+        @SuppressWarnings("unchecked")
+        private <I extends Info> I computeIfAbsent(final I orig) {
+            return (I)
+                    resolvedById.computeIfAbsent(orig.getId(), key -> super.doResolveProxy(orig));
         }
     }
 }

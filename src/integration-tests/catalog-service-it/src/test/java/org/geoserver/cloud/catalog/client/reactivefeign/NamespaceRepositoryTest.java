@@ -22,7 +22,7 @@ import lombok.experimental.Accessors;
 
 @EnableAutoConfiguration
 @Accessors(fluent = true)
-public class NamespaceRepositoryTest
+class NamespaceRepositoryTest
         extends AbstractCatalogServiceClientRepositoryTest<NamespaceInfo, NamespaceRepository> {
 
     private @Autowired @Getter NamespaceRepository repository;
@@ -37,22 +37,22 @@ public class NamespaceRepositoryTest
         assertEquals(expected.getURI(), actual.getURI());
     }
 
-    public @Override @Test void testFindAll() {
+    @Override public  @Test void testFindAll() {
         super.testFindAll(testData.namespaceA, testData.namespaceB, testData.namespaceC);
     }
 
-    public @Override @Test void testFindAllByType() {
+    @Override public  @Test void testFindAllByType() {
         super.testFindAllIncludeFilter(NamespaceInfo.class, testData.namespaceA,
                 testData.namespaceB, testData.namespaceC);
     }
 
-    public @Override @Test void testFindById() {
+    @Override public  @Test void testFindById() {
         super.testFindById(testData.namespaceA);
         super.testFindById(testData.namespaceB);
         super.testFindById(testData.namespaceC);
     }
 
-    public @Override @Test void testQueryFilter() {
+    @Override public  @Test void testQueryFilter() {
         NamespaceInfo ns1 = serverCatalog.getNamespace(testData.namespaceA.getId());
         NamespaceInfo ns2 = serverCatalog.getNamespace(testData.namespaceB.getId());
         NamespaceInfo ns3 = serverCatalog.getNamespace(testData.namespaceC.getId());
@@ -66,13 +66,13 @@ public class NamespaceRepositoryTest
         super.testQueryFilter(String.format("URI = '%s'", ns1.getURI()), ns1, ns3);
     }
 
-    public @Test void testFindNamespaceById() {
+    @Test void testFindNamespaceById() {
         testFindById(testData.namespaceA);
         testFindById(testData.namespaceB);
         testFindById(testData.namespaceC);
     }
 
-    public @Test void testFindNamespacePrefix() {
+    @Test void testFindNamespacePrefix() {
         testFindByPrefix(testData.namespaceA);
         testFindByPrefix(testData.namespaceB);
         testFindByPrefix(testData.namespaceC);
@@ -83,25 +83,25 @@ public class NamespaceRepositoryTest
                 repository.findFirstByName(expected.getPrefix(), NamespaceInfo.class).get());
     }
 
-    public @Test void testNamespaceInfo_CRUD() throws IOException {
+    @Test void testNamespaceInfo_CRUD() throws IOException {
         NamespaceInfo ns = testData.faker().namespace();
         crudTest(ns, serverCatalog::getNamespace, n -> n.setPrefix("modified-prefix"),
                 (old, updated) -> assertEquals("modified-prefix", updated.getPrefix()));
     }
 
-    public @Test void testGetDefaultNamespace() {
+    @Test void testGetDefaultNamespace() {
         assertEquals(testData.namespaceA, repository.getDefaultNamespace().get());
         serverCatalog.setDefaultNamespace(testData.namespaceB);
         assertEquals(testData.namespaceB, repository.getDefaultNamespace().get());
     }
 
-    public @Test void testGetDefaultNamespaceNoDefaultExists() {
+    @Test void testGetDefaultNamespaceNoDefaultExists() {
         testData.deleteAll();
         assertNull(serverCatalog.getDefaultNamespace());
         assertTrue(repository.getDefaultNamespace().isEmpty());
     }
 
-    public @Test void testSetDefaultNamespace() {
+    @Test void testSetDefaultNamespace() {
         assertEquals(testData.namespaceA, serverCatalog.getDefaultNamespace());
 
         repository.setDefaultNamespace(testData.namespaceB);
@@ -110,7 +110,7 @@ public class NamespaceRepositoryTest
         assertEquals(testData.namespaceB, serverCatalog.getDefaultNamespace());
     }
 
-    public @Test void testSetDefaultNamespaceNonExistent() {
+    @Test void testSetDefaultNamespaceNonExistent() {
         assertEquals(testData.namespaceA, serverCatalog.getDefaultNamespace());
 
         NamespaceInfo nonExistent = testData.faker().namespace();
@@ -119,7 +119,7 @@ public class NamespaceRepositoryTest
         assertEquals(testData.namespaceA, serverCatalog.getDefaultNamespace());
     }
 
-    public @Test void testUnsetDefaultNamespace() {
+    @Test void testUnsetDefaultNamespace() {
         NamespaceInfo ns = testData.namespaceA;
         // preflight check
         serverCatalog.setDefaultNamespace(null);
@@ -143,7 +143,7 @@ public class NamespaceRepositoryTest
         assertTrue(repository.getDefaultNamespace().isEmpty());
     }
 
-    public @Test void testFindOneNamespaceByURI() {
+    @Test void testFindOneNamespaceByURI() {
         NamespaceInfo ns1 = testData.namespaceA;
         NamespaceInfo ns2 = testData.faker().namespace();
         ns2.setURI(ns1.getURI());
@@ -156,7 +156,7 @@ public class NamespaceRepositoryTest
         assertTrue(found.getId().equals(ns1.getId()) || found.getId().equals(ns2.getId()));
     }
 
-    public @Test void testFindAllNamespacesByURI() {
+    @Test void testFindAllNamespacesByURI() {
         NamespaceInfo ns1 = testData.namespaceA;
         NamespaceInfo ns2 = testData.faker().namespace();
         ns2.setURI(ns1.getURI());
@@ -170,7 +170,7 @@ public class NamespaceRepositoryTest
         assertEquals(2, found.size());
     }
 
-    public @Test void testCreateNamespaceDuplicateURI() {
+    @Test void testCreateNamespaceDuplicateURI() {
         NamespaceInfo ns1 = testData.namespaceA;
         NamespaceInfo ns2 = testData.faker().namespace();
         ns2.setURI(ns1.getURI());

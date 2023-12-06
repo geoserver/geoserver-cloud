@@ -37,7 +37,8 @@ public class NoServletContextDataDirectoryResourceStore extends DataDirectoryRes
         this.setBaseDirectory(resourceDirectory);
     }
 
-    public @Override void setServletContext(ServletContext servletContext) {
+    @Override
+    public void setServletContext(ServletContext servletContext) {
         log.debug("setServletContext(ServletContext) ignored, data directory explicitly provided.");
     }
 }

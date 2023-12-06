@@ -78,7 +78,8 @@ public class GeoWebCacheRemoteEventsBroker {
         return busServiceMatcher.apply(remoteEvent);
     }
 
-    public @Override String toString() {
+    @Override
+    public String toString() {
         return String.format("%s(%s)", getClass().getSimpleName(), originService());
     }
 }

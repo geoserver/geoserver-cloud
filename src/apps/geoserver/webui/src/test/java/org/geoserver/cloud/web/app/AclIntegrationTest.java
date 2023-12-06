@@ -36,7 +36,7 @@ import java.util.Locale;
             "logging.level.org.geoserver.acl: debug"
         })
 @ActiveProfiles("test") // see bootstrap-test.yml
-public class AclIntegrationTest {
+class AclIntegrationTest {
 
     private @Autowired GeoServerApplication app;
     private WicketTester tester;
@@ -81,7 +81,7 @@ public class AclIntegrationTest {
     }
 
     @Test
-    public void HomePage_ACL_enabled_smoke_test() {
+    void HomePage_ACL_enabled_smoke_test() {
         login();
         GeoServerHomePage page = tester.startPage(GeoServerHomePage.class);
         assertNotNull(page);

@@ -50,7 +50,8 @@ public abstract class GeoToolsGeoJsonModuleTest {
 
     protected abstract ObjectMapper newObjectMapper();
 
-    public @Test void testEmptyGeometries() throws JsonProcessingException {
+    @Test
+    void testEmptyGeometries() throws JsonProcessingException {
         roundtripTest("POINT EMPTY");
         roundtripTest("LINESTRING EMPTY");
         roundtripTest("POLYGON EMPTY");
@@ -60,35 +61,40 @@ public abstract class GeoToolsGeoJsonModuleTest {
         roundtripTest("GEOMETRYCOLLECTION EMPTY");
     }
 
-    public @Test void testPoint() throws JsonProcessingException {
+    @Test
+    void testPoint() throws JsonProcessingException {
         roundtripTest("POINT(0 1)");
         roundtripTest("POINT Z(0 1 2)");
         roundtripTest("POINT M(0 1 3)");
         roundtripTest("POINT ZM(0 1 2 3)");
     }
 
-    public @Test void testMultiPoint() throws JsonProcessingException {
+    @Test
+    void testMultiPoint() throws JsonProcessingException {
         roundtripTest("MULTIPOINT(0 1, -1 -2)");
         roundtripTest("MULTIPOINT Z(0 1 2, -1 -2 -3)");
         roundtripTest("MULTIPOINT M(0 1 3, -1 -2 -4)");
         roundtripTest("MULTIPOINT ZM(0 1 2 3, -1 -2 -3 -4)");
     }
 
-    public @Test void testLineString() throws JsonProcessingException {
+    @Test
+    void testLineString() throws JsonProcessingException {
         roundtripTest("LINESTRING(0 1, 4 5)");
         roundtripTest("LINESTRING Z(0 1 2, 4 5 6)");
         roundtripTest("LINESTRING M(0 1 3, 4 5 7)");
         roundtripTest("LINESTRING ZM(0 1 2 3, 4 5 6 7)");
     }
 
-    public @Test void testMultiLineString() throws JsonProcessingException {
+    @Test
+    void testMultiLineString() throws JsonProcessingException {
         roundtripTest("MULTILINESTRING((0 1, 4 5), (-1 -2, -5 -6))");
         roundtripTest("MULTILINESTRING Z((0 1 2, 4 5 6), (-1 -2 -3, -5 -6 -7))");
         roundtripTest("MULTILINESTRING M((0 1 3, 4 5 7), (-1 -2 -4, -5 -6 -8))");
         roundtripTest("MULTILINESTRING ZM((0 1 2 3, 4 5 6 7), (-1 -2 -3 -4, -5 -6 -7 -8))");
     }
 
-    public @Test void testPolygon() throws JsonProcessingException {
+    @Test
+    void testPolygon() throws JsonProcessingException {
         roundtripTest("POLYGON   ((0 0, 10 10, 20 0, 0 0),(1 1, 9 9, 19 1, 1 1))");
         roundtripTest("POLYGON  Z((0 0 0, 10 10 1, 20 0 2, 0 0 0),(1 1 1, 9 9 2, 19 1 3, 1 1 1))");
         roundtripTest("POLYGON  M((0 0 0, 10 10 1, 20 0 2, 0 0 0),(1 1 1, 9 9 2, 19 1 3, 1 1 1))");
@@ -96,7 +102,8 @@ public abstract class GeoToolsGeoJsonModuleTest {
                 "POLYGON ZM((0 0 0 0, 10 10 1 1, 20 0 2 2, 0 0 0 0),(1 1 1 1, 9 9 2 2, 19 1 3 3, 1 1 1 1))");
     }
 
-    public @Test void testMultiPolygon() throws JsonProcessingException {
+    @Test
+    void testMultiPolygon() throws JsonProcessingException {
         roundtripTest("MULTIPOLYGON   (((0 0, 10 10, 20 0, 0 0)), ((1 1, 9 9, 19 1, 1 1)))");
         roundtripTest(
                 "MULTIPOLYGON  Z(((0 0 0, 10 10 1, 20 0 2, 0 0 0)), ((1 1 1, 9 9 2, 19 1 3, 1 1 1)))");
@@ -106,7 +113,8 @@ public abstract class GeoToolsGeoJsonModuleTest {
                 "MULTIPOLYGON ZM(((0 0 0 0, 10 10 1 1, 20 0 2 2, 0 0 0 0)), ((1 1 1 1, 9 9 2 2, 19 1 3 3, 1 1 1 1)))");
     }
 
-    public @Test void testGeometryCollection() throws JsonProcessingException {
+    @Test
+    void testGeometryCollection() throws JsonProcessingException {
         roundtripTest(
                 "GEOMETRYCOLLECTION(POINT EMPTY,"
                         + "POLYGON ((0 0, 10 10, 20 0, 0 0),(1 1, 9 9, 19 1, 1 1)),"
@@ -177,12 +185,12 @@ public abstract class GeoToolsGeoJsonModuleTest {
 
     private CoordinateSequence findCoordSeq(Geometry g) {
         if (g == null || g.isEmpty()) return null;
-        if (g instanceof GeometryCollection) {
-            return findCoordSeq(g.getGeometryN(0));
+        if (g instanceof GeometryCollection col) {
+            return findCoordSeq(col.getGeometryN(0));
         }
-        if (g instanceof Point) return ((Point) g).getCoordinateSequence();
-        if (g instanceof LineString) return ((LineString) g).getCoordinateSequence();
-        if (g instanceof Polygon) return findCoordSeq(((Polygon) g).getExteriorRing());
+        if (g instanceof Point point) return point.getCoordinateSequence();
+        if (g instanceof LineString line) return line.getCoordinateSequence();
+        if (g instanceof Polygon poly) return findCoordSeq(poly.getExteriorRing());
         return null;
     }
 

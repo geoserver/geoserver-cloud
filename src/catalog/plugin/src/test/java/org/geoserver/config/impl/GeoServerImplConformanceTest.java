@@ -9,7 +9,7 @@ import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerConfigConformanceTest;
 
 /** {@link GeoServerConfigConformanceTest} for the traditional {@link GeoServerImpl} */
-public class GeoServerImplConformanceTest extends GeoServerConfigConformanceTest {
+class GeoServerImplConformanceTest extends GeoServerConfigConformanceTest {
 
     protected @Override GeoServer createGeoServer() {
         GeoServerImpl gs = new GeoServerImpl();

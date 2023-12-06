@@ -24,34 +24,35 @@ import org.geoserver.config.SettingsInfo;
     @JsonSubTypes.Type(value = ServiceAdded.class),
     @JsonSubTypes.Type(value = SettingsAdded.class),
 })
-public abstract class ConfigInfoAdded<SELF, INFO extends Info> extends InfoAdded<SELF, INFO>
+@SuppressWarnings("serial")
+public abstract class ConfigInfoAdded<INFO extends Info> extends InfoAdded<INFO>
         implements ConfigInfoEvent {
 
     protected ConfigInfoAdded() {
         // default constructor, needed for deserialization
     }
 
-    public ConfigInfoAdded(long updateSequence, INFO object) {
+    protected ConfigInfoAdded(long updateSequence, INFO object) {
         super(updateSequence, object);
     }
 
     @SuppressWarnings("unchecked")
-    public static @NonNull <I extends Info> ConfigInfoAdded<?, I> createLocal(
+    public static @NonNull <I extends Info> ConfigInfoAdded<I> createLocal(
             long updateSequence, @NonNull I info) {
 
         final ConfigInfoType type = ConfigInfoType.valueOf(info);
         switch (type) {
             case GeoServerInfo:
-                return (ConfigInfoAdded<?, I>)
+                return (ConfigInfoAdded<I>)
                         GeoServerInfoSet.createLocal(updateSequence, (GeoServerInfo) info);
             case ServiceInfo:
-                return (ConfigInfoAdded<?, I>)
+                return (ConfigInfoAdded<I>)
                         ServiceAdded.createLocal(updateSequence, (ServiceInfo) info);
             case SettingsInfo:
-                return (ConfigInfoAdded<?, I>)
+                return (ConfigInfoAdded<I>)
                         SettingsAdded.createLocal(updateSequence, (SettingsInfo) info);
             case LoggingInfo:
-                return (ConfigInfoAdded<?, I>)
+                return (ConfigInfoAdded<I>)
                         LoggingInfoSet.createLocal(updateSequence, (LoggingInfo) info);
             default:
                 throw new IllegalArgumentException(

@@ -56,7 +56,7 @@ public abstract class GeoServerConfigConformanceTest {
     }
 
     @Test
-    public void testGlobal() throws Exception {
+    void testGlobal() throws Exception {
         GeoServerInfo global = geoServer.getFactory().createGlobal();
         geoServer.setGlobal(global);
 
@@ -66,7 +66,7 @@ public abstract class GeoServerConfigConformanceTest {
 
     // GEOS-7890
     @Test
-    public void testEquals() throws Exception {
+    void testEquals() throws Exception {
         GeoServerInfo global1 = geoServer.getFactory().createGlobal();
         GeoServerInfo global2 = geoServer.getFactory().createGlobal();
         global1.setGlobalServices(Boolean.valueOf(true));
@@ -82,7 +82,7 @@ public abstract class GeoServerConfigConformanceTest {
     }
 
     @Test
-    public void testModifyGlobal() throws Exception {
+    void testModifyGlobal() throws Exception {
         GeoServerInfo global = geoServer.getFactory().createGlobal();
         geoServer.setGlobal(global);
 
@@ -98,7 +98,7 @@ public abstract class GeoServerConfigConformanceTest {
     }
 
     @Test
-    public void testAddService() throws Exception {
+    void testAddService() throws Exception {
         ServiceInfo service = createService();
         service.setName("wms");
         geoServer.add(service);
@@ -122,7 +122,7 @@ public abstract class GeoServerConfigConformanceTest {
     }
 
     @Test
-    public void testModifyService() throws Exception {
+    void testModifyService() throws Exception {
         ServiceInfo service = createService();
         ((ServiceInfoImpl) service).setId("id");
         service.setName("wms");
@@ -142,7 +142,7 @@ public abstract class GeoServerConfigConformanceTest {
     }
 
     @Test
-    public void testGlobalEvents() throws Exception {
+    void testGlobalEvents() throws Exception {
 
         TestListener tl = new TestListener();
         geoServer.addListener(tl);
@@ -195,7 +195,7 @@ public abstract class GeoServerConfigConformanceTest {
     }
 
     @Test
-    public void testSetClientPropsHasEffect() throws Exception {
+    void testSetClientPropsHasEffect() throws Exception {
         GeoServerInfoImpl gsii = new GeoServerInfoImpl(geoServer);
         Map<Object, Object> before = gsii.getClientProperties();
 
@@ -207,7 +207,7 @@ public abstract class GeoServerConfigConformanceTest {
     }
 
     @Test
-    public void testGetSettings() throws Exception {
+    void testGetSettings() throws Exception {
         GeoServerInfo global = geoServer.getFactory().createGlobal();
         geoServer.setGlobal(global);
 
@@ -239,7 +239,7 @@ public abstract class GeoServerConfigConformanceTest {
     }
 
     @Test
-    public void testModifySettings() throws Exception {
+    void testModifySettings() throws Exception {
         WorkspaceInfo ws = geoServer.getCatalog().getFactory().createWorkspace();
         ws.setName("acme");
         geoServer.getCatalog().add(ws);
@@ -264,7 +264,7 @@ public abstract class GeoServerConfigConformanceTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testServiceWithWorkspace() throws Exception {
+    void testServiceWithWorkspace() throws Exception {
         // Make a workspace
         WorkspaceInfo ws1 = geoServer.getCatalog().getFactory().createWorkspace();
         ws1.setName("TEST-WORKSPACE-1");
@@ -316,7 +316,7 @@ public abstract class GeoServerConfigConformanceTest {
     }
 
     @Test
-    public void testModifyLogging() {
+    void testModifyLogging() {
         geoServer.setLogging(geoServer.getFactory().createLogging());
 
         LoggingInfo logging = geoServer.getLogging();

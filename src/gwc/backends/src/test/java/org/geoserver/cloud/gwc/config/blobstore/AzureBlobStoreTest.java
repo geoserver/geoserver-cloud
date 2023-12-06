@@ -5,7 +5,6 @@
 package org.geoserver.cloud.gwc.config.blobstore;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -36,7 +35,7 @@ import java.util.Map;
  * @see AzuriteContainer
  */
 @Testcontainers
-public class AzureBlobStoreTest {
+class AzureBlobStoreTest {
 
     @Container static AzuriteContainer azurite = new AzuriteContainer();
 
@@ -74,14 +73,16 @@ public class AzureBlobStoreTest {
         stubAppContext.close();
     }
 
-    public @Test void createBlobStore() throws StorageException {
+    @Test
+    void createBlobStore() throws StorageException {
         AzureBlobStoreInfo info = newAzureBlobStoreInfo();
         BlobStore store =
                 info.createInstance(mock(TileLayerDispatcher.class), new MemoryLockProvider());
         assertThat(store).isInstanceOf(AzureBlobStore.class);
     }
 
-    public @Test void testPutGet() throws Exception {
+    @Test
+    void testPutGet() throws Exception {
         TileLayerDispatcher layers = mock(TileLayerDispatcher.class);
 
         AzureBlobStoreInfo info = newAzureBlobStoreInfo();
@@ -98,7 +99,7 @@ public class AzureBlobStoreTest {
 
         TileLayer tileLayer = mock(TileLayer.class);
         when(tileLayer.getId()).thenReturn(layerName);
-        when(layers.getTileLayer(eq(layerName))).thenReturn(tileLayer);
+        when(layers.getTileLayer(layerName)).thenReturn(tileLayer);
 
         TileObject tile =
                 TileObject.createCompleteTileObject(

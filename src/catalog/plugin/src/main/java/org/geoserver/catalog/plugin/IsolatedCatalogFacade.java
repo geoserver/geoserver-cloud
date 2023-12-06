@@ -26,13 +26,11 @@ import org.geoserver.ows.LocalWorkspace;
 import org.geotools.api.filter.Filter;
 import org.geotools.api.filter.sort.SortBy;
 
-import java.io.Closeable;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
@@ -243,10 +241,11 @@ public final class IsolatedCatalogFacade extends ForwardingExtendedCatalogFacade
         if (count != null) {
             filtered = Iterators.limit(filtered, count.intValue());
         }
-        return new CloseableIteratorAdapter<>(filtered, (Closeable) all);
+        return new CloseableIteratorAdapter<>(filtered, all);
     }
 
-    public @Override <T extends CatalogInfo> Stream<T> query(Query<T> query) {
+    @Override
+    public <T extends CatalogInfo> Stream<T> query(Query<T> query) {
         return ((ExtendedCatalogFacade) facade)
                 .query(query)
                 .map(this::enforceIsolation)
@@ -272,13 +271,11 @@ public final class IsolatedCatalogFacade extends ForwardingExtendedCatalogFacade
 
     @SuppressWarnings("unchecked")
     private <T extends CatalogInfo> T enforceIsolation(T info) {
-        if (StoreInfo.class.isInstance(info)) return (T) enforceStoreIsolation((StoreInfo) info);
-        if (ResourceInfo.class.isInstance(info))
-            return (T) enforceResourceIsolation((ResourceInfo) info);
-        if (LayerInfo.class.isInstance(info)) return (T) enforceLayerIsolation((LayerInfo) info);
-        if (LayerGroupInfo.class.isInstance(info))
-            return (T) enforceLayerGroupIsolation((LayerGroupInfo) info);
-        if (StyleInfo.class.isInstance(info)) return (T) enforceStyleIsolation((StyleInfo) info);
+        if (info instanceof StoreInfo store) return (T) enforceStoreIsolation(store);
+        if (info instanceof ResourceInfo resource) return (T) enforceResourceIsolation(resource);
+        if (info instanceof LayerInfo layer) return (T) enforceLayerIsolation(layer);
+        if (info instanceof LayerGroupInfo lg) return (T) enforceLayerGroupIsolation(lg);
+        if (info instanceof StyleInfo style) return (T) enforceStyleIsolation(style);
 
         return info;
     }
@@ -429,8 +426,7 @@ public final class IsolatedCatalogFacade extends ForwardingExtendedCatalogFacade
         List<T> unwrapped = ModificationProxy.unwrap(objects);
         // filter the non visible catalog objects and wrap the resulting list with a modification
         // proxy
-        return ModificationProxy.createList(
-                unwrapped.stream().filter(filter).collect(Collectors.toList()), type);
+        return ModificationProxy.createList(unwrapped.stream().filter(filter).toList(), type);
     }
 
     /**

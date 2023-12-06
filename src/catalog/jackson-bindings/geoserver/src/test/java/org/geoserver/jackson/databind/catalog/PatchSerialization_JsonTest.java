@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.geotools.jackson.databind.util.ObjectMapperUtil;
 
-public class PatchSerialization_JsonTest extends PatchSerializationTest {
+class PatchSerialization_JsonTest extends PatchSerializationTest {
 
     protected @Override ObjectMapper newObjectMapper() {
         return ObjectMapperUtil.newObjectMapper();

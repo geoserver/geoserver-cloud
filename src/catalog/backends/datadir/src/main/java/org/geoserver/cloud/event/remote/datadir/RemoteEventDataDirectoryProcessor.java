@@ -61,7 +61,7 @@ public class RemoteEventDataDirectoryProcessor {
     }
 
     @EventListener(InfoRemoved.class)
-    public void onRemoteRemoveEvent(InfoRemoved<?, ? extends Info> event) {
+    public void onRemoteRemoveEvent(InfoRemoved<? extends Info> event) {
         if (event.isLocal()) {
             return;
         }
@@ -74,19 +74,13 @@ public class RemoteEventDataDirectoryProcessor {
             case WorkspaceInfo:
                 remove(objectId, catalogFacade::getWorkspace, catalogFacade::remove);
                 break;
-            case CoverageInfo:
-            case FeatureTypeInfo:
-            case WmsLayerInfo:
-            case WmtsLayerInfo:
+            case CoverageInfo, FeatureTypeInfo, WmsLayerInfo, WmtsLayerInfo:
                 remove(
                         objectId,
                         id -> catalogFacade.getResource(id, ResourceInfo.class),
                         catalogFacade::remove);
                 break;
-            case CoverageStoreInfo:
-            case DataStoreInfo:
-            case WmsStoreInfo:
-            case WmtsStoreInfo:
+            case CoverageStoreInfo, DataStoreInfo, WmsStoreInfo, WmtsStoreInfo:
                 remove(
                         objectId,
                         id -> catalogFacade.getStore(id, StoreInfo.class),
@@ -117,7 +111,7 @@ public class RemoteEventDataDirectoryProcessor {
     }
 
     @EventListener(InfoAdded.class)
-    public void onRemoteAddEvent(InfoAdded<?, ? extends Info> event) {
+    public void onRemoteAddEvent(InfoAdded<? extends Info> event) {
         if (event.isLocal()) {
             return;
         }
@@ -203,7 +197,7 @@ public class RemoteEventDataDirectoryProcessor {
     }
 
     @EventListener(InfoModified.class)
-    public void onRemoteModifyEvent(InfoModified<?, ? extends Info> event) {
+    public void onRemoteModifyEvent(InfoModified<? extends Info> event) {
         if (event.isLocal()) {
             return;
         }
@@ -271,9 +265,9 @@ public class RemoteEventDataDirectoryProcessor {
             log.warn("Object not found on local Catalog, can't update upon {}", event);
         } else {
             patch.applyTo(info);
-            if (info instanceof CatalogInfo) {
+            if (info instanceof CatalogInfo catalogInfo) {
                 // going directly through the CatalogFacade does not produce any further event
-                this.catalogFacade.update((CatalogInfo) info, patch);
+                this.catalogFacade.update(catalogInfo, patch);
             }
             log.debug(
                     "Object updated: {}({}). Properties: {}",

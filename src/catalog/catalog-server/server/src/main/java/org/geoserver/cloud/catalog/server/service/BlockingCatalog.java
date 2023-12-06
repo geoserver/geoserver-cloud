@@ -59,7 +59,8 @@ public class BlockingCatalog extends AbstractCatalogDecorator {
             super(facade);
         }
 
-        public @Override CatalogCapabilities getCatalogCapabilities() {
+        @Override
+        public CatalogCapabilities getCatalogCapabilities() {
             return CATALOG_CAPABILITIES;
         }
     }
@@ -67,12 +68,9 @@ public class BlockingCatalog extends AbstractCatalogDecorator {
     public BlockingCatalog(@Qualifier("rawCatalog") Catalog rawCatalog) {
         super(rawCatalog);
         // Make sure isolated workspaces can be created/updated
-        if (rawCatalog instanceof org.geoserver.catalog.plugin.CatalogPlugin) {
-            CatalogPlugin impl = ((org.geoserver.catalog.plugin.CatalogPlugin) rawCatalog);
-            impl.getRawFacade().getCatalogCapabilities().setIsolatedWorkspacesSupport(true);
-        } else if (rawCatalog instanceof org.geoserver.catalog.impl.CatalogImpl) {
-            org.geoserver.catalog.impl.CatalogImpl impl =
-                    ((org.geoserver.catalog.impl.CatalogImpl) rawCatalog);
+        if (rawCatalog instanceof org.geoserver.catalog.plugin.CatalogPlugin plugin) {
+            plugin.getRawFacade().getCatalogCapabilities().setIsolatedWorkspacesSupport(true);
+        } else if (rawCatalog instanceof org.geoserver.catalog.impl.CatalogImpl impl) {
             impl.setFacade(new AllowAllCatalogFacade(impl.getFacade()));
         }
     }

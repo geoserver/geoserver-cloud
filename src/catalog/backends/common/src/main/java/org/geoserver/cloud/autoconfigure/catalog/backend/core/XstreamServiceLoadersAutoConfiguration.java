@@ -32,6 +32,8 @@ import org.springframework.context.annotation.Bean;
 @Slf4j(topic = "org.geoserver.cloud.config.catalog")
 public class XstreamServiceLoadersAutoConfiguration {
 
+    private static final String CONTRIBUTING_MSG = "Automatically contributing {}";
+
     @ConditionalOnMissingBean(WFSXStreamLoader.class)
     @Bean
     WFSXStreamLoader wfsLoader(GeoServerResourceLoader resourceLoader) {
@@ -41,7 +43,7 @@ public class XstreamServiceLoadersAutoConfiguration {
     @ConditionalOnMissingBean(WFSFactoryExtension.class)
     @Bean
     WFSFactoryExtension wfsFactoryExtension(GeoServerResourceLoader resourceLoader) {
-        log.info("Automatically contributing {}", WFSFactoryExtension.class.getSimpleName());
+        log(WFSFactoryExtension.class);
         return new WFSFactoryExtension() {}; // constructor is protected!
     }
 
@@ -54,8 +56,7 @@ public class XstreamServiceLoadersAutoConfiguration {
     @ConditionalOnMissingBean(WMSFactoryExtension.class)
     @Bean
     WMSFactoryExtension wmsFactoryExtension() {
-        log.info("Automatically contributing {}", WMSFactoryExtension.class.getSimpleName());
-        return new WMSFactoryExtension();
+        return log(new WMSFactoryExtension());
     }
 
     @ConditionalOnMissingBean(WCSXStreamLoader.class)
@@ -67,8 +68,7 @@ public class XstreamServiceLoadersAutoConfiguration {
     @ConditionalOnMissingBean(WCSFactoryExtension.class)
     @Bean
     WCSFactoryExtension wcsFactoryExtension() {
-        log.info("Automatically contributing {}", WCSFactoryExtension.class.getSimpleName());
-        return new WCSFactoryExtension();
+        return log(new WCSFactoryExtension());
     }
 
     @ConditionalOnMissingBean(WMTSXStreamLoader.class)
@@ -80,7 +80,7 @@ public class XstreamServiceLoadersAutoConfiguration {
     @ConditionalOnMissingBean(WMTSFactoryExtension.class)
     @Bean
     WMTSFactoryExtension wmtsFactoryExtension() {
-        log.info("Automatically contributing {}", WMTSFactoryExtension.class.getSimpleName());
+        log(WMTSFactoryExtension.class);
         return new WMTSFactoryExtension() {}; // constructor is protected!
     }
 
@@ -93,12 +93,16 @@ public class XstreamServiceLoadersAutoConfiguration {
     @ConditionalOnMissingBean(WPSFactoryExtension.class)
     @Bean
     WPSFactoryExtension WPSFactoryExtension() {
-        log.info("Automatically contributing {}", WPSFactoryExtension.class.getSimpleName());
+        log(WPSFactoryExtension.class);
         return new WPSFactoryExtension() {}; // constructor is protected!
     }
 
     private <T> T log(T extension) {
-        log.info("Automatically contributing {}", extension.getClass().getSimpleName());
+        log(extension.getClass());
         return extension;
+    }
+
+    private void log(Class<? extends Object> extensionType) {
+        log.info(CONTRIBUTING_MSG, extensionType.getSimpleName());
     }
 }

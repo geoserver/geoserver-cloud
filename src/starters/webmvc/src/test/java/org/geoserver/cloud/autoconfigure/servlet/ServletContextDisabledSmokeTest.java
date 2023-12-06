@@ -35,12 +35,12 @@ import org.springframework.web.context.request.RequestContextListener;
         })
 @EnableAutoConfiguration(exclude = SecurityAutoConfiguration.class)
 @ActiveProfiles("test")
-public class ServletContextDisabledSmokeTest {
+class ServletContextDisabledSmokeTest {
 
     private @Autowired ApplicationContext context;
 
     @Test
-    public void contextLoaderListener() {
+    void contextLoaderListener() {
         assertThrows(
                 NoSuchBeanDefinitionException.class,
                 () -> context.getBean(GeoServerServletInitializer.class));

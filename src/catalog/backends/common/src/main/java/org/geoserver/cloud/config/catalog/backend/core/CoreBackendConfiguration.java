@@ -23,7 +23,6 @@ import org.geoserver.security.SecureCatalogImpl;
 import org.geoserver.security.impl.DataAccessRuleDAO;
 import org.geoserver.security.impl.DefaultResourceAccessManager;
 import org.geoserver.security.impl.LayerGroupContainmentCache;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -43,13 +42,6 @@ public class CoreBackendConfiguration {
     XStreamPersisterFactory xstreamPersisterFactory() {
         return new XStreamPersisterFactory();
     }
-
-    // @Autowired
-    // @DependsOn("geoServerLoaderImpl")
-    // @Bean GeoServerLoaderProxy geoServerLoader(GeoServerResourceLoader resourceLoader)
-    // {
-    // return new GeoServerLoaderProxy(resourceLoader);
-    // }
 
     @Bean
     GeoServerExtensions extensions() {
@@ -179,14 +171,12 @@ public class CoreBackendConfiguration {
     @Bean(name = "geoServer")
     GeoServerImpl geoServer(
             @Qualifier("catalog") Catalog catalog,
-            @Qualifier("geoserverFacade") GeoServerFacade facade)
-            throws Exception {
+            @Qualifier("geoserverFacade") GeoServerFacade facade) {
         GeoServerImpl gs = new GeoServerImpl(facade);
         gs.setCatalog(catalog);
         return gs;
     }
 
-    @Autowired
     @Bean
     GeoServerDataDirectory dataDirectory(GeoServerResourceLoader resourceLoader) {
         return new GeoServerDataDirectory(resourceLoader);

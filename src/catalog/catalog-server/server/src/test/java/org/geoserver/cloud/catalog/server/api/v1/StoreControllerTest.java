@@ -33,7 +33,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @AutoConfigureWebTestClient(timeout = "360000")
-public class StoreControllerTest extends AbstractReactiveCatalogControllerTest<StoreInfo> {
+class StoreControllerTest extends AbstractReactiveCatalogControllerTest<StoreInfo> {
 
     public StoreControllerTest() {
         super(StoreInfo.class);
@@ -56,16 +56,15 @@ public class StoreControllerTest extends AbstractReactiveCatalogControllerTest<S
         assertEquals(expected.getType(), actual.getType());
         assertEquals(expected.getWorkspace(), actual.getWorkspace());
         assertEquals(expected.isEnabled(), actual.isEnabled());
-        if (expected instanceof CoverageStoreInfo)
+        if (expected instanceof CoverageStoreInfo store)
+            assertEquals(store.getURL(), ((CoverageStoreInfo) actual).getURL());
+        if (expected instanceof HTTPStoreInfo httpStore)
             assertEquals(
-                    ((CoverageStoreInfo) expected).getURL(), ((CoverageStoreInfo) actual).getURL());
-        if (expected instanceof HTTPStoreInfo)
-            assertEquals(
-                    ((HTTPStoreInfo) expected).getCapabilitiesURL(),
-                    ((HTTPStoreInfo) actual).getCapabilitiesURL());
+                    httpStore.getCapabilitiesURL(), ((HTTPStoreInfo) actual).getCapabilitiesURL());
     }
 
-    public @Override @Test void testFindAll() {
+    @Override
+    public @Test void testFindAll() {
         super.testFindAll(
                 testData.dataStoreA,
                 testData.dataStoreB,
@@ -75,14 +74,16 @@ public class StoreControllerTest extends AbstractReactiveCatalogControllerTest<S
                 testData.wmtsStoreA);
     }
 
-    public @Override @Test void testFindById() {
+    @Override
+    public @Test void testFindById() {
         super.testFindById(testData.dataStoreA);
         super.testFindById(testData.coverageStoreA);
         super.testFindById(testData.wmsStoreA);
         super.testFindById(testData.wmtsStoreA);
     }
 
-    public @Override @Test void testFindAllByType() {
+    @Override
+    public @Test void testFindAllByType() {
         super.testFindAll(
                 StoreInfo.class,
                 testData.dataStoreA,
@@ -99,7 +100,8 @@ public class StoreControllerTest extends AbstractReactiveCatalogControllerTest<S
         super.testFindAll(WMTSStoreInfo.class, testData.wmtsStoreA);
     }
 
-    public @Override @Test void testQueryFilter() {
+    @Override
+    public @Test void testQueryFilter() {
         DataStoreInfo ds1 = catalog.getDataStore(testData.dataStoreA.getId());
         DataStoreInfo ds2 = catalog.getDataStore(testData.dataStoreB.getId());
         DataStoreInfo ds3 = catalog.getDataStore(testData.dataStoreC.getId());
@@ -123,7 +125,8 @@ public class StoreControllerTest extends AbstractReactiveCatalogControllerTest<S
         super.testQueryFilter(ecql, ds2);
     }
 
-    public @Test void testDataStoreInfo_CRUD() throws IOException {
+    @Test
+    void testDataStoreInfo_CRUD() throws IOException {
         DataStoreInfo store =
                 testData.faker()
                         .dataStoreInfo(
@@ -150,7 +153,8 @@ public class StoreControllerTest extends AbstractReactiveCatalogControllerTest<S
                 });
     }
 
-    public @Test void testCoverageStoreInfo_CRUD() {
+    @Test
+    void testCoverageStoreInfo_CRUD() {
         CoverageStoreInfo store =
                 testData.createCoverageStore(
                         "coverageStoreCRUD",
@@ -179,7 +183,8 @@ public class StoreControllerTest extends AbstractReactiveCatalogControllerTest<S
                 });
     }
 
-    public @Test void testWMSStoreInfo_CRUD() {
+    @Test
+    void testWMSStoreInfo_CRUD() {
         WMSStoreInfo store =
                 testData.createWebMapServer(
                         "wmsStoreCRUD",
@@ -206,7 +211,8 @@ public class StoreControllerTest extends AbstractReactiveCatalogControllerTest<S
                 });
     }
 
-    public @Test void testWMTSStoreInfo_CRUD() {
+    @Test
+    void testWMTSStoreInfo_CRUD() {
         WMTSStoreInfo store =
                 testData.createWebMapTileServer(
                         "wmsStoreCRUD",
@@ -233,7 +239,8 @@ public class StoreControllerTest extends AbstractReactiveCatalogControllerTest<S
                 });
     }
 
-    public @Test void testFindStoreById() throws IOException {
+    @Test
+    void testFindStoreById() throws IOException {
         testFindById(testData.coverageStoreA);
         testFindById(testData.dataStoreA);
         testFindById(testData.dataStoreB);
@@ -241,7 +248,8 @@ public class StoreControllerTest extends AbstractReactiveCatalogControllerTest<S
         testFindById(testData.wmtsStoreA);
     }
 
-    public @Test void testFindStoreById_SubtypeMismatch() throws IOException {
+    @Test
+    void testFindStoreById_SubtypeMismatch() throws IOException {
         CatalogTestClient<StoreInfo> client = client();
         client.findById(testData.coverageStoreA.getId(), DataStoreInfo.class)
                 .expectStatus()
@@ -254,7 +262,8 @@ public class StoreControllerTest extends AbstractReactiveCatalogControllerTest<S
                 .isNoContent();
     }
 
-    public @Test void testFindStoreByName() throws IOException {
+    @Test
+    void testFindStoreByName() throws IOException {
         findStoreByName(testData.coverageStoreA);
         findStoreByName(testData.dataStoreA);
         findStoreByName(testData.dataStoreB);
@@ -268,7 +277,8 @@ public class StoreControllerTest extends AbstractReactiveCatalogControllerTest<S
         assertCatalogInfoEquals(store, resolved);
     }
 
-    public @Test void testFindStoreByWorkspaceAndName() throws IOException {
+    @Test
+    void testFindStoreByWorkspaceAndName() throws IOException {
         testFindStoreByWorkspaceAndName(testData.coverageStoreA, null);
         testFindStoreByWorkspaceAndName(testData.coverageStoreA, ClassMappings.COVERAGESTORE);
 
@@ -304,7 +314,8 @@ public class StoreControllerTest extends AbstractReactiveCatalogControllerTest<S
         assertEquals(store.getName(), found.getName());
     }
 
-    public @Test void testFindStoreByName_WrongWorkspace() throws IOException {
+    @Test
+    void testFindStoreByName_WrongWorkspace() throws IOException {
         testFindStoreByName_WrongWorkspace(testData.coverageStoreA, testData.workspaceC);
         testFindStoreByName_WrongWorkspace(testData.dataStoreA, testData.workspaceC);
         testFindStoreByName_WrongWorkspace(testData.dataStoreB, testData.workspaceC);
@@ -324,7 +335,8 @@ public class StoreControllerTest extends AbstractReactiveCatalogControllerTest<S
                 .isNoContent();
     }
 
-    public @Test void testFindStoresByWorkspace() {
+    @Test
+    void testFindStoresByWorkspace() {
         testFindStoresByWorkspace(
                 testData.workspaceA,
                 testData.dataStoreA,

@@ -5,7 +5,6 @@
 package org.geoserver.cloud.config.catalog.backend.jdbcconfig;
 
 import org.geoserver.catalog.Catalog;
-import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.cloud.config.catalog.backend.core.CoreBackendConfiguration;
 import org.geoserver.config.DefaultGeoServerLoader;
 import org.geoserver.config.GeoServer;
@@ -21,8 +20,6 @@ import org.geoserver.jdbcconfig.internal.JDBCConfigProperties;
 import org.geoserver.platform.GeoServerExtensions;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.Resource.Lock;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.io.IOException;
 import java.util.List;
@@ -45,19 +42,22 @@ import javax.annotation.PostConstruct;
  */
 public class CloudJdbcGeoServerLoader extends DefaultGeoServerLoader {
 
-    private @Autowired @Qualifier("rawCatalog") Catalog rawCatalog;
-    private @Autowired GeoServer geoserver;
+    private Catalog rawCatalog;
+    private GeoServer geoserver;
 
     private JDBCConfigProperties config;
 
     private ConfigDatabase configdb;
 
     public CloudJdbcGeoServerLoader(
+            Catalog rawCatalog,
+            GeoServer geoserver,
             GeoServerResourceLoader resourceLoader,
             JDBCConfigProperties config,
-            ConfigDatabase configdb)
-            throws Exception {
+            ConfigDatabase configdb) {
         super(resourceLoader);
+        this.rawCatalog = rawCatalog;
+        this.geoserver = geoserver;
         this.config = config;
         this.configdb = configdb;
     }
@@ -69,7 +69,7 @@ public class CloudJdbcGeoServerLoader extends DefaultGeoServerLoader {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
-    protected void loadGeoServer(GeoServer geoServer, XStreamPersister xp) throws Exception {
+    protected void loadGeoServer(GeoServer geoServer, XStreamPersister xp) {
         final Lock lock = resourceLoader.getLockProvider().acquire("GLOBAL");
         try {
             if (geoServer.getGlobal() == null) {
@@ -93,12 +93,12 @@ public class CloudJdbcGeoServerLoader extends DefaultGeoServerLoader {
     }
 
     @Override
-    protected void loadCatalog(Catalog catalog, XStreamPersister xp) throws Exception {
-        loadCatalogInternal((CatalogPlugin) catalog, xp);
+    protected void loadCatalog(Catalog catalog, XStreamPersister xp) throws IOException {
+        loadCatalogInternal(xp);
         catalog.addListener(new GeoServerResourcePersister(catalog));
     }
 
-    private void loadCatalogInternal(CatalogPlugin catalog, XStreamPersister xp) throws Exception {
+    private void loadCatalogInternal(XStreamPersister xp) throws IOException {
         if (!config.isInitDb() && !config.isImport() && config.isRepopulate()) {
             ConfigDatabase configDatabase = this.configdb;
             configDatabase.repopulateQueryableProperties();

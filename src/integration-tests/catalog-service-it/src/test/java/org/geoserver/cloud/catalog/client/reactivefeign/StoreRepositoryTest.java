@@ -36,7 +36,7 @@ import lombok.experimental.Accessors;
 
 @EnableAutoConfiguration
 @Accessors(fluent = true)
-public class StoreRepositoryTest
+class StoreRepositoryTest
         extends AbstractCatalogServiceClientRepositoryTest<StoreInfo, StoreRepository> {
 
     private @Autowired @Getter StoreRepository repository;
@@ -62,16 +62,16 @@ public class StoreRepositoryTest
         assertEquals(expected.getType(), actual.getType());
         assertEquals(expected.getWorkspace(), actual.getWorkspace());
         assertEquals(expected.isEnabled(), actual.isEnabled());
-        if (expected instanceof CoverageStoreInfo)
+        if (expected instanceof CoverageStoreInfo cov)
             assertEquals(
-                    ((CoverageStoreInfo) expected).getURL(), ((CoverageStoreInfo) actual).getURL());
-        if (expected instanceof HTTPStoreInfo)
+                    cov.getURL(), ((CoverageStoreInfo) actual).getURL());
+        if (expected instanceof HTTPStoreInfo httpStore)
             assertEquals(
-                    ((HTTPStoreInfo) expected).getCapabilitiesURL(),
+            		httpStore.getCapabilitiesURL(),
                     ((HTTPStoreInfo) actual).getCapabilitiesURL());
     }
 
-    public @Override @Test void testFindAll() {
+    @Override public  @Test void testFindAll() {
         super.testFindAll(
                 testData.dataStoreA,
                 testData.dataStoreB,
@@ -81,14 +81,14 @@ public class StoreRepositoryTest
                 testData.wmtsStoreA);
     }
 
-    public @Override @Test void testFindById() {
+    @Override public  @Test void testFindById() {
         super.testFindById(testData.dataStoreA);
         super.testFindById(testData.coverageStoreA);
         super.testFindById(testData.wmsStoreA);
         super.testFindById(testData.wmtsStoreA);
     }
 
-    public @Override @Test void testFindAllByType() {
+    @Override public  @Test void testFindAllByType() {
         super.testFindAllIncludeFilter(
                 StoreInfo.class,
                 testData.dataStoreA,
@@ -105,7 +105,7 @@ public class StoreRepositoryTest
         super.testFindAllIncludeFilter(WMTSStoreInfo.class, testData.wmtsStoreA);
     }
 
-    public @Test void testFindAllByTypeStoreRepository() {
+    @Test void testFindAllByTypeStoreRepository() {
         testFind(
                 () -> repository.findAllByType(StoreInfo.class),
                 testData.dataStoreA,
@@ -126,7 +126,7 @@ public class StoreRepositoryTest
         testFind(() -> repository.findAllByType(WMTSStoreInfo.class), testData.wmtsStoreA);
     }
 
-    public @Test void testSetDefaultDataStore() {
+    @Test void testSetDefaultDataStore() {
         WorkspaceInfo ws = testData.workspaceA;
         DataStoreInfo ds1 = testData.dataStoreA;
         DataStoreInfo ds2 = testData.faker().dataStoreInfo("wsA-ds2", ws);
@@ -138,7 +138,7 @@ public class StoreRepositoryTest
         assertEquals(ds2.getId(), serverCatalog.getDefaultDataStore(ws).getId());
     }
 
-    public @Test void testUnsetDefaultDataStore() {
+    @Test void testUnsetDefaultDataStore() {
         WorkspaceInfo ws = testData.workspaceA;
         DataStoreInfo store = testData.dataStoreA;
         // preflight check
@@ -163,7 +163,7 @@ public class StoreRepositoryTest
         assertTrue(repository.getDefaultDataStore(ws).isEmpty());
     }
 
-    public @Test void getDefaultDataStore() {
+    @Test void getDefaultDataStore() {
         WorkspaceInfo wsA = testData.workspaceA;
         WorkspaceInfo wsB = testData.workspaceB;
 
@@ -192,7 +192,7 @@ public class StoreRepositoryTest
         assertTrue(repository.getDefaultDataStore(wsA).isEmpty());
     }
 
-    public @Test void testGetDefaultDataStores() {
+    @Test void testGetDefaultDataStores() {
         WorkspaceInfo wsA = testData.workspaceA;
         WorkspaceInfo wsB = testData.workspaceB;
         DataStoreInfo dsA2 = testData.faker().dataStoreInfo("wsA-ds2", wsA);
@@ -212,7 +212,7 @@ public class StoreRepositoryTest
         testFind(() -> repository.getDefaultDataStores(), dsA2, dsB2, testData.dataStoreC);
     }
 
-    public @Override @Test void testQueryFilter() {
+    @Override public  @Test void testQueryFilter() {
         DataStoreInfo ds1 = serverCatalog.getDataStore(testData.dataStoreA.getId());
         DataStoreInfo ds2 = serverCatalog.getDataStore(testData.dataStoreB.getId());
         DataStoreInfo ds3 = serverCatalog.getDataStore(testData.dataStoreC.getId());
@@ -237,7 +237,7 @@ public class StoreRepositoryTest
         super.testQueryFilter(ecql, ds2);
     }
 
-    public @Test void testDataStoreInfo_CRUD() throws IOException {
+    @Test void testDataStoreInfo_CRUD() throws IOException {
         DataStoreInfo store =
                 testData.faker().dataStoreInfo(
                         "dataStoreCRUD-id",
@@ -263,7 +263,7 @@ public class StoreRepositoryTest
                 });
     }
 
-    public @Test void testCoverageStoreInfo_CRUD() {
+    @Test void testCoverageStoreInfo_CRUD() {
         CoverageStoreInfo store =
                 testData.createCoverageStore(
                         "coverageStoreCRUD",
@@ -292,7 +292,7 @@ public class StoreRepositoryTest
                 });
     }
 
-    public @Test void testWMSStoreInfo_CRUD() {
+    @Test void testWMSStoreInfo_CRUD() {
         WMSStoreInfo store =
                 testData.createWebMapServer(
                         "wmsStoreCRUD",
@@ -319,7 +319,7 @@ public class StoreRepositoryTest
                 });
     }
 
-    public @Test void testWMTSStoreInfo_CRUD() {
+    @Test void testWMTSStoreInfo_CRUD() {
         WMTSStoreInfo store =
                 testData.createWebMapTileServer(
                         "wmsStoreCRUD",
@@ -346,7 +346,7 @@ public class StoreRepositoryTest
                 });
     }
 
-    public @Test void testFindStoreById() throws IOException {
+    @Test void testFindStoreById() throws IOException {
         testFindById(testData.coverageStoreA);
         testFindById(testData.dataStoreA);
         testFindById(testData.dataStoreB);
@@ -354,14 +354,14 @@ public class StoreRepositoryTest
         testFindById(testData.wmtsStoreA);
     }
 
-    public @Test void testFindStoreById_SubtypeMismatch() throws IOException {
+    @Test void testFindStoreById_SubtypeMismatch() throws IOException {
         StoreRepository client = repository();
         assertTrue(client.findById(testData.coverageStoreA.getId(), DataStoreInfo.class).isEmpty());
         assertTrue(client.findById(testData.dataStoreA.getId(), CoverageStoreInfo.class).isEmpty());
         assertTrue(client.findById(testData.dataStoreB.getId(), CoverageStoreInfo.class).isEmpty());
     }
 
-    public @Test void testFindStoreByName() throws IOException {
+    @Test void testFindStoreByName() throws IOException {
         findStoreByName(testData.coverageStoreA);
         findStoreByName(testData.dataStoreA);
         findStoreByName(testData.dataStoreB);
@@ -375,7 +375,7 @@ public class StoreRepositoryTest
         assertCatalogInfoEquals(store, resolved);
     }
 
-    public @Test void testFindStoreByWorkspaceAndName() throws IOException {
+    @Test void testFindStoreByWorkspaceAndName() throws IOException {
         testFindStoreByWorkspaceAndName(testData.coverageStoreA, StoreInfo.class);
         testFindStoreByWorkspaceAndName(testData.coverageStoreA, CoverageStoreInfo.class);
 
@@ -402,7 +402,7 @@ public class StoreRepositoryTest
         assertEquals(store.getName(), found.getName());
     }
 
-    public @Test void testFindStoreByName_WrongWorkspace() throws IOException {
+    @Test void testFindStoreByName_WrongWorkspace() throws IOException {
         testFindStoreByName_WrongWorkspace(testData.coverageStoreA, testData.workspaceC);
         testFindStoreByName_WrongWorkspace(testData.dataStoreA, testData.workspaceC);
         testFindStoreByName_WrongWorkspace(testData.dataStoreB, testData.workspaceC);
@@ -415,7 +415,7 @@ public class StoreRepositoryTest
         assertTrue(repository().findByNameAndWorkspace(name, workspace, StoreInfo.class).isEmpty());
     }
 
-    public @Test void testFindStoresByWorkspace() {
+    @Test void testFindStoresByWorkspace() {
         testFindStoresByWorkspace(
                 testData.workspaceA,
                 testData.dataStoreA,

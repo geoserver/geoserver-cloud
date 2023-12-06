@@ -4,9 +4,11 @@
  */
 package org.geoserver.cloud.wcs;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
 import org.geoserver.cloud.virtualservice.VirtualServiceVerifier;
 import org.geoserver.ows.Dispatcher;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,13 +18,14 @@ import org.springframework.web.servlet.view.RedirectView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+@RequiredArgsConstructor
 public @Controller class WCSController {
 
-    private @Autowired Dispatcher geoserverDispatcher;
+    private final @NonNull Dispatcher geoserverDispatcher;
 
-    private @Autowired org.geoserver.ows.ClasspathPublisher classPathPublisher;
+    private final @NonNull org.geoserver.ows.ClasspathPublisher classPathPublisher;
 
-    private @Autowired VirtualServiceVerifier virtualServiceVerifier;
+    private final @NonNull VirtualServiceVerifier virtualServiceVerifier;
 
     @GetMapping("/")
     public RedirectView redirectRootToGetCapabilities() {

@@ -7,6 +7,8 @@ package org.geoserver.cloud.config.catalog.backend.jdbcconfig;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
+import lombok.EqualsAndHashCode;
+
 import org.geoserver.jdbcloader.DataSourceFactoryBean;
 import org.geoserver.jdbcstore.internal.JDBCResourceStoreProperties;
 import org.geoserver.jdbcstore.internal.JDBCResourceStorePropertiesFactoryBean;
@@ -25,13 +27,14 @@ import javax.sql.DataSource;
  * Extends {@link JDBCResourceStoreProperties} to not need a {@link
  * JDBCResourceStorePropertiesFactoryBean}
  */
+@EqualsAndHashCode(callSuper = true)
 public class CloudJdbcStoreProperties extends JDBCResourceStoreProperties {
     private static final long serialVersionUID = 1L;
 
     private static final String DEFAULT_CACHE_DIRECTORY =
             System.getProperty("java.io.tmpdir") + File.separator + "geoserver-jdbcconfig-cache";
 
-    private DataSource dataSource;
+    private transient DataSource dataSource;
 
     public CloudJdbcStoreProperties(DataSource dataSource) {
         super((JDBCResourceStorePropertiesFactoryBean) null);
@@ -49,12 +52,14 @@ public class CloudJdbcStoreProperties extends JDBCResourceStoreProperties {
      * Override to not save at all, the canonical source of config settings is the spring boot
      * configuration properties
      */
-    public @Override void save() throws IOException {
-        // factory.saveConfig(this);
+    @Override
+    public void save() throws IOException {
+        // no-op
     }
 
     /** Override to return {@code true} only if the db schema is not already created */
-    public @Override boolean isInitDb() {
+    @Override
+    public boolean isInitDb() {
         boolean initDb = Boolean.parseBoolean(getProperty("initdb", "false"));
         if (initDb) {
             try (Connection c = dataSource.getConnection();
@@ -66,7 +71,7 @@ public class CloudJdbcStoreProperties extends JDBCResourceStoreProperties {
                     // table not found, proceed with initialization
                 }
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                throw new IllegalStateException(e);
             }
         }
         return initDb;
@@ -76,7 +81,8 @@ public class CloudJdbcStoreProperties extends JDBCResourceStoreProperties {
      * Override to get the init script directly from the ones in the classpath (inside
      * gs-jdbcconfig.jar)
      */
-    public @Override Resource getInitScript() {
+    @Override
+    public Resource getInitScript() {
         final String driverClassName = getProperty("datasource.driverClassname");
         String scriptName;
         switch (driverClassName) {
@@ -99,15 +105,15 @@ public class CloudJdbcStoreProperties extends JDBCResourceStoreProperties {
                 JDBCResourceStoreProperties.class.getPackage().getName(),
                 scriptName);
 
-        Resource resource = org.geoserver.platform.resource.URIs.asResource(initScript);
-        return resource;
+        return org.geoserver.platform.resource.URIs.asResource(initScript);
     }
 
     /**
      * Override to throw an {@link UnsupportedOperationException}, we're not using {@link
      * DataSourceFactoryBean}, the datasource is provided by spring instead
      */
-    public @Override Optional<String> getJdbcUrl() {
+    @Override
+    public Optional<String> getJdbcUrl() {
         throw new UnsupportedOperationException(
                 "shouldn't be called, this module doesn't use org.geoserver.jdbcloader.DataSourceFactoryBean");
     }

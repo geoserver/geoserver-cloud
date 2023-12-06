@@ -30,17 +30,17 @@ class MetricsCatalogListener implements CatalogListener {
     public MetricsCatalogListener(@NonNull MeterRegistry registry, @Nullable String instanceId) {
 
         added =
-                counter("geoserver.catalog.added", instanceId, registry)
+                counter("geoserver.catalog.added", instanceId)
                         .description(
                                 "Number of CatalogInfo objects added to this instance's Catalog")
                         .register(registry);
         removed =
-                counter("geoserver.catalog.removed", instanceId, registry)
+                counter("geoserver.catalog.removed", instanceId)
                         .description(
                                 "Number of CatalogInfo objects removed on this instance's Catalog")
                         .register(registry);
         modified =
-                counter("geoserver.catalog.modified", instanceId, registry)
+                counter("geoserver.catalog.modified", instanceId)
                         .description(
                                 "Number of modifications to CatalogInfo objects on this instance's Catalog")
                         .register(registry);
@@ -52,7 +52,7 @@ class MetricsCatalogListener implements CatalogListener {
                         .register(registry);
     }
 
-    private Counter.Builder counter(String name, String instanceId, MeterRegistry registry) {
+    private Counter.Builder counter(String name, String instanceId) {
         Builder builder =
                 Counter.builder(name) //
                         .baseUnit(BaseUnits.OPERATIONS);
@@ -60,23 +60,28 @@ class MetricsCatalogListener implements CatalogListener {
         return builder;
     }
 
-    public @Override void handleAddEvent(CatalogAddEvent event) throws CatalogException {
+    @Override
+    public void handleAddEvent(CatalogAddEvent event) throws CatalogException {
         added.increment();
     }
 
-    public @Override void handleRemoveEvent(CatalogRemoveEvent event) {
+    @Override
+    public void handleRemoveEvent(CatalogRemoveEvent event) {
         removed.increment();
     }
 
-    public @Override void reloaded() {
+    @Override
+    public void reloaded() {
         reloads.increment();
     }
 
-    public @Override void handlePostModifyEvent(CatalogPostModifyEvent event) {
+    @Override
+    public void handlePostModifyEvent(CatalogPostModifyEvent event) {
         modified.increment();
     }
 
-    public @Override void handleModifyEvent(CatalogModifyEvent event) {
+    @Override
+    public void handleModifyEvent(CatalogModifyEvent event) {
         // no-op, see #handlePostModifyEvent
     }
 }

@@ -4,7 +4,6 @@
  */
 package org.geoserver.cloud.backend.pgsql.catalog.repository;
 
-import lombok.Getter;
 import lombok.NonNull;
 
 import org.geoserver.catalog.StyleInfo;
@@ -22,14 +21,21 @@ import java.util.stream.Stream;
 public class PgsqlStyleRepository extends PgsqlCatalogInfoRepository<StyleInfo>
         implements StyleRepository {
 
-    private final @Getter Class<StyleInfo> contentType = StyleInfo.class;
-    private final @Getter String queryTable = "styleinfos";
-
     /**
      * @param template
      */
     public PgsqlStyleRepository(@NonNull JdbcTemplate template) {
         super(template);
+    }
+
+    @Override
+    public Class<StyleInfo> getContentType() {
+        return StyleInfo.class;
+    }
+
+    @Override
+    protected String getQueryTable() {
+        return "styleinfos";
     }
 
     @Override

@@ -4,6 +4,8 @@
  */
 package org.geoserver.cloud.backend.pgsql.catalog.filter;
 
+import lombok.experimental.UtilityClass;
+
 import org.geotools.api.filter.ExcludeFilter;
 import org.geotools.api.filter.Id;
 import org.geotools.api.filter.IncludeFilter;
@@ -45,6 +47,7 @@ import org.geotools.filter.function.math.FilterFunction_floor;
 /**
  * @since 1.4
  */
+@UtilityClass
 class PgsqlFilterCapabilities {
 
     private static final FilterCapabilities INSTANCE = createFilterCapabilities();

@@ -97,64 +97,74 @@ public abstract class GeoServerConfigModuleTest {
         OwsUtils.resolveCollections(resolved);
         assertEquals(orig, resolved);
         testData.assertInternationalStringPropertiesEqual(orig, resolved);
-        if (orig instanceof SettingsInfo) {
+        if (orig instanceof SettingsInfo settings) {
             // SettingsInfoImpl's equals() doesn't check workspace
-            assertEquals(
-                    ((SettingsInfo) orig).getWorkspace(), ((SettingsInfo) resolved).getWorkspace());
+            assertEquals(settings.getWorkspace(), ((SettingsInfo) resolved).getWorkspace());
         }
     }
 
-    public @Test void geoServerInfo() throws Exception {
+    @Test
+    void geoServerInfo() throws Exception {
         GeoServerInfo global = testData.global;
         global.setJAI(null);
         roundtripTest(global);
     }
 
-    public @Test void settingsInfo() throws Exception {
+    @Test
+    void settingsInfo() throws Exception {
         roundtripTest(testData.workspaceASettings);
     }
 
-    public @Test void loggingInfo() throws Exception {
+    @Test
+    void loggingInfo() throws Exception {
         roundtripTest(testData.logging);
     }
 
-    public @Test void wmsServiceInfo() throws Exception {
+    @Test
+    void wmsServiceInfo() throws Exception {
         roundtripTest(testData.wmsService);
     }
 
-    public @Test void wcsServiceInfo() throws Exception {
+    @Test
+    void wcsServiceInfo() throws Exception {
         WCSInfo wcsService = testData.wcsService;
         // WCSInfoImpl.equals() is broken, set a value for this property to workaround it
         wcsService.setMaxRequestedDimensionValues(10);
         roundtripTest(wcsService);
     }
 
-    public @Test void wfsServiceInfo() throws Exception {
+    @Test
+    void wfsServiceInfo() throws Exception {
         WFSInfo wfs = testData.wfsService;
         wfs.getGML().put(WFSInfo.Version.V_10, testData.faker().gmlInfo());
         wfs.getGML().put(WFSInfo.Version.V_20, testData.faker().gmlInfo());
         roundtripTest(wfs);
     }
 
-    public @Test void wpsServiceInfo() throws Exception {
+    @Test
+    void wpsServiceInfo() throws Exception {
         roundtripTest(testData.wpsService);
     }
 
-    public @Test void wmtsServiceInfo() throws Exception {
+    @Test
+    void wmtsServiceInfo() throws Exception {
         WMTSInfo wmtsService = testData.faker().serviceInfo("wmts", WMTSInfoImpl::new);
         roundtripTest(wmtsService);
     }
 
-    public @Test void contactInfo() throws Exception {
+    @Test
+    void contactInfo() throws Exception {
         ContactInfo contact = testData.faker().contactInfo();
         roundtripTest(contact);
     }
 
-    public @Test void setingsInfo() throws Exception {
+    @Test
+    void setingsInfo() throws Exception {
         roundtripTest(testData.faker().settingsInfo(null));
     }
 
-    public @Test void setingsInfoWithWorkspace() throws Exception {
+    @Test
+    void setingsInfoWithWorkspace() throws Exception {
         SettingsInfo settings = testData.faker().settingsInfo(testData.workspaceA);
         roundtripTest(settings);
     }

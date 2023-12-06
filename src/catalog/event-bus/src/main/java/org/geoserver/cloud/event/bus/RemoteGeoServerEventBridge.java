@@ -33,7 +33,7 @@ public class RemoteGeoServerEventBridge {
     private boolean enabled = true;
 
     public RemoteGeoServerEventBridge( //
-            @NonNull Consumer<GeoServerEvent<?>> localRemoteEventPublisher, //
+            @NonNull Consumer<GeoServerEvent> localRemoteEventPublisher, //
             @NonNull Consumer<RemoteApplicationEvent> remoteEventPublisher, //
             @NonNull RemoteGeoServerEventMapper mapper, //
             @NonNull Supplier<String> localBusId) {
@@ -47,7 +47,7 @@ public class RemoteGeoServerEventBridge {
     }
 
     @EventListener(GeoServerEvent.class)
-    public void handleLocalEvent(GeoServerEvent<?> event) {
+    public void handleLocalEvent(GeoServerEvent event) {
         if (enabled) {
             outgoing.broadCastIfLocal(event);
         }
@@ -67,7 +67,7 @@ public class RemoteGeoServerEventBridge {
         private final @NonNull RemoteGeoServerEventMapper mapper;
         private @NonNull Supplier<String> localBusId;
 
-        public void broadCastIfLocal(GeoServerEvent<?> event) throws CatalogException {
+        public void broadCastIfLocal(GeoServerEvent event) throws CatalogException {
 
             if (event.isLocal()) {
                 RemoteGeoServerEvent remote = mapper.toRemote(event);
@@ -88,10 +88,10 @@ public class RemoteGeoServerEventBridge {
         }
 
         protected void logOutgoing(RemoteGeoServerEvent remoteEvent) {
-            @NonNull GeoServerEvent<?> event = remoteEvent.getEvent();
+            @NonNull GeoServerEvent event = remoteEvent.getEvent();
             String logMsg = "{}: broadcasting {}";
-            if (event instanceof InfoModified) {
-                Patch patch = ((InfoModified<?, ?>) event).getPatch();
+            if (event instanceof InfoModified<?> modEvent) {
+                Patch patch = modEvent.getPatch();
                 if (patch.isEmpty()) {
                     logMsg = "{}: broadcasting no-change event {}";
                 }
@@ -105,7 +105,7 @@ public class RemoteGeoServerEventBridge {
     @Slf4j(topic = "org.geoserver.cloud.event.bus.incoming")
     private static class Incoming {
 
-        private final @NonNull Consumer<GeoServerEvent<?>> localRemoteEventPublisher;
+        private final @NonNull Consumer<GeoServerEvent> localRemoteEventPublisher;
 
         private final @NonNull RemoteGeoServerEventMapper mapper;
         private @NonNull Supplier<String> localBusId;
@@ -123,7 +123,7 @@ public class RemoteGeoServerEventBridge {
 
         private void publishLocalEvent(RemoteGeoServerEvent incoming) {
             log.trace("Received remote event {}", incoming);
-            GeoServerEvent<?> localRemoteEvent = mapper.toLocalRemote(incoming);
+            GeoServerEvent localRemoteEvent = mapper.toLocalRemote(incoming);
             log.debug("{}: publishing as local event {}", localBusId.get(), incoming);
             try {
                 localRemoteEventPublisher.accept(localRemoteEvent);

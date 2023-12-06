@@ -79,9 +79,9 @@ public abstract class LockingSupport {
                         },
                         reason);
             } catch (Exception e) {
-                if (e instanceof IOException) throw new UncheckedIOException((IOException) e);
-                if (e instanceof RuntimeException) throw (RuntimeException) e;
-                throw new RuntimeException(e);
+                if (e instanceof IOException ioe) throw new UncheckedIOException(ioe);
+                if (e instanceof RuntimeException rte) throw rte;
+                throw new IllegalStateException(e);
             }
         }
 
@@ -92,7 +92,7 @@ public abstract class LockingSupport {
                 return action.call();
             } catch (Exception e) {
                 if (exceptionType.isInstance(e)) throw exceptionType.cast(e);
-                throw new RuntimeException(e);
+                throw new IllegalStateException(e);
             } finally {
                 unlock(reason);
             }
@@ -101,26 +101,28 @@ public abstract class LockingSupport {
 
     private static class Calling extends LockingSupport {
 
-        public @Override void runInWriteLock(Runnable action, String reason) {
+        @Override
+        public void runInWriteLock(Runnable action, String reason) {
             action.run();
         }
 
-        public @Override <V, E extends Exception> V callInWriteLock(
+        @Override
+        public <V, E extends Exception> V callInWriteLock(
                 Class<E> exceptionType, Callable<V> action, String reason) throws E {
 
             try {
                 return action.call();
             } catch (Exception e) {
                 if (exceptionType.isInstance(e)) throw exceptionType.cast(e);
-                throw new RuntimeException(e);
+                throw new IllegalStateException(e);
             }
         }
     }
 
     public static String nameOf(Info object) {
         if (null == object) return null;
-        if (object instanceof SettingsInfo) {
-            WorkspaceInfo ws = ((SettingsInfo) object).getWorkspace();
+        if (object instanceof SettingsInfo settings) {
+            WorkspaceInfo ws = settings.getWorkspace();
             if (ws != null) return ws.getName();
         }
         String property = object instanceof NamespaceInfo ? "prefix" : "name";

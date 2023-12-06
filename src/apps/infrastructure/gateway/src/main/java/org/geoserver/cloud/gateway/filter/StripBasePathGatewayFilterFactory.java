@@ -44,9 +44,6 @@ public class StripBasePathGatewayFilterFactory
 
             final String basePath = config.getPrefix();
             final String path = request.getURI().getRawPath();
-            // if (basePath.equals(path)) {
-            // return chain.filter(exchange);
-            // }
 
             final int partsToRemove = resolvePartsToStrip(basePath, path);
             if (partsToRemove == 0) {
@@ -77,9 +74,6 @@ public class StripBasePathGatewayFilterFactory
         private String prefix;
 
         public void checkPreconditions() {
-            final String prefix = getPrefix();
-
-            // requireNonNull(prefix, "StripBasePath prefix can't be null");
             if (prefix != null) {
                 checkArgument(prefix.startsWith("/"), "StripBasePath prefix must start with /");
 

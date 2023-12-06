@@ -64,7 +64,8 @@ public class CloudGeoServerSecurityManager extends GeoServerSecurityManager {
         super.setProviders(providers);
     }
 
-    public @Override void reload() {
+    @Override
+    public void reload() {
         if (reloading.compareAndSet(false, true)) {
             changedDuringReload = false;
             try {
@@ -111,49 +112,55 @@ public class CloudGeoServerSecurityManager extends GeoServerSecurityManager {
     }
 
     /** Override to {@link #fireChanged fire} a remote {@link SecurityConfigChanged} */
-    public @Override void saveRoleService(SecurityRoleServiceConfig config)
+    @Override
+    public void saveRoleService(SecurityRoleServiceConfig config)
             throws IOException, SecurityConfigException {
         super.saveRoleService(config);
         fireRemoteChangedEvent("SecurityRoleServiceConfig changed");
     }
 
     /** Override to {@link #fireChanged fire} a remote {@link SecurityConfigChanged} */
-    public @Override void savePasswordPolicy(PasswordPolicyConfig config)
+    @Override
+    public void savePasswordPolicy(PasswordPolicyConfig config)
             throws IOException, SecurityConfigException {
         super.savePasswordPolicy(config);
         fireRemoteChangedEvent("PasswordPolicyConfig changed");
     }
 
     /** Override to {@link #fireChanged fire} a remote {@link SecurityConfigChanged} */
-    public @Override void saveUserGroupService(SecurityUserGroupServiceConfig config)
+    @Override
+    public void saveUserGroupService(SecurityUserGroupServiceConfig config)
             throws IOException, SecurityConfigException {
         super.saveUserGroupService(config);
         fireRemoteChangedEvent("SecurityUserGroupServiceConfig changed");
     }
 
     /** Override to {@link #fireChanged fire} a remote {@link SecurityConfigChanged} */
-    public @Override void saveAuthenticationProvider(SecurityAuthProviderConfig config)
+    @Override
+    public void saveAuthenticationProvider(SecurityAuthProviderConfig config)
             throws IOException, SecurityConfigException {
         super.saveAuthenticationProvider(config);
         fireRemoteChangedEvent("SecurityAuthProviderConfig changed");
     }
 
     /** Override to {@link #fireChanged fire} a remote {@link SecurityConfigChanged} */
-    public @Override void saveFilter(SecurityNamedServiceConfig config)
+    @Override
+    public void saveFilter(SecurityNamedServiceConfig config)
             throws IOException, SecurityConfigException {
         super.saveFilter(config);
         fireRemoteChangedEvent("SecurityNamedServiceConfig changed");
     }
 
     /** Override to {@link #fireChanged fire} a remote {@link SecurityConfigChanged} */
-    public @Override synchronized void saveSecurityConfig(SecurityManagerConfig config)
-            throws Exception {
+    @Override
+    public synchronized void saveSecurityConfig(SecurityManagerConfig config) throws Exception {
         super.saveSecurityConfig(config);
         fireRemoteChangedEvent("SecurityManagerConfig changed");
     }
 
     /** Override to {@link #fireChanged fire} a remote {@link SecurityConfigChanged} */
-    public @Override synchronized void saveMasterPasswordConfig(
+    @Override
+    public synchronized void saveMasterPasswordConfig(
             MasterPasswordConfig config,
             char[] currPasswd,
             char[] newPasswd,
@@ -164,13 +171,15 @@ public class CloudGeoServerSecurityManager extends GeoServerSecurityManager {
     }
 
     /** Override to {@link #fireChanged fire} a remote {@link SecurityConfigChanged} */
-    public @Override void saveMasterPasswordConfig(MasterPasswordConfig config) throws IOException {
+    @Override
+    public void saveMasterPasswordConfig(MasterPasswordConfig config) throws IOException {
         super.saveMasterPasswordConfig(config);
         fireRemoteChangedEvent("MasterPasswordConfig changed");
     }
 
     /** Override to {@link #fireChanged fire} a remote {@link SecurityConfigChanged} */
-    public @Override void saveMasterPasswordProviderConfig(MasterPasswordProviderConfig config)
+    @Override
+    public void saveMasterPasswordProviderConfig(MasterPasswordProviderConfig config)
             throws IOException, SecurityConfigException {
         super.saveMasterPasswordProviderConfig(config);
         fireRemoteChangedEvent("MasterPasswordProviderConfig changed");

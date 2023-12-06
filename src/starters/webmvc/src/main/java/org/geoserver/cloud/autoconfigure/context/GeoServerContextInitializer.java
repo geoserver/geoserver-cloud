@@ -55,7 +55,8 @@ public class GeoServerContextInitializer
     protected ServletContext mockServletContext() {
         InvocationHandler handler =
                 new InvocationHandler() {
-                    public @Override Object invoke(Object proxy, Method method, Object[] args)
+                    @Override
+                    public Object invoke(Object proxy, Method method, Object[] args)
                             throws Throwable {
                         return null;
                     }

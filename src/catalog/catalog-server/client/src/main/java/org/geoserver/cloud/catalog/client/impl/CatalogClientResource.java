@@ -26,7 +26,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /** */
 @AllArgsConstructor
@@ -35,23 +34,28 @@ class CatalogClientResource implements Resource {
     private @NonNull ReactiveResourceStoreClient.ResourceDescriptor descriptor;
     private @NonNull CatalogClientResourceStore store;
 
-    public @Override String path() {
+    @Override
+    public String path() {
         return descriptor.getPath();
     }
 
-    public @Override void addListener(ResourceListener listener) {
+    @Override
+    public void addListener(ResourceListener listener) {
         store.getResourceNotificationDispatcher().addListener(path(), listener);
     }
 
-    public @Override void removeListener(ResourceListener listener) {
+    @Override
+    public void removeListener(ResourceListener listener) {
         store.getResourceNotificationDispatcher().removeListener(path(), listener);
     }
 
-    public @Override String name() {
+    @Override
+    public String name() {
         return Paths.get(path()).getFileName().toString();
     }
 
-    public @Override Lock lock() {
+    @Override
+    public Lock lock() {
         return store.getLockProvider().acquire(path());
     }
 
@@ -64,16 +68,19 @@ class CatalogClientResource implements Resource {
         }
     }
 
-    public @Override byte[] getContents() throws IOException {
+    @Override
+    public byte[] getContents() throws IOException {
         org.springframework.core.io.Resource contents = store.getFileContent(path());
         return toByteArray(contents);
     }
 
-    public @Override void setContents(byte[] contents) throws IOException {
+    @Override
+    public void setContents(byte[] contents) throws IOException {
         store.put(path(), ByteBuffer.wrap(contents));
     }
 
-    public @Override InputStream in() {
+    @Override
+    public InputStream in() {
         try {
             return new ByteArrayInputStream(getContents());
         } catch (IOException e) {
@@ -81,28 +88,34 @@ class CatalogClientResource implements Resource {
         }
     }
 
-    public @Override OutputStream out() {
+    @Override
+    public OutputStream out() {
         return new ByteArrayOutputStream() {
-            public @Override void close() throws IOException {
+            @Override
+            public void close() throws IOException {
                 ByteBuffer buff = ByteBuffer.wrap(super.buf, 0, super.count);
                 store.put(path(), buff);
             }
         };
     }
 
-    public @Override File file() {
+    @Override
+    public File file() {
         return store.file(this);
     }
 
-    public @Override File dir() {
+    @Override
+    public File dir() {
         return store.dir(this);
     }
 
-    public @Override long lastmodified() {
+    @Override
+    public long lastmodified() {
         return descriptor.getLastModified();
     }
 
-    public @Override Resource parent() {
+    @Override
+    public Resource parent() {
         Path parentPath = Paths.get(path()).getParent();
         if (null == parentPath) {
             parentPath = Paths.get(org.geoserver.platform.resource.Paths.BASE); // root
@@ -110,7 +123,8 @@ class CatalogClientResource implements Resource {
         return store.get(parentPath.toString());
     }
 
-    public @Override Resource get(final String childName) {
+    @Override
+    public Resource get(final String childName) {
         Objects.requireNonNull(childName, "Resource path required");
         if ("".equals(childName)) {
             return this;
@@ -120,15 +134,18 @@ class CatalogClientResource implements Resource {
         return store.get(child.toString());
     }
 
-    public @Override List<Resource> list() {
-        return store.list(path()).collect(Collectors.toList());
+    @Override
+    public List<Resource> list() {
+        return store.list(path()).map(Resource.class::cast).toList();
     }
 
-    public @Override Type getType() {
+    @Override
+    public Type getType() {
         return descriptor.getType();
     }
 
-    public @Override boolean delete() {
+    @Override
+    public boolean delete() {
         boolean removed = store.remove(path());
         if (removed) {
             this.descriptor.setType(Type.UNDEFINED);
@@ -136,7 +153,8 @@ class CatalogClientResource implements Resource {
         return removed;
     }
 
-    public @Override boolean renameTo(Resource dest) {
+    @Override
+    public boolean renameTo(Resource dest) {
         boolean moved = store.move(path(), dest.path());
         if (moved) {
             this.descriptor = store.get(dest.path()).getDescriptor();
@@ -150,7 +168,8 @@ class CatalogClientResource implements Resource {
         return this.descriptor;
     }
 
-    public @Override String toString() {
+    @Override
+    public String toString() {
         return String.format(
                 "%s[path: %s, type: %s, lastModified: %s, lockProvider: %s]",
                 getClass().getSimpleName(),

@@ -40,8 +40,8 @@ import java.util.function.Function;
 @SuppressWarnings("serial")
 public class LockingCatalog extends CatalogPlugin {
 
-    private final GeoServerConfigurationLock configurationLock;
-    private LockingSupport locking;
+    private final transient GeoServerConfigurationLock configurationLock;
+    private transient LockingSupport locking;
 
     public LockingCatalog(@NonNull GeoServerConfigurationLock configurationLock) {
         super();
@@ -79,8 +79,8 @@ public class LockingCatalog extends CatalogPlugin {
         this.locking = LockingSupport.ignoringLocking();
     }
 
-    public @Override void setDefaultDataStore(
-            @NonNull WorkspaceInfo workspace, DataStoreInfo store) {
+    @Override
+    public void setDefaultDataStore(@NonNull WorkspaceInfo workspace, DataStoreInfo store) {
         locking.runInWriteLock(
                 () -> super.setDefaultDataStore(workspace, store),
                 format(
@@ -88,7 +88,8 @@ public class LockingCatalog extends CatalogPlugin {
                         workspace.getName(), store == null ? "null" : store.getName()));
     }
 
-    public @Override void setDefaultNamespace(NamespaceInfo defaultNamespace) {
+    @Override
+    public void setDefaultNamespace(NamespaceInfo defaultNamespace) {
         locking.runInWriteLock(
                 () -> super.setDefaultNamespace(defaultNamespace),
                 format(
@@ -96,7 +97,8 @@ public class LockingCatalog extends CatalogPlugin {
                         defaultNamespace == null ? "null" : defaultNamespace.getName()));
     }
 
-    public @Override void setDefaultWorkspace(WorkspaceInfo defaultWorkspace) {
+    @Override
+    public void setDefaultWorkspace(WorkspaceInfo defaultWorkspace) {
         locking.runInWriteLock(
                 () -> super.setDefaultWorkspace(defaultWorkspace),
                 format(
@@ -126,7 +128,8 @@ public class LockingCatalog extends CatalogPlugin {
 
     // TODO: Remove once CatalogPlugin moves the namespace update logic to
     // validationrules.onBefore/AfterSave and just call doSave(store)
-    public @Override void save(StoreInfo store) {
+    @Override
+    public void save(StoreInfo store) {
         locking.runInWriteLock(
                 () -> super.save(store), format("save(%s[%s])", typeOf(store), nameOf(store)));
     }

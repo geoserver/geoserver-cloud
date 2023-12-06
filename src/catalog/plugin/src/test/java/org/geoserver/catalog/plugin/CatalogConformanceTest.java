@@ -283,7 +283,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testAddNamespace() {
+    void testAddNamespace() {
         assertTrue(catalog.getNamespaces().isEmpty());
         catalog.add(data.namespaceA);
         assertEquals(1, catalog.getNamespaces().size());
@@ -322,7 +322,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testAddIsolatedNamespace() {
+    void testAddIsolatedNamespace() {
         // create non isolated namespace
         NamespaceInfoImpl namespace1 = new NamespaceInfoImpl();
         namespace1.setPrefix("isolated_namespace_1");
@@ -366,7 +366,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testRemoveNamespace() {
+    void testRemoveNamespace() {
         catalog.add(data.namespaceA);
         assertEquals(1, catalog.getNamespaces().size());
 
@@ -381,7 +381,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testGetNamespaceById() {
+    void testGetNamespaceById() {
         catalog.add(data.namespaceA);
         NamespaceInfo ns2 = catalog.getNamespace(data.namespaceA.getId());
 
@@ -391,7 +391,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testGetNamespaceByPrefix() {
+    void testGetNamespaceByPrefix() {
         catalog.add(data.namespaceA);
 
         NamespaceInfo ns2 = catalog.getNamespaceByPrefix(data.namespaceA.getPrefix());
@@ -411,7 +411,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testGetNamespaceByURI() {
+    void testGetNamespaceByURI() {
         catalog.add(data.namespaceA);
         NamespaceInfo ns2 = catalog.getNamespaceByURI(data.namespaceA.getURI());
 
@@ -421,7 +421,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testSetDefaultNamespaceInvalid() {
+    void testSetDefaultNamespaceInvalid() {
         try {
             catalog.setDefaultNamespace(data.namespaceA);
             fail("Default namespace must exist in catalog");
@@ -431,7 +431,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testModifyNamespace() {
+    void testModifyNamespace() {
         catalog.add(data.namespaceA);
 
         NamespaceInfo ns2 = catalog.getNamespaceByPrefix(data.namespaceA.getPrefix());
@@ -466,7 +466,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testNamespaceEvents() {
+    void testNamespaceEvents() {
         TestListener l = new TestListener();
         catalog.addListener(l);
 
@@ -508,7 +508,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testAddWorkspace() {
+    void testAddWorkspace() {
         assertTrue(catalog.getWorkspaces().isEmpty());
         catalog.add(data.workspaceA);
         assertEquals(1, catalog.getWorkspaces().size());
@@ -532,7 +532,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testRemoveWorkspace() {
+    void testRemoveWorkspace() {
         catalog.add(data.workspaceA);
         assertEquals(1, catalog.getWorkspaces().size());
 
@@ -547,7 +547,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testAddIsolatedWorkspace() {
+    void testAddIsolatedWorkspace() {
         // create isolated workspace
         WorkspaceInfoImpl workspace = new WorkspaceInfoImpl();
         workspace.setName("isolated_workspace");
@@ -565,7 +565,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testAutoSetDefaultWorkspace() {
+    void testAutoSetDefaultWorkspace() {
         catalog.add(data.workspaceA);
         assertEquals(1, catalog.getWorkspaces().size());
         assertEquals(data.workspaceA, catalog.getDefaultWorkspace());
@@ -573,7 +573,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testRemoveDefaultWorkspace() {
+    void testRemoveDefaultWorkspace() {
         catalog.add(data.workspaceA);
         assertNotNull(catalog.getDefaultWorkspace());
         catalog.remove(data.workspaceA);
@@ -581,7 +581,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testAutoCascadeDefaultWorksapce() {
+    void testAutoCascadeDefaultWorksapce() {
         CatalogFactory factory = catalog.getFactory();
         WorkspaceInfo ws1 = factory.createWorkspace();
         ws1.setName("ws1Name");
@@ -595,21 +595,21 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testAutoSetDefaultNamespace() {
+    void testAutoSetDefaultNamespace() {
         catalog.add(data.namespaceA);
         assertEquals(1, catalog.getNamespaces().size());
         assertEquals(data.namespaceA, catalog.getDefaultNamespace());
     }
 
     @Test
-    public void testRemoveDefaultNamespace() {
+    void testRemoveDefaultNamespace() {
         catalog.add(data.namespaceA);
         catalog.remove(data.namespaceA);
         assertNull(catalog.getDefaultNamespace());
     }
 
     @Test
-    public void testAutoCascadeDefaultNamespace() {
+    void testAutoCascadeDefaultNamespace() {
         CatalogFactory factory = catalog.getFactory();
         NamespaceInfo ns1 = factory.createNamespace();
         ns1.setPrefix("1");
@@ -625,7 +625,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testAutoSetDefaultStore() {
+    void testAutoSetDefaultStore() {
         catalog.add(data.workspaceA);
         catalog.add(data.dataStoreA);
         assertEquals(1, catalog.getDataStores().size());
@@ -633,7 +633,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testRemoveDefaultStore() {
+    void testRemoveDefaultStore() {
         catalog.add(data.workspaceA);
         catalog.add(data.dataStoreA);
         catalog.remove(data.dataStoreA);
@@ -641,7 +641,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testGetWorkspaceById() {
+    void testGetWorkspaceById() {
         catalog.add(data.workspaceA);
         WorkspaceInfo ws2 = catalog.getWorkspace(data.workspaceA.getId());
 
@@ -651,7 +651,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testGetWorkspaceByName() {
+    void testGetWorkspaceByName() {
         catalog.add(data.workspaceA);
         WorkspaceInfo ws2 = catalog.getWorkspaceByName(data.workspaceA.getName());
 
@@ -671,7 +671,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testSetDefaultWorkspaceInvalid() {
+    void testSetDefaultWorkspaceInvalid() {
         try {
             catalog.setDefaultWorkspace(data.workspaceA);
             fail("Default workspace must exist in catalog");
@@ -681,7 +681,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testModifyWorkspace() {
+    void testModifyWorkspace() {
         catalog.add(data.workspaceA);
 
         WorkspaceInfo ws2 = catalog.getWorkspaceByName(data.workspaceA.getName());
@@ -704,7 +704,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testWorkspaceEvents() {
+    void testWorkspaceEvents() {
         TestListener l = new TestListener();
         catalog.addListener(l);
 
@@ -740,7 +740,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testAddDataStore() {
+    void testAddDataStore() {
         assertTrue(catalog.getDataStores().isEmpty());
 
         data.dataStoreA.setWorkspace(null);
@@ -781,7 +781,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testAddDataStoreDefaultWorkspace() {
+    void testAddDataStoreDefaultWorkspace() {
         catalog.add(data.workspaceA);
         catalog.setDefaultWorkspace(data.workspaceA);
 
@@ -793,7 +793,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testRemoveDataStore() {
+    void testRemoveDataStore() {
         addDataStore();
         assertEquals(1, catalog.getDataStores().size());
 
@@ -808,7 +808,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testGetDataStoreById() {
+    void testGetDataStoreById() {
         addDataStore();
 
         DataStoreInfo ds2 = catalog.getDataStore(data.dataStoreA.getId());
@@ -819,7 +819,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testGetDataStoreByName() {
+    void testGetDataStoreByName() {
         addDataStore();
 
         DataStoreInfo ds2 = catalog.getDataStoreByName(data.dataStoreA.getName());
@@ -845,7 +845,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testGetStoreByName() {
+    void testGetStoreByName() {
         addDataStore();
 
         StoreInfo ds2 = catalog.getStoreByName(data.dataStoreA.getName(), StoreInfo.class);
@@ -881,7 +881,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testModifyDataStore() {
+    void testModifyDataStore() {
         addDataStore();
 
         DataStoreInfo ds2 = catalog.getDataStoreByName(data.dataStoreA.getName());
@@ -900,13 +900,13 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testChangeDataStoreWorkspace_no_resources() throws Exception {
+    void testChangeDataStoreWorkspace_no_resources() throws Exception {
         addDataStore();
         testChangeStoreWorkspace(data.dataStoreA);
     }
 
     @Test
-    public void testChangeDataStoreWorkspaceUpdatesResourcesNamespace() throws Exception {
+    void testChangeDataStoreWorkspaceUpdatesResourcesNamespace() throws Exception {
         addFeatureType();
         DataStoreInfo store = data.dataStoreA;
         StoreInfo updated = testChangeStoreWorkspace(store);
@@ -914,7 +914,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testChangeCoverageStoreWorkspaceUpdatesResourcesNamespace() throws Exception {
+    void testChangeCoverageStoreWorkspaceUpdatesResourcesNamespace() throws Exception {
         addCoverage();
         StoreInfo store = data.coverageStoreA;
         StoreInfo updated = testChangeStoreWorkspace(store);
@@ -922,7 +922,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testChangeWMSStoreWorkspaceUpdatesResourcesNamespace() throws Exception {
+    void testChangeWMSStoreWorkspaceUpdatesResourcesNamespace() throws Exception {
         addWMSLayer();
         StoreInfo store = data.wmsStoreA;
         StoreInfo updated = testChangeStoreWorkspace(store);
@@ -930,7 +930,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testChangeWTMSStoreWorkspaceUpdatesResourcesNamespace() throws Exception {
+    void testChangeWTMSStoreWorkspaceUpdatesResourcesNamespace() throws Exception {
         addWMTSLayer();
         StoreInfo store = data.wmtsStoreA;
         StoreInfo updated = testChangeStoreWorkspace(store);
@@ -938,7 +938,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testChangeDataStoreWorkspace_fails_on_no_matching_namespace() throws Exception {
+    void testChangeDataStoreWorkspace_fails_on_no_matching_namespace() throws Exception {
         addDataStore();
 
         WorkspaceInfo ws2 = addWorkspace("newWorkspace");
@@ -956,8 +956,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testSaveDataStoreRollbacksStoreWhenFailsToUpdateResourcesNamespace()
-            throws Exception {
+    void testSaveDataStoreRollbacksStoreWhenFailsToUpdateResourcesNamespace() throws Exception {
         Assumptions.assumeTrue(catalog instanceof CatalogPlugin);
         addFeatureType();
 
@@ -995,7 +994,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testSaveDataStoreRollbacksBothStoreAndResources() throws Exception {
+    protected void testSaveDataStoreRollbacksBothStoreAndResources() throws Exception {
         Assumptions.assumeTrue(catalog instanceof CatalogPlugin);
         addFeatureType();
 
@@ -1077,7 +1076,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testDataStoreEvents() {
+    void testDataStoreEvents() {
         addWorkspace();
 
         TestListener l = new TestListener();
@@ -1129,7 +1128,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testAddFeatureType() {
+    void testAddFeatureType() {
         assertTrue(catalog.getFeatureTypes().isEmpty());
 
         addFeatureType();
@@ -1167,7 +1166,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testAddCoverage() {
+    void testAddCoverage() {
         // set a default namespace
         assertNotNull(catalog.getCoverages());
         assertTrue(catalog.getCoverages().isEmpty());
@@ -1209,7 +1208,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testAddWMSLayer() {
+    void testAddWMSLayer() {
         // set a default namespace
         assertTrue(catalog.getResources(WMSLayerInfo.class).isEmpty());
         addWMSLayer();
@@ -1217,14 +1216,14 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testAddWMTSLayer() {
+    void testAddWMTSLayer() {
         assertTrue(catalog.getResources(WMTSLayerInfo.class).isEmpty());
         addWMTSLayer();
         assertEquals(1, catalog.getResources(WMTSLayerInfo.class).size());
     }
 
     @Test
-    public void testRemoveFeatureType() {
+    void testRemoveFeatureType() {
         addFeatureType();
         assertFalse(catalog.getFeatureTypes().isEmpty());
 
@@ -1239,7 +1238,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testRemoveWMSLayer() {
+    void testRemoveWMSLayer() {
         addWMSLayer();
         assertFalse(catalog.getResources(WMSLayerInfo.class).isEmpty());
 
@@ -1248,7 +1247,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testRemoveWMTSLayer() {
+    void testRemoveWMTSLayer() {
         addWMTSLayer();
         assertFalse(catalog.getResources(WMTSLayerInfo.class).isEmpty());
 
@@ -1257,7 +1256,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testGetFeatureTypeById() {
+    void testGetFeatureTypeById() {
         addFeatureType();
         FeatureTypeInfo ft2 = catalog.getFeatureType(data.featureTypeA.getId());
 
@@ -1268,7 +1267,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testGetFeatureTypeByName() {
+    void testGetFeatureTypeByName() {
         addFeatureType();
         FeatureTypeInfo ft2 = catalog.getFeatureTypeByName(data.featureTypeA.getName());
 
@@ -1300,7 +1299,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testGetFeatureTypesByStore() {
+    void testGetFeatureTypesByStore() {
         catalog.add(data.namespaceA);
         catalog.add(data.workspaceA);
 
@@ -1343,7 +1342,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testModifyFeatureType() {
+    void testModifyFeatureType() {
         addFeatureType();
 
         FeatureTypeInfo ft2 = catalog.getFeatureTypeByName(data.featureTypeA.getName());
@@ -1363,7 +1362,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testModifyMetadataLinks() {
+    void testModifyMetadataLinks() {
         addFeatureType();
 
         FeatureTypeInfo ft2 = catalog.getFeatureTypeByName(data.featureTypeA.getName());
@@ -1392,7 +1391,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testModifyDataLinks() {
+    void testModifyDataLinks() {
         addFeatureType();
 
         FeatureTypeInfo ft2 = catalog.getFeatureTypeByName(data.featureTypeA.getName());
@@ -1420,7 +1419,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testFeatureTypeEvents() {
+    void testFeatureTypeEvents() {
         // set default namespace
         addNamespace();
         addDataStore();
@@ -1461,7 +1460,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testModifyMetadata() {
+    void testModifyMetadata() {
         // set default namespace
         addNamespace();
         addDataStore();
@@ -1492,7 +1491,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testAddLayer() {
+    void testAddLayer() {
         assertTrue(catalog.getLayers().isEmpty());
         addLayer();
 
@@ -1533,7 +1532,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testGetLayerById() {
+    void testGetLayerById() {
         addLayer();
 
         LayerInfo l2 = catalog.getLayer(data.layerFeatureTypeA.getId());
@@ -1543,12 +1542,11 @@ public abstract class CatalogConformanceTest {
         assertSame(catalog, l2.getResource().getCatalog());
         StyleInfo defaultStyle = l2.getDefaultStyle();
         defaultStyle = ModificationProxy.unwrap(defaultStyle);
-        if (defaultStyle instanceof StyleInfoImpl)
-            assertSame(catalog, ((StyleInfoImpl) defaultStyle).getCatalog());
+        if (defaultStyle instanceof StyleInfoImpl impl) assertSame(catalog, impl.getCatalog());
     }
 
     @Test
-    public void testGetLayerByName() {
+    void testGetLayerByName() {
         addLayer();
 
         LayerInfo l2 = catalog.getLayerByName(data.layerFeatureTypeA.getName());
@@ -1558,7 +1556,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testGetLayerByNameWithoutColon() {
+    void testGetLayerByNameWithoutColon() {
         // create two workspaces
         catalog.add(data.namespaceB);
         catalog.add(data.namespaceC);
@@ -1648,7 +1646,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testGetLayerByNameWithColon() {
+    void testGetLayerByNameWithColon() {
         addNamespace();
         addDataStore();
         FeatureTypeInfo ft = catalog.getFactory().createFeatureType();
@@ -1673,7 +1671,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testGetLayerByResource() {
+    void testGetLayerByResource() {
         addLayer();
 
         List<LayerInfo> layers = catalog.getLayers(data.featureTypeA);
@@ -1685,7 +1683,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testRemoveLayer() {
+    void testRemoveLayer() {
         addLayer();
         assertEquals(1, catalog.getLayers().size());
 
@@ -1694,7 +1692,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testRemoveLayerAndAssociatedDataRules() throws IOException {
+    void testRemoveLayerAndAssociatedDataRules() throws IOException {
         DataAccessRuleDAO dao = this.dataAccessRuleDAO;
         CatalogListener listener = new SecuredResourceNameChangeListener(catalog, dao);
         addLayer();
@@ -1724,7 +1722,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testModifyLayer() {
+    void testModifyLayer() {
         addLayer();
 
         LayerInfo l2 = catalog.getLayerByName(data.layerFeatureTypeA.getName());
@@ -1757,7 +1755,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testModifyLayerDefaultStyle() {
+    void testModifyLayerDefaultStyle() {
         // create new style
         CatalogFactory factory = catalog.getFactory();
         StyleInfo s2 = factory.createStyle();
@@ -1778,7 +1776,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testEnableLayer() {
+    void testEnableLayer() {
         addLayer();
 
         LayerInfo l2 = catalog.getLayerByName(data.layerFeatureTypeA.getName());
@@ -1799,7 +1797,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testLayerEvents() {
+    void testLayerEvents() {
         addFeatureType();
         addStyle();
 
@@ -1834,7 +1832,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testAddStyle() {
+    void testAddStyle() {
         assertTrue(catalog.getStyles().isEmpty());
 
         addStyle();
@@ -1866,7 +1864,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testAddStyleWithNameConflict() throws Exception {
+    void testAddStyleWithNameConflict() throws Exception {
         addWorkspace();
         addStyle();
 
@@ -1909,7 +1907,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testGetStyleById() {
+    void testGetStyleById() {
         addStyle();
 
         StyleInfo s2 = catalog.getStyle(data.style1.getId());
@@ -1919,7 +1917,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testGetStyleByName() {
+    void testGetStyleByName() {
         addStyle();
 
         StyleInfo s2 = catalog.getStyleByName(data.style1.getName());
@@ -1929,7 +1927,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testGetStyleByNameWithWorkspace() {
+    void testGetStyleByNameWithWorkspace() {
         addWorkspace();
         addStyle();
 
@@ -1950,7 +1948,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testGetStyleByNameWithWorkspace2() throws Exception {
+    void testGetStyleByNameWithWorkspace2() throws Exception {
         addWorkspace();
 
         WorkspaceInfo ws2 = catalog.getFactory().createWorkspace();
@@ -1980,7 +1978,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testGetStyles() {
+    void testGetStyles() {
         addWorkspace();
         addStyle();
 
@@ -2002,7 +2000,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testModifyStyle() {
+    void testModifyStyle() {
         addStyle();
 
         StyleInfo s2 = catalog.getStyleByName(data.style1.getName());
@@ -2037,7 +2035,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testModifyDefaultStyle() {
+    void testModifyDefaultStyle() {
         addWorkspace();
         addDefaultStyle();
         StyleInfo s = catalog.getStyleByName(StyleInfo.DEFAULT_LINE);
@@ -2060,7 +2058,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testRemoveStyle() {
+    void testRemoveStyle() {
         addStyle();
         assertEquals(1, catalog.getStyles().size());
 
@@ -2069,7 +2067,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testRemoveDefaultStyle() {
+    void testRemoveDefaultStyle() {
         addWorkspace();
         addDefaultStyle();
         StyleInfo s = catalog.getStyleByName(StyleInfo.DEFAULT_LINE);
@@ -2082,7 +2080,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testStyleEvents() {
+    void testStyleEvents() {
         TestListener l = new TestListener();
         catalog.addListener(l);
 
@@ -2115,7 +2113,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testProxyBehaviour() throws Exception {
+    void testProxyBehaviour() throws Exception {
         testAddLayer();
 
         // l = catalog.getLayerByName( "layerName");
@@ -2136,7 +2134,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testProxyListBehaviour() throws Exception {
+    void testProxyListBehaviour() throws Exception {
         catalog.add(data.style1);
 
         StyleInfo s2 = catalog.getFactory().createStyle();
@@ -2170,7 +2168,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testExceptionThrowingListener() throws Exception {
+    void testExceptionThrowingListener() throws Exception {
         ExceptionThrowingListener l = new ExceptionThrowingListener();
         catalog.addListener(l);
 
@@ -2195,7 +2193,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testAddWMSStore() {
+    void testAddWMSStore() {
         assertTrue(catalog.getStores(WMSStoreInfo.class).isEmpty());
         addWMSStore();
         assertEquals(1, catalog.getStores(WMSStoreInfo.class).size());
@@ -2213,7 +2211,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testAddWMTSStore() {
+    void testAddWMTSStore() {
         assertTrue(catalog.getStores(WMTSStoreInfo.class).isEmpty());
         addWMTSStore();
         assertEquals(1, catalog.getStores(WMTSStoreInfo.class).size());
@@ -2280,7 +2278,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testAddLayerGroupNameConflict() throws Exception {
+    void testAddLayerGroupNameConflict() throws Exception {
         addLayerGroup();
 
         LayerGroupInfo lg2 = catalog.getFactory().createLayerGroup();
@@ -2300,7 +2298,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testAddLayerGroupWithWorkspaceWithResourceFromAnotherWorkspace() {
+    void testAddLayerGroupWithWorkspaceWithResourceFromAnotherWorkspace() {
         WorkspaceInfo ws = catalog.getFactory().createWorkspace();
         ws.setName("other");
         catalog.add(ws);
@@ -2318,7 +2316,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testGetLayerGroupByName() {
+    void testGetLayerGroupByName() {
         addLayerGroup();
         assertNotNull(catalog.getLayerGroupByName("layerGroup"));
         assertNotNull(catalog.getLayerGroupByName((WorkspaceInfo) null, "layerGroup"));
@@ -2353,7 +2351,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testRemoveLayerGroupAndAssociatedDataRules() throws IOException {
+    void testRemoveLayerGroupAndAssociatedDataRules() throws IOException {
         DataAccessRuleDAO dao = this.dataAccessRuleDAO;
         CatalogListener listener = new SecuredResourceNameChangeListener(catalog, dao);
         addLayer();
@@ -2377,7 +2375,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testGetLayerGroupByNameWithColon() {
+    void testGetLayerGroupByNameWithColon() {
         addLayer();
         CatalogFactory factory = catalog.getFactory();
         LayerGroupInfo lg = factory.createLayerGroup();
@@ -2400,7 +2398,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testGetLayerGroupByNameWithWorkspace() {
+    void testGetLayerGroupByNameWithWorkspace() {
         addLayer();
         assertEquals(data.workspaceA, catalog.getDefaultWorkspace());
 
@@ -2473,7 +2471,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testGetLayerGroups() {
+    void testGetLayerGroups() {
         addLayerGroup();
         assertEquals(1, catalog.getLayerGroups().size());
         assertEquals(0, catalog.getLayerGroupsByWorkspace(data.workspaceA.getName()).size());
@@ -2494,7 +2492,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testLayerGroupTitle() {
+    void testLayerGroupTitle() {
         addLayer();
         LayerGroupInfo lg2 = catalog.getFactory().createLayerGroup();
         // lg2.setWorkspace(catalog.getDefaultWorkspace());
@@ -2517,7 +2515,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testLayerGroupAbstract() {
+    void testLayerGroupAbstract() {
         addLayer();
         LayerGroupInfo lg2 = catalog.getFactory().createLayerGroup();
         // lg2.setWorkspace(catalog.getDefaultWorkspace());
@@ -2540,7 +2538,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testLayerGroupType() {
+    void testLayerGroupType() {
         addLayer();
         LayerGroupInfo lg2 = catalog.getFactory().createLayerGroup();
         lg2.setWorkspace(null);
@@ -2563,7 +2561,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testLayerGroupRootLayer() {
+    void testLayerGroupRootLayer() {
         addLayer();
         LayerGroupInfo lg2 = catalog.getFactory().createLayerGroup();
         lg2.setWorkspace(null);
@@ -2625,7 +2623,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testLayerGroupNullLayerReferences() {
+    void testLayerGroupNullLayerReferences() {
         addLayer();
         LayerGroupInfo lg = catalog.getFactory().createLayerGroup();
         lg.setWorkspace(null);
@@ -2645,7 +2643,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testLayerGroupRenderingLayers() {
+    void testLayerGroupRenderingLayers() {
         addDataStore();
         addNamespace();
         FeatureTypeInfo ft1, ft2, ft3;
@@ -2710,7 +2708,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testRemoveLayerGroupInLayerGroup() throws Exception {
+    void testRemoveLayerGroupInLayerGroup() throws Exception {
         addLayerGroup();
 
         LayerGroupInfo lg2 = catalog.getFactory().createLayerGroup();
@@ -2809,7 +2807,7 @@ public abstract class CatalogConformanceTest {
     ;
 
     @Test
-    public void testGet() {
+    void testGet() {
         addDataStore();
         addNamespace();
 
@@ -2903,7 +2901,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testListPredicate() {
+    void testListPredicate() {
         addDataStore();
         addNamespace();
 
@@ -2989,7 +2987,7 @@ public abstract class CatalogConformanceTest {
      * This tests more advanced filters: multi-valued filters, opposite equations, field equations
      */
     @Test
-    public void testListPredicateExtended() {
+    void testListPredicateExtended() {
         addDataStore();
         addNamespace();
 
@@ -3201,7 +3199,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testOrderBy() {
+    void testOrderBy() {
         addDataStore();
         addNamespace();
 
@@ -3304,7 +3302,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testFullTextSearch() {
+    void testFullTextSearch() {
         // test layer title search
         data.featureTypeA.setTitle("Global .5 deg Air Temperature [C]");
         data.coverageA.setTitle("Global .5 deg Dewpoint Depression [C]");
@@ -3359,7 +3357,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testFullTextSearchLayerGroupTitle() {
+    void testFullTextSearchLayerGroupTitle() {
         addLayer();
         // geos-6882
         data.layerGroup1.setTitle("LayerGroup title");
@@ -3372,7 +3370,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testFullTextSearchLayerGroupName() {
+    void testFullTextSearchLayerGroupName() {
         addLayer();
         // geos-6882
         catalog.add(data.layerGroup1);
@@ -3382,7 +3380,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testFullTextSearchLayerGroupAbstract() {
+    void testFullTextSearchLayerGroupAbstract() {
         addLayer();
         data.layerGroup1.setAbstract("GeoServer OpenSource GIS");
         catalog.add(data.layerGroup1);
@@ -3392,7 +3390,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testFullTextSearchKeywords() {
+    void testFullTextSearchKeywords() {
         data.featureTypeA.getKeywords().add(new Keyword("air_temp"));
         data.featureTypeA.getKeywords().add(new Keyword("temperatureAir"));
         data.coverageA.getKeywords().add(new Keyword("dwpt_dprs"));
@@ -3439,7 +3437,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testFullTextSearchAddedKeyword() {
+    void testFullTextSearchAddedKeyword() {
         data.featureTypeA.getKeywords().add(new Keyword("air_temp"));
         data.featureTypeA.getKeywords().add(new Keyword("temperatureAir"));
 
@@ -3496,7 +3494,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testConcurrentCatalogModification() throws Exception {
+    void testConcurrentCatalogModification() throws Exception {
         Logger logger = Logging.getLogger(CatalogImpl.class);
         final int tasks = 8;
         ExecutorService executor = Executors.newFixedThreadPool(tasks / 2);
@@ -3546,7 +3544,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testChangeLayerGroupOrder() {
+    void testChangeLayerGroupOrder() {
         addLayerGroup();
 
         // create second layer
@@ -3590,7 +3588,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    public void testIterablesHaveCatalogSet() {
+    void testIterablesHaveCatalogSet() {
         data.addObjects();
         {
             CloseableIterator<StoreInfo> stores = catalog.list(StoreInfo.class, acceptAll());
@@ -3621,8 +3619,7 @@ public abstract class CatalogConformanceTest {
                         List<PublishedInfo> layers = g.getLayers();
                         layers.forEach(
                                 p -> {
-                                    if (p instanceof LayerInfo) {
-                                        LayerInfo l = (LayerInfo) p;
+                                    if (p instanceof LayerInfo l) {
                                         assertSame(catalog, l.getResource().getCatalog());
                                         assertSame(
                                                 catalog, l.getResource().getStore().getCatalog());
@@ -3632,7 +3629,8 @@ public abstract class CatalogConformanceTest {
         }
     }
 
-    public @Test void testCountIncludeFilter() {
+    @Test
+    void testCountIncludeFilter() {
         data.addObjects();
         Filter filter = acceptAll();
         assertEquals(3, catalog.count(WorkspaceInfo.class, filter));
@@ -3657,7 +3655,8 @@ public abstract class CatalogConformanceTest {
         assertEquals(2, catalog.count(StyleInfo.class, filter));
     }
 
-    public @Test void testCountIdFilter() {
+    @Test
+    void testCountIdFilter() {
         data.addObjects();
         assertEquals(1, catalog.count(WorkspaceInfo.class, equal("id", data.workspaceA.getId())));
         assertEquals(0, catalog.count(NamespaceInfo.class, equal("id", data.workspaceA.getId())));

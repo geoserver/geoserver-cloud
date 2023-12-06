@@ -5,7 +5,6 @@
 package org.geoserver.jackson.databind.catalog;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 
@@ -20,11 +19,10 @@ public class CatalogInfoDeserializer<I extends CatalogInfo> extends JsonDeserial
 
     private static final CatalogInfoMapper mapper = Mappers.getMapper(CatalogInfoMapper.class);
 
-    public @Override I deserialize(JsonParser parser, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException {
+    @Override
+    public I deserialize(JsonParser parser, DeserializationContext ctxt) throws IOException {
 
         CatalogInfoDto dto = parser.readValueAs(CatalogInfoDto.class);
-        I info = mapper.map(dto);
-        return info;
+        return mapper.map(dto);
     }
 }

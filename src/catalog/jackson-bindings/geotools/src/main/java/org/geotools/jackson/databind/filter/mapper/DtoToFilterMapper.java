@@ -83,7 +83,6 @@ import org.geotools.filter.temporal.TContainsImpl;
 import org.geotools.filter.temporal.TEqualsImpl;
 import org.geotools.filter.temporal.TOverlapsImpl;
 import org.geotools.jackson.databind.filter.dto.Filter;
-import org.geotools.jackson.databind.filter.dto.Filter.Id.ResourceId;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
@@ -113,13 +112,13 @@ abstract class DtoToFilterMapper {
         try {
             mapperMethod = getClass().getMethod("toFilter", dtoFilterType);
         } catch (NoSuchMethodException | SecurityException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
         }
         org.geotools.api.filter.Filter filter;
         try {
             filter = (org.geotools.api.filter.Filter) mapperMethod.invoke(this, dto);
-        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            throw new RuntimeException(e);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new IllegalArgumentException(e);
         }
         return filter;
     }
@@ -186,8 +185,7 @@ abstract class DtoToFilterMapper {
     }
 
     Identifier toIdentifier(Filter.Id.FeatureId dto) {
-        if (dto instanceof Filter.Id.ResourceId) {
-            Filter.Id.ResourceId rid = (ResourceId) dto;
+        if (dto instanceof Filter.Id.ResourceId rid) {
             if (rid.getStartTime() != null || rid.getEndTime() != null)
                 return ff.resourceId(rid.getId(), rid.getStartTime(), rid.getEndTime());
 
@@ -195,7 +193,7 @@ abstract class DtoToFilterMapper {
         }
         if (dto instanceof Filter.Id.FeatureId) {
             String id = dto.getId();
-            String featureVersion = ((Filter.Id.FeatureId) dto).getFeatureVersion();
+            String featureVersion = dto.getFeatureVersion();
             if (featureVersion == null) {
                 return ff.featureId(id);
             }

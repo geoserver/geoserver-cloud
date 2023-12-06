@@ -31,81 +31,98 @@ public class ForwardingRepositoryCatalogFacade extends ForwardingExtendedCatalog
         super(facade);
     }
 
-    public @Override void setNamespaceRepository(NamespaceRepository namespaces) {
+    @Override
+    public void setNamespaceRepository(NamespaceRepository namespaces) {
         facade().setNamespaceRepository(namespaces);
     }
 
-    public @Override void setWorkspaceRepository(WorkspaceRepository workspaces) {
+    @Override
+    public void setWorkspaceRepository(WorkspaceRepository workspaces) {
         facade().setWorkspaceRepository(workspaces);
     }
 
-    public @Override void setStoreRepository(StoreRepository stores) {
+    @Override
+    public void setStoreRepository(StoreRepository stores) {
         facade().setStoreRepository(stores);
     }
 
-    public @Override void setResourceRepository(ResourceRepository resources) {
+    @Override
+    public void setResourceRepository(ResourceRepository resources) {
         facade().setResourceRepository(resources);
     }
 
-    public @Override void setLayerRepository(LayerRepository layers) {
+    @Override
+    public void setLayerRepository(LayerRepository layers) {
         facade().setLayerRepository(layers);
     }
 
-    public @Override void setLayerGroupRepository(LayerGroupRepository layerGroups) {
+    @Override
+    public void setLayerGroupRepository(LayerGroupRepository layerGroups) {
         facade().setLayerGroupRepository(layerGroups);
     }
 
-    public @Override void setStyleRepository(StyleRepository styles) {
+    @Override
+    public void setStyleRepository(StyleRepository styles) {
         facade().setStyleRepository(styles);
     }
 
-    public @Override void setMapRepository(MapRepository maps) {
+    @Override
+    public void setMapRepository(MapRepository maps) {
         facade().setMapRepository(maps);
     }
 
-    public @Override NamespaceRepository getNamespaceRepository() {
+    @Override
+    public NamespaceRepository getNamespaceRepository() {
         return facade().getNamespaceRepository();
     }
 
-    public @Override WorkspaceRepository getWorkspaceRepository() {
+    @Override
+    public WorkspaceRepository getWorkspaceRepository() {
         return facade().getWorkspaceRepository();
     }
 
-    public @Override StoreRepository getStoreRepository() {
+    @Override
+    public StoreRepository getStoreRepository() {
         return facade().getStoreRepository();
     }
 
-    public @Override ResourceRepository getResourceRepository() {
+    @Override
+    public ResourceRepository getResourceRepository() {
         return facade().getResourceRepository();
     }
 
-    public @Override LayerRepository getLayerRepository() {
+    @Override
+    public LayerRepository getLayerRepository() {
         return facade().getLayerRepository();
     }
 
-    public @Override LayerGroupRepository getLayerGroupRepository() {
+    @Override
+    public LayerGroupRepository getLayerGroupRepository() {
         return facade().getLayerGroupRepository();
     }
 
-    public @Override StyleRepository getStyleRepository() {
+    @Override
+    public StyleRepository getStyleRepository() {
         return facade().getStyleRepository();
     }
 
-    public @Override MapRepository getMapRepository() {
+    @Override
+    public MapRepository getMapRepository() {
         return facade().getMapRepository();
     }
 
+    @Override
     protected RepositoryCatalogFacade facade() {
         return (RepositoryCatalogFacade) facade;
     }
 
-    public @Override <T extends CatalogInfo, R extends CatalogInfoRepository<T>> R repository(
-            Class<T> of) {
+    @Override
+    public <T extends CatalogInfo, R extends CatalogInfoRepository<T>> R repository(Class<T> of) {
         return facade().repository(of);
     }
 
-    public @Override <T extends CatalogInfo, R extends CatalogInfoRepository<T>> R repositoryFor(
-            T info) {
+    @Override
+    public <T extends CatalogInfo, R extends CatalogInfoRepository<T>> R repositoryFor(T info) {
         return facade().repositoryFor(info);
     }
 }

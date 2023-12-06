@@ -42,24 +42,28 @@ class GwcCoreAutoConfigurationTest {
         runner = GeoWebCacheContextRunner.newMinimalGeoWebCacheContextRunner(tmpDir);
     }
 
-    public @Test void defaultCacheDirectoryConfigPropertyIsMandatory() {
+    @Test
+    void defaultCacheDirectoryConfigPropertyIsMandatory() {
         runner = runner.withPropertyValues("gwc.cache-directory="); // null-ify it
         assertContextLoadFails(InvalidPropertyException.class, "gwc.cache-directory is not set");
     }
 
-    public @Test void defaultCacheDirectoryIsAbsolutePath() {
+    @Test
+    void defaultCacheDirectoryIsAbsolutePath() {
         runner = runner.withPropertyValues("gwc.cache-directory=relative/path");
         assertContextLoadFails(BeanInitializationException.class, "must be an absolute path");
     }
 
-    public @Test void defaultCacheDirectoryIsAFile() throws IOException {
+    @Test
+    void defaultCacheDirectoryIsAFile() throws IOException {
         File file = new File(tmpDir, "file");
         assertTrue(file.createNewFile());
         runner = runner.withPropertyValues("gwc.cache-directory=" + file.getAbsolutePath());
         assertContextLoadFails(BeanInitializationException.class, "is not a directory");
     }
 
-    public @Test void contextLoads() throws IOException {
+    @Test
+    void contextLoads() throws IOException {
         runner.run(
                 context -> {
                     assertTrue(context.isTypeMatch("gwcXmlConfig", CloudGwcXmlConfiguration.class));

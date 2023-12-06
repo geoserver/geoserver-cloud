@@ -12,7 +12,7 @@ import org.geoserver.config.GeoServerConfigConformanceTest;
  * {@link GeoServerConfigConformanceTest} for {@link GeoServerImpl} with {@link
  * RepositoryGeoServerFacade} backed by {@link MemoryConfigRepository} and a {@link CatalogPlugin}
  */
-public class GeoServerImplConformanceTest extends GeoServerConfigConformanceTest {
+class GeoServerImplConformanceTest extends GeoServerConfigConformanceTest {
 
     protected @Override GeoServer createGeoServer() {
         GeoServerImpl gs = new GeoServerImpl();

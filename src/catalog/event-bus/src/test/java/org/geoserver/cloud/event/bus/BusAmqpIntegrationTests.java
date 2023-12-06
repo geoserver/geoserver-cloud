@@ -318,7 +318,7 @@ public abstract class BusAmqpIntegrationTests {
         assertNotNull(busEvent.getOriginService());
         assertEquals("**", busEvent.getDestinationService());
 
-        GeoServerEvent<?> event = busEvent.getEvent();
+        GeoServerEvent event = busEvent.getEvent();
         assertNotNull(event);
         assertNotNull(((InfoEvent) event).getObjectId());
         // assertNotNull(event.getTarget());
@@ -341,8 +341,7 @@ public abstract class BusAmqpIntegrationTests {
         }
         assertThat(infoType.isInstance(info)).isTrue();
 
-        if (event instanceof InfoAdded) {
-            InfoAdded e = (InfoAdded) event;
+        if (event instanceof InfoAdded e) {
             assertThat(e.getObject()).isNotNull();
             assertThat(infoType.isInstance(e.getObject())).isTrue();
             assertThat(e.getObject().getId()).isEqualTo(info.getId());
@@ -353,8 +352,7 @@ public abstract class BusAmqpIntegrationTests {
             // testData.assertEqualsLenientConnectionParameters(info, object);
         }
 
-        if (event instanceof InfoModified) {
-            InfoModified modifyEvent = (InfoModified) event;
+        if (event instanceof InfoModified modifyEvent) {
             assertThat(modifyEvent.getPatch()).isNotNull();
         }
     }

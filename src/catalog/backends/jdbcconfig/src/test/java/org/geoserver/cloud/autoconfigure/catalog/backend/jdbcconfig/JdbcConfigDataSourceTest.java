@@ -30,9 +30,10 @@ import javax.sql.DataSource;
             "geoserver.backend.jdbcconfig.datasource.connectionTimeout=250", // 250ms
             "geoserver.backend.jdbcconfig.datasource.idleTimeout=10000", // 10 secs
         })
-public class JdbcConfigDataSourceTest extends JDBCConfigTest {
+class JdbcConfigDataSourceTest extends JDBCConfigTest {
 
-    public @Test void testDataSource() throws SQLException {
+    @Test
+    void testDataSource() throws SQLException {
         DataSource ds = context.getBean("jdbcConfigDataSource", DataSource.class);
         assertSame(ds, context.getBean("jdbcStoreDataSource", DataSource.class));
         assertThat(ds, instanceOf(HikariDataSource.class));

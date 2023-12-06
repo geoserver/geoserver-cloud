@@ -6,6 +6,7 @@ package org.geoserver.cloud.autoconfigure.catalog.backend.jdbcconfig;
 
 import org.geoserver.cloud.autoconfigure.catalog.event.ConditionalOnCatalogEvents;
 import org.geoserver.cloud.event.remote.jdbcconfig.RemoteEventJdbcConfigProcessor;
+import org.geoserver.jdbcconfig.internal.ConfigDatabase;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,7 +16,8 @@ import org.springframework.context.annotation.Configuration;
 public class RemoteEventJdbcConfigAutoConfiguration {
 
     @Bean
-    RemoteEventJdbcConfigProcessor jdbcConfigRemoteEventProcessor() {
-        return new RemoteEventJdbcConfigProcessor();
+    RemoteEventJdbcConfigProcessor jdbcConfigRemoteEventProcessor(
+            ConfigDatabase jdbcConfigDatabase) {
+        return new RemoteEventJdbcConfigProcessor(jdbcConfigDatabase);
     }
 }

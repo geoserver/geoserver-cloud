@@ -28,35 +28,42 @@ import org.springframework.web.context.request.RequestContextListener;
         properties = "reactive.feign.loadbalancer.enabled=false")
 @EnableAutoConfiguration(exclude = SecurityAutoConfiguration.class)
 @ActiveProfiles("test")
-public class ServletContextEnabledSmokeTest {
+class ServletContextEnabledSmokeTest {
 
     private @Autowired ApplicationContext context;
 
-    public @Test void contextLoaderListener() {
+    @Test
+    void contextLoaderListener() {
         assertNotNull(context.getBean(GeoServerServletInitializer.class));
     }
 
-    public @Test void requestContextListener() {
+    @Test
+    void requestContextListener() {
         assertNotNull(context.getBean(RequestContextListener.class));
     }
 
-    public @Test void flushSafeFilter() {
+    @Test
+    void flushSafeFilter() {
         assertNotNull(context.getBean(FlushSafeFilter.class));
     }
 
-    public @Test void sessionDebugFilter() {
+    @Test
+    void sessionDebugFilter() {
         assertNotNull(context.getBean(SessionDebugFilter.class));
     }
 
-    public @Test void advancedDispatchFilter() {
+    @Test
+    void advancedDispatchFilter() {
         assertNotNull(context.getBean(AdvancedDispatchFilter.class));
     }
 
-    public @Test void springDelegatingFilter() {
+    @Test
+    void springDelegatingFilter() {
         assertNotNull(context.getBean(SpringDelegatingFilter.class));
     }
 
-    public @Test void threadLocalsCleanupFilter() {
+    @Test
+    void threadLocalsCleanupFilter() {
         assertNotNull(context.getBean(ThreadLocalsCleanupFilter.class));
     }
 }

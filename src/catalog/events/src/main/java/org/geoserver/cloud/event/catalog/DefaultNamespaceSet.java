@@ -18,6 +18,7 @@ import org.springframework.core.style.ToStringCreator;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("DefaultNamespaceSet")
+@SuppressWarnings("serial")
 public class DefaultNamespaceSet extends CatalogInfoModified {
 
     private @Getter String newNamespaceId;

@@ -22,7 +22,7 @@ import lombok.experimental.Accessors;
 
 @EnableAutoConfiguration
 @Accessors(fluent = true)
-public class StyleRepositoryTest
+class StyleRepositoryTest
         extends AbstractCatalogServiceClientRepositoryTest<StyleInfo, StyleRepository> {
 
     private @Autowired @Getter StyleRepository repository;
@@ -50,7 +50,7 @@ public class StyleRepositoryTest
         }
     }
 
-    public @Test void testStyleCRUD_NoWorkspace() {
+    @Test void testStyleCRUD_NoWorkspace() {
         StyleInfo style = testData.createStyle("styleCRUD", null, "styleCRUD", "styleCRUD.sld");
         ((StyleInfoImpl) style).setFormat(SLDHandler.FORMAT);
         ((StyleInfoImpl) style).setFormatVersion(SLDHandler.VERSION_10);
@@ -85,7 +85,7 @@ public class StyleRepositoryTest
                 });
     }
 
-    public @Test void testStyleCRUD_Workspace() {
+    @Test void testStyleCRUD_Workspace() {
         StyleInfo style =
                 testData.createStyle(
                         "styleCRUD_Workspace",
@@ -157,7 +157,7 @@ public class StyleRepositoryTest
         super.testQueryFilter(cql, ws1s1, ws1s2);
     }
 
-    public @Test void testFindStyleByNameAndNullWorkspace() {
+    @Test void testFindStyleByNameAndNullWorkspace() {
         WorkspaceInfo ws1 = testData.workspaceA;
         StyleInfo ws1s1 = testData.createStyle("s1ws1", ws1);
         serverCatalog.add(ws1s1);
@@ -171,7 +171,7 @@ public class StyleRepositoryTest
         assertTrue(repository.findByNameAndWordkspaceNull(ws1s1.getName()).isEmpty());
     }
 
-    public @Test void testfindStyleByWorkspaceIdAndName() {
+    @Test void testfindStyleByWorkspaceIdAndName() {
         WorkspaceInfo ws1 = testData.workspaceA;
         WorkspaceInfo ws2 = testData.workspaceB;
         StyleInfo ws1s1 = testData.createStyle("s1ws1", ws1);
@@ -190,14 +190,14 @@ public class StyleRepositoryTest
         assertTrue(repository.findByNameAndWorkspace(ws2s1.getName(), ws1).isEmpty());
     }
 
-    public @Test void testFindStylesByNullWorkspace() {
+    @Test void testFindStylesByNullWorkspace() {
         StyleInfo ws1s1 = testData.createStyle("s1ws1", testData.workspaceA);
         serverCatalog.add(ws1s1);
 
         testFind(() -> repository.findAllByNullWorkspace(), testData.style1, testData.style2);
     }
 
-    public @Test void testFindStylesByWorkspaceId() {
+    @Test void testFindStylesByWorkspaceId() {
         WorkspaceInfo ws1 = testData.workspaceA;
         WorkspaceInfo ws2 = testData.workspaceB;
 

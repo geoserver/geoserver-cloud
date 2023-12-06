@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Component
 public class ApplicationEventCapturingListener {
@@ -68,10 +67,7 @@ public class ApplicationEventCapturingListener {
     }
 
     public <T> List<T> allOf(Class<T> type) {
-        return captured.stream()
-                .filter(type::isInstance)
-                .map(type::cast)
-                .collect(Collectors.toList());
+        return captured.stream().filter(type::isInstance).map(type::cast).toList();
     }
 
     public <T> Optional<T> first(Class<T> type) {

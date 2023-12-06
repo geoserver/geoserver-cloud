@@ -4,6 +4,8 @@
  */
 package org.geoserver.catalog.plugin.resolving;
 
+import lombok.experimental.UtilityClass;
+
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.impl.ModificationProxy;
@@ -18,6 +20,7 @@ import java.util.function.Function;
  *
  * @see ModificationProxy#create(Object, Class)
  */
+@UtilityClass
 public class ModificationProxyDecorator {
 
     public static Function<CatalogInfo, CatalogInfo> wrap() {

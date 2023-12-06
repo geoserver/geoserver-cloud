@@ -61,7 +61,7 @@ import java.util.function.Consumer;
             ApplicationEventCapturingListener.class
         })
 @EnableAutoConfiguration
-public class CatalogApplicationEventsConfigurationTest {
+class CatalogApplicationEventsConfigurationTest {
 
     private @Autowired GeoServer geoserver;
     private @Autowired Catalog catalog;
@@ -81,7 +81,8 @@ public class CatalogApplicationEventsConfigurationTest {
         testData.after();
     }
 
-    public @Test void testCatalogEventBroadcasterHasSetUpItself() {
+    @Test
+    void testCatalogEventBroadcasterHasSetUpItself() {
         Optional<CatalogListener> publiherListener =
                 catalog.getListeners().stream()
                         .filter(
@@ -94,7 +95,8 @@ public class CatalogApplicationEventsConfigurationTest {
         assertTrue(publiherListener.isPresent());
     }
 
-    public @Test void testConfigEventBroadcasterHasSetUpItself() {
+    @Test
+    void testConfigEventBroadcasterHasSetUpItself() {
         Optional<ConfigurationListener> publiherListener =
                 geoserver.getListeners().stream()
                         .filter(
@@ -107,7 +109,8 @@ public class CatalogApplicationEventsConfigurationTest {
         assertTrue(publiherListener.isPresent());
     }
 
-    public @Test void testCatalogSetDefaultWorkspace() {
+    @Test
+    void testCatalogSetDefaultWorkspace() {
         listener.stop();
         catalog.add(testData.workspaceA);
         catalog.add(testData.workspaceB);
@@ -123,7 +126,8 @@ public class CatalogApplicationEventsConfigurationTest {
         testModify(catalog, "defaultWorkspace", testData.workspaceC, testData.workspaceB);
     }
 
-    public @Test void testCatalogSetDefaultNamespace() {
+    @Test
+    void testCatalogSetDefaultNamespace() {
         listener.stop();
         catalog.add(testData.namespaceA);
         catalog.add(testData.namespaceB);
@@ -139,7 +143,8 @@ public class CatalogApplicationEventsConfigurationTest {
         testModify(catalog, "defaultNamespace", testData.namespaceC, testData.namespaceB);
     }
 
-    public @Test void testCatalogAddedEvents() {
+    @Test
+    void testCatalogAddedEvents() {
         Class<CatalogInfoAdded> eventType = CatalogInfoAdded.class;
         testAddEvent(testData.workspaceA, catalog::add, eventType);
         testAddEvent(testData.namespaceA, catalog::add, eventType);
@@ -152,7 +157,8 @@ public class CatalogApplicationEventsConfigurationTest {
         testAddEvent(testData.style1, catalog::add, eventType);
     }
 
-    public @Test void testCatalogRemoveEvents() {
+    @Test
+    void testCatalogRemoveEvents() {
         listener.stop();
         testData.addObjects();
         listener.start();
@@ -160,7 +166,8 @@ public class CatalogApplicationEventsConfigurationTest {
         testRemove(testData.layerGroup1, catalog::remove, CatalogInfoRemoved.class);
     }
 
-    public @Test void testConfigAddEvents() {
+    @Test
+    void testConfigAddEvents() {
         catalog.add(testData.workspaceB);
         assertNotNull(catalog.getWorkspace(testData.workspaceB.getId()));
         assertSame(catalog, geoserver.getCatalog());
@@ -182,7 +189,8 @@ public class CatalogApplicationEventsConfigurationTest {
         testAddEvent(workspaceSettings, geoserver::add, eventType);
     }
 
-    public @Test void testConfigModifyEvents_GeoServerInfo() {
+    @Test
+    void testConfigModifyEvents_GeoServerInfo() {
         catalog.add(testData.workspaceA);
         catalog.add(testData.workspaceB);
         geoserver.setGlobal(testData.global);
@@ -207,7 +215,8 @@ public class CatalogApplicationEventsConfigurationTest {
                 eventType);
     }
 
-    public @Test void testConfigPrePostModifyEvents_SettingsInfo() {
+    @Test
+    void testConfigPrePostModifyEvents_SettingsInfo() {
         catalog.add(testData.workspaceA);
         catalog.add(testData.workspaceB);
         geoserver.setGlobal(testData.global);
@@ -244,7 +253,8 @@ public class CatalogApplicationEventsConfigurationTest {
                 eventType);
     }
 
-    public @Test void testConfigModifyEvents_LoggingInfo() {
+    @Test
+    void testConfigModifyEvents_LoggingInfo() {
         catalog.add(testData.workspaceA);
         catalog.add(testData.workspaceB);
         geoserver.setLogging(testData.logging);
@@ -263,7 +273,8 @@ public class CatalogApplicationEventsConfigurationTest {
                 eventType);
     }
 
-    public @Test void testConfigPrePostModifyEvents_ServiceInfo() {
+    @Test
+    void testConfigPrePostModifyEvents_ServiceInfo() {
         catalog.add(testData.workspaceA);
         catalog.add(testData.workspaceB);
 
@@ -301,7 +312,8 @@ public class CatalogApplicationEventsConfigurationTest {
                 postEventType);
     }
 
-    public @Test void testConfigRemoveEvents() {
+    @Test
+    void testConfigRemoveEvents() {
         listener.stop();
         ServiceInfo service = new WMSInfoImpl();
         geoserver.add(service);
@@ -318,7 +330,7 @@ public class CatalogApplicationEventsConfigurationTest {
         listener.start();
         remover.accept(info);
         @SuppressWarnings("unchecked")
-        InfoRemoved<?, T> event = listener.expectOne(eventType);
+        InfoRemoved<T> event = listener.expectOne(eventType);
         assertEquals(info.getId(), event.getObjectId());
         assertEquals(ConfigInfoType.valueOf(info), event.getObjectType());
     }
@@ -364,7 +376,7 @@ public class CatalogApplicationEventsConfigurationTest {
         modifier.accept(info);
         saver.accept(info);
 
-        InfoModified<?, T> post = listener.expectOne(postEventType);
+        InfoModified<T> post = listener.expectOne(postEventType);
         assertEquals(proxy.getId(), post.getObjectId());
         assertEquals(expected, post.getPatch());
     }

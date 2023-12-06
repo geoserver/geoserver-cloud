@@ -80,8 +80,8 @@ public class InnerResolvingProxy {
     }
 
     private Object resolvePatchPropertyValue(Object orig) {
-        if (orig instanceof Info) {
-            return resolve((Info) orig);
+        if (orig instanceof Info info) {
+            return resolve(info);
         }
         if (orig instanceof List) {
             @SuppressWarnings("unchecked")
@@ -245,8 +245,8 @@ public class InnerResolvingProxy {
     }
 
     protected <T extends PublishedInfo> T resolveInternal(T published) {
-        if (published instanceof LayerInfo) resolve((LayerInfo) published);
-        else if (published instanceof LayerGroupInfo) resolve((LayerGroupInfo) published);
+        if (published instanceof LayerInfo li) resolve(li);
+        else if (published instanceof LayerGroupInfo lg) resolve(lg);
         return published;
     }
 

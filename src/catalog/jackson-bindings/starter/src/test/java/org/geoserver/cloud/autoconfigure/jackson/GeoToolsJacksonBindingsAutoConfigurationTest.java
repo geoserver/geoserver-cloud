@@ -22,7 +22,7 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
 import java.util.Set;
 
-public class GeoToolsJacksonBindingsAutoConfigurationTest {
+class GeoToolsJacksonBindingsAutoConfigurationTest {
 
     private final ApplicationContextRunner contextRunner =
             new ApplicationContextRunner()
@@ -31,7 +31,8 @@ public class GeoToolsJacksonBindingsAutoConfigurationTest {
                                     GeoToolsJacksonBindingsAutoConfiguration.class,
                                     JacksonAutoConfiguration.class));
 
-    public @Test void testObjectMapper() {
+    @Test
+    void testObjectMapper() {
         this.contextRunner.run(context -> assertThat(context).hasSingleBean(ObjectMapper.class));
         Condition<? super Set<Object>> condition =
                 matching(
@@ -47,23 +48,27 @@ public class GeoToolsJacksonBindingsAutoConfigurationTest {
                                 .has(condition));
     }
 
-    public @Test void testFilterModuleAutoConfiguration() {
+    @Test
+    void testFilterModuleAutoConfiguration() {
         this.contextRunner.run(
                 context -> assertThat(context).hasSingleBean(GeoToolsFilterModule.class));
     }
 
-    public @Test void testGeoJsonModuleAutoConfiguration() {
+    @Test
+    void testGeoJsonModuleAutoConfiguration() {
         this.contextRunner.run(
                 context -> assertThat(context).hasSingleBean(GeoToolsGeoJsonModule.class));
     }
 
-    public @Test void testFilterModuleNotInClassPath() {
+    @Test
+    void testFilterModuleNotInClassPath() {
         this.contextRunner
                 .withClassLoader(new FilteredClassLoader(GeoToolsFilterModule.class))
                 .run(context -> assertThat(context).doesNotHaveBean(GeoToolsFilterModule.class));
     }
 
-    public @Test void testGeoJsonModuleNotInClassPath() {
+    @Test
+    void testGeoJsonModuleNotInClassPath() {
         this.contextRunner
                 .withClassLoader(new FilteredClassLoader(GeoToolsFilterModule.class))
                 .run(context -> assertThat(context).doesNotHaveBean(GeoToolsGeoJsonModule.class));

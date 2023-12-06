@@ -17,7 +17,7 @@ import org.springframework.boot.context.annotation.UserConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
 /** */
-public class GeoServerBackendCacheConfigurationTest {
+class GeoServerBackendCacheConfigurationTest {
 
     private final ApplicationContextRunner contextRunner =
             new ApplicationContextRunner()
@@ -36,12 +36,14 @@ public class GeoServerBackendCacheConfigurationTest {
                             UserConfigurations.of(GeoServerBackendCacheConfiguration.class))
                     .withConfiguration(AutoConfigurations.of(CacheAutoConfiguration.class));
 
-    public @Test void testCachingCatalogFacade() {
+    @Test
+    void testCachingCatalogFacade() {
         contextRunner.run(
                 context -> context.isTypeMatch("cachingCatalogFacade", CachingCatalogFacade.class));
     }
 
-    public @Test void testCachingGeoServerFacade() {
+    @Test
+    void testCachingGeoServerFacade() {
         contextRunner.run(
                 context ->
                         context.isTypeMatch(

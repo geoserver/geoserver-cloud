@@ -21,7 +21,7 @@ public abstract class GeoWebCacheEvent extends ApplicationEvent {
 
     private static final long serialVersionUID = 1L;
 
-    public static enum Type {
+    public enum Type {
         CREATED,
         MODIFIED,
         DELETED
@@ -30,16 +30,17 @@ public abstract class GeoWebCacheEvent extends ApplicationEvent {
     private @Getter @Setter Type eventType;
     private @Getter @Setter String id;
 
-    public GeoWebCacheEvent(Object source) {
+    protected GeoWebCacheEvent(Object source) {
         this(source, null);
     }
 
-    public GeoWebCacheEvent(Object source, Type eventType) {
+    protected GeoWebCacheEvent(Object source, Type eventType) {
         super(source);
         this.eventType = eventType;
     }
 
-    public @Override String toString() {
+    @Override
+    public String toString() {
         return String.format(
                 "%s[%s '%s' id: %s timestamp: %s]",
                 getClass().getSimpleName(), getEventType(), getObjectId(), getId(), getTimestamp());

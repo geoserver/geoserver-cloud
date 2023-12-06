@@ -22,7 +22,8 @@ public class DefaultWorkspaceInfoRules implements CatalogInfoBusinessRules<Works
      * was no default workspace when the method was entered, then the created one is set as the
      * default when the method returns.
      */
-    public @Override void beforeAdd(CatalogOpContext<WorkspaceInfo> context) {
+    @Override
+    public void beforeAdd(CatalogOpContext<WorkspaceInfo> context) {
         WorkspaceInfo defaultWorkspace = context.getCatalog().getDefaultWorkspace();
         Boolean needsSetDefault = defaultWorkspace == null;
         context.setContextOption(SET_DEFAULT, needsSetDefault);
@@ -32,7 +33,8 @@ public class DefaultWorkspaceInfoRules implements CatalogInfoBusinessRules<Works
      * Sets the created workspace as the catalog's default workspace if so determined in {@link
      * #beforeAdd} and the operation was successful.
      */
-    public @Override void afterAdd(CatalogOpContext<WorkspaceInfo> context) {
+    @Override
+    public void afterAdd(CatalogOpContext<WorkspaceInfo> context) {
         // there's only this rule so far:
         setAsDefaultIfThereWasNoDefaultWorkspace(context);
     }
@@ -41,7 +43,8 @@ public class DefaultWorkspaceInfoRules implements CatalogInfoBusinessRules<Works
      * Selects a new catalog default workspace if as the result of removing the workspace referred
      * to by {@code context.getObject()}, the catalog has no default workspace.
      */
-    public @Override void afterRemove(CatalogOpContext<WorkspaceInfo> context) {
+    @Override
+    public void afterRemove(CatalogOpContext<WorkspaceInfo> context) {
         if (context.isSuccess()) {
             selectNewDefaultWorkspaceIfRemoved(context.getCatalog(), context.getObject());
         }

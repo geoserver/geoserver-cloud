@@ -82,10 +82,8 @@ public class WebMapServiceCacheSeedingConfiguration {
 
         protected boolean isInternalRequestForSeeding(final GetMapRequest request) {
             final Map<String, String> rawKvp = request.getRawKvp();
-            boolean isSeedingRequest =
-                    rawKvp != null
-                            && rawKvp.containsKey(GeoServerTileLayer.GWC_SEED_INTERCEPT_TOKEN);
-            return isSeedingRequest;
+            return rawKvp != null
+                    && rawKvp.containsKey(GeoServerTileLayer.GWC_SEED_INTERCEPT_TOKEN);
         }
     }
 }

@@ -82,6 +82,8 @@ import java.util.regex.Pattern;
 @Slf4j(topic = "org.geoserver.cloud.config.factory")
 public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
 
+    private static final String XML_SPLIT_TOKEN = ".xml#";
+
     /**
      * Cache parsed XML documents by Resource URI, since many configurations can try to load
      * different sets of beans from the same xml document
@@ -98,7 +100,7 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
      * @see FilteringXmlBeanDefinitionReaderAutoConfiguration
      * @see #clearCaches()
      */
-    private static Resource[] allClasspathBaseResources;
+    private static Resource[] classpathBaseResources;
 
     public FilteringXmlBeanDefinitionReader(BeanDefinitionRegistry registry) {
         super(registry);
@@ -107,14 +109,14 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
     /**
      * Clears any cached resource, expected to be called after the application context is refreshed
      */
-    public static void clearCaches() {
-        if (!classpathDocuments.isEmpty() || null != allClasspathBaseResources) {
+    public static synchronized void clearCaches() {
+        if (!classpathDocuments.isEmpty() || null != classpathBaseResources) {
             log.debug(
                     "Clearing cache of {} parsed xml documents and {} classpath resources",
                     classpathDocuments.size(),
-                    null == allClasspathBaseResources ? 0 : allClasspathBaseResources.length);
+                    null == classpathBaseResources ? 0 : classpathBaseResources.length);
             classpathDocuments.clear();
-            allClasspathBaseResources = null;
+            classpathBaseResources = null;
         }
     }
 
@@ -127,15 +129,15 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
                         log.trace("Loading document {}", r);
                         return super.doLoadDocument(inputSource, resource);
                     } catch (Exception e) {
-                        if (e instanceof RuntimeException) throw (RuntimeException) e;
+                        if (e instanceof RuntimeException rte) throw rte;
                         throw (RuntimeException)
                                 new BeanDefinitionStoreException(e.getMessage()).initCause(e);
                     }
                 });
     }
 
-    public @Override int loadBeanDefinitions(
-            String location, @Nullable Set<Resource> actualResources)
+    @Override
+    public int loadBeanDefinitions(String location, @Nullable Set<Resource> actualResources)
             throws BeanDefinitionStoreException {
 
         super.setDocumentReaderClass(FilteringBeanDefinitionDocumentReader.class);
@@ -215,34 +217,37 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
      * @return
      * @throws IOException
      */
-    private Resource[] getAllClasspathResources(ResourcePatternResolver patternResolver)
-            throws IOException {
-        if (null == allClasspathBaseResources) {
+    private static synchronized Resource[] getAllClasspathResources(
+            ResourcePatternResolver patternResolver) throws IOException {
+        if (null == classpathBaseResources) {
             StopWatch sw = new StopWatch();
             sw.start();
-            allClasspathBaseResources = patternResolver.getResources("classpath*:");
+            classpathBaseResources = patternResolver.getResources("classpath*:");
             sw.stop();
             if (log.isTraceEnabled()) {
                 log.trace(
                         String.format(
                                 "Loaded %,d classpath resources in %,dms",
-                                allClasspathBaseResources.length, sw.getTotalTimeMillis()));
+                                classpathBaseResources.length, sw.getTotalTimeMillis()));
             }
         }
-        return allClasspathBaseResources;
+        return classpathBaseResources;
     }
 
     private String removeBeanFilterExpressions(String location) {
-        if (location.contains(".xml#")) {
-            location = location.substring(0, location.indexOf(".xml#") + ".xml#".length() - 1);
+        if (location.contains(XML_SPLIT_TOKEN)) {
+            location =
+                    location.substring(
+                            0, location.indexOf(XML_SPLIT_TOKEN) + XML_SPLIT_TOKEN.length() - 1);
         }
         return location;
     }
 
     private void parseAndSetBeanInclusionFilters(String location) {
-        if (location.contains(".xml#")) {
+        if (location.contains(XML_SPLIT_TOKEN)) {
             String filterTypeAndRegularExpression =
-                    location.substring(".xml#".length() + location.indexOf(".xml#"));
+                    location.substring(
+                            XML_SPLIT_TOKEN.length() + location.indexOf(XML_SPLIT_TOKEN));
             if (hasText(filterTypeAndRegularExpression)) {
                 String[] split = filterTypeAndRegularExpression.split("=");
                 if (split.length != 2) {
@@ -273,13 +278,13 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
                 String.format(
                         "Invalid bean filter expression (%s), expected name=<regex>>, resource: %s",
                         regex, resourceLocation);
-        throw new IllegalArgumentException(msg);
+        throw new IllegalArgumentException(msg, cause);
     }
 
     public static class FilteringBeanDefinitionDocumentReader
             extends DefaultBeanDefinitionDocumentReader {
 
-        private static ThreadLocal<List<Predicate<String>>> MATCHERS =
+        private static final ThreadLocal<List<Predicate<String>>> MATCHERS =
                 ThreadLocal.withInitial(ArrayList::new);
 
         public static void addMatcher(Predicate<String> beanDefFilter) {
@@ -308,8 +313,8 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
             return !MATCHERS.get().isEmpty();
         }
 
-        private Set<String> blackListedBeanNames = new HashSet<String>();
-        private Map<String, String> deferredNameToAlias = new HashMap<String, String>();
+        private Set<String> blackListedBeanNames = new HashSet<>();
+        private Map<String, String> deferredNameToAlias = new HashMap<>();
 
         protected @Override void doRegisterBeanDefinitions(Element root) {
             super.doRegisterBeanDefinitions(root);

@@ -11,7 +11,7 @@ import org.geotools.jackson.databind.util.ObjectMapperUtil;
 /**
  * @since 1.0
  */
-public class GeoToolsFilterModuleFilters_YamlTest extends GeoToolsFilterModuleFiltersTest {
+class GeoToolsFilterModuleFilters_YamlTest extends GeoToolsFilterModuleFiltersTest {
 
     protected @Override ObjectMapper newObjectMapper() {
         return ObjectMapperUtil.newYAMLObjectMapper();

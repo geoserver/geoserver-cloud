@@ -65,7 +65,7 @@ import javax.annotation.PostConstruct;
 @RequiredArgsConstructor
 class CatalogApplicationEventPublisher {
 
-    private final @NonNull Consumer<? super InfoEvent<?, ?>> eventPublisher;
+    private final @NonNull Consumer<? super InfoEvent<?>> eventPublisher;
     private final @NonNull Catalog catalog;
     private final @NonNull GeoServer geoServer;
     private final @NonNull Supplier<Long> updateSequenceIncrementor;
@@ -81,7 +81,7 @@ class CatalogApplicationEventPublisher {
         geoServer.addListener(publishingConfigListener);
     }
 
-    void publish(@NonNull InfoEvent<?, ?> event) {
+    void publish(@NonNull InfoEvent<? extends Info> event) {
         eventPublisher.accept(event);
     }
 
@@ -104,7 +104,7 @@ class CatalogApplicationEventPublisher {
          * @throws CatalogException meaning the operation that generated the event should be
          *     reverted (as handled by Catalog.event())
          */
-        private void publish(InfoEvent<?, ?> event) throws CatalogException {
+        private void publish(InfoEvent<? extends Info> event) throws CatalogException {
             try {
                 publisher.publish(event);
             } catch (RuntimeException e) {
@@ -112,20 +112,23 @@ class CatalogApplicationEventPublisher {
             }
         }
 
-        public @Override void handleAddEvent(CatalogAddEvent event) throws CatalogException {
+        @Override
+        public void handleAddEvent(CatalogAddEvent event) throws CatalogException {
             publish(CatalogInfoAdded.createLocal(incrementSequence(), event));
         }
 
-        public @Override void handleRemoveEvent(CatalogRemoveEvent event) throws CatalogException {
+        @Override
+        public void handleRemoveEvent(CatalogRemoveEvent event) throws CatalogException {
             publish(CatalogInfoRemoved.createLocal(incrementSequence(), event.getSource()));
         }
 
-        public @Override void handleModifyEvent(CatalogModifyEvent event) throws CatalogException {
+        @Override
+        public void handleModifyEvent(CatalogModifyEvent event) throws CatalogException {
             // no-op
         }
 
-        public @Override void handlePostModifyEvent(CatalogPostModifyEvent event)
-                throws CatalogException {
+        @Override
+        public void handlePostModifyEvent(CatalogPostModifyEvent event) throws CatalogException {
             publish(CatalogInfoModified.createLocal(incrementSequence(), event));
         }
 
@@ -134,7 +137,8 @@ class CatalogApplicationEventPublisher {
          *
          * <p>no-op.
          */
-        public @Override void reloaded() {}
+        @Override
+        public void reloaded() {}
     }
 
     @RequiredArgsConstructor
@@ -176,13 +180,12 @@ class CatalogApplicationEventPublisher {
             return patch;
         }
 
-        private void publish(InfoEvent<?, ?> event) {
+        private void publish(InfoEvent<?> event) {
             publisher.publish(event);
         }
 
         private void preparePreModify(
                 @NonNull String id,
-                Info info,
                 List<String> propertyNames,
                 List<Object> oldValues,
                 List<Object> newValues) {
@@ -197,20 +200,22 @@ class CatalogApplicationEventPublisher {
             publish(ConfigInfoModified.createLocal(incrementSequence(), info, patch));
         }
 
-        public @Override void handleGlobalChange(
+        @Override
+        public void handleGlobalChange(
                 GeoServerInfo global,
                 List<String> propertyNames,
                 List<Object> oldValues,
                 List<Object> newValues) {
             String id = InfoEvent.resolveId(global);
-            preparePreModify(id, global, propertyNames, oldValues, newValues);
+            preparePreModify(id, propertyNames, oldValues, newValues);
         }
 
         /**
          * Note: GeoServerImpl sends a post-modify event on setGlobal(), but no pre-event nor
          * add-event exists
          */
-        public @Override void handlePostGlobalChange(GeoServerInfo global) {
+        @Override
+        public void handlePostGlobalChange(GeoServerInfo global) {
             final String id = InfoEvent.resolveId(global);
             final Patch patch = pop(id);
             if (patch == null) {
@@ -219,17 +224,19 @@ class CatalogApplicationEventPublisher {
                 publish(ConfigInfoAdded.createLocal(incrementSequence(), global));
             } else {
                 // already called pop()
-                ConfigInfoModified<?, Info> event =
+                ConfigInfoModified<GeoServerInfo> event =
                         ConfigInfoModified.createLocal(incrementSequence(), global, patch);
                 publish(event);
             }
         }
 
-        public @Override void handleSettingsAdded(SettingsInfo settings) {
+        @Override
+        public void handleSettingsAdded(SettingsInfo settings) {
             publish(ConfigInfoAdded.createLocal(incrementSequence(), settings));
         }
 
-        public @Override void handleSettingsModified(
+        @Override
+        public void handleSettingsModified(
                 SettingsInfo settings,
                 List<String> propertyNames,
                 List<Object> oldValues,
@@ -239,28 +246,31 @@ class CatalogApplicationEventPublisher {
                 OwsUtils.set(settings, "id", UUID.randomUUID().toString());
             }
 
-            preparePreModify(settings.getId(), settings, propertyNames, oldValues, newValues);
+            preparePreModify(settings.getId(), propertyNames, oldValues, newValues);
         }
 
-        public @Override void handleSettingsPostModified(SettingsInfo settings) {
+        @Override
+        public void handleSettingsPostModified(SettingsInfo settings) {
             publishPostModify(settings.getId(), settings);
         }
 
-        public @Override void handleSettingsRemoved(SettingsInfo settings) {
+        @Override
+        public void handleSettingsRemoved(SettingsInfo settings) {
             publish(ConfigInfoRemoved.createLocal(incrementSequence(), settings));
         }
 
-        public @Override void handleLoggingChange(
+        @Override
+        public void handleLoggingChange(
                 LoggingInfo logging,
                 List<String> propertyNames,
                 List<Object> oldValues,
                 List<Object> newValues) {
             // LoggingInfo has no-id
-            preparePreModify(
-                    InfoEvent.resolveId(logging), logging, propertyNames, oldValues, newValues);
+            preparePreModify(InfoEvent.resolveId(logging), propertyNames, oldValues, newValues);
         }
 
-        public @Override void handlePostLoggingChange(LoggingInfo logging) {
+        @Override
+        public void handlePostLoggingChange(LoggingInfo logging) {
             // LoggingInfo has no-id
             final String id = InfoEvent.resolveId(logging);
             Patch patch = pop(id);
@@ -273,13 +283,14 @@ class CatalogApplicationEventPublisher {
             }
         }
 
-        public @Override void handleServiceChange(
+        @Override
+        public void handleServiceChange(
                 ServiceInfo service,
                 List<String> propertyNames,
                 List<Object> oldValues,
                 List<Object> newValues) {
 
-            preparePreModify(service.getId(), service, propertyNames, oldValues, newValues);
+            preparePreModify(service.getId(), propertyNames, oldValues, newValues);
         }
 
         /**
@@ -288,7 +299,8 @@ class CatalogApplicationEventPublisher {
          * in {@link ConfigurationListener}. This method will identify that situation and fire a
          * {@link ConfigInfoAdded} instead of a {@link ConfigInfoModified}.
          */
-        public @Override void handlePostServiceChange(ServiceInfo service) {
+        @Override
+        public void handlePostServiceChange(ServiceInfo service) {
             Patch patch = pop(service.getId());
             if (patch == null) {
                 // means there was no handleServiceChange() call and this is an add instead, shame's
@@ -300,7 +312,8 @@ class CatalogApplicationEventPublisher {
             }
         }
 
-        public @Override void handleServiceRemove(ServiceInfo service) {
+        @Override
+        public void handleServiceRemove(ServiceInfo service) {
             publish(ConfigInfoRemoved.createLocal(incrementSequence(), service));
         }
     }

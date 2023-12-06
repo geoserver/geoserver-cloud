@@ -33,7 +33,7 @@ import java.nio.file.Paths;
  * Test {@link DataDirectoryBackendConfiguration} through {@link DataDirectoryAutoConfiguration}
  * when {@code geoserver.backend.data-directory.enabled=true}
  */
-public class DataDirectoryAutoConfigurationTest {
+class DataDirectoryAutoConfigurationTest {
 
     private ApplicationContextRunner runner =
             new ApplicationContextRunner()
@@ -64,7 +64,8 @@ public class DataDirectoryAutoConfigurationTest {
                             "geoserver.backend.dataDirectory.location=/tmp/data_dir_autoconfiguration_test" //
                             );
 
-    public @Test void testProperties() {
+    @Test
+    void testProperties() {
 
         runner.run(
                 context -> {
@@ -77,21 +78,24 @@ public class DataDirectoryAutoConfigurationTest {
                 });
     }
 
-    public @Test void testCatalog() {
+    @Test
+    void testCatalog() {
         runner.run(
                 context -> {
                     assertThat(context).getBean("rawCatalog").isInstanceOf(LockingCatalog.class);
                 });
     }
 
-    public @Test void testGeoServer() {
+    @Test
+    void testGeoServer() {
         runner.run(
                 context -> {
                     assertThat(context).getBean("geoServer").isInstanceOf(LockingGeoServer.class);
                 });
     }
 
-    public @Test void testCatalogFacadeIsRawCatalogFacade() {
+    @Test
+    void testCatalogFacadeIsRawCatalogFacade() {
         runner.run(
                 context -> {
                     CatalogFacade rawCatalogFacade =
@@ -101,7 +105,8 @@ public class DataDirectoryAutoConfigurationTest {
                 });
     }
 
-    public @Test void testCatalogFacade() {
+    @Test
+    void testCatalogFacade() {
         runner.run(
                 context -> {
                     assertThat(context)
@@ -110,7 +115,8 @@ public class DataDirectoryAutoConfigurationTest {
                 });
     }
 
-    public @Test void testResourceLoader() {
+    @Test
+    void testResourceLoader() {
         runner.run(
                 context -> {
                     assertThat(context)
@@ -119,7 +125,8 @@ public class DataDirectoryAutoConfigurationTest {
                 });
     }
 
-    public @Test void testGeoserverFacade() {
+    @Test
+    void testGeoserverFacade() {
         runner.run(
                 context -> {
                     assertThat(context)
@@ -128,7 +135,8 @@ public class DataDirectoryAutoConfigurationTest {
                 });
     }
 
-    public @Test void testGeoserverLoaderLegacy() {
+    @Test
+    void testGeoserverLoaderLegacy() {
         runner.withPropertyValues("geoserver.backend.data-directory.parallel-loader=false")
                 .run(
                         context -> {
@@ -138,7 +146,8 @@ public class DataDirectoryAutoConfigurationTest {
                         });
     }
 
-    public @Test void testGeoserverLoader() {
+    @Test
+    void testGeoserverLoader() {
         runner.run(
                 context -> {
                     assertThat(context)
@@ -147,7 +156,8 @@ public class DataDirectoryAutoConfigurationTest {
                 });
     }
 
-    public @Test void testResourceStoreImpl() {
+    @Test
+    void testResourceStoreImpl() {
         runner.run(
                 context -> {
                     assertThat(context)
@@ -156,7 +166,8 @@ public class DataDirectoryAutoConfigurationTest {
                 });
     }
 
-    public @Test void testUpdateSequence() {
+    @Test
+    void testUpdateSequence() {
         runner.run(
                 context -> {
                     assertThat(context)
@@ -165,7 +176,8 @@ public class DataDirectoryAutoConfigurationTest {
                 });
     }
 
-    public @Test void testGeoServerConfigurationLock() {
+    @Test
+    void testGeoServerConfigurationLock() {
         runner.run(
                 context -> {
                     assertThat(context)

@@ -18,7 +18,7 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
  *
  * @since 1.0
  */
-public class MapBoxStylingConfigurationTest {
+class MapBoxStylingConfigurationTest {
 
     private final ApplicationContextRunner contextRunner =
             new ApplicationContextRunner()

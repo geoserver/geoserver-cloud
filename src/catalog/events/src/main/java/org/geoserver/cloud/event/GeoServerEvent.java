@@ -19,11 +19,13 @@ import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.LoggingInfo;
 import org.springframework.core.style.ToStringCreator;
 
+import java.io.Serializable;
 import java.util.Optional;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonSubTypes({@JsonSubTypes.Type(value = UpdateSequenceEvent.class)})
-public abstract class GeoServerEvent<SELF> {
+@SuppressWarnings("serial")
+public abstract class GeoServerEvent implements Serializable {
 
     @JsonIgnore private @Setter boolean remote;
 
@@ -44,24 +46,25 @@ public abstract class GeoServerEvent<SELF> {
     }
 
     @SuppressWarnings("unchecked")
-    public Optional<SELF> local() {
-        return Optional.ofNullable(isLocal() ? (SELF) this : null);
+    public <T extends GeoServerEvent> Optional<T> local() {
+        return Optional.ofNullable(isLocal() ? (T) this : null);
     }
 
     @SuppressWarnings("unchecked")
-    public Optional<SELF> remote() {
-        return Optional.ofNullable(isRemote() ? (SELF) this : null);
+    public <T extends GeoServerEvent> Optional<T> remote() {
+        return Optional.ofNullable(isRemote() ? (T) this : null);
     }
 
     public boolean isLocal() {
-        return !isRemote(); // source != null;
+        return !isRemote();
     }
 
     public boolean isRemote() {
         return remote;
     }
 
-    public @Override String toString() {
+    @Override
+    public String toString() {
         return toStringBuilder().toString();
     }
 

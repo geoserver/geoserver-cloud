@@ -48,17 +48,18 @@ public class CatalogPropertyResolver<T extends Info> implements UnaryOperator<T>
         return new CatalogPropertyResolver<>(catalog);
     }
 
-    public @Override T apply(T i) {
+    @Override
+    public T apply(T i) {
         return resolve(i);
     }
 
     private <I> I resolve(I i) {
         i = null == i ? null : ModificationProxy.unwrap(i);
-        if (i instanceof StoreInfo) setCatalog((StoreInfo) i);
-        else if (i instanceof ResourceInfo) setCatalog((ResourceInfo) i);
-        else if (i instanceof StyleInfo) setCatalog((StyleInfo) i);
-        else if (i instanceof PublishedInfo) setCatalog((PublishedInfo) i);
-        else if (i instanceof LayerGroupStyle) setCatalog((LayerGroupStyle) i);
+        if (i instanceof StoreInfo store) setCatalog(store);
+        else if (i instanceof ResourceInfo resource) setCatalog(resource);
+        else if (i instanceof StyleInfo style) setCatalog(style);
+        else if (i instanceof PublishedInfo published) setCatalog(published);
+        else if (i instanceof LayerGroupStyle lgs) setCatalog(lgs);
         return i;
     }
 
@@ -67,8 +68,8 @@ public class CatalogPropertyResolver<T extends Info> implements UnaryOperator<T>
     }
 
     private void setCatalog(@NonNull PublishedInfo i) {
-        if (i instanceof LayerInfo) setCatalog((LayerInfo) i);
-        else if (i instanceof LayerGroupInfo) setCatalog((LayerGroupInfo) i);
+        if (i instanceof LayerInfo li) setCatalog(li);
+        else if (i instanceof LayerGroupInfo lg) setCatalog(lg);
     }
 
     private void setCatalog(@NonNull LayerInfo i) {
@@ -93,18 +94,18 @@ public class CatalogPropertyResolver<T extends Info> implements UnaryOperator<T>
     }
 
     private void setCatalog(@NonNull StoreInfo i) {
-        if (i instanceof StoreInfoImpl) ((StoreInfoImpl) i).setCatalog(catalog);
+        if (i instanceof StoreInfoImpl store) store.setCatalog(catalog);
     }
 
     private void setCatalog(@NonNull ResourceInfo i) {
         i.setCatalog(catalog);
         resolve(i.getStore());
-        if (i instanceof WMSLayerInfo) {
-            resolve(((WMSLayerInfo) i).getAllAvailableRemoteStyles());
+        if (i instanceof WMSLayerInfo wmsLayer) {
+            resolve(wmsLayer.getAllAvailableRemoteStyles());
         }
     }
 
     private void setCatalog(@NonNull StyleInfo i) {
-        if (i instanceof StyleInfoImpl) ((StyleInfoImpl) i).setCatalog(catalog);
+        if (i instanceof StyleInfoImpl style) style.setCatalog(catalog);
     }
 }

@@ -27,7 +27,8 @@ public class VersionSerializer extends StdSerializer<Version> {
         super(Version.class);
     }
 
-    public @Override void serializeWithType(
+    @Override
+    public void serializeWithType(
             Version value,
             JsonGenerator gen,
             SerializerProvider serializers,
@@ -42,7 +43,8 @@ public class VersionSerializer extends StdSerializer<Version> {
         typeSer.writeTypeSuffix(gen, typeIdDef);
     }
 
-    public @Override void serialize(Version version, JsonGenerator gen, SerializerProvider provider)
+    @Override
+    public void serialize(Version version, JsonGenerator gen, SerializerProvider provider)
             throws IOException {
 
         VersionDto dto = mapper.versionToDto(version);

@@ -35,7 +35,7 @@ import java.lang.annotation.Target;
 @ConditionalOnProperty(
         name = AuthKeyAutoConfiguration.GEOSERVER_SECURITY_AUTHKEY,
         havingValue = "true",
-        matchIfMissing = ConditionalOnAuthKeyEnabled.enabledByDefault)
+        matchIfMissing = ConditionalOnAuthKeyEnabled.ENABLED_BY_DEFAULT)
 public @interface ConditionalOnAuthKeyEnabled {
-    boolean enabledByDefault = false;
+    boolean ENABLED_BY_DEFAULT = false;
 }

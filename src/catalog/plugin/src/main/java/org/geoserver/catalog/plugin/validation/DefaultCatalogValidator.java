@@ -52,7 +52,8 @@ public class DefaultCatalogValidator implements CatalogValidator {
         this.newObjectPropertiesResolver = new DefaultPropertyValuesResolver(catalog);
     }
 
-    public @Override void validate(WorkspaceInfo workspace, boolean isNew) {
+    @Override
+    public void validate(WorkspaceInfo workspace, boolean isNew) {
         checkNotEmpty(workspace.getName(), "workspace name must not be null");
         checkArgument(
                 !Catalog.DEFAULT.equals(workspace.getName()),
@@ -75,7 +76,8 @@ public class DefaultCatalogValidator implements CatalogValidator {
                 workspace.getName());
     }
 
-    public @Override void validate(NamespaceInfo namespace, boolean isNew) {
+    @Override
+    public void validate(NamespaceInfo namespace, boolean isNew) {
         checkNotEmpty(namespace.getPrefix(), "Namespace prefix must not be null");
         checkNotEmpty(namespace.getURI(), "Namespace uri must not be null");
         if (isNew) {
@@ -120,7 +122,8 @@ public class DefaultCatalogValidator implements CatalogValidator {
         }
     }
 
-    public @Override void validate(StoreInfo store, boolean isNew) {
+    @Override
+    public void validate(StoreInfo store, boolean isNew) {
         if (isNew) {
             newObjectPropertiesResolver.resolve(store);
         }
@@ -140,14 +143,15 @@ public class DefaultCatalogValidator implements CatalogValidator {
         }
     }
 
-    public @Override void validate(ResourceInfo resource, boolean isNew) {
+    @Override
+    public void validate(ResourceInfo resource, boolean isNew) {
         checkNotEmpty(resource.getName(), "Resource name must not be null");
         if (isNew) {
             newObjectPropertiesResolver.resolve(resource);
         }
         if (isNullOrEmpty(resource.getNativeName())
-                && !(resource instanceof CoverageInfo
-                        && ((CoverageInfo) resource).getNativeCoverageName() != null)) {
+                && !(resource instanceof CoverageInfo coverage
+                        && coverage.getNativeCoverageName() != null)) {
             throw new NullPointerException("Resource native name must not be null");
         }
         checkNotNull(resource.getStore(), "Resource must be part of a store");
@@ -173,11 +177,8 @@ public class DefaultCatalogValidator implements CatalogValidator {
         validateKeywords(resource.getKeywords());
     }
 
-    public @Override void validate(LayerInfo layer, boolean isNew) {
-        // TODO: bring back when the layer/publishing split is in act
-        // if ( isNull(layer.getName()) ) {
-        // throw new NullPointerException( "Layer name must not be null" );
-        // }
+    @Override
+    public void validate(LayerInfo layer, boolean isNew) {
         final ResourceInfo resource = layer.getResource();
         checkNotNull(resource, "Layer resource must not be null");
         if (isNew) {
@@ -203,35 +204,34 @@ public class DefaultCatalogValidator implements CatalogValidator {
         // if the style is missing associate a default one, to avoid breaking WMS
         if (layer.getDefaultStyle() == null) {
             try {
-                LOGGER.log(
-                        Level.INFO,
-                        "Layer "
-                                + layer.prefixedName()
-                                + " is missing the default style, assigning one automatically");
+                LOGGER.info(
+                        () ->
+                                "Layer %s is missing the default style, assigning one automatically"
+                                        .formatted(layer.prefixedName()));
                 StyleInfo style = new CatalogBuilder(catalog).getDefaultStyle(resource);
                 layer.setDefaultStyle(style);
             } catch (IOException e) {
                 LOGGER.log(
                         Level.WARNING,
-                        "Layer "
-                                + layer.prefixedName()
-                                + " is missing the default style, "
-                                + "failed to associate one automatically",
-                        e);
+                        e,
+                        () ->
+                                "Layer %s is missing the default style, failed to associate one automatically"
+                                        .formatted(layer.prefixedName()));
             }
         }
 
         // clean up eventual dangling references to missing alternate styles
         Set<StyleInfo> styles = layer.getStyles();
         for (Iterator<StyleInfo> it = styles.iterator(); it.hasNext(); ) {
-            StyleInfo styleInfo = (StyleInfo) it.next();
+            StyleInfo styleInfo = it.next();
             if (styleInfo == null) {
                 it.remove();
             }
         }
     }
 
-    public @Override void validate(LayerGroupInfo layerGroup, boolean isNew) {
+    @Override
+    public void validate(LayerGroupInfo layerGroup, boolean isNew) {
         checkNotEmpty(layerGroup.getName(), "Layer group name must not be null");
         if (isNew) {
             newObjectPropertiesResolver.resolve(layerGroup);
@@ -323,7 +323,8 @@ public class DefaultCatalogValidator implements CatalogValidator {
         }
     }
 
-    public @Override void validate(StyleInfo style, boolean isNew) {
+    @Override
+    public void validate(StyleInfo style, boolean isNew) {
         if (isNew) {
             newObjectPropertiesResolver.resolve(style);
         }
@@ -392,10 +393,10 @@ public class DefaultCatalogValidator implements CatalogValidator {
         checkLayerGroupResourceIsInWorkspace(layerGroup.getRootLayerStyle(), ws);
         if (layerGroup.getLayers() != null) {
             for (PublishedInfo p : layerGroup.getLayers()) {
-                if (p instanceof LayerGroupInfo) {
-                    checkLayerGroupResourceIsInWorkspace((LayerGroupInfo) p, ws);
-                } else if (p instanceof LayerInfo) {
-                    checkLayerGroupResourceIsInWorkspace((LayerInfo) p, ws);
+                if (p instanceof LayerGroupInfo lg) {
+                    checkLayerGroupResourceIsInWorkspace(lg, ws);
+                } else if (p instanceof LayerInfo l) {
+                    checkLayerGroupResourceIsInWorkspace(l, ws);
                 }
             }
         }

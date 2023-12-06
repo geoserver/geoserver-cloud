@@ -13,8 +13,8 @@ import org.geoserver.config.GeoServerInfo;
 /** Event sent when {@link GeoServer#setGlobal(GeoServerInfo)} is called */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("GeoServerInfoSet")
-public class GeoServerInfoSet extends ConfigInfoAdded<GeoServerInfoSet, GeoServerInfo>
-        implements ConfigInfoEvent {
+@SuppressWarnings("serial")
+public class GeoServerInfoSet extends ConfigInfoAdded<GeoServerInfo> implements ConfigInfoEvent {
 
     protected GeoServerInfoSet() {
         // default constructor, needed for deserialization

@@ -38,7 +38,7 @@ import java.util.function.Function;
         })
 public abstract class PatchMapper {
 
-    private static InfoReferenceMapper REFS = Mappers.getMapper(InfoReferenceMapper.class);
+    private static final InfoReferenceMapper REFS = Mappers.getMapper(InfoReferenceMapper.class);
 
     @Mapping(target = "propertyNames", ignore = true)
     public abstract Patch dtoToPatch(PatchDto dto);
@@ -57,10 +57,9 @@ public abstract class PatchMapper {
 
     private Object dtoToValue(final Object valueDto) {
         Object value = valueDto;
-        if (valueDto instanceof InfoReference) {
-            value = REFS.referenceToInfo((InfoReference) valueDto);
-        } else if (valueDto instanceof Collection) {
-            Collection<?> c = (Collection<?>) valueDto;
+        if (valueDto instanceof InfoReference infoRef) {
+            value = REFS.referenceToInfo(infoRef);
+        } else if (valueDto instanceof Collection<?> c) {
             value = copyOf(c, this::dtoToValue);
         } else if (value instanceof Map) {
             @SuppressWarnings("unchecked")
@@ -78,13 +77,11 @@ public abstract class PatchMapper {
     private <V, R> R valueToDto(final V value) {
         R dto = (R) value;
 
-        if (value instanceof Info) {
-            Info info = (Info) dto;
+        if (value instanceof Info info) {
             if (ProxyUtils.encodeByReference(info)) {
                 dto = (R) REFS.infoToReference(info);
             }
-        } else if (value instanceof Collection) {
-            Collection<?> c = (Collection<?>) value;
+        } else if (value instanceof Collection<?> c) {
             dto = (R) copyOf(c, this::valueToDto);
         } else if (value instanceof Map) {
             Map<Object, Object> fromMap = (Map<Object, Object>) value;

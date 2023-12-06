@@ -62,6 +62,7 @@ public class GeoWebCacheApplicationConfiguration extends RestConfiguration {
      */
     @SuppressWarnings("deprecation")
     @Bean
+    @Override
     public RequestMappingHandlerMapping requestMappingHandlerMapping(
             @Qualifier("mvcContentNegotiationManager")
                     ContentNegotiationManager contentNegotiationManager,
@@ -102,17 +103,20 @@ public class GeoWebCacheApplicationConfiguration extends RestConfiguration {
 
         protected ServletRequest adaptRequest(HttpServletRequest request) {
             final String requestURI = request.getRequestURI();
-            final int restIdx = requestURI.indexOf("/rest");
+            final String restBasePath = "/rest";
+            final int restIdx = requestURI.indexOf(restBasePath);
             if (restIdx > -1) {
-                final String pathToRest = requestURI.substring(0, restIdx + "/rest".length());
+                final String pathToRest = requestURI.substring(0, restIdx + restBasePath.length());
                 final String pathInfo = requestURI.substring(pathToRest.length());
 
                 return new HttpServletRequestWrapper(request) {
-                    public @Override String getServletPath() {
-                        return "/rest";
+                    @Override
+                    public String getServletPath() {
+                        return restBasePath;
                     }
 
-                    public @Override String getPathInfo() {
+                    @Override
+                    public String getPathInfo() {
                         return pathInfo;
                     }
                 };

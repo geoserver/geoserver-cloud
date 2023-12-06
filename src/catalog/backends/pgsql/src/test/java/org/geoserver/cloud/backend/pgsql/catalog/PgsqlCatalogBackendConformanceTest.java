@@ -39,7 +39,8 @@ class PgsqlCatalogBackendConformanceTest extends CatalogConformanceTest {
             revisit, seems to be just a problem of ordering or equals with the \
             returned ft/ft2 where mockito is not throwing the expected exception
             """)
-    public @Override void testSaveDataStoreRollbacksBothStoreAndResources() throws Exception {}
+    @Override
+    public void testSaveDataStoreRollbacksBothStoreAndResources() throws Exception {}
 
     static @BeforeAll void createDataSource() throws Exception {
         String url = container.getJdbcUrl();

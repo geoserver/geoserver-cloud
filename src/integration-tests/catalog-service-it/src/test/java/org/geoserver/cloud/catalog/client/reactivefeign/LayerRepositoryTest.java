@@ -21,7 +21,7 @@ import lombok.experimental.Accessors;
 
 @EnableAutoConfiguration
 @Accessors(fluent = true)
-public class LayerRepositoryTest
+class LayerRepositoryTest
         extends AbstractCatalogServiceClientRepositoryTest<LayerInfo, LayerRepository> {
 
     private @Autowired @Getter LayerRepository repository;
@@ -59,24 +59,24 @@ public class LayerRepositoryTest
         serverCatalog.add(layerWMTSA);
     }
 
-    public @Override @Test void testFindAll() {
+    @Override public  @Test void testFindAll() {
         assertEquals(0, repository.findAll().count());
         addLayers();
         super.testFindAll(layerFTA, layerWMTSA, layerCVA);
     }
 
-    public @Override @Test void testFindAllByType() {
+    @Override public  @Test void testFindAllByType() {
         testFindAllIncludeFilter(LayerInfo.class);
         addLayers();
         testFindAllIncludeFilter(LayerInfo.class, layerFTA, layerCVA, layerWMTSA);
     }
 
-    public @Override @Test void testFindById() {
+    @Override public  @Test void testFindById() {
         serverCatalog.add(testData.layerFeatureTypeA);
         super.testFindById(testData.layerFeatureTypeA);
     }
 
-    public @Override @Test void testQueryFilter() {
+    @Override public  @Test void testQueryFilter() {
         serverCatalog.add(testData.layerFeatureTypeA);
         StyleInfo style1 = testData.style1;
         StyleInfo style2 = testData.style2;
@@ -101,7 +101,7 @@ public class LayerRepositoryTest
         super.testQueryFilter(cql, layer1, layer2);
     }
 
-    public @Test void testLayerCRUD() {
+    @Test void testLayerCRUD() {
         LayerInfo layer = testData.layerFeatureTypeA;
         crudTest(layer, serverCatalog::getLayer, l -> {
             l.setDefaultStyle(testData.style2);
@@ -110,7 +110,7 @@ public class LayerRepositoryTest
         });
     }
 
-    public @Test void testUpdateStyles() {
+    @Test void testUpdateStyles() {
         LayerInfo layer = testData.layerFeatureTypeA;
         serverCatalog.add(layer);
         layer = serverCatalog.getLayer(layer.getId());
@@ -132,7 +132,7 @@ public class LayerRepositoryTest
         });
     }
 
-    public @Test void testFindLayersByResource() {
+    @Test void testFindLayersByResource() {
         addLayers();
 
         testFind(() -> repository.findAllByResource(layerFTA.getResource()), layerFTA);
@@ -140,13 +140,13 @@ public class LayerRepositoryTest
         testFind(() -> repository.findAllByResource(layerWMTSA.getResource()), layerWMTSA);
     }
 
-    public @Test void testFindLayersByResource_NonExistentResource() {
+    @Test void testFindLayersByResource_NonExistentResource() {
         FeatureTypeInfo missingResource = testData.createFeatureType("not-added-to-catalog");
 
         assertEquals(0, repository.findAllByResource(missingResource).count());
     }
 
-    public @Test void testFindLayersWithStyle() {
+    @Test void testFindLayersWithStyle() {
         StyleInfo style1 = testData.style1; // on layer1 and layer2
         StyleInfo style2 = testData.style2; // layer2's default style
         StyleInfo style3 = testData.createStyle("style3"); // on layer2
@@ -171,7 +171,7 @@ public class LayerRepositoryTest
         testFind(() -> repository.findAllByDefaultStyleOrStyles(style), expectedLayers);
     }
 
-    public @Test void testFindOneByName() {
+    @Test void testFindOneByName() {
         addLayers();
         assertEquals(layerFTA.getId(), repository.findOneByName(layerFTA.getName()).get().getId());
     }

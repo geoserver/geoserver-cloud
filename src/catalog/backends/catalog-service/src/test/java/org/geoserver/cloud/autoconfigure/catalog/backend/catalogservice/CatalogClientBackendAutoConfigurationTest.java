@@ -32,7 +32,7 @@ import reactivefeign.spring.config.ReactiveFeignAutoConfiguration;
  * when {@code geoserver.backend.catalog-service.enabled=true}
  */
 @Disabled("Make it run without ReactiveCatalogClient trying to connect")
-public class CatalogClientBackendAutoConfigurationTest {
+class CatalogClientBackendAutoConfigurationTest {
 
     // geoserver.security.enabled=false to avoid calling the catalog during bean initialization,
     // since there's no backend service to connect to
@@ -52,19 +52,22 @@ public class CatalogClientBackendAutoConfigurationTest {
                                     WebClientAutoConfiguration.class,
                                     CacheAutoConfiguration.class));
 
-    public @Test void testCatalog() {
+    @Test
+    void testCatalog() {
         contextRunner.run(
                 context ->
                         context.isTypeMatch(
                                 "rawCatalog", org.geoserver.catalog.plugin.CatalogPlugin.class));
     }
 
-    public @Test void testCatalogFacade() {
+    @Test
+    void testCatalogFacade() {
         contextRunner.run(
                 context -> context.isTypeMatch("catalogFacade", CatalogClientCatalogFacade.class));
     }
 
-    public @Test void testCatalogFacadeIsRawCatalogFacade() {
+    @Test
+    void testCatalogFacadeIsRawCatalogFacade() {
         contextRunner.run(
                 context -> {
                     CatalogPlugin catalog = context.getBean("rawCatalog", CatalogPlugin.class);
@@ -74,13 +77,15 @@ public class CatalogClientBackendAutoConfigurationTest {
                 });
     }
 
-    public @Test void testResourceStore() {
+    @Test
+    void testResourceStore() {
         contextRunner.run(
                 context ->
                         context.isTypeMatch("resourceStoreImpl", CatalogClientResourceStore.class));
     }
 
-    public @Test void testResourceLoadersResourceStore() {
+    @Test
+    void testResourceLoadersResourceStore() {
         contextRunner.run(
                 context -> {
                     GeoServerResourceLoader resourceLoader =
@@ -91,13 +96,15 @@ public class CatalogClientBackendAutoConfigurationTest {
                 });
     }
 
-    public @Test void testGeoserverFacade() {
+    @Test
+    void testGeoserverFacade() {
         contextRunner.run(
                 context ->
                         context.isTypeMatch("geoserverFacade", CatalogClientGeoServerFacade.class));
     }
 
-    public @Test void testGeoserverLoader() {
+    @Test
+    void testGeoserverLoader() {
         contextRunner.run(
                 context ->
                         context.isTypeMatch(

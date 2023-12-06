@@ -11,6 +11,7 @@ import org.geoserver.cloud.virtualservice.VirtualServiceVerifier;
 import org.geoserver.cloud.wms.controller.GetMapReflectorController;
 import org.geoserver.cloud.wms.controller.WMSController;
 import org.geoserver.config.GeoServer;
+import org.geoserver.ows.Dispatcher;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.wfs.xml.FeatureTypeSchemaBuilder;
 import org.geoserver.wfs.xml.v1_1_0.WFS;
@@ -81,13 +82,16 @@ public class WmsApplicationAutoConfiguration {
     }
 
     @Bean
-    WMSController webMapServiceController() {
-        return new WMSController();
+    WMSController webMapServiceController(
+            Dispatcher geoserverDispatcher,
+            org.geoserver.ows.ClasspathPublisher classPathPublisher,
+            VirtualServiceVerifier virtualServiceVerifier) {
+        return new WMSController(geoserverDispatcher, classPathPublisher, virtualServiceVerifier);
     }
 
     @Bean
-    VirtualServiceVerifier virtualServiceVerifier() {
-        return new VirtualServiceVerifier();
+    VirtualServiceVerifier virtualServiceVerifier(@Qualifier("rawCatalog") Catalog catalog) {
+        return new VirtualServiceVerifier(catalog);
     }
 
     @ConditionalOnProperty(
@@ -96,7 +100,7 @@ public class WmsApplicationAutoConfiguration {
             havingValue = "true",
             matchIfMissing = true)
     @Bean
-    GetMapReflectorController getMapReflectorController() {
-        return new GetMapReflectorController();
+    GetMapReflectorController getMapReflectorController(Dispatcher geoserverDispatcher) {
+        return new GetMapReflectorController(geoserverDispatcher);
     }
 }

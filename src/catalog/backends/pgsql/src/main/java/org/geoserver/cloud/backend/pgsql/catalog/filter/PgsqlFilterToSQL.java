@@ -31,6 +31,7 @@ import org.geotools.jdbc.PreparedFilterToSQL;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.util.Date;
 import java.util.List;
@@ -115,7 +116,7 @@ class PgsqlFilterToSQL extends PreparedFilterToSQL {
 
             writeLiteral(pattern);
         } catch (java.io.IOException ioe) {
-            throw new RuntimeException(IO_ERROR, ioe);
+            throw new UncheckedIOException(IO_ERROR, ioe);
         }
         return extraData;
     }
@@ -125,9 +126,9 @@ class PgsqlFilterToSQL extends PreparedFilterToSQL {
         super.encodingFunction = true;
         boolean encoded;
         try {
-            encoded = visitFunction(function, extraData);
+            encoded = visitFunction(function);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(IO_ERROR, e);
         }
         super.encodingFunction = false;
 
@@ -169,7 +170,7 @@ class PgsqlFilterToSQL extends PreparedFilterToSQL {
      *
      * @implNote copied and adapted from org.geotools.data.postgis.FilterToSqlHelper
      */
-    protected boolean visitFunction(Function function, Object extraData) throws IOException {
+    protected boolean visitFunction(Function function) throws IOException {
         if (function instanceof FilterFunction_strConcat) {
             Expression s1 = getParameter(function, 0, true);
             Expression s2 = getParameter(function, 1, true);
@@ -213,20 +214,6 @@ class PgsqlFilterToSQL extends PreparedFilterToSQL {
             out.write("::text))");
             return true;
         }
-        //        if (function instanceof FilterFunction_strToLowerCase) {
-        //            Expression first = getParameter(function, 0, true);
-        //            out.write("(lower(");
-        //            first.accept(this, String.class);
-        //            out.write("::text))");
-        //            return true;
-        //        }
-        //        if (function instanceof FilterFunction_strToUpperCase) {
-        //            Expression first = getParameter(function, 0, true);
-        //            out.write("(upper(");
-        //            first.accept(this, String.class);
-        //            out.write("::text))");
-        //            return true;
-        //        }
         if (function instanceof FilterFunction_strIndexOf) {
             Expression first = getParameter(function, 0, true);
             Expression second = getParameter(function, 1, true);
@@ -275,14 +262,6 @@ class PgsqlFilterToSQL extends PreparedFilterToSQL {
             out.write(")");
             return true;
         }
-        //        if (function instanceof JsonPointerFunction) {
-        //            encodeJsonPointer(function, extraData);
-        //            return true;
-        //        }
-        //        if (function instanceof JsonArrayContainsFunction) {
-        //            encodeJsonArrayContains(function);
-        //            return true;
-        //        }
         // function not supported
         return false;
     }

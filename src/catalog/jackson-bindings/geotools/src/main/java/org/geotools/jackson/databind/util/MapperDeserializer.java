@@ -5,7 +5,6 @@
 package org.geotools.jackson.databind.util;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 
@@ -27,8 +26,8 @@ public class MapperDeserializer<DTO, T> extends JsonDeserializer<T> {
     private final @NonNull Class<DTO> from;
     private final Function<DTO, T> mapper;
 
-    public @Override T deserialize(JsonParser parser, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException {
+    @Override
+    public T deserialize(JsonParser parser, DeserializationContext ctxt) throws IOException {
 
         DTO dto;
         T value;

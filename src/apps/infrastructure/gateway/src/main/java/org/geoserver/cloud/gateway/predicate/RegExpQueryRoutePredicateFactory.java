@@ -68,11 +68,13 @@ public class RegExpQueryRoutePredicateFactory
         super(Config.class);
     }
 
-    public @Override List<String> shortcutFieldOrder() {
+    @Override
+    public List<String> shortcutFieldOrder() {
         return Arrays.asList(PARAM_KEY, VALUE_KEY);
     }
 
-    public @Override Predicate<ServerWebExchange> apply(Config config) {
+    @Override
+    public Predicate<ServerWebExchange> apply(Config config) {
         return new RegExpQueryRoutePredicate(config);
     }
 
@@ -80,7 +82,8 @@ public class RegExpQueryRoutePredicateFactory
     private static class RegExpQueryRoutePredicate implements GatewayPredicate {
         private final @NonNull Config config;
 
-        public @Override boolean test(ServerWebExchange exchange) {
+        @Override
+        public boolean test(ServerWebExchange exchange) {
             final String paramRegexp = config.getParamRegexp();
             final String valueRegexp = config.getValueRegexp();
 
@@ -93,7 +96,8 @@ public class RegExpQueryRoutePredicateFactory
             return paramNameMatches && paramValueMatches(paramName.get(), valueRegexp, exchange);
         }
 
-        public @Override String toString() {
+        @Override
+        public String toString() {
             return String.format(
                     "Query: param regexp='%s' value regexp='%s'",
                     config.getParamRegexp(), config.getValueRegexp());

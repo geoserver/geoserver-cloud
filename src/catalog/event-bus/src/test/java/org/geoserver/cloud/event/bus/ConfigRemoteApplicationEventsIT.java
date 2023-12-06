@@ -38,7 +38,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Locale;
 import java.util.Map;
 
-public class ConfigRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
+class ConfigRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
 
     @BeforeEach
     public void before() {
@@ -46,27 +46,31 @@ public class ConfigRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
         super.setupClean();
     }
 
-    public @Test void testConfigAddEvent_ServiceInfo() {
+    @Test
+    void testConfigAddEvent_ServiceInfo() {
         WMSInfoImpl service = new WMSInfoImpl();
         service.setName("WMS");
         testRemoteAddEvent(service, geoserver::add, ServiceAdded.class);
     }
 
-    public @Test void testConfigAddEvent_WPSInfo() {
+    @Test
+    void testConfigAddEvent_WPSInfo() {
         WPSInfoImpl service = new WPSInfoImpl();
         service.setName("WPS");
         service.setTitle("My WPS");
         testRemoteAddEvent(service, geoserver::add, ServiceAdded.class);
     }
 
-    public @Test void testConfigAddEvent_ServiceInfo_Workspace() {
+    @Test
+    void testConfigAddEvent_ServiceInfo_Workspace() {
         WMSInfoImpl workspaceService = new WMSInfoImpl();
         workspaceService.setName("WMS");
         workspaceService.setWorkspace(testData.workspaceB);
         testRemoteAddEvent(workspaceService, geoserver::add, ServiceAdded.class);
     }
 
-    public @Test void testConfigRemoteModifyEvent_ServiceInfo_Workspace() {
+    @Test
+    void testConfigRemoteModifyEvent_ServiceInfo_Workspace() {
         WMSInfo service = testData.faker().serviceInfo("WMS_WS_TEST", WMSInfoImpl::new);
         service.setWorkspace(testData.workspaceB);
         geoserver.add(service);
@@ -83,7 +87,8 @@ public class ConfigRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
                 ServiceModified.class);
     }
 
-    public @Test void testConfigRemoteModifyEvent_WPSInfo() {
+    @Test
+    void testConfigRemoteModifyEvent_WPSInfo() {
         WPSInfo service = testData.faker().serviceInfo("WPS_WS_TEST", WPSInfoImpl::new);
         service.setWorkspace(testData.workspaceB);
         geoserver.add(service);
@@ -97,7 +102,8 @@ public class ConfigRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
                 ServiceModified.class);
     }
 
-    public @Test void testConfigAddEvent_SettingsInfo() {
+    @Test
+    void testConfigAddEvent_SettingsInfo() {
         catalog.add(testData.workspaceB);
 
         SettingsInfoImpl workspaceSettings = new SettingsInfoImpl();
@@ -105,7 +111,8 @@ public class ConfigRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
         testRemoteAddEvent(workspaceSettings, geoserver::add, SettingsAdded.class);
     }
 
-    public @Test void testConfigRemoteModifyEvents_GeoServerInfo() {
+    @Test
+    void testConfigRemoteModifyEvents_GeoServerInfo() {
         GeoServerInfo global = geoserver.getGlobal();
         assertNotNull(global);
 
@@ -136,7 +143,8 @@ public class ConfigRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
         assertThat(settings.getContact().getAddressCity()).isEqualTo("Buenos Aires");
     }
 
-    public @Test void testConfigRemotetModifyEvents_GloabalSettingsInfo() {
+    @Test
+    void testConfigRemotetModifyEvents_GloabalSettingsInfo() {
         testData.initConfig(true).initConfig();
         // odd API weirdness here, can't modify global settings through
         // GeoServer.save(SettingsInfo),
@@ -167,7 +175,8 @@ public class ConfigRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
         assertThat(newSettings.getContact().getAddressCity()).isEqualTo("Rosario");
     }
 
-    public @Test void testConfigRemotetModifyEvents_SettingsInfo() {
+    @Test
+    void testConfigRemotetModifyEvents_SettingsInfo() {
         SettingsInfo workspaceSettings = new SettingsInfoImpl();
         WorkspaceInfo workspace = testData.workspaceC;
         workspaceSettings.setWorkspace(workspace);
@@ -183,7 +192,8 @@ public class ConfigRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
                 geoserver::save);
     }
 
-    public @Test void testConfigRemoteModifyEvents_LoggingInfo() {
+    @Test
+    void testConfigRemoteModifyEvents_LoggingInfo() {
         catalog.add(testData.workspaceA);
         catalog.add(testData.workspaceB);
 
@@ -198,7 +208,8 @@ public class ConfigRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
                 geoserver::save);
     }
 
-    public @Test void testConfigRemoteRemoveEvent_SettingsInfo() {
+    @Test
+    void testConfigRemoteRemoveEvent_SettingsInfo() {
         SettingsInfo settings = new SettingsInfoImpl();
         settings.setWorkspace(testData.workspaceC);
         geoserver.add(settings);
@@ -208,7 +219,8 @@ public class ConfigRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
         assertEquals(testData.workspaceC.getId(), event.getWorkspaceId());
     }
 
-    public @Test void testConfigRemoveEvent_ServiceInfo() {
+    @Test
+    void testConfigRemoveEvent_ServiceInfo() {
         ServiceInfo service = new WMSInfoImpl();
         geoserver.add(service);
 
@@ -218,7 +230,8 @@ public class ConfigRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
         assertThat(event.getWorkspaceId()).isNull();
     }
 
-    public @Test void testConfigRemoveEvent_ServiceInfo_Workspace() {
+    @Test
+    void testConfigRemoveEvent_ServiceInfo_Workspace() {
         ServiceInfo service = new WMSInfoImpl();
         service.setName("WMS");
         service.setWorkspace(testData.workspaceC);
@@ -231,7 +244,8 @@ public class ConfigRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
         assertThat(event.getWorkspaceId()).isEqualTo(testData.workspaceC.getId());
     }
 
-    public @Test void testGeoServerInfoMetadatamapWithCogSettings() {
+    @Test
+    void testGeoServerInfoMetadatamapWithCogSettings() {
         GeoServerInfo global = geoserver.getGlobal();
         assertNotNull(global);
 

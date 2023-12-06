@@ -26,7 +26,7 @@ import javax.sql.DataSource;
  * @since 1.4
  */
 @Testcontainers(disabledWithoutDocker = true)
-public class PgsqlConfigRepositoryConformanceTest extends GeoServerConfigConformanceTest {
+class PgsqlConfigRepositoryConformanceTest extends GeoServerConfigConformanceTest {
 
     @Container static PostgreSQLContainer<?> container = new PostgreSQLContainer<>("postgres:15");
 

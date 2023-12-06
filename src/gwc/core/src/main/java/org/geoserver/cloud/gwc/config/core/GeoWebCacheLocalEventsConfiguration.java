@@ -5,6 +5,9 @@
 package org.geoserver.cloud.gwc.config.core;
 
 import org.geoserver.cloud.gwc.event.TileLayerEventPublisher;
+import org.geoserver.gwc.layer.TileLayerCatalog;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,7 +18,9 @@ import org.springframework.context.annotation.Configuration;
 public class GeoWebCacheLocalEventsConfiguration {
 
     @Bean
-    TileLayerEventPublisher tileLayerEventPublisher() {
-        return new TileLayerEventPublisher();
+    TileLayerEventPublisher tileLayerEventPublisher(
+            ApplicationEventPublisher localContextPublisher,
+            @Qualifier("GeoSeverTileLayerCatalog") TileLayerCatalog tileLayerCatalog) {
+        return new TileLayerEventPublisher(localContextPublisher, tileLayerCatalog);
     }
 }

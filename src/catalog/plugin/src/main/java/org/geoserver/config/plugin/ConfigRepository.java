@@ -73,10 +73,10 @@ public interface ConfigRepository {
     <S extends ServiceInfo> S update(S service, Patch patch);
 
     /** GeoServer global services (not attached to any Workspace) */
-    Stream<? extends ServiceInfo> getGlobalServices();
+    Stream<ServiceInfo> getGlobalServices();
 
     /** GeoServer services specific to the specified workspace. */
-    Stream<? extends ServiceInfo> getServicesByWorkspace(WorkspaceInfo workspace);
+    Stream<ServiceInfo> getServicesByWorkspace(WorkspaceInfo workspace);
 
     /**
      * GeoServer global service filtered by type.

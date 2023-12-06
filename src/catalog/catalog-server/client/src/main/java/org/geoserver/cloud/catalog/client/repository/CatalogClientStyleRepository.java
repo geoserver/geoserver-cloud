@@ -19,19 +19,23 @@ public class CatalogClientStyleRepository extends CatalogClientRepository<StyleI
 
     private final @Getter Class<StyleInfo> contentType = StyleInfo.class;
 
-    public @Override Stream<StyleInfo> findAllByNullWorkspace() {
+    @Override
+    public Stream<StyleInfo> findAllByNullWorkspace() {
         return toStream(client().findStylesByNullWorkspace());
     }
 
-    public @Override Stream<StyleInfo> findAllByWorkspace(@NonNull WorkspaceInfo ws) {
+    @Override
+    public Stream<StyleInfo> findAllByWorkspace(@NonNull WorkspaceInfo ws) {
         return toStream(client().findStylesByWorkspaceId(ws.getId()));
     }
 
-    public @Override Optional<StyleInfo> findByNameAndWordkspaceNull(@NonNull String name) {
+    @Override
+    public Optional<StyleInfo> findByNameAndWordkspaceNull(@NonNull String name) {
         return blockAndReturn(client().findStyleByNameAndNullWorkspace(name));
     }
 
-    public @Override Optional<StyleInfo> findByNameAndWorkspace(
+    @Override
+    public Optional<StyleInfo> findByNameAndWorkspace(
             @NonNull String name, @NonNull WorkspaceInfo workspace) {
 
         String workspaceId = workspace.getId();

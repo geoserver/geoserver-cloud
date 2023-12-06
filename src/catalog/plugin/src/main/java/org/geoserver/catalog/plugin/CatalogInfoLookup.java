@@ -133,7 +133,8 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
         this.infoType = type;
     }
 
-    public @Override Class<T> getContentType() {
+    @Override
+    public Class<T> getContentType() {
         return infoType;
     }
 
@@ -157,7 +158,8 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
         }
     }
 
-    public @Override void add(T value) {
+    @Override
+    public void add(T value) {
         requireNonNull(value);
         checkNotAProxy(value);
         Map<String, T> idMap = getMapForValue(idMultiMap, value);
@@ -173,7 +175,6 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
                                 value.getId(),
                                 nameMapper.apply(value).getLocalPart());
                 LOGGER.warning(msg);
-                // throw new IllegalArgumentException(msg);
             }
             Name name = nameMapper.apply(value);
             nameMap.put(name, value);
@@ -181,7 +182,8 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
         }
     }
 
-    public @Override void remove(T value) {
+    @Override
+    public void remove(T value) {
         requireNonNull(value);
         checkNotAProxy(value);
         Map<String, T> idMap = getMapForValue(idMultiMap, value);
@@ -196,7 +198,8 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
     }
 
     @SuppressWarnings("unchecked")
-    public @Override <I extends T> I update(final I value, Patch patch) {
+    @Override
+    public <I extends T> I update(final I value, Patch patch) {
         requireNonNull(value);
         requireNonNull(patch);
         checkNotAProxy(value);
@@ -227,7 +230,8 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
         return (I) storedValue;
     }
 
-    public @Override void dispose() {
+    @Override
+    public void dispose() {
         clear();
     }
 
@@ -244,7 +248,8 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
      * @param propertyName the property name of the objects of type {@code type} to sort by
      * @see org.geoserver.catalog.CatalogFacade#canSort(java.lang.Class, java.lang.String)
      */
-    public @Override boolean canSortBy(String propertyName) {
+    @Override
+    public boolean canSortBy(String propertyName) {
         return CatalogInfoLookup.canSort(propertyName, getContentType());
     }
 
@@ -263,8 +268,7 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
             if (i == path.length - 1) {
                 boolean primitive = clazz.isPrimitive();
                 boolean comparable = Comparable.class.isAssignableFrom(clazz);
-                boolean canSort = primitive || comparable;
-                return canSort;
+                return primitive || comparable;
             }
         }
         throw new IllegalStateException("empty property name");
@@ -286,7 +290,8 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
         return stream;
     }
 
-    public @Override <U extends T> long count(Class<U> type, Filter filter) {
+    @Override
+    public <U extends T> long count(Class<U> type, Filter filter) {
         return Filter.INCLUDE.equals(filter)
                 ? idMultiMap.entrySet().stream()
                         .filter(k -> type.isAssignableFrom(k.getKey()))
@@ -313,13 +318,14 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
     }
 
     protected <V> Predicate<V> toPredicate(Filter filter) {
-        return o -> filter.evaluate(o);
+        return filter::evaluate;
     }
 
     private static <U extends CatalogInfo> Comparator<U> comparator(final SortBy sortOrder) {
         Comparator<U> comparator =
                 new Comparator<>() {
-                    public @Override int compare(U o1, U o2) {
+                    @Override
+                    public int compare(U o1, U o2) {
                         Object v1 = OwsUtils.get(o1, sortOrder.getPropertyName().getPropertyName());
                         Object v2 = OwsUtils.get(o2, sortOrder.getPropertyName().getPropertyName());
                         if (v1 == null) {
@@ -361,7 +367,7 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
         requireNonNull(clazz);
         requireNonNull(predicate);
         requireNonNull(comparator);
-        List<U> result = new ArrayList<U>();
+        List<U> result = new ArrayList<>();
         for (Class<? extends T> key : nameMultiMap.keySet()) {
             if (clazz.isAssignableFrom(key)) {
                 Map<Name, T> valueMap = getMapForType(nameMultiMap, key);
@@ -385,7 +391,8 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
     }
 
     /** Looks up a CatalogInfo by class and identifier */
-    public @Override <U extends T> Optional<U> findById(String id, Class<U> clazz) {
+    @Override
+    public <U extends T> Optional<U> findById(String id, Class<U> clazz) {
         requireNonNull(id, () -> "id is null, class: " + clazz);
         requireNonNull(clazz);
         for (Class<? extends T> key : idMultiMap.keySet()) {
@@ -402,8 +409,8 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
     }
 
     /** Looks up a CatalogInfo by class and name */
-    public @Override <U extends T> Optional<U> findFirstByName(
-            String name, @Nullable Class<U> clazz) {
+    @Override
+    public <U extends T> Optional<U> findFirstByName(String name, @Nullable Class<U> clazz) {
         requireNonNull(name);
         requireNonNull(clazz);
         return findFirst(clazz, i -> name.equals(nameMapper.apply(i).getLocalPart()));
@@ -449,10 +456,10 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
         return Optional.empty();
     }
 
-    public @Override void syncTo(CatalogInfoRepository<T> target) {
+    @Override
+    public void syncTo(CatalogInfoRepository<T> target) {
         requireNonNull(target);
-        if (target instanceof CatalogInfoLookup) {
-            CatalogInfoLookup<T> other = (CatalogInfoLookup<T>) target;
+        if (target instanceof CatalogInfoLookup<T> other) {
             other.clear();
             other.idMultiMap.putAll(this.idMultiMap);
             other.nameMultiMap.putAll(this.nameMultiMap);
@@ -466,7 +473,7 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
             implements NamespaceRepository {
 
         private ConcurrentHashMap<String, List<NamespaceInfo>> index = new ConcurrentHashMap<>();
-        private static Comparator<NamespaceInfo> VALUE_ORDER =
+        private static final Comparator<NamespaceInfo> VALUE_ORDER =
                 (n1, n2) -> n1.getId().compareTo(n2.getId());
 
         /** guards modifications to the index and its ArrayList values */
@@ -478,34 +485,39 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
             super(NamespaceInfo.class, NAMESPACE_NAME_MAPPER);
         }
 
-        public @Override <U extends NamespaceInfo> Optional<U> findFirstByName(
-                String name, Class<U> clazz) {
+        @Override
+        public <U extends NamespaceInfo> Optional<U> findFirstByName(String name, Class<U> clazz) {
             requireNonNull(name);
             requireNonNull(clazz);
             return findByName(new NameImpl(name), clazz);
         }
 
-        public @Override void setDefaultNamespace(NamespaceInfo namespace) {
+        @Override
+        public void setDefaultNamespace(NamespaceInfo namespace) {
             requireNonNull(namespace);
             this.defaultNamespace =
                     findById(namespace.getId(), NamespaceInfo.class)
                             .orElseThrow(NoSuchElementException::new);
         }
 
-        public @Override void unsetDefaultNamespace() {
+        @Override
+        public void unsetDefaultNamespace() {
             defaultNamespace = null;
         }
 
-        public @Override Optional<NamespaceInfo> getDefaultNamespace() {
+        @Override
+        public Optional<NamespaceInfo> getDefaultNamespace() {
             return Optional.ofNullable(defaultNamespace);
         }
 
-        public @Override Optional<NamespaceInfo> findOneByURI(String uri) {
+        @Override
+        public Optional<NamespaceInfo> findOneByURI(String uri) {
             requireNonNull(uri);
             return valueList(uri, false).stream().findFirst();
         }
 
-        public @Override Stream<NamespaceInfo> findAllByURI(String uri) {
+        @Override
+        public Stream<NamespaceInfo> findAllByURI(String uri) {
             requireNonNull(uri);
             lock.readLock().lock();
             try {
@@ -611,24 +623,28 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
             super(WorkspaceInfo.class, WORKSPACE_NAME_MAPPER);
         }
 
-        public @Override <U extends WorkspaceInfo> Optional<U> findFirstByName(
+        @Override
+        public <U extends WorkspaceInfo> Optional<U> findFirstByName(
                 String name, @Nullable Class<U> clazz) {
             requireNonNull(name);
             requireNonNull(clazz);
             return findByName(new NameImpl(name), clazz);
         }
 
-        public @Override void setDefaultWorkspace(WorkspaceInfo workspace) {
+        @Override
+        public void setDefaultWorkspace(WorkspaceInfo workspace) {
             this.defaultWorkspace =
                     findById(workspace.getId(), WorkspaceInfo.class)
                             .orElseThrow(NoSuchElementException::new);
         }
 
-        public @Override Optional<WorkspaceInfo> getDefaultWorkspace() {
+        @Override
+        public Optional<WorkspaceInfo> getDefaultWorkspace() {
             return Optional.ofNullable(defaultWorkspace);
         }
 
-        public @Override void unsetDefaultWorkspace() {
+        @Override
+        public void unsetDefaultWorkspace() {
             defaultWorkspace = null;
         }
     }
@@ -641,7 +657,8 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
             super(StoreInfo.class, STORE_NAME_MAPPER);
         }
 
-        public @Override void setDefaultDataStore(WorkspaceInfo workspace, DataStoreInfo store) {
+        @Override
+        public void setDefaultDataStore(WorkspaceInfo workspace, DataStoreInfo store) {
             requireNonNull(workspace);
             requireNonNull(store);
             String wsId = workspace.getId();
@@ -651,37 +668,44 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
             defaultStores.compute(wsId, (ws, oldDefaultStore) -> localStore);
         }
 
-        public @Override void unsetDefaultDataStore(WorkspaceInfo workspace) {
+        @Override
+        public void unsetDefaultDataStore(WorkspaceInfo workspace) {
             requireNonNull(workspace);
             defaultStores.remove(workspace.getId());
         }
 
-        public @Override Optional<DataStoreInfo> getDefaultDataStore(WorkspaceInfo workspace) {
+        @Override
+        public Optional<DataStoreInfo> getDefaultDataStore(WorkspaceInfo workspace) {
             return Optional.ofNullable(defaultStores.get(workspace.getId()));
         }
 
-        public @Override Stream<DataStoreInfo> getDefaultDataStores() {
+        @Override
+        public Stream<DataStoreInfo> getDefaultDataStores() {
             return defaultStores.values().stream();
         }
 
-        public @Override void dispose() {
+        @Override
+        public void dispose() {
             super.dispose();
             defaultStores.clear();
         }
 
-        public @Override <T extends StoreInfo> Stream<T> findAllByWorkspace(
+        @Override
+        public <T extends StoreInfo> Stream<T> findAllByWorkspace(
                 WorkspaceInfo workspace, Class<T> clazz) {
             requireNonNull(workspace);
             requireNonNull(clazz);
             return list(clazz, s -> workspace.getId().equals(s.getWorkspace().getId()));
         }
 
-        public @Override <T extends StoreInfo> Stream<T> findAllByType(Class<T> clazz) {
+        @Override
+        public <T extends StoreInfo> Stream<T> findAllByType(Class<T> clazz) {
             requireNonNull(clazz);
             return list(clazz, CatalogInfoLookup.alwaysTrue());
         }
 
-        public @Override <T extends StoreInfo> Optional<T> findByNameAndWorkspace(
+        @Override
+        public <T extends StoreInfo> Optional<T> findByNameAndWorkspace(
                 String name, WorkspaceInfo workspace, Class<T> clazz) {
             requireNonNull(name);
             requireNonNull(workspace);
@@ -696,11 +720,13 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
             super(LayerGroupInfo.class, LAYERGROUP_NAME_MAPPER);
         }
 
-        public @Override Stream<LayerGroupInfo> findAllByWorkspaceIsNull() {
+        @Override
+        public Stream<LayerGroupInfo> findAllByWorkspaceIsNull() {
             return list(LayerGroupInfo.class, lg -> lg.getWorkspace() == null);
         }
 
-        public @Override Stream<LayerGroupInfo> findAllByWorkspace(WorkspaceInfo workspace) {
+        @Override
+        public Stream<LayerGroupInfo> findAllByWorkspace(WorkspaceInfo workspace) {
             requireNonNull(workspace);
             return list(
                     LayerGroupInfo.class,
@@ -709,12 +735,14 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
                                     && lg.getWorkspace().getId().equals(workspace.getId()));
         }
 
-        public @Override Optional<LayerGroupInfo> findByNameAndWorkspaceIsNull(String name) {
+        @Override
+        public Optional<LayerGroupInfo> findByNameAndWorkspaceIsNull(String name) {
             requireNonNull(name);
             return findByName(new NameImpl(null, name), LayerGroupInfo.class);
         }
 
-        public @Override Optional<LayerGroupInfo> findByNameAndWorkspace(
+        @Override
+        public Optional<LayerGroupInfo> findByNameAndWorkspace(
                 String name, WorkspaceInfo workspace) {
             requireNonNull(name);
             requireNonNull(workspace);
@@ -742,7 +770,8 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
             this.layers = layers;
         }
 
-        public @Override <R extends ResourceInfo> R update(R value, Patch patch) {
+        @Override
+        public <R extends ResourceInfo> R update(R value, Patch patch) {
             requireNonNull(value);
             requireNonNull(patch);
             Name oldName = getMapForValue(idToMameMultiMap, value).get(value.getId());
@@ -754,19 +783,22 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
             return updated;
         }
 
-        public @Override <T extends ResourceInfo> Stream<T> findAllByType(Class<T> clazz) {
+        @Override
+        public <T extends ResourceInfo> Stream<T> findAllByType(Class<T> clazz) {
             requireNonNull(clazz);
             return list(clazz, CatalogInfoLookup.alwaysTrue());
         }
 
-        public @Override <T extends ResourceInfo> Stream<T> findAllByNamespace(
+        @Override
+        public <T extends ResourceInfo> Stream<T> findAllByNamespace(
                 NamespaceInfo ns, Class<T> clazz) {
             requireNonNull(ns);
             requireNonNull(clazz);
             return list(clazz, r -> ns.equals(r.getNamespace()));
         }
 
-        public @Override <T extends ResourceInfo> Optional<T> findByStoreAndName(
+        @Override
+        public <T extends ResourceInfo> Optional<T> findByStoreAndName(
                 StoreInfo store, String name, Class<T> clazz) {
             requireNonNull(store);
             requireNonNull(name);
@@ -776,14 +808,15 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
                     r -> name.equals(r.getName()) && store.getId().equals(r.getStore().getId()));
         }
 
-        public @Override <T extends ResourceInfo> Stream<T> findAllByStore(
-                StoreInfo store, Class<T> clazz) {
+        @Override
+        public <T extends ResourceInfo> Stream<T> findAllByStore(StoreInfo store, Class<T> clazz) {
             requireNonNull(store);
             requireNonNull(clazz);
             return list(clazz, r -> store.equals(r.getStore()));
         }
 
-        public @Override <T extends ResourceInfo> Optional<T> findByNameAndNamespace(
+        @Override
+        public <T extends ResourceInfo> Optional<T> findByNameAndNamespace(
                 String name, NamespaceInfo namespace, Class<T> clazz) {
             requireNonNull(name);
             requireNonNull(namespace);
@@ -812,7 +845,8 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
         }
 
         /** Override to remove by name instead of by id */
-        public @Override void remove(LayerInfo value) {
+        @Override
+        public void remove(LayerInfo value) {
             requireNonNull(value);
             checkNotAProxy(value);
             ConcurrentMap<Name, LayerInfo> nameMap = getMapForValue(nameMultiMap, value);
@@ -826,19 +860,22 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
             }
         }
 
-        public @Override Optional<LayerInfo> findOneByName(String name) {
+        @Override
+        public Optional<LayerInfo> findOneByName(String name) {
             requireNonNull(name);
             return findFirst(LayerInfo.class, li -> name.equals(li.getName()));
         }
 
-        public @Override Stream<LayerInfo> findAllByDefaultStyleOrStyles(StyleInfo style) {
+        @Override
+        public Stream<LayerInfo> findAllByDefaultStyleOrStyles(StyleInfo style) {
             requireNonNull(style);
             return list(
                     LayerInfo.class,
                     li -> style.equals(li.getDefaultStyle()) || li.getStyles().contains(style));
         }
 
-        public @Override Stream<LayerInfo> findAllByResource(ResourceInfo resource) {
+        @Override
+        public Stream<LayerInfo> findAllByResource(ResourceInfo resource) {
             requireNonNull(resource);
             // in the current setup we cannot have multiple layers associated to the same
             // resource, as they would all share the same name (the one of the resource) so
@@ -853,24 +890,27 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
             super(StyleInfo.class, STYLE_NAME_MAPPER);
         }
 
-        public @Override Stream<StyleInfo> findAllByNullWorkspace() {
+        @Override
+        public Stream<StyleInfo> findAllByNullWorkspace() {
             return list(StyleInfo.class, s -> s.getWorkspace() == null);
         }
 
-        public @Override Stream<StyleInfo> findAllByWorkspace(WorkspaceInfo ws) {
+        @Override
+        public Stream<StyleInfo> findAllByWorkspace(WorkspaceInfo ws) {
             requireNonNull(ws);
             return list(
                     StyleInfo.class,
                     s -> s.getWorkspace() != null && s.getWorkspace().getId().equals(ws.getId()));
         }
 
-        public @Override Optional<StyleInfo> findByNameAndWordkspaceNull(String name) {
+        @Override
+        public Optional<StyleInfo> findByNameAndWordkspaceNull(String name) {
             requireNonNull(name);
             return findByName(new NameImpl(null, name), StyleInfo.class);
         }
 
-        public @Override Optional<StyleInfo> findByNameAndWorkspace(
-                String name, WorkspaceInfo workspace) {
+        @Override
+        public Optional<StyleInfo> findByNameAndWorkspace(String name, WorkspaceInfo workspace) {
             requireNonNull(name);
             requireNonNull(workspace);
             return findByName(new NameImpl(workspace.getId(), name), StyleInfo.class);

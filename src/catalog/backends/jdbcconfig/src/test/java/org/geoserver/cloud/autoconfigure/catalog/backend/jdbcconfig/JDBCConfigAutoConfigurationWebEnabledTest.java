@@ -24,10 +24,10 @@ import org.springframework.test.context.ActiveProfiles;
             "geoserver.backend.jdbcconfig.web.enabled=true"
         })
 @ActiveProfiles("test")
-public class JDBCConfigAutoConfigurationWebEnabledTest extends JDBCConfigTest {
+class JDBCConfigAutoConfigurationWebEnabledTest extends JDBCConfigTest {
 
     @Test
-    public void testJDBCConfigStatusProvider() {
+    void testJDBCConfigStatusProvider() {
         assertThat(
                 context.getBean("JDBCConfigStatusProvider"),
                 instanceOf(JDBCConfigStatusProvider.class));

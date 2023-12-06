@@ -7,7 +7,6 @@ package org.geoserver.cloud.config.catalog.backend.jdbcconfig;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.impl.CatalogImpl;
 import org.geoserver.catalog.plugin.CatalogFacadeExtensionAdapter;
-import org.geoserver.catalog.plugin.CatalogFacadeExtensionAdapter.SilentCatalog;
 import org.geoserver.jdbcconfig.catalog.JDBCCatalogFacade;
 import org.geoserver.jdbcconfig.internal.ConfigDatabase;
 
@@ -22,16 +21,18 @@ public class CloudJdbcCatalogFacade extends JDBCCatalogFacade {
         this.db = db;
     }
 
-    public @Override void setCatalog(Catalog catalog) {
+    @Override
+    public void setCatalog(Catalog catalog) {
         this.catalog = catalog;
         CatalogImpl catalogForResolvingCatalogProperties = (CatalogImpl) catalog;
-        if (catalog instanceof CatalogFacadeExtensionAdapter.SilentCatalog) {
-            catalogForResolvingCatalogProperties = ((SilentCatalog) catalog).getSubject();
+        if (catalog instanceof CatalogFacadeExtensionAdapter.SilentCatalog silentCatalog) {
+            catalogForResolvingCatalogProperties = silentCatalog.getSubject();
         }
         db.setCatalog(catalogForResolvingCatalogProperties);
     }
 
-    public @Override Catalog getCatalog() {
+    @Override
+    public Catalog getCatalog() {
         return this.catalog;
     }
 }

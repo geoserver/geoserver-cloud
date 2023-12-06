@@ -17,7 +17,7 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
 import reactivefeign.spring.config.ReactiveFeignAutoConfiguration;
 
-public class CatalogClientRepositoryConfigurationTest {
+class CatalogClientRepositoryConfigurationTest {
 
     private final ApplicationContextRunner contextRunner =
             new ApplicationContextRunner()
@@ -46,35 +46,43 @@ public class CatalogClientRepositoryConfigurationTest {
                                         }));
     }
 
-    public @Test void workspaceRepository() {
+    @Test
+    void workspaceRepository() {
         verify(CatalogClientWorkspaceRepository.class);
     }
 
-    public @Test void namespaceRepository() {
+    @Test
+    void namespaceRepository() {
         verify(CatalogClientNamespaceRepository.class);
     }
 
-    public @Test void storeRepository() {
+    @Test
+    void storeRepository() {
         verify(CatalogClientStoreRepository.class);
     }
 
-    public @Test void resourceRepository() {
+    @Test
+    void resourceRepository() {
         verify(CatalogClientResourceRepository.class);
     }
 
-    public @Test void layerRepository() {
+    @Test
+    void layerRepository() {
         verify(CatalogClientLayerRepository.class);
     }
 
-    public @Test void layerGroupRepository() {
+    @Test
+    void layerGroupRepository() {
         verify(CatalogClientLayerGroupRepository.class);
     }
 
-    public @Test void styleRepository() {
+    @Test
+    void styleRepository() {
         verify(CatalogClientNamespaceRepository.class);
     }
 
-    public @Test void mapRepository() {
+    @Test
+    void mapRepository() {
         verify(CatalogClientMapRepository.class);
     }
 }

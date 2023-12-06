@@ -30,14 +30,16 @@ public class CatalogInfoSerializer<I extends CatalogInfo> extends StdSerializer<
         this.infoType = infoType;
     }
 
-    public @Override void serialize(
-            CatalogInfo info, JsonGenerator gen, SerializerProvider provider) throws IOException {
+    @Override
+    public void serialize(CatalogInfo info, JsonGenerator gen, SerializerProvider provider)
+            throws IOException {
 
         CatalogInfoDto dto = mapper.map(info);
         gen.writeObject(dto);
     }
 
-    public @Override void serializeWithType(
+    @Override
+    public void serializeWithType(
             I value, JsonGenerator gen, SerializerProvider serializers, TypeSerializer typeSer)
             throws IOException {
 

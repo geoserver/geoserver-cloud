@@ -12,6 +12,7 @@ import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerFacade;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,26 +32,28 @@ import org.springframework.context.annotation.Configuration;
 public class GeoServerBackendCacheConfiguration implements BeanPostProcessor {
 
     @Bean
-    CacheConfigurationPostProcessor cacheConfigurationPostProcessor() {
-        return new CacheConfigurationPostProcessor();
+    CacheConfigurationPostProcessor cacheConfigurationPostProcessor(
+            CachingCatalogFacade cachingCatalogFacade,
+            CachingGeoServerFacade cachingGeoServerFacade) {
+        return new CacheConfigurationPostProcessor(cachingCatalogFacade, cachingGeoServerFacade);
     }
 
     @Bean
     CachingCatalogFacade cachingCatalogFacade(
-            @Qualifier("catalogFacade") CatalogFacade rawCatalogFacade) {
-        CatalogFacade raw = rawCatalogFacade;
+            @Qualifier("catalogFacade") CatalogFacade rawCatalogFacade, CacheManager cacheManager) {
         ExtendedCatalogFacade facade;
-        if (raw instanceof ExtendedCatalogFacade) {
-            facade = (ExtendedCatalogFacade) rawCatalogFacade;
+        if (rawCatalogFacade instanceof ExtendedCatalogFacade ecf) {
+            facade = ecf;
         } else {
-            facade = new CatalogFacadeExtensionAdapter(raw);
+            facade = new CatalogFacadeExtensionAdapter(rawCatalogFacade);
         }
-        return new CachingCatalogFacadeImpl(facade);
+        return new CachingCatalogFacadeImpl(facade, cacheManager);
     }
 
     @Bean
     CachingGeoServerFacade cachingGeoServerFacade(
-            @Qualifier("geoserverFacade") GeoServerFacade rawGeoServerFacade) {
-        return new CachingGeoServerFacadeImpl(rawGeoServerFacade);
+            @Qualifier("geoserverFacade") GeoServerFacade rawGeoServerFacade,
+            CacheManager cacheManager) {
+        return new CachingGeoServerFacadeImpl(rawGeoServerFacade, cacheManager);
     }
 }

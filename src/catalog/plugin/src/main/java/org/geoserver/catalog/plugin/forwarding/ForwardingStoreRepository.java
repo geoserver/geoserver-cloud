@@ -21,33 +21,40 @@ public class ForwardingStoreRepository
         super(subject);
     }
 
-    public @Override void setDefaultDataStore(WorkspaceInfo workspace, DataStoreInfo dataStore) {
+    @Override
+    public void setDefaultDataStore(WorkspaceInfo workspace, DataStoreInfo dataStore) {
         subject.setDefaultDataStore(workspace, dataStore);
     }
 
-    public @Override Optional<DataStoreInfo> getDefaultDataStore(WorkspaceInfo workspace) {
+    @Override
+    public Optional<DataStoreInfo> getDefaultDataStore(WorkspaceInfo workspace) {
         return subject.getDefaultDataStore(workspace);
     }
 
-    public @Override Stream<DataStoreInfo> getDefaultDataStores() {
+    @Override
+    public Stream<DataStoreInfo> getDefaultDataStores() {
         return subject.getDefaultDataStores();
     }
 
-    public @Override <T extends StoreInfo> Stream<T> findAllByWorkspace(
+    @Override
+    public <T extends StoreInfo> Stream<T> findAllByWorkspace(
             WorkspaceInfo workspace, Class<T> clazz) {
         return subject.findAllByWorkspace(workspace, clazz);
     }
 
-    public @Override <T extends StoreInfo> Stream<T> findAllByType(Class<T> clazz) {
+    @Override
+    public <T extends StoreInfo> Stream<T> findAllByType(Class<T> clazz) {
         return subject.findAllByType(clazz);
     }
 
-    public @Override <T extends StoreInfo> Optional<T> findByNameAndWorkspace(
+    @Override
+    public <T extends StoreInfo> Optional<T> findByNameAndWorkspace(
             String name, WorkspaceInfo workspace, Class<T> clazz) {
         return subject.findByNameAndWorkspace(name, workspace, clazz);
     }
 
-    public @Override void unsetDefaultDataStore(@NonNull WorkspaceInfo workspace) {
+    @Override
+    public void unsetDefaultDataStore(@NonNull WorkspaceInfo workspace) {
         subject.unsetDefaultDataStore(workspace);
     }
 }

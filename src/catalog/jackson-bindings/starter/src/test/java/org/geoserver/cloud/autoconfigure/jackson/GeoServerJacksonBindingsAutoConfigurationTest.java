@@ -20,7 +20,7 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
 import java.util.Set;
 
-public class GeoServerJacksonBindingsAutoConfigurationTest {
+class GeoServerJacksonBindingsAutoConfigurationTest {
 
     private final ApplicationContextRunner contextRunner =
             new ApplicationContextRunner()
@@ -29,7 +29,8 @@ public class GeoServerJacksonBindingsAutoConfigurationTest {
                                     GeoServerJacksonBindingsAutoConfiguration.class,
                                     JacksonAutoConfiguration.class));
 
-    public @Test void testObjectMapper() {
+    @Test
+    void testObjectMapper() {
         this.contextRunner.run(context -> assertThat(context).hasSingleBean(ObjectMapper.class));
         Condition<? super Set<Object>> condition =
                 matching(

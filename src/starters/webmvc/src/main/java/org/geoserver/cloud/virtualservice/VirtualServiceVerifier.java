@@ -5,13 +5,12 @@
 package org.geoserver.cloud.virtualservice;
 
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.catalog.WorkspaceInfo;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -22,9 +21,10 @@ import java.util.Optional;
  *
  * @since 1.0
  */
+@RequiredArgsConstructor
 public class VirtualServiceVerifier {
 
-    private @Autowired @Qualifier("rawCatalog") Catalog catalog;
+    private final @NonNull Catalog rawCatalog;
 
     /**
      * @throws 404 ResponseStatusException if {@code virtualService} can't be mapped to a workspace
@@ -49,18 +49,18 @@ public class VirtualServiceVerifier {
     }
 
     private Optional<WorkspaceInfo> findWorkspace(String workspace) {
-        return Optional.ofNullable(catalog.getWorkspaceByName(workspace));
+        return Optional.ofNullable(rawCatalog.getWorkspaceByName(workspace));
     }
 
     private Optional<LayerGroupInfo> findGlobalLayerGroup(String name) {
-        return Optional.ofNullable(catalog.getLayerGroupByName(name));
+        return Optional.ofNullable(rawCatalog.getLayerGroupByName(name));
     }
 
     private Optional<PublishedInfo> findPublished(String workspace, String layer) {
-        PublishedInfo l = catalog.getLayerGroupByName(workspace, layer);
+        PublishedInfo l = rawCatalog.getLayerGroupByName(workspace, layer);
         if (null == l) {
             String qualifiedName = workspace + ":" + layer;
-            l = catalog.getLayerByName(qualifiedName);
+            l = rawCatalog.getLayerByName(qualifiedName);
         }
         return Optional.ofNullable(l);
     }

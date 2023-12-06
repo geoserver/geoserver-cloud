@@ -28,9 +28,9 @@ public class PgsqlUpdateSequence implements UpdateSequence {
 
     // not using CURRVAL() to avoid the "currval of sequence "<name>" is not yet defined in this
     // session" error
-    private static final String getQuery = "SELECT last_value FROM %s".formatted(SEQUENCE_NAME);
+    private static final String GET_QUERY = "SELECT last_value FROM %s".formatted(SEQUENCE_NAME);
 
-    private static final String incrementAndGetQuery =
+    private static final String INCREMENT_AND_GET_QUERY =
             "SELECT NEXTVAL('%s')".formatted(SEQUENCE_NAME);
 
     private final @NonNull DataSource dataSource;
@@ -38,12 +38,12 @@ public class PgsqlUpdateSequence implements UpdateSequence {
 
     @Override
     public long currValue() {
-        return runAndGetLong(getQuery);
+        return runAndGetLong(GET_QUERY);
     }
 
     @Override
     public synchronized long nextValue() {
-        long nextValue = runAndGetLong(incrementAndGetQuery);
+        long nextValue = runAndGetLong(INCREMENT_AND_GET_QUERY);
         GeoServerInfo global = geoServer.getGlobal();
         if (null == global) {
             global = new GeoServerInfoImpl();
@@ -65,7 +65,7 @@ public class PgsqlUpdateSequence implements UpdateSequence {
                 if (rs.next()) {
                     return rs.getLong(1);
                 }
-                throw new IllegalStateException("Query did not return a result: " + getQuery);
+                throw new IllegalStateException("Query did not return a result: " + GET_QUERY);
             } finally {
                 c.setAutoCommit(true);
             }

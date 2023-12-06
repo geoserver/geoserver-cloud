@@ -13,14 +13,23 @@ import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.event.CatalogAddEvent;
 import org.geoserver.cloud.event.info.InfoAdded;
 
+import java.util.Optional;
+
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("CatalogInfoAdded")
-public class CatalogInfoAdded extends InfoAdded<CatalogInfoAdded, CatalogInfo> {
+@SuppressWarnings("serial")
+public class CatalogInfoAdded extends InfoAdded<CatalogInfo> {
 
     protected CatalogInfoAdded() {}
 
     CatalogInfoAdded(long updateSequence, @NonNull CatalogInfo object) {
         super(updateSequence, object);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Optional<CatalogInfoAdded> remote() {
+        return super.remote();
     }
 
     public static CatalogInfoAdded createLocal(

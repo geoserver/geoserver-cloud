@@ -12,8 +12,8 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest
 @EnableAutoConfiguration
 @ActiveProfiles("test")
-public class WpsApplicationTest {
+class WpsApplicationTest {
 
     @Test
-    public void contextLoads() {}
+    void contextLoads() {}
 }

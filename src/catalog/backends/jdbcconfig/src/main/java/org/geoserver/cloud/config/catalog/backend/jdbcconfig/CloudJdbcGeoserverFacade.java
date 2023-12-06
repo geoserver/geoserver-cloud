@@ -43,6 +43,8 @@ public class CloudJdbcGeoserverFacade implements GeoServerFacade {
 
     static final Logger LOGGER = Logging.getLogger(JDBCGeoServerFacade.class);
 
+    private static final String WORKSPACE_ID = "workspace.id";
+
     private static final String GLOBAL_ID = "GeoServerInfo.global";
 
     private static final String GLOBAL_LOGGING_ID = "LoggingInfo.global";
@@ -68,8 +70,7 @@ public class CloudJdbcGeoserverFacade implements GeoServerFacade {
 
     @Override
     public GeoServerInfo getGlobal() {
-        GeoServerInfo global = db.getById(GLOBAL_ID, GeoServerInfo.class);
-        return global;
+        return db.getById(GLOBAL_ID, GeoServerInfo.class);
     }
 
     @Override
@@ -79,8 +80,6 @@ public class CloudJdbcGeoserverFacade implements GeoServerFacade {
             SettingsInfo defaultSettings = geoServer.getFactory().createSettings();
             add(defaultSettings);
             global.setSettings(defaultSettings);
-            // JD: disabling this check, global settings should have an id
-            // }else if(null == global.getSettings().getId()){
         } else {
             add(global.getSettings());
         }
@@ -109,8 +108,7 @@ public class CloudJdbcGeoserverFacade implements GeoServerFacade {
 
     @Override
     public LoggingInfo getLogging() {
-        LoggingInfo loggingInfo = db.getById(GLOBAL_LOGGING_ID, LoggingInfo.class);
-        return loggingInfo;
+        return db.getById(GLOBAL_LOGGING_ID, LoggingInfo.class);
     }
 
     @Override
@@ -167,11 +165,8 @@ public class CloudJdbcGeoserverFacade implements GeoServerFacade {
 
     @Override
     public SettingsInfo getSettings(WorkspaceInfo workspace) {
-        //        Filter filter = equal("workspace.id", workspace.getId());
-        //        return db.get(SettingsInfo.class, filter);
-
         String wsId = workspace.getId();
-        return db.getByIdentity(SettingsInfo.class, "workspace.id", wsId);
+        return db.getByIdentity(SettingsInfo.class, WORKSPACE_ID, wsId);
     }
 
     @Override
@@ -206,14 +201,14 @@ public class CloudJdbcGeoserverFacade implements GeoServerFacade {
 
     private Filter filterForWorkspace(WorkspaceInfo workspace) {
         if (workspace != null && workspace != ANY_WORKSPACE) {
-            return equal("workspace.id", workspace.getId());
+            return equal(WORKSPACE_ID, workspace.getId());
         } else {
             return filterForGlobal();
         }
     }
 
     private Filter filterForGlobal() {
-        return isNull("workspace.id");
+        return isNull(WORKSPACE_ID);
     }
 
     @Override
@@ -262,7 +257,7 @@ public class CloudJdbcGeoserverFacade implements GeoServerFacade {
         Filter filter = equal("name", name);
         if (null != workspace && ANY_WORKSPACE != workspace) {
             final String wsId = workspace.getId();
-            Filter wsFilter = equal("workspace.id", wsId);
+            Filter wsFilter = equal(WORKSPACE_ID, wsId);
             filter = and(filter, wsFilter);
         }
         try {

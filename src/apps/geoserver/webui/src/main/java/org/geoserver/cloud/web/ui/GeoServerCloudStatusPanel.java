@@ -11,7 +11,7 @@ import org.springframework.boot.info.BuildProperties;
 /**
  * @since 1.0
  */
-public class GeoServerCloudStatusPanel extends Panel {
+class GeoServerCloudStatusPanel extends Panel {
     private static final long serialVersionUID = 1L;
 
     public GeoServerCloudStatusPanel(String id, BuildProperties buildInfo) {

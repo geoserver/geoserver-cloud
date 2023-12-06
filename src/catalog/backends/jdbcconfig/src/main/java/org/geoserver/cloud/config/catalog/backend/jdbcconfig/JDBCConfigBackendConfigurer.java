@@ -14,9 +14,11 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 import org.geoserver.GeoServerConfigurationLock;
+import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.plugin.CatalogFacadeExtensionAdapter;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.cloud.config.catalog.backend.core.GeoServerBackendConfigurer;
+import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerFacade;
 import org.geoserver.config.util.XStreamPersisterFactory;
 import org.geoserver.jdbcconfig.JDBCGeoServerLoader;
@@ -30,6 +32,7 @@ import org.geoserver.jdbcstore.cache.ResourceCache;
 import org.geoserver.jdbcstore.cache.SimpleResourceCache;
 import org.geoserver.jdbcstore.internal.JDBCQueryHelper;
 import org.geoserver.jdbcstore.locks.LockRegistryAdapter;
+import org.geoserver.platform.GeoServerExtensions;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.config.UpdateSequence;
 import org.geoserver.platform.resource.Resource;
@@ -190,18 +193,14 @@ public class JDBCConfigBackendConfigurer extends GeoServerBackendConfigurer {
         final ConfigDatabase jdbcConfigDB = jdbcConfigDB();
 
         initDbSchema(jdbcConfigProperties, jdbcStoreProperties, jdbcConfigDB);
-        try {
-            // no fall back to data directory, jdbcconfig is either enabled and fully engaged, or
-            // not at all
-            JDBCResourceStore resourceStore;
-            resourceStore = new JDBCResourceStore(jdbcConfigDataSource(), jdbcStoreProperties);
-            resourceStore.setCache(jdbcResourceCache());
-            resourceStore.setLockProvider(jdbcStoreLockProvider());
-            resourceStore.setResourceNotificationDispatcher(resourceNotificationDispatcher());
-            return resourceStore;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        // no fall back to data directory, jdbcconfig is either enabled and fully engaged, or
+        // not at all
+        JDBCResourceStore resourceStore;
+        resourceStore = new JDBCResourceStore(jdbcConfigDataSource(), jdbcStoreProperties);
+        resourceStore.setCache(jdbcResourceCache());
+        resourceStore.setLockProvider(jdbcStoreLockProvider());
+        resourceStore.setResourceNotificationDispatcher(resourceNotificationDispatcher());
+        return resourceStore;
     }
 
     @DependsOn({"extensions", "jdbcConfigDataSourceStartupValidator"})
@@ -258,8 +257,7 @@ public class JDBCConfigBackendConfigurer extends GeoServerBackendConfigurer {
     protected @Override GeoServerFacade geoserverFacade() {
         initDbSchema(jdbcConfigProperties(), jdbcStoreProperties(), jdbcConfigDB());
         ConfigDatabase configDB = jdbcConfigDB();
-        CloudJdbcGeoserverFacade facade = new CloudJdbcGeoserverFacade(configDB);
-        return facade;
+        return new CloudJdbcGeoserverFacade(configDB);
     }
 
     @Bean(name = {"geoServerLoaderImpl", "JDBCGeoServerLoader"})
@@ -276,8 +274,11 @@ public class JDBCConfigBackendConfigurer extends GeoServerBackendConfigurer {
     protected @Override CloudJdbcGeoServerLoader geoServerLoaderImpl() {
         JDBCConfigProperties config = jdbcConfigProperties();
         ConfigDatabase configdb = jdbcConfigDB();
+        Catalog rawCatalog = (Catalog) GeoServerExtensions.bean("rawCatalog");
+        GeoServer geoserver = (GeoServer) GeoServerExtensions.bean("geoServer");
         try {
-            return new CloudJdbcGeoServerLoader(resourceLoader(), config, configdb);
+            return new CloudJdbcGeoServerLoader(
+                    rawCatalog, geoserver, resourceLoader(), config, configdb);
         } catch (Exception e) {
             throw new BeanInstantiationException(JDBCGeoServerLoader.class, e.getMessage(), e);
         }
@@ -307,9 +308,7 @@ public class JDBCConfigBackendConfigurer extends GeoServerBackendConfigurer {
         DataSource dataSource = jdbcConfigDataSource();
         XStreamInfoSerialBinding binding = jdbcPersistenceBinding();
         CacheProvider cacheProvider = jdbcCacheProvider();
-        ConfigDatabase configDb =
-                new CloudJdbcConfigDatabase(config, dataSource, binding, cacheProvider);
-        return configDb;
+        return new CloudJdbcConfigDatabase(config, dataSource, binding, cacheProvider);
     }
 
     private boolean initDbSchema(
@@ -333,7 +332,8 @@ public class JDBCConfigBackendConfigurer extends GeoServerBackendConfigurer {
                         super(ds);
                     }
 
-                    public @Override void runScript(Resource script) {
+                    @Override
+                    public void runScript(Resource script) {
                         super.runScript(script);
                     }
                 }

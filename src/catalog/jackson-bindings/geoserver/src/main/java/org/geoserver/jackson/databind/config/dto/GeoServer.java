@@ -17,7 +17,7 @@ import org.geoserver.jackson.databind.catalog.dto.MetadataMapDto;
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("GeoServerInfo")
 public @Data @Generated class GeoServer extends ConfigInfoDto {
-    public static enum ResourceErrorHandling {
+    public enum ResourceErrorHandling {
         OGC_EXCEPTION_REPORT,
         SKIP_MISCONFIGURED_LAYERS
     }
@@ -32,8 +32,6 @@ public @Data @Generated class GeoServer extends ConfigInfoDto {
     private JaiDto JAI;
     private CoverageAccess coverageAccess;
     private MetadataMapDto metadata;
-    // not used
-    // private Map<Object, Object> clientProperties;
     private long updateSequence;
     private String adminUsername;
     private String adminPassword;

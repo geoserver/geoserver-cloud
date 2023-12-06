@@ -66,7 +66,8 @@ class CloudJdbcConfigDatabase extends ConfigDatabase {
      * we don't do caching here and the {@link CatalogClearingListener} produces null pointer
      * exceptions
      */
-    public @Override void setCatalog(CatalogImpl catalog) {
+    @Override
+    public void setCatalog(CatalogImpl catalog) {
         super.setCatalog(catalog);
         catalog.removeListeners(CatalogClearingListener.class);
     }

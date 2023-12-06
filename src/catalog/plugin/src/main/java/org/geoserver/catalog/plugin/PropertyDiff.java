@@ -110,8 +110,7 @@ public @Data class PropertyDiff implements Serializable {
      * @return a "clean copy", where no-op changes are ignored
      */
     public PropertyDiff clean() {
-        return new PropertyDiff(
-                changes.stream().filter(c -> !c.isNoChange()).collect(Collectors.toList()));
+        return new PropertyDiff(changes.stream().filter(Change::isNotEmpty).toList());
     }
 
     public boolean isEmpty() {
@@ -123,8 +122,12 @@ public @Data class PropertyDiff implements Serializable {
     public static @Data class Change implements Serializable {
         private static final long serialVersionUID = 1L;
         private @NonNull String propertyName;
-        private Object oldValue;
-        private Object newValue;
+        private transient Object oldValue;
+        private transient Object newValue;
+
+        boolean isNotEmpty() {
+            return !isNoChange();
+        }
 
         public boolean isNoChange() {
             if (Objects.equals(oldValue, newValue)) return true;
@@ -166,9 +169,9 @@ public @Data class PropertyDiff implements Serializable {
 
         private boolean isNullOrEmpty(Object o) {
             if (o == null) return true;
-            if (o instanceof String) return ((String) o).isEmpty();
-            if (o instanceof Collection) return ((Collection<?>) o).isEmpty();
-            if (o instanceof Map) return ((Map<?, ?>) o).isEmpty();
+            if (o instanceof String s) return s.isEmpty();
+            if (o instanceof Collection<?> c) return c.isEmpty();
+            if (o instanceof Map<?, ?> m) return m.isEmpty();
             return false;
         }
 
@@ -200,7 +203,8 @@ public @Data class PropertyDiff implements Serializable {
             return new Change(propertyName, oldValue, newValue);
         }
 
-        public @Override String toString() {
+        @Override
+        public String toString() {
             return String.format("%s: {old: %s, new: %s}", propertyName, oldValue, newValue);
         }
     }
@@ -241,7 +245,7 @@ public @Data class PropertyDiff implements Serializable {
         return value;
     }
 
-    private static Set<Class<? extends Info>> IGNORE =
+    private static final Set<Class<? extends Info>> IGNORE =
             Set.of(Info.class, Catalog.class, ServiceInfo.class, PublishedInfo.class);
 
     @SuppressWarnings("unchecked")
@@ -322,12 +326,10 @@ public @Data class PropertyDiff implements Serializable {
             return this;
         }
 
-        @SuppressWarnings({"unchecked", "rawtypes"})
+        @SuppressWarnings({"unchecked"})
         public static <V> V copySafe(V val) {
-            if (val instanceof Collection) return (V) copyOf((Collection) val);
-            if (val instanceof Map) {
-                return (V) copyOf((Map<?, ?>) val);
-            }
+            if (val instanceof Collection<?> c) return (V) copyOf(c);
+            if (val instanceof Map<?, ?> m) return (V) copyOf(m);
             return val;
         }
 
@@ -340,15 +342,15 @@ public @Data class PropertyDiff implements Serializable {
 
             Stream<R> stream = val.stream().map(PropertyDiffBuilder::copySafe).map(mapper);
 
-            if (val instanceof SortedSet) {
+            if (val instanceof SortedSet<?> set) {
                 @SuppressWarnings("unchecked")
-                Comparator<Object> comparator = ((SortedSet<Object>) val).comparator();
+                Comparator<Object> comparator = (Comparator<Object>) set.comparator();
                 return stream.collect(Collectors.toCollection(() -> new TreeSet<>(comparator)));
             }
-            if (val instanceof Set) {
+            if (val instanceof Set<?>) {
                 return stream.collect(Collectors.toCollection(HashSet::new));
             }
-            return stream.collect(Collectors.toList());
+            return stream.toList();
         }
 
         public static <K, V> Map<K, V> copyOf(final Map<K, V> val) {
@@ -360,8 +362,8 @@ public @Data class PropertyDiff implements Serializable {
             Map target;
             if (val instanceof MetadataMap) {
                 target = new MetadataMap();
-            } else if (val instanceof SortedMap) {
-                Comparator comparator = ((SortedMap) val).comparator();
+            } else if (val instanceof SortedMap sortedMap) {
+                Comparator comparator = sortedMap.comparator();
                 target = new TreeMap<>(comparator);
             } else {
                 target = new HashMap<>();

@@ -49,7 +49,8 @@ public class FileSystemResourceStoreCache implements DisposableBean {
         return new FileSystemResourceStoreCache(cacheDirectory, disposable);
     }
 
-    public @Override void destroy() {
+    @Override
+    public void destroy() {
         if (disposable && Files.isDirectory(this.base)) {
             try {
                 log.info("Deleting resource store cache directory {}", base);
@@ -74,8 +75,7 @@ public class FileSystemResourceStoreCache implements DisposableBean {
 
     private long getLastmodified(final Path path) throws IOException {
         BasicFileAttributes attr = Files.readAttributes(path, BasicFileAttributes.class);
-        long fileMtime = attr.lastModifiedTime().toMillis();
-        return fileMtime;
+        return attr.lastModifiedTime().toMillis();
     }
 
     public Path ensureFileExists(PgsqlResource resource) throws IOException {

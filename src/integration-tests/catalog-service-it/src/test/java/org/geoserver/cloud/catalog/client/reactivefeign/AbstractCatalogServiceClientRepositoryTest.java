@@ -169,7 +169,7 @@ public abstract class AbstractCatalogServiceClientRepositoryTest<C extends Catal
      */
     protected abstract void assertPropertriesEqual(C expected, C actual);
 
-    public @Test void testFindByIdNotFound() throws IOException {
+    @Test void testFindByIdNotFound() throws IOException {
         assertTrue(repository().findById("non-existent-ws-id", infoType).isEmpty());
     }
 

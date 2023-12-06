@@ -13,6 +13,7 @@ import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 
 @SpringBootApplication
 @Configuration(proxyBeanMethods = false)
@@ -38,8 +39,8 @@ public class GatewayApplication {
 
     /** Allows to enable routes only if a given spring profile is enabled */
     @Bean
-    RouteProfileGatewayFilterFactory routeProfileGatewayFilterFactory() {
-        return new RouteProfileGatewayFilterFactory();
+    RouteProfileGatewayFilterFactory routeProfileGatewayFilterFactory(Environment environment) {
+        return new RouteProfileGatewayFilterFactory(environment);
     }
 
     @Bean

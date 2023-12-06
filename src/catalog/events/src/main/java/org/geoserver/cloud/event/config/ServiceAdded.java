@@ -16,8 +16,8 @@ import org.geoserver.config.ServiceInfo;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("ServiceAdded")
 @EqualsAndHashCode(callSuper = true)
-public class ServiceAdded extends ConfigInfoAdded<ServiceAdded, ServiceInfo>
-        implements ConfigInfoEvent {
+@SuppressWarnings("serial")
+public class ServiceAdded extends ConfigInfoAdded<ServiceInfo> implements ConfigInfoEvent {
 
     protected ServiceAdded() {
         // default constructor, needed for deserialization

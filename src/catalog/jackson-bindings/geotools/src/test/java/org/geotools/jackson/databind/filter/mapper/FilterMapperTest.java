@@ -13,7 +13,7 @@ import org.geotools.jackson.databind.filter.dto.SortBy;
 import org.junit.jupiter.api.BeforeEach;
 import org.mapstruct.factory.Mappers;
 
-public class FilterMapperTest extends FilterRoundtripTest {
+class FilterMapperTest extends FilterRoundtripTest {
 
     private FilterMapper filterMapper;
 

@@ -25,7 +25,6 @@ import org.geoserver.util.DimensionWarning;
 import org.geowebcache.config.ContextualConfigurationProvider.Context;
 import org.geowebcache.config.XMLConfiguration;
 import org.geowebcache.storage.blobstore.file.FilePathUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.io.IOException;
@@ -67,7 +66,7 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
      * to lookup implementations of {@link org.geowebcache.config.XMLConfigurationProvider}, such as
      * {@code S3BlobStoreConfigProvider}, etc. This could be improved.
      */
-    private @Autowired WebApplicationContext applicationContext;
+    private final Optional<WebApplicationContext> applicationContext;
 
     private final AtomicBoolean initialized = new AtomicBoolean();
     private final List<TileLayerCatalogListener> listeners = new CopyOnWriteArrayList<>();
@@ -76,43 +75,51 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
     private XStream serializer;
     private String baseDirectory;
 
-    public @Override void reset() {
+    @Override
+    public void reset() {
         if (initialized.compareAndSet(true, false)) {
             xstreamProvider = null;
             serializer = null;
         }
     }
 
-    public @Override void initialize() {
+    @Override
+    public void initialize() {
         if (initialized.compareAndSet(false, true)) {
             this.baseDirectory = "gwc-layers";
             this.xstreamProvider =
                     () ->
                             XMLConfiguration.getConfiguredXStreamWithContext(
-                                    new SecureXStream(), applicationContext, Context.PERSIST);
+                                    new SecureXStream(),
+                                    applicationContext.orElse(null),
+                                    Context.PERSIST);
             this.serializer = newXStream();
         }
     }
 
-    public @Override void addListener(TileLayerCatalogListener listener) {
+    @Override
+    public void addListener(TileLayerCatalogListener listener) {
         if (null != listener) listeners.add(listener);
     }
 
-    public @Override Set<String> getLayerIds() {
+    @Override
+    public Set<String> getLayerIds() {
         checkInitialized();
         try (Stream<GeoServerTileLayerInfo> all = findAll()) {
             return all.map(GeoServerTileLayerInfo::getId).collect(Collectors.toSet());
         }
     }
 
-    public @Override Set<String> getLayerNames() {
+    @Override
+    public Set<String> getLayerNames() {
         checkInitialized();
         try (Stream<GeoServerTileLayerInfo> all = findAll()) {
             return all.map(GeoServerTileLayerInfo::getName).collect(Collectors.toSet());
         }
     }
 
-    public @Override String getLayerId(@NonNull String layerName) {
+    @Override
+    public String getLayerId(@NonNull String layerName) {
         checkInitialized();
         try (Stream<GeoServerTileLayerInfo> all = findAll()) {
             return all.filter(l -> layerName.equals(l.getName()))
@@ -122,7 +129,8 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
         }
     }
 
-    public @Override String getLayerName(String layerId) {
+    @Override
+    public String getLayerName(String layerId) {
         checkInitialized();
         try (Stream<GeoServerTileLayerInfo> all = findAll()) {
             return all.filter(l -> layerId.equals(l.getId()))
@@ -132,19 +140,22 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
         }
     }
 
-    public @Override GeoServerTileLayerInfo getLayerById(@NonNull String id) {
+    @Override
+    public GeoServerTileLayerInfo getLayerById(@NonNull String id) {
         checkInitialized();
         return findFile(id).map(this::depersist).orElse(null);
     }
 
-    public @Override GeoServerTileLayerInfo getLayerByName(String layerName) {
+    @Override
+    public GeoServerTileLayerInfo getLayerByName(String layerName) {
         checkInitialized();
         try (Stream<GeoServerTileLayerInfo> all = findAll()) {
             return all.filter(l -> layerName.equals(l.getName())).findFirst().orElse(null);
         }
     }
 
-    public @Override GeoServerTileLayerInfo delete(@NonNull String tileLayerId) {
+    @Override
+    public GeoServerTileLayerInfo delete(@NonNull String tileLayerId) {
         checkInitialized();
         GeoServerTileLayerInfo info = null;
         Optional<Resource> resource = findFile(tileLayerId);
@@ -164,7 +175,8 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
         return null;
     }
 
-    public @Override GeoServerTileLayerInfo save(@NonNull GeoServerTileLayerInfo newValue) {
+    @Override
+    public GeoServerTileLayerInfo save(@NonNull GeoServerTileLayerInfo newValue) {
         checkInitialized();
         final String layerId = newValue.getId();
         Objects.requireNonNull(layerId);
@@ -175,12 +187,14 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
         return prev;
     }
 
-    public @Override boolean exists(String layerId) {
+    @Override
+    public boolean exists(String layerId) {
         checkInitialized();
         return findFile(layerId).isPresent();
     }
 
-    public @Override String getPersistenceLocation() {
+    @Override
+    public String getPersistenceLocation() {
         return resourceStore.get(baseDirectory).path();
     }
 
@@ -271,13 +285,13 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
             throw new UncheckedIOException(e);
         }
 
-        final Resource baseDirectory = baseDirectory();
+        final Resource baseDir = baseDirectory();
         return Streams.stream(directoryStream)
                 .onClose(() -> closeSilently(directoryStream))
                 .map(Path::getFileName)
                 .map(Path::toString)
                 .peek(name -> log.trace("found potential tile layer file {}", name))
-                .map(baseDirectory::get);
+                .map(baseDir::get);
     }
 
     private void closeSilently(DirectoryStream<Path> directoryStream) {
@@ -321,13 +335,13 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
     }
 
     private XStream newXStream() {
-        XStream serializer = this.xstreamProvider.get();
-        serializer.allowTypeHierarchy(GeoServerTileLayerInfo.class);
-        serializer.allowTypes(new Class[] {DimensionWarning.WarningType.class});
+        XStream xstream = this.xstreamProvider.get();
+        xstream.allowTypeHierarchy(GeoServerTileLayerInfo.class);
+        xstream.allowTypes(new Class[] {DimensionWarning.WarningType.class});
         // have to use a string here because UnmodifiableSet is private
-        serializer.allowTypes(new String[] {"java.util.Collections$UnmodifiableSet"});
-        serializer.addDefaultImplementation(LinkedHashSet.class, Set.class);
-        serializer.alias("warning", DimensionWarning.WarningType.class);
-        return serializer;
+        xstream.allowTypes(new String[] {"java.util.Collections$UnmodifiableSet"});
+        xstream.addDefaultImplementation(LinkedHashSet.class, Set.class);
+        xstream.alias("warning", DimensionWarning.WarningType.class);
+        return xstream;
     }
 }

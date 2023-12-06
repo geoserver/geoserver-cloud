@@ -67,7 +67,7 @@ import java.util.Optional;
 
 @SpringBootTest(classes = CatalogClientRepositoryConfiguration.class)
 @ActiveProfiles("test")
-public class CatalogClientRepositoryTest {
+class CatalogClientRepositoryTest {
 
     private @MockBean ReactiveCatalogClient mockClient;
 
@@ -98,11 +98,13 @@ public class CatalogClientRepositoryTest {
         testData.after();
     }
 
-    public @Test void workspaceRepository_CRUD() {
+    @Test
+    void workspaceRepository_CRUD() {
         crudTest(workspaceRepository, testData.workspaceA);
     }
 
-    public @Test void workspaceRepository_DefaultWorkspace() {
+    @Test
+    void workspaceRepository_DefaultWorkspace() {
 
         when(mockClient.getDefaultWorkspace()).thenReturn(Mono.just(testData.workspaceB));
         assertSame(testData.workspaceB, workspaceRepository.getDefaultWorkspace().get());
@@ -118,11 +120,13 @@ public class CatalogClientRepositoryTest {
                 NullPointerException.class, () -> workspaceRepository.setDefaultWorkspace(null));
     }
 
-    public @Test void namespaceRepository_CRUD() {
+    @Test
+    void namespaceRepository_CRUD() {
         crudTest(namespaceRepository, testData.namespaceA);
     }
 
-    public @Test void namespaceRepository_DefaultNamespace() {
+    @Test
+    void namespaceRepository_DefaultNamespace() {
         when(mockClient.getDefaultNamespace()).thenReturn(Mono.just(testData.namespaceB));
         assertSame(testData.namespaceB, namespaceRepository.getDefaultNamespace().get());
         verify(mockClient, times(1)).getDefaultNamespace();
@@ -137,14 +141,16 @@ public class CatalogClientRepositoryTest {
                 NullPointerException.class, () -> namespaceRepository.setDefaultNamespace(null));
     }
 
-    public @Test void storeRepository_CRUD() {
+    @Test
+    void storeRepository_CRUD() {
         crudTest(storeRepository, testData.coverageStoreA);
         crudTest(storeRepository, testData.dataStoreA);
         crudTest(storeRepository, testData.wmsStoreA);
         crudTest(storeRepository, testData.wmtsStoreA);
     }
 
-    public @Test void storeRepository_GetDefaultDataStore() {
+    @Test
+    void storeRepository_GetDefaultDataStore() {
         when(mockClient.findDefaultDataStoreByWorkspaceId(eq(testData.workspaceA.getId())))
                 .thenReturn(Mono.just(testData.dataStoreA));
         when(mockClient.findDefaultDataStoreByWorkspaceId(eq(testData.workspaceB.getId())))
@@ -159,7 +165,8 @@ public class CatalogClientRepositoryTest {
         assertThrows(NullPointerException.class, () -> storeRepository.getDefaultDataStore(null));
     }
 
-    public @Test void storeRepository_SetDefaultDataStore() {
+    @Test
+    void storeRepository_SetDefaultDataStore() {
 
         WorkspaceInfo newWs = testData.workspaceC;
         DataStoreInfo ds = testData.dataStoreA;
@@ -177,14 +184,16 @@ public class CatalogClientRepositoryTest {
         verifyNoMoreInteractions(mockClient);
     }
 
-    public @Test void storeRepository_GetDefaultDataStores_Empty() {
+    @Test
+    void storeRepository_GetDefaultDataStores_Empty() {
         when(mockClient.getDefaultDataStores()).thenReturn(Flux.empty());
         assertEquals(0L, storeRepository.getDefaultDataStores().count());
         verify(mockClient, times(1)).getDefaultDataStores();
         verifyNoMoreInteractions(mockClient);
     }
 
-    public @Test void storeRepository_GetDefaultDataStores() {
+    @Test
+    void storeRepository_GetDefaultDataStores() {
         when(mockClient.getDefaultDataStores())
                 .thenReturn(Flux.just(testData.dataStoreA, testData.dataStoreB));
         assertEquals(2L, storeRepository.getDefaultDataStores().count());
@@ -192,22 +201,26 @@ public class CatalogClientRepositoryTest {
         verifyNoMoreInteractions(mockClient);
     }
 
-    public @Test void resourceRepository_CRUD() {
+    @Test
+    void resourceRepository_CRUD() {
         crudTest(resourceRepository, testData.coverageA);
         crudTest(resourceRepository, testData.featureTypeA);
         crudTest(resourceRepository, testData.wmsLayerA);
         crudTest(resourceRepository, testData.wmtsLayerA);
     }
 
-    public @Test void layerRepository_CRUD() {
+    @Test
+    void layerRepository_CRUD() {
         crudTest(layerRepository, testData.layerFeatureTypeA);
     }
 
-    public @Test void layerGroupRepository_CRUD() {
+    @Test
+    void layerGroupRepository_CRUD() {
         crudTest(layerGroupRepository, testData.layerGroup1);
     }
 
-    public @Test void styleRepository_CRUD() {
+    @Test
+    void styleRepository_CRUD() {
         crudTest(styleRepository, testData.style1);
     }
 
@@ -282,7 +295,8 @@ public class CatalogClientRepositoryTest {
         verify(mockClient, times(1)).findFirstByName(any(String.class), eq(name), eq(subType));
     }
 
-    public @Test void testFindByNameNullType() {
+    @Test
+    void testFindByNameNullType() {
         testFindByNameNullType(workspaceRepository, testData.workspaceA.getName());
         testFindByNameNullType(namespaceRepository, testData.namespaceA.getName());
         testFindByNameNullType(storeRepository, testData.dataStoreA.getName());

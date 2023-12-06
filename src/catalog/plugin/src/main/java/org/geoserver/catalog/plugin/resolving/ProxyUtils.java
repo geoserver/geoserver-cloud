@@ -39,11 +39,13 @@ import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
 
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /** */
 @Slf4j
@@ -99,17 +101,17 @@ public class ProxyUtils {
     }
 
     private Object resolvePatchPropertyValue(Object orig) {
-        if (orig instanceof Info) {
-            return resolve((Info) orig);
+        if (orig instanceof Info info) {
+            return resolve(info);
         }
-        if (orig instanceof AttributeTypeInfo) {
-            return resolve((AttributeTypeInfo) orig);
+        if (orig instanceof AttributeTypeInfo att) {
+            return resolve(att);
         }
         if (orig instanceof List) {
             @SuppressWarnings("unchecked")
             List<Object> list = (List<Object>) orig;
-            resolve(list);
-            return list;
+            return resolve(list);
+            //            return list;
         }
         if (orig instanceof Set) {
             @SuppressWarnings("unchecked")
@@ -126,12 +128,10 @@ public class ProxyUtils {
         return orig;
     }
 
-    private void resolve(List<Object> mutableList) {
-        for (int i = 0; i < mutableList.size(); i++) {
-            Object v = mutableList.get(i);
-            Object resolved = resolvePatchPropertyValue(v);
-            mutableList.set(i, resolved);
-        }
+    private List<Object> resolve(List<Object> mutableList) {
+        return mutableList.stream()
+                .map(this::resolvePatchPropertyValue)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     private Set<Object> resolve(Set<Object> set) {
@@ -147,7 +147,7 @@ public class ProxyUtils {
         try {
             return class1.getConstructor().newInstance();
         } catch (Exception e) {
-            return new HashSet<Object>();
+            return new HashSet<>();
         }
     }
 
@@ -173,15 +173,13 @@ public class ProxyUtils {
                 throw new IllegalArgumentException("Reference to " + unresolved.getId());
             return null;
         } else if (!Proxy.isProxyClass(info.getClass())) {
-            if (info instanceof StyleInfo) resolveInternal((StyleInfo) info);
-            if (info instanceof LayerInfo) resolveInternal((LayerInfo) info);
-            if (info instanceof LayerGroupInfo) resolveInternal((LayerGroupInfo) info);
-            if (info instanceof ResourceInfo) resolveInternal((ResourceInfo) info);
-            if (info instanceof StoreInfo) resolveInternal((StoreInfo) info);
-            if (info instanceof SettingsInfo) resolveInternal((SettingsInfo) info);
-            if (info instanceof ServiceInfo) resolveInternal((ServiceInfo) info);
-            if (info instanceof GeoServerInfo) resolveInternal((GeoServerInfo) info);
-            if (info instanceof LoggingInfo) resolveInternal((LoggingInfo) info);
+            if (info instanceof StyleInfo s) resolveInternal(s);
+            if (info instanceof LayerInfo l) resolveInternal(l);
+            if (info instanceof LayerGroupInfo lg) resolveInternal(lg);
+            if (info instanceof ResourceInfo r) resolveInternal(r);
+            if (info instanceof StoreInfo s) resolveInternal(s);
+            if (info instanceof SettingsInfo s) resolveInternal(s);
+            if (info instanceof ServiceInfo s) resolveInternal(s);
         }
         return info;
     }
@@ -212,10 +210,6 @@ public class ProxyUtils {
         return null != org.geoserver.catalog.impl.ProxyUtils.handler(info, ModificationProxy.class);
     }
 
-    private void resolveInternal(LoggingInfo info) {}
-
-    private void resolveInternal(GeoServerInfo info) {}
-
     protected void resolveInternal(SettingsInfo settings) {
         if (settings.getWorkspace() != null) {
             settings.setWorkspace(resolve(settings.getWorkspace()));
@@ -231,7 +225,7 @@ public class ProxyUtils {
     protected void resolveInternal(LayerInfo layer) {
         layer.setResource(resolve(layer.getResource()));
         layer.setDefaultStyle(resolve(layer.getDefaultStyle()));
-        LinkedHashSet<StyleInfo> styles = new LinkedHashSet<StyleInfo>();
+        LinkedHashSet<StyleInfo> styles = new LinkedHashSet<>();
         for (StyleInfo s : layer.getStyles()) {
             styles.add(resolve(s));
         }
@@ -239,8 +233,8 @@ public class ProxyUtils {
     }
 
     protected <T extends PublishedInfo> T resolveInternal(T published) {
-        if (published instanceof LayerInfo) resolve((LayerInfo) published);
-        else if (published instanceof LayerGroupInfo) resolve((LayerGroupInfo) published);
+        if (published instanceof LayerInfo l) resolve(l);
+        else if (published instanceof LayerGroupInfo lg) resolve(lg);
         return published;
     }
 

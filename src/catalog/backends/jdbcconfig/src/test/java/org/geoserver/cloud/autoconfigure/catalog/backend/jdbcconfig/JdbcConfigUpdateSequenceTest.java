@@ -16,8 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest(
         classes = AutoConfigurationTestConfiguration.class,
         properties = "geoserver.backend.jdbcconfig.enabled=true")
-public class JdbcConfigUpdateSequenceTest extends JDBCConfigTest
-        implements UpdateSequenceConformanceTest {
+class JdbcConfigUpdateSequenceTest extends JDBCConfigTest implements UpdateSequenceConformanceTest {
 
     private @Autowired JdbcConfigUpdateSequence updateSequence;
 
@@ -33,7 +32,8 @@ public class JdbcConfigUpdateSequenceTest extends JDBCConfigTest
 
     @Disabled(
             "Couldn't get rid of the DB closed error if running more than one test, so better just run the parallel one")
-    public @Override @Test void testUpdateSequence() {
+    @Override
+    public @Test void testUpdateSequence() {
         // no-op
     }
 }

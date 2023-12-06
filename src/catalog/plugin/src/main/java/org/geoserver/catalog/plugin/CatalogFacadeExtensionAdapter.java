@@ -73,7 +73,8 @@ public class CatalogFacadeExtensionAdapter extends ForwardingCatalogFacade
         }
     }
 
-    public @Override void setCatalog(Catalog catalog) {
+    @Override
+    public void setCatalog(Catalog catalog) {
         if (catalog != null) {
             if (!(catalog instanceof CatalogPlugin)) {
                 throw new IllegalArgumentException(
@@ -97,7 +98,8 @@ public class CatalogFacadeExtensionAdapter extends ForwardingCatalogFacade
      * <p>This would be unnecessary if {@link ExtendedCatalogFacade}'s {@code update()} is
      * incorporated to the official {@link CatalogFacade} interface.
      */
-    public @Override <I extends CatalogInfo> I update(final I info, final Patch patch) {
+    @Override
+    public <I extends CatalogInfo> I update(final I info, final Patch patch) {
         final I orig = ModificationProxy.unwrap(info);
         ClassMappings cm = CatalogInfoTypeRegistry.determineKey(orig.getClass());
         @SuppressWarnings("unchecked")
@@ -113,7 +115,8 @@ public class CatalogFacadeExtensionAdapter extends ForwardingCatalogFacade
     }
 
     /** Adapts a {@link ExtendedCatalogFacade#query} call to {@link CatalogFacade#list} */
-    public @Override <T extends CatalogInfo> Stream<T> query(Query<T> query) {
+    @Override
+    public <T extends CatalogInfo> Stream<T> query(Query<T> query) {
         Class<T> of = query.getType();
         Filter filter = query.getFilter();
         Integer offset = query.getOffset();
@@ -160,30 +163,36 @@ public class CatalogFacadeExtensionAdapter extends ForwardingCatalogFacade
             return orig;
         }
 
-        public @Override void addListener(CatalogListener listener) {
+        @Override
+        public void addListener(CatalogListener listener) {
             LOGGER.fine("Suppressing catalog listener " + listener.getClass().getCanonicalName());
         }
 
-        public @Override void setFacade(CatalogFacade facade) {
+        @Override
+        public void setFacade(CatalogFacade facade) {
             super.rawFacade = facade;
             super.facade = facade;
         }
 
-        public @Override void fireAdded(CatalogInfo object) {
+        @Override
+        public void fireAdded(CatalogInfo object) {
             LOGGER.fine("Suppressing catalog add event from legacy CatalogFacade");
         }
 
-        public @Override void fireModified(
+        @Override
+        public void fireModified(
                 CatalogInfo object, List propertyNames, List oldValues, List newValues) {
             LOGGER.fine("Suppressing catalog pre-modify event from legacy CatalogFacade");
         }
 
-        public @Override void firePostModified(
+        @Override
+        public void firePostModified(
                 CatalogInfo object, List propertyNames, List oldValues, List newValues) {
             LOGGER.fine("Suppressing catalog post-modify event from legacy CatalogFacade");
         }
 
-        public @Override void fireRemoved(CatalogInfo object) {
+        @Override
+        public void fireRemoved(CatalogInfo object) {
             LOGGER.fine("Suppressing catalog removed event from legacy CatalogFacade");
         }
     }

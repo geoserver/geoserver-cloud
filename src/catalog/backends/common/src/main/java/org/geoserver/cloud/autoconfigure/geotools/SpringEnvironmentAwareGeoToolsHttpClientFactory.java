@@ -22,11 +22,13 @@ public class SpringEnvironmentAwareGeoToolsHttpClientFactory extends AbstractHTT
     GeoToolsHttpClientProxyConfigurationProperties proxyConfig =
             new GeoToolsHttpClientProxyConfigurationProperties();
 
-    public @Override List<Class<?>> clientClasses() {
+    @Override
+    public List<Class<?>> clientClasses() {
         return List.of(SpringEnvironmentAwareGeoToolsHttpClient.class);
     }
 
-    public @Override final HTTPClient createClient(List<Class<? extends HTTPBehavior>> behaviors) {
+    @Override
+    public final HTTPClient createClient(List<Class<? extends HTTPBehavior>> behaviors) {
         return new SpringEnvironmentAwareGeoToolsHttpClient(proxyConfig);
     }
 

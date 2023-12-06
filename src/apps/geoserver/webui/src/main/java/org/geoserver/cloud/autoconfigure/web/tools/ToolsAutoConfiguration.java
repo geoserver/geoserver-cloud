@@ -4,8 +4,6 @@
  */
 package org.geoserver.cloud.autoconfigure.web.tools;
 
-import lombok.Getter;
-
 import org.geoserver.cloud.autoconfigure.web.core.AbstractWebUIAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
@@ -26,5 +24,8 @@ public class ToolsAutoConfiguration extends AbstractWebUIAutoConfiguration {
 
     static final String CONFIG_PREFIX = "geoserver.web-ui.tools";
 
-    private final @Getter String configPrefix = CONFIG_PREFIX;
+    @Override
+    public String getConfigPrefix() {
+        return CONFIG_PREFIX;
+    }
 }

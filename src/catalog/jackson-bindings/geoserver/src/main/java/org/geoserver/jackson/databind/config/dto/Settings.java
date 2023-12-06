@@ -30,8 +30,6 @@ public @Data @Generated class Settings extends ConfigInfoDto {
     private boolean verbose;
     private boolean verboseExceptions;
     private MetadataMapDto metadata;
-    // seems not to be used at all in geoserver
-    // Map<Object, Object> clientProperties;
     private boolean localWorkspaceIncludesPrefix;
     private boolean showCreatedTimeColumnsInAdminList;
     private boolean showModifiedTimeColumnsInAdminList;

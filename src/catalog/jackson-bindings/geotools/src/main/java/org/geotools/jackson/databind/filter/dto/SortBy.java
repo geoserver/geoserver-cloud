@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public @Data @Generated class SortBy {
 
-    public static enum SortOrder {
+    public enum SortOrder {
         ASCENDING,
         DESCENDING
     }

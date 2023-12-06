@@ -114,18 +114,18 @@ public interface ValueMappers {
         Number min = source.getMin();
         Number max = source.getMax();
 
-        if (Long.class.isInstance(min) || Long.class.isInstance(max))
+        if (min instanceof Long || max instanceof Long)
             return NumberRange.create(min.longValue(), minIncluded, max.longValue(), maxIncluded);
-        if (Double.class.isInstance(min) || Double.class.isInstance(max))
+        if (min instanceof Double || max instanceof Double)
             return NumberRange.create(
                     min.doubleValue(), minIncluded, max.doubleValue(), maxIncluded);
-        if (Float.class.isInstance(min) || Float.class.isInstance(max))
+        if (min instanceof Float || max instanceof Float)
             return NumberRange.create(min.floatValue(), minIncluded, max.floatValue(), maxIncluded);
-        if (Integer.class.isInstance(min) || Integer.class.isInstance(max))
+        if (min instanceof Integer || max instanceof Integer)
             return NumberRange.create(min.intValue(), minIncluded, max.intValue(), maxIncluded);
-        if (Short.class.isInstance(min) || Short.class.isInstance(max))
+        if (min instanceof Short || max instanceof Short)
             return NumberRange.create(min.shortValue(), minIncluded, max.shortValue(), maxIncluded);
-        if (Byte.class.isInstance(min) || Byte.class.isInstance(max))
+        if (min instanceof Byte || max instanceof Byte)
             return NumberRange.create(min.byteValue(), minIncluded, max.byteValue(), maxIncluded);
 
         return NumberRange.create(min.doubleValue(), minIncluded, max.doubleValue(), maxIncluded);
@@ -135,7 +135,7 @@ public interface ValueMappers {
         try {
             return measure2Str.convert(value, String.class);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new IllegalStateException(e);
         }
     }
 
@@ -143,7 +143,7 @@ public interface ValueMappers {
         try {
             return str2Measure.convert(value, Measure.class);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new IllegalStateException(e);
         }
     }
 
@@ -183,8 +183,7 @@ public interface ValueMappers {
 
     default double[] affineTransform(MathTransform tx) {
         double[] flatmatrix = null;
-        if (tx instanceof AffineTransform) {
-            AffineTransform atx = (AffineTransform) tx;
+        if (tx instanceof AffineTransform atx) {
             flatmatrix = new double[6];
             atx.getMatrix(flatmatrix);
         }
@@ -253,9 +252,6 @@ public interface ValueMappers {
         return new VirtualTable(dto.getName(), dto.getSql(), dto.isEscapeSql());
     }
 
-    // there's no implementation for ImagingInfo and ImageFormatInfo, looks like dead code
-    // ImageFormatInfo infoToDto();
-
     default String localeToString(Locale locale) {
         return locale == null ? "" : locale.toLanguageTag();
     }
@@ -265,8 +261,7 @@ public interface ValueMappers {
     }
 
     default Map<String, String> internationalStringToDto(InternationalString s) {
-        if (s instanceof GrowableInternationalString) {
-            GrowableInternationalString gs = (GrowableInternationalString) s;
+        if (s instanceof GrowableInternationalString gs) {
             Set<Locale> locales = gs.getLocales();
             Map<String, String> dto = new HashMap<>(locales.size());
             locales.forEach(locale -> dto.put(localeToString(locale), gs.toString(locale)));
@@ -279,9 +274,8 @@ public interface ValueMappers {
 
         LoggerFactory.getLogger(getClass())
                 .warn(
-                        "Uknown InternationalString implementation: "
-                                + s.getClass().getName()
-                                + ". Returning null");
+                        "Uknown InternationalString implementation: {}. Returning null",
+                        s.getClass().getName());
         return null;
     }
 

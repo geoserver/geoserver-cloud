@@ -25,6 +25,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
+import java.io.UncheckedIOException;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -194,7 +195,7 @@ public class PgsqlConfigRepository implements ConfigRepository {
     }
 
     @Override
-    public Stream<? extends ServiceInfo> getGlobalServices() {
+    public Stream<ServiceInfo> getGlobalServices() {
         return template.queryForStream(
                 """
                 SELECT info, workspace FROM serviceinfos WHERE "workspace.id" IS NULL
@@ -203,7 +204,7 @@ public class PgsqlConfigRepository implements ConfigRepository {
     }
 
     @Override
-    public Stream<? extends ServiceInfo> getServicesByWorkspace(WorkspaceInfo workspace) {
+    public Stream<ServiceInfo> getServicesByWorkspace(WorkspaceInfo workspace) {
         String workspaceId = workspace.getId();
         return template.queryForStream(
                 """
@@ -297,7 +298,7 @@ public class PgsqlConfigRepository implements ConfigRepository {
         try {
             return infoMapper.writeValueAsString(info);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -305,7 +306,7 @@ public class PgsqlConfigRepository implements ConfigRepository {
         try {
             return infoMapper.readValue(value, type);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -314,8 +315,7 @@ public class PgsqlConfigRepository implements ConfigRepository {
         if (clazz.isInterface()) cm = ClassMappings.fromInterface(clazz);
         else cm = ClassMappings.fromImpl(clazz);
 
-        String infotype = cm.getInterface().getSimpleName();
-        return infotype;
+        return cm.getInterface().getSimpleName();
     }
 
     protected <U> Optional<U> findOne(

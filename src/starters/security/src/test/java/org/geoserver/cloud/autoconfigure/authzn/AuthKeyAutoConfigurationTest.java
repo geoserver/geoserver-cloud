@@ -30,7 +30,7 @@ import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
  *
  * @since 1.0
  */
-public class AuthKeyAutoConfigurationTest {
+class AuthKeyAutoConfigurationTest {
 
     private WebApplicationContextRunner contextRunner =
             new WebApplicationContextRunner()
@@ -42,7 +42,8 @@ public class AuthKeyAutoConfigurationTest {
         contextRunner = contextRunner.withBean(GeoServerSecurityManager.class, () -> mockSM);
     }
 
-    public @Test void testModuleStatus_disabled_by_default() {
+    @Test
+    void testModuleStatus_disabled_by_default() {
         contextRunner
                 .run(context -> assertThat(context).hasBean("authKeyExtension"))
                 .run(
@@ -52,7 +53,8 @@ public class AuthKeyAutoConfigurationTest {
                                         .hasFieldOrPropertyWithValue("enabled", false));
     }
 
-    public @Test void testModuleStatus_enabled() {
+    @Test
+    void testModuleStatus_enabled() {
         contextRunner
                 .withPropertyValues("geoserver.security.authkey=true")
                 .run(context -> assertThat(context).hasBean("authKeyExtension"))
@@ -63,7 +65,8 @@ public class AuthKeyAutoConfigurationTest {
                                         .hasFieldOrPropertyWithValue("enabled", true));
     }
 
-    public @Test void testModuleStatus_disabled() {
+    @Test
+    void testModuleStatus_disabled() {
         contextRunner
                 .withPropertyValues("geoserver.security.authkey=false")
                 .run(context -> assertThat(context).hasBean("authKeyExtension"))
@@ -74,7 +77,8 @@ public class AuthKeyAutoConfigurationTest {
                                         .hasFieldOrPropertyWithValue("enabled", false));
     }
 
-    public @Test void testGeoServerAuthenticationKeyProvider_enabled_no_GsWebSecCore_InClasspath() {
+    @Test
+    void testGeoServerAuthenticationKeyProvider_enabled_no_GsWebSecCore_InClasspath() {
         contextRunner
                 .withPropertyValues("geoserver.security.authkey=true")
                 // AuthenticationFilterPanel is from gs-web-sec-core, used as @ConditionalOnClass to
@@ -91,7 +95,8 @@ public class AuthKeyAutoConfigurationTest {
                         });
     }
 
-    public @Test void testGeoServerAuthenticationKeyProvider_enabled() {
+    @Test
+    void testGeoServerAuthenticationKeyProvider_enabled() {
         contextRunner
                 .withPropertyValues("geoserver.security.authkey=true")
                 .run(

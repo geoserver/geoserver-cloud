@@ -95,32 +95,32 @@ public class CatalogValidationRules {
     private <T extends CatalogInfo>
             T workAroundModificationProxyBugCallingVisitorWithUnwrappedObject(
                     T info, CatalogVisitor visitor) {
-        if (info instanceof LayerGroupInfo) {
-            visitor.visit((LayerGroupInfo) info);
-        } else if (info instanceof LayerInfo) {
-            visitor.visit((LayerInfo) info);
-        } else if (info instanceof NamespaceInfo) {
-            visitor.visit((NamespaceInfo) info);
-        } else if (info instanceof CoverageInfo) {
-            visitor.visit((CoverageInfo) info);
-        } else if (info instanceof FeatureTypeInfo) {
-            visitor.visit((FeatureTypeInfo) info);
-        } else if (info instanceof WMSLayerInfo) {
-            visitor.visit((WMSLayerInfo) info);
-        } else if (info instanceof WMTSLayerInfo) {
-            visitor.visit((WMTSLayerInfo) info);
-        } else if (info instanceof CoverageStoreInfo) {
-            visitor.visit((CoverageStoreInfo) info);
-        } else if (info instanceof DataStoreInfo) {
-            visitor.visit((DataStoreInfo) info);
-        } else if (info instanceof WMSStoreInfo) {
-            visitor.visit((WMSStoreInfo) info);
-        } else if (info instanceof WMTSStoreInfo) {
-            visitor.visit((WMTSStoreInfo) info);
-        } else if (info instanceof StyleInfo) {
-            visitor.visit((StyleInfo) info);
-        } else if (info instanceof WorkspaceInfo) {
-            visitor.visit((WorkspaceInfo) info);
+        if (info instanceof LayerGroupInfo lg) {
+            visitor.visit(lg);
+        } else if (info instanceof LayerInfo l) {
+            visitor.visit(l);
+        } else if (info instanceof NamespaceInfo ns) {
+            visitor.visit(ns);
+        } else if (info instanceof CoverageInfo coverage) {
+            visitor.visit(coverage);
+        } else if (info instanceof FeatureTypeInfo ft) {
+            visitor.visit(ft);
+        } else if (info instanceof WMSLayerInfo wmsLayer) {
+            visitor.visit(wmsLayer);
+        } else if (info instanceof WMTSLayerInfo wmtsLayer) {
+            visitor.visit(wmtsLayer);
+        } else if (info instanceof CoverageStoreInfo cs) {
+            visitor.visit(cs);
+        } else if (info instanceof DataStoreInfo ds) {
+            visitor.visit(ds);
+        } else if (info instanceof WMSStoreInfo wmss) {
+            visitor.visit(wmss);
+        } else if (info instanceof WMTSStoreInfo wmtss) {
+            visitor.visit(wmtss);
+        } else if (info instanceof StyleInfo style) {
+            visitor.visit(style);
+        } else if (info instanceof WorkspaceInfo ws) {
+            visitor.visit(ws);
         } else {
             throw new IllegalArgumentException("Unknown resource type: " + info);
         }
@@ -128,22 +128,22 @@ public class CatalogValidationRules {
     }
 
     public <T extends CatalogInfo> void beforeRemove(T info) {
-        if (info instanceof LayerGroupInfo) {
-            beforeRemove((LayerGroupInfo) info);
-        } else if (info instanceof LayerInfo) {
-            beforeRemove((LayerInfo) info);
-        } else if (info instanceof MapInfo) {
-            beforeRemove((MapInfo) info);
-        } else if (info instanceof NamespaceInfo) {
-            beforeRemove((NamespaceInfo) info);
-        } else if (info instanceof ResourceInfo) {
-            beforeRemove((ResourceInfo) info);
-        } else if (info instanceof StoreInfo) {
-            beforeRemove((StoreInfo) info);
-        } else if (info instanceof StyleInfo) {
-            beforeRemove((StyleInfo) info);
-        } else if (info instanceof WorkspaceInfo) {
-            beforeRemove((WorkspaceInfo) info);
+        if (info instanceof LayerGroupInfo lg) {
+            beforeRemove(lg);
+        } else if (info instanceof LayerInfo l) {
+            beforeRemove(l);
+        } else if (info instanceof MapInfo map) {
+            // no-op
+        } else if (info instanceof NamespaceInfo ns) {
+            beforeRemove(ns);
+        } else if (info instanceof ResourceInfo res) {
+            beforeRemove(res);
+        } else if (info instanceof StoreInfo s) {
+            beforeRemove(s);
+        } else if (info instanceof StyleInfo style) {
+            beforeRemove(style);
+        } else if (info instanceof WorkspaceInfo ws) {
+            beforeRemove(ws);
         } else {
             throw new IllegalArgumentException("Unknown resource type: " + info);
         }
@@ -224,12 +224,8 @@ public class CatalogValidationRules {
         checkArgument(!isDefaultStyle(style), "Unable to delete a default style");
     }
 
-    private void beforeRemove(MapInfo map) {
-        // no-op
-    }
-
     private ValidationResult postValidate(CatalogInfo info, boolean isNew) {
-        List<RuntimeException> errors = new ArrayList<RuntimeException>();
+        List<RuntimeException> errors = new ArrayList<>();
 
         if (!extendedValidation) {
             return new ValidationResult(null);
@@ -255,57 +251,71 @@ public class CatalogValidationRules {
             this.isNew = isNew;
         }
 
-        public @Override void visit(Catalog catalog) {}
+        @Override
+        public void visit(Catalog catalog) {}
 
-        public @Override void visit(WorkspaceInfo workspace) {
+        @Override
+        public void visit(WorkspaceInfo workspace) {
             validator.validate(workspace, isNew);
         }
 
-        public @Override void visit(NamespaceInfo namespace) {
+        @Override
+        public void visit(NamespaceInfo namespace) {
             validator.validate(namespace, isNew);
         }
 
-        public @Override void visit(DataStoreInfo dataStore) {
+        @Override
+        public void visit(DataStoreInfo dataStore) {
             validator.validate(dataStore, isNew);
         }
 
-        public @Override void visit(CoverageStoreInfo coverageStore) {
+        @Override
+        public void visit(CoverageStoreInfo coverageStore) {
             validator.validate(coverageStore, isNew);
         }
 
-        public @Override void visit(WMSStoreInfo wmsStore) {
+        @Override
+        public void visit(WMSStoreInfo wmsStore) {
             validator.validate(wmsStore, isNew);
         }
 
-        public @Override void visit(WMTSStoreInfo wmtsStore) {
+        @Override
+        public void visit(WMTSStoreInfo wmtsStore) {
             validator.validate(wmtsStore, isNew);
         }
 
-        public @Override void visit(FeatureTypeInfo featureType) {
+        @Override
+        public void visit(FeatureTypeInfo featureType) {
             validator.validate(featureType, isNew);
         }
 
-        public @Override void visit(CoverageInfo coverage) {
+        @Override
+        public void visit(CoverageInfo coverage) {
             validator.validate(coverage, isNew);
         }
 
-        public @Override void visit(LayerInfo layer) {
+        @Override
+        public void visit(LayerInfo layer) {
             validator.validate(layer, isNew);
         }
 
-        public @Override void visit(StyleInfo style) {
+        @Override
+        public void visit(StyleInfo style) {
             validator.validate(style, isNew);
         }
 
-        public @Override void visit(LayerGroupInfo layerGroup) {
+        @Override
+        public void visit(LayerGroupInfo layerGroup) {
             validator.validate(layerGroup, isNew);
         }
 
-        public @Override void visit(WMSLayerInfo wmsLayer) {
+        @Override
+        public void visit(WMSLayerInfo wmsLayer) {
             validator.validate(wmsLayer, isNew);
         }
 
-        public @Override void visit(WMTSLayerInfo wmtsLayer) {
+        @Override
+        public void visit(WMTSLayerInfo wmtsLayer) {
             validator.validate(wmtsLayer, isNew);
         }
     }

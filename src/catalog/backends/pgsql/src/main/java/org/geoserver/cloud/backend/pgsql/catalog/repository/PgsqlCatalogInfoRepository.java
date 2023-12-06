@@ -25,6 +25,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
+import java.io.UncheckedIOException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -54,7 +55,7 @@ public abstract class PgsqlCatalogInfoRepository<T extends CatalogInfo>
     /**
      * @param template
      */
-    public PgsqlCatalogInfoRepository(@NonNull JdbcTemplate template) {
+    protected PgsqlCatalogInfoRepository(@NonNull JdbcTemplate template) {
         this.template = template;
     }
 
@@ -184,8 +185,7 @@ public abstract class PgsqlCatalogInfoRepository<T extends CatalogInfo>
         if (!filterFullySupported) {
             filter = SimplifyingFilterVisitor.simplify(unsupportedFilter);
 
-            Predicate<U> predicate = toPredicate(unsupportedFilter);
-            // Predicate<U> predicate = toPredicate(filter);
+            Predicate<U> predicate = toPredicate(filter);
             stream =
                     stream.filter(predicate)
                             .skip(query.offset().orElse(0))
@@ -347,7 +347,7 @@ public abstract class PgsqlCatalogInfoRepository<T extends CatalogInfo>
         try {
             return infoMapper.writeValueAsString(info);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -361,7 +361,6 @@ public abstract class PgsqlCatalogInfoRepository<T extends CatalogInfo>
         if (clazz.isInterface()) cm = ClassMappings.fromInterface(clazz);
         else cm = ClassMappings.fromImpl(clazz);
 
-        String infotype = cm.getInterface().getSimpleName();
-        return infotype;
+        return cm.getInterface().getSimpleName();
     }
 }

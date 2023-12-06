@@ -13,7 +13,7 @@ import java.util.Set;
 
 /** DTO for {@link JAIInfo} */
 public @Data @Generated class JaiDto {
-    public static enum PngEncoderType {
+    public enum PngEncoderType {
         JDK,
         NATIVE,
         PNGJ

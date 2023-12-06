@@ -5,8 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -42,7 +40,7 @@ import java.util.function.Supplier;
 
 @SpringBootTest(classes = GeoServerBackendCacheConfiguration.class)
 @EnableAutoConfiguration(exclude = LocalCatalogEventsAutoConfiguration.class)
-public class CachingGeoServerFacadeTest {
+class CachingGeoServerFacadeTest {
 
     private @MockBean @Qualifier("defaultUpdateSequence") UpdateSequence updateSequence;
     private @MockBean @Qualifier("rawCatalog") CatalogPlugin rawCatalog;
@@ -91,45 +89,43 @@ public class CachingGeoServerFacadeTest {
         when(mock.getService(TestService1.class)).thenReturn(service1);
         when(mock.getService(TestService2.class)).thenReturn(service2);
 
-        when(mock.getService(eq(service1.getId()), eq(ServiceInfo.class))).thenReturn(service1);
-        when(mock.getService(eq(service1.getId()), eq(TestService1.class))).thenReturn(service1);
-        when(mock.getService(eq(service2.getId()), eq(ServiceInfo.class))).thenReturn(service2);
-        when(mock.getService(eq(service2.getId()), eq(TestService2.class))).thenReturn(service2);
+        when(mock.getService(service1.getId(), ServiceInfo.class)).thenReturn(service1);
+        when(mock.getService(service1.getId(), TestService1.class)).thenReturn(service1);
+        when(mock.getService(service2.getId(), ServiceInfo.class)).thenReturn(service2);
+        when(mock.getService(service2.getId(), TestService2.class)).thenReturn(service2);
         doReturn(Arrays.asList(service1, service2)).when(mock).getServices();
 
-        when(mock.getService(same(ws), eq(TestService1.class))).thenReturn(wsService1);
-        when(mock.getService(same(ws), eq(TestService2.class))).thenReturn(wsService2);
-        doReturn(Arrays.asList(wsService1, wsService2)).when(mock).getServices(same(ws));
+        when(mock.getService(ws, TestService1.class)).thenReturn(wsService1);
+        when(mock.getService(ws, TestService2.class)).thenReturn(wsService2);
+        doReturn(Arrays.asList(wsService1, wsService2)).when(mock).getServices(ws);
 
-        when(mock.getServiceByName(eq(service1.getName()), eq(ServiceInfo.class)))
-                .thenReturn(service1);
-        when(mock.getServiceByName(eq(service1.getName()), eq(TestService1.class)))
-                .thenReturn(service1);
-        when(mock.getServiceByName(eq(service2.getName()), eq(ServiceInfo.class)))
-                .thenReturn(service1);
-        when(mock.getServiceByName(eq(service2.getName()), eq(TestService2.class)))
-                .thenReturn(service2);
+        when(mock.getServiceByName(service1.getName(), ServiceInfo.class)).thenReturn(service1);
+        when(mock.getServiceByName(service1.getName(), TestService1.class)).thenReturn(service1);
+        when(mock.getServiceByName(service2.getName(), ServiceInfo.class)).thenReturn(service1);
+        when(mock.getServiceByName(service2.getName(), TestService2.class)).thenReturn(service2);
 
-        when(mock.getServiceByName(eq(wsService1.getName()), same(ws), eq(ServiceInfo.class)))
+        when(mock.getServiceByName(wsService1.getName(), ws, ServiceInfo.class))
                 .thenReturn(wsService1);
-        when(mock.getServiceByName(eq(wsService1.getName()), same(ws), eq(TestService1.class)))
+        when(mock.getServiceByName(wsService1.getName(), ws, TestService1.class))
                 .thenReturn(wsService1);
-        when(mock.getServiceByName(eq(wsService2.getName()), same(ws), eq(ServiceInfo.class)))
+        when(mock.getServiceByName(wsService2.getName(), ws, ServiceInfo.class))
                 .thenReturn(wsService1);
-        when(mock.getServiceByName(eq(wsService2.getName()), same(ws), eq(TestService2.class)))
+        when(mock.getServiceByName(wsService2.getName(), ws, TestService2.class))
                 .thenReturn(wsService2);
 
-        when(mock.getSettings(same(ws))).thenReturn(settings);
+        when(mock.getSettings(ws)).thenReturn(settings);
         this.cache = cacheManager.getCache(CachingGeoServerFacade.CACHE_NAME);
         this.cache.clear();
     }
 
-    public @Test void testGetGlobal() {
+    @Test
+    void testGetGlobal() {
         assertSameTimesN(global, caching::getGlobal, 3);
         verify(mock, times(1)).getGlobal();
     }
 
-    public @Test void testSetGlobal() {
+    @Test
+    void testSetGlobal() {
         assertSameTimesN(global, caching::getGlobal, 3);
         assertNotNull(cache.get(CachingGeoServerFacade.GEOSERVERINFO_KEY));
 
@@ -137,7 +133,8 @@ public class CachingGeoServerFacadeTest {
         assertNull(cache.get(CachingGeoServerFacade.GEOSERVERINFO_KEY));
     }
 
-    public @Test void testSaveGeoServerInfo() {
+    @Test
+    void testSaveGeoServerInfo() {
         assertSameTimesN(global, caching::getGlobal, 3);
         assertNotNull(cache.get(CachingGeoServerFacade.GEOSERVERINFO_KEY));
 
@@ -145,37 +142,42 @@ public class CachingGeoServerFacadeTest {
         assertNull(cache.get(CachingGeoServerFacade.GEOSERVERINFO_KEY));
     }
 
-    public @Test void testGetSettings() {
+    @Test
+    void testGetSettings() {
         assertSameTimesN(settings, () -> caching.getSettings(ws), 3);
-        verify(mock, times(1)).getSettings(same(ws));
+        verify(mock, times(1)).getSettings(ws);
         assertNotNull(cache.get(CachingGeoServerFacade.settingsKey(ws)));
     }
 
-    public @Test void testSaveSettingsInfo() {
+    @Test
+    void testSaveSettingsInfo() {
         assertSameTimesN(settings, () -> caching.getSettings(ws), 3);
-        verify(mock, times(1)).getSettings(same(ws));
+        verify(mock, times(1)).getSettings(ws);
         assertNotNull(cache.get(CachingGeoServerFacade.settingsKey(ws)));
 
         caching.save(settings);
         assertNull(cache.get(CachingGeoServerFacade.settingsKey(ws)));
     }
 
-    public @Test void testRemoveSettingsInfo() {
+    @Test
+    void testRemoveSettingsInfo() {
         assertSameTimesN(settings, () -> caching.getSettings(ws), 3);
-        verify(mock, times(1)).getSettings(same(ws));
+        verify(mock, times(1)).getSettings(ws);
         assertNotNull(cache.get(CachingGeoServerFacade.settingsKey(ws)));
 
         caching.remove(settings);
         assertNull(cache.get(CachingGeoServerFacade.settingsKey(ws)));
     }
 
-    public @Test void testGetLogging() {
+    @Test
+    void testGetLogging() {
         assertSameTimesN(logging, caching::getLogging, 3);
         verify(mock, times(1)).getLogging();
         assertNotNull(cache.get(CachingGeoServerFacade.LOGGINGINFO_KEY));
     }
 
-    public @Test void testSetLogging() {
+    @Test
+    void testSetLogging() {
         assertSameTimesN(logging, caching::getLogging, 3);
         verify(mock, times(1)).getLogging();
         assertNotNull(cache.get(CachingGeoServerFacade.LOGGINGINFO_KEY));
@@ -183,7 +185,8 @@ public class CachingGeoServerFacadeTest {
         assertNull(cache.get(CachingGeoServerFacade.LOGGINGINFO_KEY));
     }
 
-    public @Test void testSaveLoggingInfo() {
+    @Test
+    void testSaveLoggingInfo() {
         assertSameTimesN(logging, caching::getLogging, 3);
         verify(mock, times(1)).getLogging();
         assertNotNull(cache.get(CachingGeoServerFacade.LOGGINGINFO_KEY));
@@ -191,7 +194,8 @@ public class CachingGeoServerFacadeTest {
         assertNull(cache.get(CachingGeoServerFacade.LOGGINGINFO_KEY));
     }
 
-    public @Test void testRemoveServiceInfo() {
+    @Test
+    void testRemoveServiceInfo() {
         testEvictsServiceInfo(service1, () -> caching.remove(service1));
 
         assertNotNull(wsService1.getWorkspace(), "preflight check failure");
@@ -199,7 +203,8 @@ public class CachingGeoServerFacadeTest {
         testEvictsServiceInfo(wsService1, () -> caching.remove(wsService1));
     }
 
-    public @Test void testSaveServiceInfo() {
+    @Test
+    void testSaveServiceInfo() {
         testEvictsServiceInfo(service1, () -> caching.save(service1));
 
         assertNotNull(wsService1.getWorkspace(), "preflight check failure");
@@ -227,7 +232,8 @@ public class CachingGeoServerFacadeTest {
     }
 
     /** {@link GeoServerFacade#getService(Class)} */
-    public @Test void testGetServiceByType() {
+    @Test
+    void testGetServiceByType() {
         ServiceInfo service = service1;
         ServiceInfoKey idKey = ServiceInfoKey.byId(service.getId());
         ServiceInfoKey nameKey = ServiceInfoKey.byName(service.getWorkspace(), service.getName());
@@ -238,7 +244,7 @@ public class CachingGeoServerFacadeTest {
         assertNull(cache.get(typeKey));
 
         assertSameTimesN(service, () -> caching.getService(TestService1.class), 3);
-        verify(mock, times(1)).getService(eq(TestService1.class));
+        verify(mock, times(1)).getService(TestService1.class);
 
         assertNotNull(cache.get(idKey));
         assertNotNull(cache.get(nameKey));
@@ -248,11 +254,12 @@ public class CachingGeoServerFacadeTest {
     /**
      * {@link GeoServerFacade#getService(WorkspaceInfo, Class)
      */
-    public @Test void testGetServiceByWorkspaceAndType() {
+    @Test
+    void testGetServiceByWorkspaceAndType() {
         TestService1 service = wsService1;
         WorkspaceInfo ws = service.getWorkspace();
         assertNotNull(ws, "preflight check failure");
-        when(mock.getService(same(ws), eq(TestService1.class))).thenReturn(service);
+        when(mock.getService(ws, TestService1.class)).thenReturn(service);
 
         ServiceInfoKey idKey = ServiceInfoKey.byId(service.getId());
         ServiceInfoKey nameKey = ServiceInfoKey.byName(service.getWorkspace(), service.getName());
@@ -263,7 +270,7 @@ public class CachingGeoServerFacadeTest {
         assertNull(cache.get(typeKey));
 
         assertSameTimesN(service, () -> caching.getService(ws, TestService1.class), 3);
-        verify(mock, times(1)).getService(same(ws), eq(TestService1.class));
+        verify(mock, times(1)).getService(ws, TestService1.class);
 
         assertNotNull(cache.get(idKey));
         assertNotNull(cache.get(nameKey));
@@ -273,9 +280,10 @@ public class CachingGeoServerFacadeTest {
     /**
      * {@link GeoServerFacade#getService(String, Class)
      */
-    public @Test void testGetServiceByIdAndType() {
+    @Test
+    void testGetServiceByIdAndType() {
         TestService1 service = service1;
-        when(mock.getService(eq(service.getId()), eq(TestService1.class))).thenReturn(service);
+        when(mock.getService(service.getId(), TestService1.class)).thenReturn(service);
 
         ServiceInfoKey idKey = ServiceInfoKey.byId(service.getId());
         ServiceInfoKey nameKey = ServiceInfoKey.byName(service.getWorkspace(), service.getName());
@@ -286,18 +294,19 @@ public class CachingGeoServerFacadeTest {
         assertNull(cache.get(typeKey));
 
         assertSameTimesN(service, () -> caching.getService(service.getId(), TestService1.class), 3);
-        verify(mock, times(1)).getService(eq(service.getId()), eq(TestService1.class));
+        verify(mock, times(1)).getService(service.getId(), TestService1.class);
 
         assertNotNull(cache.get(idKey));
         assertNotNull(cache.get(nameKey));
         assertNotNull(cache.get(typeKey));
     }
 
-    public @Test void testGetServiceByNameAndType() {
+    @Test
+    void testGetServiceByNameAndType() {
         TestService1 service = service1;
         String name = service.getName();
         assertNotNull("preflight check failure", name);
-        when(mock.getServiceByName(eq(name), eq(TestService1.class))).thenReturn(service);
+        when(mock.getServiceByName(name, TestService1.class)).thenReturn(service);
 
         ServiceInfoKey idKey = ServiceInfoKey.byId(service.getId());
         ServiceInfoKey nameKey = ServiceInfoKey.byName(service.getWorkspace(), service.getName());
@@ -308,20 +317,21 @@ public class CachingGeoServerFacadeTest {
         assertNull(cache.get(typeKey));
 
         assertSameTimesN(service, () -> caching.getServiceByName(name, TestService1.class), 3);
-        verify(mock, times(1)).getServiceByName(eq(name), eq(TestService1.class));
+        verify(mock, times(1)).getServiceByName(name, TestService1.class);
 
         assertNotNull(cache.get(idKey));
         assertNotNull(cache.get(nameKey));
         assertNotNull(cache.get(typeKey));
     }
 
-    public @Test void testGetServiceByNameAndWorkspaceAndType() {
+    @Test
+    void testGetServiceByNameAndWorkspaceAndType() {
         TestService1 service = wsService1;
         String name = service.getName();
         WorkspaceInfo ws = service.getWorkspace();
         assertNotNull(name, "preflight check failure");
         assertNotNull(ws, "preflight check failure");
-        when(mock.getServiceByName(eq(name), eq(ws), eq(TestService1.class))).thenReturn(service);
+        when(mock.getServiceByName(name, ws, TestService1.class)).thenReturn(service);
 
         ServiceInfoKey idKey = ServiceInfoKey.byId(service.getId());
         ServiceInfoKey nameKey = ServiceInfoKey.byName(service.getWorkspace(), service.getName());
@@ -332,7 +342,7 @@ public class CachingGeoServerFacadeTest {
         assertNull(cache.get(typeKey));
 
         assertSameTimesN(service, () -> caching.getServiceByName(name, ws, TestService1.class), 3);
-        verify(mock, times(1)).getServiceByName(eq(name), eq(ws), eq(TestService1.class));
+        verify(mock, times(1)).getServiceByName(name, ws, TestService1.class);
 
         assertNotNull(cache.get(idKey));
         assertNotNull(cache.get(nameKey));
@@ -340,7 +350,8 @@ public class CachingGeoServerFacadeTest {
     }
 
     /** {@link CachingGeoServerFacade#evict(Info)} manual eviction aid */
-    public @Test void testEvict_GeoServerInfo() {
+    @Test
+    void testEvict_GeoServerInfo() {
         GeoServerInfo gsProxy = ResolvingProxy.create("someid", GeoServerInfo.class);
         assertFalse(caching.evict(gsProxy));
         cache.put(CachingGeoServerFacade.GEOSERVERINFO_KEY, global);
@@ -350,7 +361,8 @@ public class CachingGeoServerFacadeTest {
     }
 
     /** {@link CachingGeoServerFacade#evict(Info)} manual eviction aid */
-    public @Test void testEvict_LoggingInfo() {
+    @Test
+    void testEvict_LoggingInfo() {
         LoggingInfo loggingProxy = ResolvingProxy.create(settings.getId(), LoggingInfo.class);
         assertFalse(caching.evict(loggingProxy));
         cache.put(CachingGeoServerFacade.LOGGINGINFO_KEY, logging);
@@ -360,7 +372,8 @@ public class CachingGeoServerFacadeTest {
     }
 
     /** {@link CachingGeoServerFacade#evict(Info)} manual eviction aid */
-    public @Test void testEvict_SettingsInfo() {
+    @Test
+    void testEvict_SettingsInfo() {
         assertNotNull(settings.getWorkspace());
         Object wsKey = CachingGeoServerFacade.settingsKey(settings.getWorkspace());
         final String id = settings.getId();
@@ -382,7 +395,8 @@ public class CachingGeoServerFacadeTest {
     }
 
     /** {@link CachingGeoServerFacade#evict(Info)} manual eviction aid */
-    public @Test void testEvict_ServiceInfo() {
+    @Test
+    void testEvict_ServiceInfo() {
         TestService1 service = service1;
         ServiceInfoKey idKey = ServiceInfoKey.byId(service.getId());
         ServiceInfoKey nameKey = ServiceInfoKey.byName(service.getWorkspace(), service.getName());

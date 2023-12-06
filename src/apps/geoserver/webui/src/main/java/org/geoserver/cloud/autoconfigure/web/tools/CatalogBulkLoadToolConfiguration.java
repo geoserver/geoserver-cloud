@@ -4,8 +4,6 @@
  */
 package org.geoserver.cloud.autoconfigure.web.tools;
 
-import lombok.Getter;
-
 import org.geoserver.cloud.autoconfigure.web.core.AbstractWebUIAutoConfiguration;
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -27,5 +25,8 @@ public class CatalogBulkLoadToolConfiguration extends AbstractWebUIAutoConfigura
 
     static final String CONFIG_PREFIX = ToolsAutoConfiguration.CONFIG_PREFIX + ".catalog-bulk-load";
 
-    private final @Getter String configPrefix = CONFIG_PREFIX;
+    @Override
+    public String getConfigPrefix() {
+        return CONFIG_PREFIX;
+    }
 }

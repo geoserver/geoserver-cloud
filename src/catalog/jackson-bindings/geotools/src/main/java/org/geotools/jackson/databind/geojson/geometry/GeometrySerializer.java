@@ -32,7 +32,8 @@ public class GeometrySerializer extends StdSerializer<Geometry> {
         super(Geometry.class);
     }
 
-    public @Override void serializeWithType(
+    @Override
+    public void serializeWithType(
             Geometry value,
             JsonGenerator gen,
             SerializerProvider serializers,
@@ -47,8 +48,9 @@ public class GeometrySerializer extends StdSerializer<Geometry> {
         typeSer.writeTypeSuffix(gen, typeIdDef);
     }
 
-    public @Override void serialize(
-            Geometry value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+    @Override
+    public void serialize(Geometry value, JsonGenerator gen, SerializerProvider serializers)
+            throws IOException {
 
         serialize(value, gen);
     }
@@ -109,18 +111,18 @@ public class GeometrySerializer extends StdSerializer<Geometry> {
 
     private CoordinateSequence findSampleSequence(Geometry g) {
         if (g == null || g.isEmpty()) return null;
-        if (g instanceof GeometryCollection) {
-            return findSampleSequence(g.getGeometryN(0));
+        if (g instanceof GeometryCollection col) {
+            return findSampleSequence(col.getGeometryN(0));
         }
-        if (g instanceof Point) return ((Point) g).getCoordinateSequence();
-        if (g instanceof LineString) return ((LineString) g).getCoordinateSequence();
-        if (g instanceof Polygon) return findSampleSequence(((Polygon) g).getExteriorRing());
+        if (g instanceof Point point) return point.getCoordinateSequence();
+        if (g instanceof LineString line) return line.getCoordinateSequence();
+        if (g instanceof Polygon poly) return findSampleSequence(poly.getExteriorRing());
         return null;
     }
 
     private void writeGeometry(Geometry geometry, JsonGenerator generator) throws IOException {
-        if (geometry instanceof GeometryCollection) {
-            writeMultiGeom((GeometryCollection) geometry, generator);
+        if (geometry instanceof GeometryCollection col) {
+            writeMultiGeom(col, generator);
         } else {
             writeSimpleGeom(geometry, generator);
         }
@@ -141,11 +143,9 @@ public class GeometrySerializer extends StdSerializer<Geometry> {
             generator.writeEndArray();
             return;
         }
-        if (geometry instanceof Point) {
-            Point p = (Point) geometry;
+        if (geometry instanceof Point p) {
             writeCoordinate(p.getCoordinateSequence(), 0, generator);
-        } else if (geometry instanceof Polygon) {
-            Polygon poly = (Polygon) geometry;
+        } else if (geometry instanceof Polygon poly) {
             generator.writeStartArray();
             writeCoordinateSequence(poly.getExteriorRing(), generator);
             for (int r = 0; r < poly.getNumInteriorRing(); r++) {
@@ -162,15 +162,18 @@ public class GeometrySerializer extends StdSerializer<Geometry> {
         final AtomicReference<CoordinateSequence> seqRef = new AtomicReference<>();
         simpleGeom.apply(
                 new CoordinateSequenceFilter() {
-                    public @Override void filter(CoordinateSequence seq, int i) {
+                    @Override
+                    public void filter(CoordinateSequence seq, int i) {
                         seqRef.set(seq);
                     }
 
-                    public @Override boolean isGeometryChanged() {
+                    @Override
+                    public boolean isGeometryChanged() {
                         return false;
                     }
 
-                    public @Override boolean isDone() {
+                    @Override
+                    public boolean isDone() {
                         return true;
                     }
                 });

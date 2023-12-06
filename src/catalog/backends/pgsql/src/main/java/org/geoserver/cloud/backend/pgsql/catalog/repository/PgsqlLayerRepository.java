@@ -4,7 +4,6 @@
  */
 package org.geoserver.cloud.backend.pgsql.catalog.repository;
 
-import lombok.Getter;
 import lombok.NonNull;
 
 import org.geoserver.catalog.LayerInfo;
@@ -25,14 +24,21 @@ import java.util.stream.Stream;
 public class PgsqlLayerRepository extends PgsqlCatalogInfoRepository<LayerInfo>
         implements LayerRepository {
 
-    private final @Getter Class<LayerInfo> contentType = LayerInfo.class;
-    private final @Getter String queryTable = "layerinfos";
-
     /**
      * @param template
      */
     public PgsqlLayerRepository(@NonNull JdbcTemplate template) {
         super(template);
+    }
+
+    @Override
+    public Class<LayerInfo> getContentType() {
+        return LayerInfo.class;
+    }
+
+    @Override
+    protected String getQueryTable() {
+        return "layerinfos";
     }
 
     @Override

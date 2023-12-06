@@ -12,7 +12,6 @@ import org.geoserver.cloud.backend.pgsql.config.PgsqlConfigRepository;
 import org.geoserver.cloud.backend.pgsql.config.PgsqlGeoServerFacade;
 import org.geoserver.cloud.backend.pgsql.config.PgsqlUpdateSequence;
 import org.geoserver.cloud.backend.pgsql.resource.PgsqlLockProvider;
-import org.geoserver.cloud.config.catalog.backend.core.CatalogProperties;
 import org.geoserver.cloud.config.catalog.backend.pgsql.PgsqlGeoServerLoader;
 import org.geoserver.cloud.config.catalog.backend.pgsql.PgsqlGeoServerResourceLoader;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,7 +33,6 @@ class PgsqlBackendAutoConfigurationTest {
 
     private ApplicationContextRunner runner =
             new ApplicationContextRunner()
-                    .withBean(CatalogProperties.class, CatalogProperties::new)
                     .withConfiguration(
                             AutoConfigurations.of(
                                     PgsqlDataSourceAutoConfiguration.class,

@@ -37,86 +37,102 @@ public class CatalogInfoRepositoryHolderImpl implements CatalogInfoRepositoryHol
             new CatalogInfoTypeRegistry<>();
 
     @SuppressWarnings("unchecked")
-    public @Override <T extends CatalogInfo, R extends CatalogInfoRepository<T>> R repository(
-            Class<T> of) {
+    @Override
+    public <T extends CatalogInfo, R extends CatalogInfoRepository<T>> R repository(Class<T> of) {
         return (R) repos.of(of);
     }
 
     @SuppressWarnings("unchecked")
-    public @Override <T extends CatalogInfo, R extends CatalogInfoRepository<T>> R repositoryFor(
-            T info) {
+    @Override
+    public <T extends CatalogInfo, R extends CatalogInfoRepository<T>> R repositoryFor(T info) {
         return (R) repos.forObject(info);
     }
 
-    public @Override void setNamespaceRepository(NamespaceRepository namespaces) {
+    @Override
+    public void setNamespaceRepository(NamespaceRepository namespaces) {
         this.namespaces = namespaces;
         repos.register(NamespaceInfo.class, namespaces);
     }
 
-    public @Override NamespaceRepository getNamespaceRepository() {
+    @Override
+    public NamespaceRepository getNamespaceRepository() {
         return namespaces;
     }
 
-    public @Override void setWorkspaceRepository(WorkspaceRepository workspaces) {
+    @Override
+    public void setWorkspaceRepository(WorkspaceRepository workspaces) {
         this.workspaces = workspaces;
         repos.register(WorkspaceInfo.class, workspaces);
     }
 
-    public @Override WorkspaceRepository getWorkspaceRepository() {
+    @Override
+    public WorkspaceRepository getWorkspaceRepository() {
         return workspaces;
     }
 
-    public @Override void setStoreRepository(StoreRepository stores) {
+    @Override
+    public void setStoreRepository(StoreRepository stores) {
         this.stores = stores;
         repos.registerRecursively(StoreInfo.class, stores);
     }
 
-    public @Override StoreRepository getStoreRepository() {
+    @Override
+    public StoreRepository getStoreRepository() {
         return stores;
     }
 
-    public @Override void setResourceRepository(ResourceRepository resources) {
+    @Override
+    public void setResourceRepository(ResourceRepository resources) {
         this.resources = resources;
         repos.registerRecursively(ResourceInfo.class, resources);
     }
 
-    public @Override ResourceRepository getResourceRepository() {
+    @Override
+    public ResourceRepository getResourceRepository() {
         return resources;
     }
 
-    public @Override void setLayerRepository(LayerRepository layers) {
+    @Override
+    public void setLayerRepository(LayerRepository layers) {
         this.layers = layers;
         repos.register(LayerInfo.class, layers);
     }
 
-    public @Override LayerRepository getLayerRepository() {
+    @Override
+    public LayerRepository getLayerRepository() {
         return layers;
     }
 
-    public @Override void setLayerGroupRepository(LayerGroupRepository layerGroups) {
+    @Override
+    public void setLayerGroupRepository(LayerGroupRepository layerGroups) {
         this.layerGroups = layerGroups;
         repos.register(LayerGroupInfo.class, layerGroups);
     }
 
-    public @Override LayerGroupRepository getLayerGroupRepository() {
+    @Override
+    public LayerGroupRepository getLayerGroupRepository() {
         return layerGroups;
     }
 
-    public @Override void setStyleRepository(StyleRepository styles) {
+    @Override
+    public void setStyleRepository(StyleRepository styles) {
         this.styles = styles;
         repos.register(StyleInfo.class, styles);
     }
 
-    public @Override StyleRepository getStyleRepository() {
+    @Override
+    public StyleRepository getStyleRepository() {
         return styles;
     }
 
-    public @Override void setMapRepository(MapRepository maps) {
+    @Override
+    public void setMapRepository(MapRepository maps) {
         this.maps = maps;
         repos.register(MapInfo.class, maps);
     }
 
-    public @Override MapRepository getMapRepository() {
+    @Override
+    public MapRepository getMapRepository() {
         return maps;
     }
 }

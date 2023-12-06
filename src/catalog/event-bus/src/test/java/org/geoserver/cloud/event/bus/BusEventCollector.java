@@ -25,7 +25,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Configuration
@@ -48,7 +47,7 @@ public class BusEventCollector {
             log.debug("{}: capturing is off, ignoring {}", busId, busEvent);
             return;
         }
-        GeoServerEvent<?> payloadEvent = busEvent.getEvent();
+        GeoServerEvent payloadEvent = busEvent.getEvent();
         if (!eventType.isInstance(payloadEvent)) {
             log.debug(
                     "{}: ignoring non {} event {}", busId, eventType.getSimpleName(), payloadEvent);
@@ -114,7 +113,7 @@ public class BusEventCollector {
 
     @SuppressWarnings("rawtypes")
     public <T extends InfoEvent> List<RemoteGeoServerEvent> allOf(Class<T> payloadType) {
-        return capturedEvents(payloadType).collect(Collectors.toList());
+        return capturedEvents(payloadType).toList();
     }
 
     @SuppressWarnings("rawtypes")

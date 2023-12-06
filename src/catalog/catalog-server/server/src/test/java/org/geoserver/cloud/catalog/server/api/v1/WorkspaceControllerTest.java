@@ -17,7 +17,7 @@ import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWeb
 import org.springframework.http.MediaType;
 
 @AutoConfigureWebTestClient(timeout = "360000")
-public class WorkspaceControllerTest extends AbstractReactiveCatalogControllerTest<WorkspaceInfo> {
+class WorkspaceControllerTest extends AbstractReactiveCatalogControllerTest<WorkspaceInfo> {
 
     public WorkspaceControllerTest() {
         super(WorkspaceInfo.class);
@@ -28,27 +28,32 @@ public class WorkspaceControllerTest extends AbstractReactiveCatalogControllerTe
         assertEquals(expected.isIsolated(), actual.isIsolated());
     }
 
-    public @Override @Test void testFindById() {
+    @Override
+    public @Test void testFindById() {
         testFindById(testData.workspaceA);
         testFindById(testData.workspaceB);
         testFindById(testData.workspaceC);
     }
 
-    public @Override @Test void testFindAll() {
+    @Override
+    public @Test void testFindAll() {
         super.testFindAll(testData.workspaceA, testData.workspaceB, testData.workspaceC);
     }
 
-    public @Override @Test void testFindAllByType() {
+    @Override
+    public @Test void testFindAllByType() {
         super.testFindAll(
                 WorkspaceInfo.class, testData.workspaceA, testData.workspaceB, testData.workspaceC);
     }
 
-    public @Test void testFindByName() {
+    @Test
+    void testFindByName() {
         WorkspaceInfo ws1 = testData.workspaceA;
         assertEquals(ws1, client().getFirstByName(ws1.getName()));
     }
 
-    public @Override @Test void testQueryFilter() {
+    @Override
+    public @Test void testQueryFilter() {
         WorkspaceInfo wsA = catalog.getWorkspace(testData.workspaceA.getId());
         WorkspaceInfo wsB = catalog.getWorkspace(testData.workspaceB.getId());
         WorkspaceInfo wsC = catalog.getWorkspace(testData.workspaceC.getId());
@@ -63,7 +68,8 @@ public class WorkspaceControllerTest extends AbstractReactiveCatalogControllerTe
         super.testQueryFilter(format("\"id\" = '%s'", wsA.getId()), wsA);
     }
 
-    public @Test void testWorkspaceCRUD() {
+    @Test
+    void testWorkspaceCRUD() {
         WorkspaceInfo ws = testData.faker().workspaceInfo("workspaceCRUD");
         crudTest(
                 ws,
@@ -78,7 +84,8 @@ public class WorkspaceControllerTest extends AbstractReactiveCatalogControllerTe
                 });
     }
 
-    public @Test void testGetDefaultWorkspace() {
+    @Test
+    void testGetDefaultWorkspace() {
         WorkspaceInfo expected = catalog.getDefaultWorkspace();
         assertNotNull(expected);
         WorkspaceInfo actual =
@@ -93,7 +100,8 @@ public class WorkspaceControllerTest extends AbstractReactiveCatalogControllerTe
         assertEquals(expected, actual);
     }
 
-    public @Test void testGetDefaultWorkspaceIsNullOnEmptyCatalog() {
+    @Test
+    void testGetDefaultWorkspaceIsNullOnEmptyCatalog() {
         testData.deleteAll();
         assertNull(catalog.getDefaultWorkspace());
 
@@ -104,7 +112,8 @@ public class WorkspaceControllerTest extends AbstractReactiveCatalogControllerTe
                 .contentType(MediaType.APPLICATION_JSON);
     }
 
-    public @Test void testSetDefaultWorkspace() {
+    @Test
+    void testSetDefaultWorkspace() {
         WorkspaceInfo current = catalog.getDefaultWorkspace();
         assertNotNull(current);
         assertEquals(testData.workspaceA.getId(), current.getId());

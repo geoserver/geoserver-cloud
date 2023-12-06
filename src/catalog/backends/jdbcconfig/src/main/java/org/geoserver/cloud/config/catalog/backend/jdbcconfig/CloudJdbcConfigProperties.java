@@ -7,6 +7,8 @@ package org.geoserver.cloud.config.catalog.backend.jdbcconfig;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
+import lombok.EqualsAndHashCode;
+
 import org.geoserver.jdbcconfig.internal.ConfigDatabase;
 import org.geoserver.jdbcconfig.internal.JDBCConfigProperties;
 import org.geoserver.jdbcconfig.internal.JDBCConfigPropertiesFactoryBean;
@@ -22,9 +24,10 @@ import java.sql.Statement;
 import javax.sql.DataSource;
 
 /** Extends {@link JDBCConfigProperties} to not need a {@link JDBCConfigPropertiesFactoryBean} */
+@EqualsAndHashCode(callSuper = true)
 public class CloudJdbcConfigProperties extends JDBCConfigProperties {
     private static final long serialVersionUID = 1L;
-    private DataSource dataSource;
+    private transient DataSource dataSource;
 
     public CloudJdbcConfigProperties(DataSource dataSource) {
         super((JDBCConfigPropertiesFactoryBean) null);
@@ -32,8 +35,9 @@ public class CloudJdbcConfigProperties extends JDBCConfigProperties {
     }
 
     /** Override to not save at all */
-    public @Override void save() throws IOException {
-        // factory.saveConfig(this);
+    @Override
+    public void save() throws IOException {
+        // no-op
     }
 
     public boolean isH2() {
@@ -47,7 +51,8 @@ public class CloudJdbcConfigProperties extends JDBCConfigProperties {
     }
 
     /** Override to return {@code true} only if the db schema is not already created */
-    public @Override boolean isInitDb() {
+    @Override
+    public boolean isInitDb() {
         boolean initDb = Boolean.parseBoolean(getProperty("initdb", "false"));
         if (initDb) {
             try (Connection c = dataSource.getConnection();
@@ -59,7 +64,7 @@ public class CloudJdbcConfigProperties extends JDBCConfigProperties {
                     // table not found, proceed with initialization
                 }
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                throw new IllegalStateException(e);
             }
         }
         return initDb;
@@ -69,7 +74,8 @@ public class CloudJdbcConfigProperties extends JDBCConfigProperties {
      * Override to get the init script directly from the ones in the classpath (inside
      * gs-jdbcconfig.jar)
      */
-    public @Override Resource getInitScript() {
+    @Override
+    public Resource getInitScript() {
         String scriptName;
         if (isH2()) {
             scriptName = "initdb.h2.sql";
@@ -89,15 +95,15 @@ public class CloudJdbcConfigProperties extends JDBCConfigProperties {
                 ConfigDatabase.class.getPackage().getName(),
                 scriptName);
 
-        Resource resource = org.geoserver.platform.resource.URIs.asResource(initScript);
-        return resource;
+        return org.geoserver.platform.resource.URIs.asResource(initScript);
     }
 
     /**
      * Override to throw an {@link UnsupportedOperationException}, we're not using {@link
      * DataSourceFactoryBean}, the datasource is provided by spring instead
      */
-    public @Override Optional<String> getJdbcUrl() {
+    @Override
+    public Optional<String> getJdbcUrl() {
         throw new UnsupportedOperationException(
                 "shouldn't be called, this module doesn't use org.geoserver.jdbcloader.DataSourceFactoryBean");
     }

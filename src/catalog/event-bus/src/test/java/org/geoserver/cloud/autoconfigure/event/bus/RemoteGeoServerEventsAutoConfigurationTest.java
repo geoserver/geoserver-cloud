@@ -42,19 +42,23 @@ class RemoteGeoServerEventsAutoConfigurationTest {
                                     BusAutoConfiguration.class,
                                     RemoteGeoServerEventsAutoConfiguration.class));
 
-    public @Test void enabledByDefault() {
+    @Test
+    void enabledByDefault() {
         assertEnabled(runner);
     }
 
-    public @Test void conditionalOnGeoServerRemoteEventsEnabled() {
+    @Test
+    void conditionalOnGeoServerRemoteEventsEnabled() {
         assertDisabled(runner.withPropertyValues("geoserver.bus.enabled: false"));
     }
 
-    public @Test void conditionalOnBusEnabled() {
+    @Test
+    void conditionalOnBusEnabled() {
         assertDisabled(runner.withPropertyValues("spring.cloud.bus.enabled: false"));
     }
 
-    public @Test void conditionalOnCatalogEvents() {
+    @Test
+    void conditionalOnCatalogEvents() {
         assertDisabled(runner.withPropertyValues("geoserver.catalog.events.enabled: false"));
     }
 

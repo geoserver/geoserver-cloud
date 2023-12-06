@@ -34,110 +34,134 @@ public class ForwardingGeoServerFacade implements RepositoryGeoServerFacade {
         return facade;
     }
 
-    public @Override void setRepository(ConfigRepository repository) {
-        if (facade instanceof RepositoryGeoServerFacade)
-            ((RepositoryGeoServerFacade) facade).setRepository(repository);
+    @Override
+    public void setRepository(ConfigRepository repository) {
+        if (facade instanceof RepositoryGeoServerFacade repoFacade)
+            repoFacade.setRepository(repository);
 
         throw new IllegalStateException(
                 "subject GeoServerFacade is not a RepositoryGeoServerFacade");
     }
 
-    public @Override GeoServer getGeoServer() {
+    @Override
+    public GeoServer getGeoServer() {
         return facade.getGeoServer();
     }
 
-    public @Override void setGeoServer(GeoServer geoServer) {
+    @Override
+    public void setGeoServer(GeoServer geoServer) {
         facade.setGeoServer(geoServer);
     }
 
-    public @Override GeoServerInfo getGlobal() {
+    @Override
+    public GeoServerInfo getGlobal() {
         return facade.getGlobal();
     }
 
-    public @Override void setGlobal(GeoServerInfo global) {
+    @Override
+    public void setGlobal(GeoServerInfo global) {
         facade.setGlobal(global);
     }
 
-    public @Override void save(GeoServerInfo geoServer) {
+    @Override
+    public void save(GeoServerInfo geoServer) {
         facade.save(geoServer);
     }
 
-    public @Override SettingsInfo getSettings(WorkspaceInfo workspace) {
+    @Override
+    public SettingsInfo getSettings(WorkspaceInfo workspace) {
         return facade.getSettings(workspace);
     }
 
-    public @Override void add(SettingsInfo settings) {
+    @Override
+    public void add(SettingsInfo settings) {
         facade.add(settings);
     }
 
-    public @Override void save(SettingsInfo settings) {
+    @Override
+    public void save(SettingsInfo settings) {
         facade.save(settings);
     }
 
-    public @Override void remove(SettingsInfo settings) {
+    @Override
+    public void remove(SettingsInfo settings) {
         facade.remove(settings);
     }
 
-    public @Override LoggingInfo getLogging() {
+    @Override
+    public LoggingInfo getLogging() {
         return facade.getLogging();
     }
 
-    public @Override void setLogging(LoggingInfo logging) {
+    @Override
+    public void setLogging(LoggingInfo logging) {
         facade.setLogging(logging);
     }
 
-    public @Override void save(LoggingInfo logging) {
+    @Override
+    public void save(LoggingInfo logging) {
         facade.save(logging);
     }
 
-    public @Override void add(ServiceInfo service) {
+    @Override
+    public void add(ServiceInfo service) {
         facade.add(service);
     }
 
-    public @Override void remove(ServiceInfo service) {
+    @Override
+    public void remove(ServiceInfo service) {
         facade.remove(service);
     }
 
-    public @Override void save(ServiceInfo service) {
+    @Override
+    public void save(ServiceInfo service) {
         facade.save(service);
     }
 
-    public @Override Collection<? extends ServiceInfo> getServices() {
+    @Override
+    public Collection<? extends ServiceInfo> getServices() {
         return facade.getServices();
     }
 
-    public @Override Collection<? extends ServiceInfo> getServices(WorkspaceInfo workspace) {
+    @Override
+    public Collection<? extends ServiceInfo> getServices(WorkspaceInfo workspace) {
         return facade.getServices(workspace);
     }
 
-    public @Override <T extends ServiceInfo> T getService(Class<T> clazz) {
+    @Override
+    public <T extends ServiceInfo> T getService(Class<T> clazz) {
         return facade.getService(clazz);
     }
 
-    public @Override <T extends ServiceInfo> T getService(WorkspaceInfo workspace, Class<T> clazz) {
+    @Override
+    public <T extends ServiceInfo> T getService(WorkspaceInfo workspace, Class<T> clazz) {
         return facade.getService(workspace, clazz);
     }
 
-    public @Override <T extends ServiceInfo> T getService(String id, Class<T> clazz) {
+    @Override
+    public <T extends ServiceInfo> T getService(String id, Class<T> clazz) {
         return facade.getService(id, clazz);
     }
 
-    public @Override <T extends ServiceInfo> T getServiceByName(String name, Class<T> clazz) {
+    @Override
+    public <T extends ServiceInfo> T getServiceByName(String name, Class<T> clazz) {
         return facade.getServiceByName(name, clazz);
     }
 
-    public @Override <T extends ServiceInfo> T getServiceByName(
+    @Override
+    public <T extends ServiceInfo> T getServiceByName(
             String name, WorkspaceInfo workspace, Class<T> clazz) {
         return facade.getServiceByName(name, workspace, clazz);
     }
 
-    public @Override void dispose() {
+    @Override
+    public void dispose() {
         facade.dispose();
     }
 
-    public @Override SettingsInfo getSettings(String id) {
-        if (facade instanceof RepositoryGeoServerFacade)
-            ((RepositoryGeoServerFacade) facade).getSettings(id);
+    @Override
+    public SettingsInfo getSettings(String id) {
+        if (facade instanceof RepositoryGeoServerFacade repoFacade) repoFacade.getSettings(id);
 
         throw new UnsupportedOperationException();
     }

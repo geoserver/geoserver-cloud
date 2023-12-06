@@ -4,8 +4,6 @@
  */
 package org.geoserver.cloud.autoconfigure.web.demo;
 
-import lombok.Getter;
-
 import org.geoserver.cloud.autoconfigure.web.core.AbstractWebUIAutoConfiguration;
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -31,5 +29,8 @@ public class WcsRequestBuilderConfiguration extends AbstractWebUIAutoConfigurati
     static final String CONFIG_PREFIX =
             DemosAutoConfiguration.CONFIG_PREFIX + ".wcs-request-builder";
 
-    private final @Getter String configPrefix = CONFIG_PREFIX;
+    @Override
+    public String getConfigPrefix() {
+        return CONFIG_PREFIX;
+    }
 }

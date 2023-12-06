@@ -23,7 +23,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
     @JsonSubTypes.Type(value = SecurityConfigChanged.class)
 })
 @JsonTypeName("UpdateSequence")
-public class UpdateSequenceEvent<SELF> extends GeoServerEvent<SELF> {
+@SuppressWarnings("serial")
+public class UpdateSequenceEvent extends GeoServerEvent {
     /**
      * The provided {@link GeoServerInfo}'s {@link GeoServerInfo#getUpdateSequence() update
      * sequence}. Being the most frequently updated property, it's readily available for remote
@@ -47,8 +48,7 @@ public class UpdateSequenceEvent<SELF> extends GeoServerEvent<SELF> {
         return null == authentication ? null : authentication.getName();
     }
 
-    @SuppressWarnings("rawtypes")
-    public static UpdateSequenceEvent<UpdateSequenceEvent> createLocal(long value) {
-        return new UpdateSequenceEvent<>(value);
+    public static UpdateSequenceEvent createLocal(long value) {
+        return new UpdateSequenceEvent(value);
     }
 }

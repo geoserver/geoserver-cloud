@@ -16,7 +16,7 @@ import java.io.File;
 /**
  * @since 1.0
  */
-public class LockingCatalogDataDirectoryTest extends LockingCatalogTest {
+class LockingCatalogDataDirectoryTest extends LockingCatalogTest {
 
     @TempDir File tmpDir;
 

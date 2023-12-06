@@ -69,21 +69,22 @@ public class CatalogInfoKey implements Serializable {
     }
 
     private ClassMappings resolveTypeId(Info info) {
-        Class<? extends Info> type = CatalogInfoTypeRegistry.resolveType(info);
-        return resolveTypeId(type);
+        Class<? extends Info> infoType = CatalogInfoTypeRegistry.resolveType(info);
+        return resolveTypeId(infoType);
     }
 
     private ClassMappings resolveTypeId(Class<? extends Info> type) {
         return CatalogInfoTypeRegistry.determineKey(type);
     }
 
-    public @Override int hashCode() {
+    @Override
+    public int hashCode() {
         return id.hashCode();
-        // return 31 * id.hashCode() + (type == null ? 0 : type.hashCode());
     }
 
-    public @Override boolean equals(Object o) {
-        if (!CatalogInfoKey.class.isInstance(o)) return false;
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof CatalogInfoKey)) return false;
 
         CatalogInfoKey k = (CatalogInfoKey) o;
 

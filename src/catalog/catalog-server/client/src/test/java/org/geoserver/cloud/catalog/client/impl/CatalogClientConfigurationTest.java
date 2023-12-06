@@ -19,7 +19,7 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest(classes = CatalogClientConfiguration.class)
 @EnableAutoConfiguration
 @ActiveProfiles("test")
-public class CatalogClientConfigurationTest {
+class CatalogClientConfigurationTest {
 
     private @Autowired CatalogClientCatalogFacade rawCatalogServiceFacade;
 
@@ -28,7 +28,8 @@ public class CatalogClientConfigurationTest {
     private @Autowired GeoToolsFilterModule geotoolsFilterModule;
     private @Autowired GeoToolsGeoJsonModule geotoolsGeoJSONModule;
 
-    public @Test void smokeTest() {
+    @Test
+    void smokeTest() {
         assertNotNull(rawCatalogServiceFacade);
         assertNotNull(catalogJacksonModule);
         assertNotNull(configJacksonModule);

@@ -13,7 +13,7 @@ import org.geotools.jackson.databind.filter.dto.Expression.FunctionName;
 import org.junit.jupiter.api.BeforeEach;
 import org.mapstruct.factory.Mappers;
 
-public class ExpressionMapperTest extends ExpressionRoundtripTest {
+class ExpressionMapperTest extends ExpressionRoundtripTest {
 
     private ExpressionMapper expressions;
 

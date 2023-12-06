@@ -19,7 +19,8 @@ public @Data class ServiceInstance implements Serializable, Comparable<ServiceIn
     private String uri;
     private String status;
 
-    public @Override int compareTo(ServiceInstance o) {
+    @Override
+    public int compareTo(ServiceInstance o) {
         int c = getName().compareTo(o.getName());
         if (c == 0) {
             c = getInstanceId().compareTo(o.getInstanceId());

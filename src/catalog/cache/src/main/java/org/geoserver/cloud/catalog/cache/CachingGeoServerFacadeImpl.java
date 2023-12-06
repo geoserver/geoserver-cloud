@@ -15,7 +15,6 @@ import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
 import org.geoserver.config.plugin.forwarding.ForwardingGeoServerFacade;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.Cache.ValueWrapper;
 import org.springframework.cache.CacheManager;
@@ -66,8 +65,7 @@ class CachingGeoServerFacadeImpl extends ForwardingGeoServerFacade
                 return true;
             }
         }
-        if (info instanceof ServiceInfo) {
-            ServiceInfo service = (ServiceInfo) info;
+        if (info instanceof ServiceInfo service) {
             Object idKey = CachingGeoServerFacade.serviceByIdKey(service.getId());
             ValueWrapper cachedValue = cache.get(idKey);
             if (cachedValue != null) {
@@ -111,30 +109,31 @@ class CachingGeoServerFacadeImpl extends ForwardingGeoServerFacade
         return service;
     }
 
-    public CachingGeoServerFacadeImpl(GeoServerFacade facade) {
+    public CachingGeoServerFacadeImpl(GeoServerFacade facade, CacheManager cacheManager) {
         super(facade);
-    }
-
-    public @Autowired void setCacheManager(CacheManager cacheManager) {
         cache = cacheManager.getCache(CACHE_NAME);
     }
 
     @Cacheable(key = "'" + GEOSERVERINFO_KEY + "'", unless = "#result == null")
-    public @Override GeoServerInfo getGlobal() {
+    @Override
+    public GeoServerInfo getGlobal() {
         return super.getGlobal();
     }
 
     @CacheEvict(key = "'" + GEOSERVERINFO_KEY + "'")
-    public @Override void setGlobal(GeoServerInfo global) {
+    @Override
+    public void setGlobal(GeoServerInfo global) {
         super.setGlobal(global);
     }
 
     @CacheEvict(key = "'" + GEOSERVERINFO_KEY + "'")
-    public @Override void save(GeoServerInfo geoServer) {
+    @Override
+    public void save(GeoServerInfo geoServer) {
         super.save(geoServer);
     }
 
-    public @Override SettingsInfo getSettings(WorkspaceInfo workspace) {
+    @Override
+    public SettingsInfo getSettings(WorkspaceInfo workspace) {
         SettingsInfo settings;
         Object key = CachingGeoServerFacade.settingsKey(workspace);
         ValueWrapper cached = cache.get(key);
@@ -155,7 +154,8 @@ class CachingGeoServerFacadeImpl extends ForwardingGeoServerFacade
                 @CacheEvict(key = "#settings.id"),
                 @CacheEvict(key = "'settings@' + #settings.workspace.id")
             })
-    public @Override void save(SettingsInfo settings) {
+    @Override
+    public void save(SettingsInfo settings) {
         super.save(settings);
     }
 
@@ -164,36 +164,43 @@ class CachingGeoServerFacadeImpl extends ForwardingGeoServerFacade
                 @CacheEvict(key = "#settings.id"),
                 @CacheEvict(key = "'settings@' + #settings.workspace.id")
             })
-    public @Override void remove(SettingsInfo settings) {
+    @Override
+    public void remove(SettingsInfo settings) {
         super.remove(settings);
     }
 
     @Cacheable(key = "'" + LOGGINGINFO_KEY + "'", unless = "#result == null")
-    public @Override LoggingInfo getLogging() {
+    @Override
+    public LoggingInfo getLogging() {
         return super.getLogging();
     }
 
     @CacheEvict(key = "'" + LOGGINGINFO_KEY + "'")
-    public @Override void setLogging(LoggingInfo logging) {
+    @Override
+    public void setLogging(LoggingInfo logging) {
         super.setLogging(logging);
     }
 
     @CacheEvict(key = "'" + LOGGINGINFO_KEY + "'")
-    public @Override void save(LoggingInfo logging) {
+    @Override
+    public void save(LoggingInfo logging) {
         super.save(logging);
     }
 
-    public @Override void remove(ServiceInfo service) {
+    @Override
+    public void remove(ServiceInfo service) {
         evict(service);
         super.remove(service);
     }
 
-    public @Override void save(ServiceInfo service) {
+    @Override
+    public void save(ServiceInfo service) {
         evict(service);
         super.save(service);
     }
 
-    public @Override <T extends ServiceInfo> T getService(Class<T> clazz) {
+    @Override
+    public <T extends ServiceInfo> T getService(Class<T> clazz) {
         Object key = CachingGeoServerFacade.serviceByTypeKey(null, clazz);
         ValueWrapper value = cache.get(key);
         ServiceInfo service;
@@ -205,7 +212,8 @@ class CachingGeoServerFacadeImpl extends ForwardingGeoServerFacade
         return clazz.isInstance(service) ? clazz.cast(service) : null;
     }
 
-    public @Override <T extends ServiceInfo> T getService(WorkspaceInfo workspace, Class<T> clazz) {
+    @Override
+    public <T extends ServiceInfo> T getService(WorkspaceInfo workspace, Class<T> clazz) {
         Object byTypeKey = CachingGeoServerFacade.serviceByTypeKey(workspace, clazz);
         ValueWrapper value = cache.get(byTypeKey);
         ServiceInfo service;
@@ -217,7 +225,8 @@ class CachingGeoServerFacadeImpl extends ForwardingGeoServerFacade
         return clazz.isInstance(service) ? clazz.cast(service) : null;
     }
 
-    public @Override <T extends ServiceInfo> T getService(String id, Class<T> clazz) {
+    @Override
+    public <T extends ServiceInfo> T getService(String id, Class<T> clazz) {
         Object key = CachingGeoServerFacade.serviceByIdKey(id);
         ValueWrapper value = cache.get(key);
         ServiceInfo service;
@@ -229,7 +238,8 @@ class CachingGeoServerFacadeImpl extends ForwardingGeoServerFacade
         return clazz.isInstance(service) ? clazz.cast(service) : null;
     }
 
-    public @Override <T extends ServiceInfo> T getServiceByName(String name, Class<T> clazz) {
+    @Override
+    public <T extends ServiceInfo> T getServiceByName(String name, Class<T> clazz) {
         Object key = CachingGeoServerFacade.serviceByNameKey((WorkspaceInfo) null, name);
         ValueWrapper value = cache.get(key);
         ServiceInfo service;
@@ -241,7 +251,8 @@ class CachingGeoServerFacadeImpl extends ForwardingGeoServerFacade
         return clazz.isInstance(service) ? clazz.cast(service) : null;
     }
 
-    public @Override <T extends ServiceInfo> T getServiceByName(
+    @Override
+    public <T extends ServiceInfo> T getServiceByName(
             String name, WorkspaceInfo workspace, Class<T> clazz) {
 
         Object key = CachingGeoServerFacade.serviceByNameKey(workspace, name);

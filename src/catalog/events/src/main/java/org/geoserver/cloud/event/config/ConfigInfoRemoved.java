@@ -20,33 +20,31 @@ import org.geoserver.config.SettingsInfo;
     @JsonSubTypes.Type(value = ServiceRemoved.class, name = "ServiceInfoRemoved"),
     @JsonSubTypes.Type(value = SettingsRemoved.class, name = "SettingsInfoRemoved"),
 })
-public abstract class ConfigInfoRemoved<SELF, INFO extends Info> extends InfoRemoved<SELF, INFO>
+@SuppressWarnings("serial")
+public abstract class ConfigInfoRemoved<I extends Info> extends InfoRemoved<I>
         implements ConfigInfoEvent {
 
     protected ConfigInfoRemoved() {
         // default constructor, needed for deserialization
     }
 
-    public ConfigInfoRemoved(
+    protected ConfigInfoRemoved(
             long updateSequence, @NonNull String objectId, @NonNull ConfigInfoType type) {
         super(updateSequence, objectId, type);
     }
 
     @SuppressWarnings("unchecked")
-    public static @NonNull <I extends Info> ConfigInfoRemoved<?, I> createLocal(
+    public static @NonNull <I extends Info> ConfigInfoRemoved<I> createLocal(
             long updateSequence, @NonNull I info) {
 
         final ConfigInfoType type = ConfigInfoType.valueOf(info);
-        switch (type) {
-            case ServiceInfo:
-                return (ConfigInfoRemoved<?, I>)
-                        ServiceRemoved.createLocal(updateSequence, (ServiceInfo) info);
-            case SettingsInfo:
-                return (ConfigInfoRemoved<?, I>)
-                        SettingsRemoved.createLocal(updateSequence, (SettingsInfo) info);
-            default:
-                throw new IllegalArgumentException(
-                        "Uknown or unsupported config Info type: " + type + ". " + info);
-        }
+        return switch (type) {
+            case ServiceInfo -> (ConfigInfoRemoved<I>)
+                    ServiceRemoved.createLocal(updateSequence, (ServiceInfo) info);
+            case SettingsInfo -> (ConfigInfoRemoved<I>)
+                    SettingsRemoved.createLocal(updateSequence, (SettingsInfo) info);
+            default -> throw new IllegalArgumentException(
+                    "Uknown or unsupported config Info type: " + type + ". " + info);
+        };
     }
 }

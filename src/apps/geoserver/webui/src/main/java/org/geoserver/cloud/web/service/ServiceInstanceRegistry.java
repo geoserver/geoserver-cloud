@@ -51,13 +51,11 @@ public class ServiceInstanceRegistry {
     }
 
     private String getStatus(org.springframework.cloud.client.ServiceInstance i) {
-        if (i instanceof EurekaServiceInstance) {
-            EurekaServiceInstance e = (EurekaServiceInstance) i;
+        if (i instanceof EurekaServiceInstance e) {
             InstanceInfo instanceInfo = e.getInstanceInfo();
             InstanceStatus status = instanceInfo.getStatus();
             return status.toString();
         }
-        // Map<String, String> metadata = i.getMetadata();
         return "UNKNOWN";
     }
 

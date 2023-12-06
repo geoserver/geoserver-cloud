@@ -46,7 +46,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 /**
  * Provides or populates a catalog; use {@link CatalogTestData#empty
@@ -529,8 +528,7 @@ public class CatalogTestData {
 
     public void assertEqualsLenientConnectionParameters(Info info1, Info info2) {
         if (info1 != null && info2 != null) {
-            if (info1 instanceof DataStoreInfo) {
-                DataStoreInfo ds1 = (DataStoreInfo) info1;
+            if (info1 instanceof DataStoreInfo ds1) {
                 DataStoreInfo ds2 = (DataStoreInfo) info2;
                 Map<String, Serializable> p1 = new HashMap<>(ds1.getConnectionParameters());
                 Map<String, Serializable> p2 = new HashMap<>(ds2.getConnectionParameters());
@@ -553,7 +551,7 @@ public class CatalogTestData {
         List<String> istringProps =
                 props.properties().stream()
                         .filter(p -> props.getter(p, InternationalString.class) != null)
-                        .collect(Collectors.toList());
+                        .toList();
         for (String isp : istringProps) {
             InternationalString i1 = (InternationalString) OwsUtils.get(info1, isp);
             InternationalString i2 = (InternationalString) OwsUtils.get(info2, isp);

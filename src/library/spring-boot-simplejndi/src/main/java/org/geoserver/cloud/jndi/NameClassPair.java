@@ -17,18 +17,22 @@ class NameClassPair extends javax.naming.NameClassPair {
         super(name, className);
     }
 
-    public @Override boolean equals(Object o) {
-        if (!(o instanceof javax.naming.NameClassPair)) return false;
-        javax.naming.NameClassPair p = (javax.naming.NameClassPair) o;
-        return Objects.equals(getName(), p.getName())
-                && Objects.equals(getClassName(), p.getClassName());
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof javax.naming.NameClassPair p) {
+            return Objects.equals(getName(), p.getName())
+                    && Objects.equals(getClassName(), p.getClassName());
+        }
+        return false;
     }
 
-    public @Override int hashCode() {
+    @Override
+    public int hashCode() {
         return Objects.hash(getName(), getClassName());
     }
 
-    public @Override String toString() {
+    @Override
+    public String toString() {
         return super.toString();
     }
 }

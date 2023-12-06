@@ -21,56 +21,67 @@ public abstract class ForwardingCatalogRepository<
 
     protected S subject;
 
-    public ForwardingCatalogRepository(S subject) {
+    protected ForwardingCatalogRepository(S subject) {
         this.subject = subject;
     }
 
-    public @Override Class<I> getContentType() {
+    @Override
+    public Class<I> getContentType() {
         return subject.getContentType();
     }
 
-    public @Override boolean canSortBy(@NonNull String propertyName) {
+    @Override
+    public boolean canSortBy(@NonNull String propertyName) {
         return subject.canSortBy(propertyName);
     }
 
-    public @Override void add(I value) {
+    @Override
+    public void add(I value) {
         subject.add(value);
     }
 
-    public @Override void remove(I value) {
+    @Override
+    public void remove(I value) {
         subject.remove(value);
     }
 
-    public @Override <T extends I> T update(T value, Patch patch) {
+    @Override
+    public <T extends I> T update(T value, Patch patch) {
         return subject.update(value, patch);
     }
 
-    public @Override void dispose() {
+    @Override
+    public void dispose() {
         subject.dispose();
     }
 
-    public @Override Stream<I> findAll() {
+    @Override
+    public Stream<I> findAll() {
         return subject.findAll();
     }
 
-    public @Override <U extends I> Stream<U> findAll(Query<U> query) {
+    @Override
+    public <U extends I> Stream<U> findAll(Query<U> query) {
         return subject.findAll(query);
     }
 
-    public @Override <U extends I> long count(final Class<U> of, final Filter filter) {
+    @Override
+    public <U extends I> long count(final Class<U> of, final Filter filter) {
         return subject.count(of, filter);
     }
 
-    public @Override <U extends I> Optional<U> findById(String id, Class<U> clazz) {
+    @Override
+    public <U extends I> Optional<U> findById(String id, Class<U> clazz) {
         return subject.findById(id, clazz);
     }
 
-    public @Override <U extends I> Optional<U> findFirstByName(
-            @NonNull String name, Class<U> clazz) {
+    @Override
+    public <U extends I> Optional<U> findFirstByName(@NonNull String name, Class<U> clazz) {
         return subject.findFirstByName(name, clazz);
     }
 
-    public @Override void syncTo(CatalogInfoRepository<I> target) {
+    @Override
+    public void syncTo(CatalogInfoRepository<I> target) {
         subject.syncTo(target);
     }
 }

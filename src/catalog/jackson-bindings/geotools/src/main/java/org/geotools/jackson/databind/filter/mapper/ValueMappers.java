@@ -29,7 +29,7 @@ public abstract class ValueMappers {
     public NamespaceSupport map(Map<String, String> map) {
         if (map == null) return null;
         NamespaceSupport s = new NamespaceSupport();
-        map.forEach((prefix, uri) -> s.declarePrefix(prefix, uri));
+        map.forEach(s::declarePrefix);
         return s;
     }
 
@@ -62,10 +62,9 @@ public abstract class ValueMappers {
         if (null == value) return null;
 
         try {
-            Class<?> clazz = Class.forName(value);
-            return clazz;
+            return Class.forName(value);
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
         }
     }
 

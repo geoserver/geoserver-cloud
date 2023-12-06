@@ -33,7 +33,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
@@ -61,30 +60,36 @@ public class RepositoryGeoServerFacadeImpl implements RepositoryGeoServerFacade 
         this.repository = repository;
     }
 
-    public @Override void setRepository(ConfigRepository repository) {
+    @Override
+    public void setRepository(ConfigRepository repository) {
         requireNonNull(repository);
         this.repository = repository;
     }
 
-    public @Override void setGeoServer(GeoServer geoServer) {
+    @Override
+    public void setGeoServer(GeoServer geoServer) {
         this.geoServer = geoServer;
     }
 
-    public @Override GeoServer getGeoServer() {
+    @Override
+    public GeoServer getGeoServer() {
         return geoServer;
     }
 
-    public @Override GeoServerInfo getGlobal() {
+    @Override
+    public GeoServerInfo getGlobal() {
         return wrap(resolve(repository.getGlobal().orElse(null)), GeoServerInfo.class);
     }
 
-    public @Override void setGlobal(GeoServerInfo global) {
+    @Override
+    public void setGlobal(GeoServerInfo global) {
         resolve(global);
         setId(global.getSettings());
         repository.setGlobal(global);
     }
 
-    public @Override void save(GeoServerInfo global) {
+    @Override
+    public void save(GeoServerInfo global) {
         ModificationProxy proxy = (ModificationProxy) Proxy.getInvocationHandler(global);
 
         PropertyDiff diff = PropertyDiff.valueOf(proxy);
@@ -98,20 +103,23 @@ public class RepositoryGeoServerFacadeImpl implements RepositoryGeoServerFacade 
         repository.setGlobal(unwrap(global));
     }
 
-    public @Override SettingsInfo getSettings(WorkspaceInfo workspace) {
+    @Override
+    public SettingsInfo getSettings(WorkspaceInfo workspace) {
         requireNonNull(workspace);
         return wrap(
                 resolve(repository.getSettingsByWorkspace(workspace).orElse(null)),
                 SettingsInfo.class);
     }
 
-    public @Override void add(SettingsInfo s) {
+    @Override
+    public void add(SettingsInfo s) {
         s = unwrap(s);
         setId(s);
         repository.add(s);
     }
 
-    public @Override void save(SettingsInfo settings) {
+    @Override
+    public void save(SettingsInfo settings) {
         ModificationProxy proxy = (ModificationProxy) Proxy.getInvocationHandler(settings);
 
         PropertyDiff diff = PropertyDiff.valueOf(proxy);
@@ -128,21 +136,25 @@ public class RepositoryGeoServerFacadeImpl implements RepositoryGeoServerFacade 
         proxy.commit();
     }
 
-    public @Override void remove(SettingsInfo s) {
+    @Override
+    public void remove(SettingsInfo s) {
         s = unwrap(s);
         repository.remove(s);
     }
 
-    public @Override LoggingInfo getLogging() {
+    @Override
+    public LoggingInfo getLogging() {
         return wrap(repository.getLogging().orElse(null), LoggingInfo.class);
     }
 
-    public @Override void setLogging(LoggingInfo logging) {
+    @Override
+    public void setLogging(LoggingInfo logging) {
         requireNonNull(logging);
         repository.setLogging(logging);
     }
 
-    public @Override void save(LoggingInfo logging) {
+    @Override
+    public void save(LoggingInfo logging) {
         ModificationProxy proxy = (ModificationProxy) Proxy.getInvocationHandler(logging);
 
         PropertyDiff diff = PropertyDiff.valueOf(proxy);
@@ -156,7 +168,8 @@ public class RepositoryGeoServerFacadeImpl implements RepositoryGeoServerFacade 
         repository.setLogging(unwrap(logging));
     }
 
-    public @Override void add(ServiceInfo service) {
+    @Override
+    public void add(ServiceInfo service) {
         // may be adding a proxy, need to unwrap
         service = unwrap(service);
         setId(service);
@@ -165,7 +178,8 @@ public class RepositoryGeoServerFacadeImpl implements RepositoryGeoServerFacade 
         repository.add(service);
     }
 
-    public @Override void save(ServiceInfo service) {
+    @Override
+    public void save(ServiceInfo service) {
         ModificationProxy proxy = ModificationProxy.handler(service);
 
         PropertyDiff diff = PropertyDiff.valueOf(proxy);
@@ -180,19 +194,23 @@ public class RepositoryGeoServerFacadeImpl implements RepositoryGeoServerFacade 
         proxy.commit();
     }
 
-    public @Override void remove(ServiceInfo service) {
+    @Override
+    public void remove(ServiceInfo service) {
         repository.remove(service);
     }
 
-    public @Override <T extends ServiceInfo> T getService(Class<T> clazz) {
+    @Override
+    public <T extends ServiceInfo> T getService(Class<T> clazz) {
         return find(clazz, null);
     }
 
-    public @Override <T extends ServiceInfo> T getService(WorkspaceInfo workspace, Class<T> clazz) {
+    @Override
+    public <T extends ServiceInfo> T getService(WorkspaceInfo workspace, Class<T> clazz) {
         return find(clazz, workspace);
     }
 
-    public @Override <T extends ServiceInfo> T getService(String id, Class<T> type) {
+    @Override
+    public <T extends ServiceInfo> T getService(String id, Class<T> type) {
         requireNonNull(id);
         requireNonNull(type);
         Optional<T> service = repository.getServiceById(id, type);
@@ -202,31 +220,32 @@ public class RepositoryGeoServerFacadeImpl implements RepositoryGeoServerFacade 
         return wrap(resolve(service.orElse(null)), type);
     }
 
-    public @Override <T extends ServiceInfo> T getServiceByName(String name, Class<T> clazz) {
+    @Override
+    public <T extends ServiceInfo> T getServiceByName(String name, Class<T> clazz) {
         return findByName(name, null, clazz);
     }
 
-    public @Override <T extends ServiceInfo> T getServiceByName(
+    @Override
+    public <T extends ServiceInfo> T getServiceByName(
             String name, WorkspaceInfo workspace, Class<T> clazz) {
         return findByName(name, workspace, clazz);
     }
 
-    public @Override Collection<? extends ServiceInfo> getServices() {
-        List<ServiceInfo> all =
-                repository.getGlobalServices().map(this::resolve).collect(Collectors.toList());
+    @Override
+    public Collection<? extends ServiceInfo> getServices() {
+        List<ServiceInfo> all = repository.getGlobalServices().map(this::resolve).toList();
         return ModificationProxy.createList(all, ServiceInfo.class);
     }
 
-    public @Override Collection<? extends ServiceInfo> getServices(WorkspaceInfo workspace) {
+    @Override
+    public Collection<? extends ServiceInfo> getServices(WorkspaceInfo workspace) {
         List<ServiceInfo> services =
-                repository
-                        .getServicesByWorkspace(workspace)
-                        .map(this::resolve)
-                        .collect(Collectors.toList());
+                repository.getServicesByWorkspace(workspace).map(this::resolve).toList();
         return ModificationProxy.createList(services, ServiceInfo.class);
     }
 
-    public @Override void dispose() {
+    @Override
+    public void dispose() {
         repository.dispose();
     }
 
@@ -245,7 +264,7 @@ public class RepositoryGeoServerFacadeImpl implements RepositoryGeoServerFacade 
             global.setMetadata(new MetadataMap());
         }
         if (global.getClientProperties() == null) {
-            global.setClientProperties(new HashMap<Object, Object>());
+            global.setClientProperties(new HashMap<>());
         }
         if (global.getCoverageAccess() == null) {
             global.setCoverageAccess(new CoverageAccessInfoImpl());
@@ -263,7 +282,9 @@ public class RepositoryGeoServerFacadeImpl implements RepositoryGeoServerFacade 
             service = repository.getServiceByWorkspace(workspace, type);
         }
         if (service.isEmpty() && LOGGER.isLoggable(Level.FINE)) {
-            LOGGER.fine("Could not locate service of type " + type + " in workspace " + workspace);
+            LOGGER.fine(
+                    "Could not locate service of type %s in workspace %s"
+                            .formatted(type, workspace));
         }
 
         return wrap(resolve(service.orElse(null)), type);
@@ -280,13 +301,8 @@ public class RepositoryGeoServerFacadeImpl implements RepositoryGeoServerFacade 
         }
         if (service.isEmpty() && LOGGER.isLoggable(Level.FINE)) {
             LOGGER.fine(
-                    "Could not locate service of type "
-                            + type
-                            + " in workspace "
-                            + workspace
-                            + " and name '"
-                            + name
-                            + "'");
+                    "Could not locate service of type %s in workspace %s and name '%s'"
+                            .formatted(type, workspace, name));
         }
         return wrap(resolve(service.orElse(null)), type);
     }

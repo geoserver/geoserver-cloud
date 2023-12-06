@@ -6,15 +6,11 @@ package org.geoserver.cloud.gwc.event;
 
 import com.google.common.annotations.VisibleForTesting;
 
-import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 import org.geoserver.gwc.layer.TileLayerCatalog;
 import org.geoserver.gwc.layer.TileLayerCatalogListener;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
@@ -30,13 +26,11 @@ import javax.annotation.PostConstruct;
  *
  * @see TileLayerEvent
  */
+@RequiredArgsConstructor
 public class TileLayerEventPublisher {
 
-    @Setter(value = AccessLevel.PACKAGE)
-    private @Autowired ApplicationEventPublisher localContextPublisher;
-
-    @Setter(value = AccessLevel.PACKAGE)
-    private @Autowired @Qualifier("GeoSeverTileLayerCatalog") TileLayerCatalog tileLayerCatalog;
+    private final @NonNull ApplicationEventPublisher localContextPublisher;
+    private final @NonNull TileLayerCatalog tileLayerCatalog;
 
     private LocalTileEventPublisher tileLayerListener;
 
@@ -67,7 +61,8 @@ public class TileLayerEventPublisher {
     static class LocalTileEventPublisher implements TileLayerCatalogListener {
         private final TileLayerEventPublisher publisher;
 
-        public @Override void onEvent(String layerId, TileLayerCatalogListener.Type type) {
+        @Override
+        public void onEvent(String layerId, TileLayerCatalogListener.Type type) {
             TileLayerEvent event = publisher.toEvent(layerId, type);
             publisher.publish(event);
         }

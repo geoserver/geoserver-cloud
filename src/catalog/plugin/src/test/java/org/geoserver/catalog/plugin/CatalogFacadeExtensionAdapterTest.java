@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
  * catalog events, and that {@link CatalogFacadeExtensionAdapter#update} correctly forwards to
  * legacy {@link CatalogFacade#save} methods
  */
-public class CatalogFacadeExtensionAdapterTest extends CatalogConformanceTest {
+class CatalogFacadeExtensionAdapterTest extends CatalogConformanceTest {
 
     private CatalogPlugin catalog;
 
@@ -33,7 +33,8 @@ public class CatalogFacadeExtensionAdapterTest extends CatalogConformanceTest {
         return catalog;
     }
 
-    public @Test void testCatalogDecoratesLegacyFacade() {
+    @Test
+    void testCatalogDecoratesLegacyFacade() {
         catalog.setFacade(legacyFacade);
         assertSame(legacyFacade, catalog.getRawFacade());
         assertThat(catalog.getFacade(), instanceOf(ResolvingCatalogFacadeDecorator.class));
@@ -47,7 +48,8 @@ public class CatalogFacadeExtensionAdapterTest extends CatalogConformanceTest {
         assertSame(legacyFacade, adapter.getSubject());
     }
 
-    public @Test void testProvidedDecorator() {
+    @Test
+    void testProvidedDecorator() {
         CatalogFacadeExtensionAdapter adapter = new CatalogFacadeExtensionAdapter(legacyFacade);
         catalog.setFacade(adapter);
         assertSame(adapter, catalog.getRawFacade());
@@ -58,7 +60,8 @@ public class CatalogFacadeExtensionAdapterTest extends CatalogConformanceTest {
         assertSame(adapter, isolated.getSubject());
     }
 
-    public @Test void testAdapterReplacesLegacyCatalogFacadeCatalog() {
+    @Test
+    void testAdapterReplacesLegacyCatalogFacadeCatalog() {
         CatalogFacadeExtensionAdapter adapter = new CatalogFacadeExtensionAdapter(legacyFacade);
 
         assertSame(legacyFacade, adapter.getSubject());
@@ -76,7 +79,7 @@ public class CatalogFacadeExtensionAdapterTest extends CatalogConformanceTest {
         assertNotSame(decoratorAtFacadeConstructor, legacyFacade.getCatalog());
     }
 
-    // public @Test void testQuery() {
+    // @Test void testQuery() {
     // catalog.list(of, filter);
     // }
 }

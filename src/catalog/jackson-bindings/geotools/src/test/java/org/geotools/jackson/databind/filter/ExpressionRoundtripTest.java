@@ -46,7 +46,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -67,17 +66,20 @@ public abstract class ExpressionRoundtripTest {
     protected abstract Expression.FunctionName roundtripTest(Expression.FunctionName dto)
             throws Exception;
 
-    public @Test void propertySimple() throws Exception {
+    @Test
+    void propertySimple() throws Exception {
         PropertyName dto = propertyName("states");
         roundtripTest(dto);
     }
 
-    public @Test void propertyNamePrefixedNoNamespaceContext() throws Exception {
+    @Test
+    void propertyNamePrefixedNoNamespaceContext() throws Exception {
         PropertyName dto = propertyName("topp:states");
         roundtripTest(dto);
     }
 
-    public @Test void propertyNameNamespaceContext() throws Exception {
+    @Test
+    void propertyNameNamespaceContext() throws Exception {
         PropertyName dto = propertyName("topp:states");
         Map<String, String> context = new HashMap<>();
         // automatically added by NamespaceSupport
@@ -88,7 +90,8 @@ public abstract class ExpressionRoundtripTest {
         roundtripTest(dto);
     }
 
-    public @Test void binaryExpressionAdd() throws Exception {
+    @Test
+    void binaryExpressionAdd() throws Exception {
         BinaryExpression dto =
                 new Add()
                         .setExpression1(propertyName("name"))
@@ -96,45 +99,54 @@ public abstract class ExpressionRoundtripTest {
         roundtripTest(dto);
     }
 
-    public @Test void binaryExpressionSubtract() throws Exception {
+    @Test
+    void binaryExpressionSubtract() throws Exception {
         BinaryExpression dto =
                 new Subtract().setExpression1(propertyName("name")).setExpression2(literal(1000));
         roundtripTest(dto);
     }
 
-    public @Test void binaryExpressionDivide() throws Exception {
+    @Test
+    void binaryExpressionDivide() throws Exception {
         BinaryExpression dto =
                 new Divide().setExpression1(propertyName("name")).setExpression2(literal(1000));
         roundtripTest(dto);
     }
 
-    public @Test void binaryExpressionMultiply() throws Exception {
+    @Test
+    void binaryExpressionMultiply() throws Exception {
         BinaryExpression dto =
                 new Multiply().setExpression1(propertyName("name")).setExpression2(literal(1000));
         roundtripTest(dto);
     }
 
-    public @Test void literalNull() throws Exception {
+    @Test
+    void literalNull() throws Exception {
         roundtripTest(literal(null));
     }
 
-    public @Test void literalInteger() throws Exception {
+    @Test
+    void literalInteger() throws Exception {
         roundtripTest(literal(Integer.MIN_VALUE));
     }
 
-    public @Test void literalLong() throws Exception {
+    @Test
+    void literalLong() throws Exception {
         roundtripTest(literal(Long.MAX_VALUE));
     }
 
-    public @Test void literalDouble() throws Exception {
+    @Test
+    void literalDouble() throws Exception {
         roundtripTest(literal(0.5d));
     }
 
-    public @Test void literalFloat() throws Exception {
+    @Test
+    void literalFloat() throws Exception {
         roundtripTest(literal(Float.MIN_VALUE));
     }
 
-    public @Test void literalBigInteger() throws Exception {
+    @Test
+    void literalBigInteger() throws Exception {
         roundtripTest(
                 literal(
                         BigInteger.valueOf(Long.MAX_VALUE)
@@ -145,51 +157,61 @@ public abstract class ExpressionRoundtripTest {
                                 .subtract(BigInteger.valueOf(Long.MAX_VALUE))));
     }
 
-    public @Test void literalBigDecimal() throws Exception {
+    @Test
+    void literalBigDecimal() throws Exception {
         roundtripTest(
                 literal(
                         BigDecimal.valueOf(Double.MAX_VALUE)
                                 .add(BigDecimal.valueOf(Double.MAX_VALUE))));
     }
 
-    public @Test void literalGeometry() throws Exception {
+    @Test
+    void literalGeometry() throws Exception {
         roundtripTest(literal(samplePoint()));
     }
 
-    public @Test void literalJavaUtilDate() throws Exception {
+    @Test
+    void literalJavaUtilDate() throws Exception {
         roundtripTest(literal(new java.util.Date()));
     }
 
-    public @Test void literalInstant() throws Exception {
+    @Test
+    void literalInstant() throws Exception {
         // use a value with rounded-up nanos, some JVM implementations will not get the same exact
         // value after marshalling/unmarshalling
         Instant literal = Instant.ofEpochMilli(Instant.now().toEpochMilli()).plusNanos(1000);
         roundtripTest(literal(literal));
     }
 
-    public @Test void literalAwtColor() throws Exception {
+    @Test
+    void literalAwtColor() throws Exception {
         roundtripTest(literal(Color.GREEN));
     }
 
-    public @Test void literalEnum() throws Exception {
+    @Test
+    void literalEnum() throws Exception {
         roundtripTest(literal(Geometries.MULTILINESTRING));
     }
 
     @Disabled("no jackson module can handle serialization/deserialization")
-    public @Test void literalJavaxMeassureUnit() throws Exception {
+    @Test
+    void literalJavaxMeassureUnit() throws Exception {
         roundtripTest(literal(SI.ASTRONOMICAL_UNIT));
     }
 
-    public @Test void literalList() throws Exception {
+    @Test
+    void literalList() throws Exception {
         roundtripTest(literal(List.of(1, 2, 3, 4)));
         roundtripTest(literal(List.of(new Date(1), new Date(2), new Date(3))));
     }
 
-    public @Test void literalListEmpty() throws Exception {
+    @Test
+    void literalListEmpty() throws Exception {
         roundtripTest(literal(List.of()));
     }
 
-    public @Test void literalListMixedContent() throws Exception {
+    @Test
+    void literalListMixedContent() throws Exception {
         List<Object> value = Arrays.asList(1, null, new java.util.Date(1), List.of(4, 5, 6));
         try {
             roundtripTest(literal(value));
@@ -199,39 +221,47 @@ public abstract class ExpressionRoundtripTest {
         }
     }
 
-    public @Test void literalSetEmpty() throws Exception {
+    @Test
+    void literalSetEmpty() throws Exception {
         roundtripTest(literal(Set.of()));
     }
 
-    public @Test void literalSet() throws Exception {
+    @Test
+    void literalSet() throws Exception {
         roundtripTest(literal(Set.of(1, 2, 3, 4)));
         roundtripTest(literal(Set.of(new Date(1), new Date(2), new Date(3))));
     }
 
-    public @Test void literalSetMixedContent() throws Exception {
+    @Test
+    void literalSetMixedContent() throws Exception {
         Set<Object> value = Set.of(1, new java.util.Date(1), Set.of(4, 5, 6));
         roundtripTest(literal(value));
     }
 
-    public @Test void literalMapEmpty() throws Exception {
+    @Test
+    void literalMapEmpty() throws Exception {
         roundtripTest(literal(Map.of()));
         roundtripTest(literal(Collections.emptyMap()));
         roundtripTest(literal(new HashMap<>()));
     }
 
-    public @Test void literalMapSingle() throws Exception {
+    @Test
+    void literalMapSingle() throws Exception {
         roundtripTest(literal(Map.of("k1", 1)));
     }
 
-    public @Test void literalMap() throws Exception {
+    @Test
+    void literalMap() throws Exception {
         roundtripTest(literal(Map.of("k1", 1, "k2", 2, "k3", 3, "k4", 4)));
     }
 
-    public @Test void literalMapMixedContent() throws Exception {
+    @Test
+    void literalMapMixedContent() throws Exception {
         roundtripTest(literal(Map.of("k1", 1, "k2", 2L, "k3", 3F, "k4", 4D, "k5", "svalue")));
     }
 
-    public @Test void literalArrayEmpty() throws Exception {
+    @Test
+    void literalArrayEmpty() throws Exception {
         roundtripTest(literal(new byte[0]));
         roundtripTest(literal(new char[0]));
         roundtripTest(literal(new boolean[0]));
@@ -244,7 +274,8 @@ public abstract class ExpressionRoundtripTest {
         roundtripTest(literal(new Date[0]));
     }
 
-    public @Test void literalArray() throws Exception {
+    @Test
+    void literalArray() throws Exception {
         roundtripTest(literal(new byte[] {1}));
         roundtripTest(literal(new byte[] {0, 1, 2, 3}));
 
@@ -286,7 +317,8 @@ public abstract class ExpressionRoundtripTest {
         }
     }
 
-    public @Test void allAvailableFunctions() throws Exception {
+    @Test
+    void allAvailableFunctions() throws Exception {
         // build a list of ignored function names, due to inability to serialize/deserialize their
         // argument types
         Set<String> ignore =
@@ -321,12 +353,13 @@ public abstract class ExpressionRoundtripTest {
         }
     }
 
-    public @Test void allAvailableFunctionNames() throws Exception {
+    @Test
+    void allAvailableFunctionNames() throws Exception {
         FunctionFinder finder = new FunctionFinder(null);
         List<FunctionName> allFunctionDescriptions =
                 finder.getAllFunctionDescriptions().stream()
                         .sorted((f1, f2) -> f1.getName().compareTo(f2.getName()))
-                        .collect(Collectors.toList());
+                        .toList();
         for (FunctionName functionName : allFunctionDescriptions) {
             testFunctionNameRoundtrip(functionName);
         }
@@ -389,9 +422,7 @@ public abstract class ExpressionRoundtripTest {
 
     private List<Expression> buildSampleParameter(Parameter<?> p) {
         int occurs = p.isRequired().booleanValue() ? p.getMinOccurs() : 1;
-        return IntStream.range(0, occurs)
-                .mapToObj(i -> buildSampleParam(i, p))
-                .collect(Collectors.toList());
+        return IntStream.range(0, occurs).mapToObj(i -> buildSampleParam(i, p)).toList();
     }
 
     // static Set<String> allFunctionParamTypes = new TreeSet<>();

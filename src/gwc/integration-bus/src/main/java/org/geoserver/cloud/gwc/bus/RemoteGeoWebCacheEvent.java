@@ -4,6 +4,7 @@
  */
 package org.geoserver.cloud.gwc.bus;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -16,11 +17,12 @@ import org.springframework.cloud.bus.event.RemoteApplicationEvent;
  * @since 1.0
  */
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public abstract class RemoteGeoWebCacheEvent extends RemoteApplicationEvent {
 
     private static final long serialVersionUID = 1L;
 
-    public static enum Type {
+    public enum Type {
         CREATED,
         MODIFIED,
         DELETED
@@ -30,17 +32,18 @@ public abstract class RemoteGeoWebCacheEvent extends RemoteApplicationEvent {
 
     private @Getter @Setter Type eventType;
 
-    public RemoteGeoWebCacheEvent(Object source, @NonNull String originService) {
+    protected RemoteGeoWebCacheEvent(Object source, @NonNull String originService) {
         super(source, originService, ALL);
     }
 
-    public RemoteGeoWebCacheEvent(
+    protected RemoteGeoWebCacheEvent(
             Object source, @NonNull String originService, @NonNull Type eventType) {
         super(source, originService, ALL);
         this.eventType = eventType;
     }
 
-    public @Override String toString() {
+    @Override
+    public String toString() {
         return String.format(
                 "%s[%s '%s' id: %s origin: %s destination: %s timestamp: %s]",
                 getClass().getSimpleName(),

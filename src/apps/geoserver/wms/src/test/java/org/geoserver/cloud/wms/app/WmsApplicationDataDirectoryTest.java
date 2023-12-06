@@ -15,7 +15,7 @@ import java.io.File;
 /** See {@code src/test/resources/bootstrap-testdatadir.yml} */
 @SpringBootTest(properties = "gwc.wms-integration=true")
 @ActiveProfiles({"test", "testdatadir"})
-public class WmsApplicationDataDirectoryTest extends WmsApplicationTest {
+class WmsApplicationDataDirectoryTest extends WmsApplicationTest {
 
     private static @TempDir File tmpDataDir;
 

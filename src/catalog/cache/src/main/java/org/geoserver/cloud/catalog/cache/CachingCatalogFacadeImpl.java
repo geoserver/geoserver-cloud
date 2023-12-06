@@ -20,7 +20,6 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.forwarding.ForwardingExtendedCatalogFacade;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.Cache.ValueWrapper;
 import org.springframework.cache.CacheManager;
@@ -39,15 +38,13 @@ class CachingCatalogFacadeImpl extends ForwardingExtendedCatalogFacade
         implements CachingCatalogFacade {
     private Cache idCache;
 
-    public CachingCatalogFacadeImpl(ExtendedCatalogFacade facade) {
+    public CachingCatalogFacadeImpl(ExtendedCatalogFacade facade, CacheManager cacheManager) {
         super(facade);
-    }
-
-    public @Autowired void setCacheManager(CacheManager cacheManager) {
         idCache = cacheManager.getCache(CachingCatalogFacade.CACHE_NAME);
     }
 
-    public @Override boolean evict(CatalogInfo info) {
+    @Override
+    public boolean evict(CatalogInfo info) {
         if (info == null || idCache == null) return false;
 
         if (info instanceof Catalog) {
@@ -56,72 +53,73 @@ class CachingCatalogFacadeImpl extends ForwardingExtendedCatalogFacade
             return evicted;
         }
 
-        if (info instanceof ResourceInfo) {
-            CatalogInfoKey layersByResourceKey = generateLayersByResourceKey((ResourceInfo) info);
+        if (info instanceof ResourceInfo ri) {
+            CatalogInfoKey layersByResourceKey = generateLayersByResourceKey(ri);
             idCache.evict(layersByResourceKey);
-        } else if (info instanceof LayerInfo) {
-            LayerInfo l = (LayerInfo) info;
+        } else if (info instanceof LayerInfo l) {
             ResourceInfo r = l.getResource();
             if (r != null) {
                 CatalogInfoKey layersByResourceKey = generateLayersByResourceKey(r);
                 idCache.evict(layersByResourceKey);
             }
-        } else if (info instanceof WorkspaceInfo) {
-            WorkspaceInfo workspace = (WorkspaceInfo) info;
+        } else if (info instanceof WorkspaceInfo workspace) {
             idCache.evictIfPresent(CachingCatalogFacade.generateDefaultDataStoreKey(workspace));
         }
 
         CatalogInfoKey key = new CatalogInfoKey(info);
-        boolean evicted = idCache.evictIfPresent(key);
-        return evicted;
+        return idCache.evictIfPresent(key);
     }
 
-    public @Override boolean evict(@NonNull Object key) {
+    @Override
+    public boolean evict(@NonNull Object key) {
         return idCache.evictIfPresent(key);
     }
 
     @CachePut(key = "new org.geoserver.cloud.catalog.cache.CatalogInfoKey(#p0)")
-    public @Override StoreInfo add(StoreInfo store) {
+    @Override
+    public StoreInfo add(StoreInfo store) {
         return super.add(store);
     }
 
     @CachePut(key = "new org.geoserver.cloud.catalog.cache.CatalogInfoKey(#p0)")
-    public @Override ResourceInfo add(ResourceInfo resource) {
+    @Override
+    public ResourceInfo add(ResourceInfo resource) {
         return super.add(resource);
     }
 
     @CachePut(key = "new org.geoserver.cloud.catalog.cache.CatalogInfoKey(#p0)")
-    public @Override LayerInfo add(LayerInfo layer) {
+    @Override
+    public LayerInfo add(LayerInfo layer) {
         return super.add(layer);
     }
 
-    //    @CachePut(key = "new org.geoserver.cloud.catalog.cache.CatalogInfoKey(#p0)")
-    //    public @Override LayerGroupInfo add(LayerGroupInfo layerGroup) {
-    //        return super.add(layerGroup);
-    //    }
-
     @CachePut(key = "new org.geoserver.cloud.catalog.cache.CatalogInfoKey(#p0)")
-    public @Override NamespaceInfo add(NamespaceInfo namespace) {
+    @Override
+    public NamespaceInfo add(NamespaceInfo namespace) {
         return super.add(namespace);
     }
 
     @CachePut(key = "new org.geoserver.cloud.catalog.cache.CatalogInfoKey(#p0)")
-    public @Override WorkspaceInfo add(WorkspaceInfo workspace) {
+    @Override
+    public WorkspaceInfo add(WorkspaceInfo workspace) {
         return super.add(workspace);
     }
 
     @CachePut(key = "new org.geoserver.cloud.catalog.cache.CatalogInfoKey(#p0)")
-    public @Override StyleInfo add(StyleInfo style) {
+    @Override
+    public StyleInfo add(StyleInfo style) {
         return super.add(style);
     }
 
     @CacheEvict(key = "new org.geoserver.cloud.catalog.cache.CatalogInfoKey(#p0)")
-    public @Override void remove(StoreInfo store) {
+    @Override
+    public void remove(StoreInfo store) {
         super.remove(store);
     }
 
     @CacheEvict(key = "new org.geoserver.cloud.catalog.cache.CatalogInfoKey(#p0)")
-    public @Override void remove(ResourceInfo resource) {
+    @Override
+    public void remove(ResourceInfo resource) {
         super.remove(resource);
     }
 
@@ -134,83 +132,86 @@ class CachingCatalogFacadeImpl extends ForwardingExtendedCatalogFacade
                         key =
                                 "new org.geoserver.cloud.catalog.cache.CatalogInfoKey('layers@' + #layer.resource.id, 'LAYER')")
             })
-    public @Override void remove(LayerInfo layer) {
+    @Override
+    public void remove(LayerInfo layer) {
         super.remove(layer);
     }
 
-    //    @CacheEvict(key = "new org.geoserver.cloud.catalog.cache.CatalogInfoKey(#p0)")
-    //    public @Override void remove(LayerGroupInfo layerGroup) {
-    //        super.remove(layerGroup);
-    //    }
-
     @CacheEvict(key = "new org.geoserver.cloud.catalog.cache.CatalogInfoKey(#p0)")
-    public @Override void remove(NamespaceInfo namespace) {
+    @Override
+    public void remove(NamespaceInfo namespace) {
         super.remove(namespace);
     }
 
     @CacheEvict(key = "new org.geoserver.cloud.catalog.cache.CatalogInfoKey(#p0)")
-    public @Override void remove(WorkspaceInfo workspace) {
+    @Override
+    public void remove(WorkspaceInfo workspace) {
         super.remove(workspace);
     }
 
     @CacheEvict(key = "new org.geoserver.cloud.catalog.cache.CatalogInfoKey(#p0)")
-    public @Override void remove(StyleInfo style) {
+    @Override
+    public void remove(StyleInfo style) {
         super.remove(style);
     }
 
     @CacheEvict(key = "new org.geoserver.cloud.catalog.cache.CatalogInfoKey(#p0)")
-    public @Override void save(StoreInfo store) {
+    @Override
+    public void save(StoreInfo store) {
         super.remove(store);
     }
 
     @CacheEvict(key = "new org.geoserver.cloud.catalog.cache.CatalogInfoKey(#p0)")
-    public @Override void save(ResourceInfo resource) {
+    @Override
+    public void save(ResourceInfo resource) {
         super.remove(resource);
     }
 
     @CacheEvict(key = "new org.geoserver.cloud.catalog.cache.CatalogInfoKey(#p0)")
-    public @Override void save(StyleInfo style) {
+    @Override
+    public void save(StyleInfo style) {
         super.save(style);
     }
 
     @CacheEvict(key = "new org.geoserver.cloud.catalog.cache.CatalogInfoKey(#p0)")
-    public @Override void save(LayerInfo layer) {
+    @Override
+    public void save(LayerInfo layer) {
         super.save(layer);
     }
 
-    //    @CacheEvict(key = "new org.geoserver.cloud.catalog.cache.CatalogInfoKey(#p0)")
-    //    public @Override void save(LayerGroupInfo layerGroup) {
-    //        super.save(layerGroup);
-    //    }
-
     @CacheEvict(key = "new org.geoserver.cloud.catalog.cache.CatalogInfoKey(#p0)")
-    public @Override void save(NamespaceInfo namespace) {
+    @Override
+    public void save(NamespaceInfo namespace) {
         super.save(namespace);
     }
 
     @CacheEvict(key = "new org.geoserver.cloud.catalog.cache.CatalogInfoKey(#p0)")
-    public @Override void save(WorkspaceInfo workspace) {
+    @Override
+    public void save(WorkspaceInfo workspace) {
         super.save(workspace);
     }
 
     @CachePut(
             key = "new org.geoserver.cloud.catalog.cache.CatalogInfoKey(#info)",
             unless = "#result == null")
-    public @Override <I extends CatalogInfo> I update(final I info, final Patch patch) {
+    @Override
+    public <I extends CatalogInfo> I update(final I info, final Patch patch) {
         return super.update(info, patch);
     }
 
     @Cacheable(
             key = "new org.geoserver.cloud.catalog.cache.CatalogInfoKey(#id, 'WORKSPACE')",
             unless = "#result == null")
-    public @Override WorkspaceInfo getWorkspace(String id) {
+    @Override
+    public WorkspaceInfo getWorkspace(String id) {
         return super.getWorkspace(id);
     }
 
     @Cacheable(
             key = "new org.geoserver.cloud.catalog.cache.CatalogInfoKey(#id, 'NAMESPACE')",
             unless = "#result == null")
-    public @Override NamespaceInfo getNamespace(String id) {
+    @Override
+    public NamespaceInfo getNamespace(String id) {
         return super.getNamespace(id);
     }
 
@@ -218,7 +219,8 @@ class CachingCatalogFacadeImpl extends ForwardingExtendedCatalogFacade
      * @implNote manual caching; checks the cache using the requested type, but caches using the
      *     result's concrete type
      */
-    public @Override <T extends StoreInfo> T getStore(String id, Class<T> clazz) {
+    @Override
+    public <T extends StoreInfo> T getStore(String id, Class<T> clazz) {
         return getOrCache(id, clazz, super::getStore);
     }
 
@@ -226,7 +228,8 @@ class CachingCatalogFacadeImpl extends ForwardingExtendedCatalogFacade
      * @implNote manual caching; checks the cache using the requested type, but caches using the
      *     result's concrete type
      */
-    public @Override <T extends ResourceInfo> T getResource(String id, Class<T> clazz) {
+    @Override
+    public <T extends ResourceInfo> T getResource(String id, Class<T> clazz) {
         return getOrCache(id, clazz, super::getResource);
     }
 
@@ -256,14 +259,16 @@ class CachingCatalogFacadeImpl extends ForwardingExtendedCatalogFacade
     @Cacheable(
             key = "new org.geoserver.cloud.catalog.cache.CatalogInfoKey(#id, 'STYLE')",
             unless = "#result == null")
-    public @Override StyleInfo getStyle(String id) {
+    @Override
+    public StyleInfo getStyle(String id) {
         return super.getStyle(id);
     }
 
     @Cacheable(
             key = "new org.geoserver.cloud.catalog.cache.CatalogInfoKey(#id, 'LAYER')",
             unless = "#result == null")
-    public @Override LayerInfo getLayer(String id) {
+    @Override
+    public LayerInfo getLayer(String id) {
         return super.getLayer(id);
     }
 
@@ -271,58 +276,46 @@ class CachingCatalogFacadeImpl extends ForwardingExtendedCatalogFacade
             key =
                     "new org.geoserver.cloud.catalog.cache.CatalogInfoKey('layers@' + #resource.id, 'LAYER')",
             unless = "#result.isEmpty()")
-    public @Override List<LayerInfo> getLayers(ResourceInfo resource) {
+    @Override
+    public List<LayerInfo> getLayers(ResourceInfo resource) {
         return super.getLayers(resource);
     }
 
-    //    @Cacheable(
-    //            key = "new org.geoserver.cloud.catalog.cache.CatalogInfoKey(#id, 'LAYERGROUP')",
-    //            unless = "#result == null")
-    //    public @Override LayerGroupInfo getLayerGroup(String id) {
-    //        return super.getLayerGroup(id);
-    //    }
-
     @Cacheable(key = "'" + DEFAULT_WORKSPACE_CACHE_KEY + "'", unless = "#result == null")
-    public @Override WorkspaceInfo getDefaultWorkspace() {
+    @Override
+    public WorkspaceInfo getDefaultWorkspace() {
         return super.getDefaultWorkspace();
     }
 
     @CacheEvict(key = "'" + DEFAULT_WORKSPACE_CACHE_KEY + "'")
-    public @Override void setDefaultWorkspace(WorkspaceInfo workspace) {
+    @Override
+    public void setDefaultWorkspace(WorkspaceInfo workspace) {
         super.setDefaultWorkspace(workspace);
     }
 
     @Cacheable(key = "'" + DEFAULT_NAMESPACE_CACHE_KEY + "'", unless = "#result == null")
-    public @Override NamespaceInfo getDefaultNamespace() {
+    @Override
+    public NamespaceInfo getDefaultNamespace() {
         return super.getDefaultNamespace();
     }
 
     @CacheEvict(key = "'" + DEFAULT_NAMESPACE_CACHE_KEY + "'")
-    public @Override void setDefaultNamespace(NamespaceInfo defaultNamespace) {
+    @Override
+    public void setDefaultNamespace(NamespaceInfo defaultNamespace) {
         super.setDefaultNamespace(defaultNamespace);
     }
 
     @Cacheable(
             key = "'" + DEFAULT_DATASTORE_CACHE_KEY_PREFIX + "' + #p0.id",
             unless = "#result == null")
-    public @Override DataStoreInfo getDefaultDataStore(WorkspaceInfo workspace) {
+    @Override
+    public DataStoreInfo getDefaultDataStore(WorkspaceInfo workspace) {
         return super.getDefaultDataStore(workspace);
     }
 
     @CacheEvict(key = "'" + DEFAULT_DATASTORE_CACHE_KEY_PREFIX + "' + #p0.id")
-    public @Override void setDefaultDataStore(WorkspaceInfo workspace, DataStoreInfo store) {
+    @Override
+    public void setDefaultDataStore(WorkspaceInfo workspace, DataStoreInfo store) {
         super.setDefaultDataStore(workspace, store);
     }
-
-    // public @Override <T extends StoreInfo> T getStoreByName(WorkspaceInfo workspace, String
-    // name, Class<T> clazz){}
-    // public @Override LayerInfo getLayerByName(String name){}
-    // public @Override LayerGroupInfo getLayerGroupByName(String name){}
-    // public @Override LayerGroupInfo getLayerGroupByName(WorkspaceInfo workspace, String
-    // name){}
-    // public @Override NamespaceInfo getNamespaceByPrefix(String prefix){}
-    // public @Override NamespaceInfo getNamespaceByURI(String uri){}
-    // public @Override WorkspaceInfo getWorkspaceByName(String name){}
-    // public @Override StyleInfo getStyleByName(String name){}
-    // public @Override StyleInfo getStyleByName(WorkspaceInfo workspace, String name){}
 }

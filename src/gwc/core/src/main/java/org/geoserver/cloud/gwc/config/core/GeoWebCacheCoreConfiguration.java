@@ -15,7 +15,6 @@ import org.geoserver.cloud.gwc.repository.CloudXMLResourceProvider;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.ResourceStore;
 import org.geoserver.platform.resource.Resources;
-import org.geowebcache.config.ConfigurationException;
 import org.geowebcache.config.ConfigurationResourceProvider;
 import org.geowebcache.config.XMLConfiguration;
 import org.geowebcache.config.XMLFileResourceProvider;
@@ -165,8 +164,7 @@ public class GeoWebCacheCoreConfiguration {
     @Bean
     ConfigurationResourceProvider gwcXmlConfigResourceProvider(
             GeoWebCacheConfigurationProperties config,
-            @Qualifier("resourceStoreImpl") ResourceStore resourceStore)
-            throws ConfigurationException {
+            @Qualifier("resourceStoreImpl") ResourceStore resourceStore) {
 
         Supplier<Resource> configDirSupplier =
                 this.gwcDefaultConfigDirectory(config, resourceStore);
@@ -291,7 +289,8 @@ public class GeoWebCacheCoreConfiguration {
                 final String pathInfo = requestURI.substring(pathToGwc.length());
 
                 return new HttpServletRequestWrapper(request) {
-                    public @Override String getPathInfo() {
+                    @Override
+                    public String getPathInfo() {
                         return pathInfo;
                     }
                 };

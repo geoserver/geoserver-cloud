@@ -28,7 +28,7 @@ public abstract class AbstractCatalogBackendIT extends CatalogConformanceTest {
             "https://wmts.geo.admin.ch/EPSG/3857/1.0.0/WMTSCapabilities.xml";
 
     @Test
-    public void onlineWMTS_addStore() throws IOException {
+    void onlineWMTS_addStore() throws IOException {
         final WorkspaceInfo ws = addWorkspace();
         WMTSStoreInfo store = addWMTSStore(ws, LIVE_WMTS_GETCAPS_URL);
         assertNotNull(store);
@@ -42,7 +42,7 @@ public abstract class AbstractCatalogBackendIT extends CatalogConformanceTest {
     }
 
     @Test
-    public void onlineWMTS_addResource() throws IOException {
+    void onlineWMTS_addResource() throws IOException {
         final WorkspaceInfo ws = addWorkspace();
         final NamespaceInfo ns = addNamespace();
         final WMTSStoreInfo store = addWMTSStore(ws, LIVE_WMTS_GETCAPS_URL);
@@ -69,7 +69,7 @@ public abstract class AbstractCatalogBackendIT extends CatalogConformanceTest {
     }
 
     @Test
-    public void onlineWMTS_addLayer() throws IOException {
+    void onlineWMTS_addLayer() throws IOException {
         final WorkspaceInfo ws = addWorkspace();
         final NamespaceInfo ns = addNamespace();
         final WMTSStoreInfo store = addWMTSStore(ws, LIVE_WMTS_GETCAPS_URL);

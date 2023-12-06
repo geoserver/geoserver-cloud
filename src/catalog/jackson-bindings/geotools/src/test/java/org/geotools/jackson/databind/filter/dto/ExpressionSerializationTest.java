@@ -13,7 +13,7 @@ import org.geotools.jackson.databind.filter.dto.Expression.FunctionName;
 import org.geotools.jackson.databind.util.ObjectMapperUtil;
 import org.junit.jupiter.api.BeforeAll;
 
-public class ExpressionSerializationTest extends ExpressionRoundtripTest {
+class ExpressionSerializationTest extends ExpressionRoundtripTest {
 
     private static ObjectMapper objectMapper;
 

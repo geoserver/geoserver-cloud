@@ -16,7 +16,7 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
  *
  * @since 1.0
  */
-public class VectorTilesConfigurationTest {
+class VectorTilesConfigurationTest {
 
     private ApplicationContextRunner contextRunner =
             new ApplicationContextRunner()

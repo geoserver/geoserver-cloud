@@ -171,8 +171,8 @@ public class WMSIntegrationAutoConfiguration {
             final byte[] tileBytes;
             {
                 final Resource mapContents = cachedTile.getBlob();
-                if (mapContents instanceof ByteArrayResource) {
-                    tileBytes = ((ByteArrayResource) mapContents).getContents();
+                if (mapContents instanceof ByteArrayResource bar) {
+                    tileBytes = bar.getContents();
                 } else {
                     ByteArrayOutputStream out = new ByteArrayOutputStream();
                     mapContents.transferTo(Channels.newChannel(out));
@@ -202,7 +202,7 @@ public class WMSIntegrationAutoConfiguration {
             GWC.setConditionalGetHeaders(
                     headers, cachedTile, etag, request.getHttpRequestHeader("If-Modified-Since"));
             GWC.setCacheMetadataHeaders(headers, cachedTile, layer);
-            headers.forEach((k, v) -> map.setResponseHeader(k, v));
+            headers.forEach(map::setResponseHeader);
 
             return map;
         }

@@ -13,8 +13,8 @@ import org.geoserver.config.LoggingInfo;
 /** Event sent when {@link GeoServer#setLogging(LoggingInfo)} is called on a node */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("LoggingInfoSet")
-public class LoggingInfoSet extends ConfigInfoAdded<LoggingInfoSet, LoggingInfo>
-        implements ConfigInfoEvent {
+@SuppressWarnings("serial")
+public class LoggingInfoSet extends ConfigInfoAdded<LoggingInfo> implements ConfigInfoEvent {
 
     protected LoggingInfoSet() {
         // default constructor, needed for deserialization

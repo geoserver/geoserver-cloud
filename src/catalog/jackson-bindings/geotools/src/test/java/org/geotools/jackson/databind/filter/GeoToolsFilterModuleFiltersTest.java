@@ -62,5 +62,6 @@ public abstract class GeoToolsFilterModuleFiltersTest extends FilterRoundtripTes
 
     @Disabled("revisit, ResourceIdImpl equals issue")
     @Override
-    public @Test void idFilter_ResourceId_Date() throws Exception {}
+    @Test
+    void idFilter_ResourceId_Date() throws Exception {}
 }

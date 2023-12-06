@@ -12,6 +12,7 @@ import org.geoserver.platform.AdvancedDispatchFilter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.context.request.RequestContextListener;
@@ -29,8 +30,8 @@ public class GeoServerServletContextConfiguration {
 
     // Listeners
     @Bean
-    GeoServerServletInitializer contextLoaderListener() {
-        return new GeoServerServletInitializer();
+    GeoServerServletInitializer contextLoaderListener(ApplicationContext appContext) {
+        return new GeoServerServletInitializer(appContext);
     }
 
     @ConditionalOnMissingBean(RequestContextListener.class)

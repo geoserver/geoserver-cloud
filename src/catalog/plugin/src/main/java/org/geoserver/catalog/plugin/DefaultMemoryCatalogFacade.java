@@ -66,7 +66,8 @@ public class DefaultMemoryCatalogFacade extends RepositoryCatalogFacadeImpl
         setStyleRepository(new StyleInfoLookup());
     }
 
-    public @Override void resolve() {
+    @Override
+    public void resolve() {
         // JD creation checks are done here b/c when xstream depersists
         // some members may be left null
         workspaces = resolve(workspaces, WorkspaceInfoLookup::new);
@@ -159,27 +160,27 @@ public class DefaultMemoryCatalogFacade extends RepositoryCatalogFacadeImpl
 
     private void resolveLayerGroupLayers(List<PublishedInfo> layers) {
         for (int i = 0; i < layers.size(); i++) {
-            PublishedInfo l = layers.get(i);
+            PublishedInfo published = layers.get(i);
 
-            if (l != null) {
+            if (published != null) {
                 PublishedInfo resolved;
-                if (l instanceof LayerGroupInfo) {
-                    resolved = unwrap(ResolvingProxy.resolve(getCatalog(), (LayerGroupInfo) l));
-                    // special case to handle catalog loading, when nested publishibles might not be
+                if (published instanceof LayerGroupInfo lg) {
+                    resolved = unwrap(ResolvingProxy.resolve(getCatalog(), lg));
+                    // special case to handle catalog loading, when nested publishables might not be
                     // loaded.
                     if (resolved == null) {
-                        resolved = l;
+                        resolved = published;
                     }
-                } else if (l instanceof LayerInfo) {
-                    resolved = unwrap(ResolvingProxy.resolve(getCatalog(), (LayerInfo) l));
-                    // special case to handle catalog loading, when nested publishibles might not be
+                } else if (published instanceof LayerInfo l) {
+                    resolved = unwrap(ResolvingProxy.resolve(getCatalog(), l));
+                    // special case to handle catalog loading, when nested publishables might not be
                     // loaded.
                     if (resolved == null) {
-                        resolved = l;
+                        resolved = published;
                     }
                 } else {
                     // Special case for null layer (style group)
-                    resolved = unwrap(ResolvingProxy.resolve(getCatalog(), l));
+                    resolved = unwrap(ResolvingProxy.resolve(getCatalog(), published));
                 }
                 layers.set(i, resolved);
             }

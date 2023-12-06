@@ -22,19 +22,19 @@ public interface ResourceMapper {
 
     default Resource map(ResourceInfo o) {
         if (o == null) return null;
-        if (o instanceof FeatureTypeInfo) return map((FeatureTypeInfo) o);
-        if (o instanceof CoverageInfo) return map((CoverageInfo) o);
-        if (o instanceof WMSLayerInfo) return map((WMSLayerInfo) o);
-        if (o instanceof WMTSLayerInfo) return map((WMTSLayerInfo) o);
+        if (o instanceof FeatureTypeInfo ft) return map(ft);
+        if (o instanceof CoverageInfo cov) return map(cov);
+        if (o instanceof WMSLayerInfo wms) return map(wms);
+        if (o instanceof WMTSLayerInfo wmts) return map(wmts);
         throw new IllegalArgumentException("Unknown ResourceInfo type: " + o);
     }
 
     default ResourceInfo map(Resource o) {
         if (o == null) return null;
-        if (o instanceof FeatureType) return map((FeatureType) o);
-        if (o instanceof Coverage) return map((Coverage) o);
-        if (o instanceof WMSLayer) return map((WMSLayer) o);
-        if (o instanceof WMTSLayer) return map((WMTSLayer) o);
+        if (o instanceof FeatureType ft) return map(ft);
+        if (o instanceof Coverage cov) return map(cov);
+        if (o instanceof WMSLayer wms) return map(wms);
+        if (o instanceof WMTSLayer wmts) return map(wmts);
         throw new IllegalArgumentException("Unknown Resource type: " + o);
     }
 

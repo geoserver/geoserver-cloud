@@ -35,43 +35,51 @@ public abstract class ExpressionMapper {
     private final ExpressionVisitor visitor =
             new ExpressionVisitor() {
 
-                public @Override Subtract visit(
+                @Override
+                public Subtract visit(
                         org.geotools.api.filter.expression.Subtract expression, Object extraData) {
                     return map(expression);
                 }
 
-                public @Override PropertyName visit(
+                @Override
+                public PropertyName visit(
                         org.geotools.api.filter.expression.PropertyName expression,
                         Object extraData) {
                     return map(expression);
                 }
 
-                public @Override Multiply visit(
+                @Override
+                public Multiply visit(
                         org.geotools.api.filter.expression.Multiply expression, Object extraData) {
                     return map(expression);
                 }
 
-                public @Override Literal visit(
+                @Override
+                public Literal visit(
                         org.geotools.api.filter.expression.Literal expression, Object extraData) {
                     return map(expression);
                 }
 
-                public @Override Function visit(
+                @Override
+                public Function visit(
                         org.geotools.api.filter.expression.Function expression, Object extraData) {
                     return map(expression);
                 }
 
-                public @Override Divide visit(
+                @Override
+                public Divide visit(
                         org.geotools.api.filter.expression.Divide expression, Object extraData) {
                     return map(expression);
                 }
 
-                public @Override Add visit(
+                @Override
+                public Add visit(
                         org.geotools.api.filter.expression.Add expression, Object extraData) {
                     return map(expression);
                 }
 
-                public @Override Expression visit(NilExpression expression, Object extraData) {
+                @Override
+                public Expression visit(NilExpression expression, Object extraData) {
                     return map(expression);
                 }
             };
@@ -82,13 +90,13 @@ public abstract class ExpressionMapper {
 
     public org.geotools.api.filter.expression.Expression map(Expression source) {
         if (source == null) return null;
-        if (source instanceof Literal) return map((Literal) source);
-        if (source instanceof PropertyName) return map((PropertyName) source);
-        if (source instanceof Add) return map((Add) source);
-        if (source instanceof Subtract) return map((Subtract) source);
-        if (source instanceof Multiply) return map((Multiply) source);
-        if (source instanceof Divide) return map((Divide) source);
-        if (source instanceof Function) return map((Function) source);
+        if (source instanceof Literal literal) return map(literal);
+        if (source instanceof PropertyName prop) return map(prop);
+        if (source instanceof Add add) return map(add);
+        if (source instanceof Subtract subtract) return map(subtract);
+        if (source instanceof Multiply multiply) return map(multiply);
+        if (source instanceof Divide divide) return map(divide);
+        if (source instanceof Function function) return map(function);
         throw new IllegalArgumentException(
                 "Unrecognized expression type " + source.getClass().getName() + ": " + source);
     }

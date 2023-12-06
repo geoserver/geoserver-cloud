@@ -53,7 +53,8 @@ class CatalogMetrics implements MeterBinder {
 
     private MetricsCatalogListener listener;
 
-    public @Override void bindTo(@NonNull MeterRegistry registry) {
+    @Override
+    public void bindTo(@NonNull MeterRegistry registry) {
         if (listener != null) {
             catalog.removeListener(listener);
         }

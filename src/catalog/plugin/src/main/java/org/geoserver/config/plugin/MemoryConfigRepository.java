@@ -31,7 +31,8 @@ public class MemoryConfigRepository implements ConfigRepository {
     protected final ConcurrentMap<String, SettingsInfo> settings = new ConcurrentHashMap<>();
     protected final ConcurrentMap<String, ServiceInfo> services = new ConcurrentHashMap<>();
 
-    public @Override Optional<GeoServerInfo> getGlobal() {
+    @Override
+    public Optional<GeoServerInfo> getGlobal() {
         return Optional.ofNullable(global);
     }
 
@@ -42,17 +43,20 @@ public class MemoryConfigRepository implements ConfigRepository {
         }
     }
 
-    public @Override void setGlobal(GeoServerInfo global) {
+    @Override
+    public void setGlobal(GeoServerInfo global) {
         requireNonNull(global);
         checkNotAProxy(global);
         this.global = global;
     }
 
-    public @Override Optional<SettingsInfo> getSettingsById(String id) {
+    @Override
+    public Optional<SettingsInfo> getSettingsById(String id) {
         return Optional.ofNullable(settings.get(id));
     }
 
-    public @Override Optional<SettingsInfo> getSettingsByWorkspace(WorkspaceInfo workspace) {
+    @Override
+    public Optional<SettingsInfo> getSettingsByWorkspace(WorkspaceInfo workspace) {
         requireNonNull(workspace);
         requireNonNull(workspace.getId());
         return settings.values().stream()
@@ -60,14 +64,16 @@ public class MemoryConfigRepository implements ConfigRepository {
                 .findFirst();
     }
 
-    public @Override void add(SettingsInfo settings) {
+    @Override
+    public void add(SettingsInfo settings) {
         requireNonNull(settings);
         requireNonNull(settings.getId());
         checkNotAProxy(settings);
         this.settings.put(settings.getId(), settings);
     }
 
-    public @Override SettingsInfo update(SettingsInfo settings, Patch patch) {
+    @Override
+    public SettingsInfo update(SettingsInfo settings, Patch patch) {
         requireNonNull(settings);
         requireNonNull(patch);
         requireNonNull(settings.getId());
@@ -81,23 +87,27 @@ public class MemoryConfigRepository implements ConfigRepository {
         return localCopy;
     }
 
-    public @Override void remove(SettingsInfo settings) {
+    @Override
+    public void remove(SettingsInfo settings) {
         requireNonNull(settings);
         requireNonNull(settings.getId());
         this.settings.remove(settings.getId());
     }
 
-    public @Override Optional<LoggingInfo> getLogging() {
+    @Override
+    public Optional<LoggingInfo> getLogging() {
         return Optional.ofNullable(logging);
     }
 
-    public @Override void setLogging(LoggingInfo logging) {
+    @Override
+    public void setLogging(LoggingInfo logging) {
         requireNonNull(logging);
         checkNotAProxy(logging);
         this.logging = logging;
     }
 
-    public @Override void add(ServiceInfo service) {
+    @Override
+    public void add(ServiceInfo service) {
         requireNonNull(service);
         requireNonNull(service.getId());
         checkNotAProxy(service);
@@ -105,13 +115,15 @@ public class MemoryConfigRepository implements ConfigRepository {
         this.services.put(service.getId(), service);
     }
 
-    public @Override void remove(ServiceInfo service) {
+    @Override
+    public void remove(ServiceInfo service) {
         requireNonNull(service);
         requireNonNull(service.getId());
         this.services.remove(service.getId());
     }
 
-    public @Override <S extends ServiceInfo> S update(S service, Patch patch) {
+    @Override
+    public <S extends ServiceInfo> S update(S service, Patch patch) {
         requireNonNull(service);
         requireNonNull(service.getId());
         checkNotAProxy(service);
@@ -125,11 +137,13 @@ public class MemoryConfigRepository implements ConfigRepository {
         return localCopy;
     }
 
-    public @Override Stream<? extends ServiceInfo> getGlobalServices() {
+    @Override
+    public Stream<ServiceInfo> getGlobalServices() {
         return this.services.values().stream().filter(s -> s.getWorkspace() == null);
     }
 
-    public @Override Stream<? extends ServiceInfo> getServicesByWorkspace(WorkspaceInfo workspace) {
+    @Override
+    public Stream<ServiceInfo> getServicesByWorkspace(WorkspaceInfo workspace) {
         requireNonNull(workspace);
         requireNonNull(workspace.getId());
         return this.services.values().stream()
@@ -139,7 +153,8 @@ public class MemoryConfigRepository implements ConfigRepository {
                                         && workspace.getId().equals(s.getWorkspace().getId()));
     }
 
-    public @Override <T extends ServiceInfo> Optional<T> getGlobalService(Class<T> clazz) {
+    @Override
+    public <T extends ServiceInfo> Optional<T> getGlobalService(Class<T> clazz) {
         requireNonNull(clazz);
         return this.services.values().stream()
                 .filter(clazz::isInstance)
@@ -148,7 +163,8 @@ public class MemoryConfigRepository implements ConfigRepository {
                 .findFirst();
     }
 
-    public @Override <T extends ServiceInfo> Optional<T> getServiceByWorkspace(
+    @Override
+    public <T extends ServiceInfo> Optional<T> getServiceByWorkspace(
             WorkspaceInfo workspace, Class<T> clazz) {
         requireNonNull(workspace);
         requireNonNull(workspace.getId());
@@ -163,15 +179,16 @@ public class MemoryConfigRepository implements ConfigRepository {
                 .findFirst();
     }
 
-    public @Override <T extends ServiceInfo> Optional<T> getServiceById(String id, Class<T> clazz) {
+    @Override
+    public <T extends ServiceInfo> Optional<T> getServiceById(String id, Class<T> clazz) {
         requireNonNull(id);
         requireNonNull(clazz);
         ServiceInfo service = services.get(id);
         return clazz.isInstance(service) ? Optional.of(clazz.cast(service)) : Optional.empty();
     }
 
-    public @Override <T extends ServiceInfo> Optional<T> getServiceByName(
-            String name, Class<T> clazz) {
+    @Override
+    public <T extends ServiceInfo> Optional<T> getServiceByName(String name, Class<T> clazz) {
         requireNonNull(name);
         requireNonNull(clazz);
         return this.services.values().stream()
@@ -181,7 +198,8 @@ public class MemoryConfigRepository implements ConfigRepository {
                 .findFirst();
     }
 
-    public @Override <T extends ServiceInfo> Optional<T> getServiceByNameAndWorkspace(
+    @Override
+    public <T extends ServiceInfo> Optional<T> getServiceByNameAndWorkspace(
             String name, WorkspaceInfo workspace, Class<T> clazz) {
         requireNonNull(name);
         requireNonNull(workspace);
@@ -198,7 +216,8 @@ public class MemoryConfigRepository implements ConfigRepository {
                 .findFirst();
     }
 
-    public @Override void dispose() {
+    @Override
+    public void dispose() {
         global = null;
         logging = null;
         settings.clear();

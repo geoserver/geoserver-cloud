@@ -109,7 +109,7 @@ public abstract class SharedMappers {
             }
             return org.geotools.referencing.CRS.parseWKT(source.getWKT());
         } catch (FactoryException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
         }
     }
 

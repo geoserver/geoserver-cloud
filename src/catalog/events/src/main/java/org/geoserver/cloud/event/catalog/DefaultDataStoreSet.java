@@ -28,6 +28,7 @@ import javax.annotation.Nullable;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("DefaultDataStoreSet")
 @EqualsAndHashCode(callSuper = true)
+@SuppressWarnings("serial")
 public class DefaultDataStoreSet extends CatalogInfoModified {
 
     private @Getter String workspaceId;

@@ -33,7 +33,8 @@ public class DefaultStyleInfoRules implements CatalogInfoBusinessRules<StyleInfo
      * changed, and renames it's {@link StyleInfo#getFilename() file name} to match the new style
      * name.
      */
-    public @Override void beforeSave(CatalogOpContext<StyleInfo> context) {
+    @Override
+    public void beforeSave(CatalogOpContext<StyleInfo> context) {
         PropertyDiff diff = context.getDiff();
         Optional<Change> nameChange = diff.get("name");
         nameChange.ifPresent(
@@ -50,7 +51,8 @@ public class DefaultStyleInfoRules implements CatalogInfoBusinessRules<StyleInfo
     }
 
     /** Reverts the style file rename performed in {@link #beforeAdd} if the operation has failed */
-    public @Override void afterSave(CatalogOpContext<StyleInfo> context) {
+    @Override
+    public void afterSave(CatalogOpContext<StyleInfo> context) {
         if (context.isSuccess()) {
             return;
         }

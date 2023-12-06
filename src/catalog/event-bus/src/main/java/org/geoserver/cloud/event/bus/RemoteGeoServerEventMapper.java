@@ -33,7 +33,7 @@ public class RemoteGeoServerEventMapper {
         return serviceMatcher.getBusId();
     }
 
-    public RemoteGeoServerEvent toRemote(GeoServerEvent<?> anyLocalCatalogOrConfigEvent) {
+    public RemoteGeoServerEvent toRemote(GeoServerEvent anyLocalCatalogOrConfigEvent) {
         String origin = originService();
         Destination destination = destinationService();
         RemoteGeoServerEvent remote =
@@ -50,12 +50,12 @@ public class RemoteGeoServerEventMapper {
         return Optional.ofNullable(republishAsLocal ? busEvent : null);
     }
 
-    public GeoServerEvent<?> toLocalRemote(@NonNull RemoteGeoServerEvent incoming) {
-        GeoServerEvent<?> event = incoming.getEvent();
+    public GeoServerEvent toLocalRemote(@NonNull RemoteGeoServerEvent incoming) {
+        GeoServerEvent event = incoming.getEvent();
         event.setRemote(true);
         event.setOrigin(incoming.getOriginService());
-        if (event instanceof InfoEvent)
-            event = remoteEventsPropertyResolver.resolve((InfoEvent<?, ?>) event);
+        if (event instanceof InfoEvent<?> infoEvent)
+            event = remoteEventsPropertyResolver.resolve(infoEvent);
         return event;
     }
 }

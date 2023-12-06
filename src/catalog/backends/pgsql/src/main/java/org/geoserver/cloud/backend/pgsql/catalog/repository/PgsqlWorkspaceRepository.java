@@ -4,7 +4,6 @@
  */
 package org.geoserver.cloud.backend.pgsql.catalog.repository;
 
-import lombok.Getter;
 import lombok.NonNull;
 
 import org.geoserver.catalog.WorkspaceInfo;
@@ -21,14 +20,21 @@ import java.util.Optional;
 public class PgsqlWorkspaceRepository extends PgsqlCatalogInfoRepository<WorkspaceInfo>
         implements WorkspaceRepository {
 
-    private final @Getter Class<WorkspaceInfo> contentType = WorkspaceInfo.class;
-    private final @Getter String queryTable = "workspaceinfos";
-
     /**
      * @param template
      */
     public PgsqlWorkspaceRepository(@NonNull JdbcTemplate template) {
         super(template);
+    }
+
+    @Override
+    public Class<WorkspaceInfo> getContentType() {
+        return WorkspaceInfo.class;
+    }
+
+    @Override
+    protected String getQueryTable() {
+        return "workspaceinfos";
     }
 
     @Override

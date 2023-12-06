@@ -4,7 +4,6 @@
  */
 package org.geoserver.cloud.backend.pgsql.catalog.repository;
 
-import lombok.Getter;
 import lombok.NonNull;
 
 import org.geoserver.catalog.NamespaceInfo;
@@ -21,14 +20,21 @@ import java.util.stream.Stream;
 public class PgsqlNamespaceRepository extends PgsqlCatalogInfoRepository<NamespaceInfo>
         implements NamespaceRepository {
 
-    private final @Getter Class<NamespaceInfo> contentType = NamespaceInfo.class;
-    private final @Getter String queryTable = "namespaceinfos";
-
     /**
      * @param template
      */
     public PgsqlNamespaceRepository(@NonNull JdbcTemplate template) {
         super(template);
+    }
+
+    @Override
+    public Class<NamespaceInfo> getContentType() {
+        return NamespaceInfo.class;
+    }
+
+    @Override
+    protected String getQueryTable() {
+        return "namespaceinfos";
     }
 
     @Override

@@ -26,7 +26,7 @@ public class MapperSerializer<I, DTO> extends StdSerializer<I> {
 
     private static final long serialVersionUID = 1L;
 
-    private Function<I, DTO> mapper;
+    private final transient Function<I, DTO> mapper;
 
     private Class<I> type;
 
@@ -36,7 +36,8 @@ public class MapperSerializer<I, DTO> extends StdSerializer<I> {
         this.mapper = serializerMapper;
     }
 
-    public @Override void serializeWithType(
+    @Override
+    public void serializeWithType(
             I value, JsonGenerator gen, SerializerProvider serializers, TypeSerializer typeSer)
             throws IOException {
 
@@ -48,7 +49,8 @@ public class MapperSerializer<I, DTO> extends StdSerializer<I> {
         typeSer.writeTypeSuffix(gen, typeIdDef);
     }
 
-    public @Override void serialize(I value, JsonGenerator gen, SerializerProvider provider)
+    @Override
+    public void serialize(I value, JsonGenerator gen, SerializerProvider provider)
             throws IOException {
 
         DTO dto;

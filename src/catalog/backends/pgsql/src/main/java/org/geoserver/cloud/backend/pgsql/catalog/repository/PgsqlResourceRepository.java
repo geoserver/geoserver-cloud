@@ -4,7 +4,6 @@
  */
 package org.geoserver.cloud.backend.pgsql.catalog.repository;
 
-import lombok.Getter;
 import lombok.NonNull;
 
 import org.geoserver.catalog.NamespaceInfo;
@@ -23,14 +22,23 @@ import java.util.stream.Stream;
 public class PgsqlResourceRepository extends PgsqlCatalogInfoRepository<ResourceInfo>
         implements ResourceRepository {
 
-    private final @Getter Class<ResourceInfo> contentType = ResourceInfo.class;
-    private final @Getter String queryTable = "resourceinfos";
+    private static final String AND_TYPE_INFOTYPE = " AND \"@type\" = ?::infotype";
 
     /**
      * @param template
      */
     public PgsqlResourceRepository(@NonNull JdbcTemplate template) {
         super(template);
+    }
+
+    @Override
+    public Class<ResourceInfo> getContentType() {
+        return ResourceInfo.class;
+    }
+
+    @Override
+    protected String getQueryTable() {
+        return "resourceinfos";
     }
 
     @Override
@@ -45,7 +53,7 @@ public class PgsqlResourceRepository extends PgsqlCatalogInfoRepository<Resource
         if (ResourceInfo.class.equals(clazz)) {
             return findOne(query, clazz, newRowMapper(), namespace.getId(), name);
         }
-        query += " AND \"@type\" = ?::infotype";
+        query += AND_TYPE_INFOTYPE;
         return findOne(query, clazz, newRowMapper(), namespace.getId(), name, infoType(clazz));
     }
 
@@ -76,7 +84,7 @@ public class PgsqlResourceRepository extends PgsqlCatalogInfoRepository<Resource
         if (ResourceInfo.class.equals(clazz)) {
             return template.queryForStream(query, newRowMapper(), ns.getId()).map(clazz::cast);
         }
-        query += " AND \"@type\" = ?::infotype";
+        query += AND_TYPE_INFOTYPE;
         return template.queryForStream(query, newRowMapper(), ns.getId(), infoType(clazz))
                 .map(clazz::cast);
     }
@@ -94,7 +102,7 @@ public class PgsqlResourceRepository extends PgsqlCatalogInfoRepository<Resource
         if (ResourceInfo.class.equals(clazz)) {
             return findOne(query, clazz, newRowMapper(), store.getId(), name);
         }
-        query += " AND \"@type\" = ?::infotype";
+        query += AND_TYPE_INFOTYPE;
         return findOne(query, clazz, newRowMapper(), store.getId(), name, infoType(clazz));
     }
 
@@ -109,7 +117,7 @@ public class PgsqlResourceRepository extends PgsqlCatalogInfoRepository<Resource
         if (ResourceInfo.class.equals(clazz)) {
             return template.queryForStream(query, newRowMapper(), store.getId()).map(clazz::cast);
         }
-        query += " AND \"@type\" = ?::infotype";
+        query += AND_TYPE_INFOTYPE;
         return template.queryForStream(query, newRowMapper(), store.getId(), infoType(clazz))
                 .map(clazz::cast);
     }

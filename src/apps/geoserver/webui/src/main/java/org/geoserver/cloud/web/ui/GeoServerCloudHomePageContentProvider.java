@@ -4,11 +4,13 @@
  */
 package org.geoserver.cloud.web.ui;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.geoserver.security.GeoServerSecurityManager;
 import org.geoserver.web.GeoServerHomePageContentProvider;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.info.BuildProperties;
 
 /**
@@ -16,11 +18,12 @@ import org.springframework.boot.info.BuildProperties;
  *
  * @since 1.0
  */
+@RequiredArgsConstructor
 public class GeoServerCloudHomePageContentProvider implements GeoServerHomePageContentProvider {
 
-    private @Autowired GeoServerSecurityManager secManager;
+    private final @NonNull GeoServerSecurityManager secManager;
 
-    private @Autowired BuildProperties buildProperties;
+    private final @NonNull BuildProperties buildProperties;
 
     @Override
     public Component getPageBodyComponent(String id) {

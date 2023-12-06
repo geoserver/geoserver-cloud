@@ -5,7 +5,6 @@
 package org.geotools.jackson.databind.geojson.geometry;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -37,6 +36,8 @@ import java.util.stream.IntStream;
 
 public class GeometryDeserializer<T extends Geometry> extends JsonDeserializer<T> {
 
+    private static final String COORDINATES_PROPERTY = "coordinates";
+
     private static final GeometryFactory DEFAULT_GF =
             new GeometryFactory(new PackedCoordinateSequenceFactory());
 
@@ -51,8 +52,8 @@ public class GeometryDeserializer<T extends Geometry> extends JsonDeserializer<T
     }
 
     @SuppressWarnings("unchecked")
-    public @Override T deserialize(JsonParser p, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException {
+    @Override
+    public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
 
         return (T) readGeometry(p.readValueAsTree());
     }
@@ -88,23 +89,23 @@ public class GeometryDeserializer<T extends Geometry> extends JsonDeserializer<T
 
     private int getDimensions(ObjectNode geometryNode) {
         JsonNode dimensionsProperty = geometryNode.findValue("dimensions");
-        if (dimensionsProperty instanceof NumericNode) {
-            return ((NumericNode) dimensionsProperty).asInt();
+        if (dimensionsProperty instanceof NumericNode numericNode) {
+            return numericNode.asInt();
         }
         return 2;
     }
 
     private boolean resolveHasM(ObjectNode geometryNode) {
         JsonNode hasMProperty = geometryNode.findValue("hasM");
-        if (hasMProperty instanceof BooleanNode) {
-            return ((BooleanNode) hasMProperty).asBoolean();
+        if (hasMProperty instanceof BooleanNode booleanNode) {
+            return booleanNode.asBoolean();
         }
         return false;
     }
 
     private MultiLineString readMultiLineString(
             ObjectNode geometryNode, int dimensions, boolean hasM) {
-        ArrayNode coordinates = (ArrayNode) geometryNode.findValue("coordinates");
+        ArrayNode coordinates = (ArrayNode) geometryNode.findValue(COORDINATES_PROPERTY);
         if (coordinates.isEmpty()) {
             return geometryFactory.createMultiLineString();
         }
@@ -120,7 +121,7 @@ public class GeometryDeserializer<T extends Geometry> extends JsonDeserializer<T
     }
 
     private MultiPolygon readMultiPolygon(ObjectNode geometryNode, int dimensions, boolean hasM) {
-        ArrayNode coordinates = (ArrayNode) geometryNode.findValue("coordinates");
+        ArrayNode coordinates = (ArrayNode) geometryNode.findValue(COORDINATES_PROPERTY);
         if (coordinates.isEmpty()) {
             return geometryFactory.createMultiPolygon();
         }
@@ -147,7 +148,7 @@ public class GeometryDeserializer<T extends Geometry> extends JsonDeserializer<T
     }
 
     private Polygon readPolygon(ObjectNode geometryNode, int dimensions, boolean hasM) {
-        ArrayNode coordinates = (ArrayNode) geometryNode.findValue("coordinates");
+        ArrayNode coordinates = (ArrayNode) geometryNode.findValue(COORDINATES_PROPERTY);
         return readPolygon(coordinates, dimensions, hasM);
     }
 
@@ -181,7 +182,7 @@ public class GeometryDeserializer<T extends Geometry> extends JsonDeserializer<T
     }
 
     private LineString readLineString(ObjectNode geometryNode, int dimensions, boolean hasM) {
-        ArrayNode coordinates = (ArrayNode) geometryNode.findValue("coordinates");
+        ArrayNode coordinates = (ArrayNode) geometryNode.findValue(COORDINATES_PROPERTY);
         if (coordinates.isEmpty()) {
             return geometryFactory.createLineString();
         }
@@ -190,7 +191,7 @@ public class GeometryDeserializer<T extends Geometry> extends JsonDeserializer<T
     }
 
     private MultiPoint readMultiPoint(ObjectNode geometryNode, int dimensions, boolean hasM) {
-        ArrayNode coordinates = (ArrayNode) geometryNode.findValue("coordinates");
+        ArrayNode coordinates = (ArrayNode) geometryNode.findValue(COORDINATES_PROPERTY);
         if (null == coordinates || coordinates.isEmpty()) {
             return geometryFactory.createMultiPoint();
         }
@@ -214,7 +215,7 @@ public class GeometryDeserializer<T extends Geometry> extends JsonDeserializer<T
     }
 
     private Point readPoint(ObjectNode geometryNode, int dimensions, boolean hasM) {
-        ArrayNode coordinateArray = (ArrayNode) geometryNode.findValue("coordinates");
+        ArrayNode coordinateArray = (ArrayNode) geometryNode.findValue(COORDINATES_PROPERTY);
         if (null == coordinateArray || coordinateArray.isEmpty()) {
             return geometryFactory.createPoint();
         }
@@ -230,7 +231,7 @@ public class GeometryDeserializer<T extends Geometry> extends JsonDeserializer<T
             return false;
         }
         JsonNode typeNode = value.get("type");
-        return typeNode instanceof TextNode && isGeometry(((TextNode) typeNode).asText());
+        return typeNode instanceof TextNode textNode && isGeometry(textNode.asText());
     }
 
     private static final Set<String> geomTypes =

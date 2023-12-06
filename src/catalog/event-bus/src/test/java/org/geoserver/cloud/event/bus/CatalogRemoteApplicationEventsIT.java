@@ -54,9 +54,10 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
-public class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
+class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
 
-    public @Test void testCatalogSetDefaultWorkspace() {
+    @Test
+    void testCatalogSetDefaultWorkspace() {
         catalog.add(testData.workspaceA);
         catalog.add(testData.workspaceC);
         final Class<DefaultWorkspaceSet> eventType = DefaultWorkspaceSet.class;
@@ -85,7 +86,8 @@ public class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
         }
     }
 
-    public @Test void testCatalogSetDefaultNamespace() {
+    @Test
+    void testCatalogSetDefaultNamespace() {
         catalog.add(testData.namespaceA);
         catalog.add(testData.namespaceB);
 
@@ -116,7 +118,8 @@ public class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
         }
     }
 
-    public @Test void testCatalogSetDefaultDataStoreByWorkspace() {
+    @Test
+    void testCatalogSetDefaultDataStoreByWorkspace() {
         WorkspaceInfo workspace = testData.workspaceA;
         DataStoreInfo dataStore = testData.dataStoreA;
 
@@ -157,27 +160,32 @@ public class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
         }
     }
 
-    public @Test void testAdd_Workspace() {
+    @Test
+    void testAdd_Workspace() {
         testRemoteCatalogInfoAddEvent(testData.workspaceA, catalog::add);
     }
 
-    public @Test void testAdd_Namespace() {
+    @Test
+    void testAdd_Namespace() {
         testRemoteCatalogInfoAddEvent(testData.namespaceA, catalog::add);
     }
 
-    public @Test void testAdd_CoverageStore() {
+    @Test
+    void testAdd_CoverageStore() {
         catalog.add(testData.workspaceA);
         catalog.add(testData.namespaceA);
         testRemoteCatalogInfoAddEvent(testData.coverageStoreA, catalog::add);
     }
 
-    public @Test void testAdd_DataStore() {
+    @Test
+    void testAdd_DataStore() {
         catalog.add(testData.workspaceA);
         catalog.add(testData.namespaceA);
         testRemoteCatalogInfoAddEvent(testData.dataStoreA, catalog::add);
     }
 
-    public @Test void testAdd_Coverage() {
+    @Test
+    void testAdd_Coverage() {
         catalog.add(testData.workspaceA);
         catalog.add(testData.namespaceA);
         catalog.add(testData.namespaceB);
@@ -185,14 +193,16 @@ public class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
         testRemoteCatalogInfoAddEvent(testData.coverageA, catalog::add);
     }
 
-    public @Test void testAdd_FeatureType() {
+    @Test
+    void testAdd_FeatureType() {
         catalog.add(testData.workspaceA);
         catalog.add(testData.namespaceA);
         catalog.add(testData.dataStoreA);
         testRemoteCatalogInfoAddEvent(testData.featureTypeA, catalog::add);
     }
 
-    public @Test void testAdd_Layer() {
+    @Test
+    void testAdd_Layer() {
         catalog.add(testData.workspaceA);
         catalog.add(testData.namespaceA);
         catalog.add(testData.dataStoreA);
@@ -201,7 +211,8 @@ public class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
         testRemoteCatalogInfoAddEvent(testData.layerFeatureTypeA, catalog::add);
     }
 
-    public @Test void testAdd_LayerGroup() {
+    @Test
+    void testAdd_LayerGroup() {
         catalog.add(testData.workspaceA);
         catalog.add(testData.namespaceA);
         catalog.add(testData.dataStoreA);
@@ -211,11 +222,13 @@ public class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
         testRemoteCatalogInfoAddEvent(testData.layerGroup1, catalog::add);
     }
 
-    public @Test void testAdd_Style_Payload() {
+    @Test
+    void testAdd_Style_Payload() {
         testRemoteCatalogInfoAddEvent(testData.style1, catalog::add);
     }
 
-    public @Test void testModifyEventsWorkspace() {
+    @Test
+    void testModifyEventsWorkspace() {
         setupClean();
         testCatalogInfoModifyEvent(
                 testData.workspaceA,
@@ -225,7 +238,8 @@ public class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
                 catalog::save);
     }
 
-    public @Test void testModifyEventsNamespace() {
+    @Test
+    void testModifyEventsNamespace() {
         setupClean();
         testCatalogInfoModifyEvent(
                 testData.namespaceA,
@@ -236,7 +250,8 @@ public class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
                 catalog::save);
     }
 
-    public @Test void testModifyEventsDataStore() {
+    @Test
+    void testModifyEventsDataStore() {
         setupClean();
         testCatalogInfoModifyEvent(
                 testData.dataStoreA,
@@ -249,7 +264,8 @@ public class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
                 catalog::save);
     }
 
-    public @Test void testModifyEventsCoverageStore() {
+    @Test
+    void testModifyEventsCoverageStore() {
         setupClean();
         testCatalogInfoModifyEvent(
                 testData.coverageStoreA,
@@ -262,7 +278,8 @@ public class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
                 catalog::save);
     }
 
-    public @Test void tesAddCoverageStore_COG() {
+    @Test
+    void tesAddCoverageStore_COG() {
         CoverageStoreInfo store = createCOGStoreInfo();
         RemoteGeoServerEvent remoteEvent = testRemoteCatalogInfoAddEvent(store, catalog::add);
 
@@ -298,7 +315,8 @@ public class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
         return store;
     }
 
-    public @Test void testModifyEventsCoverageStore_COG() {
+    @Test
+    void testModifyEventsCoverageStore_COG() {
         setupClean();
         CoverageStoreInfo store = testData.coverageStoreA;
 
@@ -324,7 +342,8 @@ public class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
         assertThat(settings.getRangeReaderSettings()).isEqualTo(RangeReaderType.S3);
     }
 
-    public @Test void testModifyEventsWMSStore() {
+    @Test
+    void testModifyEventsWMSStore() {
         setupClean();
         testCatalogInfoModifyEvent(
                 testData.wmsStoreA,
@@ -339,7 +358,8 @@ public class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
                 catalog::save);
     }
 
-    public @Test void testModifyEventsWMTSStore() {
+    @Test
+    void testModifyEventsWMTSStore() {
         setupClean();
         testCatalogInfoModifyEvent(
                 testData.wmsStoreA,
@@ -354,7 +374,8 @@ public class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
                 catalog::save);
     }
 
-    public @Test void testModifyEventsFeatureType() throws SchemaException {
+    @Test
+    void testModifyEventsFeatureType() throws SchemaException {
         setupClean();
 
         SimpleFeatureType type = DataUtilities.createType("test", "name:String,location:Point");
@@ -394,11 +415,13 @@ public class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
     }
 
     @Disabled("implement")
-    public @Test void testModifyEventsCoverage() {
+    @Test
+    void testModifyEventsCoverage() {
         fail("NOT IMPLEMENTED");
     }
 
-    public @Test void testModifyEventsWMSLayer() throws Exception {
+    @Test
+    void testModifyEventsWMSLayer() throws Exception {
         setupClean();
 
         WMSLayerInfo layer = testData.wmsLayerA;
@@ -421,7 +444,8 @@ public class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
                 catalog::save);
     }
 
-    public @Test void testModifyEventsWMTSLayer() throws Exception {
+    @Test
+    void testModifyEventsWMTSLayer() throws Exception {
         setupClean();
 
         WMTSLayerInfo layer = testData.wmtsLayerA;
@@ -444,7 +468,8 @@ public class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
                 catalog::save);
     }
 
-    public @Test void testModifyEventsLayer() {
+    @Test
+    void testModifyEventsLayer() {
         setupClean();
 
         LayerInfo layer = testData.layerFeatureTypeA;
@@ -469,16 +494,19 @@ public class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
     }
 
     @Disabled("implement")
-    public @Test void testModifyEventsLayerGroup() {
+    @Test
+    void testModifyEventsLayerGroup() {
         fail("NOT IMPLEMENTED");
     }
 
     @Disabled("implement")
-    public @Test void testModifyEventsStyle() {
+    @Test
+    void testModifyEventsStyle() {
         fail("NOT IMPLEMENTED");
     }
 
-    public @Test void testRemoveEvents() {
+    @Test
+    void testRemoveEvents() {
         setupClean();
 
         Class<CatalogInfoRemoved> eventType = CatalogInfoRemoved.class;

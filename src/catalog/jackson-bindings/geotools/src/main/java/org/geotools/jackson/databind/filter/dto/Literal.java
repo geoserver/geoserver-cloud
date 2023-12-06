@@ -22,10 +22,11 @@ public @Data @Generated class Literal extends Expression {
     private Object value;
 
     public static Literal valueOf(Object value) {
-        return value instanceof Literal ? (Literal) value : new Literal().setValue(value);
+        return value instanceof Literal l ? l : new Literal().setValue(value);
     }
 
-    public @Override boolean equals(Object o) {
+    @Override
+    public boolean equals(Object o) {
         if (!(o instanceof Literal)) return false;
 
         final Object v1 = value;
@@ -43,20 +44,18 @@ public @Data @Generated class Literal extends Expression {
             final Class<?> componentType = v1.getClass().getComponentType();
 
             if (componentType.isPrimitive()) {
-                boolean equals =
-                        switch (componentType.getCanonicalName()) {
-                            case "byte" -> Arrays.equals((byte[]) v1, (byte[]) v2);
-                            case "boolean" -> Arrays.equals((boolean[]) v1, (boolean[]) v2);
-                            case "char" -> Arrays.equals((char[]) v1, (char[]) v2);
-                            case "short" -> Arrays.equals((short[]) v1, (short[]) v2);
-                            case "int" -> Arrays.equals((int[]) v1, (int[]) v2);
-                            case "long" -> Arrays.equals((long[]) v1, (long[]) v2);
-                            case "float" -> Arrays.equals((float[]) v1, (float[]) v2);
-                            case "double" -> Arrays.equals((double[]) v1, (double[]) v2);
-                            default -> throw new IllegalArgumentException(
-                                    "Unexpected value: " + componentType);
-                        };
-                return equals;
+                return switch (componentType.getCanonicalName()) {
+                    case "byte" -> Arrays.equals((byte[]) v1, (byte[]) v2);
+                    case "boolean" -> Arrays.equals((boolean[]) v1, (boolean[]) v2);
+                    case "char" -> Arrays.equals((char[]) v1, (char[]) v2);
+                    case "short" -> Arrays.equals((short[]) v1, (short[]) v2);
+                    case "int" -> Arrays.equals((int[]) v1, (int[]) v2);
+                    case "long" -> Arrays.equals((long[]) v1, (long[]) v2);
+                    case "float" -> Arrays.equals((float[]) v1, (float[]) v2);
+                    case "double" -> Arrays.equals((double[]) v1, (double[]) v2);
+                    default -> throw new IllegalArgumentException(
+                            "Unexpected value: " + componentType);
+                };
             } else {
                 Object[] a1 = (Object[]) v1;
                 Object[] a2 = (Object[]) v2;
@@ -66,7 +65,8 @@ public @Data @Generated class Literal extends Expression {
         return false;
     }
 
-    public @Override int hashCode() {
+    @Override
+    public int hashCode() {
         return Objects.hash(Literal.class, value);
     }
 }

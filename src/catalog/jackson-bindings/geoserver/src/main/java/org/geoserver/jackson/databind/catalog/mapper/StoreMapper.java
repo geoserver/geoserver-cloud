@@ -22,20 +22,20 @@ public interface StoreMapper {
 
     default Store map(StoreInfo o) {
         if (o == null) return null;
-        if (o instanceof DataStoreInfo) return map((DataStoreInfo) o);
-        if (o instanceof CoverageStoreInfo) return map((CoverageStoreInfo) o);
-        if (o instanceof WMSStoreInfo) return map((WMSStoreInfo) o);
-        if (o instanceof WMTSStoreInfo) return map((WMTSStoreInfo) o);
+        if (o instanceof DataStoreInfo ds) return map(ds);
+        if (o instanceof CoverageStoreInfo cs) return map(cs);
+        if (o instanceof WMSStoreInfo wms) return map(wms);
+        if (o instanceof WMTSStoreInfo wmts) return map(wmts);
 
         throw new IllegalArgumentException("Unknown StoreInfo type: " + o);
     }
 
     default StoreInfo map(Store o) {
         if (o == null) return null;
-        if (o instanceof DataStore) return map((DataStore) o);
-        if (o instanceof CoverageStore) return map((CoverageStore) o);
-        if (o instanceof WMSStore) return map((WMSStore) o);
-        if (o instanceof WMTSStore) return map((WMTSStore) o);
+        if (o instanceof DataStore ds) return map(ds);
+        if (o instanceof CoverageStore cs) return map(cs);
+        if (o instanceof WMSStore wms) return map(wms);
+        if (o instanceof WMTSStore wmts) return map(wmts);
 
         throw new IllegalArgumentException("Unknown Store type: " + o);
     }
