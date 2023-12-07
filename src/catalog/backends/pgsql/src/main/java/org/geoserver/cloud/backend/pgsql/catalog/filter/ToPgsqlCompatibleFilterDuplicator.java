@@ -13,7 +13,6 @@ import org.geotools.api.filter.PropertyIsGreaterThan;
 import org.geotools.api.filter.PropertyIsGreaterThanOrEqualTo;
 import org.geotools.api.filter.PropertyIsLessThan;
 import org.geotools.api.filter.PropertyIsLessThanOrEqualTo;
-import org.geotools.api.filter.PropertyIsLike;
 import org.geotools.api.filter.PropertyIsNotEqualTo;
 import org.geotools.api.filter.expression.Expression;
 import org.geotools.api.filter.expression.Literal;
@@ -107,11 +106,6 @@ class ToPgsqlCompatibleFilterDuplicator extends DuplicatingFilterVisitor {
         BinaryComparisonOperator dup =
                 (BinaryComparisonOperator) super.visit(filter, filter.isMatchingCase());
         return visitBinaryComparisonOperator(dup);
-    }
-
-    @Override
-    public Object visit(PropertyIsLike filter, Object extraData) {
-        return super.visit(filter, extraData);
     }
 
     protected Filter visitBinaryComparisonOperator(BinaryComparisonOperator filter) {
