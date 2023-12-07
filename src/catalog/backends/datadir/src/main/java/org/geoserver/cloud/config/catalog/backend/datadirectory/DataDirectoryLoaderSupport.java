@@ -72,8 +72,11 @@ class DataDirectoryLoaderSupport {
 
         geoServer.getServices().stream()
                 .filter(s -> !existingServiceNames.contains(s.getName()))
-                .peek(s -> log.info("Persisting created service {}", s.getId()))
-                .forEach(servicePersister::handlePostServiceChange);
+                .forEach(
+                        s -> {
+                            log.info("Persisting created service {}", s.getId());
+                            servicePersister.handlePostServiceChange(s);
+                        });
     }
 
     public void replaceCatalogInfoPersisterWithFixedVersion(

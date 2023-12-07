@@ -30,7 +30,7 @@ public class DefaultWorkspaceSet extends CatalogInfoModified {
     }
 
     DefaultWorkspaceSet(long updateSequence, String newWorkspaceId, @NonNull Patch patch) {
-        super(updateSequence, InfoEvent.CATALOG_ID, ConfigInfoType.Catalog, patch);
+        super(updateSequence, InfoEvent.CATALOG_ID, ConfigInfoType.CATALOG, patch);
         this.newWorkspaceId = newWorkspaceId;
     }
 

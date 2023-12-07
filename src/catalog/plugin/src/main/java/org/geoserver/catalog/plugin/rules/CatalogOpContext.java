@@ -123,7 +123,7 @@ public class CatalogOpContext<T extends CatalogInfo> {
 
     public boolean is(String key) {
         Boolean value = getContextOption(key);
-        return value == null ? false : value;
+        return value != null && value.booleanValue();
     }
 
     /**

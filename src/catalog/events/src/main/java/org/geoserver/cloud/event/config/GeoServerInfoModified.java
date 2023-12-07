@@ -26,7 +26,7 @@ public class GeoServerInfoModified extends ConfigInfoModified<GeoServerInfo>
     }
 
     protected GeoServerInfoModified(long updateSequence, @NonNull String id, @NonNull Patch patch) {
-        super(updateSequence, id, ConfigInfoType.GeoServerInfo, patch);
+        super(updateSequence, id, ConfigInfoType.GEOSERVER, patch);
     }
 
     public static GeoServerInfoModified createLocal(

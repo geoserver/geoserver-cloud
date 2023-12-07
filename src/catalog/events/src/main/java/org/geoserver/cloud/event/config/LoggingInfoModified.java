@@ -27,7 +27,7 @@ public class LoggingInfoModified extends ConfigInfoModified<LoggingInfo>
 
     protected LoggingInfoModified(long updateSequence, @NonNull String id, @NonNull Patch patch) {
 
-        super(updateSequence, id, ConfigInfoType.LoggingInfo, patch);
+        super(updateSequence, id, ConfigInfoType.LOGGING, patch);
     }
 
     public static LoggingInfoModified createLocal(

@@ -41,7 +41,7 @@ import javax.annotation.Nullable;
  */
 public class CloudJdbcGeoserverFacade implements GeoServerFacade {
 
-    static final Logger LOGGER = Logging.getLogger(JDBCGeoServerFacade.class);
+    static final Logger LOGGER = Logging.getLogger(CloudJdbcGeoserverFacade.class);
 
     private static final String WORKSPACE_ID = "workspace.id";
 

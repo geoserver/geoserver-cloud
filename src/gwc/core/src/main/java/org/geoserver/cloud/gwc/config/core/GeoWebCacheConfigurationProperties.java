@@ -49,7 +49,7 @@ import java.nio.file.Path;
 @ConfigurationProperties(prefix = "gwc")
 public @Data class GeoWebCacheConfigurationProperties {
 
-    public static final String ENABLED = "gwc.enabled";
+    public static final String GWC_ENABLED_PROPERTY = "gwc.enabled";
     public static final String CACHE_DIRECTORY = "gwc.cache-directory";
     public static final String CONFIG_DIRECTORY = "gwc.config-directory";
     public static final String WEBUI_ENABLED = "gwc.web-ui";

@@ -549,7 +549,7 @@ class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
     @SuppressWarnings("rawtypes")
     private void assertCatalogEvent(Catalog catalog, InfoModified event, Patch expected) {
         assertThat(event.getObjectId()).isEqualTo("catalog"); // i.e. InfoEvent.CATALOG_ID
-        assertThat(event.getObjectType()).isEqualTo(ConfigInfoType.Catalog);
+        assertThat(event.getObjectType()).isEqualTo(ConfigInfoType.CATALOG);
 
         Patch actual = event.getPatch();
         assertThat(actual).isNotNull();

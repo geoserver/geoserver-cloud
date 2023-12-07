@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration(proxyBeanMethods = false)
 public class S3BlobstoreGsWebUIConfiguration {
 
-    @Bean(name = "GWC-S3Extension")
+    @Bean
     ModuleStatusImpl gwcS3Extension() {
         ModuleStatusImpl module = new ModuleStatusImpl();
         module.setModule("gs-gwc-s3");
@@ -23,7 +23,7 @@ public class S3BlobstoreGsWebUIConfiguration {
         return module;
     }
 
-    @Bean(name = "S3BlobStoreType")
+    @Bean
     S3BlobStoreType s3BlobStoreType() {
         return new S3BlobStoreType();
     }

@@ -155,36 +155,66 @@ class CachingCatalogFacadeImpl extends ForwardingExtendedCatalogFacade
         super.remove(style);
     }
 
+    /**
+     * @deprecated as per {@link ExtendedCatalogFacade#save(StoreInfo)} use {@link
+     *     #update(CatalogInfo, Patch)} instead
+     */
+    @Deprecated(since = "1.0", forRemoval = true)
     @CacheEvict(key = "new org.geoserver.cloud.catalog.cache.CatalogInfoKey(#p0)")
     @Override
     public void save(StoreInfo store) {
         super.remove(store);
     }
 
+    /**
+     * @deprecated as per {@link ExtendedCatalogFacade#save(StoreInfo)} use {@link
+     *     #update(CatalogInfo, Patch)} instead
+     */
+    @Deprecated(since = "1.0", forRemoval = true)
     @CacheEvict(key = "new org.geoserver.cloud.catalog.cache.CatalogInfoKey(#p0)")
     @Override
     public void save(ResourceInfo resource) {
         super.remove(resource);
     }
 
+    /**
+     * @deprecated as per {@link ExtendedCatalogFacade#save(StoreInfo)} use {@link
+     *     #update(CatalogInfo, Patch)} instead
+     */
+    @Deprecated(since = "1.0", forRemoval = true)
     @CacheEvict(key = "new org.geoserver.cloud.catalog.cache.CatalogInfoKey(#p0)")
     @Override
     public void save(StyleInfo style) {
         super.save(style);
     }
 
+    /**
+     * @deprecated as per {@link ExtendedCatalogFacade#save(StoreInfo)} use {@link
+     *     #update(CatalogInfo, Patch)} instead
+     */
+    @Deprecated(since = "1.0", forRemoval = true)
     @CacheEvict(key = "new org.geoserver.cloud.catalog.cache.CatalogInfoKey(#p0)")
     @Override
     public void save(LayerInfo layer) {
         super.save(layer);
     }
 
+    /**
+     * @deprecated as per {@link ExtendedCatalogFacade#save(StoreInfo)} use {@link
+     *     #update(CatalogInfo, Patch)} instead
+     */
+    @Deprecated(since = "1.0", forRemoval = true)
     @CacheEvict(key = "new org.geoserver.cloud.catalog.cache.CatalogInfoKey(#p0)")
     @Override
     public void save(NamespaceInfo namespace) {
         super.save(namespace);
     }
 
+    /**
+     * @deprecated as per {@link ExtendedCatalogFacade#save(StoreInfo)} use {@link
+     *     #update(CatalogInfo, Patch)} instead
+     */
+    @Deprecated(since = "1.0", forRemoval = true)
     @CacheEvict(key = "new org.geoserver.cloud.catalog.cache.CatalogInfoKey(#p0)")
     @Override
     public void save(WorkspaceInfo workspace) {

@@ -89,10 +89,11 @@ class CloudGWCServiceDescriptionProvider extends ServiceDescriptionProvider {
         return info;
     }
 
-    /** GWC-bases services don't have layer-specific enabling... */
+    /** GWC-based services don't have layer-specific enabling... */
     @Override
     protected boolean isAvailable(String serviceType, ServiceInfo service, PublishedInfo layer) {
-        return service.isEnabled() && (layer == null ? true : layer.isEnabled());
+        boolean layerEnabled = layer == null || layer.isEnabled();
+        return service.isEnabled() && layerEnabled;
     }
 
     @Override

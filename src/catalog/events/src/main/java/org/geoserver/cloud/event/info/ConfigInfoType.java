@@ -34,25 +34,25 @@ import org.geoserver.config.SettingsInfo;
 @Generated // make test coverage tools ignore it
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum ConfigInfoType {
-    Catalog(Catalog.class), //
-    WorkspaceInfo(WorkspaceInfo.class), //
-    NamespaceInfo(NamespaceInfo.class), //
-    CoverageStoreInfo(CoverageStoreInfo.class), //
-    DataStoreInfo(DataStoreInfo.class), //
-    WmsStoreInfo(WMSStoreInfo.class), //
-    WmtsStoreInfo(WMTSStoreInfo.class), //
-    FeatureTypeInfo(FeatureTypeInfo.class), //
-    CoverageInfo(CoverageInfo.class), //
-    WmsLayerInfo(WMSLayerInfo.class), //
-    WmtsLayerInfo(WMTSLayerInfo.class), //
-    LayerInfo(LayerInfo.class), //
-    LayerGroupInfo(LayerGroupInfo.class), //
-    MapInfo(MapInfo.class), //
-    StyleInfo(StyleInfo.class), //
-    GeoServerInfo(GeoServerInfo.class), //
-    ServiceInfo(ServiceInfo.class), //
-    SettingsInfo(SettingsInfo.class), //
-    LoggingInfo(LoggingInfo.class); //
+    CATALOG(Catalog.class), //
+    WORKSPACE(WorkspaceInfo.class), //
+    NAMESPACE(NamespaceInfo.class), //
+    COVERAGESTORE(CoverageStoreInfo.class), //
+    DATASTORE(DataStoreInfo.class), //
+    WMSSTORE(WMSStoreInfo.class), //
+    WMTSSTORE(WMTSStoreInfo.class), //
+    FEATURETYPE(FeatureTypeInfo.class), //
+    COVERAGE(CoverageInfo.class), //
+    WMSLAYER(WMSLayerInfo.class), //
+    WMTSLAYER(WMTSLayerInfo.class), //
+    LAYER(LayerInfo.class), //
+    LAYERGROUP(LayerGroupInfo.class), //
+    MAP(MapInfo.class), //
+    STYLE(StyleInfo.class), //
+    GEOSERVER(GeoServerInfo.class), //
+    SERVICE(ServiceInfo.class), //
+    SETTINGS(SettingsInfo.class), //
+    LOGGING(LoggingInfo.class); //
 
     private final @Getter @NonNull Class<? extends Info> type;
 

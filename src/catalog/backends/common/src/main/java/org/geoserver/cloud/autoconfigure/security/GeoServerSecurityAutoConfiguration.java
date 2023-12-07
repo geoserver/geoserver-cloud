@@ -22,15 +22,16 @@ import javax.annotation.PostConstruct;
 
 @AutoConfiguration(after = GeoServerBackendAutoConfiguration.class)
 @Import({
-    GeoServerSecurityAutoConfiguration.Enabled.class,
-    GeoServerSecurityAutoConfiguration.Disabled.class
+    GeoServerSecurityAutoConfiguration.WhenEnabled.class,
+    GeoServerSecurityAutoConfiguration.WhenDisabled.class
 })
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.security")
 public class GeoServerSecurityAutoConfiguration {
 
     @ConditionalOnGeoServerSecurityEnabled
     @Import(GeoServerSecurityConfiguration.class)
-    public @Configuration class Enabled {
+    @Configuration
+    static class WhenEnabled {
 
         private @Value("${geoserver.security.enabled:#{null}}") Boolean enabled;
 
@@ -61,7 +62,7 @@ public class GeoServerSecurityAutoConfiguration {
 
     @Configuration
     @ConditionalOnGeoServerSecurityDisabled
-    static class Disabled {
+    static class WhenDisabled {
 
         private @Value("${geoserver.security.enabled:#{null}}") Boolean enabled;
 

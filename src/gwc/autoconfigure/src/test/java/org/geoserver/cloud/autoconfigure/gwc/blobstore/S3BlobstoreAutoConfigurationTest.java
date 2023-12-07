@@ -44,7 +44,7 @@ class S3BlobstoreAutoConfigurationTest {
                 context -> {
                     assertThat(context).doesNotHaveBean(S3BlobStoreConfigProvider.class);
                     assertThat(context).doesNotHaveBean(S3BlobStoreType.class);
-                    assertThat(context).doesNotHaveBean("GWC-S3Extension");
+                    assertThat(context).doesNotHaveBean("gwcS3Extension");
                 });
     }
 
@@ -55,7 +55,7 @@ class S3BlobstoreAutoConfigurationTest {
                         context -> {
                             assertThat(context).hasSingleBean(S3BlobStoreConfigProvider.class);
                             assertThat(context).doesNotHaveBean(S3BlobStoreType.class);
-                            assertThat(context).doesNotHaveBean("GWC-S3Extension");
+                            assertThat(context).doesNotHaveBean("gwcS3Extension");
                         });
     }
 
@@ -66,7 +66,7 @@ class S3BlobstoreAutoConfigurationTest {
                         context -> {
                             assertThat(context).hasSingleBean(S3BlobStoreConfigProvider.class);
                             assertThat(context).hasSingleBean(S3BlobStoreType.class);
-                            assertThat(context).hasBean("GWC-S3Extension");
+                            assertThat(context).hasBean("gwcS3Extension");
                         });
     }
 
@@ -77,8 +77,8 @@ class S3BlobstoreAutoConfigurationTest {
                 .run(
                         context -> {
                             assertThat(context).hasSingleBean(S3BlobStoreConfigProvider.class);
-                            assertThat(context).doesNotHaveBean("S3BlobStoreType");
-                            assertThat(context).doesNotHaveBean("GWC-S3Extension");
+                            assertThat(context).doesNotHaveBean(S3BlobStoreType.class);
+                            assertThat(context).doesNotHaveBean("gwcS3Extension");
                         });
     }
 }

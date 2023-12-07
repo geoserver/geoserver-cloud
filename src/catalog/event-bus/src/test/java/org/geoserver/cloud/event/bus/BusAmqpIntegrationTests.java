@@ -330,9 +330,9 @@ public abstract class BusAmqpIntegrationTests {
         assertThat(infoType).isEqualTo(expectedType);
 
         switch (infoType) {
-            case Catalog:
-            case GeoServerInfo:
-            case LoggingInfo:
+            case CATALOG:
+            case GEOSERVER:
+            case LOGGING:
                 assertNotNull(((InfoEvent) event).getObjectId());
                 break;
             default:

@@ -25,14 +25,14 @@ import org.geoserver.config.SettingsInfo;
     @JsonSubTypes.Type(value = SettingsAdded.class),
 })
 @SuppressWarnings("serial")
-public abstract class ConfigInfoAdded<INFO extends Info> extends InfoAdded<INFO>
+public abstract class ConfigInfoAdded<I extends Info> extends InfoAdded<I>
         implements ConfigInfoEvent {
 
     protected ConfigInfoAdded() {
         // default constructor, needed for deserialization
     }
 
-    protected ConfigInfoAdded(long updateSequence, INFO object) {
+    protected ConfigInfoAdded(long updateSequence, I object) {
         super(updateSequence, object);
     }
 
@@ -41,22 +41,15 @@ public abstract class ConfigInfoAdded<INFO extends Info> extends InfoAdded<INFO>
             long updateSequence, @NonNull I info) {
 
         final ConfigInfoType type = ConfigInfoType.valueOf(info);
-        switch (type) {
-            case GeoServerInfo:
-                return (ConfigInfoAdded<I>)
-                        GeoServerInfoSet.createLocal(updateSequence, (GeoServerInfo) info);
-            case ServiceInfo:
-                return (ConfigInfoAdded<I>)
-                        ServiceAdded.createLocal(updateSequence, (ServiceInfo) info);
-            case SettingsInfo:
-                return (ConfigInfoAdded<I>)
-                        SettingsAdded.createLocal(updateSequence, (SettingsInfo) info);
-            case LoggingInfo:
-                return (ConfigInfoAdded<I>)
-                        LoggingInfoSet.createLocal(updateSequence, (LoggingInfo) info);
-            default:
-                throw new IllegalArgumentException(
-                        "Uknown or unsupported config Info type: " + type + ". " + info);
-        }
+        return (ConfigInfoAdded<I>)
+                switch (type) {
+                    case GEOSERVER -> GeoServerInfoSet.createLocal(
+                            updateSequence, (GeoServerInfo) info);
+                    case SERVICE -> ServiceAdded.createLocal(updateSequence, (ServiceInfo) info);
+                    case SETTINGS -> SettingsAdded.createLocal(updateSequence, (SettingsInfo) info);
+                    case LOGGING -> LoggingInfoSet.createLocal(updateSequence, (LoggingInfo) info);
+                    default -> throw new IllegalArgumentException(
+                            "Uknown or unsupported config Info type: " + type + ". " + info);
+                };
     }
 }

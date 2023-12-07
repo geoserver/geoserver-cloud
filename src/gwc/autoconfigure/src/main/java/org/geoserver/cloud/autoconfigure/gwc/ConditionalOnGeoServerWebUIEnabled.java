@@ -31,7 +31,7 @@ import java.lang.annotation.Target;
 @ConditionalOnGeoWebCacheEnabled
 @ConditionalOnClass(GWCSettingsPage.class)
 @ConditionalOnProperty(
-        name = GoServerWebUIConfigurationProperties.ENABLED,
+        name = GoServerWebUIConfigurationProperties.GWC_WEBUI_ENABLED_PROPERTY,
         havingValue = "true",
         matchIfMissing = false)
 public @interface ConditionalOnGeoServerWebUIEnabled {}

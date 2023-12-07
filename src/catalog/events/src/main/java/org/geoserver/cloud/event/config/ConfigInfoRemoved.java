@@ -38,13 +38,13 @@ public abstract class ConfigInfoRemoved<I extends Info> extends InfoRemoved<I>
             long updateSequence, @NonNull I info) {
 
         final ConfigInfoType type = ConfigInfoType.valueOf(info);
-        return switch (type) {
-            case ServiceInfo -> (ConfigInfoRemoved<I>)
-                    ServiceRemoved.createLocal(updateSequence, (ServiceInfo) info);
-            case SettingsInfo -> (ConfigInfoRemoved<I>)
-                    SettingsRemoved.createLocal(updateSequence, (SettingsInfo) info);
-            default -> throw new IllegalArgumentException(
-                    "Uknown or unsupported config Info type: " + type + ". " + info);
-        };
+        return (ConfigInfoRemoved<I>)
+                switch (type) {
+                    case SERVICE -> ServiceRemoved.createLocal(updateSequence, (ServiceInfo) info);
+                    case SETTINGS -> SettingsRemoved.createLocal(
+                            updateSequence, (SettingsInfo) info);
+                    default -> throw new IllegalArgumentException(
+                            "Uknown or unsupported config Info type: " + type + ". " + info);
+                };
     }
 }

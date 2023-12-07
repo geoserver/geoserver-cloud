@@ -216,11 +216,15 @@ public final class IsolatedCatalogFacade extends ForwardingExtendedCatalogFacade
             return super.count(of, filter);
         }
 
-        try (CloseableIterator<T> found = list(of, filter, null, null)) {
-            return Iterators.size(found);
+        try (Stream<T> result = query(Query.valueOf(of, filter))) {
+            return (int) result.count();
         }
     }
 
+    /**
+     * @deprecated as per {@link ExtendedCatalogFacade#list} use {@link #query(Query)} instead
+     */
+    @Deprecated(since = "1.0", forRemoval = true)
     @Override
     public <T extends CatalogInfo> CloseableIterator<T> list(
             Class<T> of,

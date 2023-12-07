@@ -35,7 +35,7 @@ public class SettingsModified extends ConfigInfoModified<SettingsInfo> implement
             @NonNull Patch patch,
             @NonNull String workspaceId) {
 
-        super(updateSequence, objectId, ConfigInfoType.SettingsInfo, patch);
+        super(updateSequence, objectId, ConfigInfoType.SETTINGS, patch);
         this.workspaceId = workspaceId;
     }
 

@@ -28,7 +28,7 @@ public class ServiceRemoved extends ConfigInfoRemoved<ServiceInfo> {
 
     protected ServiceRemoved(long updateSequence, @NonNull String objectId, String workspaceId) {
 
-        super(updateSequence, objectId, ConfigInfoType.ServiceInfo);
+        super(updateSequence, objectId, ConfigInfoType.SERVICE);
         this.workspaceId = workspaceId;
     }
 

@@ -27,7 +27,7 @@ public class SettingsRemoved extends ConfigInfoRemoved<SettingsInfo> {
     protected SettingsRemoved(
             long updateSequence, @NonNull String objectId, @NonNull String workspaceId) {
 
-        super(updateSequence, objectId, ConfigInfoType.SettingsInfo);
+        super(updateSequence, objectId, ConfigInfoType.SETTINGS);
         this.workspaceId = workspaceId;
     }
 

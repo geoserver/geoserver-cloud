@@ -147,7 +147,7 @@ public class JDBCConfigBackendConfigurer extends GeoServerBackendConfigurer {
 
     @DependsOn("jdbcConfigDataSourceStartupValidator")
     @ConfigurationProperties(prefix = "geoserver.backend.jdbcconfig")
-    @Bean("JDBCConfigProperties")
+    @Bean
     CloudJdbcConfigProperties jdbcConfigProperties() {
         DataSource dataSource = jdbcConfigDataSource();
         CloudJdbcConfigProperties props = new CloudJdbcConfigProperties(dataSource);

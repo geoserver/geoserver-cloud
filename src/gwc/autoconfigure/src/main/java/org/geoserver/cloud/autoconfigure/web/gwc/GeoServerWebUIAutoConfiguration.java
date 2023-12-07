@@ -51,7 +51,7 @@ public class GeoServerWebUIAutoConfiguration {
     static final String EXCLUDED_BEANS = "diskQuotaMenuPage|wmtsServiceDescriptor";
 
     public @PostConstruct void log() {
-        log.info("{} enabled", GoServerWebUIConfigurationProperties.ENABLED);
+        log.info("{} enabled", GoServerWebUIConfigurationProperties.GWC_WEBUI_ENABLED_PROPERTY);
     }
 
     @Bean

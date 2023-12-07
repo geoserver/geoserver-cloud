@@ -43,8 +43,8 @@ class AzureBlobstoreAutoConfigurationTest {
         runner.run(
                 context -> {
                     assertThat(context).doesNotHaveBean(AzureBlobStoreConfigProvider.class);
-                    assertThat(context).doesNotHaveBean("AzureBlobStoreType");
-                    assertThat(context).doesNotHaveBean("GWC-AzureExtension");
+                    assertThat(context).doesNotHaveBean(AzureBlobStoreType.class);
+                    assertThat(context).doesNotHaveBean("gwcAzureExtension");
                 });
     }
 
@@ -54,8 +54,8 @@ class AzureBlobstoreAutoConfigurationTest {
                 .run(
                         context -> {
                             assertThat(context).hasSingleBean(AzureBlobStoreConfigProvider.class);
-                            assertThat(context).doesNotHaveBean("AzureBlobStoreType");
-                            assertThat(context).doesNotHaveBean("GWC-AzureExtension");
+                            assertThat(context).doesNotHaveBean(AzureBlobStoreType.class);
+                            assertThat(context).doesNotHaveBean("gwcAzureExtension");
                         });
     }
 
@@ -66,7 +66,7 @@ class AzureBlobstoreAutoConfigurationTest {
                         context -> {
                             assertThat(context).hasSingleBean(AzureBlobStoreConfigProvider.class);
                             assertThat(context).hasSingleBean(AzureBlobStoreType.class);
-                            assertThat(context).hasBean("GWC-AzureExtension");
+                            assertThat(context).hasBean("gwcAzureExtension");
                         });
     }
 
@@ -78,8 +78,8 @@ class AzureBlobstoreAutoConfigurationTest {
                 .run(
                         context -> {
                             assertThat(context).hasSingleBean(AzureBlobStoreConfigProvider.class);
-                            assertThat(context).doesNotHaveBean("AzureBlobStoreType");
-                            assertThat(context).doesNotHaveBean("GWC-AzureExtension");
+                            assertThat(context).doesNotHaveBean(AzureBlobStoreType.class);
+                            assertThat(context).doesNotHaveBean("gwcAzureExtension");
                         });
     }
 }

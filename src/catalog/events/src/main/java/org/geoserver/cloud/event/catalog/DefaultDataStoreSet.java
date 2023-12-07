@@ -42,7 +42,7 @@ public class DefaultDataStoreSet extends CatalogInfoModified {
             String defaultDataStoreId,
             @NonNull Patch patch) {
 
-        super(updateSequence, InfoEvent.CATALOG_ID, ConfigInfoType.Catalog, patch);
+        super(updateSequence, InfoEvent.CATALOG_ID, ConfigInfoType.CATALOG, patch);
 
         this.workspaceId = workspaceId;
         this.defaultDataStoreId = defaultDataStoreId;

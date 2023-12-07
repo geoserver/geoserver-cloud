@@ -42,7 +42,7 @@ public class RemoteEventJdbcConfigProcessor {
                 .ifPresent(
                         remoteEvent -> {
                             ConfigInfoType infoType = event.getObjectType();
-                            if (ConfigInfoType.Catalog.equals(infoType)) {
+                            if (ConfigInfoType.CATALOG.equals(infoType)) {
                                 log.trace(
                                         "ignore catalog default workspace or default namespace change event, no need to treat it.");
                             } else {

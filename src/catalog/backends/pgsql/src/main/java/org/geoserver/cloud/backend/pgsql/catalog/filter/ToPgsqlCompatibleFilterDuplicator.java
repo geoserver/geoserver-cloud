@@ -41,7 +41,7 @@ class ToPgsqlCompatibleFilterDuplicator extends DuplicatingFilterVisitor {
 
     @Override
     public Object visit(PropertyName expression, Object extraData) {
-        boolean matchCase = (extraData instanceof Boolean match) ? match : true;
+        boolean matchCase = (extraData instanceof Boolean match) ? match.booleanValue() : true;
         if (!matchCase) {
             return getFactory(null).function("strToLowerCase", expression);
         }
@@ -50,7 +50,7 @@ class ToPgsqlCompatibleFilterDuplicator extends DuplicatingFilterVisitor {
 
     @Override
     public Object visit(Literal expression, Object extraData) {
-        boolean matchCase = (extraData instanceof Boolean match) ? match : true;
+        boolean matchCase = (extraData instanceof Boolean match) ? match.booleanValue() : true;
         if (!matchCase) {
             return getFactory(null).function("strToLowerCase", expression);
         }
