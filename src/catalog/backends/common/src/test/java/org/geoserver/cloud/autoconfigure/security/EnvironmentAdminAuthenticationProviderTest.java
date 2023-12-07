@@ -144,10 +144,11 @@ class EnvironmentAdminAuthenticationProviderTest {
                         context -> {
                             assertThat(context).hasNotFailed();
                             Authentication token = userNamePasswordToken("admin", "badPWD");
+							EnvironmentAdminAuthenticationProvider envAuthProvider = envAuthProvider(context);
 
                             assertThrows(
                                     InternalAuthenticationServiceException.class,
-                                    () -> envAuthProvider(context).authenticate(token));
+                                    () -> envAuthProvider.authenticate(token));
                         });
     }
 

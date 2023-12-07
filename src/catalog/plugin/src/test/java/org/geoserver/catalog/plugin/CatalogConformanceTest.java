@@ -2687,18 +2687,14 @@ public abstract class CatalogConformanceTest {
         assertEquals(lg2.getStyles(), lg2.styles());
 
         lg2.setMode(LayerGroupInfo.Mode.CONTAINER);
-        try {
-            assertEquals(lg2.getLayers(), lg2.layers());
-            fail("Layer group of Type Container can not be rendered");
-        } catch (UnsupportedOperationException e) {
-            assertTrue(true);
-        }
-        try {
-            assertEquals(lg2.getStyles(), lg2.styles());
-            fail("Layer group of Type Container can not be rendered");
-        } catch (UnsupportedOperationException e) {
-            assertTrue(true);
-        }
+        assertThrows(
+                UnsupportedOperationException.class,
+                lg2::layers,
+                "Layer group of Type Container can not be rendered");
+        assertThrows(
+                UnsupportedOperationException.class,
+                lg2::styles,
+                "Layer group of Type Container can not be rendered");
 
         lg2.setMode(LayerGroupInfo.Mode.EO);
         assertEquals(1, lg2.layers().size());
@@ -2718,11 +2714,10 @@ public abstract class CatalogConformanceTest {
         lg2.getStyles().add(data.style1);
         catalog.add(lg2);
 
-        try {
-            catalog.remove(data.layerGroup1);
-            fail("should have failed because lg is in another lg");
-        } catch (IllegalArgumentException expected) {
-        }
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> catalog.remove(data.layerGroup1),
+                "should have failed because lg is in another lg");
 
         // removing the containing layer first should work
         catalog.remove(lg2);
@@ -2871,7 +2866,7 @@ public abstract class CatalogConformanceTest {
 
         filter = equal("keywords[3].value", "repeatedKw");
         try {
-            catalog.get(FeatureTypeInfo.class, filter).getName();
+            catalog.get(FeatureTypeInfo.class, filter);
             fail("Expected IAE on multiple results");
         } catch (IllegalArgumentException multipleResults) {
             assertTrue(true);
