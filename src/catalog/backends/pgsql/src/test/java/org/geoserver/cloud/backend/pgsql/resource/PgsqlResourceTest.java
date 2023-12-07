@@ -22,7 +22,6 @@ import org.junit.experimental.theories.DataPoints;
 import org.junit.experimental.theories.Theories;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
-import org.springframework.context.annotation.Bean;
 import org.springframework.integration.jdbc.lock.DefaultLockRepository;
 import org.springframework.integration.jdbc.lock.JdbcLockRegistry;
 import org.springframework.integration.jdbc.lock.LockRepository;
@@ -127,7 +126,6 @@ class PgsqlResourceTest extends ResourceTheoryTest {
         return new JdbcLockRegistry(pgsqlLockRepository());
     }
 
-    @Bean
     LockRepository pgsqlLockRepository() {
         DefaultLockRepository lockRepository =
                 new DefaultLockRepository(dataSource, "test-instance");
@@ -177,14 +175,14 @@ class PgsqlResourceTest extends ResourceTheoryTest {
         return store.get(path);
     }
 
-    @Ignore
     @Override
+    @Ignore("This behaviour is specific to the file based implementation")
     public void theoryAlteringFileAltersResource(String path) throws Exception {
         // disabled
     }
 
-    @Ignore
     @Override
+    @Ignore("This behaviour is specific to the file based implementation")
     public void theoryAddingFileToDirectoryAddsResource(String path) throws Exception {
         // disabled
     }
