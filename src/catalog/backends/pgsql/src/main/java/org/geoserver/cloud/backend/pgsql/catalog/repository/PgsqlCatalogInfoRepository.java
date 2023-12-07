@@ -225,13 +225,14 @@ public abstract class PgsqlCatalogInfoRepository<T extends CatalogInfo>
 
     protected String applySortOrder(String sql, @NonNull List<SortBy> sortBy) {
         if (!sortBy.isEmpty()) {
-            sql += " ORDER BY";
+            StringBuilder builder = new StringBuilder(sql).append(" ORDER BY");
             for (SortBy sort : sortBy) {
                 String property = sort.getPropertyName().getPropertyName();
                 checkCanSortBy(property);
                 SortOrder sortOrder = sort.getSortOrder();
-                sql += " \"%s\" %s".formatted(property, sortOrder.toSQL());
+                builder.append(" \"%s\" %s".formatted(property, sortOrder.toSQL()));
             }
+            return builder.toString();
         }
         return sql;
     }
