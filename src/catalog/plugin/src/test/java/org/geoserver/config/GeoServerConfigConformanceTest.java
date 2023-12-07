@@ -11,7 +11,7 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -203,7 +203,7 @@ public abstract class GeoServerConfigConformanceTest {
         newProps.put("123", "456");
         gsii.setClientProperties(newProps);
 
-        assertFalse(before.equals(newProps));
+        assertNotEquals(before, newProps);
     }
 
     @Test

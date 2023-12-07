@@ -18,6 +18,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -106,7 +107,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -1867,9 +1867,7 @@ public abstract class CatalogConformanceTest {
         s2.setWorkspace(data.workspaceA);
         catalog.add(s2);
 
-        assertFalse(
-                new HashSet<StyleInfo>(currStyles)
-                        .equals(new HashSet<StyleInfo>(catalog.getStyles())));
+        assertNotEquals(Set.copyOf(currStyles), Set.copyOf(catalog.getStyles()));
 
         StyleInfo s3 = catalog.getFactory().createStyle();
         s3.setName(s2.getName());
@@ -2864,7 +2862,7 @@ public abstract class CatalogConformanceTest {
 
         filter = contains("name", "t");
         actual = Sets.newHashSet(catalog.list(FeatureTypeInfo.class, filter));
-        assertTrue(expected.equals(actual));
+        assertEquals(expected, actual);
         assertEquals(expected, actual);
 
         filter = or(contains("name", "t2"), contains("name", "t1"));
