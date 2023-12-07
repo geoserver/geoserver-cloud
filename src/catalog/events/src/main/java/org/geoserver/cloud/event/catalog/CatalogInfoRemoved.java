@@ -18,7 +18,7 @@ import java.util.Optional;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("CatalogInfoRemoved")
 @SuppressWarnings("serial")
-public class CatalogInfoRemoved extends InfoRemoved<CatalogInfo> {
+public class CatalogInfoRemoved extends InfoRemoved {
 
     protected CatalogInfoRemoved() {}
 

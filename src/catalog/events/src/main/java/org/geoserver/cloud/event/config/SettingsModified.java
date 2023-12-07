@@ -21,7 +21,7 @@ import org.springframework.core.style.ToStringCreator;
 @JsonTypeName("SettingsModified")
 @EqualsAndHashCode(callSuper = true)
 @SuppressWarnings("serial")
-public class SettingsModified extends ConfigInfoModified<SettingsInfo> implements ConfigInfoEvent {
+public class SettingsModified extends ConfigInfoModified implements ConfigInfoEvent {
 
     private @Getter String workspaceId;
 

@@ -60,7 +60,7 @@ public class RemoteEventDataDirectoryProcessor {
     }
 
     @EventListener(InfoRemoved.class)
-    public void onRemoteRemoveEvent(InfoRemoved<? extends Info> event) {
+    public void onRemoteRemoveEvent(InfoRemoved event) {
         if (event.isLocal()) {
             return;
         }
@@ -190,7 +190,7 @@ public class RemoteEventDataDirectoryProcessor {
     }
 
     @EventListener(InfoModified.class)
-    public void onRemoteModifyEvent(InfoModified<? extends Info> event) {
+    public void onRemoteModifyEvent(InfoModified event) {
         if (event.isLocal()) {
             return;
         }

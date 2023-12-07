@@ -197,7 +197,6 @@ class CatalogApplicationEventsConfigurationTest {
 
         GeoServerInfo global = geoserver.getGlobal();
 
-        @SuppressWarnings("rawtypes")
         Class<ConfigInfoModified> eventType = ConfigInfoModified.class;
 
         CoverageAccessInfo coverageInfo = new CoverageAccessInfoImpl();
@@ -221,7 +220,6 @@ class CatalogApplicationEventsConfigurationTest {
         catalog.add(testData.workspaceB);
         geoserver.setGlobal(testData.global);
 
-        @SuppressWarnings("rawtypes")
         Class<ConfigInfoModified> eventType = ConfigInfoModified.class;
 
         // odd API weirdness here, can't modify global settings through
@@ -259,7 +257,6 @@ class CatalogApplicationEventsConfigurationTest {
         catalog.add(testData.workspaceB);
         geoserver.setLogging(testData.logging);
 
-        @SuppressWarnings("rawtypes")
         Class<ConfigInfoModified> eventType = ConfigInfoModified.class;
 
         LoggingInfo globalLogging = geoserver.getLogging();
@@ -297,7 +294,6 @@ class CatalogApplicationEventsConfigurationTest {
     private void testConfigModifyService(ServiceInfo service) {
         service = geoserver.getService(service.getId(), ServiceInfo.class);
 
-        @SuppressWarnings("rawtypes")
         Class<ConfigInfoModified> postEventType = ConfigInfoModified.class;
 
         testModify(
@@ -323,14 +319,11 @@ class CatalogApplicationEventsConfigurationTest {
     }
 
     private <T extends Info> void testRemove(
-            T info,
-            Consumer<T> remover,
-            @SuppressWarnings("rawtypes") Class<? extends InfoRemoved> eventType) {
+            T info, Consumer<T> remover, Class<? extends InfoRemoved> eventType) {
         listener.clear();
         listener.start();
         remover.accept(info);
-        @SuppressWarnings("unchecked")
-        InfoRemoved<T> event = listener.expectOne(eventType);
+        InfoRemoved event = listener.expectOne(eventType);
         assertEquals(info.getId(), event.getObjectId());
         assertEquals(ConfigInfoType.valueOf(info), event.getObjectType());
     }
@@ -340,7 +333,7 @@ class CatalogApplicationEventsConfigurationTest {
             @NonNull T info,
             @NonNull Consumer<T> modifier,
             @NonNull Consumer<T> saver,
-            @NonNull @SuppressWarnings("rawtypes") Class<? extends InfoModified> postEventType) {
+            @NonNull Class<? extends InfoModified> postEventType) {
         if (null == ModificationProxy.handler(info))
             throw new IllegalArgumentException("Expected a ModificationProxy");
 
@@ -376,7 +369,7 @@ class CatalogApplicationEventsConfigurationTest {
         modifier.accept(info);
         saver.accept(info);
 
-        InfoModified<T> post = listener.expectOne(postEventType);
+        InfoModified post = listener.expectOne(postEventType);
         assertEquals(proxy.getId(), post.getObjectId());
         assertEquals(expected, post.getPatch());
     }

@@ -221,7 +221,7 @@ class CatalogApplicationEventPublisher {
                 publish(ConfigInfoAdded.createLocal(incrementSequence(), global));
             } else {
                 // already called pop()
-                ConfigInfoModified<GeoServerInfo> event =
+                ConfigInfoModified event =
                         ConfigInfoModified.createLocal(incrementSequence(), global, patch);
                 publish(event);
             }

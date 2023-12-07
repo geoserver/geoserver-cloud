@@ -26,8 +26,7 @@ import org.geoserver.config.SettingsInfo;
     @JsonSubTypes.Type(value = SettingsModified.class),
 })
 @SuppressWarnings("serial")
-public abstract class ConfigInfoModified<I extends Info> extends InfoModified<I>
-        implements ConfigInfoEvent {
+public abstract class ConfigInfoModified extends InfoModified implements ConfigInfoEvent {
 
     protected ConfigInfoModified() {
         // default constructor, needed for deserialization
@@ -41,23 +40,34 @@ public abstract class ConfigInfoModified<I extends Info> extends InfoModified<I>
         super(updateSequence, objectId, objectType, patch);
     }
 
-    @SuppressWarnings("unchecked")
-    public static @NonNull <I extends Info> ConfigInfoModified<I> createLocal(
+    public static @NonNull ConfigInfoModified createLocal(
             long updateSequence, @NonNull Info info, @NonNull Patch patch) {
 
         final ConfigInfoType type = ConfigInfoType.valueOf(info);
-        return (ConfigInfoModified<I>)
-                switch (type) {
-                    case GEOSERVER -> GeoServerInfoModified.createLocal(
-                            updateSequence, (GeoServerInfo) info, patch);
-                    case SERVICE -> ServiceModified.createLocal(
-                            updateSequence, (ServiceInfo) info, patch);
-                    case SETTINGS -> SettingsModified.createLocal(
-                            updateSequence, (SettingsInfo) info, patch);
-                    case LOGGING -> LoggingInfoModified.createLocal(
-                            updateSequence, (LoggingInfo) info, patch);
-                    default -> throw new IllegalArgumentException(
-                            "Uknown or unsupported config Info type: " + type + ". " + info);
-                };
+        return switch (type) {
+            case GEOSERVER -> geoserver(updateSequence, (GeoServerInfo) info, patch);
+            case SERVICE -> service(updateSequence, (ServiceInfo) info, patch);
+            case SETTINGS -> settings(updateSequence, (SettingsInfo) info, patch);
+            case LOGGING -> logging(updateSequence, (LoggingInfo) info, patch);
+            default -> throw new IllegalArgumentException(
+                    "Uknown or unsupported config Info type: " + type + ". " + info);
+        };
+    }
+
+    private static LoggingInfoModified logging(long updateSequence, LoggingInfo info, Patch patch) {
+        return LoggingInfoModified.createLocal(updateSequence, info, patch);
+    }
+
+    private static SettingsModified settings(long updateSequence, SettingsInfo info, Patch patch) {
+        return SettingsModified.createLocal(updateSequence, info, patch);
+    }
+
+    private static ServiceModified service(long updateSequence, ServiceInfo info, Patch patch) {
+        return ServiceModified.createLocal(updateSequence, info, patch);
+    }
+
+    private static GeoServerInfoModified geoserver(
+            long updateSequence, GeoServerInfo info, Patch patch) {
+        return GeoServerInfoModified.createLocal(updateSequence, info, patch);
     }
 }

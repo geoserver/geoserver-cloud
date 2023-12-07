@@ -55,7 +55,7 @@ public class InfoEventResolver {
     }
 
     @SuppressWarnings("unchecked")
-    public <I extends Info> InfoEvent resolve(InfoEvent event) {
+    public InfoEvent resolve(InfoEvent event) {
         if (event instanceof InfoAdded addEvent) {
             Info object = addEvent.getObject();
             addEvent.setObject(resolveInfo(object));

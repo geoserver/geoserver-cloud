@@ -21,8 +21,7 @@ import org.geoserver.config.SettingsInfo;
     @JsonSubTypes.Type(value = SettingsRemoved.class, name = "SettingsInfoRemoved"),
 })
 @SuppressWarnings("serial")
-public abstract class ConfigInfoRemoved<I extends Info> extends InfoRemoved<I>
-        implements ConfigInfoEvent {
+public abstract class ConfigInfoRemoved extends InfoRemoved implements ConfigInfoEvent {
 
     protected ConfigInfoRemoved() {
         // default constructor, needed for deserialization
@@ -33,18 +32,15 @@ public abstract class ConfigInfoRemoved<I extends Info> extends InfoRemoved<I>
         super(updateSequence, objectId, type);
     }
 
-    @SuppressWarnings("unchecked")
-    public static @NonNull <I extends Info> ConfigInfoRemoved<I> createLocal(
-            long updateSequence, @NonNull I info) {
+    public static @NonNull ConfigInfoRemoved createLocal(
+            long updateSequence, @NonNull Info configInfo) {
 
-        final ConfigInfoType type = ConfigInfoType.valueOf(info);
-        return (ConfigInfoRemoved<I>)
-                switch (type) {
-                    case SERVICE -> ServiceRemoved.createLocal(updateSequence, (ServiceInfo) info);
-                    case SETTINGS -> SettingsRemoved.createLocal(
-                            updateSequence, (SettingsInfo) info);
-                    default -> throw new IllegalArgumentException(
-                            "Uknown or unsupported config Info type: " + type + ". " + info);
-                };
+        final ConfigInfoType type = ConfigInfoType.valueOf(configInfo);
+        return switch (type) {
+            case SERVICE -> ServiceRemoved.createLocal(updateSequence, (ServiceInfo) configInfo);
+            case SETTINGS -> SettingsRemoved.createLocal(updateSequence, (SettingsInfo) configInfo);
+            default -> throw new IllegalArgumentException(
+                    "Uknown or unsupported config Info type: " + type + ". " + configInfo);
+        };
     }
 }

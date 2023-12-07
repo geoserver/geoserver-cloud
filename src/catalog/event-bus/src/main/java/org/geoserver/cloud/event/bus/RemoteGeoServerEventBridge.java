@@ -90,7 +90,7 @@ public class RemoteGeoServerEventBridge {
         protected void logOutgoing(RemoteGeoServerEvent remoteEvent) {
             @NonNull GeoServerEvent event = remoteEvent.getEvent();
             String logMsg = "{}: broadcasting {}";
-            if (event instanceof InfoModified<?> modEvent) {
+            if (event instanceof InfoModified modEvent) {
                 Patch patch = modEvent.getPatch();
                 if (patch.isEmpty()) {
                     logMsg = "{}: broadcasting no-change event {}";

@@ -55,7 +55,7 @@ public class CatalogInfoTypeRegistry<R> {
         requireNonNull(resource);
         ClassMappings key = determineKey(type);
         mappings.put(key, resource);
-        return (CatalogInfoTypeRegistry<R>) this;
+        return this;
     }
 
     @SuppressWarnings("unchecked")
@@ -82,7 +82,7 @@ public class CatalogInfoTypeRegistry<R> {
             Class<? extends T> subtype = (Class<? extends T>) subtypes[i];
             register(subtype, resource);
         }
-        return (CatalogInfoTypeRegistry<R>) this;
+        return this;
     }
 
     public R forObject(CatalogInfo object) {

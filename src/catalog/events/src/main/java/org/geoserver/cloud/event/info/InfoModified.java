@@ -11,7 +11,6 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 
-import org.geoserver.catalog.Info;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.cloud.event.catalog.CatalogInfoModified;
 import org.geoserver.cloud.event.config.ConfigInfoModified;
@@ -25,7 +24,7 @@ import java.util.stream.Collectors;
     @JsonSubTypes.Type(value = ConfigInfoModified.class),
 })
 @SuppressWarnings("serial")
-public abstract class InfoModified<I extends Info> extends InfoEvent {
+public abstract class InfoModified extends InfoEvent {
 
     private @Getter @Setter Patch patch;
 
