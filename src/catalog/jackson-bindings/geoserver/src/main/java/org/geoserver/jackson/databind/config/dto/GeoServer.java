@@ -22,7 +22,7 @@ public class GeoServer extends ConfigInfoDto {
         SKIP_MISCONFIGURED_LAYERS
     }
 
-    public static enum WebUIMode {
+    public enum WebUIMode {
         DEFAULT,
         REDIRECT,
         DO_NOT_REDIRECT
