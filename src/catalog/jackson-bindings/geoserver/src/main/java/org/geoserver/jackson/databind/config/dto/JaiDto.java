@@ -17,7 +17,7 @@ public @Data @Generated class JaiDto {
         JDK,
         NATIVE,
         PNGJ
-    };
+    }
 
     public static @Data @Generated class JAIEXTInfo {
         private Set<String> JAIOperations;

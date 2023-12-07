@@ -94,11 +94,11 @@ public class CloudJdbcGeoServerLoader extends DefaultGeoServerLoader {
 
     @Override
     protected void loadCatalog(Catalog catalog, XStreamPersister xp) throws IOException {
-        loadCatalogInternal(xp);
+        loadCatalogInternal();
         catalog.addListener(new GeoServerResourcePersister(catalog));
     }
 
-    private void loadCatalogInternal(XStreamPersister xp) throws IOException {
+    private void loadCatalogInternal() throws IOException {
         if (!config.isInitDb() && !config.isImport() && config.isRepopulate()) {
             ConfigDatabase configDatabase = this.configdb;
             configDatabase.repopulateQueryableProperties();
