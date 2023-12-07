@@ -69,7 +69,7 @@ public @Data class PropertyDiff implements Serializable {
         this.changes = new ArrayList<>(changes);
     }
 
-    private Object readResolve() {
+    protected Object readResolve() {
         if (changes == null) changes = new ArrayList<>();
         return this;
     }
