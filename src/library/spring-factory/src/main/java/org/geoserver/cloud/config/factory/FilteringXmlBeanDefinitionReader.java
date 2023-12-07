@@ -402,9 +402,6 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
                 return true;
             }
 
-            String aliasAtt = ele.getAttribute(ALIAS_ATTRIBUTE);
-            if (!hasText(aliasAtt)) aliasAtt = nameAtt; // name can be a comma separated list
-
             String[] aliases =
                     tokenizeToStringArray(
                             nameAtt, BeanDefinitionParserDelegate.MULTI_VALUE_ATTRIBUTE_DELIMITERS);

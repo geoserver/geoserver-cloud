@@ -72,7 +72,7 @@ public class RemoteEventResourcePoolProcessor {
         final String id = event.getObjectId();
         final ConfigInfoType infoType = event.getObjectType();
 
-        Optional<CatalogInfo> info = Optional.empty();
+        Optional<CatalogInfo> info;
         if (infoType.isA(StoreInfo.class)) {
             info = ofNullable(rawCatalog.getStore(id, StoreInfo.class));
         } else if (infoType.isA(ResourceInfo.class)) {

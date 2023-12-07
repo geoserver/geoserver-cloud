@@ -143,7 +143,6 @@ class ToPgsqlCompatibleFilterDuplicator extends DuplicatingFilterVisitor {
             case ONE:
                 // only if exactly one of the possible combinations match, the result is true
                 // (aggregated XOR)
-                aggregateBuilder = ff::or;
                 List<Filter> xor = new ArrayList<>();
                 for (int i = 0; i < values.size(); i++) {
                     Filter tomatch = filterBuilder.apply(left, ff.literal(values.get(i)));
