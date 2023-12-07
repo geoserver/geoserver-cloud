@@ -384,7 +384,7 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
                 Element ele, BeanDefinitionParserDelegate delegate) {
             final String beanNameOrId = getBeanNameOrId(ele);
             if (isFiltering()) {
-                if (shallInclude(beanNameOrId, ele)) {
+                if (shallInclude(beanNameOrId)) {
                     logIncludingBeanMessage(beanNameOrId);
                     super.processBeanDefinition(ele, delegate);
                 } else if (hasText(beanNameOrId)) {
@@ -397,7 +397,7 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
             }
         }
 
-        private boolean shallInclude(String nameAtt, Element ele) {
+        private boolean shallInclude(String nameAtt) {
             if (!hasText(nameAtt) || include(nameAtt)) {
                 return true;
             }
