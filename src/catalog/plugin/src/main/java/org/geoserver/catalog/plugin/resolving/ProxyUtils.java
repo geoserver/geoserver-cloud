@@ -111,7 +111,6 @@ public class ProxyUtils {
             @SuppressWarnings("unchecked")
             List<Object> list = (List<Object>) orig;
             return resolve(list);
-            //            return list;
         }
         if (orig instanceof Set) {
             @SuppressWarnings("unchecked")
