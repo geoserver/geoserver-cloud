@@ -392,47 +392,39 @@ public abstract class GeoServerCatalogModuleTest {
     @Test
     void testFilterWithInfoLiterals() throws JsonProcessingException {
         testFilterLiteral(forceNonProxy(data.workspaceA));
-        testFilterLiteral(forceProxy(data.workspaceA));
-
         testFilterLiteral(forceNonProxy(data.namespaceA));
-        testFilterLiteral(forceProxy(data.namespaceA));
-
         testFilterLiteral(forceNonProxy(data.dataStoreA));
-        testFilterLiteral(forceProxy(data.dataStoreA));
-
         testFilterLiteral(forceNonProxy(data.coverageStoreA));
-        testFilterLiteral(forceProxy(data.coverageStoreA));
-
         testFilterLiteral(forceNonProxy(data.wmsStoreA));
-        testFilterLiteral(forceProxy(data.wmsStoreA));
-
         testFilterLiteral(forceNonProxy(data.wmtsStoreA));
-        testFilterLiteral(forceProxy(data.wmtsStoreA));
-
         testFilterLiteral(forceNonProxy(data.featureTypeA));
-        testFilterLiteral(forceProxy(data.featureTypeA));
-
         testFilterLiteral(forceNonProxy(data.coverageA));
-        testFilterLiteral(forceProxy(data.coverageA));
-
         testFilterLiteral(forceNonProxy(data.wmsLayerA));
-        testFilterLiteral(forceProxy(data.wmsLayerA));
-
         testFilterLiteral(forceNonProxy(data.wmtsLayerA));
-        testFilterLiteral(forceProxy(data.wmtsLayerA));
-
         testFilterLiteral(forceNonProxy(data.layerFeatureTypeA));
-        testFilterLiteral(forceProxy(data.layerFeatureTypeA));
-
         testFilterLiteral(forceNonProxy(data.layerGroup1));
-        testFilterLiteral(forceProxy(data.layerGroup1));
-
         testFilterLiteral(forceNonProxy(data.style1));
-        testFilterLiteral(forceProxy(data.style1));
+    }
+
+    @Test
+    void testFilterWithModificationProxyInfoLiterals() throws JsonProcessingException {
+        testFilterLiteral(forceModificationProxy(data.workspaceA));
+        testFilterLiteral(forceModificationProxy(data.namespaceA));
+        testFilterLiteral(forceModificationProxy(data.dataStoreA));
+        testFilterLiteral(forceModificationProxy(data.coverageStoreA));
+        testFilterLiteral(forceModificationProxy(data.wmsStoreA));
+        testFilterLiteral(forceModificationProxy(data.wmtsStoreA));
+        testFilterLiteral(forceModificationProxy(data.featureTypeA));
+        testFilterLiteral(forceModificationProxy(data.coverageA));
+        testFilterLiteral(forceModificationProxy(data.wmsLayerA));
+        testFilterLiteral(forceModificationProxy(data.wmtsLayerA));
+        testFilterLiteral(forceModificationProxy(data.layerFeatureTypeA));
+        testFilterLiteral(forceModificationProxy(data.layerGroup1));
+        testFilterLiteral(forceModificationProxy(data.style1));
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends Info> T forceProxy(T info) {
+    private <T extends Info> T forceModificationProxy(T info) {
         if (!Proxy.isProxyClass(info.getClass())) {
             Class<? extends Info> iface = ClassMappings.fromImpl(info.getClass()).getInterface();
             return (T) ModificationProxy.create(info, iface);
