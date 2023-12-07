@@ -50,7 +50,6 @@ public @Service class RemoteEventCacheEvictor {
     private final CachingCatalogFacade catalog;
     private final CachingGeoServerFacade config;
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
     @EventListener(classes = {UpdateSequenceEvent.class})
     public void onUpdateSequenceEvent(UpdateSequenceEvent updateSequenceEvent) {
         final Long updateSequence = updateSequenceEvent.getUpdateSequence();

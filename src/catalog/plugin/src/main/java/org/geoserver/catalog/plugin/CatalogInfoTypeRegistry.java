@@ -50,7 +50,6 @@ public class CatalogInfoTypeRegistry<R> {
      * Registers the {@code resource} for the given type only, first narrowing {@code type} to its
      * corresponding {@link CatalogInfo} interface type.
      */
-    @SuppressWarnings("unchecked")
     public <T extends CatalogInfo> CatalogInfoTypeRegistry<R> register(Class<T> type, R resource) {
         requireNonNull(type);
         requireNonNull(resource);

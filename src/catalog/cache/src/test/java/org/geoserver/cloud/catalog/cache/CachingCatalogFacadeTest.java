@@ -58,7 +58,6 @@ import java.util.function.Function;
 
 @SpringBootTest(classes = GeoServerBackendCacheConfiguration.class)
 @EnableAutoConfiguration(exclude = LocalCatalogEventsAutoConfiguration.class)
-@SuppressWarnings("deprecation")
 class CachingCatalogFacadeTest {
 
     private @MockBean @Qualifier("defaultUpdateSequence") UpdateSequence updateSequence;
@@ -192,6 +191,7 @@ class CachingCatalogFacadeTest {
     }
 
     @Test
+    @SuppressWarnings("removal")
     void testSaveStoreInfo() {
         testEvicts(ds, caching::save);
         testEvicts(cs, caching::save);
@@ -273,6 +273,7 @@ class CachingCatalogFacadeTest {
     }
 
     @Test
+    @SuppressWarnings("removal")
     void testSaveResourceInfo() {
         testEvicts(ft, caching::save);
         testEvicts(c, caching::save);
@@ -323,6 +324,7 @@ class CachingCatalogFacadeTest {
     }
 
     @Test
+    @SuppressWarnings("removal")
     void testSaveLayerInfo() {
         testEvicts(layer, caching::save);
     }
@@ -367,6 +369,7 @@ class CachingCatalogFacadeTest {
         testEvicts(lg, caching::remove);
     }
 
+    @SuppressWarnings("removal")
     @Disabled("LayerGroups are not cached")
     @Test
     void testSaveLayerGroupInfo() {
@@ -396,6 +399,7 @@ class CachingCatalogFacadeTest {
     }
 
     @Test
+    @SuppressWarnings("removal")
     void testSaveNamespaceInfo() {
         testEvicts(ns, caching::save);
     }
@@ -459,6 +463,7 @@ class CachingCatalogFacadeTest {
     }
 
     @Test
+    @SuppressWarnings("removal")
     void testSaveWorkspaceInfo() {
         testEvicts(ws, caching::save);
     }
@@ -508,6 +513,7 @@ class CachingCatalogFacadeTest {
     }
 
     @Test
+    @SuppressWarnings("removal")
     void testSaveStyleInfo() {
         testEvicts(style, caching::save);
     }

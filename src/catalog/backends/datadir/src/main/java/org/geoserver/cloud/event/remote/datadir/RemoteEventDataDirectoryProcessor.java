@@ -47,7 +47,6 @@ public class RemoteEventDataDirectoryProcessor {
     private final @NonNull RepositoryGeoServerFacade configFacade;
     private final @NonNull ExtendedCatalogFacade catalogFacade;
 
-    @SuppressWarnings({"rawtypes"})
     @EventListener(classes = {UpdateSequenceEvent.class})
     public void onUpdateSequenceEvent(UpdateSequenceEvent updateSequenceEvent) {
         if (updateSequenceEvent.isRemote()) {
