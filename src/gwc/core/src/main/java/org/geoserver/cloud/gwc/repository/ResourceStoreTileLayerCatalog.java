@@ -290,8 +290,11 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
                 .onClose(() -> closeSilently(directoryStream))
                 .map(Path::getFileName)
                 .map(Path::toString)
-                .peek(name -> log.trace("found potential tile layer file {}", name))
-                .map(baseDir::get);
+                .map(
+                        name -> {
+                            log.trace("found potential tile layer file {}", name);
+                            return baseDir.get(name);
+                        });
     }
 
     private void closeSilently(DirectoryStream<Path> directoryStream) {

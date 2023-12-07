@@ -29,11 +29,11 @@ import javax.naming.spi.InitialContextFactoryBuilder;
  */
 public class SimpleNamingContextBuilder implements InitialContextFactoryBuilder {
 
-    private final SimpleNamingContextFactory FACTORY = new SimpleNamingContextFactory();
+    private final SimpleNamingContextFactory factory = new SimpleNamingContextFactory();
 
     @Override
     public InitialContextFactory createInitialContextFactory(
             @Nullable Hashtable<?, ?> environment) {
-        return FACTORY;
+        return factory;
     }
 }

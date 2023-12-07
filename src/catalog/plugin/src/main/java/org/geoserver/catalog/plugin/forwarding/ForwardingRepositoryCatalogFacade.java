@@ -33,96 +33,96 @@ public class ForwardingRepositoryCatalogFacade extends ForwardingExtendedCatalog
 
     @Override
     public void setNamespaceRepository(NamespaceRepository namespaces) {
-        facade().setNamespaceRepository(namespaces);
+        asExtendedFacade().setNamespaceRepository(namespaces);
     }
 
     @Override
     public void setWorkspaceRepository(WorkspaceRepository workspaces) {
-        facade().setWorkspaceRepository(workspaces);
+        asExtendedFacade().setWorkspaceRepository(workspaces);
     }
 
     @Override
     public void setStoreRepository(StoreRepository stores) {
-        facade().setStoreRepository(stores);
+        asExtendedFacade().setStoreRepository(stores);
     }
 
     @Override
     public void setResourceRepository(ResourceRepository resources) {
-        facade().setResourceRepository(resources);
+        asExtendedFacade().setResourceRepository(resources);
     }
 
     @Override
     public void setLayerRepository(LayerRepository layers) {
-        facade().setLayerRepository(layers);
+        asExtendedFacade().setLayerRepository(layers);
     }
 
     @Override
     public void setLayerGroupRepository(LayerGroupRepository layerGroups) {
-        facade().setLayerGroupRepository(layerGroups);
+        asExtendedFacade().setLayerGroupRepository(layerGroups);
     }
 
     @Override
     public void setStyleRepository(StyleRepository styles) {
-        facade().setStyleRepository(styles);
+        asExtendedFacade().setStyleRepository(styles);
     }
 
     @Override
     public void setMapRepository(MapRepository maps) {
-        facade().setMapRepository(maps);
+        asExtendedFacade().setMapRepository(maps);
     }
 
     @Override
     public NamespaceRepository getNamespaceRepository() {
-        return facade().getNamespaceRepository();
+        return asExtendedFacade().getNamespaceRepository();
     }
 
     @Override
     public WorkspaceRepository getWorkspaceRepository() {
-        return facade().getWorkspaceRepository();
+        return asExtendedFacade().getWorkspaceRepository();
     }
 
     @Override
     public StoreRepository getStoreRepository() {
-        return facade().getStoreRepository();
+        return asExtendedFacade().getStoreRepository();
     }
 
     @Override
     public ResourceRepository getResourceRepository() {
-        return facade().getResourceRepository();
+        return asExtendedFacade().getResourceRepository();
     }
 
     @Override
     public LayerRepository getLayerRepository() {
-        return facade().getLayerRepository();
+        return asExtendedFacade().getLayerRepository();
     }
 
     @Override
     public LayerGroupRepository getLayerGroupRepository() {
-        return facade().getLayerGroupRepository();
+        return asExtendedFacade().getLayerGroupRepository();
     }
 
     @Override
     public StyleRepository getStyleRepository() {
-        return facade().getStyleRepository();
+        return asExtendedFacade().getStyleRepository();
     }
 
     @Override
     public MapRepository getMapRepository() {
-        return facade().getMapRepository();
+        return asExtendedFacade().getMapRepository();
     }
 
     @Override
-    protected RepositoryCatalogFacade facade() {
+    protected RepositoryCatalogFacade asExtendedFacade() {
         return (RepositoryCatalogFacade) facade;
     }
 
     @Override
     public <T extends CatalogInfo, R extends CatalogInfoRepository<T>> R repository(Class<T> of) {
-        return facade().repository(of);
+        return asExtendedFacade().repository(of);
     }
 
     @Override
     public <T extends CatalogInfo, R extends CatalogInfoRepository<T>> R repositoryFor(T info) {
-        return facade().repositoryFor(info);
+        return asExtendedFacade().repositoryFor(info);
     }
 }

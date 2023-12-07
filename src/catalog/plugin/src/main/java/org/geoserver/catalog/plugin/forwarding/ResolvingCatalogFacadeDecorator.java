@@ -409,41 +409,81 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
         return resolveOutbound(super.getStylesByWorkspace(workspace));
     }
 
+    /**
+     * @deprecated as per {@link ExtendedCatalogFacade#save(WorkspaceInfo)} use {@link
+     *     #update(CatalogInfo, Patch)} instead
+     */
+    @Deprecated(since = "1.0", forRemoval = true)
     @Override
     public void save(WorkspaceInfo info) {
         super.save(resolveInbound(info));
     }
 
+    /**
+     * @deprecated as per {@link ExtendedCatalogFacade#save(NamespaceInfo)} use {@link
+     *     #update(CatalogInfo, Patch)} instead
+     */
+    @Deprecated(since = "1.0", forRemoval = true)
     @Override
     public void save(NamespaceInfo info) {
         super.save(resolveInbound(info));
     }
 
+    /**
+     * @deprecated as per {@link ExtendedCatalogFacade#save(StoreInfo)} use {@link
+     *     #update(CatalogInfo, Patch)} instead
+     */
+    @Deprecated(since = "1.0", forRemoval = true)
     @Override
     public void save(StoreInfo info) {
         super.save(resolveInbound(info));
     }
 
+    /**
+     * @deprecated as per {@link ExtendedCatalogFacade#save(ResourceInfo)} use {@link
+     *     #update(CatalogInfo, Patch)} instead
+     */
+    @Deprecated(since = "1.0", forRemoval = true)
     @Override
     public void save(ResourceInfo info) {
         super.save(resolveInbound(info));
     }
 
+    /**
+     * @deprecated as per {@link ExtendedCatalogFacade#save(LayerInfo)} use {@link
+     *     #update(CatalogInfo, Patch)} instead
+     */
+    @Deprecated(since = "1.0", forRemoval = true)
     @Override
     public void save(LayerInfo info) {
         super.save(resolveInbound(info));
     }
 
+    /**
+     * @deprecated as per {@link ExtendedCatalogFacade#save(LayerGroupInfo)} use {@link
+     *     #update(CatalogInfo, Patch)} instead
+     */
+    @Deprecated(since = "1.0", forRemoval = true)
     @Override
     public void save(LayerGroupInfo info) {
         super.save(resolveInbound(info));
     }
 
+    /**
+     * @deprecated as per {@link ExtendedCatalogFacade#save(StyleInfo)} use {@link
+     *     #update(CatalogInfo, Patch)} instead
+     */
+    @Deprecated(since = "1.0", forRemoval = true)
     @Override
     public void save(StyleInfo info) {
         super.save(resolveInbound(info));
     }
 
+    /**
+     * @deprecated as per {@link ExtendedCatalogFacade#save(MapInfo)} use {@link
+     *     #update(CatalogInfo, Patch)} instead
+     */
+    @Deprecated(since = "1.0", forRemoval = true)
     @Override
     public void save(MapInfo info) {
         super.save(resolveInbound(info));
@@ -489,12 +529,16 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
         super.remove(resolveInbound(info));
     }
 
+    /**
+     * @deprecated as per {@link ExtendedCatalogFacade#list()} use {@link #query(Query)} instead
+     */
+    @Deprecated(since = "1.0", forRemoval = true)
     @Override
     public <T extends CatalogInfo> CloseableIterator<T> list(
             Class<T> of, Filter filter, Integer offset, Integer count, SortBy... sortOrder) {
 
-        @SuppressWarnings("deprecation")
-        final CloseableIterator<T> orig = facade().list(of, filter, offset, count, sortOrder);
+        final CloseableIterator<T> orig =
+                asExtendedFacade().list(of, filter, offset, count, sortOrder);
         return CloseableIteratorAdapter.transform(orig, this::resolveOutbound);
     }
 

@@ -28,7 +28,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public @Data class GoServerWebUIConfigurationProperties {
 
     static final String PREFIX = "geoserver.web-ui.gwc";
-    public static final String ENABLED = PREFIX + ".enabled";
+    public static final String GWC_WEBUI_ENABLED_PROPERTY = PREFIX + ".enabled";
     public static final String CAPABILITIES_TMS = PREFIX + ".capabilities.tms";
     public static final String CAPABILITIES_WMTS = PREFIX + ".capabilities.wmts";
     public static final String CAPABILITIES_WMSC = PREFIX + ".capabilities.wmsc";

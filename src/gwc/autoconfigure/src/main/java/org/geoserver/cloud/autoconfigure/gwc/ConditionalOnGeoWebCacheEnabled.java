@@ -20,7 +20,7 @@ import java.lang.annotation.Target;
 @Documented
 @ConditionalOnClass(GWC.class)
 @ConditionalOnProperty(
-        name = GeoWebCacheConfigurationProperties.ENABLED,
+        name = GeoWebCacheConfigurationProperties.GWC_ENABLED_PROPERTY,
         havingValue = "true",
         matchIfMissing = true)
 public @interface ConditionalOnGeoWebCacheEnabled {}

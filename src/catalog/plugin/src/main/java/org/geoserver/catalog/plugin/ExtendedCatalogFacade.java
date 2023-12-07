@@ -50,8 +50,9 @@ public interface ExtendedCatalogFacade extends CatalogFacade {
     /**
      * @deprecated use {@link #query(Query)} instead
      */
-    @Deprecated
-    default @Override <T extends CatalogInfo> CloseableIterator<T> list(
+    @Deprecated(since = "1.0", forRemoval = true)
+    @Override
+    default <T extends CatalogInfo> CloseableIterator<T> list(
             final Class<T> of,
             final Filter filter,
             @Nullable Integer offset,
@@ -72,7 +73,9 @@ public interface ExtendedCatalogFacade extends CatalogFacade {
      * @deprecated Throws {@link UnsupportedOperationException}, use {@link #update(CatalogInfo,
      *     Patch)}
      */
-    default @Deprecated @Override void save(LayerGroupInfo layerGroup) {
+    @Deprecated(since = "1.0", forRemoval = true)
+    @Override
+    default void save(LayerGroupInfo layerGroup) {
         throw new UnsupportedOperationException("Expected use of update(CatalogInfo, Patch)");
     }
 
@@ -80,7 +83,9 @@ public interface ExtendedCatalogFacade extends CatalogFacade {
      * @deprecated Throws {@link UnsupportedOperationException}, use {@link #update(CatalogInfo,
      *     Patch)}
      */
-    default @Deprecated @Override void save(LayerInfo layer) {
+    @Deprecated(since = "1.0", forRemoval = true)
+    @Override
+    default void save(LayerInfo layer) {
         throw new UnsupportedOperationException("Expected use of update(CatalogInfo, Patch)");
     }
 
@@ -88,7 +93,9 @@ public interface ExtendedCatalogFacade extends CatalogFacade {
      * @deprecated Throws {@link UnsupportedOperationException}, use {@link #update(CatalogInfo,
      *     Patch)}
      */
-    default @Deprecated @Override void save(MapInfo map) {
+    @Deprecated(since = "1.0", forRemoval = true)
+    @Override
+    default void save(MapInfo map) {
         throw new UnsupportedOperationException("Expected use of update(CatalogInfo, Patch)");
     }
 
@@ -96,7 +103,9 @@ public interface ExtendedCatalogFacade extends CatalogFacade {
      * @deprecated Throws {@link UnsupportedOperationException}, use {@link #update(CatalogInfo,
      *     Patch)}
      */
-    default @Deprecated @Override void save(NamespaceInfo namespace) {
+    @Deprecated(since = "1.0", forRemoval = true)
+    @Override
+    default void save(NamespaceInfo namespace) {
         throw new UnsupportedOperationException("Expected use of update(CatalogInfo, Patch)");
     }
 
@@ -104,7 +113,9 @@ public interface ExtendedCatalogFacade extends CatalogFacade {
      * @deprecated Throws {@link UnsupportedOperationException}, use {@link #update(CatalogInfo,
      *     Patch)}
      */
-    default @Deprecated @Override void save(ResourceInfo resource) {
+    @Deprecated(since = "1.0", forRemoval = true)
+    @Override
+    default void save(ResourceInfo resource) {
         throw new UnsupportedOperationException("Expected use of update(CatalogInfo, Patch)");
     }
 
@@ -112,7 +123,9 @@ public interface ExtendedCatalogFacade extends CatalogFacade {
      * @deprecated Throws {@link UnsupportedOperationException}, use {@link #update(CatalogInfo,
      *     Patch)}
      */
-    default @Deprecated @Override void save(StoreInfo store) {
+    @Deprecated(since = "1.0", forRemoval = true)
+    @Override
+    default void save(StoreInfo store) {
         throw new UnsupportedOperationException("Expected use of update(CatalogInfo, Patch)");
     }
 
@@ -120,7 +133,9 @@ public interface ExtendedCatalogFacade extends CatalogFacade {
      * @deprecated Throws {@link UnsupportedOperationException}, use {@link #update(CatalogInfo,
      *     Patch)}
      */
-    default @Deprecated @Override void save(WorkspaceInfo workspace) {
+    @Deprecated(since = "1.0", forRemoval = true)
+    @Override
+    default void save(WorkspaceInfo workspace) {
         throw new UnsupportedOperationException("Expected use of update(CatalogInfo, Patch)");
     }
 
@@ -128,39 +143,49 @@ public interface ExtendedCatalogFacade extends CatalogFacade {
      * @deprecated Throws {@link UnsupportedOperationException}, use {@link #update(CatalogInfo,
      *     Patch)}
      */
-    default @Deprecated @Override void save(StyleInfo style) {
+    @Deprecated(since = "1.0", forRemoval = true)
+    @Override
+    default void save(StyleInfo style) {
         throw new UnsupportedOperationException("Expected use of update(CatalogInfo, Patch)");
     }
 
-    default @Override WorkspaceInfo detach(WorkspaceInfo info) {
+    @Override
+    default WorkspaceInfo detach(WorkspaceInfo info) {
         return info;
     }
 
-    default @Override NamespaceInfo detach(NamespaceInfo info) {
+    @Override
+    default NamespaceInfo detach(NamespaceInfo info) {
         return info;
     }
 
-    default @Override <T extends StoreInfo> T detach(T store) {
+    @Override
+    default <T extends StoreInfo> T detach(T store) {
         return store;
     }
 
-    default @Override <T extends ResourceInfo> T detach(T resource) {
+    @Override
+    default <T extends ResourceInfo> T detach(T resource) {
         return resource;
     }
 
-    default @Override LayerInfo detach(LayerInfo info) {
+    @Override
+    default LayerInfo detach(LayerInfo info) {
         return info;
     }
 
-    default @Override LayerGroupInfo detach(LayerGroupInfo info) {
+    @Override
+    default LayerGroupInfo detach(LayerGroupInfo info) {
         return info;
     }
 
-    default @Override StyleInfo detach(StyleInfo info) {
+    @Override
+    default StyleInfo detach(StyleInfo info) {
         return info;
     }
 
-    default @Override MapInfo detach(MapInfo info) {
+    @Override
+    default MapInfo detach(MapInfo info) {
         return info;
     }
 }

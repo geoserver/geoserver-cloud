@@ -26,7 +26,7 @@ public class DefaultNamespaceSet extends CatalogInfoModified {
     protected DefaultNamespaceSet() {}
 
     DefaultNamespaceSet(long updateSequence, String newNamespaceId, @NonNull Patch patch) {
-        super(updateSequence, InfoEvent.CATALOG_ID, ConfigInfoType.Catalog, patch);
+        super(updateSequence, InfoEvent.CATALOG_ID, ConfigInfoType.CATALOG, patch);
         this.newNamespaceId = newNamespaceId;
     }
 

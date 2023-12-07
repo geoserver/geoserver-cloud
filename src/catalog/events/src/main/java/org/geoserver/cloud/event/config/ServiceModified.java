@@ -36,7 +36,7 @@ public class ServiceModified extends ConfigInfoModified<LoggingInfo> implements 
             @NonNull Patch patch,
             String workspaceId) {
 
-        super(updateSequence, objectId, ConfigInfoType.ServiceInfo, patch);
+        super(updateSequence, objectId, ConfigInfoType.SERVICE, patch);
         this.workspaceId = workspaceId;
     }
 

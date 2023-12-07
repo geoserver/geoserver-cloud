@@ -50,7 +50,7 @@ public abstract class PgsqlCatalogInfoRepository<T extends CatalogInfo>
 
     protected static final ObjectMapper infoMapper = ObjectMapperUtil.newObjectMapper();
 
-    private Set<String> _sortableProperties;
+    private Set<String> sortableProperties;
 
     /**
      * @param template
@@ -66,10 +66,10 @@ public abstract class PgsqlCatalogInfoRepository<T extends CatalogInfo>
     protected abstract String getQueryTable();
 
     protected final Set<String> sortableProperties() {
-        if (null == _sortableProperties) {
-            _sortableProperties = resolveSortableProperties();
+        if (null == sortableProperties) {
+            sortableProperties = resolveSortableProperties();
         }
-        return _sortableProperties;
+        return sortableProperties;
     }
 
     private Set<String> resolveSortableProperties() {
@@ -147,8 +147,7 @@ public abstract class PgsqlCatalogInfoRepository<T extends CatalogInfo>
     public <U extends T> Stream<U> findAll(Query<U> query) {
         Filter filter = query.getFilter();
 
-        Set<String> sortableProperties = sortableProperties();
-        final PgsqlQueryBuilder qb = new PgsqlQueryBuilder(filter, sortableProperties).build();
+        final PgsqlQueryBuilder qb = new PgsqlQueryBuilder(filter, sortableProperties()).build();
         final Filter supportedFilter = qb.getSupportedFilter();
         final Filter unsupportedFilter = qb.getUnsupportedFilter();
         final String whereClause = qb.getWhereClause();

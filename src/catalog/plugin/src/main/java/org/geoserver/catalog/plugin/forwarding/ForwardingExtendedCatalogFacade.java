@@ -22,15 +22,15 @@ public class ForwardingExtendedCatalogFacade extends ForwardingCatalogFacade
 
     @Override
     public <I extends CatalogInfo> I update(final I info, final Patch patch) {
-        return facade().update(info, patch);
+        return asExtendedFacade().update(info, patch);
     }
 
     @Override
     public <T extends CatalogInfo> Stream<T> query(Query<T> query) {
-        return facade().query(query);
+        return asExtendedFacade().query(query);
     }
 
-    protected ExtendedCatalogFacade facade() {
+    protected ExtendedCatalogFacade asExtendedFacade() {
         return (ExtendedCatalogFacade) super.facade;
     }
 }

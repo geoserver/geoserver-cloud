@@ -68,40 +68,40 @@ public class RemoteEventDataDirectoryProcessor {
         final ConfigInfoType type = event.getObjectType();
         final String objectId = event.getObjectId();
         switch (type) {
-            case NamespaceInfo:
+            case NAMESPACE:
                 remove(objectId, catalogFacade::getNamespace, catalogFacade::remove);
                 break;
-            case WorkspaceInfo:
+            case WORKSPACE:
                 remove(objectId, catalogFacade::getWorkspace, catalogFacade::remove);
                 break;
-            case CoverageInfo, FeatureTypeInfo, WmsLayerInfo, WmtsLayerInfo:
+            case COVERAGE, FEATURETYPE, WMSLAYER, WMTSLAYER:
                 remove(
                         objectId,
                         id -> catalogFacade.getResource(id, ResourceInfo.class),
                         catalogFacade::remove);
                 break;
-            case CoverageStoreInfo, DataStoreInfo, WmsStoreInfo, WmtsStoreInfo:
+            case COVERAGESTORE, DATASTORE, WMSSTORE, WMTSSTORE:
                 remove(
                         objectId,
                         id -> catalogFacade.getStore(id, StoreInfo.class),
                         catalogFacade::remove);
                 break;
-            case LayerGroupInfo:
+            case LAYERGROUP:
                 remove(objectId, catalogFacade::getLayerGroup, catalogFacade::remove);
                 break;
-            case LayerInfo:
+            case LAYER:
                 remove(objectId, catalogFacade::getLayer, catalogFacade::remove);
                 break;
-            case StyleInfo:
+            case STYLE:
                 remove(objectId, catalogFacade::getStyle, catalogFacade::remove);
                 break;
-            case ServiceInfo:
+            case SERVICE:
                 remove(
                         objectId,
                         id -> configFacade.getService(id, ServiceInfo.class),
                         configFacade::remove);
                 break;
-            case SettingsInfo:
+            case SETTINGS:
                 remove(objectId, configFacade::getSettings, configFacade::remove);
                 break;
             default:
@@ -124,40 +124,40 @@ public class RemoteEventDataDirectoryProcessor {
             return;
         }
         switch (type) {
-            case NamespaceInfo:
+            case NAMESPACE:
                 catalogFacade.add((NamespaceInfo) object);
                 break;
-            case WorkspaceInfo:
+            case WORKSPACE:
                 catalogFacade.add((WorkspaceInfo) object);
                 break;
-            case CoverageInfo:
-            case FeatureTypeInfo:
-            case WmsLayerInfo:
-            case WmtsLayerInfo:
+            case COVERAGE:
+            case FEATURETYPE:
+            case WMSLAYER:
+            case WMTSLAYER:
                 catalogFacade.add((ResourceInfo) object);
                 break;
-            case CoverageStoreInfo:
-            case DataStoreInfo:
-            case WmsStoreInfo:
-            case WmtsStoreInfo:
+            case COVERAGESTORE:
+            case DATASTORE:
+            case WMSSTORE:
+            case WMTSSTORE:
                 catalogFacade.add((StoreInfo) object);
                 break;
-            case LayerGroupInfo:
+            case LAYERGROUP:
                 catalogFacade.add((LayerGroupInfo) object);
                 break;
-            case LayerInfo:
+            case LAYER:
                 catalogFacade.add((LayerInfo) object);
                 break;
-            case StyleInfo:
+            case STYLE:
                 catalogFacade.add((StyleInfo) object);
                 break;
-            case ServiceInfo:
+            case SERVICE:
                 configFacade.add((ServiceInfo) object);
                 break;
-            case SettingsInfo:
+            case SETTINGS:
                 configFacade.add((SettingsInfo) object);
                 break;
-            case LoggingInfo:
+            case LOGGING:
                 // ignore
                 break;
             default:
@@ -203,7 +203,7 @@ public class RemoteEventDataDirectoryProcessor {
         }
         final String objectId = event.getObjectId();
         final ConfigInfoType type = event.getObjectType();
-        if (type == ConfigInfoType.Catalog) {
+        if (type == ConfigInfoType.CATALOG) {
             log.trace(
                     "remote catalog modify events handled by RemoteDefaultWorkspace/Namespace/Store event handlers");
             return;
@@ -216,45 +216,45 @@ public class RemoteEventDataDirectoryProcessor {
         }
         Info info = null;
         switch (type) {
-            case NamespaceInfo:
+            case NAMESPACE:
                 info = catalogFacade.getNamespace(objectId);
                 break;
-            case WorkspaceInfo:
+            case WORKSPACE:
                 info = catalogFacade.getWorkspace(objectId);
                 break;
-            case CoverageInfo:
-            case FeatureTypeInfo:
-            case WmsLayerInfo:
-            case WmtsLayerInfo:
+            case COVERAGE:
+            case FEATURETYPE:
+            case WMSLAYER:
+            case WMTSLAYER:
                 info = catalogFacade.getResource(objectId, ResourceInfo.class);
                 break;
-            case CoverageStoreInfo:
-            case DataStoreInfo:
-            case WmsStoreInfo:
-            case WmtsStoreInfo:
+            case COVERAGESTORE:
+            case DATASTORE:
+            case WMSSTORE:
+            case WMTSSTORE:
                 info = catalogFacade.getStore(objectId, StoreInfo.class);
                 break;
-            case LayerGroupInfo:
+            case LAYERGROUP:
                 info = catalogFacade.getLayerGroup(objectId);
                 break;
-            case LayerInfo:
+            case LAYER:
                 info = catalogFacade.getLayer(objectId);
                 break;
-            case StyleInfo:
+            case STYLE:
                 info = catalogFacade.getStyle(objectId);
                 break;
-            case GeoServerInfo:
+            case GEOSERVER:
                 info = ModificationProxy.unwrap(configFacade.getGlobal());
                 break;
-            case ServiceInfo:
+            case SERVICE:
                 info =
                         ModificationProxy.unwrap(
                                 configFacade.getService(objectId, ServiceInfo.class));
                 break;
-            case SettingsInfo:
+            case SETTINGS:
                 info = ModificationProxy.unwrap(configFacade.getSettings(objectId));
                 break;
-            case LoggingInfo:
+            case LOGGING:
                 info = ModificationProxy.unwrap(configFacade.getLogging());
                 break;
             default:

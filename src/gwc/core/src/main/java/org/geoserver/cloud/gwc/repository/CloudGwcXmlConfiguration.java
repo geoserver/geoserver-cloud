@@ -8,8 +8,6 @@ import static org.geoserver.cloud.gwc.event.GeoWebCacheEvent.Type.CREATED;
 import static org.geoserver.cloud.gwc.event.GeoWebCacheEvent.Type.DELETED;
 import static org.geoserver.cloud.gwc.event.GeoWebCacheEvent.Type.MODIFIED;
 
-import com.google.common.base.Supplier;
-
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
@@ -39,6 +37,7 @@ import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * @implNote there is a {@link BlobStoreConfigurationListener} abstraction, but no homologous one to

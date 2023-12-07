@@ -39,20 +39,20 @@ public class SimpleNamingContext implements Context {
 
     private final ConcurrentMap<String, Object> bindings;
 
-    private final Hashtable<String, Object> environment = new Hashtable<>();
+    private final ConcurrentMap<String, Object> environment = new ConcurrentHashMap<>();
 
     public SimpleNamingContext() {
-        this(ROOT_NAME, new Hashtable<>());
+        this(ROOT_NAME, new ConcurrentHashMap<>());
     }
 
-    SimpleNamingContext(@NonNull String root, @NonNull Hashtable<String, Object> env) {
+    SimpleNamingContext(@NonNull String root, @NonNull ConcurrentMap<String, Object> env) {
         this(root, new ConcurrentHashMap<>(), env);
     }
 
     SimpleNamingContext(
             @NonNull String root,
             @NonNull ConcurrentMap<String, Object> boundObjects,
-            @NonNull Hashtable<String, Object> env) {
+            @NonNull ConcurrentMap<String, Object> env) {
 
         this.contextRoot = root;
         this.bindings = boundObjects;
@@ -145,7 +145,7 @@ public class SimpleNamingContext implements Context {
 
     @Override
     public Hashtable<String, Object> getEnvironment() {
-        return this.environment;
+        return new Hashtable<>(this.environment);
     }
 
     @Override

@@ -12,12 +12,12 @@ import org.springframework.context.annotation.Configuration;
 @Configuration(proxyBeanMethods = false)
 public class AzureBlobstoreGsWebUIConfiguration {
 
-    @Bean(name = "AzureBlobStoreType")
+    @Bean
     AzureBlobStoreType azureBlobStoreType() {
         return new AzureBlobStoreType();
     }
 
-    @Bean(name = "GWC-AzureExtension")
+    @Bean
     ModuleStatusImpl gwcAzureExtension() {
         ModuleStatusImpl module = new ModuleStatusImpl();
         module.setModule("gs-gwc-azure");
