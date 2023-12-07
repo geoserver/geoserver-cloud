@@ -16,7 +16,7 @@ import org.geoserver.config.SettingsInfo;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("SettingsInfoRemoved")
 @SuppressWarnings("serial")
-public class SettingsRemoved extends ConfigInfoRemoved<SettingsInfo> {
+public class SettingsRemoved extends ConfigInfoRemoved {
 
     private @Getter String workspaceId;
 

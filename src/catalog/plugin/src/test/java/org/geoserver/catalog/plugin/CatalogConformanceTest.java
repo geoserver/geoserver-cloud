@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
@@ -290,33 +289,29 @@ public abstract class CatalogConformanceTest {
 
         NamespaceInfo ns2 = catalog.getFactory().createNamespace();
 
-        try {
-            catalog.add(ns2);
-            fail("adding without a prefix should throw exception");
-        } catch (Exception e) {
-        }
+        assertThrows(
+                NullPointerException.class,
+                () -> catalog.add(ns2),
+                "adding without a prefix should throw exception");
 
         ns2.setPrefix("ns2Prefix");
-        try {
-            catalog.add(ns2);
-            fail("adding without a uri should throw exception");
-        } catch (Exception e) {
-        }
+        assertThrows(
+                NullPointerException.class,
+                () -> catalog.add(ns2),
+                "adding without a uri should throw exception");
 
         ns2.setURI("bad uri");
-        try {
-            catalog.add(ns2);
-            fail("adding an invalid uri should throw exception");
-        } catch (Exception e) {
-        }
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> catalog.add(ns2),
+                "adding an invalid uri should throw exception");
 
         ns2.setURI("ns2URI");
-
-        try {
-            catalog.getNamespaces().add(ns2);
-            fail("adding directly should throw an exception");
-        } catch (Exception e) {
-        }
+        List<NamespaceInfo> namespaces = catalog.getNamespaces();
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> namespaces.add(ns2),
+                "adding directly should throw an exception");
 
         catalog.add(ns2);
     }
@@ -370,11 +365,11 @@ public abstract class CatalogConformanceTest {
         catalog.add(data.namespaceA);
         assertEquals(1, catalog.getNamespaces().size());
 
-        try {
-            assertFalse(catalog.getNamespaces().remove(data.namespaceA));
-            fail("removing directly should throw an exception");
-        } catch (Exception e) {
-        }
+        List<NamespaceInfo> namespaces = catalog.getNamespaces();
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> namespaces.remove(data.namespaceA),
+                "removing directly should throw an exception");
 
         catalog.remove(data.namespaceA);
         assertTrue(catalog.getNamespaces().isEmpty());
@@ -422,12 +417,13 @@ public abstract class CatalogConformanceTest {
 
     @Test
     void testSetDefaultNamespaceInvalid() {
-        try {
-            catalog.setDefaultNamespace(data.namespaceA);
-            fail("Default namespace must exist in catalog");
-        } catch (IllegalArgumentException e) {
-            assertEquals("No such namespace: 'wsName'", e.getMessage());
-        }
+        IllegalArgumentException iae =
+                assertThrows(
+                        IllegalArgumentException.class,
+                        () -> catalog.setDefaultNamespace(data.namespaceA),
+                        "Default namespace must exist in catalog");
+
+        assertEquals("No such namespace: 'wsName'", iae.getMessage());
     }
 
     @Test
@@ -436,20 +432,19 @@ public abstract class CatalogConformanceTest {
 
         NamespaceInfo ns2 = catalog.getNamespaceByPrefix(data.namespaceA.getPrefix());
         ns2.setPrefix(null);
-        ns2.setURI(null);
+        ns2.setURI("ns2URI");
 
-        try {
-            catalog.save(ns2);
-            fail("setting prefix to null should throw exception");
-        } catch (Exception e) {
-        }
+        assertThrows(
+                NullPointerException.class,
+                () -> catalog.save(ns2),
+                "setting prefix to null should throw exception");
 
         ns2.setPrefix("ns2Prefix");
-        try {
-            catalog.save(ns2);
-            fail("setting uri to null should throw exception");
-        } catch (Exception e) {
-        }
+        ns2.setURI(null);
+        assertThrows(
+                NullPointerException.class,
+                () -> catalog.save(ns2),
+                "setting uri to null should throw exception");
 
         ns2.setURI("ns2URI");
 
@@ -515,17 +510,16 @@ public abstract class CatalogConformanceTest {
 
         WorkspaceInfo ws2 = catalog.getFactory().createWorkspace();
 
-        try {
-            catalog.getWorkspaces().add(ws2);
-            fail("adding directly should throw an exception");
-        } catch (Exception e) {
-        }
+        List<WorkspaceInfo> workspaces = catalog.getWorkspaces();
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> workspaces.add(ws2),
+                "adding directly should throw an exception");
 
-        try {
-            catalog.add(ws2);
-            fail("addign without a name should throw an exception");
-        } catch (Exception e) {
-        }
+        assertThrows(
+                NullPointerException.class,
+                () -> catalog.add(ws2),
+                "adding without a name should throw an exception");
 
         ws2.setName("ws2");
         catalog.add(ws2);
@@ -536,11 +530,11 @@ public abstract class CatalogConformanceTest {
         catalog.add(data.workspaceA);
         assertEquals(1, catalog.getWorkspaces().size());
 
-        try {
-            assertFalse(catalog.getWorkspaces().remove(data.workspaceA));
-            fail("removing directly should throw an exception");
-        } catch (Exception e) {
-        }
+        List<WorkspaceInfo> workspaces = catalog.getWorkspaces();
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> workspaces.remove(data.workspaceA),
+                "removing directly should throw an exception");
 
         catalog.remove(data.workspaceA);
         assertTrue(catalog.getWorkspaces().isEmpty());
@@ -672,12 +666,12 @@ public abstract class CatalogConformanceTest {
 
     @Test
     void testSetDefaultWorkspaceInvalid() {
-        try {
-            catalog.setDefaultWorkspace(data.workspaceA);
-            fail("Default workspace must exist in catalog");
-        } catch (IllegalArgumentException e) {
-            assertEquals("No such workspace: 'wsName'", e.getMessage());
-        }
+        IllegalArgumentException iae =
+                assertThrows(
+                        IllegalArgumentException.class,
+                        () -> catalog.setDefaultWorkspace(data.workspaceA),
+                        "Default workspace must exist in catalog");
+        assertEquals("No such workspace: 'wsName'", iae.getMessage());
     }
 
     @Test
@@ -686,11 +680,10 @@ public abstract class CatalogConformanceTest {
 
         WorkspaceInfo ws2 = catalog.getWorkspaceByName(data.workspaceA.getName());
         ws2.setName(null);
-        try {
-            catalog.save(ws2);
-            fail("setting name to null should throw exception");
-        } catch (Exception e) {
-        }
+        assertThrows(
+                NullPointerException.class,
+                () -> catalog.save(ws2),
+                "setting name to null should throw exception");
 
         ws2.setName("ws2");
 
@@ -744,11 +737,10 @@ public abstract class CatalogConformanceTest {
         assertTrue(catalog.getDataStores().isEmpty());
 
         data.dataStoreA.setWorkspace(null);
-        try {
-            catalog.add(data.dataStoreA);
-            fail("adding with no workspace should throw exception");
-        } catch (Exception e) {
-        }
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> catalog.add(data.dataStoreA),
+                "adding with no workspace should throw exception");
 
         data.dataStoreA.setWorkspace(data.workspaceA);
         catalog.add(data.workspaceA);
@@ -761,18 +753,17 @@ public abstract class CatalogConformanceTest {
         assertSame(catalog, retrieved.getCatalog());
 
         DataStoreInfo ds2 = catalog.getFactory().createDataStore();
-        try {
-            catalog.add(ds2);
-            fail("adding without a name should throw exception");
-        } catch (Exception e) {
-        }
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> catalog.add(ds2),
+                "adding without a name should throw exception");
 
         ds2.setName("ds2Name");
-        try {
-            catalog.getDataStores().add(ds2);
-            fail("adding directly should throw an exception");
-        } catch (Exception e) {
-        }
+        List<DataStoreInfo> dataStores = catalog.getDataStores();
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> dataStores.add(ds2),
+                "adding directly should throw an exception");
 
         ds2.setWorkspace(data.workspaceA);
 
@@ -797,11 +788,12 @@ public abstract class CatalogConformanceTest {
         addDataStore();
         assertEquals(1, catalog.getDataStores().size());
 
-        try {
-            assertFalse(catalog.getDataStores().remove(data.dataStoreA));
-            fail("removing directly should throw an exception");
-        } catch (Exception e) {
-        }
+        List<DataStoreInfo> dataStores = catalog.getDataStores();
+        assertFalse(catalog.getDataStores().isEmpty());
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> dataStores.remove(data.dataStoreA),
+                "removing directly should throw an exception");
 
         catalog.remove(data.dataStoreA);
         assertTrue(catalog.getDataStores().isEmpty());
@@ -1135,19 +1127,17 @@ public abstract class CatalogConformanceTest {
         assertEquals(1, catalog.getFeatureTypes().size());
 
         FeatureTypeInfo ft2 = catalog.getFactory().createFeatureType();
-        try {
-            catalog.add(ft2);
-            fail("adding with no name should throw exception");
-        } catch (Exception e) {
-        }
+        assertThrows(
+                NullPointerException.class,
+                () -> catalog.add(ft2),
+                "adding with no name should throw exception");
 
         ft2.setName("ft2Name");
 
-        try {
-            catalog.add(ft2);
-            fail("adding with no store should throw exception");
-        } catch (Exception e) {
-        }
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> catalog.add(ft2),
+                "adding with no store should throw exception");
 
         ft2.setStore(data.dataStoreA);
         ft2.getKeywords().add(new Keyword("keyword"));
@@ -1158,11 +1148,12 @@ public abstract class CatalogConformanceTest {
 
         FeatureTypeInfo ft3 = catalog.getFactory().createFeatureType();
         ft3.setName("ft3Name");
-        try {
-            catalog.getFeatureTypes().add(ft3);
-            fail("adding directly should throw an exception");
-        } catch (Exception e) {
-        }
+
+        List<FeatureTypeInfo> featureTypes = catalog.getFeatureTypes();
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> featureTypes.add(ft3),
+                "adding directly should throw an exception");
     }
 
     @Test
@@ -1175,18 +1166,16 @@ public abstract class CatalogConformanceTest {
         assertEquals(1, catalog.getCoverages().size());
 
         CoverageInfo cv2 = catalog.getFactory().createCoverage();
-        try {
-            catalog.add(cv2);
-            fail("adding with no name should throw exception");
-        } catch (Exception e) {
-        }
+        assertThrows(
+                NullPointerException.class,
+                () -> catalog.add(cv2),
+                "adding with no name should throw exception");
 
         cv2.setName("cv2Name");
-        try {
-            catalog.add(cv2);
-            fail("adding with no store should throw exception");
-        } catch (Exception e) {
-        }
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> catalog.add(cv2),
+                "adding with no store should throw exception");
 
         cv2.setStore(data.coverageStoreA);
         catalog.add(cv2);
@@ -1200,11 +1189,11 @@ public abstract class CatalogConformanceTest {
 
         CoverageInfo cv3 = catalog.getFactory().createCoverage();
         cv3.setName("cv3Name");
-        try {
-            catalog.getCoverages().add(cv3);
-            fail("adding directly should throw an exception");
-        } catch (Exception e) {
-        }
+        List<CoverageInfo> coverages = catalog.getCoverages();
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> coverages.add(cv3),
+                "adding directly should throw an exception");
     }
 
     @Test
@@ -1227,11 +1216,11 @@ public abstract class CatalogConformanceTest {
         addFeatureType();
         assertFalse(catalog.getFeatureTypes().isEmpty());
 
-        try {
-            catalog.getFeatureTypes().remove(data.featureTypeA);
-            fail("removing directly should cause exception");
-        } catch (Exception e) {
-        }
+        List<FeatureTypeInfo> featureTypes = catalog.getFeatureTypes();
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> featureTypes.remove(data.featureTypeA),
+                "removing directly should cause exception");
 
         catalog.remove(data.featureTypeA);
         assertTrue(catalog.getFeatureTypes().isEmpty());
@@ -1498,18 +1487,16 @@ public abstract class CatalogConformanceTest {
         assertEquals(1, catalog.getLayers().size());
 
         LayerInfo l2 = catalog.getFactory().createLayer();
-        try {
-            catalog.add(l2);
-            fail("adding with no name should throw exception");
-        } catch (Exception e) {
-        }
+        assertThrows(
+                NullPointerException.class,
+                () -> catalog.add(l2),
+                "adding with no name should throw exception");
 
         // l2.setName( "l2" );
-        try {
-            catalog.add(l2);
-            fail("adding with no resource should throw exception");
-        } catch (Exception e) {
-        }
+        assertThrows(
+                NullPointerException.class,
+                () -> catalog.add(l2),
+                "adding with no resource should throw exception");
 
         l2.setResource(data.featureTypeA);
         // try {
@@ -1520,13 +1507,13 @@ public abstract class CatalogConformanceTest {
         //
         l2.setDefaultStyle(data.style1);
 
-        try {
-            catalog.add(l2);
-            fail(
-                    "Adding a second layer for the same resource should throw exception, layer name is tied to resource name and would end up with two layers named the same or a broken catalog");
-        } catch (Exception e) {
-            assertTrue(e.getMessage().contains("already exists"));
-        }
+        IllegalArgumentException e =
+                assertThrows(
+                        IllegalArgumentException.class,
+                        () -> catalog.add(l2),
+                        "Adding a second layer for the same resource should throw exception, layer name is tied to resource name and would end up with two layers named the same or a broken catalog");
+
+        assertTrue(e.getMessage().contains("already exists"));
 
         assertEquals(1, catalog.getLayers().size());
     }
@@ -1739,11 +1726,10 @@ public abstract class CatalogConformanceTest {
         // catch( Exception e ) {}
         //
         // l2.setName( "changed" );
-        try {
-            catalog.save(l2);
-            fail("setting resource to null should throw exception");
-        } catch (Exception e) {
-        }
+        assertThrows(
+                NullPointerException.class,
+                () -> catalog.save(l2),
+                "setting resource to null should throw exception");
 
         l2.setResource(data.featureTypeA);
         catalog.save(l2);
@@ -1839,25 +1825,23 @@ public abstract class CatalogConformanceTest {
         assertEquals(1, catalog.getStyles().size());
 
         StyleInfo s2 = catalog.getFactory().createStyle();
-        try {
-            catalog.add(s2);
-            fail("adding without name should throw exception");
-        } catch (Exception e) {
-        }
+        assertThrows(
+                NullPointerException.class,
+                () -> catalog.add(s2),
+                "adding without name should throw exception");
 
         s2.setName("s2Name");
-        try {
-            catalog.add(s2);
-            fail("adding without fileName should throw exception");
-        } catch (Exception e) {
-        }
+        assertThrows(
+                NullPointerException.class,
+                () -> catalog.add(s2),
+                "adding without fileName should throw exception");
 
         s2.setFilename("s2Filename");
-        try {
-            catalog.getStyles().add(s2);
-            fail("adding directly should throw exception");
-        } catch (Exception e) {
-        }
+        List<StyleInfo> styles = catalog.getStyles();
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> styles.add(s2),
+                "adding directly should throw exception");
 
         catalog.add(s2);
         assertEquals(2, catalog.getStyles().size());
@@ -1872,11 +1856,10 @@ public abstract class CatalogConformanceTest {
         s2.setName(data.style1.getName());
         s2.setFilename(data.style1.getFilename());
 
-        try {
-            catalog.add(s2);
-            fail("Should have failed with existing global style with same name");
-        } catch (IllegalArgumentException expected) {
-        }
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> catalog.add(s2),
+                "Should have failed with existing global style with same name");
 
         List<StyleInfo> currStyles = catalog.getStyles();
 
@@ -1892,18 +1875,10 @@ public abstract class CatalogConformanceTest {
         s3.setName(s2.getName());
         s3.setFilename(s2.getFilename());
 
-        try {
-            catalog.add(s3);
-            fail();
-        } catch (IllegalArgumentException expected) {
-        }
+        assertThrows(IllegalArgumentException.class, () -> catalog.add(s3));
 
         s3.setWorkspace(data.workspaceA);
-        try {
-            catalog.add(s3);
-            fail();
-        } catch (IllegalArgumentException expected) {
-        }
+        assertThrows(IllegalArgumentException.class, () -> catalog.add(s3));
     }
 
     @Test
@@ -2010,18 +1985,16 @@ public abstract class CatalogConformanceTest {
         StyleInfo s3 = catalog.getStyleByName(data.style1.getName());
         assertEquals(data.style1, s3);
 
-        try {
-            catalog.save(s2);
-            fail("setting name to null should fail");
-        } catch (Exception e) {
-        }
+        assertThrows(
+                NullPointerException.class,
+                () -> catalog.save(s2),
+                "setting name to null should fail");
 
         s2.setName(data.style1.getName());
-        try {
-            catalog.save(s2);
-            fail("setting filename to null should fail");
-        } catch (Exception e) {
-        }
+        assertThrows(
+                NullPointerException.class,
+                () -> catalog.save(s2),
+                "setting filename to null should fail");
 
         s2.setName("s2Name");
         s2.setFilename("s2Name.sld");
@@ -2038,23 +2011,21 @@ public abstract class CatalogConformanceTest {
     void testModifyDefaultStyle() {
         addWorkspace();
         addDefaultStyle();
-        StyleInfo s = catalog.getStyleByName(StyleInfo.DEFAULT_LINE);
+        final StyleInfo s = catalog.getStyleByName(StyleInfo.DEFAULT_LINE);
 
         s.setName("foo");
 
-        try {
-            catalog.save(s);
-            fail("changing name of default style should fail");
-        } catch (Exception e) {
-        }
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> catalog.save(s),
+                "changing name of default style should fail");
 
-        s = catalog.getStyleByName(StyleInfo.DEFAULT_LINE);
-        s.setWorkspace(data.workspaceA);
-        try {
-            catalog.save(s);
-            fail("changing workspace of default style should fail");
-        } catch (Exception e) {
-        }
+        final StyleInfo s2 = catalog.getStyleByName(StyleInfo.DEFAULT_LINE);
+        s2.setWorkspace(data.workspaceA);
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> catalog.save(s2),
+                "changing workspace of default style should fail");
     }
 
     @Test
@@ -2072,11 +2043,10 @@ public abstract class CatalogConformanceTest {
         addDefaultStyle();
         StyleInfo s = catalog.getStyleByName(StyleInfo.DEFAULT_LINE);
 
-        try {
-            catalog.remove(s);
-            fail("removing default style should fail");
-        } catch (Exception e) {
-        }
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> catalog.remove(s),
+                "removing default style should fail");
     }
 
     @Test
@@ -2142,7 +2112,7 @@ public abstract class CatalogConformanceTest {
         s2.setFilename("a.sld");
         catalog.add(s2);
 
-        List<StyleInfo> styles = catalog.getStyles();
+        final List<StyleInfo> styles = catalog.getStyles();
         assertEquals(2, styles.size());
 
         // test immutability
@@ -2153,18 +2123,16 @@ public abstract class CatalogConformanceTest {
                         return o1.getName().compareTo(o2.getName());
                     }
                 };
-        try {
-            Collections.sort(styles, comparator);
-            fail("Expected runtime exception, immutable collection");
-        } catch (RuntimeException e) {
-            assertTrue(true);
-        }
+        assertThrows(
+                RuntimeException.class,
+                () -> Collections.sort(styles, comparator),
+                "Expected runtime exception, immutable collection");
 
-        styles = new ArrayList<StyleInfo>(styles);
-        Collections.sort(styles, comparator);
+        List<StyleInfo> sorted = new ArrayList<StyleInfo>(styles);
+        Collections.sort(sorted, comparator);
 
-        assertEquals("a" + data.style1.getName(), styles.get(0).getName());
-        assertEquals(data.style1.getName(), styles.get(1).getName());
+        assertEquals("a" + data.style1.getName(), sorted.get(0).getName());
+        assertEquals(data.style1.getName(), sorted.get(1).getName());
     }
 
     @Test
@@ -2181,15 +2149,13 @@ public abstract class CatalogConformanceTest {
         catalog.add(ws);
 
         l.throwCatalogException = true;
-        ws = catalog.getFactory().createWorkspace();
-        ws.setName("bar");
+        final WorkspaceInfo ws2 = catalog.getFactory().createWorkspace();
+        ws2.setName("bar");
 
-        try {
-            catalog.add(ws);
-            fail();
-        } catch (CatalogException ce) {
-            // good
-        }
+        CatalogException ce = assertThrows(CatalogException.class, () -> catalog.add(ws2));
+        assertThat(
+                ce.getMessage(),
+                containsString("expected, testing Catalog's CatalogException handling"));
     }
 
     @Test
@@ -2286,11 +2252,10 @@ public abstract class CatalogConformanceTest {
         lg2.setName("layerGroup");
         lg2.getLayers().add(data.layerFeatureTypeA);
         lg2.getStyles().add(data.style1);
-        try {
-            catalog.add(lg2);
-            fail("should have failed because same name and no workspace set");
-        } catch (IllegalArgumentException expected) {
-        }
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> catalog.add(lg2),
+                "should have failed because same name and no workspace set");
 
         // setting a workspace shluld pass
         lg2.setWorkspace(data.workspaceA);
@@ -2308,11 +2273,7 @@ public abstract class CatalogConformanceTest {
         lg2.setName("layerGroup2");
         lg2.getLayers().add(data.layerFeatureTypeA);
         lg2.getStyles().add(data.style1);
-        try {
-            catalog.add(lg2);
-            fail();
-        } catch (IllegalArgumentException expected) {
-        }
+        assertThrows(IllegalArgumentException.class, () -> catalog.add(lg2));
     }
 
     @Test
@@ -2563,7 +2524,7 @@ public abstract class CatalogConformanceTest {
     @Test
     void testLayerGroupRootLayer() {
         addLayer();
-        LayerGroupInfo lg2 = catalog.getFactory().createLayerGroup();
+        final LayerGroupInfo lg2 = catalog.getFactory().createLayerGroup();
         lg2.setWorkspace(null);
         lg2.setName("layerGroup2");
         lg2.getLayers().add(data.layerFeatureTypeA);
@@ -2571,55 +2532,45 @@ public abstract class CatalogConformanceTest {
         lg2.setRootLayer(data.layerFeatureTypeA);
 
         lg2.setMode(LayerGroupInfo.Mode.SINGLE);
-        try {
-            catalog.add(lg2);
-            fail("only EO layer groups can have a root layer");
-        } catch (IllegalArgumentException e) {
-            assertTrue(true);
-        }
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> catalog.add(lg2),
+                "only EO layer groups can have a root layer");
 
         lg2.setMode(LayerGroupInfo.Mode.NAMED);
-        try {
-            catalog.add(lg2);
-            fail("only EO layer groups can have a root layer");
-        } catch (IllegalArgumentException e) {
-            assertTrue(true);
-        }
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> catalog.add(lg2),
+                "only EO layer groups can have a root layer");
 
         lg2.setMode(LayerGroupInfo.Mode.CONTAINER);
-        try {
-            catalog.add(lg2);
-            fail("only EO layer groups can have a root layer");
-        } catch (IllegalArgumentException e) {
-            assertTrue(true);
-        }
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> catalog.add(lg2),
+                "only EO layer groups can have a root layer");
 
         lg2.setMode(LayerGroupInfo.Mode.EO);
         lg2.setRootLayer(null);
-        try {
-            catalog.add(lg2);
-            fail("EO layer groups must have a root layer");
-        } catch (IllegalArgumentException e) {
-            assertTrue(true);
-        }
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> catalog.add(lg2),
+                "EO layer groups must have a root layer");
 
         lg2.setRootLayer(data.layerFeatureTypeA);
-        try {
-            catalog.add(lg2);
-            fail("EO layer groups must have a root layer style");
-        } catch (IllegalArgumentException e) {
-            assertTrue(true);
-        }
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> catalog.add(lg2),
+                "EO layer groups must have a root layer style");
 
         lg2.setRootLayerStyle(data.style1);
 
         catalog.add(lg2);
         assertEquals(1, catalog.getLayerGroups().size());
 
-        lg2 = catalog.getLayerGroupByName("layerGroup2");
-        assertEquals(LayerGroupInfo.Mode.EO, lg2.getMode());
-        assertEquals(data.layerFeatureTypeA, lg2.getRootLayer());
-        assertEquals(data.style1, lg2.getRootLayerStyle());
+        LayerGroupInfo lg2Saved = catalog.getLayerGroupByName("layerGroup2");
+        assertEquals(LayerGroupInfo.Mode.EO, lg2Saved.getMode());
+        assertEquals(data.layerFeatureTypeA, lg2Saved.getRootLayer());
+        assertEquals(data.style1, lg2Saved.getRootLayerStyle());
     }
 
     @Test
@@ -2687,18 +2638,14 @@ public abstract class CatalogConformanceTest {
         assertEquals(lg2.getStyles(), lg2.styles());
 
         lg2.setMode(LayerGroupInfo.Mode.CONTAINER);
-        try {
-            assertEquals(lg2.getLayers(), lg2.layers());
-            fail("Layer group of Type Container can not be rendered");
-        } catch (UnsupportedOperationException e) {
-            assertTrue(true);
-        }
-        try {
-            assertEquals(lg2.getStyles(), lg2.styles());
-            fail("Layer group of Type Container can not be rendered");
-        } catch (UnsupportedOperationException e) {
-            assertTrue(true);
-        }
+        assertThrows(
+                UnsupportedOperationException.class,
+                lg2::layers,
+                "Layer group of Type Container can not be rendered");
+        assertThrows(
+                UnsupportedOperationException.class,
+                lg2::styles,
+                "Layer group of Type Container can not be rendered");
 
         lg2.setMode(LayerGroupInfo.Mode.EO);
         assertEquals(1, lg2.layers().size());
@@ -2718,11 +2665,10 @@ public abstract class CatalogConformanceTest {
         lg2.getStyles().add(data.style1);
         catalog.add(lg2);
 
-        try {
-            catalog.remove(data.layerGroup1);
-            fail("should have failed because lg is in another lg");
-        } catch (IllegalArgumentException expected) {
-        }
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> catalog.remove(data.layerGroup1),
+                "should have failed because lg is in another lg");
 
         // removing the containing layer first should work
         catalog.remove(lg2);
@@ -2834,28 +2780,24 @@ public abstract class CatalogConformanceTest {
         catalog.add(l1);
         catalog.add(l2);
 
-        Filter filter = acceptAll();
-        try {
-            catalog.get(null, filter);
-            fail("Expected precondition validation exception");
-        } catch (RuntimeException nullCheck) {
-            assertTrue(true);
-        }
-        try {
-            catalog.get(FeatureTypeInfo.class, null);
-            fail("Expected precondition validation exception");
-        } catch (RuntimeException nullCheck) {
-            assertTrue(true);
+        {
+            final Filter filter = acceptAll();
+            assertThrows(
+                    NullPointerException.class,
+                    () -> catalog.get(null, filter),
+                    "Expected precondition validation exception");
+            assertThrows(
+                    IllegalArgumentException.class,
+                    () -> catalog.get(FeatureTypeInfo.class, null),
+                    "Expected precondition validation exception");
+
+            assertThrows(
+                    IllegalArgumentException.class,
+                    () -> catalog.get(FeatureTypeInfo.class, filter),
+                    "Expected IAE on multiple results");
         }
 
-        try {
-            catalog.get(FeatureTypeInfo.class, filter);
-            fail("Expected IAE on multiple results");
-        } catch (IllegalArgumentException multipleResults) {
-            assertTrue(true);
-        }
-
-        filter = equal("id", ft1.getId());
+        Filter filter = equal("id", ft1.getId());
         FeatureTypeInfo featureTypeInfo = catalog.get(FeatureTypeInfo.class, filter);
         assertEquals(ft1.getId(), featureTypeInfo.getId());
         assertSame(catalog, featureTypeInfo.getCatalog());
@@ -2869,13 +2811,11 @@ public abstract class CatalogConformanceTest {
         filter = equal("keywords[2]", ft2.getKeywords().get(1));
         assertEquals(ft2.getName(), catalog.get(FeatureTypeInfo.class, filter).getName());
 
-        filter = equal("keywords[3].value", "repeatedKw");
-        try {
-            catalog.get(FeatureTypeInfo.class, filter).getName();
-            fail("Expected IAE on multiple results");
-        } catch (IllegalArgumentException multipleResults) {
-            assertTrue(true);
-        }
+        Filter filterMultipleResults = equal("keywords[3].value", "repeatedKw");
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> catalog.get(FeatureTypeInfo.class, filterMultipleResults),
+                "Expected IAE on multiple results");
 
         assertEquals(
                 s1.getId(), catalog.get(StyleInfo.class, equal("filename", "s1Filename")).getId());
@@ -2891,13 +2831,12 @@ public abstract class CatalogConformanceTest {
         filter = equal("styles.id", s2.getId(), MatchAction.ONE);
         assertEquals(l1.getId(), catalog.get(LayerInfo.class, filter).getId());
 
-        filter = equal("styles.id", s3.getId(), MatchAction.ANY); // s3 is shared by l1 and l2
-        try {
-            catalog.get(LayerInfo.class, filter);
-            fail("Expected IAE on multiple results");
-        } catch (IllegalArgumentException multipleResults) {
-            assertTrue(true);
-        }
+        Filter filter2 =
+                equal("styles.id", s3.getId(), MatchAction.ANY); // s3 is shared by l1 and l2
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> catalog.get(LayerInfo.class, filter2),
+                "Expected IAE on multiple results");
     }
 
     @Test

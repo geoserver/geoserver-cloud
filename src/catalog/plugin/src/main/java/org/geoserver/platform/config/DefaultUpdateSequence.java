@@ -46,9 +46,9 @@ public class DefaultUpdateSequence implements UpdateSequence {
         lock.lock();
         try {
             GeoServerInfo global = info().orElse(null);
-            if (global == null) return 0;
-            long nextVal = sequence.incrementAndGet();
+            long nextVal = 0L;
             if (global != null) {
+                nextVal = sequence.incrementAndGet();
                 global = ModificationProxy.unwrap(global);
                 global.setUpdateSequence(nextVal);
             }

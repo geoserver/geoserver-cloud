@@ -5,7 +5,6 @@
 package org.geoserver.cloud.config.catalog.events;
 
 import org.geoserver.catalog.Catalog;
-import org.geoserver.catalog.Info;
 import org.geoserver.cloud.event.info.InfoEvent;
 import org.geoserver.config.GeoServer;
 import org.geoserver.platform.config.UpdateSequence;
@@ -28,7 +27,7 @@ public class CatalogApplicationEventsConfiguration {
             UpdateSequence updateSequence //
             ) {
 
-        Consumer<? super InfoEvent<? extends Info>> publisher = localContextPublisher::publishEvent;
+        Consumer<? super InfoEvent> publisher = localContextPublisher::publishEvent;
         Supplier<Long> updateSequenceIncrementor = updateSequence::nextValue;
         return new CatalogApplicationEventPublisher(
                 publisher, catalog, geoServer, updateSequenceIncrementor);

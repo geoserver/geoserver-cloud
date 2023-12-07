@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
-import org.geoserver.catalog.Info;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.ResourcePool;
 import org.geoserver.catalog.ResourcePool.CacheClearingListener;
@@ -69,7 +68,7 @@ public class RemoteEventResourcePoolProcessor {
                         () -> log.trace("Ignoring event from self: {}", event));
     }
 
-    private void evictFromResourcePool(InfoEvent<? extends Info> event) {
+    private void evictFromResourcePool(InfoEvent event) {
         final String id = event.getObjectId();
         final ConfigInfoType infoType = event.getObjectType();
 

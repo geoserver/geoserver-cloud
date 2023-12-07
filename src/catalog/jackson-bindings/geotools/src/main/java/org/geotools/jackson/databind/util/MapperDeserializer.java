@@ -18,18 +18,21 @@ import java.util.function.Function;
 /**
  * Generic {@link JsonDeserializer} that applies a function from an for-the-wire POJO type to the
  * the original object type after {@link JsonParser#readValueAs(Class)} reading it.
+ *
+ * @param <D> DTO type
+ * @param <T> object model type
  */
 @Slf4j
 @RequiredArgsConstructor
-public class MapperDeserializer<DTO, T> extends JsonDeserializer<T> {
+public class MapperDeserializer<D, T> extends JsonDeserializer<T> {
 
-    private final @NonNull Class<DTO> from;
-    private final Function<DTO, T> mapper;
+    private final @NonNull Class<D> from;
+    private final Function<D, T> mapper;
 
     @Override
     public T deserialize(JsonParser parser, DeserializationContext ctxt) throws IOException {
 
-        DTO dto;
+        D dto;
         T value;
         try {
             dto = parser.readValueAs(from);

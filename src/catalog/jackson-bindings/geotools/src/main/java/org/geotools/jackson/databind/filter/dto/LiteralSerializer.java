@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 /**
  *
@@ -177,8 +177,8 @@ public class LiteralSerializer extends StdSerializer<Literal> {
 
         final Class<?> contentType = findContentType(collection, provider);
 
-        final Function<Object, Object> valueMapper =
-                Literal.class.equals(contentType) ? Literal::valueOf : Function.identity();
+        final UnaryOperator<Object> valueMapper =
+                Literal.class.equals(contentType) ? Literal::valueOf : UnaryOperator.identity();
 
         gen.writeStringField(
                 TYPE_KEY, classNameMapper().classToCanonicalName(collectionType(collection)));

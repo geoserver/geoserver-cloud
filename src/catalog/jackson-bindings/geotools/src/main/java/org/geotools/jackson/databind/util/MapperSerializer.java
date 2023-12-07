@@ -20,17 +20,20 @@ import java.util.function.Function;
 /**
  * Generic {@link JsonSerializer} that applies a function from the original object type to the
  * encoded object type before {@link JsonGenerator#writeObject(Object) writing} it
+ *
+ * @param <I> object model type
+ * @param <D> DTO type
  */
 @Slf4j
-public class MapperSerializer<I, DTO> extends StdSerializer<I> {
+public class MapperSerializer<I, D> extends StdSerializer<I> {
 
     private static final long serialVersionUID = 1L;
 
-    private final transient Function<I, DTO> mapper;
+    private final transient Function<I, D> mapper;
 
     private Class<I> type;
 
-    public MapperSerializer(Class<I> type, java.util.function.Function<I, DTO> serializerMapper) {
+    public MapperSerializer(Class<I> type, java.util.function.Function<I, D> serializerMapper) {
         super(type);
         this.type = type;
         this.mapper = serializerMapper;
@@ -53,7 +56,7 @@ public class MapperSerializer<I, DTO> extends StdSerializer<I> {
     public void serialize(I value, JsonGenerator gen, SerializerProvider provider)
             throws IOException {
 
-        DTO dto;
+        D dto;
         try {
             dto = mapper.apply(value);
         } catch (RuntimeException e) {

@@ -127,8 +127,10 @@ public class DefaultCatalogValidator implements CatalogValidator {
         if (isNew) {
             newObjectPropertiesResolver.resolve(store);
         }
-        checkNotEmpty(store.getName(), "Store name must not be null");
-        checkNotNull(store.getWorkspace(), "Store must be part of a workspace");
+        // note: throwing IAE if null to match CatalogImpl's behavior, though it should be NPE
+        checkArgument(null != store.getName(), "Store name must not be null");
+        checkNotEmpty(store.getName(), "Store name must not be empty");
+        checkArgument(null != store.getWorkspace(), "Store must be part of a workspace");
 
         WorkspaceInfo workspace = store.getWorkspace();
         StoreInfo existing = catalog.getStoreByName(workspace, store.getName(), StoreInfo.class);
@@ -154,8 +156,8 @@ public class DefaultCatalogValidator implements CatalogValidator {
                         && coverage.getNativeCoverageName() != null)) {
             throw new NullPointerException("Resource native name must not be null");
         }
-        checkNotNull(resource.getStore(), "Resource must be part of a store");
-        checkNotNull(resource.getNamespace(), "Resource must be part of a namespace");
+        checkArgument(null != resource.getStore(), "Resource must be part of a store");
+        checkArgument(null != resource.getNamespace(), "Resource must be part of a namespace");
 
         StoreInfo store = resource.getStore();
         ResourceInfo existing =

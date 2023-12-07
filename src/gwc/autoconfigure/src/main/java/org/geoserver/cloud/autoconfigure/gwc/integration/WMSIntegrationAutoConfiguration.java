@@ -119,7 +119,7 @@ public class WMSIntegrationAutoConfiguration {
         static @Configuration class GeoServerWebUI {
 
             @Bean
-            HeaderContribution GWCSettingsPage_WMSIntegationDisabledCssContribution() {
+            HeaderContribution gwcSettingsPageWMSIntegationDisabledCssContribution() {
                 log.info("GeoWebCache direct WMS integration disabled in GWCSettingsPage");
                 HeaderContribution contribution = new HeaderContribution();
                 contribution.setScope(GWCSettingsPage.class);

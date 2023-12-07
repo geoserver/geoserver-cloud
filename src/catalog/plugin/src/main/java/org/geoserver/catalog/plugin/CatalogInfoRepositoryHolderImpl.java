@@ -33,7 +33,7 @@ public class CatalogInfoRepositoryHolderImpl implements CatalogInfoRepositoryHol
     protected StyleRepository styles;
     protected MapRepository maps;
 
-    protected CatalogInfoTypeRegistry<?, CatalogInfoRepository<?>> repos =
+    protected CatalogInfoTypeRegistry<CatalogInfoRepository<?>> repos =
             new CatalogInfoTypeRegistry<>();
 
     @SuppressWarnings("unchecked")

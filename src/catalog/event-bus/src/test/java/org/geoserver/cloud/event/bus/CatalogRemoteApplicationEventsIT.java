@@ -526,7 +526,6 @@ class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
         testRemoteRemoveEvent(testData.workspaceA, catalog::remove, eventType);
     }
 
-    @SuppressWarnings("rawtypes")
     private <E extends InfoEvent> E testCatalogModifiedEvent(
             Catalog catalog,
             Consumer<Catalog> modifier,
@@ -546,7 +545,6 @@ class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
         return eventType.cast(sentEvent.getEvent());
     }
 
-    @SuppressWarnings("rawtypes")
     private void assertCatalogEvent(Catalog catalog, InfoModified event, Patch expected) {
         assertThat(event.getObjectId()).isEqualTo("catalog"); // i.e. InfoEvent.CATALOG_ID
         assertThat(event.getObjectType()).isEqualTo(ConfigInfoType.CATALOG);

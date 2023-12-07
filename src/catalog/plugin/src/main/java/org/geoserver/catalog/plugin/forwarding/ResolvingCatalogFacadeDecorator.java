@@ -31,7 +31,7 @@ import org.geotools.api.filter.sort.SortBy;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 /**
@@ -80,8 +80,8 @@ import java.util.stream.Stream;
 public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFacade
         implements ResolvingCatalogFacade {
 
-    private Function<CatalogInfo, CatalogInfo> outboundResolver = Function.identity();
-    private Function<CatalogInfo, CatalogInfo> inboundResolver = Function.identity();
+    private UnaryOperator<CatalogInfo> outboundResolver = UnaryOperator.identity();
+    private UnaryOperator<CatalogInfo> inboundResolver = UnaryOperator.identity();
 
     public ResolvingCatalogFacadeDecorator(ExtendedCatalogFacade facade) {
         super(facade);
@@ -92,7 +92,7 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
      * before leaving this decorator facade
      */
     @Override
-    public void setOutboundResolver(Function<CatalogInfo, CatalogInfo> resolvingFunction) {
+    public void setOutboundResolver(UnaryOperator<CatalogInfo> resolvingFunction) {
         Objects.requireNonNull(resolvingFunction);
         this.outboundResolver = resolvingFunction;
     }
@@ -107,7 +107,7 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
      * an object is to be discarded from the final outcome
      */
     @Override
-    public Function<CatalogInfo, CatalogInfo> getOutboundResolver() {
+    public UnaryOperator<CatalogInfo> getOutboundResolver() {
         return this.outboundResolver;
     }
 
@@ -116,7 +116,7 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
      * decorated facade
      */
     @Override
-    public void setInboundResolver(Function<CatalogInfo, CatalogInfo> resolvingFunction) {
+    public void setInboundResolver(UnaryOperator<CatalogInfo> resolvingFunction) {
         Objects.requireNonNull(resolvingFunction);
         this.inboundResolver = resolvingFunction;
     }
@@ -129,29 +129,29 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
      * add traits to the current resolver
      */
     @Override
-    public Function<CatalogInfo, CatalogInfo> getInboundResolver() {
+    public UnaryOperator<CatalogInfo> getInboundResolver() {
         return this.inboundResolver;
     }
 
     @SuppressWarnings("unchecked")
-    protected <I extends CatalogInfo> Function<I, I> outbound() {
-        return (Function<I, I>) outboundResolver;
+    protected <I extends CatalogInfo> UnaryOperator<I> outbound() {
+        return (UnaryOperator<I>) outboundResolver;
     }
 
     @SuppressWarnings("unchecked")
-    protected <I extends CatalogInfo> Function<I, I> inbound() {
-        return (Function<I, I>) inboundResolver;
+    protected <I extends CatalogInfo> UnaryOperator<I> inbound() {
+        return (UnaryOperator<I>) inboundResolver;
     }
 
     @Override
     public <C extends CatalogInfo> C resolveOutbound(C info) {
-        Function<C, C> outboundResolve = outbound();
+        UnaryOperator<C> outboundResolve = outbound();
         return outboundResolve.apply(info);
     }
 
     @Override
     public <C extends CatalogInfo> C resolveInbound(C info) {
-        Function<C, C> inboundResolve = inbound();
+        UnaryOperator<C> inboundResolve = inbound();
         return inboundResolve.apply(info);
     }
 

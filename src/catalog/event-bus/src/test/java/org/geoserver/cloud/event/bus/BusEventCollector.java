@@ -36,7 +36,6 @@ public class BusEventCollector {
     private @Value("${spring.cloud.bus.id}") String busId;
     private @Autowired RemoteGeoServerEventBridge bridge;
 
-    @SuppressWarnings("rawtypes")
     private @NonNull Class<? extends InfoEvent> eventType = InfoEvent.class;
 
     private volatile boolean capturing = false;
@@ -57,23 +56,19 @@ public class BusEventCollector {
         events.add(busEvent);
     }
 
-    @SuppressWarnings("rawtypes")
     public void capture(@NonNull Class<? extends InfoEvent> type) {
         this.eventType = type;
     }
 
-    @SuppressWarnings("rawtypes")
     public <T extends InfoEvent> RemoteGeoServerEvent expectOne(Class<T> payloadType) {
         return expectOne(payloadType, Predicates.alwaysTrue());
     }
 
-    @SuppressWarnings("rawtypes")
     public <T extends InfoEvent> RemoteGeoServerEvent expectOne(
             Class<T> payloadType, ConfigInfoType infoType) {
         return expectOne(payloadType, c -> infoType.equals(c.getObjectType()));
     }
 
-    @SuppressWarnings("rawtypes")
     public <T extends InfoEvent> RemoteGeoServerEvent expectOne(
             Class<T> payloadType, Predicate<T> filter) {
         final long t = System.nanoTime();
@@ -111,17 +106,14 @@ public class BusEventCollector {
         return matches.get(0);
     }
 
-    @SuppressWarnings("rawtypes")
     public <T extends InfoEvent> List<RemoteGeoServerEvent> allOf(Class<T> payloadType) {
         return capturedEvents(payloadType).toList();
     }
 
-    @SuppressWarnings("rawtypes")
     public <T extends InfoEvent> Optional<RemoteGeoServerEvent> first(Class<T> payloadType) {
         return capturedEvents(payloadType).findFirst();
     }
 
-    @SuppressWarnings("rawtypes")
     private <T extends InfoEvent> Stream<RemoteGeoServerEvent> capturedEvents(
             Class<T> payloadType) {
         return capturedEvents().filter(remote -> payloadType.isInstance(remote.getEvent()));

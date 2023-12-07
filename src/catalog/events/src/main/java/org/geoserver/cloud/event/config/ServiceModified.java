@@ -14,7 +14,6 @@ import lombok.NonNull;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoEvent;
-import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
 import org.springframework.core.style.ToStringCreator;
 
@@ -22,7 +21,7 @@ import org.springframework.core.style.ToStringCreator;
 @JsonTypeName("ServiceModified")
 @EqualsAndHashCode(callSuper = true)
 @SuppressWarnings("serial")
-public class ServiceModified extends ConfigInfoModified<LoggingInfo> implements ConfigInfoEvent {
+public class ServiceModified extends ConfigInfoModified implements ConfigInfoEvent {
 
     private @Getter String workspaceId;
 

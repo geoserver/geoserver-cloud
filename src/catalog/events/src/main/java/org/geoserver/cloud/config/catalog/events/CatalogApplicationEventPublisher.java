@@ -65,7 +65,7 @@ import javax.annotation.PostConstruct;
 @RequiredArgsConstructor
 class CatalogApplicationEventPublisher {
 
-    private final @NonNull Consumer<? super InfoEvent<?>> eventPublisher;
+    private final @NonNull Consumer<? super InfoEvent> eventPublisher;
     private final @NonNull Catalog catalog;
     private final @NonNull GeoServer geoServer;
     private final @NonNull Supplier<Long> updateSequenceIncrementor;
@@ -81,7 +81,7 @@ class CatalogApplicationEventPublisher {
         geoServer.addListener(publishingConfigListener);
     }
 
-    void publish(@NonNull InfoEvent<? extends Info> event) {
+    void publish(@NonNull InfoEvent event) {
         eventPublisher.accept(event);
     }
 
@@ -104,7 +104,7 @@ class CatalogApplicationEventPublisher {
          * @throws CatalogException meaning the operation that generated the event should be
          *     reverted (as handled by Catalog.event())
          */
-        private void publish(InfoEvent<? extends Info> event) throws CatalogException {
+        private void publish(InfoEvent event) throws CatalogException {
             try {
                 publisher.publish(event);
             } catch (RuntimeException e) {
@@ -132,13 +132,10 @@ class CatalogApplicationEventPublisher {
             publish(CatalogInfoModified.createLocal(incrementSequence(), event));
         }
 
-        /**
-         * {@inheritDoc}
-         *
-         * <p>no-op.
-         */
         @Override
-        public void reloaded() {}
+        public void reloaded() {
+            // no-op
+        }
     }
 
     @RequiredArgsConstructor
@@ -180,7 +177,7 @@ class CatalogApplicationEventPublisher {
             return patch;
         }
 
-        private void publish(InfoEvent<?> event) {
+        private void publish(InfoEvent event) {
             publisher.publish(event);
         }
 
@@ -224,7 +221,7 @@ class CatalogApplicationEventPublisher {
                 publish(ConfigInfoAdded.createLocal(incrementSequence(), global));
             } else {
                 // already called pop()
-                ConfigInfoModified<GeoServerInfo> event =
+                ConfigInfoModified event =
                         ConfigInfoModified.createLocal(incrementSequence(), global, patch);
                 publish(event);
             }

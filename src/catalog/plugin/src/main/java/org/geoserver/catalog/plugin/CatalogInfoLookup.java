@@ -585,11 +585,9 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
 
                 NamespaceInfo updated = super.update(value, patch);
 
-                if (newValue.isPresent()) {
-                    if (!Objects.equals(oldUri, updated.getURI())) {
-                        removeInternal(updated, oldUri);
-                        addInternal(updated);
-                    }
+                if (newValue.isPresent() && !Objects.equals(oldUri, updated.getURI())) {
+                    removeInternal(updated, oldUri);
+                    addInternal(updated);
                 }
                 return updated;
             } finally {

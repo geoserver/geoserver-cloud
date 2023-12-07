@@ -41,7 +41,7 @@ class GeoWebCacheApplicationTest {
         ResponseEntity<String> response =
                 testGetRequestContentType("/gwc/rest/layers", APPLICATION_JSON);
         JsonElement parsed = JsonParser.parseString(response.getBody());
-        assertThat(parsed.isJsonArray());
+        assertThat(parsed.isJsonArray()).isTrue();
     }
 
     @Test
@@ -49,7 +49,7 @@ class GeoWebCacheApplicationTest {
         ResponseEntity<String> response =
                 testGetRequestContentType("/gwc/rest/layers.json", APPLICATION_JSON);
         JsonElement parsed = JsonParser.parseString(response.getBody());
-        assertThat(parsed.isJsonArray());
+        assertThat(parsed.isJsonArray()).isTrue();
 
         testGetRequestContentType("/gwc/rest/layers.xml", APPLICATION_XML);
     }

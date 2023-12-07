@@ -64,6 +64,6 @@ class PgsqlWorkspaceRepositoryTest {
         info.setName("ws1");
         repo.add(info);
         Optional<WorkspaceInfo> found = repo.findById(info.getId(), repo.getContentType());
-        assertThat(found.isPresent());
+        assertThat(found).isPresent();
     }
 }

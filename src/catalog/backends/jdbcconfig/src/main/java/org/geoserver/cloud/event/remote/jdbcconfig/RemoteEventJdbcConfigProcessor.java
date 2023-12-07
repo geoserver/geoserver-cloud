@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.geoserver.catalog.CatalogInfo;
-import org.geoserver.catalog.Info;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoEvent;
 import org.geoserver.cloud.event.info.InfoModified;
@@ -28,16 +27,16 @@ public class RemoteEventJdbcConfigProcessor {
     private final @NonNull ConfigDatabase jdbcConfigDatabase;
 
     @EventListener(InfoRemoved.class)
-    public void onRemoteRemoveEvent(InfoRemoved<? extends Info> event) {
+    public void onRemoteRemoveEvent(InfoRemoved event) {
         evictConfigDatabaseEntry(event);
     }
 
     @EventListener(InfoModified.class)
-    public void onRemoteModifyEvent(InfoModified<? extends Info> event) {
+    public void onRemoteModifyEvent(InfoModified event) {
         evictConfigDatabaseEntry(event);
     }
 
-    private void evictConfigDatabaseEntry(InfoEvent<? extends Info> event) {
+    private void evictConfigDatabaseEntry(InfoEvent event) {
         event.remote()
                 .ifPresent(
                         remoteEvent -> {

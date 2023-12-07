@@ -49,7 +49,7 @@ import java.util.stream.StreamSupport;
 public class CatalogFacadeExtensionAdapter extends ForwardingCatalogFacade
         implements ExtendedCatalogFacade {
 
-    private CatalogInfoTypeRegistry<?, Consumer<?>> updateToSaveBridge =
+    private CatalogInfoTypeRegistry<Consumer<?>> updateToSaveBridge =
             new CatalogInfoTypeRegistry<>();
 
     public CatalogFacadeExtensionAdapter(CatalogFacade facade) {
@@ -78,12 +78,12 @@ public class CatalogFacadeExtensionAdapter extends ForwardingCatalogFacade
         if (catalog != null) {
             if (!(catalog instanceof CatalogPlugin)) {
                 throw new IllegalArgumentException(
-                        "Expected "
-                                + CatalogPlugin.class.getName()
-                                + ", got "
-                                + catalog.getClass().getName());
+                        "Expected %s, got %s"
+                                .formatted(
+                                        CatalogPlugin.class.getName(),
+                                        catalog.getClass().getName()));
             }
-            if (catalog != null && !(catalog instanceof SilentCatalog)) {
+            if (!(catalog instanceof SilentCatalog)) {
                 catalog = new SilentCatalog((CatalogPlugin) catalog, this);
             }
         }

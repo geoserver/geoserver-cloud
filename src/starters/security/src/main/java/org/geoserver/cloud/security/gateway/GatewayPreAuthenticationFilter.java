@@ -29,12 +29,13 @@ public class GatewayPreAuthenticationFilter extends GeoServerRequestHeaderAuthen
 
     /** Try to authenticate if there is no authenticated principal */
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+    public void doFilter(final ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
 
-        String cacheKey = authenticateFromCache(this, (HttpServletRequest) request);
+        final HttpServletRequest httpRequest = (HttpServletRequest) request;
+        String cacheKey = authenticateFromCache(this, httpRequest);
 
-        String principalName = getPreAuthenticatedPrincipalName((HttpServletRequest) request);
+        String principalName = getPreAuthenticatedPrincipalName(httpRequest);
 
         Authentication preAuth = SecurityContextHolder.getContext().getAuthentication();
 
@@ -47,16 +48,18 @@ public class GatewayPreAuthenticationFilter extends GeoServerRequestHeaderAuthen
 
         if (preAuth == null || principalName != null) {
             log.debug("Authenticating as {}", principalName);
-            doAuthenticate((HttpServletRequest) request, (HttpServletResponse) response);
+            doAuthenticate(httpRequest, (HttpServletResponse) response);
 
             Authentication postAuthentication =
                     SecurityContextHolder.getContext().getAuthentication();
-            if (postAuthentication != null && cacheKey != null) {
-                if (cacheAuthentication(postAuthentication, (HttpServletRequest) request)) {
-                    getSecurityManager()
-                            .getAuthenticationCache()
-                            .put(getName(), cacheKey, postAuthentication);
-                }
+
+            boolean authenticated = postAuthentication != null;
+            boolean cached = cacheKey != null;
+            boolean sessionAvailable = cacheAuthentication(postAuthentication, httpRequest);
+            if (authenticated && cached && sessionAvailable) {
+                getSecurityManager()
+                        .getAuthenticationCache()
+                        .put(getName(), cacheKey, postAuthentication);
             }
         }
 

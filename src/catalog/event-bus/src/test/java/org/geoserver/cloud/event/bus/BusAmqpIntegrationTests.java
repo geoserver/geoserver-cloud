@@ -138,7 +138,7 @@ public abstract class BusAmqpIntegrationTests {
 
     @BeforeEach
     public void before() {
-        assertThat(rabbitMQContainer.isRunning());
+        assertThat(rabbitMQContainer.isRunning()).isTrue();
         BusEventCollector localAppEvents = localAppContext.getBean(BusEventCollector.class);
         BusEventCollector remoteAppEvents = remoteAppContext.getBean(BusEventCollector.class);
         this.eventsCaptor = new EventsCaptor(localAppEvents, remoteAppEvents);
@@ -155,7 +155,6 @@ public abstract class BusAmqpIntegrationTests {
         testData.deleteAll();
     }
 
-    @SuppressWarnings({"rawtypes"})
     protected <T extends Info, E extends InfoRemoved> E testRemoteRemoveEvent(
             T info, Consumer<T> remover, Class<E> eventType) {
 
@@ -200,7 +199,6 @@ public abstract class BusAmqpIntegrationTests {
         return testRemoteModifyEvent(info, modifier, saver, ConfigInfoModified.class, false);
     }
 
-    @SuppressWarnings({"rawtypes"})
     protected <T extends Info> Patch testRemoteModifyEvent( //
             @NonNull T info, //
             @NonNull Consumer<T> modifier, //
@@ -209,7 +207,6 @@ public abstract class BusAmqpIntegrationTests {
         return testRemoteModifyEvent(info, modifier, saver, eventType, true);
     }
 
-    @SuppressWarnings({"rawtypes"})
     protected <T extends Info> Patch testRemoteModifyEvent( //
             @NonNull T info, //
             @NonNull Consumer<T> modifier, //
@@ -312,7 +309,6 @@ public abstract class BusAmqpIntegrationTests {
         return remoteRemoteEvent;
     }
 
-    @SuppressWarnings("rawtypes")
     protected <T extends Info> void assertRemoteEvent(T info, RemoteGeoServerEvent busEvent) {
         assertNotNull(busEvent.getId());
         assertNotNull(busEvent.getOriginService());
@@ -363,7 +359,6 @@ public abstract class BusAmqpIntegrationTests {
         final @Getter BusEventCollector local;
         final @Getter BusEventCollector remote;
 
-        @SuppressWarnings("rawtypes")
         public <E extends InfoEvent> EventsCaptor capureEventsOf(Class<E> type) {
             local.capture(type);
             remote.capture(type);

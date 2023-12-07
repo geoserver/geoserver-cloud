@@ -21,7 +21,7 @@ import org.geoserver.cloud.event.info.InfoModified;
 import org.geoserver.config.GeoServer;
 
 import java.util.Optional;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 /**
  * Highest priority listener for incoming {@link RemoteGeoServerEvent} events to resolve the payload
@@ -33,8 +33,8 @@ import java.util.function.Function;
  */
 public class InfoEventResolver {
 
-    private Function<Info, Info> configInfoResolver;
-    private Function<CatalogInfo, CatalogInfo> catalogInfoResolver;
+    private UnaryOperator<Info> configInfoResolver;
+    private UnaryOperator<CatalogInfo> catalogInfoResolver;
     // REVISIT: merge ProxyUtils with ResolvingProxyResolver
     private ProxyUtils proxyUtils;
 
@@ -44,39 +44,43 @@ public class InfoEventResolver {
 
         configInfoResolver =
                 CollectionPropertiesInitializer.<Info>instance()
-                        .andThen(ResolvingProxyResolver.<Info>of(rawCatalog));
+                                .andThen(ResolvingProxyResolver.<Info>of(rawCatalog))
+                        ::apply;
 
         catalogInfoResolver =
                 CollectionPropertiesInitializer.<CatalogInfo>instance()
-                        .andThen(CatalogPropertyResolver.of(rawCatalog))
-                        .andThen(ResolvingProxyResolver.of(rawCatalog));
+                                .andThen(CatalogPropertyResolver.of(rawCatalog))
+                                .andThen(ResolvingProxyResolver.of(rawCatalog))
+                        ::apply;
     }
 
-    public <I extends Info> InfoEvent<I> resolve(InfoEvent<I> event) {
-        if (event instanceof InfoAdded<I> addEvent) {
-            I object = addEvent.getObject();
-            addEvent.setObject(resolve(object));
-        } else if (event instanceof InfoModified<I> modifyEvent) {
-            modifyEvent.setPatch(resolve(modifyEvent.getPatch()));
+    @SuppressWarnings("unchecked")
+    public InfoEvent resolve(InfoEvent event) {
+        if (event instanceof InfoAdded addEvent) {
+            Info object = addEvent.getObject();
+            addEvent.setObject(resolveInfo(object));
+        } else if (event instanceof InfoModified modifyEvent) {
+            modifyEvent.setPatch(resolvePatch(modifyEvent.getPatch()));
         }
         return event;
     }
 
     @SuppressWarnings("unchecked")
-    private <I extends Info> I resolve(I object) {
+    private <I extends Info> I resolveInfo(I object) {
         if (object == null) return null;
         if (object instanceof CatalogInfo i) {
-            return (I) resolve(i);
+            return (I) resolveCatalogInfo(i);
         }
         return (I) configInfoResolver.apply(object);
     }
 
-    private CatalogInfo resolve(CatalogInfo object) {
+    @SuppressWarnings("unchecked")
+    private <C extends CatalogInfo> C resolveCatalogInfo(C object) {
         if (object == null) return null;
-        return catalogInfoResolver.apply(object);
+        return (C) catalogInfoResolver.apply(object);
     }
 
-    private Patch resolve(Patch patch) {
+    private Patch resolvePatch(Patch patch) {
         return proxyUtils.resolve(patch);
     }
 }

@@ -37,28 +37,26 @@ public class SimpleNamingContext implements Context {
 
     private final String contextRoot;
 
-    private final ConcurrentMap<String, Object> bindings;
+    private final ConcurrentMap<String, Object> bindings = new ConcurrentHashMap<>();
 
     private final ConcurrentMap<String, Object> environment = new ConcurrentHashMap<>();
 
     public SimpleNamingContext() {
-        this(ROOT_NAME, new ConcurrentHashMap<>());
+        this(ROOT_NAME, Map.of());
     }
 
-    SimpleNamingContext(@NonNull String root, @NonNull ConcurrentMap<String, Object> env) {
-        this(root, new ConcurrentHashMap<>(), env);
+    SimpleNamingContext(@NonNull String root, @NonNull Map<String, Object> env) {
+        this(root, Map.of(), env);
     }
 
     SimpleNamingContext(
             @NonNull String root,
-            @NonNull ConcurrentMap<String, Object> boundObjects,
-            @NonNull ConcurrentMap<String, Object> env) {
+            @NonNull Map<String, Object> boundObjects,
+            @NonNull Map<String, Object> env) {
 
         this.contextRoot = root;
-        this.bindings = boundObjects;
-        if (env != null) {
-            this.environment.putAll(env);
-        }
+        this.bindings.putAll(boundObjects);
+        this.environment.putAll(env);
     }
 
     @Override
@@ -159,7 +157,10 @@ public class SimpleNamingContext implements Context {
     }
 
     @Override
-    public void close() {}
+    public void close() {
+        this.environment.clear();
+        this.bindings.clear();
+    }
 
     /**
      * @throws OperationNotSupportedException javax.naming.Name is not supported

@@ -22,7 +22,7 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 
 import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 /**
  * A locking catalog, akin to {@link LockingCatalogFacade}, but at a higher level of granularity,
@@ -107,7 +107,7 @@ public class LockingCatalog extends CatalogPlugin {
     }
 
     /** {@inheritDoc} */
-    protected @Override <T extends CatalogInfo> void doAdd(T info, Function<T, T> inserter) {
+    protected @Override <T extends CatalogInfo> void doAdd(T info, UnaryOperator<T> inserter) {
         locking.runInWriteLock(
                 () -> super.doAdd(info, inserter),
                 format("add(%s[%s])", typeOf(info), nameOf(info)));

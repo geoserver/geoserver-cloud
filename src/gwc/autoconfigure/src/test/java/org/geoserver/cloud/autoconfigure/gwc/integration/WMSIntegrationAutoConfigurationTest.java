@@ -71,7 +71,7 @@ class WMSIntegrationAutoConfigurationTest {
                             assertThat(context).doesNotHaveBean(ForwardGetMapToGwcAspect.class);
                             assertThat(context)
                                     .doesNotHaveBean(
-                                            "GWCSettingsPage_WMSIntegationDisabledCssContribution");
+                                            "gwcSettingsPageWMSIntegationDisabledCssContribution");
                         });
     }
 
@@ -85,7 +85,7 @@ class WMSIntegrationAutoConfigurationTest {
                             assertThat(context).doesNotHaveBean(ForwardGetMapToGwcAspect.class);
                             assertThat(context)
                                     .doesNotHaveBean(
-                                            "GWCSettingsPage_WMSIntegationDisabledCssContribution");
+                                            "gwcSettingsPageWMSIntegationDisabledCssContribution");
                         });
     }
 
@@ -100,7 +100,7 @@ class WMSIntegrationAutoConfigurationTest {
                             assertThat(context).hasSingleBean(ForwardGetMapToGwcAspect.class);
                             assertThat(context)
                                     .doesNotHaveBean(
-                                            "GWCSettingsPage_WMSIntegationDisabledCssContribution");
+                                            "gwcSettingsPageWMSIntegationDisabledCssContribution");
                         });
     }
 
@@ -114,11 +114,10 @@ class WMSIntegrationAutoConfigurationTest {
                                     .doesNotHaveBean(CachingExtendedCapabilitiesProvider.class);
                             assertThat(context).doesNotHaveBean(ForwardGetMapToGwcAspect.class);
                             assertThat(context)
-                                    .hasBean(
-                                            "GWCSettingsPage_WMSIntegationDisabledCssContribution");
+                                    .hasBean("gwcSettingsPageWMSIntegationDisabledCssContribution");
                             HeaderContribution contrib =
                                     context.getBean(
-                                            "GWCSettingsPage_WMSIntegationDisabledCssContribution",
+                                            "gwcSettingsPageWMSIntegationDisabledCssContribution",
                                             HeaderContribution.class);
                             assertEquals(GWCSettingsPage.class, contrib.getScope());
                             assertEquals(
