@@ -140,15 +140,14 @@ public @Service class RemoteEventCacheEvictor {
     private void applyUpdateSequence(Long updateSequence) {
         config.evictGlobal()
                 .ifPresent(
-                        gsinfo -> {
-                            log.debug(
-                                    """
+                        gsinfo ->
+                                log.debug(
+                                        """
                     Evicted cached GeoServerInfo with updateSequence {} \
                     upon remote event carrying new value {}
                     """,
-                                    gsinfo.getUpdateSequence(),
-                                    updateSequence);
-                        });
+                                        gsinfo.getUpdateSequence(),
+                                        updateSequence));
     }
 
     private void evictCatalogInfo(InfoEvent event) {

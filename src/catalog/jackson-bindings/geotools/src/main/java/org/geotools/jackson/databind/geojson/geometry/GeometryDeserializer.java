@@ -162,11 +162,12 @@ public class GeometryDeserializer<T extends Geometry> extends JsonDeserializer<T
             holes = new LinearRing[coordinates.size() - 1];
             IntStream.range(1, coordinates.size())
                     .forEach(
-                            (i) -> {
-                                holes[i - 1] =
-                                        readLinearRing(
-                                                (ArrayNode) coordinates.get(i), dimensions, hasM);
-                            });
+                            i ->
+                                    holes[i - 1] =
+                                            readLinearRing(
+                                                    (ArrayNode) coordinates.get(i),
+                                                    dimensions,
+                                                    hasM));
         } else {
             holes = null;
         }

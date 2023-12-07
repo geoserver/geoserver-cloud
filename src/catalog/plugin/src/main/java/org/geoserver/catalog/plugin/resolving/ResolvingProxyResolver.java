@@ -58,11 +58,10 @@ public class ResolvingProxyResolver<T extends Info> implements UnaryOperator<T> 
     public ResolvingProxyResolver(Catalog catalog) {
         this(
                 catalog,
-                (info, proxy) -> {
-                    log.warn(
-                            "ResolvingProxy object not found in catalog, keeping proxy around: "
-                                    + info.getId());
-                });
+                (info, proxy) ->
+                        log.warn(
+                                "ResolvingProxy object not found in catalog, keeping proxy around: "
+                                        + info.getId()));
     }
 
     public ResolvingProxyResolver(
