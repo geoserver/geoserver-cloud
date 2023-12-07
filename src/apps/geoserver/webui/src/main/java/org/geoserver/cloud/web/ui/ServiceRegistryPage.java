@@ -21,15 +21,12 @@ public class ServiceRegistryPage extends GeoServerSecuredPage {
 
     private static final long serialVersionUID = 1L;
 
-    @SuppressWarnings("unused")
-    private ServiceRegistryTable table;
-
     public ServiceRegistryPage() {
         initUI();
     }
 
     private void initUI() {
-        add(table = new ServiceRegistryTable("table"));
+        add(new ServiceRegistryTable("table"));
     }
 
     static class ServiceRegistryTable extends GeoServerTablePanel<ServiceInstance> {

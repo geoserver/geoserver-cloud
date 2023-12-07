@@ -61,7 +61,8 @@ class CatalogMetrics implements MeterBinder {
 
         if (metricsConfig.isEnabled()) {
             final String instanceIdTag = metricsConfig.getInstanceId();
-            catalog.addListener(listener = new MetricsCatalogListener(registry, instanceIdTag));
+            listener = new MetricsCatalogListener(registry, instanceIdTag);
+            catalog.addListener(listener);
 
             registerObservedUpdateSequence(registry, instanceIdTag);
             registerUpdateSequence(registry, instanceIdTag);
