@@ -43,7 +43,7 @@ import javax.annotation.PostConstruct;
 public class CloudJdbcGeoServerLoader extends DefaultGeoServerLoader {
 
     private Catalog rawCatalog;
-    private GeoServer geoserver;
+    private GeoServer jdbcConfigGeoserver;
 
     private JDBCConfigProperties config;
 
@@ -57,14 +57,14 @@ public class CloudJdbcGeoServerLoader extends DefaultGeoServerLoader {
             ConfigDatabase configdb) {
         super(resourceLoader);
         this.rawCatalog = rawCatalog;
-        this.geoserver = geoserver;
+        this.jdbcConfigGeoserver = geoserver;
         this.config = config;
         this.configdb = configdb;
     }
 
     public @PostConstruct void load() {
         postProcessBeforeInitialization(rawCatalog, "rawCatalog");
-        postProcessBeforeInitialization(geoserver, "geoServer");
+        postProcessBeforeInitialization(jdbcConfigGeoserver, "geoServer");
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})

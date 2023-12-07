@@ -60,7 +60,7 @@ public class DataDirectoryGeoServerLoader extends DefaultGeoServerLoader {
 
     private final UpdateSequence updateSequence;
     private final Catalog rawCatalog;
-    private final LockingGeoServer geoserver;
+    private final LockingGeoServer lockingGeoserver;
     private final DataDirectoryLoaderSupport support;
 
     public DataDirectoryGeoServerLoader( //
@@ -72,7 +72,7 @@ public class DataDirectoryGeoServerLoader extends DefaultGeoServerLoader {
         super(resourceLoader);
         this.support = new DataDirectoryLoaderSupport(resourceLoader);
         this.updateSequence = updateSequence;
-        this.geoserver = geoserver;
+        this.lockingGeoserver = geoserver;
         this.rawCatalog = rawCatalog;
     }
 
@@ -80,7 +80,7 @@ public class DataDirectoryGeoServerLoader extends DefaultGeoServerLoader {
     public @PostConstruct void load() {
         final long initialSequence = updateSequence.currValue();
         postProcessBeforeInitialization(rawCatalog, "rawCatalog");
-        postProcessBeforeInitialization(geoserver, "geoServer");
+        postProcessBeforeInitialization(lockingGeoserver, "geoServer");
         final long finalSequence = updateSequence.currValue();
         if (initialSequence != finalSequence) {
             log.warn(
@@ -95,7 +95,7 @@ public class DataDirectoryGeoServerLoader extends DefaultGeoServerLoader {
      */
     protected @Override void initializeDefaultStyles(Catalog catalog) throws IOException {
 
-        GeoServerConfigurationLock configLock = geoserver.getConfigurationLock();
+        GeoServerConfigurationLock configLock = lockingGeoserver.getConfigurationLock();
         LockingSupport lockingSupport = LockingSupport.locking(configLock);
 
         lockingSupport.callInWriteLock(
@@ -123,9 +123,9 @@ public class DataDirectoryGeoServerLoader extends DefaultGeoServerLoader {
     @Override
     protected void loadGeoServer(final GeoServer geoServer, XStreamPersister xp) throws Exception {
         // disable locking just on the GeoServer mutating operations while loading the config
-        geoserver.disableLocking();
+        lockingGeoserver.disableLocking();
         try {
-            GeoServerConfigurationLock configLock = geoserver.getConfigurationLock();
+            GeoServerConfigurationLock configLock = lockingGeoserver.getConfigurationLock();
             LockingSupport lockingSupport = LockingSupport.locking(configLock);
 
             lockingSupport.callInWriteLock(
@@ -142,7 +142,7 @@ public class DataDirectoryGeoServerLoader extends DefaultGeoServerLoader {
                     },
                     "loadGeoServer()");
         } finally {
-            geoserver.enableLocking();
+            lockingGeoserver.enableLocking();
         }
     }
 

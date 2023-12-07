@@ -71,7 +71,7 @@ public class ParallelDataDirectoryGeoServerLoader
 
     private @NonNull UpdateSequence updateSequence;
     private @NonNull Catalog rawCatalog;
-    private @NonNull LockingGeoServer geoserver;
+    private @NonNull LockingGeoServer lockingGeoserver;
     private final DataDirectoryLoaderSupport support;
 
     /**
@@ -88,7 +88,7 @@ public class ParallelDataDirectoryGeoServerLoader
         super(resourceLoader, securityManager);
         this.support = new DataDirectoryLoaderSupport(resourceLoader);
         this.rawCatalog = rawCatalog;
-        this.geoserver = geoserver;
+        this.lockingGeoserver = geoserver;
         this.updateSequence = updateSequence;
     }
 
@@ -108,7 +108,7 @@ public class ParallelDataDirectoryGeoServerLoader
 
         final long initialSequence = updateSequence.currValue();
         postProcessBeforeInitialization(rawCatalog, "rawCatalog");
-        postProcessBeforeInitialization(geoserver, "geoServer");
+        postProcessBeforeInitialization(lockingGeoserver, "geoServer");
         final long finalSequence = updateSequence.currValue();
         if (initialSequence != finalSequence) {
             log.warn(
@@ -158,13 +158,13 @@ public class ParallelDataDirectoryGeoServerLoader
     @Override
     public void loadGeoServer(GeoServer geoServer, XStreamPersister xp) throws Exception {
         // disable locking just on the GeoServer mutating operations while loading the config
-        geoserver.disableLocking();
+        lockingGeoserver.disableLocking();
         try {
             final Set<String> existing = support.preloadServiceNames(geoServer);
             super.loadGeoServer(geoServer, xp);
             support.replaceCatalogInfoPersisterWithFixedVersion(geoServer, xp);
 
-            GeoServerConfigurationLock configLock = geoserver.getConfigurationLock();
+            GeoServerConfigurationLock configLock = lockingGeoserver.getConfigurationLock();
             LockingSupport lockingSupport = LockingSupport.locking(configLock);
 
             lockingSupport.callInWriteLock(
@@ -176,7 +176,7 @@ public class ParallelDataDirectoryGeoServerLoader
                     },
                     "loadGeoServer()");
         } finally {
-            geoserver.enableLocking();
+            lockingGeoserver.enableLocking();
         }
     }
 
@@ -195,7 +195,7 @@ public class ParallelDataDirectoryGeoServerLoader
                 DEFAULT_GENERIC)) {
 
             log.info("Initializing default styles");
-            GeoServerConfigurationLock configLock = geoserver.getConfigurationLock();
+            GeoServerConfigurationLock configLock = lockingGeoserver.getConfigurationLock();
             LockingSupport lockingSupport = LockingSupport.locking(configLock);
 
             lockingSupport.callInWriteLock(
