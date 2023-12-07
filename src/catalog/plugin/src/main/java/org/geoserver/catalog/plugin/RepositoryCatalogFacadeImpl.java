@@ -8,6 +8,7 @@ import static java.lang.String.format;
 
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogCapabilities;
+import org.geoserver.catalog.CatalogException;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.DataStoreInfo;
@@ -24,7 +25,6 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ProxyUtils;
 import org.geotools.api.filter.Filter;
 import org.geotools.api.filter.sort.SortBy;
-import org.geotools.util.logging.Logging;
 import org.springframework.util.Assert;
 
 import java.lang.reflect.Proxy;
@@ -34,14 +34,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
         implements RepositoryCatalogFacade {
-
-    private static final Logger LOGGER = Logging.getLogger(RepositoryCatalogFacadeImpl.class);
 
     protected Catalog catalog;
 
@@ -586,13 +582,10 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
             try {
                 count = repository(of).count(of, filter);
             } catch (RuntimeException e) {
-                LOGGER.log(
-                        Level.SEVERE,
-                        e,
-                        () ->
-                                "Error obtaining count of %s with filter %s"
-                                        .formatted(of.getSimpleName(), filter));
-                throw e;
+                throw new CatalogException(
+                        "Error obtaining count of %s with filter %s"
+                                .formatted(of.getSimpleName(), filter),
+                        e);
             }
         }
         return count > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) count;
@@ -643,8 +636,7 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
                 checkCanSort(query);
                 stream = repository(query.getType()).findAll(query);
             } catch (RuntimeException e) {
-                LOGGER.log(Level.SEVERE, e, () -> "Error obtaining stream: " + query);
-                throw e;
+                throw new CatalogException("Error obtaining stream: " + query, e);
             }
         }
         return stream;
