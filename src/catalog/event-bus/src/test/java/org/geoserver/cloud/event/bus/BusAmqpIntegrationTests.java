@@ -138,7 +138,7 @@ public abstract class BusAmqpIntegrationTests {
 
     @BeforeEach
     public void before() {
-        assertThat(rabbitMQContainer.isRunning());
+        assertThat(rabbitMQContainer.isRunning()).isTrue();
         BusEventCollector localAppEvents = localAppContext.getBean(BusEventCollector.class);
         BusEventCollector remoteAppEvents = remoteAppContext.getBean(BusEventCollector.class);
         this.eventsCaptor = new EventsCaptor(localAppEvents, remoteAppEvents);
