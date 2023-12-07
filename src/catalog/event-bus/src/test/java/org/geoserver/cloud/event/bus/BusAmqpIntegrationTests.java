@@ -222,7 +222,7 @@ public abstract class BusAmqpIntegrationTests {
         modifier.accept(proxy);
 
         Patch expected = resolveExpectedDiff(proxy).clean().toPatch();
-        assertThat(expected.size()).isGreaterThan(0);
+        assertThat(expected.size()).isPositive();
 
         this.eventsCaptor.start();
         saver.accept(proxy);
