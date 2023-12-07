@@ -323,26 +323,19 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
 
     private static <U extends CatalogInfo> Comparator<U> comparator(final SortBy sortOrder) {
         Comparator<U> comparator =
-                new Comparator<>() {
-                    @Override
-                    public int compare(U o1, U o2) {
-                        Object v1 = OwsUtils.get(o1, sortOrder.getPropertyName().getPropertyName());
-                        Object v2 = OwsUtils.get(o2, sortOrder.getPropertyName().getPropertyName());
-                        if (v1 == null) {
-                            if (v2 == null) {
-                                return 0;
-                            } else {
-                                return -1;
-                            }
-                        } else if (v2 == null) {
-                            return 1;
-                        }
-                        @SuppressWarnings({"rawtypes", "unchecked"})
-                        Comparable<Object> c1 = (Comparable) v1;
-                        @SuppressWarnings({"rawtypes", "unchecked"})
-                        Comparable<Object> c2 = (Comparable) v2;
-                        return c1.compareTo(c2);
+                (o1, o2) -> {
+                    Object v1 = OwsUtils.get(o1, sortOrder.getPropertyName().getPropertyName());
+                    Object v2 = OwsUtils.get(o2, sortOrder.getPropertyName().getPropertyName());
+                    if (v1 == null) {
+                        return v2 == null ? 0 : -1;
+                    } else if (v2 == null) {
+                        return 1;
                     }
+                    @SuppressWarnings({"rawtypes", "unchecked"})
+                    Comparable<Object> c1 = (Comparable) v1;
+                    @SuppressWarnings({"rawtypes", "unchecked"})
+                    Comparable<Object> c2 = (Comparable) v2;
+                    return c1.compareTo(c2);
                 };
         if (SortOrder.DESCENDING.equals(sortOrder.getSortOrder())) {
             comparator = comparator.reversed();
