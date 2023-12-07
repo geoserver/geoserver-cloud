@@ -12,6 +12,7 @@ import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.impl.ResolvingProxy;
 
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 /**
  * Facade trait that applies a possibly side-effect producing {@link Function} to each outgoing
@@ -22,7 +23,7 @@ import java.util.function.Function;
  * object, and {@link #resolveInbound} on each received object.
  *
  * <p>
- * By default the function applied is the {@link Function#identity() identity} function, use
+ * By default the function applied is the {@link UnaryOperator#identity() identity} function, use
  * {@link #setOutboundResolver} to establish the function to apply to each object before being
  * returned.
  *
@@ -37,12 +38,12 @@ import java.util.function.Function;
  * <pre>
  * {@code
  * Catalog catalog = ...
- * Function<CatalogInfo, CatalogInfo> resolvingFunction;
+ * UnaryOperator<CatalogInfo> resolvingFunction;
  * resolvingFunction =
  *   CatalogPropertyResolver.of(catalog)
  *   .andThen(ResolvingProxyResolver.of(catalog)
  *   .andThen(CollectionPropertiesInitializer.instance())
- *   .andThen(ModificationProxyDecorator.wrap());
+ *   .andThen(ModificationProxyDecorator.wrap())::apply;
  *
  * ResolvingCatalogFacade facade = ...
  * facade.setOutboundResolver(resolvingFunction);
@@ -64,7 +65,7 @@ public interface ResolvingFacade<T> {
      * Function applied to all outgoing {@link <T>} objects returned by the facade before leaving
      * the called method
      */
-    void setOutboundResolver(Function<T, T> resolvingFunction);
+    void setOutboundResolver(UnaryOperator<T> resolvingFunction);
 
     /**
      * Function applied to all incoming {@link <T>} objects before proceeding to execute the called
@@ -75,12 +76,12 @@ public interface ResolvingFacade<T> {
      * to filter out objects based on some externally defined conditions, returning {@code null} if
      * an object is to be discarded from the final outcome
      */
-    Function<T, T> getOutboundResolver();
+    UnaryOperator<T> getOutboundResolver();
 
     /**
      * Function applied to all incoming {@link <T>} objects before deferring to the decorated facade
      */
-    void setInboundResolver(Function<T, T> resolvingFunction);
+    void setInboundResolver(UnaryOperator<T> resolvingFunction);
 
     /**
      * Function applied to all incoming {@link <T>} objects before deferring to the decorated
@@ -89,7 +90,7 @@ public interface ResolvingFacade<T> {
      * <p>Use {@code facade.setInboundResolver(facade.getInboundResolver().andThen(myFunction))} to
      * add traits to the current resolver
      */
-    Function<T, T> getInboundResolver();
+    UnaryOperator<T> getInboundResolver();
 
     <C extends T> C resolveOutbound(C info);
 

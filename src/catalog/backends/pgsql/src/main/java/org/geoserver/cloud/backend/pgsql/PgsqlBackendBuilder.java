@@ -22,7 +22,7 @@ import org.geoserver.config.plugin.GeoServerImpl;
 import org.geoserver.config.plugin.RepositoryGeoServerFacade;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import javax.sql.DataSource;
 
@@ -58,10 +58,11 @@ public class PgsqlBackendBuilder {
 
     public static ExtendedCatalogFacade createResolvingCatalogFacade(
             Catalog catalog, PgsqlCatalogFacade rawFacade) {
-        Function<CatalogInfo, CatalogInfo> resolvingFunction =
+        UnaryOperator<CatalogInfo> resolvingFunction =
                 CatalogPropertyResolver.<CatalogInfo>of(catalog)
-                        .andThen(ResolvingProxyResolver.<CatalogInfo>of(catalog))
-                        .andThen(CollectionPropertiesInitializer.instance());
+                                .andThen(ResolvingProxyResolver.<CatalogInfo>of(catalog))
+                                .andThen(CollectionPropertiesInitializer.instance())
+                        ::apply;
 
         ResolvingCatalogFacadeDecorator resolving = new ResolvingCatalogFacadeDecorator(rawFacade);
         resolving.setOutboundResolver(resolvingFunction);

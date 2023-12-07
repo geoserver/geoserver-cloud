@@ -63,7 +63,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -765,7 +764,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
                 .or(() -> Optional.ofNullable(ClassMappings.fromImpl(type)));
     }
 
-    protected <T extends CatalogInfo> void doAdd(T object, Function<T, T> inserter) {
+    protected <T extends CatalogInfo> void doAdd(T object, UnaryOperator<T> inserter) {
         Objects.requireNonNull(object, "object");
         Objects.requireNonNull(inserter, "insert function");
         setId(object);

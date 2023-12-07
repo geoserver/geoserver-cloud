@@ -13,6 +13,8 @@ import org.geoserver.config.util.XStreamPersister;
 import org.geoserver.config.util.XStreamPersisterFactory;
 import org.junit.jupiter.api.Disabled;
 
+import java.util.function.UnaryOperator;
+
 class XmlCatalogInfoLookupConformanceTest extends CatalogConformanceTest {
 
     protected @Override CatalogPlugin createCatalog() {
@@ -34,10 +36,12 @@ class XmlCatalogInfoLookupConformanceTest extends CatalogConformanceTest {
 
         ResolvingCatalogFacadeDecorator resolving = new ResolvingCatalogFacadeDecorator(rawFacade);
 
-        resolving.setOutboundResolver( //
+        UnaryOperator<CatalogInfo> chainedResolver =
                 CatalogPropertyResolver.<CatalogInfo>of(catalog) //
-                        .andThen(ResolvingProxyResolver.of(catalog)) //
-                        .andThen(CollectionPropertiesInitializer.instance()));
+                                .andThen(ResolvingProxyResolver.of(catalog)) //
+                                .andThen(CollectionPropertiesInitializer.instance())
+                        ::apply;
+        resolving.setOutboundResolver(chainedResolver);
         catalog.setFacade(resolving);
         return catalog;
     }

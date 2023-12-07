@@ -25,6 +25,7 @@ import org.mapstruct.factory.Mappers;
 import java.util.Collection;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 @Mapper(
         unmappedTargetPolicy = ReportingPolicy.ERROR,
@@ -90,7 +91,8 @@ public abstract class PatchMapper {
         return dto;
     }
 
-    private Object copyOf(Map<Object, Object> fromMap, Function<Object, Object> valueMapper) {
+    private Map<Object, Object> copyOf(
+            Map<Object, Object> fromMap, UnaryOperator<Object> valueMapper) {
         // create a Map of a type compatible with the original collection
         return PropertyDiff.PropertyDiffBuilder.copyOf(fromMap, valueMapper);
     }
