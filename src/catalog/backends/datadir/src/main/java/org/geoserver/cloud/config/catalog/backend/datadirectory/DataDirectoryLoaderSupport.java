@@ -115,8 +115,6 @@ class DataDirectoryLoaderSupport {
             if (serviceInfo == null) {
                 serviceInfo = l.create(geoServer);
                 geoServer.add(serviceInfo);
-            } else {
-
             }
         }
     }
