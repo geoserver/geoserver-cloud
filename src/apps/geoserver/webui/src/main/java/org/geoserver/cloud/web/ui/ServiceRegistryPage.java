@@ -46,12 +46,11 @@ public class ServiceRegistryPage extends GeoServerSecuredPage {
 
             @SuppressWarnings("unchecked")
             IModel<String> model = (IModel<String>) property.getModel(itemModel);
-            switch (property.getName()) {
-                case "uri":
-                    SimpleExternalLink link = new SimpleExternalLink(id, model);
-                    // avoid adding ;jsessionid=xxx to the url
-                    link.getLink().add(new AttributeAppender("rel", "noreferrer"));
-                    return link;
+            if ("uri".equals(property.getName())) {
+                SimpleExternalLink link = new SimpleExternalLink(id, model);
+                // avoid adding ;jsessionid=xxx to the url
+                link.getLink().add(new AttributeAppender("rel", "noreferrer"));
+                return link;
             }
             return new Label(id, model);
         }

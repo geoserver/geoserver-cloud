@@ -82,14 +82,7 @@ public class CloudGwcXmlConfiguration extends XMLConfiguration {
     @EventListener(GridsetEvent.class)
     public boolean onGridsetEvent(GridsetEvent event) throws Exception {
         if (isLocal(event)) return false;
-
-        switch (event.getEventType()) {
-            case CREATED, DELETED, MODIFIED:
-                reload(event);
-                break;
-            default:
-                throw new IllegalArgumentException("Uknown event type: " + event.getEventType());
-        }
+        reload(event);
         return true;
     }
 
