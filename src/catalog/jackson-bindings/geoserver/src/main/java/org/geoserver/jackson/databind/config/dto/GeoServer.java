@@ -26,7 +26,7 @@ public @Data @Generated class GeoServer extends ConfigInfoDto {
         DEFAULT,
         REDIRECT,
         DO_NOT_REDIRECT
-    };
+    }
 
     private Settings settings;
     private JaiDto JAI;

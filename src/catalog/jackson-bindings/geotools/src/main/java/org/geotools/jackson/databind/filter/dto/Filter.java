@@ -119,7 +119,7 @@ public @Data @Generated class Filter {
             ANY,
             ALL,
             ONE
-        };
+        }
 
         private MatchAction matchAction;
     }
