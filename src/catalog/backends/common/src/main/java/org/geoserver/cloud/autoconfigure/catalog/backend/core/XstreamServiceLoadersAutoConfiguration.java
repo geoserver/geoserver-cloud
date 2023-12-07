@@ -92,7 +92,7 @@ public class XstreamServiceLoadersAutoConfiguration {
 
     @ConditionalOnMissingBean(WPSFactoryExtension.class)
     @Bean
-    WPSFactoryExtension WPSFactoryExtension() {
+    WPSFactoryExtension wpsFactoryExtension() {
         log(WPSFactoryExtension.class);
         return new WPSFactoryExtension() {}; // constructor is protected!
     }
