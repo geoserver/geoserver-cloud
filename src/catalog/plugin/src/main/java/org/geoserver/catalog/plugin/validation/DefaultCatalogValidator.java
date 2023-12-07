@@ -258,7 +258,7 @@ public class DefaultCatalogValidator implements CatalogValidator {
         List<PublishedInfo> layers = layerGroup.getLayers();
         checkArgument(layers != null && !layers.isEmpty(), "Layer group must not be empty");
         List<StyleInfo> styles = layerGroup.getStyles();
-        for (int i = 0; i < layers.size(); ) {
+        for (int i = 0; i < layers.size(); i++) {
             if (styles != null && layers.get(i) == null && styles.get(i) == null) {
                 layers.remove(i);
                 styles.remove(i);
@@ -279,7 +279,6 @@ public class DefaultCatalogValidator implements CatalogValidator {
                                 "Error validating style group: " + e.getMessage(), e);
                     }
                 }
-                i++;
             }
         }
         if (layerGroup.getStyles() != null
