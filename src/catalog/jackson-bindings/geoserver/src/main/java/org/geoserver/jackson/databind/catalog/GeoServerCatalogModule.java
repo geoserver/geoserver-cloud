@@ -135,14 +135,18 @@ public class GeoServerCatalogModule extends SimpleModule {
         super.addDeserializer(clazz, new CatalogInfoDeserializer<>());
     }
 
-    private <T, DTO> void addMapperSerializer(
+    /**
+     * @param <T> object model type
+     * @param <D> DTO type
+     */
+    private <T, D> void addMapperSerializer(
             Class<T> type,
-            Function<T, DTO> serializerMapper,
-            Class<DTO> dtoType,
-            Function<DTO, T> deserializerMapper) {
+            Function<T, D> serializerMapper,
+            Class<D> dtoType,
+            Function<D, T> deserializerMapper) {
 
-        MapperSerializer<T, DTO> serializer = new MapperSerializer<>(type, serializerMapper);
-        MapperDeserializer<DTO, T> deserializer =
+        MapperSerializer<T, D> serializer = new MapperSerializer<>(type, serializerMapper);
+        MapperDeserializer<D, T> deserializer =
                 new MapperDeserializer<>(dtoType, deserializerMapper);
         super.addSerializer(type, serializer);
         super.addDeserializer(type, deserializer);
