@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Generated;
 
 import org.geoserver.config.SettingsInfo;
 import org.geoserver.jackson.databind.catalog.dto.MetadataMapDto;
@@ -18,7 +17,8 @@ import java.util.Locale;
 /** DTO for {@link SettingsInfo} */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("SettingsInfo")
-public @Data @Generated class Settings extends ConfigInfoDto {
+@Data
+public class Settings extends ConfigInfoDto {
     private String workspace;
     private String title;
     private Contact contact;

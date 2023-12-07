@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Generated;
 
 import org.geoserver.catalog.LayerInfo.WMSInterpolation;
 import org.geoserver.catalog.impl.AuthorityURL;
@@ -44,8 +43,9 @@ import java.util.Set;
     @JsonSubTypes.Type(value = Service.WmtsService.class),
     @JsonSubTypes.Type(value = Service.GenericService.class)
 })
+@Data
 @EqualsAndHashCode(callSuper = true)
-public abstract @Data @Generated class Service extends ConfigInfoDto {
+public abstract class Service extends ConfigInfoDto {
     private String name;
     private String workspace;
     private boolean citeCompliant;
@@ -82,11 +82,13 @@ public abstract @Data @Generated class Service extends ConfigInfoDto {
 
     @EqualsAndHashCode(callSuper = true)
     @JsonTypeName("ServiceInfo")
-    public static @Data @Generated class GenericService extends Service {}
+    @Data
+    public static class GenericService extends Service {}
 
     @EqualsAndHashCode(callSuper = true)
     @JsonTypeName("WMSInfo")
-    public static @Data @Generated class WmsService extends Service {
+    @Data
+    public static class WmsService extends Service {
         // Works well as POJO, no need to create a separate DTO
         private WatermarkInfoImpl watermark;
         // enum, direct use
@@ -146,7 +148,8 @@ public abstract @Data @Generated class Service extends ConfigInfoDto {
 
     @EqualsAndHashCode(callSuper = true)
     @JsonTypeName("WFSInfo")
-    public static @Data @Generated class WfsService extends Service {
+    @Data
+    public static class WfsService extends Service {
         private Map<Version, GMLInfoImpl> GML;
         private int maxFeatures;
         private ServiceLevel serviceLevel;
@@ -178,7 +181,8 @@ public abstract @Data @Generated class Service extends ConfigInfoDto {
 
     @EqualsAndHashCode(callSuper = true)
     @JsonTypeName("WCSInfo")
-    public static @Data @Generated class WcsService extends Service {
+    @Data
+    public static class WcsService extends Service {
         private boolean GMLPrefixing;
         private long maxInputMemory;
         private long maxOutputMemory;
@@ -192,7 +196,8 @@ public abstract @Data @Generated class Service extends ConfigInfoDto {
 
     @EqualsAndHashCode(callSuper = true)
     @JsonTypeName("WPSInfo")
-    public static @Data @Generated class WpsService extends Service {
+    @Data
+    public static class WpsService extends Service {
         private double connectionTimeout;
         private int resourceExpirationTimeout;
         private int maxSynchronousProcesses;
@@ -210,7 +215,8 @@ public abstract @Data @Generated class Service extends ConfigInfoDto {
         private boolean remoteInputDisabled;
 
         /** DTO for {@link ProcessGroupInfo} */
-        public static @Data @Generated class ProcessGroup {
+        @Data
+        public static class ProcessGroup {
             private String factoryClass;
             private boolean isEnabled;
             private List<WpsService.Process> filteredProcesses;
@@ -219,7 +225,8 @@ public abstract @Data @Generated class Service extends ConfigInfoDto {
         }
 
         /** DTO for {@link ProcessInfo} */
-        public static @Data @Generated class Process {
+        @Data
+        public static class Process {
             private NameDto name;
             private boolean enabled;
             private List<String> roles;
@@ -230,5 +237,6 @@ public abstract @Data @Generated class Service extends ConfigInfoDto {
     /** DTO for {@link WMTSInfo} */
     @EqualsAndHashCode(callSuper = true)
     @JsonTypeName("WMTSInfo")
-    public static @Data @Generated class WmtsService extends Service {}
+    @Data
+    public static class WmtsService extends Service {}
 }

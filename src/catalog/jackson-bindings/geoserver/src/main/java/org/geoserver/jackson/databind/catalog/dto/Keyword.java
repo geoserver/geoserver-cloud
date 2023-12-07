@@ -5,9 +5,9 @@
 package org.geoserver.jackson.databind.catalog.dto;
 
 import lombok.Data;
-import lombok.Generated;
 
-public @Data @Generated class Keyword {
+@Data
+public class Keyword {
     private String value;
     private String language;
     private String vocabulary;

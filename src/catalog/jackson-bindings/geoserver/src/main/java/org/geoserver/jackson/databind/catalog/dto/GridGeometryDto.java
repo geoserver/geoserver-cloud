@@ -5,7 +5,6 @@
 package org.geoserver.jackson.databind.catalog.dto;
 
 import lombok.Data;
-import lombok.Generated;
 
 import org.geoserver.config.util.XStreamPersister;
 import org.geotools.coverage.grid.GridGeometry2D;
@@ -15,7 +14,8 @@ import org.geotools.coverage.grid.GridGeometry2D;
  *
  * @see XStreamPersister#GridGeometry2DConverter
  */
-public @Data @Generated class GridGeometryDto {
+@Data
+public class GridGeometryDto {
     private int[] low;
     private int[] high;
     private double[] transform;

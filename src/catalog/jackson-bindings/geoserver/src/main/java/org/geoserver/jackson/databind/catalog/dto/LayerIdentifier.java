@@ -5,9 +5,9 @@
 package org.geoserver.jackson.databind.catalog.dto;
 
 import lombok.Data;
-import lombok.Generated;
 
-public @Data @Generated class LayerIdentifier {
+@Data
+public class LayerIdentifier {
     private String authority;
     private String identifier;
 }

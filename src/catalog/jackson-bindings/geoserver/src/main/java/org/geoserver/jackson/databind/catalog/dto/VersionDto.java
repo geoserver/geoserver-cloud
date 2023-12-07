@@ -5,11 +5,11 @@
 package org.geoserver.jackson.databind.catalog.dto;
 
 import lombok.Data;
-import lombok.Generated;
 import lombok.experimental.Accessors;
 
 /** DTO for {@link org.geotools.util.Version} */
 @Accessors(chain = true)
-public @Data @Generated class VersionDto {
+@Data
+public class VersionDto {
     private String value;
 }

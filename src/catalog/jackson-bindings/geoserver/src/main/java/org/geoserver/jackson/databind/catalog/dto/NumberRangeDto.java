@@ -5,7 +5,6 @@
 package org.geoserver.jackson.databind.catalog.dto;
 
 import lombok.Data;
-import lombok.Generated;
 
 import org.geoserver.config.util.XStreamPersister;
 import org.geotools.util.NumberRange;
@@ -14,7 +13,8 @@ import org.geotools.util.NumberRange;
  * @see NumberRange
  * @see XStreamPersister#NumberRangeConverter
  */
-public @Data @Generated class NumberRangeDto {
+@Data
+public class NumberRangeDto {
 
     private Number min;
     private Number max;

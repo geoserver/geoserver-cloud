@@ -5,21 +5,22 @@
 package org.geoserver.jackson.databind.config.dto;
 
 import lombok.Data;
-import lombok.Generated;
 
 import org.geoserver.config.JAIInfo;
 
 import java.util.Set;
 
 /** DTO for {@link JAIInfo} */
-public @Data @Generated class JaiDto {
+@Data
+public class JaiDto {
     public enum PngEncoderType {
         JDK,
         NATIVE,
         PNGJ
     }
 
-    public static @Data @Generated class JAIEXTInfo {
+    @Data
+    public static class JAIEXTInfo {
         private Set<String> JAIOperations;
         private Set<String> JAIEXTOperations;
     }

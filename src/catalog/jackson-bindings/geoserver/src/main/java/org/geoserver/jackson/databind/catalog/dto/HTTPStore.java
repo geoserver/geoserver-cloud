@@ -8,14 +8,12 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Generated;
 
 @JsonSubTypes({
     @JsonSubTypes.Type(value = WMSStore.class),
     @JsonSubTypes.Type(value = WMTSStore.class)
 })
 @Data
-@Generated
 @EqualsAndHashCode(callSuper = true)
 public abstract class HTTPStore extends Store {
     private String capabilitiesURL;

@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Generated;
 
 import java.util.List;
 
@@ -17,7 +16,6 @@ import java.util.List;
     @JsonSubTypes.Type(value = LayerGroup.class)
 })
 @Data
-@Generated
 @EqualsAndHashCode(callSuper = true)
 public abstract class Published extends CatalogInfoDto {
 

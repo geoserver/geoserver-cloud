@@ -6,9 +6,9 @@ package org.geoserver.jackson.databind.config.dto;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Generated;
 
 import org.geoserver.jackson.databind.catalog.dto.InfoDto;
 
 @EqualsAndHashCode(callSuper = true)
-public @Data @Generated class ConfigInfoDto extends InfoDto {}
+@Data
+public class ConfigInfoDto extends InfoDto {}

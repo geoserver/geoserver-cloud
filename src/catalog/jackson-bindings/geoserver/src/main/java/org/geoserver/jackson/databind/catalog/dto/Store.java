@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Generated;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -19,7 +18,6 @@ import java.util.Map;
     @JsonSubTypes.Type(value = HTTPStore.class)
 })
 @Data
-@Generated
 @EqualsAndHashCode(callSuper = true)
 public abstract class Store extends CatalogInfoDto {
     private String name;

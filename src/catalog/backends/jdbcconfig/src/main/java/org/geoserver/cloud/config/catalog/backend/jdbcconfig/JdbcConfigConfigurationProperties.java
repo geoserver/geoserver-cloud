@@ -5,7 +5,6 @@
 package org.geoserver.cloud.config.catalog.backend.jdbcconfig;
 
 import lombok.Data;
-import lombok.Generated;
 
 import org.geoserver.cloud.autoconfigure.catalog.backend.jdbcconfig.JDBCConfigAutoConfiguration;
 import org.geoserver.cloud.config.catalog.backend.core.GeoServerBackendConfigurer;
@@ -19,9 +18,9 @@ import java.nio.file.Path;
  * modules as the {@link GeoServerBackendConfigurer catalog and configuration backend} through the
  * {@link JDBCConfigAutoConfiguration} auto-configuration.
  */
-@Generated
+@Data
 @ConfigurationProperties(prefix = "geoserver.backend.jdbcconfig")
-public @Data class JdbcConfigConfigurationProperties {
+public class JdbcConfigConfigurationProperties {
     private boolean enabled;
     private boolean initdb;
     private Path cacheDirectory;

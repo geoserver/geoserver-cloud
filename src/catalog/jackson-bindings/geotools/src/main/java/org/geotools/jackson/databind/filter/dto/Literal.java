@@ -5,7 +5,6 @@
 package org.geotools.jackson.databind.filter.dto;
 
 import lombok.Data;
-import lombok.Generated;
 import lombok.experimental.Accessors;
 
 import java.util.Arrays;
@@ -16,8 +15,9 @@ import java.util.Objects;
  * @see LiteralDeserializer
  * @since 1.0
  */
+@Data
 @Accessors(chain = true)
-public @Data @Generated class Literal extends Expression {
+public class Literal extends Expression {
 
     private Object value;
 

@@ -6,14 +6,12 @@ package org.geoserver.jackson.databind.catalog.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Generated;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 import org.geoserver.catalog.impl.ClassMappings;
 
 @Data
-@Generated
 @NoArgsConstructor
 @AllArgsConstructor
 public class InfoReference {

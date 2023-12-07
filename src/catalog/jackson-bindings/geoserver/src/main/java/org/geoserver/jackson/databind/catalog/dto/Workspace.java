@@ -8,10 +8,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Generated;
 
 @Data
-@Generated
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("WorkspaceInfo")
 public class Workspace extends CatalogInfoDto {

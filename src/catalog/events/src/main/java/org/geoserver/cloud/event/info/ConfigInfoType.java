@@ -5,7 +5,6 @@
 package org.geoserver.cloud.event.info;
 
 import lombok.AccessLevel;
-import lombok.Generated;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +30,6 @@ import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
 
-@Generated // make test coverage tools ignore it
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum ConfigInfoType {
     CATALOG(Catalog.class), //

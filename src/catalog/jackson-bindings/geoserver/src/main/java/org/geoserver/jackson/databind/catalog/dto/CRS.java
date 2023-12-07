@@ -5,9 +5,9 @@
 package org.geoserver.jackson.databind.catalog.dto;
 
 import lombok.Data;
-import lombok.Generated;
 
-public @Data @Generated class CRS {
+@Data
+public class CRS {
     private String srs;
     private String WKT;
 }

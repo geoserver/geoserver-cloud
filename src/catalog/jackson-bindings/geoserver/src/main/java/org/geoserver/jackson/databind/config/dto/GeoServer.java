@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Generated;
 
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.jackson.databind.catalog.dto.MetadataMapDto;
@@ -16,7 +15,8 @@ import org.geoserver.jackson.databind.catalog.dto.MetadataMapDto;
 /** DTO for {@link GeoServerInfo} */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("GeoServerInfo")
-public @Data @Generated class GeoServer extends ConfigInfoDto {
+@Data
+public class GeoServer extends ConfigInfoDto {
     public enum ResourceErrorHandling {
         OGC_EXCEPTION_REPORT,
         SKIP_MISCONFIGURED_LAYERS

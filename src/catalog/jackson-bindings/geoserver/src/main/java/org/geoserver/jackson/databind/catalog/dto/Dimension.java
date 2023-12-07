@@ -5,7 +5,6 @@
 package org.geoserver.jackson.databind.catalog.dto;
 
 import lombok.Data;
-import lombok.Generated;
 
 import org.geoserver.catalog.DimensionDefaultValueSetting;
 import org.geoserver.catalog.DimensionInfo;
@@ -14,7 +13,8 @@ import org.geoserver.catalog.DimensionPresentation;
 import java.math.BigDecimal;
 
 /** DTO for {@link DimensionInfo} */
-public @Data @Generated class Dimension {
+@Data
+public class Dimension {
     private boolean enabled;
     private String attribute;
     private String endAttribute;

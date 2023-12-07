@@ -8,14 +8,12 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Generated;
 
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
 @Data
-@Generated
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("CoverageInfo")
 public class Coverage extends Resource {

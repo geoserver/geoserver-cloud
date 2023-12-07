@@ -7,11 +7,11 @@ package org.geoserver.jackson.databind.config.dto;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import lombok.Data;
-import lombok.Generated;
 
 /** */
 @JsonTypeName("CogSettings")
-public @Data @Generated class CogSettingsDto {
+@Data
+public class CogSettingsDto {
     public enum RangeReaderType {
         HTTP,
         S3,

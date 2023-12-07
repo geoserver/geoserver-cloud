@@ -8,13 +8,11 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Generated;
 
 import java.util.List;
 import java.util.Map;
 
 @Data
-@Generated
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("LayerGroupInfo")
 public class LayerGroup extends Published {

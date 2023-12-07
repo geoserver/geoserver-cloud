@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Generated;
 
 import java.util.List;
 import java.util.Map;
@@ -20,7 +19,6 @@ import java.util.Map;
     @JsonSubTypes.Type(value = WMTSLayer.class)
 })
 @Data
-@Generated
 @EqualsAndHashCode(callSuper = true)
 public abstract class Resource extends CatalogInfoDto {
     public enum ProjectionPolicy {

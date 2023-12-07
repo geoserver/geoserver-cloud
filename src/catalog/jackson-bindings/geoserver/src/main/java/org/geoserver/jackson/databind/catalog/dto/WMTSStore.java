@@ -8,10 +8,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Generated;
 
 @Data
-@Generated
 @JsonTypeName("WMTSStoreInfo")
 @EqualsAndHashCode(callSuper = true)
 public class WMTSStore extends HTTPStore {

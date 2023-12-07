@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Generated;
 
 import java.util.Date;
 
@@ -22,7 +21,6 @@ import java.util.Date;
     @JsonSubTypes.Type(value = Published.class)
 })
 @Data
-@Generated
 @EqualsAndHashCode(callSuper = true)
 public abstract class CatalogInfoDto extends InfoDto {
     private Date dateCreated;

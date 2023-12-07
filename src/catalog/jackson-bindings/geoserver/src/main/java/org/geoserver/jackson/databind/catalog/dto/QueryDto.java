@@ -5,7 +5,6 @@
 package org.geoserver.jackson.databind.catalog.dto;
 
 import lombok.Data;
-import lombok.Generated;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +19,8 @@ import java.util.List;
 /** DTO for {@link Query} */
 @NoArgsConstructor
 @RequiredArgsConstructor
-public @Data @Generated class QueryDto {
+@Data
+public class QueryDto {
     private @NonNull Class<?> type;
     private @NonNull Filter filter = Filter.INCLUDE;
     private @NonNull List<SortBy> sortBy = new ArrayList<>();

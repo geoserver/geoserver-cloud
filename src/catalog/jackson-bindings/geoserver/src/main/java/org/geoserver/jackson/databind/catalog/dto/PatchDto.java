@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import lombok.Data;
-import lombok.Generated;
 
 import org.geotools.jackson.databind.filter.dto.Literal;
 
@@ -18,7 +17,8 @@ import java.util.List;
 /** DTO for {@link org.geoserver.catalog.plugin.Patch} */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("Patch")
-public @Data @Generated class PatchDto {
+@Data
+public class PatchDto {
     private List<PatchPropertyDto> patches = new ArrayList<>();
 
     @JsonTypeName("Property")

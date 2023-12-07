@@ -9,11 +9,9 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Generated;
 
 /** */
 @Data
-@Generated
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("CogSettingsStore")
 @JsonTypeInfo(include = JsonTypeInfo.As.WRAPPER_OBJECT, use = JsonTypeInfo.Id.NAME)

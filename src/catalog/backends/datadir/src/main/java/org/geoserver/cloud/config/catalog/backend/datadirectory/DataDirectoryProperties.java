@@ -5,7 +5,6 @@
 package org.geoserver.cloud.config.catalog.backend.datadirectory;
 
 import lombok.Data;
-import lombok.Generated;
 
 import org.geoserver.cloud.autoconfigure.catalog.backend.datadir.DataDirectoryAutoConfiguration;
 import org.geoserver.cloud.config.catalog.backend.core.GeoServerBackendConfigurer;
@@ -18,9 +17,9 @@ import java.nio.file.Path;
  * {@link GeoServerBackendConfigurer catalog and configuration backend} through the {@link
  * DataDirectoryAutoConfiguration} auto-configuration.
  */
-@Generated
 @ConfigurationProperties(prefix = "geoserver.backend.data-directory")
-public @Data class DataDirectoryProperties {
+@Data
+public class DataDirectoryProperties {
 
     private boolean enabled;
     private Path location;
