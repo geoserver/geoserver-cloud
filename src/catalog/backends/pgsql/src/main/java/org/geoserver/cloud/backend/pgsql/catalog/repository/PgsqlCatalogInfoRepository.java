@@ -217,7 +217,7 @@ public abstract class PgsqlCatalogInfoRepository<T extends CatalogInfo>
         return sql;
     }
 
-    protected <U extends T> String applyOffsetLimit(String sql, Integer offset, Integer limit) {
+    protected String applyOffsetLimit(String sql, Integer offset, Integer limit) {
         if (null != offset) sql += " OFFSET %d".formatted(offset);
         if (null != limit) sql += " LIMIT %d".formatted(limit);
         return sql;

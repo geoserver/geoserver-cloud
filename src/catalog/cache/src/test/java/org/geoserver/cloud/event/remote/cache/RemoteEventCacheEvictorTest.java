@@ -142,7 +142,7 @@ class RemoteEventCacheEvictorTest {
         return patch;
     }
 
-    private <E extends InfoEvent<?>> E publishRemote(E event) {
+    private <E extends InfoEvent> E publishRemote(E event) {
         event.setRemote(true);
         publisher.publishEvent(event);
         return event;

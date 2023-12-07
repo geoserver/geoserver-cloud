@@ -37,7 +37,7 @@ public class RemoteEventJdbcConfigProcessor {
         evictConfigDatabaseEntry(event);
     }
 
-    private void evictConfigDatabaseEntry(InfoEvent<? extends Info> event) {
+    private void evictConfigDatabaseEntry(InfoEvent event) {
         event.remote()
                 .ifPresent(
                         remoteEvent -> {

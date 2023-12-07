@@ -42,7 +42,7 @@ import java.util.function.Consumer;
  *
  * @param R the type of resource to be accessed on a class basis for {@link CatalogInfo} subtypes
  */
-public class CatalogInfoTypeRegistry<I extends CatalogInfo, R> {
+public class CatalogInfoTypeRegistry<R> {
 
     private final EnumMap<ClassMappings, R> mappings = new EnumMap<>(ClassMappings.class);
 
@@ -51,19 +51,18 @@ public class CatalogInfoTypeRegistry<I extends CatalogInfo, R> {
      * corresponding {@link CatalogInfo} interface type.
      */
     @SuppressWarnings("unchecked")
-    public <T extends CatalogInfo> CatalogInfoTypeRegistry<T, R> register(
-            Class<T> type, R resource) {
+    public <T extends CatalogInfo> CatalogInfoTypeRegistry<R> register(Class<T> type, R resource) {
         requireNonNull(type);
         requireNonNull(resource);
         ClassMappings key = determineKey(type);
         mappings.put(key, resource);
-        return (CatalogInfoTypeRegistry<T, R>) this;
+        return (CatalogInfoTypeRegistry<R>) this;
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends CatalogInfo> CatalogInfoTypeRegistry<T, Consumer<T>> consume(
+    public <T extends CatalogInfo> CatalogInfoTypeRegistry<Consumer<T>> consume(
             Class<T> type, Consumer<T> with) {
-        return ((CatalogInfoTypeRegistry<T, Consumer<T>>) this).registerRecursively(type, with);
+        return ((CatalogInfoTypeRegistry<Consumer<T>>) this).registerRecursively(type, with);
     }
 
     /**
@@ -73,7 +72,7 @@ public class CatalogInfoTypeRegistry<I extends CatalogInfo, R> {
      * WMSStoreInfo}, and {@link WMTSStoreInfo})
      */
     @SuppressWarnings("unchecked")
-    public <T extends CatalogInfo> CatalogInfoTypeRegistry<T, R> registerRecursively(
+    public <T extends CatalogInfo> CatalogInfoTypeRegistry<R> registerRecursively(
             Class<T> type, R resource) {
 
         ClassMappings key = determineKey(type);
@@ -84,7 +83,7 @@ public class CatalogInfoTypeRegistry<I extends CatalogInfo, R> {
             Class<? extends T> subtype = (Class<? extends T>) subtypes[i];
             register(subtype, resource);
         }
-        return (CatalogInfoTypeRegistry<T, R>) this;
+        return (CatalogInfoTypeRegistry<R>) this;
     }
 
     public R forObject(CatalogInfo object) {
@@ -97,7 +96,7 @@ public class CatalogInfoTypeRegistry<I extends CatalogInfo, R> {
         return of(determineKey(type));
     }
 
-    public <T extends CatalogInfo> R of(ClassMappings key) {
+    public R of(ClassMappings key) {
         requireNonNull(key);
         return mappings.get(key);
     }

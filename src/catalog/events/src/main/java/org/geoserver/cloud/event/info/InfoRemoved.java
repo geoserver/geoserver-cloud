@@ -19,7 +19,7 @@ import org.geoserver.cloud.event.config.ConfigInfoRemoved;
     @JsonSubTypes.Type(value = ConfigInfoRemoved.class, name = "ConfigInfoRemoved"),
 })
 @SuppressWarnings("serial")
-public abstract class InfoRemoved<I extends Info> extends InfoEvent<I> {
+public abstract class InfoRemoved<I extends Info> extends InfoEvent {
 
     protected InfoRemoved() {}
 

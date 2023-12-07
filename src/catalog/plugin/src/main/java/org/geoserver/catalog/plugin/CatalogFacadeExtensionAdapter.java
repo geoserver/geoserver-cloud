@@ -49,7 +49,7 @@ import java.util.stream.StreamSupport;
 public class CatalogFacadeExtensionAdapter extends ForwardingCatalogFacade
         implements ExtendedCatalogFacade {
 
-    private CatalogInfoTypeRegistry<?, Consumer<?>> updateToSaveBridge =
+    private CatalogInfoTypeRegistry<Consumer<?>> updateToSaveBridge =
             new CatalogInfoTypeRegistry<>();
 
     public CatalogFacadeExtensionAdapter(CatalogFacade facade) {

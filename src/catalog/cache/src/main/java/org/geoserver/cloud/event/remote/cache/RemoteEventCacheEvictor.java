@@ -152,7 +152,7 @@ public @Service class RemoteEventCacheEvictor {
                         });
     }
 
-    private void evictCatalogInfo(InfoEvent<? extends CatalogInfo> event) {
+    private void evictCatalogInfo(InfoEvent event) {
         evictEntry(
                 event,
                 () -> {
@@ -164,7 +164,7 @@ public @Service class RemoteEventCacheEvictor {
                 });
     }
 
-    public void evictConfigEntry(InfoEvent<? extends Info> event) {
+    public void evictConfigEntry(InfoEvent event) {
         evictEntry(
                 event,
                 () -> {
@@ -175,7 +175,7 @@ public @Service class RemoteEventCacheEvictor {
                 });
     }
 
-    private void evictEntry(InfoEvent<? extends Info> event, BooleanSupplier evictor) {
+    private void evictEntry(InfoEvent event, BooleanSupplier evictor) {
         event.remote()
                 .ifPresent(
                         evt -> {
