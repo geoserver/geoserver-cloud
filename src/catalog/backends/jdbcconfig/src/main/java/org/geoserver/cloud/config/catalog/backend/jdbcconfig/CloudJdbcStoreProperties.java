@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -64,17 +65,23 @@ public class CloudJdbcStoreProperties extends JDBCResourceStoreProperties {
         if (initDb) {
             try (Connection c = dataSource.getConnection();
                     Statement st = c.createStatement()) {
-                try {
-                    st.executeQuery("select count(*) from resources");
+                if (dbSchemaExists(st)) {
                     initDb = false;
-                } catch (SQLException e) {
-                    // table not found, proceed with initialization
                 }
             } catch (SQLException e) {
                 throw new IllegalStateException(e);
             }
         }
         return initDb;
+    }
+
+    private boolean dbSchemaExists(Statement st) {
+        try (ResultSet rs = st.executeQuery("select count(*) from resources")) {
+            return true;
+        } catch (SQLException e) {
+            // table not found, proceed with initialization
+            return false;
+        }
     }
 
     /**

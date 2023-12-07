@@ -182,34 +182,51 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
 
             int count = 0;
             for (Resource root : allClasspathBaseResources) {
-                String uri = root.getURI().toString();
-                if (jarNamePattern.matcher(uri).matches()) {
-                    String resourceURI = root.getURI().toString() + resourcePattern;
-                    log.debug(
-                            "Loading bean definitions from {}, matches pattern {}",
-                            resourceURI,
-                            jarNameExpression);
-                    try {
-                        int c = super.loadBeanDefinitions(resourceURI, actualResources);
-                        log.debug("Loaded {} bean definitions from {}", c, uri);
-                        if (actualResources != null) {
-                            actualResources.add(root);
-                        }
-                        count += c;
-                    } catch (BeanDefinitionStoreException fnf) {
-                        if (fnf.getCause() instanceof FileNotFoundException) {
-                            log.debug("No {} in {}, skipping.", resourcePattern, uri);
-                        } else {
-                            throw fnf;
-                        }
-                    }
-                }
+                count +=
+                        loadBeanDefinitions(
+                                actualResources,
+                                jarNameExpression,
+                                jarNamePattern,
+                                resourcePattern,
+                                root);
             }
             return count;
         } catch (IOException ex) {
             throw new BeanDefinitionStoreException(
                     "Could not resolve bean definition resource pattern [" + location + "]", ex);
         }
+    }
+
+    private int loadBeanDefinitions(
+            Set<Resource> actualResources,
+            String jarNameExpression,
+            Pattern jarNamePattern,
+            final String resourcePattern,
+            Resource root)
+            throws IOException {
+        String uri = root.getURI().toString();
+        int count = 0;
+        if (jarNamePattern.matcher(uri).matches()) {
+            String resourceURI = root.getURI().toString() + resourcePattern;
+            log.debug(
+                    "Loading bean definitions from {}, matches pattern {}",
+                    resourceURI,
+                    jarNameExpression);
+            try {
+                count = super.loadBeanDefinitions(resourceURI, actualResources);
+                log.debug("Loaded {} bean definitions from {}", count, uri);
+                if (actualResources != null) {
+                    actualResources.add(root);
+                }
+            } catch (BeanDefinitionStoreException fnf) {
+                if (fnf.getCause() instanceof FileNotFoundException) {
+                    log.debug("No {} in {}, skipping.", resourcePattern, uri);
+                } else {
+                    throw fnf;
+                }
+            }
+        }
+        return count;
     }
 
     /**
