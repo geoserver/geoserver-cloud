@@ -119,14 +119,11 @@ public class CloudXMLResourceProvider implements ConfigurationResourceProvider {
                 Resources.list(
                         parentFile,
                         res -> {
-                            if (configFileName.equals(res.name())) {
+                            String name = res.name();
+                            if (configFileName.equals(name)) {
                                 return false;
                             }
-                            if (res.name().startsWith(configFileName)
-                                    && res.name().endsWith(".bak")) {
-                                return true;
-                            }
-                            return false;
+                            return name.startsWith(configFileName) && name.endsWith(".bak");
                         });
 
         final int maxBackups = 10;
