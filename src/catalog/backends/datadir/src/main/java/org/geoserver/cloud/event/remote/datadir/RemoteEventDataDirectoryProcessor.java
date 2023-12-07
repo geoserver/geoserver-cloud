@@ -130,16 +130,10 @@ public class RemoteEventDataDirectoryProcessor {
             case WORKSPACE:
                 catalogFacade.add((WorkspaceInfo) object);
                 break;
-            case COVERAGE:
-            case FEATURETYPE:
-            case WMSLAYER:
-            case WMTSLAYER:
+            case COVERAGE, FEATURETYPE, WMSLAYER, WMTSLAYER:
                 catalogFacade.add((ResourceInfo) object);
                 break;
-            case COVERAGESTORE:
-            case DATASTORE:
-            case WMSSTORE:
-            case WMTSSTORE:
+            case COVERAGESTORE, DATASTORE, WMSSTORE, WMTSSTORE:
                 catalogFacade.add((StoreInfo) object);
                 break;
             case LAYERGROUP:
@@ -222,16 +216,10 @@ public class RemoteEventDataDirectoryProcessor {
             case WORKSPACE:
                 info = catalogFacade.getWorkspace(objectId);
                 break;
-            case COVERAGE:
-            case FEATURETYPE:
-            case WMSLAYER:
-            case WMTSLAYER:
+            case COVERAGE, FEATURETYPE, WMSLAYER, WMTSLAYER:
                 info = catalogFacade.getResource(objectId, ResourceInfo.class);
                 break;
-            case COVERAGESTORE:
-            case DATASTORE:
-            case WMSSTORE:
-            case WMTSSTORE:
+            case COVERAGESTORE, DATASTORE, WMSSTORE, WMTSSTORE:
                 info = catalogFacade.getStore(objectId, StoreInfo.class);
                 break;
             case LAYERGROUP:
