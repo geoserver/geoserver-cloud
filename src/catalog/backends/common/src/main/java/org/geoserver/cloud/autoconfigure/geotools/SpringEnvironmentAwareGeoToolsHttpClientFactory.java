@@ -4,19 +4,19 @@
  */
 package org.geoserver.cloud.autoconfigure.geotools;
 
-import java.util.List;
+import lombok.AccessLevel;
+import lombok.Setter;
 
 import org.geotools.http.AbstractHTTPClientFactory;
 import org.geotools.http.HTTPBehavior;
 import org.geotools.http.HTTPClient;
 
-import lombok.AccessLevel;
-import lombok.Setter;
+import java.util.List;
 
 /** */
 public class SpringEnvironmentAwareGeoToolsHttpClientFactory extends AbstractHTTPClientFactory {
 
-	@Setter(value = AccessLevel.PACKAGE)
+    @Setter(value = AccessLevel.PACKAGE)
     private static GeoToolsHttpClientProxyConfigurationProperties proxyConfig =
             new GeoToolsHttpClientProxyConfigurationProperties();
 

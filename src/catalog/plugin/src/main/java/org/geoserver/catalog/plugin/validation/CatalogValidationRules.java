@@ -11,6 +11,7 @@ import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.CatalogValidator;
 import org.geoserver.catalog.CatalogVisitor;
+import org.geoserver.catalog.CatalogVisitorAdapter;
 import org.geoserver.catalog.CoverageInfo;
 import org.geoserver.catalog.CoverageStoreInfo;
 import org.geoserver.catalog.DataStoreInfo;
@@ -241,7 +242,7 @@ public class CatalogValidationRules {
         return new ValidationResult(errors);
     }
 
-    static class CatalogValidatorVisitor implements CatalogVisitor {
+    static class CatalogValidatorVisitor extends CatalogVisitorAdapter {
 
         CatalogValidator validator;
         boolean isNew;
@@ -250,9 +251,6 @@ public class CatalogValidationRules {
             this.validator = validator;
             this.isNew = isNew;
         }
-
-        @Override
-        public void visit(Catalog catalog) {}
 
         @Override
         public void visit(WorkspaceInfo workspace) {

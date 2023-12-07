@@ -132,13 +132,10 @@ class CatalogApplicationEventPublisher {
             publish(CatalogInfoModified.createLocal(incrementSequence(), event));
         }
 
-        /**
-         * {@inheritDoc}
-         *
-         * <p>no-op.
-         */
         @Override
-        public void reloaded() {}
+        public void reloaded() {
+            // no-op
+        }
     }
 
     @RequiredArgsConstructor
