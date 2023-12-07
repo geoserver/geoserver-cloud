@@ -60,7 +60,6 @@ import org.slf4j.LoggerFactory;
 
 import java.awt.geom.AffineTransform;
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -268,15 +267,15 @@ public interface ValueMappers {
             return dto;
         }
         if (s instanceof SimpleInternationalString) {
-            return Collections.singletonMap("", s.toString());
+            return Map.of("", s.toString());
         }
         if (s == null) return null;
 
         LoggerFactory.getLogger(getClass())
                 .warn(
-                        "Uknown InternationalString implementation: {}. Returning null",
+                        "Uknown InternationalString implementation: {}. Returning the default value",
                         s.getClass().getName());
-        return null;
+        return Map.of("", s.toString());
     }
 
     default GrowableInternationalString dtoToInternationalString(Map<String, String> s) {
