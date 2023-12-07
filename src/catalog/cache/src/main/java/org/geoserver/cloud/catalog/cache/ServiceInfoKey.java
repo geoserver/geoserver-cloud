@@ -33,10 +33,8 @@ class ServiceInfoKey {
             Class<?>[] interfaces = clazz.getInterfaces();
             Class<? extends ServiceInfo> mostConcrete = ServiceInfo.class;
             for (Class<?> i : interfaces) {
-                if (ServiceInfo.class.isAssignableFrom(i)) {
-                    if (mostConcrete.isAssignableFrom(i)) {
-                        mostConcrete = (Class<? extends ServiceInfo>) i;
-                    }
+                if (ServiceInfo.class.isAssignableFrom(i) && mostConcrete.isAssignableFrom(i)) {
+                    mostConcrete = (Class<? extends ServiceInfo>) i;
                 }
             }
             typeName = mostConcrete.getCanonicalName();

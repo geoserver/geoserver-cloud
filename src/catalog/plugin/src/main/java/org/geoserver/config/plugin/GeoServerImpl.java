@@ -273,15 +273,12 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
         validate(service);
         resolve(service);
         WorkspaceInfo workspace = service.getWorkspace();
-        if (workspace != null) {
-            if (facade.getServiceByName(service.getName(), workspace, ServiceInfo.class) != null) {
-                throw new IllegalArgumentException(
-                        "service with name '"
-                                + service.getName()
-                                + "' already exists in workspace '"
-                                + workspace.getName()
-                                + "'");
-            }
+        if (workspace != null
+                && facade.getServiceByName(service.getName(), workspace, ServiceInfo.class)
+                        != null) {
+            throw new IllegalArgumentException(
+                    "service with name '%s' already exists in workspace '%s'"
+                            .formatted(service.getName(), workspace.getName()));
         }
         facade.add(service);
 
