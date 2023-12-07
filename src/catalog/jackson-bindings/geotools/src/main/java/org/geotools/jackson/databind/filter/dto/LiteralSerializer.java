@@ -127,13 +127,9 @@ public class LiteralSerializer extends StdSerializer<Literal> {
 
     protected JsonSerializer<Object> findValueSerializer(
             SerializerProvider provider, final Class<?> type) throws JsonMappingException {
-        JsonSerializer<Object> valueSerializer;
-        {
-            TypeFactory typeFactory = provider.getTypeFactory();
-            JavaType javaType = typeFactory.constructType(type);
-            valueSerializer = provider.findValueSerializer(javaType);
-        }
-        return valueSerializer;
+        TypeFactory typeFactory = provider.getTypeFactory();
+        JavaType javaType = typeFactory.constructType(type);
+        return provider.findValueSerializer(javaType);
     }
 
     private void writeMap(Map<?, ?> value, JsonGenerator gen) throws IOException {

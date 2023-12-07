@@ -45,6 +45,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.channels.Channels;
 import java.util.LinkedHashMap;
 
@@ -168,17 +169,7 @@ public class WMSIntegrationAutoConfiguration {
 
             log.trace("GetMap request intercepted, serving cached content: {}", request);
 
-            final byte[] tileBytes;
-            {
-                final Resource mapContents = cachedTile.getBlob();
-                if (mapContents instanceof ByteArrayResource bar) {
-                    tileBytes = bar.getContents();
-                } else {
-                    ByteArrayOutputStream out = new ByteArrayOutputStream();
-                    mapContents.transferTo(Channels.newChannel(out));
-                    tileBytes = out.toByteArray();
-                }
-            }
+            final byte[] tileBytes = getTileBytes(cachedTile);
 
             // Handle Etags
             final String ifNoneMatch = request.getHttpRequestHeader("If-None-Match");
@@ -205,6 +196,16 @@ public class WMSIntegrationAutoConfiguration {
             headers.forEach(map::setResponseHeader);
 
             return map;
+        }
+
+        private byte[] getTileBytes(ConveyorTile cachedTile) throws IOException {
+            final Resource mapContents = cachedTile.getBlob();
+            if (mapContents instanceof ByteArrayResource bar) {
+                return bar.getContents();
+            }
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            mapContents.transferTo(Channels.newChannel(out));
+            return out.toByteArray();
         }
 
         private GetMapRequest getRequest(ProceedingJoinPoint joinPoint) {

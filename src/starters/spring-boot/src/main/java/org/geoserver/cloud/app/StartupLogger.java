@@ -34,17 +34,7 @@ public class StartupLogger {
         String app = env.getProperty("spring.application.name");
         String instanceId = env.getProperty("info.instance-id");
         int cpus = Runtime.getRuntime().availableProcessors();
-        String maxMem;
-        {
-            DataSize maxMemBytes = DataSize.ofBytes(Runtime.getRuntime().maxMemory());
-            double value = maxMemBytes.toKilobytes() / 1024d;
-            String unit = "MB";
-            if (maxMemBytes.toGigabytes() > 0) {
-                value = value / 1024d;
-                unit = "GB";
-            }
-            maxMem = String.format("%.2f %s", value, unit);
-        }
+        String maxMem = maxMem();
         log.info(
                 "{} ready. Instance-id: {}, cpus: {}, max memory: {}. Running as {}({}:{})",
                 app,
@@ -54,5 +44,16 @@ public class StartupLogger {
                 env.getProperty("user.name"),
                 env.getProperty("user.id"),
                 env.getProperty("user.gid"));
+    }
+
+    private String maxMem() {
+        DataSize maxMemBytes = DataSize.ofBytes(Runtime.getRuntime().maxMemory());
+        double value = maxMemBytes.toKilobytes() / 1024d;
+        String unit = "MB";
+        if (maxMemBytes.toGigabytes() > 0) {
+            value = value / 1024d;
+            unit = "GB";
+        }
+        return "%.2f %s".formatted(value, unit);
     }
 }
