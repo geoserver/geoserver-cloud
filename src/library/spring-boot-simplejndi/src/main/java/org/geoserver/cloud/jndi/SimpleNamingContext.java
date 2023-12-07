@@ -357,7 +357,8 @@ public class SimpleNamingContext implements Context {
         }
 
         protected @Override NameClassPair createObject(String simpleName, Object obj) {
-            return new org.geoserver.cloud.jndi.NameClassPair(simpleName, obj.getClass().getName());
+            return new org.geoserver.cloud.jndi.SimpleNameClassPair(
+                    simpleName, obj.getClass().getName());
         }
     }
 

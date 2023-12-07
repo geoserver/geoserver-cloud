@@ -9,11 +9,11 @@ import java.util.Objects;
 /**
  * @since 1.0
  */
-class NameClassPair extends javax.naming.NameClassPair {
+class SimpleNameClassPair extends javax.naming.NameClassPair {
 
     private static final long serialVersionUID = 1L;
 
-    public NameClassPair(String name, String className) {
+    public SimpleNameClassPair(String name, String className) {
         super(name, className);
     }
 

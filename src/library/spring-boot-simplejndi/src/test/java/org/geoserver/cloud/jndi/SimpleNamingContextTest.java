@@ -97,6 +97,6 @@ class SimpleNamingContextTest {
     }
 
     private NameClassPair ncp(String name, Class<?> type) {
-        return new org.geoserver.cloud.jndi.NameClassPair(name, type.getName());
+        return new org.geoserver.cloud.jndi.SimpleNameClassPair(name, type.getName());
     }
 }
