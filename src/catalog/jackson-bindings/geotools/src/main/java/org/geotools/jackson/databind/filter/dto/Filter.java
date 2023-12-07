@@ -30,9 +30,13 @@ import java.util.Set;
 })
 @Data
 @Accessors(chain = true)
-public class Filter {
+public abstract class Filter {
     public static final IncludeFilter INCLUDE = new IncludeFilter();
     public static final ExcludeFilter EXCLUDE = new ExcludeFilter();
+
+    protected Filter() {
+        // default constructor
+    }
 
     @Data
     @EqualsAndHashCode(callSuper = true)

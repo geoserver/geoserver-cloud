@@ -28,6 +28,10 @@ import java.util.Map;
 @Accessors(chain = true)
 public abstract class Expression {
 
+    protected Expression() {
+        // default constructor
+    }
+
     @Data
     @EqualsAndHashCode(callSuper = true)
     public static class PropertyName extends Expression {
