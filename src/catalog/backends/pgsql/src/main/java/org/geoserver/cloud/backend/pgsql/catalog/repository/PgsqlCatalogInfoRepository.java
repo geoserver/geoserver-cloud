@@ -223,7 +223,7 @@ public abstract class PgsqlCatalogInfoRepository<T extends CatalogInfo>
         return sql;
     }
 
-    protected <U extends T> String applySortOrder(String sql, @NonNull List<SortBy> sortBy) {
+    protected String applySortOrder(String sql, @NonNull List<SortBy> sortBy) {
         if (!sortBy.isEmpty()) {
             sql += " ORDER BY";
             for (SortBy sort : sortBy) {
