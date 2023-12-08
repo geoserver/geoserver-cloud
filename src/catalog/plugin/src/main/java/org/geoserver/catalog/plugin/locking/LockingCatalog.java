@@ -126,8 +126,9 @@ public class LockingCatalog extends CatalogPlugin {
                 format("remove(%s[%s])", typeOf(info), nameOf(info)));
     }
 
-    // TODO: Remove once CatalogPlugin moves the namespace update logic to
-    // validationrules.onBefore/AfterSave and just call doSave(store)
+    /**
+     * Overrides to call {@code super.save(StoreInfo)) instead of {@code super.doSave()} because {@code CatalogPlugin} performs additional logic
+     */
     @Override
     public void save(StoreInfo store) {
         locking.runInWriteLock(

@@ -165,7 +165,6 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
         Map<String, T> idMap = getMapForValue(idMultiMap, value);
         Map<Name, T> nameMap = getMapForValue(nameMultiMap, value);
         Map<String, Name> idToName = getMapForValue(idToMameMultiMap, value);
-        // TODO: improve concurrency with lock sharding instead of blocking the whole ConcurrentMaps
         synchronized (idMap) {
             if (null != idMap.putIfAbsent(value.getId(), value)) {
                 String msg =
@@ -187,7 +186,6 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
         requireNonNull(value);
         checkNotAProxy(value);
         Map<String, T> idMap = getMapForValue(idMultiMap, value);
-        // TODO: improve concurrency with lock sharding instead of blocking the whole ConcurrentMaps
         synchronized (idMap) {
             T removed = idMap.remove(value.getId());
             if (removed != null) {
@@ -214,7 +212,6 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
                             + value.getId()
                             + " does not exist");
         }
-        // TODO: improve concurrency with lock sharding instead of blocking the whole ConcurrentMaps
         synchronized (idMap) {
             patch.applyTo(storedValue);
             ConcurrentMap<String, Name> idToName = getMapForValue(idToMameMultiMap, value);

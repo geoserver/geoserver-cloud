@@ -112,7 +112,7 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
     @Override
     public <T extends StoreInfo> List<T> getStoresByWorkspace(
             WorkspaceInfo workspace, Class<T> clazz) {
-        // TODO: support ANY_WORKSPACE?
+        // Question: do we need to support ANY_WORKSPACE? see "todo" comment in DefaultCatalogFacade
         final WorkspaceInfo ws;
         if (workspace == null) {
             ws = getDefaultWorkspace();
@@ -185,7 +185,7 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
     @Override
     public <T extends ResourceInfo> List<T> getResourcesByNamespace(
             NamespaceInfo namespace, Class<T> clazz) {
-        // TODO: support ANY_NAMESPACE?
+        // Question: do we need to support ANY_WORKSPACE? see "todo" comment in DefaultCatalogFacade
         NamespaceInfo ns = namespace == null ? getDefaultNamespace() : namespace;
         return toList(() -> resources.findAllByNamespace(ns, clazz));
     }
@@ -303,7 +303,7 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
 
     @Override
     public List<LayerGroupInfo> getLayerGroupsByWorkspace(WorkspaceInfo workspace) {
-        // TODO: support ANY_WORKSPACE?
+        // Question: do we need to support ANY_WORKSPACE? see "todo" comment in DefaultCatalogFacade
 
         WorkspaceInfo ws;
         if (workspace == null) {
@@ -493,7 +493,7 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
 
     @Override
     public List<StyleInfo> getStylesByWorkspace(WorkspaceInfo workspace) {
-        // TODO: support ANY_WORKSPACE?
+        // Question: do we need to support ANY_WORKSPACE? see "todo" comment in DefaultCatalogFacade
         Stream<StyleInfo> matches;
         if (workspace == NO_WORKSPACE) {
             matches = styles.findAllByNullWorkspace();

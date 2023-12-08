@@ -87,10 +87,8 @@ public class CatalogPropertyResolver<T extends Info> implements UnaryOperator<T>
     }
 
     private void setCatalog(@NonNull LayerGroupStyle i) {
-
-        // TODO: check if this would result in a stack overflow
-        // if(null!=i.getLayers())i.getLayers().forEach(this::setCatalog);
-        // if(null != i.getStyles())i.getStyles().forEach(this::setCatalog);
+        if (null != i.getLayers()) i.getLayers().forEach(this::setCatalog);
+        if (null != i.getStyles()) i.getStyles().forEach(this::setCatalog);
     }
 
     private void setCatalog(@NonNull StoreInfo i) {

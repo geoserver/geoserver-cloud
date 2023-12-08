@@ -14,7 +14,6 @@ import org.geotools.jackson.databind.geojson.geometry.GeometryDeserializer;
 import org.geotools.jackson.databind.geojson.geometry.GeometrySerializer;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollection;
-import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.MultiLineString;
 import org.locationtech.jts.geom.MultiPoint;
@@ -47,8 +46,6 @@ import org.locationtech.jts.geom.Polygon;
  * objectMapper.registerModule(new GeoToolsGeoJsonModule());
  * </code>
  * </pre>
- *
- * TODO: supply an alternate, user defined, {@link GeometryFactory}
  */
 @Slf4j(topic = "org.geotools.jackson.databind.geojson")
 public class GeoToolsGeoJsonModule extends SimpleModule {

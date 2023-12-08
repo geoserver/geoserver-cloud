@@ -100,7 +100,7 @@ class DataDirectoryLoaderSupport {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     public void initializeEmptyConfig(final GeoServer geoServer) {
-        // TODO: this needs to be pushed upstream
+        // REVISIT: this needs to be pushed upstream?s
         if (geoServer.getGlobal() == null) {
             geoServer.setGlobal(geoServer.getFactory().createGlobal());
         }
