@@ -192,11 +192,11 @@ class CloudGwcXmlConfigurationTest {
         assertTrue(remote.getGridSet(gridset.getName()).isPresent());
 
         final Object unknownSource = new Object();
-        GridsetEvent event = new GridsetEvent(unknownSource);
-        event.setGridsetId(gridset.getName());
-        event.setEventType(CREATED);
+        GridsetEvent remoteEvent = new GridsetEvent(unknownSource);
+        remoteEvent.setGridsetId(gridset.getName());
+        remoteEvent.setEventType(CREATED);
 
-        local.onGridsetEvent(event);
+        assertTrue(local.onGridsetEvent(remoteEvent));
         GridSet actual = local.getGridSet(gridset.getName()).orElse(null);
         assertEquals(gridset, actual);
     }

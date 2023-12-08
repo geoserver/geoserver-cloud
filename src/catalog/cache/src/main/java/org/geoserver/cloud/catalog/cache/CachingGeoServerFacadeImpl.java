@@ -89,7 +89,7 @@ class CachingGeoServerFacadeImpl extends ForwardingGeoServerFacade
 
         if (service == null) {
             cache.put(key, null);
-            return null;
+            return service;
         }
         return cachePut(cache, service);
     }

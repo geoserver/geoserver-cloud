@@ -81,9 +81,11 @@ public class CloudGwcXmlConfiguration extends XMLConfiguration {
 
     @EventListener(GridsetEvent.class)
     public boolean onGridsetEvent(GridsetEvent event) throws Exception {
-        if (isLocal(event)) return false;
-        reload(event);
-        return true;
+        final boolean isRemote = !isLocal(event);
+        if (isRemote) {
+            reload(event);
+        }
+        return isRemote;
     }
 
     @EventListener(BlobStoreEvent.class)
@@ -125,7 +127,7 @@ public class CloudGwcXmlConfiguration extends XMLConfiguration {
         return event.getSource() == this;
     }
 
-    private synchronized void reload(GeoWebCacheEvent event) throws Exception {
+    private void reload(GeoWebCacheEvent event) throws Exception {
         log.info("reloading {} configuration upon {}", getConfigLocation(), event);
         lock.writeLock().lock();
         try {
