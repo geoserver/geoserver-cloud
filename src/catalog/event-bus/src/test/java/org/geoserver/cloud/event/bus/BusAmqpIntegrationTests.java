@@ -119,7 +119,7 @@ public abstract class BusAmqpIntegrationTests {
     }
 
     protected void setupClean() {
-        eventsCaptor.stop();
+        eventsCaptor.stop().clear();
 
         testData.initCatalog(true).initConfig(true).initialize();
 
@@ -128,12 +128,6 @@ public abstract class BusAmqpIntegrationTests {
         CatalogTestData remoteTestData =
                 CatalogTestData.empty(() -> remoteCatalog, () -> remoteGeoserver).initialize();
         remoteTestData.initCatalog(true).initConfig(true).initialize();
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        eventsCaptor.clear();
     }
 
     @BeforeEach

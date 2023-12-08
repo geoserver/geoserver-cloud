@@ -4,9 +4,10 @@
  */
 package org.geoserver.cloud.event.bus;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.testcontainers.shaded.org.awaitility.Awaitility.*;
 
-import com.google.common.base.Predicates;
+import static java.util.function.Predicate.not;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -19,12 +20,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 @Configuration
@@ -42,18 +44,22 @@ public class BusEventCollector {
 
     @EventListener(RemoteGeoServerEvent.class)
     public void onApplicationEvent(RemoteGeoServerEvent busEvent) {
-        if (!capturing) {
+        if (capturing) {
+            GeoServerEvent payloadEvent = busEvent.getEvent();
+            if (eventType.isInstance(payloadEvent)) {
+                log.info("{}: captured event {}", busId, busEvent);
+                events.add(busEvent);
+            } else {
+                log.debug(
+                        "{}: ignoring non {} event {}",
+                        busId,
+                        eventType.getSimpleName(),
+                        payloadEvent);
+            }
+        } else {
             log.debug("{}: capturing is off, ignoring {}", busId, busEvent);
             return;
         }
-        GeoServerEvent payloadEvent = busEvent.getEvent();
-        if (!eventType.isInstance(payloadEvent)) {
-            log.debug(
-                    "{}: ignoring non {} event {}", busId, eventType.getSimpleName(), payloadEvent);
-            return;
-        }
-        log.info("{}: captured event {}", busId, busEvent);
-        events.add(busEvent);
     }
 
     public void capture(@NonNull Class<? extends InfoEvent> type) {
@@ -61,7 +67,8 @@ public class BusEventCollector {
     }
 
     public <T extends InfoEvent> RemoteGeoServerEvent expectOne(Class<T> payloadType) {
-        return expectOne(payloadType, Predicates.alwaysTrue());
+
+        return expectOne(payloadType, x -> true);
     }
 
     public <T extends InfoEvent> RemoteGeoServerEvent expectOne(
@@ -71,39 +78,28 @@ public class BusEventCollector {
 
     public <T extends InfoEvent> RemoteGeoServerEvent expectOne(
             Class<T> payloadType, Predicate<T> filter) {
-        final long t = System.nanoTime();
-        final long max = t + TimeUnit.SECONDS.toNanos(5);
-        List<RemoteGeoServerEvent> list = allOf(payloadType);
-        while (list.stream()
-                        .map(RemoteGeoServerEvent::getEvent)
-                        .filter(payloadType::isInstance)
-                        .map(payloadType::cast)
-                        .noneMatch(filter)
-                && System.nanoTime() < max) {
-            try {
-                Thread.sleep(10);
-                list = allOf(payloadType);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
 
-        @SuppressWarnings("unchecked")
         List<RemoteGeoServerEvent> matches =
-                list.stream()
-                        .filter(re -> payloadType.isInstance(re.getEvent()))
-                        .filter(e -> filter.test((T) e.getEvent()))
-                        .toList();
+                await().atMost(Duration.ofSeconds(5)) //
+                        .until(() -> allOf(payloadType, filter), not(List::isEmpty));
 
-        String message =
-                "expected 1, got "
-                        + matches.size()
-                        + " events of type "
-                        + payloadType.getSimpleName()
-                        + ": "
-                        + matches;
-        assertEquals(message, 1, matches.size());
+        Supplier<String> message =
+                () ->
+                        "expected 1, got %d events of type %s : %s"
+                                .formatted(matches.size(), payloadType.getSimpleName(), matches);
+
+        assertThat(matches.size()).as(message).isOne();
         return matches.get(0);
+    }
+
+    public <T extends InfoEvent> List<RemoteGeoServerEvent> allOf(
+            Class<T> payloadEventType, Predicate<T> eventFilter) {
+
+        return capturedEvents(payloadEventType)
+                .filter(
+                        remoteEvent ->
+                                eventFilter.test(payloadEventType.cast(remoteEvent.getEvent())))
+                .toList();
     }
 
     public <T extends InfoEvent> List<RemoteGeoServerEvent> allOf(Class<T> payloadType) {
