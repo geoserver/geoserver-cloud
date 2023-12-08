@@ -138,39 +138,57 @@ public @Data class Patch implements Serializable {
         return target;
     }
 
+    private static void apply(Object target, Class<?> objectType, final Property change) {
+        final Method getter = findGetterOrThrow(objectType, change);
+        if (isCollection(getter)) {
+            applyCollectionValueChange(target, change);
+        } else if (isMap(getter)) {
+            applyMapValueChange(target, change);
+        } else {
+            String propertyName = change.getName();
+            Object newValue = change.getValue();
+            OwsUtils.set(target, propertyName, newValue);
+        }
+    }
+
     @SuppressWarnings({"unchecked", "rawtypes"})
-    private static void apply(Object target, Class<?> objectType, Property change) {
+    private static void applyCollectionValueChange(Object target, final Property change) {
+        final String propertyName = change.getName();
+        final var currentValue = (Collection) OwsUtils.get(target, propertyName);
+        final var newValue = (Collection) change.getValue();
+        if (currentValue != null) {
+            try {
+                currentValue.clear();
+            } catch (UnsupportedOperationException e) {
+                throw new IllegalArgumentException(
+                        "Collection property " + propertyName + " is immutable", e);
+            }
+            if (newValue != null) {
+                currentValue.addAll(newValue);
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void applyMapValueChange(Object target, final Property change) {
+        final String propertyName = change.getName();
+        final var currValue = (Map<Object, Object>) OwsUtils.get(target, propertyName);
+        final var newValue = (Map<Object, Object>) change.getValue();
+        if (currValue != null) {
+            currValue.clear();
+            if (newValue != null) {
+                currValue.putAll(newValue);
+            }
+        }
+    }
+
+    private static Method findGetterOrThrow(Class<?> objectType, Property change) {
         Method getter = OwsUtils.getter(objectType, change.getName(), null);
         if (getter == null) {
             throw new IllegalArgumentException(
                     "No such property in target object: " + change.getName());
         }
-        if (isCollection(getter)) {
-            Collection value = (Collection) change.getValue();
-            Collection prop = (Collection) OwsUtils.get(target, change.getName());
-            if (prop != null) {
-                try {
-                    prop.clear();
-                } catch (UnsupportedOperationException e) {
-                    throw new IllegalArgumentException(
-                            "Collection property " + change.getName() + " is immutable", e);
-                }
-                if (value != null) {
-                    prop.addAll(value);
-                }
-            }
-        } else if (isMap(getter)) {
-            Map<Object, Object> value = (Map<Object, Object>) change.getValue();
-            Map<Object, Object> prop = (Map<Object, Object>) OwsUtils.get(target, change.getName());
-            if (prop != null) {
-                prop.clear();
-                if (value != null) {
-                    prop.putAll(value);
-                }
-            }
-        } else {
-            OwsUtils.set(target, change.getName(), change.getValue());
-        }
+        return getter;
     }
 
     private static boolean isMap(Method getter) {

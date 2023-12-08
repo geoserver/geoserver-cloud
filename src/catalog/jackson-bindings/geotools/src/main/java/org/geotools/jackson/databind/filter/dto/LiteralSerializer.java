@@ -16,6 +16,8 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
+import lombok.NonNull;
+
 import org.geotools.jackson.databind.filter.mapper.ValueMappers;
 import org.mapstruct.factory.Mappers;
 
@@ -94,35 +96,50 @@ public class LiteralSerializer extends StdSerializer<Literal> {
         if (value == null) {
             gen.writeNullField(VALUE_KEY);
         } else {
+            writeNonNullValue(value, gen, provider);
+        }
+    }
 
-            Class<?> type = value.getClass();
+    private void writeNonNullValue(
+            final @NonNull Object value, JsonGenerator gen, SerializerProvider provider)
+            throws IOException {
+        Class<?> type = value.getClass();
 
-            if (type.isArray()) {
-                writeArray(value, gen, provider);
-            } else if (Collection.class.isAssignableFrom(type)) {
-                writeCollection((Collection<?>) value, gen, provider);
-            } else if (Map.class.isAssignableFrom(type)) {
-                writeMap((Map<?, ?>) value, gen);
+        if (type.isArray()) {
+            writeArray(value, gen, provider);
+        } else if (Collection.class.isAssignableFrom(type)) {
+            writeCollection((Collection<?>) value, gen, provider);
+        } else if (Map.class.isAssignableFrom(type)) {
+            writeMap((Map<?, ?>) value, gen);
+        } else {
+            serializeNonCollectionObject(value, gen, provider, type);
+        }
+    }
+
+    private void serializeNonCollectionObject(
+            final @NonNull Object value,
+            JsonGenerator gen,
+            SerializerProvider provider,
+            Class<?> type)
+            throws IOException {
+
+        if (type.isAnonymousClass()) {
+            Class<?> enclosingClass = type.getEnclosingClass();
+            if (enclosingClass.isEnum()) {
+                type = enclosingClass;
             } else {
-                if (type.isAnonymousClass()) {
-                    Class<?> enclosingClass = type.getEnclosingClass();
-                    if (enclosingClass.isEnum()) {
-                        type = enclosingClass;
-                    } else {
-                        throw new IllegalArgumentException(
-                                "Unable to encode anonymous class " + type.getName());
-                    }
-                }
-
-                JsonSerializer<Object> valueSerializer = findValueSerializer(provider, type);
-                final Class<Object> handledType = valueSerializer.handledType();
-                String typeName =
-                        classNameMapper().classToCanonicalName(type.isEnum() ? type : handledType);
-                gen.writeStringField(TYPE_KEY, typeName);
-                gen.writeFieldName(VALUE_KEY);
-                valueSerializer.serialize(value, gen, provider);
+                throw new IllegalArgumentException(
+                        "Unable to encode anonymous class " + type.getName());
             }
         }
+
+        JsonSerializer<Object> valueSerializer = findValueSerializer(provider, type);
+        final Class<Object> handledType = valueSerializer.handledType();
+        String typeName =
+                classNameMapper().classToCanonicalName(type.isEnum() ? type : handledType);
+        gen.writeStringField(TYPE_KEY, typeName);
+        gen.writeFieldName(VALUE_KEY);
+        valueSerializer.serialize(value, gen, provider);
     }
 
     protected JsonSerializer<Object> findValueSerializer(

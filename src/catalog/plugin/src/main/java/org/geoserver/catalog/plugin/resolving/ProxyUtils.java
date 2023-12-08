@@ -88,10 +88,6 @@ public class ProxyUtils {
         return this;
     }
 
-    private <T> T unwrap(T obj) {
-        return ModificationProxy.unwrap(obj);
-    }
-
     public Patch resolve(Patch patch) {
         Patch resolved = new Patch();
         for (Patch.Property p : patch.getPatches()) {
@@ -155,37 +151,56 @@ public class ProxyUtils {
         if (unresolved == null) {
             return null;
         }
-        boolean isResolvingProxy = isResolvingProxy(unresolved);
-        T info = unwrap(unresolved);
-        if (isResolvingProxy) {
-            if (info instanceof CatalogInfo) info = resolve(catalog, info);
-            else if (info instanceof GeoServerInfo && this.config.isPresent())
-                info = (T) this.config.get().getGlobal();
-            else if (info instanceof LoggingInfo && this.config.isPresent())
-                info = (T) this.config.get().getLogging();
-            else if (info instanceof ServiceInfo && this.config.isPresent())
-                info = (T) this.config.get().getService(info.getId(), ServiceInfo.class);
+        T info = ModificationProxy.unwrap(unresolved);
+        if (isResolvingProxy(unresolved)) {
+            info = resolveResolvingProxy(info);
         }
 
         if (info == null) {
             if (failOnNotFound)
                 throw new IllegalArgumentException("Reference to " + unresolved.getId());
             return null;
-        } else if (!Proxy.isProxyClass(info.getClass())) {
-            if (info instanceof StyleInfo s) resolveInternal(s);
-            if (info instanceof LayerInfo l) resolveInternal(l);
-            if (info instanceof LayerGroupInfo lg) resolveInternal(lg);
-            if (info instanceof ResourceInfo r) resolveInternal(r);
-            if (info instanceof StoreInfo s) resolveInternal(s);
-            if (info instanceof SettingsInfo s) resolveInternal(s);
-            if (info instanceof ServiceInfo s) resolveInternal(s);
+        }
+
+        if (!Proxy.isProxyClass(info.getClass())) {
+            info = (T) resolveInternal(info);
+        }
+        return info;
+    }
+
+    private Info resolveInternal(Info info) {
+        if (info instanceof StyleInfo s) return resolveInternal(s);
+        if (info instanceof LayerInfo l) return resolveInternal(l);
+        if (info instanceof LayerGroupInfo lg) return resolveInternal(lg);
+        if (info instanceof ResourceInfo r) return resolveInternal(r);
+        if (info instanceof StoreInfo s) return resolveInternal(s);
+        if (info instanceof SettingsInfo s) return resolveInternal(s);
+        if (info instanceof ServiceInfo s) return resolveInternal(s);
+        return info;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T extends Info> T resolveResolvingProxy(T info) {
+        if (info instanceof CatalogInfo) return resolveCatalogInfo(catalog, info);
+
+        GeoServer gsConfig = this.config.orElse(null);
+        if (gsConfig != null) {
+            if (info instanceof GeoServerInfo) return (T) gsConfig.getGlobal();
+
+            if (info instanceof LoggingInfo) return (T) gsConfig.getLogging();
+
+            if (info instanceof ServiceInfo) {
+                String serviceId = info.getId();
+                return (T) gsConfig.getService(serviceId, ServiceInfo.class);
+            }
         }
         return info;
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends Info> T resolve(@NonNull Catalog catalog, T info) {
-        // Workaround for a bug in ResolvingProxy.resolve(), if info is a PublishedInfo (as opposed
+    private <T extends Info> T resolveCatalogInfo(@NonNull Catalog catalog, T info) {
+        // Workaround for a bug in ResolvingProxy.resolve(), if info is a PublishedInfo
+        // (as opposed
         // to a concrete LayerInfo or LayerGroupInfo) it does nothing.
         if (info instanceof PublishedInfo) {
             PublishedInfo l =
@@ -209,19 +224,21 @@ public class ProxyUtils {
         return null != org.geoserver.catalog.impl.ProxyUtils.handler(info, ModificationProxy.class);
     }
 
-    protected void resolveInternal(SettingsInfo settings) {
+    protected SettingsInfo resolveInternal(SettingsInfo settings) {
         if (settings.getWorkspace() != null) {
             settings.setWorkspace(resolve(settings.getWorkspace()));
         }
+        return settings;
     }
 
-    protected void resolveInternal(ServiceInfo service) {
+    protected ServiceInfo resolveInternal(ServiceInfo service) {
         if (service.getWorkspace() != null) {
             service.setWorkspace(resolve(service.getWorkspace()));
         }
+        return service;
     }
 
-    protected void resolveInternal(LayerInfo layer) {
+    protected LayerInfo resolveInternal(LayerInfo layer) {
         layer.setResource(resolve(layer.getResource()));
         layer.setDefaultStyle(resolve(layer.getDefaultStyle()));
         LinkedHashSet<StyleInfo> styles = new LinkedHashSet<>();
@@ -229,6 +246,7 @@ public class ProxyUtils {
             styles.add(resolve(s));
         }
         ((LayerInfoImpl) layer).setStyles(styles);
+        return layer;
     }
 
     protected <T extends PublishedInfo> T resolveInternal(T published) {
@@ -237,7 +255,7 @@ public class ProxyUtils {
         return published;
     }
 
-    protected void resolveInternal(LayerGroupInfo layerGroup) {
+    protected LayerGroupInfo resolveInternal(LayerGroupInfo layerGroup) {
         LayerGroupInfoImpl lg = (LayerGroupInfoImpl) layerGroup;
 
         for (int i = 0; i < lg.getLayers().size(); i++) {
@@ -254,6 +272,7 @@ public class ProxyUtils {
             }
         }
         lg.setWorkspace(resolve(lg.getWorkspace()));
+        return lg;
     }
 
     protected StyleInfo resolveInternal(StyleInfo style) {
