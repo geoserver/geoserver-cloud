@@ -133,7 +133,7 @@ public class CatalogValidationRules {
             beforeRemove(lg);
         } else if (info instanceof LayerInfo l) {
             beforeRemove(l);
-        } else if (info instanceof MapInfo map) {
+        } else if (info instanceof MapInfo) {
             // no-op
         } else if (info instanceof NamespaceInfo ns) {
             beforeRemove(ns);

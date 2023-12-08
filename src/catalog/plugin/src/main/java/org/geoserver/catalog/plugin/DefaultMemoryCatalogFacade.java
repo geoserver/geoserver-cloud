@@ -4,6 +4,7 @@
  */
 package org.geoserver.catalog.plugin;
 
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 import org.geoserver.catalog.Catalog;
@@ -41,6 +42,8 @@ import java.rmi.server.UID;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.function.Supplier;
+
+import javax.annotation.Nullable;
 
 /**
  * Default catalog facade implementation using in-memory {@link CatalogRepository repositories} to
@@ -163,28 +166,20 @@ public class DefaultMemoryCatalogFacade extends RepositoryCatalogFacadeImpl
             PublishedInfo published = layers.get(i);
 
             if (published != null) {
-                PublishedInfo resolved;
-                if (published instanceof LayerGroupInfo lg) {
-                    resolved = unwrap(ResolvingProxy.resolve(getCatalog(), lg));
-                    // special case to handle catalog loading, when nested publishables might not be
-                    // loaded.
-                    if (resolved == null) {
-                        resolved = published;
-                    }
-                } else if (published instanceof LayerInfo l) {
-                    resolved = unwrap(ResolvingProxy.resolve(getCatalog(), l));
-                    // special case to handle catalog loading, when nested publishables might not be
-                    // loaded.
-                    if (resolved == null) {
-                        resolved = published;
-                    }
-                } else {
-                    // Special case for null layer (style group)
-                    resolved = unwrap(ResolvingProxy.resolve(getCatalog(), published));
-                }
+                PublishedInfo resolved = resolveLayerGroupLayers(published);
                 layers.set(i, resolved);
             }
         }
+    }
+
+    private PublishedInfo resolveLayerGroupLayers(@NonNull PublishedInfo published) {
+        PublishedInfo resolved = unwrap(ResolvingProxy.resolve(getCatalog(), published));
+        // special case to handle catalog loading, when nested publishables might not be loaded.
+        if (resolved == null
+                && (published instanceof LayerInfo || published instanceof LayerGroupInfo)) {
+            resolved = published;
+        }
+        return resolved;
     }
 
     protected void resolve(StyleInfo style) {
@@ -265,7 +260,8 @@ public class DefaultMemoryCatalogFacade extends RepositoryCatalogFacadeImpl
         }
     }
 
-    public static <T> T unwrap(T obj) {
+    @Nullable
+    public static <T> T unwrap(@Nullable T obj) {
         return ModificationProxy.unwrap(obj);
     }
 }

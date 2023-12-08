@@ -238,69 +238,25 @@ public class DefaultCatalogValidator implements CatalogValidator {
         if (isNew) {
             newObjectPropertiesResolver.resolve(layerGroup);
         }
+        verifyDoesntClashWithExisting(layerGroup);
 
-        WorkspaceInfo ws = layerGroup.getWorkspace();
-        LayerGroupInfo existing = catalog.getLayerGroupByName(ws, layerGroup.getName());
-        if (existing != null && !existing.getId().equals(layerGroup.getId())) {
-            // null workspace can cause layer group in any workspace to be returned, check that
-            // workspaces match
-            WorkspaceInfo ews = existing.getWorkspace();
-            if ((ws == null && ews == null) || (ws != null && ws.equals(ews))) {
-                String msg = "Layer group named '" + layerGroup.getName() + "' already exists";
-                if (ws != null) {
-                    msg += " in workspace " + ws.getName();
-                }
-                throw new IllegalArgumentException(msg);
-            }
-        }
+        sanitizeLayersAndLayerStyles(layerGroup);
 
-        // sanitize a bit broken layer references
-        List<PublishedInfo> layers = layerGroup.getLayers();
-        checkArgument(layers != null && !layers.isEmpty(), "Layer group must not be empty");
-        List<StyleInfo> styles = layerGroup.getStyles();
-        for (int i = 0; i < layers.size(); i++) {
-            if (styles != null && layers.get(i) == null && styles.get(i) == null) {
-                layers.remove(i);
-                styles.remove(i);
-            } else {
-                // Validate style group
-                if (layers.get(i) == null) {
-                    try {
-                        // validate style groups
-                        StyledLayerDescriptor sld = styles.get(i).getSLD();
-                        List<Exception> errors = SLDNamedLayerValidator.validate(catalog, sld);
-                        if (!errors.isEmpty()) {
-                            Exception first = errors.get(0);
-                            throw new IllegalArgumentException(
-                                    "Invalid style group: " + first.getMessage(), first);
-                        }
-                    } catch (IOException e) {
-                        throw new IllegalArgumentException(
-                                "Error validating style group: " + e.getMessage(), e);
-                    }
-                }
-            }
-        }
-        if (layerGroup.getStyles() != null
-                && !layerGroup.getStyles().isEmpty()
-                && (layerGroup.getStyles().size() != layerGroup.getLayers().size())) {
-            throw new IllegalArgumentException(
-                    "Layer group has different number of styles than layers");
-        }
+        checkLayerGroupStyles(layerGroup);
 
-        LayerGroupHelper helper = new LayerGroupHelper(layerGroup);
-        Stack<LayerGroupInfo> loopPath = helper.checkLoops();
-        if (loopPath != null) {
-            throw new IllegalArgumentException(
-                    "Layer group is in a loop: " + helper.getLoopAsString(loopPath));
-        }
+        verifyNoLoopsInStructure(layerGroup);
 
         // if the layer group has a workspace assigned, ensure that every resource in that layer
         // group lives within the same workspace
+        final WorkspaceInfo ws = layerGroup.getWorkspace();
         if (ws != null) {
             checkLayerGroupResourceIsInWorkspace(layerGroup, ws);
         }
 
+        validateModeMatchesStructure(layerGroup);
+    }
+
+    private void validateModeMatchesStructure(LayerGroupInfo layerGroup) {
         Mode mode = layerGroup.getMode();
         checkArgument(mode != null, "Layer group mode must not be null");
         if (LayerGroupInfo.Mode.EO.equals(mode)) {
@@ -321,6 +277,87 @@ public class DefaultCatalogValidator implements CatalogValidator {
                     layerGroup.getRootLayerStyle() == null,
                     "Layer group in mode %s must not have a root layer style",
                     mode.getName());
+        }
+    }
+
+    private void verifyNoLoopsInStructure(LayerGroupInfo layerGroup) {
+        LayerGroupHelper helper = new LayerGroupHelper(layerGroup);
+        Stack<LayerGroupInfo> loopPath = helper.checkLoops();
+        if (loopPath != null) {
+            throw new IllegalArgumentException(
+                    "Layer group is in a loop: " + helper.getLoopAsString(loopPath));
+        }
+    }
+
+    private void checkLayerGroupStyles(LayerGroupInfo layerGroup) {
+        if (layerGroup.getStyles() != null
+                && !layerGroup.getStyles().isEmpty()
+                && (layerGroup.getStyles().size() != layerGroup.getLayers().size())) {
+            throw new IllegalArgumentException(
+                    "Layer group has different number of styles than layers");
+        }
+    }
+
+    private void sanitizeLayersAndLayerStyles(LayerGroupInfo layerGroup) {
+        // sanitize a bit broken layer references
+        List<PublishedInfo> layers = layerGroup.getLayers();
+        checkArgument(layers != null && !layers.isEmpty(), "Layer group must not be empty");
+        List<StyleInfo> styles = checkSameSize(layers, layerGroup.getStyles());
+
+        final int size = layers.size();
+        for (int i = size - 1; i >= 0; i--) {
+            PublishedInfo layer = layers.get(i);
+            StyleInfo style = styles.get(i);
+            if (layer == null && style == null) {
+                layers.remove(i);
+                styles.remove(i);
+            } else if (layer == null) {
+                validateStyleGroup(style);
+            }
+        }
+    }
+
+    private void validateStyleGroup(StyleInfo style) {
+        // Validate style group
+        List<Exception> errors;
+        try {
+            // validate style groups
+            StyledLayerDescriptor sld = style.getSLD();
+            errors = SLDNamedLayerValidator.validate(catalog, sld);
+        } catch (IOException e) {
+            throw new IllegalArgumentException(
+                    "Error validating style group: " + e.getMessage(), e);
+        }
+        if (!errors.isEmpty()) {
+            Exception first = errors.get(0);
+            throw new IllegalArgumentException("Invalid style group: " + first.getMessage(), first);
+        }
+    }
+
+    private List<StyleInfo> checkSameSize(List<PublishedInfo> layers, List<StyleInfo> styles) {
+        if (styles == null) {
+            styles = List.of();
+        }
+        checkArgument(
+                styles.size() == layers.size(),
+                "Styles must have the same number of elements as layers");
+        return styles;
+    }
+
+    private void verifyDoesntClashWithExisting(LayerGroupInfo layerGroup) {
+        final WorkspaceInfo ws = layerGroup.getWorkspace();
+        final LayerGroupInfo existing = catalog.getLayerGroupByName(ws, layerGroup.getName());
+        if (existing != null && !existing.getId().equals(layerGroup.getId())) {
+            // null workspace can cause layer group in any workspace to be returned, check that
+            // workspaces match
+            WorkspaceInfo ews = existing.getWorkspace();
+            if ((ws == null && ews == null) || (ws != null && ws.equals(ews))) {
+                String msg = "Layer group named '" + layerGroup.getName() + "' already exists";
+                if (ws != null) {
+                    msg += " in workspace " + ws.getName();
+                }
+                throw new IllegalArgumentException(msg);
+            }
         }
     }
 

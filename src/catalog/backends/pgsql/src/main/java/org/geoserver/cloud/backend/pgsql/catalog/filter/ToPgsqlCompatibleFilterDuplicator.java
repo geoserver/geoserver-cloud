@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import javax.annotation.Nullable;
+
 /**
  * Duplicates a supported filter making it directly translatable to SQL taking care of subtleties
  * like {@link MatchAction} and case matching.
@@ -33,9 +35,13 @@ import java.util.function.Function;
  */
 class ToPgsqlCompatibleFilterDuplicator extends DuplicatingFilterVisitor {
 
-    public static Filter adapt(Filter filter) {
+    /**
+     * @param supportedFilter Filter that's already been deemed as supported
+     * @return
+     */
+    public static Filter adapt(Filter supportedFilter) {
         ToPgsqlCompatibleFilterDuplicator adaptor = new ToPgsqlCompatibleFilterDuplicator();
-        return (Filter) filter.accept(adaptor, null);
+        return (Filter) supportedFilter.accept(adaptor, null);
     }
 
     @Override
@@ -59,7 +65,7 @@ class ToPgsqlCompatibleFilterDuplicator extends DuplicatingFilterVisitor {
     }
 
     @Override
-    public Object visit(PropertyIsBetween filter, Object extraData) {
+    public PropertyIsBetween visit(PropertyIsBetween filter, Object extraData) {
         Expression expr = visit(filter.getExpression(), extraData);
         Expression lower = visit(filter.getLowerBoundary(), extraData);
         Expression upper = visit(filter.getUpperBoundary(), extraData);
@@ -67,107 +73,143 @@ class ToPgsqlCompatibleFilterDuplicator extends DuplicatingFilterVisitor {
     }
 
     @Override
-    public Object visit(PropertyIsEqualTo filter, Object extraData) {
-        BinaryComparisonOperator dup =
-                (BinaryComparisonOperator) super.visit(filter, filter.isMatchingCase());
-        return visitBinaryComparisonOperator(dup);
+    public Filter visit(PropertyIsEqualTo filter, Object extraData) {
+        return adaptMatchActionForCollectionLiteral(
+                (BinaryComparisonOperator) super.visit(filter, filter.isMatchingCase()));
     }
 
     @Override
-    public Object visit(PropertyIsNotEqualTo filter, Object extraData) {
-        BinaryComparisonOperator dup =
-                (BinaryComparisonOperator) super.visit(filter, filter.isMatchingCase());
-        return visitBinaryComparisonOperator(dup);
+    public Filter visit(PropertyIsNotEqualTo filter, Object extraData) {
+        return adaptMatchActionForCollectionLiteral(
+                (BinaryComparisonOperator) super.visit(filter, filter.isMatchingCase()));
     }
 
     @Override
-    public Object visit(PropertyIsGreaterThan filter, Object extraData) {
-        BinaryComparisonOperator dup =
-                (BinaryComparisonOperator) super.visit(filter, filter.isMatchingCase());
-        return visitBinaryComparisonOperator(dup);
+    public Filter visit(PropertyIsGreaterThan filter, Object extraData) {
+        return adaptMatchActionForCollectionLiteral(
+                (BinaryComparisonOperator) super.visit(filter, filter.isMatchingCase()));
     }
 
     @Override
-    public Object visit(PropertyIsGreaterThanOrEqualTo filter, Object extraData) {
-        BinaryComparisonOperator dup =
-                (BinaryComparisonOperator) super.visit(filter, filter.isMatchingCase());
-        return visitBinaryComparisonOperator(dup);
+    public Filter visit(PropertyIsGreaterThanOrEqualTo filter, Object extraData) {
+        return adaptMatchActionForCollectionLiteral(
+                (BinaryComparisonOperator) super.visit(filter, filter.isMatchingCase()));
     }
 
     @Override
-    public Object visit(PropertyIsLessThan filter, Object extraData) {
-        BinaryComparisonOperator dup =
-                (BinaryComparisonOperator) super.visit(filter, filter.isMatchingCase());
-        return visitBinaryComparisonOperator(dup);
+    public Filter visit(PropertyIsLessThan filter, Object extraData) {
+        return adaptMatchActionForCollectionLiteral(
+                (BinaryComparisonOperator) super.visit(filter, filter.isMatchingCase()));
     }
 
     @Override
-    public Object visit(PropertyIsLessThanOrEqualTo filter, Object extraData) {
-        BinaryComparisonOperator dup =
-                (BinaryComparisonOperator) super.visit(filter, filter.isMatchingCase());
-        return visitBinaryComparisonOperator(dup);
+    public Filter visit(PropertyIsLessThanOrEqualTo filter, Object extraData) {
+        return adaptMatchActionForCollectionLiteral(
+                (BinaryComparisonOperator) super.visit(filter, filter.isMatchingCase()));
     }
 
-    protected Filter visitBinaryComparisonOperator(BinaryComparisonOperator filter) {
-        Expression e1 = filter.getExpression1();
-        Expression e2 = filter.getExpression2();
-
-        final Literal literal;
-        if (e1 instanceof Literal l) {
-            literal = l;
-        } else {
-            literal = e2 instanceof Literal l ? l : null;
-        }
-
-        Object value = null == literal ? null : literal.getValue();
-        if (!(value instanceof Collection)) {
+    protected Filter adaptMatchActionForCollectionLiteral(final BinaryComparisonOperator filter) {
+        final Expression leftExpr = determineLeftExpression(filter);
+        final @Nullable Literal rightExpr = determineRightExpression(filter);
+        final List<Object> values = getValueIfCollection(rightExpr);
+        if (null == values) {
             return filter;
         }
 
-        List<Object> values = new ArrayList<>((Collection<?>) value);
         final MatchAction matchAction = filter.getMatchAction();
-        final BiFunction<Expression, Expression, Filter> filterBuilder = filterBuilder(filter);
-        Function<List<Filter>, Filter> aggregateBuilder;
-        final Expression left = literal == e1 ? e2 : e1;
-        switch (matchAction) {
-            case ALL:
-                // only if all of the possible combinations match, the result is true (aggregated
-                // AND)
-                aggregateBuilder = ff::and;
-                break;
-            case ANY:
-                // if any of the possible combinations match, the result is true (aggregated OR)
-                aggregateBuilder = ff::or;
-                break;
-            case ONE:
-                // only if exactly one of the possible combinations match, the result is true
-                // (aggregated XOR)
-                List<Filter> xor = new ArrayList<>();
-                for (int i = 0; i < values.size(); i++) {
-                    Filter tomatch = filterBuilder.apply(left, ff.literal(values.get(i)));
-                    List<Filter> tomiss = new ArrayList<>();
-                    for (int j = 0; j < values.size(); j++) {
-                        if (j == i) continue;
-                        tomiss.add(filterBuilder.apply(left, ff.literal(values.get(j))));
-                    }
-                    xor.add(ff.and(tomatch, ff.not(ff.or(tomiss))));
-                }
-                Filter xored = ff.or(xor);
-                xored.accept(this, null);
-                return xored;
-            default:
-                throw new IllegalStateException();
+
+        if (matchAction == MatchAction.ONE) {
+            return aggregateXor(filter, leftExpr, values);
         }
+
+        final BiFunction<Expression, Expression, Filter> filterBuilder = filterBuilder(filter);
+        Function<List<Filter>, Filter> aggregateBuilder = createOredOrAndedBuilder(matchAction);
 
         List<Filter> subfilters = new ArrayList<>();
         for (Object v : values) {
             Literal right = ff.literal(v);
-            Filter subfilter = filterBuilder.apply(left, right);
+            Filter subfilter = filterBuilder.apply(leftExpr, right);
             subfilters.add(subfilter);
         }
         Filter replacement = aggregateBuilder.apply(subfilters);
         replacement.accept(this, null);
         return replacement;
+    }
+
+    private Function<List<Filter>, Filter> createOredOrAndedBuilder(final MatchAction matchAction) {
+        Function<List<Filter>, Filter> aggregateBuilder;
+        if (matchAction == MatchAction.ALL) {
+            // if all of the possible combinations match, the result is true (aggregated AND)
+            aggregateBuilder = ff::and;
+        } else if (matchAction == MatchAction.ANY) {
+            // if any of the possible combinations match, the result is true (aggregated OR)
+            aggregateBuilder = ff::or;
+        } else {
+            throw new IllegalStateException();
+        }
+        return aggregateBuilder;
+    }
+
+    /**
+     * Only if exactly one of the possible combinations match, the result is true (aggregated XOR)
+     */
+    private Filter aggregateXor(
+            BinaryComparisonOperator origFilter, Expression leftExpr, final List<Object> values) {
+
+        final BiFunction<Expression, Expression, Filter> filterBuilder = filterBuilder(origFilter);
+        List<Filter> xor = new ArrayList<>();
+        for (int i = 0; i < values.size(); i++) {
+            Filter tomatch = filterBuilder.apply(leftExpr, ff.literal(values.get(i)));
+            List<Filter> tomiss = new ArrayList<>();
+            for (int j = 0; j < values.size(); j++) {
+                if (j == i) continue;
+                tomiss.add(filterBuilder.apply(leftExpr, ff.literal(values.get(j))));
+            }
+            xor.add(ff.and(tomatch, ff.not(ff.or(tomiss))));
+        }
+        Filter xored = ff.or(xor);
+        xored.accept(this, null);
+        return xored;
+    }
+
+    private List<Object> getValueIfCollection(@Nullable Literal literal) {
+        List<Object> values = null;
+        if (null != literal) {
+            Object value = literal.getValue();
+            if (value instanceof Collection) {
+                values = new ArrayList<>((Collection<?>) value);
+            }
+        }
+        return values;
+    }
+
+    /**
+     * The left expression is the one that's not a {@link Literal}. If both are {@literal Literal}s,
+     * the order is respected and {@link BinaryComparisonOperator#getExpression1()
+     * filter.getExpression1()} is returned
+     */
+    private Expression determineLeftExpression(BinaryComparisonOperator filter) {
+        Expression left = filter.getExpression1();
+        Expression right = filter.getExpression2();
+        if (left instanceof Literal) {
+            return right instanceof Literal ? left : right;
+        }
+        return left;
+    }
+
+    /**
+     * The right expression is the one that is a {@link Literal}. If both are {@literal Literal}s,
+     * the order is respected and {@link BinaryComparisonOperator#getExpression2()
+     * filter.getExpression2()} is returned
+     */
+    private Literal determineRightExpression(BinaryComparisonOperator filter) {
+        Expression left = filter.getExpression1();
+        Expression right = filter.getExpression2();
+
+        if (left instanceof Literal l) {
+            return right instanceof Literal r ? r : l;
+        }
+        return right instanceof Literal r ? r : null;
     }
 
     private BiFunction<Expression, Expression, Filter> filterBuilder(
