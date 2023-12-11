@@ -51,8 +51,9 @@ public class DataDirectoryBackendConfiguration extends GeoServerBackendConfigure
         this.dataDirectoryConfig = dataDirectoryConfig;
         this.catalogProperties = catalogProperties;
         log.info(
-                "Loading geoserver config backend with {}",
-                DataDirectoryBackendConfiguration.class.getSimpleName());
+                "Loading geoserver config backend with {} from {}",
+                DataDirectoryBackendConfiguration.class.getSimpleName(),
+                dataDirectoryConfig.getLocation());
     }
 
     @Bean

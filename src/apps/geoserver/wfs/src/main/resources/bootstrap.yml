@@ -30,6 +30,7 @@ spring:
     name: wfs-service
   autoconfigure:
     exclude:
+      - org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration
       - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
       - org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
       - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration

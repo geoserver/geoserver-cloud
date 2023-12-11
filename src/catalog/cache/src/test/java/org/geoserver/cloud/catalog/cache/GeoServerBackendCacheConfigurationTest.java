@@ -4,6 +4,7 @@
  */
 package org.geoserver.cloud.catalog.cache;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import org.geoserver.catalog.plugin.CatalogPlugin;
@@ -39,14 +40,21 @@ class GeoServerBackendCacheConfigurationTest {
     @Test
     void testCachingCatalogFacade() {
         contextRunner.run(
-                context -> context.isTypeMatch("cachingCatalogFacade", CachingCatalogFacade.class));
+                context ->
+                        assertThat(
+                                        context.isTypeMatch(
+                                                "cachingCatalogFacade", CachingCatalogFacade.class))
+                                .isTrue());
     }
 
     @Test
     void testCachingGeoServerFacade() {
         contextRunner.run(
                 context ->
-                        context.isTypeMatch(
-                                "cachingGeoServerFacade", CachingGeoServerFacade.class));
+                        assertThat(
+                                        context.isTypeMatch(
+                                                "cachingGeoServerFacade",
+                                                CachingGeoServerFacade.class))
+                                .isTrue());
     }
 }
