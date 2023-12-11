@@ -8,7 +8,7 @@
   </parent>
   <artifactId>gs-cloud</artifactId>
   <packaging>pom</packaging>
-  <name>Cloud Native GeoServer</name>
+  <name>GeoServer Cloud modules</name>
   <modules>
     <module>library</module>
     <module>catalog</module>

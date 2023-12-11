@@ -6,6 +6,7 @@
   <version>${revision}</version>
   <!-- See https://maven.apache.org/maven-ci-friendly.html -->
   <packaging>pom</packaging>
+  <name>GeoServer Cloud</name>
   <modules>
     <module>src</module>
   </modules>
