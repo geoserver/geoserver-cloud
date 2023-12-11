@@ -35,7 +35,7 @@ class ConfigApplicationTest {
 
     @BeforeEach
     void setup() {
-        baseUri = "http://localhost:" + port + "/test-service";
+        baseUri = "http://localhost:%d/test-service".formatted(port);
     }
 
     @Test
@@ -54,9 +54,11 @@ class ConfigApplicationTest {
         log.info(config);
 
         String expected =
-                "{\"name\":\"test-service\",\"profiles\":[\"default\"],"
-                        + "\"label\":null,\"version\":null,\"state\":null,"
-                        + "\"propertySources\":[{\"name\":\"classpath:/config/test-service.yml\",\"source\":{\"spring.application.name\":\"geoserver\"}}]}";
+                """
+			{"name":"test-service","profiles":["default"],\
+			"label":null,"version":null,"state":null,\
+			"propertySources":[{"name":"classpath:/config/test-service.yml","source":{"spring.application.name":"geoserver"}}]}
+			""";
         JSONAssert.assertEquals(expected, config, JSONCompareMode.LENIENT);
     }
 
@@ -68,12 +70,14 @@ class ConfigApplicationTest {
         String config = response.getBody();
         log.info(config);
         String expected =
-                "{\"name\":\"test-service\",\"profiles\":[\"profile1\"],"
-                        + "\"label\":null,\"version\":null,\"state\":null,"
-                        + "\"propertySources\":["
-                        + "{\"name\":\"classpath:/config/test-service-profile1.yml\",\"source\":{\"spring.application.name\":\"geoserver-profile1\"}},"
-                        + "{\"name\":\"classpath:/config/test-service.yml\",\"source\":{\"spring.application.name\":\"geoserver\"}}"
-                        + "]}";
+                """
+			{"name":"test-service","profiles":["profile1"],\
+			"label":null,"version":null,"state":null,\
+			"propertySources":[\
+			{"name":"classpath:/config/test-service-profile1.yml","source":{"spring.application.name":"geoserver-profile1"}},\
+			{"name":"classpath:/config/test-service.yml","source":{"spring.application.name":"geoserver"}}\
+			]}
+			""";
         JSONAssert.assertEquals(expected, config, JSONCompareMode.LENIENT);
     }
 }

@@ -131,7 +131,8 @@ interface FilterToDtoMapper {
             fid = new Filter.Id.FeatureId();
         } else {
             throw new IllegalArgumentException(
-                    "Identifier type not supported: " + id.getClass().getCanonicalName());
+                    "Identifier type not supported: %s"
+                            .formatted(id.getClass().getCanonicalName()));
         }
         fid.setId(((FeatureId) id).getID());
         fid.setPreviousRid(((FeatureId) id).getPreviousRid());

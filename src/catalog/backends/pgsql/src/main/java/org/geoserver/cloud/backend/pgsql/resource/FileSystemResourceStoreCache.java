@@ -30,10 +30,12 @@ public class FileSystemResourceStoreCache implements DisposableBean {
         this.disposable = disposable;
         Preconditions.checkArgument(
                 Files.isDirectory(cacheDirectory),
-                "Cache directory is not a directory: " + cacheDirectory.toAbsolutePath());
+                "Cache directory is not a directory: %s",
+                cacheDirectory.toAbsolutePath());
         Preconditions.checkArgument(
                 Files.isWritable(cacheDirectory),
-                "Cache directory is not writable: " + cacheDirectory.toAbsolutePath());
+                "Cache directory is not writable: %s",
+                cacheDirectory.toAbsolutePath());
         this.base = cacheDirectory;
     }
 

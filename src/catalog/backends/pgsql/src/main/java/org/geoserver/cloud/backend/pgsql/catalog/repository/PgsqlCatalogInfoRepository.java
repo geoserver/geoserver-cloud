@@ -165,7 +165,7 @@ public abstract class PgsqlCatalogInfoRepository<T extends CatalogInfo>
 
         Object[] prepStatementParams = null;
         if (!Filter.INCLUDE.equals(supportedFilter)) {
-            sql += " AND " + whereClause;
+            sql = "%s AND %s".formatted(sql, whereClause);
             List<Object> literalValues = qb.getLiteralValues();
             if (!literalValues.isEmpty()) {
                 prepStatementParams = qb.getLiteralValues().toArray();
@@ -269,7 +269,7 @@ public abstract class PgsqlCatalogInfoRepository<T extends CatalogInfo>
             } else {
                 sql = sql.formatted(getQueryTable());
                 sql = applyTypeFilter(sql, of);
-                sql += " AND " + whereClause;
+                sql = "%s AND %s".formatted(sql, whereClause);
                 List<Object> literalValues = qb.getLiteralValues();
                 if (!literalValues.isEmpty()) {
                     prepStatementParams = qb.getLiteralValues().toArray();

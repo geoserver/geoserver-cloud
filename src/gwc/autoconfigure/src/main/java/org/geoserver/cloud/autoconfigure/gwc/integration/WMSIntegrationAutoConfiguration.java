@@ -185,8 +185,8 @@ public class WMSIntegrationAutoConfiguration {
 
             RawMap map = new RawMap((WMSMapContent) null, tileBytes, mimeType);
 
-            map.setContentDispositionHeader(
-                    (WMSMapContent) null, "." + cachedTile.getMimeType().getFileExtension(), false);
+            String extension = ".%s".formatted(cachedTile.getMimeType().getFileExtension());
+            map.setContentDispositionHeader((WMSMapContent) null, extension, false);
 
             LinkedHashMap<String, String> headers = new LinkedHashMap<>();
             GWC.setCacheControlHeaders(headers, layer, (int) cachedTile.getTileIndex()[2]);

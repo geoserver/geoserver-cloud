@@ -97,7 +97,8 @@ public class GeoWebCacheCoreConfiguration {
             throw new InvalidPropertyException(
                     GeoWebCacheConfigurationProperties.class,
                     "cacheDirectory",
-                    propName + " is not set. The default cache directory MUST be provided.");
+                    "%s is not set. The default cache directory MUST be provided."
+                            .formatted(propName));
         }
         validateDirectory(directory, propName);
 
@@ -216,7 +217,7 @@ public class GeoWebCacheCoreConfiguration {
     private void validateDirectory(Path directory, String configPropertyName) {
         if (!directory.isAbsolute()) {
             throw new BeanInitializationException(
-                    configPropertyName + " must be an absolute path: " + directory);
+                    "%s must be an absolute path: %s".formatted(configPropertyName, directory));
         }
         if (!Files.exists(directory)) {
             try {
@@ -229,17 +230,18 @@ public class GeoWebCacheCoreConfiguration {
                 // continue
             } catch (IOException e) {
                 throw new BeanInitializationException(
-                        configPropertyName + " does not exist and can't be created: " + directory,
+                        "%s does not exist and can't be created: %s"
+                                .formatted(configPropertyName, directory),
                         e);
             }
         }
         if (!Files.isDirectory(directory)) {
             throw new BeanInitializationException(
-                    configPropertyName + " is not a directory: " + directory);
+                    "%s is not a directory: %s".formatted(configPropertyName, directory));
         }
         if (!Files.isWritable(directory)) {
             throw new BeanInitializationException(
-                    configPropertyName + " is not writable: " + directory);
+                    "%s is not writable: %s".formatted(configPropertyName, directory));
         }
     }
 
@@ -283,9 +285,10 @@ public class GeoWebCacheCoreConfiguration {
             // '/{workspace}/gwc' the suffix after which comes the pathInfo '/service/tms/1.0.0')
             final String requestURI = request.getRequestURI();
 
-            final int gwcIdx = requestURI.indexOf("/gwc");
+            final String gwc = "/gwc";
+            final int gwcIdx = requestURI.indexOf(gwc);
             if (gwcIdx > -1) {
-                final String pathToGwc = requestURI.substring(0, gwcIdx + "/gwc".length());
+                final String pathToGwc = requestURI.substring(0, gwcIdx + gwc.length());
                 final String pathInfo = requestURI.substring(pathToGwc.length());
 
                 return new HttpServletRequestWrapper(request) {

@@ -201,10 +201,8 @@ class SpringEnvironmentAwareGeoToolsHttpClient
         if (200 != response.getStatusCode()) {
             postMethod.releaseConnection();
             throw new IOException(
-                    "Server returned HTTP error code "
-                            + response.getStatusCode()
-                            + " for URL "
-                            + url.toExternalForm());
+                    "Server returned HTTP error code %d for URL %s"
+                            .formatted(response.getStatusCode(), url.toExternalForm()));
         }
 
         return response;
@@ -252,10 +250,8 @@ class SpringEnvironmentAwareGeoToolsHttpClient
         if (200 != response.getStatusCode()) {
             getMethod.releaseConnection();
             throw new IOException(
-                    "Server returned HTTP error code "
-                            + response.getStatusCode()
-                            + " for URL "
-                            + url.toExternalForm());
+                    "Server returned HTTP error code %d for URL %s"
+                            .formatted(response.getStatusCode(), url.toExternalForm()));
         }
         return response;
     }

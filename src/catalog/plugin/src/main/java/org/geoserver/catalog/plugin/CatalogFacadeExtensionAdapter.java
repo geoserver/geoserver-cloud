@@ -165,7 +165,8 @@ public class CatalogFacadeExtensionAdapter extends ForwardingCatalogFacade
 
         @Override
         public void addListener(CatalogListener listener) {
-            LOGGER.fine("Suppressing catalog listener " + listener.getClass().getCanonicalName());
+            LOGGER.fine(
+                    () -> "Suppressing catalog listener " + listener.getClass().getCanonicalName());
         }
 
         @Override

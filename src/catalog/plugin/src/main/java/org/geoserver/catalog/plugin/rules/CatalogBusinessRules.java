@@ -53,12 +53,12 @@ public class CatalogBusinessRules {
                         : ClassMappings.fromImpl(type);
 
         Objects.requireNonNull(
-                cm, "Unable to determine type enum for class " + type.getCanonicalName());
+                cm, () -> "Unable to determine type enum for class " + type.getCanonicalName());
 
         @SuppressWarnings("unchecked")
         CatalogInfoBusinessRules<T> rules = (CatalogInfoBusinessRules<T>) rulesByType.get(cm);
         Objects.requireNonNull(
-                rules, () -> "Rules for type " + type.getCanonicalName() + " not found");
+                rules, () -> "Rules for type %s not found".formatted(type.getCanonicalName()));
         return rules;
     }
 

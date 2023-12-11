@@ -276,7 +276,7 @@ public class CloudJdbcGeoserverFacade implements GeoServerFacade {
         final String curId = info.getId();
         if (null == curId) {
             final String uid = new UID().toString();
-            final String id = type.getSimpleName() + "." + uid;
+            final String id = "%s.%s".formatted(type.getSimpleName(), uid);
             OwsUtils.set(info, "id", id);
         }
     }

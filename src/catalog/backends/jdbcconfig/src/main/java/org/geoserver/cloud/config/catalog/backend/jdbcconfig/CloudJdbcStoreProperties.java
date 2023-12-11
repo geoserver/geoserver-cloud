@@ -32,9 +32,6 @@ import javax.sql.DataSource;
 public class CloudJdbcStoreProperties extends JDBCResourceStoreProperties {
     private static final long serialVersionUID = 1L;
 
-    private static final String DEFAULT_CACHE_DIRECTORY =
-            System.getProperty("java.io.tmpdir") + File.separator + "geoserver-jdbcconfig-cache";
-
     private transient DataSource dataSource;
 
     public CloudJdbcStoreProperties(DataSource dataSource) {
@@ -43,10 +40,16 @@ public class CloudJdbcStoreProperties extends JDBCResourceStoreProperties {
     }
 
     public File getCacheDirectory() {
-        String location = super.getProperty("cache-directory", DEFAULT_CACHE_DIRECTORY);
+        String defaultCacheDirectory = defaultCacheDirectory();
+        String location = super.getProperty("cache-directory", defaultCacheDirectory);
         File cacheDirectory = new File(location);
         cacheDirectory.mkdirs();
         return cacheDirectory;
+    }
+
+    private static String defaultCacheDirectory() {
+        String tmpdir = System.getProperty("java.io.tmpdir");
+        return String.format("%s%sgeoserver-jdbcconfig-cache", tmpdir, File.separator);
     }
 
     /**

@@ -243,14 +243,14 @@ public class PgsqlConfigRepository implements ConfigRepository {
     private <T extends ServiceInfo> Optional<T> findService(
             String whereClause, Class<T> clazz, Object... args) {
 
-        String sql = "SELECT info, workspace FROM serviceinfos WHERE " + whereClause;
+        String sql = "SELECT info, workspace FROM serviceinfos WHERE %s".formatted(whereClause);
         if (!ServiceInfo.class.equals(clazz)) {
             String servicetype = servicetype(clazz);
-            sql +=
+            sql =
                     """
-                   AND "@type" = '%s'
+                   %s AND "@type" = '%s'
                    """
-                            .formatted(servicetype);
+                            .formatted(sql, servicetype);
         }
         return findOne(sql, ServiceInfo.class, ServiceInfoRowMapper, args)
                 .filter(clazz::isInstance)

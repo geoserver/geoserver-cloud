@@ -43,11 +43,11 @@ import javax.annotation.PostConstruct;
 public class GeoServerIntegrationConfiguration {
 
     static final String EXCLUDED_BEANS = //
-            "GeoSeverTileLayerCatalog" //
-                    + "|gwcCatalogConfiguration" //
-                    + "|gwcTransactionListener" //
-                    + "|gwcWMSExtendedCapabilitiesProvider" //
-            ;
+            """
+		GeoSeverTileLayerCatalog\
+		|gwcCatalogConfiguration\
+		|gwcTransactionListener\
+		|gwcWMSExtendedCapabilitiesProvider""";
 
     public @PostConstruct void log() {
         log.info("GeoWebCache core GeoServer integration enabled");

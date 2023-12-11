@@ -136,11 +136,8 @@ public class DefaultCatalogValidator implements CatalogValidator {
         StoreInfo existing = catalog.getStoreByName(workspace, store.getName(), StoreInfo.class);
         if (existing != null && (isNew || !existing.getId().equals(store.getId()))) {
             String msg =
-                    "Store '"
-                            + store.getName()
-                            + "' already exists in workspace '"
-                            + workspace.getName()
-                            + "'";
+                    "Store '%s' already exists in workspace '%s'"
+                            .formatted(store.getName(), workspace.getName());
             throw new IllegalArgumentException(msg);
         }
     }
@@ -284,8 +281,9 @@ public class DefaultCatalogValidator implements CatalogValidator {
         LayerGroupHelper helper = new LayerGroupHelper(layerGroup);
         Stack<LayerGroupInfo> loopPath = helper.checkLoops();
         if (loopPath != null) {
+            String loopAsString = helper.getLoopAsString(loopPath);
             throw new IllegalArgumentException(
-                    "Layer group is in a loop: " + helper.getLoopAsString(loopPath));
+                    "Layer group is in a loop: %s".formatted(loopAsString));
         }
     }
 
@@ -326,11 +324,12 @@ public class DefaultCatalogValidator implements CatalogValidator {
             errors = SLDNamedLayerValidator.validate(catalog, sld);
         } catch (IOException e) {
             throw new IllegalArgumentException(
-                    "Error validating style group: " + e.getMessage(), e);
+                    "Error validating style group: %s".formatted(e.getMessage()), e);
         }
         if (!errors.isEmpty()) {
             Exception first = errors.get(0);
-            throw new IllegalArgumentException("Invalid style group: " + first.getMessage(), first);
+            throw new IllegalArgumentException(
+                    "Invalid style group: %s".formatted(first.getMessage()), first);
         }
     }
 
@@ -352,9 +351,10 @@ public class DefaultCatalogValidator implements CatalogValidator {
             // workspaces match
             WorkspaceInfo ews = existing.getWorkspace();
             if ((ws == null && ews == null) || (ws != null && ws.equals(ews))) {
-                String msg = "Layer group named '" + layerGroup.getName() + "' already exists";
+                String msg =
+                        "Layer group named '%s' already exists".formatted(layerGroup.getName());
                 if (ws != null) {
-                    msg += " in workspace " + ws.getName();
+                    msg = "%s in workspace %s".formatted(msg, ws.getName());
                 }
                 throw new IllegalArgumentException(msg);
             }
@@ -375,9 +375,9 @@ public class DefaultCatalogValidator implements CatalogValidator {
             // null workspace can cause style in any workspace to be returned, check that
             // workspaces match
             WorkspaceInfo ews = existing.getWorkspace();
-            String msg = "Style named '" + style.getName() + "' already exists";
+            String msg = "Style named '%s' already exists".formatted(style.getName());
             if (ews != null) {
-                msg += " in workspace " + ews.getName();
+                msg = "%s in workspace %s".formatted(msg, ews.getName());
             }
             throw new IllegalArgumentException(msg);
         }
@@ -451,10 +451,8 @@ public class DefaultCatalogValidator implements CatalogValidator {
 
         if (style.getWorkspace() != null && !ws.equals(style.getWorkspace())) {
             throw new IllegalArgumentException(
-                    "Layer group within a workspace ("
-                            + ws.getName()
-                            + ") can not contain styles from other workspace: "
-                            + style.getWorkspace());
+                    "Layer group within a workspace (%s) can not contain styles from other workspace: %s"
+                            .formatted(ws.getName(), style.getWorkspace()));
         }
     }
 
@@ -464,10 +462,8 @@ public class DefaultCatalogValidator implements CatalogValidator {
         ResourceInfo r = layer.getResource();
         if (r.getStore().getWorkspace() != null && !ws.equals(r.getStore().getWorkspace())) {
             throw new IllegalArgumentException(
-                    "Layer group within a workspace ("
-                            + ws.getName()
-                            + ") can not contain resources from other workspace: "
-                            + r.getStore().getWorkspace().getName());
+                    "Layer group within a workspace (%s) can not contain resources from other workspace: %s"
+                            .formatted(ws.getName(), r.getStore().getWorkspace().getName()));
         }
     }
 
@@ -486,10 +482,8 @@ public class DefaultCatalogValidator implements CatalogValidator {
                 Matcher m = KeywordInfo.RE.matcher(kw.getValue());
                 if (!m.matches()) {
                     throw new IllegalArgumentException(
-                            "Illegal keyword '"
-                                    + kw
-                                    + "'. "
-                                    + "Keywords must not be empty and must not contain the '\\' character");
+                            "Illegal keyword '%s'. Keywords must not be empty and must not contain the '\\' character"
+                                    .formatted(kw));
                 }
                 if (kw.getVocabulary() != null) {
                     m = KeywordInfo.RE.matcher(kw.getVocabulary());

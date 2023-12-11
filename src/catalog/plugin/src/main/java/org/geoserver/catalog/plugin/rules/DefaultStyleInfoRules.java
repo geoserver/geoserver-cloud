@@ -83,7 +83,8 @@ public class DefaultStyleInfoRules implements CatalogInfoBusinessRules<StyleInfo
 
         // rename generated sld if appropriate
         if (!SLDHandler.FORMAT.equals(format.getFormat())) {
-            Resource sld = style.parent().get(FilenameUtils.getBaseName(style.name()) + ".sld");
+            String sldFileName = "%s.sld".formatted(FilenameUtils.getBaseName(style.name()));
+            Resource sld = style.parent().get(sldFileName);
             if (sld.getType() == Type.RESOURCE) {
                 LOGGER.fine(
                         () -> "Renaming style resource %s to %s".formatted(s.getName(), newName));

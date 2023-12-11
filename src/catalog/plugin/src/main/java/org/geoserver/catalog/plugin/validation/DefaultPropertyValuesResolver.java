@@ -60,7 +60,7 @@ public class DefaultPropertyValuesResolver {
         } else if (info instanceof WorkspaceInfo ws) {
             resolve(ws);
         } else {
-            throw new IllegalArgumentException("Unknown resource type: " + info);
+            throw new IllegalArgumentException("Unknown resource type: %s".formatted(info));
         }
     }
 

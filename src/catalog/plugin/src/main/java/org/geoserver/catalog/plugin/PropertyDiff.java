@@ -257,8 +257,8 @@ public @Data class PropertyDiff implements Serializable {
                         .orElseThrow(
                                 () ->
                                         new IllegalArgumentException(
-                                                "Unable to find most concrete Info sub-interface of "
-                                                        + of.getCanonicalName()));
+                                                "Unable to find most concrete Info sub-interface of %s"
+                                                        .formatted(of.getCanonicalName())));
     }
 
     public static PropertyDiff empty() {
@@ -284,7 +284,8 @@ public @Data class PropertyDiff implements Serializable {
             this.info = info;
             ClassMappings classMappings = ClassMappings.fromImpl(info.getClass());
             Objects.requireNonNull(
-                    classMappings, "Unknown info class: " + info.getClass().getCanonicalName());
+                    classMappings,
+                    () -> "Unknown info class: " + info.getClass().getCanonicalName());
         }
 
         public PropertyDiff build() {
@@ -308,7 +309,7 @@ public @Data class PropertyDiff implements Serializable {
             if (null
                     == classProperties.getter(
                             property, newValue == null ? null : newValue.getClass())) {
-                throw new IllegalArgumentException("No such property: " + property);
+                throw new IllegalArgumentException("No such property: %s".formatted(property));
             }
 
             Object oldValue = OwsUtils.get(info, property);

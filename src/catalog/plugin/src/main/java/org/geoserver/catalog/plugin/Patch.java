@@ -66,7 +66,7 @@ public @Data class Patch implements Serializable {
                         case "float" -> Arrays.equals((float[]) v1, (float[]) v2);
                         case "double" -> Arrays.equals((double[]) v1, (double[]) v2);
                         default -> throw new IllegalArgumentException(
-                                "Unexpected value: " + componentType);
+                                "Unexpected value: %s".formatted(componentType));
                     };
                 } else {
                     Object[] a1 = (Object[]) v1;
@@ -161,7 +161,7 @@ public @Data class Patch implements Serializable {
                 currentValue.clear();
             } catch (UnsupportedOperationException e) {
                 throw new IllegalArgumentException(
-                        "Collection property " + propertyName + " is immutable", e);
+                        "Collection property %s is immutable".formatted(propertyName), e);
             }
             if (newValue != null) {
                 currentValue.addAll(newValue);
@@ -186,7 +186,7 @@ public @Data class Patch implements Serializable {
         Method getter = OwsUtils.getter(objectType, change.getName(), null);
         if (getter == null) {
             throw new IllegalArgumentException(
-                    "No such property in target object: " + change.getName());
+                    "No such property in target object: %s".formatted(change.getName()));
         }
         return getter;
     }

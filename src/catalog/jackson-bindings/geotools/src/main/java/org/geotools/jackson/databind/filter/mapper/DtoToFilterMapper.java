@@ -200,7 +200,7 @@ abstract class DtoToFilterMapper {
             return ff.featureId(id, featureVersion);
         }
         throw new IllegalArgumentException(
-                "Unsupported identifier type: " + dto.getClass().getCanonicalName());
+                "Unsupported identifier type: %s".formatted(dto.getClass().getCanonicalName()));
     }
 
     private static @FunctionalInterface interface TriFunction<A, B, C, R> {

@@ -57,59 +57,61 @@ class FilteringXmlBeanDefinitionReaderTest {
 
     @Test
     void includedAll_AnyWord() {
-        String location = baseResource + "#name=\\w+";
+        String location = "%s#name=\\w+".formatted(baseResource);
         verify(location, "filterFactory", "geoServer", "memoryLockProvider", "nullLockProvider");
     }
 
     @Test
     void excludeAll_AnyWord() {
-        String location = baseResource + "#name=^(?!\\w+).*$";
+        String location = "%s#name=^(?!\\w+).*$".formatted(baseResource);
         verify(location);
     }
 
     @Test
     void excludeByName() {
-        String location = baseResource + "#name=^(?!nullLockProvider|memoryLockProvider).*$";
+        String location =
+                "%s#name=^(?!nullLockProvider|memoryLockProvider).*$".formatted(baseResource);
         verify(location, "filterFactory", "geoServer");
     }
 
     @Test
     void excludeAllExplicitlyByName() {
         String location =
-                baseResource
-                        + "#name=^(?!nullLockProvider|memoryLockProvider|filterFactory|geoServer)$";
+                "%s#name=^(?!nullLockProvider|memoryLockProvider|filterFactory|geoServer)$"
+                        .formatted(baseResource);
         verify(location);
     }
 
     @Test
     void includeAllExplicitly() {
         String location =
-                baseResource
-                        + "#name=^(nullLockProvider|memoryLockProvider|filterFactory|geoServer)$";
+                "%s#name=^(nullLockProvider|memoryLockProvider|filterFactory|geoServer)$"
+                        .formatted(baseResource);
         verify(location, "filterFactory", "geoServer", "memoryLockProvider", "nullLockProvider");
     }
 
     @Test
     void excludeAllEndingWithProviderOrStartingWithFilter() {
-        String location = baseResource + "#name=^(?!.*Provider|.*Factory).*$";
+        String location = "%s#name=^(?!.*Provider|.*Factory).*$".formatted(baseResource);
         verify(location, "geoServer");
     }
 
     @Test
     void excludeByIdAttribute() {
-        String location = baseResource + "#name=^(?!nullLockProvider|memoryLockProvider).*$";
+        String location =
+                "%s#name=^(?!nullLockProvider|memoryLockProvider).*$".formatted(baseResource);
         verify(location, "filterFactory", "geoServer");
     }
 
     @Test
     void excludeByNameAttribute() {
-        String location = baseResource + "#name=^(?!filterFactory|geoServer).*$";
+        String location = "%s#name=^(?!filterFactory|geoServer).*$".formatted(baseResource);
         verify(location, "memoryLockProvider", "nullLockProvider");
     }
 
     @Test
     void includeByNameAttribute() {
-        String location = baseResource + "#name=^(filterFactory|geoServer).*$";
+        String location = "%s#name=^(filterFactory|geoServer).*$".formatted(baseResource);
         verify(location, "filterFactory", "geoServer");
     }
 

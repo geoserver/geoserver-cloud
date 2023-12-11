@@ -116,21 +116,29 @@ public abstract class GeoToolsGeoJsonModuleTest {
     @Test
     void testGeometryCollection() throws JsonProcessingException {
         roundtripTest(
-                "GEOMETRYCOLLECTION(POINT EMPTY,"
-                        + "POLYGON ((0 0, 10 10, 20 0, 0 0),(1 1, 9 9, 19 1, 1 1)),"
-                        + "LINESTRING(0 1, 4 5))");
+                """
+					GEOMETRYCOLLECTION(POINT EMPTY,\
+					POLYGON ((0 0, 10 10, 20 0, 0 0),(1 1, 9 9, 19 1, 1 1)),\
+					LINESTRING(0 1, 4 5))
+					""");
         roundtripTest(
-                "GEOMETRYCOLLECTION("
-                        + "POLYGON Z((0 0 0, 10 10 1, 20 0 2, 0 0 0),(1 1 1, 9 9 2, 19 1 3, 1 1 1)),"
-                        + "LINESTRING Z(0 1 2, 4 5 6))");
+                """
+					GEOMETRYCOLLECTION(\
+					POLYGON Z((0 0 0, 10 10 1, 20 0 2, 0 0 0),(1 1 1, 9 9 2, 19 1 3, 1 1 1)),\
+					LINESTRING Z(0 1 2, 4 5 6))
+					""");
         roundtripTest(
-                "GEOMETRYCOLLECTION("
-                        + "POLYGON  M((0 0 0, 10 10 1, 20 0 2, 0 0 0),(1 1 1, 9 9 2, 19 1 3, 1 1 1)),"
-                        + "LINESTRING M(0 1 3, 4 5 7))");
+                """
+					GEOMETRYCOLLECTION(\
+					POLYGON  M((0 0 0, 10 10 1, 20 0 2, 0 0 0),(1 1 1, 9 9 2, 19 1 3, 1 1 1)),\
+					LINESTRING M(0 1 3, 4 5 7))
+					""");
         roundtripTest(
-                "GEOMETRYCOLLECTION("
-                        + "POLYGON ZM((0 0 0 0, 10 10 1 1, 20 0 2 2, 0 0 0 0),(1 1 1 1, 9 9 2 2, 19 1 3 3, 1 1 1 1)),"
-                        + "LINESTRING ZM(0 1 2 3, 4 5 6 7))");
+                """
+					GEOMETRYCOLLECTION(\
+					POLYGON ZM((0 0 0 0, 10 10 1 1, 20 0 2 2, 0 0 0 0),(1 1 1 1, 9 9 2 2, 19 1 3 3, 1 1 1 1)),\
+					LINESTRING ZM(0 1 2 3, 4 5 6 7))
+					""");
     }
 
     private Geometry roundtripTest(String wkt) throws JsonProcessingException {

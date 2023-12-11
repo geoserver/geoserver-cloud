@@ -111,26 +111,28 @@ class CloudGWCServiceDescriptionProvider extends ServiceDescriptionProvider {
 
         String basePath = "/gwc/service";
         if (workspace != null) {
-            basePath = "/" + workspace.getName() + basePath;
+            basePath = "/%s%s".formatted(workspace.getName(), basePath);
         }
         if (layer != null) {
-            basePath = "/" + layer.getName() + basePath;
+            basePath = "/%s%s".formatted(layer.getName(), basePath);
         }
-        return ".." + basePath;
+        return "..%s".formatted(basePath);
     }
 
     private String createLinkWMSC(WorkspaceInfo workspace, PublishedInfo layer) {
-        return basePath(workspace, layer)
-                + "/wms?service=WMS&version=1.1.1&request=GetCapabilities&tiled=true";
+        String basePath = basePath(workspace, layer);
+        return "%s/wms?service=WMS&version=1.1.1&request=GetCapabilities&tiled=true"
+                .formatted(basePath);
     }
 
     private String createLinkWMTS(WorkspaceInfo workspace, PublishedInfo layer) {
-        return basePath(workspace, layer)
-                + "/wmts?service=WMTS&version=1.1.1&request=GetCapabilities";
+        String basePath = basePath(workspace, layer);
+        return "%s/wmts?service=WMTS&version=1.1.1&request=GetCapabilities".formatted(basePath);
     }
 
     private String createLinkTMS(WorkspaceInfo workspace, PublishedInfo layer) {
-        return basePath(workspace, layer) + "/tms/1.0.0";
+        String basePath = basePath(workspace, layer);
+        return "%s/tms/1.0.0".formatted(basePath);
     }
 
     @Override

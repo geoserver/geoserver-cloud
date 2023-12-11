@@ -129,7 +129,7 @@ public class LiteralSerializer extends StdSerializer<Literal> {
                 type = enclosingClass;
             } else {
                 throw new IllegalArgumentException(
-                        "Unable to encode anonymous class " + type.getName());
+                        "Unable to encode anonymous class %s".formatted(type.getName()));
             }
         }
 

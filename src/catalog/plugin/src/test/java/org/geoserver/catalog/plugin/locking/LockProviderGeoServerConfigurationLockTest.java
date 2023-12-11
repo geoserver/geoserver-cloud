@@ -232,7 +232,9 @@ class LockProviderGeoServerConfigurationLockTest {
                 // first release
                 lock.unlock();
                 assertEquals(
-                        lockType, lock.getCurrentLock(), lockType + " lock should still be held");
+                        lockType,
+                        lock.getCurrentLock(),
+                        "%s lock should still be held".formatted(lockType));
             }
         } finally {
             // second release
@@ -269,7 +271,9 @@ class LockProviderGeoServerConfigurationLockTest {
                 // first release
                 lock.unlock();
                 assertEquals(
-                        lockType, lock.getCurrentLock(), lockType + " lock should still be held");
+                        lockType,
+                        lock.getCurrentLock(),
+                        "%s lock should still be held".formatted(lockType));
             }
         } finally {
             // second release

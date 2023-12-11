@@ -63,8 +63,8 @@ public class GeoServerConfigInitializer
                 ServiceInfo s = geoServer.getService(l.getServiceClass());
                 if (s == null) {
                     log.info(
-                            "creating default service config for "
-                                    + l.getServiceClass().getSimpleName());
+                            "creating default service config for {}",
+                            l.getServiceClass().getSimpleName());
                     geoServer.add(l.create(geoServer));
                 }
             }

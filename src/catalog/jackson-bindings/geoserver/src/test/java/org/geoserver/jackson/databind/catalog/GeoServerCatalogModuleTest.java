@@ -526,23 +526,24 @@ public abstract class GeoServerCatalogModuleTest {
     @Test
     void testValueCoordinateReferenceSystemCustomCRS() throws Exception {
         String customWKT =
-                "PROJCS[ \"UTM Zone 10, Northern Hemisphere\",\n"
-                        + "  GEOGCS[\"GRS 1980(IUGG, 1980)\",\n"
-                        + "    DATUM[\"unknown\","
-                        + "       SPHEROID[\"GRS80\",6378137,298.257222101],"
-                        + "       TOWGS84[0,0,0,0,0,0,0]"
-                        + "    ],\n"
-                        + "    PRIMEM[\"Greenwich\",0],\n"
-                        + "    UNIT[\"degree\",0.0174532925199433]\n"
-                        + "  ],\n"
-                        + "  PROJECTION[\"Transverse_Mercator\"],\n"
-                        + "  PARAMETER[\"latitude_of_origin\",0],\n"
-                        + "  PARAMETER[\"central_meridian\",-123],\n"
-                        + "  PARAMETER[\"scale_factor\",0.9996],\n"
-                        + "  PARAMETER[\"false_easting\",1640419.947506562],\n"
-                        + "  PARAMETER[\"false_northing\",0],\n"
-                        + "  UNIT[\"Foot (International)\",0.3048]\n"
-                        + "]";
+                """
+			PROJCS[ "UTM Zone 10, Northern Hemisphere",
+			  GEOGCS["GRS 1980(IUGG, 1980)",
+			    DATUM["unknown",
+			       SPHEROID["GRS80",6378137,298.257222101],
+			       TOWGS84[0,0,0,0,0,0,0]
+			    ],
+			    PRIMEM["Greenwich",0],
+			    UNIT["degree",0.0174532925199433]
+			  ],
+			  PROJECTION["Transverse_Mercator"],
+			  PARAMETER["latitude_of_origin",0],
+			  PARAMETER["central_meridian",-123],
+			  PARAMETER["scale_factor",0.9996],
+			  PARAMETER["false_easting",1640419.947506562],
+			  PARAMETER["false_northing",0],
+			  UNIT["Foot (International)",0.3048]
+			]""";
 
         CoordinateReferenceSystem crs = CRS.parseWKT(customWKT);
         testValueCoordinateReferenceSystem(crs);

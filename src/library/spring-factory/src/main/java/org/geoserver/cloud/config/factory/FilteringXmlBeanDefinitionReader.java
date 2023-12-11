@@ -193,7 +193,8 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
             return count;
         } catch (IOException ex) {
             throw new BeanDefinitionStoreException(
-                    "Could not resolve bean definition resource pattern [" + location + "]", ex);
+                    "Could not resolve bean definition resource pattern [%s]".formatted(location),
+                    ex);
         }
     }
 
@@ -351,11 +352,8 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
             } catch (Exception ex) {
                 getReaderContext()
                         .error(
-                                "Failed to register alias '"
-                                        + alias
-                                        + "' for bean with name '"
-                                        + name
-                                        + "'",
+                                "Failed to register alias '%s' for bean with name '%s'"
+                                        .formatted(alias, name),
                                 null,
                                 ex);
             }

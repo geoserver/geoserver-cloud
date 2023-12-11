@@ -64,7 +64,7 @@ enum ConfigInfoType {
                 return enumVal;
             }
         }
-        throw new IllegalArgumentException("Unknown info type for object " + object);
+        throw new IllegalArgumentException("Unknown info type for object %s".formatted(object));
     }
 
     public boolean isA(Class<? extends Info> type) {

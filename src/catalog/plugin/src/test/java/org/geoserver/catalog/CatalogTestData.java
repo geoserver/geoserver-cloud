@@ -374,12 +374,9 @@ public class CatalogTestData {
 
     public LayerInfo createLayer(ResourceInfo resource, StyleInfo defaultStyle) {
 
-        return createLayer(
-                resource.getName() + "-layer-id",
-                resource,
-                resource.getName() + " title",
-                true,
-                defaultStyle);
+        String id = resource.getName() + "-layer-id";
+        String title = resource.getName() + " title";
+        return createLayer(id, resource, title, true, defaultStyle);
     }
 
     public LayerInfo createLayer(
@@ -407,7 +404,9 @@ public class CatalogTestData {
     }
 
     public StyleInfo createStyle(@NonNull String name, WorkspaceInfo workspace) {
-        return createStyle(name + "-id", workspace, name, name + ".sld");
+        String id = name + "-id";
+        String fileName = name + ".sld";
+        return createStyle(id, workspace, name, fileName);
     }
 
     public StyleInfo createStyle(String id, WorkspaceInfo workspace, String name, String fileName) {
@@ -471,7 +470,8 @@ public class CatalogTestData {
     }
 
     public CoverageInfo createCoverage(String name) {
-        return createCoverage(name + "-id", coverageStoreA, name);
+        String id = name + "-id";
+        return createCoverage(id, coverageStoreA, name);
     }
 
     public CoverageInfo createCoverage(String id, CoverageStoreInfo cstore, String name) {
@@ -496,14 +496,10 @@ public class CatalogTestData {
     }
 
     public FeatureTypeInfo createFeatureType(String name) {
-        return createFeatureType(
-                name + "-id",
-                dataStoreA,
-                namespaceA,
-                name,
-                name + " abstract",
-                name + " description",
-                true);
+        String id = name + "-id";
+        String ftAbstract = name + " abstract";
+        String ftDescription = name + " description";
+        return createFeatureType(id, dataStoreA, namespaceA, name, ftAbstract, ftDescription, true);
     }
 
     public FeatureTypeInfo createFeatureType(

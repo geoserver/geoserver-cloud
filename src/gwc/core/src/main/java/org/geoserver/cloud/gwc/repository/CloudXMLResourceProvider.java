@@ -110,7 +110,7 @@ public class CloudXMLResourceProvider implements ConfigurationResourceProvider {
 
     private void backUpConfig(final Resource xmlFile) throws IOException {
         String timeStamp = new SimpleDateFormat("yyyy-MM-dd'T'HHmmss").format(new Date());
-        String backUpFileName = "geowebcache_" + timeStamp + ".bak";
+        String backUpFileName = "geowebcache_%s.bak".formatted(timeStamp);
         Resource parentFile = xmlFile.parent();
 
         log.debug("Backing up config file {} to {}", xmlFile.name(), backUpFileName);

@@ -93,7 +93,8 @@ public class JdbcConfigUpdateSequence implements UpdateSequence, InitializingBea
                 if (rs.next()) {
                     return rs.getLong(1);
                 }
-                throw new IllegalStateException("Query did not return a result: " + getQuery);
+                throw new IllegalStateException(
+                        "Query did not return a result: %s".formatted(getQuery));
             } finally {
                 c.setAutoCommit(true);
             }

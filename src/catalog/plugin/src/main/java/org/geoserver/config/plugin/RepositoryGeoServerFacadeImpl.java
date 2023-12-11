@@ -215,7 +215,7 @@ public class RepositoryGeoServerFacadeImpl implements RepositoryGeoServerFacade 
         requireNonNull(type);
         Optional<T> service = repository.getServiceById(id, type);
         if (service.isEmpty() && LOGGER.isLoggable(Level.FINE)) {
-            LOGGER.fine("Could not locate service of type " + type + " and id '" + id);
+            LOGGER.fine("Could not locate service of type %s and id '%s".formatted(type, id));
         }
         return wrap(resolve(service.orElse(null)), type);
     }
@@ -310,7 +310,8 @@ public class RepositoryGeoServerFacadeImpl implements RepositoryGeoServerFacade 
     protected void setId(Object o) {
         if (OwsUtils.get(o, "id") == null) {
             String uid = new UID().toString();
-            OwsUtils.set(o, "id", o.getClass().getSimpleName() + "-" + uid);
+            String id = "%s-%s".formatted(o.getClass().getSimpleName(), uid);
+            OwsUtils.set(o, "id", id);
         }
     }
 

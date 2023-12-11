@@ -176,7 +176,7 @@ public class PgsqlGeoServerLoader extends GeoServerLoader {
             var serviceClass = loader.getServiceClass();
             ServiceInfo service = geoServer.getService(serviceClass);
             if (service == null) {
-                log.info("creating default service config for " + serviceClass.getSimpleName());
+                log.info("creating default service config for {}", serviceClass.getSimpleName());
                 try {
                     service = loader.create(geoServer);
                     geoServer.add(service);

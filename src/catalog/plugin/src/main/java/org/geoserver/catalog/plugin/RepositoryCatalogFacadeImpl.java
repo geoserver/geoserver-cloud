@@ -636,7 +636,7 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
                 checkCanSort(query);
                 stream = repository(query.getType()).findAll(query);
             } catch (RuntimeException e) {
-                throw new CatalogException("Error obtaining stream: " + query, e);
+                throw new CatalogException("Error obtaining stream: %s".formatted(query), e);
             }
         }
         return stream;

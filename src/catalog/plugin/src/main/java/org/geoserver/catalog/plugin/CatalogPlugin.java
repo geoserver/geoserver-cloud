@@ -535,7 +535,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
             NamespaceInfo ns = getNamespaceByPrefix(defaultNamespace.getPrefix());
             if (ns == null) {
                 throw new IllegalArgumentException(
-                        "No such namespace: '" + defaultNamespace.getPrefix() + "'");
+                        "No such namespace: '%s'".formatted(defaultNamespace.getPrefix()));
             } else {
                 defaultNamespace = ns;
             }
@@ -582,7 +582,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
             WorkspaceInfo ws = facade.getWorkspaceByName(defaultWorkspace.getName());
             if (ws == null) {
                 throw new IllegalArgumentException(
-                        "No such workspace: '" + defaultWorkspace.getName() + "'");
+                        "No such workspace: '%s'".formatted(defaultWorkspace.getName()));
             } else {
                 defaultWorkspace = ws;
             }
@@ -663,9 +663,8 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
                 && !facade.canSort(of, sortOrder.getPropertyName().getPropertyName())) {
             // TODO: use GeoTools' merge-sort code to provide sorting anyways
             throw new UnsupportedOperationException(
-                    "Catalog backend can't sort on property "
-                            + sortOrder.getPropertyName()
-                            + " in-process sorting is pending implementation");
+                    "Catalog backend can't sort on property %s in-process sorting is pending implementation"
+                            .formatted(sortOrder.getPropertyName()));
         }
 
         Query<T> query = Query.valueOf(of, filter, offset, count, sortOrder);
@@ -737,7 +736,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
                     Optional.<PublishedInfo>ofNullable(getLayer(id))
                             .orElseGet(() -> getLayerGroup(id)));
             case STYLE -> type.cast(getStyle(id));
-            default -> throw new IllegalArgumentException("Unexpected value: " + cm);
+            default -> throw new IllegalArgumentException("Unexpected value: %s".formatted(cm));
         };
     }
 
@@ -872,7 +871,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
     protected void setId(CatalogInfo o) {
         if (null == o.getId()) {
             String uid = UUID.randomUUID().toString();
-            String id = o.getClass().getSimpleName() + "-" + uid;
+            String id = "%s-%s".formatted(o.getClass().getSimpleName(), uid);
             OwsUtils.set(o, "id", id);
         } else if (LOGGER.isLoggable(Level.FINE)) {
             LOGGER.fine("Using user provided id %s".formatted(o.getId()));
@@ -916,7 +915,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
                 remove((MapInfo) info);
                 break;
             default:
-                throw new IllegalArgumentException("Unexpected value: " + cm);
+                throw new IllegalArgumentException("Unexpected value: %s".formatted(cm));
         }
     }
 }

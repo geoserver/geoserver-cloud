@@ -164,7 +164,7 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
         WorkspaceInfo workspace = settings.getWorkspace();
         if (facade.getSettings(workspace) != null) {
             throw new IllegalArgumentException(
-                    "Settings already exist for workspace '" + workspace.getName() + "'");
+                    "Settings already exist for workspace '%s'".formatted(workspace.getName()));
         }
 
         facade.add(settings);
@@ -267,7 +267,7 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
         if (service.getId() != null
                 && facade.getService(service.getId(), ServiceInfo.class) != null) {
             throw new IllegalArgumentException(
-                    "service with id '" + service.getId() + "' already exists");
+                    "service with id '%s' already exists".formatted(service.getId()));
         }
 
         validate(service);
