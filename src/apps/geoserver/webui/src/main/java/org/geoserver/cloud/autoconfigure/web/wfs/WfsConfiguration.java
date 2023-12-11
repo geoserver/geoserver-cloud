@@ -13,7 +13,8 @@ import org.springframework.context.annotation.ImportResource;
         reader = FilteringXmlBeanDefinitionReader.class, //
         locations = { //
             "jar:gs-web-wfs-.*!/applicationContext.xml", //
-            "jar:gs-wfs-.*!/applicationContext.xml"
+            "jar:gs-wfs-.*!/applicationContext.xml",
+            "jar:gs-flatgeobuf-.*!/applicationContext.xml#name=.*"
         } //
         )
 public class WfsConfiguration {}
