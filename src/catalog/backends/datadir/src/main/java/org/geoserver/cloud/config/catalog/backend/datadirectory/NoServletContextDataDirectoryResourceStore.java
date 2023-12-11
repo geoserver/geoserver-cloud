@@ -30,9 +30,11 @@ public class NoServletContextDataDirectoryResourceStore extends DataDirectoryRes
 
         if (resourceDirectory.isFile()) {
             throw new IllegalArgumentException(
-                    "Directory required, file present at this location " + resourceDirectory);
+                    "Directory required, file present at this location %s"
+                            .formatted(resourceDirectory));
         } else if (!resourceDirectory.isDirectory() && !resourceDirectory.mkdirs()) {
-            throw new IllegalArgumentException("Unable to create directory " + resourceDirectory);
+            throw new IllegalArgumentException(
+                    "Unable to create directory %s".formatted(resourceDirectory));
         }
         this.setBaseDirectory(resourceDirectory);
     }

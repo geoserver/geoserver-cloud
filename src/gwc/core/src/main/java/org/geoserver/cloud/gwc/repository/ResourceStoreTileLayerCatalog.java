@@ -301,7 +301,7 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
         try {
             directoryStream.close();
         } catch (IOException e) {
-            log.warn("Error closing directory stream for " + baseDirectory);
+            log.warn("Error closing directory stream for {}", baseDirectory);
         }
     }
 
@@ -316,7 +316,8 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
     }
 
     private String layerIdToFileName(final String tileLayerId) {
-        return FilePathUtils.filteredLayerName(tileLayerId) + ".xml";
+        String filteredLayerName = FilePathUtils.filteredLayerName(tileLayerId);
+        return "%s.xml".formatted(filteredLayerName);
     }
 
     private void notify(String layerId, Type eventType) {

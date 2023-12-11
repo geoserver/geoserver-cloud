@@ -70,6 +70,7 @@ public @Data class GeoToolsHttpClientProxyConfigurationProperties {
     public ProxyHostConfig ofProtocol(@NonNull String protocol) {
         if ("http".equals(protocol)) return http == null ? new ProxyHostConfig() : http;
         if ("https".equals(protocol)) return https == null ? new ProxyHostConfig() : https;
-        throw new IllegalArgumentException("Uknown protocol " + protocol + ". Expected http(s)");
+        throw new IllegalArgumentException(
+                "Uknown protocol %s. Expected http(s)".formatted(protocol));
     }
 }

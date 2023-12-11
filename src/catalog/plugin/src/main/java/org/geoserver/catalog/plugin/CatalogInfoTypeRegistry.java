@@ -115,7 +115,7 @@ public class CatalogInfoTypeRegistry<R> {
         }
         if (cm == null)
             throw new IllegalArgumentException(
-                    "Unable to determine CatalogInfo subtype from object " + object);
+                    "Unable to determine CatalogInfo subtype from object %s".formatted(object));
         return (Class<T>) cm.getInterface();
     }
 
@@ -128,7 +128,7 @@ public class CatalogInfoTypeRegistry<R> {
             return cm;
         }
         throw new IllegalArgumentException(
-                "Unable to determine CatalogInfo subtype from class " + type.getName());
+                "Unable to determine CatalogInfo subtype from class %s".formatted(type.getName()));
     }
 
     private static final List<Class<? extends CatalogInfo>> instanceOfLookup =

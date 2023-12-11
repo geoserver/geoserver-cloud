@@ -148,6 +148,6 @@ public class EnvironmentAdminAuthenticationProvider implements AuthenticationPro
         // this breaks the cycle through other providers, as opposed to
         // BadCredentialsException
         throw new InternalAuthenticationServiceException(
-                "Bad credentials for: " + token.getPrincipal());
+                "Bad credentials for: %s".formatted(token.getPrincipal()));
     }
 }

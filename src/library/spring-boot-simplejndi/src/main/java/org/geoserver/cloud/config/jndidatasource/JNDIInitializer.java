@@ -51,9 +51,8 @@ public class JNDIInitializer implements InitializingBean {
         if (!dsname.startsWith(prefix)) {
             if (dsname.contains("/")) {
                 throw new IllegalArgumentException(
-                        "The datasource name '"
-                                + dsname
-                                + "' is invalid. Provide either a simple name, or a full name like java:comp/env/jdbc/mydatasource");
+                        "The datasource name '%s' is invalid. Provide either a simple name, or a full name like java:comp/env/jdbc/mydatasource"
+                                .formatted(dsname));
             }
             return prefix + dsname;
         }
@@ -62,7 +61,7 @@ public class JNDIInitializer implements InitializingBean {
 
     void setUpDataSource(String jndiName, JNDIDatasourceConfig props) {
         if (props.isEnabled()) {
-            log.info("Creating JNDI datasoruce " + jndiName + " on " + props.getUrl());
+            log.info("Creating JNDI datasoruce {} on {}", jndiName, props.getUrl());
         } else {
             log.info("Ignoring disabled JNDI datasource " + jndiName);
             return;

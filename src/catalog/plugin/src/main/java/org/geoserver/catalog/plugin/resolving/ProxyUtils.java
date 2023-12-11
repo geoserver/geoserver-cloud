@@ -158,7 +158,7 @@ public class ProxyUtils {
 
         if (info == null) {
             if (failOnNotFound)
-                throw new IllegalArgumentException("Reference to " + unresolved.getId());
+                throw new IllegalArgumentException("Reference to %s".formatted(unresolved.getId()));
             return null;
         }
 

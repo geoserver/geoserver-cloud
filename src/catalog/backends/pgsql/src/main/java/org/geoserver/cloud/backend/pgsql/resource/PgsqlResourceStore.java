@@ -95,7 +95,7 @@ public class PgsqlResourceStore implements ResourceStore {
     public void save(@NonNull PgsqlResource resource) {
         if (resource.isUndefined())
             throw new IllegalArgumentException(
-                    "Attempting to save a resource of undefined type: " + resource);
+                    "Attempting to save a resource of undefined type: %s".formatted(resource));
 
         if (resource.exists()) {
             String sql =
@@ -133,11 +133,12 @@ public class PgsqlResourceStore implements ResourceStore {
      */
     public long save(@NonNull PgsqlResource resource, byte[] contents) {
         if (!resource.exists())
-            throw new IllegalArgumentException("Resource does not exist: " + resource.path());
+            throw new IllegalArgumentException(
+                    "Resource does not exist: %s".formatted(resource.path()));
 
         if (!resource.isFile())
             throw new IllegalArgumentException(
-                    "Resource is a directory, can't have contents: " + resource.path());
+                    "Resource is a directory, can't have contents: %s".formatted(resource.path()));
 
         if (null == contents) contents = new byte[0];
         template.update(
@@ -219,9 +220,9 @@ public class PgsqlResourceStore implements ResourceStore {
      */
     public byte[] contents(PgsqlResource resource) {
         if (!resource.exists() || resource.isUndefined())
-            throw new IllegalStateException("File not found " + resource.path());
+            throw new IllegalStateException("File not found %s".formatted(resource.path()));
         if (resource.isDirectory())
-            throw new IllegalStateException(resource.path() + " is a directory");
+            throw new IllegalStateException("%s is a directory".formatted(resource.path()));
 
         long id = resource.getId();
         return template.queryForObject(
@@ -306,7 +307,7 @@ public class PgsqlResourceStore implements ResourceStore {
 
     public OutputStream out(PgsqlResource res) {
         if (res.isDirectory()) {
-            throw new IllegalStateException(res.path() + " is a directory");
+            throw new IllegalStateException("%s is a directory".formatted(res.path()));
         }
         if (res.isUndefined()) {
             res.type = Type.RESOURCE;

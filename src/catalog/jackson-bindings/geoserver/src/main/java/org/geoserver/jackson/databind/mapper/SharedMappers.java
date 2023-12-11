@@ -124,9 +124,9 @@ public abstract class SharedMappers {
             Integer code = org.geotools.referencing.CRS.lookupEpsgCode(source, fullScan);
             if (code != null) {
                 if (axisOrder == AxisOrder.NORTH_EAST) {
-                    srs = "urn:ogc:def:crs:EPSG::" + code;
+                    srs = "urn:ogc:def:crs:EPSG::%s".formatted(code);
                 } else {
-                    srs = "EPSG:" + code;
+                    srs = "EPSG:%s".formatted(code);
                 }
             }
         } catch (Exception e) {

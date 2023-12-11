@@ -256,7 +256,8 @@ public class DefaultMemoryCatalogFacade extends RepositoryCatalogFacadeImpl
     protected void setId(Object o) {
         if (OwsUtils.get(o, "id") == null) {
             String uid = new UID().toString();
-            OwsUtils.set(o, "id", o.getClass().getSimpleName() + "-" + uid);
+            String id = "%s-%s".formatted(o.getClass().getSimpleName(), uid);
+            OwsUtils.set(o, "id", id);
         }
     }
 

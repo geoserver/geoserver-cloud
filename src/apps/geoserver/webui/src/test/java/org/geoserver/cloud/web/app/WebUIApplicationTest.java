@@ -165,9 +165,8 @@ class WebUIApplicationTest {
     protected void assertHidden(String id) {
         TagTester tag = tester.getTagById(id);
         String msg =
-                "expected custom 'unused' css class to hide the "
-                        + id
-                        + " form inputs in custom GlobalSettingsPage.html";
+                "expected custom 'unused' css class to hide the %s form inputs in custom GlobalSettingsPage.html"
+                        .formatted(id);
         assertEquals("unused", tag.getAttribute("class"), msg);
     }
 }

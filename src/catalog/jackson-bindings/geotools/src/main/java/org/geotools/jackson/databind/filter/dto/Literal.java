@@ -54,7 +54,7 @@ public class Literal extends Expression {
                     case "float" -> Arrays.equals((float[]) v1, (float[]) v2);
                     case "double" -> Arrays.equals((double[]) v1, (double[]) v2);
                     default -> throw new IllegalArgumentException(
-                            "Unexpected value: " + componentType);
+                            "Unexpected value: %s".formatted(componentType));
                 };
             } else {
                 Object[] a1 = (Object[]) v1;

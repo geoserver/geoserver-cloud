@@ -60,8 +60,8 @@ public class ResolvingProxyResolver<T extends Info> implements UnaryOperator<T> 
                 catalog,
                 (info, proxy) ->
                         log.warn(
-                                "ResolvingProxy object not found in catalog, keeping proxy around: "
-                                        + info.getId()));
+                                "ResolvingProxy object not found in catalog, keeping proxy around: %s"
+                                        .formatted(info.getId())));
     }
 
     public ResolvingProxyResolver(
@@ -85,7 +85,7 @@ public class ResolvingProxyResolver<T extends Info> implements UnaryOperator<T> 
                     catalog,
                     (proxiedInfo, proxy) -> {
                         throw new NoSuchElementException(
-                                "Object not found: " + proxiedInfo.getId());
+                                "Object not found: %s".formatted(proxiedInfo.getId()));
                     });
         return ResolvingProxyResolver.of(catalog);
     }

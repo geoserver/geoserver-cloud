@@ -45,7 +45,7 @@ public interface CatalogInfoMapper {
         if (dto instanceof Map map) return (I) MAP_MAPPER.map(map);
 
         throw new IllegalArgumentException(
-                "Unknown CatalogInfoDto type: " + dto.getClass().getCanonicalName());
+                "Unknown CatalogInfoDto type: %s".formatted(dto.getClass().getCanonicalName()));
     }
 
     default CatalogInfoDto map(CatalogInfo info) {
@@ -59,6 +59,6 @@ public interface CatalogInfoMapper {
         if (info instanceof MapInfo map) return MAP_MAPPER.map(map);
         if (info instanceof CatalogInfo) return null;
         throw new IllegalArgumentException(
-                "Unknown CatalogInfo type: " + info.getClass().getCanonicalName());
+                "Unknown CatalogInfo type: %s".formatted(info.getClass().getCanonicalName()));
     }
 }

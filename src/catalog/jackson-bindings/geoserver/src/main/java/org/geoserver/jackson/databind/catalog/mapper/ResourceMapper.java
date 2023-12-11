@@ -26,7 +26,7 @@ public interface ResourceMapper {
         if (o instanceof CoverageInfo cov) return map(cov);
         if (o instanceof WMSLayerInfo wms) return map(wms);
         if (o instanceof WMTSLayerInfo wmts) return map(wmts);
-        throw new IllegalArgumentException("Unknown ResourceInfo type: " + o);
+        throw new IllegalArgumentException("Unknown ResourceInfo type: %s".formatted(o));
     }
 
     default ResourceInfo map(Resource o) {
@@ -35,7 +35,7 @@ public interface ResourceMapper {
         if (o instanceof Coverage cov) return map(cov);
         if (o instanceof WMSLayer wms) return map(wms);
         if (o instanceof WMTSLayer wmts) return map(wmts);
-        throw new IllegalArgumentException("Unknown Resource type: " + o);
+        throw new IllegalArgumentException("Unknown Resource type: %s".formatted(o));
     }
 
     @Mapping(target = "catalog", ignore = true)

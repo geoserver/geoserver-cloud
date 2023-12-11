@@ -55,7 +55,7 @@ class DataDirectoryLoaderSupport {
             try {
                 return Optional.of(loader.load(gs));
             } catch (Exception e) {
-                log.warn("Error loading service " + file);
+                log.warn("Error loading service {}", file);
             }
         }
         return Optional.empty();

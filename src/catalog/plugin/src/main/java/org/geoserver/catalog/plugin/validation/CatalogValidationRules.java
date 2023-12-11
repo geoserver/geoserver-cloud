@@ -123,7 +123,7 @@ public class CatalogValidationRules {
         } else if (info instanceof WorkspaceInfo ws) {
             visitor.visit(ws);
         } else {
-            throw new IllegalArgumentException("Unknown resource type: " + info);
+            throw new IllegalArgumentException("Unknown resource type: %s".formatted(info));
         }
         return info;
     }
@@ -146,7 +146,7 @@ public class CatalogValidationRules {
         } else if (info instanceof WorkspaceInfo ws) {
             beforeRemove(ws);
         } else {
-            throw new IllegalArgumentException("Unknown resource type: " + info);
+            throw new IllegalArgumentException("Unknown resource type: %s".formatted(info));
         }
     }
 
@@ -187,7 +187,8 @@ public class CatalogValidationRules {
         for (LayerGroupInfo lg : catalog.getLayerGroups()) {
             if (lg.getLayers().contains(layer) || layer.equals(lg.getRootLayer())) {
                 String msg =
-                        "Unable to delete layer referenced by layer group '" + lg.getName() + "'";
+                        "Unable to delete layer referenced by layer group '%s'"
+                                .formatted(lg.getName());
                 throw new IllegalArgumentException(msg);
             }
         }
@@ -199,9 +200,8 @@ public class CatalogValidationRules {
         for (LayerGroupInfo lg : catalog.getLayerGroups()) {
             if (lg.getLayers().contains(layerGroup)) {
                 String msg =
-                        "Unable to delete layer group referenced by layer group '"
-                                + lg.getName()
-                                + "'";
+                        "Unable to delete layer group referenced by layer group '%s'"
+                                .formatted(lg.getName());
                 throw new IllegalArgumentException(msg);
             }
         }
@@ -212,13 +212,14 @@ public class CatalogValidationRules {
         List<LayerInfo> layers = catalog.getLayers(style);
         if (!layers.isEmpty()) {
             throw new IllegalArgumentException(
-                    "Unable to delete style referenced by '" + layers.get(0).getName() + "'");
+                    "Unable to delete style referenced by '%s'".formatted(layers.get(0).getName()));
         }
         // REVISIT: what about layer groups per workspace?
         for (LayerGroupInfo lg : catalog.getLayerGroups()) {
             if (lg.getStyles().contains(style) || style.equals(lg.getRootLayerStyle())) {
                 String msg =
-                        "Unable to delete style referenced by layer group '" + lg.getName() + "'";
+                        "Unable to delete style referenced by layer group '%s'"
+                                .formatted(lg.getName());
                 throw new IllegalArgumentException(msg);
             }
         }

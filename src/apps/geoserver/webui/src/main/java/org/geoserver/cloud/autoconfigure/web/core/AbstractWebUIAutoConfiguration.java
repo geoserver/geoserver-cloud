@@ -14,6 +14,6 @@ public abstract class AbstractWebUIAutoConfiguration {
     protected abstract String getConfigPrefix();
 
     public @PostConstruct void log() {
-        log.info(getConfigPrefix() + " enabled");
+        log.info("{} enabled", getConfigPrefix());
     }
 }

@@ -120,7 +120,7 @@ public abstract class InfoReferenceMapper {
             }
         }
         Objects.requireNonNull(id, () -> "Object has no id: " + info);
-        Objects.requireNonNull(type, "Bad info class: " + info.getClass());
+        Objects.requireNonNull(type, () -> "Bad info class: " + info.getClass());
         return new InfoReference(type, id);
     }
 

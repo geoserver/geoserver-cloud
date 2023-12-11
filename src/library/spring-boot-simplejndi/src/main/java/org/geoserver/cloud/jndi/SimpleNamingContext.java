@@ -71,7 +71,7 @@ public class SimpleNamingContext implements Context {
 
     private String rootName(@NonNull String root) {
         if (ROOT_NAME.equals(root) || root.endsWith("/")) return root;
-        return root + "/";
+        return "%s/".formatted(root);
     }
 
     @Override
@@ -92,7 +92,7 @@ public class SimpleNamingContext implements Context {
         }
 
         throw new NameNotFoundException(
-                "'" + name + "' not bound. Bindings: " + this.bindings.keySet());
+                "'%s' not bound. Bindings: %s".formatted(name, this.bindings.keySet()));
     }
 
     @Override
@@ -298,7 +298,7 @@ public class SimpleNamingContext implements Context {
                 }
             }
             if (contents.isEmpty()) {
-                throw new NamingException("Invalid root '" + contextRoot + root + "'");
+                throw new NamingException("Invalid root '%s%s'".formatted(contextRoot, root));
             }
             this.iterator = contents.values().iterator();
         }

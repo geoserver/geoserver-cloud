@@ -59,7 +59,7 @@ public class VirtualServiceVerifier {
     private Optional<PublishedInfo> findPublished(String workspace, String layer) {
         PublishedInfo l = rawCatalog.getLayerGroupByName(workspace, layer);
         if (null == l) {
-            String qualifiedName = workspace + ":" + layer;
+            String qualifiedName = "%s:%s".formatted(workspace, layer);
             l = rawCatalog.getLayerByName(qualifiedName);
         }
         return Optional.ofNullable(l);
@@ -67,11 +67,12 @@ public class VirtualServiceVerifier {
 
     private ResponseStatusException virtualServiceNotFound(String service) {
         return new ResponseStatusException(
-                HttpStatus.NOT_FOUND, "Workspace or global LayerGroup does not exist: " + service);
+                HttpStatus.NOT_FOUND,
+                "Workspace or global LayerGroup does not exist: %s".formatted(service));
     }
 
     private ResponseStatusException layerNotFound(String workspace, String layer) {
         return new ResponseStatusException(
-                HttpStatus.NOT_FOUND, "Layer " + layer + " does not exist in " + workspace);
+                HttpStatus.NOT_FOUND, "Layer %s does not exist in %s".formatted(layer, workspace));
     }
 }

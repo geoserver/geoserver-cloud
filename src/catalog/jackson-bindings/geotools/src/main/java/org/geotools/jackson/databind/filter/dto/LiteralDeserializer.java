@@ -180,7 +180,8 @@ public class LiteralDeserializer extends JsonDeserializer<Literal> {
             }
             nextToken = parser.nextToken();
             if (JsonToken.END_OBJECT != nextToken) {
-                throw new IllegalArgumentException("Expected END_OBJECT, got " + nextToken);
+                throw new IllegalArgumentException(
+                        "Expected END_OBJECT, got %s".formatted(nextToken));
             }
             return null;
         }
@@ -198,7 +199,7 @@ public class LiteralDeserializer extends JsonDeserializer<Literal> {
     private void expectFieldName(String value, String expected) {
         if (!expected.equals(value))
             throw new IllegalStateException(
-                    "Expected field name '" + expected + "', got '" + value + "'");
+                    "Expected field name '%s', got '%s'".formatted(expected, value));
     }
 
     private void expect(JsonToken current, JsonToken... expectedOneOf) {
@@ -206,6 +207,6 @@ public class LiteralDeserializer extends JsonDeserializer<Literal> {
             if (current == expected) return;
         }
         throw new IllegalStateException(
-                "Expected one of " + Arrays.toString(expectedOneOf) + " got " + current);
+                "Expected one of %s got %s".formatted(Arrays.toString(expectedOneOf), current));
     }
 }

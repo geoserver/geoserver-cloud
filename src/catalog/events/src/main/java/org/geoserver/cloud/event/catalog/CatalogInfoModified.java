@@ -62,8 +62,8 @@ public class CatalogInfoModified extends InfoModified {
             if (patch.get("defaultDataStore").isPresent())
                 throw new IllegalArgumentException("Use DefaultDataStoreEvent.createLocal()");
             throw new IllegalArgumentException(
-                    "Catalog change events only support defaultWorkspace, defaultNamespace, and defaultDataStore properties. Diff: "
-                            + patch);
+                    "Catalog change events only support defaultWorkspace, defaultNamespace, and defaultDataStore properties. Diff: %s"
+                            .formatted(patch));
         }
 
         return new CatalogInfoModified(updateSequence, resolveId(info), typeOf(info), patch);
@@ -96,8 +96,8 @@ public class CatalogInfoModified extends InfoModified {
                 return DefaultDataStoreSet.createLocal(updateSequence, event);
 
             throw new IllegalArgumentException(
-                    "Catalog change events only support defaultWorkspace, defaultNamespace, and defaultDataStore properties. Diff: "
-                            + patch);
+                    "Catalog change events only support defaultWorkspace, defaultNamespace, and defaultDataStore properties. Diff: %s"
+                            .formatted(patch));
         }
 
         return new CatalogInfoModified(updateSequence, resolveId(info), typeOf(info), patch);

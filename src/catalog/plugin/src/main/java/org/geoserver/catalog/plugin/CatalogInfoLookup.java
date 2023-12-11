@@ -207,10 +207,8 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
         T storedValue = idMap.get(value.getId());
         if (storedValue == null) {
             throw new NoSuchElementException(
-                    value.getClass().getSimpleName()
-                            + " with id "
-                            + value.getId()
-                            + " does not exist");
+                    "%s with id %s does not exist"
+                            .formatted(value.getClass().getSimpleName(), value.getId()));
         }
         synchronized (idMap) {
             patch.applyTo(storedValue);

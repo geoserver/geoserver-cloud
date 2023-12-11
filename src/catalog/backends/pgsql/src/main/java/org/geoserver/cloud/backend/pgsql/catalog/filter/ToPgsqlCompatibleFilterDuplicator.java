@@ -233,6 +233,6 @@ class ToPgsqlCompatibleFilterDuplicator extends DuplicatingFilterVisitor {
         if (orig instanceof PropertyIsNotEqualTo)
             return (e1, e2) -> ff.notEqual(e1, e2, orig.isMatchingCase());
 
-        throw new IllegalArgumentException("Unknown BinaryComparisonOperator: " + orig);
+        throw new IllegalArgumentException("Unknown BinaryComparisonOperator: %s".formatted(orig));
     }
 }

@@ -98,7 +98,8 @@ public abstract class ExpressionMapper {
         if (source instanceof Divide divide) return map(divide);
         if (source instanceof Function function) return map(function);
         throw new IllegalArgumentException(
-                "Unrecognized expression type " + source.getClass().getName() + ": " + source);
+                "Unrecognized expression type %s: %s"
+                        .formatted(source.getClass().getName(), source));
     }
 
     public @ObjectFactory org.geotools.api.filter.capability.FunctionName functionName(

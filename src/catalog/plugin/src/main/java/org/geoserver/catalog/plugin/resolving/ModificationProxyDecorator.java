@@ -31,20 +31,20 @@ public class ModificationProxyDecorator {
         return ModificationProxyDecorator::unwrap;
     }
 
-    public static CatalogInfo wrap(CatalogInfo i) {
-        if (i != null && null == ProxyUtils.handler(i, ModificationProxy.class)) {
-            ClassMappings mappings = ClassMappings.fromImpl(i.getClass());
+    public static CatalogInfo wrap(CatalogInfo info) {
+        if (info != null && null == ProxyUtils.handler(info, ModificationProxy.class)) {
+            ClassMappings mappings = ClassMappings.fromImpl(info.getClass());
             if (mappings == null) {
                 throw new IllegalArgumentException(
-                        "Can't determine CatalogInfo subtype, make sure the provided object is not a proxy: "
-                                + i);
+                        "Can't determine CatalogInfo subtype, make sure the provided object is not a proxy: %s"
+                                .formatted(info));
             }
             @SuppressWarnings("unchecked")
             Class<? extends CatalogInfo> type =
                     (Class<? extends CatalogInfo>) mappings.getInterface();
-            i = ModificationProxy.create(i, type);
+            info = ModificationProxy.create(info, type);
         }
-        return i;
+        return info;
     }
 
     public static CatalogInfo unwrap(CatalogInfo i) {

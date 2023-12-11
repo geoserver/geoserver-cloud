@@ -517,9 +517,8 @@ public abstract class ExpressionRoundtripTest {
                 return sampleLineString();
             default:
                 throw new UnsupportedOperationException(
-                        "Unexpected parameter type, add a sample value: '"
-                                + type.getCanonicalName()
-                                + "'");
+                        "Unexpected parameter type, add a sample value: '%s'"
+                                .formatted(type.getCanonicalName()));
         }
     }
 }

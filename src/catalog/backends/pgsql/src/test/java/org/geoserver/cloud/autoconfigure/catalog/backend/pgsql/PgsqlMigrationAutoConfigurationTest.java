@@ -93,7 +93,7 @@ class PgsqlMigrationAutoConfigurationTest {
                     String name = tables.getString("TABLE_NAME");
                     String type = tables.getString("TABLE_TYPE");
                     if (Set.of("VIEW", "TABLE", "SEQUENCE").contains(type)) {
-                        actual.put(schem + "." + name, type);
+                        actual.put("%s.%s".formatted(schem, name), type);
                     }
                 }
             }
@@ -148,7 +148,7 @@ class PgsqlMigrationAutoConfigurationTest {
 
     private Map<String, String> buildExpected(String schema, String type, List<String> names) {
         return names.stream()
-                .map(n -> schema + "." + n)
+                .map(nname -> "%s.%s".formatted(schema, nname))
                 .collect(Collectors.toMap(Function.identity(), s -> type));
     }
 }
