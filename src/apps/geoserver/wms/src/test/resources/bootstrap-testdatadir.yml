@@ -1,5 +1,0 @@
-geoserver:
-  backend:
-    data-directory:
-      enabled: true
-      location: ${data_directory:${java.io.tmpdir}/geoserver_cloud_data_directory}
