@@ -1,4 +1,5 @@
-FROM eclipse-temurin:17-jre as builder
+ARG TAG=latest
+FROM geoservercloud/gs-cloud-base-jre:$TAG as builder
 ARG JAR_FILE=target/gs-cloud-*-bin.jar
 
 COPY ${JAR_FILE} application.jar
@@ -6,15 +7,9 @@ COPY ${JAR_FILE} application.jar
 RUN java -Djarmode=layertools -jar application.jar extract
 
 ##########
-FROM eclipse-temurin:17-jre
+FROM geoservercloud/gs-cloud-base-spring-boot:$TAG
 
-LABEL maintainer="GeoServer PSC <geoserver-users@lists.sourceforge.net>"
-
-RUN mkdir -p /opt/app/bin
-
-WORKDIR /opt/app/bin
-ENV JAVA_OPTS=
-EXPOSE 8080
+# WORKDIR already set to /opt/app/bin
 
 COPY --from=builder dependencies/ ./
 COPY --from=builder snapshot-dependencies/ ./

@@ -17,18 +17,6 @@
   <dependencies>
     <dependency>
       <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-spring-factory</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-starter-webmvc</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-starter-security</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.geoserver.cloud</groupId>
       <artifactId>gs-cloud-starter-raster-formats</artifactId>
     </dependency>
     <dependency>
@@ -88,6 +76,9 @@
           <plugin>
             <groupId>com.spotify</groupId>
             <artifactId>dockerfile-maven-plugin</artifactId>
+            <configuration>
+              <pullNewerImage>false</pullNewerImage>
+            </configuration>
           </plugin>
         </plugins>
       </build>

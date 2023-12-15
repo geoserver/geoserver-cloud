@@ -18,9 +18,13 @@ install:
 test:
 	./mvnw verify -ntp -T4
 
-build-image: build-image-infrastructure build-image-geoserver
+build-image: build-base-images build-image-infrastructure build-image-geoserver
 
 build-image-openj9: build-image-infrastructure-openj9 build-image-geoserver-openj9
+
+build-base-images:
+	./mvnw clean package -f src/apps/base-images \
+	-Ddocker -Ddockerfile.push.skip=true -ntp -Dfmt.skip -DskipTests
 
 build-image-infrastructure:
 	./mvnw clean package -f src/apps/infrastructure \

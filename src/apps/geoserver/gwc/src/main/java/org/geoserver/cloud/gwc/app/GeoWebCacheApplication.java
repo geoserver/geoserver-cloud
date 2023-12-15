@@ -4,6 +4,7 @@
  */
 package org.geoserver.cloud.gwc.app;
 
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -14,7 +15,12 @@ public class GeoWebCacheApplication {
         try {
             SpringApplication.run(GeoWebCacheApplication.class, args);
         } catch (RuntimeException e) {
-            System.exit(-1);
+            try {
+                LoggerFactory.getLogger(GeoWebCacheApplication.class)
+                        .error("Application run failed", e);
+            } finally {
+                System.exit(-1);
+            }
         }
     }
 }
