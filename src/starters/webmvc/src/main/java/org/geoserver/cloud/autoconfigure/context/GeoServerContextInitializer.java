@@ -45,7 +45,7 @@ public class GeoServerContextInitializer
         // with level FINE is called with INFO, it doesn't log at all.
         // Log4J2 redirection policy will fail when calling java.util.logging.Logger.setLevel(..)
         // because our version of Log4j2 is newer than GeoTools' and the API changed
-        System.setProperty("GT2_LOGGING_REDIRECTION", "Logback");
+        System.setProperty("GT2_LOGGING_REDIRECTION", "CommonsLogging");
         ServletContext source = mockServletContext();
         ServletContextEvent sce = new ServletContextEvent(source);
         GeoserverInitStartupListener startupInitializer = new GeoserverInitStartupListener();
