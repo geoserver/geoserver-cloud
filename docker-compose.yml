@@ -156,6 +156,8 @@ services:
     image: geoservercloud/geoserver-acl:${ACL_TAG}
     volumes:
       - ./config/acl-service.yml:/opt/app/bin/acl.yml
+    environment:
+      SPRING_PROFILES_ACTIVE: "${ACL_DEFAULT_PROFILES}"
     depends_on:
       - acldb
     networks:
@@ -176,7 +178,7 @@ services:
       - rabbitmq
       - discovery
     environment:
-      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES}"
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES}"
       JAVA_OPTS: "${WFS_JAVA_OPTS}"
       RETRY_MAX_ATTEMPTS: 100
     networks:
@@ -197,7 +199,7 @@ services:
       - rabbitmq
       - discovery
     environment:
-      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES}"
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES}"
       JAVA_OPTS: "${WMS_JAVA_OPTS}"
       RETRY_MAX_ATTEMPTS: 100
     networks:
@@ -216,7 +218,7 @@ services:
       - rabbitmq
       - discovery
     environment:
-      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES}"
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES}"
       JAVA_OPTS: "${WCS_JAVA_OPTS}"
       RETRY_MAX_ATTEMPTS: 100
     networks:
@@ -235,7 +237,7 @@ services:
       - rabbitmq
       - discovery
     environment:
-      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES}"
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES}"
       JAVA_OPTS: "${WPS_JAVA_OPTS}"
       RETRY_MAX_ATTEMPTS: 100
     networks:
@@ -254,7 +256,7 @@ services:
       - rabbitmq
       - discovery
     environment:
-      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES}"
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES}"
       JAVA_OPTS: "${REST_JAVA_OPTS}"
       RETRY_MAX_ATTEMPTS: 100
     networks:
@@ -275,7 +277,7 @@ services:
       - rabbitmq
       - discovery
     environment:
-      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES}"
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES}"
       JAVA_OPTS: "${WEBUI_JAVA_OPTS}"
       RETRY_MAX_ATTEMPTS: 100
     networks:
@@ -294,7 +296,7 @@ services:
       - rabbitmq
       - discovery
     environment:
-      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES}"
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES}"
       RETRY_MAX_ATTEMPTS: 100
     networks:
       - gs-cloud-network

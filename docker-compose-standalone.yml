@@ -29,44 +29,38 @@ services:
     volumes:
       - config:/etc/gscloud
 
-  #catalog:
-  #  environment:
-  #    SPRING_PROFILES_ACTIVE: "standalone,datadir"
-  #  volumes:
-  #    - config:/etc/gscloud
-
   wfs:
     environment:
-      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES},standalone"
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},standalone"
     volumes:
       - config:/etc/gscloud
 
   wms:
     environment:
-      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES},standalone"
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},standalone"
     volumes:
       - config:/etc/gscloud
 
   wcs:
     environment:
-      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES},standalone"
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},standalone"
     volumes:
       - config:/etc/gscloud
 
   rest:
     environment:
-      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES},standalone"
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},standalone"
     volumes:
       - config:/etc/gscloud
 
   webui:
     environment:
-      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES},standalone"
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},standalone"
     volumes:
       - config:/etc/gscloud
 
   gwc:
     environment:
-      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES},standalone"
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},standalone"
     volumes:
       - config:/etc/gscloud

@@ -31,42 +31,42 @@ services:
 
   wfs:
     environment:
-      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES},pgconfig"
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},pgconfig"
     depends_on:
       - pgconfigdb
 
   wms:
     environment:
-      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES},pgconfig"
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},pgconfig"
     depends_on:
       - pgconfigdb
 
   wcs:
     environment:
-      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES},pgconfig"
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},pgconfig"
     depends_on:
       - pgconfigdb
 
   rest:
     environment:
-      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES},pgconfig"
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},pgconfig"
     depends_on:
       - pgconfigdb
 
   webui:
     environment:
-      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES},pgconfig"
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},pgconfig"
     depends_on:
       - pgconfigdb
 
   gwc:
     environment:
-      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES},pgconfig"
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},pgconfig"
     depends_on:
       - pgconfigdb
 
   wps:
     environment:
-      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES},pgconfig"
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},pgconfig"
     depends_on:
       - pgconfigdb

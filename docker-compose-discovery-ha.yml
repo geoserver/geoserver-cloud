@@ -37,10 +37,6 @@ services:
     environment:
       EUREKA_SERVER_URL: http://discovery-1:8761/eureka, http://discovery-2:8761/eureka
 
-  #catalog:
-  #  environment:
-  #    EUREKA_SERVER_URL: http://discovery-1:8761/eureka, http://discovery-2:8761/eureka
-
   wfs:
     environment:
       EUREKA_SERVER_URL: http://discovery-1:8761/eureka, http://discovery-2:8761/eureka

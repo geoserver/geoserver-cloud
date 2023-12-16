@@ -15,47 +15,44 @@ volumes:
       device: $PWD/docker-compose_datadir
   
 services:
-  #catalog:
-  #  command: echo "catalog-service disabled."
-
   wfs:
     environment:
-      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES},datadir"
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},datadir"
     volumes:
       - test_shared_data_directory:/opt/app/data_directory
 
   wms:
     environment:
-      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES},datadir"
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},datadir"
     volumes:
       - test_shared_data_directory:/opt/app/data_directory
 
   wcs:
     environment:
-      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES},datadir"
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},datadir"
     volumes:
       - test_shared_data_directory:/opt/app/data_directory
 
   wps:
     environment:
-      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES},datadir"
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},datadir"
     volumes:
       - test_shared_data_directory:/opt/app/data_directory
 
   rest:
     environment:
-      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES},datadir"
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},datadir"
     volumes:
       - test_shared_data_directory:/opt/app/data_directory
 
   webui:
     environment:
-      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES},datadir"
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},datadir"
     volumes:
       - test_shared_data_directory:/opt/app/data_directory
 
   gwc:
     environment:
-      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES},datadir"
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},datadir"
     volumes:
       - test_shared_data_directory:/opt/app/data_directory

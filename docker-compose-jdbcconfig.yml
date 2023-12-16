@@ -9,8 +9,6 @@ volumes:
 #
 
 services:
-  #catalog:
-  #  command: echo "catalog-service disabled."
   database:
     # be sure geoserver.backend.jdbcconfig.initdb is set to true in application.yml at lease for the first app run
     image: postgres:13-alpine
@@ -33,7 +31,7 @@ services:
 
   wfs:
     environment:
-      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES},jdbcconfig"
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},jdbcconfig"
       JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
       JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
       JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
@@ -42,7 +40,7 @@ services:
 
   wms:
     environment:
-      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES},jdbcconfig"
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},jdbcconfig"
       JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
       JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
       JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
@@ -51,7 +49,7 @@ services:
 
   wcs:
     environment:
-      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES},jdbcconfig"
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},jdbcconfig"
       JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
       JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
       JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
@@ -60,7 +58,7 @@ services:
 
   rest:
     environment:
-      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES},jdbcconfig"
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},jdbcconfig"
       JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
       JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
       JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
@@ -69,7 +67,7 @@ services:
 
   webui:
     environment:
-      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES},jdbcconfig"
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},jdbcconfig"
       JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
       JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
       JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
@@ -78,7 +76,7 @@ services:
 
   gwc:
     environment:
-      SPRING_PROFILES_ACTIVE: "${DEFAULT_PROFILES},jdbcconfig"
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},jdbcconfig"
       JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
       JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
       JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"

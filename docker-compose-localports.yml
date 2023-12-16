@@ -4,9 +4,6 @@ version: "3.8"
 # Port numbers match the ones in the `local` spring profile used for development.
 services:
   # catalog microservice, provides a unified catalog backend to all services
-  #catalog:
-  #  ports:
-  #    - 9100:8080
   wfs:
     ports:
       - 9101:8080
