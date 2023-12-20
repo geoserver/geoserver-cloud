@@ -176,12 +176,10 @@ The following diagram depicts the System's general architecture:
  
 # Project Status
 
-Version `1.4.0` has been released against a slightly customized GeoServer `2.24.0`
+Version `1.5.0` has been released against a slightly customized GeoServer `2.24.0`
 with some important fixes to allow starting up several GeoServer instances from an empty
 directory or database. We will make sure to contribute those fixes upstream before the final
 release.
-
-Project is being deployed in production since `v0.1.0`.
 
 [Camptocamp](https://camptocamp.com/), as the original author, is in process of donating the project to OsGeo/Geoserver.
 

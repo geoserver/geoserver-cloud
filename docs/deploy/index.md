@@ -1,5 +1,7 @@
 # Cloud Native GeoServer Deployment Guide
 
+Docker images for all the services are available on DockerHub, under the GeoServer Cloud organization (https://hub.docker.com/u/geoservercloud/).
+
 ## Docker-compose
 
 ## Podman

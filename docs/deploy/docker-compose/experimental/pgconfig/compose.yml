@@ -91,7 +91,7 @@ services:
       SPRING_PROFILES_ACTIVE: git
       # 'git' profile config
       CONFIG_GIT_URI: https://github.com/geoserver/geoserver-cloud-config.git
-      # get the config for this release from the v1.4.0 tag
+      # get the config for this release from the v1.5.0 tag
       SPRING_CLOUD_CONFIG_SERVER_GIT_DEFAULT_LABEL: master
       # where to store the cloned repository, if unset, it'll use /tmp/config-repo-<randomid>
       CONFIG_GIT_BASEDIR: /tmp/git_config
