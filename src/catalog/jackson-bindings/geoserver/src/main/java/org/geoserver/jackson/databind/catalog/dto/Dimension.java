@@ -15,6 +15,14 @@ import java.math.BigDecimal;
 /** DTO for {@link DimensionInfo} */
 @Data
 public class Dimension {
+    /**
+     * @since geoserver 2.24.1
+     */
+    public enum NearestFailBehavior {
+        IGNORE,
+        EXCEPTION
+    }
+
     private boolean enabled;
     private String attribute;
     private String endAttribute;
@@ -40,4 +48,9 @@ public class Dimension {
      * @since geoserver 2.23.0
      */
     private String endValue;
+
+    /**
+     * @since geoserver 2.24.1
+     */
+    private NearestFailBehavior nearestFailBehavior;
 }
