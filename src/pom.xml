@@ -793,7 +793,7 @@
           <version>3.11.0</version>
           <inherited>true</inherited>
           <configuration>
-            <release>17</release>
+            <release>21</release>
             <debug>true</debug>
             <encoding>UTF-8</encoding>
             <fork>${fork.javac}</fork>
