@@ -886,7 +886,7 @@
             <configuration>
               <rules>
                 <requireJavaVersion>
-                  <version>[17,)</version>
+                  <version>[21,)</version>
                 </requireJavaVersion>
                 <requireMavenVersion>
                   <version>[3.6.3,)</version>
