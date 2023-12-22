@@ -13,5 +13,7 @@
     <logger name="org.testcontainers" level="INFO"/>
     <logger name="com.github.dockerjava.zerodep" level="WARN"/>
     <logger name="com.zaxxer.hikari.HikariDataSource" level="WARN"/>
+    <logger name="org.geoserver.cloud.autoconfigure.catalog.backend" level="DEBUG"/>
+    <logger name="org.geoserver.cloud.config.catalog.backend.pgsql" level="DEBUG"/>
     
 </configuration>
