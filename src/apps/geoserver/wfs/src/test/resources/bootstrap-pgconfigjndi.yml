@@ -1,0 +1,50 @@
+# customize by providing the following properties:
+# pgconfig.host
+# pgconfig.port 
+# pgconfig.database
+# pgconfig.schema
+# pgconfig.username
+# pgconfig.password
+spring:
+  main:
+    banner-mode: off
+    allow-bean-definition-overriding: true
+    allow-circular-references: true # false by default since spring-boot 2.6.0, breaks geoserver initialization
+  cloud.bus.enabled: false
+  cloud.config.enabled: false
+  cloud.config.discovery.enabled: false
+  cloud.discovery.enabled: false
+eureka.client.enabled: false
+
+jndi:
+  datasources:
+    pgconfig:
+      enabled: true
+      schema: ${pgconfig.schema}
+      wait-for-it: true
+      wait-timeout: 10
+      url: jdbc:postgresql://${pgconfig.host}:${pgconfig.port}/${pgconfig.database}
+      username: ${pgconfig.username}
+      password: ${pgconfig.password}
+      maximum-pool-size: 10
+      minimum-idle: 0
+      connection-timeout: 2500
+      idle-timeout: 60000
+
+geoserver:
+  acl.enabled: false
+  backend:
+    pgconfig:
+      enabled: true
+      initialize: true
+      schema: ${pgconfig.schema}
+      create-schema: true
+      datasource:
+        jndi-name: java:comp/env/jdbc/pgconfig
+logging:
+  level:
+    root: WARN
+    org.geoserver.platform: ERROR
+    org.geoserver.cloud: INFO
+    org.geoserver.cloud.config.factory: INFO
+    org.springframework.test: ERROR
