@@ -9,6 +9,7 @@ import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.output.MigrateResult;
 
 import javax.sql.DataSource;
 
@@ -25,6 +26,7 @@ public class PgsqlDatabaseMigrations {
     private String schema = "public";
     private boolean createSchema = true;
     private boolean cleanDisabled = true;
+    private MigrateResult result;
 
     public void migrate() throws Exception {
         if (!isInitialize()) {
@@ -32,13 +34,22 @@ public class PgsqlDatabaseMigrations {
             return;
         }
         log.info("Running pgsql backend database migrations...");
-
-        buildFlyway().migrate();
+        Flyway flyway = buildFlyway();
+        result = flyway.migrate();
+        log.debug(
+                "pgsql backend database migration: success: {}, flyway version: {}, database: {}, schema:{}, migrations: {}",
+                result.success,
+                result.flywayVersion,
+                result.database,
+                result.schemaName,
+                result.migrations == null ? 0 : result.migrations.size());
     }
 
     /** */
     public void clean() {
-        buildFlyway().clean();
+        Flyway flyway = buildFlyway();
+        flyway.clean();
+        result = null;
     }
 
     protected Flyway buildFlyway() {
@@ -49,5 +60,20 @@ public class PgsqlDatabaseMigrations {
                 .cleanDisabled(cleanDisabled)
                 .locations("db/pgsqlcatalog/migration")
                 .load();
+    }
+
+    @Override
+    public String toString() {
+        MigrateResult r = this.result;
+        if (null == r) {
+            return "pgsql backend database migration: not run";
+        }
+        return "pgsql backend database migration: success: %s, flyway version: %s, database: %s, schema: %s, migrations: %s"
+                .formatted(
+                        r.success,
+                        r.flywayVersion,
+                        r.database,
+                        r.schemaName,
+                        r.migrations == null ? 0 : r.migrations.size());
     }
 }

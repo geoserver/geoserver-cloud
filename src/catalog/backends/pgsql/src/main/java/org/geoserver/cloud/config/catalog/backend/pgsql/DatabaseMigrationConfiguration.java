@@ -30,19 +30,27 @@ public class DatabaseMigrationConfiguration {
     }
 
     @RequiredArgsConstructor
-    static class Migrations implements InitializingBean {
+    public static class Migrations implements InitializingBean {
 
         private final PgsqlBackendProperties config;
         private final DataSource dataSource;
+        private PgsqlDatabaseMigrations databaseMigrations;
 
         @Override
         public void afterPropertiesSet() throws Exception {
-            new PgsqlDatabaseMigrations()
-                    .setInitialize(config.isInitialize())
-                    .setDataSource(dataSource)
-                    .setSchema(config.schema())
-                    .setCreateSchema(config.isCreateSchema())
-                    .migrate();
+            databaseMigrations =
+                    new PgsqlDatabaseMigrations()
+                            .setInitialize(config.isInitialize())
+                            .setDataSource(dataSource)
+                            .setSchema(config.schema())
+                            .setCreateSchema(config.isCreateSchema());
+            databaseMigrations.migrate();
+        }
+
+        @Override
+        public String toString() {
+            PgsqlDatabaseMigrations m = databaseMigrations;
+            return m == null ? "<migrations not yet run>" : m.toString();
         }
     }
 }

@@ -4,6 +4,8 @@
  */
 package org.geoserver.cloud.config.catalog.backend.pgsql;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
@@ -18,6 +20,7 @@ import org.geoserver.cloud.backend.pgsql.resource.PgsqlLockProvider;
 import org.geoserver.cloud.backend.pgsql.resource.PgsqlResourceStore;
 import org.geoserver.cloud.config.catalog.backend.core.CatalogProperties;
 import org.geoserver.cloud.config.catalog.backend.core.GeoServerBackendConfigurer;
+import org.geoserver.cloud.config.catalog.backend.pgsql.DatabaseMigrationConfiguration.Migrations;
 import org.geoserver.config.GeoServerLoader;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.LockProvider;
@@ -39,19 +42,33 @@ import javax.sql.DataSource;
  * @since 1.4
  */
 @Configuration(proxyBeanMethods = true)
+@Slf4j(topic = "org.geoserver.cloud.config.catalog.backend.pgsql")
 public class PgsqlBackendConfiguration extends GeoServerBackendConfigurer {
 
     private String instanceId;
     private DataSource dataSource;
     private CatalogProperties catalogProperties;
 
+    /**
+     * @param instanceId used as client-id for the {@link #pgsqlLockRepository() LockRepository}
+     * @param dataSource DataSource for {@link #template()}, {@link #pgsqlLockRepository()}, and
+     *     {@link #updateSequence()}
+     * @param catalogProperties properties for {@link #rawCatalog()}
+     * @param migrations required to make sure the migrations ran before this configuration takes
+     *     place
+     */
     PgsqlBackendConfiguration(
             @Value("${info.instance-id:}") String instanceId,
             @Qualifier("pgsqlConfigDatasource") DataSource dataSource,
-            CatalogProperties catalogProperties) {
+            CatalogProperties catalogProperties,
+            Migrations migrations) {
         this.instanceId = instanceId;
         this.dataSource = dataSource;
         this.catalogProperties = catalogProperties;
+        log.info(
+                "Loading geoserver config backend with {}. {}",
+                PgsqlBackendConfiguration.class.getSimpleName(),
+                migrations);
     }
 
     @Bean
@@ -75,20 +92,29 @@ public class PgsqlBackendConfiguration extends GeoServerBackendConfigurer {
         return new JdbcTemplate(dataSource);
     }
 
-    protected @Bean @Override GeoServerConfigurationLock configurationLock() {
+    @Bean
+    @Override
+    protected GeoServerConfigurationLock configurationLock() {
         LockProvider lockProvider = pgsqlLockProvider();
         return new LockProviderGeoServerConfigurationLock(lockProvider);
     }
 
-    protected @Bean @Override PgsqlUpdateSequence updateSequence() {
+    @Bean
+    @Override
+    protected PgsqlUpdateSequence updateSequence() {
         return new PgsqlUpdateSequence(dataSource, geoserverFacade());
     }
 
-    protected @Bean @Override PgsqlCatalogFacade catalogFacade() {
+    @Bean
+    @Override
+    protected PgsqlCatalogFacade catalogFacade() {
         return new PgsqlCatalogFacade(template());
     }
 
-    protected @Bean @Override GeoServerLoader geoServerLoaderImpl() {
+    @Bean
+    @Override
+    protected GeoServerLoader geoServerLoaderImpl() {
+        log.debug("Creating GeoServerLoader {}", PgsqlGeoServerLoader.class.getSimpleName());
         return new PgsqlGeoServerLoader(resourceLoader(), configurationLock());
     }
 
@@ -97,11 +123,16 @@ public class PgsqlBackendConfiguration extends GeoServerBackendConfigurer {
         return new PgsqlConfigRepository(template());
     }
 
-    protected @Bean @Override PgsqlGeoServerFacade geoserverFacade() {
+    @Bean
+    @Override
+    protected PgsqlGeoServerFacade geoserverFacade() {
         return new PgsqlGeoServerFacade(configRepository());
     }
 
-    protected @Bean @Override ResourceStore resourceStoreImpl() {
+    @Bean
+    @Override
+    protected ResourceStore resourceStoreImpl() {
+        log.debug("Creating ResourceStore {}", PgsqlResourceStore.class.getSimpleName());
         FileSystemResourceStoreCache resourceStoreCache = pgsqlFileSystemResourceStoreCache();
         JdbcTemplate template = template();
         PgsqlLockProvider lockProvider = pgsqlLockProvider();
@@ -113,12 +144,19 @@ public class PgsqlBackendConfiguration extends GeoServerBackendConfigurer {
         return FileSystemResourceStoreCache.newTempDirInstance();
     }
 
-    protected @Bean @Override PgsqlGeoServerResourceLoader resourceLoader() {
-        return new PgsqlGeoServerResourceLoader(resourceStoreImpl());
+    @Bean
+    @Override
+    protected GeoServerResourceLoader resourceLoader() {
+        log.debug(
+                "Creating GeoServerResourceLoader {}",
+                PgsqlGeoServerResourceLoader.class.getSimpleName());
+        ResourceStore resourceStore = resourceStoreImpl();
+        return new PgsqlGeoServerResourceLoader(resourceStore);
     }
 
     @Bean
     PgsqlLockProvider pgsqlLockProvider() {
+        log.debug("Creating {}", PgsqlLockProvider.class.getSimpleName());
         return new PgsqlLockProvider(pgsqlLockRegistry());
     }
 
@@ -126,11 +164,16 @@ public class PgsqlBackendConfiguration extends GeoServerBackendConfigurer {
      * @return
      */
     private LockRegistry pgsqlLockRegistry() {
+        log.debug("Creating {}", LockRegistry.class.getSimpleName());
         return new JdbcLockRegistry(pgsqlLockRepository());
     }
 
     @Bean
     LockRepository pgsqlLockRepository() {
+        log.debug(
+                "Creating {} for instance {}",
+                LockRepository.class.getSimpleName(),
+                this.instanceId);
         String id = this.instanceId;
         DefaultLockRepository lockRepository;
         if (StringUtils.hasLength(id)) {
