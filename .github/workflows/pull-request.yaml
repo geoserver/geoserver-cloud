@@ -51,4 +51,3 @@ jobs:
       run: |
         rm -rf ~/.m2/repository/org/geoserver
         find ~/.m2/repository -name "*SNAPSHOT*" -type d | xargs rm -rf {}
-        
