@@ -4,8 +4,10 @@
  */
 package org.geoserver.catalog.plugin.validation;
 
-import static org.geoserver.catalog.plugin.validation.DefaultCatalogValidator.checkArgument;
-import static org.geoserver.catalog.plugin.validation.DefaultCatalogValidator.isDefaultStyle;
+import static com.google.common.base.Preconditions.checkArgument;
+
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
@@ -18,7 +20,6 @@ import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
-import org.geoserver.catalog.MapInfo;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
@@ -30,6 +31,7 @@ import org.geoserver.catalog.WMTSLayerInfo;
 import org.geoserver.catalog.WMTSStoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ModificationProxy;
+import org.geoserver.catalog.plugin.AbstractCatalogVisitor;
 import org.geoserver.platform.GeoServerExtensions;
 
 import java.util.ArrayList;
@@ -78,152 +80,14 @@ public class CatalogValidationRules {
             // REVISIT: of course the webui will call catalog.validate with a mod proxy and
             // isNew=true... ResourceConfigurationPage.doSaveInternal() for instance
             object = ModificationProxy.unwrap(object);
-            object.accept(visitor);
-        } else {
-            object =
-                    workAroundModificationProxyBugCallingVisitorWithUnwrappedObject(
-                            object, visitor);
         }
+
+        object.accept(visitor);
         return postValidate(object, isNew);
     }
 
-    /**
-     * The method name should be enough of a hint that there's something to fix in {@link
-     * ModificationProxy}: when calling {@link CatalogInfo#accept(CatalogVisitor)}, it calls it with
-     * the unwrapped object instead of the proxy. This makes it very difficult to eat our own
-     * dogfood.
-     */
-    private <T extends CatalogInfo>
-            T workAroundModificationProxyBugCallingVisitorWithUnwrappedObject(
-                    T info, CatalogVisitor visitor) {
-        if (info instanceof LayerGroupInfo lg) {
-            visitor.visit(lg);
-        } else if (info instanceof LayerInfo l) {
-            visitor.visit(l);
-        } else if (info instanceof NamespaceInfo ns) {
-            visitor.visit(ns);
-        } else if (info instanceof CoverageInfo coverage) {
-            visitor.visit(coverage);
-        } else if (info instanceof FeatureTypeInfo ft) {
-            visitor.visit(ft);
-        } else if (info instanceof WMSLayerInfo wmsLayer) {
-            visitor.visit(wmsLayer);
-        } else if (info instanceof WMTSLayerInfo wmtsLayer) {
-            visitor.visit(wmtsLayer);
-        } else if (info instanceof CoverageStoreInfo cs) {
-            visitor.visit(cs);
-        } else if (info instanceof DataStoreInfo ds) {
-            visitor.visit(ds);
-        } else if (info instanceof WMSStoreInfo wmss) {
-            visitor.visit(wmss);
-        } else if (info instanceof WMTSStoreInfo wmtss) {
-            visitor.visit(wmtss);
-        } else if (info instanceof StyleInfo style) {
-            visitor.visit(style);
-        } else if (info instanceof WorkspaceInfo ws) {
-            visitor.visit(ws);
-        } else {
-            throw new IllegalArgumentException("Unknown resource type: %s".formatted(info));
-        }
-        return info;
-    }
-
     public <T extends CatalogInfo> void beforeRemove(T info) {
-        if (info instanceof LayerGroupInfo lg) {
-            beforeRemove(lg);
-        } else if (info instanceof LayerInfo l) {
-            beforeRemove(l);
-        } else if (info instanceof MapInfo) {
-            // no-op
-        } else if (info instanceof NamespaceInfo ns) {
-            beforeRemove(ns);
-        } else if (info instanceof ResourceInfo res) {
-            beforeRemove(res);
-        } else if (info instanceof StoreInfo s) {
-            beforeRemove(s);
-        } else if (info instanceof StyleInfo style) {
-            beforeRemove(style);
-        } else if (info instanceof WorkspaceInfo ws) {
-            beforeRemove(ws);
-        } else {
-            throw new IllegalArgumentException("Unknown resource type: %s".formatted(info));
-        }
-    }
-
-    private void beforeRemove(WorkspaceInfo workspace) {
-        // JD: maintain the link between namespace and workspace, remove this when this is no
-        // longer necessary
-        if (catalog.getNamespaceByPrefix(workspace.getName()) != null) {
-            throw new IllegalArgumentException("Cannot delete workspace with linked namespace");
-        }
-        if (!catalog.getStoresByWorkspace(workspace, StoreInfo.class).isEmpty()) {
-            throw new IllegalArgumentException("Cannot delete non-empty workspace.");
-        }
-    }
-
-    private void beforeRemove(NamespaceInfo namespace) {
-        // REVISIT: horrible performance, fetching all resources in memory
-        if (!catalog.getResourcesByNamespace(namespace, ResourceInfo.class).isEmpty()) {
-            throw new IllegalArgumentException("Unable to delete non-empty namespace.");
-        }
-    }
-
-    private void beforeRemove(StoreInfo store) {
-        // REVISIT: horrible performance, fetching all resources in memory
-        if (!catalog.getResourcesByStore(store, ResourceInfo.class).isEmpty()) {
-            throw new IllegalArgumentException("Unable to delete non-empty store.");
-        }
-    }
-
-    private void beforeRemove(ResourceInfo resource) {
-        // ensure no references to the resource
-        if (!catalog.getLayers(resource).isEmpty()) {
-            throw new IllegalArgumentException("Unable to delete resource referenced by layer");
-        }
-    }
-
-    private void beforeRemove(LayerInfo layer) {
-        // ensure no references to the layer
-        for (LayerGroupInfo lg : catalog.getLayerGroups()) {
-            if (lg.getLayers().contains(layer) || layer.equals(lg.getRootLayer())) {
-                String msg =
-                        "Unable to delete layer referenced by layer group '%s'"
-                                .formatted(lg.getName());
-                throw new IllegalArgumentException(msg);
-            }
-        }
-    }
-
-    private void beforeRemove(LayerGroupInfo layerGroup) {
-        // ensure no references to the layer group
-        // REVISIT: should recurse into nested layer groups
-        for (LayerGroupInfo lg : catalog.getLayerGroups()) {
-            if (lg.getLayers().contains(layerGroup)) {
-                String msg =
-                        "Unable to delete layer group referenced by layer group '%s'"
-                                .formatted(lg.getName());
-                throw new IllegalArgumentException(msg);
-            }
-        }
-    }
-
-    private void beforeRemove(StyleInfo style) {
-        // ensure no references to the style
-        List<LayerInfo> layers = catalog.getLayers(style);
-        if (!layers.isEmpty()) {
-            throw new IllegalArgumentException(
-                    "Unable to delete style referenced by '%s'".formatted(layers.get(0).getName()));
-        }
-        // REVISIT: what about layer groups per workspace?
-        for (LayerGroupInfo lg : catalog.getLayerGroups()) {
-            if (lg.getStyles().contains(style) || style.equals(lg.getRootLayerStyle())) {
-                String msg =
-                        "Unable to delete style referenced by layer group '%s'"
-                                .formatted(lg.getName());
-                throw new IllegalArgumentException(msg);
-            }
-        }
-        checkArgument(!isDefaultStyle(style), "Unable to delete a default style");
+        info.accept(new BeforeRemoveValidator(catalog));
     }
 
     private ValidationResult postValidate(CatalogInfo info, boolean isNew) {
@@ -243,6 +107,101 @@ public class CatalogValidationRules {
         return new ValidationResult(errors);
     }
 
+    @RequiredArgsConstructor
+    private static final class BeforeRemoveValidator extends AbstractCatalogVisitor {
+
+        private final @NonNull Catalog catalog;
+
+        @Override
+        public void visit(WorkspaceInfo workspace) {
+            // JD: maintain the link between namespace and workspace, remove this when this is no
+            // longer necessary
+            if (catalog.getNamespaceByPrefix(workspace.getName()) != null) {
+                throw new IllegalArgumentException("Cannot delete workspace with linked namespace");
+            }
+            if (!catalog.getStoresByWorkspace(workspace, StoreInfo.class).isEmpty()) {
+                throw new IllegalArgumentException("Cannot delete non-empty workspace.");
+            }
+        }
+
+        @Override
+        public void visit(NamespaceInfo namespace) {
+            // REVISIT: horrible performance, fetching all resources in memory
+            if (!catalog.getResourcesByNamespace(namespace, ResourceInfo.class).isEmpty()) {
+                throw new IllegalArgumentException("Unable to delete non-empty namespace.");
+            }
+        }
+
+        @Override
+        protected void visit(StoreInfo store) {
+            // REVISIT: horrible performance, fetching all resources in memory
+            if (!catalog.getResourcesByStore(store, ResourceInfo.class).isEmpty()) {
+                throw new IllegalArgumentException("Unable to delete non-empty store.");
+            }
+        }
+
+        @Override
+        protected void visit(ResourceInfo resource) {
+            // ensure no references to the resource
+            if (!catalog.getLayers(resource).isEmpty()) {
+                throw new IllegalArgumentException("Unable to delete resource referenced by layer");
+            }
+        }
+
+        @Override
+        public void visit(LayerInfo layer) {
+            // ensure no references to the layer
+            for (LayerGroupInfo lg : catalog.getLayerGroups()) {
+                if (lg.getLayers().contains(layer) || layer.equals(lg.getRootLayer())) {
+                    String msg =
+                            "Unable to delete layer referenced by layer group '%s'"
+                                    .formatted(lg.getName());
+                    throw new IllegalArgumentException(msg);
+                }
+            }
+        }
+
+        @Override
+        public void visit(StyleInfo style) {
+            // ensure no references to the style
+            List<LayerInfo> layers = catalog.getLayers(style);
+            if (!layers.isEmpty()) {
+                throw new IllegalArgumentException(
+                        "Unable to delete style referenced by '%s'"
+                                .formatted(layers.get(0).getName()));
+            }
+            // REVISIT: what about layer groups per workspace?
+            for (LayerGroupInfo lg : catalog.getLayerGroups()) {
+                if (lg.getStyles().contains(style) || style.equals(lg.getRootLayerStyle())) {
+                    String msg =
+                            "Unable to delete style referenced by layer group '%s'"
+                                    .formatted(lg.getName());
+                    throw new IllegalArgumentException(msg);
+                }
+            }
+            checkArgument(
+                    !DefaultCatalogValidator.isDefaultStyle(style),
+                    "Unable to delete a default style");
+        }
+
+        @Override
+        public void visit(LayerGroupInfo layerGroup) {
+            // ensure no references to the layer group
+            // REVISIT: should recurse into nested layer groups
+            for (LayerGroupInfo lg : catalog.getLayerGroups()) {
+                if (lg.getLayers().contains(layerGroup)) {
+                    String msg =
+                            "Unable to delete layer group referenced by layer group '%s'"
+                                    .formatted(lg.getName());
+                    throw new IllegalArgumentException(msg);
+                }
+            }
+        }
+    }
+
+    /**
+     * Bridges a {@link CatalogVisitor} to {@link CatalogValidator}{@literal .validate(...)} methods
+     */
     static class CatalogValidatorVisitor extends CatalogVisitorAdapter {
 
         CatalogValidator validator;
