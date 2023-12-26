@@ -4,6 +4,8 @@
  */
 package org.geoserver.jackson.databind.catalog.mapper;
 
+import lombok.Generated;
+
 import org.geoserver.catalog.CoverageInfo;
 import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.ResourceInfo;
@@ -14,10 +16,12 @@ import org.geoserver.jackson.databind.catalog.dto.FeatureType;
 import org.geoserver.jackson.databind.catalog.dto.Resource;
 import org.geoserver.jackson.databind.catalog.dto.WMSLayer;
 import org.geoserver.jackson.databind.catalog.dto.WMTSLayer;
+import org.mapstruct.AnnotateWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(config = CatalogInfoMapperConfig.class)
+@AnnotateWith(value = Generated.class)
 public interface ResourceMapper {
 
     default Resource map(ResourceInfo o) {

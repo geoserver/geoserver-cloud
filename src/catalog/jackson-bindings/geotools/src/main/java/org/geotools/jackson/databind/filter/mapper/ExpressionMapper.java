@@ -4,6 +4,8 @@
  */
 package org.geotools.jackson.databind.filter.mapper;
 
+import lombok.Generated;
+
 import org.geotools.api.filter.expression.ExpressionVisitor;
 import org.geotools.api.filter.expression.NilExpression;
 import org.geotools.factory.CommonFactoryFinder;
@@ -17,6 +19,7 @@ import org.geotools.jackson.databind.filter.dto.Expression.Multiply;
 import org.geotools.jackson.databind.filter.dto.Expression.PropertyName;
 import org.geotools.jackson.databind.filter.dto.Expression.Subtract;
 import org.geotools.jackson.databind.filter.dto.Literal;
+import org.mapstruct.AnnotateWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ObjectFactory;
@@ -28,6 +31,7 @@ import java.util.List;
         componentModel = "default",
         unmappedTargetPolicy = ReportingPolicy.ERROR,
         uses = {ExpressionFactory.class, FilterFactory.class, ValueMappers.class})
+@AnnotateWith(value = Generated.class)
 public abstract class ExpressionMapper {
 
     private final org.geotools.api.filter.FilterFactory ff = CommonFactoryFinder.getFilterFactory();

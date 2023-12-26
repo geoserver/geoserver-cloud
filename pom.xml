@@ -15,7 +15,6 @@
     <fmt.action>format</fmt.action>
     <fmt.skip>false</fmt.skip>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <sonar.organization>geoserver</sonar.organization>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
   </properties>
   <dependencyManagement>
@@ -239,6 +238,11 @@
           <artifactId>flatten-maven-plugin</artifactId>
           <version>1.5.0</version>
         </plugin>
+        <plugin>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <version>0.8.11</version>
+        </plugin>
       </plugins>
     </pluginManagement>
     <plugins>
@@ -308,4 +312,19 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>coverage</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+        <property>
+          <name>coverage</name>
+        </property>
+      </activation>
+      <modules>
+        <module>report-aggregate</module>
+      </modules>
+    </profile>
+  </profiles>
 </project>

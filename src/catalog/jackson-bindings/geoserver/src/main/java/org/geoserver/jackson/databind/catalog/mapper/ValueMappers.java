@@ -4,6 +4,8 @@
  */
 package org.geoserver.jackson.databind.catalog.mapper;
 
+import lombok.Generated;
+
 import org.geoserver.catalog.AttributeTypeInfo;
 import org.geoserver.catalog.AttributionInfo;
 import org.geoserver.catalog.AuthorityURLInfo;
@@ -51,6 +53,7 @@ import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.geotools.util.GrowableInternationalString;
 import org.geotools.util.NumberRange;
 import org.geotools.util.SimpleInternationalString;
+import org.mapstruct.AnnotateWith;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -69,6 +72,7 @@ import java.util.Set;
         componentModel = "default",
         unmappedTargetPolicy = ReportingPolicy.ERROR,
         uses = {ObjectFacotries.class, SharedMappers.class, InfoReferenceMapper.class})
+@AnnotateWith(value = Generated.class)
 public interface ValueMappers {
 
     org.geotools.util.Converter str2Measure =

@@ -4,15 +4,19 @@
  */
 package org.geotools.jackson.databind.filter.mapper;
 
+import lombok.Generated;
+
 import org.geotools.api.filter.expression.PropertyName;
 import org.geotools.api.filter.sort.SortOrder;
 import org.geotools.filter.SortByImpl;
 import org.geotools.jackson.databind.filter.dto.Expression;
 import org.geotools.jackson.databind.filter.dto.SortBy;
+import org.mapstruct.AnnotateWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
 @Mapper(config = FilterMapperConfig.class)
+@AnnotateWith(value = Generated.class)
 public class FilterMapper {
 
     public org.geotools.jackson.databind.filter.dto.Filter map(

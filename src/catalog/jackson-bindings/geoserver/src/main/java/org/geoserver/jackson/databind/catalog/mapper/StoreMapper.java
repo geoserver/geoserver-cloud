@@ -4,6 +4,8 @@
  */
 package org.geoserver.jackson.databind.catalog.mapper;
 
+import lombok.Generated;
+
 import org.geoserver.catalog.CoverageStoreInfo;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.StoreInfo;
@@ -14,10 +16,12 @@ import org.geoserver.jackson.databind.catalog.dto.DataStore;
 import org.geoserver.jackson.databind.catalog.dto.Store;
 import org.geoserver.jackson.databind.catalog.dto.WMSStore;
 import org.geoserver.jackson.databind.catalog.dto.WMTSStore;
+import org.mapstruct.AnnotateWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(config = CatalogInfoMapperConfig.class)
+@AnnotateWith(value = Generated.class)
 public interface StoreMapper {
 
     default Store map(StoreInfo o) {

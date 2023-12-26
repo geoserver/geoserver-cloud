@@ -6,6 +6,8 @@ package org.geoserver.jackson.databind.config.dto.mapper;
 
 import static java.util.stream.Collectors.toCollection;
 
+import lombok.Generated;
+
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.Info;
 import org.geoserver.cog.CogSettings;
@@ -42,6 +44,7 @@ import org.geoserver.wms.WMSInfoImpl;
 import org.geoserver.wps.WPSInfo;
 import org.geoserver.wps.WPSInfoImpl;
 import org.geotools.util.Version;
+import org.mapstruct.AnnotateWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
@@ -51,6 +54,7 @@ import java.util.List;
 
 /** Mapper to/from GeoServer config objects and their respective DTO representations */
 @Mapper(config = ConfigInfoMapperConfig.class)
+@AnnotateWith(value = Generated.class)
 public interface GeoServerConfigMapper {
 
     CatalogInfoMapper catalogInfoMapper = Mappers.getMapper(CatalogInfoMapper.class);

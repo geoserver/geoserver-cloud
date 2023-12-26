@@ -4,6 +4,8 @@
  */
 package org.geoserver.jackson.databind.catalog.mapper;
 
+import lombok.Generated;
+
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.PublishedInfo;
@@ -11,10 +13,12 @@ import org.geoserver.catalog.impl.LayerGroupStyle;
 import org.geoserver.jackson.databind.catalog.dto.Layer;
 import org.geoserver.jackson.databind.catalog.dto.LayerGroup;
 import org.geoserver.jackson.databind.catalog.dto.Published;
+import org.mapstruct.AnnotateWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(config = CatalogInfoMapperConfig.class)
+@AnnotateWith(value = Generated.class)
 public interface PublishedMapper {
 
     default PublishedInfo map(Published dto) {

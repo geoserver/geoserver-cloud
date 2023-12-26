@@ -4,6 +4,7 @@
  */
 package org.geoserver.jackson.databind.mapper;
 
+import lombok.Generated;
 import lombok.NonNull;
 
 import org.geoserver.catalog.Info;
@@ -17,6 +18,7 @@ import org.geoserver.jackson.databind.config.dto.mapper.GeoServerConfigMapper;
 import org.geoserver.jackson.databind.config.dto.mapper.ObjectFacotries;
 import org.geoserver.jackson.databind.config.dto.mapper.WPSMapper;
 import org.geotools.jackson.databind.filter.dto.Literal;
+import org.mapstruct.AnnotateWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
@@ -37,6 +39,7 @@ import java.util.function.UnaryOperator;
             InfoReferenceMapper.class,
             GeoServerConfigMapper.class
         })
+@AnnotateWith(value = Generated.class)
 public abstract class PatchMapper {
 
     private static final InfoReferenceMapper REFS = Mappers.getMapper(InfoReferenceMapper.class);

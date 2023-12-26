@@ -4,6 +4,7 @@
  */
 package org.geoserver.jackson.databind.mapper;
 
+import lombok.Generated;
 import lombok.extern.slf4j.Slf4j;
 
 import org.geoserver.catalog.AuthorityURLInfo;
@@ -26,6 +27,7 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS.AxisOrder;
 import org.geotools.referencing.wkt.Formattable;
 import org.geotools.util.Version;
+import org.mapstruct.AnnotateWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.ObjectFactory;
 import org.mapstruct.ReportingPolicy;
@@ -34,6 +36,7 @@ import org.mapstruct.factory.Mappers;
 import java.util.Optional;
 
 @Mapper(unmappedTargetPolicy = ReportingPolicy.ERROR)
+@AnnotateWith(value = Generated.class)
 @Slf4j
 public abstract class SharedMappers {
 

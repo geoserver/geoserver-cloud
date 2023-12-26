@@ -4,6 +4,8 @@
  */
 package org.geoserver.jackson.databind.catalog.mapper;
 
+import lombok.Generated;
+
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.MapInfo;
 import org.geoserver.catalog.NamespaceInfo;
@@ -20,10 +22,12 @@ import org.geoserver.jackson.databind.catalog.dto.Resource;
 import org.geoserver.jackson.databind.catalog.dto.Store;
 import org.geoserver.jackson.databind.catalog.dto.Style;
 import org.geoserver.jackson.databind.catalog.dto.Workspace;
+import org.mapstruct.AnnotateWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
 @Mapper(config = CatalogInfoMapperConfig.class)
+@AnnotateWith(value = Generated.class)
 public interface CatalogInfoMapper {
     public static final MapMapper MAP_MAPPER = Mappers.getMapper(MapMapper.class);
     public static final StyleMapper STYLE_MAPPER = Mappers.getMapper(StyleMapper.class);
