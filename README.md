@@ -1,6 +1,5 @@
 [![SonarCloud](https://sonarcloud.io/images/project_badges/sonarcloud-white.svg)](https://sonarcloud.io/summary/new_code?id=geoserver_geoserver-cloud)
 
-[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=geoserver_geoserver-cloud&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=geoserver_geoserver-cloud)
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=geoserver_geoserver-cloud&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=geoserver_geoserver-cloud)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=geoserver_geoserver-cloud&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=geoserver_geoserver-cloud)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=geoserver_geoserver-cloud&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=geoserver_geoserver-cloud)
@@ -9,6 +8,8 @@
 [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=geoserver_geoserver-cloud&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=geoserver_geoserver-cloud)
 [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=geoserver_geoserver-cloud&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=geoserver_geoserver-cloud)
 
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=geoserver_geoserver-cloud&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=geoserver_geoserver-cloud)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=geoserver_geoserver-cloud&metric=coverage)](https://sonarcloud.io/summary/new_code?id=geoserver_geoserver-cloud)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=geoserver_geoserver-cloud&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=geoserver_geoserver-cloud)
 [![Docker images](https://github.com/geoserver/geoserver-cloud/actions/workflows/build-and-push.yaml/badge.svg)](https://github.com/geoserver/geoserver-cloud/actions/workflows/build-and-push.yaml)
 
