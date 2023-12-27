@@ -46,6 +46,7 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: |
         ./mvnw verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+        -Dcoverage \
         -Dsonar.projectKey=geoserver_geoserver-cloud \
         -Dsonar.organization=geoserver \
         -Dmaven.javadoc.skip=true \
