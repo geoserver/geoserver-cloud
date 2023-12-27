@@ -209,7 +209,18 @@
       <name>Maven Central</name>
       <url>https://repo.maven.apache.org/maven2</url>
     </repository>
+    <repository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>geoserver-github-packages</id>
+      <name>Customized Geoserver Packages</name>
+      <?SORTPOM IGNORE?>
+      <url>https://public:&#103;hp_jqtFbllekxqlF5zeOB5pm6mffvEdbR4OOLl7@maven.pkg.github.com/camptocamp/geoserver-cloud-geoserver</url>
+      <?SORTPOM RESUME?>
+    </repository>
   </repositories>
+
   <build>
     <pluginManagement>
       <plugins>
@@ -241,6 +252,7 @@
           <nrOfIndentSpace>2</nrOfIndentSpace>
           <verifyFail>stop</verifyFail>
           <verifyFailOn>strict</verifyFailOn>
+          <skip>${fmt.skip}</skip>
         </configuration>
         <executions>
           <execution>
