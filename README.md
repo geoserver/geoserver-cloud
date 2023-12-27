@@ -108,18 +108,11 @@ make test
 
 *GeoServer Cloud* depends on a custom GeoServer branch, `gscloud/gs_version/integration`, which contains patches to upstream GeoServer that have not yet been integrated into the mainstream `main` branch.
 
-Additionally, this branch changes the artifact versions from `2.23-SNAPSHOT` to `2.23.0-CLOUD`, to avoid confusing maven if you also work with vanilla GeoServer, and to avoid your IDE downloading the latest `2.23-SNAPSHOT` artifacts from the OsGeo maven repository, overriding your local maven repository ones, and having confusing compilation errors that would require re-building the branch we need.
+Additionally, this branch changes the artifact versions (e.g. from `2.23-SNAPSHOT` to `2.23.0-CLOUD`), to avoid confusing maven if you also work with vanilla GeoServer, and to avoid your IDE downloading the latest `2.23-SNAPSHOT` artifacts from the OsGeo maven repository, overriding your local maven repository ones, and having confusing compilation errors that would require re-building the branch we need.
 
-The `gscloud/gs_version/integration` branch is checked out as a submodule under the `geoserver_submodule/geoserver` directory.
+The `gscloud/gs_version/integration` branch is checked out as a submodule on the (camptocamp/geoserver-cloud-geoserver)[https://github.com/camptocamp/geoserver-cloud-geoserver] repository, which publishes the custom geoserver maven artifacts to the Github maven package registry.
 
-The root `pom.xml` defines a `geoserver` maven profile, active by default, that includes the module `geoserver_submodule`, which in turn includes all the required `geoserver` modules for this project.
-
-So in general, you may choose to only eventually build the `geoserver_submodule` subproject, since it won't change
-frequently, with
-
-```bash
-make deps
-```
+The root pom adds this additional maven repository, so no further action is required for the geoserver-cloud build to use those dependencies.
 
 ### Build the docker images
 

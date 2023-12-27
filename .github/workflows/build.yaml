@@ -33,10 +33,6 @@ jobs:
     - name: Validate source code formatting
       run: make lint
 
-    - name: Build customized GeoServer version
-      run: |
-        make deps 
-
     - name: Build and test
       run: |
         make install test

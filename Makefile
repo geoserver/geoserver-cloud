@@ -1,16 +1,13 @@
-all: deps install test build-image
+all: install test build-image
 
 # run `make build-image[-*] SKIP_PUSH=false` to push the images to dockerhub
 SKIP_PUSH?="true"
 
 lint:
-	./mvnw sortpom:verify fmt:check -ntp
+	./mvnw fmt:check sortpom:verify -Dsort.verifyFailOn=strict -Dsort.verifyFail=stop -ntp
 
 format:
 	./mvnw sortpom:sort fmt:format -ntp
-
-deps:
-	./mvnw -U -f geoserver_submodule/ clean install -DskipTests -ntp -T4
 
 install:
 	./mvnw clean install -DskipTests -ntp -T4 -U
