@@ -87,13 +87,13 @@ Requirements:
  * [Docker](https://docs.docker.com/engine/install/) version >= `19.03.3`
  * [docker-compose](https://docs.docker.com/compose/) version >= `1.26.2`
 
-The simple `make` command from the project root directory will build and install all the required components, including upstream GeoServer dependencies and GeoServer-Cloud Docker images. So for a full build just run:
+The simple `make` command from the project root directory will build, test, and install all the project artifacts, and build the GeoServer-Cloud Docker images. So for a full build just run:
 
 ```bash
 make
 ```
 
-Then for further builds, unless the `geoserver_submodule/` has changed, you can build without running tests with
+To build without running tests, run
 
 ```bash
 make install
@@ -156,12 +156,6 @@ then do:
 $ mkdir docker-compose_datadir
 $ alias dcd="docker-compose -f docker-compose.yml -f docker-compose-shared_datadir.yml"
 $ dcd up -d
-```
-Note: In case you want to start the docker composition and be able to test some layers, you can copy data/release datadir that is part of the geoserver_submodule instead of creating the docker-compose_datadir emtpy folder, as follows:
-
-```bash
-$ cp -rf ./geoserver_submodule/geoserver/data/release /tmp/datadir
-$ ln -s /tmp/datadir docker-compose_datadir
 ```
 
 Verify the services are running with `dcd ps`.

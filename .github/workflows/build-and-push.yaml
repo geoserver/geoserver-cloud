@@ -9,7 +9,6 @@ on:
       - "Makefile"
       - "pom.xml"
       - ".github/workflows/build-and-push.yaml"
-      - "geoserver_submodule/**"
       - "src/**"
     tags:
       - '*'

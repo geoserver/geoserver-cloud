@@ -10,7 +10,6 @@ on:
       - "Makefile"
       - "pom.xml"
       - ".github/workflows/build.yaml"
-      - "geoserver_submodule/**"
       - "src/**"
 
 jobs:
