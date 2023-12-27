@@ -4,11 +4,15 @@
  */
 package org.geoserver.jackson.databind.catalog.mapper;
 
+import lombok.Generated;
+
 import org.geoserver.catalog.MapInfo;
 import org.geoserver.jackson.databind.catalog.dto.Map;
+import org.mapstruct.AnnotateWith;
 import org.mapstruct.Mapper;
 
 @Mapper(config = CatalogInfoMapperConfig.class)
+@AnnotateWith(value = Generated.class)
 public interface MapMapper {
 
     MapInfo map(Map o);

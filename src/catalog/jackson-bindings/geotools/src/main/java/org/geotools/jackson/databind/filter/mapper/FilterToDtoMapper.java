@@ -4,6 +4,8 @@
  */
 package org.geotools.jackson.databind.filter.mapper;
 
+import lombok.Generated;
+
 import org.geotools.api.filter.And;
 import org.geotools.api.filter.ExcludeFilter;
 import org.geotools.api.filter.Id;
@@ -53,9 +55,11 @@ import org.geotools.jackson.databind.filter.dto.Filter.BinaryComparisonOperator;
 import org.geotools.jackson.databind.filter.dto.Filter.BinaryLogicOperator;
 import org.geotools.jackson.databind.filter.dto.Filter.BinarySpatialOperator;
 import org.geotools.jackson.databind.filter.dto.Filter.BinaryTemporalOperator;
+import org.mapstruct.AnnotateWith;
 import org.mapstruct.Mapper;
 
 @Mapper(config = FilterMapperConfig.class)
+@AnnotateWith(value = Generated.class)
 interface FilterToDtoMapper {
 
     default Filter map(org.geotools.api.filter.Filter filter) {

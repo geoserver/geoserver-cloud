@@ -4,10 +4,13 @@
  */
 package org.geotools.jackson.databind.filter.mapper;
 
+import lombok.Generated;
+
 import org.geotools.api.util.InternationalString;
 import org.geotools.jackson.databind.filter.dto.Filter.MultiValuedFilter.MatchAction;
 import org.geotools.util.Converters;
 import org.geotools.util.SimpleInternationalString;
+import org.mapstruct.AnnotateWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import org.xml.sax.helpers.NamespaceSupport;
@@ -18,6 +21,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Mapper(componentModel = "default", unmappedTargetPolicy = ReportingPolicy.ERROR)
+@AnnotateWith(value = Generated.class)
 public abstract class ValueMappers {
 
     public abstract MatchAction matchAction(

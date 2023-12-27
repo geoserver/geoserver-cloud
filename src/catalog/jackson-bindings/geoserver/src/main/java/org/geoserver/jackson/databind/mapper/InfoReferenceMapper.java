@@ -4,6 +4,7 @@
  */
 package org.geoserver.jackson.databind.mapper;
 
+import lombok.Generated;
 import lombok.NonNull;
 
 import org.geoserver.catalog.CoverageStoreInfo;
@@ -26,12 +27,14 @@ import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.impl.ResolvingProxy;
 import org.geoserver.catalog.impl.StyleInfoImpl;
 import org.geoserver.jackson.databind.catalog.dto.InfoReference;
+import org.mapstruct.AnnotateWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.Named;
 
 import java.util.Objects;
 
 @Mapper
+@AnnotateWith(value = Generated.class)
 public abstract class InfoReferenceMapper {
 
     public String id(Info info) {

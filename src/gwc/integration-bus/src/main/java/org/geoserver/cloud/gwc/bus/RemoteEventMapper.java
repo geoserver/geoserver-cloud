@@ -4,12 +4,14 @@
  */
 package org.geoserver.cloud.gwc.bus;
 
+import lombok.Generated;
 import lombok.NonNull;
 
 import org.geoserver.cloud.gwc.event.BlobStoreEvent;
 import org.geoserver.cloud.gwc.event.GeoWebCacheEvent;
 import org.geoserver.cloud.gwc.event.GridsetEvent;
 import org.geoserver.cloud.gwc.event.TileLayerEvent;
+import org.mapstruct.AnnotateWith;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.ObjectFactory;
@@ -19,6 +21,7 @@ import org.mapstruct.ReportingPolicy;
  * @since 1.0
  */
 @Mapper(componentModel = "default", unmappedTargetPolicy = ReportingPolicy.ERROR)
+@AnnotateWith(value = Generated.class)
 interface RemoteEventMapper {
 
     default RemoteGeoWebCacheEvent toRemote(

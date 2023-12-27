@@ -4,6 +4,8 @@
  */
 package org.geotools.jackson.databind.filter.mapper;
 
+import lombok.Generated;
+
 import org.geotools.api.filter.And;
 import org.geotools.api.filter.ExcludeFilter;
 import org.geotools.api.filter.FilterFactory;
@@ -83,6 +85,7 @@ import org.geotools.filter.temporal.TContainsImpl;
 import org.geotools.filter.temporal.TEqualsImpl;
 import org.geotools.filter.temporal.TOverlapsImpl;
 import org.geotools.jackson.databind.filter.dto.Filter;
+import org.mapstruct.AnnotateWith;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
@@ -95,6 +98,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Mapper(config = FilterMapperConfig.class)
+@AnnotateWith(value = Generated.class)
 abstract class DtoToFilterMapper {
 
     private FilterFactory ff = CommonFactoryFinder.getFilterFactory();

@@ -45,12 +45,12 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: |
-        ./mvnw package org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+        ./mvnw verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
         -Dsonar.projectKey=geoserver_geoserver-cloud \
         -Dsonar.organization=geoserver \
-        -DskipTests \
         -Dmaven.javadoc.skip=true \
-        -ntp
+        -ntp \
+        -T1C
 
     - name: Remove project jars from cached repository
       run: |

@@ -4,12 +4,16 @@
  */
 package org.geoserver.jackson.databind.catalog.mapper;
 
+import lombok.Generated;
+
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.jackson.databind.catalog.dto.Namespace;
+import org.mapstruct.AnnotateWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(config = CatalogInfoMapperConfig.class)
+@AnnotateWith(value = Generated.class)
 public interface NamespaceMapper {
 
     @Mapping(target = "prefix", source = "name")
