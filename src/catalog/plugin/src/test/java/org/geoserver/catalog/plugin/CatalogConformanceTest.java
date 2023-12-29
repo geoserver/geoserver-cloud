@@ -137,6 +137,13 @@ public abstract class CatalogConformanceTest {
 
     @TempDir public File tmpFolder;
 
+    @BeforeAll
+    static void beforeAll() {
+        // avoid log flooding with java.lang.RuntimeException: expected, testing Catalog's
+        // RuntimeException handling
+        Logging.getLogger("org.geoserver.catalog.impl").setLevel(Level.SEVERE);
+    }
+
     protected void addLayerAccessRule(
             String workspace, String layer, AccessMode mode, String... roles) throws IOException {
         DataAccessRuleDAO dao = this.dataAccessRuleDAO;

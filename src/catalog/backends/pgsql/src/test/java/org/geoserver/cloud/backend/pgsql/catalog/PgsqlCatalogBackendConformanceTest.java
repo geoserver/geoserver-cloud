@@ -11,6 +11,7 @@ import org.geoserver.catalog.impl.CatalogImpl;
 import org.geoserver.catalog.plugin.CatalogConformanceTest;
 import org.geoserver.cloud.backend.pgsql.PgsqlBackendBuilder;
 import org.geoserver.cloud.config.catalog.backend.pgsql.PgsqlDatabaseMigrations;
+import org.geotools.util.logging.Logging;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -60,6 +61,12 @@ class PgsqlCatalogBackendConformanceTest extends CatalogConformanceTest {
                         .setSchema(schema)
                         .setDataSource(dataSource)
                         .setCleanDisabled(false);
+
+        try {
+            Logging.ALL.setLoggerFactory("org.geotools.util.logging.CommonsLoggerFactory");
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     @Override
