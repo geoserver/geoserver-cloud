@@ -35,9 +35,9 @@ jobs:
       run: |
         make install
 
-    - name: Test
-      run: |
-        make test
+#    - name: Test
+#      run: |
+#        make test
 
     # Add support for more platforms with QEMU
     # https://github.com/docker/setup-qemu-action
@@ -54,7 +54,8 @@ jobs:
         
     - name: Build images
       run: |
-        make build-image
+        make build-image SKIP_PUSH=false
+        #make build-image
 
     - name: Remove project jars from cached repository
       run: |

@@ -11,6 +11,10 @@ on:
       - "src/**"
   pull_request:
     types: [opened, synchronize, reopened]
+    paths:
+      - ".github/workflows/sonarcloud.yaml"
+      - "pom.xml"
+      - "src/**"
     
 jobs:
   build:
