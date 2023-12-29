@@ -10,8 +10,6 @@
   <packaging>jar</packaging>
   <name>Spring-boot admin service</name>
   <properties>
-    <dockerfile.skip>false</dockerfile.skip>
-    <docker.image.name>geoserver-cloud-admin-server</docker.image.name>
     <start-class>org.geoserver.cloud.adminserver.SpringBootAdminServerApplication</start-class>
   </properties>
   <dependencies>
@@ -53,26 +51,4 @@
       <artifactId>spring-boot-starter-actuator</artifactId>
     </dependency>
   </dependencies>
-  <profiles>
-    <profile>
-      <id>docker</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-        <property>
-          <name>docker</name>
-        </property>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>com.spotify</groupId>
-            <artifactId>dockerfile-maven-plugin</artifactId>
-            <configuration>
-              <pullNewerImage>false</pullNewerImage>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 </project>

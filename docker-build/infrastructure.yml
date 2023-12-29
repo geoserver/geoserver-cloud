@@ -1,0 +1,34 @@
+version: "3.8"
+
+services:
+  discovery:
+    image: geoservercloud/geoserver-cloud-discovery:${TAG}
+    build:
+      no_cache: true
+      context: ../src/apps/infrastructure/discovery/
+      args:
+        TAG: ${TAG}
+
+  config:
+    image: geoservercloud/geoserver-cloud-config:${TAG}
+    build:
+      no_cache: true
+      context: ../src/apps/infrastructure/config/
+      args:
+        TAG: ${TAG}
+
+  admin:
+    image: geoservercloud/geoserver-cloud-admin-server:${TAG}
+    build:
+      no_cache: true
+      context: ../src/apps/infrastructure/admin/
+      args:
+        TAG: ${TAG}
+    
+  gateway:
+    image: geoservercloud/geoserver-cloud-gateway:${TAG}
+    build:
+      no_cache: true
+      context: ../src/apps/infrastructure/gateway/
+      args:
+        TAG: ${TAG}

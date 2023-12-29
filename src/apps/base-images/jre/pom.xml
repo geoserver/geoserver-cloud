@@ -9,11 +9,6 @@
   <artifactId>gs-cloud-base-jre</artifactId>
   <packaging>jar</packaging>
   <name>Base JRE image</name>
-  <properties>
-    <dockerfile.skip>false</dockerfile.skip>
-    <docker.image.name>${project.artifactId}</docker.image.name>
-  </properties>
-  <dependencies></dependencies>
   <build>
     <plugins>
       <plugin>
@@ -26,32 +21,4 @@
       </plugin>
     </plugins>
   </build>
-  <profiles>
-    <profile>
-      <id>docker</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-        <property>
-          <name>docker</name>
-        </property>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>com.spotify</groupId>
-            <artifactId>dockerfile-maven-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>push</id>
-                <configuration>
-                  <!-- always skip push -->
-                  <skip>true</skip>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 </project>

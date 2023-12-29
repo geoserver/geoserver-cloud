@@ -1,0 +1,66 @@
+version: "3.8"
+
+services:
+  wfs:
+    image: geoservercloud/geoserver-cloud-wfs:${TAG}
+    build:
+      no_cache: true
+      pull: false
+      context: ../src/apps/geoserver/wfs/
+      args:
+        TAG: ${TAG}
+
+  wms:
+    image: geoservercloud/geoserver-cloud-wms:${TAG}
+    build:
+      no_cache: true
+      pull: false
+      context: ../src/apps/geoserver/wms/
+      args:
+        TAG: ${TAG}
+
+  wcs:
+    image: geoservercloud/geoserver-cloud-wcs:${TAG}
+    build:
+      no_cache: true
+      pull: false
+      context: ../src/apps/geoserver/wcs/
+      args:
+        TAG: ${TAG}
+
+  wps:
+    image: geoservercloud/geoserver-cloud-wps:${TAG}
+    build:
+      no_cache: true
+      pull: false
+      context: ../src/apps/geoserver/wps/
+      args:
+        TAG: ${TAG}
+
+  rest:
+    image: geoservercloud/geoserver-cloud-rest:${TAG}
+    build:
+      no_cache: true
+      pull: false
+      context: ../src/apps/geoserver/restconfig/
+      args:
+        TAG: ${TAG}
+
+  webui:
+    image: geoservercloud/geoserver-cloud-webui:${TAG}
+    build:
+      no_cache: true
+      pull: false
+      context: ../src/apps/geoserver/webui/
+      args:
+        TAG: ${TAG}
+
+  gwc:
+    image: geoservercloud/geoserver-cloud-gwc:${TAG}
+    build:
+      no_cache: true
+      pull: false
+      context: ../src/apps/geoserver/gwc/
+      args:
+        TAG: ${TAG}
+    

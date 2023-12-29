@@ -1,0 +1,29 @@
+version: "3.8"
+
+services:
+  base-image-jre:
+    image: geoservercloud/gs-cloud-base-jre:${TAG}
+    build:
+      no_cache: true
+      pull: true
+      context: ../src/apps/base-images/jre/
+
+  base-image-spring-boot:
+    image: geoservercloud/gs-cloud-base-spring-boot:${TAG}
+    depends_on: [base-image-jre]
+    build:
+      no_cache: true
+      pull: false
+      context: ../src/apps/base-images/spring-boot/
+      args:
+        TAG: ${TAG}
+
+  base-image-geoserver:
+    image: geoservercloud/gs-cloud-base-geoserver-image:${TAG}
+    depends_on: [base-image-spring-boot]
+    build:
+      no_cache: true
+      pull: false
+      context: ../src/apps/base-images/geoserver/
+      args:
+        TAG: ${TAG}

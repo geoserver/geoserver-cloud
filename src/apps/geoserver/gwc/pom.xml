@@ -10,8 +10,6 @@
   <packaging>jar</packaging>
   <name>gwc-service</name>
   <properties>
-    <dockerfile.skip>false</dockerfile.skip>
-    <docker.image.name>geoserver-cloud-gwc</docker.image.name>
     <start-class>org.geoserver.cloud.gwc.app.GeoWebCacheApplication</start-class>
   </properties>
   <dependencies>
@@ -91,26 +89,4 @@
       </plugin>
     </plugins>
   </build>
-  <profiles>
-    <profile>
-      <id>docker</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-        <property>
-          <name>docker</name>
-        </property>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>com.spotify</groupId>
-            <artifactId>dockerfile-maven-plugin</artifactId>
-            <configuration>
-              <pullNewerImage>false</pullNewerImage>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 </project>

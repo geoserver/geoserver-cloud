@@ -29,13 +29,6 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
-      <dependency>
-        <groupId>org.geoserver.cloud</groupId>
-        <artifactId>gs-cloud-webmvc-common-docker-layers</artifactId>
-        <version>${project.version}</version>
-        <scope>provided</scope>
-        <optional>true</optional>
-      </dependency>
     </dependencies>
   </dependencyManagement>
   <dependencies>
