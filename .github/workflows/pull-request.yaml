@@ -39,6 +39,19 @@ jobs:
       run: |
         make test
 
+    # Add support for more platforms with QEMU
+    # https://github.com/docker/setup-qemu-action
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      # https://github.com/docker/setup-buildx-action
+      with:
+        platforms: linux/amd64,linux/arm64
+        # Sets up docker build command as an alias to docker buildx
+        install: true
+        
     - name: Build images
       run: |
         make build-image
