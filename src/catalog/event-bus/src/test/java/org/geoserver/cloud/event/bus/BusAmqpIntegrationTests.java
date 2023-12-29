@@ -71,8 +71,9 @@ import java.util.function.Consumer;
             "spring.cloud.stream.bindings.springCloudBusOutput.producer.errorChannelEnabled=true",
             "spring.autoconfigure.exclude=org.springframework.cloud.stream.test.binder.TestSupportBinderAutoConfiguration",
             "logging.level.root=WARN",
+            "logging.level.org.geoserver.cloud.event.bus.BusEventCollector=warn",
             "logging.level.org.geoserver.cloud.bus.integration=info",
-            "logging.level.org.springframework.cloud.bus.BusConsumer=debug"
+            "logging.level.org.springframework.cloud.bus.BusConsumer=info"
         })
 @Testcontainers
 public abstract class BusAmqpIntegrationTests {
