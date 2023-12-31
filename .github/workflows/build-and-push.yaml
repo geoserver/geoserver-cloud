@@ -44,9 +44,13 @@ jobs:
       run: |
         make install
 
-    - name: Build and push Hotspot docker images
+    - name: Build images
       run: |
-        make build-image SKIP_PUSH=false
+        make build-image
+
+    - name: Push images
+      run: |
+        make push-image
 
     - name: Remove project jars from cached repository
       run: |
