@@ -20,7 +20,7 @@ services:
   rabbitmq:
     image: rabbitmq:3.9-management
     user: 1000:1000 # set the userid:groupid the container runs as
-    restart: always
+    restart: unless-stopped
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
@@ -42,7 +42,7 @@ services:
       - 8761:8761
     networks:
       - gs-cloud-network
-    restart: always
+    restart: unless-stopped
     deploy:
       resources:
         limits:

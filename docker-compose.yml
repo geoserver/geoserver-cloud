@@ -24,6 +24,7 @@ services:
       - postgis_data:/var/lib/postgresql/data
     ports:
       - 5432:5432
+    restart: unless-stopped
     deploy:
       resources:
         limits:
@@ -41,6 +42,7 @@ services:
       - acl_data:/var/lib/postgresql/data
     ports:
       - 6432:5432
+    restart: unless-stopped
     deploy:
       resources:
         limits:
@@ -50,7 +52,7 @@ services:
   rabbitmq:
     image: rabbitmq:3.11-management
     user: ${GS_USER}
-      #restart: always
+    restart: unless-stopped
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:

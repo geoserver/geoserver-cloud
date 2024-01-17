@@ -52,7 +52,7 @@ services:
   rabbitmq:
     image: rabbitmq:3.11-management
     user: 1000:1000
-    restart: always
+    restart: unless-stopped
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     deploy:
