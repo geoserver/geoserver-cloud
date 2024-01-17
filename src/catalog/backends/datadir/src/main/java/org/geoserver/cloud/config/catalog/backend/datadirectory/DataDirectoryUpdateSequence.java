@@ -135,8 +135,11 @@ public class DataDirectoryUpdateSequence implements UpdateSequence, GeoServerIni
     private XStreamPersister persister() {
         if (null == xp) {
             xp = xpf.createXMLPersister();
-            Catalog catalog = geoServer.getCatalog();
-            xp.setCatalog(catalog);
+            boolean initialized = null != geoServer;
+            if (initialized) {
+                Catalog catalog = geoServer.getCatalog();
+                xp.setCatalog(catalog);
+            }
         }
         return xp;
     }
@@ -177,7 +180,7 @@ public class DataDirectoryUpdateSequence implements UpdateSequence, GeoServerIni
         if (null == geoServer) {
             Resource configResource = dd.config(new GeoServerInfoImpl());
             if (Resources.exists(configResource)) {
-                geoServerInfo = xp.load(configResource.in(), GeoServerInfo.class);
+                geoServerInfo = persister().load(configResource.in(), GeoServerInfo.class);
             }
         } else {
             geoServerInfo = geoServer.getGlobal();
