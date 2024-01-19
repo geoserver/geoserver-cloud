@@ -31,9 +31,21 @@ class SimpleJNDIStaticContextInitializerTest {
         runner.run(
                 context -> {
                     InitialContext initialContext = new InitialContext();
-                    assertThat(initialContext).isNotNull();
                     Context ctx = NamingManager.getInitialContext(new Hashtable<>());
                     assertThat(ctx).isInstanceOf(SimpleNamingContext.class);
+
+                    Object value = new Object();
+                    initialContext.bind("java:comp/env/test", value);
+
+                    initialContext.close();
+
+                    assertThat(ctx.lookup("java:comp/env/test")).isSameAs(value);
+
+                    initialContext = new InitialContext();
+                    ctx = NamingManager.getInitialContext(new Hashtable<>());
+                    assertThat(ctx).isInstanceOf(SimpleNamingContext.class);
+
+                    assertThat(initialContext.lookup("java:comp/env/test")).isSameAs(value);
                 });
     }
 }
