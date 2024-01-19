@@ -108,7 +108,7 @@ make test
 
 *GeoServer Cloud* depends on a custom GeoServer branch, `gscloud/gs_version/integration`, which contains patches to upstream GeoServer that have not yet been integrated into the mainstream `main` branch.
 
-Additionally, this branch changes the artifact versions from `2.23-SNAPSHOT` to `2.23.0-CLOUD`, to avoid confusing maven if you also work with vanilla GeoServer, and to avoid your IDE downloading the latest `2.23-SNAPSHOT` artifacts from the OsGeo maven repository, overriding your local maven repository ones, and having confusing compilation errors that would require re-building the branch we need.
+Additionally, this branch changes the artifact versions (e.g. from `2.23-SNAPSHOT` to `2.23.0-CLOUD`), to avoid confusing maven if you also work with vanilla GeoServer, and to avoid your IDE downloading the latest `2.23-SNAPSHOT` artifacts from the OsGeo maven repository, overriding your local maven repository ones, and having confusing compilation errors that would require re-building the branch we need.
 
 The `gscloud/gs_version/integration` branch is checked out as a submodule under the `geoserver_submodule/geoserver` directory.
 
