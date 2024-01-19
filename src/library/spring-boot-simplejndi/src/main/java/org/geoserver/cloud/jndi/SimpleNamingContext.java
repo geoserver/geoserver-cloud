@@ -158,8 +158,8 @@ public class SimpleNamingContext implements Context {
 
     @Override
     public void close() {
-        this.environment.clear();
-        this.bindings.clear();
+        // no-op method. The context is not closed because the resources are not obtained from a
+        // remote source
     }
 
     /**
