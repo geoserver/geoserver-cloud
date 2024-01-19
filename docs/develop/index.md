@@ -152,15 +152,15 @@ The simple build command above creates the following docker images:
 
 ```bash
 $ docker images|grep geoserver-cloud|sort
-geoservercloud/geoserver-cloud-config                1.5-SNAPSHOT        be987ff2a85e        42 minutes ago      319MB
-geoservercloud/geoserver-cloud-discovery             1.5-SNAPSHOT        abc5a17cf14c        42 minutes ago      320MB
-geoservercloud/geoserver-cloud-gateway               1.5-SNAPSHOT        10f267950c15        42 minutes ago      317MB
-geoservercloud/geoserver-cloud-rest                  1.5-SNAPSHOT        29406a1e1fdb        36 minutes ago      429MB
-geoservercloud/geoserver-cloud-wcs                   1.5-SNAPSHOT        c77ac22aa522        37 minutes ago      391MB
-geoservercloud/geoserver-cloud-webui                 1.5-SNAPSHOT        876d6fc3fac0        36 minutes ago      449MB
-geoservercloud/geoserver-cloud-wfs                   1.5-SNAPSHOT        62960137eb5a        38 minutes ago      410MB
-geoservercloud/geoserver-cloud-wms                   1.5-SNAPSHOT        6686ca90b552        38 minutes ago      437MB
-geoservercloud/geoserver-cloud-wps                   1.5-SNAPSHOT        73bae600226c        37 minutes ago      416MB
+geoservercloud/geoserver-cloud-config                1.5.2        be987ff2a85e        42 minutes ago      319MB
+geoservercloud/geoserver-cloud-discovery             1.5.2        abc5a17cf14c        42 minutes ago      320MB
+geoservercloud/geoserver-cloud-gateway               1.5.2        10f267950c15        42 minutes ago      317MB
+geoservercloud/geoserver-cloud-rest                  1.5.2        29406a1e1fdb        36 minutes ago      429MB
+geoservercloud/geoserver-cloud-wcs                   1.5.2        c77ac22aa522        37 minutes ago      391MB
+geoservercloud/geoserver-cloud-webui                 1.5.2        876d6fc3fac0        36 minutes ago      449MB
+geoservercloud/geoserver-cloud-wfs                   1.5.2        62960137eb5a        38 minutes ago      410MB
+geoservercloud/geoserver-cloud-wms                   1.5.2        6686ca90b552        38 minutes ago      437MB
+geoservercloud/geoserver-cloud-wps                   1.5.2        73bae600226c        37 minutes ago      416MB
 ```
 
 To run the build without building the docker images, disable the `docker` maven profile:
