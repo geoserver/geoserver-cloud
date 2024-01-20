@@ -299,6 +299,7 @@ services:
       - discovery
     environment:
       SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES}"
+      JAVA_OPTS: "${GWC_JAVA_OPTS}"
       RETRY_MAX_ATTEMPTS: 100
     networks:
       - gs-cloud-network
