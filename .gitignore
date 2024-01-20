@@ -38,3 +38,6 @@ docker-compose_datadir*
 /.metadata/
 
 .vscode
+
+# Yourkit Java Profiler docker compose env file with private token
+.env.yjp
