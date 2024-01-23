@@ -6,10 +6,13 @@ package org.geoserver.cloud.backend.pgsql.catalog.repository;
 
 import lombok.NonNull;
 
+import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.ResourceRepository;
+import org.geoserver.catalog.plugin.Patch;
+import org.geoserver.catalog.plugin.PropertyDiff;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -39,6 +42,32 @@ public class PgsqlResourceRepository extends PgsqlCatalogInfoRepository<Resource
     @Override
     protected String getQueryTable() {
         return "resourceinfos";
+    }
+
+    @Override
+    public <R extends ResourceInfo> R update(@NonNull R value, @NonNull Patch patch) {
+        Optional<ResourceInfo> oldResource = super.findById(value.getId());
+        R patched = super.update(value, patch);
+        updateLayer(oldResource.orElseThrow(), patched);
+        return patched;
+    }
+
+    private void updateLayer(ResourceInfo oldResource, ResourceInfo patched) {
+        if (!oldResource.getName().equals(patched.getName())) {
+            PgsqlLayerRepository layerrepo = new PgsqlLayerRepository(template);
+            Optional<LayerInfo> layer = layerrepo.findOneByName(oldResource.prefixedName());
+            layer.ifPresent(
+                    // update the layer's json name which will update the layerinfo.name computed
+                    // field
+                    li -> {
+                        Patch p =
+                                PropertyDiff.builder(li)
+                                        .with("name", patched.getName())
+                                        .build()
+                                        .toPatch();
+                        layerrepo.update(li, p);
+                    });
+        }
     }
 
     @Override
