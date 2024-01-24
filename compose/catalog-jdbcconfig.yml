@@ -5,7 +5,7 @@ volumes:
 
 #
 # Configures all geoserver services to use the postgresql database server with jdbcconfig as catalog backend.
-# Run with `docker-compose --compatibility -f docker-compose.yml -f docker-compose-jdbcconfig.yml up -d`
+# Run with `docker compose -f compose.yml -f catalog-jdbcconfig.yml up -d`
 #
 
 services:
@@ -18,8 +18,6 @@ services:
       POSTGRES_PASSWORD: "${JDBCCONFIG_PASSWORD}"
     ports:
       - 54321:5432
-    networks:
-      - gs-cloud-network
     volumes:
       - postgresql_config_data:/var/lib/postgresql/data
     deploy:

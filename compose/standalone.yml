@@ -1,12 +1,5 @@
 version: "3.8"
 
-volumes:
-  config:
-    driver_opts:
-      type: none
-      o: bind
-      device: $PWD/config
-  
 services:
   discovery:
     environment:
