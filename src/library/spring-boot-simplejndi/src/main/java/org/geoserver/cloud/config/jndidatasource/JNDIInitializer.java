@@ -42,6 +42,16 @@ public class JNDIInitializer implements InitializingBean {
             return;
         }
 
+        // Assign the datasource a name from the mappings key
+        configs.entrySet()
+                .forEach(
+                        e -> {
+                            var name = e.getKey();
+                            var props = e.getValue();
+                            if (null == props.getName()) {
+                                props.setName(name);
+                            }
+                        });
         configs.entrySet()
                 .forEach(e -> setUpDataSource(toJndiDatasourceName(e.getKey()), e.getValue()));
     }
@@ -109,6 +119,10 @@ public class JNDIInitializer implements InitializingBean {
                         .type(HikariDataSource.class)
                         .build();
 
+        String dataSourceName = props.getName();
+        if (null != dataSourceName) {
+            dataSource.setPoolName("HikariPool %s".formatted(dataSourceName));
+        }
         dataSource.setMaximumPoolSize(props.getMaximumPoolSize());
         dataSource.setMinimumIdle(props.getMinimumIdle());
         dataSource.setConnectionTimeout(props.getConnectionTimeout());
