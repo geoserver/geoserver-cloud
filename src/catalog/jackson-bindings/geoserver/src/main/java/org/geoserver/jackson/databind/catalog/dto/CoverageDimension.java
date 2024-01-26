@@ -7,6 +7,7 @@ package org.geoserver.jackson.databind.catalog.dto;
 import lombok.Data;
 
 import org.geoserver.catalog.impl.CoverageDimensionImpl;
+import org.geotools.jackson.databind.dto.NumberRangeDto;
 
 import java.util.List;
 

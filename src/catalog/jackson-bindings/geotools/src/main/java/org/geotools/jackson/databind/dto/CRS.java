@@ -2,12 +2,12 @@
  * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
  * GPL 2.0 license, available at the root application directory.
  */
-package org.geoserver.jackson.databind.catalog.dto;
+package org.geotools.jackson.databind.dto;
 
 import lombok.Data;
 
 @Data
-public class Envelope {
-    private CRS crs;
-    private double[] coordinates;
+public class CRS {
+    private String srs;
+    private String WKT;
 }

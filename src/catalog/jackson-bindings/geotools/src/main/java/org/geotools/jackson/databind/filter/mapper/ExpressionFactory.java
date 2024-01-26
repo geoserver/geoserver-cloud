@@ -18,7 +18,7 @@ public class ExpressionFactory {
 
     public @ObjectFactory org.geotools.api.filter.expression.PropertyName propertyName(
             PropertyName source) {
-        ValueMappers values = Mappers.getMapper(ValueMappers.class);
+        GeoToolsValueMappers values = Mappers.getMapper(GeoToolsValueMappers.class);
         String localName = source.getPropertyName();
         NamespaceSupport namespaceSupport = values.map(source.getNamespaceContext());
         return factory.property(localName, namespaceSupport);

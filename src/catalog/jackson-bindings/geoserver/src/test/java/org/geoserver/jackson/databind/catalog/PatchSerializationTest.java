@@ -59,9 +59,8 @@ import org.geoserver.config.SettingsInfo;
 import org.geoserver.config.impl.CoverageAccessInfoImpl;
 import org.geoserver.config.plugin.GeoServerImpl;
 import org.geoserver.jackson.databind.catalog.mapper.CatalogInfoMapper;
-import org.geoserver.jackson.databind.catalog.mapper.ValueMappers;
+import org.geoserver.jackson.databind.catalog.mapper.GeoServerValueObjectsMapper;
 import org.geoserver.jackson.databind.config.dto.mapper.GeoServerConfigMapper;
-import org.geoserver.jackson.databind.mapper.SharedMappers;
 import org.geoserver.ows.util.OwsUtils;
 import org.geoserver.platform.GeoServerExtensionsHelper;
 import org.geoserver.wfs.WFSInfo;
@@ -101,8 +100,8 @@ import java.util.function.Supplier;
 
 /**
  * Verifies that {@link Patch patches} can be JSON round-tripped. As a reference, it should cover as
- * much of {@link SharedMappers}, {@link ValueMappers}, {@link GeoServerConfigMapper}, and {@link
- * CatalogInfoMapper} as possible.
+ * much of {@link SharedMappers}, {@link GeoServerValueObjectsMapper}, {@link
+ * GeoServerConfigMapper}, and {@link CatalogInfoMapper} as possible.
  */
 @Slf4j
 public abstract class PatchSerializationTest {

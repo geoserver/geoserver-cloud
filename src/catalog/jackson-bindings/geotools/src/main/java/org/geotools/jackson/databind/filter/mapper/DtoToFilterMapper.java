@@ -103,7 +103,7 @@ abstract class DtoToFilterMapper {
 
     private FilterFactory ff = CommonFactoryFinder.getFilterFactory();
     private ExpressionMapper expm = Mappers.getMapper(ExpressionMapper.class);
-    private final ValueMappers valueMappers = Mappers.getMapper(ValueMappers.class);
+    private final GeoToolsValueMappers valueMappers = Mappers.getMapper(GeoToolsValueMappers.class);
 
     private Expression exp(org.geotools.jackson.databind.filter.dto.Expression e) {
         return expm.map(e);

@@ -6,6 +6,7 @@ package org.geoserver.jackson.databind.catalog.mapper;
 
 import org.geoserver.catalog.AttributeTypeInfo;
 import org.geoserver.catalog.AttributionInfo;
+import org.geoserver.catalog.AuthorityURLInfo;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CoverageDimensionInfo;
 import org.geoserver.catalog.CoverageInfo;
@@ -15,7 +16,9 @@ import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.DimensionInfo;
 import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.Info;
+import org.geoserver.catalog.KeywordInfo;
 import org.geoserver.catalog.LayerGroupInfo;
+import org.geoserver.catalog.LayerIdentifierInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.LegendInfo;
 import org.geoserver.catalog.MapInfo;
@@ -55,6 +58,7 @@ import org.geoserver.jackson.databind.catalog.dto.CoverageDimension;
 import org.geoserver.jackson.databind.catalog.dto.CoverageStore;
 import org.geoserver.jackson.databind.catalog.dto.DataStore;
 import org.geoserver.jackson.databind.catalog.dto.FeatureType;
+import org.geoserver.jackson.databind.catalog.dto.Keyword;
 import org.geoserver.jackson.databind.catalog.dto.Layer;
 import org.geoserver.jackson.databind.catalog.dto.LayerGroup;
 import org.geoserver.jackson.databind.catalog.dto.Legend;
@@ -191,5 +195,21 @@ public class ObjectFacotries {
 
     public @ObjectFactory DimensionInfo dimensionInfo() {
         return new DimensionInfoImpl();
+    }
+
+    public @ObjectFactory KeywordInfo keywordInfo(Keyword source) {
+        return new org.geoserver.catalog.Keyword(source.getValue());
+    }
+
+    public @ObjectFactory MetadataLinkInfoImpl metadataLinkInfo() {
+        return new MetadataLinkInfoImpl();
+    }
+
+    public @ObjectFactory AuthorityURLInfo authorityURLInfo() {
+        return new org.geoserver.catalog.impl.AuthorityURL();
+    }
+
+    public @ObjectFactory LayerIdentifierInfo layerIdentifierInfo() {
+        return new org.geoserver.catalog.impl.LayerIdentifier();
     }
 }

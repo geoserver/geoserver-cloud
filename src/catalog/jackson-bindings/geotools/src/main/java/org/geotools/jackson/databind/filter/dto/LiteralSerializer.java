@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import lombok.NonNull;
 
-import org.geotools.jackson.databind.filter.mapper.ValueMappers;
+import org.geotools.jackson.databind.filter.mapper.GeoToolsValueMappers;
 import org.mapstruct.factory.Mappers;
 
 import java.io.IOException;
@@ -58,14 +58,16 @@ public class LiteralSerializer extends StdSerializer<Literal> {
 
     private static final long serialVersionUID = 1L;
 
-    private transient ValueMappers classNameMapper = Mappers.getMapper(ValueMappers.class);
+    private transient GeoToolsValueMappers classNameMapper =
+            Mappers.getMapper(GeoToolsValueMappers.class);
 
     public LiteralSerializer() {
         super(Literal.class);
     }
 
-    private ValueMappers classNameMapper() {
-        if (classNameMapper == null) classNameMapper = Mappers.getMapper(ValueMappers.class);
+    private GeoToolsValueMappers classNameMapper() {
+        if (classNameMapper == null)
+            classNameMapper = Mappers.getMapper(GeoToolsValueMappers.class);
         return classNameMapper;
     }
 

@@ -8,6 +8,7 @@ import lombok.Data;
 
 import org.geoserver.config.util.XStreamPersister;
 import org.geotools.coverage.grid.GridGeometry2D;
+import org.geotools.jackson.databind.dto.CRS;
 
 /**
  * DTO for {@link GridGeometry2D}
