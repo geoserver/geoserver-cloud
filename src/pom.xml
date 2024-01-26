@@ -556,13 +556,6 @@
         <groupId>org.geoserver.community</groupId>
         <artifactId>gs-flatgeobuf</artifactId>
         <version>${gs.version}</version>
-        <exclusions>
-          <exclusion>
-            <!-- revisit: exclusion not needed once https://github.com/geoserver/geoserver/pull/7320 is merged -->
-            <groupId>org.geoserver.web</groupId>
-            <artifactId>gs-web-core</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.geoserver.extension</groupId>
