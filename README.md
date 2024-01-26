@@ -201,9 +201,9 @@ Follow the [developer's guide](docs/develop/index.md) to know more about the pro
 
 ## Status
 
-`v1.5.0` released against GeoServer `2.24.0`.
+`v1.6.0` released against GeoServer `2.24.2`.
 
-Read the [changelog](https://github.com/geoserver/geoserver-cloud/releases/tag/v1.5.0) for more information.
+Read the [changelog](https://github.com/geoserver/geoserver-cloud/releases/tag/v1.6.0) for more information.
 
 ## Bugs
 
