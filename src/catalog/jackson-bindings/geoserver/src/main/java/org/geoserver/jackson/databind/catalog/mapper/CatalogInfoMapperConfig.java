@@ -6,7 +6,7 @@ package org.geoserver.jackson.databind.catalog.mapper;
 
 import org.geoserver.jackson.databind.mapper.InfoReferenceMapper;
 import org.geoserver.jackson.databind.mapper.PatchMapper;
-import org.geoserver.jackson.databind.mapper.SharedMappers;
+import org.geotools.jackson.databind.filter.mapper.GeoToolsValueMappers;
 import org.mapstruct.MapperConfig;
 import org.mapstruct.ReportingPolicy;
 
@@ -15,8 +15,8 @@ import org.mapstruct.ReportingPolicy;
         unmappedTargetPolicy = ReportingPolicy.ERROR,
         uses = {
             ObjectFacotries.class,
-            ValueMappers.class,
-            SharedMappers.class,
+            GeoToolsValueMappers.class,
+            GeoServerValueObjectsMapper.class,
             InfoReferenceMapper.class,
             PatchMapper.class
         })

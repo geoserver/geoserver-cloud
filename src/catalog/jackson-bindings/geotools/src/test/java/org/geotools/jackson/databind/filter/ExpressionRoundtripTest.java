@@ -8,11 +8,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import org.geotools.api.feature.type.Name;
 import org.geotools.api.filter.capability.FunctionName;
 import org.geotools.api.parameter.Parameter;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 import org.geotools.filter.FunctionFinder;
 import org.geotools.geometry.jts.Geometries;
 import org.geotools.jackson.databind.filter.dto.Expression;
@@ -24,6 +27,7 @@ import org.geotools.jackson.databind.filter.dto.Expression.Multiply;
 import org.geotools.jackson.databind.filter.dto.Expression.PropertyName;
 import org.geotools.jackson.databind.filter.dto.Expression.Subtract;
 import org.geotools.jackson.databind.filter.dto.Literal;
+import org.geotools.referencing.CRS;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Geometry;
@@ -468,57 +472,46 @@ public abstract class ExpressionRoundtripTest {
      * @return
      */
     private Object sampleValue(Class<?> type) {
-        switch (type.getCanonicalName()) {
-            case "java.lang.Object[]":
-                return new Object[] {1, "hola"};
-            case "java.awt.Color":
-                return Color.BLUE;
-            case "java.lang.Boolean":
-                return Boolean.TRUE;
-            case "java.lang.Class":
-                return MultiPolygon.class;
-            case "java.lang.Comparable":
-                return "string is comparable";
-            case "java.lang.Double":
-                return Double.valueOf(0.33);
-            case "java.lang.Float":
-                return Float.valueOf(0.1f);
-            case "java.lang.Integer":
-                return Integer.MIN_VALUE;
-            case "java.lang.Long":
-                return Long.MAX_VALUE;
-            case "java.lang.Number":
-                return Double.MAX_VALUE;
-            case "java.lang.Object":
-                return "sample java.lang.Object";
-            case "java.lang.String":
-                return "sample string";
-            case "java.util.Collection":
-                return Collections.singleton("single set value");
-            case "java.util.Date":
-                return new Date(60183226800000L);
-            case "java.util.List":
-                return Collections.singletonList("single list value");
-            case "java.util.Map":
-                return Collections.singletonMap("single map key", "single map value");
-            case "javax.measure.Unit":
-                return SI.ASTRONOMICAL_UNIT;
-            case "org.geotools.filter.function.Classifier":
-                return null;
+        return switch (type.getCanonicalName()) {
+            case "java.lang.Object[]" -> new Object[] {1, "hola"};
+            case "java.awt.Color" -> Color.BLUE;
+            case "java.lang.Boolean" -> Boolean.TRUE;
+            case "java.lang.Class" -> MultiPolygon.class;
+            case "java.lang.Comparable" -> "string is comparable";
+            case "java.lang.Double" -> Double.valueOf(0.33);
+            case "java.lang.Float" -> Float.valueOf(0.1f);
+            case "java.lang.Integer" -> Integer.MIN_VALUE;
+            case "java.lang.Long" -> Long.MAX_VALUE;
+            case "java.lang.Number" -> Double.MAX_VALUE;
+            case "java.lang.Object" -> "sample java.lang.Object";
+            case "java.lang.String" -> "sample string";
+            case "java.util.Collection" -> Collections.singleton("single set value");
+            case "java.util.Date" -> new Date(60183226800000L);
+            case "java.util.List" -> Collections.singletonList("single list value");
+            case "java.util.Map" -> Collections.singletonMap("single map key", "single map value");
+            case "javax.measure.Unit" -> SI.ASTRONOMICAL_UNIT;
+            case "org.geotools.filter.function.Classifier" -> null;
                 // sigh, this is a package-private enum, returning null
-            case "org.geotools.filter.function.color.AbstractHSLFunction.Method":
-                return null;
+            case "org.geotools.filter.function.color.AbstractHSLFunction.Method" -> null;
                 // another package-private enum
-            case "org.geotools.styling.visitor.RescalingMode":
-                return null;
-            case "org.locationtech.jts.geom.Geometry":
-                return samplePoint();
-            case "org.locationtech.jts.geom.LineString":
-                return sampleLineString();
-            default:
-                throw new UnsupportedOperationException(
-                        "Unexpected parameter type, add a sample value: '%s'"
-                                .formatted(type.getCanonicalName()));
-        }
+            case "org.geotools.styling.visitor.RescalingMode" -> null;
+            case "org.locationtech.jts.geom.Geometry" -> samplePoint();
+            case "org.locationtech.jts.geom.LineString" -> sampleLineString();
+            case "org.geotools.api.referencing.crs.CoordinateReferenceSystem" -> sampleCrs();
+            case "org.locationtech.jts.geom.Point" -> geom("POINT(1 1)");
+            default -> throw new UnsupportedOperationException(
+                    "Unexpected parameter type, add a sample value: '%s'"
+                            .formatted(type.getCanonicalName()));
+        };
+    }
+
+    @SneakyThrows(ParseException.class)
+    private Geometry geom(String string) {
+        return new WKTReader().read(string);
+    }
+
+    @SneakyThrows(FactoryException.class)
+    private CoordinateReferenceSystem sampleCrs() {
+        return CRS.decode("EPSG:4326");
     }
 }

@@ -13,7 +13,7 @@ import org.geoserver.catalog.plugin.PropertyDiff;
 import org.geoserver.catalog.plugin.resolving.ProxyUtils;
 import org.geoserver.jackson.databind.catalog.dto.InfoReference;
 import org.geoserver.jackson.databind.catalog.dto.PatchDto;
-import org.geoserver.jackson.databind.catalog.mapper.ValueMappers;
+import org.geoserver.jackson.databind.catalog.mapper.GeoServerValueObjectsMapper;
 import org.geoserver.jackson.databind.config.dto.mapper.GeoServerConfigMapper;
 import org.geoserver.jackson.databind.config.dto.mapper.ObjectFacotries;
 import org.geoserver.jackson.databind.config.dto.mapper.WPSMapper;
@@ -34,8 +34,7 @@ import java.util.function.UnaryOperator;
         uses = {
             ObjectFacotries.class,
             WPSMapper.class,
-            ValueMappers.class,
-            SharedMappers.class,
+            GeoServerValueObjectsMapper.class,
             InfoReferenceMapper.class,
             GeoServerConfigMapper.class
         })

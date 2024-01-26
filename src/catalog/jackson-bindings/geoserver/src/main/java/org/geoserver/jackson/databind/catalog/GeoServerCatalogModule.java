@@ -26,42 +26,29 @@ import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.Query;
 import org.geoserver.jackson.databind.catalog.dto.AttributeType;
 import org.geoserver.jackson.databind.catalog.dto.AuthorityURL;
-import org.geoserver.jackson.databind.catalog.dto.CRS;
 import org.geoserver.jackson.databind.catalog.dto.CoverageDimension;
 import org.geoserver.jackson.databind.catalog.dto.DataLink;
 import org.geoserver.jackson.databind.catalog.dto.Dimension;
-import org.geoserver.jackson.databind.catalog.dto.Envelope;
 import org.geoserver.jackson.databind.catalog.dto.GridGeometryDto;
 import org.geoserver.jackson.databind.catalog.dto.Keyword;
 import org.geoserver.jackson.databind.catalog.dto.LayerIdentifier;
 import org.geoserver.jackson.databind.catalog.dto.Legend;
 import org.geoserver.jackson.databind.catalog.dto.MetadataLink;
 import org.geoserver.jackson.databind.catalog.dto.MetadataMapDto;
-import org.geoserver.jackson.databind.catalog.dto.NumberRangeDto;
 import org.geoserver.jackson.databind.catalog.dto.PatchDto;
 import org.geoserver.jackson.databind.catalog.dto.QueryDto;
-import org.geoserver.jackson.databind.catalog.dto.VersionDto;
 import org.geoserver.jackson.databind.catalog.dto.VirtualTableDto;
-import org.geoserver.jackson.databind.catalog.mapper.ValueMappers;
-import org.geoserver.jackson.databind.config.dto.NameDto;
+import org.geoserver.jackson.databind.catalog.mapper.GeoServerValueObjectsMapper;
 import org.geoserver.jackson.databind.mapper.PatchMapper;
-import org.geoserver.jackson.databind.mapper.SharedMappers;
 import org.geotools.api.coverage.grid.GridGeometry;
-import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
-import org.geotools.api.util.InternationalString;
-import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.jackson.databind.filter.GeoToolsFilterModule;
 import org.geotools.jackson.databind.geojson.GeoToolsGeoJsonModule;
 import org.geotools.jackson.databind.util.MapperDeserializer;
 import org.geotools.jackson.databind.util.MapperSerializer;
 import org.geotools.jdbc.VirtualTable;
-import org.geotools.measure.Measure;
-import org.geotools.util.NumberRange;
 import org.mapstruct.factory.Mappers;
 
 import java.util.Arrays;
-import java.util.Locale;
-import java.util.Map;
 import java.util.function.Function;
 
 /**
@@ -94,9 +81,9 @@ import java.util.function.Function;
 public class GeoServerCatalogModule extends SimpleModule {
     private static final long serialVersionUID = -8756800180255446679L;
 
-    static final SharedMappers SHARED_MAPPER = Mappers.getMapper(SharedMappers.class);
     static final PatchMapper PATCH_MAPPER = Mappers.getMapper(PatchMapper.class);
-    static final ValueMappers VALUE_MAPPER = Mappers.getMapper(ValueMappers.class);
+    static final GeoServerValueObjectsMapper VALUE_MAPPER =
+            Mappers.getMapper(GeoServerValueObjectsMapper.class);
 
     public GeoServerCatalogModule() {
         super(GeoServerCatalogModule.class.getSimpleName(), new Version(1, 0, 0, null, null, null));
@@ -104,8 +91,7 @@ public class GeoServerCatalogModule extends SimpleModule {
         log.debug("registering jackson de/serializers for all GeoServer CatalogInfo types");
 
         registerCatalogInfoCodecs();
-        registerCatalogInfoValueMappers();
-        registerSharedMappers();
+        registerValueMappers();
     }
 
     @SuppressWarnings("unchecked")
@@ -152,12 +138,13 @@ public class GeoServerCatalogModule extends SimpleModule {
         super.addDeserializer(type, deserializer);
     }
 
-    private void registerCatalogInfoValueMappers() {
+    private void registerValueMappers() {
         addMapperSerializer(
-                Measure.class,
-                VALUE_MAPPER::measureToString,
-                String.class,
-                VALUE_MAPPER::stringToMeasure);
+                Patch.class, PATCH_MAPPER::patchToDto, PatchDto.class, PATCH_MAPPER::dtoToPatch);
+
+        addMapperSerializer(
+                KeywordInfo.class, VALUE_MAPPER::keyword, Keyword.class, VALUE_MAPPER::keyword);
+
         addMapperSerializer(
                 VirtualTable.class,
                 VALUE_MAPPER::virtualTableToDto,
@@ -186,11 +173,6 @@ public class GeoServerCatalogModule extends SimpleModule {
                 Dimension.class,
                 VALUE_MAPPER::dtoToInfo);
         addMapperSerializer(
-                NumberRange.class,
-                VALUE_MAPPER::numberRangeToDto,
-                NumberRangeDto.class,
-                VALUE_MAPPER::dtoToNumberRange);
-        addMapperSerializer(
                 CoverageDimensionInfo.class,
                 VALUE_MAPPER::infoToDto,
                 CoverageDimension.class,
@@ -201,11 +183,6 @@ public class GeoServerCatalogModule extends SimpleModule {
                 AuthorityURL.class,
                 VALUE_MAPPER::dtoToInfo);
         addMapperSerializer(
-                Measure.class,
-                VALUE_MAPPER::measureToString,
-                String.class,
-                VALUE_MAPPER::stringToMeasure);
-        addMapperSerializer(
                 GridGeometry.class,
                 VALUE_MAPPER::gridGeometry2DToDto,
                 GridGeometryDto.class,
@@ -213,18 +190,6 @@ public class GeoServerCatalogModule extends SimpleModule {
 
         addMapperSerializer(
                 Query.class, VALUE_MAPPER::queryToDto, QueryDto.class, VALUE_MAPPER::dtoToQuery);
-
-        addMapperSerializer(
-                Locale.class,
-                VALUE_MAPPER::localeToString,
-                String.class,
-                VALUE_MAPPER::stringToLocale);
-
-        addMapperSerializer(
-                InternationalString.class,
-                VALUE_MAPPER::internationalStringToDto,
-                Map.class,
-                VALUE_MAPPER::dtoToInternationalString);
 
         addMapperSerializer(
                 AttributeTypeInfo.class,
@@ -237,40 +202,5 @@ public class GeoServerCatalogModule extends SimpleModule {
                 VALUE_MAPPER::metadataMap,
                 MetadataMapDto.class,
                 VALUE_MAPPER::metadataMap);
-    }
-
-    private void registerSharedMappers() {
-
-        addMapperSerializer(
-                Patch.class, PATCH_MAPPER::patchToDto, PatchDto.class, PATCH_MAPPER::dtoToPatch);
-
-        addMapperSerializer(
-                CoordinateReferenceSystem.class, SHARED_MAPPER::crs, CRS.class, SHARED_MAPPER::crs);
-
-        addMapperSerializer(
-                ReferencedEnvelope.class,
-                SHARED_MAPPER::referencedEnvelope,
-                Envelope.class,
-                SHARED_MAPPER::referencedEnvelope);
-        addMapperSerializer(
-                org.geotools.util.Version.class,
-                SHARED_MAPPER::versionToDto,
-                VersionDto.class,
-                SHARED_MAPPER::dtoToVersion);
-
-        addMapperSerializer(
-                KeywordInfo.class, SHARED_MAPPER::keyword, Keyword.class, SHARED_MAPPER::keyword);
-
-        addMapperSerializer(
-                org.geotools.api.feature.type.Name.class,
-                SHARED_MAPPER::map,
-                NameDto.class,
-                SHARED_MAPPER::map);
-
-        addMapperSerializer(
-                org.geotools.util.Version.class,
-                SHARED_MAPPER::versionToDto,
-                VersionDto.class,
-                SHARED_MAPPER::dtoToVersion);
     }
 }

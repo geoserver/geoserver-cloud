@@ -13,72 +13,58 @@ import org.geoserver.catalog.CoverageDimensionInfo;
 import org.geoserver.catalog.DataLinkInfo;
 import org.geoserver.catalog.DimensionInfo;
 import org.geoserver.catalog.FeatureTypeInfo;
+import org.geoserver.catalog.KeywordInfo;
 import org.geoserver.catalog.LayerIdentifierInfo;
 import org.geoserver.catalog.LegendInfo;
 import org.geoserver.catalog.MetadataLinkInfo;
 import org.geoserver.catalog.MetadataMap;
-import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.plugin.Query;
 import org.geoserver.config.util.XStreamPersister;
 import org.geoserver.jackson.databind.catalog.dto.AttributeType;
 import org.geoserver.jackson.databind.catalog.dto.Attribution;
 import org.geoserver.jackson.databind.catalog.dto.AuthorityURL;
-import org.geoserver.jackson.databind.catalog.dto.CRS;
 import org.geoserver.jackson.databind.catalog.dto.CoverageDimension;
 import org.geoserver.jackson.databind.catalog.dto.DataLink;
 import org.geoserver.jackson.databind.catalog.dto.Dimension;
 import org.geoserver.jackson.databind.catalog.dto.GridGeometryDto;
+import org.geoserver.jackson.databind.catalog.dto.Keyword;
 import org.geoserver.jackson.databind.catalog.dto.LayerIdentifier;
 import org.geoserver.jackson.databind.catalog.dto.Legend;
 import org.geoserver.jackson.databind.catalog.dto.MetadataLink;
 import org.geoserver.jackson.databind.catalog.dto.MetadataMapDto;
-import org.geoserver.jackson.databind.catalog.dto.NumberRangeDto;
 import org.geoserver.jackson.databind.catalog.dto.QueryDto;
 import org.geoserver.jackson.databind.catalog.dto.VirtualTableDto;
 import org.geoserver.jackson.databind.mapper.InfoReferenceMapper;
-import org.geoserver.jackson.databind.mapper.SharedMappers;
+import org.geoserver.wfs.GMLInfo;
 import org.geotools.api.coverage.SampleDimensionType;
 import org.geotools.api.coverage.grid.GridEnvelope;
 import org.geotools.api.coverage.grid.GridGeometry;
 import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 import org.geotools.api.referencing.operation.MathTransform;
-import org.geotools.api.util.InternationalString;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.data.util.MeasureConverterFactory;
+import org.geotools.jackson.databind.dto.CRS;
 import org.geotools.jackson.databind.filter.dto.Literal;
+import org.geotools.jackson.databind.filter.mapper.GeoToolsValueMappers;
 import org.geotools.jdbc.VirtualTable;
-import org.geotools.measure.Measure;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
-import org.geotools.util.GrowableInternationalString;
-import org.geotools.util.NumberRange;
-import org.geotools.util.SimpleInternationalString;
 import org.mapstruct.AnnotateWith;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
-import org.slf4j.LoggerFactory;
 
 import java.awt.geom.AffineTransform;
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.Optional;
 
 @Mapper(
         componentModel = "default",
         unmappedTargetPolicy = ReportingPolicy.ERROR,
-        uses = {ObjectFacotries.class, SharedMappers.class, InfoReferenceMapper.class})
+        uses = {GeoToolsValueMappers.class, ObjectFacotries.class, InfoReferenceMapper.class})
 @AnnotateWith(value = Generated.class)
-public interface ValueMappers {
-
-    org.geotools.util.Converter str2Measure =
-            new MeasureConverterFactory().createConverter(String.class, Measure.class, null);
-    org.geotools.util.Converter measure2Str =
-            new MeasureConverterFactory().createConverter(Measure.class, String.class, null);
+public interface GeoServerValueObjectsMapper {
 
     @Mapping(target = "withFilter", ignore = true)
     @SuppressWarnings("rawtypes")
@@ -86,76 +72,16 @@ public interface ValueMappers {
 
     QueryDto queryToDto(@SuppressWarnings("rawtypes") Query query);
 
-    @SuppressWarnings("rawtypes")
-    default Class classMappings(ClassMappings mappings) {
-        return mappings == null ? null : mappings.getInterface();
-    }
-
-    @SuppressWarnings("unchecked")
-    default ClassMappings classMappings(@SuppressWarnings("rawtypes") Class type) {
-        return type == null ? null : ClassMappings.fromInterface(type);
-    }
-
-    default NumberRangeDto numberRangeToDto(NumberRange<?> source) {
-        if (source == null) return null;
-        NumberRangeDto dto = new NumberRangeDto();
-        Number minValue = source.getMinValue();
-        Number maxValue = source.getMaxValue();
-
-        dto.setMin(minValue);
-        dto.setMax(maxValue);
-        dto.setMinIncluded(source.isMinIncluded());
-        dto.setMaxIncluded(source.isMaxIncluded());
-        return dto;
-    }
-
-    @SuppressWarnings("rawtypes")
-    default NumberRange dtoToNumberRange(NumberRangeDto source) {
-        if (source == null) return null;
-        boolean minIncluded = source.isMinIncluded();
-        boolean maxIncluded = source.isMaxIncluded();
-        Number min = source.getMin();
-        Number max = source.getMax();
-
-        if (min instanceof Long || max instanceof Long)
-            return NumberRange.create(min.longValue(), minIncluded, max.longValue(), maxIncluded);
-        if (min instanceof Double || max instanceof Double)
-            return NumberRange.create(
-                    min.doubleValue(), minIncluded, max.doubleValue(), maxIncluded);
-        if (min instanceof Float || max instanceof Float)
-            return NumberRange.create(min.floatValue(), minIncluded, max.floatValue(), maxIncluded);
-        if (min instanceof Integer || max instanceof Integer)
-            return NumberRange.create(min.intValue(), minIncluded, max.intValue(), maxIncluded);
-        if (min instanceof Short || max instanceof Short)
-            return NumberRange.create(min.shortValue(), minIncluded, max.shortValue(), maxIncluded);
-        if (min instanceof Byte || max instanceof Byte)
-            return NumberRange.create(min.byteValue(), minIncluded, max.byteValue(), maxIncluded);
-
-        return NumberRange.create(min.doubleValue(), minIncluded, max.doubleValue(), maxIncluded);
-    }
-
-    default String measureToString(Measure value) {
-        try {
-            return measure2Str.convert(value, String.class);
-        } catch (Exception e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    default Measure stringToMeasure(String value) {
-        try {
-            return str2Measure.convert(value, Measure.class);
-        } catch (Exception e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
     /**
      * @see XStreamPersister#GridGeometry2DConverter
      */
     default GridGeometry dtoToGridGeometry2D(GridGeometryDto value) {
         if (value == null) return null;
-        CoordinateReferenceSystem crs = Mappers.getMapper(SharedMappers.class).crs(value.getCrs());
+        CoordinateReferenceSystem crs =
+                Mappers.getMapper(
+                                org.geotools.jackson.databind.filter.mapper.GeoToolsValueMappers
+                                        .class)
+                        .crs(value.getCrs());
         int[] high = value.getHigh();
         int[] low = value.getLow();
         MathTransform gridToCRS = affineTransform(value.getTransform());
@@ -179,7 +105,11 @@ public interface ValueMappers {
         }
 
         dto.setTransform(affineTransform(g.getGridToCRS()));
-        CRS crs = Mappers.getMapper(SharedMappers.class).crs(g.getCoordinateReferenceSystem());
+        CRS crs =
+                Mappers.getMapper(
+                                org.geotools.jackson.databind.filter.mapper.GeoToolsValueMappers
+                                        .class)
+                        .crs(g.getCoordinateReferenceSystem());
         dto.setCrs(crs);
         return dto;
     }
@@ -255,40 +185,6 @@ public interface ValueMappers {
         return new VirtualTable(dto.getName(), dto.getSql(), dto.isEscapeSql());
     }
 
-    default String localeToString(Locale locale) {
-        return locale == null ? "" : locale.toLanguageTag();
-    }
-
-    default Locale stringToLocale(String s) {
-        return s == null || s.isBlank() ? null : Locale.forLanguageTag(s);
-    }
-
-    default Map<String, String> internationalStringToDto(InternationalString s) {
-        if (s instanceof GrowableInternationalString gs) {
-            Set<Locale> locales = gs.getLocales();
-            Map<String, String> dto = new HashMap<>(locales.size());
-            locales.forEach(locale -> dto.put(localeToString(locale), gs.toString(locale)));
-            return dto;
-        }
-        if (s instanceof SimpleInternationalString) {
-            return Map.of("", s.toString());
-        }
-        if (s == null) return null;
-
-        LoggerFactory.getLogger(getClass())
-                .warn(
-                        "Uknown InternationalString implementation: {}. Returning the default value",
-                        s.getClass().getName());
-        return Map.of("", s.toString());
-    }
-
-    default GrowableInternationalString dtoToInternationalString(Map<String, String> s) {
-        if (s == null) return null;
-        GrowableInternationalString gs = new GrowableInternationalString();
-        s.forEach((locale, value) -> gs.add(stringToLocale(locale), value));
-        return gs;
-    }
-
     default MetadataMapDto metadataMap(MetadataMap md) {
         if (md == null) return null;
         MetadataMapDto dto = new MetadataMapDto();
@@ -309,5 +205,18 @@ public interface ValueMappers {
                     md.put(k, (Serializable) v);
                 });
         return md;
+    }
+
+    KeywordInfo keyword(Keyword dto);
+
+    Keyword keyword(KeywordInfo keyword);
+
+    /** Added due to {@link GMLInfo#getMimeTypeToForce()} */
+    default String optToString(Optional<String> value) {
+        return value.orElse(null);
+    }
+
+    default Optional<String> stringToOpt(String value) {
+        return Optional.ofNullable(value);
     }
 }

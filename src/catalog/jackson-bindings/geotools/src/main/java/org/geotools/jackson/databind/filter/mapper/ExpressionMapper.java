@@ -30,7 +30,7 @@ import java.util.List;
 @Mapper(
         componentModel = "default",
         unmappedTargetPolicy = ReportingPolicy.ERROR,
-        uses = {ExpressionFactory.class, FilterFactory.class, ValueMappers.class})
+        uses = {ExpressionFactory.class, FilterFactory.class, GeoToolsValueMappers.class})
 @AnnotateWith(value = Generated.class)
 public abstract class ExpressionMapper {
 

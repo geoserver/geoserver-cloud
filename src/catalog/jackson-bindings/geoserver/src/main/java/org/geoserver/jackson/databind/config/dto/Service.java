@@ -27,6 +27,7 @@ import org.geoserver.wms.WatermarkInfoImpl;
 import org.geoserver.wps.ProcessGroupInfo;
 import org.geoserver.wps.ProcessInfo;
 import org.geotools.coverage.grid.io.OverviewPolicy;
+import org.geotools.jackson.databind.dto.NameDto;
 
 import java.util.HashSet;
 import java.util.List;

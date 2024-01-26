@@ -9,6 +9,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import org.geotools.jackson.databind.dto.VersionDto;
+
 @Data
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("StyleInfo")

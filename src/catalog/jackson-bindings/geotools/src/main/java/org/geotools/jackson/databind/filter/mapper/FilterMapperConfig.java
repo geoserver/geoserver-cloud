@@ -13,7 +13,7 @@ import org.mapstruct.ReportingPolicy;
         uses = {
             ExpressionFactory.class,
             FilterFactory.class,
-            ValueMappers.class,
+            GeoToolsValueMappers.class,
             ExpressionMapper.class
         })
 public class FilterMapperConfig {}

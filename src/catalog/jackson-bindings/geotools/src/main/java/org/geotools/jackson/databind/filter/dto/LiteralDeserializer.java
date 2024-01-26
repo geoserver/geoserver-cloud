@@ -15,7 +15,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 
-import org.geotools.jackson.databind.filter.mapper.ValueMappers;
+import org.geotools.jackson.databind.filter.mapper.GeoToolsValueMappers;
 import org.mapstruct.factory.Mappers;
 
 import java.io.IOException;
@@ -46,7 +46,7 @@ import java.util.Set;
  */
 public class LiteralDeserializer extends JsonDeserializer<Literal> {
 
-    private ValueMappers classNameMapper = Mappers.getMapper(ValueMappers.class);
+    private GeoToolsValueMappers classNameMapper = Mappers.getMapper(GeoToolsValueMappers.class);
 
     @Override
     public Literal deserialize(JsonParser parser, DeserializationContext ctxt) throws IOException {
