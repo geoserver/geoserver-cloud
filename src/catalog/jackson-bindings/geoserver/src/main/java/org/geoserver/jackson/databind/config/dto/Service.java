@@ -144,6 +144,11 @@ public abstract class Service extends ConfigInfoDto {
          * @since geoserver 2.24.0
          */
         private boolean transformFeatureInfoDisabled;
+
+        /**
+         * @since geoserver 2.24.2
+         */
+        private Boolean exceptionOnInvalidDimension;
     }
 
     @EqualsAndHashCode(callSuper = true)
