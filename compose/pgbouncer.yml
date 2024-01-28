@@ -1,0 +1,82 @@
+version: "3.8"
+
+# for simplicity, use one pgbouncer instance per databse
+# postgis -> postgis_pg
+# acldb -> acldb_pg
+# pgconfigdb -> pgconfigdb_pg
+
+services:
+  postgis:
+    extends:
+      file: templates.yml
+      service: pgbouncertemplate
+    environment:
+      PGBOUNCER_DATABASE: postgis
+      POSTGRESQL_HOST: postgis_pg
+      POSTGRESQL_DATABASE: postgis
+      POSTGRESQL_USERNAME: postgis
+      POSTGRESQL_PASSWORD: postgis
+    depends_on:
+      postgis_pg:
+        condition: service_started
+    ports:
+      - 6432:5432
+
+  acldb:
+    extends:
+      file: templates.yml
+      service: pgbouncertemplate
+    environment:
+      PGBOUNCER_DATABASE: acl
+      POSTGRESQL_HOST: acldb_pg
+      POSTGRESQL_DATABASE: acl
+      POSTGRESQL_USERNAME: acl
+      POSTGRESQL_PASSWORD: acls3cr3t
+    depends_on:
+      acldb_pg:
+        condition: service_started
+    ports:
+      - 7432:5432
+
+  pgconfigdb:
+    extends:
+      file: templates.yml
+      service: pgbouncertemplate
+    environment:
+      PGBOUNCER_DATABASE: pgconfig
+      POSTGRESQL_HOST: pgconfigdb_pg
+      POSTGRESQL_DATABASE: pgconfig
+      POSTGRESQL_USERNAME: pgconfig
+      POSTGRESQL_PASSWORD: pgconfig
+    depends_on:
+      pgconfigdb_pg:
+        condition: service_started
+    ports:
+      - 8432:5432
+
+  postgis_pg:
+    extends:
+      file: templates.yml
+      service: postgistemplate
+    volumes:
+      - postgis_data:/var/lib/postgresql/data
+    ports:
+      - 6433:5432
+
+  acldb_pg:
+    extends:
+      file: templates.yml
+      service: acldbtemplate
+    volumes:
+      - acl_data:/var/lib/postgresql/data
+    ports:
+      - 7433:5432
+
+  pgconfigdb_pg:
+    extends:
+      file: templates.yml
+      service: pgconfigdbtemplate
+    volumes:
+      - pgconfigdb_data:/var/lib/postgresql/data
+    ports:
+      - 8433:5432

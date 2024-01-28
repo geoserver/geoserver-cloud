@@ -1,0 +1,62 @@
+version: "3.8"
+
+volumes:
+  #rabbitmq_data: # volume for rabbitmq data, so it doesn't create an anonymous one on each container
+  postgis_data:
+  acl_data:
+
+services:
+  postgis:
+    extends:
+      file: templates.yml
+      service: postgistemplate
+    volumes:
+      - postgis_data:/var/lib/postgresql/data
+    ports:
+      - 6432:5432
+ 
+  acldb:
+    extends:
+      file: templates.yml
+      service: acldbtemplate
+    volumes:
+      - acl_data:/var/lib/postgresql/data
+
+  rabbitmq:
+    image: rabbitmq:3.12.12
+    user: ${GS_USER}
+    tmpfs:
+      - /var/lib/rabbitmq
+    #volumes:
+    #  - rabbitmq_data:/var/lib/rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 1G
+    restart: unless-stopped
+    healthcheck:
+      test: rabbitmq-diagnostics is_running
+      start_period: 10s
+      interval: 15s
+      timeout: 30s
+      retries: 3
+
+  admin:
+    image: geoservercloud/geoserver-cloud-admin-server:${TAG}
+    user: ${GS_USER}
+    depends_on:
+      discovery:
+        condition: service_healthy
+    ports:
+      - 9091:8080
+    deploy:
+      mode: replicated
+      replicas: 0
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 512M

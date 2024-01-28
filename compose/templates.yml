@@ -1,0 +1,101 @@
+version: "3.8"
+
+services:
+  gstemplate:
+    user: ${GS_USER}
+    environment:
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES}"
+    depends_on:
+      rabbitmq:
+        condition: service_started
+        required: true
+      discovery:
+        condition: service_started
+        required: true
+    volumes:
+      - geowebcache_data:/data/geowebcache
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+
+  postgrestemplate:
+    image: postgres:15
+    shm_size: 512m
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgistemplate:
+    extends:
+      service: postgrestemplate
+    image: postgis/postgis:latest
+    environment:
+      POSTGRES_DB: postgis
+      POSTGRES_USER: postgis
+      POSTGRES_PASSWORD: postgis
+      POSTGIS_GDAL_ENABLED_DRIVERS: ENABLE_ALL
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgis"]
+
+  acldbtemplate:
+    extends:
+      service: postgistemplate
+    environment:
+      POSTGRES_DB: acl
+      POSTGRES_USER: acl
+      POSTGRES_PASSWORD: acls3cr3t
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U acl"]
+
+  pgconfigdbtemplate:
+    extends:
+      service: postgrestemplate
+    shm_size: 1g
+    environment:
+      POSTGRES_DB: pgconfig
+      POSTGRES_USER: pgconfig
+      POSTGRES_PASSWORD: pgconfig
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pgconfig"]
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 2G
+
+  pgbouncertemplate:
+    image: bitnami/pgbouncer:latest
+    environment:
+      PGBOUNCER_MAX_CLIENT_CONN: 2000
+      PGBOUNCER_POOL_MODE: transaction
+      PGBOUNCER_MAX_PREPARED_STATEMENTS: 100
+      PGBOUNCER_DEFAULT_POOL_SIZE: 50
+      PGBOUNCER_AUTH_TYPE: plain
+      PGBOUNCER_PORT: 5432
+      POSTGRESQL_PORT: 5432
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "PGPASSWORD=$$POSTGRES_PASSWORD psql -d $$POSTGRESQL_DATABASE -U $$POSTGRESQL_USERNAME -c 'select 1'"]
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 64M

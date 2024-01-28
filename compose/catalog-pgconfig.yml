@@ -4,69 +4,72 @@ volumes:
   pgconfigdb_data: # volume for postgresql data, used to store the geoserver config through pgsqlconfig backend
 
 #
-# Configures all geoserver services to use the postgresql database server with jdbcconfig as catalog backend.
-# Run with `docker-compose --compatibility -f docker-compose.yml -f docker-compose-jdbcconfig.yml up -d`
+# Configures all geoserver services to use the postgresql database server with pgconfig as catalog backend.
+# Run with `docker compose -f compose.yml -f catalog-pgconfig.yml up -d`
 #
 
 services:
   pgconfigdb:
-    image: postgres:15
-    shm_size: 2g
-    environment:
-      POSTGRES_DB: pgconfig
-      POSTGRES_USER: pgconfig
-      POSTGRES_PASSWORD: pgconfig
-    ports:
-      - 54322:5432
-    networks:
-      - gs-cloud-network
+    extends:
+      file: templates.yml
+      service: pgconfigdbtemplate
     volumes:
       - pgconfigdb_data:/var/lib/postgresql/data
-    deploy:
-      resources:
-        limits:
-          cpus: '4.0'
-          memory: 4G
-
+    ports:
+      - 8432:5432
 
   wfs:
     environment:
       SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},pgconfig"
     depends_on:
-      - pgconfigdb
+      pgconfigdb:
+        condition: service_started
+        required: true
 
   wms:
     environment:
       SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},pgconfig"
     depends_on:
-      - pgconfigdb
+      pgconfigdb:
+        condition: service_started
+        required: true
 
   wcs:
     environment:
       SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},pgconfig"
     depends_on:
-      - pgconfigdb
+      pgconfigdb:
+        condition: service_started
+        required: true
 
   rest:
     environment:
       SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},pgconfig"
     depends_on:
-      - pgconfigdb
+      pgconfigdb:
+        condition: service_started
+        required: true
 
   webui:
     environment:
       SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},pgconfig"
     depends_on:
-      - pgconfigdb
+      pgconfigdb:
+        condition: service_started
+        required: true
 
   gwc:
     environment:
       SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},pgconfig"
     depends_on:
-      - pgconfigdb
+      pgconfigdb:
+        condition: service_started
+        required: true
 
   wps:
     environment:
       SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},pgconfig"
     depends_on:
-      - pgconfigdb
+      pgconfigdb:
+        condition: service_started
+        required: true
