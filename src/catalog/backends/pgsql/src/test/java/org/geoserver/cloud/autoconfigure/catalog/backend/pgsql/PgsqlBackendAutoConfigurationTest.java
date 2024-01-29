@@ -7,11 +7,14 @@ package org.geoserver.cloud.autoconfigure.catalog.backend.pgsql;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.geoserver.GeoServerConfigurationLock;
+import org.geoserver.catalog.plugin.CatalogPlugin;
+import org.geoserver.catalog.plugin.forwarding.ResolvingCatalogFacadeDecorator;
 import org.geoserver.cloud.backend.pgsql.catalog.PgsqlCatalogFacade;
 import org.geoserver.cloud.backend.pgsql.config.PgsqlConfigRepository;
 import org.geoserver.cloud.backend.pgsql.config.PgsqlGeoServerFacade;
 import org.geoserver.cloud.backend.pgsql.config.PgsqlUpdateSequence;
 import org.geoserver.cloud.backend.pgsql.resource.PgsqlLockProvider;
+import org.geoserver.cloud.backend.pgsql.resource.PgsqlResourceStore;
 import org.geoserver.cloud.config.catalog.backend.pgsql.PgsqlGeoServerLoader;
 import org.geoserver.cloud.config.catalog.backend.pgsql.PgsqlGeoServerResourceLoader;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,6 +27,8 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 /**
+ * Test suite for {@link PgsqlBackendAutoConfiguration}
+ *
  * @since 1.4
  */
 @Testcontainers(disabledWithoutDocker = true)
@@ -62,13 +67,20 @@ class PgsqlBackendAutoConfigurationTest {
                             .hasSingleBean(JdbcTemplate.class)
                             .hasSingleBean(GeoServerConfigurationLock.class)
                             .hasSingleBean(PgsqlUpdateSequence.class)
-                            .hasSingleBean(PgsqlCatalogFacade.class)
+                            .hasSingleBean(ResolvingCatalogFacadeDecorator.class)
                             .hasSingleBean(PgsqlGeoServerLoader.class)
                             .hasSingleBean(PgsqlConfigRepository.class)
                             .hasSingleBean(PgsqlGeoServerFacade.class)
-                            // .hasSingleBean(PgsqlResourceStore.class)
+                            .hasSingleBean(PgsqlResourceStore.class)
                             .hasSingleBean(PgsqlGeoServerResourceLoader.class)
                             .hasSingleBean(PgsqlLockProvider.class);
+
+                    ResolvingCatalogFacadeDecorator catalogFacade =
+                            context.getBean("catalogFacade", ResolvingCatalogFacadeDecorator.class);
+                    assertThat(catalogFacade.getFacade()).isInstanceOf(PgsqlCatalogFacade.class);
+
+                    CatalogPlugin catalog = context.getBean("rawCatalog", CatalogPlugin.class);
+                    assertThat(catalog.getRawFacade()).isSameAs(catalogFacade);
                 });
     }
 }
