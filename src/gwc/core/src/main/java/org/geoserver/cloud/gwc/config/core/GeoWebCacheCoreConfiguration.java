@@ -17,10 +17,19 @@ import org.geoserver.cloud.gwc.repository.CloudXMLResourceProvider;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.ResourceStore;
 import org.geoserver.platform.resource.Resources;
+import org.geowebcache.GSCloudGeoWebCacheDispatcher;
+import org.geowebcache.GeoWebCacheDispatcher;
 import org.geowebcache.config.ConfigurationResourceProvider;
+import org.geowebcache.config.ServerConfiguration;
 import org.geowebcache.config.XMLConfiguration;
 import org.geowebcache.config.XMLFileResourceProvider;
+import org.geowebcache.filter.security.SecurityDispatcher;
+import org.geowebcache.grid.GridSetBroker;
+import org.geowebcache.layer.TileLayerDispatcher;
+import org.geowebcache.stats.RuntimeStats;
+import org.geowebcache.storage.BlobStoreAggregator;
 import org.geowebcache.storage.DefaultStorageFinder;
+import org.geowebcache.storage.StorageBroker;
 import org.geowebcache.util.ApplicationContextProvider;
 import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.InvalidPropertyException;
@@ -56,7 +65,7 @@ import javax.servlet.http.HttpServletRequestWrapper;
 @ImportResource(
         reader = FilteringXmlBeanDefinitionReader.class, //
         locations = {
-            "jar:gs-gwc-[0-9]+.*!/geowebcache-core-context.xml#name=^(?!gwcXmlConfig|gwcDefaultStorageFinder|gwcGeoServervConfigPersister|metastoreRemover).*$"
+            "jar:gs-gwc-[0-9]+.*!/geowebcache-core-context.xml#name=^(?!gwcXmlConfig|gwcDefaultStorageFinder|geowebcacheDispatcher|gwcGeoServervConfigPersister|metastoreRemover).*$"
         })
 @Slf4j(topic = "org.geoserver.cloud.gwc.config.core")
 public class GeoWebCacheCoreConfiguration {
@@ -64,6 +73,29 @@ public class GeoWebCacheCoreConfiguration {
     @Bean
     SetRequestPathInfoFilter setRequestPathInfoFilter() {
         return new SetRequestPathInfoFilter();
+    }
+
+    @Bean
+    GeoWebCacheDispatcher geowebcacheDispatcher(
+            TileLayerDispatcher tileLayerDispatcher,
+            GridSetBroker gridSetBroker,
+            StorageBroker storageBroker,
+            BlobStoreAggregator blobStoreAggregator,
+            ServerConfiguration mainConfiguration,
+            RuntimeStats runtimeStats,
+            DefaultStorageFinder gwcDefaultStorageFinder,
+            SecurityDispatcher gwcSecurityDispatcher) {
+        GSCloudGeoWebCacheDispatcher dispatcher =
+                new GSCloudGeoWebCacheDispatcher(
+                        tileLayerDispatcher,
+                        gridSetBroker,
+                        storageBroker,
+                        blobStoreAggregator,
+                        mainConfiguration,
+                        runtimeStats);
+        dispatcher.setSecurityDispatcher(gwcSecurityDispatcher);
+        dispatcher.setDefaultStorageFinder(gwcDefaultStorageFinder);
+        return dispatcher;
     }
 
     @Bean
