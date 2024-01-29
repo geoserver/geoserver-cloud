@@ -11,7 +11,6 @@ import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.catalog.plugin.locking.LockProviderGeoServerConfigurationLock;
 import org.geoserver.cloud.backend.pgsql.PgsqlBackendBuilder;
-import org.geoserver.cloud.backend.pgsql.catalog.PgsqlCatalogFacade;
 import org.geoserver.cloud.backend.pgsql.config.PgsqlConfigRepository;
 import org.geoserver.cloud.backend.pgsql.config.PgsqlGeoServerFacade;
 import org.geoserver.cloud.backend.pgsql.config.PgsqlUpdateSequence;
@@ -75,16 +74,19 @@ public class PgsqlBackendConfiguration extends GeoServerBackendConfigurer {
     CatalogPlugin rawCatalog() {
         boolean isolated = catalogProperties.isIsolated();
         CatalogPlugin rawCatalog = new CatalogPlugin(isolated);
-
-        PgsqlCatalogFacade rawFacade = catalogFacade();
-
-        ExtendedCatalogFacade facade =
-                PgsqlBackendBuilder.createResolvingCatalogFacade(rawCatalog, rawFacade);
-        rawCatalog.setFacade(facade);
-
         GeoServerResourceLoader resourceLoader = resourceLoader();
         rawCatalog.setResourceLoader(resourceLoader);
         return rawCatalog;
+    }
+
+    @Bean
+    @Override
+    protected ExtendedCatalogFacade catalogFacade() {
+        CatalogPlugin rawCatalog = rawCatalog();
+        ExtendedCatalogFacade facade =
+                new PgsqlBackendBuilder(dataSource).createCatalogFacade(rawCatalog);
+        rawCatalog.setFacade(facade);
+        return facade;
     }
 
     @Bean(name = "pgsqlCongigJdbcTemplate")
@@ -107,12 +109,6 @@ public class PgsqlBackendConfiguration extends GeoServerBackendConfigurer {
 
     @Bean
     @Override
-    protected PgsqlCatalogFacade catalogFacade() {
-        return new PgsqlCatalogFacade(template());
-    }
-
-    @Bean
-    @Override
     protected GeoServerLoader geoServerLoaderImpl() {
         log.debug("Creating GeoServerLoader {}", PgsqlGeoServerLoader.class.getSimpleName());
         return new PgsqlGeoServerLoader(resourceLoader(), configurationLock());
@@ -131,7 +127,7 @@ public class PgsqlBackendConfiguration extends GeoServerBackendConfigurer {
 
     @Bean
     @Override
-    protected ResourceStore resourceStoreImpl() {
+    protected PgsqlResourceStore resourceStoreImpl() {
         log.debug("Creating ResourceStore {}", PgsqlResourceStore.class.getSimpleName());
         FileSystemResourceStoreCache resourceStoreCache = pgsqlFileSystemResourceStoreCache();
         JdbcTemplate template = template();

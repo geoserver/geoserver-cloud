@@ -19,7 +19,6 @@ import org.geoserver.catalog.plugin.resolving.ResolvingProxyResolver;
 import org.geoserver.cloud.backend.pgsql.catalog.PgsqlCatalogFacade;
 import org.geoserver.cloud.backend.pgsql.config.PgsqlGeoServerFacade;
 import org.geoserver.config.plugin.GeoServerImpl;
-import org.geoserver.config.plugin.RepositoryGeoServerFacade;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.function.UnaryOperator;
@@ -39,13 +38,13 @@ public class PgsqlBackendBuilder {
     }
 
     public GeoServerImpl createGeoServer(Catalog catalog) {
-        RepositoryGeoServerFacade facade = createGeoServerFacade();
+        PgsqlGeoServerFacade facade = createGeoServerFacade();
         GeoServerImpl gs = new GeoServerImpl(facade);
         gs.setCatalog(catalog);
         return gs;
     }
 
-    public RepositoryGeoServerFacade createGeoServerFacade() {
+    public PgsqlGeoServerFacade createGeoServerFacade() {
         return new PgsqlGeoServerFacade(new JdbcTemplate(dataSource));
     }
 
