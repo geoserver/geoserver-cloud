@@ -12,10 +12,13 @@ import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerFacade;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.Objects;
 
 /**
  * Enables caching at the {@link CatalogFacade} and {@link GeoServerFacade} level instead of at the
@@ -47,13 +50,24 @@ public class GeoServerBackendCacheConfiguration implements BeanPostProcessor {
         } else {
             facade = new CatalogFacadeExtensionAdapter(rawCatalogFacade);
         }
-        return new CachingCatalogFacadeImpl(facade, cacheManager);
+        Cache cache = getCache(cacheManager, CachingCatalogFacade.CACHE_NAME);
+        return new CachingCatalogFacadeImpl(facade, cache);
     }
 
     @Bean
     CachingGeoServerFacade cachingGeoServerFacade(
             @Qualifier("geoserverFacade") GeoServerFacade rawGeoServerFacade,
             CacheManager cacheManager) {
-        return new CachingGeoServerFacadeImpl(rawGeoServerFacade, cacheManager);
+        Cache cache = getCache(cacheManager, CachingGeoServerFacade.CACHE_NAME);
+        return new CachingGeoServerFacadeImpl(rawGeoServerFacade, cache);
+    }
+
+    private Cache getCache(CacheManager cacheManager, String cacheName) {
+        Cache cache = cacheManager.getCache(cacheName);
+        Objects.requireNonNull(
+                cache,
+                "CacheManager %s returned null cache for cache name %s"
+                        .formatted(cacheManager.getClass().getName(), cacheName));
+        return cache;
     }
 }

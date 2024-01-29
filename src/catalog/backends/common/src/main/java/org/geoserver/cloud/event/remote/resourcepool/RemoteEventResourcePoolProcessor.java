@@ -86,13 +86,17 @@ public class RemoteEventResourcePoolProcessor {
 
         info.ifPresentOrElse(
                 object -> {
-                    log.debug("Evict cache entry for {}({}) upon {}", infoType, id, event);
+                    log.info(
+                            "Evicting ResourcePool cache entry for {}({}) upon {}",
+                            infoType,
+                            id,
+                            event);
                     ResourcePool resourcePool = rawCatalog.getResourcePool();
                     CacheClearingListener cleaner = new CacheClearingListener(resourcePool);
                     object.accept(cleaner);
                 }, //
                 () ->
-                        log.info(
+                        log.debug(
                                 "{}({}) not found, unable to clean up its ResourcePool cache entry",
                                 infoType,
                                 id));
