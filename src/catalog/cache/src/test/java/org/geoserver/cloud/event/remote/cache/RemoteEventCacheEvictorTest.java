@@ -93,7 +93,7 @@ class RemoteEventCacheEvictorTest {
      * Spring-cache for configuration Info objects, named after {@link
      * CachingGeoServerFacade#CACHE_NAME}
      */
-    private Cache configCache;
+    private org.springframework.cache.Cache configCache;
 
     private @Autowired @Qualifier("catalog") Catalog catalog;
     private @Autowired @Qualifier("geoServer") GeoServerImpl geoServer;

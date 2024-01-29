@@ -17,7 +17,6 @@ import org.geoserver.config.SettingsInfo;
 import org.geoserver.config.plugin.forwarding.ForwardingGeoServerFacade;
 import org.springframework.cache.Cache;
 import org.springframework.cache.Cache.ValueWrapper;
-import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -31,7 +30,7 @@ import java.util.Optional;
 class CachingGeoServerFacadeImpl extends ForwardingGeoServerFacade
         implements CachingGeoServerFacade {
 
-    private Cache cache;
+    private final @NonNull Cache cache;
 
     @Override
     public Optional<GeoServerInfo> evictGlobal() {
@@ -109,9 +108,9 @@ class CachingGeoServerFacadeImpl extends ForwardingGeoServerFacade
         return service;
     }
 
-    public CachingGeoServerFacadeImpl(GeoServerFacade facade, CacheManager cacheManager) {
+    public CachingGeoServerFacadeImpl(@NonNull GeoServerFacade facade, @NonNull Cache cache) {
         super(facade);
-        cache = cacheManager.getCache(CACHE_NAME);
+        this.cache = cache;
     }
 
     @Cacheable(key = "'" + GEOSERVERINFO_KEY + "'", unless = "#result == null")
