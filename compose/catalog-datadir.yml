@@ -8,10 +8,10 @@ version: "3.8"
 
 volumes:
   datadir:
-  #  driver_opts:
-  #    type: none
-  #    o: bind
-  #    device: $PWD/docker-compose_datadir
+    driver_opts:
+      type: none
+      o: bind
+      device: $PWD/catalog-datadir
   
 services:
   init-datadir:
