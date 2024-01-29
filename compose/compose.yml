@@ -37,7 +37,7 @@ services:
     image: geoservercloud/geoserver-cloud-config:${TAG}
     user: ${GS_USER}
     environment:
-      JAVA_OPTS: "${CONFIG_JAVA_OPTS}"
+      JAVA_OPTS: "${JAVA_OPTS_CONFIG}"
       # Either 'git' or 'native'. Use the default sample git repository to download the services configuration from
       # If 'git', BEWARE config server will look for a branch called "master", and github changed the default branch name to "main"
       # For more information, see https://cloud.spring.io/spring-cloud-config/multi/multi__spring_cloud_config_server.html#_git_backend
@@ -65,7 +65,7 @@ services:
     image: geoservercloud/geoserver-cloud-discovery:${TAG}
     user: ${GS_USER}
     environment:
-      JAVA_OPTS: "${DISCOVERY_JAVA_OPTS}"
+      JAVA_OPTS: "${JAVA_OPTS_DISCOVERY}"
     ports:
       - 8761:8761 # for development, so services can be run from localhost and find the discovery service running on docker
     restart: unless-stopped
@@ -86,7 +86,7 @@ services:
       discovery:
         condition: service_healthy
     environment:
-      JAVA_OPTS: ${GATEWAY_JAVA_OPTS}
+      JAVA_OPTS: "${JAVA_OPTS_GATEWAY}"
       SPRING_PROFILES_ACTIVE: dev #exposes the catalog and config API at /api/v1/**
       # eat our own dogfood and set a base path
       GEOSERVER_BASE_PATH: ${BASE_PATH}
@@ -104,7 +104,7 @@ services:
       service: gstemplate
     image: geoservercloud/geoserver-cloud-wfs:${TAG}
     environment:
-      JAVA_OPTS: "${WFS_JAVA_OPTS}"
+      JAVA_OPTS: "${JAVA_OPTS_WFS}"
 
   wms:
     image: geoservercloud/geoserver-cloud-wms:${TAG}
@@ -112,7 +112,7 @@ services:
       file: templates.yml
       service: gstemplate
     environment:
-      JAVA_OPTS: "${WMS_JAVA_OPTS}"
+      JAVA_OPTS: "${JAVA_OPTS_WMS}"
     deploy:
       resources:
         limits:
@@ -124,7 +124,7 @@ services:
       service: gstemplate
     image: geoservercloud/geoserver-cloud-wcs:${TAG}
     environment:
-      JAVA_OPTS: "${WCS_JAVA_OPTS}"
+      JAVA_OPTS: "${JAVA_OPTS_WCS}"
 
   wps:
     extends:
@@ -132,7 +132,7 @@ services:
       service: gstemplate
     image: geoservercloud/geoserver-cloud-wps:${TAG}
     environment:
-      JAVA_OPTS: "${WPS_JAVA_OPTS}"
+      JAVA_OPTS: "${JAVA_OPTS_WPS}"
 
   gwc:
     extends:
@@ -140,7 +140,7 @@ services:
       service: gstemplate
     image: geoservercloud/geoserver-cloud-gwc:${TAG}
     environment:
-      JAVA_OPTS: "${GWC_JAVA_OPTS}"
+      JAVA_OPTS: "${JAVA_OPTS_GWC}"
 
   rest:
     extends:
@@ -148,7 +148,7 @@ services:
       service: gstemplate
     image: geoservercloud/geoserver-cloud-rest:${TAG}
     environment:
-      JAVA_OPTS: "${REST_JAVA_OPTS}"
+      JAVA_OPTS: "${JAVA_OPTS_REST}"
 
   webui:
     extends:
@@ -156,5 +156,5 @@ services:
       service: gstemplate
     image: geoservercloud/geoserver-cloud-webui:${TAG}
     environment:
-      JAVA_OPTS: "${WEBUI_JAVA_OPTS}"
+      JAVA_OPTS: "${JAVA_OPTS_WEBUI}"
 
