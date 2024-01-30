@@ -2,15 +2,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.geoserver.cloud</groupId>
+    <groupId>org.geoserver.cloud.gwc</groupId>
     <artifactId>gwc-cloud</artifactId>
     <version>${revision}</version>
   </parent>
-  <artifactId>gwc-cloud-backends</artifactId>
+  <artifactId>gwc-cloud-blobstores</artifactId>
   <packaging>jar</packaging>
   <dependencies>
     <dependency>
-      <groupId>org.geoserver.cloud</groupId>
+      <groupId>org.geoserver.cloud.gwc</groupId>
       <artifactId>gwc-cloud-core</artifactId>
     </dependency>
     <dependency>
