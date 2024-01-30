@@ -125,7 +125,7 @@
       <artifactId>gs-wps-core</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.geoserver.cloud</groupId>
+      <groupId>org.geoserver.cloud.gwc</groupId>
       <artifactId>gwc-cloud-spring-boot-starter</artifactId>
     </dependency>
     <dependency>

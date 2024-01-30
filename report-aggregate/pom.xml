@@ -100,27 +100,27 @@
       <artifactId>gs-cloud-catalog-backend-pgsql</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.geoserver.cloud</groupId>
+      <groupId>org.geoserver.cloud.gwc</groupId>
       <artifactId>gwc-cloud-core</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gwc-cloud-backends</artifactId>
+      <groupId>org.geoserver.cloud.gwc</groupId>
+      <artifactId>gwc-cloud-blobstores</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.geoserver.cloud</groupId>
+      <groupId>org.geoserver.cloud.gwc</groupId>
       <artifactId>gwc-cloud-services</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.geoserver.cloud</groupId>
+      <groupId>org.geoserver.cloud.gwc</groupId>
       <artifactId>gwc-cloud-bus-integration</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.geoserver.cloud</groupId>
+      <groupId>org.geoserver.cloud.gwc</groupId>
       <artifactId>gwc-cloud-spring-boot-autoconfigure</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.geoserver.cloud</groupId>
+      <groupId>org.geoserver.cloud.gwc</groupId>
       <artifactId>gwc-cloud-spring-boot-starter</artifactId>
     </dependency>
   </dependencies>
