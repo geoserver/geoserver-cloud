@@ -13,8 +13,8 @@
   <modules>
     <module>common</module>
     <module>datadir</module>
+    <module>pgconfig</module>
     <module>jdbcconfig</module>
-    <module>pgsql</module>
   </modules>
   <dependencies>
     <dependency>
