@@ -74,11 +74,10 @@ public class PgsqlNamespaceRepository extends PgsqlCatalogInfoRepository<Namespa
 
     @Override
     public Stream<NamespaceInfo> findAllByURI(@NonNull String uri) {
-        return template.queryForStream(
+        return super.queryForStream(
                 """
                 SELECT namespace FROM namespaceinfos WHERE uri = ?
                 """,
-                newRowMapper(),
                 uri);
     }
 

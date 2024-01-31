@@ -20,6 +20,11 @@ import java.util.Optional;
 public class PgsqlWorkspaceRepository extends PgsqlCatalogInfoRepository<WorkspaceInfo>
         implements WorkspaceRepository {
 
+    private static final String UNSET_DEFAULT_WORKSPACE =
+            """
+	UPDATE workspaceinfo SET default_workspace = FALSE WHERE default_workspace = TRUE
+	""";
+
     /**
      * @param template
      */
@@ -39,10 +44,7 @@ public class PgsqlWorkspaceRepository extends PgsqlCatalogInfoRepository<Workspa
 
     @Override
     public void unsetDefaultWorkspace() {
-        template.update(
-                """
-                UPDATE workspaceinfo SET default_workspace = FALSE WHERE default_workspace = TRUE
-                """);
+        template.update(UNSET_DEFAULT_WORKSPACE);
     }
 
     /** TODO: handle transactions and perform unset/set atomically */

@@ -41,7 +41,6 @@ import org.geoserver.ows.util.OwsUtils;
 import java.rmi.server.UID;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
@@ -63,7 +62,7 @@ public class DefaultMemoryCatalogFacade extends RepositoryCatalogFacadeImpl
         setWorkspaceRepository(new WorkspaceInfoLookup());
         setStoreRepository(new StoreInfoLookup());
         setLayerRepository(new LayerInfoLookup());
-        setResourceRepository(new ResourceInfoLookup((LayerInfoLookup) layers));
+        setResourceRepository(new ResourceInfoLookup((LayerInfoLookup) getLayerRepository()));
         setLayerGroupRepository(new LayerGroupInfoLookup());
         setMapRepository(new MapInfoLookup());
         setStyleRepository(new StyleInfoLookup());
@@ -71,30 +70,14 @@ public class DefaultMemoryCatalogFacade extends RepositoryCatalogFacadeImpl
 
     @Override
     public void resolve() {
-        // JD creation checks are done here b/c when xstream depersists
-        // some members may be left null
-        workspaces = resolve(workspaces, WorkspaceInfoLookup::new);
-        namespaces = resolve(namespaces, NamespaceInfoLookup::new);
-        stores = resolve(stores, StoreInfoLookup::new);
-        styles = resolve(styles, StyleInfoLookup::new);
-        layers = resolve(layers, LayerInfoLookup::new);
-        resources = resolve(resources, () -> new ResourceInfoLookup((LayerInfoLookup) layers));
-        layerGroups = resolve(layerGroups, LayerGroupInfoLookup::new);
-        maps = resolve(maps, MapInfoLookup::new);
-
-        workspaces.findAll().forEach(this::resolve);
-        namespaces.findAll().forEach(this::resolve);
-        stores.findAll().forEach(this::resolve);
-        styles.findAll().forEach(this::resolve);
-        resources.findAll().forEach(this::resolve);
-        layers.findAll().forEach(this::resolve);
-        layerGroups.findAll().forEach(this::resolve);
-        maps.findAll().forEach(this::resolve);
-    }
-
-    private <I extends CatalogInfo, R extends CatalogInfoRepository<I>> R resolve(
-            R current, Supplier<R> factory) {
-        return current == null ? factory.get() : current;
+        getWorkspaceRepository().findAll().forEach(this::resolve);
+        getNamespaceRepository().findAll().forEach(this::resolve);
+        getStoreRepository().findAll().forEach(this::resolve);
+        getStyleRepository().findAll().forEach(this::resolve);
+        getResourceRepository().findAll().forEach(this::resolve);
+        getLayerRepository().findAll().forEach(this::resolve);
+        getLayerGroupRepository().findAll().forEach(this::resolve);
+        getMapRepository().findAll().forEach(this::resolve);
     }
 
     protected void resolve(LayerInfo layer) {

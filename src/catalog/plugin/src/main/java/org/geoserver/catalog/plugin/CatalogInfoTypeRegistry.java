@@ -58,6 +58,10 @@ public class CatalogInfoTypeRegistry<R> {
         return this;
     }
 
+    public List<R> getAll() {
+        return List.copyOf(mappings.values());
+    }
+
     @SuppressWarnings("unchecked")
     public <T extends CatalogInfo> CatalogInfoTypeRegistry<Consumer<T>> consume(
             Class<T> type, Consumer<T> with) {

@@ -36,21 +36,24 @@ public class PgsqlQueryBuilder {
         if (Filter.INCLUDE.equals(filter)) {
             return this;
         }
-        PgsqlCatalogFilterSplitter splitter =
-                PgsqlCatalogFilterSplitter.split(filter, supportedPropertyNames);
+        var splitter = PgsqlCatalogFilterSplitter.split(filter, supportedPropertyNames);
 
-        supportedFilter = splitter.getFilterPre();
-        unsupportedFilter = splitter.getFilterPost();
-
-        supportedFilter = ToPgsqlCompatibleFilterDuplicator.adapt(supportedFilter);
-        supportedFilter = SimplifyingFilterVisitor.simplify(supportedFilter);
-
-        unsupportedFilter = SimplifyingFilterVisitor.simplify(unsupportedFilter);
+        supportedFilter = adaptToSql(splitter.getFilterPre());
+        unsupportedFilter = simplify(splitter.getFilterPost());
 
         Result encodeResult = PgsqlFilterToSQL.evaluate(supportedFilter);
         whereClause = encodeResult.getWhereClause();
         literalValues = encodeResult.getLiteralValues();
         literalTypes = encodeResult.getLiteralTypes();
         return this;
+    }
+
+    private Filter adaptToSql(Filter filterPre) {
+        Filter supported = ToPgsqlCompatibleFilterDuplicator.adapt(filterPre);
+        return simplify(supported);
+    }
+
+    private Filter simplify(Filter filter) {
+        return SimplifyingFilterVisitor.simplify(filter);
     }
 }

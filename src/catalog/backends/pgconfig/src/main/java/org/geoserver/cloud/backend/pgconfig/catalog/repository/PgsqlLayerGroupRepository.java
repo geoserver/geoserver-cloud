@@ -46,7 +46,7 @@ public class PgsqlLayerGroupRepository extends PgsqlCatalogInfoRepository<LayerG
                 FROM layergroupinfos
                 WHERE "workspace.id" IS NULL AND name = ?
                 """;
-        return findOne(sql, LayerGroupInfo.class, newRowMapper(), name);
+        return findOne(sql, name);
     }
 
     @Override
@@ -59,7 +59,7 @@ public class PgsqlLayerGroupRepository extends PgsqlCatalogInfoRepository<LayerG
                 FROM layergroupinfos
                 WHERE "workspace.id" = ? AND name = ?
                 """;
-        return findOne(sql, LayerGroupInfo.class, newRowMapper(), workspace.getId(), name);
+        return findOne(sql, workspace.getId(), name);
     }
 
     @Override
@@ -70,7 +70,7 @@ public class PgsqlLayerGroupRepository extends PgsqlCatalogInfoRepository<LayerG
                 FROM layergroupinfos
                 WHERE "workspace.id" IS NULL
                 """;
-        return template.queryForStream(sql, newRowMapper());
+        return super.queryForStream(sql);
     }
 
     @Override
@@ -81,7 +81,7 @@ public class PgsqlLayerGroupRepository extends PgsqlCatalogInfoRepository<LayerG
                 FROM layergroupinfos
                 WHERE "workspace.id" = ?
                 """;
-        return template.queryForStream(sql, newRowMapper(), workspace.getId());
+        return super.queryForStream(sql, workspace.getId());
     }
 
     @Override

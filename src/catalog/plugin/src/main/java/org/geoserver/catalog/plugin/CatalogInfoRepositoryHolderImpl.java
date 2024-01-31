@@ -22,6 +22,8 @@ import org.geoserver.catalog.plugin.CatalogInfoRepository.StoreRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.StyleRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.WorkspaceRepository;
 
+import java.util.List;
+
 public class CatalogInfoRepositoryHolderImpl implements CatalogInfoRepositoryHolder {
 
     protected NamespaceRepository namespaces;
@@ -46,6 +48,10 @@ public class CatalogInfoRepositoryHolderImpl implements CatalogInfoRepositoryHol
     @Override
     public <T extends CatalogInfo, R extends CatalogInfoRepository<T>> R repositoryFor(T info) {
         return (R) repos.forObject(info);
+    }
+
+    public List<CatalogInfoRepository<? extends CatalogInfo>> all() {
+        return repos.getAll();
     }
 
     @Override
@@ -134,5 +140,20 @@ public class CatalogInfoRepositoryHolderImpl implements CatalogInfoRepositoryHol
     @Override
     public MapRepository getMapRepository() {
         return maps;
+    }
+
+    public void dispose() {
+        dispose(stores);
+        dispose(resources);
+        dispose(namespaces);
+        dispose(workspaces);
+        dispose(layers);
+        dispose(layerGroups);
+        dispose(maps);
+        dispose(styles);
+    }
+
+    private void dispose(CatalogInfoRepository<?> repository) {
+        if (repository != null) repository.dispose();
     }
 }

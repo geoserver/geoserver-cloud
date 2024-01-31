@@ -46,7 +46,7 @@ public class PgsqlStyleRepository extends PgsqlCatalogInfoRepository<StyleInfo>
                 FROM styleinfos
                 WHERE "workspace.id" IS NULL
                 """;
-        return template.queryForStream(query, newRowMapper());
+        return super.queryForStream(query);
     }
 
     @Override
@@ -57,7 +57,7 @@ public class PgsqlStyleRepository extends PgsqlCatalogInfoRepository<StyleInfo>
                 FROM styleinfos
                 WHERE "workspace.id" = ?
                 """;
-        return template.queryForStream(query, newRowMapper(), ws.getId());
+        return super.queryForStream(query, ws.getId());
     }
 
     @Override
@@ -68,7 +68,7 @@ public class PgsqlStyleRepository extends PgsqlCatalogInfoRepository<StyleInfo>
                 FROM styleinfos
                 WHERE "workspace.id" IS NULL AND name = ?
                 """;
-        return findOne(query, StyleInfo.class, newRowMapper(), name);
+        return findOne(query, name);
     }
 
     @Override
@@ -81,7 +81,7 @@ public class PgsqlStyleRepository extends PgsqlCatalogInfoRepository<StyleInfo>
                 FROM styleinfos
                 WHERE "workspace.id" = ? AND name = ?
                 """;
-        return findOne(query, StyleInfo.class, newRowMapper(), workspace.getId(), name);
+        return findOne(query, workspace.getId(), name);
     }
 
     @Override
