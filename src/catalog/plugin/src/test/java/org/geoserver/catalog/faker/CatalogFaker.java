@@ -135,12 +135,16 @@ public class CatalogFaker {
         return new CatalogFaker(catalog, geoserver, locale);
     }
 
-    private Catalog catalog() {
+    public Catalog catalog() {
         return catalog.get();
     }
 
     private CatalogFactory catalogFactory() {
         return catalog().getFactory();
+    }
+
+    public LayerGroupInfo layerGroupInfo(WorkspaceInfo workspace) {
+        return layerGroupInfo(id(), workspace, name(), null, null);
     }
 
     public LayerGroupInfo layerGroupInfo(
@@ -151,8 +155,8 @@ public class CatalogFaker {
         OwsUtils.set(lg, "id", id);
         lg.setName(name);
         lg.setWorkspace(workspace);
-        lg.getLayers().add(layer);
-        lg.getStyles().add(style);
+        if (layer != null) lg.getLayers().add(layer);
+        if (style != null) lg.getStyles().add(style);
         OwsUtils.resolveCollections(lg);
         return lg;
     }
@@ -281,12 +285,16 @@ public class CatalogFaker {
     }
 
     public FeatureTypeInfo featureTypeInfo(DataStoreInfo ds) {
+        String name = name();
+        return featureTypeInfo(ds, name);
+    }
+
+    public FeatureTypeInfo featureTypeInfo(DataStoreInfo ds, String name) {
         String prefix = ds.getWorkspace().getName();
         NamespaceInfo ns = catalog().getNamespaceByPrefix(prefix);
         Objects.requireNonNull(ns, "Namespace " + prefix + " does not exist");
 
-        String id = "FeatureType." + id();
-        String name = name();
+        String id = "FeatureType." + name + "." + id();
         String abstracT = faker().company().bs();
         String description = faker().company().buzzword();
         boolean enabled = true;

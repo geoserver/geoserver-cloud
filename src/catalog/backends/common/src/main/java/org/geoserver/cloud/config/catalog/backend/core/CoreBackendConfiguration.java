@@ -19,6 +19,7 @@ import org.geoserver.config.util.XStreamPersisterFactory;
 import org.geoserver.platform.GeoServerEnvironment;
 import org.geoserver.platform.GeoServerExtensions;
 import org.geoserver.platform.GeoServerResourceLoader;
+import org.geoserver.platform.resource.ResourceStoreFactory;
 import org.geoserver.security.SecureCatalogImpl;
 import org.geoserver.security.impl.DataAccessRuleDAO;
 import org.geoserver.security.impl.DefaultResourceAccessManager;
@@ -180,5 +181,10 @@ public class CoreBackendConfiguration {
     @Bean
     GeoServerDataDirectory dataDirectory(GeoServerResourceLoader resourceLoader) {
         return new GeoServerDataDirectory(resourceLoader);
+    }
+
+    @Bean
+    ResourceStoreFactory resourceStore() {
+        return new ResourceStoreFactory();
     }
 }
