@@ -22,6 +22,7 @@ import org.geoserver.cloud.backend.pgconfig.catalog.repository.PgsqlStyleReposit
 import org.geoserver.cloud.backend.pgconfig.catalog.repository.PgsqlWorkspaceRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
 /**
@@ -56,14 +57,18 @@ public class PgsqlCatalogFacade extends RepositoryCatalogFacadeImpl {
 
     @SuppressWarnings("unchecked")
     private void setOutboundResolver() {
-        UnaryOperator<CatalogInfo> resolvingFunction =
-                CatalogPropertyResolver.<CatalogInfo>of(this::getCatalog)
-                                .andThen(ResolvingProxyResolver.<CatalogInfo>of(catalog))
-                                .andThen(CollectionPropertiesInitializer.instance())
-                        ::apply;
+        UnaryOperator<CatalogInfo> resolvingFunction = resolvingFunction(this::getCatalog);
 
         super.repositories.all().stream()
                 .map(PgsqlCatalogInfoRepository.class::cast)
                 .forEach(repo -> repo.setOutboundResolver(resolvingFunction));
+    }
+
+    public static <T extends CatalogInfo> UnaryOperator<T> resolvingFunction(
+            Supplier<Catalog> catalog) {
+        return CatalogPropertyResolver.<T>of(catalog)
+                        .andThen(ResolvingProxyResolver.<T>of(catalog))
+                        .andThen(CollectionPropertiesInitializer.instance())
+                ::apply;
     }
 }

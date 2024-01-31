@@ -6,13 +6,13 @@ package org.geoserver.catalog.plugin.resolving;
 
 import lombok.experimental.UtilityClass;
 
-import org.geoserver.catalog.CatalogInfo;
+import org.geoserver.catalog.Info;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.impl.ProxyUtils;
 import org.geoserver.catalog.plugin.forwarding.ResolvingCatalogFacadeDecorator;
 
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 /**
  * {@link ResolvingCatalogFacadeDecorator#setObjectResolver resolving function} that returns the
@@ -23,15 +23,16 @@ import java.util.function.Function;
 @UtilityClass
 public class ModificationProxyDecorator {
 
-    public static Function<CatalogInfo, CatalogInfo> wrap() {
+    public static <T> UnaryOperator<T> wrap() {
         return ModificationProxyDecorator::wrap;
     }
 
-    public static Function<CatalogInfo, CatalogInfo> unwrap() {
+    public static <T> UnaryOperator<T> unwrap() {
         return ModificationProxyDecorator::unwrap;
     }
 
-    public static CatalogInfo wrap(CatalogInfo info) {
+    @SuppressWarnings("unchecked")
+    public static <T> T wrap(T info) {
         if (info != null && null == ProxyUtils.handler(info, ModificationProxy.class)) {
             ClassMappings mappings = ClassMappings.fromImpl(info.getClass());
             if (mappings == null) {
@@ -39,15 +40,13 @@ public class ModificationProxyDecorator {
                         "Can't determine CatalogInfo subtype, make sure the provided object is not a proxy: %s"
                                 .formatted(info));
             }
-            @SuppressWarnings("unchecked")
-            Class<? extends CatalogInfo> type =
-                    (Class<? extends CatalogInfo>) mappings.getInterface();
-            info = ModificationProxy.create(info, type);
+            Class<? extends Info> type = mappings.getInterface();
+            info = (T) ModificationProxy.create(info, type);
         }
         return info;
     }
 
-    public static CatalogInfo unwrap(CatalogInfo i) {
+    public static <T> T unwrap(T i) {
         return i == null ? null : ModificationProxy.unwrap(i);
     }
 }

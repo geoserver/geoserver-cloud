@@ -4,6 +4,7 @@
  */
 package org.geoserver.cloud.config.catalog.events;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -16,7 +17,6 @@ import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.CatalogTestData;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.event.CatalogListener;
-import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.Patch.Property;
@@ -312,6 +312,7 @@ class CatalogApplicationEventsConfigurationTest {
     void testConfigRemoveEvents() {
         listener.stop();
         ServiceInfo service = new WMSInfoImpl();
+        service.setName("WMS");
         geoserver.add(service);
         listener.start();
 
@@ -337,31 +338,17 @@ class CatalogApplicationEventsConfigurationTest {
         if (null == ModificationProxy.handler(info))
             throw new IllegalArgumentException("Expected a ModificationProxy");
 
-        Class<T> type;
-        ClassMappings classMappings =
-                ClassMappings.fromImpl(ModificationProxy.unwrap(info).getClass());
-        if (classMappings != null) {
-            type = (Class<T>) classMappings.getInterface();
-        } else if (info instanceof GeoServerInfo) {
-            type = (Class<T>) GeoServerInfo.class;
-        } else if (info instanceof SettingsInfo) {
-            type = (Class<T>) SettingsInfo.class;
-        } else if (info instanceof LoggingInfo) {
-            type = (Class<T>) LoggingInfo.class;
-        } else {
-            throw new IllegalArgumentException("Unknown Info type: " + info);
-        }
+        Class<T> type = (Class<T>) ConfigInfoType.valueOf(info).getType();
+
         // apply the changes to a new proxy to build the expected PropertyDiff
         T proxy = ModificationProxy.create(ModificationProxy.unwrap(info), type);
         modifier.accept(proxy);
 
         ModificationProxy h = ModificationProxy.handler(proxy);
-        List<String> propertyNames = h.getPropertyNames();
-        List<Object> newValues = h.getNewValues();
-        List<Object> oldValues = h.getOldValues();
-        assertFalse(propertyNames.isEmpty(), "Test should change at least one property");
-
-        Patch expected = PropertyDiff.valueOf(propertyNames, oldValues, newValues).toPatch();
+        List<String> propertyNames = List.copyOf(h.getPropertyNames());
+        List<Object> newValues = List.copyOf(h.getNewValues());
+        List<Object> oldValues = List.copyOf(h.getOldValues());
+        assertThat(propertyNames).as("Test should change at least one property").isNotEmpty();
 
         listener.clear();
         listener.start();
@@ -369,9 +356,10 @@ class CatalogApplicationEventsConfigurationTest {
         modifier.accept(info);
         saver.accept(info);
 
+        Patch expected = PropertyDiff.valueOf(propertyNames, oldValues, newValues).toPatch();
         InfoModified post = listener.expectOne(postEventType);
-        assertEquals(proxy.getId(), post.getObjectId());
-        assertEquals(expected, post.getPatch());
+        assertThat(post.getObjectId()).isEqualTo(InfoEvent.resolveId(info));
+        assertThat(post.getPatch()).isEqualTo(expected);
     }
 
     private void testModify(

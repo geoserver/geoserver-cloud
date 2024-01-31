@@ -23,7 +23,10 @@ public abstract class InfoRemoved extends InfoEvent {
     protected InfoRemoved() {}
 
     protected InfoRemoved(
-            long updateSequence, @NonNull String objectId, @NonNull ConfigInfoType type) {
-        super(updateSequence, objectId, type);
+            long updateSequence,
+            @NonNull String objectId,
+            @NonNull String prefixedName,
+            @NonNull ConfigInfoType type) {
+        super(updateSequence, objectId, prefixedName, type);
     }
 }

@@ -59,7 +59,7 @@ public class CloudCatalogConfiguration extends CatalogConfiguration {
     @EventListener(TileLayerEvent.class)
     public void onTileLayerEvent(TileLayerEvent event) {
         log.debug("evicting GeoServerTileLayer cache entry upon {}", event);
-        spiedLayerCache.invalidate(event.getLayerId());
+        spiedLayerCache.invalidate(event.getPublishedId());
     }
 
     @Override

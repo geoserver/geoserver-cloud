@@ -19,6 +19,9 @@ import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.MapInfo;
 import org.geoserver.catalog.NamespaceInfo;
+import org.geoserver.catalog.PublishedInfo;
+import org.geoserver.catalog.ResourceInfo;
+import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WMSLayerInfo;
 import org.geoserver.catalog.WMSStoreInfo;
@@ -50,7 +53,12 @@ public enum ConfigInfoType {
     GEOSERVER(GeoServerInfo.class), //
     SERVICE(ServiceInfo.class), //
     SETTINGS(SettingsInfo.class), //
-    LOGGING(LoggingInfo.class); //
+    LOGGING(LoggingInfo.class), //
+    // These abstract types are declared the latest for valueOf(Info) to resolve to the most
+    // concrete one during traversal of #values()
+    STORE(StoreInfo.class), //
+    RESOURCE(ResourceInfo.class), //
+    PUBLISHED(PublishedInfo.class);
 
     private final @Getter @NonNull Class<? extends Info> type;
 
@@ -58,15 +66,7 @@ public enum ConfigInfoType {
         return object != null && getType().isInstance(object);
     }
 
-    public static boolean isPersistable(@NonNull Info info) {
-        for (ConfigInfoType enumVal : ConfigInfoType.values()) {
-            if (enumVal.isInstance(info)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
+    @NonNull
     public static ConfigInfoType valueOf(@NonNull Info object) {
         for (ConfigInfoType enumVal : ConfigInfoType.values()) {
             if (enumVal.isInstance(object)) {
@@ -78,6 +78,25 @@ public enum ConfigInfoType {
 
     public boolean isA(Class<? extends Info> type) {
         return type.isAssignableFrom(getType());
+    }
+
+    @NonNull
+    public static ConfigInfoType valueOf(@NonNull Class<? extends Info> clazz) {
+        for (ConfigInfoType enumVal : ConfigInfoType.values()) {
+            if (enumVal.getType().equals(clazz)) {
+                return enumVal;
+            }
+        }
+        throw new IllegalArgumentException("Unknown info type for class " + clazz);
+    }
+
+    public static boolean isPersistable(@NonNull Info info) {
+        for (ConfigInfoType enumVal : ConfigInfoType.values()) {
+            if (enumVal.isInstance(info)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @SuppressWarnings("unchecked")

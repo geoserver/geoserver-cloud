@@ -12,6 +12,7 @@
   <name>GeoWebCache Cloud</name>
   <modules>
     <module>core</module>
+    <module>backends</module>
     <module>blobstores</module>
     <module>services</module>
     <module>integration-bus</module>

@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.Getter;
 import lombok.NonNull;
 
-import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.config.SettingsInfo;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
@@ -25,17 +24,16 @@ public class SettingsRemoved extends ConfigInfoRemoved {
     }
 
     protected SettingsRemoved(
-            long updateSequence, @NonNull String objectId, @NonNull String workspaceId) {
+            long updateSequence, @NonNull SettingsInfo info, @NonNull String workspaceId) {
 
-        super(updateSequence, objectId, ConfigInfoType.SETTINGS);
+        super(updateSequence, resolveId(info), prefixedName(info), typeOf(info));
         this.workspaceId = workspaceId;
     }
 
     public static SettingsRemoved createLocal(long updateSequence, @NonNull SettingsInfo settings) {
 
-        final @NonNull String settingsId = settings.getId();
         final @NonNull String workspaceId = settings.getWorkspace().getId();
 
-        return new SettingsRemoved(updateSequence, settingsId, workspaceId);
+        return new SettingsRemoved(updateSequence, settings, workspaceId);
     }
 }

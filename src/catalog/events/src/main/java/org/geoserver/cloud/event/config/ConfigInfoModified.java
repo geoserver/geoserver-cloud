@@ -35,9 +35,10 @@ public abstract class ConfigInfoModified extends InfoModified implements ConfigI
     protected ConfigInfoModified(
             long updateSequence,
             @NonNull String objectId,
+            @NonNull String prefixedName,
             @NonNull ConfigInfoType objectType,
             @NonNull Patch patch) {
-        super(updateSequence, objectId, objectType, patch);
+        super(updateSequence, objectId, prefixedName, objectType, patch);
     }
 
     public static @NonNull ConfigInfoModified createLocal(

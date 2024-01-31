@@ -9,7 +9,7 @@
         <appender-ref ref="STDOUT"/>
     </root>
 
-    <logger name="org.springframework.test" level="WARN"/>
+    <logger name="org.springframework.test" level="DEBUG"/>
     <logger name="org.springframework.boot.test" level="WARN"/>
     <logger name="org.geoserver.cloud.catalog.locking" level="INFO"/>
     <logger name="org.geoserver.catalog.impl" level="OFF"/>

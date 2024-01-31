@@ -222,6 +222,7 @@ class ConfigRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
     @Test
     void testConfigRemoveEvent_ServiceInfo() {
         ServiceInfo service = new WMSInfoImpl();
+        service.setName("MyWMS");
         geoserver.add(service);
 
         eventsCaptor.clear().start();

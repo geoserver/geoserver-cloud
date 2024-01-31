@@ -9,20 +9,20 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.Setter;
 
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoEvent;
 import org.springframework.core.style.ToStringCreator;
+import org.springframework.lang.Nullable;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("DefaultWorkspaceSet")
 @SuppressWarnings("serial")
 public class DefaultWorkspaceSet extends CatalogInfoModified {
 
-    private @Getter @Setter String newWorkspaceId;
+    private @Getter @Nullable String newWorkspaceId;
 
     /** default constructor, needed for deserialization */
     protected DefaultWorkspaceSet() {
@@ -30,7 +30,13 @@ public class DefaultWorkspaceSet extends CatalogInfoModified {
     }
 
     DefaultWorkspaceSet(long updateSequence, String newWorkspaceId, @NonNull Patch patch) {
-        super(updateSequence, InfoEvent.CATALOG_ID, ConfigInfoType.CATALOG, patch);
+        super(
+                updateSequence,
+                InfoEvent.CATALOG_ID,
+                InfoEvent.CATALOG_ID, // the object changed is the catalog itself
+                InfoEvent.CATALOG_ID, // the object changed is the catalog itself
+                ConfigInfoType.CATALOG,
+                patch);
         this.newWorkspaceId = newWorkspaceId;
     }
 
@@ -41,7 +47,7 @@ public class DefaultWorkspaceSet extends CatalogInfoModified {
     public static DefaultWorkspaceSet createLocal(
             long updateSequence, WorkspaceInfo defaultWorkspace) {
 
-        String workspaceId = resolveId(defaultWorkspace);
+        String workspaceId = resolveNullableId(defaultWorkspace);
         Patch patch = new Patch();
         patch.add("defaultWorkspace", defaultWorkspace);
         return new DefaultWorkspaceSet(updateSequence, workspaceId, patch);

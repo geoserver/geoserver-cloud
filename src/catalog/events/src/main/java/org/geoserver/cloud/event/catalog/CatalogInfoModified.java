@@ -7,7 +7,9 @@ package org.geoserver.cloud.event.catalog;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.google.common.annotations.VisibleForTesting;
 
+import lombok.Getter;
 import lombok.NonNull;
 
 import org.geoserver.catalog.Catalog;
@@ -15,12 +17,15 @@ import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.event.CatalogPostModifyEvent;
+import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.Patch.Property;
 import org.geoserver.catalog.plugin.PropertyDiff;
+import org.geoserver.catalog.plugin.PropertyDiff.Change;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoModified;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
@@ -33,14 +38,22 @@ import java.util.Optional;
 @SuppressWarnings("serial")
 public class CatalogInfoModified extends InfoModified {
 
-    protected CatalogInfoModified() {}
+    private @NonNull @Getter String oldName;
+
+    @SuppressWarnings("java:S2637")
+    protected CatalogInfoModified() {
+        // no-op default constructor for deserialization
+    }
 
     protected CatalogInfoModified(
             long updateSequence,
             @NonNull String objectId,
+            @NonNull String prefixedName,
+            @NonNull String oldName,
             @NonNull ConfigInfoType objectType,
             @NonNull Patch patch) {
-        super(updateSequence, objectId, objectType, patch);
+        super(updateSequence, objectId, prefixedName, objectType, patch);
+        this.oldName = oldName;
     }
 
     @Override
@@ -49,10 +62,17 @@ public class CatalogInfoModified extends InfoModified {
         return super.remote();
     }
 
+    @VisibleForTesting
     public static CatalogInfoModified createLocal(
-            long updateSequence, @NonNull CatalogInfo info, @NonNull Patch patch) {
+            long updateSequence, @NonNull CatalogInfo modProxy) {
 
-        if (info instanceof Catalog) {
+        ModificationProxy proxy =
+                Objects.requireNonNull(
+                        ModificationProxy.handler(modProxy), "Argument is not a ModificationProxy");
+        PropertyDiff diff = PropertyDiff.valueOf(proxy);
+        Patch patch = diff.toPatch();
+
+        if (modProxy instanceof Catalog) {
             if (patch.get("defaultWorkspace").isPresent()) {
                 throw new IllegalArgumentException("Use DefaultWorkspaceEvent.createLocal()");
             }
@@ -66,20 +86,24 @@ public class CatalogInfoModified extends InfoModified {
                             .formatted(patch));
         }
 
-        return new CatalogInfoModified(updateSequence, resolveId(info), typeOf(info), patch);
+        String id = resolveId(modProxy);
+        @NonNull String prefixedName = prefixedName(modProxy);
+        @NonNull ConfigInfoType type = typeOf(modProxy);
+        @NonNull String oldName = oldName(diff, type, prefixedName);
+        return new CatalogInfoModified(updateSequence, id, prefixedName, oldName, type, patch);
     }
 
     public static CatalogInfoModified createLocal(
             long updateSequence, @NonNull CatalogPostModifyEvent event) {
 
         final CatalogInfo info = event.getSource();
-        final Patch patch =
+        PropertyDiff diff =
                 PropertyDiff.valueOf(
                                 event.getPropertyNames(),
                                 event.getOldValues(),
                                 event.getNewValues())
-                        .clean()
-                        .toPatch();
+                        .clean();
+        final Patch patch = diff.toPatch();
 
         if (!patch.isEmpty() && info instanceof Catalog) {
             Optional<Property> defaultWorkspace = patch.get("defaultWorkspace");
@@ -100,6 +124,20 @@ public class CatalogInfoModified extends InfoModified {
                             .formatted(patch));
         }
 
-        return new CatalogInfoModified(updateSequence, resolveId(info), typeOf(info), patch);
+        String id = resolveId(info);
+        @NonNull String prefixedName = prefixedName(info);
+        @NonNull ConfigInfoType type = typeOf(info);
+        @NonNull String oldName = oldName(diff, type, prefixedName);
+        return new CatalogInfoModified(updateSequence, id, prefixedName, oldName, type, patch);
+    }
+
+    private static @NonNull String oldName(
+            PropertyDiff diff, @NonNull ConfigInfoType type, @NonNull String defaultValue) {
+
+        Optional<Change> change = diff.get("name");
+        if (change.isEmpty() && type == ConfigInfoType.NAMESPACE) {
+            change = diff.get("prefix");
+        }
+        return change.map(Change::getOldValue).map(String.class::cast).orElse(defaultValue);
     }
 }

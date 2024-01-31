@@ -17,5 +17,6 @@
     <logger name="org.geoserver.cloud.config.catalog.backend.pgsql" level="WARN"/>
     <logger name="org.geoserver.cloud.backend.pgsql.gwc.repository" level="INFO"/>
     <logger name="org.geoserver.catalog.impl" level="OFF"/>
+    <logger name="org.geoserver.cloud.backend.pgconfig.catalog.repository" level="INFO"/>
     
 </configuration>

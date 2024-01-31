@@ -444,6 +444,7 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
 
     void validate(ServiceInfo service) {
         CatalogImpl.validateKeywords(service.getKeywords());
+        Objects.requireNonNull(service.getName(), "service name can't be null");
     }
 
     @Override

@@ -4,6 +4,7 @@
  */
 package org.geoserver.cloud.autoconfigure.gwc.core;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -16,6 +17,8 @@ import org.geoserver.cloud.autoconfigure.gwc.GeoWebCacheContextRunner;
 import org.geoserver.cloud.gwc.repository.CloudDefaultStorageFinder;
 import org.geoserver.cloud.gwc.repository.CloudGwcXmlConfiguration;
 import org.geoserver.cloud.gwc.repository.CloudXMLResourceProvider;
+import org.geoserver.gwc.config.GwcGeoserverConfigurationInitializer;
+import org.geoserver.platform.GeoServerExtensionsHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -31,14 +34,14 @@ import java.io.IOException;
  */
 class GwcCoreAutoConfigurationTest {
 
-    @TempDir File tmpDir;
     WebApplicationContextRunner runner;
 
     /**
      * @throws java.lang.Exception
      */
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp(@TempDir File tmpDir) throws Exception {
+        GeoServerExtensionsHelper.clear();
         runner = GeoWebCacheContextRunner.newMinimalGeoWebCacheContextRunner(tmpDir);
     }
 
@@ -55,7 +58,7 @@ class GwcCoreAutoConfigurationTest {
     }
 
     @Test
-    void defaultCacheDirectoryIsAFile() throws IOException {
+    void defaultCacheDirectoryIsAFile(@TempDir File tmpDir) throws IOException {
         File file = new File(tmpDir, "file");
         assertTrue(file.createNewFile());
         runner = runner.withPropertyValues("gwc.cache-directory=" + file.getAbsolutePath());
@@ -66,22 +69,37 @@ class GwcCoreAutoConfigurationTest {
     void contextLoads() throws IOException {
         runner.run(
                 context -> {
-                    assertTrue(context.isTypeMatch("gwcXmlConfig", CloudGwcXmlConfiguration.class));
-                    assertTrue(
-                            context.isTypeMatch(
-                                    "gwcXmlConfigResourceProvider",
-                                    CloudXMLResourceProvider.class));
-                    assertTrue(
-                            context.isTypeMatch(
-                                    "gwcDefaultStorageFinder", CloudDefaultStorageFinder.class));
+                    GeoServerExtensionsHelper.init(context);
+                    assertThat(context)
+                            .hasNotFailed()
+                            .hasBean("gwcGeoserverConfigurationInitializer")
+                            .getBean(
+                                    "gwcGeoserverConfigurationInitializer",
+                                    GwcGeoserverConfigurationInitializer.class)
+                            .isInstanceOf(GwcGeoserverConfigurationInitializer.class);
+                    ;
+
+                    assertThat(context.isTypeMatch("gwcXmlConfig", CloudGwcXmlConfiguration.class))
+                            .isTrue();
+                    assertThat(
+                                    context.isTypeMatch(
+                                            "gwcXmlConfigResourceProvider",
+                                            CloudXMLResourceProvider.class))
+                            .isTrue();
+                    assertThat(
+                                    context.isTypeMatch(
+                                            "gwcDefaultStorageFinder",
+                                            CloudDefaultStorageFinder.class))
+                            .isTrue();
                 });
     }
 
     protected void assertContextLoadFails(
             Class<? extends Exception> expectedException, String expectedMessage) {
         runner.run(
-                c -> {
-                    Throwable startupFailure = c.getStartupFailure();
+                context -> {
+                    GeoServerExtensionsHelper.init(context);
+                    Throwable startupFailure = context.getStartupFailure();
                     assertNotNull(startupFailure);
                     Throwable root = Throwables.getRootCause(startupFailure);
                     if (!expectedException.isInstance(root)) root.printStackTrace();

@@ -1,11 +1,23 @@
 package org.geoserver.cloud.catalog.cache;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
+import static org.geoserver.cloud.catalog.cache.CachingGeoServerFacade.CACHE_NAME;
+import static org.geoserver.cloud.catalog.cache.CachingGeoServerFacade.GEOSERVERINFO_KEY;
+import static org.geoserver.cloud.catalog.cache.CachingGeoServerFacade.LOGGINGINFO_KEY;
+import static org.geoserver.cloud.event.info.ConfigInfoType.GEOSERVER;
+import static org.geoserver.cloud.event.info.ConfigInfoType.LOGGING;
+import static org.geoserver.cloud.event.info.ConfigInfoType.NAMESPACE;
+import static org.geoserver.cloud.event.info.ConfigInfoType.SERVICE;
+import static org.geoserver.cloud.event.info.ConfigInfoType.SETTINGS;
+import static org.geoserver.cloud.event.info.ConfigInfoType.WORKSPACE;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -16,6 +28,21 @@ import org.geoserver.catalog.impl.ResolvingProxy;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.cloud.autoconfigure.catalog.event.LocalCatalogEventsAutoConfiguration;
+import org.geoserver.cloud.event.UpdateSequenceEvent;
+import org.geoserver.cloud.event.catalog.CatalogInfoAdded;
+import org.geoserver.cloud.event.catalog.CatalogInfoModified;
+import org.geoserver.cloud.event.catalog.CatalogInfoRemoved;
+import org.geoserver.cloud.event.config.GeoServerInfoModified;
+import org.geoserver.cloud.event.config.GeoServerInfoSet;
+import org.geoserver.cloud.event.config.LoggingInfoModified;
+import org.geoserver.cloud.event.config.LoggingInfoSet;
+import org.geoserver.cloud.event.config.ServiceModified;
+import org.geoserver.cloud.event.config.ServiceRemoved;
+import org.geoserver.cloud.event.config.SettingsModified;
+import org.geoserver.cloud.event.config.SettingsRemoved;
+import org.geoserver.cloud.event.info.ConfigInfoType;
+import org.geoserver.cloud.event.info.InfoEvent;
+import org.geoserver.cloud.event.security.SecurityConfigChanged;
 import org.geoserver.config.GeoServerFacade;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.LoggingInfo;
@@ -23,6 +50,7 @@ import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
 import org.geoserver.config.plugin.GeoServerImpl;
 import org.geoserver.platform.config.UpdateSequence;
+import org.geoserver.wms.WMSInfo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -34,6 +62,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -114,8 +143,226 @@ class CachingGeoServerFacadeTest {
                 .thenReturn(wsService2);
 
         when(mock.getSettings(ws)).thenReturn(settings);
-        this.cache = cacheManager.getCache(CachingGeoServerFacade.CACHE_NAME);
+        this.cache = cacheManager.getCache(CACHE_NAME);
         this.cache.clear();
+    }
+
+    @Test
+    void onUpdateSequenceEvent() {
+        testUpdateSequenceEvent(UpdateSequenceEvent.class);
+        testUpdateSequenceEvent(SecurityConfigChanged.class);
+        testUpdateSequenceEvent(CatalogInfoAdded.class);
+        testUpdateSequenceEvent(CatalogInfoRemoved.class);
+        testUpdateSequenceEvent(CatalogInfoModified.class);
+
+        testUpdateSequenceEvent(ServiceModified.class);
+        testUpdateSequenceEvent(ServiceRemoved.class);
+        testUpdateSequenceEvent(SettingsRemoved.class);
+
+        testUpdateSequenceEvent(SettingsModified.class);
+        testUpdateSequenceEvent(SettingsRemoved.class);
+        testUpdateSequenceEvent(SettingsRemoved.class);
+    }
+
+    public <E extends UpdateSequenceEvent> void testUpdateSequenceEvent(Class<E> eventType) {
+        E event = mock(eventType);
+        when(event.getUpdateSequence()).thenReturn(1000L);
+        when(this.global.getUpdateSequence()).thenReturn(999L);
+
+        assertSameTimesN(global, caching::getGlobal, 3);
+        assertThat(cache.get(GEOSERVERINFO_KEY)).isNotNull();
+
+        caching.onUpdateSequenceEvent(event);
+        assertThat(cache.get(GEOSERVERINFO_KEY)).isNull();
+    }
+
+    @Test
+    void onGeoServerInfoModifyEvent() {
+        caching.getGlobal();
+        assertThat(cache.get(GEOSERVERINFO_KEY)).isNotNull();
+
+        GeoServerInfoModified event = event(GeoServerInfoModified.class, "global", GEOSERVER);
+        caching.onGeoServerInfoModifyEvent(event);
+        assertThat(cache.get(GEOSERVERINFO_KEY)).isNull();
+    }
+
+    @Test
+    void onGeoServerInfoSetEvent() {
+        caching.getGlobal();
+        assertThat(cache.get(GEOSERVERINFO_KEY)).isNotNull();
+
+        GeoServerInfoSet event = event(GeoServerInfoSet.class, "global", GEOSERVER);
+        caching.onGeoServerInfoSetEvent(event);
+        assertThat(cache.get(GEOSERVERINFO_KEY)).isNull();
+    }
+
+    @Test
+    void onLoggingInfoModifyEvent() {
+        caching.getLogging();
+        assertThat(cache.get(LOGGINGINFO_KEY)).isNotNull();
+
+        LoggingInfoModified event = event(LoggingInfoModified.class, "logging", LOGGING);
+        caching.onLoggingInfoModifyEvent(event);
+        assertThat(cache.get(LOGGINGINFO_KEY)).isNull();
+    }
+
+    @Test
+    void onLoggingInfoSetEvent() {
+        caching.getLogging();
+        assertThat(cache.get(LOGGINGINFO_KEY)).isNotNull();
+
+        LoggingInfoSet event = event(LoggingInfoSet.class, "logging", LOGGING);
+        caching.onLoggingInfoSetEvent(event);
+        assertThat(cache.get(LOGGINGINFO_KEY)).isNull();
+    }
+
+    @Test
+    void onSettingsInfoModifyEvent() {
+        caching.getSettings(ws);
+        final Object idKey = settings.getId();
+        final Object wsKey = CachingGeoServerFacade.settingsKey(ws);
+        assertThat(cache.get(idKey)).isNotNull();
+        assertThat(cache.get(wsKey)).isNotNull();
+
+        SettingsModified event = event(SettingsModified.class, settings.getId(), SETTINGS);
+        final String wsid = ws.getId();
+        when(event.getWorkspaceId()).thenReturn(wsid);
+
+        caching.onSettingsInfoModifyEvent(event);
+        assertThat(cache.get(idKey)).isNull();
+        assertThat(cache.get(wsKey)).isNull();
+    }
+
+    @Test
+    void onSettingsInfoRemoveEvent() {
+        caching.getSettings(ws);
+        final Object idKey = settings.getId();
+        final Object wsKey = CachingGeoServerFacade.settingsKey(ws);
+        assertThat(cache.get(idKey)).isNotNull();
+        assertThat(cache.get(wsKey)).isNotNull();
+
+        SettingsRemoved event = event(SettingsRemoved.class, settings.getId(), SETTINGS);
+        final String wsid = ws.getId();
+        when(event.getWorkspaceId()).thenReturn(wsid);
+
+        caching.onSettingsInfoRemoveEvent(event);
+        assertThat(cache.get(idKey)).isNull();
+        assertThat(cache.get(wsKey)).isNull();
+    }
+
+    @Test
+    void onServiceInfoModifyEvent() {
+        TestService1 service = wsService1;
+        WorkspaceInfo ws = service.getWorkspace();
+        when(mock.getService(ws, ServiceInfo.class)).thenReturn(service);
+        when(mock.getService(ws, TestService1.class)).thenReturn(service);
+
+        ServiceInfoKey idKey = ServiceInfoKey.byId(service.getId());
+        ServiceInfoKey nameKey = ServiceInfoKey.byName(service.getWorkspace(), service.getName());
+        ServiceInfoKey typeKey = ServiceInfoKey.byType(service.getWorkspace(), service.getClass());
+
+        final ServiceModified event = event(ServiceModified.class, service.getId(), SERVICE);
+
+        // query as ServiceInfo.class
+        caching.getService(ws, ServiceInfo.class);
+        assertThat(cache.get(idKey)).isNotNull();
+        assertThat(cache.get(nameKey)).isNotNull();
+        assertThat(cache.get(typeKey)).isNotNull();
+
+        caching.onServiceInfoModifyEvent(event);
+
+        assertThat(cache.get(idKey)).isNull();
+        assertThat(cache.get(nameKey)).isNull();
+        assertThat(cache.get(typeKey)).isNull();
+
+        // query as TestService1.class
+        caching.getService(ws, TestService1.class);
+        assertThat(cache.get(idKey)).isNotNull();
+        assertThat(cache.get(nameKey)).isNotNull();
+        assertThat(cache.get(typeKey)).isNotNull();
+
+        caching.onServiceInfoModifyEvent(event);
+
+        assertThat(cache.get(idKey)).isNull();
+        assertThat(cache.get(nameKey)).isNull();
+        assertThat(cache.get(typeKey)).isNull();
+
+        // query as WMSInfo.class
+        caching.getService(ws, WMSInfo.class);
+        assertThat(cache.get(idKey)).isNull();
+        assertThat(cache.get(nameKey)).isNull();
+        assertThat(cache.get(typeKey)).isNull();
+    }
+
+    @Test
+    void onServiceInfoRemoveEvent() {
+        TestService1 service = wsService1;
+        WorkspaceInfo ws = service.getWorkspace();
+        when(mock.getService(ws, ServiceInfo.class)).thenReturn(service);
+        when(mock.getService(ws, TestService1.class)).thenReturn(service);
+
+        ServiceInfoKey idKey = ServiceInfoKey.byId(service.getId());
+        ServiceInfoKey nameKey = ServiceInfoKey.byName(service.getWorkspace(), service.getName());
+        ServiceInfoKey typeKey = ServiceInfoKey.byType(service.getWorkspace(), service.getClass());
+
+        final ServiceRemoved event = event(ServiceRemoved.class, service.getId(), SERVICE);
+
+        caching.getService(ws, ServiceInfo.class);
+        assertThat(cache.get(idKey)).isNotNull();
+        assertThat(cache.get(nameKey)).isNotNull();
+        assertThat(cache.get(typeKey)).isNotNull();
+
+        caching.onServiceInfoRemoveEvent(event);
+
+        assertThat(cache.get(idKey)).isNull();
+        assertThat(cache.get(nameKey)).isNull();
+        assertThat(cache.get(typeKey)).isNull();
+    }
+
+    @Test
+    void onWorkspaceRemoved() {
+        TestService1 service = wsService1;
+        WorkspaceInfo ws = service.getWorkspace();
+        when(mock.getService(ws, ServiceInfo.class)).thenReturn(service);
+
+        caching.getGlobal();
+        caching.getLogging();
+        caching.getSettings(ws);
+        caching.getService(ws, ServiceInfo.class);
+
+        com.github.benmanes.caffeine.cache.Cache<?, ?> nativeCache =
+                (com.github.benmanes.caffeine.cache.Cache<?, ?>) cache.getNativeCache();
+
+        long initialSize = nativeCache.estimatedSize();
+        assertThat(initialSize).isGreaterThan(3);
+
+        // not a workspace removed event, shall not
+        CatalogInfoRemoved event = event(CatalogInfoRemoved.class, "fakeid", NAMESPACE);
+        caching.onWorkspaceRemoved(event);
+
+        await().during(Duration.ofMillis(500))
+                .then()
+                .untilAsserted(
+                        () ->
+                                assertThat(nativeCache.estimatedSize())
+                                        .isGreaterThanOrEqualTo(initialSize));
+
+        // this listener shall work with both local and remote events
+        event = event(CatalogInfoRemoved.class, ws.getId(), WORKSPACE);
+        when(event.isRemote()).thenReturn(false);
+        caching.onWorkspaceRemoved(event);
+        await().atMost(Duration.ofMillis(500))
+                .untilAsserted(() -> assertThat(nativeCache.asMap()).isEmpty());
+
+        caching.getGlobal();
+        caching.getLogging();
+        caching.getSettings(ws);
+        caching.getService(ws, ServiceInfo.class);
+        assertThat(nativeCache.estimatedSize()).isGreaterThan(3);
+        when(event.isRemote()).thenReturn(true);
+        caching.onWorkspaceRemoved(event);
+        await().atMost(Duration.ofMillis(500))
+                .untilAsserted(() -> assertThat(nativeCache.asMap()).isEmpty());
     }
 
     @Test
@@ -127,19 +374,19 @@ class CachingGeoServerFacadeTest {
     @Test
     void testSetGlobal() {
         assertSameTimesN(global, caching::getGlobal, 3);
-        assertNotNull(cache.get(CachingGeoServerFacade.GEOSERVERINFO_KEY));
+        assertNotNull(cache.get(GEOSERVERINFO_KEY));
 
         caching.setGlobal(global);
-        assertNull(cache.get(CachingGeoServerFacade.GEOSERVERINFO_KEY));
+        assertNull(cache.get(GEOSERVERINFO_KEY));
     }
 
     @Test
     void testSaveGeoServerInfo() {
         assertSameTimesN(global, caching::getGlobal, 3);
-        assertNotNull(cache.get(CachingGeoServerFacade.GEOSERVERINFO_KEY));
+        assertNotNull(cache.get(GEOSERVERINFO_KEY));
 
         caching.save(global);
-        assertNull(cache.get(CachingGeoServerFacade.GEOSERVERINFO_KEY));
+        assertNull(cache.get(GEOSERVERINFO_KEY));
     }
 
     @Test
@@ -173,25 +420,25 @@ class CachingGeoServerFacadeTest {
     void testGetLogging() {
         assertSameTimesN(logging, caching::getLogging, 3);
         verify(mock, times(1)).getLogging();
-        assertNotNull(cache.get(CachingGeoServerFacade.LOGGINGINFO_KEY));
+        assertNotNull(cache.get(LOGGINGINFO_KEY));
     }
 
     @Test
     void testSetLogging() {
         assertSameTimesN(logging, caching::getLogging, 3);
         verify(mock, times(1)).getLogging();
-        assertNotNull(cache.get(CachingGeoServerFacade.LOGGINGINFO_KEY));
+        assertNotNull(cache.get(LOGGINGINFO_KEY));
         caching.setLogging(logging);
-        assertNull(cache.get(CachingGeoServerFacade.LOGGINGINFO_KEY));
+        assertNull(cache.get(LOGGINGINFO_KEY));
     }
 
     @Test
     void testSaveLoggingInfo() {
         assertSameTimesN(logging, caching::getLogging, 3);
         verify(mock, times(1)).getLogging();
-        assertNotNull(cache.get(CachingGeoServerFacade.LOGGINGINFO_KEY));
+        assertNotNull(cache.get(LOGGINGINFO_KEY));
         caching.save(logging);
-        assertNull(cache.get(CachingGeoServerFacade.LOGGINGINFO_KEY));
+        assertNull(cache.get(LOGGINGINFO_KEY));
     }
 
     @Test
@@ -219,7 +466,7 @@ class CachingGeoServerFacadeTest {
         ServiceInfoKey nameKey = ServiceInfoKey.byName(service.getWorkspace(), service.getName());
         ServiceInfoKey typeKey = ServiceInfoKey.byType(service.getWorkspace(), service.getClass());
 
-        CachingGeoServerFacadeImpl.cachePut(cache, service);
+        caching.cachePut(cache, service);
         assertNotNull(cache.get(idKey));
         assertNotNull(cache.get(nameKey));
         assertNotNull(cache.get(typeKey));
@@ -354,10 +601,10 @@ class CachingGeoServerFacadeTest {
     void testEvict_GeoServerInfo() {
         GeoServerInfo gsProxy = ResolvingProxy.create("someid", GeoServerInfo.class);
         assertFalse(caching.evict(gsProxy));
-        cache.put(CachingGeoServerFacade.GEOSERVERINFO_KEY, global);
+        cache.put(GEOSERVERINFO_KEY, global);
         assertTrue(caching.evict(gsProxy));
         assertFalse(caching.evict(gsProxy));
-        assertNull(cache.get(CachingGeoServerFacade.GEOSERVERINFO_KEY));
+        assertNull(cache.get(GEOSERVERINFO_KEY));
     }
 
     /** {@link CachingGeoServerFacade#evict(Info)} manual eviction aid */
@@ -365,10 +612,10 @@ class CachingGeoServerFacadeTest {
     void testEvict_LoggingInfo() {
         LoggingInfo loggingProxy = ResolvingProxy.create(settings.getId(), LoggingInfo.class);
         assertFalse(caching.evict(loggingProxy));
-        cache.put(CachingGeoServerFacade.LOGGINGINFO_KEY, logging);
+        cache.put(LOGGINGINFO_KEY, logging);
         assertTrue(caching.evict(loggingProxy));
         assertFalse(caching.evict(loggingProxy));
-        assertNull(cache.get(CachingGeoServerFacade.LOGGINGINFO_KEY));
+        assertNull(cache.get(LOGGINGINFO_KEY));
     }
 
     /** {@link CachingGeoServerFacade#evict(Info)} manual eviction aid */
@@ -378,8 +625,7 @@ class CachingGeoServerFacadeTest {
         Object wsKey = CachingGeoServerFacade.settingsKey(settings.getWorkspace());
         final String id = settings.getId();
 
-        SettingsInfo settingsProxy = ResolvingProxy.create(id, SettingsInfo.class);
-        assertFalse(caching.evict(settingsProxy));
+        assertFalse(caching.evict(settings));
 
         cache.put(id, settings);
         cache.put(wsKey, settings);
@@ -387,8 +633,8 @@ class CachingGeoServerFacadeTest {
         assertNotNull(cache.get(id));
         assertNotNull(cache.get(wsKey));
 
-        assertTrue(caching.evict(settingsProxy));
-        assertFalse(caching.evict(settingsProxy));
+        assertTrue(caching.evict(settings));
+        assertFalse(caching.evict(settings));
 
         assertNull(cache.get(id));
         assertNull(cache.get(wsKey));
@@ -437,5 +683,13 @@ class CachingGeoServerFacadeTest {
         String sid = type.getSimpleName() + "." + id;
         when(info.getId()).thenReturn(sid);
         return info;
+    }
+
+    private <E extends InfoEvent> E event(Class<E> type, String id, ConfigInfoType objectType) {
+        E event = mock(type);
+        when(event.isRemote()).thenReturn(true);
+        when(event.getObjectId()).thenReturn(id);
+        when(event.getObjectType()).thenReturn(objectType);
+        return event;
     }
 }

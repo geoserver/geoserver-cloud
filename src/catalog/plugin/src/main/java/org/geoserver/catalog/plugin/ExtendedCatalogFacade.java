@@ -40,7 +40,7 @@ import javax.annotation.Nullable;
  */
 public interface ExtendedCatalogFacade extends CatalogFacade {
 
-    default <T extends CatalogInfo> void forEach(Consumer<? super CatalogInfo> consumer) {
+    default void forEach(Consumer<? super CatalogInfo> consumer) {
         List<Class<? extends CatalogInfo>> types =
                 List.of(
                         WorkspaceInfo.class,
@@ -136,7 +136,6 @@ public interface ExtendedCatalogFacade extends CatalogFacade {
             case MapInfo m -> remove(m);
             default -> throw new IllegalArgumentException("Unexpected value: %s".formatted(info));
         }
-        ;
     }
 
     <I extends CatalogInfo> I update(I info, Patch patch);

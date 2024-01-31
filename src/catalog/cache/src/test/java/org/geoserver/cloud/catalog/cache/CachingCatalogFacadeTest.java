@@ -1,22 +1,29 @@
 /*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
+ * (c) 2024 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
  * GPL 2.0 license, available at the root application directory.
  */
 package org.geoserver.cloud.catalog.cache;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.geoserver.catalog.CatalogFacade.ANY_WORKSPACE;
+import static org.geoserver.catalog.CatalogFacade.NO_WORKSPACE;
+import static org.geoserver.cloud.event.info.ConfigInfoType.FEATURETYPE;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import lombok.SneakyThrows;
+
+import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.CoverageInfo;
 import org.geoserver.catalog.CoverageStoreInfo;
@@ -30,532 +37,641 @@ import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
+import org.geoserver.catalog.WMSLayerInfo;
+import org.geoserver.catalog.WMSStoreInfo;
+import org.geoserver.catalog.WMTSLayerInfo;
+import org.geoserver.catalog.WMTSStoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
-import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.catalog.plugin.Patch;
-import org.geoserver.cloud.autoconfigure.catalog.event.LocalCatalogEventsAutoConfiguration;
-import org.geoserver.config.GeoServerFacade;
-import org.geoserver.config.plugin.GeoServerImpl;
-import org.geoserver.platform.config.UpdateSequence;
+import org.geoserver.cloud.event.catalog.CatalogInfoAdded;
+import org.geoserver.cloud.event.catalog.CatalogInfoModified;
+import org.geoserver.cloud.event.catalog.CatalogInfoRemoved;
+import org.geoserver.cloud.event.catalog.DefaultDataStoreSet;
+import org.geoserver.cloud.event.info.ConfigInfoType;
+import org.geoserver.cloud.event.info.InfoEvent;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.cache.Cache;
-import org.springframework.cache.Cache.ValueWrapper;
-import org.springframework.cache.CacheManager;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.internal.verification.VerificationModeFactory;
+import org.mockito.verification.VerificationMode;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.Callable;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
-@SpringBootTest(classes = GeoServerBackendCacheConfiguration.class)
-@EnableAutoConfiguration(exclude = LocalCatalogEventsAutoConfiguration.class)
 class CachingCatalogFacadeTest {
 
-    private @MockBean @Qualifier("defaultUpdateSequence") UpdateSequence updateSequence;
-    private @MockBean @Qualifier("rawCatalog") CatalogPlugin rawCatalog;
-    private @MockBean @Qualifier("geoServer") GeoServerImpl rawGeoServer;
-    private @MockBean @Qualifier("geoserverFacade") GeoServerFacade rawGeoServerFacade;
+    @Mock ExtendedCatalogFacade subject;
+    @Mock CachingCatalogFacadeContainmentSupport supportMock;
 
-    private @MockBean @Qualifier("catalogFacade") ExtendedCatalogFacade mock;
+    CachingCatalogFacade facade;
 
-    private @Autowired @Qualifier("cachingCatalogFacade") CachingCatalogFacade caching;
-    private @Autowired CacheManager cacheManager;
+    @BeforeEach
+    void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this);
+        facade = new CachingCatalogFacade(subject, supportMock);
+    }
 
-    private WorkspaceInfo ws;
-    private WorkspaceInfo ws2;
-    private NamespaceInfo ns;
-    private NamespaceInfo ns2;
+    static VerificationMode once() {
+        return VerificationModeFactory.times(1);
+    }
 
-    private DataStoreInfo ds;
-    private CoverageStoreInfo cs;
-    private FeatureTypeInfo ft;
-    private CoverageInfo c;
-    private LayerInfo layer;
-    private LayerGroupInfo lg;
-    private StyleInfo style;
+    @SuppressWarnings("unchecked")
+    private <T> ArgumentCaptor<Callable<T>> loaderCaptor(Class<T> type) {
+        return ArgumentCaptor.forClass(Callable.class);
+    }
 
-    private Cache cache;
+    <I extends CatalogInfo> I stub(Class<I> type) {
+        String id = type.getSimpleName() + "-id";
+        String name = type.getSimpleName() + "-name";
+        return stub(type, id, name);
+    }
 
-    public @BeforeEach void before() {
-        ws = stub(WorkspaceInfo.class, 1);
-        ws2 = stub(WorkspaceInfo.class, 2);
-        ns = stub(NamespaceInfo.class, 1);
-        ns2 = stub(NamespaceInfo.class, 2);
-
-        ds = stub(DataStoreInfo.class);
-        cs = stub(CoverageStoreInfo.class);
-        ft = stub(FeatureTypeInfo.class);
-        c = stub(CoverageInfo.class);
-        layer = stub(LayerInfo.class);
-        when(layer.getResource()).thenReturn(ft);
-        lg = stub(LayerGroupInfo.class);
-        style = stub(StyleInfo.class);
-
-        when(mock.getWorkspace(ws.getId())).thenReturn(ws);
-        when(mock.getNamespace(ns.getId())).thenReturn(ns);
-
-        when(mock.getStore(ds.getId(), StoreInfo.class)).thenReturn(ds);
-        when(mock.getStore(ds.getId(), DataStoreInfo.class)).thenReturn(ds);
-
-        when(mock.getStore(cs.getId(), StoreInfo.class)).thenReturn(cs);
-        when(mock.getStore(cs.getId(), CoverageStoreInfo.class)).thenReturn(cs);
-
-        when(mock.getResource(ft.getId(), ResourceInfo.class)).thenReturn(ft);
-        when(mock.getResource(ft.getId(), FeatureTypeInfo.class)).thenReturn(ft);
-
-        when(mock.getResource(c.getId(), ResourceInfo.class)).thenReturn(c);
-        when(mock.getResource(c.getId(), CoverageInfo.class)).thenReturn(c);
-
-        when(mock.getLayer(layer.getId())).thenReturn(layer);
-        when(mock.getLayerGroup(lg.getId())).thenReturn(lg);
-
-        when(mock.getStyle(style.getId())).thenReturn(style);
-
-        this.cache = cacheManager.getCache(CachingCatalogFacade.CACHE_NAME);
-        this.cache.clear();
+    private <I extends CatalogInfo> I stub(Class<I> type, String id, String name) {
+        I info = mock(type);
+        when(info.getId()).thenReturn(id);
+        if (info instanceof WorkspaceInfo i) {
+            when(i.getName()).thenReturn(name);
+            when(subject.getWorkspace(id)).thenReturn(i);
+        } else if (info instanceof NamespaceInfo i) {
+            when(i.getPrefix()).thenReturn(name);
+            when(subject.getNamespace(id)).thenReturn(i);
+        } else if (info instanceof StoreInfo i) {
+            when(i.getName()).thenReturn(name);
+            when(subject.getStore(id, StoreInfo.class)).thenReturn(i);
+        } else if (info instanceof ResourceInfo i) {
+            when(i.getName()).thenReturn(name);
+            when(subject.getResource(id, ResourceInfo.class)).thenReturn(i);
+        } else if (info instanceof PublishedInfo i) {
+            when(i.getName()).thenReturn(name);
+            if (info instanceof LayerInfo l) when(subject.getLayer(id)).thenReturn(l);
+            else when(subject.getLayerGroup(id)).thenReturn((LayerGroupInfo) i);
+        } else if (info instanceof StyleInfo i) {
+            when(i.getName()).thenReturn(name);
+            when(subject.getStyle(id)).thenReturn(i);
+        }
+        return info;
     }
 
     @Test
-    void testEvict() {
-        testEvicts(ws, caching::evict);
-        testEvicts(ns, caching::evict);
-        testEvicts(ds, caching::evict);
-        testEvicts(cs, caching::evict);
-        testEvicts(ft, caching::evict);
-        testEvicts(c, caching::evict);
+    void testAdd() {
+        assertThrows(NullPointerException.class, () -> facade.add((CatalogInfo) null));
+        testAdd(WorkspaceInfo.class);
+        testAdd(NamespaceInfo.class);
+        testAdd(DataStoreInfo.class);
+        testAdd(CoverageStoreInfo.class);
+        testAdd(WMSStoreInfo.class);
+        testAdd(WMTSStoreInfo.class);
+        testAdd(FeatureTypeInfo.class);
+        testAdd(CoverageInfo.class);
+        testAdd(WMSLayerInfo.class);
+        testAdd(WMTSLayerInfo.class);
+        testAdd(LayerInfo.class);
+        testAdd(LayerGroupInfo.class);
+        testAdd(StyleInfo.class);
     }
 
-    @Test
-    void testSuperTypeEvicts() {
-        CatalogInfoKey concreteTypeKey = new CatalogInfoKey(ds);
-        CatalogInfoKey abstractTypeKey = new CatalogInfoKey(ds.getId(), StoreInfo.class);
-
-        cache.put(concreteTypeKey, ds);
-        assertSame(ds, cache.get(concreteTypeKey).get());
-        assertSame(ds, cache.get(abstractTypeKey).get());
-
-        assertTrue(cache.evictIfPresent(abstractTypeKey));
-        assertNull(cache.get(concreteTypeKey));
-    }
-
-    @Test
-    void testSubTypeEvicts() {
-        CatalogInfoKey concreteTypeKey = new CatalogInfoKey(ft);
-        CatalogInfoKey abstractTypeKey = new CatalogInfoKey(ft.getId(), ResourceInfo.class);
-
-        cache.put(abstractTypeKey, ft);
-
-        assertSame(ft, cache.get(concreteTypeKey).get());
-        assertSame(ft, cache.get(abstractTypeKey).get());
-
-        assertTrue(cache.evictIfPresent(concreteTypeKey));
-        assertNull(cache.get(abstractTypeKey));
-    }
-
-    @Test
-    void testPublishedInfoEvicts() {
-        CatalogInfoKey concreteTypeKey = new CatalogInfoKey(layer);
-        CatalogInfoKey abstractTypeKey = new CatalogInfoKey(layer.getId(), PublishedInfo.class);
-
-        cache.put(concreteTypeKey, layer);
-
-        assertSame(layer, cache.get(concreteTypeKey).get());
-        assertSame(layer, cache.get(abstractTypeKey).get());
-
-        assertTrue(cache.evictIfPresent(abstractTypeKey));
-        assertNull(cache.get(concreteTypeKey));
-    }
-
-    @Test
-    void testAddStoreInfo() {
-        DataStoreInfo info = this.ds;
-        DataStoreInfo added = stub(DataStoreInfo.class, 1); // same id
-        when(mock.add(same(info))).thenReturn(added);
-        assertSame(added, caching.add(info));
-        assertSame(added, cache.get(new CatalogInfoKey(info)).get(), "expected cache put");
-    }
-
-    @Test
-    void testRemoveStoreInfo() {
-        testEvicts(ds, caching::remove);
-        testEvicts(cs, caching::remove);
-    }
-
-    @Test
-    @SuppressWarnings("removal")
-    void testSaveStoreInfo() {
-        testEvicts(ds, caching::save);
-        testEvicts(cs, caching::save);
-    }
-
-    @Test
-    void testGetStore() {
-        assertSameTimesN(ds, id -> caching.getStore(id, DataStoreInfo.class), 3);
-        verify(mock, times(1)).getStore(ds.getId(), DataStoreInfo.class);
-
-        assertSameTimesN(ds, id -> caching.getStore(id, StoreInfo.class), 3);
-        // assertSame(ds, caching.getStore(ds.getId(), StoreInfo.class));
-        verify(mock, times(0)).getStore(ds.getId(), StoreInfo.class);
-
-        assertSameTimesN(cs, id -> caching.getStore(id, StoreInfo.class), 3);
-        verify(mock, times(1)).getStore(cs.getId(), StoreInfo.class);
-
-        assertSameTimesN(cs, id -> caching.getStore(id, CoverageStoreInfo.class), 3);
-        verify(mock, times(0)).getStore(cs.getId(), CoverageStoreInfo.class);
-
-        verifyNoMoreInteractions(mock);
-
-        assertNull(caching.getStore(ds.getId(), CoverageStoreInfo.class));
-        assertNull(caching.getStore(cs.getId(), DataStoreInfo.class));
-    }
-
-    @Test
-    void testGetDefaultDataStore() {
-        final Object key = CachingCatalogFacade.generateDefaultDataStoreKey(ws);
-        assertNull(caching.getDefaultDataStore(ws));
-        assertNull(cache.get(key), "null return value should have not been cached");
-
-        when(mock.getDefaultDataStore(same(ws))).thenReturn(ds);
-
-        assertSame(ds, caching.getDefaultDataStore(ws));
-        assertSame(ds, cache.get(key).get());
-        assertNull(caching.getDefaultDataStore(ws2));
-
-        clearInvocations(mock);
-        cache.evict(key);
-
-        assertSame(ds, caching.getDefaultDataStore(ws));
-        assertSame(ds, caching.getDefaultDataStore(ws));
-        assertSame(ds, caching.getDefaultDataStore(ws));
-        verify(mock, times(1)).getDefaultDataStore(same(ws));
-    }
-
-    @Test
-    void testSetDefaultDataStore() {
-        final Object key = CachingCatalogFacade.generateDefaultDataStoreKey(ws);
-        when(mock.getDefaultDataStore(same(ws))).thenReturn(ds);
-        assertSame(ds, caching.getDefaultDataStore(ws));
-
-        // should evict
-        caching.setDefaultDataStore(ws, ds);
-        verify(mock, times(1)).setDefaultDataStore(same(ws), same(ds));
-
-        assertNull(cache.get(key), "expected cache evict");
-
-        when(mock.getDefaultDataStore(same(ws))).thenReturn(ds);
-        assertSame(ds, caching.getDefaultDataStore(ws));
-        caching.setDefaultDataStore(ws, null);
-        assertNull(cache.get(key), "expected cache evict");
-    }
-
-    @Test
-    void testAddResourceInfo() {
-        FeatureTypeInfo info = this.ft;
-        FeatureTypeInfo added = stub(FeatureTypeInfo.class, 1); // same id
-        when(mock.add(same(info))).thenReturn(added);
-        assertSame(added, caching.add(info));
-        assertSame(added, cache.get(new CatalogInfoKey(info)).get(), "expected cache put");
-    }
-
-    @Test
-    void testRemoveResourceInfo() {
-        testEvicts(ft, caching::remove);
-        testEvicts(c, caching::remove);
-    }
-
-    @Test
-    @SuppressWarnings("removal")
-    void testSaveResourceInfo() {
-        testEvicts(ft, caching::save);
-        testEvicts(c, caching::save);
-    }
-
-    @Test
-    void testGetResource() {
-        CatalogInfo info = ft;
-        assertSameTimesN(info, id -> caching.getResource(id, ResourceInfo.class), 3);
-        verify(mock, times(1)).getResource(info.getId(), ResourceInfo.class);
-
-        assertSameTimesN(info, id -> caching.getResource(id, FeatureTypeInfo.class), 3);
-        verify(mock, times(0)).getResource(info.getId(), FeatureTypeInfo.class);
-
-        assertNull(caching.getResource(ft.getId(), CoverageInfo.class));
-        assertNull(caching.getResource(c.getId(), FeatureTypeInfo.class));
-    }
-
-    @Test
-    void testAddLayerInfo() {
-        LayerInfo info = this.layer;
-        LayerInfo added = stub(LayerInfo.class, 1); // same id
-        when(mock.add(same(info))).thenReturn(added);
-        assertSame(added, caching.add(info));
-        assertSame(added, cache.get(new CatalogInfoKey(info)).get(), "expected cache put");
-    }
-
-    @Test
-    void testRemoveLayerInfo() {
-        testEvicts(layer, caching::remove);
-    }
-
-    @Test
-    void testRemoveLayerEvictsLayersPerResource() {
-        assertNotNull(layer.getResource());
-        List<LayerInfo> layers = Collections.singletonList(layer);
-        when(mock.getLayers(same(ft))).thenReturn(layers);
-
-        assertEquals(layers, caching.getLayers(layer.getResource()));
-
-        CatalogInfoKey layersKey =
-                CachingCatalogFacade.generateLayersByResourceKey(layer.getResource());
-        assertEquals(layers, cache.get(layersKey).get());
-
-        testEvicts(layer, caching::remove);
-
-        assertNull(cache.get(layersKey), "layers by resource not evicted then layer deleted");
-    }
-
-    @Test
-    @SuppressWarnings("removal")
-    void testSaveLayerInfo() {
-        testEvicts(layer, caching::save);
-    }
-
-    @Test
-    void testGetLayer() {
-        CatalogInfo info = layer;
-        assertSameTimesN(info, caching::getLayer, 3);
-        verify(mock, times(1)).getLayer(info.getId());
-    }
-
-    @Test
-    void testGetLayersByResource() {
-        List<LayerInfo> expected = Collections.singletonList(layer);
-        when(mock.getLayers(same(ft))).thenReturn(expected);
-
-        assertEquals(expected, caching.getLayers(ft));
-        assertEquals(expected, caching.getLayers(ft));
-        assertEquals(expected, caching.getLayers(ft));
-
-        verify(mock, times(1)).getLayers(same(ft));
-
-        CatalogInfoKey key = CachingCatalogFacade.generateLayersByResourceKey(ft);
-        ValueWrapper layersWrapper = cache.get(key);
-        assertNotNull(layersWrapper);
-        assertEquals(expected, layersWrapper.get());
-    }
-
-    @Disabled("LayerGroups are not cached")
-    @Test
-    void testAddLayerGroupInfo() {
-        LayerGroupInfo info = this.lg;
-        LayerGroupInfo added = stub(LayerGroupInfo.class, 1); // same id
-        when(mock.add(same(info))).thenReturn(added);
-        assertSame(added, caching.add(info));
-        assertSame(added, cache.get(new CatalogInfoKey(info)).get(), "expected cache put");
-    }
-
-    @Disabled("LayerGroups are not cached")
-    @Test
-    void testRemoveLayerGroupInfo() {
-        testEvicts(lg, caching::remove);
-    }
-
-    @SuppressWarnings("removal")
-    @Disabled("LayerGroups are not cached")
-    @Test
-    void testSaveLayerGroupInfo() {
-        testEvicts(lg, caching::save);
-    }
-
-    @Disabled("LayerGroups are not cached")
-    @Test
-    void testGetLayerGroup() {
-        CatalogInfo info = lg;
-        assertSameTimesN(info, caching::getLayerGroup, 3);
-        verify(mock, times(1)).getLayerGroup(info.getId());
-    }
-
-    @Test
-    void testAddNamespaceInfo() {
-        NamespaceInfo info = this.ns2;
-        NamespaceInfo added = stub(NamespaceInfo.class, 2); // same id
-        when(mock.add(same(info))).thenReturn(added);
-        assertSame(added, caching.add(info));
-        assertSame(added, cache.get(new CatalogInfoKey(info)).get(), "expected cache put");
-    }
-
-    @Test
-    void testRemoveNamespaceInfo() {
-        testEvicts(ns, caching::remove);
-    }
-
-    @Test
-    @SuppressWarnings("removal")
-    void testSaveNamespaceInfo() {
-        testEvicts(ns, caching::save);
-    }
-
-    @Test
-    void testGetDefaultNamespace() {
-        final String key = CachingCatalogFacade.DEFAULT_NAMESPACE_CACHE_KEY;
-        assertNull(caching.getDefaultNamespace());
-        assertNull(cache.get(key));
-
-        clearInvocations(mock);
-        when(mock.getDefaultNamespace()).thenReturn(ns);
-
-        assertSameTimesN(ns, s -> caching.getDefaultNamespace(), 3);
-        assertNotNull(cache.get(key));
-        assertSame(ns, cache.get(key).get());
-        verify(mock, times(1)).getDefaultNamespace();
-    }
-
-    @Test
-    void testSetDefaultNamespace() {
-        final String key = CachingCatalogFacade.DEFAULT_NAMESPACE_CACHE_KEY;
-        when(mock.getDefaultNamespace()).thenReturn(ns);
-        assertSame(ns, caching.getDefaultNamespace());
-
-        caching.setDefaultNamespace(null);
-        assertNull(cache.get(key), "expected cache evict");
-
-        when(mock.getDefaultNamespace()).thenReturn(ns);
-        assertSame(ns, caching.getDefaultNamespace());
-
-        caching.setDefaultNamespace(ns2);
-        assertNull(cache.get(key), "expected cache evict");
-    }
-
-    @Test
-    void testGetNamespace() {
-        CatalogInfo info = ns;
-        assertSameTimesN(info, caching::getNamespace, 3);
-        verify(mock, times(1)).getNamespace(info.getId());
-    }
-
-    @Test
-    void testGetWorkspace() {
-        assertSameTimesN(ws, caching::getWorkspace, 3);
-        verify(mock, times(1)).getWorkspace(ws.getId());
-    }
-
-    @Test
-    void testAddWorkspaceInfo() {
-        WorkspaceInfo info = this.ws;
-        WorkspaceInfo added = stub(WorkspaceInfo.class, 1); // same id than ws
-        when(mock.add(same(info))).thenReturn(added);
-        assertSame(added, caching.add(info));
-        assertSame(added, cache.get(new CatalogInfoKey(info)).get(), "expected cache put");
-    }
-
-    @Test
-    void testRemoveWorkspaceInfo() {
-        testEvicts(ws, caching::remove);
-    }
-
-    @Test
-    @SuppressWarnings("removal")
-    void testSaveWorkspaceInfo() {
-        testEvicts(ws, caching::save);
-    }
-
-    @Test
-    void testGetDefaultWorkspace() {
-        assertNull(caching.getDefaultWorkspace());
-        assertNull(cache.get(CachingCatalogFacade.DEFAULT_WORKSPACE_CACHE_KEY));
-
-        clearInvocations(mock);
-        when(mock.getDefaultWorkspace()).thenReturn(ws);
-
-        assertSameTimesN(ws, s -> caching.getDefaultWorkspace(), 3);
-        assertNotNull(cache.get(CachingCatalogFacade.DEFAULT_WORKSPACE_CACHE_KEY));
-        assertSame(ws, cache.get(CachingCatalogFacade.DEFAULT_WORKSPACE_CACHE_KEY).get());
-        verify(mock, times(1)).getDefaultWorkspace();
-    }
-
-    @Test
-    void testSetDefaultWorkspace() {
-        final String key = CachingCatalogFacade.DEFAULT_WORKSPACE_CACHE_KEY;
-        when(mock.getDefaultWorkspace()).thenReturn(ws);
-        assertSame(ws, caching.getDefaultWorkspace());
-
-        caching.setDefaultWorkspace(null);
-        assertNull(cache.get(key), "expected cache evict");
-
-        when(mock.getDefaultWorkspace()).thenReturn(ws);
-        assertSame(ws, caching.getDefaultWorkspace());
-
-        caching.setDefaultWorkspace(ws2);
-        assertNull(cache.get(key), "expected cache evict");
-    }
-
-    @Test
-    void testAddStyleInfo() {
-        StyleInfo info = this.style;
-        StyleInfo added = stub(StyleInfo.class, 1); // same id
-        when(mock.add(same(info))).thenReturn(added);
-        assertSame(added, caching.add(info));
-        assertSame(added, cache.get(new CatalogInfoKey(info)).get(), "expected cache put");
-    }
-
-    @Test
-    void testRemoveStyleInfo() {
-        testEvicts(style, caching::remove);
-    }
-
-    @Test
-    @SuppressWarnings("removal")
-    void testSaveStyleInfo() {
-        testEvicts(style, caching::save);
-    }
-
-    @Test
-    void testGetStyle() {
-        CatalogInfo info = style;
-        assertSameTimesN(info, caching::getStyle, 3);
-        verify(mock, times(1)).getStyle(info.getId());
+    @SneakyThrows
+    <I extends CatalogInfo> void testAdd(Class<I> type) {
+        I info = stub(type);
+        facade.add(info);
+        var loaderCaptor = loaderCaptor(type);
+        verify(supportMock, once()).evictAndGet(same(info), loaderCaptor.capture());
+
+        loaderCaptor.getValue().call();
+        verify(subject, once()).add(info);
     }
 
     @Test
     void testUpdate() {
-        DataStoreInfo info = this.ds;
-        DataStoreInfo updated = stub(DataStoreInfo.class, 1); // same id
-        when(mock.update(same(info), any())).thenReturn(updated);
-        assertSame(updated, caching.update(info, new Patch()));
-        assertSame(updated, cache.get(new CatalogInfoKey(info)).get(), "expected cache put");
+        assertThrows(NullPointerException.class, () -> facade.update(null, mock(Patch.class)));
+        assertThrows(
+                NullPointerException.class, () -> facade.update(mock(WorkspaceInfo.class), null));
+        testUpdate(WorkspaceInfo.class);
+        testUpdate(NamespaceInfo.class);
+        testUpdate(DataStoreInfo.class);
+        testUpdate(CoverageStoreInfo.class);
+        testUpdate(WMSStoreInfo.class);
+        testUpdate(WMTSStoreInfo.class);
+        testUpdate(FeatureTypeInfo.class);
+        testUpdate(CoverageInfo.class);
+        testUpdate(WMSLayerInfo.class);
+        testUpdate(WMTSLayerInfo.class);
+        testUpdate(LayerInfo.class);
+        testUpdate(LayerGroupInfo.class);
+        testUpdate(StyleInfo.class);
     }
 
-    private <T extends CatalogInfo> void testEvicts(T info, Consumer<T> op) {
-        CatalogInfoKey key = new CatalogInfoKey(info);
-        cache.put(key, info);
-        op.accept(info);
-        assertNull(cache.get(key), "expected cache evict");
+    @SneakyThrows
+    <I extends CatalogInfo> void testUpdate(Class<I> type) {
+        I info = stub(type);
+        String id = Objects.requireNonNull(info.getId());
+
+        String newPrefixedName = "newName";
+        String propName = NamespaceInfo.class.equals(type) ? "prefix" : "name";
+        Patch patch = new Patch(List.of(new Patch.Property(propName, newPrefixedName)));
+
+        facade =
+                new CachingCatalogFacade(subject, supportMock) {
+
+                    @Override
+                    Optional<String> newPrefixedName(CatalogInfo info, Patch patch) {
+                        return Optional.of(newPrefixedName);
+                    }
+                };
+
+        facade.update(info, patch);
+
+        ConfigInfoType configInfoType = ConfigInfoType.valueOf(type);
+        verify(supportMock, once()).evict(id, newPrefixedName, configInfoType);
+
+        var loaderCaptor = loaderCaptor(type);
+        verify(supportMock, once()).evictAndGet(same(info), loaderCaptor.capture());
+
+        loaderCaptor.getValue().call();
+        verify(subject, once()).update(info, patch);
+    }
+
+    @Test
+    void testRemove() {
+        assertThrows(NullPointerException.class, () -> facade.remove((CatalogInfo) null));
+        testRemove(WorkspaceInfo.class);
+        testRemove(NamespaceInfo.class);
+        testRemove(DataStoreInfo.class);
+        testRemove(CoverageStoreInfo.class);
+        testRemove(WMSStoreInfo.class);
+        testRemove(WMTSStoreInfo.class);
+        testRemove(FeatureTypeInfo.class);
+        testRemove(CoverageInfo.class);
+        testRemove(WMSLayerInfo.class);
+        testRemove(WMTSLayerInfo.class);
+        testRemove(LayerInfo.class);
+        testRemove(LayerGroupInfo.class);
+        testRemove(StyleInfo.class);
+    }
+
+    @SneakyThrows
+    <I extends CatalogInfo> void testRemove(Class<I> type) {
+        I info = mock(type);
+        facade.remove(info);
+        verify(supportMock, once()).evict(same(info));
+        verify(subject, once()).remove(info);
+    }
+
+    @Test
+    void testGetStore() {
+        assertThrows(NullPointerException.class, () -> facade.getStore(null, StoreInfo.class));
+        assertThrows(NullPointerException.class, () -> facade.getStore("id", null));
+        testGetStore(StoreInfo.class);
+        testGetStore(DataStoreInfo.class);
+        testGetStore(CoverageStoreInfo.class);
+        testGetStore(WMSStoreInfo.class);
+        testGetStore(WMTSStoreInfo.class);
+    }
+
+    @SneakyThrows
+    <S extends StoreInfo> void testGetStore(Class<S> type) {
+        facade = new CachingCatalogFacade(subject);
+        S info = stub(type);
+        String id = info.getId();
+        when(subject.getStore(id, StoreInfo.class)).thenReturn(info);
+        when(subject.getStore(id, type)).thenReturn(info);
+
+        assertSameTimesN(info, () -> facade.getStore(id, StoreInfo.class), 3);
+        assertSameTimesN(info, () -> facade.getStore(id, type), 3);
+        verify(subject, once()).getStore(id, StoreInfo.class);
+        verify(subject, once()).getStore(id, type);
+    }
+
+    @Test
+    @SneakyThrows
+    void testGetDefaultDataStore() {
+        assertThrows(NullPointerException.class, () -> facade.getDefaultDataStore(null));
+
+        WorkspaceInfo ws = mock(WorkspaceInfo.class);
+        facade.getDefaultDataStore(ws);
+
+        var loaderCaptor = loaderCaptor(DataStoreInfo.class);
+        verify(supportMock, once()).getDefaultDataStore(same(ws), loaderCaptor.capture());
+
+        loaderCaptor.getValue().call();
+        verify(subject, once()).getDefaultDataStore(ws);
+    }
+
+    @Test
+    void testSetDefaultDataStore() {
+        WorkspaceInfo ws = null;
+
+        assertThrows(NullPointerException.class, () -> facade.setDefaultDataStore(null, null));
+
+        ws = mock(WorkspaceInfo.class);
+        facade.setDefaultDataStore(ws, null);
+
+        verify(supportMock, once()).evictDefaultDataStore(ws);
+        verify(subject, once()).setDefaultDataStore(ws, null);
+    }
+
+    @Test
+    void testGetResource() {
+        assertThrows(
+                NullPointerException.class, () -> facade.getResource(null, ResourceInfo.class));
+        assertThrows(NullPointerException.class, () -> facade.getResource("id", null));
+        testGetResource(FeatureTypeInfo.class);
+        testGetResource(CoverageInfo.class);
+        testGetResource(WMSLayerInfo.class);
+        testGetResource(WMTSLayerInfo.class);
+    }
+
+    <R extends ResourceInfo> void testGetResource(Class<R> type) {
+        facade = new CachingCatalogFacade(subject);
+        R info = stub(type);
+        String id = info.getId();
+        when(subject.getResource(id, ResourceInfo.class)).thenReturn(info);
+        when(subject.getResource(id, type)).thenReturn(info);
+
+        assertSameTimesN(info, () -> facade.getResource(id, ResourceInfo.class), 3);
+        assertSameTimesN(info, () -> facade.getResource(id, type), 3);
+        verify(subject, once()).getResource(id, ResourceInfo.class);
+        verify(subject, once()).getResource(id, type);
+    }
+
+    @Test
+    void testGetResourceByName() {
+        assertThrows(
+                NullPointerException.class,
+                () -> facade.getResourceByName(null, "name", ResourceInfo.class));
+        assertThrows(
+                NullPointerException.class,
+                () ->
+                        facade.getResourceByName(
+                                mock(NamespaceInfo.class), null, ResourceInfo.class));
+        assertThrows(
+                NullPointerException.class,
+                () -> facade.getResourceByName(mock(NamespaceInfo.class), "name", null));
+
+        facade = new CachingCatalogFacade(subject);
+        FeatureTypeInfo info = stub(FeatureTypeInfo.class);
+        NamespaceInfo ns = stub(NamespaceInfo.class);
+
+        String name = info.getName();
+        when(subject.getResourceByName(ns, name, ResourceInfo.class)).thenReturn(info);
+        when(subject.getResourceByName(ns, name, FeatureTypeInfo.class)).thenReturn(info);
+
+        assertSameTimesN(info, () -> facade.getResourceByName(ns, name, ResourceInfo.class), 3);
+        assertSameTimesN(info, () -> facade.getResourceByName(ns, name, FeatureTypeInfo.class), 3);
+        verify(subject, once()).getResourceByName(ns, name, ResourceInfo.class);
+        verify(subject, once()).getResourceByName(ns, name, FeatureTypeInfo.class);
+    }
+
+    @Test
+    void testGetResourceByName_ignore_no_namespace() {
+        facade = new CachingCatalogFacade(subject);
+        FeatureTypeInfo info = stub(FeatureTypeInfo.class);
+        NamespaceInfo ns = CatalogFacade.ANY_NAMESPACE;
+        String name = info.getName();
+
+        when(subject.getResourceByName(ns, name, ResourceInfo.class)).thenReturn(info);
+
+        assertSameTimesN(info, () -> facade.getResourceByName(ns, name, ResourceInfo.class), 3);
+        verify(subject, times(3)).getResourceByName(ns, name, ResourceInfo.class);
+    }
+
+    @Test
+    void testGetLayer() {
+        facade = new CachingCatalogFacade(subject);
+        assertThrows(NullPointerException.class, () -> facade.getLayer(null));
+        LayerInfo info = stub(LayerInfo.class);
+        String id = info.getId();
+        when(subject.getLayer(id)).thenReturn(info);
+
+        assertSameTimesN(info, () -> facade.getLayer(id), 3);
+        verify(subject, once()).getLayer(id);
+    }
+
+    @Test
+    void testGetLayerByName() {
+        facade = new CachingCatalogFacade(subject);
+        assertThrows(NullPointerException.class, () -> facade.getLayerByName(null));
+
+        LayerInfo info = stub(LayerInfo.class);
+        when(subject.getLayerByName(info.getName())).thenReturn(info);
+
+        assertSameTimesN(info, () -> facade.getLayerByName(info.getName()), 3);
+        verify(subject, once()).getLayerByName(info.getName());
+    }
+
+    @Test
+    void testGetLayersByResource() {
+        facade = new CachingCatalogFacade(subject);
+        assertThrows(NullPointerException.class, () -> facade.getLayers((ResourceInfo) null));
+
+        var resource = stub(FeatureTypeInfo.class);
+        var layers = List.of(stub(LayerInfo.class));
+
+        when(subject.getLayers(resource)).thenReturn(layers);
+
+        assertThat(facade.getLayers(resource)).isEqualTo(layers);
+        assertThat(facade.getLayers(resource)).isEqualTo(layers);
+
+        verify(subject, once()).getLayers(resource);
+    }
+
+    @Test
+    void testGetLayersByResourceEmptyResultNotCached() {
+        facade = new CachingCatalogFacade(subject);
+        var resource = stub(FeatureTypeInfo.class);
+
+        when(subject.getLayers(resource)).thenReturn(List.of());
+        facade.getLayers(resource);
+        facade.getLayers(resource);
+
+        verify(subject, times(2)).getLayers(resource);
+    }
+
+    @Test
+    void testGetLayerGroup() {
+        facade = new CachingCatalogFacade(subject);
+        assertThrows(NullPointerException.class, () -> facade.getLayerGroup(null));
+        LayerGroupInfo info = stub(LayerGroupInfo.class);
+        String id = info.getId();
+        when(subject.getLayerGroup(id)).thenReturn(info);
+
+        assertSameTimesN(info, () -> facade.getLayerGroup(id), 3);
+        verify(subject, once()).getLayerGroup(id);
+    }
+
+    @Test
+    void testGetLayerGroupByName() {
+        facade = new CachingCatalogFacade(subject);
+        assertThrows(NullPointerException.class, () -> facade.getLayerGroupByName(null));
+
+        LayerGroupInfo info = stub(LayerGroupInfo.class);
+        when(subject.getLayerGroupByName(info.getName())).thenReturn(info);
+
+        assertSameTimesN(info, () -> facade.getLayerGroupByName(info.getName()), 3);
+        verify(subject, once()).getLayerGroupByName(info.getName());
+    }
+
+    @Test
+    void testGetLayerGroupByNameAndWorkspace() {
+        facade = new CachingCatalogFacade(subject);
+        var ws = stub(WorkspaceInfo.class);
+        assertThrows(NullPointerException.class, () -> facade.getLayerGroupByName(null, "name"));
+        assertThrows(NullPointerException.class, () -> facade.getLayerGroupByName(ws, null));
+
+        LayerGroupInfo info = stub(LayerGroupInfo.class);
+        when(subject.getLayerGroupByName(ws, info.getName())).thenReturn(info);
+
+        assertSameTimesN(info, () -> facade.getLayerGroupByName(ws, info.getName()), 3);
+        verify(subject, once()).getLayerGroupByName(ws, info.getName());
+    }
+
+    @Test
+    void testGetLayerGroupByNameAndWorkspaceDoesNotCacheNoWorkspace() {
+        LayerGroupInfo info = stub(LayerGroupInfo.class);
+        String name = info.getName();
+        when(subject.getLayerGroupByName(same(ANY_WORKSPACE), eq(name))).thenReturn(info);
+        when(subject.getLayerGroupByName(same(NO_WORKSPACE), eq(name))).thenReturn(info);
+
+        assertSameTimesN(info, () -> facade.getLayerGroupByName(ANY_WORKSPACE, name), 3);
+        assertSameTimesN(info, () -> facade.getLayerGroupByName(NO_WORKSPACE, name), 3);
+        verify(subject, times(3)).getLayerGroupByName(same(ANY_WORKSPACE), eq(name));
+        verify(subject, times(3)).getLayerGroupByName(same(ANY_WORKSPACE), eq(name));
+
+        verifyNoInteractions(supportMock);
+    }
+
+    @Test
+    void testGetDefaultNamespace() {
+        facade = new CachingCatalogFacade(subject);
+        var info = stub(NamespaceInfo.class);
+        when(subject.getDefaultNamespace()).thenReturn(info);
+
+        assertSameTimesN(info, facade::getDefaultNamespace, 3);
+        verify(subject, once()).getDefaultNamespace();
+    }
+
+    @Test
+    void testSetDefaultNamespace() {
+        facade.setDefaultNamespace(null);
+        verify(supportMock, once()).evictDefaultNamespace();
+        verify(subject, once()).setDefaultNamespace(null);
+    }
+
+    @Test
+    void testGetNamespace() {
+        assertThrows(NullPointerException.class, () -> facade.getNamespace(null));
+        facade = new CachingCatalogFacade(subject);
+        NamespaceInfo info = stub(NamespaceInfo.class);
+        String id = info.getId();
+        when(subject.getNamespace(id)).thenReturn(info);
+
+        assertSameTimesN(info, () -> facade.getNamespace(id), 3);
+        verify(subject, once()).getNamespace(id);
+    }
+
+    @Test
+    void testGetNamespaceByPrefix() {
+        facade = new CachingCatalogFacade(subject);
+        assertThrows(NullPointerException.class, () -> facade.getNamespaceByPrefix(null));
+
+        NamespaceInfo info = stub(NamespaceInfo.class);
+        when(subject.getNamespaceByPrefix(info.getPrefix())).thenReturn(info);
+
+        assertSameTimesN(info, () -> facade.getNamespaceByPrefix(info.getPrefix()), 3);
+        verify(subject, once()).getNamespaceByPrefix(info.getPrefix());
+    }
+
+    @Test
+    void testGetDefaultWorkspace() {
+        facade = new CachingCatalogFacade(subject);
+        var info = stub(WorkspaceInfo.class);
+        when(subject.getDefaultWorkspace()).thenReturn(info);
+
+        assertSameTimesN(info, facade::getDefaultWorkspace, 3);
+        verify(subject, once()).getDefaultWorkspace();
+    }
+
+    @Test
+    void testSetDefaultWorkspace() {
+        facade.setDefaultWorkspace(null);
+        verify(supportMock, once()).evictDefaultWorkspace();
+        verify(subject, once()).setDefaultWorkspace(null);
+    }
+
+    @Test
+    void testGetWorkspace() {
+        facade = new CachingCatalogFacade(subject);
+        assertThrows(NullPointerException.class, () -> facade.getWorkspace(null));
+        var info = stub(WorkspaceInfo.class);
+        String id = info.getId();
+        when(subject.getWorkspace(id)).thenReturn(info);
+
+        assertSameTimesN(info, () -> facade.getWorkspace(id), 3);
+        verify(subject, once()).getWorkspace(id);
+    }
+
+    @Test
+    void testGetWorkspaceByName() {
+        facade = new CachingCatalogFacade(subject);
+        assertThrows(NullPointerException.class, () -> facade.getWorkspaceByName(null));
+
+        var info = stub(WorkspaceInfo.class);
+        when(subject.getWorkspaceByName(info.getName())).thenReturn(info);
+
+        assertSameTimesN(info, () -> facade.getWorkspaceByName(info.getName()), 3);
+        verify(subject, once()).getWorkspaceByName(info.getName());
+    }
+
+    @Test
+    void testGetStyle() {
+        facade = new CachingCatalogFacade(subject);
+        assertThrows(NullPointerException.class, () -> facade.getStyle(null));
+        StyleInfo info = stub(StyleInfo.class);
+        String id = info.getId();
+        when(subject.getStyle(id)).thenReturn(info);
+
+        assertSameTimesN(info, () -> facade.getStyle(id), 3);
+        verify(subject, once()).getStyle(id);
+    }
+
+    @Test
+    void testGetStyleByName() {
+        facade = new CachingCatalogFacade(subject);
+        assertThrows(NullPointerException.class, () -> facade.getStyleByName(null));
+
+        var info = stub(StyleInfo.class);
+        when(subject.getStyleByName(info.getName())).thenReturn(info);
+
+        assertSameTimesN(info, () -> facade.getStyleByName(info.getName()), 3);
+        verify(subject, once()).getStyleByName(info.getName());
+    }
+
+    @Test
+    void testGetStyleByWorkspaceAndName() {
+        facade = new CachingCatalogFacade(subject);
+        var ws = stub(WorkspaceInfo.class);
+        assertThrows(NullPointerException.class, () -> facade.getStyleByName(null, "name"));
+        assertThrows(NullPointerException.class, () -> facade.getStyleByName(ws, null));
+
+        var info = stub(StyleInfo.class);
+        when(subject.getStyleByName(ws, info.getName())).thenReturn(info);
+
+        assertSameTimesN(info, () -> facade.getStyleByName(ws, info.getName()), 3);
+        verify(subject, once()).getStyleByName(ws, info.getName());
+    }
+
+    @Test
+    void testGetStyleByWorkspaceAndNameDoesNotCacheNoWorkspace() {
+        var info = stub(StyleInfo.class);
+        String name = info.getName();
+        when(subject.getStyleByName(same(ANY_WORKSPACE), eq(name))).thenReturn(info);
+        when(subject.getStyleByName(same(NO_WORKSPACE), eq(name))).thenReturn(info);
+
+        assertSameTimesN(info, () -> facade.getStyleByName(ANY_WORKSPACE, name), 3);
+        assertSameTimesN(info, () -> facade.getStyleByName(NO_WORKSPACE, name), 3);
+        verify(subject, times(3)).getStyleByName(same(ANY_WORKSPACE), eq(name));
+        verify(subject, times(3)).getStyleByName(same(ANY_WORKSPACE), eq(name));
+
+        verifyNoInteractions(supportMock);
+    }
+
+    @Test
+    void testOnDefaultWorkspaceSet() {
+        facade.onDefaultWorkspaceSet();
+        verify(supportMock, once()).evictDefaultWorkspace();
+    }
+
+    @Test
+    void testOnDefaultNamespaceSet() {
+        facade.onDefaultNamespaceSet();
+        verify(supportMock, once()).evictDefaultNamespace();
+    }
+
+    @Test
+    void testOnDefaultDataStoreSet() {
+        var event =
+                DefaultDataStoreSet.createLocal(
+                        1_000L, stub(WorkspaceInfo.class), stub(DataStoreInfo.class));
+
+        facade.onDefaultDataStoreSet(event);
+        verify(supportMock, once()).evictDefaultDataStore(eq(event.getWorkspaceId()), any());
+    }
+
+    @Test
+    void testOnCatalogInfoAdded() {
+        var event = event(CatalogInfoAdded.class, "id", FEATURETYPE);
+        when(event.getObjectName()).thenReturn("new");
+
+        facade.onCatalogInfoAdded(event);
+
+        verify(supportMock, once())
+                .evict(event.getObjectId(), event.getObjectName(), event.getObjectType());
+
+        when(event.isRemote()).thenReturn(false);
+        clearInvocations(supportMock);
+        facade.onCatalogInfoAdded(event);
+        verifyNoMoreInteractions(supportMock);
+    }
+
+    @Test
+    void testOnCatalogInfoModified() {
+        var event = event(CatalogInfoModified.class, "id", FEATURETYPE);
+        when(event.getOldName()).thenReturn("old");
+        when(event.getObjectName()).thenReturn("new");
+
+        facade.onCatalogInfoModified(event);
+
+        verify(supportMock, once())
+                .evict(event.getObjectId(), event.getObjectName(), event.getObjectType());
+        verify(supportMock, once())
+                .evict(event.getObjectId(), event.getOldName(), event.getObjectType());
+
+        when(event.isRemote()).thenReturn(false);
+        clearInvocations(supportMock);
+        facade.onCatalogInfoModified(event);
+        verifyNoMoreInteractions(supportMock);
+    }
+
+    @Test
+    void testOnCatalogInfoRemoveEvent() {
+        var event = event(CatalogInfoRemoved.class, "id", FEATURETYPE);
+        when(event.getObjectName()).thenReturn("new");
+
+        facade.onCatalogInfoRemovedEvent(event);
+
+        verify(supportMock, once())
+                .evict(event.getObjectId(), event.getObjectName(), event.getObjectType());
+
+        when(event.isRemote()).thenReturn(false);
+        clearInvocations(supportMock);
+        facade.onCatalogInfoRemovedEvent(event);
+        verifyNoMoreInteractions(supportMock);
+    }
+
+    private <E extends InfoEvent> E event(Class<E> type, String id, ConfigInfoType objectType) {
+        E event = mock(type);
+        when(event.isRemote()).thenReturn(true);
+        when(event.getObjectId()).thenReturn(id);
+        when(event.getObjectType()).thenReturn(objectType);
+        return event;
+    }
+
+    private <T extends Info> void assertSameTimesN(T info, Supplier<T> query, int times) {
+        assertSameTimesN(info, id -> query.get(), times);
     }
 
     private <T extends Info> void assertSameTimesN(T info, Function<String, T> query, int times) {
         for (int i = 0; i < times; i++) {
-            T result = query.apply(info.getId());
+            String id = Objects.requireNonNull(info.getId());
+            T result = query.apply(id);
             assertSame(info, result);
         }
-    }
-
-    private <T extends Info> T stub(Class<T> type) {
-        return stub(type, 1);
-    }
-
-    private <T extends Info> T stub(Class<T> type, int id) {
-        T info = Mockito.mock(type);
-        String sid = type.getSimpleName() + "." + id;
-        when(info.getId()).thenReturn(sid);
-        return info;
     }
 }

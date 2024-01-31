@@ -30,7 +30,6 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -42,12 +41,12 @@ import java.util.stream.Stream;
 /**
  * @since 1.4
  */
-@Slf4j
+@Slf4j(topic = "org.geoserver.cloud.backend.pgconfig.catalog.repository")
 public abstract class PgsqlCatalogInfoRepository<T extends CatalogInfo>
         extends ResolvingCatalogInfoRepository<T>
         implements CatalogInfoRepository<T>, ResolvingFacade<T> {
 
-    protected final @NonNull JdbcTemplate template;
+    protected final @NonNull LoggingTemplate template;
 
     protected static final ObjectMapper infoMapper = PgsqlObjectMapper.newObjectMapper();
 
@@ -57,6 +56,10 @@ public abstract class PgsqlCatalogInfoRepository<T extends CatalogInfo>
      * @param template
      */
     protected PgsqlCatalogInfoRepository(@NonNull JdbcTemplate template) {
+        this(new LoggingTemplate(template));
+    }
+
+    protected PgsqlCatalogInfoRepository(@NonNull LoggingTemplate template) {
         super();
         this.template = template;
     }
@@ -181,8 +184,6 @@ public abstract class PgsqlCatalogInfoRepository<T extends CatalogInfo>
             sql = applyOffsetLimit(sql, query.getOffset(), query.getCount());
         }
 
-        if (log.isDebugEnabled()) log.debug("{} / {}", sql, Arrays.toString(prepStatementParams));
-
         Stream<U> stream =
                 queryForStream(type, sql, prepStatementParams).map(this::resolveOutbound);
         if (!filterFullySupported) {
@@ -280,8 +281,6 @@ public abstract class PgsqlCatalogInfoRepository<T extends CatalogInfo>
                     prepStatementParams = qb.getLiteralValues().toArray();
                 }
             }
-            if (log.isDebugEnabled())
-                log.debug("{} / {}", sql, Arrays.toString(prepStatementParams));
             return template.queryForObject(sql, Long.class, prepStatementParams);
         }
 

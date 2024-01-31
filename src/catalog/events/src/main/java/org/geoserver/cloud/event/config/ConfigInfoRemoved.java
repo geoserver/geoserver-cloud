@@ -28,8 +28,11 @@ public abstract class ConfigInfoRemoved extends InfoRemoved implements ConfigInf
     }
 
     protected ConfigInfoRemoved(
-            long updateSequence, @NonNull String objectId, @NonNull ConfigInfoType type) {
-        super(updateSequence, objectId, type);
+            long updateSequence,
+            @NonNull String objectId,
+            @NonNull String prefixedName,
+            @NonNull ConfigInfoType type) {
+        super(updateSequence, objectId, prefixedName, type);
     }
 
     public static @NonNull ConfigInfoRemoved createLocal(

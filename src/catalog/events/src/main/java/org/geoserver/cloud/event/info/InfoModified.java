@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 
+import org.geoserver.catalog.Info;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.cloud.event.catalog.CatalogInfoModified;
 import org.geoserver.cloud.event.config.ConfigInfoModified;
@@ -26,16 +27,24 @@ import java.util.stream.Collectors;
 @SuppressWarnings("serial")
 public abstract class InfoModified extends InfoEvent {
 
-    private @Getter @Setter Patch patch;
+    private @Getter @Setter @NonNull Patch patch;
 
-    protected InfoModified() {}
+    @SuppressWarnings("java:S2637")
+    protected InfoModified() {
+        // no-op default constructor for deserialization
+    }
+
+    protected InfoModified(long updateSequence, @NonNull Info info, @NonNull Patch patch) {
+        this(updateSequence, resolveId(info), prefixedName(info), typeOf(info), patch);
+    }
 
     protected InfoModified(
             long updateSequence,
             @NonNull String objectId,
+            @NonNull String prefixedName,
             @NonNull ConfigInfoType objectType,
             @NonNull Patch patch) {
-        super(updateSequence, objectId, objectType);
+        super(updateSequence, objectId, prefixedName, objectType);
         this.patch = patch;
     }
 

@@ -42,14 +42,14 @@ public class CachingTileLayerCatalog implements TileLayerCatalog {
     public void onTileLayerEvent(TileLayerEvent event) {
         switch (event.getEventType()) {
             case CREATED:
-                getLayerById(event.getLayerId());
+                getLayerById(event.getPublishedId());
                 break;
             case DELETED:
-                evictById(event.getLayerId());
+                evictById(event.getPublishedId());
                 break;
             case MODIFIED:
-                evictById(event.getLayerId());
-                getLayerById(event.getLayerId());
+                evictById(event.getPublishedId());
+                getLayerById(event.getPublishedId());
                 break;
             default:
                 throw new IllegalArgumentException(

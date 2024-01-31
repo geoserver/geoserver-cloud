@@ -12,10 +12,22 @@ import lombok.NonNull;
 
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.Info;
+import org.geoserver.catalog.LayerGroupInfo;
+import org.geoserver.catalog.LayerInfo;
+import org.geoserver.catalog.NamespaceInfo;
+import org.geoserver.catalog.ResourceInfo;
+import org.geoserver.catalog.StoreInfo;
+import org.geoserver.catalog.StyleInfo;
+import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.cloud.event.UpdateSequenceEvent;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.LoggingInfo;
+import org.geoserver.config.ServiceInfo;
+import org.geoserver.config.SettingsInfo;
 import org.springframework.core.style.ToStringCreator;
+import org.springframework.lang.Nullable;
+
+import java.util.Optional;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonSubTypes({
@@ -26,16 +38,23 @@ import org.springframework.core.style.ToStringCreator;
 @SuppressWarnings("serial")
 public abstract class InfoEvent extends UpdateSequenceEvent {
 
-    private @Getter String objectId;
+    private @Getter @NonNull String objectId;
+    private @Getter @NonNull String objectName;
+    private @Getter @NonNull ConfigInfoType objectType;
 
-    private @Getter ConfigInfoType objectType;
-
-    protected InfoEvent() {}
+    @SuppressWarnings("java:S2637")
+    protected InfoEvent() {
+        // no-op default constructor for deserialization
+    }
 
     protected InfoEvent(
-            long updateSequence, @NonNull String objectId, @NonNull ConfigInfoType objectType) {
+            long updateSequence,
+            @NonNull String objectId,
+            @NonNull String prefixedName,
+            @NonNull ConfigInfoType objectType) {
         super(updateSequence);
         this.objectId = objectId;
+        this.objectName = prefixedName;
         this.objectType = objectType;
     }
 
@@ -70,16 +89,66 @@ public abstract class InfoEvent extends UpdateSequenceEvent {
                         type, originService, getUpdateSequence(), getObjectType(), getObjectId());
     }
 
-    public static String resolveId(Info object) {
+    @Nullable
+    public static String resolveNullableId(@Nullable Info object) {
         if (null == object) return null;
-        String id = object.getId();
-        if (null != id) return id;
+        return resolveId(object);
+    }
 
-        if (object instanceof Catalog) return CATALOG_ID;
-        if (object instanceof GeoServerInfo) return GEOSERVER_ID;
-        if (object instanceof LoggingInfo) return LOGGING_ID;
+    @SuppressWarnings("java:S1481")
+    public static String resolveId(@NonNull Info object) {
+        return switch (object) {
+            case Catalog c -> CATALOG_ID;
+            case GeoServerInfo g -> GEOSERVER_ID;
+            case LoggingInfo l -> LOGGING_ID;
+            default -> object.getId();
+        };
+    }
 
-        throw new IllegalStateException();
+    @NonNull
+    @SuppressWarnings("java:S1481")
+    public static String prefixedName(@NonNull Info object) {
+        return switch (object) {
+            case WorkspaceInfo w -> w.getName();
+            case NamespaceInfo n -> n.getPrefix();
+            case StoreInfo s -> prefixedName(s.getWorkspace(), s.getName());
+            case ResourceInfo r -> prefixedName(r.getNamespace().getPrefix(), r.getName());
+            case LayerInfo l -> prefixedName(l.getResource().getNamespace(), l.getName());
+            case LayerGroupInfo lg -> prefixedName(lg.getWorkspace(), lg.getName());
+            case StyleInfo s -> prefixedName(s.getWorkspace(), s.getName());
+            case GeoServerInfo g -> GEOSERVER_ID;
+            case LoggingInfo l -> LOGGING_ID;
+            case Catalog c -> CATALOG_ID;
+            case SettingsInfo s -> prefixedName(s.getWorkspace());
+            case ServiceInfo s -> prefixedName(s.getWorkspace(), s.getName());
+            default -> throw new IllegalArgumentException("Unknown object type for " + object);
+        };
+    }
+
+    public static String prefixedName(WorkspaceInfo prefix, String name) {
+        return prefixedName(prefix == null ? null : prefix.getName(), name);
+    }
+
+    public static String prefixedName(NamespaceInfo prefix, String name) {
+        return prefixedName(prefix == null ? null : prefix.getPrefix(), name);
+    }
+
+    public static String prefixedName(Optional<String> prefix, String localName) {
+        return prefixedName(prefix.orElse(null), localName);
+    }
+
+    private static String prefixedName(String prefix, String name) {
+        return prefix == null ? name : "%s:%s".formatted(prefix, name);
+    }
+
+    public static Optional<String> prefix(@NonNull String prefixedName) {
+        int idx = prefixedName.indexOf(':');
+        return idx == -1 ? Optional.empty() : Optional.of(prefixedName.substring(0, idx));
+    }
+
+    public static String localName(@NonNull String prefixedName) {
+        int idx = prefixedName.indexOf(':');
+        return idx == -1 ? prefixedName : prefixedName.substring(1 + idx);
     }
 
     public static @NonNull ConfigInfoType typeOf(@NonNull Info info) {

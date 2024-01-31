@@ -11,8 +11,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 
-import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.config.ServiceInfo;
+import org.springframework.lang.Nullable;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("ServiceInfoRemoved")
@@ -20,22 +20,21 @@ import org.geoserver.config.ServiceInfo;
 @SuppressWarnings("serial")
 public class ServiceRemoved extends ConfigInfoRemoved {
 
-    private @Getter String workspaceId;
+    private @Getter @Nullable String workspaceId;
 
     protected ServiceRemoved() {
         // default constructor, needed for deserialization
     }
 
-    protected ServiceRemoved(long updateSequence, @NonNull String objectId, String workspaceId) {
+    protected ServiceRemoved(
+            long updateSequence, @NonNull ServiceInfo info, @Nullable String workspaceId) {
 
-        super(updateSequence, objectId, ConfigInfoType.SERVICE);
+        super(updateSequence, resolveId(info), prefixedName(info), typeOf(info));
         this.workspaceId = workspaceId;
     }
 
     public static ServiceRemoved createLocal(long updateSequence, @NonNull ServiceInfo info) {
-
-        final @NonNull String serviceId = info.getId();
-        final String workspaceId = resolveId(info.getWorkspace());
-        return new ServiceRemoved(updateSequence, serviceId, workspaceId);
+        final String workspaceId = resolveNullableId(info.getWorkspace());
+        return new ServiceRemoved(updateSequence, info, workspaceId);
     }
 }
