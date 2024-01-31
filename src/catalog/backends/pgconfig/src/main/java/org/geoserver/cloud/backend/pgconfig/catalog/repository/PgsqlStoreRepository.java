@@ -47,7 +47,7 @@ public class PgsqlStoreRepository extends PgsqlCatalogInfoRepository<StoreInfo>
                 FROM storeinfos
                 WHERE id = ?
                 """;
-        return findOne(sql, clazz, newRowMapper(), id);
+        return findOne(sql, clazz, id);
     }
 
     @Override
@@ -71,7 +71,7 @@ public class PgsqlStoreRepository extends PgsqlCatalogInfoRepository<StoreInfo>
                 FROM storeinfos
                 WHERE "workspace.id" = ? AND default_store IS NOT NULL
                 """;
-        return findOne(sql, DataStoreInfo.class, CatalogInfoRowMapper.store(), workspace.getId());
+        return findOne(sql, DataStoreInfo.class, workspace.getId());
     }
 
     @Override
@@ -82,14 +82,12 @@ public class PgsqlStoreRepository extends PgsqlCatalogInfoRepository<StoreInfo>
                 FROM storeinfos
                 WHERE default_store IS NOT NULL
                 """;
-        return template.queryForStream(sql, CatalogInfoRowMapper.store())
-                .filter(DataStoreInfo.class::isInstance)
-                .map(DataStoreInfo.class::cast);
+        return super.queryForStream(DataStoreInfo.class, sql);
     }
 
     @Override
-    public <T extends StoreInfo> Stream<T> findAllByWorkspace(
-            @NonNull WorkspaceInfo workspace, @NonNull Class<T> clazz) {
+    public <U extends StoreInfo> Stream<U> findAllByWorkspace(
+            @NonNull WorkspaceInfo workspace, @NonNull Class<U> clazz) {
 
         String sql =
                 """
@@ -98,38 +96,28 @@ public class PgsqlStoreRepository extends PgsqlCatalogInfoRepository<StoreInfo>
                 WHERE "workspace.id" = ?
                 """;
 
-        Stream<StoreInfo> stores;
-        String workspaceId = workspace.getId();
+        final String workspaceId = workspace.getId();
         if (StoreInfo.class.equals(clazz)) {
-            stores = template.queryForStream(sql, CatalogInfoRowMapper.store(), workspaceId);
-        } else {
-            String infotype = infoType(clazz);
-            sql += " AND \"@type\" = ?::infotype";
-            stores =
-                    template.queryForStream(
-                            sql, CatalogInfoRowMapper.store(), workspaceId, infotype);
+            return super.queryForStream(clazz, sql, workspaceId);
         }
 
-        return stores.filter(clazz::isInstance).map(clazz::cast);
+        String infotype = infoType(clazz);
+        sql += " AND \"@type\" = ?::infotype";
+        return super.queryForStream(clazz, sql, workspaceId, infotype);
     }
 
     @Override
     public <T extends StoreInfo> Stream<T> findAllByType(@NonNull Class<T> clazz) {
-        RowMapper<StoreInfo> rowMapper = CatalogInfoRowMapper.store();
-        Stream<StoreInfo> stores;
 
         if (StoreInfo.class.equals(clazz)) {
-            stores = template.queryForStream("SELECT store, workspace FROM storeinfos", rowMapper);
-        } else {
-            String type = clazz.getSimpleName();
-            stores =
-                    template.queryForStream(
-                            "SELECT store, workspace FROM storeinfos WHERE \"@type\" = ?::infotype",
-                            rowMapper,
-                            type);
+            return super.queryForStream(clazz, "SELECT store, workspace FROM storeinfos");
         }
 
-        return stores.filter(clazz::isInstance).map(clazz::cast);
+        String infotype = infoType(clazz);
+        return super.queryForStream(
+                clazz,
+                "SELECT store, workspace FROM storeinfos WHERE \"@type\" = ?::infotype",
+                infotype);
     }
 
     @Override

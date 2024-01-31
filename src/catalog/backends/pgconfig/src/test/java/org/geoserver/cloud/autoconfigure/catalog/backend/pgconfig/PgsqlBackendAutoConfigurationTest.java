@@ -8,7 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.catalog.plugin.CatalogPlugin;
-import org.geoserver.catalog.plugin.forwarding.ResolvingCatalogFacadeDecorator;
+import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.cloud.backend.pgconfig.catalog.PgsqlCatalogFacade;
 import org.geoserver.cloud.backend.pgconfig.config.PgsqlConfigRepository;
 import org.geoserver.cloud.backend.pgconfig.config.PgsqlGeoServerFacade;
@@ -58,7 +58,7 @@ class PgsqlBackendAutoConfigurationTest {
                             .hasSingleBean(JdbcTemplate.class)
                             .hasSingleBean(GeoServerConfigurationLock.class)
                             .hasSingleBean(PgsqlUpdateSequence.class)
-                            .hasSingleBean(ResolvingCatalogFacadeDecorator.class)
+                            .hasSingleBean(PgsqlCatalogFacade.class)
                             .hasSingleBean(PgsqlGeoServerLoader.class)
                             .hasSingleBean(PgsqlConfigRepository.class)
                             .hasSingleBean(PgsqlGeoServerFacade.class)
@@ -66,9 +66,9 @@ class PgsqlBackendAutoConfigurationTest {
                             .hasSingleBean(PgsqlGeoServerResourceLoader.class)
                             .hasSingleBean(PgsqlLockProvider.class);
 
-                    ResolvingCatalogFacadeDecorator catalogFacade =
-                            context.getBean("catalogFacade", ResolvingCatalogFacadeDecorator.class);
-                    assertThat(catalogFacade.getFacade()).isInstanceOf(PgsqlCatalogFacade.class);
+                    ExtendedCatalogFacade catalogFacade =
+                            context.getBean("catalogFacade", ExtendedCatalogFacade.class);
+                    assertThat(catalogFacade).isInstanceOf(PgsqlCatalogFacade.class);
 
                     CatalogPlugin catalog = context.getBean("rawCatalog", CatalogPlugin.class);
                     assertThat(catalog.getRawFacade()).isSameAs(catalogFacade);

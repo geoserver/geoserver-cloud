@@ -72,7 +72,7 @@ public abstract class GeoServerConfigModuleTest {
                 CatalogTestData.initialized(() -> catalog, () -> geoserver)
                         .initConfig(false)
                         .initialize();
-        proxyResolver = new ProxyUtils(catalog, Optional.of(geoserver));
+        proxyResolver = new ProxyUtils(() -> catalog, Optional.of(geoserver));
     }
 
     private <T extends Info> void roundtripTest(@NonNull final T orig)

@@ -24,13 +24,13 @@ import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.Query;
 import org.geoserver.catalog.plugin.resolving.ResolvingCatalogFacade;
+import org.geoserver.catalog.plugin.resolving.ResolvingFacadeSupport;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.catalog.util.CloseableIteratorAdapter;
 import org.geotools.api.filter.Filter;
 import org.geotools.api.filter.sort.SortBy;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
@@ -80,79 +80,41 @@ import java.util.stream.Stream;
 public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFacade
         implements ResolvingCatalogFacade {
 
-    private UnaryOperator<CatalogInfo> outboundResolver = UnaryOperator.identity();
-    private UnaryOperator<CatalogInfo> inboundResolver = UnaryOperator.identity();
+    private ResolvingFacadeSupport<CatalogInfo> resolver;
 
     public ResolvingCatalogFacadeDecorator(ExtendedCatalogFacade facade) {
         super(facade);
+        resolver = new ResolvingFacadeSupport<>();
     }
 
-    /**
-     * Function applied to all outgoing {@link CatalogInfo} objects returned by the decorated facade
-     * before leaving this decorator facade
-     */
     @Override
     public void setOutboundResolver(UnaryOperator<CatalogInfo> resolvingFunction) {
-        Objects.requireNonNull(resolvingFunction);
-        this.outboundResolver = resolvingFunction;
+        resolver.setOutboundResolver(resolvingFunction);
     }
 
-    /**
-     * Function applied to all incoming {@link CatalogInfo} objects before deferring to the
-     * decorated facade
-     *
-     * <p>Use {@code facade.setOutboundResolver(facade.getOutboundResolver().andThen(myFunction))}
-     * to add traits to the current resolver; for example, a filtering trait could be added this way
-     * to filter out objects based on some externally defined conditions, returning {@code null} if
-     * an object is to be discarded from the final outcome
-     */
     @Override
     public UnaryOperator<CatalogInfo> getOutboundResolver() {
-        return this.outboundResolver;
+        return resolver.getOutboundResolver();
     }
 
-    /**
-     * Function applied to all incoming {@link CatalogInfo} objects before deferring to the
-     * decorated facade
-     */
     @Override
     public void setInboundResolver(UnaryOperator<CatalogInfo> resolvingFunction) {
-        Objects.requireNonNull(resolvingFunction);
-        this.inboundResolver = resolvingFunction;
+        resolver.setInboundResolver(resolvingFunction);
     }
 
-    /**
-     * Function applied to all incoming {@link CatalogInfo} objects before deferring to the
-     * decorated facade.
-     *
-     * <p>Use {@code facade.setInboundResolver(facade.getInboundResolver().andThen(myFunction))} to
-     * add traits to the current resolver
-     */
     @Override
     public UnaryOperator<CatalogInfo> getInboundResolver() {
-        return this.inboundResolver;
-    }
-
-    @SuppressWarnings("unchecked")
-    protected <I extends CatalogInfo> UnaryOperator<I> outbound() {
-        return (UnaryOperator<I>) outboundResolver;
-    }
-
-    @SuppressWarnings("unchecked")
-    protected <I extends CatalogInfo> UnaryOperator<I> inbound() {
-        return (UnaryOperator<I>) inboundResolver;
+        return resolver.getInboundResolver();
     }
 
     @Override
     public <C extends CatalogInfo> C resolveOutbound(C info) {
-        UnaryOperator<C> outboundResolve = outbound();
-        return outboundResolve.apply(info);
+        return resolver.resolveOutbound(info);
     }
 
     @Override
     public <C extends CatalogInfo> C resolveInbound(C info) {
-        UnaryOperator<C> inboundResolve = inbound();
-        return inboundResolve.apply(info);
+        return resolver.resolveInbound(info);
     }
 
     protected <C extends CatalogInfo> List<C> resolveOutbound(List<C> info) {

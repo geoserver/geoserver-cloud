@@ -24,6 +24,7 @@ import org.geoserver.catalog.plugin.forwarding.ResolvingCatalogFacadeDecorator;
 
 import java.util.Collection;
 import java.util.Objects;
+import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
 /**
@@ -37,14 +38,28 @@ import java.util.function.UnaryOperator;
  */
 public class CatalogPropertyResolver<T extends Info> implements UnaryOperator<T> {
 
-    private Catalog catalog;
+    private final Supplier<Catalog> catalog;
 
     public CatalogPropertyResolver(Catalog catalog) {
+        Objects.requireNonNull(catalog);
+        this.catalog = () -> catalog;
+    }
+
+    public CatalogPropertyResolver(@NonNull Supplier<Catalog> catalog) {
         Objects.requireNonNull(catalog);
         this.catalog = catalog;
     }
 
+    @NonNull
+    protected Catalog catalog() {
+        return catalog.get();
+    }
+
     public static <I extends Info> CatalogPropertyResolver<I> of(Catalog catalog) {
+        return new CatalogPropertyResolver<>(catalog);
+    }
+
+    public static <I extends Info> CatalogPropertyResolver<I> of(Supplier<Catalog> catalog) {
         return new CatalogPropertyResolver<>(catalog);
     }
 
@@ -92,11 +107,11 @@ public class CatalogPropertyResolver<T extends Info> implements UnaryOperator<T>
     }
 
     private void setCatalog(@NonNull StoreInfo i) {
-        if (i instanceof StoreInfoImpl store) store.setCatalog(catalog);
+        if (i instanceof StoreInfoImpl store) store.setCatalog(catalog());
     }
 
     private void setCatalog(@NonNull ResourceInfo i) {
-        i.setCatalog(catalog);
+        i.setCatalog(catalog());
         resolve(i.getStore());
         if (i instanceof WMSLayerInfo wmsLayer) {
             resolve(wmsLayer.getAllAvailableRemoteStyles());
@@ -104,6 +119,6 @@ public class CatalogPropertyResolver<T extends Info> implements UnaryOperator<T>
     }
 
     private void setCatalog(@NonNull StyleInfo i) {
-        if (i instanceof StyleInfoImpl style) style.setCatalog(catalog);
+        if (i instanceof StyleInfoImpl style) style.setCatalog(catalog());
     }
 }

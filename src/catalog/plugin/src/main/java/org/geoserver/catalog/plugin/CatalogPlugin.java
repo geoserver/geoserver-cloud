@@ -141,12 +141,10 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
     private CatalogPlugin(CatalogPlugin catalog) {
         super(catalog); // sets dispatcher and resourcePool
         this.isolated = false;
-        super.resourcePool = catalog.resourcePool;
-        super.resourceLoader = catalog.resourceLoader;
-        validationSupport = new CatalogValidationRules(this);
-        // use setFacade to wrap it in a modificationproxy resolver if needed
-        // sets both rawFacade and facade
-        setFacade(catalog.getRawFacade());
+        this.validationSupport = new CatalogValidationRules(this);
+        super.resourceLoader = catalog.getResourceLoader();
+        super.rawFacade = catalog.getRawFacade();
+        super.facade = catalog.getFacade();
     }
 
     /**

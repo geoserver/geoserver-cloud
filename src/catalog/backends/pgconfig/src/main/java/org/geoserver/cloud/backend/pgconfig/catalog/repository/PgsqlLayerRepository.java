@@ -24,11 +24,15 @@ import java.util.stream.Stream;
 public class PgsqlLayerRepository extends PgsqlCatalogInfoRepository<LayerInfo>
         implements LayerRepository {
 
+    private final PgsqlStyleRepository styleLoader;
+
     /**
      * @param template
      */
-    public PgsqlLayerRepository(@NonNull JdbcTemplate template) {
+    public PgsqlLayerRepository(
+            @NonNull JdbcTemplate template, @NonNull PgsqlStyleRepository styleLoader) {
         super(template);
+        this.styleLoader = styleLoader;
     }
 
     @Override
@@ -53,17 +57,12 @@ public class PgsqlLayerRepository extends PgsqlCatalogInfoRepository<LayerInfo>
             // two options here, it's either a prefixed name like in <workspace>:<name>, or the
             // ResourceInfo name actually contains a colon
             Optional<LayerInfo> found =
-                    findOne(
-                            sql.formatted("prefixedName"),
-                            LayerInfo.class,
-                            newRowMapper(),
-                            possiblyPrefixedName);
+                    findOne(sql.formatted("prefixedName"), possiblyPrefixedName);
             if (found.isPresent()) return found;
         }
 
         // no colon in name or name actually contains a colon
-        return findOne(
-                sql.formatted("name"), LayerInfo.class, newRowMapper(), possiblyPrefixedName);
+        return findOne(sql.formatted("name"), possiblyPrefixedName);
     }
 
     // TODO: optimize
@@ -92,12 +91,11 @@ public class PgsqlLayerRepository extends PgsqlCatalogInfoRepository<LayerInfo>
                 FROM layerinfos
                 WHERE "resource.id" = ?
                 """;
-        return template.queryForStream(sql, newRowMapper(), resource.getId());
+        return super.queryForStream(sql, resource.getId());
     }
 
     @Override
     protected RowMapper<LayerInfo> newRowMapper() {
-        PgsqlStyleRepository styleLoader = new PgsqlStyleRepository(template);
         return CatalogInfoRowMapper.layer(styleLoader::findById);
     }
 }

@@ -4,8 +4,7 @@
  */
 package org.geoserver.catalog.plugin.resolving;
 
-import static java.util.Objects.requireNonNull;
-
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 import org.geoserver.catalog.Catalog;
@@ -32,6 +31,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
@@ -51,11 +51,11 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ResolvingProxyResolver<T extends Info> implements UnaryOperator<T> {
 
-    private final Catalog catalog;
+    private final Supplier<Catalog> catalog;
     private final BiConsumer<CatalogInfo, ResolvingProxy> onNotFound;
     private final ProxyUtils proxyUtils;
 
-    public ResolvingProxyResolver(Catalog catalog) {
+    public ResolvingProxyResolver(@NonNull Catalog catalog) {
         this(
                 catalog,
                 (info, proxy) ->
@@ -65,9 +65,13 @@ public class ResolvingProxyResolver<T extends Info> implements UnaryOperator<T> 
     }
 
     public ResolvingProxyResolver(
-            Catalog catalog, BiConsumer<CatalogInfo, ResolvingProxy> onNotFound) {
-        requireNonNull(catalog);
-        requireNonNull(onNotFound);
+            @NonNull Catalog catalog, @NonNull BiConsumer<CatalogInfo, ResolvingProxy> onNotFound) {
+        this(() -> catalog, onNotFound);
+    }
+
+    public ResolvingProxyResolver(
+            @NonNull Supplier<Catalog> catalog,
+            @NonNull BiConsumer<CatalogInfo, ResolvingProxy> onNotFound) {
         this.catalog = catalog;
         this.onNotFound = onNotFound;
         this.proxyUtils = new ProxyUtils(catalog, Optional.empty());
@@ -75,6 +79,11 @@ public class ResolvingProxyResolver<T extends Info> implements UnaryOperator<T> 
 
     public static <I extends Info> ResolvingProxyResolver<I> of(
             Catalog catalog, BiConsumer<CatalogInfo, ResolvingProxy> onNotFound) {
+        return new ResolvingProxyResolver<>(catalog, onNotFound);
+    }
+
+    public static <I extends Info> ResolvingProxyResolver<I> of(
+            Supplier<Catalog> catalog, BiConsumer<CatalogInfo, ResolvingProxy> onNotFound) {
         return new ResolvingProxyResolver<>(catalog, onNotFound);
     }
 
@@ -259,7 +268,8 @@ public class ResolvingProxyResolver<T extends Info> implements UnaryOperator<T> 
         private Map<String, Info> resolvedById = new ConcurrentHashMap<>();
 
         public MemoizingProxyResolver(
-                Catalog catalog, BiConsumer<CatalogInfo, ResolvingProxy> onNotFound) {
+                @NonNull Supplier<Catalog> catalog,
+                BiConsumer<CatalogInfo, ResolvingProxy> onNotFound) {
             super(catalog, onNotFound);
         }
 

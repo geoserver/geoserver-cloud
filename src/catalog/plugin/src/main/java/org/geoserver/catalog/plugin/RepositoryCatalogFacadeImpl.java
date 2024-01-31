@@ -23,6 +23,14 @@ import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ProxyUtils;
+import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerGroupRepository;
+import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerRepository;
+import org.geoserver.catalog.plugin.CatalogInfoRepository.MapRepository;
+import org.geoserver.catalog.plugin.CatalogInfoRepository.NamespaceRepository;
+import org.geoserver.catalog.plugin.CatalogInfoRepository.ResourceRepository;
+import org.geoserver.catalog.plugin.CatalogInfoRepository.StoreRepository;
+import org.geoserver.catalog.plugin.CatalogInfoRepository.StyleRepository;
+import org.geoserver.catalog.plugin.CatalogInfoRepository.WorkspaceRepository;
 import org.geotools.api.filter.Filter;
 import org.geotools.api.filter.sort.SortBy;
 import org.springframework.util.Assert;
@@ -36,14 +44,18 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
-        implements RepositoryCatalogFacade {
+public class RepositoryCatalogFacadeImpl
+        implements RepositoryCatalogFacade, CatalogInfoRepositoryHolder {
+
+    protected final CatalogInfoRepositoryHolderImpl repositories;
 
     protected Catalog catalog;
 
     protected final CatalogCapabilities capabilities = new CatalogCapabilities();
 
-    public RepositoryCatalogFacadeImpl() {}
+    public RepositoryCatalogFacadeImpl() {
+        repositories = new CatalogInfoRepositoryHolderImpl();
+    }
 
     public RepositoryCatalogFacadeImpl(Catalog catalog) {
         this();
@@ -83,17 +95,17 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
     //
     @Override
     public StoreInfo add(StoreInfo store) {
-        return add(store, StoreInfo.class, stores);
+        return add(store, StoreInfo.class, getStoreRepository());
     }
 
     @Override
     public void remove(StoreInfo store) {
-        stores.remove(store);
+        getStoreRepository().remove(store);
     }
 
     @Override
     public <T extends StoreInfo> T getStore(String id, Class<T> clazz) {
-        return stores.findById(id, clazz).orElse(null);
+        return getStoreRepository().findById(id, clazz).orElse(null);
     }
 
     @Override
@@ -102,9 +114,9 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
 
         Optional<T> result;
         if (workspace == ANY_WORKSPACE || workspace == null) {
-            result = stores.findFirstByName(name, clazz);
+            result = getStoreRepository().findFirstByName(name, clazz);
         } else {
-            result = stores.findByNameAndWorkspace(name, workspace, clazz);
+            result = getStoreRepository().findByNameAndWorkspace(name, workspace, clazz);
         }
         return result.orElse(null);
     }
@@ -120,17 +132,17 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
             ws = workspace;
         }
 
-        return toList(() -> stores.findAllByWorkspace(ws, clazz));
+        return toList(() -> getStoreRepository().findAllByWorkspace(ws, clazz));
     }
 
     @Override
     public <T extends StoreInfo> List<T> getStores(Class<T> clazz) {
-        return toList(() -> stores.findAllByType(clazz));
+        return toList(() -> getStoreRepository().findAllByType(clazz));
     }
 
     @Override
     public DataStoreInfo getDefaultDataStore(WorkspaceInfo workspace) {
-        return stores.getDefaultDataStore(workspace).orElse(null);
+        return getStoreRepository().getDefaultDataStore(workspace).orElse(null);
     }
 
     @Override
@@ -142,8 +154,8 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
                     "Store workspace mismatch");
         }
 
-        if (store == null) stores.unsetDefaultDataStore(workspace);
-        else stores.setDefaultDataStore(workspace, store);
+        if (store == null) getStoreRepository().unsetDefaultDataStore(workspace);
+        else getStoreRepository().setDefaultDataStore(workspace, store);
     }
 
     //
@@ -151,17 +163,17 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
     //
     @Override
     public ResourceInfo add(ResourceInfo resource) {
-        return add(resource, ResourceInfo.class, resources);
+        return add(resource, ResourceInfo.class, getResourceRepository());
     }
 
     @Override
     public void remove(ResourceInfo resource) {
-        resources.remove(resource);
+        getResourceRepository().remove(resource);
     }
 
     @Override
     public <T extends ResourceInfo> T getResource(String id, Class<T> clazz) {
-        return resources.findById(id, clazz).orElse(null);
+        return getResourceRepository().findById(id, clazz).orElse(null);
     }
 
     @Override
@@ -169,9 +181,9 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
             NamespaceInfo namespace, String name, Class<T> clazz) {
         Optional<T> result;
         if (namespace == ANY_NAMESPACE) {
-            result = resources.findFirstByName(name, clazz);
+            result = getResourceRepository().findFirstByName(name, clazz);
         } else {
-            result = resources.findByNameAndNamespace(name, namespace, clazz);
+            result = getResourceRepository().findByNameAndNamespace(name, namespace, clazz);
         }
 
         return result.orElse(null);
@@ -179,7 +191,7 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
 
     @Override
     public <T extends ResourceInfo> List<T> getResources(Class<T> clazz) {
-        return toList(() -> resources.findAllByType(clazz));
+        return toList(() -> getResourceRepository().findAllByType(clazz));
     }
 
     @Override
@@ -187,7 +199,7 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
             NamespaceInfo namespace, Class<T> clazz) {
         // Question: do we need to support ANY_WORKSPACE? see "todo" comment in DefaultCatalogFacade
         NamespaceInfo ns = namespace == null ? getDefaultNamespace() : namespace;
-        return toList(() -> resources.findAllByNamespace(ns, clazz));
+        return toList(() -> getResourceRepository().findAllByNamespace(ns, clazz));
     }
 
     @Override
@@ -199,7 +211,7 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
                 && store.getWorkspace().getName() != null
                 && (ns = getNamespaceByPrefix(store.getWorkspace().getName())) != null) {
 
-            resource = resources.findByNameAndNamespace(name, ns, clazz);
+            resource = getResourceRepository().findByNameAndNamespace(name, ns, clazz);
             if (resource.isPresent() && !(store.equals(resource.get().getStore()))) {
                 return null;
             }
@@ -207,14 +219,14 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
             // should not happen, but some broken test code sets up namespaces without equivalent
             // workspaces
             // or stores without workspaces
-            resource = resources.findByStoreAndName(store, name, clazz);
+            resource = getResourceRepository().findByStoreAndName(store, name, clazz);
         }
         return resource.orElse(null);
     }
 
     @Override
     public <T extends ResourceInfo> List<T> getResourcesByStore(StoreInfo store, Class<T> clazz) {
-        return toList(() -> resources.findAllByStore(store, clazz));
+        return toList(() -> getResourceRepository().findAllByStore(store, clazz));
     }
 
     //
@@ -222,37 +234,37 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
     //
     @Override
     public LayerInfo add(LayerInfo layer) {
-        return add(layer, LayerInfo.class, layers);
+        return add(layer, LayerInfo.class, getLayerRepository());
     }
 
     @Override
     public void remove(LayerInfo layer) {
-        layers.remove(layer);
+        getLayerRepository().remove(layer);
     }
 
     @Override
     public LayerInfo getLayer(String id) {
-        return layers.findById(id, LayerInfo.class).orElse(null);
+        return getLayerRepository().findById(id, LayerInfo.class).orElse(null);
     }
 
     @Override
     public LayerInfo getLayerByName(String name) {
-        return layers.findOneByName(name).orElse(null);
+        return getLayerRepository().findOneByName(name).orElse(null);
     }
 
     @Override
     public List<LayerInfo> getLayers(ResourceInfo resource) {
-        return toList(() -> layers.findAllByResource(resource));
+        return toList(() -> getLayerRepository().findAllByResource(resource));
     }
 
     @Override
     public List<LayerInfo> getLayers(StyleInfo style) {
-        return toList(() -> layers.findAllByDefaultStyleOrStyles(style));
+        return toList(() -> getLayerRepository().findAllByDefaultStyleOrStyles(style));
     }
 
     @Override
     public List<LayerInfo> getLayers() {
-        return toList(layers::findAll);
+        return toList(getLayerRepository()::findAll);
     }
 
     //
@@ -260,27 +272,27 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
     //
     @Override
     public MapInfo add(MapInfo map) {
-        return add(map, MapInfo.class, maps);
+        return add(map, MapInfo.class, getMapRepository());
     }
 
     @Override
     public void remove(MapInfo map) {
-        maps.remove(map);
+        getMapRepository().remove(map);
     }
 
     @Override
     public MapInfo getMap(String id) {
-        return maps.findById(id, MapInfo.class).orElse(null);
+        return getMapRepository().findById(id, MapInfo.class).orElse(null);
     }
 
     @Override
     public MapInfo getMapByName(String name) {
-        return maps.findFirstByName(name, MapInfo.class).orElse(null);
+        return getMapRepository().findFirstByName(name, MapInfo.class).orElse(null);
     }
 
     @Override
     public List<MapInfo> getMaps() {
-        return toList(maps::findAll);
+        return toList(getMapRepository()::findAll);
     }
 
     //
@@ -349,7 +361,7 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
     //
     @Override
     public NamespaceInfo add(NamespaceInfo namespace) {
-        return add(namespace, NamespaceInfo.class, namespaces);
+        return add(namespace, NamespaceInfo.class, getNamespaceRepository());
     }
 
     @Override
@@ -358,43 +370,43 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
         if (defaultNamespace != null && namespace.getId().equals(defaultNamespace.getId())) {
             setDefaultNamespace(null);
         }
-        namespaces.remove(namespace);
+        getNamespaceRepository().remove(namespace);
     }
 
     @Override
     public NamespaceInfo getDefaultNamespace() {
-        return namespaces.getDefaultNamespace().orElse(null);
+        return getNamespaceRepository().getDefaultNamespace().orElse(null);
     }
 
     @Override
     public void setDefaultNamespace(NamespaceInfo defaultNamnespace) {
-        if (defaultNamnespace == null) namespaces.unsetDefaultNamespace();
-        else namespaces.setDefaultNamespace(defaultNamnespace);
+        if (defaultNamnespace == null) getNamespaceRepository().unsetDefaultNamespace();
+        else getNamespaceRepository().setDefaultNamespace(defaultNamnespace);
     }
 
     @Override
     public NamespaceInfo getNamespace(String id) {
-        return namespaces.findById(id, NamespaceInfo.class).orElse(null);
+        return getNamespaceRepository().findById(id, NamespaceInfo.class).orElse(null);
     }
 
     @Override
     public NamespaceInfo getNamespaceByPrefix(String prefix) {
-        return namespaces.findFirstByName(prefix, NamespaceInfo.class).orElse(null);
+        return getNamespaceRepository().findFirstByName(prefix, NamespaceInfo.class).orElse(null);
     }
 
     @Override
     public NamespaceInfo getNamespaceByURI(String uri) {
-        return namespaces.findOneByURI(uri).orElse(null);
+        return getNamespaceRepository().findOneByURI(uri).orElse(null);
     }
 
     @Override
     public List<NamespaceInfo> getNamespacesByURI(String uri) {
-        return toList(() -> namespaces.findAllByURI(uri));
+        return toList(() -> getNamespaceRepository().findAllByURI(uri));
     }
 
     @Override
     public List<NamespaceInfo> getNamespaces() {
-        return toList(namespaces::findAll);
+        return toList(getNamespaceRepository()::findAll);
     }
 
     //
@@ -403,43 +415,43 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
     // Workspace methods
     @Override
     public WorkspaceInfo add(WorkspaceInfo workspace) {
-        return add(workspace, WorkspaceInfo.class, workspaces);
+        return add(workspace, WorkspaceInfo.class, getWorkspaceRepository());
     }
 
     @Override
     public void remove(WorkspaceInfo workspace) {
         WorkspaceInfo defaultWorkspace = getDefaultWorkspace();
         if (defaultWorkspace != null && workspace.getId().equals(defaultWorkspace.getId())) {
-            workspaces.unsetDefaultWorkspace();
+            getWorkspaceRepository().unsetDefaultWorkspace();
         }
-        workspaces.remove(workspace);
+        getWorkspaceRepository().remove(workspace);
     }
 
     @Override
     public WorkspaceInfo getDefaultWorkspace() {
-        return workspaces.getDefaultWorkspace().orElse(null);
+        return getWorkspaceRepository().getDefaultWorkspace().orElse(null);
     }
 
     @Override
     public void setDefaultWorkspace(WorkspaceInfo workspace) {
         WorkspaceInfo ws = workspace;
-        if (ws == null) workspaces.unsetDefaultWorkspace();
-        else workspaces.setDefaultWorkspace(ws);
+        if (ws == null) getWorkspaceRepository().unsetDefaultWorkspace();
+        else getWorkspaceRepository().setDefaultWorkspace(ws);
     }
 
     @Override
     public List<WorkspaceInfo> getWorkspaces() {
-        return toList(workspaces::findAll);
+        return toList(getWorkspaceRepository()::findAll);
     }
 
     @Override
     public WorkspaceInfo getWorkspace(String id) {
-        return workspaces.findById(id, WorkspaceInfo.class).orElse(null);
+        return getWorkspaceRepository().findById(id, WorkspaceInfo.class).orElse(null);
     }
 
     @Override
     public WorkspaceInfo getWorkspaceByName(String name) {
-        return workspaces.findFirstByName(name, WorkspaceInfo.class).orElse(null);
+        return getWorkspaceRepository().findFirstByName(name, WorkspaceInfo.class).orElse(null);
     }
 
     //
@@ -447,24 +459,24 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
     //
     @Override
     public StyleInfo add(StyleInfo style) {
-        return add(style, StyleInfo.class, styles);
+        return add(style, StyleInfo.class, getStyleRepository());
     }
 
     @Override
     public void remove(StyleInfo style) {
-        styles.remove(style);
+        getStyleRepository().remove(style);
     }
 
     @Override
     public StyleInfo getStyle(String id) {
-        return styles.findById(id, StyleInfo.class).orElse(null);
+        return getStyleRepository().findById(id, StyleInfo.class).orElse(null);
     }
 
     @Override
     public StyleInfo getStyleByName(String name) {
-        Optional<StyleInfo> match = styles.findByNameAndWordkspaceNull(name);
+        Optional<StyleInfo> match = getStyleRepository().findByNameAndWordkspaceNull(name);
         if (match.isEmpty()) {
-            match = styles.findFirstByName(name, StyleInfo.class);
+            match = getStyleRepository().findFirstByName(name, StyleInfo.class);
         }
         return match.orElse(null);
     }
@@ -479,16 +491,16 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
         }
         Optional<StyleInfo> match;
         if (workspace == NO_WORKSPACE) {
-            match = styles.findByNameAndWordkspaceNull(name);
+            match = getStyleRepository().findByNameAndWordkspaceNull(name);
         } else {
-            match = styles.findByNameAndWorkspace(name, workspace);
+            match = getStyleRepository().findByNameAndWorkspace(name, workspace);
         }
         return match.orElse(null);
     }
 
     @Override
     public List<StyleInfo> getStyles() {
-        return toList(styles::findAll);
+        return toList(getStyleRepository()::findAll);
     }
 
     @Override
@@ -496,7 +508,7 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
         // Question: do we need to support ANY_WORKSPACE? see "todo" comment in DefaultCatalogFacade
         Stream<StyleInfo> matches;
         if (workspace == NO_WORKSPACE) {
-            matches = styles.findAllByNullWorkspace();
+            matches = getStyleRepository().findAllByNullWorkspace();
         } else {
             WorkspaceInfo ws;
             if (workspace == null) {
@@ -505,7 +517,7 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
                 ws = workspace;
             }
 
-            matches = styles.findAllByWorkspace(ws);
+            matches = getStyleRepository().findAllByWorkspace(ws);
         }
         return toList(() -> matches);
     }
@@ -518,18 +530,7 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
 
     @Override
     public void dispose() {
-        dispose(stores);
-        dispose(resources);
-        dispose(namespaces);
-        dispose(workspaces);
-        dispose(layers);
-        dispose(layerGroups);
-        dispose(maps);
-        dispose(styles);
-    }
-
-    private void dispose(CatalogInfoRepository<?> repository) {
-        if (repository != null) repository.dispose();
+        repositories.dispose();
     }
 
     @Override
@@ -537,30 +538,31 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
         final CatalogFacade dao = ProxyUtils.unwrap(to, LockingCatalogFacade.class);
         if (dao instanceof CatalogInfoRepositoryHolder other) {
             // do an optimized sync
-            this.workspaces.syncTo(other.getWorkspaceRepository());
-            this.namespaces.syncTo(other.getNamespaceRepository());
-            this.stores.syncTo(other.getStoreRepository());
-            this.resources.syncTo(other.getResourceRepository());
-            this.layers.syncTo(other.getLayerRepository());
-            this.layerGroups.syncTo(other.getLayerGroupRepository());
-            this.styles.syncTo(other.getStyleRepository());
-            this.maps.syncTo(other.getMapRepository());
+            this.getWorkspaceRepository().syncTo(other.getWorkspaceRepository());
+            this.getNamespaceRepository().syncTo(other.getNamespaceRepository());
+            this.getStoreRepository().syncTo(other.getStoreRepository());
+            this.getResourceRepository().syncTo(other.getResourceRepository());
+            this.getLayerRepository().syncTo(other.getLayerRepository());
+            this.getLayerGroupRepository().syncTo(other.getLayerGroupRepository());
+            this.getStyleRepository().syncTo(other.getStyleRepository());
+            this.getMapRepository().syncTo(other.getMapRepository());
             dao.setCatalog(catalog);
         } else {
             // do a manual import
-            sync(workspaces::findAll, dao::add);
-            sync(namespaces::findAll, dao::add);
-            sync(stores::findAll, dao::add);
-            sync(resources::findAll, dao::add);
-            sync(styles::findAll, dao::add);
-            sync(layers::findAll, dao::add);
-            sync(layerGroups::findAll, dao::add);
-            sync(maps::findAll, dao::add);
+            sync(getWorkspaceRepository()::findAll, dao::add);
+            sync(getNamespaceRepository()::findAll, dao::add);
+            sync(getStoreRepository()::findAll, dao::add);
+            sync(getResourceRepository()::findAll, dao::add);
+            sync(getStyleRepository()::findAll, dao::add);
+            sync(getLayerRepository()::findAll, dao::add);
+            sync(getLayerGroupRepository()::findAll, dao::add);
+            sync(getMapRepository()::findAll, dao::add);
         }
 
         dao.setDefaultWorkspace(getDefaultWorkspace());
         dao.setDefaultNamespace(getDefaultNamespace());
-        try (Stream<DataStoreInfo> defaultDataStores = stores.getDefaultDataStores()) {
+        try (Stream<DataStoreInfo> defaultDataStores =
+                getStoreRepository().getDefaultDataStores()) {
             defaultDataStores.forEach(d -> dao.setDefaultDataStore(d.getWorkspace(), d));
         }
     }
@@ -654,5 +656,95 @@ public class RepositoryCatalogFacadeImpl extends CatalogInfoRepositoryHolderImpl
             throw new IllegalArgumentException(
                     "Proxy values shall not be passed to CatalogInfoLookup");
         }
+    }
+
+    @Override
+    public <T extends CatalogInfo, R extends CatalogInfoRepository<T>> R repository(Class<T> of) {
+        return repositories.repository(of);
+    }
+
+    @Override
+    public <T extends CatalogInfo, R extends CatalogInfoRepository<T>> R repositoryFor(T info) {
+        return repositories.repositoryFor(info);
+    }
+
+    @Override
+    public void setNamespaceRepository(NamespaceRepository namespaces) {
+        repositories.setNamespaceRepository(namespaces);
+    }
+
+    @Override
+    public NamespaceRepository getNamespaceRepository() {
+        return repositories.getNamespaceRepository();
+    }
+
+    @Override
+    public void setWorkspaceRepository(WorkspaceRepository workspaces) {
+        repositories.setWorkspaceRepository(workspaces);
+    }
+
+    @Override
+    public WorkspaceRepository getWorkspaceRepository() {
+        return repositories.getWorkspaceRepository();
+    }
+
+    @Override
+    public void setStoreRepository(StoreRepository stores) {
+        repositories.setStoreRepository(stores);
+    }
+
+    @Override
+    public StoreRepository getStoreRepository() {
+        return repositories.getStoreRepository();
+    }
+
+    @Override
+    public void setResourceRepository(ResourceRepository resources) {
+        repositories.setResourceRepository(resources);
+    }
+
+    @Override
+    public ResourceRepository getResourceRepository() {
+        return repositories.getResourceRepository();
+    }
+
+    @Override
+    public void setLayerRepository(LayerRepository layers) {
+        repositories.setLayerRepository(layers);
+    }
+
+    @Override
+    public LayerRepository getLayerRepository() {
+        return repositories.getLayerRepository();
+    }
+
+    @Override
+    public void setLayerGroupRepository(LayerGroupRepository layerGroups) {
+        repositories.setLayerGroupRepository(layerGroups);
+    }
+
+    @Override
+    public LayerGroupRepository getLayerGroupRepository() {
+        return repositories.getLayerGroupRepository();
+    }
+
+    @Override
+    public void setStyleRepository(StyleRepository styles) {
+        repositories.setStyleRepository(styles);
+    }
+
+    @Override
+    public StyleRepository getStyleRepository() {
+        return repositories.getStyleRepository();
+    }
+
+    @Override
+    public void setMapRepository(MapRepository maps) {
+        repositories.setMapRepository(maps);
+    }
+
+    @Override
+    public MapRepository getMapRepository() {
+        return repositories.getMapRepository();
     }
 }

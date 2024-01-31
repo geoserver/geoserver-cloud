@@ -40,7 +40,7 @@ public class InfoEventResolver {
 
     public InfoEventResolver(@NonNull Catalog rawCatalog, @NonNull GeoServer geoserverConfig) {
 
-        proxyUtils = new ProxyUtils(rawCatalog, Optional.of(geoserverConfig));
+        proxyUtils = new ProxyUtils(() -> rawCatalog, Optional.of(geoserverConfig));
 
         configInfoResolver =
                 CollectionPropertiesInitializer.<Info>instance()

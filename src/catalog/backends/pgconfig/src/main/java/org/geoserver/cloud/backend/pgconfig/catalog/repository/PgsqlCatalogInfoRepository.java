@@ -15,11 +15,12 @@ import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.plugin.CatalogInfoRepository;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.Query;
+import org.geoserver.catalog.plugin.resolving.ResolvingCatalogInfoRepository;
+import org.geoserver.catalog.plugin.resolving.ResolvingFacade;
 import org.geoserver.cloud.backend.pgconfig.catalog.filter.PgsqlQueryBuilder;
 import org.geotools.api.filter.Filter;
 import org.geotools.api.filter.sort.SortBy;
 import org.geotools.api.filter.sort.SortOrder;
-import org.geotools.filter.visitor.SimplifyingFilterVisitor;
 import org.geotools.jackson.databind.util.ObjectMapperUtil;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -44,7 +45,8 @@ import java.util.stream.Stream;
  */
 @Slf4j
 public abstract class PgsqlCatalogInfoRepository<T extends CatalogInfo>
-        implements CatalogInfoRepository<T> {
+        extends ResolvingCatalogInfoRepository<T>
+        implements CatalogInfoRepository<T>, ResolvingFacade<T> {
 
     protected final @NonNull JdbcTemplate template;
 
@@ -56,6 +58,7 @@ public abstract class PgsqlCatalogInfoRepository<T extends CatalogInfo>
      * @param template
      */
     protected PgsqlCatalogInfoRepository(@NonNull JdbcTemplate template) {
+        super();
         this.template = template;
     }
 
@@ -145,12 +148,13 @@ public abstract class PgsqlCatalogInfoRepository<T extends CatalogInfo>
 
     @Override
     public <U extends T> Stream<U> findAll(Query<U> query) {
-        Filter filter = query.getFilter();
+        final Filter filter = query.getFilter();
 
         final PgsqlQueryBuilder qb = new PgsqlQueryBuilder(filter, sortableProperties()).build();
         final Filter supportedFilter = qb.getSupportedFilter();
         final Filter unsupportedFilter = qb.getUnsupportedFilter();
         final String whereClause = qb.getWhereClause();
+        final Class<U> type = query.getType();
 
         log.trace(
                 "supported filter {} translated to {}, unsupported: {}",
@@ -161,7 +165,7 @@ public abstract class PgsqlCatalogInfoRepository<T extends CatalogInfo>
         final boolean filterFullySupported = Filter.INCLUDE.equals(unsupportedFilter);
 
         String sql = "SELECT * FROM %s WHERE TRUE".formatted(getQueryTable());
-        sql = applyTypeFilter(sql, query.getType());
+        sql = applyTypeFilter(sql, type);
 
         Object[] prepStatementParams = null;
         if (!Filter.INCLUDE.equals(supportedFilter)) {
@@ -180,11 +184,10 @@ public abstract class PgsqlCatalogInfoRepository<T extends CatalogInfo>
 
         if (log.isDebugEnabled()) log.debug("{} / {}", sql, Arrays.toString(prepStatementParams));
 
-        Stream<U> stream = queryForStream(query.getType(), sql, prepStatementParams);
+        Stream<U> stream =
+                queryForStream(type, sql, prepStatementParams).map(this::resolveOutbound);
         if (!filterFullySupported) {
-            filter = SimplifyingFilterVisitor.simplify(unsupportedFilter);
-
-            Predicate<U> predicate = toPredicate(filter);
+            Predicate<U> predicate = toPredicate(unsupportedFilter);
             stream =
                     stream.filter(predicate)
                             .skip(query.offset().orElse(0))
@@ -193,20 +196,20 @@ public abstract class PgsqlCatalogInfoRepository<T extends CatalogInfo>
         return stream;
     }
 
+    protected Stream<T> queryForStream(String sql, Object... prepStatementParams) {
+        return queryForStream(getContentType(), sql, prepStatementParams);
+    }
+
     protected <U extends T> Stream<U> queryForStream(
             Class<U> type, String sql, Object... prepStatementParams) {
+
         RowMapper<T> rowMapper = newRowMapper();
         Stream<T> stream = template.queryForStream(sql, rowMapper, prepStatementParams);
-        return stream.filter(type::isInstance).map(type::cast);
+        return stream.filter(type::isInstance).map(type::cast).map(this::resolveOutbound);
     }
 
     protected <V> Predicate<V> toPredicate(Filter filter) {
-        return o -> {
-            if (null == o) {
-                return false;
-            }
-            return filter.evaluate(o);
-        };
+        return info -> null != info && filter.evaluate(info);
     }
 
     private String applyTypeFilter(String sql, @NonNull Class<? extends T> type) {
@@ -245,6 +248,9 @@ public abstract class PgsqlCatalogInfoRepository<T extends CatalogInfo>
         }
     }
 
+    /**
+     * @return {@code -1} if the {@code filter} is not fully supported
+     */
     @Override
     public <U extends T> long count(Class<U> of, final Filter filter) {
 
@@ -306,7 +312,7 @@ public abstract class PgsqlCatalogInfoRepository<T extends CatalogInfo>
                 SELECT * FROM %s WHERE name = ? ORDER BY id
                 """
                         .formatted(getQueryTable());
-        return findOne(query, clazz, newRowMapper(), name);
+        return findOne(query, clazz, name);
     }
 
     protected Optional<T> findOne(@NonNull String query, Object... args) {
@@ -324,7 +330,10 @@ public abstract class PgsqlCatalogInfoRepository<T extends CatalogInfo>
 
         try {
             T object = template.queryForObject(query, rowMapper, args);
-            return Optional.ofNullable(clazz.isInstance(object) ? clazz.cast(object) : null);
+            return Optional.ofNullable(object)
+                    .filter(clazz::isInstance)
+                    .map(clazz::cast)
+                    .map(this::resolveOutbound);
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         }

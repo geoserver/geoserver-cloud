@@ -26,12 +26,15 @@ public class PgsqlResourceRepository extends PgsqlCatalogInfoRepository<Resource
         implements ResourceRepository {
 
     private static final String AND_TYPE_INFOTYPE = " AND \"@type\" = ?::infotype";
+    private final PgsqlLayerRepository layerrepo;
 
     /**
      * @param template
      */
-    public PgsqlResourceRepository(@NonNull JdbcTemplate template) {
+    public PgsqlResourceRepository(
+            @NonNull JdbcTemplate template, @NonNull PgsqlLayerRepository layerrepo) {
         super(template);
+        this.layerrepo = layerrepo;
     }
 
     @Override
@@ -54,7 +57,6 @@ public class PgsqlResourceRepository extends PgsqlCatalogInfoRepository<Resource
 
     private void updateLayer(ResourceInfo oldResource, ResourceInfo patched) {
         if (!oldResource.getName().equals(patched.getName())) {
-            PgsqlLayerRepository layerrepo = new PgsqlLayerRepository(template);
             Optional<LayerInfo> layer = layerrepo.findOneByName(oldResource.prefixedName());
             layer.ifPresent(
                     // update the layer's json name which will update the layerinfo.name computed
@@ -111,11 +113,10 @@ public class PgsqlResourceRepository extends PgsqlCatalogInfoRepository<Resource
                 WHERE "namespace.id" = ?
                 """;
         if (ResourceInfo.class.equals(clazz)) {
-            return template.queryForStream(query, newRowMapper(), ns.getId()).map(clazz::cast);
+            return super.queryForStream(clazz, query, ns.getId());
         }
         query += AND_TYPE_INFOTYPE;
-        return template.queryForStream(query, newRowMapper(), ns.getId(), infoType(clazz))
-                .map(clazz::cast);
+        return super.queryForStream(clazz, query, ns.getId(), infoType(clazz));
     }
 
     @Override
@@ -144,11 +145,10 @@ public class PgsqlResourceRepository extends PgsqlCatalogInfoRepository<Resource
                 WHERE "store.id" = ?
                 """;
         if (ResourceInfo.class.equals(clazz)) {
-            return template.queryForStream(query, newRowMapper(), store.getId()).map(clazz::cast);
+            return super.queryForStream(clazz, query, store.getId());
         }
         query += AND_TYPE_INFOTYPE;
-        return template.queryForStream(query, newRowMapper(), store.getId(), infoType(clazz))
-                .map(clazz::cast);
+        return super.queryForStream(clazz, query, store.getId(), infoType(clazz));
     }
 
     @Override

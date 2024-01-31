@@ -8,20 +8,13 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 import org.geoserver.catalog.Catalog;
-import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.impl.CatalogImpl;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
-import org.geoserver.catalog.plugin.forwarding.ResolvingCatalogFacadeDecorator;
-import org.geoserver.catalog.plugin.resolving.CatalogPropertyResolver;
-import org.geoserver.catalog.plugin.resolving.CollectionPropertiesInitializer;
-import org.geoserver.catalog.plugin.resolving.ResolvingProxyResolver;
 import org.geoserver.cloud.backend.pgconfig.catalog.PgsqlCatalogFacade;
 import org.geoserver.cloud.backend.pgconfig.config.PgsqlGeoServerFacade;
 import org.geoserver.config.plugin.GeoServerImpl;
 import org.springframework.jdbc.core.JdbcTemplate;
-
-import java.util.function.UnaryOperator;
 
 import javax.sql.DataSource;
 
@@ -50,22 +43,7 @@ public class PgsqlBackendBuilder {
 
     public ExtendedCatalogFacade createCatalogFacade(Catalog catalog) {
         JdbcTemplate template = new JdbcTemplate(dataSource);
-        PgsqlCatalogFacade facade = new PgsqlCatalogFacade(template);
-
-        return createResolvingCatalogFacade(catalog, facade);
-    }
-
-    public static ExtendedCatalogFacade createResolvingCatalogFacade(
-            Catalog catalog, PgsqlCatalogFacade rawFacade) {
-        UnaryOperator<CatalogInfo> resolvingFunction =
-                CatalogPropertyResolver.<CatalogInfo>of(catalog)
-                                .andThen(ResolvingProxyResolver.<CatalogInfo>of(catalog))
-                                .andThen(CollectionPropertiesInitializer.instance())
-                        ::apply;
-
-        ResolvingCatalogFacadeDecorator resolving = new ResolvingCatalogFacadeDecorator(rawFacade);
-        resolving.setOutboundResolver(resolvingFunction);
-        return resolving;
+        return new PgsqlCatalogFacade(template);
     }
 
     public <C extends CatalogImpl> C initCatalog(C catalog) {
