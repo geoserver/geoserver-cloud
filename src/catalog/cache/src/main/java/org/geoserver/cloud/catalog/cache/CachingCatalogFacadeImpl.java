@@ -22,7 +22,6 @@ import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.forwarding.ForwardingExtendedCatalogFacade;
 import org.springframework.cache.Cache;
 import org.springframework.cache.Cache.ValueWrapper;
-import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -38,9 +37,9 @@ class CachingCatalogFacadeImpl extends ForwardingExtendedCatalogFacade
         implements CachingCatalogFacade {
     private Cache idCache;
 
-    public CachingCatalogFacadeImpl(ExtendedCatalogFacade facade, CacheManager cacheManager) {
+    public CachingCatalogFacadeImpl(@NonNull ExtendedCatalogFacade facade, @NonNull Cache cache) {
         super(facade);
-        idCache = cacheManager.getCache(CachingCatalogFacade.CACHE_NAME);
+        this.idCache = cache;
     }
 
     @Override

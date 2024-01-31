@@ -1,5 +1,0 @@
-# Auto Configure
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-org.geoserver.cloud.autoconfigure.catalog.backend.pgsql.PgsqlDataSourceAutoConfiguration,\
-org.geoserver.cloud.autoconfigure.catalog.backend.pgsql.PgsqlMigrationAutoConfiguration,\
-org.geoserver.cloud.autoconfigure.catalog.backend.pgsql.PgsqlBackendAutoConfiguration

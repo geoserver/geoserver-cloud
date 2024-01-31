@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.geoserver.cloud.gwc</groupId>
+    <artifactId>gwc-cloud</artifactId>
+    <version>${revision}</version>
+  </parent>
+  <artifactId>gwc-cloud-blobstores</artifactId>
+  <packaging>jar</packaging>
+  <dependencies>
+    <dependency>
+      <groupId>org.geoserver.cloud.gwc</groupId>
+      <artifactId>gwc-cloud-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.extension</groupId>
+      <artifactId>gs-gwc-s3</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.community</groupId>
+      <artifactId>gs-gwc-azure-blob</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.web</groupId>
+      <artifactId>gs-web-gwc</artifactId>
+      <scope>provided</scope>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+</project>

@@ -1,0 +1,85 @@
+version: "3.8"
+
+#
+# Configures all geoserver services to use a shared data directory as catalog backend.
+# Run with `docker compose -f compose.yml -f catalog-datadir.yml up -d`
+# Note the default data directory location is /opt/app/data_directory
+# To set it to a different path, change the mount point and add the following env variable: GEOSERVER_DATA_DIR: </path/to/data_directory>
+
+volumes:
+  datadir:
+    driver_opts:
+      type: none
+      o: bind
+      device: $PWD/catalog-datadir
+  
+services:
+  init-datadir:
+    image: alpine:3.18.4
+    user: ${GS_USER}
+    command: sh -c "cd /opt/app/data_directory; if [ ! -f global.xml ]; then tar xfvz /tmp/datadir.tgz; fi"
+    volumes:
+      - datadir:/opt/app/data_directory
+      - ./catalog-datadir.tgz:/tmp/datadir.tgz
+  wfs:
+    environment:
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},datadir"
+    depends_on:
+      init-datadir:
+        condition: service_completed_successfully
+    volumes:
+      - datadir:/opt/app/data_directory
+
+  wms:
+    environment:
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},datadir"
+    depends_on:
+      init-datadir:
+        condition: service_completed_successfully
+    volumes:
+      - datadir:/opt/app/data_directory
+
+  wcs:
+    environment:
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},datadir"
+    depends_on:
+      init-datadir:
+        condition: service_completed_successfully
+    volumes:
+      - datadir:/opt/app/data_directory
+
+  wps:
+    environment:
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},datadir"
+    depends_on:
+      init-datadir:
+        condition: service_completed_successfully
+    volumes:
+      - datadir:/opt/app/data_directory
+
+  rest:
+    environment:
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},datadir"
+    depends_on:
+      init-datadir:
+        condition: service_completed_successfully
+    volumes:
+      - datadir:/opt/app/data_directory
+
+  webui:
+    environment:
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},datadir"
+    depends_on:
+      init-datadir:
+        condition: service_completed_successfully
+    volumes:
+      - datadir:/opt/app/data_directory
+
+  gwc:
+    environment:
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},datadir"
+    depends_on:
+      init-datadir:
+        condition: service_completed_successfully
+    volumes:
+      - datadir:/opt/app/data_directory

@@ -33,7 +33,7 @@
     <lombok.version>1.18.30</lombok.version>
     <mapstruct.version>1.6.0.Beta1</mapstruct.version>
     <flyway.version>9.22.3</flyway.version>
-    <testcontainers.version>1.19.1</testcontainers.version>
+    <testcontainers.version>1.19.3</testcontainers.version>
     <fork.javac>true</fork.javac>
     <javac.maxHeapSize>256M</javac.maxHeapSize>
     <!-- 
@@ -556,13 +556,6 @@
         <groupId>org.geoserver.community</groupId>
         <artifactId>gs-flatgeobuf</artifactId>
         <version>${gs.version}</version>
-        <exclusions>
-          <exclusion>
-            <!-- revisit: exclusion not needed once https://github.com/geoserver/geoserver/pull/7320 is merged -->
-            <groupId>org.geoserver.web</groupId>
-            <artifactId>gs-web-core</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.geoserver.extension</groupId>

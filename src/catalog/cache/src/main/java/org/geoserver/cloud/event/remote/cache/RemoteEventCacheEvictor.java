@@ -179,7 +179,7 @@ public @Service class RemoteEventCacheEvictor {
                         evt -> {
                             boolean evicted = evictor.getAsBoolean();
                             if (evicted) {
-                                log.debug("Evicted cache entry {}", evt);
+                                log.debug("Evicted Catalog cache entry due to {}", evt);
                             } else {
                                 log.trace("Remote event resulted in no cache eviction: {}", evt);
                             }

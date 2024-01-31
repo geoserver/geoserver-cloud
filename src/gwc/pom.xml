@@ -6,12 +6,13 @@
     <artifactId>gs-cloud</artifactId>
     <version>${revision}</version>
   </parent>
+  <groupId>org.geoserver.cloud.gwc</groupId>
   <artifactId>gwc-cloud</artifactId>
   <packaging>pom</packaging>
   <name>GeoWebCache Cloud</name>
   <modules>
     <module>core</module>
-    <module>backends</module>
+    <module>blobstores</module>
     <module>services</module>
     <module>integration-bus</module>
     <module>autoconfigure</module>

@@ -4,7 +4,6 @@
  */
 package org.geoserver.catalog.plugin.resolving;
 
-import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,6 +44,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /** */
@@ -73,8 +73,8 @@ public class ProxyUtils {
                     GeoServerInfo.class, //
                     ServiceInfo.class);
 
-    private final @NonNull @Getter Catalog catalog;
-    private final @NonNull @Getter Optional<GeoServer> config;
+    private final @NonNull Supplier<Catalog> catalog;
+    private final @NonNull Optional<GeoServer> config;
 
     private boolean failOnNotFound = false;
 
@@ -181,7 +181,7 @@ public class ProxyUtils {
 
     @SuppressWarnings("unchecked")
     private <T extends Info> T resolveResolvingProxy(T info) {
-        if (info instanceof CatalogInfo) return resolveCatalogInfo(catalog, info);
+        if (info instanceof CatalogInfo) return resolveCatalogInfo(info);
 
         GeoServer gsConfig = this.config.orElse(null);
         if (gsConfig != null) {
@@ -198,22 +198,29 @@ public class ProxyUtils {
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends Info> T resolveCatalogInfo(@NonNull Catalog catalog, T info) {
+    private <T extends Info> T resolveCatalogInfo(T info) {
+        Catalog actualCatalog = getCatalog();
         // Workaround for a bug in ResolvingProxy.resolve(), if info is a PublishedInfo
         // (as opposed
         // to a concrete LayerInfo or LayerGroupInfo) it does nothing.
         if (info instanceof PublishedInfo) {
             PublishedInfo l =
                     ResolvingProxy.resolve(
-                            catalog, ResolvingProxy.create(info.getId(), LayerInfo.class));
+                            actualCatalog, ResolvingProxy.create(info.getId(), LayerInfo.class));
             if (null == l) {
                 l =
                         ResolvingProxy.resolve(
-                                catalog, ResolvingProxy.create(info.getId(), LayerGroupInfo.class));
+                                actualCatalog,
+                                ResolvingProxy.create(info.getId(), LayerGroupInfo.class));
             }
             return (T) l;
         }
-        return ResolvingProxy.resolve(catalog, info);
+        return ResolvingProxy.resolve(actualCatalog, info);
+    }
+
+    @NonNull
+    private Catalog getCatalog() {
+        return catalog.get();
     }
 
     public static <T extends Info> boolean isResolvingProxy(final T info) {

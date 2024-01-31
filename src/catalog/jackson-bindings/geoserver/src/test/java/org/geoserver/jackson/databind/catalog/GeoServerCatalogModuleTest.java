@@ -128,7 +128,7 @@ public abstract class GeoServerCatalogModuleTest {
         geoserver = new GeoServerImpl();
         geoserver.setCatalog(catalog);
         data = CatalogTestData.initialized(() -> catalog, () -> geoserver).initialize();
-        proxyResolver = new ProxyUtils(catalog, Optional.of(geoserver));
+        proxyResolver = new ProxyUtils(() -> catalog, Optional.of(geoserver));
     }
 
     protected abstract ObjectMapper newObjectMapper();

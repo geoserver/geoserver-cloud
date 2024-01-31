@@ -1,0 +1,160 @@
+version: "3.8"
+
+include:
+  - ./infra.yml
+  
+volumes:
+  geowebcache_data:
+  config:
+    driver_opts:
+      type: none
+      o: bind
+      device: $PWD/../config
+    
+services:
+
+  acl:
+    image: geoservercloud/geoserver-acl:${ACL_TAG}
+    volumes:
+      - ${PWD}/../config/acl-service.yml:/opt/app/bin/acl.yml
+    environment:
+      SPRING_PROFILES_ACTIVE: "${ACL_DEFAULT_PROFILES}"
+    depends_on:
+      acldb:
+        condition: service_started
+    ports:
+      - 9000:8080
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 2G
+
+  # Spring Cloud Config service, provides centralized configuration to all
+  # microservices. Being a Discovery First Bootstrap configuration, it'll
+  # register itself with the Eureka discovery service and can be scaled
+  config:
+    image: geoservercloud/geoserver-cloud-config:${TAG}
+    user: ${GS_USER}
+    environment:
+      JAVA_OPTS: "${JAVA_OPTS_CONFIG}"
+      # Either 'git' or 'native'. Use the default sample git repository to download the services configuration from
+      # If 'git', BEWARE config server will look for a branch called "master", and github changed the default branch name to "main"
+      # For more information, see https://cloud.spring.io/spring-cloud-config/multi/multi__spring_cloud_config_server.html#_git_backend
+      SPRING_PROFILES_ACTIVE: native,standalone
+      # 'git' profile config
+      CONFIG_GIT_URI: https://github.com/geoserver/geoserver-cloud-config
+      CONFIG_GIT_BASEDIR: /tmp/git_config
+      # 'native' profile config
+      CONFIG_NATIVE_PATH: /tmp/config
+    restart: unless-stopped
+    volumes:
+      - config:/tmp/config
+    ports:
+      - 8888:8080
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 512M
+
+  # Eureka service discovery. This is a Discovery First Bootstrap configuration.
+  # The discovery service is the only fixed entry point.
+  # Browse to http://localhost:8761 to check all services are registered.
+  discovery:
+    image: geoservercloud/geoserver-cloud-discovery:${TAG}
+    user: ${GS_USER}
+    environment:
+      JAVA_OPTS: "${JAVA_OPTS_DISCOVERY}"
+    ports:
+      - 8761:8761 # for development, so services can be run from localhost and find the discovery service running on docker
+    restart: unless-stopped
+    depends_on:
+      - config
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 512M
+    
+  # Application facade, provides a single entry point routing to all
+  # microservices (e.g. http://localhost:9090/geoserver/wms, http://localhost:9090/geoserver/wfs, etc)
+  gateway:
+    image: geoservercloud/geoserver-cloud-gateway:${TAG}
+    user: ${GS_USER}
+    depends_on:
+      discovery:
+        condition: service_healthy
+    environment:
+      JAVA_OPTS: "${JAVA_OPTS_GATEWAY}"
+      SPRING_PROFILES_ACTIVE: dev #exposes the catalog and config API at /api/v1/**
+      # eat our own dogfood and set a base path
+      GEOSERVER_BASE_PATH: ${BASE_PATH}
+    ports:
+      - 9090:8080
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 1G
+
+  wfs:
+    extends:
+      file: templates.yml
+      service: gstemplate
+    image: geoservercloud/geoserver-cloud-wfs:${TAG}
+    environment:
+      JAVA_OPTS: "${JAVA_OPTS_WFS}"
+
+  wms:
+    image: geoservercloud/geoserver-cloud-wms:${TAG}
+    extends:
+      file: templates.yml
+      service: gstemplate
+    environment:
+      JAVA_OPTS: "${JAVA_OPTS_WMS}"
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+
+  wcs:
+    extends:
+      file: templates.yml
+      service: gstemplate
+    image: geoservercloud/geoserver-cloud-wcs:${TAG}
+    environment:
+      JAVA_OPTS: "${JAVA_OPTS_WCS}"
+
+  wps:
+    extends:
+      file: templates.yml
+      service: gstemplate
+    image: geoservercloud/geoserver-cloud-wps:${TAG}
+    environment:
+      JAVA_OPTS: "${JAVA_OPTS_WPS}"
+
+  gwc:
+    extends:
+      file: templates.yml
+      service: gstemplate
+    image: geoservercloud/geoserver-cloud-gwc:${TAG}
+    environment:
+      JAVA_OPTS: "${JAVA_OPTS_GWC}"
+
+  rest:
+    extends:
+      file: templates.yml
+      service: gstemplate
+    image: geoservercloud/geoserver-cloud-rest:${TAG}
+    environment:
+      JAVA_OPTS: "${JAVA_OPTS_REST}"
+
+  webui:
+    extends:
+      file: templates.yml
+      service: gstemplate
+    image: geoservercloud/geoserver-cloud-webui:${TAG}
+    environment:
+      JAVA_OPTS: "${JAVA_OPTS_WEBUI}"
+

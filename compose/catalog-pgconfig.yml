@@ -1,0 +1,75 @@
+version: "3.8"
+
+volumes:
+  pgconfigdb_data: # volume for postgresql data, used to store the geoserver config through pgsqlconfig backend
+
+#
+# Configures all geoserver services to use the postgresql database server with pgconfig as catalog backend.
+# Run with `docker compose -f compose.yml -f catalog-pgconfig.yml up -d`
+#
+
+services:
+  pgconfigdb:
+    extends:
+      file: templates.yml
+      service: pgconfigdbtemplate
+    volumes:
+      - pgconfigdb_data:/var/lib/postgresql/data
+    ports:
+      - 8432:5432
+
+  wfs:
+    environment:
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},pgconfig"
+    depends_on:
+      pgconfigdb:
+        condition: service_started
+        required: true
+
+  wms:
+    environment:
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},pgconfig"
+    depends_on:
+      pgconfigdb:
+        condition: service_started
+        required: true
+
+  wcs:
+    environment:
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},pgconfig"
+    depends_on:
+      pgconfigdb:
+        condition: service_started
+        required: true
+
+  rest:
+    environment:
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},pgconfig"
+    depends_on:
+      pgconfigdb:
+        condition: service_started
+        required: true
+
+  webui:
+    environment:
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},pgconfig"
+    depends_on:
+      pgconfigdb:
+        condition: service_started
+        required: true
+
+  gwc:
+    environment:
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},pgconfig"
+    depends_on:
+      pgconfigdb:
+        condition: service_started
+        required: true
+
+  wps:
+    environment:
+      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},pgconfig"
+    depends_on:
+      pgconfigdb:
+        condition: service_started
+        required: true

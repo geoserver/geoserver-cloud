@@ -4,16 +4,13 @@
  */
 package org.geoserver.cloud.catalog.cache;
 
-import lombok.Value;
-
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.config.ServiceInfo;
 
+import java.io.Serializable;
+
 /** */
-@Value
-class ServiceInfoKey {
-    private String firstIdentifier;
-    private String secondIdentifier;
+record ServiceInfoKey(String key, String qualifier) implements Serializable {
 
     public static ServiceInfoKey byId(String id) {
         return new ServiceInfoKey(id, null);

@@ -39,17 +39,17 @@ public class RemoteEventCacheEvictorTestConfiguration {
     }
 
     @Bean(name = {"rawCatalog"})
-    public Catalog rawCatalog(@Qualifier("catalogFacade") CatalogFacade facade) {
+    Catalog rawCatalog(@Qualifier("catalogFacade") CatalogFacade facade) {
         return new CatalogPlugin(facade);
     }
 
     @Bean(name = {"catalog"})
-    public Catalog catalog(@Qualifier("rawCatalog") Catalog raw) {
+    Catalog catalog(@Qualifier("rawCatalog") Catalog raw) {
         return raw;
     }
 
     @Bean(name = "geoServer")
-    public GeoServer geoServer(
+    GeoServer geoServer(
             @Qualifier("catalog") Catalog catalog,
             @Qualifier("geoserverFacade") GeoServerFacade facade) {
 
@@ -59,12 +59,12 @@ public class RemoteEventCacheEvictorTestConfiguration {
     }
 
     @Bean(name = "catalogFacade")
-    public CatalogFacade catalogFacade() {
+    CatalogFacade catalogFacade() {
         return new DefaultMemoryCatalogFacade();
     }
 
     @Bean(name = "geoserverFacade")
-    public GeoServerFacade geoserverFacade() {
+    GeoServerFacade geoserverFacade() {
         return new RepositoryGeoServerFacadeImpl();
     }
 }
