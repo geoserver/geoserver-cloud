@@ -17,14 +17,11 @@ import org.springframework.context.annotation.ImportResource;
         reader = FilteringXmlBeanDefinitionReader.class, //
         locations = { //
             "jar:gs-wps-.*!/applicationContext.xml", //
-            "jar:gs-wfs-.*!/applicationContext.xml", //
             "jar:gs-wcs-.*!/applicationContext.xml", //
             "jar:gs-wcs1_0-.*!/applicationContext.xml", //
             "jar:gs-wcs1_1-.*!/applicationContext.xml", //
-            "jar:gs-wcs2_0-.*!/applicationContext.xml" //
-            // // REVISIT: wps won't start without the web components! see note in pom.xml
-            // "jar:gs-web-core-.*!/applicationContext.xml", //
-            // "jar:gs-web-wps-.*!/applicationContext.xml", //
+            "jar:gs-wcs2_0-.*!/applicationContext.xml", //
+            "jar:gs-wfs-.*!/applicationContext.xml#name=^(?!wfsInsertElementHandler|wfsUpdateElementHandler|wfsDeleteElementHandler|wfsReplaceElementHandler).*$", //
         })
 public class WpsApplicationConfiguration {
 
