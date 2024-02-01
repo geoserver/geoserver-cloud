@@ -210,7 +210,7 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
         for (ConfigurationListener l : listeners) {
             try {
                 l.handleSettingsAdded(settings);
-            } catch (Exception e) {
+            } catch (RuntimeException e) {
                 logListenerError(e);
             }
         }
@@ -225,7 +225,7 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
         for (ConfigurationListener l : listeners) {
             try {
                 l.handleSettingsModified(settings, changed, oldValues, newValues);
-            } catch (Exception e) {
+            } catch (RuntimeException e) {
                 logListenerError(e);
             }
         }
@@ -235,7 +235,7 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
         for (ConfigurationListener l : listeners) {
             try {
                 l.handleSettingsPostModified(settings);
-            } catch (Exception e) {
+            } catch (RuntimeException e) {
                 logListenerError(e);
             }
         }
@@ -245,7 +245,7 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
         for (ConfigurationListener l : listeners) {
             try {
                 l.handleSettingsRemoved(settings);
-            } catch (Exception e) {
+            } catch (RuntimeException e) {
                 logListenerError(e);
             }
         }
@@ -382,7 +382,7 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
     private void notifyPost(ConfigurationListener l, GeoServerInfo global) {
         try {
             l.handlePostGlobalChange(global);
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             logListenerError(e);
         }
     }
@@ -397,7 +397,7 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
         for (ConfigurationListener l : getListeners()) {
             try {
                 l.handleGlobalChange(global, changed, oldValues, newValues);
-            } catch (Exception e) {
+            } catch (RuntimeException e) {
                 logListenerError(e);
             }
         }
@@ -504,7 +504,7 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
                 GeoServerExtensions.extensions(GeoServerLifecycleHandler.class)) {
             try {
                 handler.onDispose();
-            } catch (Throwable t) {
+            } catch (RuntimeException t) {
                 LOGGER.log(
                         Level.SEVERE,
                         "A GeoServer lifecycle handler threw an exception during dispose",
@@ -531,7 +531,7 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
         for (GeoServerLifecycleHandler handler : handlers) {
             try {
                 handler.beforeReload();
-            } catch (Throwable t) {
+            } catch (RuntimeException t) {
                 LOGGER.log(
                         Level.SEVERE,
                         "A GeoServer lifecycle handler threw an exception during reload",
@@ -592,7 +592,7 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
                 GeoServerExtensions.extensions(GeoServerLifecycleHandler.class)) {
             try {
                 handler.onReset();
-            } catch (Throwable t) {
+            } catch (RuntimeException t) {
                 LOGGER.log(
                         Level.SEVERE,
                         "A GeoServer lifecycle handler threw an exception during reset",
