@@ -885,35 +885,18 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
         doSave(info);
     }
 
-    public void remove(CatalogInfo info) {
-        ClassMappings cm = classMapping(ModificationProxy.unwrap(info).getClass()).orElseThrow();
-        switch (cm) {
-            case WORKSPACE:
-                remove((WorkspaceInfo) info);
-                break;
-            case NAMESPACE:
-                remove((NamespaceInfo) info);
-                break;
-            case STORE, COVERAGESTORE, DATASTORE, WMSSTORE, WMTSSTORE:
-                remove((StoreInfo) info);
-                break;
-            case RESOURCE, FEATURETYPE, COVERAGE, WMSLAYER, WMTSLAYER:
-                remove((ResourceInfo) info);
-                break;
-            case LAYER:
-                remove((LayerInfo) info);
-                break;
-            case LAYERGROUP:
-                remove((LayerGroupInfo) info);
-                break;
-            case STYLE:
-                remove((StyleInfo) info);
-                break;
-            case MAP:
-                remove((MapInfo) info);
-                break;
-            default:
-                throw new IllegalArgumentException("Unexpected value: %s".formatted(cm));
+    public void remove(@NonNull CatalogInfo info) {
+        switch (info) {
+            case WorkspaceInfo ws -> remove(ws);
+            case NamespaceInfo ns -> remove(ns);
+            case StoreInfo st -> remove(st);
+            case ResourceInfo r -> remove(r);
+            case LayerInfo l -> remove(l);
+            case LayerGroupInfo lg -> remove(lg);
+            case StyleInfo s -> remove(s);
+            case MapInfo m -> remove(m);
+            default -> throw new IllegalArgumentException(
+                    "Unexpected value: %s".formatted(ModificationProxy.unwrap(info).getClass()));
         }
     }
 }
