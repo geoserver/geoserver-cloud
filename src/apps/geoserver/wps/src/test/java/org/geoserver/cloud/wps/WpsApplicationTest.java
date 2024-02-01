@@ -29,7 +29,8 @@ class WpsApplicationTest {
 
     @DynamicPropertySource
     static void setUpDataDir(DynamicPropertyRegistry registry) throws IOException {
-        datadir = Files.createDirectory(tmpdir.resolve("datadir"));
+        datadir = tmpdir.resolve("datadir");
+        if (!Files.exists(datadir)) datadir = Files.createDirectory(datadir);
         registry.add("geoserver.backend.data-directory.location", datadir::toAbsolutePath);
     }
 

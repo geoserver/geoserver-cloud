@@ -97,7 +97,7 @@ Follow the development progress on these [GitHub Kanban boards](https://github.c
 
 Requirements:
 
- * Java >= 17 JDK
+ * Java >= 21 JDK
  * [Maven](https://maven.apache.org/) >= `3.6.3`
  * A recent [Docker](https://docs.docker.com/engine/install/) version with the [Compose](https://docs.docker.com/compose/) plugin.
 
