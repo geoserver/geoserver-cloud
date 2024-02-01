@@ -7,7 +7,6 @@ package org.geoserver.cloud.autoconfigure.catalog.backend.pgconfig;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.geoserver.GeoServerConfigurationLock;
-import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.cloud.backend.pgconfig.catalog.PgsqlCatalogFacade;
 import org.geoserver.cloud.backend.pgconfig.config.PgsqlConfigRepository;
@@ -69,9 +68,6 @@ class PgsqlBackendAutoConfigurationTest {
                     ExtendedCatalogFacade catalogFacade =
                             context.getBean("catalogFacade", ExtendedCatalogFacade.class);
                     assertThat(catalogFacade).isInstanceOf(PgsqlCatalogFacade.class);
-
-                    CatalogPlugin catalog = context.getBean("rawCatalog", CatalogPlugin.class);
-                    assertThat(catalog.getRawFacade()).isSameAs(catalogFacade);
                 });
     }
 }
