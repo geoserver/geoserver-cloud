@@ -7,7 +7,6 @@ package org.geoserver.cloud.config.catalog.backend.pgconfig;
 import lombok.extern.slf4j.Slf4j;
 
 import org.geoserver.GeoServerConfigurationLock;
-import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.catalog.plugin.locking.LockProviderGeoServerConfigurationLock;
 import org.geoserver.cloud.backend.pgconfig.PgsqlBackendBuilder;
@@ -17,7 +16,6 @@ import org.geoserver.cloud.backend.pgconfig.config.PgsqlUpdateSequence;
 import org.geoserver.cloud.backend.pgconfig.resource.FileSystemResourceStoreCache;
 import org.geoserver.cloud.backend.pgconfig.resource.PgsqlLockProvider;
 import org.geoserver.cloud.backend.pgconfig.resource.PgsqlResourceStore;
-import org.geoserver.cloud.config.catalog.backend.core.CatalogProperties;
 import org.geoserver.cloud.config.catalog.backend.core.GeoServerBackendConfigurer;
 import org.geoserver.cloud.config.catalog.backend.pgconfig.DatabaseMigrationConfiguration.Migrations;
 import org.geoserver.config.GeoServerLoader;
@@ -46,7 +44,6 @@ public class PgsqlBackendConfiguration extends GeoServerBackendConfigurer {
 
     private String instanceId;
     private DataSource dataSource;
-    private CatalogProperties catalogProperties;
 
     /**
      * @param instanceId used as client-id for the {@link #pgsqlLockRepository() LockRepository}
@@ -59,11 +56,9 @@ public class PgsqlBackendConfiguration extends GeoServerBackendConfigurer {
     PgsqlBackendConfiguration(
             @Value("${info.instance-id:}") String instanceId,
             @Qualifier("pgsqlConfigDatasource") DataSource dataSource,
-            CatalogProperties catalogProperties,
             Migrations migrations) {
         this.instanceId = instanceId;
         this.dataSource = dataSource;
-        this.catalogProperties = catalogProperties;
         log.info(
                 "Loading geoserver config backend with {}. {}",
                 PgsqlBackendConfiguration.class.getSimpleName(),
@@ -71,22 +66,9 @@ public class PgsqlBackendConfiguration extends GeoServerBackendConfigurer {
     }
 
     @Bean
-    CatalogPlugin rawCatalog() {
-        boolean isolated = catalogProperties.isIsolated();
-        CatalogPlugin rawCatalog = new CatalogPlugin(isolated);
-        GeoServerResourceLoader resourceLoader = resourceLoader();
-        rawCatalog.setResourceLoader(resourceLoader);
-        return rawCatalog;
-    }
-
-    @Bean
     @Override
     protected ExtendedCatalogFacade catalogFacade() {
-        CatalogPlugin rawCatalog = rawCatalog();
-        ExtendedCatalogFacade facade =
-                new PgsqlBackendBuilder(dataSource).createCatalogFacade(rawCatalog);
-        rawCatalog.setFacade(facade);
-        return facade;
+        return new PgsqlBackendBuilder(dataSource).createCatalogFacade();
     }
 
     @Bean(name = "pgsqlCongigJdbcTemplate")

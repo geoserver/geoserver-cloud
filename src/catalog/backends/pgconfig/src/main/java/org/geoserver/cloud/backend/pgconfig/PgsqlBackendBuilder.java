@@ -41,13 +41,13 @@ public class PgsqlBackendBuilder {
         return new PgsqlGeoServerFacade(new JdbcTemplate(dataSource));
     }
 
-    public ExtendedCatalogFacade createCatalogFacade(Catalog catalog) {
+    public ExtendedCatalogFacade createCatalogFacade() {
         JdbcTemplate template = new JdbcTemplate(dataSource);
         return new PgsqlCatalogFacade(template);
     }
 
     public <C extends CatalogImpl> C initCatalog(C catalog) {
-        ExtendedCatalogFacade facade = createCatalogFacade(catalog);
+        ExtendedCatalogFacade facade = createCatalogFacade();
         catalog.setFacade(facade);
         return catalog;
     }
