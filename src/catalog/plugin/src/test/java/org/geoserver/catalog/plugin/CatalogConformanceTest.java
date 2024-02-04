@@ -634,6 +634,28 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
+    void testSetDefaultDataStore() {
+        WorkspaceInfo workspace = data.workspaceA;
+        catalog.add(workspace);
+        DataStoreInfo ds1 = data.dataStoreA;
+        DataStoreInfo ds2 = data.faker().dataStoreInfo(workspace);
+        DataStoreInfo ds3 = data.faker().dataStoreInfo(workspace);
+
+        catalog.add(ds1);
+        catalog.add(ds2);
+        catalog.add(ds3);
+
+        assertEquals(ds1, catalog.getDefaultDataStore(workspace));
+        catalog.setDefaultDataStore(workspace, ds3);
+        assertEquals(ds3, catalog.getDefaultDataStore(workspace));
+        catalog.setDefaultDataStore(workspace, ds2);
+        assertEquals(ds2, catalog.getDefaultDataStore(workspace));
+
+        catalog.setDefaultDataStore(workspace, null);
+        assertNull(catalog.getDefaultDataStore(workspace));
+    }
+
+    @Test
     void testRemoveDefaultStore() {
         catalog.add(data.workspaceA);
         catalog.add(data.dataStoreA);
