@@ -69,7 +69,7 @@ public class PgsqlStoreRepository extends PgsqlCatalogInfoRepository<StoreInfo>
                 """
                 SELECT store, workspace
                 FROM storeinfos
-                WHERE "workspace.id" = ? AND default_store IS NOT NULL
+                WHERE id = (SELECT default_store FROM workspaceinfo WHERE id = ?)
                 """;
         return findOne(sql, DataStoreInfo.class, workspace.getId());
     }
@@ -78,9 +78,9 @@ public class PgsqlStoreRepository extends PgsqlCatalogInfoRepository<StoreInfo>
     public Stream<DataStoreInfo> getDefaultDataStores() {
         String sql =
                 """
-                SELECT store, workspace
-                FROM storeinfos
-                WHERE default_store IS NOT NULL
+                SELECT s.store, s.workspace
+                FROM storeinfos s
+                INNER JOIN workspaceinfo w ON s."workspace.id" = w.id AND s.id = w.default_store;
                 """;
         return super.queryForStream(DataStoreInfo.class, sql);
     }
