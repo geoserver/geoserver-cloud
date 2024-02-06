@@ -5,6 +5,7 @@
 package org.geoserver.cloud.autoconfigure.geotools;
 
 import org.geoserver.GeoserverInitStartupListener;
+import org.geotools.util.factory.Hints;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.web.context.support.GenericWebApplicationContext;
@@ -39,7 +40,7 @@ public class GeoToolsStaticContextInitializer
             // src/main/resources/META-INF/services/org.geotools.http.HTTPClientFactory
             String factoryName =
                     SpringEnvironmentAwareGeoToolsHttpClientFactory.class.getCanonicalName();
-            System.setProperty("HTTP_CLIENT_FACTORY", factoryName);
+            Hints.putSystemDefault(Hints.HTTP_CLIENT_FACTORY, factoryName);
         }
     }
 }

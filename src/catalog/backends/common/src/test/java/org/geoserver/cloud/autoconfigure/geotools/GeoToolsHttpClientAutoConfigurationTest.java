@@ -7,6 +7,7 @@ package org.geoserver.cloud.autoconfigure.geotools;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import org.geotools.util.factory.Hints;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -23,12 +24,11 @@ class GeoToolsHttpClientAutoConfigurationTest {
                     .withConfiguration(
                             AutoConfigurations.of(GeoToolsHttpClientAutoConfiguration.class));
 
-    private final String httpClientFactorySystemProperty = "HTTP_CLIENT_FACTORY";
     private final String forceXYSystemProperty = "org.geotools.referencing.forceXY";
 
     @BeforeEach
-    void clearSystemProperties() {
-        System.clearProperty(httpClientFactorySystemProperty);
+    void clearSystemPropertiesAndGeoToolsHints() {
+        Hints.removeSystemDefault(Hints.HTTP_CLIENT_FACTORY);
         System.clearProperty(forceXYSystemProperty);
     }
 
@@ -59,24 +59,24 @@ class GeoToolsHttpClientAutoConfigurationTest {
         final String expected =
                 SpringEnvironmentAwareGeoToolsHttpClientFactory.class.getCanonicalName();
 
-        assertNull(System.getProperty(httpClientFactorySystemProperty));
+        assertNull(Hints.getSystemDefault(Hints.HTTP_CLIENT_FACTORY));
         runner.run(
                 context ->
-                        assertThat(System.getProperty(httpClientFactorySystemProperty))
+                        assertThat(Hints.getSystemDefault(Hints.HTTP_CLIENT_FACTORY))
                                 .isEqualTo(expected));
 
-        System.clearProperty(httpClientFactorySystemProperty);
+        Hints.removeSystemDefault(Hints.HTTP_CLIENT_FACTORY);
         runner.withPropertyValues("geotools.httpclient.proxy.enabled: true")
                 .run(
                         context ->
-                                assertThat(System.getProperty(httpClientFactorySystemProperty))
+                                assertThat(Hints.getSystemDefault(Hints.HTTP_CLIENT_FACTORY))
                                         .isEqualTo(expected));
 
-        System.clearProperty(httpClientFactorySystemProperty);
+        Hints.removeSystemDefault(Hints.HTTP_CLIENT_FACTORY);
         runner.withPropertyValues("geotools.httpclient.proxy.enabled: false")
                 .run(
                         context ->
-                                assertThat(System.getProperty(httpClientFactorySystemProperty))
+                                assertThat(Hints.getSystemDefault(Hints.HTTP_CLIENT_FACTORY))
                                         .isNull());
     }
 }
