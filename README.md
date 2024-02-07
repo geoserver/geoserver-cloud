@@ -81,7 +81,7 @@ Follow the [developer's guide](docs/develop/index.md) to know more about the pro
 
 ## Status
 
-`v1.5.2` released against GeoServer `2.24.1`.
+`v1.6.1` released against GeoServer `2.24.2`.
 
 Read the [changelog](https://github.com/geoserver/geoserver-cloud/releases/) for more information.
 
@@ -246,10 +246,6 @@ will override the three database containers with separate pgbouncer instances fo
 * `postgis` becomes a `pgbouncer` container pointing to the `postgis_pg` container.
 
 > The `postgis` is container used to host sample data, it is not required but useful during development.
-
-`v1.6.0` released against GeoServer `2.24.2`.
-
-Read the [changelog](https://github.com/geoserver/geoserver-cloud/releases/tag/v1.6.0) for more information.
 
 #### Access GeoServer
 
