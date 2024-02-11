@@ -34,7 +34,7 @@ services:
       resources:
         limits:
           cpus: '4.0'
-          memory: 1G
+          memory: 2G
     restart: unless-stopped
     healthcheck:
       test: rabbitmq-diagnostics is_running

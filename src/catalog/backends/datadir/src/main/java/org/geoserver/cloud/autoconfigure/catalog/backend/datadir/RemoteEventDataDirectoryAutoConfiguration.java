@@ -4,23 +4,32 @@
  */
 package org.geoserver.cloud.autoconfigure.catalog.backend.datadir;
 
-import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.cloud.autoconfigure.catalog.event.ConditionalOnCatalogEvents;
-import org.geoserver.cloud.event.remote.datadir.RemoteEventDataDirectoryProcessor;
-import org.geoserver.config.plugin.RepositoryGeoServerFacade;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.geoserver.cloud.catalog.backend.datadir.EventualConsistencyEnforcer;
+import org.geoserver.cloud.event.remote.datadir.RemoteEventDataDirectoryConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 
+/**
+ * {@link AutoConfiguration @AutoConfiguration} to contribute beans related to handling remotely
+ * produced catalog and config events
+ *
+ * @see RemoteEventDataDirectoryConfiguration
+ */
 @AutoConfiguration
 @ConditionalOnDataDirectoryEnabled
 @ConditionalOnCatalogEvents
+@Import(RemoteEventDataDirectoryConfiguration.class)
 public class RemoteEventDataDirectoryAutoConfiguration {
 
     @Bean
-    RemoteEventDataDirectoryProcessor dataDirectoryRemoteEventProcessor(
-            @Qualifier("geoserverFacade") RepositoryGeoServerFacade configFacade,
-            @Qualifier("rawCatalog") CatalogPlugin rawCatalog) {
-        return new RemoteEventDataDirectoryProcessor(configFacade, rawCatalog);
+    @ConditionalOnProperty(
+            name = "geoserver.backend.data-directory.eventual-consistency.enabled",
+            havingValue = "true",
+            matchIfMissing = true)
+    EventualConsistencyEnforcer eventualConsistencyEnforcer() {
+        return new EventualConsistencyEnforcer();
     }
 }
