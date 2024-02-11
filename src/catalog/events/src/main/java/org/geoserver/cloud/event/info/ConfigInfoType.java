@@ -58,6 +58,15 @@ public enum ConfigInfoType {
         return object != null && getType().isInstance(object);
     }
 
+    public static boolean isPersistable(@NonNull Info info) {
+        for (ConfigInfoType enumVal : ConfigInfoType.values()) {
+            if (enumVal.isInstance(info)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static ConfigInfoType valueOf(@NonNull Info object) {
         for (ConfigInfoType enumVal : ConfigInfoType.values()) {
             if (enumVal.isInstance(object)) {
@@ -69,5 +78,10 @@ public enum ConfigInfoType {
 
     public boolean isA(Class<? extends Info> type) {
         return type.isAssignableFrom(getType());
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> Class<T> type() {
+        return (Class<T>) type;
     }
 }

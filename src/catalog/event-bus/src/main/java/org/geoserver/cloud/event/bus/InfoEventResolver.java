@@ -5,6 +5,7 @@
 package org.geoserver.cloud.event.bus;
 
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
@@ -21,17 +22,16 @@ import org.geoserver.cloud.event.info.InfoModified;
 import org.geoserver.config.GeoServer;
 
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.function.UnaryOperator;
 
 /**
- * Highest priority listener for incoming {@link RemoteGeoServerEvent} events to resolve the payload
- * {@link CatalogInfo} properties, as they may come either as {@link ResolvingProxy} proxies, or
- * {@code null} in case of collection properties.
- *
- * <p>This listener ensures the payload object properties are resolved before being catch up by
+ * Ensures the {@link Info} and {@link Patch} object payloads on {@link InfoAdded} and {@link
+ * InfoModified} events from a remote source get their properties resolved before being catch up by
  * other listeners.
  */
-public class InfoEventResolver {
+@Slf4j(topic = "org.geoserver.cloud.event.bus.resolve")
+class InfoEventResolver {
 
     private UnaryOperator<Info> configInfoResolver;
     private UnaryOperator<CatalogInfo> catalogInfoResolver;
@@ -42,42 +42,48 @@ public class InfoEventResolver {
 
         proxyUtils = new ProxyUtils(() -> rawCatalog, Optional.of(geoserverConfig));
 
+        BiConsumer<CatalogInfo, ResolvingProxy> onNotFound =
+                (info, proxy) ->
+                        log.debug(
+                                "Event object contains a reference to a non existing object ResolvingProxy(ref={})",
+                                proxy.getRef());
+
         configInfoResolver =
                 CollectionPropertiesInitializer.<Info>instance()
-                                .andThen(ResolvingProxyResolver.<Info>of(rawCatalog))
+                                .andThen(
+                                        ResolvingProxyResolver.<Info>of(rawCatalog)
+                                                .onNotFound(onNotFound))
                         ::apply;
 
+        var catalogResolver = CatalogPropertyResolver.<CatalogInfo>of(rawCatalog);
+        var resolvingProxyResolver =
+                ResolvingProxyResolver.<CatalogInfo>of(rawCatalog).onNotFound(onNotFound);
+        var collectionsInitializer = CollectionPropertiesInitializer.<CatalogInfo>instance();
+
         catalogInfoResolver =
-                CollectionPropertiesInitializer.<CatalogInfo>instance()
-                                .andThen(CatalogPropertyResolver.of(rawCatalog))
-                                .andThen(ResolvingProxyResolver.of(rawCatalog))
+                catalogResolver.andThen(collectionsInitializer).andThen(resolvingProxyResolver)
                         ::apply;
     }
 
     @SuppressWarnings("unchecked")
     public InfoEvent resolve(InfoEvent event) {
         if (event instanceof InfoAdded addEvent) {
-            Info object = addEvent.getObject();
-            addEvent.setObject(resolveInfo(object));
+            addEvent.setObject(resolveInfo(addEvent.getObject()));
         } else if (event instanceof InfoModified modifyEvent) {
             modifyEvent.setPatch(resolvePatch(modifyEvent.getPatch()));
         }
         return event;
     }
 
-    @SuppressWarnings("unchecked")
-    private <I extends Info> I resolveInfo(I object) {
-        if (object == null) return null;
+    private Info resolveInfo(Info object) {
         if (object instanceof CatalogInfo i) {
-            return (I) resolveCatalogInfo(i);
+            return resolveCatalogInfo(i);
         }
-        return (I) configInfoResolver.apply(object);
+        return object == null ? null : configInfoResolver.apply(object);
     }
 
-    @SuppressWarnings("unchecked")
-    private <C extends CatalogInfo> C resolveCatalogInfo(C object) {
-        if (object == null) return null;
-        return (C) catalogInfoResolver.apply(object);
+    private CatalogInfo resolveCatalogInfo(CatalogInfo info) {
+        return info == null ? null : catalogInfoResolver.apply(info);
     }
 
     private Patch resolvePatch(Patch patch) {

@@ -4,8 +4,6 @@
  */
 package org.geoserver.catalog.plugin.forwarding;
 
-import lombok.Getter;
-
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogCapabilities;
 import org.geoserver.catalog.CatalogFacade;
@@ -37,7 +35,7 @@ import javax.annotation.Nullable;
 public class ForwardingCatalogFacade implements CatalogFacade {
 
     // wrapped catalog facade
-    @Getter protected final CatalogFacade facade;
+    protected final CatalogFacade facade;
 
     public ForwardingCatalogFacade(CatalogFacade facade) {
         this.facade = facade;

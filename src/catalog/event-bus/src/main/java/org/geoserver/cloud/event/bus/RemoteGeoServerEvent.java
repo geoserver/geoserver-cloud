@@ -19,6 +19,7 @@ public class RemoteGeoServerEvent extends RemoteApplicationEvent {
     @Getter @NonNull private GeoServerEvent event;
 
     /** Deserialization-time constructor, {@link #getSource()} will be {@code null} */
+    @SuppressWarnings("java:S2637") // final fields initialized by deserialization
     protected RemoteGeoServerEvent() {
         // default constructor, needed for deserialization
     }
@@ -42,5 +43,9 @@ public class RemoteGeoServerEvent extends RemoteApplicationEvent {
                 getOriginService(),
                 getDestinationService(),
                 getEvent());
+    }
+
+    public String toShortString() {
+        return getEvent().toShortString();
     }
 }

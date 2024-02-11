@@ -179,6 +179,7 @@ public class RepositoryCatalogFacadeImpl
     @Override
     public <T extends ResourceInfo> T getResourceByName(
             NamespaceInfo namespace, String name, Class<T> clazz) {
+        if (namespace == null) return null;
         Optional<T> result;
         if (namespace == ANY_NAMESPACE) {
             result = getResourceRepository().findFirstByName(name, clazz);

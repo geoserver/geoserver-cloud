@@ -26,12 +26,24 @@ import lombok.NonNull;
 import lombok.experimental.Accessors;
 
 import org.geoserver.catalog.Catalog;
+import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.CatalogTestData;
 import org.geoserver.catalog.Info;
+import org.geoserver.catalog.LayerGroupInfo;
+import org.geoserver.catalog.LayerInfo;
+import org.geoserver.catalog.NamespaceInfo;
+import org.geoserver.catalog.PublishedInfo;
+import org.geoserver.catalog.ResourceInfo;
+import org.geoserver.catalog.StoreInfo;
+import org.geoserver.catalog.StyleInfo;
+import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ClassMappings;
+import org.geoserver.catalog.impl.LayerGroupStyle;
 import org.geoserver.catalog.impl.ModificationProxy;
+import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.PropertyDiff;
+import org.geoserver.catalog.plugin.resolving.ProxyUtils;
 import org.geoserver.cloud.event.GeoServerEvent;
 import org.geoserver.cloud.event.catalog.CatalogInfoAdded;
 import org.geoserver.cloud.event.catalog.CatalogInfoModified;
@@ -44,6 +56,7 @@ import org.geoserver.cloud.event.info.InfoRemoved;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.LoggingInfo;
+import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -62,6 +75,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import java.lang.reflect.Proxy;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 @SpringBootTest(
         webEnvironment = RANDOM_PORT,
@@ -86,7 +100,7 @@ public abstract class BusAmqpIntegrationTests {
     private @Autowired ConfigurableApplicationContext localAppContext;
 
     protected @Autowired GeoServer geoserver;
-    protected @Autowired Catalog catalog;
+    protected @Autowired CatalogPlugin catalog;
 
     protected CatalogTestData testData;
 
@@ -274,6 +288,11 @@ public abstract class BusAmqpIntegrationTests {
     }
 
     protected <T extends Info> RemoteGeoServerEvent testRemoteCatalogInfoAddEvent(
+            CatalogInfo info) {
+        return testRemoteAddEvent(info, catalog::add, CatalogInfoAdded.class);
+    }
+
+    protected <T extends Info> RemoteGeoServerEvent testRemoteCatalogInfoAddEvent(
             T info, Consumer<T> addOp) {
         return testRemoteAddEvent(info, addOp, CatalogInfoAdded.class);
     }
@@ -333,11 +352,12 @@ public abstract class BusAmqpIntegrationTests {
         assertThat(infoType.isInstance(info)).isTrue();
 
         if (event instanceof InfoAdded e) {
-            assertThat(e.getObject()).isNotNull();
-            assertThat(infoType.isInstance(e.getObject())).isTrue();
-            assertThat(e.getObject().getId()).isEqualTo(info.getId());
-
             Info object = e.getObject();
+            assertThat(object).isNotNull();
+            assertThat(infoType.isInstance(object)).isTrue();
+            assertThat(object.getId()).isEqualTo(info.getId());
+
+            assertResolved(object, Info.class);
             info = ModificationProxy.unwrap(info);
             object = ModificationProxy.unwrap(object);
             // testData.assertEqualsLenientConnectionParameters(info, object);
@@ -346,6 +366,65 @@ public abstract class BusAmqpIntegrationTests {
         if (event instanceof InfoModified modifyEvent) {
             assertThat(modifyEvent.getPatch()).isNotNull();
         }
+    }
+
+    protected void assertResolved(Info info, Class<? extends Info> expected) {
+        if (null == info) return;
+        if (ProxyUtils.isResolvingProxy(info)) return;
+        switch (info) {
+            case StoreInfo store:
+                assertCatalogSet(store, store::getCatalog);
+                assertResolved(store.getWorkspace(), WorkspaceInfo.class);
+                break;
+            case ResourceInfo resource:
+                assertCatalogSet(resource, resource::getCatalog);
+                assertResolved(resource.getNamespace(), NamespaceInfo.class);
+                assertResolved(resource.getStore(), StoreInfo.class);
+                break;
+            case StyleInfo style:
+                assertResolved(style.getWorkspace(), WorkspaceInfo.class);
+                break;
+            case LayerInfo layer:
+                assertResolved(layer.getDefaultStyle(), StyleInfo.class);
+                assertResolved(layer.getResource(), ResourceInfo.class);
+                break;
+            case LayerGroupInfo lg:
+                assertResolved(lg.getWorkspace(), WorkspaceInfo.class);
+                assertResolved(lg.getRootLayer(), LayerInfo.class);
+                assertResolved(lg.getRootLayerStyle(), StyleInfo.class);
+                lg.getStyles().forEach(s -> assertResolved(s, StyleInfo.class));
+                lg.getLayers().forEach(l -> assertResolved(l, PublishedInfo.class));
+                lg.getLayerGroupStyles().forEach(lgs -> assertResolved(lgs, LayerGroupStyle.class));
+                break;
+            case LayerGroupStyle lgs:
+                lgs.getLayers().forEach(l -> assertResolved(l, PublishedInfo.class));
+                lgs.getStyles().forEach(s -> assertResolved(s, StyleInfo.class));
+                break;
+            case NamespaceInfo ns:
+                break;
+            case WorkspaceInfo ws:
+                break;
+            case ServiceInfo service:
+                break;
+            case SettingsInfo settings:
+                break;
+            default:
+                throw new IllegalArgumentException(String.valueOf(info));
+        }
+    }
+
+    private void assertCatalogSet(Info info, Supplier<Catalog> accessor) {
+        assertThat(accessor.get())
+                .as("%s does not have its catalog property set".formatted(info))
+                .isNotNull();
+    }
+
+    protected void assertNotAProxy(Info info, Class<? extends Info> expected) {
+        assertThat(ProxyUtils.isResolvingProxy(info))
+                .as(
+                        "Expected %s, got ResolvingProxy %s"
+                                .formatted(expected.getSimpleName(), info.getId()))
+                .isFalse();
     }
 
     @Accessors(fluent = true)

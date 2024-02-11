@@ -61,6 +61,15 @@ public abstract class InfoEvent extends UpdateSequenceEvent {
      */
     private static final String LOGGING_ID = "logging";
 
+    @Override
+    public String toShortString() {
+        String originService = getOrigin();
+        String type = getClass().getSimpleName();
+        return "%s[origin: %s, updateSequence: %s, object: %s(%s)]"
+                .formatted(
+                        type, originService, getUpdateSequence(), getObjectType(), getObjectId());
+    }
+
     public static String resolveId(Info object) {
         if (null == object) return null;
         String id = object.getId();

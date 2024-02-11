@@ -14,5 +14,5 @@ logging:
     root: WARN
     org.springframework: error
     org.geoserver.platform: error
-    org.geoserver.cloud: info
-    org.geoserver.cloud.bus: info
+    org.geoserver.cloud: debug
+    org.geoserver.cloud.bus: debug

@@ -34,6 +34,10 @@ public class CatalogInfoAdded extends InfoAdded<CatalogInfo> {
 
     public static CatalogInfoAdded createLocal(
             long updateSequence, @NonNull CatalogAddEvent event) {
-        return new CatalogInfoAdded(updateSequence, event.getSource());
+        return createLocal(updateSequence, event.getSource());
+    }
+
+    public static CatalogInfoAdded createLocal(long updateSequence, @NonNull CatalogInfo info) {
+        return new CatalogInfoAdded(updateSequence, info);
     }
 }

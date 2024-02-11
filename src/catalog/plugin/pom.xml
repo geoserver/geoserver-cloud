@@ -116,6 +116,10 @@
       <groupId>org.geotools</groupId>
       <artifactId>gt-process-feature</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.github.f4b6a3</groupId>
+      <artifactId>ulid-creator</artifactId>
+    </dependency>
   </dependencies>
   <build>
     <plugins>

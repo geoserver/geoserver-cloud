@@ -14,9 +14,15 @@ import org.springframework.cloud.bus.event.Destination;
 
 import java.util.Optional;
 
-/** */
+/**
+ * Aids {@link RemoteGeoServerEventBridge} in mapping {@link RemoteGeoServerEvent} to local {@link
+ * GeoServerEvent} and vice-versa.
+ *
+ * @see InfoEventResolver
+ * @see RemoteGeoServerEventBridge
+ */
 @RequiredArgsConstructor
-public class RemoteGeoServerEventMapper {
+class RemoteGeoServerEventMapper {
 
     /** Constant indicating a remote event is destined to all services */
     private static final String DESTINATION_ALL_SERVICES = "**";
@@ -29,12 +35,12 @@ public class RemoteGeoServerEventMapper {
         return destinationFactory.getDestination(DESTINATION_ALL_SERVICES);
     }
 
-    private @NonNull String originService() {
+    public @NonNull String localBusServiceId() {
         return serviceMatcher.getBusId();
     }
 
     public RemoteGeoServerEvent toRemote(GeoServerEvent anyLocalCatalogOrConfigEvent) {
-        String origin = originService();
+        String origin = localBusServiceId();
         Destination destination = destinationService();
         RemoteGeoServerEvent remote =
                 new RemoteGeoServerEvent(this, anyLocalCatalogOrConfigEvent, origin, destination);
@@ -47,7 +53,19 @@ public class RemoteGeoServerEventMapper {
         final boolean fromSelf = serviceMatcher.isFromSelf(busEvent);
         final boolean forSelf = serviceMatcher.isForSelf(busEvent);
         final boolean republishAsLocal = !fromSelf && forSelf;
-        return Optional.ofNullable(republishAsLocal ? busEvent : null);
+
+        if (republishAsLocal) {
+            GeoServerEvent event = busEvent.getEvent();
+            event.setRemote(true);
+            event.setOrigin(busEvent.getOriginService());
+            return Optional.of(busEvent);
+        }
+
+        return Optional.empty();
+    }
+
+    public Optional<RemoteGeoServerEvent> mapIfLocal(GeoServerEvent event) {
+        return Optional.of(event).filter(GeoServerEvent::isLocal).map(this::toRemote);
     }
 
     public GeoServerEvent toLocalRemote(@NonNull RemoteGeoServerEvent incoming) {
