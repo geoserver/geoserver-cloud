@@ -11,6 +11,7 @@ import org.geoserver.cloud.config.catalog.backend.core.GeoServerBackendConfigure
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.nio.file.Path;
+import java.util.List;
 
 /**
  * Configuration properties to use GeoServer's traditional, file-system based data-directory as the
@@ -24,4 +25,24 @@ public class DataDirectoryProperties {
     private boolean enabled;
     private Path location;
     private boolean parallelLoader = true;
+    private DataDirectoryProperties.EventualConsistencyConfig eventualConsistency =
+            new EventualConsistencyConfig();
+
+    /**
+     * Eventual consistency enfocement configuration. Bus events may come out of order under stress
+     */
+    @Data
+    public static class EventualConsistencyConfig {
+        /**
+         * If enabled, the data directory catalog will be resilient to bus events coming out of
+         * order
+         */
+        private boolean enabled = true;
+
+        /**
+         * milliseconds to wait before retrying Catalog.getXXX point queries returning null. The
+         * list size determines the number of retries. The values the milliseconds to wait
+         */
+        private List<Integer> retries = List.of(25, 25, 50);
+    }
 }

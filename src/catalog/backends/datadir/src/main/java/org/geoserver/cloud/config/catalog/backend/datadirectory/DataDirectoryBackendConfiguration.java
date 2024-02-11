@@ -10,13 +10,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.plugin.CatalogPlugin;
-import org.geoserver.catalog.plugin.DefaultMemoryCatalogFacade;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.catalog.plugin.locking.LockProviderGeoServerConfigurationLock;
 import org.geoserver.catalog.plugin.locking.LockingCatalog;
 import org.geoserver.catalog.plugin.locking.LockingGeoServer;
+import org.geoserver.cloud.catalog.backend.datadir.EventualConsistencyEnforcer;
+import org.geoserver.cloud.catalog.backend.datadir.EventuallyConsistentCatalogFacade;
 import org.geoserver.cloud.config.catalog.backend.core.CatalogProperties;
 import org.geoserver.cloud.config.catalog.backend.core.GeoServerBackendConfigurer;
+import org.geoserver.cloud.config.catalog.backend.datadirectory.DataDirectoryProperties.EventualConsistencyConfig;
 import org.geoserver.config.GeoServerDataDirectory;
 import org.geoserver.config.GeoServerLoader;
 import org.geoserver.config.plugin.RepositoryGeoServerFacade;
@@ -35,7 +37,9 @@ import org.springframework.context.annotation.DependsOn;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /** */
 @Configuration(proxyBeanMethods = true)
@@ -46,10 +50,15 @@ public class DataDirectoryBackendConfiguration extends GeoServerBackendConfigure
 
     private final DataDirectoryProperties dataDirectoryConfig;
 
+    private final Optional<EventualConsistencyEnforcer> converger;
+
     public DataDirectoryBackendConfiguration(
-            DataDirectoryProperties dataDirectoryConfig, CatalogProperties catalogProperties) {
+            DataDirectoryProperties dataDirectoryConfig,
+            CatalogProperties catalogProperties,
+            Optional<EventualConsistencyEnforcer> converger) {
         this.dataDirectoryConfig = dataDirectoryConfig;
         this.catalogProperties = catalogProperties;
+        this.converger = converger;
         log.info(
                 "Loading geoserver config backend with {} from {}",
                 DataDirectoryBackendConfiguration.class.getSimpleName(),
@@ -97,8 +106,27 @@ public class DataDirectoryBackendConfiguration extends GeoServerBackendConfigure
         return new LockProviderGeoServerConfigurationLock(lockProvider);
     }
 
-    protected @Bean @Override DefaultMemoryCatalogFacade catalogFacade() {
-        return new org.geoserver.catalog.plugin.DefaultMemoryCatalogFacade();
+    protected @Bean @Override ExtendedCatalogFacade catalogFacade() {
+        var memory = new org.geoserver.catalog.plugin.DefaultMemoryCatalogFacade();
+        if (converger.isEmpty()) {
+            return memory;
+        }
+        log.info("Data directory catalog facade eventual consistency enforcement enabled");
+
+        int[] waitMillis = new int[] {}; // no retries
+        EventualConsistencyConfig ecConfig = dataDirectoryConfig.getEventualConsistency();
+        if (ecConfig != null && ecConfig.isEnabled()) {
+            List<Integer> retries = ecConfig.getRetries();
+            if (retries != null && !retries.isEmpty()) {
+                waitMillis = retries.stream().mapToInt(Integer::intValue).toArray();
+                log.info(
+                        "Data directory catalog facade eventual consistency retries in ms: {}",
+                        retries);
+            }
+        }
+        EventualConsistencyEnforcer tracker = converger.orElseThrow();
+        tracker.setRawFacade(memory);
+        return new EventuallyConsistentCatalogFacade(memory, tracker, waitMillis);
     }
 
     protected @Bean @Override RepositoryGeoServerFacade geoserverFacade() {

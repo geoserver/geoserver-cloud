@@ -62,6 +62,15 @@ public enum ConfigInfoType {
 
     private final @Getter @NonNull Class<? extends Info> type;
 
+    public static boolean isPersistable(Info nested) {
+        return nested instanceof WorkspaceInfo
+                || nested instanceof NamespaceInfo
+                || nested instanceof StoreInfo
+                || nested instanceof ResourceInfo
+                || nested instanceof PublishedInfo
+                || nested instanceof StyleInfo;
+    }
+
     public boolean isInstance(Info object) {
         return object != null && getType().isInstance(object);
     }
