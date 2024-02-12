@@ -15,12 +15,12 @@ import org.geoserver.catalog.Info;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.plugin.Patch;
+import org.geoserver.cloud.backend.pgconfig.catalog.repository.PgsqlObjectMapper;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
 import org.geoserver.config.plugin.ConfigRepository;
-import org.geotools.jackson.databind.util.ObjectMapperUtil;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -38,7 +38,7 @@ import java.util.stream.Stream;
 public class PgsqlConfigRepository implements ConfigRepository {
 
     private final @NonNull JdbcTemplate template;
-    protected static final ObjectMapper infoMapper = ObjectMapperUtil.newObjectMapper();
+    protected static final ObjectMapper infoMapper = PgsqlObjectMapper.newObjectMapper();
 
     private static final RowMapper<GeoServerInfo> GeoServerInfoRowMapper =
             (rs, rn) -> decode(rs.getString("info"), GeoServerInfo.class);

@@ -21,7 +21,6 @@ import org.geoserver.cloud.backend.pgconfig.catalog.filter.PgsqlQueryBuilder;
 import org.geotools.api.filter.Filter;
 import org.geotools.api.filter.sort.SortBy;
 import org.geotools.api.filter.sort.SortOrder;
-import org.geotools.jackson.databind.util.ObjectMapperUtil;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -50,7 +49,7 @@ public abstract class PgsqlCatalogInfoRepository<T extends CatalogInfo>
 
     protected final @NonNull JdbcTemplate template;
 
-    protected static final ObjectMapper infoMapper = ObjectMapperUtil.newObjectMapper();
+    protected static final ObjectMapper infoMapper = PgsqlObjectMapper.newObjectMapper();
 
     private Set<String> sortableProperties;
 

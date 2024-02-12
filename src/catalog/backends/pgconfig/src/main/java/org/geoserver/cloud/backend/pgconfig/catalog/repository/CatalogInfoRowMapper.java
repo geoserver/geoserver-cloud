@@ -21,7 +21,6 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.impl.LayerInfoImpl;
 import org.geoserver.catalog.impl.ModificationProxy;
-import org.geotools.jackson.databind.util.ObjectMapperUtil;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.io.UncheckedIOException;
@@ -39,7 +38,7 @@ import java.util.function.Function;
  */
 public final class CatalogInfoRowMapper {
 
-    protected static final ObjectMapper objectMapper = ObjectMapperUtil.newObjectMapper();
+    protected static final ObjectMapper objectMapper = PgsqlObjectMapper.newObjectMapper();
 
     // TODO: limit the amount of cached objects
     private Map<String, CatalogInfo> cache = new HashMap<>();
