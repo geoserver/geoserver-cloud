@@ -2703,6 +2703,43 @@ public abstract class CatalogConformanceTest {
         catalog.remove(data.layerGroup1);
     }
 
+    @Test
+    void testGetLayerGroupModifyToAndFromWorkspace() {
+        { // set a different default workspace, we don't want the catalog to default look up on
+            // data.workspaceA
+            WorkspaceInfo defws = addWorkspace("defws");
+            catalog.setDefaultWorkspace(defws);
+        }
+        addLayer();
+        CatalogFactory factory = catalog.getFactory();
+        LayerGroupInfo lg = factory.createLayerGroup();
+
+        lg.setName("testlg");
+        lg.setWorkspace(null);
+        lg.getLayers().add(data.layerFeatureTypeA);
+        lg.getStyles().add(data.style1);
+        catalog.add(lg);
+
+        final String lgName = lg.getName();
+        final WorkspaceInfo ws = data.workspaceA;
+        final String wsname = ws.getName();
+
+        assertNull(catalog.getLayerGroupByName(wsname, lgName));
+        LayerGroupInfo actual = catalog.getLayerGroupByName(lgName);
+        assertEquals(lg, actual);
+
+        actual.setWorkspace(ws);
+        catalog.save(actual);
+
+        assertNull(catalog.getLayerGroupByName(lgName));
+        assertNotNull(catalog.getLayerGroupByName(wsname, lgName));
+
+        actual.setWorkspace(null);
+        catalog.save(actual);
+        assertNotNull(catalog.getLayerGroupByName(lgName));
+        assertNull(catalog.getLayerGroupByName(wsname, lgName));
+    }
+
     protected static class TestListener implements CatalogListener {
         public List<CatalogAddEvent> added = new CopyOnWriteArrayList<>();
         public List<CatalogModifyEvent> modified = new CopyOnWriteArrayList<>();
