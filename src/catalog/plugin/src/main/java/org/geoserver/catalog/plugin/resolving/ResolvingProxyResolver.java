@@ -19,6 +19,7 @@ import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ResolvingProxy;
+import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.forwarding.ResolvingCatalogFacadeDecorator;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
@@ -48,14 +49,15 @@ import java.util.stream.Collectors;
  *
  * @see ResolvingProxy
  */
-@Slf4j
-public class ResolvingProxyResolver<T extends Info> implements UnaryOperator<T> {
+@Slf4j(topic = "org.geoserver.catalog.plugin.resolving")
+public class ResolvingProxyResolver<T> implements UnaryOperator<T> {
 
     private final Supplier<Catalog> catalog;
-    private final BiConsumer<CatalogInfo, ResolvingProxy> onNotFound;
     private final ProxyUtils proxyUtils;
 
-    public ResolvingProxyResolver(@NonNull Catalog catalog) {
+    private BiConsumer<CatalogInfo, ResolvingProxy> onNotFound;
+
+    private ResolvingProxyResolver(@NonNull Catalog catalog) {
         this(
                 catalog,
                 (info, proxy) ->
@@ -64,12 +66,12 @@ public class ResolvingProxyResolver<T extends Info> implements UnaryOperator<T> 
                                         .formatted(info.getId())));
     }
 
-    public ResolvingProxyResolver(
+    private ResolvingProxyResolver(
             @NonNull Catalog catalog, @NonNull BiConsumer<CatalogInfo, ResolvingProxy> onNotFound) {
         this(() -> catalog, onNotFound);
     }
 
-    public ResolvingProxyResolver(
+    private ResolvingProxyResolver(
             @NonNull Supplier<Catalog> catalog,
             @NonNull BiConsumer<CatalogInfo, ResolvingProxy> onNotFound) {
         this.catalog = catalog;
@@ -108,29 +110,40 @@ public class ResolvingProxyResolver<T extends Info> implements UnaryOperator<T> 
         return (ResolvingProxyResolver<I>) new MemoizingProxyResolver(catalog, onNotFound);
     }
 
+    public ResolvingProxyResolver<T> onNotFound(
+            BiConsumer<CatalogInfo, ResolvingProxy> onNotFound) {
+        this.onNotFound = onNotFound;
+        return this;
+    }
+
     @Override
     public T apply(T info) {
         return resolve(info);
     }
 
     @SuppressWarnings("unchecked")
-    public <I extends Info> I resolve(final I orig) {
+    public <I> I resolve(final I orig) {
         if (orig == null) {
             return null;
         }
 
-        final ResolvingProxy resolvingProxy = getResolvingProxy(orig);
-        final boolean isResolvingProxy = null != resolvingProxy;
-        if (isResolvingProxy) {
-            // may the object itself be a resolving proxy
-            I resolved = doResolveProxy(orig);
-            if (resolved == null && orig instanceof CatalogInfo cinfo) {
-                log.info("Proxy object {} not found, calling on-not-found consumer", orig.getId());
-                onNotFound.accept(cinfo, resolvingProxy);
-                // return the proxied value if the consumer didn't throw an exception
-                return orig;
+        if (orig instanceof Info info) {
+            final ResolvingProxy resolvingProxy = getResolvingProxy(info);
+            final boolean isResolvingProxy = null != resolvingProxy;
+            if (isResolvingProxy) {
+                // may the object itself be a resolving proxy
+                Info resolved = doResolveProxy(info);
+                if (resolved == null && info instanceof CatalogInfo cinfo) {
+                    log.debug(
+                            "Proxy object {} not found, calling on-not-found consumer",
+                            info.getId());
+                    onNotFound.accept(cinfo, resolvingProxy);
+                    // if onNotFound didn't throw an exception, return the proxied value if the
+                    // consumer didn't throw an exception
+                    return orig;
+                }
+                return (I) resolved;
             }
-            return resolved;
         }
 
         if (orig instanceof StyleInfo style) return (I) resolveInternal(style);
@@ -145,7 +158,13 @@ public class ResolvingProxyResolver<T extends Info> implements UnaryOperator<T> 
 
         if (orig instanceof ServiceInfo service) return (I) resolveInternal(service);
 
+        if (orig instanceof Patch patch) return (I) resolveInternal(patch);
+
         return orig;
+    }
+
+    private Patch resolveInternal(Patch patch) {
+        return proxyUtils.resolve(patch);
     }
 
     protected <I extends Info> I doResolveProxy(final I orig) {

@@ -4,6 +4,8 @@
  */
 package org.geoserver.catalog.plugin.forwarding;
 
+import lombok.NonNull;
+
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
@@ -32,5 +34,15 @@ public class ForwardingExtendedCatalogFacade extends ForwardingCatalogFacade
 
     protected ExtendedCatalogFacade asExtendedFacade() {
         return (ExtendedCatalogFacade) super.facade;
+    }
+
+    @Override
+    public <T extends CatalogInfo> T add(@NonNull T info) {
+        return asExtendedFacade().add(info);
+    }
+
+    @Override
+    public void remove(@NonNull CatalogInfo info) {
+        asExtendedFacade().remove(info);
     }
 }

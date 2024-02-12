@@ -48,7 +48,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /** */
-@Slf4j
+@Slf4j(topic = "org.geoserver.catalog.plugin.resolving")
 @RequiredArgsConstructor
 public class ProxyUtils {
     /**

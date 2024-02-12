@@ -41,3 +41,5 @@ docker-compose_datadir*
 
 # Yourkit Java Profiler docker compose env file with private token
 .env.yjp
+
+hs_err_pid*.log

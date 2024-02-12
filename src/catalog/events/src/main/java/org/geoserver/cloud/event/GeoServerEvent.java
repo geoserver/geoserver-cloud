@@ -68,6 +68,8 @@ public abstract class GeoServerEvent implements Serializable {
         return toStringBuilder().toString();
     }
 
+    public abstract String toShortString();
+
     protected ToStringCreator toStringBuilder() {
         return new ToStringCreator(this)
                 .append("id", getId())

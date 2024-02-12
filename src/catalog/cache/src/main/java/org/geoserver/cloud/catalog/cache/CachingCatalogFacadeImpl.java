@@ -74,6 +74,18 @@ class CachingCatalogFacadeImpl extends ForwardingExtendedCatalogFacade
         return idCache.evictIfPresent(key);
     }
 
+    @Override
+    @CachePut(key = "new org.geoserver.cloud.catalog.cache.CatalogInfoKey(#p0)")
+    public <T extends CatalogInfo> T add(@NonNull T info) {
+        return super.add(info);
+    }
+
+    @Override
+    @CacheEvict(key = "new org.geoserver.cloud.catalog.cache.CatalogInfoKey(#p0)")
+    public void remove(@NonNull CatalogInfo info) {
+        super.remove(info);
+    }
+
     @CachePut(key = "new org.geoserver.cloud.catalog.cache.CatalogInfoKey(#p0)")
     @Override
     public StoreInfo add(StoreInfo store) {

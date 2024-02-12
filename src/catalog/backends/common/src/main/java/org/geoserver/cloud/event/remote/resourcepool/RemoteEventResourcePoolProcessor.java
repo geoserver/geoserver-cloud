@@ -21,6 +21,8 @@ import org.geoserver.cloud.event.catalog.CatalogInfoRemoved;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 
 import java.util.Optional;
 
@@ -53,6 +55,7 @@ public class RemoteEventResourcePoolProcessor {
     }
 
     @EventListener(CatalogInfoRemoved.class)
+    @Order(Ordered.HIGHEST_PRECEDENCE)
     public void onCatalogRemoteRemoveEvent(CatalogInfoRemoved event) {
         event.remote()
                 .ifPresentOrElse(
@@ -61,6 +64,7 @@ public class RemoteEventResourcePoolProcessor {
     }
 
     @EventListener(CatalogInfoModified.class)
+    @Order(Ordered.HIGHEST_PRECEDENCE)
     public void onCatalogRemoteModifyEvent(CatalogInfoModified event) {
         event.remote()
                 .ifPresentOrElse(
@@ -86,11 +90,11 @@ public class RemoteEventResourcePoolProcessor {
 
         info.ifPresentOrElse(
                 object -> {
-                    log.info(
+                    log.debug(
                             "Evicting ResourcePool cache entry for {}({}) upon {}",
                             infoType,
                             id,
-                            event);
+                            event.toShortString());
                     ResourcePool resourcePool = rawCatalog.getResourcePool();
                     CacheClearingListener cleaner = new CacheClearingListener(resourcePool);
                     object.accept(cleaner);

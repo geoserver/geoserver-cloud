@@ -7,130 +7,173 @@ package org.geoserver.cloud.event.bus;
 import com.google.common.annotations.VisibleForTesting;
 
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.geoserver.catalog.CatalogException;
-import org.geoserver.catalog.plugin.Patch;
+import org.geoserver.catalog.CatalogInfo;
+import org.geoserver.catalog.impl.ResolvingProxy;
 import org.geoserver.cloud.event.GeoServerEvent;
 import org.geoserver.cloud.event.info.InfoEvent;
-import org.geoserver.cloud.event.info.InfoModified;
-import org.springframework.cloud.bus.event.RemoteApplicationEvent;
+import org.geoserver.platform.config.UpdateSequence;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /**
  * Listens to local catalog and configuration change {@link InfoEvent}s produced by this service
- * instance and broadcasts them to the cluster as {@link RemoteGeoServerEvent}
+ * instance and broadcasts them to the cluster as {@link RemoteGeoServerEvent}, and conversely,
+ * listens to incoming {@link RemoteGeoServerEvent}s and publishes their {@link
+ * RemoteGeoServerEvent#getEvent() event} payload as local events
+ *
+ * @see #publishRemoteEvent(GeoServerEvent)
+ * @see #publishLocalEvent(RemoteGeoServerEvent)
+ * @see RemoteGeoServerEventProcessor
  */
-public class RemoteGeoServerEventBridge {
+@Slf4j(topic = "org.geoserver.cloud.event.bus.bridge")
+public class RemoteGeoServerEventBridge implements DisposableBean {
 
-    private final Outgoing outgoing;
-    private final Incoming incoming;
+    /**
+     * Provided event publisher for incoming remote events converted to local events (e.g. {@link
+     * ApplicationEventPublisher#publishEvent})
+     *
+     * @see #publishRemoteEvent(GeoServerEvent)
+     */
+    private final Consumer<GeoServerEvent> inboundEventPublisher;
 
-    private boolean enabled = true;
+    /**
+     * Provided event publisher for outgoing remote events converted from local events (e.g. {@link
+     * ApplicationEventPublisher#publishEvent})
+     *
+     * @see #publishLocalEvent(RemoteGeoServerEvent)
+     */
+    private final Consumer<RemoteGeoServerEvent> outboundEventPublisher;
+
+    private final RemoteGeoServerEventMapper mapper;
+
+    private final AtomicBoolean enabled = new AtomicBoolean(false);
 
     public RemoteGeoServerEventBridge( //
             @NonNull Consumer<GeoServerEvent> localRemoteEventPublisher, //
-            @NonNull Consumer<RemoteApplicationEvent> remoteEventPublisher, //
-            @NonNull RemoteGeoServerEventMapper mapper, //
-            @NonNull Supplier<String> localBusId) {
+            @NonNull Consumer<RemoteGeoServerEvent> remoteEventPublisher, //
+            @NonNull RemoteGeoServerEventMapper mapper,
+            @NonNull UpdateSequence updateSequence) {
 
-        this.outgoing = new Outgoing(remoteEventPublisher, mapper, localBusId);
-        this.incoming = new Incoming(localRemoteEventPublisher, mapper, localBusId);
+        this.mapper = mapper;
+        this.outboundEventPublisher = remoteEventPublisher;
+        this.inboundEventPublisher = localRemoteEventPublisher;
+        enable();
     }
 
-    public @VisibleForTesting void enabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
-    @EventListener(GeoServerEvent.class)
-    public void handleLocalEvent(GeoServerEvent event) {
-        if (enabled) {
-            outgoing.broadCastIfLocal(event);
+    @VisibleForTesting
+    void enable() {
+        if (enabled.compareAndSet(false, true)) {
+            log.debug("RemoteGeoServerEventBridge enabled");
         }
     }
 
+    @VisibleForTesting
+    void disable() {
+        if (enabled.compareAndSet(true, false)) {
+            log.debug("RemoteGeoServerEventBridge disabled");
+        }
+    }
+
+    @Override
+    public void destroy() {
+        log.info(
+                "RemoteGeoServerEventBridge received destroy signal, stopping remote event processing");
+        disable();
+    }
+
+    private boolean enabled() {
+        return enabled.get();
+    }
+
+    /**
+     * Highest priority listener for incoming {@link RemoteGeoServerEvent} events to resolve the
+     * payload {@link CatalogInfo} properties, as they may come either as {@link ResolvingProxy}
+     * proxies, or {@code null} in case of collection properties.
+     */
     @EventListener(RemoteGeoServerEvent.class)
-    public void handleRemoteEvent(RemoteGeoServerEvent busEvent) throws CatalogException {
-        if (enabled) {
-            incoming.handleRemoteEvent(busEvent);
-        }
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    public void publishLocalEvent(RemoteGeoServerEvent busEvent) {
+        mapper.ifRemote(busEvent)
+                .ifPresentOrElse(
+                        incoming -> {
+                            logReceived(incoming);
+                            dispatchAccepted(incoming);
+                        },
+                        () -> logIgnoreLocalRemote(busEvent));
     }
 
-    @RequiredArgsConstructor
-    @Slf4j(topic = "org.geoserver.cloud.event.bus.outgoing")
-    private static class Outgoing {
-        private final @NonNull Consumer<RemoteApplicationEvent> remoteEventPublisher;
-        private final @NonNull RemoteGeoServerEventMapper mapper;
-        private @NonNull Supplier<String> localBusId;
+    /**
+     * Lowest priority listener on a local {@link GeoServerEvent}, publishes a matching {@link
+     * RemoteGeoServerEvent} to the event bus
+     */
+    @EventListener(GeoServerEvent.class)
+    @Order(Ordered.LOWEST_PRECEDENCE)
+    public void publishRemoteEvent(GeoServerEvent event) {
+        mapper.mapIfLocal(event)
+                .ifPresentOrElse(this::dispatchAccepted, () -> logIgnoreRemoteLocal(event));
+    }
 
-        public void broadCastIfLocal(GeoServerEvent event) throws CatalogException {
-
-            if (event.isLocal()) {
-                RemoteGeoServerEvent remote = mapper.toRemote(event);
-                publishRemoteEvent(remote);
+    private void dispatchAccepted(RemoteGeoServerEvent event) {
+        if (enabled()) {
+            if (event.getEvent().isLocal()) {
+                doSend(event);
             } else {
-                log.trace("{}: not re-publishing {}", localBusId.get(), event);
+                doReceive(event);
             }
-        }
-
-        private void publishRemoteEvent(RemoteGeoServerEvent remoteEvent) {
-            logOutgoing(remoteEvent);
-            try {
-                remoteEventPublisher.accept(remoteEvent);
-            } catch (RuntimeException e) {
-                log.error("{}: error broadcasting {}", localBusId.get(), remoteEvent, e);
-                throw e;
-            }
-        }
-
-        protected void logOutgoing(RemoteGeoServerEvent remoteEvent) {
-            @NonNull GeoServerEvent event = remoteEvent.getEvent();
-            String logMsg = "{}: broadcasting {}";
-            if (event instanceof InfoModified modEvent) {
-                Patch patch = modEvent.getPatch();
-                if (patch.isEmpty()) {
-                    logMsg = "{}: broadcasting no-change event {}";
-                }
-            }
-            final String busId = localBusId.get();
-            log.debug(logMsg, busId, remoteEvent);
         }
     }
 
-    @RequiredArgsConstructor
-    @Slf4j(topic = "org.geoserver.cloud.event.bus.incoming")
-    private static class Incoming {
-
-        private final @NonNull Consumer<GeoServerEvent> localRemoteEventPublisher;
-
-        private final @NonNull RemoteGeoServerEventMapper mapper;
-        private @NonNull Supplier<String> localBusId;
-
-        public void handleRemoteEvent(RemoteGeoServerEvent incoming) throws CatalogException {
-            mapper.ifRemote(incoming) //
-                    .ifPresentOrElse( //
-                            this::publishLocalEvent, //
-                            () ->
-                                    log.trace(
-                                            "{}: not broadcasting local-remote event {}",
-                                            localBusId.get(),
-                                            incoming));
+    private void doSend(RemoteGeoServerEvent outgoing) {
+        try {
+            outboundEventPublisher.accept(outgoing);
+            logOutgoing(outgoing);
+        } catch (RuntimeException e) {
+            log.error("error broadcasting {}", outgoing, e);
+            throw e;
         }
+    }
 
-        private void publishLocalEvent(RemoteGeoServerEvent incoming) {
-            log.trace("Received remote event {}", incoming);
+    private void doReceive(RemoteGeoServerEvent incoming) {
+        try {
             GeoServerEvent localRemoteEvent = mapper.toLocalRemote(incoming);
-            log.debug("{}: publishing as local event {}", localBusId.get(), incoming);
-            try {
-                localRemoteEventPublisher.accept(localRemoteEvent);
-            } catch (RuntimeException e) {
-                log.error("{}: error accepting remote {}", localBusId.get(), localRemoteEvent, e);
-                throw e;
-            }
+            if (log.isDebugEnabled())
+                log.debug("publishing as local event {}", incoming.toShortString());
+            inboundEventPublisher.accept(localRemoteEvent);
+        } catch (RuntimeException e) {
+            log.error("{}: error accepting remote {}", mapper.localBusServiceId(), incoming, e);
+            throw e;
+        }
+    }
+
+    private void logIgnoreLocalRemote(RemoteGeoServerEvent incoming) {
+        if (log.isTraceEnabled())
+            log.trace(
+                    "{}: not broadcasting local-remote event {}",
+                    mapper.localBusServiceId(),
+                    incoming.toShortString());
+    }
+
+    private void logIgnoreRemoteLocal(GeoServerEvent event) {
+        log.trace("{}: not re-publishing {}", mapper.localBusServiceId(), event);
+    }
+
+    private void logReceived(RemoteGeoServerEvent incoming) {
+        if (log.isDebugEnabled()) {
+            log.debug("received remote event {}", incoming.toShortString());
+        }
+    }
+
+    protected void logOutgoing(RemoteGeoServerEvent remoteEvent) {
+        if (log.isDebugEnabled()) {
+            log.debug("sent remote event {}", remoteEvent.toShortString());
         }
     }
 }

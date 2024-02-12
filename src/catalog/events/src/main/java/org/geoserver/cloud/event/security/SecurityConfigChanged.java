@@ -39,4 +39,12 @@ public class SecurityConfigChanged extends UpdateSequenceEvent {
     public static SecurityConfigChanged createLocal(long updateSequence, @NonNull String reason) {
         return new SecurityConfigChanged(updateSequence, reason);
     }
+
+    @Override
+    public String toShortString() {
+        String originService = getOrigin();
+        String type = getClass().getSimpleName();
+        return "%s[origin: %s, updateSequence: %s, reason: %s]"
+                .formatted(type, originService, getUpdateSequence(), getReason());
+    }
 }

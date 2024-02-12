@@ -21,7 +21,6 @@ import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 
-import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
 /**
@@ -120,9 +119,9 @@ public class LockingCatalog extends CatalogPlugin {
     }
 
     /** {@inheritDoc} */
-    protected @Override <T extends CatalogInfo> void doRemove(T info, Consumer<T> remover) {
+    protected @Override <T extends CatalogInfo> void doRemove(T info, Class<T> type) {
         locking.runInWriteLock(
-                () -> super.doRemove(info, remover),
+                () -> super.doRemove(info, type),
                 format("remove(%s[%s])", typeOf(info), nameOf(info)));
     }
 

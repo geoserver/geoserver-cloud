@@ -24,7 +24,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 })
 @JsonTypeName("UpdateSequence")
 @SuppressWarnings("serial")
-public class UpdateSequenceEvent extends GeoServerEvent {
+public class UpdateSequenceEvent extends GeoServerEvent implements Comparable<UpdateSequenceEvent> {
     /**
      * The provided {@link GeoServerInfo}'s {@link GeoServerInfo#getUpdateSequence() update
      * sequence}. Being the most frequently updated property, it's readily available for remote
@@ -50,5 +50,18 @@ public class UpdateSequenceEvent extends GeoServerEvent {
 
     public static UpdateSequenceEvent createLocal(long value) {
         return new UpdateSequenceEvent(value);
+    }
+
+    @Override
+    public int compareTo(UpdateSequenceEvent o) {
+        return Long.compare(getUpdateSequence(), o.getUpdateSequence());
+    }
+
+    @Override
+    public String toShortString() {
+        String originService = getOrigin();
+        String type = getClass().getSimpleName();
+        return "%s[origin: %s, updateSequence: %s]"
+                .formatted(type, originService, getUpdateSequence());
     }
 }

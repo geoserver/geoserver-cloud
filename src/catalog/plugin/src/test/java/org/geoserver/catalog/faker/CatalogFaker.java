@@ -594,7 +594,7 @@ public class CatalogFaker {
         return s;
     }
 
-    public AttributionInfo attributionInfo() throws Exception {
+    public AttributionInfo attributionInfo() {
         AttributionInfoImpl attinfo = new AttributionInfoImpl();
         attinfo.setId(faker.idNumber().valid());
         attinfo.setHref(faker.company().url());

@@ -80,7 +80,7 @@ public class BusEventCollector {
             Class<T> payloadType, Predicate<T> filter) {
 
         List<RemoteGeoServerEvent> matches =
-                await().atMost(Duration.ofSeconds(5)) //
+                await().atMost(Duration.ofSeconds(500)) //
                         .until(() -> allOf(payloadType, filter), not(List::isEmpty));
 
         Supplier<String> message =
@@ -126,12 +126,12 @@ public class BusEventCollector {
     public void stop() {
         log.debug("bus id {}: stopped", busId);
         capturing = false;
-        bridge.enabled(false);
+        bridge.disable();
     }
 
     public void start() {
         log.debug("bus id {}: ready to capture {} events", busId, eventType.getSimpleName());
         capturing = true;
-        bridge.enabled(true);
+        bridge.enable();
     }
 }

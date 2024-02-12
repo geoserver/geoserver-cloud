@@ -11,4 +11,7 @@
 
     <logger name="org.springframework" level="WARN"/>
     <logger name="org.testcontainers" level="INFO"/>
+    <logger name="org.geoserver.cloud.event" level="DEBUG"/>
+    <logger name="org.geoserver.cloud.event.bus" level="DEBUG"/>
+    
 </configuration>

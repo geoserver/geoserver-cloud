@@ -4,7 +4,7 @@
  */
 package org.geoserver.cloud.autoconfigure.catalog.backend.datadir;
 
-import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
+import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.cloud.autoconfigure.catalog.event.ConditionalOnCatalogEvents;
 import org.geoserver.cloud.event.remote.datadir.RemoteEventDataDirectoryProcessor;
 import org.geoserver.config.plugin.RepositoryGeoServerFacade;
@@ -20,7 +20,7 @@ public class RemoteEventDataDirectoryAutoConfiguration {
     @Bean
     RemoteEventDataDirectoryProcessor dataDirectoryRemoteEventProcessor(
             @Qualifier("geoserverFacade") RepositoryGeoServerFacade configFacade,
-            @Qualifier("catalogFacade") ExtendedCatalogFacade catalogFacade) {
-        return new RemoteEventDataDirectoryProcessor(configFacade, catalogFacade);
+            @Qualifier("rawCatalog") CatalogPlugin rawCatalog) {
+        return new RemoteEventDataDirectoryProcessor(configFacade, rawCatalog);
     }
 }

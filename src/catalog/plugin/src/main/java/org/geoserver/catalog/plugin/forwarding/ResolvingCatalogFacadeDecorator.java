@@ -31,6 +31,7 @@ import org.geotools.api.filter.Filter;
 import org.geotools.api.filter.sort.SortBy;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
@@ -327,6 +328,11 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
     }
 
     @Override
+    public void setDefaultDataStore(WorkspaceInfo workspace, DataStoreInfo store) {
+        super.setDefaultDataStore(resolveInbound(workspace), resolveInbound(store));
+    }
+
+    @Override
     public WorkspaceInfo getWorkspace(String id) {
         return resolveOutbound(super.getWorkspace(id));
     }
@@ -506,6 +512,6 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
 
     @Override
     public <T extends CatalogInfo> Stream<T> query(Query<T> query) {
-        return super.query(query).map(this::resolveOutbound).filter(i -> i != null);
+        return super.query(query).map(this::resolveOutbound).filter(Objects::nonNull);
     }
 }

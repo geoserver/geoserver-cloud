@@ -6,6 +6,9 @@ package org.geoserver.catalog.plugin;
 
 import static java.util.Collections.unmodifiableList;
 
+import com.github.f4b6a3.ulid.Ulid;
+import com.github.f4b6a3.ulid.UlidCreator;
+
 import lombok.NonNull;
 
 import org.geoserver.catalog.Catalog;
@@ -16,16 +19,11 @@ import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.MapInfo;
 import org.geoserver.catalog.NamespaceInfo;
-import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.ResourcePool;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.ValidationResult;
-import org.geoserver.catalog.WMSLayerInfo;
-import org.geoserver.catalog.WMSStoreInfo;
-import org.geoserver.catalog.WMTSLayerInfo;
-import org.geoserver.catalog.WMTSStoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.event.CatalogListener;
 import org.geoserver.catalog.impl.CatalogImpl;
@@ -45,14 +43,12 @@ import org.geoserver.config.plugin.GeoServerImpl;
 import org.geoserver.config.util.XStreamPersister;
 import org.geoserver.ows.util.OwsUtils;
 import org.geotools.api.filter.Filter;
-import org.geotools.api.filter.FilterFactory;
 import org.geotools.api.filter.Id;
 import org.geotools.api.filter.PropertyIsEqualTo;
 import org.geotools.api.filter.expression.Literal;
 import org.geotools.api.filter.expression.PropertyName;
 import org.geotools.api.filter.identity.Identifier;
 import org.geotools.api.filter.sort.SortBy;
-import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.util.Converters;
 import org.geotools.util.logging.Logging;
 
@@ -61,8 +57,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
-import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -217,6 +211,40 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
         super.facade.setCatalog(this);
     }
 
+    public void add(@NonNull CatalogInfo info) {
+        switch (info) {
+            case WorkspaceInfo ws -> add(ws);
+            case NamespaceInfo ns -> add(ns);
+            case StoreInfo st -> add(st);
+            case ResourceInfo r -> add(r);
+            case LayerInfo l -> add(l);
+            case LayerGroupInfo lg -> add(lg);
+            case StyleInfo s -> add(s);
+            case MapInfo m -> add(m);
+            default -> throw new IllegalArgumentException(
+                    "Unexpected value: %s".formatted(ModificationProxy.unwrap(info).getClass()));
+        }
+    }
+
+    public void save(@NonNull CatalogInfo info) {
+        doSave(info);
+    }
+
+    public void remove(@NonNull CatalogInfo info) {
+        switch (info) {
+            case WorkspaceInfo ws -> remove(ws);
+            case NamespaceInfo ns -> remove(ns);
+            case StoreInfo st -> remove(st);
+            case ResourceInfo r -> remove(r);
+            case LayerInfo l -> remove(l);
+            case LayerGroupInfo lg -> remove(lg);
+            case StyleInfo s -> remove(s);
+            case MapInfo m -> remove(m);
+            default -> throw new IllegalArgumentException(
+                    "Unexpected value: %s".formatted(ModificationProxy.unwrap(info).getClass()));
+        }
+    }
+
     // Store methods
     @Override
     public void add(StoreInfo store) {
@@ -240,7 +268,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
 
     @Override
     public void remove(StoreInfo store) {
-        doRemove(store, facade::remove);
+        doRemove(store, StoreInfo.class);
     }
 
     /**
@@ -386,7 +414,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
 
     @Override
     public void remove(ResourceInfo resource) {
-        doRemove(resource, facade::remove);
+        doRemove(resource, ResourceInfo.class);
     }
 
     @Override
@@ -417,7 +445,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
 
     @Override
     public void remove(LayerInfo layer) {
-        doRemove(layer, facade::remove);
+        doRemove(layer, LayerInfo.class);
     }
 
     @Override
@@ -465,7 +493,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
 
     @Override
     public void remove(LayerGroupInfo layerGroup) {
-        doRemove(layerGroup, facade::remove);
+        doRemove(layerGroup, LayerGroupInfo.class);
     }
 
     @Override
@@ -490,7 +518,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
 
     @Override
     public void remove(MapInfo map) {
-        doRemove(map, facade::remove);
+        doRemove(map, MapInfo.class);
     }
 
     @Override
@@ -515,7 +543,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
 
     @Override
     public void remove(NamespaceInfo namespace) {
-        doRemove(namespace, facade::remove);
+        doRemove(namespace, NamespaceInfo.class);
     }
 
     @Override
@@ -562,7 +590,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
 
     @Override
     public void remove(WorkspaceInfo workspace) {
-        doRemove(workspace, facade::remove);
+        doRemove(workspace, WorkspaceInfo.class);
     }
 
     @Override
@@ -622,7 +650,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
 
     @Override
     public void remove(StyleInfo style) {
-        doRemove(style, facade::remove);
+        doRemove(style, StyleInfo.class);
     }
 
     @Override
@@ -671,22 +699,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
     }
 
     public Optional<CatalogInfo> findById(@NonNull String id) {
-        FilterFactory ff = CommonFactoryFinder.getFilterFactory();
-        final Filter filter = ff.id(ff.featureId(id));
-
-        return Stream.of(
-                        WorkspaceInfo.class,
-                        NamespaceInfo.class,
-                        StoreInfo.class,
-                        ResourceInfo.class,
-                        LayerInfo.class,
-                        LayerGroupInfo.class,
-                        StyleInfo.class,
-                        MapInfo.class)
-                .map(type -> get(type, filter))
-                .filter(Objects::nonNull)
-                .map(CatalogInfo.class::cast)
-                .findFirst();
+        return getFacade().get(id);
     }
 
     @Override
@@ -695,7 +708,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
         // try optimizing by querying by id first, defer to regular filter query if
         // filter is not and Id filter
         return getIdIfIdFilter(filter) //
-                .map(id -> findOneById(id, type)) //
+                .flatMap(id -> findById(id, type)) //
                 .or(() -> findOne(type, filter)) //
                 .orElse(null);
     }
@@ -713,29 +726,8 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
         }
     }
 
-    private <T extends CatalogInfo> T findOneById(String id, Class<T> type) {
-        final ClassMappings cm = classMapping(type).orElseThrow();
-        return switch (cm) {
-            case NAMESPACE -> type.cast(getNamespace(id));
-            case WORKSPACE -> type.cast(getWorkspace(id));
-            case STORE -> type.cast(getStore(id, StoreInfo.class));
-            case COVERAGESTORE -> type.cast(getCoverageStore(id));
-            case DATASTORE -> type.cast(getDataStore(id));
-            case WMSSTORE -> type.cast(getStore(id, WMSStoreInfo.class));
-            case WMTSSTORE -> type.cast(getStore(id, WMTSStoreInfo.class));
-            case RESOURCE -> type.cast(getResource(id, ResourceInfo.class));
-            case COVERAGE -> type.cast(getCoverage(id));
-            case FEATURETYPE -> type.cast(getFeatureType(id));
-            case WMSLAYER -> type.cast(getResource(id, WMSLayerInfo.class));
-            case WMTSLAYER -> type.cast(getResource(id, WMTSLayerInfo.class));
-            case LAYER -> type.cast(getLayer(id));
-            case LAYERGROUP -> type.cast(getLayerGroup(id));
-            case PUBLISHED -> type.cast(
-                    Optional.<PublishedInfo>ofNullable(getLayer(id))
-                            .orElseGet(() -> getLayerGroup(id)));
-            case STYLE -> type.cast(getStyle(id));
-            default -> throw new IllegalArgumentException("Unexpected value: %s".formatted(cm));
-        };
+    public <T extends CatalogInfo> Optional<T> findById(String id, Class<T> type) {
+        return getFacade().get(id, type);
     }
 
     private Optional<String> getIdIfIdFilter(Filter filter) {
@@ -847,18 +839,23 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
         }
     }
 
-    protected <T extends CatalogInfo> void doRemove(T object, Consumer<T> remover) {
-        validationSupport.beforeRemove(object);
-        CatalogOpContext<T> context = new CatalogOpContext<>(this, object);
+    protected <T extends CatalogInfo> void doRemove(T object, Class<T> type) {
+        // proceed only if found, avoid no-op events
+        getFacade().get(object.getId(), type).ifPresent(this::doRemove);
+    }
+
+    private <T extends CatalogInfo> void doRemove(T found) {
+        validationSupport.beforeRemove(found);
+        CatalogOpContext<T> context = new CatalogOpContext<>(this, found);
 
         businessRules.onBeforeRemove(context);
         try {
-            remover.accept(object);
-            // fire the event before the post-rules are processed, since they may result in
-            // other objects removed/modified, and hence avoid a secondary event to be
-            // notified before the primary one. For example, a post-rule may result in a call to
+            getFacade().remove(ModificationProxy.unwrap(found));
+            // fire the event before the post-rules are processed, since they may result in other
+            // objects removed/modified, and hence avoid a secondary event to be notified before the
+            // primary one. For example, a post-rule may result in a call to
             // setDefaultWorspace/Namespace/DataStore
-            fireRemoved(object);
+            fireRemoved(found);
             businessRules.onRemoved(context);
         } catch (RuntimeException error) {
             businessRules.onRemoved(context.setError(error));
@@ -866,37 +863,22 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
         }
     }
 
-    protected void setId(CatalogInfo o) {
+    protected void setId(@NonNull CatalogInfo o) {
         if (null == o.getId()) {
-            String uid = UUID.randomUUID().toString();
-            String id = "%s-%s".formatted(o.getClass().getSimpleName(), uid);
+            String type =
+                    ClassMappings.fromImpl(ModificationProxy.unwrap(o).getClass())
+                            .getInterface()
+                            .getSimpleName();
+            Ulid ulid = UlidCreator.getMonotonicUlid();
+            String id = "%s-%s".formatted(type, ulid);
             OwsUtils.set(o, "id", id);
-        } else if (LOGGER.isLoggable(Level.FINE)) {
-            LOGGER.fine("Using user provided id %s".formatted(o.getId()));
+        } else if (LOGGER.isLoggable(Level.FINEST)) {
+            LOGGER.finest("Using provided id %s".formatted(o.getId()));
         }
     }
 
     // if value is null, the list is a singleton list with a null member
     private <T> List<T> asList(@Nullable T value) {
         return Collections.singletonList(value);
-    }
-
-    public void save(CatalogInfo info) {
-        doSave(info);
-    }
-
-    public void remove(@NonNull CatalogInfo info) {
-        switch (info) {
-            case WorkspaceInfo ws -> remove(ws);
-            case NamespaceInfo ns -> remove(ns);
-            case StoreInfo st -> remove(st);
-            case ResourceInfo r -> remove(r);
-            case LayerInfo l -> remove(l);
-            case LayerGroupInfo lg -> remove(lg);
-            case StyleInfo s -> remove(s);
-            case MapInfo m -> remove(m);
-            default -> throw new IllegalArgumentException(
-                    "Unexpected value: %s".formatted(ModificationProxy.unwrap(info).getClass()));
-        }
     }
 }

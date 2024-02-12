@@ -198,7 +198,7 @@ class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
         catalog.add(testData.workspaceA);
         catalog.add(testData.namespaceA);
         catalog.add(testData.dataStoreA);
-        testRemoteCatalogInfoAddEvent(testData.featureTypeA, catalog::add);
+        testRemoteCatalogInfoAddEvent(testData.featureTypeA);
     }
 
     @Test
@@ -208,7 +208,7 @@ class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
         catalog.add(testData.dataStoreA);
         catalog.add(testData.featureTypeA);
         catalog.add(testData.style1);
-        testRemoteCatalogInfoAddEvent(testData.layerFeatureTypeA, catalog::add);
+        testRemoteCatalogInfoAddEvent(testData.layerFeatureTypeA);
     }
 
     @Test

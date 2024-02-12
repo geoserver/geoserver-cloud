@@ -11,14 +11,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.Info;
-import org.geoserver.catalog.LayerGroupInfo;
-import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.NamespaceInfo;
-import org.geoserver.catalog.ResourceInfo;
-import org.geoserver.catalog.StoreInfo;
-import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ModificationProxy;
+import org.geoserver.catalog.impl.ResolvingProxy;
+import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.cloud.event.UpdateSequenceEvent;
@@ -30,6 +27,7 @@ import org.geoserver.cloud.event.info.InfoAdded;
 import org.geoserver.cloud.event.info.InfoModified;
 import org.geoserver.cloud.event.info.InfoRemoved;
 import org.geoserver.config.GeoServerInfo;
+import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
 import org.geoserver.config.plugin.RepositoryGeoServerFacade;
@@ -37,25 +35,44 @@ import org.springframework.context.event.EventListener;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
-/** Listens to {@link RemoteCatalogEvent}s and updates the local catalog */
+/**
+ * Listens to {@link RemoteCatalogEvent}s and updates the local catalog
+ *
+ * @since 1.0
+ */
 @Slf4j(topic = "org.geoserver.cloud.event.remote.datadir")
 @RequiredArgsConstructor
 public class RemoteEventDataDirectoryProcessor {
 
     private final @NonNull RepositoryGeoServerFacade configFacade;
-    private final @NonNull ExtendedCatalogFacade catalogFacade;
+    private final @NonNull CatalogPlugin rawCatalog;
 
-    @EventListener(classes = {UpdateSequenceEvent.class})
-    public void onUpdateSequenceEvent(UpdateSequenceEvent updateSequenceEvent) {
-        if (updateSequenceEvent.isRemote()) {
-            final Long updateSequence = updateSequenceEvent.getUpdateSequence();
-            log.debug("processing update sequence {} from {}", updateSequence, updateSequenceEvent);
-            GeoServerInfo info = ModificationProxy.unwrap(configFacade.getGlobal());
-            long current = info.getUpdateSequence();
+    ExtendedCatalogFacade catalogFacade() {
+        return rawCatalog.getFacade();
+    }
+
+    @EventListener(UpdateSequenceEvent.class)
+    void onRemoteUpdateSequenceEvent(UpdateSequenceEvent event) {
+        if (event.isLocal()) {
+            return;
+        }
+        final long updateSequence = event.getUpdateSequence();
+        GeoServerInfo info = ModificationProxy.unwrap(configFacade.getGlobal());
+        final long current = info.getUpdateSequence();
+        if (updateSequence > current) {
             info.setUpdateSequence(updateSequence);
-            log.info("replaced update sequence {} by {}", current, updateSequence);
+            log.debug(
+                    "replaced update sequence {} by {} due to reomote event {}",
+                    current,
+                    updateSequence,
+                    event.toShortString());
+        } else {
+            log.debug(
+                    "remote event has update sequence {} lower than locally seen {}, leaving it untouched. {}",
+                    updateSequence,
+                    current,
+                    event.toShortString());
         }
     }
 
@@ -66,46 +83,37 @@ public class RemoteEventDataDirectoryProcessor {
         }
         final ConfigInfoType type = event.getObjectType();
         final String objectId = event.getObjectId();
-        switch (type) {
-            case NAMESPACE:
-                remove(objectId, catalogFacade::getNamespace, catalogFacade::remove);
-                break;
-            case WORKSPACE:
-                remove(objectId, catalogFacade::getWorkspace, catalogFacade::remove);
-                break;
-            case COVERAGE, FEATURETYPE, WMSLAYER, WMTSLAYER:
-                remove(
-                        objectId,
-                        id -> catalogFacade.getResource(id, ResourceInfo.class),
-                        catalogFacade::remove);
-                break;
-            case COVERAGESTORE, DATASTORE, WMSSTORE, WMTSSTORE:
-                remove(
-                        objectId,
-                        id -> catalogFacade.getStore(id, StoreInfo.class),
-                        catalogFacade::remove);
-                break;
-            case LAYERGROUP:
-                remove(objectId, catalogFacade::getLayerGroup, catalogFacade::remove);
-                break;
-            case LAYER:
-                remove(objectId, catalogFacade::getLayer, catalogFacade::remove);
-                break;
-            case STYLE:
-                remove(objectId, catalogFacade::getStyle, catalogFacade::remove);
-                break;
-            case SERVICE:
-                remove(
-                        objectId,
-                        id -> configFacade.getService(id, ServiceInfo.class),
-                        configFacade::remove);
-                break;
-            case SETTINGS:
-                remove(objectId, configFacade::getSettings, configFacade::remove);
-                break;
-            default:
-                log.warn("Don't know how to handle remote remove envent for {}", event);
-                break;
+        final ExtendedCatalogFacade facade = catalogFacade();
+
+        if (type.isA(CatalogInfo.class)) {
+            Class<? extends CatalogInfo> cinfotype = type.type();
+            facade.get(objectId, cinfotype)
+                    .ifPresentOrElse(
+                            info -> {
+                                facade.remove(info);
+                                log.debug("Removed {}({}), from local catalog", type, objectId);
+                            },
+                            () ->
+                                    log.warn(
+                                            "Can't remove {}({}), not present in local catalog",
+                                            type,
+                                            objectId));
+        } else {
+            boolean removed =
+                    switch (type) {
+                        case SERVICE -> remove(
+                                objectId,
+                                id -> configFacade.getService(id, ServiceInfo.class),
+                                configFacade::remove);
+                        case SETTINGS -> remove(
+                                objectId, configFacade::getSettings, configFacade::remove);
+                        default -> false;
+                    };
+            if (removed) {
+                log.debug("Removed {}({}), from local config", type, objectId);
+            } else {
+                log.warn("Can't remove {}({}), not present in local config", type, objectId);
+            }
         }
     }
 
@@ -116,76 +124,19 @@ public class RemoteEventDataDirectoryProcessor {
         }
         final String objectId = event.getObjectId();
         final ConfigInfoType type = event.getObjectType();
-        log.debug("Handling remote add event {}({})", type, objectId);
+        if (log.isDebugEnabled()) log.debug("Adding object from event {}", event.toShortString());
         final Info object = event.getObject();
         if (object == null) {
             log.error("Remote add event didn't send the object payload for {}({})", type, objectId);
             return;
         }
-        switch (type) {
-            case NAMESPACE:
-                catalogFacade.add((NamespaceInfo) object);
-                break;
-            case WORKSPACE:
-                catalogFacade.add((WorkspaceInfo) object);
-                break;
-            case COVERAGE, FEATURETYPE, WMSLAYER, WMTSLAYER:
-                catalogFacade.add((ResourceInfo) object);
-                break;
-            case COVERAGESTORE, DATASTORE, WMSSTORE, WMTSSTORE:
-                catalogFacade.add((StoreInfo) object);
-                break;
-            case LAYERGROUP:
-                catalogFacade.add((LayerGroupInfo) object);
-                break;
-            case LAYER:
-                catalogFacade.add((LayerInfo) object);
-                break;
-            case STYLE:
-                catalogFacade.add((StyleInfo) object);
-                break;
-            case SERVICE:
-                configFacade.add((ServiceInfo) object);
-                break;
-            case SETTINGS:
-                configFacade.add((SettingsInfo) object);
-                break;
-            case LOGGING:
-                // ignore
-                break;
-            default:
-                log.warn("Don't know how to handle remote envent {})", event);
-                break;
-        }
-    }
-
-    @EventListener(DefaultWorkspaceSet.class)
-    public void onRemoteDefaultWorkspaceEvent(DefaultWorkspaceSet event) {
-        if (event.isRemote()) {
-            String newId = event.getNewWorkspaceId();
-            WorkspaceInfo newDefault = newId == null ? null : catalogFacade.getWorkspace(newId);
-            catalogFacade.setDefaultWorkspace(newDefault);
-        }
-    }
-
-    @EventListener(DefaultNamespaceSet.class)
-    public void onRemoteDefaultNamespaceEvent(DefaultNamespaceSet event) {
-        if (event.isRemote()) {
-            String newId = event.getNewNamespaceId();
-            NamespaceInfo namespace = newId == null ? null : catalogFacade.getNamespace(newId);
-            catalogFacade.setDefaultNamespace(namespace);
-        }
-    }
-
-    @EventListener(DefaultDataStoreSet.class)
-    public void onRemoteDefaultDataStoreEvent(DefaultDataStoreSet event) {
-        if (event.isRemote()) {
-            String workspaceId = event.getWorkspaceId();
-            WorkspaceInfo workspace = catalogFacade.getWorkspace(workspaceId);
-            String storeId = event.getDefaultDataStoreId();
-            DataStoreInfo store =
-                    storeId == null ? null : catalogFacade.getStore(storeId, DataStoreInfo.class);
-            catalogFacade.setDefaultDataStore(workspace, store);
+        ExtendedCatalogFacade facade = catalogFacade();
+        switch (object) {
+            case CatalogInfo info -> facade.add(info);
+            case ServiceInfo config -> configFacade.add(config);
+            case SettingsInfo config -> configFacade.add(config);
+            case LoggingInfo config -> log.debug("ignoring unused LoggingInfo");
+            default -> log.warn("Don't know how to handle remote envent {})", event);
         }
     }
 
@@ -194,84 +145,116 @@ public class RemoteEventDataDirectoryProcessor {
         if (event.isLocal()) {
             return;
         }
-        final String objectId = event.getObjectId();
-        final ConfigInfoType type = event.getObjectType();
-        if (type == ConfigInfoType.CATALOG) {
-            log.trace(
-                    "remote catalog modify events handled by RemoteDefaultWorkspace/Namespace/Store event handlers");
+        if (event instanceof DefaultWorkspaceSet
+                || event instanceof DefaultNamespaceSet
+                || event instanceof DefaultDataStoreSet) {
+            // these are InfoModified events but have their own listeners
             return;
         }
-        log.debug("Handling remote modify event {}", event);
+        final ConfigInfoType type = event.getObjectType();
         final Patch patch = event.getPatch();
         if (patch == null) {
             log.error("Remote event didn't send the patch payload {}", event);
             return;
         }
-        Info info = null;
-        switch (type) {
-            case NAMESPACE:
-                info = catalogFacade.getNamespace(objectId);
-                break;
-            case WORKSPACE:
-                info = catalogFacade.getWorkspace(objectId);
-                break;
-            case COVERAGE, FEATURETYPE, WMSLAYER, WMTSLAYER:
-                info = catalogFacade.getResource(objectId, ResourceInfo.class);
-                break;
-            case COVERAGESTORE, DATASTORE, WMSSTORE, WMTSSTORE:
-                info = catalogFacade.getStore(objectId, StoreInfo.class);
-                break;
-            case LAYERGROUP:
-                info = catalogFacade.getLayerGroup(objectId);
-                break;
-            case LAYER:
-                info = catalogFacade.getLayer(objectId);
-                break;
-            case STYLE:
-                info = catalogFacade.getStyle(objectId);
-                break;
-            case GEOSERVER:
-                info = ModificationProxy.unwrap(configFacade.getGlobal());
-                break;
-            case SERVICE:
-                info =
-                        ModificationProxy.unwrap(
-                                configFacade.getService(objectId, ServiceInfo.class));
-                break;
-            case SETTINGS:
-                info = ModificationProxy.unwrap(configFacade.getSettings(objectId));
-                break;
-            case LOGGING:
-                info = ModificationProxy.unwrap(configFacade.getLogging());
-                break;
-            default:
-                log.warn("Don't know how to handle remote modify envent {}", event);
-                return;
-        }
+        log.debug("Handling remote modify event {}", event);
+        Info info = loadInfo(event);
         if (info == null) {
             log.warn("Object not found on local Catalog, can't update upon {}", event);
+            return;
+        }
+        if (info instanceof CatalogInfo catalogInfo) {
+            // going directly through the CatalogFacade does not produce any further event
+            this.catalogFacade().update(catalogInfo, patch);
         } else {
+            // config info. GeoServerFacade doesn't have an update(info, patch) method, apply
+            // the patch to the live object
+            info = ModificationProxy.unwrap(info);
             patch.applyTo(info);
-            if (info instanceof CatalogInfo catalogInfo) {
-                // going directly through the CatalogFacade does not produce any further event
-                this.catalogFacade.update(catalogInfo, patch);
-            }
+        }
+
+        if (log.isDebugEnabled())
             log.debug(
                     "Object updated: {}({}). Properties: {}",
                     type,
-                    objectId,
-                    patch.getPropertyNames().stream().collect(Collectors.joining(",")));
-        }
+                    event.getObjectId(),
+                    patch.getPropertyNames());
     }
 
-    private <T extends Info> void remove(
+    private Info loadInfo(InfoModified event) {
+        final ConfigInfoType type = event.getObjectType();
+        final String objectId = event.getObjectId();
+        if (type.isA(CatalogInfo.class)) {
+            @SuppressWarnings("unchecked")
+            Class<? extends CatalogInfo> ctype = (Class<? extends CatalogInfo>) type.getType();
+            return catalogFacade().get(objectId, ctype).orElse(null);
+        }
+        Info configInfo =
+                switch (type) {
+                    case GEOSERVER -> configFacade.getGlobal();
+                    case SERVICE -> configFacade.getService(objectId, ServiceInfo.class);
+                    case SETTINGS -> configFacade.getSettings(objectId);
+                    case LOGGING -> configFacade.getLogging();
+                    default -> {
+                        log.warn("Don't know how to handle remote modify envent {}", event);
+                        yield null;
+                    }
+                };
+        return configInfo;
+    }
+
+    @EventListener(DefaultWorkspaceSet.class)
+    public void onRemoteDefaultWorkspaceEvent(DefaultWorkspaceSet event) {
+        if (event.isLocal()) {
+            return;
+        }
+
+        WorkspaceInfo newDefault = null;
+        if (null != event.getNewWorkspaceId()) {
+            // let the facade handle the resolving and eventual consistency
+            newDefault = ResolvingProxy.create(event.getNewWorkspaceId(), WorkspaceInfo.class);
+        }
+        catalogFacade().setDefaultWorkspace(newDefault);
+    }
+
+    @EventListener(DefaultNamespaceSet.class)
+    public void onRemoteDefaultNamespaceEvent(DefaultNamespaceSet event) {
+        if (event.isLocal()) {
+            return;
+        }
+        NamespaceInfo namespace = null;
+        if (null != event.getNewNamespaceId()) {
+            // let the facade handle the resolving and eventual consistency
+            namespace = ResolvingProxy.create(event.getNewNamespaceId(), NamespaceInfo.class);
+        }
+        catalogFacade().setDefaultNamespace(namespace);
+    }
+
+    @EventListener(DefaultDataStoreSet.class)
+    public void onRemoteDefaultDataStoreEvent(DefaultDataStoreSet event) {
+        if (event.isLocal()) {
+            return;
+        }
+
+        ExtendedCatalogFacade facade = catalogFacade();
+
+        WorkspaceInfo workspace =
+                ResolvingProxy.create(event.getWorkspaceId(), WorkspaceInfo.class);
+
+        DataStoreInfo store = null;
+        if (null != event.getDefaultDataStoreId()) {
+            store = ResolvingProxy.create(event.getDefaultDataStoreId(), DataStoreInfo.class);
+        }
+        facade.setDefaultDataStore(workspace, store);
+    }
+
+    private <T extends Info> boolean remove(
             String id, Function<String, T> supplier, Consumer<? super T> remover) {
         T info = supplier.apply(id);
         if (info == null) {
-            log.warn("Can't remove {}, not present in local catalog", id);
-        } else {
-            remover.accept(info);
-            log.debug("Removed {}", id);
+            return false;
         }
+        remover.accept(info);
+        return true;
     }
 }
