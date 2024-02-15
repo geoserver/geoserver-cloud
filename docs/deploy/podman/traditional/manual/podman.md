@@ -118,6 +118,12 @@ Accepted environment variables default values:
     -e SPRING_PROFILES_ACTIVE=datadir|jdbcconfig
     -e GEOSERVER_DATA_DIR=/opt/app/data_directory
 
+Accepted environment variables default values for webui:
+
+    -e EUREKA_SERVER_URL=http://discovery:8761/eureka
+    -e SPRING_PROFILES_ACTIVE=datadir|jdbcconfig
+    -e GEOSERVER_DATA_DIR=/opt/app/data_directory
+    -e WEBUI_IMPORTER_ENABLED=false|true
 
 ```bash
 for service in webui rest wms wfs wcs gwc
