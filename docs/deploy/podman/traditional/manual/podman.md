@@ -120,13 +120,13 @@ Accepted environment variables default values:
 
 
 ```bash
-for service in webui rest wms wfs wcs
+for service in webui rest wms wfs wcs gwc
 do
-  podman run -d --name=rest \
+  podman run -d --name=$service \
     --network gs-cloud-network \
     -e SPRING_PROFILES_ACTIVE=datadir \
     -v shared_data_directory:/opt/app/data_directory \
-    geoservercloud/geoserver-cloud-rest:$GSCLOUD_VERSION
+    geoservercloud/geoserver-cloud-$service:$GSCLOUD_VERSION
 done
 ```
 
@@ -176,12 +176,12 @@ systemctl --user enable --now container-rabbitmq container-discovery container-c
 #### Creating "service containers" systemd files
 
 ```bash
-for service in rest webui wms wfs wcs
+for service in rest webui wms wfs wcs gwc
 do
   podman generate systemd --new -n $service > ~/.config/systemd/user/container-$service.service
   podman rm -f $service
   sed -i "/Wants=network-online.target/c\Wants=network-online.target container-config.service" ~/.config/systemd/user/container-$service.service
   sed -i "/After=network-online.target/c\After=network-online.target container-config.service" ~/.config/systemd/user/container-$service.service
-  systemctl --user enable --now container-rest
+  systemctl --user enable --now container-$service
 done
 ```
