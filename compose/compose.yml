@@ -105,6 +105,13 @@ services:
     image: geoservercloud/geoserver-cloud-wfs:${TAG}
     environment:
       JAVA_OPTS: "${JAVA_OPTS_WFS}"
+    depends_on:
+      rabbitmq:
+        condition: service_started
+        required: true
+      discovery:
+        condition: service_started
+        required: true
 
   wms:
     image: geoservercloud/geoserver-cloud-wms:${TAG}
@@ -113,10 +120,13 @@ services:
       service: gstemplate
     environment:
       JAVA_OPTS: "${JAVA_OPTS_WMS}"
-    deploy:
-      resources:
-        limits:
-          memory: 4G
+    depends_on:
+      rabbitmq:
+        condition: service_started
+        required: true
+      discovery:
+        condition: service_started
+        required: true
 
   wcs:
     extends:
@@ -125,6 +135,13 @@ services:
     image: geoservercloud/geoserver-cloud-wcs:${TAG}
     environment:
       JAVA_OPTS: "${JAVA_OPTS_WCS}"
+    depends_on:
+      rabbitmq:
+        condition: service_started
+        required: true
+      discovery:
+        condition: service_started
+        required: true
 
   wps:
     extends:
@@ -133,6 +150,13 @@ services:
     image: geoservercloud/geoserver-cloud-wps:${TAG}
     environment:
       JAVA_OPTS: "${JAVA_OPTS_WPS}"
+    depends_on:
+      rabbitmq:
+        condition: service_started
+        required: true
+      discovery:
+        condition: service_started
+        required: true
 
   gwc:
     extends:
@@ -141,6 +165,13 @@ services:
     image: geoservercloud/geoserver-cloud-gwc:${TAG}
     environment:
       JAVA_OPTS: "${JAVA_OPTS_GWC}"
+    depends_on:
+      rabbitmq:
+        condition: service_started
+        required: true
+      discovery:
+        condition: service_started
+        required: true
 
   rest:
     extends:
@@ -149,6 +180,13 @@ services:
     image: geoservercloud/geoserver-cloud-rest:${TAG}
     environment:
       JAVA_OPTS: "${JAVA_OPTS_REST}"
+    depends_on:
+      rabbitmq:
+        condition: service_started
+        required: true
+      discovery:
+        condition: service_started
+        required: true
 
   webui:
     extends:
@@ -157,4 +195,11 @@ services:
     image: geoservercloud/geoserver-cloud-webui:${TAG}
     environment:
       JAVA_OPTS: "${JAVA_OPTS_WEBUI}"
+    depends_on:
+      rabbitmq:
+        condition: service_started
+        required: true
+      discovery:
+        condition: service_started
+        required: true
 

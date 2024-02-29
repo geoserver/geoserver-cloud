@@ -5,13 +5,6 @@ services:
     user: ${GS_USER}
     environment:
       SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES}"
-    depends_on:
-      rabbitmq:
-        condition: service_started
-        required: true
-      discovery:
-        condition: service_started
-        required: true
     volumes:
       - geowebcache_data:/data/geowebcache
     deploy:
