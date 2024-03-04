@@ -21,7 +21,7 @@ services:
       SPRING_PROFILES_ACTIVE: "${ACL_DEFAULT_PROFILES}"
     depends_on:
       acldb:
-        condition: service_started
+        condition: service_healthy
     ports:
       - 9000:8080
     deploy:
@@ -107,10 +107,10 @@ services:
       JAVA_OPTS: "${JAVA_OPTS_WFS}"
     depends_on:
       rabbitmq:
-        condition: service_started
+        condition: service_healthy
         required: true
       discovery:
-        condition: service_started
+        condition: service_healthy
         required: true
 
   wms:
@@ -122,10 +122,10 @@ services:
       JAVA_OPTS: "${JAVA_OPTS_WMS}"
     depends_on:
       rabbitmq:
-        condition: service_started
+        condition: service_healthy
         required: true
       discovery:
-        condition: service_started
+        condition: service_healthy
         required: true
 
   wcs:
@@ -137,10 +137,10 @@ services:
       JAVA_OPTS: "${JAVA_OPTS_WCS}"
     depends_on:
       rabbitmq:
-        condition: service_started
+        condition: service_healthy
         required: true
       discovery:
-        condition: service_started
+        condition: service_healthy
         required: true
 
   wps:
@@ -152,10 +152,10 @@ services:
       JAVA_OPTS: "${JAVA_OPTS_WPS}"
     depends_on:
       rabbitmq:
-        condition: service_started
+        condition: service_healthy
         required: true
       discovery:
-        condition: service_started
+        condition: service_healthy
         required: true
 
   gwc:
@@ -167,10 +167,10 @@ services:
       JAVA_OPTS: "${JAVA_OPTS_GWC}"
     depends_on:
       rabbitmq:
-        condition: service_started
+        condition: service_healthy
         required: true
       discovery:
-        condition: service_started
+        condition: service_healthy
         required: true
 
   rest:
@@ -182,10 +182,10 @@ services:
       JAVA_OPTS: "${JAVA_OPTS_REST}"
     depends_on:
       rabbitmq:
-        condition: service_started
+        condition: service_healthy
         required: true
       discovery:
-        condition: service_started
+        condition: service_healthy
         required: true
 
   webui:
@@ -197,9 +197,9 @@ services:
       JAVA_OPTS: "${JAVA_OPTS_WEBUI}"
     depends_on:
       rabbitmq:
-        condition: service_started
+        condition: service_healthy
         required: true
       discovery:
-        condition: service_started
+        condition: service_healthy
         required: true
 
