@@ -222,7 +222,7 @@ public abstract class GeoToolsValueMappers {
     public Map<String, String> internationalStringToDto(InternationalString s) {
         if (s instanceof GrowableInternationalString gs) {
             Set<Locale> locales = gs.getLocales();
-            Map<String, String> dto = new HashMap<>(locales.size());
+            Map<String, String> dto = HashMap.newHashMap(locales.size());
             locales.forEach(locale -> dto.put(localeToString(locale), gs.toString(locale)));
             return dto;
         }

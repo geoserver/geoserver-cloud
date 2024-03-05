@@ -13,7 +13,6 @@ import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.impl.ResolvingProxy;
 import org.geoserver.cloud.event.GeoServerEvent;
 import org.geoserver.cloud.event.info.InfoEvent;
-import org.geoserver.platform.config.UpdateSequence;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
@@ -59,8 +58,7 @@ public class RemoteGeoServerEventBridge implements DisposableBean {
     public RemoteGeoServerEventBridge( //
             @NonNull Consumer<GeoServerEvent> localRemoteEventPublisher, //
             @NonNull Consumer<RemoteGeoServerEvent> remoteEventPublisher, //
-            @NonNull RemoteGeoServerEventMapper mapper,
-            @NonNull UpdateSequence updateSequence) {
+            @NonNull RemoteGeoServerEventMapper mapper) {
 
         this.mapper = mapper;
         this.outboundEventPublisher = remoteEventPublisher;

@@ -182,7 +182,7 @@ public final class CatalogInfoRowMapper {
         } catch (SQLException e) {
             throw UncheckedSqlException.of(e);
         }
-        WorkspaceInfo workspace = style.getWorkspace();
+        WorkspaceInfo workspace = null == style ? null : style.getWorkspace();
         if (null != workspace) {
             String wsid = workspace.getId();
             WorkspaceInfo ws = mapWorkspace(wsid, rs);
@@ -224,9 +224,11 @@ public final class CatalogInfoRowMapper {
         } catch (SQLException e) {
             throw UncheckedSqlException.of(e);
         }
-        String wsid = store.getWorkspace().getId();
-        WorkspaceInfo ws = mapWorkspace(wsid, rs);
-        store.setWorkspace(ModificationProxy.create(ws, WorkspaceInfo.class));
+        if (null != store) {
+            String wsid = store.getWorkspace().getId();
+            WorkspaceInfo ws = mapWorkspace(wsid, rs);
+            store.setWorkspace(ModificationProxy.create(ws, WorkspaceInfo.class));
+        }
         return store;
     }
 
@@ -261,8 +263,10 @@ public final class CatalogInfoRowMapper {
         } catch (SQLException e) {
             throw UncheckedSqlException.of(e);
         }
-        setStore(resource, rs);
-        setNamespace(rs, resource);
+        if (null != resource) {
+            setStore(resource, rs);
+            setNamespace(rs, resource);
+        }
         return resource;
     }
 
@@ -360,9 +364,11 @@ public final class CatalogInfoRowMapper {
         } catch (SQLException e) {
             throw UncheckedSqlException.of(e);
         }
-        setResource(layer, rs);
-        setDefaultStyle(layer, rs);
-        setStyles(layer);
+        if (null != layer) {
+            setResource(layer, rs);
+            setDefaultStyle(layer, rs);
+            setStyles(layer);
+        }
         return layer;
     }
 
@@ -412,11 +418,13 @@ public final class CatalogInfoRowMapper {
         } catch (SQLException e) {
             throw UncheckedSqlException.of(e);
         }
-        WorkspaceInfo workspace = layergroup.getWorkspace();
-        if (null != workspace) {
-            String wsid = workspace.getId();
-            WorkspaceInfo ws = mapWorkspace(wsid, rs);
-            layergroup.setWorkspace(ModificationProxy.create(ws, WorkspaceInfo.class));
+        if (null != layergroup) {
+            WorkspaceInfo workspace = layergroup.getWorkspace();
+            if (null != workspace) {
+                String wsid = workspace.getId();
+                WorkspaceInfo ws = mapWorkspace(wsid, rs);
+                layergroup.setWorkspace(ModificationProxy.create(ws, WorkspaceInfo.class));
+            }
         }
         return layergroup;
     }

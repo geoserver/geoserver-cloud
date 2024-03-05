@@ -50,7 +50,7 @@ public class CatalogInfoRepositoryHolderImpl implements CatalogInfoRepositoryHol
         return (R) repos.forObject(info);
     }
 
-    public List<CatalogInfoRepository<? extends CatalogInfo>> all() {
+    public List<CatalogInfoRepository<?>> all() {
         return repos.getAll();
     }
 

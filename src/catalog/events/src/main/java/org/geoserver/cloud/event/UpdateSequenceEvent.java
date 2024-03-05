@@ -54,6 +54,7 @@ public class UpdateSequenceEvent extends GeoServerEvent implements Comparable<Up
         return new UpdateSequenceEvent(value);
     }
 
+    @SuppressWarnings("java:S1210")
     @Override
     public int compareTo(UpdateSequenceEvent o) {
         return Long.compare(getUpdateSequence(), o.getUpdateSequence());
