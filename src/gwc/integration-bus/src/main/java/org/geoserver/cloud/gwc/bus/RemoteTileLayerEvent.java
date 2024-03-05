@@ -25,13 +25,15 @@ public class RemoteTileLayerEvent extends RemoteGeoWebCacheEvent {
 
     private static final long serialVersionUID = 1L;
 
-    private @Getter @Setter String layerId;
+    private @Getter @Setter String publishedId;
+    private @Getter @Setter String name;
+    private @Getter @Setter String oldName;
 
     public RemoteTileLayerEvent(Object source, @NonNull String originService) {
         super(source, originService);
     }
 
     protected @Override String getObjectId() {
-        return layerId;
+        return publishedId;
     }
 }

@@ -57,18 +57,13 @@ public class ResolvingProxyResolver<T> implements UnaryOperator<T> {
 
     private BiConsumer<CatalogInfo, ResolvingProxy> onNotFound;
 
-    private ResolvingProxyResolver(@NonNull Catalog catalog) {
+    private ResolvingProxyResolver(@NonNull Supplier<Catalog> catalog) {
         this(
                 catalog,
                 (info, proxy) ->
                         log.warn(
                                 "ResolvingProxy object not found in catalog, keeping proxy around: %s"
                                         .formatted(info.getId())));
-    }
-
-    private ResolvingProxyResolver(
-            @NonNull Catalog catalog, @NonNull BiConsumer<CatalogInfo, ResolvingProxy> onNotFound) {
-        this(() -> catalog, onNotFound);
     }
 
     private ResolvingProxyResolver(
@@ -81,7 +76,7 @@ public class ResolvingProxyResolver<T> implements UnaryOperator<T> {
 
     public static <I extends Info> ResolvingProxyResolver<I> of(
             Catalog catalog, BiConsumer<CatalogInfo, ResolvingProxy> onNotFound) {
-        return new ResolvingProxyResolver<>(catalog, onNotFound);
+        return new ResolvingProxyResolver<>(() -> catalog, onNotFound);
     }
 
     public static <I extends Info> ResolvingProxyResolver<I> of(
@@ -102,6 +97,10 @@ public class ResolvingProxyResolver<T> implements UnaryOperator<T> {
     }
 
     public static <I extends Info> ResolvingProxyResolver<I> of(Catalog catalog) {
+        return new ResolvingProxyResolver<>(() -> catalog);
+    }
+
+    public static <I extends Info> ResolvingProxyResolver<I> of(Supplier<Catalog> catalog) {
         return new ResolvingProxyResolver<>(catalog);
     }
 

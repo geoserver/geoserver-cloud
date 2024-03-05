@@ -15,6 +15,7 @@ import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoEvent;
 import org.springframework.core.style.ToStringCreator;
+import org.springframework.lang.Nullable;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("DefaultNamespaceSet")
@@ -25,8 +26,15 @@ public class DefaultNamespaceSet extends CatalogInfoModified {
 
     protected DefaultNamespaceSet() {}
 
-    DefaultNamespaceSet(long updateSequence, String newNamespaceId, @NonNull Patch patch) {
-        super(updateSequence, InfoEvent.CATALOG_ID, ConfigInfoType.CATALOG, patch);
+    DefaultNamespaceSet(
+            long updateSequence, @Nullable String newNamespaceId, @NonNull Patch patch) {
+        super(
+                updateSequence,
+                InfoEvent.CATALOG_ID,
+                InfoEvent.CATALOG_ID, // the object changed is the catalog itself
+                InfoEvent.CATALOG_ID, // the object changed is the catalog itself
+                ConfigInfoType.CATALOG,
+                patch);
         this.newNamespaceId = newNamespaceId;
     }
 
@@ -37,7 +45,7 @@ public class DefaultNamespaceSet extends CatalogInfoModified {
     public static DefaultNamespaceSet createLocal(
             long updateSequence, NamespaceInfo defaultNamespace) {
 
-        String namespaceId = resolveId(defaultNamespace);
+        String namespaceId = resolveNullableId(defaultNamespace);
         Patch patch = new Patch();
         patch.add("defaultNamespace", defaultNamespace);
         return new DefaultNamespaceSet(updateSequence, namespaceId, patch);

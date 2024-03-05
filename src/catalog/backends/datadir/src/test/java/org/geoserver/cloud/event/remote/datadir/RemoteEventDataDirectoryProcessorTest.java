@@ -18,7 +18,6 @@ import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.impl.NamespaceInfoImpl;
-import org.geoserver.catalog.impl.ResolvingProxy;
 import org.geoserver.catalog.impl.WorkspaceInfoImpl;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
@@ -112,16 +111,15 @@ class RemoteEventDataDirectoryProcessorTest {
 
     @Test
     void testOnRemoteRemoveEvent_CatalogInfo() {
-        CatalogInfoRemoved event =
-                CatalogInfoRemoved.createLocal(
-                        101, ResolvingProxy.create("ws1", WorkspaceInfo.class));
+        WorkspaceInfo info = new WorkspaceInfoImpl();
+        ((WorkspaceInfoImpl) info).setId("ws1");
+        info.setName("workspace1");
+
+        CatalogInfoRemoved event = CatalogInfoRemoved.createLocal(101, info);
 
         processor.onRemoteRemoveEvent(event);
         verifyNoMoreInteractions(mockFacade);
 
-        WorkspaceInfo info = new WorkspaceInfoImpl();
-        ((WorkspaceInfoImpl) info).setId("ws1");
-        ((WorkspaceInfoImpl) info).setName("workspace1");
         Optional<WorkspaceInfo> found = Optional.of(info);
         when(mockFacade.get("ws1", WorkspaceInfo.class)).thenReturn(found);
 
@@ -142,10 +140,12 @@ class RemoteEventDataDirectoryProcessorTest {
     void testOnRemoteRemoveEvent_ConfigInfo() {
         ServiceInfoImpl service = new ServiceInfoImpl();
         service.setId("wms1");
+        service.setName("WMS");
         SettingsInfoImpl settings = new SettingsInfoImpl();
         settings.setId("settings1");
         settings.setWorkspace(new WorkspaceInfoImpl());
         ((WorkspaceInfoImpl) settings.getWorkspace()).setId("ws-id");
+        settings.getWorkspace().setName("ws");
 
         when(mockGeoServerFacade.getService(service.getId(), ServiceInfo.class))
                 .thenReturn(service);
@@ -199,6 +199,7 @@ class RemoteEventDataDirectoryProcessorTest {
     void testOnRemoteAddEvent_ServiceInfo() {
         ServiceInfoImpl service = new ServiceInfoImpl();
         service.setId("s1");
+        service.setName("S1");
         ServiceAdded event = ServiceAdded.createLocal(0, service);
         event.setRemote(true);
         processor.onRemoteAddEvent(event);
@@ -209,6 +210,10 @@ class RemoteEventDataDirectoryProcessorTest {
     void testOnRemoteAddEvent_SettingsInfo() {
         SettingsInfoImpl settings = new SettingsInfoImpl();
         settings.setId("settings1");
+        settings.setWorkspace(new WorkspaceInfoImpl());
+        ((WorkspaceInfoImpl) settings.getWorkspace()).setId("ws-id");
+        settings.getWorkspace().setName("ws");
+
         SettingsAdded event = SettingsAdded.createLocal(0, settings);
         event.setRemote(true);
         processor.onRemoteAddEvent(event);
@@ -219,10 +224,11 @@ class RemoteEventDataDirectoryProcessorTest {
     void testOnRemoteModifyEvent_CatalogInfo() {
         WorkspaceInfo info = new WorkspaceInfoImpl();
         ((WorkspaceInfoImpl) info).setId("id");
-        ((WorkspaceInfoImpl) info).setName("oldName");
-        Patch patch = simplePatch("name", "oldName", "newName");
+        info.setName("oldName");
+        info = ModificationProxy.create(info, WorkspaceInfo.class);
+        info.setName("newName");
 
-        InfoModified event = CatalogInfoModified.createLocal(1, info, patch);
+        InfoModified event = CatalogInfoModified.createLocal(1, info);
         event.setRemote(false);
         processor.onRemoteModifyEvent(event);
         verifyNoMoreInteractions(mockFacade);
@@ -230,6 +236,7 @@ class RemoteEventDataDirectoryProcessorTest {
         when(mockFacade.get(info.getId(), WorkspaceInfo.class)).thenReturn(Optional.of(info));
         event.setRemote(true);
         processor.onRemoteModifyEvent(event);
+        Patch patch = simplePatch("name", "oldName", "newName");
         verify(mockFacade, times(1)).update(info, patch);
     }
 
@@ -272,6 +279,7 @@ class RemoteEventDataDirectoryProcessorTest {
         settings.setId("set1");
         settings.setWorkspace(new WorkspaceInfoImpl());
         ((WorkspaceInfoImpl) settings.getWorkspace()).setId("ws1");
+        settings.getWorkspace().setName("testws");
 
         when(mockGeoServerFacade.getSettings(settings.getId()))
                 .thenReturn(ModificationProxy.create(settings, SettingsInfo.class));
@@ -292,6 +300,7 @@ class RemoteEventDataDirectoryProcessorTest {
     void testOnRemoteModifyEvent_ServiceInfo() {
         ServiceInfoImpl service = new ServiceInfoImpl();
         service.setId("serv1");
+        service.setName("S1");
 
         when(mockGeoServerFacade.getService(service.getId(), ServiceInfo.class))
                 .thenReturn(ModificationProxy.create(service, ServiceInfo.class));

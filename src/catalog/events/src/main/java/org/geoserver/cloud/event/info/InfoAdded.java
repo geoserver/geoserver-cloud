@@ -28,7 +28,16 @@ public abstract class InfoAdded<I extends Info> extends InfoEvent {
     protected InfoAdded() {}
 
     protected InfoAdded(long updateSequence, @NonNull I object) {
-        super(updateSequence, resolveId(object), typeOf(object));
+        this(updateSequence, resolveId(object), prefixedName(object), typeOf(object), object);
+    }
+
+    protected InfoAdded(
+            long updateSequence,
+            @NonNull String id,
+            @NonNull String prefixedName,
+            @NonNull ConfigInfoType type,
+            @NonNull I object) {
+        super(updateSequence, id, prefixedName, type);
         this.object = object;
     }
 }

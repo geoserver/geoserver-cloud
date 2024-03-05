@@ -32,7 +32,9 @@ public class UpdateSequenceEvent extends GeoServerEvent implements Comparable<Up
      */
     private @Getter long updateSequence;
 
-    protected UpdateSequenceEvent() {}
+    protected UpdateSequenceEvent() {
+        // no-op default constructor for deserialization
+    }
 
     protected UpdateSequenceEvent(long updateSequence) {
         super(System.currentTimeMillis(), resolveAuthor());

@@ -28,6 +28,10 @@ public class PgsqlStyleRepository extends PgsqlCatalogInfoRepository<StyleInfo>
         super(template);
     }
 
+    public PgsqlStyleRepository(@NonNull LoggingTemplate template) {
+        super(template);
+    }
+
     @Override
     public Class<StyleInfo> getContentType() {
         return StyleInfo.class;

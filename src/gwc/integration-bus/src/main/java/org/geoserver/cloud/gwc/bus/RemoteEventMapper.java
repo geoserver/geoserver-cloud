@@ -28,18 +28,25 @@ interface RemoteEventMapper {
             @NonNull GeoWebCacheEvent local,
             @NonNull Object source,
             @NonNull String originService) {
-        if (local instanceof TileLayerEvent tle) return toRemote(tle, source, originService);
-        if (local instanceof GridsetEvent gse) return toRemote(gse, source, originService);
-        if (local instanceof BlobStoreEvent bse) return toRemote(bse, source, originService);
-        throw new IllegalArgumentException("unknown GeoWebCacheEvent type: " + local);
+
+        return switch (local) {
+            case TileLayerEvent tle -> toRemote(tle, source, originService);
+            case GridsetEvent gse -> toRemote(gse, source, originService);
+            case BlobStoreEvent bse -> toRemote(bse, source, originService);
+            default -> throw new IllegalArgumentException(
+                    "unknown GeoWebCacheEvent type: " + local);
+        };
     }
 
     default GeoWebCacheEvent toLocal(
             @NonNull RemoteGeoWebCacheEvent remote, @NonNull Object source) {
-        if (remote instanceof RemoteTileLayerEvent remoteTle) return toLocal(remoteTle, source);
-        if (remote instanceof RemoteGridsetEvent remoteGse) return toLocal(remoteGse, source);
-        if (remote instanceof RemoteBlobStoreEvent remoteBse) return toLocal(remoteBse, source);
-        throw new IllegalArgumentException("unknown RemoteGeoWebCacheEvent type: " + remote);
+        return switch (remote) {
+            case RemoteTileLayerEvent tle -> toLocal(tle, source);
+            case RemoteGridsetEvent gse -> toLocal(gse, source);
+            case RemoteBlobStoreEvent bse -> toLocal(bse, source);
+            default -> throw new IllegalArgumentException(
+                    "unknown RemoteGeoWebCacheEvent type: " + remote);
+        };
     }
 
     TileLayerEvent toLocal(RemoteTileLayerEvent remote, @Context Object source);

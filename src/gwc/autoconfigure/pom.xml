@@ -31,6 +31,10 @@
     </dependency>
     <dependency>
       <groupId>org.geoserver.cloud.gwc</groupId>
+      <artifactId>gwc-cloud-catalog-pgconfig</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.cloud.gwc</groupId>
       <!-- if available, gwc API services will engage (e.g. tms, wmts, rest, etc) -->
       <artifactId>gwc-cloud-services</artifactId>
       <optional>true</optional>
@@ -45,6 +49,30 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-autoconfigure-processor</artifactId>
       <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>postgresql</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.cloud.catalog.backend</groupId>
+      <artifactId>gs-cloud-catalog-backend-pgconfig</artifactId>
+      <version>${project.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver</groupId>
+      <artifactId>gs-main</artifactId>
+      <version>${gs.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>

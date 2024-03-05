@@ -4,27 +4,19 @@
  */
 package org.geoserver.cloud.gwc.config.core;
 
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
-import org.geoserver.catalog.Catalog;
+import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
-import org.geoserver.cloud.gwc.repository.CachingTileLayerCatalog;
-import org.geoserver.cloud.gwc.repository.CloudCatalogConfiguration;
-import org.geoserver.cloud.gwc.repository.ResourceStoreTileLayerCatalog;
+import org.geoserver.gwc.config.GWCConfigPersister;
+import org.geoserver.gwc.config.GWCInitializer;
+import org.geoserver.gwc.config.GwcGeoserverConfigurationInitializer;
 import org.geoserver.gwc.layer.CatalogConfiguration;
 import org.geoserver.gwc.layer.TileLayerCatalog;
-import org.geoserver.platform.resource.ResourceStore;
-import org.geowebcache.grid.GridSetBroker;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.cache.CacheManager;
-import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
-import org.springframework.context.annotation.Primary;
-import org.springframework.web.context.WebApplicationContext;
-
-import java.util.Optional;
 
 import javax.annotation.PostConstruct;
 
@@ -34,45 +26,49 @@ import javax.annotation.PostConstruct;
 @Configuration(proxyBeanMethods = true)
 @ImportResource(
         reader = FilteringXmlBeanDefinitionReader.class, //
-        locations = {
-            "jar:gs-gwc-[0-9]+.*!/geowebcache-geoserver-context.xml#name=^(?!"
-                    + GeoServerIntegrationConfiguration.EXCLUDED_BEANS
-                    + ").*$"
-        })
+        locations = {GeoServerIntegrationConfiguration.GS_INTEGRATION_INCLUDES})
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.gwc.core")
 public class GeoServerIntegrationConfiguration {
 
-    static final String EXCLUDED_BEANS = //
+    private static final String EXCLUDED_BEANS =
             """
-		GeoSeverTileLayerCatalog\
-		|gwcCatalogConfiguration\
-		|gwcTransactionListener\
-		|gwcWMSExtendedCapabilitiesProvider""";
+            ^(?!\
+            GeoSeverTileLayerCatalog\
+            |gwcCatalogConfiguration\
+            |wmsCapabilitiesXmlReader\
+            |gwcTransactionListener\
+            |gwcWMSExtendedCapabilitiesProvider\
+            |gwcInitializer\
+            ).*$\
+            """;
 
-    public @PostConstruct void log() {
+    static final String GS_INTEGRATION_INCLUDES =
+            "jar:gs-gwc-[0-9]+.*!/geowebcache-geoserver-context.xml#name=" + EXCLUDED_BEANS;
+
+    @PostConstruct
+    public void log() {
+
         log.info("GeoWebCache core GeoServer integration enabled");
     }
 
-    @Bean(name = "gwcCatalogConfiguration")
-    CatalogConfiguration gwcCatalogConfiguration( //
-            @Qualifier("rawCatalog") Catalog catalog, //
-            @Qualifier("GeoSeverTileLayerCatalog") TileLayerCatalog tld, //
-            GridSetBroker gsb) {
-
-        return new CloudCatalogConfiguration(catalog, tld, gsb);
-    }
-
-    @Primary
-    @Bean(name = "GeoSeverTileLayerCatalog")
-    TileLayerCatalog cachingTileLayerCatalog(ResourceStoreTileLayerCatalog delegate) {
-        CacheManager cacheManager = new CaffeineCacheManager();
-        return new CachingTileLayerCatalog(cacheManager, delegate);
-    }
-
+    /**
+     * Replaces {@link GWCInitializer}
+     *
+     * <p>
+     *
+     * <ul>
+     *   <li>We don't need to upgrade from very old configuration settings
+     *   <li>{@code GWCInitializer} depends on {@link TileLayerCatalog}, assuming {@link
+     *       CatalogConfiguration} is the only tile layer storage backend for geoserver tile layers,
+     *       and it's not the case for GS cloud
+     *
+     * @param configPersister
+     * @param lock
+     */
     @Bean
-    ResourceStoreTileLayerCatalog resourceStoreTileLayerCatalog(
-            @Qualifier("resourceStoreImpl") ResourceStore resourceStore,
-            Optional<WebApplicationContext> webappCtx) {
-        return new ResourceStoreTileLayerCatalog(resourceStore, webappCtx);
+    GwcGeoserverConfigurationInitializer gwcGeoserverConfigurationInitializer(
+            GWCConfigPersister configPersister, @NonNull GeoServerConfigurationLock lock) {
+
+        return new GwcGeoserverConfigurationInitializer(configPersister, lock);
     }
 }

@@ -107,7 +107,8 @@ class PgsqlMigrationAutoConfigurationTest {
                         "settingsinfos",
                         "serviceinfos",
                         "resources",
-                        "publishedinfos");
+                        "publishedinfos",
+                        "tilelayers");
         List<String> tables =
                 List.of(
                         "flyway_schema_history",

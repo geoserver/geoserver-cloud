@@ -5,6 +5,7 @@
 package org.geoserver.cloud.gwc.event;
 
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 
 import org.geoserver.gwc.layer.TileLayerCatalogListener;
@@ -27,7 +28,7 @@ public abstract class GeoWebCacheEvent extends ApplicationEvent {
         DELETED
     }
 
-    private @Getter @Setter Type eventType;
+    private @NonNull @Getter @Setter Type eventType;
     private @Getter @Setter String id;
 
     protected GeoWebCacheEvent(Object source) {

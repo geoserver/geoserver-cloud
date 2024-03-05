@@ -20,10 +20,9 @@ import org.geoserver.catalog.plugin.PropertyDiff.Change;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoEvent;
 import org.springframework.core.style.ToStringCreator;
+import org.springframework.lang.Nullable;
 
 import java.util.Objects;
-
-import javax.annotation.Nullable;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("DefaultDataStoreSet")
@@ -39,10 +38,16 @@ public class DefaultDataStoreSet extends CatalogInfoModified {
     DefaultDataStoreSet(
             long updateSequence,
             @NonNull String workspaceId,
-            String defaultDataStoreId,
+            @Nullable String defaultDataStoreId,
             @NonNull Patch patch) {
 
-        super(updateSequence, InfoEvent.CATALOG_ID, ConfigInfoType.CATALOG, patch);
+        super(
+                updateSequence,
+                InfoEvent.CATALOG_ID,
+                InfoEvent.CATALOG_ID, // the object changed is the catalog itself
+                InfoEvent.CATALOG_ID, // the object changed is the catalog itself
+                ConfigInfoType.CATALOG,
+                patch);
 
         this.workspaceId = workspaceId;
         this.defaultDataStoreId = defaultDataStoreId;
@@ -68,10 +73,9 @@ public class DefaultDataStoreSet extends CatalogInfoModified {
                                         new IllegalArgumentException(
                                                 "defaultDataStore is not in the change list"));
 
-        final @Nullable DataStoreInfo newStore = (DataStoreInfo) change.getNewValue();
-
-        final @Nullable String newDefaultStoreId = resolveId(newStore);
-        final @NonNull String workspaceId = resolveId(resolveWorkspace(change));
+        final DataStoreInfo newStore = (DataStoreInfo) change.getNewValue();
+        final String newDefaultStoreId = resolveNullableId(newStore);
+        final String workspaceId = resolveId(resolveWorkspace(change));
 
         Patch patch = diff.toPatch();
 
@@ -84,8 +88,8 @@ public class DefaultDataStoreSet extends CatalogInfoModified {
         Patch patch = new Patch();
         patch.add("defaultDataStore", newStore);
 
-        final @Nullable String newDefaultStoreId = resolveId(newStore);
-        final @NonNull String workspaceId = resolveId(workspace);
+        final String newDefaultStoreId = resolveNullableId(newStore);
+        final String workspaceId = resolveId(workspace);
 
         return new DefaultDataStoreSet(updateSequence, workspaceId, newDefaultStoreId, patch);
     }

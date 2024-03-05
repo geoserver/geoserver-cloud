@@ -11,7 +11,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 
 import org.geoserver.catalog.plugin.Patch;
-import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.config.LoggingInfo;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
@@ -24,14 +23,14 @@ public class LoggingInfoModified extends ConfigInfoModified implements ConfigInf
         // default constructor, needed for deserialization
     }
 
-    protected LoggingInfoModified(long updateSequence, @NonNull String id, @NonNull Patch patch) {
+    protected LoggingInfoModified(long updateSequence, LoggingInfo info, @NonNull Patch patch) {
 
-        super(updateSequence, id, ConfigInfoType.LOGGING, patch);
+        super(updateSequence, resolveId(info), prefixedName(info), typeOf(info), patch);
     }
 
     public static LoggingInfoModified createLocal(
             long updateSequence, LoggingInfo info, @NonNull Patch patch) {
-        String id = resolveId(info);
-        return new LoggingInfoModified(updateSequence, id, patch);
+
+        return new LoggingInfoModified(updateSequence, info, patch);
     }
 }

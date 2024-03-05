@@ -1,7 +1,8 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 org.geoserver.cloud.autoconfigure.gwc.core.GeoWebCacheAutoConfiguration,\
+org.geoserver.cloud.autoconfigure.gwc.backend.PgsqlTileLayerCatalogAutoConfiguration,\
+org.geoserver.cloud.autoconfigure.gwc.backend.DefaultTileLayerCatalogAutoConfiguration,\
 org.geoserver.cloud.autoconfigure.gwc.core.CacheSeedingWebMapServiceAutoConfiguration,\
-org.geoserver.cloud.autoconfigure.gwc.core.GeoWebCacheEventsAutoConfiguration,\
 org.geoserver.cloud.autoconfigure.gwc.integration.GeoWebCacheRemoteEventsAutoConfiguration,\
 org.geoserver.cloud.autoconfigure.gwc.integration.WMTSIntegrationAutoConfiguration,\
 org.geoserver.cloud.autoconfigure.gwc.integration.WMSIntegrationAutoConfiguration,\

@@ -12,7 +12,6 @@ import lombok.Getter;
 import lombok.NonNull;
 
 import org.geoserver.catalog.plugin.Patch;
-import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoEvent;
 import org.geoserver.config.SettingsInfo;
 import org.springframework.core.style.ToStringCreator;
@@ -31,11 +30,11 @@ public class SettingsModified extends ConfigInfoModified implements ConfigInfoEv
 
     public SettingsModified(
             long updateSequence,
-            @NonNull String objectId,
+            @NonNull SettingsInfo settings,
             @NonNull Patch patch,
             @NonNull String workspaceId) {
 
-        super(updateSequence, objectId, ConfigInfoType.SETTINGS, patch);
+        super(updateSequence, resolveId(settings), prefixedName(settings), typeOf(settings), patch);
         this.workspaceId = workspaceId;
     }
 
@@ -44,11 +43,10 @@ public class SettingsModified extends ConfigInfoModified implements ConfigInfoEv
     }
 
     public static SettingsModified createLocal(
-            long updateSequence, @NonNull SettingsInfo object, @NonNull Patch patch) {
+            long updateSequence, @NonNull SettingsInfo settings, @NonNull Patch patch) {
 
-        final String settingsId = object.getId();
-        final String workspaceId = InfoEvent.resolveId(object.getWorkspace());
+        final String workspaceId = InfoEvent.resolveId(settings.getWorkspace());
 
-        return new SettingsModified(updateSequence, settingsId, patch, workspaceId);
+        return new SettingsModified(updateSequence, settings, patch, workspaceId);
     }
 }

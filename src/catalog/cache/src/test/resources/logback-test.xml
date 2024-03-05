@@ -12,4 +12,5 @@
     <logger name="org.springframework.test" level="WARN"/>
     <logger name="org.springframework.boot.test" level="WARN"/>
     <logger name="org.springframework.context" level="WARN"/>
+    <logger name="org.geoserver.cloud.catalog.cache" level="DEBUG"/>
 </configuration>
