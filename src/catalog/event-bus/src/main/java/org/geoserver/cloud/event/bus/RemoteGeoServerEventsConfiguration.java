@@ -14,7 +14,6 @@ import org.geoserver.cloud.event.GeoServerEvent;
 import org.geoserver.config.GeoServer;
 import org.geoserver.jackson.databind.catalog.GeoServerCatalogModule;
 import org.geoserver.jackson.databind.config.GeoServerConfigModule;
-import org.geoserver.platform.config.UpdateSequence;
 import org.geotools.api.filter.Filter;
 import org.geotools.api.filter.expression.Expression;
 import org.geotools.api.filter.expression.Literal;
@@ -94,15 +93,13 @@ public class RemoteGeoServerEventsConfiguration {
 
     @Bean
     RemoteGeoServerEventBridge remoteEventBroadcaster(
-            ApplicationEventPublisher eventPublisher,
-            RemoteGeoServerEventMapper eventMapper,
-            UpdateSequence updateSequence) {
+            ApplicationEventPublisher eventPublisher, RemoteGeoServerEventMapper eventMapper) {
 
         log.info("Configuring GeoServer Catalog distributed events.");
 
         Consumer<GeoServerEvent> localEventPublisher = eventPublisher::publishEvent;
         Consumer<RemoteGeoServerEvent> remoteEventPublisher = eventPublisher::publishEvent;
         return new RemoteGeoServerEventBridge(
-                localEventPublisher, remoteEventPublisher, eventMapper, updateSequence);
+                localEventPublisher, remoteEventPublisher, eventMapper);
     }
 }
