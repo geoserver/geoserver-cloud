@@ -115,7 +115,7 @@ services:
         condition: service_healthy
         required: true
       discovery:
-        condition: service_healthy
+        condition: service_started
         required: true
 
   wms:
@@ -130,7 +130,7 @@ services:
         condition: service_healthy
         required: true
       discovery:
-        condition: service_healthy
+        condition: service_started
         required: true
 
   wcs:
@@ -145,7 +145,7 @@ services:
         condition: service_healthy
         required: true
       discovery:
-        condition: service_healthy
+        condition: service_started
         required: true
 
   wps:
@@ -160,7 +160,7 @@ services:
         condition: service_healthy
         required: true
       discovery:
-        condition: service_healthy
+        condition: service_started
         required: true
 
   gwc:
@@ -175,7 +175,7 @@ services:
         condition: service_healthy
         required: true
       discovery:
-        condition: service_healthy
+        condition: service_started
         required: true
 
   rest:
@@ -190,7 +190,7 @@ services:
         condition: service_healthy
         required: true
       discovery:
-        condition: service_healthy
+        condition: service_started
         required: true
 
   webui:
@@ -205,6 +205,6 @@ services:
         condition: service_healthy
         required: true
       discovery:
-        condition: service_healthy
+        condition: service_started
         required: true
 

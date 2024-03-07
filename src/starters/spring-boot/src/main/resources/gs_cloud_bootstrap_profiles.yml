@@ -60,11 +60,11 @@ eureka:
     healthcheck:
       enabled: false # must only be set to true in application.yml, not bootstrap
 ---
-#no config-service, load config from /etc/gscloud if it exists
+#no config-service, load config from /etc/geoserver
+#all Dockerfile files have the default config under that directory
 spring.config.activate.on-profile: bootstrap_standalone
 spring:
-  #config.additional-location: optional:file:/etc/gscloud/
-  config.location: file:/etc/gscloud/
+  config.location: file:/etc/geoserver/
   cloud.config:
     enabled: false
 ---
