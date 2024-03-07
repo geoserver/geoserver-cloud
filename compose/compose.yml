@@ -15,10 +15,15 @@ services:
 
   acl:
     image: geoservercloud/geoserver-acl:${ACL_TAG}
-    volumes:
-      - ${PWD}/../config/acl-service.yml:/opt/app/bin/acl.yml
     environment:
-      SPRING_PROFILES_ACTIVE: "${ACL_DEFAULT_PROFILES}"
+      - PG_HOST=acldb
+      - PG_PORT=5432
+      - PG_DB=acl
+      - PG_SCHEMA=acl
+      - PG_USER=acl
+      - PG_PASSWORD=acls3cr3t
+      - 'ACL_USERS_ADMIN_PASSWORD={noop}s3cr3t'
+      - 'ACL_USERS_GEOSERVER_PASSWORD={noop}s3cr3t'
     depends_on:
       acldb:
         condition: service_healthy
