@@ -9,7 +9,7 @@ RUN java -Djarmode=layertools -jar application.jar extract
 ##########
 FROM geoservercloud/gs-cloud-base-jre:$TAG
 
-COPY target/config/ /etc/gscloud/
+COPY target/config/ /etc/geoserver/
 
 RUN mkdir -p /opt/app/bin
 
