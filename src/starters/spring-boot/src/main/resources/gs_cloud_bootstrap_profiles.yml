@@ -11,7 +11,7 @@ config.server.url: http://config:8080
 eureka.server.url: http://discovery:8761/eureka
 
 info:
-  component: Web Map Service
+  component: ${spring.application.name}
   instance-id: ${spring.application.name}:${vcap.application.instance_id:${spring.application.instance_id:${spring.cloud.client.ip-address}}:${server.port}}
 
 geoserver:
