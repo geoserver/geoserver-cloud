@@ -26,7 +26,7 @@
     <gs.version>2.25.0-SNAPSHOT</gs.version>
     <gs.community.version>2.25.0-SNAPSHOT</gs.community.version>
     <gt.version>31-SNAPSHOT</gt.version>
-    <acl.version>2.0-M2</acl.version>
+    <acl.version>2.0-SNAPSHOT</acl.version>
     <!-- Downgrade netty.version used by spring-boot to the one used by geoserver azure client
     (software.amazon.awssdk:netty-nio-client:jar:2.9.24) for COG and GWC Azure plugin -->
     <netty.version>4.1.41.Final</netty.version>

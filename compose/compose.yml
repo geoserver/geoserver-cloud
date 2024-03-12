@@ -16,6 +16,7 @@ services:
   acl:
     image: geoservercloud/geoserver-acl:${ACL_TAG}
     environment:
+      # Override default values in the container's /etc/geoserver/acl-service.yml 
       - PG_HOST=acldb
       - PG_PORT=5432
       - PG_DB=acl
@@ -24,11 +25,22 @@ services:
       - PG_PASSWORD=acls3cr3t
       - 'ACL_USERS_ADMIN_PASSWORD={noop}s3cr3t'
       - 'ACL_USERS_GEOSERVER_PASSWORD={noop}s3cr3t'
+      - GEOSERVER_BUS_ENABLED=true
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASSWORD=guest
+      #- RABBITMQ_VHOST=""
     depends_on:
       acldb:
         condition: service_healthy
+        required: true
+      rabbitmq:
+        condition: service_healthy
+        required: true
     ports:
       - 9000:8080
+      - 9001:8081
     deploy:
       resources:
         limits:

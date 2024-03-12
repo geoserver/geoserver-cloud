@@ -19,6 +19,16 @@
       <artifactId>gs-acl-client-plugin</artifactId>
     </dependency>
     <dependency>
+      <!-- Use a CachingAuthorizationService decorator for the API client AuthorizationServiceClientAdaptor -->
+      <groupId>org.geoserver.acl.integration</groupId>
+      <artifactId>gs-acl-cache</artifactId>
+    </dependency>
+    <dependency>
+      <!-- Integrate with spring-cloud-bus to evict cached authorizations upon incoming rule and adminrule events -->
+      <groupId>org.geoserver.acl.integration</groupId>
+      <artifactId>gs-acl-spring-cloud-bus</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.geoserver.extension</groupId>
       <artifactId>gs-authkey</artifactId>
       <exclusions>

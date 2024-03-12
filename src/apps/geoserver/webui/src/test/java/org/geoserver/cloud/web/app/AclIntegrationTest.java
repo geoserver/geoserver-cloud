@@ -30,6 +30,7 @@ import java.util.Locale;
         properties = {
             "geoserver.acl.enabled: true",
             "geoserver.acl.client.basePath: http://localhost:9000/api",
+            "geoserver.acl.client.startupCheck: false",
             "geoserver.acl.client.username: acluser",
             "geoserver.acl.client.password: s3cr3t",
             "geoserver.web-ui.acl.enabled: true",
