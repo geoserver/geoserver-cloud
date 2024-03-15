@@ -7,9 +7,11 @@ package org.geoserver.cloud.catalog.cache;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.plugin.CatalogFacadeExtensionAdapter;
+import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerFacade;
+import org.geoserver.config.plugin.GeoServerImpl;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.cache.Cache;
@@ -35,10 +37,13 @@ import java.util.Objects;
 public class GeoServerBackendCacheConfiguration implements BeanPostProcessor {
 
     @Bean
-    CacheConfigurationPostProcessor cacheConfigurationPostProcessor(
+    CachingFacadesLifeCycleHandler cachingFacadesLifeCycleHandler(
+            @Qualifier("rawCatalog") CatalogPlugin rawCatalog,
+            GeoServerImpl rawGeoServer,
             CachingCatalogFacade cachingCatalogFacade,
             CachingGeoServerFacade cachingGeoServerFacade) {
-        return new CacheConfigurationPostProcessor(cachingCatalogFacade, cachingGeoServerFacade);
+        return new CachingFacadesLifeCycleHandler(
+                cachingCatalogFacade, cachingGeoServerFacade, rawCatalog, rawGeoServer);
     }
 
     @Bean

@@ -19,6 +19,7 @@ import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerFacade;
 import org.geoserver.config.GeoServerFactory;
 import org.geoserver.config.GeoServerInfo;
+import org.geoserver.config.GeoServerLoader;
 import org.geoserver.config.GeoServerLoaderProxy;
 import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
@@ -546,7 +547,6 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
             reset();
 
             // reload configuration
-            GeoServerLoaderProxy loader = GeoServerExtensions.bean(GeoServerLoaderProxy.class);
             synchronized (org.geoserver.config.GeoServer.CONFIGURATION_LOCK) {
                 getCatalog().getResourcePool().dispose();
 
@@ -562,7 +562,7 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
                     ((CatalogImpl) catalog).sync((CatalogImpl) newCatalog);
                     ((CatalogImpl) catalog).resolve();
                 } else {
-                    loader.reload();
+                    callGeoServeLoaderReload();
                 }
             }
         } finally {
@@ -570,13 +570,23 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
             for (GeoServerLifecycleHandler handler : handlers) {
                 try {
                     handler.onReload();
-                } catch (Throwable t) {
+                } catch (Exception t) {
                     LOGGER.log(
                             Level.SEVERE,
                             "A GeoServer lifecycle handler threw an exception during reload",
                             t);
                 }
             }
+        }
+    }
+
+    private void callGeoServeLoaderReload() throws Exception {
+        GeoServerLoaderProxy loaderProxy = GeoServerExtensions.bean(GeoServerLoaderProxy.class);
+        if (loaderProxy == null) {
+            GeoServerLoader geoServerLoader = GeoServerExtensions.bean(GeoServerLoader.class);
+            geoServerLoader.reload();
+        } else {
+            loaderProxy.reload();
         }
     }
 

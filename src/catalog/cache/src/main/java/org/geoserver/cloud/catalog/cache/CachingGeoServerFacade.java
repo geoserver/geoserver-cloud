@@ -416,4 +416,8 @@ public class CachingGeoServerFacade extends ForwardingGeoServerFacade {
             @Nullable WorkspaceInfo ws, @NonNull Class<? extends ServiceInfo> type) {
         return ServiceInfoKey.byType(ws, type);
     }
+
+    public void evictAll() {
+        cache.clear();
+    }
 }
