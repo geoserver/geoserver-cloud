@@ -356,4 +356,8 @@ class CachingCatalogFacadeContainmentSupport {
             }
         }
     }
+
+    public void evictAll() {
+        cache.clear();
+    }
 }

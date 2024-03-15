@@ -295,4 +295,8 @@ public class CachingCatalogFacade extends ForwardingExtendedCatalogFacade {
     private static InfoIdKey id(@NonNull String id, @NonNull ConfigInfoType type) {
         return InfoIdKey.valueOf(id, type);
     }
+
+    public void evictAll() {
+        support.evictAll();
+    }
 }
