@@ -90,15 +90,6 @@ public enum ConfigInfoType {
         throw new IllegalArgumentException("Unknown info type for class " + clazz);
     }
 
-    public static boolean isPersistable(@NonNull Info info) {
-        for (ConfigInfoType enumVal : ConfigInfoType.values()) {
-            if (enumVal.isInstance(info)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     @SuppressWarnings("unchecked")
     public <T> Class<T> type() {
         return (Class<T>) type;
