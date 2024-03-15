@@ -50,6 +50,7 @@ public class CatalogInfoRepositoryHolderImpl implements CatalogInfoRepositoryHol
         return (R) repos.forObject(info);
     }
 
+    @SuppressWarnings("java:S1452")
     public List<CatalogInfoRepository<?>> all() {
         return repos.getAll();
     }

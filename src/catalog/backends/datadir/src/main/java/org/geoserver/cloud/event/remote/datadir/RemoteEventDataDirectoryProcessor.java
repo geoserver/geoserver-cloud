@@ -135,7 +135,7 @@ public class RemoteEventDataDirectoryProcessor {
             case CatalogInfo info -> facade.add(info);
             case ServiceInfo config -> configFacade.add(config);
             case SettingsInfo config -> configFacade.add(config);
-            case LoggingInfo config -> log.debug("ignoring unused LoggingInfo");
+            case LoggingInfo config -> log.debug("ignoring unused LoggingInfo {}", config);
             default -> log.warn("Don't know how to handle remote envent {})", event);
         }
     }
@@ -189,18 +189,16 @@ public class RemoteEventDataDirectoryProcessor {
             Class<? extends CatalogInfo> ctype = (Class<? extends CatalogInfo>) type.getType();
             return catalogFacade().get(objectId, ctype).orElse(null);
         }
-        Info configInfo =
-                switch (type) {
-                    case GEOSERVER -> configFacade.getGlobal();
-                    case SERVICE -> configFacade.getService(objectId, ServiceInfo.class);
-                    case SETTINGS -> configFacade.getSettings(objectId);
-                    case LOGGING -> configFacade.getLogging();
-                    default -> {
-                        log.warn("Don't know how to handle remote modify envent {}", event);
-                        yield null;
-                    }
-                };
-        return configInfo;
+        return switch (type) {
+            case GEOSERVER -> configFacade.getGlobal();
+            case SERVICE -> configFacade.getService(objectId, ServiceInfo.class);
+            case SETTINGS -> configFacade.getSettings(objectId);
+            case LOGGING -> configFacade.getLogging();
+            default -> {
+                log.warn("Don't know how to handle remote modify envent {}", event);
+                yield null;
+            }
+        };
     }
 
     @EventListener(DefaultWorkspaceSet.class)
