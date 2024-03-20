@@ -28,19 +28,28 @@ services:
           memory: 4G
     
   acl:
-    image: geoservercloud/geoserver-acl:2.0.2
+    image: geoservercloud/geoserver-acl:2.0.1
     user: 1000:1000
     depends_on:
       pgconfigdb:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     environment:
-      ACL_DB_URL: jdbc:postgresql://pgconfigdb:5432/pgconfig
-      ACL_DB_SCHEMA: acl
-      ACL_DB_USERNAME: pgconfig
-      ACL_DB_PASSWORD: pgconfig
-      ACL_SECURITY_BASIC_ENABLED: true
-      ACL_USERS_ADMIN_ENABLED: true
-      ACL_USERS_ADMIN_PASSWORD: "{noop}s3cr3t"
+      # Override default values in the container's /etc/geoserver/acl-service.yml 
+      - PG_HOST=pgconfigdb
+      - PG_PORT=5432
+      - PG_DB=pgconfig
+      - PG_SCHEMA=acl
+      - PG_USERNAME=pgconfig
+      - PG_PASSWORD=pgconfig
+      - 'ACL_USERS_ADMIN_PASSWORD={noop}s3cr3t'
+      - 'ACL_USERS_GEOSERVER_PASSWORD={noop}s3cr3t'
+      - GEOSERVER_BUS_ENABLED=true
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASSWORD=guest
     deploy:
       resources:
         limits:
@@ -55,11 +64,17 @@ services:
     restart: unless-stopped
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: rabbitmq-diagnostics is_running
+      start_period: 10s
+      interval: 15s
+      timeout: 30s
+      retries: 3
     deploy:
       resources:
         limits:
-          cpus: '2.0'
-          memory: 1G
+          cpus: '4.0'
+          memory: 2G
 
   # Eureka service discovery. This is a Discovery First Bootstrap configuration.
   # The discovery service is the only fixed entry point.
@@ -107,19 +122,6 @@ services:
         limits:
           cpus: '2.0'
           memory: 512M
-
-  admin:
-    image: geoservercloud/geoserver-cloud-admin-server:1.7.0
-    user: 1000:1000
-    depends_on:
-      - discovery
-    ports:
-      - 9091:8080
-    deploy:
-      resources:
-        limits:
-          cpus: '2.0'
-          memory: 512M
     
   # Application facade, provides a single entry point routing to all
   # microservices (e.g. http://localhost:9090/geoserver/wms, http://localhost:9090/geoserver/wfs, etc)
@@ -144,6 +146,17 @@ services:
     image: geoservercloud/geoserver-cloud-wfs:1.7.0
     extends:
       service: geoserver
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      discovery:
+        condition: service_healthy
+      pgconfigdb:
+        condition: service_started
+      config:
+        condition: service_healthy
+      acl:
+        condition: service_healthy
     deploy:
       replicas: 1
 
@@ -152,6 +165,17 @@ services:
     image: geoservercloud/geoserver-cloud-wms:1.7.0
     extends:
       service: geoserver
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      discovery:
+        condition: service_healthy
+      pgconfigdb:
+        condition: service_started
+      config:
+        condition: service_healthy
+      acl:
+        condition: service_healthy
     deploy:
       replicas: 1
 
@@ -160,6 +184,17 @@ services:
     image: geoservercloud/geoserver-cloud-wcs:1.7.0
     extends:
       service: geoserver
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      discovery:
+        condition: service_healthy
+      pgconfigdb:
+        condition: service_started
+      config:
+        condition: service_healthy
+      acl:
+        condition: service_healthy
     deploy:
       replicas: 1
 
@@ -168,6 +203,17 @@ services:
     image: geoservercloud/geoserver-cloud-wps:1.7.0
     extends:
       service: geoserver
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      discovery:
+        condition: service_healthy
+      pgconfigdb:
+        condition: service_started
+      config:
+        condition: service_healthy
+      acl:
+        condition: service_healthy
     deploy:
       replicas: 1
 
@@ -176,6 +222,17 @@ services:
     image: geoservercloud/geoserver-cloud-rest:1.7.0
     extends:
       service: geoserver
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      discovery:
+        condition: service_healthy
+      pgconfigdb:
+        condition: service_started
+      config:
+        condition: service_healthy
+      acl:
+        condition: service_healthy
     deploy:
       replicas: 1
 
@@ -186,6 +243,17 @@ services:
       service: geoserver
     volumes:
       - geowebcache_data:/data/geowebcache
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      discovery:
+        condition: service_healthy
+      pgconfigdb:
+        condition: service_started
+      config:
+        condition: service_healthy
+      acl:
+        condition: service_healthy
     deploy:
       replicas: 1
 
@@ -195,6 +263,17 @@ services:
       service: geoserver
     volumes:
       - geowebcache_data:/data/geowebcache
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      discovery:
+        condition: service_healthy
+      pgconfigdb:
+        condition: service_started
+      config:
+        condition: service_healthy
+      acl:
+        condition: service_healthy
     deploy:
       replicas: 1
 
@@ -207,12 +286,6 @@ services:
       ACL_URL: http://acl:8080/acl/api
       ACL_USERNAME: admin
       ACL_PASSWORD: s3cr3t
-    depends_on:
-      - pgconfigdb
-      - rabbitmq
-      - discovery
-      - config
-      - acl
     deploy:
       mode: replicated
       replicas: 0

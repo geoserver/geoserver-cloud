@@ -94,30 +94,16 @@ services:
           cpus: '2.0'
           memory: 512M
 
-  admin:
-    image: geoservercloud/geoserver-cloud-admin-server:1.7.0
-    user: 1000:1000 # set the userid:groupid the container runs as
-    depends_on:
-      - config
-    ports:
-      - 9091:8080
-    networks:
-      - gs-cloud-network
-    deploy:
-      resources:
-        limits:
-          cpus: '2.0'
-          memory: 1G
-
   # Application facade, provides a single entry point routing to all
-  # microservices (e.g. http://localhost:9090/geoserver/wms, http://localhost:9090/geoserver/wfs, etc)
+  # microservices (e.g. http://localhost:9090/geoserver/cloud/wms, http://localhost:9090/geoserver/cloud/wfs, etc)
   gateway:
     image: geoservercloud/geoserver-cloud-gateway:1.7.0
     user: 1000:1000 # set the userid:groupid the container runs as
     depends_on:
       - config
     environment:
-      SPRING_PROFILES_ACTIVE: "jdbcconfig"
+      # eat our own dogfood and set a base path
+      GEOSERVER_BASE_PATH: /geoserver/cloud
     ports:
       - 9090:8080
     networks:

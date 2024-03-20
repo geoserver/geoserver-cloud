@@ -21,7 +21,7 @@ services:
       - PG_PORT=5432
       - PG_DB=acl
       - PG_SCHEMA=acl
-      - PG_USER=acl
+      - PG_USERNAME=acl
       - PG_PASSWORD=acls3cr3t
       - 'ACL_USERS_ADMIN_PASSWORD={noop}s3cr3t'
       - 'ACL_USERS_GEOSERVER_PASSWORD={noop}s3cr3t'
