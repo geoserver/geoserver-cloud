@@ -11,6 +11,7 @@ import lombok.NonNull;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import org.geoserver.platform.resource.FilePaths;
 import org.geoserver.platform.resource.Files;
 import org.geoserver.platform.resource.LockProvider;
 import org.geoserver.platform.resource.Paths;
@@ -64,10 +65,34 @@ public class PgsqlResourceStore implements ResourceStore {
 
     @Override
     public Resource get(@NonNull String path) {
-        if (Paths.isAbsolute(path)) {
-            return Files.asResource(new File(path));
+        String validPath = normalize(path);
+        if (FilePaths.isAbsolute(validPath)) {
+            return Files.asResource(new File(validPath));
         }
-        return findByPath(path).orElseGet(() -> queryMapper.undefined(path));
+        return findByPath(validPath).orElseGet(() -> queryMapper.undefined(validPath));
+    }
+
+    @Override
+    public boolean remove(@NonNull String path) {
+        return findByPath(normalize(path)).map(PgsqlResource::delete).orElse(false);
+    }
+
+    @Override
+    public boolean move(@NonNull String path, @NonNull String target) {
+        normalize(path);
+        normalize(target);
+        return move((PgsqlResource) get(path), (PgsqlResource) get(target));
+    }
+
+    private String normalize(String path) {
+        path = Paths.valid(path);
+        if (path.startsWith("/")) {
+            path = path.substring(1);
+        }
+        if (path.endsWith("/")) {
+            path = path.substring(0, path.length() - 1);
+        }
+        return path;
     }
 
     public Optional<PgsqlResource> findByPath(@NonNull String path) {
@@ -157,23 +182,6 @@ public class PgsqlResourceStore implements ResourceStore {
                         Timestamp.class,
                         resourceId);
         return null == ts ? 0L : ts.getTime();
-    }
-
-    @Override
-    public boolean remove(@NonNull String path) {
-        return findByPath(path).map(PgsqlResource::delete).orElse(false);
-    }
-
-    @Override
-    public boolean move(@NonNull String path, @NonNull String target) {
-        ensureNotAbsolute(path);
-        ensureNotAbsolute(target);
-        return move((PgsqlResource) get(path), (PgsqlResource) get(target));
-    }
-
-    private void ensureNotAbsolute(String path) {
-        Preconditions.checkArgument(
-                !Paths.isAbsolute(path), "Absolute paths not supported: %s", path);
     }
 
     public boolean move(@NonNull PgsqlResource source, @NonNull PgsqlResource target) {
