@@ -23,9 +23,9 @@
     <spring-cloud.version>2021.0.8</spring-cloud.version>
     <spring-boot.version>2.7.18</spring-boot.version>
     <jackson.version>2.15.3</jackson.version>
-    <gs.version>2.25.0-SNAPSHOT</gs.version>
-    <gs.community.version>2.25.0-SNAPSHOT</gs.community.version>
-    <gt.version>31-SNAPSHOT</gt.version>
+    <gs.version>2.25.0-CLOUD</gs.version>
+    <gs.community.version>2.25.0-CLOUD</gs.community.version>
+    <gt.version>31.0</gt.version>
     <acl.version>2.0.1</acl.version>
     <!-- Downgrade netty.version used by spring-boot to the one used by geoserver azure client
     (software.amazon.awssdk:netty-nio-client:jar:2.9.24) for COG and GWC Azure plugin -->
@@ -963,6 +963,11 @@
             <version>2.6</version>
           </dependency>
           <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.14.0</version>
+          </dependency>
+          <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
             <version>1.2</version>
@@ -1111,6 +1116,24 @@
             <groupId>io.netty</groupId>
             <artifactId>netty-transport-native-unix-common</artifactId>
             <version>${netty.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.2</version>
+          </dependency>
+          <dependency>
+            <groupId>com.jayway.jsonpath</groupId>
+            <artifactId>json-path</artifactId>
+            <version>2.9.0</version>
+          </dependency>
+          <dependency>
+            <!-- this version should match with that used in com.jayway.jsonpath:json-path;
+        which provides runtime scope; however gs-auth has a compile time dependency-->
+            <groupId>net.minidev</groupId>
+            <artifactId>json-smart</artifactId>
+            <version>2.5.0</version>
+            <scope>compile</scope>
           </dependency>
         </dependencies>
       </dependencyManagement>
