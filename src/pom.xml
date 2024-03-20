@@ -1122,6 +1122,19 @@
             <artifactId>postgresql</artifactId>
             <version>42.7.2</version>
           </dependency>
+          <dependency>
+            <groupId>com.jayway.jsonpath</groupId>
+            <artifactId>json-path</artifactId>
+            <version>2.9.0</version>
+          </dependency>
+          <dependency>
+            <!-- this version should match with that used in com.jayway.jsonpath:json-path;
+        which provides runtime scope; however gs-auth has a compile time dependency-->
+            <groupId>net.minidev</groupId>
+            <artifactId>json-smart</artifactId>
+            <version>2.5.0</version>
+            <scope>compile</scope>
+          </dependency>
         </dependencies>
       </dependencyManagement>
     </profile>
