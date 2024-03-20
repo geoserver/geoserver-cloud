@@ -1117,6 +1117,11 @@
             <artifactId>netty-transport-native-unix-common</artifactId>
             <version>${netty.version}</version>
           </dependency>
+          <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.2</version>
+          </dependency>
         </dependencies>
       </dependencyManagement>
     </profile>
