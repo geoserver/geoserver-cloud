@@ -119,6 +119,12 @@ and run tests with
 make test
 ```
 
+finally clean the build with
+
+```bash
+make clean
+```
+
 ### Build the docker images
 
 As mentioned above, a `make` with no arguments will build everything.
