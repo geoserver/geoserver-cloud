@@ -32,7 +32,7 @@
     <netty.version>4.1.41.Final</netty.version>
     <lombok.version>1.18.30</lombok.version>
     <mapstruct.version>1.6.0.Beta1</mapstruct.version>
-    <flyway.version>9.22.3</flyway.version>
+    <flyway.version>10.10.0</flyway.version>
     <testcontainers.version>1.19.3</testcontainers.version>
     <fork.javac>true</fork.javac>
     <javac.maxHeapSize>256M</javac.maxHeapSize>
@@ -773,6 +773,11 @@
       <dependency>
         <groupId>org.flywaydb</groupId>
         <artifactId>flyway-core</artifactId>
+        <version>${flyway.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.flywaydb</groupId>
+        <artifactId>flyway-database-postgresql</artifactId>
         <version>${flyway.version}</version>
       </dependency>
     </dependencies>
