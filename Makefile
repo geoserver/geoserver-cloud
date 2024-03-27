@@ -2,6 +2,9 @@ all: install test build-image
 
 TAG=`mvn help:evaluate -Dexpression=project.version -q -DforceStdout`
 
+clean:
+	./mvnw clean
+
 lint:
 	./mvnw fmt:check sortpom:verify -Dsort.verifyFailOn=strict -Dsort.verifyFail=stop -ntp
 
