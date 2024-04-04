@@ -3,6 +3,8 @@ services:
     user: ${GS_USER}
     environment:
       SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES}"
+      # enable the postgis jndi datasource. This is just an example used for development
+      JNDI_POSTGIS_ENABLED: true
     volumes:
       - geowebcache_data:/data/geowebcache
     deploy:
