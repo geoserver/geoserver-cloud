@@ -1,5 +1,3 @@
-version: "3.8"
-
 # for simplicity, use one pgbouncer instance per databse
 # postgis -> postgis_pg
 # acldb -> acldb_pg

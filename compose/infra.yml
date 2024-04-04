@@ -1,5 +1,3 @@
-version: "3.8"
-
 volumes:
   #rabbitmq_data: # volume for rabbitmq data, so it doesn't create an anonymous one on each container
   postgis_data:

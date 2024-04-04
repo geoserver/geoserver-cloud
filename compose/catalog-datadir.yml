@@ -1,5 +1,3 @@
-version: "3.8"
-
 #
 # Configures all geoserver services to use a shared data directory as catalog backend.
 # Run with `docker compose -f compose.yml -f catalog-datadir.yml up -d`

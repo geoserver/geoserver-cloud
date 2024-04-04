@@ -1,4 +1,3 @@
-version: "3.8"
 # Used only when needing to expose local ports on geoserver backend services
 # for example, when running the gateway through the IDE 
 # Port numbers match the ones in the `local` spring profile used for development.

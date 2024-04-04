@@ -1,5 +1,3 @@
-version: "3.8"
-
 # mounts the config volume defined in geoserver.yml under /etc/geoserver/
 # to work with the modified values during development instead of the ones
 # embedded on the docker images

@@ -1,5 +1,3 @@
-version: "3.8"
-
 volumes:
   postgresql_config_data: # volume for postgresql data, used to store the geoserver config through jdbcconfig
 

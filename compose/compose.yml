@@ -1,5 +1,3 @@
-version: "3.8"
-
 include:
   - ./infra.yml
   
@@ -31,6 +29,7 @@ services:
       - RABBITMQ_USER=guest
       - RABBITMQ_PASSWORD=guest
       #- RABBITMQ_VHOST=""
+      #- SPRING_PROFILES_ACTIVE=logging_debug,logging_debug_events
     depends_on:
       acldb:
         condition: service_healthy
