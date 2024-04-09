@@ -18,6 +18,7 @@
     <module>webmvc</module>
     <module>wms-extensions</module>
     <module>security</module>
+    <module>geonode</module>
   </modules>
   <dependencies>
     <dependency>
