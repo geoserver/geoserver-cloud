@@ -4,6 +4,8 @@
  */
 package org.geoserver.cloud.gwc.config.core;
 
+import static org.geoserver.cloud.gwc.config.core.GeoWebCacheConfigurationProperties.CACHE_DIRECTORY;
+import static org.geoserver.cloud.gwc.config.core.GeoWebCacheConfigurationProperties.CONFIG_DIRECTORY;
 import static org.geowebcache.storage.DefaultStorageFinder.GWC_CACHE_DIR;
 
 import lombok.extern.slf4j.Slf4j;
@@ -87,20 +89,20 @@ public class GeoWebCacheCoreConfiguration {
      */
     @Bean
     Path gwcDefaultCacheDirectory(GeoWebCacheConfigurationProperties config) {
-        log.debug(
-                "resolving default cache directory from configuration property {}",
-                GeoWebCacheConfigurationProperties.CACHE_DIRECTORY);
-
         final Path directory = config.getCacheDirectory();
-        final String propName = GeoWebCacheConfigurationProperties.CACHE_DIRECTORY;
+        log.debug(
+                "resolving default cache directory from configuration property {}={}",
+                CACHE_DIRECTORY,
+                directory);
+
         if (null == directory) {
             throw new InvalidPropertyException(
                     GeoWebCacheConfigurationProperties.class,
                     "cacheDirectory",
                     "%s is not set. The default cache directory MUST be provided."
-                            .formatted(propName));
+                            .formatted(CACHE_DIRECTORY));
         }
-        validateDirectory(directory, propName);
+        validateDirectory(directory, CACHE_DIRECTORY);
 
         String path = directory.toAbsolutePath().toString();
         log.info("forcing System Property {}={}", GWC_CACHE_DIR, path);
@@ -129,11 +131,12 @@ public class GeoWebCacheCoreConfiguration {
             throws FatalBeanException {
 
         final Path directory = config.getConfigDirectory();
-        final String propName = GeoWebCacheConfigurationProperties.CONFIG_DIRECTORY;
+        final String propName = CONFIG_DIRECTORY;
         final Supplier<Resource> resource;
         if (null == directory) {
             log.debug(
-                    "no {} config property found, geowebcache.xml will be loaded from the resource store's gwc/ directory");
+                    "no {} config property found, geowebcache.xml will be loaded from the resource store's gwc/ directory",
+                    propName);
             resource = () -> resourceStore.get("gwc");
         } else {
             log.debug(
