@@ -118,6 +118,10 @@ public class PgsqlTileLayerCatalog implements TileLayerConfiguration {
         }
     }
 
+    public Stream<GeoServerTileLayer> streamLayers() {
+        return repository.findAll().map(this::toLayer);
+    }
+
     @Override
     public Optional<TileLayer> getLayer(@NonNull String layerName) {
 
