@@ -21,7 +21,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 @RequiredArgsConstructor
-@Slf4j(topic = "org.geoserver.cloud.gwc.backend.pgconfig")
+@Slf4j(topic = "org.geoserver.cloud.gwc.backend.pgconfig.caching")
 public class CachingTileLayerInfoRepository implements TileLayerInfoRepository {
 
     public static final String CACHE_NAME = "gwc-tilelayerinfo";

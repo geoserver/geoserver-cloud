@@ -83,7 +83,9 @@ class PgsqlTileLayerCatalogAutoConfigurationTest {
     void testPgsqlTileLayerCatalogReplacesDefaultTileLayerCatalogAutoConfiguration() {
         runner.run(
                 context -> {
-                    assertThat(context).doesNotHaveBean(GWCInitializer.class);
+                    assertThat(context)
+                            .doesNotHaveBean(GWCInitializer.class)
+                            .hasSingleBean(PgsqlGwcInitializer.class);
 
                     assertThat(context)
                             .hasNotFailed()
