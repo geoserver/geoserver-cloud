@@ -16,6 +16,9 @@ import org.geoserver.cloud.gwc.backend.pgconfig.PgsqlTileLayerInfoRepository;
 import org.geoserver.cloud.gwc.backend.pgconfig.TileLayerInfoRepository;
 import org.geoserver.cloud.gwc.event.TileLayerEvent;
 import org.geoserver.cloud.gwc.repository.GeoServerTileLayerConfiguration;
+import org.geoserver.gwc.ConfigurableBlobStore;
+import org.geoserver.gwc.config.GWCConfigPersister;
+import org.geoserver.gwc.config.GWCInitializer;
 import org.geoserver.gwc.layer.TileLayerCatalog;
 import org.geowebcache.grid.GridSetBroker;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -51,6 +54,15 @@ public class PgsqlTileLayerCatalogAutoConfiguration {
     @PostConstruct
     void log() {
         log.info("GeoWebCache TileLayerCatalog using PostgreSQL config backend");
+    }
+
+    /** Replacement for {@link GWCInitializer} when using {@link GeoServerTileLayerConfiguration} */
+    @Bean
+    PgsqlGwcInitializer gwcInitializer(
+            GWCConfigPersister configPersister,
+            ConfigurableBlobStore blobStore,
+            GeoServerTileLayerConfiguration tileLayerCatalog) {
+        return new PgsqlGwcInitializer(configPersister, blobStore, tileLayerCatalog);
     }
 
     @Bean(name = "gwcCatalogConfiguration")
