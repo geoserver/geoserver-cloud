@@ -143,8 +143,9 @@ public class FileSystemResourceStoreCache implements DisposableBean {
     @SneakyThrows
     public void moved(@NonNull PgsqlResource source, @NonNull PgsqlResource target) {
         Path sourcePath = toPath(source);
-        Path targetPath = toPath(target);
         if (Files.exists(sourcePath)) {
+            Path targetPath = toPath(target);
+            ensureDirectoryExists(targetPath.getParent());
             Files.move(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
         }
     }

@@ -13,7 +13,6 @@ import org.geoserver.cloud.backend.pgconfig.config.PgsqlConfigRepository;
 import org.geoserver.cloud.backend.pgconfig.config.PgsqlGeoServerFacade;
 import org.geoserver.cloud.backend.pgconfig.config.PgsqlUpdateSequence;
 import org.geoserver.cloud.backend.pgconfig.resource.PgsqlLockProvider;
-import org.geoserver.cloud.backend.pgconfig.resource.PgsqlResourceStore;
 import org.geoserver.cloud.backend.pgconfig.support.PgConfigTestContainer;
 import org.geoserver.cloud.config.catalog.backend.pgconfig.PgsqlGeoServerLoader;
 import org.geoserver.cloud.config.catalog.backend.pgconfig.PgsqlGeoServerResourceLoader;
@@ -54,6 +53,7 @@ class PgsqlBackendAutoConfigurationTest {
                 context -> {
                     assertThat(context)
                             .hasNotFailed()
+                            .hasBean("pgconfigTransactionManager")
                             .hasSingleBean(JdbcTemplate.class)
                             .hasSingleBean(GeoServerConfigurationLock.class)
                             .hasSingleBean(PgsqlUpdateSequence.class)
@@ -61,7 +61,7 @@ class PgsqlBackendAutoConfigurationTest {
                             .hasSingleBean(PgsqlGeoServerLoader.class)
                             .hasSingleBean(PgsqlConfigRepository.class)
                             .hasSingleBean(PgsqlGeoServerFacade.class)
-                            .hasSingleBean(PgsqlResourceStore.class)
+                            .hasBean("resourceStoreImpl")
                             .hasSingleBean(PgsqlGeoServerResourceLoader.class)
                             .hasSingleBean(PgsqlLockProvider.class);
 

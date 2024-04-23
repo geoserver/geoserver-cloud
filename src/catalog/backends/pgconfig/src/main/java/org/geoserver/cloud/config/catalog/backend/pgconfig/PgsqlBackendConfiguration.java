@@ -109,7 +109,7 @@ public class PgsqlBackendConfiguration extends GeoServerBackendConfigurer {
 
     @Bean
     @Override
-    protected PgsqlResourceStore resourceStoreImpl() {
+    protected ResourceStore resourceStoreImpl() {
         log.debug("Creating ResourceStore {}", PgsqlResourceStore.class.getSimpleName());
         FileSystemResourceStoreCache resourceStoreCache = pgsqlFileSystemResourceStoreCache();
         JdbcTemplate template = template();

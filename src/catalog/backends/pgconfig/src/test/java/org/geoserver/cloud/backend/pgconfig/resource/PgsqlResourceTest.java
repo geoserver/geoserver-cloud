@@ -4,6 +4,14 @@
  */
 package org.geoserver.cloud.backend.pgconfig.resource;
 
+import static org.geoserver.platform.resource.ResourceMatchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assume.assumeThat;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.cloud.backend.pgconfig.support.PgConfigTestContainer;
 import org.geoserver.platform.resource.Paths;
 import org.geoserver.platform.resource.Resource;
@@ -18,6 +26,7 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.experimental.theories.DataPoints;
 import org.junit.experimental.theories.Theories;
+import org.junit.experimental.theories.Theory;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.integration.jdbc.lock.DefaultLockRepository;
@@ -26,8 +35,13 @@ import org.springframework.integration.jdbc.lock.LockRepository;
 import org.springframework.integration.support.locks.LockRegistry;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import java.io.File;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
@@ -35,6 +49,7 @@ import javax.sql.DataSource;
  * Note by inheriting from {@link ResourceTheoryTest}, this is a Junit 4 test class and must be
  * {@code public}
  */
+@Slf4j
 @RunWith(Theories.class)
 public class PgsqlResourceTest extends ResourceTheoryTest {
 
@@ -50,6 +65,10 @@ public class PgsqlResourceTest extends ResourceTheoryTest {
             "FileB",
             "DirC",
             "DirC/FileD",
+            "DirC/DirC1",
+            "DirC/DirC1/DirC2",
+            "DirC/DirC1/DirC2/FileC2",
+            "DirC/DirC1/DirC2/FileC3",
             "DirE",
             "UndefF",
             "DirC/UndefF",
@@ -72,7 +91,8 @@ public class PgsqlResourceTest extends ResourceTheoryTest {
     public void setUp() throws Exception {
         JdbcTemplate template = container.getTemplate();
         PgsqlLockProvider lockProvider = new PgsqlLockProvider(pgsqlLockRegistry());
-        store = new PgsqlResourceStore(cacheDir.getRoot().toPath(), template, lockProvider);
+        File newFolder = cacheDir.newFolder();
+        store = new PgsqlResourceStore(newFolder.toPath(), template, lockProvider);
         setupTestData(template);
     }
 
@@ -85,22 +105,29 @@ public class PgsqlResourceTest extends ResourceTheoryTest {
     private void setupTestData(JdbcTemplate template) throws Exception {
         for (String path : testPaths()) {
             boolean undef = Paths.name(path).contains("Undef");
-            if (!undef) {
+            if (undef) {
+                continue;
+            }
+            try {
                 boolean dir = Paths.name(path).contains("Dir");
                 String parentPath = Paths.parent(path);
                 Objects.requireNonNull(parentPath);
                 long parentId =
                         template.queryForObject(
-                                "SELECT id FROM resources WHERE path = ?", Long.class, parentPath);
-                String name = Paths.name(path);
+                                "SELECT id FROM resourcestore WHERE path = ?",
+                                Long.class,
+                                parentPath);
                 Resource.Type type = dir ? Type.DIRECTORY : Type.RESOURCE;
                 byte[] contents = dir ? null : path.getBytes("UTF-8");
                 String sql =
                         """
-						INSERT INTO resourcestore (parentid, name, "type", content)
+						INSERT INTO resourcestore (parentid, path, "type", content)
 						VALUES (?, ?, ?, ?)
 						""";
-                template.update(sql, parentId, name, type.toString(), contents);
+                template.update(sql, parentId, path, type.toString(), contents);
+            } catch (Exception e) {
+                log.error("Error creating {}", path, e);
+                throw e;
             }
         }
     }
@@ -172,5 +199,64 @@ public class PgsqlResourceTest extends ResourceTheoryTest {
     @Ignore("This behaviour is specific to the file based implementation")
     public void theoryAddingFileToDirectoryAddsResource(String path) throws Exception {
         // disabled
+    }
+
+    @Theory
+    public void theoryRenamedDirectoryRenamesChildren(String path) throws Exception {
+        final Resource res = getResource(path);
+        assumeThat(res, is(directory()));
+
+        final String newpath = "new/path/to" + path;
+
+        Set<String> childrenRecursive = getRecursiveChildren(res);
+        Set<String> expected = replace(path, newpath, childrenRecursive);
+
+        Resource target = getResource(newpath);
+        assertThat(target, is(undefined()));
+        mkdirs(target.parent());
+
+        boolean renamed = res.renameTo(target);
+        assertThat(renamed, is(true));
+        assertThat(res, is(undefined()));
+        assertThat(target, is(directory()));
+
+        Set<String> childrenRecursiveAfter = getRecursiveChildren(target);
+        assertThat(childrenRecursiveAfter, is(equalTo(expected)));
+
+        for (String oldPath : childrenRecursive) {
+            Resource old = store.get(oldPath);
+            assertThat(old, is(undefined()));
+        }
+    }
+
+    private Set<String> replace(String oldParent, String newParent, Set<String> children) {
+        return children.stream()
+                .map(
+                        p -> {
+                            String newpath = newParent + p.substring(oldParent.length());
+                            return newpath;
+                        })
+                .collect(Collectors.toCollection(TreeSet::new));
+    }
+
+    private void mkdirs(Resource dir) {
+        final List<String> names = Paths.names(dir.path());
+        for (int i = 0; i < names.size(); i++) {
+            String[] subpath = names.subList(0, i).toArray(String[]::new);
+            String path = Paths.path(subpath);
+            store.get(path).dir();
+        }
+    }
+
+    private Set<String> getRecursiveChildren(Resource res) {
+        Set<String> all = new TreeSet<>();
+        List<Resource> direct = res.list();
+        for (Resource c : direct) {
+            all.add(c.path());
+            if (c.getType() == Type.DIRECTORY) {
+                all.addAll(getRecursiveChildren(c));
+            }
+        }
+        return all;
     }
 }
