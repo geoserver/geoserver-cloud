@@ -4,6 +4,9 @@
  */
 package org.geoserver.cloud.backend.pgconfig.resource;
 
+import static org.springframework.transaction.annotation.Propagation.REQUIRED;
+import static org.springframework.transaction.annotation.Propagation.SUPPORTS;
+
 import com.google.common.base.Preconditions;
 
 import lombok.Getter;
@@ -22,6 +25,7 @@ import org.geoserver.platform.resource.ResourceStore;
 import org.geoserver.platform.resource.SimpleResourceNotificationDispatcher;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -37,6 +41,7 @@ import java.util.stream.Stream;
  * @since 1.4
  */
 @Slf4j
+@Transactional(transactionManager = "pgconfigTransactionManager", propagation = SUPPORTS)
 public class PgsqlResourceStore implements ResourceStore {
 
     private final JdbcTemplate template;
@@ -73,15 +78,17 @@ public class PgsqlResourceStore implements ResourceStore {
     }
 
     @Override
+    @Transactional(transactionManager = "pgconfigTransactionManager", propagation = REQUIRED)
     public boolean remove(@NonNull String path) {
         return findByPath(normalize(path)).map(PgsqlResource::delete).orElse(false);
     }
 
     @Override
+    @Transactional(transactionManager = "pgconfigTransactionManager", propagation = REQUIRED)
     public boolean move(@NonNull String path, @NonNull String target) {
         normalize(path);
         normalize(target);
-        return move((PgsqlResource) get(path), (PgsqlResource) get(target));
+        return PgsqlResourceStore.this.move((PgsqlResource) get(path), (PgsqlResource) get(target));
     }
 
     private String normalize(String path) {
@@ -103,7 +110,7 @@ public class PgsqlResourceStore implements ResourceStore {
             return Optional.of(
                     template.queryForObject(
                             """
-					SELECT id, parentid, "type", path, mtime FROM resources WHERE path = ?
+					SELECT id, parentid, "type", path, mtime FROM resourcestore WHERE path = ?
 					""",
                             queryMapper,
                             path));
@@ -117,6 +124,7 @@ public class PgsqlResourceStore implements ResourceStore {
      *
      * @throws IllegalArgumentException if {@link PgsqlResource#isUndefined()}
      */
+    @Transactional(transactionManager = "pgconfigTransactionManager", propagation = REQUIRED)
     public void save(@NonNull PgsqlResource resource) {
         if (resource.isUndefined())
             throw new IllegalArgumentException(
@@ -125,26 +133,26 @@ public class PgsqlResourceStore implements ResourceStore {
         if (resource.exists()) {
             String sql =
                     """
-					UPDATE resourcestore SET parentid = ?, "type" = ?, name = ?
+					UPDATE resourcestore SET parentid = ?, "type" = ?, path = ?
 					WHERE id = ?;
 					""";
             long id = resource.getId();
             long parentId = resource.getParentId();
             String type = resource.getType().toString();
-            String name = resource.name();
-            template.update(sql, parentId, type, name, id);
+            String path = resource.path();
+            template.update(sql, parentId, type, path, id);
         } else {
             PgsqlResource parent = resource.parent().mkdirs();
             String sql =
                     """
-					INSERT INTO resourcestore (parentid, "type", name, content)
+					INSERT INTO resourcestore (parentid, "type", path, content)
 					VALUES (?, ?, ?, ?);
 					""";
             long parentId = parent.getId();
             String type = resource.getType().toString();
-            String name = resource.name();
+            String path = resource.path();
             byte[] contents = resource.getType() == Type.DIRECTORY ? null : new byte[0];
-            template.update(sql, parentId, type, name, contents);
+            template.update(sql, parentId, type, path, contents);
         }
     }
 
@@ -156,6 +164,7 @@ public class PgsqlResourceStore implements ResourceStore {
      *      {@link PgsqlResource#isDirectory() resource.isDirectory()} || !{@link
      *     PgsqlResource#exists() resource.exists()}</code>
      */
+    @Transactional(transactionManager = "pgconfigTransactionManager", propagation = REQUIRED)
     public long save(@NonNull PgsqlResource resource, byte[] contents) {
         if (!resource.exists())
             throw new IllegalArgumentException(
@@ -184,7 +193,8 @@ public class PgsqlResourceStore implements ResourceStore {
         return null == ts ? 0L : ts.getTime();
     }
 
-    public boolean move(@NonNull PgsqlResource source, @NonNull PgsqlResource target) {
+    @Transactional(transactionManager = "pgconfigTransactionManager", propagation = REQUIRED)
+    public boolean move(@NonNull final PgsqlResource source, @NonNull final PgsqlResource target) {
         if (source.isUndefined()) return true;
         if (!source.exists()) {
             return false;
@@ -200,6 +210,7 @@ public class PgsqlResourceStore implements ResourceStore {
                     target.path());
             return false;
         }
+        final List<PgsqlResource> allChildren = findAllChildren(source);
         PgsqlResource parent = target.parent().mkdirs();
         PgsqlResource save =
                 new PgsqlResource(
@@ -209,11 +220,35 @@ public class PgsqlResourceStore implements ResourceStore {
                         source.getType(),
                         target.path(),
                         source.lastmodified());
-        save(save);
+        PgsqlResourceStore.this.save(save);
         target.copy(save);
         source.type = Type.UNDEFINED;
+
+        final String oldParentPath = source.path();
+        final String newParehtPath = target.path();
+        for (var child : allChildren) {
+            String oldPath = child.path().substring(oldParentPath.length());
+            String newPath = newParehtPath + oldPath;
+            String sql = "UPDATE resourcestore SET path = ? WHERE id = ?;";
+            long id = child.getId();
+            template.update(sql, newPath, id);
+        }
+
         cache.moved(source, target);
         return true;
+    }
+
+    List<PgsqlResource> findAllChildren(PgsqlResource resource) {
+        if (!resource.exists() || !resource.isDirectory()) return List.of();
+        String sql =
+                """
+				SELECT id, parentid, "type", path, mtime FROM resourcestore WHERE path LIKE ?
+				""";
+
+        String likeQuery = resource.path() + "/%";
+        try (Stream<PgsqlResource> s = template.queryForStream(sql, queryMapper, likeQuery)) {
+            return s.toList();
+        }
     }
 
     private ResourceNotificationDispatcher dispatcher = new SimpleResourceNotificationDispatcher();
@@ -258,7 +293,7 @@ public class PgsqlResourceStore implements ResourceStore {
 
         String sql =
                 """
-				SELECT id, parentid, "type", path, mtime FROM resources WHERE parentid = ?
+				SELECT id, parentid, "type", path, mtime FROM resourcestore WHERE parentid = ?
 				""";
 
         List<Resource> list;
@@ -276,7 +311,7 @@ public class PgsqlResourceStore implements ResourceStore {
     public File asFile(PgsqlResource resource) {
         if (!resource.exists()) {
             resource.type = Type.RESOURCE;
-            save(resource);
+            PgsqlResourceStore.this.save(resource);
         }
         return cache.getFile(resource);
     }
@@ -288,11 +323,12 @@ public class PgsqlResourceStore implements ResourceStore {
     public File asDir(PgsqlResource resource) {
         if (!resource.exists()) {
             resource.type = Type.DIRECTORY;
-            save(resource);
+            PgsqlResourceStore.this.save(resource);
         }
         return cache.getDirectory(resource);
     }
 
+    @Transactional(transactionManager = "pgconfigTransactionManager", propagation = REQUIRED)
     public void mkdirs(PgsqlResource resource) {
         if (resource.exists() && resource.isDirectory()) {
             return;
@@ -308,7 +344,7 @@ public class PgsqlResourceStore implements ResourceStore {
         }
         resource.parentId = parent.getId();
         resource.type = Type.DIRECTORY;
-        save(resource);
+        PgsqlResourceStore.this.save(resource);
         PgsqlResource saved = (PgsqlResource) get(resource.path());
         resource.copy(saved);
     }
@@ -325,12 +361,12 @@ public class PgsqlResourceStore implements ResourceStore {
             public void close() {
                 if (!res.exists()) {
                     String path = res.path();
-                    save(res);
+                    PgsqlResourceStore.this.save(res);
                     PgsqlResource saved = findByPath(path).orElseThrow();
                     res.copy(saved);
                 }
                 byte[] contents = this.toByteArray();
-                long mtime = save(res, contents);
+                long mtime = PgsqlResourceStore.this.save(res, contents);
                 res.lastmodified = mtime;
                 cache.dump(res, new ByteArrayInputStream(contents));
             }

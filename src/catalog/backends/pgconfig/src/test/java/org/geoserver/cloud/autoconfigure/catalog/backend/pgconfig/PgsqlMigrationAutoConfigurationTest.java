@@ -106,7 +106,6 @@ class PgsqlMigrationAutoConfigurationTest {
                         "styleinfos",
                         "settingsinfos",
                         "serviceinfos",
-                        "resources",
                         "publishedinfos",
                         "tilelayers");
         List<String> tables =
