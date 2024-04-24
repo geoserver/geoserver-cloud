@@ -96,7 +96,9 @@ class PgsqlGwcInitializer implements GeoServerReinitializer {
                                     cache.removeUncachedLayer(event.getName());
                                     break;
                                 case MODIFIED:
-                                    if (!Objects.equal(event.getOldName(), event.getName())) {
+                                    if (event.getOldName() != null
+                                            && !Objects.equal(
+                                                    event.getOldName(), event.getName())) {
                                         log.info(
                                                 "TileLayer {} renamed to {}, notifying in-memory CacheProvider",
                                                 event.getOldName(),
