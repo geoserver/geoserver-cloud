@@ -4,15 +4,25 @@
  */
 package org.geoserver.cloud.backend.pgconfig.resource;
 
-import static org.geoserver.platform.resource.ResourceMatchers.*;
+import static org.geoserver.platform.resource.Resource.Type.DIRECTORY;
+import static org.geoserver.platform.resource.Resource.Type.RESOURCE;
+import static org.geoserver.platform.resource.Resource.Type.UNDEFINED;
+import static org.geoserver.platform.resource.ResourceMatchers.directory;
+import static org.geoserver.platform.resource.ResourceMatchers.undefined;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.geoserver.cloud.backend.pgconfig.support.PgConfigTestContainer;
+import org.geoserver.platform.resource.FileSystemResourceStore;
 import org.geoserver.platform.resource.Paths;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.Resource.Type;
@@ -24,6 +34,7 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Rule;
+import org.junit.Test;
 import org.junit.experimental.theories.DataPoints;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
@@ -55,8 +66,9 @@ public class PgsqlResourceTest extends ResourceTheoryTest {
 
     public @ClassRule static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();
 
-    public @Rule TemporaryFolder cacheDir = new TemporaryFolder();
+    public @Rule TemporaryFolder tmpDir = new TemporaryFolder();
     private PgsqlResourceStore store;
+    private File cacheDirectory;
 
     @DataPoints
     public static String[] testPaths() {
@@ -91,8 +103,13 @@ public class PgsqlResourceTest extends ResourceTheoryTest {
     public void setUp() throws Exception {
         JdbcTemplate template = container.getTemplate();
         PgsqlLockProvider lockProvider = new PgsqlLockProvider(pgsqlLockRegistry());
-        File newFolder = cacheDir.newFolder();
-        store = new PgsqlResourceStore(newFolder.toPath(), template, lockProvider);
+        cacheDirectory = tmpDir.newFolder();
+        store =
+                new PgsqlResourceStore(
+                        cacheDirectory.toPath(),
+                        template,
+                        lockProvider,
+                        PgsqlResourceStore.defaultIgnoredDirs());
         setupTestData(template);
     }
 
@@ -185,7 +202,7 @@ public class PgsqlResourceTest extends ResourceTheoryTest {
     }
 
     @Override
-    protected Resource getResource(String path) throws Exception {
+    protected Resource getResource(String path) {
         return store.get(path);
     }
 
@@ -227,6 +244,156 @@ public class PgsqlResourceTest extends ResourceTheoryTest {
             Resource old = store.get(oldPath);
             assertThat(old, is(undefined()));
         }
+    }
+
+    @Test
+    public void testDefaultIgnoredDirs() {
+        assertFileSystemDir("temp");
+        assertFileSystemDir("tmp");
+        assertFileSystemDir("legendsamples");
+        assertFileSystemDir("data");
+        assertFileSystemDir("logs");
+    }
+
+    @Test
+    public void testRemoveIgnoredDirs() {
+        assertFileSystemDir("temp");
+        assertFileSystemDir("tmp");
+        assertFileSystemDir("legendsamples");
+        assertFileSystemDir("data");
+        assertFileSystemDir("logs");
+    }
+
+    @Test
+    public void testRemoveIgnoredFiles() {
+        assertFileSystemFile("temp/sample.png");
+        assertFileSystemFile("tmp/sample.png");
+        assertFileSystemFile("legendsamples/sample.png");
+        assertFileSystemFile("data/sample.png");
+        assertFileSystemFile("logs/sample.png");
+    }
+
+    private void assertFileSystemFile(String path) {
+        Resource resource = getResource(path);
+        assertFileSystemDir(resource.parent().path());
+        assertFalse(resource instanceof PgsqlResource);
+        assertTrue(resource instanceof PgsqlResourceStore.FileSystemResourceAdaptor);
+        assertTrue(
+                resource.file()
+                        .getAbsolutePath()
+                        .startsWith(this.cacheDirectory.getAbsolutePath()));
+    }
+
+    private void assertFileSystemDir(String path) {
+        Resource resource = getResource(path);
+        assertFalse(resource instanceof PgsqlResource);
+        assertTrue(resource instanceof PgsqlResourceStore.FileSystemResourceAdaptor);
+        assertTrue(
+                resource.dir().getAbsolutePath().startsWith(this.cacheDirectory.getAbsolutePath()));
+    }
+
+    @Test
+    public void testRemoveFileSystemOnlyResource() {
+        testRemoveFilesystemOnlyFile("temp/sample.png");
+        testRemoveFilesystemOnlyFile("tmp/sample.png");
+        testRemoveFilesystemOnlyFile("legendsamples/sample.png");
+        testRemoveFilesystemOnlyFile("data/sample.png");
+        testRemoveFilesystemOnlyFile("logs/sample.png");
+    }
+
+    @Test
+    public void testRootResourceReturnsFilesystemResourcesForIgnoredPatterns() {
+        testRootResourceFilesystem("temp");
+        testRootResourceFilesystem("tmp");
+        testRootResourceFilesystem("legendsamples");
+        testRootResourceFilesystem("data");
+        testRootResourceFilesystem("logs");
+    }
+
+    private void testRootResourceFilesystem(String dirname) {
+        Resource root = store.get("");
+        Resource dir = root.get(dirname);
+        Resource file = root.get(dirname + "/sample.png");
+
+        assertEquals(UNDEFINED, dir.getType());
+        assertEquals(UNDEFINED, file.getType());
+        assertTrue(root instanceof PgsqlResource);
+        assertFalse(dir instanceof PgsqlResource);
+        assertFalse(file instanceof PgsqlResource);
+        assertFalse(dir.get(file.name()) instanceof PgsqlResource);
+
+        Resource parent = file.parent();
+        assertEquals(dir, parent);
+        assertEquals(root, dir.parent());
+
+        assertTrue(dir.parent().get("workspaces") instanceof PgsqlResource);
+    }
+
+    private void testRemoveFilesystemOnlyFile(String path) {
+        Resource resource = getResource(path);
+        assertFileSystemDir(resource.parent().path());
+        resource.file();
+        assertEquals(RESOURCE, store.get(path).getType());
+        store.remove(path);
+        assertEquals(UNDEFINED, store.get(path).getType());
+    }
+
+    @Test
+    public void trestRemovePathInDatabase() {
+        store.get("workspaces").dir();
+        store.get("workspaces/ws1").dir();
+        store.get("workspaces/ws1/workspace.xml").file();
+
+        assertTrue(store.get("workspaces/ws1/workspace.xml") instanceof PgsqlResource);
+        assertEquals(RESOURCE, store.get("workspaces/ws1/workspace.xml").getType());
+
+        assertTrue(store.remove("workspaces/ws1/workspace.xml"));
+        assertFalse(store.remove("workspaces/ws1/workspace.xml"));
+    }
+
+    @Test
+    public void trestMovePathInDatabase() {
+        store.get("workspaces").dir();
+        store.get("workspaces/ws1").dir();
+        store.move("workspaces/ws1", "workspaces/ws2");
+        assertEquals(DIRECTORY, store.get("workspaces/ws2").getType());
+        assertEquals(UNDEFINED, store.get("workspaces/ws1").getType());
+        assertTrue(store.get("workspaces/ws2") instanceof PgsqlResource);
+    }
+
+    @Test
+    public void trestMovePathFilesystemOnly() {
+        store.get("legendsamples").dir();
+        store.get("legendsamples/sample.png").file();
+
+        assertEquals(RESOURCE, store.get("legendsamples/sample.png").getType());
+        store.move("legendsamples/sample.png", "legendsamples/sample2.png");
+        assertEquals(UNDEFINED, store.get("legendsamples/sample.png").getType());
+        assertEquals(RESOURCE, store.get("legendsamples/sample2.png").getType());
+        assertFalse(store.get("legendsamples/sample2.png") instanceof PgsqlResource);
+    }
+
+    @Test
+    public void trestMovePathFilesystemOnlyToDatabaseIsUnsupported() {
+        store.get("legendsamples").dir();
+        store.get("legendsamples/sample.png").file();
+
+        store.get("workspaces").dir();
+        store.get("workspaces/ws1").dir();
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> store.move("legendsamples/sample.png", "workspaces/sample2.png"));
+
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> store.move("workspaces/ws1", "temp/ws1"));
+    }
+
+    @Test
+    public void test1() {
+        var s = new FileSystemResourceStore(this.tmpDir.getRoot());
+        Resource resource = s.get("/tmp/test");
+        assertNotNull(resource);
     }
 
     private Set<String> replace(String oldParent, String newParent, Set<String> children) {

@@ -11,11 +11,11 @@ import com.google.common.base.Preconditions;
 
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.Delegate;
 import lombok.extern.slf4j.Slf4j;
 
-import org.geoserver.platform.resource.FilePaths;
-import org.geoserver.platform.resource.Files;
 import org.geoserver.platform.resource.LockProvider;
 import org.geoserver.platform.resource.Paths;
 import org.geoserver.platform.resource.Resource;
@@ -34,7 +34,9 @@ import java.io.OutputStream;
 import java.nio.file.Path;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 /**
@@ -43,6 +45,8 @@ import java.util.stream.Stream;
 @Slf4j
 @Transactional(transactionManager = "pgconfigTransactionManager", propagation = SUPPORTS)
 public class PgsqlResourceStore implements ResourceStore {
+    static final long ROOT_ID = 0L;
+    static final long UNDEFINED_ID = -1L;
 
     private final JdbcTemplate template;
     private final FileSystemResourceStoreCache cache;
@@ -51,47 +55,115 @@ public class PgsqlResourceStore implements ResourceStore {
 
     private final PgsqlResourceRowMapper queryMapper;
 
+    private final Predicate<String> fileSystemOnlyPathMatcher;
+
     public PgsqlResourceStore(
             @NonNull Path cacheDirectory,
             @NonNull JdbcTemplate template,
-            @NonNull PgsqlLockProvider lockProvider) {
-        this(FileSystemResourceStoreCache.of(cacheDirectory), template, lockProvider);
+            @NonNull PgsqlLockProvider lockProvider,
+            @NonNull Predicate<String> fileSystemOnlyPathMatcher) {
+        this(
+                FileSystemResourceStoreCache.of(cacheDirectory),
+                template,
+                lockProvider,
+                fileSystemOnlyPathMatcher);
     }
 
     public PgsqlResourceStore(
             @NonNull FileSystemResourceStoreCache cache,
             @NonNull JdbcTemplate template,
-            @NonNull PgsqlLockProvider lockProvider) {
+            @NonNull PgsqlLockProvider lockProvider,
+            @NonNull Predicate<String> fileSystemOnlyPathMatcher) {
         this.template = template;
         this.lockProvider = lockProvider;
         this.queryMapper = new PgsqlResourceRowMapper(this);
         this.cache = cache;
+        final String root = "";
+        Predicate<String> notRoot = path -> !root.equals(path);
+        this.fileSystemOnlyPathMatcher = notRoot.and(fileSystemOnlyPathMatcher);
+    }
+
+    public static Predicate<String> defaultIgnoredDirs() {
+        return PgsqlResourceStore.simplePathMatcher("temp", "tmp", "legendsamples", "data", "logs");
+    }
+
+    public static Predicate<String> simplePathMatcher(String... paths) {
+        Predicate<String> matcher = path -> false;
+        for (String path : paths) {
+            path = normalize(path);
+            matcher = matcher.or(path::equals);
+            final String dirpath = path + "/";
+            matcher = matcher.or(r -> r.startsWith(dirpath));
+        }
+        return matcher;
     }
 
     @Override
     public Resource get(@NonNull String path) {
-        String validPath = normalize(path);
-        if (FilePaths.isAbsolute(validPath)) {
-            return Files.asResource(new File(validPath));
+        final String validPath = normalize(path);
+        if (fileSystemOnlyPathMatcher.test(validPath)) {
+            Resource fsResource = cache.getLocalOnlyStore().get(validPath);
+            return new FileSystemResourceAdaptor(fsResource, this);
         }
         return findByPath(validPath).orElseGet(() -> queryMapper.undefined(validPath));
+    }
+
+    @RequiredArgsConstructor
+    static class FileSystemResourceAdaptor implements Resource {
+        @Delegate @NonNull private final Resource delegate;
+        private final @NonNull PgsqlResourceStore store;
+
+        @Override
+        public Resource parent() {
+            String parentPath = Paths.parent(this.path());
+            return store.get(parentPath);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return obj instanceof FileSystemResourceAdaptor fra
+                    && Objects.equals(path(), fra.path())
+                    && Objects.equals(getType(), fra.getType());
+        }
+
+        @Override
+        public int hashCode() {
+            return delegate.hashCode();
+        }
     }
 
     @Override
     @Transactional(transactionManager = "pgconfigTransactionManager", propagation = REQUIRED)
     public boolean remove(@NonNull String path) {
-        return findByPath(normalize(path)).map(PgsqlResource::delete).orElse(false);
+        String validPath = normalize(path);
+        if (fileSystemOnlyPathMatcher.test(validPath)) {
+            return cache.getLocalOnlyStore().remove(validPath);
+        }
+        return findByPath(validPath).map(PgsqlResource::delete).orElse(false);
     }
 
     @Override
     @Transactional(transactionManager = "pgconfigTransactionManager", propagation = REQUIRED)
     public boolean move(@NonNull String path, @NonNull String target) {
-        normalize(path);
-        normalize(target);
-        return PgsqlResourceStore.this.move((PgsqlResource) get(path), (PgsqlResource) get(target));
+        Resource from = get(path);
+        Resource to = get(target);
+        if (from instanceof PgsqlResource pgFrom && to instanceof PgsqlResource pgTo) {
+            return PgsqlResourceStore.this.move(pgFrom, pgTo);
+        }
+        if (from instanceof PgsqlResource) {
+            throw new UnsupportedOperationException(
+                    "source resource targets database but target resource matches the ignored resources predicate. Source: %s, target: %s"
+                            .formatted(path, target));
+        }
+        if (to instanceof PgsqlResource) {
+            throw new UnsupportedOperationException(
+                    "target resource targets database but source resource matches the ignored resources predicate. Source: %s, target: %s"
+                            .formatted(path, target));
+        }
+        return cache.getLocalOnlyStore().move(path, target);
     }
 
-    private String normalize(String path) {
+    private static String normalize(String path) {
         path = Paths.valid(path);
         if (path.startsWith("/")) {
             path = path.substring(1);
@@ -102,7 +174,7 @@ public class PgsqlResourceStore implements ResourceStore {
         return path;
     }
 
-    public Optional<PgsqlResource> findByPath(@NonNull String path) {
+    private Optional<PgsqlResource> findByPath(@NonNull String path) {
         path = Paths.valid(path);
         Preconditions.checkArgument(
                 !path.startsWith("/"), "Absolute paths not supported: %s", path);
@@ -154,6 +226,10 @@ public class PgsqlResourceStore implements ResourceStore {
             byte[] contents = resource.getType() == Type.DIRECTORY ? null : new byte[0];
             template.update(sql, parentId, type, path, contents);
         }
+        PgsqlResource updated = (PgsqlResource) get(resource.path);
+        resource.id = updated.getId();
+        resource.lastmodified = updated.lastmodified();
+        resource.parentId = updated.getParentId();
     }
 
     /**
@@ -329,24 +405,25 @@ public class PgsqlResourceStore implements ResourceStore {
     }
 
     @Transactional(transactionManager = "pgconfigTransactionManager", propagation = REQUIRED)
-    public void mkdirs(PgsqlResource resource) {
+    public PgsqlResource mkdirs(PgsqlResource resource) {
         if (resource.exists() && resource.isDirectory()) {
-            return;
+            return resource;
         }
         if (resource.isFile())
             throw new IllegalStateException(
                     "mkdirs() can only be called on DIRECTORY or UNDEFINED resources");
 
-        PgsqlResource parent = resource.parent();
-        if (null == parent) return;
+        PgsqlResource parent = getParent(resource);
+        if (null == parent) return resource;
         if (!parent.exists()) {
-            parent = parent.mkdirs();
+            parent = (PgsqlResource) parent.mkdirs();
         }
         resource.parentId = parent.getId();
         resource.type = Type.DIRECTORY;
         PgsqlResourceStore.this.save(resource);
         PgsqlResource saved = (PgsqlResource) get(resource.path());
         resource.copy(saved);
+        return resource;
     }
 
     public OutputStream out(PgsqlResource res) {
@@ -371,5 +448,16 @@ public class PgsqlResourceStore implements ResourceStore {
                 cache.dump(res, new ByteArrayInputStream(contents));
             }
         };
+    }
+
+    public PgsqlResource getParent(PgsqlResource resource) {
+        if (ROOT_ID == resource.getId()) return null;
+        String parentPath = resource.parentPath();
+        try {
+            return (PgsqlResource) get(parentPath);
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            throw e;
+        }
     }
 }
