@@ -43,6 +43,6 @@ public class PgsqlResourceRowMapper implements RowMapper<PgsqlResource> {
     }
 
     public PgsqlResource undefined(String path) {
-        return new PgsqlResource(store, path);
+        return PgsqlResource.undefined(store, path);
     }
 }

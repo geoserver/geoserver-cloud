@@ -2,10 +2,12 @@ package org.geoserver.cloud.backend.pgconfig.resource;
 
 import com.google.common.base.Preconditions;
 
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
+import org.geoserver.platform.resource.FileSystemResourceStore;
 import org.geoserver.platform.resource.Resource;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.util.FileSystemUtils;
@@ -25,6 +27,7 @@ public class FileSystemResourceStoreCache implements DisposableBean {
 
     private final Path base;
     private boolean disposable;
+    private @Getter FileSystemResourceStore localOnlyStore;
 
     private FileSystemResourceStoreCache(@NonNull Path cacheDirectory, boolean disposable) {
         this.disposable = disposable;
@@ -37,6 +40,7 @@ public class FileSystemResourceStoreCache implements DisposableBean {
                 "Cache directory is not writable: %s",
                 cacheDirectory.toAbsolutePath());
         this.base = cacheDirectory;
+        this.localOnlyStore = new FileSystemResourceStore(new File(this.base.toUri()));
     }
 
     @SneakyThrows

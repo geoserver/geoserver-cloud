@@ -33,6 +33,8 @@ import org.springframework.integration.support.locks.LockRegistry;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.StringUtils;
 
+import java.util.function.Predicate;
+
 import javax.sql.DataSource;
 
 /**
@@ -114,7 +116,8 @@ public class PgsqlBackendConfiguration extends GeoServerBackendConfigurer {
         FileSystemResourceStoreCache resourceStoreCache = pgsqlFileSystemResourceStoreCache();
         JdbcTemplate template = template();
         PgsqlLockProvider lockProvider = pgsqlLockProvider();
-        return new PgsqlResourceStore(resourceStoreCache, template, lockProvider);
+        Predicate<String> ignoreDirs = PgsqlResourceStore.defaultIgnoredDirs();
+        return new PgsqlResourceStore(resourceStoreCache, template, lockProvider, ignoreDirs);
     }
 
     @Bean

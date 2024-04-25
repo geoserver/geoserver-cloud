@@ -23,10 +23,6 @@ import java.util.List;
  */
 @EqualsAndHashCode(exclude = {"store"})
 class PgsqlResource implements Resource {
-
-    static final long ROOT_ID = 0L;
-    static final long UNDEFINED_ID = -1L;
-
     @Getter long id;
     @Getter long parentId;
     Resource.Type type;
@@ -49,14 +45,15 @@ class PgsqlResource implements Resource {
         this.lastmodified = lastmodified;
     }
 
-    /** Undefined type constructor */
-    PgsqlResource(@NonNull PgsqlResourceStore store, @NonNull String path) {
-        this.store = store;
-        this.id = UNDEFINED_ID;
-        this.parentId = UNDEFINED_ID;
-        this.type = Type.UNDEFINED;
-        this.path = path;
-        this.lastmodified = 0L;
+    /** Undefined type factory method */
+    static PgsqlResource undefined(@NonNull PgsqlResourceStore store, @NonNull String path) {
+        return new PgsqlResource(
+                store,
+                PgsqlResourceStore.UNDEFINED_ID,
+                PgsqlResourceStore.UNDEFINED_ID,
+                Type.UNDEFINED,
+                path,
+                0L);
     }
 
     void copy(PgsqlResource other) {
@@ -110,8 +107,7 @@ class PgsqlResource implements Resource {
 
     @Override
     public PgsqlResource parent() {
-        if (ROOT_ID == id) return null;
-        return (PgsqlResource) store.get(parentPath());
+        return store.getParent(this);
     }
 
     @Override
@@ -163,12 +159,11 @@ class PgsqlResource implements Resource {
     }
 
     public PgsqlResource mkdirs() {
-        store.mkdirs(this);
-        return this;
+        return store.mkdirs(this);
     }
 
     public boolean exists() {
-        return id != UNDEFINED_ID;
+        return id != PgsqlResourceStore.UNDEFINED_ID;
     }
 
     public boolean isFile() {
