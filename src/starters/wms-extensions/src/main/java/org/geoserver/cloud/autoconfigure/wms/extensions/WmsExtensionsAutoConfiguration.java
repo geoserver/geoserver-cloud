@@ -21,6 +21,7 @@ import javax.annotation.PostConstruct;
 @Import(
         value = {
             CssStylingConfiguration.class,
+            GraticuleConfiguration.class,
             MapBoxStylingConfiguration.class,
             VectorTilesConfiguration.class
         })

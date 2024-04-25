@@ -21,6 +21,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  *     css.enabled: true
  *     mapbox.enabled: true
  *   wms:
+ *     graticule.enabled: true
  *     outputFormats:
  *       vectorTiles:
  *         mapbox.enabled: true

@@ -653,6 +653,11 @@
         </exclusions>
       </dependency>
       <dependency>
+        <groupId>org.geoserver.community</groupId>
+        <artifactId>gs-graticule</artifactId>
+        <version>${gs.community.version}</version>
+      </dependency>
+      <dependency>
         <!--- Override  old aws version without support for "IAM roles for service accounts" -->
         <groupId>software.amazon.awssdk</groupId>
         <artifactId>s3</artifactId>
