@@ -11,6 +11,8 @@ import lombok.NonNull;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.catalog.WorkspaceInfo;
+import org.geoserver.catalog.impl.LayerGroupInfoImpl;
+import org.geoserver.catalog.impl.LayerInfoImpl;
 import org.geoserver.catalog.plugin.resolving.ModificationProxyDecorator;
 import org.geoserver.cloud.backend.pgconfig.catalog.PgsqlCatalogFacade;
 import org.geoserver.gwc.layer.GeoServerTileLayer;
@@ -229,7 +231,11 @@ public class PgsqlTileLayerCatalog implements TileLayerConfiguration {
 
     GeoServerTileLayer toLayer(TileLayerInfo pgTileLayerInfo) {
         PublishedInfo published = pgTileLayerInfo.getPublished();
-        published = publishedResolver.apply(published);
+        // resolve only if its a plain layer/group. Otherwise it can be Secured* or other wrapper,
+        // meaning it's already resolved
+        if (published instanceof LayerInfoImpl || published instanceof LayerGroupInfoImpl) {
+            published = publishedResolver.apply(published);
+        }
 
         GeoServerTileLayerInfo info = infoMapper.map(pgTileLayerInfo);
         return new GeoServerTileLayer(published, this.gridsetBroker, info);
