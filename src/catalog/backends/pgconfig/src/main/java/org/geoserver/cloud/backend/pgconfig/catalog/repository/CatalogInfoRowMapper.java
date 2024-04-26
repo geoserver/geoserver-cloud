@@ -7,6 +7,7 @@ package org.geoserver.cloud.backend.pgconfig.catalog.repository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,6 +28,7 @@ import org.springframework.jdbc.core.RowMapper;
 import java.io.UncheckedIOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -43,7 +45,7 @@ public final class CatalogInfoRowMapper {
     protected static final ObjectMapper objectMapper = PgsqlObjectMapper.newObjectMapper();
 
     /** Lazily created by {@link #cache()} */
-    private Map<String, CatalogInfo> cache;
+    private Map<Class<?>, Map<String, CatalogInfo>> cache;
 
     private @Setter Function<String, Optional<StyleInfo>> styleLoader;
 
@@ -51,26 +53,43 @@ public final class CatalogInfoRowMapper {
         // private constructor
     }
 
-    @SuppressWarnings("serial")
-    private Map<String, CatalogInfo> cache() {
+    @SuppressWarnings("unchecked")
+    private <T extends CatalogInfo> Map<String, T> cache(Class<T> clazz) {
         if (cache == null) {
-            cache =
-                    new LinkedHashMap<>() {
-                        @Override
-                        protected boolean removeEldestEntry(Map.Entry<String, CatalogInfo> eldest) {
-                            int size = size();
-                            boolean remove = size > 100;
-                            if (remove) {
-                                log.trace(
-                                        "RowMapper cache size: {}, removing eldest entry {}",
-                                        size,
-                                        eldest.getValue());
-                            }
-                            return remove;
-                        }
-                    };
+            cache = new HashMap<>();
         }
-        return cache;
+        return (Map<String, T>) cache.computeIfAbsent(clazz, c -> new LRUCache<>(100));
+    }
+
+    @SuppressWarnings({"serial", "java:S2160"})
+    @RequiredArgsConstructor
+    private static class LRUCache<K, V> extends LinkedHashMap<K, V> {
+        final int maxCapacity;
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public V get(Object key) {
+            V v = super.get(key);
+            if (null != v && size() > 1) {
+                // by definition v is now the most recently used, so bubble it up to the top of the
+                // list. removeEldestEntry will hence always remove the least recently used.
+                super.putFirst((K) key, v);
+            }
+            return v;
+        }
+
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
+            int size = size();
+            boolean remove = size > maxCapacity;
+            if (remove) {
+                log.trace(
+                        "RowMapper cache size: {}, removing eldest entry {}",
+                        size,
+                        eldest.getValue());
+            }
+            return remove;
+        }
     }
 
     protected <T extends CatalogInfo> T resolveCached(
@@ -82,15 +101,16 @@ public final class CatalogInfoRowMapper {
     protected <T extends CatalogInfo> T resolveCached(
             String id, Class<T> clazz, Function<String, T> loader) {
         if (null == id) return null;
-        CatalogInfo info = cache().get(id);
+        var infoCache = cache(clazz);
+        T info = infoCache.get(id);
         if (clazz.isInstance(info)) {
             log.trace("loaded from RowMapper cache: {}", info);
         } else {
             info = loader.apply(id);
-            cache.put(id, info);
+            infoCache.put(id, info);
             log.trace("RowMapper cached {}", info);
         }
-        return clazz.cast(info);
+        return info;
     }
 
     /**
@@ -270,10 +290,6 @@ public final class CatalogInfoRowMapper {
         return resource;
     }
 
-    public ResourceInfo mapResource(String id, ResultSet rs) {
-        return resolveCached(id, ResourceInfo.class, rs, this::mapResource);
-    }
-
     protected void setStore(ResourceInfo resource, ResultSet rs) {
         String storeId = resource.getStore().getId();
         StoreInfo store = mapStore(storeId, rs);
@@ -393,8 +409,9 @@ public final class CatalogInfoRowMapper {
     }
 
     private void setResource(LayerInfo layer, ResultSet rs) {
-        String resourceId = layer.getResource().getId();
-        ResourceInfo resource = mapResource(resourceId, rs);
+        // ResourceInfos are not cached, they can only be mapped directly or when resolving a
+        // layerinfo. In the later, the relationship is 1:1 so caching them would be vane
+        ResourceInfo resource = mapResource(rs);
         layer.setResource(ModificationProxy.create(resource, ResourceInfo.class));
     }
 
