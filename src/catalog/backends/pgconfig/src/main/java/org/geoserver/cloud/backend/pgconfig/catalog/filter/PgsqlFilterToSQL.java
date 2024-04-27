@@ -7,11 +7,15 @@ package org.geoserver.cloud.backend.pgconfig.catalog.filter;
 import lombok.Value;
 
 import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.PropertyIsEqualTo;
 import org.geotools.api.filter.PropertyIsLike;
 import org.geotools.api.filter.expression.Expression;
 import org.geotools.api.filter.expression.Function;
+import org.geotools.api.filter.expression.Literal;
+import org.geotools.api.filter.expression.PropertyName;
 import org.geotools.filter.LengthFunction;
 import org.geotools.filter.LikeFilterImpl;
+import org.geotools.filter.LiteralExpressionImpl;
 import org.geotools.filter.function.FilterFunction_strConcat;
 import org.geotools.filter.function.FilterFunction_strEndsWith;
 import org.geotools.filter.function.FilterFunction_strEqualsIgnoreCase;
@@ -28,13 +32,17 @@ import org.geotools.filter.function.math.FilterFunction_abs_2;
 import org.geotools.filter.function.math.FilterFunction_abs_3;
 import org.geotools.filter.function.math.FilterFunction_abs_4;
 import org.geotools.jdbc.PreparedFilterToSQL;
+import org.geotools.util.Converters;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.UncheckedIOException;
 import java.io.Writer;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @since 1.4
@@ -60,7 +68,7 @@ class PgsqlFilterToSQL extends PreparedFilterToSQL {
 
     public static Result evaluate(Filter filter) {
         StringWriter out = new StringWriter();
-        PgsqlFilterToSQL filterToPreparedStatement = new PgsqlFilterToSQL(out);
+        var filterToPreparedStatement = new PgsqlFilterToSQL(out);
         filterToPreparedStatement.setSqlNameEscape("\"");
         filter.accept(filterToPreparedStatement, null);
         out.flush();
@@ -70,6 +78,59 @@ class PgsqlFilterToSQL extends PreparedFilterToSQL {
         @SuppressWarnings("rawtypes")
         List<Class> literalTypes = filterToPreparedStatement.getLiteralTypes();
         return new Result(whereClause, literalValues, literalTypes);
+    }
+
+    @Override
+    public Object visit(PropertyIsEqualTo filter, Object extraData) {
+        Expression left = filter.getExpression1();
+        Expression right = filter.getExpression2();
+
+        PropertyName prop =
+                Optional.of(left)
+                        .filter(PropertyName.class::isInstance)
+                        .or(() -> Optional.of(right).filter(PropertyName.class::isInstance))
+                        .map(PropertyName.class::cast)
+                        .orElse(null);
+        if (isArray(prop)) {
+            Expression value = right;
+            if (right instanceof Literal literal) {
+                String values =
+                        asList(literal.getValue()).stream()
+                                .map(o -> Converters.convert(o, String.class))
+                                .map("'%s'"::formatted)
+                                .collect(Collectors.joining(","));
+                value = new LiteralExpressionImpl("ARRAY[%s]".formatted(values));
+            }
+            try {
+                prop.accept(this, extraData);
+                out.write(" && ");
+                // value.accept(this, extraData);
+                out.write((String) ((Literal) value).getValue());
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+
+            //            String arrayOperator = prop == left ? "<@" : "@>";
+            //            super.visitBinaryComparisonOperator(filter, "&&");
+            return extraData;
+        }
+
+        return super.visit(filter, extraData);
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<Object> asList(Object value) {
+        if (value instanceof Collection) {
+            // beware Stream.toList() does not support null values but Collectors.toList() does
+            return ((Collection<Object>) value).stream().collect(Collectors.toList());
+        }
+        return List.of(value);
+    }
+
+    private boolean isArray(PropertyName prop) {
+        if (null == prop) return false;
+        String propertyName = prop.getPropertyName();
+        return "styles.id".equals(propertyName) || "layers.id".equals(propertyName);
     }
 
     /**

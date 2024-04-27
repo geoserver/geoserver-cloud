@@ -4,6 +4,9 @@
  */
 package org.geoserver.cloud.backend.pgconfig.catalog.filter;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+
 import org.geotools.api.filter.BinaryComparisonOperator;
 import org.geotools.api.filter.Filter;
 import org.geotools.api.filter.MultiValuedFilter.MatchAction;
@@ -22,6 +25,7 @@ import org.geotools.filter.visitor.DuplicatingFilterVisitor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -33,14 +37,18 @@ import javax.annotation.Nullable;
  *
  * @since 1.4
  */
+@RequiredArgsConstructor
 class ToPgsqlCompatibleFilterDuplicator extends DuplicatingFilterVisitor {
+
+    @NonNull private final Set<String> supportedPropertyNames;
 
     /**
      * @param supportedFilter Filter that's already been deemed as supported
+     * @param supportedPropertyNames
      * @return
      */
-    public static Filter adapt(Filter supportedFilter) {
-        ToPgsqlCompatibleFilterDuplicator adaptor = new ToPgsqlCompatibleFilterDuplicator();
+    public static Filter adapt(Filter supportedFilter, Set<String> supportedPropertyNames) {
+        var adaptor = new ToPgsqlCompatibleFilterDuplicator(supportedPropertyNames);
         return (Filter) supportedFilter.accept(adaptor, null);
     }
 

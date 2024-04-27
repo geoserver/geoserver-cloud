@@ -10,6 +10,8 @@ import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerRepository;
+import org.geoserver.catalog.plugin.Query;
+import org.geotools.api.filter.Filter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -65,10 +67,16 @@ public class PgsqlLayerRepository extends PgsqlCatalogInfoRepository<LayerInfo>
         return findOne(sql.formatted("name"), possiblyPrefixedName);
     }
 
-    // TODO: optimize
     @Override
     public Stream<LayerInfo> findAllByDefaultStyleOrStyles(@NonNull StyleInfo style) {
-        return findAll().filter(styleFilter(style));
+        var ff = FILTER_FACTORY;
+        Filter filter =
+                ff.or(
+                        ff.equals(ff.property("defaultStyle.id"), ff.literal(style.getId())),
+                        ff.equals(ff.property("styles.id"), ff.literal(style.getId())));
+
+        return findAll(Query.valueOf(LayerInfo.class, filter));
+        //        return findAll().filter(styleFilter(style));
     }
 
     private Predicate<LayerInfo> styleFilter(@NonNull StyleInfo style) {

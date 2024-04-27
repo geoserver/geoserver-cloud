@@ -19,8 +19,10 @@ import org.geoserver.catalog.plugin.resolving.ResolvingCatalogInfoRepository;
 import org.geoserver.catalog.plugin.resolving.ResolvingFacade;
 import org.geoserver.cloud.backend.pgconfig.catalog.filter.PgsqlQueryBuilder;
 import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.FilterFactory;
 import org.geotools.api.filter.sort.SortBy;
 import org.geotools.api.filter.sort.SortOrder;
+import org.geotools.factory.CommonFactoryFinder;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -46,9 +48,11 @@ public abstract class PgsqlCatalogInfoRepository<T extends CatalogInfo>
         extends ResolvingCatalogInfoRepository<T>
         implements CatalogInfoRepository<T>, ResolvingFacade<T> {
 
-    protected final @NonNull LoggingTemplate template;
-
     protected static final ObjectMapper infoMapper = PgsqlObjectMapper.newObjectMapper();
+
+    protected static final FilterFactory FILTER_FACTORY = CommonFactoryFinder.getFilterFactory();
+
+    protected final @NonNull LoggingTemplate template;
 
     private Set<String> sortableProperties;
 

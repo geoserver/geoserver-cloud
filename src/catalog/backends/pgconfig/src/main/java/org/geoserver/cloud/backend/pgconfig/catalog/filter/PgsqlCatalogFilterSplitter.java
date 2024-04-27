@@ -4,6 +4,8 @@
  */
 package org.geoserver.cloud.backend.pgconfig.catalog.filter;
 
+import lombok.NonNull;
+
 import org.geotools.api.filter.Filter;
 import org.geotools.api.filter.expression.PropertyName;
 import org.geotools.filter.visitor.PostPreProcessFilterSplittingVisitor;
@@ -20,15 +22,14 @@ class PgsqlCatalogFilterSplitter extends PostPreProcessFilterSplittingVisitor {
 
     private Set<String> supportedPropertyNames;
 
-    public PgsqlCatalogFilterSplitter(Set<String> supportedPropertyNames) {
+    public PgsqlCatalogFilterSplitter(@NonNull Set<String> supportedPropertyNames) {
         super(PgsqlFilterCapabilities.capabilities(), null, null);
         this.supportedPropertyNames = supportedPropertyNames;
     }
 
     public static PgsqlCatalogFilterSplitter split(
             Filter filter, Set<String> supportedPropertyNames) {
-        PgsqlCatalogFilterSplitter splitter =
-                new PgsqlCatalogFilterSplitter(supportedPropertyNames);
+        var splitter = new PgsqlCatalogFilterSplitter(supportedPropertyNames);
         filter.accept(splitter, null);
         return splitter;
     }

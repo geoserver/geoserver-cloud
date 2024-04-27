@@ -103,7 +103,11 @@ public class LoggingTemplate {
                         ? ""
                         : " (ERROR %s: %s)"
                                 .formatted(error.getClass().getSimpleName(), error.getMessage());
-        log.debug("after request #{} ({}): '{}'{}", reqId, time, sql, errMsg);
+        if (error != null && log.isTraceEnabled()) {
+            log.trace("after request #{} ({}): '{}'{}", reqId, time, sql, errMsg, error);
+        } else {
+            log.debug("after request #{} ({}): '{}'{}", reqId, time, sql, errMsg);
+        }
     }
 
     private String stackTrace() {
