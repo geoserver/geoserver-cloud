@@ -6,6 +6,7 @@ package org.geoserver.cloud.backend.pgconfig.catalog.filter;
 
 import lombok.experimental.UtilityClass;
 
+import org.geoserver.function.IsInstanceOf;
 import org.geotools.api.filter.ExcludeFilter;
 import org.geotools.api.filter.Id;
 import org.geotools.api.filter.IncludeFilter;
@@ -112,6 +113,9 @@ class PgsqlFilterCapabilities {
 
         // compare functions
         caps.addType(FilterFunction_equalTo.class);
+
+        // well-known VolatileFunction implementations
+        caps.addType(IsInstanceOf.class);
 
         return caps;
     }

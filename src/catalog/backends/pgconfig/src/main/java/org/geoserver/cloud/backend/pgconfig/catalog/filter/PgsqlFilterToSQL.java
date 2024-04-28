@@ -4,8 +4,12 @@
  */
 package org.geoserver.cloud.backend.pgconfig.catalog.filter;
 
+import lombok.NonNull;
 import lombok.Value;
 
+import org.geoserver.catalog.CatalogInfo;
+import org.geoserver.catalog.impl.ClassMappings;
+import org.geoserver.function.IsInstanceOf;
 import org.geotools.api.filter.Filter;
 import org.geotools.api.filter.PropertyIsEqualTo;
 import org.geotools.api.filter.PropertyIsLike;
@@ -43,6 +47,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @since 1.4
@@ -323,7 +328,35 @@ class PgsqlFilterToSQL extends PreparedFilterToSQL {
             out.write(")");
             return true;
         }
+        if (function instanceof IsInstanceOf instanceOf) {
+            Expression typeExpr = getParameter(instanceOf, 0, true);
+            @SuppressWarnings("unchecked")
+            Class<? extends CatalogInfo> type = typeExpr.evaluate(null, Class.class);
+
+            String types = infoTypes(type);
+            String f =
+                    """
+                    "@type" = ANY('{%s}')
+                    """
+                            .formatted(types);
+            out.write(f);
+            return true;
+        }
+
         // function not supported
         return false;
+    }
+
+    protected @NonNull String infoTypes(Class<? extends CatalogInfo> clazz) {
+        ClassMappings cm;
+        if (clazz.isInterface()) cm = ClassMappings.fromInterface(clazz);
+        else cm = ClassMappings.fromImpl(clazz);
+        if (null == cm)
+            throw new IllegalArgumentException(
+                    "Unknown type for IsInstanceOf: " + clazz.getCanonicalName());
+
+        return Stream.of(cm.concreteInterfaces())
+                .map(Class::getSimpleName)
+                .collect(Collectors.joining(","));
     }
 }

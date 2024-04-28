@@ -41,6 +41,7 @@ public class PgsqlQueryBuilder {
         }
 
         Filter filter = replaceCatalogInfoLiterals(origFilter, supportedPropertyNames);
+        filter = simplify(filter);
 
         var splitter = split(filter, supportedPropertyNames);
 

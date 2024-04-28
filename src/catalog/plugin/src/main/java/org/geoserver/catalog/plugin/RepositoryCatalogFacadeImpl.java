@@ -31,13 +31,21 @@ import org.geoserver.catalog.plugin.CatalogInfoRepository.ResourceRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.StoreRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.StyleRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.WorkspaceRepository;
+import org.geoserver.function.IsInstanceOf;
+import org.geotools.api.filter.And;
+import org.geotools.api.filter.BinaryComparisonOperator;
 import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.Or;
+import org.geotools.api.filter.expression.Expression;
 import org.geotools.api.filter.sort.SortBy;
+import org.geotools.filter.visitor.SimplifyingFilterVisitor;
 import org.springframework.util.Assert;
 
 import java.lang.reflect.Proxy;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -578,8 +586,11 @@ public class RepositoryCatalogFacadeImpl
     public <T extends CatalogInfo> int count(final Class<T> of, final Filter filter) {
         long count;
         if (PublishedInfo.class.equals(of)) {
-            long layers = count(LayerInfo.class, filter);
-            long groups = count(LayerGroupInfo.class, filter);
+            Map<Class<?>, Filter> filters = splitOredInstanceOf(filter);
+            Filter layerFilter = filters.getOrDefault(LayerInfo.class, filter);
+            Filter lgFilter = filters.getOrDefault(LayerGroupInfo.class, filter);
+            long layers = count(LayerInfo.class, layerFilter);
+            long groups = count(LayerGroupInfo.class, lgFilter);
             count = layers + groups;
         } else {
             try {
@@ -592,6 +603,42 @@ public class RepositoryCatalogFacadeImpl
             }
         }
         return count > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) count;
+    }
+
+    Map<Class<?>, Filter> splitOredInstanceOf(Filter filter) {
+        filter = SimplifyingFilterVisitor.simplify(filter);
+        Map<Class<?>, Filter> split = new HashMap<>();
+        if (filter instanceof Or or) {
+            for (Filter subFilter : or.getChildren()) {
+                IsInstanceOf instanceOf = findInstanceOf(subFilter);
+                if (instanceOf == null) return Map.of();
+                List<Expression> parameters = instanceOf.getParameters();
+                if (parameters.isEmpty()) return Map.of();
+                Class<?> clazz = parameters.get(0).evaluate(null, Class.class);
+                split.put(clazz, subFilter);
+            }
+        }
+        return split;
+    }
+
+    private IsInstanceOf findInstanceOf(Filter subFilter) {
+        if (subFilter instanceof And and) {
+            for (Filter f : and.getChildren()) {
+                var i = findInstanceOf(f);
+                if (i != null) return i;
+            }
+        }
+        if (subFilter instanceof BinaryComparisonOperator b) {
+            IsInstanceOf instanceOf = extractInstanceOf(b);
+            if (instanceOf != null) return instanceOf;
+        }
+        return null;
+    }
+
+    private IsInstanceOf extractInstanceOf(BinaryComparisonOperator f) {
+        if (f.getExpression1() instanceof IsInstanceOf i) return i;
+        if (f.getExpression2() instanceof IsInstanceOf i) return i;
+        return null;
     }
 
     /**
@@ -625,15 +672,25 @@ public class RepositoryCatalogFacadeImpl
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T extends CatalogInfo> Stream<T> query(Query<T> query) {
         Stream<T> stream;
         if (PublishedInfo.class.equals(query.getType())) {
-            Query<LayerInfo> lq = new Query<>(LayerInfo.class, query);
-            Query<LayerGroupInfo> lgq = new Query<>(LayerGroupInfo.class, query);
+            final Filter filter = query.getFilter();
+            final Map<Class<?>, Filter> filters = splitOredInstanceOf(filter);
+            final Filter layerFilter = filters.getOrDefault(LayerInfo.class, filter);
+            final Filter lgFilter = filters.getOrDefault(LayerGroupInfo.class, filter);
+
+            var lq = new Query<>(LayerInfo.class, query).setFilter(layerFilter);
+            var lgq = new Query<>(LayerGroupInfo.class, query).setFilter(lgFilter);
             Stream<LayerInfo> layers = query(lq);
             Stream<LayerGroupInfo> groups = query(lgq);
-            Comparator<CatalogInfo> comparator = CatalogInfoLookup.toComparator(query);
-            stream = Stream.concat(layers, groups).sorted(comparator).map(query.getType()::cast);
+            stream = Stream.concat((Stream<T>) layers, (Stream<T>) groups);
+            if (!query.getSortBy().isEmpty()) {
+                Comparator<CatalogInfo> comparator = CatalogInfoLookup.toComparator(query);
+                stream = stream.sorted(comparator);
+            }
+            stream = stream.map(query.getType()::cast);
         } else {
             try {
                 checkCanSort(query);

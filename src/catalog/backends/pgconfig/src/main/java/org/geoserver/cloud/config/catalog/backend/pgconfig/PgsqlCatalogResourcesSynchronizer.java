@@ -1,3 +1,7 @@
+/*
+ * (c) 2024 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
+ * GPL 2.0 license, available at the root application directory.
+ */
 package org.geoserver.cloud.config.catalog.backend.pgconfig;
 
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +31,8 @@ import org.geoserver.platform.resource.ResourceStore;
 /**
  * A {@link GeoServerConfigPersister} alike {@link CatalogListener} to synchronize {@link
  * ResourceStore} resources related to catalog changes.
+ *
+ * @since 1.8.1
  */
 @Slf4j(topic = "org.geoserver.cloud.config.catalog.backend.pgconfig")
 public class PgsqlCatalogResourcesSynchronizer implements CatalogListener, ExtensionPriority {
