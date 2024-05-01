@@ -176,18 +176,24 @@ public class DataDirectoryUpdateSequence implements UpdateSequence, GeoServerIni
 
     /** Precondition: be called while holding the {@link #lock()} */
     private void initialize(Resource resource) throws IOException {
+        Optional<GeoServerInfo> global = loadGlobalInfo();
+        final long initialValue = global.map(GeoServerInfo::getUpdateSequence).orElse(0L);
+        save(resource, initialValue);
+    }
+
+    private Optional<GeoServerInfo> loadGlobalInfo() throws IOException {
         GeoServerInfo geoServerInfo = null;
         if (null == geoServer) {
             Resource configResource = dd.config(new GeoServerInfoImpl());
             if (Resources.exists(configResource)) {
-                geoServerInfo = persister().load(configResource.in(), GeoServerInfo.class);
+                byte[] contents = configResource.getContents();
+                ByteArrayInputStream in = new ByteArrayInputStream(contents);
+                geoServerInfo = persister().load(in, GeoServerInfo.class);
             }
         } else {
             geoServerInfo = geoServer.getGlobal();
         }
-        final long initialValue =
-                Optional.ofNullable(geoServerInfo).map(GeoServerInfo::getUpdateSequence).orElse(0L);
-        save(resource, initialValue);
+        return Optional.ofNullable(geoServerInfo);
     }
 
     protected Resource resource() {
