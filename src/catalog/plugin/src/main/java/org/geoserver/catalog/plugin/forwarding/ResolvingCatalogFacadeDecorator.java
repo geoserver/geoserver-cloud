@@ -6,6 +6,8 @@ package org.geoserver.catalog.plugin.forwarding;
 
 import com.google.common.collect.Lists;
 
+import lombok.NonNull;
+
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogInfo;
@@ -14,6 +16,7 @@ import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.MapInfo;
 import org.geoserver.catalog.NamespaceInfo;
+import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
@@ -32,6 +35,9 @@ import org.geotools.api.filter.sort.SortBy;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
@@ -122,10 +128,48 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
         return Lists.transform(info, this::resolveOutbound);
     }
 
+    // ExtendedCatalogFacade-specific methods
+    @Override
+    public <T extends CatalogInfo> T add(@NonNull T info) {
+        return super.add(resolveInbound(info));
+    }
+
     @Override
     public <I extends CatalogInfo> I update(I info, Patch patch) {
         return resolveOutbound(super.update(resolveInbound(info), patch));
     }
+
+    @Override
+    public void remove(@NonNull CatalogInfo info) {
+        super.remove(resolveInbound(info));
+    }
+
+    @Override
+    public Optional<CatalogInfo> get(@NonNull String id) {
+        return super.get(id).map(this::resolveOutbound);
+    }
+
+    @Override
+    public <T extends CatalogInfo> Optional<T> get(@NonNull String id, @NonNull Class<T> type) {
+        return super.get(id, type).map(this::resolveOutbound);
+    }
+
+    @Override
+    public PublishedInfo getPublished(@NonNull String id) {
+        return resolveOutbound(super.getPublished(id));
+    }
+
+    @Override
+    public void forEach(Consumer<? super CatalogInfo> consumer) {
+        super.forEach(info -> consumer.accept(resolveOutbound(info)));
+    }
+
+    @Override
+    public <T extends CatalogInfo> Stream<T> query(Query<T> query) {
+        return super.query(query).map(this::resolveOutbound).filter(Objects::nonNull);
+    }
+
+    // CatalogFacade methods
 
     @Override
     public StoreInfo add(StoreInfo store) {
@@ -508,10 +552,5 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
         final CloseableIterator<T> orig =
                 asExtendedFacade().list(of, filter, offset, count, sortOrder);
         return CloseableIteratorAdapter.transform(orig, this::resolveOutbound);
-    }
-
-    @Override
-    public <T extends CatalogInfo> Stream<T> query(Query<T> query) {
-        return super.query(query).map(this::resolveOutbound).filter(Objects::nonNull);
     }
 }
