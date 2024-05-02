@@ -1,5 +1,5 @@
 volumes:
-  postgresql_config_data: # volume for postgresql data, used to store the geoserver config through jdbcconfig
+  jdbcconfig_data: # volume for postgresql data, used to store the geoserver config through jdbcconfig
 
 #
 # Configures all geoserver services to use the postgresql database server with jdbcconfig as catalog backend.
@@ -17,7 +17,7 @@ services:
     ports:
       - 54321:5432
     volumes:
-      - postgresql_config_data:/var/lib/postgresql/data
+      - jdbcconfig_data:/var/lib/postgresql/data
     deploy:
       resources:
         limits:
