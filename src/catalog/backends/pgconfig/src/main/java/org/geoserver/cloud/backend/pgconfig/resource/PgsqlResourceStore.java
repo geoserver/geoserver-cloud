@@ -375,7 +375,10 @@ public class PgsqlResourceStore implements ResourceStore {
         List<Resource> list;
         try (Stream<PgsqlResource> s =
                 template.queryForStream(sql, queryMapper, resource.getId())) {
-            list = s.map(Resource.class::cast).toList();
+            // for pre 1.8.1 backwards compatibility, ignore resources that are only to be stored in
+            // the filesystem (e.g. tmp/, temp/, etc)
+            var resources = s.filter(r -> !fileSystemOnlyPathMatcher.test(r.path()));
+            list = resources.map(Resource.class::cast).toList();
         }
         cache.updateAll(list);
         return list;

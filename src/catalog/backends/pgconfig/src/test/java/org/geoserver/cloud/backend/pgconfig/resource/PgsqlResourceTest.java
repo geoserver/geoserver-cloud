@@ -10,10 +10,10 @@ import static org.geoserver.platform.resource.Resource.Type.UNDEFINED;
 import static org.geoserver.platform.resource.ResourceMatchers.directory;
 import static org.geoserver.platform.resource.ResourceMatchers.undefined;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -22,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import org.geoserver.cloud.backend.pgconfig.support.PgConfigTestContainer;
-import org.geoserver.platform.resource.FileSystemResourceStore;
 import org.geoserver.platform.resource.Paths;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.Resource.Type;
@@ -47,6 +46,7 @@ import org.springframework.integration.support.locks.LockRegistry;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.io.File;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -390,10 +390,30 @@ public class PgsqlResourceTest extends ResourceTheoryTest {
     }
 
     @Test
-    public void test1() {
-        var s = new FileSystemResourceStore(this.tmpDir.getRoot());
-        Resource resource = s.get("/tmp/test");
-        assertNotNull(resource);
+    public void testIgnoresFileSystemOnlyResourcesInDb() throws SQLException {
+        // for pre 1.8.1 backwards compatibility, ignore fs-only resources already in the db
+        DataSource ds = container.getDataSource();
+        String sql =
+                """
+				INSERT INTO resourcestore (parentid, "type", path, content)
+				VALUES (?, ?, ?, ?);
+				""";
+        try (var c = ds.getConnection();
+                var st = c.prepareStatement(sql)) {
+            st.setLong(1, 0);
+            st.setString(2, Resource.Type.DIRECTORY.name());
+            st.setString(3, "temp");
+            st.setObject(4, null);
+            st.executeUpdate();
+        }
+        PgsqlResource root = (PgsqlResource) store.get("");
+        List<Resource> children = store.list(root);
+        assertThat(
+                children.stream()
+                        .map(Resource::path)
+                        .filter(path -> path.contains("temp"))
+                        .toList(),
+                empty());
     }
 
     private Set<String> replace(String oldParent, String newParent, Set<String> children) {
