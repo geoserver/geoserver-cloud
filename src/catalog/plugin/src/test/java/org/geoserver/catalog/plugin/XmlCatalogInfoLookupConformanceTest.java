@@ -11,13 +11,15 @@ import org.geoserver.catalog.plugin.resolving.CollectionPropertiesInitializer;
 import org.geoserver.catalog.plugin.resolving.ResolvingProxyResolver;
 import org.geoserver.config.util.XStreamPersister;
 import org.geoserver.config.util.XStreamPersisterFactory;
+import org.geoserver.platform.GeoServerResourceLoader;
 import org.junit.jupiter.api.Disabled;
 
+import java.io.File;
 import java.util.function.UnaryOperator;
 
 class XmlCatalogInfoLookupConformanceTest extends CatalogConformanceTest {
 
-    protected @Override CatalogPlugin createCatalog() {
+    protected @Override CatalogPlugin createCatalog(File tmpFolder) {
         CatalogPlugin catalog = new org.geoserver.catalog.plugin.CatalogPlugin();
         XStreamPersisterFactory xpf = new XStreamPersisterFactory();
         XStreamPersister codec = xpf.createXMLPersister();
@@ -43,6 +45,8 @@ class XmlCatalogInfoLookupConformanceTest extends CatalogConformanceTest {
                         ::apply;
         resolving.setOutboundResolver(chainedResolver);
         catalog.setFacade(resolving);
+        catalog.setResourceLoader(new GeoServerResourceLoader(tmpFolder));
+        catalog.addListener(new CatalogPluginStyleResourcePersister(catalog));
         return catalog;
     }
 

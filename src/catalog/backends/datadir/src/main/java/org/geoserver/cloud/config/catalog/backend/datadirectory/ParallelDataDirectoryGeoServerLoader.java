@@ -18,6 +18,7 @@ import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.FeatureTypeCallback;
 import org.geoserver.catalog.impl.CatalogImpl;
 import org.geoserver.catalog.plugin.CatalogPlugin;
+import org.geoserver.catalog.plugin.CatalogPluginStyleResourcePersister;
 import org.geoserver.catalog.plugin.locking.LockingCatalog;
 import org.geoserver.catalog.plugin.locking.LockingGeoServer;
 import org.geoserver.catalog.plugin.locking.LockingSupport;
@@ -152,7 +153,7 @@ public class ParallelDataDirectoryGeoServerLoader
 
         catalog.addListener(
                 new CatalogPluginGeoServerConfigPersister(catalog.getResourceLoader(), xp));
-        catalog.addListener(new CatalogPluginGeoServerResourcePersister(catalog));
+        catalog.addListener(new CatalogPluginStyleResourcePersister(catalog));
     }
 
     @Override

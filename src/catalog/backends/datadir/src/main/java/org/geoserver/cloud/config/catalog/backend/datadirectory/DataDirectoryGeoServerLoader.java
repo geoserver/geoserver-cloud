@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.catalog.Catalog;
+import org.geoserver.catalog.plugin.CatalogPluginStyleResourcePersister;
 import org.geoserver.catalog.plugin.locking.LockingCatalog;
 import org.geoserver.catalog.plugin.locking.LockingGeoServer;
 import org.geoserver.catalog.plugin.locking.LockingSupport;
@@ -155,6 +156,6 @@ public class DataDirectoryGeoServerLoader extends DefaultGeoServerLoader {
 
         catalog.addListener(
                 new CatalogPluginGeoServerConfigPersister(catalog.getResourceLoader(), xp));
-        catalog.addListener(new CatalogPluginGeoServerResourcePersister(catalog));
+        catalog.addListener(new CatalogPluginStyleResourcePersister(catalog));
     }
 }

@@ -81,7 +81,8 @@ import org.geoserver.config.GeoServerDataDirectory;
 import org.geoserver.ows.util.OwsUtils;
 import org.geoserver.platform.GeoServerExtensions;
 import org.geoserver.platform.GeoServerExtensionsHelper;
-import org.geoserver.platform.GeoServerResourceLoader;
+import org.geoserver.platform.resource.Resource;
+import org.geoserver.platform.resource.Resources;
 import org.geoserver.security.AccessMode;
 import org.geoserver.security.SecuredResourceNameChangeListener;
 import org.geoserver.security.impl.DataAccessRule;
@@ -90,6 +91,7 @@ import org.geotools.api.filter.Filter;
 import org.geotools.api.filter.FilterFactory;
 import org.geotools.api.filter.MultiValuedFilter.MatchAction;
 import org.geotools.api.filter.sort.SortBy;
+import org.geotools.api.style.Style;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.util.logging.Logging;
 import org.junit.jupiter.api.Assumptions;
@@ -100,9 +102,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Proxy;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -130,6 +134,7 @@ import java.util.logging.Logger;
 public abstract class CatalogConformanceTest {
 
     protected CatalogImpl catalog;
+    protected GeoServerDataDirectory dd;
 
     public CatalogTestData data;
 
@@ -156,7 +161,7 @@ public abstract class CatalogConformanceTest {
         dao.storeRules();
     }
 
-    protected abstract CatalogImpl createCatalog();
+    protected abstract CatalogImpl createCatalog(File tmpDir);
 
     public static @BeforeAll void oneTimeSetup() {
         GeoServerExtensionsHelper.setIsSpringContext(false);
@@ -166,9 +171,11 @@ public abstract class CatalogConformanceTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        catalog = createCatalog();
-        catalog.setResourceLoader(new GeoServerResourceLoader());
-        GeoServerDataDirectory dd = new GeoServerDataDirectory(tmpFolder);
+        catalog = createCatalog(tmpFolder);
+        assertNotNull(
+                catalog.getResourceLoader(),
+                "Catalog must be supplied with a GeoServerResourceLoader");
+        dd = new GeoServerDataDirectory(catalog.getResourceLoader());
         dataAccessRuleDAO = new DataAccessRuleDAO(dd, catalog);
         dataAccessRuleDAO.reload();
 
@@ -188,7 +195,11 @@ public abstract class CatalogConformanceTest {
     }
 
     protected WorkspaceInfo addWorkspace() {
-        return add(data.workspaceA, catalog::add, catalog::getWorkspace);
+        return addWorkspace(data.workspaceA);
+    }
+
+    protected WorkspaceInfo addWorkspace(WorkspaceInfo ws) {
+        return add(ws, catalog::add, catalog::getWorkspace);
     }
 
     protected NamespaceInfo addNamespace() {
@@ -2036,6 +2047,68 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
+    void testModifyStyleChangeWorkspace() throws IOException {
+        WorkspaceInfo ws1 = addWorkspace(data.workspaceA);
+        WorkspaceInfo ws2 = addWorkspace(data.workspaceB);
+
+        final StyleInfo orig = addStyle();
+
+        final String sld =
+                """
+                <?xml version="1.0" encoding="ISO-8859-1"?>
+                <StyledLayerDescriptor version="1.0.0">
+                    <NamedLayer>
+                        <Name>Default Point</Name>
+                        <UserStyle>
+                            <Title>Red Square point</Title>
+                            <FeatureTypeStyle>
+                                <Rule>
+                                    <Name>Rule 1</Name>
+                                    <PointSymbolizer>
+                                        <Graphic>
+                                            <Mark>
+                                                <WellKnownName>square</WellKnownName>
+                                                <Fill>
+                                                    <CssParameter name="fill">#FF0000</CssParameter>
+                                                </Fill>
+                                            </Mark>
+                                            <Size>6</Size>
+                                        </Graphic>
+                                    </PointSymbolizer>
+                                </Rule>
+
+                            </FeatureTypeStyle>
+                        </UserStyle>
+                    </NamedLayer>
+                </StyledLayerDescriptor>
+                """;
+
+        Resource origSldResource = dd.style(orig);
+        assertFalse(Resources.exists(origSldResource));
+        catalog.getResourcePool()
+                .writeStyle(orig, new ByteArrayInputStream(sld.getBytes(StandardCharsets.UTF_8)));
+        assertTrue(Resources.exists(dd.style(orig)));
+        Style style = catalog.getResourcePool().getStyle(orig);
+        assertNotNull(style);
+
+        orig.setWorkspace(ws1);
+        catalog.save(orig);
+
+        StyleInfo styleWs1 = catalog.getStyle(orig.getId());
+        Resource ws1SldResource = dd.style(styleWs1);
+        assertTrue(Resources.exists(ws1SldResource));
+        assertFalse(Resources.exists(dd.get(origSldResource.path())));
+
+        styleWs1.setWorkspace(ws2);
+        catalog.save(styleWs1);
+
+        StyleInfo styleWs2 = catalog.getStyle(orig.getId());
+        Resource ws2SldResource = dd.style(styleWs2);
+        assertTrue(Resources.exists(ws2SldResource));
+        assertFalse(Resources.exists(dd.get(ws1SldResource.path())));
+    }
+
+    @Test
     void testModifyDefaultStyle() {
         addWorkspace();
         addDefaultStyle();
@@ -2235,7 +2308,7 @@ public abstract class CatalogConformanceTest {
     @Test
     @Disabled(
             "This test cannot work, the catalog subsystem is not thread safe, that's why we have the configuration locks. Re-enable when the catalog subsystem is made thread safe.")
-    public void testGetLayerByIdWithConcurrentAdd() throws Exception {
+    void testGetLayerByIdWithConcurrentAdd() throws Exception {
         addDataStore();
         addNamespace();
         addStyle();

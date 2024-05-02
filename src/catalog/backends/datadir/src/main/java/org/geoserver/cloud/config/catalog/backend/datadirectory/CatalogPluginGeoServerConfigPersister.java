@@ -6,10 +6,10 @@ package org.geoserver.cloud.config.catalog.backend.datadirectory;
 
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.event.CatalogModifyEvent;
-import org.geoserver.catalog.event.impl.CatalogModifyEventImpl;
 import org.geoserver.catalog.impl.DefaultCatalogFacade;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.plugin.CatalogPlugin;
+import org.geoserver.catalog.plugin.CatalogPluginStyleResourcePersister;
 import org.geoserver.config.GeoServerConfigPersister;
 import org.geoserver.config.util.XStreamPersister;
 import org.geoserver.platform.GeoServerResourceLoader;
@@ -37,7 +37,7 @@ class CatalogPluginGeoServerConfigPersister extends GeoServerConfigPersister {
 
     @Override
     public void handleModifyEvent(CatalogModifyEvent event) {
-        CatalogModifyEventImpl e = CatalogPluginGeoServerResourcePersister.withRealSource(event);
+        CatalogModifyEvent e = CatalogPluginStyleResourcePersister.withRealSource(event);
         super.handleModifyEvent(e);
     }
 }

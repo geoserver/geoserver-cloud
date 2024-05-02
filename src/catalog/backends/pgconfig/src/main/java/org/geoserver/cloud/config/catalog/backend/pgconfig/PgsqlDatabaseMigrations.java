@@ -16,7 +16,7 @@ import javax.sql.DataSource;
 /**
  * @since 1.4
  */
-@Slf4j(topic = "org.geoserver.cloud.config.catalog.backend.pgsql")
+@Slf4j(topic = "org.geoserver.cloud.config.catalog.backend.pgconfig")
 @Data
 @Accessors(chain = true)
 public class PgsqlDatabaseMigrations {
