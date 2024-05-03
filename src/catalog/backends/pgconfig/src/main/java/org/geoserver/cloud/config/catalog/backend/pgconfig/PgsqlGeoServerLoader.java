@@ -17,10 +17,13 @@ import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.GeoServerConfigurationLock.LockType;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.StyleInfo;
+import org.geoserver.catalog.plugin.CatalogPluginStyleResourcePersister;
 import org.geoserver.config.GeoServer;
+import org.geoserver.config.GeoServerConfigPersister;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.GeoServerLoader;
 import org.geoserver.config.GeoServerLoaderProxy;
+import org.geoserver.config.GeoServerResourcePersister;
 import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.util.XStreamPersister;
@@ -67,6 +70,11 @@ public class PgsqlGeoServerLoader extends GeoServerLoader {
     @Override
     protected void loadCatalog(Catalog catalog, XStreamPersister xp) throws Exception {
         log.info("Loading catalog with pgsql loader...");
+        catalog.removeListeners(GeoServerConfigPersister.class);
+        catalog.removeListeners(GeoServerResourcePersister.class);
+        final boolean backupSldFiles = false;
+        catalog.addListener(new CatalogPluginStyleResourcePersister(catalog, backupSldFiles));
+        catalog.addListener(new PgsqlCatalogResourcesSynchronizer(resourceLoader));
     }
 
     /**

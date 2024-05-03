@@ -13,7 +13,10 @@ import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.impl.DefaultCatalogFacade;
 import org.geoserver.catalog.plugin.CatalogFacadeExtensionAdapter.SilentCatalog;
 import org.geoserver.catalog.plugin.forwarding.ResolvingCatalogFacadeDecorator;
+import org.geoserver.platform.GeoServerResourceLoader;
 import org.junit.jupiter.api.Test;
+
+import java.io.File;
 
 /**
  * Asserts that a {@link CatalogFacadeExtensionAdapter} does not result in double publishing of
@@ -26,10 +29,12 @@ class CatalogFacadeExtensionAdapterTest extends CatalogConformanceTest {
 
     private CatalogFacade legacyFacade;
 
-    protected @Override CatalogPlugin createCatalog() {
+    protected @Override CatalogPlugin createCatalog(File tmpFolder) {
         catalog = new CatalogPlugin();
         legacyFacade = new DefaultCatalogFacade(catalog);
         catalog.setFacade(new CatalogFacadeExtensionAdapter(legacyFacade));
+        catalog.setResourceLoader(new GeoServerResourceLoader(tmpFolder));
+        catalog.addListener(new CatalogPluginStyleResourcePersister(catalog));
         return catalog;
     }
 

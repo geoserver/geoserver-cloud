@@ -41,7 +41,7 @@ import javax.sql.DataSource;
  * @since 1.4
  */
 @Configuration(proxyBeanMethods = true)
-@Slf4j(topic = "org.geoserver.cloud.config.catalog.backend.pgsql")
+@Slf4j(topic = "org.geoserver.cloud.config.catalog.backend.pgconfig")
 public class PgsqlBackendConfiguration extends GeoServerBackendConfigurer {
 
     private String instanceId;

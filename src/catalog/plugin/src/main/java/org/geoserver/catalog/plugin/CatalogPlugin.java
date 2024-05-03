@@ -132,7 +132,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
     }
 
     /** Constructor for {@link #getRawCatalog()} */
-    private CatalogPlugin(CatalogPlugin catalog) {
+    protected CatalogPlugin(CatalogPlugin catalog) {
         super(catalog); // sets dispatcher and resourcePool
         this.isolated = false;
         this.validationSupport = new CatalogValidationRules(this);

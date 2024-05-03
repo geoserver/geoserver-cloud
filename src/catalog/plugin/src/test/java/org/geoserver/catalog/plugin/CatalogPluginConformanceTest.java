@@ -4,9 +4,16 @@
  */
 package org.geoserver.catalog.plugin;
 
+import org.geoserver.platform.GeoServerResourceLoader;
+
+import java.io.File;
+
 class CatalogPluginConformanceTest extends CatalogConformanceTest {
 
-    protected @Override CatalogPlugin createCatalog() {
-        return new org.geoserver.catalog.plugin.CatalogPlugin();
+    protected @Override CatalogPlugin createCatalog(File tmpFolder) {
+        var catalog = new org.geoserver.catalog.plugin.CatalogPlugin();
+        catalog.setResourceLoader(new GeoServerResourceLoader(tmpFolder));
+        catalog.addListener(new CatalogPluginStyleResourcePersister(catalog));
+        return catalog;
     }
 }
