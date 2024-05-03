@@ -19,6 +19,8 @@ FROM geoservercloud/gs-cloud-base-spring-boot:$TAG
 RUN apt update \
 && apt -y upgrade \
 && apt install -y --no-install-recommends \
+fonts-dejavu \
+fonts-dejavu-extra \
 fonts-deva \
 fonts-font-awesome \
 fonts-freefont-ttf \
