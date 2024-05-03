@@ -11,6 +11,8 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 import org.geoserver.catalog.CatalogInfo;
+import org.geoserver.catalog.Info;
+import org.geoserver.catalog.Predicates;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.plugin.CatalogInfoRepository;
 import org.geoserver.catalog.plugin.Patch;
@@ -19,8 +21,10 @@ import org.geoserver.catalog.plugin.resolving.ResolvingCatalogInfoRepository;
 import org.geoserver.catalog.plugin.resolving.ResolvingFacade;
 import org.geoserver.cloud.backend.pgconfig.catalog.filter.PgsqlQueryBuilder;
 import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.FilterFactory;
 import org.geotools.api.filter.sort.SortBy;
 import org.geotools.api.filter.sort.SortOrder;
+import org.geotools.factory.CommonFactoryFinder;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -46,9 +50,11 @@ public abstract class PgsqlCatalogInfoRepository<T extends CatalogInfo>
         extends ResolvingCatalogInfoRepository<T>
         implements CatalogInfoRepository<T>, ResolvingFacade<T> {
 
-    protected final @NonNull LoggingTemplate template;
-
     protected static final ObjectMapper infoMapper = PgsqlObjectMapper.newObjectMapper();
+
+    protected static final FilterFactory FILTER_FACTORY = CommonFactoryFinder.getFilterFactory();
+
+    protected final @NonNull LoggingTemplate template;
 
     private Set<String> sortableProperties;
 
@@ -150,13 +156,13 @@ public abstract class PgsqlCatalogInfoRepository<T extends CatalogInfo>
 
     @Override
     public <U extends T> Stream<U> findAll(Query<U> query) {
-        final Filter filter = query.getFilter();
+        final Filter filter = applyTypeFilter(query.getFilter(), query.getType());
+        final Class<U> type = query.getType();
 
         final PgsqlQueryBuilder qb = new PgsqlQueryBuilder(filter, sortableProperties()).build();
         final Filter supportedFilter = qb.getSupportedFilter();
         final Filter unsupportedFilter = qb.getUnsupportedFilter();
         final String whereClause = qb.getWhereClause();
-        final Class<U> type = query.getType();
 
         log.trace(
                 "supported filter {} translated to {}, unsupported: {}",
@@ -167,15 +173,11 @@ public abstract class PgsqlCatalogInfoRepository<T extends CatalogInfo>
         final boolean filterFullySupported = Filter.INCLUDE.equals(unsupportedFilter);
 
         String sql = "SELECT * FROM %s WHERE TRUE".formatted(getQueryTable());
-        sql = applyTypeFilter(sql, type);
 
         Object[] prepStatementParams = null;
         if (!Filter.INCLUDE.equals(supportedFilter)) {
             sql = "%s AND %s".formatted(sql, whereClause);
-            List<Object> literalValues = qb.getLiteralValues();
-            if (!literalValues.isEmpty()) {
-                prepStatementParams = qb.getLiteralValues().toArray();
-            }
+            prepStatementParams = prepareParams(qb);
         }
 
         sql = applySortOrder(sql, query.getSortBy());
@@ -210,6 +212,13 @@ public abstract class PgsqlCatalogInfoRepository<T extends CatalogInfo>
 
     protected <V> Predicate<V> toPredicate(Filter filter) {
         return info -> null != info && filter.evaluate(info);
+    }
+
+    private <S extends Info> Filter applyTypeFilter(Filter filter, Class<S> type) {
+        if (!getContentType().equals(type)) {
+            filter = Predicates.and(Predicates.isInstanceOf(type), filter);
+        }
+        return filter;
     }
 
     private String applyTypeFilter(String sql, @NonNull Class<? extends T> type) {
@@ -252,8 +261,8 @@ public abstract class PgsqlCatalogInfoRepository<T extends CatalogInfo>
      * @return {@code -1} if the {@code filter} is not fully supported
      */
     @Override
-    public <U extends T> long count(Class<U> of, final Filter filter) {
-
+    public <U extends T> long count(Class<U> of, Filter filter) {
+        filter = applyTypeFilter(filter, of);
         final PgsqlQueryBuilder qb = new PgsqlQueryBuilder(filter, sortableProperties()).build();
         final Filter supportedFilter = qb.getSupportedFilter();
         final Filter unsupportedFilter = qb.getUnsupportedFilter();
@@ -271,15 +280,10 @@ public abstract class PgsqlCatalogInfoRepository<T extends CatalogInfo>
             Object[] prepStatementParams = null;
             if (Filter.INCLUDE.equals(supportedFilter)) {
                 sql = sql.formatted(getTable());
-                sql = applyTypeFilter(sql, of);
             } else {
                 sql = sql.formatted(getQueryTable());
-                sql = applyTypeFilter(sql, of);
                 sql = "%s AND %s".formatted(sql, whereClause);
-                List<Object> literalValues = qb.getLiteralValues();
-                if (!literalValues.isEmpty()) {
-                    prepStatementParams = qb.getLiteralValues().toArray();
-                }
+                prepStatementParams = prepareParams(qb);
             }
             return template.queryForObject(sql, Long.class, prepStatementParams);
         }
@@ -287,6 +291,18 @@ public abstract class PgsqlCatalogInfoRepository<T extends CatalogInfo>
         try (Stream<U> stream = findAll(Query.valueOf(of, filter))) {
             return stream.count();
         }
+    }
+
+    @SuppressWarnings("java:S1168")
+    private Object[] prepareParams(PgsqlQueryBuilder qb) {
+        List<Object> literalValues = qb.getLiteralValues();
+        if (literalValues.isEmpty()) return null;
+        return literalValues.stream().map(this::asPreparedValue).toArray();
+    }
+
+    private Object asPreparedValue(Object val) {
+        if (val instanceof Enum e) return e.name();
+        return val;
     }
 
     @Override

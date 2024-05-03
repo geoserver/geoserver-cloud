@@ -10,12 +10,12 @@ import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerRepository;
+import org.geoserver.catalog.plugin.Query;
+import org.geotools.api.filter.Filter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.util.Optional;
-import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 /**
@@ -65,22 +65,15 @@ public class PgsqlLayerRepository extends PgsqlCatalogInfoRepository<LayerInfo>
         return findOne(sql.formatted("name"), possiblyPrefixedName);
     }
 
-    // TODO: optimize
     @Override
     public Stream<LayerInfo> findAllByDefaultStyleOrStyles(@NonNull StyleInfo style) {
-        return findAll().filter(styleFilter(style));
-    }
+        var ff = FILTER_FACTORY;
+        Filter filter =
+                ff.or(
+                        ff.equals(ff.property("defaultStyle.id"), ff.literal(style.getId())),
+                        ff.equals(ff.property("styles.id"), ff.literal(style.getId())));
 
-    private Predicate<LayerInfo> styleFilter(@NonNull StyleInfo style) {
-        return l -> {
-            if (matches(style, l.getDefaultStyle())) return true;
-            return Optional.ofNullable(l.getStyles()).orElse(Set.of()).stream()
-                    .anyMatch(s -> matches(style, s));
-        };
-    }
-
-    private boolean matches(StyleInfo expected, StyleInfo actual) {
-        return actual != null && expected.getId().equals(actual.getId());
+        return findAll(Query.valueOf(LayerInfo.class, filter));
     }
 
     @Override

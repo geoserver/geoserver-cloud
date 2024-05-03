@@ -456,11 +456,6 @@ public class PgsqlResourceStore implements ResourceStore {
     public PgsqlResource getParent(PgsqlResource resource) {
         if (ROOT_ID == resource.getId()) return null;
         String parentPath = resource.parentPath();
-        try {
-            return (PgsqlResource) get(parentPath);
-        } catch (RuntimeException e) {
-            e.printStackTrace();
-            throw e;
-        }
+        return (PgsqlResource) get(parentPath);
     }
 }

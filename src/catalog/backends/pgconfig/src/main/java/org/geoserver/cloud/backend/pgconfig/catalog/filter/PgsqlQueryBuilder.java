@@ -4,6 +4,9 @@
  */
 package org.geoserver.cloud.backend.pgconfig.catalog.filter;
 
+import static org.geoserver.cloud.backend.pgconfig.catalog.filter.CatalogInfoLiteralAdaptor.replaceCatalogInfoLiterals;
+import static org.geoserver.cloud.backend.pgconfig.catalog.filter.PgsqlCatalogFilterSplitter.split;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -20,7 +23,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class PgsqlQueryBuilder {
 
-    private final Filter filter;
+    private final Filter origFilter;
     private final Set<String> supportedPropertyNames;
 
     private @Getter Filter supportedFilter = Filter.INCLUDE;
@@ -33,12 +36,17 @@ public class PgsqlQueryBuilder {
     private @Getter List<Class> literalTypes;
 
     public PgsqlQueryBuilder build() {
-        if (Filter.INCLUDE.equals(filter)) {
+        if (Filter.INCLUDE.equals(origFilter)) {
             return this;
         }
-        var splitter = PgsqlCatalogFilterSplitter.split(filter, supportedPropertyNames);
+
+        Filter filter = replaceCatalogInfoLiterals(origFilter, supportedPropertyNames);
+        filter = simplify(filter);
+
+        var splitter = split(filter, supportedPropertyNames);
 
         supportedFilter = adaptToSql(splitter.getFilterPre());
+
         unsupportedFilter = simplify(splitter.getFilterPost());
 
         Result encodeResult = PgsqlFilterToSQL.evaluate(supportedFilter);
@@ -49,7 +57,8 @@ public class PgsqlQueryBuilder {
     }
 
     private Filter adaptToSql(Filter filterPre) {
-        Filter supported = ToPgsqlCompatibleFilterDuplicator.adapt(filterPre);
+        Filter supported =
+                ToPgsqlCompatibleFilterDuplicator.adapt(filterPre, supportedPropertyNames);
         return simplify(supported);
     }
 
