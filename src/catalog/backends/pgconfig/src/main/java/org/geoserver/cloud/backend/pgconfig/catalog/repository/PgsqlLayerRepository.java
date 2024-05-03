@@ -16,8 +16,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.util.Optional;
-import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 /**
@@ -76,19 +74,6 @@ public class PgsqlLayerRepository extends PgsqlCatalogInfoRepository<LayerInfo>
                         ff.equals(ff.property("styles.id"), ff.literal(style.getId())));
 
         return findAll(Query.valueOf(LayerInfo.class, filter));
-        //        return findAll().filter(styleFilter(style));
-    }
-
-    private Predicate<LayerInfo> styleFilter(@NonNull StyleInfo style) {
-        return l -> {
-            if (matches(style, l.getDefaultStyle())) return true;
-            return Optional.ofNullable(l.getStyles()).orElse(Set.of()).stream()
-                    .anyMatch(s -> matches(style, s));
-        };
-    }
-
-    private boolean matches(StyleInfo expected, StyleInfo actual) {
-        return actual != null && expected.getId().equals(actual.getId());
     }
 
     @Override

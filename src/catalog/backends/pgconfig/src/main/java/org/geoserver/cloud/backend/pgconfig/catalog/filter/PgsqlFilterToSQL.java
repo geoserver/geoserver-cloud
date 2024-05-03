@@ -109,21 +109,18 @@ class PgsqlFilterToSQL extends PreparedFilterToSQL {
             try {
                 prop.accept(this, extraData);
                 out.write(" && ");
-                // value.accept(this, extraData);
                 out.write((String) ((Literal) value).getValue());
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
 
-            //            String arrayOperator = prop == left ? "<@" : "@>";
-            //            super.visitBinaryComparisonOperator(filter, "&&");
             return extraData;
         }
 
         return super.visit(filter, extraData);
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "java:S6204"})
     private List<Object> asList(Object value) {
         if (value instanceof Collection) {
             // beware Stream.toList() does not support null values but Collectors.toList() does

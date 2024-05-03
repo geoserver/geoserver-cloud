@@ -80,15 +80,7 @@ public final class CatalogInfoRowMapper {
 
         @Override
         protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
-            int size = size();
-            boolean remove = size > maxCapacity;
-            //            if (remove) {
-            //                log.trace(
-            //                        "RowMapper cache size: {}, removing eldest entry {}",
-            //                        size,
-            //                        eldest.getValue());
-            //            }
-            return remove;
+            return size() > maxCapacity;
         }
     }
 
@@ -104,11 +96,11 @@ public final class CatalogInfoRowMapper {
         var infoCache = cache(clazz);
         T info = infoCache.get(id);
         if (clazz.isInstance(info)) {
-            // log.trace("loaded from RowMapper cache: {}", info);
+            log.trace("loaded from RowMapper cache: {}", info);
         } else {
             info = loader.apply(id);
             infoCache.put(id, info);
-            // log.trace("RowMapper cached {}", info);
+            log.trace("RowMapper cached {}", info);
         }
         return info;
     }
