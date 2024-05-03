@@ -30,17 +30,15 @@ public class GeoToolsStaticContextInitializer
         }
         System.setProperty("org.geotools.referencing.forceXY", "true");
 
-        Boolean useEnvAwareHttpClient =
+        boolean useEnvAwareHttpClient =
                 applicationContext
                         .getEnvironment()
                         .getProperty(
                                 "geotools.httpclient.proxy.enabled", Boolean.class, Boolean.TRUE);
         if (useEnvAwareHttpClient) {
-            // factoryName matches the one in
-            // src/main/resources/META-INF/services/org.geotools.http.HTTPClientFactory
-            String factoryName =
-                    SpringEnvironmentAwareGeoToolsHttpClientFactory.class.getCanonicalName();
-            Hints.putSystemDefault(Hints.HTTP_CLIENT_FACTORY, factoryName);
+            Hints.putSystemDefault(
+                    Hints.HTTP_CLIENT_FACTORY,
+                    SpringEnvironmentAwareGeoToolsHttpClientFactory.class);
         }
     }
 }
