@@ -7,6 +7,8 @@ package org.geoserver.cloud.autoconfigure.geotools;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import org.geotools.http.HTTPClient;
+import org.geotools.http.HTTPClientFinder;
 import org.geotools.util.factory.Hints;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,6 +46,16 @@ class GeoToolsHttpClientAutoConfigurationTest {
                                     context.getBean(
                                             GeoToolsHttpClientProxyConfigurationProperties.class))
                             .hasFieldOrPropertyWithValue("enabled", true);
+
+                    HTTPClient client = HTTPClientFinder.createClient();
+                    assertThat(client)
+                            .as(
+                                    """
+                            		Expected SpringEnvironmentAwareGeoToolsHttpClient \
+                            		after GeoToolsStaticContextInitializer sets \
+                            		SpringEnvironmentAwareGeoToolsHttpClientFactory as the default factory
+                            		""")
+                            .isInstanceOf(SpringEnvironmentAwareGeoToolsHttpClient.class);
                 });
     }
 
@@ -56,8 +68,7 @@ class GeoToolsHttpClientAutoConfigurationTest {
 
     @Test
     void testInitializerSetsHttpClientFactorySystemProperty() {
-        final String expected =
-                SpringEnvironmentAwareGeoToolsHttpClientFactory.class.getCanonicalName();
+        final var expected = SpringEnvironmentAwareGeoToolsHttpClientFactory.class;
 
         assertNull(Hints.getSystemDefault(Hints.HTTP_CLIENT_FACTORY));
         runner.run(
