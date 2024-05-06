@@ -56,6 +56,7 @@ Only a curated list of the [vast amount](http://geoserver.org/release/stable/) o
 - cog
 - importer
 - imagepyramid
+- graticules
 
 Advanced ACL system is available through the project [GeoServer ACL](https://github.com/geoserver/geoserver-acl) which offers the same capacities as GeoFence.
 
