@@ -33,5 +33,5 @@ eureka.client:
 ---
 # local profile, used for development only. Other settings like config and eureka urls in gs_cloud_bootstrap_profiles.yml
 spring.config.activate.on-profile: local
-server.port: 9000
-management.server.port: 9000
+server.port: 9090
+management.server.port: 9090
