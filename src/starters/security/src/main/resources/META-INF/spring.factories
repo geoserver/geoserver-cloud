@@ -1,3 +1,4 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 org.geoserver.cloud.autoconfigure.authzn.AuthKeyAutoConfiguration,\
-org.geoserver.cloud.autoconfigure.authzn.GatewayPreAuthenticationAutoConfiguration
+org.geoserver.cloud.autoconfigure.authzn.GatewayPreAuthenticationAutoConfiguration,\
+org.geoserver.cloud.autoconfigure.authzn.GatewaySharedAuthenticationAutoConfiguration

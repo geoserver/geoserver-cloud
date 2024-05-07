@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletResponse;
  * @since 1.2
  */
 @Slf4j
-public class GatewayPreAuthenticationFilter extends GeoServerRequestHeaderAuthenticationFilter {
+class GatewayPreAuthenticationFilter extends GeoServerRequestHeaderAuthenticationFilter {
 
     /** Try to authenticate if there is no authenticated principal */
     @Override
