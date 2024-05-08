@@ -275,6 +275,10 @@ public class PgsqlResourceStore implements ResourceStore {
         if (!source.exists()) {
             return false;
         }
+        if (source.path().equals(target.path())) {
+            return true;
+        }
+
         if (target.exists()) {
             target.delete();
         }

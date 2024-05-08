@@ -361,6 +361,24 @@ public class PgsqlResourceTest extends ResourceTheoryTest {
         assertTrue(store.get("workspaces/ws2") instanceof PgsqlResource);
     }
 
+    /**
+     * Verify resiliency when moving a resource to the same path. Something that happens for example
+     * when NamespaceWorkspaceConsistencyListener blindly updtes a workspace upon a namespace change
+     * even if the workspace name is already equal to the namespace prefix
+     */
+    @Test
+    public void trestMoveSameTarget() {
+        store.get("workspaces").dir();
+        store.get("workspaces/ws1").dir();
+        store.get("workspaces/ws1/workspace.xml").file();
+
+        assertTrue(store.move("workspaces/ws1", "workspaces/ws1"));
+
+        assertEquals(DIRECTORY, store.get("workspaces/ws1").getType());
+        assertEquals(RESOURCE, store.get("workspaces/ws1/workspace.xml").getType());
+        assertTrue(store.get("workspaces/ws2") instanceof PgsqlResource);
+    }
+
     @Test
     public void trestMovePathFilesystemOnly() {
         store.get("legendsamples").dir();
