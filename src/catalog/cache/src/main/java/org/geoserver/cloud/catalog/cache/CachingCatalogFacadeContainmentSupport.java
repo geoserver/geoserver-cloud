@@ -12,7 +12,6 @@ import com.google.common.annotations.VisibleForTesting;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,21 +26,15 @@ import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
-import org.geoserver.catalog.plugin.AbstractCatalogVisitor;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoEvent;
 import org.springframework.cache.Cache;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
-import org.springframework.lang.Nullable;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -68,15 +61,14 @@ class CachingCatalogFacadeContainmentSupport {
     private final @NonNull Cache cache;
 
     /**
-     * Maintains a list of referred objects at {@link #put(Callable)} and clears referenced objects
-     * at {@link #evict(String, String, ConfigInfoType)}, so there are no cached objects holding
-     * stale references to evicted objects
+     * Cascade evicts cached {@link CatalogInfo} objects that directly or indirectly reference an
+     * object called to be evicted
      */
-    private final ResourceContainmentCache referencesCache;
+    private final CachedReferenceCleaner referenceCleaner;
 
     public CachingCatalogFacadeContainmentSupport(@NonNull Cache cache) {
         this.cache = cache;
-        this.referencesCache = new ResourceContainmentCache();
+        this.referenceCleaner = CachedReferenceCleaner.newInstance(cache);
     }
 
     @VisibleForTesting
@@ -87,6 +79,10 @@ class CachingCatalogFacadeContainmentSupport {
     private static @NonNull Cache newCache() {
         CaffeineCacheManager manager = new CaffeineCacheManager(CachingCatalogFacade.CACHE_NAME);
         return Objects.requireNonNull(manager.getCache(CachingCatalogFacade.CACHE_NAME));
+    }
+
+    public void evictAll() {
+        cache.clear();
     }
 
     /**
@@ -130,7 +126,8 @@ class CachingCatalogFacadeContainmentSupport {
         if (evicted && doLog)
             log.debug(
                     "evicted {}[id: {}, name: {}]", type.type().getSimpleName(), id, prefixedName);
-        referencesCache.evict(id, prefixedName, type);
+        // regardless of the object being evicted or not, cascade evict any entry referencing it
+        referenceCleaner.cascadeEvict(idKey);
         return evicted;
     }
 
@@ -160,7 +157,6 @@ class CachingCatalogFacadeContainmentSupport {
         if (null != info) {
             put(InfoIdKey.valueOf(info), info);
             put(InfoNameKey.valueOf(info), info);
-            referencesCache.put(info);
         }
         return info;
     }
@@ -227,137 +223,5 @@ class CachingCatalogFacadeContainmentSupport {
         if (cache.evictIfPresent(key)) {
             log.trace("evicted default datastore for workspace {}", name);
         }
-    }
-
-    private class ResourceContainmentCache {
-
-        private final Map<ReferencedInfo, Set<ReferencedInfo>> refsReverseIndex =
-                new ConcurrentHashMap<>();
-
-        public void put(CatalogInfo cached) {
-            try {
-                putInternal(cached);
-            } catch (RuntimeException e) {
-                log.warn("Error registering inverse refs cache for {}", cached, e);
-            }
-        }
-
-        private void putInternal(CatalogInfo cached) {
-            ReferencedInfo referrer = ReferencedInfo.valueOf(cached);
-            cached.accept(new RefCollector(referrer, refsReverseIndex));
-        }
-
-        public void evict(String objectId, String prefixedName, ConfigInfoType type) {
-            try {
-                doEvict(objectId, prefixedName, type);
-            } catch (RuntimeException e) {
-                log.warn(
-                        "Error evicting entries referring {}[id: {}, name: {}]",
-                        type.type().getSimpleName(),
-                        objectId,
-                        prefixedName,
-                        e);
-            }
-        }
-
-        private void doEvict(String objectId, String prefixedName, ConfigInfoType type) {
-            ReferencedInfo referee = new ReferencedInfo(objectId, prefixedName, type);
-            Set<ReferencedInfo> referents = refsReverseIndex.remove(referee);
-            if (null == referents) return;
-            for (var ref : referents) {
-                var referentId = ref.id();
-                var referentPrefixedName = ref.prefixedName();
-                var referentType = ref.type();
-                log.debug("evicting {}, references evicted entry {}", ref, referee);
-                boolean evicted =
-                        CachingCatalogFacadeContainmentSupport.this.evictInternal(
-                                referentId, referentPrefixedName, referentType, false);
-                if (evicted) {
-                    log.trace("evicted {}, referenced evicted entry {}", ref, referee);
-                } else {
-                    log.trace("{} already evicted or not present, referenced {}", ref, referee);
-                }
-            }
-        }
-
-        @RequiredArgsConstructor
-        private static class RefCollector extends AbstractCatalogVisitor {
-            final @NonNull ReferencedInfo referrer;
-            final Map<ReferencedInfo, Set<ReferencedInfo>> reverseIndex;
-
-            public @Override void visit(WorkspaceInfo ws) {
-                add(ws);
-            }
-
-            public @Override void visit(NamespaceInfo ns) {
-                add(ns);
-            }
-
-            public @Override void visit(StoreInfo store) {
-                add(store);
-                accept(store.getWorkspace());
-            }
-
-            public @Override void visit(ResourceInfo r) {
-                add(r);
-                accept(r.getNamespace());
-                accept(r.getStore());
-            }
-
-            public @Override void visit(StyleInfo style) {
-                add(style);
-                accept(style.getWorkspace());
-            }
-
-            public @Override void visit(LayerInfo l) {
-                add(l);
-                accept(l.getResource());
-                accept(l.getDefaultStyle());
-                l.getStyles().forEach(this::accept);
-            }
-
-            public @Override void visit(LayerGroupInfo lg) {
-                add(lg);
-                accept(lg.getWorkspace());
-                accept(lg.getRootLayer());
-                accept(lg.getRootLayerStyle());
-                lg.getLayers().forEach(this::accept);
-                lg.getStyles().forEach(this::accept);
-            }
-
-            private void accept(@Nullable CatalogInfo ref) {
-                if (ref != null) ref.accept(this);
-            }
-
-            private void add(CatalogInfo ref) {
-                ReferencedInfo refInfo = ReferencedInfo.valueOf(ref);
-                if (Objects.equals(this.referrer, refInfo)) return;
-
-                var set = reverseIndex.computeIfAbsent(refInfo, oid -> new HashSet<>());
-                synchronized (set) {
-                    set.add(this.referrer);
-                }
-            }
-        }
-
-        private static record ReferencedInfo(String id, String prefixedName, ConfigInfoType type) {
-
-            static ReferencedInfo valueOf(CatalogInfo info) {
-                String infoId = info.getId();
-                String prefixedName = InfoEvent.prefixedName(info);
-                ConfigInfoType type = ConfigInfoType.valueOf(info);
-                return new ReferencedInfo(infoId, prefixedName, type);
-            }
-
-            @Override
-            public String toString() {
-                return "%s[id: %s, name: %s]"
-                        .formatted(type().type().getSimpleName(), id(), prefixedName());
-            }
-        }
-    }
-
-    public void evictAll() {
-        cache.clear();
     }
 }
