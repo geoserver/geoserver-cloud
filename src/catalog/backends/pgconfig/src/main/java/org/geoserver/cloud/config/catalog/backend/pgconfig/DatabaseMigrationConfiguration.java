@@ -18,13 +18,13 @@ import javax.sql.DataSource;
  * @since 1.4
  */
 @Configuration
-@EnableConfigurationProperties(PgsqlBackendProperties.class)
+@EnableConfigurationProperties(PgconfigBackendProperties.class)
 public class DatabaseMigrationConfiguration {
 
     @Bean
-    Migrations pgsqlMigrations(
-            PgsqlBackendProperties config,
-            @Qualifier("pgsqlConfigDatasource") DataSource dataSource) {
+    Migrations pgconfigMigrations(
+            PgconfigBackendProperties config,
+            @Qualifier("pgconfigDataSource") DataSource dataSource) {
 
         return new Migrations(config, dataSource);
     }
@@ -32,14 +32,14 @@ public class DatabaseMigrationConfiguration {
     @RequiredArgsConstructor
     public static class Migrations implements InitializingBean {
 
-        private final PgsqlBackendProperties config;
+        private final PgconfigBackendProperties config;
         private final DataSource dataSource;
-        private PgsqlDatabaseMigrations databaseMigrations;
+        private PgconfigDatabaseMigrations databaseMigrations;
 
         @Override
         public void afterPropertiesSet() throws Exception {
             databaseMigrations =
-                    new PgsqlDatabaseMigrations()
+                    new PgconfigDatabaseMigrations()
                             .setInitialize(config.isInitialize())
                             .setDataSource(dataSource)
                             .setSchema(config.schema())
@@ -49,7 +49,7 @@ public class DatabaseMigrationConfiguration {
 
         @Override
         public String toString() {
-            PgsqlDatabaseMigrations m = databaseMigrations;
+            PgconfigDatabaseMigrations m = databaseMigrations;
             return m == null ? "<migrations not yet run>" : m.toString();
         }
     }

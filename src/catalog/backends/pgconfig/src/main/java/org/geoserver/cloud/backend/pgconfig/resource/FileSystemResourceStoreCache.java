@@ -46,7 +46,7 @@ public class FileSystemResourceStoreCache implements DisposableBean {
     @SneakyThrows
     public static @NonNull FileSystemResourceStoreCache newTempDirInstance() {
         boolean disposable = true;
-        Path tempDirectory = Files.createTempDirectory("pgsql_resourcestore_cache");
+        Path tempDirectory = Files.createTempDirectory("pgconfig_resourcestore_cache");
         return new FileSystemResourceStoreCache(tempDirectory, disposable);
     }
 
@@ -69,7 +69,7 @@ public class FileSystemResourceStoreCache implements DisposableBean {
     }
 
     @SneakyThrows
-    public File getFile(PgsqlResource resource) {
+    public File getFile(PgconfigResource resource) {
         final Path path = ensureFileExists(resource);
         final long fileMtime = getLastmodified(path);
         final long resourceMtime = resource.lastmodified();
@@ -84,7 +84,7 @@ public class FileSystemResourceStoreCache implements DisposableBean {
         return attr.lastModifiedTime().toMillis();
     }
 
-    public Path ensureFileExists(PgsqlResource resource) throws IOException {
+    public Path ensureFileExists(PgconfigResource resource) throws IOException {
         Preconditions.checkArgument(resource.isFile());
         Path path = toPath(resource);
         if (!Files.exists(path)) {
@@ -95,12 +95,12 @@ public class FileSystemResourceStoreCache implements DisposableBean {
     }
 
     @SneakyThrows
-    public File getDirectory(PgsqlResource resource) {
+    public File getDirectory(PgconfigResource resource) {
         return ensureDirectory(resource).toFile();
     }
 
     @SneakyThrows
-    public Path ensureDirectory(PgsqlResource resource) {
+    public Path ensureDirectory(PgconfigResource resource) {
         Preconditions.checkArgument(resource.isDirectory());
         Path path = toPath(resource);
         return ensureDirectoryExists(path);
@@ -114,14 +114,14 @@ public class FileSystemResourceStoreCache implements DisposableBean {
     }
 
     @SneakyThrows
-    private Path dump(PgsqlResource resource) {
+    private Path dump(PgconfigResource resource) {
         try (InputStream in = resource.in()) {
             return dump(resource, in);
         }
     }
 
     @SneakyThrows
-    public Path dump(PgsqlResource resource, InputStream in) {
+    public Path dump(PgconfigResource resource, InputStream in) {
         Path file = ensureFileExists(resource);
         Files.copy(in, file, StandardCopyOption.REPLACE_EXISTING);
         Files.setLastModifiedTime(file, FileTime.fromMillis(resource.lastmodified()));
@@ -130,22 +130,22 @@ public class FileSystemResourceStoreCache implements DisposableBean {
 
     public void updateAll(List<Resource> list) {
         list.stream()
-                .map(PgsqlResource.class::cast)
-                .filter(PgsqlResource::isDirectory)
+                .map(PgconfigResource.class::cast)
+                .filter(PgconfigResource::isDirectory)
                 .forEach(this::ensureDirectory);
 
         list.stream()
-                .map(PgsqlResource.class::cast)
-                .filter(PgsqlResource::isFile)
+                .map(PgconfigResource.class::cast)
+                .filter(PgconfigResource::isFile)
                 .forEach(this::dump);
     }
 
-    private Path toPath(PgsqlResource resource) {
+    private Path toPath(PgconfigResource resource) {
         return base.resolve(resource.path());
     }
 
     @SneakyThrows
-    public void moved(@NonNull PgsqlResource source, @NonNull PgsqlResource target) {
+    public void moved(@NonNull PgconfigResource source, @NonNull PgconfigResource target) {
         Path sourcePath = toPath(source);
         if (Files.exists(sourcePath)) {
             Path targetPath = toPath(target);

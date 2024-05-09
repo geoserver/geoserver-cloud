@@ -3,7 +3,7 @@ version: "3.8"
 volumes:
   rabbitmq_data: # volume for rabbitmq data, so it doesn't create an anonymous one on each container
   geowebcache_data:
-  pgconfigdb_data: # volume for postgresql data, used to store the geoserver config through pgsqlconfig backend
+  pgconfigdb_data: # volume for postgresql data, used to store the geoserver config through pgconfig backend
         
 services:
   pgconfigdb:
