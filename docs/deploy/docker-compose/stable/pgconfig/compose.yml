@@ -241,8 +241,6 @@ services:
     image: geoservercloud/geoserver-cloud-webui:1.8.1
     extends:
       service: geoserver
-    volumes:
-      - geowebcache_data:/data/geowebcache
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -261,8 +259,6 @@ services:
     image: geoservercloud/geoserver-cloud-gwc:1.8.1
     extends:
       service: geoserver
-    volumes:
-      - geowebcache_data:/data/geowebcache
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -286,6 +282,9 @@ services:
       ACL_URL: http://acl:8080/acl/api
       ACL_USERNAME: admin
       ACL_PASSWORD: s3cr3t
+      GEOWEBCACHE_CACHE_DIR: /data/geowebcache
+    volumes:
+      - geowebcache_data:/data/geowebcache
     deploy:
       mode: replicated
       replicas: 0

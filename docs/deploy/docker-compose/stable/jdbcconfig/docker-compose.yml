@@ -138,6 +138,9 @@ services:
       - config
     environment:
       SPRING_PROFILES_ACTIVE: "jdbcconfig"
+      GEOWEBCACHE_CACHE_DIR: /data/geowebcache
+    volumes:
+      - geowebcache_data:/data/geowebcache
     networks:
       - gs-cloud-network
     deploy:
@@ -189,6 +192,8 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: "jdbcconfig"
       GEOWEBCACHE_CACHE_DIR: /data/geowebcache
+    volumes:
+      - geowebcache_data:/data/geowebcache
     networks:
       - gs-cloud-network
     deploy:

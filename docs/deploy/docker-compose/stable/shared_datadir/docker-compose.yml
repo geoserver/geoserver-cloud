@@ -132,8 +132,10 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: "datadir"
       GEOSERVER_DATA_DIR: /opt/app/data_directory
+      GEOWEBCACHE_CACHE_DIR: /data/geowebcache
     volumes:
       - shared_data_directory:/opt/app/data_directory
+      - geowebcache_data:/data/geowebcache
     networks:
       - gs-cloud-network
     deploy:
