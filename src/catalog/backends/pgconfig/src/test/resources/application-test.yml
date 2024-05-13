@@ -2,7 +2,7 @@
 
 geoserver:
   backend:
-    pgsql:
+    pgconfig:
       initialize: true
       schema: gscatalog
       create-schema: true

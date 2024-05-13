@@ -42,7 +42,7 @@ import java.util.function.Function;
 @Slf4j(topic = "org.geoserver.cloud.backend.pgconfig.catalog.repository")
 public final class CatalogInfoRowMapper {
 
-    protected static final ObjectMapper objectMapper = PgsqlObjectMapper.newObjectMapper();
+    protected static final ObjectMapper objectMapper = PgconfigObjectMapper.newObjectMapper();
 
     /** Lazily created by {@link #cache()} */
     private Map<Class<?>, Map<String, CatalogInfo>> cache;

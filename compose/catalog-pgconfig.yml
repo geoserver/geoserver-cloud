@@ -1,5 +1,5 @@
 volumes:
-  pgconfigdb_data: # volume for postgresql data, used to store the geoserver config through pgsqlconfig backend
+  pgconfigdb_data: # volume for postgresql data, used to store the geoserver config through pgconfig backend
 
 #
 # Configures all geoserver services to use the postgresql database server with pgconfig as catalog backend.

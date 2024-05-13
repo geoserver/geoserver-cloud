@@ -25,7 +25,7 @@ import javax.annotation.PostConstruct;
  * @see ConditionalOnGeoWebCacheEnabled
  * @since 1.0
  */
-@AutoConfiguration(after = PgsqlTileLayerCatalogAutoConfiguration.class)
+@AutoConfiguration(after = PgconfigTileLayerCatalogAutoConfiguration.class)
 @ConditionalOnGeoWebCacheEnabled
 @ConditionalOnMissingBean(GeoServerTileLayerConfiguration.class)
 @Import(DefaultTileLayerCatalogConfiguration.class)

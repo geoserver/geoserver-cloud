@@ -35,7 +35,7 @@ Provides spring atuo-configuration for several catalog back-ends. Namely: tradit
   * gs-cloud-catalog-cache
   * gs-cloud-catalog-backend-datadir
   * gs-cloud-catalog-backend-jdbcconfig
-  * gs-cloud-catalog-backend-pgsql
+  * gs-cloud-catalog-backend-pgconfig
 
 ## catalog-cache
 

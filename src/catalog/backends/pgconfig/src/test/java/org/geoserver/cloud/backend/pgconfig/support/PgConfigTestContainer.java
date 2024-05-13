@@ -10,7 +10,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import lombok.Getter;
 import lombok.SneakyThrows;
 
-import org.geoserver.cloud.config.catalog.backend.pgconfig.PgsqlDatabaseMigrations;
+import org.geoserver.cloud.config.catalog.backend.pgconfig.PgconfigDatabaseMigrations;
 import org.geoserver.cloud.config.jndi.SimpleJNDIStaticContextInitializer;
 import org.geoserver.cloud.config.jndidatasource.JNDIDataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -24,7 +24,8 @@ import javax.sql.DataSource;
 /**
  * A {@link Testcontainers test container} based on {@link PostgreSQLContainer} using PostgreSQL 15
  * to aid in setting up the {@code DataSource}, {@code JdbcTemplate}, and {@link
- * PgsqlDatabaseMigrations Flyway} database migrations for the {@literal pgconfig} catalog backend.
+ * PgconfigDatabaseMigrations Flyway} database migrations for the {@literal pgconfig} catalog
+ * backend.
  *
  * @since 1.6
  */
@@ -34,7 +35,7 @@ public class PgConfigTestContainer<SELF extends PostgreSQLContainer<SELF>>
     private @Getter DataSource dataSource;
     private @Getter JdbcTemplate template;
     private @Getter String schema = "pgconfigtest";
-    private @Getter PgsqlDatabaseMigrations databaseMigrations;
+    private @Getter PgconfigDatabaseMigrations databaseMigrations;
 
     public PgConfigTestContainer() {
         super("postgres:15");
@@ -56,7 +57,7 @@ public class PgConfigTestContainer<SELF extends PostgreSQLContainer<SELF>>
         dataSource = new HikariDataSource(hikariConfig);
         template = new JdbcTemplate(dataSource);
         databaseMigrations =
-                new PgsqlDatabaseMigrations()
+                new PgconfigDatabaseMigrations()
                         .setSchema(schema)
                         .setDataSource(dataSource)
                         .setCleanDisabled(false);
@@ -101,7 +102,7 @@ public class PgConfigTestContainer<SELF extends PostgreSQLContainer<SELF>>
                                 "jndi.datasources.testdb.url: " + url,
                                 "jndi.datasources.testdb.username: " + username, //
                                 "jndi.datasources.testdb.password: " + password, //
-                                // pgsql backend datasource config using jndi
+                                // pgconfig backend datasource config using jndi
                                 "geoserver.backend.pgconfig.datasource.jndi-name: java:comp/env/jdbc/testdb");
     }
 }
