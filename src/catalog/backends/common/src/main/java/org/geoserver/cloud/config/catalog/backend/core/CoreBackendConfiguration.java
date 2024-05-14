@@ -4,6 +4,8 @@
  */
 package org.geoserver.cloud.config.catalog.backend.core;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.LayerGroupVisibilityPolicy;
 import org.geoserver.catalog.impl.AdvertisedCatalog;
@@ -23,20 +25,22 @@ import org.geoserver.platform.resource.ResourceStoreFactory;
 import org.geoserver.security.SecureCatalogImpl;
 import org.geoserver.security.impl.DataAccessRuleDAO;
 import org.geoserver.security.impl.DefaultResourceAccessManager;
+import org.geoserver.security.impl.GsCloudLayerGroupContainmentCache;
 import org.geoserver.security.impl.LayerGroupContainmentCache;
+import org.geoserver.security.impl.NoopLayerGroupContainmentCache;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
-import org.springframework.context.event.ApplicationContextEvent;
-import org.springframework.context.event.ContextRefreshedEvent;
 
 // proxyBeanMethods = true required to avoid circular reference exceptions, especially related to
 // GeoServerExtensions still being created
 @Configuration(proxyBeanMethods = true)
 @EnableConfigurationProperties(CatalogProperties.class)
+@Slf4j(topic = "org.geoserver.cloud.config.catalog.backend.core")
 public class CoreBackendConfiguration {
 
     @Bean
@@ -111,27 +115,40 @@ public class CoreBackendConfiguration {
     }
 
     /**
-     * Added to {@literal gs-main.jar} in 2.22.x as
+     * Actuial {@link LayerGroupContainmentCache}, matches if the config proeprty {@code
+     * geoserver.security.layergroup-containmentcache=true}
      *
-     * <pre>
-     * {@code
-     *  <bean id="layerGroupContainmentCache" class="org.geoserver.security.impl.LayerGroupContainmentCache">
-     *      <constructor-arg ref="rawCatalog"/>
-     *  </bean>
-     * }
-     * <p>
-     * <strong>Overridden</strong> here to act only upon {@link ContextRefreshedEvent}
-     * instead of on every {@link ApplicationContextEvent},
-     * especially due to {@code org.springframework.cloud.client.discovery.event.HeartbeatEvent} and possibly
-     * others.
-     * <p>
-     * Update: as of geoserver 2.23.2, {@code LayerGroupContainmentCache} implements {@code ApplicationListener<ContextRefreshedEvent>}
+     * @see #noOpLayerGroupContainmentCache(Catalog)
      */
-    @Bean
-    @ConditionalOnMissingBean
-    LayerGroupContainmentCache layerGroupContainmentCache(
+    @Bean(name = "layerGroupContainmentCache")
+    @ConditionalOnGeoServerSecurityEnabled
+    @ConditionalOnProperty(
+            name = "geoserver.security.layergroup-containmentcache",
+            havingValue = "true",
+            matchIfMissing = false)
+    LayerGroupContainmentCache enabledLayerGroupContainmentCache(
             @Qualifier("rawCatalog") Catalog rawCatalog) {
-        return new LayerGroupContainmentCache(rawCatalog);
+
+        log.info("using {}", GsCloudLayerGroupContainmentCache.class.getSimpleName());
+        return new GsCloudLayerGroupContainmentCache(rawCatalog);
+    }
+
+    /**
+     * Default {@link LayerGroupContainmentCache} is a no-op, matches if the config proeprty {@code
+     * geoserver.security.layergroup-containmentcache=false} or is not specified
+     *
+     * @see #enabledLayerGroupContainmentCache(Catalog)
+     */
+    @Bean(name = "layerGroupContainmentCache")
+    @ConditionalOnGeoServerSecurityEnabled
+    @ConditionalOnProperty(
+            name = "geoserver.security.layergroup-containmentcache",
+            havingValue = "false",
+            matchIfMissing = true)
+    LayerGroupContainmentCache noOpLayerGroupContainmentCache() {
+
+        log.info("using {}", NoopLayerGroupContainmentCache.class.getSimpleName());
+        return new NoopLayerGroupContainmentCache();
     }
 
     @ConditionalOnGeoServerSecurityDisabled
@@ -146,8 +163,7 @@ public class CoreBackendConfiguration {
      */
     @Bean
     Catalog advertisedCatalog(
-            @Qualifier("secureCatalog") Catalog secureCatalog, CatalogProperties properties)
-            throws Exception {
+            @Qualifier("secureCatalog") Catalog secureCatalog, CatalogProperties properties) {
         if (properties.isAdvertised()) {
             AdvertisedCatalog advertisedCatalog = new AdvertisedCatalog(secureCatalog);
             advertisedCatalog.setLayerGroupVisibilityPolicy(LayerGroupVisibilityPolicy.HIDE_NEVER);
@@ -162,8 +178,8 @@ public class CoreBackendConfiguration {
      */
     @Bean(name = {"catalog", "localWorkspaceCatalog"})
     Catalog localWorkspaceCatalog(
-            @Qualifier("advertisedCatalog") Catalog advertisedCatalog, CatalogProperties properties)
-            throws Exception {
+            @Qualifier("advertisedCatalog") Catalog advertisedCatalog,
+            CatalogProperties properties) {
         return properties.isLocalWorkspace()
                 ? new LocalWorkspaceCatalog(advertisedCatalog)
                 : advertisedCatalog;

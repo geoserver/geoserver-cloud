@@ -1,3 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-org.geoserver.cloud.wfs.config.WfsAutoConfiguration,\
-org.geoserver.cloud.wfs.config.WfsSecurityOverridesAutoconfiguration
+org.geoserver.cloud.wfs.config.WfsAutoConfiguration
