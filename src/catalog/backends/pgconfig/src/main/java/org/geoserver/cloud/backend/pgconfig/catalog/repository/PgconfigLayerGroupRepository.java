@@ -42,8 +42,8 @@ public class PgconfigLayerGroupRepository extends PgconfigCatalogInfoRepository<
     public Optional<LayerGroupInfo> findByNameAndWorkspaceIsNull(@NonNull String name) {
         String sql =
                 """
-                SELECT publishedinfo, workspace
-                FROM layergroupinfos
+                SELECT publishedinfo, workspace \
+                FROM layergroupinfos \
                 WHERE "workspace.id" IS NULL AND name = ?
                 """;
         return findOne(sql, name);
@@ -55,8 +55,8 @@ public class PgconfigLayerGroupRepository extends PgconfigCatalogInfoRepository<
 
         String sql =
                 """
-                SELECT publishedinfo, workspace
-                FROM layergroupinfos
+                SELECT publishedinfo, workspace \
+                FROM layergroupinfos \
                 WHERE "workspace.id" = ? AND name = ?
                 """;
         return findOne(sql, workspace.getId(), name);
@@ -66,8 +66,8 @@ public class PgconfigLayerGroupRepository extends PgconfigCatalogInfoRepository<
     public Stream<LayerGroupInfo> findAllByWorkspaceIsNull() {
         String sql =
                 """
-                SELECT publishedinfo, workspace
-                FROM layergroupinfos
+                SELECT publishedinfo, workspace \
+                FROM layergroupinfos \
                 WHERE "workspace.id" IS NULL
                 """;
         return super.queryForStream(sql);
@@ -77,8 +77,8 @@ public class PgconfigLayerGroupRepository extends PgconfigCatalogInfoRepository<
     public Stream<LayerGroupInfo> findAllByWorkspace(WorkspaceInfo workspace) {
         String sql =
                 """
-                SELECT publishedinfo, workspace
-                FROM layergroupinfos
+                SELECT publishedinfo, workspace \
+                FROM layergroupinfos \
                 WHERE "workspace.id" = ?
                 """;
         return super.queryForStream(sql, workspace.getId());

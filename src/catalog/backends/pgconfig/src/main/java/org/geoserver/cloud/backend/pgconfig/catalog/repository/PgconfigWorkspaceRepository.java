@@ -22,8 +22,8 @@ public class PgconfigWorkspaceRepository extends PgconfigCatalogInfoRepository<W
 
     private static final String UNSET_DEFAULT_WORKSPACE =
             """
-	UPDATE workspaceinfo SET default_workspace = FALSE WHERE default_workspace = TRUE
-	""";
+            UPDATE workspaceinfo SET default_workspace = FALSE WHERE default_workspace = TRUE
+            """;
 
     /**
      * @param template

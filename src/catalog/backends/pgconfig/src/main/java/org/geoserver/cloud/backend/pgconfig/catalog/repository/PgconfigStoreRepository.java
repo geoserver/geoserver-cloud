@@ -43,8 +43,8 @@ public class PgconfigStoreRepository extends PgconfigCatalogInfoRepository<Store
     public <U extends StoreInfo> Optional<U> findById(@NonNull String id, Class<U> clazz) {
         String sql =
                 """
-                SELECT store, workspace
-                FROM storeinfos
+                SELECT store, workspace \
+                FROM storeinfos \
                 WHERE id = ?
                 """;
         return findOne(sql, clazz, id);
@@ -67,8 +67,8 @@ public class PgconfigStoreRepository extends PgconfigCatalogInfoRepository<Store
     public Optional<DataStoreInfo> getDefaultDataStore(@NonNull WorkspaceInfo workspace) {
         String sql =
                 """
-                SELECT store, workspace
-                FROM storeinfos
+                SELECT store, workspace \
+                FROM storeinfos \
                 WHERE id = (SELECT default_store FROM workspaceinfo WHERE id = ?)
                 """;
         return findOne(sql, DataStoreInfo.class, workspace.getId());
@@ -78,8 +78,8 @@ public class PgconfigStoreRepository extends PgconfigCatalogInfoRepository<Store
     public Stream<DataStoreInfo> getDefaultDataStores() {
         String sql =
                 """
-                SELECT s.store, s.workspace
-                FROM storeinfos s
+                SELECT s.store, s.workspace \
+                FROM storeinfos s \
                 INNER JOIN workspaceinfo w ON s."workspace.id" = w.id AND s.id = w.default_store;
                 """;
         return super.queryForStream(DataStoreInfo.class, sql);
@@ -91,8 +91,8 @@ public class PgconfigStoreRepository extends PgconfigCatalogInfoRepository<Store
 
         String sql =
                 """
-                SELECT store, workspace
-                FROM storeinfos
+                SELECT store, workspace \
+                FROM storeinfos \
                 WHERE "workspace.id" = ?
                 """;
 

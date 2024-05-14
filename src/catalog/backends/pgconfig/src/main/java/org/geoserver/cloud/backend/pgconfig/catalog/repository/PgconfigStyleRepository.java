@@ -46,8 +46,8 @@ public class PgconfigStyleRepository extends PgconfigCatalogInfoRepository<Style
     public Stream<StyleInfo> findAllByNullWorkspace() {
         String query =
                 """
-                SELECT style, workspace
-                FROM styleinfos
+                SELECT style, workspace \
+                FROM styleinfos \
                 WHERE "workspace.id" IS NULL
                 """;
         return super.queryForStream(query);
@@ -57,8 +57,8 @@ public class PgconfigStyleRepository extends PgconfigCatalogInfoRepository<Style
     public Stream<StyleInfo> findAllByWorkspace(@NonNull WorkspaceInfo ws) {
         String query =
                 """
-                SELECT style, workspace
-                FROM styleinfos
+                SELECT style, workspace \
+                FROM styleinfos \
                 WHERE "workspace.id" = ?
                 """;
         return super.queryForStream(query, ws.getId());
@@ -68,8 +68,8 @@ public class PgconfigStyleRepository extends PgconfigCatalogInfoRepository<Style
     public Optional<StyleInfo> findByNameAndWordkspaceNull(@NonNull String name) {
         String query =
                 """
-                SELECT style, workspace
-                FROM styleinfos
+                SELECT style, workspace \
+                FROM styleinfos \
                 WHERE "workspace.id" IS NULL AND name = ?
                 """;
         return findOne(query, name);
@@ -81,8 +81,8 @@ public class PgconfigStyleRepository extends PgconfigCatalogInfoRepository<Style
 
         String query =
                 """
-                SELECT style, workspace
-                FROM styleinfos
+                SELECT style, workspace \
+                FROM styleinfos \
                 WHERE "workspace.id" = ? AND name = ?
                 """;
         return findOne(query, workspace.getId(), name);

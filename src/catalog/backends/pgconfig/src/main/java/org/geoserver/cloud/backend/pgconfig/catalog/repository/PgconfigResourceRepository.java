@@ -77,8 +77,8 @@ public class PgconfigResourceRepository extends PgconfigCatalogInfoRepository<Re
             @NonNull String name, @NonNull NamespaceInfo namespace, @NonNull Class<T> clazz) {
         String query =
                 """
-                SELECT resource, store, workspace, namespace
-                FROM resourceinfos
+                SELECT resource, store, workspace, namespace \
+                FROM resourceinfos \
                 WHERE "namespace.id" = ? AND name = ?
                 """;
         if (ResourceInfo.class.equals(clazz)) {
@@ -92,7 +92,7 @@ public class PgconfigResourceRepository extends PgconfigCatalogInfoRepository<Re
     public <T extends ResourceInfo> Stream<T> findAllByType(@NonNull Class<T> clazz) {
         String query =
                 """
-                SELECT resource, store, workspace, namespace
+                SELECT resource, store, workspace, namespace \
                 FROM resourceinfos
                 """;
         if (ResourceInfo.class.equals(clazz)) {
@@ -108,8 +108,8 @@ public class PgconfigResourceRepository extends PgconfigCatalogInfoRepository<Re
 
         String query =
                 """
-                SELECT resource, store, workspace, namespace
-                FROM resourceinfos
+                SELECT resource, store, workspace, namespace \
+                FROM resourceinfos \
                 WHERE "namespace.id" = ?
                 """;
         if (ResourceInfo.class.equals(clazz)) {
@@ -125,8 +125,8 @@ public class PgconfigResourceRepository extends PgconfigCatalogInfoRepository<Re
 
         String query =
                 """
-                SELECT resource, store, workspace, namespace
-                FROM resourceinfos
+                SELECT resource, store, workspace, namespace \
+                FROM resourceinfos \
                 WHERE "store.id" = ? AND name = ?
                 """;
         if (ResourceInfo.class.equals(clazz)) {
@@ -140,8 +140,8 @@ public class PgconfigResourceRepository extends PgconfigCatalogInfoRepository<Re
     public <T extends ResourceInfo> Stream<T> findAllByStore(StoreInfo store, Class<T> clazz) {
         String query =
                 """
-                SELECT resource, store, workspace, namespace
-                FROM resourceinfos
+                SELECT resource, store, workspace, namespace \
+                FROM resourceinfos \
                 WHERE "store.id" = ?
                 """;
         if (ResourceInfo.class.equals(clazz)) {

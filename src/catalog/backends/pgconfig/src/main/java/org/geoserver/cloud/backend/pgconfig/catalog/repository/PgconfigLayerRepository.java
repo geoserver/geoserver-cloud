@@ -49,8 +49,8 @@ public class PgconfigLayerRepository extends PgconfigCatalogInfoRepository<Layer
     public Optional<LayerInfo> findOneByName(@NonNull String possiblyPrefixedName) {
         String sql =
                 """
-                SELECT publishedinfo, resource, store, workspace, namespace, "defaultStyle"
-                FROM layerinfos
+                SELECT publishedinfo, resource, store, workspace, namespace, "defaultStyle" \
+                FROM layerinfos \
                 WHERE "%s" = ?
                 """;
         if (possiblyPrefixedName.contains(":")) {
@@ -80,8 +80,8 @@ public class PgconfigLayerRepository extends PgconfigCatalogInfoRepository<Layer
     public Stream<LayerInfo> findAllByResource(@NonNull ResourceInfo resource) {
         String sql =
                 """
-                SELECT publishedinfo, resource, store, workspace, namespace, "defaultStyle"
-                FROM layerinfos
+                SELECT publishedinfo, resource, store, workspace, namespace, "defaultStyle" \
+                FROM layerinfos \
                 WHERE "resource.id" = ?
                 """;
         return super.queryForStream(sql, resource.getId());
