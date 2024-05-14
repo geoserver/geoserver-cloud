@@ -128,6 +128,7 @@ public class CoreBackendConfiguration {
      * Update: as of geoserver 2.23.2, {@code LayerGroupContainmentCache} implements {@code ApplicationListener<ContextRefreshedEvent>}
      */
     @Bean
+    @ConditionalOnMissingBean
     LayerGroupContainmentCache layerGroupContainmentCache(
             @Qualifier("rawCatalog") Catalog rawCatalog) {
         return new LayerGroupContainmentCache(rawCatalog);
