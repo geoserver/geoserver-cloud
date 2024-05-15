@@ -39,7 +39,7 @@ import java.util.function.Function;
 /**
  * @since 1.4
  */
-@Slf4j(topic = "org.geoserver.cloud.backend.pgconfig.catalog.repository")
+@Slf4j(topic = "org.geoserver.cloud.backend.pgconfig.catalog.repository.rowmapper")
 public final class CatalogInfoRowMapper {
 
     protected static final ObjectMapper objectMapper = PgconfigObjectMapper.newObjectMapper();
