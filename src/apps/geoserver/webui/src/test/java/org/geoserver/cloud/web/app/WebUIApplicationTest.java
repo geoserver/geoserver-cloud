@@ -4,6 +4,7 @@
  */
 package org.geoserver.cloud.web.app;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -168,5 +169,13 @@ class WebUIApplicationTest {
                 "expected custom 'unused' css class to hide the %s form inputs in custom GlobalSettingsPage.html"
                         .formatted(id);
         assertEquals("unused", tag.getAttribute("class"), msg);
+    }
+
+    /**
+     * @see WebUIContextInitializer
+     */
+    @Test
+    void homePageSelectionModeDefaultsToTEXT() {
+        assertThat(System.getProperty("GeoServerHomePage.selectionMode")).isEqualTo("TEXT");
     }
 }
