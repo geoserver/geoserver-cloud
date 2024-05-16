@@ -115,7 +115,7 @@ public class CoreBackendConfiguration {
     }
 
     /**
-     * Actuial {@link LayerGroupContainmentCache}, matches if the config proeprty {@code
+     * Actual {@link LayerGroupContainmentCache}, matches if the config proeprty {@code
      * geoserver.security.layergroup-containmentcache=true}
      *
      * @see #noOpLayerGroupContainmentCache(Catalog)
