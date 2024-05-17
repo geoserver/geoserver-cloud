@@ -222,14 +222,6 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo>
         return filter;
     }
 
-    private String applyTypeFilter(String sql, @NonNull Class<? extends T> type) {
-        if (!getContentType().equals(type)) {
-            String infoType = infoType(type);
-            sql += " AND \"@type\" = '%s'::infotype".formatted(infoType);
-        }
-        return sql;
-    }
-
     protected String applyOffsetLimit(String sql, Integer offset, Integer limit) {
         if (null != offset) sql += " OFFSET %d".formatted(offset);
         if (null != limit) sql += " LIMIT %d".formatted(limit);
@@ -303,7 +295,7 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo>
     }
 
     private Object asPreparedValue(Object val) {
-        if (val instanceof Enum e) return e.name();
+        if (val instanceof Enum<?> e) return e.name();
         return val;
     }
 

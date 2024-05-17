@@ -6,8 +6,6 @@ package org.geoserver.catalog;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.google.common.base.Function;
-
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.experimental.Accessors;
@@ -45,6 +43,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -211,34 +210,33 @@ public class CatalogTestData {
     public LayerGroupInfo layerGroup1;
 
     public CatalogTestData addObjects() {
-        Catalog catalog = this.catalog.get();
-        workspaceA = add(workspaceA, catalog::add, catalog::getWorkspace);
-        workspaceB = add(workspaceB, catalog::add, catalog::getWorkspace);
-        workspaceC = add(workspaceC, catalog::add, catalog::getWorkspace);
+        Catalog cat = this.catalog.get();
+        workspaceA = add(workspaceA, cat::add, cat::getWorkspace);
+        workspaceB = add(workspaceB, cat::add, cat::getWorkspace);
+        workspaceC = add(workspaceC, cat::add, cat::getWorkspace);
 
-        namespaceA = add(namespaceA, catalog::add, catalog::getNamespace);
-        namespaceB = add(namespaceB, catalog::add, catalog::getNamespace);
-        namespaceC = add(namespaceC, catalog::add, catalog::getNamespace);
+        namespaceA = add(namespaceA, cat::add, cat::getNamespace);
+        namespaceB = add(namespaceB, cat::add, cat::getNamespace);
+        namespaceC = add(namespaceC, cat::add, cat::getNamespace);
 
-        dataStoreA = add(dataStoreA, catalog::add, catalog::getDataStore);
-        dataStoreB = add(dataStoreB, catalog::add, catalog::getDataStore);
-        dataStoreC = add(dataStoreC, catalog::add, catalog::getDataStore);
+        dataStoreA = add(dataStoreA, cat::add, cat::getDataStore);
+        dataStoreB = add(dataStoreB, cat::add, cat::getDataStore);
+        dataStoreC = add(dataStoreC, cat::add, cat::getDataStore);
 
-        coverageStoreA = add(coverageStoreA, catalog::add, catalog::getCoverageStore);
-        wmsStoreA = add(wmsStoreA, catalog::add, id -> catalog.getStore(id, WMSStoreInfo.class));
-        wmtsStoreA = add(wmtsStoreA, catalog::add, id -> catalog.getStore(id, WMTSStoreInfo.class));
+        coverageStoreA = add(coverageStoreA, cat::add, cat::getCoverageStore);
+        wmsStoreA = add(wmsStoreA, cat::add, id -> cat.getStore(id, WMSStoreInfo.class));
+        wmtsStoreA = add(wmtsStoreA, cat::add, id -> cat.getStore(id, WMTSStoreInfo.class));
 
-        featureTypeA = add(featureTypeA, catalog::add, catalog::getFeatureType);
-        coverageA = add(coverageA, catalog::add, catalog::getCoverage);
-        wmsLayerA = add(wmsLayerA, catalog::add, id -> catalog.getResource(id, WMSLayerInfo.class));
-        wmtsLayerA =
-                add(wmtsLayerA, catalog::add, id -> catalog.getResource(id, WMTSLayerInfo.class));
+        featureTypeA = add(featureTypeA, cat::add, cat::getFeatureType);
+        coverageA = add(coverageA, cat::add, cat::getCoverage);
+        wmsLayerA = add(wmsLayerA, cat::add, id -> cat.getResource(id, WMSLayerInfo.class));
+        wmtsLayerA = add(wmtsLayerA, cat::add, id -> cat.getResource(id, WMTSLayerInfo.class));
 
-        style1 = add(style1, catalog::add, catalog::getStyle);
-        style2 = add(style2, catalog::add, catalog::getStyle);
+        style1 = add(style1, cat::add, cat::getStyle);
+        style2 = add(style2, cat::add, cat::getStyle);
 
-        layerFeatureTypeA = add(layerFeatureTypeA, catalog::add, catalog::getLayer);
-        layerGroup1 = add(layerGroup1, catalog::add, catalog::getLayerGroup);
+        layerFeatureTypeA = add(layerFeatureTypeA, cat::add, cat::getLayer);
+        layerGroup1 = add(layerGroup1, cat::add, cat::getLayerGroup);
 
         return this;
     }
@@ -512,7 +510,7 @@ public class CatalogTestData {
             boolean enabled) {
         FeatureTypeInfo fttype = getFactory().createFeatureType();
         OwsUtils.set(fttype, "id", id);
-        fttype.setEnabled(true);
+        fttype.setEnabled(enabled);
         fttype.setName(name);
         fttype.setAbstract(ftAbstract);
         fttype.setDescription(ftDescription);
@@ -523,21 +521,19 @@ public class CatalogTestData {
     }
 
     public void assertEqualsLenientConnectionParameters(Info info1, Info info2) {
-        if (info1 != null && info2 != null) {
-            if (info1 instanceof DataStoreInfo ds1) {
-                DataStoreInfo ds2 = (DataStoreInfo) info2;
-                Map<String, Serializable> p1 = new HashMap<>(ds1.getConnectionParameters());
-                Map<String, Serializable> p2 = new HashMap<>(ds2.getConnectionParameters());
-                p1.forEach(
-                        (k, v) ->
-                                ds1.getConnectionParameters()
-                                        .put(k, Converters.convert(v, String.class)));
-                p2.forEach(
-                        (k, v) ->
-                                ds2.getConnectionParameters()
-                                        .put(k, Converters.convert(v, String.class)));
-                assertEquals(ds1.getConnectionParameters(), ds2.getConnectionParameters());
-            }
+        if (info1 != null && info2 != null && info1 instanceof DataStoreInfo ds1) {
+            DataStoreInfo ds2 = (DataStoreInfo) info2;
+            Map<String, Serializable> p1 = new HashMap<>(ds1.getConnectionParameters());
+            Map<String, Serializable> p2 = new HashMap<>(ds2.getConnectionParameters());
+            p1.forEach(
+                    (k, v) ->
+                            ds1.getConnectionParameters()
+                                    .put(k, Converters.convert(v, String.class)));
+            p2.forEach(
+                    (k, v) ->
+                            ds2.getConnectionParameters()
+                                    .put(k, Converters.convert(v, String.class)));
+            assertEquals(ds1.getConnectionParameters(), ds2.getConnectionParameters());
         }
         assertEquals(info1, info2);
     }

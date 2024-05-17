@@ -31,7 +31,7 @@ class AzureBlobstoreAutoConfigurationTest {
     @TempDir File tmpDir;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         runner =
                 GeoWebCacheContextRunner.newMinimalGeoWebCacheContextRunner(tmpDir)
                         .withConfiguration(

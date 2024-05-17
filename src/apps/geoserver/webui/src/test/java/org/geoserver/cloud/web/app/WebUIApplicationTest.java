@@ -101,7 +101,6 @@ class WebUIApplicationTest {
     void GeoServerHomePage_smoke_test_anonymous() {
         GeoServerHomePage page = tester.startPage(GeoServerHomePage.class);
         assertNotNull(page);
-        // print(page);
         tester.assertInvisible("catalogLinks");
         tester.assertComponent("providedCaps", ListView.class);
     }
@@ -111,7 +110,6 @@ class WebUIApplicationTest {
         login();
         GeoServerHomePage page = tester.startPage(GeoServerHomePage.class);
         assertNotNull(page);
-        // print(page);
         tester.assertComponent("catalogLinks:layersLink", BookmarkablePageLink.class);
         tester.assertComponent("catalogLinks:storesLink", BookmarkablePageLink.class);
         tester.assertComponent("catalogLinks:workspacesLink", BookmarkablePageLink.class);
@@ -132,7 +130,6 @@ class WebUIApplicationTest {
         tester.assertRenderedPage(GlobalSettingsPage.class);
         GlobalSettingsPage page = (GlobalSettingsPage) tester.getLastRenderedPage();
         assertNotNull(page);
-        // print(page);
         assertHidden("proxyBaseUrlContainer");
         assertHidden("useHeadersProxyURL");
         assertHidden("loggingSettingsContainer");
@@ -144,7 +141,6 @@ class WebUIApplicationTest {
     void GeoServerHomePage_smoke_test_service_links() {
         GeoServerHomePage page = tester.startPage(GeoServerHomePage.class);
         assertNotNull(page);
-        // print(page);
         tester.assertComponent("serviceList", ServicesPanel.class);
         tester.assertVisible("serviceList");
         tester.assertComponent("serviceList:serviceDescriptions:0", ListItem.class);

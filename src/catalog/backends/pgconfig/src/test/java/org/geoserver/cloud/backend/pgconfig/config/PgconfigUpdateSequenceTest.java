@@ -27,7 +27,7 @@ class PgconfigUpdateSequenceTest implements UpdateSequenceConformanceTest {
     private GeoServer geoserver;
 
     @BeforeEach
-    public void init() throws Exception {
+    public void init() {
         container.setUp();
         facade = new PgconfigGeoServerFacade(container.getTemplate());
         geoserver = new GeoServerImpl(facade);

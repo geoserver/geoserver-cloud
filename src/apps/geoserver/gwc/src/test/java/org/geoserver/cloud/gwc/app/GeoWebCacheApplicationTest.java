@@ -11,7 +11,6 @@ import static org.springframework.http.MediaType.APPLICATION_XML;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
-import org.json.simple.parser.ParseException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +36,7 @@ class GeoWebCacheApplicationTest {
     }
 
     @Test
-    void testRESTDefaultContentType() throws ParseException {
+    void testRESTDefaultContentType() {
         ResponseEntity<String> response =
                 testGetRequestContentType("/gwc/rest/layers", APPLICATION_JSON);
         JsonElement parsed = JsonParser.parseString(response.getBody());

@@ -35,11 +35,8 @@ class GwcCoreAutoConfigurationTest {
     @TempDir File tmpDir;
     WebApplicationContextRunner runner;
 
-    /**
-     * @throws java.lang.Exception
-     */
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         runner = GeoWebCacheContextRunner.newMinimalGeoWebCacheContextRunner(tmpDir);
     }
 
@@ -64,7 +61,7 @@ class GwcCoreAutoConfigurationTest {
     }
 
     @Test
-    void contextLoads() throws IOException {
+    void contextLoads() {
         runner.run(
                 context -> {
                     assertThat(context.isTypeMatch("gwcXmlConfig", CloudGwcXmlConfiguration.class))

@@ -40,7 +40,7 @@ class PgconfigCatalogBackendConformanceTest extends CatalogConformanceTest {
 
     @Override
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         container.setUp();
         super.setUp();
     }
@@ -94,7 +94,7 @@ class PgconfigCatalogBackendConformanceTest extends CatalogConformanceTest {
 			returned ft/ft2 where mockito is not throwing the expected exception
 			""")
     @Override
-    public void testSaveDataStoreRollbacksBothStoreAndResources() throws Exception {}
+    public void testSaveDataStoreRollbacksBothStoreAndResources() {}
 
     static @BeforeAll void beforeAll() throws Exception {
         try {

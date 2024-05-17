@@ -73,7 +73,7 @@ class CachingCatalogFacadeTest {
     CachingCatalogFacade facade;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
         facade = new CachingCatalogFacade(subject, supportMock);
     }
@@ -83,7 +83,7 @@ class CachingCatalogFacadeTest {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> ArgumentCaptor<Callable<T>> loaderCaptor(Class<T> type) {
+    private <T> ArgumentCaptor<Callable<T>> loaderCaptor() {
         return ArgumentCaptor.forClass(Callable.class);
     }
 
@@ -141,7 +141,7 @@ class CachingCatalogFacadeTest {
     <I extends CatalogInfo> void testAdd(Class<I> type) {
         I info = stub(type);
         facade.add(info);
-        var loaderCaptor = loaderCaptor(type);
+        ArgumentCaptor<Callable<I>> loaderCaptor = loaderCaptor();
         verify(supportMock, once()).evictAndGet(same(info), loaderCaptor.capture());
 
         loaderCaptor.getValue().call();
@@ -191,7 +191,7 @@ class CachingCatalogFacadeTest {
         ConfigInfoType configInfoType = ConfigInfoType.valueOf(type);
         verify(supportMock, once()).evict(id, newPrefixedName, configInfoType);
 
-        var loaderCaptor = loaderCaptor(type);
+        ArgumentCaptor<Callable<I>> loaderCaptor = loaderCaptor();
         verify(supportMock, once()).evictAndGet(same(info), loaderCaptor.capture());
 
         loaderCaptor.getValue().call();
@@ -257,7 +257,7 @@ class CachingCatalogFacadeTest {
         WorkspaceInfo ws = mock(WorkspaceInfo.class);
         facade.getDefaultDataStore(ws);
 
-        var loaderCaptor = loaderCaptor(DataStoreInfo.class);
+        ArgumentCaptor<Callable<DataStoreInfo>> loaderCaptor = loaderCaptor();
         verify(supportMock, once()).getDefaultDataStore(same(ws), loaderCaptor.capture());
 
         loaderCaptor.getValue().call();

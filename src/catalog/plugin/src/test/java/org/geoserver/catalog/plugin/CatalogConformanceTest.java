@@ -105,6 +105,7 @@ import org.mockito.Mockito;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.lang.reflect.Proxy;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -115,6 +116,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -170,13 +172,17 @@ public abstract class CatalogConformanceTest {
     }
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         catalog = createCatalog(tmpFolder);
         assertNotNull(
                 catalog.getResourceLoader(),
                 "Catalog must be supplied with a GeoServerResourceLoader");
         dd = new GeoServerDataDirectory(catalog.getResourceLoader());
-        dataAccessRuleDAO = new DataAccessRuleDAO(dd, catalog);
+        try {
+            dataAccessRuleDAO = new DataAccessRuleDAO(dd, catalog);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
         dataAccessRuleDAO.reload();
 
         data = CatalogTestData.empty(() -> catalog, () -> null).initialize();
@@ -471,7 +477,6 @@ public abstract class CatalogConformanceTest {
         assertEquals(data.namespaceA.getURI(), ns3.getURI());
 
         catalog.save(ns2);
-        // ns3 = catalog.getNamespaceByPrefix(ns.getPrefix());
         ns3 = catalog.getNamespaceByPrefix("ns2Prefix");
         assertEquals(ns2, ns3);
         assertEquals("ns2Prefix", ns3.getPrefix());
@@ -932,13 +937,13 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    void testChangeDataStoreWorkspace_no_resources() throws Exception {
+    void testChangeDataStoreWorkspace_no_resources() {
         addDataStore();
         testChangeStoreWorkspace(data.dataStoreA);
     }
 
     @Test
-    void testChangeDataStoreWorkspaceUpdatesResourcesNamespace() throws Exception {
+    void testChangeDataStoreWorkspaceUpdatesResourcesNamespace() {
         addFeatureType();
         DataStoreInfo store = data.dataStoreA;
         StoreInfo updated = testChangeStoreWorkspace(store);
@@ -946,7 +951,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    void testChangeCoverageStoreWorkspaceUpdatesResourcesNamespace() throws Exception {
+    void testChangeCoverageStoreWorkspaceUpdatesResourcesNamespace() {
         addCoverage();
         StoreInfo store = data.coverageStoreA;
         StoreInfo updated = testChangeStoreWorkspace(store);
@@ -954,7 +959,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    void testChangeWMSStoreWorkspaceUpdatesResourcesNamespace() throws Exception {
+    void testChangeWMSStoreWorkspaceUpdatesResourcesNamespace() {
         addWMSLayer();
         StoreInfo store = data.wmsStoreA;
         StoreInfo updated = testChangeStoreWorkspace(store);
@@ -962,7 +967,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    void testChangeWTMSStoreWorkspaceUpdatesResourcesNamespace() throws Exception {
+    void testChangeWTMSStoreWorkspaceUpdatesResourcesNamespace() {
         addWMTSLayer();
         StoreInfo store = data.wmtsStoreA;
         StoreInfo updated = testChangeStoreWorkspace(store);
@@ -970,7 +975,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    void testChangeDataStoreWorkspace_fails_on_no_matching_namespace() throws Exception {
+    void testChangeDataStoreWorkspace_fails_on_no_matching_namespace() {
         addDataStore();
 
         WorkspaceInfo ws2 = addWorkspace("newWorkspace");
@@ -988,7 +993,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    void testSaveDataStoreRollbacksStoreWhenFailsToUpdateResourcesNamespace() throws Exception {
+    void testSaveDataStoreRollbacksStoreWhenFailsToUpdateResourcesNamespace() {
         Assumptions.assumeTrue(catalog instanceof CatalogPlugin);
         addFeatureType();
 
@@ -1026,7 +1031,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    protected void testSaveDataStoreRollbacksBothStoreAndResources() throws Exception {
+    protected void testSaveDataStoreRollbacksBothStoreAndResources() {
         Assumptions.assumeTrue(catalog instanceof CatalogPlugin);
         addFeatureType();
 
@@ -1046,8 +1051,6 @@ public abstract class CatalogConformanceTest {
         addNamespace(newWorkspace.getName());
 
         catalog = Mockito.spy((CatalogPlugin) catalog);
-        // make sure catalog returns resources in the expected order
-        //        doReturn(Arrays.asList(ft, ft2)).when(catalog).getResourcesByStore(any(), any());
 
         // let the first ft's namespace be updated, fail on the second
         doThrow(IllegalStateException.class)
@@ -1073,7 +1076,7 @@ public abstract class CatalogConformanceTest {
         }
     }
 
-    private StoreInfo testChangeStoreWorkspace(StoreInfo store) throws Exception {
+    private StoreInfo testChangeStoreWorkspace(StoreInfo store) {
 
         WorkspaceInfo ws2 = addWorkspace("newWorkspace");
         addNamespace(ws2.getName());
@@ -1533,19 +1536,13 @@ public abstract class CatalogConformanceTest {
                 () -> catalog.add(l2),
                 "adding with no name should throw exception");
 
-        // l2.setName( "l2" );
         assertThrows(
                 NullPointerException.class,
                 () -> catalog.add(l2),
                 "adding with no resource should throw exception");
 
         l2.setResource(data.featureTypeA);
-        // try {
-        // catalog.add( l2 );
-        // fail( "adding with no default style should throw exception");
-        // }
-        // catch( Exception e) {}
-        //
+
         l2.setDefaultStyle(data.style1);
 
         IllegalArgumentException e =
@@ -1754,19 +1751,11 @@ public abstract class CatalogConformanceTest {
         addLayer();
 
         LayerInfo l2 = catalog.getLayerByName(data.layerFeatureTypeA.getName());
-        // l2.setName( null );
         l2.setResource(null);
 
         LayerInfo l3 = catalog.getLayerByName(data.layerFeatureTypeA.getName());
         assertEquals(data.layerFeatureTypeA.getName(), l3.getName());
 
-        // try {
-        // catalog.save(l2);
-        // fail( "setting name to null should throw exception");
-        // }
-        // catch( Exception e ) {}
-        //
-        // l2.setName( "changed" );
         assertThrows(
                 NullPointerException.class,
                 () -> catalog.save(l2),
@@ -1775,8 +1764,6 @@ public abstract class CatalogConformanceTest {
         l2.setResource(data.featureTypeA);
         catalog.save(l2);
 
-        // TODO: reinstate with resource/publishing split done
-        // l3 = catalog.getLayerByName( "changed" );
         l3 = catalog.getLayerByName(data.featureTypeA.getName());
         assertNotNull(l3);
     }
@@ -1889,7 +1876,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    void testAddStyleWithNameConflict() throws Exception {
+    void testAddStyleWithNameConflict() {
         addWorkspace();
         addStyle();
 
@@ -1962,7 +1949,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    void testGetStyleByNameWithWorkspace2() throws Exception {
+    void testGetStyleByNameWithWorkspace2() {
         addWorkspace();
 
         WorkspaceInfo ws2 = catalog.getFactory().createWorkspace();
@@ -2184,7 +2171,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    void testProxyBehaviour() throws Exception {
+    void testProxyBehaviour() {
         testAddLayer();
 
         // l = catalog.getLayerByName( "layerName");
@@ -2205,7 +2192,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    void testProxyListBehaviour() throws Exception {
+    void testProxyListBehaviour() {
         catalog.add(data.style1);
 
         StyleInfo s2 = catalog.getFactory().createStyle();
@@ -2237,7 +2224,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    void testExceptionThrowingListener() throws Exception {
+    void testExceptionThrowingListener() {
         ExceptionThrowingListener l = new ExceptionThrowingListener();
         catalog.addListener(l);
 
@@ -2304,6 +2291,8 @@ public abstract class CatalogConformanceTest {
      *
      * <p><b>NOTE</b> this actually runs now, it just takes an awful amount of time to execute.
      * Revisit.
+     *
+     * @throws Exception
      */
     @Test
     @Disabled(
@@ -2346,7 +2335,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    void testAddLayerGroupNameConflict() throws Exception {
+    void testAddLayerGroupNameConflict() {
         addLayerGroup();
 
         LayerGroupInfo lg2 = catalog.getFactory().createLayerGroup();
@@ -2480,7 +2469,6 @@ public abstract class CatalogConformanceTest {
         NamespaceInfo ns2 = factory.createNamespace();
         // namespace prefix shall match workspace name, until we decide it cannot
         ns2.setPrefix("ns2");
-        // ns2.setPrefix(ws2.getName());
         ns2.setURI("http://ns2");
         catalog.add(ns2);
 
@@ -2558,7 +2546,6 @@ public abstract class CatalogConformanceTest {
     void testLayerGroupTitle() {
         addLayer();
         LayerGroupInfo lg2 = catalog.getFactory().createLayerGroup();
-        // lg2.setWorkspace(catalog.getDefaultWorkspace());
         lg2.setName("layerGroup2");
         lg2.setTitle("layerGroup2 title");
         lg2.getLayers().add(data.layerFeatureTypeA);
@@ -2581,7 +2568,6 @@ public abstract class CatalogConformanceTest {
     void testLayerGroupAbstract() {
         addLayer();
         LayerGroupInfo lg2 = catalog.getFactory().createLayerGroup();
-        // lg2.setWorkspace(catalog.getDefaultWorkspace());
         lg2.setName("layerGroup2");
         lg2.setAbstract("layerGroup2 abstract");
         lg2.getLayers().add(data.layerFeatureTypeA);
@@ -2757,7 +2743,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    void testRemoveLayerGroupInLayerGroup() throws Exception {
+    void testRemoveLayerGroupInLayerGroup() {
         addLayerGroup();
 
         LayerGroupInfo lg2 = catalog.getFactory().createLayerGroup();
@@ -2869,7 +2855,7 @@ public abstract class CatalogConformanceTest {
             this.idx = idx;
         }
 
-        protected void runInternal() throws Exception {
+        protected void runInternal() {
             CatalogFactory factory = catalog.getFactory();
             for (int i = 0; i < GET_LAYER_BY_ID_WITH_CONCURRENT_ADD_TEST_COUNT; i++) {
                 // GR: Adding a new feature type info too, we can't really add multiple layers per
@@ -2963,9 +2949,6 @@ public abstract class CatalogConformanceTest {
 
         filter = equal("defaultStyle.name", s2.getName());
         assertEquals(l2.getId(), catalog.get(LayerInfo.class, filter).getId());
-        // Waiting for fix of MultiCompareFilterImpl.evaluate for Sets
-        // filter = equal("styles", l2.getStyles(), MatchAction.ALL);
-        // assertEquals(l2.getId(), catalog.get(LayerInfo.class, filter).getId());
 
         filter = equal("styles.id", s2.getId(), MatchAction.ONE);
         assertEquals(l1.getId(), catalog.get(LayerInfo.class, filter).getId());
@@ -3093,12 +3076,11 @@ public abstract class CatalogConformanceTest {
         ft3.setDescription("FT3");
         catalog.save(ft3);
 
-        Filter filter = acceptAll();
         Set<? extends CatalogInfo> expected;
         Set<? extends CatalogInfo> actual;
 
         // opposite equality
-        filter = factory.equal(factory.literal(ft1.getId()), factory.property("id"), true);
+        Filter filter = factory.equal(factory.literal(ft1.getId()), factory.property("id"), true);
         expected = Sets.newHashSet(ft1);
         actual = Sets.newHashSet(catalog.list(ResourceInfo.class, filter));
         assertEquals(expected, actual);
@@ -3572,7 +3554,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    void testConcurrentCatalogModification() throws Exception {
+    void testConcurrentCatalogModification() throws InterruptedException, ExecutionException {
         Logger logger = Logging.getLogger(CatalogImpl.class);
         final int tasks = 8;
         ExecutorService executor = Executors.newFixedThreadPool(tasks / 2);
