@@ -14,7 +14,6 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
@@ -425,8 +424,6 @@ public abstract class PatchSerializationTest {
     @Test
     void numberRange() throws Exception {
         testPatch("range", NumberRange.create(-1, 1));
-        // testPatch("range", NumberRange.create(-1.1f, 1.1f));
-        // testPatch("range", NumberRange.create((short) 10, (short) 15));
         testPatch("range", NumberRange.create(Double.MIN_VALUE, 1.01));
     }
 
@@ -537,10 +534,10 @@ public abstract class PatchSerializationTest {
         testPatch("contact", List.of(data.faker().contactInfo(), data.faker().contactInfo()));
 
         testPatch("serviceInfos", List.of(data.wmsService));
-        // REVISIT: WFSInfoImpl.equals is broken
-        // testPatch("serviceInfos", List.of(data.wmsService, data.wfsService));
-        // REVISIT: WCSInfoImpl.equals is broken
-        // testPatch("serviceInfos", List.of(data.wcsService));
+        // REVISIT: WFSInfoImpl.equals is broken, can't do testPatch("serviceInfos",
+        // List.of(data.wmsService, data.wfsService));
+        // REVISIT: WCSInfoImpl.equals is broken, can't do testPatch("serviceInfos",
+        // List.of(data.wcsService));
     }
 
     @Test
@@ -745,16 +742,14 @@ public abstract class PatchSerializationTest {
         return testPatch(patch);
     }
 
-    private Patch testPatch(Patch patch) throws JsonProcessingException, JsonMappingException {
+    private Patch testPatch(Patch patch) throws JsonProcessingException {
         Patch resolved = testPatchNoEquals(patch);
 
         assertEquals(patch, resolved);
         return resolved;
     }
 
-    private Patch testPatchNoEquals(Patch patch)
-            throws JsonProcessingException, JsonMappingException {
-
+    private Patch testPatchNoEquals(Patch patch) throws JsonProcessingException {
         Patch decoded = roundtrip(patch);
         Patch resolved = resolve(decoded);
         print("resolved: {}", resolved);
@@ -782,7 +777,7 @@ public abstract class PatchSerializationTest {
         return resolved;
     }
 
-    private Patch roundtrip(Patch patch) throws JsonProcessingException, JsonMappingException {
+    private Patch roundtrip(Patch patch) throws JsonProcessingException {
         Object patchValue = patch.getPatches().get(0).getValue();
         boolean encodeByReference = ProxyUtils.encodeByReference(patchValue);
 
@@ -843,14 +838,14 @@ public abstract class PatchSerializationTest {
                     .as(
                             () ->
                                     String.format(
-                                            "%s should not be a ResolvingProxy",
+                                            "%s should not be a ResolvingProxy: %s",
                                             info.getId(), typeName(info)))
                     .isFalse();
             assertThat(ProxyUtils.isModificationProxy(info))
                     .as(
                             () ->
                                     String.format(
-                                            "%s should not be a ModificationProxy",
+                                            "%s should not be a ModificationProxy: %s",
                                             info.getId(), typeName(info)))
                     .isFalse();
         }

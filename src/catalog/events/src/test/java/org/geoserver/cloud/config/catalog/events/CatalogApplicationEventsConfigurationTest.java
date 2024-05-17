@@ -119,11 +119,11 @@ class CatalogApplicationEventsConfigurationTest {
 
         listener.clear();
         catalog.setDefaultWorkspace(testData.workspaceC);
-        testModify(catalog, "defaultWorkspace", testData.workspaceA, testData.workspaceC);
+        testModify(catalog, "defaultWorkspace", testData.workspaceC);
 
         listener.clear();
         catalog.setDefaultWorkspace(testData.workspaceB);
-        testModify(catalog, "defaultWorkspace", testData.workspaceC, testData.workspaceB);
+        testModify(catalog, "defaultWorkspace", testData.workspaceB);
     }
 
     @Test
@@ -136,11 +136,11 @@ class CatalogApplicationEventsConfigurationTest {
 
         listener.clear();
         catalog.setDefaultNamespace(testData.namespaceC);
-        testModify(catalog, "defaultNamespace", testData.namespaceA, testData.namespaceC);
+        testModify(catalog, "defaultNamespace", testData.namespaceC);
 
         listener.clear();
         catalog.setDefaultNamespace(testData.namespaceB);
-        testModify(catalog, "defaultNamespace", testData.namespaceC, testData.namespaceB);
+        testModify(catalog, "defaultNamespace", testData.namespaceB);
     }
 
     @Test
@@ -285,10 +285,8 @@ class CatalogApplicationEventsConfigurationTest {
 
         testConfigModifyService(testData.wmsService);
         testConfigModifyService(testData.wfsService);
-        // WCSInfoImpl.equals() doesn't work
-        // testConfigModifyService(testData.wcsService);
-        // WPSInfoImpl.equals() doesn't work
-        // testConfigModifyService(testData.wpsService);
+        // WCSInfoImpl.equals() doesn't work, can't do testConfigModifyService(testData.wcsService);
+        // WPSInfoImpl.equals() doesn't work, can't do testConfigModifyService(testData.wpsService);
     }
 
     private void testConfigModifyService(ServiceInfo service) {
@@ -362,11 +360,7 @@ class CatalogApplicationEventsConfigurationTest {
         assertThat(post.getPatch()).isEqualTo(expected);
     }
 
-    private void testModify(
-            CatalogInfo objectChanged,
-            String propertyName,
-            CatalogInfo oldValue,
-            CatalogInfo newValue) {
+    private void testModify(CatalogInfo objectChanged, String propertyName, CatalogInfo newValue) {
 
         CatalogInfoModified post = listener.expectOne(CatalogInfoModified.class);
 

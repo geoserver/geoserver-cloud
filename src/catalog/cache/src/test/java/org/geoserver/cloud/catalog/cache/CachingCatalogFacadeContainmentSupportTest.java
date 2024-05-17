@@ -61,7 +61,7 @@ class CachingCatalogFacadeContainmentSupportTest {
     private CachingCatalogFacadeContainmentSupport support;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         support = new CachingCatalogFacadeContainmentSupport();
     }
 
@@ -79,7 +79,7 @@ class CachingCatalogFacadeContainmentSupportTest {
     }
 
     @Test
-    void testEvictDefaultWorkspace() throws Exception {
+    void testEvictDefaultWorkspace() {
         support.getCache().put(DEFAULT_WORKSPACE_CACHE_KEY, stub(WorkspaceInfo.class));
         support.evictDefaultWorkspace();
         assertNotCached(DEFAULT_WORKSPACE_CACHE_KEY);
@@ -121,7 +121,7 @@ class CachingCatalogFacadeContainmentSupportTest {
     }
 
     @Test
-    void testGetDoesNotCacheNullValues() throws Exception {
+    void testGetDoesNotCacheNullValues() {
         WorkspaceInfo ws = stub(WorkspaceInfo.class);
 
         InfoIdKey idKey = InfoIdKey.valueOf(ws);

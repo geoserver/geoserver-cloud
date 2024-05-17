@@ -214,12 +214,12 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
 
     @Override
     @Ignore("This behaviour is specific to the file based implementation")
-    public void theoryAddingFileToDirectoryAddsResource(String path) throws Exception {
+    public void theoryAddingFileToDirectoryAddsResource(String path) {
         // disabled
     }
 
     @Theory
-    public void theoryRenamedDirectoryRenamesChildren(String path) throws Exception {
+    public void theoryRenamedDirectoryRenamesChildren(String path) {
         final Resource res = getResource(path);
         assumeThat(res, is(directory()));
 
@@ -257,11 +257,20 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
 
     @Test
     public void testRemoveIgnoredDirs() {
-        assertFileSystemDir("temp");
-        assertFileSystemDir("tmp");
-        assertFileSystemDir("legendsamples");
-        assertFileSystemDir("data");
-        assertFileSystemDir("logs");
+        testRemoveIgnoredDir("temp");
+        testRemoveIgnoredDir("tmp");
+        testRemoveIgnoredDir("legendsamples");
+        testRemoveIgnoredDir("data");
+        testRemoveIgnoredDir("logs");
+    }
+
+    private void testRemoveIgnoredDir(String ignoredDir) {
+        assertFileSystemFile(ignoredDir + "/child1");
+        assertFileSystemFile(ignoredDir + "/child2");
+        store.remove(ignoredDir);
+        assertThat(store.get(ignoredDir), is(undefined()));
+        assertThat(store.get(ignoredDir + "/child1"), is(undefined()));
+        assertThat(store.get(ignoredDir + "/child2"), is(undefined()));
     }
 
     @Test

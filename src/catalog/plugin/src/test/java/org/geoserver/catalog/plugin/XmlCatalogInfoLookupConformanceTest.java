@@ -19,7 +19,8 @@ import java.util.function.UnaryOperator;
 
 class XmlCatalogInfoLookupConformanceTest extends CatalogConformanceTest {
 
-    protected @Override CatalogPlugin createCatalog(File tmpFolder) {
+    @Override
+    protected CatalogPlugin createCatalog(File tmpFolder) {
         CatalogPlugin catalog = new org.geoserver.catalog.plugin.CatalogPlugin();
         XStreamPersisterFactory xpf = new XStreamPersisterFactory();
         XStreamPersister codec = xpf.createXMLPersister();
@@ -56,7 +57,7 @@ class XmlCatalogInfoLookupConformanceTest extends CatalogConformanceTest {
             returned ft/ft2 where mockito is not throwing the expected exception
             """)
     @Override
-    public void testSaveDataStoreRollbacksBothStoreAndResources() throws Exception {}
+    public void testSaveDataStoreRollbacksBothStoreAndResources() {}
 
     @Disabled(
             "don't care it can't save the resourceinfo when saving a layer, it's just a demo implementation")

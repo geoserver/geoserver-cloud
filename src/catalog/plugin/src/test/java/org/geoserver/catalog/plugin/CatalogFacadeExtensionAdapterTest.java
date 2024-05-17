@@ -83,8 +83,4 @@ class CatalogFacadeExtensionAdapterTest extends CatalogConformanceTest {
                 instanceOf(CatalogFacadeExtensionAdapter.SilentCatalog.class));
         assertNotSame(decoratorAtFacadeConstructor, legacyFacade.getCatalog());
     }
-
-    // @Test void testQuery() {
-    // catalog.list(of, filter);
-    // }
 }

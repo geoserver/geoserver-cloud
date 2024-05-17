@@ -28,11 +28,8 @@ class RESTConfigAutoConfigurationTest {
     @TempDir File tmpDir;
     WebApplicationContextRunner runner;
 
-    /**
-     * @throws java.lang.Exception
-     */
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         runner =
                 GeoWebCacheContextRunner.newMinimalGeoWebCacheContextRunner(tmpDir)
                         .withConfiguration(

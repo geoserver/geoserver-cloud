@@ -46,14 +46,11 @@ class LockingCatalogTest {
      * @throws java.lang.Exception
      */
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         configLock = createConfigLock();
         catalog = new LockingCatalog(configLock);
         GeoServer geoserver = new GeoServerImpl();
         geoserver.setCatalog(catalog);
-        // GeoServerResourceLoader resourceLoader;
-        // XStreamPersister xstreamPersister;
-        // catalog.addListener(new GeoServerConfigPersister(resourceLoader, xstreamPersister));
         faker = new CatalogFaker(catalog, geoserver);
     }
 

@@ -47,7 +47,7 @@ class PgconfigDataSourceAutoConfigurationTest {
     String password;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         url = container.getJdbcUrl();
         username = container.getUsername();
         password = container.getPassword();

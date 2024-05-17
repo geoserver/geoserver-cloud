@@ -13,8 +13,6 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.io.IOException;
-
 @SpringBootTest(classes = WfsApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("pgconfigjndi")
 @Testcontainers(disabledWithoutDocker = true)
@@ -35,7 +33,7 @@ class WfsApplicationPgconfigIT extends WfsApplicationTest {
      * </ul>
      */
     @DynamicPropertySource
-    static void setUpDataDir(DynamicPropertyRegistry registry) throws IOException {
+    static void setUpDataDir(DynamicPropertyRegistry registry) {
         registry.add("pgconfig.host", container::getHost);
         registry.add(
                 "pgconfig.port",

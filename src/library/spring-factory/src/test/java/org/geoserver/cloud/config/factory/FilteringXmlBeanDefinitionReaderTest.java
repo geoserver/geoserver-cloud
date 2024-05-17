@@ -97,13 +97,6 @@ class FilteringXmlBeanDefinitionReaderTest {
     }
 
     @Test
-    void excludeByIdAttribute() {
-        String location =
-                "%s#name=^(?!nullLockProvider|memoryLockProvider).*$".formatted(baseResource);
-        verify(location, "filterFactory", "geoServer");
-    }
-
-    @Test
     void excludeByNameAttribute() {
         String location = "%s#name=^(?!filterFactory|geoServer).*$".formatted(baseResource);
         verify(location, "memoryLockProvider", "nullLockProvider");

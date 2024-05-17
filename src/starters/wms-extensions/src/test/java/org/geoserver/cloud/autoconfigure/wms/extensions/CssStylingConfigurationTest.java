@@ -45,7 +45,7 @@ class CssStylingConfigurationTest {
                 .withBean("sldHandler", SLDHandler.class)
                 .withPropertyValues("geoserver.styling.css.enabled=false")
                 .run(
-                        (context) -> {
+                        context -> {
                             assertThat(context).doesNotHaveBean(CssHandler.class);
                             assertThat(context).hasBean("cssDisabledModuleStatus");
                             assertThat(context)
@@ -59,7 +59,7 @@ class CssStylingConfigurationTest {
         contextRunner
                 .withPropertyValues("geoserver.styling.css.enabled=true")
                 .run(
-                        (context) -> {
+                        context -> {
                             assertThat(context).doesNotHaveBean(SLDHandler.class);
                             assertThat(context).doesNotHaveBean(CssHandler.class);
                             assertThat(context).doesNotHaveBean("cssDisabledModuleStatus");

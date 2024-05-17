@@ -82,7 +82,7 @@ public class PgconfigCatalogResourcesSynchronizer implements CatalogListener, Ex
         if (source instanceof WorkspaceInfo ws) {
             log.debug("Removing workspace {}", ws.getName());
             rmRes(dd.get(ws));
-        } else if (source instanceof NamespaceInfo ns) {
+        } else if (source instanceof NamespaceInfo) {
             // do not remove the directory, only when removing the workspace
         } else if (source instanceof StoreInfo store) {
             log.debug("Removing datastore {}", store.getName());
