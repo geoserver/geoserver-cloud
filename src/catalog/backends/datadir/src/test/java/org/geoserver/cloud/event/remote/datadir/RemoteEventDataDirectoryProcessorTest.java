@@ -59,7 +59,7 @@ class RemoteEventDataDirectoryProcessorTest {
     GeoServerInfo global;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         mockFacade = mock(ExtendedCatalogFacade.class);
         var catalog = mock(CatalogPlugin.class);
         when(catalog.getFacade()).thenReturn(mockFacade);
@@ -84,8 +84,8 @@ class RemoteEventDataDirectoryProcessorTest {
 
         var catalogFacade = mock(ExtendedCatalogFacade.class);
         when(rawCatalog.getFacade()).thenReturn(catalogFacade);
-        var processor = new RemoteEventDataDirectoryProcessor(configFacade, rawCatalog);
-        assertSame(catalogFacade, processor.catalogFacade());
+        var p = new RemoteEventDataDirectoryProcessor(configFacade, rawCatalog);
+        assertSame(catalogFacade, p.catalogFacade());
     }
 
     @Test
@@ -256,8 +256,6 @@ class RemoteEventDataDirectoryProcessorTest {
 
     @Test
     void testOnRemoteModifyEvent_GeoServerInfo() {
-        GeoServerInfo global = this.global;
-
         when(mockGeoServerFacade.getGlobal())
                 .thenReturn(ModificationProxy.create(global, GeoServerInfo.class));
 

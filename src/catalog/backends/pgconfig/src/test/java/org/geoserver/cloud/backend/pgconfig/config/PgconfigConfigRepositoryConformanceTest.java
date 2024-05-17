@@ -25,7 +25,7 @@ class PgconfigConfigRepositoryConformanceTest extends GeoServerConfigConformance
 
     @Override
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         container.setUp();
         super.setUp();
     }

@@ -425,7 +425,7 @@ public class PgconfigResourceStore implements ResourceStore {
         PgconfigResource parent = getParent(resource);
         if (null == parent) return resource;
         if (!parent.exists()) {
-            parent = (PgconfigResource) parent.mkdirs();
+            parent = parent.mkdirs();
         }
         resource.parentId = parent.getId();
         resource.type = Type.DIRECTORY;

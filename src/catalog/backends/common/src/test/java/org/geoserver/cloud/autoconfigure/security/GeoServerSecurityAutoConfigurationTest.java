@@ -42,7 +42,7 @@ class GeoServerSecurityAutoConfigurationTest {
     private ApplicationContextRunner runner;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         runner = createContextRunner(tempDir);
     }
 

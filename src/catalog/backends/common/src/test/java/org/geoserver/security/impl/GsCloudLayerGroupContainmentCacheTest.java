@@ -8,7 +8,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -150,7 +152,7 @@ class GsCloudLayerGroupContainmentCacheTest {
     }
 
     @BeforeEach
-    public void setupLayerGrups() throws Exception {
+    public void setupLayerGrups() {
         LayerInfo lakes = catalog.getLayerByName(getLayerId(MockData.LAKES));
         LayerInfo forests = catalog.getLayerByName(getLayerId(MockData.FORESTS));
         LayerInfo roads = catalog.getLayerByName(getLayerId(MockData.ROAD_SEGMENTS));
@@ -173,7 +175,7 @@ class GsCloudLayerGroupContainmentCacheTest {
     }
 
     @AfterEach
-    public void clearLayerGroups() throws Exception {
+    public void clearLayerGroups() {
         CascadeDeleteVisitor remover = new CascadeDeleteVisitor(catalog);
         for (LayerGroupInfo lg : catalog.getLayerGroups()) {
             if (catalog.getLayerGroup(lg.getId()) != null) {
@@ -183,7 +185,7 @@ class GsCloudLayerGroupContainmentCacheTest {
     }
 
     private LayerGroupInfo addLayerGroup(
-            String name, Mode mode, WorkspaceInfo ws, PublishedInfo... layers) throws Exception {
+            String name, Mode mode, WorkspaceInfo ws, PublishedInfo... layers) {
         CatalogBuilder cb = new CatalogBuilder(catalog);
 
         LayerGroupInfo group = catalog.getFactory().createLayerGroup();
@@ -198,7 +200,11 @@ class GsCloudLayerGroupContainmentCacheTest {
                 group.getStyles().add(null);
             }
         }
-        cb.calculateLayerGroupBounds(group);
+        try {
+            cb.calculateLayerGroupBounds(group);
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
         catalog.add(group);
         if (ws != null) {
             return catalog.getLayerGroupByName(ws.getName(), name);
@@ -247,7 +253,7 @@ class GsCloudLayerGroupContainmentCacheTest {
     }
 
     @Test
-    void testInitialSetup() throws Exception {
+    void testInitialSetup() {
         // nature
         Collection<LayerGroupSummary> natureContainers = cc.getContainerGroupsFor(nature);
         assertEquals(1, natureContainers.size());
@@ -268,7 +274,7 @@ class GsCloudLayerGroupContainmentCacheTest {
     }
 
     @Test
-    void testAddLayerToNature() throws Exception {
+    void testAddLayerToNature() {
         LayerInfo neatline = catalog.getLayerByName(getLayerId(MockData.MAP_NEATLINE));
         nature.getLayers().add(neatline);
         nature.getStyles().add(null);
@@ -278,7 +284,7 @@ class GsCloudLayerGroupContainmentCacheTest {
     }
 
     @Test
-    void testAddLayerToContainer() throws Exception {
+    void testAddLayerToContainer() {
         LayerInfo neatline = catalog.getLayerByName(getLayerId(MockData.MAP_NEATLINE));
         container.getLayers().add(neatline);
         container.getStyles().add(null);
@@ -288,7 +294,7 @@ class GsCloudLayerGroupContainmentCacheTest {
     }
 
     @Test
-    void testRemoveLayerFromNature() throws Exception {
+    void testRemoveLayerFromNature() {
         LayerInfo lakes = catalog.getLayerByName(getLayerId(MockData.LAKES));
         nature.getLayers().remove(lakes);
         nature.getStyles().remove(0);
@@ -301,7 +307,7 @@ class GsCloudLayerGroupContainmentCacheTest {
     }
 
     @Test
-    void testRemoveLayerFromContainer() throws Exception {
+    void testRemoveLayerFromContainer() {
         LayerInfo roads = catalog.getLayerByName(getLayerId(MockData.ROAD_SEGMENTS));
         container.getLayers().remove(roads);
         container.getStyles().remove(0);
@@ -313,7 +319,7 @@ class GsCloudLayerGroupContainmentCacheTest {
     }
 
     @Test
-    void testRemoveNatureFromContainer() throws Exception {
+    void testRemoveNatureFromContainer() {
         container.getLayers().remove(nature);
         container.getStyles().remove(0);
         catalog.save(container);
@@ -326,7 +332,7 @@ class GsCloudLayerGroupContainmentCacheTest {
     }
 
     @Test
-    void testRemoveAllGrups() throws Exception {
+    void testRemoveAllGrups() {
         catalog.remove(container);
         catalog.remove(nature);
 
@@ -337,7 +343,7 @@ class GsCloudLayerGroupContainmentCacheTest {
     }
 
     @Test
-    void testAddRemoveNamed() throws Exception {
+    void testAddRemoveNamed() {
         final String NAMED_GROUP = "named";
         LayerInfo neatline = catalog.getLayerByName(getLayerId(MockData.MAP_NEATLINE));
         LayerInfo lakes = catalog.getLayerByName(getLayerId(MockData.LAKES));
@@ -358,7 +364,7 @@ class GsCloudLayerGroupContainmentCacheTest {
     }
 
     @Test
-    void testAddRemoveNestedNamed() throws Exception {
+    void testAddRemoveNestedNamed() {
         final String NESTED_NAMED = "nestedNamed";
         LayerInfo neatline = catalog.getLayerByName(getLayerId(MockData.MAP_NEATLINE));
         LayerInfo lakes = catalog.getLayerByName(getLayerId(MockData.LAKES));
@@ -384,7 +390,7 @@ class GsCloudLayerGroupContainmentCacheTest {
     }
 
     @Test
-    void testRenameGroup() throws Exception {
+    void testRenameGroup() {
         nature.setName("renamed");
         catalog.save(nature);
 
@@ -394,7 +400,7 @@ class GsCloudLayerGroupContainmentCacheTest {
     }
 
     @Test
-    void testRenameWorkspace() throws Exception {
+    void testRenameWorkspace() {
         WorkspaceInfo ws = catalog.getDefaultWorkspace();
         ws.setName("renamed");
         try {
@@ -410,7 +416,7 @@ class GsCloudLayerGroupContainmentCacheTest {
     }
 
     @Test
-    void testChangeWorkspace() throws Exception {
+    void testChangeWorkspace() {
         DataStoreInfo store = catalog.getDataStores().get(0);
         try {
             WorkspaceInfo aws = catalog.getWorkspaceByName(ANOTHER_WS);
@@ -430,7 +436,7 @@ class GsCloudLayerGroupContainmentCacheTest {
     }
 
     @Test
-    void testChangeGroupMode() throws Exception {
+    void testChangeGroupMode() {
         LayerGroupSummary summary = cc.groupCache.get(nature.getId());
         assertEquals(Mode.SINGLE, summary.getMode());
 

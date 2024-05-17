@@ -48,7 +48,7 @@ class PgconfigTileLayerCatalogIT {
     private PgconfigTileLayerCatalog tlCatalog;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         container.setUp();
         PgconfigBackendBuilder backendBuilder =
                 new PgconfigBackendBuilder(container.getDataSource());
@@ -61,7 +61,7 @@ class PgconfigTileLayerCatalogIT {
     }
 
     @AfterEach
-    void cleanDb() throws Exception {
+    void cleanDb() {
         container.tearDown();
         LocalWorkspace.remove();
     }

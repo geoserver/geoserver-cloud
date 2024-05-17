@@ -331,8 +331,6 @@ public abstract class BusAmqpIntegrationTests {
         GeoServerEvent event = busEvent.getEvent();
         assertNotNull(event);
         assertNotNull(((InfoEvent) event).getObjectId());
-        // assertNotNull(event.getTarget());
-        // assertNull(event.getSource());
 
         final ConfigInfoType infoType = ((InfoEvent) event).getObjectType();
         assertThat(infoType).isNotNull();
@@ -340,9 +338,7 @@ public abstract class BusAmqpIntegrationTests {
         assertThat(infoType).isEqualTo(expectedType);
 
         switch (infoType) {
-            case CATALOG:
-            case GEOSERVER:
-            case LOGGING:
+            case CATALOG, GEOSERVER, LOGGING:
                 assertNotNull(((InfoEvent) event).getObjectId());
                 break;
             default:
@@ -358,9 +354,6 @@ public abstract class BusAmqpIntegrationTests {
             assertThat(object.getId()).isEqualTo(info.getId());
 
             assertResolved(object, Info.class);
-            info = ModificationProxy.unwrap(info);
-            object = ModificationProxy.unwrap(object);
-            // testData.assertEqualsLenientConnectionParameters(info, object);
         }
 
         if (event instanceof InfoModified modifyEvent) {

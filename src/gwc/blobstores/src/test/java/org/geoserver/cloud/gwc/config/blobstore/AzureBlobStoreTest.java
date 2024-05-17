@@ -53,7 +53,6 @@ class AzureBlobStoreTest {
         bsi.setContainer("azureblobstoretest");
         bsi.setName("AzureBlobStoreTest");
         bsi.setEnabled(true);
-        // bsi.setPrefix("/gwc/");
         return bsi;
     }
 

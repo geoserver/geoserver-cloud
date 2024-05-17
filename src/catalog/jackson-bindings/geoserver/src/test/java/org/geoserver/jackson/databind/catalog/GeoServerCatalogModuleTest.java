@@ -381,7 +381,7 @@ public abstract class GeoServerCatalogModuleTest {
         return contact;
     }
 
-    protected AttributionInfoImpl attInfo(String id) throws Exception {
+    protected AttributionInfoImpl attInfo(String id) {
         AttributionInfoImpl attinfo = new AttributionInfoImpl();
         attinfo.setId(id);
         attinfo.setHref("http://nevermind");
@@ -480,17 +480,12 @@ public abstract class GeoServerCatalogModuleTest {
     }
 
     private <T> T roundTrip(T orig, Class<? super T> clazz) throws JsonProcessingException {
-        return roundTrip(orig, clazz, clazz);
-    }
-
-    private <T, V> V roundTrip(T orig, Class<? super T> source, Class<? super V> target)
-            throws JsonProcessingException {
         ObjectWriter writer = objectMapper.writer();
         writer = writer.withDefaultPrettyPrinter();
         String encoded = writer.writeValueAsString(orig);
         print("encoded: {}", encoded);
         @SuppressWarnings("unchecked")
-        V decoded = (V) objectMapper.readValue(encoded, target);
+        T decoded = (T) objectMapper.readValue(encoded, clazz);
         print("decoded: {}", decoded);
         return decoded;
     }
@@ -699,7 +694,7 @@ public abstract class GeoServerCatalogModuleTest {
     }
 
     @Test
-    void testQuery() throws Exception {
+    void testQuery() {
         Arrays.stream(ClassMappings.values())
                 .map(ClassMappings::getInterface)
                 .filter(CatalogInfo.class::isAssignableFrom)

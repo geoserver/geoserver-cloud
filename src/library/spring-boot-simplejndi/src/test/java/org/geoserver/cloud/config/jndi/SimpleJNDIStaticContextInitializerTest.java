@@ -14,7 +14,6 @@ import java.util.Hashtable;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.naming.spi.NamingManager;
 
 /**
@@ -27,7 +26,7 @@ class SimpleJNDIStaticContextInitializerTest {
                     .withInitializer(new SimpleJNDIStaticContextInitializer());
 
     @Test
-    void test() throws NamingException {
+    void test() {
         runner.run(
                 context -> {
                     InitialContext initialContext = new InitialContext();

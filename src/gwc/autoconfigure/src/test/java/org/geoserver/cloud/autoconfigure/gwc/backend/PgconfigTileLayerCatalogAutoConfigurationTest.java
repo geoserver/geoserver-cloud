@@ -48,16 +48,13 @@ class PgconfigTileLayerCatalogAutoConfigurationTest {
     private WebApplicationContextRunner runner;
 
     @BeforeAll
-    static void setUpBeforeClass() throws Exception {}
+    static void setUpBeforeClass() {}
 
     @AfterAll
-    static void tearDownAfterClass() throws Exception {}
+    static void tearDownAfterClass() {}
 
-    /**
-     * @throws java.lang.Exception
-     */
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         runner =
                 GeoWebCacheContextRunner.newMinimalGeoWebCacheContextRunner(cacheDir)
                         .withConfiguration(
@@ -71,7 +68,7 @@ class PgconfigTileLayerCatalogAutoConfigurationTest {
     }
 
     @AfterEach
-    void tearDown() throws Exception {
+    void tearDown() {
         container.tearDown();
     }
 

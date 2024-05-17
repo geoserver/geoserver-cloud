@@ -19,6 +19,7 @@ import static org.mockito.Mockito.verify;
 import org.geoserver.cloud.gwc.event.BlobStoreEvent;
 import org.geoserver.cloud.gwc.event.GeoWebCacheEvent;
 import org.geoserver.cloud.gwc.event.GridsetEvent;
+import org.geowebcache.GeoWebCacheException;
 import org.geowebcache.config.BlobStoreConfigurationListener;
 import org.geowebcache.config.BlobStoreInfo;
 import org.geowebcache.config.ConfigurationResourceProvider;
@@ -33,6 +34,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -54,7 +56,7 @@ class CloudGwcXmlConfigurationTest {
     private final DefaultGridsets defaultGridsets = new DefaultGridsets(false, false);
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() throws IOException, GeoWebCacheException {
         mockEventPublisher = new AtomicReference<>();
 
         configFile = tmpdir.resolve("geowebcache.xml");
@@ -63,7 +65,7 @@ class CloudGwcXmlConfigurationTest {
         config = createStubConfig();
     }
 
-    private CloudGwcXmlConfiguration createStubConfig() throws Exception {
+    private CloudGwcXmlConfiguration createStubConfig() throws GeoWebCacheException {
         ApplicationContextProvider appCtx = mock(ApplicationContextProvider.class);
 
         ConfigurationResourceProvider inFac =

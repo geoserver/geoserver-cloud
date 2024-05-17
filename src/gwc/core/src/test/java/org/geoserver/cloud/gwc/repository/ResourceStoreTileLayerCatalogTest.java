@@ -11,9 +11,6 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.google.common.collect.ImmutableSet;
-
-import org.apache.commons.io.FileUtils;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.gwc.layer.GeoServerTileLayerInfo;
 import org.geoserver.gwc.layer.GeoServerTileLayerInfoImpl;
@@ -28,7 +25,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -48,7 +44,7 @@ class ResourceStoreTileLayerCatalogTest {
     private ResourceStoreTileLayerCatalog catalog;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         resourceLoader = new GeoServerResourceLoader(baseDirectory);
         new File(baseDirectory, "gwc-layers").mkdir();
         Optional<WebApplicationContext> webappCtx = Optional.empty();
@@ -118,14 +114,14 @@ class ResourceStoreTileLayerCatalogTest {
         final GeoServerTileLayerInfo oldValue = catalog.save(original);
 
         assertNotNull(oldValue);
-        assertEquals(ImmutableSet.of("image/png", "image/jpeg"), oldValue.getMimeFormats());
+        assertEquals(Set.of("image/png", "image/jpeg"), oldValue.getMimeFormats());
         assertEquals("name1", oldValue.getName());
 
         assertNull(catalog.getLayerByName("name1"));
         assertNotNull(catalog.getLayerByName("name2"));
 
         GeoServerTileLayerInfo modified = catalog.getLayerById("id1");
-        assertEquals(ImmutableSet.of("image/gif"), modified.getMimeFormats());
+        assertEquals(Set.of("image/gif"), modified.getMimeFormats());
     }
 
     @Test
@@ -162,7 +158,7 @@ class ResourceStoreTileLayerCatalogTest {
         assertNotNull(catalog.getLayerByName("name2"));
 
         GeoServerTileLayerInfo modified = catalog.getLayerById("id1");
-        assertEquals(ImmutableSet.of("image/gif"), modified.getMimeFormats());
+        assertEquals(Set.of("image/gif"), modified.getMimeFormats());
     }
 
     @Test
@@ -219,7 +215,7 @@ class ResourceStoreTileLayerCatalogTest {
     }
 
     @Test
-    void testSavedXML() throws Exception {
+    void testSavedXML() {
         // checking that the persistence looks as expected
         final GeoServerTileLayerInfo original;
         {
@@ -246,9 +242,8 @@ class ResourceStoreTileLayerCatalogTest {
 
         catalog.save(original);
 
-        File file = new File(baseDirectory, "gwc-layers/id1.xml");
-        String xml = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
-
+        //        File file = new File(baseDirectory, "gwc-layers/id1.xml");
+        //        String xml = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
         // XPathEngine xpath = XMLUnit.newXpathEngine();
         // Document doc = XMLUnit.buildControlDocument(xml);
         // // no custom attribute for the class, we set a default

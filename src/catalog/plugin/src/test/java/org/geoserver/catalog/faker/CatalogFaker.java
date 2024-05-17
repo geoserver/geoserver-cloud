@@ -311,7 +311,7 @@ public class CatalogFaker {
             boolean enabled) {
         FeatureTypeInfo fttype = catalogFactory().createFeatureType();
         OwsUtils.set(fttype, "id", id);
-        fttype.setEnabled(true);
+        fttype.setEnabled(enabled);
         fttype.setName(name);
         fttype.setAbstract(ftAbstract);
         fttype.setDescription(ftDescription);
@@ -403,13 +403,12 @@ public class CatalogFaker {
         g.setGlobalServices(true);
         g.setId("GeoServer.global");
         g.setJAI(jaiInfo());
-        // don't set lock provider to avoid a warning stack trace that the bean does not exist
-        // g.setLockProviderName("testLockProvider");
+        // don't set lock provider with g.setLockProviderName("testLockProvider") to avoid a warning
+        // stack trace that the bean does not exist
         g.setMetadata(metadataMap("k1", Integer.valueOf(1), "k2", "2", "k3", Boolean.FALSE));
         g.setResourceErrorHandling(ResourceErrorHandling.OGC_EXCEPTION_REPORT);
         g.setSettings(settingsInfo(null));
         g.setUpdateSequence(faker().random().nextLong(1000L));
-        g.setUseHeadersProxyURL(true);
         g.setWebUIMode(WebUIMode.DO_NOT_REDIRECT);
         g.setXmlExternalEntitiesEnabled(Boolean.TRUE);
         g.setXmlPostRequestLogBufferSize(1024);
@@ -472,7 +471,6 @@ public class CatalogFaker {
         c.setAddressPostalCode(fakeAddress.zipCode());
         c.setAddressState(fakeAddress.state());
 
-        // c.setContactEmail(faker.hacker().);
         c.setContactFacsimile(faker.phoneNumber().phoneNumber());
         c.setContactOrganization(faker.company().name());
         c.setContactPerson(faker.name().fullName());
@@ -620,8 +618,7 @@ public class CatalogFaker {
         c.setDimensionType(SampleDimensionType.UNSIGNED_1BIT);
         c.setId(faker.idNumber().valid());
         c.setName(faker.internet().domainName());
-        c.setNullValues(Lists.newArrayList(0.0)); // , Double.NEGATIVE_INFINITY,
-        // Double.POSITIVE_INFINITY));
+        c.setNullValues(Lists.newArrayList(0.0));
         c.setRange(NumberRange.create(0.0, 255.0));
         c.setUnit("unit");
         return c;

@@ -393,7 +393,7 @@ public abstract class ExpressionRoundtripTest {
         assertNull(functionName.getNamespaceURI(), "Unexpected non-null function name nsURI");
         assertEquals(name, functionName.getLocalPart());
 
-        List<Expression> parameters = buildParameters(argumentCount, arguments);
+        List<Expression> parameters = buildParameters(arguments);
         Function dto = new Function();
         dto.setName(name);
         dto.setParameters(parameters);
@@ -418,7 +418,7 @@ public abstract class ExpressionRoundtripTest {
         roundtripTest(dto);
     }
 
-    private List<Expression> buildParameters(int argumentCount, List<Parameter<?>> arguments) {
+    private List<Expression> buildParameters(List<Parameter<?>> arguments) {
         List<Expression> parameters = new ArrayList<>();
         arguments.forEach(p -> parameters.addAll(buildSampleParameter(p)));
         return parameters;
@@ -426,13 +426,10 @@ public abstract class ExpressionRoundtripTest {
 
     private List<Expression> buildSampleParameter(Parameter<?> p) {
         int occurs = p.isRequired().booleanValue() ? p.getMinOccurs() : 1;
-        return IntStream.range(0, occurs).mapToObj(i -> buildSampleParam(i, p)).toList();
+        return IntStream.range(0, occurs).mapToObj(i -> buildSampleParam(p)).toList();
     }
 
-    // static Set<String> allFunctionParamTypes = new TreeSet<>();
-
-    private Expression buildSampleParam(int i, Parameter<?> p) {
-        // allFunctionParamTypes.add(p.getType().getCanonicalName());
+    private Expression buildSampleParam(Parameter<?> p) {
         Object val = p.getDefaultValue();
         if (val == null) {
             val = sampleValue(p.getType());

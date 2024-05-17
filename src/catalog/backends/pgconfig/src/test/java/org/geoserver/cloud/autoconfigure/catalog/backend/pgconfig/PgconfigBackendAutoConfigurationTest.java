@@ -44,7 +44,7 @@ class PgconfigBackendAutoConfigurationTest {
                                     PgconfigBackendAutoConfiguration.class));
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         runner = container.withJdbcUrlConfig(runner);
     }
 

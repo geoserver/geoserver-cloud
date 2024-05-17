@@ -253,9 +253,9 @@ class CachingGeoServerFacadeTest {
     @Test
     void onServiceInfoModifyEvent() {
         TestService1 service = wsService1;
-        WorkspaceInfo ws = service.getWorkspace();
-        when(mock.getService(ws, ServiceInfo.class)).thenReturn(service);
-        when(mock.getService(ws, TestService1.class)).thenReturn(service);
+        WorkspaceInfo ws1 = service.getWorkspace();
+        when(mock.getService(ws1, ServiceInfo.class)).thenReturn(service);
+        when(mock.getService(ws1, TestService1.class)).thenReturn(service);
 
         ServiceInfoKey idKey = ServiceInfoKey.byId(service.getId());
         ServiceInfoKey nameKey = ServiceInfoKey.byName(service.getWorkspace(), service.getName());
@@ -264,7 +264,7 @@ class CachingGeoServerFacadeTest {
         final ServiceModified event = event(ServiceModified.class, service.getId(), SERVICE);
 
         // query as ServiceInfo.class
-        caching.getService(ws, ServiceInfo.class);
+        caching.getService(ws1, ServiceInfo.class);
         assertThat(cache.get(idKey)).isNotNull();
         assertThat(cache.get(nameKey)).isNotNull();
         assertThat(cache.get(typeKey)).isNotNull();
@@ -276,7 +276,7 @@ class CachingGeoServerFacadeTest {
         assertThat(cache.get(typeKey)).isNull();
 
         // query as TestService1.class
-        caching.getService(ws, TestService1.class);
+        caching.getService(ws1, TestService1.class);
         assertThat(cache.get(idKey)).isNotNull();
         assertThat(cache.get(nameKey)).isNotNull();
         assertThat(cache.get(typeKey)).isNotNull();
@@ -288,7 +288,7 @@ class CachingGeoServerFacadeTest {
         assertThat(cache.get(typeKey)).isNull();
 
         // query as WMSInfo.class
-        caching.getService(ws, WMSInfo.class);
+        caching.getService(ws1, WMSInfo.class);
         assertThat(cache.get(idKey)).isNull();
         assertThat(cache.get(nameKey)).isNull();
         assertThat(cache.get(typeKey)).isNull();

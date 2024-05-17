@@ -540,12 +540,12 @@ class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
         RemoteGeoServerEvent localRemoteEvent = eventsCaptor.local().expectOne(eventType, filter);
         RemoteGeoServerEvent sentEvent = eventsCaptor.remote().expectOne(eventType, filter);
 
-        assertCatalogEvent(catalog, (InfoModified) localRemoteEvent.getEvent(), expected);
-        assertCatalogEvent(catalog, (InfoModified) sentEvent.getEvent(), expected);
+        assertCatalogEvent((InfoModified) localRemoteEvent.getEvent(), expected);
+        assertCatalogEvent((InfoModified) sentEvent.getEvent(), expected);
         return eventType.cast(sentEvent.getEvent());
     }
 
-    private void assertCatalogEvent(Catalog catalog, InfoModified event, Patch expected) {
+    private void assertCatalogEvent(InfoModified event, Patch expected) {
         assertThat(event.getObjectId()).isEqualTo("catalog"); // i.e. InfoEvent.CATALOG_ID
         assertThat(event.getObjectType()).isEqualTo(ConfigInfoType.CATALOG);
 
@@ -555,6 +555,5 @@ class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
         // can't compare value equality here, RevolvingProxy instances won't be resolved against
         // the remote catalog because that depends on having an actual catalog backend
         // configured
-        // assertEquals(expected, actual);
     }
 }
