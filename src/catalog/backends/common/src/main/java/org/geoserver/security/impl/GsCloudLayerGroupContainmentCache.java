@@ -170,12 +170,9 @@ public class GsCloudLayerGroupContainmentCache extends LayerGroupContainmentCach
                 .forEach(
                         p -> {
                             String rid = ((LayerInfo) p).getResource().getId();
-                            synchronized (rid) {
-                                Set<LayerGroupSummary> containers =
-                                        resourceContainmentCache.get(rid);
-                                if (containers != null) {
-                                    containers.remove(data);
-                                }
+                            Set<LayerGroupSummary> containers = resourceContainmentCache.get(rid);
+                            if (containers != null) {
+                                containers.remove(data);
                             }
                         });
         // this group does not contain anything anymore, remove from containment
@@ -320,11 +317,9 @@ public class GsCloudLayerGroupContainmentCache extends LayerGroupContainmentCach
                     String resourceId = ((LayerInfo) removed).getResource().getId();
                     Set<LayerGroupSummary> containers = resourceContainmentCache.get(resourceId);
                     if (containers != null) {
-                        synchronized (resourceId) {
-                            containers.remove(groupSummary);
-                            if (containers.isEmpty()) {
-                                resourceContainmentCache.remove(resourceId, containers);
-                            }
+                        containers.remove(groupSummary);
+                        if (containers.isEmpty()) {
+                            resourceContainmentCache.remove(resourceId, containers);
                         }
                     }
                 } else {
@@ -342,12 +337,10 @@ public class GsCloudLayerGroupContainmentCache extends LayerGroupContainmentCach
             for (PublishedInfo added : addedLayers) {
                 if (added instanceof LayerInfo) {
                     String resourceId = ((LayerInfo) added).getResource().getId();
-                    synchronized (resourceId) {
-                        Set<LayerGroupSummary> containers =
-                                resourceContainmentCache.computeIfAbsent(
-                                        resourceId, CONCURRENT_SET_BUILDER);
-                        containers.add(groupSummary);
-                    }
+                    Set<LayerGroupSummary> containers =
+                            resourceContainmentCache.computeIfAbsent(
+                                    resourceId, CONCURRENT_SET_BUILDER);
+                    containers.add(groupSummary);
                 } else {
                     LayerGroupInfo child = (LayerGroupInfo) added;
                     LayerGroupSummary summary = groupCache.get(child.getId());
