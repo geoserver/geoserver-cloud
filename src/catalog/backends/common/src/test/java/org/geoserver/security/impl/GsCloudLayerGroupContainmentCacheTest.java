@@ -56,6 +56,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -152,7 +153,7 @@ class GsCloudLayerGroupContainmentCacheTest {
     }
 
     @BeforeEach
-    public void setupLayerGrups() {
+    public void setupLayerGrups() throws InterruptedException {
         LayerInfo lakes = catalog.getLayerByName(getLayerId(MockData.LAKES));
         LayerInfo forests = catalog.getLayerByName(getLayerId(MockData.FORESTS));
         LayerInfo roads = catalog.getLayerByName(getLayerId(MockData.ROAD_SEGMENTS));
@@ -172,6 +173,7 @@ class GsCloudLayerGroupContainmentCacheTest {
         when(contextRefreshedEvent.getApplicationContext()).thenReturn(context);
         cc.setApplicationContext(context);
         cc.onApplicationEvent(contextRefreshedEvent);
+        cc.buildTask.orTimeout(2, TimeUnit.SECONDS).join();
     }
 
     @AfterEach
@@ -248,6 +250,7 @@ class GsCloudLayerGroupContainmentCacheTest {
 
         layerGroupContainmentCache.setApplicationContext(context);
         layerGroupContainmentCache.onApplicationEvent(contextRefreshedEvent);
+        layerGroupContainmentCache.buildTask.orTimeout(2, TimeUnit.SECONDS).join();
 
         assertEquals(2, layerGroupContainmentCache.groupCache.size());
     }
