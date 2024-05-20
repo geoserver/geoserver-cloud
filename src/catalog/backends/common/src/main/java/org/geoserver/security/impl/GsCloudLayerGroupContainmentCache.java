@@ -5,7 +5,9 @@
 package org.geoserver.security.impl;
 
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.Maps;
 
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 import org.geoserver.catalog.Catalog;
@@ -32,11 +34,13 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Alternative to {@link LayerGroupContainmentCache}
@@ -70,8 +74,18 @@ import java.util.Set;
 public class GsCloudLayerGroupContainmentCache extends LayerGroupContainmentCache
         implements ApplicationContextAware {
 
-    private Catalog catalog;
+    private Catalog rawCatalog;
     private ApplicationContext applicationContext;
+
+    /** Async task submitted by {@link #buildLayerGroupCaches()} */
+    CompletableFuture<Void> buildTask = CompletableFuture.completedFuture(null);
+
+    /**
+     * abort flag for a running {@link #buildLayerGroupCaches()} before running again in response to
+     * {@link CatalogChangeListener#reloaded()} or {@link
+     * #onApplicationEvent(ContextRefreshedEvent)}
+     */
+    private volatile boolean abort;
 
     public GsCloudLayerGroupContainmentCache(Catalog rawCatalog) {
         /*
@@ -80,9 +94,9 @@ public class GsCloudLayerGroupContainmentCache extends LayerGroupContainmentCach
          * on the constructor and on the app context event
          */
         super(new CatalogImpl());
-        this.catalog = rawCatalog;
-        catalog.addListener(new CatalogChangeListener());
-        catalog.addListener(new LayerGroupStyleListener());
+        this.rawCatalog = rawCatalog;
+        rawCatalog.addListener(new CatalogChangeListener());
+        rawCatalog.addListener(new LayerGroupStyleListener());
     }
 
     @Override
@@ -96,99 +110,103 @@ public class GsCloudLayerGroupContainmentCache extends LayerGroupContainmentCach
             log.debug("Ignoring non web application context refresh event");
             return;
         }
-
         log.info("Application context refreshed, building layer group containment cache");
-        Stopwatch sw = Stopwatch.createStarted();
         buildLayerGroupCaches();
-        sw.stop();
-        log.info(
-                "Built layer group containment cache in {}. Group cache size: {}, resource containment cache size: {} with {} layergroups",
-                sw,
-                groupCache.size(),
-                resourceContainmentCache.size(),
-                resourceContainmentCache.values().stream().flatMap(Set::stream).count());
     }
 
+    /** Builds the layer group cache asynchronously */
     private void buildLayerGroupCaches() {
+        if (!buildTask.isDone()) {
+            abort = true;
+        }
+        buildTask = CompletableFuture.runAsync(this::doBuildLayerGroupCaches);
+    }
+
+    private void doBuildLayerGroupCaches() {
+        Stopwatch sw = Stopwatch.createStarted();
+
         groupCache.clear();
         resourceContainmentCache.clear();
 
         /*
          * fix: make a single pass over the groups in a streaming way
          */
-        try (var groups = catalog.list(LayerGroupInfo.class, Filter.INCLUDE)) {
-
-            while (groups.hasNext()) {
+        try (var groups = rawCatalog.list(LayerGroupInfo.class, Filter.INCLUDE)) {
+            while (!abort && groups.hasNext()) {
                 LayerGroupInfo group = groups.next();
-                addGroupInfo(group);
-                registerContainedGroups(group);
+                getGroupData(group);
             }
+        }
+
+        sw.stop();
+        if (abort) log.info("Layer group containment cache build cancelled after {}", sw);
+        else
+            log.info(
+                    "Built layer group containment cache in {}. Group cache size: {}, resource containment cache size: {} with {} layergroups",
+                    sw,
+                    groupCache.size(),
+                    resourceContainmentCache.size(),
+                    resourceContainmentCache.values().stream().flatMap(Set::stream).count());
+    }
+
+    private LayerGroupSummary createGroupInfo(LayerGroupInfo group, LayerGroupSummary groupData) {
+        addGroupInfo(group, groupData);
+        registerContainedGroups(group, groupData);
+        return groupData;
+    }
+
+    private void registerContainedGroups(LayerGroupInfo group, LayerGroupSummary groupData) {
+        group.getLayers().stream()
+                .filter(IS_GROUP)
+                .map(LayerGroupInfo.class::cast)
+                .forEach(p -> registerContainerGroup(groupData, p));
+    }
+
+    private void registerContainerGroup(
+            LayerGroupSummary container, LayerGroupInfo containedGroup) {
+        LayerGroupSummary contained = getGroupData(containedGroup);
+        if (container != null && contained != null) {
+            contained.containerGroups.add(container);
         }
     }
 
-    private void registerContainedGroups(LayerGroupInfo lg) {
-        lg.getLayers().stream()
-                .filter(IS_GROUP)
-                .map(LayerGroupInfo.class::cast)
-                .forEach(
-                        p -> {
-                            LayerGroupSummary container = getGroupData(lg);
-                            LayerGroupSummary contained = getGroupData(p);
-                            if (container != null && contained != null) {
-                                contained.containerGroups.add(container);
-                            }
-                        });
-    }
-
-    private void addGroupInfo(LayerGroupInfo lg) {
-        LayerGroupSummary groupData = getGroupData(lg);
+    private void addGroupInfo(LayerGroupInfo lg, LayerGroupSummary groupData) {
         lg.getLayers().stream()
                 .filter(IS_LAYER)
                 .map(LayerInfo.class::cast)
-                .forEach(
-                        p -> {
-                            String id = p.getResource().getId();
-                            Set<LayerGroupSummary> containers =
-                                    resourceContainmentCache.computeIfAbsent(
-                                            id, CONCURRENT_SET_BUILDER);
-                            containers.add(groupData);
-                        });
+                .forEach(p -> addGroupInfo(groupData, p));
     }
 
-    /*
-     * fix: use computeIfAbsent, addGroupInfo and registerContainedGroups can hence be called in a single pass
+    private void addGroupInfo(LayerGroupSummary groupData, LayerInfo containedLayer) {
+        String id = containedLayer.getResource().getId();
+        Set<LayerGroupSummary> containers = getResourceContainers(id);
+        containers.add(groupData);
+    }
+
+    private Set<LayerGroupSummary> getResourceContainers(String resourceId) {
+        return resourceContainmentCache.computeIfAbsent(resourceId, CONCURRENT_SET_BUILDER);
+    }
+
+    /**
+     * fix: use computeIfAbsent, {@link #addGroupInfo} and {@link #registerContainedGroups} can
+     * hence be called in a single pass
      */
     private LayerGroupSummary getGroupData(LayerGroupInfo lg) {
-        return groupCache.computeIfAbsent(lg.getId(), id -> new LayerGroupSummary(lg));
-    }
-
-    private void clearGroupInfo(LayerGroupInfo lg) {
-        LayerGroupSummary data = groupCache.remove(lg.getId());
-        // clear the resource containment cache
-        lg.getLayers().stream()
-                .filter(IS_LAYER)
-                .forEach(
-                        p -> {
-                            String rid = ((LayerInfo) p).getResource().getId();
-                            Set<LayerGroupSummary> containers = resourceContainmentCache.get(rid);
-                            if (containers != null) {
-                                containers.remove(data);
-                            }
-                        });
-        // this group does not contain anything anymore, remove from containment
-        for (LayerGroupSummary d : groupCache.values()) {
-            // will be removed by equality
-            d.containerGroups.remove(new LayerGroupSummary(lg));
+        LayerGroupSummary groupData = groupCache.get(lg.getId());
+        if (null == groupData) {
+            groupData = groupCache.computeIfAbsent(lg.getId(), id -> new LayerGroupSummary(lg));
+            return createGroupInfo(lg, groupData);
         }
+        return groupData;
     }
 
-    /** Returns all groups containing directly or indirectly containing the resource */
+    /** Returns all groups directly or indirectly containing the resource */
     @Override
     public Collection<LayerGroupSummary> getContainerGroupsFor(ResourceInfo resource) {
         String id = resource.getId();
         Set<LayerGroupSummary> groups = resourceContainmentCache.get(id);
         if (groups == null) {
-            return Collections.emptyList();
+            return List.of();
         }
         Set<LayerGroupSummary> result = new HashSet<>();
         for (LayerGroupSummary lg : groups) {
@@ -203,20 +221,14 @@ public class GsCloudLayerGroupContainmentCache extends LayerGroupContainmentCach
      */
     @Override
     public Collection<LayerGroupSummary> getContainerGroupsFor(LayerGroupInfo lg) {
-        String id = lg.getId();
-        if (id == null) {
-            return Collections.emptyList();
+        if (null == lg.getId()) return Set.of();
+        LayerGroupSummary summary = getGroupData(lg);
+        if (summary != null) {
+            Set<LayerGroupSummary> groups = new HashSet<>();
+            summary.getContainerGroups().forEach(container -> collectContainers(container, groups));
+            return groups;
         }
-        LayerGroupSummary summary = groupCache.get(id);
-        if (summary == null) {
-            return Collections.emptyList();
-        }
-
-        Set<LayerGroupSummary> result = new HashSet<>();
-        for (LayerGroupSummary container : summary.getContainerGroups()) {
-            collectContainers(container, result);
-        }
-        return result;
+        return Set.of();
     }
 
     /**
@@ -227,9 +239,7 @@ public class GsCloudLayerGroupContainmentCache extends LayerGroupContainmentCach
             if (lg.getMode() != LayerGroupInfo.Mode.SINGLE) {
                 groups.add(lg);
             }
-            for (LayerGroupSummary container : lg.containerGroups) {
-                collectContainers(container, groups);
-            }
+            lg.containerGroups.forEach(container -> collectContainers(container, groups));
         }
     }
 
@@ -240,55 +250,64 @@ public class GsCloudLayerGroupContainmentCache extends LayerGroupContainmentCach
     final class CatalogChangeListener implements CatalogListener {
 
         @Override
+        public void reloaded() {
+            log.info("Catalog reloaded, re-building layer group containment cache");
+            buildLayerGroupCaches();
+        }
+
+        @Override
         public void handleAddEvent(CatalogAddEvent event) throws CatalogException {
-            if (event.getSource() instanceof LayerGroupInfo) {
-                LayerGroupInfo lg = (LayerGroupInfo) event.getSource();
-                addGroupInfo(lg);
-                registerContainedGroups(lg);
+            if (event.getSource() instanceof LayerGroupInfo lg) {
+                getGroupData(lg);
             }
         }
 
         @Override
         public void handleRemoveEvent(CatalogRemoveEvent event) throws CatalogException {
-            if (event.getSource() instanceof LayerGroupInfo) {
-                LayerGroupInfo lg = (LayerGroupInfo) event.getSource();
+            if (event.getSource() instanceof LayerGroupInfo lg) {
                 clearGroupInfo(lg);
             }
             // no need to listen to workspace or layer removal, these will cascade to
             // layer groups
         }
 
+        private void clearGroupInfo(LayerGroupInfo lg) {
+            final LayerGroupSummary data = groupCache.remove(lg.getId());
+            if (data == null) return;
+            // clear the resource containment cache
+            lg.getLayers().stream()
+                    .filter(IS_LAYER)
+                    .map(LayerInfo.class::cast)
+                    .map(LayerInfo::getResource)
+                    .map(ResourceInfo::getId)
+                    .forEach(rid -> clearContainment(data, rid));
+            // this group does not contain anything anymore, remove from containment
+            for (LayerGroupSummary d : groupCache.values()) {
+                // will be removed by id based equality
+                d.containerGroups.remove(data);
+            }
+        }
+
+        private void clearContainment(final LayerGroupSummary containerSummary, String resourceId) {
+            Set<LayerGroupSummary> containers = resourceContainmentCache.get(resourceId);
+            if (containers != null) {
+                containers.remove(containerSummary);
+                if (containers.isEmpty()) {
+                    resourceContainmentCache.remove(resourceId);
+                }
+            }
+        }
+
         @Override
         public void handleModifyEvent(CatalogModifyEvent event) throws CatalogException {
             final CatalogInfo source = event.getSource();
-            if (source instanceof LayerGroupInfo) {
-                LayerGroupInfo lg = (LayerGroupInfo) event.getSource();
+            if (source instanceof LayerGroupInfo lg) {
+                LayerGroupSummary summary = getGroupData(lg);
                 // was the layer group renamed, moved, or its contents changed?
-                int nameIdx = event.getPropertyNames().indexOf("name");
-                if (nameIdx != -1) {
-                    String newName = (String) event.getNewValues().get(nameIdx);
-                    updateGroupName(lg.getId(), newName);
-                }
-                int wsIdx = event.getPropertyNames().indexOf("workspace");
-                if (wsIdx != -1) {
-                    WorkspaceInfo newWorkspace = (WorkspaceInfo) event.getNewValues().get(wsIdx);
-                    updateGroupWorkspace(lg.getId(), newWorkspace);
-                }
-                int layerIdx = event.getPropertyNames().indexOf("layers");
-                if (layerIdx != -1) {
-                    @SuppressWarnings("unchecked")
-                    List<PublishedInfo> oldLayers =
-                            (List<PublishedInfo>) event.getOldValues().get(layerIdx);
-                    @SuppressWarnings("unchecked")
-                    List<PublishedInfo> newLayers =
-                            (List<PublishedInfo>) event.getNewValues().get(layerIdx);
-                    updateContainedLayers(groupCache.get(lg.getId()), oldLayers, newLayers);
-                }
-                int modeIdx = event.getPropertyNames().indexOf("mode");
-                if (modeIdx != -1) {
-                    Mode newMode = (Mode) event.getNewValues().get(modeIdx);
-                    updateGroupMode(lg.getId(), newMode);
-                }
+                handleNameChange(event, summary);
+                handleWorkspaceChange(event, summary);
+                handleLayersChange(event, summary);
+                handleModeChange(event, summary);
             } else if (source instanceof WorkspaceInfo) {
                 int nameIdx = event.getPropertyNames().indexOf("name");
                 if (nameIdx != -1) {
@@ -299,31 +318,60 @@ public class GsCloudLayerGroupContainmentCache extends LayerGroupContainmentCach
             }
         }
 
-        private void updateGroupMode(String id, Mode newMode) {
-            LayerGroupSummary summary = groupCache.get(id);
-            summary.mode = newMode;
+        private void handleNameChange(CatalogModifyEvent event, LayerGroupSummary summary) {
+            int nameIdx = event.getPropertyNames().indexOf("name");
+            if (nameIdx != -1) {
+                String newName = (String) event.getNewValues().get(nameIdx);
+                summary.name = newName;
+            }
+        }
+
+        private void handleWorkspaceChange(CatalogModifyEvent event, LayerGroupSummary summary) {
+            int wsIdx = event.getPropertyNames().indexOf("workspace");
+            if (wsIdx != -1) {
+                WorkspaceInfo newWorkspace = (WorkspaceInfo) event.getNewValues().get(wsIdx);
+                summary.workspace = newWorkspace == null ? null : newWorkspace.getName();
+            }
+        }
+
+        @SuppressWarnings("unchecked")
+        private void handleLayersChange(CatalogModifyEvent event, LayerGroupSummary summary) {
+
+            int layersIdx = event.getPropertyNames().indexOf("layers");
+            if (layersIdx != -1) {
+                List<PublishedInfo> oldLayers;
+                List<PublishedInfo> newLayers;
+
+                oldLayers = (List<PublishedInfo>) event.getOldValues().get(layersIdx);
+                newLayers = (List<PublishedInfo>) event.getNewValues().get(layersIdx);
+                updateContainedLayers(summary, oldLayers, newLayers);
+            }
+        }
+
+        private void handleModeChange(CatalogModifyEvent event, LayerGroupSummary summary) {
+            int modeIdx = event.getPropertyNames().indexOf("mode");
+            if (modeIdx != -1) {
+                Mode newMode = (Mode) event.getNewValues().get(modeIdx);
+                summary.mode = newMode;
+            }
         }
 
         private void updateContainedLayers(
-                LayerGroupSummary groupSummary,
+                @NonNull LayerGroupSummary groupSummary,
                 List<PublishedInfo> oldLayers,
                 List<PublishedInfo> newLayers) {
 
-            // process layers that are no more contained
-            final HashSet<PublishedInfo> removedLayers = new HashSet<>(oldLayers);
-            removedLayers.removeAll(newLayers);
-            for (PublishedInfo removed : removedLayers) {
-                if (removed instanceof LayerInfo) {
-                    String resourceId = ((LayerInfo) removed).getResource().getId();
-                    Set<LayerGroupSummary> containers = resourceContainmentCache.get(resourceId);
-                    if (containers != null) {
-                        containers.remove(groupSummary);
-                        if (containers.isEmpty()) {
-                            resourceContainmentCache.remove(resourceId, containers);
-                        }
-                    }
-                } else {
-                    LayerGroupInfo child = (LayerGroupInfo) removed;
+            // do not rely on PublishedInfo.equals()...
+            var difference = Maps.difference(toIdMap(oldLayers), toIdMap(newLayers));
+
+            Map<String, PublishedInfo> removedLayers = difference.entriesOnlyOnLeft();
+            // process layers that are no longer contained
+            for (PublishedInfo removed : removedLayers.values()) {
+                if (removed instanceof LayerInfo layer) {
+                    String resourceId = layer.getResource().getId();
+                    clearContainment(groupSummary, resourceId);
+                } else if (removed instanceof LayerGroupInfo child) {
+                    //// getGroupData(child)
                     LayerGroupSummary summary = groupCache.get(child.getId());
                     if (summary != null) {
                         summary.containerGroups.remove(groupSummary);
@@ -332,17 +380,12 @@ public class GsCloudLayerGroupContainmentCache extends LayerGroupContainmentCach
             }
 
             // add the layers that are newly contained
-            final HashSet<PublishedInfo> addedLayers = new HashSet<>(newLayers);
-            addedLayers.removeAll(oldLayers);
-            for (PublishedInfo added : addedLayers) {
-                if (added instanceof LayerInfo) {
-                    String resourceId = ((LayerInfo) added).getResource().getId();
-                    Set<LayerGroupSummary> containers =
-                            resourceContainmentCache.computeIfAbsent(
-                                    resourceId, CONCURRENT_SET_BUILDER);
-                    containers.add(groupSummary);
-                } else {
-                    LayerGroupInfo child = (LayerGroupInfo) added;
+            final Map<String, PublishedInfo> addedLayers = difference.entriesOnlyOnRight();
+            for (PublishedInfo added : addedLayers.values()) {
+                if (added instanceof LayerInfo layer) {
+                    String resourceId = layer.getResource().getId();
+                    getResourceContainers(resourceId).add(groupSummary);
+                } else if (added instanceof LayerGroupInfo child) {
                     LayerGroupSummary summary = groupCache.get(child.getId());
                     if (summary != null) {
                         summary.containerGroups.add(groupSummary);
@@ -351,18 +394,11 @@ public class GsCloudLayerGroupContainmentCache extends LayerGroupContainmentCach
             }
         }
 
-        private void updateGroupWorkspace(String id, WorkspaceInfo newWorkspace) {
-            LayerGroupSummary summary = groupCache.get(id);
-            if (summary != null) {
-                summary.workspace = newWorkspace == null ? null : newWorkspace.getName();
-            }
-        }
-
-        private void updateGroupName(String id, String newName) {
-            LayerGroupSummary summary = groupCache.get(id);
-            if (summary != null) {
-                summary.name = newName;
-            }
+        private Map<String, PublishedInfo> toIdMap(List<PublishedInfo> layers) {
+            if (layers.isEmpty()) return Map.of();
+            Map<String, PublishedInfo> map = new HashMap<>();
+            layers.stream().forEach(l -> map.put(l.getId(), l));
+            return map;
         }
 
         private void updateWorkspaceNames(String oldName, String newName) {
@@ -375,12 +411,6 @@ public class GsCloudLayerGroupContainmentCache extends LayerGroupContainmentCach
         public void handlePostModifyEvent(CatalogPostModifyEvent event) throws CatalogException {
             // nothing to do here
 
-        }
-
-        @Override
-        public void reloaded() {
-            // rebuild the containment cache
-            buildLayerGroupCaches();
         }
     }
 }
