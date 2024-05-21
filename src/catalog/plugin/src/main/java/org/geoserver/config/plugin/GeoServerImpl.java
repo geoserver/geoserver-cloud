@@ -197,9 +197,8 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
         Objects.requireNonNull(
                 realws,
                 () ->
-                        String.format(
-                                "Workspace %s(%s) attached to SettingsInfo does not exist",
-                                workspace.getName(), workspace.getId()));
+                        "Workspace %s(%s) attached to SettingsInfo does not exist"
+                                .formatted(workspace.getName(), workspace.getId()));
         settings.setWorkspace(realws);
     }
 

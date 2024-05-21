@@ -29,8 +29,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 
-import static java.lang.String.format;
-
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -1103,9 +1101,8 @@ public abstract class CatalogConformanceTest {
             NamespaceInfo actual = resource.getNamespace();
             assertNotNull(actual);
             String msg =
-                    format(
-                            "resource %s of store %s did not get its namespace updated",
-                            resource.getName(), store.getName());
+                    "resource %s of store %s did not get its namespace updated"
+                            .formatted(resource.getName(), store.getName());
             assertEquals(expected, actual, msg);
         }
     }

@@ -793,9 +793,8 @@ public abstract class PatchSerializationTest {
             Class<? extends Info> type = ProxyUtils.referenceTypeOf(patchValue).orElseThrow();
             Supplier<String> desc =
                     () -> {
-                        return String.format(
-                                "Patch value of type %s shall be encoded as reference, got value %s",
-                                type.getCanonicalName(), typeName);
+                        return "Patch value of type %s shall be encoded as reference, got value %s"
+                                .formatted(type.getCanonicalName(), typeName);
                     };
             assertThat(typeName).as(desc).isEqualTo("ResolvingProxy");
         } else {
@@ -837,16 +836,14 @@ public abstract class PatchSerializationTest {
             assertThat(ProxyUtils.isResolvingProxy(info))
                     .as(
                             () ->
-                                    String.format(
-                                            "%s should not be a ResolvingProxy: %s",
-                                            info.getId(), typeName(info)))
+                                    "%s should not be a ResolvingProxy: %s"
+                                            .formatted(info.getId(), typeName(info)))
                     .isFalse();
             assertThat(ProxyUtils.isModificationProxy(info))
                     .as(
                             () ->
-                                    String.format(
-                                            "%s should not be a ModificationProxy: %s",
-                                            info.getId(), typeName(info)))
+                                    "%s should not be a ModificationProxy: %s"
+                                            .formatted(info.getId(), typeName(info)))
                     .isFalse();
         }
     }
@@ -855,9 +852,8 @@ public abstract class PatchSerializationTest {
         assertThat(ProxyUtils.isModificationProxy(info))
                 .as(
                         () ->
-                                String.format(
-                                        "%s should be a ModificationProxy, got %s",
-                                        info.getId(), typeName(info)))
+                                "%s should be a ModificationProxy, got %s"
+                                        .formatted(info.getId(), typeName(info)))
                 .isTrue();
 
         I real = ModificationProxy.unwrap(info);
@@ -876,9 +872,8 @@ public abstract class PatchSerializationTest {
         assertThat(ProxyUtils.isResolvingProxy(info))
                 .as(
                         () ->
-                                String.format(
-                                        "%s should be a ResolvingProxy, got %s",
-                                        info.getId(), typeName(info)))
+                                "%s should be a ResolvingProxy, got %s"
+                                        .formatted(info.getId(), typeName(info)))
                 .isTrue();
     }
 
@@ -886,9 +881,8 @@ public abstract class PatchSerializationTest {
         if (valueObject instanceof Info info) {
             Supplier<String> msg =
                     () ->
-                            String.format(
-                                    "expected pure value object of type %s, got %s",
-                                    valueType.getCanonicalName(), typeName(valueObject));
+                            "expected pure value object of type %s, got %s"
+                                    .formatted(valueType.getCanonicalName(), typeName(valueObject));
             assertThat(ProxyUtils.isResolvingProxy(info)).as(msg).isFalse();
             assertThat(ProxyUtils.isModificationProxy(info)).as(msg).isFalse();
         }

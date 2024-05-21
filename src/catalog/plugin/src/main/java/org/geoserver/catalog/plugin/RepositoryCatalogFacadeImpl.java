@@ -4,8 +4,6 @@
  */
 package org.geoserver.catalog.plugin;
 
-import static java.lang.String.format;
-
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogCapabilities;
 import org.geoserver.catalog.CatalogException;
@@ -665,9 +663,8 @@ public class RepositoryCatalogFacadeImpl
     private <T extends CatalogInfo> void checkCanSort(final Class<T> type, SortBy order) {
         if (!canSort(type, order.getPropertyName().getPropertyName())) {
             throw new IllegalArgumentException(
-                    format(
-                            "Can't sort objects of type %s by %s",
-                            type.getName(), order.getPropertyName()));
+                    "Can't sort objects of type %s by %s"
+                            .formatted(type.getName(), order.getPropertyName()));
         }
     }
 

@@ -42,9 +42,13 @@ public abstract class GeoWebCacheEvent extends ApplicationEvent {
 
     @Override
     public String toString() {
-        return String.format(
-                "%s[%s '%s' id: %s timestamp: %s]",
-                getClass().getSimpleName(), getEventType(), getObjectId(), getId(), getTimestamp());
+        return "%s[%s '%s' id: %s timestamp: %s]"
+                .formatted(
+                        getClass().getSimpleName(),
+                        getEventType(),
+                        getObjectId(),
+                        getId(),
+                        getTimestamp());
     }
 
     protected abstract String getObjectId();

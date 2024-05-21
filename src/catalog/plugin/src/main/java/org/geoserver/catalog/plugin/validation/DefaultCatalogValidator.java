@@ -4,8 +4,6 @@
  */
 package org.geoserver.catalog.plugin.validation;
 
-import static java.lang.String.format;
-
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogBuilder;
 import org.geoserver.catalog.CatalogInfo;
@@ -87,9 +85,8 @@ public class DefaultCatalogValidator implements CatalogValidator {
                 && !catalog.getCatalogCapabilities().supportsIsolatedWorkspaces()) {
             // isolated namespaces \ workspaces are not supported by this catalog
             throw new IllegalArgumentException(
-                    String.format(
-                            "Namespace '%s:%s' is isolated but isolated workspaces are not supported by this catalog.",
-                            namespace.getPrefix(), namespace.getURI()));
+                    "Namespace '%s:%s' is isolated but isolated workspaces are not supported by this catalog."
+                            .formatted(namespace.getPrefix(), namespace.getURI()));
         }
         checkArgument(
                 !namespace.getPrefix().equals(Catalog.DEFAULT),
@@ -115,9 +112,8 @@ public class DefaultCatalogValidator implements CatalogValidator {
             new URI(namespace.getURI());
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException(
-                    format(
-                            "Invalid URI syntax for '%s' in namespace '%s'",
-                            namespace.getURI(), namespace.getPrefix()),
+                    "Invalid URI syntax for '%s' in namespace '%s'"
+                            .formatted(namespace.getURI(), namespace.getPrefix()),
                     e);
         }
     }
@@ -398,13 +394,13 @@ public class DefaultCatalogValidator implements CatalogValidator {
 
     static void checkNotNull(Object value, String message, Object... messageArgs) {
         if (value == null) {
-            throw new NullPointerException(format(message, messageArgs));
+            throw new NullPointerException(message.formatted(messageArgs));
         }
     }
 
     static void checkArgument(boolean condition, String message, Object... messageArgs) {
         if (!condition) {
-            throw new IllegalArgumentException(format(message, messageArgs));
+            throw new IllegalArgumentException(message.formatted(messageArgs));
         }
     }
 

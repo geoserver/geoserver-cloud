@@ -7,8 +7,6 @@ package org.geoserver.catalog.plugin.locking;
 import static org.geoserver.catalog.plugin.locking.LockingSupport.nameOf;
 import static org.geoserver.catalog.plugin.locking.LockingSupport.typeOf;
 
-import static java.lang.String.format;
-
 import lombok.NonNull;
 
 import org.geoserver.GeoServerConfigurationLock;
@@ -55,34 +53,34 @@ public class LockingGeoServer extends GeoServerImpl {
     @Override
     public void setGlobal(GeoServerInfo global) {
         lockingSupport.runInWriteLock(
-                () -> super.setGlobal(global), format("setGlobal(%s)", nameOf(global)));
+                () -> super.setGlobal(global), "setGlobal(%s)".formatted(nameOf(global)));
     }
 
     @Override
     public void save(GeoServerInfo geoServer) {
         lockingSupport.runInWriteLock(
-                () -> super.save(geoServer), format("save(%s)", nameOf(geoServer)));
+                () -> super.save(geoServer), "save(%s)".formatted(nameOf(geoServer)));
     }
 
     @Override
     public void add(SettingsInfo settings) {
         lockingSupport.runInWriteLock(
                 () -> super.add(settings),
-                format("add(%s[%s])", typeOf(settings), nameOf(settings)));
+                "add(%s[%s])".formatted(typeOf(settings), nameOf(settings)));
     }
 
     @Override
     public void save(SettingsInfo settings) {
         lockingSupport.runInWriteLock(
                 () -> super.save(settings),
-                format("save(%s[%s])", typeOf(settings), nameOf(settings)));
+                "save(%s[%s])".formatted(typeOf(settings), nameOf(settings)));
     }
 
     @Override
     public void remove(SettingsInfo settings) {
         lockingSupport.runInWriteLock(
                 () -> super.remove(settings),
-                format("remove(%s[%s])", typeOf(settings), nameOf(settings)));
+                "remove(%s[%s])".formatted(typeOf(settings), nameOf(settings)));
     }
 
     @Override
@@ -98,20 +96,21 @@ public class LockingGeoServer extends GeoServerImpl {
     @Override
     public void add(ServiceInfo service) {
         lockingSupport.runInWriteLock(
-                () -> super.add(service), format("add(%s[%s])", typeOf(service), nameOf(service)));
+                () -> super.add(service),
+                "add(%s[%s])".formatted(typeOf(service), nameOf(service)));
     }
 
     @Override
     public void remove(ServiceInfo service) {
         lockingSupport.runInWriteLock(
                 () -> super.remove(service),
-                format("remove(%s[%s])", typeOf(service), nameOf(service)));
+                "remove(%s[%s])".formatted(typeOf(service), nameOf(service)));
     }
 
     @Override
     public void save(ServiceInfo service) {
         lockingSupport.runInWriteLock(
                 () -> super.save(service),
-                format("save(%s[%s])", typeOf(service), nameOf(service)));
+                "save(%s[%s])".formatted(typeOf(service), nameOf(service)));
     }
 }

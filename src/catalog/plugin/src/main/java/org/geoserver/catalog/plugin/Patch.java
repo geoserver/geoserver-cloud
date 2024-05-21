@@ -203,8 +203,8 @@ public @Data class Patch implements Serializable {
     public String toString() {
         String props =
                 this.getPatches().stream()
-                        .map(p -> String.format("(%s: %s)", p.getName(), p.getValue()))
+                        .map(p -> "(%s: %s)".formatted(p.getName(), p.getValue()))
                         .collect(Collectors.joining(","));
-        return String.format("%s[%s]", getClass().getSimpleName(), props);
+        return "%s[%s]".formatted(getClass().getSimpleName(), props);
     }
 }

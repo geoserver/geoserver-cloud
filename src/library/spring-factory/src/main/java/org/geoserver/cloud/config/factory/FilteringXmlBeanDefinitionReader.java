@@ -244,9 +244,8 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
             sw.stop();
             if (log.isTraceEnabled()) {
                 log.trace(
-                        String.format(
-                                "Loaded %,d classpath resources in %,dms",
-                                classpathBaseResources.length, sw.getTotalTimeMillis()));
+                        "Loaded %,d classpath resources in %,dms"
+                                .formatted(classpathBaseResources.length, sw.getTotalTimeMillis()));
             }
         }
         return classpathBaseResources;
@@ -293,9 +292,8 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
     private IllegalArgumentException throwInvalidExpression(
             final String resourceLocation, String regex, Throwable cause) {
         String msg =
-                String.format(
-                        "Invalid bean filter expression (%s), expected name=<regex>>, resource: %s",
-                        regex, resourceLocation);
+                "Invalid bean filter expression (%s), expected name=<regex>>, resource: %s"
+                        .formatted(regex, resourceLocation);
         throw new IllegalArgumentException(msg, cause);
     }
 
