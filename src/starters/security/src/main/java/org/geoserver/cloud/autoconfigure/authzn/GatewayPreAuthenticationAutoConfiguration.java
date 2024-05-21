@@ -5,68 +5,28 @@
 package org.geoserver.cloud.autoconfigure.authzn;
 
 import org.geoserver.cloud.autoconfigure.security.ConditionalOnGeoServerSecurityEnabled;
-import org.geoserver.cloud.security.gateway.GatewayPreAuthenticationFilter;
-import org.geoserver.cloud.security.gateway.GatewayPreAuthenticationProvider;
-import org.geoserver.platform.ExtensionPriority;
-import org.geoserver.security.config.RequestHeaderAuthenticationFilterConfig;
+import org.geoserver.cloud.autoconfigure.security.GeoServerSecurityAutoConfiguration;
+import org.geoserver.cloud.security.gateway.GatewayPreAuthenticationConfiguration;
+import org.geoserver.cloud.security.gateway.GatewayPreAuthenticationConfigurationWebUI;
 import org.geoserver.security.web.auth.AuthenticationFilterPanelInfo;
-import org.geoserver.security.web.auth.HeaderAuthFilterPanel;
-import org.geoserver.security.web.auth.HeaderAuthFilterPanelInfo;
-import org.geoserver.web.LoginFormInfo;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-@AutoConfiguration
-@Import(GatewayPreAuthenticationAutoConfiguration.GatewayPreAuthWebConfiguration.class)
+// run before GeoServerSecurityAutoConfiguration so the provider is available when
+// GeoServerSecurityManager calls GeoServerExtensions.extensions(GeoServerSecurityProvider.class)
+@AutoConfiguration(before = GeoServerSecurityAutoConfiguration.class)
+@Import({
+    GatewayPreAuthenticationConfiguration.class,
+    GatewayPreAuthenticationAutoConfiguration.WebUi.class
+})
 @ConditionalOnGeoServerSecurityEnabled
+@SuppressWarnings("java:S1118")
 public class GatewayPreAuthenticationAutoConfiguration {
 
-    @Bean
-    GatewayPreAuthenticationProvider gatewayPreAuthenticationProvider() {
-        return new GatewayPreAuthenticationProvider();
-    }
-
     @Configuration
+    @Import(GatewayPreAuthenticationConfigurationWebUI.class)
     @ConditionalOnClass(AuthenticationFilterPanelInfo.class)
-    static class GatewayPreAuthWebConfiguration {
-        @Bean
-        HeaderAuthFilterPanelInfo gatewayAuthPanelInfo() {
-            HeaderAuthFilterPanelInfo panelInfo = new HeaderAuthFilterPanelInfo();
-            panelInfo.setId("security.gatewayPreAuthFilter");
-            panelInfo.setShortTitleKey("GatewayPreAuthFilterPanel.short");
-            panelInfo.setTitleKey("GatewayPreAuthFilterPanel.title");
-            panelInfo.setDescriptionKey("GatewayPreAuthFilterPanel.description");
-
-            panelInfo.setComponentClass(HeaderAuthFilterPanel.class);
-            panelInfo.setServiceClass(GatewayPreAuthenticationFilter.class);
-            panelInfo.setServiceConfigClass(RequestHeaderAuthenticationFilterConfig.class);
-
-            return panelInfo;
-        }
-
-        @SuppressWarnings("unchecked")
-        @Bean
-        LoginFormInfo gatewayLoginFormInfo() {
-            PrioritizableLoginFormInfo lif = new PrioritizableLoginFormInfo();
-            lif.setPriority(ExtensionPriority.LOWEST + 1);
-            lif.setId("gatewayLoginFormInfo");
-            lif.setName("gateway");
-            lif.setLoginPath("/login");
-
-            @SuppressWarnings("rawtypes")
-            Class componentClass = GatewayPreAuthenticationAutoConfiguration.class;
-            lif.setComponentClass(componentClass);
-            lif.setIcon("oidc.png");
-
-            lif.setTitleKey("GatewayLoginFormInfo.title");
-            lif.setDescriptionKey("GatewayLoginFormInfo.description");
-            @SuppressWarnings("rawtypes")
-            Class class1 = GatewayPreAuthenticationFilter.class;
-            lif.setFilterClass(class1);
-            return lif;
-        }
-    }
+    static class WebUi {}
 }
