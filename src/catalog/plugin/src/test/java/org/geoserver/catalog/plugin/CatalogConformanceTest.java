@@ -293,6 +293,10 @@ public abstract class CatalogConformanceTest {
         LayerInfo layer = data.layerFeatureTypeA;
         layer.setResource(addFeatureType());
         layer.setDefaultStyle(addStyle());
+        return addLayer(layer);
+    }
+
+    private LayerInfo addLayer(LayerInfo layer) {
         return add(layer, catalog::add, catalog::getLayer);
     }
 
@@ -300,6 +304,10 @@ public abstract class CatalogConformanceTest {
         LayerGroupInfo lg = data.layerGroup1;
         lg.getLayers().clear();
         lg.getLayers().add(addLayer());
+        return addLayerGroup(lg);
+    }
+
+    private LayerGroupInfo addLayerGroup(LayerGroupInfo lg) {
         return add(lg, catalog::add, catalog::getLayerGroup);
     }
 
@@ -3722,5 +3730,76 @@ public abstract class CatalogConformanceTest {
         assertEquals(1, catalog.count(DataStoreInfo.class, equal("id", data.dataStoreB.getId())));
         assertEquals(
                 0, catalog.count(CoverageStoreInfo.class, equal("id", data.dataStoreB.getId())));
+    }
+
+    @Test
+    void testListPublishedInfos() {
+        addNamespace();
+        addDataStore();
+        addStyle();
+
+        PublishedInfo l1 = addNewLayer("A-l");
+        PublishedInfo g1 = addNewLayerGroup("B-lg", l1);
+        PublishedInfo l2 = addNewLayer("C-l");
+        PublishedInfo g2 = addNewLayerGroup("D-lg", l2);
+        PublishedInfo l3 = addNewLayer("E-l");
+        PublishedInfo g3 = addNewLayerGroup("F-lg", l3);
+        PublishedInfo l4 = addNewLayer("G-l");
+        PublishedInfo g4 = addNewLayerGroup("H-lg", l4);
+        PublishedInfo l5 = addNewLayer("I-l");
+        PublishedInfo g5 = addNewLayerGroup("J-lg", l5);
+        assertEquals(5, catalog.getLayers().size());
+        assertEquals(5, catalog.getLayerGroups().size());
+
+        testListPublishedInfos(
+                acceptAll(), null, null, List.of(l1, g1, l2, g2, l3, g3, l4, g4, l5, g5));
+        testListPublishedInfos(acceptAll(), 3, 4, List.of(g2, l3, g3, l4));
+        testListPublishedInfos(acceptAll(), 8, 4, List.of(l5, g5));
+
+        Filter filter = Predicates.isInstanceOf(LayerInfo.class);
+        testListPublishedInfos(filter, null, null, List.of(l1, l2, l3, l4, l5));
+        testListPublishedInfos(filter, 0, 2, List.of(l1, l2));
+        testListPublishedInfos(filter, 3, 5, List.of(l4, l5));
+
+        filter = Predicates.isInstanceOf(LayerGroupInfo.class);
+        testListPublishedInfos(filter, null, null, List.of(g1, g2, g3, g4, g5));
+        testListPublishedInfos(filter, 0, 2, List.of(g1, g2));
+        testListPublishedInfos(filter, 3, 10, List.of(g4, g5));
+    }
+
+    // sorts by name
+    private void testListPublishedInfos(
+            Filter filter, Integer offset, Integer limit, List<PublishedInfo> expected) {
+
+        List<PublishedInfo> result = listPublishedInfos(filter, offset, limit);
+        assertEquals(expected.size(), result.size());
+        List<String> expectedNames = expected.stream().map(PublishedInfo::getName).toList();
+        List<String> actualNames = result.stream().map(PublishedInfo::getName).toList();
+        assertEquals(expectedNames, actualNames);
+
+        if (null == offset && null == limit) {
+            assertEquals(expected.size(), catalog.count(PublishedInfo.class, filter));
+        }
+    }
+
+    private List<PublishedInfo> listPublishedInfos(Filter filter, Integer offset, Integer limit) {
+        List<PublishedInfo> result;
+        SortBy nameOrder = Predicates.sortBy("name", true);
+        try (var it = catalog.list(PublishedInfo.class, filter, offset, limit, nameOrder)) {
+            result = Lists.newArrayList(it);
+        }
+        return result;
+    }
+
+    LayerInfo addNewLayer(String name) {
+        FeatureTypeInfo ft = data.createFeatureType(name);
+        ft = add(ft, catalog::add, catalog::getFeatureType);
+        LayerInfo layer = data.createLayer(ft, data.style1);
+        return addLayer(layer);
+    }
+
+    LayerGroupInfo addNewLayerGroup(String name, PublishedInfo layer) {
+        LayerGroupInfo lg = data.createLayerGroup(name, null, layer);
+        return addLayerGroup(lg);
     }
 }

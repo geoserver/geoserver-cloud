@@ -37,6 +37,7 @@ import org.geotools.api.util.InternationalString;
 import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.process.factory.AnnotationDrivenProcessFactory;
 import org.geotools.util.Converters;
+import org.springframework.lang.Nullable;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -357,6 +358,12 @@ public class CatalogTestData {
     }
 
     public LayerGroupInfo createLayerGroup(
+            String name, @Nullable WorkspaceInfo ws, PublishedInfo layer) {
+        StyleInfo style = layer instanceof LayerInfo l ? l.getDefaultStyle() : null;
+        return createLayerGroup(null, ws, name, layer, style);
+    }
+
+    public LayerGroupInfo createLayerGroup(
             String id, WorkspaceInfo workspace, String name, PublishedInfo layer, StyleInfo style) {
         // not using factory cause SecuredCatalog would return SecuredLayerGroupInfo which has no id
         // setter
@@ -371,10 +378,8 @@ public class CatalogTestData {
     }
 
     public LayerInfo createLayer(ResourceInfo resource, StyleInfo defaultStyle) {
-
-        String id = resource.getName() + "-layer-id";
         String title = resource.getName() + " title";
-        return createLayer(id, resource, title, true, defaultStyle);
+        return createLayer(null, resource, title, true, defaultStyle);
     }
 
     public LayerInfo createLayer(
