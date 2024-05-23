@@ -6,6 +6,9 @@ package org.geoserver.catalog.plugin;
 
 import static java.lang.String.format;
 
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Streams;
+
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogCapabilities;
 import org.geoserver.catalog.CatalogException;
@@ -17,6 +20,7 @@ import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.LockingCatalogFacade;
 import org.geoserver.catalog.MapInfo;
 import org.geoserver.catalog.NamespaceInfo;
+import org.geoserver.catalog.Predicates;
 import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
@@ -44,6 +48,7 @@ import org.springframework.util.Assert;
 import java.lang.reflect.Proxy;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -324,7 +329,7 @@ public class RepositoryCatalogFacadeImpl
 
     @Override
     public List<LayerGroupInfo> getLayerGroupsByWorkspace(WorkspaceInfo workspace) {
-        // Question: do we need to support ANY_WORKSPACE? see "todo" comment in DefaultCatalogFacade
+        // Question: do we need to support ANY_WORKSPACE? see comment in DefaultCatalogFacade
 
         WorkspaceInfo ws;
         if (workspace == null) {
@@ -583,8 +588,9 @@ public class RepositoryCatalogFacadeImpl
     }
 
     @Override
-    public <T extends CatalogInfo> int count(final Class<T> of, final Filter filter) {
+    public <T extends CatalogInfo> int count(final Class<T> of, Filter filter) {
         long count;
+        filter = SimplifyingFilterVisitor.simplify(filter);
         if (PublishedInfo.class.equals(of)) {
             Map<Class<?>, Filter> filters = splitOredInstanceOf(filter);
             Filter layerFilter = filters.getOrDefault(LayerInfo.class, filter);
@@ -596,6 +602,7 @@ public class RepositoryCatalogFacadeImpl
             try {
                 count = repository(of).count(of, filter);
             } catch (RuntimeException e) {
+                e.printStackTrace();
                 throw new CatalogException(
                         "Error obtaining count of %s with filter %s"
                                 .formatted(of.getSimpleName(), filter),
@@ -606,7 +613,6 @@ public class RepositoryCatalogFacadeImpl
     }
 
     Map<Class<?>, Filter> splitOredInstanceOf(Filter filter) {
-        filter = SimplifyingFilterVisitor.simplify(filter);
         Map<Class<?>, Filter> split = new HashMap<>();
         if (filter instanceof Or or) {
             for (Filter subFilter : or.getChildren()) {
@@ -672,34 +678,110 @@ public class RepositoryCatalogFacadeImpl
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public <T extends CatalogInfo> Stream<T> query(Query<T> query) {
-        Stream<T> stream;
-        if (PublishedInfo.class.equals(query.getType())) {
-            final Filter filter = query.getFilter();
-            final Map<Class<?>, Filter> filters = splitOredInstanceOf(filter);
-            final Filter layerFilter = filters.getOrDefault(LayerInfo.class, filter);
-            final Filter lgFilter = filters.getOrDefault(LayerGroupInfo.class, filter);
-
-            var lq = new Query<>(LayerInfo.class, query).setFilter(layerFilter);
-            var lgq = new Query<>(LayerGroupInfo.class, query).setFilter(lgFilter);
-            Stream<LayerInfo> layers = query(lq);
-            Stream<LayerGroupInfo> groups = query(lgq);
-            stream = Stream.concat((Stream<T>) layers, (Stream<T>) groups);
-            if (!query.getSortBy().isEmpty()) {
-                Comparator<CatalogInfo> comparator = CatalogInfoLookup.toComparator(query);
-                stream = stream.sorted(comparator);
-            }
-            stream = stream.map(query.getType()::cast);
-        } else {
-            try {
-                checkCanSort(query);
-                stream = repository(query.getType()).findAll(query);
-            } catch (RuntimeException e) {
-                throw new CatalogException("Error obtaining stream: %s".formatted(query), e);
-            }
+        if (Filter.EXCLUDE.equals(query.getFilter())) {
+            return Stream.empty();
         }
-        return stream;
+        final Class<T> type = query.getType();
+        if (PublishedInfo.class.equals(type)) {
+            return queryPublishedInfo(query).map(query.getType()::cast);
+        }
+        try {
+            checkCanSort(query);
+            return repository(query.getType()).findAll(query);
+        } catch (RuntimeException e) {
+            throw new CatalogException("Error obtaining stream: %s".formatted(query), e);
+        }
+    }
+
+    /**
+     * Queries {@link LayerRepository} and {@link LayerGroupRepository}, and returns a merge-sorted
+     * stream.
+     *
+     * <p>If the query does not specify a sort order, the {@code id} property is used to provide
+     * predictable order for the merge-sort algorithm
+     *
+     * <p>When the returned stream is closed, it'll close the two underlying streams
+     */
+    protected Stream<PublishedInfo> queryPublishedInfo(Query<?> query) {
+        final Filter filter = SimplifyingFilterVisitor.simplify(query.getFilter());
+        final Map<Class<?>, Filter> filters = splitOredInstanceOf(filter);
+        final Filter layerFilter = filters.getOrDefault(LayerInfo.class, filter);
+        final Filter lgFilter = filters.getOrDefault(LayerGroupInfo.class, filter);
+
+        var layerQuery = new Query<>(LayerInfo.class, query).setFilter(layerFilter);
+        var lgQuery = new Query<>(LayerGroupInfo.class, query).setFilter(lgFilter);
+
+        if (query.getSortBy().isEmpty()) {
+            // enforce predictable order
+            List<SortBy> sortBy = List.of(Predicates.sortBy("id", true));
+            layerQuery.setSortBy(sortBy);
+            lgQuery.setSortBy(sortBy);
+        }
+        final Integer offset = query.getOffset();
+        final Integer limit = query.getCount();
+        final boolean applyOffsetLimit = shallApplyOffsetLimit(offset, limit, layerQuery, lgQuery);
+
+        Stream<LayerInfo> layers = Stream.empty();
+        Stream<LayerGroupInfo> groups = Stream.empty();
+        try {
+            layers = query(layerQuery);
+            groups = query(lgQuery);
+
+            // merge-sort the two streams without additional memory allocation, they're guaranteed
+            // to be sorted
+
+            Iterator<PublishedInfo> layersit = layers.map(PublishedInfo.class::cast).iterator();
+            Iterator<PublishedInfo> lgit = groups.map(PublishedInfo.class::cast).iterator();
+            Comparator<PublishedInfo> comparator = CatalogInfoLookup.toComparator(query);
+
+            var stream = Streams.stream(Iterators.mergeSorted(List.of(layersit, lgit), comparator));
+            if (applyOffsetLimit) {
+                if (offset != null) stream = stream.skip(offset);
+                if (limit != null) stream = stream.limit(limit);
+            }
+            stream = closing(stream, layers, groups);
+            return stream;
+        } catch (RuntimeException e) {
+            layers.close();
+            groups.close();
+            throw e;
+        }
+    }
+
+    protected boolean shallApplyOffsetLimit(
+            final Integer offset,
+            final Integer limit,
+            Query<LayerInfo> layerQuery,
+            Query<LayerGroupInfo> lgQuery) {
+        if (null == offset && null == limit) {
+            return false;
+        }
+        // bad luck, but try to discard the one(s) that don't match any first for a chance to
+        // avoid in-process offset/limit filtering
+        int lgCount = count(LayerGroupInfo.class, lgQuery.getFilter());
+        if (0 == lgCount) {
+            lgQuery.setFilter(Filter.EXCLUDE);
+            return false;
+        }
+        int lcount = count(LayerInfo.class, layerQuery.getFilter());
+        if (0 == lcount) {
+            layerQuery.setFilter(Filter.EXCLUDE);
+            return false;
+        }
+        // neither is zero, we gotta do in-process offset/limit to preserve the sort order
+        layerQuery.setOffset(null);
+        layerQuery.setCount(null);
+        lgQuery.setOffset(null);
+        lgQuery.setCount(null);
+        return true;
+    }
+
+    private <T> Stream<T> closing(Stream<T> stream, Stream<?>... closeables) {
+        return stream.onClose(
+                () -> {
+                    for (var s : closeables) s.close();
+                });
     }
 
     @Override
