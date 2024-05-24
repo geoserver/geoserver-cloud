@@ -22,7 +22,7 @@
     <maven.compiler.target>17</maven.compiler.target>
     <spring-cloud.version>2021.0.9</spring-cloud.version>
     <spring-boot.version>2.7.18</spring-boot.version>
-    <jackson.version>2.15.3</jackson.version>
+    <jackson.version>2.17.1</jackson.version>
     <gs.version>2.25.0.3-CLOUD</gs.version>
     <gs.community.version>2.25.0.3-CLOUD</gs.community.version>
     <gt.version>31.0</gt.version>
@@ -50,8 +50,7 @@
     <!-- Note dependencies added purely to satisfy the dependencyConvergence maven-enforcer-plugin rule are in the dependencyConvergence maven profile -->
     <dependencies>
       <dependency>
-        <!-- Upgrade to snakeyaml 2.0 to get rid of several CVE's from
-				the 1.30 version included with spring-boot -->
+        <!-- Upgrade to snakeyaml 2.0 to get rid of several CVE's from the 1.30 version included with spring-boot -->
         <groupId>org.yaml</groupId>
         <artifactId>snakeyaml</artifactId>
         <version>2.2</version>
