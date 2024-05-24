@@ -22,7 +22,7 @@
     <maven.compiler.target>17</maven.compiler.target>
     <spring-cloud.version>2021.0.8</spring-cloud.version>
     <spring-boot.version>2.7.18</spring-boot.version>
-    <jackson.version>2.15.3</jackson.version>
+    <jackson.version>2.17.1</jackson.version>
     <gs.version>2.25.2.0-CLOUD</gs.version>
     <gt.version>31-SNAPSHOT</gt.version>
     <acl.version>2.2.0</acl.version>
@@ -56,8 +56,6 @@
         <version>${logstash-logback-encoder.version}</version>
       </dependency>
       <dependency>
-        <!-- Upgrade to snakeyaml 2.0 to get rid of several CVE's from
-				the 1.30 version included with spring-boot -->
         <groupId>org.yaml</groupId>
         <artifactId>snakeyaml</artifactId>
         <version>2.2</version>
