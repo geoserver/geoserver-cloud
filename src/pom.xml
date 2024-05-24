@@ -20,7 +20,7 @@
   <properties>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
-    <spring-cloud.version>2021.0.8</spring-cloud.version>
+    <spring-cloud.version>2021.0.9</spring-cloud.version>
     <spring-boot.version>2.7.18</spring-boot.version>
     <jackson.version>2.15.3</jackson.version>
     <gs.version>2.25.0.3-CLOUD</gs.version>
