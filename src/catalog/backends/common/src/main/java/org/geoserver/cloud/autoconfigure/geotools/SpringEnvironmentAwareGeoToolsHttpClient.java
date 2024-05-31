@@ -21,6 +21,7 @@ import static java.time.Duration.ofMillis;
 import static java.time.Duration.ofSeconds;
 
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -30,6 +31,7 @@ import org.apache.http.StatusLine;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.AuthCache;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
@@ -39,6 +41,8 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.auth.BasicScheme;
+import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
@@ -54,6 +58,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -66,18 +71,13 @@ import java.util.zip.GZIPInputStream;
  * extensibility, adding the ability to set up the Apache HTTPClient's proxy configuration from
  * Spring {@link PropertyResolver}'s properties.
  */
-class SpringEnvironmentAwareGeoToolsHttpClient
+@Slf4j
+class SpringEnvironmentAwareGeoToolsHttpClient extends org.geotools.http.AbstractHttpClient
         implements HTTPClient, HTTPConnectionPooling, HTTPProxy {
 
     private final PoolingHttpClientConnectionManager connectionManager;
 
     private HttpClient client;
-
-    private String user;
-
-    private String password;
-
-    private boolean tryGzip = true;
 
     private RequestConfig connectionConfig;
 
@@ -100,6 +100,18 @@ class SpringEnvironmentAwareGeoToolsHttpClient
                         .build();
         resetCredentials();
         client = builder().build();
+    }
+
+    @Override
+    public void setUser(String user) {
+        super.setUser(user);
+        resetCredentials();
+    }
+
+    @Override
+    public void setPassword(String password) {
+        super.setPassword(password);
+        resetCredentials();
     }
 
     private RequestConfig connectionConfig(URL url) {
@@ -173,6 +185,18 @@ class SpringEnvironmentAwareGeoToolsHttpClient
     public HttpMethodResponse post(
             final URL url, final InputStream postContent, final String postContentType)
             throws IOException {
+        return post(url, postContent, postContentType, null);
+    }
+
+    @Override
+    public HttpMethodResponse post(
+            URL url, InputStream postContent, String postContentType, Map<String, String> headers)
+            throws IOException {
+        if (headers == null) {
+            headers = Map.of();
+        } else {
+            headers = Map.copyOf(headers); // avoid parameter modification
+        }
 
         HttpPost postMethod = new HttpPost(url.toExternalForm());
         postMethod.setConfig(connectionConfig(url));
@@ -194,6 +218,8 @@ class SpringEnvironmentAwareGeoToolsHttpClient
         if (postContentType != null) {
             postMethod.setHeader("Content-type", postContentType);
         }
+
+        setHeadersOn(headers, postMethod);
 
         postMethod.setEntity(requestEntity);
 
@@ -218,6 +244,13 @@ class SpringEnvironmentAwareGeoToolsHttpClient
         HttpResponse resp;
         if (credsProvider != null) {
             localContext.setCredentialsProvider(credsProvider);
+            // see https://stackoverflow.com/a/21592593
+            AuthCache authCache = new BasicAuthCache();
+            URI target = method.getURI();
+            authCache.put(
+                    new HttpHost(target.getHost(), target.getPort(), target.getScheme()),
+                    new BasicScheme());
+            localContext.setAuthCache(authCache);
             resp = client.execute(method, localContext);
         } else {
             resp = client.execute(method);
@@ -233,6 +266,19 @@ class SpringEnvironmentAwareGeoToolsHttpClient
 
     @Override
     public HTTPResponse get(URL url, Map<String, String> headers) throws IOException {
+        if (isFile(url)) {
+            return createFileResponse(url);
+        }
+        if (headers == null) {
+            headers = Map.of();
+        } else {
+            headers = Map.copyOf(headers); // avoid parameter modification
+        }
+        Map<String, String> extraParams = getExtraParams();
+        if (!extraParams.isEmpty()) {
+            url = appendURL(url, extraParams);
+        }
+
         HttpGet getMethod = new HttpGet(url.toExternalForm());
         getMethod.setConfig(connectionConfig(url));
 
@@ -240,11 +286,7 @@ class SpringEnvironmentAwareGeoToolsHttpClient
             getMethod.setHeader("Accept-Encoding", "gzip");
         }
 
-        if (headers != null) {
-            for (Map.Entry<String, String> headerNameValue : headers.entrySet()) {
-                getMethod.setHeader(headerNameValue.getKey(), headerNameValue.getValue());
-            }
-        }
+        setHeadersOn(headers, getMethod);
 
         HttpMethodResponse response = executeMethod(getMethod);
 
@@ -257,26 +299,11 @@ class SpringEnvironmentAwareGeoToolsHttpClient
         return response;
     }
 
-    @Override
-    public String getUser() {
-        return user;
-    }
-
-    @Override
-    public void setUser(String user) {
-        this.user = user;
-        resetCredentials();
-    }
-
-    @Override
-    public String getPassword() {
-        return password;
-    }
-
-    @Override
-    public void setPassword(String password) {
-        this.password = password;
-        resetCredentials();
+    private void setHeadersOn(Map<String, String> headers, HttpRequestBase request) {
+        for (Map.Entry<String, String> header : headers.entrySet()) {
+            log.debug("Setting header {} = {}", header.getKey(), header.getValue());
+            request.setHeader(header.getKey(), header.getValue());
+        }
     }
 
     @Override
@@ -380,16 +407,6 @@ class SpringEnvironmentAwareGeoToolsHttpClient
             final Header encoding = methodResponse.getEntity().getContentEncoding();
             return encoding == null ? null : encoding.getValue();
         }
-    }
-
-    @Override
-    public void setTryGzip(boolean tryGZIP) {
-        this.tryGzip = tryGZIP;
-    }
-
-    @Override
-    public boolean isTryGzip() {
-        return tryGzip;
     }
 
     @Override
