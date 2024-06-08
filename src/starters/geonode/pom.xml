@@ -20,7 +20,7 @@
     <dependency>
       <groupId>org.geoserver.community</groupId>
       <artifactId>gs-sec-oauth2-geonode</artifactId>
-      <version>${gs.community.version}</version>
+      <version>${gs.version}</version>
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>

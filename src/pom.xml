@@ -23,8 +23,7 @@
     <spring-cloud.version>2021.0.9</spring-cloud.version>
     <spring-boot.version>2.7.18</spring-boot.version>
     <jackson.version>2.15.3</jackson.version>
-    <gs.version>2.25.0.3-CLOUD</gs.version>
-    <gs.community.version>2.25.0.3-CLOUD</gs.community.version>
+    <gs.version>2.25.0.4-CLOUD</gs.version>
     <gt.version>31.0</gt.version>
     <acl.version>2.3-SNAPSHOT</acl.version>
     <!-- Downgrade netty.version used by spring-boot to the one used by geoserver azure client
@@ -426,7 +425,7 @@
       <dependency>
         <groupId>org.geoserver.community</groupId>
         <artifactId>gs-jdbcconfig</artifactId>
-        <version>${gs.community.version}</version>
+        <version>${gs.version}</version>
         <exclusions>
           <exclusion>
             <groupId>org.springframework</groupId>
@@ -441,7 +440,7 @@
       <dependency>
         <groupId>org.geoserver.community</groupId>
         <artifactId>gs-jdbcstore</artifactId>
-        <version>${gs.community.version}</version>
+        <version>${gs.version}</version>
         <exclusions>
           <exclusion>
             <groupId>org.springframework</groupId>
@@ -544,7 +543,7 @@
       <dependency>
         <groupId>org.geoserver.community</groupId>
         <artifactId>gs-gwc-azure-blob</artifactId>
-        <version>${gs.community.version}</version>
+        <version>${gs.version}</version>
         <exclusions>
           <exclusion>
             <groupId>org.geoserver.web</groupId>
@@ -639,12 +638,12 @@
       <dependency>
         <groupId>org.geoserver.community</groupId>
         <artifactId>gs-pgraster</artifactId>
-        <version>${gs.community.version}</version>
+        <version>${gs.version}</version>
       </dependency>
       <dependency>
         <groupId>org.geoserver.community</groupId>
         <artifactId>gs-cog</artifactId>
-        <version>${gs.community.version}</version>
+        <version>${gs.version}</version>
         <exclusions>
           <exclusion>
             <groupId>org.geoserver.web</groupId>
@@ -673,7 +672,7 @@
       <dependency>
         <groupId>org.geoserver.community</groupId>
         <artifactId>gs-datadir-catalog-loader</artifactId>
-        <version>${gs.community.version}</version>
+        <version>${gs.version}</version>
       </dependency>
       <dependency>
         <groupId>org.geotools</groupId>
