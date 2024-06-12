@@ -124,12 +124,13 @@ public class RemoteEventDataDirectoryProcessor {
         }
         final String objectId = event.getObjectId();
         final ConfigInfoType type = event.getObjectType();
-        if (log.isDebugEnabled()) log.debug("Adding object from event {}", event.toShortString());
         final Info object = event.getObject();
         if (object == null) {
             log.error("Remote add event didn't send the object payload for {}({})", type, objectId);
             return;
         }
+        if (log.isDebugEnabled())
+            log.debug("Adding object from event {}: {}", event.toShortString(), object);
         ExtendedCatalogFacade facade = catalogFacade();
         switch (object) {
             case CatalogInfo info -> facade.add(info);
@@ -138,6 +139,8 @@ public class RemoteEventDataDirectoryProcessor {
             case LoggingInfo config -> log.debug("ignoring unused LoggingInfo {}", config);
             default -> log.warn("Don't know how to handle remote envent {})", event);
         }
+        if (log.isDebugEnabled())
+            log.debug("Added object from event {}: {}", event.toShortString(), object);
     }
 
     @EventListener(InfoModified.class)
@@ -147,7 +150,8 @@ public class RemoteEventDataDirectoryProcessor {
         }
         if (event instanceof DefaultWorkspaceSet
                 || event instanceof DefaultNamespaceSet
-                || event instanceof DefaultDataStoreSet) {
+                || event instanceof DefaultDataStoreSet
+                || ConfigInfoType.CATALOG.equals(event.getObjectType())) {
             // these are InfoModified events but have their own listeners
             return;
         }
