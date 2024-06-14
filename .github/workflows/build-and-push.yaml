@@ -5,12 +5,13 @@ on:
   push:
     branches:
       - main
+      - "release/**"
     paths:
       - "Makefile"
       - "pom.xml"
       - ".github/workflows/build-and-push.yaml"
-      - "src/**"
       - "config"
+      - "src/**"
     tags:
       - '*'
 
