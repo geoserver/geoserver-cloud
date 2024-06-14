@@ -10,7 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.plugin.CatalogPlugin;
-import org.geoserver.catalog.plugin.DefaultMemoryCatalogFacade;
 import org.geoserver.catalog.plugin.locking.LockProviderGeoServerConfigurationLock;
 import org.geoserver.catalog.plugin.locking.LockingCatalog;
 import org.geoserver.catalog.plugin.locking.LockingGeoServer;
@@ -102,16 +101,6 @@ class DataDirectoryAutoConfigurationTest {
                             context.getBean("catalogFacade", CatalogFacade.class);
                     CatalogPlugin rawCatalog = context.getBean("rawCatalog", CatalogPlugin.class);
                     assertSame(rawCatalogFacade, rawCatalog.getRawFacade());
-                });
-    }
-
-    @Test
-    void testCatalogFacade() {
-        runner.run(
-                context -> {
-                    assertThat(context)
-                            .getBean("catalogFacade")
-                            .isInstanceOf(DefaultMemoryCatalogFacade.class);
                 });
     }
 

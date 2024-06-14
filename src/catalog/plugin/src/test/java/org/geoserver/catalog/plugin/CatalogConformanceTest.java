@@ -2039,7 +2039,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
-    void testModifyStyleChangeWorkspace() throws IOException {
+    protected void testModifyStyleChangeWorkspace() throws IOException {
         WorkspaceInfo ws1 = addWorkspace(data.workspaceA);
         WorkspaceInfo ws2 = addWorkspace(data.workspaceB);
 
