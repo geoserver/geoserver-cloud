@@ -2,12 +2,15 @@
 name: Pull Request on Main Branch
 on:
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
+      - "release/**"
     paths:
       - ".github/workflows/pull-request.yaml"
       - ".github/workflows/build-and-push.yaml"
       - "pom.xml"
       - "Makefile"
+      - "config"
       - "src/**"
 
 jobs:
