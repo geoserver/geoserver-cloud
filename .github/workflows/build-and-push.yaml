@@ -10,6 +10,7 @@ on:
       - "pom.xml"
       - ".github/workflows/build-and-push.yaml"
       - "src/**"
+      - "config"
     tags:
       - '*'
 
