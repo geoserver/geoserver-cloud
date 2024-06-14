@@ -43,7 +43,7 @@ import java.util.function.Function;
  */
 @Slf4j(topic = "org.geoserver.cloud.event.remote.datadir")
 @RequiredArgsConstructor
-public class RemoteEventDataDirectoryProcessor {
+class RemoteEventDataDirectoryProcessor {
 
     private final @NonNull RepositoryGeoServerFacade configFacade;
     private final @NonNull CatalogPlugin rawCatalog;
