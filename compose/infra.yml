@@ -25,7 +25,8 @@ services:
     user: ${GS_USER}
     tmpfs:
       - /var/lib/rabbitmq
-    #volumes:
+    volumes:
+      - $PWD/../config/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
     #  - rabbitmq_data:/var/lib/rabbitmq
     ports:
       - "5672:5672"
