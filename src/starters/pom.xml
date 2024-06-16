@@ -19,6 +19,7 @@
     <module>wms-extensions</module>
     <module>security</module>
     <module>geonode</module>
+    <module>observability</module>
   </modules>
   <dependencies>
     <dependency>
