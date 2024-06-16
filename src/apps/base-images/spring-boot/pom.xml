@@ -14,6 +14,11 @@
       <artifactId>gs-cloud-spring-boot-starter</artifactId>
     </dependency>
     <dependency>
+      <!-- include the observability libraries in the base spring boot image -->
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-starter-observability</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.geoserver.cloud.apps</groupId>
       <artifactId>gs-cloud-base-jre</artifactId>
       <version>${project.version}</version>
