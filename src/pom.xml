@@ -45,10 +45,17 @@
     -->
     <aws.version>2.20.117</aws.version>
     <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+    <!-- logstash-logback-encoder:7.4+ requires logback 1.3+ and slf4j 2.0+, only available on spring-boot 3.0+ -->
+    <logstash-logback-encoder.version>7.3</logstash-logback-encoder.version>
   </properties>
   <dependencyManagement>
     <!-- Note dependencies added purely to satisfy the dependencyConvergence maven-enforcer-plugin rule are in the dependencyConvergence maven profile -->
     <dependencies>
+      <dependency>
+        <groupId>net.logstash.logback</groupId>
+        <artifactId>logstash-logback-encoder</artifactId>
+        <version>${logstash-logback-encoder.version}</version>
+      </dependency>
       <dependency>
         <!-- Upgrade to snakeyaml 2.0 to get rid of several CVE's from
 				the 1.30 version included with spring-boot -->
