@@ -80,6 +80,11 @@
         <version>${project.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.geoserver.cloud</groupId>
+        <artifactId>gs-cloud-starter-observability</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.geoserver.cloud.catalog</groupId>
         <artifactId>gs-cloud-catalog-plugin</artifactId>
         <version>${project.version}</version>
