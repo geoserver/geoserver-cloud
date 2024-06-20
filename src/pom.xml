@@ -647,7 +647,51 @@
       </dependency>
       <dependency>
         <groupId>org.geoserver.community</groupId>
-        <artifactId>gs-cog</artifactId>
+        <artifactId>gs-cog-core</artifactId>
+        <version>${gs.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.geoserver.web</groupId>
+            <artifactId>gs-web-core</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.community</groupId>
+        <artifactId>gs-cog-http</artifactId>
+        <version>${gs.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.geoserver.web</groupId>
+            <artifactId>gs-web-core</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.community</groupId>
+        <artifactId>gs-cog-s3</artifactId>
+        <version>${gs.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.geoserver.web</groupId>
+            <artifactId>gs-web-core</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.community</groupId>
+        <artifactId>gs-cog-azure</artifactId>
+        <version>${gs.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.geoserver.web</groupId>
+            <artifactId>gs-web-core</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.community</groupId>
+        <artifactId>gs-cog-google</artifactId>
         <version>${gs.version}</version>
         <exclusions>
           <exclusion>
@@ -955,6 +999,11 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>33.2.0-jre</version>
+          </dependency>
+          <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>failureaccess</artifactId>
+            <version>1.0.2</version>
           </dependency>
           <dependency>
             <groupId>commons-beanutils</groupId>
