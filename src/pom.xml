@@ -20,7 +20,7 @@
   <properties>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
-    <spring-cloud.version>2021.0.8</spring-cloud.version>
+    <spring-cloud.version>2021.0.9</spring-cloud.version>
     <spring-boot.version>2.7.18</spring-boot.version>
     <jackson.version>2.17.1</jackson.version>
     <gs.version>2.25.2.0-CLOUD</gs.version>
@@ -430,7 +430,7 @@
       <dependency>
         <groupId>org.geoserver.community</groupId>
         <artifactId>gs-jdbcconfig</artifactId>
-        <version>${gs.community.version}</version>
+        <version>${gs.version}</version>
         <exclusions>
           <exclusion>
             <groupId>org.springframework</groupId>
@@ -445,7 +445,7 @@
       <dependency>
         <groupId>org.geoserver.community</groupId>
         <artifactId>gs-jdbcstore</artifactId>
-        <version>${gs.community.version}</version>
+        <version>${gs.version}</version>
         <exclusions>
           <exclusion>
             <groupId>org.springframework</groupId>
@@ -548,7 +548,7 @@
       <dependency>
         <groupId>org.geoserver.community</groupId>
         <artifactId>gs-gwc-azure-blob</artifactId>
-        <version>${gs.community.version}</version>
+        <version>${gs.version}</version>
         <exclusions>
           <exclusion>
             <groupId>org.geoserver.web</groupId>
@@ -643,12 +643,56 @@
       <dependency>
         <groupId>org.geoserver.community</groupId>
         <artifactId>gs-pgraster</artifactId>
-        <version>${gs.community.version}</version>
+        <version>${gs.version}</version>
       </dependency>
       <dependency>
         <groupId>org.geoserver.community</groupId>
-        <artifactId>gs-cog</artifactId>
-        <version>${gs.community.version}</version>
+        <artifactId>gs-cog-core</artifactId>
+        <version>${gs.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.geoserver.web</groupId>
+            <artifactId>gs-web-core</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.community</groupId>
+        <artifactId>gs-cog-http</artifactId>
+        <version>${gs.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.geoserver.web</groupId>
+            <artifactId>gs-web-core</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.community</groupId>
+        <artifactId>gs-cog-s3</artifactId>
+        <version>${gs.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.geoserver.web</groupId>
+            <artifactId>gs-web-core</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.community</groupId>
+        <artifactId>gs-cog-azure</artifactId>
+        <version>${gs.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.geoserver.web</groupId>
+            <artifactId>gs-web-core</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.community</groupId>
+        <artifactId>gs-cog-google</artifactId>
+        <version>${gs.version}</version>
         <exclusions>
           <exclusion>
             <groupId>org.geoserver.web</groupId>
@@ -677,7 +721,7 @@
       <dependency>
         <groupId>org.geoserver.community</groupId>
         <artifactId>gs-datadir-catalog-loader</artifactId>
-        <version>${gs.community.version}</version>
+        <version>${gs.version}</version>
       </dependency>
       <dependency>
         <groupId>org.geotools</groupId>
@@ -955,6 +999,11 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>33.2.0-jre</version>
+          </dependency>
+          <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>failureaccess</artifactId>
+            <version>1.0.2</version>
           </dependency>
           <dependency>
             <groupId>commons-beanutils</groupId>
