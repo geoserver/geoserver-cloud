@@ -1,6 +1,10 @@
 <configuration>
 
-  <springProfile name="default">
+  <springProfile name="!(json-logs)">
+    <!--
+     default logging profile, if you add more profiles besides json-logs (e.g. "custom"),
+     change name to name="!(json-logs|custom)"
+    -->
     <include resource="org/springframework/boot/logging/logback/base.xml" />
   </springProfile>
 
