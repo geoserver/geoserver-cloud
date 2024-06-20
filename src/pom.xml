@@ -28,7 +28,7 @@
     <acl.version>2.2.0</acl.version>
     <!-- Downgrade netty.version used by spring-boot to the one used by geoserver azure client
     (software.amazon.awssdk:netty-nio-client:jar:2.9.24) for COG and GWC Azure plugin -->
-    <netty.version>4.1.41.Final</netty.version>
+    <netty.version>4.1.46.Final</netty.version>
     <lombok.version>1.18.30</lombok.version>
     <mapstruct.version>1.6.0.Beta1</mapstruct.version>
     <flyway.version>10.10.0</flyway.version>
