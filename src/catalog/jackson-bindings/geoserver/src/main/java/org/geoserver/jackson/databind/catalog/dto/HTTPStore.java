@@ -23,4 +23,15 @@ public abstract class HTTPStore extends Store {
     private int readTimeout;
     private int connectTimeout;
     private boolean useConnectionPooling;
+
+    /** Pulled up from {@link WMTSStore} to match the GeoServer 2.25.1 refactoring */
+    private String headerName;
+
+    /** Pulled up from {@link WMTSStore} to match the GeoServer 2.25.1 refactoring */
+    private String headerValue;
+
+    /**
+     * @since GeoServer 2.25.1
+     */
+    private String authKey;
 }

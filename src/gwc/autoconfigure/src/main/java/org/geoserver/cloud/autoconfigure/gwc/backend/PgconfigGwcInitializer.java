@@ -6,7 +6,6 @@ package org.geoserver.cloud.autoconfigure.gwc.backend;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.api.client.util.Objects;
 import com.google.common.base.Stopwatch;
 
 import lombok.NonNull;
@@ -36,6 +35,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -97,7 +97,7 @@ class PgconfigGwcInitializer implements GeoServerReinitializer {
                                     break;
                                 case MODIFIED:
                                     if (event.getOldName() != null
-                                            && !Objects.equal(
+                                            && !Objects.equals(
                                                     event.getOldName(), event.getName())) {
                                         log.info(
                                                 "TileLayer {} renamed to {}, notifying in-memory CacheProvider",

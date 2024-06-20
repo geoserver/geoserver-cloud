@@ -22,13 +22,13 @@
     <maven.compiler.target>17</maven.compiler.target>
     <spring-cloud.version>2021.0.9</spring-cloud.version>
     <spring-boot.version>2.7.18</spring-boot.version>
-    <jackson.version>2.15.3</jackson.version>
-    <gs.version>2.25.0.4-CLOUD</gs.version>
-    <gt.version>31.0</gt.version>
+    <jackson.version>2.17.1</jackson.version>
+    <gs.version>2.25.2.0-CLOUD</gs.version>
+    <gt.version>31-SNAPSHOT</gt.version>
     <acl.version>2.2.0</acl.version>
     <!-- Downgrade netty.version used by spring-boot to the one used by geoserver azure client
     (software.amazon.awssdk:netty-nio-client:jar:2.9.24) for COG and GWC Azure plugin -->
-    <netty.version>4.1.41.Final</netty.version>
+    <netty.version>4.1.46.Final</netty.version>
     <lombok.version>1.18.30</lombok.version>
     <mapstruct.version>1.6.0.Beta1</mapstruct.version>
     <flyway.version>10.10.0</flyway.version>
@@ -56,8 +56,6 @@
         <version>${logstash-logback-encoder.version}</version>
       </dependency>
       <dependency>
-        <!-- Upgrade to snakeyaml 2.0 to get rid of several CVE's from
-				the 1.30 version included with spring-boot -->
         <groupId>org.yaml</groupId>
         <artifactId>snakeyaml</artifactId>
         <version>2.2</version>
@@ -649,7 +647,51 @@
       </dependency>
       <dependency>
         <groupId>org.geoserver.community</groupId>
-        <artifactId>gs-cog</artifactId>
+        <artifactId>gs-cog-core</artifactId>
+        <version>${gs.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.geoserver.web</groupId>
+            <artifactId>gs-web-core</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.community</groupId>
+        <artifactId>gs-cog-http</artifactId>
+        <version>${gs.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.geoserver.web</groupId>
+            <artifactId>gs-web-core</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.community</groupId>
+        <artifactId>gs-cog-s3</artifactId>
+        <version>${gs.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.geoserver.web</groupId>
+            <artifactId>gs-web-core</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.community</groupId>
+        <artifactId>gs-cog-azure</artifactId>
+        <version>${gs.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.geoserver.web</groupId>
+            <artifactId>gs-web-core</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.community</groupId>
+        <artifactId>gs-cog-google</artifactId>
         <version>${gs.version}</version>
         <exclusions>
           <exclusion>
@@ -956,7 +998,12 @@
           <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>32.1.1-jre</version>
+            <version>33.2.0-jre</version>
+          </dependency>
+          <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>failureaccess</artifactId>
+            <version>1.0.2</version>
           </dependency>
           <dependency>
             <groupId>commons-beanutils</groupId>
@@ -1041,7 +1088,7 @@
           <dependency>
             <groupId>com.fasterxml.woodstox</groupId>
             <artifactId>woodstox-core</artifactId>
-            <version>6.5.1</version>
+            <version>6.6.2</version>
           </dependency>
           <dependency>
             <groupId>com.netflix.servo</groupId>
@@ -1131,7 +1178,7 @@
           <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.7.2</version>
+            <version>42.7.3</version>
           </dependency>
           <dependency>
             <groupId>com.jayway.jsonpath</groupId>

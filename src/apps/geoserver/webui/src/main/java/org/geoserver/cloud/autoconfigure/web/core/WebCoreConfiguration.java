@@ -13,7 +13,6 @@ import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
-import org.vfny.geoserver.wfs.servlets.TestWfsPost;
 
 @Configuration(proxyBeanMethods = true)
 @ImportResource( //
@@ -32,23 +31,11 @@ public class WebCoreConfiguration {
         return new GeoServerWicketServlet();
     }
 
-    @Bean
-    TestWfsPost testWfsPostServlet() {
-        return new TestWfsPost();
-    }
-
     /** Register the {@link WicketServlet} */
     @Bean
     ServletRegistrationBean<GeoServerWicketServlet> geoServerWicketServletRegistration() {
         GeoServerWicketServlet servlet = geoServerWicketServlet();
         return new ServletRegistrationBean<>(servlet, "/web", "/web/*");
-    }
-
-    /** Register the {@link TestWfsPost servlet} */
-    @Bean
-    ServletRegistrationBean<TestWfsPost> wfsTestServletRegistration() {
-        TestWfsPost servlet = testWfsPostServlet();
-        return new ServletRegistrationBean<>(servlet, "/TestWfsPost");
     }
 
     @Bean
