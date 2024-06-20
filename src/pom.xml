@@ -23,9 +23,8 @@
     <spring-cloud.version>2021.0.8</spring-cloud.version>
     <spring-boot.version>2.7.18</spring-boot.version>
     <jackson.version>2.15.3</jackson.version>
-    <gs.version>2.25.0.4-CLOUD</gs.version>
-    <gs.community.version>2.25.0.4-CLOUD</gs.community.version>
-    <gt.version>31.0</gt.version>
+    <gs.version>2.25.2.0-CLOUD</gs.version>
+    <gt.version>31-SNAPSHOT</gt.version>
     <acl.version>2.2.0</acl.version>
     <!-- Downgrade netty.version used by spring-boot to the one used by geoserver azure client
     (software.amazon.awssdk:netty-nio-client:jar:2.9.24) for COG and GWC Azure plugin -->
