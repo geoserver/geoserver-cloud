@@ -12,7 +12,4 @@ import lombok.EqualsAndHashCode;
 @Data
 @JsonTypeName("WMTSStoreInfo")
 @EqualsAndHashCode(callSuper = true)
-public class WMTSStore extends HTTPStore {
-    private String headerName;
-    private String headerValue;
-}
+public class WMTSStore extends HTTPStore {}

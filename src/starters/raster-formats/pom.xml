@@ -36,7 +36,23 @@
     </dependency>
     <dependency>
       <groupId>org.geoserver.community</groupId>
-      <artifactId>gs-cog</artifactId>
+      <artifactId>gs-cog-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.community</groupId>
+      <artifactId>gs-cog-http</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.community</groupId>
+      <artifactId>gs-cog-s3</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.community</groupId>
+      <artifactId>gs-cog-azure</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.community</groupId>
+      <artifactId>gs-cog-google</artifactId>
     </dependency>
     <dependency>
       <groupId>org.geotools</groupId>
