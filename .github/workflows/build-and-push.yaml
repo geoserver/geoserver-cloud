@@ -55,6 +55,7 @@ jobs:
         make build-image
 
     - name: Write signing key to disk (only needed for `cosign sign --key`)
+      if: ${{ startsWith(github.ref, 'refs/tags/') }}
       run: echo "${{ secrets.COSIGN_KEY }}" > cosign.key
 
     - name: Push images
@@ -62,15 +63,18 @@ jobs:
         make push-image
 
     - name: Sign images
+      if: ${{ startsWith(github.ref, 'refs/tags/') }}
       run: |
         make sign-image
       env:
         COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
 
     - name: Write pub key to disk (for verification)
+      if: ${{ startsWith(github.ref, 'refs/tags/') }}
       run: echo "${{ secrets.COSIGN_PUB_KEY }}" > cosign.pub
 
     - name: Verify images
+      if: ${{ startsWith(github.ref, 'refs/tags/') }}
       run: |
         make verify-image
       env:
