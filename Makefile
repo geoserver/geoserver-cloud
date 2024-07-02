@@ -51,11 +51,10 @@ push-image:
 .PHONY: sign-image
 sign-image:
 	@bash -c '\
-	export COSIGN_PASSWORD=$(COSIGN_PASSWORD); \
 	images=$$(docker images --format "{{.Repository}}@{{.Digest}}" | grep "geoserver-cloud-"); \
 	for image in $$images; do \
 	  echo "Signing $$image"; \
-	  output=$$(cosign sign --yes --key cosign.key $$image 2>&1); \
+	  output=$$(cosign sign --yes --key env://COSIGN_KEY --recursive $$image 2>&1); \
 	  if [ $$? -ne 0 ]; then \
 	    echo "Error occurred: $$output"; \
 	    exit 1; \
@@ -70,7 +69,7 @@ verify-image:
 	images=$$(docker images --format "{{.Repository}}@{{.Digest}}" | grep "geoserver-cloud-"); \
 	for image in $$images; do \
 	  echo "Verifying $$image"; \
-	  output=$$(cosign verify --key cosign.pub $$image 2>&1); \
+	  output=$$(cosign verify --key env://COSIGN_PUB_KEY $$image 2>&1); \
 	  if [ $$? -ne 0 ]; then \
 	    echo "Error occurred: $$output"; \
 	    exit 1; \

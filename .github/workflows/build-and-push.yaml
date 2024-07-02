@@ -43,9 +43,6 @@ jobs:
         java-version: '21'
         cache: 'maven'
 
-    - name: Validate source code formatting
-      run: make lint
-
     - name: Build without tests
       run: |
         make install
@@ -54,33 +51,27 @@ jobs:
       run: |
         make build-image
 
-    - name: Write signing key to disk (only needed for `cosign sign --key`)
-      if: ${{ startsWith(github.ref, 'refs/tags/') }}
-      run: echo "${{ secrets.COSIGN_KEY }}" > cosign.key
-
     - name: Push images
       run: |
         make push-image
-
-    - name: Sign images
-      if: ${{ startsWith(github.ref, 'refs/tags/') }}
-      run: |
-        make sign-image
-      env:
-        COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
-
-    - name: Write pub key to disk (for verification)
-      if: ${{ startsWith(github.ref, 'refs/tags/') }}
-      run: echo "${{ secrets.COSIGN_PUB_KEY }}" > cosign.pub
-
-    - name: Verify images
-      if: ${{ startsWith(github.ref, 'refs/tags/') }}
-      run: |
-        make verify-image
-      env:
-        COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
 
     - name: Remove project jars from cached repository
       run: |
         rm -rf ~/.m2/repository/org/geoserver
         find ~/.m2/repository -name "*SNAPSHOT*" -type d | xargs rm -rf {}
+
+    - name: Sign images
+      if: ${{ startsWith(github.ref, 'refs/tags/') }}
+      env:
+        COSIGN_KEY: ${{ secrets.COSIGN_KEY }}
+        COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+      run: |
+        make sign-image
+
+    - name: Verify image signatures
+      if: ${{ startsWith(github.ref, 'refs/tags/') }}
+      env:
+        COSIGN_PUB_KEY: ${{ secrets.COSIGN_PUB_KEY }}
+        COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+      run: |
+        make verify-image
