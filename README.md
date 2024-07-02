@@ -81,7 +81,7 @@ Follow the [developer's guide](docs/develop/index.md) to know more about the pro
 
 ## Status
 
-`v1.8.5` released against GeoServer `2.25.2`.
+`v1.8.6` released against GeoServer `2.25.2`.
 
 Read the [changelog](https://github.com/geoserver/geoserver-cloud/releases/) for more information.
 
