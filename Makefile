@@ -1,6 +1,7 @@
 all: install test build-image
 
 TAG=`mvn help:evaluate -Dexpression=project.version -q -DforceStdout`
+COSIGN_PASSWORD := $(COSIGN_PASSWORD)
 
 clean:
 	./mvnw clean
@@ -16,7 +17,6 @@ install:
 
 test:
 	./mvnw verify -ntp -T4
-
 
 build-base-images:
 	./mvnw clean package -f src/apps/base-images -DksipTests -T4 && \
@@ -47,3 +47,34 @@ push-image:
 	-f docker-build/infrastructure.yml \
 	-f docker-build/geoserver.yml \
 	push
+
+.PHONY: sign-image
+sign-image:
+	@bash -c '\
+	images=$$(docker images --format "{{.Repository}}@{{.Digest}}" | grep "geoserver-cloud-"); \
+	for image in $$images; do \
+	  echo "Signing $$image"; \
+	  output=$$(cosign sign --yes --key env://COSIGN_KEY --recursive $$image 2>&1); \
+	  if [ $$? -ne 0 ]; then \
+	    echo "Error occurred: $$output"; \
+	    exit 1; \
+	  else \
+	    echo "Signing successful: $$output"; \
+	  fi; \
+	done'
+
+.PHONY: verify-image
+verify-image:
+	@bash -c '\
+	images=$$(docker images --format "{{.Repository}}@{{.Digest}}" | grep "geoserver-cloud-"); \
+	for image in $$images; do \
+	  echo "Verifying $$image"; \
+	  output=$$(cosign verify --key env://COSIGN_PUB_KEY $$image 2>&1); \
+	  if [ $$? -ne 0 ]; then \
+	    echo "Error occurred: $$output"; \
+	    exit 1; \
+	  else \
+	    echo "Verification successful: $$output"; \
+	  fi; \
+	done'
+
