@@ -176,15 +176,15 @@ $ ./mvnw clean install -P-docker
 Now run the docker composition as follows, the first time it might need to download some additional images for the `rabbitmq` event broker and the `postgresql` config database:
 
 ```bash
-$ docker-compose --compatibility up -d
+$ docker compose up -d
 ```
 
-Run `docker-compose --compatibility logs -f` to watch startup progress of all services.
+Run `docker compose logs -f` to watch startup progress of all services.
 
-Watch the output of `docker-compose ps` until all services are healthy:
+Watch the output of `docker compose ps` until all services are healthy:
 
 ```bash
-$ docker-compose --compatibility ps
+$ docker compose ps
        Name                      Command                  State                   Ports                                                      
 -----------------------------------------------------------------------------------------------------------------
 gscloud_config_1      dockerize -wait http://dis ...   Up (healthy)                                                                                                                   
@@ -208,7 +208,7 @@ Running a single service in "local" mode (that is, outside the docker compositio
 First, make sure at least the essential infrastructure services are running:
 
 ```bash
-$ docker-compose up -d discovery rabbitmq config database gateway
+$ docker compose up -d discovery rabbitmq config database gateway
 ```
 
 > The `gateway` service is not essential, but useful to check it's correctly proxy'ing requests to your locally running services as well as the ones in the docker composition.
