@@ -22,6 +22,8 @@
     <maven.compiler.target>17</maven.compiler.target>
     <spring-cloud.version>2021.0.9</spring-cloud.version>
     <spring-boot.version>2.7.18</spring-boot.version>
+    <spring.version>5.3.37</spring.version>
+    <spring.security.version>5.7.12</spring.security.version>
     <jackson.version>2.17.1</jackson.version>
     <gs.version>2.25.2.0-CLOUD</gs.version>
     <gt.version>31-SNAPSHOT</gt.version>
@@ -73,6 +75,20 @@
         <groupId>com.fasterxml.jackson</groupId>
         <artifactId>jackson-bom</artifactId>
         <version>${jackson.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-framework-bom</artifactId>
+        <version>${spring.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-bom</artifactId>
+        <version>${spring.security.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
