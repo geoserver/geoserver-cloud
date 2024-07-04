@@ -45,7 +45,8 @@ spring:
         native:
           fail-on-error: true
           search-locations:
-          - ${config.native.path:file:./config}
+          # Dockerfile embeds the default config in /etc/geoserver from geoservercloud/gs-cloud-base-spring-boot
+          - ${config.native.path:file:/etc/geoserver}
 
 # override default of true, this service does not use the registry (when eureka client is enabled)
 eureka.client.fetch-registry: false

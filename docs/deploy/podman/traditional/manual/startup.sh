@@ -4,8 +4,8 @@ podman network create gscloud 2>/dev/null
 
 podman volume create rabbitmq_data 2>/dev/null
 
-# read GSCLOUD_VERSION from ./env
-export $(cat ./env)
+# read GSCLOUD_VERSION from ./.env
+export $(cat ./.env)
 
 STD_OPTS="-d --network gscloud"
 
@@ -30,19 +30,13 @@ echo Starting config:$GSCLOUD_VERSION...
 podman run $STD_OPTS --name=config \
   --restart always \
   -e SPRING_PROFILES_ACTIVE=native \
-  -v ./config:/opt/app/config:z \
-  -e CONFIG_NATIVE_PATH=/opt/app/config \
+  -e CONFIG_NATIVE_PATH=/etc/geoserver \
   geoservercloud/geoserver-cloud-config:$GSCLOUD_VERSION
 
 echo Starting gateway:$GSCLOUD_VERSION...
 podman run $STD_OPTS --name=gateway \
   -p 9090:8080 \
   geoservercloud/geoserver-cloud-gateway:$GSCLOUD_VERSION
-
-echo Starting admin-server:$GSCLOUD_VERSION...
-podman run $STD_OPTS --name=admin-server \
-  -p 9091:8080 \
-  geoservercloud/geoserver-cloud-admin-server:$GSCLOUD_VERSION
 
 mkdir -p datadir
 #for i in webui wms wfs wcs rest

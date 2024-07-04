@@ -30,7 +30,7 @@ In order to speed up the "starting" part of the documentation we are going to do
 podman pull docker.io/library/rabbitmq:3.9-management 
 export GSCLOUD_VERSION=1.8.7
 
-for service in discovery config gateway admin-server rest webui wms wfs wcs
+for service in discovery config gateway rest webui wms wfs wcs
 do
   podman pull docker.io/geoservercloud/geoserver-cloud-$service:${GSCLOUD_VERSION}
 done
@@ -98,16 +98,6 @@ Accepted environment variables default values:
 
     -e EUREKA_SERVER_URL=http://discovery:8761/eureka
 
-#### Admin server
-
-```bash
-podman run -d --name=admin-server \
-  --network gs-cloud-network \
-  -p 9091:8080 \
-  --restart always \
-  geoservercloud/geoserver-cloud-admin-server:$GSCLOUD_VERSION
-```
-
 ### Creating service containers
 
 Depending on your use case you can start any of the following containers.
@@ -151,7 +141,7 @@ mkdir -p ~/.config/systemd/user/
 #### Creating "base system" systemd files
 
 ```bash
-for service in rabbitmq discovery config gateway admin-server
+for service in rabbitmq discovery config gateway
 do
   podman generate systemd --new -n $service > ~/.config/systemd/user/container-$service.service
 done
@@ -160,13 +150,13 @@ done
 ##### Removing running containers
 
 ```bash
-podman rm -f rabbitmq discovery config gateway admin-server
+podman rm -f rabbitmq discovery config gateway
 ```
 
 #### Adjusting dependencies base system
 
 ```bash
-for service in config gateway admin-server
+for service in config gateway
 do
   sed -i "/Wants=network-online.target/c\Wants=network-online.target container-discovery.service" ~/.config/systemd/user/container-$service.service
   sed -i "/After=network-online.target/c\After=network-online.target container-discovery.service" ~/.config/systemd/user/container-$service.service
@@ -176,7 +166,7 @@ done
 ##### Enabling and starting containers with systemd
 
 ```bash
-systemctl --user enable --now container-rabbitmq container-discovery container-config container-gateway container-admin-server
+systemctl --user enable --now container-rabbitmq container-discovery container-config container-gateway
 ```
 
 #### Creating "service containers" systemd files

@@ -1,5 +1,3 @@
-version: "3.8"
-
 volumes:
   # a volume to host the shared data directory. Mount it at /opt/app/data_directory, since
   # /opt/app is owned by the user geo:geo (603:603) in the containers. Otherwise it'd be owned by root
@@ -18,7 +16,7 @@ networks:
         
 services:
   rabbitmq:
-    image: rabbitmq:3.9-management
+    image: rabbitmq:3.13.3-alpine
     user: 1000:1000 # set the userid:groupid the container runs as
     restart: unless-stopped
     volumes:
@@ -34,7 +32,7 @@ services:
   # Eureka service discovery. This is a Discovery First Bootstrap configuration.
   # The discovery service is the only fixed entry point.
   # Browse to http://localhost:8761 to check all services are registered.
-  # Run docker-compose -f docker-compose.yml -f docker-compose-discovery-ha.yml to run extra discovery service instances for HA
+  # Run docker compose -f docker-compose.yml -f docker-compose-discovery-ha.yml to run extra discovery service instances for HA
   discovery:
     image: geoservercloud/geoserver-cloud-discovery:1.8.7
     user: 1000:1000 # set the userid:groupid the container runs as
@@ -104,7 +102,7 @@ services:
           cpus: '4.0'
           memory: 1G
 
-  # WFS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wfs=5)
+  # WFS microservice, port dynamically allocated to allow scaling (e.g docker compose scale wfs=5)
   wfs:
     image: geoservercloud/geoserver-cloud-wfs:1.8.7
     user: 1000:1000 # set the userid:groupid the container runs as
@@ -123,7 +121,7 @@ services:
           cpus: '2.0'
           memory: 1G
 
-  # WMS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wms=5)
+  # WMS microservice, port dynamically allocated to allow scaling (e.g docker compose scale wms=5)
   wms:
     image: geoservercloud/geoserver-cloud-wms:1.8.7
     user: 1000:1000 # set the userid:groupid the container runs as
@@ -144,7 +142,7 @@ services:
           cpus: '2.0'
           memory: 1G
 
-  # WCS microservice, port dynamically allocated to allow scaling (e.g docker-compose scale wcs=5)
+  # WCS microservice, port dynamically allocated to allow scaling (e.g docker compose scale wcs=5)
   wcs:
     image: geoservercloud/geoserver-cloud-wcs:1.8.7
     user: 1000:1000 # set the userid:groupid the container runs as
@@ -163,7 +161,7 @@ services:
           cpus: '2.0'
           memory: 1G
 
-  # REST config microservice, port dynamically allocated to allow scaling (e.g docker-compose scale rest=5)
+  # REST config microservice, port dynamically allocated to allow scaling (e.g docker compose scale rest=5)
   rest:
     image: geoservercloud/geoserver-cloud-rest:1.8.7
     user: 1000:1000 # set the userid:groupid the container runs as
