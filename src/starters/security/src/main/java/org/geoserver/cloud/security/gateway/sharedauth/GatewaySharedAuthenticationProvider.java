@@ -28,7 +28,8 @@ public class GatewaySharedAuthenticationProvider extends AbstractFilterProvider 
      */
     public enum Mode {
         SERVER,
-        CLIENT
+        CLIENT,
+        DISABLED
     }
 
     private final @NonNull Mode mode;
@@ -51,9 +52,11 @@ public class GatewaySharedAuthenticationProvider extends AbstractFilterProvider 
 
     @Override
     public GeoServerSecurityFilter createFilter(SecurityNamedServiceConfig config) {
-        if (Mode.SERVER == mode) {
-            return GatewaySharedAuthenticationFilter.server();
-        }
-        return GatewaySharedAuthenticationFilter.client();
+        return switch (mode) {
+            case SERVER -> GatewaySharedAuthenticationFilter.server();
+            case CLIENT -> GatewaySharedAuthenticationFilter.client();
+            case DISABLED -> GatewaySharedAuthenticationFilter.disabled();
+            default -> throw new IllegalArgumentException("Unexpected value: " + mode);
+        };
     }
 }

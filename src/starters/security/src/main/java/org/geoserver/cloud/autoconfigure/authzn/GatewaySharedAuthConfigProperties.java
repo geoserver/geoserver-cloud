@@ -24,7 +24,10 @@ public class GatewaySharedAuthConfigProperties {
     static final String AUTO_PROP = PREFIX + ".auto";
     static final String SERVER_PROP = PREFIX + ".server";
 
-    /** Whether the gateway-shared-auth webui authentication conveyor protocol is enabled */
+    /**
+     * Whether the gateway-shared-auth webui authentication conveyor protocol is enabled. Note the
+     * same configuration must be applied to the gateway-service.
+     */
     private boolean enabled = true;
 
     /**
