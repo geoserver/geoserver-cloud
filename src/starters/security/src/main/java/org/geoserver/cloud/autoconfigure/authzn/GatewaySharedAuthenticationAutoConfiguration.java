@@ -6,15 +6,17 @@ package org.geoserver.cloud.autoconfigure.authzn;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.geoserver.cloud.autoconfigure.security.ConditionalOnGeoServerSecurityEnabled;
 import org.geoserver.cloud.autoconfigure.security.GeoServerSecurityAutoConfiguration;
 import org.geoserver.cloud.security.gateway.sharedauth.ClientConfiguration;
+import org.geoserver.cloud.security.gateway.sharedauth.DisabledConfiguration;
 import org.geoserver.cloud.security.gateway.sharedauth.GatewaySharedAuthenticationInitializer;
 import org.geoserver.cloud.security.gateway.sharedauth.ServerConfiguration;
+import org.geoserver.platform.ModuleStatusImpl;
 import org.geoserver.security.GeoServerSecurityManager;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.info.BuildProperties;
 import org.springframework.boot.web.servlet.server.Session;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -53,11 +55,6 @@ import javax.annotation.PostConstruct;
 // GeoServerSecurityManager calls GeoServerExtensions.extensions(GeoServerSecurityProvider.class)
 @AutoConfiguration(before = GeoServerSecurityAutoConfiguration.class)
 @EnableConfigurationProperties(GatewaySharedAuthConfigProperties.class)
-@ConditionalOnGeoServerSecurityEnabled
-@ConditionalOnProperty(
-        name = GatewaySharedAuthConfigProperties.ENABLED_PROP,
-        havingValue = "true",
-        matchIfMissing = false)
 @Import({
     GatewaySharedAuthenticationAutoConfiguration.Server.class,
     GatewaySharedAuthenticationAutoConfiguration.Client.class
@@ -67,6 +64,33 @@ import javax.annotation.PostConstruct;
 public class GatewaySharedAuthenticationAutoConfiguration {
 
     @Bean
+    ModuleStatusImpl gatewaySharedAuthModuleInfo(
+            GatewaySharedAuthConfigProperties config, BuildProperties buildProperties) {
+        ModuleStatusImpl m = new ModuleStatusImpl();
+        m.setAvailable(true);
+        m.setEnabled(config.isEnabled());
+        m.setVersion(buildProperties.getVersion());
+        m.setName("GeoServer Cloud gateway shared authentication");
+        m.setModule("gs-cloud-starter-security");
+        m.setComponent("GatewaySharedAuthenticationFilter");
+        m.setMessage(
+                """
+                The GatewaySharedAuthenticationFilter, specific to GeoServer Cloud,
+                implements a mechanism in collaboration with the GeoServer Cloud
+                Gateway application, for the microservices to share the authentication
+                username and roles obtained when the user logs in through the WebUI.
+
+                When enabled both in the gateway and the GeoServer microservices, and
+                logged in through the WebUI, calls to other services (for example, in
+                the Layer Preview page), will be performed with the same user as in
+                the WebUI.
+                """);
+        m.setDocumentation("documentation");
+        return m;
+    }
+
+    @Bean
+    @ConditionalOnGatewaySharedAuthEnabled
     @ConditionalOnProperty(
             name = GatewaySharedAuthConfigProperties.AUTO_PROP,
             havingValue = "true",
@@ -77,6 +101,7 @@ public class GatewaySharedAuthenticationAutoConfiguration {
     }
 
     @Configuration
+    @ConditionalOnGatewaySharedAuthEnabled
     @ConditionalOnProperty(
             name = GatewaySharedAuthConfigProperties.SERVER_PROP,
             havingValue = "true",
@@ -85,11 +110,12 @@ public class GatewaySharedAuthenticationAutoConfiguration {
     static class Server {
         @PostConstruct
         void log() {
-            log.info("Gateway shared authentication method available in server mode");
+            log.info("gateway-shared-auth enabled in server mode");
         }
     }
 
     @Configuration
+    @ConditionalOnGatewaySharedAuthEnabled
     @ConditionalOnProperty(
             name = GatewaySharedAuthConfigProperties.SERVER_PROP,
             havingValue = "false",
@@ -98,7 +124,17 @@ public class GatewaySharedAuthenticationAutoConfiguration {
     static class Client {
         @PostConstruct
         void log() {
-            log.info("Gateway shared authentication method available in client mode");
+            log.info("gateway-shared-auth enabled in client mode");
+        }
+    }
+
+    @Configuration
+    @ConditionalOnGatewaySharedAuthDisabled
+    @Import(DisabledConfiguration.class)
+    static class Disabled {
+        @PostConstruct
+        void log() {
+            log.info("gateway-shared-auth disabled");
         }
     }
 }

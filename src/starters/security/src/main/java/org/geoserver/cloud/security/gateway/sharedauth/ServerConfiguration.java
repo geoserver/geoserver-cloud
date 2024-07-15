@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Configuration;
  * Contributes a {@link GatewaySharedAuthenticationProvider} in server mode.
  *
  * @see ClientConfiguration
+ * @see DisabledConfiguration
  * @since 1.9
  */
 @Configuration
