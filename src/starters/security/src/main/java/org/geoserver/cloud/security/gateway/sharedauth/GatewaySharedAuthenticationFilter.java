@@ -10,6 +10,7 @@ import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 import org.geoserver.security.GeoServerRoleConverter;
 import org.geoserver.security.config.PreAuthenticatedUserNameFilterConfig.PreAuthenticatedUserNameRoleSource;
@@ -40,6 +41,7 @@ import javax.servlet.http.HttpServletResponse;
  * @since 1.9
  */
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@Slf4j
 class GatewaySharedAuthenticationFilter extends GeoServerSecurityFilter
         implements GeoServerAuthenticationFilter {
 
@@ -70,6 +72,16 @@ class GatewaySharedAuthenticationFilter extends GeoServerSecurityFilter
      */
     public static GeoServerSecurityFilter client() {
         return new GatewaySharedAuthenticationFilter(new ClientFilter());
+    }
+
+    /**
+     * @return a {@link GatewaySharedAuthenticationFilter} proxy filter with a
+     *     <strong>no-op</strong> {@link DisabledFilter} delegate. This prevents startup failures
+     *     and WebUI security settings editting failures, when the filter has been disabled through
+     *     {@code geoserver.security.gateway-shared-auth.enabled=false} after it's been enabled.
+     */
+    public static GeoServerSecurityFilter disabled() {
+        return new GatewaySharedAuthenticationFilter(new DisabledFilter());
     }
 
     @Override
@@ -126,7 +138,8 @@ class GatewaySharedAuthenticationFilter extends GeoServerSecurityFilter
         public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
 
             // if the user is authenticated by some method, set the response headers for the
-            // Gateway to act as the middle man and send the user and roles to the other services
+            // Gateway to act as the middle man and send the user and roles to the other
+            // services
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             if (auth == null || auth instanceof AnonymousAuthenticationToken) {
                 removeGatewayResponseHeaders((HttpServletResponse) response);
@@ -155,6 +168,17 @@ class GatewaySharedAuthenticationFilter extends GeoServerSecurityFilter
                         .map(GrantedAuthority::getAuthority)
                         .forEach(role -> response.addHeader(X_GSCLOUD_ROLES, role));
             }
+        }
+    }
+
+    /** No-op GeoServerSecurityFilter */
+    static class DisabledFilter extends GeoServerSecurityFilter {
+
+        @Override
+        @SneakyThrows({ServletException.class, IOException.class})
+        public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
+            log.debug("gateway shared auth filter pass-through, functionality disabled");
+            chain.doFilter(request, response);
         }
     }
 }

@@ -6,6 +6,7 @@ services:
       # enable the postgis jndi datasource. This is just an example used for development
       JNDI_POSTGIS_ENABLED: true
       GEOWEBCACHE_CACHE_DIR: /data/geowebcache
+      GATEWAY_SHARED_AUTH: "${GATEWAY_SHARED_AUTH}"
     volumes:
       - geowebcache_data:/data/geowebcache
     deploy:

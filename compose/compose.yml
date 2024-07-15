@@ -104,6 +104,7 @@ services:
       # eat our own dogfood and set a base path
       GEOSERVER_BASE_PATH: ${GEOSERVER_BASE_PATH}
       SPRING_PROFILES_ACTIVE: "${GATEWAY_DEFAULT_PROFILES}"
+      GATEWAY_SHARED_AUTH: "${GATEWAY_SHARED_AUTH}" #same as in gstemplate
     ports:
       - 9090:8080
     deploy:
