@@ -15,13 +15,6 @@ spring:
   application:
     name: gateway-service
   jmx.enabled: false
-#  autoconfigure:
-#    exclude:
-#      - org.springframework.cloud.loadbalancer.config.LoadBalancerAutoConfiguration
-#      - org.springframework.cloud.loadbalancer.config.BlockingLoadBalancerClientAutoConfiguration
-#      - org.springframework.cloud.loadbalancer.config.LoadBalancerCacheAutoConfiguration
-#      - org.springframework.cloud.loadbalancer.security.OAuth2LoadBalancerClientAutoConfiguration
-#      - org.springframework.cloud.loadbalancer.config.LoadBalancerStatsAutoConfiguration
 
 # this service uses the registry (when eureka client is enabled)
 eureka.client:
