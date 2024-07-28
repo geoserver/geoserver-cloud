@@ -600,7 +600,6 @@ public class RepositoryCatalogFacadeImpl
             try {
                 count = repository(of).count(of, filter);
             } catch (RuntimeException e) {
-                e.printStackTrace();
                 throw new CatalogException(
                         "Error obtaining count of %s with filter %s"
                                 .formatted(of.getSimpleName(), filter),
