@@ -18,6 +18,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
  * @since 1.4
  */
 @Testcontainers(disabledWithoutDocker = true)
+@SuppressWarnings("java:S2187")
 class PgconfigUpdateSequenceTest implements UpdateSequenceConformanceTest {
 
     @Container static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();
@@ -35,7 +36,7 @@ class PgconfigUpdateSequenceTest implements UpdateSequenceConformanceTest {
     }
 
     @AfterEach
-    void cleanDb() throws Exception {
+    void cleanDb() {
         container.tearDown();
     }
 

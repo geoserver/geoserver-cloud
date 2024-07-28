@@ -1119,6 +1119,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
+    @SuppressWarnings("java:S5961")
     void testDataStoreEvents() {
         addWorkspace();
 
@@ -2182,7 +2183,6 @@ public abstract class CatalogConformanceTest {
     void testProxyBehaviour() {
         testAddLayer();
 
-        // l = catalog.getLayerByName( "layerName");
         LayerInfo l = catalog.getLayerByName(data.featureTypeA.getName());
         assertTrue(l instanceof Proxy);
 
@@ -2290,7 +2290,7 @@ public abstract class CatalogConformanceTest {
         assertEquals(2, catalog.getStores(WMTSStoreInfo.class).size());
     }
 
-    protected int GET_LAYER_BY_ID_WITH_CONCURRENT_ADD_TEST_COUNT = 500;
+    protected int getLayerByIdWithConcurrentAddTestCount = 500;
     private static final int GET_LAYER_BY_ID_WITH_CONCURRENT_ADD_THREAD_COUNT = 10;
 
     /**
@@ -2332,7 +2332,7 @@ public abstract class CatalogConformanceTest {
         // wait for all threads to reach latch in order to maximize likelihood of contention
         ready.await();
 
-        for (int i = 0; i < GET_LAYER_BY_ID_WITH_CONCURRENT_ADD_TEST_COUNT; i++) {
+        for (int i = 0; i < getLayerByIdWithConcurrentAddTestCount; i++) {
             catalog.getLayer(id);
         }
 
@@ -2814,29 +2814,37 @@ public abstract class CatalogConformanceTest {
         public List<CatalogPostModifyEvent> postModified = new CopyOnWriteArrayList<>();
         public List<CatalogRemoveEvent> removed = new CopyOnWriteArrayList<>();
 
+        @Override
         public void handleAddEvent(CatalogAddEvent event) {
             added.add(event);
         }
 
+        @Override
         public void handleModifyEvent(CatalogModifyEvent event) {
             modified.add(event);
         }
 
+        @Override
         public void handlePostModifyEvent(CatalogPostModifyEvent event) {
             postModified.add(event);
         }
 
+        @Override
         public void handleRemoveEvent(CatalogRemoveEvent event) {
             removed.add(event);
         }
 
-        public void reloaded() {}
+        @Override
+        public void reloaded() {
+            // no-op
+        }
     }
 
     protected static class ExceptionThrowingListener implements CatalogListener {
 
         public boolean throwCatalogException;
 
+        @Override
         public void handleAddEvent(CatalogAddEvent event) throws CatalogException {
             if (throwCatalogException) {
                 throw new CatalogException("expected, testing Catalog's CatalogException handling");
@@ -2845,13 +2853,25 @@ public abstract class CatalogConformanceTest {
             }
         }
 
-        public void handleModifyEvent(CatalogModifyEvent event) throws CatalogException {}
+        @Override
+        public void handleModifyEvent(CatalogModifyEvent event) throws CatalogException {
+            // no-op
+        }
 
-        public void handlePostModifyEvent(CatalogPostModifyEvent event) throws CatalogException {}
+        @Override
+        public void handlePostModifyEvent(CatalogPostModifyEvent event) throws CatalogException {
+            // no-op
+        }
 
-        public void handleRemoveEvent(CatalogRemoveEvent event) throws CatalogException {}
+        @Override
+        public void handleRemoveEvent(CatalogRemoveEvent event) throws CatalogException {
+            // no-op
+        }
 
-        public void reloaded() {}
+        @Override
+        public void reloaded() {
+            // no-op
+        }
     }
 
     class LayerAddRunner extends RunnerBase {
@@ -2865,7 +2885,7 @@ public abstract class CatalogConformanceTest {
 
         protected void runInternal() {
             CatalogFactory factory = catalog.getFactory();
-            for (int i = 0; i < GET_LAYER_BY_ID_WITH_CONCURRENT_ADD_TEST_COUNT; i++) {
+            for (int i = 0; i < getLayerByIdWithConcurrentAddTestCount; i++) {
                 // GR: Adding a new feature type info too, we can't really add multiple layers per
                 // feature type yet. Setting the name of the layer changes the name of the resource,
                 // then all previous layers for that resource get screwed
@@ -2883,7 +2903,6 @@ public abstract class CatalogConformanceTest {
             }
         }
     }
-    ;
 
     @Test
     void testGet() {
@@ -2970,6 +2989,7 @@ public abstract class CatalogConformanceTest {
     }
 
     @Test
+    @SuppressWarnings("java:S1854")
     void testListPredicate() {
         addDataStore();
         addNamespace();

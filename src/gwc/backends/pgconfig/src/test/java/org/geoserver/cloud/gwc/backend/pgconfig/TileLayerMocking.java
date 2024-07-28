@@ -74,8 +74,7 @@ class TileLayerMocking {
     public GeoServerTileLayer geoServerTileLayer(PublishedInfo published) {
         GeoServerTileLayerInfo tileLayerInfo =
                 TileLayerInfoUtil.loadOrCreate(published, new GWCConfig());
-        GeoServerTileLayer tl = new GeoServerTileLayer(published, gridsets, tileLayerInfo);
-        return tl;
+        return new GeoServerTileLayer(published, gridsets, tileLayerInfo);
     }
 
     public TileLayerInfo pgLayerInfo(PublishedInfo info) {

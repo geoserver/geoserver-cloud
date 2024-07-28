@@ -70,12 +70,12 @@ class AzureBlobStoreXmlConfigurationTest {
                         tmpdir.toAbsolutePath().toString(),
                         (DefaultStorageFinder) null);
 
-        CloudGwcXmlConfiguration config =
+        CloudGwcXmlConfiguration xmlConfig =
                 new CloudGwcXmlConfiguration(appCtx, inFac, mockEventPublisher::set);
         GridSetBroker broker = new GridSetBroker(List.of(defaultGridsets));
-        config.setGridSetBroker(broker);
-        config.afterPropertiesSet();
-        return config;
+        xmlConfig.setGridSetBroker(broker);
+        xmlConfig.afterPropertiesSet();
+        return xmlConfig;
     }
 
     @Test

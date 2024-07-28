@@ -172,11 +172,9 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
     public <U extends T> Stream<U> findAll(Query<U> query) {
         Comparator<U> comparator = toComparator(query);
         Predicate<U> predicate = toPredicate(query.getFilter());
-        Stream<U> stream =
-                list(query.getType(), predicate, comparator)
-                        .skip(query.offset().orElse(0))
-                        .limit(query.count().orElse(Integer.MAX_VALUE));
-        return stream;
+        return list(query.getType(), predicate, comparator)
+                .skip(query.offset().orElse(0))
+                .limit(query.count().orElse(Integer.MAX_VALUE));
     }
 
     @Override
