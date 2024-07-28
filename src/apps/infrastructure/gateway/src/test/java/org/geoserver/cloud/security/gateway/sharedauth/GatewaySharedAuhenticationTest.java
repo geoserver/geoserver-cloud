@@ -188,7 +188,7 @@ class GatewaySharedAuhenticationTest {
     private URI getcapabilities;
 
     @BeforeEach
-    void setUp(WireMockRuntimeInfo runtimeInfo) throws Exception {
+    void setUp(WireMockRuntimeInfo runtimeInfo) {
         StubMapping weblogin = buildFrom(WEB_LOGIN_SPEC);
         StubMapping weblogout = buildFrom(WEB_LOGOUT_SPEC);
         StubMapping wmscaps = buildFrom(WMS_GETCAPS);
@@ -199,9 +199,9 @@ class GatewaySharedAuhenticationTest {
         wireMock.register(wmscaps);
         wireMock.register(buildFrom(DEFAULT_RESPONSE));
 
-        login = gatewayUriOf(runtimeInfo, weblogin);
-        logout = gatewayUriOf(runtimeInfo, weblogout);
-        getcapabilities = gatewayUriOf(runtimeInfo, wmscaps);
+        login = gatewayUriOf(weblogin);
+        logout = gatewayUriOf(weblogout);
+        getcapabilities = gatewayUriOf(wmscaps);
     }
 
     /**
@@ -245,8 +245,8 @@ class GatewaySharedAuhenticationTest {
     void preFilterAppendsRequestHeadersFromSession(WireMockRuntimeInfo runtimeInfo) {
         // preflight, make sure the webui responsed with the headers and they're in the
         // session
-        ResponseEntity<Void> login = login();
-        final String gatewaySessionId = getGatewaySessionId(login.getHeaders());
+        ResponseEntity<Void> loginResponse = login();
+        final String gatewaySessionId = getGatewaySessionId(loginResponse.getHeaders());
         assertUserAndRolesStoredInSession(gatewaySessionId);
 
         // query the wms service with the gateway session id
@@ -287,8 +287,8 @@ class GatewaySharedAuhenticationTest {
     @Order(3)
     @DisplayName("post-filter saves user and roles in session")
     void postFilterSavesUserAndRolesInSession(WireMockRuntimeInfo runtimeInfo) {
-        ResponseEntity<Void> login = login();
-        final String gatewaySessionId = getGatewaySessionId(login.getHeaders());
+        ResponseEntity<Void> loginResponse = login();
+        final String gatewaySessionId = getGatewaySessionId(loginResponse.getHeaders());
 
         assertUserAndRolesStoredInSession(gatewaySessionId);
     }
@@ -299,8 +299,8 @@ class GatewaySharedAuhenticationTest {
     void postFilterRemovesUserAndRolesFromSessionOnEmptyUserResponseHeader(
             WireMockRuntimeInfo runtimeInfo) {
         // preflight, have a session and the user and roles stored
-        ResponseEntity<Void> login = login();
-        final String gatewaySessionId = getGatewaySessionId(login.getHeaders());
+        ResponseEntity<Void> loginResponse = login();
+        final String gatewaySessionId = getGatewaySessionId(loginResponse.getHeaders());
         assertUserAndRolesStoredInSession(gatewaySessionId);
 
         // make a request that returns and empty string on the x-gsc-username response header
@@ -354,11 +354,10 @@ class GatewaySharedAuhenticationTest {
     private Map<String, Object> getSessionAttributes(final String gatewaySessionId) {
         WebSessionStore sessionStore = webSessionManager.getSessionStore();
         WebSession session = sessionStore.retrieveSession(gatewaySessionId).block();
-        Map<String, Object> attributes = session.getAttributes();
-        return attributes;
+        return session.getAttributes();
     }
 
-    private URI gatewayUriOf(WireMockRuntimeInfo runtimeInfo, StubMapping mapping) {
+    private URI gatewayUriOf(StubMapping mapping) {
         return URI.create(mapping.getRequest().getUrl());
     }
 

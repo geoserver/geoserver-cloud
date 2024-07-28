@@ -40,7 +40,7 @@ class GwcCoreAutoConfigurationTest {
      * @throws java.lang.Exception
      */
     @BeforeEach
-    void setUp(@TempDir File tmpDir) throws Exception {
+    void setUp(@TempDir File tmpDir) {
         GeoServerExtensionsHelper.clear();
         runner = GeoWebCacheContextRunner.newMinimalGeoWebCacheContextRunner(tmpDir);
     }
@@ -66,7 +66,7 @@ class GwcCoreAutoConfigurationTest {
     }
 
     @Test
-    void contextLoads() throws IOException {
+    void contextLoads() {
         runner.run(
                 context -> {
                     GeoServerExtensionsHelper.init(context);
@@ -77,7 +77,6 @@ class GwcCoreAutoConfigurationTest {
                                     "gwcGeoserverConfigurationInitializer",
                                     GwcGeoserverConfigurationInitializer.class)
                             .isInstanceOf(GwcGeoserverConfigurationInitializer.class);
-                    ;
 
                     assertThat(context.isTypeMatch("gwcXmlConfig", CloudGwcXmlConfiguration.class))
                             .isTrue();

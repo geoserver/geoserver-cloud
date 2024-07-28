@@ -180,8 +180,6 @@ class EnvironmentAdminAuthenticationProviderTest {
 
     protected EnvironmentAdminAuthenticationProvider envAuthProvider(
             AssertableApplicationContext context) {
-        EnvironmentAdminAuthenticationProvider provider =
-                context.getBean(EnvironmentAdminAuthenticationProvider.class);
-        return provider;
+        return context.getBean(EnvironmentAdminAuthenticationProvider.class);
     }
 }

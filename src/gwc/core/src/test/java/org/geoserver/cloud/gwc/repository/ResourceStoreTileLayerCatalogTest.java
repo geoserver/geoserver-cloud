@@ -24,7 +24,6 @@ import org.junit.jupiter.api.io.TempDir;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -162,7 +161,7 @@ class ResourceStoreTileLayerCatalogTest {
     }
 
     @Test
-    void testEvents() throws IOException, InterruptedException {
+    void testEvents() {
         AtomicBoolean hasBeenCreated = new AtomicBoolean(false);
         AtomicBoolean hasBeenModified = new AtomicBoolean(false);
         AtomicBoolean hasBeenDeleted = new AtomicBoolean(false);

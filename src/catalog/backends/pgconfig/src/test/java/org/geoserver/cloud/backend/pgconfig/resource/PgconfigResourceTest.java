@@ -64,9 +64,9 @@ import javax.sql.DataSource;
 @RunWith(Theories.class)
 public class PgconfigResourceTest extends ResourceTheoryTest {
 
-    public @ClassRule static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();
+    @ClassRule public static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();
 
-    public @Rule TemporaryFolder tmpDir = new TemporaryFolder();
+    @Rule public TemporaryFolder tmpDir = new TemporaryFolder();
     private PgconfigResourceStore store;
     private File cacheDirectory;
 
@@ -445,11 +445,7 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
 
     private Set<String> replace(String oldParent, String newParent, Set<String> children) {
         return children.stream()
-                .map(
-                        p -> {
-                            String newpath = newParent + p.substring(oldParent.length());
-                            return newpath;
-                        })
+                .map(p -> newParent + p.substring(oldParent.length()))
                 .collect(Collectors.toCollection(TreeSet::new));
     }
 

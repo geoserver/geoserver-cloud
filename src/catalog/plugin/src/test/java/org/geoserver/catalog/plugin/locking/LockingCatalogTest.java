@@ -127,15 +127,12 @@ class LockingCatalogTest {
                 created //
                         .stream()
                         .map(
-                                list -> {
-                                    List<? extends CatalogInfo> sublist =
-                                            list.stream()
-                                                    .map(CatalogInfo::getId)
-                                                    .map(catalog::findById)
-                                                    .map(Optional::orElseThrow)
-                                                    .toList();
-                                    return sublist;
-                                });
+                                list ->
+                                        list.stream()
+                                                .map(CatalogInfo::getId)
+                                                .map(catalog::findById)
+                                                .map(Optional::orElseThrow)
+                                                .toList());
 
         updated //
                 .parallel() //

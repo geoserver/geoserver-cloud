@@ -153,7 +153,7 @@ class GsCloudLayerGroupContainmentCacheTest {
     }
 
     @BeforeEach
-    public void setupLayerGrups() throws InterruptedException {
+    public void setupLayerGrups() {
         LayerInfo lakes = catalog.getLayerByName(getLayerId(MockData.LAKES));
         LayerInfo forests = catalog.getLayerByName(getLayerId(MockData.FORESTS));
         LayerInfo roads = catalog.getLayerByName(getLayerId(MockData.ROAD_SEGMENTS));

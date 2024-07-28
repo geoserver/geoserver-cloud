@@ -29,6 +29,7 @@ import javax.sql.DataSource;
  *
  * @since 1.6
  */
+@SuppressWarnings("java:S119")
 public class PgConfigTestContainer<SELF extends PostgreSQLContainer<SELF>>
         extends PostgreSQLContainer<SELF> {
 

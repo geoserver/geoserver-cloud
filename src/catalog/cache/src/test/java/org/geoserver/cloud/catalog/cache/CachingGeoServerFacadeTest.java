@@ -82,7 +82,7 @@ class CachingGeoServerFacadeTest {
     private @Autowired CacheManager cacheManager;
     private Cache cache;
     private GeoServerInfo global;
-    private WorkspaceInfo ws;
+    private WorkspaceInfo workspace;
     private SettingsInfo settings;
     private TestService1 service1;
     private TestService2 service2;
@@ -96,9 +96,9 @@ class CachingGeoServerFacadeTest {
 
     public @BeforeEach void before() {
         global = stub(GeoServerInfo.class);
-        ws = stub(WorkspaceInfo.class);
+        workspace = stub(WorkspaceInfo.class);
         settings = stub(SettingsInfo.class);
-        when(settings.getWorkspace()).thenReturn(ws);
+        when(settings.getWorkspace()).thenReturn(workspace);
         logging = stub(LoggingInfo.class);
 
         service1 = stub(TestService1.class, 1);
@@ -110,8 +110,8 @@ class CachingGeoServerFacadeTest {
         wsService2 = stub(TestService2.class, 2);
         when(wsService1.getName()).thenReturn("service1");
         when(wsService2.getName()).thenReturn("service2");
-        when(wsService1.getWorkspace()).thenReturn(ws);
-        when(wsService2.getWorkspace()).thenReturn(ws);
+        when(wsService1.getWorkspace()).thenReturn(workspace);
+        when(wsService2.getWorkspace()).thenReturn(workspace);
 
         when(mock.getGlobal()).thenReturn(global);
         when(mock.getLogging()).thenReturn(logging);
@@ -124,25 +124,25 @@ class CachingGeoServerFacadeTest {
         when(mock.getService(service2.getId(), TestService2.class)).thenReturn(service2);
         doReturn(Arrays.asList(service1, service2)).when(mock).getServices();
 
-        when(mock.getService(ws, TestService1.class)).thenReturn(wsService1);
-        when(mock.getService(ws, TestService2.class)).thenReturn(wsService2);
-        doReturn(Arrays.asList(wsService1, wsService2)).when(mock).getServices(ws);
+        when(mock.getService(workspace, TestService1.class)).thenReturn(wsService1);
+        when(mock.getService(workspace, TestService2.class)).thenReturn(wsService2);
+        doReturn(Arrays.asList(wsService1, wsService2)).when(mock).getServices(workspace);
 
         when(mock.getServiceByName(service1.getName(), ServiceInfo.class)).thenReturn(service1);
         when(mock.getServiceByName(service1.getName(), TestService1.class)).thenReturn(service1);
         when(mock.getServiceByName(service2.getName(), ServiceInfo.class)).thenReturn(service1);
         when(mock.getServiceByName(service2.getName(), TestService2.class)).thenReturn(service2);
 
-        when(mock.getServiceByName(wsService1.getName(), ws, ServiceInfo.class))
+        when(mock.getServiceByName(wsService1.getName(), workspace, ServiceInfo.class))
                 .thenReturn(wsService1);
-        when(mock.getServiceByName(wsService1.getName(), ws, TestService1.class))
+        when(mock.getServiceByName(wsService1.getName(), workspace, TestService1.class))
                 .thenReturn(wsService1);
-        when(mock.getServiceByName(wsService2.getName(), ws, ServiceInfo.class))
+        when(mock.getServiceByName(wsService2.getName(), workspace, ServiceInfo.class))
                 .thenReturn(wsService1);
-        when(mock.getServiceByName(wsService2.getName(), ws, TestService2.class))
+        when(mock.getServiceByName(wsService2.getName(), workspace, TestService2.class))
                 .thenReturn(wsService2);
 
-        when(mock.getSettings(ws)).thenReturn(settings);
+        when(mock.getSettings(workspace)).thenReturn(settings);
         this.cache = cacheManager.getCache(CACHE_NAME);
         this.cache.clear();
     }
@@ -218,14 +218,14 @@ class CachingGeoServerFacadeTest {
 
     @Test
     void onSettingsInfoModifyEvent() {
-        caching.getSettings(ws);
+        caching.getSettings(workspace);
         final Object idKey = settings.getId();
-        final Object wsKey = CachingGeoServerFacade.settingsKey(ws);
+        final Object wsKey = CachingGeoServerFacade.settingsKey(workspace);
         assertThat(cache.get(idKey)).isNotNull();
         assertThat(cache.get(wsKey)).isNotNull();
 
         SettingsModified event = event(SettingsModified.class, settings.getId(), SETTINGS);
-        final String wsid = ws.getId();
+        final String wsid = workspace.getId();
         when(event.getWorkspaceId()).thenReturn(wsid);
 
         caching.onSettingsInfoModifyEvent(event);
@@ -235,14 +235,14 @@ class CachingGeoServerFacadeTest {
 
     @Test
     void onSettingsInfoRemoveEvent() {
-        caching.getSettings(ws);
+        caching.getSettings(workspace);
         final Object idKey = settings.getId();
-        final Object wsKey = CachingGeoServerFacade.settingsKey(ws);
+        final Object wsKey = CachingGeoServerFacade.settingsKey(workspace);
         assertThat(cache.get(idKey)).isNotNull();
         assertThat(cache.get(wsKey)).isNotNull();
 
         SettingsRemoved event = event(SettingsRemoved.class, settings.getId(), SETTINGS);
-        final String wsid = ws.getId();
+        final String wsid = workspace.getId();
         when(event.getWorkspaceId()).thenReturn(wsid);
 
         caching.onSettingsInfoRemoveEvent(event);
@@ -391,29 +391,29 @@ class CachingGeoServerFacadeTest {
 
     @Test
     void testGetSettings() {
-        assertSameTimesN(settings, () -> caching.getSettings(ws), 3);
-        verify(mock, times(1)).getSettings(ws);
-        assertNotNull(cache.get(CachingGeoServerFacade.settingsKey(ws)));
+        assertSameTimesN(settings, () -> caching.getSettings(workspace), 3);
+        verify(mock, times(1)).getSettings(workspace);
+        assertNotNull(cache.get(CachingGeoServerFacade.settingsKey(workspace)));
     }
 
     @Test
     void testSaveSettingsInfo() {
-        assertSameTimesN(settings, () -> caching.getSettings(ws), 3);
-        verify(mock, times(1)).getSettings(ws);
-        assertNotNull(cache.get(CachingGeoServerFacade.settingsKey(ws)));
+        assertSameTimesN(settings, () -> caching.getSettings(workspace), 3);
+        verify(mock, times(1)).getSettings(workspace);
+        assertNotNull(cache.get(CachingGeoServerFacade.settingsKey(workspace)));
 
         caching.save(settings);
-        assertNull(cache.get(CachingGeoServerFacade.settingsKey(ws)));
+        assertNull(cache.get(CachingGeoServerFacade.settingsKey(workspace)));
     }
 
     @Test
     void testRemoveSettingsInfo() {
-        assertSameTimesN(settings, () -> caching.getSettings(ws), 3);
-        verify(mock, times(1)).getSettings(ws);
-        assertNotNull(cache.get(CachingGeoServerFacade.settingsKey(ws)));
+        assertSameTimesN(settings, () -> caching.getSettings(workspace), 3);
+        verify(mock, times(1)).getSettings(workspace);
+        assertNotNull(cache.get(CachingGeoServerFacade.settingsKey(workspace)));
 
         caching.remove(settings);
-        assertNull(cache.get(CachingGeoServerFacade.settingsKey(ws)));
+        assertNull(cache.get(CachingGeoServerFacade.settingsKey(workspace)));
     }
 
     @Test

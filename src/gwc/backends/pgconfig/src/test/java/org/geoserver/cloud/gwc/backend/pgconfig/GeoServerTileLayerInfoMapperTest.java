@@ -236,9 +236,6 @@ class GeoServerTileLayerInfoMapperTest {
 
     private GeoServerTileLayerInfoImpl roundtripTest(GeoServerTileLayer layer) {
         TileLayerInfo pgInfo = mapper.map(layer);
-
-        GeoServerTileLayerInfoImpl roundtripped = mapper.map(pgInfo);
-
-        return roundtripped;
+        return mapper.map(pgInfo);
     }
 }
