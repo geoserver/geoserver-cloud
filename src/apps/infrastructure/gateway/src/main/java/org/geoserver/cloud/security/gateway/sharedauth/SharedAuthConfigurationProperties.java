@@ -2,7 +2,7 @@
  * (c) 2024 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
  * GPL 2.0 license, available at the root application directory.
  */
-package org.geoserver.cloud.autoconfigure.gateway;
+package org.geoserver.cloud.security.gateway.sharedauth;
 
 import lombok.Data;
 
@@ -22,4 +22,7 @@ class SharedAuthConfigurationProperties {
      * services.
      */
     private boolean enabled = true;
+
+    static final String X_GSCLOUD_ROLES = "x-gsc-roles";
+    static final String X_GSCLOUD_USERNAME = "x-gsc-username";
 }

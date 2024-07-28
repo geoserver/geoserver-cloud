@@ -1,3 +1,4 @@
 # Auto Configure
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-org.geoserver.cloud.autoconfigure.gateway.GatewayApplicationAutoconfiguration
+org.geoserver.cloud.autoconfigure.gateway.GatewayApplicationAutoconfiguration,\
+org.geoserver.cloud.autoconfigure.gateway.GatewaySharedAuthAutoConfiguration

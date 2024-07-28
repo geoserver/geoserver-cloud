@@ -6,7 +6,6 @@ package org.geoserver.cloud.autoconfigure.gateway;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.geoserver.cloud.gateway.filter.GatewaySharedAuhenticationGlobalFilter;
 import org.geoserver.cloud.gateway.filter.RouteProfileGatewayFilterFactory;
 import org.geoserver.cloud.gateway.filter.StripBasePathGatewayFilterFactory;
 import org.geoserver.cloud.gateway.predicate.RegExpQueryRoutePredicateFactory;
@@ -29,18 +28,6 @@ class GatewayApplicationAutoconfigurationTest {
                                 .hasNotFailed()
                                 .hasSingleBean(RegExpQueryRoutePredicateFactory.class)
                                 .hasSingleBean(RouteProfileGatewayFilterFactory.class)
-                                .hasSingleBean(StripBasePathGatewayFilterFactory.class)
-                                .hasSingleBean(GatewaySharedAuhenticationGlobalFilter.class));
-    }
-
-    @Test
-    void disableGatewaySharedAuhenticationGlobalFilter() {
-        runner.withPropertyValues("geoserver.security.gateway-shared-auth.enabled: false")
-                .run(
-                        context ->
-                                assertThat(context)
-                                        .hasNotFailed()
-                                        .doesNotHaveBean(
-                                                GatewaySharedAuhenticationGlobalFilter.class));
+                                .hasSingleBean(StripBasePathGatewayFilterFactory.class));
     }
 }
