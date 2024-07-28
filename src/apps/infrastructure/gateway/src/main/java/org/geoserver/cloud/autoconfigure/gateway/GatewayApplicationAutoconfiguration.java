@@ -4,19 +4,14 @@
  */
 package org.geoserver.cloud.autoconfigure.gateway;
 
-import lombok.extern.slf4j.Slf4j;
-
-import org.geoserver.cloud.gateway.filter.GatewaySharedAuhenticationGlobalFilter;
 import org.geoserver.cloud.gateway.filter.RouteProfileGatewayFilterFactory;
 import org.geoserver.cloud.gateway.filter.StripBasePathGatewayFilterFactory;
 import org.geoserver.cloud.gateway.predicate.RegExpQueryRoutePredicateFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 
 @AutoConfiguration
-@Slf4j
 public class GatewayApplicationAutoconfiguration {
 
     /**
@@ -65,15 +60,5 @@ public class GatewayApplicationAutoconfiguration {
     @Bean
     StripBasePathGatewayFilterFactory stripBasePathGatewayFilterFactory() {
         return new StripBasePathGatewayFilterFactory();
-    }
-
-    @Bean
-    @ConditionalOnProperty(
-            name = "geoserver.security.gateway-shared-auth.enabled",
-            havingValue = "true",
-            matchIfMissing = true)
-    GatewaySharedAuhenticationGlobalFilter gatewaySharedAuhenticationGlobalFilter() {
-        log.info("gateway-shared-auth is enabled");
-        return new GatewaySharedAuhenticationGlobalFilter();
     }
 }
