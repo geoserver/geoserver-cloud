@@ -844,6 +844,12 @@
         <artifactId>flyway-database-postgresql</artifactId>
         <version>${flyway.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.wiremock</groupId>
+        <artifactId>wiremock-standalone</artifactId>
+        <version>3.8.0</version>
+        <scope>test</scope>
+      </dependency>
     </dependencies>
   </dependencyManagement>
   <dependencies>

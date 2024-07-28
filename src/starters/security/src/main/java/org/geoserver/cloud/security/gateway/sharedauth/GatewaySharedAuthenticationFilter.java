@@ -6,6 +6,8 @@ package org.geoserver.cloud.security.gateway.sharedauth;
 
 import static com.google.common.collect.Streams.stream;
 
+import com.google.common.collect.Streams;
+
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -23,17 +25,19 @@ import org.geoserver.security.impl.GeoServerRole;
 import org.geoserver.security.impl.GeoServerRoleConverterImpl;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -41,7 +45,7 @@ import javax.servlet.http.HttpServletResponse;
  * @since 1.9
  */
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-@Slf4j
+@Slf4j(topic = "org.geoserver.cloud.security.gateway.sharedauth")
 class GatewaySharedAuthenticationFilter extends GeoServerSecurityFilter
         implements GeoServerAuthenticationFilter {
 
@@ -112,6 +116,39 @@ class GatewaySharedAuthenticationFilter extends GeoServerSecurityFilter
             super.setRoleConverterName("");
         }
 
+        @Override
+        public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+                throws IOException, ServletException {
+
+            var pre = SecurityContextHolder.getContext().getAuthentication();
+            try {
+                super.doFilter(request, response, chain);
+            } finally {
+                if (log.isDebugEnabled()) {
+                    var post = SecurityContextHolder.getContext().getAuthentication();
+                    HttpServletRequest req = (HttpServletRequest) request;
+                    String preUsername = pre == null ? null : pre.getName();
+                    String postUsername = post == null ? null : post.getName();
+                    String reqHeaders = getHeaders(req);
+                    String gatewaySessionId = getGatewaySessionId(req);
+                    log.debug(
+                            "[gateway session: {}] {} {}\n user pre: {}\n user post: {}\n headers: \n{}",
+                            gatewaySessionId,
+                            req.getMethod(),
+                            req.getRequestURI(),
+                            preUsername,
+                            postUsername,
+                            reqHeaders);
+                }
+            }
+        }
+
+        private String getHeaders(HttpServletRequest req) {
+            return Streams.stream(req.getHeaderNames().asIterator())
+                    .map(name -> "\t%s: %s".formatted(name, req.getHeader(name)))
+                    .collect(Collectors.joining("\n"));
+        }
+
         /**
          * Override to handle muilti-valued roles header, the superclass assumes a single-valued
          * header with a delimiter to handle mutliple values
@@ -141,10 +178,15 @@ class GatewaySharedAuthenticationFilter extends GeoServerSecurityFilter
             // Gateway to act as the middle man and send the user and roles to the other
             // services
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            if (auth == null || auth instanceof AnonymousAuthenticationToken) {
-                removeGatewayResponseHeaders((HttpServletResponse) response);
-            } else {
-                setGatewayResponseHeaders(auth, (HttpServletResponse) response);
+            HttpServletResponse resp = (HttpServletResponse) response;
+            HttpServletRequest req = (HttpServletRequest) request;
+
+            if (auth != null
+                    && !(auth instanceof AnonymousAuthenticationToken)
+                    && auth.isAuthenticated()) {
+                setGatewayResponseHeaders(auth, req, resp);
+            } else if (auth == null || auth instanceof AnonymousAuthenticationToken) {
+                setEmptyUserResponseHeader(req, resp);
             }
 
             chain.doFilter(request, response);
@@ -155,20 +197,54 @@ class GatewaySharedAuthenticationFilter extends GeoServerSecurityFilter
          * requires for it to be explicitly set to clear it out from its session, just removing the
          * header wouldn't work.
          */
-        private void removeGatewayResponseHeaders(HttpServletResponse response) {
+        private void setEmptyUserResponseHeader(
+                HttpServletRequest req, HttpServletResponse response) {
             response.setHeader(X_GSCLOUD_USERNAME, "");
+            if (log.isDebugEnabled()) {
+                String gatewaySessionId = getGatewaySessionId(req);
+                log.debug(
+                        "[gateway session: {}] sending empty {} response header for {} {}",
+                        gatewaySessionId,
+                        X_GSCLOUD_USERNAME,
+                        req.getMethod(),
+                        req.getRequestURI());
+            }
         }
 
         private void setGatewayResponseHeaders(
-                Authentication preAuth, HttpServletResponse response) {
-            final String name = null == preAuth ? null : preAuth.getName();
-            response.setHeader(X_GSCLOUD_USERNAME, name);
-            if (null != name) {
-                preAuth.getAuthorities().stream()
-                        .map(GrantedAuthority::getAuthority)
-                        .forEach(role -> response.addHeader(X_GSCLOUD_ROLES, role));
+                Authentication preAuth, HttpServletRequest req, HttpServletResponse response) {
+            final String username = preAuth.getName();
+            if (null != username) {
+                response.setHeader(X_GSCLOUD_USERNAME, username);
+                preAuth.getAuthorities()
+                        .forEach(
+                                authority ->
+                                        response.addHeader(
+                                                X_GSCLOUD_ROLES, authority.getAuthority()));
+                if (log.isDebugEnabled()) {
+                    String gatewaySessionId = getGatewaySessionId(req);
+                    log.debug(
+                            "[gateway session: {}] appended response headers {}: {}, {}: {} for {} {}",
+                            gatewaySessionId,
+                            X_GSCLOUD_USERNAME,
+                            response.getHeader(X_GSCLOUD_USERNAME),
+                            X_GSCLOUD_ROLES,
+                            response.getHeaders(X_GSCLOUD_ROLES),
+                            req.getMethod(),
+                            req.getRequestURI());
+                }
             }
         }
+    }
+
+    static String getGatewaySessionId(HttpServletRequest req) {
+        Cookie[] cookies = req.getCookies();
+        if (null == cookies || cookies.length == 0) return null;
+        return Stream.of(cookies)
+                .filter(c -> "SESSION".equals(c.getName()))
+                .map(Cookie::getValue)
+                .findFirst()
+                .orElse(null);
     }
 
     /** No-op GeoServerSecurityFilter */
