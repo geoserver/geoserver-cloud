@@ -40,6 +40,7 @@ import java.util.Map;
 
 class ConfigRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
 
+    @Override
     @BeforeEach
     public void before() {
         super.before();

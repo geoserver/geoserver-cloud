@@ -15,8 +15,8 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.config.impl.GeoServerImpl;
@@ -108,11 +108,10 @@ public abstract class GeoServerConfigConformanceTest {
         ServiceInfo s2 = createService();
         ((ServiceInfoImpl) s2).setId(service.getId());
 
-        try {
-            geoServer.add(s2);
-            fail("adding service with duplicate id should throw exception");
-        } catch (Exception e) {
-        }
+        assertThrows(
+                RuntimeException.class,
+                () -> geoServer.add(s2),
+                "adding service with duplicate id should throw exception");
 
         ServiceInfo s = geoServer.getServiceByName("wms", ServiceInfo.class);
         assertNotSame(service, s);
@@ -172,6 +171,7 @@ public abstract class GeoServerConfigConformanceTest {
         List<Object> sOldValues = new ArrayList<>();
         List<Object> sNewValues = new ArrayList<>();
 
+        @Override
         public void handleGlobalChange(
                 GeoServerInfo global,
                 List<String> propertyNames,
@@ -182,6 +182,7 @@ public abstract class GeoServerConfigConformanceTest {
             gNewValues.addAll(newValues);
         }
 
+        @Override
         public void handleServiceChange(
                 ServiceInfo service,
                 List<String> propertyNames,

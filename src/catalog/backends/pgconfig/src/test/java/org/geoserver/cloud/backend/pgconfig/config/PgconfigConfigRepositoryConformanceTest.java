@@ -9,7 +9,6 @@ import org.geoserver.cloud.backend.pgconfig.PgconfigBackendBuilder;
 import org.geoserver.cloud.backend.pgconfig.support.PgConfigTestContainer;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerConfigConformanceTest;
-import org.geoserver.config.plugin.GeoServerImpl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.testcontainers.junit.jupiter.Container;
@@ -19,6 +18,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
  * @since 1.4
  */
 @Testcontainers(disabledWithoutDocker = true)
+@SuppressWarnings("java:S2187")
 class PgconfigConfigRepositoryConformanceTest extends GeoServerConfigConformanceTest {
 
     @Container static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();
@@ -31,14 +31,13 @@ class PgconfigConfigRepositoryConformanceTest extends GeoServerConfigConformance
     }
 
     @AfterEach
-    void cleanDb() throws Exception {
+    void cleanDb() {
         container.tearDown();
     }
 
     protected @Override GeoServer createGeoServer() {
         PgconfigBackendBuilder builder = new PgconfigBackendBuilder(container.getDataSource());
         Catalog catalog = builder.createCatalog();
-        GeoServerImpl gs = builder.createGeoServer(catalog);
-        return gs;
+        return builder.createGeoServer(catalog);
     }
 }

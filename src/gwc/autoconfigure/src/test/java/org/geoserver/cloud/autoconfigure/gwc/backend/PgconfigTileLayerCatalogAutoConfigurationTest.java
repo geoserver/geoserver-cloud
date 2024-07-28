@@ -23,9 +23,7 @@ import org.geowebcache.config.ConfigurationResourceProvider;
 import org.geowebcache.config.TileLayerConfiguration;
 import org.geowebcache.config.XMLConfiguration;
 import org.geowebcache.storage.DefaultStorageFinder;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -46,12 +44,6 @@ class PgconfigTileLayerCatalogAutoConfigurationTest {
 
     @TempDir File cacheDir;
     private WebApplicationContextRunner runner;
-
-    @BeforeAll
-    static void setUpBeforeClass() {}
-
-    @AfterAll
-    static void tearDownAfterClass() {}
 
     @BeforeEach
     void setUp() {

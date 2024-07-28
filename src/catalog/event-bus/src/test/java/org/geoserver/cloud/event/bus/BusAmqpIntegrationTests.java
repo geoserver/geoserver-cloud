@@ -32,7 +32,6 @@ import org.geoserver.catalog.Info;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.NamespaceInfo;
-import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
@@ -264,8 +263,7 @@ public abstract class BusAmqpIntegrationTests {
         List<Object> oldValues = h.getOldValues();
         assertFalse(propertyNames.isEmpty(), "Test should change at least one property");
 
-        PropertyDiff expected = PropertyDiff.valueOf(propertyNames, oldValues, newValues);
-        return expected;
+        return PropertyDiff.valueOf(propertyNames, oldValues, newValues);
     }
 
     @SuppressWarnings("unchecked")
@@ -353,7 +351,7 @@ public abstract class BusAmqpIntegrationTests {
             assertThat(infoType.isInstance(object)).isTrue();
             assertThat(object.getId()).isEqualTo(info.getId());
 
-            assertResolved(object, Info.class);
+            assertResolved(object);
         }
 
         if (event instanceof InfoModified modifyEvent) {
@@ -361,37 +359,37 @@ public abstract class BusAmqpIntegrationTests {
         }
     }
 
-    protected void assertResolved(Info info, Class<? extends Info> expected) {
+    protected void assertResolved(Info info) {
         if (null == info) return;
         if (ProxyUtils.isResolvingProxy(info)) return;
         switch (info) {
             case StoreInfo store:
                 assertCatalogSet(store, store::getCatalog);
-                assertResolved(store.getWorkspace(), WorkspaceInfo.class);
+                assertResolved(store.getWorkspace());
                 break;
             case ResourceInfo resource:
                 assertCatalogSet(resource, resource::getCatalog);
-                assertResolved(resource.getNamespace(), NamespaceInfo.class);
-                assertResolved(resource.getStore(), StoreInfo.class);
+                assertResolved(resource.getNamespace());
+                assertResolved(resource.getStore());
                 break;
             case StyleInfo style:
-                assertResolved(style.getWorkspace(), WorkspaceInfo.class);
+                assertResolved(style.getWorkspace());
                 break;
             case LayerInfo layer:
-                assertResolved(layer.getDefaultStyle(), StyleInfo.class);
-                assertResolved(layer.getResource(), ResourceInfo.class);
+                assertResolved(layer.getDefaultStyle());
+                assertResolved(layer.getResource());
                 break;
             case LayerGroupInfo lg:
-                assertResolved(lg.getWorkspace(), WorkspaceInfo.class);
-                assertResolved(lg.getRootLayer(), LayerInfo.class);
-                assertResolved(lg.getRootLayerStyle(), StyleInfo.class);
-                lg.getStyles().forEach(s -> assertResolved(s, StyleInfo.class));
-                lg.getLayers().forEach(l -> assertResolved(l, PublishedInfo.class));
-                lg.getLayerGroupStyles().forEach(lgs -> assertResolved(lgs, LayerGroupStyle.class));
+                assertResolved(lg.getWorkspace());
+                assertResolved(lg.getRootLayer());
+                assertResolved(lg.getRootLayerStyle());
+                lg.getStyles().forEach(this::assertResolved);
+                lg.getLayers().forEach(this::assertResolved);
+                lg.getLayerGroupStyles().forEach(this::assertResolved);
                 break;
             case LayerGroupStyle lgs:
-                lgs.getLayers().forEach(l -> assertResolved(l, PublishedInfo.class));
-                lgs.getStyles().forEach(s -> assertResolved(s, StyleInfo.class));
+                lgs.getLayers().forEach(this::assertResolved);
+                lgs.getStyles().forEach(this::assertResolved);
                 break;
             case NamespaceInfo ns:
                 break;

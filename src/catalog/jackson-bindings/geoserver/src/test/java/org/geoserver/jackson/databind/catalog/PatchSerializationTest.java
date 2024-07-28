@@ -773,8 +773,7 @@ public abstract class PatchSerializationTest {
     }
 
     protected Patch resolve(Patch decoded) {
-        Patch resolved = proxyResolver.resolve(decoded);
-        return resolved;
+        return proxyResolver.resolve(decoded);
     }
 
     private Patch roundtrip(Patch patch) throws JsonProcessingException {
@@ -807,8 +806,7 @@ public abstract class PatchSerializationTest {
     protected String asJson(Patch patch) throws JsonProcessingException {
         ObjectWriter writer = objectMapper.writer();
         writer = writer.withDefaultPrettyPrinter();
-        String encoded = writer.writeValueAsString(patch);
-        return encoded;
+        return writer.writeValueAsString(patch);
     }
 
     private <T extends Info> T forceProxy(T info, Class<T> iface) {
