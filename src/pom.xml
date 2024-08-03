@@ -28,6 +28,7 @@
     <gs.version>2.25.3.0-CLOUD</gs.version>
     <gt.version>31.3</gt.version>
     <acl.version>2.2.0</acl.version>
+    <postgresql.version>42.7.3</postgresql.version>
     <!-- Downgrade netty.version used by spring-boot to the one used by geoserver azure client
     (software.amazon.awssdk:netty-nio-client:jar:2.9.24) for COG and GWC Azure plugin -->
     <netty.version>4.1.46.Final</netty.version>
@@ -483,6 +484,11 @@
         <artifactId>gs-gwc</artifactId>
         <version>${gs.version}</version>
         <exclusions>
+          <exclusion>
+            <!-- exclude gt depenedencies, for geoserver 2.25.3, gwc is 1.25-SNAPSHOT and carries over gt:31-SNAPSHOT -->
+            <groupId>org.geotools</groupId>
+            <artifactId>*</artifactId>
+          </exclusion>
           <exclusion>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
@@ -1200,7 +1206,7 @@
           <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.7.3</version>
+            <version>${postgresql.version}</version>
           </dependency>
           <dependency>
             <groupId>com.jayway.jsonpath</groupId>
