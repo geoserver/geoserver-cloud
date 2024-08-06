@@ -34,7 +34,7 @@ public class WebUIApplication {
         final String instanceId = env.getProperty("info.instance-id");
         String nodeOpts = System.getProperty("GEOSERVER_NODE_OPTS");
         if (null == nodeOpts) {
-            nodeOpts = String.format("id:%s;color:FF0000", instanceId);
+            nodeOpts = "id:%s;color:FF0000".formatted(instanceId);
             System.setProperty("GEOSERVER_NODE_OPTS", nodeOpts);
         }
     }

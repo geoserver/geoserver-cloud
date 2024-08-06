@@ -7,8 +7,6 @@ package org.geoserver.catalog.plugin.locking;
 import static org.geoserver.catalog.plugin.locking.LockingSupport.nameOf;
 import static org.geoserver.catalog.plugin.locking.LockingSupport.typeOf;
 
-import static java.lang.String.format;
-
 import lombok.NonNull;
 
 import org.geoserver.GeoServerConfigurationLock;
@@ -82,47 +80,44 @@ public class LockingCatalog extends CatalogPlugin {
     public void setDefaultDataStore(@NonNull WorkspaceInfo workspace, DataStoreInfo store) {
         locking.runInWriteLock(
                 () -> super.setDefaultDataStore(workspace, store),
-                format(
-                        "setDefaultDataStore(%s, %s)",
-                        workspace.getName(), store == null ? "null" : store.getName()));
+                "setDefaultDataStore(%s, %s)"
+                        .formatted(workspace.getName(), store == null ? "null" : store.getName()));
     }
 
     @Override
     public void setDefaultNamespace(NamespaceInfo defaultNamespace) {
         locking.runInWriteLock(
                 () -> super.setDefaultNamespace(defaultNamespace),
-                format(
-                        "setDefaultNamespace(%s)",
-                        defaultNamespace == null ? "null" : defaultNamespace.getName()));
+                "setDefaultNamespace(%s)"
+                        .formatted(defaultNamespace == null ? "null" : defaultNamespace.getName()));
     }
 
     @Override
     public void setDefaultWorkspace(WorkspaceInfo defaultWorkspace) {
         locking.runInWriteLock(
                 () -> super.setDefaultWorkspace(defaultWorkspace),
-                format(
-                        "setDefaultWorkspace(%s)",
-                        defaultWorkspace == null ? "null" : defaultWorkspace.getName()));
+                "setDefaultWorkspace(%s)"
+                        .formatted(defaultWorkspace == null ? "null" : defaultWorkspace.getName()));
     }
 
     /** {@inheritDoc} */
     protected @Override <T extends CatalogInfo> void doAdd(T info, UnaryOperator<T> inserter) {
         locking.runInWriteLock(
                 () -> super.doAdd(info, inserter),
-                format("add(%s[%s])", typeOf(info), nameOf(info)));
+                "add(%s[%s])".formatted(typeOf(info), nameOf(info)));
     }
 
     /** {@inheritDoc} */
     protected @Override <I extends CatalogInfo> void doSave(final I info) {
         locking.runInWriteLock(
-                () -> super.doSave(info), format("save(%s[%s])", typeOf(info), nameOf(info)));
+                () -> super.doSave(info), "save(%s[%s])".formatted(typeOf(info), nameOf(info)));
     }
 
     /** {@inheritDoc} */
     protected @Override <T extends CatalogInfo> void doRemove(T info, Class<T> type) {
         locking.runInWriteLock(
                 () -> super.doRemove(info, type),
-                format("remove(%s[%s])", typeOf(info), nameOf(info)));
+                "remove(%s[%s])".formatted(typeOf(info), nameOf(info)));
     }
 
     /**
@@ -131,6 +126,6 @@ public class LockingCatalog extends CatalogPlugin {
     @Override
     public void save(StoreInfo store) {
         locking.runInWriteLock(
-                () -> super.save(store), format("save(%s[%s])", typeOf(store), nameOf(store)));
+                () -> super.save(store), "save(%s[%s])".formatted(typeOf(store), nameOf(store)));
     }
 }

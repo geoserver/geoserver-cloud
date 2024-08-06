@@ -168,7 +168,7 @@ public abstract class GeoToolsGeoJsonModuleTest {
         for (int i = 0; i < cs1.length; i++) {
             Coordinate c1 = cs1[i];
             Coordinate c2 = cs2[i];
-            assertTrue(c1.equals3D(c2), String.format("expected %s, got %s", c1, c2));
+            assertTrue(c1.equals3D(c2), "expected %s, got %s".formatted(c1, c2));
             assertEquals(c1.getM(), c2.getM(), 1e-9d);
         }
     }

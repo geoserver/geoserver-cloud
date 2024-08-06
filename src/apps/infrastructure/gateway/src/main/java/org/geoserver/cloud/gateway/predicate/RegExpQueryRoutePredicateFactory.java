@@ -98,9 +98,8 @@ public class RegExpQueryRoutePredicateFactory
 
         @Override
         public String toString() {
-            return String.format(
-                    "Query: param regexp='%s' value regexp='%s'",
-                    config.getParamRegexp(), config.getValueRegexp());
+            return "Query: param regexp='%s' value regexp='%s'"
+                    .formatted(config.getParamRegexp(), config.getValueRegexp());
         }
     }
 

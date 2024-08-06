@@ -4,8 +4,6 @@
  */
 package org.geoserver.catalog.plugin;
 
-import static java.lang.String.format;
-
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Streams;
 
@@ -602,7 +600,6 @@ public class RepositoryCatalogFacadeImpl
             try {
                 count = repository(of).count(of, filter);
             } catch (RuntimeException e) {
-                e.printStackTrace();
                 throw new CatalogException(
                         "Error obtaining count of %s with filter %s"
                                 .formatted(of.getSimpleName(), filter),
@@ -671,9 +668,8 @@ public class RepositoryCatalogFacadeImpl
     private <T extends CatalogInfo> void checkCanSort(final Class<T> type, SortBy order) {
         if (!canSort(type, order.getPropertyName().getPropertyName())) {
             throw new IllegalArgumentException(
-                    format(
-                            "Can't sort objects of type %s by %s",
-                            type.getName(), order.getPropertyName()));
+                    "Can't sort objects of type %s by %s"
+                            .formatted(type.getName(), order.getPropertyName()));
         }
     }
 

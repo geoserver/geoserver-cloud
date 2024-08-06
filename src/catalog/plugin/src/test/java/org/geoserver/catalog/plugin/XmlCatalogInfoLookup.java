@@ -113,9 +113,8 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
         String serialized = serialize(value);
         if (null != idMap.putIfAbsent(value.getId(), serialized)) {
             String msg =
-                    String.format(
-                            "%s:%s already exists, not replaced",
-                            getContentType().getSimpleName(), value.getId());
+                    "%s:%s already exists, not replaced"
+                            .formatted(getContentType().getSimpleName(), value.getId());
             LOGGER.warning(msg);
         }
     }
@@ -140,9 +139,10 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
                             .orElseThrow(
                                     () ->
                                             new NoSuchElementException(
-                                                    String.format(
-                                                            "%s with id %s does not exist",
-                                                            type.getSimpleName(), value.getId())));
+                                                    "%s with id %s does not exist"
+                                                            .formatted(
+                                                                    type.getSimpleName(),
+                                                                    value.getId())));
 
             patch.applyTo(storedValue);
             idMap.put(value.getId(), serialize(storedValue));

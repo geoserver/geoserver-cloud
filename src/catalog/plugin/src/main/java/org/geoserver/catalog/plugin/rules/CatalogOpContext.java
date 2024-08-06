@@ -133,10 +133,10 @@ public class CatalogOpContext<T extends CatalogInfo> {
     public <S extends T> CatalogOpContext<S> as(Class<S> subtype) {
         if (subtype.isInstance(object)) return (CatalogOpContext<S>) this;
         throw new IllegalArgumentException(
-                String.format(
-                        "%s<%s> can't be type narrowed to <%s>",
-                        getClass().getSimpleName(),
-                        CatalogInfoTypeRegistry.determineKey(object.getClass()),
-                        subtype.getSimpleName()));
+                "%s<%s> can't be type narrowed to <%s>"
+                        .formatted(
+                                getClass().getSimpleName(),
+                                CatalogInfoTypeRegistry.determineKey(object.getClass()),
+                                subtype.getSimpleName()));
     }
 }

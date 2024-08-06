@@ -169,9 +169,10 @@ class SpringEnvironmentAwareGeoToolsHttpClient extends org.geotools.http.Abstrac
         HttpClientBuilder builder =
                 HttpClientBuilder.create()
                         .setUserAgent(
-                                String.format(
-                                        "GeoTools/%s (%s)",
-                                        GeoTools.getVersion(), this.getClass().getSimpleName()))
+                                "GeoTools/%s (%s)"
+                                        .formatted(
+                                                GeoTools.getVersion(),
+                                                this.getClass().getSimpleName()))
                         .useSystemProperties()
                         .setConnectionManager(connectionManager);
         if (credsProvider != null) {

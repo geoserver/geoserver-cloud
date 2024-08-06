@@ -205,7 +205,7 @@ public @Data class PropertyDiff implements Serializable {
 
         @Override
         public String toString() {
-            return String.format("%s: {old: %s, new: %s}", propertyName, oldValue, newValue);
+            return "%s: {old: %s, new: %s}".formatted(propertyName, oldValue, newValue);
         }
     }
 
