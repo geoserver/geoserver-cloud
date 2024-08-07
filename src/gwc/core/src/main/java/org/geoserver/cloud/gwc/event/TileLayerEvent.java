@@ -77,9 +77,8 @@ public class TileLayerEvent extends GeoWebCacheEvent {
 
     @Override
     public String toString() {
-        return String.format(
-                "%s[%s id: %s, name: %s]",
-                getClass().getSimpleName(), getEventType(), getPublishedId(), getName());
+        return "%s[%s id: %s, name: %s]"
+                .formatted(getClass().getSimpleName(), getEventType(), getPublishedId(), getName());
     }
 
     protected @Override String getObjectId() {

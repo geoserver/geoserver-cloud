@@ -62,7 +62,7 @@ public class ServiceInstanceRegistry {
     private String buildUrl(org.springframework.cloud.client.ServiceInstance i) {
         URI uri = i.getUri();
         if (uri == null) {
-            uri = URI.create(String.format("%s://%s:%s", i.getScheme(), i.getHost(), i.getPort()));
+            uri = URI.create("%s://%s:%s".formatted(i.getScheme(), i.getHost(), i.getPort()));
         }
         return uri.toString();
     }

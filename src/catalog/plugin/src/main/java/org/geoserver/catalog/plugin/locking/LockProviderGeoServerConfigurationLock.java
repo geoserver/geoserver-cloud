@@ -6,8 +6,6 @@ package org.geoserver.catalog.plugin.locking;
 
 import static org.geoserver.GeoServerConfigurationLock.LockType.WRITE;
 
-import static java.lang.String.format;
-
 import lombok.NonNull;
 
 import org.geoserver.GeoServerConfigurationLock;
@@ -76,9 +74,11 @@ public class LockProviderGeoServerConfigurationLock extends GeoServerConfigurati
             final boolean globalWriteLocked = GLOBAL.get().isWriteLocked();
             if (jvmWriteLocked != globalWriteLocked) {
                 String msg =
-                        format(
-                                "local JVM and global write lock status discrepancy: globally held lock count: %d, jvm locked: %s. The global lock will forcedly be released.",
-                                GLOBAL.get().writeHoldCount, jvmWriteLocked);
+                        """
+                        local JVM and global write lock status discrepancy: \
+                        globally held lock count: %d, jvm locked: %s. The global lock will forcedly be released.
+                        """
+                                .formatted(GLOBAL.get().writeHoldCount, jvmWriteLocked);
 
                 GLOBAL.get().forceUnlock();
                 GLOBAL.remove();

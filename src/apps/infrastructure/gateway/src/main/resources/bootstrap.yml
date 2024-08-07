@@ -15,8 +15,6 @@ spring:
   application:
     name: gateway-service
   jmx.enabled: false
-logging.level:
-    '[org.springframework.retry]': debug
 
 # this service uses the registry (when eureka client is enabled)
 eureka.client:

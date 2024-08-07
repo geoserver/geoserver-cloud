@@ -10,6 +10,7 @@ on:
       - "Makefile"
       - "pom.xml"
       - ".github/workflows/build-and-push.yaml"
+      - "config"
       - "src/**"
     tags:
       - '*'

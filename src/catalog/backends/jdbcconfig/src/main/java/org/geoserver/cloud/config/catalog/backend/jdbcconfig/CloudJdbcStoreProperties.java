@@ -49,7 +49,7 @@ public class CloudJdbcStoreProperties extends JDBCResourceStoreProperties {
 
     private static String defaultCacheDirectory() {
         String tmpdir = System.getProperty("java.io.tmpdir");
-        return String.format("%s%sgeoserver-jdbcconfig-cache", tmpdir, File.separator);
+        return "%s%sgeoserver-jdbcconfig-cache".formatted(tmpdir, File.separator);
     }
 
     /**

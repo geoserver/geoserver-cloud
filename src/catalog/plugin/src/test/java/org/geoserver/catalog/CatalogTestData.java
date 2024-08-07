@@ -555,9 +555,8 @@ public class CatalogTestData {
 
             Supplier<String> msg =
                     () ->
-                            String.format(
-                                    "%s.%s:InternationalString",
-                                    info1.getClass().getSimpleName(), isp);
+                            "%s.%s:InternationalString"
+                                    .formatted(info1.getClass().getSimpleName(), isp);
             assertEquals(i1, i2, msg);
         }
     }

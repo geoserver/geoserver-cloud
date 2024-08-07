@@ -168,11 +168,11 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
         synchronized (idMap) {
             if (null != idMap.putIfAbsent(value.getId(), value)) {
                 String msg =
-                        String.format(
-                                "%s:%s(%s) already exists",
-                                ClassMappings.fromImpl(value.getClass()),
-                                value.getId(),
-                                nameMapper.apply(value).getLocalPart());
+                        "%s:%s(%s) already exists"
+                                .formatted(
+                                        ClassMappings.fromImpl(value.getClass()),
+                                        value.getId(),
+                                        nameMapper.apply(value).getLocalPart());
                 LOGGER.warning(msg);
             }
             Name name = nameMapper.apply(value);

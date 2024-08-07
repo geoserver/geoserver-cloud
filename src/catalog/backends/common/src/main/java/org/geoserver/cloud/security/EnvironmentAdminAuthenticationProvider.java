@@ -66,22 +66,20 @@ public class EnvironmentAdminAuthenticationProvider implements AuthenticationPro
         final boolean passwordSet = StringUtils.hasText(adminPassword);
         if (userSet && !passwordSet) {
             String msg =
-                    String.format(
-                            """
+                    """
                     Found overriding admin username config property geoserver.admin.username=%s, \
                     but password not provided through config property geoserver.admin.password
-                    """,
-                            adminUserName);
+                    """
+                            .formatted(adminUserName);
             throw new BeanInstantiationException(getClass(), msg);
         }
         if (passwordSet && !userSet) {
             String msg =
-                    String.format(
-                            """
+                    """
                     Found overriding admin password config property geoserver.admin.password, \
                     but admin username not provided through config property geoserver.admin.username
-                    """,
-                            adminUserName);
+                    """
+                            .formatted(adminUserName);
             throw new BeanInstantiationException(getClass(), msg);
         }
         enabled = userSet && passwordSet;

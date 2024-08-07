@@ -4,8 +4,6 @@
  */
 package org.geoserver.cloud.config.catalog.backend.jdbcconfig;
 
-import static java.lang.String.format;
-
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
@@ -59,22 +57,21 @@ public class JdbcConfigUpdateSequence implements UpdateSequence, InitializingBea
         String createSequenceStatement;
         if (props.isPostgreSQL()) {
             createSequenceStatement =
-                    format("CREATE SEQUENCE IF NOT EXISTS %s AS BIGINT CYCLE", SEQUENCE_NAME);
+                    "CREATE SEQUENCE IF NOT EXISTS %s AS BIGINT CYCLE".formatted(SEQUENCE_NAME);
             // not using CURRVAL() to avoid the "currval of sequence "<name>" is not yet defined in
             // this session" error
-            getQuery = format("SELECT last_value FROM %s", SEQUENCE_NAME);
-            incrementAndGetQuery = format("SELECT NEXTVAL('%s')", SEQUENCE_NAME);
+            getQuery = "SELECT last_value FROM %s".formatted(SEQUENCE_NAME);
+            incrementAndGetQuery = "SELECT NEXTVAL('%s')".formatted(SEQUENCE_NAME);
         } else if (props.isH2()) {
-            createSequenceStatement = format("CREATE SEQUENCE IF NOT EXISTS %s", SEQUENCE_NAME);
+            createSequenceStatement = "CREATE SEQUENCE IF NOT EXISTS %s".formatted(SEQUENCE_NAME);
             getQuery =
-                    format(
-                            """
+                    """
                     SELECT CURRENT_VALUE  \
                     FROM INFORMATION_SCHEMA.SEQUENCES \
                     WHERE SEQUENCE_NAME = '%s'
-                    """,
-                            SEQUENCE_NAME.toUpperCase());
-            incrementAndGetQuery = format("SELECT NEXTVAL('%s')", SEQUENCE_NAME);
+                    """
+                            .formatted(SEQUENCE_NAME.toUpperCase());
+            incrementAndGetQuery = "SELECT NEXTVAL('%s')".formatted(SEQUENCE_NAME);
         } else {
             throw new IllegalStateException("Db is not PostgreSQL nor H2");
         }

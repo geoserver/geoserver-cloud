@@ -39,8 +39,6 @@ spring:
 # override default of true, this service does not use the registry (when eureka client is enabled)
 eureka.client.fetch-registry: false
 
-logging.level:
-    '[org.springframework.retry]': debug
 ---
 # local profile, used for development only. Other settings like config and eureka urls in gs_cloud_bootstrap_profiles.yml
 spring.config.activate.on-profile: local
