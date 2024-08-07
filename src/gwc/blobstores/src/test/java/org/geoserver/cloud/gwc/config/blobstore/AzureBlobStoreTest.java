@@ -22,6 +22,7 @@ import org.geowebcache.storage.StorageException;
 import org.geowebcache.storage.TileObject;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.support.StaticApplicationContext;
 import org.testcontainers.junit.jupiter.Container;
@@ -35,6 +36,7 @@ import java.util.Map;
  * @see AzuriteContainer
  */
 @Testcontainers
+@Disabled("disabled until https://github.com/GeoWebCache/geowebcache/pull/1298 is merged")
 class AzureBlobStoreTest {
 
     @Container static AzuriteContainer azurite = new AzuriteContainer();
