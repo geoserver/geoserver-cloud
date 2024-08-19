@@ -9,10 +9,10 @@ import org.geoserver.rest.RestConfiguration;
 import org.geoserver.rest.catalog.AdminRequestCallback;
 import org.geoserver.rest.resources.ResourceController;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.FilterType;
 import org.springframework.format.support.FormattingConversionService;
 import org.springframework.web.accept.ContentNegotiationManager;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
@@ -30,18 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 
 @Configuration
-@ComponentScan(
-        basePackageClasses = org.geoserver.rest.AbstractGeoServerController.class, //
-        /*
-         * Exclude AdminRequestCallback from component-scan. For some reason it's not being loaded in
-         * vanilla geoserver (from gs-restconfig's applicationContext.xml) and causes a difference in behavior. At some
-         * point it'll have to be fixed upstream and re-enabled here.
-         */
-        excludeFilters = {
-            @ComponentScan.Filter(
-                    type = FilterType.ASSIGNABLE_TYPE,
-                    classes = AdminRequestCallback.class)
-        })
+@ComponentScan(basePackageClasses = org.geoserver.rest.AbstractGeoServerController.class)
 @SuppressWarnings("deprecation")
 public class RestConfigApplicationConfiguration extends RestConfiguration {
 
@@ -49,6 +38,12 @@ public class RestConfigApplicationConfiguration extends RestConfiguration {
     public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
         super.configureContentNegotiation(configurer);
         configurer.favorPathExtension(true);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    AdminRequestCallback adminRequestCallback() {
+        return new AdminRequestCallback();
     }
 
     /**
