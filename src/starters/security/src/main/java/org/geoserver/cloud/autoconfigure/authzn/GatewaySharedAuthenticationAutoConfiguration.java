@@ -24,6 +24,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
+import java.util.Optional;
+
 import javax.annotation.PostConstruct;
 
 /**
@@ -65,11 +67,12 @@ public class GatewaySharedAuthenticationAutoConfiguration {
 
     @Bean
     ModuleStatusImpl gatewaySharedAuthModuleInfo(
-            GatewaySharedAuthConfigProperties config, BuildProperties buildProperties) {
+            GatewaySharedAuthConfigProperties config, Optional<BuildProperties> buildProperties) {
         ModuleStatusImpl m = new ModuleStatusImpl();
+        String version = buildProperties.map(BuildProperties::getVersion).orElse("UNKNOWN");
         m.setAvailable(true);
         m.setEnabled(config.isEnabled());
-        m.setVersion(buildProperties.getVersion());
+        m.setVersion(version);
         m.setName("GeoServer Cloud gateway shared authentication");
         m.setModule("gs-cloud-starter-security");
         m.setComponent("GatewaySharedAuthenticationFilter");
