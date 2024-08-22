@@ -164,7 +164,7 @@ $ ../mvnw clean install
 
 Additionally, this branch changes the artifact versions (e.g. from `2.23-SNAPSHOT` to `2.23.0-CLOUD`), to avoid confusing maven if you also work with vanilla GeoServer, and to avoid your IDE downloading the latest `2.23-SNAPSHOT` artifacts from the OsGeo maven repository, overriding your local maven repository ones, and having confusing compilation errors that would require re-building the branch we need.
 
-The `gscloud/gs_version/integration` branch is checked out as a submodule on the (camptocamp/geoserver-cloud-geoserver)[https://github.com/camptocamp/geoserver-cloud-geoserver] repository, which publishes the custom geoserver maven artifacts to the Github maven package registry.
+The `gscloud/gs_version/integration` branch is checked out as a submodule on the [camptocamp/geoserver-cloud-geoserver](https://github.com/camptocamp/geoserver-cloud-geoserver) repository, which publishes the custom geoserver maven artifacts to the Github maven package registry.
 
 The root pom adds this additional maven repository, so no further action is required for the geoserver-cloud build to use those dependencies.
 
@@ -266,7 +266,7 @@ Browse to [http://localhost:9090/geoserver/cloud/](http://localhost:9090/geoserv
 
 > Note the `/geoserver/cloud` context path is set up in the `gateway-service`'s externalized
 > configuration, and enforced through the `GEOSERVER_BASE_PATH` in `compose.yml`.
-> You can change it to whatever you want. The default [config/gateway-service.yml](config/gateway-service.yml)
+> You can change it to whatever you want. The default [gateway-service.yml](https://github.com/geoserver/geoserver-cloud-config/blob/master/gateway-service.yml)
 > configuration file does not set up a context path at all, and hence GeoServer will
 > be available at the root URL.
 
