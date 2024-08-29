@@ -57,9 +57,12 @@ public class WMSController {
      * <ul>
      *   <li>{@code /openlayers/**}
      *   <li>{@code /openlayers3/**}
+     *   <li>{@code /webresources/wms/**}
+     *   <li>{@code /options.png}
      * </ul>
      */
-    @GetMapping(path = {"/openlayers/**", "/openlayers3/**"})
+    @GetMapping(
+            path = {"/openlayers/**", "/openlayers3/**", "/webresources/wms/**", "/options.png"})
     public void getStaticResource(HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         classPathPublisher.handleRequest(request, response);
