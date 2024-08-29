@@ -145,6 +145,7 @@ class GatewaySharedAuthenticationFilter extends GeoServerSecurityFilter
 
         private String getHeaders(HttpServletRequest req) {
             return Streams.stream(req.getHeaderNames().asIterator())
+                    .filter(h -> h.toLowerCase().startsWith("x-gsc"))
                     .map(name -> "\t%s: %s".formatted(name, req.getHeader(name)))
                     .collect(Collectors.joining("\n"));
         }
