@@ -40,6 +40,21 @@ public class WFSController {
         classPathPublisher.handleRequest(request, response);
     }
 
+    /**
+     * Serve satic resources from classpath.
+     *
+     * <p>I.e.:
+     *
+     * <ul>
+     *   <li>{@code /webresources/wfs/**}
+     * </ul>
+     */
+    @GetMapping(path = {"/webresources/wfs/**"})
+    public void getStaticResource(HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
+        classPathPublisher.handleRequest(request, response);
+    }
+
     @GetMapping(path = {"/wfs", "/ows"})
     public void handleGet(HttpServletRequest request, HttpServletResponse response)
             throws Exception {
