@@ -20,7 +20,6 @@
       <groupId>com.github.f4b6a3</groupId>
       <artifactId>ulid-creator</artifactId>
     </dependency>
-
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>

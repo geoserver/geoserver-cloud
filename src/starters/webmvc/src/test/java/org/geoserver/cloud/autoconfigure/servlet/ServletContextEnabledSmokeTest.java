@@ -23,10 +23,10 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.context.request.RequestContextListener;
 
 /** Smoke test to load the servlet context beans with auto-configuration enabled */
-@SpringBootTest(classes = TestConfiguration.class, properties = "reactive.feign.loadbalancer.enabled=false")
+@SpringBootTest(classes = TestConfiguration.class)
 @EnableAutoConfiguration(exclude = SecurityAutoConfiguration.class)
 @ActiveProfiles("test")
-class ServletContextEnabledSmokeTest {
+class ServletContextEnabledSmokeTest extends DataDirectoryTempSupport {
 
     private @Autowired ApplicationContext context;
 
