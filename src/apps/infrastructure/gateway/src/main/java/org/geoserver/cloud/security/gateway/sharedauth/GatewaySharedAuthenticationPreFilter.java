@@ -29,7 +29,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * {@link GlobalFilter} working in tandem with {@link GatewaySharedAuhenticationPostFilter} to
+ * {@link GlobalFilter} working in tandem with {@link GatewaySharedAuthenticationPostFilter} to
  * enable sharing the webui form-based authentication object with the other services.
  *
  * <p>When a user is logged in through the regular web ui's authentication form, the {@link
@@ -53,13 +53,13 @@ import java.util.stream.Collectors;
  * impresonation attempts by removing the {@literal x-gsc-username} and {@literal x-gsc-roles}
  * headers from incoming requests, and appending them to proxied requests using the values taken
  * from the {@link WebSession}, if present (as stored by the {@link
- * GatewaySharedAuhenticationPostFilter post-filter}.
+ * GatewaySharedAuthenticationPostFilter post-filter}.
  *
  * @since 1.9
- * @see GatewaySharedAuhenticationPostFilter
+ * @see GatewaySharedAuthenticationPostFilter
  */
 @Slf4j(topic = "org.geoserver.cloud.security.gateway.sharedauth.pre")
-public class GatewaySharedAuhenticationPreFilter implements GlobalFilter, Ordered {
+public class GatewaySharedAuthenticationPreFilter implements GlobalFilter, Ordered {
 
     /**
      * @return {@link Ordered#HIGHEST_PRECEDENCE}, being a pre-filter, means it'll run the first for

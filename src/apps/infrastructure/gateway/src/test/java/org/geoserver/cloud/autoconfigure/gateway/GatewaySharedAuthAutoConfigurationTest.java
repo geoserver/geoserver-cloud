@@ -6,8 +6,8 @@ package org.geoserver.cloud.autoconfigure.gateway;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.geoserver.cloud.security.gateway.sharedauth.GatewaySharedAuhenticationPostFilter;
-import org.geoserver.cloud.security.gateway.sharedauth.GatewaySharedAuhenticationPreFilter;
+import org.geoserver.cloud.security.gateway.sharedauth.GatewaySharedAuthenticationPostFilter;
+import org.geoserver.cloud.security.gateway.sharedauth.GatewaySharedAuthenticationPreFilter;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ReactiveWebApplicationContextRunner;
@@ -35,8 +35,8 @@ class GatewaySharedAuthAutoConfigurationTest {
                 context ->
                         assertThat(context)
                                 .hasNotFailed()
-                                .hasSingleBean(GatewaySharedAuhenticationPreFilter.class)
-                                .hasSingleBean(GatewaySharedAuhenticationPostFilter.class));
+                                .hasSingleBean(GatewaySharedAuthenticationPreFilter.class)
+                                .hasSingleBean(GatewaySharedAuthenticationPostFilter.class));
     }
 
     @Test
@@ -46,8 +46,8 @@ class GatewaySharedAuthAutoConfigurationTest {
                         context ->
                                 assertThat(context)
                                         .hasNotFailed()
-                                        .doesNotHaveBean(GatewaySharedAuhenticationPreFilter.class)
+                                        .doesNotHaveBean(GatewaySharedAuthenticationPreFilter.class)
                                         .doesNotHaveBean(
-                                                GatewaySharedAuhenticationPostFilter.class));
+                                                GatewaySharedAuthenticationPostFilter.class));
     }
 }

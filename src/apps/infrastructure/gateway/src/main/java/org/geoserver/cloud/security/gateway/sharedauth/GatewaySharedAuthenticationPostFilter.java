@@ -27,8 +27,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * {@link GlobalFilter} working in tandem with {@link GatewaySharedAuhenticationPreFilter} to enable
- * sharing the webui form-based authentication object with the other services.
+ * {@link GlobalFilter} working in tandem with {@link GatewaySharedAuthenticationPreFilter} to
+ * enable sharing the webui form-based authentication object with the other services.
  *
  * <p>When a user is logged in through the regular web ui's authentication form, the {@link
  * Authentication} object is held in the web ui's {@link WebSession}. Hence, further requests to
@@ -53,10 +53,10 @@ import java.util.stream.Collectors;
  * string for {@literal x-gsc-username}.
  *
  * @since 1.9
- * @see GatewaySharedAuhenticationPreFilter
+ * @see GatewaySharedAuthenticationPreFilter
  */
 @Slf4j(topic = "org.geoserver.cloud.security.gateway.sharedauth.post")
-public class GatewaySharedAuhenticationPostFilter implements GlobalFilter, Ordered {
+public class GatewaySharedAuthenticationPostFilter implements GlobalFilter, Ordered {
 
     /**
      * @return {@link Ordered#LOWEST_PRECEDENCE}, being a post-filter, means it'll run the first

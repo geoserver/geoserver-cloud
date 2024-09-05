@@ -6,8 +6,8 @@ package org.geoserver.cloud.autoconfigure.gateway;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.geoserver.cloud.security.gateway.sharedauth.GatewaySharedAuhenticationPostFilter;
-import org.geoserver.cloud.security.gateway.sharedauth.GatewaySharedAuhenticationPreFilter;
+import org.geoserver.cloud.security.gateway.sharedauth.GatewaySharedAuthenticationPostFilter;
+import org.geoserver.cloud.security.gateway.sharedauth.GatewaySharedAuthenticationPreFilter;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -28,12 +28,12 @@ public class GatewaySharedAuthAutoConfiguration {
     }
 
     @Bean
-    GatewaySharedAuhenticationPreFilter gatewaySharedAuhenticationGlobalPreFilter() {
-        return new GatewaySharedAuhenticationPreFilter();
+    GatewaySharedAuthenticationPreFilter gatewaySharedAuthenticationGlobalPreFilter() {
+        return new GatewaySharedAuthenticationPreFilter();
     }
 
     @Bean
-    GatewaySharedAuhenticationPostFilter gatewaySharedAuhenticationGlobalPostFilter() {
-        return new GatewaySharedAuhenticationPostFilter();
+    GatewaySharedAuthenticationPostFilter gatewaySharedAuthenticationGlobalPostFilter() {
+        return new GatewaySharedAuthenticationPostFilter();
     }
 }

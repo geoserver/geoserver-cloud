@@ -52,8 +52,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Wiremock integration test for a running gateway with {@link GatewaySharedAuhenticationPreFilter}
- * and {@link GatewaySharedAuhenticationPostFilter}
+ * Wiremock integration test for a running gateway with {@link GatewaySharedAuthenticationPreFilter}
+ * and {@link GatewaySharedAuthenticationPostFilter}
  */
 @SpringBootTest(
         classes = GatewayApplication.class, //
@@ -64,7 +64,7 @@ import java.util.stream.Stream;
 // @TestMethodOrder is not really needed, just used to run tests in the workflow order, but tests
 // are isolated
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class GatewaySharedAuhenticationTest {
+class GatewaySharedAuthenticationTest {
     // stub mappings in JSON format, see https://wiremock.org/docs/stubbing/
 
     /** request stub for the webui returning the logged-in username and roles as response headers */
@@ -162,7 +162,7 @@ class GatewaySharedAuhenticationTest {
      */
     @BeforeAll
     static void saveWireMock(WireMockRuntimeInfo runtimeInfo) {
-        GatewaySharedAuhenticationTest.wmRuntimeInfo = runtimeInfo;
+        GatewaySharedAuthenticationTest.wmRuntimeInfo = runtimeInfo;
     }
 
     /** Set up a gateway route that proxies all requests to the wiremock server */
@@ -206,7 +206,7 @@ class GatewaySharedAuhenticationTest {
 
     /**
      * Make a request where the caller is trying to impersonate a user with request headers {@code
-     * x-gsc-username} and {@code x-gsc-roles}, verify {@link GatewaySharedAuhenticationPreFilter}
+     * x-gsc-username} and {@code x-gsc-roles}, verify {@link GatewaySharedAuthenticationPreFilter}
      * removes them from the proxy request
      */
     @Test
@@ -236,7 +236,7 @@ class GatewaySharedAuhenticationTest {
 
     /**
      * Make a request to the wms service, once the {@code x-gsc-username} and {@code x-gsc-roles}
-     * are stored in the the {@link WebSession}, verify {@link GatewaySharedAuhenticationPreFilter}
+     * are stored in the the {@link WebSession}, verify {@link GatewaySharedAuthenticationPreFilter}
      * appends them as request headers to the wms service proxied request
      */
     @Test
@@ -280,7 +280,7 @@ class GatewaySharedAuhenticationTest {
 
     /**
      * Make a request to the webui that returns the {@code x-gsc-username} and {@code x-gsc-roles}
-     * response headers, verify {@link GatewaySharedAuhenticationPostFilter} saves them in the
+     * response headers, verify {@link GatewaySharedAuthenticationPostFilter} saves them in the
      * {@link WebSession}
      */
     @Test
@@ -317,7 +317,7 @@ class GatewaySharedAuhenticationTest {
 
     /**
      * Make a call to the web-ui that returns {@code x-gsc-username} and {@code x-gsc-roles}
-     * headers, and verify {@link GatewaySharedAuhenticationPostFilter} does not propagate them to
+     * headers, and verify {@link GatewaySharedAuthenticationPostFilter} does not propagate them to
      * the response.
      */
     @Test
