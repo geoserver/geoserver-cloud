@@ -206,7 +206,7 @@
       <id>geoserver-github-packages</id>
       <name>Customized Geoserver Packages</name>
       <?SORTPOM IGNORE?>
-      <url>https://public:&#103;hp_jqtFbllekxqlF5zeOB5pm6mffvEdbR4OOLl7@maven.pkg.github.com/camptocamp/geoserver-cloud-geoserver</url>
+      <url>https://public:&#103;hp_Mp4UdrZ2GYC4v4UtdzEirXLig4D8t54dKkAf@maven.pkg.github.com/camptocamp/geoserver-cloud-geoserver</url>
       <?SORTPOM RESUME?>
     </repository>
   </repositories>
