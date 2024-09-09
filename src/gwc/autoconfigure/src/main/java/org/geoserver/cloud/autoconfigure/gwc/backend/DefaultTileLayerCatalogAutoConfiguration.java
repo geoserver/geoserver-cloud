@@ -19,10 +19,14 @@ import javax.annotation.PostConstruct;
 
 /**
  * {@link AutoConfiguration @AutoConfiguration} to set up the GeoServer {@link TileLayerCatalog}
- * using the default implementation based on the {@link ResourceStore}
+ * using the default implementation based on the {@link ResourceStore}.
+ *
+ * <p>This default configuration applies if there's no other {@link GeoServerTileLayerConfiguration}
+ * provided.
  *
  * @see DefaultTileLayerCatalogConfiguration
  * @see ConditionalOnGeoWebCacheEnabled
+ * @see PgconfigTileLayerCatalogAutoConfiguration
  * @since 1.0
  */
 @AutoConfiguration(after = PgconfigTileLayerCatalogAutoConfiguration.class)
