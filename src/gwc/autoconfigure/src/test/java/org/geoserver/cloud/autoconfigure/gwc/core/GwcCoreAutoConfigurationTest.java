@@ -17,7 +17,7 @@ import org.geoserver.cloud.autoconfigure.gwc.GeoWebCacheContextRunner;
 import org.geoserver.cloud.gwc.repository.CloudDefaultStorageFinder;
 import org.geoserver.cloud.gwc.repository.CloudGwcXmlConfiguration;
 import org.geoserver.cloud.gwc.repository.CloudXMLResourceProvider;
-import org.geoserver.gwc.config.GwcGeoserverConfigurationInitializer;
+import org.geoserver.gwc.config.DefaultGwcInitializer;
 import org.geoserver.platform.GeoServerExtensionsHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -72,11 +72,9 @@ class GwcCoreAutoConfigurationTest {
                     GeoServerExtensionsHelper.init(context);
                     assertThat(context)
                             .hasNotFailed()
-                            .hasBean("gwcGeoserverConfigurationInitializer")
-                            .getBean(
-                                    "gwcGeoserverConfigurationInitializer",
-                                    GwcGeoserverConfigurationInitializer.class)
-                            .isInstanceOf(GwcGeoserverConfigurationInitializer.class);
+                            .hasBean("gwcInitializer")
+                            .getBean("gwcInitializer")
+                            .isInstanceOf(DefaultGwcInitializer.class);
 
                     assertThat(context.isTypeMatch("gwcXmlConfig", CloudGwcXmlConfiguration.class))
                             .isTrue();
