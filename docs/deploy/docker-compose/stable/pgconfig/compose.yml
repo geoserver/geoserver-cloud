@@ -79,7 +79,7 @@ services:
   # Browse to http://localhost:8761 to check all services are registered.
   # Run docker compose -f docker-compose.yml -f docker-compose-discovery-ha.yml to run extra discovery service instances for HA
   discovery:
-    image: geoservercloud/geoserver-cloud-discovery:1.8.10
+    image: geoservercloud/geoserver-cloud-discovery:1.8.11
     user: 1000:1000
     depends_on:
       - config
@@ -95,7 +95,7 @@ services:
   # microservices. Being a Discovery First Bootstrap configuration, it'll
   # register itself with the Eureka discovery service and can be scaled
   config:
-    image: geoservercloud/geoserver-cloud-config:1.8.10
+    image: geoservercloud/geoserver-cloud-config:1.8.11
     user: 1000:1000 # set the userid:groupid the container runs as
     environment:
       # Either 'git' or 'native'. Use the default sample git repository to download the services configuration from
@@ -104,7 +104,7 @@ services:
       SPRING_PROFILES_ACTIVE: git
       # 'git' profile config
       CONFIG_GIT_URI: https://github.com/geoserver/geoserver-cloud-config.git
-      # get the config for this release from the v1.8.10 tag
+      # get the config for this release from the v1.8.11 tag
       SPRING_CLOUD_CONFIG_SERVER_GIT_DEFAULT_LABEL: master
       # where to store the cloned repository, if unset, it'll use /tmp/config-repo-<randomid>
       CONFIG_GIT_BASEDIR: /tmp/git_config
@@ -124,7 +124,7 @@ services:
   # Application facade, provides a single entry point routing to all
   # microservices (e.g. http://localhost:9090/geoserver/wms, http://localhost:9090/geoserver/wfs, etc)
   gateway:
-    image: geoservercloud/geoserver-cloud-gateway:1.8.10
+    image: geoservercloud/geoserver-cloud-gateway:1.8.11
     user: 1000:1000
     depends_on:
       - discovery
@@ -141,7 +141,7 @@ services:
 
   # WFS microservice, port dynamically allocated to allow scaling (e.g docker compose scale wfs=5)
   wfs:
-    image: geoservercloud/geoserver-cloud-wfs:1.8.10
+    image: geoservercloud/geoserver-cloud-wfs:1.8.11
     extends:
       service: geoserver
     depends_on:
@@ -160,7 +160,7 @@ services:
 
   # WMS microservice, port dynamically allocated to allow scaling (e.g docker compose scale wms=5)
   wms:
-    image: geoservercloud/geoserver-cloud-wms:1.8.10
+    image: geoservercloud/geoserver-cloud-wms:1.8.11
     extends:
       service: geoserver
     depends_on:
@@ -179,7 +179,7 @@ services:
 
   # WCS microservice, port dynamically allocated to allow scaling (e.g docker compose scale wcs=5)
   wcs:
-    image: geoservercloud/geoserver-cloud-wcs:1.8.10
+    image: geoservercloud/geoserver-cloud-wcs:1.8.11
     extends:
       service: geoserver
     depends_on:
@@ -198,7 +198,7 @@ services:
 
   # WPS microservice, port dynamically allocated to allow scaling (e.g docker compose scale wps=5)
   wps:
-    image: geoservercloud/geoserver-cloud-wps:1.8.10
+    image: geoservercloud/geoserver-cloud-wps:1.8.11
     extends:
       service: geoserver
     depends_on:
@@ -217,7 +217,7 @@ services:
 
   # REST config microservice, port dynamically allocated to allow scaling (e.g docker compose scale rest=5)
   rest:
-    image: geoservercloud/geoserver-cloud-rest:1.8.10
+    image: geoservercloud/geoserver-cloud-rest:1.8.11
     extends:
       service: geoserver
     depends_on:
@@ -236,7 +236,7 @@ services:
 
   # WEB UI microservice
   webui:
-    image: geoservercloud/geoserver-cloud-webui:1.8.10
+    image: geoservercloud/geoserver-cloud-webui:1.8.11
     extends:
       service: geoserver
     depends_on:
@@ -254,7 +254,7 @@ services:
       replicas: 1
 
   gwc:
-    image: geoservercloud/geoserver-cloud-gwc:1.8.10
+    image: geoservercloud/geoserver-cloud-gwc:1.8.11
     extends:
       service: geoserver
     depends_on:
@@ -272,7 +272,7 @@ services:
       replicas: 1
 
   geoserver:
-    image: geoservercloud/geoserver-cloud-webui:1.8.10
+    image: geoservercloud/geoserver-cloud-webui:1.8.11
     user: 1000:1000 # set the userid:groupid the container runs as
     environment:
       JAVA_OPTS: -XX:MaxRAMPercentage=80 -XshowSettings:system 
