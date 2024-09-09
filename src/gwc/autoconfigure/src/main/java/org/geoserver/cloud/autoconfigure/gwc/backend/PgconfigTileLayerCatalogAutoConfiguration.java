@@ -44,6 +44,7 @@ import javax.sql.DataSource;
  * GeoServer Catalog in the Postgres database;
  *
  * @since 1.7
+ * @see ConditionalOnPgconfigBackendEnabled
  */
 @AutoConfiguration(after = PgconfigDataSourceAutoConfiguration.class)
 @ConditionalOnClass(PgconfigTileLayerCatalog.class)
