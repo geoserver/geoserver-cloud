@@ -57,6 +57,7 @@ Only a curated list of the [vast amount](http://geoserver.org/release/stable/) o
 - cog
 - importer
 - imagepyramid
+- gt-iau-wkt ([https://docs.geotools.org/latest/userguide/library/referencing/iau.html](IAU planetary CRS Plugin)(
 
 Advanced ACL system is available through the project [GeoServer ACL](https://github.com/geoserver/geoserver-acl) which offers the same capacities as GeoFence.
 
