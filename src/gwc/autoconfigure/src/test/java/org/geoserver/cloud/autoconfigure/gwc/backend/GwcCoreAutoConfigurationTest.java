@@ -129,7 +129,7 @@ class GwcCoreAutoConfigurationTest {
     }
 
     @Test
-    void defaultCacheDirectoryFromSystemProperty() throws Exception {
+    void defaultCacheDirectoryFromSystemProperty() {
         File dir = new File(tmpDir, "sysprop_cachedir");
         assertThat(dir).doesNotExist();
         String dirpath = dir.getAbsolutePath();

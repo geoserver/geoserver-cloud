@@ -23,16 +23,16 @@ class NamespaceInfoLookupTest {
     private static final String URI_1 = "http://gs.test.com/ns1";
     private static final String URI_2 = "http://gs.test.com/ns2";
 
-    private NamespaceInfo uri1_1, uri1_2, uri2_1, uri2_2;
+    private NamespaceInfo uri11, uri12, uri21, uri22;
 
     private CatalogInfoLookup.NamespaceInfoLookup lookup;
 
     @BeforeEach
     public void setUp() {
-        uri1_1 = create("uri1_1", URI_1);
-        uri1_2 = create("uri1_2", URI_1);
-        uri2_1 = create("uri2_1", URI_2);
-        uri2_2 = create("uri2_2", URI_2);
+        uri11 = create("uri1_1", URI_1);
+        uri12 = create("uri1_2", URI_1);
+        uri21 = create("uri2_1", URI_2);
+        uri22 = create("uri2_2", URI_2);
         lookup = new NamespaceInfoLookup();
     }
 
@@ -50,31 +50,31 @@ class NamespaceInfoLookupTest {
 
     @Test
     void testAdd() {
-        lookup.add(uri1_2);
-        assertEquals(List.of(uri1_2), lookup.valueList(URI_1, false));
+        lookup.add(uri12);
+        assertEquals(List.of(uri12), lookup.valueList(URI_1, false));
 
-        lookup.add(uri1_1);
-        assertEquals(List.of(uri1_1, uri1_2), lookup.valueList(URI_1, false));
+        lookup.add(uri11);
+        assertEquals(List.of(uri11, uri12), lookup.valueList(URI_1, false));
 
-        assertThat(lookup.findById(uri1_1.getId())).get().isEqualTo(uri1_1);
-        assertThat(lookup.findById(uri1_2.getId())).get().isEqualTo(uri1_2);
+        assertThat(lookup.findById(uri11.getId())).get().isEqualTo(uri11);
+        assertThat(lookup.findById(uri12.getId())).get().isEqualTo(uri12);
     }
 
     @Test
     void testClear() {
-        addAll(uri1_1, uri1_2, uri2_1, uri2_2);
+        addAll(uri11, uri12, uri21, uri22);
         lookup.clear();
         assertEquals(List.of(), lookup.findAll().toList());
     }
 
     @Test
     void testRemove() {
-        addAll(uri1_1, uri1_2, uri2_1, uri2_2);
-        testRemove(uri1_1);
-        testRemove(uri1_2);
-        testRemove(uri2_1);
-        testRemove(uri2_2);
-        lookup.remove(uri1_1);
+        addAll(uri11, uri12, uri21, uri22);
+        testRemove(uri11);
+        testRemove(uri12);
+        testRemove(uri21);
+        testRemove(uri22);
+        lookup.remove(uri11);
     }
 
     private void testRemove(NamespaceInfo ns) {
@@ -85,10 +85,10 @@ class NamespaceInfoLookupTest {
 
     @Test
     void testUpdate() {
-        addAll(uri1_1, uri1_2, uri2_1, uri2_2);
+        addAll(uri11, uri12, uri21, uri22);
 
-        testUpdate(uri1_1, URI_2, List.of(uri1_1, uri2_1, uri2_2));
-        testUpdate(uri2_2, URI_1, List.of(uri1_2, uri2_2));
+        testUpdate(uri11, URI_2, List.of(uri11, uri21, uri22));
+        testUpdate(uri22, URI_1, List.of(uri12, uri22));
     }
 
     private void testUpdate(NamespaceInfo ns, String newUri, List<NamespaceInfo> expected) {
@@ -108,42 +108,42 @@ class NamespaceInfoLookupTest {
         assertThat(lookup.findAllByURI(URI_1)).isEmpty();
         assertThat(lookup.findAllByURI(URI_2)).isEmpty();
 
-        lookup.add(uri1_1);
-        assertEquals(List.of(uri1_1), lookup.findAllByURI(URI_1).toList());
+        lookup.add(uri11);
+        assertEquals(List.of(uri11), lookup.findAllByURI(URI_1).toList());
 
-        lookup.add(uri2_1);
-        assertEquals(List.of(uri1_1), lookup.findAllByURI(URI_1).toList());
-        assertEquals(List.of(uri2_1), lookup.findAllByURI(URI_2).toList());
+        lookup.add(uri21);
+        assertEquals(List.of(uri11), lookup.findAllByURI(URI_1).toList());
+        assertEquals(List.of(uri21), lookup.findAllByURI(URI_2).toList());
 
-        lookup.add(uri1_2);
-        lookup.add(uri2_2);
-        assertEquals(List.of(uri1_1, uri1_2), lookup.findAllByURI(URI_1).toList());
-        assertEquals(List.of(uri2_1, uri2_2), lookup.findAllByURI(URI_2).toList());
+        lookup.add(uri12);
+        lookup.add(uri22);
+        assertEquals(List.of(uri11, uri12), lookup.findAllByURI(URI_1).toList());
+        assertEquals(List.of(uri21, uri22), lookup.findAllByURI(URI_2).toList());
     }
 
     @Test
     void testFindAllByUri_stable_order() {
-        addAll(uri1_1, uri1_2);
+        addAll(uri11, uri12);
 
-        final List<NamespaceInfo> expected = List.of(uri1_1, uri1_2);
+        final List<NamespaceInfo> expected = List.of(uri11, uri12);
         assertEquals(expected, lookup.findAllByURI(URI_1).toList());
 
         lookup.clear();
         assertThat(lookup.findAllByURI(URI_1)).isEmpty();
 
-        addAll(uri1_2, uri1_1);
+        addAll(uri12, uri11);
         assertEquals(expected, lookup.findAllByURI(URI_1).toList());
     }
 
     @Test
     void testFindOneByURI() {
-        addAll(uri1_1);
-        assertThat(lookup.findOneByURI(URI_1)).get().isEqualTo(uri1_1);
-        addAll(uri1_1, uri2_1);
-        assertThat(lookup.findOneByURI(URI_1)).get().isEqualTo(uri1_1);
-        assertThat(lookup.findOneByURI(URI_2)).get().isEqualTo(uri2_1);
-        addAll(uri2_2);
-        assertThat(lookup.findOneByURI(URI_1)).get().isEqualTo(uri1_1);
-        assertThat(lookup.findOneByURI(URI_2)).get().isEqualTo(uri2_1);
+        addAll(uri11);
+        assertThat(lookup.findOneByURI(URI_1)).get().isEqualTo(uri11);
+        addAll(uri11, uri21);
+        assertThat(lookup.findOneByURI(URI_1)).get().isEqualTo(uri11);
+        assertThat(lookup.findOneByURI(URI_2)).get().isEqualTo(uri21);
+        addAll(uri22);
+        assertThat(lookup.findOneByURI(URI_1)).get().isEqualTo(uri11);
+        assertThat(lookup.findOneByURI(URI_2)).get().isEqualTo(uri21);
     }
 }
