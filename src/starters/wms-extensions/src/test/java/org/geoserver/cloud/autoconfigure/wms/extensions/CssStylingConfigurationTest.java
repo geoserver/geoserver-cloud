@@ -8,6 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.geoserver.catalog.SLDHandler;
 import org.geoserver.community.css.web.CssHandler;
+import org.geoserver.platform.GeoServerExtensions;
 import org.geoserver.platform.ModuleStatusImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -22,6 +23,7 @@ class CssStylingConfigurationTest {
 
     private final ApplicationContextRunner contextRunner =
             new ApplicationContextRunner()
+                    .withBean("extensions", GeoServerExtensions.class)
                     .withConfiguration(AutoConfigurations.of(CssStylingConfiguration.class));
 
     @Test
