@@ -8,9 +8,9 @@ COPY ${JAR_FILE} application.jar
 
 RUN java -Djarmode=layertools -jar application.jar extract
 
-RUN wget -q https://www.yourkit.com/download/docker/YourKit-JavaProfiler-2023.9-docker.zip -P /tmp/ && \
-  unzip /tmp/YourKit-JavaProfiler-2023.9-docker.zip -d /tmp && \
-  rm /tmp/YourKit-JavaProfiler-2023.9-docker.zip
+#RUN wget -q https://www.yourkit.com/download/docker/YourKit-JavaProfiler-2023.9-docker.zip -P /tmp/ && \
+#  unzip /tmp/YourKit-JavaProfiler-2023.9-docker.zip -d /tmp && \
+#  rm /tmp/YourKit-JavaProfiler-2023.9-docker.zip
 
 ##########
 FROM geoservercloud/gs-cloud-base-spring-boot:$TAG
@@ -33,7 +33,7 @@ fonts-roboto \
 && rm -rf /var/cache/apt/* \
 && rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /tmp/YourKit-JavaProfiler-2023.9 /usr/local/YourKit-JavaProfiler-2023.9
+#COPY --from=builder /tmp/YourKit-JavaProfiler-2023.9 /usr/local/YourKit-JavaProfiler-2023.9
 
 RUN mkdir -p /opt/app/data_directory /data/geowebcache \
 && chmod 0777 /opt/app/data_directory /data/geowebcache
