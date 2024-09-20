@@ -23,15 +23,14 @@
     <spring-cloud.version>2021.0.9</spring-cloud.version>
     <spring-boot.version>2.7.18</spring-boot.version>
     <spring.version>5.3.37</spring.version>
-    <spring.security.version>5.8.13</spring.security.version>
+    <spring.security.version>5.8.14</spring.security.version>
     <jackson.version>2.17.2</jackson.version>
     <gs.version>2.26.0-SNAPSHOT</gs.version>
     <gt.version>32-SNAPSHOT</gt.version>
     <acl.version>2.3.0</acl.version>
     <postgresql.version>42.7.3</postgresql.version>
-    <!-- Downgrade netty.version used by spring-boot to the one used by geoserver azure client
-    (software.amazon.awssdk:netty-nio-client:jar:2.9.24) for COG and GWC Azure plugin -->
-    <netty.version>4.1.46.Final</netty.version>
+    <!-- Same netty.version used by geoserver for COG and GWC Azure plugin -->
+    <netty.version>4.1.113.Final</netty.version>
     <lombok.version>1.18.30</lombok.version>
     <mapstruct.version>1.6.0.Beta1</mapstruct.version>
     <flyway.version>10.10.0</flyway.version>
@@ -1025,9 +1024,16 @@
       <dependencyManagement>
         <dependencies>
           <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-bom</artifactId>
+            <version>${netty.version}</version>
+            <type>pom</type>
+            <scope>import</scope>
+          </dependency>
+          <dependency>
             <groupId>org.locationtech.jts</groupId>
             <artifactId>jts-core</artifactId>
-            <version>1.19.0</version>
+            <version>1.20.0</version>
           </dependency>
           <dependency>
             <groupId>com.google.guava</groupId>
@@ -1148,61 +1154,6 @@
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm</artifactId>
             <version>9.5</version>
-          </dependency>
-          <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-buffer</artifactId>
-            <version>${netty.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-codec</artifactId>
-            <version>${netty.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-codec-http</artifactId>
-            <version>${netty.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-codec-http2</artifactId>
-            <version>${netty.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-codec-socks</artifactId>
-            <version>${netty.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-common</artifactId>
-            <version>${netty.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-handler</artifactId>
-            <version>${netty.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-handler-proxy</artifactId>
-            <version>${netty.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-resolver</artifactId>
-            <version>${netty.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-transport</artifactId>
-            <version>${netty.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-transport-native-unix-common</artifactId>
-            <version>${netty.version}</version>
           </dependency>
           <dependency>
             <groupId>org.postgresql</groupId>
