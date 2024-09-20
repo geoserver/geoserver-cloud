@@ -28,6 +28,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.nio.file.Paths;
+
 /**
  * Test {@link JDBCConfigBackendConfigurer} through {@link JDBCConfigAutoConfiguration} when {@code
  * geoserver.backend.jdbcconfig.enabled=true}
@@ -49,8 +51,9 @@ class JDBCConfigAutoConfigurationTest extends JDBCConfigTest {
         assertNotNull(configProperties);
         assertNotNull(configProperties.getDatasource());
         assertNotNull(configProperties.getCacheDirectory());
-        assertEquals(
-                "/tmp/geoserver-jdbcconfig-cache", configProperties.getCacheDirectory().toString());
+        var tmp = Paths.get(System.getProperty("java.io.tmpdir"));
+        var expected = tmp.resolve("geoserver-jdbcconfig-cache");
+        assertEquals(expected.toString(), configProperties.getCacheDirectory().toString());
     }
 
     @Test
