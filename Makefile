@@ -19,7 +19,7 @@ test:
 	./mvnw verify -ntp -T4
 
 build-base-images:
-	./mvnw clean package -f src/apps/base-images -DksipTests -T4 && \
+	./mvnw clean package -f src/apps/base-images -DskipTests -T4 && \
 	COMPOSE_DOCKER_CLI_BUILD=1 \
 	DOCKER_BUILDKIT=1 \
 	TAG=$(TAG) \
