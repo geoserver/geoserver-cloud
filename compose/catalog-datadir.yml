@@ -4,6 +4,8 @@
 # Note the default data directory location is /opt/app/data_directory
 # To set it to a different path, change the mount point and add the following env variable: GEOSERVER_DATA_DIR: </path/to/data_directory>
 
+name: gscloud_dev_datadir
+
 volumes:
   datadir:
     driver_opts:

@@ -1,3 +1,5 @@
+name: gscloud_dev_pgconfig
+
 volumes:
   pgconfigdb_data: # volume for postgresql data, used to store the geoserver config through pgconfig backend
 

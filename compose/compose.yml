@@ -8,7 +8,21 @@ volumes:
       type: none
       o: bind
       device: $PWD/../config
-    
+
+x-gs-dependencies: &gs-dependencies
+  rabbitmq:
+    condition: service_healthy
+    required: true
+  discovery:
+    condition: service_healthy
+    required: true
+  acl:
+    condition: service_healthy
+    required: true
+  postgis:
+    condition: service_started
+    required: true
+
 services:
 
   acl:
@@ -32,7 +46,7 @@ services:
       #- SPRING_PROFILES_ACTIVE=logging_debug,logging_debug_events
     depends_on:
       acldb:
-        condition: service_healthy
+        condition: service_started
         required: true
       rabbitmq:
         condition: service_healthy
@@ -120,13 +134,7 @@ services:
     image: geoservercloud/geoserver-cloud-wfs:${TAG}
     environment:
       JAVA_OPTS: "${JAVA_OPTS_WFS}"
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-        required: true
-      discovery:
-        condition: service_started
-        required: true
+    depends_on: *gs-dependencies
 
   wms:
     image: geoservercloud/geoserver-cloud-wms:${TAG}
@@ -135,13 +143,7 @@ services:
       service: gstemplate
     environment:
       JAVA_OPTS: "${JAVA_OPTS_WMS}"
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-        required: true
-      discovery:
-        condition: service_started
-        required: true
+    depends_on: *gs-dependencies
 
   wcs:
     extends:
@@ -150,13 +152,7 @@ services:
     image: geoservercloud/geoserver-cloud-wcs:${TAG}
     environment:
       JAVA_OPTS: "${JAVA_OPTS_WCS}"
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-        required: true
-      discovery:
-        condition: service_started
-        required: true
+    depends_on: *gs-dependencies
 
   wps:
     extends:
@@ -165,13 +161,7 @@ services:
     image: geoservercloud/geoserver-cloud-wps:${TAG}
     environment:
       JAVA_OPTS: "${JAVA_OPTS_WPS}"
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-        required: true
-      discovery:
-        condition: service_started
-        required: true
+    depends_on: *gs-dependencies
 
   gwc:
     extends:
@@ -180,13 +170,7 @@ services:
     image: geoservercloud/geoserver-cloud-gwc:${TAG}
     environment:
       JAVA_OPTS: "${JAVA_OPTS_GWC}"
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-        required: true
-      discovery:
-        condition: service_started
-        required: true
+    depends_on: *gs-dependencies
 
   rest:
     extends:
@@ -195,13 +179,7 @@ services:
     image: geoservercloud/geoserver-cloud-rest:${TAG}
     environment:
       JAVA_OPTS: "${JAVA_OPTS_REST}"
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-        required: true
-      discovery:
-        condition: service_started
-        required: true
+    depends_on: *gs-dependencies
 
   webui:
     extends:
@@ -210,11 +188,5 @@ services:
     image: geoservercloud/geoserver-cloud-webui:${TAG}
     environment:
       JAVA_OPTS: "${JAVA_OPTS_WEBUI}"
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-        required: true
-      discovery:
-        condition: service_started
-        required: true
+    depends_on: *gs-dependencies
 

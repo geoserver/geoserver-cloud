@@ -39,7 +39,9 @@ services:
   postgistemplate:
     extends:
       service: postgrestemplate
-    image: postgis/postgis:latest
+    #image: postgis/postgis:latest
+    #image with arm/64 support:
+    image: imresamu/postgis:15-3.4
     environment:
       POSTGRES_DB: postgis
       POSTGRES_USER: postgis

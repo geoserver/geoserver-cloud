@@ -213,8 +213,13 @@ initializes a volume with the default GeoServer release data directory.
 Run with:
 
 ```bash
-$ alias dcd="docker compose -f compose.yml -f catalog-datadir.yml"
-$ dcd up -d
+$ docker compose -f compose.yml -f catalog-datadir.yml
+```
+
+or the more convenient shell script:
+
+```bash
+$ ./datadir up -d
 ```
 
 #### PostgreSQL Catalog back-end
@@ -233,8 +238,13 @@ and not part of the GeoServer Cloud deployment.
 Run with:
 
 ```bash
-$ alias dcp="docker compose -f compose.yml -f catalog-pgconfig.yml"
-$ dcp up -d
+$ docker compose -f compose.yml -f catalog-pgconfig.yml
+```
+
+Or the more convenient shell script:
+
+```
+$ ./pgconfig up -d
 ```
 
 **PGBouncer**:
