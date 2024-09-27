@@ -83,7 +83,7 @@ class CatalogApplicationEventsConfigurationTest {
 
     @Test
     void testCatalogEventBroadcasterHasSetUpItself() {
-        Optional<CatalogListener> publiherListener =
+        Optional<CatalogListener> publisherListener =
                 catalog.getListeners().stream()
                         .filter(
                                 l ->
@@ -92,12 +92,12 @@ class CatalogApplicationEventsConfigurationTest {
                                                 CatalogApplicationEventPublisher
                                                         .LocalCatalogEventPublisher)
                         .findFirst();
-        assertTrue(publiherListener.isPresent());
+        assertTrue(publisherListener.isPresent());
     }
 
     @Test
     void testConfigEventBroadcasterHasSetUpItself() {
-        Optional<ConfigurationListener> publiherListener =
+        Optional<ConfigurationListener> publisherListener =
                 geoserver.getListeners().stream()
                         .filter(
                                 l ->
@@ -106,7 +106,7 @@ class CatalogApplicationEventsConfigurationTest {
                                                 CatalogApplicationEventPublisher
                                                         .LocalConfigEventPublisher)
                         .findFirst();
-        assertTrue(publiherListener.isPresent());
+        assertTrue(publisherListener.isPresent());
     }
 
     @Test
