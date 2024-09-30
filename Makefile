@@ -2,6 +2,8 @@ all: install test build-image
 
 TAG=`mvn help:evaluate -Dexpression=project.version -q -DforceStdout`
 COSIGN_PASSWORD := $(COSIGN_PASSWORD)
+COMPOSE_PGCONFIG_OPTIONS ?= -f compose/compose.yml -f compose/catalog-pgconfig.yml
+COMPOSE_ACCEPTANCE_OPTIONS ?= $(COMPOSE_PGCONFIG_OPTIONS) -f acceptance_tests/acceptance.yml
 
 clean:
 	./mvnw clean
@@ -78,3 +80,12 @@ verify-image:
 	  fi; \
 	done'
 
+.PHONY: build-acceptance
+build-acceptance:
+	docker build --tag=acceptance:$(TAG) acceptance_tests
+
+.PHONY: acceptance-tests
+acceptance-tests:
+acceptance-tests: build-acceptance
+	TAG=$(TAG) docker compose $(COMPOSE_ACCEPTANCE_OPTIONS) up -d
+	TAG=$(TAG) docker compose $(COMPOSE_ACCEPTANCE_OPTIONS) exec -T acceptance pytest . -vvv --color=yes

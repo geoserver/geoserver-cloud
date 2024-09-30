@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "acceptance-tests"
+version = "0.1.0"
+description = "todo"
+authors = ["todo"]
+readme = "README.md"
+packages = [{ include = "tests" }]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pytest = "^8.3.3"
+geoservercloud = "^0.2.5"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

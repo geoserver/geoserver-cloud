@@ -1,0 +1,93 @@
+services:
+  acceptance:
+    image: acceptance:${TAG}
+    depends_on:
+      gateway:
+        condition: service_healthy
+      discovery:
+        condition: service_healthy
+      config:
+        condition: service_healthy
+      wms:
+        condition: service_healthy
+      # TODO: add wcs and wps
+      wfs:
+        condition: service_healthy
+      gwc:
+        condition: service_healthy
+      webui:
+        condition: service_started
+      rest:
+        condition: service_healthy
+      acl:
+        condition: service_started
+
+  # For github CI
+  acl:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+  gateway:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+  discovery:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+  config:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+  wms:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+    healthcheck:
+      retries: 10
+  wfs:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+    healthcheck:
+      retries: 10
+  rest:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+    healthcheck:
+      retries: 10
+  gwc:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+    healthcheck:
+      retries: 10
+  webui:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+  rabbitmq:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
