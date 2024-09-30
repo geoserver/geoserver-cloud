@@ -29,6 +29,8 @@ jobs:
         distribution: 'temurin'
         java-version: '21'
         cache: 'maven'
+    - name: Install CI dependencies
+      run: python3 -m pip install --user --requirement=ci/requirements.txt
 
     - name: Validate source code formatting
       run: make lint
@@ -44,6 +46,10 @@ jobs:
     - name: Run acceptance tests
       run: |
         make acceptance-tests
+
+    - name: Print docker compose logs
+      run: (cd docker && c2cciutils-docker-logs)
+      if: always()
 
     - name: Remove project jars from cached repository
       run: |
