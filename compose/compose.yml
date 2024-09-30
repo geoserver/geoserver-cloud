@@ -8,6 +8,7 @@ volumes:
       type: none
       o: bind
       device: $PWD/../config
+    driver: local
 
 x-gs-dependencies: &gs-dependencies
   rabbitmq:

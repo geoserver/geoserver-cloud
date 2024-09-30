@@ -1,7 +1,13 @@
 all: install test build-image
 
-TAG=`mvn help:evaluate -Dexpression=project.version -q -DforceStdout`
+TAG=$(shell mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
 COSIGN_PASSWORD := $(COSIGN_PASSWORD)
+COMPOSE_PGCONFIG_OPTIONS ?= -f compose.yml -f catalog-pgconfig.yml
+COMPOSE_DATADIR_OPTIONS ?= -f compose.yml -f catalog-datadir.yml
+COMPOSE_ACCEPTANCE_PGCONFIG_OPTIONS ?= $(COMPOSE_PGCONFIG_OPTIONS) -f acceptance.yml
+COMPOSE_ACCEPTANCE_DATADIR_OPTIONS ?= $(COMPOSE_DATADIR_OPTIONS) -f acceptance.yml
+UID=$(shell id -u)
+GID=$(shell id -g)
 
 clean:
 	./mvnw clean
@@ -78,3 +84,13 @@ verify-image:
 	  fi; \
 	done'
 
+.PHONY: build-acceptance
+build-acceptance:
+	docker build --tag=acceptance:$(TAG) acceptance_tests
+
+.PHONY: acceptance-tests
+acceptance-tests:
+acceptance-tests: build-acceptance
+	(cd compose/ && TAG=$(TAG) GS_USER=$(UID):$(GID) docker compose $(COMPOSE_ACCEPTANCE_DATADIR_OPTIONS) up -d)
+	sleep 30
+	(cd compose/ && TAG=$(TAG) GS_USER=$(UID):$(GID) docker compose $(COMPOSE_ACCEPTANCE_DATADIR_OPTIONS) exec -T acceptance pytest . -vvv --color=yes)

@@ -47,6 +47,10 @@ jobs:
       run: |
         make build-image
 
+    - name: Run acceptance tests
+      run: |
+        make acceptance-tests
+
     - name: Remove project jars from cached repository
       run: |
         rm -rf ~/.m2/repository/org/geoserver

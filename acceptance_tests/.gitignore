@@ -1,0 +1,3 @@
+# ignore all python cache files recursively
+**/__pycache__/
+poetry.lock
