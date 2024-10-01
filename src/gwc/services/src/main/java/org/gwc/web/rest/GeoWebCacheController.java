@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 
 import org.geoserver.cloud.virtualservice.VirtualServiceVerifier;
 import org.geoserver.gwc.dispatch.GeoServerGWCDispatcherController;
-import org.geoserver.ows.Dispatcher;
 import org.geowebcache.GeoWebCacheDispatcher;
 import org.geowebcache.controller.GeoWebCacheDispatcherController;
 import org.springframework.stereotype.Controller;
@@ -29,9 +28,6 @@ import javax.servlet.http.HttpServletResponse;
 @Controller
 @RequiredArgsConstructor
 public class GeoWebCacheController {
-
-    private final @NonNull Dispatcher geoserverDispatcher;
-
     private final @NonNull GeoWebCacheDispatcher geoWebCacheDispatcher;
 
     private final @NonNull VirtualServiceVerifier virtualServiceVerifier;

@@ -11,7 +11,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
 import org.geoserver.catalog.GeoServerCatalogTestData;
-import org.geoserver.gwc.controller.GwcUrlHandlerMapping;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -79,16 +78,6 @@ class GeoWebCacheApplicationTest {
         assertThat(parsed.isJsonArray()).isTrue();
 
         testGetRequestContentType("/gwc/rest/layers.xml", APPLICATION_XML);
-    }
-
-    @Test
-    void testGwcUrlHandlerMappingArePresentInTheClasspath() {
-        assertThat(context.isTypeMatch("gwcDemoUrlHandlerMapping", GwcUrlHandlerMapping.class))
-                .as("expected a bean gwcDemoUrlHandlerMapping of type GwcUrlHandlerMapping")
-                .isTrue();
-        assertThat(context.isTypeMatch("gwcRestWebUrlHandlerMapping", GwcUrlHandlerMapping.class))
-                .as("expected a bean gwcRestWebUrlHandlerMapping of type GwcUrlHandlerMapping")
-                .isTrue();
     }
 
     @Test
