@@ -1,0 +1,111 @@
+services:
+  geodatabase:
+    image: imresamu/postgis:15-3.4
+    environment:
+      POSTGRES_DB: geodata
+      POSTGRES_USER: geodata
+      POSTGRES_PASSWORD: geodata
+    restart: always
+    volumes:
+      - ./acceptance_pg_entrypoint:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U geodata"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  acceptance:
+    image: acceptance:${TAG}
+    user: ${GS_USER}
+    depends_on:
+      geodatabase:
+        condition: service_healthy
+      gateway:
+        condition: service_healthy
+      discovery:
+        condition: service_healthy
+      config:
+        condition: service_healthy
+      wms:
+        condition: service_healthy
+      # TODO: add wcs and wps
+      wfs:
+        condition: service_healthy
+      gwc:
+        condition: service_healthy
+      webui:
+        condition: service_started
+      rest:
+        condition: service_healthy
+      acl:
+        condition: service_started
+
+  # For github CI
+  acl:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+  gateway:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+  discovery:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+  config:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+  wms:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+    healthcheck:
+      retries: 20
+  wfs:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+    healthcheck:
+      retries: 20
+  rest:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+    healthcheck:
+      retries: 20
+  gwc:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+    healthcheck:
+      retries: 20
+  webui:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+  rabbitmq:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
