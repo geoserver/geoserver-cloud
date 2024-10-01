@@ -20,8 +20,6 @@ services:
     depends_on:
       geodatabase:
         condition: service_healthy
-      init-datadir:
-        condition: service_completed_successfully
       gateway:
         condition: service_healthy
       discovery:

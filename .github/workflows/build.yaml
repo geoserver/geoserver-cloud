@@ -23,39 +23,25 @@ jobs:
       uses: actions/checkout@v2
       with:
         submodules: recursive
-    # - name: Setup Java
-    #   uses: actions/setup-java@v2
-    #   with:
-    #     distribution: 'temurin'
-    #     java-version: '21'
-    #     cache: 'maven'
-    - name: Install CI dependencies
-      run: python3 -m pip install --user --requirement=ci/requirements.txt
+    - name: Setup Java
+      uses: actions/setup-java@v2
+      with:
+        distribution: 'temurin'
+        java-version: '21'
+        cache: 'maven'
 
-    # - name: Validate source code formatting
-    #   run: make lint
+    - name: Validate source code formatting
+      run: make lint
 
-    # - name: Build and test
-    #   run: |
-    #     make install test
-
-    # - name: Build docker images
-    #   run: |
-    #     make build-image
-
-    - name: Run acceptance tests
+    - name: Build and test
       run: |
-        make acceptance-tests
+        make install test
 
-    - name: Print docker compose logs
-      run: (cd compose && c2cciutils-docker-logs)
-      if: always()
-
-    - name: Cleanup acceptance tests
+    - name: Build docker images
       run: |
-        make stop-acceptance-tests
+        make build-image
 
-    # - name: Remove project jars from cached repository
-    #   run: |
-    #     rm -rf ~/.m2/repository/org/geoserver
-    #     find ~/.m2/repository -name "*SNAPSHOT*" -type d | xargs rm -rf {}
+    - name: Remove project jars from cached repository
+      run: |
+        rm -rf ~/.m2/repository/org/geoserver
+        find ~/.m2/repository -name "*SNAPSHOT*" -type d | xargs rm -rf {}

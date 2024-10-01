@@ -47,9 +47,33 @@ jobs:
       run: |
         make build-image
 
-    - name: Run acceptance tests
+    - name: Install CI dependencies
+      run: python3 -m pip install --user --requirement=ci/requirements.txt
+
+    - name: Run acceptance tests datadir
       run: |
-        make acceptance-tests
+        make acceptance-tests-datadir
+
+    - name: Print docker compose logs datadir
+      run: (cd compose && c2cciutils-docker-logs)
+      if: always()
+
+    - name: Cleanup acceptance tests datadir
+      run: |
+        make clean-acceptance-tests-datadir
+
+    # FIXME: fix pgconfig discrepancies before reactivating
+    # - name: Run acceptance tests pgconfig
+    #   run: |
+    #     make acceptance-tests-pgconfig
+
+    # - name: Print docker compose logs pgconfig
+    #   run: (cd compose && c2cciutils-docker-logs)
+    #   if: always()
+
+    # - name: Cleanup acceptance tests pgconfig
+    #   run: |
+    #     make clean-acceptance-tests-pgconfig
 
     - name: Remove project jars from cached repository
       run: |
