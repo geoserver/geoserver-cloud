@@ -12,4 +12,11 @@ COPY . /acceptance_tests
 WORKDIR /acceptance_tests
 RUN python3 -m pip install --disable-pip-version-check .
 
+COPY entrypoint.py /bin/entrypoint.py
+
+ENV PYTHONUNBUFFERED=1
+ENTRYPOINT ["/bin/entrypoint.py"]
+
+HEALTHCHECK --interval=5s --start-period=15s --retries=20 CMD test -f /tmp/healthcheck || exit 1
+
 CMD ["sleep", "infinity"]
