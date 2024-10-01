@@ -1,0 +1,16 @@
+<Transaction xmlns="http://www.opengis.net/wfs" service="WFS" version="1.1.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.1.0/wfs.xsd">
+    <Insert>
+        <test_wfs xmlns="test_wfs">
+            <geom>
+                <Point xmlns="http://www.opengis.net/gml" srsName="EPSG:2056">
+                    <pos srsDimension="2">2600000.0 1200000.0</pos>
+                </Point>
+            </geom>
+            <timestamp>2024-05-13T08:14:48.763Z</timestamp>
+            <id>10</id>
+            <title>Title</title>
+        </test_wfs>
+    </Insert>
+</Transaction>
