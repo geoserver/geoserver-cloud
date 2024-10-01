@@ -1,7 +1,13 @@
 all: install test build-image
 
-TAG=`mvn help:evaluate -Dexpression=project.version -q -DforceStdout`
+TAG=$(shell mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
 COSIGN_PASSWORD := $(COSIGN_PASSWORD)
+COMPOSE_PGCONFIG_OPTIONS ?= -f compose.yml -f catalog-pgconfig.yml
+COMPOSE_DATADIR_OPTIONS ?= -f compose.yml -f catalog-datadir.yml
+COMPOSE_ACCEPTANCE_PGCONFIG_OPTIONS ?= $(COMPOSE_PGCONFIG_OPTIONS) -f acceptance.yml
+COMPOSE_ACCEPTANCE_DATADIR_OPTIONS ?= $(COMPOSE_DATADIR_OPTIONS) -f acceptance.yml
+UID=$(shell id -u)
+GID=$(shell id -g)
 
 clean:
 	./mvnw clean
@@ -78,3 +84,28 @@ verify-image:
 	  fi; \
 	done'
 
+.PHONY: build-acceptance
+build-acceptance:
+	docker build --tag=acceptance:$(TAG) acceptance_tests
+
+.PHONY: acceptance-tests-pgconfig
+acceptance-tests-pgconfig:
+acceptance-tests-pgconfig: build-acceptance
+	(cd compose/ && TAG=$(TAG) GS_USER=$(UID):$(GID) docker compose $(COMPOSE_ACCEPTANCE_PGCONFIG_OPTIONS) up -d)
+	(cd compose/ && TAG=$(TAG) GS_USER=$(UID):$(GID) docker compose $(COMPOSE_ACCEPTANCE_PGCONFIG_OPTIONS) exec -T acceptance bash -c 'until [ -f /tmp/healthcheck ]; do echo "Waiting for /tmp/healthcheck to be available..."; sleep 5; done && pytest . -vvv --color=yes')
+
+.PHONY: clean-acceptance-tests-pgconfig
+clean-acceptance-tests-pgconfig:
+	(cd compose/ && TAG=$(TAG) GS_USER=$(UID):$(GID) docker compose $(COMPOSE_ACCEPTANCE_PGCONFIG_OPTIONS) down -v)
+
+.PHONY: acceptance-tests-datadir
+acceptance-tests-datadir:
+acceptance-tests-datadir: build-acceptance
+	(cd compose/ && TAG=$(TAG) GS_USER=$(UID):$(GID) docker compose $(COMPOSE_ACCEPTANCE_DATADIR_OPTIONS) up -d)
+	(cd compose/ && TAG=$(TAG) GS_USER=$(UID):$(GID) docker compose $(COMPOSE_ACCEPTANCE_DATADIR_OPTIONS) exec -T acceptance bash -c 'until [ -f /tmp/healthcheck ]; do echo "Waiting for /tmp/healthcheck to be available..."; sleep 5; done && pytest . -vvv --color=yes')
+
+.PHONY: clean-acceptance-tests-datadir
+clean-acceptance-tests-datadir:
+	(cd compose/ && TAG=$(TAG) GS_USER=$(UID):$(GID) docker compose $(COMPOSE_ACCEPTANCE_DATADIR_OPTIONS) down -v)
+	rm -rf compose/catalog-datadir/*
+	touch compose/catalog-datadir/.keep
