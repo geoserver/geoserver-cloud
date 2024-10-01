@@ -94,3 +94,7 @@ acceptance-tests: build-acceptance
 	(cd compose/ && TAG=$(TAG) GS_USER=$(UID):$(GID) docker compose $(COMPOSE_ACCEPTANCE_DATADIR_OPTIONS) up -d)
 	sleep 30
 	(cd compose/ && TAG=$(TAG) GS_USER=$(UID):$(GID) docker compose $(COMPOSE_ACCEPTANCE_DATADIR_OPTIONS) exec -T acceptance pytest . -vvv --color=yes)
+
+.PHONY: stop-acceptance-tests
+stop-acceptance-tests: build-acceptance
+	(cd compose/ && TAG=$(TAG) GS_USER=$(UID):$(GID) docker compose $(COMPOSE_ACCEPTANCE_DATADIR_OPTIONS) down -v)
