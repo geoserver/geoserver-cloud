@@ -53,7 +53,7 @@ import java.util.stream.Stream;
 
 /**
  * A support index for {@link DefaultMemoryCatalogFacade}, can perform fast lookups of {@link
- * CatalogInfo} objects by id or by "name", where the name is defined by a a user provided mapping
+ * CatalogInfo} objects by id or by "name", where the name is defined by a user provided mapping
  * function.
  *
  * <p>The lookups by predicate have been tested and optimized for performance, in particular the
@@ -81,7 +81,8 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
             s -> new NameImpl(s.getWorkspace().getId(), s.getName());
 
     /**
-     * The name uses the namspace id as it does not need to be updated when the namespace is renamed
+     * The name uses the namespace id as it does not need to be updated when the namespace is
+     * renamed
      */
     static final Function<ResourceInfo, Name> RESOURCE_NAME_MAPPER =
             r -> new NameImpl(r.getNamespace().getId(), r.getName());

@@ -71,7 +71,7 @@ class CatalogApplicationEventsConfigurationTest {
     private CatalogTestData testData;
 
     public @BeforeEach void before() {
-        listener.setCapureEventsOf(InfoEvent.class);
+        listener.setCaptureEventsOf(InfoEvent.class);
         catalog.dispose();
         listener.clear();
         testData = CatalogTestData.empty(() -> catalog, () -> geoserver).initialize();
