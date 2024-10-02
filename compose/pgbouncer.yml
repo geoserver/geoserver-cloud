@@ -1,4 +1,4 @@
-# for simplicity, use one pgbouncer instance per databse
+# for simplicity, use one pgbouncer instance per database
 # postgis -> postgis_pg
 # acldb -> acldb_pg
 # pgconfigdb -> pgconfigdb_pg

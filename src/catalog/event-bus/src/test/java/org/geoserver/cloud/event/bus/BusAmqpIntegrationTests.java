@@ -151,7 +151,7 @@ public abstract class BusAmqpIntegrationTests {
         BusEventCollector remoteAppEvents = remoteAppContext.getBean(BusEventCollector.class);
         this.eventsCaptor = new EventsCaptor(localAppEvents, remoteAppEvents);
 
-        eventsCaptor.stop().clear().capureEventsOf(InfoEvent.class);
+        eventsCaptor.stop().clear().captureEventsOf(InfoEvent.class);
 
         testData = CatalogTestData.empty(() -> catalog, () -> geoserver).initialize();
     }
@@ -299,7 +299,7 @@ public abstract class BusAmqpIntegrationTests {
     protected <T extends Info> RemoteGeoServerEvent testRemoteAddEvent(
             T info, Consumer<T> addOp, Class<? extends InfoAdded> eventType) {
 
-        this.eventsCaptor.stop().clear().capureEventsOf(eventType);
+        this.eventsCaptor.stop().clear().captureEventsOf(eventType);
         eventsCaptor.start();
         addOp.accept(info);
 
@@ -424,7 +424,7 @@ public abstract class BusAmqpIntegrationTests {
         final @Getter BusEventCollector local;
         final @Getter BusEventCollector remote;
 
-        public <E extends InfoEvent> EventsCaptor capureEventsOf(Class<E> type) {
+        public <E extends InfoEvent> EventsCaptor captureEventsOf(Class<E> type) {
             local.capture(type);
             remote.capture(type);
             return this;

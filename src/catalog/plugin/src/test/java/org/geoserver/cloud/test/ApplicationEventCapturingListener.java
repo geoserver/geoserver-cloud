@@ -24,7 +24,7 @@ public class ApplicationEventCapturingListener {
 
     private Class<?> eventType = ApplicationEvent.class;
 
-    public void setCapureEventsOf(Class<?> type) {
+    public void setCaptureEventsOf(Class<?> type) {
         this.eventType = type;
     }
 

@@ -33,7 +33,7 @@ import java.util.function.Supplier;
  * Extends {@link GeoServerSecurityManager} to {@link #fireRemoteChangedEvent(String) notify} other
  * services of changes to the security configuration happened on the currently running service, and
  * to {@link #onRemoteSecurityConfigChangeEvent listen to} those events to {@link
- * GeoServerSecurityManager#reload() reload} the security config when other serice made a change.
+ * GeoServerSecurityManager#reload() reload} the security config when other service made a change.
  */
 @Slf4j(topic = "org.geoserver.cloud.security")
 public class CloudGeoServerSecurityManager extends GeoServerSecurityManager {
