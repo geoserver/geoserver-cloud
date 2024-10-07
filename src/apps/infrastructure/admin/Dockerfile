@@ -1,5 +1,5 @@
 ARG TAG=latest
-FROM geoservercloud/gs-cloud-base-jre:$TAG as builder
+FROM geoservercloud/gs-cloud-base-jre:$TAG AS builder
 ARG JAR_FILE=target/gs-cloud-*-bin.jar
 
 COPY ${JAR_FILE} application.jar

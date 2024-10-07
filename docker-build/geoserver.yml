@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   wfs:
     image: geoservercloud/geoserver-cloud-wfs:${TAG}

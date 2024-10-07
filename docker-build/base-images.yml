@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   base-image-jre:
     image: geoservercloud/gs-cloud-base-jre:${TAG}

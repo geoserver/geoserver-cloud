@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   discovery:
     image: geoservercloud/geoserver-cloud-discovery:${TAG}
