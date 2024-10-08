@@ -1,3 +1,4 @@
+.PHONY: all
 all: install test build-image
 
 TAG=$(shell mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
@@ -9,21 +10,27 @@ COMPOSE_ACCEPTANCE_DATADIR_OPTIONS ?= $(COMPOSE_DATADIR_OPTIONS) -f acceptance.y
 UID=$(shell id -u)
 GID=$(shell id -g)
 
+.PHONY: clean
 clean:
 	./mvnw clean
 
+.PHONY: lint
 lint:
 	./mvnw fmt:check sortpom:verify -Dsort.verifyFailOn=strict -Dsort.verifyFail=stop -ntp
 
+.PHONY: format
 format:
 	./mvnw sortpom:sort fmt:format -ntp
 
+.PHONY: install
 install:
 	./mvnw clean install -DskipTests -ntp -T4 -U
 
+.PHONY: test
 test:
 	./mvnw verify -ntp -T4
 
+.PHONY: build-base-images
 build-base-images:
 	./mvnw clean package -f src/apps/base-images -DskipTests -T4 && \
 	COMPOSE_DOCKER_CLI_BUILD=1 \
@@ -31,6 +38,7 @@ build-base-images:
 	TAG=$(TAG) \
 	docker compose -f docker-build/base-images.yml build 
 
+.PHONY: build-image-infrastructure
 build-image-infrastructure:
 	./mvnw clean package -f src/apps/infrastructure -DskipTests -T4 && \
 	COMPOSE_DOCKER_CLI_BUILD=1 \
@@ -38,15 +46,18 @@ build-image-infrastructure:
 	TAG=$(TAG) \
 	docker compose -f docker-build/infrastructure.yml build
 
+.PHONY: build-image-geoserver
 build-image-geoserver:
 	./mvnw clean package -f src/apps/geoserver -DskipTests -T4 && \
 	COMPOSE_DOCKER_CLI_BUILD=1 \
 	DOCKER_BUILDKIT=1 \
 	TAG=$(TAG) \
 	docker compose -f docker-build/geoserver.yml build 
-  
+
+.PHONY: build-image
 build-image: build-base-images build-image-infrastructure build-image-geoserver
 
+.PHONY: push-image
 push-image:
 	TAG=$(TAG) \
 	docker compose \
