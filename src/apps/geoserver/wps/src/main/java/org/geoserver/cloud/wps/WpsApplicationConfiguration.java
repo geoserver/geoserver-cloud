@@ -22,6 +22,8 @@ import org.springframework.context.annotation.ImportResource;
             "jar:gs-wcs1_1-.*!/applicationContext.xml", //
             "jar:gs-wcs2_0-.*!/applicationContext.xml", //
             "jar:gs-wfs-.*!/applicationContext.xml#name=^(?!wfsInsertElementHandler|wfsUpdateElementHandler|wfsDeleteElementHandler|wfsReplaceElementHandler).*$", //
+            "jar:gs-dxf-core-.*!/applicationContext.xml#name=.*",
+            "jar:gs-dxf-wps-.*!/applicationContext.xml#name=.*"
         })
 public class WpsApplicationConfiguration {
 

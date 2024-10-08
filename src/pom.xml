@@ -589,6 +589,16 @@
       </dependency>
       <dependency>
         <groupId>org.geoserver.extension</groupId>
+        <artifactId>gs-dxf-core</artifactId>
+        <version>${gs.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.extension</groupId>
+        <artifactId>gs-dxf-wps</artifactId>
+        <version>${gs.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.extension</groupId>
         <artifactId>gs-web-resource</artifactId>
         <version>${gs.version}</version>
       </dependency>
