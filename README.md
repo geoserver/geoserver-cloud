@@ -53,6 +53,7 @@ Only a curated list of the [vast amount](http://geoserver.org/release/stable/) o
 - Pregeneralized feature datastore
 - vectortiles
 - flatgeobuf
+- dxf
 - cog
 - importer
 - imagepyramid
