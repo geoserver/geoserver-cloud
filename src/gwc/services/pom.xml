@@ -21,9 +21,5 @@
       <groupId>org.geoserver</groupId>
       <artifactId>gs-gwc-rest</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-starter-webmvc</artifactId>
-    </dependency>
   </dependencies>
 </project>

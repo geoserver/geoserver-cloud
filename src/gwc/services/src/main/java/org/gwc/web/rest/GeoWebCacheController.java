@@ -7,14 +7,12 @@ package org.gwc.web.rest;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
-import org.geoserver.cloud.virtualservice.VirtualServiceVerifier;
 import org.geoserver.gwc.dispatch.GeoServerGWCDispatcherController;
-import org.geoserver.ows.Dispatcher;
 import org.geowebcache.GeoWebCacheDispatcher;
 import org.geowebcache.controller.GeoWebCacheDispatcherController;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -27,34 +25,21 @@ import javax.servlet.http.HttpServletResponse;
  * <p>Copied from {@link GeoServerGWCDispatcherController}
  */
 @Controller
+@RequestMapping("/gwc")
 @RequiredArgsConstructor
 public class GeoWebCacheController {
 
-    private final @NonNull Dispatcher geoserverDispatcher;
-
-    private final @NonNull GeoWebCacheDispatcher geoWebCacheDispatcher;
-
-    private final @NonNull VirtualServiceVerifier virtualServiceVerifier;
-
-    @GetMapping(path = {"/gwc", "/gwc/home", "/gwc/demo/**", "/gwc/proxy/**"})
-    public void handleGet(HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
-        geoWebCacheDispatcher.handleRequest(request, response);
-    }
+    private final @NonNull GeoWebCacheDispatcher gwcDispatcher;
 
     @GetMapping(
             path = {
-                "/{namespace}/gwc",
-                "/{namespace}/gwc/home",
-                "/{namespace}/gwc/demo/**",
-                "/{namespace}/gwc/proxy/**"
+                "",
+                "/home",
+                "/demo/**",
+                "/proxy/**",
             })
-    public void handlePrefixedNamespaceGet(
-            @PathVariable String namespace,
-            HttpServletRequest request,
-            HttpServletResponse response)
+    public void handleGet(HttpServletRequest request, HttpServletResponse response)
             throws Exception {
-        virtualServiceVerifier.checkVirtualService(namespace);
-        geoWebCacheDispatcher.handleRequest(request, response);
+        gwcDispatcher.handleRequest(request, response);
     }
 }
