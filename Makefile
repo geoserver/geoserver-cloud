@@ -5,8 +5,8 @@ TAG=$(shell mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
 COSIGN_PASSWORD := $(COSIGN_PASSWORD)
 COMPOSE_PGCONFIG_OPTIONS ?= -f compose.yml -f catalog-pgconfig.yml
 COMPOSE_DATADIR_OPTIONS ?= -f compose.yml -f catalog-datadir.yml
-COMPOSE_ACCEPTANCE_PGCONFIG_OPTIONS ?= $(COMPOSE_PGCONFIG_OPTIONS) -f acceptance.yml
-COMPOSE_ACCEPTANCE_DATADIR_OPTIONS ?= $(COMPOSE_DATADIR_OPTIONS) -f acceptance.yml
+COMPOSE_ACCEPTANCE_PGCONFIG_OPTIONS ?= --project-name gscloud-acceptance-pgconfig $(COMPOSE_PGCONFIG_OPTIONS) -f acceptance.yml
+COMPOSE_ACCEPTANCE_DATADIR_OPTIONS ?= --project-name gscloud-acceptance-datadir $(COMPOSE_DATADIR_OPTIONS) -f acceptance.yml
 UID=$(shell id -u)
 GID=$(shell id -g)
 
