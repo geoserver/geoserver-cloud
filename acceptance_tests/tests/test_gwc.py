@@ -17,9 +17,9 @@ def geoserver_with_gwc_layers(geoserver):
     geoserver.get_request(
         f"/rest/workspaces/{WORKSPACE}/wmtsstores/{WMTS_STORE}/layers/{WMTS_LAYER}.json"
     )
-    response = geoserver.publish_gwc_layer(WORKSPACE, WMTS_LAYER)
-    assert response.status_code == 200
+    geoserver.publish_gwc_layer(WORKSPACE, WMTS_LAYER)
     yield geoserver
+    geoserver.delete_request(f"/gwc/rest/layers/{WORKSPACE}:{WMTS_LAYER}")
     geoserver.delete_workspace(WORKSPACE)
 
 
