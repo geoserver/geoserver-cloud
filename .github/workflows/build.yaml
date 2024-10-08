@@ -12,6 +12,8 @@ on:
       - ".github/workflows/build.yaml"
       - "config"
       - "src/**"
+      - "acceptance_tests/**"
+      - "ci/**"
 
 jobs:
   build:

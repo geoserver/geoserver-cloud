@@ -12,6 +12,8 @@ on:
       - "Makefile"
       - "config"
       - "src/**"
+      - "acceptance_tests/**"
+      - "ci/**"
 
 jobs:
   build:
