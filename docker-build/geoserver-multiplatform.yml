@@ -2,7 +2,7 @@ services:
   wfs:
     extends:
       file: templates.yml
-      service: current-platform
+      service: multi-platform
     image: ${REPOSITORY}/geoserver-cloud-wfs:${TAG}
     build:
       context: ../src/apps/geoserver/wfs/
@@ -10,7 +10,7 @@ services:
   wms:
     extends:
       file: templates.yml
-      service: current-platform
+      service: multi-platform
     image: ${REPOSITORY}/geoserver-cloud-wms:${TAG}
     build:
       context: ../src/apps/geoserver/wms/
@@ -18,7 +18,7 @@ services:
   wcs:
     extends:
       file: templates.yml
-      service: current-platform
+      service: multi-platform
     image: ${REPOSITORY}/geoserver-cloud-wcs:${TAG}
     build:
       context: ../src/apps/geoserver/wcs/
@@ -26,7 +26,7 @@ services:
   wps:
     extends:
       file: templates.yml
-      service: current-platform
+      service: multi-platform
     image: ${REPOSITORY}/geoserver-cloud-wps:${TAG}
     build:
       context: ../src/apps/geoserver/wps/
@@ -34,7 +34,7 @@ services:
   rest:
     extends:
       file: templates.yml
-      service: current-platform
+      service: multi-platform
     image: ${REPOSITORY}/geoserver-cloud-rest:${TAG}
     build:
       context: ../src/apps/geoserver/restconfig/
@@ -42,7 +42,7 @@ services:
   webui:
     extends:
       file: templates.yml
-      service: current-platform
+      service: multi-platform
     image: ${REPOSITORY}/geoserver-cloud-webui:${TAG}
     build:
       context: ../src/apps/geoserver/webui/
@@ -50,7 +50,7 @@ services:
   gwc:
     extends:
       file: templates.yml
-      service: current-platform
+      service: multi-platform
     image: ${REPOSITORY}/geoserver-cloud-gwc:${TAG}
     build:
       context: ../src/apps/geoserver/gwc/
