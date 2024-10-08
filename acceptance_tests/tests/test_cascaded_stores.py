@@ -31,25 +31,13 @@ def create_cascaded_wms_store_payload():
     }
 
 
-def delete_wms_store(geoserver):
-    geoserver.delete_request(
-        f"/rest/workspaces/{WORKSPACE}/wmsstores/{WMS_STORE}?recurse=true"
-    )
-
-
-def delete_wmts_store(geoserver):
-    geoserver.delete_request(
-        f"/rest/workspaces/{WORKSPACE}/wmtsstores/{WMTS_STORE}?recurse=true"
-    )
-
-
 @pytest.fixture(scope="module")
 def geoserver():
     geoserver = GeoServerCloud(url=GEOSERVER_URL)
     geoserver.create_workspace(WORKSPACE, set_default_workspace=True)
     geoserver.publish_workspace(WORKSPACE)
     yield geoserver
-    # geoserver.delete_workspace(WORKSPACE)
+    geoserver.delete_workspace(WORKSPACE)
 
 
 def test_cascaded_wms(geoserver):
@@ -98,7 +86,11 @@ def test_cascaded_wms(geoserver):
     data = json.loads(response.read().decode("utf-8"))
     assert data.get("features") == []
 
-    delete_wms_store(geoserver)
+    # Delete store
+    response = geoserver.delete_request(
+        f"/rest/workspaces/{WORKSPACE}/wmsstores/{WMS_STORE}?recurse=true"
+    )
+    assert response.status_code == 200
 
 
 def test_cascaded_wmts(geoserver):
@@ -135,6 +127,10 @@ def test_cascaded_wmts(geoserver):
     )
     assert response.info().get("Content-Type") == format
 
+    # Delete layer and store
     response = geoserver.delete_request(f"/gwc/rest/layers/{WORKSPACE}:{WMTS_LAYER}")
     assert response.status_code == 200
-    delete_wmts_store(geoserver)
+    response = geoserver.delete_request(
+        f"/rest/workspaces/{WORKSPACE}/wmtsstores/{WMTS_STORE}?recurse=true"
+    )
+    assert response.status_code == 200
