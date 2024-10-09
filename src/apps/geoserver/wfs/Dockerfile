@@ -1,7 +1,7 @@
 ARG REPOSITORY=geoservercloud
 ARG TAG=latest
 
-FROM $REPOSITORY/gs-cloud-base-jre:$TAG as builder
+FROM eclipse-temurin:21-jre-noble AS builder
 
 ARG JAR_FILE=target/gs-cloud-*-bin.jar
 
@@ -10,7 +10,7 @@ COPY ${JAR_FILE} application.jar
 RUN java -Djarmode=layertools -jar application.jar extract
 
 ##########
-FROM $REPOSITORY/gs-cloud-base-geoserver-image:$TAG
+FROM $REPOSITORY/spring-boot-common-gdal:$TAG
 
 # WORKDIR already set to /opt/app/bin
 

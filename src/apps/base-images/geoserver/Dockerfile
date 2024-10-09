@@ -1,7 +1,8 @@
 ARG REPOSITORY=geoservercloud
 ARG TAG=latest
 
-FROM $REPOSITORY/gs-cloud-base-jre:$TAG AS builder
+FROM eclipse-temurin:21-jre-noble AS builder
+
 ARG JAR_FILE=target/gs-cloud-*-bin.jar
 
 RUN apt update && apt install -y --no-install-recommends unzip
@@ -15,7 +16,7 @@ RUN java -Djarmode=layertools -jar application.jar extract
 #  rm /tmp/YourKit-JavaProfiler-2023.9-docker.zip
 
 ##########
-FROM $REPOSITORY/gs-cloud-base-spring-boot:$TAG
+FROM $REPOSITORY/spring-boot-common-gdal:$TAG
 
 # init
 RUN apt update \

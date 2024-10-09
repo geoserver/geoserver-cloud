@@ -4,8 +4,9 @@ name: Build on any branch
 on:
   push:
     branches:
-      - '**'
-      - "!main"
+      - "feature/**"
+      - "bug/**"
+      - "build/**"
     paths:
       - "Makefile"
       - "pom.xml"

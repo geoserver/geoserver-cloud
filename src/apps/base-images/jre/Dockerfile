@@ -1,4 +1,5 @@
-FROM eclipse-temurin:21-jre
+# JRE 21 on Ubuntu 24.04
+FROM eclipse-temurin:21-jre-noble
 
 LABEL maintainer="GeoServer PSC <geoserver-users@lists.sourceforge.net>"
 

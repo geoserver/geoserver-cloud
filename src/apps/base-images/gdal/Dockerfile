@@ -1,7 +1,9 @@
-#FROM geoservercloud/gs-cloud-base-jre:$TAG as builder
-FROM eclipse-temurin:11-jdk as builder
+ARG REPOSITORY=geoservercloud
+ARG JRE_BASE_IMAGE_NAME=jre:21-tem
+ARG TAG=latest
 
-LABEL maintainer="GeoServer PSC <geoserver-users@lists.sourceforge.net>"
+# Build with java 11
+FROM eclipse-temurin:11-jdk as builder
 
 ENV GDAL_VERSION 3.8.4
 ENV GDAL_PATH /usr/share/gdal
@@ -24,5 +26,21 @@ RUN wget https://download.osgeo.org/gdal/${GDAL_VERSION}/gdal-${GDAL_VERSION}.ta
     sed -i 's/target="7"/target="8"/' /tmp/gdal-${GDAL_VERSION}/swig/java/build.xml
 RUN cd /tmp/gdal-${GDAL_VERSION} && mkdir build && cd build && cmake .. && cmake --build . && cmake --build . --target install
 
-RUN cp /tmp/gdal-3.8.4/build/swig/java/gdal.jar /tmp/gdal.jar
-RUN cp /tmp/gdal-3.8.4/build/swig/java/libgdalalljni.so /tmp/libgdalalljni.so
+RUN mkdir /tmp/gdal-java
+RUN cp /tmp/gdal-3.8.4/build/swig/java/gdal.jar /tmp/gdal-java/gdal.jar
+RUN cp /tmp/gdal-3.8.4/build/swig/java/libgdalalljni.so /tmp/gdal-java/libgdalalljni.so
+
+##########
+FROM $REPOSITORY/$JRE_BASE_IMAGE_NAME
+
+ENV GDAL_PATH /usr/share/gdal
+ENV GDAL_DATA $GDAL_PATH
+ENV LD_LIBRARY_PATH $LD_LIBRARY_PATH:$GDAL_PATH/lib:/usr/local/lib/:/usr/lib/
+
+# see https://docs.docker.com/build/cache/optimize/#use-cache-mounts
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+  --mount=type=cache,target=/var/lib/apt,sharing=locked \
+  apt update && apt-get --no-install-recommends install -y gdal-bin \
+  && mkdir $GDAL_PATH/lib
+
+COPY --from=builder /tmp/gdal-java/* $GDAL_PATH/lib/
