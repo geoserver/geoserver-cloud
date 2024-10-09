@@ -141,29 +141,49 @@ which you can also run individually during development depending on your needs. 
 you'd run `make build-image-geoserver` to speed up the process when made a change and want
 to test the geoserver containers, without having to rebuild the base and infra images.
 
-### Targeted builds
+#### Multiplatform (amd64/arm64) images
 
-*GeoServer Cloud*-specific modules source code is under the `src/` directory.
-
-When you already have the `2.23.0-CLOUD` GeoServer artifacts, you can choose to only build these projects, either by:
-
+The "build and push" github actions job will create `linux/amd64` and `linux/arm64` multi-platform images by running
 
 ```bash
-$ ./mvnw clean install -f src/
+make build-image-multiplatform
 ```
 
-Or 
+This target assumes `buildx` is set up as an alias for `docker build` and there's a build runner that supports both platforms.
+
+Building multi-platform images requires pushing to the container registry, so the `build-image-multiplatform` target
+will run `docker compose build --push` with the appropriate `*-multiplatform.yml` compose file from the `docker-build` directory.
+
+If you want to build the multi-platform images yourself:
+
+* Install QEmu
+* Run the following command to create a `buildx` builder:
 
 ```bash
-$ cd src/
-$ ../mvnw clean install
+docker buildx create --name gscloud-builder --driver docker-container --bootstrap --use
+```
+
+In order to push the images to your own dockerhub account, use the `RESPOSITORY` environment variable, for example:
+
+```bash
+REPOSITORY=groldan make build-image-multiplatform
+```
+
+will build and push `groldan/<image-name>:<version>` tagged images instead of the default `geoservercloud/<image-name>:<version>` ones.
+
+
+Finally, to remove the multi-platform builder, run
+
+```bash
+docker buildx stop gscloud-builder
+docker buildx rm gscloud-builder
 ```
 
 ### Note on custom upstream GeoServer version
 
 *GeoServer Cloud* depends on a custom GeoServer branch, `gscloud/gs_version/integration`, which contains patches to upstream GeoServer that have not yet been integrated into the mainstream `main` branch.
 
-Additionally, this branch changes the artifact versions (e.g. from `2.23-SNAPSHOT` to `2.23.0-CLOUD`), to avoid confusing maven if you also work with vanilla GeoServer, and to avoid your IDE downloading the latest `2.23-SNAPSHOT` artifacts from the OsGeo maven repository, overriding your local maven repository ones, and having confusing compilation errors that would require re-building the branch we need.
+Additionally, this branch changes the artifact versions (e.g. from `2.26.0` to `2.26.0.0`), to avoid confusing maven if you also work with vanilla GeoServer, and to avoid your IDE downloading the latest `2.23-SNAPSHOT` artifacts from the OsGeo maven repository, overriding your local maven repository ones, and having confusing compilation errors that would require re-building the branch we need.
 
 The `gscloud/gs_version/integration` branch is checked out as a submodule on the [camptocamp/geoserver-cloud-geoserver](https://github.com/camptocamp/geoserver-cloud-geoserver) repository, which publishes the custom geoserver maven artifacts to the Github maven package registry.
 

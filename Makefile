@@ -2,6 +2,7 @@
 all: install test build-image
 
 TAG=$(shell mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+
 COSIGN_PASSWORD := $(COSIGN_PASSWORD)
 COMPOSE_PGCONFIG_OPTIONS ?= -f compose.yml -f catalog-pgconfig.yml
 COMPOSE_DATADIR_OPTIONS ?= -f compose.yml -f catalog-datadir.yml
@@ -9,6 +10,8 @@ COMPOSE_ACCEPTANCE_PGCONFIG_OPTIONS ?= --project-name gscloud-acceptance-pgconfi
 COMPOSE_ACCEPTANCE_DATADIR_OPTIONS ?= --project-name gscloud-acceptance-datadir $(COMPOSE_DATADIR_OPTIONS) -f acceptance.yml
 UID=$(shell id -u)
 GID=$(shell id -g)
+
+REPACKAGE ?= true
 
 .PHONY: clean
 clean:
@@ -26,44 +29,76 @@ format:
 install:
 	./mvnw clean install -DskipTests -ntp -T4 -U
 
+.PHONY: package
+package:
+	./mvnw clean package -DskipTests -ntp -T4 -U
+
 .PHONY: test
 test:
 	./mvnw verify -ntp -T4
 
-.PHONY: build-base-images
-build-base-images:
-	./mvnw clean package -f src/apps/base-images -DskipTests -T4 && \
-	COMPOSE_DOCKER_CLI_BUILD=1 \
-	DOCKER_BUILDKIT=1 \
-	TAG=$(TAG) \
-	docker compose -f docker-build/base-images.yml build 
-
-.PHONY: build-image-infrastructure
-build-image-infrastructure:
-	./mvnw clean package -f src/apps/infrastructure -DskipTests -T4 && \
-	COMPOSE_DOCKER_CLI_BUILD=1 \
-	DOCKER_BUILDKIT=1 \
-	TAG=$(TAG) \
-	docker compose -f docker-build/infrastructure.yml build
-
-.PHONY: build-image-geoserver
-build-image-geoserver:
-	./mvnw clean package -f src/apps/geoserver -DskipTests -T4 && \
-	COMPOSE_DOCKER_CLI_BUILD=1 \
-	DOCKER_BUILDKIT=1 \
-	TAG=$(TAG) \
-	docker compose -f docker-build/geoserver.yml build 
-
 .PHONY: build-image
 build-image: build-base-images build-image-infrastructure build-image-geoserver
 
-.PHONY: push-image
-push-image:
+.PHONY: build-base-images
+build-base-images: package-base-images
+	TAG=$(TAG) docker compose -f docker-build/base-images.yml build
+
+.PHONY: build-image-infrastructure
+build-image-infrastructure: package-infrastructure-images
+	TAG=$(TAG) docker compose -f docker-build/infrastructure.yml build
+
+.PHONY: build-image-geoserver
+build-image-geoserver: package-geoserver-images
+	TAG=$(TAG) docker compose -f docker-build/geoserver.yml build
+
+.PHONY: build-image-multiplatform
+build-image-multiplatform: build-base-images-multiplatform build-image-infrastructure-multiplatform build-image-geoserver-multiplatform
+
+.PHONY: build-base-images-multiplatform
+build-base-images-multiplatform: package-base-images
+	COMPOSE_DOCKER_CLI_BUILD=1 \
+	DOCKER_BUILDKIT=1 \
 	TAG=$(TAG) \
-	docker compose \
-	-f docker-build/infrastructure.yml \
-	-f docker-build/geoserver.yml \
-	push
+	docker compose -f docker-build/base-images-multiplatform.yml build --push
+
+.PHONY: build-image-infrastructure-multiplatform
+build-image-infrastructure-multiplatform: package-infrastructure-images
+	COMPOSE_DOCKER_CLI_BUILD=1 \
+	DOCKER_BUILDKIT=1 \
+	TAG=$(TAG) \
+	docker compose -f docker-build/infrastructure-multiplatform.yml build --push
+
+.PHONY: build-image-geoserver-multiplatform
+build-image-geoserver-multiplatform: package-geoserver-images
+	COMPOSE_DOCKER_CLI_BUILD=1 \
+	DOCKER_BUILDKIT=1 \
+	TAG=$(TAG) \
+	docker compose -f docker-build/geoserver-multiplatform.yml build --push
+
+.PHONY: package-base-images
+package-base-images:
+ifeq ($(REPACKAGE), true)
+	./mvnw clean package -f src/apps/base-images -DskipTests -T4
+else
+	@echo "Not re-packaging base images, assuming the target/*-bin.jar files exist"
+endif
+
+.PHONY: package-infrastructure-images
+package-infrastructure-images:
+ifeq ($(REPACKAGE), true)
+	./mvnw clean package -f src/apps/infrastructure -DskipTests -T4
+else
+	@echo "Not re-packaging infra images, assuming the target/*-bin.jar files exist"
+endif
+
+.PHONY: package-geoserver-images
+package-geoserver-images:
+ifeq ($(REPACKAGE), true)
+	./mvnw clean package -f src/apps/geoserver -DskipTests -T4
+else
+	@echo "Not re-packaging geoserver images, assuming the target/*-bin.jar files exist"
+endif
 
 .PHONY: sign-image
 sign-image:

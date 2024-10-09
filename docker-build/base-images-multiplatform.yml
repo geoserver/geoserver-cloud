@@ -2,7 +2,7 @@ services:
   base-image-jre:
     extends:
       file: templates.yml
-      service: current-platform
+      service: multi-platform
     image: ${REPOSITORY}/gs-cloud-base-jre:${TAG}
     build:
       context: ../src/apps/base-images/jre/
@@ -10,7 +10,7 @@ services:
   base-image-spring-boot:
     extends:
       file: templates.yml
-      service: current-platform
+      service: multi-platform
     image: ${REPOSITORY}/gs-cloud-base-spring-boot:${TAG}
     depends_on: [base-image-jre]
     build:
@@ -19,7 +19,7 @@ services:
   base-image-geoserver:
     extends:
       file: templates.yml
-      service: current-platform
+      service: multi-platform
     image: ${REPOSITORY}/gs-cloud-base-geoserver-image:${TAG}
     depends_on: [base-image-spring-boot]
     build:

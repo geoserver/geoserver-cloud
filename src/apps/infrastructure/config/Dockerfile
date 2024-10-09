@@ -1,5 +1,7 @@
+ARG REPOSITORY=geoservercloud
 ARG TAG=latest
-FROM geoservercloud/gs-cloud-base-jre:$TAG AS builder
+
+FROM $REPOSITORY/gs-cloud-base-jre:$TAG AS builder
 ARG JAR_FILE=target/gs-cloud-*-bin.jar
 
 COPY ${JAR_FILE} application.jar
@@ -7,7 +9,7 @@ COPY ${JAR_FILE} application.jar
 RUN java -Djarmode=layertools -jar application.jar extract
 
 ##########
-FROM geoservercloud/gs-cloud-base-spring-boot:$TAG
+FROM $REPOSITORY/gs-cloud-base-spring-boot:$TAG
 
 # WORKDIR already set to /opt/app/bin
 
