@@ -5,10 +5,11 @@
 package org.geoserver.cloud.autoconfigure.catalog.backend.core;
 
 import org.geoserver.catalog.ResourcePool;
-import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.cloud.autoconfigure.catalog.event.ConditionalOnCatalogEvents;
 import org.geoserver.cloud.event.info.InfoEvent;
+import org.geoserver.cloud.event.lifecycle.LifecycleEvent;
 import org.geoserver.cloud.event.remote.resourcepool.RemoteEventResourcePoolProcessor;
+import org.geoserver.config.plugin.GeoServerImpl;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -20,14 +21,14 @@ import org.springframework.context.annotation.Bean;
  * @since 1.0
  */
 @AutoConfiguration
-@ConditionalOnClass(InfoEvent.class)
+@ConditionalOnClass(value = {InfoEvent.class, LifecycleEvent.class})
 @ConditionalOnCatalogEvents
-public class RemoteEventResourcePoolCleaupUpAutoConfiguration {
+public class RemoteEventResourcePoolCleanupUpAutoConfiguration {
 
     @Bean
     RemoteEventResourcePoolProcessor remoteEventResourcePoolProcessor(
-            @Qualifier("rawCatalog") CatalogPlugin rawCatalog) {
+            @Qualifier("geoServer") GeoServerImpl rawGeoServer) {
 
-        return new RemoteEventResourcePoolProcessor(rawCatalog);
+        return new RemoteEventResourcePoolProcessor(rawGeoServer);
     }
 }

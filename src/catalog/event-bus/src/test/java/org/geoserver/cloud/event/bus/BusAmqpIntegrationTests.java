@@ -52,6 +52,7 @@ import org.geoserver.cloud.event.info.InfoAdded;
 import org.geoserver.cloud.event.info.InfoEvent;
 import org.geoserver.cloud.event.info.InfoModified;
 import org.geoserver.cloud.event.info.InfoRemoved;
+import org.geoserver.cloud.event.lifecycle.LifecycleEvent;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.LoggingInfo;
@@ -93,7 +94,7 @@ public abstract class BusAmqpIntegrationTests {
 
     @Container
     private static final RabbitMQContainer rabbitMQContainer =
-            new RabbitMQContainer("rabbitmq:3.11-management");
+            new RabbitMQContainer("rabbitmq:3.13-management");
 
     protected static ConfigurableApplicationContext remoteAppContext;
     private @Autowired ConfigurableApplicationContext localAppContext;
@@ -427,6 +428,12 @@ public abstract class BusAmqpIntegrationTests {
         public <E extends InfoEvent> EventsCaptor captureEventsOf(Class<E> type) {
             local.capture(type);
             remote.capture(type);
+            return this;
+        }
+
+        public <E extends LifecycleEvent> EventsCaptor captureLifecycleEventsOf(Class<E> type) {
+            local.captureLifecycle(type);
+            remote.captureLifecycle(type);
             return this;
         }
 
