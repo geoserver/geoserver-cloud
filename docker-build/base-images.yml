@@ -1,26 +1,55 @@
 services:
-  base-image-jre:
+  # Base JRE image, ubuntu 24.04, jre 21 temurin
+  jre:
     extends:
       file: templates.yml
       service: current-platform
-    image: ${REPOSITORY}/gs-cloud-base-jre:${TAG}
+    image: ${REPOSITORY}/jre:21-tem
     build:
       context: ../src/apps/base-images/jre/
 
-  base-image-spring-boot:
+  # Base JRE image with libgdal-java
+  jre-gdal:
     extends:
       file: templates.yml
       service: current-platform
-    image: ${REPOSITORY}/gs-cloud-base-spring-boot:${TAG}
-    depends_on: [base-image-jre]
+    image: ${REPOSITORY}/jre-gdal:21-3.8.4
+    depends_on: [jre]
+    build:
+      context: ../src/apps/base-images/gdal/
+      args:
+        JRE_BASE_IMAGE_NAME: jre:21-tem
+
+  # Base JRE + Spring Boot common layer for infra services
+  spring-boot-common:
+    extends:
+      file: templates.yml
+      service: current-platform
+    image: ${REPOSITORY}/spring-boot-common:${TAG}
+    depends_on: [jre]
     build:
       context: ../src/apps/base-images/spring-boot/
+      args:
+        JRE_BASE_IMAGE_NAME: jre:21-tem
 
-  base-image-geoserver:
+  # Base JRE + GDAL + Spring Boot common layer for GeoServer services
+  spring-boot-common-gdal:
     extends:
       file: templates.yml
       service: current-platform
-    image: ${REPOSITORY}/gs-cloud-base-geoserver-image:${TAG}
-    depends_on: [base-image-spring-boot]
+    image: ${REPOSITORY}/spring-boot-common-gdal:${TAG}
+    depends_on: [jre-gdal]
+    build:
+      context: ../src/apps/base-images/spring-boot/
+      args:
+        JRE_BASE_IMAGE_NAME: jre-gdal:21-3.8.4
+
+  # Base JRE + GDAL + Spring Boot + shared GeoServer dependencies layer for GeoServer services
+  geoserver-common:
+    extends:
+      file: templates.yml
+      service: current-platform
+    image: ${REPOSITORY}/geoserver-common:${TAG}
+    depends_on: [spring-boot-common-gdal]
     build:
       context: ../src/apps/base-images/geoserver/
