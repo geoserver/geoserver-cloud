@@ -125,8 +125,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '4.0'
-          memory: 1G
+          cpus: '8.0'
+          memory: 2G
 
   wfs:
     extends:
@@ -172,6 +172,11 @@ services:
     environment:
       JAVA_OPTS: "${JAVA_OPTS_GWC}"
     depends_on: *gs-dependencies
+    deploy:
+      resources:
+        limits:
+          cpus: '8.0'
+          memory: 2G
 
   rest:
     extends:

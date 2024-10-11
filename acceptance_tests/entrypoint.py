@@ -29,7 +29,6 @@ def timeout():
 endpoints = [
     f"{GEOSERVER_URL}/wms?SERVICE=WMS&REQUEST=GetCapabilities",
     f"{GEOSERVER_URL}/wfs?SERVICE=WFS&REQUEST=GetCapabilities",
-    f"{GEOSERVER_URL}/wps?SERVICE=WPS&REQUEST=GetCapabilities",
     f"{GEOSERVER_URL}/wcs?SERVICE=WCS&REQUEST=GetCapabilities",
     f"{GEOSERVER_URL}/ows?SERVICE=WMS&REQUEST=GetCapabilities",
     f"{GEOSERVER_URL}/gwc",
