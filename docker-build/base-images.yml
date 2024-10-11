@@ -5,6 +5,7 @@ services:
       service: current-platform
     image: ${REPOSITORY}/gs-cloud-base-jre:${TAG}
     build:
+      pull: true
       context: ../src/apps/base-images/jre/
 
   spring-boot:

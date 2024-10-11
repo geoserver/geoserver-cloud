@@ -84,24 +84,26 @@ jobs:
 
     - name: Copy config directory
       # during the validate phase, the config/ dir is copied to each app's target/config
-      run: ./mvnw validate -ntp -T1C
+      run: ./mvnw validate -f src/apps -ntp -T1C
 
     - name: Build images
       # REPACKAGE=false avoids to re-package the apps during build-image
       run: REPACKAGE=false make build-image
 
     - name: Install CI dependencies
+      id: install-ci
       run: python3 -m pip install --user --requirement=ci/requirements.txt
 
     - name: Run acceptance tests ${{ matrix.catalog }}
+      id: acceptance
       run: |
         make acceptance-tests-${{ matrix.catalog }}
 
     - name: Print docker compose logs
-      if: always()
+      if: steps.build.install-ci == 'success'
       run: (cd compose && c2cciutils-docker-logs)
 
     - name: Cleanup acceptance tests
-      if: always()
+      if: steps.build.acceptance != 'skipped'
       run: |
         make clean-acceptance-tests-${{ matrix.catalog }}

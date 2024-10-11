@@ -36,7 +36,11 @@ EXPOSE 8080
 EXPOSE 8081
 
 COPY --from=builder dependencies/ ./
+#see https://github.com/moby/moby/issues/37965
+RUN true
 COPY --from=builder snapshot-dependencies/ ./
+#see https://github.com/moby/moby/issues/37965
+RUN true
 COPY --from=builder spring-boot-loader/ ./
 
 HEALTHCHECK \
