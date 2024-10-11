@@ -18,7 +18,9 @@ RUN mkdir -p /opt/app/bin
 
 WORKDIR /opt/app/bin
 
-ENV JAVA_TOOL_OPTS="\
+# default JVM parameters https://docs.oracle.com/javase/8/docs/technotes/guides/troubleshoot/envvars002.html
+# to add JVM parameters use the JAVA_OPTS env variable preferrably
+ENV JAVA_TOOL_OPTIONS="\
 --add-opens=java.base/java.lang=ALL-UNNAMED \
 --add-opens=java.base/java.util=ALL-UNNAMED \
 --add-opens=java.base/java.lang.reflect=ALL-UNNAMED \
@@ -44,4 +46,4 @@ HEALTHCHECK \
 --retries=5 \
 CMD curl -f -s -o /dev/null localhost:8081/actuator/health || exit 1
 
-CMD exec env USER_ID="$(id -u)" USER_GID="$(id -g)" java $JAVA_OPTS $JAVA_TOOL_OPTS org.springframework.boot.loader.JarLauncher
+CMD exec env USER_ID="$(id -u)" USER_GID="$(id -g)" java $JAVA_OPTS org.springframework.boot.loader.JarLauncher

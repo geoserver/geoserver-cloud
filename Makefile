@@ -5,6 +5,7 @@ TAG=$(shell mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
 
 COSIGN_PASSWORD := $(COSIGN_PASSWORD)
 
+
 REPACKAGE ?= true
 
 .PHONY: clean
@@ -36,25 +37,34 @@ build-image: build-base-images build-image-infrastructure build-image-geoserver
 
 .PHONY: build-base-images
 build-base-images: package-base-images
-	TAG=$(TAG) docker compose -f docker-build/base-images.yml build
+	COMPOSE_DOCKER_CLI_BUILD=0 DOCKER_BUILDKIT=0 TAG=$(TAG) \
+	docker compose -f docker-build/base-images.yml build jre \
+	&& COMPOSE_DOCKER_CLI_BUILD=0 DOCKER_BUILDKIT=0 TAG=$(TAG) \
+	docker compose -f docker-build/base-images.yml build spring-boot \
+	&& COMPOSE_DOCKER_CLI_BUILD=0 DOCKER_BUILDKIT=0 TAG=$(TAG) \
+	docker compose -f docker-build/base-images.yml build geoserver-common
 
 .PHONY: build-image-infrastructure
 build-image-infrastructure: package-infrastructure-images
-	TAG=$(TAG) docker compose -f docker-build/infrastructure.yml build
+	COMPOSE_DOCKER_CLI_BUILD=0 DOCKER_BUILDKIT=0 TAG=$(TAG) \
+	docker compose -f docker-build/infrastructure.yml build
 
 .PHONY: build-image-geoserver
 build-image-geoserver: package-geoserver-images
-	TAG=$(TAG) docker compose -f docker-build/geoserver.yml build
+	COMPOSE_DOCKER_CLI_BUILD=0 DOCKER_BUILDKIT=0  TAG=$(TAG) \
+	docker compose -f docker-build/geoserver.yml build
 
 .PHONY: build-image-multiplatform
 build-image-multiplatform: build-base-images-multiplatform build-image-infrastructure-multiplatform build-image-geoserver-multiplatform
 
 .PHONY: build-base-images-multiplatform
 build-base-images-multiplatform: package-base-images
-	COMPOSE_DOCKER_CLI_BUILD=1 \
-	DOCKER_BUILDKIT=1 \
-	TAG=$(TAG) \
-	docker compose -f docker-build/base-images-multiplatform.yml build --push
+	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 TAG=$(TAG) \
+	docker compose -f docker-build/base-images-multiplatform.yml build jre --push \
+	&& COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 TAG=$(TAG) \
+	   docker compose -f docker-build/base-images-multiplatform.yml build spring-boot --push \
+	&& COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 TAG=$(TAG) \
+	   docker compose -f docker-build/base-images-multiplatform.yml build geoserver-common --push
 
 .PHONY: build-image-infrastructure-multiplatform
 build-image-infrastructure-multiplatform: package-infrastructure-images
@@ -65,9 +75,7 @@ build-image-infrastructure-multiplatform: package-infrastructure-images
 
 .PHONY: build-image-geoserver-multiplatform
 build-image-geoserver-multiplatform: package-geoserver-images
-	COMPOSE_DOCKER_CLI_BUILD=1 \
-	DOCKER_BUILDKIT=1 \
-	TAG=$(TAG) \
+	COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 TAG=$(TAG) \
 	docker compose -f docker-build/geoserver-multiplatform.yml build --push
 
 .PHONY: package-base-images
