@@ -24,7 +24,9 @@ import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.forwarding.ForwardingExtendedCatalogFacade;
 import org.geoserver.ows.util.OwsUtils;
+import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -320,7 +322,25 @@ public class EventuallyConsistentCatalogFacade extends ForwardingExtendedCatalog
     private <T> T retry(Supplier<T> supplier, Predicate<T> predicate, Supplier<String> op) {
         T ret = supplier.get();
         if (predicate.test(ret)) return ret;
-        if (!isWebRequest()) return ret;
+
+        // do retry if it's a REST API request or there're pending updates
+        if (isWebRequest() && (isRestRequest() || !enforcer.isConverged())) {
+            return doRetry(supplier, predicate, op, ret);
+        }
+        return ret;
+    }
+
+    private boolean isRestRequest() {
+        RequestAttributes atts = RequestContextHolder.getRequestAttributes();
+        if (atts instanceof ServletRequestAttributes webreq) {
+            String uri = webreq.getRequest().getRequestURI();
+            return uri.contains("/rest/");
+        }
+        return false;
+    }
+
+    private <T> T doRetry(
+            Supplier<T> supplier, Predicate<T> predicate, Supplier<String> op, T ret) {
         // poor man's Retry implementation
         final int maxAttempts = retryAttemptMillis.length;
         final String opDesc = op.get();
