@@ -8,6 +8,7 @@ import lombok.Generated;
 import lombok.NonNull;
 
 import org.geoserver.cloud.gwc.event.BlobStoreEvent;
+import org.geoserver.cloud.gwc.event.ConfigChangeEvent;
 import org.geoserver.cloud.gwc.event.GeoWebCacheEvent;
 import org.geoserver.cloud.gwc.event.GridsetEvent;
 import org.geoserver.cloud.gwc.event.TileLayerEvent;
@@ -33,6 +34,7 @@ interface RemoteEventMapper {
             case TileLayerEvent tle -> toRemote(tle, source, originService);
             case GridsetEvent gse -> toRemote(gse, source, originService);
             case BlobStoreEvent bse -> toRemote(bse, source, originService);
+            case ConfigChangeEvent ce -> toRemote(ce, source, originService);
             default -> throw new IllegalArgumentException(
                     "unknown GeoWebCacheEvent type: " + local);
         };
@@ -44,6 +46,7 @@ interface RemoteEventMapper {
             case RemoteTileLayerEvent tle -> toLocal(tle, source);
             case RemoteGridsetEvent gse -> toLocal(gse, source);
             case RemoteBlobStoreEvent bse -> toLocal(bse, source);
+            case RemoteConfigChangeEvent ce -> toLocal(ce, source);
             default -> throw new IllegalArgumentException(
                     "unknown RemoteGeoWebCacheEvent type: " + remote);
         };
@@ -64,10 +67,25 @@ interface RemoteEventMapper {
     RemoteBlobStoreEvent toRemote(
             BlobStoreEvent local, @Context Object source, @Context String originService);
 
+    ConfigChangeEvent toLocal(RemoteConfigChangeEvent remote, @Context Object source);
+
+    RemoteConfigChangeEvent toRemote(
+            ConfigChangeEvent local, @Context Object source, @Context String originService);
+
+    @ObjectFactory
+    default TileLayerEvent newTileEvent(@Context Object source) {
+        return new TileLayerEvent(source);
+    }
+
     @ObjectFactory
     default RemoteTileLayerEvent newRemoteTileEvent(
             @Context Object source, @Context String originService) {
         return new RemoteTileLayerEvent(source, originService);
+    }
+
+    @ObjectFactory
+    default GridsetEvent newGridsetEvent(@Context Object source) {
+        return new GridsetEvent(source);
     }
 
     @ObjectFactory
@@ -77,23 +95,24 @@ interface RemoteEventMapper {
     }
 
     @ObjectFactory
+    default BlobStoreEvent newBlobStoreEvent(@Context Object source) {
+        return new BlobStoreEvent(source);
+    }
+
+    @ObjectFactory
     default RemoteBlobStoreEvent newRemoteBlobStoreEvent(
             @Context Object source, @Context String originService) {
         return new RemoteBlobStoreEvent(source, originService);
     }
 
     @ObjectFactory
-    default TileLayerEvent newTileEvent(@Context Object source) {
-        return new TileLayerEvent(source);
+    default ConfigChangeEvent newConfigChangeEvent(@Context Object source) {
+        return new ConfigChangeEvent(source);
     }
 
     @ObjectFactory
-    default GridsetEvent newGridsetEvent(@Context Object source) {
-        return new GridsetEvent(source);
-    }
-
-    @ObjectFactory
-    default BlobStoreEvent newBlobStoreEvent(@Context Object source) {
-        return new BlobStoreEvent(source);
+    default RemoteConfigChangeEvent newConfigChangeEvent(
+            @Context Object source, @Context String originService) {
+        return new RemoteConfigChangeEvent(source, originService);
     }
 }
