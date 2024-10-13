@@ -14,12 +14,15 @@ import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
 import org.geoserver.cloud.gwc.repository.CloudDefaultStorageFinder;
 import org.geoserver.cloud.gwc.repository.CloudGwcXmlConfiguration;
 import org.geoserver.cloud.gwc.repository.CloudXMLResourceProvider;
+import org.geoserver.gwc.GeoServerLockProvider;
+import org.geoserver.gwc.config.AbstractGwcInitializer;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.ResourceStore;
 import org.geoserver.platform.resource.Resources;
 import org.geowebcache.config.ConfigurationResourceProvider;
 import org.geowebcache.config.XMLConfiguration;
 import org.geowebcache.config.XMLFileResourceProvider;
+import org.geowebcache.locks.LockProvider;
 import org.geowebcache.storage.DefaultStorageFinder;
 import org.geowebcache.util.ApplicationContextProvider;
 import org.springframework.beans.FatalBeanException;
@@ -60,6 +63,17 @@ import javax.servlet.http.HttpServletRequestWrapper;
         })
 @Slf4j(topic = "org.geoserver.cloud.gwc.config.core")
 public class GeoWebCacheCoreConfiguration {
+
+    /**
+     * @return a {@link GeoServerLockProvider} delegating the the {@link ResourceStore}, whose
+     *     {@link ResourceStore#getLockProvider()} is known to be cluster-capable
+     */
+    @Bean(name = AbstractGwcInitializer.GWC_LOCK_PROVIDER_BEAN_NAME)
+    LockProvider gwcLockProvider(@Qualifier("resourceStoreImpl") ResourceStore resourceStore) {
+        var provider = new GeoServerLockProvider();
+        provider.setDelegate(resourceStore);
+        return provider;
+    }
 
     @Bean
     SetRequestPathInfoFilter setRequestPathInfoFilter() {
@@ -283,9 +297,12 @@ public class GeoWebCacheCoreConfiguration {
          * </ul>
          */
         protected ServletRequest adaptRequest(HttpServletRequest request) {
-            // full request URI (e.g. '/geoserver/cloud/{workspace}/gwc/service/tms/1.0.0', where
-            // '/geoserver/cloud' is the context path as given by the gateway's base uri, and
-            // '/{workspace}/gwc' the suffix after which comes the pathInfo '/service/tms/1.0.0')
+            // full request URI (e.g. '/geoserver/cloud/{workspace}/gwc/service/tms/1.0.0',
+            // where
+            // '/geoserver/cloud' is the context path as given by the gateway's base uri,
+            // and
+            // '/{workspace}/gwc' the suffix after which comes the pathInfo
+            // '/service/tms/1.0.0')
             final String requestURI = request.getRequestURI();
 
             final String gwc = "/gwc";
