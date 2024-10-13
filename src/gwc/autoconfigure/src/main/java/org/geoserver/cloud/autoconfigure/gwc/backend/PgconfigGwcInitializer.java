@@ -7,12 +7,13 @@ package org.geoserver.cloud.autoconfigure.gwc.backend;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
+import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.cloud.gwc.backend.pgconfig.PgconfigTileLayerCatalog;
-import org.geoserver.cloud.gwc.config.core.AbstractGwcInitializer;
 import org.geoserver.cloud.gwc.event.TileLayerEvent;
 import org.geoserver.cloud.gwc.repository.GeoServerTileLayerConfiguration;
 import org.geoserver.config.GeoServerReinitializer;
 import org.geoserver.gwc.ConfigurableBlobStore;
+import org.geoserver.gwc.config.AbstractGwcInitializer;
 import org.geoserver.gwc.config.GWCConfigPersister;
 import org.geoserver.gwc.config.GWCInitializer;
 import org.geoserver.gwc.layer.TileLayerCatalog;
@@ -46,8 +47,9 @@ class PgconfigGwcInitializer extends AbstractGwcInitializer {
     public PgconfigGwcInitializer(
             @NonNull GWCConfigPersister configPersister,
             @NonNull ConfigurableBlobStore blobStore,
-            @NonNull GeoServerTileLayerConfiguration geoseverTileLayers) {
-        super(configPersister, blobStore, geoseverTileLayers);
+            @NonNull GeoServerTileLayerConfiguration geoseverTileLayers,
+            @NonNull GeoServerConfigurationLock configLock) {
+        super(configPersister, blobStore, geoseverTileLayers, configLock);
     }
 
     @Override
