@@ -7,6 +7,7 @@ package org.geoserver.cloud.autoconfigure.gwc.backend;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
+import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.cloud.autoconfigure.catalog.backend.pgconfig.ConditionalOnPgconfigBackendEnabled;
 import org.geoserver.cloud.autoconfigure.catalog.backend.pgconfig.PgconfigDataSourceAutoConfiguration;
@@ -58,13 +59,18 @@ public class PgconfigTileLayerCatalogAutoConfiguration {
         log.info("GeoWebCache TileLayerCatalog using PostgreSQL config backend");
     }
 
-    /** Replacement for {@link GWCInitializer} when using {@link GeoServerTileLayerConfiguration} */
+    /**
+     * Replacement for {@link GWCInitializer} when using {@link GeoServerTileLayerConfiguration}
+     *
+     * @param configLock
+     */
     @Bean
     PgconfigGwcInitializer gwcInitializer(
             GWCConfigPersister configPersister,
             ConfigurableBlobStore blobStore,
-            GeoServerTileLayerConfiguration tileLayerCatalog) {
-        return new PgconfigGwcInitializer(configPersister, blobStore, tileLayerCatalog);
+            GeoServerTileLayerConfiguration tileLayerCatalog,
+            GeoServerConfigurationLock configLock) {
+        return new PgconfigGwcInitializer(configPersister, blobStore, tileLayerCatalog, configLock);
     }
 
     @Bean(name = "gwcCatalogConfiguration")
