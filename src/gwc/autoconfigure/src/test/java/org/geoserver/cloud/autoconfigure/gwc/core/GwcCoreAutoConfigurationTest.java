@@ -17,8 +17,15 @@ import org.geoserver.cloud.autoconfigure.gwc.GeoWebCacheContextRunner;
 import org.geoserver.cloud.gwc.repository.CloudDefaultStorageFinder;
 import org.geoserver.cloud.gwc.repository.CloudGwcXmlConfiguration;
 import org.geoserver.cloud.gwc.repository.CloudXMLResourceProvider;
+import org.geoserver.gwc.ConfigurableLockProvider;
+import org.geoserver.gwc.GWC;
+import org.geoserver.gwc.GeoServerLockProvider;
+import org.geoserver.gwc.config.AbstractGwcInitializer;
 import org.geoserver.gwc.config.DefaultGwcInitializer;
+import org.geoserver.gwc.config.GWCConfig;
+import org.geoserver.gwc.config.GWCConfigPersister;
 import org.geoserver.platform.GeoServerExtensionsHelper;
+import org.geowebcache.locks.LockProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -63,6 +70,35 @@ class GwcCoreAutoConfigurationTest {
         assertTrue(file.createNewFile());
         runner = runner.withPropertyValues("gwc.cache-directory=" + file.getAbsolutePath());
         assertContextLoadFails(BeanInitializationException.class, "is not a directory");
+    }
+
+    @Test
+    void lockProviderDelegatesStoGeoSeverLockProvider() {
+        runner.run(
+                context -> {
+                    GeoServerExtensionsHelper.init(context);
+                    assertThat(context)
+                            .hasNotFailed()
+                            .hasBean(AbstractGwcInitializer.GWC_LOCK_PROVIDER_BEAN_NAME)
+                            .getBean(AbstractGwcInitializer.GWC_LOCK_PROVIDER_BEAN_NAME)
+                            .isInstanceOf(GeoServerLockProvider.class);
+
+                    GWCConfigPersister persister = context.getBean(GWCConfigPersister.class);
+                    GWCConfig config = persister.getConfig();
+                    assertThat(config.getLockProviderName())
+                            .isEqualTo(AbstractGwcInitializer.GWC_LOCK_PROVIDER_BEAN_NAME);
+
+                    GWC gwc = GWC.get();
+
+                    LockProvider lockProvider = gwc.getLockProvider();
+                    assertThat(lockProvider).isInstanceOf(ConfigurableLockProvider.class);
+                    GeoServerLockProvider expected =
+                            context.getBean(
+                                    AbstractGwcInitializer.GWC_LOCK_PROVIDER_BEAN_NAME,
+                                    GeoServerLockProvider.class);
+                    assertThat(((ConfigurableLockProvider) lockProvider).getDelegate())
+                            .isSameAs(expected);
+                });
     }
 
     @Test

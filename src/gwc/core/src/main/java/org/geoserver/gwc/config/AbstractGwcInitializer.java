@@ -18,11 +18,13 @@ import org.geoserver.cloud.gwc.repository.GeoServerTileLayerConfiguration;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerReinitializer;
 import org.geoserver.gwc.ConfigurableBlobStore;
+import org.geoserver.gwc.GWC;
 import org.geoserver.gwc.layer.GeoServerTileLayer;
 import org.geoserver.gwc.layer.TileLayerCatalog;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.Resources;
 import org.geowebcache.layer.TileLayer;
+import org.geowebcache.locks.LockProvider;
 import org.geowebcache.storage.blobstore.memory.CacheConfiguration;
 import org.geowebcache.storage.blobstore.memory.CacheProvider;
 import org.geowebcache.storage.blobstore.memory.guava.GuavaCacheProvider;
@@ -58,10 +60,18 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public abstract class AbstractGwcInitializer implements GeoServerReinitializer, InitializingBean {
 
+    /**
+     * {@link GWC#saveConfig(GWCConfig)} will lookup for the {@link LockProvider} named after {@link
+     * GWCConfig#getLockProviderName()}. We need it to be a cluster-aware lock provider. This is the
+     * bean name to be registered by the configuration, and we'll set it to {@link
+     * GWCConfig#setLockProviderName(String)} during initialization.
+     */
+    public static final String GWC_LOCK_PROVIDER_BEAN_NAME = "gwcClusteringLockProvider";
+
     protected final @NonNull GWCConfigPersister configPersister;
     protected final @NonNull ConfigurableBlobStore blobStore;
     protected final @NonNull GeoServerTileLayerConfiguration geoseverTileLayers;
-    protected final @NonNull GeoServerConfigurationLock configLock;
+    protected final @NonNull GeoServerConfigurationLock globalConfigLock;
 
     protected abstract Logger logger();
 
@@ -93,23 +103,45 @@ public abstract class AbstractGwcInitializer implements GeoServerReinitializer, 
      * #initialize(org.geoserver.config.GeoServer) super.initialize(GeoServer)}
      */
     private void initializeGeoServerIntegrationConfigFile() throws IOException {
-        if (configFileExists()) {
-            return;
-        }
-        final boolean lockAcquired = configLock.tryLock(LockType.WRITE);
-        if (lockAcquired) {
-            try {
-                if (!configFileExists()) {
-                    logger().info(
-                                    "Initializing GeoServer specific GWC configuration {}",
-                                    configPersister.findConfigFile());
-                    GWCConfig defaults = new GWCConfig();
-                    defaults.setVersion("1.1.0");
-                    configPersister.save(defaults);
-                }
-            } finally {
-                configLock.unlock();
+        globalConfigLock.lock(LockType.WRITE);
+        try {
+            if (configFileExists()) {
+                updateLockProviderName();
+            } else {
+                logger().info(
+                                "Initializing GeoServer specific GWC configuration {}",
+                                configPersister.findConfigFile());
+                GWCConfig defaults = new GWCConfig();
+                defaults.setVersion("1.1.0");
+                defaults.setLockProviderName(GWC_LOCK_PROVIDER_BEAN_NAME);
+                configPersister.save(defaults);
             }
+        } finally {
+            globalConfigLock.unlock();
+        }
+    }
+
+    /**
+     * In case the {@link GWCConfig} exists and its lock provider name is not {@link
+     * #GWC_LOCK_PROVIDER_BEAN_NAME}, updates and saves the configuration.
+     *
+     * <p>At this point, {@link #configFileExists()} is known to be true.
+     */
+    private void updateLockProviderName() throws IOException {
+        final GWCConfig gwcConfig = configPersister.getConfig();
+        if (!GWC_LOCK_PROVIDER_BEAN_NAME.equals(gwcConfig.getLockProviderName())) {
+            if (null == gwcConfig.getLockProviderName()) {
+                logger().info(
+                                "Setting GeoWebCache lock provider to {}",
+                                GWC_LOCK_PROVIDER_BEAN_NAME);
+            } else {
+                logger().warn(
+                                "Updating GeoWebCache lock provider from {} to {}",
+                                gwcConfig.getLockProviderName(),
+                                GWC_LOCK_PROVIDER_BEAN_NAME);
+            }
+            gwcConfig.setLockProviderName(GWC_LOCK_PROVIDER_BEAN_NAME);
+            configPersister.save(gwcConfig);
         }
     }
 
