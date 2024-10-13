@@ -59,7 +59,7 @@ import javax.servlet.http.HttpServletRequestWrapper;
 @ImportResource(
         reader = FilteringXmlBeanDefinitionReader.class, //
         locations = {
-            "jar:gs-gwc-[0-9]+.*!/geowebcache-core-context.xml#name=^(?!gwcXmlConfig|gwcDefaultStorageFinder|gwcGeoServervConfigPersister|metastoreRemover).*$"
+            "jar:gs-gwc-[0-9]+.*!/geowebcache-core-context.xml#name=^(?!gwcXmlConfig|gwcDefaultStorageFinder|metastoreRemover).*$"
         })
 @Slf4j(topic = "org.geoserver.cloud.gwc.config.core")
 public class GeoWebCacheCoreConfiguration {
