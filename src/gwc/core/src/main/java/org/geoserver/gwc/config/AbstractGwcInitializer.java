@@ -2,7 +2,7 @@
  * (c) 2024 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
  * GPL 2.0 license, available at the root application directory.
  */
-package org.geoserver.cloud.gwc.config.core;
+package org.geoserver.gwc.config;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -11,21 +11,23 @@ import com.google.common.base.Stopwatch;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
+import org.geoserver.GeoServerConfigurationLock;
+import org.geoserver.GeoServerConfigurationLock.LockType;
 import org.geoserver.cloud.gwc.event.TileLayerEvent;
 import org.geoserver.cloud.gwc.repository.GeoServerTileLayerConfiguration;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerReinitializer;
 import org.geoserver.gwc.ConfigurableBlobStore;
-import org.geoserver.gwc.config.GWCConfig;
-import org.geoserver.gwc.config.GWCConfigPersister;
-import org.geoserver.gwc.config.GWCInitializer;
 import org.geoserver.gwc.layer.GeoServerTileLayer;
 import org.geoserver.gwc.layer.TileLayerCatalog;
+import org.geoserver.platform.resource.Resource;
+import org.geoserver.platform.resource.Resources;
 import org.geowebcache.layer.TileLayer;
 import org.geowebcache.storage.blobstore.memory.CacheConfiguration;
 import org.geowebcache.storage.blobstore.memory.CacheProvider;
 import org.geowebcache.storage.blobstore.memory.guava.GuavaCacheProvider;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.event.EventListener;
 import org.springframework.util.StringUtils;
 
@@ -54,13 +56,19 @@ import java.util.Optional;
  * @since 1.8
  */
 @RequiredArgsConstructor
-public abstract class AbstractGwcInitializer implements GeoServerReinitializer {
+public abstract class AbstractGwcInitializer implements GeoServerReinitializer, InitializingBean {
 
     protected final @NonNull GWCConfigPersister configPersister;
     protected final @NonNull ConfigurableBlobStore blobStore;
     protected final @NonNull GeoServerTileLayerConfiguration geoseverTileLayers;
+    protected final @NonNull GeoServerConfigurationLock configLock;
 
     protected abstract Logger logger();
+
+    @Override
+    public void afterPropertiesSet() throws IOException {
+        initializeGeoServerIntegrationConfigFile();
+    }
 
     /**
      * @see org.geoserver.config.GeoServerInitializer#initialize(org.geoserver.config.GeoServer)
@@ -78,6 +86,36 @@ public abstract class AbstractGwcInitializer implements GeoServerReinitializer {
         blobStore.setChanged(gwcConfig, initialization);
 
         setUpNonMemoryCacheableLayers();
+    }
+
+    /**
+     * Initialize the datadir/gs-gwc.xml file before {@link
+     * #initialize(org.geoserver.config.GeoServer) super.initialize(GeoServer)}
+     */
+    private void initializeGeoServerIntegrationConfigFile() throws IOException {
+        if (configFileExists()) {
+            return;
+        }
+        final boolean lockAcquired = configLock.tryLock(LockType.WRITE);
+        if (lockAcquired) {
+            try {
+                if (!configFileExists()) {
+                    logger().info(
+                                    "Initializing GeoServer specific GWC configuration {}",
+                                    configPersister.findConfigFile());
+                    GWCConfig defaults = new GWCConfig();
+                    defaults.setVersion("1.1.0");
+                    configPersister.save(defaults);
+                }
+            } finally {
+                configLock.unlock();
+            }
+        }
+    }
+
+    private boolean configFileExists() throws IOException {
+        Resource configFile = configPersister.findConfigFile();
+        return Resources.exists(configFile);
     }
 
     @EventListener(TileLayerEvent.class)
