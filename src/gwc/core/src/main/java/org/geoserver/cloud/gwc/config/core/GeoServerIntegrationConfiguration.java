@@ -7,6 +7,13 @@ package org.geoserver.cloud.gwc.config.core;
 import lombok.extern.slf4j.Slf4j;
 
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
+import org.geoserver.cloud.gwc.event.ConfigChangeEvent;
+import org.geoserver.config.util.XStreamPersisterFactory;
+import org.geoserver.gwc.config.CloudGwcConfigPersister;
+import org.geoserver.gwc.config.GWCConfigPersister;
+import org.geoserver.platform.GeoServerResourceLoader;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 
@@ -32,6 +39,7 @@ public class GeoServerIntegrationConfiguration {
             |gwcTransactionListener\
             |gwcWMSExtendedCapabilitiesProvider\
             |gwcInitializer\
+            |gwcGeoServervConfigPersister\
             ).*$\
             """;
 
@@ -41,5 +49,21 @@ public class GeoServerIntegrationConfiguration {
     @PostConstruct
     public void log() {
         log.info("GeoWebCache core GeoServer integration enabled");
+    }
+
+    /**
+     * Overrides {@code gwcGeoServervConfigPersister} with a cluster-aware {@link
+     * GWCConfigPersister} that sends {@link ConfigChangeEvent}s upon {@link
+     * GWCConfigPersister#save(org.geoserver.gwc.config.GWCConfig)}
+     *
+     * @param xsfp
+     * @param resourceLoader
+     */
+    @Bean
+    GWCConfigPersister gwcGeoServervConfigPersister(
+            XStreamPersisterFactory xsfp,
+            GeoServerResourceLoader resourceLoader,
+            ApplicationEventPublisher publisher) {
+        return new CloudGwcConfigPersister(xsfp, resourceLoader, publisher::publishEvent);
     }
 }
