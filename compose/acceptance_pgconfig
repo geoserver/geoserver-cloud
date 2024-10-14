@@ -1,0 +1,7 @@
+#/bin/bash
+
+COMPOSE_PROJECT_NAME=gscloud-acceptance-pgconfig \
+docker compose \
+-f compose.yml \
+-f catalog-pgconfig.yml \
+-f acceptance.yml "$@"

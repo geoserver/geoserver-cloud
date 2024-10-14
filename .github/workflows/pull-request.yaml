@@ -15,8 +15,12 @@ on:
       - "acceptance_tests/**"
       - "ci/**"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  build:
+  test:
     name: Build and Test Pull Request
     if: github.repository == 'geoserver/geoserver-cloud'
     runs-on: ubuntu-latest
@@ -26,8 +30,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         submodules: recursive
-
-    - name: Setup Java
+    - name: Set up java
       uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
@@ -35,49 +38,70 @@ jobs:
         cache: 'maven'
 
     - name: Validate source code formatting
-      run: make lint
-
-    - name: Build without tests
       run: |
-        make install
+        make lint
 
     - name: Test
       run: |
+        # `make test` runs mvn verify, which includes mvn package, so no need to run `package` separatedly for the upload step below
         make test
 
+    - name: Upload application jar files
+      uses: actions/upload-artifact@v4
+      with:
+        name: application-jars
+        path: ./**/target/*-bin.jar
+        retention-days: 1
+        compression-level: 0 # no compression
+
+  acceptance:
+    name: Acceptance Tests
+    if: github.repository == 'geoserver/geoserver-cloud'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        catalog: [ 'datadir', 'pgconfig', 'jdbcconfig' ]
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    - name: Set up java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '21'
+        cache: 'maven'
+
+    - name: Download application jar files
+      uses: actions/download-artifact@v4
+      with:
+        name: application-jars
+        path: .
+
+    - name: Copy config directory
+      # during the validate phase, the config/ dir is copied to each app's target/config
+      run: ./mvnw validate -ntp -T1C
+
     - name: Build images
-      run: |
-        make build-image
+      # REPACKAGE=false avoids to re-package the apps during build-image
+      run: REPACKAGE=false make build-image
 
     - name: Install CI dependencies
       run: python3 -m pip install --user --requirement=ci/requirements.txt
 
-    - name: Run acceptance tests datadir
+    - name: Run acceptance tests ${{ matrix.catalog }}
       run: |
-        make acceptance-tests-datadir
+        make acceptance-tests-${{ matrix.catalog }}
 
-    - name: Print docker compose logs datadir
-      run: (cd compose && c2cciutils-docker-logs)
+    - name: Print docker compose logs
       if: always()
+      run: (cd compose && c2cciutils-docker-logs)
 
-    - name: Cleanup acceptance tests datadir
+    - name: Cleanup acceptance tests
+      if: always()
       run: |
-        make clean-acceptance-tests-datadir
-
-    # FIXME: fix pgconfig discrepancies before reactivating
-    # - name: Run acceptance tests pgconfig
-    #   run: |
-    #     make acceptance-tests-pgconfig
-
-    # - name: Print docker compose logs pgconfig
-    #   run: (cd compose && c2cciutils-docker-logs)
-    #   if: always()
-
-    # - name: Cleanup acceptance tests pgconfig
-    #   run: |
-    #     make clean-acceptance-tests-pgconfig
-
-    - name: Remove project jars from cached repository
-      run: |
-        rm -rf ~/.m2/repository/org/geoserver
-        find ~/.m2/repository -name "*SNAPSHOT*" -type d | xargs rm -rf {}
+        make clean-acceptance-tests-${{ matrix.catalog }}
