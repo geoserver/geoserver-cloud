@@ -18,14 +18,16 @@ RUN mkdir -p /opt/app/bin
 
 WORKDIR /opt/app/bin
 
-ENV JAVA_TOOL_OPTS="\
---add-exports=java.desktop/sun.awt.image=ALL-UNNAMED \
+# default JVM parameters https://docs.oracle.com/javase/8/docs/technotes/guides/troubleshoot/envvars002.html
+# to add JVM parameters use the JAVA_OPTS env variable preferrably
+ENV JAVA_TOOL_OPTIONS="\
 --add-opens=java.base/java.lang=ALL-UNNAMED \
 --add-opens=java.base/java.util=ALL-UNNAMED \
 --add-opens=java.base/java.lang.reflect=ALL-UNNAMED \
 --add-opens=java.base/java.text=ALL-UNNAMED \
 --add-opens=java.desktop/java.awt.font=ALL-UNNAMED \
 --add-opens=java.desktop/sun.awt.image=ALL-UNNAMED \
+--add-opens=java.desktop/sun.java2d.pipe=ALL-UNNAMED \
 --add-opens=java.naming/com.sun.jndi.ldap=ALL-UNNAMED \
 -Djava.awt.headless=true"
 
@@ -34,7 +36,11 @@ EXPOSE 8080
 EXPOSE 8081
 
 COPY --from=builder dependencies/ ./
+#see https://github.com/moby/moby/issues/37965
+RUN true
 COPY --from=builder snapshot-dependencies/ ./
+#see https://github.com/moby/moby/issues/37965
+RUN true
 COPY --from=builder spring-boot-loader/ ./
 
 HEALTHCHECK \
@@ -44,4 +50,4 @@ HEALTHCHECK \
 --retries=5 \
 CMD curl -f -s -o /dev/null localhost:8081/actuator/health || exit 1
 
-CMD exec env USER_ID="$(id -u)" USER_GID="$(id -g)" java $JAVA_OPTS $JAVA_TOOL_OPTS org.springframework.boot.loader.JarLauncher
+CMD exec env USER_ID="$(id -u)" USER_GID="$(id -g)" java $JAVA_OPTS org.springframework.boot.loader.JarLauncher

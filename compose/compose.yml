@@ -27,7 +27,7 @@ x-gs-dependencies: &gs-dependencies
 services:
 
   acl:
-    image: geoservercloud/geoserver-acl:${ACL_TAG}
+    image: ${ACL_REPOSITORY}/geoserver-acl:${ACL_TAG}
     environment:
       # Override default values in the container's /etc/geoserver/acl-service.yml 
       - PG_HOST=acldb
@@ -65,7 +65,7 @@ services:
   # microservices. Being a Discovery First Bootstrap configuration, it'll
   # register itself with the Eureka discovery service and can be scaled
   config:
-    image: geoservercloud/geoserver-cloud-config:${TAG}
+    image: ${REPOSITORY}/geoserver-cloud-config:${TAG}
     user: ${GS_USER}
     environment:
       JAVA_OPTS: "${JAVA_OPTS_CONFIG}"
@@ -90,7 +90,7 @@ services:
   # The discovery service is the only fixed entry point.
   # Browse to http://localhost:8761 to check all services are registered.
   discovery:
-    image: geoservercloud/geoserver-cloud-discovery:${TAG}
+    image: ${REPOSITORY}/geoserver-cloud-discovery:${TAG}
     user: ${GS_USER}
     environment:
       JAVA_OPTS: "${JAVA_OPTS_DISCOVERY}"
@@ -109,7 +109,7 @@ services:
   # Application facade, provides a single entry point routing to all
   # microservices (e.g. http://localhost:9090/geoserver/wms, http://localhost:9090/geoserver/wfs, etc)
   gateway:
-    image: geoservercloud/geoserver-cloud-gateway:${TAG}
+    image: ${REPOSITORY}/geoserver-cloud-gateway:${TAG}
     user: ${GS_USER}
     depends_on:
       discovery:
@@ -132,13 +132,13 @@ services:
     extends:
       file: templates.yml
       service: gstemplate
-    image: geoservercloud/geoserver-cloud-wfs:${TAG}
+    image: ${REPOSITORY}/geoserver-cloud-wfs:${TAG}
     environment:
       JAVA_OPTS: "${JAVA_OPTS_WFS}"
     depends_on: *gs-dependencies
 
   wms:
-    image: geoservercloud/geoserver-cloud-wms:${TAG}
+    image: ${REPOSITORY}/geoserver-cloud-wms:${TAG}
     extends:
       file: templates.yml
       service: gstemplate
@@ -150,7 +150,7 @@ services:
     extends:
       file: templates.yml
       service: gstemplate
-    image: geoservercloud/geoserver-cloud-wcs:${TAG}
+    image: ${REPOSITORY}/geoserver-cloud-wcs:${TAG}
     environment:
       JAVA_OPTS: "${JAVA_OPTS_WCS}"
     depends_on: *gs-dependencies
@@ -159,7 +159,7 @@ services:
     extends:
       file: templates.yml
       service: gstemplate
-    image: geoservercloud/geoserver-cloud-wps:${TAG}
+    image: ${REPOSITORY}/geoserver-cloud-wps:${TAG}
     environment:
       JAVA_OPTS: "${JAVA_OPTS_WPS}"
     depends_on: *gs-dependencies
@@ -168,7 +168,7 @@ services:
     extends:
       file: templates.yml
       service: gstemplate
-    image: geoservercloud/geoserver-cloud-gwc:${TAG}
+    image: ${REPOSITORY}/geoserver-cloud-gwc:${TAG}
     environment:
       JAVA_OPTS: "${JAVA_OPTS_GWC}"
     depends_on: *gs-dependencies
@@ -182,7 +182,7 @@ services:
     extends:
       file: templates.yml
       service: gstemplate
-    image: geoservercloud/geoserver-cloud-rest:${TAG}
+    image: ${REPOSITORY}/geoserver-cloud-rest:${TAG}
     environment:
       JAVA_OPTS: "${JAVA_OPTS_REST}"
     depends_on: *gs-dependencies
@@ -191,7 +191,7 @@ services:
     extends:
       file: templates.yml
       service: gstemplate
-    image: geoservercloud/geoserver-cloud-webui:${TAG}
+    image: ${REPOSITORY}/geoserver-cloud-webui:${TAG}
     environment:
       JAVA_OPTS: "${JAVA_OPTS_WEBUI}"
     depends_on: *gs-dependencies

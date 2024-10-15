@@ -45,7 +45,7 @@ services:
       retries: 3
 
   admin:
-    image: geoservercloud/geoserver-cloud-admin-server:${TAG}
+    image: ${REPOSITORY}/geoserver-cloud-admin-server:${TAG}
     user: ${GS_USER}
     depends_on:
       discovery:

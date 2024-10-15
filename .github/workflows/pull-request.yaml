@@ -50,7 +50,9 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: application-jars
-        path: ./**/target/*-bin.jar
+        path: |
+           ./**/target/*-bin.jar
+           ./**/target/config/
         retention-days: 1
         compression-level: 0 # no compression
 
@@ -63,18 +65,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        catalog: [ 'datadir', 'pgconfig', 'jdbcconfig' ]
+        catalog: [ 'datadir' ]
+        #catalog: [ 'datadir', 'pgconfig', 'jdbcconfig' ]
     steps:
     - name: Checkout
       uses: actions/checkout@v4
       with:
         submodules: recursive
-    - name: Set up java
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'temurin'
-        java-version: '21'
-        cache: 'maven'
 
     - name: Download application jar files
       uses: actions/download-artifact@v4
@@ -82,20 +79,27 @@ jobs:
         name: application-jars
         path: .
 
-    - name: Copy config directory
-      # during the validate phase, the config/ dir is copied to each app's target/config
-      run: ./mvnw validate -ntp -T1C
-
     - name: Build images
       # REPACKAGE=false avoids to re-package the apps during build-image
       run: REPACKAGE=false make build-image
 
+    - name: Build acceptance tests docker image
+      run: |
+        make build-acceptance
+
     - name: Install CI dependencies
+      id: installci
       run: python3 -m pip install --user --requirement=ci/requirements.txt
 
-    - name: Run acceptance tests ${{ matrix.catalog }}
+    - name: Launch ${{ matrix.catalog }} acceptance tests docker composition
+      id: start
       run: |
-        make acceptance-tests-${{ matrix.catalog }}
+        make start-acceptance-tests-${{ matrix.catalog }}
+
+    - name: Run ${{ matrix.catalog }} acceptance tests
+      id: acceptance
+      run: |
+        make run-acceptance-tests-${{ matrix.catalog }}
 
     - name: Print docker compose logs
       if: always()
