@@ -13,6 +13,13 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
 
   acceptance:
     image: acceptance:${TAG}
@@ -39,6 +46,13 @@ services:
         condition: service_healthy
       acl:
         condition: service_started
+    deploy:
+      mode: replicated
+      replicas: 0
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
 
   # For github CI
   acl:

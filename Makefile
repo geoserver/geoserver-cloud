@@ -26,11 +26,11 @@ install:
 
 .PHONY: package
 package:
-	./mvnw clean package -DskipTests -ntp -U -T1C
+	./mvnw clean package -Dfmt.skip -DskipTests -ntp -U -T1C
 
 .PHONY: test
 test:
-	./mvnw verify -ntp -T1C
+	./mvnw verify -Dfmt.skip -ntp -T1C
 
 .PHONY: build-image
 build-image: build-base-images build-image-infrastructure build-image-geoserver
@@ -136,19 +136,16 @@ verify-image:
 build-acceptance:
 	docker build --tag=acceptance:$(TAG) acceptance_tests
 
-.PHONY: acceptance-tests-pgconfig
-acceptance-tests-pgconfig: build-acceptance
-	(cd compose/ && ./acceptance_pgconfig up -d)
-	(cd compose/ && ./acceptance_pgconfig exec -T acceptance bash -c 'until [ -f /tmp/healthcheck ]; do echo "Waiting for /tmp/healthcheck to be available..."; sleep 5; done && pytest . -vvv --color=yes')
-
-.PHONY: clean-acceptance-tests-pgconfig
-clean-acceptance-tests-pgconfig:
-	(cd compose/ && ./acceptance_pgconfig down -v)
-
 .PHONY: acceptance-tests-datadir
-acceptance-tests-datadir: build-acceptance
+acceptance-tests-datadir: build-acceptance start-acceptance-tests-datadir run-acceptance-tests-datadir
+
+.PHONY: start-acceptance-tests-datadir
+start-acceptance-tests-datadir:
 	(cd compose/ && ./acceptance_datadir up -d)
-	(cd compose/ && ./acceptance_datadir exec -T acceptance bash -c 'until [ -f /tmp/healthcheck ]; do echo "Waiting for /tmp/healthcheck to be available..."; sleep 5; done && pytest . -vvv --color=yes')
+
+.PHONY: run-acceptance-tests-datadir
+run-acceptance-tests-datadir:
+	(cd compose/ && ./acceptance_datadir run --rm -T acceptance bash -c 'until [ -f /tmp/healthcheck ]; do echo "Waiting for /tmp/healthcheck to be available..."; sleep 5; done && pytest . -vvv --color=yes')
 
 .PHONY: clean-acceptance-tests-datadir
 clean-acceptance-tests-datadir:
@@ -156,10 +153,33 @@ clean-acceptance-tests-datadir:
 	rm -rf compose/catalog-datadir/*
 	touch compose/catalog-datadir/.keep
 
+.PHONY: acceptance-tests-pgconfig
+acceptance-tests-pgconfig: build-acceptance start-acceptance-tests-pgconfig run-acceptance-tests-pgconfig
+	(cd compose/ && ./acceptance_pgconfig up -d)
+	(cd compose/ && ./acceptance_pgconfig exec -T acceptance bash -c 'until [ -f /tmp/healthcheck ]; do echo "Waiting for /tmp/healthcheck to be available..."; sleep 5; done && pytest . -vvv --color=yes')
+
+.PHONY: start-acceptance-tests-pgconfig
+start-acceptance-tests-pgconfig:
+	(cd compose/ && ./acceptance_pgconfig up -d)
+
+.PHONY: run-acceptance-tests-pgconfig
+run-acceptance-tests-pgconfig:
+	(cd compose/ && ./acceptance_pgconfig run --rm -T acceptance bash -c 'until [ -f /tmp/healthcheck ]; do echo "Waiting for /tmp/healthcheck to be available..."; sleep 5; done && pytest . -vvv --color=yes')
+
+.PHONY: clean-acceptance-tests-pgconfig
+clean-acceptance-tests-pgconfig:
+	(cd compose/ && ./acceptance_pgconfig down -v)
+
 .PHONY: acceptance-tests-jdbcconfig
-acceptance-tests-jdbcconfig: build-acceptance
+acceptance-tests-jdbcconfig: build-acceptance start-acceptance-tests-jdbcconfig run-acceptance-tests-jdbcconfig
+
+.PHONY: start-acceptance-tests-jdbcconfig
+start-acceptance-tests-jdbcconfig:
 	(cd compose/ && ./acceptance_jdbcconfig up -d)
-	(cd compose/ && ./acceptance_jdbcconfig exec -T acceptance bash -c 'until [ -f /tmp/healthcheck ]; do echo "Waiting for /tmp/healthcheck to be available..."; sleep 5; done && pytest . -vvv --color=yes')
+
+.PHONY: run-acceptance-tests-jdbcconfig
+run-acceptance-tests-jdbcconfig:
+	(cd compose/ && ./acceptance_jdbcconfig run --rm -T acceptance bash -c 'until [ -f /tmp/healthcheck ]; do echo "Waiting for /tmp/healthcheck to be available..."; sleep 5; done && pytest . -vvv --color=yes')
 
 .PHONY: clean-acceptance-tests-jdbcconfig
 clean-acceptance-tests-jdbcconfig:
