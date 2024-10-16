@@ -30,7 +30,6 @@ import java.util.function.Consumer;
  *
  * @see #publishRemoteEvent(GeoServerEvent)
  * @see #publishLocalEvent(RemoteGeoServerEvent)
- * @see RemoteGeoServerEventProcessor
  */
 @Slf4j(topic = "org.geoserver.cloud.event.bus.bridge")
 public class RemoteGeoServerEventBridge implements DisposableBean {
