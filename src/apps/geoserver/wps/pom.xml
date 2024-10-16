@@ -22,6 +22,14 @@
       <artifactId>gs-cloud-starter-raster-formats</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.geoserver.extension</groupId>
+      <artifactId>gs-dxf-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.extension</groupId>
+      <artifactId>gs-dxf-wps</artifactId>
+    </dependency>
+    <dependency>
       <!-- REVISIT: for some reason, the WPS service won't start up without the web components. A bean creation exception 
         will be reported: "Error creating bean with name 'wpsInitializer' ... -->
       <!-- Error creating bean with name 'executionManager': Requested bean is currently in creation: Is there an unresolvable 
