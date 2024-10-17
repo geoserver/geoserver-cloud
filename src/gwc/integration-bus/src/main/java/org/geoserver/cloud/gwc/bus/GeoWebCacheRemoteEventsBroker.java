@@ -24,7 +24,7 @@ import java.util.function.Supplier;
  * to the cluster as {@link RemoteGeoWebCacheEvent} on the event bus, and vice-versa.
  */
 @RequiredArgsConstructor
-@Slf4j(topic = "org.geoserver.cloud.bus.outgoing.gwc")
+@Slf4j(topic = "org.geoserver.cloud.gwc.bus")
 public class GeoWebCacheRemoteEventsBroker {
 
     /**
