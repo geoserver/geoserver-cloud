@@ -11,7 +11,7 @@
     <module>src</module>
   </modules>
   <properties>
-    <revision>1.9-RC2</revision>
+    <revision>1.9-SNAPSHOT</revision>
     <fmt.action>format</fmt.action>
     <fmt.skip>false</fmt.skip>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
