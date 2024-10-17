@@ -82,7 +82,7 @@ Follow the [developer's guide](docs/develop/index.md) to know more about the pro
 
 ## Status
 
-`v1.8.11` released against GeoServer `2.25.3`.
+`v1.8.12` released against GeoServer `2.25.3`.
 
 Read the [changelog](https://github.com/geoserver/geoserver-cloud/releases/) for more information.
 
