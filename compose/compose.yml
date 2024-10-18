@@ -7,7 +7,7 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: $PWD/../config
+      device: C:\\temp\\config
     driver: local
 
 x-gs-dependencies: &gs-dependencies

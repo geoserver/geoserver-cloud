@@ -22,6 +22,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  *     mapbox.enabled: true
  *   wms:
  *     outputFormats:
+ *       geopkg.enabled: true
  *       vectorTiles:
  *         mapbox.enabled: true
  *         geojson.enabled: true
@@ -50,6 +51,9 @@ public @Data class WmsExtensionsConfigProperties {
                 new WmsOutputFormatsConfigProperties();
 
         public static @Data class WmsOutputFormatsConfigProperties {
+
+            private EnabledProperty geopkg = new EnabledProperty();
+
             private VectorTilesConfigProperties vectorTiles = new VectorTilesConfigProperties();
 
             public static @Data class VectorTilesConfigProperties {
