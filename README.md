@@ -54,6 +54,7 @@ Only a curated list of the [vast amount](http://geoserver.org/release/stable/) o
 - vectortiles
 - flatgeobuf
 - dxf
+- geopkg-output
 - cog
 - importer
 - imagepyramid

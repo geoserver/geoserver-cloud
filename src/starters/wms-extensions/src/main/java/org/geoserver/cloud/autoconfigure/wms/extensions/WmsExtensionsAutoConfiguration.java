@@ -22,7 +22,8 @@ import javax.annotation.PostConstruct;
         value = {
             CssStylingConfiguration.class,
             MapBoxStylingConfiguration.class,
-            VectorTilesConfiguration.class
+            VectorTilesConfiguration.class,
+            GeoPkgOutputConfiguration.class
         })
 public class WmsExtensionsAutoConfiguration {
     public @PostConstruct void log() {
