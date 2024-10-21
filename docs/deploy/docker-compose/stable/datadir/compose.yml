@@ -1,10 +1,15 @@
 volumes:
-  postgresql_config_data: # volume for postgresql data, used to store the geoserver config through jdbcconfig
+  # a volume to host the shared data directory. Mount it at /opt/app/data_directory, since
+  # /opt/app is owned by the user geo:geo (603:603) in the containers. Otherwise it'd be owned by root
+  # uncomment the driver_opts entry to bind mount an existing datadirectory and set the device: <path>
+  # accordingly to the location of the data directory in the host
+  shared_data_directory:
+    #driver_opts:
+      #type: none
+      #o: bind
+      #device: $PWD/datadir
   rabbitmq_data: # volume for rabbitmq data, so it doesn't create an anonymous one on each container
   geowebcache_data: # used by gwc and web-ui to locate the default gwc tile cache directory
-  
-networks:
-  gs-cloud-network:
         
 services:
   rabbitmq:
@@ -13,48 +18,23 @@ services:
     restart: unless-stopped
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
-    networks:
-      - gs-cloud-network
     deploy:
       resources:
         limits:
           cpus: '2.0'
           memory: 1G
 
-  database:
-    # be sure geoserver.backend.jdbcconfig.initdb is set to true in application.yml at lease for the first app run
-    image: postgres:13-alpine
-    environment:
-      POSTGRES_DB: geoserver_config
-      POSTGRES_USER: geoserver
-      POSTGRES_PASSWORD: geo5erver
-    networks:
-      - gs-cloud-network
-    volumes:
-      - postgresql_config_data:/var/lib/postgresql/data
-    deploy:
-      resources:
-        limits:
-          cpus: '2.0'
-          memory: 1G
-
-  # Eureka service discovery. This is a Discovery First Bootstrap configuration.
-  # The discovery service is the only fixed entry point.
-  # Browse to http://localhost:8761 to check all services are registered.
-  # Run docker compose -f docker-compose.yml -f docker-compose-discovery-ha.yml to run extra discovery service instances for HA
   discovery:
     image: geoservercloud/geoserver-cloud-discovery:1.8.12
     user: 1000:1000 # set the userid:groupid the container runs as
     ports:
       - 8761:8761
-    networks:
-      - gs-cloud-network
     restart: unless-stopped
     deploy:
       resources:
         limits:
           cpus: '2.0'
-          memory: 512M
+          memory: 256M
 
   # Spring Cloud Config service, provides centralized configuration to all
   # microservices. Being a Discovery First Bootstrap configuration, it'll
@@ -65,32 +45,21 @@ services:
     depends_on:
       - discovery
       - rabbitmq
-      - database
     environment:
-      # Either 'git' or 'native'. Use the default sample git repository to download the services configuration from
-      # If 'git', BEWARE config server will look for a branch called "master", and github changed the default branch name to "main"
-      # For more information, see https://cloud.spring.io/spring-cloud-config/multi/multi__spring_cloud_config_server.html#_git_backend
-      SPRING_PROFILES_ACTIVE: git
-      # 'git' profile config
-      CONFIG_GIT_URI: https://github.com/geoserver/geoserver-cloud-config.git
-      # get the config for this release from the v1.8.12 tag
+      # default to `native` loading the config embedded in /etc/geoserver
+      # use `git` to fetch the config from a git reposiroty, and CONFIG_GIT_URI to change
+      # the default repository https://github.com/geoserver/geoserver-cloud-config.git
+      SPRING_PROFILES_ACTIVE: native
+      # If using the `git` profile, get the config from this tag
       SPRING_CLOUD_CONFIG_SERVER_GIT_DEFAULT_LABEL: v1.8.12
-      # where to store the cloned repository, if unset, it'll use /tmp/config-repo-<randomid>
-      CONFIG_GIT_BASEDIR: /tmp/git_config
-      # 'native' profile config
-      CONFIG_NATIVE_PATH: /tmp/config
-      # avoid stack trace due to jgit not being able of creating a .config dir at $HOME
-      XDG_CONFIG_HOME: /tmp
-    networks:
-      - gs-cloud-network
     # Uncoment to bind to a local filesystem directory if using the 'native' profile
     #volumes:
-    #  - ./config:/tmp/config
+    #  - ./config:/etc/geoserver
     deploy:
       resources:
         limits:
           cpus: '2.0'
-          memory: 512M
+          memory: 256M
 
   # Application facade, provides a single entry point routing to all
   # microservices (e.g. http://localhost:9090/geoserver/cloud/wms, http://localhost:9090/geoserver/cloud/wfs, etc)
@@ -104,8 +73,6 @@ services:
       GEOSERVER_BASE_PATH: /geoserver/cloud
     ports:
       - 9090:8080
-    networks:
-      - gs-cloud-network
     deploy:
       resources:
         limits:
@@ -119,9 +86,10 @@ services:
     depends_on:
       - config
     environment:
-      SPRING_PROFILES_ACTIVE: "jdbcconfig"
-    networks:
-      - gs-cloud-network
+      SPRING_PROFILES_ACTIVE: "datadir"
+      GEOSERVER_DATA_DIR: /opt/app/data_directory
+    volumes:
+      - shared_data_directory:/opt/app/data_directory
     deploy:
       resources:
         limits:
@@ -135,12 +103,12 @@ services:
     depends_on:
       - config
     environment:
-      SPRING_PROFILES_ACTIVE: "jdbcconfig"
+      SPRING_PROFILES_ACTIVE: "datadir"
+      GEOSERVER_DATA_DIR: /opt/app/data_directory
       GEOWEBCACHE_CACHE_DIR: /data/geowebcache
     volumes:
+      - shared_data_directory:/opt/app/data_directory
       - geowebcache_data:/data/geowebcache
-    networks:
-      - gs-cloud-network
     deploy:
       resources:
         limits:
@@ -154,9 +122,10 @@ services:
     depends_on:
       - config
     environment:
-      SPRING_PROFILES_ACTIVE: "jdbcconfig"
-    networks:
-      - gs-cloud-network
+      SPRING_PROFILES_ACTIVE: "datadir"
+      GEOSERVER_DATA_DIR: /opt/app/data_directory
+    volumes:
+      - shared_data_directory:/opt/app/data_directory
     deploy:
       resources:
         limits:
@@ -170,9 +139,10 @@ services:
     depends_on:
       - config
     environment:
-      SPRING_PROFILES_ACTIVE: "jdbcconfig"
-    networks:
-      - gs-cloud-network
+      SPRING_PROFILES_ACTIVE: "datadir"
+      GEOSERVER_DATA_DIR: /opt/app/data_directory
+    volumes:
+      - shared_data_directory:/opt/app/data_directory
     deploy:
       mode: replicated
       replicas: 1
@@ -186,14 +156,14 @@ services:
     image: geoservercloud/geoserver-cloud-webui:1.8.12
     user: 1000:1000 # set the userid:groupid the container runs as
     depends_on:
-      - rabbitmq
+      - config
     environment:
-      SPRING_PROFILES_ACTIVE: "jdbcconfig"
+      SPRING_PROFILES_ACTIVE: "datadir"
+      GEOSERVER_DATA_DIR: /opt/app/data_directory
       GEOWEBCACHE_CACHE_DIR: /data/geowebcache
     volumes:
+      - shared_data_directory:/opt/app/data_directory
       - geowebcache_data:/data/geowebcache
-    networks:
-      - gs-cloud-network
     deploy:
       resources:
         limits:
@@ -205,11 +175,11 @@ services:
     depends_on:
       - config
     environment:
-      SPRING_PROFILES_ACTIVE: "jdbcconfig"
+      SPRING_PROFILES_ACTIVE: "datadir"
+      GEOSERVER_DATA_DIR: /opt/app/data_directory
       GEOWEBCACHE_CACHE_DIR: /data/geowebcache
-    networks:
-      - gs-cloud-network
     volumes:
+      - shared_data_directory:/opt/app/data_directory
       - geowebcache_data:/data/geowebcache
     deploy:
       resources:

@@ -72,13 +72,13 @@ services:
       resources:
         limits:
           cpus: "1.0"
-          memory: 512M
+          memory: 256M
   config:
     deploy:
       resources:
         limits:
           cpus: "1.0"
-          memory: 512M
+          memory: 256M
   wms:
     deploy:
       resources:
