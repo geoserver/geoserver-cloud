@@ -28,3 +28,12 @@ HEALTHCHECK \
 CMD curl -f -s -o /dev/null localhost:8080/actuator/health || exit 1
 
 CMD exec env USER_ID="$(id -u)" USER_GID="$(id -g)" java $JAVA_OPTS org.springframework.boot.loader.JarLauncher
+
+# Execute the CDS training run
+RUN java -XX:ArchiveClassesAtExit=application.jsa \
+-Dspring.context.exit=onRefreshed \
+-Dspring.profiles.active=standalone,offline \
+org.springframework.boot.loader.JarLauncher
+RUN rm -rf /tmp/*
+
+ENV JAVA_TOOL_OPTIONS="${DEFAULT_JAVA_TOOL_OPTIONS} -XX:SharedArchiveFile=application.jsa"

@@ -116,6 +116,17 @@ eureka:
       defaultZone: ${eureka.server.url}
     healthcheck:
       enabled: false # must only be set to true in application.yml, not bootstrap
+
+---
+spring.config.activate.on-profile: offline
+spring:
+  cloud.config.enabled: false
+  cloud.config.discovery.enabled: false
+  cloud.discovery.enabled: false
+  cloud.bus.enabled: false
+  eureka.client.enabled: false
+
+geoserver.acl.enabled: false
 ---
 spring.config.activate.on-profile: local
 # Profile used for local development, so an app launched from the IDE can participate in the cluster.
