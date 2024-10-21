@@ -46,32 +46,6 @@
     <!--      <artifactId>gs-restconfig-wmts</artifactId>-->
     <!--    </dependency>-->
   </dependencies>
-  <build>
-    <plugins>
-      <plugin>
-        <artifactId>maven-resources-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>copy-resources</id>
-            <goals>
-              <goal>copy-resources</goal>
-            </goals>
-            <!-- here the phase you need -->
-            <phase>validate</phase>
-            <configuration>
-              <outputDirectory>${basedir}/target/config</outputDirectory>
-              <resources>
-                <resource>
-                  <directory>${maven.multiModuleProjectDirectory}/config/</directory>
-                  <filtering>false</filtering>
-                </resource>
-              </resources>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
   <profiles>
     <profile>
       <id>importer</id>
