@@ -74,10 +74,6 @@ services:
           cpus: '4.0'
           memory: 2G
 
-  # Eureka service discovery. This is a Discovery First Bootstrap configuration.
-  # The discovery service is the only fixed entry point.
-  # Browse to http://localhost:8761 to check all services are registered.
-  # Run docker compose -f docker-compose.yml -f docker-compose-discovery-ha.yml to run extra discovery service instances for HA
   discovery:
     image: geoservercloud/geoserver-cloud-discovery:1.8.12
     user: 1000:1000
@@ -89,7 +85,7 @@ services:
       resources:
         limits:
           cpus: '2.0'
-          memory: 512M
+          memory: 256M
 
   # Spring Cloud Config service, provides centralized configuration to all
   # microservices. Being a Discovery First Bootstrap configuration, it'll
@@ -98,28 +94,20 @@ services:
     image: geoservercloud/geoserver-cloud-config:1.8.12
     user: 1000:1000 # set the userid:groupid the container runs as
     environment:
-      # Either 'git' or 'native'. Use the default sample git repository to download the services configuration from
-      # If 'git', BEWARE config server will look for a branch called "master", and github changed the default branch name to "main"
-      # For more information, see https://cloud.spring.io/spring-cloud-config/multi/multi__spring_cloud_config_server.html#_git_backend
-      SPRING_PROFILES_ACTIVE: git
-      # 'git' profile config
-      CONFIG_GIT_URI: https://github.com/geoserver/geoserver-cloud-config.git
-      # get the config for this release from the v1.8.12 tag
-      SPRING_CLOUD_CONFIG_SERVER_GIT_DEFAULT_LABEL: master
-      # where to store the cloned repository, if unset, it'll use /tmp/config-repo-<randomid>
-      CONFIG_GIT_BASEDIR: /tmp/git_config
-      # 'native' profile config
-      CONFIG_NATIVE_PATH: /tmp/config
-      # avoid stack trace due to jgit not being able of creating a .config dir at $HOME
-      XDG_CONFIG_HOME: /tmp
+      # default to `native` loading the config embedded in /etc/geoserver
+      # use `git` to fetch the config from a git reposiroty, and CONFIG_GIT_URI to change
+      # the default repository https://github.com/geoserver/geoserver-cloud-config.git
+      SPRING_PROFILES_ACTIVE: native
+      # If using the `git` profile, get the config from this tag
+      SPRING_CLOUD_CONFIG_SERVER_GIT_DEFAULT_LABEL: v1.8.12
     # Uncoment to bind to a local filesystem directory if using the 'native' profile
     #volumes:
-    #  - ./config:/tmp/config
+    #  - ./config:/etc/geoserver
     deploy:
       resources:
         limits:
           cpus: '2.0'
-          memory: 512M
+          memory: 256M
     
   # Application facade, provides a single entry point routing to all
   # microservices (e.g. http://localhost:9090/geoserver/wms, http://localhost:9090/geoserver/wfs, etc)

@@ -52,9 +52,6 @@ services:
       rabbitmq:
         condition: service_healthy
         required: true
-    ports:
-      - 9000:8080
-      - 9001:8081
     deploy:
       resources:
         limits:
@@ -70,21 +67,18 @@ services:
     environment:
       JAVA_OPTS: "${JAVA_OPTS_CONFIG}"
       SPRING_PROFILES_ACTIVE: "${CONFIG_SERVER_DEFAULT_PROFILES}"
-      # 'git' profile config
-      CONFIG_GIT_URI: https://github.com/geoserver/geoserver-cloud-config
-      CONFIG_GIT_BASEDIR: /tmp/git_config
-      # 'native' profile config
-      CONFIG_NATIVE_PATH: /tmp/config
     restart: unless-stopped
     volumes:
-      - config:/tmp/config
+      # override with the local copy to test config changes during development
+      - config:/etc/geoserver
     ports:
+      # not needed in production, exposed for local development
       - 8888:8080
     deploy:
       resources:
         limits:
           cpus: '2.0'
-          memory: 512M
+          memory: 256M
 
   # Eureka service discovery. This is a Discovery First Bootstrap configuration.
   # The discovery service is the only fixed entry point.
@@ -104,7 +98,7 @@ services:
       resources:
         limits:
           cpus: '2.0'
-          memory: 512M
+          memory: 256M
     
   # Application facade, provides a single entry point routing to all
   # microservices (e.g. http://localhost:9090/geoserver/wms, http://localhost:9090/geoserver/wfs, etc)

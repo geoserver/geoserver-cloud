@@ -84,13 +84,13 @@ geotools:
         nonProxyHosts: ${https.nonProxyHosts:${geotools.httpclient.proxy.http.nonProxyHosts}}
 ```
 
-### Configure HTTP proxy with environment variables in docker-compose.yml
+### Configure HTTP proxy with environment variables in compose.yml
 
 As mentioned above, regular JVM proxy configuration works with Java System properties
 but not with Operating System environment variables.
 
 The above `geotools.httpclient.proxy` config properties though allow to do so
-easily as in the following `docker-compose.yml` snippet:
+easily as in the following `compose.yml` snippet:
 
 ```yaml
 version: "3.8"

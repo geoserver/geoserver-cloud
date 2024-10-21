@@ -20,6 +20,20 @@ COPY --from=builder spring-boot-loader/ ./
 RUN true
 COPY --from=builder application/ ./
 
-# Where jgit will try to create a .config directory
-ENV XDG_CONFIG_HOME=/tmp
+# Either 'git' or 'native'.
+ENV SPRING_PROFILES_ACTIVE=native
+# 'native' profile config, use the default config embedded in the Docker image.
+# Feel free to override with a mounted volume
+ENV CONFIG_NATIVE_PATH=/etc/geoserver
+
+# Config for the 'git' profile
+# Uses the default sample git repository to download the services configuration from
+ENV CONFIG_GIT_URI: https://github.com/geoserver/geoserver-cloud-config.git
+# Override to get the config from the appropriate release TAG or branch
+ENV SPRING_CLOUD_CONFIG_SERVER_GIT_DEFAULT_LABEL: master
+# where to store the cloned repository, if unset, it'll use /tmp/config-repo-<randomid>
+ENV CONFIG_GIT_BASEDIR: /tmp/git_config
+# avoid stack trace due to jgit not being able of creating a .config dir at $HOME
+ENV XDG_CONFIG_HOME: /tmp
+
 

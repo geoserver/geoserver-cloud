@@ -9,8 +9,8 @@ These instructions assume you have Docker Engine, Docker CLI, and the [Compose P
 Here are three `docker compose` based deployment examples to try out:
 
   * Our preferred option, the [pgconfig](stable/pgconfig/compose.yml) Catalog back-end, specifically developed for GeoServer Cloud with scalability in mind, storing all Catalog and GeoServer configuration in a PostgreSQL database.
-  * A shared [data-directory](stable/shared_datadir/docker-compose.yml) option, using a mounted volume to share a traditional GeoServer data directory across all services.
-  * And a **deprecated** [jdbcconfig](jdbcconfig/docker-compose.yml) option, using the GeoServer [jdbcconfig](https://docs.geoserver.org/main/en/user/community/jdbcconfig/index.html) and [jdbcstore](https://docs.geoserver.org/main/en/user/community/jdbcstore/index.html) community modules.
+  * A shared [data-directory](stable/datadir/compose.yml) option, using a mounted volume to share a traditional GeoServer data directory across all services.
+  * And a **deprecated** [jdbcconfig](jdbcconfig/compose.yml) option, using the GeoServer [jdbcconfig](https://docs.geoserver.org/main/en/user/community/jdbcconfig/index.html) and [jdbcstore](https://docs.geoserver.org/main/en/user/community/jdbcstore/index.html) community modules.
 
 Open a terminal and enter the directory where you just downloaded that file, and run `docker compose pull` to fetch the docker images from [Dockerhub](https://hub.docker.com/u/geoservercloud/):
 
