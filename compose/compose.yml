@@ -67,7 +67,7 @@ services:
     environment:
       JAVA_OPTS: "${JAVA_OPTS_CONFIG}"
       SPRING_PROFILES_ACTIVE: "${CONFIG_SERVER_DEFAULT_PROFILES}"
-    restart: unless-stopped
+  #  restart: unless-stopped
     volumes:
       # override with the local copy to test config changes during development
       - config:/etc/geoserver

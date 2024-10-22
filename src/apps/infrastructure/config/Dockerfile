@@ -21,7 +21,7 @@ RUN true
 COPY --from=builder application/ ./
 
 # Either 'git' or 'native'.
-ENV SPRING_PROFILES_ACTIVE=native
+ENV SPRING_PROFILES_ACTIVE=native,standalone
 # 'native' profile config, use the default config embedded in the Docker image.
 # Feel free to override with a mounted volume
 ENV CONFIG_NATIVE_PATH=/etc/geoserver
@@ -36,4 +36,8 @@ ENV CONFIG_GIT_BASEDIR: /tmp/git_config
 # avoid stack trace due to jgit not being able of creating a .config dir at $HOME
 ENV XDG_CONFIG_HOME: /tmp
 
+# Execute the CDS training run
+RUN java -XX:ArchiveClassesAtExit=application.jsa -Dspring.context.exit=onRefreshed org.springframework.boot.loader.JarLauncher
+RUN rm -rf /tmp/*
 
+ENV JAVA_TOOL_OPTIONS="${DEFAULT_JAVA_TOOL_OPTIONS} -XX:SharedArchiveFile=application.jsa"

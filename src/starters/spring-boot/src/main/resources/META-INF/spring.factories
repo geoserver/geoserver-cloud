@@ -1,3 +1,4 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 org.geoserver.cloud.app.StartupLoggerAutoConfiguration,\
-org.geoserver.cloud.app.ServiceIdFilterAutoConfiguration
+org.geoserver.cloud.app.ServiceIdFilterAutoConfiguration,\
+org.geoserver.cloud.app.ExitOnApplicationEventAutoConfiguration
