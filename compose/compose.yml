@@ -98,7 +98,7 @@ services:
       resources:
         limits:
           cpus: '2.0'
-          memory: 256M
+          memory: 512M
     
   # Application facade, provides a single entry point routing to all
   # microservices (e.g. http://localhost:9090/geoserver/wms, http://localhost:9090/geoserver/wfs, etc)
@@ -119,7 +119,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '8.0'
+          cpus: '4.0'
           memory: 2G
 
   wfs:
@@ -169,7 +169,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '8.0'
+          cpus: '4.0'
           memory: 2G
 
   rest:
