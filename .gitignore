@@ -43,3 +43,5 @@ docker-compose_datadir*
 .env.yjp
 
 hs_err_pid*.log
+
+.spotless-index

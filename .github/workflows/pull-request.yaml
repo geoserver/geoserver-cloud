@@ -38,9 +38,11 @@ jobs:
         java-version: '21'
         cache: 'maven'
 
+    - name: Validate pom formatting
+      run: make lint-pom
+
     - name: Validate source code formatting
-      run: |
-        make lint
+      run: make lint-java
 
     - name: Test
       run: |
