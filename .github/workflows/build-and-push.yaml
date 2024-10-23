@@ -57,9 +57,17 @@ jobs:
       run: |
         make package
 
-    - name: Build and push images
+    - name: Build and push base images
       run: |
-        REPACKAGE=false make build-image-multiplatform
+        REPACKAGE=false make build-base-images-multiplatform
+
+    - name: Build and push images for infra services
+      run: |
+        REPACKAGE=false make build-image-infrastructure-multiplatform
+
+    - name: Build and push images for GeoServer services
+      run: |
+        REPACKAGE=false make build-image-geoserver-multiplatform
 
     - name: Remove project jars from cached repository
       run: |
