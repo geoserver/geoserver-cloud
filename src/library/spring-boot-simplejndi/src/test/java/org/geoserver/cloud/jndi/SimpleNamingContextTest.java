@@ -9,19 +9,17 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
-
 import java.util.Collections;
 import java.util.Set;
-
 import javax.naming.Context;
 import javax.naming.NameClassPair;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 /**
  * Test suite for {@link SimpleNamingContext}
@@ -35,9 +33,7 @@ class SimpleNamingContextTest {
     @BeforeEach
     void setup() throws NamingException {
         SimpleNamingContextBuilder builder = new SimpleNamingContextBuilder();
-        root =
-                (SimpleNamingContext)
-                        builder.createInitialContextFactory(null).getInitialContext(null);
+        root = (SimpleNamingContext) builder.createInitialContextFactory(null).getInitialContext(null);
         assertNotNull(root);
     }
 
@@ -81,10 +77,7 @@ class SimpleNamingContextTest {
         assertEquals(expected, list);
 
         list = Set.copyOf(Collections.list(root.list("java:comp")));
-        expected =
-                Set.of(
-                        ncp("test", SimpleNamingContext.class),
-                        ncp("env", SimpleNamingContext.class));
+        expected = Set.of(ncp("test", SimpleNamingContext.class), ncp("env", SimpleNamingContext.class));
         assertEquals(expected, list);
 
         list = Set.copyOf(Collections.list(root.list("java:comp/test")));

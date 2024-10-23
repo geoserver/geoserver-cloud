@@ -9,10 +9,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-
+import java.util.Optional;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogTestData;
 import org.geoserver.catalog.Info;
@@ -33,8 +32,6 @@ import org.geoserver.wfs.WFSInfo;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.Optional;
 
 /**
  * Verifies that all GeoServer config ({@link GeoServerInfo}, etc) object types can be sent over the
@@ -68,15 +65,13 @@ public abstract class GeoServerConfigModuleTest {
         objectMapper = newObjectMapper();
         catalog = new CatalogPlugin();
         geoserver = new GeoServerImpl();
-        testData =
-                CatalogTestData.initialized(() -> catalog, () -> geoserver)
-                        .initConfig(false)
-                        .initialize();
+        testData = CatalogTestData.initialized(() -> catalog, () -> geoserver)
+                .initConfig(false)
+                .initialize();
         proxyResolver = new ProxyUtils(() -> catalog, Optional.of(geoserver));
     }
 
-    private <T extends Info> void roundtripTest(@NonNull final T orig)
-            throws JsonProcessingException {
+    private <T extends Info> void roundtripTest(@NonNull final T orig) throws JsonProcessingException {
         ObjectWriter writer = objectMapper.writer();
         writer = writer.withDefaultPrettyPrinter();
         String encoded = writer.writeValueAsString(orig);

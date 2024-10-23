@@ -6,17 +6,14 @@ package org.geoserver.cloud.web.service;
 
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
-
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-
-import org.springframework.cloud.client.discovery.DiscoveryClient;
-import org.springframework.cloud.netflix.eureka.EurekaServiceInstance;
-
 import java.net.URI;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.cloud.netflix.eureka.EurekaServiceInstance;
 
 /**
  * @since 1.0

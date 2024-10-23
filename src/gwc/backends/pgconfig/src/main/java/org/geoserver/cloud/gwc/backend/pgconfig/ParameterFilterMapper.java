@@ -5,7 +5,6 @@
 package org.geoserver.cloud.gwc.backend.pgconfig;
 
 import lombok.Generated;
-
 import org.geoserver.cloud.gwc.backend.pgconfig.TileLayerInfo.FloatParamFilter;
 import org.geoserver.cloud.gwc.backend.pgconfig.TileLayerInfo.IntegerParamFilter;
 import org.geoserver.cloud.gwc.backend.pgconfig.TileLayerInfo.ParamFilter;

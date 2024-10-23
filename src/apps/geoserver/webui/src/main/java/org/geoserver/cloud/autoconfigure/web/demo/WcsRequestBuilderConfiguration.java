@@ -26,8 +26,7 @@ import org.springframework.context.annotation.ImportResource;
         )
 public class WcsRequestBuilderConfiguration extends AbstractWebUIAutoConfiguration {
 
-    static final String CONFIG_PREFIX =
-            DemosAutoConfiguration.CONFIG_PREFIX + ".wcs-request-builder";
+    static final String CONFIG_PREFIX = DemosAutoConfiguration.CONFIG_PREFIX + ".wcs-request-builder";
 
     @Override
     public String getConfigPrefix() {

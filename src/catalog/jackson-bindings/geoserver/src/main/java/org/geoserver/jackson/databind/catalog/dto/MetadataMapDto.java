@@ -6,10 +6,8 @@ package org.geoserver.jackson.databind.catalog.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-
-import org.geotools.jackson.databind.filter.dto.Literal;
-
 import java.util.LinkedHashMap;
+import org.geotools.jackson.databind.filter.dto.Literal;
 
 /**
  * @since 1.0

@@ -21,9 +21,7 @@ import org.springframework.context.annotation.ImportResource;
 @Configuration(proxyBeanMethods = false)
 @ImportResource(
         reader = FilteringXmlBeanDefinitionReader.class, //
-        locations = {
-            "jar:gs-gwc-[0-9]+.*!/geowebcache-diskquota-context.xml#name=^(?!DiskQuotaConfigLoader).*$"
-        })
+        locations = {"jar:gs-gwc-[0-9]+.*!/geowebcache-diskquota-context.xml#name=^(?!DiskQuotaConfigLoader).*$"})
 public class DiskQuotaConfiguration {
 
     static {
@@ -46,7 +44,6 @@ public class DiskQuotaConfiguration {
             TileLayerDispatcher tld)
             throws ConfigurationException {
 
-        return new org.geowebcache.diskquota.ConfigLoader(
-                diskQuotaConfigResourceProvider, storageFinder, tld);
+        return new org.geowebcache.diskquota.ConfigLoader(diskQuotaConfigResourceProvider, storageFinder, tld);
     }
 }

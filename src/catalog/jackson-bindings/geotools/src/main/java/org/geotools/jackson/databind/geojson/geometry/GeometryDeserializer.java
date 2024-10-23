@@ -13,7 +13,11 @@ import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.NumericNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
-
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.IntStream;
 import org.locationtech.jts.geom.CoordinateSequence;
 import org.locationtech.jts.geom.CoordinateSequenceFactory;
 import org.locationtech.jts.geom.Geometry;
@@ -28,18 +32,11 @@ import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.geom.impl.PackedCoordinateSequenceFactory;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.IntStream;
-
 public class GeometryDeserializer<T extends Geometry> extends JsonDeserializer<T> {
 
     private static final String COORDINATES_PROPERTY = "coordinates";
 
-    private static final GeometryFactory DEFAULT_GF =
-            new GeometryFactory(new PackedCoordinateSequenceFactory());
+    private static final GeometryFactory DEFAULT_GF = new GeometryFactory(new PackedCoordinateSequenceFactory());
 
     private GeometryFactory geometryFactory;
 
@@ -82,8 +79,7 @@ public class GeometryDeserializer<T extends Geometry> extends JsonDeserializer<T
             case Geometry.TYPENAME_GEOMETRYCOLLECTION:
                 return readGeometryCollection(geometryNode, dimensions, hasM);
             default:
-                throw new IllegalArgumentException(
-                        "Unknown geometry node: %s".formatted(geometryNode));
+                throw new IllegalArgumentException("Unknown geometry node: %s".formatted(geometryNode));
         }
     }
 
@@ -103,19 +99,17 @@ public class GeometryDeserializer<T extends Geometry> extends JsonDeserializer<T
         return false;
     }
 
-    private MultiLineString readMultiLineString(
-            ObjectNode geometryNode, int dimensions, boolean hasM) {
+    private MultiLineString readMultiLineString(ObjectNode geometryNode, int dimensions, boolean hasM) {
         ArrayNode coordinates = (ArrayNode) geometryNode.findValue(COORDINATES_PROPERTY);
         if (coordinates.isEmpty()) {
             return geometryFactory.createMultiLineString();
         }
 
-        LineString[] lineStrings =
-                IntStream.range(0, coordinates.size())
-                        .mapToObj(i -> (ArrayNode) coordinates.get(i))
-                        .map(geomN -> readCoordinateSequence(geomN, dimensions, hasM))
-                        .map(geometryFactory::createLineString)
-                        .toArray(LineString[]::new);
+        LineString[] lineStrings = IntStream.range(0, coordinates.size())
+                .mapToObj(i -> (ArrayNode) coordinates.get(i))
+                .map(geomN -> readCoordinateSequence(geomN, dimensions, hasM))
+                .map(geometryFactory::createLineString)
+                .toArray(LineString[]::new);
 
         return geometryFactory.createMultiLineString(lineStrings);
     }
@@ -125,16 +119,14 @@ public class GeometryDeserializer<T extends Geometry> extends JsonDeserializer<T
         if (coordinates.isEmpty()) {
             return geometryFactory.createMultiPolygon();
         }
-        Polygon[] polygons =
-                IntStream.range(0, coordinates.size())
-                        .mapToObj(i -> (ArrayNode) coordinates.get(i))
-                        .map(array -> readPolygon(array, dimensions, hasM))
-                        .toArray(Polygon[]::new);
+        Polygon[] polygons = IntStream.range(0, coordinates.size())
+                .mapToObj(i -> (ArrayNode) coordinates.get(i))
+                .map(array -> readPolygon(array, dimensions, hasM))
+                .toArray(Polygon[]::new);
         return geometryFactory.createMultiPolygon(polygons);
     }
 
-    private GeometryCollection readGeometryCollection(
-            ObjectNode geometryNode, int dimensions, boolean hasM) {
+    private GeometryCollection readGeometryCollection(ObjectNode geometryNode, int dimensions, boolean hasM) {
         ArrayNode geometries = (ArrayNode) geometryNode.findValue("geometries");
         if (geometries.isEmpty()) {
             return geometryFactory.createGeometryCollection();
@@ -161,13 +153,7 @@ public class GeometryDeserializer<T extends Geometry> extends JsonDeserializer<T
         if (coordinates.size() > 1) {
             holes = new LinearRing[coordinates.size() - 1];
             IntStream.range(1, coordinates.size())
-                    .forEach(
-                            i ->
-                                    holes[i - 1] =
-                                            readLinearRing(
-                                                    (ArrayNode) coordinates.get(i),
-                                                    dimensions,
-                                                    hasM));
+                    .forEach(i -> holes[i - 1] = readLinearRing((ArrayNode) coordinates.get(i), dimensions, hasM));
         } else {
             holes = null;
         }
@@ -200,8 +186,7 @@ public class GeometryDeserializer<T extends Geometry> extends JsonDeserializer<T
         return geometryFactory.createMultiPoint(coords);
     }
 
-    private CoordinateSequence readCoordinateSequence(
-            ArrayNode coordinates, int dimension, boolean hasM) {
+    private CoordinateSequence readCoordinateSequence(ArrayNode coordinates, int dimension, boolean hasM) {
         final int size = coordinates.size();
         final int measures = hasM ? 1 : 0;
         CoordinateSequenceFactory sequenceFactory = geometryFactory.getCoordinateSequenceFactory();
@@ -235,16 +220,8 @@ public class GeometryDeserializer<T extends Geometry> extends JsonDeserializer<T
         return typeNode instanceof TextNode textNode && isGeometry(textNode.asText());
     }
 
-    private static final Set<String> geomTypes =
-            new HashSet<>(
-                    Arrays.asList( //
-                            "Point",
-                            "MultiPoint",
-                            "LineString",
-                            "MultiLineString",
-                            "Polygon",
-                            "MultiPolygon",
-                            "GeometryCollection"));
+    private static final Set<String> geomTypes = new HashSet<>(Arrays.asList( //
+            "Point", "MultiPoint", "LineString", "MultiLineString", "Polygon", "MultiPolygon", "GeometryCollection"));
 
     public static boolean isGeometry(String type) {
         return geomTypes.contains(type);

@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.nio.file.Paths;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.CatalogImpl;
@@ -27,8 +28,6 @@ import org.geoserver.platform.config.UpdateSequence;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.nio.file.Paths;
 
 /**
  * Test {@link JDBCConfigBackendConfigurer} through {@link JDBCConfigAutoConfiguration} when {@code
@@ -60,8 +59,7 @@ class JDBCConfigAutoConfigurationTest extends JDBCConfigTest {
     void testCatalogFacade() {
         assertThat(rawCatalogFacade, instanceOf(CatalogFacadeExtensionAdapter.class));
         assertThat(
-                ((CatalogFacadeExtensionAdapter) rawCatalogFacade).getSubject(),
-                instanceOf(JDBCCatalogFacade.class));
+                ((CatalogFacadeExtensionAdapter) rawCatalogFacade).getSubject(), instanceOf(JDBCCatalogFacade.class));
     }
 
     @Test

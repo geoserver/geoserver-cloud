@@ -7,6 +7,8 @@ package org.geoserver.cloud.autoconfigure.security;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
+import java.io.File;
+import java.util.List;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
 import org.geoserver.cloud.security.CloudGeoServerSecurityManager;
@@ -26,9 +28,6 @@ import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
-import java.io.File;
-import java.util.List;
-
 /**
  * {@link EnableAutoConfiguration @EnableAutoConfiguration} tests for {@link
  * GeoServerSecurityAutoConfiguration}
@@ -37,7 +36,8 @@ import java.util.List;
  */
 class GeoServerSecurityAutoConfigurationTest {
 
-    @TempDir File tempDir;
+    @TempDir
+    File tempDir;
 
     private ApplicationContextRunner runner;
 
@@ -70,12 +70,10 @@ class GeoServerSecurityAutoConfigurationTest {
     @Test
     void disabled() {
         runner.withPropertyValues("geoserver.security.enabled: false") //
-                .run(
-                        context -> {
-                            assertThat(context).hasNotFailed();
-                            assertThat(context)
-                                    .doesNotHaveBean(CloudGeoServerSecurityManager.class);
-                        });
+                .run(context -> {
+                    assertThat(context).hasNotFailed();
+                    assertThat(context).doesNotHaveBean(CloudGeoServerSecurityManager.class);
+                });
     }
 
     @Test
@@ -89,24 +87,20 @@ class GeoServerSecurityAutoConfigurationTest {
     }
 
     private void testEnabled(ApplicationContextRunner runner) {
-        runner.run(
-                context -> {
-                    assertThat(context).hasNotFailed();
-                    assertThat(context).hasBean("authenticationManager");
-                    assertThat(context.getBean("authenticationManager"))
-                            .isInstanceOf(CloudGeoServerSecurityManager.class);
+        runner.run(context -> {
+            assertThat(context).hasNotFailed();
+            assertThat(context).hasBean("authenticationManager");
+            assertThat(context.getBean("authenticationManager")).isInstanceOf(CloudGeoServerSecurityManager.class);
 
-                    // gs-main's applicationSecurityContext.xml contributions
-                    SimpleBeanDefinitionRegistry registry = new SimpleBeanDefinitionRegistry();
-                    new FilteringXmlBeanDefinitionReader(registry)
-                            .loadBeanDefinitions(
-                                    GeoServerSecurityConfiguration
-                                            .APPLICATION_SECURITY_CONTEXT_FILTER);
-                    List<String> names = List.of(registry.getBeanDefinitionNames());
-                    assertThat(names).isNotEmpty();
-                    for (String name : names) {
-                        assertThat(context).hasBean(name);
-                    }
-                });
+            // gs-main's applicationSecurityContext.xml contributions
+            SimpleBeanDefinitionRegistry registry = new SimpleBeanDefinitionRegistry();
+            new FilteringXmlBeanDefinitionReader(registry)
+                    .loadBeanDefinitions(GeoServerSecurityConfiguration.APPLICATION_SECURITY_CONTEXT_FILTER);
+            List<String> names = List.of(registry.getBeanDefinitionNames());
+            assertThat(names).isNotEmpty();
+            for (String name : names) {
+                assertThat(context).hasBean(name);
+            }
+        });
     }
 }

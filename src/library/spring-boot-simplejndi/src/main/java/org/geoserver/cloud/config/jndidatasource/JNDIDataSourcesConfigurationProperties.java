@@ -4,12 +4,10 @@
  */
 package org.geoserver.cloud.config.jndidatasource;
 
-import lombok.Data;
-
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
 import java.util.Map;
 import java.util.TreeMap;
+import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * @since 1.0

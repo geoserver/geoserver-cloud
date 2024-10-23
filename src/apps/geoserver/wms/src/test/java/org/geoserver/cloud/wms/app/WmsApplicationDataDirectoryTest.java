@@ -4,6 +4,10 @@
  */
 package org.geoserver.cloud.wms.app;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -15,11 +19,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.xmlunit.assertj3.XmlAssert;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Map;
 
 @SpringBootTest(
         classes = WmsApplication.class,
@@ -51,8 +50,6 @@ class WmsApplicationDataDirectoryTest extends WmsApplicationTest {
         String url = baseURL + "?SERVICE=WMS&REQUEST=GETCAPABILITIES&VERSION=1.3.0";
         String caps = restTemplate.getForObject(url, String.class);
         Map<String, String> nscontext = Map.of("wms", "http://www.opengis.net/wms");
-        XmlAssert.assertThat(caps)
-                .withNamespaceContext(nscontext)
-                .hasXPath("/wms:WMS_Capabilities");
+        XmlAssert.assertThat(caps).withNamespaceContext(nscontext).hasXPath("/wms:WMS_Capabilities");
     }
 }

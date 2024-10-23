@@ -7,7 +7,6 @@ package org.geoserver.cloud.gwc.event;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
-
 import org.geoserver.gwc.layer.TileLayerCatalogListener;
 import org.springframework.context.ApplicationContext;
 import org.springframework.lang.Nullable;
@@ -31,18 +30,13 @@ public class TileLayerEvent extends GeoWebCacheEvent {
         super(source);
     }
 
-    public TileLayerEvent(
-            Object source,
-            @NonNull Type eventType,
-            @NonNull String layerId,
-            @NonNull String layerName) {
+    public TileLayerEvent(Object source, @NonNull Type eventType, @NonNull String layerId, @NonNull String layerName) {
         super(source, eventType);
         this.publishedId = layerId;
         this.name = layerName;
     }
 
-    public static TileLayerEvent ofId(
-            @NonNull Object source, @NonNull Type eventType, @NonNull String layerId) {
+    public static TileLayerEvent ofId(@NonNull Object source, @NonNull Type eventType, @NonNull String layerId) {
         return new TileLayerEvent(source, eventType, layerId, layerId);
     }
 
@@ -57,10 +51,7 @@ public class TileLayerEvent extends GeoWebCacheEvent {
     }
 
     public static TileLayerEvent modified(
-            @NonNull Object source,
-            @NonNull String publishedId,
-            @NonNull String layerName,
-            @Nullable String oldName) {
+            @NonNull Object source, @NonNull String publishedId, @NonNull String layerName, @Nullable String oldName) {
         return valueOf(source, Type.MODIFIED, publishedId, layerName, oldName);
     }
 

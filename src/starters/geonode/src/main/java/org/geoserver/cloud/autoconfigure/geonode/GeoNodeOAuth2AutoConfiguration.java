@@ -5,7 +5,6 @@
 package org.geoserver.cloud.autoconfigure.geonode;
 
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;

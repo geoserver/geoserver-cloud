@@ -4,27 +4,29 @@
  */
 package org.geoserver.cloud.backend.pgconfig.resource;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NonNull;
-
-import org.geoserver.platform.resource.Paths;
-import org.geoserver.platform.resource.Resource;
-import org.geoserver.platform.resource.ResourceListener;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NonNull;
+import org.geoserver.platform.resource.Paths;
+import org.geoserver.platform.resource.Resource;
+import org.geoserver.platform.resource.ResourceListener;
 
 /**
  * @since 1.4
  */
 @EqualsAndHashCode(exclude = {"store"})
 class PgconfigResource implements Resource {
-    @Getter long id;
-    @Getter long parentId;
+    @Getter
+    long id;
+
+    @Getter
+    long parentId;
+
     Resource.Type type;
     String path;
     long lastmodified;

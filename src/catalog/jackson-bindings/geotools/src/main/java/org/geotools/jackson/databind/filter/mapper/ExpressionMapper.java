@@ -4,8 +4,8 @@
  */
 package org.geotools.jackson.databind.filter.mapper;
 
+import java.util.List;
 import lombok.Generated;
-
 import org.geotools.api.filter.expression.ExpressionVisitor;
 import org.geotools.api.filter.expression.NilExpression;
 import org.geotools.factory.CommonFactoryFinder;
@@ -25,8 +25,6 @@ import org.mapstruct.Mapping;
 import org.mapstruct.ObjectFactory;
 import org.mapstruct.ReportingPolicy;
 
-import java.util.List;
-
 @Mapper(
         componentModel = "default",
         unmappedTargetPolicy = ReportingPolicy.ERROR,
@@ -36,57 +34,48 @@ public abstract class ExpressionMapper {
 
     private final org.geotools.api.filter.FilterFactory ff = CommonFactoryFinder.getFilterFactory();
 
-    private final ExpressionVisitor visitor =
-            new ExpressionVisitor() {
+    private final ExpressionVisitor visitor = new ExpressionVisitor() {
 
-                @Override
-                public Subtract visit(
-                        org.geotools.api.filter.expression.Subtract expression, Object extraData) {
-                    return map(expression);
-                }
+        @Override
+        public Subtract visit(org.geotools.api.filter.expression.Subtract expression, Object extraData) {
+            return map(expression);
+        }
 
-                @Override
-                public PropertyName visit(
-                        org.geotools.api.filter.expression.PropertyName expression,
-                        Object extraData) {
-                    return map(expression);
-                }
+        @Override
+        public PropertyName visit(org.geotools.api.filter.expression.PropertyName expression, Object extraData) {
+            return map(expression);
+        }
 
-                @Override
-                public Multiply visit(
-                        org.geotools.api.filter.expression.Multiply expression, Object extraData) {
-                    return map(expression);
-                }
+        @Override
+        public Multiply visit(org.geotools.api.filter.expression.Multiply expression, Object extraData) {
+            return map(expression);
+        }
 
-                @Override
-                public Literal visit(
-                        org.geotools.api.filter.expression.Literal expression, Object extraData) {
-                    return map(expression);
-                }
+        @Override
+        public Literal visit(org.geotools.api.filter.expression.Literal expression, Object extraData) {
+            return map(expression);
+        }
 
-                @Override
-                public Function visit(
-                        org.geotools.api.filter.expression.Function expression, Object extraData) {
-                    return map(expression);
-                }
+        @Override
+        public Function visit(org.geotools.api.filter.expression.Function expression, Object extraData) {
+            return map(expression);
+        }
 
-                @Override
-                public Divide visit(
-                        org.geotools.api.filter.expression.Divide expression, Object extraData) {
-                    return map(expression);
-                }
+        @Override
+        public Divide visit(org.geotools.api.filter.expression.Divide expression, Object extraData) {
+            return map(expression);
+        }
 
-                @Override
-                public Add visit(
-                        org.geotools.api.filter.expression.Add expression, Object extraData) {
-                    return map(expression);
-                }
+        @Override
+        public Add visit(org.geotools.api.filter.expression.Add expression, Object extraData) {
+            return map(expression);
+        }
 
-                @Override
-                public Expression visit(NilExpression expression, Object extraData) {
-                    return map(expression);
-                }
-            };
+        @Override
+        public Expression visit(NilExpression expression, Object extraData) {
+            return map(expression);
+        }
+    };
 
     public Expression map(org.geotools.api.filter.expression.Expression source) {
         return (Expression) source.accept(visitor, null);
@@ -101,17 +90,14 @@ public abstract class ExpressionMapper {
         if (source instanceof Multiply multiply) return map(multiply);
         if (source instanceof Divide divide) return map(divide);
         if (source instanceof Function function) return map(function);
-        throw new IllegalArgumentException(
-                "Unrecognized expression type %s: %s"
-                        .formatted(source.getClass().getName(), source));
+        throw new IllegalArgumentException("Unrecognized expression type %s: %s"
+                .formatted(source.getClass().getName(), source));
     }
 
-    public @ObjectFactory org.geotools.api.filter.capability.FunctionName functionName(
-            Expression.FunctionName dto) {
+    public @ObjectFactory org.geotools.api.filter.capability.FunctionName functionName(Expression.FunctionName dto) {
         FunctionFinder finder = new FunctionFinder(null);
         String functionName = dto.getName();
-        org.geotools.api.filter.capability.FunctionName name =
-                finder.findFunctionDescription(functionName);
+        org.geotools.api.filter.capability.FunctionName name = finder.findFunctionDescription(functionName);
         if (name == null) {
             int argumentCount = dto.getArgumentCount();
             List<String> argumentNames = dto.getArgumentNames();
@@ -152,11 +138,9 @@ public abstract class ExpressionMapper {
         return ff.function(dto.getName(), parameters);
     }
 
-    protected abstract org.geotools.api.filter.expression.Expression[] dtoListToExpressionList(
-            List<Expression> list);
+    protected abstract org.geotools.api.filter.expression.Expression[] dtoListToExpressionList(List<Expression> list);
 
-    protected abstract Expression.Function map(
-            org.geotools.api.filter.expression.Function expression);
+    protected abstract Expression.Function map(org.geotools.api.filter.expression.Function expression);
 
     protected abstract Add map(org.geotools.api.filter.expression.Add expression);
 

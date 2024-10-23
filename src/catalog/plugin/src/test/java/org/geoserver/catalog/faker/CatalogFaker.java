@@ -7,11 +7,18 @@ package org.geoserver.catalog.faker;
 import com.github.javafaker.Address;
 import com.github.javafaker.Faker;
 import com.google.common.collect.Lists;
-
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.function.Supplier;
+import java.util.stream.IntStream;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.experimental.Accessors;
-
 import org.geoserver.catalog.AttributionInfo;
 import org.geoserver.catalog.AuthorityURLInfo;
 import org.geoserver.catalog.Catalog;
@@ -84,16 +91,6 @@ import org.geotools.util.SimpleInternationalString;
 import org.geotools.util.Version;
 import org.springframework.util.Assert;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.function.Supplier;
-import java.util.stream.IntStream;
-
 @Accessors(fluent = true)
 public class CatalogFaker {
 
@@ -105,8 +102,7 @@ public class CatalogFaker {
         this(() -> catalog, () -> geoserver);
     }
 
-    public CatalogFaker(
-            @NonNull Catalog catalog, @NonNull GeoServer geoserver, @NonNull Locale locale) {
+    public CatalogFaker(@NonNull Catalog catalog, @NonNull GeoServer geoserver, @NonNull Locale locale) {
         this(() -> catalog, () -> geoserver, locale);
     }
 
@@ -115,9 +111,7 @@ public class CatalogFaker {
     }
 
     public CatalogFaker(
-            @NonNull Supplier<Catalog> catalog,
-            @NonNull Supplier<GeoServer> geoserver,
-            @NonNull Locale locale) {
+            @NonNull Supplier<Catalog> catalog, @NonNull Supplier<GeoServer> geoserver, @NonNull Locale locale) {
         this.catalog = catalog;
         this.geoserver = geoserver;
         this.faker = new Faker(locale);
@@ -163,12 +157,7 @@ public class CatalogFaker {
 
     public LayerInfo layerInfo(ResourceInfo resource, StyleInfo defaultStyle) {
 
-        return layerInfo(
-                resource.getName() + "-layer-id",
-                resource,
-                resource.getName() + " title",
-                true,
-                defaultStyle);
+        return layerInfo(resource.getName() + "-layer-id", resource, resource.getName() + " title", true, defaultStyle);
     }
 
     public LayerInfo layerInfo(
@@ -225,8 +214,7 @@ public class CatalogFaker {
         return wmtsl;
     }
 
-    public WMTSStoreInfo wmtsStoreInfo(
-            String id, WorkspaceInfo workspace, String name, String url, boolean enabled) {
+    public WMTSStoreInfo wmtsStoreInfo(String id, WorkspaceInfo workspace, String name, String url, boolean enabled) {
         WMTSStoreInfo wmtss = catalogFactory().createWebMapTileServer();
         OwsUtils.set(wmtss, "id", id);
         wmtss.setWorkspace(workspace);
@@ -250,8 +238,7 @@ public class CatalogFaker {
         return wmsl;
     }
 
-    public WMSStoreInfo wmsStoreInfo(
-            String id, WorkspaceInfo wspace, String name, String url, boolean enabled) {
+    public WMSStoreInfo wmsStoreInfo(String id, WorkspaceInfo wspace, String name, String url, boolean enabled) {
         WMSStoreInfo wms = catalogFactory().createWebMapServer();
         OwsUtils.set(wms, "id", id);
         wms.setName(name);
@@ -329,8 +316,7 @@ public class CatalogFaker {
         return dataStoreInfo("DataStoreInfo." + id(), ws, name, name + " description", true);
     }
 
-    public DataStoreInfo dataStoreInfo(
-            String id, WorkspaceInfo ws, String name, String description, boolean enabled) {
+    public DataStoreInfo dataStoreInfo(String id, WorkspaceInfo ws, String name, String description, boolean enabled) {
         DataStoreInfoImpl dstore = (DataStoreInfoImpl) catalogFactory().createDataStore();
         OwsUtils.set(dstore, "id", id);
         dstore.setEnabled(enabled);
@@ -480,8 +466,7 @@ public class CatalogFaker {
         Address it = italian().faker().address();
         Address de = german().faker().address();
         c.setInternationalAddress(
-                internationalString(
-                        Locale.ITALIAN, it.fullAddress(), Locale.GERMAN, de.fullAddress()));
+                internationalString(Locale.ITALIAN, it.fullAddress(), Locale.GERMAN, de.fullAddress()));
         return c;
     }
 
@@ -503,8 +488,7 @@ public class CatalogFaker {
         s.setTitle(workspace == null ? "Global Settings" : workspace.getName() + " Settings");
         s.setCharset("UTF-8");
         s.setContact(contactInfo());
-        s.getMetadata()
-                .putAll(metadataMap("k1", Integer.valueOf(1), "k2", "2", "k3", Boolean.FALSE));
+        s.getMetadata().putAll(metadataMap("k1", Integer.valueOf(1), "k2", "2", "k3", Boolean.FALSE));
         s.setNumDecimals(9);
         s.setOnlineResource("http://geoserver.org");
         s.setProxyBaseUrl("http://test.geoserver.org");
@@ -520,18 +504,10 @@ public class CatalogFaker {
         s.setName(name);
         s.setTitle(name + " Title");
         s.setAbstract(name + " Abstract");
-        s.setInternationalTitle(
-                internationalString(
-                        Locale.ENGLISH,
-                        name + " english title",
-                        Locale.CANADA_FRENCH,
-                        name + "titre anglais"));
-        s.setInternationalAbstract(
-                internationalString(
-                        Locale.ENGLISH,
-                        name + " english abstract",
-                        Locale.CANADA_FRENCH,
-                        name + "résumé anglais"));
+        s.setInternationalTitle(internationalString(
+                Locale.ENGLISH, name + " english title", Locale.CANADA_FRENCH, name + "titre anglais"));
+        s.setInternationalAbstract(internationalString(
+                Locale.ENGLISH, name + " english abstract", Locale.CANADA_FRENCH, name + "résumé anglais"));
         s.setAccessConstraints("NONE");
         s.setCiteCompliant(true);
         s.setEnabled(true);
@@ -584,8 +560,7 @@ public class CatalogFaker {
         return s;
     }
 
-    public GrowableInternationalString internationalString(
-            Locale l1, String val1, Locale l2, String val2) {
+    public GrowableInternationalString internationalString(Locale l1, String val1, Locale l2, String val2) {
         GrowableInternationalString s = new GrowableInternationalString();
         s.add(l1, val1);
         s.add(l2, val2);

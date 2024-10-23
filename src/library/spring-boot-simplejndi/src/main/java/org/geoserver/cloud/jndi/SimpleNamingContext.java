@@ -4,15 +4,12 @@
  */
 package org.geoserver.cloud.jndi;
 
-import lombok.NonNull;
-
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
 import javax.naming.Binding;
 import javax.naming.Context;
 import javax.naming.Name;
@@ -22,6 +19,7 @@ import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.OperationNotSupportedException;
+import lombok.NonNull;
 
 /**
  * Simple implementation of a JNDI naming context. Only supports binding plain Objects to String
@@ -50,9 +48,7 @@ public class SimpleNamingContext implements Context {
     }
 
     SimpleNamingContext(
-            @NonNull String root,
-            @NonNull Map<String, Object> boundObjects,
-            @NonNull Map<String, Object> env) {
+            @NonNull String root, @NonNull Map<String, Object> boundObjects, @NonNull Map<String, Object> env) {
 
         this.contextRoot = root;
         this.bindings.putAll(boundObjects);
@@ -91,8 +87,7 @@ public class SimpleNamingContext implements Context {
             return new SimpleNamingContext(root, this.bindings, this.environment);
         }
 
-        throw new NameNotFoundException(
-                "'%s' not bound. Bindings: %s".formatted(name, this.bindings.keySet()));
+        throw new NameNotFoundException("'%s' not bound. Bindings: %s".formatted(name, this.bindings.keySet()));
     }
 
     @Override
@@ -125,8 +120,7 @@ public class SimpleNamingContext implements Context {
     @Override
     public Context createSubcontext(String name) {
         final String subcontextName = rootName(this.contextRoot + name);
-        Context subcontext =
-                new SimpleNamingContext(subcontextName, this.bindings, this.environment);
+        Context subcontext = new SimpleNamingContext(subcontextName, this.bindings, this.environment);
         bind(name, subcontext);
         return subcontext;
     }
@@ -282,8 +276,7 @@ public class SimpleNamingContext implements Context {
 
         private final Iterator<T> iterator;
 
-        private BaseNamingEnumeration(SimpleNamingContext context, final String root)
-                throws NamingException {
+        private BaseNamingEnumeration(SimpleNamingContext context, final String root) throws NamingException {
 
             if (!root.equals(ROOT_NAME) && !root.endsWith("/")) {
                 throw new IllegalArgumentException("root must end with /: " + root);
@@ -306,9 +299,7 @@ public class SimpleNamingContext implements Context {
         protected String extractSimpleName(final String contextRoot, String boundName) {
             int startIndex = contextRoot.length();
             int endIndex = boundName.indexOf('/', startIndex);
-            return (endIndex != -1
-                    ? boundName.substring(startIndex, endIndex)
-                    : boundName.substring(startIndex));
+            return (endIndex != -1 ? boundName.substring(startIndex, endIndex) : boundName.substring(startIndex));
         }
 
         private T lookup(String root, String name, SimpleNamingContext context) {
@@ -316,8 +307,7 @@ public class SimpleNamingContext implements Context {
             try {
                 lookup = context.lookup(root + name);
             } catch (NameNotFoundException shouldNotHappen) {
-                throw new IllegalStateException(
-                        "Subcontext lookup should not fail at this point", shouldNotHappen);
+                throw new IllegalStateException("Subcontext lookup should not fail at this point", shouldNotHappen);
             }
             return createObject(name, lookup);
         }
@@ -348,11 +338,9 @@ public class SimpleNamingContext implements Context {
         public void close() {}
     }
 
-    private static final class NameClassPairEnumeration
-            extends BaseNamingEnumeration<NameClassPair> {
+    private static final class NameClassPairEnumeration extends BaseNamingEnumeration<NameClassPair> {
 
-        private NameClassPairEnumeration(SimpleNamingContext context, String root)
-                throws NamingException {
+        private NameClassPairEnumeration(SimpleNamingContext context, String root) throws NamingException {
             super(context, root);
         }
 
@@ -364,8 +352,7 @@ public class SimpleNamingContext implements Context {
 
     private static final class BindingEnumeration extends BaseNamingEnumeration<Binding> {
 
-        private BindingEnumeration(SimpleNamingContext context, String root)
-                throws NamingException {
+        private BindingEnumeration(SimpleNamingContext context, String root) throws NamingException {
             super(context, root);
         }
 

@@ -4,16 +4,14 @@
  */
 package org.geoserver.platform.config;
 
-import lombok.NonNull;
-
-import org.geoserver.catalog.impl.ModificationProxy;
-import org.geoserver.config.GeoServer;
-import org.geoserver.config.GeoServerInfo;
-
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import lombok.NonNull;
+import org.geoserver.catalog.impl.ModificationProxy;
+import org.geoserver.config.GeoServer;
+import org.geoserver.config.GeoServerInfo;
 
 /**
  * @since 1.0
@@ -30,10 +28,9 @@ public class DefaultUpdateSequence implements UpdateSequence {
 
     public DefaultUpdateSequence(@NonNull GeoServer gs) {
         this.geoServer = gs;
-        sequence.set(
-                Optional.ofNullable(gs.getGlobal())
-                        .map(GeoServerInfo::getUpdateSequence)
-                        .orElse(0L));
+        sequence.set(Optional.ofNullable(gs.getGlobal())
+                .map(GeoServerInfo::getUpdateSequence)
+                .orElse(0L));
     }
 
     @Override
@@ -59,11 +56,9 @@ public class DefaultUpdateSequence implements UpdateSequence {
     }
 
     private Optional<GeoServerInfo> info() {
-        return Optional.ofNullable(geoServer.getGlobal())
-                .map(
-                        global -> {
-                            sequence.compareAndSet(UNSET, global.getUpdateSequence());
-                            return global;
-                        });
+        return Optional.ofNullable(geoServer.getGlobal()).map(global -> {
+            sequence.compareAndSet(UNSET, global.getUpdateSequence());
+            return global;
+        });
     }
 }

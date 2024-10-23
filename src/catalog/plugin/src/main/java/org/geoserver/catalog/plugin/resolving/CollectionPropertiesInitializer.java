@@ -4,11 +4,10 @@
  */
 package org.geoserver.catalog.plugin.resolving;
 
+import java.util.function.UnaryOperator;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.plugin.forwarding.ResolvingCatalogFacadeDecorator;
 import org.geoserver.ows.util.OwsUtils;
-
-import java.util.function.UnaryOperator;
 
 /**
  * {@link ResolvingCatalogFacadeDecorator#setObjectResolver resolving function} that returns the
@@ -18,8 +17,7 @@ import java.util.function.UnaryOperator;
  */
 public class CollectionPropertiesInitializer<T> implements UnaryOperator<T> {
 
-    private static final CollectionPropertiesInitializer<?> INSTANCE =
-            new CollectionPropertiesInitializer<>();
+    private static final CollectionPropertiesInitializer<?> INSTANCE = new CollectionPropertiesInitializer<>();
 
     @Override
     public T apply(T value) {

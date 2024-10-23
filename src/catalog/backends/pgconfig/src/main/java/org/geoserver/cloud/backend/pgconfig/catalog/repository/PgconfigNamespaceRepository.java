@@ -4,15 +4,13 @@
  */
 package org.geoserver.cloud.backend.pgconfig.catalog.repository;
 
+import java.util.Optional;
+import java.util.stream.Stream;
 import lombok.NonNull;
-
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.NamespaceRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-
-import java.util.Optional;
-import java.util.stream.Stream;
 
 /**
  * @since 1.4
@@ -65,11 +63,9 @@ public class PgconfigNamespaceRepository extends PgconfigCatalogInfoRepository<N
 
     @Override
     public Optional<NamespaceInfo> findOneByURI(@NonNull String uri) {
-        return findOne(
-                """
+        return findOne("""
                 SELECT namespace FROM namespaceinfos WHERE uri = ?
-                """,
-                uri);
+                """, uri);
     }
 
     @Override
@@ -77,8 +73,7 @@ public class PgconfigNamespaceRepository extends PgconfigCatalogInfoRepository<N
         return super.queryForStream(
                 """
                 SELECT namespace FROM namespaceinfos WHERE uri = ?
-                """,
-                uri);
+                """, uri);
     }
 
     @Override

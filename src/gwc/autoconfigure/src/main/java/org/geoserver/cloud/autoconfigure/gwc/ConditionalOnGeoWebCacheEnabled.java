@@ -4,16 +4,15 @@
  */
 package org.geoserver.cloud.autoconfigure.gwc;
 
-import org.geoserver.cloud.gwc.config.core.GeoWebCacheConfigurationProperties;
-import org.geoserver.gwc.GWC;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import org.geoserver.cloud.gwc.config.core.GeoWebCacheConfigurationProperties;
+import org.geoserver.gwc.GWC;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})

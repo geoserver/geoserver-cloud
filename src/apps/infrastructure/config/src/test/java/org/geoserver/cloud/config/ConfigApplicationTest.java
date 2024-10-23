@@ -8,7 +8,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 import lombok.extern.slf4j.Slf4j;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -27,9 +26,11 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles({"native", "test"})
 class ConfigApplicationTest {
 
-    @LocalServerPort private int port;
+    @LocalServerPort
+    private int port;
 
-    @Autowired private TestRestTemplate restTemplate;
+    @Autowired
+    private TestRestTemplate restTemplate;
 
     private String baseUri;
 
@@ -41,8 +42,7 @@ class ConfigApplicationTest {
     @Test
     void testNoProfile() throws Exception {
         assertThat(
-                this.restTemplate.getForEntity(baseUri, String.class).getStatusCode(),
-                equalTo(HttpStatus.NOT_FOUND));
+                this.restTemplate.getForEntity(baseUri, String.class).getStatusCode(), equalTo(HttpStatus.NOT_FOUND));
     }
 
     @Test

@@ -7,7 +7,6 @@ package org.geoserver.cloud.gwc.bus;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-
 import org.geoserver.cloud.gwc.event.ConfigChangeEvent;
 
 /**

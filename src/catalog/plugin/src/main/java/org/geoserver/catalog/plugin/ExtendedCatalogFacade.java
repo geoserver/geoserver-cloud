@@ -4,8 +4,14 @@
  */
 package org.geoserver.catalog.plugin;
 
+import java.io.Closeable;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import lombok.NonNull;
-
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.LayerGroupInfo;
@@ -23,15 +29,6 @@ import org.geoserver.catalog.util.CloseableIteratorAdapter;
 import org.geotools.api.filter.Filter;
 import org.geotools.api.filter.sort.SortBy;
 
-import java.io.Closeable;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.stream.Stream;
-
-import javax.annotation.Nullable;
-
 /**
  * {@link CatalogFacade} with additional methods
  *
@@ -41,15 +38,14 @@ import javax.annotation.Nullable;
 public interface ExtendedCatalogFacade extends CatalogFacade {
 
     default void forEach(Consumer<? super CatalogInfo> consumer) {
-        List<Class<? extends CatalogInfo>> types =
-                List.of(
-                        WorkspaceInfo.class,
-                        NamespaceInfo.class,
-                        StoreInfo.class,
-                        ResourceInfo.class,
-                        StyleInfo.class,
-                        LayerInfo.class,
-                        LayerGroupInfo.class);
+        List<Class<? extends CatalogInfo>> types = List.of(
+                WorkspaceInfo.class,
+                NamespaceInfo.class,
+                StoreInfo.class,
+                ResourceInfo.class,
+                StyleInfo.class,
+                LayerInfo.class,
+                LayerGroupInfo.class);
 
         for (var type : types) {
             try (var stream = query(Query.valueOf(type, Filter.INCLUDE))) {
@@ -83,11 +79,9 @@ public interface ExtendedCatalogFacade extends CatalogFacade {
                     case WORKSPACE -> getWorkspace(id);
                     case NAMESPACE -> getNamespace(id);
 
-                    case DATASTORE, COVERAGESTORE, WMSSTORE, WMTSSTORE, STORE -> getStore(
-                            id, StoreInfo.class);
+                    case DATASTORE, COVERAGESTORE, WMSSTORE, WMTSSTORE, STORE -> getStore(id, StoreInfo.class);
 
-                    case FEATURETYPE, COVERAGE, WMSLAYER, WMTSLAYER, RESOURCE -> getResource(
-                            id, ResourceInfo.class);
+                    case FEATURETYPE, COVERAGE, WMSLAYER, WMTSLAYER, RESOURCE -> getResource(id, ResourceInfo.class);
 
                     case LAYER -> getLayer(id);
                     case LAYERGROUP -> getLayerGroup(id);
@@ -95,8 +89,7 @@ public interface ExtendedCatalogFacade extends CatalogFacade {
 
                     case STYLE -> getStyle(id);
                     case MAP -> getMap(id);
-                    default -> throw new IllegalArgumentException(
-                            "Unknown CatalogInfo type " + type);
+                    default -> throw new IllegalArgumentException("Unknown CatalogInfo type " + type);
                 };
 
         return Optional.ofNullable(found).filter(type::isInstance).map(type::cast);

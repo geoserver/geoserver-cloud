@@ -5,9 +5,7 @@
 package org.geoserver.cloud.autoconfigure.metrics.catalog;
 
 import io.micrometer.core.annotation.Timed;
-
 import lombok.NonNull;
-
 import org.geoserver.catalog.Catalog;
 import org.geoserver.config.GeoServer;
 import org.geoserver.platform.config.UpdateSequence;
@@ -27,8 +25,7 @@ import org.springframework.context.annotation.Bean;
  * @see CatalogMetrics
  * @since 1.0
  */
-@AutoConfiguration(
-        after = {MetricsAutoConfiguration.class, CompositeMeterRegistryAutoConfiguration.class})
+@AutoConfiguration(after = {MetricsAutoConfiguration.class, CompositeMeterRegistryAutoConfiguration.class})
 @ConditionalOnClass(Timed.class)
 @ConditionalOnGeoServerMetricsEnabled
 @EnableConfigurationProperties(GeoSeverMetricsConfigProperties.class)

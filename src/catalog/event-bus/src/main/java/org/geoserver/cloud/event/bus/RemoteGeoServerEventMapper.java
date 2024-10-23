@@ -4,15 +4,13 @@
  */
 package org.geoserver.cloud.event.bus;
 
+import java.util.Optional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-
 import org.geoserver.cloud.event.GeoServerEvent;
 import org.geoserver.cloud.event.info.InfoEvent;
 import org.springframework.cloud.bus.ServiceMatcher;
 import org.springframework.cloud.bus.event.Destination;
-
-import java.util.Optional;
 
 /**
  * Aids {@link RemoteGeoServerEventBridge} in mapping {@link RemoteGeoServerEvent} to local {@link
@@ -42,8 +40,7 @@ class RemoteGeoServerEventMapper {
     public RemoteGeoServerEvent toRemote(GeoServerEvent anyLocalCatalogOrConfigEvent) {
         String origin = localBusServiceId();
         Destination destination = destinationService();
-        RemoteGeoServerEvent remote =
-                new RemoteGeoServerEvent(this, anyLocalCatalogOrConfigEvent, origin, destination);
+        RemoteGeoServerEvent remote = new RemoteGeoServerEvent(this, anyLocalCatalogOrConfigEvent, origin, destination);
         anyLocalCatalogOrConfigEvent.setOrigin(origin);
         anyLocalCatalogOrConfigEvent.setId(remote.getId());
         return remote;
@@ -72,8 +69,7 @@ class RemoteGeoServerEventMapper {
         GeoServerEvent event = incoming.getEvent();
         event.setRemote(true);
         event.setOrigin(incoming.getOriginService());
-        if (event instanceof InfoEvent infoEvent)
-            event = remoteEventsPropertyResolver.resolve(infoEvent);
+        if (event instanceof InfoEvent infoEvent) event = remoteEventsPropertyResolver.resolve(infoEvent);
         return event;
     }
 }

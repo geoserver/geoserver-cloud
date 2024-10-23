@@ -7,25 +7,21 @@ package org.geoserver.cloud.config.jndidatasource;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.zaxxer.hikari.HikariDataSource;
-
+import javax.naming.Context;
+import javax.naming.spi.NamingManager;
 import org.geoserver.cloud.config.jndi.SimpleJNDIStaticContextInitializer;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
-
-import javax.naming.Context;
-import javax.naming.spi.NamingManager;
 
 /**
  * @since 1.0
  */
 class JNDIDataSourceAutoConfigurationTest {
 
-    private ApplicationContextRunner runner =
-            new ApplicationContextRunner()
-                    .withInitializer(new SimpleJNDIStaticContextInitializer())
-                    .withConfiguration(
-                            AutoConfigurations.of(JNDIDataSourceAutoConfiguration.class));
+    private ApplicationContextRunner runner = new ApplicationContextRunner()
+            .withInitializer(new SimpleJNDIStaticContextInitializer())
+            .withConfiguration(AutoConfigurations.of(JNDIDataSourceAutoConfiguration.class));
 
     @Test
     void test() {
@@ -37,11 +33,10 @@ class JNDIDataSourceAutoConfigurationTest {
                         "jndi.datasources.ds1.connection-timeout: 250", //
                         "jndi.datasources.ds1.idle-timeout: 60000" //
                         )
-                .run(
-                        context -> {
-                            Context initialContext = NamingManager.getInitialContext(null);
-                            Object object = initialContext.lookup("java:comp/env/jdbc/ds1");
-                            assertThat(object).isInstanceOf(HikariDataSource.class);
-                        });
+                .run(context -> {
+                    Context initialContext = NamingManager.getInitialContext(null);
+                    Object object = initialContext.lookup("java:comp/env/jdbc/ds1");
+                    assertThat(object).isInstanceOf(HikariDataSource.class);
+                });
     }
 }

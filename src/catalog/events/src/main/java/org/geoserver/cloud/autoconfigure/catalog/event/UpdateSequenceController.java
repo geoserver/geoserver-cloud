@@ -4,11 +4,11 @@
  */
 package org.geoserver.cloud.autoconfigure.catalog.event;
 
+import javax.annotation.security.RolesAllowed;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
-
 import org.geoserver.cloud.event.UpdateSequenceEvent;
 import org.geoserver.config.GeoServer;
 import org.geoserver.platform.config.UpdateSequence;
@@ -17,8 +17,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.annotation.security.RolesAllowed;
 
 /**
  * @since 1.0

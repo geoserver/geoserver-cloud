@@ -13,6 +13,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import org.geoserver.cloud.gwc.event.BlobStoreEvent;
 import org.geoserver.cloud.gwc.event.GeoWebCacheEvent;
 import org.geoserver.cloud.gwc.repository.CloudGwcXmlConfiguration;
@@ -29,12 +34,6 @@ import org.geowebcache.util.ApplicationContextProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @since 1.0
@@ -63,15 +62,10 @@ class AzureBlobStoreXmlConfigurationTest {
     private CloudGwcXmlConfiguration createStubConfig() throws GeoWebCacheException {
         ApplicationContextProvider appCtx = mock(ApplicationContextProvider.class);
 
-        ConfigurationResourceProvider inFac =
-                new XMLFileResourceProvider(
-                        "geowebcache.xml",
-                        appCtx,
-                        tmpdir.toAbsolutePath().toString(),
-                        (DefaultStorageFinder) null);
+        ConfigurationResourceProvider inFac = new XMLFileResourceProvider(
+                "geowebcache.xml", appCtx, tmpdir.toAbsolutePath().toString(), (DefaultStorageFinder) null);
 
-        CloudGwcXmlConfiguration xmlConfig =
-                new CloudGwcXmlConfiguration(appCtx, inFac, mockEventPublisher::set);
+        CloudGwcXmlConfiguration xmlConfig = new CloudGwcXmlConfiguration(appCtx, inFac, mockEventPublisher::set);
         GridSetBroker broker = new GridSetBroker(List.of(defaultGridsets));
         xmlConfig.setGridSetBroker(broker);
         xmlConfig.afterPropertiesSet();

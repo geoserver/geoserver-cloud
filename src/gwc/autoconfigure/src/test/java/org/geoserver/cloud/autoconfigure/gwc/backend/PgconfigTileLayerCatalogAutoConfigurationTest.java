@@ -2,6 +2,7 @@ package org.geoserver.cloud.autoconfigure.gwc.backend;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.File;
 import org.geoserver.cloud.autoconfigure.catalog.backend.pgconfig.ConditionalOnPgconfigBackendEnabled;
 import org.geoserver.cloud.autoconfigure.catalog.backend.pgconfig.PgconfigBackendAutoConfiguration;
 import org.geoserver.cloud.autoconfigure.catalog.backend.pgconfig.PgconfigDataSourceAutoConfiguration;
@@ -34,28 +35,27 @@ import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.io.File;
-
 /** GWC integration test for {@link PgconfigTileLayerCatalogAutoConfiguration} */
 @Testcontainers(disabledWithoutDocker = true)
 class PgconfigTileLayerCatalogAutoConfigurationTest {
 
-    @Container static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();
+    @Container
+    static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();
 
-    @TempDir File cacheDir;
+    @TempDir
+    File cacheDir;
+
     private WebApplicationContextRunner runner;
 
     @BeforeEach
     void setUp() {
-        runner =
-                GeoWebCacheContextRunner.newMinimalGeoWebCacheContextRunner(cacheDir)
-                        .withConfiguration(
-                                AutoConfigurations.of(
-                                        PgconfigTileLayerCatalogAutoConfiguration.class,
-                                        PgconfigBackendAutoConfiguration.class,
-                                        PgconfigDataSourceAutoConfiguration.class,
-                                        PgconfigTransactionManagerAutoConfiguration.class,
-                                        PgconfigMigrationAutoConfiguration.class));
+        runner = GeoWebCacheContextRunner.newMinimalGeoWebCacheContextRunner(cacheDir)
+                .withConfiguration(AutoConfigurations.of(
+                        PgconfigTileLayerCatalogAutoConfiguration.class,
+                        PgconfigBackendAutoConfiguration.class,
+                        PgconfigDataSourceAutoConfiguration.class,
+                        PgconfigTransactionManagerAutoConfiguration.class,
+                        PgconfigMigrationAutoConfiguration.class));
         runner = container.setUp().withJdbcUrlConfig(runner);
     }
 
@@ -72,41 +72,33 @@ class PgconfigTileLayerCatalogAutoConfigurationTest {
      */
     @Test
     void testPgconfigTileLayerCatalogReplacesDefaultTileLayerCatalogAutoConfiguration() {
-        runner.run(
-                context -> {
-                    assertThat(context)
-                            .doesNotHaveBean(GWCInitializer.class)
-                            .hasSingleBean(PgconfigGwcInitializer.class);
+        runner.run(context -> {
+            assertThat(context).doesNotHaveBean(GWCInitializer.class).hasSingleBean(PgconfigGwcInitializer.class);
 
-                    assertThat(context)
-                            .hasNotFailed()
-                            .hasBean("gwcCatalogConfiguration")
-                            .getBean("gwcCatalogConfiguration", TileLayerConfiguration.class)
-                            .isInstanceOf(GeoServerTileLayerConfiguration.class);
+            assertThat(context)
+                    .hasNotFailed()
+                    .hasBean("gwcCatalogConfiguration")
+                    .getBean("gwcCatalogConfiguration", TileLayerConfiguration.class)
+                    .isInstanceOf(GeoServerTileLayerConfiguration.class);
 
-                    assertThat(
-                                    context.getBean(
-                                                    "gwcCatalogConfiguration",
-                                                    GeoServerTileLayerConfiguration.class)
-                                            .getSubject())
-                            .isInstanceOf(PgconfigTileLayerCatalog.class);
+            assertThat(context.getBean("gwcCatalogConfiguration", GeoServerTileLayerConfiguration.class)
+                            .getSubject())
+                    .isInstanceOf(PgconfigTileLayerCatalog.class);
 
-                    assertThat(context)
-                            .getBean("gwcXmlConfig", XMLConfiguration.class)
-                            .isInstanceOf(CloudGwcXmlConfiguration.class);
+            assertThat(context)
+                    .getBean("gwcXmlConfig", XMLConfiguration.class)
+                    .isInstanceOf(CloudGwcXmlConfiguration.class);
 
-                    assertThat(context)
-                            .getBean(
-                                    "gwcXmlConfigResourceProvider",
-                                    ConfigurationResourceProvider.class)
-                            .isInstanceOf(CloudXMLResourceProvider.class);
+            assertThat(context)
+                    .getBean("gwcXmlConfigResourceProvider", ConfigurationResourceProvider.class)
+                    .isInstanceOf(CloudXMLResourceProvider.class);
 
-                    assertThat(context)
-                            .getBean("gwcDefaultStorageFinder", DefaultStorageFinder.class)
-                            .isInstanceOf(CloudDefaultStorageFinder.class);
+            assertThat(context)
+                    .getBean("gwcDefaultStorageFinder", DefaultStorageFinder.class)
+                    .isInstanceOf(CloudDefaultStorageFinder.class);
 
-                    assertDefaultTileLayerCatalogConfigurationAbsent(context);
-                });
+            assertDefaultTileLayerCatalogConfigurationAbsent(context);
+        });
     }
 
     /**
@@ -116,13 +108,10 @@ class PgconfigTileLayerCatalogAutoConfigurationTest {
     @Test
     void conditionalOnClass_PgconfigTileLayerCatalog() {
         runner.withClassLoader(new FilteredClassLoader(PgconfigTileLayerCatalog.class))
-                .run(
-                        context -> {
-                            assertThat(context)
-                                    .hasNotFailed()
-                                    .doesNotHaveBean(PgconfigTileLayerCatalog.class);
-                            assertDefaultTileLayerCatalogConfigurationPresent(context);
-                        });
+                .run(context -> {
+                    assertThat(context).hasNotFailed().doesNotHaveBean(PgconfigTileLayerCatalog.class);
+                    assertDefaultTileLayerCatalogConfigurationPresent(context);
+                });
     }
 
     /**
@@ -132,14 +121,10 @@ class PgconfigTileLayerCatalogAutoConfigurationTest {
      */
     @Test
     void conditionalOnGeoWebCacheEnabled() {
-        runner.withPropertyValues("gwc.enabled: false")
-                .run(
-                        context -> {
-                            assertThat(context)
-                                    .hasNotFailed()
-                                    .doesNotHaveBean(PgconfigTileLayerCatalog.class);
-                            assertDefaultTileLayerCatalogConfigurationAbsent(context);
-                        });
+        runner.withPropertyValues("gwc.enabled: false").run(context -> {
+            assertThat(context).hasNotFailed().doesNotHaveBean(PgconfigTileLayerCatalog.class);
+            assertDefaultTileLayerCatalogConfigurationAbsent(context);
+        });
     }
 
     /**
@@ -149,18 +134,13 @@ class PgconfigTileLayerCatalogAutoConfigurationTest {
      */
     @Test
     void conditionalOnPgconfigBackendEnabled() {
-        runner.withPropertyValues("geoserver.backend.pgconfig.enabled: false")
-                .run(
-                        context -> {
-                            assertThat(context)
-                                    .hasNotFailed()
-                                    .doesNotHaveBean(PgconfigTileLayerCatalog.class);
-                            assertDefaultTileLayerCatalogConfigurationPresent(context);
-                        });
+        runner.withPropertyValues("geoserver.backend.pgconfig.enabled: false").run(context -> {
+            assertThat(context).hasNotFailed().doesNotHaveBean(PgconfigTileLayerCatalog.class);
+            assertDefaultTileLayerCatalogConfigurationPresent(context);
+        });
     }
 
-    private void assertDefaultTileLayerCatalogConfigurationAbsent(
-            AssertableWebApplicationContext context) {
+    private void assertDefaultTileLayerCatalogConfigurationAbsent(AssertableWebApplicationContext context) {
 
         assertThat(context)
                 .doesNotHaveBean(CloudCatalogConfiguration.class)
@@ -168,8 +148,7 @@ class PgconfigTileLayerCatalogAutoConfigurationTest {
                 .doesNotHaveBean(CachingTileLayerCatalog.class);
     }
 
-    private void assertDefaultTileLayerCatalogConfigurationPresent(
-            AssertableWebApplicationContext context) {
+    private void assertDefaultTileLayerCatalogConfigurationPresent(AssertableWebApplicationContext context) {
 
         assertThat(context)
                 .hasSingleBean(ResourceStoreTileLayerCatalog.class)
@@ -178,11 +157,8 @@ class PgconfigTileLayerCatalogAutoConfigurationTest {
                 .getBean("gwcCatalogConfiguration", TileLayerConfiguration.class)
                 .isInstanceOf(GeoServerTileLayerConfiguration.class);
 
-        assertThat(
-                        context.getBean(
-                                        "gwcCatalogConfiguration",
-                                        GeoServerTileLayerConfiguration.class)
-                                .getSubject())
+        assertThat(context.getBean("gwcCatalogConfiguration", GeoServerTileLayerConfiguration.class)
+                        .getSubject())
                 .isInstanceOf(CloudCatalogConfiguration.class);
     }
 }

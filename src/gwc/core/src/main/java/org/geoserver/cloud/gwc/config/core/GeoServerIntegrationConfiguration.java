@@ -4,8 +4,8 @@
  */
 package org.geoserver.cloud.gwc.config.core;
 
+import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
 import org.geoserver.cloud.gwc.event.ConfigChangeEvent;
 import org.geoserver.config.util.XStreamPersisterFactory;
@@ -16,8 +16,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
-
-import javax.annotation.PostConstruct;
 
 /**
  * @since 1.0
@@ -61,9 +59,7 @@ public class GeoServerIntegrationConfiguration {
      */
     @Bean
     GWCConfigPersister gwcGeoServervConfigPersister(
-            XStreamPersisterFactory xsfp,
-            GeoServerResourceLoader resourceLoader,
-            ApplicationEventPublisher publisher) {
+            XStreamPersisterFactory xsfp, GeoServerResourceLoader resourceLoader, ApplicationEventPublisher publisher) {
         return new CloudGwcConfigPersister(xsfp, resourceLoader, publisher::publishEvent);
     }
 }

@@ -31,10 +31,8 @@ import org.springframework.context.annotation.ImportResource;
 @ImportResource( //
         reader = FilteringXmlBeanDefinitionReader.class, //
         locations = { //
-            "jar:gs-wms-.*!/applicationContext.xml#name="
-                    + WmsApplicationAutoConfiguration.WMS_BEANS_BLACKLIST, //
-            "jar:gs-wfs-.*!/applicationContext.xml#name="
-                    + WmsApplicationAutoConfiguration.WFS_BEANS_WHITELIST //
+            "jar:gs-wms-.*!/applicationContext.xml#name=" + WmsApplicationAutoConfiguration.WMS_BEANS_BLACKLIST, //
+            "jar:gs-wfs-.*!/applicationContext.xml#name=" + WmsApplicationAutoConfiguration.WFS_BEANS_WHITELIST //
         })
 public class WmsApplicationAutoConfiguration {
 
@@ -70,8 +68,7 @@ public class WmsApplicationAutoConfiguration {
      *     workspace and secured catalog decorators
      */
     @Bean
-    LegendSample legendSample(
-            @Qualifier("rawCatalog") Catalog catalog, GeoServerResourceLoader loader) {
+    LegendSample legendSample(@Qualifier("rawCatalog") Catalog catalog, GeoServerResourceLoader loader) {
         return new LegendSampleImpl(catalog, loader);
     }
 

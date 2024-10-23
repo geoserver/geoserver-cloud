@@ -6,6 +6,7 @@ package org.geoserver.cloud.autoconfigure.gwc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.File;
 import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.cloud.autoconfigure.gwc.backend.DefaultTileLayerCatalogAutoConfiguration;
@@ -28,8 +29,6 @@ import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 
-import java.io.File;
-
 /**
  * @since 1.0
  */
@@ -42,12 +41,9 @@ public class GeoWebCacheContextRunner {
         assertThat(gwcCacheDir).isDirectory().isWritable();
 
         return newMinimalGeoServerContextRunner(tmpDir)
-                .withConfiguration(
-                        AutoConfigurations.of(
-                                GeoWebCacheAutoConfiguration.class,
-                                DefaultTileLayerCatalogAutoConfiguration.class))
-                .withPropertyValues(
-                        "gwc.cache-directory=%s".formatted(gwcCacheDir.getAbsolutePath()));
+                .withConfiguration(AutoConfigurations.of(
+                        GeoWebCacheAutoConfiguration.class, DefaultTileLayerCatalogAutoConfiguration.class))
+                .withPropertyValues("gwc.cache-directory=%s".formatted(gwcCacheDir.getAbsolutePath()));
     }
 
     public static WebApplicationContextRunner newMinimalGeoServerContextRunner(File tmpDir) {
@@ -56,8 +52,7 @@ public class GeoWebCacheContextRunner {
                 .withAllowCircularReferences(true)
                 // tmpDir for AddGeoServerDependenciesConfiguration
                 .withBean("tempDir", File.class, () -> tmpDir)
-                .withConfiguration(
-                        AutoConfigurations.of(AddGeoServerDependenciesConfiguration.class))
+                .withConfiguration(AutoConfigurations.of(AddGeoServerDependenciesConfiguration.class))
                 .withBean("extensions", GeoServerExtensions.class)
                 .withBean("environments", GeoServerEnvironment.class)
                 .withBean("xstreamPersisterFactory", XStreamPersisterFactory.class)
@@ -112,8 +107,7 @@ public class GeoWebCacheContextRunner {
 
         @Bean
         @ConditionalOnMissingBean
-        GeoServerSecurityManager geoServerSecurityManager(GeoServerDataDirectory datadir)
-                throws Exception {
+        GeoServerSecurityManager geoServerSecurityManager(GeoServerDataDirectory datadir) throws Exception {
             return new GeoServerSecurityManager(datadir);
         }
     }

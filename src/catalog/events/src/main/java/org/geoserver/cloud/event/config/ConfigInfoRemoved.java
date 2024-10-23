@@ -6,9 +6,7 @@ package org.geoserver.cloud.event.config;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
 import lombok.NonNull;
-
 import org.geoserver.catalog.Info;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoRemoved;
@@ -28,15 +26,11 @@ public abstract class ConfigInfoRemoved extends InfoRemoved implements ConfigInf
     }
 
     protected ConfigInfoRemoved(
-            long updateSequence,
-            @NonNull String objectId,
-            @NonNull String prefixedName,
-            @NonNull ConfigInfoType type) {
+            long updateSequence, @NonNull String objectId, @NonNull String prefixedName, @NonNull ConfigInfoType type) {
         super(updateSequence, objectId, prefixedName, type);
     }
 
-    public static @NonNull ConfigInfoRemoved createLocal(
-            long updateSequence, @NonNull Info configInfo) {
+    public static @NonNull ConfigInfoRemoved createLocal(long updateSequence, @NonNull Info configInfo) {
 
         final ConfigInfoType type = ConfigInfoType.valueOf(configInfo);
         return switch (type) {

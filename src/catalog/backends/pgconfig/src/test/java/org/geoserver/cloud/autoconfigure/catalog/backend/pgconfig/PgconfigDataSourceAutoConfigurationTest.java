@@ -6,8 +6,12 @@ package org.geoserver.cloud.autoconfigure.catalog.backend.pgconfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.cloud.backend.pgconfig.support.PgConfigTestContainer;
 import org.geoserver.cloud.config.catalog.backend.pgconfig.PconfigDataSourceConfiguration;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,13 +23,6 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-
-import javax.sql.DataSource;
-
 /**
  * Tests for {@link PconfigDataSourceConfiguration}
  *
@@ -35,12 +32,11 @@ import javax.sql.DataSource;
 @Slf4j
 class PgconfigDataSourceAutoConfigurationTest {
 
-    @Container static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();
+    @Container
+    static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();
 
-    private ApplicationContextRunner runner =
-            new ApplicationContextRunner()
-                    .withConfiguration(
-                            AutoConfigurations.of(PgconfigDataSourceAutoConfiguration.class));
+    private ApplicationContextRunner runner = new ApplicationContextRunner()
+            .withConfiguration(AutoConfigurations.of(PgconfigDataSourceAutoConfiguration.class));
 
     String url;
     String username;
@@ -59,18 +55,15 @@ class PgconfigDataSourceAutoConfigurationTest {
      */
     @Test
     void testDataSource() {
-        container
-                .withJdbcUrlConfig(runner)
-                .run(
-                        context -> {
-                            assertThat(context)
-                                    .hasNotFailed()
-                                    .hasBean("pgconfigDataSource")
-                                    .getBean("pgconfigDataSource")
-                                    .isInstanceOf(DataSource.class);
+        container.withJdbcUrlConfig(runner).run(context -> {
+            assertThat(context)
+                    .hasNotFailed()
+                    .hasBean("pgconfigDataSource")
+                    .getBean("pgconfigDataSource")
+                    .isInstanceOf(DataSource.class);
 
-                            assertIsPostgresql(context);
-                        });
+            assertIsPostgresql(context);
+        });
     }
 
     /**
@@ -79,21 +72,17 @@ class PgconfigDataSourceAutoConfigurationTest {
      */
     @Test
     void testJndiDataSource() {
-        container
-                .withJndiConfig(runner)
-                .run(
-                        context -> {
-                            assertThat(context)
-                                    .hasNotFailed()
-                                    .hasBean("pgconfigDataSource")
-                                    .getBean("pgconfigDataSource")
-                                    .isInstanceOf(DataSource.class);
-                            assertIsPostgresql(context);
-                        });
+        container.withJndiConfig(runner).run(context -> {
+            assertThat(context)
+                    .hasNotFailed()
+                    .hasBean("pgconfigDataSource")
+                    .getBean("pgconfigDataSource")
+                    .isInstanceOf(DataSource.class);
+            assertIsPostgresql(context);
+        });
     }
 
-    private void assertIsPostgresql(AssertableApplicationContext context)
-            throws BeansException, SQLException {
+    private void assertIsPostgresql(AssertableApplicationContext context) throws BeansException, SQLException {
         try (Connection c =
                 context.getBean("pgconfigDataSource", DataSource.class).getConnection()) {
             assertThat(c.isValid(2)).isTrue();

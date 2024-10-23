@@ -4,10 +4,9 @@
  */
 package org.geoserver.catalog.plugin.resolving;
 
+import java.util.function.UnaryOperator;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository;
-
-import java.util.function.UnaryOperator;
 
 /**
  * @since 1.4

@@ -7,15 +7,13 @@ package org.geoserver.cloud.backend.pgconfig.catalog.filter;
 import static org.geoserver.cloud.backend.pgconfig.catalog.filter.CatalogInfoLiteralAdaptor.replaceCatalogInfoLiterals;
 import static org.geoserver.cloud.backend.pgconfig.catalog.filter.PgconfigCatalogFilterSplitter.split;
 
+import java.util.List;
+import java.util.Set;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-
 import org.geoserver.cloud.backend.pgconfig.catalog.filter.PgconfigFilterToSQL.Result;
 import org.geotools.api.filter.Filter;
 import org.geotools.filter.visitor.SimplifyingFilterVisitor;
-
-import java.util.List;
-import java.util.Set;
 
 /**
  * @since 1.4
@@ -57,8 +55,7 @@ public class PgconfigQueryBuilder {
     }
 
     private Filter adaptToSql(Filter filterPre) {
-        Filter supported =
-                ToPgsqlCompatibleFilterDuplicator.adapt(filterPre, supportedPropertyNames);
+        Filter supported = ToPgsqlCompatibleFilterDuplicator.adapt(filterPre, supportedPropertyNames);
         return simplify(supported);
     }
 

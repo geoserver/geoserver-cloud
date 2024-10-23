@@ -4,24 +4,21 @@
  */
 package org.geoserver.cloud.observability.logging.servlet;
 
+import java.io.IOException;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-
 import org.slf4j.MDC;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import java.io.IOException;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 @RequiredArgsConstructor
 public class SpringEnvironmentMdcFilter extends OncePerRequestFilter {
@@ -31,8 +28,7 @@ public class SpringEnvironmentMdcFilter extends OncePerRequestFilter {
     private final @NonNull SpringEnvironmentMdcConfigProperties config;
 
     @Override
-    protected void doFilterInternal(
-            HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
         try {
             addEnvironmentProperties();
@@ -42,23 +38,18 @@ public class SpringEnvironmentMdcFilter extends OncePerRequestFilter {
     }
 
     private void addEnvironmentProperties() {
-        if (config.isName())
-            MDC.put("application.name", env.getProperty("spring.application.name"));
+        if (config.isName()) MDC.put("application.name", env.getProperty("spring.application.name"));
 
         putVersion();
         putInstanceId();
 
         if (config.isActiveProfiles())
-            MDC.put(
-                    "spring.profiles.active",
-                    Stream.of(env.getActiveProfiles()).collect(Collectors.joining(",")));
+            MDC.put("spring.profiles.active", Stream.of(env.getActiveProfiles()).collect(Collectors.joining(",")));
     }
 
     private void putVersion() {
         if (config.isVersion()) {
-            buildProperties
-                    .map(BuildProperties::getVersion)
-                    .ifPresent(v -> MDC.put("application.version", v));
+            buildProperties.map(BuildProperties::getVersion).ifPresent(v -> MDC.put("application.version", v));
         }
     }
 

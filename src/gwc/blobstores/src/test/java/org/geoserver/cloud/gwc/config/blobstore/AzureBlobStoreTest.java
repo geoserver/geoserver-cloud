@@ -8,6 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Map;
 import org.geowebcache.GeoWebCacheEnvironment;
 import org.geowebcache.GeoWebCacheExtensions;
 import org.geowebcache.azure.AzureBlobStore;
@@ -28,8 +29,6 @@ import org.springframework.context.support.StaticApplicationContext;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.util.Map;
-
 /**
  * Verify {@link AzureBlobStore} works by connecting to an Azurite container
  *
@@ -39,7 +38,8 @@ import java.util.Map;
 @Disabled("disabled until https://github.com/GeoWebCache/geowebcache/pull/1298 is merged")
 class AzureBlobStoreTest {
 
-    @Container static AzuriteContainer azurite = new AzuriteContainer();
+    @Container
+    static AzuriteContainer azurite = new AzuriteContainer();
 
     protected AzureBlobStoreInfo newAzureBlobStoreInfo() {
         AzureBlobStoreInfo bsi = new AzureBlobStoreInfo();
@@ -77,8 +77,7 @@ class AzureBlobStoreTest {
     @Test
     void createBlobStore() throws StorageException {
         AzureBlobStoreInfo info = newAzureBlobStoreInfo();
-        BlobStore store =
-                info.createInstance(mock(TileLayerDispatcher.class), new MemoryLockProvider());
+        BlobStore store = info.createInstance(mock(TileLayerDispatcher.class), new MemoryLockProvider());
         assertThat(store).isInstanceOf(AzureBlobStore.class);
     }
 
@@ -87,8 +86,7 @@ class AzureBlobStoreTest {
         TileLayerDispatcher layers = mock(TileLayerDispatcher.class);
 
         AzureBlobStoreInfo info = newAzureBlobStoreInfo();
-        AzureBlobStore store =
-                (AzureBlobStore) info.createInstance(layers, new MemoryLockProvider());
+        AzureBlobStore store = (AzureBlobStore) info.createInstance(layers, new MemoryLockProvider());
 
         final String layerName = "FakeLayer";
         final long[] xyz = new long[] {0, 0, 0};
@@ -102,14 +100,11 @@ class AzureBlobStoreTest {
         when(tileLayer.getId()).thenReturn(layerName);
         when(layers.getTileLayer(layerName)).thenReturn(tileLayer);
 
-        TileObject tile =
-                TileObject.createCompleteTileObject(
-                        layerName, xyz, gridSetId, format, parameters, blob);
+        TileObject tile = TileObject.createCompleteTileObject(layerName, xyz, gridSetId, format, parameters, blob);
         store.put(tile);
 
         @SuppressWarnings("unused")
-        TileObject query =
-                TileObject.createQueryTileObject(layerName, xyz, gridSetId, format, parameters);
+        TileObject query = TileObject.createQueryTileObject(layerName, xyz, gridSetId, format, parameters);
 
         // can't really test get, see https://github.com/Azure/Azurite/issues/217
         /*

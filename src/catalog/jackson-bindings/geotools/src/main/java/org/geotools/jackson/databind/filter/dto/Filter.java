@@ -6,15 +6,13 @@ package org.geotools.jackson.databind.filter.dto;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.Accessors;
-
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonSubTypes({
@@ -176,21 +174,15 @@ public abstract class Filter {
     }
 
     @JsonSubTypes({
-        @JsonSubTypes.Type(
-                value = BinaryComparisonOperator.PropertyIsEqualTo.class,
-                name = "PropertyIsEqualTo"),
-        @JsonSubTypes.Type(
-                value = BinaryComparisonOperator.PropertyIsNotEqualTo.class,
-                name = "PropertyIsNotEqualTo"),
+        @JsonSubTypes.Type(value = BinaryComparisonOperator.PropertyIsEqualTo.class, name = "PropertyIsEqualTo"),
+        @JsonSubTypes.Type(value = BinaryComparisonOperator.PropertyIsNotEqualTo.class, name = "PropertyIsNotEqualTo"),
         @JsonSubTypes.Type(
                 value = BinaryComparisonOperator.PropertyIsGreaterThan.class,
                 name = "PropertyIsGreaterThan"),
         @JsonSubTypes.Type(
                 value = BinaryComparisonOperator.PropertyIsGreaterThanOrEqualTo.class,
                 name = "PropertyIsGreaterThanOrEqualTo"),
-        @JsonSubTypes.Type(
-                value = BinaryComparisonOperator.PropertyIsLessThan.class,
-                name = "PropertyIsLessThan"),
+        @JsonSubTypes.Type(value = BinaryComparisonOperator.PropertyIsLessThan.class, name = "PropertyIsLessThan"),
         @JsonSubTypes.Type(
                 value = BinaryComparisonOperator.PropertyIsLessThanOrEqualTo.class,
                 name = "PropertyIsLessThanOrEqualTo")
@@ -232,9 +224,7 @@ public abstract class Filter {
         @JsonSubTypes.Type(value = Filter.BinarySpatialOperator.Crosses.class, name = "Crosses"),
         @JsonSubTypes.Type(value = Filter.BinarySpatialOperator.Disjoint.class, name = "Disjoint"),
         @JsonSubTypes.Type(value = Filter.BinarySpatialOperator.Equals.class, name = "Equals"),
-        @JsonSubTypes.Type(
-                value = Filter.BinarySpatialOperator.Intersects.class,
-                name = "Intersects"),
+        @JsonSubTypes.Type(value = Filter.BinarySpatialOperator.Intersects.class, name = "Intersects"),
         @JsonSubTypes.Type(value = Filter.BinarySpatialOperator.Overlaps.class, name = "Overlaps"),
         @JsonSubTypes.Type(value = Filter.BinarySpatialOperator.Touches.class, name = "Touches"),
         @JsonSubTypes.Type(value = Filter.BinarySpatialOperator.Within.class, name = "Within"),
@@ -282,9 +272,7 @@ public abstract class Filter {
         public static class Within extends BinarySpatialOperator {}
 
         @JsonSubTypes({
-            @JsonSubTypes.Type(
-                    value = Filter.BinarySpatialOperator.DWithin.class,
-                    name = "DWithin"),
+            @JsonSubTypes.Type(value = Filter.BinarySpatialOperator.DWithin.class, name = "DWithin"),
             @JsonSubTypes.Type(value = Filter.BinarySpatialOperator.Beyond.class, name = "Beyond")
         })
         @Data
@@ -305,9 +293,7 @@ public abstract class Filter {
 
     @JsonSubTypes({
         @JsonSubTypes.Type(value = Filter.BinaryTemporalOperator.After.class, name = "After"),
-        @JsonSubTypes.Type(
-                value = Filter.BinaryTemporalOperator.AnyInteracts.class,
-                name = "AnyInteracts"),
+        @JsonSubTypes.Type(value = Filter.BinaryTemporalOperator.AnyInteracts.class, name = "AnyInteracts"),
         @JsonSubTypes.Type(value = BinaryTemporalOperator.Before.class, name = "Before"),
         @JsonSubTypes.Type(value = BinaryTemporalOperator.Begins.class, name = "Begins"),
         @JsonSubTypes.Type(value = BinaryTemporalOperator.BegunBy.class, name = "BegunBy"),
@@ -316,9 +302,7 @@ public abstract class Filter {
         @JsonSubTypes.Type(value = BinaryTemporalOperator.Ends.class, name = "Ends"),
         @JsonSubTypes.Type(value = BinaryTemporalOperator.Meets.class, name = "Meets"),
         @JsonSubTypes.Type(value = BinaryTemporalOperator.MetBy.class, name = "MetBy"),
-        @JsonSubTypes.Type(
-                value = BinaryTemporalOperator.OverlappedBy.class,
-                name = "OverlappedBy"),
+        @JsonSubTypes.Type(value = BinaryTemporalOperator.OverlappedBy.class, name = "OverlappedBy"),
         @JsonSubTypes.Type(value = BinaryTemporalOperator.TContains.class, name = "TContains"),
         @JsonSubTypes.Type(value = BinaryTemporalOperator.TOverlaps.class, name = "TOverlaps"),
         @JsonSubTypes.Type(value = BinaryTemporalOperator.TEquals.class, name = "TEquals")

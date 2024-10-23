@@ -6,10 +6,16 @@ package org.geoserver.security.impl;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Maps;
-
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogException;
 import org.geoserver.catalog.CatalogInfo;
@@ -32,15 +38,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.web.context.WebApplicationContext;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Alternative to {@link LayerGroupContainmentCache}
@@ -71,8 +68,7 @@ import java.util.concurrent.CompletableFuture;
  */
 @Slf4j
 @SuppressWarnings({"java:S2177", "java:S6201", "java:S3776", "java:S3398"})
-public class GsCloudLayerGroupContainmentCache extends LayerGroupContainmentCache
-        implements ApplicationContextAware {
+public class GsCloudLayerGroupContainmentCache extends LayerGroupContainmentCache implements ApplicationContextAware {
 
     private Catalog rawCatalog;
     private ApplicationContext applicationContext;
@@ -146,7 +142,9 @@ public class GsCloudLayerGroupContainmentCache extends LayerGroupContainmentCach
                     sw,
                     groupCache.size(),
                     resourceContainmentCache.size(),
-                    resourceContainmentCache.values().stream().flatMap(Set::stream).count());
+                    resourceContainmentCache.values().stream()
+                            .flatMap(Set::stream)
+                            .count());
     }
 
     private LayerGroupSummary createGroupInfo(LayerGroupInfo group, LayerGroupSummary groupData) {
@@ -162,8 +160,7 @@ public class GsCloudLayerGroupContainmentCache extends LayerGroupContainmentCach
                 .forEach(p -> registerContainerGroup(groupData, p));
     }
 
-    private void registerContainerGroup(
-            LayerGroupSummary container, LayerGroupInfo containedGroup) {
+    private void registerContainerGroup(LayerGroupSummary container, LayerGroupInfo containedGroup) {
         LayerGroupSummary contained = getGroupData(containedGroup);
         if (container != null && contained != null) {
             contained.containerGroups.add(container);
@@ -171,10 +168,7 @@ public class GsCloudLayerGroupContainmentCache extends LayerGroupContainmentCach
     }
 
     private void addGroupInfo(LayerGroupInfo lg, LayerGroupSummary groupData) {
-        lg.getLayers().stream()
-                .filter(IS_LAYER)
-                .map(LayerInfo.class::cast)
-                .forEach(p -> addGroupInfo(groupData, p));
+        lg.getLayers().stream().filter(IS_LAYER).map(LayerInfo.class::cast).forEach(p -> addGroupInfo(groupData, p));
     }
 
     private void addGroupInfo(LayerGroupSummary groupData, LayerInfo containedLayer) {
@@ -329,7 +323,8 @@ public class GsCloudLayerGroupContainmentCache extends LayerGroupContainmentCach
         private void handleWorkspaceChange(CatalogModifyEvent event, LayerGroupSummary summary) {
             int wsIdx = event.getPropertyNames().indexOf("workspace");
             if (wsIdx != -1) {
-                WorkspaceInfo newWorkspace = (WorkspaceInfo) event.getNewValues().get(wsIdx);
+                WorkspaceInfo newWorkspace =
+                        (WorkspaceInfo) event.getNewValues().get(wsIdx);
                 summary.workspace = newWorkspace == null ? null : newWorkspace.getName();
             }
         }
@@ -357,9 +352,7 @@ public class GsCloudLayerGroupContainmentCache extends LayerGroupContainmentCach
         }
 
         private void updateContainedLayers(
-                @NonNull LayerGroupSummary groupSummary,
-                List<PublishedInfo> oldLayers,
-                List<PublishedInfo> newLayers) {
+                @NonNull LayerGroupSummary groupSummary, List<PublishedInfo> oldLayers, List<PublishedInfo> newLayers) {
 
             // do not rely on PublishedInfo.equals()...
             var difference = Maps.difference(toIdMap(oldLayers), toIdMap(newLayers));

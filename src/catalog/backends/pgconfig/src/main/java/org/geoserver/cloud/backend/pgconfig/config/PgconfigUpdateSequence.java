@@ -4,19 +4,16 @@
  */
 package org.geoserver.cloud.backend.pgconfig.config;
 
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-
-import org.geoserver.config.GeoServerInfo;
-import org.geoserver.config.impl.GeoServerInfoImpl;
-import org.geoserver.platform.config.UpdateSequence;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-
 import javax.sql.DataSource;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.geoserver.config.GeoServerInfo;
+import org.geoserver.config.impl.GeoServerInfoImpl;
+import org.geoserver.platform.config.UpdateSequence;
 
 /**
  * @since 1.4
@@ -30,8 +27,7 @@ public class PgconfigUpdateSequence implements UpdateSequence {
     // session" error
     private static final String GET_QUERY = "SELECT last_value FROM %s".formatted(SEQUENCE_NAME);
 
-    private static final String INCREMENT_AND_GET_QUERY =
-            "SELECT NEXTVAL('%s')".formatted(SEQUENCE_NAME);
+    private static final String INCREMENT_AND_GET_QUERY = "SELECT NEXTVAL('%s')".formatted(SEQUENCE_NAME);
 
     private final @NonNull DataSource dataSource;
     private final @NonNull PgconfigGeoServerFacade geoServer;

@@ -4,6 +4,7 @@
  */
 package org.geoserver.cloud.config.catalog.backend.jdbcconfig;
 
+import javax.sql.DataSource;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.impl.CatalogImpl;
 import org.geoserver.catalog.impl.ModificationProxy;
@@ -12,8 +13,6 @@ import org.geoserver.jdbcconfig.internal.XStreamInfoSerialBinding;
 import org.geoserver.util.CacheProvider;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.sql.DataSource;
 
 /**
  * Overrides {@link #save} and {@link #remove} to {@link #clearCache(Info) dispose the internal

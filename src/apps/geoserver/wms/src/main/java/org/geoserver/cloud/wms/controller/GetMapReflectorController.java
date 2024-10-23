@@ -4,15 +4,13 @@
  */
 package org.geoserver.cloud.wms.controller;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-
 import org.geoserver.ows.Dispatcher;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 @Controller
 @RequiredArgsConstructor
@@ -21,8 +19,7 @@ public class GetMapReflectorController {
     private final @NonNull Dispatcher geoserverDispatcher;
 
     @GetMapping(path = {"/wms/reflect", "/{workspace}/wms/reflect"})
-    public void getMapReflect(HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
+    public void getMapReflect(HttpServletRequest request, HttpServletResponse response) throws Exception {
         geoserverDispatcher.handleRequest(request, response);
     }
 }

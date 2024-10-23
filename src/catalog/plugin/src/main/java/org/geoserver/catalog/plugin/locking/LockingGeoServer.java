@@ -8,7 +8,6 @@ import static org.geoserver.catalog.plugin.locking.LockingSupport.nameOf;
 import static org.geoserver.catalog.plugin.locking.LockingSupport.typeOf;
 
 import lombok.NonNull;
-
 import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.config.GeoServerFacade;
 import org.geoserver.config.GeoServerInfo;
@@ -31,8 +30,7 @@ public class LockingGeoServer extends GeoServerImpl {
         enableLocking();
     }
 
-    public LockingGeoServer(
-            @NonNull GeoServerConfigurationLock locking, @NonNull GeoServerFacade facade) {
+    public LockingGeoServer(@NonNull GeoServerConfigurationLock locking, @NonNull GeoServerFacade facade) {
         super(facade);
         this.configurationLock = locking;
         enableLocking();
@@ -52,35 +50,30 @@ public class LockingGeoServer extends GeoServerImpl {
 
     @Override
     public void setGlobal(GeoServerInfo global) {
-        lockingSupport.runInWriteLock(
-                () -> super.setGlobal(global), "setGlobal(%s)".formatted(nameOf(global)));
+        lockingSupport.runInWriteLock(() -> super.setGlobal(global), "setGlobal(%s)".formatted(nameOf(global)));
     }
 
     @Override
     public void save(GeoServerInfo geoServer) {
-        lockingSupport.runInWriteLock(
-                () -> super.save(geoServer), "save(%s)".formatted(nameOf(geoServer)));
+        lockingSupport.runInWriteLock(() -> super.save(geoServer), "save(%s)".formatted(nameOf(geoServer)));
     }
 
     @Override
     public void add(SettingsInfo settings) {
         lockingSupport.runInWriteLock(
-                () -> super.add(settings),
-                "add(%s[%s])".formatted(typeOf(settings), nameOf(settings)));
+                () -> super.add(settings), "add(%s[%s])".formatted(typeOf(settings), nameOf(settings)));
     }
 
     @Override
     public void save(SettingsInfo settings) {
         lockingSupport.runInWriteLock(
-                () -> super.save(settings),
-                "save(%s[%s])".formatted(typeOf(settings), nameOf(settings)));
+                () -> super.save(settings), "save(%s[%s])".formatted(typeOf(settings), nameOf(settings)));
     }
 
     @Override
     public void remove(SettingsInfo settings) {
         lockingSupport.runInWriteLock(
-                () -> super.remove(settings),
-                "remove(%s[%s])".formatted(typeOf(settings), nameOf(settings)));
+                () -> super.remove(settings), "remove(%s[%s])".formatted(typeOf(settings), nameOf(settings)));
     }
 
     @Override
@@ -96,21 +89,18 @@ public class LockingGeoServer extends GeoServerImpl {
     @Override
     public void add(ServiceInfo service) {
         lockingSupport.runInWriteLock(
-                () -> super.add(service),
-                "add(%s[%s])".formatted(typeOf(service), nameOf(service)));
+                () -> super.add(service), "add(%s[%s])".formatted(typeOf(service), nameOf(service)));
     }
 
     @Override
     public void remove(ServiceInfo service) {
         lockingSupport.runInWriteLock(
-                () -> super.remove(service),
-                "remove(%s[%s])".formatted(typeOf(service), nameOf(service)));
+                () -> super.remove(service), "remove(%s[%s])".formatted(typeOf(service), nameOf(service)));
     }
 
     @Override
     public void save(ServiceInfo service) {
         lockingSupport.runInWriteLock(
-                () -> super.save(service),
-                "save(%s[%s])".formatted(typeOf(service), nameOf(service)));
+                () -> super.save(service), "save(%s[%s])".formatted(typeOf(service), nameOf(service)));
     }
 }

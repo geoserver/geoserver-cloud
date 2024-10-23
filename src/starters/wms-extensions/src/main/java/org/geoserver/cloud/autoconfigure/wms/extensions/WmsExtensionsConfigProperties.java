@@ -7,7 +7,6 @@ package org.geoserver.cloud.autoconfigure.wms.extensions;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
@@ -46,8 +45,7 @@ public @Data class WmsExtensionsConfigProperties {
     }
 
     public static @Data class Wms {
-        private WmsOutputFormatsConfigProperties outputFormats =
-                new WmsOutputFormatsConfigProperties();
+        private WmsOutputFormatsConfigProperties outputFormats = new WmsOutputFormatsConfigProperties();
 
         public static @Data class WmsOutputFormatsConfigProperties {
             private VectorTilesConfigProperties vectorTiles = new VectorTilesConfigProperties();

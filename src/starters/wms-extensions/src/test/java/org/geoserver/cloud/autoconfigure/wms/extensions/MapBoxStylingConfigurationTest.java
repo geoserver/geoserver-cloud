@@ -20,20 +20,17 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
  */
 class MapBoxStylingConfigurationTest {
 
-    private final ApplicationContextRunner contextRunner =
-            new ApplicationContextRunner()
-                    .withBean("sldHandler", SLDHandler.class)
-                    .withConfiguration(AutoConfigurations.of(MapBoxStylingConfiguration.class));
+    private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+            .withBean("sldHandler", SLDHandler.class)
+            .withConfiguration(AutoConfigurations.of(MapBoxStylingConfiguration.class));
 
     @Test
     void MBStyleHandler_no_config() {
         contextRunner
                 .run(context -> assertThat(context).hasSingleBean(MBStyleHandler.class))
                 .run(context -> assertThat(context).hasBean("MBStyleExtension"))
-                .run(
-                        context ->
-                                assertThat(context.getBean("MBStyleExtension", ModuleStatus.class))
-                                        .hasFieldOrPropertyWithValue("enabled", true));
+                .run(context -> assertThat(context.getBean("MBStyleExtension", ModuleStatus.class))
+                        .hasFieldOrPropertyWithValue("enabled", true));
     }
 
     @Test
@@ -42,10 +39,8 @@ class MapBoxStylingConfigurationTest {
                 .withPropertyValues("geoserver.styling.mapbox.enabled=true")
                 .run(context -> assertThat(context).hasSingleBean(MBStyleHandler.class))
                 .run(context -> assertThat(context).hasBean("MBStyleExtension"))
-                .run(
-                        context ->
-                                assertThat(context.getBean("MBStyleExtension", ModuleStatus.class))
-                                        .hasFieldOrPropertyWithValue("enabled", true));
+                .run(context -> assertThat(context.getBean("MBStyleExtension", ModuleStatus.class))
+                        .hasFieldOrPropertyWithValue("enabled", true));
     }
 
     @Test
@@ -54,9 +49,7 @@ class MapBoxStylingConfigurationTest {
                 .withPropertyValues("geoserver.styling.mapbox.enabled=false")
                 .run(context -> assertThat(context).doesNotHaveBean(MBStyleHandler.class))
                 .run(context -> assertThat(context).hasBean("MBStyleExtension"))
-                .run(
-                        context ->
-                                assertThat(context.getBean("MBStyleExtension", ModuleStatus.class))
-                                        .hasFieldOrPropertyWithValue("enabled", false));
+                .run(context -> assertThat(context.getBean("MBStyleExtension", ModuleStatus.class))
+                        .hasFieldOrPropertyWithValue("enabled", false));
     }
 }

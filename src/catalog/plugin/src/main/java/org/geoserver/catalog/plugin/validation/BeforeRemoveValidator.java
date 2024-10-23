@@ -5,19 +5,20 @@
 package org.geoserver.catalog.plugin.validation;
 
 import static com.google.common.base.Preconditions.checkArgument;
-
 import static org.geoserver.catalog.Predicates.acceptAll;
 import static org.geoserver.catalog.Predicates.equal;
 import static org.geoserver.catalog.Predicates.isNull;
 import static org.geoserver.catalog.Predicates.or;
 
 import com.google.common.collect.Streams;
-
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.Cleanup;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.LayerGroupInfo;
@@ -32,11 +33,6 @@ import org.geoserver.catalog.plugin.AbstractCatalogVisitor;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.geotools.api.filter.Filter;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 /**
  * Implements validation rules to apply before {@code Catalog.remove(...)}
  *
@@ -50,10 +46,7 @@ final class BeforeRemoveValidator extends AbstractCatalogVisitor {
     private final @NonNull Catalog catalog;
 
     private void checkEmpty(
-            Class<? extends CatalogInfo> type,
-            String queryProperty,
-            String queryValue,
-            String errorMessage) {
+            Class<? extends CatalogInfo> type, String queryProperty, String queryValue, String errorMessage) {
 
         Filter filter = equal(queryProperty, queryValue);
         int count = catalog.count(type, filter);
@@ -70,35 +63,22 @@ final class BeforeRemoveValidator extends AbstractCatalogVisitor {
             throw new IllegalArgumentException("Cannot delete workspace with linked namespace");
         }
 
-        checkEmpty(
-                StoreInfo.class,
-                "workspace.id",
-                workspace.getId(),
-                "Cannot delete non-empty workspace.");
+        checkEmpty(StoreInfo.class, "workspace.id", workspace.getId(), "Cannot delete non-empty workspace.");
     }
 
     @Override
     public void visit(NamespaceInfo namespace) {
-        checkEmpty(
-                ResourceInfo.class,
-                "namespace.id",
-                namespace.getId(),
-                "Unable to delete non-empty namespace.");
+        checkEmpty(ResourceInfo.class, "namespace.id", namespace.getId(), "Unable to delete non-empty namespace.");
     }
 
     @Override
     protected void visit(StoreInfo store) {
-        checkEmpty(
-                ResourceInfo.class, "store.id", store.getId(), "Unable to delete non-empty store.");
+        checkEmpty(ResourceInfo.class, "store.id", store.getId(), "Unable to delete non-empty store.");
     }
 
     @Override
     protected void visit(ResourceInfo resource) {
-        checkEmpty(
-                LayerInfo.class,
-                "resource.id",
-                resource.getId(),
-                "Unable to delete resource referenced by layer");
+        checkEmpty(LayerInfo.class, "resource.id", resource.getId(), "Unable to delete resource referenced by layer");
     }
 
     @Override
@@ -140,11 +120,9 @@ final class BeforeRemoveValidator extends AbstractCatalogVisitor {
         List<LayerInfo> layers = catalog.getLayers(style);
         if (!layers.isEmpty()) {
             String styleName = style.prefixedName();
-            String layerNames =
-                    layers.stream().map(LayerInfo::prefixedName).collect(Collectors.joining(","));
+            String layerNames = layers.stream().map(LayerInfo::prefixedName).collect(Collectors.joining(","));
             throw new IllegalArgumentException(
-                    "Unable to delete style %s referenced by layers %s"
-                            .formatted(styleName, layerNames));
+                    "Unable to delete style %s referenced by layers %s".formatted(styleName, layerNames));
         }
     }
 
@@ -164,9 +142,8 @@ final class BeforeRemoveValidator extends AbstractCatalogVisitor {
             String publishedType = toDelete instanceof LayerInfo ? "layer" : "layer group";
             String publishedName = toDelete.prefixedName();
             String lgName = lg.prefixedName();
-            throw new IllegalArgumentException(
-                    "Unable to delete %s %s referenced by layer group '%s'"
-                            .formatted(publishedType, publishedName, lgName));
+            throw new IllegalArgumentException("Unable to delete %s %s referenced by layer group '%s'"
+                    .formatted(publishedType, publishedName, lgName));
         }
     }
 
@@ -199,16 +176,14 @@ final class BeforeRemoveValidator extends AbstractCatalogVisitor {
         StyleInfo rootLayerStyle = lg.getRootLayerStyle();
         boolean rootStyleMatches = null != rootLayerStyle && styleId.equals(rootLayerStyle.getId());
 
-        boolean referenced =
-                rootStyleMatches
-                        || lg.getStyles().stream()
-                                .filter(Objects::nonNull)
-                                .map(StyleInfo::getId)
-                                .anyMatch(styleId::equals);
+        boolean referenced = rootStyleMatches
+                || lg.getStyles().stream()
+                        .filter(Objects::nonNull)
+                        .map(StyleInfo::getId)
+                        .anyMatch(styleId::equals);
 
         if (referenced)
-            throw new IllegalArgumentException(
-                    "Unable to delete style %s referenced by layer group '%s'"
-                            .formatted(toDelete.prefixedName(), lg.prefixedName()));
+            throw new IllegalArgumentException("Unable to delete style %s referenced by layer group '%s'"
+                    .formatted(toDelete.prefixedName(), lg.prefixedName()));
     }
 }

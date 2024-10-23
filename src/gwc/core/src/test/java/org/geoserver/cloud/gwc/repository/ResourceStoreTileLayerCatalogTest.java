@@ -11,6 +11,13 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.File;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.gwc.layer.GeoServerTileLayerInfo;
 import org.geoserver.gwc.layer.GeoServerTileLayerInfoImpl;
@@ -22,14 +29,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.web.context.WebApplicationContext;
-
-import java.io.File;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @since 1.0
@@ -166,22 +165,21 @@ class ResourceStoreTileLayerCatalogTest {
         AtomicBoolean hasBeenModified = new AtomicBoolean(false);
         AtomicBoolean hasBeenDeleted = new AtomicBoolean(false);
 
-        catalog.addListener(
-                (layerId, type) -> {
-                    switch (type) {
-                        case CREATE:
-                            hasBeenCreated.set(true);
-                            break;
-                        case DELETE:
-                            hasBeenDeleted.set(true);
-                            break;
-                        case MODIFY:
-                            hasBeenModified.set(true);
-                            break;
-                        default:
-                            break;
-                    }
-                });
+        catalog.addListener((layerId, type) -> {
+            switch (type) {
+                case CREATE:
+                    hasBeenCreated.set(true);
+                    break;
+                case DELETE:
+                    hasBeenDeleted.set(true);
+                    break;
+                case MODIFY:
+                    hasBeenModified.set(true);
+                    break;
+                default:
+                    break;
+            }
+        });
 
         final GeoServerTileLayerInfo l = new GeoServerTileLayerInfoImpl();
         l.setId("l1");

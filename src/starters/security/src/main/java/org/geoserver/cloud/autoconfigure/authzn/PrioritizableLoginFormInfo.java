@@ -6,7 +6,6 @@ package org.geoserver.cloud.autoconfigure.authzn;
 
 import lombok.Getter;
 import lombok.Setter;
-
 import org.geoserver.platform.ExtensionPriority;
 import org.geoserver.web.LoginFormInfo;
 

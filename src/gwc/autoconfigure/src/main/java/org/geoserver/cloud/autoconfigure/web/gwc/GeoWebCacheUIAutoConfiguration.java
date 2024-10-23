@@ -4,8 +4,8 @@
  */
 package org.geoserver.cloud.autoconfigure.web.gwc;
 
+import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnGeoWebCacheRestConfigEnabled;
 import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnWebUIEnabled;
 import org.geoserver.cloud.gwc.config.core.GeoWebCacheConfigurationProperties;
@@ -15,8 +15,6 @@ import org.gwc.web.rest.GeoWebCacheController;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
-
-import javax.annotation.PostConstruct;
 
 @AutoConfiguration
 @ConditionalOnWebUIEnabled

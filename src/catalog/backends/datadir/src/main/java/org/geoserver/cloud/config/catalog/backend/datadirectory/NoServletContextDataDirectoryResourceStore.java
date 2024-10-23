@@ -4,15 +4,12 @@
  */
 package org.geoserver.cloud.config.catalog.backend.datadirectory;
 
-import lombok.extern.slf4j.Slf4j;
-
-import org.geoserver.platform.resource.DataDirectoryResourceStore;
-import org.geoserver.platform.resource.FileSystemResourceStore;
-
 import java.io.File;
 import java.util.Objects;
-
 import javax.servlet.ServletContext;
+import lombok.extern.slf4j.Slf4j;
+import org.geoserver.platform.resource.DataDirectoryResourceStore;
+import org.geoserver.platform.resource.FileSystemResourceStore;
 
 /**
  * {@link DataDirectoryResourceStore} that works both for webmvc (servlet) and reactive (WebFlux)
@@ -30,11 +27,9 @@ public class NoServletContextDataDirectoryResourceStore extends DataDirectoryRes
 
         if (resourceDirectory.isFile()) {
             throw new IllegalArgumentException(
-                    "Directory required, file present at this location %s"
-                            .formatted(resourceDirectory));
+                    "Directory required, file present at this location %s".formatted(resourceDirectory));
         } else if (!resourceDirectory.isDirectory() && !resourceDirectory.mkdirs()) {
-            throw new IllegalArgumentException(
-                    "Unable to create directory %s".formatted(resourceDirectory));
+            throw new IllegalArgumentException("Unable to create directory %s".formatted(resourceDirectory));
         }
         this.setBaseDirectory(resourceDirectory);
     }

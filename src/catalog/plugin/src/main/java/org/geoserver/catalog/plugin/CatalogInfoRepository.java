@@ -4,8 +4,9 @@
  */
 package org.geoserver.catalog.plugin;
 
+import java.util.Optional;
+import java.util.stream.Stream;
 import lombok.NonNull;
-
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.LayerGroupInfo;
@@ -18,9 +19,6 @@ import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geotools.api.filter.Filter;
 import org.springframework.lang.Nullable;
-
-import java.util.Optional;
-import java.util.stream.Stream;
 
 /**
  * Raw data access API for {@link CatalogInfo} back-end implementations.
@@ -139,8 +137,7 @@ public interface CatalogInfoRepository<T extends CatalogInfo> {
 
     public interface StoreRepository extends CatalogInfoRepository<StoreInfo> {
 
-        void setDefaultDataStore(
-                @NonNull WorkspaceInfo workspace, @NonNull DataStoreInfo dataStore);
+        void setDefaultDataStore(@NonNull WorkspaceInfo workspace, @NonNull DataStoreInfo dataStore);
 
         void unsetDefaultDataStore(@NonNull WorkspaceInfo workspace);
 
@@ -148,8 +145,7 @@ public interface CatalogInfoRepository<T extends CatalogInfo> {
 
         Stream<DataStoreInfo> getDefaultDataStores();
 
-        <T extends StoreInfo> Stream<T> findAllByWorkspace(
-                @NonNull WorkspaceInfo workspace, @NonNull Class<T> clazz);
+        <T extends StoreInfo> Stream<T> findAllByWorkspace(@NonNull WorkspaceInfo workspace, @NonNull Class<T> clazz);
 
         <T extends StoreInfo> Stream<T> findAllByType(@NonNull Class<T> clazz);
 
@@ -164,8 +160,7 @@ public interface CatalogInfoRepository<T extends CatalogInfo> {
 
         <T extends ResourceInfo> Stream<T> findAllByType(@NonNull Class<T> clazz);
 
-        <T extends ResourceInfo> Stream<T> findAllByNamespace(
-                @NonNull NamespaceInfo ns, @NonNull Class<T> clazz);
+        <T extends ResourceInfo> Stream<T> findAllByNamespace(@NonNull NamespaceInfo ns, @NonNull Class<T> clazz);
 
         <T extends ResourceInfo> Optional<T> findByStoreAndName(
                 @NonNull StoreInfo store, @NonNull String name, @NonNull Class<T> clazz);
@@ -186,8 +181,7 @@ public interface CatalogInfoRepository<T extends CatalogInfo> {
 
         Optional<LayerGroupInfo> findByNameAndWorkspaceIsNull(@NonNull String name);
 
-        Optional<LayerGroupInfo> findByNameAndWorkspace(
-                @NonNull String name, @NonNull WorkspaceInfo workspace);
+        Optional<LayerGroupInfo> findByNameAndWorkspace(@NonNull String name, @NonNull WorkspaceInfo workspace);
 
         Stream<LayerGroupInfo> findAllByWorkspaceIsNull();
 
@@ -202,8 +196,7 @@ public interface CatalogInfoRepository<T extends CatalogInfo> {
 
         Optional<StyleInfo> findByNameAndWordkspaceNull(@NonNull String name);
 
-        Optional<StyleInfo> findByNameAndWorkspace(
-                @NonNull String name, @NonNull WorkspaceInfo workspace);
+        Optional<StyleInfo> findByNameAndWorkspace(@NonNull String name, @NonNull WorkspaceInfo workspace);
     }
 
     public interface MapRepository extends CatalogInfoRepository<MapInfo> {}

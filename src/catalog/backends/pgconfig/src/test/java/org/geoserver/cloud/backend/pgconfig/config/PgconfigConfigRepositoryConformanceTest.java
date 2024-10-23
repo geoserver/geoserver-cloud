@@ -21,7 +21,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @SuppressWarnings("java:S2187")
 class PgconfigConfigRepositoryConformanceTest extends GeoServerConfigConformanceTest {
 
-    @Container static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();
+    @Container
+    static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();
 
     @Override
     @BeforeEach

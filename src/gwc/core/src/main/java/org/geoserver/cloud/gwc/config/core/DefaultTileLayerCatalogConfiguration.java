@@ -4,6 +4,8 @@
  */
 package org.geoserver.cloud.gwc.config.core;
 
+import java.util.Optional;
+import java.util.function.Consumer;
 import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.cloud.gwc.event.TileLayerEvent;
@@ -27,9 +29,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.web.context.WebApplicationContext;
-
-import java.util.Optional;
-import java.util.function.Consumer;
 
 /**
  * @since 1.0
@@ -80,8 +79,7 @@ public class DefaultTileLayerCatalogConfiguration {
 
     @Bean
     ResourceStoreTileLayerCatalog resourceStoreTileLayerCatalog(
-            @Qualifier("resourceStoreImpl") ResourceStore resourceStore,
-            Optional<WebApplicationContext> webappCtx) {
+            @Qualifier("resourceStoreImpl") ResourceStore resourceStore, Optional<WebApplicationContext> webappCtx) {
         return new ResourceStoreTileLayerCatalog(resourceStore, webappCtx);
     }
 }

@@ -4,9 +4,10 @@
  */
 package org.geoserver.cloud.backend.pgconfig.catalog.filter;
 
+import java.util.Optional;
+import java.util.Set;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geotools.api.filter.BinaryComparisonOperator;
@@ -24,9 +25,6 @@ import org.geotools.api.filter.expression.Literal;
 import org.geotools.api.filter.expression.PropertyName;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.filter.visitor.DuplicatingFilterVisitor;
-
-import java.util.Optional;
-import java.util.Set;
 
 /**
  * Converts binary comparison operators using a property name and a {@link CatalogInfo} instance
@@ -52,8 +50,7 @@ class CatalogInfoLiteralAdaptor extends DuplicatingFilterVisitor {
         this.supportedPropertyNames = supportedPropertyNames;
     }
 
-    public static Filter replaceCatalogInfoLiterals(
-            Filter filter, Set<String> supportedPropertyNames) {
+    public static Filter replaceCatalogInfoLiterals(Filter filter, Set<String> supportedPropertyNames) {
         var adaptor = new CatalogInfoLiteralAdaptor(supportedPropertyNames);
         return (Filter) filter.accept(adaptor, null);
     }
@@ -101,8 +98,7 @@ class CatalogInfoLiteralAdaptor extends DuplicatingFilterVisitor {
      * workspace.id = WorkspaceInfo.id}, where {@code WorkspaceInfo} is an instanceo of a {@link
      * WorkspaceInfo}.
      */
-    private <F extends BinaryComparisonOperator> F adapt(
-            F filter, BinaryComparisonBuilder<F> builder) {
+    private <F extends BinaryComparisonOperator> F adapt(F filter, BinaryComparisonBuilder<F> builder) {
 
         PropertyName prop = propertyName(filter);
         Literal literal = literal(filter);
@@ -118,10 +114,7 @@ class CatalogInfoLiteralAdaptor extends DuplicatingFilterVisitor {
                     boolean matchingCase = filter.isMatchingCase();
                     MatchAction matchAction = filter.getMatchAction();
                     filter = builder.build(prop, literal, matchingCase, matchAction);
-                    log.debug(
-                            "Fitler with CatalogInfo literal '{}' translated to '{}'",
-                            orig,
-                            filter);
+                    log.debug("Fitler with CatalogInfo literal '{}' translated to '{}'", orig, filter);
                 }
             }
         }

@@ -6,10 +6,8 @@ package org.geoserver.cloud.event.catalog;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-
 import lombok.Getter;
 import lombok.NonNull;
-
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.cloud.event.info.ConfigInfoType;
@@ -44,8 +42,7 @@ public class DefaultWorkspaceSet extends CatalogInfoModified {
         return super.toStringBuilder().append("workspace", getNewWorkspaceId());
     }
 
-    public static DefaultWorkspaceSet createLocal(
-            long updateSequence, WorkspaceInfo defaultWorkspace) {
+    public static DefaultWorkspaceSet createLocal(long updateSequence, WorkspaceInfo defaultWorkspace) {
 
         String workspaceId = resolveNullableId(defaultWorkspace);
         Patch patch = new Patch();

@@ -6,10 +6,9 @@ package org.geoserver.cloud.event.info;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
+import java.util.Optional;
 import lombok.Getter;
 import lombok.NonNull;
-
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.LayerGroupInfo;
@@ -26,8 +25,6 @@ import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
 import org.springframework.core.style.ToStringCreator;
 import org.springframework.lang.Nullable;
-
-import java.util.Optional;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonSubTypes({
@@ -85,8 +82,7 @@ public abstract class InfoEvent extends UpdateSequenceEvent {
         String originService = getOrigin();
         String type = getClass().getSimpleName();
         return "%s[origin: %s, updateSequence: %s, object: %s(%s)]"
-                .formatted(
-                        type, originService, getUpdateSequence(), getObjectType(), getObjectId());
+                .formatted(type, originService, getUpdateSequence(), getObjectType(), getObjectId());
     }
 
     @Nullable

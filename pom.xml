@@ -12,8 +12,11 @@
   </modules>
   <properties>
     <revision>1.9-SNAPSHOT</revision>
-    <fmt.action>format</fmt.action>
     <fmt.skip>false</fmt.skip>
+    <spotless.action>apply</spotless.action>
+    <spotless.apply.skip>${fmt.skip}</spotless.apply.skip>
+    <pom.fmt.action>sort</pom.fmt.action>
+    <pom.fmt.skip>${fmt.skip}</pom.fmt.skip>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
   </properties>
@@ -215,9 +218,9 @@
     <pluginManagement>
       <plugins>
         <plugin>
-          <groupId>com.spotify.fmt</groupId>
-          <artifactId>fmt-maven-plugin</artifactId>
-          <version>2.21.1</version>
+          <groupId>com.diffplug.spotless</groupId>
+          <artifactId>spotless-maven-plugin</artifactId>
+          <version>2.43.0</version>
         </plugin>
         <plugin>
           <groupId>com.github.ekryd.sortpom</groupId>
@@ -242,37 +245,43 @@
         <artifactId>sortpom-maven-plugin</artifactId>
         <configuration>
           <encoding>UTF-8</encoding>
+          <keepBlankLines>true</keepBlankLines>
+          <spaceBeforeCloseEmptyElement>false</spaceBeforeCloseEmptyElement>
           <createBackupFile>false</createBackupFile>
           <lineSeparator>\n</lineSeparator>
-          <nrOfIndentSpace>2</nrOfIndentSpace>
           <verifyFail>stop</verifyFail>
           <verifyFailOn>strict</verifyFailOn>
-          <skip>${fmt.skip}</skip>
+          <skip>${pom.fmt.skip}</skip>
         </configuration>
         <executions>
           <execution>
-            <id>sort</id>
             <goals>
-              <goal>sort</goal>
+              <goal>${pom.fmt.action}</goal>
             </goals>
-            <phase>validate</phase>
+            <phase>verify</phase>
           </execution>
         </executions>
       </plugin>
       <plugin>
-        <groupId>com.spotify.fmt</groupId>
-        <artifactId>fmt-maven-plugin</artifactId>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
         <configuration>
-          <verbose>false</verbose>
-          <filesNamePattern>.*\.java</filesNamePattern>
-          <skip>${fmt.skip}</skip>
-          <style>aosp</style>
+          <java>
+            <palantirJavaFormat>
+              <version>2.50.0</version>
+            </palantirJavaFormat>
+          </java>
+          <upToDateChecking>
+            <enabled>true</enabled>
+            <indexFile>${project.basedir}/.spotless-index</indexFile>
+          </upToDateChecking>
         </configuration>
         <executions>
           <execution>
             <goals>
-              <goal>${fmt.action}</goal>
+              <goal>${spotless.action}</goal>
             </goals>
+            <phase>validate</phase>
           </execution>
         </executions>
       </plugin>

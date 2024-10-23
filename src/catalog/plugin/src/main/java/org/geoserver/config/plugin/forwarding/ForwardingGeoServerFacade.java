@@ -4,6 +4,7 @@
  */
 package org.geoserver.config.plugin.forwarding;
 
+import java.util.Collection;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerFacade;
@@ -13,8 +14,6 @@ import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
 import org.geoserver.config.plugin.ConfigRepository;
 import org.geoserver.config.plugin.RepositoryGeoServerFacade;
-
-import java.util.Collection;
 
 /** */
 public class ForwardingGeoServerFacade implements RepositoryGeoServerFacade {
@@ -36,11 +35,9 @@ public class ForwardingGeoServerFacade implements RepositoryGeoServerFacade {
 
     @Override
     public void setRepository(ConfigRepository repository) {
-        if (facade instanceof RepositoryGeoServerFacade repoFacade)
-            repoFacade.setRepository(repository);
+        if (facade instanceof RepositoryGeoServerFacade repoFacade) repoFacade.setRepository(repository);
 
-        throw new IllegalStateException(
-                "subject GeoServerFacade is not a RepositoryGeoServerFacade");
+        throw new IllegalStateException("subject GeoServerFacade is not a RepositoryGeoServerFacade");
     }
 
     @Override
@@ -149,8 +146,7 @@ public class ForwardingGeoServerFacade implements RepositoryGeoServerFacade {
     }
 
     @Override
-    public <T extends ServiceInfo> T getServiceByName(
-            String name, WorkspaceInfo workspace, Class<T> clazz) {
+    public <T extends ServiceInfo> T getServiceByName(String name, WorkspaceInfo workspace, Class<T> clazz) {
         return facade.getServiceByName(name, workspace, clazz);
     }
 

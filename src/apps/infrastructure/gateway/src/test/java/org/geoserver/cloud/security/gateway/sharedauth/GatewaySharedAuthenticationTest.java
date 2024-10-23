@@ -5,7 +5,6 @@
 package org.geoserver.cloud.security.gateway.sharedauth;
 
 import static com.github.tomakehurst.wiremock.stubbing.StubMapping.buildFrom;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
@@ -14,9 +13,13 @@ import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-
+import java.net.URI;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.NonNull;
-
 import org.geoserver.cloud.gateway.GatewayApplication;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,13 +46,6 @@ import org.springframework.web.server.WebSession;
 import org.springframework.web.server.session.DefaultWebSessionManager;
 import org.springframework.web.server.session.WebSessionManager;
 import org.springframework.web.server.session.WebSessionStore;
-
-import java.net.URI;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Wiremock integration test for a running gateway with {@link GatewaySharedAuthenticationPreFilter}
@@ -174,14 +170,16 @@ class GatewaySharedAuthenticationTest {
         registry.add("spring.cloud.gateway.routes[0].predicates[0]", () -> "Path=/**");
     }
 
-    @Autowired TestRestTemplate testRestTemplate;
+    @Autowired
+    TestRestTemplate testRestTemplate;
 
     /**
      * Concrete implementation of {@link WebSessionManager} as created by {@link
      * EnableWebFluxConfiguration#webSessionManager()} so we can access {@link
      * DefaultWebSessionManager#getSessionStore()}
      */
-    @Autowired DefaultWebSessionManager webSessionManager;
+    @Autowired
+    DefaultWebSessionManager webSessionManager;
 
     private URI login;
     private URI logout;
@@ -214,23 +212,19 @@ class GatewaySharedAuthenticationTest {
     @DisplayName("pre-filter avoids impersonation attempts")
     void preFilterRemovesIncomingSharedAuthHeaders(WireMockRuntimeInfo runtimeInfo) {
         ResponseEntity<String> response =
-                getCapabilities(
-                        "x-gsc-username", "user", "x-gsc-roles", "ROLE_1", "x-gsc-roles", "ROLE_2");
+                getCapabilities("x-gsc-username", "user", "x-gsc-roles", "ROLE_1", "x-gsc-roles", "ROLE_2");
         assertThat(response.getBody()).startsWith("<WMS_Capabilities");
 
-        LoggedRequest request = runtimeInfo.getWireMock().getServeEvents().getFirst().getRequest();
-        assertThat(request.getUrl())
-                .as("expected call to getcapabilities")
-                .isEqualTo(getcapabilities.toString());
+        LoggedRequest request =
+                runtimeInfo.getWireMock().getServeEvents().getFirst().getRequest();
+        assertThat(request.getUrl()).as("expected call to getcapabilities").isEqualTo(getcapabilities.toString());
 
         com.github.tomakehurst.wiremock.http.HttpHeaders headers = request.getHeaders();
         assertThat(headers.keys().stream().map(String::toLowerCase).collect(Collectors.toSet()))
-                .as(
-                        "GatewaySharedAuhenticationPreFilter did not remove the x-gsc-username incoming header")
+                .as("GatewaySharedAuhenticationPreFilter did not remove the x-gsc-username incoming header")
                 .isNotEmpty()
                 .doesNotContain("x-gsc-username")
-                .as(
-                        "GatewaySharedAuhenticationPreFilter did not remove the x-gsc-roles incoming header")
+                .as("GatewaySharedAuhenticationPreFilter did not remove the x-gsc-roles incoming header")
                 .doesNotContain("x-gsc-roles");
     }
 
@@ -251,29 +245,24 @@ class GatewaySharedAuthenticationTest {
 
         // query the wms service with the gateway session id
         runtimeInfo.getWireMock().getServeEvents().clear();
-        ResponseEntity<String> getcaps =
-                getCapabilities("Cookie", "SESSION=%s".formatted(gatewaySessionId));
+        ResponseEntity<String> getcaps = getCapabilities("Cookie", "SESSION=%s".formatted(gatewaySessionId));
         assertThat(getcaps.getBody()).startsWith("<WMS_Capabilities");
 
         // verify the wms service got the request headers
         LoggedRequest wmsRequest =
                 runtimeInfo.getWireMock().getServeEvents().getFirst().getRequest();
-        assertThat(wmsRequest.getUrl())
-                .as("expected call to getcapabilities")
-                .isEqualTo(getcapabilities.toString());
+        assertThat(wmsRequest.getUrl()).as("expected call to getcapabilities").isEqualTo(getcapabilities.toString());
 
         com.github.tomakehurst.wiremock.http.HttpHeaders headers = wmsRequest.getHeaders();
         HttpHeader username = headers.getHeader("x-gsc-username");
         assertThat(username)
-                .as(
-                        "GatewaySharedAuhenticationPreFilter should have added the x-gsc-username from the session")
+                .as("GatewaySharedAuhenticationPreFilter should have added the x-gsc-username from the session")
                 .isNotNull();
         assertThat(username.getValues()).isEqualTo(List.of("testuser"));
 
         HttpHeader roles = headers.getHeader("x-gsc-roles");
         assertThat(roles)
-                .as(
-                        "GatewaySharedAuhenticationPreFilter should have added the x-gsc-ROLES from the session")
+                .as("GatewaySharedAuhenticationPreFilter should have added the x-gsc-ROLES from the session")
                 .isNotNull();
         assertThat(roles.getValues()).isEqualTo(List.of("ROLE_USER", "ROLE_EDITOR"));
     }
@@ -296,8 +285,7 @@ class GatewaySharedAuthenticationTest {
     @Test
     @Order(4)
     @DisplayName("post-filter clears user and roles from session on empty username response header")
-    void postFilterRemovesUserAndRolesFromSessionOnEmptyUserResponseHeader(
-            WireMockRuntimeInfo runtimeInfo) {
+    void postFilterRemovesUserAndRolesFromSessionOnEmptyUserResponseHeader(WireMockRuntimeInfo runtimeInfo) {
         // preflight, have a session and the user and roles stored
         ResponseEntity<Void> loginResponse = login();
         final String gatewaySessionId = getGatewaySessionId(loginResponse.getHeaders());
@@ -307,11 +295,9 @@ class GatewaySharedAuthenticationTest {
         logout(gatewaySessionId);
         Map<String, Object> attributes = getSessionAttributes(gatewaySessionId);
         assertThat(attributes)
-                .as(
-                        "GatewaySharedAuhenticationPostFilter did not remove x-gsc-username from the session")
+                .as("GatewaySharedAuhenticationPostFilter did not remove x-gsc-username from the session")
                 .doesNotContainKey("x-gsc-username")
-                .as(
-                        "GatewaySharedAuhenticationPostFilter did not remove x-gsc-roles from the session")
+                .as("GatewaySharedAuhenticationPostFilter did not remove x-gsc-roles from the session")
                 .doesNotContainKey("x-gsc-roles");
     }
 
@@ -327,18 +313,18 @@ class GatewaySharedAuthenticationTest {
         ResponseEntity<Void> response = login();
         HttpHeaders responseHeaders = response.getHeaders();
         assertThat(responseHeaders)
-                .as(
-                        "GatewaySharedAuhenticationGlobalFilter should have removed the x-gsc-username response header")
+                .as("GatewaySharedAuhenticationGlobalFilter should have removed the x-gsc-username response header")
                 .doesNotContainKey("x-gsc-username")
-                .as(
-                        "GatewaySharedAuhenticationGlobalFilter should have removed the x-gsc-roles response header")
+                .as("GatewaySharedAuhenticationGlobalFilter should have removed the x-gsc-roles response header")
                 .doesNotContainKey("x-gsc-roles");
     }
 
     private String getGatewaySessionId(HttpHeaders responseHeaders) {
         List<String> cookies = responseHeaders.get("Set-Cookie");
-        String cookie =
-                cookies.stream().filter(c -> c.startsWith("SESSION=")).findFirst().orElseThrow();
+        String cookie = cookies.stream()
+                .filter(c -> c.startsWith("SESSION="))
+                .findFirst()
+                .orElseThrow();
         String sessionId = cookie.substring("SESSION=".length());
         sessionId = sessionId.substring(0, sessionId.indexOf(';'));
         return sessionId;
@@ -362,34 +348,30 @@ class GatewaySharedAuthenticationTest {
     }
 
     ResponseEntity<Void> login() {
-        HttpEntity<?> entity =
-                withHeaders( //
-                        "Accept", "text/html,application/xhtml+xml", //
-                        "Content-Type", "application/x-www-form-urlencoded");
+        HttpEntity<?> entity = withHeaders( //
+                "Accept", "text/html,application/xhtml+xml", //
+                "Content-Type", "application/x-www-form-urlencoded");
         ResponseEntity<Void> response = testRestTemplate.postForEntity(login, entity, Void.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FOUND);
         HttpHeaders headers = response.getHeaders();
 
-        assertThat(headers)
-                .containsEntry("Location", List.of("http://0.0.0.0:9090/geoserver/cloud/web"));
+        assertThat(headers).containsEntry("Location", List.of("http://0.0.0.0:9090/geoserver/cloud/web"));
 
         return response;
     }
 
     ResponseEntity<Void> logout(@NonNull String gatewaySessionId) {
-        HttpEntity<?> entity =
-                withHeaders( //
-                        "Accept", "text/html,application/xhtml+xml", //
-                        "Content-Type", "application/x-www-form-urlencoded",
-                        "Cookie", "SESSION=%s".formatted(gatewaySessionId));
+        HttpEntity<?> entity = withHeaders( //
+                "Accept", "text/html,application/xhtml+xml", //
+                "Content-Type", "application/x-www-form-urlencoded",
+                "Cookie", "SESSION=%s".formatted(gatewaySessionId));
         ResponseEntity<Void> response = testRestTemplate.postForEntity(logout, entity, Void.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FOUND);
         HttpHeaders headers = response.getHeaders();
 
-        assertThat(headers)
-                .containsEntry("Location", List.of("http://0.0.0.0:9090/geoserver/cloud/web"));
+        assertThat(headers).containsEntry("Location", List.of("http://0.0.0.0:9090/geoserver/cloud/web"));
 
         return response;
     }

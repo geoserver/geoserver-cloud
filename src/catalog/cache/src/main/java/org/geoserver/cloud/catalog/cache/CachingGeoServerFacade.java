@@ -4,9 +4,10 @@
  */
 package org.geoserver.cloud.catalog.cache;
 
+import java.util.Optional;
+import javax.annotation.Nullable;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ResolvingProxy;
@@ -38,10 +39,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.context.event.EventListener;
 
-import java.util.Optional;
-
-import javax.annotation.Nullable;
-
 /** */
 @CacheConfig(cacheNames = CachingGeoServerFacade.CACHE_NAME)
 @Slf4j(topic = "org.geoserver.cloud.catalog.caching")
@@ -72,12 +69,10 @@ public class CachingGeoServerFacade extends ForwardingGeoServerFacade {
     @EventListener(classes = UpdateSequenceEvent.class)
     void onUpdateSequenceEvent(UpdateSequenceEvent event) {
         evictGlobal()
-                .ifPresent(
-                        evicted ->
-                                log.debug(
-                                        "evicted global config with updatesequence {} upon event carrying update sequence {}",
-                                        evicted.getUpdateSequence(),
-                                        event.getUpdateSequence()));
+                .ifPresent(evicted -> log.debug(
+                        "evicted global config with updatesequence {} upon event carrying update sequence {}",
+                        evicted.getUpdateSequence(),
+                        event.getUpdateSequence()));
     }
 
     @EventListener(classes = GeoServerInfoModified.class)
@@ -165,10 +160,9 @@ public class CachingGeoServerFacade extends ForwardingGeoServerFacade {
     ////// Cache manipulation functions ///////
 
     Optional<GeoServerInfo> evictGlobal() {
-        Optional<GeoServerInfo> ret =
-                Optional.ofNullable(cache.get(GEOSERVERINFO_KEY))
-                        .map(ValueWrapper::get)
-                        .map(GeoServerInfo.class::cast);
+        Optional<GeoServerInfo> ret = Optional.ofNullable(cache.get(GEOSERVERINFO_KEY))
+                .map(ValueWrapper::get)
+                .map(GeoServerInfo.class::cast);
         cache.evict(GEOSERVERINFO_KEY);
         return ret;
     }
@@ -217,8 +211,7 @@ public class CachingGeoServerFacade extends ForwardingGeoServerFacade {
         return true;
     }
 
-    <T extends ServiceInfo> T cachePutIncludeNull(
-            @NonNull Object key, @NonNull Cache cache, T service) {
+    <T extends ServiceInfo> T cachePutIncludeNull(@NonNull Object key, @NonNull Cache cache, T service) {
 
         if (service == null) {
             cache.put(key, null);
@@ -382,15 +375,13 @@ public class CachingGeoServerFacade extends ForwardingGeoServerFacade {
     }
 
     @Override
-    public <T extends ServiceInfo> T getServiceByName(
-            String name, WorkspaceInfo workspace, Class<T> clazz) {
+    public <T extends ServiceInfo> T getServiceByName(String name, WorkspaceInfo workspace, Class<T> clazz) {
 
         Object key = CachingGeoServerFacade.serviceByNameKey(workspace, name);
         ValueWrapper value = cache.get(key);
         ServiceInfo service;
         if (value == null) {
-            service =
-                    cachePutIncludeNull(key, cache, super.getServiceByName(name, workspace, clazz));
+            service = cachePutIncludeNull(key, cache, super.getServiceByName(name, workspace, clazz));
         } else {
             service = (ServiceInfo) value.get();
         }
@@ -412,8 +403,7 @@ public class CachingGeoServerFacade extends ForwardingGeoServerFacade {
         return ServiceInfoKey.byName(ws, name);
     }
 
-    public static Object serviceByTypeKey(
-            @Nullable WorkspaceInfo ws, @NonNull Class<? extends ServiceInfo> type) {
+    public static Object serviceByTypeKey(@Nullable WorkspaceInfo ws, @NonNull Class<? extends ServiceInfo> type) {
         return ServiceInfoKey.byType(ws, type);
     }
 

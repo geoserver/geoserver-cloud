@@ -5,7 +5,6 @@
 package org.geoserver.catalog.plugin;
 
 import static com.google.common.collect.Sets.newHashSet;
-
 import static org.geoserver.catalog.Predicates.acceptAll;
 import static org.geoserver.catalog.Predicates.asc;
 import static org.geoserver.catalog.Predicates.contains;
@@ -32,7 +31,28 @@ import static org.mockito.Mockito.doThrow;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.lang.reflect.Proxy;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogException;
 import org.geoserver.catalog.CatalogFactory;
@@ -100,29 +120,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.lang.reflect.Proxy;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 /**
  * Initially a verbatim copy of {@code gs-main}'s {@code
  * org.geoserver.catalog.impl.CatalogImplTest}, adapted to not subclass {@code
@@ -140,7 +137,8 @@ public abstract class CatalogConformanceTest {
 
     private DataAccessRuleDAO dataAccessRuleDAO;
 
-    @TempDir public File tmpFolder;
+    @TempDir
+    public File tmpFolder;
 
     @BeforeAll
     static void beforeAll() {
@@ -149,8 +147,8 @@ public abstract class CatalogConformanceTest {
         Logging.getLogger("org.geoserver.catalog.impl").setLevel(Level.SEVERE);
     }
 
-    protected void addLayerAccessRule(
-            String workspace, String layer, AccessMode mode, String... roles) throws IOException {
+    protected void addLayerAccessRule(String workspace, String layer, AccessMode mode, String... roles)
+            throws IOException {
         DataAccessRuleDAO dao = this.dataAccessRuleDAO;
         DataAccessRule rule = new DataAccessRule();
         rule.setRoot(workspace);
@@ -172,9 +170,7 @@ public abstract class CatalogConformanceTest {
     @BeforeEach
     public void setUp() {
         catalog = createCatalog(tmpFolder);
-        assertNotNull(
-                catalog.getResourceLoader(),
-                "Catalog must be supplied with a GeoServerResourceLoader");
+        assertNotNull(catalog.getResourceLoader(), "Catalog must be supplied with a GeoServerResourceLoader");
         dd = new GeoServerDataDirectory(catalog.getResourceLoader());
         try {
             dataAccessRuleDAO = new DataAccessRuleDAO(dd, catalog);
@@ -320,21 +316,14 @@ public abstract class CatalogConformanceTest {
         NamespaceInfo ns2 = catalog.getFactory().createNamespace();
 
         assertThrows(
-                NullPointerException.class,
-                () -> catalog.add(ns2),
-                "adding without a prefix should throw exception");
+                NullPointerException.class, () -> catalog.add(ns2), "adding without a prefix should throw exception");
 
         ns2.setPrefix("ns2Prefix");
-        assertThrows(
-                NullPointerException.class,
-                () -> catalog.add(ns2),
-                "adding without a uri should throw exception");
+        assertThrows(NullPointerException.class, () -> catalog.add(ns2), "adding without a uri should throw exception");
 
         ns2.setURI("bad uri");
         assertThrows(
-                IllegalArgumentException.class,
-                () -> catalog.add(ns2),
-                "adding an invalid uri should throw exception");
+                IllegalArgumentException.class, () -> catalog.add(ns2), "adding an invalid uri should throw exception");
 
         ns2.setURI("ns2URI");
         List<NamespaceInfo> namespaces = catalog.getNamespaces();
@@ -372,16 +361,14 @@ public abstract class CatalogConformanceTest {
             assertThat(foundNamespace2.getURI(), is("http://www.isolated_namespace.com"));
             assertThat(foundNamespace2.isIsolated(), is(true));
             // retrieve the namespace by URI, the non isolated one should be returned
-            NamespaceInfo foundNamespace3 =
-                    catalog.getNamespaceByURI("http://www.isolated_namespace.com");
+            NamespaceInfo foundNamespace3 = catalog.getNamespaceByURI("http://www.isolated_namespace.com");
             assertThat(foundNamespace3.getPrefix(), is("isolated_namespace_1"));
             assertThat(foundNamespace3.getURI(), is("http://www.isolated_namespace.com"));
             assertThat(foundNamespace3.isIsolated(), is(false));
             // remove the non isolated namespace
             catalog.remove(foundNamespace1);
             // retrieve the namespace by URI, NULL should be returned
-            NamespaceInfo foundNamespace4 =
-                    catalog.getNamespaceByURI("http://www.isolated_namespace.com");
+            NamespaceInfo foundNamespace4 = catalog.getNamespaceByURI("http://www.isolated_namespace.com");
             assertThat(foundNamespace4, nullValue());
         } finally {
             // remove the namespaces
@@ -447,11 +434,10 @@ public abstract class CatalogConformanceTest {
 
     @Test
     void testSetDefaultNamespaceInvalid() {
-        IllegalArgumentException iae =
-                assertThrows(
-                        IllegalArgumentException.class,
-                        () -> catalog.setDefaultNamespace(data.namespaceA),
-                        "Default namespace must exist in catalog");
+        IllegalArgumentException iae = assertThrows(
+                IllegalArgumentException.class,
+                () -> catalog.setDefaultNamespace(data.namespaceA),
+                "Default namespace must exist in catalog");
 
         assertEquals("No such namespace: 'wsName'", iae.getMessage());
     }
@@ -465,16 +451,11 @@ public abstract class CatalogConformanceTest {
         ns2.setURI("ns2URI");
 
         assertThrows(
-                NullPointerException.class,
-                () -> catalog.save(ns2),
-                "setting prefix to null should throw exception");
+                NullPointerException.class, () -> catalog.save(ns2), "setting prefix to null should throw exception");
 
         ns2.setPrefix("ns2Prefix");
         ns2.setURI(null);
-        assertThrows(
-                NullPointerException.class,
-                () -> catalog.save(ns2),
-                "setting uri to null should throw exception");
+        assertThrows(NullPointerException.class, () -> catalog.save(ns2), "setting uri to null should throw exception");
 
         ns2.setURI("ns2URI");
 
@@ -508,7 +489,8 @@ public abstract class CatalogConformanceTest {
         assertEquals("defaultNamespace", l.modified.get(0).getPropertyNames().get(0));
         assertEquals(1, l.postModified.size());
         assertEquals(catalog, l.postModified.get(0).getSource());
-        assertEquals("defaultNamespace", l.postModified.get(0).getPropertyNames().get(0));
+        assertEquals(
+                "defaultNamespace", l.postModified.get(0).getPropertyNames().get(0));
 
         ns = catalog.getNamespaceByPrefix("ns2Prefix");
         ns.setURI("changed");
@@ -546,9 +528,7 @@ public abstract class CatalogConformanceTest {
                 "adding directly should throw an exception");
 
         assertThrows(
-                NullPointerException.class,
-                () -> catalog.add(ws2),
-                "adding without a name should throw an exception");
+                NullPointerException.class, () -> catalog.add(ws2), "adding without a name should throw an exception");
 
         ws2.setName("ws2");
         catalog.add(ws2);
@@ -717,11 +697,10 @@ public abstract class CatalogConformanceTest {
 
     @Test
     void testSetDefaultWorkspaceInvalid() {
-        IllegalArgumentException iae =
-                assertThrows(
-                        IllegalArgumentException.class,
-                        () -> catalog.setDefaultWorkspace(data.workspaceA),
-                        "Default workspace must exist in catalog");
+        IllegalArgumentException iae = assertThrows(
+                IllegalArgumentException.class,
+                () -> catalog.setDefaultWorkspace(data.workspaceA),
+                "Default workspace must exist in catalog");
         assertEquals("No such workspace: 'wsName'", iae.getMessage());
     }
 
@@ -732,9 +711,7 @@ public abstract class CatalogConformanceTest {
         WorkspaceInfo ws2 = catalog.getWorkspaceByName(data.workspaceA.getName());
         ws2.setName(null);
         assertThrows(
-                NullPointerException.class,
-                () -> catalog.save(ws2),
-                "setting name to null should throw exception");
+                NullPointerException.class, () -> catalog.save(ws2), "setting name to null should throw exception");
 
         ws2.setName("ws2");
 
@@ -763,7 +740,8 @@ public abstract class CatalogConformanceTest {
         assertEquals(catalog, l.modified.get(0).getSource());
         assertEquals("defaultWorkspace", l.modified.get(0).getPropertyNames().get(0));
         assertEquals(catalog, l.postModified.get(0).getSource());
-        assertEquals("defaultWorkspace", l.postModified.get(0).getPropertyNames().get(0));
+        assertEquals(
+                "defaultWorkspace", l.postModified.get(0).getPropertyNames().get(0));
 
         ws = catalog.getWorkspaceByName("ws2");
         ws.setName("changed");
@@ -805,9 +783,7 @@ public abstract class CatalogConformanceTest {
 
         DataStoreInfo ds2 = catalog.getFactory().createDataStore();
         assertThrows(
-                IllegalArgumentException.class,
-                () -> catalog.add(ds2),
-                "adding without a name should throw exception");
+                IllegalArgumentException.class, () -> catalog.add(ds2), "adding without a name should throw exception");
 
         ds2.setName("ds2Name");
         List<DataStoreInfo> dataStores = catalog.getDataStores();
@@ -990,8 +966,7 @@ public abstract class CatalogConformanceTest {
         DataStoreInfo ds2 = catalog.getDataStoreByName(ds.getName());
         ds2.setWorkspace(ws2);
 
-        IllegalArgumentException expected =
-                assertThrows(IllegalArgumentException.class, () -> catalog.save(ds2));
+        IllegalArgumentException expected = assertThrows(IllegalArgumentException.class, () -> catalog.save(ds2));
         assertThat(
                 expected.getMessage(),
                 containsString(
@@ -1015,9 +990,7 @@ public abstract class CatalogConformanceTest {
         catalog = Mockito.spy((CatalogImpl) this.catalog);
         // throw once the store's been saved and its resources are about to have the new namespace
         // set
-        doThrow(IllegalStateException.class)
-                .when((CatalogPlugin) catalog)
-                .updateNamespace(any(), any());
+        doThrow(IllegalStateException.class).when((CatalogPlugin) catalog).updateNamespace(any(), any());
 
         final String oldName = store.getName();
         store.setName("newName");
@@ -1059,9 +1032,7 @@ public abstract class CatalogConformanceTest {
         catalog = Mockito.spy((CatalogPlugin) catalog);
 
         // let the first ft's namespace be updated, fail on the second
-        doThrow(IllegalStateException.class)
-                .when((CatalogPlugin) catalog)
-                .updateNamespace(eq(ft2), any());
+        doThrow(IllegalStateException.class).when((CatalogPlugin) catalog).updateNamespace(eq(ft2), any());
 
         final String oldName = store.getName();
         store.setName("newName");
@@ -1071,14 +1042,12 @@ public abstract class CatalogConformanceTest {
 
         DataStoreInfo store2 = catalog.getDataStore(data.dataStoreA.getId());
         assertEquals(oldName, store2.getName(), "store's not rolled back before throwing");
-        assertEquals(
-                oldWorkspace, store2.getWorkspace(), "store's not rolled back before throwing");
+        assertEquals(oldWorkspace, store2.getWorkspace(), "store's not rolled back before throwing");
 
         List<ResourceInfo> resources = catalog.getResourcesByStore(store2, ResourceInfo.class);
         assertFalse(resources.isEmpty());
         for (ResourceInfo resource : resources) {
-            assertEquals(
-                    oldNamespace, resource.getNamespace(), "ft's not rolled back before throwing");
+            assertEquals(oldNamespace, resource.getNamespace(), "ft's not rolled back before throwing");
         }
     }
 
@@ -1108,9 +1077,8 @@ public abstract class CatalogConformanceTest {
         for (ResourceInfo resource : resources) {
             NamespaceInfo actual = resource.getNamespace();
             assertNotNull(actual);
-            String msg =
-                    "resource %s of store %s did not get its namespace updated"
-                            .formatted(resource.getName(), store.getName());
+            String msg = "resource %s of store %s did not get its namespace updated"
+                    .formatted(resource.getName(), store.getName());
             assertEquals(expected, actual, msg);
         }
     }
@@ -1177,17 +1145,12 @@ public abstract class CatalogConformanceTest {
         assertEquals(1, catalog.getFeatureTypes().size());
 
         FeatureTypeInfo ft2 = catalog.getFactory().createFeatureType();
-        assertThrows(
-                NullPointerException.class,
-                () -> catalog.add(ft2),
-                "adding with no name should throw exception");
+        assertThrows(NullPointerException.class, () -> catalog.add(ft2), "adding with no name should throw exception");
 
         ft2.setName("ft2Name");
 
         assertThrows(
-                IllegalArgumentException.class,
-                () -> catalog.add(ft2),
-                "adding with no store should throw exception");
+                IllegalArgumentException.class, () -> catalog.add(ft2), "adding with no store should throw exception");
 
         ft2.setStore(data.dataStoreA);
         ft2.getKeywords().add(new Keyword("keyword"));
@@ -1216,16 +1179,11 @@ public abstract class CatalogConformanceTest {
         assertEquals(1, catalog.getCoverages().size());
 
         CoverageInfo cv2 = catalog.getFactory().createCoverage();
-        assertThrows(
-                NullPointerException.class,
-                () -> catalog.add(cv2),
-                "adding with no name should throw exception");
+        assertThrows(NullPointerException.class, () -> catalog.add(cv2), "adding with no name should throw exception");
 
         cv2.setName("cv2Name");
         assertThrows(
-                IllegalArgumentException.class,
-                () -> catalog.add(cv2),
-                "adding with no store should throw exception");
+                IllegalArgumentException.class, () -> catalog.add(cv2), "adding with no store should throw exception");
 
         cv2.setStore(data.coverageStoreA);
         catalog.add(cv2);
@@ -1537,25 +1495,19 @@ public abstract class CatalogConformanceTest {
         assertEquals(1, catalog.getLayers().size());
 
         LayerInfo l2 = catalog.getFactory().createLayer();
-        assertThrows(
-                NullPointerException.class,
-                () -> catalog.add(l2),
-                "adding with no name should throw exception");
+        assertThrows(NullPointerException.class, () -> catalog.add(l2), "adding with no name should throw exception");
 
         assertThrows(
-                NullPointerException.class,
-                () -> catalog.add(l2),
-                "adding with no resource should throw exception");
+                NullPointerException.class, () -> catalog.add(l2), "adding with no resource should throw exception");
 
         l2.setResource(data.featureTypeA);
 
         l2.setDefaultStyle(data.style1);
 
-        IllegalArgumentException e =
-                assertThrows(
-                        IllegalArgumentException.class,
-                        () -> catalog.add(l2),
-                        "Adding a second layer for the same resource should throw exception, layer name is tied to resource name and would end up with two layers named the same or a broken catalog");
+        IllegalArgumentException e = assertThrows(
+                IllegalArgumentException.class,
+                () -> catalog.add(l2),
+                "Adding a second layer for the same resource should throw exception, layer name is tied to resource name and would end up with two layers named the same or a broken catalog");
 
         assertTrue(e.getMessage().contains("already exists"));
 
@@ -1740,8 +1692,7 @@ public abstract class CatalogConformanceTest {
         catalog.removeListener(listener);
     }
 
-    private boolean layerHasSecurityRule(
-            DataAccessRuleDAO dao, String workspaceName, String layerName) {
+    private boolean layerHasSecurityRule(DataAccessRuleDAO dao, String workspaceName, String layerName) {
 
         List<DataAccessRule> rules = dao.getRules();
         for (DataAccessRule rule : rules) {
@@ -1763,9 +1714,7 @@ public abstract class CatalogConformanceTest {
         assertEquals(data.layerFeatureTypeA.getName(), l3.getName());
 
         assertThrows(
-                NullPointerException.class,
-                () -> catalog.save(l2),
-                "setting resource to null should throw exception");
+                NullPointerException.class, () -> catalog.save(l2), "setting resource to null should throw exception");
 
         l2.setResource(data.featureTypeA);
         catalog.save(l2);
@@ -1859,23 +1808,16 @@ public abstract class CatalogConformanceTest {
         assertEquals(1, catalog.getStyles().size());
 
         StyleInfo s2 = catalog.getFactory().createStyle();
-        assertThrows(
-                NullPointerException.class,
-                () -> catalog.add(s2),
-                "adding without name should throw exception");
+        assertThrows(NullPointerException.class, () -> catalog.add(s2), "adding without name should throw exception");
 
         s2.setName("s2Name");
         assertThrows(
-                NullPointerException.class,
-                () -> catalog.add(s2),
-                "adding without fileName should throw exception");
+                NullPointerException.class, () -> catalog.add(s2), "adding without fileName should throw exception");
 
         s2.setFilename("s2Filename");
         List<StyleInfo> styles = catalog.getStyles();
         assertThrows(
-                UnsupportedOperationException.class,
-                () -> styles.add(s2),
-                "adding directly should throw exception");
+                UnsupportedOperationException.class, () -> styles.add(s2), "adding directly should throw exception");
 
         catalog.add(s2);
         assertEquals(2, catalog.getStyles().size());
@@ -2017,16 +1959,10 @@ public abstract class CatalogConformanceTest {
         StyleInfo s3 = catalog.getStyleByName(data.style1.getName());
         assertEquals(data.style1, s3);
 
-        assertThrows(
-                NullPointerException.class,
-                () -> catalog.save(s2),
-                "setting name to null should fail");
+        assertThrows(NullPointerException.class, () -> catalog.save(s2), "setting name to null should fail");
 
         s2.setName(data.style1.getName());
-        assertThrows(
-                NullPointerException.class,
-                () -> catalog.save(s2),
-                "setting filename to null should fail");
+        assertThrows(NullPointerException.class, () -> catalog.save(s2), "setting filename to null should fail");
 
         s2.setName("s2Name");
         s2.setFilename("s2Name.sld");
@@ -2078,8 +2014,7 @@ public abstract class CatalogConformanceTest {
 
         Resource origSldResource = dd.style(orig);
         assertFalse(Resources.exists(origSldResource));
-        catalog.getResourcePool()
-                .writeStyle(orig, new ByteArrayInputStream(sld.getBytes(StandardCharsets.UTF_8)));
+        catalog.getResourcePool().writeStyle(orig, new ByteArrayInputStream(sld.getBytes(StandardCharsets.UTF_8)));
         assertTrue(Resources.exists(dd.style(orig)));
         Style style = catalog.getResourcePool().getStyle(orig);
         assertNotNull(style);
@@ -2110,9 +2045,7 @@ public abstract class CatalogConformanceTest {
         s.setName("foo");
 
         assertThrows(
-                IllegalArgumentException.class,
-                () -> catalog.save(s),
-                "changing name of default style should fail");
+                IllegalArgumentException.class, () -> catalog.save(s), "changing name of default style should fail");
 
         final StyleInfo s2 = catalog.getStyleByName(StyleInfo.DEFAULT_LINE);
         s2.setWorkspace(data.workspaceA);
@@ -2137,10 +2070,7 @@ public abstract class CatalogConformanceTest {
         addDefaultStyle();
         StyleInfo s = catalog.getStyleByName(StyleInfo.DEFAULT_LINE);
 
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> catalog.remove(s),
-                "removing default style should fail");
+        assertThrows(IllegalArgumentException.class, () -> catalog.remove(s), "removing default style should fail");
     }
 
     @Test
@@ -2209,13 +2139,12 @@ public abstract class CatalogConformanceTest {
         assertEquals(2, styles.size());
 
         // test immutability
-        Comparator<StyleInfo> comparator =
-                new Comparator<StyleInfo>() {
+        Comparator<StyleInfo> comparator = new Comparator<StyleInfo>() {
 
-                    public int compare(StyleInfo o1, StyleInfo o2) {
-                        return o1.getName().compareTo(o2.getName());
-                    }
-                };
+            public int compare(StyleInfo o1, StyleInfo o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        };
         assertThrows(
                 RuntimeException.class,
                 () -> Collections.sort(styles, comparator),
@@ -2246,9 +2175,7 @@ public abstract class CatalogConformanceTest {
         ws2.setName("bar");
 
         CatalogException ce = assertThrows(CatalogException.class, () -> catalog.add(ws2));
-        assertThat(
-                ce.getMessage(),
-                containsString("expected, testing Catalog's CatalogException handling"));
+        assertThat(ce.getMessage(), containsString("expected, testing Catalog's CatalogException handling"));
     }
 
     @Test
@@ -2313,8 +2240,7 @@ public abstract class CatalogConformanceTest {
         catalog.add(layer);
         String id = layer.getId();
 
-        CountDownLatch ready =
-                new CountDownLatch(GET_LAYER_BY_ID_WITH_CONCURRENT_ADD_THREAD_COUNT + 1);
+        CountDownLatch ready = new CountDownLatch(GET_LAYER_BY_ID_WITH_CONCURRENT_ADD_THREAD_COUNT + 1);
         CountDownLatch done = new CountDownLatch(GET_LAYER_BY_ID_WITH_CONCURRENT_ADD_THREAD_COUNT);
 
         List<RunnerBase> runners = new ArrayList<RunnerBase>();
@@ -2399,9 +2325,7 @@ public abstract class CatalogConformanceTest {
         catalog.add(ws2);
         catalog.setDefaultWorkspace(ws2);
 
-        assertNull(
-                catalog.getLayerGroupByName("layerGroup2"),
-                "layerGroup2 is not global, should not be found");
+        assertNull(catalog.getLayerGroupByName("layerGroup2"), "layerGroup2 is not global, should not be found");
         assertNotNull(catalog.getLayerGroupByName(data.workspaceA.getName() + ":layerGroup2"));
         assertNotNull(catalog.getLayerGroupByName(data.workspaceA, "layerGroup2"));
         assertNull(catalog.getLayerGroupByName("cite", "layerGroup2"));
@@ -2446,8 +2370,7 @@ public abstract class CatalogConformanceTest {
 
         // lg is not global, should not be found at least we specify a prefixed name
         assertNull(
-                catalog.getLayerGroupByName(lgName),
-                "MyFakeWorkspace:layerGroup is not global, should not be found");
+                catalog.getLayerGroupByName(lgName), "MyFakeWorkspace:layerGroup is not global, should not be found");
 
         assertEquals(lg, catalog.getLayerGroupByName(data.workspaceA.getName(), lgName));
         assertEquals(lg, catalog.getLayerGroupByName(data.workspaceA, lgName));
@@ -2530,7 +2453,8 @@ public abstract class CatalogConformanceTest {
     void testGetLayerGroups() {
         addLayerGroup();
         assertEquals(1, catalog.getLayerGroups().size());
-        assertEquals(0, catalog.getLayerGroupsByWorkspace(data.workspaceA.getName()).size());
+        assertEquals(
+                0, catalog.getLayerGroupsByWorkspace(data.workspaceA.getName()).size());
         assertEquals(0, catalog.getLayerGroupsByWorkspace(data.workspaceA).size());
         assertEquals(0, catalog.getLayerGroupsByWorkspace((WorkspaceInfo) null).size());
 
@@ -2542,7 +2466,8 @@ public abstract class CatalogConformanceTest {
         catalog.add(lg2);
 
         assertEquals(2, catalog.getLayerGroups().size());
-        assertEquals(1, catalog.getLayerGroupsByWorkspace(data.workspaceA.getName()).size());
+        assertEquals(
+                1, catalog.getLayerGroupsByWorkspace(data.workspaceA.getName()).size());
         assertEquals(1, catalog.getLayerGroupsByWorkspace(data.workspaceA).size());
         assertEquals(1, catalog.getLayerGroupsByWorkspace((WorkspaceInfo) null).size());
     }
@@ -2626,34 +2551,23 @@ public abstract class CatalogConformanceTest {
 
         lg2.setMode(LayerGroupInfo.Mode.SINGLE);
         assertThrows(
-                IllegalArgumentException.class,
-                () -> catalog.add(lg2),
-                "only EO layer groups can have a root layer");
+                IllegalArgumentException.class, () -> catalog.add(lg2), "only EO layer groups can have a root layer");
 
         lg2.setMode(LayerGroupInfo.Mode.NAMED);
         assertThrows(
-                IllegalArgumentException.class,
-                () -> catalog.add(lg2),
-                "only EO layer groups can have a root layer");
+                IllegalArgumentException.class, () -> catalog.add(lg2), "only EO layer groups can have a root layer");
 
         lg2.setMode(LayerGroupInfo.Mode.CONTAINER);
         assertThrows(
-                IllegalArgumentException.class,
-                () -> catalog.add(lg2),
-                "only EO layer groups can have a root layer");
+                IllegalArgumentException.class, () -> catalog.add(lg2), "only EO layer groups can have a root layer");
 
         lg2.setMode(LayerGroupInfo.Mode.EO);
         lg2.setRootLayer(null);
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> catalog.add(lg2),
-                "EO layer groups must have a root layer");
+        assertThrows(IllegalArgumentException.class, () -> catalog.add(lg2), "EO layer groups must have a root layer");
 
         lg2.setRootLayer(data.layerFeatureTypeA);
         assertThrows(
-                IllegalArgumentException.class,
-                () -> catalog.add(lg2),
-                "EO layer groups must have a root layer style");
+                IllegalArgumentException.class, () -> catalog.add(lg2), "EO layer groups must have a root layer style");
 
         lg2.setRootLayerStyle(data.style1);
 
@@ -2732,13 +2646,9 @@ public abstract class CatalogConformanceTest {
 
         lg2.setMode(LayerGroupInfo.Mode.CONTAINER);
         assertThrows(
-                UnsupportedOperationException.class,
-                lg2::layers,
-                "Layer group of Type Container can not be rendered");
+                UnsupportedOperationException.class, lg2::layers, "Layer group of Type Container can not be rendered");
         assertThrows(
-                UnsupportedOperationException.class,
-                lg2::styles,
-                "Layer group of Type Container can not be rendered");
+                UnsupportedOperationException.class, lg2::styles, "Layer group of Type Container can not be rendered");
 
         lg2.setMode(LayerGroupInfo.Mode.EO);
         assertEquals(1, lg2.layers().size());
@@ -2967,7 +2877,8 @@ public abstract class CatalogConformanceTest {
                 "Expected IAE on multiple results");
 
         assertEquals(
-                s1.getId(), catalog.get(StyleInfo.class, equal("filename", "s1Filename")).getId());
+                s1.getId(),
+                catalog.get(StyleInfo.class, equal("filename", "s1Filename")).getId());
         filter = equal("defaultStyle.filename", "s1Filename");
         assertEquals(l1.getId(), catalog.get(LayerInfo.class, filter).getId());
 
@@ -2977,8 +2888,7 @@ public abstract class CatalogConformanceTest {
         filter = equal("styles.id", s2.getId(), MatchAction.ONE);
         assertEquals(l1.getId(), catalog.get(LayerInfo.class, filter).getId());
 
-        Filter filter2 =
-                equal("styles.id", s3.getId(), MatchAction.ANY); // s3 is shared by l1 and l2
+        Filter filter2 = equal("styles.id", s3.getId(), MatchAction.ANY); // s3 is shared by l1 and l2
         assertThrows(
                 IllegalArgumentException.class,
                 () -> catalog.get(LayerInfo.class, filter2),
@@ -3049,8 +2959,7 @@ public abstract class CatalogConformanceTest {
         assertEquals(expected, actual);
 
         filter = acceptAll();
-        ArrayList<LayerInfo> naturalOrder =
-                Lists.newArrayList(catalog.list(LayerInfo.class, filter));
+        ArrayList<LayerInfo> naturalOrder = Lists.newArrayList(catalog.list(LayerInfo.class, filter));
         assertEquals(3, naturalOrder.size());
 
         int offset = 0, limit = 2;
@@ -3129,72 +3038,36 @@ public abstract class CatalogConformanceTest {
         assertEquals(expected, actual);
 
         // match action
-        filter =
-                factory.equal(
-                        factory.literal(new Keyword("keyword1")),
-                        factory.property("keywords"),
-                        true,
-                        MatchAction.ANY);
+        filter = factory.equal(
+                factory.literal(new Keyword("keyword1")), factory.property("keywords"), true, MatchAction.ANY);
         expected = Sets.newHashSet(ft1, ft2);
         actual = Sets.newHashSet(catalog.list(FeatureTypeInfo.class, filter));
         assertEquals(expected, actual);
 
-        filter =
-                factory.equal(
-                        factory.literal(new Keyword("keyword1")),
-                        factory.property("keywords"),
-                        true,
-                        MatchAction.ALL);
+        filter = factory.equal(
+                factory.literal(new Keyword("keyword1")), factory.property("keywords"), true, MatchAction.ALL);
         expected = Sets.newHashSet(ft2);
         actual = Sets.newHashSet(catalog.list(FeatureTypeInfo.class, filter));
         assertEquals(expected, actual);
 
-        filter =
-                factory.equal(
-                        factory.literal(new Keyword("keyword1")),
-                        factory.property("keywords"),
-                        true,
-                        MatchAction.ONE);
+        filter = factory.equal(
+                factory.literal(new Keyword("keyword1")), factory.property("keywords"), true, MatchAction.ONE);
         expected = Sets.newHashSet(ft1);
         actual = Sets.newHashSet(catalog.list(FeatureTypeInfo.class, filter));
         assertEquals(expected, actual);
 
         // match action - like
-        filter =
-                factory.like(
-                        factory.property("keywords"),
-                        "key*d1",
-                        "*",
-                        "?",
-                        "\\",
-                        true,
-                        MatchAction.ANY);
+        filter = factory.like(factory.property("keywords"), "key*d1", "*", "?", "\\", true, MatchAction.ANY);
         expected = Sets.newHashSet(ft1, ft2);
         actual = Sets.newHashSet(catalog.list(FeatureTypeInfo.class, filter));
         assertEquals(expected, actual);
 
-        filter =
-                factory.like(
-                        factory.property("keywords"),
-                        "key*d1",
-                        "*",
-                        "?",
-                        "\\",
-                        true,
-                        MatchAction.ALL);
+        filter = factory.like(factory.property("keywords"), "key*d1", "*", "?", "\\", true, MatchAction.ALL);
         expected = Sets.newHashSet(ft2);
         actual = Sets.newHashSet(catalog.list(FeatureTypeInfo.class, filter));
         assertEquals(expected, actual);
 
-        filter =
-                factory.like(
-                        factory.property("keywords"),
-                        "key*d1",
-                        "*",
-                        "?",
-                        "\\",
-                        true,
-                        MatchAction.ONE);
+        filter = factory.like(factory.property("keywords"), "key*d1", "*", "?", "\\", true, MatchAction.ONE);
         expected = Sets.newHashSet(ft1);
         actual = Sets.newHashSet(catalog.list(FeatureTypeInfo.class, filter));
         assertEquals(expected, actual);
@@ -3203,9 +3076,7 @@ public abstract class CatalogConformanceTest {
         List<Object> values = new ArrayList<>();
         values.add("ft1");
         values.add("ft2");
-        filter =
-                factory.equal(
-                        factory.literal(values), factory.property("name"), true, MatchAction.ANY);
+        filter = factory.equal(factory.literal(values), factory.property("name"), true, MatchAction.ANY);
         expected = Sets.newHashSet(ft1, ft2);
         actual = Sets.newHashSet(catalog.list(FeatureTypeInfo.class, filter));
         assertEquals(expected, actual);
@@ -3213,9 +3084,7 @@ public abstract class CatalogConformanceTest {
         values = new ArrayList<>();
         values.add("ft1");
         values.add("ft1");
-        filter =
-                factory.equal(
-                        factory.literal(values), factory.property("name"), true, MatchAction.ALL);
+        filter = factory.equal(factory.literal(values), factory.property("name"), true, MatchAction.ALL);
         expected = Sets.newHashSet(ft1);
         actual = Sets.newHashSet(catalog.list(FeatureTypeInfo.class, filter));
         assertEquals(expected, actual);
@@ -3223,9 +3092,7 @@ public abstract class CatalogConformanceTest {
         values = new ArrayList<>();
         values.add("ft1");
         values.add("ft2");
-        filter =
-                factory.equal(
-                        factory.literal(values), factory.property("name"), true, MatchAction.ALL);
+        filter = factory.equal(factory.literal(values), factory.property("name"), true, MatchAction.ALL);
         expected = Sets.newHashSet();
         actual = Sets.newHashSet(catalog.list(FeatureTypeInfo.class, filter));
         assertEquals(expected, actual);
@@ -3234,9 +3101,7 @@ public abstract class CatalogConformanceTest {
         values.add("ft1");
         values.add("ft1");
         values.add("ft2");
-        filter =
-                factory.equal(
-                        factory.literal(values), factory.property("name"), true, MatchAction.ONE);
+        filter = factory.equal(factory.literal(values), factory.property("name"), true, MatchAction.ONE);
         expected = Sets.newHashSet(ft2);
         actual = Sets.newHashSet(catalog.list(FeatureTypeInfo.class, filter));
         assertEquals(expected, actual);
@@ -3246,12 +3111,7 @@ public abstract class CatalogConformanceTest {
         values = new ArrayList<>();
         values.add(new Keyword("keyword1"));
         values.add(new Keyword("keyword2"));
-        filter =
-                factory.equal(
-                        factory.literal(values),
-                        factory.property("keywords"),
-                        true,
-                        MatchAction.ANY);
+        filter = factory.equal(factory.literal(values), factory.property("keywords"), true, MatchAction.ANY);
         expected = Sets.newHashSet(ft1, ft2);
         actual = Sets.newHashSet(catalog.list(FeatureTypeInfo.class, filter));
         assertEquals(expected, actual);
@@ -3259,12 +3119,7 @@ public abstract class CatalogConformanceTest {
         values = new ArrayList<>();
         values.add(new Keyword("keyword1"));
         values.add(new Keyword("keyword1"));
-        filter =
-                factory.equal(
-                        factory.literal(values),
-                        factory.property("keywords"),
-                        true,
-                        MatchAction.ALL);
+        filter = factory.equal(factory.literal(values), factory.property("keywords"), true, MatchAction.ALL);
         expected = Sets.newHashSet(ft2);
         actual = Sets.newHashSet(catalog.list(FeatureTypeInfo.class, filter));
         assertEquals(expected, actual);
@@ -3272,12 +3127,7 @@ public abstract class CatalogConformanceTest {
         values = new ArrayList<>();
         values.add(new Keyword("keyword1"));
         values.add(new Keyword("blah"));
-        filter =
-                factory.equal(
-                        factory.literal(values),
-                        factory.property("keywords"),
-                        true,
-                        MatchAction.ONE);
+        filter = factory.equal(factory.literal(values), factory.property("keywords"), true, MatchAction.ONE);
         expected = Sets.newHashSet(ft1);
         actual = Sets.newHashSet(catalog.list(FeatureTypeInfo.class, filter));
         assertEquals(expected, actual);
@@ -3356,12 +3206,7 @@ public abstract class CatalogConformanceTest {
     }
 
     private <T extends CatalogInfo> void testOrderBy(
-            Class<T> clazz,
-            Filter filter,
-            Integer offset,
-            Integer limit,
-            SortBy sortOrder,
-            List<T> expected) {
+            Class<T> clazz, Filter filter, Integer offset, Integer limit, SortBy sortOrder, List<T> expected) {
 
         CatalogPropertyAccessor pe = new CatalogPropertyAccessor();
 
@@ -3407,35 +3252,26 @@ public abstract class CatalogConformanceTest {
         catalog.add(l2);
 
         Filter filter = Predicates.fullTextSearch("Description");
-        assertEquals(
-                newHashSet(data.featureTypeA, data.coverageA),
-                asSet(catalog.list(ResourceInfo.class, filter)));
+        assertEquals(newHashSet(data.featureTypeA, data.coverageA), asSet(catalog.list(ResourceInfo.class, filter)));
         assertEquals(2, catalog.count(ResourceInfo.class, filter));
         assertEquals(1, catalog.count(CoverageInfo.class, filter));
 
-        assertEquals(
-                newHashSet(data.featureTypeA), asSet(catalog.list(FeatureTypeInfo.class, filter)));
+        assertEquals(newHashSet(data.featureTypeA), asSet(catalog.list(FeatureTypeInfo.class, filter)));
         assertEquals(newHashSet(data.coverageA), asSet(catalog.list(CoverageInfo.class, filter)));
 
-        assertEquals(
-                newHashSet(data.layerFeatureTypeA, l2),
-                asSet(catalog.list(LayerInfo.class, filter)));
+        assertEquals(newHashSet(data.layerFeatureTypeA, l2), asSet(catalog.list(LayerInfo.class, filter)));
 
         filter = Predicates.fullTextSearch("opensource");
-        assertEquals(
-                newHashSet(data.layerFeatureTypeA), asSet(catalog.list(LayerInfo.class, filter)));
+        assertEquals(newHashSet(data.layerFeatureTypeA), asSet(catalog.list(LayerInfo.class, filter)));
 
         filter = Predicates.fullTextSearch("geotools");
         assertEquals(newHashSet(l2), asSet(catalog.list(LayerInfo.class, filter)));
 
         filter = Predicates.fullTextSearch("Global");
-        assertEquals(
-                newHashSet(data.layerFeatureTypeA, l2),
-                asSet(catalog.list(LayerInfo.class, filter)));
+        assertEquals(newHashSet(data.layerFeatureTypeA, l2), asSet(catalog.list(LayerInfo.class, filter)));
 
         filter = Predicates.fullTextSearch("Temperature");
-        assertEquals(
-                newHashSet(data.layerFeatureTypeA), asSet(catalog.list(LayerInfo.class, filter)));
+        assertEquals(newHashSet(data.layerFeatureTypeA), asSet(catalog.list(LayerInfo.class, filter)));
 
         filter = Predicates.fullTextSearch("Depression");
         assertEquals(newHashSet(l2), asSet(catalog.list(LayerInfo.class, filter)));
@@ -3450,8 +3286,7 @@ public abstract class CatalogConformanceTest {
 
         // test layer group title and abstract search
         Filter filter = Predicates.fullTextSearch("title");
-        assertEquals(
-                newHashSet(data.layerGroup1), asSet(catalog.list(LayerGroupInfo.class, filter)));
+        assertEquals(newHashSet(data.layerGroup1), asSet(catalog.list(LayerGroupInfo.class, filter)));
     }
 
     @Test
@@ -3460,8 +3295,7 @@ public abstract class CatalogConformanceTest {
         // geos-6882
         catalog.add(data.layerGroup1);
         Filter filter = Predicates.fullTextSearch("Group");
-        assertEquals(
-                newHashSet(data.layerGroup1), asSet(catalog.list(LayerGroupInfo.class, filter)));
+        assertEquals(newHashSet(data.layerGroup1), asSet(catalog.list(LayerGroupInfo.class, filter)));
     }
 
     @Test
@@ -3470,8 +3304,7 @@ public abstract class CatalogConformanceTest {
         data.layerGroup1.setAbstract("GeoServer OpenSource GIS");
         catalog.add(data.layerGroup1);
         Filter filter = Predicates.fullTextSearch("geoserver");
-        assertEquals(
-                newHashSet(data.layerGroup1), asSet(catalog.list(LayerGroupInfo.class, filter)));
+        assertEquals(newHashSet(data.layerGroup1), asSet(catalog.list(LayerGroupInfo.class, filter)));
     }
 
     @Test
@@ -3489,23 +3322,15 @@ public abstract class CatalogConformanceTest {
         catalog.add(l2);
 
         Filter filter = Predicates.fullTextSearch("temperature");
-        assertEquals(
-                newHashSet(data.layerFeatureTypeA, l2),
-                asSet(catalog.list(LayerInfo.class, filter)));
-        assertEquals(
-                newHashSet(data.featureTypeA, data.coverageA),
-                asSet(catalog.list(ResourceInfo.class, filter)));
-        assertEquals(
-                newHashSet(data.featureTypeA), asSet(catalog.list(FeatureTypeInfo.class, filter)));
+        assertEquals(newHashSet(data.layerFeatureTypeA, l2), asSet(catalog.list(LayerInfo.class, filter)));
+        assertEquals(newHashSet(data.featureTypeA, data.coverageA), asSet(catalog.list(ResourceInfo.class, filter)));
+        assertEquals(newHashSet(data.featureTypeA), asSet(catalog.list(FeatureTypeInfo.class, filter)));
         assertEquals(newHashSet(data.coverageA), asSet(catalog.list(CoverageInfo.class, filter)));
 
         filter = Predicates.fullTextSearch("air");
-        assertEquals(
-                newHashSet(data.layerFeatureTypeA), asSet(catalog.list(LayerInfo.class, filter)));
-        assertEquals(
-                newHashSet(data.featureTypeA), asSet(catalog.list(ResourceInfo.class, filter)));
-        assertEquals(
-                newHashSet(data.featureTypeA), asSet(catalog.list(FeatureTypeInfo.class, filter)));
+        assertEquals(newHashSet(data.layerFeatureTypeA), asSet(catalog.list(LayerInfo.class, filter)));
+        assertEquals(newHashSet(data.featureTypeA), asSet(catalog.list(ResourceInfo.class, filter)));
+        assertEquals(newHashSet(data.featureTypeA), asSet(catalog.list(FeatureTypeInfo.class, filter)));
         assertEquals(newHashSet(), asSet(catalog.list(CoverageInfo.class, filter)));
 
         filter = Predicates.fullTextSearch("dewpoint");
@@ -3550,8 +3375,7 @@ public abstract class CatalogConformanceTest {
         return set;
     }
 
-    protected LayerInfo newLayer(
-            ResourceInfo resource, StyleInfo defStyle, StyleInfo... extraStyles) {
+    protected LayerInfo newLayer(ResourceInfo resource, StyleInfo defStyle, StyleInfo... extraStyles) {
         LayerInfo l2 = catalog.getFactory().createLayer();
         l2.setResource(resource);
         l2.setDefaultStyle(defStyle);
@@ -3589,8 +3413,7 @@ public abstract class CatalogConformanceTest {
         try {
             // disable logging for this test, it will stay a while in case of failure otherwise
             logger.setLevel(Level.OFF);
-            ExecutorCompletionService<Void> completionService =
-                    new ExecutorCompletionService<>(executor);
+            ExecutorCompletionService<Void> completionService = new ExecutorCompletionService<>(executor);
             for (int i = 0; i < tasks; i++) {
                 completionService.submit(
                         () -> {
@@ -3609,8 +3432,7 @@ public abstract class CatalogConformanceTest {
                             for (TestListener testListener : listeners) {
                                 assertTrue(
                                         testListener.removed.stream()
-                                                .anyMatch(
-                                                        event -> event.getSource() == catalogInfo),
+                                                .anyMatch(event -> event.getSource() == catalogInfo),
                                         "Did not find the expected even in the listener");
                             }
 
@@ -3681,36 +3503,30 @@ public abstract class CatalogConformanceTest {
             stores.forEachRemaining(s -> assertSame(catalog, s.getCatalog()));
         }
         {
-            CloseableIterator<ResourceInfo> resources =
-                    catalog.list(ResourceInfo.class, acceptAll());
+            CloseableIterator<ResourceInfo> resources = catalog.list(ResourceInfo.class, acceptAll());
             assertTrue(resources.hasNext());
             resources.forEachRemaining(r -> assertSame(catalog, r.getCatalog()));
         }
         {
             CloseableIterator<LayerInfo> layers = catalog.list(LayerInfo.class, acceptAll());
             assertTrue(layers.hasNext());
-            layers.forEachRemaining(
-                    r -> {
-                        assertSame(catalog, r.getResource().getCatalog());
-                        assertSame(catalog, r.getResource().getStore().getCatalog());
-                    });
+            layers.forEachRemaining(r -> {
+                assertSame(catalog, r.getResource().getCatalog());
+                assertSame(catalog, r.getResource().getStore().getCatalog());
+            });
         }
         {
-            CloseableIterator<LayerGroupInfo> groups =
-                    catalog.list(LayerGroupInfo.class, acceptAll());
+            CloseableIterator<LayerGroupInfo> groups = catalog.list(LayerGroupInfo.class, acceptAll());
             assertTrue(groups.hasNext());
-            groups.forEachRemaining(
-                    g -> {
-                        List<PublishedInfo> layers = g.getLayers();
-                        layers.forEach(
-                                p -> {
-                                    if (p instanceof LayerInfo l) {
-                                        assertSame(catalog, l.getResource().getCatalog());
-                                        assertSame(
-                                                catalog, l.getResource().getStore().getCatalog());
-                                    }
-                                });
-                    });
+            groups.forEachRemaining(g -> {
+                List<PublishedInfo> layers = g.getLayers();
+                layers.forEach(p -> {
+                    if (p instanceof LayerInfo l) {
+                        assertSame(catalog, l.getResource().getCatalog());
+                        assertSame(catalog, l.getResource().getStore().getCatalog());
+                    }
+                });
+            });
         }
     }
 
@@ -3748,8 +3564,7 @@ public abstract class CatalogConformanceTest {
 
         assertEquals(1, catalog.count(StoreInfo.class, equal("id", data.dataStoreB.getId())));
         assertEquals(1, catalog.count(DataStoreInfo.class, equal("id", data.dataStoreB.getId())));
-        assertEquals(
-                0, catalog.count(CoverageStoreInfo.class, equal("id", data.dataStoreB.getId())));
+        assertEquals(0, catalog.count(CoverageStoreInfo.class, equal("id", data.dataStoreB.getId())));
     }
 
     @Test
@@ -3771,8 +3586,7 @@ public abstract class CatalogConformanceTest {
         assertEquals(5, catalog.getLayers().size());
         assertEquals(5, catalog.getLayerGroups().size());
 
-        testListPublishedInfos(
-                acceptAll(), null, null, List.of(l1, g1, l2, g2, l3, g3, l4, g4, l5, g5));
+        testListPublishedInfos(acceptAll(), null, null, List.of(l1, g1, l2, g2, l3, g3, l4, g4, l5, g5));
         testListPublishedInfos(acceptAll(), 3, 4, List.of(g2, l3, g3, l4));
         testListPublishedInfos(acceptAll(), 8, 4, List.of(l5, g5));
 
@@ -3788,12 +3602,12 @@ public abstract class CatalogConformanceTest {
     }
 
     // sorts by name
-    private void testListPublishedInfos(
-            Filter filter, Integer offset, Integer limit, List<PublishedInfo> expected) {
+    private void testListPublishedInfos(Filter filter, Integer offset, Integer limit, List<PublishedInfo> expected) {
 
         List<PublishedInfo> result = listPublishedInfos(filter, offset, limit);
         assertEquals(expected.size(), result.size());
-        List<String> expectedNames = expected.stream().map(PublishedInfo::getName).toList();
+        List<String> expectedNames =
+                expected.stream().map(PublishedInfo::getName).toList();
         List<String> actualNames = result.stream().map(PublishedInfo::getName).toList();
         assertEquals(expectedNames, actualNames);
 

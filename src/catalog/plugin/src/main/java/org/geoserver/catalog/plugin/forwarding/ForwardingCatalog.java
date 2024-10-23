@@ -4,6 +4,11 @@
  */
 package org.geoserver.catalog.plugin.forwarding;
 
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogCapabilities;
 import org.geoserver.catalog.CatalogFacade;
@@ -32,12 +37,6 @@ import org.geoserver.platform.GeoServerResourceLoader;
 import org.geotools.api.feature.type.Name;
 import org.geotools.api.filter.Filter;
 import org.geotools.api.filter.sort.SortBy;
-
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
 
 /**
  * {@link Catalog} which forwards all its method calls to another {@code Catalog} aiding in
@@ -139,14 +138,12 @@ public class ForwardingCatalog implements Catalog {
     }
 
     @Override
-    public <T extends StoreInfo> T getStoreByName(
-            String workspaceName, String name, Class<T> clazz) {
+    public <T extends StoreInfo> T getStoreByName(String workspaceName, String name, Class<T> clazz) {
         return catalog.getStoreByName(workspaceName, name, clazz);
     }
 
     @Override
-    public <T extends StoreInfo> T getStoreByName(
-            WorkspaceInfo workspace, String name, Class<T> clazz) {
+    public <T extends StoreInfo> T getStoreByName(WorkspaceInfo workspace, String name, Class<T> clazz) {
         return catalog.getStoreByName(workspace, name, clazz);
     }
 
@@ -176,14 +173,12 @@ public class ForwardingCatalog implements Catalog {
     }
 
     @Override
-    public <T extends StoreInfo> List<T> getStoresByWorkspace(
-            WorkspaceInfo workspace, Class<T> clazz) {
+    public <T extends StoreInfo> List<T> getStoresByWorkspace(WorkspaceInfo workspace, Class<T> clazz) {
         return catalog.getStoresByWorkspace(workspace, clazz);
     }
 
     @Override
-    public <T extends StoreInfo> List<T> getStoresByWorkspace(
-            String workspaceName, Class<T> clazz) {
+    public <T extends StoreInfo> List<T> getStoresByWorkspace(String workspaceName, Class<T> clazz) {
         return catalog.getStoresByWorkspace(workspaceName, clazz);
     }
 
@@ -278,8 +273,7 @@ public class ForwardingCatalog implements Catalog {
     }
 
     @Override
-    public <T extends ResourceInfo> T getResourceByName(
-            NamespaceInfo ns, String name, Class<T> clazz) {
+    public <T extends ResourceInfo> T getResourceByName(NamespaceInfo ns, String name, Class<T> clazz) {
         return catalog.getResourceByName(ns, name, clazz);
     }
 
@@ -329,20 +323,17 @@ public class ForwardingCatalog implements Catalog {
     }
 
     @Override
-    public <T extends ResourceInfo> List<T> getResourcesByNamespace(
-            NamespaceInfo namespace, Class<T> clazz) {
+    public <T extends ResourceInfo> List<T> getResourcesByNamespace(NamespaceInfo namespace, Class<T> clazz) {
         return catalog.getResourcesByNamespace(namespace, clazz);
     }
 
     @Override
-    public <T extends ResourceInfo> List<T> getResourcesByNamespace(
-            String namespace, Class<T> clazz) {
+    public <T extends ResourceInfo> List<T> getResourcesByNamespace(String namespace, Class<T> clazz) {
         return catalog.getResourcesByNamespace(namespace, clazz);
     }
 
     @Override
-    public <T extends ResourceInfo> T getResourceByStore(
-            StoreInfo store, String name, Class<T> clazz) {
+    public <T extends ResourceInfo> T getResourceByStore(StoreInfo store, String name, Class<T> clazz) {
         return catalog.getResourceByStore(store, name, clazz);
     }
 
@@ -783,19 +774,13 @@ public class ForwardingCatalog implements Catalog {
 
     @Override
     public void fireModified(
-            CatalogInfo object,
-            List<String> propertyNames,
-            List<Object> oldValues,
-            List<Object> newValues) {
+            CatalogInfo object, List<String> propertyNames, List<Object> oldValues, List<Object> newValues) {
         catalog.fireModified(object, propertyNames, oldValues, newValues);
     }
 
     @Override
     public void firePostModified(
-            CatalogInfo object,
-            List<String> propertyNames,
-            List<Object> oldValues,
-            List<Object> newValues) {
+            CatalogInfo object, List<String> propertyNames, List<Object> oldValues, List<Object> newValues) {
         catalog.firePostModified(object, propertyNames, oldValues, newValues);
     }
 
@@ -835,8 +820,7 @@ public class ForwardingCatalog implements Catalog {
     }
 
     @Override
-    public <T extends CatalogInfo> T get(Class<T> type, Filter filter)
-            throws IllegalArgumentException {
+    public <T extends CatalogInfo> T get(Class<T> type, Filter filter) throws IllegalArgumentException {
         return catalog.get(type, filter);
     }
 

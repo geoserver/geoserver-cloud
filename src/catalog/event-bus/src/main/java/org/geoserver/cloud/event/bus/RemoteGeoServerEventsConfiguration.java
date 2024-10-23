@@ -4,8 +4,8 @@
  */
 package org.geoserver.cloud.event.bus;
 
+import java.util.function.Consumer;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.Info;
@@ -26,8 +26,6 @@ import org.springframework.cloud.bus.jackson.RemoteApplicationEventScan;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.function.Consumer;
 
 /** Catalog and config events integration with spring cloud bus */
 @Configuration(proxyBeanMethods = false)
@@ -76,8 +74,7 @@ public class RemoteGeoServerEventsConfiguration {
      * other listeners.
      */
     @Bean
-    InfoEventResolver remoteInfoEventInboundResolver(
-            @Qualifier("rawCatalog") Catalog rawCatalog, GeoServer geoserver) {
+    InfoEventResolver remoteInfoEventInboundResolver(@Qualifier("rawCatalog") Catalog rawCatalog, GeoServer geoserver) {
         return new InfoEventResolver(rawCatalog, geoserver);
     }
 
@@ -87,8 +84,7 @@ public class RemoteGeoServerEventsConfiguration {
             ServiceMatcher serviceMatcher,
             Destination.Factory destinationFactory) {
 
-        return new RemoteGeoServerEventMapper(
-                remoteEventPropertiesResolver, serviceMatcher, destinationFactory);
+        return new RemoteGeoServerEventMapper(remoteEventPropertiesResolver, serviceMatcher, destinationFactory);
     }
 
     @Bean
@@ -99,7 +95,6 @@ public class RemoteGeoServerEventsConfiguration {
 
         Consumer<GeoServerEvent> localEventPublisher = eventPublisher::publishEvent;
         Consumer<RemoteGeoServerEvent> remoteEventPublisher = eventPublisher::publishEvent;
-        return new RemoteGeoServerEventBridge(
-                localEventPublisher, remoteEventPublisher, eventMapper);
+        return new RemoteGeoServerEventBridge(localEventPublisher, remoteEventPublisher, eventMapper);
     }
 }

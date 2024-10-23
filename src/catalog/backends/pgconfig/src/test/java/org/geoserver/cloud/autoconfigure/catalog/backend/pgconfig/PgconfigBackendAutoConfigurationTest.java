@@ -32,16 +32,15 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @Testcontainers(disabledWithoutDocker = true)
 class PgconfigBackendAutoConfigurationTest {
 
-    @Container static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();
+    @Container
+    static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();
 
-    private ApplicationContextRunner runner =
-            new ApplicationContextRunner()
-                    .withConfiguration(
-                            AutoConfigurations.of(
-                                    PgconfigDataSourceAutoConfiguration.class,
-                                    PgconfigTransactionManagerAutoConfiguration.class,
-                                    PgconfigMigrationAutoConfiguration.class,
-                                    PgconfigBackendAutoConfiguration.class));
+    private ApplicationContextRunner runner = new ApplicationContextRunner()
+            .withConfiguration(AutoConfigurations.of(
+                    PgconfigDataSourceAutoConfiguration.class,
+                    PgconfigTransactionManagerAutoConfiguration.class,
+                    PgconfigMigrationAutoConfiguration.class,
+                    PgconfigBackendAutoConfiguration.class));
 
     @BeforeEach
     void setUp() {
@@ -50,25 +49,23 @@ class PgconfigBackendAutoConfigurationTest {
 
     @Test
     void testCatalogAndConfigBeans() {
-        runner.run(
-                context -> {
-                    assertThat(context)
-                            .hasNotFailed()
-                            .hasBean("pgconfigTransactionManager")
-                            .hasSingleBean(JdbcTemplate.class)
-                            .hasSingleBean(GeoServerConfigurationLock.class)
-                            .hasSingleBean(PgconfigUpdateSequence.class)
-                            .hasSingleBean(PgconfigCatalogFacade.class)
-                            .hasSingleBean(PgconfigGeoServerLoader.class)
-                            .hasSingleBean(PgconfigConfigRepository.class)
-                            .hasSingleBean(PgconfigGeoServerFacade.class)
-                            .hasBean("resourceStoreImpl")
-                            .hasSingleBean(PgconfigGeoServerResourceLoader.class)
-                            .hasSingleBean(PgconfigLockProvider.class);
+        runner.run(context -> {
+            assertThat(context)
+                    .hasNotFailed()
+                    .hasBean("pgconfigTransactionManager")
+                    .hasSingleBean(JdbcTemplate.class)
+                    .hasSingleBean(GeoServerConfigurationLock.class)
+                    .hasSingleBean(PgconfigUpdateSequence.class)
+                    .hasSingleBean(PgconfigCatalogFacade.class)
+                    .hasSingleBean(PgconfigGeoServerLoader.class)
+                    .hasSingleBean(PgconfigConfigRepository.class)
+                    .hasSingleBean(PgconfigGeoServerFacade.class)
+                    .hasBean("resourceStoreImpl")
+                    .hasSingleBean(PgconfigGeoServerResourceLoader.class)
+                    .hasSingleBean(PgconfigLockProvider.class);
 
-                    ExtendedCatalogFacade catalogFacade =
-                            context.getBean("catalogFacade", ExtendedCatalogFacade.class);
-                    assertThat(catalogFacade).isInstanceOf(PgconfigCatalogFacade.class);
-                });
+            ExtendedCatalogFacade catalogFacade = context.getBean("catalogFacade", ExtendedCatalogFacade.class);
+            assertThat(catalogFacade).isInstanceOf(PgconfigCatalogFacade.class);
+        });
     }
 }

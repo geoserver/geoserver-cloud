@@ -4,12 +4,10 @@
  */
 package org.geoserver.cloud.gwc.config.core;
 
+import java.nio.file.Path;
 import lombok.Data;
-
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-
-import java.nio.file.Path;
 
 /**
  * Configuration properties for GeoWebcache

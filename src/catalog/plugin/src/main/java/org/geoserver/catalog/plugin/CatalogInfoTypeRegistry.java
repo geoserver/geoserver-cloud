@@ -6,6 +6,10 @@ package org.geoserver.catalog.plugin;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.Arrays;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.function.Consumer;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.CoverageInfo;
 import org.geoserver.catalog.CoverageStoreInfo;
@@ -26,11 +30,6 @@ import org.geoserver.catalog.WMTSLayerInfo;
 import org.geoserver.catalog.WMTSStoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ClassMappings;
-
-import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.function.Consumer;
 
 /**
  * Utility class to register providers of any kind based on {@link CatalogInfo} subtypes.
@@ -63,8 +62,7 @@ public class CatalogInfoTypeRegistry<R> {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends CatalogInfo> CatalogInfoTypeRegistry<Consumer<T>> consume(
-            Class<T> type, Consumer<T> with) {
+    public <T extends CatalogInfo> CatalogInfoTypeRegistry<Consumer<T>> consume(Class<T> type, Consumer<T> with) {
         return ((CatalogInfoTypeRegistry<Consumer<T>>) this).registerRecursively(type, with);
     }
 
@@ -75,8 +73,7 @@ public class CatalogInfoTypeRegistry<R> {
      * WMSStoreInfo}, and {@link WMTSStoreInfo})
      */
     @SuppressWarnings("unchecked")
-    public <T extends CatalogInfo> CatalogInfoTypeRegistry<R> registerRecursively(
-            Class<T> type, R resource) {
+    public <T extends CatalogInfo> CatalogInfoTypeRegistry<R> registerRecursively(Class<T> type, R resource) {
 
         ClassMappings key = determineKey(type);
         Class<T> mainType = (Class<T>) key.getInterface();
@@ -124,10 +121,7 @@ public class CatalogInfoTypeRegistry<R> {
     }
 
     public static <T extends Info> ClassMappings determineKey(Class<T> type) {
-        ClassMappings cm =
-                type.isInterface()
-                        ? ClassMappings.fromInterface(type)
-                        : ClassMappings.fromImpl(type);
+        ClassMappings cm = type.isInterface() ? ClassMappings.fromInterface(type) : ClassMappings.fromImpl(type);
         if (cm != null) {
             return cm;
         }
@@ -135,23 +129,22 @@ public class CatalogInfoTypeRegistry<R> {
                 "Unable to determine CatalogInfo subtype from class %s".formatted(type.getName()));
     }
 
-    private static final List<Class<? extends CatalogInfo>> instanceOfLookup =
-            Arrays.asList(
-                    WorkspaceInfo.class,
-                    NamespaceInfo.class,
-                    DataStoreInfo.class,
-                    CoverageStoreInfo.class,
-                    WMSStoreInfo.class,
-                    WMTSStoreInfo.class,
-                    StoreInfo.class,
-                    FeatureTypeInfo.class,
-                    CoverageInfo.class,
-                    WMSLayerInfo.class,
-                    WMTSLayerInfo.class,
-                    ResourceInfo.class,
-                    LayerInfo.class,
-                    LayerGroupInfo.class,
-                    PublishedInfo.class,
-                    StyleInfo.class,
-                    MapInfo.class);
+    private static final List<Class<? extends CatalogInfo>> instanceOfLookup = Arrays.asList(
+            WorkspaceInfo.class,
+            NamespaceInfo.class,
+            DataStoreInfo.class,
+            CoverageStoreInfo.class,
+            WMSStoreInfo.class,
+            WMTSStoreInfo.class,
+            StoreInfo.class,
+            FeatureTypeInfo.class,
+            CoverageInfo.class,
+            WMSLayerInfo.class,
+            WMTSLayerInfo.class,
+            ResourceInfo.class,
+            LayerInfo.class,
+            LayerGroupInfo.class,
+            PublishedInfo.class,
+            StyleInfo.class,
+            MapInfo.class);
 }

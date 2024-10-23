@@ -9,6 +9,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.stream.IntStream;
 import org.geoserver.catalog.AttributeTypeInfo;
 import org.geoserver.catalog.AttributionInfo;
 import org.geoserver.catalog.Catalog;
@@ -47,13 +53,6 @@ import org.geotools.referencing.CRS;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-import java.util.stream.IntStream;
-
 class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
 
     @Test
@@ -62,11 +61,9 @@ class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
         catalog.add(testData.workspaceC);
         final Class<DefaultWorkspaceSet> eventType = DefaultWorkspaceSet.class;
         {
-            Patch expected =
-                    new PropertyDiffTestSupport()
-                            .createTestDiff(
-                                    "defaultWorkspace", testData.workspaceA, testData.workspaceC)
-                            .toPatch();
+            Patch expected = new PropertyDiffTestSupport()
+                    .createTestDiff("defaultWorkspace", testData.workspaceA, testData.workspaceC)
+                    .toPatch();
 
             Consumer<Catalog> modifier = c -> c.setDefaultWorkspace(testData.workspaceC);
             Predicate<DefaultWorkspaceSet> filter =
@@ -75,10 +72,9 @@ class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
             testCatalogModifiedEvent(catalog, modifier, expected, eventType, filter);
         }
         {
-            Patch expected =
-                    new PropertyDiffTestSupport()
-                            .createTestDiff("defaultWorkspace", testData.workspaceC, null)
-                            .toPatch();
+            Patch expected = new PropertyDiffTestSupport()
+                    .createTestDiff("defaultWorkspace", testData.workspaceC, null)
+                    .toPatch();
 
             Consumer<Catalog> modifier = c -> c.setDefaultWorkspace(null);
             Predicate<DefaultWorkspaceSet> filter = e -> e.getNewWorkspaceId() == null;
@@ -97,19 +93,16 @@ class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
             Consumer<Catalog> modifier = c -> c.setDefaultNamespace(testData.namespaceB);
             Predicate<DefaultNamespaceSet> filter =
                     e -> testData.namespaceB.getId().equals(e.getNewNamespaceId());
-            Patch expected =
-                    new PropertyDiffTestSupport()
-                            .createTestDiff(
-                                    "defaultNamespace", testData.namespaceA, testData.namespaceB)
-                            .toPatch();
+            Patch expected = new PropertyDiffTestSupport()
+                    .createTestDiff("defaultNamespace", testData.namespaceA, testData.namespaceB)
+                    .toPatch();
 
             testCatalogModifiedEvent(catalog, modifier, expected, eventType, filter);
         }
         {
-            Patch expected =
-                    new PropertyDiffTestSupport()
-                            .createTestDiff("defaultNamespace", testData.namespaceA, null)
-                            .toPatch();
+            Patch expected = new PropertyDiffTestSupport()
+                    .createTestDiff("defaultNamespace", testData.namespaceA, null)
+                    .toPatch();
 
             Consumer<Catalog> modifier = c -> c.setDefaultNamespace(null);
             Predicate<DefaultNamespaceSet> filter = e -> null == e.getNewNamespaceId();
@@ -129,31 +122,26 @@ class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
         final Class<DefaultDataStoreSet> eventType = DefaultDataStoreSet.class;
 
         {
-            Patch expected =
-                    new PropertyDiffTestSupport()
-                            .createTestDiff("defaultDataStore", null, dataStore)
-                            .toPatch();
+            Patch expected = new PropertyDiffTestSupport()
+                    .createTestDiff("defaultDataStore", null, dataStore)
+                    .toPatch();
 
-            Predicate<DefaultDataStoreSet> filter =
-                    e -> dataStore.getId().equals(e.getDefaultDataStoreId());
+            Predicate<DefaultDataStoreSet> filter = e -> dataStore.getId().equals(e.getDefaultDataStoreId());
             DefaultDataStoreSet event =
-                    testCatalogModifiedEvent(
-                            catalog, c -> c.add(dataStore), expected, eventType, filter);
+                    testCatalogModifiedEvent(catalog, c -> c.add(dataStore), expected, eventType, filter);
 
             assertThat(event.getWorkspaceId()).isEqualTo(workspace.getId());
             assertThat(event.getDefaultDataStoreId()).isEqualTo(dataStore.getId());
         }
         {
-            Patch expected =
-                    new PropertyDiffTestSupport()
-                            .createTestDiff("defaultDataStore", dataStore, null)
-                            .toPatch();
+            Patch expected = new PropertyDiffTestSupport()
+                    .createTestDiff("defaultDataStore", dataStore, null)
+                    .toPatch();
 
             Predicate<DefaultDataStoreSet> filter = e -> null == e.getDefaultDataStoreId();
 
             DefaultDataStoreSet event =
-                    testCatalogModifiedEvent(
-                            catalog, c -> c.remove(dataStore), expected, eventType, filter);
+                    testCatalogModifiedEvent(catalog, c -> c.remove(dataStore), expected, eventType, filter);
 
             assertThat(event.getWorkspaceId()).isEqualTo(workspace.getId());
             assertThat(event.getDefaultDataStoreId()).isNull();
@@ -324,13 +312,12 @@ class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
         cogSettings.setRangeReaderSettings(RangeReaderType.S3);
         cogSettings.setUsername("user");
 
-        Patch patch =
-                testCatalogInfoModifyEventNoEquals(
-                        store,
-                        cs -> {
-                            cs.getMetadata().put("cogSettings", cogSettings);
-                        },
-                        catalog::save);
+        Patch patch = testCatalogInfoModifyEventNoEquals(
+                store,
+                cs -> {
+                    cs.getMetadata().put("cogSettings", cogSettings);
+                },
+                catalog::save);
 
         store = catalog.getCoverageStoreByName(testData.workspaceA.getName(), store.getName());
         assertNotNull(store);
@@ -379,39 +366,33 @@ class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
         setupClean();
 
         SimpleFeatureType type = DataUtilities.createType("test", "name:String,location:Point");
-        List<AttributeTypeInfo> attributes =
-                new CatalogBuilder(catalog).getAttributes(type, testData.featureTypeA);
+        List<AttributeTypeInfo> attributes = new CatalogBuilder(catalog).getAttributes(type, testData.featureTypeA);
 
         // don't run equals
-        Patch patch =
-                testCatalogInfoModifyEventNoEquals(
-                        testData.featureTypeA,
-                        ft -> {
-                            ft.getMetadata().put("md-key", "md-value");
-                            ft.getMetadata().put("md-int-key", 1000);
-                            ft.setNamespace(testData.namespaceC);
-                            ft.getAttributes().addAll(attributes);
-                        },
-                        catalog::save);
+        Patch patch = testCatalogInfoModifyEventNoEquals(
+                testData.featureTypeA,
+                ft -> {
+                    ft.getMetadata().put("md-key", "md-value");
+                    ft.getMetadata().put("md-int-key", 1000);
+                    ft.setNamespace(testData.namespaceC);
+                    ft.getAttributes().addAll(attributes);
+                },
+                catalog::save);
 
         Property atts = patch.get("attributes").orElseThrow();
         @SuppressWarnings("unchecked")
         List<AttributeTypeInfo> decodedAtts = (List<AttributeTypeInfo>) atts.getValue();
         assertEquals(attributes.size(), decodedAtts.size());
-        IntStream.range(0, attributes.size())
-                .forEach(
-                        i -> {
-                            AttributeTypeInfo decoded = decodedAtts.get(i);
-                            AttributeTypeInfo orig = attributes.get(i);
-                            assertThat(decoded.equalsIngnoreFeatureType(orig));
-                            assertNotNull(decoded.getFeatureType());
-                            FeatureTypeInfo expected =
-                                    ModificationProxy.unwrap(orig.getFeatureType());
-                            FeatureTypeInfo actual =
-                                    ModificationProxy.unwrap(decoded.getFeatureType());
-                            assertEquals(expected.getId(), actual.getId());
-                            assertEquals(expected.getName(), actual.getName());
-                        });
+        IntStream.range(0, attributes.size()).forEach(i -> {
+            AttributeTypeInfo decoded = decodedAtts.get(i);
+            AttributeTypeInfo orig = attributes.get(i);
+            assertThat(decoded.equalsIngnoreFeatureType(orig));
+            assertNotNull(decoded.getFeatureType());
+            FeatureTypeInfo expected = ModificationProxy.unwrap(orig.getFeatureType());
+            FeatureTypeInfo actual = ModificationProxy.unwrap(decoded.getFeatureType());
+            assertEquals(expected.getId(), actual.getId());
+            assertEquals(expected.getName(), actual.getName());
+        });
     }
 
     @Disabled("implement")
@@ -426,11 +407,9 @@ class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
 
         WMSLayerInfo layer = testData.wmsLayerA;
 
-        ReferencedEnvelope bounds =
-                new ReferencedEnvelope(-180, -90, 0, 0, CRS.decode("EPSG:4326"));
+        ReferencedEnvelope bounds = new ReferencedEnvelope(-180, -90, 0, 0, CRS.decode("EPSG:4326"));
 
-        testCatalogInfoModifyEvent(
-                layer, l -> l.setDisabledServices(List.of("WMS", "WFS")), catalog::save);
+        testCatalogInfoModifyEvent(layer, l -> l.setDisabledServices(List.of("WMS", "WFS")), catalog::save);
         testCatalogInfoModifyEvent(layer, l -> l.setAbstract("modified"), catalog::save);
         testCatalogInfoModifyEvent(layer, l -> l.setNativeBoundingBox(bounds), catalog::save);
 
@@ -450,11 +429,9 @@ class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
 
         WMTSLayerInfo layer = testData.wmtsLayerA;
 
-        ReferencedEnvelope bounds =
-                new ReferencedEnvelope(-180, -90, 0, 0, CRS.decode("EPSG:4326"));
+        ReferencedEnvelope bounds = new ReferencedEnvelope(-180, -90, 0, 0, CRS.decode("EPSG:4326"));
 
-        testCatalogInfoModifyEvent(
-                layer, l -> l.setDisabledServices(List.of("WMS", "WFS")), catalog::save);
+        testCatalogInfoModifyEvent(layer, l -> l.setDisabledServices(List.of("WMS", "WFS")), catalog::save);
         testCatalogInfoModifyEvent(layer, l -> l.setAbstract("modified"), catalog::save);
         testCatalogInfoModifyEvent(layer, l -> l.setNativeBoundingBox(bounds), catalog::save);
 
@@ -484,9 +461,7 @@ class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
 
                     l.setDefaultWMSInterpolationMethod(WMSInterpolation.Bicubic);
                     l.setInternationalTitle(
-                            testData.faker()
-                                    .internationalString(
-                                            Locale.ENGLISH, "test", Locale.ITALIAN, "proba"));
+                            testData.faker().internationalString(Locale.ENGLISH, "test", Locale.ITALIAN, "proba"));
 
                     l.setType(PublishedType.REMOTE);
                 },
@@ -527,11 +502,7 @@ class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
     }
 
     private <E extends InfoEvent> E testCatalogModifiedEvent(
-            Catalog catalog,
-            Consumer<Catalog> modifier,
-            Patch expected,
-            Class<E> eventType,
-            Predicate<E> filter) {
+            Catalog catalog, Consumer<Catalog> modifier, Patch expected, Class<E> eventType, Predicate<E> filter) {
 
         this.eventsCaptor.stop().clear().start();
 

@@ -6,6 +6,7 @@ package org.geoserver.cloud.gwc.config.core;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+import java.util.Map;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -20,8 +21,6 @@ import org.geoserver.wms.WebMapService;
 import org.geoserver.wms.map.GetMapKvpRequestReader;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.Map;
 
 /**
  * Configuration to create a decorator around {@link WebMapService} to set {@link
@@ -82,8 +81,7 @@ public class WebMapServiceCacheSeedingConfiguration {
 
         protected boolean isInternalRequestForSeeding(final GetMapRequest request) {
             final Map<String, String> rawKvp = request.getRawKvp();
-            return rawKvp != null
-                    && rawKvp.containsKey(GeoServerTileLayer.GWC_SEED_INTERCEPT_TOKEN);
+            return rawKvp != null && rawKvp.containsKey(GeoServerTileLayer.GWC_SEED_INTERCEPT_TOKEN);
         }
     }
 }

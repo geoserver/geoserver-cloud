@@ -4,9 +4,13 @@
  */
 package org.geoserver.cloud.gwc.repository;
 
+import java.util.HashSet;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-
 import org.geoserver.cloud.gwc.event.TileLayerEvent;
 import org.geoserver.gwc.layer.GeoServerTileLayerInfo;
 import org.geoserver.gwc.layer.TileLayerCatalog;
@@ -15,12 +19,6 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.Cache.ValueRetrievalException;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.event.EventListener;
-
-import java.util.HashSet;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * @since 1.0
@@ -52,8 +50,7 @@ public class CachingTileLayerCatalog implements TileLayerCatalog {
                 getLayerById(event.getPublishedId());
                 break;
             default:
-                throw new IllegalArgumentException(
-                        "Invalid TileLayerEvent type: " + event.getEventType());
+                throw new IllegalArgumentException("Invalid TileLayerEvent type: " + event.getEventType());
         }
     }
 

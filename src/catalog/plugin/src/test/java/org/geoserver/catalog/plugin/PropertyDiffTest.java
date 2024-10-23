@@ -4,14 +4,19 @@
  */
 package org.geoserver.catalog.plugin;
 
+import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import static java.util.Collections.singletonList;
-
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogTestData;
 import org.geoserver.catalog.MetadataMap;
@@ -23,13 +28,6 @@ import org.geotools.util.SimpleInternationalString;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-
 class PropertyDiffTest {
     private PropertyDiffTestSupport support = new PropertyDiffTestSupport();
 
@@ -37,7 +35,9 @@ class PropertyDiffTest {
 
     public @BeforeEach void setup() {
         Catalog catalog = new CatalogPlugin();
-        data = CatalogTestData.empty(() -> catalog, () -> null).initConfig(false).initialize();
+        data = CatalogTestData.empty(() -> catalog, () -> null)
+                .initConfig(false)
+                .initialize();
     }
 
     @Test
@@ -60,30 +60,29 @@ class PropertyDiffTest {
 
     @Test
     void cleanToEmpty() {
-        PropertyDiff diff =
-                support.createTestDiff( //
-                        "leftListNull",
-                        null,
-                        new ArrayList<>(), //
-                        "rightListNull",
-                        new ArrayList<>(),
-                        null, //
-                        "bothListsEmpty",
-                        new ArrayList<>(),
-                        new ArrayList<>(), //
-                        "bothListsEqual",
-                        singletonList("val"),
-                        singletonList("val"), //
-                        "leftMapNull",
-                        null,
-                        new HashMap<>(), //
-                        "rightMapNull",
-                        new HashMap<>(),
-                        null, //
-                        "bothMapsEmpty",
-                        new HashMap<>(),
-                        new HashMap<>() //
-                        );
+        PropertyDiff diff = support.createTestDiff( //
+                "leftListNull",
+                null,
+                new ArrayList<>(), //
+                "rightListNull",
+                new ArrayList<>(),
+                null, //
+                "bothListsEmpty",
+                new ArrayList<>(),
+                new ArrayList<>(), //
+                "bothListsEqual",
+                singletonList("val"),
+                singletonList("val"), //
+                "leftMapNull",
+                null,
+                new HashMap<>(), //
+                "rightMapNull",
+                new HashMap<>(),
+                null, //
+                "bothMapsEmpty",
+                new HashMap<>(),
+                new HashMap<>() //
+                );
         assertEquals(7, diff.size());
         PropertyDiff clean = diff.clean();
         assertTrue(clean.isEmpty());
@@ -93,21 +92,20 @@ class PropertyDiffTest {
 
     @Test
     void cleanToEmpty_InternationalString() {
-        PropertyDiff diff =
-                support.createTestDiff( //
-                        "leftListNull",
-                        null,
-                        new SimpleInternationalString(""), //
-                        "rightListNull",
-                        new SimpleInternationalString(""), //
-                        null, //
-                        "bothEmpty",
-                        new SimpleInternationalString(""), //
-                        new GrowableInternationalString(), //
-                        "bothEmpty2",
-                        new GrowableInternationalString(), //
-                        new SimpleInternationalString("") //
-                        );
+        PropertyDiff diff = support.createTestDiff( //
+                "leftListNull",
+                null,
+                new SimpleInternationalString(""), //
+                "rightListNull",
+                new SimpleInternationalString(""), //
+                null, //
+                "bothEmpty",
+                new SimpleInternationalString(""), //
+                new GrowableInternationalString(), //
+                "bothEmpty2",
+                new GrowableInternationalString(), //
+                new SimpleInternationalString("") //
+                );
 
         PropertyDiff clean = diff.clean();
         assertTrue(clean.isEmpty());
@@ -117,20 +115,19 @@ class PropertyDiffTest {
 
     @Test
     void clean() {
-        PropertyDiff diff =
-                support.createTestDiff( //
-                        "prop1",
-                        null,
-                        new ArrayList<>(), //
-                        "prop2",
-                        new HashMap<>(),
-                        null, //
-                        "prop3",
-                        new HashSet<>(),
-                        new HashSet<String>(Arrays.asList("val1", "val2")), //
-                        "prop4",
-                        "val1",
-                        Integer.valueOf(2));
+        PropertyDiff diff = support.createTestDiff( //
+                "prop1",
+                null,
+                new ArrayList<>(), //
+                "prop2",
+                new HashMap<>(),
+                null, //
+                "prop3",
+                new HashSet<>(),
+                new HashSet<String>(Arrays.asList("val1", "val2")), //
+                "prop4",
+                "val1",
+                Integer.valueOf(2));
 
         assertEquals(4, diff.size());
         PropertyDiff clean = diff.clean();
@@ -153,13 +150,12 @@ class PropertyDiffTest {
         WorkspaceInfo ws = data.workspaceA;
         ws.setDateCreated(new Date());
 
-        PropertyDiff diff =
-                PropertyDiff.builder(ws)
-                        .with("name", ws.getName())
-                        .with("isolated", ws.isIsolated())
-                        .with("dateCreated", ws.getDateCreated())
-                        .with("dateModified", ws.getDateModified())
-                        .build();
+        PropertyDiff diff = PropertyDiff.builder(ws)
+                .with("name", ws.getName())
+                .with("isolated", ws.isIsolated())
+                .with("dateCreated", ws.getDateCreated())
+                .with("dateModified", ws.getDateModified())
+                .build();
         assertEquals(4, diff.size());
         assertTrue(diff.clean().isEmpty());
     }
@@ -185,14 +181,13 @@ class PropertyDiffTest {
         metadata.put("k1", "v1");
         metadata.put("k2", Long.MAX_VALUE);
 
-        diff =
-                PropertyDiff.builder(ws)
-                        .with("name", "newname2")
-                        .with("isolated", true)
-                        .with("dateCreated", created)
-                        .with("dateModified", modified)
-                        .with("metadata", metadata)
-                        .build();
+        diff = PropertyDiff.builder(ws)
+                .with("name", "newname2")
+                .with("isolated", true)
+                .with("dateCreated", created)
+                .with("dateModified", modified)
+                .with("metadata", metadata)
+                .build();
 
         diff.toPatch().applyTo(copy);
 

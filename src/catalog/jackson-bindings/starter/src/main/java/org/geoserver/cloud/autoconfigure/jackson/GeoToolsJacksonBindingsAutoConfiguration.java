@@ -6,7 +6,6 @@ package org.geoserver.cloud.autoconfigure.jackson;
 
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-
 import org.geotools.jackson.databind.filter.GeoToolsFilterModule;
 import org.geotools.jackson.databind.geojson.GeoToolsGeoJsonModule;
 import org.springframework.boot.autoconfigure.AutoConfiguration;

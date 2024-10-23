@@ -4,11 +4,10 @@
  */
 package org.geoserver.catalog.plugin.rules;
 
+import java.util.List;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.WorkspaceInfo;
-
-import java.util.List;
 
 /** Encapsulates default {@link Catalog} business rules for {@link WorkspaceInfo} objects */
 public class DefaultWorkspaceInfoRules implements CatalogInfoBusinessRules<WorkspaceInfo> {
@@ -66,8 +65,7 @@ public class DefaultWorkspaceInfoRules implements CatalogInfoBusinessRules<Works
             defaultWorkspace = workspaces.isEmpty() ? null : workspaces.get(0);
             catalog.setDefaultWorkspace(defaultWorkspace);
             if (defaultWorkspace != null) {
-                NamespaceInfo defaultNamespace =
-                        catalog.getNamespaceByPrefix(defaultWorkspace.getName());
+                NamespaceInfo defaultNamespace = catalog.getNamespaceByPrefix(defaultWorkspace.getName());
                 if (defaultNamespace != null) {
                     catalog.setDefaultNamespace(defaultNamespace);
                 }

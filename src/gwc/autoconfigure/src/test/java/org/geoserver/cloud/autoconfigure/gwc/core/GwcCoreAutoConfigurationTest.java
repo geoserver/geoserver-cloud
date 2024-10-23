@@ -12,7 +12,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.common.base.Throwables;
-
+import java.io.File;
+import java.io.IOException;
 import org.geoserver.cloud.autoconfigure.gwc.GeoWebCacheContextRunner;
 import org.geoserver.cloud.gwc.repository.CloudDefaultStorageFinder;
 import org.geoserver.cloud.gwc.repository.CloudGwcXmlConfiguration;
@@ -32,9 +33,6 @@ import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.InvalidPropertyException;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
-
-import java.io.File;
-import java.io.IOException;
 
 /**
  * @since 1.0
@@ -74,71 +72,56 @@ class GwcCoreAutoConfigurationTest {
 
     @Test
     void lockProviderDelegatesStoGeoSeverLockProvider() {
-        runner.run(
-                context -> {
-                    GeoServerExtensionsHelper.init(context);
-                    assertThat(context)
-                            .hasNotFailed()
-                            .hasBean(AbstractGwcInitializer.GWC_LOCK_PROVIDER_BEAN_NAME)
-                            .getBean(AbstractGwcInitializer.GWC_LOCK_PROVIDER_BEAN_NAME)
-                            .isInstanceOf(GeoServerLockProvider.class);
+        runner.run(context -> {
+            GeoServerExtensionsHelper.init(context);
+            assertThat(context)
+                    .hasNotFailed()
+                    .hasBean(AbstractGwcInitializer.GWC_LOCK_PROVIDER_BEAN_NAME)
+                    .getBean(AbstractGwcInitializer.GWC_LOCK_PROVIDER_BEAN_NAME)
+                    .isInstanceOf(GeoServerLockProvider.class);
 
-                    GWCConfigPersister persister = context.getBean(GWCConfigPersister.class);
-                    GWCConfig config = persister.getConfig();
-                    assertThat(config.getLockProviderName())
-                            .isEqualTo(AbstractGwcInitializer.GWC_LOCK_PROVIDER_BEAN_NAME);
+            GWCConfigPersister persister = context.getBean(GWCConfigPersister.class);
+            GWCConfig config = persister.getConfig();
+            assertThat(config.getLockProviderName()).isEqualTo(AbstractGwcInitializer.GWC_LOCK_PROVIDER_BEAN_NAME);
 
-                    GWC gwc = GWC.get();
+            GWC gwc = GWC.get();
 
-                    LockProvider lockProvider = gwc.getLockProvider();
-                    assertThat(lockProvider).isInstanceOf(ConfigurableLockProvider.class);
-                    GeoServerLockProvider expected =
-                            context.getBean(
-                                    AbstractGwcInitializer.GWC_LOCK_PROVIDER_BEAN_NAME,
-                                    GeoServerLockProvider.class);
-                    assertThat(((ConfigurableLockProvider) lockProvider).getDelegate())
-                            .isSameAs(expected);
-                });
+            LockProvider lockProvider = gwc.getLockProvider();
+            assertThat(lockProvider).isInstanceOf(ConfigurableLockProvider.class);
+            GeoServerLockProvider expected =
+                    context.getBean(AbstractGwcInitializer.GWC_LOCK_PROVIDER_BEAN_NAME, GeoServerLockProvider.class);
+            assertThat(((ConfigurableLockProvider) lockProvider).getDelegate()).isSameAs(expected);
+        });
     }
 
     @Test
     void contextLoads() {
-        runner.run(
-                context -> {
-                    GeoServerExtensionsHelper.init(context);
-                    assertThat(context)
-                            .hasNotFailed()
-                            .hasBean("gwcInitializer")
-                            .getBean("gwcInitializer")
-                            .isInstanceOf(DefaultGwcInitializer.class);
+        runner.run(context -> {
+            GeoServerExtensionsHelper.init(context);
+            assertThat(context)
+                    .hasNotFailed()
+                    .hasBean("gwcInitializer")
+                    .getBean("gwcInitializer")
+                    .isInstanceOf(DefaultGwcInitializer.class);
 
-                    assertThat(context.isTypeMatch("gwcXmlConfig", CloudGwcXmlConfiguration.class))
-                            .isTrue();
-                    assertThat(
-                                    context.isTypeMatch(
-                                            "gwcXmlConfigResourceProvider",
-                                            CloudXMLResourceProvider.class))
-                            .isTrue();
-                    assertThat(
-                                    context.isTypeMatch(
-                                            "gwcDefaultStorageFinder",
-                                            CloudDefaultStorageFinder.class))
-                            .isTrue();
-                });
+            assertThat(context.isTypeMatch("gwcXmlConfig", CloudGwcXmlConfiguration.class))
+                    .isTrue();
+            assertThat(context.isTypeMatch("gwcXmlConfigResourceProvider", CloudXMLResourceProvider.class))
+                    .isTrue();
+            assertThat(context.isTypeMatch("gwcDefaultStorageFinder", CloudDefaultStorageFinder.class))
+                    .isTrue();
+        });
     }
 
-    protected void assertContextLoadFails(
-            Class<? extends Exception> expectedException, String expectedMessage) {
-        runner.run(
-                context -> {
-                    GeoServerExtensionsHelper.init(context);
-                    Throwable startupFailure = context.getStartupFailure();
-                    assertNotNull(startupFailure);
-                    Throwable root = Throwables.getRootCause(startupFailure);
-                    if (!expectedException.isInstance(root)) root.printStackTrace();
-                    assertInstanceOf(expectedException, root);
-                    if (null != expectedMessage)
-                        assertThat(root.getMessage(), containsString(expectedMessage));
-                });
+    protected void assertContextLoadFails(Class<? extends Exception> expectedException, String expectedMessage) {
+        runner.run(context -> {
+            GeoServerExtensionsHelper.init(context);
+            Throwable startupFailure = context.getStartupFailure();
+            assertNotNull(startupFailure);
+            Throwable root = Throwables.getRootCause(startupFailure);
+            if (!expectedException.isInstance(root)) root.printStackTrace();
+            assertInstanceOf(expectedException, root);
+            if (null != expectedMessage) assertThat(root.getMessage(), containsString(expectedMessage));
+        });
     }
 }
