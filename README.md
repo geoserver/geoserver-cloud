@@ -85,7 +85,7 @@ Follow the [developer's guide](docs/develop/index.md) to know more about the pro
 
 `v1.8.12` released against GeoServer `2.25.3`.
 
-Read the [changelog](https://github.com/geoserver/geoserver-cloud/releases/) for more information.
+Check out the full [Release Notes](https://github.com/geoserver/geoserver-cloud/releases) for a changelog.
 
 ## Bugs
 
