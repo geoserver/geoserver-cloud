@@ -33,6 +33,7 @@ CMD exec env USER_ID="$(id -u)" USER_GID="$(id -g)" java $JAVA_OPTS org.springfr
 RUN java -XX:ArchiveClassesAtExit=application.jsa \
 -Dspring.context.exit=onRefreshed \
 -Dspring.profiles.active=standalone,offline \
+-Dserver.port=0 -Dmanagement.server.port=0 \
 org.springframework.boot.loader.JarLauncher
 RUN rm -rf /tmp/*
 

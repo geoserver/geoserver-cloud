@@ -24,6 +24,7 @@ COPY --from=builder application/ ./
 RUN java -XX:ArchiveClassesAtExit=application.jsa \
 -Dspring.context.exit=onRefreshed \
 -Dspring.profiles.active=standalone \
+-Dserver.port=0 -Dmanagement.server.port=0 \
 org.springframework.boot.loader.JarLauncher
 RUN rm -rf /tmp/*
 

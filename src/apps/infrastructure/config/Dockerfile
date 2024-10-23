@@ -37,7 +37,10 @@ ENV CONFIG_GIT_BASEDIR: /tmp/git_config
 ENV XDG_CONFIG_HOME: /tmp
 
 # Execute the CDS training run
-RUN java -XX:ArchiveClassesAtExit=application.jsa -Dspring.context.exit=onRefreshed org.springframework.boot.loader.JarLauncher
+RUN java -XX:ArchiveClassesAtExit=application.jsa \
+-Dspring.context.exit=onRefreshed \
+-Dserver.port=0 -Dmanagement.server.port=0 \
+org.springframework.boot.loader.JarLauncher
 RUN rm -rf /tmp/*
 
 ENV JAVA_TOOL_OPTIONS="${DEFAULT_JAVA_TOOL_OPTIONS} -XX:SharedArchiveFile=application.jsa"

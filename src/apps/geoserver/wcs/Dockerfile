@@ -1,7 +1,7 @@
 ARG REPOSITORY=geoservercloud
 ARG TAG=latest
 
-FROM $REPOSITORY/gs-cloud-base-jre:$TAG as builder
+FROM $REPOSITORY/gs-cloud-base-jre:$TAG AS builder
 
 ARG JAR_FILE=target/gs-cloud-*-bin.jar
 
@@ -28,6 +28,7 @@ RUN java \
 -Dspring.context.exit=onRefreshed \
 -Dspring.profiles.active=standalone,datadir,offline \
 -Dgeosever.backend.data-directory.location=/tmp/tmpdatadir \
+-Dserver.port=0 -Dmanagement.server.port=0 \
 org.springframework.boot.loader.JarLauncher
 RUN rm -rf /tmp/*
 
