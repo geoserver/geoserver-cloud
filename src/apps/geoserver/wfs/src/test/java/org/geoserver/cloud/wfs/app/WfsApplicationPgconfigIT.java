@@ -18,7 +18,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @Testcontainers(disabledWithoutDocker = true)
 class WfsApplicationPgconfigIT extends WfsApplicationTest {
 
-    @Container static PostgreSQLContainer<?> container = new PostgreSQLContainer<>("postgres:15");
+    @Container
+    static PostgreSQLContainer<?> container = new PostgreSQLContainer<>("postgres:15");
 
     /**
      * Contribute the following properties defined in the {@literal pgconfigjndi} spring profile
@@ -35,9 +36,7 @@ class WfsApplicationPgconfigIT extends WfsApplicationTest {
     @DynamicPropertySource
     static void setUpDataDir(DynamicPropertyRegistry registry) {
         registry.add("pgconfig.host", container::getHost);
-        registry.add(
-                "pgconfig.port",
-                () -> container.getMappedPort(PostgreSQLContainer.POSTGRESQL_PORT));
+        registry.add("pgconfig.port", () -> container.getMappedPort(PostgreSQLContainer.POSTGRESQL_PORT));
         registry.add("pgconfig.database", container::getDatabaseName);
         registry.add("pgconfig.schema", () -> "pgconfigtestschema");
         registry.add("pgconfig.username", container::getUsername);

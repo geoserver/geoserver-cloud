@@ -4,26 +4,6 @@
  */
 package org.geoserver.catalog.plugin;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
-
-import org.geoserver.catalog.Catalog;
-import org.geoserver.catalog.Info;
-import org.geoserver.catalog.MetadataMap;
-import org.geoserver.catalog.PublishedInfo;
-import org.geoserver.catalog.impl.ClassMappings;
-import org.geoserver.catalog.impl.ModificationProxy;
-import org.geoserver.catalog.impl.ProxyUtils;
-import org.geoserver.config.ServiceInfo;
-import org.geoserver.ows.util.ClassProperties;
-import org.geoserver.ows.util.OwsUtils;
-import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
-import org.geotools.api.util.InternationalString;
-import org.geotools.referencing.CRS;
-
 import java.io.Serializable;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
@@ -46,6 +26,24 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
+import org.geoserver.catalog.Catalog;
+import org.geoserver.catalog.Info;
+import org.geoserver.catalog.MetadataMap;
+import org.geoserver.catalog.PublishedInfo;
+import org.geoserver.catalog.impl.ClassMappings;
+import org.geoserver.catalog.impl.ModificationProxy;
+import org.geoserver.catalog.impl.ProxyUtils;
+import org.geoserver.config.ServiceInfo;
+import org.geoserver.ows.util.ClassProperties;
+import org.geoserver.ows.util.OwsUtils;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.util.InternationalString;
+import org.geotools.referencing.CRS;
 
 @Slf4j
 public @Data class PropertyDiff implements Serializable {
@@ -91,7 +89,9 @@ public @Data class PropertyDiff implements Serializable {
     }
 
     public Optional<Change> get(@NonNull String propertyName) {
-        return changes.stream().filter(c -> propertyName.equals(c.getPropertyName())).findFirst();
+        return changes.stream()
+                .filter(c -> propertyName.equals(c.getPropertyName()))
+                .findFirst();
     }
 
     public List<String> getPropertyNames() {
@@ -145,10 +145,8 @@ public @Data class PropertyDiff implements Serializable {
             if (neitherIsNull()) {
                 try {
                     final boolean fullScan = false; // don't bother
-                    String id1 =
-                            CRS.lookupIdentifier((CoordinateReferenceSystem) oldValue, fullScan);
-                    String id2 =
-                            CRS.lookupIdentifier((CoordinateReferenceSystem) newValue, fullScan);
+                    String id1 = CRS.lookupIdentifier((CoordinateReferenceSystem) oldValue, fullScan);
+                    String id2 = CRS.lookupIdentifier((CoordinateReferenceSystem) newValue, fullScan);
                     boolean sameId = Objects.equals(id1, id2);
                     return sameId && CRS.equalsIgnoreMetadata(oldValue, newValue);
                 } catch (Exception e) {
@@ -159,8 +157,7 @@ public @Data class PropertyDiff implements Serializable {
         }
 
         protected boolean isNullInternationalStringOp() {
-            return isNullOrEmpty(toStringOrNull(oldValue))
-                    && isNullOrEmpty(toStringOrNull(newValue));
+            return isNullOrEmpty(toStringOrNull(oldValue)) && isNullOrEmpty(toStringOrNull(newValue));
         }
 
         private String toStringOrNull(Object o) {
@@ -223,14 +220,12 @@ public @Data class PropertyDiff implements Serializable {
             final @NonNull List<Object> newValues) {
 
         PropertyDiffBuilder<Info> builder = PropertyDiff.builder();
-        IntStream.range(0, propertyNames.size())
-                .forEach(
-                        i -> {
-                            String prop = propertyNames.get(i);
-                            Object oldV = hanldeProxy(oldValues.get(i));
-                            Object newV = hanldeProxy(newValues.get(i));
-                            builder.with(prop, oldV, newV);
-                        });
+        IntStream.range(0, propertyNames.size()).forEach(i -> {
+            String prop = propertyNames.get(i);
+            Object oldV = hanldeProxy(oldValues.get(i));
+            Object newV = hanldeProxy(newValues.get(i));
+            builder.with(prop, oldV, newV);
+        });
         return builder.build();
     }
 
@@ -250,15 +245,11 @@ public @Data class PropertyDiff implements Serializable {
 
     @SuppressWarnings("unchecked")
     private static <T extends Info> Class<T> findInfoIterface(Class<?> of) {
-        return (Class<T>)
-                Arrays.stream(of.getInterfaces())
-                        .filter(c -> !IGNORE.contains(c))
-                        .findFirst()
-                        .orElseThrow(
-                                () ->
-                                        new IllegalArgumentException(
-                                                "Unable to find most concrete Info sub-interface of %s"
-                                                        .formatted(of.getCanonicalName())));
+        return (Class<T>) Arrays.stream(of.getInterfaces())
+                .filter(c -> !IGNORE.contains(c))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Unable to find most concrete Info sub-interface of %s".formatted(of.getCanonicalName())));
     }
 
     public static PropertyDiff empty() {
@@ -289,16 +280,14 @@ public @Data class PropertyDiff implements Serializable {
         }
 
         public PropertyDiff build() {
-            List<Change> changes =
-                    IntStream.range(0, propertyNames.size())
-                            .mapToObj(
-                                    i -> {
-                                        String name = propertyNames.get(i);
-                                        Object oldV = oldValues.get(i);
-                                        Object newV = newValues.get(i);
-                                        return Change.valueOf(name, oldV, newV);
-                                    })
-                            .toList();
+            List<Change> changes = IntStream.range(0, propertyNames.size())
+                    .mapToObj(i -> {
+                        String name = propertyNames.get(i);
+                        Object oldV = oldValues.get(i);
+                        Object newV = newValues.get(i);
+                        return Change.valueOf(name, oldV, newV);
+                    })
+                    .toList();
             return new PropertyDiff(changes);
         }
 
@@ -306,9 +295,7 @@ public @Data class PropertyDiff implements Serializable {
             property = fixCase(property);
             Class<? extends Info> type = info.getClass();
             ClassProperties classProperties = OwsUtils.getClassProperties(type);
-            if (null
-                    == classProperties.getter(
-                            property, newValue == null ? null : newValue.getClass())) {
+            if (null == classProperties.getter(property, newValue == null ? null : newValue.getClass())) {
                 throw new IllegalArgumentException("No such property: %s".formatted(property));
             }
 
@@ -338,8 +325,7 @@ public @Data class PropertyDiff implements Serializable {
             return copyOf(val, Function.identity());
         }
 
-        public static <V, R> Collection<R> copyOf(
-                Collection<? extends V> val, Function<V, R> mapper) {
+        public static <V, R> Collection<R> copyOf(Collection<? extends V> val, Function<V, R> mapper) {
 
             Stream<R> stream = val.stream().map(PropertyDiffBuilder::copySafe).map(mapper);
 
@@ -369,13 +355,12 @@ public @Data class PropertyDiff implements Serializable {
             } else {
                 target = new HashMap<>();
             }
-            val.forEach(
-                    (k, v) -> {
-                        Object key = copySafe(k);
-                        V value = copySafe(v);
-                        R result = valueMapper.apply(value);
-                        target.put(key, result);
-                    });
+            val.forEach((k, v) -> {
+                Object key = copySafe(k);
+                V value = copySafe(v);
+                R result = valueMapper.apply(value);
+                target.put(key, result);
+            });
             return target;
         }
 

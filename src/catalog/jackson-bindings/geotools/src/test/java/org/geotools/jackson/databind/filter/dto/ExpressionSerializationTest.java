@@ -7,7 +7,6 @@ package org.geotools.jackson.databind.filter.dto;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.geotools.jackson.databind.filter.ExpressionRoundtripTest;
 import org.geotools.jackson.databind.filter.dto.Expression.FunctionName;
 import org.geotools.jackson.databind.util.ObjectMapperUtil;
@@ -33,8 +32,7 @@ class ExpressionSerializationTest extends ExpressionRoundtripTest {
     protected @Override FunctionName roundtripTest(FunctionName dto) throws Exception {
         String serialized = objectMapper.writeValueAsString(dto);
         print("serialized: {}", serialized);
-        FunctionName deserialized =
-                objectMapper.readValue(serialized, Expression.FunctionName.class);
+        FunctionName deserialized = objectMapper.readValue(serialized, Expression.FunctionName.class);
         assertEquals(dto, deserialized);
         return deserialized;
     }

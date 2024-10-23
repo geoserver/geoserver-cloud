@@ -9,6 +9,13 @@ import static java.util.Spliterator.IMMUTABLE;
 import static java.util.Spliterator.NONNULL;
 import static java.util.Spliterator.ORDERED;
 
+import java.util.List;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.function.Consumer;
+import java.util.logging.Logger;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogInfo;
@@ -31,14 +38,6 @@ import org.geotools.api.filter.Filter;
 import org.geotools.api.filter.sort.SortBy;
 import org.geotools.util.logging.Logging;
 
-import java.util.List;
-import java.util.Spliterator;
-import java.util.Spliterators;
-import java.util.function.Consumer;
-import java.util.logging.Logger;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-
 /**
  * Adapts a regular {@link CatalogFacade} to a {@link ExtendedCatalogFacade}
  *
@@ -46,11 +45,9 @@ import java.util.stream.StreamSupport;
  * adapting a legacy {@link CatalogFacade} implementation, that mixes up responsibilities with the
  * catalog itself.
  */
-public class CatalogFacadeExtensionAdapter extends ForwardingCatalogFacade
-        implements ExtendedCatalogFacade {
+public class CatalogFacadeExtensionAdapter extends ForwardingCatalogFacade implements ExtendedCatalogFacade {
 
-    private CatalogInfoTypeRegistry<Consumer<?>> updateToSaveBridge =
-            new CatalogInfoTypeRegistry<>();
+    private CatalogInfoTypeRegistry<Consumer<?>> updateToSaveBridge = new CatalogInfoTypeRegistry<>();
 
     public CatalogFacadeExtensionAdapter(CatalogFacade facade) {
         super(facade);
@@ -77,11 +74,10 @@ public class CatalogFacadeExtensionAdapter extends ForwardingCatalogFacade
     public void setCatalog(Catalog catalog) {
         if (catalog != null) {
             if (!(catalog instanceof CatalogPlugin)) {
-                throw new IllegalArgumentException(
-                        "Expected %s, got %s"
-                                .formatted(
-                                        CatalogPlugin.class.getName(),
-                                        catalog.getClass().getName()));
+                throw new IllegalArgumentException("Expected %s, got %s"
+                        .formatted(
+                                CatalogPlugin.class.getName(),
+                                catalog.getClass().getName()));
             }
             if (!(catalog instanceof SilentCatalog)) {
                 catalog = new SilentCatalog((CatalogPlugin) catalog, this);
@@ -181,14 +177,12 @@ public class CatalogFacadeExtensionAdapter extends ForwardingCatalogFacade
         }
 
         @Override
-        public void fireModified(
-                CatalogInfo object, List propertyNames, List oldValues, List newValues) {
+        public void fireModified(CatalogInfo object, List propertyNames, List oldValues, List newValues) {
             LOGGER.fine("Suppressing catalog pre-modify event from legacy CatalogFacade");
         }
 
         @Override
-        public void firePostModified(
-                CatalogInfo object, List propertyNames, List oldValues, List newValues) {
+        public void firePostModified(CatalogInfo object, List propertyNames, List oldValues, List newValues) {
             LOGGER.fine("Suppressing catalog post-modify event from legacy CatalogFacade");
         }
 

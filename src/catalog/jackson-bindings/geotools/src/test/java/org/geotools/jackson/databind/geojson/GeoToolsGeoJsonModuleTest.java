@@ -9,9 +9,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import java.util.EnumSet;
 import lombok.extern.slf4j.Slf4j;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
@@ -28,8 +27,6 @@ import org.locationtech.jts.io.Ordinate;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.io.WKTWriter;
-
-import java.util.EnumSet;
 
 /**
  * Test suite for {@link GeoToolsGeoJsonModule}, assuming it's registered to an {@link ObjectMapper}
@@ -98,17 +95,14 @@ public abstract class GeoToolsGeoJsonModuleTest {
         roundtripTest("POLYGON   ((0 0, 10 10, 20 0, 0 0),(1 1, 9 9, 19 1, 1 1))");
         roundtripTest("POLYGON  Z((0 0 0, 10 10 1, 20 0 2, 0 0 0),(1 1 1, 9 9 2, 19 1 3, 1 1 1))");
         roundtripTest("POLYGON  M((0 0 0, 10 10 1, 20 0 2, 0 0 0),(1 1 1, 9 9 2, 19 1 3, 1 1 1))");
-        roundtripTest(
-                "POLYGON ZM((0 0 0 0, 10 10 1 1, 20 0 2 2, 0 0 0 0),(1 1 1 1, 9 9 2 2, 19 1 3 3, 1 1 1 1))");
+        roundtripTest("POLYGON ZM((0 0 0 0, 10 10 1 1, 20 0 2 2, 0 0 0 0),(1 1 1 1, 9 9 2 2, 19 1 3 3, 1 1 1 1))");
     }
 
     @Test
     void testMultiPolygon() throws JsonProcessingException {
         roundtripTest("MULTIPOLYGON   (((0 0, 10 10, 20 0, 0 0)), ((1 1, 9 9, 19 1, 1 1)))");
-        roundtripTest(
-                "MULTIPOLYGON  Z(((0 0 0, 10 10 1, 20 0 2, 0 0 0)), ((1 1 1, 9 9 2, 19 1 3, 1 1 1)))");
-        roundtripTest(
-                "MULTIPOLYGON  M(((0 0 0, 10 10 1, 20 0 2, 0 0 0)), ((1 1 1, 9 9 2, 19 1 3, 1 1 1)))");
+        roundtripTest("MULTIPOLYGON  Z(((0 0 0, 10 10 1, 20 0 2, 0 0 0)), ((1 1 1, 9 9 2, 19 1 3, 1 1 1)))");
+        roundtripTest("MULTIPOLYGON  M(((0 0 0, 10 10 1, 20 0 2, 0 0 0)), ((1 1 1, 9 9 2, 19 1 3, 1 1 1)))");
         roundtripTest(
                 "MULTIPOLYGON ZM(((0 0 0 0, 10 10 1 1, 20 0 2 2, 0 0 0 0)), ((1 1 1 1, 9 9 2 2, 19 1 3 3, 1 1 1 1)))");
     }

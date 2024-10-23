@@ -7,13 +7,22 @@ package org.geoserver.cloud.security.gateway.sharedauth;
 import static com.google.common.collect.Streams.stream;
 
 import com.google.common.collect.Streams;
-
+import java.io.IOException;
+import java.util.Collection;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.security.GeoServerRoleConverter;
 import org.geoserver.security.config.PreAuthenticatedUserNameFilterConfig.PreAuthenticatedUserNameRoleSource;
 import org.geoserver.security.config.SecurityAuthFilterConfig;
@@ -28,26 +37,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 /**
  * @since 1.9
  */
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @Slf4j(topic = "org.geoserver.cloud.security.gateway.sharedauth")
-class GatewaySharedAuthenticationFilter extends GeoServerSecurityFilter
-        implements GeoServerAuthenticationFilter {
+class GatewaySharedAuthenticationFilter extends GeoServerSecurityFilter implements GeoServerAuthenticationFilter {
 
     static final String X_GSCLOUD_USERNAME = "x-gsc-username";
     static final String X_GSCLOUD_ROLES = "x-gsc-roles";
@@ -155,8 +150,7 @@ class GatewaySharedAuthenticationFilter extends GeoServerSecurityFilter
          * header with a delimiter to handle mutliple values
          */
         @Override
-        protected Collection<GeoServerRole> getRolesFromHttpAttribute(
-                HttpServletRequest request, String principal) {
+        protected Collection<GeoServerRole> getRolesFromHttpAttribute(HttpServletRequest request, String principal) {
 
             GeoServerRoleConverter roleConverter = super.getConverter();
 
@@ -182,9 +176,7 @@ class GatewaySharedAuthenticationFilter extends GeoServerSecurityFilter
             HttpServletResponse resp = (HttpServletResponse) response;
             HttpServletRequest req = (HttpServletRequest) request;
 
-            if (auth != null
-                    && !(auth instanceof AnonymousAuthenticationToken)
-                    && auth.isAuthenticated()) {
+            if (auth != null && !(auth instanceof AnonymousAuthenticationToken) && auth.isAuthenticated()) {
                 setGatewayResponseHeaders(auth, req, resp);
             } else if (auth == null || auth instanceof AnonymousAuthenticationToken) {
                 setEmptyUserResponseHeader(req, resp);
@@ -198,8 +190,7 @@ class GatewaySharedAuthenticationFilter extends GeoServerSecurityFilter
          * requires for it to be explicitly set to clear it out from its session, just removing the
          * header wouldn't work.
          */
-        private void setEmptyUserResponseHeader(
-                HttpServletRequest req, HttpServletResponse response) {
+        private void setEmptyUserResponseHeader(HttpServletRequest req, HttpServletResponse response) {
             response.setHeader(X_GSCLOUD_USERNAME, "");
             if (log.isDebugEnabled()) {
                 String gatewaySessionId = getGatewaySessionId(req);
@@ -218,10 +209,7 @@ class GatewaySharedAuthenticationFilter extends GeoServerSecurityFilter
             if (null != username) {
                 response.setHeader(X_GSCLOUD_USERNAME, username);
                 preAuth.getAuthorities()
-                        .forEach(
-                                authority ->
-                                        response.addHeader(
-                                                X_GSCLOUD_ROLES, authority.getAuthority()));
+                        .forEach(authority -> response.addHeader(X_GSCLOUD_ROLES, authority.getAuthority()));
                 if (log.isDebugEnabled()) {
                     String gatewaySessionId = getGatewaySessionId(req);
                     log.debug(

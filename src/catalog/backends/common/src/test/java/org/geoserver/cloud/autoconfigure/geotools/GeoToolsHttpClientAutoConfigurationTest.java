@@ -20,11 +20,9 @@ import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
  */
 class GeoToolsHttpClientAutoConfigurationTest {
 
-    private WebApplicationContextRunner runner =
-            new WebApplicationContextRunner() //
-                    .withInitializer(new GeoToolsStaticContextInitializer()) //
-                    .withConfiguration(
-                            AutoConfigurations.of(GeoToolsHttpClientAutoConfiguration.class));
+    private WebApplicationContextRunner runner = new WebApplicationContextRunner() //
+            .withInitializer(new GeoToolsStaticContextInitializer()) //
+            .withConfiguration(AutoConfigurations.of(GeoToolsHttpClientAutoConfiguration.class));
 
     private final String forceXYSystemProperty = "org.geotools.referencing.forceXY";
 
@@ -36,27 +34,22 @@ class GeoToolsHttpClientAutoConfigurationTest {
 
     @Test
     void enabledByDefault() {
-        runner.run(
-                context -> {
-                    assertThat(context)
-                            .hasSingleBean(GeoToolsHttpClientProxyConfigurationProperties.class);
-                    assertThat(context)
-                            .hasSingleBean(SpringEnvironmentAwareGeoToolsHttpClientFactory.class);
-                    assertThat(
-                                    context.getBean(
-                                            GeoToolsHttpClientProxyConfigurationProperties.class))
-                            .hasFieldOrPropertyWithValue("enabled", true);
+        runner.run(context -> {
+            assertThat(context).hasSingleBean(GeoToolsHttpClientProxyConfigurationProperties.class);
+            assertThat(context).hasSingleBean(SpringEnvironmentAwareGeoToolsHttpClientFactory.class);
+            assertThat(context.getBean(GeoToolsHttpClientProxyConfigurationProperties.class))
+                    .hasFieldOrPropertyWithValue("enabled", true);
 
-                    HTTPClient client = HTTPClientFinder.createClient();
-                    assertThat(client)
-                            .as(
-                                    """
+            HTTPClient client = HTTPClientFinder.createClient();
+            assertThat(client)
+                    .as(
+                            """
                             		Expected SpringEnvironmentAwareGeoToolsHttpClient \
                             		after GeoToolsStaticContextInitializer sets \
                             		SpringEnvironmentAwareGeoToolsHttpClientFactory as the default factory
                             		""")
-                            .isInstanceOf(SpringEnvironmentAwareGeoToolsHttpClient.class);
-                });
+                    .isInstanceOf(SpringEnvironmentAwareGeoToolsHttpClient.class);
+        });
     }
 
     @Test
@@ -71,23 +64,17 @@ class GeoToolsHttpClientAutoConfigurationTest {
         final var expected = SpringEnvironmentAwareGeoToolsHttpClientFactory.class;
 
         assertNull(Hints.getSystemDefault(Hints.HTTP_CLIENT_FACTORY));
-        runner.run(
-                context ->
-                        assertThat(Hints.getSystemDefault(Hints.HTTP_CLIENT_FACTORY))
-                                .isEqualTo(expected));
+        runner.run(context ->
+                assertThat(Hints.getSystemDefault(Hints.HTTP_CLIENT_FACTORY)).isEqualTo(expected));
 
         Hints.removeSystemDefault(Hints.HTTP_CLIENT_FACTORY);
         runner.withPropertyValues("geotools.httpclient.proxy.enabled: true")
-                .run(
-                        context ->
-                                assertThat(Hints.getSystemDefault(Hints.HTTP_CLIENT_FACTORY))
-                                        .isEqualTo(expected));
+                .run(context -> assertThat(Hints.getSystemDefault(Hints.HTTP_CLIENT_FACTORY))
+                        .isEqualTo(expected));
 
         Hints.removeSystemDefault(Hints.HTTP_CLIENT_FACTORY);
         runner.withPropertyValues("geotools.httpclient.proxy.enabled: false")
-                .run(
-                        context ->
-                                assertThat(Hints.getSystemDefault(Hints.HTTP_CLIENT_FACTORY))
-                                        .isNull());
+                .run(context -> assertThat(Hints.getSystemDefault(Hints.HTTP_CLIENT_FACTORY))
+                        .isNull());
     }
 }

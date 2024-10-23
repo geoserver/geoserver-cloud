@@ -21,7 +21,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @SuppressWarnings("java:S2187")
 class PgconfigUpdateSequenceTest implements UpdateSequenceConformanceTest {
 
-    @Container static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();
+    @Container
+    static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();
 
     private UpdateSequence sequence;
     private PgconfigGeoServerFacade facade;

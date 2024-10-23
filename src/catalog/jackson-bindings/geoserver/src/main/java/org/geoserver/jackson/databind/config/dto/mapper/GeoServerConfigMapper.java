@@ -6,8 +6,9 @@ package org.geoserver.jackson.databind.config.dto.mapper;
 
 import static java.util.stream.Collectors.toCollection;
 
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Generated;
-
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.Info;
 import org.geoserver.cog.CogSettings;
@@ -48,9 +49,6 @@ import org.mapstruct.AnnotateWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /** Mapper to/from GeoServer config objects and their respective DTO representations */
 @Mapper(config = ConfigInfoMapperConfig.class)
@@ -156,9 +154,7 @@ public interface GeoServerConfigMapper {
      * {@code List<String>} as is
      */
     default List<org.geotools.util.Version> stringListToVersionList(List<String> list) {
-        return list == null
-                ? null
-                : list.stream().map(Version::new).collect(toCollection(ArrayList::new));
+        return list == null ? null : list.stream().map(Version::new).collect(toCollection(ArrayList::new));
     }
 
     @Mapping(target = "clientProperties", ignore = true)

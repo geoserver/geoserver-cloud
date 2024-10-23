@@ -19,10 +19,6 @@ import org.springframework.context.annotation.ImportResource;
  *     org.geoserver.web.data.resource.DataStorePanelInfo#setComponentClass(Class)}
  */
 @AutoConfiguration
-@ConditionalOnClass({
-    GeoServerApplication.class,
-    DataStorePanelInfo.class,
-    PGRasterCoverageStoreEditPanel.class
-})
+@ConditionalOnClass({GeoServerApplication.class, DataStorePanelInfo.class, PGRasterCoverageStoreEditPanel.class})
 @ImportResource(locations = "classpath:pgrasterApplicationContext.xml")
 public class PostgisRasterWebUIAutoConfiguration {}

@@ -4,15 +4,13 @@
  */
 package org.geoserver.cloud.backend.pgconfig.catalog.repository;
 
+import java.util.Optional;
 import lombok.NonNull;
-
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.WorkspaceRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 /**
  * @since 1.4

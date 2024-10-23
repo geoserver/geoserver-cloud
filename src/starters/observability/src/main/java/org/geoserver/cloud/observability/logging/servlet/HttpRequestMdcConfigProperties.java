@@ -4,11 +4,9 @@
  */
 package org.geoserver.cloud.observability.logging.servlet;
 
-import lombok.Data;
-
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
 import java.util.regex.Pattern;
+import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @Data
 @ConfigurationProperties(prefix = "logging.mdc.include.http")

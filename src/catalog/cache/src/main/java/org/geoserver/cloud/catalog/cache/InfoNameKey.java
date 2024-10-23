@@ -4,8 +4,9 @@
  */
 package org.geoserver.cloud.catalog.cache;
 
+import java.io.Serializable;
+import java.util.Optional;
 import lombok.NonNull;
-
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.NamespaceInfo;
@@ -14,9 +15,6 @@ import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoEvent;
 import org.springframework.cache.interceptor.SimpleKey;
 
-import java.io.Serializable;
-import java.util.Optional;
-
 /**
  * A key to for a cached {@link Info} using its prefixed name, according to {@link
  * InfoEvent#prefixedName(Info)}.
@@ -24,15 +22,13 @@ import java.util.Optional;
  * <p>easier than implementing multiple key generators; it's also a smaller memory footprint than
  * {@link SimpleKey}
  */
-record InfoNameKey(@NonNull String prefixexName, @NonNull ConfigInfoType type)
-        implements Serializable {
+record InfoNameKey(@NonNull String prefixexName, @NonNull ConfigInfoType type) implements Serializable {
 
     public static InfoNameKey valueOf(@NonNull Info info) {
         return new InfoNameKey(InfoEvent.prefixedName(info), InfoEvent.typeOf(info));
     }
 
-    public static InfoNameKey valueOf(
-            WorkspaceInfo workspace, @NonNull String name, ConfigInfoType type) {
+    public static InfoNameKey valueOf(WorkspaceInfo workspace, @NonNull String name, ConfigInfoType type) {
 
         if (CatalogFacade.NO_WORKSPACE == workspace) {
             return valueOf(name, type);

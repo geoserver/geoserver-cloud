@@ -8,6 +8,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -32,10 +35,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.test.context.ActiveProfiles;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 
 @SpringBootTest(
         properties = {
@@ -161,9 +160,8 @@ class WebUIApplicationTest {
 
     protected void assertHidden(String id) {
         TagTester tag = tester.getTagById(id);
-        String msg =
-                "expected custom 'unused' css class to hide the %s form inputs in custom GlobalSettingsPage.html"
-                        .formatted(id);
+        String msg = "expected custom 'unused' css class to hide the %s form inputs in custom GlobalSettingsPage.html"
+                .formatted(id);
         assertEquals("unused", tag.getAttribute("class"), msg);
     }
 

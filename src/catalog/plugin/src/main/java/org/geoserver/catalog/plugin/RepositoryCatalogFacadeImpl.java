@@ -6,7 +6,17 @@ package org.geoserver.catalog.plugin;
 
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Streams;
-
+import java.lang.reflect.Proxy;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogCapabilities;
 import org.geoserver.catalog.CatalogException;
@@ -43,20 +53,7 @@ import org.geotools.api.filter.sort.SortBy;
 import org.geotools.filter.visitor.SimplifyingFilterVisitor;
 import org.springframework.util.Assert;
 
-import java.lang.reflect.Proxy;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
-
-public class RepositoryCatalogFacadeImpl
-        implements RepositoryCatalogFacade, CatalogInfoRepositoryHolder {
+public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, CatalogInfoRepositoryHolder {
 
     protected final CatalogInfoRepositoryHolderImpl repositories;
 
@@ -93,8 +90,7 @@ public class RepositoryCatalogFacadeImpl
         // no-op, override as appropriate
     }
 
-    protected <I extends CatalogInfo> I add(
-            I info, Class<I> type, CatalogInfoRepository<I> repository) {
+    protected <I extends CatalogInfo> I add(I info, Class<I> type, CatalogInfoRepository<I> repository) {
         checkNotAProxy(info);
         Objects.requireNonNull(info.getId(), "Object id not provided");
         repository.add(info);
@@ -120,8 +116,7 @@ public class RepositoryCatalogFacadeImpl
     }
 
     @Override
-    public <T extends StoreInfo> T getStoreByName(
-            WorkspaceInfo workspace, String name, Class<T> clazz) {
+    public <T extends StoreInfo> T getStoreByName(WorkspaceInfo workspace, String name, Class<T> clazz) {
 
         Optional<T> result;
         if (workspace == ANY_WORKSPACE || workspace == null) {
@@ -133,8 +128,7 @@ public class RepositoryCatalogFacadeImpl
     }
 
     @Override
-    public <T extends StoreInfo> List<T> getStoresByWorkspace(
-            WorkspaceInfo workspace, Class<T> clazz) {
+    public <T extends StoreInfo> List<T> getStoresByWorkspace(WorkspaceInfo workspace, Class<T> clazz) {
         // Question: do we need to support ANY_WORKSPACE? see "todo" comment in DefaultCatalogFacade
         final WorkspaceInfo ws;
         if (workspace == null) {
@@ -160,9 +154,7 @@ public class RepositoryCatalogFacadeImpl
     public void setDefaultDataStore(WorkspaceInfo workspace, DataStoreInfo store) {
         if (store != null) {
             Objects.requireNonNull(store.getWorkspace());
-            Assert.isTrue(
-                    workspace.getId().equals(store.getWorkspace().getId()),
-                    "Store workspace mismatch");
+            Assert.isTrue(workspace.getId().equals(store.getWorkspace().getId()), "Store workspace mismatch");
         }
 
         if (store == null) getStoreRepository().unsetDefaultDataStore(workspace);
@@ -188,8 +180,7 @@ public class RepositoryCatalogFacadeImpl
     }
 
     @Override
-    public <T extends ResourceInfo> T getResourceByName(
-            NamespaceInfo namespace, String name, Class<T> clazz) {
+    public <T extends ResourceInfo> T getResourceByName(NamespaceInfo namespace, String name, Class<T> clazz) {
         if (namespace == null) return null;
         Optional<T> result;
         if (namespace == ANY_NAMESPACE) {
@@ -207,16 +198,14 @@ public class RepositoryCatalogFacadeImpl
     }
 
     @Override
-    public <T extends ResourceInfo> List<T> getResourcesByNamespace(
-            NamespaceInfo namespace, Class<T> clazz) {
+    public <T extends ResourceInfo> List<T> getResourcesByNamespace(NamespaceInfo namespace, Class<T> clazz) {
         // Question: do we need to support ANY_WORKSPACE? see "todo" comment in DefaultCatalogFacade
         NamespaceInfo ns = namespace == null ? getDefaultNamespace() : namespace;
         return toList(() -> getResourceRepository().findAllByNamespace(ns, clazz));
     }
 
     @Override
-    public <T extends ResourceInfo> T getResourceByStore(
-            StoreInfo store, String name, Class<T> clazz) {
+    public <T extends ResourceInfo> T getResourceByStore(StoreInfo store, String name, Class<T> clazz) {
         Optional<T> resource;
         NamespaceInfo ns = null;
         if (store.getWorkspace() != null
@@ -403,7 +392,9 @@ public class RepositoryCatalogFacadeImpl
 
     @Override
     public NamespaceInfo getNamespaceByPrefix(String prefix) {
-        return getNamespaceRepository().findFirstByName(prefix, NamespaceInfo.class).orElse(null);
+        return getNamespaceRepository()
+                .findFirstByName(prefix, NamespaceInfo.class)
+                .orElse(null);
     }
 
     @Override
@@ -463,7 +454,9 @@ public class RepositoryCatalogFacadeImpl
 
     @Override
     public WorkspaceInfo getWorkspaceByName(String name) {
-        return getWorkspaceRepository().findFirstByName(name, WorkspaceInfo.class).orElse(null);
+        return getWorkspaceRepository()
+                .findFirstByName(name, WorkspaceInfo.class)
+                .orElse(null);
     }
 
     //
@@ -573,8 +566,7 @@ public class RepositoryCatalogFacadeImpl
 
         dao.setDefaultWorkspace(getDefaultWorkspace());
         dao.setDefaultNamespace(getDefaultNamespace());
-        try (Stream<DataStoreInfo> defaultDataStores =
-                getStoreRepository().getDefaultDataStores()) {
+        try (Stream<DataStoreInfo> defaultDataStores = getStoreRepository().getDefaultDataStores()) {
             defaultDataStores.forEach(d -> dao.setDefaultDataStore(d.getWorkspace(), d));
         }
     }
@@ -601,9 +593,7 @@ public class RepositoryCatalogFacadeImpl
                 count = repository(of).count(of, filter);
             } catch (RuntimeException e) {
                 throw new CatalogException(
-                        "Error obtaining count of %s with filter %s"
-                                .formatted(of.getSimpleName(), filter),
-                        e);
+                        "Error obtaining count of %s with filter %s".formatted(of.getSimpleName(), filter), e);
             }
         }
         return count > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) count;
@@ -655,8 +645,7 @@ public class RepositoryCatalogFacadeImpl
     @Override
     public boolean canSort(final Class<? extends CatalogInfo> type, final String propertyName) {
         if (PublishedInfo.class.equals(type)) {
-            return canSort(LayerInfo.class, propertyName)
-                    || canSort(LayerGroupInfo.class, propertyName);
+            return canSort(LayerInfo.class, propertyName) || canSort(LayerGroupInfo.class, propertyName);
         }
         return repository(type).canSortBy(propertyName);
     }
@@ -668,8 +657,7 @@ public class RepositoryCatalogFacadeImpl
     private <T extends CatalogInfo> void checkCanSort(final Class<T> type, SortBy order) {
         if (!canSort(type, order.getPropertyName().getPropertyName())) {
             throw new IllegalArgumentException(
-                    "Can't sort objects of type %s by %s"
-                            .formatted(type.getName(), order.getPropertyName()));
+                    "Can't sort objects of type %s by %s".formatted(type.getName(), order.getPropertyName()));
         }
     }
 
@@ -727,7 +715,8 @@ public class RepositoryCatalogFacadeImpl
             // merge-sort the two streams without additional memory allocation, they're guaranteed
             // to be sorted
 
-            Iterator<PublishedInfo> layersit = layers.map(PublishedInfo.class::cast).iterator();
+            Iterator<PublishedInfo> layersit =
+                    layers.map(PublishedInfo.class::cast).iterator();
             Iterator<PublishedInfo> lgit = groups.map(PublishedInfo.class::cast).iterator();
             Comparator<PublishedInfo> comparator = CatalogInfoLookup.toComparator(query);
 
@@ -746,10 +735,7 @@ public class RepositoryCatalogFacadeImpl
     }
 
     protected boolean shallApplyOffsetLimit(
-            final Integer offset,
-            final Integer limit,
-            Query<LayerInfo> layerQuery,
-            Query<LayerGroupInfo> lgQuery) {
+            final Integer offset, final Integer limit, Query<LayerInfo> layerQuery, Query<LayerGroupInfo> lgQuery) {
         if (null == offset && null == limit) {
             return false;
         }
@@ -774,10 +760,9 @@ public class RepositoryCatalogFacadeImpl
     }
 
     private <T> Stream<T> closing(Stream<T> stream, Stream<?>... closeables) {
-        return stream.onClose(
-                () -> {
-                    for (var s : closeables) s.close();
-                });
+        return stream.onClose(() -> {
+            for (var s : closeables) s.close();
+        });
     }
 
     @Override
@@ -789,8 +774,7 @@ public class RepositoryCatalogFacadeImpl
 
     private static void checkNotAProxy(CatalogInfo value) {
         if (Proxy.isProxyClass(value.getClass())) {
-            throw new IllegalArgumentException(
-                    "Proxy values shall not be passed to CatalogInfoLookup");
+            throw new IllegalArgumentException("Proxy values shall not be passed to CatalogInfoLookup");
         }
     }
 

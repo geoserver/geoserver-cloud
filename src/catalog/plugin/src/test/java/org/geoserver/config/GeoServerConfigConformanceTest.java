@@ -18,6 +18,12 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.lang.reflect.Proxy;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.config.impl.GeoServerImpl;
 import org.geoserver.config.impl.GeoServerInfoImpl;
@@ -25,13 +31,6 @@ import org.geoserver.config.impl.ServiceInfoImpl;
 import org.geoserver.ows.LocalWorkspace;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public abstract class GeoServerConfigConformanceTest {
 
@@ -173,10 +172,7 @@ public abstract class GeoServerConfigConformanceTest {
 
         @Override
         public void handleGlobalChange(
-                GeoServerInfo global,
-                List<String> propertyNames,
-                List<Object> oldValues,
-                List<Object> newValues) {
+                GeoServerInfo global, List<String> propertyNames, List<Object> oldValues, List<Object> newValues) {
             gPropertyNames.addAll(propertyNames);
             gOldValues.addAll(oldValues);
             gNewValues.addAll(newValues);
@@ -184,10 +180,7 @@ public abstract class GeoServerConfigConformanceTest {
 
         @Override
         public void handleServiceChange(
-                ServiceInfo service,
-                List<String> propertyNames,
-                List<Object> oldValues,
-                List<Object> newValues) {
+                ServiceInfo service, List<String> propertyNames, List<Object> oldValues, List<Object> newValues) {
 
             sPropertyNames.addAll(propertyNames);
             sOldValues.addAll(oldValues);
@@ -300,9 +293,7 @@ public abstract class GeoServerConfigConformanceTest {
         newService2 = geoServer.getService(newService2.getId(), ServiceInfo.class);
 
         // Check that we get the services we expect to
-        assertThat(
-                geoServer.getServiceByName(globalService.getName(), ServiceInfo.class),
-                equalTo(globalService));
+        assertThat(geoServer.getServiceByName(globalService.getName(), ServiceInfo.class), equalTo(globalService));
         assertThat(geoServer.getService(ws1, ServiceInfo.class), equalTo(newService1));
         assertThat(geoServer.getService(ws2, ServiceInfo.class), equalTo(newService2));
         assertThat(

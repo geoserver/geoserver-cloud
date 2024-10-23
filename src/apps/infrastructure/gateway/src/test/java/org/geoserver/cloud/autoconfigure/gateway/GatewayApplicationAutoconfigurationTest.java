@@ -15,19 +15,15 @@ import org.springframework.boot.test.context.runner.ReactiveWebApplicationContex
 
 class GatewayApplicationAutoconfigurationTest {
 
-    private ReactiveWebApplicationContextRunner runner =
-            new ReactiveWebApplicationContextRunner()
-                    .withConfiguration(
-                            AutoConfigurations.of(GatewayApplicationAutoconfiguration.class));
+    private ReactiveWebApplicationContextRunner runner = new ReactiveWebApplicationContextRunner()
+            .withConfiguration(AutoConfigurations.of(GatewayApplicationAutoconfiguration.class));
 
     @Test
     void testDefaultAppContextContributions() {
-        runner.run(
-                context ->
-                        assertThat(context)
-                                .hasNotFailed()
-                                .hasSingleBean(RegExpQueryRoutePredicateFactory.class)
-                                .hasSingleBean(RouteProfileGatewayFilterFactory.class)
-                                .hasSingleBean(StripBasePathGatewayFilterFactory.class));
+        runner.run(context -> assertThat(context)
+                .hasNotFailed()
+                .hasSingleBean(RegExpQueryRoutePredicateFactory.class)
+                .hasSingleBean(RouteProfileGatewayFilterFactory.class)
+                .hasSingleBean(StripBasePathGatewayFilterFactory.class));
     }
 }

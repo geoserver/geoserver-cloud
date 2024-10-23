@@ -4,6 +4,7 @@
  */
 package org.geoserver.jackson.databind.catalog.mapper;
 
+import java.util.function.Supplier;
 import org.geoserver.catalog.AttributeTypeInfo;
 import org.geoserver.catalog.AttributionInfo;
 import org.geoserver.catalog.AuthorityURLInfo;
@@ -75,26 +76,21 @@ import org.geoserver.ows.util.OwsUtils;
 import org.mapstruct.ObjectFactory;
 import org.mapstruct.TargetType;
 
-import java.util.function.Supplier;
-
 /**
  * Auto-wired object factory for Catalog info interfaces, so the mapstruct code-generated mappers
  * know how to instantiate them
  */
 public class ObjectFacotries {
 
-    public @ObjectFactory WorkspaceInfo workspaceInfo(
-            Workspace source, @TargetType Class<WorkspaceInfo> type) {
+    public @ObjectFactory WorkspaceInfo workspaceInfo(Workspace source, @TargetType Class<WorkspaceInfo> type) {
         return create(source.getId(), WorkspaceInfoImpl::new);
     }
 
-    public @ObjectFactory NamespaceInfo namespaceInfo(
-            Namespace source, @TargetType Class<NamespaceInfo> type) {
+    public @ObjectFactory NamespaceInfo namespaceInfo(Namespace source, @TargetType Class<NamespaceInfo> type) {
         return create(source.getId(), NamespaceInfoImpl::new);
     }
 
-    public @ObjectFactory DataStoreInfo dataStoreInfo(
-            DataStore source, @TargetType Class<DataStoreInfo> type) {
+    public @ObjectFactory DataStoreInfo dataStoreInfo(DataStore source, @TargetType Class<DataStoreInfo> type) {
         return create(source.getId(), () -> new DataStoreInfoImpl((Catalog) null));
     }
 
@@ -103,33 +99,27 @@ public class ObjectFacotries {
         return create(source.getId(), () -> new CoverageStoreInfoImpl((Catalog) null));
     }
 
-    public @ObjectFactory WMSStoreInfo wmsStoreInfo(
-            WMSStore source, @TargetType Class<WMSStoreInfo> type) {
+    public @ObjectFactory WMSStoreInfo wmsStoreInfo(WMSStore source, @TargetType Class<WMSStoreInfo> type) {
         return create(source.getId(), () -> new WMSStoreInfoImpl((Catalog) null));
     }
 
-    public @ObjectFactory WMTSStoreInfo wmtsStoreInfo(
-            WMTSStore source, @TargetType Class<WMTSStoreInfo> type) {
+    public @ObjectFactory WMTSStoreInfo wmtsStoreInfo(WMTSStore source, @TargetType Class<WMTSStoreInfo> type) {
         return create(source.getId(), () -> new WMTSStoreInfoImpl((Catalog) null));
     }
 
-    public @ObjectFactory FeatureTypeInfo featureTypeInfo(
-            FeatureType source, @TargetType Class<FeatureTypeInfo> type) {
+    public @ObjectFactory FeatureTypeInfo featureTypeInfo(FeatureType source, @TargetType Class<FeatureTypeInfo> type) {
         return create(source.getId(), () -> new FeatureTypeInfoImpl((Catalog) null));
     }
 
-    public @ObjectFactory CoverageInfo coverageInfo(
-            Coverage source, @TargetType Class<CoverageInfo> type) {
+    public @ObjectFactory CoverageInfo coverageInfo(Coverage source, @TargetType Class<CoverageInfo> type) {
         return create(source.getId(), () -> new CoverageInfoImpl((Catalog) null));
     }
 
-    public @ObjectFactory WMSLayerInfo wmsLayerInfo(
-            WMSLayer source, @TargetType Class<WMSLayerInfo> type) {
+    public @ObjectFactory WMSLayerInfo wmsLayerInfo(WMSLayer source, @TargetType Class<WMSLayerInfo> type) {
         return create(source.getId(), () -> new WMSLayerInfoImpl((Catalog) null));
     }
 
-    public @ObjectFactory WMTSLayerInfo wmtsLayerInfo(
-            WMTSLayer source, @TargetType Class<WMTSLayerInfo> type) {
+    public @ObjectFactory WMTSLayerInfo wmtsLayerInfo(WMTSLayer source, @TargetType Class<WMTSLayerInfo> type) {
         return create(source.getId(), () -> new WMTSLayerInfoImpl((Catalog) null));
     }
 
@@ -137,8 +127,7 @@ public class ObjectFacotries {
         return create(source.getId(), LayerInfoImpl::new);
     }
 
-    public @ObjectFactory LayerGroupInfo layerGroupInfo(
-            LayerGroup source, @TargetType Class<LayerGroupInfo> type) {
+    public @ObjectFactory LayerGroupInfo layerGroupInfo(LayerGroup source, @TargetType Class<LayerGroupInfo> type) {
         return create(source.getId(), LayerGroupInfoImpl::new);
     }
 

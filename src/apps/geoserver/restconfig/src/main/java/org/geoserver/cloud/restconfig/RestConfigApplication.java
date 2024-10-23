@@ -18,8 +18,7 @@ public class RestConfigApplication {
             SpringApplication.run(RestConfigApplication.class, args);
         } catch (RuntimeException e) {
             try {
-                LoggerFactory.getLogger(RestConfigApplication.class)
-                        .error("Application run failed", e);
+                LoggerFactory.getLogger(RestConfigApplication.class).error("Application run failed", e);
             } finally {
                 System.exit(-1);
             }

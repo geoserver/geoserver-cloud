@@ -5,10 +5,10 @@
 package org.geoserver.cloud.event.bus;
 
 import com.google.common.annotations.VisibleForTesting;
-
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.impl.ResolvingProxy;
 import org.geoserver.cloud.event.GeoServerEvent;
@@ -18,9 +18,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 
 /**
  * Listens to local catalog and configuration change {@link InfoEvent}s produced by this service
@@ -81,8 +78,7 @@ public class RemoteGeoServerEventBridge implements DisposableBean {
 
     @Override
     public void destroy() {
-        log.info(
-                "RemoteGeoServerEventBridge received destroy signal, stopping remote event processing");
+        log.info("RemoteGeoServerEventBridge received destroy signal, stopping remote event processing");
         disable();
     }
 
@@ -114,8 +110,7 @@ public class RemoteGeoServerEventBridge implements DisposableBean {
     @EventListener(GeoServerEvent.class)
     @Order(Ordered.LOWEST_PRECEDENCE)
     public void publishRemoteEvent(GeoServerEvent event) {
-        mapper.mapIfLocal(event)
-                .ifPresentOrElse(this::dispatchAccepted, () -> logIgnoreRemoteLocal(event));
+        mapper.mapIfLocal(event).ifPresentOrElse(this::dispatchAccepted, () -> logIgnoreRemoteLocal(event));
     }
 
     private void dispatchAccepted(RemoteGeoServerEvent event) {
@@ -141,8 +136,7 @@ public class RemoteGeoServerEventBridge implements DisposableBean {
     private void doReceive(RemoteGeoServerEvent incoming) {
         try {
             GeoServerEvent localRemoteEvent = mapper.toLocalRemote(incoming);
-            if (log.isDebugEnabled())
-                log.debug("publishing as local event {}", incoming.toShortString());
+            if (log.isDebugEnabled()) log.debug("publishing as local event {}", incoming.toShortString());
             inboundEventPublisher.accept(localRemoteEvent);
         } catch (RuntimeException e) {
             log.error("{}: error accepting remote {}", mapper.localBusServiceId(), incoming, e);
@@ -153,9 +147,7 @@ public class RemoteGeoServerEventBridge implements DisposableBean {
     private void logIgnoreLocalRemote(RemoteGeoServerEvent incoming) {
         if (log.isTraceEnabled())
             log.trace(
-                    "{}: not broadcasting local-remote event {}",
-                    mapper.localBusServiceId(),
-                    incoming.toShortString());
+                    "{}: not broadcasting local-remote event {}", mapper.localBusServiceId(), incoming.toShortString());
     }
 
     private void logIgnoreRemoteLocal(GeoServerEvent event) {

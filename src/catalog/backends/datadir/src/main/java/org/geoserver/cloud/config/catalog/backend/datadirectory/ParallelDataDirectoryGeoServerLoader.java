@@ -10,9 +10,12 @@ import static org.geoserver.catalog.StyleInfo.DEFAULT_POINT;
 import static org.geoserver.catalog.StyleInfo.DEFAULT_POLYGON;
 import static org.geoserver.catalog.StyleInfo.DEFAULT_RASTER;
 
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Set;
+import javax.annotation.PostConstruct;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.FeatureTypeCallback;
@@ -35,12 +38,6 @@ import org.geoserver.security.GeoServerSecurityManager;
 import org.geotools.api.referencing.FactoryException;
 import org.geotools.api.referencing.NoSuchAuthorityCodeException;
 import org.vfny.geoserver.util.DataStoreUtils;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Set;
-
-import javax.annotation.PostConstruct;
 
 /**
  * Extends the parallel {@link org.geoserver.catalog.datadir.DataDirectoryGeoServerLoader} to
@@ -67,8 +64,7 @@ import javax.annotation.PostConstruct;
  * @see DataDirectoryGeoServerLoader
  */
 @Slf4j
-public class ParallelDataDirectoryGeoServerLoader
-        extends org.geoserver.catalog.datadir.DataDirectoryGeoServerLoader {
+public class ParallelDataDirectoryGeoServerLoader extends org.geoserver.catalog.datadir.DataDirectoryGeoServerLoader {
 
     private @NonNull UpdateSequence updateSequence;
     private @NonNull Catalog rawCatalog;
@@ -131,15 +127,13 @@ public class ParallelDataDirectoryGeoServerLoader
         // misconfigured layers may end up calling FeatureTypeInfo.getFeatureType(), which in turn
         // will trigger GeoServerExtensions and deadlock on the main thread's while spring is
         // building up beans
-        DataStoreUtils.getAvailableDataStoreFactories()
-                .forEach(
-                        f -> {
-                            try {
-                                DataStoreUtils.aquireFactory(f.getDisplayName());
-                            } catch (Exception ignore) {
-                                //
-                            }
-                        });
+        DataStoreUtils.getAvailableDataStoreFactories().forEach(f -> {
+            try {
+                DataStoreUtils.aquireFactory(f.getDisplayName());
+            } catch (Exception ignore) {
+                //
+            }
+        });
 
         GeoServerExtensions.extensions(FeatureTypeCallback.class);
     }
@@ -151,8 +145,7 @@ public class ParallelDataDirectoryGeoServerLoader
         catalog.removeListeners(GeoServerConfigPersister.class);
         catalog.removeListeners(GeoServerResourcePersister.class);
 
-        catalog.addListener(
-                new CatalogPluginGeoServerConfigPersister(catalog.getResourceLoader(), xp));
+        catalog.addListener(new CatalogPluginGeoServerConfigPersister(catalog.getResourceLoader(), xp));
         catalog.addListener(new CatalogPluginStyleResourcePersister(catalog));
     }
 
@@ -187,13 +180,7 @@ public class ParallelDataDirectoryGeoServerLoader
      */
     @Override
     protected void initializeDefaultStyles(Catalog catalog) throws IOException {
-        if (styleMissing(
-                catalog,
-                DEFAULT_POINT,
-                DEFAULT_LINE,
-                DEFAULT_POLYGON,
-                DEFAULT_RASTER,
-                DEFAULT_GENERIC)) {
+        if (styleMissing(catalog, DEFAULT_POINT, DEFAULT_LINE, DEFAULT_POLYGON, DEFAULT_RASTER, DEFAULT_GENERIC)) {
 
             log.info("Initializing default styles");
             GeoServerConfigurationLock configLock = lockingGeoserver.getConfigurationLock();

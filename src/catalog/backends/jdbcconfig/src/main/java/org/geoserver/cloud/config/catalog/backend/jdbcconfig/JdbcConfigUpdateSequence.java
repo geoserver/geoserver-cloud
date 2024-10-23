@@ -4,21 +4,18 @@
  */
 package org.geoserver.cloud.config.catalog.backend.jdbcconfig;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import javax.sql.DataSource;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-
 import org.geoserver.config.GeoServerFacade;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.jdbcconfig.internal.ConfigDatabase;
 import org.geoserver.platform.config.UpdateSequence;
 import org.springframework.beans.factory.InitializingBean;
-
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-
-import javax.sql.DataSource;
 
 /**
  * @since 1.0
@@ -56,8 +53,7 @@ public class JdbcConfigUpdateSequence implements UpdateSequence, InitializingBea
     public void afterPropertiesSet() throws Exception {
         String createSequenceStatement;
         if (props.isPostgreSQL()) {
-            createSequenceStatement =
-                    "CREATE SEQUENCE IF NOT EXISTS %s AS BIGINT CYCLE".formatted(SEQUENCE_NAME);
+            createSequenceStatement = "CREATE SEQUENCE IF NOT EXISTS %s AS BIGINT CYCLE".formatted(SEQUENCE_NAME);
             // not using CURRVAL() to avoid the "currval of sequence "<name>" is not yet defined in
             // this session" error
             getQuery = "SELECT last_value FROM %s".formatted(SEQUENCE_NAME);
@@ -90,8 +86,7 @@ public class JdbcConfigUpdateSequence implements UpdateSequence, InitializingBea
                 if (rs.next()) {
                     return rs.getLong(1);
                 }
-                throw new IllegalStateException(
-                        "Query did not return a result: %s".formatted(getQuery));
+                throw new IllegalStateException("Query did not return a result: %s".formatted(getQuery));
             } finally {
                 c.setAutoCommit(true);
             }

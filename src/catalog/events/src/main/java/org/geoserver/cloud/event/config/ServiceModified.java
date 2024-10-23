@@ -6,17 +6,14 @@ package org.geoserver.cloud.event.config;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-
+import java.util.Objects;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
-
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.cloud.event.info.InfoEvent;
 import org.geoserver.config.ServiceInfo;
 import org.springframework.core.style.ToStringCreator;
-
-import java.util.Objects;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("ServiceModified")
@@ -31,10 +28,7 @@ public class ServiceModified extends ConfigInfoModified implements ConfigInfoEve
     }
 
     protected ServiceModified(
-            long updateSequence,
-            @NonNull ServiceInfo info,
-            @NonNull Patch patch,
-            String workspaceId) {
+            long updateSequence, @NonNull ServiceInfo info, @NonNull Patch patch, String workspaceId) {
 
         super(updateSequence, resolveId(info), prefixedName(info), typeOf(info), patch);
         this.workspaceId = workspaceId;
@@ -50,8 +44,7 @@ public class ServiceModified extends ConfigInfoModified implements ConfigInfoEve
         return super.toStringBuilder().append("workspace", getWorkspaceId());
     }
 
-    public static ServiceModified createLocal(
-            long updateSequence, @NonNull ServiceInfo service, @NonNull Patch patch) {
+    public static ServiceModified createLocal(long updateSequence, @NonNull ServiceInfo service, @NonNull Patch patch) {
         final String workspaceId = InfoEvent.resolveNullableId(service.getWorkspace());
         return new ServiceModified(updateSequence, service, patch, workspaceId);
     }

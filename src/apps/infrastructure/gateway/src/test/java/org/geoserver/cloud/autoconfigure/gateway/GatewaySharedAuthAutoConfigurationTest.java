@@ -14,10 +14,8 @@ import org.springframework.boot.test.context.runner.ReactiveWebApplicationContex
 
 class GatewaySharedAuthAutoConfigurationTest {
 
-    private ReactiveWebApplicationContextRunner runner =
-            new ReactiveWebApplicationContextRunner()
-                    .withConfiguration(
-                            AutoConfigurations.of(GatewaySharedAuthAutoConfiguration.class));
+    private ReactiveWebApplicationContextRunner runner = new ReactiveWebApplicationContextRunner()
+            .withConfiguration(AutoConfigurations.of(GatewaySharedAuthAutoConfiguration.class));
 
     @Test
     void enabledByDefault() {
@@ -26,28 +24,22 @@ class GatewaySharedAuthAutoConfigurationTest {
 
     @Test
     void enabledByConfig() {
-        assertEnabled(
-                runner.withPropertyValues("geoserver.security.gateway-shared-auth.enabled: true"));
+        assertEnabled(runner.withPropertyValues("geoserver.security.gateway-shared-auth.enabled: true"));
     }
 
     private void assertEnabled(ReactiveWebApplicationContextRunner contextRunner) {
-        contextRunner.run(
-                context ->
-                        assertThat(context)
-                                .hasNotFailed()
-                                .hasSingleBean(GatewaySharedAuthenticationPreFilter.class)
-                                .hasSingleBean(GatewaySharedAuthenticationPostFilter.class));
+        contextRunner.run(context -> assertThat(context)
+                .hasNotFailed()
+                .hasSingleBean(GatewaySharedAuthenticationPreFilter.class)
+                .hasSingleBean(GatewaySharedAuthenticationPostFilter.class));
     }
 
     @Test
     void disableByConfig() {
         runner.withPropertyValues("geoserver.security.gateway-shared-auth.enabled: false")
-                .run(
-                        context ->
-                                assertThat(context)
-                                        .hasNotFailed()
-                                        .doesNotHaveBean(GatewaySharedAuthenticationPreFilter.class)
-                                        .doesNotHaveBean(
-                                                GatewaySharedAuthenticationPostFilter.class));
+                .run(context -> assertThat(context)
+                        .hasNotFailed()
+                        .doesNotHaveBean(GatewaySharedAuthenticationPreFilter.class)
+                        .doesNotHaveBean(GatewaySharedAuthenticationPostFilter.class));
     }
 }

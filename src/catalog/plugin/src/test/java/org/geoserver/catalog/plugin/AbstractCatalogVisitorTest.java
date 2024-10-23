@@ -32,18 +32,17 @@ class AbstractCatalogVisitorTest {
 
     @BeforeEach
     void setup() {
-        visitor =
-                new AbstractCatalogVisitor() {
-                    @Override
-                    protected void visit(StoreInfo store) {
-                        visitedStore = store;
-                    }
+        visitor = new AbstractCatalogVisitor() {
+            @Override
+            protected void visit(StoreInfo store) {
+                visitedStore = store;
+            }
 
-                    @Override
-                    protected void visit(ResourceInfo resource) {
-                        visitedResource = resource;
-                    }
-                };
+            @Override
+            protected void visit(ResourceInfo resource) {
+                visitedResource = resource;
+            }
+        };
     }
 
     @Test

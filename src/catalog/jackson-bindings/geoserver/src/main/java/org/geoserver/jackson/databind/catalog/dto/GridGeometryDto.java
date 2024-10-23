@@ -5,7 +5,6 @@
 package org.geoserver.jackson.databind.catalog.dto;
 
 import lombok.Data;
-
 import org.geoserver.config.util.XStreamPersister;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.jackson.databind.dto.CRS;

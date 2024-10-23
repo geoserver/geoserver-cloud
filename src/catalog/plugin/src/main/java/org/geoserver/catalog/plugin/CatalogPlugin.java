@@ -8,9 +8,17 @@ import static java.util.Collections.unmodifiableList;
 
 import com.github.f4b6a3.ulid.Ulid;
 import com.github.f4b6a3.ulid.UlidCreator;
-
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.UnaryOperator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import lombok.NonNull;
-
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogInfo;
@@ -51,18 +59,6 @@ import org.geotools.api.filter.identity.Identifier;
 import org.geotools.api.filter.sort.SortBy;
 import org.geotools.util.Converters;
 import org.geotools.util.logging.Logging;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.UnaryOperator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Stream;
-
-import javax.annotation.Nullable;
 
 /**
  * Alternative to {@link org.geoserver.catalog.impl.CatalogImpl} to improve separation of concerns
@@ -221,8 +217,8 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
             case LayerGroupInfo lg -> add(lg);
             case StyleInfo s -> add(s);
             case MapInfo m -> add(m);
-            default -> throw new IllegalArgumentException(
-                    "Unexpected value: %s".formatted(ModificationProxy.unwrap(info).getClass()));
+            default -> throw new IllegalArgumentException("Unexpected value: %s"
+                    .formatted(ModificationProxy.unwrap(info).getClass()));
         }
     }
 
@@ -240,8 +236,8 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
             case LayerGroupInfo lg -> remove(lg);
             case StyleInfo s -> remove(s);
             case MapInfo m -> remove(m);
-            default -> throw new IllegalArgumentException(
-                    "Unexpected value: %s".formatted(ModificationProxy.unwrap(info).getClass()));
+            default -> throw new IllegalArgumentException("Unexpected value: %s"
+                    .formatted(ModificationProxy.unwrap(info).getClass()));
         }
     }
 
@@ -304,8 +300,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
         // they've been rolled back
         try {
             namespaceChange.ifPresent(
-                    newNamespace ->
-                            updateResourcesNamespace(store, oldWorkspace.getName(), newNamespace));
+                    newNamespace -> updateResourcesNamespace(store, oldWorkspace.getName(), newNamespace));
         } catch (RuntimeException e) {
             rollback(store, rollbackCopy);
             throw e;
@@ -324,9 +319,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
     }
 
     protected @Override void rollbackNamespaces(
-            List<ResourceInfo> storeResources,
-            String oldNamespacePrefix,
-            NamespaceInfo newNamespace) {
+            List<ResourceInfo> storeResources, String oldNamespacePrefix, NamespaceInfo newNamespace) {
         // rolback the namespace on all the resources that got it changed
         final NamespaceInfo rolbackNamespace = getNamespaceByPrefix(oldNamespacePrefix);
         Objects.requireNonNull(rolbackNamespace);
@@ -355,8 +348,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
     }
 
     @Override
-    public <T extends StoreInfo> List<T> getStoresByWorkspace(
-            WorkspaceInfo workspace, Class<T> clazz) {
+    public <T extends StoreInfo> List<T> getStoresByWorkspace(WorkspaceInfo workspace, Class<T> clazz) {
 
         return unmodifiableList(facade.getStoresByWorkspace(workspace, clazz));
     }
@@ -381,7 +373,9 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
             if (!store.getWorkspace().equals(workspace)) {
                 throw new IllegalArgumentException(
                         "Trying to mark as default for workspace %s a store that is contained in %s"
-                                .formatted(workspace.getName(), store.getWorkspace().getName()));
+                                .formatted(
+                                        workspace.getName(),
+                                        store.getWorkspace().getName()));
             }
         }
 
@@ -428,8 +422,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
     }
 
     @Override
-    public <T extends ResourceInfo> List<T> getResourcesByNamespace(
-            NamespaceInfo namespace, Class<T> clazz) {
+    public <T extends ResourceInfo> List<T> getResourcesByNamespace(NamespaceInfo namespace, Class<T> clazz) {
         return unmodifiableList(facade.getResourcesByNamespace(namespace, clazz));
     }
 
@@ -560,8 +553,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
         if (defaultNamespace != null) {
             NamespaceInfo ns = getNamespaceByPrefix(defaultNamespace.getPrefix());
             if (ns == null) {
-                throw new IllegalArgumentException(
-                        "No such namespace: '%s'".formatted(defaultNamespace.getPrefix()));
+                throw new IllegalArgumentException("No such namespace: '%s'".formatted(defaultNamespace.getPrefix()));
             } else {
                 defaultNamespace = ns;
             }
@@ -607,8 +599,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
         if (defaultWorkspace != null) {
             WorkspaceInfo ws = facade.getWorkspaceByName(defaultWorkspace.getName());
             if (ws == null) {
-                throw new IllegalArgumentException(
-                        "No such workspace: '%s'".formatted(defaultWorkspace.getName()));
+                throw new IllegalArgumentException("No such workspace: '%s'".formatted(defaultWorkspace.getName()));
             } else {
                 defaultWorkspace = ws;
             }
@@ -679,14 +670,9 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
     /** Overrides to call {@link ExtendedCatalogFacade#query(Query)} */
     @Override
     public <T extends CatalogInfo> CloseableIterator<T> list(
-            final Class<T> of,
-            final Filter filter,
-            Integer offset,
-            Integer count,
-            SortBy sortOrder) {
+            final Class<T> of, final Filter filter, Integer offset, Integer count, SortBy sortOrder) {
         ExtendedCatalogFacade facade = getFacade();
-        if (sortOrder != null
-                && !facade.canSort(of, sortOrder.getPropertyName().getPropertyName())) {
+        if (sortOrder != null && !facade.canSort(of, sortOrder.getPropertyName().getPropertyName())) {
             // TODO: use GeoTools' merge-sort code to provide sorting anyways
             throw new UnsupportedOperationException(
                     "Catalog backend can't sort on property %s in-process sorting is pending implementation"
@@ -703,8 +689,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
     }
 
     @Override
-    public <T extends CatalogInfo> T get(Class<T> type, Filter filter)
-            throws IllegalArgumentException {
+    public <T extends CatalogInfo> T get(Class<T> type, Filter filter) throws IllegalArgumentException {
         // try optimizing by querying by id first, defer to regular filter query if
         // filter is not and Id filter
         return getIdIfIdFilter(filter) //
@@ -739,8 +724,7 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
             }
         } else if (filter instanceof PropertyIsEqualTo eq) {
             boolean idProperty =
-                    (eq.getExpression1() instanceof PropertyName prop)
-                            && "id".equals(prop.getPropertyName());
+                    (eq.getExpression1() instanceof PropertyName prop) && "id".equals(prop.getPropertyName());
             if (idProperty && eq.getExpression2() instanceof Literal) {
                 id = Converters.convert(eq.getExpression2().evaluate(null), String.class);
             }
@@ -865,10 +849,9 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
 
     protected void setId(@NonNull CatalogInfo o) {
         if (null == o.getId()) {
-            String type =
-                    ClassMappings.fromImpl(ModificationProxy.unwrap(o).getClass())
-                            .getInterface()
-                            .getSimpleName();
+            String type = ClassMappings.fromImpl(ModificationProxy.unwrap(o).getClass())
+                    .getInterface()
+                    .getSimpleName();
             Ulid ulid = UlidCreator.getMonotonicUlid();
             String id = "%s-%s".formatted(type, ulid);
             OwsUtils.set(o, "id", id);

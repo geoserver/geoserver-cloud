@@ -4,8 +4,10 @@
  */
 package org.geoserver.jackson.databind.catalog.mapper;
 
+import java.awt.geom.AffineTransform;
+import java.io.Serializable;
+import java.util.Optional;
 import lombok.Generated;
-
 import org.geoserver.catalog.AttributeTypeInfo;
 import org.geoserver.catalog.AttributionInfo;
 import org.geoserver.catalog.AuthorityURLInfo;
@@ -55,10 +57,6 @@ import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
 
-import java.awt.geom.AffineTransform;
-import java.io.Serializable;
-import java.util.Optional;
-
 @Mapper(
         componentModel = "default",
         unmappedTargetPolicy = ReportingPolicy.ERROR,
@@ -77,11 +75,9 @@ public interface GeoServerValueObjectsMapper {
      */
     default GridGeometry dtoToGridGeometry2D(GridGeometryDto value) {
         if (value == null) return null;
-        CoordinateReferenceSystem crs =
-                Mappers.getMapper(
-                                org.geotools.jackson.databind.filter.mapper.GeoToolsValueMappers
-                                        .class)
-                        .crs(value.getCrs());
+        CoordinateReferenceSystem crs = Mappers.getMapper(
+                        org.geotools.jackson.databind.filter.mapper.GeoToolsValueMappers.class)
+                .crs(value.getCrs());
         int[] high = value.getHigh();
         int[] low = value.getLow();
         MathTransform gridToCRS = affineTransform(value.getTransform());
@@ -105,11 +101,8 @@ public interface GeoServerValueObjectsMapper {
         }
 
         dto.setTransform(affineTransform(g.getGridToCRS()));
-        CRS crs =
-                Mappers.getMapper(
-                                org.geotools.jackson.databind.filter.mapper.GeoToolsValueMappers
-                                        .class)
-                        .crs(g.getCoordinateReferenceSystem());
+        CRS crs = Mappers.getMapper(org.geotools.jackson.databind.filter.mapper.GeoToolsValueMappers.class)
+                .crs(g.getCoordinateReferenceSystem());
         dto.setCrs(crs);
         return dto;
     }
@@ -188,22 +181,20 @@ public interface GeoServerValueObjectsMapper {
     default MetadataMapDto metadataMap(MetadataMap md) {
         if (md == null) return null;
         MetadataMapDto dto = new MetadataMapDto();
-        md.forEach(
-                (k, v) -> {
-                    Literal l = Literal.valueOf(v);
-                    dto.put(k, l);
-                });
+        md.forEach((k, v) -> {
+            Literal l = Literal.valueOf(v);
+            dto.put(k, l);
+        });
         return dto;
     }
 
     default MetadataMap metadataMap(MetadataMapDto dto) {
         if (dto == null) return null;
         MetadataMap md = new MetadataMap();
-        dto.forEach(
-                (k, l) -> {
-                    Object v = l.getValue();
-                    md.put(k, (Serializable) v);
-                });
+        dto.forEach((k, l) -> {
+            Object v = l.getValue();
+            md.put(k, (Serializable) v);
+        });
         return md;
     }
 

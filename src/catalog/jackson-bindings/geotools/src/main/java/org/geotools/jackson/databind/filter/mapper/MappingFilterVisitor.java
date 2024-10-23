@@ -5,7 +5,6 @@
 package org.geotools.jackson.databind.filter.mapper;
 
 import lombok.NonNull;
-
 import org.geotools.api.filter.And;
 import org.geotools.api.filter.ExcludeFilter;
 import org.geotools.api.filter.FilterVisitor;

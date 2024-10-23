@@ -4,17 +4,15 @@
  */
 package org.geoserver.jackson.databind.catalog.dto;
 
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-
 import org.geoserver.catalog.plugin.Query;
 import org.geotools.api.filter.Filter;
 import org.geotools.api.filter.sort.SortBy;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /** DTO for {@link Query} */
 @NoArgsConstructor

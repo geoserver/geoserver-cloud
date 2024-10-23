@@ -4,14 +4,12 @@
  */
 package org.geoserver.cloud.backend.pgconfig.resource;
 
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-
-import org.geoserver.platform.resource.Resource;
-import org.springframework.jdbc.core.RowMapper;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.geoserver.platform.resource.Resource;
+import org.springframework.jdbc.core.RowMapper;
 
 /**
  * @since 1.4

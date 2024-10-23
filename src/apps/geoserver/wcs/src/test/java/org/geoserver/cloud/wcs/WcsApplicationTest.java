@@ -6,13 +6,12 @@ package org.geoserver.cloud.wcs;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
-
-import java.util.stream.Stream;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -27,18 +26,11 @@ class WcsApplicationTest {
         expectBean("wcsURLMapping", org.geoserver.ows.OWSHandlerMapping.class);
         expectBean("wcsLocalWorkspaceURLManger", org.geoserver.ows.LocalWorkspaceURLMangler.class);
         expectBean("cqlKvpParser", org.geoserver.ows.kvp.CQLFilterKvpParser.class);
+        expectBean("coverageResponseDelegateFactory", org.geoserver.wcs.responses.CoverageResponseDelegateFinder.class);
         expectBean(
-                "coverageResponseDelegateFactory",
-                org.geoserver.wcs.responses.CoverageResponseDelegateFinder.class);
-        expectBean(
-                "geotiffCoverageResponseDelegate",
-                org.geoserver.wcs.responses.GeoTIFFCoverageResponseDelegate.class);
-        expectBean(
-                "imgCoverageResponseDelegate",
-                org.geoserver.wcs.responses.IMGCoverageResponseDelegate.class);
-        expectBean(
-                "debugCoverageResponseDelegate",
-                org.geoserver.wcs.responses.DebugCoverageResponseDelegate.class);
+                "geotiffCoverageResponseDelegate", org.geoserver.wcs.responses.GeoTIFFCoverageResponseDelegate.class);
+        expectBean("imgCoverageResponseDelegate", org.geoserver.wcs.responses.IMGCoverageResponseDelegate.class);
+        expectBean("debugCoverageResponseDelegate", org.geoserver.wcs.responses.DebugCoverageResponseDelegate.class);
         expectBean("coverageCleaner", org.geoserver.wcs.CoverageCleanerCallback.class);
         expectBean("wcsResourceVoter", org.geoserver.wcs.WCSResourceVoter.class);
         expectBean("legacyWcsLoader", org.geoserver.wcs.WCSLoader.class);
@@ -47,18 +39,11 @@ class WcsApplicationTest {
         expectBean("wcsURLMapping", org.geoserver.ows.OWSHandlerMapping.class);
         expectBean("wcsLocalWorkspaceURLManger", org.geoserver.ows.LocalWorkspaceURLMangler.class);
         expectBean("cqlKvpParser", org.geoserver.ows.kvp.CQLFilterKvpParser.class);
+        expectBean("coverageResponseDelegateFactory", org.geoserver.wcs.responses.CoverageResponseDelegateFinder.class);
         expectBean(
-                "coverageResponseDelegateFactory",
-                org.geoserver.wcs.responses.CoverageResponseDelegateFinder.class);
-        expectBean(
-                "geotiffCoverageResponseDelegate",
-                org.geoserver.wcs.responses.GeoTIFFCoverageResponseDelegate.class);
-        expectBean(
-                "imgCoverageResponseDelegate",
-                org.geoserver.wcs.responses.IMGCoverageResponseDelegate.class);
-        expectBean(
-                "debugCoverageResponseDelegate",
-                org.geoserver.wcs.responses.DebugCoverageResponseDelegate.class);
+                "geotiffCoverageResponseDelegate", org.geoserver.wcs.responses.GeoTIFFCoverageResponseDelegate.class);
+        expectBean("imgCoverageResponseDelegate", org.geoserver.wcs.responses.IMGCoverageResponseDelegate.class);
+        expectBean("debugCoverageResponseDelegate", org.geoserver.wcs.responses.DebugCoverageResponseDelegate.class);
         expectBean("coverageCleaner", org.geoserver.wcs.CoverageCleanerCallback.class);
         expectBean("wcsResourceVoter", org.geoserver.wcs.WCSResourceVoter.class);
     }

@@ -14,6 +14,10 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.File;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import org.geoserver.GeoServerConfigurationLock.LockType;
 import org.geoserver.platform.resource.FileLockProvider;
 import org.geoserver.platform.resource.LockProvider;
@@ -23,17 +27,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.io.TempDir;
 
-import java.io.File;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 /**
  * @since 1.0
  */
 class LockProviderGeoServerConfigurationLockTest {
 
-    @TempDir File mockDataDir;
+    @TempDir
+    File mockDataDir;
 
     private LockProviderGeoServerConfigurationLock lock;
 
@@ -78,10 +78,7 @@ class LockProviderGeoServerConfigurationLockTest {
         assertEquals(WRITE, lock.getCurrentLock());
 
         lock.lock(READ);
-        assertEquals(
-                WRITE,
-                lock.getCurrentLock(),
-                "A read lock request shall preserve the write lock if already held");
+        assertEquals(WRITE, lock.getCurrentLock(), "A read lock request shall preserve the write lock if already held");
         lock.unlock();
     }
 
@@ -115,22 +112,17 @@ class LockProviderGeoServerConfigurationLockTest {
             lock.lock(READ);
 
             secondThread
-                    .submit(
-                            () -> {
-                                assertTrue(lock.tryLock(READ));
-                            })
+                    .submit(() -> {
+                        assertTrue(lock.tryLock(READ));
+                    })
                     .get();
 
             assertEquals(READ, lock.getCurrentLock());
 
             RuntimeException ex = assertThrows(RuntimeException.class, () -> lock.tryUpgradeLock());
-            assertThat(
-                    ex.getMessage(),
-                    containsString("Failed to upgrade lock from read to write state"));
+            assertThat(ex.getMessage(), containsString("Failed to upgrade lock from read to write state"));
 
-            assertNull(
-                    lock.getCurrentLock(),
-                    "lock should have been lost after a failed tryUpgradeLock()");
+            assertNull(lock.getCurrentLock(), "lock should have been lost after a failed tryUpgradeLock()");
 
             lock.lock(READ);
 
@@ -180,9 +172,7 @@ class LockProviderGeoServerConfigurationLockTest {
 
         assertTrue(lock.tryLock(READ));
         assertEquals(
-                WRITE,
-                lock.getCurrentLock(),
-                "tryLock(READ) while holding a write lock shall preserve the write lock");
+                WRITE, lock.getCurrentLock(), "tryLock(READ) while holding a write lock shall preserve the write lock");
 
         lock.unlock();
         assertNull(lock.getCurrentLock());
@@ -231,10 +221,7 @@ class LockProviderGeoServerConfigurationLockTest {
             } finally {
                 // first release
                 lock.unlock();
-                assertEquals(
-                        lockType,
-                        lock.getCurrentLock(),
-                        "%s lock should still be held".formatted(lockType));
+                assertEquals(lockType, lock.getCurrentLock(), "%s lock should still be held".formatted(lockType));
             }
         } finally {
             // second release
@@ -270,10 +257,7 @@ class LockProviderGeoServerConfigurationLockTest {
             } finally {
                 // first release
                 lock.unlock();
-                assertEquals(
-                        lockType,
-                        lock.getCurrentLock(),
-                        "%s lock should still be held".formatted(lockType));
+                assertEquals(lockType, lock.getCurrentLock(), "%s lock should still be held".formatted(lockType));
             }
         } finally {
             // second release

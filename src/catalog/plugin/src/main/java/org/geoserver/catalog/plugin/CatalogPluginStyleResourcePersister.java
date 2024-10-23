@@ -5,7 +5,6 @@
 package org.geoserver.catalog.plugin;
 
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.Info;

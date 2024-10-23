@@ -17,10 +17,7 @@ import org.springframework.context.annotation.Import;
 // run before GeoServerSecurityAutoConfiguration so the provider is available when
 // GeoServerSecurityManager calls GeoServerExtensions.extensions(GeoServerSecurityProvider.class)
 @AutoConfiguration(before = GeoServerSecurityAutoConfiguration.class)
-@Import({
-    GatewayPreAuthenticationConfiguration.class,
-    GatewayPreAuthenticationAutoConfiguration.WebUi.class
-})
+@Import({GatewayPreAuthenticationConfiguration.class, GatewayPreAuthenticationAutoConfiguration.WebUi.class})
 @ConditionalOnGeoServerSecurityEnabled
 @SuppressWarnings("java:S1118")
 public class GatewayPreAuthenticationAutoConfiguration {

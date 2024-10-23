@@ -6,9 +6,7 @@ package org.geoserver.cloud.event.config;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
 import lombok.NonNull;
-
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.cloud.event.info.ConfigInfoType;
@@ -67,8 +65,7 @@ public abstract class ConfigInfoModified extends InfoModified implements ConfigI
         return ServiceModified.createLocal(updateSequence, info, patch);
     }
 
-    private static GeoServerInfoModified geoserver(
-            long updateSequence, GeoServerInfo info, Patch patch) {
+    private static GeoServerInfoModified geoserver(long updateSequence, GeoServerInfo info, Patch patch) {
         return GeoServerInfoModified.createLocal(updateSequence, info, patch);
     }
 }

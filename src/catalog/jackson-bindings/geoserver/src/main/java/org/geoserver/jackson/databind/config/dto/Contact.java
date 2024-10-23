@@ -4,11 +4,9 @@
  */
 package org.geoserver.jackson.databind.config.dto;
 
-import lombok.Data;
-
-import org.geoserver.config.ContactInfo;
-
 import java.util.Map;
+import lombok.Data;
+import org.geoserver.config.ContactInfo;
 
 /** DTO for {@link ContactInfo} */
 @Data

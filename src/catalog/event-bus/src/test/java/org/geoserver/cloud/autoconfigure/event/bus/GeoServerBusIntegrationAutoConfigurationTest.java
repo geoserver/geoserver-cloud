@@ -31,17 +31,14 @@ class GeoServerBusIntegrationAutoConfigurationTest {
     private final GeoServer mockGeoserver = mock(GeoServer.class);
     private final UpdateSequence updateSequence = mock(UpdateSequence.class);
 
-    private ApplicationContextRunner runner =
-            new ApplicationContextRunner()
-                    .withBean(ServiceMatcher.class, () -> mockServiceMatcher)
-                    .withBean(BusBridge.class, () -> mockBusBridge)
-                    .withBean(UpdateSequence.class, () -> updateSequence)
-                    .withBean("rawCatalog", Catalog.class, () -> mockCatalog)
-                    .withBean("Geoserver", GeoServer.class, () -> mockGeoserver)
-                    .withConfiguration(
-                            AutoConfigurations.of(
-                                    BusAutoConfiguration.class,
-                                    GeoServerBusIntegrationAutoConfiguration.class));
+    private ApplicationContextRunner runner = new ApplicationContextRunner()
+            .withBean(ServiceMatcher.class, () -> mockServiceMatcher)
+            .withBean(BusBridge.class, () -> mockBusBridge)
+            .withBean(UpdateSequence.class, () -> updateSequence)
+            .withBean("rawCatalog", Catalog.class, () -> mockCatalog)
+            .withBean("Geoserver", GeoServer.class, () -> mockGeoserver)
+            .withConfiguration(
+                    AutoConfigurations.of(BusAutoConfiguration.class, GeoServerBusIntegrationAutoConfiguration.class));
 
     @Test
     void enabledByDefault() {
@@ -65,25 +62,23 @@ class GeoServerBusIntegrationAutoConfigurationTest {
 
     private void assertEnabled(ApplicationContextRunner runner) {
 
-        runner.run(
-                context -> {
-                    assertThat(context)
-                            .hasNotFailed()
-                            .hasSingleBean(GeoServerCatalogModule.class)
-                            .hasSingleBean(GeoServerConfigModule.class)
-                            .hasSingleBean(RemoteGeoServerEventBridge.class);
-                });
+        runner.run(context -> {
+            assertThat(context)
+                    .hasNotFailed()
+                    .hasSingleBean(GeoServerCatalogModule.class)
+                    .hasSingleBean(GeoServerConfigModule.class)
+                    .hasSingleBean(RemoteGeoServerEventBridge.class);
+        });
     }
 
     private void assertDisabled(ApplicationContextRunner runner) {
 
-        runner.run(
-                context -> {
-                    assertThat(context)
-                            .hasNotFailed()
-                            .doesNotHaveBean(GeoServerCatalogModule.class)
-                            .doesNotHaveBean(GeoServerConfigModule.class)
-                            .doesNotHaveBean(RemoteGeoServerEventBridge.class);
-                });
+        runner.run(context -> {
+            assertThat(context)
+                    .hasNotFailed()
+                    .doesNotHaveBean(GeoServerCatalogModule.class)
+                    .doesNotHaveBean(GeoServerConfigModule.class)
+                    .doesNotHaveBean(RemoteGeoServerEventBridge.class);
+        });
     }
 }

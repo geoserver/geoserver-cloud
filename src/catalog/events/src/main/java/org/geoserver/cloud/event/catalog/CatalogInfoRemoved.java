@@ -6,14 +6,11 @@ package org.geoserver.cloud.event.catalog;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-
-import lombok.NonNull;
-
-import org.geoserver.catalog.CatalogInfo;
-import org.geoserver.cloud.event.info.InfoRemoved;
-
 import java.util.Objects;
 import java.util.Optional;
+import lombok.NonNull;
+import org.geoserver.catalog.CatalogInfo;
+import org.geoserver.cloud.event.info.InfoRemoved;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("CatalogInfoRemoved")

@@ -4,10 +4,15 @@
  */
 package org.geoserver.cloud.security.gateway.sharedauth;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.cloud.security.gateway.sharedauth.GatewaySharedAuthenticationFilter.Config;
 import org.geoserver.platform.ContextLoadedEvent;
 import org.geoserver.platform.resource.Resource;
@@ -20,13 +25,6 @@ import org.geoserver.security.validation.SecurityConfigException;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.Ordered;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 /**
  * Upon a GeoServer {@link ContextLoadedEvent}, creates the {@link
  * GatewaySharedAuthenticationFilter} filter in the {@link GeoServerSecurityManager} configuration,
@@ -36,17 +34,15 @@ import java.util.stream.Collectors;
  */
 @Slf4j(topic = "org.geoserver.cloud.security.gateway.sharedauth")
 @RequiredArgsConstructor
-public class GatewaySharedAuthenticationInitializer
-        implements ApplicationListener<ContextLoadedEvent>, Ordered {
+public class GatewaySharedAuthenticationInitializer implements ApplicationListener<ContextLoadedEvent>, Ordered {
 
-    @NonNull private final GeoServerSecurityManager securityManager;
+    @NonNull
+    private final GeoServerSecurityManager securityManager;
 
     @Override
     public void onApplicationEvent(ContextLoadedEvent event) {
         if (!filterIsMissing()) {
-            log.info(
-                    "{} config is present.",
-                    GatewaySharedAuthenticationFilter.class.getSimpleName());
+            log.info("{} config is present.", GatewaySharedAuthenticationFilter.class.getSimpleName());
             return;
         }
         log.info(
@@ -79,15 +75,12 @@ public class GatewaySharedAuthenticationInitializer
 
         final Set<String> applyTo = Set.of("web", "rest", "gwc", "default");
 
-        filterChain
-                .getRequestChains()
-                .forEach(
-                        requestFiltersChain -> {
-                            String chainName = requestFiltersChain.getName();
-                            if (applyTo.contains(chainName)) {
-                                addToFilterChain(requestFiltersChain, filterName);
-                            }
-                        });
+        filterChain.getRequestChains().forEach(requestFiltersChain -> {
+            String chainName = requestFiltersChain.getName();
+            if (applyTo.contains(chainName)) {
+                addToFilterChain(requestFiltersChain, filterName);
+            }
+        });
 
         securityManager.saveSecurityConfig(config);
         log.info("SecurityManagerConfig saved");
@@ -100,8 +93,7 @@ public class GatewaySharedAuthenticationInitializer
                     "Filter chain {} already contains {} -> {}",
                     requestFiltersChain.getName(),
                     filterName,
-                    requestFiltersChain.getFilterNames().stream()
-                            .collect(Collectors.joining(", ")));
+                    requestFiltersChain.getFilterNames().stream().collect(Collectors.joining(", ")));
         } else {
             if (filterNames.contains("anonymous")) {
                 // anonymous must always be the last one if present
@@ -116,14 +108,15 @@ public class GatewaySharedAuthenticationInitializer
                     "Applied filter {} to filter chain {} -> {}",
                     filterName,
                     requestFiltersChain.getName(),
-                    requestFiltersChain.getFilterNames().stream()
-                            .collect(Collectors.joining(", ")));
+                    requestFiltersChain.getFilterNames().stream().collect(Collectors.joining(", ")));
         }
     }
 
     private boolean filterIsMissing() {
         try {
-            return securityManager.listFilters(GatewaySharedAuthenticationFilter.class).isEmpty();
+            return securityManager
+                    .listFilters(GatewaySharedAuthenticationFilter.class)
+                    .isEmpty();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

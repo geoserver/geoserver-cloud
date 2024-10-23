@@ -14,8 +14,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.function.BiFunction;
 import lombok.NonNull;
-
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.CoverageInfo;
 import org.geoserver.catalog.CoverageStoreInfo;
@@ -48,11 +51,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.cache.Cache.ValueWrapper;
 
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.function.BiFunction;
-
 /**
  * @since 1.7
  */
@@ -73,9 +71,7 @@ class CachingCatalogFacadeContainmentSupportTest {
     @Test
     void testGetDefaultWorkspace() throws Exception {
         assertCaches(
-                WorkspaceInfo.class,
-                (supp, loader) -> supp.getDefaultWorkspace(loader),
-                DEFAULT_WORKSPACE_CACHE_KEY);
+                WorkspaceInfo.class, (supp, loader) -> supp.getDefaultWorkspace(loader), DEFAULT_WORKSPACE_CACHE_KEY);
     }
 
     @Test
@@ -88,9 +84,7 @@ class CachingCatalogFacadeContainmentSupportTest {
     @Test
     void testGetDefaultNamespace() throws Exception {
         assertCaches(
-                NamespaceInfo.class,
-                (supp, loader) -> supp.getDefaultNamespace(loader),
-                DEFAULT_NAMESPACE_CACHE_KEY);
+                NamespaceInfo.class, (supp, loader) -> supp.getDefaultNamespace(loader), DEFAULT_NAMESPACE_CACHE_KEY);
     }
 
     @Test
@@ -104,8 +98,7 @@ class CachingCatalogFacadeContainmentSupportTest {
     void testGetDefaultDataStore() throws Exception {
         WorkspaceInfo ws = stub(WorkspaceInfo.class);
         Object key = support.generateDefaultDataStoreKey(ws.getId());
-        assertCaches(
-                DataStoreInfo.class, (supp, loader) -> supp.getDefaultDataStore(ws, loader), key);
+        assertCaches(DataStoreInfo.class, (supp, loader) -> supp.getDefaultDataStore(ws, loader), key);
     }
 
     @Test
@@ -246,8 +239,7 @@ class CachingCatalogFacadeContainmentSupportTest {
     }
 
     @Test
-    @DisplayName(
-            "when a CatalogInfo is evicted, both the InfoIdKey and InfoNameKey entries are evicted")
+    @DisplayName("when a CatalogInfo is evicted, both the InfoIdKey and InfoNameKey entries are evicted")
     void testEvictCatalogInfoEvictsIdAndNameKeys() {
         WorkspaceInfo ws = stub(WorkspaceInfo.class);
 
@@ -266,8 +258,7 @@ class CachingCatalogFacadeContainmentSupportTest {
     }
 
     @Test
-    @DisplayName(
-            "when a LayerInfo is evicted, the layers by resource list for its ResourceInfo is evicted")
+    @DisplayName("when a LayerInfo is evicted, the layers by resource list for its ResourceInfo is evicted")
     void testEvictCatalogInfoLayerInfoEvictsLayersByResource() {
         LayerInfo layer = stub(LayerInfo.class);
         FeatureTypeInfo resource = stub(FeatureTypeInfo.class);
@@ -283,8 +274,7 @@ class CachingCatalogFacadeContainmentSupportTest {
     }
 
     @Test
-    @DisplayName(
-            "when a StoreInfo is evicted, the keys for StoreInfo and its concrete type are evicted")
+    @DisplayName("when a StoreInfo is evicted, the keys for StoreInfo and its concrete type are evicted")
     void testEvictStoreInfoEvictsTheGenericAndConcreteTypeKeys() {
         var store = stubWithRefs(DataStoreInfo.class);
         InfoIdKey id = InfoIdKey.valueOf(store);
@@ -304,8 +294,7 @@ class CachingCatalogFacadeContainmentSupportTest {
     }
 
     @Test
-    @DisplayName(
-            "when a ResourceInfo is evicted, the keys for ResourceInfo and its concrete type are evicted")
+    @DisplayName("when a ResourceInfo is evicted, the keys for ResourceInfo and its concrete type are evicted")
     void testEvictResourceInfoEvictsTheGenericAndConcreteTypeKeys() {
         var resource = stubWithRefs(FeatureTypeInfo.class);
         InfoIdKey id = InfoIdKey.valueOf(resource);
@@ -363,8 +352,7 @@ class CachingCatalogFacadeContainmentSupportTest {
         LayerInfo layer2 = stubLayer("layer2", defStyle2, Set.of(defStyle2, style2));
 
         LayerGroupInfo lg1 = stubLayerGroup("lg1", List.of(layer1), List.of(defStyle1));
-        LayerGroupInfo lg2 =
-                stubLayerGroup("lg2", List.of(layer1, layer2), List.of(defStyle1, defStyle2));
+        LayerGroupInfo lg2 = stubLayerGroup("lg2", List.of(layer1, layer2), List.of(defStyle1, defStyle2));
 
         put(defStyle1, defStyle2, style1, style2, layer1, layer2, lg1, lg2);
         assertAllCached(defStyle1, defStyle2, style1, style2, layer1, layer2, lg1, lg2);
@@ -389,8 +377,7 @@ class CachingCatalogFacadeContainmentSupportTest {
     }
 
     @Test
-    @DisplayName(
-            "when a WorkspaceInfo is evicted, all objects referencing it directly or indirectly are evicted")
+    @DisplayName("when a WorkspaceInfo is evicted, all objects referencing it directly or indirectly are evicted")
     void testEvictWorkspaceInfoEvictsAllInfosReferencingIt() {
         WorkspaceInfo ws1 = stubReal(WorkspaceInfo.class, "ws1", "workspace1");
         NamespaceInfo ns1 = stubReal(NamespaceInfo.class, "ns1", "workspace1");
@@ -433,9 +420,7 @@ class CachingCatalogFacadeContainmentSupportTest {
     }
 
     <T> void assertCaches(
-            Class<T> type,
-            BiFunction<CachingCatalogFacadeContainmentSupport, Callable<T>, T> getter,
-            Object... keys)
+            Class<T> type, BiFunction<CachingCatalogFacadeContainmentSupport, Callable<T>, T> getter, Object... keys)
             throws Exception {
 
         Callable<T> loader = loader();
@@ -557,8 +542,7 @@ class CachingCatalogFacadeContainmentSupportTest {
                     case NAMESPACE -> new NamespaceInfoImpl();
                     case WORKSPACE -> new WorkspaceInfoImpl();
                     case DATASTORE -> new DataStoreInfoImpl(null);
-                    default -> throw new UnsupportedOperationException(
-                            "not configured to create " + type);
+                    default -> throw new UnsupportedOperationException("not configured to create " + type);
                 });
     }
 
@@ -589,8 +573,7 @@ class CachingCatalogFacadeContainmentSupportTest {
         return layer;
     }
 
-    private LayerGroupInfo stubLayerGroup(
-            String name, List<PublishedInfo> layers, List<StyleInfo> styles) {
+    private LayerGroupInfo stubLayerGroup(String name, List<PublishedInfo> layers, List<StyleInfo> styles) {
 
         var lg = stubReal(LayerGroupInfo.class, name + "-id", name);
         lg.getLayers().addAll(layers);

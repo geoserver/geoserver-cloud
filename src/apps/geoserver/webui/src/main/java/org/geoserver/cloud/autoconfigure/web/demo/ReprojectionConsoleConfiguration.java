@@ -23,8 +23,7 @@ import org.springframework.context.annotation.ImportResource;
         locations = {"jar:gs-web-demo-.*!/applicationContext.xml#name=reprojectionConsole"})
 public class ReprojectionConsoleConfiguration extends AbstractWebUIAutoConfiguration {
 
-    static final String CONFIG_PREFIX =
-            DemosAutoConfiguration.CONFIG_PREFIX + ".reprojection-console";
+    static final String CONFIG_PREFIX = DemosAutoConfiguration.CONFIG_PREFIX + ".reprojection-console";
 
     @Override
     public String getConfigPrefix() {

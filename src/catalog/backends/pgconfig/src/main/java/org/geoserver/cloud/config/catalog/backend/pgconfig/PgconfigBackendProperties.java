@@ -5,7 +5,6 @@
 package org.geoserver.cloud.config.catalog.backend.pgconfig;
 
 import lombok.Data;
-
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.util.StringUtils;

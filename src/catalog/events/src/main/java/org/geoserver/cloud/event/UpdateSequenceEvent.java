@@ -7,9 +7,7 @@ package org.geoserver.cloud.event;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-
 import lombok.Getter;
-
 import org.geoserver.cloud.event.info.InfoEvent;
 import org.geoserver.cloud.event.security.SecurityConfigChanged;
 import org.geoserver.config.GeoServerInfo;
@@ -18,10 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
-@JsonSubTypes({
-    @JsonSubTypes.Type(value = InfoEvent.class),
-    @JsonSubTypes.Type(value = SecurityConfigChanged.class)
-})
+@JsonSubTypes({@JsonSubTypes.Type(value = InfoEvent.class), @JsonSubTypes.Type(value = SecurityConfigChanged.class)})
 @JsonTypeName("UpdateSequence")
 @SuppressWarnings("serial")
 public class UpdateSequenceEvent extends GeoServerEvent implements Comparable<UpdateSequenceEvent> {
@@ -64,7 +59,6 @@ public class UpdateSequenceEvent extends GeoServerEvent implements Comparable<Up
     public String toShortString() {
         String originService = getOrigin();
         String type = getClass().getSimpleName();
-        return "%s[origin: %s, updateSequence: %s]"
-                .formatted(type, originService, getUpdateSequence());
+        return "%s[origin: %s, updateSequence: %s]".formatted(type, originService, getUpdateSequence());
     }
 }

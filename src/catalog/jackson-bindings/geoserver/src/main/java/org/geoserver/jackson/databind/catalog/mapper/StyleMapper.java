@@ -5,7 +5,6 @@
 package org.geoserver.jackson.databind.catalog.mapper;
 
 import lombok.Generated;
-
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.jackson.databind.catalog.dto.Style;
 import org.mapstruct.AnnotateWith;

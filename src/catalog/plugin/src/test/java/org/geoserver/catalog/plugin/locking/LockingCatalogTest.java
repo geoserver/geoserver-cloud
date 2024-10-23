@@ -9,6 +9,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.GeoServerConfigurationLock.LockType;
 import org.geoserver.catalog.CascadeDeleteVisitor;
@@ -25,13 +31,6 @@ import org.geoserver.config.GeoServer;
 import org.geoserver.config.plugin.GeoServerImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 /**
  * @since 1.0
@@ -83,8 +82,10 @@ class LockingCatalogTest {
 
     @Test
     void simpleMultiThreadTest() {
-        List<WorkspaceInfo> workspaces =
-                IntStream.range(0, 100).parallel().mapToObj(i -> faker.workspaceInfo()).toList();
+        List<WorkspaceInfo> workspaces = IntStream.range(0, 100)
+                .parallel()
+                .mapToObj(i -> faker.workspaceInfo())
+                .toList();
 
         workspaces.stream().forEach(catalog::add);
 
@@ -96,18 +97,16 @@ class LockingCatalogTest {
 
     @Test
     void preAcquiredLockMultiThreadTest() {
-        List<WorkspaceInfo> workspaces =
-                IntStream.range(0, 100)
-                        .parallel()
-                        .mapToObj(i -> faker.workspaceInfo("ws-" + i))
-                        .toList();
+        List<WorkspaceInfo> workspaces = IntStream.range(0, 100)
+                .parallel()
+                .mapToObj(i -> faker.workspaceInfo("ws-" + i))
+                .toList();
 
-        List<List<CatalogInfo>> created =
-                workspaces //
-                        .stream() //
-                        .parallel() //
-                        .map(this::batchCreateSubTree)
-                        .toList();
+        List<List<CatalogInfo>> created = workspaces //
+                .stream() //
+                .parallel() //
+                .map(this::batchCreateSubTree)
+                .toList();
 
         assertNotNull(catalog.getDefaultWorkspace());
 
@@ -123,16 +122,13 @@ class LockingCatalogTest {
                 .parallel() //
                 .forEach(this::batchUpdate);
 
-        Stream<List<? extends CatalogInfo>> updated =
-                created //
-                        .stream()
-                        .map(
-                                list ->
-                                        list.stream()
-                                                .map(CatalogInfo::getId)
-                                                .map(catalog::findById)
-                                                .map(Optional::orElseThrow)
-                                                .toList());
+        Stream<List<? extends CatalogInfo>> updated = created //
+                .stream()
+                .map(list -> list.stream()
+                        .map(CatalogInfo::getId)
+                        .map(catalog::findById)
+                        .map(Optional::orElseThrow)
+                        .toList());
 
         updated //
                 .parallel() //
@@ -167,8 +163,7 @@ class LockingCatalogTest {
                 catalog.save(info);
             }
         } finally {
-            assertEquals(
-                    LockType.WRITE, configLock.getCurrentLock(), "lock should have been upgraded");
+            assertEquals(LockType.WRITE, configLock.getCurrentLock(), "lock should have been upgraded");
             configLock.unlock();
         }
     }
@@ -176,20 +171,18 @@ class LockingCatalogTest {
     private void batchDelete(List<? extends CatalogInfo> infos) {
         configLock.lock(LockType.WRITE);
         try {
-            WorkspaceInfo ws =
-                    infos.stream()
-                            .filter(WorkspaceInfo.class::isInstance)
-                            .map(WorkspaceInfo.class::cast)
-                            .findFirst()
-                            .orElseThrow();
+            WorkspaceInfo ws = infos.stream()
+                    .filter(WorkspaceInfo.class::isInstance)
+                    .map(WorkspaceInfo.class::cast)
+                    .findFirst()
+                    .orElseThrow();
 
             CascadeDeleteVisitor cascadeDeleteVisitor = new CascadeDeleteVisitor(catalog);
             ws.accept(cascadeDeleteVisitor);
 
             infos.stream().forEach(catalog::remove);
         } finally {
-            assertEquals(
-                    LockType.WRITE, configLock.getCurrentLock(), "lock should have been upgraded");
+            assertEquals(LockType.WRITE, configLock.getCurrentLock(), "lock should have been upgraded");
             configLock.unlock();
         }
     }
@@ -221,8 +214,7 @@ class LockingCatalogTest {
 
             return List.of(workspace, namespace, ds, ft, style, layer);
         } finally {
-            assertEquals(
-                    LockType.WRITE, configLock.getCurrentLock(), "lock should have been upgraded");
+            assertEquals(LockType.WRITE, configLock.getCurrentLock(), "lock should have been upgraded");
             configLock.unlock();
         }
     }

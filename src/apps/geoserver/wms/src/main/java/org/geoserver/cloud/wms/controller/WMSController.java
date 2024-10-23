@@ -4,9 +4,10 @@
  */
 package org.geoserver.cloud.wms.controller;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-
 import org.geoserver.cloud.virtualservice.VirtualServiceVerifier;
 import org.geoserver.ows.Dispatcher;
 import org.springframework.stereotype.Controller;
@@ -14,9 +15,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.view.RedirectView;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 @Controller
 @RequiredArgsConstructor
@@ -44,8 +42,7 @@ public class WMSController {
      * </ul>
      */
     @GetMapping(path = {"/schemas/wms/**"})
-    public void getWmsSchema(HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
+    public void getWmsSchema(HttpServletRequest request, HttpServletResponse response) throws Exception {
         classPathPublisher.handleRequest(request, response);
     }
 
@@ -61,22 +58,18 @@ public class WMSController {
      *   <li>{@code /options.png}
      * </ul>
      */
-    @GetMapping(
-            path = {"/openlayers/**", "/openlayers3/**", "/webresources/wms/**", "/options.png"})
-    public void getStaticResource(HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
+    @GetMapping(path = {"/openlayers/**", "/openlayers3/**", "/webresources/wms/**", "/options.png"})
+    public void getStaticResource(HttpServletRequest request, HttpServletResponse response) throws Exception {
         classPathPublisher.handleRequest(request, response);
     }
 
     @GetMapping(path = {"/wms", "/ows"})
-    public void handleGet(HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
+    public void handleGet(HttpServletRequest request, HttpServletResponse response) throws Exception {
         dispatch(request, response);
     }
 
     @PostMapping(path = {"/wms", "/ows"})
-    public void handlePost(HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
+    public void handlePost(HttpServletRequest request, HttpServletResponse response) throws Exception {
         dispatch(request, response);
     }
 
@@ -126,8 +119,7 @@ public class WMSController {
         dispatch(request, response);
     }
 
-    private void dispatch(HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
+    private void dispatch(HttpServletRequest request, HttpServletResponse response) throws Exception {
         geoserverDispatcher.handleRequest(request, response);
     }
 }

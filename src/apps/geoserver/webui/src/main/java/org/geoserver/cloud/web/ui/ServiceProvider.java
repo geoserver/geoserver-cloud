@@ -4,12 +4,11 @@
  */
 package org.geoserver.cloud.web.ui;
 
+import java.util.List;
 import org.geoserver.cloud.web.service.ServiceInstance;
 import org.geoserver.cloud.web.service.ServiceInstanceRegistry;
 import org.geoserver.web.GeoServerApplication;
 import org.geoserver.web.wicket.GeoServerDataProvider;
-
-import java.util.List;
 
 /**
  * @since 1.0
@@ -18,8 +17,7 @@ class ServiceProvider extends GeoServerDataProvider<ServiceInstance> {
     private static final long serialVersionUID = 1L;
 
     public static final Property<ServiceInstance> NAME = new BeanProperty<>("name", "name");
-    public static final Property<ServiceInstance> INSTANCEID =
-            new BeanProperty<>("instanceId", "instanceId");
+    public static final Property<ServiceInstance> INSTANCEID = new BeanProperty<>("instanceId", "instanceId");
     public static final Property<ServiceInstance> STATUS = new BeanProperty<>("status", "status");
     public static final Property<ServiceInstance> URI = new BeanProperty<>("uri", "uri");
 

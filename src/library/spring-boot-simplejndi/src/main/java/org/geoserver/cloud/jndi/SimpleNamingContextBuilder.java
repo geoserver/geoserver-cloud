@@ -4,12 +4,10 @@
  */
 package org.geoserver.cloud.jndi;
 
-import org.springframework.lang.Nullable;
-
 import java.util.Hashtable;
-
 import javax.naming.spi.InitialContextFactory;
 import javax.naming.spi.InitialContextFactoryBuilder;
+import org.springframework.lang.Nullable;
 
 /**
  * Simple implementation of a JNDI naming context builder.
@@ -32,8 +30,7 @@ public class SimpleNamingContextBuilder implements InitialContextFactoryBuilder 
     private final SimpleNamingContextFactory factory = new SimpleNamingContextFactory();
 
     @Override
-    public InitialContextFactory createInitialContextFactory(
-            @Nullable Hashtable<?, ?> environment) {
+    public InitialContextFactory createInitialContextFactory(@Nullable Hashtable<?, ?> environment) {
         return factory;
     }
 }

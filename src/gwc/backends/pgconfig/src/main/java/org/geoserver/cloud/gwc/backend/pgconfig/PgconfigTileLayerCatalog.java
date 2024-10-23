@@ -5,9 +5,15 @@
 package org.geoserver.cloud.gwc.backend.pgconfig;
 
 import com.google.common.annotations.VisibleForTesting;
-
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
+import java.util.stream.Stream;
+import javax.sql.DataSource;
 import lombok.NonNull;
-
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.catalog.WorkspaceInfo;
@@ -25,16 +31,6 @@ import org.geowebcache.layer.TileLayer;
 import org.mapstruct.factory.Mappers;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Supplier;
-import java.util.function.UnaryOperator;
-import java.util.stream.Stream;
-
-import javax.sql.DataSource;
-
 /**
  * A {@link TileLayerConfiguration} is like the GeoServer {@link Catalog} for {@link TileLayer};
  * this one runs against the PostgreSQL database set up for {@link PgconfigCatalogFacade}, and
@@ -50,8 +46,7 @@ public class PgconfigTileLayerCatalog implements TileLayerConfiguration {
     final @NonNull GridSetBroker gridsetBroker;
     final @NonNull UnaryOperator<PublishedInfo> publishedResolver;
 
-    final GeoServerTileLayerInfoMapper infoMapper =
-            Mappers.getMapper(GeoServerTileLayerInfoMapper.class);
+    final GeoServerTileLayerInfoMapper infoMapper = Mappers.getMapper(GeoServerTileLayerInfoMapper.class);
 
     public PgconfigTileLayerCatalog(
             @NonNull TileLayerInfoRepository repository,
@@ -67,8 +62,7 @@ public class PgconfigTileLayerCatalog implements TileLayerConfiguration {
     }
 
     @VisibleForTesting
-    PgconfigTileLayerCatalog(
-            DataSource dataSource, GridSetBroker gridsets, Supplier<Catalog> catalog) {
+    PgconfigTileLayerCatalog(DataSource dataSource, GridSetBroker gridsets, Supplier<Catalog> catalog) {
 
         this(new PgconfigTileLayerInfoRepository(new JdbcTemplate(dataSource)), gridsets, catalog);
     }
@@ -144,8 +138,7 @@ public class PgconfigTileLayerCatalog implements TileLayerConfiguration {
 
     @Override
     public void addLayer(@NonNull TileLayer tl) throws IllegalArgumentException {
-        GeoServerTileLayer tileLayer =
-                canSave(tl, "Can't add TileLayer of type: %s ", tl.getClass());
+        GeoServerTileLayer tileLayer = canSave(tl, "Can't add TileLayer of type: %s ", tl.getClass());
         TileLayerInfo pgInfo = toInfo(tileLayer);
         repository.add(pgInfo);
     }
@@ -167,8 +160,7 @@ public class PgconfigTileLayerCatalog implements TileLayerConfiguration {
 
     @Override
     public void modifyLayer(@NonNull TileLayer tl) throws NoSuchElementException {
-        GeoServerTileLayer tileLayer =
-                canSave(tl, "Can't save TileLayer of type: %s ", tl.getClass());
+        GeoServerTileLayer tileLayer = canSave(tl, "Can't save TileLayer of type: %s ", tl.getClass());
 
         TileLayerInfo pgInfo = toInfo(tileLayer);
         boolean updated = repository.save(pgInfo);
@@ -207,8 +199,7 @@ public class PgconfigTileLayerCatalog implements TileLayerConfiguration {
     }
 
     private GeoServerTileLayer canSave(TileLayer tl, String message, Object... args) {
-        return supportedAndNonTransient(tl)
-                .orElseThrow(() -> new IllegalArgumentException(message.formatted(args)));
+        return supportedAndNonTransient(tl).orElseThrow(() -> new IllegalArgumentException(message.formatted(args)));
     }
 
     private Optional<GeoServerTileLayer> supportedAndNonTransient(TileLayer tl) {

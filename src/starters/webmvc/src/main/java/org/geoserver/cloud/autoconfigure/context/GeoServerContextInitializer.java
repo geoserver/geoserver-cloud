@@ -4,17 +4,15 @@
  */
 package org.geoserver.cloud.autoconfigure.context;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletContextEvent;
 import org.geoserver.GeoserverInitStartupListener;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.web.context.support.GenericWebApplicationContext;
-
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-
-import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
 
 /**
  * {@link ApplicationContextInitializer} replacing upstream's {@link GeoserverInitStartupListener},
@@ -25,8 +23,7 @@ import javax.servlet.ServletContextEvent;
  *
  * @since 1.0
  */
-public class GeoServerContextInitializer
-        implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+public class GeoServerContextInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
@@ -53,16 +50,13 @@ public class GeoServerContextInitializer
     }
 
     protected ServletContext mockServletContext() {
-        InvocationHandler handler =
-                new InvocationHandler() {
-                    @Override
-                    public Object invoke(Object proxy, Method method, Object[] args)
-                            throws Throwable {
-                        return null;
-                    }
-                };
+        InvocationHandler handler = new InvocationHandler() {
+            @Override
+            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                return null;
+            }
+        };
         return (ServletContext)
-                Proxy.newProxyInstance(
-                        getClass().getClassLoader(), new Class[] {ServletContext.class}, handler);
+                Proxy.newProxyInstance(getClass().getClassLoader(), new Class[] {ServletContext.class}, handler);
     }
 }

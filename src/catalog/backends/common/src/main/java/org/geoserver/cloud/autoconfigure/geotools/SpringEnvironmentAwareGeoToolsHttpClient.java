@@ -20,9 +20,19 @@ package org.geoserver.cloud.autoconfigure.geotools;
 import static java.time.Duration.ofMillis;
 import static java.time.Duration.ofSeconds;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.zip.GZIPInputStream;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -54,18 +64,6 @@ import org.geotools.http.HTTPResponse;
 import org.geotools.util.factory.GeoTools;
 import org.springframework.core.env.PropertyResolver;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URI;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.zip.GZIPInputStream;
-
 /**
  * Copy of GeoTools' {@link org.geotools.http.commons.MultithreadedHttpClient} due to its lack of
  * extensibility, adding the ability to set up the Apache HTTPClient's proxy configuration from
@@ -91,13 +89,12 @@ class SpringEnvironmentAwareGeoToolsHttpClient extends org.geotools.http.Abstrac
         connectionManager = new PoolingHttpClientConnectionManager();
         connectionManager.setMaxTotal(6);
         connectionManager.setDefaultMaxPerRoute(6);
-        connectionConfig =
-                RequestConfig.custom()
-                        .setCookieSpec(CookieSpecs.DEFAULT)
-                        .setExpectContinueEnabled(true)
-                        .setSocketTimeout((int) ofSeconds(30).toMillis())
-                        .setConnectTimeout((int) ofSeconds(30).toMillis())
-                        .build();
+        connectionConfig = RequestConfig.custom()
+                .setCookieSpec(CookieSpecs.DEFAULT)
+                .setExpectContinueEnabled(true)
+                .setSocketTimeout((int) ofSeconds(30).toMillis())
+                .setConnectTimeout((int) ofSeconds(30).toMillis())
+                .build();
         resetCredentials();
         client = builder().build();
     }
@@ -158,23 +155,18 @@ class SpringEnvironmentAwareGeoToolsHttpClient extends org.geotools.http.Abstrac
         }
     }
 
-    private void setTargetCredentials(
-            BasicCredentialsProvider provider, String userName, String pwd) {
+    private void setTargetCredentials(BasicCredentialsProvider provider, String userName, String pwd) {
         AuthScope authscope = AuthScope.ANY;
         Credentials credentials = new UsernamePasswordCredentials(userName, pwd);
         provider.setCredentials(authscope, credentials);
     }
 
     private HttpClientBuilder builder() {
-        HttpClientBuilder builder =
-                HttpClientBuilder.create()
-                        .setUserAgent(
-                                "GeoTools/%s (%s)"
-                                        .formatted(
-                                                GeoTools.getVersion(),
-                                                this.getClass().getSimpleName()))
-                        .useSystemProperties()
-                        .setConnectionManager(connectionManager);
+        HttpClientBuilder builder = HttpClientBuilder.create()
+                .setUserAgent("GeoTools/%s (%s)"
+                        .formatted(GeoTools.getVersion(), this.getClass().getSimpleName()))
+                .useSystemProperties()
+                .setConnectionManager(connectionManager);
         if (credsProvider != null) {
             builder.setDefaultCredentialsProvider(credsProvider);
         }
@@ -182,16 +174,14 @@ class SpringEnvironmentAwareGeoToolsHttpClient extends org.geotools.http.Abstrac
     }
 
     @Override
-    public HttpMethodResponse post(
-            final URL url, final InputStream postContent, final String postContentType)
+    public HttpMethodResponse post(final URL url, final InputStream postContent, final String postContentType)
             throws IOException {
         return post(url, postContent, postContentType, null);
     }
 
     @Override
     public HttpMethodResponse post(
-            URL url, InputStream postContent, String postContentType, Map<String, String> headers)
-            throws IOException {
+            URL url, InputStream postContent, String postContentType, Map<String, String> headers) throws IOException {
         if (headers == null) {
             headers = Map.of();
         } else {
@@ -204,10 +194,9 @@ class SpringEnvironmentAwareGeoToolsHttpClient extends org.geotools.http.Abstrac
         if (credsProvider != null) {
             // we can't read the input stream twice as would be needed if the server asks us to
             // authenticate
-            String input =
-                    new BufferedReader(new InputStreamReader(postContent, StandardCharsets.UTF_8))
-                            .lines()
-                            .collect(Collectors.joining("\n"));
+            String input = new BufferedReader(new InputStreamReader(postContent, StandardCharsets.UTF_8))
+                    .lines()
+                    .collect(Collectors.joining("\n"));
             requestEntity = new StringEntity(input);
         } else {
             requestEntity = new InputStreamEntity(postContent);
@@ -227,9 +216,8 @@ class SpringEnvironmentAwareGeoToolsHttpClient extends org.geotools.http.Abstrac
 
         if (200 != response.getStatusCode()) {
             postMethod.releaseConnection();
-            throw new IOException(
-                    "Server returned HTTP error code %d for URL %s"
-                            .formatted(response.getStatusCode(), url.toExternalForm()));
+            throw new IOException("Server returned HTTP error code %d for URL %s"
+                    .formatted(response.getStatusCode(), url.toExternalForm()));
         }
 
         return response;
@@ -247,9 +235,7 @@ class SpringEnvironmentAwareGeoToolsHttpClient extends org.geotools.http.Abstrac
             // see https://stackoverflow.com/a/21592593
             AuthCache authCache = new BasicAuthCache();
             URI target = method.getURI();
-            authCache.put(
-                    new HttpHost(target.getHost(), target.getPort(), target.getScheme()),
-                    new BasicScheme());
+            authCache.put(new HttpHost(target.getHost(), target.getPort(), target.getScheme()), new BasicScheme());
             localContext.setAuthCache(authCache);
             resp = client.execute(method, localContext);
         } else {
@@ -292,9 +278,8 @@ class SpringEnvironmentAwareGeoToolsHttpClient extends org.geotools.http.Abstrac
 
         if (200 != response.getStatusCode()) {
             getMethod.releaseConnection();
-            throw new IOException(
-                    "Server returned HTTP error code %d for URL %s"
-                            .formatted(response.getStatusCode(), url.toExternalForm()));
+            throw new IOException("Server returned HTTP error code %d for URL %s"
+                    .formatted(response.getStatusCode(), url.toExternalForm()));
         }
         return response;
     }
@@ -313,10 +298,9 @@ class SpringEnvironmentAwareGeoToolsHttpClient extends org.geotools.http.Abstrac
 
     @Override
     public void setConnectTimeout(int connectTimeout) {
-        connectionConfig =
-                RequestConfig.copy(connectionConfig)
-                        .setConnectionRequestTimeout((int) ofSeconds(connectTimeout).toMillis())
-                        .build();
+        connectionConfig = RequestConfig.copy(connectionConfig)
+                .setConnectionRequestTimeout((int) ofSeconds(connectTimeout).toMillis())
+                .build();
     }
 
     @Override
@@ -326,10 +310,9 @@ class SpringEnvironmentAwareGeoToolsHttpClient extends org.geotools.http.Abstrac
 
     @Override
     public void setReadTimeout(int readTimeout) {
-        connectionConfig =
-                RequestConfig.copy(connectionConfig)
-                        .setSocketTimeout((int) ofSeconds(readTimeout).toMillis())
-                        .build();
+        connectionConfig = RequestConfig.copy(connectionConfig)
+                .setSocketTimeout((int) ofSeconds(readTimeout).toMillis())
+                .build();
     }
 
     @Override

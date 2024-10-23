@@ -14,6 +14,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
+import java.util.Optional;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ModificationProxy;
@@ -47,9 +49,6 @@ import org.geoserver.config.plugin.RepositoryGeoServerFacade;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-import java.util.Optional;
-
 class RemoteEventDataDirectoryProcessorTest {
 
     ExtendedCatalogFacade mockFacade;
@@ -74,13 +73,9 @@ class RemoteEventDataDirectoryProcessorTest {
         RepositoryGeoServerFacade configFacade = mock(RepositoryGeoServerFacade.class);
         CatalogPlugin rawCatalog = mock(CatalogPlugin.class);
 
-        assertThrows(
-                NullPointerException.class,
-                () -> new RemoteEventDataDirectoryProcessor(null, rawCatalog));
+        assertThrows(NullPointerException.class, () -> new RemoteEventDataDirectoryProcessor(null, rawCatalog));
 
-        assertThrows(
-                NullPointerException.class,
-                () -> new RemoteEventDataDirectoryProcessor(configFacade, null));
+        assertThrows(NullPointerException.class, () -> new RemoteEventDataDirectoryProcessor(configFacade, null));
 
         var catalogFacade = mock(ExtendedCatalogFacade.class);
         when(rawCatalog.getFacade()).thenReturn(catalogFacade);
@@ -147,8 +142,7 @@ class RemoteEventDataDirectoryProcessorTest {
         ((WorkspaceInfoImpl) settings.getWorkspace()).setId("ws-id");
         settings.getWorkspace().setName("ws");
 
-        when(mockGeoServerFacade.getService(service.getId(), ServiceInfo.class))
-                .thenReturn(service);
+        when(mockGeoServerFacade.getService(service.getId(), ServiceInfo.class)).thenReturn(service);
         when(mockGeoServerFacade.getSettings(settings.getId())).thenReturn(settings);
 
         ServiceRemoved serviceEvent = ServiceRemoved.createLocal(101, service);
@@ -256,8 +250,7 @@ class RemoteEventDataDirectoryProcessorTest {
 
     @Test
     void testOnRemoteModifyEvent_GeoServerInfo() {
-        when(mockGeoServerFacade.getGlobal())
-                .thenReturn(ModificationProxy.create(global, GeoServerInfo.class));
+        when(mockGeoServerFacade.getGlobal()).thenReturn(ModificationProxy.create(global, GeoServerInfo.class));
 
         global.setFeatureTypeCacheSize(1);
         var proxied = mockGeoServerFacade.getGlobal();

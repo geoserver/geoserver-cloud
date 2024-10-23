@@ -6,6 +6,7 @@ package org.geoserver.cloud.autoconfigure.gwc.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.File;
 import org.geoserver.cloud.autoconfigure.gwc.GeoWebCacheContextRunner;
 import org.geoserver.gwc.controller.GwcUrlHandlerMapping;
 import org.geoserver.gwc.layer.GWCGeoServerRESTConfigurationProvider;
@@ -18,54 +19,48 @@ import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.FilteredClassLoader;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 
-import java.io.File;
-
 /**
  * @since 1.0
  */
 class RESTConfigAutoConfigurationTest {
 
-    @TempDir File tmpDir;
+    @TempDir
+    File tmpDir;
+
     WebApplicationContextRunner runner;
 
     @BeforeEach
     void setUp() {
-        runner =
-                GeoWebCacheContextRunner.newMinimalGeoWebCacheContextRunner(tmpDir)
-                        .withConfiguration(
-                                AutoConfigurations.of(RESTConfigAutoConfiguration.class));
+        runner = GeoWebCacheContextRunner.newMinimalGeoWebCacheContextRunner(tmpDir)
+                .withConfiguration(AutoConfigurations.of(RESTConfigAutoConfiguration.class));
     }
 
     @Test
     void disabledByDefault() {
-        runner.run(
-                context -> {
-                    assertThat(context).doesNotHaveBean(GWCConverter.class);
-                    assertThat(context).doesNotHaveBean(TileLayerController.class);
-                });
+        runner.run(context -> {
+            assertThat(context).doesNotHaveBean(GWCConverter.class);
+            assertThat(context).doesNotHaveBean(TileLayerController.class);
+        });
     }
 
     @Test
     void enabled() {
-        runner.withPropertyValues("gwc.rest-config=true")
-                .run(
-                        context -> {
-                            assertThat(context)
-                                    .hasSingleBean(GWCConverter.class)
-                                    .hasSingleBean(TileLayerController.class)
-                                    .hasSingleBean(GWCGeoServerRESTConfigurationProvider.class)
-                                    .hasSingleBean(GwcUrlHandlerMapping.class);
-                        });
+        runner.withPropertyValues("gwc.rest-config=true").run(context -> {
+            assertThat(context)
+                    .hasSingleBean(GWCConverter.class)
+                    .hasSingleBean(TileLayerController.class)
+                    .hasSingleBean(GWCGeoServerRESTConfigurationProvider.class)
+                    .hasSingleBean(GwcUrlHandlerMapping.class);
+        });
     }
 
     @Test
     void enabledButGwcRestJarNotInClassPath() {
         runner.withClassLoader(new FilteredClassLoader(GWCConverter.class))
                 .withPropertyValues("gwc.rest-config=true")
-                .run(
-                        context -> {
-                            assertThat(context).doesNotHaveBean(GWCConverter.class);
-                            assertThat(context).doesNotHaveBean(TileLayerController.class);
-                        });
+                .run(context -> {
+                    assertThat(context).doesNotHaveBean(GWCConverter.class);
+                    assertThat(context).doesNotHaveBean(TileLayerController.class);
+                });
     }
 }

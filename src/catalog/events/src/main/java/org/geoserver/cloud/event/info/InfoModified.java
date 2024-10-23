@@ -6,18 +6,15 @@ package org.geoserver.cloud.event.info;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
+import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
-
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.cloud.event.catalog.CatalogInfoModified;
 import org.geoserver.cloud.event.config.ConfigInfoModified;
 import org.springframework.core.style.ToStringCreator;
-
-import java.util.stream.Collectors;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonSubTypes({
@@ -50,8 +47,6 @@ public abstract class InfoModified extends InfoEvent {
 
     protected @Override ToStringCreator toStringBuilder() {
         return super.toStringBuilder()
-                .append(
-                        "changes",
-                        getPatch().getPropertyNames().stream().collect(Collectors.joining(",")));
+                .append("changes", getPatch().getPropertyNames().stream().collect(Collectors.joining(",")));
     }
 }

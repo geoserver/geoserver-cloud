@@ -5,10 +5,18 @@
 package org.geoserver.cloud.config.catalog.events;
 
 import com.google.common.annotations.VisibleForTesting;
-
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+import javax.annotation.Nullable;
+import javax.annotation.PostConstruct;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogException;
 import org.geoserver.catalog.Info;
@@ -38,18 +46,6 @@ import org.geoserver.ows.util.OwsUtils;
 import org.geoserver.platform.config.UpdateSequence;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEvent;
-
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
-import javax.annotation.Nullable;
-import javax.annotation.PostConstruct;
 
 /**
  * Adapts the listener pattern used by {@link Catalog#addListener Catalog} and {@link
@@ -182,10 +178,7 @@ class CatalogApplicationEventPublisher {
         }
 
         private void preparePreModify(
-                @NonNull String id,
-                List<String> propertyNames,
-                List<Object> oldValues,
-                List<Object> newValues) {
+                @NonNull String id, List<String> propertyNames, List<Object> oldValues, List<Object> newValues) {
 
             PropertyDiff diff = PropertyDiff.valueOf(propertyNames, oldValues, newValues);
             Patch patch = diff.clean().toPatch();
@@ -199,10 +192,7 @@ class CatalogApplicationEventPublisher {
 
         @Override
         public void handleGlobalChange(
-                GeoServerInfo global,
-                List<String> propertyNames,
-                List<Object> oldValues,
-                List<Object> newValues) {
+                GeoServerInfo global, List<String> propertyNames, List<Object> oldValues, List<Object> newValues) {
             String id = InfoEvent.resolveId(global);
             preparePreModify(id, propertyNames, oldValues, newValues);
         }
@@ -221,8 +211,7 @@ class CatalogApplicationEventPublisher {
                 publish(ConfigInfoAdded.createLocal(incrementSequence(), global));
             } else {
                 // already called pop()
-                ConfigInfoModified event =
-                        ConfigInfoModified.createLocal(incrementSequence(), global, patch);
+                ConfigInfoModified event = ConfigInfoModified.createLocal(incrementSequence(), global, patch);
                 publish(event);
             }
         }
@@ -234,10 +223,7 @@ class CatalogApplicationEventPublisher {
 
         @Override
         public void handleSettingsModified(
-                SettingsInfo settings,
-                List<String> propertyNames,
-                List<Object> oldValues,
-                List<Object> newValues) {
+                SettingsInfo settings, List<String> propertyNames, List<Object> oldValues, List<Object> newValues) {
             if (settings.getId() == null) {
                 // shouldn't happen, but can happen. GeoServerImpl doesn't check for it
                 OwsUtils.set(settings, "id", UUID.randomUUID().toString());
@@ -258,10 +244,7 @@ class CatalogApplicationEventPublisher {
 
         @Override
         public void handleLoggingChange(
-                LoggingInfo logging,
-                List<String> propertyNames,
-                List<Object> oldValues,
-                List<Object> newValues) {
+                LoggingInfo logging, List<String> propertyNames, List<Object> oldValues, List<Object> newValues) {
             // LoggingInfo has no-id
             preparePreModify(InfoEvent.resolveId(logging), propertyNames, oldValues, newValues);
         }
@@ -282,10 +265,7 @@ class CatalogApplicationEventPublisher {
 
         @Override
         public void handleServiceChange(
-                ServiceInfo service,
-                List<String> propertyNames,
-                List<Object> oldValues,
-                List<Object> newValues) {
+                ServiceInfo service, List<String> propertyNames, List<Object> oldValues, List<Object> newValues) {
 
             preparePreModify(service.getId(), propertyNames, oldValues, newValues);
         }

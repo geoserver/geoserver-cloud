@@ -4,18 +4,16 @@
  */
 package org.gwc.web.rest;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-
 import org.geoserver.gwc.dispatch.GeoServerGWCDispatcherController;
 import org.geowebcache.GeoWebCacheDispatcher;
 import org.geowebcache.controller.GeoWebCacheDispatcherController;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * Modified top-level dispatcher controller for use by GeoServer. Same as {@link
@@ -38,8 +36,7 @@ public class GeoWebCacheController {
                 "/demo/**",
                 "/proxy/**",
             })
-    public void handleGet(HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
+    public void handleGet(HttpServletRequest request, HttpServletResponse response) throws Exception {
         gwcDispatcher.handleRequest(request, response);
     }
 }

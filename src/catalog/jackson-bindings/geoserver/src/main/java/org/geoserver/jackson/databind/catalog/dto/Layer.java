@@ -5,11 +5,9 @@
 package org.geoserver.jackson.databind.catalog.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-
+import java.util.Set;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
-import java.util.Set;
 
 @Data
 @EqualsAndHashCode(callSuper = true)

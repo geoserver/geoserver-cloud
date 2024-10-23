@@ -6,12 +6,15 @@ package org.geoserver.cloud.autoconfigure.gwc.integration;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
-
 import static org.geowebcache.conveyor.Conveyor.CacheResult.MISS;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.channels.Channels;
+import java.util.LinkedHashMap;
+import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -44,13 +47,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.nio.channels.Channels;
-import java.util.LinkedHashMap;
-
-import javax.servlet.http.HttpServletResponse;
-
 /**
  * Autoconfiguration to integrate GWC with GeoServer's WMS
  *
@@ -60,10 +56,7 @@ import javax.servlet.http.HttpServletResponse;
  * @since 1.0
  */
 @AutoConfiguration
-@Import({
-    WMSIntegrationAutoConfiguration.Enabled.class,
-    WMSIntegrationAutoConfiguration.Disabled.class
-})
+@Import({WMSIntegrationAutoConfiguration.Enabled.class, WMSIntegrationAutoConfiguration.Disabled.class})
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.gwc.integration")
 public class WMSIntegrationAutoConfiguration {
 
@@ -160,8 +153,7 @@ public class WMSIntegrationAutoConfiguration {
             if (cachedTile == null) {
                 WebMap dynamicResult = (WebMap) joinPoint.proceed();
                 dynamicResult.setResponseHeader("geowebcache-cache-result", MISS.toString());
-                dynamicResult.setResponseHeader(
-                        "geowebcache-miss-reason", requestMistmatchTarget.toString());
+                dynamicResult.setResponseHeader("geowebcache-miss-reason", requestMistmatchTarget.toString());
                 return dynamicResult;
             }
             checkState(cachedTile.getTileLayer() != null);
@@ -190,8 +182,7 @@ public class WMSIntegrationAutoConfiguration {
 
             LinkedHashMap<String, String> headers = new LinkedHashMap<>();
             GWC.setCacheControlHeaders(headers, layer, (int) cachedTile.getTileIndex()[2]);
-            GWC.setConditionalGetHeaders(
-                    headers, cachedTile, etag, request.getHttpRequestHeader("If-Modified-Since"));
+            GWC.setConditionalGetHeaders(headers, cachedTile, etag, request.getHttpRequestHeader("If-Modified-Since"));
             GWC.setCacheMetadataHeaders(headers, cachedTile, layer);
             headers.forEach(map::setResponseHeader);
 

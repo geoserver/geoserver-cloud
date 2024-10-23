@@ -9,6 +9,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.cloud.gwc.backend.pgconfig.TileLayerInfo.ParamFilter;
@@ -35,10 +38,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-
 /**
  * @since 1.7
  */
@@ -51,8 +50,7 @@ class GeoServerTileLayerInfoMapperTest {
     @BeforeEach
     void before() {
         mapper = Mappers.getMapper(GeoServerTileLayerInfoMapper.class);
-        LayerInfo layerInfo =
-                new TileLayerMocking(new CatalogPlugin(), new GeoServerImpl()).layerInfo();
+        LayerInfo layerInfo = new TileLayerMocking(new CatalogPlugin(), new GeoServerImpl()).layerInfo();
         GWCConfig defaults = new GWCConfig();
         info = TileLayerInfoUtil.loadOrCreate(layerInfo, defaults);
         info.setId(layerInfo.getId());
@@ -108,13 +106,12 @@ class GeoServerTileLayerInfoMapperTest {
 
     @Test
     void testParameterFilters() {
-        testParameterFilters(
-                Set.of(
-                        regexParameterFilter(),
-                        stringParameterFilter(),
-                        floatParameterFilter(),
-                        integerParameterFilter(),
-                        styleParameterFilter()));
+        testParameterFilters(Set.of(
+                regexParameterFilter(),
+                stringParameterFilter(),
+                floatParameterFilter(),
+                integerParameterFilter(),
+                styleParameterFilter()));
     }
 
     @Test
@@ -161,8 +158,7 @@ class GeoServerTileLayerInfoMapperTest {
 
     @Test
     void testExpireCacheList() {
-        List<ExpirationRule> rules =
-                List.of(new ExpirationRule(1, 100), new ExpirationRule(12, 200));
+        List<ExpirationRule> rules = List.of(new ExpirationRule(1, 100), new ExpirationRule(12, 200));
         info.setExpireCacheList(rules);
 
         // ExpirationRule does not implement equals()

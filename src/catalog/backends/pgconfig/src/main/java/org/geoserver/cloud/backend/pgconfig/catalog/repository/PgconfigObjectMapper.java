@@ -6,9 +6,7 @@ package org.geoserver.cloud.backend.pgconfig.catalog.repository;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import lombok.experimental.UtilityClass;
-
 import org.geotools.jackson.databind.util.ObjectMapperUtil;
 
 @UtilityClass

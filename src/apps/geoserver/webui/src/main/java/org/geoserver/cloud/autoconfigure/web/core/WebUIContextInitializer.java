@@ -5,7 +5,6 @@
 package org.geoserver.cloud.autoconfigure.web.core;
 
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.util.StringUtils;
@@ -15,8 +14,7 @@ import org.springframework.web.context.support.GenericWebApplicationContext;
  * @since 1.8.2
  */
 @Slf4j
-public class WebUIContextInitializer
-        implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+public class WebUIContextInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
@@ -31,9 +29,7 @@ public class WebUIContextInitializer
 
         String systemProp = System.getProperty("GeoServerHomePage.selectionMode");
         if (StringUtils.hasText(systemProp)) {
-            log.info(
-                    "GeoServerHomePage.selectionMode set to '{}' through system property",
-                    systemProp);
+            log.info("GeoServerHomePage.selectionMode set to '{}' through system property", systemProp);
         } else {
             String selectionMode = "TEXT";
             log.info("GeoServerHomePage.selectionMode set to '{}' as default value", selectionMode);

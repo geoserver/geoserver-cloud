@@ -6,8 +6,9 @@ package org.geoserver.cloud.security;
 
 import static org.springframework.util.StringUtils.hasText;
 
+import java.util.List;
+import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.security.impl.GeoServerRole;
 import org.geoserver.security.impl.GeoServerUser;
 import org.springframework.beans.BeanInstantiationException;
@@ -22,10 +23,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.StringUtils;
-
-import java.util.List;
-
-import javax.annotation.PostConstruct;
 
 /**
  * {@link AuthenticationProvider} that allows to set an administrator account (username and
@@ -90,10 +87,7 @@ public class EnvironmentAdminAuthenticationProvider implements AuthenticationPro
     }
 
     public static List<GrantedAuthority> adminRoles() {
-        return List.of(
-                new GeoServerRole("ADMIN"),
-                GeoServerRole.ADMIN_ROLE,
-                GeoServerRole.AUTHENTICATED_ROLE);
+        return List.of(new GeoServerRole("ADMIN"), GeoServerRole.ADMIN_ROLE, GeoServerRole.AUTHENTICATED_ROLE);
     }
 
     @Override
@@ -138,14 +132,12 @@ public class EnvironmentAdminAuthenticationProvider implements AuthenticationPro
         if (expectedPassword.equals(pwd)) {
             List<GrantedAuthority> adminRoles = adminRoles();
             UsernamePasswordAuthenticationToken authenticated =
-                    UsernamePasswordAuthenticationToken.authenticated(
-                            expectedName, null, adminRoles);
+                    UsernamePasswordAuthenticationToken.authenticated(expectedName, null, adminRoles);
             authenticated.setDetails(token.getDetails());
             return authenticated;
         }
         // this breaks the cycle through other providers, as opposed to
         // BadCredentialsException
-        throw new InternalAuthenticationServiceException(
-                "Bad credentials for: %s".formatted(token.getPrincipal()));
+        throw new InternalAuthenticationServiceException("Bad credentials for: %s".formatted(token.getPrincipal()));
     }
 }

@@ -19,8 +19,7 @@ import org.springframework.web.context.support.GenericWebApplicationContext;
  *
  * @since 1.0
  */
-public class GeoToolsStaticContextInitializer
-        implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+public class GeoToolsStaticContextInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
@@ -30,15 +29,11 @@ public class GeoToolsStaticContextInitializer
         }
         System.setProperty("org.geotools.referencing.forceXY", "true");
 
-        boolean useEnvAwareHttpClient =
-                applicationContext
-                        .getEnvironment()
-                        .getProperty(
-                                "geotools.httpclient.proxy.enabled", Boolean.class, Boolean.TRUE);
+        boolean useEnvAwareHttpClient = applicationContext
+                .getEnvironment()
+                .getProperty("geotools.httpclient.proxy.enabled", Boolean.class, Boolean.TRUE);
         if (useEnvAwareHttpClient) {
-            Hints.putSystemDefault(
-                    Hints.HTTP_CLIENT_FACTORY,
-                    SpringEnvironmentAwareGeoToolsHttpClientFactory.class);
+            Hints.putSystemDefault(Hints.HTTP_CLIENT_FACTORY, SpringEnvironmentAwareGeoToolsHttpClientFactory.class);
         }
     }
 }

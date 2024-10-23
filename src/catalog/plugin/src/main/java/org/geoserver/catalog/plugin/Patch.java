@@ -4,13 +4,6 @@
  */
 package org.geoserver.catalog.plugin;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-
-import org.geoserver.catalog.impl.ModificationProxy;
-import org.geoserver.ows.util.OwsUtils;
-
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -22,6 +15,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import org.geoserver.catalog.impl.ModificationProxy;
+import org.geoserver.ows.util.OwsUtils;
 
 @NoArgsConstructor
 public @Data class Patch implements Serializable {
@@ -51,7 +49,10 @@ public @Data class Patch implements Serializable {
                 return true;
             }
 
-            if (v1 != null && v1.getClass().isArray() && v2 != null && v2.getClass().isArray()) {
+            if (v1 != null
+                    && v1.getClass().isArray()
+                    && v2 != null
+                    && v2.getClass().isArray()) {
                 if (!v1.getClass().equals(v2.getClass())) return false;
                 final Class<?> componentType = v1.getClass().getComponentType();
 
@@ -65,8 +66,7 @@ public @Data class Patch implements Serializable {
                         case "long" -> Arrays.equals((long[]) v1, (long[]) v2);
                         case "float" -> Arrays.equals((float[]) v1, (float[]) v2);
                         case "double" -> Arrays.equals((double[]) v1, (double[]) v2);
-                        default -> throw new IllegalArgumentException(
-                                "Unexpected value: %s".formatted(componentType));
+                        default -> throw new IllegalArgumentException("Unexpected value: %s".formatted(componentType));
                     };
                 } else {
                     Object[] a1 = (Object[]) v1;
@@ -160,8 +160,7 @@ public @Data class Patch implements Serializable {
             try {
                 currentValue.clear();
             } catch (UnsupportedOperationException e) {
-                throw new IllegalArgumentException(
-                        "Collection property %s is immutable".formatted(propertyName), e);
+                throw new IllegalArgumentException("Collection property %s is immutable".formatted(propertyName), e);
             }
             if (newValue != null) {
                 currentValue.addAll(newValue);
@@ -185,8 +184,7 @@ public @Data class Patch implements Serializable {
     private static Method findGetterOrThrow(Class<?> objectType, Property change) {
         Method getter = OwsUtils.getter(objectType, change.getName(), null);
         if (getter == null) {
-            throw new IllegalArgumentException(
-                    "No such property in target object: %s".formatted(change.getName()));
+            throw new IllegalArgumentException("No such property in target object: %s".formatted(change.getName()));
         }
         return getter;
     }
@@ -201,10 +199,9 @@ public @Data class Patch implements Serializable {
 
     @Override
     public String toString() {
-        String props =
-                this.getPatches().stream()
-                        .map(p -> "(%s: %s)".formatted(p.getName(), p.getValue()))
-                        .collect(Collectors.joining(","));
+        String props = this.getPatches().stream()
+                .map(p -> "(%s: %s)".formatted(p.getName(), p.getValue()))
+                .collect(Collectors.joining(","));
         return "%s[%s]".formatted(getClass().getSimpleName(), props);
     }
 }

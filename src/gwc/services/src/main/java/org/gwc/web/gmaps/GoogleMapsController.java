@@ -4,16 +4,14 @@
  */
 package org.gwc.web.gmaps;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-
 import org.geoserver.ows.Dispatcher;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 @Controller
 @RequestMapping(
@@ -28,8 +26,7 @@ public class GoogleMapsController {
     private final @NonNull Dispatcher geoserverDispatcher;
 
     @GetMapping(path = "/**")
-    public void serviceRequest(HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
+    public void serviceRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
         geoserverDispatcher.handleRequest(request, response);
     }
 }

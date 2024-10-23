@@ -4,20 +4,18 @@
  */
 package org.geoserver.catalog.plugin.rules;
 
+import java.util.EnumMap;
+import java.util.Objects;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.MapInfo;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.impl.ModificationProxy;
 
-import java.util.EnumMap;
-import java.util.Objects;
-
 /** */
 public class CatalogBusinessRules {
 
-    private EnumMap<ClassMappings, CatalogInfoBusinessRules<?>> rulesByType =
-            new EnumMap<>(ClassMappings.class);
+    private EnumMap<ClassMappings, CatalogInfoBusinessRules<?>> rulesByType = new EnumMap<>(ClassMappings.class);
 
     public CatalogBusinessRules() {
         register(ClassMappings.WORKSPACE, new DefaultWorkspaceInfoRules());
@@ -47,18 +45,13 @@ public class CatalogBusinessRules {
     }
 
     public <T extends CatalogInfo> CatalogInfoBusinessRules<T> rulesOf(Class<? extends T> type) {
-        ClassMappings cm =
-                type.isInterface()
-                        ? ClassMappings.fromInterface(type)
-                        : ClassMappings.fromImpl(type);
+        ClassMappings cm = type.isInterface() ? ClassMappings.fromInterface(type) : ClassMappings.fromImpl(type);
 
-        Objects.requireNonNull(
-                cm, () -> "Unable to determine type enum for class " + type.getCanonicalName());
+        Objects.requireNonNull(cm, () -> "Unable to determine type enum for class " + type.getCanonicalName());
 
         @SuppressWarnings("unchecked")
         CatalogInfoBusinessRules<T> rules = (CatalogInfoBusinessRules<T>) rulesByType.get(cm);
-        Objects.requireNonNull(
-                rules, () -> "Rules for type %s not found".formatted(type.getCanonicalName()));
+        Objects.requireNonNull(rules, () -> "Rules for type %s not found".formatted(type.getCanonicalName()));
         return rules;
     }
 

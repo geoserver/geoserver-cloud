@@ -8,17 +8,14 @@ import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Counter.Builder;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.binder.BaseUnits;
-
+import javax.annotation.Nullable;
 import lombok.NonNull;
-
 import org.geoserver.catalog.CatalogException;
 import org.geoserver.catalog.event.CatalogAddEvent;
 import org.geoserver.catalog.event.CatalogListener;
 import org.geoserver.catalog.event.CatalogModifyEvent;
 import org.geoserver.catalog.event.CatalogPostModifyEvent;
 import org.geoserver.catalog.event.CatalogRemoveEvent;
-
-import javax.annotation.Nullable;
 
 class MetricsCatalogListener implements CatalogListener {
 
@@ -29,33 +26,25 @@ class MetricsCatalogListener implements CatalogListener {
 
     public MetricsCatalogListener(@NonNull MeterRegistry registry, @Nullable String instanceId) {
 
-        added =
-                counter("geoserver.catalog.added", instanceId)
-                        .description(
-                                "Number of CatalogInfo objects added to this instance's Catalog")
-                        .register(registry);
-        removed =
-                counter("geoserver.catalog.removed", instanceId)
-                        .description(
-                                "Number of CatalogInfo objects removed on this instance's Catalog")
-                        .register(registry);
-        modified =
-                counter("geoserver.catalog.modified", instanceId)
-                        .description(
-                                "Number of modifications to CatalogInfo objects on this instance's Catalog")
-                        .register(registry);
+        added = counter("geoserver.catalog.added", instanceId)
+                .description("Number of CatalogInfo objects added to this instance's Catalog")
+                .register(registry);
+        removed = counter("geoserver.catalog.removed", instanceId)
+                .description("Number of CatalogInfo objects removed on this instance's Catalog")
+                .register(registry);
+        modified = counter("geoserver.catalog.modified", instanceId)
+                .description("Number of modifications to CatalogInfo objects on this instance's Catalog")
+                .register(registry);
 
-        reloads =
-                Counter.builder("geoserver.catalog.reloads")
-                        .description("Times the Catalog has been reloaded")
-                        .baseUnit(BaseUnits.OPERATIONS)
-                        .register(registry);
+        reloads = Counter.builder("geoserver.catalog.reloads")
+                .description("Times the Catalog has been reloaded")
+                .baseUnit(BaseUnits.OPERATIONS)
+                .register(registry);
     }
 
     private Counter.Builder counter(String name, String instanceId) {
-        Builder builder =
-                Counter.builder(name) //
-                        .baseUnit(BaseUnits.OPERATIONS);
+        Builder builder = Counter.builder(name) //
+                .baseUnit(BaseUnits.OPERATIONS);
         if (null != instanceId) builder = builder.tag("instance-id", instanceId);
         return builder;
     }

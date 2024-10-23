@@ -26,10 +26,7 @@ public class RemoteGridsetEvent extends RemoteGeoWebCacheEvent {
     }
 
     public RemoteGridsetEvent(
-            Object source,
-            @NonNull String originService,
-            @NonNull String gridsetId,
-            @NonNull Type eventType) {
+            Object source, @NonNull String originService, @NonNull String gridsetId, @NonNull Type eventType) {
         super(source, originService, eventType);
         this.gridsetId = gridsetId;
     }

@@ -9,7 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
-
 import org.springframework.cloud.bus.event.Destination;
 import org.springframework.cloud.bus.event.RemoteApplicationEvent;
 
@@ -36,8 +35,7 @@ public abstract class RemoteGeoWebCacheEvent extends RemoteApplicationEvent {
         super(source, originService, ALL);
     }
 
-    protected RemoteGeoWebCacheEvent(
-            Object source, @NonNull String originService, @NonNull Type eventType) {
+    protected RemoteGeoWebCacheEvent(Object source, @NonNull String originService, @NonNull Type eventType) {
         super(source, originService, ALL);
         this.eventType = eventType;
     }

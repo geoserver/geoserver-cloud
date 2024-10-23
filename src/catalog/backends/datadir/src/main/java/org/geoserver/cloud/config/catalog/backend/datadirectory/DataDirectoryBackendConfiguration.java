@@ -4,9 +4,13 @@
  */
 package org.geoserver.cloud.config.catalog.backend.datadirectory;
 
+import java.io.File;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.plugin.CatalogPlugin;
@@ -35,12 +39,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
 /** */
 @Configuration(proxyBeanMethods = true)
 @Slf4j(topic = "org.geoserver.cloud.config.datadirectory")
@@ -67,8 +65,7 @@ public class DataDirectoryBackendConfiguration extends GeoServerBackendConfigure
 
     @Bean
     ModuleStatusImpl moduleStatus() {
-        ModuleStatusImpl module =
-                new ModuleStatusImpl("gs-cloud-backend-datadir", "DataDirectory loader");
+        ModuleStatusImpl module = new ModuleStatusImpl("gs-cloud-backend-datadir", "DataDirectory loader");
         module.setAvailable(true);
         module.setEnabled(true);
         return module;
@@ -119,9 +116,7 @@ public class DataDirectoryBackendConfiguration extends GeoServerBackendConfigure
             List<Integer> retries = ecConfig.getRetries();
             if (retries != null && !retries.isEmpty()) {
                 waitMillis = retries.stream().mapToInt(Integer::intValue).toArray();
-                log.info(
-                        "Data directory catalog facade eventual consistency retries in ms: {}",
-                        retries);
+                log.info("Data directory catalog facade eventual consistency retries in ms: {}", retries);
             }
         }
         EventualConsistencyEnforcer tracker = converger.orElseThrow();
@@ -157,8 +152,7 @@ public class DataDirectoryBackendConfiguration extends GeoServerBackendConfigure
         GeoServerResourceLoader resourceLoader = resourceLoader();
         Catalog rawCatalog = rawCatalog();
         LockingGeoServer geoserver = geoServer(rawCatalog);
-        return new DataDirectoryGeoServerLoader(
-                updateSequence, resourceLoader, geoserver, rawCatalog);
+        return new DataDirectoryGeoServerLoader(updateSequence, resourceLoader, geoserver, rawCatalog);
     }
 
     /**
@@ -211,8 +205,7 @@ public class DataDirectoryBackendConfiguration extends GeoServerBackendConfigure
     private Path dataDirectoryFile() {
         DataDirectoryProperties config = this.dataDirectoryConfig;
         Path path = config.getLocation();
-        Objects.requireNonNull(
-                path, "geoserver.backend.data-directory.location config property resolves to null");
+        Objects.requireNonNull(path, "geoserver.backend.data-directory.location config property resolves to null");
         return path;
     }
 }

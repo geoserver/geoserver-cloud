@@ -6,6 +6,9 @@ package org.geoserver.cloud.web.app;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import org.apache.wicket.util.tester.WicketTester;
 import org.geoserver.web.GeoServerApplication;
 import org.geoserver.web.GeoServerHomePage;
@@ -21,10 +24,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.test.context.ActiveProfiles;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 
 @SpringBootTest(
         properties = {

@@ -5,7 +5,6 @@
 package org.geoserver.cloud.config.catalog.backend.core;
 
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.LayerGroupVisibilityPolicy;
 import org.geoserver.catalog.impl.AdvertisedCatalog;
@@ -82,8 +81,7 @@ public class CoreBackendConfiguration {
     @DependsOn({"extensions", "dataDirectory", "accessRulesDao"})
     @ConditionalOnGeoServerSecurityEnabled
     @Bean
-    Catalog secureCatalog(@Qualifier("rawCatalog") Catalog rawCatalog, CatalogProperties properties)
-            throws Exception {
+    Catalog secureCatalog(@Qualifier("rawCatalog") Catalog rawCatalog, CatalogProperties properties) throws Exception {
         if (properties.isSecure()) return new SecureCatalogImpl(rawCatalog);
         return rawCatalog;
     }
@@ -108,8 +106,7 @@ public class CoreBackendConfiguration {
             @Qualifier("rawCatalog") Catalog rawCatalog,
             LayerGroupContainmentCache layerGroupContainmentCache) {
 
-        DefaultResourceAccessManager accessManager =
-                new DefaultResourceAccessManager(dao, rawCatalog);
+        DefaultResourceAccessManager accessManager = new DefaultResourceAccessManager(dao, rawCatalog);
         accessManager.setGroupsCache(layerGroupContainmentCache);
         return accessManager;
     }
@@ -126,8 +123,7 @@ public class CoreBackendConfiguration {
             name = "geoserver.security.layergroup-containmentcache",
             havingValue = "true",
             matchIfMissing = false)
-    LayerGroupContainmentCache enabledLayerGroupContainmentCache(
-            @Qualifier("rawCatalog") Catalog rawCatalog) {
+    LayerGroupContainmentCache enabledLayerGroupContainmentCache(@Qualifier("rawCatalog") Catalog rawCatalog) {
 
         log.info("using {}", GsCloudLayerGroupContainmentCache.class.getSimpleName());
         return new GsCloudLayerGroupContainmentCache(rawCatalog);
@@ -162,8 +158,7 @@ public class CoreBackendConfiguration {
      *     {@code secureCatalog} otherwise.
      */
     @Bean
-    Catalog advertisedCatalog(
-            @Qualifier("secureCatalog") Catalog secureCatalog, CatalogProperties properties) {
+    Catalog advertisedCatalog(@Qualifier("secureCatalog") Catalog secureCatalog, CatalogProperties properties) {
         if (properties.isAdvertised()) {
             AdvertisedCatalog advertisedCatalog = new AdvertisedCatalog(secureCatalog);
             advertisedCatalog.setLayerGroupVisibilityPolicy(LayerGroupVisibilityPolicy.HIDE_NEVER);
@@ -178,18 +173,14 @@ public class CoreBackendConfiguration {
      */
     @Bean(name = {"catalog", "localWorkspaceCatalog"})
     Catalog localWorkspaceCatalog(
-            @Qualifier("advertisedCatalog") Catalog advertisedCatalog,
-            CatalogProperties properties) {
-        return properties.isLocalWorkspace()
-                ? new LocalWorkspaceCatalog(advertisedCatalog)
-                : advertisedCatalog;
+            @Qualifier("advertisedCatalog") Catalog advertisedCatalog, CatalogProperties properties) {
+        return properties.isLocalWorkspace() ? new LocalWorkspaceCatalog(advertisedCatalog) : advertisedCatalog;
     }
 
     @ConditionalOnMissingBean(GeoServerImpl.class)
     @Bean(name = "geoServer")
     GeoServerImpl geoServer(
-            @Qualifier("catalog") Catalog catalog,
-            @Qualifier("geoserverFacade") GeoServerFacade facade) {
+            @Qualifier("catalog") Catalog catalog, @Qualifier("geoserverFacade") GeoServerFacade facade) {
         GeoServerImpl gs = new GeoServerImpl(facade);
         gs.setCatalog(catalog);
         return gs;

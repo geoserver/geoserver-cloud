@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Delegate;
-
 import org.geowebcache.config.TileLayerConfiguration;
 
 /** Base class for {@link TileLayerConfiguration} decorators */
@@ -16,5 +15,8 @@ import org.geowebcache.config.TileLayerConfiguration;
 public class ForwardingTileLayerConfiguration implements TileLayerConfiguration {
 
     /** Note all {@link TileLayerConfiguration} methods are delegated to this subject */
-    @Getter @Delegate @NonNull private final TileLayerConfiguration subject;
+    @Getter
+    @Delegate
+    @NonNull
+    private final TileLayerConfiguration subject;
 }

@@ -7,7 +7,6 @@ package org.geoserver.cloud.autoconfigure.web.core;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.GeoServerInfo.WebUIMode;
@@ -30,9 +29,7 @@ class WebUIInitializer implements GeoServerInitializer {
             geoServer.save(global);
         }
 
-        Boolean hidefs =
-                environment.getProperty(
-                        "geoserver.web-ui.file-browser.hide-file-system", Boolean.class);
+        Boolean hidefs = environment.getProperty("geoserver.web-ui.file-browser.hide-file-system", Boolean.class);
         if (Boolean.TRUE.equals(hidefs)) {
             log.info("Setting GEOSERVER_FILEBROWSER_HIDEFS=true System Property");
             System.setProperty("GEOSERVER_FILEBROWSER_HIDEFS", "true");

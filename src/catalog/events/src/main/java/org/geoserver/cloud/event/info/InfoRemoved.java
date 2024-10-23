@@ -6,9 +6,7 @@ package org.geoserver.cloud.event.info;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
 import lombok.NonNull;
-
 import org.geoserver.cloud.event.catalog.CatalogInfoRemoved;
 import org.geoserver.cloud.event.config.ConfigInfoRemoved;
 
@@ -23,10 +21,7 @@ public abstract class InfoRemoved extends InfoEvent {
     protected InfoRemoved() {}
 
     protected InfoRemoved(
-            long updateSequence,
-            @NonNull String objectId,
-            @NonNull String prefixedName,
-            @NonNull ConfigInfoType type) {
+            long updateSequence, @NonNull String objectId, @NonNull String prefixedName, @NonNull ConfigInfoType type) {
         super(updateSequence, objectId, prefixedName, type);
     }
 }

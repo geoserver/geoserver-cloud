@@ -4,9 +4,11 @@
  */
 package org.geoserver.cloud.config.catalog.backend.datadirectory;
 
+import java.io.IOException;
+import java.util.Set;
+import javax.annotation.PostConstruct;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.plugin.CatalogPluginStyleResourcePersister;
@@ -23,11 +25,6 @@ import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.util.XStreamPersister;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.config.UpdateSequence;
-
-import java.io.IOException;
-import java.util.Set;
-
-import javax.annotation.PostConstruct;
 
 /**
  * {@link Catalog} and {@link GeoServer config} loader for the data-directory backend, loads the
@@ -154,8 +151,7 @@ public class DataDirectoryGeoServerLoader extends DefaultGeoServerLoader {
         catalog.removeListeners(GeoServerConfigPersister.class);
         catalog.removeListeners(GeoServerResourcePersister.class);
 
-        catalog.addListener(
-                new CatalogPluginGeoServerConfigPersister(catalog.getResourceLoader(), xp));
+        catalog.addListener(new CatalogPluginGeoServerConfigPersister(catalog.getResourceLoader(), xp));
         catalog.addListener(new CatalogPluginStyleResourcePersister(catalog));
     }
 }

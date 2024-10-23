@@ -14,6 +14,22 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import javax.xml.namespace.QName;
 import org.geoserver.catalog.CascadeDeleteVisitor;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogBuilder;
@@ -44,24 +60,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.xml.namespace.QName;
-
 /**
  * Tests {@link LayerGroupContainmentCache} udpates in face of catalog setup and changes
  *
@@ -85,7 +83,8 @@ class GsCloudLayerGroupContainmentCacheTest {
 
     private static Catalog catalog;
 
-    @TempDir static Path tmpDir;
+    @TempDir
+    static Path tmpDir;
 
     @BeforeAll
     public static void setupBaseCatalog() throws Exception {
@@ -106,8 +105,7 @@ class GsCloudLayerGroupContainmentCacheTest {
         String nsURI = catalog.getDefaultNamespace().getURI();
 
         var resolver = new PathMatchingResourcePatternResolver(MockData.class.getClassLoader());
-        Resource[] resources =
-                resolver.getResources("classpath:org/geoserver/data/test/*.properties");
+        Resource[] resources = resolver.getResources("classpath:org/geoserver/data/test/*.properties");
         List<String> propFiles = Stream.of(resources).map(Resource::getFilename).toList();
         propFiles.stream()
                 .filter(f -> !f.equals("MarsPoi.properties")) // crs 49900 unknown
@@ -186,8 +184,7 @@ class GsCloudLayerGroupContainmentCacheTest {
         }
     }
 
-    private LayerGroupInfo addLayerGroup(
-            String name, Mode mode, WorkspaceInfo ws, PublishedInfo... layers) {
+    private LayerGroupInfo addLayerGroup(String name, Mode mode, WorkspaceInfo ws, PublishedInfo... layers) {
         CatalogBuilder cb = new CatalogBuilder(catalog);
 
         LayerGroupInfo group = catalog.getFactory().createLayerGroup();
@@ -242,8 +239,7 @@ class GsCloudLayerGroupContainmentCacheTest {
 
     @Test
     void buildLayerGroupCaches() {
-        GsCloudLayerGroupContainmentCache layerGroupContainmentCache =
-                new GsCloudLayerGroupContainmentCache(catalog);
+        GsCloudLayerGroupContainmentCache layerGroupContainmentCache = new GsCloudLayerGroupContainmentCache(catalog);
         ContextRefreshedEvent contextRefreshedEvent = mock(ContextRefreshedEvent.class);
         WebApplicationContext context = mock(WebApplicationContext.class);
         when(contextRefreshedEvent.getApplicationContext()).thenReturn(context);
@@ -272,8 +268,7 @@ class GsCloudLayerGroupContainmentCacheTest {
         // now check the groups containing the layers (nature being SINGLE, not a container)
         assertThat(containerNamesForResource(MockData.LAKES), equalTo(set(CONTAINER_GROUP)));
         assertThat(containerNamesForResource(MockData.FORESTS), equalTo(set(CONTAINER_GROUP)));
-        assertThat(
-                containerNamesForResource(MockData.ROAD_SEGMENTS), equalTo(set(CONTAINER_GROUP)));
+        assertThat(containerNamesForResource(MockData.ROAD_SEGMENTS), equalTo(set(CONTAINER_GROUP)));
     }
 
     @Test
@@ -305,8 +300,7 @@ class GsCloudLayerGroupContainmentCacheTest {
 
         assertThat(containerNamesForResource(MockData.LAKES), empty());
         assertThat(containerNamesForResource(MockData.FORESTS), equalTo(set(CONTAINER_GROUP)));
-        assertThat(
-                containerNamesForResource(MockData.ROAD_SEGMENTS), equalTo(set(CONTAINER_GROUP)));
+        assertThat(containerNamesForResource(MockData.ROAD_SEGMENTS), equalTo(set(CONTAINER_GROUP)));
     }
 
     @Test
@@ -330,8 +324,7 @@ class GsCloudLayerGroupContainmentCacheTest {
         assertThat(containerNamesForGroup(nature), empty());
         assertThat(containerNamesForResource(MockData.LAKES), empty());
         assertThat(containerNamesForResource(MockData.FORESTS), empty());
-        assertThat(
-                containerNamesForResource(MockData.ROAD_SEGMENTS), equalTo(set(CONTAINER_GROUP)));
+        assertThat(containerNamesForResource(MockData.ROAD_SEGMENTS), equalTo(set(CONTAINER_GROUP)));
     }
 
     @Test
@@ -353,9 +346,7 @@ class GsCloudLayerGroupContainmentCacheTest {
 
         // add and check containment
         LayerGroupInfo named = addLayerGroup(NAMED_GROUP, Mode.NAMED, null, lakes, neatline);
-        assertThat(
-                containerNamesForResource(MockData.LAKES),
-                equalTo(set(CONTAINER_GROUP, NAMED_GROUP)));
+        assertThat(containerNamesForResource(MockData.LAKES), equalTo(set(CONTAINER_GROUP, NAMED_GROUP)));
         assertThat(containerNamesForResource(MockData.MAP_NEATLINE), equalTo(set(NAMED_GROUP)));
         assertThat(containerNamesForGroup(named), empty());
 
@@ -377,12 +368,8 @@ class GsCloudLayerGroupContainmentCacheTest {
         container.getLayers().add(nestedNamed);
         container.getStyles().add(null);
         catalog.save(container);
-        assertThat(
-                containerNamesForResource(MockData.LAKES),
-                equalTo(set(CONTAINER_GROUP, NESTED_NAMED)));
-        assertThat(
-                containerNamesForResource(MockData.MAP_NEATLINE),
-                equalTo(set(CONTAINER_GROUP, NESTED_NAMED)));
+        assertThat(containerNamesForResource(MockData.LAKES), equalTo(set(CONTAINER_GROUP, NESTED_NAMED)));
+        assertThat(containerNamesForResource(MockData.MAP_NEATLINE), equalTo(set(CONTAINER_GROUP, NESTED_NAMED)));
         assertThat(containerNamesForGroup(nestedNamed), equalTo(set(CONTAINER_GROUP)));
 
         // delete and check containment

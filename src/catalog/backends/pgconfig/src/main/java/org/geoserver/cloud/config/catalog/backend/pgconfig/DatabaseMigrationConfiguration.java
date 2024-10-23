@@ -4,15 +4,13 @@
  */
 package org.geoserver.cloud.config.catalog.backend.pgconfig;
 
+import javax.sql.DataSource;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import javax.sql.DataSource;
 
 /**
  * @since 1.4
@@ -23,8 +21,7 @@ public class DatabaseMigrationConfiguration {
 
     @Bean
     Migrations pgconfigMigrations(
-            PgconfigBackendProperties config,
-            @Qualifier("pgconfigDataSource") DataSource dataSource) {
+            PgconfigBackendProperties config, @Qualifier("pgconfigDataSource") DataSource dataSource) {
 
         return new Migrations(config, dataSource);
     }
@@ -38,12 +35,11 @@ public class DatabaseMigrationConfiguration {
 
         @Override
         public void afterPropertiesSet() throws Exception {
-            databaseMigrations =
-                    new PgconfigDatabaseMigrations()
-                            .setInitialize(config.isInitialize())
-                            .setDataSource(dataSource)
-                            .setSchema(config.schema())
-                            .setCreateSchema(config.isCreateSchema());
+            databaseMigrations = new PgconfigDatabaseMigrations()
+                    .setInitialize(config.isInitialize())
+                    .setDataSource(dataSource)
+                    .setSchema(config.schema())
+                    .setCreateSchema(config.isCreateSchema());
             databaseMigrations.migrate();
         }
 

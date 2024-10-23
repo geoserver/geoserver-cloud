@@ -15,11 +15,8 @@ import org.springframework.context.annotation.ImportResource;
 @ConditionalOnClass({CogSettings.class})
 @ImportResource(
         reader = FilteringXmlBeanDefinitionReader.class, //
-        locations = {
-            "jar:gs-cog-.*!/applicationContext.xml#name=" + COGAutoConfiguration.EXCLUDE_WEBUI_BEANS
-        })
+        locations = {"jar:gs-cog-.*!/applicationContext.xml#name=" + COGAutoConfiguration.EXCLUDE_WEBUI_BEANS})
 public class COGAutoConfiguration {
 
-    static final String EXCLUDE_WEBUI_BEANS =
-            "^(?!" + COGWebUIAutoConfiguration.WEBUI_BEAN_NAMES + ").*$";
+    static final String EXCLUDE_WEBUI_BEANS = "^(?!" + COGWebUIAutoConfiguration.WEBUI_BEAN_NAMES + ").*$";
 }

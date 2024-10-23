@@ -8,9 +8,18 @@ import static org.geoserver.cloud.gwc.event.GeoWebCacheEvent.Type.CREATED;
 import static org.geoserver.cloud.gwc.event.GeoWebCacheEvent.Type.DELETED;
 import static org.geoserver.cloud.gwc.event.GeoWebCacheEvent.Type.MODIFIED;
 
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.geoserver.cloud.gwc.event.BlobStoreEvent;
 import org.geoserver.cloud.gwc.event.GeoWebCacheEvent;
@@ -27,17 +36,6 @@ import org.geowebcache.layer.TileLayer;
 import org.geowebcache.locks.LockProvider;
 import org.geowebcache.util.ApplicationContextProvider;
 import org.springframework.context.event.EventListener;
-
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /**
  * @implNote there is a {@link BlobStoreConfigurationListener} abstraction, but no homologous one to
@@ -70,9 +68,8 @@ public class CloudGwcXmlConfiguration extends XMLConfiguration {
         this.publisher = publisher;
 
         try {
-            spiedListeners =
-                    (ListenerCollection<BlobStoreConfigurationListener>)
-                            FieldUtils.readField(this, "blobStoreListeners", true);
+            spiedListeners = (ListenerCollection<BlobStoreConfigurationListener>)
+                    FieldUtils.readField(this, "blobStoreListeners", true);
 
         } catch (IllegalAccessException e) {
             throw new IllegalStateException(e);
@@ -113,8 +110,7 @@ public class CloudGwcXmlConfiguration extends XMLConfiguration {
                 if (null == oldName) {
                     spiedListeners.safeForEach(l -> l.handleModifyBlobStore(post.orElseThrow()));
                 } else {
-                    spiedListeners.safeForEach(
-                            l -> l.handleRenameBlobStore(oldName, post.orElseThrow()));
+                    spiedListeners.safeForEach(l -> l.handleRenameBlobStore(oldName, post.orElseThrow()));
                 }
                 break;
             default:
@@ -303,8 +299,7 @@ public class CloudGwcXmlConfiguration extends XMLConfiguration {
     }
 
     @Override
-    public void renameLayer(String oldName, String newName)
-            throws NoSuchElementException, IllegalArgumentException {
+    public void renameLayer(String oldName, String newName) throws NoSuchElementException, IllegalArgumentException {
         lock.writeLock().lock();
         try {
             super.renameLayer(oldName, newName);
@@ -314,8 +309,7 @@ public class CloudGwcXmlConfiguration extends XMLConfiguration {
     }
 
     @Override
-    public void removeLayer(final String layerName)
-            throws NoSuchElementException, IllegalArgumentException {
+    public void removeLayer(final String layerName) throws NoSuchElementException, IllegalArgumentException {
         lock.writeLock().lock();
         try {
             super.removeLayer(layerName);

@@ -6,26 +6,22 @@ package org.geoserver.cloud.observability.logging.servlet;
 
 import com.github.f4b6a3.ulid.UlidCreator;
 import com.google.common.collect.Streams;
-
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-
-import org.slf4j.MDC;
-import org.springframework.web.filter.OncePerRequestFilter;
-
 import java.io.IOException;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.MDC;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 @RequiredArgsConstructor
 public class HttpRequestMdcFilter extends OncePerRequestFilter {
@@ -33,8 +29,7 @@ public class HttpRequestMdcFilter extends OncePerRequestFilter {
     private final @NonNull HttpRequestMdcConfigProperties config;
 
     @Override
-    protected void doFilterInternal(
-            HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
         try {
             if (request instanceof HttpServletRequest req) addRequestMdcProperties(req);
@@ -54,14 +49,8 @@ public class HttpRequestMdcFilter extends OncePerRequestFilter {
         put("http.request.url", config::isUrl, req::getRequestURL);
         putRequestParams(req);
         put("http.request.query-string", config::isQueryString, req::getQueryString);
-        put(
-                "http.request.session.id",
-                config::isSessionId,
-                () -> session == null ? null : session.getId());
-        put(
-                "http.request.session.started",
-                config::isSessionId,
-                () -> session == null ? null : !session.isNew());
+        put("http.request.session.id", config::isSessionId, () -> session == null ? null : session.getId());
+        put("http.request.session.started", config::isSessionId, () -> session == null ? null : !session.isNew());
         addHeaders(req);
         addCookies(req);
     }
@@ -69,11 +58,7 @@ public class HttpRequestMdcFilter extends OncePerRequestFilter {
     private void putRequestParams(HttpServletRequest req) {
         if (config.isParameters()) {
             Streams.stream(req.getParameterNames().asIterator())
-                    .forEach(
-                            name ->
-                                    put(
-                                            "http.request.parameter.%s".formatted(name),
-                                            requestParam(name, req)));
+                    .forEach(name -> put("http.request.parameter.%s".formatted(name), requestParam(name, req)));
         }
     }
 

@@ -6,15 +6,13 @@ package org.geoserver.cloud.config.jndi;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.geoserver.cloud.jndi.SimpleNamingContext;
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.runner.ApplicationContextRunner;
-
 import java.util.Hashtable;
-
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.spi.NamingManager;
+import org.geoserver.cloud.jndi.SimpleNamingContext;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
 /**
  * @since 1.0
@@ -22,29 +20,27 @@ import javax.naming.spi.NamingManager;
 class SimpleJNDIStaticContextInitializerTest {
 
     private ApplicationContextRunner runner =
-            new ApplicationContextRunner()
-                    .withInitializer(new SimpleJNDIStaticContextInitializer());
+            new ApplicationContextRunner().withInitializer(new SimpleJNDIStaticContextInitializer());
 
     @Test
     void test() {
-        runner.run(
-                context -> {
-                    InitialContext initialContext = new InitialContext();
-                    Context ctx = NamingManager.getInitialContext(new Hashtable<>());
-                    assertThat(ctx).isInstanceOf(SimpleNamingContext.class);
+        runner.run(context -> {
+            InitialContext initialContext = new InitialContext();
+            Context ctx = NamingManager.getInitialContext(new Hashtable<>());
+            assertThat(ctx).isInstanceOf(SimpleNamingContext.class);
 
-                    Object value = new Object();
-                    initialContext.bind("java:comp/env/test", value);
+            Object value = new Object();
+            initialContext.bind("java:comp/env/test", value);
 
-                    initialContext.close();
+            initialContext.close();
 
-                    assertThat(ctx.lookup("java:comp/env/test")).isSameAs(value);
+            assertThat(ctx.lookup("java:comp/env/test")).isSameAs(value);
 
-                    initialContext = new InitialContext();
-                    ctx = NamingManager.getInitialContext(new Hashtable<>());
-                    assertThat(ctx).isInstanceOf(SimpleNamingContext.class);
+            initialContext = new InitialContext();
+            ctx = NamingManager.getInitialContext(new Hashtable<>());
+            assertThat(ctx).isInstanceOf(SimpleNamingContext.class);
 
-                    assertThat(initialContext.lookup("java:comp/env/test")).isSameAs(value);
-                });
+            assertThat(initialContext.lookup("java:comp/env/test")).isSameAs(value);
+        });
     }
 }

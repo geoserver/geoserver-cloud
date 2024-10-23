@@ -6,10 +6,13 @@ package org.geoserver.jackson.databind.config.dto;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
 import org.geoserver.catalog.LayerInfo.WMSInterpolation;
 import org.geoserver.catalog.impl.AuthorityURL;
 import org.geoserver.catalog.impl.LayerIdentifier;
@@ -28,12 +31,6 @@ import org.geoserver.wps.ProcessGroupInfo;
 import org.geoserver.wps.ProcessInfo;
 import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.jackson.databind.dto.NameDto;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
 
 /** DTO for {@link ServiceInfo} */
 @JsonSubTypes({

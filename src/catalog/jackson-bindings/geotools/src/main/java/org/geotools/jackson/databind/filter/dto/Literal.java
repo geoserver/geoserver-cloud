@@ -4,11 +4,10 @@
  */
 package org.geotools.jackson.databind.filter.dto;
 
-import lombok.Data;
-import lombok.experimental.Accessors;
-
 import java.util.Arrays;
 import java.util.Objects;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
  * @see LiteralSerializer
@@ -53,8 +52,7 @@ public class Literal extends Expression {
                     case "long" -> Arrays.equals((long[]) v1, (long[]) v2);
                     case "float" -> Arrays.equals((float[]) v1, (float[]) v2);
                     case "double" -> Arrays.equals((double[]) v1, (double[]) v2);
-                    default -> throw new IllegalArgumentException(
-                            "Unexpected value: %s".formatted(componentType));
+                    default -> throw new IllegalArgumentException("Unexpected value: %s".formatted(componentType));
                 };
             } else {
                 Object[] a1 = (Object[]) v1;

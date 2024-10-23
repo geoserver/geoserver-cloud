@@ -4,15 +4,14 @@
  */
 package org.geoserver.catalog.plugin.forwarding;
 
+import java.util.Optional;
+import java.util.stream.Stream;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.StyleRepository;
 
-import java.util.Optional;
-import java.util.stream.Stream;
-
-public class ForwardingStyleRepository
-        extends ForwardingCatalogRepository<StyleInfo, StyleRepository> implements StyleRepository {
+public class ForwardingStyleRepository extends ForwardingCatalogRepository<StyleInfo, StyleRepository>
+        implements StyleRepository {
 
     public ForwardingStyleRepository(StyleRepository subject) {
         super(subject);

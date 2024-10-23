@@ -5,7 +5,6 @@
 package org.geoserver.cloud.backend.pgconfig.config;
 
 import lombok.NonNull;
-
 import org.geoserver.config.plugin.RepositoryGeoServerFacadeImpl;
 import org.springframework.jdbc.core.JdbcTemplate;
 

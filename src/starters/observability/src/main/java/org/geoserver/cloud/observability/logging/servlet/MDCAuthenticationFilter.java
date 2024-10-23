@@ -4,23 +4,20 @@
  */
 package org.geoserver.cloud.observability.logging.servlet;
 
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-
-import org.geoserver.cloud.observability.logging.config.MDCConfigProperties;
-import org.slf4j.MDC;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-
 import java.io.IOException;
 import java.util.stream.Collectors;
-
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.geoserver.cloud.observability.logging.config.MDCConfigProperties;
+import org.slf4j.MDC;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * Appends the {@code enduser.id} and {@code enduser.role} MDC properties depending on whether

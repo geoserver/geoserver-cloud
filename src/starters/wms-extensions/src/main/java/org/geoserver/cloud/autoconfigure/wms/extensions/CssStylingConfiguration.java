@@ -29,10 +29,7 @@ class CssStylingConfiguration {
 
     @Configuration
     @ConditionalOnBean(name = "sldHandler")
-    @ConditionalOnProperty(
-            name = "geoserver.styling.css.enabled",
-            havingValue = "true",
-            matchIfMissing = true)
+    @ConditionalOnProperty(name = "geoserver.styling.css.enabled", havingValue = "true", matchIfMissing = true)
     @ConditionalOnClass(CssHandler.class)
     @ImportResource( //
             reader = FilteringXmlBeanDefinitionReader.class, //
@@ -48,10 +45,7 @@ class CssStylingConfiguration {
      */
     @Configuration
     @ConditionalOnBean(name = "sldHandler")
-    @ConditionalOnProperty(
-            name = "geoserver.styling.css.enabled",
-            havingValue = "false",
-            matchIfMissing = false)
+    @ConditionalOnProperty(name = "geoserver.styling.css.enabled", havingValue = "false", matchIfMissing = false)
     static class Disabled {
 
         @Bean
@@ -59,8 +53,7 @@ class CssStylingConfiguration {
             ModuleStatusImpl mod = new ModuleStatusImpl();
             mod.setAvailable(true);
             mod.setEnabled(false);
-            mod.setMessage(
-                    "CSS module disabled through config property geoserver.styling.css.enabled=false");
+            mod.setMessage("CSS module disabled through config property geoserver.styling.css.enabled=false");
             mod.setComponent("GeoServer CSS Styling");
             mod.setModule("gs-css");
             mod.setName("CSS");

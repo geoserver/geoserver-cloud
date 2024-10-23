@@ -11,9 +11,9 @@ import static org.geoserver.cloud.event.info.ConfigInfoType.STYLE;
 import static org.geoserver.cloud.event.info.ConfigInfoType.WORKSPACE;
 
 import com.google.common.annotations.VisibleForTesting;
-
+import java.util.List;
+import java.util.Optional;
 import lombok.NonNull;
-
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.DataStoreInfo;
@@ -39,9 +39,6 @@ import org.springframework.cache.CacheManager;
 import org.springframework.context.event.EventListener;
 import org.springframework.lang.Nullable;
 
-import java.util.List;
-import java.util.Optional;
-
 /**
  * @see CachingCatalogFacadeContainmentSupport
  */
@@ -63,8 +60,7 @@ public class CachingCatalogFacade extends ForwardingExtendedCatalogFacade {
     }
 
     CachingCatalogFacade(
-            @NonNull ExtendedCatalogFacade facade,
-            @NonNull CachingCatalogFacadeContainmentSupport support) {
+            @NonNull ExtendedCatalogFacade facade, @NonNull CachingCatalogFacadeContainmentSupport support) {
         super(facade);
         this.support = support;
     }
@@ -138,12 +134,10 @@ public class CachingCatalogFacade extends ForwardingExtendedCatalogFacade {
     }
 
     private <I extends CatalogInfo> void evictNewName(final I info, final Patch patch) {
-        newPrefixedName(info, patch)
-                .ifPresent(
-                        newPrefixexName -> {
-                            var type = ConfigInfoType.valueOf(info);
-                            support.evict(info.getId(), newPrefixexName, type);
-                        });
+        newPrefixedName(info, patch).ifPresent(newPrefixexName -> {
+            var type = ConfigInfoType.valueOf(info);
+            support.evict(info.getId(), newPrefixexName, type);
+        });
     }
 
     Optional<String> newPrefixedName(CatalogInfo info, Patch patch) {
@@ -213,9 +207,7 @@ public class CachingCatalogFacade extends ForwardingExtendedCatalogFacade {
             return super.getStyleByName(workspace, name);
         }
 
-        return support.get(
-                InfoNameKey.valueOf(workspace, name, STYLE),
-                () -> super.getStyleByName(workspace, name));
+        return support.get(InfoNameKey.valueOf(workspace, name, STYLE), () -> super.getStyleByName(workspace, name));
     }
 
     @Override
@@ -244,8 +236,7 @@ public class CachingCatalogFacade extends ForwardingExtendedCatalogFacade {
     }
 
     @Override
-    public LayerGroupInfo getLayerGroupByName(
-            @NonNull WorkspaceInfo workspace, @NonNull String name) {
+    public LayerGroupInfo getLayerGroupByName(@NonNull WorkspaceInfo workspace, @NonNull String name) {
         if (NO_WORKSPACE == workspace || ANY_WORKSPACE == workspace) {
             return super.getLayerGroupByName(workspace, name);
         }
@@ -282,8 +273,7 @@ public class CachingCatalogFacade extends ForwardingExtendedCatalogFacade {
     }
 
     @Override
-    public void setDefaultDataStore(
-            @NonNull WorkspaceInfo workspace, @Nullable DataStoreInfo store) {
+    public void setDefaultDataStore(@NonNull WorkspaceInfo workspace, @Nullable DataStoreInfo store) {
         support.evictDefaultDataStore(workspace);
         super.setDefaultDataStore(workspace, store);
     }

@@ -19,8 +19,16 @@ import static org.junit.Assume.assumeThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.io.File;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
+import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.cloud.backend.pgconfig.support.PgConfigTestContainer;
 import org.geoserver.platform.resource.Paths;
 import org.geoserver.platform.resource.Resource;
@@ -45,17 +53,6 @@ import org.springframework.integration.jdbc.lock.LockRepository;
 import org.springframework.integration.support.locks.LockRegistry;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import java.io.File;
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
-
-import javax.sql.DataSource;
-
 /**
  * Note by inheriting from {@link ResourceTheoryTest}, this is a Junit 4 test class and must be
  * {@code public}
@@ -64,9 +61,12 @@ import javax.sql.DataSource;
 @RunWith(Theories.class)
 public class PgconfigResourceTest extends ResourceTheoryTest {
 
-    @ClassRule public static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();
+    @ClassRule
+    public static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();
 
-    @Rule public TemporaryFolder tmpDir = new TemporaryFolder();
+    @Rule
+    public TemporaryFolder tmpDir = new TemporaryFolder();
+
     private PgconfigResourceStore store;
     private File cacheDirectory;
 
@@ -104,12 +104,8 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
         JdbcTemplate template = container.getTemplate();
         PgconfigLockProvider lockProvider = new PgconfigLockProvider(pgconfigLockRegistry());
         cacheDirectory = tmpDir.newFolder();
-        store =
-                new PgconfigResourceStore(
-                        cacheDirectory.toPath(),
-                        template,
-                        lockProvider,
-                        PgconfigResourceStore.defaultIgnoredDirs());
+        store = new PgconfigResourceStore(
+                cacheDirectory.toPath(), template, lockProvider, PgconfigResourceStore.defaultIgnoredDirs());
         setupTestData(template);
     }
 
@@ -130,10 +126,7 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
                 String parentPath = Paths.parent(path);
                 Objects.requireNonNull(parentPath);
                 long parentId =
-                        template.queryForObject(
-                                "SELECT id FROM resourcestore WHERE path = ?",
-                                Long.class,
-                                parentPath);
+                        template.queryForObject("SELECT id FROM resourcestore WHERE path = ?", Long.class, parentPath);
                 Resource.Type type = dir ? Type.DIRECTORY : Type.RESOURCE;
                 byte[] contents = dir ? null : path.getBytes("UTF-8");
                 String sql =
@@ -158,8 +151,7 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
 
     LockRepository pgconfigLockRepository() {
         DataSource dataSource = container.getDataSource();
-        DefaultLockRepository lockRepository =
-                new DefaultLockRepository(dataSource, "test-instance");
+        DefaultLockRepository lockRepository = new DefaultLockRepository(dataSource, "test-instance");
         // override default table prefix "INT" by "RESOURCE_" (matching table definition
         // RESOURCE_LOCK in init.XXX.sql
         lockRepository.setPrefix("RESOURCE_");
@@ -287,18 +279,14 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
         assertFileSystemDir(resource.parent().path());
         assertFalse(resource instanceof PgconfigResource);
         assertTrue(resource instanceof PgconfigResourceStore.FileSystemResourceAdaptor);
-        assertTrue(
-                resource.file()
-                        .getAbsolutePath()
-                        .startsWith(this.cacheDirectory.getAbsolutePath()));
+        assertTrue(resource.file().getAbsolutePath().startsWith(this.cacheDirectory.getAbsolutePath()));
     }
 
     private void assertFileSystemDir(String path) {
         Resource resource = getResource(path);
         assertFalse(resource instanceof PgconfigResource);
         assertTrue(resource instanceof PgconfigResourceStore.FileSystemResourceAdaptor);
-        assertTrue(
-                resource.dir().getAbsolutePath().startsWith(this.cacheDirectory.getAbsolutePath()));
+        assertTrue(resource.dir().getAbsolutePath().startsWith(this.cacheDirectory.getAbsolutePath()));
     }
 
     @Test
@@ -411,9 +399,7 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
                 UnsupportedOperationException.class,
                 () -> store.move("legendsamples/sample.png", "workspaces/sample2.png"));
 
-        assertThrows(
-                UnsupportedOperationException.class,
-                () -> store.move("workspaces/ws1", "temp/ws1"));
+        assertThrows(UnsupportedOperationException.class, () -> store.move("workspaces/ws1", "temp/ws1"));
     }
 
     @Test

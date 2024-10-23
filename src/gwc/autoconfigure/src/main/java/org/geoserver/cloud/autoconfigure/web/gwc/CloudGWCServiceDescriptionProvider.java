@@ -1,7 +1,8 @@
 package org.geoserver.cloud.autoconfigure.web.gwc;
 
+import java.util.ArrayList;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.cloud.autoconfigure.gwc.GoServerWebUIConfigurationProperties;
@@ -16,9 +17,6 @@ import org.geoserver.web.ServiceDescription;
 import org.geoserver.web.ServiceDescriptionProvider;
 import org.geoserver.web.ServiceLinkDescription;
 import org.geotools.util.Version;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * GeoServer-Cloud replacement of {@link GWCServiceDescriptionProvider}
@@ -121,8 +119,7 @@ class CloudGWCServiceDescriptionProvider extends ServiceDescriptionProvider {
 
     private String createLinkWMSC(WorkspaceInfo workspace, PublishedInfo layer) {
         String basePath = basePath(workspace, layer);
-        return "%s/wms?service=WMS&version=1.1.1&request=GetCapabilities&tiled=true"
-                .formatted(basePath);
+        return "%s/wms?service=WMS&version=1.1.1&request=GetCapabilities&tiled=true".formatted(basePath);
     }
 
     private String createLinkWMTS(WorkspaceInfo workspace, PublishedInfo layer) {
@@ -136,8 +133,7 @@ class CloudGWCServiceDescriptionProvider extends ServiceDescriptionProvider {
     }
 
     @Override
-    public List<ServiceLinkDescription> getServiceLinks(
-            WorkspaceInfo workspaceInfo, PublishedInfo layerInfo) {
+    public List<ServiceLinkDescription> getServiceLinks(WorkspaceInfo workspaceInfo, PublishedInfo layerInfo) {
 
         if (workspaceInfo == null && !geoserver.getGlobal().isGlobalServices()) {
             return List.of();
@@ -183,7 +179,6 @@ class CloudGWCServiceDescriptionProvider extends ServiceDescriptionProvider {
 
     private ServiceLinkDescription serviceLink(
             String workspaceName, String layerName, Version version, String protocol, String link) {
-        return new ServiceLinkDescription(
-                SERVICE_TYPE, version, link, workspaceName, layerName, protocol);
+        return new ServiceLinkDescription(SERVICE_TYPE, version, link, workspaceName, layerName, protocol);
     }
 }

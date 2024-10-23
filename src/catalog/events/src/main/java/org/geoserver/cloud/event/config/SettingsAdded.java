@@ -6,9 +6,7 @@ package org.geoserver.cloud.event.config;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-
 import lombok.EqualsAndHashCode;
-
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.SettingsInfo;
 

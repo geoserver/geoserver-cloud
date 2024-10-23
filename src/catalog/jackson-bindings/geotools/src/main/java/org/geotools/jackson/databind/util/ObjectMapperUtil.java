@@ -10,9 +10,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
-
 import lombok.experimental.UtilityClass;
-
 import org.yaml.snakeyaml.DumperOptions.Version;
 
 /**
@@ -26,13 +24,12 @@ public class ObjectMapperUtil {
     }
 
     public static ObjectMapper newYAMLObjectMapper() {
-        YAMLFactory yamlFactory =
-                YAMLFactory.builder() //
-                        .yamlVersionToWrite(Version.V1_1) //
-                        .disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID) //
-                        .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER) //
-                        .enable(YAMLGenerator.Feature.MINIMIZE_QUOTES) //
-                        .build();
+        YAMLFactory yamlFactory = YAMLFactory.builder() //
+                .yamlVersionToWrite(Version.V1_1) //
+                .disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID) //
+                .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER) //
+                .enable(YAMLGenerator.Feature.MINIMIZE_QUOTES) //
+                .build();
         return newObjectMapper(yamlFactory);
     }
 

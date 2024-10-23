@@ -4,9 +4,8 @@
  */
 package org.geoserver.catalog.plugin;
 
-import org.geoserver.platform.GeoServerResourceLoader;
-
 import java.io.File;
+import org.geoserver.platform.GeoServerResourceLoader;
 
 class CatalogPluginConformanceTest extends CatalogConformanceTest {
 

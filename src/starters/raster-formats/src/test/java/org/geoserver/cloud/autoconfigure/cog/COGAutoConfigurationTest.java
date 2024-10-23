@@ -22,47 +22,40 @@ class COGAutoConfigurationTest {
 
     private final Catalog mockCatalog = mock(Catalog.class);
 
-    private final ApplicationContextRunner contextRunner =
-            new ApplicationContextRunner()
-                    .withBean("catalog", Catalog.class, () -> mockCatalog)
-                    .withConfiguration(
-                            AutoConfigurations.of(
-                                    COGAutoConfiguration.class, COGWebUIAutoConfiguration.class));
+    private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+            .withBean("catalog", Catalog.class, () -> mockCatalog)
+            .withConfiguration(AutoConfigurations.of(COGAutoConfiguration.class, COGWebUIAutoConfiguration.class));
 
     @Test
     void testWebUIUnavailable() {
         FilteredClassLoader hiddenClasses =
                 new FilteredClassLoader(GeoServerApplication.class, CogRasterEditPanel.class);
 
-        contextRunner
-                .withClassLoader(hiddenClasses)
-                .run(
-                        context -> {
-                            assertThat(context).hasNotFailed();
+        contextRunner.withClassLoader(hiddenClasses).run(context -> {
+            assertThat(context).hasNotFailed();
 
-                            for (String beanName : nonWebuiBeanNames()) {
-                                assertThat(context).hasBean(beanName);
-                            }
+            for (String beanName : nonWebuiBeanNames()) {
+                assertThat(context).hasBean(beanName);
+            }
 
-                            for (String webuiBeanName : webuiBeanNames()) {
-                                assertThat(context).doesNotHaveBean(webuiBeanName);
-                            }
-                        });
+            for (String webuiBeanName : webuiBeanNames()) {
+                assertThat(context).doesNotHaveBean(webuiBeanName);
+            }
+        });
     }
 
     @Test
     void testWebUIAvailable() {
-        contextRunner.run(
-                context -> {
-                    assertThat(context).hasNotFailed();
+        contextRunner.run(context -> {
+            assertThat(context).hasNotFailed();
 
-                    for (String beanName : nonWebuiBeanNames()) {
-                        assertThat(context).hasBean(beanName);
-                    }
-                    for (String webuiBeanName : webuiBeanNames()) {
-                        assertThat(context).hasBean(webuiBeanName);
-                    }
-                });
+            for (String beanName : nonWebuiBeanNames()) {
+                assertThat(context).hasBean(beanName);
+            }
+            for (String webuiBeanName : webuiBeanNames()) {
+                assertThat(context).hasBean(webuiBeanName);
+            }
+        });
     }
 
     private String[] nonWebuiBeanNames() {

@@ -4,6 +4,8 @@
  */
 package org.geoserver.cloud.backend.pgconfig.catalog;
 
+import java.io.File;
+import javax.sql.DataSource;
 import org.geoserver.catalog.impl.CatalogImpl;
 import org.geoserver.catalog.plugin.CatalogConformanceTest;
 import org.geoserver.catalog.plugin.CatalogPlugin;
@@ -26,17 +28,14 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.io.File;
-
-import javax.sql.DataSource;
-
 /**
  * @since 1.4
  */
 @Testcontainers(disabledWithoutDocker = true)
 class PgconfigCatalogBackendConformanceTest extends CatalogConformanceTest {
 
-    @Container static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();
+    @Container
+    static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();
 
     @Override
     @BeforeEach
@@ -56,16 +55,11 @@ class PgconfigCatalogBackendConformanceTest extends CatalogConformanceTest {
         PgconfigLockProvider lockProvider = new PgconfigLockProvider(pgconfigLockRegistry());
         File cacheDirectory = tmpFolder;
 
-        PgconfigResourceStore resourceStore =
-                new PgconfigResourceStore(
-                        cacheDirectory.toPath(),
-                        template,
-                        lockProvider,
-                        PgconfigResourceStore.defaultIgnoredDirs());
+        PgconfigResourceStore resourceStore = new PgconfigResourceStore(
+                cacheDirectory.toPath(), template, lockProvider, PgconfigResourceStore.defaultIgnoredDirs());
 
         var resourceLoader = new PgconfigGeoServerResourceLoader(resourceStore);
-        CatalogPlugin catalog =
-                new PgconfigBackendBuilder(container.getDataSource()).createCatalog();
+        CatalogPlugin catalog = new PgconfigBackendBuilder(container.getDataSource()).createCatalog();
         catalog.setResourceLoader(resourceLoader);
         final boolean backupSldFiles = false;
         catalog.addListener(new CatalogPluginStyleResourcePersister(catalog, backupSldFiles));
@@ -78,8 +72,7 @@ class PgconfigCatalogBackendConformanceTest extends CatalogConformanceTest {
 
     LockRepository pgconfigLockRepository() {
         DataSource dataSource = container.getDataSource();
-        DefaultLockRepository lockRepository =
-                new DefaultLockRepository(dataSource, "test-instance");
+        DefaultLockRepository lockRepository = new DefaultLockRepository(dataSource, "test-instance");
         // override default table prefix "INT" by "RESOURCE_" (matching table definition
         // RESOURCE_LOCK in init.XXX.sql
         lockRepository.setPrefix("RESOURCE_");

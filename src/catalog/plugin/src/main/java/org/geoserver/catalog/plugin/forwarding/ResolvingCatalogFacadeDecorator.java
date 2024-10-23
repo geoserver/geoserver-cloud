@@ -5,9 +5,14 @@
 package org.geoserver.catalog.plugin.forwarding;
 
 import com.google.common.collect.Lists;
-
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.UnaryOperator;
+import java.util.stream.Stream;
 import lombok.NonNull;
-
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogInfo;
@@ -32,14 +37,6 @@ import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.catalog.util.CloseableIteratorAdapter;
 import org.geotools.api.filter.Filter;
 import org.geotools.api.filter.sort.SortBy;
-
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.UnaryOperator;
-import java.util.stream.Stream;
 
 /**
  * {@link ExtendedCatalogFacade} decorator that applies a possibly side-effect producing
@@ -84,8 +81,7 @@ import java.util.stream.Stream;
  * {@link Catalog}, may some of the functions in the chain require one; {@link #setOutboundResolver}
  * is agnostic of such concerns.
  */
-public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFacade
-        implements ResolvingCatalogFacade {
+public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFacade implements ResolvingCatalogFacade {
 
     private ResolvingFacadeSupport<CatalogInfo> resolver;
 
@@ -182,14 +178,12 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
     }
 
     @Override
-    public <T extends StoreInfo> T getStoreByName(
-            WorkspaceInfo workspace, String name, Class<T> clazz) {
+    public <T extends StoreInfo> T getStoreByName(WorkspaceInfo workspace, String name, Class<T> clazz) {
         return resolveOutbound(super.getStoreByName(workspace, name, clazz));
     }
 
     @Override
-    public <T extends StoreInfo> List<T> getStoresByWorkspace(
-            WorkspaceInfo workspace, Class<T> clazz) {
+    public <T extends StoreInfo> List<T> getStoresByWorkspace(WorkspaceInfo workspace, Class<T> clazz) {
         return resolveOutbound(super.getStoresByWorkspace(workspace, clazz));
     }
 
@@ -214,8 +208,7 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
     }
 
     @Override
-    public <T extends ResourceInfo> T getResourceByName(
-            NamespaceInfo namespace, String name, Class<T> clazz) {
+    public <T extends ResourceInfo> T getResourceByName(NamespaceInfo namespace, String name, Class<T> clazz) {
         return resolveOutbound(super.getResourceByName(namespace, name, clazz));
     }
 
@@ -225,14 +218,12 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
     }
 
     @Override
-    public <T extends ResourceInfo> List<T> getResourcesByNamespace(
-            NamespaceInfo namespace, Class<T> clazz) {
+    public <T extends ResourceInfo> List<T> getResourcesByNamespace(NamespaceInfo namespace, Class<T> clazz) {
         return resolveOutbound(super.getResourcesByNamespace(namespace, clazz));
     }
 
     @Override
-    public <T extends ResourceInfo> T getResourceByStore(
-            StoreInfo store, String name, Class<T> clazz) {
+    public <T extends ResourceInfo> T getResourceByStore(StoreInfo store, String name, Class<T> clazz) {
         return resolveOutbound(super.getResourceByStore(store, name, clazz));
     }
 
@@ -549,8 +540,7 @@ public class ResolvingCatalogFacadeDecorator extends ForwardingExtendedCatalogFa
     public <T extends CatalogInfo> CloseableIterator<T> list(
             Class<T> of, Filter filter, Integer offset, Integer count, SortBy... sortOrder) {
 
-        final CloseableIterator<T> orig =
-                asExtendedFacade().list(of, filter, offset, count, sortOrder);
+        final CloseableIterator<T> orig = asExtendedFacade().list(of, filter, offset, count, sortOrder);
         return CloseableIteratorAdapter.transform(orig, this::resolveOutbound);
     }
 }

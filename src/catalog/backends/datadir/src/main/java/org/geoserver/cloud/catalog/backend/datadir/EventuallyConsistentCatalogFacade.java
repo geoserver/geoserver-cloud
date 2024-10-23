@@ -4,10 +4,13 @@
  */
 package org.geoserver.cloud.catalog.backend.datadir;
 
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.LayerGroupInfo;
@@ -27,11 +30,6 @@ import org.geoserver.ows.util.OwsUtils;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 /**
  *
@@ -184,13 +182,10 @@ public class EventuallyConsistentCatalogFacade extends ForwardingExtendedCatalog
     }
 
     @Override
-    public <T extends StoreInfo> T getStoreByName(
-            WorkspaceInfo workspace, String name, Class<T> clazz) {
+    public <T extends StoreInfo> T getStoreByName(WorkspaceInfo workspace, String name, Class<T> clazz) {
         return retryOnNull(
                 () -> super.getStoreByName(workspace, name, clazz), //
-                () ->
-                        "getStoreByName(%s, %s, %s)"
-                                .formatted(nameof(workspace), name, clazz.getSimpleName()));
+                () -> "getStoreByName(%s, %s, %s)".formatted(nameof(workspace), name, clazz.getSimpleName()));
     }
 
     @Override
@@ -201,23 +196,17 @@ public class EventuallyConsistentCatalogFacade extends ForwardingExtendedCatalog
     }
 
     @Override
-    public <T extends ResourceInfo> T getResourceByName(
-            NamespaceInfo namespace, String name, Class<T> clazz) {
+    public <T extends ResourceInfo> T getResourceByName(NamespaceInfo namespace, String name, Class<T> clazz) {
         return retryOnNull(
                 () -> super.getResourceByName(namespace, name, clazz), //
-                () ->
-                        "getResourceByName(%s, %s, %s)"
-                                .formatted(nameof(namespace), name, clazz.getSimpleName()));
+                () -> "getResourceByName(%s, %s, %s)".formatted(nameof(namespace), name, clazz.getSimpleName()));
     }
 
     @Override
-    public <T extends ResourceInfo> T getResourceByStore(
-            StoreInfo store, String name, Class<T> clazz) {
+    public <T extends ResourceInfo> T getResourceByStore(StoreInfo store, String name, Class<T> clazz) {
         return retryOnNull(
                 () -> super.getResourceByStore(store, name, clazz), //
-                () ->
-                        "getResourceByStore(%s, %s, %s)"
-                                .formatted(nameof(store), name, clazz.getSimpleName()));
+                () -> "getResourceByStore(%s, %s, %s)".formatted(nameof(store), name, clazz.getSimpleName()));
     }
 
     @Override
@@ -339,8 +328,7 @@ public class EventuallyConsistentCatalogFacade extends ForwardingExtendedCatalog
         return false;
     }
 
-    private <T> T doRetry(
-            Supplier<T> supplier, Predicate<T> predicate, Supplier<String> op, T ret) {
+    private <T> T doRetry(Supplier<T> supplier, Predicate<T> predicate, Supplier<String> op, T ret) {
         // poor man's Retry implementation
         final int maxAttempts = retryAttemptMillis.length;
         final String opDesc = op.get();

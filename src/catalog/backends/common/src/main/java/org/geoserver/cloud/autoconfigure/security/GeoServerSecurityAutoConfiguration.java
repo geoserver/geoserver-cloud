@@ -4,8 +4,8 @@
  */
 package org.geoserver.cloud.autoconfigure.security;
 
+import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.cloud.autoconfigure.catalog.backend.core.GeoServerBackendAutoConfiguration;
 import org.geoserver.cloud.event.security.SecurityConfigChanged;
 import org.geoserver.cloud.security.GeoServerSecurityConfiguration;
@@ -18,13 +18,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.event.EventListener;
 
-import javax.annotation.PostConstruct;
-
 @AutoConfiguration(after = GeoServerBackendAutoConfiguration.class)
-@Import({
-    GeoServerSecurityAutoConfiguration.WhenEnabled.class,
-    GeoServerSecurityAutoConfiguration.WhenDisabled.class
-})
+@Import({GeoServerSecurityAutoConfiguration.WhenEnabled.class, GeoServerSecurityAutoConfiguration.WhenDisabled.class})
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.security")
 public class GeoServerSecurityAutoConfiguration {
 

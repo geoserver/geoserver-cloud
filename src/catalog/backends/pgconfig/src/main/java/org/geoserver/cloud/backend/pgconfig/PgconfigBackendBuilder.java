@@ -4,9 +4,9 @@
  */
 package org.geoserver.cloud.backend.pgconfig;
 
+import javax.sql.DataSource;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.impl.CatalogImpl;
 import org.geoserver.catalog.plugin.CatalogPlugin;
@@ -15,8 +15,6 @@ import org.geoserver.cloud.backend.pgconfig.catalog.PgconfigCatalogFacade;
 import org.geoserver.cloud.backend.pgconfig.config.PgconfigGeoServerFacade;
 import org.geoserver.config.plugin.GeoServerImpl;
 import org.springframework.jdbc.core.JdbcTemplate;
-
-import javax.sql.DataSource;
 
 /**
  * @since 1.4

@@ -6,14 +6,13 @@ package org.geoserver.catalog.plugin.rules;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.BooleanSupplier;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.plugin.CatalogInfoTypeRegistry;
 import org.geoserver.catalog.plugin.PropertyDiff;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.BooleanSupplier;
 
 /**
  * Encapsulates the context on which a catalog add/save/remove operation is being executed,
@@ -132,11 +131,10 @@ public class CatalogOpContext<T extends CatalogInfo> {
     @SuppressWarnings("unchecked")
     public <S extends T> CatalogOpContext<S> as(Class<S> subtype) {
         if (subtype.isInstance(object)) return (CatalogOpContext<S>) this;
-        throw new IllegalArgumentException(
-                "%s<%s> can't be type narrowed to <%s>"
-                        .formatted(
-                                getClass().getSimpleName(),
-                                CatalogInfoTypeRegistry.determineKey(object.getClass()),
-                                subtype.getSimpleName()));
+        throw new IllegalArgumentException("%s<%s> can't be type narrowed to <%s>"
+                .formatted(
+                        getClass().getSimpleName(),
+                        CatalogInfoTypeRegistry.determineKey(object.getClass()),
+                        subtype.getSimpleName()));
     }
 }

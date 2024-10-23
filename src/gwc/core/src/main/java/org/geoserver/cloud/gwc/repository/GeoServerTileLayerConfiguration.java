@@ -4,16 +4,14 @@
  */
 package org.geoserver.cloud.gwc.repository;
 
+import java.util.Optional;
+import java.util.function.Consumer;
 import lombok.NonNull;
-
 import org.geoserver.catalog.Catalog;
 import org.geoserver.cloud.gwc.event.TileLayerEvent;
 import org.geoserver.gwc.layer.GeoServerTileLayer;
 import org.geowebcache.config.TileLayerConfiguration;
 import org.geowebcache.layer.TileLayer;
-
-import java.util.Optional;
-import java.util.function.Consumer;
 
 /**
  * GeoWebCache {@link TileLayerConfiguration} decorator to publish {@link TileLayerEvent}s.
@@ -25,7 +23,8 @@ import java.util.function.Consumer;
  */
 public class GeoServerTileLayerConfiguration extends ForwardingTileLayerConfiguration {
 
-    @NonNull private Consumer<TileLayerEvent> eventPublisher;
+    @NonNull
+    private Consumer<TileLayerEvent> eventPublisher;
 
     public GeoServerTileLayerConfiguration(
             @NonNull TileLayerConfiguration subject, Consumer<TileLayerEvent> eventPublisher) {

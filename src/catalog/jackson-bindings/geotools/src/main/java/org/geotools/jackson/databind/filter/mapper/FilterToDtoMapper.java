@@ -5,7 +5,6 @@
 package org.geotools.jackson.databind.filter.mapper;
 
 import lombok.Generated;
-
 import org.geotools.api.filter.And;
 import org.geotools.api.filter.ExcludeFilter;
 import org.geotools.api.filter.Id;
@@ -105,8 +104,7 @@ interface FilterToDtoMapper {
 
     BinaryComparisonOperator.PropertyIsLessThan toDto(PropertyIsLessThan filter);
 
-    BinaryComparisonOperator.PropertyIsGreaterThanOrEqualTo toDto(
-            PropertyIsGreaterThanOrEqualTo filter);
+    BinaryComparisonOperator.PropertyIsGreaterThanOrEqualTo toDto(PropertyIsGreaterThanOrEqualTo filter);
 
     BinaryComparisonOperator.PropertyIsGreaterThan toDto(PropertyIsGreaterThan filter);
 
@@ -135,8 +133,7 @@ interface FilterToDtoMapper {
             fid = new Filter.Id.FeatureId();
         } else {
             throw new IllegalArgumentException(
-                    "Identifier type not supported: %s"
-                            .formatted(id.getClass().getCanonicalName()));
+                    "Identifier type not supported: %s".formatted(id.getClass().getCanonicalName()));
         }
         fid.setId(((FeatureId) id).getID());
         fid.setPreviousRid(((FeatureId) id).getPreviousRid());

@@ -2,7 +2,6 @@ package org.geoserver.cloud.gwc.config.blobstore;
 
 import lombok.Getter;
 import lombok.NonNull;
-
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Testcontainers;
