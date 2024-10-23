@@ -17,6 +17,9 @@ RUN java -Djarmode=layertools -jar application.jar extract
 ##########
 FROM $REPOSITORY/gs-cloud-base-spring-boot:$TAG
 
+ENV JAVA_TOOL_OPTIONS="${DEFAULT_JAVA_TOOL_OPTIONS} \
+-Duser.projections.file=/etc/geoserver/user_projections/epsg.properties"
+
 # init
 RUN apt update \
 && apt -y upgrade \
