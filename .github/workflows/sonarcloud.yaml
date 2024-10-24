@@ -12,7 +12,12 @@ on:
       - "src/**"
   pull_request:
     types: [opened, synchronize, reopened]
-    
+
+# cancel in-progress jobs or runs for this workflow for the same pr or branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     name: Build and Analyze
