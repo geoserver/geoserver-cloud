@@ -2,13 +2,13 @@
  * (c) 2022 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
  * GPL 2.0 license, available at the root application directory.
  */
-package org.geoserver.cloud.config.jndidatasource;
+package org.geoserver.cloud.autoconfigure.jndi;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.zaxxer.hikari.HikariDataSource;
 
-import org.geoserver.cloud.config.jndi.SimpleJNDIStaticContextInitializer;
+import org.geoserver.cloud.config.jndi.JNDIDataSourceConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
@@ -24,11 +24,10 @@ class JNDIDataSourceAutoConfigurationTest {
     private ApplicationContextRunner runner =
             new ApplicationContextRunner()
                     .withInitializer(new SimpleJNDIStaticContextInitializer())
-                    .withConfiguration(
-                            AutoConfigurations.of(JNDIDataSourceAutoConfiguration.class));
+                    .withConfiguration(AutoConfigurations.of(JNDIDataSourceConfiguration.class));
 
     @Test
-    void test() {
+    void testInitialContextLookup() {
 
         runner.withPropertyValues( //
                         "jndi.datasources.ds1.url: jdbc:h2:mem:ds1", //

@@ -10,9 +10,9 @@ import com.zaxxer.hikari.HikariDataSource;
 import lombok.Getter;
 import lombok.SneakyThrows;
 
+import org.geoserver.cloud.autoconfigure.jndi.SimpleJNDIStaticContextInitializer;
 import org.geoserver.cloud.config.catalog.backend.pgconfig.PgconfigDatabaseMigrations;
-import org.geoserver.cloud.config.jndi.SimpleJNDIStaticContextInitializer;
-import org.geoserver.cloud.config.jndidatasource.JNDIDataSourceAutoConfiguration;
+import org.geoserver.cloud.config.jndi.JNDIDataSourceConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.AbstractApplicationContextRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -94,8 +94,7 @@ public class PgConfigTestContainer<SELF extends PostgreSQLContainer<SELF>>
                 runner
                         // enable simplejndi
                         .withInitializer(new SimpleJNDIStaticContextInitializer())
-                        .withConfiguration(
-                                AutoConfigurations.of(JNDIDataSourceAutoConfiguration.class))
+                        .withConfiguration(AutoConfigurations.of(JNDIDataSourceConfiguration.class))
                         .withPropertyValues(
                                 "geoserver.backend.pgconfig.enabled: true", //
                                 // java:comp/env/jdbc/testdb config properties

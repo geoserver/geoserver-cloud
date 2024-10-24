@@ -6,6 +6,7 @@ package org.geoserver.cloud.config.jndi;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.geoserver.cloud.autoconfigure.jndi.SimpleJNDIStaticContextInitializer;
 import org.geoserver.cloud.jndi.SimpleNamingContext;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
