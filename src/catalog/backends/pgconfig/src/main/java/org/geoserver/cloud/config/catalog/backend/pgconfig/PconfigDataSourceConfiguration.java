@@ -46,9 +46,9 @@ public class PconfigDataSourceConfiguration {
     Object jndiInitializerFallback() {
         log.warn(
                 """
-                jndiInitializer is not provided, beware a JNDI datasource \
-                definition for the pgconfig catalog backend won't work.
-                """);
+                 jndiInitializer is not provided, beware a JNDI datasource \
+                 definition for the pgconfig catalog backend won't work.
+                 """);
         return new Object();
     }
 }

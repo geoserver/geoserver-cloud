@@ -5,14 +5,14 @@
 package org.geoserver.cloud.autoconfigure.catalog.backend.pgconfig;
 
 import org.geoserver.cloud.config.catalog.backend.pgconfig.PconfigDataSourceConfiguration;
-import org.geoserver.cloud.config.jndidatasource.JNDIDataSourceAutoConfiguration;
+import org.geoserver.cloud.config.jndi.JNDIDataSourceConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Import;
 
 /**
  * @since 1.4
  */
-@AutoConfiguration(after = JNDIDataSourceAutoConfiguration.class)
+@AutoConfiguration(after = JNDIDataSourceConfiguration.class)
 @ConditionalOnPgconfigBackendEnabled
 @Import(PconfigDataSourceConfiguration.class)
 public class PgconfigDataSourceAutoConfiguration {}

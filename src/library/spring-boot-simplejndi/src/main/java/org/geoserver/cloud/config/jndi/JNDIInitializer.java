@@ -2,7 +2,7 @@
  * (c) 2022 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
  * GPL 2.0 license, available at the root application directory.
  */
-package org.geoserver.cloud.config.jndidatasource;
+package org.geoserver.cloud.config.jndi;
 
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -28,12 +28,17 @@ public class JNDIInitializer implements InitializingBean {
 
     private JNDIDataSourcesConfigurationProperties config;
 
+    static boolean initialized = false;
+
     JNDIInitializer(JNDIDataSourcesConfigurationProperties config) {
         this.config = config;
     }
 
     @Override
     public void afterPropertiesSet() throws Exception {
+        if (initialized)
+            throw new IllegalStateException("JNDI already initialized or failed. Giving up.");
+        initialized = true;
 
         Map<String, JNDIDatasourceConfig> configs = config.getDatasources();
 
@@ -52,8 +57,12 @@ public class JNDIInitializer implements InitializingBean {
                                 props.setName(name);
                             }
                         });
-        configs.entrySet()
-                .forEach(e -> setUpDataSource(toJndiDatasourceName(e.getKey()), e.getValue()));
+        try {
+            configs.entrySet()
+                    .forEach(e -> setUpDataSource(toJndiDatasourceName(e.getKey()), e.getValue()));
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     String toJndiDatasourceName(String dsname) {
