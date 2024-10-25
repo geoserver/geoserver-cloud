@@ -17,7 +17,7 @@ services:
   init-datadir:
     image: alpine:3.18.4
     user: ${GS_USER}
-    command: sh -c "cd /opt/app/data_directory; if [ ! -f global.xml ]; then tar xfvz /tmp/datadir.tgz; fi"
+    command: sh -c "cd /opt/app/data_directory; if [ ! -f global.xml ]; then tar xvzf /tmp/datadir.tgz; fi"
     volumes:
       - datadir:/opt/app/data_directory
       - ./catalog-datadir.tgz:/tmp/datadir.tgz

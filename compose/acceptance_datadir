@@ -1,9 +1,9 @@
 #/bin/bash
 
-UID=$(id -u)
-GID=$(id -g)
+GSUID=$(id -u)
+GSGID=$(id -g)
 
-GS_USER=$UID:$GID COMPOSE_PROJECT_NAME=gscloud-acceptance-datadir \
+GS_USER=$GSUID:$GSGID COMPOSE_PROJECT_NAME=gscloud-acceptance-datadir \
 docker compose \
 -f compose.yml \
 -f catalog-datadir.yml \
