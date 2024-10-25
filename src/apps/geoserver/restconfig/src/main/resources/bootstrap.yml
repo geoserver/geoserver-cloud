@@ -36,6 +36,7 @@ spring:
       - org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration
       - org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration
       - org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration
+      - org.springframework.boot.autoconfigure.ldap.LdapAutoConfiguration
       
 
 # override default of true, this service does not use the registry (when eureka client is enabled)
