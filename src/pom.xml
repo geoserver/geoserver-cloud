@@ -414,6 +414,32 @@
         <version>${gs.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.geoserver.security</groupId>
+        <artifactId>gs-sec-jdbc</artifactId>
+        <version>${gs.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.web</groupId>
+        <artifactId>gs-web-sec-jdbc</artifactId>
+        <version>${gs.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.security</groupId>
+        <artifactId>gs-sec-ldap</artifactId>
+        <version>${gs.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.web</groupId>
+        <artifactId>gs-web-sec-ldap</artifactId>
+        <version>${gs.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.geoserver</groupId>
         <artifactId>gs-rest</artifactId>
         <version>${gs.version}</version>
