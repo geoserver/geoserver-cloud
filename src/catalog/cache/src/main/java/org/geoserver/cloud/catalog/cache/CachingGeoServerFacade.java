@@ -16,8 +16,10 @@ import org.geoserver.cloud.event.config.GeoServerInfoModified;
 import org.geoserver.cloud.event.config.GeoServerInfoSet;
 import org.geoserver.cloud.event.config.LoggingInfoModified;
 import org.geoserver.cloud.event.config.LoggingInfoSet;
+import org.geoserver.cloud.event.config.ServiceAdded;
 import org.geoserver.cloud.event.config.ServiceModified;
 import org.geoserver.cloud.event.config.ServiceRemoved;
+import org.geoserver.cloud.event.config.SettingsAdded;
 import org.geoserver.cloud.event.config.SettingsModified;
 import org.geoserver.cloud.event.config.SettingsRemoved;
 import org.geoserver.cloud.event.info.ConfigInfoType;
@@ -90,8 +92,8 @@ public class CachingGeoServerFacade extends ForwardingGeoServerFacade {
         evictConfigEntry(event);
     }
 
-    @EventListener(classes = SettingsModified.class)
-    void onSettingsInfoModifyEvent(SettingsModified event) {
+    @EventListener(classes = ServiceAdded.class)
+    void onServiceInfoAddEvent(ServiceAdded event) {
         evictConfigEntry(event);
     }
 
@@ -100,13 +102,23 @@ public class CachingGeoServerFacade extends ForwardingGeoServerFacade {
         evictConfigEntry(event);
     }
 
-    @EventListener(classes = SettingsRemoved.class)
-    void onSettingsInfoRemoveEvent(SettingsRemoved event) {
+    @EventListener(classes = ServiceRemoved.class)
+    void onServiceInfoRemoveEvent(ServiceRemoved event) {
         evictConfigEntry(event);
     }
 
-    @EventListener(classes = ServiceRemoved.class)
-    void onServiceInfoRemoveEvent(ServiceRemoved event) {
+    @EventListener(classes = SettingsAdded.class)
+    void onSettingsInfoAddEvent(SettingsAdded event) {
+        evictConfigEntry(event);
+    }
+
+    @EventListener(classes = SettingsModified.class)
+    void onSettingsInfoModifyEvent(SettingsModified event) {
+        evictConfigEntry(event);
+    }
+
+    @EventListener(classes = SettingsRemoved.class)
+    void onSettingsInfoRemoveEvent(SettingsRemoved event) {
         evictConfigEntry(event);
     }
 

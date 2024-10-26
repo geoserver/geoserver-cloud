@@ -115,7 +115,7 @@ services:
       SPRING_PROFILES_ACTIVE: "${GATEWAY_DEFAULT_PROFILES}"
       GATEWAY_SHARED_AUTH: "${GATEWAY_SHARED_AUTH}" #same as in gstemplate
     ports:
-      - 9090:8080
+      - ${GATEWAY_PORT}:8080
     deploy:
       resources:
         limits:
