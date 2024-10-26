@@ -11,11 +11,9 @@ import static org.geoserver.cloud.event.info.ConfigInfoType.NAMESPACE;
 import static org.geoserver.cloud.event.info.ConfigInfoType.SERVICE;
 import static org.geoserver.cloud.event.info.ConfigInfoType.SETTINGS;
 import static org.geoserver.cloud.event.info.ConfigInfoType.WORKSPACE;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -24,7 +22,6 @@ import static org.mockito.Mockito.when;
 
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.WorkspaceInfo;
-import org.geoserver.catalog.impl.ResolvingProxy;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.cloud.autoconfigure.catalog.event.LocalCatalogEventsAutoConfiguration;
@@ -167,6 +164,7 @@ class CachingGeoServerFacadeTest {
     public <E extends UpdateSequenceEvent> void testUpdateSequenceEvent(Class<E> eventType) {
         E event = mock(eventType);
         when(event.getUpdateSequence()).thenReturn(1000L);
+        when(event.isRemote()).thenReturn(true);
         when(this.global.getUpdateSequence()).thenReturn(999L);
 
         assertSameTimesN(global, caching::getGlobal, 3);
@@ -182,7 +180,7 @@ class CachingGeoServerFacadeTest {
         assertThat(cache.get(GEOSERVERINFO_KEY)).isNotNull();
 
         GeoServerInfoModified event = event(GeoServerInfoModified.class, "global", GEOSERVER);
-        caching.onGeoServerInfoModifyEvent(event);
+        caching.onUpdateSequenceEvent(event);
         assertThat(cache.get(GEOSERVERINFO_KEY)).isNull();
     }
 
@@ -192,7 +190,7 @@ class CachingGeoServerFacadeTest {
         assertThat(cache.get(GEOSERVERINFO_KEY)).isNotNull();
 
         GeoServerInfoSet event = event(GeoServerInfoSet.class, "global", GEOSERVER);
-        caching.onGeoServerInfoSetEvent(event);
+        caching.onUpdateSequenceEvent(event);
         assertThat(cache.get(GEOSERVERINFO_KEY)).isNull();
     }
 
@@ -202,7 +200,7 @@ class CachingGeoServerFacadeTest {
         assertThat(cache.get(LOGGINGINFO_KEY)).isNotNull();
 
         LoggingInfoModified event = event(LoggingInfoModified.class, "logging", LOGGING);
-        caching.onLoggingInfoModifyEvent(event);
+        caching.onUpdateSequenceEvent(event);
         assertThat(cache.get(LOGGINGINFO_KEY)).isNull();
     }
 
@@ -212,7 +210,7 @@ class CachingGeoServerFacadeTest {
         assertThat(cache.get(LOGGINGINFO_KEY)).isNotNull();
 
         LoggingInfoSet event = event(LoggingInfoSet.class, "logging", LOGGING);
-        caching.onLoggingInfoSetEvent(event);
+        caching.onUpdateSequenceEvent(event);
         assertThat(cache.get(LOGGINGINFO_KEY)).isNull();
     }
 
@@ -228,7 +226,7 @@ class CachingGeoServerFacadeTest {
         final String wsid = workspace.getId();
         when(event.getWorkspaceId()).thenReturn(wsid);
 
-        caching.onSettingsInfoModifyEvent(event);
+        caching.onUpdateSequenceEvent(event);
         assertThat(cache.get(idKey)).isNull();
         assertThat(cache.get(wsKey)).isNull();
     }
@@ -245,7 +243,7 @@ class CachingGeoServerFacadeTest {
         final String wsid = workspace.getId();
         when(event.getWorkspaceId()).thenReturn(wsid);
 
-        caching.onSettingsInfoRemoveEvent(event);
+        caching.onUpdateSequenceEvent(event);
         assertThat(cache.get(idKey)).isNull();
         assertThat(cache.get(wsKey)).isNull();
     }
@@ -269,7 +267,7 @@ class CachingGeoServerFacadeTest {
         assertThat(cache.get(nameKey)).isNotNull();
         assertThat(cache.get(typeKey)).isNotNull();
 
-        caching.onServiceInfoModifyEvent(event);
+        caching.onUpdateSequenceEvent(event);
 
         assertThat(cache.get(idKey)).isNull();
         assertThat(cache.get(nameKey)).isNull();
@@ -281,7 +279,7 @@ class CachingGeoServerFacadeTest {
         assertThat(cache.get(nameKey)).isNotNull();
         assertThat(cache.get(typeKey)).isNotNull();
 
-        caching.onServiceInfoModifyEvent(event);
+        caching.onUpdateSequenceEvent(event);
 
         assertThat(cache.get(idKey)).isNull();
         assertThat(cache.get(nameKey)).isNull();
@@ -312,7 +310,7 @@ class CachingGeoServerFacadeTest {
         assertThat(cache.get(nameKey)).isNotNull();
         assertThat(cache.get(typeKey)).isNotNull();
 
-        caching.onServiceInfoRemoveEvent(event);
+        caching.onUpdateSequenceEvent(event);
 
         assertThat(cache.get(idKey)).isNull();
         assertThat(cache.get(nameKey)).isNull();
@@ -338,19 +336,12 @@ class CachingGeoServerFacadeTest {
 
         // not a workspace removed event, shall not
         CatalogInfoRemoved event = event(CatalogInfoRemoved.class, "fakeid", NAMESPACE);
-        caching.onWorkspaceRemoved(event);
-
-        await().during(Duration.ofMillis(500))
-                .then()
-                .untilAsserted(
-                        () ->
-                                assertThat(nativeCache.estimatedSize())
-                                        .isGreaterThanOrEqualTo(initialSize));
+        caching.onUpdateSequenceEvent(event);
 
         // this listener shall work with both local and remote events
         event = event(CatalogInfoRemoved.class, ws.getId(), WORKSPACE);
         when(event.isRemote()).thenReturn(false);
-        caching.onWorkspaceRemoved(event);
+        caching.onUpdateSequenceEvent(event);
         await().atMost(Duration.ofMillis(500))
                 .untilAsserted(() -> assertThat(nativeCache.asMap()).isEmpty());
 
@@ -360,7 +351,7 @@ class CachingGeoServerFacadeTest {
         caching.getService(ws, ServiceInfo.class);
         assertThat(nativeCache.estimatedSize()).isGreaterThan(3);
         when(event.isRemote()).thenReturn(true);
-        caching.onWorkspaceRemoved(event);
+        caching.onUpdateSequenceEvent(event);
         await().atMost(Duration.ofMillis(500))
                 .untilAsserted(() -> assertThat(nativeCache.asMap()).isEmpty());
     }
@@ -594,73 +585,6 @@ class CachingGeoServerFacadeTest {
         assertNotNull(cache.get(idKey));
         assertNotNull(cache.get(nameKey));
         assertNotNull(cache.get(typeKey));
-    }
-
-    /** {@link CachingGeoServerFacade#evict(Info)} manual eviction aid */
-    @Test
-    void testEvict_GeoServerInfo() {
-        GeoServerInfo gsProxy = ResolvingProxy.create("someid", GeoServerInfo.class);
-        assertFalse(caching.evict(gsProxy));
-        cache.put(GEOSERVERINFO_KEY, global);
-        assertTrue(caching.evict(gsProxy));
-        assertFalse(caching.evict(gsProxy));
-        assertNull(cache.get(GEOSERVERINFO_KEY));
-    }
-
-    /** {@link CachingGeoServerFacade#evict(Info)} manual eviction aid */
-    @Test
-    void testEvict_LoggingInfo() {
-        LoggingInfo loggingProxy = ResolvingProxy.create(settings.getId(), LoggingInfo.class);
-        assertFalse(caching.evict(loggingProxy));
-        cache.put(LOGGINGINFO_KEY, logging);
-        assertTrue(caching.evict(loggingProxy));
-        assertFalse(caching.evict(loggingProxy));
-        assertNull(cache.get(LOGGINGINFO_KEY));
-    }
-
-    /** {@link CachingGeoServerFacade#evict(Info)} manual eviction aid */
-    @Test
-    void testEvict_SettingsInfo() {
-        assertNotNull(settings.getWorkspace());
-        Object wsKey = CachingGeoServerFacade.settingsKey(settings.getWorkspace());
-        final String id = settings.getId();
-
-        assertFalse(caching.evict(settings));
-
-        cache.put(id, settings);
-        cache.put(wsKey, settings);
-
-        assertNotNull(cache.get(id));
-        assertNotNull(cache.get(wsKey));
-
-        assertTrue(caching.evict(settings));
-        assertFalse(caching.evict(settings));
-
-        assertNull(cache.get(id));
-        assertNull(cache.get(wsKey));
-    }
-
-    /** {@link CachingGeoServerFacade#evict(Info)} manual eviction aid */
-    @Test
-    void testEvict_ServiceInfo() {
-        TestService1 service = service1;
-        ServiceInfoKey idKey = ServiceInfoKey.byId(service.getId());
-        ServiceInfoKey nameKey = ServiceInfoKey.byName(service.getWorkspace(), service.getName());
-        ServiceInfoKey typeKey = ServiceInfoKey.byType(service.getWorkspace(), service.getClass());
-
-        ServiceInfo serviceProxy = ResolvingProxy.create(service.getId(), TestService1.class);
-        assertFalse(caching.evict(serviceProxy));
-
-        cache.put(idKey, service);
-        cache.put(nameKey, service);
-        cache.put(typeKey, service);
-
-        assertTrue(caching.evict(serviceProxy));
-        assertFalse(caching.evict(serviceProxy));
-
-        assertNull(cache.get(idKey));
-        assertNull(cache.get(nameKey));
-        assertNull(cache.get(typeKey));
     }
 
     private <T extends Info> void assertSameTimesN(T info, Supplier<T> query, int times) {
