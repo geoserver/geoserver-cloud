@@ -263,7 +263,6 @@ services:
     image: geoservercloud/geoserver-cloud-webui:1.8.12
     user: 1000:1000 # set the userid:groupid the container runs as
     environment:
-      JAVA_OPTS: -XX:MaxRAMPercentage=80 -XshowSettings:system 
       SPRING_PROFILES_ACTIVE: "pgconfig,acl"
       ACL_URL: http://acl:8080/acl/api
       ACL_USERNAME: admin
