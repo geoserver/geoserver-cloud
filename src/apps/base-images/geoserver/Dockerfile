@@ -32,6 +32,9 @@ fonts-freefont-ttf \
 fonts-material-design-icons-iconfont \
 fonts-materialdesignicons-webfont \
 fonts-roboto \
+fonts-noto \
+unifont \
+fonts-hanazono \
 && apt clean \
 && apt purge -y  \
 && apt autoremove --purge -y \
