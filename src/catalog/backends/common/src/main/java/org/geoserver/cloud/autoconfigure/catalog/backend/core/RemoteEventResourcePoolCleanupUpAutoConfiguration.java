@@ -22,7 +22,7 @@ import org.springframework.context.annotation.Bean;
 @AutoConfiguration
 @ConditionalOnClass(InfoEvent.class)
 @ConditionalOnCatalogEvents
-public class RemoteEventResourcePoolCleaupUpAutoConfiguration {
+public class RemoteEventResourcePoolCleanupUpAutoConfiguration {
 
     @Bean
     RemoteEventResourcePoolProcessor remoteEventResourcePoolProcessor(

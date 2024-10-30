@@ -48,7 +48,8 @@ class DataDirectoryAutoConfigurationTest {
                                     org.geoserver.cloud.autoconfigure.catalog.backend.core
                                             .XstreamServiceLoadersAutoConfiguration.class,
                                     org.geoserver.cloud.autoconfigure.catalog.backend.core
-                                            .RemoteEventResourcePoolCleaupUpAutoConfiguration.class,
+                                            .RemoteEventResourcePoolCleanupUpAutoConfiguration
+                                            .class,
                                     org.geoserver.cloud.autoconfigure.security
                                             .GeoServerSecurityAutoConfiguration.class,
                                     org.geoserver.cloud.autoconfigure.metrics.catalog
