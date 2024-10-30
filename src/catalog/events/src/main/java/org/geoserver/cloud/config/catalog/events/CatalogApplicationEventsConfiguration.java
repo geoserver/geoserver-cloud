@@ -6,6 +6,7 @@ package org.geoserver.cloud.config.catalog.events;
 
 import org.geoserver.catalog.Catalog;
 import org.geoserver.cloud.event.info.InfoEvent;
+import org.geoserver.cloud.event.lifecycle.LifecycleEvent;
 import org.geoserver.config.GeoServer;
 import org.geoserver.platform.config.UpdateSequence;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -31,5 +32,13 @@ public class CatalogApplicationEventsConfiguration {
         Supplier<Long> updateSequenceIncrementor = updateSequence::nextValue;
         return new CatalogApplicationEventPublisher(
                 publisher, catalog, geoServer, updateSequenceIncrementor);
+    }
+
+    @Bean
+    GeoServerLifecycleEventPublisher localGeoServerLifecycleEventPublisher(
+            ApplicationEventPublisher localContextPublisher) {
+        Consumer<? super LifecycleEvent> publisher = localContextPublisher::publishEvent;
+
+        return new GeoServerLifecycleEventPublisher(publisher);
     }
 }

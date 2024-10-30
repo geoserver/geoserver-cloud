@@ -6,9 +6,13 @@ package org.geoserver.cloud.config.catalog.events;
 
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.plugin.CatalogPlugin;
+import org.geoserver.config.DefaultGeoServerLoader;
 import org.geoserver.config.GeoServer;
+import org.geoserver.config.GeoServerLoader;
 import org.geoserver.config.plugin.GeoServerImpl;
 import org.geoserver.config.util.XStreamPersisterFactory;
+import org.geoserver.platform.GeoServerExtensions;
+import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.config.DefaultUpdateSequence;
 import org.geoserver.platform.config.UpdateSequence;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -41,5 +45,24 @@ class TestConfigurationAutoConfiguration {
         GeoServerImpl gs = new org.geoserver.config.plugin.GeoServerImpl();
         gs.setCatalog(catalog);
         return gs;
+    }
+
+    @Bean
+    GeoServerExtensions geoserverExtensions() {
+        return new GeoServerExtensions();
+    }
+
+    @Bean
+    GeoServerResourceLoader geoServerResourceLoader() {
+        return new GeoServerResourceLoader();
+    }
+
+    @Bean
+    GeoServerLoader geoserverLoader(
+            @Qualifier("geoServer") GeoServer geoServer,
+            @Qualifier("geoServerResourceLoader") GeoServerResourceLoader geoServerResourceLoader) {
+        DefaultGeoServerLoader loader = new DefaultGeoServerLoader(geoServerResourceLoader);
+        loader.postProcessBeforeInitialization(geoServer, "geoserver");
+        return loader;
     }
 }
