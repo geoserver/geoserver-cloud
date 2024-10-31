@@ -7,7 +7,7 @@ volumes:
     #driver_opts:
       #type: none
       #o: bind
-      #device: $PWD/datadir
+      #device: $PWD/datadir:z
   rabbitmq_data: # volume for rabbitmq data, so it doesn't create an anonymous one on each container
   geowebcache_data: # used by gwc and web-ui to locate the default gwc tile cache directory
         

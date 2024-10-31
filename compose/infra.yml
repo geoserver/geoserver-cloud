@@ -26,7 +26,7 @@ services:
     tmpfs:
       - /var/lib/rabbitmq
     volumes:
-      - $PWD/../config/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+      - $PWD/../config/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:Z
     #  - rabbitmq_data:/var/lib/rabbitmq
     ports:
       - "5672:5672"
