@@ -120,56 +120,113 @@ Each microservice is its own self-contained application, including only the GeoS
 
 # Building
 
-## Requirements:
+Check out the [build instructions](build_instructions.md) document.
 
- * Java >= 11 JDK
- * [Maven](https://maven.apache.org/) >= `3.6.3`
- * [Docker](https://docs.docker.com/engine/install/) version >= `19.03.3`
- * [docker-compose](https://docs.docker.com/compose/) version >= `1.26.2`
+## Running for development and testing
 
-*CN GeoServer* uses [Apache Maven](http://maven.apache.org/) (included) for a build system.
+The `./compose` folder contains docker-compose files intended only for **development**.
 
-You need to have [docker](https://www.docker.com/) and [docker-compose](https://docs.docker.com/compose/install/) installed.
+> For instructions on running GeoServer Cloud in your environment, follow the [Quick Start](https://geoserver.org/geoserver-cloud/#quick-start) guide on the user guide.
 
-## Build
+### Run as non-root
 
-Clone the repository, including submodules:
+First thing first, edit the `.env` file to set the `GS_USER` variable to the user and group ids the applications should run as.
 
-```bash
-git clone --recursive /data2/groldan/git/geoserver-microservices
+Usually the GID and UID of your user, such as:
+
+```
+echo `id -g`:`id -u`
+1000:1000
 ```
 
-To build the applications run the following command from the root project directory:
+### Choose your Catalog and Configuration back-end
+
+You need to run `compose.yml` and pick one compose override file for a given GeoServer Catalog and Configuration back-end.
+
+#### DataDirectory Catalog back-end
+
+The `datadir` spring boot profile enables the traditional "data directory" catalog back-end,
+with all GeoServer containers sharing the same directory. On a k8s deployment you would need a
+`ReadWriteMany` persistent volume.
+
+GeoServer-Cloud can start from an empty data directory.
+
+The `catalog-datadir.yml` docker compose override enables the `datadir` profile and
+initializes a volume with the default GeoServer release data directory.
+
+Run with:
 
 ```bash
-./mvnw clean install
+$ docker compose -f compose.yml -f catalog-datadir.yml
 ```
 
-That will compile, run unit and integration tests, install maven artifacts to the local maven repository, and create all microservices docker images.
-The maven build uses the `com.spotify:dockerfile-maven-plugin` maven plugin to build the microservice docker images.
-
-The simple build command above creates the following docker images:
+or the more convenient shell script:
 
 ```bash
-$ docker images|grep geoserver-cloud|sort
-geoservercloud/geoserver-cloud-config                1.8.12        be987ff2a85e        42 minutes ago      319MB
-geoservercloud/geoserver-cloud-discovery             1.8.12        abc5a17cf14c        42 minutes ago      320MB
-geoservercloud/geoserver-cloud-gateway               1.8.12        10f267950c15        42 minutes ago      317MB
-geoservercloud/geoserver-cloud-rest                  1.8.12        29406a1e1fdb        36 minutes ago      429MB
-geoservercloud/geoserver-cloud-wcs                   1.8.12        c77ac22aa522        37 minutes ago      391MB
-geoservercloud/geoserver-cloud-webui                 1.8.12        876d6fc3fac0        36 minutes ago      449MB
-geoservercloud/geoserver-cloud-wfs                   1.8.12        62960137eb5a        38 minutes ago      410MB
-geoservercloud/geoserver-cloud-wms                   1.8.12        6686ca90b552        38 minutes ago      437MB
-geoservercloud/geoserver-cloud-wps                   1.8.12        73bae600226c        37 minutes ago      416MB
+$ ./datadir up -d
 ```
 
-To run the build without building the docker images, disable the `docker` maven profile:
+#### PostgreSQL Catalog back-end
+
+The `pgconfig` spring boot profile enables the PostgreSQL catalog back-end.
+
+This is the preferred Catalog back-end for production deployments,
+and requires a PostgreSQL 15.0+ database
+
+The `catalog-pgconfig.yml` docker compose override enables the `pgconfig` profile and
+sets up a PostgreSQL container named `pgconfigdb`.
+
+> On a production deployment, it is expected that the database is a provided service
+and not part of the GeoServer Cloud deployment.
+
+Run with:
 
 ```bash
-$ ./mvnw clean install -P-docker
+$ docker compose -f compose.yml -f catalog-pgconfig.yml
 ```
 
-# Running
+Or the more convenient shell script:
+
+```
+$ ./pgconfig up -d
+```
+
+**PGBouncer**:
+
+Given the `pgconfig` catalog back-end will set up a database connection pool on each container,
+when scaling out you might run out of available connections in the Postgres server. A good way
+to avoid that and make better use of resources is to use a connection pooling service, such
+as [pgbouncer](https://www.pgbouncer.org/).
+
+Use the `catalog-pgconfig.yml` in combination with the `pgbouncer.yml` docker compose override. `pgbouncer.yml`
+will override the three database containers with separate pgbouncer instances for each:
+
+* `pgconfigdb` becomes a `pgbouncer` container pointing to the `pgconfigdb_pg` container.
+* `acldb` becomes a `pgbouncer` container pointing to the `acldb_pg` container, and holds the [GeoServer ACL](https://github.com/geoserver/geoserver-acl) database
+* `postgis` becomes a `pgbouncer` container pointing to the `postgis_pg` container.
+
+> The `postgis` is container used to host sample data, it is not required but useful during development.
+
+#### Access GeoServer
+
+Verify the services are running with `dcd ps` or `dcp ps` as appropriate.
+
+```
+$ curl "http://localhost:9090/geoserver/cloud/ows?request=getcapabilities&service={WMS,WFS,WCS,WPS}"
+$ curl -u admin:geoserver "http://localhost:9090/geoserver/cloud/rest/workspaces.json"
+```
+
+Browse to [http://localhost:9090/geoserver/cloud/](http://localhost:9090/geoserver/cloud/)
+
+> Note the `/geoserver/cloud` context path is set up in the `gateway-service`'s externalized
+> configuration, and enforced through the `GEOSERVER_BASE_PATH` in `compose.yml`.
+> You can change it to whatever you want. The default [gateway-service.yml](https://github.com/geoserver/geoserver-cloud-config/blob/master/gateway-service.yml)
+> configuration file does not set up a context path at all, and hence GeoServer will
+> be available at the root URL.
+
+---
+
+# Running for development
 
 ## docker-compose
 
