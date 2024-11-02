@@ -11,7 +11,7 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: $PWD/catalog-datadir:z
+      device: $PWD/catalog-datadir
   
 services:
   init-datadir:
@@ -28,7 +28,7 @@ services:
       init-datadir:
         condition: service_completed_successfully
     volumes:
-      - datadir:/opt/app/data_directory
+      - datadir:/opt/app/data_directory:z
 
   wms:
     environment:
@@ -37,7 +37,7 @@ services:
       init-datadir:
         condition: service_completed_successfully
     volumes:
-      - datadir:/opt/app/data_directory
+      - datadir:/opt/app/data_directory:z
 
   wcs:
     environment:
@@ -46,7 +46,7 @@ services:
       init-datadir:
         condition: service_completed_successfully
     volumes:
-      - datadir:/opt/app/data_directory
+      - datadir:/opt/app/data_directory:z
 
   wps:
     environment:
@@ -55,7 +55,7 @@ services:
       init-datadir:
         condition: service_completed_successfully
     volumes:
-      - datadir:/opt/app/data_directory
+      - datadir:/opt/app/data_directory:z
 
   rest:
     environment:
@@ -64,7 +64,7 @@ services:
       init-datadir:
         condition: service_completed_successfully
     volumes:
-      - datadir:/opt/app/data_directory
+      - datadir:/opt/app/data_directory:z
 
   webui:
     environment:
@@ -73,7 +73,7 @@ services:
       init-datadir:
         condition: service_completed_successfully
     volumes:
-      - datadir:/opt/app/data_directory
+      - datadir:/opt/app/data_directory:z
 
   gwc:
     environment:
@@ -82,4 +82,4 @@ services:
       init-datadir:
         condition: service_completed_successfully
     volumes:
-      - datadir:/opt/app/data_directory
+      - datadir:/opt/app/data_directory:z

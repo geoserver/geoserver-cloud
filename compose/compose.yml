@@ -7,7 +7,7 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: $PWD/../config:z
+      device: $PWD/../config
     driver: local
 
 x-gs-dependencies: &gs-dependencies
@@ -70,7 +70,7 @@ services:
   #  restart: unless-stopped
     volumes:
       # override with the local copy to test config changes during development
-      - config:/etc/geoserver
+      - config:/etc/geoserver:ro
     ports:
       # not needed in production, exposed for local development
       - 8888:8080

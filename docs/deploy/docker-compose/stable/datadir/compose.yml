@@ -1,13 +1,12 @@
 volumes:
-  # a volume to host the shared data directory. Mount it at /opt/app/data_directory, since
-  # /opt/app is owned by the user geo:geo (603:603) in the containers. Otherwise it'd be owned by root
+  # a volume to host the shared data directory. Mount it at /opt/app/data_directory,
   # uncomment the driver_opts entry to bind mount an existing datadirectory and set the device: <path>
   # accordingly to the location of the data directory in the host
   shared_data_directory:
     #driver_opts:
       #type: none
       #o: bind
-      #device: $PWD/datadir:z
+      #device: $PWD/datadir
   rabbitmq_data: # volume for rabbitmq data, so it doesn't create an anonymous one on each container
   geowebcache_data: # used by gwc and web-ui to locate the default gwc tile cache directory
         
@@ -89,7 +88,7 @@ services:
       SPRING_PROFILES_ACTIVE: "datadir"
       GEOSERVER_DATA_DIR: /opt/app/data_directory
     volumes:
-      - shared_data_directory:/opt/app/data_directory
+      - shared_data_directory:/opt/app/data_directory:z
     deploy:
       resources:
         limits:
@@ -107,7 +106,7 @@ services:
       GEOSERVER_DATA_DIR: /opt/app/data_directory
       GEOWEBCACHE_CACHE_DIR: /data/geowebcache
     volumes:
-      - shared_data_directory:/opt/app/data_directory
+      - shared_data_directory:/opt/app/data_directory:z
       - geowebcache_data:/data/geowebcache
     deploy:
       resources:
@@ -125,7 +124,7 @@ services:
       SPRING_PROFILES_ACTIVE: "datadir"
       GEOSERVER_DATA_DIR: /opt/app/data_directory
     volumes:
-      - shared_data_directory:/opt/app/data_directory
+      - shared_data_directory:/opt/app/data_directory:z
     deploy:
       resources:
         limits:
@@ -142,7 +141,7 @@ services:
       SPRING_PROFILES_ACTIVE: "datadir"
       GEOSERVER_DATA_DIR: /opt/app/data_directory
     volumes:
-      - shared_data_directory:/opt/app/data_directory
+      - shared_data_directory:/opt/app/data_directory:z
     deploy:
       mode: replicated
       replicas: 1
@@ -162,7 +161,7 @@ services:
       GEOSERVER_DATA_DIR: /opt/app/data_directory
       GEOWEBCACHE_CACHE_DIR: /data/geowebcache
     volumes:
-      - shared_data_directory:/opt/app/data_directory
+      - shared_data_directory:/opt/app/data_directory:z
       - geowebcache_data:/data/geowebcache
     deploy:
       resources:
@@ -179,7 +178,7 @@ services:
       GEOSERVER_DATA_DIR: /opt/app/data_directory
       GEOWEBCACHE_CACHE_DIR: /data/geowebcache
     volumes:
-      - shared_data_directory:/opt/app/data_directory
+      - shared_data_directory:/opt/app/data_directory:z
       - geowebcache_data:/data/geowebcache
     deploy:
       resources:
