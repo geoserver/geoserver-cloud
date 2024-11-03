@@ -4,29 +4,40 @@
  */
 package org.geoserver.cloud.gwc.repository;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import org.apache.commons.io.FileUtils;
 import org.geoserver.catalog.impl.ModificationProxy;
+import org.geoserver.gwc.layer.GWCGeoServerConfigurationProvider;
 import org.geoserver.gwc.layer.GeoServerTileLayerInfo;
 import org.geoserver.gwc.layer.GeoServerTileLayerInfoImpl;
 import org.geoserver.gwc.layer.StyleParameterFilter;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.ResourceStore;
 import org.geoserver.util.DimensionWarning.WarningType;
+import org.geowebcache.config.XMLConfigurationProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.web.context.WebApplicationContext;
+import org.xmlunit.assertj.XmlAssert;
+import org.xmlunit.builder.Input;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -46,40 +57,105 @@ class ResourceStoreTileLayerCatalogTest {
     void setUp() {
         resourceLoader = new GeoServerResourceLoader(baseDirectory);
         new File(baseDirectory, "gwc-layers").mkdir();
-        Optional<WebApplicationContext> webappCtx = Optional.empty();
+
+        WebApplicationContext context = mock(WebApplicationContext.class);
+
+        Map<String, XMLConfigurationProvider> configProviders =
+                Map.of("gs", new GWCGeoServerConfigurationProvider());
+
+        when(context.getBeansOfType(XMLConfigurationProvider.class)).thenReturn(configProviders);
+        when(context.getBean("gs")).thenReturn(configProviders.get("gs"));
+
+        Optional<WebApplicationContext> webappCtx = Optional.of(context);
         catalog = new ResourceStoreTileLayerCatalog(resourceLoader, webappCtx);
         catalog.initialize();
     }
 
+    private GeoServerTileLayerInfo add(String id, String name) {
+        GeoServerTileLayerInfo info = new GeoServerTileLayerInfoImpl();
+        info.setId(id);
+        info.setName(name);
+        catalog.save(info);
+        return info;
+    }
+
+    @Test
+    void testGetLayerIds() {
+        assertThat(catalog.getLayerIds()).isEmpty();
+
+        add("id1", "layer1");
+        assertThat(catalog.getLayerIds()).containsExactly("id1");
+
+        add("id2", "layer2");
+        assertThat(catalog.getLayerIds()).containsExactlyInAnyOrder("id1", "id2");
+    }
+
+    @Test
+    void testGetLayerId() {
+        assertThat(catalog.getLayerId("layer1")).isNull();
+
+        add("id1", "layer1");
+        add("id2", "layer2");
+
+        assertThat(catalog.getLayerId("layer1")).isEqualTo("id1");
+        assertThat(catalog.getLayerId("layer2")).isEqualTo("id2");
+    }
+
     @Test
     void testGetLayerById() {
-        GeoServerTileLayerInfo info = new GeoServerTileLayerInfoImpl();
-        info.setId("id1");
-        info.setName("name1");
-        catalog.save(info);
+        GeoServerTileLayerInfo info = add("id1", "name1");
         GeoServerTileLayerInfo actual = catalog.getLayerById("id1");
         actual = ModificationProxy.unwrap(actual);
         assertEquals(info, actual);
     }
 
     @Test
+    void testGetLayerName() {
+        assertThat(catalog.getLayerName("id1")).isNull();
+
+        add("id1", "layer1");
+        add("id2", "layer2");
+
+        assertThat(catalog.getLayerName("id1")).isEqualTo("layer1");
+        assertThat(catalog.getLayerName("id2")).isEqualTo("layer2");
+    }
+
+    @Test
+    void testGetLayerNames() {
+        assertThat(catalog.getLayerNames()).isEmpty();
+
+        add("id1", "layer1");
+        assertThat(catalog.getLayerNames()).containsExactly("layer1");
+
+        add("id2", "layer2");
+        assertThat(catalog.getLayerNames()).containsExactlyInAnyOrder("layer1", "layer2");
+    }
+
+    @Test
     void testGetLayerByName() {
-        GeoServerTileLayerInfo info = new GeoServerTileLayerInfoImpl();
-        info.setId("id1");
-        info.setName("name1");
-        catalog.save(info);
+        GeoServerTileLayerInfo info = add("id1", "name1");
         GeoServerTileLayerInfo actual = catalog.getLayerByName("name1");
         actual = ModificationProxy.unwrap(actual);
         assertEquals(info, actual);
     }
 
     @Test
-    void testDelete() {
-        GeoServerTileLayerInfo info = new GeoServerTileLayerInfoImpl();
-        info.setId("id1");
-        info.setName("name1");
-        catalog.save(info);
+    void testExists() {
+        assertThat(catalog.exists("id1")).isFalse();
 
+        add("id1", "layer1");
+        add("id2", "layer2");
+
+        assertThat(catalog.exists("id1")).isTrue();
+        assertThat(catalog.exists("layer1")).isFalse();
+
+        assertThat(catalog.exists("id2")).isTrue();
+        assertThat(catalog.exists("layer2")).isFalse();
+    }
+
+    @Test
+    void testDelete() {
+        GeoServerTileLayerInfo info = add("id1", "name1");
         GeoServerTileLayerInfo actual = catalog.getLayerByName("name1");
         actual = ModificationProxy.unwrap(actual);
         assertEquals(info, actual);
@@ -214,7 +290,7 @@ class ResourceStoreTileLayerCatalogTest {
     }
 
     @Test
-    void testSavedXML() {
+    void testSavedXML() throws IOException {
         // checking that the persistence looks as expected
         final GeoServerTileLayerInfo original;
         {
@@ -241,14 +317,44 @@ class ResourceStoreTileLayerCatalogTest {
 
         catalog.save(original);
 
-        //        File file = new File(baseDirectory, "gwc-layers/id1.xml");
-        //        String xml = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
-        // XPathEngine xpath = XMLUnit.newXpathEngine();
-        // Document doc = XMLUnit.buildControlDocument(xml);
-        // // no custom attribute for the class, we set a default
-        // assertEquals("", xpath.evaluate("//cacheWarningSkips/class", doc));
-        // assertEquals("Default", xpath.evaluate("//cacheWarningSkips/warning[1]", doc));
-        // assertEquals("Nearest", xpath.evaluate("//cacheWarningSkips/warning[2]", doc));
-        // assertEquals("FailedNearest", xpath.evaluate("//cacheWarningSkips/warning[3]", doc));
+        String actual =
+                FileUtils.readFileToString(
+                        new File(baseDirectory, "gwc-layers/id1.xml"), StandardCharsets.UTF_8);
+
+        String expected =
+                """
+                <GeoServerTileLayer>
+                  <id>id1</id>
+                  <enabled>false</enabled>
+                  <name>name2</name>
+                  <mimeFormats>
+                    <string>image/gif</string>
+                  </mimeFormats>
+                  <gridSubsets/>
+                  <metaWidthHeight>
+                    <int>0</int>
+                    <int>0</int>
+                  </metaWidthHeight>
+                  <expireCache>0</expireCache>
+                  <expireClients>0</expireClients>
+                  <parameterFilters>
+                    <styleParameterFilter>
+                      <key>STYLES</key>
+                      <defaultValue></defaultValue>
+                      <allowedStyles class="sorted-set"/>
+                    </styleParameterFilter>
+                  </parameterFilters>
+                  <gutter>0</gutter>
+                  <cacheWarningSkips>
+                    <warning>Default</warning>
+                    <warning>Nearest</warning>
+                    <warning>FailedNearest</warning>
+                  </cacheWarningSkips>
+                </GeoServerTileLayer>
+                """;
+
+        XmlAssert.assertThat(Input.fromString(actual))
+                .and(Input.fromString(expected))
+                .areIdentical();
     }
 }

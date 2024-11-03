@@ -11,7 +11,6 @@ import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.cloud.backend.pgconfig.catalog.repository.LoggingTemplate;
 import org.geoserver.gwc.layer.CatalogConfiguration;
 import org.geoserver.gwc.layer.GeoServerTileLayerInfo;
-import org.geoserver.gwc.layer.TileLayerCatalog;
 import org.geoserver.platform.resource.ResourceStore;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -26,8 +25,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Implementation of {@link TileLayerCatalog} for {@link CatalogConfiguration} to manage {@link
- * GeoServerTileLayerInfo}s directly from the database instead of going through {@link
+ * Implementation of {@link TileLayerInfoRepository} for {@link CatalogConfiguration} to manage
+ * {@link GeoServerTileLayerInfo}s directly from the database instead of going through {@link
  * ResourceStore}.
  *
  * @since 1.7

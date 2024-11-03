@@ -6,7 +6,6 @@ package org.geoserver.cloud.gwc.config.core;
 
 import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.catalog.Catalog;
-import org.geoserver.cloud.gwc.event.TileLayerEvent;
 import org.geoserver.cloud.gwc.repository.CachingTileLayerCatalog;
 import org.geoserver.cloud.gwc.repository.CloudCatalogConfiguration;
 import org.geoserver.cloud.gwc.repository.GeoServerTileLayerConfiguration;
@@ -16,8 +15,10 @@ import org.geoserver.gwc.config.DefaultGwcInitializer;
 import org.geoserver.gwc.config.GWCConfigPersister;
 import org.geoserver.gwc.config.GWCInitializer;
 import org.geoserver.gwc.layer.CatalogConfiguration;
+import org.geoserver.gwc.layer.GeoServerTileLayer;
 import org.geoserver.gwc.layer.TileLayerCatalog;
 import org.geoserver.platform.resource.ResourceStore;
+import org.geowebcache.config.TileLayerConfiguration;
 import org.geowebcache.grid.GridSetBroker;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.CacheManager;
@@ -29,7 +30,6 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.Optional;
-import java.util.function.Consumer;
 
 /**
  * @since 1.0
@@ -57,6 +57,20 @@ public class DefaultTileLayerCatalogConfiguration {
         return new DefaultGwcInitializer(configPersister, blobStore, geoseverTileLayers, lock);
     }
 
+    /**
+     * In vanilla GeoServer, {@link CatalogConfiguration} is the {@link TileLayerConfiguration}
+     * contributed to the app context to serve {@code TileLayer}s ({@link GeoServerTileLayer}) out
+     * of the GeoServer {@link Catalog} by means of a {@link TileLayerCatalog}.
+     *
+     * <p>Here we contribute a different {@code TileLayerConfiguration} for the same purpose, {@link
+     * GeoServerTileLayerConfiguration}, which is a distributed-event aware decorator over the
+     * actual {@link CloudCatalogConfiguration} implementation of {@code TileLayerCatalog}.
+     *
+     * <p>Since the {@code CloudCatalogConfiguration} isn't hence a spring bean, in order to avoid
+     * registering as a delegate to {@link TileLayerDispatcher}, {@link TileLayerEvents} will need
+     * to be relayed from {@code GeoServerTileLayerConfiguration} to {@link
+     * CloudCatalogConfiguration#onTileLayerEventEvict()}.
+     */
     @SuppressWarnings("java:S6830")
     @Bean(name = "gwcCatalogConfiguration")
     GeoServerTileLayerConfiguration gwcCatalogConfiguration( //
@@ -66,8 +80,12 @@ public class DefaultTileLayerCatalogConfiguration {
             ApplicationEventPublisher eventPublisher) {
 
         var config = new CloudCatalogConfiguration(catalog, tld, gsb);
-        Consumer<TileLayerEvent> gwcEventPublisher = eventPublisher::publishEvent;
-        return new GeoServerTileLayerConfiguration(config, gwcEventPublisher);
+        var eventAwareConfig =
+                new GeoServerTileLayerConfiguration(config, eventPublisher::publishEvent);
+        // tell GeoServerTileLayerConfiguration to relay TileLayerEvents to
+        // CloudCatalogConfiguration, since it's not a spring bean can't listen itself.
+        eventAwareConfig.setEventListener(config::onTileLayerEventEvict);
+        return eventAwareConfig;
     }
 
     @Primary

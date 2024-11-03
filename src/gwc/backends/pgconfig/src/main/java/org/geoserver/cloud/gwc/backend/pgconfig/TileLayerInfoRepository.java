@@ -10,6 +10,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
+/**
+ * {@code TileLayerInfoRepository} defines CRUD operations on {@link TileLayerInfo}.
+ *
+ * @see PgconfigTileLayerCatalog
+ */
 public interface TileLayerInfoRepository {
 
     void add(TileLayerInfo pgInfo) throws DataAccessException;

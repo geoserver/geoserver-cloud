@@ -11,6 +11,7 @@ import org.geoserver.cloud.gwc.event.TileLayerEvent;
 import org.geoserver.gwc.layer.GeoServerTileLayer;
 import org.geowebcache.config.TileLayerConfiguration;
 import org.geowebcache.layer.TileLayer;
+import org.springframework.context.event.EventListener;
 
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -25,12 +26,38 @@ import java.util.function.Consumer;
  */
 public class GeoServerTileLayerConfiguration extends ForwardingTileLayerConfiguration {
 
+    /**
+     * Event publisher, used to send events whenever a {@code TileLayer} is added, changed, deleted.
+     */
     @NonNull private Consumer<TileLayerEvent> eventPublisher;
+
+    /**
+     * Consumer of incoming events.
+     *
+     * @see #setEventListener
+     */
+    @NonNull private Consumer<TileLayerEvent> eventConsumer = e -> {};
 
     public GeoServerTileLayerConfiguration(
             @NonNull TileLayerConfiguration subject, Consumer<TileLayerEvent> eventPublisher) {
         super(subject);
         this.eventPublisher = eventPublisher;
+    }
+
+    /**
+     * Used for client code to set an action to perform when a {@code TileLayerEvent} is received
+     * instead of published (for example, when received from another cluster node). Can be used for
+     * example to forward the event to the delegate {@code TileLayerConfiguration} is it can't
+     * listen to events itself.
+     */
+    public void setEventListener(@NonNull Consumer<TileLayerEvent> consumer) {
+        this.eventConsumer = consumer;
+    }
+
+    /** Dispatch incoming events to the consumer set in {@link #setEventListener} */
+    @EventListener(TileLayerEvent.class)
+    void onTileLayerEvent(TileLayerEvent event) {
+        eventConsumer.accept(event);
     }
 
     @Override

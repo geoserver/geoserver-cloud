@@ -41,11 +41,6 @@ public class TileLayerEvent extends GeoWebCacheEvent {
         this.name = layerName;
     }
 
-    public static TileLayerEvent ofId(
-            @NonNull Object source, @NonNull Type eventType, @NonNull String layerId) {
-        return new TileLayerEvent(source, eventType, layerId, layerId);
-    }
-
     public static TileLayerEvent created(
             @NonNull Object source, @NonNull String publishedId, @NonNull String layerName) {
         return valueOf(source, Type.CREATED, publishedId, layerName, null);
@@ -77,8 +72,20 @@ public class TileLayerEvent extends GeoWebCacheEvent {
 
     @Override
     public String toString() {
-        return "%s[%s id: %s, name: %s]"
-                .formatted(getClass().getSimpleName(), getEventType(), getPublishedId(), getName());
+        if (null == getOldName())
+            return "%s[%s id: %s, name: %s]"
+                    .formatted(
+                            getClass().getSimpleName(),
+                            getEventType(),
+                            getPublishedId(),
+                            getName());
+        return "%s[%s id: %s, name: %s, oldname: %s]"
+                .formatted(
+                        getClass().getSimpleName(),
+                        getEventType(),
+                        getPublishedId(),
+                        getName(),
+                        getOldName());
     }
 
     protected @Override String getObjectId() {
