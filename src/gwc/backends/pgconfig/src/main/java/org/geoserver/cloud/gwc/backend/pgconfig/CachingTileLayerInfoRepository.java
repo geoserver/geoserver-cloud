@@ -20,6 +20,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
+/**
+ * {@link TileLayerInfoRepository} decorator cache {@link TileLayerInfo}s on demand, alleviating the
+ * load on the delegate, especially under load.
+ */
 @RequiredArgsConstructor
 @Slf4j(topic = "org.geoserver.cloud.gwc.backend.pgconfig.caching")
 public class CachingTileLayerInfoRepository implements TileLayerInfoRepository {

@@ -9,6 +9,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.cache.LoadingCache;
 
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.reflect.FieldUtils;
@@ -56,15 +57,28 @@ public class CloudCatalogConfiguration extends CatalogConfiguration {
         }
     }
 
+    /**
+     * Listen to {@link TileLayerEvent}s and clear the cached {@link TileLayer}
+     *
+     * <p>Important: this will only work of this object is a spring bean, if it's not (e.g. used as
+     * delegate for a decorator), make sure it calls this method as appropriate.
+     */
     @EventListener(TileLayerEvent.class)
-    public void onTileLayerEvent(TileLayerEvent event) {
-        log.debug("evicting GeoServerTileLayer cache entry upon {}", event);
-        spiedLayerCache.invalidate(event.getPublishedId());
+    public void onTileLayerEventEvict(TileLayerEvent event) {
+        String publishedId = event.getPublishedId();
+        log.debug("evicting GeoServerTileLayer[{}] cache entry upon {}", publishedId, event);
+        spiedLayerCache.invalidate(publishedId);
+        spiedLayerCache.getIfPresent(publishedId);
     }
 
     @Override
-    public synchronized void addLayer(final TileLayer tl) {
-        checkNotNull(tl);
+    public void addLayer(final @NonNull TileLayer tl) {
+        GeoServerTileLayer tileLayer = checkAddPreconditions(tl);
+        completeWithDefaults(tileLayer);
+        super.addLayer(tl);
+    }
+
+    private GeoServerTileLayer checkAddPreconditions(@NonNull TileLayer tl) {
         checkArgument(canSave(tl), "Can't save TileLayer of type ", tl.getClass());
 
         GeoServerTileLayer tileLayer = (GeoServerTileLayer) tl;
@@ -73,13 +87,16 @@ public class CloudCatalogConfiguration extends CatalogConfiguration {
         checkNotNull(info, "GeoServerTileLayerInfo is null");
         checkNotNull(info.getId(), "id is null");
         checkNotNull(info.getName(), "name is null");
+        return tileLayer;
+    }
 
+    private void completeWithDefaults(GeoServerTileLayer tileLayer) {
+        GeoServerTileLayerInfo info = tileLayer.getInfo();
         PublishedInfo publishedInfo = tileLayer.getPublishedInfo();
         GWCConfig defaults = GWC.get().getConfig();
         GeoServerTileLayerInfo infoDefaults =
                 TileLayerInfoUtil.loadOrCreate(publishedInfo, defaults);
         setMissingConfig(info, infoDefaults);
-        super.addLayer(tl);
     }
 
     private void setMissingConfig(GeoServerTileLayerInfo info, GeoServerTileLayerInfo defaults) {

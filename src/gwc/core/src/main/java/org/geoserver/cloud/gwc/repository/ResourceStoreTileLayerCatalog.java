@@ -4,6 +4,8 @@
  */
 package org.geoserver.cloud.gwc.repository;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Streams;
 import com.thoughtworks.xstream.XStream;
@@ -13,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.geoserver.config.util.SecureXStream;
+import org.geoserver.gwc.layer.DefaultTileLayerCatalog;
 import org.geoserver.gwc.layer.GeoServerTileLayerInfo;
 import org.geoserver.gwc.layer.TileLayerCatalog;
 import org.geoserver.gwc.layer.TileLayerCatalogListener;
@@ -53,6 +56,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
+ * {@link TileLayerCatalog} compatible with {@link DefaultTileLayerCatalog} in that it'll read from
+ * and save to the same XML resources, but instead of caching {@code GeoServerTileLayerInfo}s
+ * itself, fully delegates to the {@link ResourceStore}, leaving the responsibility of caching
+ * {@link GeoServerTileLayerInfo}s to the caller to implement through composition with a decorator
+ * or any other means.
+ *
  * @since 1.0
  */
 @Slf4j(topic = "org.geoserver.cloud.gwc.repository")
@@ -68,7 +77,9 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
      */
     private final Optional<WebApplicationContext> applicationContext;
 
+    /** Guards the internal state for {@link #reset()} and {@link #initialize()} to be idempotent */
     private final AtomicBoolean initialized = new AtomicBoolean();
+
     private final List<TileLayerCatalogListener> listeners = new CopyOnWriteArrayList<>();
 
     private Supplier<XStream> xstreamProvider;
@@ -99,12 +110,13 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
 
     @Override
     public void addListener(TileLayerCatalogListener listener) {
-        if (null != listener) listeners.add(listener);
+        listeners.add(listener);
     }
 
     @Override
     public Set<String> getLayerIds() {
         checkInitialized();
+        log.debug("getLayerIds...");
         try (Stream<GeoServerTileLayerInfo> all = findAll()) {
             return all.map(GeoServerTileLayerInfo::getId).collect(Collectors.toSet());
         }
@@ -113,6 +125,7 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
     @Override
     public Set<String> getLayerNames() {
         checkInitialized();
+        log.debug("getLayerNames");
         try (Stream<GeoServerTileLayerInfo> all = findAll()) {
             return all.map(GeoServerTileLayerInfo::getName).collect(Collectors.toSet());
         }
@@ -121,6 +134,7 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
     @Override
     public String getLayerId(@NonNull String layerName) {
         checkInitialized();
+        log.debug("getLayerId: {}", layerName);
         try (Stream<GeoServerTileLayerInfo> all = findAll()) {
             return all.filter(l -> layerName.equals(l.getName()))
                     .map(GeoServerTileLayerInfo::getId)
@@ -132,12 +146,10 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
     @Override
     public String getLayerName(String layerId) {
         checkInitialized();
-        try (Stream<GeoServerTileLayerInfo> all = findAll()) {
-            return all.filter(l -> layerId.equals(l.getId()))
-                    .map(GeoServerTileLayerInfo::getName)
-                    .findFirst()
-                    .orElse(null);
-        }
+        return findFile(layerId)
+                .map(this::depersist)
+                .map(GeoServerTileLayerInfo::getName)
+                .orElse(null);
     }
 
     @Override
@@ -149,6 +161,7 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
     @Override
     public GeoServerTileLayerInfo getLayerByName(String layerName) {
         checkInitialized();
+        log.debug("getLayerByName: {}", layerName);
         try (Stream<GeoServerTileLayerInfo> all = findAll()) {
             return all.filter(l -> layerName.equals(l.getName())).findFirst().orElse(null);
         }
@@ -178,8 +191,7 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
     @Override
     public GeoServerTileLayerInfo save(@NonNull GeoServerTileLayerInfo newValue) {
         checkInitialized();
-        final String layerId = newValue.getId();
-        Objects.requireNonNull(layerId);
+        final String layerId = requireNonNull(newValue.getId());
         final GeoServerTileLayerInfo prev = getLayerById(layerId);
         persist(newValue);
         Type eventType = prev == null ? Type.CREATE : Type.MODIFY;
@@ -239,8 +251,7 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
     }
 
     private GeoServerTileLayerInfo depersist(final Resource res, final XStream unmarshaller) {
-        if (log.isDebugEnabled())
-            log.debug("Depersisting GeoServerTileLayerInfo from {}", res.path());
+        log.debug("Depersisting GeoServerTileLayerInfo from {}", res.path());
         return depersist(res.in(), unmarshaller);
     }
 
@@ -274,10 +285,7 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
     private Stream<Resource> findAllTileLayerResources(Path basePath) {
         final PathMatcher matcher = basePath.getFileSystem().getPathMatcher("glob:**.xml");
         DirectoryStream.Filter<Path> filter =
-                path -> {
-                    boolean matches = matcher.matches(path);
-                    return matches && Files.isRegularFile(path);
-                };
+                path -> matcher.matches(path) && Files.isRegularFile(path);
         DirectoryStream<Path> directoryStream;
         try {
             directoryStream = Files.newDirectoryStream(basePath, filter);
@@ -305,7 +313,7 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
         }
     }
 
-    private Optional<Resource> findFile(final String tileLayerId) {
+    Optional<Resource> findFile(final String tileLayerId) {
         Resource resource = getFile(tileLayerId);
         return Optional.of(resource).filter(r -> r.getType() == Resource.Type.RESOURCE);
     }

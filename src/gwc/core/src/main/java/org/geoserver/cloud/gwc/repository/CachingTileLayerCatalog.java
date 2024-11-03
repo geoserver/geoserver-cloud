@@ -4,74 +4,97 @@
  */
 package org.geoserver.cloud.gwc.repository;
 
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import com.google.common.base.Stopwatch;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import com.google.common.collect.Maps;
 
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
+
+import org.geoserver.cloud.gwc.event.GeoWebCacheEvent;
 import org.geoserver.cloud.gwc.event.TileLayerEvent;
 import org.geoserver.gwc.layer.GeoServerTileLayerInfo;
-import org.geoserver.gwc.layer.TileLayerCatalog;
-import org.geoserver.gwc.layer.TileLayerCatalogListener;
 import org.springframework.cache.Cache;
-import org.springframework.cache.Cache.ValueRetrievalException;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.event.EventListener;
 
-import java.util.HashSet;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
+ * Caching decorator for {@link ResourceStoreTileLayerCatalog} using a provided Spring {@link
+ * CacheManager}.
+ *
+ * <p>Two named {@link Cache caches} are taken from the cache manager, {@code TILE_LAYERS_BY_ID} and
+ * {@code TILE_LAYERS_BY_NAME}, in order to to point queries by layer id and name respectively.
+ *
+ * <p>{@code CachingTileLayerCatalog} listens to {@link TileLayerEvent}s to evict cache entries for
+ * modified and removed tile layers.
+ *
  * @since 1.0
  */
-@RequiredArgsConstructor
-public class CachingTileLayerCatalog implements TileLayerCatalog {
+@Slf4j(topic = "org.geoserver.cloud.gwc.repository")
+public class CachingTileLayerCatalog extends ForwardingTileLayerCatalog {
 
     private static final String TILE_LAYERS_BY_ID = "TILE_LAYERS_BY_ID";
-    private static final String TILE_LAYERS_BY_NAME = "TILE_LAYERS_BY_NAME";
 
     private final CacheManager cacheManager;
-    private final ResourceStoreTileLayerCatalog delegate;
 
-    private Cache idCache;
-    private Cache nameCache;
-    private ConcurrentMap<String, String> namesById;
+    Cache idCache;
+    final BiMap<String, String> namesById = Maps.synchronizedBiMap(HashBiMap.create());
+
+    public CachingTileLayerCatalog(
+            CacheManager cacheManager, ResourceStoreTileLayerCatalog delegate) {
+        super(delegate);
+        this.cacheManager = cacheManager;
+    }
 
     @EventListener(TileLayerEvent.class)
     public void onTileLayerEvent(TileLayerEvent event) {
-        switch (event.getEventType()) {
-            case CREATED:
-                getLayerById(event.getPublishedId());
-                break;
-            case DELETED:
-                evictById(event.getPublishedId());
-                break;
-            case MODIFIED:
-                evictById(event.getPublishedId());
-                getLayerById(event.getPublishedId());
-                break;
-            default:
-                throw new IllegalArgumentException(
-                        "Invalid TileLayerEvent type: " + event.getEventType());
-        }
-    }
+        final String infoId = event.getPublishedId();
 
-    public void evictById(@NonNull String id) {
-        final String name = namesById.remove(id);
-        idCache.evict(id);
-        if (name != null) {
-            nameCache.evict(name);
+        if (event.getEventType() == GeoWebCacheEvent.Type.DELETED) {
+            namesById.remove(infoId);
+        } else {
+            namesById.forcePut(infoId, event.getName());
+        }
+        if (evict(infoId)) {
+            log.debug("Evicted GeoServerTileLayerInfo[{}] upon event {}", infoId, event);
+        } else {
+            log.trace(
+                    "Event didn't result in evicting GeoServerTileLayerInfo[{}]: {}",
+                    infoId,
+                    event);
         }
     }
 
     @Override
-    public synchronized void initialize() {
-        delegate.initialize();
-        idCache = cacheManager.getCache(TILE_LAYERS_BY_ID);
-        nameCache = cacheManager.getCache(TILE_LAYERS_BY_NAME);
-        namesById = new ConcurrentHashMap<>();
-        preLoad();
+    public Set<String> getLayerNames() {
+        return Set.copyOf(this.namesById.values());
+    }
+
+    @Override
+    public GeoServerTileLayerInfo save(GeoServerTileLayerInfo tl) {
+        if (evict(tl.getId())) {
+            log.debug("Preemtively evicted GeoServerTileLayerInfo[{}] on save", tl.getId());
+        }
+        super.save(tl);
+        GeoServerTileLayerInfo curr = super.getLayerById(tl.getId());
+        return cachePut(curr);
+    }
+
+    @Override
+    public GeoServerTileLayerInfo delete(@NonNull String id) {
+        namesById.remove(id);
+        idCache.evictIfPresent(id);
+        return super.delete(id);
+    }
+
+    private boolean evict(@NonNull String id) {
+        // note evictIfPresent ought to be used for guaranteed immediate eviction
+        return null != idCache && idCache.evictIfPresent(id);
     }
 
     @Override
@@ -80,62 +103,55 @@ public class CachingTileLayerCatalog implements TileLayerCatalog {
             idCache.clear();
             idCache = null;
         }
-        if (nameCache != null) {
-            nameCache.clear();
-            nameCache = null;
-        }
-        if (namesById != null) {
-            namesById.clear();
-            namesById = null;
-        }
-        delegate.reset();
+        this.namesById.clear();
+        super.reset();
     }
 
+    @Override
+    public void initialize() {
+        super.initialize();
+        this.idCache = cacheManager.getCache(TILE_LAYERS_BY_ID);
+        preLoad();
+    }
+
+    /** pre-loading makes a real impact when there are several (like in thousands) of tile layers */
     private void preLoad() {
-        delegate.findAll().forEach(this::onLoaded);
+        log.info("Caching GeoServerTileLayerInfos from " + delegate.getPersistenceLocation());
+        Stopwatch sw = Stopwatch.createStarted();
+        ResourceStoreTileLayerCatalog store = (ResourceStoreTileLayerCatalog) delegate;
+        long count = store.findAll().map(this::cachePut).count();
+        log.info("Cached %,d GeoServerTileLayerInfos in %s".formatted(count, sw.stop()));
     }
 
-    private void onLoaded(@NonNull GeoServerTileLayerInfo info) {
+    private @NonNull GeoServerTileLayerInfo cachePut(@NonNull GeoServerTileLayerInfo info) {
         idCache.put(info.getId(), info);
-        nameCache.put(info.getName(), info);
-        cacheIdentifiers(info);
-    }
-
-    private void cacheIdentifiers(@NonNull GeoServerTileLayerInfo info) {
-        namesById.put(info.getId(), info.getName());
-    }
-
-    @Override
-    public void addListener(TileLayerCatalogListener listener) {
-        delegate.addListener(listener);
-    }
-
-    @Override
-    public Set<String> getLayerIds() {
-        return new HashSet<>(namesById.keySet());
-    }
-
-    @Override
-    public Set<String> getLayerNames() {
-        return new HashSet<>(namesById.values());
+        namesById.forcePut(info.getId(), info.getName());
+        log.debug("cached GeoServerTileLayerInfo[{}]", info.getName());
+        return info;
     }
 
     @Override
     public String getLayerId(@NonNull String layerName) {
-        GeoServerTileLayerInfo layer = getLayerByName(layerName);
-        return layer == null ? null : layer.getId();
+        return this.namesById.inverse().get(layerName);
     }
 
     @Override
     public String getLayerName(@NonNull String layerId) {
-        return namesById.get(layerId);
+        String found = this.namesById.get(layerId);
+        if (null == found) {
+            getLayerById(layerId);
+            found = this.namesById.get(layerId);
+        }
+        return found;
     }
 
     @Override
     public GeoServerTileLayerInfo getLayerById(@NonNull String id) {
         try {
-            return idCache.get(id, () -> loadLayerById(id));
-        } catch (ValueRetrievalException e) {
+            var tl = idCache.get(id, () -> loadLayerById(id));
+            namesById.forcePut(tl.getId(), tl.getName());
+            return tl;
+        } catch (Cache.ValueRetrievalException e) {
             if (e.getCause() instanceof NoSuchElementException) return null;
             throw e;
         }
@@ -143,49 +159,36 @@ public class CachingTileLayerCatalog implements TileLayerCatalog {
 
     @Override
     public GeoServerTileLayerInfo getLayerByName(@NonNull String layerName) {
-        try {
-            return nameCache.get(layerName, () -> loadLayerByName(layerName));
-        } catch (ValueRetrievalException e) {
-            if (e.getCause() instanceof NoSuchElementException) return null;
-            throw e;
+        String id = this.namesById.inverse().get(layerName);
+        if (null == id) {
+            try {
+                var tl = loadLayerByName(layerName);
+                namesById.forcePut(tl.getId(), tl.getName());
+                return tl;
+            } catch (NoSuchElementException e) {
+                return null;
+            }
         }
+        return loadLayerById(id);
     }
 
+    /**
+     * loader function for {@link #getLayerById(String)}
+     *
+     * @throws NoSuchElementException to prevent caching a {@code null} value
+     */
     private GeoServerTileLayerInfo loadLayerById(String id) {
-        GeoServerTileLayerInfo info = delegate.getLayerById(id);
-        if (info == null) {
-            throw new NoSuchElementException(id);
-        }
-        cacheIdentifiers(info);
-        return info;
+        return Optional.ofNullable(super.getLayerById(id))
+                .orElseThrow(() -> new NoSuchElementException(id));
     }
 
+    /**
+     * loader function for {@link #getLayerByName(String)}
+     *
+     * @throws NoSuchElementException to prevent caching a {@code null} value
+     */
     private GeoServerTileLayerInfo loadLayerByName(String name) {
-        GeoServerTileLayerInfo info = delegate.getLayerByName(name);
-        if (info == null) {
-            throw new NoSuchElementException(name);
-        }
-        cacheIdentifiers(info);
-        return info;
-    }
-
-    @Override
-    public GeoServerTileLayerInfo delete(@NonNull String tileLayerId) {
-        return delegate.delete(tileLayerId);
-    }
-
-    @Override
-    public GeoServerTileLayerInfo save(@NonNull GeoServerTileLayerInfo newValue) {
-        return delegate.save(newValue);
-    }
-
-    @Override
-    public boolean exists(@NonNull String layerId) {
-        return delegate.exists(layerId);
-    }
-
-    @Override
-    public String getPersistenceLocation() {
-        return delegate.getPersistenceLocation();
+        return Optional.ofNullable(super.getLayerByName(name))
+                .orElseThrow(() -> new NoSuchElementException(name));
     }
 }
