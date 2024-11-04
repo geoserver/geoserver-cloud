@@ -139,10 +139,24 @@ class CachingTileLayerCatalogTest {
     }
 
     @Test
+    public void getLayerIds() {
+        add(catalog, "tl1");
+        add(catalog, "tl2");
+        assertThat(caching.getLayerIds()).isEmpty();
+        caching.initialize();
+        assertThat(caching.getLayerIds()).isEqualTo(catalog.getLayerIds());
+        add(caching, "tl3");
+        assertThat(caching.getLayerIds()).isEqualTo(catalog.getLayerIds());
+    }
+
+    @Test
     public void getLayerNames() {
         add(catalog, "tl1");
         add(catalog, "tl2");
+        assertThat(caching.getLayerNames()).isEmpty();
         caching.initialize();
+        assertThat(caching.getLayerNames()).isEqualTo(catalog.getLayerNames());
+        add(caching, "tl3");
         assertThat(caching.getLayerNames()).isEqualTo(catalog.getLayerNames());
     }
 
