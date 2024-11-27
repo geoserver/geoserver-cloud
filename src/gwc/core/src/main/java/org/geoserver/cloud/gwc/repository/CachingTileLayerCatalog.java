@@ -71,6 +71,11 @@ public class CachingTileLayerCatalog extends ForwardingTileLayerCatalog {
     }
 
     @Override
+    public Set<String> getLayerIds() {
+        return Set.copyOf(this.namesById.keySet());
+    }
+
+    @Override
     public Set<String> getLayerNames() {
         return Set.copyOf(this.namesById.values());
     }
