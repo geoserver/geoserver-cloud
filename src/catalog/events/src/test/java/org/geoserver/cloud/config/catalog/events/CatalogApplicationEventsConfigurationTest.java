@@ -114,13 +114,11 @@ class CatalogApplicationEventsConfigurationTest {
 
         // Check that there is no other event being triggered, we expect two ones.
         List<LifecycleEvent> allEvents = listener.allOf(LifecycleEvent.class);
-        assertEquals(2, allEvents.size());
+        assertEquals(1, allEvents.size());
 
         // And we expect them to be a (local) ResetEvent and a (local) ReloadEvent.
         ReloadEvent reloadEvent = listener.expectOne(ReloadEvent.class);
         assertTrue(reloadEvent.isLocal());
-        ResetEvent resetEvent = listener.expectOne(ResetEvent.class);
-        assertTrue(resetEvent.isLocal());
     }
 
     @Test

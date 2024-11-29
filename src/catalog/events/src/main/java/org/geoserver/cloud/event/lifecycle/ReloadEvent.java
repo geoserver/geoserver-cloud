@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("ReloadEvent")
+@SuppressWarnings("serial")
 public class ReloadEvent extends LifecycleEvent {
     public ReloadEvent() {
         // no-op, for serialization

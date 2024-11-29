@@ -14,6 +14,7 @@ import org.geoserver.cloud.event.GeoServerEvent;
     @JsonSubTypes.Type(value = ReloadEvent.class),
     @JsonSubTypes.Type(value = ResetEvent.class)
 })
+@SuppressWarnings("serial")
 public abstract class LifecycleEvent extends GeoServerEvent {
 
     @Override

@@ -14,7 +14,16 @@ import org.geoserver.catalog.impl.LocalWorkspaceCatalog;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.impl.ResolvingProxy;
 import org.geoserver.catalog.plugin.Patch;
-import org.geoserver.config.*;
+import org.geoserver.config.ConfigurationListener;
+import org.geoserver.config.GeoServer;
+import org.geoserver.config.GeoServerFacade;
+import org.geoserver.config.GeoServerFactory;
+import org.geoserver.config.GeoServerInfo;
+import org.geoserver.config.GeoServerLoader;
+import org.geoserver.config.GeoServerLoaderProxy;
+import org.geoserver.config.LoggingInfo;
+import org.geoserver.config.ServiceInfo;
+import org.geoserver.config.SettingsInfo;
 import org.geoserver.config.impl.GeoServerFactoryImpl;
 import org.geoserver.config.impl.GeoServerLifecycleHandler;
 import org.geoserver.ows.LocalWorkspace;
@@ -474,58 +483,6 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
         }
     }
 
-    void fireBeforeReload(List<GeoServerLifecycleHandler> handlers) {
-        for (GeoServerLifecycleHandler handler : handlers) {
-            try {
-                handler.beforeReload();
-            } catch (RuntimeException t) {
-                LOGGER.log(
-                        Level.SEVERE,
-                        "A GeoServer lifecycle handler threw an exception during reload",
-                        t);
-            }
-        }
-    }
-
-    void fireOnReload(List<GeoServerLifecycleHandler> handlers) {
-        for (GeoServerLifecycleHandler handler : handlers) {
-            try {
-                handler.onReload();
-            } catch (Exception t) {
-                LOGGER.log(
-                        Level.SEVERE,
-                        "A GeoServer lifecycle handler threw an exception during reload",
-                        t);
-            }
-        }
-    }
-
-    void fireOnDispose(List<GeoServerLifecycleHandler> handlers) {
-        for (GeoServerLifecycleHandler handler : handlers) {
-            try {
-                handler.onDispose();
-            } catch (RuntimeException t) {
-                LOGGER.log(
-                        Level.SEVERE,
-                        "A GeoServer lifecycle handler threw an exception during dispose",
-                        t);
-            }
-        }
-    }
-
-    void fireOnReset(List<GeoServerLifecycleHandler> handlers) {
-        for (GeoServerLifecycleHandler handler : handlers) {
-            try {
-                handler.onReset();
-            } catch (RuntimeException t) {
-                LOGGER.log(
-                        Level.SEVERE,
-                        "A GeoServer lifecycle handler threw an exception during reset",
-                        t);
-            }
-        }
-    }
-
     @Override
     public void addListener(ConfigurationListener listener) {
         listeners.add(listener);
@@ -543,19 +500,17 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
 
     @Override
     public void dispose() {
-        dispose(false);
-    }
-
-    public void dispose(boolean silent) {
         // look for pluggable handlers
-        if (!silent) {
-            List<GeoServerLifecycleHandler> handlers =
-                    GeoServerExtensions.extensions(GeoServerLifecycleHandler.class);
-            fireOnDispose(handlers);
-        } else {
-            LOGGER.log(
-                    Level.FINE,
-                    "Reloading GeoServer configuration, but not notifying lifecycle dispose handlers");
+        for (GeoServerLifecycleHandler handler :
+                GeoServerExtensions.extensions(GeoServerLifecycleHandler.class)) {
+            try {
+                handler.onDispose();
+            } catch (RuntimeException t) {
+                LOGGER.log(
+                        Level.SEVERE,
+                        "A GeoServer lifecycle handler threw an exception during dispose",
+                        t);
+            }
         }
 
         // internal cleanup
@@ -566,37 +521,36 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
 
     @Override
     public void reload() throws Exception {
-        this.reload(null, false);
+        this.reload(null);
     }
 
     @Override
     public void reload(Catalog newCatalog) throws Exception {
-        this.reload(newCatalog, false);
-    }
-
-    public void reload(Catalog newCatalog, boolean silent) throws Exception {
         // notify start of reload
         List<GeoServerLifecycleHandler> handlers =
                 GeoServerExtensions.extensions(GeoServerLifecycleHandler.class);
-        if (!silent) {
-            fireBeforeReload(handlers);
-        } else {
-            LOGGER.log(
-                    Level.FINE,
-                    "Reloading GeoServer configuration, but not notifying lifecycle beforeReload handlers");
+        for (GeoServerLifecycleHandler handler : handlers) {
+            try {
+                handler.beforeReload();
+            } catch (RuntimeException t) {
+                LOGGER.log(
+                        Level.SEVERE,
+                        "A GeoServer lifecycle handler threw an exception during reload",
+                        t);
+            }
         }
 
         // perform the reload
         try {
             // flush caches
-            reset(silent);
+            reset();
 
             // reload configuration
             synchronized (org.geoserver.config.GeoServer.CONFIGURATION_LOCK) {
                 getCatalog().getResourcePool().dispose();
 
                 if (newCatalog != null) {
-                    dispose(silent);
+                    dispose();
 
                     // reload catalog, make sure we reload the underlying catalog, not any wrappers
                     Catalog catalog = getCatalog();
@@ -612,12 +566,15 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
             }
         } finally {
             // notify end of reload
-            if (!silent) {
-                fireOnReload(handlers);
-            } else {
-                LOGGER.log(
-                        Level.FINE,
-                        "Reloading GeoServer configuration, but not notifying lifecycle onReload handlers");
+            for (GeoServerLifecycleHandler handler : handlers) {
+                try {
+                    handler.onReload();
+                } catch (Exception t) {
+                    LOGGER.log(
+                            Level.SEVERE,
+                            "A GeoServer lifecycle handler threw an exception during reload",
+                            t);
+                }
             }
         }
     }
@@ -634,10 +591,6 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
 
     @Override
     public void reset() {
-        this.reset(false);
-    }
-
-    public void reset(boolean silent) {
         // drop all the catalog store/feature types/raster caches
         catalog.getResourcePool().dispose();
 
@@ -645,14 +598,16 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
         CRS.reset("all");
 
         // look for pluggable handlers
-        if (!silent) {
-            List<GeoServerLifecycleHandler> handlers =
-                    GeoServerExtensions.extensions(GeoServerLifecycleHandler.class);
-            fireOnReset(handlers);
-        } else {
-            LOGGER.log(
-                    Level.FINE,
-                    "Reloading GeoServer configuration, but not notifying lifecycle onReset handlers");
+        for (GeoServerLifecycleHandler handler :
+                GeoServerExtensions.extensions(GeoServerLifecycleHandler.class)) {
+            try {
+                handler.onReset();
+            } catch (RuntimeException t) {
+                LOGGER.log(
+                        Level.SEVERE,
+                        "A GeoServer lifecycle handler threw an exception during reset",
+                        t);
+            }
         }
     }
 

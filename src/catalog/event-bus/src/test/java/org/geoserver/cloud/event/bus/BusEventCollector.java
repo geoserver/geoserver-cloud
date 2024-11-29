@@ -112,7 +112,7 @@ public class BusEventCollector {
         return matches.stream().findFirst().get();
     }
 
-    public <T extends InfoEvent> List<RemoteGeoServerEvent> allOf(
+    public <T extends GeoServerEvent> List<RemoteGeoServerEvent> allOf(
             Class<T> payloadEventType, Predicate<T> eventFilter) {
 
         return capturedEvents(payloadEventType)
@@ -132,15 +132,15 @@ public class BusEventCollector {
                 .toList();
     }
 
-    public <T extends InfoEvent> List<RemoteGeoServerEvent> allOf(Class<T> payloadType) {
+    public <T extends GeoServerEvent> List<RemoteGeoServerEvent> allOf(Class<T> payloadType) {
         return capturedEvents(payloadType).toList();
     }
 
-    public <T extends InfoEvent> Optional<RemoteGeoServerEvent> first(Class<T> payloadType) {
+    public <T extends GeoServerEvent> Optional<RemoteGeoServerEvent> first(Class<T> payloadType) {
         return capturedEvents(payloadType).findFirst();
     }
 
-    private <T extends InfoEvent> Stream<RemoteGeoServerEvent> capturedEvents(
+    private <T extends GeoServerEvent> Stream<RemoteGeoServerEvent> capturedEvents(
             Class<T> payloadType) {
         return capturedEvents().filter(remote -> payloadType.isInstance(remote.getEvent()));
     }

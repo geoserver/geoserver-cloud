@@ -4,6 +4,8 @@
  */
 package org.geoserver.cloud.event.bus;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.geoserver.cloud.event.lifecycle.LifecycleEvent;
 import org.geoserver.cloud.event.lifecycle.ReloadEvent;
 import org.geoserver.cloud.event.lifecycle.ResetEvent;
@@ -49,10 +51,13 @@ class LifecycleRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
                 };
         modifier.accept(geoserver);
 
-        // reload also triggers reset!
         eventsCaptor.local().expectOneLifecycleEvent(ReloadEvent.class);
-        eventsCaptor.local().expectOneLifecycleEvent(ResetEvent.class);
         eventsCaptor.remote().expectOneLifecycleEvent(ReloadEvent.class);
-        eventsCaptor.remote().expectOneLifecycleEvent(ResetEvent.class);
+
+        // reload implies reset, so shall not trigger a reset event
+        assertThat(eventsCaptor.local().allOf(ResetEvent.class)).isEmpty();
+        ;
+        assertThat(eventsCaptor.remote().allOf(ResetEvent.class)).isEmpty();
+        ;
     }
 }

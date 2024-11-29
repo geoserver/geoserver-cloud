@@ -35,32 +35,38 @@ class GeoServerLifecycleEventPublisher implements GeoServerLifecycleHandler {
     private final @NonNull Consumer<? super LifecycleEvent> eventPublisher;
 
     void publish(@NonNull LifecycleEvent event) {
+        log.debug("Publishing {}", event);
         eventPublisher.accept(event);
     }
 
     @Override
     public void onReset() {
-        log.debug("Publishing the onReset event");
-
-        publish(new ResetEvent());
-    }
-
-    @Override
-    public void onDispose() {
-        log.debug("Ignoring the onDispose event");
+        if (CatalogApplicationEventPublisher.enabled()) {
+            publish(new ResetEvent());
+        }
     }
 
     @Override
     public void beforeReload() {
-        // Thus, we want to inform all connected services as early as possible
-        // to activate reloading in parallel.
-        log.debug("Publishing the beforeReload event");
-
-        publish(new ReloadEvent());
+        if (CatalogApplicationEventPublisher.enabled()) {
+            // Thus, we want to inform all connected services as early as possible
+            // to activate reloading in parallel.
+            publish(new ReloadEvent());
+            log.debug("Disabling event publishing during reload()");
+            CatalogApplicationEventPublisher.disable();
+        }
     }
 
     @Override
     public void onReload() {
-        log.debug("Ignoring the onReload event");
+        if (!CatalogApplicationEventPublisher.enabled()) {
+            log.debug("Reenabling event publishing after reload()");
+            CatalogApplicationEventPublisher.enable();
+        }
+    }
+
+    @Override
+    public void onDispose() {
+        // no-op
     }
 }
