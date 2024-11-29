@@ -4,22 +4,9 @@
  */
 package org.geoserver.cloud.event.bus;
 
+import static java.util.function.Predicate.not;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.testcontainers.shaded.org.awaitility.Awaitility.*;
-
-import static java.util.function.Predicate.not;
-
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
-
-import org.geoserver.cloud.event.GeoServerEvent;
-import org.geoserver.cloud.event.info.ConfigInfoType;
-import org.geoserver.cloud.event.info.InfoEvent;
-import org.geoserver.cloud.event.lifecycle.LifecycleEvent;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.event.EventListener;
 
 import java.time.Duration;
 import java.util.List;
@@ -29,6 +16,16 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
+import org.geoserver.cloud.event.GeoServerEvent;
+import org.geoserver.cloud.event.info.ConfigInfoType;
+import org.geoserver.cloud.event.info.InfoEvent;
+import org.geoserver.cloud.event.lifecycle.LifecycleEvent;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.event.EventListener;
 
 @Configuration
 @Slf4j
@@ -51,11 +48,7 @@ public class BusEventCollector {
                 log.info("{}: captured event {}", busId, busEvent);
                 events.add(busEvent);
             } else {
-                log.debug(
-                        "{}: ignoring non {} event {}",
-                        busId,
-                        eventType.getSimpleName(),
-                        payloadEvent);
+                log.debug("{}: ignoring non {} event {}", busId, eventType.getSimpleName(), payloadEvent);
             }
         } else {
             log.debug("{}: capturing is off, ignoring {}", busId, busEvent);
@@ -76,35 +69,26 @@ public class BusEventCollector {
         return expectOne(payloadType, x -> true);
     }
 
-    public <T extends InfoEvent> RemoteGeoServerEvent expectOne(
-            Class<T> payloadType, ConfigInfoType infoType) {
+    public <T extends InfoEvent> RemoteGeoServerEvent expectOne(Class<T> payloadType, ConfigInfoType infoType) {
         return expectOne(payloadType, c -> infoType.equals(c.getObjectType()));
     }
 
-    public <T extends InfoEvent> RemoteGeoServerEvent expectOne(
-            Class<T> payloadType, Predicate<T> filter) {
+    public <T extends InfoEvent> RemoteGeoServerEvent expectOne(Class<T> payloadType, Predicate<T> filter) {
 
-        List<RemoteGeoServerEvent> matches =
-                await().atMost(Duration.ofSeconds(10)) //
-                        .until(() -> allOf(payloadType, filter), not(List::isEmpty));
+        List<RemoteGeoServerEvent> matches = await().atMost(Duration.ofSeconds(10)) //
+                .until(() -> allOf(payloadType, filter), not(List::isEmpty));
 
-        Supplier<String> message =
-                () ->
-                        "expected 1, got %d events of type %s : %s"
-                                .formatted(matches.size(), payloadType.getSimpleName(), matches);
+        Supplier<String> message = () -> "expected 1, got %d events of type %s : %s"
+                .formatted(matches.size(), payloadType.getSimpleName(), matches);
 
         assertThat(matches.size()).as(message).isOne();
         return matches.get(0);
     }
 
-    public <T extends LifecycleEvent> RemoteGeoServerEvent expectOneLifecycleEvent(
-            Class<T> payloadType) {
+    public <T extends LifecycleEvent> RemoteGeoServerEvent expectOneLifecycleEvent(Class<T> payloadType) {
 
-        List<RemoteGeoServerEvent> matches =
-                await().atMost(Duration.ofSeconds(10)) //
-                        .until(
-                                () -> allOfLifecycle(payloadType, filter -> true),
-                                not(List::isEmpty));
+        List<RemoteGeoServerEvent> matches = await().atMost(Duration.ofSeconds(10)) //
+                .until(() -> allOfLifecycle(payloadType, filter -> true), not(List::isEmpty));
 
         assertThat(matches.size()).isOne();
 
@@ -116,9 +100,7 @@ public class BusEventCollector {
             Class<T> payloadEventType, Predicate<T> eventFilter) {
 
         return capturedEvents(payloadEventType)
-                .filter(
-                        remoteEvent ->
-                                eventFilter.test(payloadEventType.cast(remoteEvent.getEvent())))
+                .filter(remoteEvent -> eventFilter.test(payloadEventType.cast(remoteEvent.getEvent())))
                 .toList();
     }
 
@@ -126,9 +108,7 @@ public class BusEventCollector {
             Class<T> payloadEventType, Predicate<T> eventFilter) {
 
         return capturedLifecycleEvents(payloadEventType)
-                .filter(
-                        remoteEvent ->
-                                eventFilter.test(payloadEventType.cast(remoteEvent.getEvent())))
+                .filter(remoteEvent -> eventFilter.test(payloadEventType.cast(remoteEvent.getEvent())))
                 .toList();
     }
 
@@ -140,13 +120,11 @@ public class BusEventCollector {
         return capturedEvents(payloadType).findFirst();
     }
 
-    private <T extends GeoServerEvent> Stream<RemoteGeoServerEvent> capturedEvents(
-            Class<T> payloadType) {
+    private <T extends GeoServerEvent> Stream<RemoteGeoServerEvent> capturedEvents(Class<T> payloadType) {
         return capturedEvents().filter(remote -> payloadType.isInstance(remote.getEvent()));
     }
 
-    private <T extends LifecycleEvent> Stream<RemoteGeoServerEvent> capturedLifecycleEvents(
-            Class<T> payloadType) {
+    private <T extends LifecycleEvent> Stream<RemoteGeoServerEvent> capturedLifecycleEvents(Class<T> payloadType) {
         return capturedEvents().filter(remote -> payloadType.isInstance(remote.getEvent()));
     }
 

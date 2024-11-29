@@ -7,7 +7,6 @@ package org.geoserver.cloud.gwc.event;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
-
 import org.geoserver.gwc.layer.TileLayerCatalogListener;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEvent;
@@ -43,12 +42,7 @@ public abstract class GeoWebCacheEvent extends ApplicationEvent {
     @Override
     public String toString() {
         return "%s[%s '%s' id: %s timestamp: %s]"
-                .formatted(
-                        getClass().getSimpleName(),
-                        getEventType(),
-                        getObjectId(),
-                        getId(),
-                        getTimestamp());
+                .formatted(getClass().getSimpleName(), getEventType(), getObjectId(), getId(), getTimestamp());
     }
 
     protected abstract String getObjectId();

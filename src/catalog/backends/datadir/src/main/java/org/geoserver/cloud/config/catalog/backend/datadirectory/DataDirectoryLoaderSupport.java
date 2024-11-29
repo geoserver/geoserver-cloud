@@ -4,10 +4,13 @@
  */
 package org.geoserver.cloud.config.catalog.backend.datadirectory;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.config.ConfigurationListener;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerConfigPersister;
@@ -19,11 +22,6 @@ import org.geoserver.platform.GeoServerExtensions;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.Resources;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @since 1.0
@@ -63,37 +61,32 @@ class DataDirectoryLoaderSupport {
 
     public void persistNewlyCreatedServices(GeoServer geoServer, Set<String> existingServiceNames) {
 
-        ServicePersister servicePersister =
-                geoServer.getListeners().stream()
-                        .filter(ServicePersister.class::isInstance)
-                        .map(ServicePersister.class::cast)
-                        .findFirst()
-                        .orElseThrow();
+        ServicePersister servicePersister = geoServer.getListeners().stream()
+                .filter(ServicePersister.class::isInstance)
+                .map(ServicePersister.class::cast)
+                .findFirst()
+                .orElseThrow();
 
         geoServer.getServices().stream()
                 .filter(s -> !existingServiceNames.contains(s.getName()))
-                .forEach(
-                        s -> {
-                            log.info("Persisting created service {}", s.getId());
-                            servicePersister.handlePostServiceChange(s);
-                        });
+                .forEach(s -> {
+                    log.info("Persisting created service {}", s.getId());
+                    servicePersister.handlePostServiceChange(s);
+                });
     }
 
-    public void replaceCatalogInfoPersisterWithFixedVersion(
-            final GeoServer geoServer, XStreamPersister xp) {
+    public void replaceCatalogInfoPersisterWithFixedVersion(final GeoServer geoServer, XStreamPersister xp) {
 
-        ConfigurationListener configPersister =
-                geoServer.getListeners().stream()
-                        .filter(GeoServerConfigPersister.class::isInstance)
-                        .findFirst()
-                        .orElse(null);
+        ConfigurationListener configPersister = geoServer.getListeners().stream()
+                .filter(GeoServerConfigPersister.class::isInstance)
+                .findFirst()
+                .orElse(null);
         if (configPersister != null) {
             geoServer.removeListener(configPersister);
         }
 
         GeoServerConfigPersister fixedCatalogInfoPersister =
-                new CatalogPluginGeoServerConfigPersister(
-                        geoServer.getCatalog().getResourceLoader(), xp);
+                new CatalogPluginGeoServerConfigPersister(geoServer.getCatalog().getResourceLoader(), xp);
 
         geoServer.addListener(fixedCatalogInfoPersister);
     }
@@ -108,8 +101,7 @@ class DataDirectoryLoaderSupport {
             geoServer.setLogging(geoServer.getFactory().createLogging());
         }
         // ensure we have a service configuration for every service we know about
-        final List<XStreamServiceLoader> loaders =
-                GeoServerExtensions.extensions(XStreamServiceLoader.class);
+        final List<XStreamServiceLoader> loaders = GeoServerExtensions.extensions(XStreamServiceLoader.class);
         for (XStreamServiceLoader l : loaders) {
             ServiceInfo serviceInfo = geoServer.getService(l.getServiceClass());
             if (serviceInfo == null) {

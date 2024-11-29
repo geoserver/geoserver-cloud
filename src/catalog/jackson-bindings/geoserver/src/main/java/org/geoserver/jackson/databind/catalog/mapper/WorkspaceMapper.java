@@ -5,7 +5,6 @@
 package org.geoserver.jackson.databind.catalog.mapper;
 
 import lombok.Generated;
-
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.jackson.databind.catalog.dto.Workspace;
 import org.mapstruct.AnnotateWith;

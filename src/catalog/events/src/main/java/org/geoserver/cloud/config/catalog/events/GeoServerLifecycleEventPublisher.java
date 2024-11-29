@@ -4,10 +4,10 @@
  */
 package org.geoserver.cloud.config.catalog.events;
 
+import java.util.function.Consumer;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.catalog.Catalog;
 import org.geoserver.cloud.event.lifecycle.LifecycleEvent;
 import org.geoserver.cloud.event.lifecycle.ReloadEvent;
@@ -16,8 +16,6 @@ import org.geoserver.config.GeoServer;
 import org.geoserver.config.impl.GeoServerLifecycleHandler;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEvent;
-
-import java.util.function.Consumer;
 
 /**
  * Implements the {@link GeoServerLifecycleHandler} interface to notify lifecycle events

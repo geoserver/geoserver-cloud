@@ -4,6 +4,7 @@
  */
 package org.geoserver.cloud.autoconfigure.observability;
 
+import java.util.Optional;
 import org.geoserver.cloud.observability.logging.config.MDCConfigProperties;
 import org.geoserver.cloud.observability.logging.servlet.HttpRequestMdcConfigProperties;
 import org.geoserver.cloud.observability.logging.servlet.HttpRequestMdcFilter;
@@ -27,8 +28,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
-
-import java.util.Optional;
 
 /**
  * {@link AutoConfiguration @AutoConfiguration} to enable logging MDC (Mapped Diagnostic Context)
@@ -65,9 +64,7 @@ public class LoggingMDCAutoConfiguration {
     @Bean
     @Order(Ordered.HIGHEST_PRECEDENCE)
     SpringEnvironmentMdcFilter springEnvironmentMdcFilter(
-            Environment env,
-            SpringEnvironmentMdcConfigProperties config,
-            Optional<BuildProperties> buildProperties) {
+            Environment env, SpringEnvironmentMdcConfigProperties config, Optional<BuildProperties> buildProperties) {
         return new SpringEnvironmentMdcFilter(env, buildProperties, config);
     }
 
@@ -81,8 +78,7 @@ public class LoggingMDCAutoConfiguration {
     @ConditionalOnClass(name = "org.springframework.security.core.Authentication")
     FilterRegistrationBean<MDCAuthenticationFilter> mdcAuthenticationPropertiesServletFilter(
             MDCConfigProperties config) {
-        FilterRegistrationBean<MDCAuthenticationFilter> registration =
-                new FilterRegistrationBean<>();
+        FilterRegistrationBean<MDCAuthenticationFilter> registration = new FilterRegistrationBean<>();
 
         var filter = new MDCAuthenticationFilter(config);
         registration.setMatchAfter(true);

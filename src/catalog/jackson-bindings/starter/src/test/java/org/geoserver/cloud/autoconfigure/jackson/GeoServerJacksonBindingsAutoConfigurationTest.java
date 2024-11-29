@@ -8,7 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.HamcrestCondition.matching;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import java.util.Set;
 import org.assertj.core.api.Condition;
 import org.geoserver.jackson.databind.catalog.GeoServerCatalogModule;
 import org.geoserver.jackson.databind.config.GeoServerConfigModule;
@@ -18,30 +18,20 @@ import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
-import java.util.Set;
-
 class GeoServerJacksonBindingsAutoConfigurationTest {
 
-    private final ApplicationContextRunner contextRunner =
-            new ApplicationContextRunner()
-                    .withConfiguration(
-                            AutoConfigurations.of(
-                                    GeoServerJacksonBindingsAutoConfiguration.class,
-                                    JacksonAutoConfiguration.class));
+    private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+            .withConfiguration(AutoConfigurations.of(
+                    GeoServerJacksonBindingsAutoConfiguration.class, JacksonAutoConfiguration.class));
 
     @Test
     void testObjectMapper() {
         this.contextRunner.run(context -> assertThat(context).hasSingleBean(ObjectMapper.class));
-        Condition<? super Set<Object>> condition =
-                matching(
-                        Matchers.hasItems(
-                                new GeoServerCatalogModule().getTypeId(),
-                                new GeoServerConfigModule().getTypeId()));
-        this.contextRunner.run(
-                context ->
-                        assertThat(context)
-                                .getBean(ObjectMapper.class)
-                                .extracting(ObjectMapper::getRegisteredModuleIds)
-                                .has(condition));
+        Condition<? super Set<Object>> condition = matching(
+                Matchers.hasItems(new GeoServerCatalogModule().getTypeId(), new GeoServerConfigModule().getTypeId()));
+        this.contextRunner.run(context -> assertThat(context)
+                .getBean(ObjectMapper.class)
+                .extracting(ObjectMapper::getRegisteredModuleIds)
+                .has(condition));
     }
 }

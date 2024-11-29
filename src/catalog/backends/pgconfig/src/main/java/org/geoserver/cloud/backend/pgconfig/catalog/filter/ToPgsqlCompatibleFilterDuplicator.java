@@ -4,9 +4,15 @@
  */
 package org.geoserver.cloud.backend.pgconfig.catalog.filter;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import javax.annotation.Nullable;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-
 import org.geotools.api.filter.BinaryComparisonOperator;
 import org.geotools.api.filter.Filter;
 import org.geotools.api.filter.MultiValuedFilter.MatchAction;
@@ -22,15 +28,6 @@ import org.geotools.api.filter.expression.Literal;
 import org.geotools.api.filter.expression.PropertyName;
 import org.geotools.filter.visitor.DuplicatingFilterVisitor;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-
-import javax.annotation.Nullable;
-
 /**
  * Duplicates a supported filter making it directly translatable to SQL taking care of subtleties
  * like {@link MatchAction} and case matching.
@@ -40,7 +37,8 @@ import javax.annotation.Nullable;
 @RequiredArgsConstructor
 class ToPgsqlCompatibleFilterDuplicator extends DuplicatingFilterVisitor {
 
-    @NonNull private final Set<String> supportedPropertyNames;
+    @NonNull
+    private final Set<String> supportedPropertyNames;
 
     /**
      * @param supportedFilter Filter that's already been deemed as supported
@@ -157,8 +155,7 @@ class ToPgsqlCompatibleFilterDuplicator extends DuplicatingFilterVisitor {
     /**
      * Only if exactly one of the possible combinations match, the result is true (aggregated XOR)
      */
-    private Filter aggregateXor(
-            BinaryComparisonOperator origFilter, Expression leftExpr, final List<Object> values) {
+    private Filter aggregateXor(BinaryComparisonOperator origFilter, Expression leftExpr, final List<Object> values) {
 
         final BiFunction<Expression, Expression, Filter> filterBuilder = filterBuilder(origFilter);
         List<Filter> xor = new ArrayList<>();
@@ -216,26 +213,21 @@ class ToPgsqlCompatibleFilterDuplicator extends DuplicatingFilterVisitor {
         return right instanceof Literal r ? r : null;
     }
 
-    private BiFunction<Expression, Expression, Filter> filterBuilder(
-            BinaryComparisonOperator orig) {
+    private BiFunction<Expression, Expression, Filter> filterBuilder(BinaryComparisonOperator orig) {
 
-        if (orig instanceof PropertyIsEqualTo)
-            return (e1, e2) -> ff.equal(e1, e2, orig.isMatchingCase());
+        if (orig instanceof PropertyIsEqualTo) return (e1, e2) -> ff.equal(e1, e2, orig.isMatchingCase());
 
-        if (orig instanceof PropertyIsGreaterThan)
-            return (e1, e2) -> ff.greater(e1, e2, orig.isMatchingCase());
+        if (orig instanceof PropertyIsGreaterThan) return (e1, e2) -> ff.greater(e1, e2, orig.isMatchingCase());
 
         if (orig instanceof PropertyIsGreaterThanOrEqualTo)
             return (e1, e2) -> ff.greaterOrEqual(e1, e2, orig.isMatchingCase());
 
-        if (orig instanceof PropertyIsLessThan)
-            return (e1, e2) -> ff.less(e1, e2, orig.isMatchingCase());
+        if (orig instanceof PropertyIsLessThan) return (e1, e2) -> ff.less(e1, e2, orig.isMatchingCase());
 
         if (orig instanceof PropertyIsLessThanOrEqualTo)
             return (e1, e2) -> ff.lessOrEqual(e1, e2, orig.isMatchingCase());
 
-        if (orig instanceof PropertyIsNotEqualTo)
-            return (e1, e2) -> ff.notEqual(e1, e2, orig.isMatchingCase());
+        if (orig instanceof PropertyIsNotEqualTo) return (e1, e2) -> ff.notEqual(e1, e2, orig.isMatchingCase());
 
         throw new IllegalArgumentException("Unknown BinaryComparisonOperator: %s".formatted(orig));
     }

@@ -4,6 +4,8 @@
  */
 package org.geoserver.config.plugin;
 
+import java.util.Optional;
+import java.util.stream.Stream;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.Patch;
@@ -11,9 +13,6 @@ import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
-
-import java.util.Optional;
-import java.util.stream.Stream;
 
 /**
  * Raw data access API for GeoServer global configuration and per-workspace settings and services
@@ -91,8 +90,7 @@ public interface ConfigRepository {
      * @param workspace The workspace the service is specific to.
      * @param clazz The class of the service to return.
      */
-    <T extends ServiceInfo> Optional<T> getServiceByWorkspace(
-            WorkspaceInfo workspace, Class<T> clazz);
+    <T extends ServiceInfo> Optional<T> getServiceByWorkspace(WorkspaceInfo workspace, Class<T> clazz);
 
     /**
      * Looks up a service by id.

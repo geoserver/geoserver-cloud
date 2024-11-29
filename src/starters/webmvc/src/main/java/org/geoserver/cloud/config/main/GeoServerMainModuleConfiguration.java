@@ -58,8 +58,7 @@ import org.springframework.context.annotation.ImportResource;
         reader = FilteringXmlBeanDefinitionReader.class, //
         // exclude beans
         locations =
-                "jar:gs-main-.*!/applicationContext.xml#name="
-                        + GeoServerMainModuleConfiguration.EXCLUDE_BEANS_REGEX)
+                "jar:gs-main-.*!/applicationContext.xml#name=" + GeoServerMainModuleConfiguration.EXCLUDE_BEANS_REGEX)
 public class GeoServerMainModuleConfiguration {
 
     private static final String UNUSED_BEAN_NAMES =
@@ -97,6 +96,5 @@ public class GeoServerMainModuleConfiguration {
             |layerGroupContainmentCache\
             """;
 
-    static final String EXCLUDE_BEANS_REGEX =
-            "^(?!" + OVERRIDDEN_BEAN_NAMES + "|" + UNUSED_BEAN_NAMES + ").*$";
+    static final String EXCLUDE_BEANS_REGEX = "^(?!" + OVERRIDDEN_BEAN_NAMES + "|" + UNUSED_BEAN_NAMES + ").*$";
 }

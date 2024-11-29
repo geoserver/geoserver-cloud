@@ -4,22 +4,19 @@
  */
 package org.geoserver.cloud.security.gateway;
 
-import lombok.extern.slf4j.Slf4j;
-
-import org.geoserver.security.filter.GeoServerRequestHeaderAuthenticationFilter;
-import org.geoserver.security.filter.GeoServerSecurityFilter;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
-
 import java.io.IOException;
-
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
+import org.geoserver.security.filter.GeoServerRequestHeaderAuthenticationFilter;
+import org.geoserver.security.filter.GeoServerSecurityFilter;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
 /**
  * @since 1.2
@@ -57,9 +54,7 @@ class GatewayPreAuthenticationFilter extends GeoServerRequestHeaderAuthenticatio
             boolean cached = cacheKey != null;
             boolean sessionAvailable = cacheAuthentication(postAuthentication, httpRequest);
             if (authenticated && cached && sessionAvailable) {
-                getSecurityManager()
-                        .getAuthenticationCache()
-                        .put(getName(), cacheKey, postAuthentication);
+                getSecurityManager().getAuthenticationCache().put(getName(), cacheKey, postAuthentication);
             }
         }
 

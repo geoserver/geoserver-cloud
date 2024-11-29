@@ -9,7 +9,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.geotools.api.filter.expression.Function;
 import org.geotools.api.filter.expression.Literal;
 import org.geotools.jackson.databind.filter.dto.Expression;
@@ -43,9 +42,7 @@ public abstract class GeoToolsFilterModuleExpressionsTest extends ExpressionRoun
         String serialized = objectMapper.writeValueAsString(expected);
         print("serialized: {}", serialized);
         org.geotools.api.filter.expression.Expression deserialized;
-        deserialized =
-                objectMapper.readValue(
-                        serialized, org.geotools.api.filter.expression.Expression.class);
+        deserialized = objectMapper.readValue(serialized, org.geotools.api.filter.expression.Expression.class);
 
         if (expected instanceof Function f1) {
             assertThat(deserialized).isInstanceOf(Function.class);
@@ -56,8 +53,7 @@ public abstract class GeoToolsFilterModuleExpressionsTest extends ExpressionRoun
             assertThat(deserialized).isInstanceOf(Literal.class);
             Object v1 = literal.getValue();
             Object v2 = ((Literal) deserialized).getValue();
-            boolean valueEquals =
-                    org.geotools.jackson.databind.filter.dto.Literal.valueEquals(v1, v2);
+            boolean valueEquals = org.geotools.jackson.databind.filter.dto.Literal.valueEquals(v1, v2);
             assertTrue(valueEquals);
         } else {
             assertEquals(expected, deserialized);
@@ -70,8 +66,7 @@ public abstract class GeoToolsFilterModuleExpressionsTest extends ExpressionRoun
         String serialized = objectMapper.writeValueAsString(expected);
         print("serialized: {}", serialized);
         org.geotools.api.filter.capability.FunctionName deserialized =
-                objectMapper.readValue(
-                        serialized, org.geotools.api.filter.capability.FunctionName.class);
+                objectMapper.readValue(serialized, org.geotools.api.filter.capability.FunctionName.class);
         assertEquals(dto.getName(), deserialized.getName());
         assertEquals(dto.getArgumentCount(), deserialized.getArgumentCount());
         assertEquals(dto.getArgumentNames(), deserialized.getArgumentNames());

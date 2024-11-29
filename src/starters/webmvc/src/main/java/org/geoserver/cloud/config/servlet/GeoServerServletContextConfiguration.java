@@ -4,6 +4,7 @@
  */
 package org.geoserver.cloud.config.servlet;
 
+import javax.servlet.Filter;
 import org.geoserver.filters.FlushSafeFilter;
 import org.geoserver.filters.SessionDebugFilter;
 import org.geoserver.filters.SpringDelegatingFilter;
@@ -16,8 +17,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.context.request.RequestContextListener;
-
-import javax.servlet.Filter;
 
 @Configuration
 public class GeoServerServletContextConfiguration {

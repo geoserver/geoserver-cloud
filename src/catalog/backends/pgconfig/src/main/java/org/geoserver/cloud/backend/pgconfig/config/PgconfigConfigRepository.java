@@ -6,10 +6,13 @@ package org.geoserver.cloud.backend.pgconfig.config;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import java.io.UncheckedIOException;
+import java.util.Arrays;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.stream.Stream;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.WorkspaceInfo;
@@ -24,12 +27,6 @@ import org.geoserver.config.plugin.ConfigRepository;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-
-import java.io.UncheckedIOException;
-import java.util.Arrays;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 /**
  * @since 1.4
@@ -65,13 +62,8 @@ public class PgconfigConfigRepository implements ConfigRepository {
         String value = encode(global);
         getGlobal()
                 .ifPresentOrElse(
-                        g ->
-                                template.update(
-                                        "UPDATE geoserverinfo SET info = to_json(?::json)", value),
-                        () ->
-                                template.update(
-                                        "INSERT INTO geoserverinfo(info) VALUES (to_json(?::json))",
-                                        value));
+                        g -> template.update("UPDATE geoserverinfo SET info = to_json(?::json)", value),
+                        () -> template.update("INSERT INTO geoserverinfo(info) VALUES (to_json(?::json))", value));
     }
 
     @Override
@@ -89,13 +81,11 @@ public class PgconfigConfigRepository implements ConfigRepository {
         return findById(id, SettingsInfo.class, "settingsinfos", SettingsInfoRowMapper);
     }
 
-    protected <T> Optional<T> findById(
-            String id, Class<T> clazz, String queryTable, RowMapper<T> mapper) {
-        String query =
-                """
+    protected <T> Optional<T> findById(String id, Class<T> clazz, String queryTable, RowMapper<T> mapper) {
+        String query = """
                 SELECT info, workspace FROM %s WHERE id = ?
                 """
-                        .formatted(queryTable);
+                .formatted(queryTable);
         return findOne(query, clazz, mapper, id);
     }
 
@@ -107,32 +97,17 @@ public class PgconfigConfigRepository implements ConfigRepository {
 
     @Override
     public SettingsInfo update(SettingsInfo settings, Patch patch) {
-        return update(
-                settings,
-                patch,
-                SettingsInfo.class,
-                "settingsinfo",
-                "settingsinfos",
-                SettingsInfoRowMapper);
+        return update(settings, patch, SettingsInfo.class, "settingsinfo", "settingsinfos", SettingsInfoRowMapper);
     }
 
     private <T extends Info> T update(
-            T value,
-            Patch patch,
-            Class<T> clazz,
-            String table,
-            String querytable,
-            RowMapper<T> mapper) {
+            T value, Patch patch, Class<T> clazz, String table, String querytable, RowMapper<T> mapper) {
 
         String id = value.getId();
         Optional<T> found = findById(id, clazz, querytable, mapper);
-        T patched =
-                found.map(patch::applyTo)
-                        .orElseThrow(
-                                () ->
-                                        new NoSuchElementException(
-                                                "%s with id %s does not exist"
-                                                        .formatted(clazz.getSimpleName(), id)));
+        T patched = found.map(patch::applyTo)
+                .orElseThrow(() -> new NoSuchElementException(
+                        "%s with id %s does not exist".formatted(clazz.getSimpleName(), id)));
 
         String encoded = encode(patched);
         template.update(
@@ -184,14 +159,7 @@ public class PgconfigConfigRepository implements ConfigRepository {
     @SuppressWarnings("unchecked")
     @Override
     public <S extends ServiceInfo> S update(S service, Patch patch) {
-        return (S)
-                update(
-                        service,
-                        patch,
-                        ServiceInfo.class,
-                        "serviceinfo",
-                        "serviceinfos",
-                        ServiceInfoRowMapper);
+        return (S) update(service, patch, ServiceInfo.class, "serviceinfo", "serviceinfos", ServiceInfoRowMapper);
     }
 
     @Override
@@ -222,15 +190,11 @@ public class PgconfigConfigRepository implements ConfigRepository {
     }
 
     @Override
-    public <T extends ServiceInfo> Optional<T> getServiceByWorkspace(
-            WorkspaceInfo workspace, Class<T> clazz) {
+    public <T extends ServiceInfo> Optional<T> getServiceByWorkspace(WorkspaceInfo workspace, Class<T> clazz) {
 
-        return findService(
-                """
+        return findService("""
                 "workspace.id" = ?
-                """,
-                clazz,
-                workspace.getId());
+                """, clazz, workspace.getId());
     }
 
     @Override
@@ -240,17 +204,14 @@ public class PgconfigConfigRepository implements ConfigRepository {
                 """, clazz, id);
     }
 
-    private <T extends ServiceInfo> Optional<T> findService(
-            String whereClause, Class<T> clazz, Object... args) {
+    private <T extends ServiceInfo> Optional<T> findService(String whereClause, Class<T> clazz, Object... args) {
 
         String sql = "SELECT info, workspace FROM serviceinfos WHERE %s".formatted(whereClause);
         if (!ServiceInfo.class.equals(clazz)) {
             String servicetype = servicetype(clazz);
-            sql =
-                    """
+            sql = """
                    %s AND "@type" = '%s'
-                   """
-                            .formatted(sql, servicetype);
+                   """.formatted(sql, servicetype);
         }
         return findOne(sql, ServiceInfo.class, ServiceInfoRowMapper, args)
                 .filter(clazz::isInstance)
@@ -259,13 +220,12 @@ public class PgconfigConfigRepository implements ConfigRepository {
 
     private <S extends ServiceInfo> String servicetype(Class<S> clazz) {
         if (ServiceInfo.class.equals(clazz)) return ServiceInfo.class.getSimpleName();
-        Class<?> iface =
-                clazz.isInterface()
-                        ? clazz
-                        : Arrays.stream(clazz.getInterfaces())
-                                .filter(ServiceInfo.class::isAssignableFrom)
-                                .findFirst()
-                                .orElseThrow(IllegalArgumentException::new);
+        Class<?> iface = clazz.isInterface()
+                ? clazz
+                : Arrays.stream(clazz.getInterfaces())
+                        .filter(ServiceInfo.class::isAssignableFrom)
+                        .findFirst()
+                        .orElseThrow(IllegalArgumentException::new);
         return iface.getSimpleName();
     }
 
@@ -318,8 +278,7 @@ public class PgconfigConfigRepository implements ConfigRepository {
         return cm.getInterface().getSimpleName();
     }
 
-    protected <U> Optional<U> findOne(
-            @NonNull String query, Class<U> clazz, RowMapper<U> rowMapper, Object... args) {
+    protected <U> Optional<U> findOne(@NonNull String query, Class<U> clazz, RowMapper<U> rowMapper, Object... args) {
 
         try {
             U object = template.queryForObject(query, rowMapper, args);

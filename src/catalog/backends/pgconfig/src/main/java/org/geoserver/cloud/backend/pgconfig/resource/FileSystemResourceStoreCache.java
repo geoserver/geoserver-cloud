@@ -1,17 +1,6 @@
 package org.geoserver.cloud.backend.pgconfig.resource;
 
 import com.google.common.base.Preconditions;
-
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-
-import org.geoserver.platform.resource.FileSystemResourceStore;
-import org.geoserver.platform.resource.Resource;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.util.FileSystemUtils;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,6 +10,14 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.util.List;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import org.geoserver.platform.resource.FileSystemResourceStore;
+import org.geoserver.platform.resource.Resource;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.util.FileSystemUtils;
 
 @Slf4j
 public class FileSystemResourceStoreCache implements DisposableBean {

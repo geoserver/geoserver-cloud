@@ -4,6 +4,7 @@
  */
 package org.geoserver.jackson.databind.config.dto.mapper;
 
+import java.util.function.Supplier;
 import org.geoserver.catalog.Info;
 import org.geoserver.config.ContactInfo;
 import org.geoserver.config.CoverageAccessInfo;
@@ -25,8 +26,6 @@ import org.geoserver.jackson.databind.config.dto.Settings;
 import org.geoserver.ows.util.OwsUtils;
 import org.mapstruct.ObjectFactory;
 import org.springframework.stereotype.Component;
-
-import java.util.function.Supplier;
 
 /**
  * Auto-wired object factory for config info interfaces, so the mapstruct code-generated mappers

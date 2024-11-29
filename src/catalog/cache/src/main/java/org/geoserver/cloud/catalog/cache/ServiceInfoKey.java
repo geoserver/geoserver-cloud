@@ -4,10 +4,9 @@
  */
 package org.geoserver.cloud.catalog.cache;
 
+import java.io.Serializable;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.config.ServiceInfo;
-
-import java.io.Serializable;
 
 /** */
 record ServiceInfoKey(String key, String qualifier) implements Serializable {

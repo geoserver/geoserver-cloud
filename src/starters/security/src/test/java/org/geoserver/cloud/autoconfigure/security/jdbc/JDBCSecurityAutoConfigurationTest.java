@@ -15,32 +15,24 @@ import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 
 class JDBCSecurityAutoConfigurationTest {
 
-    private WebApplicationContextRunner runner =
-            new WebApplicationContextRunner()
-                    .withConfiguration(AutoConfigurations.of(JDBCSecurityAutoConfiguration.class))
-                    .withBean(
-                            GeoServerSecurityManager.class,
-                            () -> mock(GeoServerSecurityManager.class));
+    private WebApplicationContextRunner runner = new WebApplicationContextRunner()
+            .withConfiguration(AutoConfigurations.of(JDBCSecurityAutoConfiguration.class))
+            .withBean(GeoServerSecurityManager.class, () -> mock(GeoServerSecurityManager.class));
 
     @Test
     void testExpectedBeans() {
-        runner.run(
-                context ->
-                        assertThat(context)
-                                .hasNotFailed()
-                                .hasSingleBean(JDBCSecurityProvider.class)
-                                .getBean(JDBCSecurityConfigProperties.class)
-                                .hasFieldOrPropertyWithValue("jdbc", true));
+        runner.run(context -> assertThat(context)
+                .hasNotFailed()
+                .hasSingleBean(JDBCSecurityProvider.class)
+                .getBean(JDBCSecurityConfigProperties.class)
+                .hasFieldOrPropertyWithValue("jdbc", true));
     }
 
     @Test
     void testDisabled() {
-        runner.withPropertyValues("geoserver.security.jdbc=false")
-                .run(
-                        context ->
-                                assertThat(context)
-                                        .hasNotFailed()
-                                        .doesNotHaveBean(JDBCSecurityProvider.class)
-                                        .doesNotHaveBean(JDBCSecurityConfigProperties.class));
+        runner.withPropertyValues("geoserver.security.jdbc=false").run(context -> assertThat(context)
+                .hasNotFailed()
+                .doesNotHaveBean(JDBCSecurityProvider.class)
+                .doesNotHaveBean(JDBCSecurityConfigProperties.class));
     }
 }

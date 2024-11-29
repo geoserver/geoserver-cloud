@@ -4,6 +4,7 @@
  */
 package org.geoserver.cloud.catalog.cache;
 
+import java.util.Objects;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.plugin.CatalogFacadeExtensionAdapter;
@@ -19,8 +20,6 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.Objects;
 
 /**
  * Enables caching at the {@link CatalogFacade} and {@link GeoServerFacade} level instead of at the
@@ -61,8 +60,7 @@ public class GeoServerBackendCacheConfiguration implements BeanPostProcessor {
 
     @Bean
     CachingGeoServerFacade cachingGeoServerFacade(
-            @Qualifier("geoserverFacade") GeoServerFacade rawGeoServerFacade,
-            CacheManager cacheManager) {
+            @Qualifier("geoserverFacade") GeoServerFacade rawGeoServerFacade, CacheManager cacheManager) {
         Cache cache = getCache(cacheManager, CachingGeoServerFacade.CACHE_NAME);
         return new CachingGeoServerFacade(rawGeoServerFacade, cache);
     }

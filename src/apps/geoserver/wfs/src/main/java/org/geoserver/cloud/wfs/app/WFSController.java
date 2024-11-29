@@ -4,9 +4,10 @@
  */
 package org.geoserver.cloud.wfs.app;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-
 import org.geoserver.cloud.virtualservice.VirtualServiceVerifier;
 import org.geoserver.ows.Dispatcher;
 import org.springframework.stereotype.Controller;
@@ -14,9 +15,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.view.RedirectView;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 @Controller
 @RequiredArgsConstructor
@@ -35,8 +33,7 @@ public class WFSController {
 
     /** Serve only WFS schemas from classpath (e.g. {@code /schemas/wfs/2.0/wfs.xsd}) */
     @GetMapping(path = "/schemas/wfs/**")
-    public void getSchema(HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
+    public void getSchema(HttpServletRequest request, HttpServletResponse response) throws Exception {
         classPathPublisher.handleRequest(request, response);
     }
 
@@ -50,20 +47,17 @@ public class WFSController {
      * </ul>
      */
     @GetMapping(path = {"/webresources/wfs/**"})
-    public void getStaticResource(HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
+    public void getStaticResource(HttpServletRequest request, HttpServletResponse response) throws Exception {
         classPathPublisher.handleRequest(request, response);
     }
 
     @GetMapping(path = {"/wfs", "/ows"})
-    public void handleGet(HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
+    public void handleGet(HttpServletRequest request, HttpServletResponse response) throws Exception {
         dispatch(request, response);
     }
 
     @PostMapping(path = {"/wfs", "/ows"})
-    public void handlePost(HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
+    public void handlePost(HttpServletRequest request, HttpServletResponse response) throws Exception {
         dispatch(request, response);
     }
 
@@ -113,8 +107,7 @@ public class WFSController {
         dispatch(request, response);
     }
 
-    private void dispatch(HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
+    private void dispatch(HttpServletRequest request, HttpServletResponse response) throws Exception {
         geoserverDispatcher.handleRequest(request, response);
     }
 }

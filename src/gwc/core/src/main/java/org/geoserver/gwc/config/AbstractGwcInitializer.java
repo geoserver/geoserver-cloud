@@ -7,10 +7,14 @@ package org.geoserver.gwc.config;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Stopwatch;
-
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-
 import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.GeoServerConfigurationLock.LockType;
 import org.geoserver.cloud.gwc.event.TileLayerEvent;
@@ -32,13 +36,6 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.event.EventListener;
 import org.springframework.util.StringUtils;
-
-import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
 
 /**
  * Base class for replacements of {@link GWCInitializer}.
@@ -108,9 +105,7 @@ public abstract class AbstractGwcInitializer implements GeoServerReinitializer, 
             if (configFileExists()) {
                 updateLockProviderName();
             } else {
-                logger().info(
-                                "Initializing GeoServer specific GWC configuration {}",
-                                configPersister.findConfigFile());
+                logger().info("Initializing GeoServer specific GWC configuration {}", configPersister.findConfigFile());
                 GWCConfig defaults = new GWCConfig();
                 defaults.setVersion("1.1.0");
                 defaults.setLockProviderName(GWC_LOCK_PROVIDER_BEAN_NAME);
@@ -131,9 +126,7 @@ public abstract class AbstractGwcInitializer implements GeoServerReinitializer, 
         final GWCConfig gwcConfig = configPersister.getConfig();
         if (!GWC_LOCK_PROVIDER_BEAN_NAME.equals(gwcConfig.getLockProviderName())) {
             if (null == gwcConfig.getLockProviderName()) {
-                logger().info(
-                                "Setting GeoWebCache lock provider to {}",
-                                GWC_LOCK_PROVIDER_BEAN_NAME);
+                logger().info("Setting GeoWebCache lock provider to {}", GWC_LOCK_PROVIDER_BEAN_NAME);
             } else {
                 logger().warn(
                                 "Updating GeoWebCache lock provider from {} to {}",
@@ -160,18 +153,13 @@ public abstract class AbstractGwcInitializer implements GeoServerReinitializer, 
 
         switch (event.getEventType()) {
             case DELETED:
-                logger().debug(
-                                "TileLayer {} deleted, notifying in-memory CacheProvider",
-                                layerName);
+                logger().debug("TileLayer {} deleted, notifying in-memory CacheProvider", layerName);
                 cache.removeUncachedLayer(layerName);
                 break;
             case MODIFIED:
                 if (isRename(event)) {
                     String oldName = event.getOldName();
-                    logger().info(
-                                    "TileLayer {} renamed to {}, notifying in-memory CacheProvider",
-                                    oldName,
-                                    layerName);
+                    logger().info("TileLayer {} renamed to {}, notifying in-memory CacheProvider", oldName, layerName);
                     cache.removeUncachedLayer(oldName);
                 }
                 setInMemoryLayerCaching(layerName);
@@ -218,27 +206,20 @@ public abstract class AbstractGwcInitializer implements GeoServerReinitializer, 
 
     private void setInMemoryLayerCaching(@NonNull String layerName) {
 
-        layer(layerName)
-                .ifPresentOrElse(this::addUncachedLayer, () -> removeCachedLayer(layerName));
+        layer(layerName).ifPresentOrElse(this::addUncachedLayer, () -> removeCachedLayer(layerName));
     }
 
     private void removeCachedLayer(String layerName) {
-        cacheProvider()
-                .ifPresent(
-                        cache -> {
-                            logger().debug(
-                                            "TileLayer {} does not exist, notifying CacheProvider",
-                                            layerName);
-                            cache.removeLayer(layerName);
-                            cache.removeUncachedLayer(layerName);
-                        });
+        cacheProvider().ifPresent(cache -> {
+            logger().debug("TileLayer {} does not exist, notifying CacheProvider", layerName);
+            cache.removeLayer(layerName);
+            cache.removeUncachedLayer(layerName);
+        });
     }
 
     private void addUncachedLayer(GeoServerTileLayer tl) {
         if (!tl.getInfo().isInMemoryCached()) {
-            logger().debug(
-                            "TileLayer {} is not to be memory cached, notifying CacheProvider",
-                            tl.getName());
+            logger().debug("TileLayer {} is not to be memory cached, notifying CacheProvider", tl.getName());
             cacheProvider().ifPresent(cache -> cache.addUncachedLayer(tl.getName()));
         }
     }
@@ -255,23 +236,21 @@ public abstract class AbstractGwcInitializer implements GeoServerReinitializer, 
      * instance.
      */
     private void setUpNonMemoryCacheableLayers() {
-        cacheProvider()
-                .ifPresent(
-                        cache -> {
-                            // Add all the various Layers to avoid caching
-                            logger().info("Adding Layers to avoid In Memory Caching");
-                            // it is ok to use the ForkJoinPool.commonPool() here, there's no I/O
-                            // involved
-                            Stopwatch sw = Stopwatch.createStarted();
-                            Collection<? extends TileLayer> layers = geoseverTileLayers.getLayers();
-                            logger().info("Queried {} tile layers in {}", layers.size(), sw.stop());
-                            layers.stream()
-                                    .filter(GeoServerTileLayer.class::isInstance)
-                                    .map(GeoServerTileLayer.class::cast)
-                                    .filter(l -> l.isEnabled() && !l.getInfo().isInMemoryCached())
-                                    .map(GeoServerTileLayer::getName)
-                                    .forEach(cache::addUncachedLayer);
-                        });
+        cacheProvider().ifPresent(cache -> {
+            // Add all the various Layers to avoid caching
+            logger().info("Adding Layers to avoid In Memory Caching");
+            // it is ok to use the ForkJoinPool.commonPool() here, there's no I/O
+            // involved
+            Stopwatch sw = Stopwatch.createStarted();
+            Collection<? extends TileLayer> layers = geoseverTileLayers.getLayers();
+            logger().info("Queried {} tile layers in {}", layers.size(), sw.stop());
+            layers.stream()
+                    .filter(GeoServerTileLayer.class::isInstance)
+                    .map(GeoServerTileLayer.class::cast)
+                    .filter(l -> l.isEnabled() && !l.getInfo().isInMemoryCached())
+                    .map(GeoServerTileLayer::getName)
+                    .forEach(cache::addUncachedLayer);
+        });
     }
 
     private Optional<CacheProvider> cacheProvider() {

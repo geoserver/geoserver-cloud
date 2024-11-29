@@ -7,8 +7,10 @@ package org.geoserver.cloud.config.catalog.events;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
 import lombok.NonNull;
-
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.CatalogTestData;
@@ -42,15 +44,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Consumer;
-
-@SpringBootTest(
-        classes = {
-            TestConfigurationAutoConfiguration.class,
-            ApplicationEventCapturingListener.class
-        })
+@SpringBootTest(classes = {TestConfigurationAutoConfiguration.class, ApplicationEventCapturingListener.class})
 @EnableAutoConfiguration
 class CatalogApplicationEventsConfigurationTest {
 
@@ -74,15 +68,9 @@ class CatalogApplicationEventsConfigurationTest {
 
     @Test
     void testCatalogEventBroadcasterHasSetUpItself() {
-        Optional<CatalogListener> publisherListener =
-                catalog.getListeners().stream()
-                        .filter(
-                                l ->
-                                        l
-                                                instanceof
-                                                CatalogApplicationEventPublisher
-                                                        .LocalCatalogEventPublisher)
-                        .findFirst();
+        Optional<CatalogListener> publisherListener = catalog.getListeners().stream()
+                .filter(l -> l instanceof CatalogApplicationEventPublisher.LocalCatalogEventPublisher)
+                .findFirst();
         assertTrue(publisherListener.isPresent());
     }
 
@@ -123,15 +111,9 @@ class CatalogApplicationEventsConfigurationTest {
 
     @Test
     void testConfigEventBroadcasterHasSetUpItself() {
-        Optional<ConfigurationListener> publisherListener =
-                geoserver.getListeners().stream()
-                        .filter(
-                                l ->
-                                        l
-                                                instanceof
-                                                CatalogApplicationEventPublisher
-                                                        .LocalConfigEventPublisher)
-                        .findFirst();
+        Optional<ConfigurationListener> publisherListener = geoserver.getListeners().stream()
+                .filter(l -> l instanceof CatalogApplicationEventPublisher.LocalConfigEventPublisher)
+                .findFirst();
         assertTrue(publisherListener.isPresent());
     }
 
@@ -343,8 +325,7 @@ class CatalogApplicationEventsConfigurationTest {
         testRemove(service, geoserver::remove, ServiceRemoved.class);
     }
 
-    private <T extends Info> void testRemove(
-            T info, Consumer<T> remover, Class<? extends InfoRemoved> eventType) {
+    private <T extends Info> void testRemove(T info, Consumer<T> remover, Class<? extends InfoRemoved> eventType) {
         listener.clear();
         listener.start();
         remover.accept(info);
@@ -359,8 +340,7 @@ class CatalogApplicationEventsConfigurationTest {
             @NonNull Consumer<T> modifier,
             @NonNull Consumer<T> saver,
             @NonNull Class<? extends InfoModified> postEventType) {
-        if (null == ModificationProxy.handler(info))
-            throw new IllegalArgumentException("Expected a ModificationProxy");
+        if (null == ModificationProxy.handler(info)) throw new IllegalArgumentException("Expected a ModificationProxy");
 
         Class<T> type = (Class<T>) ConfigInfoType.valueOf(info).getType();
 
@@ -380,7 +360,8 @@ class CatalogApplicationEventsConfigurationTest {
         modifier.accept(info);
         saver.accept(info);
 
-        Patch expected = PropertyDiff.valueOf(propertyNames, oldValues, newValues).toPatch();
+        Patch expected =
+                PropertyDiff.valueOf(propertyNames, oldValues, newValues).toPatch();
         InfoModified post = listener.expectOne(postEventType);
         assertThat(post.getObjectId()).isEqualTo(InfoEvent.resolveId(info));
         assertThat(post.getPatch()).isEqualTo(expected);
@@ -400,8 +381,7 @@ class CatalogApplicationEventsConfigurationTest {
     }
 
     @SuppressWarnings({"rawtypes"})
-    private <T extends Info> void testAddEvent(
-            T info, Consumer<T> addOp, Class<? extends InfoAdded> eventType) {
+    private <T extends Info> void testAddEvent(T info, Consumer<T> addOp, Class<? extends InfoAdded> eventType) {
         listener.clear();
         addOp.accept(info);
         InfoAdded event = listener.expectOne(eventType);

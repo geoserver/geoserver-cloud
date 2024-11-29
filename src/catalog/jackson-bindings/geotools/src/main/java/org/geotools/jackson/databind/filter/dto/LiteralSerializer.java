@@ -15,12 +15,6 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-
-import lombok.NonNull;
-
-import org.geotools.jackson.databind.filter.mapper.GeoToolsValueMappers;
-import org.mapstruct.factory.Mappers;
-
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.Collection;
@@ -29,6 +23,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.UnaryOperator;
+import lombok.NonNull;
+import org.geotools.jackson.databind.filter.mapper.GeoToolsValueMappers;
+import org.mapstruct.factory.Mappers;
 
 /**
  *
@@ -58,33 +55,28 @@ public class LiteralSerializer extends StdSerializer<Literal> {
 
     private static final long serialVersionUID = 1L;
 
-    private transient GeoToolsValueMappers classNameMapper =
-            Mappers.getMapper(GeoToolsValueMappers.class);
+    private transient GeoToolsValueMappers classNameMapper = Mappers.getMapper(GeoToolsValueMappers.class);
 
     public LiteralSerializer() {
         super(Literal.class);
     }
 
     private GeoToolsValueMappers classNameMapper() {
-        if (classNameMapper == null)
-            classNameMapper = Mappers.getMapper(GeoToolsValueMappers.class);
+        if (classNameMapper == null) classNameMapper = Mappers.getMapper(GeoToolsValueMappers.class);
         return classNameMapper;
     }
 
     @Override
-    public void serializeWithType(
-            Literal value, JsonGenerator g, SerializerProvider provider, TypeSerializer typeSer)
+    public void serializeWithType(Literal value, JsonGenerator g, SerializerProvider provider, TypeSerializer typeSer)
             throws IOException {
 
-        WritableTypeId typeIdDef =
-                typeSer.writeTypePrefix(g, typeSer.typeId(value, JsonToken.VALUE_STRING));
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, typeSer.typeId(value, JsonToken.VALUE_STRING));
         serialize(value, g, provider);
         typeSer.writeTypeSuffix(g, typeIdDef);
     }
 
     @Override
-    public void serialize(Literal literal, JsonGenerator gen, SerializerProvider serializers)
-            throws IOException {
+    public void serialize(Literal literal, JsonGenerator gen, SerializerProvider serializers) throws IOException {
 
         final Object value = literal.getValue();
 
@@ -93,8 +85,7 @@ public class LiteralSerializer extends StdSerializer<Literal> {
         gen.writeEndObject();
     }
 
-    protected void writeValue(final Object value, JsonGenerator gen, SerializerProvider provider)
-            throws IOException {
+    protected void writeValue(final Object value, JsonGenerator gen, SerializerProvider provider) throws IOException {
         if (value == null) {
             gen.writeNullField(VALUE_KEY);
         } else {
@@ -102,8 +93,7 @@ public class LiteralSerializer extends StdSerializer<Literal> {
         }
     }
 
-    private void writeNonNullValue(
-            final @NonNull Object value, JsonGenerator gen, SerializerProvider provider)
+    private void writeNonNullValue(final @NonNull Object value, JsonGenerator gen, SerializerProvider provider)
             throws IOException {
         Class<?> type = value.getClass();
 
@@ -119,10 +109,7 @@ public class LiteralSerializer extends StdSerializer<Literal> {
     }
 
     private void serializeNonCollectionObject(
-            final @NonNull Object value,
-            JsonGenerator gen,
-            SerializerProvider provider,
-            Class<?> type)
+            final @NonNull Object value, JsonGenerator gen, SerializerProvider provider, Class<?> type)
             throws IOException {
 
         if (type.isAnonymousClass()) {
@@ -130,22 +117,20 @@ public class LiteralSerializer extends StdSerializer<Literal> {
             if (enclosingClass.isEnum()) {
                 type = enclosingClass;
             } else {
-                throw new IllegalArgumentException(
-                        "Unable to encode anonymous class %s".formatted(type.getName()));
+                throw new IllegalArgumentException("Unable to encode anonymous class %s".formatted(type.getName()));
             }
         }
 
         JsonSerializer<Object> valueSerializer = findValueSerializer(provider, type);
         final Class<Object> handledType = valueSerializer.handledType();
-        String typeName =
-                classNameMapper().classToCanonicalName(type.isEnum() ? type : handledType);
+        String typeName = classNameMapper().classToCanonicalName(type.isEnum() ? type : handledType);
         gen.writeStringField(TYPE_KEY, typeName);
         gen.writeFieldName(VALUE_KEY);
         valueSerializer.serialize(value, gen, provider);
     }
 
-    protected JsonSerializer<Object> findValueSerializer(
-            SerializerProvider provider, final Class<?> type) throws JsonMappingException {
+    protected JsonSerializer<Object> findValueSerializer(SerializerProvider provider, final Class<?> type)
+            throws JsonMappingException {
         TypeFactory typeFactory = provider.getTypeFactory();
         JavaType javaType = typeFactory.constructType(type);
         return provider.findValueSerializer(javaType);
@@ -164,8 +149,7 @@ public class LiteralSerializer extends StdSerializer<Literal> {
         gen.writeEndObject();
     }
 
-    private void writeArray(Object array, JsonGenerator gen, SerializerProvider provider)
-            throws IOException {
+    private void writeArray(Object array, JsonGenerator gen, SerializerProvider provider) throws IOException {
         // e.g. int[], java.lang.String[], etc.
         final String arrayTypeStr = classNameMapper().classToCanonicalName(array.getClass());
         gen.writeStringField(TYPE_KEY, arrayTypeStr);
@@ -186,8 +170,7 @@ public class LiteralSerializer extends StdSerializer<Literal> {
         }
     }
 
-    private void writeCollection(
-            Collection<?> collection, JsonGenerator gen, SerializerProvider provider)
+    private void writeCollection(Collection<?> collection, JsonGenerator gen, SerializerProvider provider)
             throws IOException {
 
         final Class<?> contentType = findContentType(collection, provider);
@@ -195,8 +178,7 @@ public class LiteralSerializer extends StdSerializer<Literal> {
         final UnaryOperator<Object> valueMapper =
                 Literal.class.equals(contentType) ? Literal::valueOf : UnaryOperator.identity();
 
-        gen.writeStringField(
-                TYPE_KEY, classNameMapper().classToCanonicalName(collectionType(collection)));
+        gen.writeStringField(TYPE_KEY, classNameMapper().classToCanonicalName(collectionType(collection)));
 
         if (null != contentType) {
             String singleContentTypeValue = classNameMapper.classToCanonicalName(contentType);
@@ -214,12 +196,11 @@ public class LiteralSerializer extends StdSerializer<Literal> {
 
     private Class<?> findContentType(Collection<?> collection, SerializerProvider provider)
             throws JsonMappingException {
-        List<?> types =
-                collection.stream()
-                        .filter(Objects::nonNull)
-                        .map(Object::getClass)
-                        .distinct()
-                        .toList();
+        List<?> types = collection.stream()
+                .filter(Objects::nonNull)
+                .map(Object::getClass)
+                .distinct()
+                .toList();
 
         if (types.isEmpty()) return null; // all null values or empty collection
         if (types.size() == 1) {

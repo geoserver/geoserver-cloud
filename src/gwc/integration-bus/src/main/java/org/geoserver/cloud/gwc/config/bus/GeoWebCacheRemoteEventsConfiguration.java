@@ -4,6 +4,9 @@
  */
 package org.geoserver.cloud.gwc.config.bus;
 
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import org.geoserver.cloud.gwc.bus.GeoWebCacheRemoteEventsBroker;
 import org.geoserver.cloud.gwc.bus.RemoteGeoWebCacheEvent;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -14,10 +17,6 @@ import org.springframework.cloud.bus.jackson.RemoteApplicationEventScan;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * @since 1.0

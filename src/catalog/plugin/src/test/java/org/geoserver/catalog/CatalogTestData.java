@@ -6,10 +6,16 @@ package org.geoserver.catalog;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.experimental.Accessors;
-
 import org.geoserver.catalog.faker.CatalogFaker;
 import org.geoserver.catalog.impl.LayerGroupInfoImpl;
 import org.geoserver.catalog.plugin.CatalogPlugin;
@@ -39,14 +45,6 @@ import org.geotools.process.factory.AnnotationDrivenProcessFactory;
 import org.geotools.util.Converters;
 import org.springframework.lang.Nullable;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
-
 /**
  * Provides or populates a catalog; use {@link CatalogTestData#empty
  * CatalogTestData.empty(Supplier<Catalog>)} to start up with an empty catalog but having the test
@@ -66,10 +64,7 @@ public class CatalogTestData {
     private final @Getter CatalogFaker faker;
 
     private CatalogTestData(
-            Supplier<Catalog> catalog,
-            Supplier<GeoServer> config,
-            boolean initCatalog,
-            boolean initConfig) {
+            Supplier<Catalog> catalog, Supplier<GeoServer> config, boolean initCatalog, boolean initConfig) {
         this.catalog = catalog;
         this.configCatalog = config;
         this.initializeCatalog = initCatalog;
@@ -96,8 +91,7 @@ public class CatalogTestData {
         return new CatalogTestData(catalog, config, false, false);
     }
 
-    public static CatalogTestData initialized(
-            Supplier<Catalog> catalog, Supplier<GeoServer> config) {
+    public static CatalogTestData initialized(Supplier<Catalog> catalog, Supplier<GeoServer> config) {
         return new CatalogTestData(catalog, config, true, true);
     }
 
@@ -155,14 +149,11 @@ public class CatalogTestData {
     public void deleteAll(GeoServer gs) {
         if (gs != null) {
             gs.getServices().forEach(gs::remove);
-            catalog.get()
-                    .getWorkspaces()
-                    .forEach(
-                            ws -> {
-                                SettingsInfo settings = gs.getSettings(ws);
-                                if (settings != null) gs.remove(settings);
-                                gs.getServices(ws).forEach(gs::remove);
-                            });
+            catalog.get().getWorkspaces().forEach(ws -> {
+                SettingsInfo settings = gs.getSettings(ws);
+                if (settings != null) gs.remove(settings);
+                gs.getServices(ws).forEach(gs::remove);
+            });
         }
     }
 
@@ -259,27 +250,16 @@ public class CatalogTestData {
         dataStoreB = faker().dataStoreInfo("ds2", workspaceB, "dsNameA", "dsDescription", true);
         dataStoreC = faker().dataStoreInfo("ds3", workspaceC, "dsNameB", "dsDescription", true);
 
-        featureTypeA =
-                createFeatureType(
-                        "ft1",
-                        dataStoreA,
-                        namespaceA,
-                        "ftName",
-                        "ftAbstract",
-                        "ftDescription",
-                        true);
+        featureTypeA = createFeatureType("ft1", dataStoreA, namespaceA, "ftName", "ftAbstract", "ftDescription", true);
 
-        coverageStoreA =
-                createCoverageStore("cs1", workspaceA, "csName", "fakeCoverageType", "file://fake");
+        coverageStoreA = createCoverageStore("cs1", workspaceA, "csName", "fakeCoverageType", "file://fake");
         coverageA = createCoverage("cov1", coverageStoreA, "cvName");
 
         wmsStoreA = createWebMapServer("wms1", workspaceA, "wmsName", "http://fake.url", true);
 
         wmsLayerA = createWMSLayer("wmsl-1", wmsStoreA, namespaceA, "wmsLayer1", true);
 
-        wmtsStoreA =
-                createWebMapTileServer(
-                        "wmts1", workspaceA, "wmtsName", "http://fake.wmts.url", true);
+        wmtsStoreA = createWebMapTileServer("wmts1", workspaceA, "wmtsName", "http://fake.wmts.url", true);
 
         wmtsLayerA = createWMTSLayer("wmtsl1", wmtsStoreA, namespaceA, "wmtsLayer", true);
 
@@ -357,8 +337,7 @@ public class CatalogTestData {
         return this;
     }
 
-    public LayerGroupInfo createLayerGroup(
-            String name, @Nullable WorkspaceInfo ws, PublishedInfo layer) {
+    public LayerGroupInfo createLayerGroup(String name, @Nullable WorkspaceInfo ws, PublishedInfo layer) {
         StyleInfo style = layer instanceof LayerInfo l ? l.getDefaultStyle() : null;
         return createLayerGroup(null, ws, name, layer, style);
     }
@@ -459,8 +438,7 @@ public class CatalogTestData {
         return wmsl;
     }
 
-    public WMSStoreInfo createWebMapServer(
-            String id, WorkspaceInfo wspace, String name, String url, boolean enabled) {
+    public WMSStoreInfo createWebMapServer(String id, WorkspaceInfo wspace, String name, String url, boolean enabled) {
         WMSStoreInfo wms = getFactory().createWebMapServer();
         OwsUtils.set(wms, "id", id);
         wms.setName(name);
@@ -530,14 +508,8 @@ public class CatalogTestData {
             DataStoreInfo ds2 = (DataStoreInfo) info2;
             Map<String, Serializable> p1 = new HashMap<>(ds1.getConnectionParameters());
             Map<String, Serializable> p2 = new HashMap<>(ds2.getConnectionParameters());
-            p1.forEach(
-                    (k, v) ->
-                            ds1.getConnectionParameters()
-                                    .put(k, Converters.convert(v, String.class)));
-            p2.forEach(
-                    (k, v) ->
-                            ds2.getConnectionParameters()
-                                    .put(k, Converters.convert(v, String.class)));
+            p1.forEach((k, v) -> ds1.getConnectionParameters().put(k, Converters.convert(v, String.class)));
+            p2.forEach((k, v) -> ds2.getConnectionParameters().put(k, Converters.convert(v, String.class)));
             assertEquals(ds1.getConnectionParameters(), ds2.getConnectionParameters());
         }
         assertEquals(info1, info2);
@@ -545,18 +517,15 @@ public class CatalogTestData {
 
     public void assertInternationalStringPropertiesEqual(Info info1, Info info2) {
         ClassProperties props = new ClassProperties(info1.getClass());
-        List<String> istringProps =
-                props.properties().stream()
-                        .filter(p -> props.getter(p, InternationalString.class) != null)
-                        .toList();
+        List<String> istringProps = props.properties().stream()
+                .filter(p -> props.getter(p, InternationalString.class) != null)
+                .toList();
         for (String isp : istringProps) {
             InternationalString i1 = (InternationalString) OwsUtils.get(info1, isp);
             InternationalString i2 = (InternationalString) OwsUtils.get(info2, isp);
 
             Supplier<String> msg =
-                    () ->
-                            "%s.%s:InternationalString"
-                                    .formatted(info1.getClass().getSimpleName(), isp);
+                    () -> "%s.%s:InternationalString".formatted(info1.getClass().getSimpleName(), isp);
             assertEquals(i1, i2, msg);
         }
     }

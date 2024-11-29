@@ -15,8 +15,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 import lombok.NonNull;
-
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.PublishedInfo;
@@ -30,13 +35,6 @@ import org.geowebcache.grid.GridSetBroker;
 import org.geowebcache.layer.TileLayer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 /**
  * @since 1.7
@@ -52,8 +50,7 @@ class PgconfigTileLayerCatalogTest {
     void setUp() {
         support = new TileLayerMocking(new CatalogPlugin(), new GeoServerImpl());
         repository = mock(PgconfigTileLayerInfoRepository.class);
-        tlCatalog =
-                new PgconfigTileLayerCatalog(repository, support.getGridsets(), support.catalog());
+        tlCatalog = new PgconfigTileLayerCatalog(repository, support.getGridsets(), support.catalog());
     }
 
     @Test
@@ -65,10 +62,7 @@ class PgconfigTileLayerCatalogTest {
         Supplier<Catalog> catalog = support.catalog();
         Class<NullPointerException> npe = NullPointerException.class;
         assertThrows(
-                npe,
-                () ->
-                        new PgconfigTileLayerCatalog(
-                                (PgconfigTileLayerInfoRepository) null, gridsets, catalog));
+                npe, () -> new PgconfigTileLayerCatalog((PgconfigTileLayerInfoRepository) null, gridsets, catalog));
         assertThrows(npe, () -> new PgconfigTileLayerCatalog(repository, null, catalog));
         assertThrows(npe, () -> new PgconfigTileLayerCatalog(repository, gridsets, null));
     }
@@ -103,10 +97,7 @@ class PgconfigTileLayerCatalogTest {
     @Test
     void testSetGridSetBroker() {
         GridSetBroker gridsets = support.getGridsets();
-        var expected =
-                assertThrows(
-                        UnsupportedOperationException.class,
-                        () -> tlCatalog.setGridSetBroker(gridsets));
+        var expected = assertThrows(UnsupportedOperationException.class, () -> tlCatalog.setGridSetBroker(gridsets));
 
         assertThat(expected.getMessage()).contains("use constructor injection instead");
     }
@@ -135,8 +126,7 @@ class PgconfigTileLayerCatalogTest {
         tli.setPublished(null);
         when(repository.findAll()).thenReturn(Stream.of(tli));
 
-        NullPointerException npe =
-                assertThrows(NullPointerException.class, () -> tlCatalog.getLayers());
+        NullPointerException npe = assertThrows(NullPointerException.class, () -> tlCatalog.getLayers());
         assertThat(npe.getMessage()).contains("publishedInfo");
     }
 
@@ -226,8 +216,7 @@ class PgconfigTileLayerCatalogTest {
 
     @Test
     void testAddLayer_not_a_GeoSeverTileLayer() {
-        assertThrows(
-                IllegalArgumentException.class, () -> tlCatalog.addLayer(mock(TileLayer.class)));
+        assertThrows(IllegalArgumentException.class, () -> tlCatalog.addLayer(mock(TileLayer.class)));
     }
 
     @Test
@@ -273,8 +262,7 @@ class PgconfigTileLayerCatalogTest {
 
     @Test
     void testModifyLayer_not_a_GeoSeverTileLayer() {
-        assertThrows(
-                IllegalArgumentException.class, () -> tlCatalog.modifyLayer(mock(TileLayer.class)));
+        assertThrows(IllegalArgumentException.class, () -> tlCatalog.modifyLayer(mock(TileLayer.class)));
     }
 
     @Test

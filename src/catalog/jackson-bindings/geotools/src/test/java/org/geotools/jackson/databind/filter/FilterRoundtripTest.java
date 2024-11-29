@@ -4,6 +4,13 @@
  */
 package org.geotools.jackson.databind.filter;
 
+import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Supplier;
 import org.geotools.jackson.databind.filter.dto.Expression;
 import org.geotools.jackson.databind.filter.dto.Filter;
 import org.geotools.jackson.databind.filter.dto.Filter.BinaryComparisonOperator;
@@ -24,14 +31,6 @@ import org.locationtech.jts.geom.impl.PackedCoordinateSequenceFactory;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
 
-import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.function.Supplier;
-
 /**
  * Abstract test suite for {@link Filter} Data Transfer Objects or POJOS; to be used both for
  * testing serialization/deserialization and mapping to and from {@link
@@ -41,8 +40,7 @@ public abstract class FilterRoundtripTest {
 
     protected abstract <F extends Filter> F roundtripTest(F dto) throws Exception;
 
-    protected abstract void roundtripTest(org.geotools.jackson.databind.filter.dto.SortBy dto)
-            throws Exception;
+    protected abstract void roundtripTest(org.geotools.jackson.databind.filter.dto.SortBy dto) throws Exception;
 
     @Test
     void include() throws Exception {
@@ -83,18 +81,16 @@ public abstract class FilterRoundtripTest {
     @Test
     void idFilter_ResourceId_Date() throws Exception {
         Set<FeatureId> identifiers = new HashSet<>();
-        identifiers.add(
-                new Filter.Id.ResourceId()
-                        .setStartTime(new Date())
-                        .setEndTime(new Date())
-                        // .setFeatureVersion("v1")
-                        .setId("states.1"));
-        identifiers.add(
-                new Filter.Id.ResourceId()
-                        .setStartTime(new Date())
-                        .setEndTime(new Date())
-                        // .setFeatureVersion("2")
-                        .setId("states.2"));
+        identifiers.add(new Filter.Id.ResourceId()
+                .setStartTime(new Date())
+                .setEndTime(new Date())
+                // .setFeatureVersion("v1")
+                .setId("states.1"));
+        identifiers.add(new Filter.Id.ResourceId()
+                .setStartTime(new Date())
+                .setEndTime(new Date())
+                // .setFeatureVersion("2")
+                .setId("states.2"));
         Filter filter = new Filter.Id().setIdentifiers(identifiers);
         roundtripTest(filter);
     }
@@ -124,41 +120,37 @@ public abstract class FilterRoundtripTest {
     }
 
     private PropertyIsNull isNullFilter() {
-        return new Filter.PropertyIsNull()
-                .setExpression(new Expression.PropertyName().setPropertyName("name"));
+        return new Filter.PropertyIsNull().setExpression(new Expression.PropertyName().setPropertyName("name"));
     }
 
     @Test
     void propertyIsNil() throws Exception {
-        Filter filter =
-                new Filter.PropertyIsNil()
-                        .setExpression(new Expression.PropertyName().setPropertyName("name"))
-                        .setNilReason("because");
+        Filter filter = new Filter.PropertyIsNil()
+                .setExpression(new Expression.PropertyName().setPropertyName("name"))
+                .setNilReason("because");
         roundtripTest(filter);
     }
 
     @Test
     void propertyIsLike() throws Exception {
-        MultiValuedFilter filter =
-                new Filter.PropertyIsLike()
-                        .setExpression(propertyName("text"))
-                        .setEscape("-")
-                        .setLiteral("good thoughts")
-                        .setMatchingCase(true)
-                        .setSingleChar("?")
-                        .setWildCard("*")
-                        .setMatchAction(MatchAction.ONE);
+        MultiValuedFilter filter = new Filter.PropertyIsLike()
+                .setExpression(propertyName("text"))
+                .setEscape("-")
+                .setLiteral("good thoughts")
+                .setMatchingCase(true)
+                .setSingleChar("?")
+                .setWildCard("*")
+                .setMatchAction(MatchAction.ONE);
         roundtripTest(filter);
     }
 
     @Test
     void propertyIsBetween() throws Exception {
-        MultiValuedFilter dto =
-                new Filter.PropertyIsBetween()
-                        .setExpression(propertyName("count"))
-                        .setLowerBoundary(literal(1000))
-                        .setUpperBoundary(literal(2000))
-                        .setMatchAction(MatchAction.ANY);
+        MultiValuedFilter dto = new Filter.PropertyIsBetween()
+                .setExpression(propertyName("count"))
+                .setLowerBoundary(literal(1000))
+                .setUpperBoundary(literal(2000))
+                .setMatchAction(MatchAction.ANY);
         roundtripTest(dto);
     }
 
@@ -181,15 +173,12 @@ public abstract class FilterRoundtripTest {
         testBinaryComparisonOperator(Filter.BinaryComparisonOperator.PropertyIsEqualTo::new);
         testBinaryComparisonOperator(Filter.BinaryComparisonOperator.PropertyIsNotEqualTo::new);
         testBinaryComparisonOperator(Filter.BinaryComparisonOperator.PropertyIsLessThan::new);
-        testBinaryComparisonOperator(
-                Filter.BinaryComparisonOperator.PropertyIsLessThanOrEqualTo::new);
+        testBinaryComparisonOperator(Filter.BinaryComparisonOperator.PropertyIsLessThanOrEqualTo::new);
         testBinaryComparisonOperator(Filter.BinaryComparisonOperator.PropertyIsGreaterThan::new);
-        testBinaryComparisonOperator(
-                Filter.BinaryComparisonOperator.PropertyIsGreaterThanOrEqualTo::new);
+        testBinaryComparisonOperator(Filter.BinaryComparisonOperator.PropertyIsGreaterThanOrEqualTo::new);
     }
 
-    private void testBinaryComparisonOperator(Supplier<BinaryComparisonOperator> factory)
-            throws Exception {
+    private void testBinaryComparisonOperator(Supplier<BinaryComparisonOperator> factory) throws Exception {
         BinaryComparisonOperator filter = factory.get();
         filter.setExpression1(propertyName("the_geom"));
         filter.setExpression2(geometry());
@@ -235,8 +224,7 @@ public abstract class FilterRoundtripTest {
         testDistanceBufferOperator(Filter.BinarySpatialOperator.DWithin::new);
     }
 
-    private void testBinarySpatialOperator(Supplier<BinarySpatialOperator> factory)
-            throws Exception {
+    private void testBinarySpatialOperator(Supplier<BinarySpatialOperator> factory) throws Exception {
         BinarySpatialOperator filter = factory.get();
         filter.setExpression1(propertyName("the_geom"));
         filter.setExpression2(geometry());
@@ -244,8 +232,7 @@ public abstract class FilterRoundtripTest {
         roundtripTest(filter);
     }
 
-    private void testDistanceBufferOperator(Supplier<DistanceBufferOperator> factory)
-            throws Exception {
+    private void testDistanceBufferOperator(Supplier<DistanceBufferOperator> factory) throws Exception {
         DistanceBufferOperator filter = factory.get();
         filter.setExpression1(propertyName("the_geom"));
         filter.setExpression2(geometry());
@@ -255,8 +242,7 @@ public abstract class FilterRoundtripTest {
         roundtripTest(filter);
     }
 
-    private void testBinaryTemporalOperator(Supplier<BinaryTemporalOperator> factory)
-            throws Exception {
+    private void testBinaryTemporalOperator(Supplier<BinaryTemporalOperator> factory) throws Exception {
         BinaryTemporalOperator filter = factory.get();
         filter.setExpression1(propertyName("time"));
         filter.setExpression2(temporalLiteral());

@@ -4,9 +4,14 @@
  */
 package org.geoserver.cloud.security;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.cloud.event.security.SecurityConfigChanged;
 import org.geoserver.config.GeoServerDataDirectory;
 import org.geoserver.security.GeoServerSecurityManager;
@@ -21,13 +26,6 @@ import org.geoserver.security.password.MasterPasswordProviderConfig;
 import org.geoserver.security.validation.SecurityConfigException;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.authentication.AuthenticationProvider;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /**
  * Extends {@link GeoServerSecurityManager} to {@link #fireRemoteChangedEvent(String) notify} other
@@ -91,9 +89,7 @@ public class CloudGeoServerSecurityManager extends GeoServerSecurityManager {
             return;
         }
         if (!isInitialized()) {
-            log.info(
-                    "Ignoring security config change event, security subsystem not yet initialized: {}",
-                    event);
+            log.info("Ignoring security config change event, security subsystem not yet initialized: {}", event);
             return;
         }
         log.info("Reloading security configuration due to change event: {}", event);
@@ -113,16 +109,14 @@ public class CloudGeoServerSecurityManager extends GeoServerSecurityManager {
 
     /** Override to {@link #fireChanged fire} a remote {@link SecurityConfigChanged} */
     @Override
-    public void saveRoleService(SecurityRoleServiceConfig config)
-            throws IOException, SecurityConfigException {
+    public void saveRoleService(SecurityRoleServiceConfig config) throws IOException, SecurityConfigException {
         super.saveRoleService(config);
         fireRemoteChangedEvent("SecurityRoleServiceConfig changed");
     }
 
     /** Override to {@link #fireChanged fire} a remote {@link SecurityConfigChanged} */
     @Override
-    public void savePasswordPolicy(PasswordPolicyConfig config)
-            throws IOException, SecurityConfigException {
+    public void savePasswordPolicy(PasswordPolicyConfig config) throws IOException, SecurityConfigException {
         super.savePasswordPolicy(config);
         fireRemoteChangedEvent("PasswordPolicyConfig changed");
     }
@@ -145,8 +139,7 @@ public class CloudGeoServerSecurityManager extends GeoServerSecurityManager {
 
     /** Override to {@link #fireChanged fire} a remote {@link SecurityConfigChanged} */
     @Override
-    public void saveFilter(SecurityNamedServiceConfig config)
-            throws IOException, SecurityConfigException {
+    public void saveFilter(SecurityNamedServiceConfig config) throws IOException, SecurityConfigException {
         super.saveFilter(config);
         fireRemoteChangedEvent("SecurityNamedServiceConfig changed");
     }
@@ -161,10 +154,7 @@ public class CloudGeoServerSecurityManager extends GeoServerSecurityManager {
     /** Override to {@link #fireChanged fire} a remote {@link SecurityConfigChanged} */
     @Override
     public synchronized void saveMasterPasswordConfig(
-            MasterPasswordConfig config,
-            char[] currPasswd,
-            char[] newPasswd,
-            char[] newPasswdConfirm)
+            MasterPasswordConfig config, char[] currPasswd, char[] newPasswd, char[] newPasswdConfirm)
             throws Exception {
         super.saveMasterPasswordConfig(config, currPasswd, newPasswd, newPasswdConfirm);
         fireRemoteChangedEvent("MasterPasswordConfig changed");

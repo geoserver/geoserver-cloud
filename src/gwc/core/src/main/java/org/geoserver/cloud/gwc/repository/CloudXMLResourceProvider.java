@@ -4,16 +4,6 @@
  */
 package org.geoserver.cloud.gwc.repository;
 
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
-
-import org.geoserver.platform.resource.Resource;
-import org.geoserver.platform.resource.ResourceStore;
-import org.geoserver.platform.resource.Resources;
-import org.geoserver.util.IOUtils;
-import org.geowebcache.config.ConfigurationException;
-import org.geowebcache.config.ConfigurationResourceProvider;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -23,6 +13,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
+import org.geoserver.platform.resource.Resource;
+import org.geoserver.platform.resource.ResourceStore;
+import org.geoserver.platform.resource.Resources;
+import org.geoserver.util.IOUtils;
+import org.geowebcache.config.ConfigurationException;
+import org.geowebcache.config.ConfigurationResourceProvider;
 
 /**
  * @since 1.0
@@ -115,26 +113,19 @@ public class CloudXMLResourceProvider implements ConfigurationResourceProvider {
 
         log.debug("Backing up config file {} to {}", xmlFile.name(), backUpFileName);
 
-        List<Resource> previousBackUps =
-                Resources.list(
-                        parentFile,
-                        res -> {
-                            String name = res.name();
-                            if (configFileName.equals(name)) {
-                                return false;
-                            }
-                            return name.startsWith(configFileName) && name.endsWith(".bak");
-                        });
+        List<Resource> previousBackUps = Resources.list(parentFile, res -> {
+            String name = res.name();
+            if (configFileName.equals(name)) {
+                return false;
+            }
+            return name.startsWith(configFileName) && name.endsWith(".bak");
+        });
 
         final int maxBackups = 10;
         if (previousBackUps.size() > maxBackups) {
-            Collections.sort(
-                    previousBackUps, (o1, o2) -> (int) (o1.lastmodified() - o2.lastmodified()));
+            Collections.sort(previousBackUps, (o1, o2) -> (int) (o1.lastmodified() - o2.lastmodified()));
             Resource oldest = previousBackUps.get(0);
-            log.debug(
-                    "Deleting oldest config backup {} to keep a maximum of {} backups.",
-                    oldest,
-                    maxBackups);
+            log.debug("Deleting oldest config backup {} to keep a maximum of {} backups.", oldest, maxBackups);
             oldest.delete();
         }
 

@@ -17,32 +17,24 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
 class PostgisRasterWebUIAutoConfigurationTest {
 
-    private final ApplicationContextRunner contextRunner =
-            new ApplicationContextRunner()
-                    .withConfiguration(
-                            AutoConfigurations.of(PostgisRasterWebUIAutoConfiguration.class));
+    private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+            .withConfiguration(AutoConfigurations.of(PostgisRasterWebUIAutoConfiguration.class));
 
     @Test
     void testConditionalOnPostgisRasterWebUI_enabled() {
 
-        contextRunner.run(
-                context -> {
-                    assertThat(context)
-                            .hasBean("pgrasterCoverageStorePanel")
-                            .getBean("pgrasterCoverageStorePanel")
-                            .isInstanceOf(DataStorePanelInfo.class);
+        contextRunner.run(context -> {
+            assertThat(context)
+                    .hasBean("pgrasterCoverageStorePanel")
+                    .getBean("pgrasterCoverageStorePanel")
+                    .isInstanceOf(DataStorePanelInfo.class);
 
-                    assertThat(
-                                    context.getBean(
-                                            "pgrasterCoverageStorePanel", DataStorePanelInfo.class))
-                            .hasFieldOrPropertyWithValue("factoryClass", PostgisRasterFormat.class);
+            assertThat(context.getBean("pgrasterCoverageStorePanel", DataStorePanelInfo.class))
+                    .hasFieldOrPropertyWithValue("factoryClass", PostgisRasterFormat.class);
 
-                    assertThat(
-                                    context.getBean(
-                                            "pgrasterCoverageStorePanel", DataStorePanelInfo.class))
-                            .hasFieldOrPropertyWithValue(
-                                    "componentClass", PGRasterCoverageStoreEditPanel.class);
-                });
+            assertThat(context.getBean("pgrasterCoverageStorePanel", DataStorePanelInfo.class))
+                    .hasFieldOrPropertyWithValue("componentClass", PGRasterCoverageStoreEditPanel.class);
+        });
     }
 
     @Test
@@ -50,9 +42,8 @@ class PostgisRasterWebUIAutoConfigurationTest {
 
         contextRunner
                 .withClassLoader(new FilteredClassLoader(GeoServerApplication.class))
-                .run(
-                        context -> {
-                            assertThat(context).doesNotHaveBean("pgrasterCoverageStorePanel");
-                        });
+                .run(context -> {
+                    assertThat(context).doesNotHaveBean("pgrasterCoverageStorePanel");
+                });
     }
 }

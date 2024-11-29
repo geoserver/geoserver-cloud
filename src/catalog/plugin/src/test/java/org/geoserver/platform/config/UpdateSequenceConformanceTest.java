@@ -6,10 +6,9 @@ package org.geoserver.platform.config;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.stream.IntStream;
 import org.geoserver.config.GeoServer;
 import org.junit.jupiter.api.Test;
-
-import java.util.stream.IntStream;
 
 /**
  * @since 1.2

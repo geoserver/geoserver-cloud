@@ -10,7 +10,6 @@ import static org.springframework.http.MediaType.APPLICATION_XML;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +25,8 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("test")
 class GeoWebCacheApplicationTest {
 
-    @Autowired private TestRestTemplate restTemplate;
+    @Autowired
+    private TestRestTemplate restTemplate;
 
     @BeforeEach
     void before() {
@@ -37,16 +37,14 @@ class GeoWebCacheApplicationTest {
 
     @Test
     void testRESTDefaultContentType() {
-        ResponseEntity<String> response =
-                testGetRequestContentType("/gwc/rest/layers", APPLICATION_JSON);
+        ResponseEntity<String> response = testGetRequestContentType("/gwc/rest/layers", APPLICATION_JSON);
         JsonElement parsed = JsonParser.parseString(response.getBody());
         assertThat(parsed.isJsonArray()).isTrue();
     }
 
     @Test
     void testRESTPathExtensionContentNegotiation() {
-        ResponseEntity<String> response =
-                testGetRequestContentType("/gwc/rest/layers.json", APPLICATION_JSON);
+        ResponseEntity<String> response = testGetRequestContentType("/gwc/rest/layers.json", APPLICATION_JSON);
         JsonElement parsed = JsonParser.parseString(response.getBody());
         assertThat(parsed.isJsonArray()).isTrue();
 

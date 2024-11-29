@@ -4,9 +4,9 @@
  */
 package org.geoserver.cloud.catalog.cache;
 
+import javax.annotation.Nullable;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.cloud.event.UpdateSequenceEvent;
 import org.geoserver.config.GeoServerFacade;
@@ -22,8 +22,6 @@ import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.event.EventListener;
-
-import javax.annotation.Nullable;
 
 /** */
 @CacheConfig(cacheNames = CachingGeoServerFacade.CACHE_NAME)
@@ -65,8 +63,7 @@ public class CachingGeoServerFacade extends ForwardingGeoServerFacade {
     }
 
     ////// Cache manipulation functions ///////
-    <T extends ServiceInfo> T cachePutIncludeNull(
-            @NonNull Object key, @NonNull Cache cache, T service) {
+    <T extends ServiceInfo> T cachePutIncludeNull(@NonNull Object key, @NonNull Cache cache, T service) {
 
         if (service == null) {
             cache.put(key, null);
@@ -234,15 +231,13 @@ public class CachingGeoServerFacade extends ForwardingGeoServerFacade {
     }
 
     @Override
-    public <T extends ServiceInfo> T getServiceByName(
-            String name, WorkspaceInfo workspace, Class<T> clazz) {
+    public <T extends ServiceInfo> T getServiceByName(String name, WorkspaceInfo workspace, Class<T> clazz) {
 
         Object key = CachingGeoServerFacade.serviceByNameKey(workspace, name);
         ValueWrapper value = cache.get(key);
         ServiceInfo service;
         if (value == null) {
-            service =
-                    cachePutIncludeNull(key, cache, super.getServiceByName(name, workspace, clazz));
+            service = cachePutIncludeNull(key, cache, super.getServiceByName(name, workspace, clazz));
         } else {
             service = (ServiceInfo) value.get();
         }
@@ -264,8 +259,7 @@ public class CachingGeoServerFacade extends ForwardingGeoServerFacade {
         return ServiceInfoKey.byName(ws, name);
     }
 
-    public static Object serviceByTypeKey(
-            @Nullable WorkspaceInfo ws, @NonNull Class<? extends ServiceInfo> type) {
+    public static Object serviceByTypeKey(@Nullable WorkspaceInfo ws, @NonNull Class<? extends ServiceInfo> type) {
         return ServiceInfoKey.byType(ws, type);
     }
 

@@ -6,7 +6,6 @@ package org.geoserver.gwc.config;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.cloud.gwc.repository.GeoServerTileLayerConfiguration;
 import org.geoserver.gwc.ConfigurableBlobStore;

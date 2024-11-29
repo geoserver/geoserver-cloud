@@ -5,14 +5,10 @@
 package org.geoserver.jackson.databind.catalog.dto;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-@JsonSubTypes({
-    @JsonSubTypes.Type(value = WMSStore.class),
-    @JsonSubTypes.Type(value = WMTSStore.class)
-})
+@JsonSubTypes({@JsonSubTypes.Type(value = WMSStore.class), @JsonSubTypes.Type(value = WMTSStore.class)})
 @Data
 @EqualsAndHashCode(callSuper = true)
 public abstract class HTTPStore extends Store {

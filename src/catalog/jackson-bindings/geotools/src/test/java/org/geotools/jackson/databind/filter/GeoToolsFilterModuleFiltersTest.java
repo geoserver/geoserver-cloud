@@ -7,9 +7,7 @@ package org.geotools.jackson.databind.filter;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import lombok.extern.slf4j.Slf4j;
-
 import org.geotools.jackson.databind.filter.dto.Filter;
 import org.geotools.jackson.databind.filter.dto.SortBy;
 import org.geotools.jackson.databind.filter.mapper.FilterMapper;
@@ -55,8 +53,7 @@ public abstract class GeoToolsFilterModuleFiltersTest extends FilterRoundtripTes
         String serialized = objectMapper.writeValueAsString(expected);
         print("serialized: {}", serialized);
         org.geotools.api.filter.sort.SortBy deserialized;
-        deserialized =
-                objectMapper.readValue(serialized, org.geotools.api.filter.sort.SortBy.class);
+        deserialized = objectMapper.readValue(serialized, org.geotools.api.filter.sort.SortBy.class);
         assertEquals(expected, deserialized);
     }
 

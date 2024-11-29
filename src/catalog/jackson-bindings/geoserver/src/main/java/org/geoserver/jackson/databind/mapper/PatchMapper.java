@@ -4,9 +4,12 @@
  */
 package org.geoserver.jackson.databind.mapper;
 
+import java.util.Collection;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import lombok.Generated;
 import lombok.NonNull;
-
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.PropertyDiff;
@@ -23,11 +26,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
-
-import java.util.Collection;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.function.UnaryOperator;
 
 @Mapper(
         unmappedTargetPolicy = ReportingPolicy.ERROR,
@@ -93,8 +91,7 @@ public abstract class PatchMapper {
         return dto;
     }
 
-    private Map<Object, Object> copyOf(
-            Map<Object, Object> fromMap, UnaryOperator<Object> valueMapper) {
+    private Map<Object, Object> copyOf(Map<Object, Object> fromMap, UnaryOperator<Object> valueMapper) {
         // create a Map of a type compatible with the original collection
         return PropertyDiff.PropertyDiffBuilder.copyOf(fromMap, valueMapper);
     }

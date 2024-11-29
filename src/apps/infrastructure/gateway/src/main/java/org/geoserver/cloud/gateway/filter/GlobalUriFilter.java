@@ -7,6 +7,7 @@ package org.geoserver.cloud.gateway.filter;
 import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR;
 import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.GATEWAY_ROUTE_ATTR;
 
+import java.net.URI;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.cloud.gateway.filter.ReactiveLoadBalancerClientFilter;
@@ -14,10 +15,7 @@ import org.springframework.cloud.gateway.route.Route;
 import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
-
 import reactor.core.publisher.Mono;
-
-import java.net.URI;
 
 /**
  * See gateway's issue <a
@@ -54,8 +52,7 @@ public class GlobalUriFilter implements GlobalFilter, Ordered {
         final var port = balanceUrl.getPort() != -1 ? ":" + balanceUrl.getPort() : "";
         final var rawPath = balanceUrl.getRawPath() != null ? balanceUrl.getRawPath() : "";
         final var query = incomingUri.getRawQuery() != null ? "?" + incomingUri.getRawQuery() : "";
-        return URI.create(
-                balanceUrl.getScheme() + "://" + balanceUrl.getHost() + port + rawPath + query);
+        return URI.create(balanceUrl.getScheme() + "://" + balanceUrl.getHost() + port + rawPath + query);
     }
 
     private static boolean isUriEncoded(URI uri) {

@@ -4,6 +4,8 @@
  */
 package org.geoserver.catalog.plugin.forwarding;
 
+import java.util.List;
+import javax.annotation.Nullable;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogCapabilities;
 import org.geoserver.catalog.CatalogFacade;
@@ -20,10 +22,6 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.geotools.api.filter.Filter;
 import org.geotools.api.filter.sort.SortBy;
-
-import java.util.List;
-
-import javax.annotation.Nullable;
 
 /**
  * {@link CatalogFacade} which forwards all its method calls to another {@code CatalogFacade} aiding
@@ -86,14 +84,12 @@ public class ForwardingCatalogFacade implements CatalogFacade {
     }
 
     @Override
-    public <T extends StoreInfo> T getStoreByName(
-            WorkspaceInfo workspace, String name, Class<T> clazz) {
+    public <T extends StoreInfo> T getStoreByName(WorkspaceInfo workspace, String name, Class<T> clazz) {
         return facade.getStoreByName(workspace, name, clazz);
     }
 
     @Override
-    public <T extends StoreInfo> List<T> getStoresByWorkspace(
-            WorkspaceInfo workspace, Class<T> clazz) {
+    public <T extends StoreInfo> List<T> getStoresByWorkspace(WorkspaceInfo workspace, Class<T> clazz) {
         return facade.getStoresByWorkspace(workspace, clazz);
     }
 
@@ -138,8 +134,7 @@ public class ForwardingCatalogFacade implements CatalogFacade {
     }
 
     @Override
-    public <T extends ResourceInfo> T getResourceByName(
-            NamespaceInfo namespace, String name, Class<T> clazz) {
+    public <T extends ResourceInfo> T getResourceByName(NamespaceInfo namespace, String name, Class<T> clazz) {
         return facade.getResourceByName(namespace, name, clazz);
     }
 
@@ -149,14 +144,12 @@ public class ForwardingCatalogFacade implements CatalogFacade {
     }
 
     @Override
-    public <T extends ResourceInfo> List<T> getResourcesByNamespace(
-            NamespaceInfo namespace, Class<T> clazz) {
+    public <T extends ResourceInfo> List<T> getResourcesByNamespace(NamespaceInfo namespace, Class<T> clazz) {
         return facade.getResourcesByNamespace(namespace, clazz);
     }
 
     @Override
-    public <T extends ResourceInfo> T getResourceByStore(
-            StoreInfo store, String name, Class<T> clazz) {
+    public <T extends ResourceInfo> T getResourceByStore(StoreInfo store, String name, Class<T> clazz) {
         return facade.getResourceByStore(store, name, clazz);
     }
 

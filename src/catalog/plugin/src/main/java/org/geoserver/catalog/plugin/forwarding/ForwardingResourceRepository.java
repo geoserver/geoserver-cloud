@@ -4,18 +4,15 @@
  */
 package org.geoserver.catalog.plugin.forwarding;
 
+import java.util.Optional;
+import java.util.stream.Stream;
 import lombok.NonNull;
-
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.ResourceRepository;
 
-import java.util.Optional;
-import java.util.stream.Stream;
-
-public class ForwardingResourceRepository
-        extends ForwardingCatalogRepository<ResourceInfo, ResourceRepository>
+public class ForwardingResourceRepository extends ForwardingCatalogRepository<ResourceInfo, ResourceRepository>
         implements ResourceRepository {
 
     public ForwardingResourceRepository(ResourceRepository subject) {
@@ -33,8 +30,7 @@ public class ForwardingResourceRepository
     }
 
     @Override
-    public <T extends ResourceInfo> Optional<T> findByStoreAndName(
-            StoreInfo store, String name, Class<T> clazz) {
+    public <T extends ResourceInfo> Optional<T> findByStoreAndName(StoreInfo store, String name, Class<T> clazz) {
         return subject.findByStoreAndName(store, name, clazz);
     }
 

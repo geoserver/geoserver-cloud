@@ -4,9 +4,14 @@
  */
 package org.geotools.jackson.databind.filter.mapper;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 import lombok.Generated;
 import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.lang3.ClassUtils;
 import org.geotools.api.feature.type.Name;
 import org.geotools.api.referencing.FactoryException;
@@ -34,13 +39,6 @@ import org.mapstruct.ReportingPolicy;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.helpers.NamespaceSupport;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-
 @Mapper(componentModel = "default", unmappedTargetPolicy = ReportingPolicy.ERROR)
 @AnnotateWith(value = Generated.class)
 @Slf4j
@@ -51,11 +49,9 @@ public abstract class GeoToolsValueMappers {
     private static final org.geotools.util.Converter measure2Str =
             new MeasureConverterFactory().createConverter(Measure.class, String.class, null);
 
-    public abstract MatchAction matchAction(
-            org.geotools.api.filter.MultiValuedFilter.MatchAction matchAction);
+    public abstract MatchAction matchAction(org.geotools.api.filter.MultiValuedFilter.MatchAction matchAction);
 
-    public abstract org.geotools.api.filter.MultiValuedFilter.MatchAction matchAction(
-            MatchAction matchAction);
+    public abstract org.geotools.api.filter.MultiValuedFilter.MatchAction matchAction(MatchAction matchAction);
 
     public NamespaceSupport map(Map<String, String> map) {
         if (map == null) return null;
@@ -188,8 +184,7 @@ public abstract class GeoToolsValueMappers {
         return env;
     }
 
-    public abstract org.geotools.jackson.databind.dto.NameDto map(
-            org.geotools.api.feature.type.Name name);
+    public abstract org.geotools.jackson.databind.dto.NameDto map(org.geotools.api.feature.type.Name name);
 
     public Name map(org.geotools.jackson.databind.dto.NameDto dto) {
         return new NameImpl(dto.getNamespaceURI(), dto.getLocalPart());
@@ -285,8 +280,7 @@ public abstract class GeoToolsValueMappers {
         if (min instanceof Long || max instanceof Long)
             return NumberRange.create(min.longValue(), minIncluded, max.longValue(), maxIncluded);
         if (min instanceof Double || max instanceof Double)
-            return NumberRange.create(
-                    min.doubleValue(), minIncluded, max.doubleValue(), maxIncluded);
+            return NumberRange.create(min.doubleValue(), minIncluded, max.doubleValue(), maxIncluded);
         if (min instanceof Float || max instanceof Float)
             return NumberRange.create(min.floatValue(), minIncluded, max.floatValue(), maxIncluded);
         if (min instanceof Integer || max instanceof Integer)

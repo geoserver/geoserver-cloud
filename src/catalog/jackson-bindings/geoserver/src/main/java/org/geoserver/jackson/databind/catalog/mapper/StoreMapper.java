@@ -5,7 +5,6 @@
 package org.geoserver.jackson.databind.catalog.mapper;
 
 import lombok.Generated;
-
 import org.geoserver.catalog.CoverageStoreInfo;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.StoreInfo;

@@ -4,10 +4,12 @@
  */
 package org.geoserver.catalog.plugin.locking;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.util.concurrent.Callable;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.GeoServerConfigurationLock.LockType;
 import org.geoserver.catalog.Info;
@@ -16,10 +18,6 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.config.SettingsInfo;
 import org.geoserver.ows.util.OwsUtils;
-
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.util.concurrent.Callable;
 
 /** */
 @Slf4j(topic = "org.geoserver.cloud.catalog.locking")
@@ -85,8 +83,8 @@ public abstract class LockingSupport {
             }
         }
 
-        public <V, E extends Exception> V callInWriteLock(
-                Class<E> exceptionType, Callable<V> action, String reason) throws E {
+        public <V, E extends Exception> V callInWriteLock(Class<E> exceptionType, Callable<V> action, String reason)
+                throws E {
             lock(reason);
             try {
                 return action.call();
@@ -107,8 +105,8 @@ public abstract class LockingSupport {
         }
 
         @Override
-        public <V, E extends Exception> V callInWriteLock(
-                Class<E> exceptionType, Callable<V> action, String reason) throws E {
+        public <V, E extends Exception> V callInWriteLock(Class<E> exceptionType, Callable<V> action, String reason)
+                throws E {
 
             try {
                 return action.call();

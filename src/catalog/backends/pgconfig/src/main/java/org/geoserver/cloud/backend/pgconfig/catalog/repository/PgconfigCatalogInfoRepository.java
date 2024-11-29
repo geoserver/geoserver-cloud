@@ -6,10 +6,20 @@ package org.geoserver.cloud.backend.pgconfig.catalog.repository;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import java.io.UncheckedIOException;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.Predicates;
@@ -29,25 +39,11 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
-import java.io.UncheckedIOException;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
-
 /**
  * @since 1.4
  */
 @Slf4j(topic = "org.geoserver.cloud.backend.pgconfig.catalog.repository")
-public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo>
-        extends ResolvingCatalogInfoRepository<T>
+public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> extends ResolvingCatalogInfoRepository<T>
         implements CatalogInfoRepository<T>, ResolvingFacade<T> {
 
     protected static final ObjectMapper infoMapper = PgconfigObjectMapper.newObjectMapper();
@@ -100,8 +96,7 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo>
         } catch (SQLException e) {
             throw new UncheckedSqlException(e);
         }
-        log.debug(
-                "resolved queryable/sortable properties for {}: {}", queryTable, queryableColumns);
+        log.debug("resolved queryable/sortable properties for {}: {}", queryTable, queryableColumns);
         return Set.copyOf(queryableColumns);
     }
 
@@ -123,8 +118,7 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo>
         template.update(
                 """
                 DELETE FROM %s WHERE id = ?
-                """
-                        .formatted(getTable()),
+                """.formatted(getTable()),
                 value.getId());
     }
 
@@ -132,16 +126,10 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo>
     @Override
     public <I extends T> I update(@NonNull I value, @NonNull Patch patch) {
         String id = value.getId();
-        T patched =
-                findById(value.getId())
-                        .map(patch::applyTo)
-                        .orElseThrow(
-                                () ->
-                                        new NoSuchElementException(
-                                                "%s with id %s does not exist"
-                                                        .formatted(
-                                                                getContentType().getSimpleName(),
-                                                                value.getId())));
+        T patched = findById(value.getId())
+                .map(patch::applyTo)
+                .orElseThrow(() -> new NoSuchElementException("%s with id %s does not exist"
+                        .formatted(getContentType().getSimpleName(), value.getId())));
 
         String encoded = encode(patched);
         template.update(
@@ -159,8 +147,7 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo>
         final Filter filter = applyTypeFilter(query.getFilter(), query.getType());
         final Class<U> type = query.getType();
 
-        final PgconfigQueryBuilder qb =
-                new PgconfigQueryBuilder(filter, sortableProperties()).build();
+        final PgconfigQueryBuilder qb = new PgconfigQueryBuilder(filter, sortableProperties()).build();
         final Filter supportedFilter = qb.getSupportedFilter();
         final Filter unsupportedFilter = qb.getUnsupportedFilter();
         final String whereClause = qb.getWhereClause();
@@ -187,14 +174,12 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo>
             sql = applyOffsetLimit(sql, query.getOffset(), query.getCount());
         }
 
-        Stream<U> stream =
-                queryForStream(type, sql, prepStatementParams).map(this::resolveOutbound);
+        Stream<U> stream = queryForStream(type, sql, prepStatementParams).map(this::resolveOutbound);
         if (!filterFullySupported) {
             Predicate<U> predicate = toPredicate(unsupportedFilter);
-            stream =
-                    stream.filter(predicate)
-                            .skip(query.offset().orElse(0))
-                            .limit(query.count().orElse(Integer.MAX_VALUE));
+            stream = stream.filter(predicate)
+                    .skip(query.offset().orElse(0))
+                    .limit(query.count().orElse(Integer.MAX_VALUE));
         }
         return stream;
     }
@@ -203,8 +188,7 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo>
         return queryForStream(getContentType(), sql, prepStatementParams);
     }
 
-    protected <U extends T> Stream<U> queryForStream(
-            Class<U> type, String sql, Object... prepStatementParams) {
+    protected <U extends T> Stream<U> queryForStream(Class<U> type, String sql, Object... prepStatementParams) {
 
         RowMapper<T> rowMapper = newRowMapper();
         Stream<T> stream = template.queryForStream(sql, rowMapper, prepStatementParams);
@@ -244,9 +228,8 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo>
 
     protected void checkCanSortBy(String property) {
         if (!canSortBy(property)) {
-            throw new IllegalArgumentException(
-                    "Unsupported sort property %s on %s. Supported properties: %s"
-                            .formatted(property, getTable(), sortableProperties()));
+            throw new IllegalArgumentException("Unsupported sort property %s on %s. Supported properties: %s"
+                    .formatted(property, getTable(), sortableProperties()));
         }
     }
 
@@ -256,8 +239,7 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo>
     @Override
     public <U extends T> long count(Class<U> of, Filter filter) {
         filter = applyTypeFilter(filter, of);
-        final PgconfigQueryBuilder qb =
-                new PgconfigQueryBuilder(filter, sortableProperties()).build();
+        final PgconfigQueryBuilder qb = new PgconfigQueryBuilder(filter, sortableProperties()).build();
         final Filter supportedFilter = qb.getSupportedFilter();
         final Filter unsupportedFilter = qb.getUnsupportedFilter();
         final String whereClause = qb.getWhereClause();
@@ -301,11 +283,9 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo>
 
     @Override
     public <U extends T> Optional<U> findById(@NonNull String id, Class<U> clazz) {
-        String query =
-                """
+        String query = """
                 SELECT * FROM %s WHERE id = ?
-                """
-                        .formatted(getQueryTable());
+                """.formatted(getQueryTable());
         return findOne(query, clazz, id);
     }
 
@@ -315,11 +295,10 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo>
 
     @Override
     public <U extends T> Optional<U> findFirstByName(@NonNull String name, Class<U> clazz) {
-        String query =
-                """
+        String query = """
                 SELECT * FROM %s WHERE name = ? ORDER BY id
                 """
-                        .formatted(getQueryTable());
+                .formatted(getQueryTable());
         return findOne(query, clazz, name);
     }
 
@@ -327,8 +306,7 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo>
         return findOne(query, getContentType(), args);
     }
 
-    protected <U extends T> Optional<U> findOne(
-            @NonNull String query, Class<U> clazz, Object... args) {
+    protected <U extends T> Optional<U> findOne(@NonNull String query, Class<U> clazz, Object... args) {
 
         return findOne(query, clazz, newRowMapper(), args);
     }

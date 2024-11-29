@@ -9,14 +9,13 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
+import java.io.File;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.impl.DefaultCatalogFacade;
 import org.geoserver.catalog.plugin.CatalogFacadeExtensionAdapter.SilentCatalog;
 import org.geoserver.catalog.plugin.forwarding.ResolvingCatalogFacadeDecorator;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.junit.jupiter.api.Test;
-
-import java.io.File;
 
 /**
  * Asserts that a {@link CatalogFacadeExtensionAdapter} does not result in double publishing of
@@ -43,13 +42,11 @@ class CatalogFacadeExtensionAdapterTest extends CatalogConformanceTest {
         catalog.setFacade(legacyFacade);
         assertSame(legacyFacade, catalog.getRawFacade());
         assertThat(catalog.getFacade(), instanceOf(ResolvingCatalogFacadeDecorator.class));
-        ResolvingCatalogFacadeDecorator resolving =
-                (ResolvingCatalogFacadeDecorator) catalog.getFacade();
+        ResolvingCatalogFacadeDecorator resolving = (ResolvingCatalogFacadeDecorator) catalog.getFacade();
         assertThat(resolving.getSubject(), instanceOf(IsolatedCatalogFacade.class));
         IsolatedCatalogFacade isolated = (IsolatedCatalogFacade) resolving.getSubject();
         assertThat(isolated.getSubject(), instanceOf(CatalogFacadeExtensionAdapter.class));
-        CatalogFacadeExtensionAdapter adapter =
-                (CatalogFacadeExtensionAdapter) isolated.getSubject();
+        CatalogFacadeExtensionAdapter adapter = (CatalogFacadeExtensionAdapter) isolated.getSubject();
         assertSame(legacyFacade, adapter.getSubject());
     }
 
@@ -59,8 +56,7 @@ class CatalogFacadeExtensionAdapterTest extends CatalogConformanceTest {
         catalog.setFacade(adapter);
         assertSame(adapter, catalog.getRawFacade());
         assertThat(catalog.getFacade(), instanceOf(ResolvingCatalogFacadeDecorator.class));
-        ResolvingCatalogFacadeDecorator resolving =
-                (ResolvingCatalogFacadeDecorator) catalog.getFacade();
+        ResolvingCatalogFacadeDecorator resolving = (ResolvingCatalogFacadeDecorator) catalog.getFacade();
         IsolatedCatalogFacade isolated = (IsolatedCatalogFacade) resolving.getSubject();
         assertSame(adapter, isolated.getSubject());
     }
@@ -71,16 +67,12 @@ class CatalogFacadeExtensionAdapterTest extends CatalogConformanceTest {
 
         assertSame(legacyFacade, adapter.getSubject());
         assertNotSame(catalog, legacyFacade.getCatalog());
-        assertThat(
-                legacyFacade.getCatalog(),
-                instanceOf(CatalogFacadeExtensionAdapter.SilentCatalog.class));
+        assertThat(legacyFacade.getCatalog(), instanceOf(CatalogFacadeExtensionAdapter.SilentCatalog.class));
 
         SilentCatalog decoratorAtFacadeConstructor = (SilentCatalog) legacyFacade.getCatalog();
         catalog.setFacade(adapter);
         assertSame(adapter, catalog.getRawFacade());
-        assertThat(
-                legacyFacade.getCatalog(),
-                instanceOf(CatalogFacadeExtensionAdapter.SilentCatalog.class));
+        assertThat(legacyFacade.getCatalog(), instanceOf(CatalogFacadeExtensionAdapter.SilentCatalog.class));
         assertNotSame(decoratorAtFacadeConstructor, legacyFacade.getCatalog());
     }
 }

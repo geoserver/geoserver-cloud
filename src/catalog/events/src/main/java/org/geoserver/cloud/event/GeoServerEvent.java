@@ -7,11 +7,11 @@ package org.geoserver.cloud.event;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
+import java.io.Serializable;
+import java.util.Optional;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
-
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.Info;
 import org.geoserver.cloud.event.info.ConfigInfoType;
@@ -20,20 +20,16 @@ import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.LoggingInfo;
 import org.springframework.core.style.ToStringCreator;
 
-import java.io.Serializable;
-import java.util.Optional;
-
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
-@JsonSubTypes({
-    @JsonSubTypes.Type(value = UpdateSequenceEvent.class),
-    @JsonSubTypes.Type(value = LifecycleEvent.class)
-})
+@JsonSubTypes({@JsonSubTypes.Type(value = UpdateSequenceEvent.class), @JsonSubTypes.Type(value = LifecycleEvent.class)})
 @SuppressWarnings("serial")
 public abstract class GeoServerEvent implements Serializable {
 
-    @JsonIgnore private @Setter boolean remote;
+    @JsonIgnore
+    private @Setter boolean remote;
 
-    @JsonIgnore private @Setter @Getter String origin;
+    @JsonIgnore
+    private @Setter @Getter String origin;
 
     /** System time when the event happened. */
     private @Getter long timestamp;

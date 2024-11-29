@@ -7,7 +7,6 @@ package org.geoserver.cloud.gwc.event;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
-
 import org.geoserver.gwc.layer.TileLayerCatalogListener;
 import org.springframework.context.ApplicationContext;
 import org.springframework.lang.Nullable;
@@ -31,11 +30,7 @@ public class TileLayerEvent extends GeoWebCacheEvent {
         super(source);
     }
 
-    public TileLayerEvent(
-            Object source,
-            @NonNull Type eventType,
-            @NonNull String layerId,
-            @NonNull String layerName) {
+    public TileLayerEvent(Object source, @NonNull Type eventType, @NonNull String layerId, @NonNull String layerName) {
         super(source, eventType);
         this.publishedId = layerId;
         this.name = layerName;
@@ -52,10 +47,7 @@ public class TileLayerEvent extends GeoWebCacheEvent {
     }
 
     public static TileLayerEvent modified(
-            @NonNull Object source,
-            @NonNull String publishedId,
-            @NonNull String layerName,
-            @Nullable String oldName) {
+            @NonNull Object source, @NonNull String publishedId, @NonNull String layerName, @Nullable String oldName) {
         return valueOf(source, Type.MODIFIED, publishedId, layerName, oldName);
     }
 
@@ -74,18 +66,9 @@ public class TileLayerEvent extends GeoWebCacheEvent {
     public String toString() {
         if (null == getOldName())
             return "%s[%s id: %s, name: %s]"
-                    .formatted(
-                            getClass().getSimpleName(),
-                            getEventType(),
-                            getPublishedId(),
-                            getName());
+                    .formatted(getClass().getSimpleName(), getEventType(), getPublishedId(), getName());
         return "%s[%s id: %s, name: %s, oldname: %s]"
-                .formatted(
-                        getClass().getSimpleName(),
-                        getEventType(),
-                        getPublishedId(),
-                        getName(),
-                        getOldName());
+                .formatted(getClass().getSimpleName(), getEventType(), getPublishedId(), getName(), getOldName());
     }
 
     protected @Override String getObjectId() {

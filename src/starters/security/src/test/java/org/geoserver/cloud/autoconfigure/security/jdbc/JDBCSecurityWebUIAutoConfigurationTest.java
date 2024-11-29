@@ -20,53 +20,41 @@ import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 
 class JDBCSecurityWebUIAutoConfigurationTest {
 
-    private WebApplicationContextRunner runner =
-            new WebApplicationContextRunner()
-                    .withConfiguration(
-                            AutoConfigurations.of(
-                                    JDBCSecurityAutoConfiguration.class,
-                                    JDBCSecurityWebUIAutoConfiguration.class))
-                    .withBean(
-                            GeoServerSecurityManager.class,
-                            () -> mock(GeoServerSecurityManager.class));
+    private WebApplicationContextRunner runner = new WebApplicationContextRunner()
+            .withConfiguration(AutoConfigurations.of(
+                    JDBCSecurityAutoConfiguration.class, JDBCSecurityWebUIAutoConfiguration.class))
+            .withBean(GeoServerSecurityManager.class, () -> mock(GeoServerSecurityManager.class));
 
     @Test
     void testConditionalOnClassNoMatch() {
         runner.withClassLoader(new FilteredClassLoader(AuthenticationFilterPanelInfo.class))
-                .run(
-                        context ->
-                                assertThat(context)
-                                        .hasNotFailed()
-                                        .doesNotHaveBean(JDBCUserGroupServicePanelInfo.class)
-                                        .doesNotHaveBean(JDBCRoleServicePanelInfo.class)
-                                        .doesNotHaveBean(JDBCAuthProviderPanelInfo.class)
-                                        .doesNotHaveBean("jdbcSecurityWebExtension"));
+                .run(context -> assertThat(context)
+                        .hasNotFailed()
+                        .doesNotHaveBean(JDBCUserGroupServicePanelInfo.class)
+                        .doesNotHaveBean(JDBCRoleServicePanelInfo.class)
+                        .doesNotHaveBean(JDBCAuthProviderPanelInfo.class)
+                        .doesNotHaveBean("jdbcSecurityWebExtension"));
     }
 
     @Test
     void testConditionalOnClassMatch() {
-        runner.run(
-                context ->
-                        assertThat(context)
-                                .hasNotFailed()
-                                .hasSingleBean(JDBCUserGroupServicePanelInfo.class)
-                                .hasSingleBean(JDBCRoleServicePanelInfo.class)
-                                .hasSingleBean(JDBCAuthProviderPanelInfo.class)
-                                .hasBean("jdbcSecurityWebExtension")
-                                .getBean("jdbcSecurityWebExtension")
-                                .isInstanceOf(ModuleStatusImpl.class));
+        runner.run(context -> assertThat(context)
+                .hasNotFailed()
+                .hasSingleBean(JDBCUserGroupServicePanelInfo.class)
+                .hasSingleBean(JDBCRoleServicePanelInfo.class)
+                .hasSingleBean(JDBCAuthProviderPanelInfo.class)
+                .hasBean("jdbcSecurityWebExtension")
+                .getBean("jdbcSecurityWebExtension")
+                .isInstanceOf(ModuleStatusImpl.class));
     }
 
     @Test
     void testDisabled() {
-        runner.withPropertyValues("geoserver.security.jdbc=false")
-                .run(
-                        context ->
-                                assertThat(context)
-                                        .hasNotFailed()
-                                        .doesNotHaveBean(JDBCUserGroupServicePanelInfo.class)
-                                        .doesNotHaveBean(JDBCRoleServicePanelInfo.class)
-                                        .doesNotHaveBean(JDBCAuthProviderPanelInfo.class)
-                                        .doesNotHaveBean("jdbcSecurityWebExtension"));
+        runner.withPropertyValues("geoserver.security.jdbc=false").run(context -> assertThat(context)
+                .hasNotFailed()
+                .doesNotHaveBean(JDBCUserGroupServicePanelInfo.class)
+                .doesNotHaveBean(JDBCRoleServicePanelInfo.class)
+                .doesNotHaveBean(JDBCAuthProviderPanelInfo.class)
+                .doesNotHaveBean("jdbcSecurityWebExtension"));
     }
 }

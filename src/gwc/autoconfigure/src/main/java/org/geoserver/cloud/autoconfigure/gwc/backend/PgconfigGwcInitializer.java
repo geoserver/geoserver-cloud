@@ -6,7 +6,6 @@ package org.geoserver.cloud.autoconfigure.gwc.backend;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.cloud.gwc.backend.pgconfig.PgconfigTileLayerCatalog;
 import org.geoserver.cloud.gwc.event.TileLayerEvent;

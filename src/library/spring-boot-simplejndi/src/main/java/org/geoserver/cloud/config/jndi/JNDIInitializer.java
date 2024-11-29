@@ -5,20 +5,16 @@
 package org.geoserver.cloud.config.jndi;
 
 import com.zaxxer.hikari.HikariDataSource;
-
-import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.ApplicationContextException;
-import org.springframework.jdbc.support.DatabaseStartupValidator;
-import org.springframework.util.StringUtils;
-
 import java.util.Map;
-
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.spi.NamingManager;
 import javax.sql.DataSource;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.context.ApplicationContextException;
+import org.springframework.jdbc.support.DatabaseStartupValidator;
+import org.springframework.util.StringUtils;
 
 /**
  * @since 1.0
@@ -36,8 +32,7 @@ public class JNDIInitializer implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        if (initialized)
-            throw new IllegalStateException("JNDI already initialized or failed. Giving up.");
+        if (initialized) throw new IllegalStateException("JNDI already initialized or failed. Giving up.");
         initialized = true;
 
         Map<String, JNDIDatasourceConfig> configs = config.getDatasources();
@@ -48,18 +43,15 @@ public class JNDIInitializer implements InitializingBean {
         }
 
         // Assign the datasource a name from the mappings key
-        configs.entrySet()
-                .forEach(
-                        e -> {
-                            var name = e.getKey();
-                            var props = e.getValue();
-                            if (null == props.getName()) {
-                                props.setName(name);
-                            }
-                        });
+        configs.entrySet().forEach(e -> {
+            var name = e.getKey();
+            var props = e.getValue();
+            if (null == props.getName()) {
+                props.setName(name);
+            }
+        });
         try {
-            configs.entrySet()
-                    .forEach(e -> setUpDataSource(toJndiDatasourceName(e.getKey()), e.getValue()));
+            configs.entrySet().forEach(e -> setUpDataSource(toJndiDatasourceName(e.getKey()), e.getValue()));
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
@@ -113,8 +105,7 @@ public class JNDIInitializer implements InitializingBean {
 
     private void waitForIt(String jndiName, DataSource dataSource, JNDIDatasourceConfig props) {
         if (props.isWaitForIt()) {
-            log.info(
-                    "Waiting up to {} seconds for datasource {}", props.getWaitTimeout(), jndiName);
+            log.info("Waiting up to {} seconds for datasource {}", props.getWaitTimeout(), jndiName);
             DatabaseStartupValidator validator = new DatabaseStartupValidator();
             validator.setDataSource(dataSource);
             validator.setTimeout(props.getWaitTimeout());
@@ -123,10 +114,9 @@ public class JNDIInitializer implements InitializingBean {
     }
 
     protected DataSource createDataSource(JNDIDatasourceConfig props) {
-        HikariDataSource dataSource =
-                props.initializeDataSourceBuilder() //
-                        .type(HikariDataSource.class)
-                        .build();
+        HikariDataSource dataSource = props.initializeDataSourceBuilder() //
+                .type(HikariDataSource.class)
+                .build();
 
         String dataSourceName = props.getName();
         if (null != dataSourceName) {

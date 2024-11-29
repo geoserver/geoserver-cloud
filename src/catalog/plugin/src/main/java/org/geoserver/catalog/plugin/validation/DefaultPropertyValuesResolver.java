@@ -4,6 +4,8 @@
  */
 package org.geoserver.catalog.plugin.validation;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.CoverageDimensionInfo;
@@ -29,9 +31,6 @@ import org.geoserver.catalog.impl.StyleInfoImpl;
 import org.geoserver.catalog.impl.WMSLayerInfoImpl;
 import org.geoserver.catalog.impl.WMTSLayerInfoImpl;
 import org.geoserver.ows.util.OwsUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /** */
 public class DefaultPropertyValuesResolver {

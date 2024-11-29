@@ -4,9 +4,14 @@
  */
 package org.geoserver.cloud.autoconfigure.web.security;
 
+import java.io.IOException;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
 import org.geoserver.security.filter.GeoServerLogoutFilter;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,14 +20,6 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
-
-import java.io.IOException;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 
 @Configuration(proxyBeanMethods = true)
 @ImportResource( //
@@ -42,8 +39,7 @@ public class SecurityConfiguration {
 
         ConfigurableLogoutUrlFilter filter = new ConfigurableLogoutUrlFilter(logoutUrl);
 
-        FilterRegistrationBean<ConfigurableLogoutUrlFilter> registration =
-                new FilterRegistrationBean<>();
+        FilterRegistrationBean<ConfigurableLogoutUrlFilter> registration = new FilterRegistrationBean<>();
         registration.setFilter(filter);
         registration.setOrder(1);
         return registration;

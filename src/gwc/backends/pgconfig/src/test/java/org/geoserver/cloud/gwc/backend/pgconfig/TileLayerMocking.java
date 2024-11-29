@@ -4,9 +4,12 @@
  */
 package org.geoserver.cloud.gwc.backend.pgconfig;
 
+import java.util.List;
+import java.util.Set;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.NonNull;
-
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.FeatureTypeInfo;
@@ -30,11 +33,6 @@ import org.geowebcache.grid.BoundingBox;
 import org.geowebcache.grid.GridSetBroker;
 import org.mapstruct.factory.Mappers;
 
-import java.util.List;
-import java.util.Set;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-
 /**
  * @since 1.7
  */
@@ -44,8 +42,7 @@ class TileLayerMocking {
 
     private @Getter CatalogFaker faker;
 
-    final GeoServerTileLayerInfoMapper infoMapper =
-            Mappers.getMapper(GeoServerTileLayerInfoMapper.class);
+    final GeoServerTileLayerInfoMapper infoMapper = Mappers.getMapper(GeoServerTileLayerInfoMapper.class);
 
     private Catalog catalog;
 
@@ -72,8 +69,7 @@ class TileLayerMocking {
     }
 
     public GeoServerTileLayer geoServerTileLayer(PublishedInfo published) {
-        GeoServerTileLayerInfo tileLayerInfo =
-                TileLayerInfoUtil.loadOrCreate(published, new GWCConfig());
+        GeoServerTileLayerInfo tileLayerInfo = TileLayerInfoUtil.loadOrCreate(published, new GWCConfig());
         return new GeoServerTileLayer(published, gridsets, tileLayerInfo);
     }
 

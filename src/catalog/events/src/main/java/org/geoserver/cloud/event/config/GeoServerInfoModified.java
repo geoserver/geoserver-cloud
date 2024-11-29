@@ -6,10 +6,8 @@ package org.geoserver.cloud.event.config;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
-
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.config.GeoServerInfo;
 
@@ -23,13 +21,11 @@ public class GeoServerInfoModified extends ConfigInfoModified implements ConfigI
         // default constructor, needed for deserialization
     }
 
-    protected GeoServerInfoModified(
-            long updateSequence, @NonNull GeoServerInfo info, @NonNull Patch patch) {
+    protected GeoServerInfoModified(long updateSequence, @NonNull GeoServerInfo info, @NonNull Patch patch) {
         super(updateSequence, resolveId(info), prefixedName(info), typeOf(info), patch);
     }
 
-    public static GeoServerInfoModified createLocal(
-            long updateSequence, GeoServerInfo info, @NonNull Patch patch) {
+    public static GeoServerInfoModified createLocal(long updateSequence, GeoServerInfo info, @NonNull Patch patch) {
 
         return new GeoServerInfoModified(updateSequence, info, patch);
     }

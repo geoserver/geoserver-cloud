@@ -9,7 +9,7 @@ import static org.assertj.core.api.HamcrestCondition.matching;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-
+import java.util.Set;
 import org.assertj.core.api.Condition;
 import org.geotools.jackson.databind.filter.GeoToolsFilterModule;
 import org.geotools.jackson.databind.geojson.GeoToolsGeoJsonModule;
@@ -20,44 +20,33 @@ import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.test.context.FilteredClassLoader;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
-import java.util.Set;
-
 class GeoToolsJacksonBindingsAutoConfigurationTest {
 
-    private final ApplicationContextRunner contextRunner =
-            new ApplicationContextRunner()
-                    .withConfiguration(
-                            AutoConfigurations.of(
-                                    GeoToolsJacksonBindingsAutoConfiguration.class,
-                                    JacksonAutoConfiguration.class));
+    private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+            .withConfiguration(AutoConfigurations.of(
+                    GeoToolsJacksonBindingsAutoConfiguration.class, JacksonAutoConfiguration.class));
 
     @Test
     void testObjectMapper() {
         this.contextRunner.run(context -> assertThat(context).hasSingleBean(ObjectMapper.class));
-        Condition<? super Set<Object>> condition =
-                matching(
-                        Matchers.hasItems(
-                                new GeoToolsFilterModule().getTypeId(),
-                                new GeoToolsGeoJsonModule().getTypeId(),
-                                new JavaTimeModule().getTypeId()));
-        this.contextRunner.run(
-                context ->
-                        assertThat(context)
-                                .getBean(ObjectMapper.class)
-                                .extracting(ObjectMapper::getRegisteredModuleIds)
-                                .has(condition));
+        Condition<? super Set<Object>> condition = matching(Matchers.hasItems(
+                new GeoToolsFilterModule().getTypeId(),
+                new GeoToolsGeoJsonModule().getTypeId(),
+                new JavaTimeModule().getTypeId()));
+        this.contextRunner.run(context -> assertThat(context)
+                .getBean(ObjectMapper.class)
+                .extracting(ObjectMapper::getRegisteredModuleIds)
+                .has(condition));
     }
 
     @Test
     void testFilterModuleAutoConfiguration() {
-        this.contextRunner.run(
-                context -> assertThat(context).hasSingleBean(GeoToolsFilterModule.class));
+        this.contextRunner.run(context -> assertThat(context).hasSingleBean(GeoToolsFilterModule.class));
     }
 
     @Test
     void testGeoJsonModuleAutoConfiguration() {
-        this.contextRunner.run(
-                context -> assertThat(context).hasSingleBean(GeoToolsGeoJsonModule.class));
+        this.contextRunner.run(context -> assertThat(context).hasSingleBean(GeoToolsGeoJsonModule.class));
     }
 
     @Test

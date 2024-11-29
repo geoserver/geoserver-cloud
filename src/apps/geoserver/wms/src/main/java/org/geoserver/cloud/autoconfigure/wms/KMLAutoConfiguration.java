@@ -21,16 +21,11 @@ import org.springframework.context.annotation.ImportResource;
  * @since 1.0
  */
 @Configuration(proxyBeanMethods = false)
-@ConditionalOnProperty(
-        name = "geoserver.wms.kml.enabled",
-        havingValue = "true",
-        matchIfMissing = true)
+@ConditionalOnProperty(name = "geoserver.wms.kml.enabled", havingValue = "true", matchIfMissing = true)
 @ConditionalOnClass(MBStyleHandler.class)
 @ImportResource( //
         reader = FilteringXmlBeanDefinitionReader.class, //
-        locations = {
-            "jar:gs-kml-.*!/applicationContext.xml#name=^(?!WFSKMLOutputFormat|kmlURLMapping).*$"
-        })
+        locations = {"jar:gs-kml-.*!/applicationContext.xml#name=^(?!WFSKMLOutputFormat|kmlURLMapping).*$"})
 public class KMLAutoConfiguration {
 
     @Bean

@@ -4,9 +4,13 @@
  */
 package org.geoserver.cloud.autoconfigure.gwc.backend;
 
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Consumer;
+import javax.annotation.PostConstruct;
+import javax.sql.DataSource;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.cloud.autoconfigure.catalog.backend.pgconfig.ConditionalOnPgconfigBackendEnabled;
@@ -31,13 +35,6 @@ import org.springframework.cache.CacheManager;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.core.JdbcTemplate;
-
-import java.util.Objects;
-import java.util.Optional;
-import java.util.function.Consumer;
-
-import javax.annotation.PostConstruct;
-import javax.sql.DataSource;
 
 /**
  * {@link AutoConfiguration @AutoConfiguration} to set up the GeoServer {@link TileLayerCatalog}
@@ -87,15 +84,13 @@ public class PgconfigTileLayerCatalogAutoConfiguration {
 
     @Bean
     TileLayerInfoRepository pgconfigTileLayerRepository(
-            @Qualifier("pgconfigDataSource") DataSource dataSource,
-            Optional<CacheManager> cacheManager) {
+            @Qualifier("pgconfigDataSource") DataSource dataSource, Optional<CacheManager> cacheManager) {
 
         var pgrepo = new PgconfigTileLayerInfoRepository(new JdbcTemplate(dataSource));
         return cacheManager.map(cm -> cachingTileLayerCatalog(pgrepo, cm)).orElse(pgrepo);
     }
 
-    TileLayerInfoRepository cachingTileLayerCatalog(
-            TileLayerInfoRepository delegate, CacheManager cacheManager) {
+    TileLayerInfoRepository cachingTileLayerCatalog(TileLayerInfoRepository delegate, CacheManager cacheManager) {
 
         log.info(
                 "GeoWebCache Caching TileLayerInfoRepository enabled. Repository: {}, CacheManager: {}",

@@ -14,8 +14,7 @@ public class GatewayPreAuthenticationProvider extends AbstractFilterProvider {
     @Override
     public void configure(XStreamPersister xp) {
         super.configure(xp);
-        xp.getXStream()
-                .alias("gatewayPreAuthentication", GatewayPreAuthenticationFilterConfig.class);
+        xp.getXStream().alias("gatewayPreAuthentication", GatewayPreAuthenticationFilterConfig.class);
     }
 
     @Override

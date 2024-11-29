@@ -4,14 +4,12 @@
  */
 package org.geoserver.catalog.plugin.forwarding;
 
+import java.util.Optional;
+import java.util.stream.Stream;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.NamespaceRepository;
 
-import java.util.Optional;
-import java.util.stream.Stream;
-
-public class ForwardingNamespaceRepository
-        extends ForwardingCatalogRepository<NamespaceInfo, NamespaceRepository>
+public class ForwardingNamespaceRepository extends ForwardingCatalogRepository<NamespaceInfo, NamespaceRepository>
         implements NamespaceRepository {
 
     public ForwardingNamespaceRepository(NamespaceRepository subject) {

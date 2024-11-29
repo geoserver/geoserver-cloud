@@ -7,7 +7,6 @@ package org.geoserver.catalog.plugin.validation;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-
 import org.geoserver.catalog.CatalogValidator;
 import org.geoserver.catalog.CatalogVisitor;
 import org.geoserver.catalog.CatalogVisitorAdapter;

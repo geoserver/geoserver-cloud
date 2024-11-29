@@ -4,16 +4,6 @@
  */
 package org.geoserver.config.plugin;
 
-import org.geoserver.catalog.Info;
-import org.geoserver.catalog.WorkspaceInfo;
-import org.geoserver.catalog.plugin.Patch;
-import org.geoserver.config.GeoServerInfo;
-import org.geoserver.config.LoggingInfo;
-import org.geoserver.config.ServiceInfo;
-import org.geoserver.config.SettingsInfo;
-import org.geoserver.config.util.XStreamPersister;
-import org.geoserver.ows.util.OwsUtils;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -24,6 +14,15 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Stream;
+import org.geoserver.catalog.Info;
+import org.geoserver.catalog.WorkspaceInfo;
+import org.geoserver.catalog.plugin.Patch;
+import org.geoserver.config.GeoServerInfo;
+import org.geoserver.config.LoggingInfo;
+import org.geoserver.config.ServiceInfo;
+import org.geoserver.config.SettingsInfo;
+import org.geoserver.config.util.XStreamPersister;
+import org.geoserver.ows.util.OwsUtils;
 
 /**
  * Example {@link ConfigRepository} alternative that serializes to XML using {@link
@@ -56,8 +55,7 @@ class XmlSerializedConfigRepository implements ConfigRepository {
         if (serialized == null) return null;
         I loaded;
         try {
-            ByteArrayInputStream in =
-                    new ByteArrayInputStream(serialized.getBytes(StandardCharsets.UTF_8));
+            ByteArrayInputStream in = new ByteArrayInputStream(serialized.getBytes(StandardCharsets.UTF_8));
             loaded = codec.load(in, type);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -81,8 +79,7 @@ class XmlSerializedConfigRepository implements ConfigRepository {
 
     private static void checkNotAProxy(Info value) {
         if (Proxy.isProxyClass(value.getClass())) {
-            throw new IllegalArgumentException(
-                    "Proxy values shall not be passed to DefaultConfigRepository");
+            throw new IllegalArgumentException("Proxy values shall not be passed to DefaultConfigRepository");
         }
     }
 
@@ -189,8 +186,7 @@ class XmlSerializedConfigRepository implements ConfigRepository {
     }
 
     @Override
-    public <T extends ServiceInfo> Optional<T> getServiceByWorkspace(
-            WorkspaceInfo workspace, Class<T> clazz) {
+    public <T extends ServiceInfo> Optional<T> getServiceByWorkspace(WorkspaceInfo workspace, Class<T> clazz) {
 
         return getServicesByWorkspace(workspace)
                 .filter(clazz::isInstance)

@@ -4,14 +4,12 @@
  */
 package org.geoserver.cloud.backend.pgconfig.resource;
 
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.platform.resource.LockAdapter;
 import org.geoserver.platform.resource.LockProvider;
 import org.geoserver.platform.resource.Resource.Lock;
 import org.springframework.integration.support.locks.LockRegistry;
-
-import java.util.Objects;
 
 /**
  * Adapts a spring-integration-jdbc's {@link LockRegistry} to a GeoServer {@link LockProvider}

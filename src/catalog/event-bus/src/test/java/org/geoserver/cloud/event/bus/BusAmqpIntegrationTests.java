@@ -20,11 +20,14 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
+import java.lang.reflect.Proxy;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.experimental.Accessors;
-
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.CatalogTestData;
@@ -72,11 +75,6 @@ import org.testcontainers.containers.RabbitMQContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.lang.reflect.Proxy;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
 @SpringBootTest(
         webEnvironment = RANDOM_PORT,
         classes = {TestConfigurationAutoConfiguration.class, BusEventCollector.class},
@@ -93,8 +91,7 @@ import java.util.function.Supplier;
 public abstract class BusAmqpIntegrationTests {
 
     @Container
-    private static final RabbitMQContainer rabbitMQContainer =
-            new RabbitMQContainer("rabbitmq:3.13-management");
+    private static final RabbitMQContainer rabbitMQContainer = new RabbitMQContainer("rabbitmq:3.13-management");
 
     protected static ConfigurableApplicationContext remoteAppContext;
     private @Autowired ConfigurableApplicationContext localAppContext;
@@ -115,16 +112,15 @@ public abstract class BusAmqpIntegrationTests {
     @BeforeAll
     static void setUpRemoteApplicationContext() {
 
-        remoteAppContext =
-                new SpringApplicationBuilder(
-                                TestConfigurationAutoConfiguration.class, BusEventCollector.class)
-                        .properties(
-                                "server.port=0",
-                                "spring.rabbitmq.host=" + rabbitMQContainer.getHost(),
-                                "spring.rabbitmq.port=" + rabbitMQContainer.getAmqpPort(),
-                                "spring.cloud.bus.id=app:2",
-                                "spring.autoconfigure.exclude=org.springframework.cloud.stream.test.binder.TestSupportBinderAutoConfiguration")
-                        .run();
+        remoteAppContext = new SpringApplicationBuilder(
+                        TestConfigurationAutoConfiguration.class, BusEventCollector.class)
+                .properties(
+                        "server.port=0",
+                        "spring.rabbitmq.host=" + rabbitMQContainer.getHost(),
+                        "spring.rabbitmq.port=" + rabbitMQContainer.getAmqpPort(),
+                        "spring.cloud.bus.id=app:2",
+                        "spring.autoconfigure.exclude=org.springframework.cloud.stream.test.binder.TestSupportBinderAutoConfiguration")
+                .run();
     }
 
     @AfterAll
@@ -141,8 +137,8 @@ public abstract class BusAmqpIntegrationTests {
 
         Catalog remoteCatalog = remoteAppContext.getBean("rawCatalog", Catalog.class);
         GeoServer remoteGeoserver = remoteAppContext.getBean(GeoServer.class);
-        CatalogTestData remoteTestData =
-                CatalogTestData.empty(() -> remoteCatalog, () -> remoteGeoserver).initialize();
+        CatalogTestData remoteTestData = CatalogTestData.empty(() -> remoteCatalog, () -> remoteGeoserver)
+                .initialize();
         remoteTestData.initCatalog(true).initConfig(true).initialize();
     }
 
@@ -287,13 +283,11 @@ public abstract class BusAmqpIntegrationTests {
         return type;
     }
 
-    protected <T extends Info> RemoteGeoServerEvent testRemoteCatalogInfoAddEvent(
-            CatalogInfo info) {
+    protected <T extends Info> RemoteGeoServerEvent testRemoteCatalogInfoAddEvent(CatalogInfo info) {
         return testRemoteAddEvent(info, catalog::add, CatalogInfoAdded.class);
     }
 
-    protected <T extends Info> RemoteGeoServerEvent testRemoteCatalogInfoAddEvent(
-            T info, Consumer<T> addOp) {
+    protected <T extends Info> RemoteGeoServerEvent testRemoteCatalogInfoAddEvent(T info, Consumer<T> addOp) {
         return testRemoteAddEvent(info, addOp, CatalogInfoAdded.class);
     }
 
@@ -315,8 +309,7 @@ public abstract class BusAmqpIntegrationTests {
         // ok, that's the event published to the local application context, and which
         // spring-cloud-bus took care of not re-publishing. Let's capture the actual out-bound
         // message that traveled through the bus channel to the second application
-        RemoteGeoServerEvent remoteRemoteEvent =
-                eventsCaptor.remote().expectOne(eventType, infoType);
+        RemoteGeoServerEvent remoteRemoteEvent = eventsCaptor.remote().expectOne(eventType, infoType);
         assertThat(remoteRemoteEvent.getEvent().isRemote()).isTrue();
         assertThat(remoteRemoteEvent.getEvent().isLocal()).isFalse();
         assertRemoteEvent(info, remoteRemoteEvent);
@@ -414,9 +407,7 @@ public abstract class BusAmqpIntegrationTests {
 
     protected void assertNotAProxy(Info info, Class<? extends Info> expected) {
         assertThat(ProxyUtils.isResolvingProxy(info))
-                .as(
-                        "Expected %s, got ResolvingProxy %s"
-                                .formatted(expected.getSimpleName(), info.getId()))
+                .as("Expected %s, got ResolvingProxy %s".formatted(expected.getSimpleName(), info.getId()))
                 .isFalse();
     }
 

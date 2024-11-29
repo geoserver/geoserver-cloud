@@ -5,7 +5,6 @@
 package org.geotools.jackson.databind.dto;
 
 import lombok.Data;
-
 import org.geotools.util.NumberRange;
 
 /**

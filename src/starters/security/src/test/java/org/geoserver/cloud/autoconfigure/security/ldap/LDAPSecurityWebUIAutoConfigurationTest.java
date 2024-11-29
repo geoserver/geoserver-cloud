@@ -20,53 +20,41 @@ import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 
 class LDAPSecurityWebUIAutoConfigurationTest {
 
-    private WebApplicationContextRunner runner =
-            new WebApplicationContextRunner()
-                    .withConfiguration(
-                            AutoConfigurations.of(
-                                    LDAPSecurityAutoConfiguration.class,
-                                    LDAPSecurityWebUIAutoConfiguration.class))
-                    .withBean(
-                            GeoServerSecurityManager.class,
-                            () -> mock(GeoServerSecurityManager.class));
+    private WebApplicationContextRunner runner = new WebApplicationContextRunner()
+            .withConfiguration(AutoConfigurations.of(
+                    LDAPSecurityAutoConfiguration.class, LDAPSecurityWebUIAutoConfiguration.class))
+            .withBean(GeoServerSecurityManager.class, () -> mock(GeoServerSecurityManager.class));
 
     @Test
     void testConditionalOnClassNoMatch() {
         runner.withClassLoader(new FilteredClassLoader(AuthenticationFilterPanelInfo.class))
-                .run(
-                        context ->
-                                assertThat(context)
-                                        .hasNotFailed()
-                                        .doesNotHaveBean(LDAPUserGroupServicePanelInfo.class)
-                                        .doesNotHaveBean(LDAPRoleServicePanelInfo.class)
-                                        .doesNotHaveBean(LDAPAuthProviderPanelInfo.class)
-                                        .doesNotHaveBean("ldapSecurityWebExtension"));
+                .run(context -> assertThat(context)
+                        .hasNotFailed()
+                        .doesNotHaveBean(LDAPUserGroupServicePanelInfo.class)
+                        .doesNotHaveBean(LDAPRoleServicePanelInfo.class)
+                        .doesNotHaveBean(LDAPAuthProviderPanelInfo.class)
+                        .doesNotHaveBean("ldapSecurityWebExtension"));
     }
 
     @Test
     void testConditionalOnClassMatch() {
-        runner.run(
-                context ->
-                        assertThat(context)
-                                .hasNotFailed()
-                                .hasSingleBean(LDAPUserGroupServicePanelInfo.class)
-                                .hasSingleBean(LDAPRoleServicePanelInfo.class)
-                                .hasSingleBean(LDAPAuthProviderPanelInfo.class)
-                                .hasBean("ldapSecurityWebExtension")
-                                .getBean("ldapSecurityWebExtension")
-                                .isInstanceOf(ModuleStatusImpl.class));
+        runner.run(context -> assertThat(context)
+                .hasNotFailed()
+                .hasSingleBean(LDAPUserGroupServicePanelInfo.class)
+                .hasSingleBean(LDAPRoleServicePanelInfo.class)
+                .hasSingleBean(LDAPAuthProviderPanelInfo.class)
+                .hasBean("ldapSecurityWebExtension")
+                .getBean("ldapSecurityWebExtension")
+                .isInstanceOf(ModuleStatusImpl.class));
     }
 
     @Test
     void testDisabled() {
-        runner.withPropertyValues("geoserver.security.ldap=false")
-                .run(
-                        context ->
-                                assertThat(context)
-                                        .hasNotFailed()
-                                        .doesNotHaveBean(LDAPUserGroupServicePanelInfo.class)
-                                        .doesNotHaveBean(LDAPRoleServicePanelInfo.class)
-                                        .doesNotHaveBean(LDAPAuthProviderPanelInfo.class)
-                                        .doesNotHaveBean("ldapSecurityWebExtension"));
+        runner.withPropertyValues("geoserver.security.ldap=false").run(context -> assertThat(context)
+                .hasNotFailed()
+                .doesNotHaveBean(LDAPUserGroupServicePanelInfo.class)
+                .doesNotHaveBean(LDAPRoleServicePanelInfo.class)
+                .doesNotHaveBean(LDAPAuthProviderPanelInfo.class)
+                .doesNotHaveBean("ldapSecurityWebExtension"));
     }
 }

@@ -6,7 +6,6 @@ package org.geoserver.jackson.databind.config.dto;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
 import org.geoserver.jackson.databind.catalog.dto.InfoDto;
 
 @EqualsAndHashCode(callSuper = true)

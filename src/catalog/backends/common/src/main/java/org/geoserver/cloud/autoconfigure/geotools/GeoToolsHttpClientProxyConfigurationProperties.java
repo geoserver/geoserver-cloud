@@ -4,17 +4,15 @@
  */
 package org.geoserver.cloud.autoconfigure.geotools;
 
-import lombok.Data;
-import lombok.NonNull;
-
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.util.StringUtils;
-
 import java.net.http.HttpClient;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
+import lombok.Data;
+import lombok.NonNull;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.util.StringUtils;
 
 /**
  * {@link EnableConfigurationProperties @EnableConfigurationProperties} to configure the HTTP proxy
@@ -61,16 +59,13 @@ public @Data class GeoToolsHttpClientProxyConfigurationProperties {
         }
 
         public boolean isSecured() {
-            return StringUtils.hasLength(host)
-                    && StringUtils.hasLength(user)
-                    && StringUtils.hasLength(password);
+            return StringUtils.hasLength(host) && StringUtils.hasLength(user) && StringUtils.hasLength(password);
         }
     }
 
     public ProxyHostConfig ofProtocol(@NonNull String protocol) {
         if ("http".equals(protocol)) return http == null ? new ProxyHostConfig() : http;
         if ("https".equals(protocol)) return https == null ? new ProxyHostConfig() : https;
-        throw new IllegalArgumentException(
-                "Uknown protocol %s. Expected http(s)".formatted(protocol));
+        throw new IllegalArgumentException("Uknown protocol %s. Expected http(s)".formatted(protocol));
     }
 }

@@ -15,29 +15,18 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
 class RemoteEventResourcePoolCleanupUpAutoConfigurationTest {
 
-    private final ApplicationContextRunner runner =
-            new ApplicationContextRunner()
-                    .withBean("rawCatalog", CatalogPlugin.class)
-                    .withConfiguration(
-                            AutoConfigurations.of(
-                                    RemoteEventResourcePoolCleanupUpAutoConfiguration.class));
+    private final ApplicationContextRunner runner = new ApplicationContextRunner()
+            .withBean("rawCatalog", CatalogPlugin.class)
+            .withConfiguration(AutoConfigurations.of(RemoteEventResourcePoolCleanupUpAutoConfiguration.class));
 
     @Test
     void testDefaultAppContextContributions() {
-        runner.run(
-                context ->
-                        assertThat(context)
-                                .hasNotFailed()
-                                .hasBean("remoteEventResourcePoolProcessor"));
+        runner.run(context -> assertThat(context).hasNotFailed().hasBean("remoteEventResourcePoolProcessor"));
     }
 
     @Test
     void whenDependentClassesAreNotPresent_thenBeanMissing() {
         runner.withClassLoader(new FilteredClassLoader(InfoEvent.class))
-                .run(
-                        context ->
-                                assertThat(context)
-                                        .hasNotFailed()
-                                        .doesNotHaveBean("remoteEventResourcePoolProcessor"));
+                .run(context -> assertThat(context).hasNotFailed().doesNotHaveBean("remoteEventResourcePoolProcessor"));
     }
 }

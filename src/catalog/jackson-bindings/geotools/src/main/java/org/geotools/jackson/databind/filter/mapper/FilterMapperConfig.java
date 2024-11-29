@@ -10,10 +10,5 @@ import org.mapstruct.ReportingPolicy;
 @MapperConfig(
         componentModel = "default",
         unmappedTargetPolicy = ReportingPolicy.ERROR,
-        uses = {
-            ExpressionFactory.class,
-            FilterFactory.class,
-            GeoToolsValueMappers.class,
-            ExpressionMapper.class
-        })
+        uses = {ExpressionFactory.class, FilterFactory.class, GeoToolsValueMappers.class, ExpressionMapper.class})
 public class FilterMapperConfig {}

@@ -4,22 +4,19 @@
  */
 package org.geoserver.cloud.backend.pgconfig.catalog.repository;
 
+import java.util.Optional;
+import java.util.stream.Stream;
 import lombok.NonNull;
-
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.StyleRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
-import java.util.Optional;
-import java.util.stream.Stream;
-
 /**
  * @since 1.4
  */
-public class PgconfigStyleRepository extends PgconfigCatalogInfoRepository<StyleInfo>
-        implements StyleRepository {
+public class PgconfigStyleRepository extends PgconfigCatalogInfoRepository<StyleInfo> implements StyleRepository {
 
     /**
      * @param template
@@ -76,8 +73,7 @@ public class PgconfigStyleRepository extends PgconfigCatalogInfoRepository<Style
     }
 
     @Override
-    public Optional<StyleInfo> findByNameAndWorkspace(
-            @NonNull String name, @NonNull WorkspaceInfo workspace) {
+    public Optional<StyleInfo> findByNameAndWorkspace(@NonNull String name, @NonNull WorkspaceInfo workspace) {
 
         String query =
                 """

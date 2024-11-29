@@ -4,14 +4,13 @@
  */
 package org.geoserver.cloud.wfs.app;
 
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.xmlunit.assertj3.XmlAssert;
-
-import java.util.Map;
 
 @SpringBootTest(classes = WfsApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 abstract class WfsApplicationTest {
@@ -20,25 +19,17 @@ abstract class WfsApplicationTest {
 
     @Test
     void owsGetCapabilitiesSmokeTest(@LocalServerPort int servicePort) {
-        String url =
-                "http://localhost:%d/ows?SERVICE=WFS&REQUEST=GETCAPABILITIES&VERSION=1.1.0"
-                        .formatted(servicePort);
+        String url = "http://localhost:%d/ows?SERVICE=WFS&REQUEST=GETCAPABILITIES&VERSION=1.1.0".formatted(servicePort);
         String caps = restTemplate.getForObject(url, String.class);
         Map<String, String> nscontext = Map.of("wfs", "http://www.opengis.net/wfs");
-        XmlAssert.assertThat(caps)
-                .withNamespaceContext(nscontext)
-                .hasXPath("/wfs:WFS_Capabilities");
+        XmlAssert.assertThat(caps).withNamespaceContext(nscontext).hasXPath("/wfs:WFS_Capabilities");
     }
 
     @Test
     void wfsGetCapabilitiesSmokeTest(@LocalServerPort int servicePort) {
-        String url =
-                "http://localhost:%d/wfs?SERVICE=WFS&REQUEST=GETCAPABILITIES&VERSION=1.1.0"
-                        .formatted(servicePort);
+        String url = "http://localhost:%d/wfs?SERVICE=WFS&REQUEST=GETCAPABILITIES&VERSION=1.1.0".formatted(servicePort);
         String caps = restTemplate.getForObject(url, String.class);
         Map<String, String> nscontext = Map.of("wfs", "http://www.opengis.net/wfs");
-        XmlAssert.assertThat(caps)
-                .withNamespaceContext(nscontext)
-                .hasXPath("/wfs:WFS_Capabilities");
+        XmlAssert.assertThat(caps).withNamespaceContext(nscontext).hasXPath("/wfs:WFS_Capabilities");
     }
 }

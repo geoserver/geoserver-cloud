@@ -5,7 +5,6 @@
 package org.geoserver.cloud.autoconfigure.geotools;
 
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.cloud.autoconfigure.geotools.GeoToolsHttpClientProxyConfigurationProperties.ProxyHostConfig;
 import org.geotools.http.HTTPClientFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -67,10 +66,7 @@ import org.springframework.context.annotation.Bean;
  */
 @AutoConfiguration
 @EnableConfigurationProperties(GeoToolsHttpClientProxyConfigurationProperties.class)
-@ConditionalOnProperty(
-        name = "geotools.httpclient.proxy.enabled",
-        havingValue = "true",
-        matchIfMissing = true)
+@ConditionalOnProperty(name = "geotools.httpclient.proxy.enabled", havingValue = "true", matchIfMissing = true)
 @Slf4j(topic = "org.geotools.autoconfigure.httpclient")
 public class GeoToolsHttpClientAutoConfiguration {
 
@@ -89,16 +85,12 @@ public class GeoToolsHttpClientAutoConfiguration {
     private void log(ProxyHostConfig config, String protocol) {
         config.host()
                 .ifPresentOrElse(
-                        host ->
-                                log.info(
-                                        "{} proxy configured for GeoTools cascaded OWS stores: {}:{}, secured: {}",
-                                        protocol,
-                                        host,
-                                        config.port(),
-                                        config.isSecured()),
-                        () ->
-                                log.info(
-                                        "No {} proxy configured for GeoTools cascaded OWS stores",
-                                        protocol));
+                        host -> log.info(
+                                "{} proxy configured for GeoTools cascaded OWS stores: {}:{}, secured: {}",
+                                protocol,
+                                host,
+                                config.port(),
+                                config.isSecured()),
+                        () -> log.info("No {} proxy configured for GeoTools cascaded OWS stores", protocol));
     }
 }

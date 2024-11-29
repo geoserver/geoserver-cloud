@@ -5,11 +5,9 @@
 package org.geoserver.jackson.databind.catalog.dto;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
-
+import java.util.Date;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
-import java.util.Date;
 
 @JsonSubTypes({
     @JsonSubTypes.Type(value = Workspace.class),

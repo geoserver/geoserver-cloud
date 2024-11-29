@@ -6,6 +6,16 @@ package org.geoserver.config.plugin;
 
 import static java.util.Objects.requireNonNull;
 
+import java.lang.reflect.Proxy;
+import java.rmi.server.UID;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.annotation.Nullable;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.MetadataMap;
 import org.geoserver.catalog.WorkspaceInfo;
@@ -23,18 +33,6 @@ import org.geoserver.config.impl.CoverageAccessInfoImpl;
 import org.geoserver.config.impl.GeoServerInfoImpl;
 import org.geoserver.ows.util.OwsUtils;
 import org.geotools.util.logging.Logging;
-
-import java.lang.reflect.Proxy;
-import java.rmi.server.UID;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.annotation.Nullable;
 
 /**
  * Default implementation of {@link GeoServerFacade} backed by a pluggable {@link ConfigRepository}
@@ -106,9 +104,7 @@ public class RepositoryGeoServerFacadeImpl implements RepositoryGeoServerFacade 
     @Override
     public SettingsInfo getSettings(WorkspaceInfo workspace) {
         requireNonNull(workspace);
-        return wrap(
-                resolve(repository.getSettingsByWorkspace(workspace).orElse(null)),
-                SettingsInfo.class);
+        return wrap(resolve(repository.getSettingsByWorkspace(workspace).orElse(null)), SettingsInfo.class);
     }
 
     @Override
@@ -226,14 +222,14 @@ public class RepositoryGeoServerFacadeImpl implements RepositoryGeoServerFacade 
     }
 
     @Override
-    public <T extends ServiceInfo> T getServiceByName(
-            String name, WorkspaceInfo workspace, Class<T> clazz) {
+    public <T extends ServiceInfo> T getServiceByName(String name, WorkspaceInfo workspace, Class<T> clazz) {
         return findByName(name, workspace, clazz);
     }
 
     @Override
     public Collection<? extends ServiceInfo> getServices() {
-        List<ServiceInfo> all = repository.getGlobalServices().map(this::resolve).toList();
+        List<ServiceInfo> all =
+                repository.getGlobalServices().map(this::resolve).toList();
         return ModificationProxy.createList(all, ServiceInfo.class);
     }
 
@@ -282,16 +278,13 @@ public class RepositoryGeoServerFacadeImpl implements RepositoryGeoServerFacade 
             service = repository.getServiceByWorkspace(workspace, type);
         }
         if (service.isEmpty() && LOGGER.isLoggable(Level.FINE)) {
-            LOGGER.fine(
-                    "Could not locate service of type %s in workspace %s"
-                            .formatted(type, workspace));
+            LOGGER.fine("Could not locate service of type %s in workspace %s".formatted(type, workspace));
         }
 
         return wrap(resolve(service.orElse(null)), type);
     }
 
-    protected <T extends ServiceInfo> T findByName(
-            String name, WorkspaceInfo workspace, Class<T> type) {
+    protected <T extends ServiceInfo> T findByName(String name, WorkspaceInfo workspace, Class<T> type) {
         Optional<T> service;
         if (workspace == null) {
             service = repository.getServiceByName(name, type);
@@ -300,9 +293,8 @@ public class RepositoryGeoServerFacadeImpl implements RepositoryGeoServerFacade 
             service = repository.getServiceByNameAndWorkspace(name, workspace, type);
         }
         if (service.isEmpty() && LOGGER.isLoggable(Level.FINE)) {
-            LOGGER.fine(
-                    "Could not locate service of type %s in workspace %s and name '%s'"
-                            .formatted(type, workspace, name));
+            LOGGER.fine("Could not locate service of type %s in workspace %s and name '%s'"
+                    .formatted(type, workspace, name));
         }
         return wrap(resolve(service.orElse(null)), type);
     }

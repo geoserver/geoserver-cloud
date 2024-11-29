@@ -5,10 +5,8 @@
 package org.geoserver.cloud.security.gateway.sharedauth;
 
 import com.thoughtworks.xstream.XStream;
-
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-
 import org.geoserver.config.util.XStreamPersister;
 import org.geoserver.security.config.SecurityNamedServiceConfig;
 import org.geoserver.security.filter.AbstractFilterProvider;
@@ -40,9 +38,7 @@ public class GatewaySharedAuthenticationProvider extends AbstractFilterProvider 
         XStream xStream = xp.getXStream();
         xStream.allowTypes(new Class[] {GatewaySharedAuthenticationFilter.Config.class});
         xStream.alias("gatewaySharedAuthentication", GatewaySharedAuthenticationProvider.class);
-        xStream.alias(
-                "gatewaySharedAuthenticationFilter",
-                GatewaySharedAuthenticationFilter.Config.class);
+        xStream.alias("gatewaySharedAuthenticationFilter", GatewaySharedAuthenticationFilter.Config.class);
     }
 
     @Override

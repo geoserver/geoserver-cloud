@@ -15,25 +15,18 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
 class LifecycleEventAutoConfigurationTest {
 
-    private final ApplicationContextRunner runner =
-            new ApplicationContextRunner()
-                    .withBean("geoServer", GeoServerImpl.class)
-                    .withConfiguration(
-                            AutoConfigurations.of(LifecycleEventAutoConfiguration.class));
+    private final ApplicationContextRunner runner = new ApplicationContextRunner()
+            .withBean("geoServer", GeoServerImpl.class)
+            .withConfiguration(AutoConfigurations.of(LifecycleEventAutoConfiguration.class));
 
     @Test
     void testDefaultAppContextContributions() {
-        runner.run(
-                context -> assertThat(context).hasNotFailed().hasBean("lifecycleEventProcessor"));
+        runner.run(context -> assertThat(context).hasNotFailed().hasBean("lifecycleEventProcessor"));
     }
 
     @Test
     void whenDependentClassesAreNotPresent_thenBeanMissing() {
         runner.withClassLoader(new FilteredClassLoader(LifecycleEvent.class))
-                .run(
-                        context ->
-                                assertThat(context)
-                                        .hasNotFailed()
-                                        .doesNotHaveBean("lifecycleEventProcessor"));
+                .run(context -> assertThat(context).hasNotFailed().doesNotHaveBean("lifecycleEventProcessor"));
     }
 }

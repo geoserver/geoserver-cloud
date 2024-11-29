@@ -18,10 +18,7 @@ import org.springframework.context.annotation.ImportResource;
 @AutoConfiguration(before = GeoServerSecurityAutoConfiguration.class)
 @EnableConfigurationProperties(JDBCSecurityConfigProperties.class)
 @ConditionalOnGeoServerSecurityEnabled
-@ConditionalOnProperty(
-        name = "geoserver.security.jdbc",
-        havingValue = "true",
-        matchIfMissing = true)
+@ConditionalOnProperty(name = "geoserver.security.jdbc", havingValue = "true", matchIfMissing = true)
 @ImportResource(
         reader = FilteringXmlBeanDefinitionReader.class, //
         locations = "jar:gs-sec-jdbc-.*!/applicationContext.xml")

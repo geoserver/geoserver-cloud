@@ -4,19 +4,15 @@
  */
 package org.geoserver.cloud.autoconfigure.catalog.event;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Documented
-@ConditionalOnProperty(
-        value = "geoserver.catalog.events.enabled",
-        havingValue = "true",
-        matchIfMissing = true)
+@ConditionalOnProperty(value = "geoserver.catalog.events.enabled", havingValue = "true", matchIfMissing = true)
 public @interface ConditionalOnCatalogEvents {}

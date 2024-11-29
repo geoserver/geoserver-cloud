@@ -7,7 +7,6 @@ package org.geoserver.cloud.event.remote.jdbcconfig;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoEvent;
@@ -37,18 +36,15 @@ public class RemoteEventJdbcConfigProcessor {
     }
 
     private void evictConfigDatabaseEntry(InfoEvent event) {
-        event.remote()
-                .ifPresent(
-                        remoteEvent -> {
-                            ConfigInfoType infoType = event.getObjectType();
-                            if (ConfigInfoType.CATALOG.equals(infoType)) {
-                                log.trace(
-                                        "ignore catalog default workspace or default namespace change event, no need to treat it.");
-                            } else {
-                                log.debug("Evict JDBCConfig cache for {}", event);
-                                String catalogInfoId = event.getObjectId();
-                                jdbcConfigDatabase.clearCacheIfPresent(catalogInfoId);
-                            }
-                        });
+        event.remote().ifPresent(remoteEvent -> {
+            ConfigInfoType infoType = event.getObjectType();
+            if (ConfigInfoType.CATALOG.equals(infoType)) {
+                log.trace("ignore catalog default workspace or default namespace change event, no need to treat it.");
+            } else {
+                log.debug("Evict JDBCConfig cache for {}", event);
+                String catalogInfoId = event.getObjectId();
+                jdbcConfigDatabase.clearCacheIfPresent(catalogInfoId);
+            }
+        });
     }
 }

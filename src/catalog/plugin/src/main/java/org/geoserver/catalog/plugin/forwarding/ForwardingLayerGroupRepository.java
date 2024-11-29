@@ -4,17 +4,14 @@
  */
 package org.geoserver.catalog.plugin.forwarding;
 
+import java.util.Optional;
+import java.util.stream.Stream;
 import lombok.NonNull;
-
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerGroupRepository;
 
-import java.util.Optional;
-import java.util.stream.Stream;
-
-public class ForwardingLayerGroupRepository
-        extends ForwardingCatalogRepository<LayerGroupInfo, LayerGroupRepository>
+public class ForwardingLayerGroupRepository extends ForwardingCatalogRepository<LayerGroupInfo, LayerGroupRepository>
         implements LayerGroupRepository {
 
     public ForwardingLayerGroupRepository(LayerGroupRepository subject) {

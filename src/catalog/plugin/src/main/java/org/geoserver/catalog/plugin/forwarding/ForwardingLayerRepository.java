@@ -4,16 +4,15 @@
  */
 package org.geoserver.catalog.plugin.forwarding;
 
+import java.util.Optional;
+import java.util.stream.Stream;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerRepository;
 
-import java.util.Optional;
-import java.util.stream.Stream;
-
-public class ForwardingLayerRepository
-        extends ForwardingCatalogRepository<LayerInfo, LayerRepository> implements LayerRepository {
+public class ForwardingLayerRepository extends ForwardingCatalogRepository<LayerInfo, LayerRepository>
+        implements LayerRepository {
 
     public ForwardingLayerRepository(LayerRepository subject) {
         super(subject);

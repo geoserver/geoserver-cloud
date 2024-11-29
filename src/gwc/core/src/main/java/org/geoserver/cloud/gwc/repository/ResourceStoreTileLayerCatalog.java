@@ -9,27 +9,6 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Streams;
 import com.thoughtworks.xstream.XStream;
-
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
-import org.geoserver.config.util.SecureXStream;
-import org.geoserver.gwc.layer.DefaultTileLayerCatalog;
-import org.geoserver.gwc.layer.GeoServerTileLayerInfo;
-import org.geoserver.gwc.layer.TileLayerCatalog;
-import org.geoserver.gwc.layer.TileLayerCatalogListener;
-import org.geoserver.gwc.layer.TileLayerCatalogListener.Type;
-import org.geoserver.platform.resource.FileSystemResourceStore;
-import org.geoserver.platform.resource.Resource;
-import org.geoserver.platform.resource.ResourceStore;
-import org.geoserver.platform.resource.Resources;
-import org.geoserver.util.DimensionWarning;
-import org.geowebcache.config.ContextualConfigurationProvider.Context;
-import org.geowebcache.config.XMLConfiguration;
-import org.geowebcache.storage.blobstore.file.FilePathUtils;
-import org.springframework.web.context.WebApplicationContext;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -54,6 +33,24 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.geoserver.config.util.SecureXStream;
+import org.geoserver.gwc.layer.DefaultTileLayerCatalog;
+import org.geoserver.gwc.layer.GeoServerTileLayerInfo;
+import org.geoserver.gwc.layer.TileLayerCatalog;
+import org.geoserver.gwc.layer.TileLayerCatalogListener;
+import org.geoserver.gwc.layer.TileLayerCatalogListener.Type;
+import org.geoserver.platform.resource.FileSystemResourceStore;
+import org.geoserver.platform.resource.Resource;
+import org.geoserver.platform.resource.ResourceStore;
+import org.geoserver.platform.resource.Resources;
+import org.geoserver.util.DimensionWarning;
+import org.geowebcache.config.ContextualConfigurationProvider.Context;
+import org.geowebcache.config.XMLConfiguration;
+import org.geowebcache.storage.blobstore.file.FilePathUtils;
+import org.springframework.web.context.WebApplicationContext;
 
 /**
  * {@link TileLayerCatalog} compatible with {@link DefaultTileLayerCatalog} in that it'll read from
@@ -98,12 +95,8 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
     public void initialize() {
         if (initialized.compareAndSet(false, true)) {
             this.baseDirectory = "gwc-layers";
-            this.xstreamProvider =
-                    () ->
-                            XMLConfiguration.getConfiguredXStreamWithContext(
-                                    new SecureXStream(),
-                                    applicationContext.orElse(null),
-                                    Context.PERSIST);
+            this.xstreamProvider = () -> XMLConfiguration.getConfiguredXStreamWithContext(
+                    new SecureXStream(), applicationContext.orElse(null), Context.PERSIST);
             this.serializer = newXStream();
         }
     }
@@ -217,8 +210,7 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
      * @throws IllegalStateException if this layer catalog has not been initialized yet
      */
     private void checkInitialized() {
-        Preconditions.checkState(
-                this.initialized.get(), "DefaultTileLayerCatalog is not initialized");
+        Preconditions.checkState(this.initialized.get(), "DefaultTileLayerCatalog is not initialized");
     }
 
     private Resource baseDirectory() {
@@ -284,8 +276,7 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
 
     private Stream<Resource> findAllTileLayerResources(Path basePath) {
         final PathMatcher matcher = basePath.getFileSystem().getPathMatcher("glob:**.xml");
-        DirectoryStream.Filter<Path> filter =
-                path -> matcher.matches(path) && Files.isRegularFile(path);
+        DirectoryStream.Filter<Path> filter = path -> matcher.matches(path) && Files.isRegularFile(path);
         DirectoryStream<Path> directoryStream;
         try {
             directoryStream = Files.newDirectoryStream(basePath, filter);
@@ -298,11 +289,10 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
                 .onClose(() -> closeSilently(directoryStream))
                 .map(Path::getFileName)
                 .map(Path::toString)
-                .map(
-                        name -> {
-                            log.trace("found potential tile layer file {}", name);
-                            return baseDir.get(name);
-                        });
+                .map(name -> {
+                    log.trace("found potential tile layer file {}", name);
+                    return baseDir.get(name);
+                });
     }
 
     private void closeSilently(DirectoryStream<Path> directoryStream) {
@@ -337,12 +327,7 @@ public class ResourceStoreTileLayerCatalog implements TileLayerCatalog {
             l.onEvent(layerId, eventType);
         } catch (RuntimeException e) {
             String listener = l == null ? null : l.getClass().getCanonicalName();
-            log.warn(
-                    "Error notifying listener of {} change event for TileLayer {}",
-                    listener,
-                    eventType,
-                    layerId,
-                    e);
+            log.warn("Error notifying listener of {} change event for TileLayer {}", listener, eventType, layerId, e);
         }
     }
 

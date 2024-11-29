@@ -4,9 +4,19 @@
  */
 package org.geoserver.catalog.plugin.resolving;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
+import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.Info;
@@ -23,18 +33,6 @@ import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.forwarding.ResolvingCatalogFacadeDecorator;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
-
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Proxy;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.BiConsumer;
-import java.util.function.Supplier;
-import java.util.function.UnaryOperator;
-import java.util.stream.Collectors;
 
 /**
  * {@link ResolvingCatalogFacadeDecorator#setObjectResolver resolving function} that resolves {@link
@@ -60,15 +58,12 @@ public class ResolvingProxyResolver<T> implements UnaryOperator<T> {
     private ResolvingProxyResolver(@NonNull Supplier<Catalog> catalog) {
         this(
                 catalog,
-                (info, proxy) ->
-                        log.warn(
-                                "ResolvingProxy object not found in catalog, keeping proxy around: %s"
-                                        .formatted(info.getId())));
+                (info, proxy) -> log.warn("ResolvingProxy object not found in catalog, keeping proxy around: %s"
+                        .formatted(info.getId())));
     }
 
     private ResolvingProxyResolver(
-            @NonNull Supplier<Catalog> catalog,
-            @NonNull BiConsumer<CatalogInfo, ResolvingProxy> onNotFound) {
+            @NonNull Supplier<Catalog> catalog, @NonNull BiConsumer<CatalogInfo, ResolvingProxy> onNotFound) {
         this.catalog = catalog;
         this.onNotFound = onNotFound;
         this.proxyUtils = new ProxyUtils(catalog, Optional.empty());
@@ -84,15 +79,11 @@ public class ResolvingProxyResolver<T> implements UnaryOperator<T> {
         return new ResolvingProxyResolver<>(catalog, onNotFound);
     }
 
-    public static <I extends Info> ResolvingProxyResolver<I> of(
-            Catalog catalog, boolean errorOnNotFound) {
+    public static <I extends Info> ResolvingProxyResolver<I> of(Catalog catalog, boolean errorOnNotFound) {
         if (errorOnNotFound)
-            return ResolvingProxyResolver.of(
-                    catalog,
-                    (proxiedInfo, proxy) -> {
-                        throw new NoSuchElementException(
-                                "Object not found: %s".formatted(proxiedInfo.getId()));
-                    });
+            return ResolvingProxyResolver.of(catalog, (proxiedInfo, proxy) -> {
+                throw new NoSuchElementException("Object not found: %s".formatted(proxiedInfo.getId()));
+            });
         return ResolvingProxyResolver.of(catalog);
     }
 
@@ -109,8 +100,7 @@ public class ResolvingProxyResolver<T> implements UnaryOperator<T> {
         return (ResolvingProxyResolver<I>) new MemoizingProxyResolver(catalog, onNotFound);
     }
 
-    public ResolvingProxyResolver<T> onNotFound(
-            BiConsumer<CatalogInfo, ResolvingProxy> onNotFound) {
+    public ResolvingProxyResolver<T> onNotFound(BiConsumer<CatalogInfo, ResolvingProxy> onNotFound) {
         this.onNotFound = onNotFound;
         return this;
     }
@@ -133,9 +123,7 @@ public class ResolvingProxyResolver<T> implements UnaryOperator<T> {
                 // may the object itself be a resolving proxy
                 Info resolved = doResolveProxy(info);
                 if (resolved == null && info instanceof CatalogInfo cinfo) {
-                    log.debug(
-                            "Proxy object {} not found, calling on-not-found consumer",
-                            info.getId());
+                    log.debug("Proxy object {} not found, calling on-not-found consumer", info.getId());
                     onNotFound.accept(cinfo, resolvingProxy);
                     // if onNotFound didn't throw an exception, return the proxied value if the
                     // consumer didn't throw an exception
@@ -199,18 +187,14 @@ public class ResolvingProxyResolver<T> implements UnaryOperator<T> {
     protected LayerInfo resolveInternal(LayerInfo layer) {
         if (isResolvingProxy(layer.getResource())) layer.setResource(resolve(layer.getResource()));
 
-        if (isResolvingProxy(layer.getDefaultStyle()))
-            layer.setDefaultStyle(resolve(layer.getDefaultStyle()));
+        if (isResolvingProxy(layer.getDefaultStyle())) layer.setDefaultStyle(resolve(layer.getDefaultStyle()));
 
-        final boolean hasProxiedStyles =
-                layer.getStyles().stream().anyMatch(this::isResolvingProxy);
+        final boolean hasProxiedStyles = layer.getStyles().stream().anyMatch(this::isResolvingProxy);
         if (hasProxiedStyles) {
 
             LinkedHashSet<StyleInfo> resolvedStyles;
             resolvedStyles =
-                    layer.getStyles().stream()
-                            .map(this::resolve)
-                            .collect(Collectors.toCollection(LinkedHashSet::new));
+                    layer.getStyles().stream().map(this::resolve).collect(Collectors.toCollection(LinkedHashSet::new));
 
             layer.getStyles().clear();
             layer.getStyles().addAll(resolvedStyles);
@@ -286,8 +270,7 @@ public class ResolvingProxyResolver<T> implements UnaryOperator<T> {
         private Map<String, Info> resolvedById = new ConcurrentHashMap<>();
 
         public MemoizingProxyResolver(
-                @NonNull Supplier<Catalog> catalog,
-                BiConsumer<CatalogInfo, ResolvingProxy> onNotFound) {
+                @NonNull Supplier<Catalog> catalog, BiConsumer<CatalogInfo, ResolvingProxy> onNotFound) {
             super(catalog, onNotFound);
         }
 
@@ -306,8 +289,7 @@ public class ResolvingProxyResolver<T> implements UnaryOperator<T> {
 
         @SuppressWarnings("unchecked")
         private <I extends Info> I computeIfAbsent(final I orig) {
-            return (I)
-                    resolvedById.computeIfAbsent(orig.getId(), key -> super.doResolveProxy(orig));
+            return (I) resolvedById.computeIfAbsent(orig.getId(), key -> super.doResolveProxy(orig));
         }
     }
 }

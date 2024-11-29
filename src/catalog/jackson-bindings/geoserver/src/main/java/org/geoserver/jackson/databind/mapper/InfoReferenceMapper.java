@@ -4,9 +4,9 @@
  */
 package org.geoserver.jackson.databind.mapper;
 
+import java.util.Objects;
 import lombok.Generated;
 import lombok.NonNull;
-
 import org.geoserver.catalog.CoverageStoreInfo;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.FeatureTypeInfo;
@@ -30,8 +30,6 @@ import org.geoserver.jackson.databind.catalog.dto.InfoReference;
 import org.mapstruct.AnnotateWith;
 import org.mapstruct.Mapper;
 import org.mapstruct.Named;
-
-import java.util.Objects;
 
 @Mapper
 @AnnotateWith(value = Generated.class)
@@ -113,11 +111,9 @@ public abstract class InfoReferenceMapper {
         if (ClassMappings.STYLE.equals(type)) {
             StyleInfo s = (StyleInfo) info;
             MetadataMap metadata = s.getMetadata();
-            boolean isRemoteStyle =
-                    metadata != null
-                            && Boolean.valueOf(
-                                    metadata.getOrDefault(StyleInfoImpl.IS_REMOTE, "false")
-                                            .toString());
+            boolean isRemoteStyle = metadata != null
+                    && Boolean.valueOf(metadata.getOrDefault(StyleInfoImpl.IS_REMOTE, "false")
+                            .toString());
             if (isRemoteStyle) {
                 return null;
             }

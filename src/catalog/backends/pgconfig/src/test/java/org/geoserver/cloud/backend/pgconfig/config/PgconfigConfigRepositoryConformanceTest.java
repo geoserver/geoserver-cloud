@@ -26,7 +26,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @Testcontainers(disabledWithoutDocker = true)
 class PgconfigConfigRepositoryConformanceTest extends GeoServerConfigConformanceTest {
 
-    @Container static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();
+    @Container
+    static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();
 
     @Override
     @BeforeEach
@@ -65,12 +66,9 @@ class PgconfigConfigRepositoryConformanceTest extends GeoServerConfigConformance
         dupTypeAndWorkspace.setName("TEST-OWS");
         dupTypeAndWorkspace.setTitle("Service for WS1");
 
-        var ex =
-                assertThrows(
-                        IllegalArgumentException.class, () -> geoServer.add(dupTypeAndWorkspace));
+        var ex = assertThrows(IllegalArgumentException.class, () -> geoServer.add(dupTypeAndWorkspace));
 
         assertThat(ex.getMessage())
-                .contains(
-                        "service with name 'TEST-OWS' already exists in workspace 'TEST-WORKSPACE-1'");
+                .contains("service with name 'TEST-OWS' already exists in workspace 'TEST-WORKSPACE-1'");
     }
 }

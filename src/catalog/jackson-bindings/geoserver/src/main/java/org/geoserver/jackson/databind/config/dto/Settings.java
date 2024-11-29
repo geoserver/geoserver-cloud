@@ -5,14 +5,11 @@
 package org.geoserver.jackson.databind.config.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-
+import java.util.Locale;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
 import org.geoserver.config.SettingsInfo;
 import org.geoserver.jackson.databind.catalog.dto.MetadataMapDto;
-
-import java.util.Locale;
 
 /** DTO for {@link SettingsInfo} */
 @EqualsAndHashCode(callSuper = true)

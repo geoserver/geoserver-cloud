@@ -5,7 +5,6 @@
 package org.geoserver.cloud.event.remote.lifecycle;
 
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.cloud.config.catalog.events.CatalogApplicationEventPublisher;
 import org.geoserver.cloud.event.GeoServerEvent;
 import org.geoserver.cloud.event.lifecycle.ReloadEvent;

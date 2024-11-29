@@ -4,8 +4,9 @@
  */
 package org.geoserver.cloud.backend.pgconfig.catalog.repository;
 
+import java.util.Optional;
+import java.util.stream.Stream;
 import lombok.NonNull;
-
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.ResourceInfo;
@@ -15,9 +16,6 @@ import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.PropertyDiff;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-
-import java.util.Optional;
-import java.util.stream.Stream;
 
 /**
  * @since 1.4
@@ -31,8 +29,7 @@ public class PgconfigResourceRepository extends PgconfigCatalogInfoRepository<Re
     /**
      * @param template
      */
-    public PgconfigResourceRepository(
-            @NonNull JdbcTemplate template, @NonNull PgconfigLayerRepository layerrepo) {
+    public PgconfigResourceRepository(@NonNull JdbcTemplate template, @NonNull PgconfigLayerRepository layerrepo) {
         super(template);
         this.layerrepo = layerrepo;
     }
@@ -62,11 +59,10 @@ public class PgconfigResourceRepository extends PgconfigCatalogInfoRepository<Re
                     // update the layer's json name which will update the layerinfo.name computed
                     // field
                     li -> {
-                        Patch p =
-                                PropertyDiff.builder(li)
-                                        .with("name", patched.getName())
-                                        .build()
-                                        .toPatch();
+                        Patch p = PropertyDiff.builder(li)
+                                .with("name", patched.getName())
+                                .build()
+                                .toPatch();
                         layerrepo.update(li, p);
                     });
         }
@@ -103,8 +99,7 @@ public class PgconfigResourceRepository extends PgconfigCatalogInfoRepository<Re
     }
 
     @Override
-    public <T extends ResourceInfo> Stream<T> findAllByNamespace(
-            @NonNull NamespaceInfo ns, @NonNull Class<T> clazz) {
+    public <T extends ResourceInfo> Stream<T> findAllByNamespace(@NonNull NamespaceInfo ns, @NonNull Class<T> clazz) {
 
         String query =
                 """

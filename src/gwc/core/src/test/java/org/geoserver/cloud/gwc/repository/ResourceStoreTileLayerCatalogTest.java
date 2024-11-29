@@ -14,6 +14,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.io.FileUtils;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.gwc.layer.GWCGeoServerConfigurationProvider;
@@ -30,17 +40,6 @@ import org.junit.jupiter.api.io.TempDir;
 import org.springframework.web.context.WebApplicationContext;
 import org.xmlunit.assertj.XmlAssert;
 import org.xmlunit.builder.Input;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @since 1.0
@@ -60,8 +59,7 @@ class ResourceStoreTileLayerCatalogTest {
 
         WebApplicationContext context = mock(WebApplicationContext.class);
 
-        Map<String, XMLConfigurationProvider> configProviders =
-                Map.of("gs", new GWCGeoServerConfigurationProvider());
+        Map<String, XMLConfigurationProvider> configProviders = Map.of("gs", new GWCGeoServerConfigurationProvider());
 
         when(context.getBeansOfType(XMLConfigurationProvider.class)).thenReturn(configProviders);
         when(context.getBean("gs")).thenReturn(configProviders.get("gs"));
@@ -242,22 +240,21 @@ class ResourceStoreTileLayerCatalogTest {
         AtomicBoolean hasBeenModified = new AtomicBoolean(false);
         AtomicBoolean hasBeenDeleted = new AtomicBoolean(false);
 
-        catalog.addListener(
-                (layerId, type) -> {
-                    switch (type) {
-                        case CREATE:
-                            hasBeenCreated.set(true);
-                            break;
-                        case DELETE:
-                            hasBeenDeleted.set(true);
-                            break;
-                        case MODIFY:
-                            hasBeenModified.set(true);
-                            break;
-                        default:
-                            break;
-                    }
-                });
+        catalog.addListener((layerId, type) -> {
+            switch (type) {
+                case CREATE:
+                    hasBeenCreated.set(true);
+                    break;
+                case DELETE:
+                    hasBeenDeleted.set(true);
+                    break;
+                case MODIFY:
+                    hasBeenModified.set(true);
+                    break;
+                default:
+                    break;
+            }
+        });
 
         final GeoServerTileLayerInfo l = new GeoServerTileLayerInfoImpl();
         l.setId("l1");
@@ -318,8 +315,7 @@ class ResourceStoreTileLayerCatalogTest {
         catalog.save(original);
 
         String actual =
-                FileUtils.readFileToString(
-                        new File(baseDirectory, "gwc-layers/id1.xml"), StandardCharsets.UTF_8);
+                FileUtils.readFileToString(new File(baseDirectory, "gwc-layers/id1.xml"), StandardCharsets.UTF_8);
 
         String expected =
                 """

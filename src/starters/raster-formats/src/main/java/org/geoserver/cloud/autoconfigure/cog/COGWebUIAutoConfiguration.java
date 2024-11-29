@@ -16,14 +16,10 @@ import org.springframework.context.annotation.ImportResource;
 @ConditionalOnClass({GeoServerApplication.class, CogRasterEditPanel.class})
 @ImportResource(
         reader = FilteringXmlBeanDefinitionReader.class, //
-        locations = {
-            "jar:gs-cog-.*!/applicationContext.xml#name="
-                    + COGWebUIAutoConfiguration.INCLUDE_WEBUI_BEANS
-        })
+        locations = {"jar:gs-cog-.*!/applicationContext.xml#name=" + COGWebUIAutoConfiguration.INCLUDE_WEBUI_BEANS})
 public class COGWebUIAutoConfiguration {
 
-    static final String WEBUI_BEAN_NAMES =
-            "COGGeoTIFFExclusionFilter|CogGeotiffStorePanel|CogSettingsPanel";
+    static final String WEBUI_BEAN_NAMES = "COGGeoTIFFExclusionFilter|CogGeotiffStorePanel|CogSettingsPanel";
 
     static final String INCLUDE_WEBUI_BEANS = "^(" + WEBUI_BEAN_NAMES + ").*$";
 }

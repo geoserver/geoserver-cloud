@@ -4,14 +4,12 @@
  */
 package org.geoserver.cloud.autoconfigure.geotools;
 
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Setter;
-
 import org.geotools.http.AbstractHTTPClientFactory;
 import org.geotools.http.HTTPBehavior;
 import org.geotools.http.HTTPClient;
-
-import java.util.List;
 
 /** */
 public class SpringEnvironmentAwareGeoToolsHttpClientFactory extends AbstractHTTPClientFactory {

@@ -8,10 +8,10 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.google.common.annotations.VisibleForTesting;
-
+import java.util.Objects;
+import java.util.Optional;
 import lombok.Getter;
 import lombok.NonNull;
-
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.NamespaceInfo;
@@ -24,9 +24,6 @@ import org.geoserver.catalog.plugin.PropertyDiff;
 import org.geoserver.catalog.plugin.PropertyDiff.Change;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoModified;
-
-import java.util.Objects;
-import java.util.Optional;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("CatalogInfoModified")
@@ -63,12 +60,10 @@ public class CatalogInfoModified extends InfoModified {
     }
 
     @VisibleForTesting
-    public static CatalogInfoModified createLocal(
-            long updateSequence, @NonNull CatalogInfo modProxy) {
+    public static CatalogInfoModified createLocal(long updateSequence, @NonNull CatalogInfo modProxy) {
 
         ModificationProxy proxy =
-                Objects.requireNonNull(
-                        ModificationProxy.handler(modProxy), "Argument is not a ModificationProxy");
+                Objects.requireNonNull(ModificationProxy.handler(modProxy), "Argument is not a ModificationProxy");
         PropertyDiff diff = PropertyDiff.valueOf(proxy);
         Patch patch = diff.toPatch();
 
@@ -93,16 +88,11 @@ public class CatalogInfoModified extends InfoModified {
         return new CatalogInfoModified(updateSequence, id, prefixedName, oldName, type, patch);
     }
 
-    public static CatalogInfoModified createLocal(
-            long updateSequence, @NonNull CatalogPostModifyEvent event) {
+    public static CatalogInfoModified createLocal(long updateSequence, @NonNull CatalogPostModifyEvent event) {
 
         final CatalogInfo info = event.getSource();
-        PropertyDiff diff =
-                PropertyDiff.valueOf(
-                                event.getPropertyNames(),
-                                event.getOldValues(),
-                                event.getNewValues())
-                        .clean();
+        PropertyDiff diff = PropertyDiff.valueOf(event.getPropertyNames(), event.getOldValues(), event.getNewValues())
+                .clean();
         final Patch patch = diff.toPatch();
 
         if (!patch.isEmpty() && info instanceof Catalog) {

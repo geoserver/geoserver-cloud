@@ -4,16 +4,14 @@
  */
 package org.geoserver.cloud.autoconfigure.gwc.service;
 
+import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.cloud.gwc.config.core.GeoWebCacheConfigurationProperties;
 import org.geoserver.cloud.gwc.config.services.KMLConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Import;
-
-import javax.annotation.PostConstruct;
 
 /**
  * @since 1.0

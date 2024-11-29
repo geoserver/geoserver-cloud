@@ -6,8 +6,8 @@ package org.geoserver.cloud.event.remote.resourcepool;
 
 import static java.util.Optional.ofNullable;
 
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.ResourceInfo;
@@ -23,8 +23,6 @@ import org.geoserver.cloud.event.info.InfoEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-
-import java.util.Optional;
 
 /**
  * Cleans up cached {@link ResourcePool} entries upon remote {@link CatalogInfoAdded}s, {@link
@@ -58,18 +56,14 @@ public class RemoteEventResourcePoolProcessor {
     @Order(Ordered.HIGHEST_PRECEDENCE)
     public void onCatalogRemoteRemoveEvent(CatalogInfoRemoved event) {
         event.remote()
-                .ifPresentOrElse(
-                        this::evictFromResourcePool,
-                        () -> log.trace("Ignoring event from self: {}", event));
+                .ifPresentOrElse(this::evictFromResourcePool, () -> log.trace("Ignoring event from self: {}", event));
     }
 
     @EventListener(CatalogInfoModified.class)
     @Order(Ordered.HIGHEST_PRECEDENCE)
     public void onCatalogRemoteModifyEvent(CatalogInfoModified event) {
         event.remote()
-                .ifPresentOrElse(
-                        this::evictFromResourcePool,
-                        () -> log.trace("Ignoring event from self: {}", event));
+                .ifPresentOrElse(this::evictFromResourcePool, () -> log.trace("Ignoring event from self: {}", event));
     }
 
     private void evictFromResourcePool(InfoEvent event) {
@@ -99,10 +93,6 @@ public class RemoteEventResourcePoolProcessor {
                     CacheClearingListener cleaner = new CacheClearingListener(resourcePool);
                     object.accept(cleaner);
                 }, //
-                () ->
-                        log.debug(
-                                "{}({}) not found, unable to clean up its ResourcePool cache entry",
-                                infoType,
-                                id));
+                () -> log.debug("{}({}) not found, unable to clean up its ResourcePool cache entry", infoType, id));
     }
 }

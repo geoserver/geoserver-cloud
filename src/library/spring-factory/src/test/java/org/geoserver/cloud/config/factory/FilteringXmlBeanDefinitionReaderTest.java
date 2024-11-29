@@ -4,17 +4,16 @@
  */
 package org.geoserver.cloud.config.factory;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 
 class FilteringXmlBeanDefinitionReaderTest {
 
@@ -47,12 +46,7 @@ class FilteringXmlBeanDefinitionReaderTest {
 
     @Test
     void noFilterIncludesdAll() {
-        verify(
-                baseResource,
-                "filterFactory",
-                "geoServer",
-                "memoryLockProvider",
-                "nullLockProvider");
+        verify(baseResource, "filterFactory", "geoServer", "memoryLockProvider", "nullLockProvider");
     }
 
     @Test
@@ -69,24 +63,21 @@ class FilteringXmlBeanDefinitionReaderTest {
 
     @Test
     void excludeByName() {
-        String location =
-                "%s#name=^(?!nullLockProvider|memoryLockProvider).*$".formatted(baseResource);
+        String location = "%s#name=^(?!nullLockProvider|memoryLockProvider).*$".formatted(baseResource);
         verify(location, "filterFactory", "geoServer");
     }
 
     @Test
     void excludeAllExplicitlyByName() {
         String location =
-                "%s#name=^(?!nullLockProvider|memoryLockProvider|filterFactory|geoServer)$"
-                        .formatted(baseResource);
+                "%s#name=^(?!nullLockProvider|memoryLockProvider|filterFactory|geoServer)$".formatted(baseResource);
         verify(location);
     }
 
     @Test
     void includeAllExplicitly() {
         String location =
-                "%s#name=^(nullLockProvider|memoryLockProvider|filterFactory|geoServer)$"
-                        .formatted(baseResource);
+                "%s#name=^(nullLockProvider|memoryLockProvider|filterFactory|geoServer)$".formatted(baseResource);
         verify(location, "filterFactory", "geoServer", "memoryLockProvider", "nullLockProvider");
     }
 
@@ -109,18 +100,15 @@ class FilteringXmlBeanDefinitionReaderTest {
     }
 
     private void verify(String location, String... expectedBeanNames) {
-        Set<String> expected =
-                expectedBeanNames == null
-                        ? Collections.emptySet()
-                        : Arrays.stream(expectedBeanNames)
-                                .collect(Collectors.toCollection(TreeSet::new));
+        Set<String> expected = expectedBeanNames == null
+                ? Collections.emptySet()
+                : Arrays.stream(expectedBeanNames).collect(Collectors.toCollection(TreeSet::new));
         Set<String> loadedNames = loadBeanDefinitionsAndReturnNames(location);
         Assertions.assertEquals(expected, loadedNames, "loaded beans don't match expected");
     }
 
     private SortedSet<String> loadBeanDefinitionsAndReturnNames(String location) {
         reader.loadBeanDefinitions(location);
-        return Arrays.stream(registry.getBeanDefinitionNames())
-                .collect(Collectors.toCollection(TreeSet::new));
+        return Arrays.stream(registry.getBeanDefinitionNames()).collect(Collectors.toCollection(TreeSet::new));
     }
 }

@@ -4,8 +4,9 @@
  */
 package org.geoserver.cloud.autoconfigure.authzn;
 
+import java.util.Optional;
+import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.cloud.autoconfigure.security.GeoServerSecurityAutoConfiguration;
 import org.geoserver.cloud.security.gateway.sharedauth.ClientConfiguration;
 import org.geoserver.cloud.security.gateway.sharedauth.DisabledConfiguration;
@@ -23,10 +24,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
-
-import java.util.Optional;
-
-import javax.annotation.PostConstruct;
 
 /**
  * {@link AutoConfiguration @AutoConfiguration} to enable sharing the webui form-based
@@ -98,8 +95,7 @@ public class GatewaySharedAuthenticationAutoConfiguration {
             name = GatewaySharedAuthConfigProperties.AUTO_PROP,
             havingValue = "true",
             matchIfMissing = false)
-    GatewaySharedAuthenticationInitializer gatewaySharedAuthenticationInitializer(
-            GeoServerSecurityManager secManager) {
+    GatewaySharedAuthenticationInitializer gatewaySharedAuthenticationInitializer(GeoServerSecurityManager secManager) {
         return new GatewaySharedAuthenticationInitializer(secManager);
     }
 

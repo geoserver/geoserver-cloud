@@ -4,13 +4,11 @@
  */
 package org.geoserver.cloud.backend.pgconfig.catalog.filter;
 
+import java.util.Set;
 import lombok.NonNull;
-
 import org.geotools.api.filter.Filter;
 import org.geotools.api.filter.expression.PropertyName;
 import org.geotools.filter.visitor.PostPreProcessFilterSplittingVisitor;
-
-import java.util.Set;
 
 /**
  * Splits a {@link Filter} into supported and unsupported filters for SQL encoding and
@@ -27,8 +25,7 @@ class PgconfigCatalogFilterSplitter extends PostPreProcessFilterSplittingVisitor
         this.supportedPropertyNames = supportedPropertyNames;
     }
 
-    public static PgconfigCatalogFilterSplitter split(
-            Filter filter, Set<String> supportedPropertyNames) {
+    public static PgconfigCatalogFilterSplitter split(Filter filter, Set<String> supportedPropertyNames) {
         var splitter = new PgconfigCatalogFilterSplitter(supportedPropertyNames);
         filter.accept(splitter, null);
         return splitter;

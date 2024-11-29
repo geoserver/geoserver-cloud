@@ -19,16 +19,11 @@ import org.springframework.boot.test.context.SpringBootTest;
  */
 @SpringBootTest(
         classes = AutoConfigurationTestConfiguration.class,
-        properties = {
-            "geoserver.backend.jdbcconfig.enabled=true",
-            "geoserver.backend.jdbcconfig.web.enabled=false"
-        })
+        properties = {"geoserver.backend.jdbcconfig.enabled=true", "geoserver.backend.jdbcconfig.web.enabled=false"})
 class JDBCConfigAutoConfigurationWebDisabledTest extends JDBCConfigTest {
 
     @Test
     void testJDBCConfigStatusProvider() {
-        assertThrows(
-                NoSuchBeanDefinitionException.class,
-                () -> context.getBean(JDBCConfigStatusProvider.class));
+        assertThrows(NoSuchBeanDefinitionException.class, () -> context.getBean(JDBCConfigStatusProvider.class));
     }
 }

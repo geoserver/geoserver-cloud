@@ -20,6 +20,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogPlugin;
@@ -58,11 +62,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
-
-import java.time.Duration;
-import java.util.Arrays;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 @SpringBootTest(classes = GeoServerBackendCacheConfiguration.class)
 @EnableAutoConfiguration(exclude = LocalCatalogEventsAutoConfiguration.class)

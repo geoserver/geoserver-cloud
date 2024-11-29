@@ -5,7 +5,6 @@
 package org.geoserver.jackson.databind.config.dto.mapper;
 
 import lombok.Generated;
-
 import org.geoserver.jackson.databind.catalog.mapper.GeoServerValueObjectsMapper;
 import org.geoserver.jackson.databind.config.dto.Service;
 import org.geoserver.jackson.databind.config.dto.Service.WpsService.ProcessGroup;

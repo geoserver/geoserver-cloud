@@ -34,9 +34,7 @@ abstract class WmsApplicationTest {
         expectBean("webMapServiceController", WMSController.class);
         expectBean("virtualServiceVerifier", VirtualServiceVerifier.class);
         expectBean("getMapReflectorController", GetMapReflectorController.class);
-        expectBean(
-                "wms_1_1_1_GetCapabilitiesResponse",
-                org.geoserver.wms.capabilities.GetCapabilitiesResponse.class);
+        expectBean("wms_1_1_1_GetCapabilitiesResponse", org.geoserver.wms.capabilities.GetCapabilitiesResponse.class);
     }
 
     @Test

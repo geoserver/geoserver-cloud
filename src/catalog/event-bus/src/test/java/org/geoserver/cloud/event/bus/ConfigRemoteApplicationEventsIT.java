@@ -8,6 +8,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.util.Locale;
+import java.util.Map;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.cloud.event.config.GeoServerInfoModified;
@@ -34,9 +36,6 @@ import org.geoserver.wps.WPSInfo;
 import org.geoserver.wps.WPSInfoImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.Locale;
-import java.util.Map;
 
 class ConfigRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
 
@@ -121,22 +120,22 @@ class ConfigRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
         coverageInfo.setCorePoolSize(10);
         coverageInfo.setQueueType(QueueType.UNBOUNDED);
 
-        Patch patch =
-                testRemoteModifyEvent(
-                        global,
-                        gs -> {
-                            gs.setAdminUsername("administrador");
-                            gs.setAdminPassword("secret");
-                            gs.setCoverageAccess(coverageInfo);
-                            gs.getSettings().setCharset("UTF-16");
-                            gs.getSettings().setProxyBaseUrl("http://test2.com");
-                            gs.getSettings().getContact().setContactEmail("john.doe@test.com");
-                            gs.getSettings().getContact().setAddressCity("Buenos Aires");
-                        },
-                        geoserver::save,
-                        GeoServerInfoModified.class);
+        Patch patch = testRemoteModifyEvent(
+                global,
+                gs -> {
+                    gs.setAdminUsername("administrador");
+                    gs.setAdminPassword("secret");
+                    gs.setCoverageAccess(coverageInfo);
+                    gs.getSettings().setCharset("UTF-16");
+                    gs.getSettings().setProxyBaseUrl("http://test2.com");
+                    gs.getSettings().getContact().setContactEmail("john.doe@test.com");
+                    gs.getSettings().getContact().setAddressCity("Buenos Aires");
+                },
+                geoserver::save,
+                GeoServerInfoModified.class);
 
-        SettingsInfo settings = (SettingsInfo) patch.get("settings").orElseThrow().getValue();
+        SettingsInfo settings =
+                (SettingsInfo) patch.get("settings").orElseThrow().getValue();
         assertThat(settings.getContact()).isNotNull();
         assertThat(settings.getCharset()).isEqualTo("UTF-16");
         assertThat(settings.getProxyBaseUrl()).isEqualTo("http://test2.com");
@@ -160,17 +159,17 @@ class ConfigRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
         geoserver.setGlobal(global);
 
         // patch parsed from remote event
-        Patch patch =
-                testConfigInfoModifyEvent(
-                        global,
-                        g -> {
-                            g.getSettings().setCharset("ISO-8869-1");
-                            g.getSettings().setProxyBaseUrl("http://test.com");
-                            g.getSettings().getContact().setContactEmail("john@doe.com");
-                            g.getSettings().getContact().setAddressCity("Rosario");
-                        },
-                        geoserver::save);
-        SettingsInfo newSettings = (SettingsInfo) patch.get("settings").orElseThrow().getValue();
+        Patch patch = testConfigInfoModifyEvent(
+                global,
+                g -> {
+                    g.getSettings().setCharset("ISO-8869-1");
+                    g.getSettings().setProxyBaseUrl("http://test.com");
+                    g.getSettings().getContact().setContactEmail("john@doe.com");
+                    g.getSettings().getContact().setAddressCity("Rosario");
+                },
+                geoserver::save);
+        SettingsInfo newSettings =
+                (SettingsInfo) patch.get("settings").orElseThrow().getValue();
         assertThat(newSettings.getContact()).isNotNull();
         assertThat(newSettings.getContact().getContactEmail()).isEqualTo("john@doe.com");
         assertThat(newSettings.getContact().getAddressCity()).isEqualTo("Rosario");
@@ -215,8 +214,7 @@ class ConfigRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
         settings.setWorkspace(testData.workspaceC);
         geoserver.add(settings);
 
-        SettingsRemoved event =
-                testRemoteRemoveEvent(settings, geoserver::remove, SettingsRemoved.class);
+        SettingsRemoved event = testRemoteRemoveEvent(settings, geoserver::remove, SettingsRemoved.class);
         assertEquals(testData.workspaceC.getId(), event.getWorkspaceId());
     }
 
@@ -227,8 +225,7 @@ class ConfigRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
         geoserver.add(service);
 
         eventsCaptor.clear().start();
-        ServiceRemoved event =
-                testRemoteRemoveEvent(service, geoserver::remove, ServiceRemoved.class);
+        ServiceRemoved event = testRemoteRemoveEvent(service, geoserver::remove, ServiceRemoved.class);
         assertThat(event.getWorkspaceId()).isNull();
     }
 
@@ -240,8 +237,7 @@ class ConfigRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
         geoserver.add(service);
 
         eventsCaptor.clear().start();
-        ServiceRemoved event =
-                testRemoteRemoveEvent(service, geoserver::remove, ServiceRemoved.class);
+        ServiceRemoved event = testRemoteRemoveEvent(service, geoserver::remove, ServiceRemoved.class);
 
         assertThat(event.getWorkspaceId()).isEqualTo(testData.workspaceC.getId());
     }
@@ -255,11 +251,8 @@ class ConfigRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
         cogSettings.setRangeReaderSettings(RangeReaderType.S3);
         cogSettings.setUseCachingStream(true);
 
-        Patch patch =
-                testConfigInfoModifyEventNoEquals(
-                        global,
-                        gs -> gs.getMetadata().put("cogSettings", cogSettings),
-                        geoserver::save);
+        Patch patch = testConfigInfoModifyEventNoEquals(
+                global, gs -> gs.getMetadata().put("cogSettings", cogSettings), geoserver::save);
 
         Map<?, ?> md = (Map<?, ?>) patch.get("metadata").orElseThrow().getValue();
         CogSettings settings = (CogSettings) md.get("cogSettings");

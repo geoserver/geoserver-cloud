@@ -8,13 +8,16 @@ import static org.geoserver.cloud.event.info.ConfigInfoType.RESOURCE;
 import static org.geoserver.cloud.event.info.ConfigInfoType.STORE;
 
 import com.google.common.annotations.VisibleForTesting;
-
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.Callable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.DataStoreInfo;
@@ -30,13 +33,6 @@ import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoEvent;
 import org.springframework.cache.Cache;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.Callable;
-
-import javax.annotation.ParametersAreNonnullByDefault;
 
 /**
  * @since 1.7
@@ -107,8 +103,7 @@ class CachingCatalogFacadeContainmentSupport {
         return evictInternal(id, prefixedName, type, true);
     }
 
-    private boolean evictInternal(
-            String id, String prefixedName, ConfigInfoType type, boolean doLog) {
+    private boolean evictInternal(String id, String prefixedName, ConfigInfoType type, boolean doLog) {
         boolean evicted = false;
         if (type.isA(WorkspaceInfo.class)) {
             evictDefaultDataStore(id, prefixedName);
@@ -124,8 +119,7 @@ class CachingCatalogFacadeContainmentSupport {
         evicted |= evict(idKey);
         evicted |= evict(nameKey);
         if (evicted && doLog)
-            log.debug(
-                    "evicted {}[id: {}, name: {}]", type.type().getSimpleName(), id, prefixedName);
+            log.debug("evicted {}[id: {}, name: {}]", type.type().getSimpleName(), id, prefixedName);
         // regardless of the object being evicted or not, cascade evict any entry referencing it
         referenceCleaner.cascadeEvict(idKey);
         return evicted;
@@ -171,8 +165,7 @@ class CachingCatalogFacadeContainmentSupport {
         return value;
     }
 
-    public List<LayerInfo> getLayersByResource(
-            String resourceInfoId, Callable<List<LayerInfo>> loader) {
+    public List<LayerInfo> getLayersByResource(String resourceInfoId, Callable<List<LayerInfo>> loader) {
         InfoIdKey key = generateLayersByResourceKey(resourceInfoId);
         return get(key, loader);
     }
@@ -209,8 +202,7 @@ class CachingCatalogFacadeContainmentSupport {
         }
     }
 
-    public DataStoreInfo getDefaultDataStore(
-            WorkspaceInfo workspace, Callable<DataStoreInfo> loader) {
+    public DataStoreInfo getDefaultDataStore(WorkspaceInfo workspace, Callable<DataStoreInfo> loader) {
         return cache.get(generateDefaultDataStoreKey(workspace.getId()), loader);
     }
 

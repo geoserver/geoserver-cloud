@@ -20,41 +20,25 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 /** */
 class GeoServerBackendCacheConfigurationTest {
 
-    private final ApplicationContextRunner contextRunner =
-            new ApplicationContextRunner()
-                    .withAllowBeanDefinitionOverriding(true)
-                    .withBean("rawCatalog", CatalogPlugin.class)
-                    .withBean("geoServer", GeoServerImpl.class)
-                    .withBean(
-                            "catalogFacade",
-                            ExtendedCatalogFacade.class,
-                            () -> mock(ExtendedCatalogFacade.class))
-                    .withBean(
-                            "geoserverFacade",
-                            GeoServerFacade.class,
-                            () -> mock(GeoServerFacade.class))
-                    .withConfiguration(
-                            UserConfigurations.of(GeoServerBackendCacheConfiguration.class))
-                    .withConfiguration(AutoConfigurations.of(CacheAutoConfiguration.class));
+    private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+            .withAllowBeanDefinitionOverriding(true)
+            .withBean("rawCatalog", CatalogPlugin.class)
+            .withBean("geoServer", GeoServerImpl.class)
+            .withBean("catalogFacade", ExtendedCatalogFacade.class, () -> mock(ExtendedCatalogFacade.class))
+            .withBean("geoserverFacade", GeoServerFacade.class, () -> mock(GeoServerFacade.class))
+            .withConfiguration(UserConfigurations.of(GeoServerBackendCacheConfiguration.class))
+            .withConfiguration(AutoConfigurations.of(CacheAutoConfiguration.class));
 
     @Test
     void testCachingCatalogFacade() {
-        contextRunner.run(
-                context ->
-                        assertThat(
-                                        context.isTypeMatch(
-                                                "cachingCatalogFacade", CachingCatalogFacade.class))
-                                .isTrue());
+        contextRunner.run(context -> assertThat(context.isTypeMatch("cachingCatalogFacade", CachingCatalogFacade.class))
+                .isTrue());
     }
 
     @Test
     void testCachingGeoServerFacade() {
         contextRunner.run(
-                context ->
-                        assertThat(
-                                        context.isTypeMatch(
-                                                "cachingGeoServerFacade",
-                                                CachingGeoServerFacade.class))
-                                .isTrue());
+                context -> assertThat(context.isTypeMatch("cachingGeoServerFacade", CachingGeoServerFacade.class))
+                        .isTrue());
     }
 }
