@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -63,7 +64,7 @@ import javax.annotation.PostConstruct;
  * @see InfoEvent LocalInfoEvent's class hierarchy
  */
 @RequiredArgsConstructor
-class CatalogApplicationEventPublisher {
+public class CatalogApplicationEventPublisher {
 
     private final @NonNull Consumer<? super InfoEvent> eventPublisher;
     private final @NonNull Catalog catalog;
@@ -73,6 +74,8 @@ class CatalogApplicationEventPublisher {
     private LocalCatalogEventPublisher publishingCatalogListener;
     private LocalConfigEventPublisher publishingConfigListener;
 
+    private static final AtomicBoolean ENABLED = new AtomicBoolean(true);
+
     public @PostConstruct void initialize() {
         publishingCatalogListener = new LocalCatalogEventPublisher(this);
         publishingConfigListener = new LocalConfigEventPublisher(this);
@@ -81,13 +84,31 @@ class CatalogApplicationEventPublisher {
         geoServer.addListener(publishingConfigListener);
     }
 
+    /**
+     * Disables event publishing. Make sure to call enable() once done forcing not to publish events
+     */
+    public static void disable() {
+        ENABLED.set(false);
+    }
+
+    /** Re-enables event publishing */
+    public static void enable() {
+        ENABLED.set(true);
+    }
+
+    public static boolean enabled() {
+        return ENABLED.get();
+    }
+
     void publish(@NonNull InfoEvent event) {
-        eventPublisher.accept(event);
+        if (enabled()) {
+            eventPublisher.accept(event);
+        }
     }
 
     @NonNull
     Long incrementSequence() {
-        return this.updateSequenceIncrementor.get();
+        return enabled() ? this.updateSequenceIncrementor.get() : -1L;
     }
 
     @RequiredArgsConstructor

@@ -15,6 +15,7 @@ import lombok.Setter;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.Info;
 import org.geoserver.cloud.event.info.ConfigInfoType;
+import org.geoserver.cloud.event.lifecycle.LifecycleEvent;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.LoggingInfo;
 import org.springframework.core.style.ToStringCreator;
@@ -23,7 +24,10 @@ import java.io.Serializable;
 import java.util.Optional;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
-@JsonSubTypes({@JsonSubTypes.Type(value = UpdateSequenceEvent.class)})
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = UpdateSequenceEvent.class),
+    @JsonSubTypes.Type(value = LifecycleEvent.class)
+})
 @SuppressWarnings("serial")
 public abstract class GeoServerEvent implements Serializable {
 

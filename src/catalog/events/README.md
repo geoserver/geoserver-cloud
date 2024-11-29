@@ -26,6 +26,9 @@ dependency.
 classDiagram
     direction LR
     GeoServerEvent <|-- UpdateSequenceEvent
+    GeoServerEvent <|-- LifecycleEvent
+    LifecycleEvent <|-- ReloadEvent
+    LifecycleEvent <|-- ResetEvent
     UpdateSequenceEvent <|-- InfoEvent
     UpdateSequenceEvent <|-- SecurityConfigChanged
     InfoEvent <|-- InfoAdded
@@ -57,6 +60,13 @@ classDiagram
         long timestamp
         String author
         String id
+    }
+    class LifecycleEvent{
+        <<abstract>>
+    }
+    class ReloadEvent{
+    }
+    class ResetEvent{
     }
     class UpdateSequenceEvent{
         Long updateSequence

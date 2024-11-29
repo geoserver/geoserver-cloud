@@ -6,9 +6,6 @@ package org.geoserver.cloud.config.catalog.events;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import lombok.NonNull;
 
@@ -21,26 +18,20 @@ import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.Patch.Property;
 import org.geoserver.catalog.plugin.PropertyDiff;
+import org.geoserver.cloud.event.GeoServerEvent;
 import org.geoserver.cloud.event.catalog.CatalogInfoAdded;
 import org.geoserver.cloud.event.catalog.CatalogInfoModified;
 import org.geoserver.cloud.event.catalog.CatalogInfoRemoved;
 import org.geoserver.cloud.event.config.ConfigInfoAdded;
 import org.geoserver.cloud.event.config.ConfigInfoModified;
 import org.geoserver.cloud.event.config.ServiceRemoved;
-import org.geoserver.cloud.event.info.ConfigInfoType;
-import org.geoserver.cloud.event.info.InfoAdded;
-import org.geoserver.cloud.event.info.InfoEvent;
-import org.geoserver.cloud.event.info.InfoModified;
-import org.geoserver.cloud.event.info.InfoRemoved;
+import org.geoserver.cloud.event.info.*;
+import org.geoserver.cloud.event.lifecycle.LifecycleEvent;
+import org.geoserver.cloud.event.lifecycle.ReloadEvent;
+import org.geoserver.cloud.event.lifecycle.ResetEvent;
 import org.geoserver.cloud.test.ApplicationEventCapturingListener;
-import org.geoserver.config.ConfigurationListener;
-import org.geoserver.config.CoverageAccessInfo;
+import org.geoserver.config.*;
 import org.geoserver.config.CoverageAccessInfo.QueueType;
-import org.geoserver.config.GeoServer;
-import org.geoserver.config.GeoServerInfo;
-import org.geoserver.config.LoggingInfo;
-import org.geoserver.config.ServiceInfo;
-import org.geoserver.config.SettingsInfo;
 import org.geoserver.config.impl.CoverageAccessInfoImpl;
 import org.geoserver.config.impl.SettingsInfoImpl;
 import org.geoserver.wms.WMSInfoImpl;
@@ -71,7 +62,7 @@ class CatalogApplicationEventsConfigurationTest {
     private CatalogTestData testData;
 
     public @BeforeEach void before() {
-        listener.setCaptureEventsOf(InfoEvent.class);
+        listener.setCaptureEventsOf(GeoServerEvent.class);
         catalog.dispose();
         listener.clear();
         testData = CatalogTestData.empty(() -> catalog, () -> geoserver).initialize();
@@ -93,6 +84,41 @@ class CatalogApplicationEventsConfigurationTest {
                                                         .LocalCatalogEventPublisher)
                         .findFirst();
         assertTrue(publisherListener.isPresent());
+    }
+
+    @Test
+    void testGSLifeCycleDispatchOnReset() {
+        geoserver.reset();
+
+        // Check that there is no other event being triggered, we expect a single one.
+        List<LifecycleEvent> allEvents = listener.allOf(LifecycleEvent.class);
+        assertEquals(1, allEvents.size());
+
+        // And we expect it to be a (local) ResetEvent.
+        ResetEvent resetEvent = listener.expectOne(ResetEvent.class);
+        assertTrue(resetEvent.isLocal());
+    }
+
+    @Test
+    void testGSLifeCycleIgnoreOnDispose() {
+        geoserver.dispose();
+
+        // We don't expect any event on disposal.
+        List<LifecycleEvent> allEvents = listener.allOf(LifecycleEvent.class);
+        assertEquals(0, allEvents.size());
+    }
+
+    @Test
+    void testGSLifeCycleDispatchOnReload() throws Exception {
+        geoserver.reload();
+
+        // Check that there is no other event being triggered, we expect two ones.
+        List<LifecycleEvent> allEvents = listener.allOf(LifecycleEvent.class);
+        assertEquals(1, allEvents.size());
+
+        // And we expect them to be a (local) ResetEvent and a (local) ReloadEvent.
+        ReloadEvent reloadEvent = listener.expectOne(ReloadEvent.class);
+        assertTrue(reloadEvent.isLocal());
     }
 
     @Test

@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.event.GeoServerEvent;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoEvent;
+import org.geoserver.cloud.event.lifecycle.LifecycleEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -38,7 +39,7 @@ public class BusEventCollector {
     private @Value("${spring.cloud.bus.id}") String busId;
     private @Autowired RemoteGeoServerEventBridge bridge;
 
-    private @NonNull Class<? extends InfoEvent> eventType = InfoEvent.class;
+    private @NonNull Class<? extends GeoServerEvent> eventType = GeoServerEvent.class;
 
     private volatile boolean capturing = false;
 
@@ -66,6 +67,10 @@ public class BusEventCollector {
         this.eventType = type;
     }
 
+    public void captureLifecycle(@NonNull Class<? extends LifecycleEvent> type) {
+        this.eventType = type;
+    }
+
     public <T extends InfoEvent> RemoteGeoServerEvent expectOne(Class<T> payloadType) {
 
         return expectOne(payloadType, x -> true);
@@ -80,7 +85,7 @@ public class BusEventCollector {
             Class<T> payloadType, Predicate<T> filter) {
 
         List<RemoteGeoServerEvent> matches =
-                await().atMost(Duration.ofSeconds(500)) //
+                await().atMost(Duration.ofSeconds(10)) //
                         .until(() -> allOf(payloadType, filter), not(List::isEmpty));
 
         Supplier<String> message =
@@ -92,7 +97,22 @@ public class BusEventCollector {
         return matches.get(0);
     }
 
-    public <T extends InfoEvent> List<RemoteGeoServerEvent> allOf(
+    public <T extends LifecycleEvent> RemoteGeoServerEvent expectOneLifecycleEvent(
+            Class<T> payloadType) {
+
+        List<RemoteGeoServerEvent> matches =
+                await().atMost(Duration.ofSeconds(10)) //
+                        .until(
+                                () -> allOfLifecycle(payloadType, filter -> true),
+                                not(List::isEmpty));
+
+        assertThat(matches.size()).isOne();
+
+        //noinspection OptionalGetWithoutIsPresent
+        return matches.stream().findFirst().get();
+    }
+
+    public <T extends GeoServerEvent> List<RemoteGeoServerEvent> allOf(
             Class<T> payloadEventType, Predicate<T> eventFilter) {
 
         return capturedEvents(payloadEventType)
@@ -102,15 +122,30 @@ public class BusEventCollector {
                 .toList();
     }
 
-    public <T extends InfoEvent> List<RemoteGeoServerEvent> allOf(Class<T> payloadType) {
+    public <T extends LifecycleEvent> List<RemoteGeoServerEvent> allOfLifecycle(
+            Class<T> payloadEventType, Predicate<T> eventFilter) {
+
+        return capturedLifecycleEvents(payloadEventType)
+                .filter(
+                        remoteEvent ->
+                                eventFilter.test(payloadEventType.cast(remoteEvent.getEvent())))
+                .toList();
+    }
+
+    public <T extends GeoServerEvent> List<RemoteGeoServerEvent> allOf(Class<T> payloadType) {
         return capturedEvents(payloadType).toList();
     }
 
-    public <T extends InfoEvent> Optional<RemoteGeoServerEvent> first(Class<T> payloadType) {
+    public <T extends GeoServerEvent> Optional<RemoteGeoServerEvent> first(Class<T> payloadType) {
         return capturedEvents(payloadType).findFirst();
     }
 
-    private <T extends InfoEvent> Stream<RemoteGeoServerEvent> capturedEvents(
+    private <T extends GeoServerEvent> Stream<RemoteGeoServerEvent> capturedEvents(
+            Class<T> payloadType) {
+        return capturedEvents().filter(remote -> payloadType.isInstance(remote.getEvent()));
+    }
+
+    private <T extends LifecycleEvent> Stream<RemoteGeoServerEvent> capturedLifecycleEvents(
             Class<T> payloadType) {
         return capturedEvents().filter(remote -> payloadType.isInstance(remote.getEvent()));
     }
