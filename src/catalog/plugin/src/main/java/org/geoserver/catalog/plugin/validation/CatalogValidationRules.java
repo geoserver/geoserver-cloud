@@ -4,15 +4,14 @@
  */
 package org.geoserver.catalog.plugin.validation;
 
+import java.util.List;
+import java.util.Objects;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.CatalogValidator;
 import org.geoserver.catalog.ValidationResult;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.platform.GeoServerExtensions;
-
-import java.util.List;
-import java.util.Objects;
 
 /**
  * Support class implementing the {@link Catalog} state validation rules for {@link CatalogInfo}
@@ -74,11 +73,10 @@ public class CatalogValidationRules {
             return new ValidationResult(null);
         }
 
-        List<RuntimeException> errors =
-                getValidators().stream()
-                        .map(validator -> validate(info, validator, isNew))
-                        .filter(Objects::nonNull)
-                        .toList();
+        List<RuntimeException> errors = getValidators().stream()
+                .map(validator -> validate(info, validator, isNew))
+                .filter(Objects::nonNull)
+                .toList();
 
         return new ValidationResult(errors);
     }

@@ -7,9 +7,7 @@ package org.geotools.jackson.databind.filter.dto;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import lombok.extern.slf4j.Slf4j;
-
 import org.geotools.jackson.databind.filter.FilterRoundtripTest;
 import org.geotools.jackson.databind.util.ObjectMapperUtil;
 import org.junit.jupiter.api.BeforeAll;

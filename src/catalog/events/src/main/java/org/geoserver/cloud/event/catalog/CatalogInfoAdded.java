@@ -6,14 +6,11 @@ package org.geoserver.cloud.event.catalog;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-
+import java.util.Optional;
 import lombok.NonNull;
-
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.event.CatalogAddEvent;
 import org.geoserver.cloud.event.info.InfoAdded;
-
-import java.util.Optional;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonTypeName("CatalogInfoAdded")
@@ -32,8 +29,7 @@ public class CatalogInfoAdded extends InfoAdded<CatalogInfo> {
         return super.remote();
     }
 
-    public static CatalogInfoAdded createLocal(
-            long updateSequence, @NonNull CatalogAddEvent event) {
+    public static CatalogInfoAdded createLocal(long updateSequence, @NonNull CatalogAddEvent event) {
         return createLocal(updateSequence, event.getSource());
     }
 

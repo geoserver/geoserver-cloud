@@ -29,10 +29,7 @@ import org.springframework.web.context.request.RequestContextListener;
  */
 @SpringBootTest(
         classes = TestConfiguration.class,
-        properties = {
-            "reactive.feign.loadbalancer.enabled=false",
-            "geoserver.servlet.enabled=false"
-        })
+        properties = {"reactive.feign.loadbalancer.enabled=false", "geoserver.servlet.enabled=false"})
 @EnableAutoConfiguration(exclude = SecurityAutoConfiguration.class)
 @ActiveProfiles("test")
 class ServletContextDisabledSmokeTest {
@@ -41,43 +38,30 @@ class ServletContextDisabledSmokeTest {
 
     @Test
     void contextLoaderListener() {
-        assertThrows(
-                NoSuchBeanDefinitionException.class,
-                () -> context.getBean(GeoServerServletInitializer.class));
+        assertThrows(NoSuchBeanDefinitionException.class, () -> context.getBean(GeoServerServletInitializer.class));
     }
 
     public void requestContextListener() {
-        assertThrows(
-                NoSuchBeanDefinitionException.class,
-                () -> context.getBean(RequestContextListener.class));
+        assertThrows(NoSuchBeanDefinitionException.class, () -> context.getBean(RequestContextListener.class));
     }
 
     public void flushSafeFilter() {
-        assertThrows(
-                NoSuchBeanDefinitionException.class, () -> context.getBean(FlushSafeFilter.class));
+        assertThrows(NoSuchBeanDefinitionException.class, () -> context.getBean(FlushSafeFilter.class));
     }
 
     public void sessionDebugFilter() {
-        assertThrows(
-                NoSuchBeanDefinitionException.class,
-                () -> context.getBean(SessionDebugFilter.class));
+        assertThrows(NoSuchBeanDefinitionException.class, () -> context.getBean(SessionDebugFilter.class));
     }
 
     public void advancedDispatchFilter() {
-        assertThrows(
-                NoSuchBeanDefinitionException.class,
-                () -> context.getBean(AdvancedDispatchFilter.class));
+        assertThrows(NoSuchBeanDefinitionException.class, () -> context.getBean(AdvancedDispatchFilter.class));
     }
 
     public void springDelegatingFilter() {
-        assertThrows(
-                NoSuchBeanDefinitionException.class,
-                () -> context.getBean(SpringDelegatingFilter.class));
+        assertThrows(NoSuchBeanDefinitionException.class, () -> context.getBean(SpringDelegatingFilter.class));
     }
 
     public void threadLocalsCleanupFilter() {
-        assertThrows(
-                NoSuchBeanDefinitionException.class,
-                () -> context.getBean(ThreadLocalsCleanupFilter.class));
+        assertThrows(NoSuchBeanDefinitionException.class, () -> context.getBean(ThreadLocalsCleanupFilter.class));
     }
 }

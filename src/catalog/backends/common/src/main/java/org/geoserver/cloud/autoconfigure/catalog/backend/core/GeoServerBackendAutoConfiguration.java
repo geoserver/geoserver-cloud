@@ -22,7 +22,6 @@ import org.springframework.context.annotation.Import;
  *
  * @see CoreBackendConfiguration
  */
-@AutoConfiguration(
-        after = {GeoToolsHttpClientAutoConfiguration.class, JNDIDataSourceConfiguration.class})
+@AutoConfiguration(after = {GeoToolsHttpClientAutoConfiguration.class, JNDIDataSourceConfiguration.class})
 @Import(CoreBackendConfiguration.class)
 public class GeoServerBackendAutoConfiguration {}

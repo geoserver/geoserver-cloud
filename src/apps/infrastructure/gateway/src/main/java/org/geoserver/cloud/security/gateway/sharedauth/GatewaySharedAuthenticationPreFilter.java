@@ -7,8 +7,12 @@ package org.geoserver.cloud.security.gateway.sharedauth;
 import static org.geoserver.cloud.security.gateway.sharedauth.SharedAuthConfigurationProperties.X_GSCLOUD_ROLES;
 import static org.geoserver.cloud.security.gateway.sharedauth.SharedAuthConfigurationProperties.X_GSCLOUD_USERNAME;
 
+import java.net.InetSocketAddress;
+import java.net.URI;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.boot.autoconfigure.neo4j.Neo4jProperties.Authentication;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -19,14 +23,7 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebSession;
-
 import reactor.core.publisher.Mono;
-
-import java.net.InetSocketAddress;
-import java.net.URI;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * {@link GlobalFilter} working in tandem with {@link GatewaySharedAuthenticationPostFilter} to
@@ -85,31 +82,28 @@ public class GatewaySharedAuthenticationPreFilter implements GlobalFilter, Order
         return exchange.getSession().map(session -> addHeadersFromSession(session, exchange));
     }
 
-    private ServerWebExchange addHeadersFromSession(
-            WebSession session, ServerWebExchange exchange) {
+    private ServerWebExchange addHeadersFromSession(WebSession session, ServerWebExchange exchange) {
         final String username = session.getAttribute(X_GSCLOUD_USERNAME);
         if (StringUtils.hasText(username)) {
             final List<String> roles = session.getAttributeOrDefault(X_GSCLOUD_ROLES, List.of());
             final var origRequest = exchange.getRequest();
-            var request =
-                    origRequest
-                            .mutate()
-                            .headers(
-                                    headers -> {
-                                        headers.set(X_GSCLOUD_USERNAME, username);
-                                        headers.remove(X_GSCLOUD_ROLES);
-                                        roles.forEach(role -> headers.add(X_GSCLOUD_ROLES, role));
-                                        log.debug(
-                                                "appended shared-auth request headers from session[{}] {}: {}, {}: {} to {} {}",
-                                                session.getId(),
-                                                X_GSCLOUD_USERNAME,
-                                                username,
-                                                X_GSCLOUD_ROLES,
-                                                roles,
-                                                origRequest.getMethod(),
-                                                origRequest.getURI().getPath());
-                                    })
-                            .build();
+            var request = origRequest
+                    .mutate()
+                    .headers(headers -> {
+                        headers.set(X_GSCLOUD_USERNAME, username);
+                        headers.remove(X_GSCLOUD_ROLES);
+                        roles.forEach(role -> headers.add(X_GSCLOUD_ROLES, role));
+                        log.debug(
+                                "appended shared-auth request headers from session[{}] {}: {}, {}: {} to {} {}",
+                                session.getId(),
+                                X_GSCLOUD_USERNAME,
+                                username,
+                                X_GSCLOUD_ROLES,
+                                roles,
+                                origRequest.getMethod(),
+                                origRequest.getURI().getPath());
+                    })
+                    .build();
 
             exchange = exchange.mutate().request(request).build();
         } else {
@@ -127,11 +121,10 @@ public class GatewaySharedAuthenticationPreFilter implements GlobalFilter, Order
     private ServerWebExchange removeRequestHeaders(ServerWebExchange exchange) {
         if (impersonationAttempt(exchange)) {
             var origRequest = exchange.getRequest();
-            var request =
-                    exchange.getRequest()
-                            .mutate()
-                            .headers(headers -> removeRequestHeaders(origRequest, headers))
-                            .build();
+            var request = exchange.getRequest()
+                    .mutate()
+                    .headers(headers -> removeRequestHeaders(origRequest, headers))
+                    .build();
             exchange = exchange.mutate().request(request).build();
         }
         return exchange;
@@ -142,22 +135,19 @@ public class GatewaySharedAuthenticationPreFilter implements GlobalFilter, Order
         removeRequestHeader(origRequest, requestHeaders, X_GSCLOUD_ROLES);
     }
 
-    private void removeRequestHeader(
-            ServerHttpRequest origRequest, HttpHeaders headers, String name) {
-        removeHeader(headers, name)
-                .ifPresent(
-                        value -> {
-                            HttpMethod method = origRequest.getMethod();
-                            URI uri = origRequest.getURI();
-                            InetSocketAddress remoteAddress = origRequest.getRemoteAddress();
-                            log.warn(
-                                    "removed incoming request header {}: {}. Request: [{} {}], from: {}",
-                                    name,
-                                    value,
-                                    method,
-                                    uri,
-                                    remoteAddress);
-                        });
+    private void removeRequestHeader(ServerHttpRequest origRequest, HttpHeaders headers, String name) {
+        removeHeader(headers, name).ifPresent(value -> {
+            HttpMethod method = origRequest.getMethod();
+            URI uri = origRequest.getURI();
+            InetSocketAddress remoteAddress = origRequest.getRemoteAddress();
+            log.warn(
+                    "removed incoming request header {}: {}. Request: [{} {}], from: {}",
+                    name,
+                    value,
+                    method,
+                    uri,
+                    remoteAddress);
+        });
     }
 
     private Optional<String> removeHeader(HttpHeaders httpHeaders, String name) {

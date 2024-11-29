@@ -6,10 +6,8 @@ package org.geoserver.cloud.event.security;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-
 import lombok.Getter;
 import lombok.NonNull;
-
 import org.geoserver.cloud.event.UpdateSequenceEvent;
 import org.geoserver.security.GeoServerSecurityManager;
 import org.springframework.core.style.ToStringCreator;

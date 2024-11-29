@@ -4,10 +4,11 @@
  */
 package org.geoserver.cloud.event.remote.datadir;
 
+import java.util.function.Consumer;
+import java.util.function.Function;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.Info;
@@ -32,9 +33,6 @@ import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
 import org.geoserver.config.plugin.RepositoryGeoServerFacade;
 import org.springframework.context.event.EventListener;
-
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 /**
  * Listens to {@link RemoteCatalogEvent}s and updates the local catalog
@@ -94,20 +92,13 @@ class RemoteEventDataDirectoryProcessor {
                                 facade.remove(info);
                                 log.debug("Removed {}({}), from local catalog", type, objectId);
                             },
-                            () ->
-                                    log.warn(
-                                            "Can't remove {}({}), not present in local catalog",
-                                            type,
-                                            objectId));
+                            () -> log.warn("Can't remove {}({}), not present in local catalog", type, objectId));
         } else {
             boolean removed =
                     switch (type) {
                         case SERVICE -> remove(
-                                objectId,
-                                id -> configFacade.getService(id, ServiceInfo.class),
-                                configFacade::remove);
-                        case SETTINGS -> remove(
-                                objectId, configFacade::getSettings, configFacade::remove);
+                                objectId, id -> configFacade.getService(id, ServiceInfo.class), configFacade::remove);
+                        case SETTINGS -> remove(objectId, configFacade::getSettings, configFacade::remove);
                         default -> false;
                     };
             if (removed) {
@@ -130,8 +121,7 @@ class RemoteEventDataDirectoryProcessor {
             log.error("Remote add event didn't send the object payload for {}({})", type, objectId);
             return;
         }
-        if (log.isDebugEnabled())
-            log.debug("Adding object from event {}: {}", event.toShortString(), object);
+        if (log.isDebugEnabled()) log.debug("Adding object from event {}: {}", event.toShortString(), object);
         ExtendedCatalogFacade facade = catalogFacade();
         switch (object) {
             case CatalogInfo info -> facade.add(info);
@@ -140,8 +130,7 @@ class RemoteEventDataDirectoryProcessor {
             case LoggingInfo config -> log.debug("ignoring unused LoggingInfo {}", config);
             default -> log.warn("Don't know how to handle remote envent {})", event);
         }
-        if (log.isDebugEnabled())
-            log.debug("Added object from event {}: {}", event.toShortString(), object);
+        if (log.isDebugEnabled()) log.debug("Added object from event {}: {}", event.toShortString(), object);
     }
 
     @EventListener(InfoModified.class)
@@ -179,11 +168,7 @@ class RemoteEventDataDirectoryProcessor {
         }
 
         if (log.isDebugEnabled())
-            log.debug(
-                    "Object updated: {}({}). Properties: {}",
-                    type,
-                    event.getObjectId(),
-                    patch.getPropertyNames());
+            log.debug("Object updated: {}({}). Properties: {}", type, event.getObjectId(), patch.getPropertyNames());
     }
 
     private Info loadInfo(InfoModified event) {
@@ -241,8 +226,7 @@ class RemoteEventDataDirectoryProcessor {
 
         ExtendedCatalogFacade facade = catalogFacade();
 
-        WorkspaceInfo workspace =
-                ResolvingProxy.create(event.getWorkspaceId(), WorkspaceInfo.class);
+        WorkspaceInfo workspace = ResolvingProxy.create(event.getWorkspaceId(), WorkspaceInfo.class);
 
         DataStoreInfo store = null;
         if (null != event.getDefaultDataStoreId()) {
@@ -251,8 +235,7 @@ class RemoteEventDataDirectoryProcessor {
         facade.setDefaultDataStore(workspace, store);
     }
 
-    private <T extends Info> boolean remove(
-            String id, Function<String, T> supplier, Consumer<? super T> remover) {
+    private <T extends Info> boolean remove(String id, Function<String, T> supplier, Consumer<? super T> remover) {
         T info = supplier.apply(id);
         if (info == null) {
             return false;

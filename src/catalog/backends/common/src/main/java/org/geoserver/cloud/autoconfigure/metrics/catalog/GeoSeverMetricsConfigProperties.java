@@ -6,7 +6,6 @@
 package org.geoserver.cloud.autoconfigure.metrics.catalog;
 
 import lombok.Data;
-
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**

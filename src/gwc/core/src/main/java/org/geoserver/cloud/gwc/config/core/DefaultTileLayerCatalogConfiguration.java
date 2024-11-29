@@ -4,6 +4,7 @@
  */
 package org.geoserver.cloud.gwc.config.core;
 
+import java.util.Optional;
 import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.cloud.gwc.repository.CachingTileLayerCatalog;
@@ -28,8 +29,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.web.context.WebApplicationContext;
-
-import java.util.Optional;
 
 /**
  * @since 1.0
@@ -80,8 +79,7 @@ public class DefaultTileLayerCatalogConfiguration {
             ApplicationEventPublisher eventPublisher) {
 
         var config = new CloudCatalogConfiguration(catalog, tld, gsb);
-        var eventAwareConfig =
-                new GeoServerTileLayerConfiguration(config, eventPublisher::publishEvent);
+        var eventAwareConfig = new GeoServerTileLayerConfiguration(config, eventPublisher::publishEvent);
         // tell GeoServerTileLayerConfiguration to relay TileLayerEvents to
         // CloudCatalogConfiguration, since it's not a spring bean can't listen itself.
         eventAwareConfig.setEventListener(config::onTileLayerEventEvict);
@@ -98,8 +96,7 @@ public class DefaultTileLayerCatalogConfiguration {
 
     @Bean
     ResourceStoreTileLayerCatalog resourceStoreTileLayerCatalog(
-            @Qualifier("resourceStoreImpl") ResourceStore resourceStore,
-            Optional<WebApplicationContext> webappCtx) {
+            @Qualifier("resourceStoreImpl") ResourceStore resourceStore, Optional<WebApplicationContext> webappCtx) {
         return new ResourceStoreTileLayerCatalog(resourceStore, webappCtx);
     }
 }

@@ -13,12 +13,26 @@ clean:
 	./mvnw clean
 
 .PHONY: lint
-lint:
-	./mvnw fmt:check sortpom:verify -Dsort.verifyFailOn=strict -Dsort.verifyFail=stop -ntp -T1C
+lint: lint-pom lint-java
+
+.PHONY: lint-pom
+lint-pom:
+	./mvnw sortpom:verify -Dsort.verifyFailOn=strict -Dsort.verifyFail=stop -ntp -T1C
+
+.PHONY: lint-java
+lint-java:
+	./mvnw spotless:check -ntp -T1C
 
 .PHONY: format
-format:
-	./mvnw sortpom:sort fmt:format -ntp -T1C
+format: format-pom format-java
+
+.PHONY: format-pom
+format-pom:
+	./mvnw sortpom:sort -ntp -T1C
+
+.PHONY: format-java
+format-java:
+	./mvnw spotless:apply -ntp -T1C
 
 .PHONY: install
 install:

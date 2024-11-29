@@ -5,16 +5,11 @@
 package org.geoserver.jackson.databind.catalog.dto;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
-
+import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.List;
-
-@JsonSubTypes({
-    @JsonSubTypes.Type(value = Layer.class),
-    @JsonSubTypes.Type(value = LayerGroup.class)
-})
+@JsonSubTypes({@JsonSubTypes.Type(value = Layer.class), @JsonSubTypes.Type(value = LayerGroup.class)})
 @Data
 @EqualsAndHashCode(callSuper = true)
 public abstract class Published extends CatalogInfoDto {

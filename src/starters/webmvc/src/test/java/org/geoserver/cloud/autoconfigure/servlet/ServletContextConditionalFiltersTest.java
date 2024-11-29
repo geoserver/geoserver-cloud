@@ -39,14 +39,11 @@ class ServletContextConditionalFiltersTest {
     private @Autowired ApplicationContext context;
 
     public void flushSafeFilter() {
-        assertThrows(
-                NoSuchBeanDefinitionException.class, () -> context.getBean(FlushSafeFilter.class));
+        assertThrows(NoSuchBeanDefinitionException.class, () -> context.getBean(FlushSafeFilter.class));
     }
 
     public void sessionDebugFilter() {
-        assertThrows(
-                NoSuchBeanDefinitionException.class,
-                () -> context.getBean(SessionDebugFilter.class));
+        assertThrows(NoSuchBeanDefinitionException.class, () -> context.getBean(SessionDebugFilter.class));
     }
 
     @Test

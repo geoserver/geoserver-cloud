@@ -6,7 +6,6 @@ package org.geoserver.cloud.config.servlet;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-
 import org.geoserver.platform.ContextLoadedEvent;
 import org.geoserver.platform.GeoServerContextLoaderListener;
 import org.springframework.boot.web.servlet.ServletContextInitializer;

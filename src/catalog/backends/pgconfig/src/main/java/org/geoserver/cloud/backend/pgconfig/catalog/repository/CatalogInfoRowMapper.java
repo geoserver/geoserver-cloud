@@ -6,11 +6,19 @@ package org.geoserver.cloud.backend.pgconfig.catalog.repository;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import java.io.UncheckedIOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
@@ -24,17 +32,6 @@ import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.catalog.impl.LayerInfoImpl;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.springframework.jdbc.core.RowMapper;
-
-import java.io.UncheckedIOException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
 
 /**
  * @since 1.4
@@ -90,8 +87,7 @@ public final class CatalogInfoRowMapper {
         return resolveCached(id, clazz, idd -> loader.apply(rs));
     }
 
-    protected <T extends CatalogInfo> T resolveCached(
-            String id, Class<T> clazz, Function<String, T> loader) {
+    protected <T extends CatalogInfo> T resolveCached(String id, Class<T> clazz, Function<String, T> loader) {
         if (null == id) return null;
         var infoCache = cache(clazz);
         T info = infoCache.get(id);
@@ -286,9 +282,8 @@ public final class CatalogInfoRowMapper {
         String storeId = resource.getStore().getId();
         StoreInfo store = mapStore(storeId, rs);
         @SuppressWarnings("unchecked")
-        Class<? extends StoreInfo> storeType =
-                (Class<? extends StoreInfo>)
-                        ClassMappings.fromImpl(store.getClass()).getInterface();
+        Class<? extends StoreInfo> storeType = (Class<? extends StoreInfo>)
+                ClassMappings.fromImpl(store.getClass()).getInterface();
         resource.setStore(ModificationProxy.create(store, storeType));
     }
 
@@ -382,12 +377,11 @@ public final class CatalogInfoRowMapper {
 
     private void setStyles(LayerInfo layer) {
         LayerInfoImpl li = (LayerInfoImpl) ModificationProxy.unwrap(layer);
-        List<StyleInfo> styles =
-                li.getStyles().stream()
-                        .map(StyleInfo::getId)
-                        .map(this::loadStyle)
-                        .map(s -> ModificationProxy.create(s, StyleInfo.class))
-                        .toList();
+        List<StyleInfo> styles = li.getStyles().stream()
+                .map(StyleInfo::getId)
+                .map(this::loadStyle)
+                .map(s -> ModificationProxy.create(s, StyleInfo.class))
+                .toList();
         li.setStyles(new HashSet<>(styles));
     }
 
@@ -477,15 +471,13 @@ public final class CatalogInfoRowMapper {
         return mapper::mapLayer;
     }
 
-    public static RowMapper<LayerGroupInfo> layerGroup(
-            Function<String, Optional<StyleInfo>> styleLoader) {
+    public static RowMapper<LayerGroupInfo> layerGroup(Function<String, Optional<StyleInfo>> styleLoader) {
         CatalogInfoRowMapper mapper = new CatalogInfoRowMapper();
         mapper.setStyleLoader(styleLoader);
         return mapper::mapLayerGroup;
     }
 
-    public static RowMapper<PublishedInfo> published(
-            Function<String, Optional<StyleInfo>> styleLoader) {
+    public static RowMapper<PublishedInfo> published(Function<String, Optional<StyleInfo>> styleLoader) {
         CatalogInfoRowMapper mapper = new CatalogInfoRowMapper();
         mapper.setStyleLoader(styleLoader);
         return mapper::mapPublishedInfo;

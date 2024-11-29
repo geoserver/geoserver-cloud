@@ -28,19 +28,14 @@ class VectorTilesConfiguration {
     static final String PREFIX = "geoserver.wms.output-formats.vector-tiles";
 
     VectorTilesConfiguration(
-            @Qualifier("VectorTilesExtension")
-                    org.geoserver.platform.ModuleStatusImpl extensionInfo,
+            @Qualifier("VectorTilesExtension") org.geoserver.platform.ModuleStatusImpl extensionInfo,
             WmsExtensionsConfigProperties config) {
 
         VectorTilesConfigProperties vt = config.getWms().getOutputFormats().getVectorTiles();
         extensionInfo.setEnabled(vt.anyEnabled());
     }
 
-    @ConditionalOnProperty(
-            prefix = PREFIX + ".mapbox",
-            name = "enabled",
-            havingValue = "true",
-            matchIfMissing = true)
+    @ConditionalOnProperty(prefix = PREFIX + ".mapbox", name = "enabled", havingValue = "true", matchIfMissing = true)
     @ImportResource( //
             reader = FilteringXmlBeanDefinitionReader.class, //
             locations = {
@@ -48,11 +43,7 @@ class VectorTilesConfiguration {
             })
     static @Configuration class MapBox {}
 
-    @ConditionalOnProperty(
-            prefix = PREFIX + ".geojson",
-            name = "enabled",
-            havingValue = "true",
-            matchIfMissing = true)
+    @ConditionalOnProperty(prefix = PREFIX + ".geojson", name = "enabled", havingValue = "true", matchIfMissing = true)
     @ImportResource( //
             reader = FilteringXmlBeanDefinitionReader.class, //
             locations = {
@@ -60,11 +51,7 @@ class VectorTilesConfiguration {
             })
     static @Configuration class GeoJson {}
 
-    @ConditionalOnProperty(
-            prefix = PREFIX + ".topojson",
-            name = "enabled",
-            havingValue = "true",
-            matchIfMissing = true)
+    @ConditionalOnProperty(prefix = PREFIX + ".topojson", name = "enabled", havingValue = "true", matchIfMissing = true)
     @ImportResource( //
             reader = FilteringXmlBeanDefinitionReader.class, //
             locations = {

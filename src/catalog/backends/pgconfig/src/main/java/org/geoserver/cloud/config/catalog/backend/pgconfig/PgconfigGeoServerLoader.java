@@ -10,9 +10,13 @@ import static org.geoserver.catalog.StyleInfo.DEFAULT_POINT;
 import static org.geoserver.catalog.StyleInfo.DEFAULT_POLYGON;
 import static org.geoserver.catalog.StyleInfo.DEFAULT_RASTER;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.annotation.PostConstruct;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.GeoServerConfigurationLock.LockType;
 import org.geoserver.catalog.Catalog;
@@ -32,13 +36,6 @@ import org.geoserver.platform.GeoServerExtensions;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.Resource.Lock;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.annotation.PostConstruct;
-
 /**
  * @since 1.4
  */
@@ -53,8 +50,7 @@ public class PgconfigGeoServerLoader extends GeoServerLoader {
      *     config when starting off an empty config
      */
     public PgconfigGeoServerLoader(
-            @NonNull GeoServerResourceLoader resourceLoader,
-            @NonNull GeoServerConfigurationLock configLock) {
+            @NonNull GeoServerResourceLoader resourceLoader, @NonNull GeoServerConfigurationLock configLock) {
         super(resourceLoader);
         this.configLock = configLock;
     }
@@ -84,13 +80,7 @@ public class PgconfigGeoServerLoader extends GeoServerLoader {
      */
     @Override
     protected void initializeDefaultStyles(Catalog catalog) throws IOException {
-        if (anyStyleMissing(
-                catalog,
-                DEFAULT_POINT,
-                DEFAULT_LINE,
-                DEFAULT_POLYGON,
-                DEFAULT_RASTER,
-                DEFAULT_GENERIC)) {
+        if (anyStyleMissing(catalog, DEFAULT_POINT, DEFAULT_LINE, DEFAULT_POLYGON, DEFAULT_RASTER, DEFAULT_GENERIC)) {
             final Lock lock = resourceLoader.getLockProvider().acquire("DEFAULT_STYLES");
             try {
                 super.initializeDefaultStyles(catalog);
@@ -119,22 +109,19 @@ public class PgconfigGeoServerLoader extends GeoServerLoader {
         try {
             GeoServerInfo global = geoServer.getGlobal();
             LoggingInfo logging = geoServer.getLogging();
-            boolean someConfigMissing =
-                    global == null || logging == null || !missingServices.isEmpty();
+            boolean someConfigMissing = global == null || logging == null || !missingServices.isEmpty();
             if (someConfigMissing) {
                 try {
                     log.info("Found missing config objects, acquiring config lock...");
 
                     configLock.tryUpgradeLock();
-                    log.info(
-                            "Config lock acquired. Creating initial GeoServer configuration objects...");
+                    log.info("Config lock acquired. Creating initial GeoServer configuration objects...");
 
                     doCreateMissing(geoServer, missingServices);
 
                     log.info("Done creating initial GeoServer configuration objects.");
                 } catch (RuntimeException failedUpgrade) {
-                    log.info(
-                            "Unable to acquire config lock, checking if another instance initialized the config");
+                    log.info("Unable to acquire config lock, checking if another instance initialized the config");
                     verifyInitialized(geoServer, missingServices);
                 }
             }
@@ -145,8 +132,7 @@ public class PgconfigGeoServerLoader extends GeoServerLoader {
     }
 
     private void verifyInitialized(
-            GeoServer geoServer,
-            List<XStreamServiceLoader<? extends ServiceInfo>> missingServices) {
+            GeoServer geoServer, List<XStreamServiceLoader<? extends ServiceInfo>> missingServices) {
 
         if (geoServer.getGlobal() == null) {
             throw new IllegalStateException("GeoServerInfo not found");
@@ -155,12 +141,11 @@ public class PgconfigGeoServerLoader extends GeoServerLoader {
             throw new IllegalStateException("LoggingInfo not found");
         }
 
-        String missing =
-                missingServices.stream()
-                        .filter(loader -> null == geoServer.getService(loader.getServiceClass()))
-                        .map(XStreamServiceLoader::getServiceClass)
-                        .map(Class::getName)
-                        .collect(Collectors.joining(", "));
+        String missing = missingServices.stream()
+                .filter(loader -> null == geoServer.getService(loader.getServiceClass()))
+                .map(XStreamServiceLoader::getServiceClass)
+                .map(Class::getName)
+                .collect(Collectors.joining(", "));
         if (!missing.isEmpty()) {
             throw new IllegalStateException("ServiceInfo not found for %s".formatted(missing));
         }
@@ -168,8 +153,7 @@ public class PgconfigGeoServerLoader extends GeoServerLoader {
 
     /** Must run inside a config lock to create missing config objects */
     private void doCreateMissing(
-            GeoServer geoServer,
-            List<XStreamServiceLoader<? extends ServiceInfo>> missingServices) {
+            GeoServer geoServer, List<XStreamServiceLoader<? extends ServiceInfo>> missingServices) {
 
         if (geoServer.getGlobal() == null) {
             log.info("initializing geoserver global config");
@@ -195,8 +179,7 @@ public class PgconfigGeoServerLoader extends GeoServerLoader {
         }
     }
 
-    private List<XStreamServiceLoader<? extends ServiceInfo>> findMissingServices(
-            GeoServer geoServer) {
+    private List<XStreamServiceLoader<? extends ServiceInfo>> findMissingServices(GeoServer geoServer) {
 
         var loaders = GeoServerExtensions.extensions(XStreamServiceLoader.class);
         var missing = new ArrayList<XStreamServiceLoader<? extends ServiceInfo>>();

@@ -5,10 +5,8 @@
 package org.geoserver.jackson.databind.catalog.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
 import org.geotools.jackson.databind.dto.VersionDto;
 
 @Data

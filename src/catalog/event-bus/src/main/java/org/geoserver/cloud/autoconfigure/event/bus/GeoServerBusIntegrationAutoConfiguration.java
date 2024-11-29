@@ -4,8 +4,8 @@
  */
 package org.geoserver.cloud.autoconfigure.event.bus;
 
+import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.cloud.autoconfigure.catalog.event.ConditionalOnCatalogEvents;
 import org.geoserver.cloud.event.bus.RemoteGeoServerEventsConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -13,13 +13,9 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.cloud.bus.BusAutoConfiguration;
 import org.springframework.context.annotation.Import;
 
-import javax.annotation.PostConstruct;
-
 /** Log a message if spring-cloud-bus is explicitly disables */
 @AutoConfiguration
-@Import({
-    GeoServerBusIntegrationAutoConfiguration.Enabled.class,
-    GeoServerBusIntegrationAutoConfiguration.Disabled.class
+@Import({GeoServerBusIntegrationAutoConfiguration.Enabled.class, GeoServerBusIntegrationAutoConfiguration.Disabled.class
 })
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.bus")
 public class GeoServerBusIntegrationAutoConfiguration {

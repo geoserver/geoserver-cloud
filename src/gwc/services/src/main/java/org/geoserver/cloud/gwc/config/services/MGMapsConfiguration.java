@@ -20,6 +20,5 @@ import org.springframework.context.annotation.ImportResource;
 @ComponentScan(basePackageClasses = MGMapsController.class)
 @ImportResource(
         reader = FilteringXmlBeanDefinitionReader.class,
-        locations =
-                "jar:gs-gwc-[0-9]+.*!/geowebcache-gmaps-context.xml#name=gwcServiceMGMapsTarget")
+        locations = "jar:gs-gwc-[0-9]+.*!/geowebcache-gmaps-context.xml#name=gwcServiceMGMapsTarget")
 public class MGMapsConfiguration {}

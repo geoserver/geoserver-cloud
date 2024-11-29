@@ -7,9 +7,9 @@ package org.geoserver.jackson.databind.catalog;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-
+import java.util.Arrays;
+import java.util.function.Function;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.catalog.AttributeTypeInfo;
 import org.geoserver.catalog.AuthorityURLInfo;
 import org.geoserver.catalog.CatalogInfo;
@@ -48,9 +48,6 @@ import org.geotools.jackson.databind.util.MapperSerializer;
 import org.geotools.jdbc.VirtualTable;
 import org.mapstruct.factory.Mappers;
 
-import java.util.Arrays;
-import java.util.function.Function;
-
 /**
  * Jackson {@link com.fasterxml.jackson.databind.Module} to handle GeoServer {@link CatalogInfo}
  * bindings.
@@ -82,8 +79,7 @@ public class GeoServerCatalogModule extends SimpleModule {
     private static final long serialVersionUID = -8756800180255446679L;
 
     static final PatchMapper PATCH_MAPPER = Mappers.getMapper(PatchMapper.class);
-    static final GeoServerValueObjectsMapper VALUE_MAPPER =
-            Mappers.getMapper(GeoServerValueObjectsMapper.class);
+    static final GeoServerValueObjectsMapper VALUE_MAPPER = Mappers.getMapper(GeoServerValueObjectsMapper.class);
 
     public GeoServerCatalogModule() {
         super(GeoServerCatalogModule.class.getSimpleName(), new Version(1, 0, 0, null, null, null));
@@ -104,11 +100,10 @@ public class GeoServerCatalogModule extends SimpleModule {
                 .map(c -> (Class<? extends CatalogInfo>) c)
                 .distinct()
                 .sorted((c1, c2) -> c1.getSimpleName().compareTo(c2.getSimpleName()))
-                .forEach(
-                        c -> {
-                            this.addSerializer(c);
-                            this.addDeserializer(c);
-                        });
+                .forEach(c -> {
+                    this.addSerializer(c);
+                    this.addDeserializer(c);
+                });
     }
 
     private <T extends CatalogInfo> void addSerializer(Class<T> clazz) {
@@ -126,24 +121,18 @@ public class GeoServerCatalogModule extends SimpleModule {
      * @param <D> DTO type
      */
     private <T, D> void addMapperSerializer(
-            Class<T> type,
-            Function<T, D> serializerMapper,
-            Class<D> dtoType,
-            Function<D, T> deserializerMapper) {
+            Class<T> type, Function<T, D> serializerMapper, Class<D> dtoType, Function<D, T> deserializerMapper) {
 
         MapperSerializer<T, D> serializer = new MapperSerializer<>(type, serializerMapper);
-        MapperDeserializer<D, T> deserializer =
-                new MapperDeserializer<>(dtoType, deserializerMapper);
+        MapperDeserializer<D, T> deserializer = new MapperDeserializer<>(dtoType, deserializerMapper);
         super.addSerializer(type, serializer);
         super.addDeserializer(type, deserializer);
     }
 
     private void registerValueMappers() {
-        addMapperSerializer(
-                Patch.class, PATCH_MAPPER::patchToDto, PatchDto.class, PATCH_MAPPER::dtoToPatch);
+        addMapperSerializer(Patch.class, PATCH_MAPPER::patchToDto, PatchDto.class, PATCH_MAPPER::dtoToPatch);
 
-        addMapperSerializer(
-                KeywordInfo.class, VALUE_MAPPER::keyword, Keyword.class, VALUE_MAPPER::keyword);
+        addMapperSerializer(KeywordInfo.class, VALUE_MAPPER::keyword, Keyword.class, VALUE_MAPPER::keyword);
 
         addMapperSerializer(
                 VirtualTable.class,
@@ -151,56 +140,28 @@ public class GeoServerCatalogModule extends SimpleModule {
                 VirtualTableDto.class,
                 VALUE_MAPPER::dtoToVirtualTable);
         addMapperSerializer(
-                MetadataLinkInfo.class,
-                VALUE_MAPPER::infoToDto,
-                MetadataLink.class,
-                VALUE_MAPPER::dtoToInfo);
+                MetadataLinkInfo.class, VALUE_MAPPER::infoToDto, MetadataLink.class, VALUE_MAPPER::dtoToInfo);
+        addMapperSerializer(LegendInfo.class, VALUE_MAPPER::infoToDto, Legend.class, VALUE_MAPPER::dtoToInfo);
         addMapperSerializer(
-                LegendInfo.class, VALUE_MAPPER::infoToDto, Legend.class, VALUE_MAPPER::dtoToInfo);
+                LayerIdentifierInfo.class, VALUE_MAPPER::infoToDto, LayerIdentifier.class, VALUE_MAPPER::dtoToInfo);
+        addMapperSerializer(DataLinkInfo.class, VALUE_MAPPER::infoToDto, DataLink.class, VALUE_MAPPER::dtoToInfo);
+        addMapperSerializer(DimensionInfo.class, VALUE_MAPPER::infoToDto, Dimension.class, VALUE_MAPPER::dtoToInfo);
         addMapperSerializer(
-                LayerIdentifierInfo.class,
-                VALUE_MAPPER::infoToDto,
-                LayerIdentifier.class,
-                VALUE_MAPPER::dtoToInfo);
+                CoverageDimensionInfo.class, VALUE_MAPPER::infoToDto, CoverageDimension.class, VALUE_MAPPER::dtoToInfo);
         addMapperSerializer(
-                DataLinkInfo.class,
-                VALUE_MAPPER::infoToDto,
-                DataLink.class,
-                VALUE_MAPPER::dtoToInfo);
-        addMapperSerializer(
-                DimensionInfo.class,
-                VALUE_MAPPER::infoToDto,
-                Dimension.class,
-                VALUE_MAPPER::dtoToInfo);
-        addMapperSerializer(
-                CoverageDimensionInfo.class,
-                VALUE_MAPPER::infoToDto,
-                CoverageDimension.class,
-                VALUE_MAPPER::dtoToInfo);
-        addMapperSerializer(
-                AuthorityURLInfo.class,
-                VALUE_MAPPER::infoToDto,
-                AuthorityURL.class,
-                VALUE_MAPPER::dtoToInfo);
+                AuthorityURLInfo.class, VALUE_MAPPER::infoToDto, AuthorityURL.class, VALUE_MAPPER::dtoToInfo);
         addMapperSerializer(
                 GridGeometry.class,
                 VALUE_MAPPER::gridGeometry2DToDto,
                 GridGeometryDto.class,
                 VALUE_MAPPER::dtoToGridGeometry2D);
 
-        addMapperSerializer(
-                Query.class, VALUE_MAPPER::queryToDto, QueryDto.class, VALUE_MAPPER::dtoToQuery);
+        addMapperSerializer(Query.class, VALUE_MAPPER::queryToDto, QueryDto.class, VALUE_MAPPER::dtoToQuery);
 
         addMapperSerializer(
-                AttributeTypeInfo.class,
-                VALUE_MAPPER::infoToDto,
-                AttributeType.class,
-                VALUE_MAPPER::dtoToInfo);
+                AttributeTypeInfo.class, VALUE_MAPPER::infoToDto, AttributeType.class, VALUE_MAPPER::dtoToInfo);
 
         addMapperSerializer(
-                MetadataMap.class,
-                VALUE_MAPPER::metadataMap,
-                MetadataMapDto.class,
-                VALUE_MAPPER::metadataMap);
+                MetadataMap.class, VALUE_MAPPER::metadataMap, MetadataMapDto.class, VALUE_MAPPER::metadataMap);
     }
 }

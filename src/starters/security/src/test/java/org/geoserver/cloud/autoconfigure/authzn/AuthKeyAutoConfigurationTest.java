@@ -33,8 +33,7 @@ import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 class AuthKeyAutoConfigurationTest {
 
     private WebApplicationContextRunner contextRunner =
-            new WebApplicationContextRunner()
-                    .withConfiguration(AutoConfigurations.of(AuthKeyAutoConfiguration.class));
+            new WebApplicationContextRunner().withConfiguration(AutoConfigurations.of(AuthKeyAutoConfiguration.class));
 
     @BeforeEach
     void mockBeanDependencies() {
@@ -46,11 +45,9 @@ class AuthKeyAutoConfigurationTest {
     void testModuleStatus_disabled_by_default() {
         contextRunner
                 .run(context -> assertThat(context).hasBean("authKeyExtension"))
-                .run(
-                        context ->
-                                assertThat(context)
-                                        .getBean("authKeyExtension", ModuleStatus.class)
-                                        .hasFieldOrPropertyWithValue("enabled", false));
+                .run(context -> assertThat(context)
+                        .getBean("authKeyExtension", ModuleStatus.class)
+                        .hasFieldOrPropertyWithValue("enabled", false));
     }
 
     @Test
@@ -58,11 +55,9 @@ class AuthKeyAutoConfigurationTest {
         contextRunner
                 .withPropertyValues("geoserver.security.authkey=true")
                 .run(context -> assertThat(context).hasBean("authKeyExtension"))
-                .run(
-                        context ->
-                                assertThat(context)
-                                        .getBean("authKeyExtension", ModuleStatus.class)
-                                        .hasFieldOrPropertyWithValue("enabled", true));
+                .run(context -> assertThat(context)
+                        .getBean("authKeyExtension", ModuleStatus.class)
+                        .hasFieldOrPropertyWithValue("enabled", true));
     }
 
     @Test
@@ -70,11 +65,9 @@ class AuthKeyAutoConfigurationTest {
         contextRunner
                 .withPropertyValues("geoserver.security.authkey=false")
                 .run(context -> assertThat(context).hasBean("authKeyExtension"))
-                .run(
-                        context ->
-                                assertThat(context)
-                                        .getBean("authKeyExtension", ModuleStatus.class)
-                                        .hasFieldOrPropertyWithValue("enabled", false));
+                .run(context -> assertThat(context)
+                        .getBean("authKeyExtension", ModuleStatus.class)
+                        .hasFieldOrPropertyWithValue("enabled", false));
     }
 
     @Test
@@ -84,38 +77,27 @@ class AuthKeyAutoConfigurationTest {
                 // AuthenticationFilterPanel is from gs-web-sec-core, used as @ConditionalOnClass to
                 // enabled the web-ui components
                 .withClassLoader(new FilteredClassLoader(AuthenticationFilterPanel.class))
-                .run(
-                        ctx -> {
-                            assertThat(ctx).doesNotHaveBean(AuthenticationKeyFilterPanelInfo.class);
-                            assertThat(ctx)
-                                    .doesNotHaveBean(GeoServerRestRoleServicePanelInfo.class);
-                            assertThat(ctx)
-                                    .doesNotHaveBean(
-                                            WebServiceBodyResponseUserGroupServicePanelInfo.class);
-                        });
+                .run(ctx -> {
+                    assertThat(ctx).doesNotHaveBean(AuthenticationKeyFilterPanelInfo.class);
+                    assertThat(ctx).doesNotHaveBean(GeoServerRestRoleServicePanelInfo.class);
+                    assertThat(ctx).doesNotHaveBean(WebServiceBodyResponseUserGroupServicePanelInfo.class);
+                });
     }
 
     @Test
     void testGeoServerAuthenticationKeyProvider_enabled() {
-        contextRunner
-                .withPropertyValues("geoserver.security.authkey=true")
-                .run(
-                        ctx -> {
-                            assertThat(ctx).hasSingleBean(GeoServerAuthenticationKeyProvider.class);
-                            assertThat(ctx).hasSingleBean(AuthenticationKeyMangler.class);
-                            assertThat(ctx).hasSingleBean(PropertyAuthenticationKeyMapper.class);
-                            assertThat(ctx)
-                                    .hasSingleBean(UserPropertyAuthenticationKeyMapper.class);
-                            assertThat(ctx).hasSingleBean(WebServiceAuthenticationKeyMapper.class);
-                            assertThat(ctx).hasSingleBean(GeoServerAuthenticationKeyProvider.class);
-                            assertThat(ctx)
-                                    .hasSingleBean(WebServiceBodyResponseSecurityProvider.class);
+        contextRunner.withPropertyValues("geoserver.security.authkey=true").run(ctx -> {
+            assertThat(ctx).hasSingleBean(GeoServerAuthenticationKeyProvider.class);
+            assertThat(ctx).hasSingleBean(AuthenticationKeyMangler.class);
+            assertThat(ctx).hasSingleBean(PropertyAuthenticationKeyMapper.class);
+            assertThat(ctx).hasSingleBean(UserPropertyAuthenticationKeyMapper.class);
+            assertThat(ctx).hasSingleBean(WebServiceAuthenticationKeyMapper.class);
+            assertThat(ctx).hasSingleBean(GeoServerAuthenticationKeyProvider.class);
+            assertThat(ctx).hasSingleBean(WebServiceBodyResponseSecurityProvider.class);
 
-                            assertThat(ctx).hasSingleBean(AuthenticationKeyFilterPanelInfo.class);
-                            assertThat(ctx)
-                                    .hasSingleBean(
-                                            WebServiceBodyResponseUserGroupServicePanelInfo.class);
-                            assertThat(ctx).hasSingleBean(GeoServerRestRoleServicePanelInfo.class);
-                        });
+            assertThat(ctx).hasSingleBean(AuthenticationKeyFilterPanelInfo.class);
+            assertThat(ctx).hasSingleBean(WebServiceBodyResponseUserGroupServicePanelInfo.class);
+            assertThat(ctx).hasSingleBean(GeoServerRestRoleServicePanelInfo.class);
+        });
     }
 }

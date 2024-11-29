@@ -4,8 +4,9 @@
  */
 package org.geoserver.cloud.backend.pgconfig.catalog;
 
+import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 import lombok.NonNull;
-
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.plugin.RepositoryCatalogFacadeImpl;
@@ -21,9 +22,6 @@ import org.geoserver.cloud.backend.pgconfig.catalog.repository.PgconfigStoreRepo
 import org.geoserver.cloud.backend.pgconfig.catalog.repository.PgconfigStyleRepository;
 import org.geoserver.cloud.backend.pgconfig.catalog.repository.PgconfigWorkspaceRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
-
-import java.util.function.Supplier;
-import java.util.function.UnaryOperator;
 
 /**
  * @since 1.4
@@ -64,11 +62,9 @@ public class PgconfigCatalogFacade extends RepositoryCatalogFacadeImpl {
                 .forEach(repo -> repo.setOutboundResolver(resolvingFunction));
     }
 
-    public static <T extends CatalogInfo> UnaryOperator<T> resolvingFunction(
-            Supplier<Catalog> catalog) {
+    public static <T extends CatalogInfo> UnaryOperator<T> resolvingFunction(Supplier<Catalog> catalog) {
         return CatalogPropertyResolver.<T>of(catalog)
-                        .andThen(ResolvingProxyResolver.<T>of(catalog))
-                        .andThen(CollectionPropertiesInitializer.instance())
-                ::apply;
+                .andThen(ResolvingProxyResolver.<T>of(catalog))
+                .andThen(CollectionPropertiesInitializer.instance())::apply;
     }
 }

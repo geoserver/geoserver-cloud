@@ -4,23 +4,21 @@
  */
 package org.geoserver.catalog.plugin;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.Accessors;
-
-import org.geoserver.catalog.CatalogInfo;
-import org.geoserver.catalog.Info;
-import org.geotools.api.filter.Filter;
-import org.geotools.api.filter.sort.SortBy;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.OptionalInt;
 import java.util.stream.Stream;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.Accessors;
+import org.geoserver.catalog.CatalogInfo;
+import org.geoserver.catalog.Info;
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.sort.SortBy;
 
 /** */
 @NoArgsConstructor
@@ -74,16 +72,11 @@ public @Data class Query<T extends Info> {
 
     @SuppressWarnings("unchecked")
     public static <T extends Info> Query<T> valueOf(
-            Class<? extends Info> type,
-            Filter filter,
-            Integer offset,
-            Integer count,
-            SortBy... sortOrder) {
+            Class<? extends Info> type, Filter filter, Integer offset, Integer count, SortBy... sortOrder) {
 
-        List<SortBy> sortBy =
-                sortOrder == null
-                        ? Collections.emptyList()
-                        : Stream.of(sortOrder).filter(Objects::nonNull).toList();
+        List<SortBy> sortBy = sortOrder == null
+                ? Collections.emptyList()
+                : Stream.of(sortOrder).filter(Objects::nonNull).toList();
 
         filter = filter == null ? Filter.INCLUDE : filter;
         return new Query<>((Class<T>) type)

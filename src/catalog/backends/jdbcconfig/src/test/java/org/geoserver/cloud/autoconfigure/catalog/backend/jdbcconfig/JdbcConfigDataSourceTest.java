@@ -11,15 +11,12 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.zaxxer.hikari.HikariDataSource;
-
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.SQLTransientConnectionException;
-
 import javax.sql.DataSource;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest(
         classes = AutoConfigurationTestConfiguration.class,

@@ -13,8 +13,7 @@ import org.mapstruct.factory.Mappers;
 public class ConfigInfoSerializer<T extends Info> extends MapperSerializer<T, ConfigInfoDto> {
     private static final long serialVersionUID = -4772839273787523779L;
 
-    private static final GeoServerConfigMapper mapper =
-            Mappers.getMapper(GeoServerConfigMapper.class);
+    private static final GeoServerConfigMapper mapper = Mappers.getMapper(GeoServerConfigMapper.class);
 
     public ConfigInfoSerializer(Class<T> type) {
         super(type, mapper::toDto);

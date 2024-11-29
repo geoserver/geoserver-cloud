@@ -4,9 +4,12 @@
  */
 package org.geoserver.catalog.plugin;
 
+import java.rmi.server.UID;
+import java.util.LinkedHashSet;
+import java.util.List;
+import javax.annotation.Nullable;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogInfo;
@@ -38,19 +41,12 @@ import org.geoserver.catalog.plugin.CatalogInfoLookup.StyleInfoLookup;
 import org.geoserver.catalog.plugin.CatalogInfoLookup.WorkspaceInfoLookup;
 import org.geoserver.ows.util.OwsUtils;
 
-import java.rmi.server.UID;
-import java.util.LinkedHashSet;
-import java.util.List;
-
-import javax.annotation.Nullable;
-
 /**
  * Default catalog facade implementation using in-memory {@link CatalogRepository repositories} to
  * store the {@link CatalogInfo}
  */
 @Slf4j
-public class DefaultMemoryCatalogFacade extends RepositoryCatalogFacadeImpl
-        implements CatalogFacade {
+public class DefaultMemoryCatalogFacade extends RepositoryCatalogFacadeImpl implements CatalogFacade {
 
     public DefaultMemoryCatalogFacade() {
         this(null);
@@ -118,8 +114,7 @@ public class DefaultMemoryCatalogFacade extends RepositoryCatalogFacadeImpl
         }
     }
 
-    private void resolveLayerGroupStyles(
-            List<PublishedInfo> assignedLayers, List<StyleInfo> styles) {
+    private void resolveLayerGroupStyles(List<PublishedInfo> assignedLayers, List<StyleInfo> styles) {
         for (int i = 0; i < styles.size(); i++) {
             StyleInfo s = styles.get(i);
             if (s != null) {
@@ -158,8 +153,7 @@ public class DefaultMemoryCatalogFacade extends RepositoryCatalogFacadeImpl
     private PublishedInfo resolveLayerGroupLayers(@NonNull PublishedInfo published) {
         PublishedInfo resolved = unwrap(ResolvingProxy.resolve(getCatalog(), published));
         // special case to handle catalog loading, when nested publishables might not be loaded.
-        if (resolved == null
-                && (published instanceof LayerInfo || published instanceof LayerGroupInfo)) {
+        if (resolved == null && (published instanceof LayerInfo || published instanceof LayerGroupInfo)) {
             resolved = published;
         }
         return resolved;

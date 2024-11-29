@@ -4,16 +4,14 @@
  */
 package org.geoserver.cloud.backend.pgconfig.catalog.repository;
 
+import java.util.Optional;
+import java.util.stream.Stream;
 import lombok.NonNull;
-
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.LayerGroupRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-
-import java.util.Optional;
-import java.util.stream.Stream;
 
 /**
  * @since 1.4
@@ -50,8 +48,7 @@ public class PgconfigLayerGroupRepository extends PgconfigCatalogInfoRepository<
     }
 
     @Override
-    public Optional<LayerGroupInfo> findByNameAndWorkspace(
-            @NonNull String name, @NonNull WorkspaceInfo workspace) {
+    public Optional<LayerGroupInfo> findByNameAndWorkspace(@NonNull String name, @NonNull WorkspaceInfo workspace) {
 
         String sql =
                 """

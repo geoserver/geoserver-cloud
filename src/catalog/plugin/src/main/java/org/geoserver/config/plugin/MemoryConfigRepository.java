@@ -6,6 +6,11 @@ package org.geoserver.config.plugin;
 
 import static java.util.Objects.requireNonNull;
 
+import java.lang.reflect.Proxy;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Stream;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.Patch;
@@ -13,12 +18,6 @@ import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
-
-import java.lang.reflect.Proxy;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.stream.Stream;
 
 /**
  * Purely in-memory {@link ConfigRepository} implementation holding live-objects (no serialization
@@ -38,8 +37,7 @@ public class MemoryConfigRepository implements ConfigRepository {
 
     private static void checkNotAProxy(Info value) {
         if (Proxy.isProxyClass(value.getClass())) {
-            throw new IllegalArgumentException(
-                    "Proxy values shall not be passed to DefaultConfigRepository");
+            throw new IllegalArgumentException("Proxy values shall not be passed to DefaultConfigRepository");
         }
     }
 
@@ -147,10 +145,8 @@ public class MemoryConfigRepository implements ConfigRepository {
         requireNonNull(workspace);
         requireNonNull(workspace.getId());
         return this.services.values().stream()
-                .filter(
-                        s ->
-                                s.getWorkspace() != null
-                                        && workspace.getId().equals(s.getWorkspace().getId()));
+                .filter(s -> s.getWorkspace() != null
+                        && workspace.getId().equals(s.getWorkspace().getId()));
     }
 
     @Override
@@ -164,17 +160,14 @@ public class MemoryConfigRepository implements ConfigRepository {
     }
 
     @Override
-    public <T extends ServiceInfo> Optional<T> getServiceByWorkspace(
-            WorkspaceInfo workspace, Class<T> clazz) {
+    public <T extends ServiceInfo> Optional<T> getServiceByWorkspace(WorkspaceInfo workspace, Class<T> clazz) {
         requireNonNull(workspace);
         requireNonNull(workspace.getId());
         requireNonNull(clazz);
         return this.services.values().stream()
                 .filter(clazz::isInstance)
-                .filter(
-                        s ->
-                                s.getWorkspace() != null
-                                        && s.getWorkspace().getId().equals(workspace.getId()))
+                .filter(s ->
+                        s.getWorkspace() != null && s.getWorkspace().getId().equals(workspace.getId()))
                 .map(clazz::cast)
                 .findFirst();
     }
@@ -207,11 +200,9 @@ public class MemoryConfigRepository implements ConfigRepository {
         requireNonNull(clazz);
         return this.services.values().stream()
                 .filter(clazz::isInstance)
-                .filter(
-                        s ->
-                                s.getWorkspace() != null
-                                        && s.getWorkspace().getId().equals(workspace.getId())
-                                        && name.equals(s.getName()))
+                .filter(s -> s.getWorkspace() != null
+                        && s.getWorkspace().getId().equals(workspace.getId())
+                        && name.equals(s.getName()))
                 .map(clazz::cast)
                 .findFirst();
     }

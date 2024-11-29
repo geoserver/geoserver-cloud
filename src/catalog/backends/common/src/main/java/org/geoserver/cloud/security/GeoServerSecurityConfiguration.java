@@ -4,8 +4,11 @@
  */
 package org.geoserver.cloud.security;
 
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.cloud.autoconfigure.security.ConditionalOnGeoServerSecurityEnabled;
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
 import org.geoserver.cloud.event.security.SecurityConfigChanged;
@@ -20,12 +23,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.ImportResource;
-
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
-import javax.annotation.PostConstruct;
 
 /**
  * Loads geoserver security bean definitions from {@code
@@ -58,8 +55,7 @@ public class GeoServerSecurityConfiguration {
     private @Value("${geoserver.security.enabled:#{null}}") Boolean enabled;
 
     public @PostConstruct void log() {
-        log.info(
-                "GeoServer security being configured through classpath*:/applicationSecurityContext.xml");
+        log.info("GeoServer security being configured through classpath*:/applicationSecurityContext.xml");
     }
 
     @Bean
@@ -87,7 +83,6 @@ public class GeoServerSecurityConfiguration {
         Consumer<SecurityConfigChanged> publisher = localContextPublisher::publishEvent;
         Supplier<Long> updateSequenceIncrementor = updateSequence::nextValue;
 
-        return new CloudGeoServerSecurityManager(
-                dataDir, publisher, updateSequenceIncrementor, List.of(envAuth));
+        return new CloudGeoServerSecurityManager(dataDir, publisher, updateSequenceIncrementor, List.of(envAuth));
     }
 }

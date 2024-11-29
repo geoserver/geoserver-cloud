@@ -5,9 +5,13 @@
 package org.geoserver.gwc.config;
 
 import com.thoughtworks.xstream.XStream;
-
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.function.Consumer;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.cloud.gwc.event.ConfigChangeEvent;
 import org.geoserver.config.util.XStreamPersister;
 import org.geoserver.config.util.XStreamPersisterFactory;
@@ -19,13 +23,6 @@ import org.geoserver.platform.resource.Resource.Type;
 import org.geoserver.util.DimensionWarning;
 import org.geowebcache.storage.blobstore.memory.CacheConfiguration;
 import org.springframework.context.event.EventListener;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.function.Consumer;
 
 /**
  * extends {@link GWCConfigPersister} to send {@link ConfigChangeEvent}s upon {@link
@@ -91,8 +88,7 @@ public class CloudGwcConfigPersister extends GWCConfigPersister {
     private synchronized GWCConfig reload() throws IOException {
         Resource configFile = findConfigFile();
         if (configFile == null || configFile.getType() == Type.UNDEFINED) {
-            throw new IllegalStateException(
-                    "gwc config resource does not exist: %s".formatted(GWC_CONFIG_FILE));
+            throw new IllegalStateException("gwc config resource does not exist: %s".formatted(GWC_CONFIG_FILE));
         }
 
         XStreamPersister xmlPersister = this.xspf.createXMLPersister();
@@ -111,10 +107,7 @@ public class CloudGwcConfigPersister extends GWCConfigPersister {
         xs.alias("defaultOtherCacheFormats", HashSet.class);
         xs.alias("InnerCacheConfiguration", CacheConfiguration.class);
         xs.alias("warning", DimensionWarning.WarningType.class);
-        xs.allowTypes(
-                new Class[] {
-                    GWCConfig.class, CacheConfiguration.class, DimensionWarning.WarningType.class
-                });
+        xs.allowTypes(new Class[] {GWCConfig.class, CacheConfiguration.class, DimensionWarning.WarningType.class});
         xs.addDefaultImplementation(LinkedHashSet.class, Set.class);
     }
 }

@@ -4,10 +4,19 @@
  */
 package org.geoserver.cloud.config.catalog.backend.datadirectory;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.UncheckedIOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.Optional;
+import java.util.Properties;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.config.GeoServer;
@@ -22,17 +31,6 @@ import org.geoserver.platform.resource.LockProvider;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.ResourceStore;
 import org.geoserver.platform.resource.Resources;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.UncheckedIOException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.Optional;
-import java.util.Properties;
 
 /**
  * @since 1.0
@@ -168,8 +166,7 @@ public class DataDirectoryUpdateSequence implements UpdateSequence, GeoServerIni
     protected Properties load(Resource resource) throws IOException {
         byte[] contents = resource.getContents();
         Properties props = new Properties();
-        InputStreamReader reader =
-                new InputStreamReader(new ByteArrayInputStream(contents), CHARSET);
+        InputStreamReader reader = new InputStreamReader(new ByteArrayInputStream(contents), CHARSET);
         props.load(reader);
         return props;
     }

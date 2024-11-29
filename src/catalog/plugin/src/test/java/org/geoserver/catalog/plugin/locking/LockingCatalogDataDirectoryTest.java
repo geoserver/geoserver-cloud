@@ -4,6 +4,7 @@
  */
 package org.geoserver.catalog.plugin.locking;
 
+import java.io.File;
 import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.platform.resource.FileLockProvider;
 import org.geoserver.platform.resource.LockProvider;
@@ -11,14 +12,13 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.io.TempDir;
 
-import java.io.File;
-
 /**
  * @since 1.0
  */
 class LockingCatalogDataDirectoryTest extends LockingCatalogTest {
 
-    @TempDir File tmpDir;
+    @TempDir
+    File tmpDir;
 
     static @BeforeAll void beforeAll() {
         System.setProperty("CONFIGURATION_TRYLOCK_TIMEOUT", "100");

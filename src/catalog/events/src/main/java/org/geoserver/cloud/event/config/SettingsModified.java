@@ -6,11 +6,9 @@ package org.geoserver.cloud.event.config;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
-
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.cloud.event.info.InfoEvent;
 import org.geoserver.config.SettingsInfo;
@@ -29,10 +27,7 @@ public class SettingsModified extends ConfigInfoModified implements ConfigInfoEv
     }
 
     public SettingsModified(
-            long updateSequence,
-            @NonNull SettingsInfo settings,
-            @NonNull Patch patch,
-            @NonNull String workspaceId) {
+            long updateSequence, @NonNull SettingsInfo settings, @NonNull Patch patch, @NonNull String workspaceId) {
 
         super(updateSequence, resolveId(settings), prefixedName(settings), typeOf(settings), patch);
         this.workspaceId = workspaceId;

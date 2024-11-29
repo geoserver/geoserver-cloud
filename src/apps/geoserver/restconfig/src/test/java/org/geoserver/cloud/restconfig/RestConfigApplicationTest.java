@@ -25,7 +25,8 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("test")
 class RestConfigApplicationTest {
 
-    @Autowired private TestRestTemplate restTemplate;
+    @Autowired
+    private TestRestTemplate restTemplate;
 
     @BeforeEach
     void before() {
@@ -45,8 +46,7 @@ class RestConfigApplicationTest {
         testPathExtensionContentType("/rest/styles/line.json", APPLICATION_JSON);
         testPathExtensionContentType("/rest/styles/line.xml", APPLICATION_XML);
         testPathExtensionContentType("/rest/styles/line.html", TEXT_HTML);
-        testPathExtensionContentType(
-                "/rest/styles/line.sld", MediaType.valueOf(SLDHandler.MIMETYPE_10));
+        testPathExtensionContentType("/rest/styles/line.sld", MediaType.valueOf(SLDHandler.MIMETYPE_10));
 
         testPathExtensionContentType("/rest/workspaces.html", TEXT_HTML);
         testPathExtensionContentType("/rest/workspaces.xml", APPLICATION_XML);

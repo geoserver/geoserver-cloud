@@ -6,7 +6,6 @@ package org.geoserver.cloud.web.ui;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.geoserver.security.GeoServerSecurityManager;

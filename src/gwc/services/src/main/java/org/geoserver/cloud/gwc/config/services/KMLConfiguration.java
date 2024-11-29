@@ -20,6 +20,5 @@ import org.springframework.context.annotation.ImportResource;
 @ComponentScan(basePackageClasses = KMLController.class)
 @ImportResource(
         reader = FilteringXmlBeanDefinitionReader.class,
-        locations =
-                "jar:gs-gwc-[0-9]+.*!/geowebcache-kmlservice-context.xml#name=gwcServiceKMLTarget")
+        locations = "jar:gs-gwc-[0-9]+.*!/geowebcache-kmlservice-context.xml#name=gwcServiceKMLTarget")
 public class KMLConfiguration {}

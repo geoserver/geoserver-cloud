@@ -5,7 +5,6 @@
 package org.geoserver.cloud.autoconfigure.gwc.backend;
 
 import static com.github.stefanbirkner.systemlambda.SystemLambda.withEnvironmentVariable;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -14,7 +13,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.common.base.Throwables;
-
+import java.io.File;
+import java.io.IOException;
 import org.geoserver.cloud.autoconfigure.gwc.GeoWebCacheContextRunner;
 import org.geoserver.cloud.gwc.config.core.GeoWebCacheConfigurationProperties;
 import org.geoserver.cloud.gwc.repository.CloudDefaultStorageFinder;
@@ -27,15 +27,14 @@ import org.springframework.beans.InvalidPropertyException;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 
-import java.io.File;
-import java.io.IOException;
-
 /**
  * @since 1.0
  */
 class GwcCoreAutoConfigurationTest {
 
-    @TempDir File tmpDir;
+    @TempDir
+    File tmpDir;
+
     WebApplicationContextRunner runner;
 
     @BeforeEach
@@ -66,35 +65,25 @@ class GwcCoreAutoConfigurationTest {
 
     @Test
     void contextLoads() {
-        runner.run(
-                context -> {
-                    assertThat(context.isTypeMatch("gwcXmlConfig", CloudGwcXmlConfiguration.class))
-                            .isTrue();
-                    assertThat(
-                                    context.isTypeMatch(
-                                            "gwcXmlConfigResourceProvider",
-                                            CloudXMLResourceProvider.class))
-                            .isTrue();
-                    assertThat(
-                                    context.isTypeMatch(
-                                            "gwcDefaultStorageFinder",
-                                            CloudDefaultStorageFinder.class))
-                            .isTrue();
-                });
+        runner.run(context -> {
+            assertThat(context.isTypeMatch("gwcXmlConfig", CloudGwcXmlConfiguration.class))
+                    .isTrue();
+            assertThat(context.isTypeMatch("gwcXmlConfigResourceProvider", CloudXMLResourceProvider.class))
+                    .isTrue();
+            assertThat(context.isTypeMatch("gwcDefaultStorageFinder", CloudDefaultStorageFinder.class))
+                    .isTrue();
+        });
     }
 
-    protected void assertContextLoadFails(
-            Class<? extends Exception> expectedException, String expectedMessage) {
-        runner.run(
-                c -> {
-                    Throwable startupFailure = c.getStartupFailure();
-                    assertNotNull(startupFailure);
-                    Throwable root = Throwables.getRootCause(startupFailure);
-                    if (!expectedException.isInstance(root)) root.printStackTrace();
-                    assertInstanceOf(expectedException, root);
-                    if (null != expectedMessage)
-                        assertThat(root.getMessage(), containsString(expectedMessage));
-                });
+    protected void assertContextLoadFails(Class<? extends Exception> expectedException, String expectedMessage) {
+        runner.run(c -> {
+            Throwable startupFailure = c.getStartupFailure();
+            assertNotNull(startupFailure);
+            Throwable root = Throwables.getRootCause(startupFailure);
+            if (!expectedException.isInstance(root)) root.printStackTrace();
+            assertInstanceOf(expectedException, root);
+            if (null != expectedMessage) assertThat(root.getMessage(), containsString(expectedMessage));
+        });
     }
 
     /**
@@ -106,25 +95,17 @@ class GwcCoreAutoConfigurationTest {
         File dir = new File(tmpDir, "env_cachedir");
         assertThat(dir).doesNotExist();
         String dirpath = dir.getAbsolutePath();
-        withEnvironmentVariable("GEOWEBCACHE_CACHE_DIR", dirpath)
-                .execute(
-                        () -> {
-                            assertThat(System.getenv("GEOWEBCACHE_CACHE_DIR")).isEqualTo(dirpath);
-                            runner.withPropertyValues(
-                                            "gwc.cache-directory: ${GEOWEBCACHE_CACHE_DIR}")
-                                    .run(
-                                            context -> {
-                                                assertThat(context).hasNotFailed();
-                                                assertThat(dir).isDirectory();
+        withEnvironmentVariable("GEOWEBCACHE_CACHE_DIR", dirpath).execute(() -> {
+            assertThat(System.getenv("GEOWEBCACHE_CACHE_DIR")).isEqualTo(dirpath);
+            runner.withPropertyValues("gwc.cache-directory: ${GEOWEBCACHE_CACHE_DIR}")
+                    .run(context -> {
+                        assertThat(context).hasNotFailed();
+                        assertThat(dir).isDirectory();
 
-                                                var gwcConfigProps =
-                                                        context.getBean(
-                                                                GeoWebCacheConfigurationProperties
-                                                                        .class);
-                                                assertThat(gwcConfigProps.getCacheDirectory())
-                                                        .isEqualTo(dir.toPath());
-                                            });
-                        });
+                        var gwcConfigProps = context.getBean(GeoWebCacheConfigurationProperties.class);
+                        assertThat(gwcConfigProps.getCacheDirectory()).isEqualTo(dir.toPath());
+                    });
+        });
         assertThat(System.getenv("GEOWEBCACHE_CACHE_DIR")).isNull();
     }
 
@@ -137,11 +118,10 @@ class GwcCoreAutoConfigurationTest {
         System.setProperty("GEOWEBCACHE_CACHE_DIR", dirpath);
         try {
             runner.withPropertyValues("gwc.cache-directory: ${GEOWEBCACHE_CACHE_DIR}")
-                    .run(
-                            context -> {
-                                assertThat(context).hasNotFailed();
-                                assertThat(dir).isDirectory();
-                            });
+                    .run(context -> {
+                        assertThat(context).hasNotFailed();
+                        assertThat(dir).isDirectory();
+                    });
         } finally {
             System.clearProperty("GEOWEBCACHE_CACHE_DIR");
         }

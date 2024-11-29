@@ -11,6 +11,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
+import java.util.function.Consumer;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.CoverageInfo;
 import org.geoserver.catalog.CoverageStoreInfo;
@@ -32,8 +33,6 @@ import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.catalog.plugin.Patch;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.function.Consumer;
 
 class EventuallyConsistentCatalogFacadeTest {
 

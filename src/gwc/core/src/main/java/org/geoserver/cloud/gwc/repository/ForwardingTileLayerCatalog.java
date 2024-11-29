@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Delegate;
-
 import org.geoserver.gwc.layer.TileLayerCatalog;
 
 /** Base class for {@link TileLayerCatalog} decorators */
@@ -16,5 +15,8 @@ import org.geoserver.gwc.layer.TileLayerCatalog;
 public abstract class ForwardingTileLayerCatalog implements TileLayerCatalog {
 
     /** Note all {@link TileLayerCatalog} methods are delegated to this subject */
-    @Getter @Delegate @NonNull protected final TileLayerCatalog delegate;
+    @Getter
+    @Delegate
+    @NonNull
+    protected final TileLayerCatalog delegate;
 }

@@ -5,7 +5,6 @@
 package org.geoserver.cloud.autoconfigure.security.ldap;
 
 import lombok.Data;
-
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties("geoserver.security")

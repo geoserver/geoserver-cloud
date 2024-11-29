@@ -10,7 +10,8 @@ import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-
+import java.io.IOException;
+import java.util.concurrent.atomic.AtomicReference;
 import org.locationtech.jts.geom.CoordinateSequence;
 import org.locationtech.jts.geom.CoordinateSequenceFilter;
 import org.locationtech.jts.geom.Geometry;
@@ -22,9 +23,6 @@ import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 
-import java.io.IOException;
-import java.util.concurrent.atomic.AtomicReference;
-
 public class GeometrySerializer extends StdSerializer<Geometry> {
     private static final long serialVersionUID = 1L;
 
@@ -34,14 +32,10 @@ public class GeometrySerializer extends StdSerializer<Geometry> {
 
     @Override
     public void serializeWithType(
-            Geometry value,
-            JsonGenerator gen,
-            SerializerProvider serializers,
-            TypeSerializer typeSer)
+            Geometry value, JsonGenerator gen, SerializerProvider serializers, TypeSerializer typeSer)
             throws IOException {
 
-        WritableTypeId typeIdDef =
-                typeSer.writeTypePrefix(gen, typeSer.typeId(value, JsonToken.START_OBJECT));
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen, typeSer.typeId(value, JsonToken.START_OBJECT));
 
         serializeContent(value, gen, null);
 
@@ -49,8 +43,7 @@ public class GeometrySerializer extends StdSerializer<Geometry> {
     }
 
     @Override
-    public void serialize(Geometry value, JsonGenerator gen, SerializerProvider serializers)
-            throws IOException {
+    public void serialize(Geometry value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
 
         serialize(value, gen);
     }
@@ -59,8 +52,7 @@ public class GeometrySerializer extends StdSerializer<Geometry> {
         serialize(geometry, generator, (String) null);
     }
 
-    public void serialize(Geometry geometry, JsonGenerator generator, String customNameProperty)
-            throws IOException {
+    public void serialize(Geometry geometry, JsonGenerator generator, String customNameProperty) throws IOException {
         if (geometry == null) {
             generator.writeNull();
             return;
@@ -70,8 +62,7 @@ public class GeometrySerializer extends StdSerializer<Geometry> {
         generator.writeEndObject();
     }
 
-    private void serializeContent(
-            Geometry geometry, JsonGenerator generator, String customNameProperty)
+    private void serializeContent(Geometry geometry, JsonGenerator generator, String customNameProperty)
             throws IOException {
         generator.writeStringField("type", geometry.getGeometryType());
         writeDimensions(geometry, generator);
@@ -128,8 +119,7 @@ public class GeometrySerializer extends StdSerializer<Geometry> {
         }
     }
 
-    private void writeMultiGeom(GeometryCollection multi, JsonGenerator generator)
-            throws IOException {
+    private void writeMultiGeom(GeometryCollection multi, JsonGenerator generator) throws IOException {
         generator.writeStartArray();
         for (int i = 0; i < multi.getNumGeometries(); i++) {
             writeGeometry(multi.getGeometryN(i), generator);
@@ -157,26 +147,24 @@ public class GeometrySerializer extends StdSerializer<Geometry> {
         }
     }
 
-    private void writeCoordinateSequence(Geometry simpleGeom, JsonGenerator generator)
-            throws IOException {
+    private void writeCoordinateSequence(Geometry simpleGeom, JsonGenerator generator) throws IOException {
         final AtomicReference<CoordinateSequence> seqRef = new AtomicReference<>();
-        simpleGeom.apply(
-                new CoordinateSequenceFilter() {
-                    @Override
-                    public void filter(CoordinateSequence seq, int i) {
-                        seqRef.set(seq);
-                    }
+        simpleGeom.apply(new CoordinateSequenceFilter() {
+            @Override
+            public void filter(CoordinateSequence seq, int i) {
+                seqRef.set(seq);
+            }
 
-                    @Override
-                    public boolean isGeometryChanged() {
-                        return false;
-                    }
+            @Override
+            public boolean isGeometryChanged() {
+                return false;
+            }
 
-                    @Override
-                    public boolean isDone() {
-                        return true;
-                    }
-                });
+            @Override
+            public boolean isDone() {
+                return true;
+            }
+        });
 
         CoordinateSequence seq = seqRef.get();
         int size = seq.size();
@@ -187,8 +175,7 @@ public class GeometrySerializer extends StdSerializer<Geometry> {
         generator.writeEndArray();
     }
 
-    private void writeCoordinate(CoordinateSequence seq, int index, JsonGenerator generator)
-            throws IOException {
+    private void writeCoordinate(CoordinateSequence seq, int index, JsonGenerator generator) throws IOException {
         int dimension = seq.getDimension();
         generator.writeStartArray();
         for (int i = 0; i < dimension; i++) generator.writeNumber(seq.getOrdinate(index, i));

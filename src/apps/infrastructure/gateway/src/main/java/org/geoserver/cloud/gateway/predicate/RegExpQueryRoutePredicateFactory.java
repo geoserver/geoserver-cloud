@@ -4,26 +4,23 @@
  */
 package org.geoserver.cloud.gateway.predicate;
 
-import lombok.Data;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.Accessors;
-
-import org.springframework.cloud.gateway.handler.predicate.AbstractRoutePredicateFactory;
-import org.springframework.cloud.gateway.handler.predicate.GatewayPredicate;
-import org.springframework.cloud.gateway.handler.predicate.QueryRoutePredicateFactory;
-import org.springframework.util.StringUtils;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.server.ServerWebExchange;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
-
 import javax.validation.constraints.NotEmpty;
+import lombok.Data;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.Accessors;
+import org.springframework.cloud.gateway.handler.predicate.AbstractRoutePredicateFactory;
+import org.springframework.cloud.gateway.handler.predicate.GatewayPredicate;
+import org.springframework.cloud.gateway.handler.predicate.QueryRoutePredicateFactory;
+import org.springframework.util.StringUtils;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.server.ServerWebExchange;
 
 /**
  * Gateway predicate factory that allows matching by HTTP request query string parameters using
@@ -119,7 +116,8 @@ public class RegExpQueryRoutePredicateFactory
     @Validated
     public static class Config {
 
-        @NotEmpty private String paramRegexp;
+        @NotEmpty
+        private String paramRegexp;
 
         private String valueRegexp;
     }

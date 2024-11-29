@@ -4,12 +4,11 @@
  */
 package org.geoserver.catalog.plugin.rules;
 
+import java.util.List;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
-
-import java.util.List;
 
 /** Encapsulates default {@link Catalog} business rules for {@link StoreInfo} objects */
 public class DefaultStoreInfoRules implements CatalogInfoBusinessRules<StoreInfo> {
@@ -50,8 +49,7 @@ public class DefaultStoreInfoRules implements CatalogInfoBusinessRules<StoreInfo
             StoreInfo toRemove = context.getObject();
             WorkspaceInfo workspace = toRemove.getWorkspace();
             DataStoreInfo defaultDs = context.getCatalog().getDefaultDataStore(workspace);
-            boolean needsToSelectNew =
-                    defaultDs == null || toRemove.getId().equals(defaultDs.getId());
+            boolean needsToSelectNew = defaultDs == null || toRemove.getId().equals(defaultDs.getId());
             if (needsToSelectNew) {
                 context.setContextOption(SELECT_NEW_DEFAULT_FOR_WORKSPACE, workspace);
             }

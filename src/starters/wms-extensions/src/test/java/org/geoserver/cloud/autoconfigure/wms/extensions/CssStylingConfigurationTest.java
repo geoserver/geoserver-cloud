@@ -21,16 +21,14 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
  */
 class CssStylingConfigurationTest {
 
-    private final ApplicationContextRunner contextRunner =
-            new ApplicationContextRunner()
-                    .withBean("extensions", GeoServerExtensions.class)
-                    .withConfiguration(AutoConfigurations.of(CssStylingConfiguration.class));
+    private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+            .withBean("extensions", GeoServerExtensions.class)
+            .withConfiguration(AutoConfigurations.of(CssStylingConfiguration.class));
 
     @Test
     void cssHandler_no_config() {
-        contextRunner
-                .withBean("sldHandler", SLDHandler.class)
-                .run(context -> assertThat(context).hasSingleBean(CssHandler.class));
+        contextRunner.withBean("sldHandler", SLDHandler.class).run(context -> assertThat(context)
+                .hasSingleBean(CssHandler.class));
     }
 
     @Test
@@ -46,25 +44,19 @@ class CssStylingConfigurationTest {
         contextRunner
                 .withBean("sldHandler", SLDHandler.class)
                 .withPropertyValues("geoserver.styling.css.enabled=false")
-                .run(
-                        context -> {
-                            assertThat(context).doesNotHaveBean(CssHandler.class);
-                            assertThat(context).hasBean("cssDisabledModuleStatus");
-                            assertThat(context)
-                                    .getBean("cssDisabledModuleStatus")
-                                    .isInstanceOf(ModuleStatusImpl.class);
-                        });
+                .run(context -> {
+                    assertThat(context).doesNotHaveBean(CssHandler.class);
+                    assertThat(context).hasBean("cssDisabledModuleStatus");
+                    assertThat(context).getBean("cssDisabledModuleStatus").isInstanceOf(ModuleStatusImpl.class);
+                });
     }
 
     @Test
     void cssHandler_conditional_on_sldHandler() {
-        contextRunner
-                .withPropertyValues("geoserver.styling.css.enabled=true")
-                .run(
-                        context -> {
-                            assertThat(context).doesNotHaveBean(SLDHandler.class);
-                            assertThat(context).doesNotHaveBean(CssHandler.class);
-                            assertThat(context).doesNotHaveBean("cssDisabledModuleStatus");
-                        });
+        contextRunner.withPropertyValues("geoserver.styling.css.enabled=true").run(context -> {
+            assertThat(context).doesNotHaveBean(SLDHandler.class);
+            assertThat(context).doesNotHaveBean(CssHandler.class);
+            assertThat(context).doesNotHaveBean("cssDisabledModuleStatus");
+        });
     }
 }

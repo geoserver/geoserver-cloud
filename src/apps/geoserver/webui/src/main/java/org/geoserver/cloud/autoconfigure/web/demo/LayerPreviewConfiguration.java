@@ -51,8 +51,7 @@ public class LayerPreviewConfiguration extends AbstractWebUIAutoConfiguration {
             locations = {"jar:gs-web-demo-.*!/applicationContext.xml#name=openLayersPreview"})
     public class OpenLayersCommonFormatsConfiguration extends AbstractWebUIAutoConfiguration {
 
-        static final String CONFIG_PREFIX =
-                LayerPreviewConfiguration.COMMON_FORMATS_PREFIX + ".open-layers";
+        static final String CONFIG_PREFIX = LayerPreviewConfiguration.COMMON_FORMATS_PREFIX + ".open-layers";
 
         @Override
         public String getConfigPrefix() {
@@ -71,8 +70,7 @@ public class LayerPreviewConfiguration extends AbstractWebUIAutoConfiguration {
             locations = {"jar:gs-web-demo-.*!/applicationContext.xml#name=gMLPreview"})
     public class GmlCommonFormatsConfiguration extends AbstractWebUIAutoConfiguration {
 
-        static final String CONFIG_PREFIX =
-                LayerPreviewConfiguration.COMMON_FORMATS_PREFIX + ".gml";
+        static final String CONFIG_PREFIX = LayerPreviewConfiguration.COMMON_FORMATS_PREFIX + ".gml";
 
         @Override
         public String getConfigPrefix() {
@@ -91,8 +89,7 @@ public class LayerPreviewConfiguration extends AbstractWebUIAutoConfiguration {
             locations = {"jar:gs-web-demo-.*!/applicationContext.xml#name=kMLPreview"})
     public class KmlCommonFormatsConfiguration extends AbstractWebUIAutoConfiguration {
 
-        static final String CONFIG_PREFIX =
-                LayerPreviewConfiguration.COMMON_FORMATS_PREFIX + ".kml";
+        static final String CONFIG_PREFIX = LayerPreviewConfiguration.COMMON_FORMATS_PREFIX + ".kml";
 
         @Override
         public String getConfigPrefix() {

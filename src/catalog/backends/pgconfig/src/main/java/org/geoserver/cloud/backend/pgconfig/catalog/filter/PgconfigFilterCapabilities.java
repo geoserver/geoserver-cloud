@@ -5,7 +5,6 @@
 package org.geoserver.cloud.backend.pgconfig.catalog.filter;
 
 import lombok.experimental.UtilityClass;
-
 import org.geoserver.function.IsInstanceOf;
 import org.geotools.api.filter.ExcludeFilter;
 import org.geotools.api.filter.Id;

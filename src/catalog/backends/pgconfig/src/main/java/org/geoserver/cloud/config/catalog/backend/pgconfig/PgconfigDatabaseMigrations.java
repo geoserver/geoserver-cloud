@@ -4,14 +4,12 @@
  */
 package org.geoserver.cloud.config.catalog.backend.pgconfig;
 
+import javax.sql.DataSource;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
-
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.output.MigrateResult;
-
-import javax.sql.DataSource;
 
 /**
  * @since 1.4

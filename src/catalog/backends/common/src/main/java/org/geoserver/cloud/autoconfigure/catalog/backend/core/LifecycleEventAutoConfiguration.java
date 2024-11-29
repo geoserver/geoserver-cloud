@@ -22,8 +22,7 @@ import org.springframework.context.annotation.Bean;
 public class LifecycleEventAutoConfiguration {
 
     @Bean
-    LifecycleEventProcessor lifecycleEventProcessor(
-            @Qualifier("geoServer") GeoServerImpl rawGeoServer) {
+    LifecycleEventProcessor lifecycleEventProcessor(@Qualifier("geoServer") GeoServerImpl rawGeoServer) {
 
         return new LifecycleEventProcessor(rawGeoServer);
     }

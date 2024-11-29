@@ -7,12 +7,19 @@ package org.geoserver.cloud.config.catalog.backend.jdbcconfig;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.zaxxer.hikari.HikariDataSource;
-
+import java.io.File;
+import java.io.IOException;
+import java.io.Serializable;
+import java.nio.file.Path;
+import java.sql.Driver;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
+import javax.sql.DataSource;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.plugin.CatalogFacadeExtensionAdapter;
@@ -58,17 +65,6 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.support.DatabaseStartupValidator;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.util.StringUtils;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.Serializable;
-import java.nio.file.Path;
-import java.sql.Driver;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.TimeUnit;
-
-import javax.sql.DataSource;
 
 /**
  * Configure JDBC Config catalog
@@ -123,13 +119,10 @@ public class JDBCConfigBackendConfigurer extends GeoServerBackendConfigurer {
     private JdbcConfigConfigurationProperties jdbcconfigConfig;
 
     public JDBCConfigBackendConfigurer(
-            JdbcConfigConfigurationProperties backendConfig,
-            @Value("${info.instance-id:}") String instanceId) {
+            JdbcConfigConfigurationProperties backendConfig, @Value("${info.instance-id:}") String instanceId) {
         this.jdbcconfigConfig = backendConfig;
         this.instanceId = instanceId;
-        log.info(
-                "Loading geoserver config backend with {}",
-                JDBCConfigBackendConfigurer.class.getSimpleName());
+        log.info("Loading geoserver config backend with {}", JDBCConfigBackendConfigurer.class.getSimpleName());
     }
 
     @DependsOn("jdbcConfigDataSourceStartupValidator")
@@ -177,12 +170,7 @@ public class JDBCConfigBackendConfigurer extends GeoServerBackendConfigurer {
         return loader;
     }
 
-    @DependsOn({
-        "extensions",
-        "JDBCConfigDB",
-        "jdbcConfigDataSourceStartupValidator",
-        "noopCacheProvider"
-    })
+    @DependsOn({"extensions", "JDBCConfigDB", "jdbcConfigDataSourceStartupValidator", "noopCacheProvider"})
     @Bean(name = {"resourceStoreImpl"})
     protected @Override ResourceStore resourceStoreImpl() {
 
@@ -277,8 +265,7 @@ public class JDBCConfigBackendConfigurer extends GeoServerBackendConfigurer {
         Catalog rawCatalog = (Catalog) GeoServerExtensions.bean("rawCatalog");
         GeoServer geoserver = (GeoServer) GeoServerExtensions.bean("geoServer");
         try {
-            return new CloudJdbcGeoServerLoader(
-                    rawCatalog, geoserver, resourceLoader(), config, configdb);
+            return new CloudJdbcGeoServerLoader(rawCatalog, geoserver, resourceLoader(), config, configdb);
         } catch (Exception e) {
             throw new BeanInstantiationException(JDBCGeoServerLoader.class, e.getMessage(), e);
         }
@@ -312,9 +299,7 @@ public class JDBCConfigBackendConfigurer extends GeoServerBackendConfigurer {
     }
 
     private boolean initDbSchema(
-            JDBCConfigProperties catalogConfig,
-            CloudJdbcStoreProperties resourceStoreConfig,
-            ConfigDatabase configDb) {
+            JDBCConfigProperties catalogConfig, CloudJdbcStoreProperties resourceStoreConfig, ConfigDatabase configDb) {
         // Need to check whether the db needs to be initialized here because secureCatalog's
         // constructor may use the CatalogFacade during initialization (by means of the
         // DefaultResourceAccessManager), before JDBCGeoServerLoader.setCatalogFacade() was called
@@ -360,12 +345,12 @@ public class JDBCConfigBackendConfigurer extends GeoServerBackendConfigurer {
         return new CacheProvider() {
 
             @SuppressWarnings("rawtypes")
-            private final Cache noOpCache = CacheBuilder.newBuilder().maximumSize(0).build();
+            private final Cache noOpCache =
+                    CacheBuilder.newBuilder().maximumSize(0).build();
 
             @SuppressWarnings("unchecked")
             @Override
-            public <K extends Serializable, V extends Serializable> Cache<K, V> getCache(
-                    String cacheName) {
+            public <K extends Serializable, V extends Serializable> Cache<K, V> getCache(String cacheName) {
                 return noOpCache;
             }
         };
@@ -377,8 +362,7 @@ public class JDBCConfigBackendConfigurer extends GeoServerBackendConfigurer {
 
         @Override
         @SuppressWarnings("unchecked")
-        public <K extends Serializable, V extends Serializable> Cache<K, V> getCache(
-                @NonNull String cacheName) {
+        public <K extends Serializable, V extends Serializable> Cache<K, V> getCache(@NonNull String cacheName) {
 
             return (Cache<K, V>) caches.computeIfAbsent(cacheName, this::newCache);
         }
@@ -455,10 +439,9 @@ public class JDBCConfigBackendConfigurer extends GeoServerBackendConfigurer {
     @ConfigurationProperties(prefix = "geoserver.backend.jdbcconfig.datasource")
     DataSource jdbcConfigDataSource() {
         ExtendedDataSourceProperties props = jdbcconfigDataSourceProperties();
-        HikariDataSource dataSource =
-                props.initializeDataSourceBuilder() //
-                        .type(HikariDataSource.class)
-                        .build();
+        HikariDataSource dataSource = props.initializeDataSourceBuilder() //
+                .type(HikariDataSource.class)
+                .build();
 
         dataSource.setMaximumPoolSize(props.getMaximumPoolSize());
         dataSource.setMinimumIdle(props.getMinimumIdle());

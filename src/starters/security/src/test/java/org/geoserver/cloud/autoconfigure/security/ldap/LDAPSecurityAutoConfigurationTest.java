@@ -16,32 +16,24 @@ import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 
 class LDAPSecurityAutoConfigurationTest {
 
-    private WebApplicationContextRunner runner =
-            new WebApplicationContextRunner()
-                    .withConfiguration(AutoConfigurations.of(LDAPSecurityAutoConfiguration.class))
-                    .withBean(
-                            GeoServerSecurityManager.class,
-                            () -> mock(GeoServerSecurityManager.class));
+    private WebApplicationContextRunner runner = new WebApplicationContextRunner()
+            .withConfiguration(AutoConfigurations.of(LDAPSecurityAutoConfiguration.class))
+            .withBean(GeoServerSecurityManager.class, () -> mock(GeoServerSecurityManager.class));
 
     @Test
     void testExpectedBeans() {
-        runner.run(
-                context ->
-                        assertThat(context)
-                                .hasNotFailed()
-                                .hasSingleBean(LDAPSecurityProvider.class)
-                                .getBean(LDAPSecurityConfigProperties.class)
-                                .hasFieldOrPropertyWithValue("ldap", true));
+        runner.run(context -> assertThat(context)
+                .hasNotFailed()
+                .hasSingleBean(LDAPSecurityProvider.class)
+                .getBean(LDAPSecurityConfigProperties.class)
+                .hasFieldOrPropertyWithValue("ldap", true));
     }
 
     @Test
     void testDisabled() {
-        runner.withPropertyValues("geoserver.security.ldap=false")
-                .run(
-                        context ->
-                                assertThat(context)
-                                        .hasNotFailed()
-                                        .doesNotHaveBean(LDAPSecurityProvider.class)
-                                        .doesNotHaveBean(JDBCSecurityConfigProperties.class));
+        runner.withPropertyValues("geoserver.security.ldap=false").run(context -> assertThat(context)
+                .hasNotFailed()
+                .doesNotHaveBean(LDAPSecurityProvider.class)
+                .doesNotHaveBean(JDBCSecurityConfigProperties.class));
     }
 }

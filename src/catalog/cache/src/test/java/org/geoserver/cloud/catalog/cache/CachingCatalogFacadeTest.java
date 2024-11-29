@@ -21,8 +21,13 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.Callable;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import lombok.SneakyThrows;
-
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.CoverageInfo;
@@ -58,17 +63,13 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.internal.verification.VerificationModeFactory;
 import org.mockito.verification.VerificationMode;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.Callable;
-import java.util.function.Function;
-import java.util.function.Supplier;
-
 class CachingCatalogFacadeTest {
 
-    @Mock ExtendedCatalogFacade subject;
-    @Mock CachingCatalogFacadeContainmentSupport supportMock;
+    @Mock
+    ExtendedCatalogFacade subject;
+
+    @Mock
+    CachingCatalogFacadeContainmentSupport supportMock;
 
     CachingCatalogFacade facade;
 
@@ -151,8 +152,7 @@ class CachingCatalogFacadeTest {
     @Test
     void testUpdate() {
         assertThrows(NullPointerException.class, () -> facade.update(null, mock(Patch.class)));
-        assertThrows(
-                NullPointerException.class, () -> facade.update(mock(WorkspaceInfo.class), null));
+        assertThrows(NullPointerException.class, () -> facade.update(mock(WorkspaceInfo.class), null));
         testUpdate(WorkspaceInfo.class);
         testUpdate(NamespaceInfo.class);
         testUpdate(DataStoreInfo.class);
@@ -177,14 +177,13 @@ class CachingCatalogFacadeTest {
         String propName = NamespaceInfo.class.equals(type) ? "prefix" : "name";
         Patch patch = new Patch(List.of(new Patch.Property(propName, newPrefixedName)));
 
-        facade =
-                new CachingCatalogFacade(subject, supportMock) {
+        facade = new CachingCatalogFacade(subject, supportMock) {
 
-                    @Override
-                    Optional<String> newPrefixedName(CatalogInfo info, Patch patch) {
-                        return Optional.of(newPrefixedName);
-                    }
-                };
+            @Override
+            Optional<String> newPrefixedName(CatalogInfo info, Patch patch) {
+                return Optional.of(newPrefixedName);
+            }
+        };
 
         facade.update(info, patch);
 
@@ -279,8 +278,7 @@ class CachingCatalogFacadeTest {
 
     @Test
     void testGetResource() {
-        assertThrows(
-                NullPointerException.class, () -> facade.getResource(null, ResourceInfo.class));
+        assertThrows(NullPointerException.class, () -> facade.getResource(null, ResourceInfo.class));
         assertThrows(NullPointerException.class, () -> facade.getResource("id", null));
         testGetResource(FeatureTypeInfo.class);
         testGetResource(CoverageInfo.class);
@@ -303,17 +301,12 @@ class CachingCatalogFacadeTest {
 
     @Test
     void testGetResourceByName() {
+        assertThrows(NullPointerException.class, () -> facade.getResourceByName(null, "name", ResourceInfo.class));
         assertThrows(
                 NullPointerException.class,
-                () -> facade.getResourceByName(null, "name", ResourceInfo.class));
+                () -> facade.getResourceByName(mock(NamespaceInfo.class), null, ResourceInfo.class));
         assertThrows(
-                NullPointerException.class,
-                () ->
-                        facade.getResourceByName(
-                                mock(NamespaceInfo.class), null, ResourceInfo.class));
-        assertThrows(
-                NullPointerException.class,
-                () -> facade.getResourceByName(mock(NamespaceInfo.class), "name", null));
+                NullPointerException.class, () -> facade.getResourceByName(mock(NamespaceInfo.class), "name", null));
 
         facade = new CachingCatalogFacade(subject);
         FeatureTypeInfo info = stub(FeatureTypeInfo.class);
@@ -596,9 +589,7 @@ class CachingCatalogFacadeTest {
 
     @Test
     void testOnDefaultDataStoreSet() {
-        var event =
-                DefaultDataStoreSet.createLocal(
-                        1_000L, stub(WorkspaceInfo.class), stub(DataStoreInfo.class));
+        var event = DefaultDataStoreSet.createLocal(1_000L, stub(WorkspaceInfo.class), stub(DataStoreInfo.class));
 
         facade.onDefaultDataStoreSet(event);
         verify(supportMock, once()).evictDefaultDataStore(eq(event.getWorkspaceId()), any());
@@ -611,8 +602,7 @@ class CachingCatalogFacadeTest {
 
         facade.onCatalogInfoAdded(event);
 
-        verify(supportMock, once())
-                .evict(event.getObjectId(), event.getObjectName(), event.getObjectType());
+        verify(supportMock, once()).evict(event.getObjectId(), event.getObjectName(), event.getObjectType());
 
         when(event.isRemote()).thenReturn(false);
         clearInvocations(supportMock);
@@ -628,10 +618,8 @@ class CachingCatalogFacadeTest {
 
         facade.onCatalogInfoModified(event);
 
-        verify(supportMock, once())
-                .evict(event.getObjectId(), event.getObjectName(), event.getObjectType());
-        verify(supportMock, once())
-                .evict(event.getObjectId(), event.getOldName(), event.getObjectType());
+        verify(supportMock, once()).evict(event.getObjectId(), event.getObjectName(), event.getObjectType());
+        verify(supportMock, once()).evict(event.getObjectId(), event.getOldName(), event.getObjectType());
 
         when(event.isRemote()).thenReturn(false);
         clearInvocations(supportMock);
@@ -646,8 +634,7 @@ class CachingCatalogFacadeTest {
 
         facade.onCatalogInfoRemovedEvent(event);
 
-        verify(supportMock, once())
-                .evict(event.getObjectId(), event.getObjectName(), event.getObjectType());
+        verify(supportMock, once()).evict(event.getObjectId(), event.getObjectName(), event.getObjectType());
 
         when(event.isRemote()).thenReturn(false);
         clearInvocations(supportMock);

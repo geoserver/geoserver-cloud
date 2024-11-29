@@ -8,9 +8,22 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.awt.Color;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.sql.Date;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.IntStream;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geotools.api.feature.type.Name;
 import org.geotools.api.filter.capability.FunctionName;
 import org.geotools.api.parameter.Parameter;
@@ -34,23 +47,7 @@ import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
-
 import si.uom.SI;
-
-import java.awt.Color;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.sql.Date;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.IntStream;
 
 /**
  * Abstract test suite for {@link Expression} Data Transfer Objects or POJOS; to be used both for
@@ -67,8 +64,7 @@ public abstract class ExpressionRoundtripTest {
 
     protected abstract <E extends Expression> E roundtripTest(E dto) throws Exception;
 
-    protected abstract Expression.FunctionName roundtripTest(Expression.FunctionName dto)
-            throws Exception;
+    protected abstract Expression.FunctionName roundtripTest(Expression.FunctionName dto) throws Exception;
 
     @Test
     void propertySimple() throws Exception {
@@ -96,10 +92,7 @@ public abstract class ExpressionRoundtripTest {
 
     @Test
     void binaryExpressionAdd() throws Exception {
-        BinaryExpression dto =
-                new Add()
-                        .setExpression1(propertyName("name"))
-                        .setExpression2(literal(Long.MAX_VALUE));
+        BinaryExpression dto = new Add().setExpression1(propertyName("name")).setExpression2(literal(Long.MAX_VALUE));
         roundtripTest(dto);
     }
 
@@ -112,8 +105,7 @@ public abstract class ExpressionRoundtripTest {
 
     @Test
     void binaryExpressionDivide() throws Exception {
-        BinaryExpression dto =
-                new Divide().setExpression1(propertyName("name")).setExpression2(literal(1000));
+        BinaryExpression dto = new Divide().setExpression1(propertyName("name")).setExpression2(literal(1000));
         roundtripTest(dto);
     }
 
@@ -151,22 +143,13 @@ public abstract class ExpressionRoundtripTest {
 
     @Test
     void literalBigInteger() throws Exception {
-        roundtripTest(
-                literal(
-                        BigInteger.valueOf(Long.MAX_VALUE)
-                                .add(BigInteger.valueOf(Long.MAX_VALUE))));
-        roundtripTest(
-                literal(
-                        BigInteger.valueOf(Long.MIN_VALUE)
-                                .subtract(BigInteger.valueOf(Long.MAX_VALUE))));
+        roundtripTest(literal(BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.valueOf(Long.MAX_VALUE))));
+        roundtripTest(literal(BigInteger.valueOf(Long.MIN_VALUE).subtract(BigInteger.valueOf(Long.MAX_VALUE))));
     }
 
     @Test
     void literalBigDecimal() throws Exception {
-        roundtripTest(
-                literal(
-                        BigDecimal.valueOf(Double.MAX_VALUE)
-                                .add(BigDecimal.valueOf(Double.MAX_VALUE))));
+        roundtripTest(literal(BigDecimal.valueOf(Double.MAX_VALUE).add(BigDecimal.valueOf(Double.MAX_VALUE))));
     }
 
     @Test
@@ -325,32 +308,28 @@ public abstract class ExpressionRoundtripTest {
     void allAvailableFunctions() throws Exception {
         // build a list of ignored function names, due to inability to serialize/deserialize their
         // argument types
-        Set<String> ignore =
-                new HashSet<String>(
-                        Arrays.asList(
-                                "contrast",
-                                "darken",
-                                "desaturate",
-                                "grayscale",
-                                "lighten",
-                                "mix",
-                                "inArray",
-                                "relatePattern",
-                                "relate",
-                                "rescaleToPixels",
-                                "saturate",
-                                "shade",
-                                "spin",
-                                "tint",
-                                "Categorize"));
+        Set<String> ignore = new HashSet<String>(Arrays.asList(
+                "contrast",
+                "darken",
+                "desaturate",
+                "grayscale",
+                "lighten",
+                "mix",
+                "inArray",
+                "relatePattern",
+                "relate",
+                "rescaleToPixels",
+                "saturate",
+                "shade",
+                "spin",
+                "tint",
+                "Categorize"));
 
         FunctionFinder finder = new FunctionFinder(null);
         List<FunctionName> allFunctionDescriptions = finder.getAllFunctionDescriptions();
         for (FunctionName functionName : allFunctionDescriptions) {
             if (ignore.contains(functionName.getName())) {
-                print(
-                        "Ignoring function {}, can't represent its arguments in JSON",
-                        functionName.getName());
+                print("Ignoring function {}, can't represent its arguments in JSON", functionName.getName());
                 continue;
             }
             testFunctionRoundtrip(functionName);
@@ -360,10 +339,9 @@ public abstract class ExpressionRoundtripTest {
     @Test
     void allAvailableFunctionNames() throws Exception {
         FunctionFinder finder = new FunctionFinder(null);
-        List<FunctionName> allFunctionDescriptions =
-                finder.getAllFunctionDescriptions().stream()
-                        .sorted((f1, f2) -> f1.getName().compareTo(f2.getName()))
-                        .toList();
+        List<FunctionName> allFunctionDescriptions = finder.getAllFunctionDescriptions().stream()
+                .sorted((f1, f2) -> f1.getName().compareTo(f2.getName()))
+                .toList();
         for (FunctionName functionName : allFunctionDescriptions) {
             testFunctionNameRoundtrip(functionName);
         }
@@ -497,8 +475,7 @@ public abstract class ExpressionRoundtripTest {
             case "org.geotools.api.referencing.crs.CoordinateReferenceSystem" -> sampleCrs();
             case "org.locationtech.jts.geom.Point" -> geom("POINT(1 1)");
             default -> throw new UnsupportedOperationException(
-                    "Unexpected parameter type, add a sample value: '%s'"
-                            .formatted(type.getCanonicalName()));
+                    "Unexpected parameter type, add a sample value: '%s'".formatted(type.getCanonicalName()));
         };
     }
 

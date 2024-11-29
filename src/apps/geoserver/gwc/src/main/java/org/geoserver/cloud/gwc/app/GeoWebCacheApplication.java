@@ -18,8 +18,7 @@ public class GeoWebCacheApplication {
             SpringApplication.run(GeoWebCacheApplication.class, args);
         } catch (RuntimeException e) {
             try {
-                LoggerFactory.getLogger(GeoWebCacheApplication.class)
-                        .error("Application run failed", e);
+                LoggerFactory.getLogger(GeoWebCacheApplication.class).error("Application run failed", e);
             } finally {
                 System.exit(-1);
             }

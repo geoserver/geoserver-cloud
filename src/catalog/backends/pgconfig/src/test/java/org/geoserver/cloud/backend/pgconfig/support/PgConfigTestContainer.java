@@ -6,10 +6,9 @@ package org.geoserver.cloud.backend.pgconfig.support;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-
+import javax.sql.DataSource;
 import lombok.Getter;
 import lombok.SneakyThrows;
-
 import org.geoserver.cloud.autoconfigure.jndi.SimpleJNDIStaticContextInitializer;
 import org.geoserver.cloud.config.catalog.backend.pgconfig.PgconfigDatabaseMigrations;
 import org.geoserver.cloud.config.jndi.JNDIDataSourceConfiguration;
@@ -18,8 +17,6 @@ import org.springframework.boot.test.context.runner.AbstractApplicationContextRu
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.testcontainers.Testcontainers;
 import org.testcontainers.containers.PostgreSQLContainer;
-
-import javax.sql.DataSource;
 
 /**
  * A {@link Testcontainers test container} based on {@link PostgreSQLContainer} using PostgreSQL 15
@@ -30,8 +27,7 @@ import javax.sql.DataSource;
  * @since 1.6
  */
 @SuppressWarnings("java:S119")
-public class PgConfigTestContainer<SELF extends PostgreSQLContainer<SELF>>
-        extends PostgreSQLContainer<SELF> {
+public class PgConfigTestContainer<SELF extends PostgreSQLContainer<SELF>> extends PostgreSQLContainer<SELF> {
 
     private @Getter DataSource dataSource;
     private @Getter JdbcTemplate template;
@@ -57,11 +53,10 @@ public class PgConfigTestContainer<SELF extends PostgreSQLContainer<SELF>>
         hikariConfig.setSchema(schema);
         dataSource = new HikariDataSource(hikariConfig);
         template = new JdbcTemplate(dataSource);
-        databaseMigrations =
-                new PgconfigDatabaseMigrations()
-                        .setSchema(schema)
-                        .setDataSource(dataSource)
-                        .setCleanDisabled(false);
+        databaseMigrations = new PgconfigDatabaseMigrations()
+                .setSchema(schema)
+                .setDataSource(dataSource)
+                .setCleanDisabled(false);
         databaseMigrations.migrate();
         return this;
     }
@@ -76,13 +71,12 @@ public class PgConfigTestContainer<SELF extends PostgreSQLContainer<SELF>>
         String url = getJdbcUrl();
         String username = getUsername();
         String password = getPassword();
-        return (R)
-                runner.withPropertyValues( //
-                        "geoserver.backend.pgconfig.enabled=true", //
-                        "geoserver.backend.pgconfig.datasource.url=" + url, //
-                        "geoserver.backend.pgconfig.datasource.username=" + username, //
-                        "geoserver.backend.pgconfig.datasource.password=" + password //
-                        );
+        return (R) runner.withPropertyValues( //
+                "geoserver.backend.pgconfig.enabled=true", //
+                "geoserver.backend.pgconfig.datasource.url=" + url, //
+                "geoserver.backend.pgconfig.datasource.username=" + username, //
+                "geoserver.backend.pgconfig.datasource.password=" + password //
+                );
     }
 
     @SuppressWarnings("unchecked")
@@ -90,19 +84,18 @@ public class PgConfigTestContainer<SELF extends PostgreSQLContainer<SELF>>
         String url = getJdbcUrl();
         String username = getUsername();
         String password = getPassword();
-        return (R)
-                runner
-                        // enable simplejndi
-                        .withInitializer(new SimpleJNDIStaticContextInitializer())
-                        .withConfiguration(AutoConfigurations.of(JNDIDataSourceConfiguration.class))
-                        .withPropertyValues(
-                                "geoserver.backend.pgconfig.enabled: true", //
-                                // java:comp/env/jdbc/testdb config properties
-                                "jndi.datasources.testdb.enabled: true", //
-                                "jndi.datasources.testdb.url: " + url,
-                                "jndi.datasources.testdb.username: " + username, //
-                                "jndi.datasources.testdb.password: " + password, //
-                                // pgconfig backend datasource config using jndi
-                                "geoserver.backend.pgconfig.datasource.jndi-name: java:comp/env/jdbc/testdb");
+        return (R) runner
+                // enable simplejndi
+                .withInitializer(new SimpleJNDIStaticContextInitializer())
+                .withConfiguration(AutoConfigurations.of(JNDIDataSourceConfiguration.class))
+                .withPropertyValues(
+                        "geoserver.backend.pgconfig.enabled: true", //
+                        // java:comp/env/jdbc/testdb config properties
+                        "jndi.datasources.testdb.enabled: true", //
+                        "jndi.datasources.testdb.url: " + url,
+                        "jndi.datasources.testdb.username: " + username, //
+                        "jndi.datasources.testdb.password: " + password, //
+                        // pgconfig backend datasource config using jndi
+                        "geoserver.backend.pgconfig.datasource.jndi-name: java:comp/env/jdbc/testdb");
     }
 }

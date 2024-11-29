@@ -31,26 +31,23 @@ class RemoteGeoServerEventsConfigurationTest {
     private final GeoServer mockGeoserver = mock(GeoServer.class);
     private final UpdateSequence updateSequence = mock(UpdateSequence.class);
 
-    private ApplicationContextRunner runner =
-            new ApplicationContextRunner()
-                    .withBean(ServiceMatcher.class, () -> mockServiceMatcher)
-                    .withBean(BusBridge.class, () -> mockBusBridge)
-                    .withBean(UpdateSequence.class, () -> updateSequence)
-                    .withBean("rawCatalog", Catalog.class, () -> mockCatalog)
-                    .withBean("Geoserver", GeoServer.class, () -> mockGeoserver)
-                    .withConfiguration(AutoConfigurations.of(BusAutoConfiguration.class))
-                    .withConfiguration(
-                            UserConfigurations.of(RemoteGeoServerEventsConfiguration.class));
+    private ApplicationContextRunner runner = new ApplicationContextRunner()
+            .withBean(ServiceMatcher.class, () -> mockServiceMatcher)
+            .withBean(BusBridge.class, () -> mockBusBridge)
+            .withBean(UpdateSequence.class, () -> updateSequence)
+            .withBean("rawCatalog", Catalog.class, () -> mockCatalog)
+            .withBean("Geoserver", GeoServer.class, () -> mockGeoserver)
+            .withConfiguration(AutoConfigurations.of(BusAutoConfiguration.class))
+            .withConfiguration(UserConfigurations.of(RemoteGeoServerEventsConfiguration.class));
 
     @Test
     void enabledByDefault() {
-        runner.run(
-                context -> {
-                    assertThat(context).hasSingleBean(GeoServerCatalogModule.class);
-                    assertThat(context).hasSingleBean(GeoServerConfigModule.class);
-                    assertThat(context).hasSingleBean(InfoEventResolver.class);
-                    assertThat(context).hasSingleBean(RemoteGeoServerEventMapper.class);
-                    assertThat(context).hasSingleBean(RemoteGeoServerEventBridge.class);
-                });
+        runner.run(context -> {
+            assertThat(context).hasSingleBean(GeoServerCatalogModule.class);
+            assertThat(context).hasSingleBean(GeoServerConfigModule.class);
+            assertThat(context).hasSingleBean(InfoEventResolver.class);
+            assertThat(context).hasSingleBean(RemoteGeoServerEventMapper.class);
+            assertThat(context).hasSingleBean(RemoteGeoServerEventBridge.class);
+        });
     }
 }

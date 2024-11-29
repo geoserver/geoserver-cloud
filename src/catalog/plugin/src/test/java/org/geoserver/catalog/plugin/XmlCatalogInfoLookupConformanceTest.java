@@ -4,6 +4,8 @@
  */
 package org.geoserver.catalog.plugin;
 
+import java.io.File;
+import java.util.function.UnaryOperator;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.plugin.forwarding.ResolvingCatalogFacadeDecorator;
 import org.geoserver.catalog.plugin.resolving.CatalogPropertyResolver;
@@ -13,9 +15,6 @@ import org.geoserver.config.util.XStreamPersister;
 import org.geoserver.config.util.XStreamPersisterFactory;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.junit.jupiter.api.Disabled;
-
-import java.io.File;
-import java.util.function.UnaryOperator;
 
 class XmlCatalogInfoLookupConformanceTest extends CatalogConformanceTest {
 
@@ -39,11 +38,9 @@ class XmlCatalogInfoLookupConformanceTest extends CatalogConformanceTest {
 
         ResolvingCatalogFacadeDecorator resolving = new ResolvingCatalogFacadeDecorator(rawFacade);
 
-        UnaryOperator<CatalogInfo> chainedResolver =
-                CatalogPropertyResolver.<CatalogInfo>of(catalog) //
-                                .andThen(ResolvingProxyResolver.of(catalog)) //
-                                .andThen(CollectionPropertiesInitializer.instance())
-                        ::apply;
+        UnaryOperator<CatalogInfo> chainedResolver = CatalogPropertyResolver.<CatalogInfo>of(catalog) //
+                .andThen(ResolvingProxyResolver.of(catalog)) //
+                .andThen(CollectionPropertiesInitializer.instance())::apply;
         resolving.setOutboundResolver(chainedResolver);
         catalog.setFacade(resolving);
         catalog.setResourceLoader(new GeoServerResourceLoader(tmpFolder));
@@ -59,8 +56,7 @@ class XmlCatalogInfoLookupConformanceTest extends CatalogConformanceTest {
     @Override
     public void testSaveDataStoreRollbacksBothStoreAndResources() {}
 
-    @Disabled(
-            "don't care it can't save the resourceinfo when saving a layer, it's just a demo implementation")
+    @Disabled("don't care it can't save the resourceinfo when saving a layer, it's just a demo implementation")
     @Override
     public void testEnableLayer() {}
 }

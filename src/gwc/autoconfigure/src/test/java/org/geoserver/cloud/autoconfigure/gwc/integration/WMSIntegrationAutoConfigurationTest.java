@@ -8,6 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 
+import java.io.File;
 import org.geoserver.cloud.autoconfigure.gwc.GeoWebCacheContextRunner;
 import org.geoserver.cloud.autoconfigure.gwc.integration.WMSIntegrationAutoConfiguration.ForwardGetMapToGwcAspect;
 import org.geoserver.gwc.web.GWCSettingsPage;
@@ -21,8 +22,6 @@ import org.junit.jupiter.api.io.TempDir;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 
-import java.io.File;
-
 /**
  * Test suite for {@link WMSIntegrationAutoConfiguration}
  *
@@ -30,15 +29,15 @@ import java.io.File;
  */
 class WMSIntegrationAutoConfigurationTest {
 
-    @TempDir File tmpDir;
+    @TempDir
+    File tmpDir;
+
     WebApplicationContextRunner runner;
 
     @BeforeEach
     void setUp() {
-        runner =
-                GeoWebCacheContextRunner.newMinimalGeoWebCacheContextRunner(tmpDir)
-                        .withConfiguration(
-                                AutoConfigurations.of(WMSIntegrationAutoConfiguration.class));
+        runner = GeoWebCacheContextRunner.newMinimalGeoWebCacheContextRunner(tmpDir)
+                .withConfiguration(AutoConfigurations.of(WMSIntegrationAutoConfiguration.class));
     }
 
     /**
@@ -53,72 +52,46 @@ class WMSIntegrationAutoConfigurationTest {
 
         return runner.withBean("wmsServiceTarget", DefaultWebMapService.class, () -> mockWms)
                 .withBean(
-                        "wms_1_1_1_GetCapabilitiesResponse",
-                        GetCapabilitiesResponse.class,
-                        () -> mockGetCapabilities);
+                        "wms_1_1_1_GetCapabilitiesResponse", GetCapabilitiesResponse.class, () -> mockGetCapabilities);
     }
 
     @Test
     void disabledByDefault() {
-        withMockWMS()
-                .run(
-                        context -> {
-                            assertThat(context)
-                                    .doesNotHaveBean(CachingExtendedCapabilitiesProvider.class);
-                            assertThat(context).doesNotHaveBean(ForwardGetMapToGwcAspect.class);
-                            assertThat(context)
-                                    .doesNotHaveBean(
-                                            "gwcSettingsPageWMSIntegationDisabledCssContribution");
-                        });
+        withMockWMS().run(context -> {
+            assertThat(context).doesNotHaveBean(CachingExtendedCapabilitiesProvider.class);
+            assertThat(context).doesNotHaveBean(ForwardGetMapToGwcAspect.class);
+            assertThat(context).doesNotHaveBean("gwcSettingsPageWMSIntegationDisabledCssContribution");
+        });
     }
 
     @Test
     void enabledByConfigAndGeoServerWebMapServiceNotFound() {
-        runner.withPropertyValues("gwc.wms-integration=true")
-                .run(
-                        context -> {
-                            assertThat(context)
-                                    .doesNotHaveBean(CachingExtendedCapabilitiesProvider.class);
-                            assertThat(context).doesNotHaveBean(ForwardGetMapToGwcAspect.class);
-                            assertThat(context)
-                                    .doesNotHaveBean(
-                                            "gwcSettingsPageWMSIntegationDisabledCssContribution");
-                        });
+        runner.withPropertyValues("gwc.wms-integration=true").run(context -> {
+            assertThat(context).doesNotHaveBean(CachingExtendedCapabilitiesProvider.class);
+            assertThat(context).doesNotHaveBean(ForwardGetMapToGwcAspect.class);
+            assertThat(context).doesNotHaveBean("gwcSettingsPageWMSIntegationDisabledCssContribution");
+        });
     }
 
     @Test
     void enabledByConfigAndGeoServerWebMapServiceFound() {
-        withMockWMS()
-                .withPropertyValues("gwc.wms-integration=true")
-                .run(
-                        context -> {
-                            assertThat(context)
-                                    .hasSingleBean(CachingExtendedCapabilitiesProvider.class);
-                            assertThat(context).hasSingleBean(ForwardGetMapToGwcAspect.class);
-                            assertThat(context)
-                                    .doesNotHaveBean(
-                                            "gwcSettingsPageWMSIntegationDisabledCssContribution");
-                        });
+        withMockWMS().withPropertyValues("gwc.wms-integration=true").run(context -> {
+            assertThat(context).hasSingleBean(CachingExtendedCapabilitiesProvider.class);
+            assertThat(context).hasSingleBean(ForwardGetMapToGwcAspect.class);
+            assertThat(context).doesNotHaveBean("gwcSettingsPageWMSIntegationDisabledCssContribution");
+        });
     }
 
     @Test
     void disabledContributesCssToHideWebUIComponents() {
-        withMockWMS()
-                .withPropertyValues("geoserver.web-ui.gwc.enabled=true")
-                .run(
-                        context -> {
-                            assertThat(context)
-                                    .doesNotHaveBean(CachingExtendedCapabilitiesProvider.class);
-                            assertThat(context).doesNotHaveBean(ForwardGetMapToGwcAspect.class);
-                            assertThat(context)
-                                    .hasBean("gwcSettingsPageWMSIntegationDisabledCssContribution");
-                            HeaderContribution contrib =
-                                    context.getBean(
-                                            "gwcSettingsPageWMSIntegationDisabledCssContribution",
-                                            HeaderContribution.class);
-                            assertEquals(GWCSettingsPage.class, contrib.getScope());
-                            assertEquals(
-                                    "wms-integration-disabled.css", contrib.getCSS().getName());
-                        });
+        withMockWMS().withPropertyValues("geoserver.web-ui.gwc.enabled=true").run(context -> {
+            assertThat(context).doesNotHaveBean(CachingExtendedCapabilitiesProvider.class);
+            assertThat(context).doesNotHaveBean(ForwardGetMapToGwcAspect.class);
+            assertThat(context).hasBean("gwcSettingsPageWMSIntegationDisabledCssContribution");
+            HeaderContribution contrib =
+                    context.getBean("gwcSettingsPageWMSIntegationDisabledCssContribution", HeaderContribution.class);
+            assertEquals(GWCSettingsPage.class, contrib.getScope());
+            assertEquals("wms-integration-disabled.css", contrib.getCSS().getName());
+        });
     }
 }

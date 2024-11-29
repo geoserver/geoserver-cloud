@@ -10,7 +10,13 @@ import static org.geoserver.catalog.Predicates.equal;
 import static org.geoserver.catalog.Predicates.isNull;
 
 import com.google.common.base.Preconditions;
-
+import java.lang.reflect.Proxy;
+import java.rmi.server.UID;
+import java.util.Collection;
+import java.util.List;
+import java.util.logging.Logger;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.ModificationProxy;
@@ -25,15 +31,6 @@ import org.geoserver.jdbcconfig.internal.ConfigDatabase;
 import org.geoserver.ows.util.OwsUtils;
 import org.geotools.api.filter.Filter;
 import org.geotools.util.logging.Logging;
-
-import java.lang.reflect.Proxy;
-import java.rmi.server.UID;
-import java.util.Collection;
-import java.util.List;
-import java.util.logging.Logger;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * Copy of {@link JDBCGeoServerFacade} that does not try reinitialize logging, can't extend it
@@ -226,8 +223,7 @@ public class CloudJdbcGeoserverFacade implements GeoServerFacade {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends ServiceInfo> T getService(
-            final WorkspaceInfo workspace, final Class<T> clazz) {
+    public <T extends ServiceInfo> T getService(final WorkspaceInfo workspace, final Class<T> clazz) {
         return (T) db.getService(workspace, clazz);
     }
 
@@ -249,9 +245,7 @@ public class CloudJdbcGeoserverFacade implements GeoServerFacade {
     }
 
     private <T extends Info> T findByName(
-            @Nonnull final String name,
-            @Nullable final WorkspaceInfo workspace,
-            @Nonnull final Class<T> clazz)
+            @Nonnull final String name, @Nullable final WorkspaceInfo workspace, @Nonnull final Class<T> clazz)
             throws AssertionError {
 
         Filter filter = equal("name", name);

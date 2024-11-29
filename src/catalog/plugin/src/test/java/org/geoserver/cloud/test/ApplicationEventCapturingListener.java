@@ -7,13 +7,12 @@ package org.geoserver.cloud.test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Component;
 
 @Component
 public class ApplicationEventCapturingListener {
@@ -53,7 +52,8 @@ public class ApplicationEventCapturingListener {
     }
 
     public <T> Optional<T> firstAndRemove(Class<T> type) {
-        Optional<T> first = captured.stream().filter(type::isInstance).map(type::cast).findFirst();
+        Optional<T> first =
+                captured.stream().filter(type::isInstance).map(type::cast).findFirst();
         if (first.isPresent()) {
             assertTrue(captured.remove(first.get()));
         }

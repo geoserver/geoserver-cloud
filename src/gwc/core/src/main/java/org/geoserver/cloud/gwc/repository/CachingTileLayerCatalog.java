@@ -8,20 +8,17 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
-
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.Set;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.cloud.gwc.event.GeoWebCacheEvent;
 import org.geoserver.cloud.gwc.event.TileLayerEvent;
 import org.geoserver.gwc.layer.GeoServerTileLayerInfo;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.event.EventListener;
-
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Set;
 
 /**
  * Caching decorator for {@link ResourceStoreTileLayerCatalog} using a provided Spring {@link
@@ -45,8 +42,7 @@ public class CachingTileLayerCatalog extends ForwardingTileLayerCatalog {
     Cache idCache;
     final BiMap<String, String> namesById = Maps.synchronizedBiMap(HashBiMap.create());
 
-    public CachingTileLayerCatalog(
-            CacheManager cacheManager, ResourceStoreTileLayerCatalog delegate) {
+    public CachingTileLayerCatalog(CacheManager cacheManager, ResourceStoreTileLayerCatalog delegate) {
         super(delegate);
         this.cacheManager = cacheManager;
     }
@@ -63,10 +59,7 @@ public class CachingTileLayerCatalog extends ForwardingTileLayerCatalog {
         if (evict(infoId)) {
             log.debug("Evicted GeoServerTileLayerInfo[{}] upon event {}", infoId, event);
         } else {
-            log.trace(
-                    "Event didn't result in evicting GeoServerTileLayerInfo[{}]: {}",
-                    infoId,
-                    event);
+            log.trace("Event didn't result in evicting GeoServerTileLayerInfo[{}]: {}", infoId, event);
         }
     }
 
@@ -183,8 +176,7 @@ public class CachingTileLayerCatalog extends ForwardingTileLayerCatalog {
      * @throws NoSuchElementException to prevent caching a {@code null} value
      */
     private GeoServerTileLayerInfo loadLayerById(String id) {
-        return Optional.ofNullable(super.getLayerById(id))
-                .orElseThrow(() -> new NoSuchElementException(id));
+        return Optional.ofNullable(super.getLayerById(id)).orElseThrow(() -> new NoSuchElementException(id));
     }
 
     /**
@@ -193,7 +185,6 @@ public class CachingTileLayerCatalog extends ForwardingTileLayerCatalog {
      * @throws NoSuchElementException to prevent caching a {@code null} value
      */
     private GeoServerTileLayerInfo loadLayerByName(String name) {
-        return Optional.ofNullable(super.getLayerByName(name))
-                .orElseThrow(() -> new NoSuchElementException(name));
+        return Optional.ofNullable(super.getLayerByName(name)).orElseThrow(() -> new NoSuchElementException(name));
     }
 }

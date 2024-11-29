@@ -5,7 +5,13 @@
 package org.geoserver.catalog.plugin;
 
 import com.google.common.collect.Iterators;
-
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.geoserver.catalog.CatalogCapabilities;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.CatalogInfo;
@@ -26,15 +32,6 @@ import org.geoserver.ows.LocalWorkspace;
 import org.geotools.api.filter.Filter;
 import org.geotools.api.filter.sort.SortBy;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
-
-import javax.annotation.Nullable;
-
 /** Copy of package private {@code org.geoserver.catalog.impl.IsolatedCatalogFacade} */
 public final class IsolatedCatalogFacade extends ForwardingExtendedCatalogFacade {
 
@@ -48,17 +45,13 @@ public final class IsolatedCatalogFacade extends ForwardingExtendedCatalogFacade
     }
 
     @Override
-    public <T extends StoreInfo> T getStoreByName(
-            WorkspaceInfo workspace, String name, Class<T> clazz) {
+    public <T extends StoreInfo> T getStoreByName(WorkspaceInfo workspace, String name, Class<T> clazz) {
         return canSeeWorkspace(workspace) ? facade.getStoreByName(workspace, name, clazz) : null;
     }
 
     @Override
-    public <T extends StoreInfo> List<T> getStoresByWorkspace(
-            WorkspaceInfo workspace, Class<T> clazz) {
-        return canSeeWorkspace(workspace)
-                ? facade.getStoresByWorkspace(workspace, clazz)
-                : Collections.emptyList();
+    public <T extends StoreInfo> List<T> getStoresByWorkspace(WorkspaceInfo workspace, Class<T> clazz) {
+        return canSeeWorkspace(workspace) ? facade.getStoresByWorkspace(workspace, clazz) : Collections.emptyList();
     }
 
     @Override
@@ -77,8 +70,7 @@ public final class IsolatedCatalogFacade extends ForwardingExtendedCatalogFacade
     }
 
     @Override
-    public <T extends ResourceInfo> T getResourceByName(
-            NamespaceInfo namespace, String name, Class<T> clazz) {
+    public <T extends ResourceInfo> T getResourceByName(NamespaceInfo namespace, String name, Class<T> clazz) {
         NamespaceInfo localNamespace = tryMatchLocalNamespace(namespace);
         if (localNamespace != null) {
             // the URIs of the provided namespace and of the local workspace namespace matched
@@ -93,20 +85,17 @@ public final class IsolatedCatalogFacade extends ForwardingExtendedCatalogFacade
     }
 
     @Override
-    public <T extends ResourceInfo> List<T> getResourcesByNamespace(
-            NamespaceInfo namespace, Class<T> clazz) {
+    public <T extends ResourceInfo> List<T> getResourcesByNamespace(NamespaceInfo namespace, Class<T> clazz) {
         NamespaceInfo localNamespace = tryMatchLocalNamespace(namespace);
         if (localNamespace != null) {
             // the URIs of the provided namespace and of the local workspace namespace matched
             return facade.getResourcesByNamespace(localNamespace, clazz);
         }
-        return filterIsolated(
-                facade.getResourcesByNamespace(namespace, clazz), clazz, this::filter);
+        return filterIsolated(facade.getResourcesByNamespace(namespace, clazz), clazz, this::filter);
     }
 
     @Override
-    public <T extends ResourceInfo> T getResourceByStore(
-            StoreInfo store, String name, Class<T> clazz) {
+    public <T extends ResourceInfo> T getResourceByStore(StoreInfo store, String name, Class<T> clazz) {
         return enforceResourceIsolation(facade.getResourceByStore(store, name, clazz));
     }
 
@@ -162,8 +151,7 @@ public final class IsolatedCatalogFacade extends ForwardingExtendedCatalogFacade
 
     @Override
     public List<LayerGroupInfo> getLayerGroupsByWorkspace(WorkspaceInfo workspace) {
-        return filterIsolated(
-                facade.getLayerGroupsByWorkspace(workspace), LayerGroupInfo.class, this::filter);
+        return filterIsolated(facade.getLayerGroupsByWorkspace(workspace), LayerGroupInfo.class, this::filter);
     }
 
     @Override
@@ -206,8 +194,7 @@ public final class IsolatedCatalogFacade extends ForwardingExtendedCatalogFacade
 
     @Override
     public List<StyleInfo> getStylesByWorkspace(WorkspaceInfo workspace) {
-        return filterIsolated(
-                facade.getStylesByWorkspace(workspace), StyleInfo.class, this::filter);
+        return filterIsolated(facade.getStylesByWorkspace(workspace), StyleInfo.class, this::filter);
     }
 
     @Override
@@ -411,8 +398,7 @@ public final class IsolatedCatalogFacade extends ForwardingExtendedCatalogFacade
         WorkspaceInfo localWorkspace = getLocalWorkspace();
         // the workspace content will be visible only if we are in the context of one
         // of its virtual services
-        return localWorkspace != null
-                && Objects.equals(localWorkspace.getName(), workspace.getName());
+        return localWorkspace != null && Objects.equals(localWorkspace.getName(), workspace.getName());
     }
 
     /**
@@ -424,8 +410,7 @@ public final class IsolatedCatalogFacade extends ForwardingExtendedCatalogFacade
      * @param filter filter that checks if an element should be visible
      * @return a list wrapped with a modification proxy that contains the visible catalog objects
      */
-    private <T extends CatalogInfo> List<T> filterIsolated(
-            List<T> objects, Class<T> type, Predicate<T> filter) {
+    private <T extends CatalogInfo> List<T> filterIsolated(List<T> objects, Class<T> type, Predicate<T> filter) {
         // unwrap the catalog objects list
         List<T> unwrapped = ModificationProxy.unwrap(objects);
         // filter the non visible catalog objects and wrap the resulting list with a modification
@@ -446,8 +431,7 @@ public final class IsolatedCatalogFacade extends ForwardingExtendedCatalogFacade
         if (localWorkspace != null) {
             // get the namespace for the current local workspace
             NamespaceInfo localNamespace = facade.getNamespaceByPrefix(localWorkspace.getName());
-            if (localNamespace != null
-                    && Objects.equals(localNamespace.getURI(), namespace.getURI())) {
+            if (localNamespace != null && Objects.equals(localNamespace.getURI(), namespace.getURI())) {
                 // the URIs match, let's return the local workspace namespace
                 return localNamespace;
             }

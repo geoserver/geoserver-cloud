@@ -4,8 +4,13 @@
  */
 package org.geotools.jackson.databind.filter.mapper;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.Generated;
-
 import org.geotools.api.filter.And;
 import org.geotools.api.filter.ExcludeFilter;
 import org.geotools.api.filter.FilterFactory;
@@ -89,13 +94,6 @@ import org.mapstruct.AnnotateWith;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Mapper(config = FilterMapperConfig.class)
 @AnnotateWith(value = Generated.class)
@@ -216,8 +214,7 @@ abstract class DtoToFilterMapper {
     }
 
     private <T extends org.geotools.api.filter.Filter> T toBinaryOperator(
-            Filter.BinaryOperator dto,
-            TriFunction<Expression, Expression, MatchAction, T> factory) {
+            Filter.BinaryOperator dto, TriFunction<Expression, Expression, MatchAction, T> factory) {
 
         Expression e1 = exp(dto.getExpression1());
         Expression e2 = exp(dto.getExpression2());
@@ -225,10 +222,9 @@ abstract class DtoToFilterMapper {
         return factory.apply(e1, e2, matchAction);
     }
 
-    private <T extends org.geotools.api.filter.BinaryComparisonOperator>
-            T toBinaryComparisonOperator(
-                    Filter.BinaryComparisonOperator dto,
-                    QuadFunction<Expression, Expression, Boolean, MatchAction, T> factory) {
+    private <T extends org.geotools.api.filter.BinaryComparisonOperator> T toBinaryComparisonOperator(
+            Filter.BinaryComparisonOperator dto,
+            QuadFunction<Expression, Expression, Boolean, MatchAction, T> factory) {
 
         Expression e1 = exp(dto.getExpression1());
         Expression e2 = exp(dto.getExpression2());
@@ -290,60 +286,42 @@ abstract class DtoToFilterMapper {
 
     private static class PropertyEquals extends IsEqualsToImpl {
         public PropertyEquals(
-                Expression expression1,
-                Expression expression2,
-                boolean matchCase,
-                MatchAction matchAction) {
+                Expression expression1, Expression expression2, boolean matchCase, MatchAction matchAction) {
             super(expression1, expression2, matchCase, matchAction);
         }
     }
 
     private static class PropertyNotEquals extends IsNotEqualToImpl {
         public PropertyNotEquals(
-                Expression expression1,
-                Expression expression2,
-                boolean matchCase,
-                MatchAction matchAction) {
+                Expression expression1, Expression expression2, boolean matchCase, MatchAction matchAction) {
             super(expression1, expression2, matchCase, matchAction);
         }
     }
 
     private static class PropertyLessThan extends IsLessThenImpl {
         public PropertyLessThan(
-                Expression expression1,
-                Expression expression2,
-                boolean matchCase,
-                MatchAction matchAction) {
+                Expression expression1, Expression expression2, boolean matchCase, MatchAction matchAction) {
             super(expression1, expression2, matchCase, matchAction);
         }
     }
 
     private static class PropertyLessThanOrEquals extends IsLessThenOrEqualToImpl {
         public PropertyLessThanOrEquals(
-                Expression expression1,
-                Expression expression2,
-                boolean matchCase,
-                MatchAction matchAction) {
+                Expression expression1, Expression expression2, boolean matchCase, MatchAction matchAction) {
             super(expression1, expression2, matchCase, matchAction);
         }
     }
 
     private static class PropertyGreaterThan extends IsGreaterThanImpl {
         public PropertyGreaterThan(
-                Expression expression1,
-                Expression expression2,
-                boolean matchCase,
-                MatchAction matchAction) {
+                Expression expression1, Expression expression2, boolean matchCase, MatchAction matchAction) {
             super(expression1, expression2, matchAction);
         }
     }
 
     private static class PropertyGreaterThanOrEqual extends IsGreaterThanOrEqualToImpl {
         public PropertyGreaterThanOrEqual(
-                Expression expression1,
-                Expression expression2,
-                boolean matchCase,
-                MatchAction matchAction) {
+                Expression expression1, Expression expression2, boolean matchCase, MatchAction matchAction) {
             super(expression1, expression2, matchCase, matchAction);
         }
     }
@@ -356,8 +334,7 @@ abstract class DtoToFilterMapper {
         return toBinaryComparisonOperator(dto, PropertyNotEquals::new);
     }
 
-    public PropertyIsLessThanOrEqualTo toFilter(
-            Filter.BinaryComparisonOperator.PropertyIsLessThanOrEqualTo dto) {
+    public PropertyIsLessThanOrEqualTo toFilter(Filter.BinaryComparisonOperator.PropertyIsLessThanOrEqualTo dto) {
         return toBinaryComparisonOperator(dto, PropertyLessThanOrEquals::new);
     }
 
@@ -365,13 +342,11 @@ abstract class DtoToFilterMapper {
         return toBinaryComparisonOperator(dto, PropertyLessThan::new);
     }
 
-    public PropertyIsGreaterThanOrEqualTo toFilter(
-            Filter.BinaryComparisonOperator.PropertyIsGreaterThanOrEqualTo dto) {
+    public PropertyIsGreaterThanOrEqualTo toFilter(Filter.BinaryComparisonOperator.PropertyIsGreaterThanOrEqualTo dto) {
         return toBinaryComparisonOperator(dto, PropertyGreaterThanOrEqual::new);
     }
 
-    public PropertyIsGreaterThan toFilter(
-            Filter.BinaryComparisonOperator.PropertyIsGreaterThan dto) {
+    public PropertyIsGreaterThan toFilter(Filter.BinaryComparisonOperator.PropertyIsGreaterThan dto) {
         return toBinaryComparisonOperator(dto, PropertyGreaterThan::new);
     }
 

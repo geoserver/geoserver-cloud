@@ -5,7 +5,20 @@
 package org.geoserver.catalog.plugin;
 
 import com.google.common.collect.Ordering;
-
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.lang.reflect.Proxy;
+import java.nio.charset.StandardCharsets;
+import java.util.Comparator;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.function.Predicate;
+import java.util.logging.Logger;
+import java.util.stream.Stream;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.Info;
@@ -24,21 +37,6 @@ import org.geotools.api.filter.Filter;
 import org.geotools.api.filter.sort.SortBy;
 import org.geotools.api.filter.sort.SortOrder;
 import org.geotools.util.logging.Logging;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.lang.reflect.Proxy;
-import java.nio.charset.StandardCharsets;
-import java.util.Comparator;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.function.Predicate;
-import java.util.logging.Logger;
-import java.util.stream.Stream;
 
 /**
  * Exemplar alternative implementations of {@link CatalogInfoRepository} that store serialized
@@ -73,8 +71,7 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
 
     private static void checkNotAProxy(CatalogInfo value) {
         if (Proxy.isProxyClass(value.getClass())) {
-            throw new IllegalArgumentException(
-                    "Proxy values shall not be passed to CatalogInfoLookup");
+            throw new IllegalArgumentException("Proxy values shall not be passed to CatalogInfoLookup");
         }
     }
 
@@ -92,8 +89,7 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
         if (serialized == null) return null;
         I loaded;
         try {
-            ByteArrayInputStream in =
-                    new ByteArrayInputStream(serialized.getBytes(StandardCharsets.UTF_8));
+            ByteArrayInputStream in = new ByteArrayInputStream(serialized.getBytes(StandardCharsets.UTF_8));
             loaded = codec.load(in, type);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -112,9 +108,8 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
 
         String serialized = serialize(value);
         if (null != idMap.putIfAbsent(value.getId(), serialized)) {
-            String msg =
-                    "%s:%s already exists, not replaced"
-                            .formatted(getContentType().getSimpleName(), value.getId());
+            String msg = "%s:%s already exists, not replaced"
+                    .formatted(getContentType().getSimpleName(), value.getId());
             LOGGER.warning(msg);
         }
     }
@@ -134,15 +129,9 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
         @SuppressWarnings("unchecked")
         Class<I> type = (Class<I>) ClassMappings.fromImpl(value.getClass()).getInterface();
         synchronized (idMap) {
-            storedValue =
-                    this.findById(value.getId(), type)
-                            .orElseThrow(
-                                    () ->
-                                            new NoSuchElementException(
-                                                    "%s with id %s does not exist"
-                                                            .formatted(
-                                                                    type.getSimpleName(),
-                                                                    value.getId())));
+            storedValue = this.findById(value.getId(), type)
+                    .orElseThrow(() -> new NoSuchElementException(
+                            "%s with id %s does not exist".formatted(type.getSimpleName(), value.getId())));
 
             patch.applyTo(storedValue);
             idMap.put(value.getId(), serialize(storedValue));
@@ -188,9 +177,7 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
         Comparator<U> comparator = providedOrder();
         for (SortBy sortBy : query.getSortBy()) {
             comparator =
-                    (comparator == PROVIDED_ORDER)
-                            ? comparator(sortBy)
-                            : comparator.thenComparing(comparator(sortBy));
+                    (comparator == PROVIDED_ORDER) ? comparator(sortBy) : comparator.thenComparing(comparator(sortBy));
         }
         return comparator;
     }
@@ -205,36 +192,34 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
     }
 
     private static <U extends CatalogInfo> Comparator<U> comparator(final SortBy sortOrder) {
-        Comparator<U> comparator =
-                new Comparator<>() {
-                    @Override
-                    public int compare(U o1, U o2) {
-                        Object v1 = OwsUtils.get(o1, sortOrder.getPropertyName().getPropertyName());
-                        Object v2 = OwsUtils.get(o2, sortOrder.getPropertyName().getPropertyName());
-                        if (v1 == null) {
-                            if (v2 == null) {
-                                return 0;
-                            } else {
-                                return -1;
-                            }
-                        } else if (v2 == null) {
-                            return 1;
-                        }
-                        @SuppressWarnings({"rawtypes", "unchecked"})
-                        Comparable<Object> c1 = (Comparable) v1;
-                        @SuppressWarnings({"rawtypes", "unchecked"})
-                        Comparable<Object> c2 = (Comparable) v2;
-                        return c1.compareTo(c2);
+        Comparator<U> comparator = new Comparator<>() {
+            @Override
+            public int compare(U o1, U o2) {
+                Object v1 = OwsUtils.get(o1, sortOrder.getPropertyName().getPropertyName());
+                Object v2 = OwsUtils.get(o2, sortOrder.getPropertyName().getPropertyName());
+                if (v1 == null) {
+                    if (v2 == null) {
+                        return 0;
+                    } else {
+                        return -1;
                     }
-                };
+                } else if (v2 == null) {
+                    return 1;
+                }
+                @SuppressWarnings({"rawtypes", "unchecked"})
+                Comparable<Object> c1 = (Comparable) v1;
+                @SuppressWarnings({"rawtypes", "unchecked"})
+                Comparable<Object> c2 = (Comparable) v2;
+                return c1.compareTo(c2);
+            }
+        };
         if (SortOrder.DESCENDING.equals(sortOrder.getSortOrder())) {
             comparator = comparator.reversed();
         }
         return comparator;
     }
 
-    <U extends CatalogInfo> Stream<U> list(
-            Class<U> clazz, Predicate<U> predicate, Comparator<U> comparator) {
+    <U extends CatalogInfo> Stream<U> list(Class<U> clazz, Predicate<U> predicate, Comparator<U> comparator) {
 
         Stream<U> stream = all().filter(clazz::isInstance).map(clazz::cast).filter(predicate);
         if (comparator != CatalogInfoLookup.PROVIDED_ORDER) {
@@ -247,8 +232,7 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
     @Override
     public <U extends T> Optional<U> findById(String id, Class<U> clazz) {
         T deserialized = deserialize(idMap.get(id));
-        return Optional.ofNullable(
-                clazz.isInstance(deserialized) ? clazz.cast(deserialized) : null);
+        return Optional.ofNullable(clazz.isInstance(deserialized) ? clazz.cast(deserialized) : null);
     }
 
     <U extends T> Optional<U> findFirst(Class<U> clazz, Predicate<U> predicate) {
@@ -260,8 +244,7 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
         all().forEach(target::add);
     }
 
-    public static class NamespaceInfoLookup extends XmlCatalogInfoLookup<NamespaceInfo>
-            implements NamespaceRepository {
+    public static class NamespaceInfoLookup extends XmlCatalogInfoLookup<NamespaceInfo> implements NamespaceRepository {
 
         public NamespaceInfoLookup(XStreamPersister codec) {
             super(codec);
@@ -271,17 +254,14 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
 
         @Override
         public void setDefaultNamespace(NamespaceInfo namespace) {
-            this.defaultNamespaceId =
-                    findById(namespace.getId(), NamespaceInfo.class)
-                            .map(NamespaceInfo::getId)
-                            .orElseThrow(NoSuchElementException::new);
+            this.defaultNamespaceId = findById(namespace.getId(), NamespaceInfo.class)
+                    .map(NamespaceInfo::getId)
+                    .orElseThrow(NoSuchElementException::new);
         }
 
         @Override
         public Optional<NamespaceInfo> getDefaultNamespace() {
-            return defaultNamespaceId == null
-                    ? Optional.empty()
-                    : findById(defaultNamespaceId, NamespaceInfo.class);
+            return defaultNamespaceId == null ? Optional.empty() : findById(defaultNamespaceId, NamespaceInfo.class);
         }
 
         @Override
@@ -310,8 +290,7 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
         }
     }
 
-    public static class WorkspaceInfoLookup extends XmlCatalogInfoLookup<WorkspaceInfo>
-            implements WorkspaceRepository {
+    public static class WorkspaceInfoLookup extends XmlCatalogInfoLookup<WorkspaceInfo> implements WorkspaceRepository {
 
         public WorkspaceInfoLookup(XStreamPersister codec) {
             super(codec);
@@ -322,8 +301,7 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
         @Override
         public void setDefaultWorkspace(WorkspaceInfo workspace) {
             this.defaultWorkspace =
-                    findById(workspace.getId(), WorkspaceInfo.class)
-                            .orElseThrow(NoSuchElementException::new);
+                    findById(workspace.getId(), WorkspaceInfo.class).orElseThrow(NoSuchElementException::new);
         }
 
         @Override
@@ -347,8 +325,7 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
         }
     }
 
-    public static class StoreInfoLookup extends XmlCatalogInfoLookup<StoreInfo>
-            implements StoreRepository {
+    public static class StoreInfoLookup extends XmlCatalogInfoLookup<StoreInfo> implements StoreRepository {
 
         public StoreInfoLookup(XStreamPersister codec) {
             super(codec);
@@ -361,8 +338,7 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
         public void setDefaultDataStore(WorkspaceInfo workspace, DataStoreInfo store) {
             String wsId = workspace.getId();
             final DataStoreInfo localStore =
-                    super.findById(store.getId(), DataStoreInfo.class)
-                            .orElseThrow(NoSuchElementException::new);
+                    super.findById(store.getId(), DataStoreInfo.class).orElseThrow(NoSuchElementException::new);
             defaultStores.put(wsId, localStore.getId());
         }
 
@@ -389,8 +365,7 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
         }
 
         @Override
-        public <T extends StoreInfo> Stream<T> findAllByWorkspace(
-                WorkspaceInfo workspace, Class<T> clazz) {
+        public <T extends StoreInfo> Stream<T> findAllByWorkspace(WorkspaceInfo workspace, Class<T> clazz) {
 
             return all().filter(clazz::isInstance)
                     .map(clazz::cast)
@@ -440,20 +415,19 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
         @Override
         public Stream<LayerGroupInfo> findAllByWorkspace(WorkspaceInfo workspace) {
             Predicate<LayerGroupInfo> predicate =
-                    lg ->
-                            lg.getWorkspace() != null
-                                    && lg.getWorkspace().getId().equals(workspace.getId());
+                    lg -> lg.getWorkspace() != null && lg.getWorkspace().getId().equals(workspace.getId());
             return all().filter(predicate);
         }
 
         @Override
         public Optional<LayerGroupInfo> findByNameAndWorkspaceIsNull(String name) {
-            return findAllByWorkspaceIsNull().filter(lg -> lg.getName().equals(name)).findFirst();
+            return findAllByWorkspaceIsNull()
+                    .filter(lg -> lg.getName().equals(name))
+                    .findFirst();
         }
 
         @Override
-        public Optional<LayerGroupInfo> findByNameAndWorkspace(
-                String name, WorkspaceInfo workspace) {
+        public Optional<LayerGroupInfo> findByNameAndWorkspace(String name, WorkspaceInfo workspace) {
             return findAllByWorkspace(workspace)
                     .filter(lg -> lg.getName().equals(name))
                     .findFirst();
@@ -473,8 +447,7 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
         }
     }
 
-    public static class MapInfoLookup extends XmlCatalogInfoLookup<MapInfo>
-            implements MapRepository {
+    public static class MapInfoLookup extends XmlCatalogInfoLookup<MapInfo> implements MapRepository {
 
         protected MapInfoLookup(XStreamPersister codec) {
             super(codec);
@@ -494,8 +467,7 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
         }
     }
 
-    public static class ResourceInfoLookup extends XmlCatalogInfoLookup<ResourceInfo>
-            implements ResourceRepository {
+    public static class ResourceInfoLookup extends XmlCatalogInfoLookup<ResourceInfo> implements ResourceRepository {
 
         protected ResourceInfoLookup(XStreamPersister codec) {
             super(codec);
@@ -507,17 +479,17 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
         }
 
         @Override
-        public <T extends ResourceInfo> Stream<T> findAllByNamespace(
-                NamespaceInfo ns, Class<T> clazz) {
+        public <T extends ResourceInfo> Stream<T> findAllByNamespace(NamespaceInfo ns, Class<T> clazz) {
 
             return allOf(clazz).filter(r -> ns.getId().equals(r.getNamespace().getId()));
         }
 
         @Override
-        public <T extends ResourceInfo> Optional<T> findByStoreAndName(
-                StoreInfo store, String name, Class<T> clazz) {
+        public <T extends ResourceInfo> Optional<T> findByStoreAndName(StoreInfo store, String name, Class<T> clazz) {
 
-            return findAllByStore(store, clazz).filter(r -> name.equals(r.getName())).findFirst();
+            return findAllByStore(store, clazz)
+                    .filter(r -> name.equals(r.getName()))
+                    .findFirst();
         }
 
         @Override
@@ -549,8 +521,7 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
         }
     }
 
-    public static class LayerInfoLookup extends XmlCatalogInfoLookup<LayerInfo>
-            implements LayerRepository {
+    public static class LayerInfoLookup extends XmlCatalogInfoLookup<LayerInfo> implements LayerRepository {
 
         public LayerInfoLookup(XStreamPersister codec) {
             super(codec);
@@ -564,13 +535,9 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
         @Override
         public Stream<LayerInfo> findAllByDefaultStyleOrStyles(StyleInfo style) {
             String id = style.getId();
-            Predicate<? super LayerInfo> predicate =
-                    li ->
-                            (li.getDefaultStyle() != null
-                                            && id.equals(li.getDefaultStyle().getId()))
-                                    || li.getStyles().stream()
-                                            .map(s -> s.getId())
-                                            .anyMatch(id::equals);
+            Predicate<? super LayerInfo> predicate = li -> (li.getDefaultStyle() != null
+                            && id.equals(li.getDefaultStyle().getId()))
+                    || li.getStyles().stream().map(s -> s.getId()).anyMatch(id::equals);
             return all().filter(predicate);
         }
 
@@ -592,8 +559,7 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
         }
     }
 
-    public static class StyleInfoLookup extends XmlCatalogInfoLookup<StyleInfo>
-            implements StyleRepository {
+    public static class StyleInfoLookup extends XmlCatalogInfoLookup<StyleInfo> implements StyleRepository {
 
         public StyleInfoLookup(XStreamPersister codec) {
             super(codec);
@@ -612,13 +578,17 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
 
         @Override
         public Optional<StyleInfo> findByNameAndWordkspaceNull(String name) {
-            return findAllByNullWorkspace().filter(s -> s.getName().equals(name)).findFirst();
+            return findAllByNullWorkspace()
+                    .filter(s -> s.getName().equals(name))
+                    .findFirst();
         }
 
         @Override
         public Optional<StyleInfo> findByNameAndWorkspace(String name, WorkspaceInfo workspace) {
 
-            return findAllByWorkspace(workspace).filter(s -> s.getName().equals(name)).findFirst();
+            return findAllByWorkspace(workspace)
+                    .filter(s -> s.getName().equals(name))
+                    .findFirst();
         }
 
         @Override

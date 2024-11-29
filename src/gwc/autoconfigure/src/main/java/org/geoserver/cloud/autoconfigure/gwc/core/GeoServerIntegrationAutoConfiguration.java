@@ -4,16 +4,14 @@
  */
 package org.geoserver.cloud.autoconfigure.gwc.core;
 
+import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnGeoWebCacheEnabled;
 import org.geoserver.cloud.autoconfigure.gwc.backend.DefaultTileLayerCatalogAutoConfiguration;
 import org.geoserver.cloud.gwc.config.core.GeoServerIntegrationConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Import;
-
-import javax.annotation.PostConstruct;
 
 /**
  * {@link EnableAutoConfiguration Auto-Configuration} to integrated GeoServer-specific GWC

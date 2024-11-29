@@ -14,9 +14,15 @@ import static org.junit.jupiter.api.Assertions.fail;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-
+import java.io.Serializable;
+import java.lang.reflect.Proxy;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.catalog.AttributeTypeInfo;
 import org.geoserver.catalog.AuthorityURLInfo;
 import org.geoserver.catalog.Catalog;
@@ -83,17 +89,7 @@ import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import si.uom.SI;
-
-import java.io.Serializable;
-import java.lang.reflect.Proxy;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
 
 /**
  * Verifies that all {@link CatalogInfo} can be sent over the wire and parsed back using jackson,
@@ -134,8 +130,7 @@ public abstract class GeoServerCatalogModuleTest {
     protected abstract ObjectMapper newObjectMapper();
 
     @SuppressWarnings("unchecked")
-    private <T extends CatalogInfo> T catalogInfoRoundtripTest(final T orig)
-            throws JsonProcessingException {
+    private <T extends CatalogInfo> T catalogInfoRoundtripTest(final T orig) throws JsonProcessingException {
         ObjectWriter writer = objectMapper.writer();
         writer = writer.withDefaultPrettyPrinter();
 
@@ -152,12 +147,9 @@ public abstract class GeoServerCatalogModuleTest {
         CatalogInfo asCatalogInfo = objectMapper.readValue(encoded, CatalogInfo.class);
         assertNotNull(asCatalogInfo);
         // and also as its direct super-type, if it not CatalogInfo
-        if (orig instanceof StoreInfo)
-            assertNotNull(objectMapper.readValue(encoded, StoreInfo.class));
-        if (orig instanceof ResourceInfo)
-            assertNotNull(objectMapper.readValue(encoded, ResourceInfo.class));
-        if (orig instanceof PublishedInfo)
-            assertNotNull(objectMapper.readValue(encoded, PublishedInfo.class));
+        if (orig instanceof StoreInfo) assertNotNull(objectMapper.readValue(encoded, StoreInfo.class));
+        if (orig instanceof ResourceInfo) assertNotNull(objectMapper.readValue(encoded, ResourceInfo.class));
+        if (orig instanceof PublishedInfo) assertNotNull(objectMapper.readValue(encoded, PublishedInfo.class));
 
         // This is the client code's responsibility, the Deserializer returns "resolving proxy"
         // proxies for Info references
@@ -242,26 +234,15 @@ public abstract class GeoServerCatalogModuleTest {
 
         ft.setTitle("Title");
         ft.setAbstract("abstract");
-        ft.setInternationalTitle(
-                data.faker()
-                        .internationalString(
-                                Locale.ENGLISH,
-                                "english title",
-                                Locale.CANADA_FRENCH,
-                                "titre anglais"));
-        ft.setInternationalAbstract(
-                data.faker()
-                        .internationalString(
-                                Locale.ENGLISH,
-                                "english abstract",
-                                Locale.CANADA_FRENCH,
-                                "résumé anglais"));
+        ft.setInternationalTitle(data.faker()
+                .internationalString(Locale.ENGLISH, "english title", Locale.CANADA_FRENCH, "titre anglais"));
+        ft.setInternationalAbstract(data.faker()
+                .internationalString(Locale.ENGLISH, "english abstract", Locale.CANADA_FRENCH, "résumé anglais"));
 
         catalogInfoRoundtripTest(ft);
     }
 
-    private List<AttributeTypeInfo> createTestAttributes(FeatureTypeInfo info)
-            throws SchemaException {
+    private List<AttributeTypeInfo> createTestAttributes(FeatureTypeInfo info) throws SchemaException {
         String typeSpec =
                 "name:string,id:String,polygonProperty:Polygon:srid=32615,centroid:Point,url:java.net.URL,uuid:UUID";
         SimpleFeatureType ft = DataUtilities.createType("TestType", typeSpec);
@@ -307,36 +288,19 @@ public abstract class GeoServerCatalogModuleTest {
         LayerGroupInfo lg = data.layerGroup1;
         lg.setTitle("LG Title");
         lg.setAbstract("LG abstract");
-        lg.setInternationalTitle(
-                data.faker()
-                        .internationalString(
-                                Locale.ENGLISH,
-                                "english title",
-                                Locale.CANADA_FRENCH,
-                                "titre anglais"));
-        lg.setInternationalAbstract(
-                data.faker()
-                        .internationalString(
-                                Locale.ENGLISH,
-                                "english abstract",
-                                Locale.CANADA_FRENCH,
-                                "résumé anglais"));
+        lg.setInternationalTitle(data.faker()
+                .internationalString(Locale.ENGLISH, "english title", Locale.CANADA_FRENCH, "titre anglais"));
+        lg.setInternationalAbstract(data.faker()
+                .internationalString(Locale.ENGLISH, "english abstract", Locale.CANADA_FRENCH, "résumé anglais"));
 
         LayerGroupStyle lgs = new LayerGroupStyleImpl();
         lgs.setId("lgsid");
         lgs.setTitle("Lgs Title");
         lgs.setAbstract("Lgs Abstract");
         lgs.setInternationalTitle(
-                data.faker()
-                        .internationalString(
-                                Locale.ITALIAN, "Italian title", Locale.FRENCH, "French title"));
+                data.faker().internationalString(Locale.ITALIAN, "Italian title", Locale.FRENCH, "French title"));
         lgs.setInternationalAbstract(
-                data.faker()
-                        .internationalString(
-                                Locale.ITALIAN,
-                                "Italian abstract",
-                                Locale.FRENCH,
-                                "French abstract"));
+                data.faker().internationalString(Locale.ITALIAN, "Italian abstract", Locale.FRENCH, "French abstract"));
 
         lgs.setLayers(Arrays.asList(data.createLayer(data.coverageA, data.style1)));
         lgs.setStyles(Arrays.asList(data.createStyle("test-style")));
@@ -426,7 +390,8 @@ public abstract class GeoServerCatalogModuleTest {
     @SuppressWarnings("unchecked")
     private <T extends Info> T forceModificationProxy(T info) {
         if (!Proxy.isProxyClass(info.getClass())) {
-            Class<? extends Info> iface = ClassMappings.fromImpl(info.getClass()).getInterface();
+            Class<? extends Info> iface =
+                    ClassMappings.fromImpl(info.getClass()).getInterface();
             return (T) ModificationProxy.create(info, iface);
         }
         return info;
@@ -544,8 +509,7 @@ public abstract class GeoServerCatalogModuleTest {
         testValueCoordinateReferenceSystem(crs);
     }
 
-    private void testValueCoordinateReferenceSystem(CoordinateReferenceSystem crs)
-            throws Exception {
+    private void testValueCoordinateReferenceSystem(CoordinateReferenceSystem crs) throws Exception {
         CoordinateReferenceSystem decoded = roundTrip(crs, CoordinateReferenceSystem.class);
         assertTrue(CRS.equalsIgnoreMetadata(crs, decoded));
         decoded = testFilterLiteral(crs);
@@ -573,9 +537,7 @@ public abstract class GeoServerCatalogModuleTest {
     void testValueNumberRange() throws Exception {
         testValueWithEquals(NumberRange.create(Double.MIN_VALUE, 0d), NumberRange.class);
         testValueWithEquals(NumberRange.create(0L, false, Long.MAX_VALUE, true), NumberRange.class);
-        testValueWithEquals(
-                NumberRange.create(Integer.MIN_VALUE, true, Integer.MAX_VALUE, false),
-                NumberRange.class);
+        testValueWithEquals(NumberRange.create(Integer.MIN_VALUE, true, Integer.MAX_VALUE, false), NumberRange.class);
     }
 
     @Test
@@ -589,10 +551,8 @@ public abstract class GeoServerCatalogModuleTest {
         CoordinateReferenceSystem wgs84LatLon = CRS.decode("EPSG:4326", false);
         CoordinateReferenceSystem wgs84LonLat = CRS.decode("EPSG:4326", true);
 
-        testValueWithEquals(
-                new ReferencedEnvelope(-180, 180, -90, 90, wgs84LonLat), ReferencedEnvelope.class);
-        testValueWithEquals(
-                new ReferencedEnvelope(-90, 90, -180, 180, wgs84LatLon), ReferencedEnvelope.class);
+        testValueWithEquals(new ReferencedEnvelope(-180, 180, -90, 90, wgs84LonLat), ReferencedEnvelope.class);
+        testValueWithEquals(new ReferencedEnvelope(-90, 90, -180, 180, wgs84LatLon), ReferencedEnvelope.class);
     }
 
     @Test
@@ -709,16 +669,14 @@ public abstract class GeoServerCatalogModuleTest {
             Query<?> parsed = testValue(query, Query.class);
             assertNotNull(parsed);
             assertQueryEquals(query, parsed);
-            Filter filter =
-                    equals("some.property.name", Arrays.asList("some literal 1", "some literal 2"));
-            query =
-                    Query.valueOf(
-                            type,
-                            filter,
-                            2000,
-                            1000,
-                            ff.sort("name", SortOrder.ASCENDING),
-                            ff.sort("type", SortOrder.DESCENDING));
+            Filter filter = equals("some.property.name", Arrays.asList("some literal 1", "some literal 2"));
+            query = Query.valueOf(
+                    type,
+                    filter,
+                    2000,
+                    1000,
+                    ff.sort("name", SortOrder.ASCENDING),
+                    ff.sort("type", SortOrder.DESCENDING));
             parsed = testValue(query, Query.class);
             assertNotNull(parsed);
             assertQueryEquals(query, parsed);

@@ -4,9 +4,8 @@
  */
 package org.geoserver.cloud.web.service;
 
-import lombok.Data;
-
 import java.io.Serializable;
+import lombok.Data;
 
 /**
  * @since 1.0

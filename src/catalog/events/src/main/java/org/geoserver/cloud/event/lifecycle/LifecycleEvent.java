@@ -6,14 +6,10 @@ package org.geoserver.cloud.event.lifecycle;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
 import org.geoserver.cloud.event.GeoServerEvent;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
-@JsonSubTypes({
-    @JsonSubTypes.Type(value = ReloadEvent.class),
-    @JsonSubTypes.Type(value = ResetEvent.class)
-})
+@JsonSubTypes({@JsonSubTypes.Type(value = ReloadEvent.class), @JsonSubTypes.Type(value = ResetEvent.class)})
 @SuppressWarnings("serial")
 public abstract class LifecycleEvent extends GeoServerEvent {
 

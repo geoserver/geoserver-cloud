@@ -4,15 +4,13 @@
  */
 package org.geoserver.cloud.catalog.cache;
 
+import java.io.Serializable;
 import lombok.NonNull;
-
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoEvent;
 import org.springframework.cache.interceptor.SimpleKey;
-
-import java.io.Serializable;
 
 /**
  * A key to for a cached {@link Info} using its {@link Info#getId() id}.

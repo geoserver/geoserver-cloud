@@ -18,10 +18,9 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
  */
 class VectorTilesConfigurationTest {
 
-    private ApplicationContextRunner contextRunner =
-            new ApplicationContextRunner()
-                    // .withBean(WmsExtensionsConfigProperties.class)
-                    .withConfiguration(AutoConfigurations.of(VectorTilesConfiguration.class));
+    private ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+            // .withBean(WmsExtensionsConfigProperties.class)
+            .withConfiguration(AutoConfigurations.of(VectorTilesConfiguration.class));
 
     @Test
     void allEnabledByDefault() {
@@ -30,11 +29,10 @@ class VectorTilesConfigurationTest {
 
     @Test
     void allEnabledExplicitly() {
-        contextRunner =
-                contextRunner.withPropertyValues(
-                        "geoserver.wms.output-formats.vector-tiles.mapbox.enabled=true",
-                        "geoserver.wms.output-formats.vector-tiles.geojson.enabled=true",
-                        "geoserver.wms.output-formats.vector-tiles.topojson.enabled=true");
+        contextRunner = contextRunner.withPropertyValues(
+                "geoserver.wms.output-formats.vector-tiles.mapbox.enabled=true",
+                "geoserver.wms.output-formats.vector-tiles.geojson.enabled=true",
+                "geoserver.wms.output-formats.vector-tiles.topojson.enabled=true");
         testAllEnabled();
     }
 
@@ -51,11 +49,10 @@ class VectorTilesConfigurationTest {
 
     @Test
     void enableOne() {
-        contextRunner =
-                contextRunner.withPropertyValues(
-                        "geoserver.wms.output-formats.vector-tiles.mapbox.enabled=true",
-                        "geoserver.wms.output-formats.vector-tiles.geojson.enabled=false",
-                        "geoserver.wms.output-formats.vector-tiles.topojson.enabled=false");
+        contextRunner = contextRunner.withPropertyValues(
+                "geoserver.wms.output-formats.vector-tiles.mapbox.enabled=true",
+                "geoserver.wms.output-formats.vector-tiles.geojson.enabled=false",
+                "geoserver.wms.output-formats.vector-tiles.topojson.enabled=false");
 
         hasBeans("VectorTilesExtension", "wmsMapBoxBuilderFactory", "wmsMapBoxMapOutputFormat");
         doesNotHaveBeans(
@@ -67,11 +64,10 @@ class VectorTilesConfigurationTest {
 
     @Test
     void allDisabled() {
-        contextRunner =
-                contextRunner.withPropertyValues(
-                        "geoserver.wms.output-formats.vector-tiles.mapbox.enabled=false",
-                        "geoserver.wms.output-formats.vector-tiles.geojson.enabled=false",
-                        "geoserver.wms.output-formats.vector-tiles.topojson.enabled=false");
+        contextRunner = contextRunner.withPropertyValues(
+                "geoserver.wms.output-formats.vector-tiles.mapbox.enabled=false",
+                "geoserver.wms.output-formats.vector-tiles.geojson.enabled=false",
+                "geoserver.wms.output-formats.vector-tiles.topojson.enabled=false");
 
         hasBeans("VectorTilesExtension");
         doesNotHaveBeans(
@@ -82,28 +78,24 @@ class VectorTilesConfigurationTest {
                 "wmsGeoJsonBuilderFactory",
                 "wmsGeoJsonMapOutputFormat");
 
-        contextRunner.run(
-                context ->
-                        assertThat(context)
-                                .getBean("VectorTilesExtension", ModuleStatus.class)
-                                .hasFieldOrPropertyWithValue("enabled", false));
+        contextRunner.run(context -> assertThat(context)
+                .getBean("VectorTilesExtension", ModuleStatus.class)
+                .hasFieldOrPropertyWithValue("enabled", false));
     }
 
     private void hasBeans(String... beans) {
-        contextRunner.run(
-                context -> {
-                    for (String bean : beans) {
-                        assertThat(context).hasBean(bean);
-                    }
-                });
+        contextRunner.run(context -> {
+            for (String bean : beans) {
+                assertThat(context).hasBean(bean);
+            }
+        });
     }
 
     private void doesNotHaveBeans(String... beans) {
-        contextRunner.run(
-                context -> {
-                    for (String bean : beans) {
-                        assertThat(context).doesNotHaveBean(bean);
-                    }
-                });
+        contextRunner.run(context -> {
+            for (String bean : beans) {
+                assertThat(context).doesNotHaveBean(bean);
+            }
+        });
     }
 }

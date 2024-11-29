@@ -7,8 +7,11 @@ package org.geoserver.cloud.security.gateway.sharedauth;
 import static org.geoserver.cloud.security.gateway.sharedauth.SharedAuthConfigurationProperties.X_GSCLOUD_ROLES;
 import static org.geoserver.cloud.security.gateway.sharedauth.SharedAuthConfigurationProperties.X_GSCLOUD_USERNAME;
 
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.boot.autoconfigure.neo4j.Neo4jProperties.Authentication;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -18,13 +21,7 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebSession;
-
 import reactor.core.publisher.Mono;
-
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * {@link GlobalFilter} working in tandem with {@link GatewaySharedAuthenticationPreFilter} to
@@ -69,9 +66,7 @@ public class GatewaySharedAuthenticationPostFilter implements GlobalFilter, Orde
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        return chain.filter(exchange)
-                .then(updateHeadersInSession(exchange))
-                .then(removeResponseHeaders(exchange));
+        return chain.filter(exchange).then(updateHeadersInSession(exchange)).then(removeResponseHeaders(exchange));
     }
 
     /**
@@ -88,16 +83,11 @@ public class GatewaySharedAuthenticationPostFilter implements GlobalFilter, Orde
     private Mono<Void> updateHeadersInSession(ServerWebExchange exchange) {
 
         return exchange.getSession()
-                .flatMap(
-                        session ->
-                                updateSession(
-                                        exchange.getRequest(),
-                                        exchange.getResponse().getHeaders(),
-                                        session));
+                .flatMap(session -> updateSession(
+                        exchange.getRequest(), exchange.getResponse().getHeaders(), session));
     }
 
-    private Mono<Void> updateSession(
-            ServerHttpRequest req, HttpHeaders responseHeaders, WebSession session) {
+    private Mono<Void> updateSession(ServerHttpRequest req, HttpHeaders responseHeaders, WebSession session) {
         final var responseUser = responseHeaders.getFirst(X_GSCLOUD_USERNAME);
         if (null == responseUser) {
             return Mono.empty();
@@ -111,8 +101,7 @@ public class GatewaySharedAuthenticationPostFilter implements GlobalFilter, Orde
         return Mono.fromRunnable(() -> loggedIn(session, responseUser, roles, req));
     }
 
-    private void loggedIn(
-            WebSession session, String user, List<String> roles, ServerHttpRequest req) {
+    private void loggedIn(WebSession session, String user, List<String> roles, ServerHttpRequest req) {
         var attributes = session.getAttributes();
         var currUser = attributes.get(X_GSCLOUD_USERNAME);
         var currRoles = attributes.get(X_GSCLOUD_ROLES);
@@ -155,11 +144,10 @@ public class GatewaySharedAuthenticationPostFilter implements GlobalFilter, Orde
     }
 
     private Mono<Void> removeResponseHeaders(ServerWebExchange exchange) {
-        return Mono.fromRunnable(
-                () -> {
-                    HttpHeaders responseHeaders = exchange.getResponse().getHeaders();
-                    removeResponseHeaders(exchange.getRequest(), responseHeaders);
-                });
+        return Mono.fromRunnable(() -> {
+            HttpHeaders responseHeaders = exchange.getResponse().getHeaders();
+            removeResponseHeaders(exchange.getRequest(), responseHeaders);
+        });
     }
 
     private void removeResponseHeaders(ServerHttpRequest req, HttpHeaders responseHeaders) {
@@ -169,14 +157,12 @@ public class GatewaySharedAuthenticationPostFilter implements GlobalFilter, Orde
 
     private void removeResponseHeader(ServerHttpRequest req, HttpHeaders headers, String name) {
         removeHeader(headers, name)
-                .ifPresent(
-                        value ->
-                                log.trace(
-                                        "removed response header {}: '{}'. {} {}",
-                                        name,
-                                        value,
-                                        req.getMethod(),
-                                        req.getURI().getPath()));
+                .ifPresent(value -> log.trace(
+                        "removed response header {}: '{}'. {} {}",
+                        name,
+                        value,
+                        req.getMethod(),
+                        req.getURI().getPath()));
     }
 
     private Optional<String> removeHeader(HttpHeaders httpHeaders, String name) {

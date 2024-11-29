@@ -4,6 +4,14 @@
  */
 package org.geoserver.cloud.gwc.app;
 
+import java.io.IOException;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.cloud.gwc.config.core.WebMapServiceMinimalConfiguration;
 import org.geoserver.gwc.layer.GeoServerTileLayer;
@@ -22,16 +30,6 @@ import org.springframework.web.servlet.config.annotation.ContentNegotiationConfi
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.servlet.resource.ResourceUrlProvider;
 
-import java.io.IOException;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
-
 @Configuration
 public class GeoWebCacheApplicationConfiguration extends RestConfiguration {
 
@@ -44,8 +42,7 @@ public class GeoWebCacheApplicationConfiguration extends RestConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean
-    LegendSample legendSample(
-            @Qualifier("rawCatalog") Catalog catalog, GeoServerResourceLoader loader) {
+    LegendSample legendSample(@Qualifier("rawCatalog") Catalog catalog, GeoServerResourceLoader loader) {
         return new LegendSampleImpl(catalog, loader);
     }
 
@@ -64,14 +61,12 @@ public class GeoWebCacheApplicationConfiguration extends RestConfiguration {
     @Bean
     @Override
     public RequestMappingHandlerMapping requestMappingHandlerMapping(
-            @Qualifier("mvcContentNegotiationManager")
-                    ContentNegotiationManager contentNegotiationManager,
+            @Qualifier("mvcContentNegotiationManager") ContentNegotiationManager contentNegotiationManager,
             @Qualifier("mvcConversionService") FormattingConversionService conversionService,
             @Qualifier("mvcResourceUrlProvider") ResourceUrlProvider resourceUrlProvider) {
 
         RequestMappingHandlerMapping handlerMapping =
-                super.requestMappingHandlerMapping(
-                        contentNegotiationManager, conversionService, resourceUrlProvider);
+                super.requestMappingHandlerMapping(contentNegotiationManager, conversionService, resourceUrlProvider);
 
         handlerMapping.setUseSuffixPatternMatch(true);
         handlerMapping.setUseRegisteredSuffixPatternMatch(true);

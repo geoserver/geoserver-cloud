@@ -8,6 +8,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
+import java.util.Map;
+import java.util.Optional;
 import org.geoserver.cloud.gwc.event.TileLayerEvent;
 import org.geoserver.gwc.layer.GWCGeoServerConfigurationProvider;
 import org.geoserver.gwc.layer.GeoServerTileLayerInfo;
@@ -23,10 +26,6 @@ import org.junit.jupiter.api.io.TempDir;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.web.context.WebApplicationContext;
-
-import java.io.File;
-import java.util.Map;
-import java.util.Optional;
 
 class CachingTileLayerCatalogTest {
 
@@ -45,8 +44,7 @@ class CachingTileLayerCatalogTest {
 
         WebApplicationContext context = mock(WebApplicationContext.class);
 
-        Map<String, XMLConfigurationProvider> configProviders =
-                Map.of("gs", new GWCGeoServerConfigurationProvider());
+        Map<String, XMLConfigurationProvider> configProviders = Map.of("gs", new GWCGeoServerConfigurationProvider());
 
         when(context.getBeansOfType(XMLConfigurationProvider.class)).thenReturn(configProviders);
         when(context.getBean("gs")).thenReturn(configProviders.get("gs"));
@@ -91,21 +89,19 @@ class CachingTileLayerCatalogTest {
     public void onTileLayerEvent() {
         final String origName = "origName";
         final String newName = "newName";
-        catalog.addListener(
-                new TileLayerCatalogListener() {
-                    @Override
-                    public void onEvent(String layerId, Type type) {
-                        TileLayerEvent event =
-                                switch (type) {
-                                    case CREATE -> TileLayerEvent.created(this, layerId, origName);
-                                    case MODIFY -> TileLayerEvent.modified(
-                                            this, layerId, newName, origName);
-                                    case DELETE -> TileLayerEvent.deleted(this, layerId, newName);
-                                    default -> throw new IllegalStateException();
-                                };
-                        caching.onTileLayerEvent(event);
-                    }
-                });
+        catalog.addListener(new TileLayerCatalogListener() {
+            @Override
+            public void onEvent(String layerId, Type type) {
+                TileLayerEvent event =
+                        switch (type) {
+                            case CREATE -> TileLayerEvent.created(this, layerId, origName);
+                            case MODIFY -> TileLayerEvent.modified(this, layerId, newName, origName);
+                            case DELETE -> TileLayerEvent.deleted(this, layerId, newName);
+                            default -> throw new IllegalStateException();
+                        };
+                caching.onTileLayerEvent(event);
+            }
+        });
 
         // do crud ops bypassing the caching decorator, expect the events have the desired effect
         assertThat(caching.idCache.get("tl1")).isNull();
@@ -114,7 +110,9 @@ class CachingTileLayerCatalogTest {
                 .as("create event should have added the id->name mapping")
                 .isNotNull()
                 .isEqualTo(origName);
-        assertThat(caching.idCache.get("tl1")).as("create event doesn't cache a value").isNull();
+        assertThat(caching.idCache.get("tl1"))
+                .as("create event doesn't cache a value")
+                .isNull();
 
         // force caching the entry
         caching.getLayerById("tl1");
@@ -127,14 +125,16 @@ class CachingTileLayerCatalogTest {
                 .as("update event should have updated the id->name mapping")
                 .isEqualTo(newName);
 
-        assertThat(caching.idCache.get("tl1")).as("update event should have evicted").isNull();
+        assertThat(caching.idCache.get("tl1"))
+                .as("update event should have evicted")
+                .isNull();
 
-        assertThat(caching.getLayerById("tl1"))
-                .isNotNull()
-                .hasFieldOrPropertyWithValue("name", newName);
+        assertThat(caching.getLayerById("tl1")).isNotNull().hasFieldOrPropertyWithValue("name", newName);
 
         catalog.delete(tl1.getId());
-        assertThat(caching.idCache.get("tl1")).as("delete event should have evicted").isNull();
+        assertThat(caching.idCache.get("tl1"))
+                .as("delete event should have evicted")
+                .isNull();
         assertThat(caching.namesById.get("tl1")).isNull();
     }
 
@@ -171,13 +171,15 @@ class CachingTileLayerCatalogTest {
         caching.save(tl);
 
         assertThat(catalog.getLayerById(tl.getId())).isNotSameAs(tl).isEqualTo(tl);
-        assertThat(caching.idCache.get(tl.getId(), GeoServerTileLayerInfo.class)).isEqualTo(tl);
+        assertThat(caching.idCache.get(tl.getId(), GeoServerTileLayerInfo.class))
+                .isEqualTo(tl);
 
         tl.setName("newname");
         caching.save(tl);
 
         assertThat(caching.namesById.get(tl.getId())).isEqualTo("newname");
-        assertThat(caching.idCache.get(tl.getId(), GeoServerTileLayerInfo.class)).isEqualTo(tl);
+        assertThat(caching.idCache.get(tl.getId(), GeoServerTileLayerInfo.class))
+                .isEqualTo(tl);
         assertThat(catalog.getLayerById(tl.getId())).isNotSameAs(tl).isEqualTo(tl);
     }
 
@@ -222,9 +224,7 @@ class CachingTileLayerCatalogTest {
         add(catalog, "tl1", "name1");
         add(catalog, "tl2", "name2");
 
-        assertThat(caching.getLayerById("tl1"))
-                .isNotNull()
-                .hasFieldOrPropertyWithValue("name", "name1");
+        assertThat(caching.getLayerById("tl1")).isNotNull().hasFieldOrPropertyWithValue("name", "name1");
         assertThat(caching.getLayerById("tl3")).isNull();
     }
 
@@ -234,15 +234,11 @@ class CachingTileLayerCatalogTest {
         add(catalog, "tl1", "name1");
         add(catalog, "tl2", "name2");
 
-        assertThat(caching.getLayerByName("name1"))
-                .isNotNull()
-                .hasFieldOrPropertyWithValue("id", "tl1");
+        assertThat(caching.getLayerByName("name1")).isNotNull().hasFieldOrPropertyWithValue("id", "tl1");
 
         // simulate a cache evicted, id to name mapping exists but layer is not cached
         caching.namesById.put("tl2", "name2");
-        assertThat(caching.getLayerByName("name2"))
-                .isNotNull()
-                .hasFieldOrPropertyWithValue("id", "tl2");
+        assertThat(caching.getLayerByName("name2")).isNotNull().hasFieldOrPropertyWithValue("id", "tl2");
 
         assertThat(caching.getLayerByName("name3")).isNull();
     }

@@ -5,7 +5,6 @@
 package org.geoserver.jackson.databind.config.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-
 import lombok.Data;
 
 /** */

@@ -4,6 +4,7 @@
  */
 package org.geoserver.catalog.plugin;
 
+import java.util.List;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
@@ -22,8 +23,6 @@ import org.geoserver.catalog.plugin.CatalogInfoRepository.StoreRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.StyleRepository;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.WorkspaceRepository;
 
-import java.util.List;
-
 public class CatalogInfoRepositoryHolderImpl implements CatalogInfoRepositoryHolder {
 
     protected NamespaceRepository namespaces;
@@ -35,8 +34,7 @@ public class CatalogInfoRepositoryHolderImpl implements CatalogInfoRepositoryHol
     protected StyleRepository styles;
     protected MapRepository maps;
 
-    protected CatalogInfoTypeRegistry<CatalogInfoRepository<?>> repos =
-            new CatalogInfoTypeRegistry<>();
+    protected CatalogInfoTypeRegistry<CatalogInfoRepository<?>> repos = new CatalogInfoTypeRegistry<>();
 
     @SuppressWarnings("unchecked")
     @Override

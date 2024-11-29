@@ -4,16 +4,14 @@
  */
 package org.geoserver.cloud.autoconfigure.gwc.integration;
 
+import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnWMTSIntegrationEnabled;
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
 import org.geowebcache.service.wmts.WMTSService;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.ImportResource;
-
-import javax.annotation.PostConstruct;
 
 /**
  * @since 1.0

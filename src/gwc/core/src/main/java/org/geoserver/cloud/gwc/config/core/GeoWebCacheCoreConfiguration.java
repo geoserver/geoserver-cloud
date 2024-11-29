@@ -8,8 +8,19 @@ import static org.geoserver.cloud.gwc.config.core.GeoWebCacheConfigurationProper
 import static org.geoserver.cloud.gwc.config.core.GeoWebCacheConfigurationProperties.CONFIG_DIRECTORY;
 import static org.geowebcache.storage.DefaultStorageFinder.GWC_CACHE_DIR;
 
+import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.function.Supplier;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
 import org.geoserver.cloud.gwc.repository.CloudDefaultStorageFinder;
 import org.geoserver.cloud.gwc.repository.CloudGwcXmlConfiguration;
@@ -36,20 +47,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.core.env.Environment;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
-
-import java.io.IOException;
-import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.function.Supplier;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
 
 /**
  * @since 1.0
@@ -104,17 +101,13 @@ public class GeoWebCacheCoreConfiguration {
     @Bean
     Path gwcDefaultCacheDirectory(GeoWebCacheConfigurationProperties config) {
         final Path directory = config.getCacheDirectory();
-        log.debug(
-                "resolving default cache directory from configuration property {}={}",
-                CACHE_DIRECTORY,
-                directory);
+        log.debug("resolving default cache directory from configuration property {}={}", CACHE_DIRECTORY, directory);
 
         if (null == directory) {
             throw new InvalidPropertyException(
                     GeoWebCacheConfigurationProperties.class,
                     "cacheDirectory",
-                    "%s is not set. The default cache directory MUST be provided."
-                            .formatted(CACHE_DIRECTORY));
+                    "%s is not set. The default cache directory MUST be provided.".formatted(CACHE_DIRECTORY));
         }
         validateDirectory(directory, CACHE_DIRECTORY);
 
@@ -140,8 +133,7 @@ public class GeoWebCacheCoreConfiguration {
      *     gwc.config-directory} config property is invalid
      */
     private Supplier<Resource> gwcDefaultConfigDirectory(
-            GeoWebCacheConfigurationProperties config,
-            @Qualifier("resourceStoreImpl") ResourceStore resourceStore)
+            GeoWebCacheConfigurationProperties config, @Qualifier("resourceStoreImpl") ResourceStore resourceStore)
             throws FatalBeanException {
 
         final Path directory = config.getConfigDirectory();
@@ -181,11 +173,9 @@ public class GeoWebCacheCoreConfiguration {
      */
     @Bean
     ConfigurationResourceProvider gwcXmlConfigResourceProvider(
-            GeoWebCacheConfigurationProperties config,
-            @Qualifier("resourceStoreImpl") ResourceStore resourceStore) {
+            GeoWebCacheConfigurationProperties config, @Qualifier("resourceStoreImpl") ResourceStore resourceStore) {
 
-        Supplier<Resource> configDirSupplier =
-                this.gwcDefaultConfigDirectory(config, resourceStore);
+        Supplier<Resource> configDirSupplier = this.gwcDefaultConfigDirectory(config, resourceStore);
         return new CloudXMLResourceProvider(configDirSupplier);
     }
 
@@ -223,8 +213,7 @@ public class GeoWebCacheCoreConfiguration {
      */
     @Bean
     DefaultStorageFinder gwcDefaultStorageFinder(
-            @Qualifier("gwcDefaultCacheDirectory") Path defaultCacheDirectory,
-            Environment environment) {
+            @Qualifier("gwcDefaultCacheDirectory") Path defaultCacheDirectory, Environment environment) {
         return new CloudDefaultStorageFinder(defaultCacheDirectory, environment);
     }
 
@@ -239,26 +228,19 @@ public class GeoWebCacheCoreConfiguration {
         if (!Files.exists(directory)) {
             try {
                 Path created = Files.createDirectory(directory);
-                log.info(
-                        "Created directory from config property {}: {}",
-                        configPropertyName,
-                        created);
+                log.info("Created directory from config property {}: {}", configPropertyName, created);
             } catch (FileAlreadyExistsException beatenByOtherInstance) {
                 // continue
             } catch (IOException e) {
                 throw new BeanInitializationException(
-                        "%s does not exist and can't be created: %s"
-                                .formatted(configPropertyName, directory),
-                        e);
+                        "%s does not exist and can't be created: %s".formatted(configPropertyName, directory), e);
             }
         }
         if (!Files.isDirectory(directory)) {
-            throw new BeanInitializationException(
-                    "%s is not a directory: %s".formatted(configPropertyName, directory));
+            throw new BeanInitializationException("%s is not a directory: %s".formatted(configPropertyName, directory));
         }
         if (!Files.isWritable(directory)) {
-            throw new BeanInitializationException(
-                    "%s is not writable: %s".formatted(configPropertyName, directory));
+            throw new BeanInitializationException("%s is not writable: %s".formatted(configPropertyName, directory));
         }
     }
 

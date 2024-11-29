@@ -5,7 +5,6 @@
 package org.geoserver.jackson.databind.catalog;
 
 import static com.google.common.collect.Lists.newArrayList;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -16,9 +15,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Supplier;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.catalog.AttributeTypeInfo;
 import org.geoserver.catalog.AttributionInfo;
 import org.geoserver.catalog.Catalog;
@@ -84,18 +90,7 @@ import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import si.uom.SI;
-
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Supplier;
 
 /**
  * Verifies that {@link Patch patches} can be JSON round-tripped. As a reference, it should cover as
@@ -134,8 +129,7 @@ public abstract class PatchSerializationTest {
 
     protected abstract ObjectMapper newObjectMapper();
 
-    private List<AttributeTypeInfo> createTestAttributes(FeatureTypeInfo info)
-            throws SchemaException {
+    private List<AttributeTypeInfo> createTestAttributes(FeatureTypeInfo info) throws SchemaException {
         String typeSpec =
                 "name:string,id:String,polygonProperty:Polygon:srid=32615,centroid:Point,url:java.net.URL,uuid:UUID";
         SimpleFeatureType ft = DataUtilities.createType("TestType", typeSpec);
@@ -171,9 +165,7 @@ public abstract class PatchSerializationTest {
 
     @Test
     void arrayTypes_non_scalar() throws Exception {
-        testPatch(
-                "ns_array",
-                new NamespaceInfo[] {data.namespaceA, data.namespaceB, data.namespaceC});
+        testPatch("ns_array", new NamespaceInfo[] {data.namespaceA, data.namespaceB, data.namespaceC});
     }
 
     @Test
@@ -249,10 +241,7 @@ public abstract class PatchSerializationTest {
         layer.getStyles().add(s2);
         catalog.save(layer);
 
-        final Patch patch =
-                new Patch()
-                        .with("styles", layer.getStyles())
-                        .with("defaultStyle", layer.getDefaultStyle());
+        final Patch patch = new Patch().with("styles", layer.getStyles()).with("defaultStyle", layer.getDefaultStyle());
 
         final Patch resolved = testPatch(patch);
         Set<StyleInfo> styles = resolved.get("styles").orElseThrow().value();
@@ -282,12 +271,11 @@ public abstract class PatchSerializationTest {
         layer.getIdentifiers().add(data.faker().layerIdentifierInfo());
         layer.getIdentifiers().add(data.faker().layerIdentifierInfo());
 
-        Patch patch =
-                new Patch()
-                        .with("legend", layer.getLegend())
-                        .with("attribution", layer.getAttribution())
-                        .with("authorityURLs", layer.getAuthorityURLs())
-                        .with("identifiers", layer.getIdentifiers());
+        Patch patch = new Patch()
+                .with("legend", layer.getLegend())
+                .with("attribution", layer.getAttribution())
+                .with("authorityURLs", layer.getAuthorityURLs())
+                .with("identifiers", layer.getIdentifiers());
         final Patch roundtripped = roundtrip(patch);
 
         LegendInfo legend = roundtripped.get("legend").orElseThrow().value();
@@ -385,11 +373,7 @@ public abstract class PatchSerializationTest {
 
     @Test
     void version_list() throws Exception {
-        testPatch(
-                "version",
-                List.of(
-                        new org.geotools.util.Version("1.0.1"),
-                        new org.geotools.util.Version("1.0.2")));
+        testPatch("version", List.of(new org.geotools.util.Version("1.0.1"), new org.geotools.util.Version("1.0.2")));
     }
 
     @Test
@@ -408,8 +392,9 @@ public abstract class PatchSerializationTest {
         CoordinateReferenceSystem crs = CRS.decode("EPSG:3857", longitudeFirst);
         Patch resolved = testPatchNoEquals(patch("crs", crs));
         assertEquals(List.of("crs"), resolved.getPropertyNames());
-        CoordinateReferenceSystem roundtripped =
-                resolved.getValue("crs").map(CoordinateReferenceSystem.class::cast).orElseThrow();
+        CoordinateReferenceSystem roundtripped = resolved.getValue("crs")
+                .map(CoordinateReferenceSystem.class::cast)
+                .orElseThrow();
         assertTrue(CRS.equalsIgnoreMetadata(crs, roundtripped));
     }
 
@@ -484,9 +469,7 @@ public abstract class PatchSerializationTest {
 
     @Test
     void modificationProxy_settingsInfo() throws Exception {
-        testPatch(
-                "settings",
-                forceProxy(data.faker().settingsInfo(data.workspaceA), SettingsInfo.class));
+        testPatch("settings", forceProxy(data.faker().settingsInfo(data.workspaceA), SettingsInfo.class));
     }
 
     /** Though ContactInfo is a value object, webui will save a ModificationProxy */
@@ -500,7 +483,8 @@ public abstract class PatchSerializationTest {
         settingsProxy.setContact(contactProxy);
 
         final Patch sent = patch("settings", settingsProxy);
-        final SettingsInfo received = testPatchNoEquals(sent).get("settings").orElseThrow().value();
+        final SettingsInfo received =
+                testPatchNoEquals(sent).get("settings").orElseThrow().value();
         assertModificationProxy(workspaceProxy, received.getWorkspace());
         ContactInfo contact = received.getContact();
         assertNotAProxy(contact);
@@ -709,8 +693,7 @@ public abstract class PatchSerializationTest {
         metadataMapWithCogSettings(cog, cogs);
     }
 
-    protected void metadataMapWithCogSettings(CogSettings cog, CogSettingsStore cogs)
-            throws JsonProcessingException {
+    protected void metadataMapWithCogSettings(CogSettings cog, CogSettingsStore cogs) throws JsonProcessingException {
 
         MetadataMap mdm = new MetadataMap(Map.of("cogSettings", cog, "cogSettingsStore", cogs));
 
@@ -721,8 +704,7 @@ public abstract class PatchSerializationTest {
                 (Map<String, Object>) patch.get("metadata").orElseThrow().getValue();
 
         assertThat(decoded.get("cogSettings"), CoreMatchers.instanceOf(CogSettings.class));
-        assertThat(
-                decoded.get("cogSettingsStore"), CoreMatchers.instanceOf(CogSettingsStore.class));
+        assertThat(decoded.get("cogSettingsStore"), CoreMatchers.instanceOf(CogSettingsStore.class));
         var c = (CogSettings) decoded.get("cogSettings");
         var s = (CogSettingsStore) decoded.get("cogSettingsStore");
         assertNotNull(c);
@@ -790,11 +772,10 @@ public abstract class PatchSerializationTest {
         if (encodeByReference) {
             String typeName = typeName(roundtrippedValue);
             Class<? extends Info> type = ProxyUtils.referenceTypeOf(patchValue).orElseThrow();
-            Supplier<String> desc =
-                    () -> {
-                        return "Patch value of type %s shall be encoded as reference, got value %s"
-                                .formatted(type.getCanonicalName(), typeName);
-                    };
+            Supplier<String> desc = () -> {
+                return "Patch value of type %s shall be encoded as reference, got value %s"
+                        .formatted(type.getCanonicalName(), typeName);
+            };
             assertThat(typeName).as(desc).isEqualTo("ResolvingProxy");
         } else {
             assertNotAProxy(roundtrippedValue);
@@ -832,26 +813,17 @@ public abstract class PatchSerializationTest {
     protected void assertNotAProxy(Object value) {
         if (value instanceof Info info) {
             assertThat(ProxyUtils.isResolvingProxy(info))
-                    .as(
-                            () ->
-                                    "%s should not be a ResolvingProxy: %s"
-                                            .formatted(info.getId(), typeName(info)))
+                    .as(() -> "%s should not be a ResolvingProxy: %s".formatted(info.getId(), typeName(info)))
                     .isFalse();
             assertThat(ProxyUtils.isModificationProxy(info))
-                    .as(
-                            () ->
-                                    "%s should not be a ModificationProxy: %s"
-                                            .formatted(info.getId(), typeName(info)))
+                    .as(() -> "%s should not be a ModificationProxy: %s".formatted(info.getId(), typeName(info)))
                     .isFalse();
         }
     }
 
     protected <I extends Info> I assertModificationProxy(I info) {
         assertThat(ProxyUtils.isModificationProxy(info))
-                .as(
-                        () ->
-                                "%s should be a ModificationProxy, got %s"
-                                        .formatted(info.getId(), typeName(info)))
+                .as(() -> "%s should be a ModificationProxy, got %s".formatted(info.getId(), typeName(info)))
                 .isTrue();
 
         I real = ModificationProxy.unwrap(info);
@@ -868,19 +840,14 @@ public abstract class PatchSerializationTest {
 
     protected void assertResolvingProxy(Info info) {
         assertThat(ProxyUtils.isResolvingProxy(info))
-                .as(
-                        () ->
-                                "%s should be a ResolvingProxy, got %s"
-                                        .formatted(info.getId(), typeName(info)))
+                .as(() -> "%s should be a ResolvingProxy, got %s".formatted(info.getId(), typeName(info)))
                 .isTrue();
     }
 
     private void assertValueObject(Object valueObject, Class<?> valueType) {
         if (valueObject instanceof Info info) {
-            Supplier<String> msg =
-                    () ->
-                            "expected pure value object of type %s, got %s"
-                                    .formatted(valueType.getCanonicalName(), typeName(valueObject));
+            Supplier<String> msg = () -> "expected pure value object of type %s, got %s"
+                    .formatted(valueType.getCanonicalName(), typeName(valueObject));
             assertThat(ProxyUtils.isResolvingProxy(info)).as(msg).isFalse();
             assertThat(ProxyUtils.isModificationProxy(info)).as(msg).isFalse();
         }

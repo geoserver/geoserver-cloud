@@ -4,16 +4,14 @@
  */
 package org.geoserver.cloud.wms.controller.kml;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-
 import org.geoserver.kml.KMLReflector;
 import org.geoserver.ows.Dispatcher;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * Controller for {@link KMLReflector} at {@literal /wms/kml?}/{@literal /{workspace}/wms/kml?}
@@ -31,8 +29,7 @@ public class KMLReflectorController {
     private final @NonNull Dispatcher geoserverDispatcher;
 
     @GetMapping(path = {"/wms/kml", "/{workspace}/wms/kml"})
-    public void kmlReflect(HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
+    public void kmlReflect(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         geoserverDispatcher.handleRequest(request, response);
     }

@@ -20,22 +20,19 @@ import org.springframework.security.core.Authentication;
 
 class LoggingMDCAutoConfigurationTest {
 
-    private WebApplicationContextRunner runner =
-            new WebApplicationContextRunner()
-                    .withConfiguration(AutoConfigurations.of(LoggingMDCAutoConfiguration.class));
+    private WebApplicationContextRunner runner = new WebApplicationContextRunner()
+            .withConfiguration(AutoConfigurations.of(LoggingMDCAutoConfiguration.class));
 
     @Test
     void testDefaultBeans() {
-        runner.run(
-                context ->
-                        assertThat(context)
-                                .hasNotFailed()
-                                .hasSingleBean(MDCConfigProperties.class)
-                                .hasSingleBean(MDCDispatcherCallback.class)
-                                .hasSingleBean(MDCCleaningFilter.class)
-                                .hasSingleBean(HttpRequestMdcFilter.class)
-                                .hasSingleBean(SpringEnvironmentMdcFilter.class)
-                                .hasBean("mdcAuthenticationPropertiesServletFilter"));
+        runner.run(context -> assertThat(context)
+                .hasNotFailed()
+                .hasSingleBean(MDCConfigProperties.class)
+                .hasSingleBean(MDCDispatcherCallback.class)
+                .hasSingleBean(MDCCleaningFilter.class)
+                .hasSingleBean(HttpRequestMdcFilter.class)
+                .hasSingleBean(SpringEnvironmentMdcFilter.class)
+                .hasBean("mdcAuthenticationPropertiesServletFilter"));
     }
 
     @Test
@@ -46,48 +43,34 @@ class LoggingMDCAutoConfigurationTest {
                         "logging.mdc.include.user=%s".formatted(!defaults.isUser()),
                         "logging.mdc.include.roles=%s".formatted(!defaults.isRoles()),
                         "logging.mdc.include.ows=%s".formatted(!defaults.isOws()))
-                .run(
-                        context ->
-                                assertThat(context)
-                                        .getBean(MDCConfigProperties.class)
-                                        .hasFieldOrPropertyWithValue("user", !defaults.isUser())
-                                        .hasFieldOrPropertyWithValue("roles", !defaults.isRoles())
-                                        .hasFieldOrPropertyWithValue("ows", !defaults.isOws()));
+                .run(context -> assertThat(context)
+                        .getBean(MDCConfigProperties.class)
+                        .hasFieldOrPropertyWithValue("user", !defaults.isUser())
+                        .hasFieldOrPropertyWithValue("roles", !defaults.isRoles())
+                        .hasFieldOrPropertyWithValue("ows", !defaults.isOws()));
     }
 
     @Test
     void conditionalOnGeoServerDispatcher() {
         runner.withClassLoader(new FilteredClassLoader(org.geoserver.ows.Dispatcher.class))
-                .run(
-                        context ->
-                                assertThat(context)
-                                        .hasNotFailed()
-                                        .doesNotHaveBean(MDCDispatcherCallback.class));
+                .run(context -> assertThat(context).hasNotFailed().doesNotHaveBean(MDCDispatcherCallback.class));
     }
 
     @Test
     void conditionalOnServletWebApplication() {
-        ReactiveWebApplicationContextRunner reactiveAppRunner =
-                new ReactiveWebApplicationContextRunner()
-                        .withConfiguration(
-                                AutoConfigurations.of(LoggingMDCAutoConfiguration.class));
-        reactiveAppRunner.run(
-                context ->
-                        assertThat(context)
-                                .hasNotFailed()
-                                .doesNotHaveBean(MDCConfigProperties.class)
-                                .doesNotHaveBean(MDCDispatcherCallback.class)
-                                .doesNotHaveBean("mdcCleaningServletFilter"));
+        ReactiveWebApplicationContextRunner reactiveAppRunner = new ReactiveWebApplicationContextRunner()
+                .withConfiguration(AutoConfigurations.of(LoggingMDCAutoConfiguration.class));
+        reactiveAppRunner.run(context -> assertThat(context)
+                .hasNotFailed()
+                .doesNotHaveBean(MDCConfigProperties.class)
+                .doesNotHaveBean(MDCDispatcherCallback.class)
+                .doesNotHaveBean("mdcCleaningServletFilter"));
     }
 
     @Test
     void authenticationFilterConditionalOnAuthenticationClass() {
         runner.withClassLoader(new FilteredClassLoader(Authentication.class))
-                .run(
-                        context ->
-                                assertThat(context)
-                                        .hasNotFailed()
-                                        .doesNotHaveBean(
-                                                "mdcAuthenticationPropertiesServletFilter"));
+                .run(context ->
+                        assertThat(context).hasNotFailed().doesNotHaveBean("mdcAuthenticationPropertiesServletFilter"));
     }
 }

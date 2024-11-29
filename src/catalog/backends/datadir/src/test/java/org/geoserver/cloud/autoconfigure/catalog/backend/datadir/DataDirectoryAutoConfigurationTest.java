@@ -7,6 +7,7 @@ package org.geoserver.cloud.autoconfigure.catalog.backend.datadir;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
+import java.nio.file.Paths;
 import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.plugin.CatalogPlugin;
@@ -26,153 +27,118 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
-import java.nio.file.Paths;
-
 /**
  * Test {@link DataDirectoryBackendConfiguration} through {@link DataDirectoryAutoConfiguration}
  * when {@code geoserver.backend.data-directory.enabled=true}
  */
 class DataDirectoryAutoConfigurationTest {
 
-    private ApplicationContextRunner runner =
-            new ApplicationContextRunner()
-                    .withConfiguration(
-                            AutoConfigurations.of(
-                                    // AutoConfigurations from gs-cloud-catalog-backend-common
-                                    org.geoserver.cloud.autoconfigure.geotools
-                                            .GeoToolsHttpClientAutoConfiguration.class,
-                                    org.geoserver.cloud.autoconfigure.catalog.backend.core
-                                            .GeoServerBackendAutoConfiguration.class,
-                                    org.geoserver.cloud.autoconfigure.catalog.backend.core
-                                            .DefaultUpdateSequenceAutoConfiguration.class,
-                                    org.geoserver.cloud.autoconfigure.catalog.backend.core
-                                            .XstreamServiceLoadersAutoConfiguration.class,
-                                    org.geoserver.cloud.autoconfigure.catalog.backend.core
-                                            .RemoteEventResourcePoolCleanupUpAutoConfiguration
-                                            .class,
-                                    org.geoserver.cloud.autoconfigure.security
-                                            .GeoServerSecurityAutoConfiguration.class,
-                                    org.geoserver.cloud.autoconfigure.metrics.catalog
-                                            .CatalogMetricsAutoConfiguration.class,
-                                    // AutoConfigurations from gs-cloud-catalog-backend-datadir
-                                    org.geoserver.cloud.autoconfigure.catalog.backend.datadir
-                                            .DataDirectoryAutoConfiguration.class //
-                                    ))
-                    //
-                    .withPropertyValues(
-                            "geoserver.backend.dataDirectory.enabled=true", //
-                            "geoserver.backend.dataDirectory.location=/tmp/data_dir_autoconfiguration_test" //
-                            );
+    private ApplicationContextRunner runner = new ApplicationContextRunner()
+            .withConfiguration(AutoConfigurations.of(
+                    // AutoConfigurations from gs-cloud-catalog-backend-common
+                    org.geoserver.cloud.autoconfigure.geotools.GeoToolsHttpClientAutoConfiguration.class,
+                    org.geoserver.cloud.autoconfigure.catalog.backend.core.GeoServerBackendAutoConfiguration.class,
+                    org.geoserver.cloud.autoconfigure.catalog.backend.core.DefaultUpdateSequenceAutoConfiguration.class,
+                    org.geoserver.cloud.autoconfigure.catalog.backend.core.XstreamServiceLoadersAutoConfiguration.class,
+                    org.geoserver.cloud.autoconfigure.catalog.backend.core
+                            .RemoteEventResourcePoolCleanupUpAutoConfiguration.class,
+                    org.geoserver.cloud.autoconfigure.security.GeoServerSecurityAutoConfiguration.class,
+                    org.geoserver.cloud.autoconfigure.metrics.catalog.CatalogMetricsAutoConfiguration.class,
+                    // AutoConfigurations from gs-cloud-catalog-backend-datadir
+                    org.geoserver.cloud.autoconfigure.catalog.backend.datadir.DataDirectoryAutoConfiguration.class //
+                    ))
+            //
+            .withPropertyValues(
+                    "geoserver.backend.dataDirectory.enabled=true", //
+                    "geoserver.backend.dataDirectory.location=/tmp/data_dir_autoconfiguration_test" //
+                    );
 
     @Test
     void testProperties() {
 
-        runner.run(
-                context -> {
-                    assertThat(context).hasNotFailed();
-                    assertThat(context).hasSingleBean(DataDirectoryProperties.class);
-                    assertThat(context)
-                            .getBean(DataDirectoryProperties.class)
-                            .hasFieldOrPropertyWithValue(
-                                    "location", Paths.get("/tmp/data_dir_autoconfiguration_test"));
-                });
+        runner.run(context -> {
+            assertThat(context).hasNotFailed();
+            assertThat(context).hasSingleBean(DataDirectoryProperties.class);
+            assertThat(context)
+                    .getBean(DataDirectoryProperties.class)
+                    .hasFieldOrPropertyWithValue("location", Paths.get("/tmp/data_dir_autoconfiguration_test"));
+        });
     }
 
     @Test
     void testCatalog() {
-        runner.run(
-                context -> {
-                    assertThat(context).getBean("rawCatalog").isInstanceOf(LockingCatalog.class);
-                });
+        runner.run(context -> {
+            assertThat(context).getBean("rawCatalog").isInstanceOf(LockingCatalog.class);
+        });
     }
 
     @Test
     void testGeoServer() {
-        runner.run(
-                context -> {
-                    assertThat(context).getBean("geoServer").isInstanceOf(LockingGeoServer.class);
-                });
+        runner.run(context -> {
+            assertThat(context).getBean("geoServer").isInstanceOf(LockingGeoServer.class);
+        });
     }
 
     @Test
     void testCatalogFacadeIsRawCatalogFacade() {
-        runner.run(
-                context -> {
-                    CatalogFacade rawCatalogFacade =
-                            context.getBean("catalogFacade", CatalogFacade.class);
-                    CatalogPlugin rawCatalog = context.getBean("rawCatalog", CatalogPlugin.class);
-                    assertSame(rawCatalogFacade, rawCatalog.getRawFacade());
-                });
+        runner.run(context -> {
+            CatalogFacade rawCatalogFacade = context.getBean("catalogFacade", CatalogFacade.class);
+            CatalogPlugin rawCatalog = context.getBean("rawCatalog", CatalogPlugin.class);
+            assertSame(rawCatalogFacade, rawCatalog.getRawFacade());
+        });
     }
 
     @Test
     void testResourceLoader() {
-        runner.run(
-                context -> {
-                    assertThat(context)
-                            .getBean("resourceLoader")
-                            .isInstanceOf(GeoServerResourceLoader.class);
-                });
+        runner.run(context -> {
+            assertThat(context).getBean("resourceLoader").isInstanceOf(GeoServerResourceLoader.class);
+        });
     }
 
     @Test
     void testGeoserverFacade() {
-        runner.run(
-                context -> {
-                    assertThat(context)
-                            .getBean("geoserverFacade")
-                            .isInstanceOf(RepositoryGeoServerFacade.class);
-                });
+        runner.run(context -> {
+            assertThat(context).getBean("geoserverFacade").isInstanceOf(RepositoryGeoServerFacade.class);
+        });
     }
 
     @Test
     void testGeoserverLoaderLegacy() {
         runner.withPropertyValues("geoserver.backend.data-directory.parallel-loader=false")
-                .run(
-                        context -> {
-                            assertThat(context)
-                                    .getBean("geoServerLoaderImpl")
-                                    .isInstanceOf(DataDirectoryGeoServerLoader.class);
-                        });
+                .run(context -> {
+                    assertThat(context).getBean("geoServerLoaderImpl").isInstanceOf(DataDirectoryGeoServerLoader.class);
+                });
     }
 
     @Test
     void testGeoserverLoader() {
-        runner.run(
-                context -> {
-                    assertThat(context)
-                            .getBean("geoServerLoaderImpl")
-                            .isInstanceOf(ParallelDataDirectoryGeoServerLoader.class);
-                });
+        runner.run(context -> {
+            assertThat(context).getBean("geoServerLoaderImpl").isInstanceOf(ParallelDataDirectoryGeoServerLoader.class);
+        });
     }
 
     @Test
     void testResourceStoreImpl() {
-        runner.run(
-                context -> {
-                    assertThat(context)
-                            .getBean("resourceStoreImpl")
-                            .isInstanceOf(NoServletContextDataDirectoryResourceStore.class);
-                });
+        runner.run(context -> {
+            assertThat(context)
+                    .getBean("resourceStoreImpl")
+                    .isInstanceOf(NoServletContextDataDirectoryResourceStore.class);
+        });
     }
 
     @Test
     void testUpdateSequence() {
-        runner.run(
-                context -> {
-                    assertThat(context)
-                            .getBean(UpdateSequence.class)
-                            .isInstanceOf(DataDirectoryUpdateSequence.class);
-                });
+        runner.run(context -> {
+            assertThat(context).getBean(UpdateSequence.class).isInstanceOf(DataDirectoryUpdateSequence.class);
+        });
     }
 
     @Test
     void testGeoServerConfigurationLock() {
-        runner.run(
-                context -> {
-                    assertThat(context)
-                            .getBean(GeoServerConfigurationLock.class)
-                            .isInstanceOf(LockProviderGeoServerConfigurationLock.class);
-                });
+        runner.run(context -> {
+            assertThat(context)
+                    .getBean(GeoServerConfigurationLock.class)
+                    .isInstanceOf(LockProviderGeoServerConfigurationLock.class);
+        });
     }
 }

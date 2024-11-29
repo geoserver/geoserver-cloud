@@ -11,11 +11,9 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-
-import lombok.extern.slf4j.Slf4j;
-
 import java.io.IOException;
 import java.util.function.Function;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Generic {@link JsonSerializer} that applies a function from the original object type to the
@@ -40,12 +38,10 @@ public class MapperSerializer<I, D> extends StdSerializer<I> {
     }
 
     @Override
-    public void serializeWithType(
-            I value, JsonGenerator gen, SerializerProvider serializers, TypeSerializer typeSer)
+    public void serializeWithType(I value, JsonGenerator gen, SerializerProvider serializers, TypeSerializer typeSer)
             throws IOException {
 
-        WritableTypeId typeIdDef =
-                typeSer.writeTypePrefix(gen, typeSer.typeId(value, type, JsonToken.VALUE_STRING));
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen, typeSer.typeId(value, type, JsonToken.VALUE_STRING));
 
         serialize(value, gen, null);
 
@@ -53,8 +49,7 @@ public class MapperSerializer<I, D> extends StdSerializer<I> {
     }
 
     @Override
-    public void serialize(I value, JsonGenerator gen, SerializerProvider provider)
-            throws IOException {
+    public void serialize(I value, JsonGenerator gen, SerializerProvider provider) throws IOException {
 
         D dto;
         try {

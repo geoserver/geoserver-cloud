@@ -27,10 +27,7 @@ public class RemoteBlobStoreEvent extends RemoteGeoWebCacheEvent {
     }
 
     public RemoteBlobStoreEvent(
-            Object source,
-            @NonNull String originService,
-            @NonNull String blobStoreId,
-            @NonNull Type eventType) {
+            Object source, @NonNull String originService, @NonNull String blobStoreId, @NonNull Type eventType) {
         super(source, originService, eventType);
         this.blobStoreId = blobStoreId;
     }

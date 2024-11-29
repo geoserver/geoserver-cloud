@@ -4,11 +4,10 @@
  */
 package org.geoserver.cloud.gwc.backend.pgconfig;
 
-import org.springframework.dao.DataAccessException;
-
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
+import org.springframework.dao.DataAccessException;
 
 /**
  * {@code TileLayerInfoRepository} defines CRUD operations on {@link TileLayerInfo}.

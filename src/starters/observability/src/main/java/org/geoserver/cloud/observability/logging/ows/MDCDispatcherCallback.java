@@ -6,7 +6,6 @@ package org.geoserver.cloud.observability.logging.ows;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-
 import org.geoserver.cloud.observability.logging.config.MDCConfigProperties;
 import org.geoserver.ows.AbstractDispatcherCallback;
 import org.geoserver.ows.DispatcherCallback;
@@ -16,8 +15,7 @@ import org.geoserver.platform.Service;
 import org.slf4j.MDC;
 
 @RequiredArgsConstructor
-public class MDCDispatcherCallback extends AbstractDispatcherCallback
-        implements DispatcherCallback {
+public class MDCDispatcherCallback extends AbstractDispatcherCallback implements DispatcherCallback {
 
     private final @NonNull MDCConfigProperties config;
 

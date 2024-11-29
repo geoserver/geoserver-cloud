@@ -4,6 +4,14 @@
  */
 package org.geoserver.cloud.restconfig;
 
+import java.io.IOException;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 import org.geoserver.rest.RequestInfo;
 import org.geoserver.rest.RestConfiguration;
 import org.geoserver.rest.catalog.AdminRequestCallback;
@@ -18,16 +26,6 @@ import org.springframework.web.accept.ContentNegotiationManager;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.servlet.resource.ResourceUrlProvider;
-
-import java.io.IOException;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
 
 @Configuration
 @ComponentScan(basePackageClasses = org.geoserver.rest.AbstractGeoServerController.class)
@@ -53,14 +51,12 @@ public class RestConfigApplicationConfiguration extends RestConfiguration {
     @Bean
     @Override
     public RequestMappingHandlerMapping requestMappingHandlerMapping(
-            @Qualifier("mvcContentNegotiationManager")
-                    ContentNegotiationManager contentNegotiationManager,
+            @Qualifier("mvcContentNegotiationManager") ContentNegotiationManager contentNegotiationManager,
             @Qualifier("mvcConversionService") FormattingConversionService conversionService,
             @Qualifier("mvcResourceUrlProvider") ResourceUrlProvider resourceUrlProvider) {
 
         RequestMappingHandlerMapping handlerMapping =
-                super.requestMappingHandlerMapping(
-                        contentNegotiationManager, conversionService, resourceUrlProvider);
+                super.requestMappingHandlerMapping(contentNegotiationManager, conversionService, resourceUrlProvider);
 
         handlerMapping.setUseSuffixPatternMatch(true);
         handlerMapping.setUseRegisteredSuffixPatternMatch(true);

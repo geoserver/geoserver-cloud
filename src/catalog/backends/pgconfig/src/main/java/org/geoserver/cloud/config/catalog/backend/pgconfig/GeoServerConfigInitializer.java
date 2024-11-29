@@ -4,10 +4,10 @@
  */
 package org.geoserver.cloud.config.catalog.backend.pgconfig;
 
+import java.util.List;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.GeoServerConfigurationLock.LockType;
 import org.geoserver.config.GeoServer;
@@ -19,15 +19,12 @@ import org.geoserver.platform.ExtensionPriority;
 import org.geoserver.platform.GeoServerExtensions;
 import org.springframework.core.Ordered;
 
-import java.util.List;
-
 /**
  * @since 1.4
  */
 @RequiredArgsConstructor
 @Slf4j
-public class GeoServerConfigInitializer
-        implements GeoServerInitializer, Ordered, ExtensionPriority {
+public class GeoServerConfigInitializer implements GeoServerInitializer, Ordered, ExtensionPriority {
 
     private final @NonNull GeoServerConfigurationLock configLock;
 
@@ -57,8 +54,7 @@ public class GeoServerConfigInitializer
             }
             // also ensure we have a service configuration for every service we know about
             @SuppressWarnings("rawtypes")
-            final List<XStreamServiceLoader> loaders =
-                    GeoServerExtensions.extensions(XStreamServiceLoader.class);
+            final List<XStreamServiceLoader> loaders = GeoServerExtensions.extensions(XStreamServiceLoader.class);
             for (ServiceLoader<?> l : loaders) {
                 ServiceInfo s = geoServer.getService(l.getServiceClass());
                 if (s == null) {

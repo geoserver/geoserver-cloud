@@ -5,7 +5,6 @@
 package org.geoserver.jackson.databind.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.geotools.jackson.databind.util.ObjectMapperUtil;
 
 /**

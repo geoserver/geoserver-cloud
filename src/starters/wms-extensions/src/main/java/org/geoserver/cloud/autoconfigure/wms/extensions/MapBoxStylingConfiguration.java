@@ -22,19 +22,12 @@ import org.springframework.context.annotation.ImportResource;
  * @since 1.0
  */
 @Configuration
-@Import(
-        value = {
-            MapBoxStylingConfiguration.Enabled.class,
-            MapBoxStylingConfiguration.Disabled.class
-        })
+@Import(value = {MapBoxStylingConfiguration.Enabled.class, MapBoxStylingConfiguration.Disabled.class})
 class MapBoxStylingConfiguration {
 
     @Configuration
     @ConditionalOnBean(name = "sldHandler") // sldHandler is MBStyleHandler's constructor arg
-    @ConditionalOnProperty(
-            name = "geoserver.styling.mapbox.enabled",
-            havingValue = "true",
-            matchIfMissing = true)
+    @ConditionalOnProperty(name = "geoserver.styling.mapbox.enabled", havingValue = "true", matchIfMissing = true)
     @ConditionalOnClass(MBStyleHandler.class)
     @ImportResource( //
             reader = FilteringXmlBeanDefinitionReader.class, //
@@ -42,10 +35,7 @@ class MapBoxStylingConfiguration {
     static class Enabled {}
 
     @Configuration
-    @ConditionalOnProperty(
-            name = "geoserver.styling.mapbox.enabled",
-            havingValue = "false",
-            matchIfMissing = false)
+    @ConditionalOnProperty(name = "geoserver.styling.mapbox.enabled", havingValue = "false", matchIfMissing = false)
     @ConditionalOnClass(MBStyleHandler.class)
     static class Disabled {
 

@@ -4,14 +4,13 @@
  */
 package org.geoserver.cloud.autoconfigure.authzn;
 
-import org.geoserver.cloud.autoconfigure.security.ConditionalOnGeoServerSecurityEnabled;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import org.geoserver.cloud.autoconfigure.security.ConditionalOnGeoServerSecurityEnabled;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 /** Conditional to check if gateway/webui shared authentication is disabled. */
 @Retention(RetentionPolicy.RUNTIME)

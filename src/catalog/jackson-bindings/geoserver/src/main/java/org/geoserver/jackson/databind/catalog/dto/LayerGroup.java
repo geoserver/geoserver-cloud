@@ -5,14 +5,11 @@
 package org.geoserver.jackson.databind.catalog.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-
-import org.geotools.jackson.databind.dto.Envelope;
-
 import java.util.List;
 import java.util.Map;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import org.geotools.jackson.databind.dto.Envelope;
 
 @Data
 @EqualsAndHashCode(callSuper = true)

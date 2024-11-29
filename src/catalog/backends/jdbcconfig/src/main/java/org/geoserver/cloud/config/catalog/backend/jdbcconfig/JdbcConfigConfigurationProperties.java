@@ -4,14 +4,12 @@
  */
 package org.geoserver.cloud.config.catalog.backend.jdbcconfig;
 
+import java.nio.file.Path;
 import lombok.Data;
-
 import org.geoserver.cloud.autoconfigure.catalog.backend.jdbcconfig.JDBCConfigAutoConfiguration;
 import org.geoserver.cloud.config.catalog.backend.core.GeoServerBackendConfigurer;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-
-import java.nio.file.Path;
 
 /**
  * Configuration properties to use GeoServer's {@code jdbcconfig} and {@code jdbcstore} community

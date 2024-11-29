@@ -6,13 +6,10 @@ package org.geoserver.jackson.databind.catalog.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-
-import lombok.Data;
-
-import org.geotools.jackson.databind.filter.dto.Literal;
-
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Data;
+import org.geotools.jackson.databind.filter.dto.Literal;
 
 /** DTO for {@link org.geoserver.catalog.plugin.Patch} */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)

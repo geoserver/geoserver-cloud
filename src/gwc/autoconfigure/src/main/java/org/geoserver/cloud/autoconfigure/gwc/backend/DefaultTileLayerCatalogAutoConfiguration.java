@@ -4,8 +4,8 @@
  */
 package org.geoserver.cloud.autoconfigure.gwc.backend;
 
+import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnGeoWebCacheEnabled;
 import org.geoserver.cloud.gwc.config.core.DefaultTileLayerCatalogConfiguration;
 import org.geoserver.cloud.gwc.repository.GeoServerTileLayerConfiguration;
@@ -14,8 +14,6 @@ import org.geoserver.platform.resource.ResourceStore;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Import;
-
-import javax.annotation.PostConstruct;
 
 /**
  * {@link AutoConfiguration @AutoConfiguration} to set up the GeoServer {@link TileLayerCatalog}

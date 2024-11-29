@@ -4,14 +4,12 @@
  */
 package org.geoserver.cloud.config.catalog.backend.datadirectory;
 
+import java.nio.file.Path;
+import java.util.List;
 import lombok.Data;
-
 import org.geoserver.cloud.autoconfigure.catalog.backend.datadir.DataDirectoryAutoConfiguration;
 import org.geoserver.cloud.config.catalog.backend.core.GeoServerBackendConfigurer;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-
-import java.nio.file.Path;
-import java.util.List;
 
 /**
  * Configuration properties to use GeoServer's traditional, file-system based data-directory as the
@@ -25,8 +23,7 @@ public class DataDirectoryProperties {
     private boolean enabled;
     private Path location;
     private boolean parallelLoader = true;
-    private DataDirectoryProperties.EventualConsistencyConfig eventualConsistency =
-            new EventualConsistencyConfig();
+    private DataDirectoryProperties.EventualConsistencyConfig eventualConsistency = new EventualConsistencyConfig();
 
     /**
      * Eventual consistency enfocement configuration. Bus events may come out of order under stress

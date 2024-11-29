@@ -6,20 +6,17 @@ package org.geoserver.cloud.gwc.backend.pgconfig;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import java.io.UncheckedIOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import lombok.NonNull;
 import lombok.SneakyThrows;
-
 import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.cloud.backend.pgconfig.catalog.repository.CatalogInfoRowMapper;
 import org.geoserver.cloud.backend.pgconfig.catalog.repository.PgconfigObjectMapper;
 import org.geoserver.cloud.backend.pgconfig.catalog.repository.PgconfigStyleRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-
-import java.io.UncheckedIOException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 /**
  * @since 1.7
@@ -36,8 +33,7 @@ class PgconfigTileLayerInfoRowMapper implements RowMapper<TileLayerInfo> {
 
     public static PgconfigTileLayerInfoRowMapper newInstance(@NonNull JdbcTemplate template) {
         PgconfigStyleRepository styleLoader = new PgconfigStyleRepository(template);
-        RowMapper<PublishedInfo> publishedMapper =
-                CatalogInfoRowMapper.published(styleLoader::findById);
+        RowMapper<PublishedInfo> publishedMapper = CatalogInfoRowMapper.published(styleLoader::findById);
         return new PgconfigTileLayerInfoRowMapper(publishedMapper);
     }
 

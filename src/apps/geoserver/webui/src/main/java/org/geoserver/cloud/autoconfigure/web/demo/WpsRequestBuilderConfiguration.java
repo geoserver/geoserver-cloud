@@ -23,8 +23,7 @@ import org.springframework.context.annotation.ImportResource;
         locations = "jar:gs-web-wps-.*!/applicationContext.xml#name=wpsRequestBuilder")
 public class WpsRequestBuilderConfiguration extends AbstractWebUIAutoConfiguration {
 
-    static final String CONFIG_PREFIX =
-            DemosAutoConfiguration.CONFIG_PREFIX + ".wps-request-builder";
+    static final String CONFIG_PREFIX = DemosAutoConfiguration.CONFIG_PREFIX + ".wps-request-builder";
 
     @Override
     public String getConfigPrefix() {

@@ -9,9 +9,10 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-
+import java.util.Locale;
+import java.util.Map;
+import java.util.function.Function;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geotools.api.filter.Filter;
 import org.geotools.api.filter.capability.FunctionName;
 import org.geotools.api.filter.expression.Expression;
@@ -35,10 +36,6 @@ import org.geotools.measure.Measure;
 import org.geotools.util.NumberRange;
 import org.locationtech.jts.geom.Geometry;
 import org.mapstruct.factory.Mappers;
-
-import java.util.Locale;
-import java.util.Map;
-import java.util.function.Function;
 
 /**
  * Jackson {@link com.fasterxml.jackson.databind.Module} to handle GeoTools {@link Filter} and
@@ -76,8 +73,7 @@ public class GeoToolsFilterModule extends SimpleModule {
 
     private static final FilterMapper FILTERS = Mappers.getMapper(FilterMapper.class);
     private static final ExpressionMapper EXPRESSIONS = Mappers.getMapper(ExpressionMapper.class);
-    private static final GeoToolsValueMappers VALUES =
-            Mappers.getMapper(GeoToolsValueMappers.class);
+    private static final GeoToolsValueMappers VALUES = Mappers.getMapper(GeoToolsValueMappers.class);
 
     public GeoToolsFilterModule() {
         super(GeoToolsFilterModule.class.getSimpleName(), new Version(1, 0, 0, null, null, null));
@@ -93,16 +89,10 @@ public class GeoToolsFilterModule extends SimpleModule {
         addSerializer(Literal.class, new LiteralSerializer(), new LiteralDeserializer());
 
         addMapperSerializer(
-                Filter.class,
-                FILTERS::map,
-                org.geotools.jackson.databind.filter.dto.Filter.class,
-                FILTERS::map);
+                Filter.class, FILTERS::map, org.geotools.jackson.databind.filter.dto.Filter.class, FILTERS::map);
 
         addMapperSerializer(
-                SortBy.class,
-                FILTERS::map,
-                org.geotools.jackson.databind.filter.dto.SortBy.class,
-                FILTERS::map);
+                SortBy.class, FILTERS::map, org.geotools.jackson.databind.filter.dto.SortBy.class, FILTERS::map);
 
         addMapperSerializer(
                 FunctionName.class,
@@ -113,8 +103,7 @@ public class GeoToolsFilterModule extends SimpleModule {
         addCustomLiteralValueSerializers();
     }
 
-    private <T> GeoToolsFilterModule addSerializer(
-            Class<T> type, JsonSerializer<T> ser, JsonDeserializer<T> deser) {
+    private <T> GeoToolsFilterModule addSerializer(Class<T> type, JsonSerializer<T> ser, JsonDeserializer<T> deser) {
         super.addSerializer(type, ser);
         super.addDeserializer(type, deser);
         return this;
@@ -123,34 +112,20 @@ public class GeoToolsFilterModule extends SimpleModule {
     /** */
     private void addCustomLiteralValueSerializers() {
         addMapperSerializer(
-                CoordinateReferenceSystem.class,
-                VALUES::crs,
-                org.geotools.jackson.databind.dto.CRS.class,
-                VALUES::crs);
+                CoordinateReferenceSystem.class, VALUES::crs, org.geotools.jackson.databind.dto.CRS.class, VALUES::crs);
         addMapperSerializer(
-                CoordinateReferenceSystem.class,
-                VALUES::crs,
-                org.geotools.jackson.databind.dto.CRS.class,
-                VALUES::crs);
+                CoordinateReferenceSystem.class, VALUES::crs, org.geotools.jackson.databind.dto.CRS.class, VALUES::crs);
 
         addMapperSerializer(
                 ReferencedEnvelope.class,
                 VALUES::referencedEnvelope,
                 org.geotools.jackson.databind.dto.Envelope.class,
                 VALUES::referencedEnvelope);
-        addMapperSerializer(
-                java.awt.Color.class,
-                VALUES::awtColorToString,
-                String.class,
-                VALUES::stringToAwtColor);
-        addMapperSerializer(
-                org.geotools.api.feature.type.Name.class, VALUES::map, NameDto.class, VALUES::map);
+        addMapperSerializer(java.awt.Color.class, VALUES::awtColorToString, String.class, VALUES::stringToAwtColor);
+        addMapperSerializer(org.geotools.api.feature.type.Name.class, VALUES::map, NameDto.class, VALUES::map);
 
         addMapperSerializer(
-                org.geotools.util.Version.class,
-                VALUES::versionToDto,
-                VersionDto.class,
-                VALUES::dtoToVersion);
+                org.geotools.util.Version.class, VALUES::versionToDto, VersionDto.class, VALUES::dtoToVersion);
 
         addMapperSerializer(
                 InternationalString.class,
@@ -159,14 +134,9 @@ public class GeoToolsFilterModule extends SimpleModule {
                 VALUES::dtoToInternationalString);
 
         addMapperSerializer(
-                NumberRange.class,
-                VALUES::numberRangeToDto,
-                NumberRangeDto.class,
-                VALUES::dtoToNumberRange);
-        addMapperSerializer(
-                Measure.class, VALUES::measureToString, String.class, VALUES::stringToMeasure);
-        addMapperSerializer(
-                Locale.class, VALUES::localeToString, String.class, VALUES::stringToLocale);
+                NumberRange.class, VALUES::numberRangeToDto, NumberRangeDto.class, VALUES::dtoToNumberRange);
+        addMapperSerializer(Measure.class, VALUES::measureToString, String.class, VALUES::stringToMeasure);
+        addMapperSerializer(Locale.class, VALUES::localeToString, String.class, VALUES::stringToLocale);
     }
 
     /**
@@ -175,14 +145,10 @@ public class GeoToolsFilterModule extends SimpleModule {
      * @return
      */
     private <T, D> GeoToolsFilterModule addMapperSerializer(
-            Class<T> type,
-            Function<T, D> serializerMapper,
-            Class<D> dtoType,
-            Function<D, T> deserializerMapper) {
+            Class<T> type, Function<T, D> serializerMapper, Class<D> dtoType, Function<D, T> deserializerMapper) {
 
         MapperSerializer<T, D> serializer = new MapperSerializer<>(type, serializerMapper);
-        MapperDeserializer<D, T> deserializer =
-                new MapperDeserializer<>(dtoType, deserializerMapper);
+        MapperDeserializer<D, T> deserializer = new MapperDeserializer<>(dtoType, deserializerMapper);
         return addSerializer(type, serializer, deserializer);
     }
 }

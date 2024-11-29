@@ -4,17 +4,15 @@
  */
 package org.geoserver.cloud.gwc.repository;
 
+import java.util.Optional;
+import java.util.function.Consumer;
 import lombok.NonNull;
-
 import org.geoserver.catalog.Catalog;
 import org.geoserver.cloud.gwc.event.TileLayerEvent;
 import org.geoserver.gwc.layer.GeoServerTileLayer;
 import org.geowebcache.config.TileLayerConfiguration;
 import org.geowebcache.layer.TileLayer;
 import org.springframework.context.event.EventListener;
-
-import java.util.Optional;
-import java.util.function.Consumer;
 
 /**
  * GeoWebCache {@link TileLayerConfiguration} decorator to publish {@link TileLayerEvent}s.
@@ -29,14 +27,16 @@ public class GeoServerTileLayerConfiguration extends ForwardingTileLayerConfigur
     /**
      * Event publisher, used to send events whenever a {@code TileLayer} is added, changed, deleted.
      */
-    @NonNull private Consumer<TileLayerEvent> eventPublisher;
+    @NonNull
+    private Consumer<TileLayerEvent> eventPublisher;
 
     /**
      * Consumer of incoming events.
      *
      * @see #setEventListener
      */
-    @NonNull private Consumer<TileLayerEvent> eventConsumer = e -> {};
+    @NonNull
+    private Consumer<TileLayerEvent> eventConsumer = e -> {};
 
     public GeoServerTileLayerConfiguration(
             @NonNull TileLayerConfiguration subject, Consumer<TileLayerEvent> eventPublisher) {

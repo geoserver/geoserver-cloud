@@ -5,7 +5,7 @@
 package org.geoserver.cloud.autoconfigure.catalog.backend.jdbcconfig;
 
 import com.zaxxer.hikari.HikariDataSource;
-
+import javax.sql.DataSource;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.config.GeoServer;
@@ -18,8 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
-
-import javax.sql.DataSource;
 
 /**
  * Closes the {@link DataSource} after each test run, otherwise, being an in-memory H2 db (as
@@ -37,8 +35,7 @@ public abstract class JDBCConfigTest {
     protected @Autowired @Qualifier("catalogFacade") CatalogFacade rawCatalogFacade;
     protected @Autowired @Qualifier("geoServer") GeoServer geoServer;
     protected @Autowired @Qualifier("resourceLoader") GeoServerResourceLoader resourceLoader;
-    protected @Autowired(required = false) @Qualifier("geoserverFacade") GeoServerFacade
-            geoserverFacade;
+    protected @Autowired(required = false) @Qualifier("geoserverFacade") GeoServerFacade geoserverFacade;
     protected @Autowired @Qualifier("geoServerLoaderImpl") GeoServerLoader geoserverLoader;
     protected @Autowired @Qualifier("resourceStoreImpl") ResourceStore resourceStoreImpl;
 

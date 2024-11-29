@@ -7,17 +7,14 @@ package org.geoserver.cloud.autoconfigure.metrics.catalog;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.binder.MeterBinder;
-
+import java.util.function.Supplier;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.catalog.Catalog;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.platform.config.UpdateSequence;
-
-import java.util.function.Supplier;
 
 /**
  * Registers GeoServer {@link Catalog catalog} and {@link GeoServer config} metrics to be exported
@@ -71,28 +68,25 @@ class CatalogMetrics implements MeterBinder {
         }
     }
 
-    private void registerObservedUpdateSequence(
-            MeterRegistry registry, final String instanceIdTag) {
+    private void registerObservedUpdateSequence(MeterRegistry registry, final String instanceIdTag) {
         Supplier<Number> updateSequence = () -> config.getGlobal().getUpdateSequence();
-        Gauge.Builder<Supplier<Number>> updateSeqBuilder =
-                Gauge.builder("geoserver.config.update_sequence", updateSequence)
-                        .description("GeoServer configuration update sequence")
-                        .baseUnit("sequence");
+        Gauge.Builder<Supplier<Number>> updateSeqBuilder = Gauge.builder(
+                        "geoserver.config.update_sequence", updateSequence)
+                .description("GeoServer configuration update sequence")
+                .baseUnit("sequence");
 
-        if (null != instanceIdTag)
-            updateSeqBuilder = updateSeqBuilder.tag("instance-id", instanceIdTag);
+        if (null != instanceIdTag) updateSeqBuilder = updateSeqBuilder.tag("instance-id", instanceIdTag);
         updateSeqBuilder.register(registry);
     }
 
     private void registerUpdateSequence(MeterRegistry registry, final String instanceIdTag) {
         Supplier<Number> updateSequence = realUpdateSequence::currValue;
-        Gauge.Builder<Supplier<Number>> updateSeqBuilder =
-                Gauge.builder("geoserver.config.update_sequence.real", updateSequence)
-                        .description("Cluster-wide, canonical update sequence value")
-                        .baseUnit("sequence");
+        Gauge.Builder<Supplier<Number>> updateSeqBuilder = Gauge.builder(
+                        "geoserver.config.update_sequence.real", updateSequence)
+                .description("Cluster-wide, canonical update sequence value")
+                .baseUnit("sequence");
 
-        if (null != instanceIdTag)
-            updateSeqBuilder = updateSeqBuilder.tag("instance-id", instanceIdTag);
+        if (null != instanceIdTag) updateSeqBuilder = updateSeqBuilder.tag("instance-id", instanceIdTag);
         updateSeqBuilder.register(registry);
     }
 }

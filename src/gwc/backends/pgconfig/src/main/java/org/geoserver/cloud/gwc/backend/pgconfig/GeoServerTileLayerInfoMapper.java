@@ -6,8 +6,8 @@ package org.geoserver.cloud.gwc.backend.pgconfig;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.util.Objects;
 import lombok.Generated;
-
 import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.cloud.gwc.backend.pgconfig.TileLayerInfo.Bounds;
 import org.geoserver.cloud.gwc.backend.pgconfig.TileLayerInfo.GridSubset;
@@ -22,8 +22,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
-
-import java.util.Objects;
 
 /**
  * @since 1.7
@@ -46,8 +44,7 @@ interface GeoServerTileLayerInfoMapper {
     GeoServerTileLayerInfoImpl map(TileLayerInfo info);
 
     @AfterMapping
-    default void setIdAndName(
-            TileLayerInfo source, @MappingTarget GeoServerTileLayerInfoImpl target) {
+    default void setIdAndName(TileLayerInfo source, @MappingTarget GeoServerTileLayerInfoImpl target) {
 
         PublishedInfo published = source.getPublished();
         Objects.requireNonNull(published, "publishedInfo");

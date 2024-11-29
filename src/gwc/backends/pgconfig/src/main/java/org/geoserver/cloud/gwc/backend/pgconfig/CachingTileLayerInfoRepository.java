@@ -4,21 +4,19 @@
  */
 package org.geoserver.cloud.gwc.backend.pgconfig;
 
+import java.io.Serializable;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Stream;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.cloud.event.info.InfoEvent;
 import org.geoserver.cloud.gwc.event.TileLayerEvent;
 import org.springframework.cache.Cache;
 import org.springframework.context.event.EventListener;
 import org.springframework.dao.DataAccessException;
 import org.springframework.lang.Nullable;
-
-import java.io.Serializable;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Stream;
 
 /**
  * {@link TileLayerInfoRepository} decorator cache {@link TileLayerInfo}s on demand, alleviating the
@@ -107,8 +105,7 @@ public class CachingTileLayerInfoRepository implements TileLayerInfoRepository {
     }
 
     @Override
-    public boolean delete(@Nullable String workspace, @NonNull String name)
-            throws DataAccessException {
+    public boolean delete(@Nullable String workspace, @NonNull String name) throws DataAccessException {
 
         evict(name(workspace, name));
         return repository.delete(workspace, name);
@@ -120,8 +117,7 @@ public class CachingTileLayerInfoRepository implements TileLayerInfoRepository {
     }
 
     @Override
-    public Optional<TileLayerInfo> find(@Nullable String workspace, @NonNull String layer)
-            throws DataAccessException {
+    public Optional<TileLayerInfo> find(@Nullable String workspace, @NonNull String layer) throws DataAccessException {
 
         NameKey key = name(workspace, layer);
         return Optional.ofNullable(nameCache.get(key, () -> load(workspace, layer)));
@@ -155,13 +151,10 @@ public class CachingTileLayerInfoRepository implements TileLayerInfoRepository {
     @Override
     public boolean exists(String workspace, @NonNull String layer) throws DataAccessException {
         return findCached(workspace, layer)
-                .map(
-                        tl -> {
-                            log.trace(
-                                    "returning exists=true from cache for layer {}",
-                                    name(workspace, layer));
-                            return true;
-                        })
+                .map(tl -> {
+                    log.trace("returning exists=true from cache for layer {}", name(workspace, layer));
+                    return true;
+                })
                 .orElseGet(() -> repository.exists(workspace, layer));
     }
 }

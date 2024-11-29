@@ -4,12 +4,10 @@
  */
 package org.geoserver.cloud.config.catalog.backend.pgconfig;
 
+import java.io.File;
 import lombok.NonNull;
-
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.ResourceStore;
-
-import java.io.File;
 
 /**
  * @since 1.4

@@ -58,8 +58,7 @@ public class ServerConfiguration {
     public static class GatewaySharedAuthAuthFilterPanel
             extends AuthenticationFilterPanel<GatewaySharedAuthenticationFilter.Config> {
 
-        public GatewaySharedAuthAuthFilterPanel(
-                String id, IModel<GatewaySharedAuthenticationFilter.Config> model) {
+        public GatewaySharedAuthAuthFilterPanel(String id, IModel<GatewaySharedAuthenticationFilter.Config> model) {
             super(id, model);
         }
     }

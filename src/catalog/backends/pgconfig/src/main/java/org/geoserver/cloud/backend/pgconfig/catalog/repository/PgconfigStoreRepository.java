@@ -4,8 +4,9 @@
  */
 package org.geoserver.cloud.backend.pgconfig.catalog.repository;
 
+import java.util.Optional;
+import java.util.stream.Stream;
 import lombok.NonNull;
-
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
@@ -13,14 +14,10 @@ import org.geoserver.catalog.plugin.CatalogInfoRepository.StoreRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
-import java.util.Optional;
-import java.util.stream.Stream;
-
 /**
  * @since 1.4
  */
-public class PgconfigStoreRepository extends PgconfigCatalogInfoRepository<StoreInfo>
-        implements StoreRepository {
+public class PgconfigStoreRepository extends PgconfigCatalogInfoRepository<StoreInfo> implements StoreRepository {
 
     /**
      * @param template
@@ -51,8 +48,7 @@ public class PgconfigStoreRepository extends PgconfigCatalogInfoRepository<Store
     }
 
     @Override
-    public void setDefaultDataStore(
-            @NonNull WorkspaceInfo workspace, @NonNull DataStoreInfo dataStore) {
+    public void setDefaultDataStore(@NonNull WorkspaceInfo workspace, @NonNull DataStoreInfo dataStore) {
         String sql = "UPDATE workspaceinfo SET default_store = ? WHERE id = ?";
         template.update(sql, dataStore.getId(), workspace.getId());
     }
@@ -115,9 +111,7 @@ public class PgconfigStoreRepository extends PgconfigCatalogInfoRepository<Store
 
         String infotype = infoType(clazz);
         return super.queryForStream(
-                clazz,
-                "SELECT store, workspace FROM storeinfos WHERE \"@type\" = ?::infotype",
-                infotype);
+                clazz, "SELECT store, workspace FROM storeinfos WHERE \"@type\" = ?::infotype", infotype);
     }
 
     @Override

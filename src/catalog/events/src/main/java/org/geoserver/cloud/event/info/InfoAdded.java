@@ -6,11 +6,9 @@ package org.geoserver.cloud.event.info;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
-
 import org.geoserver.catalog.Info;
 import org.geoserver.cloud.event.catalog.CatalogInfoAdded;
 import org.geoserver.cloud.event.config.ConfigInfoAdded;

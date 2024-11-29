@@ -5,7 +5,6 @@
 package org.geoserver.cloud.autoconfigure.catalog.backend.core;
 
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.config.util.XStreamServiceLoader;
 import org.geoserver.gwc.wmts.WMTSFactoryExtension;
 import org.geoserver.gwc.wmts.WMTSXStreamLoader;

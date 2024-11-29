@@ -4,10 +4,18 @@
  */
 package org.geoserver.catalog.plugin.resolving;
 
+import java.lang.reflect.Proxy;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.catalog.AttributeTypeInfo;
 import org.geoserver.catalog.AttributionInfo;
 import org.geoserver.catalog.Catalog;
@@ -37,16 +45,6 @@ import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
 
-import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-
 /** */
 @Slf4j(topic = "org.geoserver.catalog.plugin.resolving")
 @RequiredArgsConstructor
@@ -61,17 +59,16 @@ public class ProxyUtils {
      * @see #encodeByReference
      * @see #referenceTypeOf
      */
-    private static final Set<Class<? extends Info>> VALUE_BY_REFERENCE_TYPES =
-            Set.of(
-                    WorkspaceInfo.class, //
-                    NamespaceInfo.class, //
-                    StoreInfo.class, //
-                    ResourceInfo.class, //
-                    PublishedInfo.class, //
-                    MapInfo.class, //
-                    StyleInfo.class, //
-                    GeoServerInfo.class, //
-                    ServiceInfo.class);
+    private static final Set<Class<? extends Info>> VALUE_BY_REFERENCE_TYPES = Set.of(
+            WorkspaceInfo.class, //
+            NamespaceInfo.class, //
+            StoreInfo.class, //
+            ResourceInfo.class, //
+            PublishedInfo.class, //
+            MapInfo.class, //
+            StyleInfo.class, //
+            GeoServerInfo.class, //
+            ServiceInfo.class);
 
     private final @NonNull Supplier<Catalog> catalog;
     private final @NonNull Optional<GeoServer> config;
@@ -157,8 +154,7 @@ public class ProxyUtils {
         }
 
         if (info == null) {
-            if (failOnNotFound)
-                throw new IllegalArgumentException("Reference to %s".formatted(unresolved.getId()));
+            if (failOnNotFound) throw new IllegalArgumentException("Reference to %s".formatted(unresolved.getId()));
             return null;
         }
 
@@ -205,13 +201,9 @@ public class ProxyUtils {
         // to a concrete LayerInfo or LayerGroupInfo) it does nothing.
         if (info instanceof PublishedInfo) {
             PublishedInfo l =
-                    ResolvingProxy.resolve(
-                            actualCatalog, ResolvingProxy.create(info.getId(), LayerInfo.class));
+                    ResolvingProxy.resolve(actualCatalog, ResolvingProxy.create(info.getId(), LayerInfo.class));
             if (null == l) {
-                l =
-                        ResolvingProxy.resolve(
-                                actualCatalog,
-                                ResolvingProxy.create(info.getId(), LayerGroupInfo.class));
+                l = ResolvingProxy.resolve(actualCatalog, ResolvingProxy.create(info.getId(), LayerGroupInfo.class));
             }
             return (T) l;
         }
@@ -330,13 +322,9 @@ public class ProxyUtils {
     }
 
     public static Optional<Class<? extends Info>> referenceTypeOf(Object val) {
-        return Optional.ofNullable(val)
-                .filter(Info.class::isInstance)
-                .flatMap(
-                        i ->
-                                VALUE_BY_REFERENCE_TYPES.stream()
-                                        .filter(type -> type.isInstance(i))
-                                        .findFirst());
+        return Optional.ofNullable(val).filter(Info.class::isInstance).flatMap(i -> VALUE_BY_REFERENCE_TYPES.stream()
+                .filter(type -> type.isInstance(i))
+                .findFirst());
     }
 
     public static boolean encodeByReference(Object o) {

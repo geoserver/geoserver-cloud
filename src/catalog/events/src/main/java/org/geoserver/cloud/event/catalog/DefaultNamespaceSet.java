@@ -6,10 +6,8 @@ package org.geoserver.cloud.event.catalog;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-
 import lombok.Getter;
 import lombok.NonNull;
-
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.cloud.event.info.ConfigInfoType;
@@ -26,8 +24,7 @@ public class DefaultNamespaceSet extends CatalogInfoModified {
 
     protected DefaultNamespaceSet() {}
 
-    DefaultNamespaceSet(
-            long updateSequence, @Nullable String newNamespaceId, @NonNull Patch patch) {
+    DefaultNamespaceSet(long updateSequence, @Nullable String newNamespaceId, @NonNull Patch patch) {
         super(
                 updateSequence,
                 InfoEvent.CATALOG_ID,
@@ -42,8 +39,7 @@ public class DefaultNamespaceSet extends CatalogInfoModified {
         return super.toStringBuilder().append("namespace", getNewNamespaceId());
     }
 
-    public static DefaultNamespaceSet createLocal(
-            long updateSequence, NamespaceInfo defaultNamespace) {
+    public static DefaultNamespaceSet createLocal(long updateSequence, NamespaceInfo defaultNamespace) {
 
         String namespaceId = resolveNullableId(defaultNamespace);
         Patch patch = new Patch();

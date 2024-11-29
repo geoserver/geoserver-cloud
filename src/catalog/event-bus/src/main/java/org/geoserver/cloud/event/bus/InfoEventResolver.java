@@ -4,9 +4,11 @@
  */
 package org.geoserver.cloud.event.bus;
 
+import java.util.Optional;
+import java.util.function.BiConsumer;
+import java.util.function.UnaryOperator;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.Info;
@@ -20,10 +22,6 @@ import org.geoserver.cloud.event.info.InfoAdded;
 import org.geoserver.cloud.event.info.InfoEvent;
 import org.geoserver.cloud.event.info.InfoModified;
 import org.geoserver.config.GeoServer;
-
-import java.util.Optional;
-import java.util.function.BiConsumer;
-import java.util.function.UnaryOperator;
 
 /**
  * Ensures the {@link Info} and {@link Patch} object payloads on {@link InfoAdded} and {@link
@@ -42,27 +40,18 @@ class InfoEventResolver {
 
         proxyUtils = new ProxyUtils(() -> rawCatalog, Optional.of(geoserverConfig));
 
-        BiConsumer<CatalogInfo, ResolvingProxy> onNotFound =
-                (info, proxy) ->
-                        log.debug(
-                                "Event object contains a reference to a non existing object ResolvingProxy(ref={})",
-                                proxy.getRef());
+        BiConsumer<CatalogInfo, ResolvingProxy> onNotFound = (info, proxy) -> log.debug(
+                "Event object contains a reference to a non existing object ResolvingProxy(ref={})", proxy.getRef());
 
-        configInfoResolver =
-                CollectionPropertiesInitializer.<Info>instance()
-                                .andThen(
-                                        ResolvingProxyResolver.<Info>of(rawCatalog)
-                                                .onNotFound(onNotFound))
-                        ::apply;
+        configInfoResolver = CollectionPropertiesInitializer.<Info>instance()
+                .andThen(ResolvingProxyResolver.<Info>of(rawCatalog).onNotFound(onNotFound))::apply;
 
         var catalogResolver = CatalogPropertyResolver.<CatalogInfo>of(rawCatalog);
         var resolvingProxyResolver =
                 ResolvingProxyResolver.<CatalogInfo>of(rawCatalog).onNotFound(onNotFound);
         var collectionsInitializer = CollectionPropertiesInitializer.<CatalogInfo>instance();
 
-        catalogInfoResolver =
-                catalogResolver.andThen(collectionsInitializer).andThen(resolvingProxyResolver)
-                        ::apply;
+        catalogInfoResolver = catalogResolver.andThen(collectionsInitializer).andThen(resolvingProxyResolver)::apply;
     }
 
     @SuppressWarnings("unchecked")

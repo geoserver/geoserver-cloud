@@ -4,9 +4,14 @@
  */
 package org.geoserver.cloud.gwc.backend.pgconfig;
 
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.cloud.backend.pgconfig.catalog.repository.LoggingTemplate;
 import org.geoserver.gwc.layer.CatalogConfiguration;
@@ -16,13 +21,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.lang.Nullable;
-
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Implementation of {@link TileLayerInfoRepository} for {@link CatalogConfiguration} to manage
@@ -57,19 +55,17 @@ public class PgconfigTileLayerInfoRepository implements TileLayerInfoRepository 
 
         final String encoded = PgconfigTileLayerInfoRowMapper.encode(tli);
         log.debug("Saving TileLayer {}: {}", published.prefixedName(), encoded);
-        int updated =
-                template.update(
-                        """
+        int updated = template.update(
+                """
                     UPDATE publishedinfo SET tilelayer = to_json(?::json) WHERE id = ?
                     """,
-                        encoded,
-                        published.getId());
+                encoded,
+                published.getId());
         return updated == 1;
     }
 
     @Override
-    public boolean delete(@Nullable String workspaceName, @NonNull String localName)
-            throws DataAccessException {
+    public boolean delete(@Nullable String workspaceName, @NonNull String localName) throws DataAccessException {
         int updateCount;
         if (null == workspaceName) {
             String query =
@@ -95,8 +91,7 @@ public class PgconfigTileLayerInfoRepository implements TileLayerInfoRepository 
     }
 
     @Override
-    public Optional<TileLayerInfo> find(String workspaceName, @NonNull String localName)
-            throws DataAccessException {
+    public Optional<TileLayerInfo> find(String workspaceName, @NonNull String localName) throws DataAccessException {
         String sql;
         Object[] args;
         if (workspaceName == null) {
@@ -128,16 +123,13 @@ public class PgconfigTileLayerInfoRepository implements TileLayerInfoRepository 
 
     @Override
     public Set<String> findAllNames() throws DataAccessException {
-        try (var stream =
-                template.queryForStream(
-                        "SELECT name FROM tilelayers", (rs, rn) -> rs.getString(1))) {
+        try (var stream = template.queryForStream("SELECT name FROM tilelayers", (rs, rn) -> rs.getString(1))) {
             return stream.collect(Collectors.toCollection(TreeSet::new));
         }
     }
 
     @Override
-    public boolean exists(String workspaceName, @NonNull String localName)
-            throws DataAccessException {
+    public boolean exists(String workspaceName, @NonNull String localName) throws DataAccessException {
         String query;
         Object[] args;
         if (null == workspaceName) {

@@ -4,6 +4,9 @@
  */
 package org.geoserver.cloud.config.catalog.backend.jdbcconfig;
 
+import java.io.IOException;
+import java.util.List;
+import javax.annotation.PostConstruct;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.cloud.config.catalog.backend.core.CoreBackendConfiguration;
 import org.geoserver.config.DefaultGeoServerLoader;
@@ -20,11 +23,6 @@ import org.geoserver.jdbcconfig.internal.JDBCConfigProperties;
 import org.geoserver.platform.GeoServerExtensions;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.Resource.Lock;
-
-import java.io.IOException;
-import java.util.List;
-
-import javax.annotation.PostConstruct;
 
 /**
  * {@link Catalog} and {@link GeoServer config} loader for the jdbcconfig backend, loads the
@@ -79,8 +77,7 @@ public class CloudJdbcGeoServerLoader extends DefaultGeoServerLoader {
                 geoServer.setLogging(geoServer.getFactory().createLogging());
             }
             // ensure we have a service configuration for every service we know about
-            final List<XStreamServiceLoader> loaders =
-                    GeoServerExtensions.extensions(XStreamServiceLoader.class);
+            final List<XStreamServiceLoader> loaders = GeoServerExtensions.extensions(XStreamServiceLoader.class);
             for (XStreamServiceLoader l : loaders) {
                 ServiceInfo s = geoServer.getService(l.getServiceClass());
                 if (s == null) {

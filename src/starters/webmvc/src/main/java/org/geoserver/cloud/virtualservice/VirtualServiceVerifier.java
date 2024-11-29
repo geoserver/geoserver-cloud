@@ -4,17 +4,15 @@
  */
 package org.geoserver.cloud.virtualservice;
 
+import java.util.Optional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.Optional;
 
 /**
  * Helper service for OWS controllers to verify the existence of virtual services before proceeding.
@@ -42,9 +40,7 @@ public class VirtualServiceVerifier {
      *     and layer to a {@link PublishedInfo} inside it
      */
     public void checkVirtualService(String virtualService, String layer) {
-        WorkspaceInfo ws =
-                findWorkspace(virtualService)
-                        .orElseThrow(() -> virtualServiceNotFound(virtualService));
+        WorkspaceInfo ws = findWorkspace(virtualService).orElseThrow(() -> virtualServiceNotFound(virtualService));
         findPublished(ws.getName(), layer).orElseThrow(() -> layerNotFound(virtualService, layer));
     }
 
@@ -67,8 +63,7 @@ public class VirtualServiceVerifier {
 
     private ResponseStatusException virtualServiceNotFound(String service) {
         return new ResponseStatusException(
-                HttpStatus.NOT_FOUND,
-                "Workspace or global LayerGroup does not exist: %s".formatted(service));
+                HttpStatus.NOT_FOUND, "Workspace or global LayerGroup does not exist: %s".formatted(service));
     }
 
     private ResponseStatusException layerNotFound(String workspace, String layer) {

@@ -7,7 +7,6 @@ package org.geoserver.cloud.event.bus;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
-
 import org.geoserver.cloud.event.GeoServerEvent;
 import org.springframework.cloud.bus.event.Destination;
 import org.springframework.cloud.bus.event.RemoteApplicationEvent;
@@ -16,7 +15,9 @@ import org.springframework.cloud.bus.event.RemoteApplicationEvent;
 @SuppressWarnings("serial")
 public class RemoteGeoServerEvent extends RemoteApplicationEvent {
 
-    @Getter @NonNull private GeoServerEvent event;
+    @Getter
+    @NonNull
+    private GeoServerEvent event;
 
     /** Deserialization-time constructor, {@link #getSource()} will be {@code null} */
     @SuppressWarnings("java:S2637") // final fields initialized by deserialization
@@ -38,11 +39,7 @@ public class RemoteGeoServerEvent extends RemoteApplicationEvent {
     public String toString() {
         return "[%s id: '%s', originService: '%s', destinationService: '%s', payload: %s]"
                 .formatted(
-                        getClass().getSimpleName(),
-                        getId(),
-                        getOriginService(),
-                        getDestinationService(),
-                        getEvent());
+                        getClass().getSimpleName(), getId(), getOriginService(), getDestinationService(), getEvent());
     }
 
     public String toShortString() {

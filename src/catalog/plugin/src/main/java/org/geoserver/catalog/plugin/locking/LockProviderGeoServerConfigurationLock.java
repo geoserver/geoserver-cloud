@@ -7,7 +7,6 @@ package org.geoserver.catalog.plugin.locking;
 import static org.geoserver.GeoServerConfigurationLock.LockType.WRITE;
 
 import lombok.NonNull;
-
 import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.platform.resource.LockProvider;
 import org.geoserver.platform.resource.Resource.Lock;
@@ -59,8 +58,7 @@ public class LockProviderGeoServerConfigurationLock extends GeoServerConfigurati
         }
     }
 
-    private static final ThreadLocal<ReentrantGlobalLock> GLOBAL =
-            ThreadLocal.withInitial(ReentrantGlobalLock::new);
+    private static final ThreadLocal<ReentrantGlobalLock> GLOBAL = ThreadLocal.withInitial(ReentrantGlobalLock::new);
 
     public LockProviderGeoServerConfigurationLock(@NonNull LockProvider lockProvider) {
         super();

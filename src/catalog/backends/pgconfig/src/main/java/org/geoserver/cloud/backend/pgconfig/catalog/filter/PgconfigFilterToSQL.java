@@ -4,9 +4,18 @@
  */
 package org.geoserver.cloud.backend.pgconfig.catalog.filter;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.UncheckedIOException;
+import java.io.Writer;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.NonNull;
 import lombok.Value;
-
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.impl.ClassMappings;
 import org.geoserver.function.IsInstanceOf;
@@ -37,17 +46,6 @@ import org.geotools.filter.function.math.FilterFunction_abs_3;
 import org.geotools.filter.function.math.FilterFunction_abs_4;
 import org.geotools.jdbc.PreparedFilterToSQL;
 import org.geotools.util.Converters;
-
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.UncheckedIOException;
-import java.io.Writer;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @since 1.4
@@ -90,20 +88,18 @@ class PgconfigFilterToSQL extends PreparedFilterToSQL {
         Expression left = filter.getExpression1();
         Expression right = filter.getExpression2();
 
-        PropertyName prop =
-                Optional.of(left)
-                        .filter(PropertyName.class::isInstance)
-                        .or(() -> Optional.of(right).filter(PropertyName.class::isInstance))
-                        .map(PropertyName.class::cast)
-                        .orElse(null);
+        PropertyName prop = Optional.of(left)
+                .filter(PropertyName.class::isInstance)
+                .or(() -> Optional.of(right).filter(PropertyName.class::isInstance))
+                .map(PropertyName.class::cast)
+                .orElse(null);
         if (isArray(prop)) {
             Expression value = right;
             if (right instanceof Literal literal) {
-                String values =
-                        asList(literal.getValue()).stream()
-                                .map(o -> Converters.convert(o, String.class))
-                                .map("'%s'"::formatted)
-                                .collect(Collectors.joining(","));
+                String values = asList(literal.getValue()).stream()
+                        .map(o -> Converters.convert(o, String.class))
+                        .map("'%s'"::formatted)
+                        .collect(Collectors.joining(","));
                 value = new LiteralExpressionImpl("ARRAY[%s]".formatted(values));
             }
             try {
@@ -165,8 +161,7 @@ class PgconfigFilterToSQL extends PreparedFilterToSQL {
             literal += multi;
         }
 
-        String pattern =
-                LikeFilterImpl.convertToSQL92(esc, multi, single, matchCase, literal, false);
+        String pattern = LikeFilterImpl.convertToSQL92(esc, multi, single, matchCase, literal, false);
 
         try {
             att.accept(this, extraData);
@@ -331,11 +326,9 @@ class PgconfigFilterToSQL extends PreparedFilterToSQL {
             Class<? extends CatalogInfo> type = typeExpr.evaluate(null, Class.class);
 
             String types = infoTypes(type);
-            String f =
-                    """
+            String f = """
                     "@type" = ANY('{%s}')
-                    """
-                            .formatted(types);
+                    """.formatted(types);
             out.write(f);
             return true;
         }
@@ -349,11 +342,8 @@ class PgconfigFilterToSQL extends PreparedFilterToSQL {
         if (clazz.isInterface()) cm = ClassMappings.fromInterface(clazz);
         else cm = ClassMappings.fromImpl(clazz);
         if (null == cm)
-            throw new IllegalArgumentException(
-                    "Unknown type for IsInstanceOf: " + clazz.getCanonicalName());
+            throw new IllegalArgumentException("Unknown type for IsInstanceOf: " + clazz.getCanonicalName());
 
-        return Stream.of(cm.concreteInterfaces())
-                .map(Class::getSimpleName)
-                .collect(Collectors.joining(","));
+        return Stream.of(cm.concreteInterfaces()).map(Class::getSimpleName).collect(Collectors.joining(","));
     }
 }

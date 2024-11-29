@@ -5,13 +5,21 @@
 package org.geoserver.cloud.catalog.backend.datadir;
 
 import com.google.common.collect.Sets;
-
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.locks.ReentrantLock;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.NamespaceInfo;
@@ -25,17 +33,6 @@ import org.geoserver.catalog.plugin.resolving.ResolvingProxyResolver;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.config.impl.GeoServerLifecycleHandler;
 import org.springframework.lang.Nullable;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.Callable;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Aids {@link EventuallyConsistentCatalogFacade} in ensuring the catalog stays consistent and
@@ -59,7 +56,8 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
 
     private final Map<String, List<ConsistencyOp<?>>> pendingOperations = new HashMap<>();
 
-    @Setter private ExtendedCatalogFacade rawFacade;
+    @Setter
+    private ExtendedCatalogFacade rawFacade;
 
     private final ReentrantLock lock = new ReentrantLock();
 
@@ -130,9 +128,7 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
         }
         Optional<CatalogInfo> found = rawFacade.get(missingRef);
         if (found.isPresent()) {
-            log.debug(
-                    "previously missing ref {} found, resolving pending operations waiting for it",
-                    missingRef);
+            log.debug("previously missing ref {} found, resolving pending operations waiting for it", missingRef);
             tryResolvePending(found.orElseThrow());
         } else {
             log.debug(
@@ -188,8 +184,7 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
         execute(new SetDefaultNamespace(namespace));
     }
 
-    public void setDefaultDataStore(
-            @NonNull WorkspaceInfo workspace, @Nullable DataStoreInfo store) {
+    public void setDefaultDataStore(@NonNull WorkspaceInfo workspace, @Nullable DataStoreInfo store) {
         execute(new SetDefaultDataStore(workspace, store));
     }
 
@@ -251,7 +246,9 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
 
         private void setPending(String missingRef, ConsistencyOp<?> deferredOp) {
             log.debug("missing ref {}, deferring execution of {}", missingRef, deferredOp);
-            pendingOperations.computeIfAbsent(missingRef, ref -> new ArrayList<>()).add(deferredOp);
+            pendingOperations
+                    .computeIfAbsent(missingRef, ref -> new ArrayList<>())
+                    .add(deferredOp);
         }
 
         private void unsetPending(String resolvedRef, ConsistencyOp<?> completedOp) {
@@ -331,14 +328,11 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
                 Class<T> type = ConfigInfoType.valueOf(info).type();
                 rawFacade
                         .get(info.getId(), type)
-                        .ifPresentOrElse(
-                                existing ->
-                                        log.info("Ignoring add, object exists {}", info.getId()),
-                                () -> {
-                                    T added = rawFacade.add(info);
-                                    this.info = added;
-                                    success = true;
-                                });
+                        .ifPresentOrElse(existing -> log.info("Ignoring add, object exists {}", info.getId()), () -> {
+                            T added = rawFacade.add(info);
+                            this.info = added;
+                            success = true;
+                        });
             }
             // return info to comply with the catalog facade add() contract
             // but delay insertion of info as it has unresolved references
@@ -368,8 +362,7 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
         @Override
         public String toString() {
             return "%s(%s, patch: %s)"
-                    .formatted(
-                            getClass().getSimpleName(), toUpdate.getId(), patch.getPropertyNames());
+                    .formatted(getClass().getSimpleName(), toUpdate.getId(), patch.getPropertyNames());
         }
 
         @Override
@@ -466,10 +459,7 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
             final String id = info.getId();
             execute(dependant);
             if (dependant.completedSuccessfully()) {
-                log.debug(
-                        "successfully executed {} depending on {} before removing it",
-                        dependant,
-                        id);
+                log.debug("successfully executed {} depending on {} before removing it", dependant, id);
             } else {
                 log.warn(
                         "operation dependant on {} didn't complete successfully before removing it. It will be discarded: {}",
@@ -484,7 +474,8 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
 
     @RequiredArgsConstructor
     private class SetDefaultWorkspace extends ConsistencyOp<Void> {
-        @Nullable private final WorkspaceInfo workspace;
+        @Nullable
+        private final WorkspaceInfo workspace;
 
         @Override
         Set<String> getMissingRefs() {
@@ -513,15 +504,14 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
         @Override
         public String toString() {
             return "%s(workspace: %s)"
-                    .formatted(
-                            getClass().getSimpleName(),
-                            (workspace == null ? null : workspace.getId()));
+                    .formatted(getClass().getSimpleName(), (workspace == null ? null : workspace.getId()));
         }
     }
 
     @RequiredArgsConstructor
     private class SetDefaultNamespace extends ConsistencyOp<Void> {
-        @Nullable private final NamespaceInfo namespace;
+        @Nullable
+        private final NamespaceInfo namespace;
 
         @Override
         Set<String> getMissingRefs() {
@@ -550,16 +540,17 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
         @Override
         public String toString() {
             return "%s(namespace: %s)"
-                    .formatted(
-                            getClass().getSimpleName(),
-                            (namespace == null ? null : namespace.getId()));
+                    .formatted(getClass().getSimpleName(), (namespace == null ? null : namespace.getId()));
         }
     }
 
     @AllArgsConstructor
     private class SetDefaultDataStore extends ConsistencyOp<Void> {
-        @NonNull private WorkspaceInfo workspace;
-        @Nullable private DataStoreInfo store;
+        @NonNull
+        private WorkspaceInfo workspace;
+
+        @Nullable
+        private DataStoreInfo store;
 
         @Override
         Set<String> getMissingRefs() {
@@ -602,10 +593,7 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
         @Override
         public String toString() {
             return "%s(workspace: %s, store: %s)"
-                    .formatted(
-                            getClass().getSimpleName(),
-                            workspace.getId(),
-                            (store == null ? null : store.getId()));
+                    .formatted(getClass().getSimpleName(), workspace.getId(), (store == null ? null : store.getId()));
         }
     }
 }

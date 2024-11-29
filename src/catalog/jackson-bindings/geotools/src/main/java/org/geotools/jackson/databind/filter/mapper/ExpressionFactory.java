@@ -16,8 +16,7 @@ public class ExpressionFactory {
 
     private final FilterFactory factory = CommonFactoryFinder.getFilterFactory();
 
-    public @ObjectFactory org.geotools.api.filter.expression.PropertyName propertyName(
-            PropertyName source) {
+    public @ObjectFactory org.geotools.api.filter.expression.PropertyName propertyName(PropertyName source) {
         GeoToolsValueMappers values = Mappers.getMapper(GeoToolsValueMappers.class);
         String localName = source.getPropertyName();
         NamespaceSupport namespaceSupport = values.map(source.getNamespaceContext());

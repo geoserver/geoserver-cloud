@@ -8,10 +8,10 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.cache.LoadingCache;
-
+import java.util.List;
+import java.util.Set;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.PublishedInfo;
@@ -31,9 +31,6 @@ import org.geowebcache.layer.ExpirationRule;
 import org.geowebcache.layer.TileLayer;
 import org.springframework.context.event.EventListener;
 
-import java.util.List;
-import java.util.Set;
-
 /**
  * @since 1.0
  */
@@ -43,15 +40,12 @@ public class CloudCatalogConfiguration extends CatalogConfiguration {
     private LoadingCache<String, GeoServerTileLayer> spiedLayerCache;
 
     @SuppressWarnings("unchecked")
-    public CloudCatalogConfiguration(
-            Catalog catalog, TileLayerCatalog tileLayerCatalog, GridSetBroker gridSetBroker) {
+    public CloudCatalogConfiguration(Catalog catalog, TileLayerCatalog tileLayerCatalog, GridSetBroker gridSetBroker) {
 
         super(catalog, tileLayerCatalog, gridSetBroker);
 
         try {
-            spiedLayerCache =
-                    (LoadingCache<String, GeoServerTileLayer>)
-                            FieldUtils.readField(this, "layerCache", true);
+            spiedLayerCache = (LoadingCache<String, GeoServerTileLayer>) FieldUtils.readField(this, "layerCache", true);
         } catch (IllegalAccessException e) {
             throw new IllegalStateException(e);
         }
@@ -94,8 +88,7 @@ public class CloudCatalogConfiguration extends CatalogConfiguration {
         GeoServerTileLayerInfo info = tileLayer.getInfo();
         PublishedInfo publishedInfo = tileLayer.getPublishedInfo();
         GWCConfig defaults = GWC.get().getConfig();
-        GeoServerTileLayerInfo infoDefaults =
-                TileLayerInfoUtil.loadOrCreate(publishedInfo, defaults);
+        GeoServerTileLayerInfo infoDefaults = TileLayerInfoUtil.loadOrCreate(publishedInfo, defaults);
         setMissingConfig(info, infoDefaults);
     }
 
@@ -118,8 +111,7 @@ public class CloudCatalogConfiguration extends CatalogConfiguration {
         if (0 == info.getExpireCache()) info.setExpireCache(expireCache);
         if (null == info.getExpireCacheList()) info.setExpireCacheList(expireCacheList);
         if (0 == info.getExpireClients()) info.setExpireClients(expireClients);
-        if (null == info.getGridSubsets() || info.getGridSubsets().isEmpty())
-            info.setGridSubsets(gridSubsets);
+        if (null == info.getGridSubsets() || info.getGridSubsets().isEmpty()) info.setGridSubsets(gridSubsets);
         if (0 == info.getGutter()) info.setGutter(gutter);
         if (0 == info.getMetaTilingX()) info.setMetaTilingX(metaTilingX);
         if (0 == info.getMetaTilingY()) info.setMetaTilingY(metaTilingY);

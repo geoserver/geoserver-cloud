@@ -5,7 +5,6 @@
 package org.geoserver.cloud.autoconfigure.gwc;
 
 import lombok.Data;
-
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**

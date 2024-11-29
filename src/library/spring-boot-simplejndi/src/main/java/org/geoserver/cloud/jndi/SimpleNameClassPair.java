@@ -20,8 +20,7 @@ class SimpleNameClassPair extends javax.naming.NameClassPair {
     @Override
     public boolean equals(Object o) {
         if (o instanceof javax.naming.NameClassPair p) {
-            return Objects.equals(getName(), p.getName())
-                    && Objects.equals(getClassName(), p.getClassName());
+            return Objects.equals(getName(), p.getName()) && Objects.equals(getClassName(), p.getClassName());
         }
         return false;
     }

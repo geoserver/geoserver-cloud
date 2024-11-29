@@ -4,8 +4,9 @@
  */
 package org.geoserver.cloud.config.catalog.backend.pgconfig;
 
+import java.util.function.Predicate;
+import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.catalog.plugin.locking.LockProviderGeoServerConfigurationLock;
@@ -32,10 +33,6 @@ import org.springframework.integration.jdbc.lock.LockRepository;
 import org.springframework.integration.support.locks.LockRegistry;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.StringUtils;
-
-import java.util.function.Predicate;
-
-import javax.sql.DataSource;
 
 /**
  * @since 1.4
@@ -128,9 +125,7 @@ public class PgconfigBackendConfiguration extends GeoServerBackendConfigurer {
     @Bean
     @Override
     protected GeoServerResourceLoader resourceLoader() {
-        log.debug(
-                "Creating GeoServerResourceLoader {}",
-                PgconfigGeoServerResourceLoader.class.getSimpleName());
+        log.debug("Creating GeoServerResourceLoader {}", PgconfigGeoServerResourceLoader.class.getSimpleName());
         ResourceStore resourceStore = resourceStoreImpl();
         return new PgconfigGeoServerResourceLoader(resourceStore);
     }
@@ -151,10 +146,7 @@ public class PgconfigBackendConfiguration extends GeoServerBackendConfigurer {
 
     @Bean
     LockRepository pgconfigLockRepository() {
-        log.debug(
-                "Creating {} for instance {}",
-                LockRepository.class.getSimpleName(),
-                this.instanceId);
+        log.debug("Creating {} for instance {}", LockRepository.class.getSimpleName(), this.instanceId);
         String id = this.instanceId;
         DefaultLockRepository lockRepository;
         if (StringUtils.hasLength(id)) {

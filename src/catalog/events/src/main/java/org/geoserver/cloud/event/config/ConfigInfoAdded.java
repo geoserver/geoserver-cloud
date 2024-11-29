@@ -6,9 +6,7 @@ package org.geoserver.cloud.event.config;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
 import lombok.NonNull;
-
 import org.geoserver.catalog.Info;
 import org.geoserver.cloud.event.info.ConfigInfoType;
 import org.geoserver.cloud.event.info.InfoAdded;
@@ -25,8 +23,7 @@ import org.geoserver.config.SettingsInfo;
     @JsonSubTypes.Type(value = SettingsAdded.class),
 })
 @SuppressWarnings("serial")
-public abstract class ConfigInfoAdded<I extends Info> extends InfoAdded<I>
-        implements ConfigInfoEvent {
+public abstract class ConfigInfoAdded<I extends Info> extends InfoAdded<I> implements ConfigInfoEvent {
 
     protected ConfigInfoAdded() {
         // default constructor, needed for deserialization
@@ -37,14 +34,12 @@ public abstract class ConfigInfoAdded<I extends Info> extends InfoAdded<I>
     }
 
     @SuppressWarnings("unchecked")
-    public static @NonNull <I extends Info> ConfigInfoAdded<I> createLocal(
-            long updateSequence, @NonNull I info) {
+    public static @NonNull <I extends Info> ConfigInfoAdded<I> createLocal(long updateSequence, @NonNull I info) {
 
         final ConfigInfoType type = ConfigInfoType.valueOf(info);
         return (ConfigInfoAdded<I>)
                 switch (type) {
-                    case GEOSERVER -> GeoServerInfoSet.createLocal(
-                            updateSequence, (GeoServerInfo) info);
+                    case GEOSERVER -> GeoServerInfoSet.createLocal(updateSequence, (GeoServerInfo) info);
                     case SERVICE -> ServiceAdded.createLocal(updateSequence, (ServiceInfo) info);
                     case SETTINGS -> SettingsAdded.createLocal(updateSequence, (SettingsInfo) info);
                     case LOGGING -> LoggingInfoSet.createLocal(updateSequence, (LoggingInfo) info);

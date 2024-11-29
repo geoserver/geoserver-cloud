@@ -6,12 +6,12 @@ package org.geoserver.cloud.catalog.cache;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.google.common.base.Stopwatch;
-
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
@@ -23,23 +23,20 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.AbstractCatalogVisitor;
 import org.springframework.lang.Nullable;
 
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicInteger;
-
 @RequiredArgsConstructor
 @Slf4j(topic = "org.geoserver.cloud.catalog.cache")
 class CachedReferenceCleaner {
 
-    @NonNull private final Cache<?, ?> caffeine;
+    @NonNull
+    private final Cache<?, ?> caffeine;
 
     static CachedReferenceCleaner newInstance(org.springframework.cache.@NonNull Cache cache) {
         Object nativeCache = cache.getNativeCache();
         if (nativeCache instanceof com.github.benmanes.caffeine.cache.Cache<?, ?> caffeineCache) {
             return new CachedReferenceCleaner(caffeineCache);
         }
-        throw new UnsupportedOperationException(
-                "Expected Caffeine cache, got unsupported cache implementation: %s"
-                        .formatted(nativeCache.getClass().getCanonicalName()));
+        throw new UnsupportedOperationException("Expected Caffeine cache, got unsupported cache implementation: %s"
+                .formatted(nativeCache.getClass().getCanonicalName()));
     }
 
     /**
@@ -60,10 +57,7 @@ class CachedReferenceCleaner {
         try {
             cascadedEvictCount = cascadeEvict(evicted, cache, visited);
         } catch (RuntimeException e) {
-            log.warn(
-                    "Error cascade-evicting cached entries referencing {}, clearing out the whole cache",
-                    evicted,
-                    e);
+            log.warn("Error cascade-evicting cached entries referencing {}, clearing out the whole cache", evicted, e);
             caffeine.invalidateAll();
             return;
         }
@@ -102,10 +96,8 @@ class CachedReferenceCleaner {
         return switch (evicted.type()) {
             case WORKSPACE -> canReferenceWorkspace(cached, evicted);
             case NAMESPACE -> canReferenceNamespace(cached, evicted);
-            case COVERAGESTORE, DATASTORE, WMSSTORE, WMTSSTORE -> canReferenceStore(
-                    cached, evicted);
-            case COVERAGE, FEATURETYPE, WMSLAYER, WMTSLAYER -> canReferenceResource(
-                    cached, evicted);
+            case COVERAGESTORE, DATASTORE, WMSSTORE, WMTSSTORE -> canReferenceStore(cached, evicted);
+            case COVERAGE, FEATURETYPE, WMSLAYER, WMTSLAYER -> canReferenceResource(cached, evicted);
 
                 // evicted a LayerInfo, only LayerGroupInfos may reference it
             case LAYER -> cached instanceof LayerGroupInfo;
@@ -124,8 +116,7 @@ class CachedReferenceCleaner {
                 || (cached instanceof LayerInfo l
                         && (canReference(l.getDefaultStyle(), evicted)
                                 || (!l.getStyles().isEmpty()
-                                        && l.getStyles().stream()
-                                                .anyMatch(s -> canReference(s, evicted)))))
+                                        && l.getStyles().stream().anyMatch(s -> canReference(s, evicted)))))
                 || cached instanceof LayerGroupInfo;
     }
 
@@ -167,10 +158,12 @@ class CachedReferenceCleaner {
     @RequiredArgsConstructor
     private static class CachedReferenceCleanerVisitor extends AbstractCatalogVisitor {
 
-        @NonNull private final ConcurrentMap<?, ?> cache;
+        @NonNull
+        private final ConcurrentMap<?, ?> cache;
 
         /** key for the evicted oject. Will evict any cached object that has a reference to it */
-        @NonNull private final InfoIdKey evictedKey;
+        @NonNull
+        private final InfoIdKey evictedKey;
 
         /**
          * The cached object being traversed, to be evicted if it has any nested reference to {@link
@@ -182,7 +175,8 @@ class CachedReferenceCleaner {
          * Number of cascaded evictions (0, 1 or 2 for {@link #cached}'s InfoIdKey and/or
          * InfoNameKey)
          */
-        @Getter private int count;
+        @Getter
+        private int count;
 
         public int cascadeEvict(CatalogInfo cached) {
             this.cached = cached;
@@ -252,12 +246,10 @@ class CachedReferenceCleaner {
             if (0 == count) lg.getLayers().forEach(this::traverse);
             if (0 == count) lg.getStyles().forEach(this::traverse);
             if (0 == count)
-                lg.getLayerGroupStyles()
-                        .forEach(
-                                lgs -> {
-                                    lgs.getStyles().forEach(this::traverse);
-                                    lgs.getLayers().forEach(this::traverse);
-                                });
+                lg.getLayerGroupStyles().forEach(lgs -> {
+                    lgs.getStyles().forEach(this::traverse);
+                    lgs.getLayers().forEach(this::traverse);
+                });
         }
     }
 }

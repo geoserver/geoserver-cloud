@@ -4,20 +4,15 @@
  */
 package org.geotools.jackson.databind.filter.dto;
 
+import static java.util.Objects.requireNonNull;
 import static org.geotools.jackson.databind.filter.dto.LiteralSerializer.COLLECTION_CONTENT_TYPE_KEY;
 import static org.geotools.jackson.databind.filter.dto.LiteralSerializer.TYPE_KEY;
 import static org.geotools.jackson.databind.filter.dto.LiteralSerializer.VALUE_KEY;
-
-import static java.util.Objects.requireNonNull;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-
-import org.geotools.jackson.databind.filter.mapper.GeoToolsValueMappers;
-import org.mapstruct.factory.Mappers;
-
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -28,6 +23,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.geotools.jackson.databind.filter.mapper.GeoToolsValueMappers;
+import org.mapstruct.factory.Mappers;
 
 /**
  *
@@ -106,8 +103,7 @@ public class LiteralDeserializer extends JsonDeserializer<Literal> {
     }
 
     private Collection<Object> readCollection(
-            Class<?> type, Class<?> contentType, JsonParser parser, DeserializationContext ctxt)
-            throws IOException {
+            Class<?> type, Class<?> contentType, JsonParser parser, DeserializationContext ctxt) throws IOException {
 
         JsonToken nextToken = parser.nextToken();
         expect(nextToken, JsonToken.START_ARRAY);
@@ -118,8 +114,7 @@ public class LiteralDeserializer extends JsonDeserializer<Literal> {
         return value;
     }
 
-    private Object readArray(Class<?> arrayType, JsonParser parser, DeserializationContext ctxt)
-            throws IOException {
+    private Object readArray(Class<?> arrayType, JsonParser parser, DeserializationContext ctxt) throws IOException {
         JsonToken nextToken = parser.nextToken();
         Object value;
         if (byte[].class.equals(arrayType)) {
@@ -142,8 +137,7 @@ public class LiteralDeserializer extends JsonDeserializer<Literal> {
     }
 
     @SuppressWarnings("unchecked")
-    private List<Object> readList(
-            Class<?> contentType, JsonParser parser, DeserializationContext ctxt)
+    private List<Object> readList(Class<?> contentType, JsonParser parser, DeserializationContext ctxt)
             throws IOException {
 
         JsonToken nextToken = parser.currentToken();
@@ -180,8 +174,7 @@ public class LiteralDeserializer extends JsonDeserializer<Literal> {
             }
             nextToken = parser.nextToken();
             if (JsonToken.END_OBJECT != nextToken) {
-                throw new IllegalArgumentException(
-                        "Expected END_OBJECT, got %s".formatted(nextToken));
+                throw new IllegalArgumentException("Expected END_OBJECT, got %s".formatted(nextToken));
             }
             return null;
         }
@@ -198,15 +191,13 @@ public class LiteralDeserializer extends JsonDeserializer<Literal> {
      */
     private void expectFieldName(String value, String expected) {
         if (!expected.equals(value))
-            throw new IllegalStateException(
-                    "Expected field name '%s', got '%s'".formatted(expected, value));
+            throw new IllegalStateException("Expected field name '%s', got '%s'".formatted(expected, value));
     }
 
     private void expect(JsonToken current, JsonToken... expectedOneOf) {
         for (JsonToken expected : expectedOneOf) {
             if (current == expected) return;
         }
-        throw new IllegalStateException(
-                "Expected one of %s got %s".formatted(Arrays.toString(expectedOneOf), current));
+        throw new IllegalStateException("Expected one of %s got %s".formatted(Arrays.toString(expectedOneOf), current));
     }
 }

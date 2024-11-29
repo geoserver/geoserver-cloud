@@ -6,6 +6,11 @@ package org.geoserver.cloud.gwc.backend.pgconfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.IntStream;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.FeatureTypeInfo;
@@ -29,19 +34,14 @@ import org.junit.jupiter.api.Test;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.IntStream;
-
 /**
  * @since 1.7
  */
 @Testcontainers(disabledWithoutDocker = true)
 class PgconfigTileLayerCatalogIT {
 
-    @Container static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();
+    @Container
+    static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();
 
     private TileLayerMocking support;
 
@@ -50,14 +50,12 @@ class PgconfigTileLayerCatalogIT {
     @BeforeEach
     void setUp() {
         container.setUp();
-        PgconfigBackendBuilder backendBuilder =
-                new PgconfigBackendBuilder(container.getDataSource());
+        PgconfigBackendBuilder backendBuilder = new PgconfigBackendBuilder(container.getDataSource());
         CatalogPlugin catalog = backendBuilder.createCatalog();
         GeoServerImpl geoServer = backendBuilder.createGeoServer(catalog);
         support = new TileLayerMocking(catalog, geoServer);
         GridSetBroker gridsets = support.getGridsets();
-        tlCatalog =
-                new PgconfigTileLayerCatalog(container.getDataSource(), gridsets, () -> catalog);
+        tlCatalog = new PgconfigTileLayerCatalog(container.getDataSource(), gridsets, () -> catalog);
     }
 
     @AfterEach
@@ -98,11 +96,10 @@ class PgconfigTileLayerCatalogIT {
         gsl.removeGridSubset(gsl.getGridSubsets().iterator().next());
         tlCatalog.modifyLayer(gsl);
 
-        GeoServerTileLayer modified =
-                tlCatalog
-                        .getLayer(layerInfo.prefixedName())
-                        .map(GeoServerTileLayer.class::cast)
-                        .orElseThrow();
+        GeoServerTileLayer modified = tlCatalog
+                .getLayer(layerInfo.prefixedName())
+                .map(GeoServerTileLayer.class::cast)
+                .orElseThrow();
         assertThat(modified.getBlobStoreId()).isEqualTo("newBlobStore");
         assertThat(modified.isEnabled()).isFalse();
         assertThat(modified.getGridSubsets()).hasSize(1);
@@ -110,8 +107,7 @@ class PgconfigTileLayerCatalogIT {
         Catalog catalog = support.getFaker().catalog();
         final String oldName = layerInfo.prefixedName();
 
-        ResourceInfo resource =
-                catalog.getResource(layerInfo.getResource().getId(), ResourceInfo.class);
+        ResourceInfo resource = catalog.getResource(layerInfo.getResource().getId(), ResourceInfo.class);
         resource.setName("newName");
         catalog.save(resource);
 
@@ -171,17 +167,16 @@ class PgconfigTileLayerCatalogIT {
 
         return IntStream.range(0, count)
                 .parallel()
-                .mapToObj(
-                        i -> {
-                            String name = faker.name() + "-" + i;
-                            FeatureTypeInfo featureType = faker.featureTypeInfo(ds, name);
-                            faker.catalog().add(featureType);
+                .mapToObj(i -> {
+                    String name = faker.name() + "-" + i;
+                    FeatureTypeInfo featureType = faker.featureTypeInfo(ds, name);
+                    faker.catalog().add(featureType);
 
-                            LayerInfo layer = faker.layerInfo(featureType, defaultStyle);
-                            faker.catalog().add(layer);
+                    LayerInfo layer = faker.layerInfo(featureType, defaultStyle);
+                    faker.catalog().add(layer);
 
-                            return support.geoServerTileLayer(layer);
-                        })
+                    return support.geoServerTileLayer(layer);
+                })
                 .peek(tlCatalog::addLayer)
                 .map(GeoServerTileLayer::getName)
                 .toList();

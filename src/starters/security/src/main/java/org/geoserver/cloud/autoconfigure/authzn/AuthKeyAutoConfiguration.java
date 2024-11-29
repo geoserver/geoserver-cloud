@@ -4,8 +4,8 @@
  */
 package org.geoserver.cloud.autoconfigure.authzn;
 
+import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
 import org.geoserver.platform.ModuleStatus;
 import org.geoserver.platform.ModuleStatusImpl;
@@ -17,8 +17,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportResource;
-
-import javax.annotation.PostConstruct;
 
 /**
  * @since 1.0
@@ -35,12 +33,7 @@ public class AuthKeyAutoConfiguration {
 
     @Bean(name = "authKeyExtension")
     ModuleStatus authKeyExtension(
-            @Value(
-                            "${"
-                                    + GEOSERVER_SECURITY_AUTHKEY
-                                    + ":"
-                                    + ConditionalOnAuthKeyEnabled.ENABLED_BY_DEFAULT
-                                    + "}")
+            @Value("${" + GEOSERVER_SECURITY_AUTHKEY + ":" + ConditionalOnAuthKeyEnabled.ENABLED_BY_DEFAULT + "}")
                     boolean enabled) {
 
         ModuleStatusImpl module = new ModuleStatusImpl();
@@ -50,8 +43,7 @@ public class AuthKeyAutoConfiguration {
         module.setAvailable(true);
         module.setEnabled(enabled);
         if (!enabled) {
-            module.setMessage(
-                    "Authkey Extension disabled. " + GEOSERVER_SECURITY_AUTHKEY + "=false");
+            module.setMessage("Authkey Extension disabled. " + GEOSERVER_SECURITY_AUTHKEY + "=false");
         }
         return module;
     }
@@ -62,8 +54,7 @@ public class AuthKeyAutoConfiguration {
             locations = {Enabled.INCLUDE})
     static @Configuration class Enabled {
         static final String EXCLUDE = "authKeyExtension|" + WEB_UI_BEANS;
-        static final String INCLUDE =
-                "jar:gs-authkey-.*!/applicationContext.xml#name=^(?!" + EXCLUDE + ").*$";
+        static final String INCLUDE = "jar:gs-authkey-.*!/applicationContext.xml#name=^(?!" + EXCLUDE + ").*$";
 
         public @PostConstruct void log() {
             log.info("{} enabled", GEOSERVER_SECURITY_AUTHKEY);
@@ -76,7 +67,6 @@ public class AuthKeyAutoConfiguration {
             reader = FilteringXmlBeanDefinitionReader.class,
             locations = {WebUI.INCLUDE})
     static @Configuration class WebUI {
-        static final String INCLUDE =
-                "jar:gs-authkey-.*!/applicationContext.xml#name=^(" + WEB_UI_BEANS + ").*$";
+        static final String INCLUDE = "jar:gs-authkey-.*!/applicationContext.xml#name=^(" + WEB_UI_BEANS + ").*$";
     }
 }

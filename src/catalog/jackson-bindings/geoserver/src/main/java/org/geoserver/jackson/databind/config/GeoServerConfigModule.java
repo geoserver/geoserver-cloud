@@ -7,9 +7,8 @@ package org.geoserver.jackson.databind.config;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-
+import java.util.function.Function;
 import lombok.extern.slf4j.Slf4j;
-
 import org.geoserver.catalog.Info;
 import org.geoserver.cog.CogSettings;
 import org.geoserver.cog.CogSettingsStore;
@@ -41,8 +40,6 @@ import org.geotools.jackson.databind.util.MapperDeserializer;
 import org.geotools.jackson.databind.util.MapperSerializer;
 import org.mapstruct.factory.Mappers;
 
-import java.util.function.Function;
-
 /**
  * Jackson {@link com.fasterxml.jackson.databind.Module} to handle GeoServer configuration objects
  * ({@link GeoServerInfo} and related) bindings.
@@ -71,8 +68,7 @@ import java.util.function.Function;
 @Slf4j(topic = "org.geoserver.jackson.databind.config")
 public class GeoServerConfigModule extends SimpleModule {
     private static final long serialVersionUID = -8756800180255446679L;
-    static final GeoServerConfigMapper VALUE_MAPPER =
-            Mappers.getMapper(GeoServerConfigMapper.class);
+    static final GeoServerConfigMapper VALUE_MAPPER = Mappers.getMapper(GeoServerConfigMapper.class);
 
     public GeoServerConfigModule() {
         super(GeoServerConfigModule.class.getSimpleName(), new Version(1, 0, 0, null, null, null));
@@ -116,20 +112,12 @@ public class GeoServerConfigModule extends SimpleModule {
                 CoverageAccess.class,
                 VALUE_MAPPER::coverageAccessInfo);
 
-        addMapperSerializer(
-                JAIInfo.class, VALUE_MAPPER::jaiInfo, JaiDto.class, VALUE_MAPPER::jaiInfo);
+        addMapperSerializer(JAIInfo.class, VALUE_MAPPER::jaiInfo, JaiDto.class, VALUE_MAPPER::jaiInfo);
+
+        addMapperSerializer(ContactInfo.class, VALUE_MAPPER::contactInfo, Contact.class, VALUE_MAPPER::contactInfo);
 
         addMapperSerializer(
-                ContactInfo.class,
-                VALUE_MAPPER::contactInfo,
-                Contact.class,
-                VALUE_MAPPER::contactInfo);
-
-        addMapperSerializer(
-                CogSettings.class,
-                VALUE_MAPPER::cogSettings,
-                CogSettingsDto.class,
-                VALUE_MAPPER::cogSettings);
+                CogSettings.class, VALUE_MAPPER::cogSettings, CogSettingsDto.class, VALUE_MAPPER::cogSettings);
         addMapperSerializer(
                 CogSettingsStore.class,
                 VALUE_MAPPER::cogSettingsStore,
@@ -142,14 +130,10 @@ public class GeoServerConfigModule extends SimpleModule {
      * @param <D> DTO type
      */
     private <T, D> void addMapperSerializer(
-            Class<T> type,
-            Function<T, D> serializerMapper,
-            Class<D> dtoType,
-            Function<D, T> deserializerMapper) {
+            Class<T> type, Function<T, D> serializerMapper, Class<D> dtoType, Function<D, T> deserializerMapper) {
 
         MapperSerializer<T, D> serializer = new MapperSerializer<>(type, serializerMapper);
-        MapperDeserializer<D, T> deserializer =
-                new MapperDeserializer<>(dtoType, deserializerMapper);
+        MapperDeserializer<D, T> deserializer = new MapperDeserializer<>(dtoType, deserializerMapper);
         super.addSerializer(type, serializer);
         super.addDeserializer(type, deserializer);
     }
@@ -159,8 +143,7 @@ public class GeoServerConfigModule extends SimpleModule {
         super.addSerializer(configInfoType, serializer(configInfoType));
     }
 
-    private <I extends Info, D extends InfoDto> void addDeserializer(
-            Class<I> infoType, Class<D> dtoType) {
+    private <I extends Info, D extends InfoDto> void addDeserializer(Class<I> infoType, Class<D> dtoType) {
         log.trace("registering deserializer for {}", infoType.getSimpleName());
         super.addDeserializer(infoType, deserializer(dtoType));
     }
@@ -169,8 +152,7 @@ public class GeoServerConfigModule extends SimpleModule {
         return new ConfigInfoSerializer<>(configInfoType);
     }
 
-    private <I extends Info, D extends InfoDto> ConfigInfoDeserializer<I, D> deserializer(
-            Class<D> dtoType) {
+    private <I extends Info, D extends InfoDto> ConfigInfoDeserializer<I, D> deserializer(Class<D> dtoType) {
         return new ConfigInfoDeserializer<>(dtoType);
     }
 }

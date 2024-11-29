@@ -4,6 +4,17 @@
  */
 package org.geoserver.catalog.plugin.validation;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.Stack;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogBuilder;
 import org.geoserver.catalog.CatalogInfo;
@@ -24,18 +35,6 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geotools.api.style.StyledLayerDescriptor;
 import org.geotools.util.logging.Logging;
-
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.Stack;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
 
 /** Default validation rules for {@link CatalogInfo} pre-add and pre-modify states */
 public class DefaultCatalogValidator implements CatalogValidator {
@@ -62,8 +61,7 @@ public class DefaultCatalogValidator implements CatalogValidator {
             newObjectPropertiesResolver.resolve(workspace);
         }
         checkArgument(
-                !workspace.isIsolated()
-                        || catalog.getCatalogCapabilities().supportsIsolatedWorkspaces(),
+                !workspace.isIsolated() || catalog.getCatalogCapabilities().supportsIsolatedWorkspaces(),
                 "Workspace '%s' is isolated but isolated workspaces are not supported by this catalog.",
                 workspace.getName());
 
@@ -81,8 +79,7 @@ public class DefaultCatalogValidator implements CatalogValidator {
         if (isNew) {
             newObjectPropertiesResolver.resolve(namespace);
         }
-        if (namespace.isIsolated()
-                && !catalog.getCatalogCapabilities().supportsIsolatedWorkspaces()) {
+        if (namespace.isIsolated() && !catalog.getCatalogCapabilities().supportsIsolatedWorkspaces()) {
             // isolated namespaces \ workspaces are not supported by this catalog
             throw new IllegalArgumentException(
                     "Namespace '%s:%s' is isolated but isolated workspaces are not supported by this catalog."
@@ -131,9 +128,7 @@ public class DefaultCatalogValidator implements CatalogValidator {
         WorkspaceInfo workspace = store.getWorkspace();
         StoreInfo existing = catalog.getStoreByName(workspace, store.getName(), StoreInfo.class);
         if (existing != null && (isNew || !existing.getId().equals(store.getId()))) {
-            String msg =
-                    "Store '%s' already exists in workspace '%s'"
-                            .formatted(store.getName(), workspace.getName());
+            String msg = "Store '%s' already exists in workspace '%s'".formatted(store.getName(), workspace.getName());
             throw new IllegalArgumentException(msg);
         }
     }
@@ -145,16 +140,14 @@ public class DefaultCatalogValidator implements CatalogValidator {
             newObjectPropertiesResolver.resolve(resource);
         }
         if (isNullOrEmpty(resource.getNativeName())
-                && !(resource instanceof CoverageInfo coverage
-                        && coverage.getNativeCoverageName() != null)) {
+                && !(resource instanceof CoverageInfo coverage && coverage.getNativeCoverageName() != null)) {
             throw new NullPointerException("Resource native name must not be null");
         }
         checkArgument(null != resource.getStore(), "Resource must be part of a store");
         checkArgument(null != resource.getNamespace(), "Resource must be part of a namespace");
 
         StoreInfo store = resource.getStore();
-        ResourceInfo existing =
-                catalog.getResourceByStore(store, resource.getName(), ResourceInfo.class);
+        ResourceInfo existing = catalog.getResourceByStore(store, resource.getName(), ResourceInfo.class);
         checkArgument(
                 existing == null || existing.getId().equals(resource.getId()),
                 "Resource named '%s' already exists in store: '%s'",
@@ -199,19 +192,16 @@ public class DefaultCatalogValidator implements CatalogValidator {
         // if the style is missing associate a default one, to avoid breaking WMS
         if (layer.getDefaultStyle() == null) {
             try {
-                LOGGER.info(
-                        () ->
-                                "Layer %s is missing the default style, assigning one automatically"
-                                        .formatted(layer.prefixedName()));
+                LOGGER.info(() -> "Layer %s is missing the default style, assigning one automatically"
+                        .formatted(layer.prefixedName()));
                 StyleInfo style = new CatalogBuilder(catalog).getDefaultStyle(resource);
                 layer.setDefaultStyle(style);
             } catch (IOException e) {
                 LOGGER.log(
                         Level.WARNING,
                         e,
-                        () ->
-                                "Layer %s is missing the default style, failed to associate one automatically"
-                                        .formatted(layer.prefixedName()));
+                        () -> "Layer %s is missing the default style, failed to associate one automatically"
+                                .formatted(layer.prefixedName()));
             }
         }
 
@@ -254,9 +244,7 @@ public class DefaultCatalogValidator implements CatalogValidator {
         checkArgument(mode != null, "Layer group mode must not be null");
         if (LayerGroupInfo.Mode.EO.equals(mode)) {
             checkArgument(
-                    layerGroup.getRootLayer() != null,
-                    "Layer group in mode %s must have a root layer",
-                    mode.getName());
+                    layerGroup.getRootLayer() != null, "Layer group in mode %s must have a root layer", mode.getName());
             checkArgument(
                     layerGroup.getRootLayerStyle() != null,
                     "Layer group in mode %s must have a root layer style",
@@ -278,8 +266,7 @@ public class DefaultCatalogValidator implements CatalogValidator {
         Stack<LayerGroupInfo> loopPath = helper.checkLoops();
         if (loopPath != null) {
             String loopAsString = helper.getLoopAsString(loopPath);
-            throw new IllegalArgumentException(
-                    "Layer group is in a loop: %s".formatted(loopAsString));
+            throw new IllegalArgumentException("Layer group is in a loop: %s".formatted(loopAsString));
         }
     }
 
@@ -287,8 +274,7 @@ public class DefaultCatalogValidator implements CatalogValidator {
         if (layerGroup.getStyles() != null
                 && !layerGroup.getStyles().isEmpty()
                 && (layerGroup.getStyles().size() != layerGroup.getLayers().size())) {
-            throw new IllegalArgumentException(
-                    "Layer group has different number of styles than layers");
+            throw new IllegalArgumentException("Layer group has different number of styles than layers");
         }
     }
 
@@ -319,13 +305,11 @@ public class DefaultCatalogValidator implements CatalogValidator {
             StyledLayerDescriptor sld = style.getSLD();
             errors = SLDNamedLayerValidator.validate(catalog, sld);
         } catch (IOException e) {
-            throw new IllegalArgumentException(
-                    "Error validating style group: %s".formatted(e.getMessage()), e);
+            throw new IllegalArgumentException("Error validating style group: %s".formatted(e.getMessage()), e);
         }
         if (!errors.isEmpty()) {
             Exception first = errors.get(0);
-            throw new IllegalArgumentException(
-                    "Invalid style group: %s".formatted(first.getMessage()), first);
+            throw new IllegalArgumentException("Invalid style group: %s".formatted(first.getMessage()), first);
         }
     }
 
@@ -333,9 +317,7 @@ public class DefaultCatalogValidator implements CatalogValidator {
         if (styles == null) {
             styles = List.of();
         }
-        checkArgument(
-                styles.size() == layers.size(),
-                "Styles must have the same number of elements as layers");
+        checkArgument(styles.size() == layers.size(), "Styles must have the same number of elements as layers");
         return styles;
     }
 
@@ -347,8 +329,7 @@ public class DefaultCatalogValidator implements CatalogValidator {
             // workspaces match
             WorkspaceInfo ews = existing.getWorkspace();
             if ((ws == null && ews == null) || (ws != null && ws.equals(ews))) {
-                String msg =
-                        "Layer group named '%s' already exists".formatted(layerGroup.getName());
+                String msg = "Layer group named '%s' already exists".formatted(layerGroup.getName());
                 if (ws != null) {
                     msg = "%s in workspace %s".formatted(msg, ws.getName());
                 }
@@ -383,11 +364,8 @@ public class DefaultCatalogValidator implements CatalogValidator {
 
             // Default style validation
             if (isDefaultStyle(current)) {
-                checkArgument(
-                        current.getName().equals(style.getName()), "Cannot rename default styles");
-                checkArgument(
-                        null == style.getWorkspace(),
-                        "Cannot change the workspace of default styles");
+                checkArgument(current.getName().equals(style.getName()), "Cannot rename default styles");
+                checkArgument(null == style.getWorkspace(), "Cannot change the workspace of default styles");
             }
         }
     }
@@ -484,8 +462,7 @@ public class DefaultCatalogValidator implements CatalogValidator {
                 if (kw.getVocabulary() != null) {
                     m = KeywordInfo.RE.matcher(kw.getVocabulary());
                     if (!m.matches()) {
-                        throw new IllegalArgumentException(
-                                "Keyword vocbulary must not contain the '\\' character");
+                        throw new IllegalArgumentException("Keyword vocbulary must not contain the '\\' character");
                     }
                 }
             }
