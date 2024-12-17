@@ -29,10 +29,10 @@ import org.springframework.web.context.request.RequestContextListener;
  */
 @SpringBootTest(
         classes = TestConfiguration.class,
-        properties = {"reactive.feign.loadbalancer.enabled=false", "geoserver.servlet.enabled=false"})
+        properties = {"geoserver.servlet.enabled=false"})
 @EnableAutoConfiguration(exclude = SecurityAutoConfiguration.class)
 @ActiveProfiles("test")
-class ServletContextDisabledSmokeTest {
+class ServletContextDisabledSmokeTest extends DataDirectoryTempSupport {
 
     private @Autowired ApplicationContext context;
 

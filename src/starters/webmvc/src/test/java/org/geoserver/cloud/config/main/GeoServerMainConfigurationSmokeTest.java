@@ -9,6 +9,7 @@ import static org.hamcrest.Matchers.instanceOf;
 
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.impl.CatalogImpl;
+import org.geoserver.cloud.autoconfigure.servlet.DataDirectoryTempSupport;
 import org.geoserver.cloud.test.TestConfiguration;
 import org.geoserver.security.SecureCatalogImpl;
 import org.junit.jupiter.api.Test;
@@ -18,11 +19,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 /** Smoke test to load the main context without auto-configuration enabled and without security */
-@SpringBootTest(
-        classes = {TestConfiguration.class},
-        properties = "reactive.feign.loadbalancer.enabled=false")
+@SpringBootTest(classes = {TestConfiguration.class})
 @ActiveProfiles("test")
-class GeoServerMainConfigurationSmokeTest {
+class GeoServerMainConfigurationSmokeTest extends DataDirectoryTempSupport {
 
     private @Autowired @Qualifier("rawCatalog") Catalog rawCatalog;
     private @Autowired @Qualifier("secureCatalog") Catalog secureCatalog;
