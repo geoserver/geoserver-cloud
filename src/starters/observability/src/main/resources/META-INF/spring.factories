@@ -1,2 +1,3 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-org.geoserver.cloud.autoconfigure.observability.LoggingMDCAutoConfiguration
+org.geoserver.cloud.autoconfigure.logging.mdc.LoggingMDCServletAutoConfiguration,\
+org.geoserver.cloud.autoconfigure.logging.accesslog.AccessLogServletAutoConfiguration

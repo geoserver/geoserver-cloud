@@ -29,12 +29,11 @@ import org.springframework.web.context.request.RequestContextListener;
 @EnableAutoConfiguration(exclude = {SecurityAutoConfiguration.class})
 @TestPropertySource(
         properties = {
-            "reactive.feign.loadbalancer.enabled=false",
             "geoserver.servlet.filter.session-debug.enabled=false",
             "geoserver.servlet.filter.flush-safe.enabled=false"
         })
 @ActiveProfiles("test")
-class ServletContextConditionalFiltersTest {
+class ServletContextConditionalFiltersTest extends DataDirectoryTempSupport {
 
     private @Autowired ApplicationContext context;
 

@@ -2,7 +2,7 @@
  * (c) 2024 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
  * GPL 2.0 license, available at the root application directory.
  */
-package org.geoserver.cloud.observability.logging.servlet;
+package org.geoserver.cloud.logging.mdc.servlet;
 
 import java.io.IOException;
 import java.util.stream.Collectors;
@@ -13,8 +13,10 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.geoserver.cloud.observability.logging.config.MDCConfigProperties;
+import org.geoserver.cloud.logging.mdc.config.AuthenticationMdcConfigProperties;
+import org.geoserver.cloud.logging.mdc.config.MDCConfigProperties;
 import org.slf4j.MDC;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -32,7 +34,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @RequiredArgsConstructor
 public class MDCAuthenticationFilter implements Filter {
 
-    private final @NonNull MDCConfigProperties config;
+    private final @NonNull AuthenticationMdcConfigProperties config;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -46,10 +48,15 @@ public class MDCAuthenticationFilter implements Filter {
 
     void addEnduserMdcProperties() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        boolean authenticated = auth != null && auth.isAuthenticated();
+        boolean authenticated;
+        if (auth == null || auth instanceof AnonymousAuthenticationToken) {
+            authenticated = false;
+        } else {
+            authenticated = auth.isAuthenticated();
+        }
         MDC.put("enduser.authenticated", String.valueOf(authenticated));
         if (authenticated) {
-            if (config.isUser()) MDC.put("enduser.id", auth.getName());
+            if (config.isId()) MDC.put("enduser.id", auth.getName());
             if (config.isRoles()) MDC.put("enduser.role", roles(auth));
         }
     }

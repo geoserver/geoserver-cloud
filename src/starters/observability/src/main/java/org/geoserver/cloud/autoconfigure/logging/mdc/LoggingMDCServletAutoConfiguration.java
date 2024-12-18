@@ -2,16 +2,14 @@
  * (c) 2024 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
  * GPL 2.0 license, available at the root application directory.
  */
-package org.geoserver.cloud.autoconfigure.observability;
+package org.geoserver.cloud.autoconfigure.logging.mdc;
 
 import java.util.Optional;
-import org.geoserver.cloud.observability.logging.config.MDCConfigProperties;
-import org.geoserver.cloud.observability.logging.servlet.HttpRequestMdcConfigProperties;
-import org.geoserver.cloud.observability.logging.servlet.HttpRequestMdcFilter;
-import org.geoserver.cloud.observability.logging.servlet.MDCAuthenticationFilter;
-import org.geoserver.cloud.observability.logging.servlet.MDCCleaningFilter;
-import org.geoserver.cloud.observability.logging.servlet.SpringEnvironmentMdcConfigProperties;
-import org.geoserver.cloud.observability.logging.servlet.SpringEnvironmentMdcFilter;
+import org.geoserver.cloud.logging.mdc.config.MDCConfigProperties;
+import org.geoserver.cloud.logging.mdc.servlet.HttpRequestMdcFilter;
+import org.geoserver.cloud.logging.mdc.servlet.MDCAuthenticationFilter;
+import org.geoserver.cloud.logging.mdc.servlet.MDCCleaningFilter;
+import org.geoserver.cloud.logging.mdc.servlet.SpringEnvironmentMdcFilter;
 import org.geoserver.security.GeoServerSecurityFilterChainProxy;
 import org.slf4j.MDC;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -36,36 +34,31 @@ import org.springframework.security.core.context.SecurityContext;
  * @see GeoServerDispatcherMDCConfiguration
  */
 @AutoConfiguration
-@EnableConfigurationProperties({
-    MDCConfigProperties.class,
-    HttpRequestMdcConfigProperties.class,
-    SpringEnvironmentMdcConfigProperties.class
-})
+@EnableConfigurationProperties({MDCConfigProperties.class})
 @Import(GeoServerDispatcherMDCConfiguration.class)
 @ConditionalOnWebApplication(type = Type.SERVLET)
-public class LoggingMDCAutoConfiguration {
+public class LoggingMDCServletAutoConfiguration {
+
+    @Bean
+    MDCCleaningFilter mdcCleaningServletFilter() {
+        return new MDCCleaningFilter();
+    }
 
     /**
      * @return servlet filter to {@link MDC#clear() clear} the MDC after the servlet request is
      *     executed
      */
     @Bean
-    @Order(Ordered.HIGHEST_PRECEDENCE)
-    HttpRequestMdcFilter httpMdcFilter(HttpRequestMdcConfigProperties config) {
-        return new HttpRequestMdcFilter(config);
+    @Order(Ordered.HIGHEST_PRECEDENCE + 2)
+    HttpRequestMdcFilter httpMdcFilter(MDCConfigProperties config) {
+        return new HttpRequestMdcFilter(config.getHttp());
     }
 
     @Bean
-    @Order(Ordered.HIGHEST_PRECEDENCE)
-    MDCCleaningFilter mdcCleaningServletFilter() {
-        return new MDCCleaningFilter();
-    }
-
-    @Bean
-    @Order(Ordered.HIGHEST_PRECEDENCE)
+    @Order(Ordered.HIGHEST_PRECEDENCE + 2)
     SpringEnvironmentMdcFilter springEnvironmentMdcFilter(
-            Environment env, SpringEnvironmentMdcConfigProperties config, Optional<BuildProperties> buildProperties) {
-        return new SpringEnvironmentMdcFilter(env, buildProperties, config);
+            Environment env, MDCConfigProperties config, Optional<BuildProperties> buildProperties) {
+        return new SpringEnvironmentMdcFilter(env, buildProperties, config.getApplication());
     }
 
     /**
@@ -80,7 +73,7 @@ public class LoggingMDCAutoConfiguration {
             MDCConfigProperties config) {
         FilterRegistrationBean<MDCAuthenticationFilter> registration = new FilterRegistrationBean<>();
 
-        var filter = new MDCAuthenticationFilter(config);
+        var filter = new MDCAuthenticationFilter(config.getUser());
         registration.setMatchAfter(true);
 
         registration.addUrlPatterns("/*");
