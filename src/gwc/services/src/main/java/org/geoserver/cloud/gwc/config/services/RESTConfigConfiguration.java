@@ -7,12 +7,14 @@ package org.geoserver.cloud.gwc.config.services;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.gwc.controller.GwcUrlHandlerMapping;
 import org.geoserver.gwc.layer.GWCGeoServerRESTConfigurationProvider;
+import org.geowebcache.rest.controller.SeedController;
 import org.geowebcache.rest.converter.GWCConverter;
 import org.geowebcache.util.ApplicationContextProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.FilterType;
 
 /**
  * The original {@literal geowebcache-rest-context.xml}:
@@ -51,8 +53,15 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnClass(GWCConverter.class)
-@ComponentScan(basePackages = "org.geowebcache.rest")
+@ComponentScan(
+        basePackages = "org.geowebcache.rest",
+        excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SeedController.class))
 public class RESTConfigConfiguration {
+
+    @Bean
+    org.geoserver.cloud.gwc.config.services.SeedController seedController() {
+        return new org.geoserver.cloud.gwc.config.services.SeedController();
+    }
 
     /**
      * The original {@literal geowebcache-rest-context.xml}:
