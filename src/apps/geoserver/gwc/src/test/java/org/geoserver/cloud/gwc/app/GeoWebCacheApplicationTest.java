@@ -10,6 +10,7 @@ import static org.springframework.http.MediaType.APPLICATION_XML;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import java.net.URI;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,5 +57,32 @@ class GeoWebCacheApplicationTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getHeaders().getContentType()).isEqualTo(expected);
         return response;
+    }
+
+    @Test
+    void testPostSeedDoesNotThrowAmbiguousHandlerMapping() {
+        String payload =
+                """
+                <seedRequest>
+                  <name>workspace:layer</name>
+                  <srs><number>3857</number></srs>
+                  <zoomStart>0</zoomStart>
+                  <zoomStop>8</zoomStop>
+                  <format>image/png</format>
+                  <type>reseed</type>
+                  <threadCount>2</threadCount>
+                </seedRequest>
+                """;
+        String uri = "/gwc/rest/seed/workspace:layer.xml";
+
+        ResponseEntity<String> response = restTemplate.postForEntity(URI.create(uri), payload, String.class);
+        HttpStatus statusCode = response.getStatusCode();
+        String body = response.getBody();
+
+        // SeedService will throw a 500 error when the layer is not found
+        // it's ok we just need to check it doesn't result in an "ambiguous handler mapping" error
+        // see org.geoserver.cloud.gwc.config.services.SeedController
+        assertThat(statusCode).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+        assertThat(body).contains("Unknown layer workspace:layer");
     }
 }
