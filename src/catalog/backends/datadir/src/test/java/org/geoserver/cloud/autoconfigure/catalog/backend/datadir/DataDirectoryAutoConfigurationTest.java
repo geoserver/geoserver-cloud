@@ -7,7 +7,7 @@ package org.geoserver.cloud.autoconfigure.catalog.backend.datadir;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.catalog.CatalogFacade;
 import org.geoserver.catalog.plugin.CatalogPlugin;
@@ -24,6 +24,7 @@ import org.geoserver.config.plugin.RepositoryGeoServerFacade;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.config.UpdateSequence;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
@@ -32,6 +33,8 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
  * when {@code geoserver.backend.data-directory.enabled=true}
  */
 class DataDirectoryAutoConfigurationTest {
+
+    static @TempDir Path datadir;
 
     private ApplicationContextRunner runner = new ApplicationContextRunner()
             .withConfiguration(AutoConfigurations.of(
@@ -50,7 +53,7 @@ class DataDirectoryAutoConfigurationTest {
             //
             .withPropertyValues(
                     "geoserver.backend.dataDirectory.enabled=true", //
-                    "geoserver.backend.dataDirectory.location=/tmp/data_dir_autoconfiguration_test" //
+                    "geoserver.backend.dataDirectory.location=%s".formatted(datadir.toAbsolutePath()) //
                     );
 
     @Test
@@ -61,7 +64,7 @@ class DataDirectoryAutoConfigurationTest {
             assertThat(context).hasSingleBean(DataDirectoryProperties.class);
             assertThat(context)
                     .getBean(DataDirectoryProperties.class)
-                    .hasFieldOrPropertyWithValue("location", Paths.get("/tmp/data_dir_autoconfiguration_test"));
+                    .hasFieldOrPropertyWithValue("location", datadir.toAbsolutePath());
         });
     }
 

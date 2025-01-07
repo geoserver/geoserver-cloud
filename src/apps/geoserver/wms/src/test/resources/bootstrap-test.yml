@@ -12,8 +12,6 @@ eureka.client.enabled: false
 geoserver:
   acl.enabled: false
 
-gwc.cache-directory: ${java.io.tmpdir}/gs-wms-tmp
-
 logging:
   level:
     root: WARN

@@ -5,7 +5,6 @@
 package org.geoserver.cloud.wfs.app;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,12 +17,10 @@ import org.springframework.test.context.DynamicPropertySource;
 @ActiveProfiles("datadir")
 class WfsApplicationDataDirectoryIT extends WfsApplicationTest {
 
-    static @TempDir Path tmpdir;
-    static Path datadir;
+    static @TempDir Path datadir;
 
     @DynamicPropertySource
     static void setUpDataDir(DynamicPropertyRegistry registry) throws IOException {
-        datadir = Files.createDirectory(tmpdir.resolve("datadir"));
         registry.add("geoserver.backend.data-directory.location", datadir::toAbsolutePath);
     }
 }
