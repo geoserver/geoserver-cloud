@@ -27,9 +27,9 @@ RUN java \
 -XX:ArchiveClassesAtExit=application.jsa \
 -Dspring.context.exit=onRefreshed \
 -Dspring.profiles.active=standalone,datadir,offline \
--Dgeosever.backend.data-directory.location=/tmp/tmpdatadir \
 -Dserver.port=0 -Dmanagement.server.port=0 \
+-Dgeosever.backend.data-directory.location=/tmp/tmpdatadir \
 org.springframework.boot.loader.JarLauncher
 RUN rm -rf /tmp/*
 
-ENV JAVA_TOOL_OPTIONS="${DEFAULT_JAVA_TOOL_OPTIONS} -XX:SharedArchiveFile=application.jsa"
+ENV JAVA_TOOL_OPTIONS="${JAVA_TOOL_OPTIONS} -XX:SharedArchiveFile=application.jsa"
