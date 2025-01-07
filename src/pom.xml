@@ -975,6 +975,7 @@
           <inherited>true</inherited>
           <configuration>
             <reuseForks>false</reuseForks>
+            <forkCount>1C</forkCount>
             <argLine>--add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.text=ALL-UNNAMED --add-opens=java.desktop/java.awt.font=ALL-UNNAMED  --add-opens=java.desktop/sun.awt.image=ALL-UNNAMED --add-opens=java.naming/com.sun.jndi.ldap=ALL-UNNAMED</argLine>
           </configuration>
         </plugin>
@@ -1299,6 +1300,9 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-failsafe-plugin</artifactId>
             <configuration>
+              <reuseForks>false</reuseForks>
+              <forkCount>1C</forkCount>
+              <trimStackTrace>false</trimStackTrace>
               <argLine>--add-exports=java.desktop/sun.awt.image=ALL-UNNAMED 
 				--add-opens=java.base/java.lang=ALL-UNNAMED 
 				--add-opens=java.base/java.util=ALL-UNNAMED 

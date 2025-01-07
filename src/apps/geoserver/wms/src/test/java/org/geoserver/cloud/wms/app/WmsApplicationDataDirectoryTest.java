@@ -5,7 +5,6 @@
 package org.geoserver.cloud.wms.app;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,13 +26,13 @@ import org.xmlunit.assertj3.XmlAssert;
 @ActiveProfiles({"test"})
 class WmsApplicationDataDirectoryTest extends WmsApplicationTest {
 
-    static @TempDir Path tmpdir;
-    static Path datadir;
+    static @TempDir Path datadir;
 
     @DynamicPropertySource
     static void setUpDataDir(DynamicPropertyRegistry registry) throws IOException {
-        datadir = Files.createDirectory(tmpdir.resolve("datadir"));
+        var gwcdir = datadir.resolve("gwc");
         registry.add("geoserver.backend.data-directory.location", datadir::toAbsolutePath);
+        registry.add("gwc.cache-directory", gwcdir::toAbsolutePath);
     }
 
     private String baseURL;

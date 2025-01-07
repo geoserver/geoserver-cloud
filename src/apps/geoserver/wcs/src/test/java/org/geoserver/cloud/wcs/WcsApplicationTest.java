@@ -6,17 +6,29 @@ package org.geoserver.cloud.wcs;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 
 @SpringBootTest
 @ActiveProfiles("test")
 class WcsApplicationTest {
     protected @Autowired ConfigurableApplicationContext context;
+
+    static @TempDir Path datadir;
+
+    @DynamicPropertySource
+    static void setUpDataDir(DynamicPropertyRegistry registry) throws IOException {
+        registry.add("geoserver.backend.data-directory.location", datadir::toAbsolutePath);
+    }
 
     @Test
     void testWcsCoreBeans() {

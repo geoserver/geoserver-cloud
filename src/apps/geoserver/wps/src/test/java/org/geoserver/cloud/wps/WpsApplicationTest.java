@@ -5,7 +5,6 @@
 package org.geoserver.cloud.wps;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -23,14 +22,13 @@ import org.xmlunit.assertj3.XmlAssert;
 @ActiveProfiles("test")
 class WpsApplicationTest {
 
-    static @TempDir Path tmpdir;
-    static Path datadir;
+    static @TempDir Path datadir;
 
     @DynamicPropertySource
     static void setUpDataDir(DynamicPropertyRegistry registry) throws IOException {
-        datadir = tmpdir.resolve("datadir");
-        if (!Files.exists(datadir)) datadir = Files.createDirectory(datadir);
+        var gwcdir = datadir.resolve("gwc");
         registry.add("geoserver.backend.data-directory.location", datadir::toAbsolutePath);
+        registry.add("gwc.cache-directory", gwcdir::toAbsolutePath);
     }
 
     private TestRestTemplate restTemplate = new TestRestTemplate("admin", "geoserver");
