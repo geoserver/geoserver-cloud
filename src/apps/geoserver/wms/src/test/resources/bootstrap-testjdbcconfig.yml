@@ -4,7 +4,7 @@ geoserver:
       enabled: true
       web.enabled: true
       initdb: true
-      cache-directory: ${java.io.tmpdir}/geoserver-jdbcconfig-cache
+      cache-directory: # to be set by the test classes
       datasource:
         driverClassname: org.h2.Driver
         url: jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
