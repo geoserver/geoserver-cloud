@@ -42,7 +42,7 @@ class JdbcConfigDataSourceTest extends JDBCConfigTest {
         assertEquals(250, hds.getConnectionTimeout());
         try (Connection c1 = hds.getConnection();
                 Connection c2 = hds.getConnection()) {
-            assertThrows(SQLTransientConnectionException.class, () -> hds.getConnection());
+            assertThrows(SQLTransientConnectionException.class, hds::getConnection);
         }
     }
 }

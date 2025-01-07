@@ -188,7 +188,7 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
     }
 
     protected <V> Predicate<V> toPredicate(Filter filter) {
-        return o -> filter.evaluate(o);
+        return filter::evaluate;
     }
 
     private static <U extends CatalogInfo> Comparator<U> comparator(final SortBy sortOrder) {
@@ -537,7 +537,7 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
             String id = style.getId();
             Predicate<? super LayerInfo> predicate = li -> (li.getDefaultStyle() != null
                             && id.equals(li.getDefaultStyle().getId()))
-                    || li.getStyles().stream().map(s -> s.getId()).anyMatch(id::equals);
+                    || li.getStyles().stream().map(Info::getId).anyMatch(id::equals);
             return all().filter(predicate);
         }
 
