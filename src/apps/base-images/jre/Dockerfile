@@ -15,7 +15,8 @@ ENV DEFAULT_JAVA_TOOL_OPTIONS="\
 --add-opens=java.naming/com.sun.jndi.ldap=ALL-UNNAMED \
 -Djava.awt.headless=true \
 -XX:MaxRAMPercentage=80 \
--XX:InitialRAMPercentage=30"
+-XX:InitialRAMPercentage=30 \
+-XX:+UseCompressedOops"
 
 ENV JAVA_TOOL_OPTIONS="${DEFAULT_JAVA_TOOL_OPTIONS}"
 ENV JAVA_OPTS=

@@ -32,4 +32,4 @@ RUN java \
 org.springframework.boot.loader.JarLauncher
 RUN rm -rf /tmp/*
 
-ENV JAVA_TOOL_OPTIONS="${DEFAULT_JAVA_TOOL_OPTIONS} -XX:SharedArchiveFile=application.jsa"
+ENV JAVA_TOOL_OPTIONS="${JAVA_TOOL_OPTIONS} -XX:SharedArchiveFile=application.jsa"
