@@ -14,7 +14,7 @@ geoserver:
   backend:
     data-directory:
       enabled: true
-      location: ${data_directory:${java.io.tmpdir}/geoserver_cloud_data_directory}
+      location: # to be set by the test class
 
 logging:
   level:

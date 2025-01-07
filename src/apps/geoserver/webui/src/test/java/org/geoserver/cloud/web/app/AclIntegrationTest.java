@@ -6,6 +6,9 @@ package org.geoserver.cloud.web.app;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -16,6 +19,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,6 +28,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 
 @SpringBootTest(
         properties = {
@@ -40,6 +46,16 @@ class AclIntegrationTest {
 
     private @Autowired GeoServerApplication app;
     private WicketTester tester;
+
+    static @TempDir Path datadir;
+
+    @DynamicPropertySource
+    static void setUpDataDir(DynamicPropertyRegistry registry) throws IOException {
+        var gwcdir = datadir.resolve("gwc");
+        Files.createDirectory(gwcdir);
+        registry.add("geoserver.backend.data-directory.location", datadir::toAbsolutePath);
+        registry.add("gwc.cache-directory", gwcdir::toAbsolutePath);
+    }
 
     static @BeforeAll void beforeAll() {
         System.setProperty("wicket.configuration", "deployment");

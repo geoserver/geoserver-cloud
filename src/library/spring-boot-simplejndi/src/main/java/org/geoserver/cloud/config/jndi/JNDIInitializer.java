@@ -11,6 +11,7 @@ import javax.naming.NamingException;
 import javax.naming.spi.NamingManager;
 import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContextException;
 import org.springframework.jdbc.support.DatabaseStartupValidator;
@@ -20,11 +21,9 @@ import org.springframework.util.StringUtils;
  * @since 1.0
  */
 @Slf4j(topic = "org.geoserver.cloud.config.jndidatasource")
-public class JNDIInitializer implements InitializingBean {
+public class JNDIInitializer implements InitializingBean, DisposableBean {
 
     private JNDIDataSourcesConfigurationProperties config;
-
-    static boolean initialized = false;
 
     JNDIInitializer(JNDIDataSourcesConfigurationProperties config) {
         this.config = config;
@@ -32,8 +31,6 @@ public class JNDIInitializer implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        if (initialized) throw new IllegalStateException("JNDI already initialized or failed. Giving up.");
-        initialized = true;
 
         Map<String, JNDIDatasourceConfig> configs = config.getDatasources();
 
@@ -57,6 +54,31 @@ public class JNDIInitializer implements InitializingBean {
         }
     }
 
+    @Override
+    public void destroy() throws Exception {
+        Map<String, JNDIDatasourceConfig> configs = config.getDatasources();
+        if (null == configs || configs.isEmpty()) {
+            return;
+        }
+        Context initialContext;
+        try {
+            initialContext = getInitialContext();
+        } catch (Exception e) {
+            log.error("Error getting initial context during destroy", e);
+            return;
+        }
+
+        configs.entrySet().forEach(e -> {
+            String jndiName = toJndiDatasourceName(e.getKey());
+            try {
+                HikariDataSource dataSource = (HikariDataSource) initialContext.lookup(jndiName);
+                dataSource.close();
+            } catch (NamingException ex) {
+                log.warn("Error looking up data source {}", jndiName, ex);
+            }
+        });
+    }
+
     String toJndiDatasourceName(String dsname) {
         final String prefix = "java:comp/env/jdbc/";
         if (!dsname.startsWith(prefix)) {
@@ -78,12 +100,7 @@ public class JNDIInitializer implements InitializingBean {
             return;
         }
 
-        Context initialContext;
-        try {
-            initialContext = NamingManager.getInitialContext(null);
-        } catch (NamingException e) {
-            throw new ApplicationContextException("No JNDI initial context bound", e);
-        }
+        Context initialContext = getInitialContext();
 
         DataSource dataSource = createDataSource(props);
         waitForIt(jndiName, dataSource, props);
@@ -103,6 +120,16 @@ public class JNDIInitializer implements InitializingBean {
         }
     }
 
+    private Context getInitialContext() {
+        Context initialContext;
+        try {
+            initialContext = NamingManager.getInitialContext(null);
+        } catch (NamingException e) {
+            throw new ApplicationContextException("No JNDI initial context bound", e);
+        }
+        return initialContext;
+    }
+
     private void waitForIt(String jndiName, DataSource dataSource, JNDIDatasourceConfig props) {
         if (props.isWaitForIt()) {
             log.info("Waiting up to {} seconds for datasource {}", props.getWaitTimeout(), jndiName);
@@ -113,7 +140,7 @@ public class JNDIInitializer implements InitializingBean {
         }
     }
 
-    protected DataSource createDataSource(JNDIDatasourceConfig props) {
+    protected HikariDataSource createDataSource(JNDIDatasourceConfig props) {
         HikariDataSource dataSource = props.initializeDataSourceBuilder() //
                 .type(HikariDataSource.class)
                 .build();
