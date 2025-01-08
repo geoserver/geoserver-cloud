@@ -83,8 +83,8 @@ public class AccessLogFilterConfig {
     }
 
     private boolean matches(String url, List<Pattern> patterns) {
-        return (patterns == null || patterns.isEmpty())
-                ? false
-                : patterns.stream().anyMatch(pattern -> pattern.matcher(url).matches());
+        return patterns != null
+                && !patterns.isEmpty()
+                && patterns.stream().anyMatch(pattern -> pattern.matcher(url).matches());
     }
 }
