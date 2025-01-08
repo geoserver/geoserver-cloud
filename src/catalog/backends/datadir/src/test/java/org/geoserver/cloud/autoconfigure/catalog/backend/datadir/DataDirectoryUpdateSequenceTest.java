@@ -4,7 +4,6 @@
  */
 package org.geoserver.cloud.autoconfigure.catalog.backend.datadir;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import org.geoserver.cloud.config.catalog.backend.datadirectory.DataDirectoryBackendConfiguration;
 import org.geoserver.cloud.config.catalog.backend.datadirectory.DataDirectoryUpdateSequence;
@@ -35,7 +34,7 @@ class DataDirectoryUpdateSequenceTest implements UpdateSequenceConformanceTest {
     static @TempDir Path datadir;
 
     @DynamicPropertySource
-    static void setUpDataDir(DynamicPropertyRegistry registry) throws IOException {
+    static void setUpDataDir(DynamicPropertyRegistry registry) {
         registry.add("geoserver.backend.data-directory.location", datadir::toAbsolutePath);
     }
 

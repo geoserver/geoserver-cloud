@@ -53,7 +53,7 @@ class RestConfigApplicationTest {
     }
 
     @BeforeEach
-    void before() throws Exception {
+    void before() {
         restTemplate = restTemplate.withBasicAuth("admin", "geoserver");
     }
 
