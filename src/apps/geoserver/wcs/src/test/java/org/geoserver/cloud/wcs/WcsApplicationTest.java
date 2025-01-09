@@ -6,7 +6,6 @@ package org.geoserver.cloud.wcs;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
@@ -26,7 +25,7 @@ class WcsApplicationTest {
     static @TempDir Path datadir;
 
     @DynamicPropertySource
-    static void setUpDataDir(DynamicPropertyRegistry registry) throws IOException {
+    static void setUpDataDir(DynamicPropertyRegistry registry) {
         registry.add("geoserver.backend.data-directory.location", datadir::toAbsolutePath);
     }
 

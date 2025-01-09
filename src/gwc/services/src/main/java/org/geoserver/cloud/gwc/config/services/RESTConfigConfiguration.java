@@ -55,12 +55,18 @@ import org.springframework.context.annotation.FilterType;
 @ConditionalOnClass(GWCConverter.class)
 @ComponentScan(
         basePackages = "org.geowebcache.rest",
+        // exclude org.geowebcache.controller.SeedController from component scan, provide an alternative that works with
+        // spring cloud below
         excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SeedController.class))
 public class RESTConfigConfiguration {
 
+    /**
+     * Replacement for {@link SeedController#doPost(javax.servlet.http.HttpServletRequest, java.io.InputStream, String, java.util.Map)}
+     * working wit spring-boot's stricter path pattern matching
+     */
     @Bean
-    org.geoserver.cloud.gwc.config.services.SeedController seedController() {
-        return new org.geoserver.cloud.gwc.config.services.SeedController();
+    org.geoserver.cloud.gwc.config.services.SeedControllerOverride seedController() {
+        return new org.geoserver.cloud.gwc.config.services.SeedControllerOverride();
     }
 
     /**
