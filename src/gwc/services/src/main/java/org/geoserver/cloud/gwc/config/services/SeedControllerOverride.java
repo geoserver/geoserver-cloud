@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @Component
 @RestController
 @RequestMapping(path = "${gwc.context.suffix:}/rest")
-public class SeedController extends org.geowebcache.rest.controller.SeedController {
+public class SeedControllerOverride extends org.geowebcache.rest.controller.SeedController {
 
     /**
      *
