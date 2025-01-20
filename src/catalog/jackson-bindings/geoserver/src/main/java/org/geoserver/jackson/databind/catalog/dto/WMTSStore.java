@@ -7,8 +7,10 @@ package org.geoserver.jackson.databind.catalog.dto;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Data
-@JsonTypeName("WMTSStoreInfo")
 @EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
+@JsonTypeName("WMTSStoreInfo")
 public class WMTSStore extends HTTPStore {}
