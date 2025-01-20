@@ -8,9 +8,11 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.util.Set;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 @JsonTypeName("LayerInfo")
 public class Layer extends Published {
     public enum WMSInterpolation {

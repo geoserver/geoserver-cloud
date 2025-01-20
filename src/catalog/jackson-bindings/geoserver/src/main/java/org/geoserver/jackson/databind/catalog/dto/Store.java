@@ -9,14 +9,16 @@ import java.io.Serializable;
 import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
+@Data
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 @JsonSubTypes({
     @JsonSubTypes.Type(value = CoverageStore.class),
     @JsonSubTypes.Type(value = DataStore.class),
     @JsonSubTypes.Type(value = HTTPStore.class)
 })
-@Data
-@EqualsAndHashCode(callSuper = true)
 public abstract class Store extends CatalogInfoDto {
     private String name;
     private String workspace;

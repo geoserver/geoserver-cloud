@@ -9,10 +9,12 @@ import java.util.List;
 import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.geotools.jackson.databind.dto.Envelope;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 @JsonTypeName("LayerGroupInfo")
 public class LayerGroup extends Published {
 

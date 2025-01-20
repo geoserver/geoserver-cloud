@@ -7,13 +7,15 @@ package org.geoserver.jackson.databind.config.dto;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.jackson.databind.catalog.dto.MetadataMapDto;
 
 /** DTO for {@link GeoServerInfo} */
-@EqualsAndHashCode(callSuper = true)
-@JsonTypeName("GeoServerInfo")
 @Data
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
+@JsonTypeName("GeoServerInfo")
 public class GeoServer extends ConfigInfoDto {
     public enum ResourceErrorHandling {
         OGC_EXCEPTION_REPORT,

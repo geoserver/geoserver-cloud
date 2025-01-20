@@ -8,10 +8,12 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
-@JsonSubTypes({@JsonSubTypes.Type(value = Layer.class), @JsonSubTypes.Type(value = LayerGroup.class)})
 @Data
 @EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
+@JsonSubTypes({@JsonSubTypes.Type(value = Layer.class), @JsonSubTypes.Type(value = LayerGroup.class)})
 public abstract class Published extends CatalogInfoDto {
 
     public enum PublishedType {

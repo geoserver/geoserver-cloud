@@ -10,9 +10,11 @@ import java.util.List;
 import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 @JsonTypeName("CoverageInfo")
 public class Coverage extends Resource {
     private String nativeFormat;

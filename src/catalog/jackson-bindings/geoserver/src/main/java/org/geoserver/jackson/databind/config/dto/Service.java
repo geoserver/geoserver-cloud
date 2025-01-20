@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.geoserver.catalog.LayerInfo.WMSInterpolation;
 import org.geoserver.catalog.impl.AuthorityURL;
 import org.geoserver.catalog.impl.LayerIdentifier;
@@ -33,6 +34,9 @@ import org.geotools.coverage.grid.io.OverviewPolicy;
 import org.geotools.jackson.databind.dto.NameDto;
 
 /** DTO for {@link ServiceInfo} */
+@Data
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 @JsonSubTypes({
     @JsonSubTypes.Type(value = Service.WmsService.class),
     @JsonSubTypes.Type(value = Service.WfsService.class),
@@ -41,8 +45,6 @@ import org.geotools.jackson.databind.dto.NameDto;
     @JsonSubTypes.Type(value = Service.WmtsService.class),
     @JsonSubTypes.Type(value = Service.GenericService.class)
 })
-@Data
-@EqualsAndHashCode(callSuper = true)
 public abstract class Service extends ConfigInfoDto {
     private String name;
     private String workspace;
@@ -78,14 +80,16 @@ public abstract class Service extends ConfigInfoDto {
      */
     private Map<String, String> internationalAbstract;
 
-    @EqualsAndHashCode(callSuper = true)
-    @JsonTypeName("ServiceInfo")
     @Data
+    @EqualsAndHashCode(callSuper = true)
+    @ToString(callSuper = true)
+    @JsonTypeName("ServiceInfo")
     public static class GenericService extends Service {}
 
-    @EqualsAndHashCode(callSuper = true)
-    @JsonTypeName("WMSInfo")
     @Data
+    @EqualsAndHashCode(callSuper = true)
+    @ToString(callSuper = true)
+    @JsonTypeName("WMSInfo")
     public static class WmsService extends Service {
         // Works well as POJO, no need to create a separate DTO
         private WatermarkInfoImpl watermark;
@@ -149,9 +153,10 @@ public abstract class Service extends ConfigInfoDto {
         private Boolean exceptionOnInvalidDimension;
     }
 
-    @EqualsAndHashCode(callSuper = true)
-    @JsonTypeName("WFSInfo")
     @Data
+    @EqualsAndHashCode(callSuper = true)
+    @ToString(callSuper = true)
+    @JsonTypeName("WFSInfo")
     public static class WfsService extends Service {
         private Map<Version, GMLInfoImpl> GML;
         private int maxFeatures;
@@ -182,9 +187,10 @@ public abstract class Service extends ConfigInfoDto {
         private String csvDateFormat;
     }
 
-    @EqualsAndHashCode(callSuper = true)
-    @JsonTypeName("WCSInfo")
     @Data
+    @EqualsAndHashCode(callSuper = true)
+    @ToString(callSuper = true)
+    @JsonTypeName("WCSInfo")
     public static class WcsService extends Service {
         private boolean GMLPrefixing;
         private long maxInputMemory;
@@ -197,9 +203,10 @@ public abstract class Service extends ConfigInfoDto {
         private int defaultDeflateCompressionLevel;
     }
 
-    @EqualsAndHashCode(callSuper = true)
-    @JsonTypeName("WPSInfo")
     @Data
+    @EqualsAndHashCode(callSuper = true)
+    @ToString(callSuper = true)
+    @JsonTypeName("WPSInfo")
     public static class WpsService extends Service {
         private double connectionTimeout;
         private int resourceExpirationTimeout;
@@ -238,8 +245,9 @@ public abstract class Service extends ConfigInfoDto {
     }
 
     /** DTO for {@link WMTSInfo} */
-    @EqualsAndHashCode(callSuper = true)
-    @JsonTypeName("WMTSInfo")
     @Data
+    @EqualsAndHashCode(callSuper = true)
+    @ToString(callSuper = true)
+    @JsonTypeName("WMTSInfo")
     public static class WmtsService extends Service {}
 }
