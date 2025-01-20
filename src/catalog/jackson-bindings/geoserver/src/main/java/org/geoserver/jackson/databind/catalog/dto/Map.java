@@ -8,9 +8,11 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 @JsonTypeName("MapInfo")
 public class Map extends CatalogInfoDto {
 
