@@ -4,10 +4,19 @@
  */
 package org.geoserver.jackson.databind.config.dto;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.geoserver.jackson.databind.catalog.dto.InfoDto;
 
-@EqualsAndHashCode(callSuper = true)
 @Data
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = GeoServer.class),
+    @JsonSubTypes.Type(value = Logging.class),
+    @JsonSubTypes.Type(value = Service.class),
+    @JsonSubTypes.Type(value = Settings.class)
+})
 public class ConfigInfoDto extends InfoDto {}
