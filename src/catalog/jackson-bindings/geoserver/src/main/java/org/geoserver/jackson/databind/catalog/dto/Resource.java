@@ -9,17 +9,19 @@ import java.util.List;
 import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.geotools.jackson.databind.dto.CRS;
 import org.geotools.jackson.databind.dto.Envelope;
 
+@Data
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 @JsonSubTypes({
     @JsonSubTypes.Type(value = Coverage.class),
     @JsonSubTypes.Type(value = FeatureType.class),
     @JsonSubTypes.Type(value = WMSLayer.class),
     @JsonSubTypes.Type(value = WMTSLayer.class)
 })
-@Data
-@EqualsAndHashCode(callSuper = true)
 public abstract class Resource extends CatalogInfoDto {
     public enum ProjectionPolicy {
         FORCE_DECLARED,

@@ -7,10 +7,12 @@ package org.geoserver.jackson.databind.catalog.dto;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.geotools.jackson.databind.dto.VersionDto;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 @JsonTypeName("StyleInfo")
 public class Style extends CatalogInfoDto {
 
