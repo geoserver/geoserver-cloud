@@ -21,7 +21,7 @@ services:
       - acl_data:/var/lib/postgresql/data
 
   rabbitmq:
-    image: rabbitmq:3.13.3-alpine
+    image: rabbitmq:4-management-alpine
     user: ${GS_USER}
     tmpfs:
       - /var/lib/rabbitmq

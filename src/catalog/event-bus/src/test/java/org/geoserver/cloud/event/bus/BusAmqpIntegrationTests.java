@@ -91,7 +91,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 public abstract class BusAmqpIntegrationTests {
 
     @Container
-    private static final RabbitMQContainer rabbitMQContainer = new RabbitMQContainer("rabbitmq:3.13-management");
+    private static final RabbitMQContainer rabbitMQContainer = new RabbitMQContainer("rabbitmq:4-management-alpine");
 
     protected static ConfigurableApplicationContext remoteAppContext;
     private @Autowired ConfigurableApplicationContext localAppContext;
