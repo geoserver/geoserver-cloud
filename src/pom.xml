@@ -23,7 +23,7 @@
     <spring-cloud.version>2021.0.9</spring-cloud.version>
     <spring-boot.version>2.7.18</spring-boot.version>
     <spring.version>5.3.39</spring.version>
-    <spring.security.version>5.8.15</spring.security.version>
+    <spring.security.version>5.8.16</spring.security.version>
     <jackson.version>2.17.2</jackson.version>
     <gs.version>2.26.1.1</gs.version>
     <gt.version>32.1</gt.version>
