@@ -5,7 +5,7 @@ volumes:
         
 services:
   rabbitmq:
-    image: rabbitmq:3.13.3-alpine
+    image: rabbitmq:4-management-alpine
     user: 1000:1000 # set the userid:groupid the container runs as
     restart: unless-stopped
     volumes:

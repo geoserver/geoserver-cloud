@@ -27,7 +27,7 @@ podman volume create shared_data_directory
 In order to speed up the "starting" part of the documentation we are going to download the images as the first stop
 
 ```bash
-podman pull docker.io/library/rabbitmq:3.9-management 
+podman pull docker.io/library/rabbitmq:4-management-alpine 
 export GSCLOUD_VERSION=1.9.1
 
 for service in discovery config gateway rest webui wms wfs wcs
@@ -45,7 +45,7 @@ Please start the containers in the described order:
 #### Rabbitmq
 
 ```bash
-podman run -d --name=rabbitmq --network gs-cloud-network -v rabbitmq_data:/var/lib/rabbitmq --restart always rabbitmq:3.9-management
+podman run -d --name=rabbitmq --network gs-cloud-network -v rabbitmq_data:/var/lib/rabbitmq --restart always rabbitmq:4-management-alpine
 ```
 
 #### Discovery

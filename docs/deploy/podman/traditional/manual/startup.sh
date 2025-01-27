@@ -18,7 +18,7 @@ echo Starting rabbitmq...
 podman run $STD_OPTS --name=rabbitmq --hostname=rabbitmq \
   -v rabbitmq_data:/var/lib/rabbitmq \
   --restart always \
-  rabbitmq:3.9-management
+  rabbitmq:4-management-alpine
 
 echo Starting discovery:$GSCLOUD_VERSION...
 podman run $STD_OPTS --name=discovery --hostname=discovery \
