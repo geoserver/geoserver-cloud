@@ -4,8 +4,8 @@
  */
 package org.geoserver.cloud.autoconfigure.catalog.backend.core;
 
+import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.ResourcePool;
-import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.cloud.autoconfigure.catalog.event.ConditionalOnCatalogEvents;
 import org.geoserver.cloud.event.info.InfoEvent;
 import org.geoserver.cloud.event.remote.resourcepool.RemoteEventResourcePoolProcessor;
@@ -25,8 +25,7 @@ import org.springframework.context.annotation.Bean;
 public class RemoteEventResourcePoolCleanupUpAutoConfiguration {
 
     @Bean
-    RemoteEventResourcePoolProcessor remoteEventResourcePoolProcessor(
-            @Qualifier("rawCatalog") CatalogPlugin rawCatalog) {
+    RemoteEventResourcePoolProcessor remoteEventResourcePoolProcessor(@Qualifier("rawCatalog") Catalog rawCatalog) {
 
         return new RemoteEventResourcePoolProcessor(rawCatalog);
     }
