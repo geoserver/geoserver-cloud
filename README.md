@@ -96,7 +96,7 @@ If you're looking for instructions to just get *GeoServer Cloud* up and running 
 
 ## Status
 
-`v1.9.2` released on top of GeoServer `2.26.1`.
+`v2.26.2.0` released on top of GeoServer `2.26.2`.
 
 Check out the full [Release Notes](https://github.com/geoserver/geoserver-cloud/releases) for a changelog.
 
