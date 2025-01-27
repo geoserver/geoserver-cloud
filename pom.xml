@@ -11,7 +11,7 @@
     <module>src</module>
   </modules>
   <properties>
-    <revision>1.10-SNAPSHOT</revision>
+    <revision>2.27.0-SNAPSHOT</revision>
     <fmt.skip>false</fmt.skip>
     <spotless.action>apply</spotless.action>
     <spotless.apply.skip>${fmt.skip}</spotless.apply.skip>
