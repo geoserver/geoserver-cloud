@@ -9,6 +9,7 @@ import static org.mockito.Mockito.mock;
 
 import java.io.File;
 import java.util.List;
+import lombok.SneakyThrows;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
 import org.geoserver.cloud.security.CloudGeoServerSecurityManager;
@@ -20,6 +21,9 @@ import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.config.UpdateSequence;
 import org.geoserver.platform.resource.FileSystemResourceStore;
 import org.geoserver.platform.resource.ResourceStore;
+import org.geoserver.security.ResourceAccessManager;
+import org.geoserver.security.SecureCatalogImpl;
+import org.geoserver.security.TestResourceAccessManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -46,8 +50,11 @@ class GeoServerSecurityAutoConfigurationTest {
         runner = createContextRunner(tempDir);
     }
 
+    @SneakyThrows(Exception.class)
     static ApplicationContextRunner createContextRunner(File tempDir) {
-        Catalog catalog = mock(Catalog.class);
+        Catalog rawCatalog = mock(Catalog.class);
+        ResourceAccessManager resourceAccessManager = new TestResourceAccessManager();
+        SecureCatalogImpl secureCatalog = new SecureCatalogImpl(rawCatalog, resourceAccessManager);
         GeoServer geoserver = mock(GeoServer.class);
         ResourceStore resourceStore = new FileSystemResourceStore(tempDir);
         GeoServerResourceLoader resourceLoader = new GeoServerResourceLoader(resourceStore);
@@ -60,8 +67,9 @@ class GeoServerSecurityAutoConfigurationTest {
                 .withBean(ResourceStore.class, () -> resourceStore)
                 .withBean(GeoServerResourceLoader.class, () -> resourceLoader)
                 .withBean("dataDirectory", GeoServerDataDirectory.class, () -> datadir)
-                .withBean("catalog", Catalog.class, () -> catalog)
-                .withBean("rawCatalog", Catalog.class, () -> catalog)
+                .withBean("rawCatalog", Catalog.class, () -> rawCatalog)
+                .withBean("catalog", Catalog.class, () -> secureCatalog)
+                .withBean("secureCatalog", Catalog.class, () -> secureCatalog)
                 .withBean("geoServer", GeoServer.class, () -> geoserver)
                 .withBean("updateSequence", UpdateSequence.class, () -> updateSequence)
                 .withPropertyValues("logging.level.org.geoserver.platform: off");
