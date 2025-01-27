@@ -23,10 +23,10 @@
     <spring-cloud.version>2021.0.9</spring-cloud.version>
     <spring-boot.version>2.7.18</spring-boot.version>
     <spring.version>5.3.39</spring.version>
-    <spring.security.version>5.8.15</spring.security.version>
-    <jackson.version>2.17.2</jackson.version>
-    <gs.version>2.26.1.1</gs.version>
-    <gt.version>32.1</gt.version>
+    <spring.security.version>5.8.16</spring.security.version>
+    <jackson.version>2.18.2</jackson.version>
+    <gs.version>2.27.0-SNAPSHOT</gs.version>
+    <gt.version>33-SNAPSHOT</gt.version>
     <acl.version>2.3.1</acl.version>
     <postgresql.version>42.7.3</postgresql.version>
     <!-- Same netty.version used by geoserver for COG and GWC Azure plugin -->
@@ -1056,6 +1056,12 @@
       <dependencyManagement>
         <dependencies>
           <dependency>
+            <!-- GeoServer 2.26.x is at 1.79, where spring-boot:2.7.18 is at 1.73 -->
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk18on</artifactId>
+            <version>1.79</version>
+          </dependency>
+          <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-bom</artifactId>
             <version>${netty.version}</version>
@@ -1145,7 +1151,7 @@
           <dependency>
             <groupId>org.apache.wicket</groupId>
             <artifactId>wicket-core</artifactId>
-            <version>7.18.0</version>
+            <version>9.19.0</version>
           </dependency>
           <dependency>
             <groupId>com.thoughtworks.xstream</groupId>
