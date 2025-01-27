@@ -32,10 +32,6 @@
     </dependency>
     <dependency>
       <groupId>org.geoserver.community</groupId>
-      <artifactId>gs-pgraster</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.geoserver.community</groupId>
       <artifactId>gs-cog-core</artifactId>
     </dependency>
     <dependency>
@@ -64,7 +60,7 @@
       <artifactId>sts</artifactId>
     </dependency>
     <dependency>
-      <!-- provided scope for pgraster's and cog autoconfiguration when in web-ui -->
+      <!-- provided scope for cog autoconfiguration when in web-ui -->
       <groupId>org.geoserver.web</groupId>
       <artifactId>gs-web-core</artifactId>
       <scope>provided</scope>

@@ -64,7 +64,6 @@ Only a curated selection of the extensive [GeoServer extensions](http://geoserve
     * Cloud Optimized GeoTIFF
     * Pre-generalized Features
     * ImagePyramid
-    * PostGIS Raster
 * **Output Formats**:
     * WFS FlatGeobuf
     * WFS DXF
