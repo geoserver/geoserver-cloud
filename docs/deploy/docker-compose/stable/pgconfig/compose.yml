@@ -26,7 +26,7 @@ services:
           memory: 4G
     
   acl:
-    image: geoservercloud/geoserver-acl:2.2.0
+    image: geoservercloud/geoserver-acl:2.3.1
     user: 1000:1000
     depends_on:
       pgconfigdb:
