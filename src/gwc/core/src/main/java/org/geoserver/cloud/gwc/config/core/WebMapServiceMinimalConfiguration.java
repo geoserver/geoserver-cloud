@@ -4,12 +4,17 @@
  */
 package org.geoserver.cloud.gwc.config.core;
 
+import java.util.List;
 import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
+import org.geoserver.config.GeoServer;
 import org.geoserver.gwc.layer.GeoServerTileLayer;
+import org.geoserver.platform.Service;
 import org.geoserver.wms.WMS;
+import org.geoserver.wms.WMSServiceExceptionHandler;
 import org.geoserver.wms.WebMapService;
 import org.geoserver.wms.map.GetMapKvpRequestReader;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,7 +40,7 @@ public class WebMapServiceMinimalConfiguration {
      * wms beans black-list, note wmsPNGLegendOutputFormat is required by {@link
      * GeoServerTileLayer#getLayerLegendsInfo()}
      */
-    private static final String WMS_BEANS_REGEX =
+    private static final String WMS_BEANS_BLACK_LIST =
             """
             ^(?!\
             legendSample\
@@ -63,6 +68,7 @@ public class WebMapServiceMinimalConfiguration {
             |wmsGIFLegendOutputFormat\
             |wmsJPEGLegendGraphicOutputFormat\
             |wmsJSONLegendOutputFormat\
+            |wmsExceptionHandler\
             ).*$\
             """;
 
@@ -79,7 +85,7 @@ public class WebMapServiceMinimalConfiguration {
             ).*$\
             """;
 
-    static final String GS_WMS_INCLUDES = "jar:gs-wms-[0-9]+.*!/applicationContext.xml#name=" + WMS_BEANS_REGEX;
+    static final String GS_WMS_INCLUDES = "jar:gs-wms-[0-9]+.*!/applicationContext.xml#name=" + WMS_BEANS_BLACK_LIST;
 
     static final String GS_WFS_INCLUDES = "jar:gs-wfs-[0-9]+.*!/applicationContext.xml#name=" + WFS_BEANS_REGEX;
 
@@ -89,5 +95,18 @@ public class WebMapServiceMinimalConfiguration {
     @ConditionalOnMissingBean(GetMapKvpRequestReader.class)
     GetMapKvpRequestReader getMapKvpReader(WMS wms) {
         return new GetMapKvpRequestReader(wms);
+    }
+
+    /**
+     * Conditionally return a {@link WMSServiceExceptionHandler} in case it doesn't exist. It's excluded from {@literal applicationContext.xml}
+     * because the wms-service app overrides it
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    WMSServiceExceptionHandler wmsExceptionHandler(
+            @SuppressWarnings("java:S6830") @Qualifier("wms-1_1_1-ServiceDescriptor") Service wms11,
+            @SuppressWarnings("java:S6830") @Qualifier("wms-1_3_0-ServiceDescriptor") Service wms13,
+            GeoServer geoServer) {
+        return new WMSServiceExceptionHandler(List.of(wms11, wms13), geoServer);
     }
 }
