@@ -28,7 +28,7 @@
     <gs.version>2.27.0-SNAPSHOT</gs.version>
     <gt.version>33-SNAPSHOT</gt.version>
     <acl.version>2.4-SNAPSHOT</acl.version>
-    <postgresql.version>42.7.3</postgresql.version>
+    <postgresql.version>42.7.5</postgresql.version>
     <!-- Same netty.version used by geoserver for COG and GWC Azure plugin -->
     <netty.version>4.1.113.Final</netty.version>
     <lombok.version>1.18.30</lombok.version>
@@ -1101,7 +1101,7 @@
           <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>33.2.1-jre</version>
+            <version>33.4.0-jre</version>
           </dependency>
           <dependency>
             <groupId>com.google.guava</groupId>
@@ -1126,7 +1126,7 @@
           <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.15.0</version>
+            <version>3.17.0</version>
           </dependency>
           <dependency>
             <groupId>commons-logging</groupId>
@@ -1176,7 +1176,7 @@
           <dependency>
             <groupId>org.apache.wicket</groupId>
             <artifactId>wicket-core</artifactId>
-            <version>9.19.0</version>
+            <version>9.20.0</version>
           </dependency>
           <dependency>
             <groupId>com.thoughtworks.xstream</groupId>
