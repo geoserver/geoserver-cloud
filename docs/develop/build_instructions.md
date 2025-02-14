@@ -79,7 +79,7 @@ will run `docker compose build --push` with the appropriate `*-multiplatform.yml
 
 If you want to build the multi-platform images yourself:
 
-* Install QEmu
+* Install [QEmu](https://www.qemu.org/download/)
 * Run the following command to create a `buildx` builder:
 
 ```bash
