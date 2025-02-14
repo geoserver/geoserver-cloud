@@ -209,7 +209,7 @@ will override the three database containers with separate pgbouncer instances fo
 
 #### Access GeoServer
 
-Verify the services are running with `dcd ps` or `dcp ps` as appropriate.
+Verify the services are running with `docker compose ps` or `docker ps` as appropriate.
 
 ```
 $ curl "http://localhost:9090/geoserver/cloud/ows?request=getcapabilities&service={WMS,WFS,WCS,WPS}"
