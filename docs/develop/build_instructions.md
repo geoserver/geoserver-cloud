@@ -86,7 +86,7 @@ If you want to build the multi-platform images yourself:
 docker buildx create --name gscloud-builder --driver docker-container --bootstrap --use
 ```
 
-In order to push the images to your own dockerhub account, use the `RESPOSITORY` environment variable, for example:
+In order to push the images to your own dockerhub account, use the `REPOSITORY` environment variable, for example:
 
 ```bash
 REPOSITORY=groldan make build-image-multiplatform
