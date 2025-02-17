@@ -43,9 +43,6 @@ fonts-roboto \
 RUN mkdir -p /opt/app/data_directory /data/geowebcache \
 && chmod 0777 /opt/app/data_directory /data/geowebcache
 
-VOLUME /opt/app/data_directory
-VOLUME /data/geowebcache
-
 WORKDIR /opt/app/bin
 
 COPY --from=builder dependencies/ ./

@@ -1,12 +1,32 @@
-volumes:
-  rabbitmq_data: # volume for rabbitmq data, so it doesn't create an anonymous one on each container
-  geowebcache_data:
-  pgconfigdb_data: # volume for postgresql data, used to store the geoserver config through pgconfig backend
+# Define shared environment variables for all services
+x-variables:
+  environment: &common_env
+    SPRING_PROFILES_ACTIVE: "pgconfig,acl"
+    GEOWEBCACHE_CACHE_DIR: /data/geowebcache
+    ACL_URL: http://acl:8080/acl/api
+    ACL_USERNAME: admin
+    ACL_PASSWORD: s3cr3t
         
+x-gs-dependencies: &gs-dependencies
+  rabbitmq:
+    condition: service_healthy
+  discovery:
+    condition: service_healthy
+  pgconfigdb:
+    condition: service_started
+  config:
+    condition: service_healthy
+  acl:
+    condition: service_healthy
+
+volumes:
+  geowebcache_data: # Stores GeoWebCache tile data
+  pgconfigdb_data:  # Stores PostgreSQL data for pgconfig backend
+      
 services:
   pgconfigdb:
-    image: postgis/postgis:latest
-    # host config for both geoserver catalog and acl
+    # use an image with linux/amd64 and linux/arm64 support. Doesn't need to be postgis
+    image: imresamu/postgis:17-3.5
     shm_size: 2g
     environment:
       POSTGRES_DB: pgconfig
@@ -27,41 +47,38 @@ services:
     
   acl:
     image: geoservercloud/geoserver-acl:2.3.1
-    user: 1000:1000
+    user: "1000:1000"
     depends_on:
       pgconfigdb:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
     environment:
-      # Override default values in the container's /etc/geoserver/acl-service.yml 
-      - PG_HOST=pgconfigdb
-      - PG_PORT=5432
-      - PG_DB=pgconfig
-      - PG_SCHEMA=acl
-      - PG_USERNAME=pgconfig
-      - PG_PASSWORD=pgconfig
-      - 'ACL_USERS_ADMIN_PASSWORD={noop}s3cr3t'
-      - 'ACL_USERS_GEOSERVER_PASSWORD={noop}s3cr3t'
-      - GEOSERVER_BUS_ENABLED=true
-      - RABBITMQ_HOST=rabbitmq
-      - RABBITMQ_PORT=5672
-      - RABBITMQ_USER=guest
-      - RABBITMQ_PASSWORD=guest
+      PG_HOST: pgconfigdb
+      PG_PORT: 5432
+      PG_DB: pgconfig
+      PG_SCHEMA: acl
+      PG_USERNAME: pgconfig
+      PG_PASSWORD: pgconfig
+      'ACL_USERS_ADMIN_PASSWORD': '{noop}s3cr3t'
+      'ACL_USERS_GEOSERVER_PASSWORD': '{noop}s3cr3t'
+      GEOSERVER_BUS_ENABLED: true
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: guest
+      RABBITMQ_PASSWORD: guest
     deploy:
       resources:
         limits:
           cpus: '4.0'
           memory: 2G
-    ports:
-       - 9092:8080
        
   rabbitmq:
     image: rabbitmq:4-management-alpine
-    user: 1000:1000
+    user: "1000:1000"
     restart: unless-stopped
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq
+    tmpfs:
+      - /var/lib/rabbitmq:size=512m,mode=1777  # Store RabbitMQ data in memory
     healthcheck:
       test: rabbitmq-diagnostics is_running
       start_period: 10s
@@ -73,19 +90,6 @@ services:
         limits:
           cpus: '4.0'
           memory: 2G
-
-  discovery:
-    image: geoservercloud/geoserver-cloud-discovery:2.26.2.0
-    user: 1000:1000
-    depends_on:
-      - config
-    ports:
-      - 8761:8761 # for development, so services can be run from localhost and find the discovery service running on docker
-    deploy:
-      resources:
-        limits:
-          cpus: '2.0'
-          memory: 256M
 
   # Spring Cloud Config service, provides centralized configuration to all
   # microservices. Being a Discovery First Bootstrap configuration, it'll
@@ -109,13 +113,27 @@ services:
           cpus: '2.0'
           memory: 256M
     
+  discovery:
+    image: geoservercloud/geoserver-cloud-discovery:2.26.2.0
+    user: "1000:1000"
+    depends_on:
+      - config
+    ports:
+      - 8761:8761
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 256M
+
   # Application facade, provides a single entry point routing to all
-  # microservices (e.g. http://localhost:9090/geoserver/wms, http://localhost:9090/geoserver/wfs, etc)
+  # microservices (e.g. http://localhost:9090/geoserver/cloud/wms, http://localhost:9090/geoserver/cloud/wfs, etc)
   gateway:
     image: geoservercloud/geoserver-cloud-gateway:2.26.2.0
-    user: 1000:1000
+    user: 1000:1000 # set the userid:groupid the container runs as
     depends_on:
-      - discovery
+      discovery:
+        condition: service_healthy
     environment:
       # eat our own dogfood and set a base path
       GEOSERVER_BASE_PATH: /geoserver/cloud
@@ -127,147 +145,12 @@ services:
           cpus: '4.0'
           memory: 1G
 
-  # WFS microservice, port dynamically allocated to allow scaling (e.g docker compose scale wfs=5)
-  wfs:
-    image: geoservercloud/geoserver-cloud-wfs:2.26.2.0
-    extends:
-      service: geoserver
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-      discovery:
-        condition: service_healthy
-      pgconfigdb:
-        condition: service_started
-      config:
-        condition: service_healthy
-      acl:
-        condition: service_healthy
-    deploy:
-      replicas: 1
-
-  # WMS microservice, port dynamically allocated to allow scaling (e.g docker compose scale wms=5)
-  wms:
-    image: geoservercloud/geoserver-cloud-wms:2.26.2.0
-    extends:
-      service: geoserver
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-      discovery:
-        condition: service_healthy
-      pgconfigdb:
-        condition: service_started
-      config:
-        condition: service_healthy
-      acl:
-        condition: service_healthy
-    deploy:
-      replicas: 1
-
-  # WCS microservice, port dynamically allocated to allow scaling (e.g docker compose scale wcs=5)
-  wcs:
-    image: geoservercloud/geoserver-cloud-wcs:2.26.2.0
-    extends:
-      service: geoserver
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-      discovery:
-        condition: service_healthy
-      pgconfigdb:
-        condition: service_started
-      config:
-        condition: service_healthy
-      acl:
-        condition: service_healthy
-    deploy:
-      replicas: 1
-
-  # WPS microservice, port dynamically allocated to allow scaling (e.g docker compose scale wps=5)
-  wps:
-    image: geoservercloud/geoserver-cloud-wps:2.26.2.0
-    extends:
-      service: geoserver
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-      discovery:
-        condition: service_healthy
-      pgconfigdb:
-        condition: service_started
-      config:
-        condition: service_healthy
-      acl:
-        condition: service_healthy
-    deploy:
-      replicas: 1
-
-  # REST config microservice, port dynamically allocated to allow scaling (e.g docker compose scale rest=5)
-  rest:
-    image: geoservercloud/geoserver-cloud-rest:2.26.2.0
-    extends:
-      service: geoserver
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-      discovery:
-        condition: service_healthy
-      pgconfigdb:
-        condition: service_started
-      config:
-        condition: service_healthy
-      acl:
-        condition: service_healthy
-    deploy:
-      replicas: 1
-
-  # WEB UI microservice
-  webui:
+  # GeoServer template service configuration
+  geoserver_template:
     image: geoservercloud/geoserver-cloud-webui:2.26.2.0
-    extends:
-      service: geoserver
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-      discovery:
-        condition: service_healthy
-      pgconfigdb:
-        condition: service_started
-      config:
-        condition: service_healthy
-      acl:
-        condition: service_healthy
-    deploy:
-      replicas: 1
-
-  gwc:
-    image: geoservercloud/geoserver-cloud-gwc:2.26.2.0
-    extends:
-      service: geoserver
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-      discovery:
-        condition: service_healthy
-      pgconfigdb:
-        condition: service_started
-      config:
-        condition: service_healthy
-      acl:
-        condition: service_healthy
-    deploy:
-      replicas: 1
-
-  geoserver:
-    image: geoservercloud/geoserver-cloud-webui:2.26.2.0
-    user: 1000:1000 # set the userid:groupid the container runs as
+    user: "1000:1000"
     environment:
-      SPRING_PROFILES_ACTIVE: "pgconfig,acl"
-      ACL_URL: http://acl:8080/acl/api
-      ACL_USERNAME: admin
-      ACL_PASSWORD: s3cr3t
-      GEOWEBCACHE_CACHE_DIR: /data/geowebcache
+      <<: *common_env
     volumes:
       - geowebcache_data:/data/geowebcache
     deploy:
@@ -277,3 +160,61 @@ services:
         limits:
           cpus: '2.0'
           memory: 1G
+
+  # GeoServer microservices
+  wfs:
+    image: geoservercloud/geoserver-cloud-wfs:2.26.2.0
+    extends:
+      service: geoserver_template
+    depends_on: *gs-dependencies
+    deploy:
+      replicas: 1
+
+  wms:
+    image: geoservercloud/geoserver-cloud-wms:2.26.2.0
+    extends:
+      service: geoserver_template
+    depends_on: *gs-dependencies
+    deploy:
+      replicas: 1
+
+  wcs:
+    image: geoservercloud/geoserver-cloud-wcs:2.26.2.0
+    extends:
+      service: geoserver_template
+    depends_on: *gs-dependencies
+    deploy:
+      replicas: 1
+
+  wps:
+    image: geoservercloud/geoserver-cloud-wps:2.26.2.0
+    extends:
+      service: geoserver_template
+    depends_on: *gs-dependencies
+    deploy:
+      replicas: 1
+
+  rest:
+    image: geoservercloud/geoserver-cloud-rest:2.26.2.0
+    extends:
+      service: geoserver_template
+    depends_on: *gs-dependencies
+    deploy:
+      replicas: 1
+
+  webui:
+    image: geoservercloud/geoserver-cloud-webui:2.26.2.0
+    extends:
+      service: geoserver_template
+    depends_on: *gs-dependencies
+    deploy:
+      replicas: 1
+
+  gwc:
+    image: geoservercloud/geoserver-cloud-gwc:2.26.2.0
+    extends:
+      service: geoserver_template
+    depends_on: *gs-dependencies
+    deploy:
+      replicas: 1
+
