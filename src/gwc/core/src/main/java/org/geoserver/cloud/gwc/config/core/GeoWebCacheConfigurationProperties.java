@@ -170,7 +170,7 @@ public @Data class GeoWebCacheConfigurationProperties {
     }
 
     private static @Data class DiskQuotaConfig {
-        private boolean enabeld = false;
+        private boolean enabled = false;
         private DataSourceProperties dataSource;
     }
 }
