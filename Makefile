@@ -164,8 +164,6 @@ run-acceptance-tests-datadir:
 .PHONY: clean-acceptance-tests-datadir
 clean-acceptance-tests-datadir:
 	(cd compose/ && ./acceptance_datadir down -v)
-	rm -rf compose/catalog-datadir/*
-	touch compose/catalog-datadir/.keep
 
 .PHONY: acceptance-tests-pgconfig
 acceptance-tests-pgconfig: build-acceptance start-acceptance-tests-pgconfig run-acceptance-tests-pgconfig
