@@ -543,6 +543,21 @@
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-1.2-api</artifactId>
           </exclusion>
+          <exclusion>
+            <!-- let jaiext be resolved from the other geotools dependencies to avoid dependency convergence errors -->
+            <groupId>it.geosolutions.jaiext.colorindexer</groupId>
+            <artifactId>jt-colorindexer</artifactId>
+          </exclusion>
+          <exclusion>
+            <!-- let jaiext be resolved from the other geotools dependencies to avoid dependency convergence errors -->
+            <groupId>it.geosolutions.jaiext.iterators</groupId>
+            <artifactId>jt-iterators</artifactId>
+          </exclusion>
+          <exclusion>
+            <!-- let jaiext be resolved from the other geotools dependencies to avoid dependency convergence errors -->
+            <groupId>it.geosolutions.jaiext.utilities</groupId>
+            <artifactId>jt-utilities</artifactId>
+          </exclusion>
         </exclusions>
       </dependency>
       <dependency>
