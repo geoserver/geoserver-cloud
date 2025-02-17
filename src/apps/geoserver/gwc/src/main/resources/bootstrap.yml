@@ -11,7 +11,7 @@ gwc:
     gmaps: false
     mgmaps: false
   disk-quota:
-    enabeld: false
+    enabled: false
 
 # gwc.context.suffix is used by gwc rest controllers
 # (e.g. @RequestMapping(path = "${gwc.context.suffix:}/rest"))
