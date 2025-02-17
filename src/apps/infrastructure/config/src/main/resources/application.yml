@@ -49,7 +49,9 @@ spring:
           - ${config.native.path:file:/etc/geoserver}
 
 # override default of true, this service does not use the registry (when eureka client is enabled)
-eureka.client.fetch-registry: false
+eureka:
+  client:
+    fetch-registry: false
 
 management:
   endpoints:
