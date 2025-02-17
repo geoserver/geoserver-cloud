@@ -2,9 +2,9 @@
 
 Sets up the basis for an event-stream based synchronization of configuration changes across services in the cluster.
 
-This module uses [spring-cloud-bus](https://cloud.spring.io/spring-cloud-static/spring-cloud-bus/3.0.0.M1/reference/html/) to notify all services in the cluster of catalog and geoserver configuration changes.
+This module uses [spring-cloud-bus](https://docs.spring.io/spring-cloud-bus/docs/current/reference/html/) to notify all services in the cluster of catalog and geoserver configuration changes.
 
-The remote event notification mechanism is agnostic of the transport layer, which depends on the configured [spring-cloud-streams](https://cloud.spring.io/spring-cloud-static/spring-cloud-stream/3.0.6.RELEASE/reference/html/)  Message Broker, which is in principle any supported [AMQP](https://www.amqp.org/) (Advanced Message Queuing Protocol) provider, Apache Kafka, Kafka Streams, Google PubSub, Azure Event Hubs, and more, depending on the `spring-cloud-streams` release and third-party binder implementations;
+The remote event notification mechanism is agnostic of the transport layer, which depends on the configured [spring-cloud-streams](https://docs.spring.io/spring-cloud-stream/docs/current/reference/html/)  Message Broker, which is in principle any supported [AMQP](https://www.amqp.org/) (Advanced Message Queuing Protocol) provider, Apache Kafka, Kafka Streams, Google PubSub, Azure Event Hubs, and more, depending on the `spring-cloud-streams` release and third-party binder implementations;
 
 We're using [RabbitMQ](https://www.rabbitmq.com/) as the message broker in the default configuration, by means of including the `gs-cloud-catalog-event-bus-amqp` dependency in all services, which this particular module does not depend on.
 
