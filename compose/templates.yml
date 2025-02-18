@@ -1,14 +1,20 @@
+# Define reusable volume mounts as an anchor
+x-geoserver-volume-mounts: &geoserver_volumes
+  - geowebcache_data:/data/geowebcache
+
+# Define reusable environment variables
+x-geoserver-env: &geoserver_environment
+  SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES}"
+  # Enable the PostGIS JNDI datasource (for development purposes)
+  JNDI_POSTGIS_ENABLED: true
+  GEOWEBCACHE_CACHE_DIR: /data/geowebcache
+  JAVA_OPTS: "${JAVA_OPTS_GEOSERVER}"
+
 services:
   gstemplate:
     user: ${GS_USER}
-    environment:
-      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES}"
-      # enable the postgis jndi datasource. This is just an example used for development
-      JNDI_POSTGIS_ENABLED: true
-      GEOWEBCACHE_CACHE_DIR: /data/geowebcache
-      GATEWAY_SHARED_AUTH: "${GATEWAY_SHARED_AUTH}"
-    volumes:
-      - geowebcache_data:/data/geowebcache
+    environment: *geoserver_environment
+    volumes: *geoserver_volumes
     deploy:
       mode: replicated
       replicas: 1
