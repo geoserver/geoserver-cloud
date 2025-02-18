@@ -4,10 +4,25 @@ volumes:
   jdbcconfig_data: # volume for postgresql data, used to store the geoserver config through jdbcconfig
   datadir:
 
+x-volume-mounts: &geoserver_volumes
+  - datadir:/opt/app/data_directory
+
+x-gs-dependencies: &gs-dependencies
+  database:
+    condition: service_started
+  init-sample-data:
+    condition: service_completed_successfully
+  
 #
 # Configures all geoserver services to use the postgresql database server with jdbcconfig as catalog backend.
 # Run with `docker compose -f compose.yml -f catalog-jdbcconfig.yml up -d`
 #
+x-geoserver-env: &geoserver_environment
+  SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},jdbcconfig"
+  JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
+  JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
+  JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
+
 
 services:
   init-sample-data:
@@ -19,8 +34,9 @@ services:
       - ./catalog-datadir.tgz:/tmp/datadir.tgz
 
   database:
-    # be sure geoserver.backend.jdbcconfig.initdb is set to true in application.yml at lease for the first app run
-    image: postgres:13-alpine
+    extends:
+      file: templates.yml
+      service: postgrestemplate
     environment:
       POSTGRES_DB: "${JDBCCONFIG_DBNAME}"
       POSTGRES_USER: "${JDBCCONFIG_USERNAME}"
@@ -35,87 +51,37 @@ services:
           cpus: '2.0'
           memory: 1G
 
-
   wfs:
-    environment:
-      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},jdbcconfig"
-      JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
-      JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
-      JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
-    volumes:
-      - datadir:/opt/app/data_directory
-    depends_on:
-      init-sample-data:
-        condition: service_completed_successfully
-      database:
-        condition: service_started
+    environment: *geoserver_environment
+    volumes: *geoserver_volumes
+    depends_on: *gs-dependencies
 
   wms:
-    environment:
-      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},jdbcconfig"
-      JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
-      JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
-      JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
-    volumes:
-      - datadir:/opt/app/data_directory
-    depends_on:
-      init-sample-data:
-        condition: service_completed_successfully
-      database:
-        condition: service_started
+    environment: *geoserver_environment
+    volumes: *geoserver_volumes
+    depends_on: *gs-dependencies
 
   wcs:
-    environment:
-      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},jdbcconfig"
-      JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
-      JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
-      JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
-    volumes:
-      - datadir:/opt/app/data_directory
-    depends_on:
-      init-sample-data:
-        condition: service_completed_successfully
-      database:
-        condition: service_started
+    environment: *geoserver_environment
+    volumes: *geoserver_volumes
+    depends_on: *gs-dependencies
+
+  wps:
+    environment: *geoserver_environment
+    volumes: *geoserver_volumes
+    depends_on: *gs-dependencies
 
   rest:
-    environment:
-      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},jdbcconfig"
-      JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
-      JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
-      JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
-    volumes:
-      - datadir:/opt/app/data_directory
-    depends_on:
-      init-sample-data:
-        condition: service_completed_successfully
-      database:
-        condition: service_started
+    environment: *geoserver_environment
+    volumes: *geoserver_volumes
+    depends_on: *gs-dependencies
 
   webui:
-    environment:
-      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},jdbcconfig"
-      JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
-      JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
-      JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
-    volumes:
-      - datadir:/opt/app/data_directory
-    depends_on:
-      init-sample-data:
-        condition: service_completed_successfully
-      database:
-        condition: service_started
+    environment: *geoserver_environment
+    volumes: *geoserver_volumes
+    depends_on: *gs-dependencies
 
   gwc:
-    environment:
-      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},jdbcconfig"
-      JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
-      JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
-      JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
-    volumes:
-      - datadir:/opt/app/data_directory
-    depends_on:
-      init-sample-data:
-        condition: service_completed_successfully
-      database:
-        condition: service_started
+    environment: *geoserver_environment
+    volumes: *geoserver_volumes
+    depends_on: *gs-dependencies

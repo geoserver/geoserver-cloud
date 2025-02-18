@@ -65,7 +65,7 @@ services:
     image: ${REPOSITORY}/geoserver-cloud-config:${TAG}
     user: ${GS_USER}
     environment:
-      JAVA_OPTS: "${JAVA_OPTS_CONFIG}"
+      JAVA_OPTS: "${JAVA_OPTS_DEFAULT}"
       SPRING_PROFILES_ACTIVE: "${CONFIG_SERVER_DEFAULT_PROFILES}"
   #  restart: unless-stopped
     volumes:
@@ -87,7 +87,7 @@ services:
     image: ${REPOSITORY}/geoserver-cloud-discovery:${TAG}
     user: ${GS_USER}
     environment:
-      JAVA_OPTS: "${JAVA_OPTS_DISCOVERY}"
+      JAVA_OPTS: "${JAVA_OPTS_DEFAULT}"
       SPRING_PROFILES_ACTIVE: "${DISCOVERY_SERVER_DEFAULT_PROFILES}"
     ports:
       - 8761:8761 # for development, so services can be run from localhost and find the discovery service running on docker
@@ -109,11 +109,10 @@ services:
       discovery:
         condition: service_healthy
     environment:
-      JAVA_OPTS: "${JAVA_OPTS_GATEWAY}"
+      JAVA_OPTS: "${JAVA_OPTS_DEFAULT}"
       # eat our own dogfood and set a base path
       GEOSERVER_BASE_PATH: ${GEOSERVER_BASE_PATH}
       SPRING_PROFILES_ACTIVE: "${GATEWAY_DEFAULT_PROFILES}"
-      GATEWAY_SHARED_AUTH: "${GATEWAY_SHARED_AUTH}" #same as in gstemplate
     ports:
       - ${GATEWAY_PORT}:8080
     deploy:
@@ -127,8 +126,6 @@ services:
       file: templates.yml
       service: gstemplate
     image: ${REPOSITORY}/geoserver-cloud-wfs:${TAG}
-    environment:
-      JAVA_OPTS: "${JAVA_OPTS_WFS}"
     depends_on: *gs-dependencies
 
   wms:
@@ -136,8 +133,6 @@ services:
     extends:
       file: templates.yml
       service: gstemplate
-    environment:
-      JAVA_OPTS: "${JAVA_OPTS_WMS}"
     depends_on: *gs-dependencies
 
   wcs:
@@ -145,8 +140,6 @@ services:
       file: templates.yml
       service: gstemplate
     image: ${REPOSITORY}/geoserver-cloud-wcs:${TAG}
-    environment:
-      JAVA_OPTS: "${JAVA_OPTS_WCS}"
     depends_on: *gs-dependencies
 
   wps:
@@ -154,8 +147,6 @@ services:
       file: templates.yml
       service: gstemplate
     image: ${REPOSITORY}/geoserver-cloud-wps:${TAG}
-    environment:
-      JAVA_OPTS: "${JAVA_OPTS_WPS}"
     depends_on: *gs-dependencies
 
   gwc:
@@ -163,8 +154,6 @@ services:
       file: templates.yml
       service: gstemplate
     image: ${REPOSITORY}/geoserver-cloud-gwc:${TAG}
-    environment:
-      JAVA_OPTS: "${JAVA_OPTS_GWC}"
     depends_on: *gs-dependencies
     deploy:
       resources:
@@ -177,8 +166,6 @@ services:
       file: templates.yml
       service: gstemplate
     image: ${REPOSITORY}/geoserver-cloud-rest:${TAG}
-    environment:
-      JAVA_OPTS: "${JAVA_OPTS_REST}"
     depends_on: *gs-dependencies
 
   webui:
@@ -186,7 +173,5 @@ services:
       file: templates.yml
       service: gstemplate
     image: ${REPOSITORY}/geoserver-cloud-webui:${TAG}
-    environment:
-      JAVA_OPTS: "${JAVA_OPTS_WEBUI}"
     depends_on: *gs-dependencies
 
