@@ -24,7 +24,7 @@ class SimpleJNDIStaticContextInitializerTest {
             new ApplicationContextRunner().withInitializer(new SimpleJNDIStaticContextInitializer());
 
     @Test
-    void test() {
+    void testDefaultInitialContext() {
         runner.run(context -> {
             InitialContext initialContext = new InitialContext();
             Context ctx = NamingManager.getInitialContext(new Hashtable<>());
@@ -38,7 +38,7 @@ class SimpleJNDIStaticContextInitializerTest {
             assertThat(ctx.lookup("java:comp/env/test")).isSameAs(value);
 
             initialContext = new InitialContext();
-            ctx = NamingManager.getInitialContext(new Hashtable<>());
+            ctx = NamingManager.getInitialContext(null);
             assertThat(ctx).isInstanceOf(SimpleNamingContext.class);
 
             assertThat(initialContext.lookup("java:comp/env/test")).isSameAs(value);
