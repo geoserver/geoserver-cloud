@@ -59,3 +59,32 @@ services:
         limits:
           cpus: '2.0'
           memory: 512M
+
+  # Sample LDAP server to test LDAP Auth against
+  # Go to Authentication -> Authentication Providers -> Add new -> LDAP
+  # * Server URL: ldap://ldap:389/dc=georchestra,dc=org
+  # * User lookup pattern: uid={0},ou=users
+  # * Use LDAP groups for authorization: check
+  # * Enable Hierarchical groups search: check
+  # * Nested group search filter: member={0}
+  # Save
+  # Provider Chain -> add the ldap provider to the "Selected" list
+  # Save
+  # Then login with either testadmin/testadmin or testuser/testuser
+  ldap:
+    image: georchestra/ldap:latest
+    environment:
+        - SLAPD_ORGANISATION=georchestra
+        - SLAPD_DOMAIN=georchestra.org
+        - SLAPD_PASSWORD=secret
+        - SLAPD_LOG_LEVEL=32768 # See https://www.openldap.org/doc/admin24/slapdconfig.html#loglevel%20%3Clevel%3E
+    restart: unless-stopped
+    ports:
+      - 389:389
+    deploy:
+      mode: replicated
+      replicas: 0
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 512M
