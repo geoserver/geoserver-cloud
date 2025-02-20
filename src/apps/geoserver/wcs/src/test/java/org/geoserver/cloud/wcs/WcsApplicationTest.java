@@ -7,26 +7,48 @@ package org.geoserver.cloud.wcs;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.xmlunit.assertj3.XmlAssert;
 
-@SpringBootTest
+@SpringBootTest(classes = WcsApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 class WcsApplicationTest {
     protected @Autowired ConfigurableApplicationContext context;
+
+    protected TestRestTemplate restTemplate = new TestRestTemplate("admin", "geoserver");
 
     static @TempDir Path datadir;
 
     @DynamicPropertySource
     static void setUpDataDir(DynamicPropertyRegistry registry) {
         registry.add("geoserver.backend.data-directory.location", datadir::toAbsolutePath);
+    }
+
+    @Test
+    void owsGetCapabilitiesSmokeTest(@LocalServerPort int servicePort) {
+        String url = "http://localhost:%d/ows?SERVICE=WCS&REQUEST=GETCAPABILITIES&VERSION=2.0.1".formatted(servicePort);
+        String caps = restTemplate.getForObject(url, String.class);
+        Map<String, String> nscontext = Map.of("wcs", "http://www.opengis.net/wcs/2.0");
+        XmlAssert.assertThat(caps).withNamespaceContext(nscontext).hasXPath("/wcs:Capabilities");
+    }
+
+    @Test
+    void wcsGetCapabilitiesSmokeTest(@LocalServerPort int servicePort) {
+        String url = "http://localhost:%d/wcs?SERVICE=WCS&REQUEST=GETCAPABILITIES&VERSION=2.0.1".formatted(servicePort);
+        String caps = restTemplate.getForObject(url, String.class);
+        Map<String, String> nscontext = Map.of("wcs", "http://www.opengis.net/wcs/2.0");
+        XmlAssert.assertThat(caps).withNamespaceContext(nscontext).hasXPath("/wcs:Capabilities");
     }
 
     @Test
