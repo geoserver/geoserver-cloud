@@ -90,12 +90,12 @@ public class LoggingTemplate {
         }
     }
 
-    private void logAfter(long reqId, String sql, Duration ellapsed, DataAccessException error) {
+    private void logAfter(long reqId, String sql, Duration elapsed, DataAccessException error) {
         if (!log.isDebugEnabled()) return;
 
         if (sql.endsWith("\n")) sql = sql.substring(0, sql.length() - 1);
 
-        final String time = ellapsed == null ? "" : "%.2f ms".formatted(ellapsed.toNanos() / 1_000_000d);
+        final String time = elapsed == null ? "" : "%.2f ms".formatted(elapsed.toNanos() / 1_000_000d);
 
         final String errMsg = error == null
                 ? ""

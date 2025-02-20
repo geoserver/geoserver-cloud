@@ -9,7 +9,7 @@ import org.geoserver.catalog.impl.CatalogImpl;
 
 /**
  * A no-op {@link LayerGroupContainmentCache}, since some services like WFS do not deal with {@link
- * LayerGroupInfo layer groups} at all, then avoid the starup overhead.
+ * LayerGroupInfo layer groups} at all, then avoid the startup overhead.
  *
  * @since 1.8.2
  */

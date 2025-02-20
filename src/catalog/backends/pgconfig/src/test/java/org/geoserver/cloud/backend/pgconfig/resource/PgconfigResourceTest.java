@@ -360,7 +360,7 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
 
     /**
      * Verify resiliency when moving a resource to the same path. Something that happens for example
-     * when NamespaceWorkspaceConsistencyListener blindly updtes a workspace upon a namespace change
+     * when NamespaceWorkspaceConsistencyListener blindly updates a workspace upon a namespace change
      * even if the workspace name is already equal to the namespace prefix
      */
     @Test

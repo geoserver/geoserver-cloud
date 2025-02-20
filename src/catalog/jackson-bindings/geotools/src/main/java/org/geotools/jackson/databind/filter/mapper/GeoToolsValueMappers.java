@@ -228,7 +228,7 @@ public abstract class GeoToolsValueMappers {
 
         LoggerFactory.getLogger(getClass())
                 .warn(
-                        "Uknown InternationalString implementation: {}. Returning the default value",
+                        "Unknown InternationalString implementation: {}. Returning the default value",
                         s.getClass().getName());
         return Map.of("", s.toString());
     }

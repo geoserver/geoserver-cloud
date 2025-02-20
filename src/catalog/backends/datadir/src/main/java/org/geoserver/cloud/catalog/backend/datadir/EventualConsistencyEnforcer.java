@@ -132,7 +132,7 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
             tryResolvePending(found.orElseThrow());
         } else {
             log.debug(
-                    "missing ref {} still not found, the follwing operations wait for it: {}",
+                    "missing ref {} still not found, the following operations wait for it: {}",
                     missingRef,
                     pendingOperations.get(missingRef));
         }
@@ -446,8 +446,8 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
 
             // complete or discard any pending op waiting for this object
             var waitingForThis = clearDependants();
-            for (var dependant : waitingForThis) {
-                completeOrDiscard(dependant);
+            for (var dependent : waitingForThis) {
+                completeOrDiscard(dependent);
             }
 
             rawFacade.remove(ModificationProxy.unwrap(info));
@@ -455,19 +455,19 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
             return null;
         }
 
-        private void completeOrDiscard(ConsistencyOp<?> dependant) {
+        private void completeOrDiscard(ConsistencyOp<?> dependent) {
             final String id = info.getId();
-            execute(dependant);
-            if (dependant.completedSuccessfully()) {
-                log.debug("successfully executed {} depending on {} before removing it", dependant, id);
+            execute(dependent);
+            if (dependent.completedSuccessfully()) {
+                log.debug("successfully executed {} depending on {} before removing it", dependent, id);
             } else {
                 log.warn(
-                        "operation dependant on {} didn't complete successfully before removing it. It will be discarded: {}",
+                        "operation dependent on {} didn't complete successfully before removing it. It will be discarded: {}",
                         id,
-                        dependant);
+                        dependent);
                 // discard the op in case its waiting for some other ref besides the object removed
                 // by this op
-                discard(dependant);
+                discard(dependent);
             }
         }
     }

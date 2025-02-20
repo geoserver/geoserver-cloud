@@ -37,7 +37,7 @@ public abstract class ConfigInfoRemoved extends InfoRemoved implements ConfigInf
             case SERVICE -> ServiceRemoved.createLocal(updateSequence, (ServiceInfo) configInfo);
             case SETTINGS -> SettingsRemoved.createLocal(updateSequence, (SettingsInfo) configInfo);
             default -> throw new IllegalArgumentException(
-                    "Uknown or unsupported config Info type: %s. %s".formatted(type, configInfo));
+                    "Unknown or unsupported config Info type: %s. %s".formatted(type, configInfo));
         };
     }
 }

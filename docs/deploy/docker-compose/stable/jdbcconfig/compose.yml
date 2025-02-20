@@ -62,12 +62,12 @@ services:
     user: 1000:1000 # set the userid:groupid the container runs as
     environment:
       # default to `native` loading the config embedded in /etc/geoserver
-      # use `git` to fetch the config from a git reposiroty, and CONFIG_GIT_URI to change
+      # use `git` to fetch the config from a git repository, and CONFIG_GIT_URI to change
       # the default repository https://github.com/geoserver/geoserver-cloud-config.git
       SPRING_PROFILES_ACTIVE: native
       # If using the `git` profile, get the config from this tag
       SPRING_CLOUD_CONFIG_SERVER_GIT_DEFAULT_LABEL: v2.26.2.0
-    # Uncoment to bind to a local filesystem directory if using the 'native' profile
+    # Uncomment to bind to a local filesystem directory if using the 'native' profile
     #volumes:
     #  - ./config:/etc/geoserver
     deploy:

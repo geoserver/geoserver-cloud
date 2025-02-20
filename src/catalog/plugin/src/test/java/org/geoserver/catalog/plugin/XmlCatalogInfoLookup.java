@@ -46,7 +46,7 @@ import org.geotools.util.logging.Logging;
  * <p>This is not for production, it will have the worse possible performance since all the lookups
  * are performed by de-serializing on the fly with only an id to serialized form lookup table. The
  * point is to have a test implementation that mimics what'd happen when the {@link CatalogInfo}
- * back-end is not the {@link CatalogInfoLookup default in-memory} one, by returning "dettached"
+ * back-end is not the {@link CatalogInfoLookup default in-memory} one, by returning "detached"
  * objects.
  *
  * @see XmlCatalogInfoLookupConformanceTest

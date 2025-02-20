@@ -52,7 +52,7 @@ public class EventuallyConsistentCatalogFacade extends ForwardingExtendedCatalog
     private final EventualConsistencyEnforcer enforcer;
 
     /**
-     * number of retry attemps and milliseconds to wait between retries
+     * number of retry attempts and milliseconds to wait between retries
      *
      * @see #retry
      */

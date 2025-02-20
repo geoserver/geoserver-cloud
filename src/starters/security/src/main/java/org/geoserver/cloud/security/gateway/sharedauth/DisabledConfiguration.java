@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * Contributes a {@link GatewaySharedAuthenticationProvider} in disabled mode, essentially a no-op
- * {@link AbstractFilterProvider} to avoid starup failure when the gateway shared auth was enabled,
+ * {@link AbstractFilterProvider} to avoid startup failure when the gateway shared auth was enabled,
  * then disabled, and geoserver restarted.
  *
  * @see ClientConfiguration

@@ -24,7 +24,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 /**
  * Appends the {@code enduser.id} and {@code enduser.role} MDC properties depending on whether
  * {@link MDCConfigProperties#isUser() user} and {@link MDCConfigProperties#isRoles() roles} config
- * properties are enabled, respectivelly.
+ * properties are enabled, respectively.
  *
  * <p>Note the appended MDC properties follow the <a href=
  * "https://opentelemetry.io/docs/specs/semconv/general/attributes/#general-identity-attributes">OpenTelemetry

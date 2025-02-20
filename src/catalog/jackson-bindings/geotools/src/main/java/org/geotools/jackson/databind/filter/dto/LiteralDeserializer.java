@@ -57,7 +57,7 @@ public class LiteralDeserializer extends JsonDeserializer<Literal> {
         final Object value;
 
         String fieldName = parser.nextFieldName();
-        requireNonNull(fieldName, "expected contentType or value attribtue, got null");
+        requireNonNull(fieldName, "expected contentType or value attribute, got null");
         if (COLLECTION_CONTENT_TYPE_KEY.equals(fieldName)) {
             String contentTypeVal = parser.nextTextValue();
             requireNonNull(contentTypeVal, "expected value for contentType, got null");

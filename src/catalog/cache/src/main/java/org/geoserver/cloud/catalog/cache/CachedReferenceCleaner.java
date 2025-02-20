@@ -161,7 +161,7 @@ class CachedReferenceCleaner {
         @NonNull
         private final ConcurrentMap<?, ?> cache;
 
-        /** key for the evicted oject. Will evict any cached object that has a reference to it */
+        /** key for the evicted object. Will evict any cached object that has a reference to it */
         @NonNull
         private final InfoIdKey evictedKey;
 

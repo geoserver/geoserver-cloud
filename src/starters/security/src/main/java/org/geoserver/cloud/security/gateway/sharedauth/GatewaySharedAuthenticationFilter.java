@@ -76,7 +76,7 @@ class GatewaySharedAuthenticationFilter extends GeoServerSecurityFilter implemen
     /**
      * @return a {@link GatewaySharedAuthenticationFilter} proxy filter with a
      *     <strong>no-op</strong> {@link DisabledFilter} delegate. This prevents startup failures
-     *     and WebUI security settings editting failures, when the filter has been disabled through
+     *     and WebUI security settings editing failures, when the filter has been disabled through
      *     {@code geoserver.security.gateway-shared-auth.enabled=false} after it's been enabled.
      */
     public static GeoServerSecurityFilter disabled() {
@@ -146,8 +146,8 @@ class GatewaySharedAuthenticationFilter extends GeoServerSecurityFilter implemen
         }
 
         /**
-         * Override to handle muilti-valued roles header, the superclass assumes a single-valued
-         * header with a delimiter to handle mutliple values
+         * Override to handle multi-valued roles header, the super-class assumes a single-valued
+         * header with a delimiter to handle multiple values
          */
         @Override
         protected Collection<GeoServerRole> getRolesFromHttpAttribute(HttpServletRequest request, String principal) {

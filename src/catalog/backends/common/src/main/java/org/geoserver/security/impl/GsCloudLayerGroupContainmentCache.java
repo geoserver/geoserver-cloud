@@ -55,7 +55,7 @@ import org.springframework.web.context.WebApplicationContext;
  *       through {@link Catalog#getLayerGroups()}
  * </ul>
  *
- * With this, it takes 1 mintue to build the cache with the pgconfig catalog backend, on a catalog
+ * With this, it takes 1 minute to build the cache with the pgconfig catalog backend, on a catalog
  * with 70k layer groups, whereas previously it would go out of memory after several minutes.
  *
  * <p>Further improvements may involve making the cache being build lazily as required by calls to

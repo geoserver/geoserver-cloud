@@ -62,7 +62,7 @@ public class RESTConfigConfiguration {
 
     /**
      * Replacement for {@link SeedController#doPost(javax.servlet.http.HttpServletRequest, java.io.InputStream, String, java.util.Map)}
-     * working wit spring-boot's stricter path pattern matching
+     * working with spring-boot's stricter path pattern matching
      */
     @Bean
     org.geoserver.cloud.gwc.config.services.SeedControllerOverride seedController() {

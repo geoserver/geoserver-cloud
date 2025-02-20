@@ -1,6 +1,6 @@
 ## Running GeoServer Cloud
 
-This documentation describes how to run GeoServer Cloud with podman withouth pods (traditional way) based on 
+This documentation describes how to run GeoServer Cloud with podman without pods (traditional way) based on 
 
 ### Creating network
 
