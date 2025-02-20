@@ -65,7 +65,7 @@ public interface CatalogInfoRepository<T extends CatalogInfo> {
      * Applies the provided {@link Patch patch} to this repository's copy of the provided {@code
      * value} object and returns the "patched" object.
      *
-     * <p>In contrast to a typical {@code save(I value)} method, the patch helps implementors to
+     * <p>In contrast to a typical {@code save(I value)} method, the patch helps implementers to
      * apply MVCC (Multi-Version Concurrency Control) semantics to the operation. It provides the
      * property names and values that need to be changed, and hence the implementation can choose
      * the best mechanism to apply those specific changes without overriding the whole object. For

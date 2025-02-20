@@ -103,8 +103,8 @@ public class GeoToolsFilterModule extends SimpleModule {
         addCustomLiteralValueSerializers();
     }
 
-    private <T> GeoToolsFilterModule addSerializer(Class<T> type, JsonSerializer<T> ser, JsonDeserializer<T> deser) {
-        super.addSerializer(type, ser);
+    private <T> GeoToolsFilterModule addSerializer(Class<T> type, JsonSerializer<T> set, JsonDeserializer<T> deser) {
+        super.addSerializer(type, set);
         super.addDeserializer(type, deser);
         return this;
     }

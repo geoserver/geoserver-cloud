@@ -61,7 +61,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.web.context.WebApplicationContext;
 
 /**
- * Tests {@link LayerGroupContainmentCache} udpates in face of catalog setup and changes
+ * Tests {@link LayerGroupContainmentCache} updates in face of catalog setup and changes
  *
  * <p>copied and adapted from {@link LayerGroupContainmentCacheTest}
  */
@@ -262,7 +262,7 @@ class GsCloudLayerGroupContainmentCacheTest {
         assertEquals(CONTAINER_GROUP, summary.getName());
         assertThat(summary.getContainerGroups(), empty());
 
-        // container has no contaning groups
+        // container has no containing groups
         assertThat(cc.getContainerGroupsFor(container), empty());
 
         // now check the groups containing the layers (nature being SINGLE, not a container)

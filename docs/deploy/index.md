@@ -63,7 +63,7 @@ Please check out the [docker-compose](./docker-compose/index.md) deployment docu
 
 ## Kubernetes
 
-Pleae check out the example [Helm](https://helm.sh/) chart on this [helm-geoserver-cloud](https://github.com/camptocamp/helm-geoserver-cloud) repository as a starting point to deploy to K8s.
+Please check out the example [Helm](https://helm.sh/) chart on this [helm-geoserver-cloud](https://github.com/camptocamp/helm-geoserver-cloud) repository as a starting point to deploy to K8s.
 
 ## Podman
 

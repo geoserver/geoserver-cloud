@@ -112,7 +112,7 @@ public class CoreBackendConfiguration {
     }
 
     /**
-     * Actual {@link LayerGroupContainmentCache}, matches if the config proeprty {@code
+     * Actual {@link LayerGroupContainmentCache}, matches if the config property {@code
      * geoserver.security.layergroup-containmentcache=true}
      *
      * @see #noOpLayerGroupContainmentCache(Catalog)
@@ -130,7 +130,7 @@ public class CoreBackendConfiguration {
     }
 
     /**
-     * Default {@link LayerGroupContainmentCache} is a no-op, matches if the config proeprty {@code
+     * Default {@link LayerGroupContainmentCache} is a no-op, matches if the config property {@code
      * geoserver.security.layergroup-containmentcache=false} or is not specified
      *
      * @see #enabledLayerGroupContainmentCache(Catalog)

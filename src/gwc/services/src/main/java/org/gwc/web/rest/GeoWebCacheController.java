@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 /**
  * Modified top-level dispatcher controller for use by GeoServer. Same as {@link
  * GeoWebCacheDispatcherController}, except the "/service/**" endpoint is excluded. This is handled
- * seperately by the GeoServer Dispatcher.
+ * separately by the GeoServer Dispatcher.
  *
  * <p>Copied from {@link GeoServerGWCDispatcherController}
  */

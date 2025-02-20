@@ -342,7 +342,7 @@ public class PgconfigResourceStore implements ResourceStore {
     }
 
     /**
-     * @return direct children of resource iif resource is a directory, empty list otherwise
+     * @return direct children of resource if resource is a directory, empty list otherwise
      */
     public List<Resource> list(PgconfigResource resource) {
         if (!resource.exists() || !resource.isDirectory()) return List.of();

@@ -14,7 +14,7 @@ volumes:
 #      o: bind
 #      device: $PWD/catalog-datadir
 
-# Appned the shared data directory to the geoserver_volumes anchor
+# Append the shared data directory to the geoserver_volumes anchor
 x-volume-mounts: &geoserver_volumes
   - data_directory:/opt/app/data_directory:z
 

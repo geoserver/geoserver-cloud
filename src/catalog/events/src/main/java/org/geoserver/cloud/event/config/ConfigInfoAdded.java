@@ -44,7 +44,7 @@ public abstract class ConfigInfoAdded<I extends Info> extends InfoAdded<I> imple
                     case SETTINGS -> SettingsAdded.createLocal(updateSequence, (SettingsInfo) info);
                     case LOGGING -> LoggingInfoSet.createLocal(updateSequence, (LoggingInfo) info);
                     default -> throw new IllegalArgumentException(
-                            "Uknown or unsupported config Info type: %s. %s".formatted(type, info));
+                            "Unknown or unsupported config Info type: %s. %s".formatted(type, info));
                 };
     }
 }

@@ -191,7 +191,7 @@ public class GeoServerImpl implements GeoServer, ApplicationContextAware {
         if (workspace == null) {
             throw new IllegalArgumentException("Settings must be part of a workspace");
         }
-        // make sure the workspace exists and is not dettached from the catalog
+        // make sure the workspace exists and is not detached from the catalog
         final WorkspaceInfo realws = getCatalog().getWorkspace(workspace.getId());
         Objects.requireNonNull(realws, () -> "Workspace %s(%s) attached to SettingsInfo does not exist"
                 .formatted(workspace.getName(), workspace.getId()));

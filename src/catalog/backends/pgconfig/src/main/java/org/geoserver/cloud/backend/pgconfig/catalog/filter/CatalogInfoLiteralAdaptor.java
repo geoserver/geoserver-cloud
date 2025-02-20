@@ -91,7 +91,7 @@ class CatalogInfoLiteralAdaptor extends DuplicatingFilterVisitor {
     }
 
     /**
-     * Converts a binary comparision operator using a property name and a {@link CatalogInfo}
+     * Converts a binary comparison operator using a property name and a {@link CatalogInfo}
      * instance literal as a comparison by id.
      *
      * <p>For example, a filter like {@code workspace = WorkspaceInfo} is translated to {@code
@@ -114,7 +114,7 @@ class CatalogInfoLiteralAdaptor extends DuplicatingFilterVisitor {
                     boolean matchingCase = filter.isMatchingCase();
                     MatchAction matchAction = filter.getMatchAction();
                     filter = builder.build(prop, literal, matchingCase, matchAction);
-                    log.debug("Fitler with CatalogInfo literal '{}' translated to '{}'", orig, filter);
+                    log.debug("Filter with CatalogInfo literal '{}' translated to '{}'", orig, filter);
                 }
             }
         }

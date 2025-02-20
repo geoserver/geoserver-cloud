@@ -369,12 +369,12 @@ public class CatalogFaker {
     }
 
     public NamespaceInfo namespace(String id, String name, String uri) {
-        NamespaceInfo namesapce = catalogFactory().createNamespace();
-        OwsUtils.set(namesapce, "id", id);
-        namesapce.setPrefix(name);
-        namesapce.setURI(uri);
-        OwsUtils.resolveCollections(namesapce);
-        return namesapce;
+        NamespaceInfo namespace = catalogFactory().createNamespace();
+        OwsUtils.set(namespace, "id", id);
+        namespace.setPrefix(name);
+        namespace.setURI(uri);
+        OwsUtils.resolveCollections(namespace);
+        return namespace;
     }
 
     public GeoServerInfo geoServerInfo() {

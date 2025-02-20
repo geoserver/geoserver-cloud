@@ -57,7 +57,7 @@ class CachingFacadesLifeCycleHandler implements GeoServerReinitializer, GeoServe
     private final @NonNull GeoServerImpl rawGeoServer;
 
     /**
-     * {@link GeoServerReinitializer} method called before reloading the configuration, overidden to
+     * {@link GeoServerReinitializer} method called before reloading the configuration, overridden to
      * disable caching
      */
     @Override

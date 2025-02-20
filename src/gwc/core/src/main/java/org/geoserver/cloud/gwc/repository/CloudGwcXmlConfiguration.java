@@ -114,7 +114,7 @@ public class CloudGwcXmlConfiguration extends XMLConfiguration {
                 }
                 break;
             default:
-                throw new IllegalArgumentException("Uknown event type: " + event.getEventType());
+                throw new IllegalArgumentException("Unknown event type: " + event.getEventType());
         }
         return true;
     }

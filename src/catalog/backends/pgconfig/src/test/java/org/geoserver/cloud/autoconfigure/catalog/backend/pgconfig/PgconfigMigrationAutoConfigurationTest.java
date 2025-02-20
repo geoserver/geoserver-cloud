@@ -69,11 +69,11 @@ class PgconfigMigrationAutoConfigurationTest {
         try (Connection c = ds.getConnection()) {
             try (ResultSet tables = c.getMetaData().getTables(null, schema, null, null)) {
                 while (tables.next()) {
-                    String schem = tables.getString("TABLE_SCHEM");
+                    String scheme = tables.getString("TABLE_SCHEM");
                     String name = tables.getString("TABLE_NAME");
                     String type = tables.getString("TABLE_TYPE");
                     if (Set.of("VIEW", "TABLE", "SEQUENCE").contains(type)) {
-                        actual.put("%s.%s".formatted(schem, name), type);
+                        actual.put("%s.%s".formatted(scheme, name), type);
                     }
                 }
             }

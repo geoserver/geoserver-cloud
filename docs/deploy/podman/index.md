@@ -17,7 +17,7 @@ Integration with systemd including dependencies is also a feature of podman.
 
 https://fedoramagazine.org/auto-updating-podman-containers-with-systemd/
 
-For futher information please have a look at the project page:
+For further information please have a look at the project page:
 
 https://podman.io/whatis.html
 
