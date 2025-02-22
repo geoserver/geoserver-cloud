@@ -7,6 +7,11 @@ package org.geoserver.catalog.plugin.forwarding;
 import org.geoserver.catalog.MapInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.MapRepository;
 
+/**
+ * A decorator for {@link MapRepository} that forwards all method calls to an underlying repository.
+ *
+ * @since 1.0
+ */
 public class ForwardingMapRepository extends ForwardingCatalogRepository<MapInfo, MapRepository>
         implements MapRepository {
 

@@ -45,7 +45,41 @@ import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
 
-/** */
+/**
+ * A utility class for resolving {@link Info} objects and {@link Patch} properties within a GeoServer
+ * catalog context, handling proxy references and nested structures.
+ *
+ * <p>This class provides methods to resolve {@link CatalogInfo} and configuration {@link Info} objects by
+ * replacing {@link ResolvingProxy} references with actual catalog instances, managing nested collections,
+ * and determining whether objects should be encoded as references in a {@link Patch}. It uses a catalog
+ * supplier and an optional {@link GeoServer} configuration to fetch resolved instances, supporting both
+ * catalog entities (e.g., {@link StoreInfo}) and configuration objects (e.g., {@link ServiceInfo}).
+ *
+ * <p>Key features:
+ * <ul>
+ *   <li><strong>Proxy Resolution:</strong> Resolves {@link ResolvingProxy} instances to actual objects
+ *       using the provided catalog and configuration.</li>
+ *   <li><strong>Patch Processing:</strong> Transforms {@link Patch} properties, resolving nested
+ *       {@link Info} objects and collections.</li>
+ *   <li><strong>Reference Detection:</strong> Identifies types (e.g., {@link WorkspaceInfo}) to encode as
+ *       references rather than full values in patches.</li>
+ *   <li><strong>Configurability:</strong> Allows toggling failure on missing references via
+ *       {@link #failOnMissingReference(boolean)}.</li>
+ * </ul>
+ *
+ * <p>Example usage:
+ * <pre>
+ * Catalog catalog = ...;
+ * ProxyUtils utils = new ProxyUtils(() -> catalog, Optional.empty());
+ * LayerInfo layer = ...; // contains ResolvingProxy references
+ * LayerInfo resolved = utils.resolve(layer);
+ * </pre>
+ *
+ * @since 1.0
+ * @see ResolvingProxy
+ * @see ModificationProxy
+ * @see Patch
+ */
 @Slf4j(topic = "org.geoserver.catalog.plugin.resolving")
 @RequiredArgsConstructor
 public class ProxyUtils {
@@ -76,15 +110,31 @@ public class ProxyUtils {
     private boolean failOnNotFound = false;
 
     /**
-     * @param fail if {@code true}, a proxied {@link Info} reference that's not found in the catalog
-     *     will result in an {@link IllegalStateException}
-     * @return {@code this}
+     * Configures whether unresolved proxy references should throw an exception.
+     *
+     * <p>If set to {@code true}, a {@link ResolvingProxy} reference not found in the catalog or
+     * configuration will result in an {@link IllegalStateException}. If {@code false} (default), such
+     * cases return null without failing.
+     *
+     * @param fail If {@code true}, fail on unresolved references; if {@code false}, return null.
+     * @return This {@link ProxyUtils} instance for chaining.
      */
     public ProxyUtils failOnMissingReference(boolean fail) {
         this.failOnNotFound = fail;
         return this;
     }
 
+    /**
+     * Resolves all {@link Info} references within a {@link Patch}.
+     *
+     * <p>Creates a new {@link Patch} where each property value is processed by
+     * {@link #resolvePatchPropertyValue(Object)}, handling {@link Info} objects, collections, and nested
+     * structures.
+     *
+     * @param patch The {@link Patch} to resolve; must not be null.
+     * @return A new {@link Patch} with resolved property values.
+     * @throws NullPointerException if {@code patch} is null.
+     */
     public Patch resolve(Patch patch) {
         Patch resolved = new Patch();
         for (Patch.Property p : patch.getPatches()) {
@@ -93,6 +143,16 @@ public class ProxyUtils {
         return resolved;
     }
 
+    /**
+     * Resolves a single patch property value, handling various types.
+     *
+     * <p>Processes the value based on its type: resolves {@link Info} objects via {@link #resolve(Info)},
+     * {@link AttributeTypeInfo} via {@link #resolve(AttributeTypeInfo)}, and collections ({@link List},
+     * {@link Set}) via their respective methods. Non-matching types are returned unchanged.
+     *
+     * @param orig The value to resolve; may be null.
+     * @return The resolved value, or {@code orig} if unchanged.
+     */
     private Object resolvePatchPropertyValue(Object orig) {
         if (orig instanceof Info info) {
             return resolve(info);
@@ -113,6 +173,15 @@ public class ProxyUtils {
         return orig;
     }
 
+    /**
+     * Resolves an {@link AttributeTypeInfo} by updating its feature type reference.
+     *
+     * <p>Replaces the feature type with its resolved version using {@link #resolve(Info)}.
+     *
+     * @param orig The {@link AttributeTypeInfo} to resolve; must not be null.
+     * @return The resolved {@link AttributeTypeInfo}.
+     * @throws NullPointerException if {@code orig} is null.
+     */
     private AttributeTypeInfo resolve(AttributeTypeInfo orig) {
         FeatureTypeInfo ft = orig.getFeatureType();
         FeatureTypeInfo resolvedFt = resolve(ft);
@@ -120,12 +189,32 @@ public class ProxyUtils {
         return orig;
     }
 
+    /**
+     * Resolves a list of objects by processing each element.
+     *
+     * <p>Creates a new {@link ArrayList} with each element resolved via
+     * {@link #resolvePatchPropertyValue(Object)}.
+     *
+     * @param mutableList The list to resolve; must not be null.
+     * @return A new list with resolved elements.
+     * @throws NullPointerException if {@code mutableList} is null.
+     */
     private List<Object> resolve(List<Object> mutableList) {
         return mutableList.stream()
                 .map(this::resolvePatchPropertyValue)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
+    /**
+     * Resolves a set of objects by processing each element.
+     *
+     * <p>Creates a new set of the same type (or {@link HashSet} if instantiation fails) with each element
+     * resolved via {@link #resolvePatchPropertyValue(Object)}.
+     *
+     * @param set The set to resolve; must not be null.
+     * @return A new set with resolved elements.
+     * @throws NullPointerException if {@code set} is null.
+     */
     private Set<Object> resolve(Set<Object> set) {
         Set<Object> target = newSet(set.getClass());
         for (Object value : set) {
@@ -134,6 +223,12 @@ public class ProxyUtils {
         return target;
     }
 
+    /**
+     * Creates a new set instance of the specified type, falling back to {@link HashSet} on failure.
+     *
+     * @param class1 The set class to instantiate; must not be null.
+     * @return A new empty set instance.
+     */
     @SuppressWarnings("unchecked")
     private Set<Object> newSet(@SuppressWarnings("rawtypes") Class<? extends Set> class1) {
         try {
@@ -143,6 +238,18 @@ public class ProxyUtils {
         }
     }
 
+    /**
+     * Resolves an {@link Info} object, handling proxies and nested references.
+     *
+     * <p>Unwraps any {@link ModificationProxy}, resolves {@link ResolvingProxy} references using the
+     * catalog or configuration, and processes nested references via type-specific methods. Returns null if
+     * unresolved and {@link #failOnMissingReference(boolean)} is false; otherwise, throws an exception.
+     *
+     * @param <T>        The type of {@link Info}.
+     * @param unresolved The {@link Info} object to resolve; may be null.
+     * @return The resolved {@link Info}, or null if unresolved and not failing.
+     * @throws IllegalArgumentException if an unresolved proxy is encountered and {@code failOnNotFound} is true.
+     */
     @SuppressWarnings("unchecked")
     public <T extends Info> T resolve(final T unresolved) {
         if (unresolved == null) {
@@ -154,7 +261,8 @@ public class ProxyUtils {
         }
 
         if (info == null) {
-            if (failOnNotFound) throw new IllegalArgumentException("Reference to %s".formatted(unresolved.getId()));
+            if (failOnNotFound)
+                throw new IllegalArgumentException("Reference to %s not found".formatted(unresolved.getId()));
             return null;
         }
 
@@ -164,6 +272,12 @@ public class ProxyUtils {
         return info;
     }
 
+    /**
+     * Dispatches resolution to type-specific internal methods.
+     *
+     * @param info The {@link Info} object to resolve; must not be null.
+     * @return The resolved {@link Info}.
+     */
     private Info resolveInternal(Info info) {
         if (info instanceof StyleInfo s) return resolveInternal(s);
         if (info instanceof LayerInfo l) return resolveInternal(l);
@@ -175,6 +289,16 @@ public class ProxyUtils {
         return info;
     }
 
+    /**
+     * Resolves a {@link ResolvingProxy} reference to a catalog or configuration object.
+     *
+     * <p>For {@link CatalogInfo}, uses the catalog; for configuration objects (e.g., {@link GeoServerInfo}),
+     * uses the optional {@link GeoServer} instance.
+     *
+     * @param <T>  The type of {@link Info}.
+     * @param info The {@link Info} proxy to resolve; must not be null.
+     * @return The resolved {@link Info}, or the original if unresolved.
+     */
     @SuppressWarnings("unchecked")
     private <T extends Info> T resolveResolvingProxy(T info) {
         if (info instanceof CatalogInfo) return resolveCatalogInfo(info);
@@ -193,6 +317,16 @@ public class ProxyUtils {
         return info;
     }
 
+    /**
+     * Resolves a {@link CatalogInfo} proxy using the catalog.
+     *
+     * <p>Handles special case for {@link PublishedInfo} to try both {@link LayerInfo} and
+     * {@link LayerGroupInfo} resolutions due to a known {@link ResolvingProxy} limitation.
+     *
+     * @param <T>  The type of {@link CatalogInfo}.
+     * @param info The {@link CatalogInfo} proxy to resolve; must not be null.
+     * @return The resolved {@link CatalogInfo}.
+     */
     @SuppressWarnings("unchecked")
     private <T extends Info> T resolveCatalogInfo(T info) {
         Catalog actualCatalog = getCatalog();
@@ -210,19 +344,44 @@ public class ProxyUtils {
         return ResolvingProxy.resolve(actualCatalog, info);
     }
 
+    /**
+     * Retrieves the current catalog instance from the supplier.
+     *
+     * @return The {@link Catalog}; never null.
+     */
     @NonNull
     private Catalog getCatalog() {
         return catalog.get();
     }
 
+    /**
+     * Checks if an {@link Info} object is a {@link ResolvingProxy}.
+     *
+     * @param <T>  The type of {@link Info}.
+     * @param info The object to check; may be null.
+     * @return {@code true} if it’s a {@link ResolvingProxy}, {@code false} otherwise.
+     */
     public static <T extends Info> boolean isResolvingProxy(final T info) {
         return null != org.geoserver.catalog.impl.ProxyUtils.handler(info, ResolvingProxy.class);
     }
 
+    /**
+     * Checks if an {@link Info} object is a {@link ModificationProxy}.
+     *
+     * @param <T>  The type of {@link Info}.
+     * @param info The object to check; may be null.
+     * @return {@code true} if it’s a {@link ModificationProxy}, {@code false} otherwise.
+     */
     public static <T extends Info> boolean isModificationProxy(final T info) {
         return null != org.geoserver.catalog.impl.ProxyUtils.handler(info, ModificationProxy.class);
     }
 
+    /**
+     * Resolves nested references in a {@link SettingsInfo} object.
+     *
+     * @param settings The {@link SettingsInfo} to resolve; must not be null.
+     * @return The resolved {@link SettingsInfo}.
+     */
     protected SettingsInfo resolveInternal(SettingsInfo settings) {
         if (settings.getWorkspace() != null) {
             settings.setWorkspace(resolve(settings.getWorkspace()));
@@ -230,6 +389,12 @@ public class ProxyUtils {
         return settings;
     }
 
+    /**
+     * Resolves nested references in a {@link ServiceInfo} object.
+     *
+     * @param service The {@link ServiceInfo} to resolve; must not be null.
+     * @return The resolved {@link ServiceInfo}.
+     */
     protected ServiceInfo resolveInternal(ServiceInfo service) {
         if (service.getWorkspace() != null) {
             service.setWorkspace(resolve(service.getWorkspace()));
@@ -237,6 +402,12 @@ public class ProxyUtils {
         return service;
     }
 
+    /**
+     * Resolves nested references in a {@link LayerInfo} object.
+     *
+     * @param layer The {@link LayerInfo} to resolve; must not be null.
+     * @return The resolved {@link LayerInfo}.
+     */
     protected LayerInfo resolveInternal(LayerInfo layer) {
         layer.setResource(resolve(layer.getResource()));
         layer.setDefaultStyle(resolve(layer.getDefaultStyle()));
@@ -248,12 +419,25 @@ public class ProxyUtils {
         return layer;
     }
 
+    /**
+     * Resolves nested references in a {@link PublishedInfo} object polymorphically.
+     *
+     * @param <T>       The type of {@link PublishedInfo}.
+     * @param published The {@link PublishedInfo} to resolve; must not be null.
+     * @return The resolved {@link PublishedInfo}.
+     */
     protected <T extends PublishedInfo> T resolveInternal(T published) {
         if (published instanceof LayerInfo l) resolve(l);
         else if (published instanceof LayerGroupInfo lg) resolve(lg);
         return published;
     }
 
+    /**
+     * Resolves nested references in a {@link LayerGroupInfo} object.
+     *
+     * @param layerGroup The {@link LayerGroupInfo} to resolve; must not be null.
+     * @return The resolved {@link LayerGroupInfo}.
+     */
     protected LayerGroupInfo resolveInternal(LayerGroupInfo layerGroup) {
         LayerGroupInfoImpl lg = (LayerGroupInfoImpl) layerGroup;
 
@@ -274,6 +458,12 @@ public class ProxyUtils {
         return lg;
     }
 
+    /**
+     * Resolves nested references in a {@link StyleInfo} object.
+     *
+     * @param style The {@link StyleInfo} to resolve; must not be null.
+     * @return The resolved {@link StyleInfo}.
+     */
     protected StyleInfo resolveInternal(StyleInfo style) {
         // resolve the workspace
         WorkspaceInfo ws = style.getWorkspace();
@@ -288,6 +478,12 @@ public class ProxyUtils {
         return style;
     }
 
+    /**
+     * Resolves nested references in a {@link StoreInfo} object.
+     *
+     * @param store The {@link StoreInfo} to resolve; must not be null.
+     * @return The resolved {@link StoreInfo}.
+     */
     protected StoreInfo resolveInternal(StoreInfo store) {
         StoreInfoImpl s = (StoreInfoImpl) store;
 
@@ -304,6 +500,12 @@ public class ProxyUtils {
         return s;
     }
 
+    /**
+     * Resolves nested references in a {@link ResourceInfo} object.
+     *
+     * @param resource The {@link ResourceInfo} to resolve; must not be null.
+     * @return The resolved {@link ResourceInfo}.
+     */
     protected ResourceInfo resolveInternal(ResourceInfo resource) {
         ResourceInfoImpl r = (ResourceInfoImpl) resource;
 
@@ -321,12 +523,25 @@ public class ProxyUtils {
         return r;
     }
 
+    /**
+     * Determines if an object should be encoded as a reference in a {@link Patch}.
+     *
+     * @param val The object to check; may be null.
+     * @return An {@link Optional} containing the {@link Info} type if it should be a reference, or empty if not.
+     */
     public static Optional<Class<? extends Info>> referenceTypeOf(Object val) {
         return Optional.ofNullable(val).filter(Info.class::isInstance).flatMap(i -> VALUE_BY_REFERENCE_TYPES.stream()
                 .filter(type -> type.isInstance(i))
                 .findFirst());
     }
 
+    /**
+     * Checks if an object should be encoded as a reference rather than a full value in a {@link Patch}.
+     *
+     * @param o The object to check; may be null.
+     * @return {@code true} if it should be encoded as a reference, {@code false} otherwise.
+     * @see #referenceTypeOf
+     */
     public static boolean encodeByReference(Object o) {
         return referenceTypeOf(o).isPresent();
     }

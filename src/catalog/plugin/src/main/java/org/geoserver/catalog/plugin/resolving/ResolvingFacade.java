@@ -4,94 +4,169 @@
  */
 package org.geoserver.catalog.plugin.resolving;
 
-import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.ResourceInfo;
-import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.impl.ResolvingProxy;
 
 /**
- * Facade trait that applies a possibly side-effect producing {@link Function} to each outgoing
- * object right before returning it, and an in-bound resolving function to each object reaching to
- * the facade.
- * <p>
- * Implementations are responsible of calling {@link #resolveOutbound} before returning every
- * object, and {@link #resolveInbound} on each received object.
+ * Interface that defines methods for applying resolution functions to objects of type {@code T}
+ * both inbound and outbound, enabling customizable object transformation in a catalog context.
  *
- * <p>
- * By default the function applied is the {@link UnaryOperator#identity() identity} function, use
- * {@link #setOutboundResolver} to establish the function to apply to each object before being
- * returned.
+ * <p>This interface provides a generic framework for processing objects (typically {@link CatalogInfo})
+ * entering and exiting a facade, using configurable {@link UnaryOperator} functions. The outbound resolver
+ * transforms objects before they are returned to the caller, while the inbound resolver processes objects
+ * received from the caller before they are passed to the underlying implementation. By default, both
+ * resolvers are set to the {@link UnaryOperator#identity() identity} function, meaning no transformation
+ * occurs unless explicitly configured via {@link #setOutboundResolver(UnaryOperator)} or
+ * {@link #setInboundResolver(UnaryOperator)}.
  *
- * <p>
- * The function must accept {@code null} as argument.
- * <p>
- * Use function chaining to compose a resolving pipeline adequate to the implementation. For
- * example, the following chain is appropriate for a raw catalog facade that fetches new objects
- * from a remote service, and where all {@link CatalogInfo} object references (e.g.
- * {@link StoreInfo#getWorkspace()}, etc.) are {@link ResolvingProxy} instances:
+ * <p>Key features:
+ * <ul>
+ *   <li><strong>Flexible Resolution:</strong> Supports custom inbound and outbound transformations, such
+ *       as resolving proxies or initializing properties.</li>
+ *   <li><strong>Null Safety:</strong> Requires resolvers to handle null inputs, allowing implementations
+ *       to decide how to process or propagate nulls.</li>
+ *   <li><strong>Pipeline Composition:</strong> Encourages chaining functions to build complex resolution
+ *       workflows tailored to specific needs.</li>
+ * </ul>
  *
+ * <p>Implementations (e.g., catalog facades) must apply {@link #resolveOutbound(T)} to every object returned
+ * and {@link #resolveInbound(T)} to every object received, ensuring consistent transformation across all
+ * operations.
+ *
+ * <p>Example usage for a catalog facade:
  * <pre>
  * {@code
- * Catalog catalog = ...
- * UnaryOperator<CatalogInfo> resolvingFunction;
- * resolvingFunction =
- *   CatalogPropertyResolver.of(catalog)
- *   .andThen(ResolvingProxyResolver.of(catalog)
- *   .andThen(CollectionPropertiesInitializer.instance())
- *   .andThen(ModificationProxyDecorator.wrap())::apply;
+ * Catalog catalog = ...;
+ * UnaryOperator<CatalogInfo> resolvingFunction =
+ *     CatalogPropertyResolver.of(catalog)
+ *         .andThen(ResolvingProxyResolver.of(catalog))
+ *         .andThen(CollectionPropertiesInitializer.instance())
+ *         .andThen(ModificationProxyDecorator.wrap());
  *
- * ResolvingCatalogFacade facade = ...
+ * ResolvingFacade<CatalogInfo> facade = ...;
  * facade.setOutboundResolver(resolvingFunction);
  * facade.setInboundResolver(ModificationProxyDecorator.unwrap());
  * }
+ * </pre>
+ * This pipeline sets the catalog property (e.g., {@link ResourceInfo#setCatalog}), resolves
+ * {@link ResolvingProxy} references, initializes null collections, and wraps objects in a
+ * {@link ModificationProxy} for outbound objects, while unwrapping proxies for inbound objects.
  *
- * Will first set the catalog property if the object type requires it (e.g.
- * {@link ResourceInfo#setCatalog}), then resolve all {@link ResolvingProxy} proxied references,
- * then initialize collection properties that are {@code null} to empty collections, and finally
- * decorate the object with a {@link ModificationProxy}.
- * <p>
- * Note the caller is responsible of supplying a resolving function that utilizes the correct
- * {@link Catalog}, may some of the functions in the chain require one; {@link #setOutboundResolver}
- * is agnostic of such concerns.
+ * <p>Notes:
+ * <ul>
+ *   <li>Resolvers must accept {@code null} as an argument and may return {@code null}, giving
+ *       implementations flexibility in handling missing or unresolved objects.</li>
+ *   <li>Callers must ensure resolvers use the correct {@link Catalog} instance if required by the
+ *       chained functions, as this interface remains agnostic to such dependencies.</li>
+ * </ul>
+ *
+ * @param <T> The type of objects to resolve (typically {@link CatalogInfo} or a subtype).
+ * @since 1.0
+ * @see CatalogInfo
+ * @see ResolvingProxyResolver
+ * @see ModificationProxyDecorator
  */
 public interface ResolvingFacade<T> {
 
     /**
-     * Function applied to all outgoing {@link <T>} objects returned by the facade before leaving
-     * the called method
+     * Sets the resolver function applied to all outgoing objects before they are returned by the facade.
+     *
+     * <p>This function transforms objects of type {@code T} right before they leave the facade, enabling
+     * custom processing such as resolving references or adding properties. The default is
+     * {@link UnaryOperator#identity()}.
+     *
+     * @param resolvingFunction The {@link UnaryOperator} to apply to outbound objects; must not be null and
+     *                          must handle null inputs.
+     * @throws NullPointerException if {@code resolvingFunction} is null.
+     * @example Setting an outbound resolver:
+     *          <pre>
+     *          ResolvingFacade<CatalogInfo> facade = ...;
+     *          UnaryOperator<CatalogInfo> resolver = ModificationProxyDecorator.wrap();
+     *          facade.setOutboundResolver(resolver);
+     *          </pre>
      */
     void setOutboundResolver(UnaryOperator<T> resolvingFunction);
 
     /**
-     * Function applied to all incoming {@link <T>} objects before proceeding to execute the called
-     * method
+     * Retrieves the current outbound resolver function.
      *
-     * <p>Use {@code facade.setOutboundResolver(facade.getOutboundResolver().andThen(myFunction))}
-     * to add traits to the current resolver; for example, a filtering trait could be added this way
-     * to filter out objects based on some externally defined conditions, returning {@code null} if
-     * an object is to be discarded from the final outcome
+     * <p>This function is applied to all objects of type {@code T} before they are returned by the facade’s
+     * methods.
+     *
+     * @return The current outbound {@link UnaryOperator}; never null, defaults to
+     *         {@link UnaryOperator#identity()}.
+     * @example Chaining an additional resolver:
+     *          <pre>
+     *          ResolvingFacade<CatalogInfo> facade = ...;
+     *          UnaryOperator<CatalogInfo> current = facade.getOutboundResolver();
+     *          facade.setOutboundResolver(current.andThen(myCustomFilter));
+     *          </pre>
      */
     UnaryOperator<T> getOutboundResolver();
 
     /**
-     * Function applied to all incoming {@link <T>} objects before deferring to the decorated facade
+     * Sets the resolver function applied to all incoming objects before they are processed by the facade.
+     *
+     * <p>This function transforms objects of type {@code T} received by the facade (e.g., for add or update
+     * operations) before they are passed to the underlying implementation. The default is
+     * {@link UnaryOperator#identity()}.
+     *
+     * @param resolvingFunction The {@link UnaryOperator} to apply to inbound objects; must not be null and
+     *                          must handle null inputs.
+     * @throws NullPointerException if {@code resolvingFunction} is null.
+     * @example Setting an inbound resolver:
+     *          <pre>
+     *          ResolvingFacade<CatalogInfo> facade = ...;
+     *          UnaryOperator<CatalogInfo> resolver = ModificationProxyDecorator.unwrap();
+     *          facade.setInboundResolver(resolver);
+     *          </pre>
      */
     void setInboundResolver(UnaryOperator<T> resolvingFunction);
 
     /**
-     * Function applied to all incoming {@link <T>} objects before deferring to the decorated
-     * facade.
+     * Retrieves the current inbound resolver function.
      *
-     * <p>Use {@code facade.setInboundResolver(facade.getInboundResolver().andThen(myFunction))} to
-     * add traits to the current resolver
+     * <p>This function is applied to all objects of type {@code T} entering the facade before they are
+     * processed by its methods.
+     *
+     * @return The current inbound {@link UnaryOperator}; never null, defaults to
+     *         {@link UnaryOperator#identity()}.
+     * @example Chaining an additional inbound resolver:
+     *          <pre>
+     *          ResolvingFacade<CatalogInfo> facade = ...;
+     *          UnaryOperator<CatalogInfo> current = facade.getInboundResolver();
+     *          facade.setInboundResolver(current.andThen(myCustomValidator));
+     *          </pre>
      */
     UnaryOperator<T> getInboundResolver();
 
+    /**
+     * Applies the outbound resolver to an object of type {@code T}.
+     *
+     * <p>Processes the object using the configured outbound resolver, which may transform it (e.g.,
+     * resolving references) or return null if unresolved or filtered out. Implementations must call this
+     * method on every object before returning it to the caller.
+     *
+     * @param <C>  The specific type of object (a subtype of {@code T}).
+     * @param info The object to resolve; may be null.
+     * @return The resolved object, or null if the resolver returns null.
+     */
     <C extends T> C resolveOutbound(C info);
 
+    /**
+     * Applies the inbound resolver to an object of type {@code T}.
+     *
+     * <p>Processes the object using the configured inbound resolver, which may transform it (e.g.,
+     * unwrapping proxies) or return null if invalid. Implementations must call this method on every object
+     * received from the caller before further processing.
+     *
+     * @param <C>  The specific type of object (a subtype of {@code T}).
+     * @param info The object to resolve; may be null.
+     * @return The resolved object, or null if the resolver returns null.
+     */
     <C extends T> C resolveInbound(C info);
 }
