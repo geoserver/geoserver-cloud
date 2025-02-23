@@ -1,155 +1,116 @@
-# Pluggable Catalog/Config support
+# Pluggable Catalog/Config Support
 
-Alternative to GeoServer's default implementation for the catalog and configuration backend (`CatalogImpl/DefaultFacadeImpl` and `GeoServerImpl/DefaultGeoServerFacade`) that aims at improving their internal design in order to have clearer contracts and promote ease of extensibility.
+The `catalog-plugin` module provides an alternative to the core GeoServer catalog and configuration backend (`CatalogImpl` and `GeoServerImpl`). It redefines the relationship between `Catalog` and `CatalogFacade`, improving their internal design by establishing clearer contracts and promoting ease of extensibility. This addresses several limitations in the upstream code, making it simpler to implement alternative catalog backends.
 
 ## Motivation
 
-There aren't many alternative back-ends to the configuration subsystem, albeit being the core of GeoServer and having been initially thought of for plug-ability.
+GeoServer's catalog and configuration subsystem was designed with pluggability in mind, yet few alternative backends exist. The upstream implementations—particularly `CatalogImpl` and `DefaultCatalogFacade`—burden alternative backends.
 
-Truth is, although the interfaces are rather simple, there are a number of issues with the default implementations that preclude reuse, enforcing to re-invent the wheel or just copy and paste a lot of (business logic) code and deal with it.
+For example, both the [jdbcconfig community module](https://github.com/geoserver/geoserver/blob/06230581/src/community/jdbcconfig/src/main/java/org/geoserver/jdbcconfig/catalog/JDBCCatalogFacade.java#L52) and the old Boundless' [Stratus](https://github.com/planetlabs/stratus/blob/77838a22/src/stratus-redis-catalog/src/main/java/stratus/redis/catalog/RedisCatalogFacade.java#L77), have duplicating complex business logic.
 
-The only two alternatives I know of are the [jdbcconfig community module](https://github.com/geoserver/geoserver/blob/06230581/src/community/jdbcconfig/src/main/java/org/geoserver/jdbcconfig/catalog/JDBCCatalogFacade.java#L52)'s, and [Stratus](https://github.com/planetlabs/stratus/blob/77838a22/src/stratus-redis-catalog/src/main/java/stratus/redis/catalog/RedisCatalogFacade.java#L77)'. By looking at them, you can identify a common pattern: creating an alternative storage backend requires dealing with a lot of implementation details  unrelated to the primary objective of providing a storage backend plugin, basically, an alternative `CatalogFacade` to be injected as `CatalogImpl`'s backing DAO.
+The `catalog-plugin` simplifies this by enforcing a clear separation between business logic and data access, reducing complexity and encouraging new catalog storage solutions.
 
-## Identified issues
+## Identified Issues in the Upstream Code
 
-* `ModificationProxy` abstraction leak:
+The upstream catalog system has design flaws that hinder extensibility and maintainability:
 
- `ModificationProxy` serves two purposes really:
- 
-1. it enforces the Catalog's information hiding by not allowing the returned, (possibly) live objects, to be modified by its callers;
-2. Works as an enabler for [MVCC](https://en.wikipedia.org/wiki/Multiversion_concurrency_control) on `save(*Info)`, by providing the delta changes in the form of lists of changed property names, old values, and new values. Otherwise, upon save, a call on a thread that's supposed to update only a subset of the object properties, would override all the properties another thread just changed.
+### ModificationProxy Abstraction Leak
 
-Now, `CatalogFacade` shouldn't be the place where that happens, but purely as an implementation detail of `CatalogImpl`, which should give `CatalogFacade` both the object to save, and the delta properties, so that `CatalogFacade`'s implementation can apply the changes how it sees fit in order to guarantee the operation's atomicity.
-The current situation is that `CatalogImpl` *relies* on `CatalogFacade` always returning a `ModificationProxy`, which further complicates realizing the initial design goal (I think) of `CatalogFacade` being a pure Data Access Object, so that implementations could be interchangeable. Instead, the lack of single responsibility among these two classes forces all  alternate `CatalogFacade` implementors to replicate the logic of `DefaultCatalogFacade`.
+- **Description**: `ModificationProxy` enforces information hiding and enables [MVCC](https://en.wikipedia.org/wiki/Multiversion_concurrency_control) for partial updates via delta changes (property names, old values, new values).
+- **Issue**: This logic resides in `DefaultCatalogFacade` rather than `CatalogImpl`, forcing `CatalogImpl` to rely on `CatalogFacade` returning a `ModificationProxy`. This complicates alternative implementations and violates the DAO's single responsibility.
 
-* `ResolvingProxy` responsibility leak: a `CatalogFacade` shouldn't know it can get a proxy, yet on every `add(*Info)` method it tries to "resolve" object references to actual object on each overloaded version of `DefaultCatalogFacade.resolve(CatalogInfo)`, which in turn call `ResolvingProxy.resolve(getCatalog(), ...)` and `ModificationProxy.unwrap(...)` for each possible proxied reference. Now, `ResolvingProxy` usage is only an implementation detail of the default persistence mechanism, used by `XstreamPersister` at deserialization time, and `GeoServerResourcePersister` catalog listener to save a modified object to its xml file on disk. The only other direct user is restconfig's `LayerGroupController`, which correctly resolves all layergroup's referred layers upon a POST request, which could be an indication the restconfig API relies on the above undocumented behavior for other kinds of objects, or that it is ok to rely correct resolution of object references by its use of `XstreamPersister`, haven't checked in dept.
+### ResolvingProxy Responsibility Leak
 
-* `Catalog.detach(...)`: Used to remove all proxies from the argument object, including any reference to another catalog object, and return the raw, un-proxied object.
-    * Breaks Catalog's information hiding, by design. It's an API method, shouldn't expose directly or indirectly implementation details. It's telling the returned objects are proxied AND live, and providing a workaround around information hiding to create unadvertised side effects if the returned live object is modified.
-    * Only used so `web-core`'s `LayerModel` get serialize a `LayerInfo`, who should just rely on the fact that all `CatalogInfo`'s are `Serializable` by contract. If that contract is impracticable, then it should be removed in favor of a canonical way to serialize and deserializa `CatalogInfo` objects.
+- **Description**: `CatalogFacade` resolves proxies in every `add(*Info)` method via `DefaultCatalogFacade.resolve(CatalogInfo)`, invoking `ResolvingProxy.resolve()` and `ModificationProxy.unwrap()`.
+- **Issue**: Proxy resolution, an implementation detail of the default persistence mechanism (e.g., `XstreamPersister`, `GeoServerResourcePersister`), burdens `CatalogFacade`, requiring alternative backends to handle it unnecessarily.
 
-* `DefaultCatalogFacade`:
+### Catalog.detach(...) Method
 
-    * Event handling responsibility leak: With `ModificationProxy`'s responsibility leak to the DAO, comes event handling responsibility leak, which is split between the `Catalog` and the `CatalogFacade`. All the events for `add()` and `remove()` are fired by the catalog, whist event propagation for `save()` is delegated to the facade.
-    
-    * Id handling contract: Since the `CatalogInfo` object identifiers are business ids, and not auto-generated, the contract should be clear in that `CatalogFacade.add()` expects the id to be set, and fail if an object with that id already exists, while `Catalog.add()`'s contract should be clear in that it can get either a pre-assigned id, but will create and assign one if that's not the case.
-    
-    * Business logic leak: `LayerInfo`'s `name` property is linked to its referred `ResourceInfo`'s name. This is enforced by `CatalogFacade`'s `save(LayerInfo)`, which indirectly, through `LayerInfoLookup` specialization of `CatalogInfoLookup`, takes the resource name instead of the layer's name to update its internal name-to-object hash map; and by `save(ResourceInfo)`, which saves both the argument object itself, and the linked `LayerInfo` by means of the specialized method `LayerInfoLookup.save(ResourceInfo)`. Instead of buried in the object model implementation (with `LayerInfoImpl.getName()` and `setName()` deferring to its internal `resource`, it should be handled as a business rule inside the `Catalog.save(LayerInfo)` and `Catalog.save(ResourceInfo)` methods, and not leak down to the DAO. A similar thing happens with `LayerInfo`'s `title` property, it defers to its resource's `title` property. Now, when saving a layer, both its resource's name and tile get effectively updated as a side effect of the `ModificationProxy.commit()`, but IMO it should be explicitly handled as a lot other business rules by `CatalogImpl`, so that `CatalogFacade` implementors can work under a cleaner contract and not having to deal with ModificationProxy at all, as mentioned above. This also breaks event handling. Given when the layer's name or title is updated, what's actually updated is the `ResourceInfo`, it would be expected that pre and post modify events would be triggered also for the resource object, and not just for the layer object, which is yet another reason to handle this artificial link explicitly as a business rule in Catalog.
-    
-    * Unnecessary special cases: `LayerInfoLookup` wouldn't be necessary if not due to the above mentioned responsibility issue. `MapInfo`s internal storage is a `List` instead of a `LayerInfoLookup`. Given everything related to `MapInfo` is plain dead code, it should either be removed or `MapInfo` related methods throw an `UnsupportedOperationException`
-    
-    * Unnecessary synchronization: all internal "repositories" are thread safe, yet `DefaultCatalogFacade` synchronizes on them at almost all methods.
-    
-    * `CatalogFacade` shouldn't know anything about `Catalog`, since it's at a lower level of abstraction. The above issues force a double linked dependency.
-    
-*  `IsolatedCatalogFacade`: 
-    *Note to self: isolated workspaces are a means to allow several workspaces sharing the same namespace **URI** within the scope of each "virtual workspace"*, not the same `NamespaceInfo`, whose `prefix` is still tied to a workspace name.
+- **Description**: Removes proxies from objects, exposing unproxied, live objects.
+- **Issue**: Breaks information hiding by revealing implementation details; used in `web-core` for serialization (e.g., `LayerModel`), which should rely on `CatalogInfo`’s `Serializable` contract.
 
-    * `CatalogImpl` decorates its default catalog facade on its default constructor, by calling `setFacade(new IsolatedCatalogFacade(DefaultCatalogFacade(this)))`,  but it should be `setFacade()` the one that decorates it. That's because `Catalog.setFacade()` is an API method, and the way to override the default in-memory storage by an alternate implementation, but this breaks the support for isolated workspaces in that case.
-    On the other hand, I can't see why the isolated workspace handling needs to be implemented as a `CatalogFacade` decorator, which is intended to be the DAO, and not as a `Catalog` decorator, which is the business object, just as so many other catalog decorators (`SecureCatalogImpl`, `LocalWorkspaceCatalog`, `AdvertisedCatalog`). Moreover, since we're at it, there's `AbstractFilteredCatalog` already, which the catalog decorator for isolated workspaces could inherit from, and at the same time `AbstractFilteredCatalog` could inherit from `AbstractCatalogDecorator` to avoid code duplication on the methods it doesn't need to override.
+### DefaultCatalogFacade Issues
 
-    * `<T> IsolatedCatalogFacade.filterIsolated(CloseableIterator<T> objects, Function<T, T> filter)` breaks the streaming nature of the calling method by creating an `ArrayList<T>` and populating it. It should decorate the argument iterator to apply the filtering in-place:
-    
-```java
-        List<T> iterable = new ArrayList<>();
-        // consume the iterator
-        while (objects.hasNext()) {
-            T object = objects.next();
-            if (filter.apply(object) != null) {
-                // this catalog object is visible in the current context
-                iterable.add(object);
-            }
-        }
-        // create an iterator for the visible catalog objects
-        return new CloseableIteratorAdapter<>(iterable.iterator());
-```
-    
----
+- **Event Handling Leak**: Event propagation is split—`CatalogImpl` handles `add()` and `remove()`, while `CatalogFacade` manages `save()`—complicating alternative implementations.
+- **ID Handling Contract**: Unclear rules for identifiers; `CatalogFacade.add()` should expect pre-assigned IDs and fail on duplicates, while `Catalog.add()` should assign IDs if absent.
+- **Business Logic Leak**: `LayerInfo`’s `name` and `title` defer to `ResourceInfo`, enforced by `CatalogFacade` via `LayerInfoLookup`. This should be a business rule in `CatalogImpl`.
+- **Unnecessary Special Cases**: `LayerInfoLookup` exists due to above issues; `MapInfo` uses a simpler `List` (dead code, suggesting removal or an `UnsupportedOperationException`).
+- **Unnecessary Synchronization**: Thread-safe repositories are redundantly synchronized by `DefaultCatalogFacade`.
+- **Circular Dependencies**: `CatalogFacade` depends on `Catalog`, creating a bidirectional link.
 
-As a final note, as fixing the above mentioned catalog and catalog facade internal design would make for a really simple `DefaultCatalogFacade` implementation, it can be made even simpler and extensible by turning it into a simple grouping of DDD-like `Repository` abstractions. This would make the task of creating an alternative catalog backend, a simple matter implementing these repositories, with clean, self describing method contracts:
+## Key Improvements Over Core GeoServer
 
-```java
+The `catalog-plugin` introduces significant enhancements over the core GeoServer catalog system, detailed below:
 
-interface CrudCatalogInfoRepository<T extends CatalogInfo>{
-    void add(T value);
-    void remove(T value);
-    void update(T value);
-    List<T> findAll();
-    <U extends T> List<U> findAll(Filter filter);
-    <U extends T> List<U> findAll(Filter filter, Class<U> infoType);
-    <U extends T> U findById(String id, Class<U> clazz);
-    <U extends T> U findByName(Name name, Class<U> clazz);
-}
+### 1. Separation of Concerns: Catalog vs. CatalogFacade
 
-interface WorkspaceRepository extends CatalogInfoRepository<WorkspaceInfo> {
-    void setDefaultWorkspace(WorkspaceInfo workspace);
-    WorkspaceInfo getDefaultWorkspace();
-}
-    
-interface NamespaceRepository extends CatalogInfoRepository<NamespaceInfo> {
-    void setDefaultNamespace(NamespaceInfo namespace);
-    NamespaceInfo getDefaultNamespace();
-    NamespaceInfo findOneByURI(String uri);
-    List<NamespaceInfo> findAllByURI(String uri);
-}
-....
+- **Upstream Code**: In the original design, `CatalogFacade` (e.g., `DefaultCatalogFacade`) is burdened with both data access and business logic, including managing proxies (via `ModificationProxy`), enforcing rules like linking `LayerInfo` and `ResourceInfo`, and handling event propagation. This entanglement makes it difficult to implement alternative backends without replicating complex logic.
+- **Improvement**: The module reassigns responsibilities:
+  - **`CatalogImpl`**: Takes charge of business logic, such as linking `LayerInfo` and `ResourceInfo`, managing proxies, and issuing events.
+  - **`CatalogFacade`**: Becomes a pure Data Access Object (DAO), responsible only for CRUD (Create, Read, Update, Delete) operations on catalog objects.
+- **Benefit**: This separation allows developers to create simpler, streamlined implementations of `CatalogFacade`. Alternative backends no longer need to handle business rules, focusing solely on data storage and retrieval. This reduces complexity and makes it easier to plug in custom persistence layers, whether based on databases, in-memory structures, or other systems.
+- **Source Evidence**: `CatalogFacade` methods are streamlined to basic operations (e.g., `add()`, `remove()`), while `CatalogImpl` encapsulates business logic.
 
-class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRepository<T> {
+### 2. Streamlined CatalogFacade Implementations
 
-    ConcurrentMap<Class<T>, ConcurrentMap<String, T>> idMultiMap = new ConcurrentHashMap<>();
-    ConcurrentMap<Class<T>, ConcurrentMap<Name, T>> nameMultiMap = new ConcurrentHashMap<>();
-    ConcurrentMap<Class<T>, ConcurrentMap<String, Name>> idToMameMultiMap = new ConcurrentHashMap<>();
-    ...
-   
-static class WorkspaceInfoLookup extends CatalogInfoLookup<WorkspaceInfo> implements WorkspaceRepository {
-    private WorkspaceInfo defaultWorkspace;
-    @Override
-    public void setDefaultWorkspace(WorkspaceInfo workspace) {
-        this.defaultWorkspace = workspace == null ? null : findById(workspace.getId(), WorkspaceInfo.class);
-    }
-    @Override
-    public WorkspaceInfo getDefaultWorkspace() {
-        return defaultWorkspace;
-    }
-}
+- **Upstream Challenge**: Creating a new `CatalogFacade` requires duplicating business logic—such as proxy unwrapping or event handling—across each backend, as seen in modules like `jdbcconfig` or Stratus.
+- **Improvement**: By offloading business logic to `CatalogImpl`, `CatalogFacade` implementations are lightweight and focused. They only define how to interact with the underlying data store, not how to enforce GeoServer’s rules.
+- **Benefit**: Developers can craft alternative backends more efficiently, with less code and fewer opportunities for errors. This streamlined approach enhances maintainability and encourages experimentation with new catalog storage solutions.
+- **Source Evidence**: `CatalogFacade` methods accept plain `CatalogInfo` objects, free of proxy-related logic.
 
-abstract class AbstractCatalogFacade implements CatalogFacade {
-    protected NamespaceRepository namespaces;
-    protected WorkspaceRepository workspaces;
-    protected StoreRepository stores;
-    protected ResourceRepository resources;
-    protected LayerRepository layers;
-    protected LayerGroupRepository layerGroups;
-    protected MapRepository maps;
-    protected StyleRepository styles;
+### 3. Composable Pipelines with ResolvingCatalogFacade
+- **Upstream Limitation**: Object resolution (e.g., unwrapping proxies, linking related objects) is baked into `CatalogFacade`, forcing each implementation to reimplement these steps, leading to duplicated logic.
+- **Improvement**: `ResolvingCatalogFacade` enables composable pipelines for handling inbound and outbound objects:
+  - **Inbound Processing**: When saving, the pipeline can unwrap proxies (such as `ModificationProxy`), or resolve references before reaching the DAO.
+  - **Outbound Processing**: When retrieving, it can decorate catalog objects, sanitize values, initialize collection properties, etc.
+- **How It Works**: Acts as a decorator or wrapper around a base `CatalogFacade`, allowing chaining of processing steps (e.g., resolution, filtering, transformation) into a reusable pipeline.
+- **Benefit**: Eliminates the need to duplicate object-handling logic across implementations. Developers define the pipeline once and apply it consistently, improving flexibility and maintainability. For example, a relational database backend can reuse the same resolution pipeline as an in-memory backend without rewriting logic.
+- **Source Evidence**: `ResolvingCatalogFacade` wraps a base DAO, applying reusable processing steps.
 
-    public void setWorkspaces(WorkspaceRepository workspaces) {
-        this.workspaces = workspaces;
-    }
-    ...
-    public @Override WorkspaceInfo add(WorkspaceInfo workspace) {
-        workspaces.add(unwrapped);
-    }
-    public @Override WorkspaceInfo getWorkspace(String id) {
-        return workspaces.findById(id, WorkspaceInfo.class);
-    }
-    ....
-}
+### 4. Modular Repository-Based Design
+- **Upstream Problem**: Monolithic `DefaultCatalogFacade` with internal maps.
+- **Improvement**: Uses dedicated repositories (e.g., `WorkspaceRepository`, `NamespaceRepository`) for each object type.
+- **Example**:
+  ```java
+  interface WorkspaceRepository extends CatalogInfoRepository<WorkspaceInfo> {
+      void setDefaultWorkspace(WorkspaceInfo workspace);
+      WorkspaceInfo getDefaultWorkspace();
+  }
+  ```
+- **Benefit**: Simplifies extension by allowing custom repository implementations, enhancing modularity.
+- **Source Evidence**: `AbstractCatalogFacade` integrates repositories via setters (e.g., `setWorkspaces()`).
 
-class DefaultCatalogFacade extends AbstractCatalogFacade{
-    public DefaultCatalogFacade() {
-        setNamespaces(new NamespaceInfoLookup());
-        setWorkspaces(new WorkspaceInfoLookup());
-        setStores(new StoreInfoLookup());
-        setLayers(new LayerInfoLookup());
-        setResources(new ResourceInfoLookup());
-        setLayerGroups(new LayerGroupInfoLookup());
-        setMaps(new MapInfoLookup());
-        setStyles(new StyleInfoLookup());
-    }
-}
+### 5. Improved Event Handling
+- **Upstream Issue**: Inconsistent event handling split between `CatalogImpl` and `CatalogFacade`.
+- **Improvement**: All events centralized in `CatalogImpl`.
+- **Benefit**: Cleaner, consistent event management, simplifying the DAO’s role.
+- **Source Evidence**: Events triggered in `CatalogImpl` post-DAO operations.
 
-```
+### 6. Removal of Unnecessary Synchronization
+- **Upstream Issue**: Redundant synchronization in `DefaultCatalogFacade` on thread-safe collections.
+- **Improvement**: Relies on inherent thread-safety (e.g., `ConcurrentHashMap`) without extra locks.
+- **Benefit**: Improved efficiency without compromising safety.
+- **Source Evidence**: Repositories use thread-safe collections natively.
 
+### 7. Simplified LayerInfo and ResourceInfo Handling
+- **Upstream Issue**: DAO enforces links between `LayerInfo` and `ResourceInfo` (e.g., `name`, `title`).
+- **Improvement**: Rules shifted to `CatalogImpl`, DAO treats objects independently.
+- **Benefit**: Backends avoid replicating business logic, simplifying their design.
+- **Source Evidence**: `CatalogImpl.save(LayerInfo)` updates `ResourceInfo`, DAO performs basic saves.
 
+### 8. Removal of Dead Code and Special Cases
+- **Upstream Issue**: Unused `MapInfo` and special cases like `LayerInfoLookup`.
+- **Improvement**: Dead code removed or marked unsupported (e.g., `UnsupportedOperationException`).
+- **Benefit**: Leaner, more maintainable codebase.
+- **Source Evidence**: `MapInfo` methods throw exceptions, special cases eliminated.
+
+### 9. Clearer ID Handling Contracts
+- **Upstream Problem**: Ambiguous ID rules across `Catalog` and `CatalogFacade`.
+- **Improvement**: Explicit contracts—`CatalogFacade.add()` requires pre-assigned IDs, rejects duplicates; `Catalog.add()` generates IDs if absent.
+- **Benefit**: Ensures consistency across implementations.
+- **Source Evidence**: ID logic split between `CatalogImpl` and DAO enforces clear rules.
+
+## Usage in GeoServer Cloud
+
+In GeoServer Cloud, the `catalog-plugin` serves as the base to implement different catalog and configuration backends.
 
