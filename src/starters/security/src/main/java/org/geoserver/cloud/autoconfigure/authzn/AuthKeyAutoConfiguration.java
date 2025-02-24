@@ -6,7 +6,7 @@ package org.geoserver.cloud.autoconfigure.authzn;
 
 import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
+import org.geoserver.cloud.config.factory.ImportFilteredResource;
 import org.geoserver.platform.ModuleStatus;
 import org.geoserver.platform.ModuleStatusImpl;
 import org.geoserver.security.web.auth.AuthenticationFilterPanel;
@@ -16,7 +16,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.ImportResource;
 
 /**
  * @since 1.0
@@ -49,9 +48,7 @@ public class AuthKeyAutoConfiguration {
     }
 
     @ConditionalOnAuthKeyEnabled
-    @ImportResource(
-            reader = FilteringXmlBeanDefinitionReader.class,
-            locations = {Enabled.INCLUDE})
+    @ImportFilteredResource(Enabled.INCLUDE)
     static @Configuration class Enabled {
         static final String EXCLUDE = "authKeyExtension|" + WEB_UI_BEANS;
         static final String INCLUDE = "jar:gs-authkey-.*!/applicationContext.xml#name=^(?!" + EXCLUDE + ").*$";
@@ -63,9 +60,7 @@ public class AuthKeyAutoConfiguration {
 
     @ConditionalOnAuthKeyEnabled
     @ConditionalOnClass(AuthenticationFilterPanel.class)
-    @ImportResource(
-            reader = FilteringXmlBeanDefinitionReader.class,
-            locations = {WebUI.INCLUDE})
+    @ImportFilteredResource(WebUI.INCLUDE)
     static @Configuration class WebUI {
         static final String INCLUDE = "jar:gs-authkey-.*!/applicationContext.xml#name=^(" + WEB_UI_BEANS + ").*$";
     }

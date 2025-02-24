@@ -4,7 +4,7 @@
  */
 package org.geoserver.cloud.gwc.config.core;
 
-import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
+import org.geoserver.cloud.config.factory.ImportFilteredResource;
 import org.geoserver.gwc.config.GeoserverXMLResourceProvider;
 import org.geowebcache.config.ConfigurationException;
 import org.geowebcache.diskquota.DiskQuotaMonitor;
@@ -13,15 +13,12 @@ import org.geowebcache.storage.DefaultStorageFinder;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportResource;
 
 /**
  * @since 1.0
  */
 @Configuration(proxyBeanMethods = false)
-@ImportResource(
-        reader = FilteringXmlBeanDefinitionReader.class, //
-        locations = {"jar:gs-gwc-[0-9]+.*!/geowebcache-diskquota-context.xml#name=^(?!DiskQuotaConfigLoader).*$"})
+@ImportFilteredResource("jar:gs-gwc-[0-9]+.*!/geowebcache-diskquota-context.xml#name=^(?!DiskQuotaConfigLoader).*$")
 public class DiskQuotaConfiguration {
 
     static {

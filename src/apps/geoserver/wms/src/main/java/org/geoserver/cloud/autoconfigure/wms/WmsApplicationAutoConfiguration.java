@@ -7,7 +7,7 @@ package org.geoserver.cloud.autoconfigure.wms;
 import java.util.List;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.cloud.autoconfigure.gwc.integration.WMSIntegrationAutoConfiguration;
-import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
+import org.geoserver.cloud.config.factory.ImportFilteredResource;
 import org.geoserver.cloud.virtualservice.VirtualServiceVerifier;
 import org.geoserver.cloud.wms.app.StatusCodeWmsExceptionHandler;
 import org.geoserver.cloud.wms.controller.GetMapReflectorController;
@@ -27,18 +27,15 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ImportResource;
 import org.springframework.core.env.PropertyResolver;
 
 // auto-configure before GWC's wms-integration to avoid it precluding to load beans from
 // jar:gs-wms-.*
 @AutoConfiguration(before = WMSIntegrationAutoConfiguration.class)
-@ImportResource( //
-        reader = FilteringXmlBeanDefinitionReader.class, //
-        locations = { //
-            "jar:gs-wms-.*!/applicationContext.xml#name=" + WmsApplicationAutoConfiguration.WMS_BEANS_BLACKLIST, //
-            "jar:gs-wfs-.*!/applicationContext.xml#name=" + WmsApplicationAutoConfiguration.WFS_BEANS_WHITELIST //
-        })
+@ImportFilteredResource({
+    "jar:gs-wms-.*!/applicationContext.xml#name=" + WmsApplicationAutoConfiguration.WMS_BEANS_BLACKLIST,
+    "jar:gs-wfs-.*!/applicationContext.xml#name=" + WmsApplicationAutoConfiguration.WFS_BEANS_WHITELIST
+})
 public class WmsApplicationAutoConfiguration {
 
     static final String WFS_BEANS_WHITELIST =

@@ -6,7 +6,7 @@ package org.geoserver.cloud.gwc.config.core;
 
 import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
+import org.geoserver.cloud.config.factory.ImportFilteredResource;
 import org.geoserver.cloud.gwc.event.ConfigChangeEvent;
 import org.geoserver.config.util.XStreamPersisterFactory;
 import org.geoserver.gwc.config.CloudGwcConfigPersister;
@@ -15,16 +15,13 @@ import org.geoserver.platform.GeoServerResourceLoader;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportResource;
 
 /**
  * @since 1.0
  * @see DefaultTileLayerCatalogConfiguration
  */
 @Configuration(proxyBeanMethods = true)
-@ImportResource(
-        reader = FilteringXmlBeanDefinitionReader.class, //
-        locations = {GeoServerIntegrationConfiguration.GS_INTEGRATION_INCLUDES})
+@ImportFilteredResource(GeoServerIntegrationConfiguration.GS_INTEGRATION_INCLUDES)
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.gwc.core")
 public class GeoServerIntegrationConfiguration {
 

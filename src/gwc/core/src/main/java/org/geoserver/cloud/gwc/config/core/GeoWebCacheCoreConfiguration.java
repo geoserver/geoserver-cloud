@@ -21,7 +21,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import lombok.extern.slf4j.Slf4j;
-import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
+import org.geoserver.cloud.config.factory.ImportFilteredResource;
 import org.geoserver.cloud.gwc.repository.CloudDefaultStorageFinder;
 import org.geoserver.cloud.gwc.repository.CloudGwcXmlConfiguration;
 import org.geoserver.cloud.gwc.repository.CloudXMLResourceProvider;
@@ -44,7 +44,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportResource;
 import org.springframework.core.env.Environment;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
@@ -53,11 +52,8 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
  */
 @Configuration(proxyBeanMethods = true)
 @EnableConfigurationProperties(GeoWebCacheConfigurationProperties.class)
-@ImportResource(
-        reader = FilteringXmlBeanDefinitionReader.class, //
-        locations = {
-            "jar:gs-gwc-[0-9]+.*!/geowebcache-core-context.xml#name=^(?!gwcXmlConfig|gwcDefaultStorageFinder|metastoreRemover).*$"
-        })
+@ImportFilteredResource(
+        "jar:gs-gwc-[0-9]+.*!/geowebcache-core-context.xml#name=^(?!gwcXmlConfig|gwcDefaultStorageFinder|metastoreRemover).*$")
 @Slf4j(topic = "org.geoserver.cloud.gwc.config.core")
 public class GeoWebCacheCoreConfiguration {
 

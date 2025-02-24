@@ -4,18 +4,14 @@
  */
 package org.geoserver.cloud.autoconfigure.web.wfs;
 
-import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
+import org.geoserver.cloud.config.factory.ImportFilteredResource;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportResource;
 
 @Configuration(proxyBeanMethods = true)
-@ImportResource( //
-        reader = FilteringXmlBeanDefinitionReader.class, //
-        locations = { //
-            "jar:gs-web-wfs-.*!/applicationContext.xml", //
-            "jar:gs-wfs-.*!/applicationContext.xml",
-            "jar:gs-flatgeobuf-.*!/applicationContext.xml#name=.*",
-            "jar:gs-dxf-core-.*!/applicationContext.xml#name=.*"
-        } //
-        )
+@ImportFilteredResource({
+    "jar:gs-web-wfs-.*!/applicationContext.xml",
+    "jar:gs-wfs-.*!/applicationContext.xml",
+    "jar:gs-flatgeobuf-.*!/applicationContext.xml#name=.*",
+    "jar:gs-dxf-core-.*!/applicationContext.xml#name=.*"
+})
 public class WfsConfiguration {}

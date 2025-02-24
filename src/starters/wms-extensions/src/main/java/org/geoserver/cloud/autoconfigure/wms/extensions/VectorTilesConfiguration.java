@@ -5,14 +5,13 @@
 package org.geoserver.cloud.autoconfigure.wms.extensions;
 
 import org.geoserver.cloud.autoconfigure.wms.extensions.WmsExtensionsConfigProperties.Wms.WmsOutputFormatsConfigProperties.VectorTilesConfigProperties;
-import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
+import org.geoserver.cloud.config.factory.ImportFilteredResource;
 import org.geoserver.wms.vector.VectorTileMapOutputFormat;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportResource;
 
 /**
  * @since 1.0
@@ -20,9 +19,7 @@ import org.springframework.context.annotation.ImportResource;
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnClass(VectorTileMapOutputFormat.class)
 @EnableConfigurationProperties(WmsExtensionsConfigProperties.class)
-@ImportResource( //
-        reader = FilteringXmlBeanDefinitionReader.class, //
-        locations = {"jar:gs-vectortiles-.*!/applicationContext.xml#name=(VectorTilesExtension)"})
+@ImportFilteredResource("jar:gs-vectortiles-.*!/applicationContext.xml#name=(VectorTilesExtension)")
 class VectorTilesConfiguration {
 
     static final String PREFIX = "geoserver.wms.output-formats.vector-tiles";
@@ -36,26 +33,17 @@ class VectorTilesConfiguration {
     }
 
     @ConditionalOnProperty(prefix = PREFIX + ".mapbox", name = "enabled", havingValue = "true", matchIfMissing = true)
-    @ImportResource( //
-            reader = FilteringXmlBeanDefinitionReader.class, //
-            locations = {
-                "jar:gs-vectortiles-.*!/applicationContext.xml#name=(wmsMapBoxBuilderFactory|wmsMapBoxMapOutputFormat)"
-            })
+    @ImportFilteredResource(
+            "jar:gs-vectortiles-.*!/applicationContext.xml#name=(wmsMapBoxBuilderFactory|wmsMapBoxMapOutputFormat)")
     static @Configuration class MapBox {}
 
     @ConditionalOnProperty(prefix = PREFIX + ".geojson", name = "enabled", havingValue = "true", matchIfMissing = true)
-    @ImportResource( //
-            reader = FilteringXmlBeanDefinitionReader.class, //
-            locations = {
-                "jar:gs-vectortiles-.*!/applicationContext.xml#name=(wmsGeoJsonBuilderFactory|wmsGeoJsonMapOutputFormat)"
-            })
+    @ImportFilteredResource(
+            "jar:gs-vectortiles-.*!/applicationContext.xml#name=(wmsGeoJsonBuilderFactory|wmsGeoJsonMapOutputFormat)")
     static @Configuration class GeoJson {}
 
     @ConditionalOnProperty(prefix = PREFIX + ".topojson", name = "enabled", havingValue = "true", matchIfMissing = true)
-    @ImportResource( //
-            reader = FilteringXmlBeanDefinitionReader.class, //
-            locations = {
-                "jar:gs-vectortiles-.*!/applicationContext.xml#name=(wmsTopoJSONBuilderFactory|wmsTopoJSONMapOutputFormat)"
-            })
+    @ImportFilteredResource(
+            "jar:gs-vectortiles-.*!/applicationContext.xml#name=(wmsTopoJSONBuilderFactory|wmsTopoJSONMapOutputFormat)")
     static @Configuration class TopoJson {}
 }

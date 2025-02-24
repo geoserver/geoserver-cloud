@@ -5,11 +5,10 @@
 package org.geoserver.cloud.autoconfigure.web.tools;
 
 import org.geoserver.cloud.autoconfigure.web.core.AbstractWebUIAutoConfiguration;
-import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
+import org.geoserver.cloud.config.factory.ImportFilteredResource;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportResource;
 
 @Configuration
 @ConditionalOnClass(name = "org.geoserver.web.catalogstresstool.CatalogStressTester")
@@ -18,9 +17,7 @@ import org.springframework.context.annotation.ImportResource;
         name = "catalog-bulk-load",
         havingValue = "true",
         matchIfMissing = true)
-@ImportResource(
-        reader = FilteringXmlBeanDefinitionReader.class,
-        locations = {"jar:gs-web-demo-.*!/applicationContext.xml#name=CatalogStresser"})
+@ImportFilteredResource("jar:gs-web-demo-.*!/applicationContext.xml#name=CatalogStresser")
 public class CatalogBulkLoadToolConfiguration extends AbstractWebUIAutoConfiguration {
 
     static final String CONFIG_PREFIX = ToolsAutoConfiguration.CONFIG_PREFIX + ".catalog-bulk-load";

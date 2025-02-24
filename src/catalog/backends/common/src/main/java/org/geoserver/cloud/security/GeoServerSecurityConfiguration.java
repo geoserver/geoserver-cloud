@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.autoconfigure.security.ConditionalOnGeoServerSecurityEnabled;
-import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
+import org.geoserver.cloud.config.factory.ImportFilteredResource;
 import org.geoserver.cloud.event.security.SecurityConfigChanged;
 import org.geoserver.config.GeoServerDataDirectory;
 import org.geoserver.platform.config.UpdateSequence;
@@ -22,7 +22,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
-import org.springframework.context.annotation.ImportResource;
 
 /**
  * Loads geoserver security bean definitions from {@code
@@ -40,10 +39,9 @@ import org.springframework.context.annotation.ImportResource;
  * this configuration. Defaults to {@code true}.
  */
 @Configuration
-@ImportResource(
-        reader = FilteringXmlBeanDefinitionReader.class, //
+@ImportFilteredResource(
         // exclude authenticationManager from applicationSecurityContext.xml
-        locations = {GeoServerSecurityConfiguration.APPLICATION_SECURITY_CONTEXT_FILTER})
+        GeoServerSecurityConfiguration.APPLICATION_SECURITY_CONTEXT_FILTER)
 @Slf4j(topic = "org.geoserver.cloud.config.security")
 @ConditionalOnGeoServerSecurityEnabled
 public class GeoServerSecurityConfiguration {

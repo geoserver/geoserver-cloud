@@ -8,12 +8,11 @@ import org.geoserver.cloud.autoconfigure.web.core.AbstractWebUIAutoConfiguration
 import org.geoserver.cloud.autoconfigure.web.demo.LayerPreviewConfiguration.GmlCommonFormatsConfiguration;
 import org.geoserver.cloud.autoconfigure.web.demo.LayerPreviewConfiguration.KmlCommonFormatsConfiguration;
 import org.geoserver.cloud.autoconfigure.web.demo.LayerPreviewConfiguration.OpenLayersCommonFormatsConfiguration;
-import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
+import org.geoserver.cloud.config.factory.ImportFilteredResource;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.ImportResource;
 
 @Configuration
 @ConditionalOnClass(name = "org.geoserver.web.demo.MapPreviewPage")
@@ -22,9 +21,7 @@ import org.springframework.context.annotation.ImportResource;
         name = "enabled",
         havingValue = "true",
         matchIfMissing = true)
-@ImportResource( //
-        reader = FilteringXmlBeanDefinitionReader.class, //
-        locations = {"jar:gs-web-demo-.*!/applicationContext.xml#name=layerListDemo2"})
+@ImportFilteredResource("jar:gs-web-demo-.*!/applicationContext.xml#name=layerListDemo2")
 @Import({
     OpenLayersCommonFormatsConfiguration.class,
     GmlCommonFormatsConfiguration.class,
@@ -46,9 +43,7 @@ public class LayerPreviewConfiguration extends AbstractWebUIAutoConfiguration {
             name = "open-layers",
             havingValue = "true",
             matchIfMissing = true)
-    @ImportResource( //
-            reader = FilteringXmlBeanDefinitionReader.class, //
-            locations = {"jar:gs-web-demo-.*!/applicationContext.xml#name=openLayersPreview"})
+    @ImportFilteredResource("jar:gs-web-demo-.*!/applicationContext.xml#name=openLayersPreview")
     public class OpenLayersCommonFormatsConfiguration extends AbstractWebUIAutoConfiguration {
 
         static final String CONFIG_PREFIX = LayerPreviewConfiguration.COMMON_FORMATS_PREFIX + ".open-layers";
@@ -65,9 +60,7 @@ public class LayerPreviewConfiguration extends AbstractWebUIAutoConfiguration {
             name = "gml",
             havingValue = "true",
             matchIfMissing = true)
-    @ImportResource( //
-            reader = FilteringXmlBeanDefinitionReader.class, //
-            locations = {"jar:gs-web-demo-.*!/applicationContext.xml#name=gMLPreview"})
+    @ImportFilteredResource("jar:gs-web-demo-.*!/applicationContext.xml#name=gMLPreview")
     public class GmlCommonFormatsConfiguration extends AbstractWebUIAutoConfiguration {
 
         static final String CONFIG_PREFIX = LayerPreviewConfiguration.COMMON_FORMATS_PREFIX + ".gml";
@@ -84,9 +77,7 @@ public class LayerPreviewConfiguration extends AbstractWebUIAutoConfiguration {
             name = "kml",
             havingValue = "true",
             matchIfMissing = true)
-    @ImportResource( //
-            reader = FilteringXmlBeanDefinitionReader.class, //
-            locations = {"jar:gs-web-demo-.*!/applicationContext.xml#name=kMLPreview"})
+    @ImportFilteredResource("jar:gs-web-demo-.*!/applicationContext.xml#name=kMLPreview")
     public class KmlCommonFormatsConfiguration extends AbstractWebUIAutoConfiguration {
 
         static final String CONFIG_PREFIX = LayerPreviewConfiguration.COMMON_FORMATS_PREFIX + ".kml";

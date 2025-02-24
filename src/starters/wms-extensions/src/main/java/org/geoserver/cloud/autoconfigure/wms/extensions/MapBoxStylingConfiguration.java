@@ -4,7 +4,7 @@
  */
 package org.geoserver.cloud.autoconfigure.wms.extensions;
 
-import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
+import org.geoserver.cloud.config.factory.ImportFilteredResource;
 import org.geoserver.community.mbstyle.MBStyleHandler;
 import org.geoserver.platform.ModuleStatus;
 import org.geoserver.platform.ModuleStatusImpl;
@@ -16,7 +16,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.ImportResource;
 
 /**
  * @since 1.0
@@ -29,9 +28,8 @@ class MapBoxStylingConfiguration {
     @ConditionalOnBean(name = "sldHandler") // sldHandler is MBStyleHandler's constructor arg
     @ConditionalOnProperty(name = "geoserver.styling.mapbox.enabled", havingValue = "true", matchIfMissing = true)
     @ConditionalOnClass(MBStyleHandler.class)
-    @ImportResource( //
-            reader = FilteringXmlBeanDefinitionReader.class, //
-            locations = {"jar:gs-mbstyle-.*!/applicationContext.xml"})
+    @ImportFilteredResource( //
+            "jar:gs-mbstyle-.*!/applicationContext.xml")
     static class Enabled {}
 
     @Configuration

@@ -5,7 +5,7 @@
 package org.geoserver.cloud.gwc.config.core;
 
 import java.util.List;
-import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
+import org.geoserver.cloud.config.factory.ImportFilteredResource;
 import org.geoserver.config.GeoServer;
 import org.geoserver.gwc.layer.GeoServerTileLayer;
 import org.geoserver.platform.Service;
@@ -19,7 +19,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
-import org.springframework.context.annotation.ImportResource;
 
 /**
  * Configuration to create a minimal {@link WebMapService} bean, may it not exist, to be used by
@@ -28,12 +27,10 @@ import org.springframework.context.annotation.ImportResource;
  * @since 1.0
  */
 @Configuration
-@ImportResource( //
-        reader = FilteringXmlBeanDefinitionReader.class, //
-        locations = { //
-            WebMapServiceMinimalConfiguration.GS_WMS_INCLUDES, //
-            WebMapServiceMinimalConfiguration.GS_WFS_INCLUDES //
-        })
+@ImportFilteredResource({
+    WebMapServiceMinimalConfiguration.GS_WMS_INCLUDES,
+    WebMapServiceMinimalConfiguration.GS_WFS_INCLUDES
+})
 public class WebMapServiceMinimalConfiguration {
 
     /**

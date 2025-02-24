@@ -37,45 +37,75 @@ import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 
 /**
- * Spring xml bean definition reader that uses a regular expression to include or exclude beans by
- * name and alias using a regular expression.
- *
- * <p>It overloads the {@link ImportResource @ImportResource} {@code locations} attribute allowing
- * to append an <b>inclusion</b> filter in the form {@code #name=<regex>}, for example {@code
- * servlet-context.xml#name=<regex>}. That is, if the regular expression applied to the bean name
- * matches, then the bean will be registered, otherwise it'll be discarded.
- *
- * <p>Note, as a compromis, the regular expressions are evaluated against bean names, not aliases.
- * Alias registration is deferred to after all beans matching the regular expression are registered,
- * discarding the alias of beans that were not registered.
- *
- * <p>Examples:
- *
- * <p>Load all beans from a specific xml file on a specific jar file, except those named {@code foo}
- * or {@code bar}:
- *
- * <pre>
- * <code>
- *  &#64;ImportResource(
- *  reader = FilteringXmlBeanDefinitionReader.class,
- *  // exclude beans named foo and bar:
- *  locations = "jar:gs-main-.*!/applicationContext.xml#name=^(?!foo|bar).*$"
- *  )
- * </code>
+ * A custom Spring XML bean definition reader that applies filtering based on a regular expression
+ * to selectively include or exclude beans by their name.
+ * <p>
+ * This reader extends {@link XmlBeanDefinitionReader} to overload the {@code locations} attribute
+ * of {@link ImportResource}, allowing you to append an <strong>inclusion</strong> filter in the form
+ * {@code #name=<regex>}. For example, if you specify:
+ * <pre class="code">
+ *   "servlet-context.xml#name=^(?!foo|bar).*$"
  * </pre>
- *
- * <p>Load only {@code foo}, {@code bar}, and any bean called "gml*OutputFormat" {@code
- * gml.*OutputFormat}
- *
- * <pre>
- * <code>
- *  &#64;ImportResource(
- *  reader = FilteringXmlBeanDefinitionReader.class,
- *  // exclude beans named foo and bar:
- *  locations = "jar:gs-main-.*!/applicationContext.xml#name=^(foo|bar|gml.*OutputFormat).*$"
- *  )
- * </code>
+ * then only beans whose names do <em>not</em> match "foo" or "bar" will be registered from that XML.
+ * <p>
+ * <strong>How it works:</strong>
+ * <ul>
+ *   <li>
+ *     The filter is evaluated against the bean <em>name</em> as defined in the XML, not against its alias.
+ *     Beans whose names match the regular expression are registered; all others are discarded.
+ *   </li>
+ *   <li>
+ *     Alias registration is deferred until after bean registration. If a bean is not registered
+ *     (because its name did not match the filter), any aliases for that bean are also discarded.
+ *   </li>
+ * </ul>
+ * <p>
+ * <strong>Examples:</strong>
+ * <p>
+ * <em>Example 1:</em> Load all beans from a specific XML file on a specific JAR file, except those
+ * named {@code foo} or {@code bar}:
+ * <pre class="code">
+ * &#64;ImportResource(
+ *     reader = FilteringXmlBeanDefinitionReader.class,
+ *     // Exclude beans named "foo" or "bar":
+ *     locations = "jar:gs-main-.*!/applicationContext.xml#name=^(?!foo|bar).*$"
+ * )
  * </pre>
+ * <p>
+ * <em>Example 2:</em> Load only beans named {@code foo}, {@code bar}, or those matching
+ * {@code gml.*OutputFormat}:
+ * <pre class="code">
+ * &#64;ImportResource(
+ *     reader = FilteringXmlBeanDefinitionReader.class,
+ *     // Include only specific beans:
+ *     locations = "jar:gs-main-.*!/applicationContext.xml#name=^(foo|bar|gml.*OutputFormat).*$"
+ * )
+ * </pre>
+ * <p>
+ * In addition to filtering functionality, this reader maintains internal caches to optimize resource
+ * loading:
+ * <ul>
+ *   <li>
+ *     <strong>XML Document Cache:</strong> Parsed XML documents are cached by their resource URI so that
+ *     multiple configurations loading beans from the same XML file do not trigger redundant parsing.
+ *   </li>
+ *   <li>
+ *     <strong>Classpath Resource Cache:</strong> A cache of classpath resources is maintained to avoid the
+ *     overhead of reloading all resources for each location.
+ *   </li>
+ * </ul>
+ * <p>
+ * The caches can be cleared by invoking {@link #clearCaches()}, which is typically called after the
+ * application context is refreshed.
+ *
+ * @see ImportResource
+ * @see XmlBeanDefinitionReader
+ * @see FilteringXmlBeanDefinitionReaderAutoConfiguration
+ * @see FilteringXmlBeanDefinitionReader#clearCaches()
+ * @see FilteringXmlBeanDefinitionReader#reader()
+ * @see FilteringXmlBeanDefinitionReader#locations()
+ * @see org.springframework.beans.factory.support.BeanDefinitionRegistry
+ * @since 1.0
  */
 @Slf4j(topic = "org.geoserver.cloud.config.factory")
 public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
