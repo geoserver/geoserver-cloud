@@ -5,9 +5,8 @@
 package org.geoserver.cloud.config.main;
 
 import org.geoserver.cloud.config.catalog.backend.core.GeoServerBackendConfigurer;
-import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
+import org.geoserver.cloud.config.factory.ImportFilteredResource;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportResource;
 
 /**
  * Loads bean definitions from {@code jar:gs-main-.*!/applicationContext.xml}, excluding the ones
@@ -54,11 +53,9 @@ import org.springframework.context.annotation.ImportResource;
  * </ul>
  */
 @Configuration(proxyBeanMethods = false)
-@ImportResource( //
-        reader = FilteringXmlBeanDefinitionReader.class, //
+@ImportFilteredResource( //
         // exclude beans
-        locations =
-                "jar:gs-main-.*!/applicationContext.xml#name=" + GeoServerMainModuleConfiguration.EXCLUDE_BEANS_REGEX)
+        "jar:gs-main-.*!/applicationContext.xml#name=" + GeoServerMainModuleConfiguration.EXCLUDE_BEANS_REGEX)
 public class GeoServerMainModuleConfiguration {
 
     private static final String UNUSED_BEAN_NAMES =

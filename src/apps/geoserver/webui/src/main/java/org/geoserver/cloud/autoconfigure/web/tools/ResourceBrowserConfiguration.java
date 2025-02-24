@@ -5,11 +5,10 @@
 package org.geoserver.cloud.autoconfigure.web.tools;
 
 import org.geoserver.cloud.autoconfigure.web.core.AbstractWebUIAutoConfiguration;
-import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
+import org.geoserver.cloud.config.factory.ImportFilteredResource;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportResource;
 
 /**
  * Configuration to enable the <a href=
@@ -25,9 +24,7 @@ import org.springframework.context.annotation.ImportResource;
         name = "resource-browser",
         havingValue = "true",
         matchIfMissing = true)
-@ImportResource(
-        reader = FilteringXmlBeanDefinitionReader.class,
-        locations = {"jar:gs-web-resource-.*!/applicationContext.xml"})
+@ImportFilteredResource("jar:gs-web-resource-.*!/applicationContext.xml")
 public class ResourceBrowserConfiguration extends AbstractWebUIAutoConfiguration {
 
     static final String CONFIG_PREFIX = ToolsAutoConfiguration.CONFIG_PREFIX + ".resource-browser";

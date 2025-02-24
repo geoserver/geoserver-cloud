@@ -6,11 +6,10 @@ package org.geoserver.cloud.autoconfigure.security.jdbc;
 
 import org.geoserver.cloud.autoconfigure.security.ConditionalOnGeoServerSecurityEnabled;
 import org.geoserver.cloud.autoconfigure.security.GeoServerSecurityAutoConfiguration;
-import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
+import org.geoserver.cloud.config.factory.ImportFilteredResource;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.ImportResource;
 
 /** {@link AutoConfiguration @AutoConfiguration} to enable {@code gs-sec-jdbc} */
 // run before GeoServerSecurityAutoConfiguration so the provider is available when
@@ -19,7 +18,5 @@ import org.springframework.context.annotation.ImportResource;
 @EnableConfigurationProperties(JDBCSecurityConfigProperties.class)
 @ConditionalOnGeoServerSecurityEnabled
 @ConditionalOnProperty(name = "geoserver.security.jdbc", havingValue = "true", matchIfMissing = true)
-@ImportResource(
-        reader = FilteringXmlBeanDefinitionReader.class, //
-        locations = "jar:gs-sec-jdbc-.*!/applicationContext.xml")
+@ImportFilteredResource("jar:gs-sec-jdbc-.*!/applicationContext.xml")
 public class JDBCSecurityAutoConfiguration {}

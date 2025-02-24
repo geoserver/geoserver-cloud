@@ -4,19 +4,16 @@
  */
 package org.geoserver.cloud.autoconfigure.web.wps;
 
-import org.geoserver.cloud.config.factory.FilteringXmlBeanDefinitionReader;
+import org.geoserver.cloud.config.factory.ImportFilteredResource;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportResource;
 
 @Configuration(proxyBeanMethods = true)
-@ImportResource( //
-        reader = FilteringXmlBeanDefinitionReader.class, //
-        locations = {
-            // exclude wpsRequestBuilder, DemosAutoConfiguration takes care of it
-            "jar:gs-web-wps-.*!/applicationContext.xml#name=^(?!wpsRequestBuilder).*$",
-            "jar:gs-wps-.*!/applicationContext.xml",
-            "jar:gs-wcs-.*!/applicationContext.xml",
-            "jar:gs-dxf-core-.*!/applicationContext.xml#name=.*",
-            "jar:gs-dxf-wps-.*!/applicationContext.xml#name=.*"
-        })
+@ImportFilteredResource({
+    // exclude wpsRequestBuilder, DemosAutoConfiguration takes care of it
+    "jar:gs-web-wps-.*!/applicationContext.xml#name=^(?!wpsRequestBuilder).*$",
+    "jar:gs-wps-.*!/applicationContext.xml",
+    "jar:gs-wcs-.*!/applicationContext.xml",
+    "jar:gs-dxf-core-.*!/applicationContext.xml#name=.*",
+    "jar:gs-dxf-wps-.*!/applicationContext.xml#name=.*"
+})
 public class WpsConfiguration {}
