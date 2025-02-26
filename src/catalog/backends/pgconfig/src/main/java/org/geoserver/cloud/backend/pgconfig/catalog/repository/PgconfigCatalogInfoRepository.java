@@ -31,10 +31,8 @@ import org.geoserver.catalog.plugin.resolving.ResolvingCatalogInfoRepository;
 import org.geoserver.catalog.plugin.resolving.ResolvingFacade;
 import org.geoserver.cloud.backend.pgconfig.catalog.filter.PgconfigQueryBuilder;
 import org.geotools.api.filter.Filter;
-import org.geotools.api.filter.FilterFactory;
 import org.geotools.api.filter.sort.SortBy;
 import org.geotools.api.filter.sort.SortOrder;
-import org.geotools.factory.CommonFactoryFinder;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -48,29 +46,75 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> exten
 
     protected static final ObjectMapper infoMapper = PgconfigObjectMapper.newObjectMapper();
 
-    protected static final FilterFactory FILTER_FACTORY = CommonFactoryFinder.getFilterFactory();
-
     protected final @NonNull LoggingTemplate template;
 
     private Set<String> sortableProperties;
 
+    private final String insertSql;
+    private final String updateByIdSql;
+    private final String deleteByIdSql;
+
+    private Class<T> contentType;
     /**
      * @param template
      */
-    protected PgconfigCatalogInfoRepository(@NonNull JdbcTemplate template) {
-        this(new LoggingTemplate(template));
+    protected PgconfigCatalogInfoRepository(@NonNull Class<T> contentType, @NonNull JdbcTemplate template) {
+        this(contentType, new LoggingTemplate(template));
     }
 
-    protected PgconfigCatalogInfoRepository(@NonNull LoggingTemplate template) {
+    protected PgconfigCatalogInfoRepository(@NonNull Class<T> contentType, @NonNull LoggingTemplate template) {
         super();
+        this.contentType = contentType;
         this.template = template;
+
+        final String updateTable = getUpdateTable();
+
+        insertSql = """
+                INSERT INTO %s (info) VALUES(to_json(?::json))
+                """
+                .formatted(updateTable);
+
+        updateByIdSql = """
+                UPDATE %s SET info = to_json(?::json) WHERE id = ?
+                """
+                .formatted(updateTable);
+
+        deleteByIdSql = """
+                DELETE FROM %s WHERE id = ?
+                """.formatted(updateTable);
     }
 
-    protected String getTable() {
+    public final Class<T> getContentType() {
+        return contentType;
+    }
+
+    /**
+     * The table name to use for inserts, updates, and deletes. May differ from the
+     * table used for {@link #getQueryTable() querying}
+     */
+    protected final String getUpdateTable() {
         return getContentType().getSimpleName().toLowerCase();
     }
 
+    /**
+     * The table or view name used for queries. It may contain denormalized fields
+     * for common query attributes
+     */
     protected abstract String getQueryTable();
+
+    /**
+     * @return comma separated list of column names required to build the catalog
+     *         info with the {@link RowMapper}
+     * @see #newRowMapper
+     */
+    protected abstract String getReturnColumns();
+
+    /**
+     * Creates a new {@link RowMapper}, potentially stateful, so a new one has to be created for each operation (e.g. {@code find*} methods).
+     */
+    protected RowMapper<T> newRowMapper() {
+        return CatalogInfoRowMapper.newInstance();
+    }
 
     protected final Set<String> sortableProperties() {
         if (null == sortableProperties) {
@@ -79,7 +123,18 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> exten
         return sortableProperties;
     }
 
-    private Set<String> resolveSortableProperties() {
+    /**
+     * Resolves which column names can be used for queries. Column names match
+     * {@link CatalogInfo} property names that are commonly used in filters. For
+     * example, {@code name, title, workspace.id, resource.store.name, etc.}
+     * <p>
+     * This method assumes any column from the {@link #getQueryTable() query table}
+     * that's not of type {@code jsonb} can be used for filters.
+     *
+     * @return an immutable {@link Set} with the {@link #getQueryTable()} column
+     *         names to use for filters.
+     */
+    protected Set<String> resolveSortableProperties() {
         Set<String> queryableColumns = new TreeSet<>();
         final String queryTable = getQueryTable();
         try (Connection c = template.getDataSource().getConnection()) {
@@ -100,26 +155,15 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> exten
         return Set.copyOf(queryableColumns);
     }
 
-    protected abstract RowMapper<T> newRowMapper();
-
     @Override
     public void add(@NonNull T value) {
         String encoded = encode(value);
-        template.update(
-                """
-                INSERT INTO %s (info) VALUES(to_json(?::json))
-                """
-                        .formatted(getTable()),
-                encoded);
+        template.update(insertSql, encoded);
     }
 
     @Override
     public void remove(@NonNull T value) {
-        template.update(
-                """
-                DELETE FROM %s WHERE id = ?
-                """.formatted(getTable()),
-                value.getId());
+        template.update(deleteByIdSql, value.getId());
     }
 
     @SuppressWarnings("unchecked")
@@ -132,13 +176,7 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> exten
                         .formatted(getContentType().getSimpleName(), value.getId())));
 
         String encoded = encode(patched);
-        template.update(
-                """
-                UPDATE %s SET info = to_json(?::json) WHERE id = ?
-                """
-                        .formatted(getTable()),
-                encoded,
-                id);
+        template.update(updateByIdSql, encoded, id);
         return (I) patched;
     }
 
@@ -160,7 +198,7 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> exten
 
         final boolean filterFullySupported = Filter.INCLUDE.equals(unsupportedFilter);
 
-        String sql = "SELECT * FROM %s WHERE TRUE".formatted(getQueryTable());
+        String sql = select("WHERE TRUE");
 
         Object[] prepStatementParams = null;
         if (!Filter.INCLUDE.equals(supportedFilter)) {
@@ -199,7 +237,7 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> exten
         return info -> null != info && filter.evaluate(info);
     }
 
-    private <S extends Info> Filter applyTypeFilter(Filter filter, Class<S> type) {
+    protected <S extends Info> Filter applyTypeFilter(Filter filter, Class<S> type) {
         if (!getContentType().equals(type)) {
             filter = Predicates.and(Predicates.isInstanceOf(type), filter);
         }
@@ -229,7 +267,7 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> exten
     protected void checkCanSortBy(String property) {
         if (!canSortBy(property)) {
             throw new IllegalArgumentException("Unsupported sort property %s on %s. Supported properties: %s"
-                    .formatted(property, getTable(), sortableProperties()));
+                    .formatted(property, getUpdateTable(), sortableProperties()));
         }
     }
 
@@ -255,7 +293,7 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> exten
             String sql = "SELECT count(*) FROM %s WHERE TRUE";
             Object[] prepStatementParams = null;
             if (Filter.INCLUDE.equals(supportedFilter)) {
-                sql = sql.formatted(getTable());
+                sql = sql.formatted(getUpdateTable());
             } else {
                 sql = sql.formatted(getQueryTable());
                 sql = "%s AND %s".formatted(sql, whereClause);
@@ -283,10 +321,7 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> exten
 
     @Override
     public <U extends T> Optional<U> findById(@NonNull String id, Class<U> clazz) {
-        String query = """
-                SELECT * FROM %s WHERE id = ?
-                """.formatted(getQueryTable());
-        return findOne(query, clazz, id);
+        return findOne(select("WHERE id = ?"), clazz, id);
     }
 
     public Optional<T> findById(@NonNull String id) {
@@ -295,11 +330,7 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> exten
 
     @Override
     public <U extends T> Optional<U> findFirstByName(@NonNull String name, Class<U> clazz) {
-        String query = """
-                SELECT * FROM %s WHERE name = ? ORDER BY id
-                """
-                .formatted(getQueryTable());
-        return findOne(query, clazz, name);
+        return findOne(select("WHERE name = ? ORDER BY id"), clazz, name);
     }
 
     protected Optional<T> findOne(@NonNull String query, Object... args) {
@@ -357,5 +388,12 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> exten
         else cm = ClassMappings.fromImpl(clazz);
 
         return cm.getInterface().getSimpleName();
+    }
+
+    protected String select(String predicate) {
+        String returnColumns = getReturnColumns();
+        String queryTable = getQueryTable();
+        if (null == predicate) predicate = "";
+        return "SELECT %s FROM %s %s".formatted(returnColumns, queryTable, predicate);
     }
 }

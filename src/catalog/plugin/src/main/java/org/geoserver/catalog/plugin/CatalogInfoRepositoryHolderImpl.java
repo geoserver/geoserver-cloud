@@ -58,10 +58,11 @@ public class CatalogInfoRepositoryHolderImpl implements CatalogInfoRepositoryHol
     protected WorkspaceRepository workspaces;
     protected StoreRepository stores;
     protected ResourceRepository resources;
-    protected LayerRepository layers;
-    protected LayerGroupRepository layerGroups;
     protected StyleRepository styles;
     protected MapRepository maps;
+
+    protected LayerRepository layers;
+    protected LayerGroupRepository layerGroups;
 
     protected CatalogInfoTypeRegistry<CatalogInfoRepository<?>> repos = new CatalogInfoTypeRegistry<>();
 

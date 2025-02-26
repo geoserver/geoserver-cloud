@@ -15,7 +15,6 @@ import org.geoserver.catalog.plugin.CatalogInfoRepository.ResourceRepository;
 import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.PropertyDiff;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 
 /**
  * @since 1.4
@@ -30,18 +29,18 @@ public class PgconfigResourceRepository extends PgconfigCatalogInfoRepository<Re
      * @param template
      */
     public PgconfigResourceRepository(@NonNull JdbcTemplate template, @NonNull PgconfigLayerRepository layerrepo) {
-        super(template);
+        super(ResourceInfo.class, template);
         this.layerrepo = layerrepo;
-    }
-
-    @Override
-    public Class<ResourceInfo> getContentType() {
-        return ResourceInfo.class;
     }
 
     @Override
     protected String getQueryTable() {
         return "resourceinfos";
+    }
+
+    @Override
+    protected String getReturnColumns() {
+        return CatalogInfoRowMapper.RESOURCEINFO_BUILD_COLUMNS;
     }
 
     @Override
@@ -71,83 +70,67 @@ public class PgconfigResourceRepository extends PgconfigCatalogInfoRepository<Re
     @Override
     public <T extends ResourceInfo> Optional<T> findByNameAndNamespace(
             @NonNull String name, @NonNull NamespaceInfo namespace, @NonNull Class<T> clazz) {
-        String query =
-                """
-                SELECT resource, store, workspace, namespace \
-                FROM resourceinfos \
+        String query = select("""
                 WHERE "namespace.id" = ? AND name = ?
-                """;
+                """);
+
         if (ResourceInfo.class.equals(clazz)) {
-            return findOne(query, clazz, newRowMapper(), namespace.getId(), name);
+            return findOne(query, clazz, namespace.getId(), name);
         }
         query += AND_TYPE_INFOTYPE;
-        return findOne(query, clazz, newRowMapper(), namespace.getId(), name, infoType(clazz));
+        String infoType = infoType(clazz);
+        return findOne(query, clazz, namespace.getId(), name, infoType);
     }
 
     @Override
     public <T extends ResourceInfo> Stream<T> findAllByType(@NonNull Class<T> clazz) {
-        String query =
-                """
-                SELECT resource, store, workspace, namespace \
-                FROM resourceinfos
-                """;
+
         if (ResourceInfo.class.equals(clazz)) {
-            return template.queryForStream(query, newRowMapper()).map(clazz::cast);
+            return queryForStream(clazz, select(null));
         }
-        query += " WHERE \"@type\" = ?::infotype";
-        return template.queryForStream(query, newRowMapper(), infoType(clazz)).map(clazz::cast);
+        String query = select("""
+                        WHERE "@type" = ?::infotype
+                        """);
+        String infoType = infoType(clazz);
+        return queryForStream(clazz, query, infoType);
     }
 
     @Override
     public <T extends ResourceInfo> Stream<T> findAllByNamespace(@NonNull NamespaceInfo ns, @NonNull Class<T> clazz) {
 
-        String query =
-                """
-                SELECT resource, store, workspace, namespace \
-                FROM resourceinfos \
+        String query = select("""
                 WHERE "namespace.id" = ?
-                """;
+                """);
         if (ResourceInfo.class.equals(clazz)) {
-            return super.queryForStream(clazz, query, ns.getId());
+            return queryForStream(clazz, query, ns.getId());
         }
         query += AND_TYPE_INFOTYPE;
-        return super.queryForStream(clazz, query, ns.getId(), infoType(clazz));
+        return queryForStream(clazz, query, ns.getId(), infoType(clazz));
     }
 
     @Override
     public <T extends ResourceInfo> Optional<T> findByStoreAndName(
             @NonNull StoreInfo store, @NonNull String name, @NonNull Class<T> clazz) {
 
-        String query =
-                """
-                SELECT resource, store, workspace, namespace \
-                FROM resourceinfos \
+        String query = select("""
                 WHERE "store.id" = ? AND name = ?
-                """;
+                """);
         if (ResourceInfo.class.equals(clazz)) {
-            return findOne(query, clazz, newRowMapper(), store.getId(), name);
+            return findOne(query, clazz, store.getId(), name);
         }
         query += AND_TYPE_INFOTYPE;
-        return findOne(query, clazz, newRowMapper(), store.getId(), name, infoType(clazz));
+        return findOne(query, clazz, store.getId(), name, infoType(clazz));
     }
 
     @Override
     public <T extends ResourceInfo> Stream<T> findAllByStore(StoreInfo store, Class<T> clazz) {
-        String query =
-                """
-                SELECT resource, store, workspace, namespace \
-                FROM resourceinfos \
+        String query = select("""
                 WHERE "store.id" = ?
-                """;
+                """);
         if (ResourceInfo.class.equals(clazz)) {
-            return super.queryForStream(clazz, query, store.getId());
+            return queryForStream(clazz, query, store.getId());
         }
         query += AND_TYPE_INFOTYPE;
         return super.queryForStream(clazz, query, store.getId(), infoType(clazz));
-    }
-
-    @Override
-    protected RowMapper<ResourceInfo> newRowMapper() {
-        return CatalogInfoRowMapper.resource();
     }
 }
