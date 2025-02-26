@@ -25,6 +25,26 @@ class PgconfigTileLayerInfoRowMapper implements RowMapper<TileLayerInfo> {
 
     protected static final ObjectMapper objectMapper = PgconfigObjectMapper.newObjectMapper();
 
+    /**
+     * Columns required to construct a tile layer
+     *
+     * <pre>{@code
+     *      Column     |   Type   |
+     * ----------------+----------+
+     *  &#64;type      | infotype |
+     *  workspace      | jsonb    |
+     *  namespace      | jsonb    |
+     *  store          | jsonb    |
+     *  resource       | jsonb    |
+     *  publishedinfo  | jsonb    |
+     *  defaultStyle   | jsonb    |
+     *  tilelayer      | jsonb    |
+     *
+     * }</pre>
+     */
+    static final String MAPPED_COLUMNS =
+            "\"@type\", tilelayer, workspace, namespace, store, resource, publishedinfo, \"defaultStyle\"";
+
     private final RowMapper<PublishedInfo> publishedMapper;
 
     private PgconfigTileLayerInfoRowMapper(RowMapper<PublishedInfo> publishedMapper) {

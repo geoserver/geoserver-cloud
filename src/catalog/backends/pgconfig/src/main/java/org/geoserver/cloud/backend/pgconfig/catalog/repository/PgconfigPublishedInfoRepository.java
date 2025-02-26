@@ -27,9 +27,12 @@ public abstract class PgconfigPublishedInfoRepository<P extends PublishedInfo>
         this.styleRepo = styleLoader;
     }
 
+    /**
+     * @return {@code publishedinfos_mat}, the materialized table maintained by triggers for fast querying of {@link PublishedInfo}s
+     */
     @Override
     protected final String getQueryTable() {
-        return "publishedinfos";
+        return "publishedinfos_mat";
     }
 
     @Override

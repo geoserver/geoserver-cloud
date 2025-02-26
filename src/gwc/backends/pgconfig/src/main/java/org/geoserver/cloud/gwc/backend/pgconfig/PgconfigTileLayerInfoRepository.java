@@ -4,6 +4,8 @@
  */
 package org.geoserver.cloud.gwc.backend.pgconfig;
 
+import static org.geoserver.cloud.gwc.backend.pgconfig.PgconfigTileLayerInfoRowMapper.MAPPED_COLUMNS;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -34,8 +36,11 @@ public class PgconfigTileLayerInfoRepository implements TileLayerInfoRepository 
 
     private final LoggingTemplate template;
 
+    private final String tileLayersQueryTable;
+
     public PgconfigTileLayerInfoRepository(@NonNull JdbcTemplate template) {
         this.template = new LoggingTemplate(template);
+        this.tileLayersQueryTable = "tilelayers_mat";
     }
 
     @Override
@@ -87,7 +92,11 @@ public class PgconfigTileLayerInfoRepository implements TileLayerInfoRepository 
 
     @Override
     public Stream<TileLayerInfo> findAll() throws DataAccessException {
-        return template.queryForStream("SELECT * FROM tilelayers", mapper());
+        String query = """
+                        SELECT %s FROM "%s"
+                        """
+                .formatted(MAPPED_COLUMNS, tileLayersQueryTable);
+        return template.queryForStream(query, mapper());
     }
 
     @Override
@@ -97,14 +106,16 @@ public class PgconfigTileLayerInfoRepository implements TileLayerInfoRepository 
         if (workspaceName == null) {
             sql =
                     """
-                    SELECT * FROM tilelayers WHERE "workspace.name" IS NULL AND "published.name" = ?
-                    """;
+                    SELECT %s FROM "%s" WHERE "workspace.name" IS NULL AND "published.name" = ?
+                    """
+                            .formatted(MAPPED_COLUMNS, tileLayersQueryTable);
             args = new Object[] {localName};
         } else {
             sql =
                     """
-                    SELECT * FROM tilelayers WHERE "workspace.name" = ? AND "published.name" = ?
-                    """;
+                    SELECT %s FROM "%s" WHERE "workspace.name" = ? AND "published.name" = ?
+                    """
+                            .formatted(MAPPED_COLUMNS, tileLayersQueryTable);
             args = new Object[] {workspaceName, localName};
         }
         try {
@@ -117,13 +128,15 @@ public class PgconfigTileLayerInfoRepository implements TileLayerInfoRepository 
 
     @Override
     public int count() throws DataAccessException {
-        Integer count = template.queryForObject("SELECT count(*) FROM tilelayers", Integer.class);
+        String query = "SELECT count(*) FROM \"%s\"".formatted(tileLayersQueryTable);
+        Integer count = template.queryForObject(query, Integer.class);
         return count == null ? 0 : count;
     }
 
     @Override
     public Set<String> findAllNames() throws DataAccessException {
-        try (var stream = template.queryForStream("SELECT name FROM tilelayers", (rs, rn) -> rs.getString(1))) {
+        String query = "SELECT name FROM \"%s\"".formatted(tileLayersQueryTable);
+        try (var stream = template.queryForStream(query, (rs, rn) -> rs.getString(1))) {
             return stream.collect(Collectors.toCollection(TreeSet::new));
         }
     }
@@ -135,14 +148,16 @@ public class PgconfigTileLayerInfoRepository implements TileLayerInfoRepository 
         if (null == workspaceName) {
             query =
                     """
-                    SELECT exists(SELECT 1 FROM tilelayers WHERE "workspace.name" IS NULL AND "published.name" = ?)
-                    """;
+                    SELECT exists(SELECT 1 FROM "%s" WHERE "workspace.name" IS NULL AND "published.name" = ?)
+                    """
+                            .formatted(tileLayersQueryTable);
             args = new Object[] {localName};
         } else {
             query =
                     """
-                    SELECT exists(SELECT 1 FROM tilelayers WHERE "workspace.name" = ? AND "published.name" = ?)
-                    """;
+                    SELECT exists(SELECT 1 FROM "%s" WHERE "workspace.name" = ? AND "published.name" = ?)
+                    """
+                            .formatted(tileLayersQueryTable);
             args = new Object[] {workspaceName, localName};
         }
         Boolean exists = template.queryForObject(query, Boolean.class, args);
