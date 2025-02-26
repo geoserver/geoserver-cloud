@@ -11,7 +11,6 @@ import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.StyleRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 
 /**
  * @since 1.4
@@ -22,16 +21,11 @@ public class PgconfigStyleRepository extends PgconfigCatalogInfoRepository<Style
      * @param template
      */
     public PgconfigStyleRepository(@NonNull JdbcTemplate template) {
-        super(template);
+        super(StyleInfo.class, template);
     }
 
     public PgconfigStyleRepository(@NonNull LoggingTemplate template) {
-        super(template);
-    }
-
-    @Override
-    public Class<StyleInfo> getContentType() {
-        return StyleInfo.class;
+        super(StyleInfo.class, template);
     }
 
     @Override
@@ -40,52 +34,27 @@ public class PgconfigStyleRepository extends PgconfigCatalogInfoRepository<Style
     }
 
     @Override
+    protected String getReturnColumns() {
+        return CatalogInfoRowMapper.STYLEINFO_BUILD_COLUMNS;
+    }
+
+    @Override
     public Stream<StyleInfo> findAllByNullWorkspace() {
-        String query =
-                """
-                SELECT style, workspace \
-                FROM styleinfos \
-                WHERE "workspace.id" IS NULL
-                """;
-        return super.queryForStream(query);
+        return queryForStream(select("WHERE \"workspace.id\" IS NULL"));
     }
 
     @Override
     public Stream<StyleInfo> findAllByWorkspace(@NonNull WorkspaceInfo ws) {
-        String query =
-                """
-                SELECT style, workspace \
-                FROM styleinfos \
-                WHERE "workspace.id" = ?
-                """;
-        return super.queryForStream(query, ws.getId());
+        return queryForStream(select("WHERE \"workspace.id\" = ?"), ws.getId());
     }
 
     @Override
     public Optional<StyleInfo> findByNameAndWordkspaceNull(@NonNull String name) {
-        String query =
-                """
-                SELECT style, workspace \
-                FROM styleinfos \
-                WHERE "workspace.id" IS NULL AND name = ?
-                """;
-        return findOne(query, name);
+        return findOne(select("WHERE \"workspace.id\" IS NULL AND name = ?"), name);
     }
 
     @Override
     public Optional<StyleInfo> findByNameAndWorkspace(@NonNull String name, @NonNull WorkspaceInfo workspace) {
-
-        String query =
-                """
-                SELECT style, workspace \
-                FROM styleinfos \
-                WHERE "workspace.id" = ? AND name = ?
-                """;
-        return findOne(query, workspace.getId(), name);
-    }
-
-    @Override
-    protected RowMapper<StyleInfo> newRowMapper() {
-        return CatalogInfoRowMapper.style();
+        return findOne(select("WHERE \"workspace.id\" = ? AND name = ?"), workspace.getId(), name);
     }
 }

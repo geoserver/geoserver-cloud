@@ -10,7 +10,6 @@ import lombok.NonNull;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.NamespaceRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 
 /**
  * @since 1.4
@@ -22,12 +21,7 @@ public class PgconfigNamespaceRepository extends PgconfigCatalogInfoRepository<N
      * @param template
      */
     public PgconfigNamespaceRepository(@NonNull JdbcTemplate template) {
-        super(template);
-    }
-
-    @Override
-    public Class<NamespaceInfo> getContentType() {
-        return NamespaceInfo.class;
+        super(NamespaceInfo.class, template);
     }
 
     @Override
@@ -36,12 +30,18 @@ public class PgconfigNamespaceRepository extends PgconfigCatalogInfoRepository<N
     }
 
     @Override
+    protected String getReturnColumns() {
+        return CatalogInfoRowMapper.NAMESPACE_BUILD_COLUMNS;
+    }
+
+    @Override
     public void setDefaultNamespace(@NonNull NamespaceInfo namespace) {
         unsetDefaultNamespace();
         template.update(
                 """
-                UPDATE namespaceinfo SET default_namespace = TRUE WHERE id = ?
-                """,
+                UPDATE %s SET default_namespace = TRUE WHERE id = ?
+                """
+                        .formatted(getUpdateTable()),
                 namespace.getId());
     }
 
@@ -49,35 +49,23 @@ public class PgconfigNamespaceRepository extends PgconfigCatalogInfoRepository<N
     public void unsetDefaultNamespace() {
         template.update(
                 """
-                UPDATE namespaceinfo SET default_namespace = FALSE WHERE default_namespace = TRUE
-                """);
+                UPDATE %s SET default_namespace = FALSE WHERE default_namespace = TRUE
+                """
+                        .formatted(getUpdateTable()));
     }
 
     @Override
     public Optional<NamespaceInfo> getDefaultNamespace() {
-        return findOne(
-                """
-                SELECT namespace FROM namespaceinfos WHERE default_namespace = TRUE
-                """);
+        return findOne(select("WHERE default_namespace = TRUE"));
     }
 
     @Override
     public Optional<NamespaceInfo> findOneByURI(@NonNull String uri) {
-        return findOne("""
-                SELECT namespace FROM namespaceinfos WHERE uri = ?
-                """, uri);
+        return findOne(select("WHERE uri = ?"), uri);
     }
 
     @Override
     public Stream<NamespaceInfo> findAllByURI(@NonNull String uri) {
-        return super.queryForStream(
-                """
-                SELECT namespace FROM namespaceinfos WHERE uri = ?
-                """, uri);
-    }
-
-    @Override
-    protected RowMapper<NamespaceInfo> newRowMapper() {
-        return CatalogInfoRowMapper.namespace();
+        return queryForStream(select("WHERE uri = ?"), uri);
     }
 }
