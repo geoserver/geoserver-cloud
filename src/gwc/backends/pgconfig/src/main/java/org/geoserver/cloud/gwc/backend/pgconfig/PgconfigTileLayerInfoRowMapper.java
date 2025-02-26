@@ -33,7 +33,8 @@ class PgconfigTileLayerInfoRowMapper implements RowMapper<TileLayerInfo> {
 
     public static PgconfigTileLayerInfoRowMapper newInstance(@NonNull JdbcTemplate template) {
         PgconfigStyleRepository styleLoader = new PgconfigStyleRepository(template);
-        RowMapper<PublishedInfo> publishedMapper = CatalogInfoRowMapper.published(styleLoader::findById);
+        RowMapper<PublishedInfo> publishedMapper =
+                CatalogInfoRowMapper.<PublishedInfo>newInstance().setStyleLoader(styleLoader::findById);
         return new PgconfigTileLayerInfoRowMapper(publishedMapper);
     }
 

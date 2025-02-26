@@ -12,7 +12,6 @@ import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.StoreRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 
 /**
  * @since 1.4
@@ -23,12 +22,7 @@ public class PgconfigStoreRepository extends PgconfigCatalogInfoRepository<Store
      * @param template
      */
     public PgconfigStoreRepository(@NonNull JdbcTemplate template) {
-        super(template);
-    }
-
-    @Override
-    public Class<StoreInfo> getContentType() {
-        return StoreInfo.class;
+        super(StoreInfo.class, template);
     }
 
     @Override
@@ -37,14 +31,13 @@ public class PgconfigStoreRepository extends PgconfigCatalogInfoRepository<Store
     }
 
     @Override
+    protected String getReturnColumns() {
+        return CatalogInfoRowMapper.STOREINFO_BUILD_COLUMNS;
+    }
+
+    @Override
     public <U extends StoreInfo> Optional<U> findById(@NonNull String id, Class<U> clazz) {
-        String sql =
-                """
-                SELECT store, workspace \
-                FROM storeinfos \
-                WHERE id = ?
-                """;
-        return findOne(sql, clazz, id);
+        return findOne(select("WHERE id = ?"), clazz, id);
     }
 
     @Override
@@ -61,12 +54,10 @@ public class PgconfigStoreRepository extends PgconfigCatalogInfoRepository<Store
 
     @Override
     public Optional<DataStoreInfo> getDefaultDataStore(@NonNull WorkspaceInfo workspace) {
-        String sql =
+        String sql = select(
                 """
-                SELECT store, workspace \
-                FROM storeinfos \
                 WHERE id = (SELECT default_store FROM workspaceinfo WHERE id = ?)
-                """;
+                """);
         return findOne(sql, DataStoreInfo.class, workspace.getId());
     }
 
@@ -85,12 +76,9 @@ public class PgconfigStoreRepository extends PgconfigCatalogInfoRepository<Store
     public <U extends StoreInfo> Stream<U> findAllByWorkspace(
             @NonNull WorkspaceInfo workspace, @NonNull Class<U> clazz) {
 
-        String sql =
-                """
-                SELECT store, workspace \
-                FROM storeinfos \
+        String sql = select("""
                 WHERE "workspace.id" = ?
-                """;
+                """);
 
         final String workspaceId = workspace.getId();
         if (StoreInfo.class.equals(clazz)) {
@@ -106,12 +94,11 @@ public class PgconfigStoreRepository extends PgconfigCatalogInfoRepository<Store
     public <T extends StoreInfo> Stream<T> findAllByType(@NonNull Class<T> clazz) {
 
         if (StoreInfo.class.equals(clazz)) {
-            return super.queryForStream(clazz, "SELECT store, workspace FROM storeinfos");
+            return super.queryForStream(clazz, select(null));
         }
 
         String infotype = infoType(clazz);
-        return super.queryForStream(
-                clazz, "SELECT store, workspace FROM storeinfos WHERE \"@type\" = ?::infotype", infotype);
+        return super.queryForStream(clazz, select("WHERE \"@type\" = ?::infotype"), infotype);
     }
 
     @Override
@@ -119,16 +106,11 @@ public class PgconfigStoreRepository extends PgconfigCatalogInfoRepository<Store
             @NonNull String name, @NonNull WorkspaceInfo workspace, @NonNull Class<T> clazz) {
 
         return findOne(
-                """
-                SELECT store, workspace FROM storeinfos WHERE "workspace.id" = ? AND name = ?
-                """,
+                select("""
+                WHERE "workspace.id" = ? AND name = ?
+                """),
                 clazz,
                 workspace.getId(),
                 name);
-    }
-
-    @Override
-    protected RowMapper<StoreInfo> newRowMapper() {
-        return CatalogInfoRowMapper.store();
     }
 }

@@ -240,4 +240,9 @@ public @Data class Query<T extends Info> {
     public Query<T> withFilter(Filter filter) {
         return filter.equals(this.filter) ? this : new Query<>(this).setFilter(filter);
     }
+
+    @SuppressWarnings("unchecked")
+    public <T extends CatalogInfo> Query<T> as() {
+        return (Query<T>) this;
+    }
 }

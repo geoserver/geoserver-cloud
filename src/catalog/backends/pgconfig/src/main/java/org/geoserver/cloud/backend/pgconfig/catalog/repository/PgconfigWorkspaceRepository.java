@@ -9,7 +9,6 @@ import lombok.NonNull;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogInfoRepository.WorkspaceRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -27,17 +26,17 @@ public class PgconfigWorkspaceRepository extends PgconfigCatalogInfoRepository<W
      * @param template
      */
     public PgconfigWorkspaceRepository(@NonNull JdbcTemplate template) {
-        super(template);
-    }
-
-    @Override
-    public Class<WorkspaceInfo> getContentType() {
-        return WorkspaceInfo.class;
+        super(WorkspaceInfo.class, template);
     }
 
     @Override
     protected String getQueryTable() {
         return "workspaceinfos";
+    }
+
+    @Override
+    protected String getReturnColumns() {
+        return CatalogInfoRowMapper.WORKSPACE_BUILD_COLUMNS;
     }
 
     @Override
@@ -52,21 +51,14 @@ public class PgconfigWorkspaceRepository extends PgconfigCatalogInfoRepository<W
         unsetDefaultWorkspace();
         template.update(
                 """
-                UPDATE workspaceinfo SET default_workspace = TRUE WHERE id = ?
-                """,
+                UPDATE %s SET default_workspace = TRUE WHERE id = ?
+                """
+                        .formatted(getUpdateTable()),
                 workspace.getId());
     }
 
     @Override
     public Optional<WorkspaceInfo> getDefaultWorkspace() {
-        return findOne(
-                """
-                SELECT workspace FROM workspaceinfos WHERE default_workspace = TRUE
-                """);
-    }
-
-    @Override
-    protected RowMapper<WorkspaceInfo> newRowMapper() {
-        return CatalogInfoRowMapper.workspace();
+        return findOne(select("WHERE default_workspace = TRUE"));
     }
 }

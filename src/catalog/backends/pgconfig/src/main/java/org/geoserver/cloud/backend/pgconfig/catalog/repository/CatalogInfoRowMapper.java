@@ -11,13 +11,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.catalog.CatalogInfo;
 import org.geoserver.catalog.LayerGroupInfo;
@@ -37,60 +35,171 @@ import org.springframework.jdbc.core.RowMapper;
  * @since 1.4
  */
 @Slf4j(topic = "org.geoserver.cloud.backend.pgconfig.catalog.repository.rowmapper")
-public final class CatalogInfoRowMapper {
+public final class CatalogInfoRowMapper<T extends CatalogInfo> implements RowMapper<T> {
 
     protected static final ObjectMapper objectMapper = PgconfigObjectMapper.newObjectMapper();
+
+    /**
+     * Columns required by {@link #mapNamespace(ResultSet, int)}
+     *
+     * <pre>{@code
+     *    Column        |   Type   |
+     * -----------------+----------+
+     * namespace        | jsonb    |
+     * }</pre>
+     */
+    static final String NAMESPACE_BUILD_COLUMNS = "\"@type\", namespace";
+
+    /**
+     * Columns required by {@link #mapWorkspace(ResultSet, int)}
+     *
+     * <pre>{@code
+     *    Column        |   Type   |
+     * ----------------------+------
+     * workspace        | jsonb    |
+     * }</pre>
+     */
+    static final String WORKSPACE_BUILD_COLUMNS = "\"@type\", workspace";
+
+    /**
+     * Columns required by {@link #mapStore(ResultSet, int)}
+     *
+     * <pre>{@code
+     *    Column        |   Type   |
+     * -----------------+----------+
+     * store            | jsonb    |
+     * workspace        | jsonb    |
+     * }</pre>
+     */
+    static final String STOREINFO_BUILD_COLUMNS = "\"@type\", store, workspace";
+
+    /**
+     * Columns required by {@link #mapStyle(ResultSet, int)}
+     *
+     * <pre>{@code
+     *    Column        |   Type   |
+     * -----------------+----------+
+     * style            | jsonb    |
+     * workspace        | jsonb    |
+     * }</pre>
+     */
+    static final String STYLEINFO_BUILD_COLUMNS = "\"@type\", style, workspace";
+
+    /**
+     * Columns required by {@link #mapResource(ResultSet, int)}
+     *
+     * <pre>{@code
+     *    Column        |   Type   |
+     * -----------------+----------+
+     * resource         | jsonb    |
+     * store            | jsonb    |
+     * workspace        | jsonb    |
+     * namespace        | jsonb    |
+     * }</pre>
+     */
+    static final String RESOURCEINFO_BUILD_COLUMNS = "\"@type\", resource, store, workspace, namespace";
+
+    /**
+     * Columns required by {@link #mapPublishedInfo(ResultSet, int)}
+     *
+     * <pre>{@code
+     *    Column        |   Type   |
+     * ----------------------+------
+     * &#64;type        | text     |
+     * publishedinfo    | jsonb    |
+     * workspace        | jsonb    |
+     * resource         | jsonb    |
+     * store            | jsonb    |
+     * namespace        | jsonb    |
+     * defaultStyle     | jsonb    |
+     * }</pre>
+     */
+    static final String PUBLISHEDINFO_BUILD_COLUMNS =
+            "\"@type\", publishedinfo, workspace, resource, store, namespace, \"defaultStyle\"";
+
+    /**
+     * Columns required by {@link #mapLayer(ResultSet, int)}
+     *
+     * <pre>{@code
+     *    Column        |   Type   |
+     * ----------------------+------
+     * publishedinfo    | jsonb    |
+     * resource         | jsonb    |
+     * store            | jsonb    |
+     * workspace        | jsonb    |
+     * namespace        | jsonb    |
+     * defaultStyle     | jsonb    |
+     * }</pre>
+     */
+    static final String LAYERINFO_BUILD_COLUMNS =
+            "\"@type\", publishedinfo, resource, store, workspace, namespace, \"defaultStyle\"";
+
+    /**
+     * Columns required by {@link #mapLayerGroup(ResultSet, int)}
+     *
+     * <pre>{@code
+     *    Column        |   Type   |
+     * ----------------------+------
+     * publishedinfo    | jsonb    |
+     * workspace        | jsonb    |
+     * }</pre>
+     */
+    static final String LAYERGROUPINFO_BUILD_COLUMNS = "\"@type\", publishedinfo, workspace";
 
     /** Lazily created by {@link #cache()} */
     private Map<Class<?>, Map<String, CatalogInfo>> cache;
 
-    private @Setter Function<String, Optional<StyleInfo>> styleLoader;
+    private Function<String, Optional<StyleInfo>> styleLoader;
 
     private CatalogInfoRowMapper() {
         // private constructor
     }
 
+    public CatalogInfoRowMapper<T> setStyleLoader(Function<String, Optional<StyleInfo>> styleLoader) {
+        this.styleLoader = styleLoader;
+        return this;
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
-    private <T extends CatalogInfo> Map<String, T> cache(Class<T> clazz) {
+    public T mapRow(ResultSet rs, int rowNum) throws SQLException {
+        final String type = rs.getString("@type");
+        return switch (type) {
+            case "NamespaceInfo" -> (T) mapNamespace(rs, rowNum);
+            case "WorkspaceInfo" -> (T) mapWorkspace(rs, rowNum);
+            case "DataStoreInfo" -> (T) mapStore(rs, rowNum);
+            case "CoverageStoreInfo" -> (T) mapStore(rs, rowNum);
+            case "WMSStoreInfo" -> (T) mapStore(rs, rowNum);
+            case "WMTSStoreInfo" -> (T) mapStore(rs, rowNum);
+            case "FeatureTypeInfo" -> (T) mapResource(rs, rowNum);
+            case "CoverageInfo" -> (T) mapResource(rs, rowNum);
+            case "WMSLayerInfo" -> (T) mapResource(rs, rowNum);
+            case "WMTSLayerInfo" -> (T) mapResource(rs, rowNum);
+            case "LayerInfo" -> (T) mapLayer(rs, rowNum);
+            case "LayerGroupInfo" -> (T) mapLayerGroup(rs, rowNum);
+            case "StyleInfo" -> (T) mapStyle(rs, rowNum);
+            default -> throw new IllegalArgumentException("Unexpected value: " + type);
+        };
+    }
+
+    @SuppressWarnings("unchecked")
+    private <C extends CatalogInfo> Map<String, C> cache(Class<C> clazz) {
         if (cache == null) {
             cache = new HashMap<>();
         }
-        return (Map<String, T>) cache.computeIfAbsent(clazz, c -> new LRUCache<>(100));
+        return (Map<String, C>) cache.computeIfAbsent(clazz, c -> new LRUCache<>(100));
     }
 
-    @SuppressWarnings({"serial", "java:S2160"})
-    @RequiredArgsConstructor
-    private static class LRUCache<K, V> extends LinkedHashMap<K, V> {
-        final int maxCapacity;
-
-        @Override
-        @SuppressWarnings("unchecked")
-        public V get(Object key) {
-            V v = super.get(key);
-            if (null != v && size() > 1) {
-                // by definition v is now the most recently used, so bubble it up to the top of the
-                // list. removeEldestEntry will hence always remove the least recently used.
-                super.putFirst((K) key, v);
-            }
-            return v;
-        }
-
-        @Override
-        protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
-            return size() > maxCapacity;
-        }
-    }
-
-    protected <T extends CatalogInfo> T resolveCached(
-            String id, Class<T> clazz, ResultSet rs, Function<ResultSet, T> loader) {
+    protected <C extends CatalogInfo> C resolveCached(
+            String id, Class<C> clazz, ResultSet rs, Function<ResultSet, C> loader) {
 
         return resolveCached(id, clazz, idd -> loader.apply(rs));
     }
 
-    protected <T extends CatalogInfo> T resolveCached(String id, Class<T> clazz, Function<String, T> loader) {
+    protected <C extends CatalogInfo> C resolveCached(String id, Class<C> clazz, Function<String, C> loader) {
         if (null == id) return null;
         var infoCache = cache(clazz);
-        T info = infoCache.get(id);
+        C info = infoCache.get(id);
         if (clazz.isInstance(info)) {
             log.trace("loaded from RowMapper cache: {}", info);
         } else {
@@ -104,7 +213,8 @@ public final class CatalogInfoRowMapper {
     /**
      * {@link RowMapper} function for {@link WorkspaceInfo}
      *
-     * <p>Expects the following columns:
+     * <p>
+     * Expects the following columns:
      *
      * <pre>{@code
      *    Column        |   Type   |
@@ -112,7 +222,7 @@ public final class CatalogInfoRowMapper {
      * workspace        | jsonb    |
      * }</pre>
      */
-    public WorkspaceInfo mapWorkspace(ResultSet rs, int rowNum) throws SQLException {
+    WorkspaceInfo mapWorkspace(ResultSet rs, int rowNum) throws SQLException {
         try {
             return mapWorkspace(rs);
         } catch (UncheckedSqlException e) {
@@ -141,7 +251,7 @@ public final class CatalogInfoRowMapper {
      * namespace        | jsonb    |
      * }</pre>
      */
-    public NamespaceInfo mapNamespace(ResultSet rs, int rowNum) throws SQLException {
+    NamespaceInfo mapNamespace(ResultSet rs, int rowNum) throws SQLException {
         try {
             return mapNamespace(rs);
         } catch (UncheckedSqlException e) {
@@ -171,7 +281,7 @@ public final class CatalogInfoRowMapper {
      * workspace        | jsonb    |
      * }</pre>
      */
-    public StyleInfo mapStyle(ResultSet rs, int rowNum) throws SQLException {
+    StyleInfo mapStyle(ResultSet rs, int rowNum) throws SQLException {
         try {
             return loadStyle(rs);
         } catch (UncheckedSqlException e) {
@@ -217,7 +327,7 @@ public final class CatalogInfoRowMapper {
      * workspace        | jsonb    |
      * }</pre>
      */
-    public StoreInfo mapStore(ResultSet rs, int rowNum) throws SQLException {
+    StoreInfo mapStore(ResultSet rs, int rowNum) throws SQLException {
         try {
             return mapStore(rs);
         } catch (UncheckedSqlException e) {
@@ -256,7 +366,7 @@ public final class CatalogInfoRowMapper {
      * namespace        | jsonb    |
      * }</pre>
      */
-    public ResourceInfo mapResource(ResultSet rs, int rowNum) throws SQLException {
+    ResourceInfo mapResource(ResultSet rs, int rowNum) throws SQLException {
         try {
             return mapResource(rs);
         } catch (UncheckedSqlException e) {
@@ -264,7 +374,7 @@ public final class CatalogInfoRowMapper {
         }
     }
 
-    public ResourceInfo mapResource(ResultSet rs) {
+    ResourceInfo mapResource(ResultSet rs) {
         ResourceInfo resource;
         try {
             resource = decode(rs.getString("resource"), ResourceInfo.class);
@@ -299,7 +409,7 @@ public final class CatalogInfoRowMapper {
      * <pre>{@code
      *    Column        |   Type   |
      * ----------------------+------
-     * @type            | text     |
+     * &#64;type            | text     |
      * publishedinfo    | jsonb    |
      * workspace        | jsonb    |
      * resource         | jsonb    |
@@ -311,11 +421,12 @@ public final class CatalogInfoRowMapper {
      * @see #mapLayer(ResultSet, int)
      * @see #mapLayerGroup(ResultSet, int)
      */
-    public PublishedInfo mapPublishedInfo(ResultSet rs, int rowNum) throws SQLException {
+    @SuppressWarnings("unchecked")
+    <P extends PublishedInfo> P mapPublishedInfo(ResultSet rs, int rowNum) throws SQLException {
         final String type = rs.getString("@type");
         return switch (type) {
-            case "LayerInfo" -> mapLayer(rs, rowNum);
-            case "LayerGroupInfo" -> mapLayerGroup(rs, rowNum);
+            case "LayerInfo" -> (P) mapLayer(rs, rowNum);
+            case "LayerGroupInfo" -> (P) mapLayerGroup(rs, rowNum);
             default -> throw new IllegalArgumentException("Unexpected value: " + type);
         };
     }
@@ -334,7 +445,7 @@ public final class CatalogInfoRowMapper {
      * defaultStyle     | jsonb    |
      * }</pre>
      */
-    public LayerInfo mapLayer(ResultSet rs, int rowNum) throws SQLException {
+    LayerInfo mapLayer(ResultSet rs, int rowNum) throws SQLException {
         try {
             return mapLayer(rs);
         } catch (UncheckedSqlException e) {
@@ -352,7 +463,7 @@ public final class CatalogInfoRowMapper {
      * workspace        | jsonb    |
      * }</pre>
      */
-    public LayerGroupInfo mapLayerGroup(ResultSet rs, int rowNum) throws SQLException {
+    LayerGroupInfo mapLayerGroup(ResultSet rs, int rowNum) throws SQLException {
         try {
             return mapLayerGroup(rs);
         } catch (UncheckedSqlException e) {
@@ -386,6 +497,7 @@ public final class CatalogInfoRowMapper {
     }
 
     private StyleInfo loadStyle(String id) {
+        Objects.requireNonNull(styleLoader, "styleLoader is null");
         Function<String, StyleInfo> function = styleLoader.andThen(opt -> opt.orElse(null));
         return resolveCached(id, StyleInfo.class, function);
     }
@@ -395,8 +507,9 @@ public final class CatalogInfoRowMapper {
     }
 
     private void setResource(LayerInfo layer, ResultSet rs) {
-        // ResourceInfos are not cached, they can only be mapped directly or when resolving a
-        // layerinfo. In the later, the relationship is 1:1 so caching them would be vane
+        // ResourceInfos are not cached, they can only be mapped directly or when
+        // resolving a layerinfo. In the later,
+        // the relationship is 1:1 so caching them would be vane
         ResourceInfo resource = mapResource(rs);
         layer.setResource(ModificationProxy.create(resource, ResourceInfo.class));
     }
@@ -445,41 +558,7 @@ public final class CatalogInfoRowMapper {
         }
     }
 
-    public static RowMapper<WorkspaceInfo> workspace() {
-        return new CatalogInfoRowMapper()::mapWorkspace;
-    }
-
-    public static RowMapper<NamespaceInfo> namespace() {
-        return new CatalogInfoRowMapper()::mapNamespace;
-    }
-
-    public static RowMapper<StoreInfo> store() {
-        return new CatalogInfoRowMapper()::mapStore;
-    }
-
-    public static RowMapper<ResourceInfo> resource() {
-        return new CatalogInfoRowMapper()::mapResource;
-    }
-
-    public static RowMapper<StyleInfo> style() {
-        return new CatalogInfoRowMapper()::mapStyle;
-    }
-
-    public static RowMapper<LayerInfo> layer(Function<String, Optional<StyleInfo>> styleLoader) {
-        CatalogInfoRowMapper mapper = new CatalogInfoRowMapper();
-        mapper.setStyleLoader(styleLoader);
-        return mapper::mapLayer;
-    }
-
-    public static RowMapper<LayerGroupInfo> layerGroup(Function<String, Optional<StyleInfo>> styleLoader) {
-        CatalogInfoRowMapper mapper = new CatalogInfoRowMapper();
-        mapper.setStyleLoader(styleLoader);
-        return mapper::mapLayerGroup;
-    }
-
-    public static RowMapper<PublishedInfo> published(Function<String, Optional<StyleInfo>> styleLoader) {
-        CatalogInfoRowMapper mapper = new CatalogInfoRowMapper();
-        mapper.setStyleLoader(styleLoader);
-        return mapper::mapPublishedInfo;
+    public static <I extends CatalogInfo> CatalogInfoRowMapper<I> newInstance() {
+        return new CatalogInfoRowMapper<>();
     }
 }
