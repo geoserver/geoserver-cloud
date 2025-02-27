@@ -4,6 +4,8 @@
  */
 package org.geoserver.cloud.gwc.backend.pgconfig;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -21,8 +23,12 @@ import org.geoserver.catalog.impl.LayerGroupInfoImpl;
 import org.geoserver.catalog.impl.LayerInfoImpl;
 import org.geoserver.catalog.plugin.resolving.ModificationProxyDecorator;
 import org.geoserver.cloud.backend.pgconfig.catalog.PgconfigCatalogFacade;
+import org.geoserver.cloud.gwc.repository.CloudCatalogConfiguration;
+import org.geoserver.gwc.config.GWCConfig;
+import org.geoserver.gwc.config.GWCConfigPersister;
 import org.geoserver.gwc.layer.GeoServerTileLayer;
 import org.geoserver.gwc.layer.GeoServerTileLayerInfo;
+import org.geoserver.gwc.layer.TileLayerInfoUtil;
 import org.geoserver.ows.LocalWorkspace;
 import org.geowebcache.config.BaseConfiguration;
 import org.geowebcache.config.TileLayerConfiguration;
@@ -45,13 +51,15 @@ public class PgconfigTileLayerCatalog implements TileLayerConfiguration {
     final @NonNull TileLayerInfoRepository repository;
     final @NonNull GridSetBroker gridsetBroker;
     final @NonNull UnaryOperator<PublishedInfo> publishedResolver;
+    final @NonNull GWCConfigPersister defaultsProvider;
 
     final GeoServerTileLayerInfoMapper infoMapper = Mappers.getMapper(GeoServerTileLayerInfoMapper.class);
 
     public PgconfigTileLayerCatalog(
             @NonNull TileLayerInfoRepository repository,
             @NonNull GridSetBroker gridsetBroker,
-            @NonNull Supplier<Catalog> catalog) {
+            @NonNull Supplier<Catalog> catalog,
+            @NonNull GWCConfigPersister defaultsProvider) {
 
         this.repository = repository;
         this.gridsetBroker = gridsetBroker;
@@ -59,12 +67,17 @@ public class PgconfigTileLayerCatalog implements TileLayerConfiguration {
         UnaryOperator<PublishedInfo> resolve = PgconfigCatalogFacade.resolvingFunction(catalog);
         UnaryOperator<PublishedInfo> proxify = ModificationProxyDecorator::wrap;
         this.publishedResolver = resolve.andThen(proxify)::apply;
+        this.defaultsProvider = defaultsProvider;
     }
 
     @VisibleForTesting
-    PgconfigTileLayerCatalog(DataSource dataSource, GridSetBroker gridsets, Supplier<Catalog> catalog) {
+    PgconfigTileLayerCatalog(
+            DataSource dataSource,
+            GridSetBroker gridsets,
+            Supplier<Catalog> catalog,
+            @NonNull GWCConfigPersister defaultsProvider) {
 
-        this(new PgconfigTileLayerInfoRepository(new JdbcTemplate(dataSource)), gridsets, catalog);
+        this(new PgconfigTileLayerInfoRepository(new JdbcTemplate(dataSource)), gridsets, catalog, defaultsProvider);
     }
 
     @Override
@@ -222,17 +235,39 @@ public class PgconfigTileLayerCatalog implements TileLayerConfiguration {
 
     GeoServerTileLayer toLayer(TileLayerInfo pgTileLayerInfo) {
         PublishedInfo published = pgTileLayerInfo.getPublished();
-        // resolve only if its a plain layer/group. Otherwise it can be Secured* or other wrapper,
-        // meaning it's already resolved
+        // resolve only if its a plain layer/group. Otherwise it can be Secured* or
+        // other wrapper, meaning it's already resolved
         if (published instanceof LayerInfoImpl || published instanceof LayerGroupInfoImpl) {
             published = publishedResolver.apply(published);
         }
 
         GeoServerTileLayerInfo info = infoMapper.map(pgTileLayerInfo);
+        completeWithDefaults(info, published);
         return new GeoServerTileLayer(published, this.gridsetBroker, info);
     }
 
     TileLayerInfo toInfo(GeoServerTileLayer tileLayer) {
+
+        GeoServerTileLayerInfo tileLayerInfo = tileLayer.getInfo();
+        checkNotNull(tileLayerInfo, "GeoServerTileLayerInfo is null");
+        checkNotNull(tileLayerInfo.getId(), "id is null");
+        checkNotNull(tileLayerInfo.getName(), "name is null");
+
+        PublishedInfo publishedInfo = tileLayer.getPublishedInfo();
+        completeWithDefaults(tileLayerInfo, publishedInfo);
+
         return infoMapper.map(tileLayer);
+    }
+
+    @VisibleForTesting
+    void completeWithDefaults(GeoServerTileLayerInfo info, PublishedInfo publishedInfo) {
+        GWCConfig defaults = getDefaultConfig();
+        GeoServerTileLayerInfo infoDefaults = TileLayerInfoUtil.loadOrCreate(publishedInfo, defaults);
+
+        CloudCatalogConfiguration.setMissingConfig(info, infoDefaults);
+    }
+
+    GWCConfig getDefaultConfig() {
+        return defaultsProvider.getConfig();
     }
 }

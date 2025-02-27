@@ -28,6 +28,8 @@ import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.config.plugin.GeoServerImpl;
+import org.geoserver.gwc.config.GWCConfig;
+import org.geoserver.gwc.config.GWCConfigPersister;
 import org.geoserver.gwc.layer.GeoServerTileLayer;
 import org.geoserver.ows.LocalWorkspace;
 import org.geowebcache.config.BaseConfiguration;
@@ -43,14 +45,18 @@ class PgconfigTileLayerCatalogTest {
 
     private PgconfigTileLayerInfoRepository repository;
     private PgconfigTileLayerCatalog tlCatalog;
-
     private TileLayerMocking support;
+    private GWCConfigPersister defaultsProvider;
 
     @BeforeEach
     void setUp() {
         support = new TileLayerMocking(new CatalogPlugin(), new GeoServerImpl());
         repository = mock(PgconfigTileLayerInfoRepository.class);
-        tlCatalog = new PgconfigTileLayerCatalog(repository, support.getGridsets(), support.catalog());
+        defaultsProvider = mock(GWCConfigPersister.class);
+        GWCConfig defaults = new GWCConfig();
+        when(defaultsProvider.getConfig()).thenReturn(defaults);
+        tlCatalog =
+                new PgconfigTileLayerCatalog(repository, support.getGridsets(), support.catalog(), defaultsProvider);
     }
 
     @Test
@@ -62,9 +68,12 @@ class PgconfigTileLayerCatalogTest {
         Supplier<Catalog> catalog = support.catalog();
         Class<NullPointerException> npe = NullPointerException.class;
         assertThrows(
-                npe, () -> new PgconfigTileLayerCatalog((PgconfigTileLayerInfoRepository) null, gridsets, catalog));
-        assertThrows(npe, () -> new PgconfigTileLayerCatalog(repository, null, catalog));
-        assertThrows(npe, () -> new PgconfigTileLayerCatalog(repository, gridsets, null));
+                npe,
+                () -> new PgconfigTileLayerCatalog(
+                        (PgconfigTileLayerInfoRepository) null, gridsets, catalog, defaultsProvider));
+        assertThrows(npe, () -> new PgconfigTileLayerCatalog(repository, null, catalog, defaultsProvider));
+        assertThrows(npe, () -> new PgconfigTileLayerCatalog(repository, gridsets, null, defaultsProvider));
+        assertThrows(npe, () -> new PgconfigTileLayerCatalog(repository, gridsets, catalog, null));
     }
 
     @Test
@@ -203,6 +212,11 @@ class PgconfigTileLayerCatalogTest {
     }
 
     private void assertTileLayer(TileLayerInfo expected, GeoServerTileLayer tileLayer) {
+        GeoServerTileLayer expectedTileLayer = tlCatalog.toLayer(expected);
+        expected = tlCatalog.toInfo(expectedTileLayer);
+
+        tlCatalog.completeWithDefaults(tileLayer.getInfo(), tileLayer.getPublishedInfo());
+
         TileLayerInfo pgTileLayer = tlCatalog.toInfo(tileLayer);
         assertThat(pgTileLayer).isEqualTo(expected);
     }
