@@ -167,8 +167,6 @@ clean-acceptance-tests-datadir:
 
 .PHONY: acceptance-tests-pgconfig
 acceptance-tests-pgconfig: build-acceptance start-acceptance-tests-pgconfig run-acceptance-tests-pgconfig
-	(cd compose/ && ./acceptance_pgconfig up -d)
-	(cd compose/ && ./acceptance_pgconfig exec -T acceptance bash -c 'until [ -f /tmp/healthcheck ]; do echo "Waiting for /tmp/healthcheck to be available..."; sleep 5; done && pytest . -vvv --color=yes')
 
 .PHONY: start-acceptance-tests-pgconfig
 start-acceptance-tests-pgconfig:

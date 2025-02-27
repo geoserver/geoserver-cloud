@@ -27,25 +27,30 @@ services:
     depends_on:
       geodatabase:
         condition: service_healthy
+      postgis:
+        condition: service_healthy
       gateway:
         condition: service_healthy
       discovery:
         condition: service_healthy
       config:
         condition: service_healthy
+      acl:
+        condition: service_started
       wms:
         condition: service_healthy
-      # TODO: add wcs and wps
       wfs:
         condition: service_healthy
       gwc:
         condition: service_healthy
-      webui:
-        condition: service_started
       rest:
         condition: service_healthy
-      acl:
-        condition: service_started
+      #webui:
+      #  condition: service_started
+      #wps:
+      #  condition: service_started
+      #wcs:
+      #  condition: service_healthy
     deploy:
       mode: replicated
       replicas: 0
@@ -55,6 +60,18 @@ services:
           memory: 512M
 
   # For github CI
+  rabbitmq:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+  postgis:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 256M
   acl:
     deploy:
       resources:
@@ -113,13 +130,28 @@ services:
       retries: 20
   webui:
     deploy:
+      replicas: 0
       resources:
         limits:
           cpus: "1.0"
           memory: 512M
-  rabbitmq:
+  wps:
+    deploy:
+      replicas: 0
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+  wcs:
+    deploy:
+      replicas: 0
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+  acldb:
     deploy:
       resources:
         limits:
-          cpus: "1.0"
-          memory: 512M
+          cpus: "0.5"
+          memory: 256M
