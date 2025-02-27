@@ -114,7 +114,9 @@ class PgconfigMigrationAutoConfigurationTest {
                 "serviceinfo",
                 "logginginfo",
                 "resourcestore",
-                "resource_lock");
+                "resource_lock",
+                "publishedinfos_mat",
+                "tilelayers_mat");
         List<String> sequences = List.of("gs_update_sequence", "resourcestore_id_seq");
 
         Map<String, String> expected = new TreeMap<>();
