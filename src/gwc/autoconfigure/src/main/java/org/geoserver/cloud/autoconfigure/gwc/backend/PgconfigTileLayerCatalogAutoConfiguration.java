@@ -75,9 +75,10 @@ public class PgconfigTileLayerCatalogAutoConfiguration {
             GridSetBroker gridsetBroker,
             TileLayerInfoRepository repository,
             ApplicationEventPublisher eventPublisher,
-            @Qualifier("rawCatalog") Catalog catalog) {
+            @Qualifier("rawCatalog") Catalog catalog,
+            GWCConfigPersister defaultsProvider) {
 
-        var config = new PgconfigTileLayerCatalog(repository, gridsetBroker, () -> catalog);
+        var config = new PgconfigTileLayerCatalog(repository, gridsetBroker, () -> catalog, defaultsProvider);
         Consumer<TileLayerEvent> gwcEventPublisher = eventPublisher::publishEvent;
         return new GeoServerTileLayerConfiguration(config, gwcEventPublisher);
     }

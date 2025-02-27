@@ -5,6 +5,8 @@
 package org.geoserver.cloud.gwc.backend.pgconfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +26,8 @@ import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.cloud.backend.pgconfig.PgconfigBackendBuilder;
 import org.geoserver.cloud.backend.pgconfig.support.PgConfigTestContainer;
 import org.geoserver.config.plugin.GeoServerImpl;
+import org.geoserver.gwc.config.GWCConfig;
+import org.geoserver.gwc.config.GWCConfigPersister;
 import org.geoserver.gwc.layer.GeoServerTileLayer;
 import org.geoserver.ows.LocalWorkspace;
 import org.geowebcache.grid.GridSetBroker;
@@ -55,7 +59,10 @@ class PgconfigTileLayerCatalogIT {
         GeoServerImpl geoServer = backendBuilder.createGeoServer(catalog);
         support = new TileLayerMocking(catalog, geoServer);
         GridSetBroker gridsets = support.getGridsets();
-        tlCatalog = new PgconfigTileLayerCatalog(container.getDataSource(), gridsets, () -> catalog);
+        GWCConfigPersister defaultsProvider = mock(GWCConfigPersister.class);
+        GWCConfig defaults = new GWCConfig();
+        when(defaultsProvider.getConfig()).thenReturn(defaults);
+        tlCatalog = new PgconfigTileLayerCatalog(container.getDataSource(), gridsets, () -> catalog, defaultsProvider);
     }
 
     @AfterEach

@@ -92,7 +92,7 @@ public class CloudCatalogConfiguration extends CatalogConfiguration {
         setMissingConfig(info, infoDefaults);
     }
 
-    private void setMissingConfig(GeoServerTileLayerInfo info, GeoServerTileLayerInfo defaults) {
+    public static void setMissingConfig(GeoServerTileLayerInfo info, GeoServerTileLayerInfo defaults) {
 
         String blobStoreId = defaults.getBlobStoreId();
         Set<WarningType> cacheWarningSkips = defaults.getCacheWarningSkips();
