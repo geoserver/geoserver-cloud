@@ -1,22 +1,18 @@
-# SonarCloud analysis for main branch pushes and PRs from the same repository
+# SonarCloud analysis specifically for pull requests from forked repositories
 
-name: SonarCloud QA
+name: SonarCloud QA (Fork PRs)
 on:
-  push:
-    branches:
-      - main
-      - "release/**"
+  pull_request_target:
+    types: [opened, synchronize, reopened]
     paths:
       - ".github/workflows/sonarcloud.yaml"
       - ".github/workflows/sonarcloud-fork-pr.yaml"
       - "pom.xml"
       - "src/**"
-  pull_request:
-    types: [opened, synchronize, reopened]
 
-# cancel in-progress jobs or runs for this workflow for the same pr or branch
+# cancel in-progress jobs or runs for this workflow for the same pr
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 jobs:
@@ -24,22 +20,24 @@ jobs:
     name: Build and Analyze
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    # Only run this workflow for PRs from the same repository, not forks
-    # For forks, the sonarcloud-fork-pr.yaml workflow will handle analysis
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    # Only run this workflow for PRs from forked repositories
+    if: github.event.pull_request.head.repo.full_name != github.repository
     steps:
-    - name: Checkout
+    - name: Checkout PR
       uses: actions/checkout@v4
       with:
+        ref: ${{ github.event.pull_request.head.sha }}
         fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
         submodules: recursive
         show-progress: 'false'
+
     - name: Setup Java
       uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
         java-version: '21'
         cache: 'maven'
+
     - name: Cache SonarCloud packages
       uses: actions/cache@v3
       with:
@@ -49,7 +47,7 @@ jobs:
 
     - name: Analyze with Sonar
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: |
         ./mvnw verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
@@ -64,3 +62,4 @@ jobs:
       run: |
         rm -rf ~/.m2/repository/org/geoserver
         find ~/.m2/repository -name "*SNAPSHOT*" -type d | xargs rm -rf {}
+
