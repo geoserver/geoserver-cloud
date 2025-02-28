@@ -4,16 +4,22 @@
  */
 package org.geoserver.cloud.wfs.app;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.Map;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.xmlunit.assertj3.XmlAssert;
 
 @SpringBootTest(classes = WfsApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 abstract class WfsApplicationTest {
+
+    protected @Autowired ConfigurableApplicationContext context;
 
     protected TestRestTemplate restTemplate = new TestRestTemplate("admin", "geoserver");
 
@@ -31,5 +37,9 @@ abstract class WfsApplicationTest {
         String caps = restTemplate.getForObject(url, String.class);
         Map<String, String> nscontext = Map.of("wfs", "http://www.opengis.net/wfs");
         XmlAssert.assertThat(caps).withNamespaceContext(nscontext).hasXPath("/wfs:WFS_Capabilities");
+    }
+
+    protected void expectBean(String name, Class<?> type) {
+        assertThat(context.getBean(name)).isInstanceOf(type);
     }
 }

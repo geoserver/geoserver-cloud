@@ -52,8 +52,8 @@ import org.springframework.test.context.DynamicPropertySource;
 @ActiveProfiles("test") // see bootstrap-test.yml
 class WebUIApplicationTest {
 
-    private @Autowired GeoServerApplication app;
-    private WicketTester tester;
+    protected @Autowired GeoServerApplication app;
+    protected WicketTester tester;
 
     static @TempDir Path tmpdir;
     static Path datadir;

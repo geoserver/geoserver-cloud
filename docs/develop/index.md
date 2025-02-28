@@ -265,7 +265,7 @@ Running a single service in "local" mode (that is, outside the docker compositio
 First, make sure at least the essential infrastructure services are running:
 
 ```bash
-$ docker compose up -d discovery rabbitmq config database gateway
+$ docker compose up -d discovery rabbitmq config postgis gateway
 ```
 
 > The `gateway` service is not essential, but useful to check it's correctly proxy'ing requests to your locally running services as well as the ones in the docker composition.
