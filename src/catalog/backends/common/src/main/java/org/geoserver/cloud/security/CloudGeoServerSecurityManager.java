@@ -12,6 +12,8 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.geoserver.GeoServerConfigurationLock;
+import org.geoserver.GeoServerConfigurationLock.LockType;
 import org.geoserver.cloud.event.security.SecurityConfigChanged;
 import org.geoserver.config.GeoServerDataDirectory;
 import org.geoserver.security.GeoServerSecurityManager;
@@ -40,16 +42,18 @@ public class CloudGeoServerSecurityManager extends GeoServerSecurityManager {
     private final Supplier<Long> updateSequenceIncrementor;
 
     private final AtomicBoolean reloading = new AtomicBoolean(false);
-    private boolean changedDuringReload = false;
     private List<AuthenticationProvider> additionalAuthenticationProviders;
+    private GeoServerConfigurationLock configLock;
 
     public CloudGeoServerSecurityManager(
+            GeoServerConfigurationLock configLock,
             GeoServerDataDirectory dataDir,
             @NonNull Consumer<SecurityConfigChanged> eventPublisher,
             @NonNull Supplier<Long> updateSequenceIncrementor,
             @NonNull List<AuthenticationProvider> additionalAuthenticationProviders)
             throws Exception {
         super(dataDir);
+        this.configLock = configLock;
         this.additionalAuthenticationProviders = additionalAuthenticationProviders;
         this.eventPublisher = eventPublisher;
         this.updateSequenceIncrementor = updateSequenceIncrementor;
@@ -65,14 +69,16 @@ public class CloudGeoServerSecurityManager extends GeoServerSecurityManager {
     @Override
     public void reload() {
         if (reloading.compareAndSet(false, true)) {
-            changedDuringReload = false;
+            // gotta grab a global lock, super.reload() tends to change things
+            log.debug("Obtaining global lock to reload the security configuration");
+            configLock.lock(LockType.WRITE);
+            log.debug("Obtained global lock to reload the security configuration");
             try {
                 super.reload();
             } finally {
+                configLock.unlock();
+                log.debug("Released global lock after reloading the security configuration");
                 reloading.set(false);
-            }
-            if (changedDuringReload) {
-                fireRemoteChangedEvent("Changed during reload");
             }
         } else {
             log.warn("Config already being reloaded, ignoring");
@@ -97,10 +103,10 @@ public class CloudGeoServerSecurityManager extends GeoServerSecurityManager {
         log.debug("Security configuration reloaded due to change event:", event);
     }
 
-    /** Fires a {@link SecurityConfigChanged} for other services to react accordingly. */
+    /** Fires a {@link SecurityConfigChanged} for other services to react accordingly, unless it is {@link #reload() reloading} . */
     public void fireRemoteChangedEvent(@NonNull String reason) {
         if (reloading.get()) {
-            changedDuringReload = true;
+            log.info("{}: won't send security change event, config is reloading", reason);
         } else {
             log.debug("Publishing remote security event due to {}", reason);
             eventPublisher.accept(event(reason));

@@ -176,8 +176,8 @@ public class PgconfigResourceStore implements ResourceStore {
         try {
             return Optional.of(template.queryForObject(
                     """
-					SELECT id, parentid, "type", path, mtime FROM resourcestore WHERE path = ?
-					""",
+                    SELECT id, parentid, "type", path, mtime FROM resourcestore WHERE path = ?
+                    """,
                     queryMapper,
                     path));
         } catch (EmptyResultDataAccessException empty) {
@@ -199,9 +199,9 @@ public class PgconfigResourceStore implements ResourceStore {
         if (resource.exists()) {
             String sql =
                     """
-					UPDATE resourcestore SET parentid = ?, "type" = ?, path = ?
-					WHERE id = ?;
-					""";
+                    UPDATE resourcestore SET parentid = ?, "type" = ?, path = ?
+                    WHERE id = ?;
+                    """;
             long id = resource.getId();
             long parentId = resource.getParentId();
             String type = resource.getType().toString();
@@ -211,13 +211,19 @@ public class PgconfigResourceStore implements ResourceStore {
             PgconfigResource parent = resource.parent().mkdirs();
             String sql =
                     """
-					INSERT INTO resourcestore (parentid, "type", path, content)
-					VALUES (?, ?, ?, ?);
-					""";
+                    INSERT INTO resourcestore (parentid, "type", path, content)
+                    VALUES (?, ?, ?, ?)
+                    ON CONFLICT (parentid, path)
+                    DO UPDATE SET
+                        "type" = EXCLUDED."type",
+                        content = EXCLUDED.content;
+                    """;
+
             long parentId = parent.getId();
             String type = resource.getType().toString();
             String path = resource.path();
             byte[] contents = resource.getType() == Type.DIRECTORY ? null : new byte[0];
+
             template.update(sql, parentId, type, path, contents);
         }
         PgconfigResource updated = (PgconfigResource) get(resource.path);
@@ -244,9 +250,12 @@ public class PgconfigResourceStore implements ResourceStore {
                     "Resource is a directory, can't have contents: %s".formatted(resource.path()));
 
         if (null == contents) contents = new byte[0];
-        template.update("""
-				UPDATE resourcestore SET content = ? WHERE id = ?
-				""", contents, resource.getId());
+        template.update(
+                """
+                UPDATE resourcestore SET content = ? WHERE id = ?
+                """,
+                contents,
+                resource.getId());
         return getLastmodified(resource.getId());
     }
 
@@ -298,9 +307,10 @@ public class PgconfigResourceStore implements ResourceStore {
 
     List<PgconfigResource> findAllChildren(PgconfigResource resource) {
         if (!resource.exists() || !resource.isDirectory()) return List.of();
-        String sql = """
-				SELECT id, parentid, "type", path, mtime FROM resourcestore WHERE path LIKE ?
-				""";
+        String sql =
+                """
+                SELECT id, parentid, "type", path, mtime FROM resourcestore WHERE path LIKE ?
+                """;
 
         String likeQuery = resource.path() + "/%";
         try (Stream<PgconfigResource> s = template.queryForStream(sql, queryMapper, likeQuery)) {
@@ -326,14 +336,16 @@ public class PgconfigResourceStore implements ResourceStore {
         long id = resource.getId();
         return template.queryForObject(
                 """
-				SELECT content FROM resourcestore WHERE id = ?
-				""", byte[].class, id);
+                SELECT content FROM resourcestore WHERE id = ?
+                """,
+                byte[].class,
+                id);
     }
 
     public boolean delete(PgconfigResource resource) {
         String sql = """
-				DELETE FROM resourcestore WHERE id = ?
-				""";
+                     DELETE FROM resourcestore WHERE id = ?
+                     """;
         boolean deleted = 0 < template.update(sql, resource.getId());
         if (deleted) {
             resource.type = Type.UNDEFINED;
@@ -347,9 +359,10 @@ public class PgconfigResourceStore implements ResourceStore {
     public List<Resource> list(PgconfigResource resource) {
         if (!resource.exists() || !resource.isDirectory()) return List.of();
 
-        String sql = """
-				SELECT id, parentid, "type", path, mtime FROM resourcestore WHERE parentid = ?
-				""";
+        String sql =
+                """
+                SELECT id, parentid, "type", path, mtime FROM resourcestore WHERE parentid = ?
+                """;
 
         List<Resource> list;
         try (Stream<PgconfigResource> s = template.queryForStream(sql, queryMapper, resource.getId())) {
