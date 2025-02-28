@@ -60,7 +60,7 @@ jobs:
         compression-level: 0 # no compression
 
   acceptance:
-    name: Acceptance Tests
+    name: Acceptance
     if: github.repository == 'geoserver/geoserver-cloud'
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -68,7 +68,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        catalog: [ 'datadir' ]
+        catalog: [ 'datadir', 'pgconfig' ]
         #catalog: [ 'datadir', 'pgconfig', 'jdbcconfig' ]
     steps:
     - name: Checkout

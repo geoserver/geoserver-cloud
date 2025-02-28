@@ -1,0 +1,7 @@
+services:
+  pgconfigdb:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
