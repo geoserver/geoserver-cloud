@@ -9,6 +9,10 @@ on:
       - ".github/workflows/sonarcloud-fork-pr.yaml"
       - "pom.xml"
       - "src/**"
+      - "Makefile"
+      - "config"
+      - "acceptance_tests/**"
+      - "ci/**"
 
 # cancel in-progress jobs or runs for this workflow for the same pr
 concurrency:

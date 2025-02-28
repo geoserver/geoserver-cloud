@@ -11,6 +11,10 @@ on:
       - ".github/workflows/sonarcloud-fork-pr.yaml"
       - "pom.xml"
       - "src/**"
+      - "Makefile"
+      - "config"
+      - "acceptance_tests/**"
+      - "ci/**"
   pull_request:
     types: [opened, synchronize, reopened]
 
