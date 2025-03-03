@@ -37,14 +37,7 @@
     <testcontainers.version>1.19.3</testcontainers.version>
     <fork.javac>true</fork.javac>
     <javac.maxHeapSize>256M</javac.maxHeapSize>
-    <!-- 
-    aws.version overrides the old version provided by gs-cog->imageio-ext-cog
-		(2.9.24), which
-    doesn't support IAM roles for service accounts (min version 2.10.11 as
-		explained in
-		https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts-minimum-sdk.html)
-    -->
-    <aws.version>2.20.117</aws.version>
+    <aws.version>2.27.23</aws.version>
     <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     <!-- logstash-logback-encoder:7.4+ requires logback 1.3+ and slf4j 2.0+, only available on spring-boot 3.0+ -->
     <logstash-logback-encoder.version>7.3</logstash-logback-encoder.version>
