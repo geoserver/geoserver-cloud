@@ -40,6 +40,7 @@ import org.geotools.jackson.databind.filter.dto.Expression.Multiply;
 import org.geotools.jackson.databind.filter.dto.Expression.PropertyName;
 import org.geotools.jackson.databind.filter.dto.Expression.Subtract;
 import org.geotools.jackson.databind.filter.dto.Literal;
+import org.geotools.jackson.databind.filter.model.TestDto;
 import org.geotools.referencing.CRS;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -198,8 +199,20 @@ public abstract class ExpressionRoundtripTest {
     }
 
     @Test
+    void literalListWithTestDto() throws Exception {
+        TestDto a = new TestDto("a", 1, new java.util.Date());
+        TestDto b = new TestDto(null, 2, new java.util.Date());
+        TestDto c = new TestDto("c", null, new java.util.Date());
+        TestDto d = new TestDto("d", 3, null);
+        TestDto e = new TestDto(null, null, null);
+
+        roundtripTest(literal(List.of(a, b, c, d, e)));
+    }
+
+    @Test
     void literalListMixedContent() throws Exception {
-        List<Object> value = Arrays.asList(1, null, new java.util.Date(1), List.of(4, 5, 6));
+        TestDto a = new TestDto("a", 1, new java.util.Date());
+        List<Object> value = Arrays.asList(a, 1, null, new java.util.Date(1), List.of(4, 5, 6));
         try {
             roundtripTest(literal(value));
         } catch (Exception e) {
@@ -220,8 +233,20 @@ public abstract class ExpressionRoundtripTest {
     }
 
     @Test
+    void literalSetWithTestDto() throws Exception {
+        TestDto a = new TestDto("a", 1, new java.util.Date());
+        TestDto b = new TestDto(null, 2, new java.util.Date());
+        TestDto c = new TestDto("c", null, new java.util.Date());
+        TestDto d = new TestDto("d", 3, null);
+        TestDto e = new TestDto(null, null, null);
+
+        roundtripTest(literal(Set.of(a, b, c, d, e)));
+    }
+
+    @Test
     void literalSetMixedContent() throws Exception {
-        Set<Object> value = Set.of(1, new java.util.Date(1), Set.of(4, 5, 6));
+        TestDto a = new TestDto("a", 1, new java.util.Date());
+        Set<Object> value = Set.of(a, 1, new java.util.Date(1), Set.of(4, 5, 6));
         roundtripTest(literal(value));
     }
 
@@ -243,8 +268,20 @@ public abstract class ExpressionRoundtripTest {
     }
 
     @Test
+    void literalMapWithTestDto() throws Exception {
+        TestDto a = new TestDto("a", 1, new java.util.Date());
+        TestDto b = new TestDto(null, 2, new java.util.Date());
+        TestDto c = new TestDto("c", null, new java.util.Date());
+        TestDto d = new TestDto("d", 3, null);
+        TestDto e = new TestDto(null, null, null);
+
+        roundtripTest(literal(Map.of("k1", a, "k2", b, "k3", c, "k4", d, "k5", e)));
+    }
+
+    @Test
     void literalMapMixedContent() throws Exception {
-        roundtripTest(literal(Map.of("k1", 1, "k2", 2L, "k3", 3F, "k4", 4D, "k5", "svalue")));
+        TestDto a = new TestDto("a", 1, new java.util.Date());
+        roundtripTest(literal(Map.of("k1", 1, "k2", 2L, "k3", 3F, "k4", 4D, "k5", "svalue", "k6", a)));
     }
 
     @Test
@@ -278,9 +315,17 @@ public abstract class ExpressionRoundtripTest {
 
         roundtripTest(literal(new String[] {"S1", null, "S2", null, "S3"}));
         roundtripTest(literal(new Date[] {new Date(1), new Date(2), null, new Date(3)}));
+
+        TestDto a = new TestDto("a", 1, new java.util.Date());
+        TestDto b = new TestDto(null, 2, new java.util.Date());
+        TestDto c = new TestDto("c", null, new java.util.Date());
+        TestDto d = new TestDto("d", 3, null);
+        TestDto e = new TestDto(null, null, null);
+
+        roundtripTest(literal(new TestDto[] {a, b, c, d, e}));
     }
 
-    private Literal literal(Object value) {
+    protected Literal literal(Object value) {
         return new Literal().setValue(value);
     }
 

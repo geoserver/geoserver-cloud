@@ -13,16 +13,12 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 import java.io.IOException;
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import org.geotools.jackson.databind.filter.mapper.GeoToolsValueMappers;
 import org.mapstruct.factory.Mappers;
 
@@ -43,11 +39,10 @@ import org.mapstruct.factory.Mappers;
  */
 public class LiteralDeserializer extends JsonDeserializer<Literal> {
 
-    private GeoToolsValueMappers classNameMapper = Mappers.getMapper(GeoToolsValueMappers.class);
+    private static GeoToolsValueMappers classNameMapper = Mappers.getMapper(GeoToolsValueMappers.class);
 
     @Override
     public Literal deserialize(JsonParser parser, DeserializationContext ctxt) throws IOException {
-
         expect(parser.currentToken(), JsonToken.START_OBJECT);
         final Class<?> type = readType(parser);
         if (null == type) {
@@ -136,17 +131,43 @@ public class LiteralDeserializer extends JsonDeserializer<Literal> {
         return value;
     }
 
-    @SuppressWarnings("unchecked")
     private List<Object> readList(Class<?> contentType, JsonParser parser, DeserializationContext ctxt)
             throws IOException {
 
         JsonToken nextToken = parser.currentToken();
         expect(nextToken, JsonToken.START_ARRAY);
-        List<Object> value;
+        List<Object> value = new ArrayList<>();
         if (null == contentType) {
-            value = parser.readValueAs(ArrayList.class);
+            // store the values to parse the collection later
+            ArrayNode valuesArrayNode = parser.readValueAs(ArrayNode.class);
+
+            if (valuesArrayNode.isEmpty()) {
+                return value;
+            }
+
+            if (isOnlyNulls(valuesArrayNode)) {
+                return convertArrayNodeToArrayList(contentType, ctxt, valuesArrayNode);
+            }
+
+            // we only end up here if the "value" field appeared
+            // before the "contentType" field during the previous parsing
+
+            // but we have to know the contentType to be
+            // able to parse a list of that type
+            // (order issue is probably related to JSONB storage in postgres)
+            nextToken = parser.nextToken();
+            if (nextToken == JsonToken.FIELD_NAME) {
+                String fieldName = parser.currentName();
+                expectFieldName(fieldName, COLLECTION_CONTENT_TYPE_KEY);
+
+                String contentTypeVal = parser.nextTextValue();
+                requireNonNull(contentTypeVal, "expected value for contentType, got null");
+
+                contentType = classNameMapper.canonicalNameToClass(contentTypeVal);
+            }
+
+            value = convertArrayNodeToArrayList(contentType, ctxt, valuesArrayNode);
         } else {
-            value = new ArrayList<>();
             while ((nextToken = parser.nextToken()) != JsonToken.END_ARRAY) {
                 Object item;
                 if (JsonToken.VALUE_NULL == nextToken) {
@@ -186,8 +207,8 @@ public class LiteralDeserializer extends JsonDeserializer<Literal> {
     }
 
     /**
-     * @param typeFieldName
-     * @param string
+     * @param value actual value
+     * @param expected expected value
      */
     private void expectFieldName(String value, String expected) {
         if (!expected.equals(value))
@@ -199,5 +220,53 @@ public class LiteralDeserializer extends JsonDeserializer<Literal> {
             if (current == expected) return;
         }
         throw new IllegalStateException("Expected one of %s got %s".formatted(Arrays.toString(expectedOneOf), current));
+    }
+
+    private static List<Object> convertArrayNodeToArrayList(
+            Class<?> contentTypeClass, DeserializationContext ctxt, ArrayNode valuesArrayNode) throws IOException {
+        List<Object> value;
+        ArrayList<Object> valuesList = new ArrayList<>();
+        for (JsonNode node : valuesArrayNode) {
+            if (node instanceof NullNode) {
+                valuesList.add(null);
+            } else if (contentTypeClass != null) {
+                if (Literal.class.isAssignableFrom(contentTypeClass)) {
+                    // some special care in case of Literal.class
+                    final JsonNode literalNode = node.get("Literal");
+                    final JsonNode valueNode = literalNode.get("value");
+                    final JsonNode typeNode = literalNode.get("type");
+
+                    if (typeNode == null && valueNode.isNull()) {
+                        // "type" does not exist as a field,
+                        // but "value" does with a null value
+                        valuesList.add(null);
+                    } else if (typeNode != null) {
+                        String typeVal = typeNode.asText();
+                        Class<?> type = classNameMapper.canonicalNameToClass(typeVal);
+                        Object val = ctxt.readTreeAsValue(valueNode, type);
+                        valuesList.add(val);
+                    }
+                } else {
+                    // finally parse a collection with the now known "arbitrary" content type
+                    Object item = ctxt.readTreeAsValue(node, contentTypeClass);
+                    valuesList.add(item);
+                }
+            }
+        }
+        value = valuesList;
+        return value;
+    }
+
+    private static boolean isOnlyNulls(ArrayNode arrayNode) {
+        if (arrayNode == null || arrayNode.isEmpty()) {
+            return false;
+        }
+
+        for (JsonNode node : arrayNode) {
+            if (!(node instanceof NullNode)) {
+                return false;
+            }
+        }
+        return true;
     }
 }
