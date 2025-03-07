@@ -39,6 +39,10 @@
       <artifactId>gs-cloud-starter-raster-formats</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.geoserver.extension</groupId>
+      <artifactId>gs-inspire</artifactId>
+    </dependency>
+    <dependency>
       <!-- used to eagerly filter auto-configurations that do not match, which will improve startup time. META-INF/spring-autoconfigure-metadata.properties-->
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-autoconfigure-processor</artifactId>
