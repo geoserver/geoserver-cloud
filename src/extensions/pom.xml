@@ -13,6 +13,7 @@
   <modules>
     <module>core</module>
     <module>app-schema</module>
+    <module>inspire</module>
     <module>security</module>
     <module>input-formats</module>
     <module>css-styling</module>
