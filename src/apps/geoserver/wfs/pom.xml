@@ -15,6 +15,10 @@
   <dependencies>
     <dependency>
       <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-starter-extensions</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.cloud</groupId>
       <artifactId>gs-cloud-starter-vector-formats</artifactId>
     </dependency>
     <dependency>
@@ -33,6 +37,10 @@
     <dependency>
       <groupId>org.geoserver.extension</groupId>
       <artifactId>gs-dxf-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.extension</groupId>
+      <artifactId>gs-app-schema-core</artifactId>
     </dependency>
     <dependency>
       <groupId>org.testcontainers</groupId>

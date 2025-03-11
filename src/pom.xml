@@ -706,6 +706,11 @@
         <version>${gs.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.geoserver.extension</groupId>
+        <artifactId>gs-app-schema-core</artifactId>
+        <version>${gs.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.geoserver.community</groupId>
         <artifactId>gs-cog-core</artifactId>
         <version>${gs.version}</version>
@@ -871,6 +876,21 @@
       <dependency>
         <groupId>org.geotools</groupId>
         <artifactId>gt-wfs-ng</artifactId>
+        <version>${gt.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geotools</groupId>
+        <artifactId>gt-complex</artifactId>
+        <version>${gt.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geotools</groupId>
+        <artifactId>gt-app-schema</artifactId>
+        <version>${gt.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geotools</groupId>
+        <artifactId>gt-app-schema-resolver</artifactId>
         <version>${gt.version}</version>
       </dependency>
       <dependency>
@@ -1125,6 +1145,11 @@
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
             <version>3.2.2</version>
+          </dependency>
+          <dependency>
+            <groupId>commons-digester</groupId>
+            <artifactId>commons-digester</artifactId>
+            <version>1.7</version>
           </dependency>
           <dependency>
             <groupId>commons-lang</groupId>
