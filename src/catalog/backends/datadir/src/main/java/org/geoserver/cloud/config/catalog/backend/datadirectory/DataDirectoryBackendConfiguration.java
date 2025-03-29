@@ -175,13 +175,12 @@ public class DataDirectoryBackendConfiguration extends GeoServerBackendConfigure
             matchIfMissing = true)
     GeoServerLoader geoServerLoaderImplParallel(GeoServerSecurityManager securityManager) {
         log.info("Using optimized parallel data directory config loader");
-        UpdateSequence updateSequence = updateSequence();
         GeoServerResourceLoader resourceLoader = resourceLoader();
+        GeoServerDataDirectory dataDirectory = new GeoServerDataDirectory(resourceLoader);
         Catalog rawCatalog = rawCatalog();
         LockingGeoServer geoserver = geoServer(rawCatalog);
 
-        return new ParallelDataDirectoryGeoServerLoader(
-                updateSequence, resourceLoader, geoserver, rawCatalog, securityManager);
+        return new ParallelDataDirectoryGeoServerLoader(dataDirectory, geoserver, rawCatalog, securityManager);
     }
 
     protected @Bean @Override GeoServerResourceLoader resourceLoader() {
