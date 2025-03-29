@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      enabled: true
+      discovery:
+        locator:
+          enabled: false
+      routes: []  # Empty list of routes for testing
+
+# Gateway logging properties
+geoserver:
+  cloud:
+    gateway:
+      logging:
+        includeQueryParams: true
+        maxFieldLength: 256

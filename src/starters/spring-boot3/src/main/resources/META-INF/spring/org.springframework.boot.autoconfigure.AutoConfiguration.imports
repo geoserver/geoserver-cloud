@@ -1,0 +1,4 @@
+org.geoserver.cloud.app.StartupLoggerAutoConfiguration
+org.geoserver.cloud.app.ServiceIdFilterAutoConfiguration
+org.geoserver.cloud.app.ExitOnApplicationEventAutoConfiguration
+org.geoserver.cloud.app.ReactorContextPropagationAutoConfiguration
