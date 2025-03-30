@@ -15,7 +15,15 @@ services:
     build:
       context: ../src/apps/base-images/spring-boot/
 
-  geoserver-common:
+  spring-boot3:
+    extends:
+      file: templates.yml
+      service: current-platform
+    image: ${REPOSITORY}/gs-cloud-base-spring-boot3:${TAG}
+    build:
+      context: ../src/apps/base-images/spring-boot3/
+
+   geoserver-common:
     extends:
       file: templates.yml
       service: multi-platform

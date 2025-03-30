@@ -74,6 +74,8 @@ build-base-images-multiplatform: package-base-images
 	&& COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 TAG=$(TAG) \
 	   docker compose -f docker-build/base-images-multiplatform.yml build spring-boot --push \
 	&& COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 TAG=$(TAG) \
+	   docker compose -f docker-build/base-images-multiplatform.yml build spring-boot3 --push \
+	&& COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 TAG=$(TAG) \
 	   docker compose -f docker-build/base-images-multiplatform.yml build geoserver-common --push
 
 .PHONY: build-image-infrastructure-multiplatform
