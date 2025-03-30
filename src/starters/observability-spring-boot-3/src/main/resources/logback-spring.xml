@@ -10,10 +10,7 @@
 
   <springProfile name="json-logs">
     <appender name="jsonConsoleAppender" class="ch.qos.logback.core.ConsoleAppender">
-      <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-        <!-- Include all MDC fields in the JSON output -->
-        <includeMdcKeyName>.*</includeMdcKeyName>
-      </encoder>
+      <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
     </appender>
 
     <root level="INFO">
