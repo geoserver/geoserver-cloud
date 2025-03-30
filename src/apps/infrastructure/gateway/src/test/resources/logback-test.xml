@@ -1,13 +1,38 @@
 <configuration>
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger - %msg%n</pattern>
-        </encoder>
+
+  <springProfile name="!(json-logs)">
+    <!--
+     default logging profile, if you add more profiles besides json-logs (e.g. "custom"),
+     change name to name="!(json-logs|custom)"
+    -->
+    <include resource="org/springframework/boot/logging/logback/base.xml" />
+  </springProfile>
+
+  <springProfile name="json-logs">
+    <appender name="jsonConsoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+      <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+        <!-- Include all MDC fields in the JSON output -->
+        <includeMdcKeyName>.*</includeMdcKeyName>
+      </encoder>
+    </appender>
+    
+    <appender name="jsonFileAppender" class="ch.qos.logback.core.FileAppender">
+      <file>target/test-logs/gateway-mdc-test.json</file>
+      <append>false</append>
+      <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+        <!-- Include all MDC fields in the JSON output -->
+        <includeMdcKeyName>.*</includeMdcKeyName>
+      </encoder>
     </appender>
 
-    <root level="info">
-        <appender-ref ref="STDOUT"/>
-    </root>
+    <logger name="org.geoserver.cloud.gateway.filter" level="DEBUG">
+      <appender-ref ref="jsonFileAppender" />
+    </logger>
 
-    <logger name="org.springframework" level="info"/>
+    <root level="INFO">
+      <appender-ref ref="jsonConsoleAppender" />
+      <appender-ref ref="jsonFileAppender" />
+    </root>
+  </springProfile>
+
 </configuration>

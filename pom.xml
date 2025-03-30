@@ -49,6 +49,11 @@
       </dependency>
       <dependency>
         <groupId>org.geoserver.cloud</groupId>
+        <artifactId>gs-cloud-spring-boot3-starter</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud</groupId>
         <artifactId>gs-cloud-starter-catalog-backend</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -85,6 +90,11 @@
       <dependency>
         <groupId>org.geoserver.cloud</groupId>
         <artifactId>gs-cloud-starter-observability</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud</groupId>
+        <artifactId>gs-cloud-starter-observability-spring-boot-3</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

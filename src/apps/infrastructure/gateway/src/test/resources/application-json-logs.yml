@@ -1,0 +1,11 @@
+spring:
+  output:
+    ansi:
+      enabled: never
+
+# Configure MDC logging for JSON output in tests
+logging:
+  level:
+    root: INFO
+    org.geoserver.cloud.accesslog: INFO
+    org.geoserver.cloud.gateway: DEBUG

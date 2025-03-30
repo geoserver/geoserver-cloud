@@ -4,7 +4,7 @@
  */
 package org.geoserver.cloud.autoconfigure.gateway;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.security.gateway.sharedauth.GatewaySharedAuthenticationPostFilter;
 import org.geoserver.cloud.security.gateway.sharedauth.GatewaySharedAuthenticationPreFilter;

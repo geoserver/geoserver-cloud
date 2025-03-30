@@ -1,0 +1,24 @@
+<configuration>
+
+  <springProfile name="!(json-logs)">
+    <!--
+     default logging profile, if you add more profiles besides json-logs (e.g. "custom"),
+     change name to name="!(json-logs|custom)"
+    -->
+    <include resource="org/springframework/boot/logging/logback/base.xml" />
+  </springProfile>
+
+  <springProfile name="json-logs">
+    <appender name="jsonConsoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+      <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+        <!-- Include all MDC fields in the JSON output -->
+        <includeMdcKeyName>.*</includeMdcKeyName>
+      </encoder>
+    </appender>
+
+    <root level="INFO">
+      <appender-ref ref="jsonConsoleAppender" />
+    </root>
+  </springProfile>
+
+</configuration>
