@@ -144,9 +144,9 @@ class ToPgsqlCompatibleFilterDuplicator extends DuplicatingFilterVisitor {
 
     private Function<List<Filter>, Filter> createOredOrAndedBuilder(final MatchAction matchAction) {
         return switch (matchAction) {
-                // if all of the possible combinations match, the result is true (aggregated AND)
+            // if all of the possible combinations match, the result is true (aggregated AND)
             case ALL -> ff::and;
-                // if any of the possible combinations match, the result is true (aggregated OR)
+            // if any of the possible combinations match, the result is true (aggregated OR)
             case ANY -> ff::or;
             default -> throw new IllegalStateException();
         };

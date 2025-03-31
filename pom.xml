@@ -230,7 +230,7 @@
         <plugin>
           <groupId>com.diffplug.spotless</groupId>
           <artifactId>spotless-maven-plugin</artifactId>
-          <version>2.43.0</version>
+          <version>2.44.3</version>
         </plugin>
         <plugin>
           <groupId>com.github.ekryd.sortpom</groupId>
@@ -278,7 +278,7 @@
         <configuration>
           <java>
             <palantirJavaFormat>
-              <version>2.50.0</version>
+              <version>2.61.0</version>
             </palantirJavaFormat>
           </java>
           <upToDateChecking>

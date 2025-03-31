@@ -466,16 +466,17 @@ public abstract class ExpressionRoundtripTest {
             case "java.util.Map" -> Collections.singletonMap("single map key", "single map value");
             case "javax.measure.Unit" -> SI.ASTRONOMICAL_UNIT;
             case "org.geotools.filter.function.Classifier" -> null;
-                // sigh, this is a package-private enum, returning null
+            // sigh, this is a package-private enum, returning null
             case "org.geotools.filter.function.color.AbstractHSLFunction.Method" -> null;
-                // another package-private enum
+            // another package-private enum
             case "org.geotools.styling.visitor.RescalingMode" -> null;
             case "org.locationtech.jts.geom.Geometry" -> samplePoint();
             case "org.locationtech.jts.geom.LineString" -> sampleLineString();
             case "org.geotools.api.referencing.crs.CoordinateReferenceSystem" -> sampleCrs();
             case "org.locationtech.jts.geom.Point" -> geom("POINT(1 1)");
-            default -> throw new UnsupportedOperationException(
-                    "Unexpected parameter type, add a sample value: '%s'".formatted(type.getCanonicalName()));
+            default ->
+                throw new UnsupportedOperationException(
+                        "Unexpected parameter type, add a sample value: '%s'".formatted(type.getCanonicalName()));
         };
     }
 

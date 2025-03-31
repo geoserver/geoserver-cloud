@@ -48,8 +48,9 @@ public abstract class ConfigInfoModified extends InfoModified implements ConfigI
             case SERVICE -> service(updateSequence, (ServiceInfo) info, patch);
             case SETTINGS -> settings(updateSequence, (SettingsInfo) info, patch);
             case LOGGING -> logging(updateSequence, (LoggingInfo) info, patch);
-            default -> throw new IllegalArgumentException(
-                    "Unknown or unsupported config Info type: %s. %s".formatted(type, info));
+            default ->
+                throw new IllegalArgumentException(
+                        "Unknown or unsupported config Info type: %s. %s".formatted(type, info));
         };
     }
 

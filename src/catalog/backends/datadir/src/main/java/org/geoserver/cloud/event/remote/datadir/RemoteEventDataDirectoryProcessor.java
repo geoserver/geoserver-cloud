@@ -96,8 +96,11 @@ class RemoteEventDataDirectoryProcessor {
         } else {
             boolean removed =
                     switch (type) {
-                        case SERVICE -> remove(
-                                objectId, id -> configFacade.getService(id, ServiceInfo.class), configFacade::remove);
+                        case SERVICE ->
+                            remove(
+                                    objectId,
+                                    id -> configFacade.getService(id, ServiceInfo.class),
+                                    configFacade::remove);
                         case SETTINGS -> remove(objectId, configFacade::getSettings, configFacade::remove);
                         default -> false;
                     };
