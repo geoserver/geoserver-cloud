@@ -14,7 +14,7 @@ import org.junit.jupiter.api.BeforeAll;
 
 class ExpressionSerializationTest extends ExpressionRoundtripTest {
 
-    private static ObjectMapper objectMapper;
+    protected static ObjectMapper objectMapper;
 
     public static @BeforeAll void beforeAll() {
         objectMapper = ObjectMapperUtil.newObjectMapper();
