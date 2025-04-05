@@ -6,10 +6,10 @@ package org.geoserver.cloud.gateway.filter;
 
 import static org.springframework.cloud.gateway.support.GatewayToStringStyler.filterToStringCreator;
 
+import jakarta.validation.constraints.NotEmpty;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import javax.validation.constraints.NotEmpty;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;

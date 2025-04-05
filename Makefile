@@ -52,11 +52,7 @@ build-image: build-base-images build-image-infrastructure build-image-geoserver
 .PHONY: build-base-images
 build-base-images: package-base-images
 	COMPOSE_DOCKER_CLI_BUILD=0 DOCKER_BUILDKIT=0 TAG=$(TAG) \
-	docker compose -f docker-build/base-images.yml build jre \
-	&& COMPOSE_DOCKER_CLI_BUILD=0 DOCKER_BUILDKIT=0 TAG=$(TAG) \
-	docker compose -f docker-build/base-images.yml build spring-boot \
-	&& COMPOSE_DOCKER_CLI_BUILD=0 DOCKER_BUILDKIT=0 TAG=$(TAG) \
-	docker compose -f docker-build/base-images.yml build geoserver-common
+	docker compose -f docker-build/base-images.yml build
 
 .PHONY: build-image-infrastructure
 build-image-infrastructure: package-infrastructure-images
@@ -77,6 +73,8 @@ build-base-images-multiplatform: package-base-images
 	docker compose -f docker-build/base-images-multiplatform.yml build jre --push \
 	&& COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 TAG=$(TAG) \
 	   docker compose -f docker-build/base-images-multiplatform.yml build spring-boot --push \
+	&& COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 TAG=$(TAG) \
+	   docker compose -f docker-build/base-images-multiplatform.yml build spring-boot3 --push \
 	&& COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 TAG=$(TAG) \
 	   docker compose -f docker-build/base-images-multiplatform.yml build geoserver-common --push
 

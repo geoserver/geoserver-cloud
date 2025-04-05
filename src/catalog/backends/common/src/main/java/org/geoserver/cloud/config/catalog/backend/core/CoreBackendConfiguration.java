@@ -8,11 +8,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.LayerGroupVisibilityPolicy;
 import org.geoserver.catalog.impl.AdvertisedCatalog;
+import org.geoserver.catalog.impl.CatalogImpl;
 import org.geoserver.catalog.impl.LocalWorkspaceCatalog;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.cloud.autoconfigure.security.ConditionalOnGeoServerSecurityDisabled;
 import org.geoserver.cloud.autoconfigure.security.ConditionalOnGeoServerSecurityEnabled;
+import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerDataDirectory;
 import org.geoserver.config.GeoServerFacade;
 import org.geoserver.config.plugin.GeoServerImpl;
@@ -34,6 +36,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Lazy;
 
 // proxyBeanMethods = true required to avoid circular reference exceptions, especially related to
 // GeoServerExtensions still being created
@@ -41,6 +44,37 @@ import org.springframework.context.annotation.DependsOn;
 @EnableConfigurationProperties(CatalogProperties.class)
 @Slf4j(topic = "org.geoserver.cloud.config.catalog.backend.core")
 public class CoreBackendConfiguration {
+
+    @Lazy
+    @Bean
+    //    @DependsOn({"geoServerLoaderImpl"})
+    CloudGeoServerLoaderProxy geoServerLoader(
+            @Qualifier("rawCatalog") CatalogImpl catalog, @Qualifier("geoServer") GeoServer geoserver) {
+        return new CloudGeoServerLoaderProxy(catalog, geoserver);
+    }
+
+    @ConditionalOnMissingBean(CatalogPlugin.class)
+    @DependsOn({"resourceLoader", "catalogFacade"})
+    @Bean
+    CatalogPlugin rawCatalog(
+            GeoServerResourceLoader resourceLoader,
+            @Qualifier("catalogFacade") ExtendedCatalogFacade catalogFacade,
+            CatalogProperties properties) {
+
+        boolean isolated = properties.isIsolated();
+        CatalogPlugin rawCatalog = new CatalogPlugin(catalogFacade, isolated);
+        rawCatalog.setResourceLoader(resourceLoader);
+        return rawCatalog;
+    }
+
+    @ConditionalOnMissingBean(GeoServerImpl.class)
+    @Bean(name = "geoServer")
+    GeoServerImpl geoServer(
+            @Qualifier("catalog") Catalog catalog, @Qualifier("geoserverFacade") GeoServerFacade facade) {
+        GeoServerImpl gs = new GeoServerImpl(facade);
+        gs.setCatalog(catalog);
+        return gs;
+    }
 
     @Bean
     XStreamPersisterFactory xstreamPersisterFactory() {
@@ -58,20 +92,6 @@ public class CoreBackendConfiguration {
     @Bean
     GeoServerEnvironment environments() {
         return new GeoServerEnvironment();
-    }
-
-    @ConditionalOnMissingBean(CatalogPlugin.class)
-    @DependsOn({"resourceLoader", "catalogFacade"})
-    @Bean
-    CatalogPlugin rawCatalog(
-            GeoServerResourceLoader resourceLoader,
-            @Qualifier("catalogFacade") ExtendedCatalogFacade catalogFacade,
-            CatalogProperties properties) {
-
-        boolean isolated = properties.isIsolated();
-        CatalogPlugin rawCatalog = new CatalogPlugin(catalogFacade, isolated);
-        rawCatalog.setResourceLoader(resourceLoader);
-        return rawCatalog;
     }
 
     /**
@@ -175,15 +195,6 @@ public class CoreBackendConfiguration {
     Catalog localWorkspaceCatalog(
             @Qualifier("advertisedCatalog") Catalog advertisedCatalog, CatalogProperties properties) {
         return properties.isLocalWorkspace() ? new LocalWorkspaceCatalog(advertisedCatalog) : advertisedCatalog;
-    }
-
-    @ConditionalOnMissingBean(GeoServerImpl.class)
-    @Bean(name = "geoServer")
-    GeoServerImpl geoServer(
-            @Qualifier("catalog") Catalog catalog, @Qualifier("geoserverFacade") GeoServerFacade facade) {
-        GeoServerImpl gs = new GeoServerImpl(facade);
-        gs.setCatalog(catalog);
-        return gs;
     }
 
     @Bean

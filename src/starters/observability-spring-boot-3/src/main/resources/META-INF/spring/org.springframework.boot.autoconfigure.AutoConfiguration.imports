@@ -1,0 +1,6 @@
+org.geoserver.cloud.autoconfigure.logging.accesslog.AccessLogServletAutoConfiguration
+org.geoserver.cloud.autoconfigure.logging.accesslog.webflux.AccessLogWebFluxAutoConfiguration
+org.geoserver.cloud.autoconfigure.logging.gateway.GatewayMdcAutoConfiguration
+org.geoserver.cloud.autoconfigure.logging.mdc.LoggingMDCServletAutoConfiguration
+org.geoserver.cloud.autoconfigure.logging.mdc.webflux.LoggingMDCWebFluxAutoConfiguration
+org.geoserver.cloud.autoconfigure.logging.mdc.GeoServerDispatcherMDCAutoConfiguration

@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.geoserver.cloud</groupId>
+    <artifactId>gs-cloud-starters</artifactId>
+    <version>${revision}</version>
+  </parent>
+  <artifactId>gs-cloud-starter-observability-spring-boot-3</artifactId>
+  <packaging>jar</packaging>
+  <description>Spring Boot 3 starter for application observability (logging, metrics, tracing)</description>
+
+  <properties>
+    <spring-boot.version>3.4.3</spring-boot.version>
+    <logstash-logback-encoder.version>8.0</logstash-logback-encoder.version>
+    <fmt.skip>false</fmt.skip>
+    <spotless.action>apply</spotless.action>
+    <spotless.apply.skip>${fmt.skip}</spotless.apply.skip>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>${spring-boot.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+    <!-- Spring dependencies -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-webflux</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-configuration-processor</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-gateway</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <!-- Jakarta EE APIs -->
+    <dependency>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <scope>provided</scope>
+      <optional>true</optional>
+    </dependency>
+
+    <!-- Logging -->
+    <dependency>
+      <groupId>net.logstash.logback</groupId>
+      <artifactId>logstash-logback-encoder</artifactId>
+      <version>${logstash-logback-encoder.version}</version>
+    </dependency>
+
+    <!-- Utilities -->
+    <dependency>
+      <groupId>com.github.f4b6a3</groupId>
+      <artifactId>ulid-creator</artifactId>
+    </dependency>
+
+    <!-- Lombok -->
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <!-- GeoServer -->
+    <dependency>
+      <groupId>org.geoserver</groupId>
+      <artifactId>gs-main</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <!-- Test dependencies -->
+    <dependency>
+      <groupId>io.projectreactor</groupId>
+      <artifactId>reactor-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.github.ekryd.sortpom</groupId>
+        <artifactId>sortpom-maven-plugin</artifactId>
+        <version>3.3.0</version>
+        <configuration>
+          <encoding>UTF-8</encoding>
+          <keepBlankLines>true</keepBlankLines>
+          <spaceBeforeCloseEmptyElement>false</spaceBeforeCloseEmptyElement>
+          <createBackupFile>false</createBackupFile>
+          <lineSeparator>\n</lineSeparator>
+          <verifyFail>stop</verifyFail>
+          <verifyFailOn>strict</verifyFailOn>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>sort</goal>
+            </goals>
+            <phase>verify</phase>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <version>2.43.0</version>
+        <configuration>
+          <java>
+            <palantirJavaFormat>
+              <version>2.50.0</version>
+            </palantirJavaFormat>
+          </java>
+          <upToDateChecking>
+            <enabled>true</enabled>
+            <indexFile>${project.basedir}/.spotless-index</indexFile>
+          </upToDateChecking>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>apply</goal>
+            </goals>
+            <phase>validate</phase>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

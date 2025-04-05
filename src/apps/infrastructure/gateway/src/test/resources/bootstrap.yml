@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: gateway
+  config:
+    enabled: false
+  cloud:
+    config:
+      enabled: false
+    discovery:
+      enabled: false

@@ -779,11 +779,6 @@
         <version>${aws.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.geoserver.community</groupId>
-        <artifactId>gs-datadir-catalog-loader</artifactId>
-        <version>${gs.version}</version>
-      </dependency>
-      <dependency>
         <groupId>org.geotools</groupId>
         <artifactId>gt-main</artifactId>
         <version>${gt.version}</version>
@@ -991,11 +986,6 @@
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>build-helper-maven-plugin</artifactId>
           <version>3.4.0</version>
-        </plugin>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>versions-maven-plugin</artifactId>
-          <version>2.16.1</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>

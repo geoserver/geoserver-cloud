@@ -177,9 +177,8 @@ public class TileLayerInfo {
         return Optional.ofNullable(
                 switch (publishedInfo) {
                     case LayerInfo layer -> layer.getResource().getNamespace().getPrefix();
-                    case LayerGroupInfo lg -> lg.getWorkspace() == null
-                            ? null
-                            : lg.getWorkspace().getName();
+                    case LayerGroupInfo lg ->
+                        lg.getWorkspace() == null ? null : lg.getWorkspace().getName();
                     default -> throw new IllegalStateException("published: " + publishedInfo);
                 });
     }

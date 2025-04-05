@@ -40,6 +40,7 @@ import org.geoserver.catalog.impl.DefaultCatalogFacade;
 import org.geoserver.catalog.impl.ModificationProxy;
 import org.geoserver.catalog.impl.ProxyUtils;
 import org.geoserver.catalog.plugin.forwarding.ResolvingCatalogFacadeDecorator;
+import org.geoserver.catalog.plugin.resolving.CatalogPropertyResolver;
 import org.geoserver.catalog.plugin.resolving.ModificationProxyDecorator;
 import org.geoserver.catalog.plugin.rules.CatalogBusinessRules;
 import org.geoserver.catalog.plugin.rules.CatalogOpContext;
@@ -188,11 +189,13 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
             // ResolvingCatalogFacade.
             // This catalog doesn't care which object resolution chain the provided facade
             // needs to perform.
-            outboundResolver = ModificationProxyDecorator::wrap;
+            UnaryOperator<CatalogInfo> resolveCatalog = CatalogPropertyResolver.of(this);
+            UnaryOperator<CatalogInfo> wrap = ModificationProxyDecorator::wrap;
+            outboundResolver = resolveCatalog.andThen(wrap)::apply;
             inboundResolver = ModificationProxyDecorator::unwrap;
         } else {
             efacade = new CatalogFacadeExtensionAdapter(facade);
-            outboundResolver = UnaryOperator.identity();
+            outboundResolver = CatalogPropertyResolver.of(this);
             inboundResolver = UnaryOperator.identity();
         }
         // decorate the default catalog facade with one capable of handling isolated
@@ -217,8 +220,9 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
             case LayerGroupInfo lg -> add(lg);
             case StyleInfo s -> add(s);
             case MapInfo m -> add(m);
-            default -> throw new IllegalArgumentException("Unexpected value: %s"
-                    .formatted(ModificationProxy.unwrap(info).getClass()));
+            default ->
+                throw new IllegalArgumentException("Unexpected value: %s"
+                        .formatted(ModificationProxy.unwrap(info).getClass()));
         }
     }
 
@@ -236,8 +240,9 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
             case LayerGroupInfo lg -> remove(lg);
             case StyleInfo s -> remove(s);
             case MapInfo m -> remove(m);
-            default -> throw new IllegalArgumentException("Unexpected value: %s"
-                    .formatted(ModificationProxy.unwrap(info).getClass()));
+            default ->
+                throw new IllegalArgumentException("Unexpected value: %s"
+                        .formatted(ModificationProxy.unwrap(info).getClass()));
         }
     }
 
@@ -705,8 +710,8 @@ public class CatalogPlugin extends CatalogImpl implements Catalog {
             return switch (matches.size()) {
                 case 0 -> Optional.empty();
                 case 1 -> Optional.of(matches.get(0));
-                default -> throw new IllegalArgumentException(
-                        "Specified query predicate resulted in more than one object");
+                default ->
+                    throw new IllegalArgumentException("Specified query predicate resulted in more than one object");
             };
         }
     }
