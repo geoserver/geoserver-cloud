@@ -8,7 +8,7 @@
 
 ## Introduction
 
-TBD
+GeoServer Cloud provides extensive configuration options through Spring Boot's externalized configuration system. This document outlines the various configuration options available for customizing your GeoServer Cloud deployment.
 
 ## JNDI Datasources
 
@@ -143,3 +143,70 @@ To use GeoServer ACL with GeoServer Cloud, you need to do the following steps:
 ## Use OAuth authentication
 
 You can enable OAuth authentication by replacing the default `gateway` image by the geOrchestra gateway (for example `georchestra/gateway:23.1-RC1`).
+
+## Filter vector and raster data formats
+
+GeoServer Cloud provides the ability to filter which GeoTools DataAccessFactory (vector) and GridFormatFactorySpi (raster) implementations are available in the application. This allows you to customize each deployment to only include the formats you need, improving security, reducing the attack surface, and potentially improving startup time.
+
+### Configuration properties
+
+The following configuration properties can be used to control which formats are available:
+
+```yaml
+geotools:
+  data:
+    filtering:
+      # Master switch for the entire filtering system
+      enabled: true
+      
+      # Vector format configuration (DataAccessFactory implementations)
+      vector-formats:
+        "[PostGIS]": true
+        "[Shapefile]": true
+        "[GeoPackage]": true
+        "[Oracle NG]": ${oracle.enabled:false}
+        "[Web Feature Server (NG)]": true
+        "[Microsoft SQL Server]": false
+        # Add more vector format entries as needed
+      
+      # Raster format configuration (GridFormatFactorySpi implementations)
+      raster-formats:
+        "[GeoTIFF]": true
+        "[ImageMosaic]": ${mosaic.enabled:true}
+        "[ArcGrid]": false
+        "[WorldImage]": true
+        "[ImagePyramid]": false
+        # Add more raster format entries as needed
+```
+
+### Format names
+
+The format names used in the configuration are the user-friendly display names returned by the respective factories:
+
+- For vector formats: The name returned by `DataAccessFactory.getDisplayName()`
+- For raster formats: The name returned by `AbstractGridFormat.getName()`
+
+Since these names often contain special characters, they should be properly escaped in the YAML configuration using quotes and brackets.
+
+### Placeholder resolution
+
+Both vector and raster format configurations support Spring property placeholder resolution, allowing you to create dynamic configurations using environment variables or system properties. For example:
+
+```yaml
+vector-formats:
+  "[Oracle NG]": ${oracle.enabled:false}
+  "[PostGIS]": ${postgis.enabled:true}
+```
+
+This will enable the Oracle format only if the `oracle.enabled` property is set to `true`, otherwise it will default to `false`.
+
+### Implementation details
+
+The filtering system uses different approaches for vector and raster formats:
+
+- **Vector formats**: Directly deregisters disabled DataAccessFactory implementations using `DataAccessFinder.deregisterFactory()` and `DataStoreFinder.deregisterFactory()`
+- **Raster formats**: Uses a custom FilteringFactoryCreator wrapper around the standard GridFormatFinder registry to filter formats on-the-fly
+
+For more details, refer to the README files in the respective starter modules:
+- Vector formats: `src/starters/vector-formats/README.md`
+- Raster formats: `src/starters/raster-formats/README.md`
