@@ -84,9 +84,11 @@ class SimpleNamingContextBuilderTest {
         final int ldapPort = LDAP_CONTAINER.getMappedLdapPort();
         env.put("org.springframework.ldap.base.path", "dc=georchestra,dc=org");
         env.put("java.naming.provider.url", "ldap://localhost:%d/dc=georchestra,dc=org".formatted(ldapPort));
-        env.put("java.naming.security.principal", "uid=testadmin,ou=users,dc=georchestra,dc=org");
+        // Use cn=admin which is the default LDAP admin account in georchestra/ldap
+        env.put("java.naming.security.principal", "cn=admin,dc=georchestra,dc=org");
         env.put("java.naming.security.authentication", "simple");
-        env.put("java.naming.security.credentials", "testadmin");
+        // Use the password defined in the container configuration: SLAPD_PASSWORD=secret
+        env.put("java.naming.security.credentials", "secret");
 
         Context context = NamingManager.getInitialContext(env);
         assertThat(context).isInstanceOf(DirContext.class);
