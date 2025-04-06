@@ -26,6 +26,7 @@ import org.springframework.context.annotation.Bean;
  * @since 1.0
  */
 @AutoConfiguration(after = {MetricsAutoConfiguration.class, CompositeMeterRegistryAutoConfiguration.class})
+@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @ConditionalOnClass(Timed.class)
 @ConditionalOnGeoServerMetricsEnabled
 @EnableConfigurationProperties(GeoSeverMetricsConfigProperties.class)

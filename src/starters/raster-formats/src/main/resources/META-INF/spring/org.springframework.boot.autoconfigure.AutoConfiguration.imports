@@ -1,3 +1,0 @@
-org.geoserver.cloud.autoconfigure.cog.COGAutoConfiguration
-org.geoserver.cloud.autoconfigure.cog.COGWebUIAutoConfiguration
-org.geoserver.cloud.autoconfigure.rasterformats.GridFormatFactoryFilteringAutoConfiguration

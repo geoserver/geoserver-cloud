@@ -45,3 +45,5 @@ docker-compose_datadir*
 hs_err_pid*.log
 
 .spotless-index
+
+.venv

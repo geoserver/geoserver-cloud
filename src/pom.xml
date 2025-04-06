@@ -13,6 +13,7 @@
     <module>library</module>
     <module>catalog</module>
     <module>gwc</module>
+    <module>extensions</module>
     <module>starters</module>
     <module>apps</module>
     <module>integration-tests</module>
@@ -709,6 +710,23 @@
         <groupId>org.geoserver.extension</groupId>
         <artifactId>gs-app-schema-core</artifactId>
         <version>${gs.version}</version>
+      </dependency>
+      <!-- GeoServer Cloud Extensions -->
+      <dependency>
+        <groupId>org.geoserver.cloud.extensions</groupId>
+        <artifactId>gs-cloud-extension-vector-formats</artifactId>
+        <version>${revision}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud.extensions</groupId>
+        <artifactId>gs-cloud-extension-raster-formats</artifactId>
+        <version>${revision}</version>
+      </dependency>
+      <!-- GeoServer Cloud Starters -->
+      <dependency>
+        <groupId>org.geoserver.cloud</groupId>
+        <artifactId>gs-cloud-starter-data-formats</artifactId>
+        <version>${revision}</version>
       </dependency>
       <dependency>
         <groupId>org.geoserver.community</groupId>

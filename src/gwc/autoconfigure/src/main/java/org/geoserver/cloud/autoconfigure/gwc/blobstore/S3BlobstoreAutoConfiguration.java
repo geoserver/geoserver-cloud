@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Import;
  * @since 1.0
  */
 @AutoConfiguration
+@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @ConditionalOnS3BlobstoreEnabled
 @Import({S3BlobstoreConfiguration.class, GsWebUIAutoConfiguration.class})
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.gwc.blobstore")

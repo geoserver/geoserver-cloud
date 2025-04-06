@@ -11,5 +11,6 @@ import org.springframework.context.annotation.Import;
 
 /** Autoconfiguration for GeoServer's main module on servlet/webmvc applications */
 @AutoConfiguration(after = GeoServerBackendAutoConfiguration.class)
+@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @Import({GeoServerMainModuleConfiguration.class})
 public class GeoServerWebMvcMainAutoConfiguration {}

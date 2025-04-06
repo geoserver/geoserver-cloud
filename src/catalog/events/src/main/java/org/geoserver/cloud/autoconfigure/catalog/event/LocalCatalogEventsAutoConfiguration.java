@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Import;
  * CatalogApplicationEventsConfiguration}
  */
 @AutoConfiguration
+@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @ConditionalOnCatalogEvents
 @Import(CatalogApplicationEventsConfiguration.class)
 public class LocalCatalogEventsAutoConfiguration {}

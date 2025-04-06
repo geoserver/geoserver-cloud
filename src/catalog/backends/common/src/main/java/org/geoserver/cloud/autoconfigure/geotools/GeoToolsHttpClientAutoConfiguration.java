@@ -65,6 +65,7 @@ import org.springframework.context.annotation.Bean;
  * </pre>
  */
 @AutoConfiguration
+@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @EnableConfigurationProperties(GeoToolsHttpClientProxyConfigurationProperties.class)
 @ConditionalOnProperty(name = "geotools.httpclient.proxy.enabled", havingValue = "true", matchIfMissing = true)
 @Slf4j(topic = "org.geotools.autoconfigure.httpclient")

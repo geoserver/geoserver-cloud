@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Bean;
 
 /**
  * {@link AutoConfiguration @AutoConfiguration} to enable logging MDC (Mapped Diagnostic Context)
+ * @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
  * for GeoServer OWS requests.
  * <p>
  * This configuration automatically sets up the {@link OWSMdcDispatcherCallback} for GeoServer
@@ -37,6 +38,7 @@ import org.springframework.context.annotation.Bean;
  * @see GeoServerMdcConfigProperties
  */
 @AutoConfiguration
+@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @EnableConfigurationProperties(GeoServerMdcConfigProperties.class)
 @ConditionalOnClass({
     DispatcherCallback.class,

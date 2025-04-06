@@ -28,20 +28,20 @@
       <artifactId>gs-wms</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.geoserver</groupId>
+      <artifactId>gs-kml</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-starter-wms-extensions</artifactId>
+      <artifactId>gs-cloud-starter-data-formats</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-starter-extensions</artifactId>
     </dependency>
     <dependency>
       <groupId>org.geoserver.cloud</groupId>
       <artifactId>gs-cloud-starter-security</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-starter-vector-formats</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-starter-raster-formats</artifactId>
     </dependency>
     <dependency>
       <!-- provides GWC integration with WMS-C -->
@@ -56,4 +56,31 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>forbid-webui-dependencies</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <bannedDependencies>
+                  <excludes>
+                    <exclude>org.geoserver.web:*</exclude>
+                  </excludes>
+                  <searchTransitive>true</searchTransitive>
+                </bannedDependencies>
+              </rules>
+              <fail>true</fail>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>

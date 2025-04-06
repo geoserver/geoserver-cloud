@@ -20,6 +20,7 @@ import org.springframework.context.annotation.Bean;
  * @since 1.0
  */
 @AutoConfiguration
+@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @ConditionalOnClass(InfoEvent.class)
 @ConditionalOnCatalogEvents
 public class RemoteEventResourcePoolCleanupUpAutoConfiguration {

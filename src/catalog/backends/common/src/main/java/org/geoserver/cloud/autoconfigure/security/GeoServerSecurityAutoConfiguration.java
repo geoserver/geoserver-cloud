@@ -19,6 +19,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.event.EventListener;
 
 @AutoConfiguration(after = GeoServerBackendAutoConfiguration.class)
+@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @Import({GeoServerSecurityAutoConfiguration.WhenEnabled.class, GeoServerSecurityAutoConfiguration.WhenDisabled.class})
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.security")
 public class GeoServerSecurityAutoConfiguration {

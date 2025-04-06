@@ -13,6 +13,7 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Bean;
 
 @AutoConfiguration(after = GeoServerWebMvcMainAutoConfiguration.class)
+@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @ImportFilteredResource({
     "jar:gs-wfs-.*!/applicationContext.xml#name=.*",
     "jar:gs-flatgeobuf-.*!/applicationContext.xml#name=.*",

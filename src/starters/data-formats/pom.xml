@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.geoserver.cloud</groupId>
+    <artifactId>gs-cloud-starters</artifactId>
+    <version>${revision}</version>
+  </parent>
+  <artifactId>gs-cloud-starter-data-formats</artifactId>
+  <packaging>jar</packaging>
+  <description>Unified starter for all supported vector and raster data formats</description>
+  <dependencies>
+    <!-- Vector data formats -->
+    <dependency>
+      <groupId>org.geoserver.cloud.extensions</groupId>
+      <artifactId>gs-cloud-extension-vector-formats</artifactId>
+    </dependency>
+
+    <!-- Raster data formats -->
+    <dependency>
+      <groupId>org.geoserver.cloud.extensions</groupId>
+      <artifactId>gs-cloud-extension-raster-formats</artifactId>
+    </dependency>
+  </dependencies>
+</project>

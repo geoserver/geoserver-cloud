@@ -20,6 +20,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
  * which enables automatic context propagation in Reactor 3.5.0+.
  */
 @AutoConfiguration
+@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @ConditionalOnClass(name = "reactor.core.publisher.Mono")
 @ConditionalOnProperty(
         name = "geoserver.cloud.reactor.context-propagation.enabled",

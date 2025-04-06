@@ -49,11 +49,7 @@
     </dependency>
     <dependency>
       <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-starter-vector-formats</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-starter-raster-formats</artifactId>
+      <artifactId>gs-cloud-starter-data-formats</artifactId>
     </dependency>
     <dependency>
       <groupId>org.geoserver.cloud</groupId>
@@ -61,7 +57,7 @@
     </dependency>
     <dependency>
       <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-starter-wms-extensions</artifactId>
+      <artifactId>gs-cloud-starter-extensions</artifactId>
     </dependency>
     <dependency>
       <groupId>org.geoserver.cloud.catalog</groupId>

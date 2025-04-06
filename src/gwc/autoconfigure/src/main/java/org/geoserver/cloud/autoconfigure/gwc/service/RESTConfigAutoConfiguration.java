@@ -36,6 +36,7 @@ import org.springframework.context.annotation.Import;
  * @since 1.0
  */
 @AutoConfiguration
+@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @ConditionalOnGeoWebCacheRestConfigEnabled
 @ConditionalOnClass(RESTConfigConfiguration.class)
 @Import(RESTConfigConfiguration.class)

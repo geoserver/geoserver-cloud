@@ -25,6 +25,7 @@ import org.springframework.context.annotation.Bean;
  * set up the application required ones.
  */
 @AutoConfiguration(after = GeoToolsJacksonBindingsAutoConfiguration.class)
+@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @ConditionalOnClass(GeoServerCatalogModule.class)
 public class GeoServerJacksonBindingsAutoConfiguration {
 

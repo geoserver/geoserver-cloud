@@ -17,6 +17,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean;
 
 @AutoConfiguration
+@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @ConditionalOnWebUIEnabled
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.web.gwc")
 public class GeoWebCacheUIAutoConfiguration {

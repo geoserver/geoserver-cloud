@@ -38,6 +38,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
  * {@link AutoConfiguration @AutoConfiguration} to set up the GeoServer {@link TileLayerCatalog}
+ * @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
  * using the "pgconfig" module implementation to store the tile layer configuration as part of the
  * GeoServer Catalog in the Postgres database;
  *
@@ -45,6 +46,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
  * @see ConditionalOnPgconfigBackendEnabled
  */
 @AutoConfiguration(after = PgconfigDataSourceAutoConfiguration.class)
+@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @ConditionalOnClass(PgconfigTileLayerCatalog.class)
 @ConditionalOnGeoWebCacheEnabled
 @ConditionalOnPgconfigBackendEnabled
