@@ -14,6 +14,7 @@
     <module>spring-boot3</module>
     <module>catalog-backend</module>
     <module>event-bus</module>
+    <module>extensions</module>
     <module>vector-formats</module>
     <module>raster-formats</module>
     <module>webmvc</module>
