@@ -90,9 +90,7 @@ jobs:
       # We're building the JARs ourselves in the previous step
       run: REPACKAGE=false make build-image
 
-    - name: Build acceptance tests docker image
-      run: |
-        make build-acceptance
+    # We'll build the acceptance test image in each matrix job instead
 
     - name: Save Docker images to cache
       run: |
@@ -139,10 +137,18 @@ jobs:
         export TAG=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
         echo "Using TAG: $TAG"
         
-        # Set environment variables
+        # Set environment variables for subsequent steps
         echo "REPOSITORY=geoservercloud" >> $GITHUB_ENV
         echo "ACL_REPOSITORY=geoservercloud" >> $GITHUB_ENV
         echo "TAG=$TAG" >> $GITHUB_ENV
+
+    - name: Build acceptance tests docker image
+      run: |
+        make build-acceptance
+        
+        # List all images after building
+        echo "Available Docker images:"
+        docker images
 
     - name: Install CI dependencies
       id: installci
