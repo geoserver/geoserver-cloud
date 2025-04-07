@@ -80,10 +80,8 @@ jobs:
 
     - name: Build necessary JARs for Docker images
       run: |
-        # Only build the minimum necessary for Docker images
-        ./mvnw clean package -f src/apps/base-images -DskipTests -T4
-        ./mvnw clean package -f src/apps/infrastructure -DskipTests -T4
-        ./mvnw clean package -f src/apps/geoserver -DskipTests -T4
+        # Build all dependencies
+        ./mvnw clean install -DskipTests -T1C -Dfmt.skip -ntp
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
