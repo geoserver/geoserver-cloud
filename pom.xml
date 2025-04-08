@@ -85,6 +85,11 @@
       </dependency>
       <dependency>
         <groupId>org.geoserver.cloud.extensions</groupId>
+        <artifactId>gs-cloud-extension-security-environment-admin</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud.extensions</groupId>
         <artifactId>gs-cloud-extension-app-schema</artifactId>
         <version>${project.version}</version>
       </dependency>

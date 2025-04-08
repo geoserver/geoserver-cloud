@@ -11,6 +11,7 @@
   <description>GeoServer security extensions</description>
   <modules>
     <module>auth-key</module>
+    <module>environment-admin-auth</module>
     <module>gateway-shared-auth</module>
     <module>geonode-oauth2</module>
     <module>geoserver-acl</module>
