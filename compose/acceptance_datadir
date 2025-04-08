@@ -7,4 +7,5 @@ GS_USER=$GSUID:$GSGID COMPOSE_PROJECT_NAME=gscloud-acceptance-datadir \
 docker compose \
 -f compose.yml \
 -f catalog-datadir.yml \
--f acceptance.yml "$@"
+-f acceptance.yml \
+-f standalone.yml "$@"

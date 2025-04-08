@@ -5,4 +5,5 @@ docker compose \
 -f compose.yml \
 -f catalog-pgconfig.yml \
 -f acceptance-pgconfig.yml \
--f acceptance.yml "$@"
+-f acceptance.yml \
+-f standalone.yml "$@"

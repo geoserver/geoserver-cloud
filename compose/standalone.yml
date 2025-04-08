@@ -1,94 +1,125 @@
-# mounts the config volume defined in geoserver.yml under /etc/geoserver/
-# to work with the modified values during development instead of the ones
-# embedded on the docker images
+# Standalone mode configuration for GeoServer Cloud
+# - Replaces infrastructure services with dummy containers
+# - Applies standalone profile to all GeoServer services
+# - Works with various catalog backends (datadir, jdbcconfig, pgconfig)
+
 services:
+  # Replace infrastructure services with minimal Alpine containers
   discovery:
-    restart: no
-    entrypoint: echo "discovery-service disabled."
-
+    image: alpine:latest
+    entrypoint: ["sh", "-c", "echo 'Discovery service is disabled in standalone mode' && tail -f /dev/null"]
+    restart: "no"
+    healthcheck:
+      test: ["CMD-SHELL", "exit 0"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+  
   config:
-    restart: no
-    entrypoint: echo "config-service disabled."
-
+    image: alpine:latest
+    entrypoint: ["sh", "-c", "echo 'Config service is disabled in standalone mode' && tail -f /dev/null"]
+    restart: "no"
+    healthcheck:
+      test: ["CMD-SHELL", "exit 0"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+  
   admin:
-    restart: no
-    entrypoint: echo "admin-service disabled for standalone mode, requires discovery-service."
-
+    image: alpine:latest
+    entrypoint: ["sh", "-c", "echo 'Admin service is disabled in standalone mode' && tail -f /dev/null"]
+    restart: "no"
+    healthcheck:
+      test: ["CMD-SHELL", "exit 0"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+  
+  # Apply standalone profile to all services
   gateway:
     environment:
-      SPRING_PROFILES_ACTIVE: "standalone"
+      SPRING_PROFILES_INCLUDE: "standalone"
     depends_on:
       discovery:
+        condition: service_healthy
         required: false
-    volumes:
-      - config:/etc/geoserver
-
+  
   wfs:
     environment:
-      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},standalone"
+      SPRING_PROFILES_INCLUDE: "standalone"
     depends_on:
+      discovery:
+        condition: service_healthy
+        required: false
       rabbitmq:
         condition: service_healthy
         required: true
-    volumes:
-      - config:/etc/geoserver
-
+  
   wms:
     environment:
-      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},standalone"
+      SPRING_PROFILES_INCLUDE: "standalone"
     depends_on:
+      discovery:
+        condition: service_healthy
+        required: false
       rabbitmq:
         condition: service_healthy
         required: true
-    volumes:
-      - config:/etc/geoserver
-
+  
   wcs:
     environment:
-      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},standalone"
+      SPRING_PROFILES_INCLUDE: "standalone"
     depends_on:
+      discovery:
+        condition: service_healthy
+        required: false
       rabbitmq:
         condition: service_healthy
         required: true
-    volumes:
-      - config:/etc/geoserver
-
+  
   wps:
     environment:
-      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},standalone"
+      SPRING_PROFILES_INCLUDE: "standalone"
     depends_on:
+      discovery:
+        condition: service_healthy
+        required: false
       rabbitmq:
         condition: service_healthy
         required: true
-    volumes:
-      - config:/etc/geoserver
-
+  
   rest:
     environment:
-      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},standalone"
+      SPRING_PROFILES_INCLUDE: "standalone"
     depends_on:
+      discovery:
+        condition: service_healthy
+        required: false
       rabbitmq:
         condition: service_healthy
         required: true
-    volumes:
-      - config:/etc/geoserver
-
+  
   webui:
     environment:
-      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},standalone"
+      SPRING_PROFILES_INCLUDE: "standalone"
     depends_on:
+      discovery:
+        condition: service_healthy
+        required: false
       rabbitmq:
         condition: service_healthy
         required: true
-    volumes:
-      - config:/etc/geoserver
-
+  
   gwc:
     environment:
-      SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},standalone"
+      SPRING_PROFILES_INCLUDE: "standalone"
     depends_on:
+      discovery:
+        condition: service_healthy
+        required: false
       rabbitmq:
         condition: service_healthy
         required: true
-    volumes:
-      - config:/etc/geoserver

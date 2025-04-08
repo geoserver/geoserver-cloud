@@ -36,7 +36,7 @@ services:
       config:
         condition: service_healthy
       acl:
-        condition: service_started
+        condition: service_healthy
       wms:
         condition: service_healthy
       wfs:
