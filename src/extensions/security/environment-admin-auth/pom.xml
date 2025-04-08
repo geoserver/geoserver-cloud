@@ -6,9 +6,9 @@
     <artifactId>gs-cloud-extensions-security</artifactId>
     <version>${revision}</version>
   </parent>
-  <artifactId>gs-cloud-extension-security-gateway-shared-auth</artifactId>
+  <artifactId>gs-cloud-extension-security-environment-admin</artifactId>
   <packaging>jar</packaging>
-  <description>GeoServer Gateway Shared Authentication extension</description>
+  <description>GeoServer Environment Admin Authentication extension</description>
   <dependencies>
     <dependency>
       <groupId>org.geoserver.cloud.extensions</groupId>
@@ -18,12 +18,6 @@
       <groupId>org.geoserver.cloud.catalog.backend</groupId>
       <artifactId>gs-cloud-catalog-backend-common</artifactId>
       <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.geoserver.web</groupId>
-      <artifactId>gs-web-sec-core</artifactId>
-      <scope>provided</scope>
-      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Copyright (C) 2022 Open Source Geospatial Foundation. All rights reserved.
+ This code is licensed under the GPL 2.0 license, available at the root
+ application directory.
+-->
+<configuration>
+  <include resource="org/springframework/boot/logging/logback/base.xml"/>
+  <logger name="org.springframework.test" level="INFO"/>
+  <logger name="org.geoserver" level="DEBUG"/>
+</configuration>

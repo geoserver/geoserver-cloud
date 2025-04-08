@@ -39,11 +39,9 @@
       <groupId>org.geoserver.cloud.extensions</groupId>
       <artifactId>gs-cloud-extension-security-ldap</artifactId>
     </dependency>
-    <!-- Servlet API needed for bean definitions -->
     <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-      <scope>provided</scope>
+      <groupId>org.geoserver.cloud.extensions</groupId>
+      <artifactId>gs-cloud-extension-security-environment-admin</artifactId>
     </dependency>
   </dependencies>
 </project>
