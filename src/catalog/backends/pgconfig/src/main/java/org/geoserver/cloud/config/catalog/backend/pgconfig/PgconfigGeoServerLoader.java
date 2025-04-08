@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.GeoServerConfigurationLock;
@@ -26,7 +25,6 @@ import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerConfigPersister;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.GeoServerLoader;
-import org.geoserver.config.GeoServerLoaderProxy;
 import org.geoserver.config.GeoServerResourcePersister;
 import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
@@ -53,14 +51,6 @@ public class PgconfigGeoServerLoader extends GeoServerLoader {
             @NonNull GeoServerResourceLoader resourceLoader, @NonNull GeoServerConfigurationLock configLock) {
         super(resourceLoader);
         this.configLock = configLock;
-    }
-
-    /** There's no {@link GeoServerLoaderProxy} in gs-cloud */
-    public @PostConstruct void load() {
-        Catalog rawCatalog = (Catalog) GeoServerExtensions.bean("rawCatalog");
-        GeoServer geoserver = (GeoServer) GeoServerExtensions.bean("geoServer");
-        postProcessBeforeInitialization(rawCatalog, "rawCatalog");
-        postProcessBeforeInitialization(geoserver, "geoServer");
     }
 
     @Override
