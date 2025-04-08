@@ -13,10 +13,7 @@
     <start-class>org.geoserver.cloud.wps.WpsApplication</start-class>
   </properties>
   <dependencies>
-    <dependency>
-      <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-starter-data-formats</artifactId>
-    </dependency>
+    <!-- Inherit common starters from parent pom -->
     <dependency>
       <groupId>org.geoserver.extension</groupId>
       <artifactId>gs-wps-core</artifactId>

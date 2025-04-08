@@ -13,6 +13,7 @@
     <start-class>org.geoserver.cloud.gwc.app.GeoWebCacheApplication</start-class>
   </properties>
   <dependencies>
+    <!-- Inherit common starters from parent pom -->
     <dependency>
       <groupId>org.geoserver.cloud.gwc</groupId>
       <artifactId>gwc-cloud-spring-boot-starter</artifactId>
@@ -25,14 +26,6 @@
     <dependency>
       <groupId>org.geoserver</groupId>
       <artifactId>gs-wms</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-starter-data-formats</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-starter-extensions</artifactId>
     </dependency>
     <dependency>
       <!-- used to eagerly filter auto-configurations that do not match, which will improve startup time. META-INF/spring-autoconfigure-metadata.properties-->

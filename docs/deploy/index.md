@@ -25,8 +25,10 @@ cosign verify --key env://GSC_COSIGN_PUB_KEY geoservercloud/<image name>:1.8.6
 
 * **[geoservercloud/geoserver-cloud-config](https://hub.docker.com/repository/docker/geoservercloud/geoserver-cloud-config)**:
 [Spring Cloud Config](https://docs.spring.io/spring-cloud-config/docs/current/reference/html/) server providing support for [externalized configuration](https://docs.spring.io/spring-boot/reference/features/external-config.html) in a distributed system, as a central place to manage external properties for applications across all environments.
-> Usually you'd only use the config service in docker compose deployments. In a Kubernetes environment, we prefer to use the [externalized configuration](https://github.com/geoserver/geoserver-cloud-config) embedded in the Docker images under `/etc/geoserver/`.
-* **[geoservercloud/geoserver-cloud-discovery](https://hub.docker.com/repository/docker/geoservercloud/geoserver-cloud-discovery)**
+> Usually you'd only use the config service in Docker Compose deployments. In a Kubernetes environment, we prefer to use the [externalized configuration](https://github.com/geoserver/geoserver-cloud-config) embedded in the Docker images under `/etc/geoserver/` and Kubernetes ConfigMaps or Secrets.
+* **[geoservercloud/geoserver-cloud-discovery](https://hub.docker.com/repository/docker/geoservercloud/geoserver-cloud-discovery)**:
+[Netflix Eureka](https://cloud.spring.io/spring-cloud-netflix/reference/html/) service registry for service discovery and client-side load balancing.
+> This service is primarily used in Docker Compose deployments. For Kubernetes deployments, it's recommended to use the `standalone` Spring profile and rely on Kubernetes Services for service discovery and load balancing.
 * **[geoservercloud/geoserver-cloud-gateway](https://hub.docker.com/repository/docker/geoservercloud/geoserver-cloud-gateway)**:
 [Spring Cloud Gateway](https://cloud.spring.io/spring-cloud-gateway/reference/html/) reverse proxy providing a single entry point to all GeoServer services.
 

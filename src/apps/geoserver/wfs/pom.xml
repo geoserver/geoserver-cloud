@@ -13,14 +13,7 @@
     <start-class>org.geoserver.cloud.wfs.WfsApplication</start-class>
   </properties>
   <dependencies>
-    <dependency>
-      <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-starter-data-formats</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-starter-extensions</artifactId>
-    </dependency>
+    <!-- Inherit common starters from parent pom -->
     <dependency>
       <groupId>org.geoserver</groupId>
       <artifactId>gs-wfs</artifactId>

@@ -196,7 +196,7 @@
       </dependency>
       <dependency>
         <groupId>org.geoserver.cloud</groupId>
-        <artifactId>gs-cloud-starter-event-bus</artifactId>
+        <artifactId>gs-cloud-spring-cloud-starter</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
