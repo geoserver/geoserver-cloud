@@ -15,6 +15,7 @@
     <module>catalog-backend</module>
     <module>data-formats</module>
     <module>event-bus</module>
+    <module>output-formats</module>
     <module>extensions</module>
     <module>webmvc</module>
     <module>security</module>
