@@ -21,11 +21,9 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.GeoServerConfigurationLock;
-import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.plugin.CatalogFacadeExtensionAdapter;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
 import org.geoserver.cloud.config.catalog.backend.core.GeoServerBackendConfigurer;
-import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerFacade;
 import org.geoserver.config.util.XStreamPersisterFactory;
 import org.geoserver.jdbcconfig.JDBCGeoServerLoader;
@@ -39,7 +37,6 @@ import org.geoserver.jdbcstore.cache.ResourceCache;
 import org.geoserver.jdbcstore.cache.SimpleResourceCache;
 import org.geoserver.jdbcstore.internal.JDBCQueryHelper;
 import org.geoserver.jdbcstore.locks.LockRegistryAdapter;
-import org.geoserver.platform.GeoServerExtensions;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.config.UpdateSequence;
 import org.geoserver.platform.resource.Resource;
@@ -262,10 +259,8 @@ public class JDBCConfigBackendConfigurer extends GeoServerBackendConfigurer {
     protected @Override CloudJdbcGeoServerLoader geoServerLoaderImpl() {
         JDBCConfigProperties config = jdbcConfigProperties();
         ConfigDatabase configdb = jdbcConfigDB();
-        Catalog rawCatalog = (Catalog) GeoServerExtensions.bean("rawCatalog");
-        GeoServer geoserver = (GeoServer) GeoServerExtensions.bean("geoServer");
         try {
-            return new CloudJdbcGeoServerLoader(rawCatalog, geoserver, resourceLoader(), config, configdb);
+            return new CloudJdbcGeoServerLoader(resourceLoader(), config, configdb);
         } catch (Exception e) {
             throw new BeanInstantiationException(JDBCGeoServerLoader.class, e.getMessage(), e);
         }
