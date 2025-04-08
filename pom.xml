@@ -294,6 +294,32 @@
     <pluginManagement>
       <plugins>
         <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>3.3.0</version>
+          <configuration>
+            <!-- Default configuration for all JAR files -->
+            <excludes>
+              <exclude>**/logback-test.xml</exclude>
+            </excludes>
+          </configuration>
+          <executions>
+            <execution>
+              <id>test-jar</id>
+              <goals>
+                <goal>test-jar</goal>
+              </goals>
+              <configuration>
+                <!-- Specific configuration for test JARs -->
+                <excludes>
+                  <exclude>**/logback-test.xml</exclude>
+                  <exclude>logback-test.xml</exclude>
+                </excludes>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
           <groupId>com.diffplug.spotless</groupId>
           <artifactId>spotless-maven-plugin</artifactId>
           <version>2.44.3</version>
