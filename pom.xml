@@ -115,6 +115,12 @@
       </dependency>
       <dependency>
         <groupId>org.geoserver.cloud.extensions</groupId>
+        <artifactId>gs-cloud-extensions-output-formats</artifactId>
+        <version>${project.version}</version>
+        <type>pom</type>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud.extensions</groupId>
         <artifactId>gs-cloud-extension-vector-tiles</artifactId>
         <version>${project.version}</version>
       </dependency>
