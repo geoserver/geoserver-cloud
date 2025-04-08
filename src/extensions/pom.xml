@@ -18,7 +18,7 @@
     <module>raster-formats</module>
     <module>css-styling</module>
     <module>mapbox-styling</module>
-    <module>vector-tiles</module>
+    <module>output-formats</module>
   </modules>
 
   <dependencies>
