@@ -42,6 +42,7 @@ import org.springframework.context.annotation.Bean;
  * @see AccessLogFilterConfig
  */
 @AutoConfiguration
+@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @EnableConfigurationProperties(AccessLogFilterConfig.class)
 @ConditionalOnWebApplication(type = Type.REACTIVE)
 // Don't activate in Gateway applications by default to avoid double logging

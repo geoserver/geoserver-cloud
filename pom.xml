@@ -43,6 +43,77 @@
         <version>${project.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.geoserver.cloud.extensions</groupId>
+        <artifactId>gs-cloud-extensions-core</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud.extensions</groupId>
+        <artifactId>gs-cloud-extensions-security</artifactId>
+        <version>${project.version}</version>
+        <type>pom</type>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud.extensions</groupId>
+        <artifactId>gs-cloud-extension-security-auth-key</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud.extensions</groupId>
+        <artifactId>gs-cloud-extension-security-gateway-shared-auth</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud.extensions</groupId>
+        <artifactId>gs-cloud-extension-security-geonode-oauth2</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud.extensions</groupId>
+        <artifactId>gs-cloud-extension-security-jdbc</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud.extensions</groupId>
+        <artifactId>gs-cloud-extension-security-ldap</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud.extensions</groupId>
+        <artifactId>gs-cloud-extension-security-geoserver-acl</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud.extensions</groupId>
+        <artifactId>gs-cloud-extension-app-schema</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud.extensions</groupId>
+        <artifactId>gs-cloud-extension-vector-formats</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud.extensions</groupId>
+        <artifactId>gs-cloud-extension-raster-formats</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud.extensions</groupId>
+        <artifactId>gs-cloud-extension-css-styling</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud.extensions</groupId>
+        <artifactId>gs-cloud-extension-mapbox-styling</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud.extensions</groupId>
+        <artifactId>gs-cloud-extension-vector-tiles</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.geoserver.cloud</groupId>
         <artifactId>gs-cloud-spring-boot-starter</artifactId>
         <version>${project.version}</version>
@@ -69,12 +140,7 @@
       </dependency>
       <dependency>
         <groupId>org.geoserver.cloud</groupId>
-        <artifactId>gs-cloud-starter-vector-formats</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.geoserver.cloud</groupId>
-        <artifactId>gs-cloud-starter-raster-formats</artifactId>
+        <artifactId>gs-cloud-starter-data-formats</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -85,11 +151,6 @@
       <dependency>
         <groupId>org.geoserver.cloud</groupId>
         <artifactId>gs-cloud-starter-extensions</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.geoserver.cloud</groupId>
-        <artifactId>gs-cloud-starter-wms-extensions</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

@@ -18,6 +18,7 @@ import org.springframework.core.env.Environment;
  * @since 1.0
  */
 @AutoConfiguration
+@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 public class StartupLoggerAutoConfiguration {
 
     @Bean

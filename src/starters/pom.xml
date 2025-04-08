@@ -13,14 +13,11 @@
     <module>spring-boot</module>
     <module>spring-boot3</module>
     <module>catalog-backend</module>
+    <module>data-formats</module>
     <module>event-bus</module>
     <module>extensions</module>
-    <module>vector-formats</module>
-    <module>raster-formats</module>
     <module>webmvc</module>
-    <module>wms-extensions</module>
     <module>security</module>
-    <module>geonode</module>
     <module>observability</module>
     <module>observability-spring-boot-3</module>
   </modules>

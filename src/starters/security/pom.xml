@@ -8,78 +8,42 @@
   </parent>
   <artifactId>gs-cloud-starter-security</artifactId>
   <packaging>jar</packaging>
-  <description>Curated Autoconfigurations of supported AuthZN extensions</description>
+  <description>Spring Boot starter for the GeoServer Cloud security extensions</description>
   <dependencies>
     <dependency>
       <groupId>org.geoserver.cloud</groupId>
       <artifactId>gs-cloud-starter-catalog-backend</artifactId>
     </dependency>
+    <!-- Security extension module dependencies -->
     <dependency>
-      <groupId>org.geoserver.acl.plugin</groupId>
-      <artifactId>gs-acl-client-plugin</artifactId>
+      <groupId>org.geoserver.cloud.extensions</groupId>
+      <artifactId>gs-cloud-extension-security-geoserver-acl</artifactId>
     </dependency>
     <dependency>
-      <!-- Use a CachingAuthorizationService decorator for the API client AuthorizationServiceClientAdaptor -->
-      <groupId>org.geoserver.acl.integration</groupId>
-      <artifactId>gs-acl-cache</artifactId>
+      <groupId>org.geoserver.cloud.extensions</groupId>
+      <artifactId>gs-cloud-extension-security-auth-key</artifactId>
     </dependency>
     <dependency>
-      <!-- Integrate with spring-cloud-bus to evict cached authorizations upon incoming rule and adminrule events -->
-      <groupId>org.geoserver.acl.integration</groupId>
-      <artifactId>gs-acl-spring-cloud-bus</artifactId>
+      <groupId>org.geoserver.cloud.extensions</groupId>
+      <artifactId>gs-cloud-extension-security-gateway-shared-auth</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.geoserver.extension</groupId>
-      <artifactId>gs-authkey</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>org.geoserver</groupId>
-          <artifactId>gs-rest</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.geoserver.web</groupId>
-          <artifactId>gs-web-sec-core</artifactId>
-        </exclusion>
-      </exclusions>
+      <groupId>org.geoserver.cloud.extensions</groupId>
+      <artifactId>gs-cloud-extension-security-geonode-oauth2</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.geoserver</groupId>
-      <artifactId>gs-rest</artifactId>
-      <optional>true</optional>
+      <groupId>org.geoserver.cloud.extensions</groupId>
+      <artifactId>gs-cloud-extension-security-jdbc</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.geoserver.web</groupId>
-      <artifactId>gs-web-sec-core</artifactId>
-      <optional>true</optional>
+      <groupId>org.geoserver.cloud.extensions</groupId>
+      <artifactId>gs-cloud-extension-security-ldap</artifactId>
     </dependency>
+    <!-- Servlet API needed for bean definitions -->
     <dependency>
-      <groupId>org.geoserver.security</groupId>
-      <artifactId>gs-sec-jdbc</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.geoserver.web</groupId>
-      <artifactId>gs-web-sec-jdbc</artifactId>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.geoserver.security</groupId>
-      <artifactId>gs-sec-ldap</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.geoserver.web</groupId>
-      <artifactId>gs-web-sec-ldap</artifactId>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <!-- need it on the classpath just to avoid ClassNotFoundExceptions when loading some GeoServer bean definitions -->
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>
       <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-configuration-processor</artifactId>
-      <optional>true</optional>
     </dependency>
   </dependencies>
 </project>

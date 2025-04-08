@@ -38,6 +38,7 @@ import org.springframework.context.annotation.Bean;
  * @see AccessLogFilterConfig
  */
 @AutoConfiguration
+@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @ConditionalOnProperty(name = AccessLogFilterConfig.ENABLED_KEY, havingValue = "true", matchIfMissing = false)
 @EnableConfigurationProperties(AccessLogFilterConfig.class)
 @ConditionalOnWebApplication(type = Type.SERVLET)

@@ -63,57 +63,88 @@ Each microservice is its own self-contained application, including only the GeoS
 ```
         src/ ......................................... Project source code root directory
         |_ apps ...................................... Root directory for microservice applications
+        |    |_ base-images/ ......................... Base Docker images for containerization
+        |    |     |_ geoserver/ ..................... Base image for GeoServer services
+        |    |     |_ jre/ ........................... Base JRE image
+        |    |     |_ spring-boot/ ................... Base Spring Boot image (Boot 2.x)
+        |    |     |_ spring-boot3/ .................. Base Spring Boot image (Boot 3.x)
+        |    |
         |    |_ infrastructure/ ...................... Infrastructure services
-        |    |     |_ config/ ........................ Spring-cloud config service
-        |    |     |_ gateway/ ....................... Spring-cloud gateway service
-        |    |     |_ discovery/...................... Spring-cloud discovery service
         |    |     |_ admin/ ......................... Spring-cloud admin service
+        |    |     |_ config/ ........................ Spring-cloud config service
+        |    |     |_ discovery/...................... Spring-cloud discovery service
+        |    |     |_ gateway/ ....................... Spring-cloud gateway service
         |    |
         |    |_ geoserver/ ........................... Root directory for geoserver based microservices
-        |          |_ wms/ ........................... Web Map Service
-        |          |_ wfs/ ........................... Web Feature Service
-        |          |_ wcs/ ........................... Web Coverage Service
-        |          |_ wps/ ........................... Web Processing Service
         |          |_ gwc/ ........................... GeoWebcache Service
         |          |_ restconfig/ .................... GeoServer REST config API Service
+        |          |_ wcs/ ........................... Web Coverage Service
         |          |_ webui/ ......................... GeoServer administration Web User Interface
+        |          |_ wfs/ ........................... Web Feature Service
+        |          |_ wms/ ........................... Web Map Service
+        |          |_ wps/ ........................... Web Processing Service
         |
         |_ catalog/ .................................. Root directory for GeoServer Catalog and Config libraries
-        |    |_ plugin/ .............................. Core Catalog and Config implementation and extensions
-        |    |
         |    |_ backends/ ............................ Spring Boot AutoConfigurations for specific catalog back-ends
         |    |     |_ common/ ........................ Basic catalog and config bean wiring common to all back-ends
         |    |     |_ datadir/ ....................... Shared "data directory" catalog back-end
         |    |     |_ jdbcconfig/ .................... "jdbcconfig" catalog back-end
-        |    |
-        |    |_ jackson-bindings/ .................... Libraries to encode and decode configuration objects as JSON
-        |    |     |_ geotools/ ...................... Jackson bindings for JTS Geometries and org.opengis.filter.Filter
-        |    |     |_ geoserver/ ..................... Jackson bindings for GeoServer Catalog and Config object model
-        |    |     |_ starter/ ....................... Spring Boot starter module to automate GeoTools and GeoServer Jackson bindings
+        |    |     |_ pgconfig/ ...................... PostgreSQL catalog back-end
         |    |
         |    |_ cache/ ............................... Spring Boot JCache support and auto-configurations for the Catalog
-        |    |_ events/ .............................. No-framework object model and runtime for catalog and config application events
         |    |_ event-bus/ ........................... Integration layer for events with Spring Cloud Bus
+        |    |_ events/ .............................. No-framework object model and runtime for catalog and config application events
+        |    |_ jackson-bindings/ .................... Libraries to encode and decode configuration objects as JSON
+        |    |     |_ geoserver/ ..................... Jackson bindings for GeoServer Catalog and Config object model
+        |    |     |_ geotools/ ...................... Jackson bindings for JTS Geometries and org.opengis.filter.Filter
+        |    |     |_ starter/ ....................... Spring Boot starter module to automate GeoTools and GeoServer Jackson bindings
+        |    |
+        |    |_ plugin/ .............................. Core Catalog and Config implementation and extensions
+        |
+        |_ extensions/ ............................... GeoServer Cloud extension modules 
+        |    |_ app-schema/ .......................... Application Schema extension
+        |    |_ core/ ................................ Core extension module
+        |    |_ css-styling/ ......................... CSS Styling extension
+        |    |_ mapbox-styling/ ...................... MapBox Styling extension
+        |    |_ raster-formats/ ...................... Raster formats extensions
+        |    |_ security/ ............................ Security extensions
+        |    |     |_ auth-key/ ...................... Auth Key security extension
+        |    |     |_ gateway-shared-auth/ ........... Gateway Shared Auth security extension
+        |    |     |_ geonode-oauth2/ ................ GeoNode OAuth2 security extension
+        |    |     |_ geoserver-acl/ ................. GeoServer ACL security extension
+        |    |     |_ jdbc/ .......................... JDBC security extension
+        |    |     |_ ldap/ .......................... LDAP security extension
+        |    |
+        |    |_ vector-formats/ ...................... Vector formats extensions
+        |    |_ vector-tiles/ ........................ Vector Tiles extension
         |
         |_ gwc ....................................... GeoWebCache modules
-        |    |_ core/ ................................ Basic integration for GeoWebCache with GeoServer Cloud
-        |    |_ backends/ ............................ Integration of GWC storage backends (File, S3, Azure, etc.)
-        |    |_ services/ ............................ Support for GWC services integration (TMS, WMTS, etc.)
-        |    |_ tiling/ .............................. Support for GWC distributed tile cache seeding, agnostic of distributed events technologies
-        |    |_ integration-bus/ ..................... Integration layer for GWC application events with Spring Cloud Bus
         |    |_ autoconfigure/ ....................... Auto configurations for all GWC functionalities
-        |    |_ starter/ ............................. Spring Boot starter for integrating GWC aspects with services (webui, gwc-service, wms)
+        |    |_ backends/ ............................ Integration of GWC storage backends (File, S3, Azure, etc.)
+        |    |     |_ pgconfig/ ...................... PostgreSQL GWC backend
+        |    |
+        |    |_ blobstores/ .......................... Blobstore implementations
+        |    |_ core/ ................................ Basic integration for GeoWebCache with GeoServer Cloud
+        |    |_ integration-bus/ ..................... Integration layer for GWC application events with Spring Cloud Bus
+        |    |_ services/ ............................ Support for GWC services integration (TMS, WMTS, etc.)
+        |    |_ starter/ ............................. Spring Boot starter for integrating GWC aspects with services
+        |
+        |_ library/ .................................. Common library modules
+        |    |_ spring-boot-simplejndi/ .............. Simple JNDI implementation for Spring Boot
+        |    |_ spring-factory/ ...................... Spring Factory utility
         |
         |_ starters .................................. Spring Boot starters for GeoServer microservices
-        |    |_ spring-boot/ ......................... Basic Spring Boot integration and application startup logging
         |    |_ catalog-backend/ ..................... Groups all supported catalog back-ends
-        |    |_ security/ ............................ Additional GeoServer security plugins (e.g. Authkey)
-        |    |_ webmvc/ .............................. Spring Cloud and basic GeoServer integrations for spring-webmvc based applications
-        |    |_ reactive/ ............................ Spring Cloud and basic GeoServer integrations for reactive (WebFlux-based) applications
-        |    |_ event-bus/ ........................... Binds Spring Cloud Bus integration layer with a concrete event-bridge (RabbitMQ)
-        |    |_ raster-formats/ ...................... Dependencies for all supported GeoSever raster formats (GeoTiff, ImageMosaic, etc.)
-        |    |_ vector-formats/ ...................... Dependencies for all supported GeoSever vector formats (PostGIS, Shapefile, etc.)
-        |    |_ wms-extensions/ ...................... WMS extensions autoconfigurations needed not only by wms-service (CSS, VectorTiles, etc.)
+        |    |_ data-formats/ ........................ Unified starter for all vector and raster data formats
+        |    |_ event-bus/ ........................... Binds Spring Cloud Bus integration layer with a concrete event-bridge
+        |    |_ extensions/ .......................... Common extension functionality
+        |    |_ observability/ ....................... Observability support (Boot 2.x)
+        |    |_ observability-spring-boot-3/ ......... Observability support (Boot 3.x)
+        |    |_ security/ ............................ Security extensions and configurations
+        |    |_ spring-boot/ ......................... Basic Spring Boot integration (Boot 2.x)
+        |    |_ spring-boot3/ ........................ Basic Spring Boot integration (Boot 3.x)
+        |    |_ webmvc/ .............................. Spring Cloud and GeoServer integrations for web applications
+        |    |_ wms-extensions/ ...................... WMS extensions autoconfigurations
         |
         |_ integration-tests ......................... Integration tests
 ```
@@ -121,6 +152,10 @@ Each microservice is its own self-contained application, including only the GeoS
 # Building
 
 Check out the [build instructions](build_instructions.md) document.
+
+# Creating Extensions
+
+Learn how to create [extensions for GeoServer Cloud](extensions/adding_extensions.md).
 
 ## Running for development and testing
 

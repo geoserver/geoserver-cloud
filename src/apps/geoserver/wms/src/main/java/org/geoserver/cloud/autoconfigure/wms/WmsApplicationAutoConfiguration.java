@@ -32,6 +32,7 @@ import org.springframework.core.env.PropertyResolver;
 // auto-configure before GWC's wms-integration to avoid it precluding to load beans from
 // jar:gs-wms-.*
 @AutoConfiguration(before = WMSIntegrationAutoConfiguration.class)
+@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @ImportFilteredResource({
     "jar:gs-wms-.*!/applicationContext.xml#name=" + WmsApplicationAutoConfiguration.WMS_BEANS_BLACKLIST,
     "jar:gs-wfs-.*!/applicationContext.xml#name=" + WmsApplicationAutoConfiguration.WFS_BEANS_WHITELIST

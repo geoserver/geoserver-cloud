@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Import;
 
 /** Auto configuration for the wicket ui components of the jdbcconfig extension */
 @AutoConfiguration
+@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @ConditionalOnJdbcConfigWebUIEnabled
 @Import({JDBCConfigWebConfiguration.class})
 public class JDBCConfigWebAutoConfiguration {}

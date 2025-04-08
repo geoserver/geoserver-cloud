@@ -15,12 +15,14 @@ import org.springframework.context.annotation.Import;
 
 /** Log a message if spring-cloud-bus is explicitly disables */
 @AutoConfiguration
+@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @Import({GeoServerBusIntegrationAutoConfiguration.Enabled.class, GeoServerBusIntegrationAutoConfiguration.Disabled.class
 })
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.bus")
 public class GeoServerBusIntegrationAutoConfiguration {
 
     @AutoConfiguration
+    @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
     @AutoConfigureAfter(BusAutoConfiguration.class)
     @ConditionalOnCatalogEvents
     @ConditionalOnGeoServerRemoteEventsEnabled
@@ -32,6 +34,7 @@ public class GeoServerBusIntegrationAutoConfiguration {
     }
 
     @AutoConfiguration
+    @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
     @ConditionalOnGeoServerRemoteEventsDisabled
     static class Disabled {
         public @PostConstruct void logBusDisabled() {

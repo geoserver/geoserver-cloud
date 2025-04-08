@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Import;
  * @since 1.4
  */
 @AutoConfiguration(after = PgconfigMigrationAutoConfiguration.class)
+@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @ConditionalOnPgconfigBackendEnabled
 @EnableConfigurationProperties(CatalogProperties.class)
 @Import(PgconfigBackendConfiguration.class)

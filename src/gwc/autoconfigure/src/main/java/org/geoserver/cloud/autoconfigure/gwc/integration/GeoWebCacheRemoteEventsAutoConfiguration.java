@@ -20,6 +20,7 @@ import org.springframework.context.annotation.Import;
  * @since 1.0
  */
 @AutoConfiguration(after = BusAutoConfiguration.class)
+@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @ConditionalOnGeoWebCacheEnabled
 @ConditionalOnGeoServerRemoteEventsEnabled
 @Import(GeoWebCacheRemoteEventsConfiguration.class)

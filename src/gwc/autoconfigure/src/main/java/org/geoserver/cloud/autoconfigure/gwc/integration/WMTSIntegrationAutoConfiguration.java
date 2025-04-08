@@ -16,6 +16,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
  * @since 1.0
  */
 @AutoConfiguration
+@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @ConditionalOnWMTSIntegrationEnabled
 @ConditionalOnClass(WMTSService.class)
 @ImportFilteredResource("jar:gs-gwc-[0-9]+.*!/geowebcache-geoserver-wmts-integration.xml")

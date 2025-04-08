@@ -50,6 +50,7 @@ import reactor.core.publisher.Mono;
  * Spring Cloud Gateway's GlobalFilter interface, ensuring complete MDC context propagation.
  */
 @AutoConfiguration(after = {AccessLogWebFluxAutoConfiguration.class, LoggingMDCWebFluxAutoConfiguration.class})
+@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @ConditionalOnClass(name = {"org.springframework.cloud.gateway.filter.GlobalFilter"})
 @ConditionalOnBean(MDCWebFilter.class)
 public class GatewayMdcAutoConfiguration {

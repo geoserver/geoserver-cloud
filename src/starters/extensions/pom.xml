@@ -8,25 +8,29 @@
   </parent>
   <artifactId>gs-cloud-starter-extensions</artifactId>
   <packaging>jar</packaging>
-  <description>Curated list of supported extensions with auto configuration</description>
+  <description>Spring Boot starter for the GeoServer Cloud curated list of suppported extensions</description>
   <dependencies>
+    <!-- Feature extensions -->
+    <dependency>
+      <groupId>org.geoserver.cloud.extensions</groupId>
+      <artifactId>gs-cloud-extension-app-schema</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.cloud.extensions</groupId>
+      <artifactId>gs-cloud-extension-css-styling</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.cloud.extensions</groupId>
+      <artifactId>gs-cloud-extension-mapbox-styling</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.cloud.extensions</groupId>
+      <artifactId>gs-cloud-extension-vector-tiles</artifactId>
+    </dependency>
+    <!-- Security starter (includes all security extensions) -->
     <dependency>
       <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-spring-factory</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-starter-catalog-backend</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-configuration-processor</artifactId>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-      <scope>provided</scope>
+      <artifactId>gs-cloud-starter-security</artifactId>
     </dependency>
   </dependencies>
 </project>

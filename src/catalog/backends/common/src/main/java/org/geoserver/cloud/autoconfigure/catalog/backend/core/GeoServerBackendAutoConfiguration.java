@@ -23,5 +23,6 @@ import org.springframework.context.annotation.Import;
  * @see CoreBackendConfiguration
  */
 @AutoConfiguration(after = {GeoToolsHttpClientAutoConfiguration.class, JNDIDataSourceConfiguration.class})
+@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @Import(CoreBackendConfiguration.class)
 public class GeoServerBackendAutoConfiguration {}

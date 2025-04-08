@@ -6,6 +6,8 @@ import sqlalchemy
 from geoservercloud import GeoServerCloud
 
 GEOSERVER_URL = os.getenv("GEOSERVER_URL", "http://gateway:8080/geoserver/cloud")
+GEOSERVER_USERNAME = os.getenv("GEOSERVER_USERNAME", "admin")
+GEOSERVER_PASSWORD = os.getenv("GEOSERVER_PASSWORD", "geoserver")
 RESOURCE_DIR = Path(__file__).parent / "resources"
 # Database connection
 PGHOST = "geodatabase"
@@ -42,7 +44,11 @@ def db_session(engine):
 
 @pytest.fixture(scope="module")
 def geoserver():
-    geoserver = GeoServerCloud(GEOSERVER_URL)
+    geoserver = GeoServerCloud(
+        url=GEOSERVER_URL,
+        user=GEOSERVER_USERNAME,
+        password=GEOSERVER_PASSWORD
+    )
     geoserver.recreate_workspace(WORKSPACE, set_default_workspace=True)
     geoserver.create_pg_datastore(
         workspace=WORKSPACE,

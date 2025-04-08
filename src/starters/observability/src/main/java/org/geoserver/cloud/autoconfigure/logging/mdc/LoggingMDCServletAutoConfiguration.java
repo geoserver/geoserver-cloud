@@ -30,12 +30,14 @@ import org.springframework.security.core.context.SecurityContext;
 
 /**
  * {@link AutoConfiguration @AutoConfiguration} to enable logging MDC (Mapped Diagnostic Context)
+ * @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
  * contributions during the servlet request life cycle.
  * <p>
  * Configures servlet filters to populate the MDC with request, authentication, and environment
  * information.
  */
 @AutoConfiguration
+@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @EnableConfigurationProperties({
     AuthenticationMdcConfigProperties.class,
     HttpRequestMdcConfigProperties.class,

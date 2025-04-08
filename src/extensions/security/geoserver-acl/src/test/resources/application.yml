@@ -1,0 +1,10 @@
+geoserver:
+  extension:
+    security:
+      acl:
+        enabled: true
+    
+# Legacy property format for backward compatibility
+  security:
+    acl:
+      enabled: ${geoserver.extension.security.acl.enabled}

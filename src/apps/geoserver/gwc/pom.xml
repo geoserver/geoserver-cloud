@@ -28,15 +28,11 @@
     </dependency>
     <dependency>
       <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-starter-wms-extensions</artifactId>
+      <artifactId>gs-cloud-starter-data-formats</artifactId>
     </dependency>
     <dependency>
       <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-starter-vector-formats</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-starter-raster-formats</artifactId>
+      <artifactId>gs-cloud-starter-extensions</artifactId>
     </dependency>
     <dependency>
       <!-- used to eagerly filter auto-configurations that do not match, which will improve startup time. META-INF/spring-autoconfigure-metadata.properties-->
@@ -64,6 +60,29 @@
             </path>
           </annotationProcessorPaths>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>forbid-webui-dependencies</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <bannedDependencies>
+                  <excludes>
+                    <exclude>org.geoserver.web:*</exclude>
+                  </excludes>
+                  <searchTransitive>true</searchTransitive>
+                </bannedDependencies>
+              </rules>
+              <fail>true</fail>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

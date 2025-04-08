@@ -19,6 +19,7 @@ import org.springframework.context.annotation.Import;
  * @since 1.0
  */
 @AutoConfiguration(after = CacheSeedingWebMapServiceAutoConfiguration.class)
+@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @ConditionalOnGeoWebCacheEnabled
 @Import({ //
     GeoWebCacheCoreAutoConfiguration.class, //

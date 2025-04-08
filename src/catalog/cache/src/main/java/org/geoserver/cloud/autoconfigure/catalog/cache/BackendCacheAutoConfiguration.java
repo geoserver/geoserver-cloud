@@ -20,6 +20,7 @@ import org.springframework.context.annotation.Import;
  * @see GeoServerBackendCacheConfiguration
  */
 @AutoConfiguration
+@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @ConditionalOnBackendCacheEnabled
 @Import(GeoServerBackendCacheConfiguration.class)
 public class BackendCacheAutoConfiguration {}

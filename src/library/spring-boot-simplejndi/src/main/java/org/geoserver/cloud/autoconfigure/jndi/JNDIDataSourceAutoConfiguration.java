@@ -14,6 +14,7 @@ import org.springframework.core.Ordered;
  * @since 1.0
  */
 @AutoConfiguration
+@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
 @Import(JNDIDataSourceConfiguration.class)
 public class JNDIDataSourceAutoConfiguration {}

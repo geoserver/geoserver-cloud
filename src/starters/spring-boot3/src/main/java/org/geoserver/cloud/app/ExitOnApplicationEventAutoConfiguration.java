@@ -44,6 +44,7 @@ import org.springframework.core.env.Environment;
  * @since 1.9.0
  */
 @AutoConfiguration
+@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @ConditionalOnProperty("spring.context.exit")
 @Slf4j
 public class ExitOnApplicationEventAutoConfiguration {
