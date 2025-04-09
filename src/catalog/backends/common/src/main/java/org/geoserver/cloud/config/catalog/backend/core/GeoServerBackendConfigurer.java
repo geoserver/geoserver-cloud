@@ -12,6 +12,7 @@ import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.config.UpdateSequence;
 import org.geoserver.platform.resource.ResourceStore;
 import org.geoserver.platform.resource.ResourceStoreFactory;
+import org.geoserver.security.GeoServerSecurityManager;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
@@ -41,7 +42,7 @@ public abstract class GeoServerBackendConfigurer {
 
     protected abstract ExtendedCatalogFacade catalogFacade();
 
-    protected abstract GeoServerLoader geoServerLoaderImpl();
+    protected abstract GeoServerLoader geoServerLoaderImpl(GeoServerSecurityManager securityManager);
 
     protected abstract GeoServerFacade geoserverFacade();
 

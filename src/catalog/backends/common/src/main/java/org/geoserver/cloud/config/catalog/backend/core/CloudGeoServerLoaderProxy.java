@@ -6,6 +6,7 @@ package org.geoserver.cloud.config.catalog.backend.core;
 
 import org.geoserver.catalog.Catalog;
 import org.geoserver.config.GeoServer;
+import org.geoserver.config.GeoServerInitializer;
 import org.geoserver.config.GeoServerLoaderProxy;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
@@ -46,5 +47,35 @@ public class CloudGeoServerLoaderProxy extends GeoServerLoaderProxy implements I
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
         return bean;
+    }
+
+    /**
+     * Overrides as no-op, the loaders initialize default styles during load and end
+     * up calling this {@link GeoServerInitializer} while the loader proxy's
+     * delegate is unset:
+     *
+     * <pre>{@code java.lang.NullPointerException: Cannot invoke "org.geoserver.config.GeoServerLoader.initializeDefaultStyles(org.geoserver.catalog.Catalog)" because "this.loader" is null
+     * at org.geoserver.config.GeoServerLoaderProxy.initialize(GeoServerLoaderProxy.java:91)
+     * at org.geoserver.config.GeoServerLoader.loadInitializers(GeoServerLoader.java:342)
+     * at org.geoserver.config.GeoServerLoader.postProcessBeforeInitializationGeoServer(GeoServerLoader.java:302)
+     * at org.geoserver.config.GeoServerLoader.postProcessBeforeInitialization(GeoServerLoader.java:276)
+     * at org.geoserver.cloud.config.catalog.backend.datadirectory.DataDirectoryGeoServerLoader.load(DataDirectoryGeoServerLoader.java:81)
+     * at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+     * at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+     * at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor$LifecycleElement.invoke(InitDestroyAnnotationBeanPostProcessor.java:389)
+     * ...
+     * at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:209)
+     * at org.springframework.context.support.AbstractApplicationContext.getBean(AbstractApplicationContext.java:1171)
+     * at org.geoserver.platform.GeoServerExtensions.getBean(GeoServerExtensions.java:249)
+     * at org.geoserver.platform.GeoServerExtensions.extensions(GeoServerExtensions.java:143)
+     * at org.geoserver.platform.GeoServerExtensions.extensions(GeoServerExtensions.java:118)
+     * at org.geoserver.platform.GeoServerExtensions.bean(GeoServerExtensions.java:342)
+     * at org.geoserver.config.GeoServerLoaderProxy.lookupGeoServerLoader(GeoServerLoaderProxy.java:82)
+     * at org.geoserver.config.GeoServerLoaderProxy.setApplicationContext(GeoServerLoaderProxy.java:48)
+     * }</pre>
+     */
+    @Override
+    public void initialize(GeoServer geoServer) {
+        // no-op
     }
 }

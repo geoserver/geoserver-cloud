@@ -5,6 +5,7 @@
 package org.geoserver.cloud.autoconfigure.catalog.backend.pgconfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.catalog.plugin.ExtendedCatalogFacade;
@@ -16,6 +17,7 @@ import org.geoserver.cloud.backend.pgconfig.resource.PgconfigLockProvider;
 import org.geoserver.cloud.backend.pgconfig.support.PgConfigTestContainer;
 import org.geoserver.cloud.config.catalog.backend.pgconfig.PgconfigGeoServerLoader;
 import org.geoserver.cloud.config.catalog.backend.pgconfig.PgconfigGeoServerResourceLoader;
+import org.geoserver.security.GeoServerSecurityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -36,6 +38,7 @@ class PgconfigBackendAutoConfigurationTest {
     static PgConfigTestContainer<?> container = new PgConfigTestContainer<>();
 
     private ApplicationContextRunner runner = new ApplicationContextRunner()
+            .withBean("securityManager", GeoServerSecurityManager.class, () -> mock(GeoServerSecurityManager.class))
             .withConfiguration(AutoConfigurations.of(
                     PgconfigDataSourceAutoConfiguration.class,
                     PgconfigTransactionManagerAutoConfiguration.class,
