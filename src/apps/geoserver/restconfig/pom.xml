@@ -13,6 +13,7 @@
     <start-class>org.geoserver.cloud.restconfig.RestConfigApplication</start-class>
   </properties>
   <dependencies>
+    <!-- Inherit common starters from parent pom -->
     <dependency>
       <groupId>org.geoserver</groupId>
       <artifactId>gs-restconfig</artifactId>
@@ -28,14 +29,6 @@
     <dependency>
       <groupId>org.geoserver</groupId>
       <artifactId>gs-restconfig-wms</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-starter-data-formats</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-starter-extensions</artifactId>
     </dependency>
     <dependency>
       <groupId>org.geoserver</groupId>

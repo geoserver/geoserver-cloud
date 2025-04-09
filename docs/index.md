@@ -107,6 +107,11 @@ From a usability perspective, there should be no significant differences compare
 
 In this local-machine cluster, each GeoServer business capability runs as a separate process in a dedicated Docker container. These containers synchronize in a loosely coupled manner using a message-driven event bus.
 
+For Docker Compose deployments, we use:
+- **Eureka Discovery Service**: For service discovery and client-side load balancing
+- **Config Server**: For centralized configuration management
+- **RabbitMQ**: For event bus communication between services
+
 Experiment with dynamic service scaling and registration using `docker compose scale <service>=<instances>`. For example:
 
 ```bash
@@ -116,6 +121,8 @@ Creating gscloud_wfs_2 ... done
 Creating gscloud_wfs_3 ... done
 Stopping and removing gscloud_wcs_1 ... done
 ```
+
+> **Note**: For Kubernetes deployments, a different approach is recommended. Use the `standalone` Spring profile and leverage Kubernetes Services for service discovery and load balancing instead of Eureka. This allows Kubernetes to handle load balancing natively and is more efficient for cloud deployments.
 
 # Technology Overview
 

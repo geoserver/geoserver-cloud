@@ -36,10 +36,22 @@
       <groupId>org.geoserver.cloud</groupId>
       <artifactId>gs-cloud-spring-factory</artifactId>
     </dependency>
+    <!-- Base Spring Boot integration -->
+    <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-spring-boot-starter</artifactId>
+    </dependency>
+    <!-- Spring Cloud integration -->
+    <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-spring-cloud-starter</artifactId>
+    </dependency>
+    <!-- Web MVC functionality -->
     <dependency>
       <groupId>org.geoserver.cloud</groupId>
       <artifactId>gs-cloud-starter-webmvc</artifactId>
     </dependency>
+    <!-- Extensions and functionality -->
     <dependency>
       <groupId>org.geoserver.cloud</groupId>
       <artifactId>gs-cloud-starter-extensions</artifactId>
@@ -52,27 +64,6 @@
       <groupId>org.geoserver.cloud</groupId>
       <artifactId>gs-cloud-starter-observability</artifactId>
     </dependency>
-    <!-- GeoNode OAuth2 extension is now included in gs-cloud-starter-extensions -->
-    <dependency>
-      <groupId>org.geoserver.cloud</groupId>
-      <artifactId>spring-boot-simplejndi</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-starter-event-bus</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-starter-bootstrap</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.retry</groupId>
-      <artifactId>spring-retry</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-aop</artifactId>
-    </dependency>
     <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-iau-wkt</artifactId>
@@ -81,11 +72,6 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-configuration-processor</artifactId>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-autoconfigure-processor</artifactId>
       <optional>true</optional>
     </dependency>
     <dependency>

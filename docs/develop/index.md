@@ -115,8 +115,10 @@ Each microservice is its own self-contained application, including only the GeoS
         |    |     |_ jdbc/ .......................... JDBC security extension
         |    |     |_ ldap/ .......................... LDAP security extension
         |    |
-        |    |_ vector-formats/ ...................... Vector formats extensions
-        |    |_ vector-tiles/ ........................ Vector Tiles extension
+        |    |_ output-formats/ ....................... Output format extensions
+        |    |     |_ vector-tiles/ ................... Vector Tiles extension
+        |    |
+        |    |_ vector-formats/ ....................... Vector formats extensions
         |
         |_ gwc ....................................... GeoWebCache modules
         |    |_ autoconfigure/ ....................... Auto configurations for all GWC functionalities
@@ -138,6 +140,7 @@ Each microservice is its own self-contained application, including only the GeoS
         |    |_ data-formats/ ........................ Unified starter for all vector and raster data formats
         |    |_ event-bus/ ........................... Binds Spring Cloud Bus integration layer with a concrete event-bridge
         |    |_ extensions/ .......................... Common extension functionality
+        |    |_ output-formats/ ....................... Output format extensions starter
         |    |_ observability/ ....................... Observability support (Boot 2.x)
         |    |_ observability-spring-boot-3/ ......... Observability support (Boot 3.x)
         |    |_ security/ ............................ Security extensions and configurations

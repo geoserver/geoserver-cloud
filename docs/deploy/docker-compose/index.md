@@ -48,11 +48,16 @@ Then browse to:
 
 From a usability point of view, there should be no appreciable differences with a traditional GeoServer deployment.
 
-What's going on inside the local-machine cluster you've just run, is that each GeoServer business
-capability is running as a separate process in a separate docker container, and they're all in synch
-in a loosely coupled way using a message driven event-bus.
+What's going on inside the local-machine cluster you've just run is that each GeoServer business
+capability is running as a separate process in a separate docker container, and they're all in sync
+in a loosely coupled way using a message-driven event-bus.
 
-Experiment dynamic service scaling and registration with
+In this Docker Compose deployment, the following Spring Cloud components are used:
+- **Eureka Discovery Service**: Provides service discovery and client-side load balancing
+- **Config Server**: Centralizes configuration management
+- **RabbitMQ**: Enables event bus communication between services
+
+Experiment with dynamic service scaling and registration with
 `docker compose scale <service>=<instances>`, for example:
 
 ```bash
@@ -62,3 +67,5 @@ Creating gscloud_wfs_2 ... done
 Creating gscloud_wfs_3 ... done
 Stopping and removing gscloud_wcs_1 ... done
 ```
+
+> **Note for Kubernetes Deployments**: For Kubernetes environments, it's recommended to use the `standalone` Spring profile instead of relying on Eureka and Config Server. Kubernetes provides native service discovery and load balancing through Kubernetes Services, and configuration can be managed through ConfigMaps or Secrets. This approach aligns better with Kubernetes architecture and provides more efficient scaling.

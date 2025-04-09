@@ -13,6 +13,7 @@
     <start-class>org.geoserver.cloud.wms.app.WmsApplication</start-class>
   </properties>
   <dependencies>
+    <!-- Inherit common starters from parent pom -->
     <dependency>
       <groupId>org.geoserver.cloud</groupId>
       <artifactId>gs-cloud-starter-webmvc</artifactId>
@@ -30,18 +31,6 @@
     <dependency>
       <groupId>org.geoserver</groupId>
       <artifactId>gs-kml</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-starter-data-formats</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-starter-extensions</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-starter-security</artifactId>
     </dependency>
     <dependency>
       <!-- provides GWC integration with WMS-C -->

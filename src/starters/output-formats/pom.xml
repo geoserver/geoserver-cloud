@@ -15,13 +15,13 @@
       <groupId>org.geoserver.cloud</groupId>
       <artifactId>gs-cloud-starter-webmvc</artifactId>
     </dependency>
-    
+
     <!-- Output format extensions -->
     <dependency>
       <groupId>org.geoserver.cloud.extensions</groupId>
       <artifactId>gs-cloud-extension-vector-tiles</artifactId>
     </dependency>
-    
+
     <!-- Additional output formats can be added here as they are developed -->
   </dependencies>
 </project>

@@ -14,7 +14,7 @@
     <module>spring-boot3</module>
     <module>catalog-backend</module>
     <module>data-formats</module>
-    <module>event-bus</module>
+    <module>spring-cloud</module>
     <module>output-formats</module>
     <module>extensions</module>
     <module>webmvc</module>
