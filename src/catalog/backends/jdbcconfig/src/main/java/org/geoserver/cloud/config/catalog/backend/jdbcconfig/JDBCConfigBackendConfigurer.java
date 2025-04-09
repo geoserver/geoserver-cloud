@@ -43,6 +43,7 @@ import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.ResourceNotificationDispatcher;
 import org.geoserver.platform.resource.ResourceStore;
 import org.geoserver.platform.resource.SimpleResourceNotificationDispatcher;
+import org.geoserver.security.GeoServerSecurityManager;
 import org.geoserver.util.CacheProvider;
 import org.geoserver.util.DefaultCacheProvider;
 import org.springframework.beans.BeanInstantiationException;
@@ -256,7 +257,7 @@ public class JDBCConfigBackendConfigurer extends GeoServerBackendConfigurer {
         "wpsServiceLoader",
         "wmtsLoader"
     })
-    protected @Override CloudJdbcGeoServerLoader geoServerLoaderImpl() {
+    protected @Override CloudJdbcGeoServerLoader geoServerLoaderImpl(GeoServerSecurityManager securityManager) {
         JDBCConfigProperties config = jdbcConfigProperties();
         ConfigDatabase configdb = jdbcConfigDB();
         try {

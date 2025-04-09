@@ -14,12 +14,11 @@ import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.locking.LockProviderGeoServerConfigurationLock;
 import org.geoserver.catalog.plugin.locking.LockingCatalog;
 import org.geoserver.catalog.plugin.locking.LockingGeoServer;
+import org.geoserver.cloud.config.catalog.backend.datadirectory.CloudDataDirectoryGeoServerLoader;
 import org.geoserver.cloud.config.catalog.backend.datadirectory.DataDirectoryBackendConfiguration;
-import org.geoserver.cloud.config.catalog.backend.datadirectory.DataDirectoryGeoServerLoader;
 import org.geoserver.cloud.config.catalog.backend.datadirectory.DataDirectoryProperties;
 import org.geoserver.cloud.config.catalog.backend.datadirectory.DataDirectoryUpdateSequence;
 import org.geoserver.cloud.config.catalog.backend.datadirectory.NoServletContextDataDirectoryResourceStore;
-import org.geoserver.cloud.config.catalog.backend.datadirectory.ParallelDataDirectoryGeoServerLoader;
 import org.geoserver.config.plugin.RepositoryGeoServerFacade;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.config.UpdateSequence;
@@ -109,17 +108,9 @@ class DataDirectoryAutoConfigurationTest {
     }
 
     @Test
-    void testGeoserverLoaderLegacy() {
-        runner.withPropertyValues("geoserver.backend.data-directory.parallel-loader=false")
-                .run(context -> {
-                    assertThat(context).getBean("geoServerLoaderImpl").isInstanceOf(DataDirectoryGeoServerLoader.class);
-                });
-    }
-
-    @Test
     void testGeoserverLoader() {
         runner.run(context -> {
-            assertThat(context).getBean("geoServerLoaderImpl").isInstanceOf(ParallelDataDirectoryGeoServerLoader.class);
+            assertThat(context).getBean("geoServerLoaderImpl").isInstanceOf(CloudDataDirectoryGeoServerLoader.class);
         });
     }
 

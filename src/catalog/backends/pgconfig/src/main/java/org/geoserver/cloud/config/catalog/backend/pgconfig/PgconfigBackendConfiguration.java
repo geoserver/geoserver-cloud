@@ -23,6 +23,7 @@ import org.geoserver.config.GeoServerLoader;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.LockProvider;
 import org.geoserver.platform.resource.ResourceStore;
+import org.geoserver.security.GeoServerSecurityManager;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -90,7 +91,7 @@ public class PgconfigBackendConfiguration extends GeoServerBackendConfigurer {
 
     @Bean
     @Override
-    protected GeoServerLoader geoServerLoaderImpl() {
+    protected GeoServerLoader geoServerLoaderImpl(GeoServerSecurityManager securityManager) {
         log.debug("Creating GeoServerLoader {}", PgconfigGeoServerLoader.class.getSimpleName());
         return new PgconfigGeoServerLoader(resourceLoader(), configurationLock());
     }
