@@ -13,8 +13,8 @@ import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.geoserver.cloud.event.security.SecurityManagerReloaded;
 import org.geoserver.cloud.security.gateway.sharedauth.GatewaySharedAuthenticationFilter.Config;
-import org.geoserver.platform.ContextLoadedEvent;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.Resource.Lock;
 import org.geoserver.security.GeoServerSecurityFilterChain;
@@ -22,25 +22,41 @@ import org.geoserver.security.GeoServerSecurityManager;
 import org.geoserver.security.RequestFilterChain;
 import org.geoserver.security.config.SecurityManagerConfig;
 import org.geoserver.security.validation.SecurityConfigException;
-import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.EventListener;
 import org.springframework.core.Ordered;
 
 /**
- * Upon a GeoServer {@link ContextLoadedEvent}, creates the {@link
- * GatewaySharedAuthenticationFilter} filter in the {@link GeoServerSecurityManager} configuration,
- * and appends the filter to the {@link SecurityManagerConfig#getFilterChain() filter chain}.
+ * Upon a {@link SecurityManagerReloaded} event, creates the
+ * {@link GatewaySharedAuthenticationFilter} filter in the
+ * {@link GeoServerSecurityManager} configuration, and appends the filter to the
+ * {@link SecurityManagerConfig#getFilterChain() filter chain}.
+ *
+ * <p>
+ * This initializer waits for the SecurityManagerReloaded event to ensure the
+ * security manager has completed its own initialization before making any
+ * changes to the filter chain.
  *
  * @since 1.9
  */
 @Slf4j(topic = "org.geoserver.cloud.security.gateway.sharedauth")
 @RequiredArgsConstructor
-public class GatewaySharedAuthenticationInitializer implements ApplicationListener<ContextLoadedEvent>, Ordered {
+public class GatewaySharedAuthenticationInitializer implements Ordered {
 
     @NonNull
     private final GeoServerSecurityManager securityManager;
 
+    /**
+     * @return {@link Ordered#HIGHEST_PRECEDENCE} since we're now reacting to the
+     *         {@link SecurityManagerReloaded} event which is published after the
+     *         security manager has completed initialization
+     */
     @Override
-    public void onApplicationEvent(ContextLoadedEvent event) {
+    public int getOrder() {
+        return Ordered.HIGHEST_PRECEDENCE;
+    }
+
+    @EventListener(SecurityManagerReloaded.class)
+    public void onSecurityManagerReloaded(SecurityManagerReloaded event) {
         if (!filterIsMissing()) {
             log.info("{} config is present.", GatewaySharedAuthenticationFilter.class.getSimpleName());
             return;
@@ -48,6 +64,7 @@ public class GatewaySharedAuthenticationInitializer implements ApplicationListen
         log.info(
                 "{} config is missing, acquiring security lock",
                 GatewaySharedAuthenticationFilter.class.getSimpleName());
+
         final Resource security = securityManager.security();
         final Lock securityLock = security.lock();
         try {
@@ -127,14 +144,5 @@ public class GatewaySharedAuthenticationInitializer implements ApplicationListen
         securityManager.saveFilter(config);
         log.info("Created {}", GatewaySharedAuthenticationFilter.class.getSimpleName());
         return config;
-    }
-
-    /**
-     * @return {@link Ordered#LOWEST_PRECEDENCE} to make sure it runs after {@link
-     *     GeoServerSecurityManager#onApplicationEvent}
-     */
-    @Override
-    public int getOrder() {
-        return Ordered.LOWEST_PRECEDENCE;
     }
 }

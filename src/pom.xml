@@ -1001,6 +1001,11 @@
                 <goal>integration-test</goal>
                 <goal>verify</goal>
               </goals>
+              <configuration>
+                <forkCount>2</forkCount>
+                <reuseForks>false</reuseForks>
+                <trimStackTrace>false</trimStackTrace>
+              </configuration>
             </execution>
           </executions>
         </plugin>

@@ -170,7 +170,7 @@ public class PgconfigResourceStore implements ResourceStore {
         return path;
     }
 
-    private Optional<PgconfigResource> findByPath(@NonNull String path) {
+    Optional<PgconfigResource> findByPath(@NonNull String path) {
         path = Paths.valid(path);
         Preconditions.checkArgument(!path.startsWith("/"), "Absolute paths not supported: %s", path);
         try {
@@ -265,6 +265,44 @@ public class PgconfigResourceStore implements ResourceStore {
         return null == ts ? 0L : ts.getTime();
     }
 
+    /**
+     * Updates the state of a resource from the database.
+     *
+     * <p>
+     * This method is crucial for maintaining consistency of long-lived resource
+     * references. It queries the database for the current state of a resource
+     * and updates the provided resource instance with the latest information.
+     * </p>
+     *
+     * <p>
+     * It's particularly important for components like AbstractAccessRuleDAO and
+     * RESTAccessRuleDAO that hold resource references as instance variables.
+     * These references can become stale when the underlying database record
+     * is modified by another process or service instance.
+     * </p>
+     *
+     * <p>
+     * If the resource no longer exists in the database, both its type is set to UNDEFINED
+     * and its id is set to UNDEFINED_ID to ensure consistent state.
+     * </p>
+     *
+     * @param resource the resource to update
+     * @see PgconfigResource#updateState()
+     */
+    public void updateState(PgconfigResource resource) {
+        Optional<PgconfigResource> indb = findByPath(resource.path());
+        indb.ifPresentOrElse(
+                // Resource found in database - copy all properties
+                resource::copy,
+                // Resource not found in database - mark as undefined
+                () -> {
+                    resource.type = Type.UNDEFINED;
+                    resource.id = UNDEFINED_ID;
+                    resource.parentId = UNDEFINED_ID;
+                    // lastmodified intentionally not updated to avoid inconsistency with ResourceNotificationDispatcher
+                });
+    }
+
     @Transactional(transactionManager = "pgconfigTransactionManager", propagation = REQUIRED)
     public boolean move(@NonNull final PgconfigResource source, @NonNull final PgconfigResource target) {
         if (source.isUndefined()) return true;
@@ -344,8 +382,8 @@ public class PgconfigResourceStore implements ResourceStore {
 
     public boolean delete(PgconfigResource resource) {
         String sql = """
-                     DELETE FROM resourcestore WHERE id = ?
-                     """;
+                DELETE FROM resourcestore WHERE id = ?
+                """;
         boolean deleted = 0 < template.update(sql, resource.getId());
         if (deleted) {
             resource.type = Type.UNDEFINED;
@@ -354,7 +392,8 @@ public class PgconfigResourceStore implements ResourceStore {
     }
 
     /**
-     * @return direct children of resource if resource is a directory, empty list otherwise
+     * @return direct children of resource if resource is a directory, empty list
+     *         otherwise
      */
     public List<Resource> list(PgconfigResource resource) {
         if (!resource.exists() || !resource.isDirectory()) return List.of();
@@ -366,7 +405,8 @@ public class PgconfigResourceStore implements ResourceStore {
 
         List<Resource> list;
         try (Stream<PgconfigResource> s = template.queryForStream(sql, queryMapper, resource.getId())) {
-            // for pre 1.8.1 backwards compatibility, ignore resources that are only to be stored in
+            // for pre 1.8.1 backwards compatibility, ignore resources that are only to be
+            // stored in
             // the filesystem (e.g. tmp/, temp/, etc)
             var resources = s.filter(r -> !fileSystemOnlyPathMatcher.test(r.path()));
             list = resources.map(Resource.class::cast).toList();
@@ -419,26 +459,26 @@ public class PgconfigResourceStore implements ResourceStore {
         return resource;
     }
 
-    public OutputStream out(PgconfigResource res) {
-        if (res.isDirectory()) {
-            throw new IllegalStateException("%s is a directory".formatted(res.path()));
+    public OutputStream out(PgconfigResource resourc) {
+        if (resourc.isDirectory()) {
+            throw new IllegalStateException("%s is a directory".formatted(resourc.path()));
         }
-        if (res.isUndefined()) {
-            res.type = Type.RESOURCE;
+        if (resourc.isUndefined()) {
+            resourc.type = Type.RESOURCE;
         }
         return new ByteArrayOutputStream() {
             @Override
             public void close() {
-                if (!res.exists()) {
-                    String path = res.path();
-                    PgconfigResourceStore.this.save(res);
+                if (!resourc.exists()) {
+                    String path = resourc.path();
+                    PgconfigResourceStore.this.save(resourc);
                     PgconfigResource saved = findByPath(path).orElseThrow();
-                    res.copy(saved);
+                    resourc.copy(saved);
                 }
                 byte[] contents = this.toByteArray();
-                long mtime = PgconfigResourceStore.this.save(res, contents);
-                res.lastmodified = mtime;
-                cache.dump(res, new ByteArrayInputStream(contents));
+                long mtime = PgconfigResourceStore.this.save(resourc, contents);
+                resourc.lastmodified = mtime;
+                cache.dump(resourc, new ByteArrayInputStream(contents));
             }
         };
     }

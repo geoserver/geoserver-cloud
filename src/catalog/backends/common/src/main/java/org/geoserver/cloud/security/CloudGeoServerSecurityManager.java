@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.geoserver.GeoServerConfigurationLock;
 import org.geoserver.GeoServerConfigurationLock.LockType;
 import org.geoserver.cloud.event.security.SecurityConfigChanged;
+import org.geoserver.cloud.event.security.SecurityManagerReloaded;
 import org.geoserver.config.GeoServerDataDirectory;
 import org.geoserver.security.GeoServerSecurityManager;
 import org.geoserver.security.config.PasswordPolicyConfig;
@@ -26,6 +27,7 @@ import org.geoserver.security.config.SecurityUserGroupServiceConfig;
 import org.geoserver.security.password.MasterPasswordConfig;
 import org.geoserver.security.password.MasterPasswordProviderConfig;
 import org.geoserver.security.validation.SecurityConfigException;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.authentication.AuthenticationProvider;
 
@@ -40,6 +42,9 @@ public class CloudGeoServerSecurityManager extends GeoServerSecurityManager {
 
     private final Consumer<SecurityConfigChanged> eventPublisher;
     private final Supplier<Long> updateSequenceIncrementor;
+
+    // Store applicationContext from setApplicationContext method
+    private ApplicationContext applicationContext;
 
     private final AtomicBoolean reloading = new AtomicBoolean(false);
     private List<AuthenticationProvider> additionalAuthenticationProviders;
@@ -59,7 +64,19 @@ public class CloudGeoServerSecurityManager extends GeoServerSecurityManager {
         this.updateSequenceIncrementor = updateSequenceIncrementor;
     }
 
+    /**
+     * Override to capture applicationContext for our use.
+     * GeoServerSecurityManager implements ApplicationContextAware but doesn't provide access
+     * to the applicationContext it stores.
+     */
     @Override
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        super.setApplicationContext(applicationContext);
+        this.applicationContext = applicationContext;
+    }
+
+    @Override
+    @SuppressWarnings("java:S5803")
     public void setProviders(List<AuthenticationProvider> providers) throws Exception {
         providers = new ArrayList<>(providers);
         providers.addAll(0, additionalAuthenticationProviders);
@@ -73,12 +90,25 @@ public class CloudGeoServerSecurityManager extends GeoServerSecurityManager {
             log.debug("Obtaining global lock to reload the security configuration");
             configLock.lock(LockType.WRITE);
             log.debug("Obtained global lock to reload the security configuration");
+
+            SecurityManagerReloaded event = null;
             try {
                 super.reload();
+
+                // Create event but don't publish yet - wait until after lock release
+                if (applicationContext != null) {
+                    long sequence = updateSequenceIncrementor.get();
+                    event = new SecurityManagerReloaded(this, sequence);
+                }
             } finally {
                 configLock.unlock();
                 log.debug("Released global lock after reloading the security configuration");
                 reloading.set(false);
+                // Now publish the event after the lock has been released
+                if (event != null && applicationContext != null) {
+                    log.debug("Publishing SecurityManagerReloaded event");
+                    applicationContext.publishEvent(event);
+                }
             }
         } else {
             log.warn("Config already being reloaded, ignoring");
