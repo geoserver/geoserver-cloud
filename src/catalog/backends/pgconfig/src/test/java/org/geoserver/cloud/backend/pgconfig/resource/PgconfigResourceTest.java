@@ -20,7 +20,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -454,5 +457,112 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
             }
         }
         return all;
+    }
+
+    /**
+     * Tests that resource state is properly refreshed when a resource is deleted from the database.
+     *
+     * <p>
+     * This verifies that long-lived resource references (as held by components like
+     * AbstractAccessRuleDAO and RESTAccessRuleDAO) will be properly updated when the
+     * underlying database record is modified.
+     * </p>
+     */
+    @Test
+    public void testUpdateStateHandlesDeletedResource() throws Exception {
+        // Create a test resource in the database
+        String path = "security/rest.properties";
+        PgconfigResource resource = (PgconfigResource) store.get(path);
+        resource.file(); // Ensure it exists in the database
+
+        // Verify it exists
+        assertEquals(RESOURCE, resource.getType());
+        assertTrue(resource.exists());
+        assertFalse(resource.isUndefined());
+
+        // Get resource ID
+        long resourceId = resource.getId();
+        assertTrue(resourceId > 0);
+
+        // Delete the resource from the database directly
+        JdbcTemplate template = container.getTemplate();
+        template.update("DELETE FROM resourcestore WHERE path = ?", path);
+
+        // Initial access to resource should still return the cached state
+        assertEquals(RESOURCE, resource.getType());
+
+        // Force resource state refresh by using reflection to set lastChecked to past
+        java.lang.reflect.Field lastCheckedField = resource.getClass().getDeclaredField("lastChecked");
+        lastCheckedField.setAccessible(true);
+        lastCheckedField.set(resource, java.time.Instant.now().minusSeconds(10));
+
+        // Now get the type which should trigger updateState()
+        assertEquals(UNDEFINED, resource.getType());
+        assertEquals(PgconfigResourceStore.UNDEFINED_ID, resource.getId());
+        assertEquals(PgconfigResourceStore.UNDEFINED_ID, resource.getParentId());
+        assertFalse(resource.exists());
+        assertTrue(resource.isUndefined());
+    }
+
+    /**
+     * Tests that resource state is properly refreshed when a resource is modified in the database.
+     *
+     * <p>
+     * This verifies that long-lived resource references will properly reflect changes
+     * made to the resource in the database by other processes or service instances.
+     * </p>
+     */
+    @Test
+    public void testUpdateStateHandlesModifiedResource() throws Exception {
+        // Create a test resource in the database
+        String path = "security/updated.properties";
+        PgconfigResource resource = (PgconfigResource) store.get(path);
+
+        // Write initial content
+        byte[] initialContent = "initial=content".getBytes();
+        try (OutputStream out = resource.out()) {
+            out.write(initialContent);
+        }
+
+        // Verify it exists as a file
+        assertEquals(RESOURCE, resource.getType());
+        assertTrue(resource.exists());
+        assertTrue(resource.isFile());
+
+        // Get resource ID and initial lastmodified timestamp
+        long resourceId = resource.getId();
+        assertTrue(resourceId > 0);
+        long initialLastModified = resource.lastmodified();
+
+        // Update the resource content in the database directly
+        JdbcTemplate template = container.getTemplate();
+        byte[] updatedContent = "updated=content".getBytes();
+        template.update(
+                "UPDATE resourcestore SET content = ?, mtime = ? WHERE path = ?",
+                updatedContent,
+                new Timestamp(System.currentTimeMillis()),
+                path);
+
+        // Force resource state refresh by using reflection to set lastChecked to past
+        java.lang.reflect.Field lastCheckedField = resource.getClass().getDeclaredField("lastChecked");
+        lastCheckedField.setAccessible(true);
+        lastCheckedField.set(resource, java.time.Instant.now().minusSeconds(10));
+
+        // Check lastmodified() which should trigger updateState()
+        long updatedLastModified = resource.lastmodified();
+        assertTrue(
+                "Last modified timestamp should be updated: " + initialLastModified + " vs " + updatedLastModified,
+                updatedLastModified > initialLastModified);
+
+        // Verify the content was updated
+        try (InputStream in = resource.in()) {
+            byte[] content = in.readAllBytes();
+            assertEquals("updated=content", new String(content));
+        }
+
+        // Verify the resource ID hasn't changed
+        assertEquals(resourceId, resource.getId());
+        assertTrue(resource.exists());
+        assertTrue(resource.isFile());
     }
 }
