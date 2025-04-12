@@ -156,6 +156,10 @@ public class GeoServerCatalogModule extends SimpleModule {
                 GridGeometryDto.class,
                 VALUE_MAPPER::dtoToGridGeometry2D);
 
+        // Register custom serializer/deserializer for ConnectionParameters class
+        super.addSerializer(new ConnectionParametersSerializer());
+        super.addDeserializer(ConnectionParameters.class, new ConnectionParametersDeserializer());
+
         addMapperSerializer(Query.class, VALUE_MAPPER::queryToDto, QueryDto.class, VALUE_MAPPER::dtoToQuery);
 
         addMapperSerializer(
