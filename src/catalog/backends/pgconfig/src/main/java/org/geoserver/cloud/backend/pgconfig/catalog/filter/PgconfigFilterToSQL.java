@@ -1,7 +1,8 @@
-/*
- * (c) 2023 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2023 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.backend.pgconfig.catalog.filter;
 
 import java.io.IOException;
@@ -119,28 +120,32 @@ class PgconfigFilterToSQL extends PreparedFilterToSQL {
     @SuppressWarnings({"unchecked", "java:S6204"})
     private List<Object> asList(Object value) {
         if (value instanceof Collection) {
-            // beware Stream.toList() does not support null values but Collectors.toList() does
+            // beware Stream.toList() does not support null values but Collectors.toList()
+            // does
             return ((Collection<Object>) value).stream().collect(Collectors.toList());
         }
         return List.of(value);
     }
 
     private boolean isArray(PropertyName prop) {
-        if (null == prop) return false;
+        if (null == prop) {
+            return false;
+        }
         String propertyName = prop.getPropertyName();
         return "styles.id".equals(propertyName) || "layers.id".equals(propertyName);
     }
 
     /**
-     * Writes the SQL for the Like Filter. Assumes the current java implemented wildcards for the
-     * Like Filter: . for multi and .? for single. And replaces them with the SQL % and _,
-     * respectively.
+     * Writes the SQL for the Like Filter. Assumes the current java implemented
+     * wildcards for the Like Filter: . for multi and .? for single. And replaces
+     * them with the SQL % and _, respectively.
      *
-     * <p>Uses ILIKE if {@link PropertyIsLike#isMatchingCase()} is {@code false}
+     * <p>
+     * Uses ILIKE if {@link PropertyIsLike#isMatchingCase()} is {@code false}
      *
      * @param filter the Like Filter to be visited.
-     * @task REVISIT: Need to think through the escape char, so it works right when Java uses one,
-     *     and escapes correctly with an '_'.
+     * @task REVISIT: Need to think through the escape char, so it works right when
+     *       Java uses one, and escapes correctly with an '_'.
      */
     @Override
     public Object visit(PropertyIsLike filter, Object extraData) {
@@ -289,7 +294,8 @@ class PgconfigFilterToSQL extends PreparedFilterToSQL {
             Expression start = getParameter(function, 1, true);
             Expression end = getParameter(function, 2, true);
 
-            // postgres does sub(string, start, count)... count instead of end, and 1 based indices
+            // postgres does sub(string, start, count)... count instead of end, and 1 based
+            // indices
             out.write("substr(");
             string.accept(this, String.class);
             out.write(", ");
@@ -305,7 +311,8 @@ class PgconfigFilterToSQL extends PreparedFilterToSQL {
             Expression string = getParameter(function, 0, true);
             Expression start = getParameter(function, 1, true);
 
-            // postgres does sub(string, start, count)... count instead of end, and 1 based indices
+            // postgres does sub(string, start, count)... count instead of end, and 1 based
+            // indices
             out.write("substr(");
             string.accept(this, String.class);
             out.write(", ");
@@ -339,11 +346,14 @@ class PgconfigFilterToSQL extends PreparedFilterToSQL {
 
     protected @NonNull String infoTypes(Class<? extends CatalogInfo> clazz) {
         ClassMappings cm;
-        if (clazz.isInterface()) cm = ClassMappings.fromInterface(clazz);
-        else cm = ClassMappings.fromImpl(clazz);
-        if (null == cm)
+        if (clazz.isInterface()) {
+            cm = ClassMappings.fromInterface(clazz);
+        } else {
+            cm = ClassMappings.fromImpl(clazz);
+        }
+        if (null == cm) {
             throw new IllegalArgumentException("Unknown type for IsInstanceOf: " + clazz.getCanonicalName());
-
+        }
         return Stream.of(cm.concreteInterfaces()).map(Class::getSimpleName).collect(Collectors.joining(","));
     }
 }

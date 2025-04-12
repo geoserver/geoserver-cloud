@@ -1,7 +1,8 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.catalog.plugin.rules;
 
 import static java.util.Objects.requireNonNull;
@@ -130,7 +131,9 @@ public class CatalogOpContext<T extends CatalogInfo> {
      */
     @SuppressWarnings("unchecked")
     public <S extends T> CatalogOpContext<S> as(Class<S> subtype) {
-        if (subtype.isInstance(object)) return (CatalogOpContext<S>) this;
+        if (subtype.isInstance(object)) {
+            return (CatalogOpContext<S>) this;
+        }
         throw new IllegalArgumentException("%s<%s> can't be type narrowed to <%s>"
                 .formatted(
                         getClass().getSimpleName(),

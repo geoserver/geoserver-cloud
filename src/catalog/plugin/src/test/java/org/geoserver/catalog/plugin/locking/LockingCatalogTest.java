@@ -1,7 +1,8 @@
-/*
- * (c) 2022 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2022 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.catalog.plugin.locking;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -146,15 +147,19 @@ class LockingCatalogTest {
         configLock.lock(LockType.WRITE);
         try {
             for (CatalogInfo info : infos) {
-                if (info instanceof WorkspaceInfo ws) ws.setName(faker.name());
-                else if (info instanceof NamespaceInfo ns) ns.setURI(faker.url());
-                else if (info instanceof DataStoreInfo ds) {
+                if (info instanceof WorkspaceInfo ws) {
+                    ws.setName(faker.name());
+                } else if (info instanceof NamespaceInfo ns) {
+                    ns.setURI(faker.url());
+                } else if (info instanceof DataStoreInfo ds) {
                     ds.setName(faker.name());
                     ds.getConnectionParameters().put("someparam", "somevalue");
                     ds.getMetadata().put("somekey", "key value");
-                } else if (info instanceof FeatureTypeInfo ft) ft.setName(faker.name());
-                else if (info instanceof LayerInfo l) l.setAdvertised(false);
-                else if (info instanceof StyleInfo s) {
+                } else if (info instanceof FeatureTypeInfo ft) {
+                    ft.setName(faker.name());
+                } else if (info instanceof LayerInfo l) {
+                    l.setAdvertised(false);
+                } else if (info instanceof StyleInfo s) {
                     s.setDateModified(new Date());
                     s.getMetadata().put("somekey", "key value");
                 } else {

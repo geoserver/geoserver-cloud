@@ -1,7 +1,8 @@
-/*
- * (c) 2023 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2023 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.backend.pgconfig.catalog;
 
 import java.io.File;
@@ -83,9 +84,9 @@ class PgconfigCatalogBackendConformanceTest extends CatalogConformanceTest {
 
     @Disabled(
             """
-			revisit, seems to be just a problem of ordering or equals with the \
-			returned ft/ft2 where mockito is not throwing the expected exception
-			""")
+            revisit, seems to be just a problem of ordering or equals with the \
+            returned ft/ft2 where mockito is not throwing the expected exception
+            """)
     @Override
     public void testSaveDataStoreRollbacksBothStoreAndResources() {}
 

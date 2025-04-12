@@ -1,7 +1,8 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.catalog;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -151,7 +152,9 @@ public class CatalogTestData {
             gs.getServices().forEach(gs::remove);
             catalog.get().getWorkspaces().forEach(ws -> {
                 SettingsInfo settings = gs.getSettings(ws);
-                if (settings != null) gs.remove(settings);
+                if (settings != null) {
+                    gs.remove(settings);
+                }
                 gs.getServices(ws).forEach(gs::remove);
             });
         }

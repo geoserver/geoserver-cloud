@@ -1,7 +1,8 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.catalog.plugin.locking;
 
 import java.io.IOException;
@@ -124,8 +125,12 @@ public abstract class LockingSupport {
                         },
                         reason);
             } catch (Exception e) {
-                if (e instanceof IOException ioe) throw new UncheckedIOException(ioe);
-                if (e instanceof RuntimeException rte) throw rte;
+                if (e instanceof IOException ioe) {
+                    throw new UncheckedIOException(ioe);
+                }
+                if (e instanceof RuntimeException rte) {
+                    throw rte;
+                }
                 throw new IllegalStateException(e);
             }
         }
@@ -140,7 +145,9 @@ public abstract class LockingSupport {
             try {
                 return action.call();
             } catch (Exception e) {
-                if (exceptionType.isInstance(e)) throw exceptionType.cast(e);
+                if (exceptionType.isInstance(e)) {
+                    throw exceptionType.cast(e);
+                }
                 throw new IllegalStateException(e);
             } finally {
                 unlock(reason);
@@ -172,7 +179,9 @@ public abstract class LockingSupport {
             try {
                 return action.call();
             } catch (Exception e) {
-                if (exceptionType.isInstance(e)) throw exceptionType.cast(e);
+                if (exceptionType.isInstance(e)) {
+                    throw exceptionType.cast(e);
+                }
                 throw new IllegalStateException(e);
             }
         }
@@ -188,10 +197,14 @@ public abstract class LockingSupport {
      * @return The extracted name, or null if {@code object} is null.
      */
     public static String nameOf(Info object) {
-        if (null == object) return null;
+        if (null == object) {
+            return null;
+        }
         if (object instanceof SettingsInfo settings) {
             WorkspaceInfo ws = settings.getWorkspace();
-            if (ws != null) return ws.getName();
+            if (ws != null) {
+                return ws.getName();
+            }
         }
         String property = object instanceof NamespaceInfo ? "prefix" : "name";
         String name = null;
@@ -211,7 +224,9 @@ public abstract class LockingSupport {
      * @return The corresponding {@link ConfigInfoType}, or null if {@code object} is null.
      */
     public static ConfigInfoType typeOf(Info object) {
-        if (null == object) return null;
+        if (null == object) {
+            return null;
+        }
         return ConfigInfoType.valueOf(object);
     }
 

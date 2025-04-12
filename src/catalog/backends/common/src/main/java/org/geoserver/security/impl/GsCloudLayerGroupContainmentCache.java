@@ -1,7 +1,8 @@
-/*
- * (c) 2024 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2024 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.security.impl;
 
 import com.google.common.base.Stopwatch;
@@ -135,8 +136,9 @@ public class GsCloudLayerGroupContainmentCache extends LayerGroupContainmentCach
         }
 
         sw.stop();
-        if (abort) log.info("Layer group containment cache build cancelled after {}", sw);
-        else
+        if (abort) {
+            log.info("Layer group containment cache build cancelled after {}", sw);
+        } else {
             log.info(
                     "Built layer group containment cache in {}. Group cache size: {}, resource containment cache size: {} with {} layergroups",
                     sw,
@@ -145,6 +147,7 @@ public class GsCloudLayerGroupContainmentCache extends LayerGroupContainmentCach
                     resourceContainmentCache.values().stream()
                             .flatMap(Set::stream)
                             .count());
+        }
     }
 
     private LayerGroupSummary createGroupInfo(LayerGroupInfo group, LayerGroupSummary groupData) {
@@ -215,7 +218,9 @@ public class GsCloudLayerGroupContainmentCache extends LayerGroupContainmentCach
      */
     @Override
     public Collection<LayerGroupSummary> getContainerGroupsFor(LayerGroupInfo lg) {
-        if (null == lg.getId()) return Set.of();
+        if (null == lg.getId()) {
+            return Set.of();
+        }
         LayerGroupSummary summary = getGroupData(lg);
         if (summary != null) {
             Set<LayerGroupSummary> groups = new HashSet<>();
@@ -267,7 +272,9 @@ public class GsCloudLayerGroupContainmentCache extends LayerGroupContainmentCach
 
         private void clearGroupInfo(LayerGroupInfo lg) {
             final LayerGroupSummary data = groupCache.remove(lg.getId());
-            if (data == null) return;
+            if (data == null) {
+                return;
+            }
             // clear the resource containment cache
             lg.getLayers().stream()
                     .filter(IS_LAYER)
@@ -388,7 +395,9 @@ public class GsCloudLayerGroupContainmentCache extends LayerGroupContainmentCach
         }
 
         private Map<String, PublishedInfo> toIdMap(List<PublishedInfo> layers) {
-            if (layers.isEmpty()) return Map.of();
+            if (layers.isEmpty()) {
+                return Map.of();
+            }
             Map<String, PublishedInfo> map = new HashMap<>();
             layers.stream().forEach(l -> map.put(l.getId(), l));
             return map;

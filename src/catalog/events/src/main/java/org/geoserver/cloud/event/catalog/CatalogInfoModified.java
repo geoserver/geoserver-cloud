@@ -1,7 +1,8 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.event.catalog;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -74,8 +75,9 @@ public class CatalogInfoModified extends InfoModified {
             if (patch.get("defaultNamespace").isPresent()) {
                 throw new IllegalArgumentException("Use DefaultNamespaceStoreEvent.createLocal()");
             }
-            if (patch.get("defaultDataStore").isPresent())
+            if (patch.get("defaultDataStore").isPresent()) {
                 throw new IllegalArgumentException("Use DefaultDataStoreEvent.createLocal()");
+            }
             throw new IllegalArgumentException(
                     "Catalog change events only support defaultWorkspace, defaultNamespace, and defaultDataStore properties. Diff: %s"
                             .formatted(patch));
@@ -106,9 +108,9 @@ public class CatalogInfoModified extends InfoModified {
                 NamespaceInfo ns = (NamespaceInfo) defaultNamespace.get().getValue();
                 return DefaultNamespaceSet.createLocal(updateSequence, ns);
             }
-            if (patch.get("defaultDataStore").isPresent())
+            if (patch.get("defaultDataStore").isPresent()) {
                 return DefaultDataStoreSet.createLocal(updateSequence, event);
-
+            }
             throw new IllegalArgumentException(
                     "Catalog change events only support defaultWorkspace, defaultNamespace, and defaultDataStore properties. Diff: %s"
                             .formatted(patch));

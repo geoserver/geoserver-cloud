@@ -1,7 +1,8 @@
-/*
- * (c) 2022 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2022 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.autoconfigure.metrics.catalog;
 
 import io.micrometer.core.instrument.Counter;
@@ -45,7 +46,9 @@ class MetricsCatalogListener implements CatalogListener {
     private Counter.Builder counter(String name, String instanceId) {
         Builder builder = Counter.builder(name) //
                 .baseUnit(BaseUnits.OPERATIONS);
-        if (null != instanceId) builder = builder.tag("instance-id", instanceId);
+        if (null != instanceId) {
+            builder = builder.tag("instance-id", instanceId);
+        }
         return builder;
     }
 

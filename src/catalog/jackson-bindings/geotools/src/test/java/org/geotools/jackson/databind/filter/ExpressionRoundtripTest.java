@@ -1,7 +1,8 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geotools.jackson.databind.filter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -60,7 +61,9 @@ public abstract class ExpressionRoundtripTest {
 
     protected void print(String logmsg, Object... args) {
         boolean debug = Boolean.getBoolean("debug");
-        if (debug) log.info(logmsg, args);
+        if (debug) {
+            log.info(logmsg, args);
+        }
     }
 
     protected abstract <E extends Expression> E roundtripTest(E dto) throws Exception;

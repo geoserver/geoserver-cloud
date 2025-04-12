@@ -1,3 +1,8 @@
+/* (c) 2025 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
+ */
+
 package org.geoserver.cloud.logging.mdc.config;
 
 import java.util.List;
@@ -76,7 +81,9 @@ public class SpringEnvironmentMdcConfigProperties {
      * @param buildProperties optional BuildProperties containing version information
      */
     public void addEnvironmentProperties(Environment env, Optional<BuildProperties> buildProperties) {
-        if (isName()) MDC.put("application.name", env.getProperty("spring.application.name"));
+        if (isName()) {
+            MDC.put("application.name", env.getProperty("spring.application.name"));
+        }
 
         putVersion(buildProperties);
         putInstanceId(env);
@@ -112,7 +119,9 @@ public class SpringEnvironmentMdcConfigProperties {
      * @param env the Spring Environment from which to extract the instance ID
      */
     private void putInstanceId(Environment env) {
-        if (!isInstanceId() || null == getInstanceIdProperties()) return;
+        if (!isInstanceId() || null == getInstanceIdProperties()) {
+            return;
+        }
 
         for (String prop : getInstanceIdProperties()) {
             String value = env.getProperty(prop);

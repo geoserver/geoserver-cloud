@@ -1,7 +1,8 @@
-/*
- * (c) 2024 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2024 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.logging.mdc.ows;
 
 import lombok.NonNull;
@@ -57,10 +58,12 @@ public class OWSMdcDispatcherCallback extends AbstractDispatcherCallback impleme
      */
     @Override
     public Service serviceDispatched(Request request, Service service) {
-        if (config.isServiceName()) MDC.put("gs.ows.service.name", service.getId());
-
-        if (config.isServiceVersion()) MDC.put("gs.ows.service.version", String.valueOf(service.getVersion()));
-
+        if (config.isServiceName()) {
+            MDC.put("gs.ows.service.name", service.getId());
+        }
+        if (config.isServiceVersion()) {
+            MDC.put("gs.ows.service.version", String.valueOf(service.getVersion()));
+        }
         if (config.isServiceFormat() && null != request.getOutputFormat()) {
             MDC.put("gs.ows.service.format", request.getOutputFormat());
         }

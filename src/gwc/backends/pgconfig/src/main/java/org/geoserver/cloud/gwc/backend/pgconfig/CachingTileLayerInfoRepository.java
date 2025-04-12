@@ -1,7 +1,8 @@
-/*
- * (c) 2024 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2024 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.gwc.backend.pgconfig;
 
 import java.io.Serializable;
@@ -96,7 +97,9 @@ public class CachingTileLayerInfoRepository implements TileLayerInfoRepository {
         try {
             evict(tli);
             boolean updated = repository.save(tli);
-            if (updated) cache(tli);
+            if (updated) {
+                cache(tli);
+            }
             return updated;
         } catch (RuntimeException e) {
             evict(tli);

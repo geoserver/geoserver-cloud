@@ -1,7 +1,8 @@
-/*
- * (c) 2022 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2022 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.gwc.repository;
 
 import com.google.common.base.Stopwatch;
@@ -150,7 +151,9 @@ public class CachingTileLayerCatalog extends ForwardingTileLayerCatalog {
             namesById.forcePut(tl.getId(), tl.getName());
             return tl;
         } catch (Cache.ValueRetrievalException e) {
-            if (e.getCause() instanceof NoSuchElementException) return null;
+            if (e.getCause() instanceof NoSuchElementException) {
+                return null;
+            }
             throw e;
         }
     }

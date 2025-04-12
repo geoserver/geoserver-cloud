@@ -1,8 +1,8 @@
-/*
- * (c) 2014 Open Source Geospatial Foundation - all rights reserved
- * (c) 2001 - 2013 OpenPlans
- * This code is licensed under the GPL 2.0 license, available at the root application directory.
+/* (c) 2014 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.catalog.plugin;
 
 import com.google.common.collect.Iterators;
@@ -567,11 +567,21 @@ public final class IsolatedCatalogFacade extends ForwardingExtendedCatalogFacade
      */
     @SuppressWarnings("unchecked")
     private <T extends CatalogInfo> T enforceIsolation(T info) {
-        if (info instanceof StoreInfo store) return (T) enforceStoreIsolation(store);
-        if (info instanceof ResourceInfo resource) return (T) enforceResourceIsolation(resource);
-        if (info instanceof LayerInfo layer) return (T) enforceLayerIsolation(layer);
-        if (info instanceof LayerGroupInfo lg) return (T) enforceLayerGroupIsolation(lg);
-        if (info instanceof StyleInfo style) return (T) enforceStyleIsolation(style);
+        if (info instanceof StoreInfo store) {
+            return (T) enforceStoreIsolation(store);
+        }
+        if (info instanceof ResourceInfo resource) {
+            return (T) enforceResourceIsolation(resource);
+        }
+        if (info instanceof LayerInfo layer) {
+            return (T) enforceLayerIsolation(layer);
+        }
+        if (info instanceof LayerGroupInfo lg) {
+            return (T) enforceLayerGroupIsolation(lg);
+        }
+        if (info instanceof StyleInfo style) {
+            return (T) enforceStyleIsolation(style);
+        }
         return info;
     }
 
@@ -583,7 +593,10 @@ public final class IsolatedCatalogFacade extends ForwardingExtendedCatalogFacade
      * @return {@code true} if visible, {@code false} if isolated or null.
      */
     private <T extends CatalogInfo> boolean filter(T info) {
-        return enforceIsolation(info) != null;
+        if (info != null) {
+            return enforceIsolation(info) != null;
+        }
+        return false;
     }
 
     /**
@@ -594,7 +607,9 @@ public final class IsolatedCatalogFacade extends ForwardingExtendedCatalogFacade
      * @return The store if visible, or null if isolated.
      */
     private <T extends StoreInfo> T enforceStoreIsolation(T store) {
-        if (store == null) return null;
+        if (store == null) {
+            return null;
+        }
         WorkspaceInfo workspace = store.getWorkspace();
         return canSeeWorkspace(workspace) ? store : null;
     }
@@ -607,9 +622,13 @@ public final class IsolatedCatalogFacade extends ForwardingExtendedCatalogFacade
      * @return The resource if visible, or null if isolated.
      */
     private <T extends ResourceInfo> T enforceResourceIsolation(T resource) {
-        if (resource == null) return null;
+        if (resource == null) {
+            return null;
+        }
         StoreInfo store = resource.getStore();
-        if (store == null) return resource;
+        if (store == null) {
+            return resource;
+        }
         WorkspaceInfo workspace = store.getWorkspace();
         return canSeeWorkspace(workspace) ? resource : null;
     }
@@ -622,11 +641,17 @@ public final class IsolatedCatalogFacade extends ForwardingExtendedCatalogFacade
      * @return The layer if visible, or null if isolated.
      */
     private <T extends LayerInfo> T enforceLayerIsolation(T layer) {
-        if (layer == null) return null;
+        if (layer == null) {
+            return null;
+        }
         ResourceInfo resource = layer.getResource();
-        if (resource == null) return layer;
+        if (resource == null) {
+            return layer;
+        }
         StoreInfo store = resource.getStore();
-        if (store == null) return layer;
+        if (store == null) {
+            return layer;
+        }
         WorkspaceInfo workspace = store.getWorkspace();
         return canSeeWorkspace(workspace) ? layer : null;
     }
@@ -639,7 +664,9 @@ public final class IsolatedCatalogFacade extends ForwardingExtendedCatalogFacade
      * @return The style if visible, or null if isolated.
      */
     private <T extends StyleInfo> T enforceStyleIsolation(T style) {
-        if (style == null) return null;
+        if (style == null) {
+            return null;
+        }
         WorkspaceInfo workspace = style.getWorkspace();
         return canSeeWorkspace(workspace) ? style : null;
     }
@@ -654,7 +681,9 @@ public final class IsolatedCatalogFacade extends ForwardingExtendedCatalogFacade
      * @return The layer group if visible, or null if isolated.
      */
     private <T extends LayerGroupInfo> T enforceLayerGroupIsolation(T layerGroup) {
-        if (layerGroup == null) return null;
+        if (layerGroup == null) {
+            return null;
+        }
         WorkspaceInfo workspace = layerGroup.getWorkspace();
         return canSeeWorkspace(workspace) ? layerGroup : null;
     }

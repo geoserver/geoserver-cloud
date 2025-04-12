@@ -1,7 +1,8 @@
-/*
- * (c) 2023 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2023 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.backend.pgconfig.support;
 
 import com.zaxxer.hikari.HikariConfig;
@@ -62,8 +63,12 @@ public class PgConfigTestContainer<SELF extends PostgreSQLContainer<SELF>> exten
     }
 
     public void tearDown() {
-        if (null != databaseMigrations) databaseMigrations.clean();
-        if (null != dataSource) ((HikariDataSource) dataSource).close();
+        if (null != databaseMigrations) {
+            databaseMigrations.clean();
+        }
+        if (null != dataSource) {
+            ((HikariDataSource) dataSource).close();
+        }
     }
 
     @SuppressWarnings("unchecked")

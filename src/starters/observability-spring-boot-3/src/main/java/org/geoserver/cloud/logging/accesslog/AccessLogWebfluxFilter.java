@@ -1,7 +1,8 @@
-/*
- * (c) 2024 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2024 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.logging.accesslog;
 
 import java.net.URI;
@@ -169,13 +170,18 @@ public class AccessLogWebfluxFilter implements OrderedWebFilter {
 
             // Get status code if available, or use 0 if not set
             Integer statusCode = exchange.getResponse().getRawStatusCode();
-            if (statusCode == null) statusCode = 0;
+            if (statusCode == null) {
+                statusCode = 0;
+            }
 
             logWithAppropriateContext(method, statusCode, uriPath, duration, contextMdc);
         } finally {
             // Restore initial MDC state
-            if (initialMdc != null) MDC.setContextMap(initialMdc);
-            else MDC.clear();
+            if (initialMdc != null) {
+                MDC.setContextMap(initialMdc);
+            } else {
+                MDC.clear();
+            }
         }
     }
 
@@ -219,8 +225,11 @@ public class AccessLogWebfluxFilter implements OrderedWebFilter {
             }
         } finally {
             // Restore original MDC
-            if (oldMdc != null) MDC.setContextMap(oldMdc);
-            else MDC.clear();
+            if (oldMdc != null) {
+                MDC.setContextMap(oldMdc);
+            } else {
+                MDC.clear();
+            }
         }
     }
 

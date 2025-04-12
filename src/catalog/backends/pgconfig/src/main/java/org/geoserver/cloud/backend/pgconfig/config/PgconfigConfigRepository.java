@@ -1,7 +1,8 @@
-/*
- * (c) 2023 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2023 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.backend.pgconfig.config;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -210,8 +211,8 @@ public class PgconfigConfigRepository implements ConfigRepository {
         if (!ServiceInfo.class.equals(clazz)) {
             String servicetype = servicetype(clazz);
             sql = """
-                   %s AND "@type" = '%s'
-                   """.formatted(sql, servicetype);
+                    %s AND "@type" = '%s'
+                    """.formatted(sql, servicetype);
         }
         return findOne(sql, ServiceInfo.class, ServiceInfoRowMapper, args)
                 .filter(clazz::isInstance)
@@ -219,7 +220,9 @@ public class PgconfigConfigRepository implements ConfigRepository {
     }
 
     private <S extends ServiceInfo> String servicetype(Class<S> clazz) {
-        if (ServiceInfo.class.equals(clazz)) return ServiceInfo.class.getSimpleName();
+        if (ServiceInfo.class.equals(clazz)) {
+            return ServiceInfo.class.getSimpleName();
+        }
         Class<?> iface = clazz.isInterface()
                 ? clazz
                 : Arrays.stream(clazz.getInterfaces())
@@ -272,8 +275,11 @@ public class PgconfigConfigRepository implements ConfigRepository {
 
     private static @NonNull String infoType(Class<? extends CatalogInfo> clazz) {
         ClassMappings cm;
-        if (clazz.isInterface()) cm = ClassMappings.fromInterface(clazz);
-        else cm = ClassMappings.fromImpl(clazz);
+        if (clazz.isInterface()) {
+            cm = ClassMappings.fromInterface(clazz);
+        } else {
+            cm = ClassMappings.fromImpl(clazz);
+        }
 
         return cm.getInterface().getSimpleName();
     }

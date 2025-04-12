@@ -1,7 +1,8 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.catalog.plugin;
 
 import static java.util.Objects.requireNonNull;
@@ -114,9 +115,10 @@ public class CatalogInfoTypeRegistry<R> {
                 }
             }
         }
-        if (cm == null)
+        if (cm == null) {
             throw new IllegalArgumentException(
                     "Unable to determine CatalogInfo subtype from object %s".formatted(object));
+        }
         return (Class<T>) cm.getInterface();
     }
 

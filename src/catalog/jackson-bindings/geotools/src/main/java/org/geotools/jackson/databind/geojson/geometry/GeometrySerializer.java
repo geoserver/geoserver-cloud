@@ -1,7 +1,8 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geotools.jackson.databind.geojson.geometry;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -101,13 +102,21 @@ public class GeometrySerializer extends StdSerializer<Geometry> {
     }
 
     private CoordinateSequence findSampleSequence(Geometry g) {
-        if (g == null || g.isEmpty()) return null;
+        if (g == null || g.isEmpty()) {
+            return null;
+        }
         if (g instanceof GeometryCollection col) {
             return findSampleSequence(col.getGeometryN(0));
         }
-        if (g instanceof Point point) return point.getCoordinateSequence();
-        if (g instanceof LineString line) return line.getCoordinateSequence();
-        if (g instanceof Polygon poly) return findSampleSequence(poly.getExteriorRing());
+        if (g instanceof Point point) {
+            return point.getCoordinateSequence();
+        }
+        if (g instanceof LineString line) {
+            return line.getCoordinateSequence();
+        }
+        if (g instanceof Polygon poly) {
+            return findSampleSequence(poly.getExteriorRing());
+        }
         return null;
     }
 
@@ -178,7 +187,9 @@ public class GeometrySerializer extends StdSerializer<Geometry> {
     private void writeCoordinate(CoordinateSequence seq, int index, JsonGenerator generator) throws IOException {
         int dimension = seq.getDimension();
         generator.writeStartArray();
-        for (int i = 0; i < dimension; i++) generator.writeNumber(seq.getOrdinate(index, i));
+        for (int i = 0; i < dimension; i++) {
+            generator.writeNumber(seq.getOrdinate(index, i));
+        }
         generator.writeEndArray();
     }
 }

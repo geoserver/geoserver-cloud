@@ -1,7 +1,8 @@
-/*
- * (c) 2023 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2023 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.backend.pgconfig.resource;
 
 import static org.springframework.transaction.annotation.Propagation.REQUIRED;
@@ -192,10 +193,10 @@ public class PgconfigResourceStore implements ResourceStore {
      */
     @Transactional(transactionManager = "pgconfigTransactionManager", propagation = REQUIRED)
     public void save(@NonNull PgconfigResource resource) {
-        if (resource.isUndefined())
+        if (resource.isUndefined()) {
             throw new IllegalArgumentException(
                     "Attempting to save a resource of undefined type: %s".formatted(resource));
-
+        }
         if (resource.exists()) {
             String sql =
                     """
@@ -242,14 +243,16 @@ public class PgconfigResourceStore implements ResourceStore {
      */
     @Transactional(transactionManager = "pgconfigTransactionManager", propagation = REQUIRED)
     public long save(@NonNull PgconfigResource resource, byte[] contents) {
-        if (!resource.exists())
+        if (!resource.exists()) {
             throw new IllegalArgumentException("Resource does not exist: %s".formatted(resource.path()));
-
-        if (!resource.isFile())
+        }
+        if (!resource.isFile()) {
             throw new IllegalArgumentException(
                     "Resource is a directory, can't have contents: %s".formatted(resource.path()));
-
-        if (null == contents) contents = new byte[0];
+        }
+        if (null == contents) {
+            contents = new byte[0];
+        }
         template.update(
                 """
                 UPDATE resourcestore SET content = ? WHERE id = ?
@@ -305,7 +308,9 @@ public class PgconfigResourceStore implements ResourceStore {
 
     @Transactional(transactionManager = "pgconfigTransactionManager", propagation = REQUIRED)
     public boolean move(@NonNull final PgconfigResource source, @NonNull final PgconfigResource target) {
-        if (source.isUndefined()) return true;
+        if (source.isUndefined()) {
+            return true;
+        }
         if (!source.exists()) {
             return false;
         }
@@ -344,7 +349,9 @@ public class PgconfigResourceStore implements ResourceStore {
     }
 
     List<PgconfigResource> findAllChildren(PgconfigResource resource) {
-        if (!resource.exists() || !resource.isDirectory()) return List.of();
+        if (!resource.exists() || !resource.isDirectory()) {
+            return List.of();
+        }
         String sql =
                 """
                 SELECT id, parentid, "type", path, mtime FROM resourcestore WHERE path LIKE ?
@@ -367,9 +374,12 @@ public class PgconfigResourceStore implements ResourceStore {
      * @return
      */
     public byte[] contents(PgconfigResource resource) {
-        if (!resource.exists() || resource.isUndefined())
+        if (!resource.exists() || resource.isUndefined()) {
             throw new IllegalStateException("File not found %s".formatted(resource.path()));
-        if (resource.isDirectory()) throw new IllegalStateException("%s is a directory".formatted(resource.path()));
+        }
+        if (resource.isDirectory()) {
+            throw new IllegalStateException("%s is a directory".formatted(resource.path()));
+        }
 
         long id = resource.getId();
         return template.queryForObject(
@@ -396,7 +406,9 @@ public class PgconfigResourceStore implements ResourceStore {
      *         otherwise
      */
     public List<Resource> list(PgconfigResource resource) {
-        if (!resource.exists() || !resource.isDirectory()) return List.of();
+        if (!resource.exists() || !resource.isDirectory()) {
+            return List.of();
+        }
 
         String sql =
                 """
@@ -443,11 +455,13 @@ public class PgconfigResourceStore implements ResourceStore {
         if (resource.exists() && resource.isDirectory()) {
             return resource;
         }
-        if (resource.isFile())
+        if (resource.isFile()) {
             throw new IllegalStateException("mkdirs() can only be called on DIRECTORY or UNDEFINED resources");
-
+        }
         PgconfigResource parent = getParent(resource);
-        if (null == parent) return resource;
+        if (null == parent) {
+            return resource;
+        }
         if (!parent.exists()) {
             parent = parent.mkdirs();
         }
@@ -484,7 +498,9 @@ public class PgconfigResourceStore implements ResourceStore {
     }
 
     public PgconfigResource getParent(PgconfigResource resource) {
-        if (ROOT_ID == resource.getId()) return null;
+        if (ROOT_ID == resource.getId()) {
+            return null;
+        }
         String parentPath = resource.parentPath();
         return (PgconfigResource) get(parentPath);
     }

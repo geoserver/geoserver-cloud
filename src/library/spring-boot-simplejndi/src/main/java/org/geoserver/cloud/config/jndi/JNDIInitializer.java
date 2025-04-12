@@ -1,7 +1,8 @@
-/*
- * (c) 2022 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2022 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.config.jndi;
 
 import com.zaxxer.hikari.HikariDataSource;
@@ -153,7 +154,9 @@ public class JNDIInitializer implements InitializingBean, DisposableBean {
         dataSource.setMinimumIdle(props.getMinimumIdle());
         dataSource.setConnectionTimeout(props.getConnectionTimeout());
         dataSource.setIdleTimeout(props.getIdleTimeout());
-        if (StringUtils.hasLength(props.getSchema())) dataSource.setSchema(props.getSchema());
+        if (StringUtils.hasLength(props.getSchema())) {
+            dataSource.setSchema(props.getSchema());
+        }
         return dataSource;
     }
 }

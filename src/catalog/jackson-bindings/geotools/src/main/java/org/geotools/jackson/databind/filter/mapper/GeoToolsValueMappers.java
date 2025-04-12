@@ -1,7 +1,8 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geotools.jackson.databind.filter.mapper;
 
 import java.util.Collections;
@@ -54,14 +55,18 @@ public abstract class GeoToolsValueMappers {
     public abstract org.geotools.api.filter.MultiValuedFilter.MatchAction matchAction(MatchAction matchAction);
 
     public NamespaceSupport map(Map<String, String> map) {
-        if (map == null) return null;
+        if (map == null) {
+            return null;
+        }
         NamespaceSupport s = new NamespaceSupport();
         map.forEach(s::declarePrefix);
         return s;
     }
 
     public Map<String, String> map(NamespaceSupport ns) {
-        if (ns == null) return null;
+        if (ns == null) {
+            return null;
+        }
 
         Map<String, String> map = new HashMap<>();
         Collections.list(ns.getPrefixes()).forEach(prefix -> map.put(prefix, ns.getURI(prefix)));
@@ -109,17 +114,23 @@ public abstract class GeoToolsValueMappers {
     }
 
     public String awtColorToString(java.awt.Color color) {
-        if (null == color) return null;
+        if (null == color) {
+            return null;
+        }
         return Converters.convert(color, String.class);
     }
 
     public java.awt.Color stringToAwtColor(String color) {
-        if (null == color) return null;
+        if (null == color) {
+            return null;
+        }
         return Converters.convert(color, java.awt.Color.class);
     }
 
     public CoordinateReferenceSystem crs(CRS source) {
-        if (source == null) return null;
+        if (source == null) {
+            return null;
+        }
         try {
             if (null != source.getSrs()) {
                 String srs = source.getSrs();
@@ -133,7 +144,9 @@ public abstract class GeoToolsValueMappers {
     }
 
     public CRS crs(CoordinateReferenceSystem source) {
-        if (source == null) return null;
+        if (source == null) {
+            return null;
+        }
         CRS crs = new CRS();
 
         String srs = null;
@@ -162,7 +175,9 @@ public abstract class GeoToolsValueMappers {
     }
 
     public Envelope referencedEnvelope(ReferencedEnvelope env) {
-        if (env == null) return null;
+        if (env == null) {
+            return null;
+        }
         Envelope dto = new Envelope();
         int dimension = env.getDimension();
         double[] coordinates = new double[2 * dimension];
@@ -176,7 +191,9 @@ public abstract class GeoToolsValueMappers {
     }
 
     public ReferencedEnvelope referencedEnvelope(Envelope source) {
-        if (source == null) return null;
+        if (source == null) {
+            return null;
+        }
         CoordinateReferenceSystem crs = crs(source.getCrs());
         ReferencedEnvelope env = new ReferencedEnvelope(crs);
         double[] coords = source.getCoordinates();
@@ -224,7 +241,9 @@ public abstract class GeoToolsValueMappers {
         if (s instanceof SimpleInternationalString) {
             return Map.of("", s.toString());
         }
-        if (s == null) return null;
+        if (s == null) {
+            return null;
+        }
 
         LoggerFactory.getLogger(getClass())
                 .warn(
@@ -234,7 +253,9 @@ public abstract class GeoToolsValueMappers {
     }
 
     public GrowableInternationalString dtoToInternationalString(Map<String, String> s) {
-        if (s == null) return null;
+        if (s == null) {
+            return null;
+        }
         GrowableInternationalString gs = new GrowableInternationalString();
         s.forEach((locale, value) -> gs.add(stringToLocale(locale), value));
         return gs;
@@ -257,7 +278,9 @@ public abstract class GeoToolsValueMappers {
     }
 
     public NumberRangeDto numberRangeToDto(NumberRange<?> source) {
-        if (source == null) return null;
+        if (source == null) {
+            return null;
+        }
         NumberRangeDto dto = new NumberRangeDto();
         Number minValue = source.getMinValue();
         Number maxValue = source.getMaxValue();
@@ -271,25 +294,27 @@ public abstract class GeoToolsValueMappers {
 
     @SuppressWarnings("rawtypes")
     public NumberRange dtoToNumberRange(NumberRangeDto source) {
-        if (source == null) return null;
+        if (source == null) {
+            return null;
+        }
         boolean minIncluded = source.isMinIncluded();
         boolean maxIncluded = source.isMaxIncluded();
         Number min = source.getMin();
         Number max = source.getMax();
 
-        if (min instanceof Long || max instanceof Long)
+        if (min instanceof Long || max instanceof Long) {
             return NumberRange.create(min.longValue(), minIncluded, max.longValue(), maxIncluded);
-        if (min instanceof Double || max instanceof Double)
+        } else if (min instanceof Double || max instanceof Double) {
             return NumberRange.create(min.doubleValue(), minIncluded, max.doubleValue(), maxIncluded);
-        if (min instanceof Float || max instanceof Float)
+        } else if (min instanceof Float || max instanceof Float) {
             return NumberRange.create(min.floatValue(), minIncluded, max.floatValue(), maxIncluded);
-        if (min instanceof Integer || max instanceof Integer)
+        } else if (min instanceof Integer || max instanceof Integer) {
             return NumberRange.create(min.intValue(), minIncluded, max.intValue(), maxIncluded);
-        if (min instanceof Short || max instanceof Short)
+        } else if (min instanceof Short || max instanceof Short) {
             return NumberRange.create(min.shortValue(), minIncluded, max.shortValue(), maxIncluded);
-        if (min instanceof Byte || max instanceof Byte)
+        } else if (min instanceof Byte || max instanceof Byte) {
             return NumberRange.create(min.byteValue(), minIncluded, max.byteValue(), maxIncluded);
-
+        }
         return NumberRange.create(min.doubleValue(), minIncluded, max.doubleValue(), maxIncluded);
     }
 }

@@ -1,11 +1,16 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.config.catalog.events;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,13 +32,23 @@ import org.geoserver.cloud.event.catalog.CatalogInfoRemoved;
 import org.geoserver.cloud.event.config.ConfigInfoAdded;
 import org.geoserver.cloud.event.config.ConfigInfoModified;
 import org.geoserver.cloud.event.config.ServiceRemoved;
-import org.geoserver.cloud.event.info.*;
+import org.geoserver.cloud.event.info.ConfigInfoType;
+import org.geoserver.cloud.event.info.InfoAdded;
+import org.geoserver.cloud.event.info.InfoEvent;
+import org.geoserver.cloud.event.info.InfoModified;
+import org.geoserver.cloud.event.info.InfoRemoved;
 import org.geoserver.cloud.event.lifecycle.LifecycleEvent;
 import org.geoserver.cloud.event.lifecycle.ReloadEvent;
 import org.geoserver.cloud.event.lifecycle.ResetEvent;
 import org.geoserver.cloud.test.ApplicationEventCapturingListener;
-import org.geoserver.config.*;
+import org.geoserver.config.ConfigurationListener;
+import org.geoserver.config.CoverageAccessInfo;
 import org.geoserver.config.CoverageAccessInfo.QueueType;
+import org.geoserver.config.GeoServer;
+import org.geoserver.config.GeoServerInfo;
+import org.geoserver.config.LoggingInfo;
+import org.geoserver.config.ServiceInfo;
+import org.geoserver.config.SettingsInfo;
 import org.geoserver.config.impl.CoverageAccessInfoImpl;
 import org.geoserver.config.impl.SettingsInfoImpl;
 import org.geoserver.wms.WMSInfoImpl;
@@ -260,7 +275,7 @@ class CatalogApplicationEventsConfigurationTest {
     }
 
     @Test
-    void testConfigModifyEvents_LoggingInfo() {
+    void testConfigModifyEventsLoggingInfo() {
         catalog.add(testData.workspaceA);
         catalog.add(testData.workspaceB);
         geoserver.setLogging(testData.logging);
@@ -279,7 +294,7 @@ class CatalogApplicationEventsConfigurationTest {
     }
 
     @Test
-    void testConfigPrePostModifyEvents_ServiceInfo() {
+    void testConfigPrePostModifyEventsServiceInfo() {
         catalog.add(testData.workspaceA);
         catalog.add(testData.workspaceB);
 
@@ -340,7 +355,9 @@ class CatalogApplicationEventsConfigurationTest {
             @NonNull Consumer<T> modifier,
             @NonNull Consumer<T> saver,
             @NonNull Class<? extends InfoModified> postEventType) {
-        if (null == ModificationProxy.handler(info)) throw new IllegalArgumentException("Expected a ModificationProxy");
+        if (null == ModificationProxy.handler(info)) {
+            throw new IllegalArgumentException("Expected a ModificationProxy");
+        }
 
         Class<T> type = (Class<T>) ConfigInfoType.valueOf(info).getType();
 

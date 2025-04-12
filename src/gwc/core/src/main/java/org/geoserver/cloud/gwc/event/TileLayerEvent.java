@@ -1,7 +1,8 @@
-/*
- * (c) 2022 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2022 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.gwc.event;
 
 import lombok.Getter;
@@ -64,9 +65,10 @@ public class TileLayerEvent extends GeoWebCacheEvent {
 
     @Override
     public String toString() {
-        if (null == getOldName())
+        if (null == getOldName()) {
             return "%s[%s id: %s, name: %s]"
                     .formatted(getClass().getSimpleName(), getEventType(), getPublishedId(), getName());
+        }
         return "%s[%s id: %s, name: %s, oldname: %s]"
                 .formatted(getClass().getSimpleName(), getEventType(), getPublishedId(), getName(), getOldName());
     }

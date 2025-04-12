@@ -1,7 +1,8 @@
-/*
- * (c) 2024 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2024 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.catalog.cache;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -111,8 +112,11 @@ class CachingCatalogFacadeTest {
             when(subject.getResource(id, ResourceInfo.class)).thenReturn(i);
         } else if (info instanceof PublishedInfo i) {
             when(i.getName()).thenReturn(name);
-            if (info instanceof LayerInfo l) when(subject.getLayer(id)).thenReturn(l);
-            else when(subject.getLayerGroup(id)).thenReturn((LayerGroupInfo) i);
+            if (info instanceof LayerInfo l) {
+                when(subject.getLayer(id)).thenReturn(l);
+            } else {
+                when(subject.getLayerGroup(id)).thenReturn((LayerGroupInfo) i);
+            }
         } else if (info instanceof StyleInfo i) {
             when(i.getName()).thenReturn(name);
             when(subject.getStyle(id)).thenReturn(i);

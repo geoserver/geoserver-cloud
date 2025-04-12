@@ -1,7 +1,8 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.jackson.databind.catalog.mapper;
 
 import lombok.Generated;
@@ -24,20 +25,32 @@ import org.mapstruct.Mapping;
 public interface ResourceMapper {
 
     default Resource map(ResourceInfo o) {
-        if (o == null) return null;
-        if (o instanceof FeatureTypeInfo ft) return map(ft);
-        if (o instanceof CoverageInfo cov) return map(cov);
-        if (o instanceof WMSLayerInfo wms) return map(wms);
-        if (o instanceof WMTSLayerInfo wmts) return map(wmts);
+        if (o == null) {
+            return null;
+        } else if (o instanceof FeatureTypeInfo ft) {
+            return map(ft);
+        } else if (o instanceof CoverageInfo cov) {
+            return map(cov);
+        } else if (o instanceof WMSLayerInfo wms) {
+            return map(wms);
+        } else if (o instanceof WMTSLayerInfo wmts) {
+            return map(wmts);
+        }
         throw new IllegalArgumentException("Unknown ResourceInfo type: %s".formatted(o));
     }
 
     default ResourceInfo map(Resource o) {
-        if (o == null) return null;
-        if (o instanceof FeatureType ft) return map(ft);
-        if (o instanceof Coverage cov) return map(cov);
-        if (o instanceof WMSLayer wms) return map(wms);
-        if (o instanceof WMTSLayer wmts) return map(wmts);
+        if (o == null) {
+            return null;
+        } else if (o instanceof FeatureType ft) {
+            return map(ft);
+        } else if (o instanceof Coverage cov) {
+            return map(cov);
+        } else if (o instanceof WMSLayer wms) {
+            return map(wms);
+        } else if (o instanceof WMTSLayer wmts) {
+            return map(wmts);
+        }
         throw new IllegalArgumentException("Unknown Resource type: %s".formatted(o));
     }
 

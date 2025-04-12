@@ -1,7 +1,8 @@
-/*
- * (c) 2023 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2023 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.config.catalog.backend.pgconfig;
 
 import static org.geoserver.catalog.StyleInfo.DEFAULT_GENERIC;
@@ -83,7 +84,9 @@ public class PgconfigGeoServerLoader extends GeoServerLoader {
     private boolean anyStyleMissing(Catalog catalog, String... defaultStyleNames) {
         for (String name : defaultStyleNames) {
             StyleInfo style = catalog.getStyleByName(name);
-            if (null == style) return true;
+            if (null == style) {
+                return true;
+            }
         }
         return false;
     }

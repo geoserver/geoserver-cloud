@@ -1,7 +1,8 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.jackson.databind.catalog.mapper;
 
 import lombok.Generated;
@@ -38,29 +39,48 @@ public interface CatalogInfoMapper {
 
     @SuppressWarnings("unchecked")
     default <I extends CatalogInfo> I map(CatalogInfoDto dto) {
-        if (dto == null) return null;
-        if (dto instanceof Workspace ws) return (I) WORKSPACE_MAPPER.map(ws);
-        if (dto instanceof Namespace ns) return (I) NAMESPACE_MAPPER.map(ns);
-        if (dto instanceof Store store) return (I) STORE_MAPPER.map(store);
-        if (dto instanceof Resource res) return (I) RESOURCE_MAPPER.map(res);
-        if (dto instanceof Published published) return (I) PUBLISHED_MAPPER.map(published);
-        if (dto instanceof Style style) return (I) STYLE_MAPPER.map(style);
-        if (dto instanceof Map map) return (I) MAP_MAPPER.map(map);
+        if (dto == null) {
+            return null;
+        } else if (dto instanceof Workspace ws) {
+            return (I) WORKSPACE_MAPPER.map(ws);
+        } else if (dto instanceof Namespace ns) {
+            return (I) NAMESPACE_MAPPER.map(ns);
+        } else if (dto instanceof Store store) {
+            return (I) STORE_MAPPER.map(store);
+        } else if (dto instanceof Resource res) {
+            return (I) RESOURCE_MAPPER.map(res);
+        } else if (dto instanceof Published published) {
+            return (I) PUBLISHED_MAPPER.map(published);
+        } else if (dto instanceof Style style) {
+            return (I) STYLE_MAPPER.map(style);
+        } else if (dto instanceof Map map) {
+            return (I) MAP_MAPPER.map(map);
+        }
 
         throw new IllegalArgumentException(
                 "Unknown CatalogInfoDto type: %s".formatted(dto.getClass().getCanonicalName()));
     }
 
     default CatalogInfoDto map(CatalogInfo info) {
-        if (info == null) return null;
-        if (info instanceof WorkspaceInfo ws) return WORKSPACE_MAPPER.map(ws);
-        if (info instanceof NamespaceInfo ns) return NAMESPACE_MAPPER.map(ns);
-        if (info instanceof StoreInfo store) return STORE_MAPPER.map(store);
-        if (info instanceof ResourceInfo res) return RESOURCE_MAPPER.map(res);
-        if (info instanceof PublishedInfo published) return PUBLISHED_MAPPER.map(published);
-        if (info instanceof StyleInfo style) return STYLE_MAPPER.map(style);
-        if (info instanceof MapInfo map) return MAP_MAPPER.map(map);
-        if (info instanceof CatalogInfo) return null;
+        if (info == null) {
+            return null;
+        } else if (info instanceof WorkspaceInfo ws) {
+            return WORKSPACE_MAPPER.map(ws);
+        } else if (info instanceof NamespaceInfo ns) {
+            return NAMESPACE_MAPPER.map(ns);
+        } else if (info instanceof StoreInfo store) {
+            return STORE_MAPPER.map(store);
+        } else if (info instanceof ResourceInfo res) {
+            return RESOURCE_MAPPER.map(res);
+        } else if (info instanceof PublishedInfo published) {
+            return PUBLISHED_MAPPER.map(published);
+        } else if (info instanceof StyleInfo style) {
+            return STYLE_MAPPER.map(style);
+        } else if (info instanceof MapInfo map) {
+            return MAP_MAPPER.map(map);
+        } else if (info instanceof CatalogInfo) {
+            return null;
+        }
         throw new IllegalArgumentException(
                 "Unknown CatalogInfo type: %s".formatted(info.getClass().getCanonicalName()));
     }

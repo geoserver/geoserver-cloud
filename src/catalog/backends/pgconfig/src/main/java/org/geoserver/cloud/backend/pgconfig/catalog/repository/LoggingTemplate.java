@@ -1,7 +1,8 @@
-/*
- * (c) 2024 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2024 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.backend.pgconfig.catalog.repository;
 
 import java.time.Duration;
@@ -78,9 +79,13 @@ public class LoggingTemplate {
     }
 
     private void logBefore(long reqId, String sql) {
-        if (!log.isDebugEnabled()) return;
+        if (!log.isDebugEnabled()) {
+            return;
+        }
 
-        if (sql.endsWith("\n")) sql = sql.substring(0, sql.length() - 1);
+        if (sql.endsWith("\n")) {
+            sql = sql.substring(0, sql.length() - 1);
+        }
 
         if (log.isTraceEnabled()) {
             String trace = stackTrace();
@@ -91,9 +96,13 @@ public class LoggingTemplate {
     }
 
     private void logAfter(long reqId, String sql, Duration elapsed, DataAccessException error) {
-        if (!log.isDebugEnabled()) return;
+        if (!log.isDebugEnabled()) {
+            return;
+        }
 
-        if (sql.endsWith("\n")) sql = sql.substring(0, sql.length() - 1);
+        if (sql.endsWith("\n")) {
+            sql = sql.substring(0, sql.length() - 1);
+        }
 
         final String time = elapsed == null ? "" : "%.2f ms".formatted(elapsed.toNanos() / 1_000_000d);
 

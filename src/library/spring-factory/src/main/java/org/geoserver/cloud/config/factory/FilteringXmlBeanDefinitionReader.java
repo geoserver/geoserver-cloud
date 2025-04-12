@@ -1,6 +1,6 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
 package org.geoserver.cloud.config.factory;
 
@@ -154,7 +154,9 @@ public class FilteringXmlBeanDefinitionReader extends XmlBeanDefinitionReader {
                 log.trace("Loading document {}", r);
                 return super.doLoadDocument(inputSource, resource);
             } catch (Exception e) {
-                if (e instanceof RuntimeException rte) throw rte;
+                if (e instanceof RuntimeException rte) {
+                    throw rte;
+                }
                 throw (RuntimeException) new BeanDefinitionStoreException(e.getMessage()).initCause(e);
             }
         });

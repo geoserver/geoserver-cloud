@@ -1,7 +1,8 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.event.remote.datadir;
 
 import java.util.function.Consumer;
@@ -57,7 +58,9 @@ class RemoteEventDataDirectoryProcessor {
         }
         final long updateSequence = event.getUpdateSequence();
         GeoServerInfo info = ModificationProxy.unwrap(configFacade.getGlobal());
-        if (null == info) return;
+        if (null == info) {
+            return;
+        }
         final long current = info.getUpdateSequence();
         if (updateSequence > current) {
             info.setUpdateSequence(updateSequence);
@@ -124,7 +127,7 @@ class RemoteEventDataDirectoryProcessor {
             log.error("Remote add event didn't send the object payload for {}({})", type, objectId);
             return;
         }
-        if (log.isDebugEnabled()) log.debug("Adding object from event {}: {}", event.toShortString(), object);
+        log.debug("Adding object from event {}: {}", event.toShortString(), object);
         ExtendedCatalogFacade facade = catalogFacade();
         switch (object) {
             case CatalogInfo info -> facade.add(info);
@@ -133,7 +136,7 @@ class RemoteEventDataDirectoryProcessor {
             case LoggingInfo config -> log.debug("ignoring unused LoggingInfo {}", config);
             default -> log.warn("Don't know how to handle remote envent {})", event);
         }
-        if (log.isDebugEnabled()) log.debug("Added object from event {}: {}", event.toShortString(), object);
+        log.debug("Added object from event {}: {}", event.toShortString(), object);
     }
 
     @EventListener(InfoModified.class)
@@ -170,8 +173,7 @@ class RemoteEventDataDirectoryProcessor {
             patch.applyTo(info);
         }
 
-        if (log.isDebugEnabled())
-            log.debug("Object updated: {}({}). Properties: {}", type, event.getObjectId(), patch.getPropertyNames());
+        log.debug("Object updated: {}({}). Properties: {}", type, event.getObjectId(), patch.getPropertyNames());
     }
 
     private Info loadInfo(InfoModified event) {

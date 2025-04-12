@@ -1,7 +1,8 @@
-/*
- * (c) 2024 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2024 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.logging.mdc.servlet;
 
 import com.google.common.base.Suppliers;
@@ -78,7 +79,9 @@ public class HttpRequestMdcFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
         try {
-            if (request instanceof HttpServletRequest req) addRequestMdcProperties(req);
+            if (request instanceof HttpServletRequest req) {
+                addRequestMdcProperties(req);
+            }
         } finally {
             chain.doFilter(request, response);
         }
@@ -209,7 +212,8 @@ public class HttpRequestMdcFilter extends OncePerRequestFilter {
      */
     private List<String> headerValue(String name, HttpServletRequest req) {
         Enumeration<String> values = req.getHeaders(name);
-        if (null == values) return List.of();
-        return Streams.stream(values.asIterator()).toList();
+        return (null == values)
+                ? List.of()
+                : Streams.stream(values.asIterator()).toList();
     }
 }

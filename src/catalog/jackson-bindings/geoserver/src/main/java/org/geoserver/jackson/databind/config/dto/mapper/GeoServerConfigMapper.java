@@ -1,7 +1,8 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.jackson.databind.config.dto.mapper;
 
 import static java.util.stream.Collectors.toCollection;
@@ -50,7 +51,10 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-/** Mapper to/from GeoServer config objects and their respective DTO representations */
+/**
+ * Mapper to/from GeoServer config objects and their respective DTO
+ * representations
+ */
 @Mapper(config = ConfigInfoMapperConfig.class)
 @AnnotateWith(value = Generated.class)
 public interface GeoServerConfigMapper {
@@ -58,21 +62,32 @@ public interface GeoServerConfigMapper {
     CatalogInfoMapper catalogInfoMapper = Mappers.getMapper(CatalogInfoMapper.class);
 
     default <T extends Info> T toInfo(InfoDto dto) {
-        if (dto == null) return null;
-        if (dto instanceof ConfigInfoDto configInfo) return toInfo(configInfo);
-        if (dto instanceof CatalogInfoDto catalogInfo) return catalogInfoMapper.map(catalogInfo);
+        if (dto == null) {
+            return null;
+        } else if (dto instanceof ConfigInfoDto configInfo) {
+            return toInfo(configInfo);
+        } else if (dto instanceof CatalogInfoDto catalogInfo) {
+            return catalogInfoMapper.map(catalogInfo);
+        }
         throw new IllegalArgumentException(
                 "Unknown config DTO type: " + dto.getClass().getCanonicalName());
     }
 
     @SuppressWarnings("unchecked")
     default <T extends InfoDto> T toDto(Info info) {
-        if (info == null) return null;
-        if (info instanceof GeoServerInfo gs) return (T) toDto(gs);
-        if (info instanceof SettingsInfo settings) return (T) toDto(settings);
-        if (info instanceof LoggingInfo logging) return (T) toDto(logging);
-        if (info instanceof ServiceInfo service) return (T) toDto(service);
-        if (info instanceof CatalogInfo catInfo) return (T) catalogInfoMapper.map(catInfo);
+        if (info == null) {
+            return null;
+        } else if (info instanceof GeoServerInfo gs) {
+            return (T) toDto(gs);
+        } else if (info instanceof SettingsInfo settings) {
+            return (T) toDto(settings);
+        } else if (info instanceof LoggingInfo logging) {
+            return (T) toDto(logging);
+        } else if (info instanceof ServiceInfo service) {
+            return (T) toDto(service);
+        } else if (info instanceof CatalogInfo catInfo) {
+            return (T) catalogInfoMapper.map(catInfo);
+        }
 
         throw new IllegalArgumentException(
                 "Unknown config info type: " + info.getClass().getCanonicalName());
@@ -80,11 +95,17 @@ public interface GeoServerConfigMapper {
 
     @SuppressWarnings("unchecked")
     default <T extends Info> T toInfo(ConfigInfoDto dto) {
-        if (dto == null) return null;
-        if (dto instanceof GeoServer gs) return (T) toInfo(gs);
-        if (dto instanceof Settings settings) return (T) toInfo(settings);
-        if (dto instanceof Logging logging) return (T) toInfo(logging);
-        if (dto instanceof Service service) return (T) toInfo(service);
+        if (dto == null) {
+            return null;
+        } else if (dto instanceof GeoServer gs) {
+            return (T) toInfo(gs);
+        } else if (dto instanceof Settings settings) {
+            return (T) toInfo(settings);
+        } else if (dto instanceof Logging logging) {
+            return (T) toInfo(logging);
+        } else if (dto instanceof Service service) {
+            return (T) toInfo(service);
+        }
 
         throw new IllegalArgumentException(
                 "Unknown config DTO type: " + dto.getClass().getCanonicalName());
@@ -124,34 +145,50 @@ public interface GeoServerConfigMapper {
     Contact contactInfo(ContactInfo info);
 
     default ServiceInfo toInfo(Service dto) {
-        if (dto == null) return null;
-        if (dto instanceof Service.WmsService wms) return toInfo(wms);
-        if (dto instanceof Service.WfsService wfs) return toInfo(wfs);
-        if (dto instanceof Service.WcsService wcs) return toInfo(wcs);
-        if (dto instanceof Service.WpsService wps) return toInfo(wps);
-        if (dto instanceof Service.WmtsService wmts) return toInfo(wmts);
-        if (dto instanceof Service.GenericService s) return toInfo(s);
+        if (dto == null) {
+            return null;
+        } else if (dto instanceof Service.WmsService wms) {
+            return toInfo(wms);
+        } else if (dto instanceof Service.WfsService wfs) {
+            return toInfo(wfs);
+        } else if (dto instanceof Service.WcsService wcs) {
+            return toInfo(wcs);
+        } else if (dto instanceof Service.WpsService wps) {
+            return toInfo(wps);
+        } else if (dto instanceof Service.WmtsService wmts) {
+            return toInfo(wmts);
+        } else if (dto instanceof Service.GenericService s) {
+            return toInfo(s);
+        }
 
         throw new IllegalArgumentException(
                 "Unknown ServiceInfo type: " + dto.getClass().getCanonicalName());
     }
 
     default Service toDto(ServiceInfo info) {
-        if (info == null) return null;
-        if (info instanceof WMSInfo wms) return toDto(wms);
-        if (info instanceof WFSInfo wfs) return toDto(wfs);
-        if (info instanceof WCSInfo wcs) return toDto(wcs);
-        if (info instanceof WPSInfo wps) return toDto(wps);
-        if (info instanceof WMTSInfo wmts) return toDto(wmts);
-        if (info.getClass().equals(ServiceInfoImpl.class)) return toGenericService(info);
+        if (info == null) {
+            return null;
+        } else if (info instanceof WMSInfo wms) {
+            return toDto(wms);
+        } else if (info instanceof WFSInfo wfs) {
+            return toDto(wfs);
+        } else if (info instanceof WCSInfo wcs) {
+            return toDto(wcs);
+        } else if (info instanceof WPSInfo wps) {
+            return toDto(wps);
+        } else if (info instanceof WMTSInfo wmts) {
+            return toDto(wmts);
+        } else if (info.getClass().equals(ServiceInfoImpl.class)) {
+            return toGenericService(info);
+        }
 
         throw new IllegalArgumentException(
                 "Unknown ServiceInfo type: " + info.getClass().getCanonicalName());
     }
 
     /**
-     * {@link ServiceInfo#getVersions()} does not parameterize the list, hence Mapstruct assigns the
-     * {@code List<String>} as is
+     * {@link ServiceInfo#getVersions()} does not parameterize the list, hence
+     * Mapstruct assigns the {@code List<String>} as is
      */
     default List<org.geotools.util.Version> stringListToVersionList(List<String> list) {
         return list == null ? null : list.stream().map(Version::new).collect(toCollection(ArrayList::new));

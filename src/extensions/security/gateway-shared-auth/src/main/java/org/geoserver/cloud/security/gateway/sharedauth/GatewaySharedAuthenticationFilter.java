@@ -1,7 +1,8 @@
-/*
- * (c) 2024 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2024 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.security.gateway.sharedauth;
 
 import static com.google.common.collect.Streams.stream;
@@ -278,7 +279,9 @@ public class GatewaySharedAuthenticationFilter extends GeoServerSecurityFilter
 
     static String getGatewaySessionId(HttpServletRequest req) {
         Cookie[] cookies = req.getCookies();
-        if (null == cookies || cookies.length == 0) return null;
+        if (null == cookies || cookies.length == 0) {
+            return null;
+        }
         return Stream.of(cookies)
                 .filter(c -> "SESSION".equals(c.getName()))
                 .map(Cookie::getValue)

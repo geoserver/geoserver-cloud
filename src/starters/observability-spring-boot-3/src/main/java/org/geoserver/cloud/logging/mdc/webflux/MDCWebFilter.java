@@ -1,7 +1,8 @@
-/*
- * (c) 2024 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2024 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.logging.mdc.webflux;
 
 import static org.geoserver.cloud.logging.mdc.webflux.ReactorContextHolder.MDC_CONTEXT_KEY;
@@ -102,8 +103,11 @@ public class MDCWebFilter implements OrderedWebFilter {
 
         return setMdcAttributes(exchange).flatMap(requestMdc -> {
             // Restore original MDC (for servlet thread reuse)
-            if (initialMdc != null) MDC.setContextMap(initialMdc);
-            else MDC.clear();
+            if (initialMdc != null) {
+                MDC.setContextMap(initialMdc);
+            } else {
+                MDC.clear();
+            }
 
             // Use Reactor context to propagate MDC through the reactive chain
             return chain.filter(exchange)
@@ -116,7 +120,9 @@ public class MDCWebFilter implements OrderedWebFilter {
                     .doFinally(signalType -> {
                         // Clean up
                         MDC.clear();
-                        if (initialMdc != null) MDC.setContextMap(initialMdc);
+                        if (initialMdc != null) {
+                            MDC.setContextMap(initialMdc);
+                        }
                     });
         });
     }

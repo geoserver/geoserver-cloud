@@ -1,8 +1,8 @@
-/*
- * (c) 2014 Open Source Geospatial Foundation - all rights reserved
- * (c) 2001 - 2013 OpenPlans
- * This code is licensed under the GPL 2.0 license, available at the root application directory.
+/* (c) 2014 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.catalog.plugin;
 
 import com.google.common.collect.Iterators;
@@ -328,8 +328,11 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
             Objects.requireNonNull(store.getWorkspace(), "Store workspace must not be null");
             Assert.isTrue(workspace.getId().equals(store.getWorkspace().getId()), "Store workspace mismatch");
         }
-        if (store == null) getStoreRepository().unsetDefaultDataStore(workspace);
-        else getStoreRepository().setDefaultDataStore(workspace, store);
+        if (store == null) {
+            getStoreRepository().unsetDefaultDataStore(workspace);
+        } else {
+            getStoreRepository().setDefaultDataStore(workspace, store);
+        }
     }
 
     //
@@ -395,7 +398,9 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
      */
     @Override
     public <T extends ResourceInfo> T getResourceByName(NamespaceInfo namespace, String name, Class<T> clazz) {
-        if (namespace == null) return null;
+        if (namespace == null) {
+            return null;
+        }
         Optional<T> result;
         if (namespace == ANY_NAMESPACE) {
             result = getResourceRepository().findFirstByName(name, clazz);
@@ -454,20 +459,26 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
      */
     @Override
     public <T extends ResourceInfo> T getResourceByStore(StoreInfo store, String name, Class<T> clazz) {
-        Optional<T> resource;
-        NamespaceInfo ns = null;
-        if (store.getWorkspace() != null
-                && store.getWorkspace().getName() != null
-                && (ns = getNamespaceByPrefix(store.getWorkspace().getName())) != null) {
+        T resource = null;
 
-            resource = getResourceRepository().findByNameAndNamespace(name, ns, clazz);
-            if (resource.isPresent() && !(store.equals(resource.get().getStore()))) {
-                return null;
+        if (store.getWorkspace() != null && store.getWorkspace().getName() != null) {
+            NamespaceInfo ns = getNamespaceByPrefix(store.getWorkspace().getName());
+            if (ns != null) {
+                ResourceRepository resourceRepository = getResourceRepository();
+                resource = resourceRepository
+                        .findByNameAndNamespace(name, ns, clazz)
+                        .orElse(null);
+                if (resource != null
+                        && !(store.getId().equals(resource.getStore().getId()))) {
+                    resource = null;
+                }
             }
         } else {
-            resource = getResourceRepository().findByStoreAndName(store, name, clazz);
+            resource = getResourceRepository()
+                    .findByStoreAndName(store, name, clazz)
+                    .orElse(null);
         }
-        return resource.orElse(null);
+        return resource;
     }
 
     /**
@@ -833,8 +844,11 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
      */
     @Override
     public void setDefaultNamespace(NamespaceInfo defaultNamespace) {
-        if (defaultNamespace == null) getNamespaceRepository().unsetDefaultNamespace();
-        else getNamespaceRepository().setDefaultNamespace(defaultNamespace);
+        if (defaultNamespace == null) {
+            getNamespaceRepository().unsetDefaultNamespace();
+        } else {
+            getNamespaceRepository().setDefaultNamespace(defaultNamespace);
+        }
     }
 
     /**
@@ -965,8 +979,11 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
      */
     @Override
     public void setDefaultWorkspace(WorkspaceInfo workspace) {
-        if (workspace == null) getWorkspaceRepository().unsetDefaultWorkspace();
-        else getWorkspaceRepository().setDefaultWorkspace(workspace);
+        if (workspace == null) {
+            getWorkspaceRepository().unsetDefaultWorkspace();
+        } else {
+            getWorkspaceRepository().setDefaultWorkspace(workspace);
+        }
     }
 
     /**
@@ -1293,9 +1310,13 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
         if (filter instanceof Or or) {
             for (Filter subFilter : or.getChildren()) {
                 IsInstanceOf instanceOf = findInstanceOf(subFilter);
-                if (instanceOf == null) return Map.of();
+                if (instanceOf == null) {
+                    return Map.of();
+                }
                 List<Expression> parameters = instanceOf.getParameters();
-                if (parameters.isEmpty()) return Map.of();
+                if (parameters.isEmpty()) {
+                    return Map.of();
+                }
                 Class<?> clazz = parameters.get(0).evaluate(null, Class.class);
                 split.put(clazz, subFilter);
             }
@@ -1316,12 +1337,16 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
         if (subFilter instanceof And and) {
             for (Filter f : and.getChildren()) {
                 var i = findInstanceOf(f);
-                if (i != null) return i;
+                if (i != null) {
+                    return i;
+                }
             }
         }
         if (subFilter instanceof BinaryComparisonOperator b) {
             IsInstanceOf instanceOf = extractInstanceOf(b);
-            if (instanceOf != null) return instanceOf;
+            if (instanceOf != null) {
+                return instanceOf;
+            }
         }
         return null;
     }
@@ -1333,8 +1358,12 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
      * @return The {@link IsInstanceOf} expression if present, or null if not.
      */
     private IsInstanceOf extractInstanceOf(BinaryComparisonOperator f) {
-        if (f.getExpression1() instanceof IsInstanceOf i) return i;
-        if (f.getExpression2() instanceof IsInstanceOf i) return i;
+        if (f.getExpression1() instanceof IsInstanceOf i) {
+            return i;
+        }
+        if (f.getExpression2() instanceof IsInstanceOf i) {
+            return i;
+        }
         return null;
     }
 
@@ -1474,8 +1503,12 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
 
             var stream = Streams.stream(Iterators.mergeSorted(List.of(layersit, lgit), comparator));
             if (applyOffsetLimit) {
-                if (offset != null) stream = stream.skip(offset);
-                if (limit != null) stream = stream.limit(limit);
+                if (offset != null) {
+                    stream = stream.skip(offset);
+                }
+                if (limit != null) {
+                    stream = stream.limit(limit);
+                }
             }
             stream = closing(stream, layers, groups);
             return stream;
@@ -1532,7 +1565,9 @@ public class RepositoryCatalogFacadeImpl implements RepositoryCatalogFacade, Cat
      */
     <T> Stream<T> closing(Stream<T> stream, Stream<?>... closeables) {
         return stream.onClose(() -> {
-            for (var s : closeables) s.close();
+            for (var s : closeables) {
+                s.close();
+            }
         });
     }
 

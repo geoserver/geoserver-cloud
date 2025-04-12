@@ -1,7 +1,8 @@
-/*
- * (c) 2024 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2024 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.catalog.cache;
 
 import com.github.benmanes.caffeine.cache.Cache;
@@ -63,7 +64,7 @@ class CachedReferenceCleaner {
         }
         sw.stop();
         var finalSize = cache.size();
-        if (cascadedEvictCount > 0 || visited.intValue() > 0)
+        if (cascadedEvictCount > 0 || visited.intValue() > 0) {
             log.debug(
                     "cascade evicted {} entries referencing {} in {}. Size pre: {}, after: {}, visited: {}",
                     cascadedEvictCount,
@@ -72,6 +73,7 @@ class CachedReferenceCleaner {
                     initialSize,
                     finalSize,
                     visited);
+        }
     }
 
     @SuppressWarnings("java:S3864") // Stream.peek
@@ -92,7 +94,9 @@ class CachedReferenceCleaner {
      * @return whether {@code cached} can directly or indirectly reference {@code evicted}
      */
     private final boolean canReference(CatalogInfo cached, InfoIdKey evicted) {
-        if (null == cached) return true;
+        if (null == cached) {
+            return true;
+        }
         return switch (evicted.type()) {
             case WORKSPACE -> canReferenceWorkspace(cached, evicted);
             case NAMESPACE -> canReferenceNamespace(cached, evicted);
@@ -204,7 +208,9 @@ class CachedReferenceCleaner {
         }
 
         private void traverse(@Nullable CatalogInfo info) {
-            if (null != info) info.accept(this);
+            if (null != info) {
+                info.accept(this);
+            }
         }
 
         public @Override void visit(WorkspaceInfo ws) {
@@ -217,39 +223,64 @@ class CachedReferenceCleaner {
 
         public @Override void visit(StoreInfo store) {
             accept(store);
-            if (0 == count) traverse(store.getWorkspace());
+            if (0 == count) {
+                traverse(store.getWorkspace());
+            }
         }
 
         public @Override void visit(ResourceInfo r) {
             accept(r);
-            if (0 == count) traverse(r.getNamespace());
-            if (0 == count) traverse(r.getStore());
+            if (0 == count) {
+                traverse(r.getNamespace());
+            }
+            if (0 == count) {
+                traverse(r.getStore());
+            }
         }
 
         public @Override void visit(StyleInfo style) {
             accept(style);
-            if (0 == count) traverse(style.getWorkspace());
+            if (0 == count) {
+                traverse(style.getWorkspace());
+            }
         }
 
         public @Override void visit(LayerInfo l) {
             accept(l);
-            if (0 == count) traverse(l.getResource());
-            if (0 == count) traverse(l.getDefaultStyle());
-            if (0 == count) l.getStyles().forEach(this::traverse);
+            if (0 == count) {
+                traverse(l.getResource());
+            }
+            if (0 == count) {
+                traverse(l.getDefaultStyle());
+            }
+            if (0 == count) {
+                l.getStyles().forEach(this::traverse);
+            }
         }
 
         public @Override void visit(LayerGroupInfo lg) {
             accept(lg);
-            if (0 == count) traverse(lg.getWorkspace());
-            if (0 == count) traverse(lg.getRootLayer());
-            if (0 == count) traverse(lg.getRootLayerStyle());
-            if (0 == count) lg.getLayers().forEach(this::traverse);
-            if (0 == count) lg.getStyles().forEach(this::traverse);
-            if (0 == count)
+            if (0 == count) {
+                traverse(lg.getWorkspace());
+            }
+            if (0 == count) {
+                traverse(lg.getRootLayer());
+            }
+            if (0 == count) {
+                traverse(lg.getRootLayerStyle());
+            }
+            if (0 == count) {
+                lg.getLayers().forEach(this::traverse);
+            }
+            if (0 == count) {
+                lg.getStyles().forEach(this::traverse);
+            }
+            if (0 == count) {
                 lg.getLayerGroupStyles().forEach(lgs -> {
                     lgs.getStyles().forEach(this::traverse);
                     lgs.getLayers().forEach(this::traverse);
                 });
+            }
         }
     }
 }

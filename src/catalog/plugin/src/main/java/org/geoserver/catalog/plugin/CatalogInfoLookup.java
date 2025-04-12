@@ -1,7 +1,8 @@
-/*
- * (c) 2017 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2017 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.catalog.plugin;
 
 import static java.util.Objects.requireNonNull;
@@ -537,7 +538,9 @@ abstract class CatalogInfoLookup<T extends CatalogInfo> implements CatalogInfoRe
 
         private void removeInternal(NamespaceInfo value, String uri) {
             List<NamespaceInfo> list = valueList(uri, false);
-            if (!list.isEmpty()) list.remove(value);
+            if (!list.isEmpty()) {
+                list.remove(value);
+            }
             if (list.isEmpty()) {
                 index.remove(uri);
             }

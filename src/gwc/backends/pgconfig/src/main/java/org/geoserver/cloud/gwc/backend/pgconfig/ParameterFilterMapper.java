@@ -1,7 +1,8 @@
-/*
- * (c) 2024 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2024 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.gwc.backend.pgconfig;
 
 import lombok.Generated;
@@ -30,23 +31,47 @@ import org.mapstruct.ReportingPolicy;
 interface ParameterFilterMapper {
 
     default ParameterFilter map(ParamFilter filter) {
-        if (null == filter) return null;
-        if (filter instanceof RegexParamFilter regex) return map(regex);
-        if (filter instanceof StringParamFilter s) return map(s);
-        if (filter instanceof FloatParamFilter f) return map(f);
-        if (filter instanceof IntegerParamFilter i) return map(i);
-        if (filter instanceof StyleParamFilter s) return map(s);
+        if (null == filter) {
+            return null;
+        }
+        if (filter instanceof RegexParamFilter regex) {
+            return map(regex);
+        }
+        if (filter instanceof StringParamFilter s) {
+            return map(s);
+        }
+        if (filter instanceof FloatParamFilter f) {
+            return map(f);
+        }
+        if (filter instanceof IntegerParamFilter i) {
+            return map(i);
+        }
+        if (filter instanceof StyleParamFilter s) {
+            return map(s);
+        }
         throw new IllegalArgumentException(
                 "Unknown ParamFilter type " + filter.getClass().getName());
     }
 
     default ParamFilter map(ParameterFilter filter) {
-        if (null == filter) return null;
-        if (filter instanceof RegexParameterFilter regex) return map(regex);
-        if (filter instanceof StringParameterFilter s) return map(s);
-        if (filter instanceof FloatParameterFilter f) return map(f);
-        if (filter instanceof IntegerParameterFilter i) return map(i);
-        if (filter instanceof StyleParameterFilter s) return map(s);
+        if (null == filter) {
+            return null;
+        }
+        if (filter instanceof RegexParameterFilter regex) {
+            return map(regex);
+        }
+        if (filter instanceof StringParameterFilter s) {
+            return map(s);
+        }
+        if (filter instanceof FloatParameterFilter f) {
+            return map(f);
+        }
+        if (filter instanceof IntegerParameterFilter i) {
+            return map(i);
+        }
+        if (filter instanceof StyleParameterFilter s) {
+            return map(s);
+        }
         throw new IllegalArgumentException(
                 "Unknown ParameterFilter type " + filter.getClass().getName());
     }

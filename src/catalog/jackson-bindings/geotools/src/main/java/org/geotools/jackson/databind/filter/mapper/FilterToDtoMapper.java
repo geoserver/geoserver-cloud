@@ -1,7 +1,8 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geotools.jackson.databind.filter.mapper;
 
 import lombok.Generated;
@@ -62,7 +63,9 @@ import org.mapstruct.Mapper;
 interface FilterToDtoMapper {
 
     default Filter map(org.geotools.api.filter.Filter filter) {
-        if (filter == null) return null;
+        if (filter == null) {
+            return null;
+        }
         return (Filter) filter.accept(new MappingFilterVisitor(this), null);
     }
 
@@ -123,7 +126,9 @@ interface FilterToDtoMapper {
     Filter.Id toDto(Id filter);
 
     default Filter.Id.FeatureId map(org.geotools.api.filter.identity.Identifier id) {
-        if (id == null) return null;
+        if (id == null) {
+            return null;
+        }
         Filter.Id.FeatureId fid;
         if (id instanceof ResourceId rid) {
             Filter.Id.ResourceId resourceId = new Filter.Id.ResourceId();

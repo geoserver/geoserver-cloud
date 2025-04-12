@@ -1,7 +1,8 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.catalog.plugin.resolving;
 
 import java.util.Collection;
@@ -139,11 +140,17 @@ public class CatalogPropertyResolver<T extends Info> implements UnaryOperator<T>
     @SuppressWarnings("unchecked")
     private <I> I resolve(I i) {
         i = null == i ? null : ModificationProxy.unwrap(i);
-        if (i instanceof StoreInfo store) setCatalog(store);
-        else if (i instanceof ResourceInfo resource) setCatalog(resource);
-        else if (i instanceof StyleInfo style) setCatalog(style);
-        else if (i instanceof PublishedInfo published) setCatalog(published);
-        else if (i instanceof LayerGroupStyle lgs) setCatalog(lgs);
+        if (i instanceof StoreInfo store) {
+            setCatalog(store);
+        } else if (i instanceof ResourceInfo resource) {
+            setCatalog(resource);
+        } else if (i instanceof StyleInfo style) {
+            setCatalog(style);
+        } else if (i instanceof PublishedInfo published) {
+            setCatalog(published);
+        } else if (i instanceof LayerGroupStyle lgs) {
+            setCatalog(lgs);
+        }
         return i;
     }
 
@@ -153,7 +160,9 @@ public class CatalogPropertyResolver<T extends Info> implements UnaryOperator<T>
      * @param list The collection to resolve; may be null (no action taken).
      */
     private void resolve(Collection<?> list) {
-        if (null != list) list.forEach(this::resolve);
+        if (null != list) {
+            list.forEach(this::resolve);
+        }
     }
 
     /**
@@ -162,8 +171,11 @@ public class CatalogPropertyResolver<T extends Info> implements UnaryOperator<T>
      * @param i The {@link PublishedInfo} to process; must not be null.
      */
     private void setCatalog(@NonNull PublishedInfo i) {
-        if (i instanceof LayerInfo li) setCatalog(li);
-        else if (i instanceof LayerGroupInfo lg) setCatalog(lg);
+        if (i instanceof LayerInfo li) {
+            setCatalog(li);
+        } else if (i instanceof LayerGroupInfo lg) {
+            setCatalog(lg);
+        }
     }
 
     /**
@@ -196,8 +208,12 @@ public class CatalogPropertyResolver<T extends Info> implements UnaryOperator<T>
      * @param i The {@link LayerGroupStyle} to process; must not be null.
      */
     private void setCatalog(@NonNull LayerGroupStyle i) {
-        if (null != i.getLayers()) i.getLayers().forEach(this::setCatalog);
-        if (null != i.getStyles()) i.getStyles().forEach(this::setCatalog);
+        if (null != i.getLayers()) {
+            i.getLayers().forEach(this::setCatalog);
+        }
+        if (null != i.getStyles()) {
+            i.getStyles().forEach(this::setCatalog);
+        }
     }
 
     /**
@@ -206,7 +222,9 @@ public class CatalogPropertyResolver<T extends Info> implements UnaryOperator<T>
      * @param i The {@link StoreInfo} to process; must not be null.
      */
     private void setCatalog(@NonNull StoreInfo i) {
-        if (i instanceof StoreInfoImpl store) store.setCatalog(catalog());
+        if (i instanceof StoreInfoImpl store) {
+            store.setCatalog(catalog());
+        }
     }
 
     /**
@@ -228,6 +246,8 @@ public class CatalogPropertyResolver<T extends Info> implements UnaryOperator<T>
      * @param i The {@link StyleInfo} to process; must not be null.
      */
     private void setCatalog(@NonNull StyleInfo i) {
-        if (i instanceof StyleInfoImpl style) style.setCatalog(catalog());
+        if (i instanceof StyleInfoImpl style) {
+            style.setCatalog(catalog());
+        }
     }
 }

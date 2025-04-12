@@ -1,7 +1,8 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.event;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -97,13 +98,22 @@ public abstract class GeoServerEvent implements Serializable {
     private static final String LOGGING_ID = "logging";
 
     public static String resolveId(Info object) {
-        if (null == object) return null;
+        if (null == object) {
+            return null;
+        }
         String id = object.getId();
-        if (null != id) return id;
-
-        if (object instanceof Catalog) return CATALOG_ID;
-        if (object instanceof GeoServerInfo) return GEOSERVER_ID;
-        if (object instanceof LoggingInfo) return LOGGING_ID;
+        if (null != id) {
+            return id;
+        }
+        if (object instanceof Catalog) {
+            return CATALOG_ID;
+        }
+        if (object instanceof GeoServerInfo) {
+            return GEOSERVER_ID;
+        }
+        if (object instanceof LoggingInfo) {
+            return LOGGING_ID;
+        }
 
         throw new IllegalStateException();
     }

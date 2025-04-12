@@ -1,7 +1,8 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.catalog.plugin.resolving;
 
 import java.lang.reflect.InvocationHandler;
@@ -148,10 +149,11 @@ public class ResolvingProxyResolver<T> implements UnaryOperator<T> {
      * @throws NullPointerException if {@code catalog} is null.
      */
     public static <I extends Info> ResolvingProxyResolver<I> of(Catalog catalog, boolean errorOnNotFound) {
-        if (errorOnNotFound)
+        if (errorOnNotFound) {
             return ResolvingProxyResolver.of(catalog, (proxiedInfo, proxy) -> {
                 throw new NoSuchElementException("Object not found: %s".formatted(proxiedInfo.getId()));
             });
+        }
         return ResolvingProxyResolver.of(catalog);
     }
 
@@ -250,19 +252,33 @@ public class ResolvingProxyResolver<T> implements UnaryOperator<T> {
             }
         }
 
-        if (orig instanceof StyleInfo style) return (I) resolveInternal(style);
+        if (orig instanceof StyleInfo style) {
+            return (I) resolveInternal(style);
+        }
 
-        if (orig instanceof PublishedInfo published) return (I) resolveInternal(published);
+        if (orig instanceof PublishedInfo published) {
+            return (I) resolveInternal(published);
+        }
 
-        if (orig instanceof ResourceInfo resource) return (I) resolveInternal(resource);
+        if (orig instanceof ResourceInfo resource) {
+            return (I) resolveInternal(resource);
+        }
 
-        if (orig instanceof StoreInfo store) return (I) resolveInternal(store);
+        if (orig instanceof StoreInfo store) {
+            return (I) resolveInternal(store);
+        }
 
-        if (orig instanceof SettingsInfo settings) return (I) resolveInternal(settings);
+        if (orig instanceof SettingsInfo settings) {
+            return (I) resolveInternal(settings);
+        }
 
-        if (orig instanceof ServiceInfo service) return (I) resolveInternal(service);
+        if (orig instanceof ServiceInfo service) {
+            return (I) resolveInternal(service);
+        }
 
-        if (orig instanceof Patch patch) return (I) resolveInternal(patch);
+        if (orig instanceof Patch patch) {
+            return (I) resolveInternal(patch);
+        }
 
         return orig;
     }
@@ -326,9 +342,13 @@ public class ResolvingProxyResolver<T> implements UnaryOperator<T> {
      */
     @SuppressWarnings("unchecked")
     protected <P extends PublishedInfo> P resolveInternal(P published) {
-        if (published instanceof LayerInfo layer) return (P) resolveInternal(layer);
+        if (published instanceof LayerInfo layer) {
+            return (P) resolveInternal(layer);
+        }
 
-        if (published instanceof LayerGroupInfo lg) return (P) resolveInternal(lg);
+        if (published instanceof LayerGroupInfo lg) {
+            return (P) resolveInternal(lg);
+        }
 
         return published;
     }
@@ -340,9 +360,13 @@ public class ResolvingProxyResolver<T> implements UnaryOperator<T> {
      * @return The resolved {@link LayerInfo}.
      */
     protected LayerInfo resolveInternal(LayerInfo layer) {
-        if (isResolvingProxy(layer.getResource())) layer.setResource(resolve(layer.getResource()));
+        if (isResolvingProxy(layer.getResource())) {
+            layer.setResource(resolve(layer.getResource()));
+        }
 
-        if (isResolvingProxy(layer.getDefaultStyle())) layer.setDefaultStyle(resolve(layer.getDefaultStyle()));
+        if (isResolvingProxy(layer.getDefaultStyle())) {
+            layer.setDefaultStyle(resolve(layer.getDefaultStyle()));
+        }
 
         final boolean hasProxiedStyles = layer.getStyles().stream().anyMatch(this::isResolvingProxy);
         if (hasProxiedStyles) {

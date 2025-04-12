@@ -1,7 +1,8 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geotools.jackson.databind.filter.mapper;
 
 import java.util.List;
@@ -82,14 +83,24 @@ public abstract class ExpressionMapper {
     }
 
     public org.geotools.api.filter.expression.Expression map(Expression source) {
-        if (source == null) return null;
-        if (source instanceof Literal literal) return map(literal);
-        if (source instanceof PropertyName prop) return map(prop);
-        if (source instanceof Add add) return map(add);
-        if (source instanceof Subtract subtract) return map(subtract);
-        if (source instanceof Multiply multiply) return map(multiply);
-        if (source instanceof Divide divide) return map(divide);
-        if (source instanceof Function function) return map(function);
+        if (source == null) {
+            return null;
+        }
+        if (source instanceof Literal literal) {
+            return map(literal);
+        } else if (source instanceof PropertyName prop) {
+            return map(prop);
+        } else if (source instanceof Add add) {
+            return map(add);
+        } else if (source instanceof Subtract subtract) {
+            return map(subtract);
+        } else if (source instanceof Multiply multiply) {
+            return map(multiply);
+        } else if (source instanceof Divide divide) {
+            return map(divide);
+        } else if (source instanceof Function function) {
+            return map(function);
+        }
         throw new IllegalArgumentException("Unrecognized expression type %s: %s"
                 .formatted(source.getClass().getName(), source));
     }
@@ -131,10 +142,14 @@ public abstract class ExpressionMapper {
     public abstract Literal map(org.geotools.api.filter.expression.Literal expression);
 
     protected org.geotools.api.filter.expression.Function map(Function dto) {
-        if (dto == null) return null;
+        if (dto == null) {
+            return null;
+        }
         org.geotools.api.filter.expression.Expression[] parameters;
         parameters = dtoListToExpressionList(dto.getParameters());
-        if (parameters == null) parameters = new org.geotools.api.filter.expression.Expression[0];
+        if (parameters == null) {
+            parameters = new org.geotools.api.filter.expression.Expression[0];
+        }
         return ff.function(dto.getName(), parameters);
     }
 

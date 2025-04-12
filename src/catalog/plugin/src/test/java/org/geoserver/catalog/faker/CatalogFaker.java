@@ -1,7 +1,8 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.catalog.faker;
 
 import com.github.javafaker.Address;
@@ -149,8 +150,12 @@ public class CatalogFaker {
         OwsUtils.set(lg, "id", id);
         lg.setName(name);
         lg.setWorkspace(workspace);
-        if (layer != null) lg.getLayers().add(layer);
-        if (style != null) lg.getStyles().add(style);
+        if (layer != null) {
+            lg.getLayers().add(layer);
+        }
+        if (style != null) {
+            lg.getStyles().add(style);
+        }
         OwsUtils.resolveCollections(lg);
         return lg;
     }

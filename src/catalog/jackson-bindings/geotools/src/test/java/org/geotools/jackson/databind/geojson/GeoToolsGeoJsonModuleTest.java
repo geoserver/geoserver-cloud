@@ -1,7 +1,8 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geotools.jackson.databind.geojson;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -29,14 +30,17 @@ import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.io.WKTWriter;
 
 /**
- * Test suite for {@link GeoToolsGeoJsonModule}, assuming it's registered to an {@link ObjectMapper}
+ * Test suite for {@link GeoToolsGeoJsonModule}, assuming it's registered to an
+ * {@link ObjectMapper}
  */
 @Slf4j
 public abstract class GeoToolsGeoJsonModuleTest {
 
     protected void print(String logmsg, Object... args) {
         boolean debug = Boolean.getBoolean("debug");
-        if (debug) log.debug(logmsg, args);
+        if (debug) {
+            log.debug(logmsg, args);
+        }
     }
 
     private ObjectMapper objectMapper;
@@ -111,28 +115,28 @@ public abstract class GeoToolsGeoJsonModuleTest {
     void testGeometryCollection() throws JsonProcessingException {
         roundtripTest(
                 """
-					GEOMETRYCOLLECTION(POINT EMPTY,\
-					POLYGON ((0 0, 10 10, 20 0, 0 0),(1 1, 9 9, 19 1, 1 1)),\
-					LINESTRING(0 1, 4 5))
-					""");
+                GEOMETRYCOLLECTION(POINT EMPTY,\
+                POLYGON ((0 0, 10 10, 20 0, 0 0),(1 1, 9 9, 19 1, 1 1)),\
+                LINESTRING(0 1, 4 5))
+                """);
         roundtripTest(
                 """
-					GEOMETRYCOLLECTION(\
-					POLYGON Z((0 0 0, 10 10 1, 20 0 2, 0 0 0),(1 1 1, 9 9 2, 19 1 3, 1 1 1)),\
-					LINESTRING Z(0 1 2, 4 5 6))
-					""");
+                GEOMETRYCOLLECTION(\
+                POLYGON Z((0 0 0, 10 10 1, 20 0 2, 0 0 0),(1 1 1, 9 9 2, 19 1 3, 1 1 1)),\
+                LINESTRING Z(0 1 2, 4 5 6))
+                """);
         roundtripTest(
                 """
-					GEOMETRYCOLLECTION(\
-					POLYGON  M((0 0 0, 10 10 1, 20 0 2, 0 0 0),(1 1 1, 9 9 2, 19 1 3, 1 1 1)),\
-					LINESTRING M(0 1 3, 4 5 7))
-					""");
+                GEOMETRYCOLLECTION(\
+                POLYGON  M((0 0 0, 10 10 1, 20 0 2, 0 0 0),(1 1 1, 9 9 2, 19 1 3, 1 1 1)),\
+                LINESTRING M(0 1 3, 4 5 7))
+                """);
         roundtripTest(
                 """
-					GEOMETRYCOLLECTION(\
-					POLYGON ZM((0 0 0 0, 10 10 1 1, 20 0 2 2, 0 0 0 0),(1 1 1 1, 9 9 2 2, 19 1 3 3, 1 1 1 1)),\
-					LINESTRING ZM(0 1 2 3, 4 5 6 7))
-					""");
+                GEOMETRYCOLLECTION(\
+                POLYGON ZM((0 0 0 0, 10 10 1 1, 20 0 2 2, 0 0 0 0),(1 1 1 1, 9 9 2 2, 19 1 3 3, 1 1 1 1)),\
+                LINESTRING ZM(0 1 2 3, 4 5 6 7))
+                """);
     }
 
     private Geometry roundtripTest(String wkt) throws JsonProcessingException {
@@ -151,8 +155,8 @@ public abstract class GeoToolsGeoJsonModuleTest {
     }
 
     /**
-     * There's no way I could find in JTS to check for actual full geometry equality including all
-     * dimensions, despite {@link Geometry#equalsExact(Geometry)}
+     * There's no way I could find in JTS to check for actual full geometry equality
+     * including all dimensions, despite {@link Geometry#equalsExact(Geometry)}
      */
     private void assertActuallyEqualsExact(Geometry g1, Geometry g2) {
         assertTrue(g1.equalsExact(g2));
@@ -168,7 +172,9 @@ public abstract class GeoToolsGeoJsonModuleTest {
     }
 
     private String toWKT(Geometry orig) {
-        if (orig == null) return null;
+        if (orig == null) {
+            return null;
+        }
         EnumSet<Ordinate> outputOrdinates = Ordinate.createXY();
         CoordinateSequence seq = findCoordSeq(orig);
         int outputDimension = seq == null ? 2 : seq.getDimension();
@@ -186,13 +192,17 @@ public abstract class GeoToolsGeoJsonModuleTest {
     }
 
     private CoordinateSequence findCoordSeq(Geometry g) {
-        if (g == null || g.isEmpty()) return null;
-        if (g instanceof GeometryCollection col) {
+        if (g == null || g.isEmpty()) {
+            return null;
+        } else if (g instanceof GeometryCollection col) {
             return findCoordSeq(col.getGeometryN(0));
+        } else if (g instanceof Point point) {
+            return point.getCoordinateSequence();
+        } else if (g instanceof LineString line) {
+            return line.getCoordinateSequence();
+        } else if (g instanceof Polygon poly) {
+            return findCoordSeq(poly.getExteriorRing());
         }
-        if (g instanceof Point point) return point.getCoordinateSequence();
-        if (g instanceof LineString line) return line.getCoordinateSequence();
-        if (g instanceof Polygon poly) return findCoordSeq(poly.getExteriorRing());
         return null;
     }
 

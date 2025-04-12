@@ -1,7 +1,8 @@
-/*
- * (c) 2024 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2024 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.catalog.backend.datadir;
 
 import com.google.common.collect.Sets;
@@ -210,7 +211,9 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
         @Override
         public final T call() {
             Set<String> pre = Set.copyOf(getMissingRefs());
-            if (!pre.isEmpty()) log.debug("{} is missing refs {}", this, pre);
+            if (!pre.isEmpty()) {
+                log.debug("{} is missing refs {}", this, pre);
+            }
             T result = resolve();
             if (completedSuccessfully()) {
                 if (pre.isEmpty()) {
@@ -368,7 +371,9 @@ public class EventualConsistencyEnforcer implements GeoServerLifecycleHandler {
         @Override
         @NonNull
         Set<String> getMissingRefs() {
-            if (completedSuccessfully()) return Set.of();
+            if (completedSuccessfully()) {
+                return Set.of();
+            }
             var missing = new HashSet<String>();
             if (ProxyUtils.isResolvingProxy(toUpdate)) {
                 missing.add(toUpdate.getId());

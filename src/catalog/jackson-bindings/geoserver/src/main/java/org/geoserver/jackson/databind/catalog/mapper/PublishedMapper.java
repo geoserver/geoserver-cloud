@@ -1,7 +1,8 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.jackson.databind.catalog.mapper;
 
 import lombok.Generated;
@@ -21,18 +22,26 @@ import org.mapstruct.Mapping;
 public interface PublishedMapper {
 
     default PublishedInfo map(Published dto) {
-        if (dto == null) return null;
-        if (dto instanceof Layer l) return map(l);
-        if (dto instanceof LayerGroup lg) return map(lg);
+        if (dto == null) {
+            return null;
+        } else if (dto instanceof Layer l) {
+            return map(l);
+        } else if (dto instanceof LayerGroup lg) {
+            return map(lg);
+        }
 
         throw new IllegalArgumentException(
                 "Unknown Published type: " + dto.getClass().getCanonicalName());
     }
 
     default Published map(PublishedInfo info) {
-        if (info == null) return null;
-        if (info instanceof LayerInfo l) return map(l);
-        if (info instanceof LayerGroupInfo lg) return map(lg);
+        if (info == null) {
+            return null;
+        } else if (info instanceof LayerInfo l) {
+            return map(l);
+        } else if (info instanceof LayerGroupInfo lg) {
+            return map(lg);
+        }
 
         throw new IllegalArgumentException(
                 "Unknown PublishedInfo type: " + info.getClass().getCanonicalName());
