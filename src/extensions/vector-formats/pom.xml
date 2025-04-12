@@ -20,6 +20,11 @@
       <artifactId>spring-boot-configuration-processor</artifactId>
       <optional>true</optional>
     </dependency>
+
+    <dependency>
+      <groupId>org.geoserver.cloud.extensions</groupId>
+      <artifactId>gs-cloud-extensions-core</artifactId>
+    </dependency>
     <dependency>
       <!-- Just to make sure the autoconfiguration runs before the catalog loader-->
       <groupId>org.geoserver.cloud.catalog.backend</groupId>
@@ -62,7 +67,17 @@
       <groupId>org.geoserver.extension</groupId>
       <artifactId>gs-feature-pregeneralized</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.geoserver.community</groupId>
+      <artifactId>gs-graticule</artifactId>
+    </dependency>
 
+    <dependency>
+      <!-- optional for configurations that might contribute webui components-->
+      <groupId>org.geoserver.web</groupId>
+      <artifactId>gs-web-core</artifactId>
+      <optional>true</optional>
+    </dependency>
     <!-- Lombok -->
     <dependency>
       <groupId>org.projectlombok</groupId>
