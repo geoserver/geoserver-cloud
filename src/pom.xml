@@ -19,6 +19,7 @@
     <module>integration-tests</module>
   </modules>
   <properties>
+    <checkstyle.skip>false</checkstyle.skip>
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
     <spring-cloud.version>2021.0.9</spring-cloud.version>
@@ -952,6 +953,11 @@
       <plugins>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-checkstyle-plugin</artifactId>
+          <version>3.6.0</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.11.0</version>
           <inherited>true</inherited>
@@ -1495,6 +1501,54 @@
                   </rules>
                   <dataFile>${project.build.directory}/jacoco.exec</dataFile>
                 </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>qa</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+        <property>
+          <name>qa</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-checkstyle-plugin</artifactId>
+            <inherited>true</inherited>
+            <configuration>
+              <skip>${checkstyle.skip}</skip>
+              <configLocation>checkstyle/checkstyle.xml</configLocation>
+              <suppressionsLocation>checkstyle/suppressions.xml</suppressionsLocation>
+              <consoleOutput>true</consoleOutput>
+              <failsOnError>true</failsOnError>
+              <linkXRef>false</linkXRef>
+              <includeTestSourceDirectory>true</includeTestSourceDirectory>
+            </configuration>
+            <dependencies>
+              <dependency>
+                <groupId>org.geoserver.cloud</groupId>
+                <artifactId>gs-cloud-build-tools</artifactId>
+                <version>${project.version}</version>
+              </dependency>
+              <dependency>
+                <groupId>com.puppycrawl.tools</groupId>
+                <artifactId>checkstyle</artifactId>
+                <version>10.12.5</version>
+              </dependency>
+            </dependencies>
+            <executions>
+              <execution>
+                <id>validate</id>
+                <goals>
+                  <goal>check</goal>
+                </goals>
+                <phase>validate</phase>
               </execution>
             </executions>
           </plugin>

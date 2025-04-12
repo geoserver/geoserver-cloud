@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE module PUBLIC "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN" "https://checkstyle.org/dtds/configuration_1_3.dtd">
+<module name="Checker">
+  <property name="severity" value="warning"/>
+  
+  <!-- Suppressions file to selectively disable checks -->
+  <module name="SuppressionFilter">
+    <property name="file" value="${checkstyle.suppressions.file}"/>
+  </module>
+
+  <!-- Checks whether files end with a new line -->
+  <module name="NewlineAtEndOfFile"/>
+
+  <!-- Checks for whitespace -->
+  <module name="FileTabCharacter">
+    <property name="eachLine" value="true"/>
+    <property name="severity" value="error"/>
+  </module>
+
+  <!-- Checks for Size Violations -->
+  <module name="FileLength"/>
+  
+  <!-- Checks for line length -->
+  <module name="LineLength">
+    <property name="max" value="120"/>
+    <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://|^ *\* *@|^ *\* *[^/]|^ *\*/"/>
+    <property name="severity" value="warning"/>
+  </module>
+
+  <!-- Miscellaneous -->
+  <module name="RegexpSingleline">
+    <property name="format" value="\s+$"/>
+    <property name="minimum" value="0"/>
+    <property name="maximum" value="0"/>
+    <property name="message" value="Line has trailing spaces."/>
+  </module>
+
+  <!-- File header checks -->
+  <module name="RegexpHeader">
+    <property name="multiLines" value="2,3"/> <!-- Allows to have other copyrights, see line 2 and 3 of the regexp -->
+    <property name="header" value="^/\* (Copyright\s*)?\(c\) \d{4}(\s*-\s*\d{4})? Open Source Geospatial Foundation - all rights reserved$\n^
+\* (Copyright\s*)?\(c\).*$\n^
+\*$\n^
+\* This code is licensed under the GPL 2.0 license, available at the root$\n^
+\* application directory.$\n^
+\*"/>
+    <property name="fileExtensions" value="java"/>
+    <property name="severity" value="error"/>
+  </module>
+
+  <module name="TreeWalker">
+    <!-- Checks for imports -->
+    <module name="AvoidStarImport">
+      <property name="severity" value="error"/>
+    </module>
+    <module name="IllegalImport"/>
+    <module name="RedundantImport"/>
+    <module name="UnusedImports">
+      <property name="processJavadoc" value="true"/>
+    </module>
+
+    <!-- Checks for naming conventions -->
+    <module name="ConstantName"/>
+    <module name="LocalFinalVariableName"/>
+    <module name="LocalVariableName"/>
+    <module name="MemberName"/>
+    <module name="MethodName"/>
+    <module name="PackageName"/>
+    <module name="ParameterName"/>
+    <module name="StaticVariableName"/>
+    <module name="TypeName">
+      <property name="severity" value="error"/>
+    </module>
+
+    <!-- Checks for blocks -->
+    <module name="EmptyBlock">
+      <property name="option" value="TEXT"/>
+      <property name="tokens" value="LITERAL_TRY, LITERAL_FINALLY, LITERAL_IF, LITERAL_ELSE, LITERAL_SWITCH"/>
+    </module>
+    <module name="NeedBraces">
+      <property name="severity" value="error"/>
+    </module>
+    <module name="LeftCurly"/>
+    <module name="RightCurly"/>
+
+    <!-- Checks for common coding problems -->
+    <module name="EmptyStatement">
+      <property name="severity" value="error"/>
+    </module>
+    <module name="EqualsHashCode"/>
+    <module name="IllegalInstantiation"/>
+    <module name="InnerAssignment"/>
+    <module name="MissingSwitchDefault"/>
+    <module name="MultipleVariableDeclarations"/>
+    <module name="SimplifyBooleanExpression"/>
+    <module name="SimplifyBooleanReturn"/>
+
+    <!-- Checks for class design -->
+    <module name="InterfaceIsType"/>
+    <module name="VisibilityModifier">
+      <property name="protectedAllowed" value="true"/>
+    </module>
+    
+    <!-- Miscellaneous other checks -->
+    <module name="ArrayTypeStyle"/>
+    <module name="FinalParameters"/>
+    <module name="TodoComment"/>
+    <module name="UpperEll"/>
+  </module>
+</module>

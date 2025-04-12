@@ -156,6 +156,10 @@ Each microservice is its own self-contained application, including only the GeoS
 
 Check out the [build instructions](build_instructions.md) document.
 
+# Coding Standards
+
+GeoServer Cloud follows specific [coding standards and style guidelines](coding_standards.md) to ensure consistency across the project.
+
 # Creating Extensions
 
 Learn how to create [extensions for GeoServer Cloud](extensions/adding_extensions.md).

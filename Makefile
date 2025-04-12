@@ -12,16 +12,21 @@ REPACKAGE ?= true
 clean:
 	./mvnw clean
 
+.PHONY: build-tools
+build-tools:
+	./mvnw clean install -pl build-tools/
+
 .PHONY: lint
-lint: lint-pom lint-java
+lint: build-tools
+	./mvnw validate -Dqa -fae -ntp -T1C
 
 .PHONY: lint-pom
 lint-pom:
-	./mvnw sortpom:verify -Dsort.verifyFailOn=strict -Dsort.verifyFail=stop -ntp -T1C
+	./mvnw validate -Dqa -fae -Dspotless.skip=true -Dcheckstyle.skip=true -ntp -T1C
 
 .PHONY: lint-java
-lint-java:
-	./mvnw spotless:check -ntp -T1C
+lint-java: build-tools
+	./mvnw validate -Dqa -fae -Dsortpom.skip=true -ntp -T1C
 
 .PHONY: format
 format: format-pom format-java
@@ -35,7 +40,7 @@ format-java:
 	./mvnw spotless:apply -ntp -T1C
 
 .PHONY: install
-install:
+install: build-tools
 	./mvnw clean install -DskipTests -ntp -U -T1C
 
 .PHONY: package
