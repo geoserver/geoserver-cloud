@@ -8,15 +8,16 @@
   <packaging>pom</packaging>
   <name>GeoServer Cloud</name>
   <modules>
+    <module>build-tools</module>
     <module>src</module>
   </modules>
   <properties>
     <revision>2.27.0-SNAPSHOT</revision>
     <fmt.skip>false</fmt.skip>
+    <sortpom.skip>${fmt.skip}</sortpom.skip>
+    <sortpom.action>sort</sortpom.action>
+    <spotless.skip>${fmt.skip}</spotless.skip>
     <spotless.action>apply</spotless.action>
-    <spotless.apply.skip>${fmt.skip}</spotless.apply.skip>
-    <pom.fmt.action>sort</pom.fmt.action>
-    <pom.fmt.skip>${fmt.skip}</pom.fmt.skip>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
   </properties>
@@ -355,35 +356,20 @@
           <artifactId>jacoco-maven-plugin</artifactId>
           <version>0.8.11</version>
         </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>exec-maven-plugin</artifactId>
+          <version>3.1.0</version>
+        </plugin>
       </plugins>
     </pluginManagement>
     <plugins>
       <plugin>
-        <groupId>com.github.ekryd.sortpom</groupId>
-        <artifactId>sortpom-maven-plugin</artifactId>
-        <configuration>
-          <encoding>UTF-8</encoding>
-          <keepBlankLines>true</keepBlankLines>
-          <spaceBeforeCloseEmptyElement>false</spaceBeforeCloseEmptyElement>
-          <createBackupFile>false</createBackupFile>
-          <lineSeparator>\n</lineSeparator>
-          <verifyFail>stop</verifyFail>
-          <verifyFailOn>strict</verifyFailOn>
-          <skip>${pom.fmt.skip}</skip>
-        </configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>${pom.fmt.action}</goal>
-            </goals>
-            <phase>verify</phase>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
         <groupId>com.diffplug.spotless</groupId>
         <artifactId>spotless-maven-plugin</artifactId>
+        <inherited>true</inherited>
         <configuration>
+          <skip>${spotless.skip}</skip>
           <java>
             <palantirJavaFormat>
               <version>2.61.0</version>
@@ -398,6 +384,29 @@
           <execution>
             <goals>
               <goal>${spotless.action}</goal>
+            </goals>
+            <phase>validate</phase>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>com.github.ekryd.sortpom</groupId>
+        <artifactId>sortpom-maven-plugin</artifactId>
+        <inherited>true</inherited>
+        <configuration>
+          <encoding>UTF-8</encoding>
+          <keepBlankLines>true</keepBlankLines>
+          <spaceBeforeCloseEmptyElement>false</spaceBeforeCloseEmptyElement>
+          <createBackupFile>false</createBackupFile>
+          <lineSeparator>\n</lineSeparator>
+          <verifyFail>stop</verifyFail>
+          <verifyFailOn>strict</verifyFailOn>
+          <skip>${sortpom.skip}</skip>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>${sortpom.action}</goal>
             </goals>
             <phase>validate</phase>
           </execution>
@@ -430,19 +439,21 @@
       </plugin>
     </plugins>
   </build>
-
   <profiles>
     <profile>
-      <id>coverage</id>
+      <id>qa</id>
       <activation>
         <activeByDefault>false</activeByDefault>
         <property>
-          <name>coverage</name>
+          <name>qa</name>
         </property>
       </activation>
-      <modules>
-        <module>report-aggregate</module>
-      </modules>
+      <properties>
+        <spotless.action>check</spotless.action>
+        <sortpom.action>verify</sortpom.action>
+        <sort.verifyFailOn>strict</sort.verifyFailOn>
+        <sort.verifyFail>stop</sort.verifyFail>
+      </properties>
     </profile>
   </profiles>
 </project>

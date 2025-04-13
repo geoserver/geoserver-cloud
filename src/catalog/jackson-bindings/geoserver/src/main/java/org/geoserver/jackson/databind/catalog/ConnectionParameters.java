@@ -1,6 +1,6 @@
-/*
- * (c) 2025 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2025 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
 package org.geoserver.jackson.databind.catalog;
 
@@ -37,8 +37,7 @@ public class ConnectionParameters extends LinkedHashMap<String, Object> {
      * @return a new ConnectionParameters instance
      */
     public static ConnectionParameters fromSerializableMap(Map<String, Serializable> params) {
-        if (params == null) return null;
-        return new ConnectionParameters(params);
+        return (params == null) ? null : new ConnectionParameters(params);
     }
 
     /**

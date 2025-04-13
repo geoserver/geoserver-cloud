@@ -1,7 +1,8 @@
-/*
- * (c) 2023 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2023 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.backend.pgconfig.resource;
 
 import java.io.ByteArrayInputStream;
@@ -54,7 +55,7 @@ class PgconfigResource implements Resource {
         this.type = type;
         this.path = path;
         this.lastmodified = lastmodified;
-        lastChecked = Instant.now();
+        this.lastChecked = Instant.now();
     }
 
     /**
@@ -97,6 +98,7 @@ class PgconfigResource implements Resource {
         this.type = other.type;
         this.path = other.path;
         this.lastmodified = other.lastmodified;
+        this.lastChecked = Instant.now();
     }
 
     @Override

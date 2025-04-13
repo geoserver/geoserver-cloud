@@ -1,7 +1,8 @@
-/*
- * (c) 2023 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2023 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.backend.pgconfig.catalog;
 
 import java.io.File;
@@ -11,6 +12,7 @@ import org.geoserver.catalog.plugin.CatalogConformanceTest;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.CatalogPluginStyleResourcePersister;
 import org.geoserver.cloud.backend.pgconfig.PgconfigBackendBuilder;
+import org.geoserver.cloud.backend.pgconfig.resource.FileSystemResourceStoreCache;
 import org.geoserver.cloud.backend.pgconfig.resource.PgconfigLockProvider;
 import org.geoserver.cloud.backend.pgconfig.resource.PgconfigResourceStore;
 import org.geoserver.cloud.backend.pgconfig.support.PgConfigTestContainer;
@@ -54,9 +56,9 @@ class PgconfigCatalogBackendConformanceTest extends CatalogConformanceTest {
         JdbcTemplate template = container.getTemplate();
         PgconfigLockProvider lockProvider = new PgconfigLockProvider(pgconfigLockRegistry());
         File cacheDirectory = tmpFolder;
-
+        FileSystemResourceStoreCache cache = FileSystemResourceStoreCache.ofProvidedDirectory(cacheDirectory.toPath());
         PgconfigResourceStore resourceStore = new PgconfigResourceStore(
-                cacheDirectory.toPath(), template, lockProvider, PgconfigResourceStore.defaultIgnoredDirs());
+                cache, template, lockProvider, PgconfigResourceStore.defaultIgnoredResources());
 
         var resourceLoader = new PgconfigGeoServerResourceLoader(resourceStore);
         CatalogPlugin catalog = new PgconfigBackendBuilder(container.getDataSource()).createCatalog();
@@ -83,9 +85,9 @@ class PgconfigCatalogBackendConformanceTest extends CatalogConformanceTest {
 
     @Disabled(
             """
-			revisit, seems to be just a problem of ordering or equals with the \
-			returned ft/ft2 where mockito is not throwing the expected exception
-			""")
+            revisit, seems to be just a problem of ordering or equals with the \
+            returned ft/ft2 where mockito is not throwing the expected exception
+            """)
     @Override
     public void testSaveDataStoreRollbacksBothStoreAndResources() {}
 

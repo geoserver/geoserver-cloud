@@ -1,7 +1,8 @@
-/*
- * (c) 2014 - 2016 Open Source Geospatial Foundation - all rights reserved (c) 2001 - 2013 OpenPlans
- * This code is licensed under the GPL 2.0 license, available at the root application directory.
+/* (c) 2001 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.config.plugin;
 
 import static java.util.Objects.requireNonNull;
@@ -254,7 +255,9 @@ public class RepositoryGeoServerFacadeImpl implements RepositoryGeoServerFacade 
     }
 
     protected GeoServerInfo resolve(GeoServerInfo info) {
-        if (info == null) return null;
+        if (info == null) {
+            return null;
+        }
         GeoServerInfoImpl global = (GeoServerInfoImpl) info;
         if (global.getMetadata() == null) {
             global.setMetadata(new MetadataMap());
@@ -308,7 +311,9 @@ public class RepositoryGeoServerFacadeImpl implements RepositoryGeoServerFacade 
     }
 
     protected <S extends ServiceInfo> S resolve(S service) {
-        if (service == null) return null;
+        if (service == null) {
+            return null;
+        }
         WorkspaceInfo workspace = service.getWorkspace();
         GeoServer gs = getGeoServer();
         if (workspace instanceof Proxy) {
@@ -322,7 +327,9 @@ public class RepositoryGeoServerFacadeImpl implements RepositoryGeoServerFacade 
     }
 
     protected SettingsInfo resolve(SettingsInfo settings) {
-        if (settings == null) return null;
+        if (settings == null) {
+            return null;
+        }
         WorkspaceInfo workspace = settings.getWorkspace();
         if (workspace instanceof Proxy) {
             GeoServer gs = getGeoServer();

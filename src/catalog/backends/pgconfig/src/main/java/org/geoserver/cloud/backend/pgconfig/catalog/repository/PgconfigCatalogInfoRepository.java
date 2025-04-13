@@ -1,7 +1,8 @@
-/*
- * (c) 2023 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2023 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.backend.pgconfig.catalog.repository;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -245,8 +246,12 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> exten
     }
 
     protected String applyOffsetLimit(String sql, Integer offset, Integer limit) {
-        if (null != offset) sql += " OFFSET %d".formatted(offset);
-        if (null != limit) sql += " LIMIT %d".formatted(limit);
+        if (null != offset) {
+            sql += " OFFSET %d".formatted(offset);
+        }
+        if (null != limit) {
+            sql += " LIMIT %d".formatted(limit);
+        }
         return sql;
     }
 
@@ -310,12 +315,16 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> exten
     @SuppressWarnings("java:S1168")
     private Object[] prepareParams(PgconfigQueryBuilder qb) {
         List<Object> literalValues = qb.getLiteralValues();
-        if (literalValues.isEmpty()) return null;
+        if (literalValues.isEmpty()) {
+            return null;
+        }
         return literalValues.stream().map(this::asPreparedValue).toArray();
     }
 
     private Object asPreparedValue(Object val) {
-        if (val instanceof Enum<?> e) return e.name();
+        if (val instanceof Enum<?> e) {
+            return e.name();
+        }
         return val;
     }
 
@@ -384,8 +393,11 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> exten
 
     protected @NonNull String infoType(Class<? extends CatalogInfo> clazz) {
         ClassMappings cm;
-        if (clazz.isInterface()) cm = ClassMappings.fromInterface(clazz);
-        else cm = ClassMappings.fromImpl(clazz);
+        if (clazz.isInterface()) {
+            cm = ClassMappings.fromInterface(clazz);
+        } else {
+            cm = ClassMappings.fromImpl(clazz);
+        }
 
         return cm.getInterface().getSimpleName();
     }
@@ -393,7 +405,9 @@ public abstract class PgconfigCatalogInfoRepository<T extends CatalogInfo> exten
     protected String select(String predicate) {
         String returnColumns = getReturnColumns();
         String queryTable = getQueryTable();
-        if (null == predicate) predicate = "";
+        if (null == predicate) {
+            predicate = "";
+        }
         return "SELECT %s FROM %s %s".formatted(returnColumns, queryTable, predicate);
     }
 }

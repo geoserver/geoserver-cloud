@@ -1,7 +1,8 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.event.bus;
 
 import java.util.Optional;
@@ -69,7 +70,9 @@ class RemoteGeoServerEventMapper {
         GeoServerEvent event = incoming.getEvent();
         event.setRemote(true);
         event.setOrigin(incoming.getOriginService());
-        if (event instanceof InfoEvent infoEvent) event = remoteEventsPropertyResolver.resolve(infoEvent);
+        if (event instanceof InfoEvent infoEvent) {
+            event = remoteEventsPropertyResolver.resolve(infoEvent);
+        }
         return event;
     }
 }

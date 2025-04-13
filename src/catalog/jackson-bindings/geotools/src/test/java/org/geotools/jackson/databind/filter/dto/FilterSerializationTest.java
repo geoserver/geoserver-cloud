@@ -1,7 +1,8 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geotools.jackson.databind.filter.dto;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -17,7 +18,9 @@ class FilterSerializationTest extends FilterRoundtripTest {
 
     protected void print(String logmsg, Object... args) {
         boolean debug = Boolean.getBoolean("debug");
-        if (debug) log.debug(logmsg, args);
+        if (debug) {
+            log.debug(logmsg, args);
+        }
     }
 
     private static ObjectMapper objectMapper;

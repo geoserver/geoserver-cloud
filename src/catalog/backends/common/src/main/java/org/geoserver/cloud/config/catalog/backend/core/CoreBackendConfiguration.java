@@ -1,7 +1,8 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.config.catalog.backend.core;
 
 import lombok.extern.slf4j.Slf4j;
@@ -102,7 +103,9 @@ public class CoreBackendConfiguration {
     @ConditionalOnGeoServerSecurityEnabled
     @Bean
     Catalog secureCatalog(@Qualifier("rawCatalog") Catalog rawCatalog, CatalogProperties properties) throws Exception {
-        if (properties.isSecure()) return new SecureCatalogImpl(rawCatalog);
+        if (properties.isSecure()) {
+            return new SecureCatalogImpl(rawCatalog);
+        }
         return rawCatalog;
     }
 

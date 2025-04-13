@@ -1,7 +1,8 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved
- * This code is licensed under the GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.catalog.plugin;
 
 import java.io.Closeable;
@@ -79,12 +80,24 @@ public interface ExtendedCatalogFacade extends CatalogFacade {
      */
     default Optional<CatalogInfo> get(@NonNull String id) {
         CatalogInfo found = getWorkspace(id);
-        if (null == found) found = getNamespace(id);
-        if (null == found) found = getStore(id, StoreInfo.class);
-        if (null == found) found = getResource(id, ResourceInfo.class);
-        if (null == found) found = getPublished(id);
-        if (null == found) found = getStyle(id);
-        if (null == found) found = getMap(id);
+        if (null == found) {
+            found = getNamespace(id);
+        }
+        if (null == found) {
+            found = getStore(id, StoreInfo.class);
+        }
+        if (null == found) {
+            found = getResource(id, ResourceInfo.class);
+        }
+        if (null == found) {
+            found = getPublished(id);
+        }
+        if (null == found) {
+            found = getStyle(id);
+        }
+        if (null == found) {
+            found = getMap(id);
+        }
         return Optional.ofNullable(found);
     }
 
@@ -224,7 +237,6 @@ public interface ExtendedCatalogFacade extends CatalogFacade {
             case MapInfo m -> remove(m);
             default -> throw new IllegalArgumentException("Unexpected value: %s".formatted(info));
         }
-        ;
     }
 
     /**

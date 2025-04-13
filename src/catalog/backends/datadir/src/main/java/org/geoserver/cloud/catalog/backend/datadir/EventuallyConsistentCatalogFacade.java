@@ -1,7 +1,8 @@
-/*
- * (c) 2024 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2024 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.catalog.backend.datadir;
 
 import java.util.Objects;
@@ -35,11 +36,12 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  *
  *
  * <ul>
- *   <li>All {@code add(@NonNull )} methods check if the {@link CatalogInfo} being added have
- *       unresolved ({@link ResolvingProxy}) references
- *   <li>If so, the object is put in a pending list and not added
- *   <li>Conversely, if during {@code add(@NonNull )}, there's a pending add waiting for this new
- *       object, the {@code add(@NonNull )} proceeds and then the pending object is added
+ * <li>All {@code add(@NonNull )} methods check if the {@link CatalogInfo} being
+ * added have unresolved ({@link ResolvingProxy}) references
+ * <li>If so, the object is put in a pending list and not added
+ * <li>Conversely, if during {@code add(@NonNull )}, there's a pending add
+ * waiting for this new object, the {@code add(@NonNull )} proceeds and then the
+ * pending object is added
  * </ul>
  *
  * @since 1.9
@@ -256,7 +258,9 @@ public class EventuallyConsistentCatalogFacade extends ForwardingExtendedCatalog
         // hack, CatalogImpl.getResourceByName(String ns, String name, Class<T> clazz)
         // wil try uri and prefix, if it looks like a uri don't bother retrying
         boolean maybeUri = prefix != null && prefix.indexOf(':') > -1;
-        if (maybeUri) return super.getNamespace(prefix);
+        if (maybeUri) {
+            return super.getNamespace(prefix);
+        }
         return retryOnNull(
                 () -> super.getNamespaceByPrefix(prefix), //
                 () -> "getNamespaceByPrefix(%s)".formatted(prefix));
@@ -310,7 +314,9 @@ public class EventuallyConsistentCatalogFacade extends ForwardingExtendedCatalog
 
     private <T> T retry(Supplier<T> supplier, Predicate<T> predicate, Supplier<String> op) {
         T ret = supplier.get();
-        if (predicate.test(ret)) return ret;
+        if (predicate.test(ret)) {
+            return ret;
+        }
 
         // do retry if it's a REST API request or there're pending updates
         if (isWebRequest() && (isRestRequest() || !enforcer.isConverged())) {
@@ -361,10 +367,13 @@ public class EventuallyConsistentCatalogFacade extends ForwardingExtendedCatalog
     }
 
     private String nameof(CatalogInfo info) {
-        if (null == info) return null;
-        if (info instanceof StoreInfo s)
+        if (null == info) {
+            return null;
+        } else if (info instanceof StoreInfo s) {
             return "%s:%s".formatted(s.getWorkspace().getName(), s.getName());
-        if (info instanceof PublishedInfo p) return p.prefixedName();
+        } else if (info instanceof PublishedInfo p) {
+            return p.prefixedName();
+        }
         return (String) OwsUtils.get(info, "name");
     }
 }

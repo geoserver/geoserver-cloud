@@ -1,7 +1,8 @@
-/*
- * (c) 2024 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2024 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.logging.mdc.servlet;
 
 import java.io.IOException;
@@ -57,8 +58,12 @@ public class MDCAuthenticationFilter implements Filter {
         }
         MDC.put("enduser.authenticated", String.valueOf(authenticated));
         if (authenticated) {
-            if (config.isId()) MDC.put("enduser.id", auth.getName());
-            if (config.isRoles()) MDC.put("enduser.role", roles(auth));
+            if (config.isId()) {
+                MDC.put("enduser.id", auth.getName());
+            }
+            if (config.isRoles()) {
+                MDC.put("enduser.role", roles(auth));
+            }
         }
     }
 

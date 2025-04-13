@@ -1,7 +1,8 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.config;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -55,10 +56,10 @@ class ConfigApplicationTest {
 
         String expected =
                 """
-			{"name":"test-service","profiles":["default"],\
-			"label":null,"version":null,"state":null,\
-			"propertySources":[{"name":"classpath:/config/test-service.yml","source":{"spring.application.name":"geoserver"}}]}
-			""";
+                        {"name":"test-service","profiles":["default"],\
+                        "label":null,"version":null,"state":null,\
+                        "propertySources":[{"name":"classpath:/config/test-service.yml","source":{"spring.application.name":"geoserver"}}]}
+                        """;
         JSONAssert.assertEquals(expected, config, JSONCompareMode.LENIENT);
     }
 
@@ -71,13 +72,13 @@ class ConfigApplicationTest {
         log.info(config);
         String expected =
                 """
-			{"name":"test-service","profiles":["profile1"],\
-			"label":null,"version":null,"state":null,\
-			"propertySources":[\
-			{"name":"classpath:/config/test-service-profile1.yml","source":{"spring.application.name":"geoserver-profile1"}},\
-			{"name":"classpath:/config/test-service.yml","source":{"spring.application.name":"geoserver"}}\
-			]}
-			""";
+                        {"name":"test-service","profiles":["profile1"],\
+                        "label":null,"version":null,"state":null,\
+                        "propertySources":[\
+                        {"name":"classpath:/config/test-service-profile1.yml","source":{"spring.application.name":"geoserver-profile1"}},\
+                        {"name":"classpath:/config/test-service.yml","source":{"spring.application.name":"geoserver"}}\
+                        ]}
+                        """;
         JSONAssert.assertEquals(expected, config, JSONCompareMode.LENIENT);
     }
 }

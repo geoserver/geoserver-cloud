@@ -1,7 +1,8 @@
-/*
- * (c) 2020-2023 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.catalog.plugin.validation;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -182,8 +183,9 @@ final class BeforeRemoveValidator extends AbstractCatalogVisitor {
                         .map(StyleInfo::getId)
                         .anyMatch(styleId::equals);
 
-        if (referenced)
+        if (referenced) {
             throw new IllegalArgumentException("Unable to delete style %s referenced by layer group '%s'"
                     .formatted(toDelete.prefixedName(), lg.prefixedName()));
+        }
     }
 }

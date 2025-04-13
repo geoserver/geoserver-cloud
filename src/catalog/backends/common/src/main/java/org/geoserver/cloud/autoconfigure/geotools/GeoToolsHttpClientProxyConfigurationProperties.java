@@ -1,7 +1,8 @@
-/*
- * (c) 2021 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2021 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.autoconfigure.geotools;
 
 import java.net.http.HttpClient;
@@ -15,8 +16,9 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.util.StringUtils;
 
 /**
- * {@link EnableConfigurationProperties @EnableConfigurationProperties} to configure the HTTP proxy
- * for the GeoTools {@link HttpClient} using Spring environment configuration.
+ * {@link EnableConfigurationProperties @EnableConfigurationProperties} to
+ * configure the HTTP proxy for the GeoTools {@link HttpClient} using Spring
+ * environment configuration.
  *
  * @see SpringEnvironmentAwareGeoToolsHttpClientFactory
  */
@@ -64,8 +66,11 @@ public @Data class GeoToolsHttpClientProxyConfigurationProperties {
     }
 
     public ProxyHostConfig ofProtocol(@NonNull String protocol) {
-        if ("http".equals(protocol)) return http == null ? new ProxyHostConfig() : http;
-        if ("https".equals(protocol)) return https == null ? new ProxyHostConfig() : https;
+        if ("http".equals(protocol)) {
+            return http == null ? new ProxyHostConfig() : http;
+        } else if ("https".equals(protocol)) {
+            return https == null ? new ProxyHostConfig() : https;
+        }
         throw new IllegalArgumentException("Unknown protocol %s. Expected http(s)".formatted(protocol));
     }
 }

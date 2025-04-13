@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+    "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+    "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+<suppressions>
+    <!-- Disable FinalParameters check for all files -->
+    <suppress checks="FinalParameters" files=".*\.java"/>
+
+    <suppress checks="MethodName" files=".*\.java"/>
+    <suppress checks="MemberName" files=".*\.java"/>
+    <suppress checks="ConstantName" files=".*\.java"/>
+    <suppress checks="VisibilityModifier" files=".*\.java"/>
+    <suppress checks="InnerAssignment" files=".*Test\.java"/>
+    <suppress checks="MultipleVariableDeclarations" files=".*Test\.java"/>
+    <suppress checks="FileLength" files=".*Test\.java"/>
+    <suppress checks="LineLength" files=".*"/>
+
+</suppressions>

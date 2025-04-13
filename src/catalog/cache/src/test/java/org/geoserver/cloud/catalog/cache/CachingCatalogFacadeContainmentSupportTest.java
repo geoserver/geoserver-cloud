@@ -1,7 +1,8 @@
-/*
- * (c) 2024 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2024 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.catalog.cache;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -452,7 +453,9 @@ class CachingCatalogFacadeContainmentSupportTest {
     }
 
     private void assertNotCached(CatalogInfo... infos) {
-        for (var info : infos) assertNotCached(info);
+        for (var info : infos) {
+            assertNotCached(info);
+        }
     }
 
     private void assertNotCached(CatalogInfo info) {
@@ -467,7 +470,9 @@ class CachingCatalogFacadeContainmentSupportTest {
     }
 
     private void assertAllCached(CatalogInfo... infos) {
-        for (var info : infos) assertCached(info);
+        for (var info : infos) {
+            assertCached(info);
+        }
     }
 
     private void assertCached(CatalogInfo info) {

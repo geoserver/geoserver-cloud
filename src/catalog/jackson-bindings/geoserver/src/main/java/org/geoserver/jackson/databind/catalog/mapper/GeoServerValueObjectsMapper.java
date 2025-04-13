@@ -1,7 +1,8 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.jackson.databind.catalog.mapper;
 
 import java.awt.geom.AffineTransform;
@@ -74,7 +75,9 @@ public interface GeoServerValueObjectsMapper {
      * @see XStreamPersister#GridGeometry2DConverter
      */
     default GridGeometry dtoToGridGeometry2D(GridGeometryDto value) {
-        if (value == null) return null;
+        if (value == null) {
+            return null;
+        }
         CoordinateReferenceSystem crs = Mappers.getMapper(
                         org.geotools.jackson.databind.filter.mapper.GeoToolsValueMappers.class)
                 .crs(value.getCrs());
@@ -87,7 +90,9 @@ public interface GeoServerValueObjectsMapper {
     }
 
     default GridGeometryDto gridGeometry2DToDto(GridGeometry value) {
-        if (value == null) return null;
+        if (value == null) {
+            return null;
+        }
 
         GridGeometryDto dto = new GridGeometryDto();
         GridGeometry2D g = (GridGeometry2D) value;
@@ -117,7 +122,9 @@ public interface GeoServerValueObjectsMapper {
     }
 
     default MathTransform affineTransform(double[] flatmatrix) {
-        if (flatmatrix == null) return null;
+        if (flatmatrix == null) {
+            return null;
+        }
         AffineTransform affineTransform = new AffineTransform(flatmatrix);
         return new AffineTransform2D(affineTransform);
     }
@@ -174,12 +181,16 @@ public interface GeoServerValueObjectsMapper {
     VirtualTableDto virtualTableToDto(VirtualTable value);
 
     default VirtualTable dtoToVirtualTable(VirtualTableDto dto) {
-        if (dto == null) return null;
+        if (dto == null) {
+            return null;
+        }
         return new VirtualTable(dto.getName(), dto.getSql(), dto.isEscapeSql());
     }
 
     default MetadataMapDto metadataMap(MetadataMap md) {
-        if (md == null) return null;
+        if (md == null) {
+            return null;
+        }
         MetadataMapDto dto = new MetadataMapDto();
         md.forEach((k, v) -> {
             Literal l = Literal.valueOf(v);
@@ -189,7 +200,9 @@ public interface GeoServerValueObjectsMapper {
     }
 
     default MetadataMap metadataMap(MetadataMapDto dto) {
-        if (dto == null) return null;
+        if (dto == null) {
+            return null;
+        }
         MetadataMap md = new MetadataMap();
         dto.forEach((k, l) -> {
             Object v = l.getValue();

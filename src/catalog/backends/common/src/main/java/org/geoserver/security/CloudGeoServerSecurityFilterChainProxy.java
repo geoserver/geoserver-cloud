@@ -1,7 +1,8 @@
-/*
- * (c) 2025 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2025 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.security;
 
 /**
@@ -17,9 +18,12 @@ public class CloudGeoServerSecurityFilterChainProxy extends GeoServerSecurityFil
 
     @Override
     public void destroy() {
-        if (super.proxy != null) proxy.destroy();
-
+        if (super.proxy != null) {
+            proxy.destroy();
+        }
         // do some cleanup
-        if (super.securityManager != null) securityManager.removeListener(this);
+        if (super.securityManager != null) {
+            securityManager.removeListener(this);
+        }
     }
 }

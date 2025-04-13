@@ -1,7 +1,8 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.event.bus;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,8 +63,6 @@ class LifecycleRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
 
         // reload implies reset, so shall not trigger a reset event
         assertThat(eventsCaptor.local().allOf(ResetEvent.class)).isEmpty();
-        ;
         assertThat(eventsCaptor.remote().allOf(ResetEvent.class)).isEmpty();
-        ;
     }
 }

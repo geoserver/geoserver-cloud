@@ -1,7 +1,8 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.config.plugin;
 
 import java.io.ByteArrayInputStream;
@@ -52,7 +53,9 @@ class XmlSerializedConfigRepository implements ConfigRepository {
     }
 
     private <I extends Info> I deserialize(String serialized, Class<I> type) {
-        if (serialized == null) return null;
+        if (serialized == null) {
+            return null;
+        }
         I loaded;
         try {
             ByteArrayInputStream in = new ByteArrayInputStream(serialized.getBytes(StandardCharsets.UTF_8));

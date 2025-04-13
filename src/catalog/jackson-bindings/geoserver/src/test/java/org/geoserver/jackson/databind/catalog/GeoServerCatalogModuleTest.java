@@ -1,7 +1,8 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.jackson.databind.catalog;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -106,7 +107,9 @@ public abstract class GeoServerCatalogModuleTest {
 
     protected void print(String logmsg, Object... args) {
         boolean debug = Boolean.getBoolean("debug");
-        if (debug) log.info(logmsg, args);
+        if (debug) {
+            log.info(logmsg, args);
+        }
     }
 
     private ObjectMapper objectMapper;
@@ -157,9 +160,13 @@ public abstract class GeoServerCatalogModuleTest {
         CatalogInfo asCatalogInfo = objectMapper.readValue(encoded, CatalogInfo.class);
         assertNotNull(asCatalogInfo);
         // and also as its direct super-type, if it not CatalogInfo
-        if (orig instanceof StoreInfo) assertNotNull(objectMapper.readValue(encoded, StoreInfo.class));
-        if (orig instanceof ResourceInfo) assertNotNull(objectMapper.readValue(encoded, ResourceInfo.class));
-        if (orig instanceof PublishedInfo) assertNotNull(objectMapper.readValue(encoded, PublishedInfo.class));
+        if (orig instanceof StoreInfo) {
+            assertNotNull(objectMapper.readValue(encoded, StoreInfo.class));
+        } else if (orig instanceof ResourceInfo) {
+            assertNotNull(objectMapper.readValue(encoded, ResourceInfo.class));
+        } else if (orig instanceof PublishedInfo) {
+            assertNotNull(objectMapper.readValue(encoded, PublishedInfo.class));
+        }
 
         // This is the client code's responsibility, the Deserializer returns "resolving proxy"  proxies for Info
         // references
@@ -795,8 +802,9 @@ public abstract class GeoServerCatalogModuleTest {
 
         Filter f1 = query.getFilter();
         Filter f2 = parsed.getFilter();
-        if (f1 == Filter.INCLUDE) assertEquals(Filter.INCLUDE, f2);
-        else {
+        if (f1 == Filter.INCLUDE) {
+            assertEquals(Filter.INCLUDE, f2);
+        } else {
             PropertyIsEqualTo p1 = (PropertyIsEqualTo) f1;
             PropertyIsEqualTo p2 = (PropertyIsEqualTo) f2;
             assertEquals(p1.getExpression1(), p2.getExpression1());

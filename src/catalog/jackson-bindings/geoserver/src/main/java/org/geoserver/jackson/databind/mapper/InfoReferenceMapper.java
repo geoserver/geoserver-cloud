@@ -1,7 +1,8 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.jackson.databind.mapper;
 
 import java.util.Objects;
@@ -103,7 +104,9 @@ public abstract class InfoReferenceMapper {
     }
 
     public <T extends Info> InfoReference infoToReference(final T info) {
-        if (info == null) return null;
+        if (info == null) {
+            return null;
+        }
         final String id = info.getId();
         final ClassMappings type = resolveType(info);
 
@@ -143,7 +146,9 @@ public abstract class InfoReferenceMapper {
     }
 
     public <T extends Info> T referenceToInfo(InfoReference ref) {
-        if (ref == null) return null;
+        if (ref == null) {
+            return null;
+        }
         String id = ref.getId();
         Objects.requireNonNull(id, () -> "Object Reference has no id: " + ref);
         @SuppressWarnings("unchecked")

@@ -1,7 +1,8 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.web.app;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -82,7 +83,9 @@ class WebUIApplicationTest {
 
     @AfterEach
     void tearDownWicketTester() {
-        if (null != tester) tester.destroy();
+        if (null != tester) {
+            tester.destroy();
+        }
         logout();
     }
 

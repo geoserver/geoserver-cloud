@@ -1,7 +1,8 @@
-/*
- * (c) 2023 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2023 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.backend.pgconfig.resource;
 
 import static org.geoserver.platform.resource.Resource.Type.DIRECTORY;
@@ -107,8 +108,9 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
         JdbcTemplate template = container.getTemplate();
         PgconfigLockProvider lockProvider = new PgconfigLockProvider(pgconfigLockRegistry());
         cacheDirectory = tmpDir.newFolder();
+        FileSystemResourceStoreCache cache = FileSystemResourceStoreCache.ofProvidedDirectory(cacheDirectory.toPath());
         store = new PgconfigResourceStore(
-                cacheDirectory.toPath(), template, lockProvider, PgconfigResourceStore.defaultIgnoredDirs());
+                cache, template, lockProvider, PgconfigResourceStore.defaultIgnoredResources());
         setupTestData(template);
     }
 
@@ -134,9 +136,9 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
                 byte[] contents = dir ? null : path.getBytes("UTF-8");
                 String sql =
                         """
-						INSERT INTO resourcestore (parentid, path, "type", content)
-						VALUES (?, ?, ?, ?)
-						""";
+                        INSERT INTO resourcestore (parentid, path, "type", content)
+                        VALUES (?, ?, ?, ?)
+                        """;
                 template.update(sql, parentId, path, type.toString(), contents);
             } catch (Exception e) {
                 log.error("Error creating {}", path, e);
@@ -411,9 +413,9 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
         DataSource ds = container.getDataSource();
         String sql =
                 """
-				INSERT INTO resourcestore (parentid, "type", path, content)
-				VALUES (?, ?, ?, ?);
-				""";
+                INSERT INTO resourcestore (parentid, "type", path, content)
+                VALUES (?, ?, ?, ?);
+                """;
         try (var c = ds.getConnection();
                 var st = c.prepareStatement(sql)) {
             st.setLong(1, 0);

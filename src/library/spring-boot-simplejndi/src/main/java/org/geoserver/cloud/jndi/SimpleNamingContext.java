@@ -1,7 +1,8 @@
-/*
- * (c) 2022 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2022 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.jndi;
 
 import java.util.HashMap;
@@ -66,7 +67,9 @@ public class SimpleNamingContext implements Context {
     }
 
     private String rootName(@NonNull String root) {
-        if (ROOT_NAME.equals(root) || root.endsWith("/")) return root;
+        if (ROOT_NAME.equals(root) || root.endsWith("/")) {
+            return root;
+        }
         return "%s/".formatted(root);
     }
 

@@ -1,5 +1,11 @@
+/* (c) 2025 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
+ */
+
 package org.geoserver.cloud.backend.pgconfig.resource;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import java.io.File;
 import java.io.IOException;
@@ -23,8 +29,8 @@ import org.springframework.util.FileSystemUtils;
 public class FileSystemResourceStoreCache implements DisposableBean {
 
     private final Path base;
-    private boolean disposable;
-    private @Getter FileSystemResourceStore localOnlyStore;
+    private final boolean disposable;
+    private final @Getter FileSystemResourceStore localOnlyStore;
 
     private FileSystemResourceStoreCache(@NonNull Path cacheDirectory, boolean disposable) {
         this.disposable = disposable;
@@ -47,7 +53,8 @@ public class FileSystemResourceStoreCache implements DisposableBean {
         return new FileSystemResourceStoreCache(tempDirectory, disposable);
     }
 
-    public static @NonNull FileSystemResourceStoreCache of(@NonNull Path cacheDirectory) {
+    @VisibleForTesting
+    public static @NonNull FileSystemResourceStoreCache ofProvidedDirectory(@NonNull Path cacheDirectory) {
         boolean disposable = false;
         return new FileSystemResourceStoreCache(cacheDirectory, disposable);
     }

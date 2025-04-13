@@ -1,7 +1,8 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.catalog.plugin.validation;
 
 import java.io.IOException;
@@ -392,7 +393,9 @@ public class DefaultCatalogValidator implements CatalogValidator {
     }
 
     private void checkLayerGroupResourceIsInWorkspace(LayerGroupInfo layerGroup, WorkspaceInfo ws) {
-        if (layerGroup == null) return;
+        if (layerGroup == null) {
+            return;
+        }
         if (layerGroup.getWorkspace() != null) {
             checkArgument(
                     ws.getId().equals(layerGroup.getWorkspace().getId()),
@@ -421,7 +424,9 @@ public class DefaultCatalogValidator implements CatalogValidator {
     }
 
     private void checkLayerGroupResourceIsInWorkspace(StyleInfo style, WorkspaceInfo ws) {
-        if (style == null) return;
+        if (style == null) {
+            return;
+        }
 
         if (style.getWorkspace() != null && !ws.equals(style.getWorkspace())) {
             throw new IllegalArgumentException(
@@ -431,7 +436,9 @@ public class DefaultCatalogValidator implements CatalogValidator {
     }
 
     private void checkLayerGroupResourceIsInWorkspace(LayerInfo layer, WorkspaceInfo ws) {
-        if (layer == null) return;
+        if (layer == null) {
+            return;
+        }
 
         ResourceInfo r = layer.getResource();
         if (r.getStore().getWorkspace() != null && !ws.equals(r.getStore().getWorkspace())) {

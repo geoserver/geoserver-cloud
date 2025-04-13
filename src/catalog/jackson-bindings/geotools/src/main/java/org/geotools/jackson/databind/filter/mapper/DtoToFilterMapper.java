@@ -1,7 +1,8 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geotools.jackson.databind.filter.mapper;
 
 import java.lang.reflect.InvocationTargetException;
@@ -108,7 +109,9 @@ abstract class DtoToFilterMapper {
     }
 
     public org.geotools.api.filter.Filter map(org.geotools.jackson.databind.filter.dto.Filter dto) {
-        if (dto == null) return null;
+        if (dto == null) {
+            return null;
+        }
         final Class<? extends Filter> dtoFilterType = dto.getClass();
         Method mapperMethod;
         try {
@@ -188,9 +191,9 @@ abstract class DtoToFilterMapper {
 
     Identifier toIdentifier(Filter.Id.FeatureId dto) {
         if (dto instanceof Filter.Id.ResourceId rid) {
-            if (rid.getStartTime() != null || rid.getEndTime() != null)
+            if (rid.getStartTime() != null || rid.getEndTime() != null) {
                 return ff.resourceId(rid.getId(), rid.getStartTime(), rid.getEndTime());
-
+            }
             throw new UnsupportedOperationException();
         }
         if (dto instanceof Filter.Id.FeatureId) {

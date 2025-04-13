@@ -1,7 +1,8 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.catalog.plugin.resolving;
 
 import java.lang.reflect.Proxy;
@@ -261,8 +262,9 @@ public class ProxyUtils {
         }
 
         if (info == null) {
-            if (failOnNotFound)
+            if (failOnNotFound) {
                 throw new IllegalArgumentException("Reference to %s not found".formatted(unresolved.getId()));
+            }
             return null;
         }
 
@@ -279,13 +281,27 @@ public class ProxyUtils {
      * @return The resolved {@link Info}.
      */
     private Info resolveInternal(Info info) {
-        if (info instanceof StyleInfo s) return resolveInternal(s);
-        if (info instanceof LayerInfo l) return resolveInternal(l);
-        if (info instanceof LayerGroupInfo lg) return resolveInternal(lg);
-        if (info instanceof ResourceInfo r) return resolveInternal(r);
-        if (info instanceof StoreInfo s) return resolveInternal(s);
-        if (info instanceof SettingsInfo s) return resolveInternal(s);
-        if (info instanceof ServiceInfo s) return resolveInternal(s);
+        if (info instanceof StyleInfo s) {
+            return resolveInternal(s);
+        }
+        if (info instanceof LayerInfo l) {
+            return resolveInternal(l);
+        }
+        if (info instanceof LayerGroupInfo lg) {
+            return resolveInternal(lg);
+        }
+        if (info instanceof ResourceInfo r) {
+            return resolveInternal(r);
+        }
+        if (info instanceof StoreInfo s) {
+            return resolveInternal(s);
+        }
+        if (info instanceof SettingsInfo s) {
+            return resolveInternal(s);
+        }
+        if (info instanceof ServiceInfo s) {
+            return resolveInternal(s);
+        }
         return info;
     }
 
@@ -301,13 +317,19 @@ public class ProxyUtils {
      */
     @SuppressWarnings("unchecked")
     private <T extends Info> T resolveResolvingProxy(T info) {
-        if (info instanceof CatalogInfo) return resolveCatalogInfo(info);
+        if (info instanceof CatalogInfo) {
+            return resolveCatalogInfo(info);
+        }
 
         GeoServer gsConfig = this.config.orElse(null);
         if (gsConfig != null) {
-            if (info instanceof GeoServerInfo) return (T) gsConfig.getGlobal();
+            if (info instanceof GeoServerInfo) {
+                return (T) gsConfig.getGlobal();
+            }
 
-            if (info instanceof LoggingInfo) return (T) gsConfig.getLogging();
+            if (info instanceof LoggingInfo) {
+                return (T) gsConfig.getLogging();
+            }
 
             if (info instanceof ServiceInfo) {
                 String serviceId = info.getId();
@@ -427,8 +449,11 @@ public class ProxyUtils {
      * @return The resolved {@link PublishedInfo}.
      */
     protected <T extends PublishedInfo> T resolveInternal(T published) {
-        if (published instanceof LayerInfo l) resolve(l);
-        else if (published instanceof LayerGroupInfo lg) resolve(lg);
+        if (published instanceof LayerInfo l) {
+            resolve(l);
+        } else if (published instanceof LayerGroupInfo lg) {
+            resolve(lg);
+        }
         return published;
     }
 

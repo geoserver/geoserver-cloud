@@ -1,3 +1,8 @@
+/* (c) 2025 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
+ */
+
 /*
  * Copyright 2015-2020 the original author or authors.
  *
@@ -355,8 +360,9 @@ public abstract class BusAmqpIntegrationTests {
     }
 
     protected void assertResolved(Info info) {
-        if (null == info) return;
-        if (ProxyUtils.isResolvingProxy(info)) return;
+        if (null == info || ProxyUtils.isResolvingProxy(info)) {
+            return;
+        }
         switch (info) {
             case StoreInfo store:
                 assertCatalogSet(store, store::getCatalog);

@@ -1,7 +1,8 @@
-/*
- * (c) 2022 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2022 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geotools.jackson.databind.filter.dto;
 
 import java.util.Arrays;
@@ -26,11 +27,12 @@ public class Literal extends Expression {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Literal)) return false;
-
-        final Object v1 = value;
-        final Object v2 = ((Literal) o).value;
-        return valueEquals(v1, v2);
+        if (o instanceof Literal other) {
+            final Object v1 = value;
+            final Object v2 = other.value;
+            return valueEquals(v1, v2);
+        }
+        return false;
     }
 
     public static boolean valueEquals(final Object v1, final Object v2) {
@@ -39,7 +41,9 @@ public class Literal extends Expression {
         }
 
         if (v1 != null && v1.getClass().isArray() && v2 != null && v2.getClass().isArray()) {
-            if (!v1.getClass().equals(v2.getClass())) return false;
+            if (!v1.getClass().equals(v2.getClass())) {
+                return false;
+            }
             final Class<?> componentType = v1.getClass().getComponentType();
 
             if (componentType.isPrimitive()) {

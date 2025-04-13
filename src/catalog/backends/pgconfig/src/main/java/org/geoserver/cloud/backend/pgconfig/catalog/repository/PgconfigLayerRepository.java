@@ -1,7 +1,8 @@
-/*
- * (c) 2023 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2023 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.backend.pgconfig.catalog.repository;
 
 import java.util.Optional;
@@ -51,7 +52,9 @@ public class PgconfigLayerRepository extends PgconfigPublishedInfoRepository<Lay
             // two options here, it's either a prefixed name like in <workspace>:<name>, or the
             // ResourceInfo name actually contains a colon
             Optional<LayerInfo> found = findOne(sql.formatted(getQueryTable(), "prefixedName"), possiblyPrefixedName);
-            if (found.isPresent()) return found;
+            if (found.isPresent()) {
+                return found;
+            }
         }
 
         // no colon in name or name actually contains a colon

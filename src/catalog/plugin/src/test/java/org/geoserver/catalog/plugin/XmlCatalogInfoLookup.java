@@ -1,7 +1,8 @@
-/*
- * (c) 2017 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2017 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.catalog.plugin;
 
 import com.google.common.collect.Ordering;
@@ -86,7 +87,9 @@ abstract class XmlCatalogInfoLookup<T extends CatalogInfo> implements CatalogInf
     }
 
     protected <I extends Info> I deserialize(String serialized, Class<I> type) {
-        if (serialized == null) return null;
+        if (serialized == null) {
+            return null;
+        }
         I loaded;
         try {
             ByteArrayInputStream in = new ByteArrayInputStream(serialized.getBytes(StandardCharsets.UTF_8));

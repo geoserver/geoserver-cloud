@@ -1,6 +1,6 @@
-/*
- * (c) 2025 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2025 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
 package org.geoserver.jackson.databind.catalog;
 
@@ -76,17 +76,16 @@ public class ConnectionParametersSerializer extends JsonSerializer<ConnectionPar
      * Determine if a value should be wrapped in a Literal.
      */
     private boolean shouldWrapAsLiteral(Object value) {
-        if (value == null) return false;
+        if (value == null) {
+            return false;
+        }
 
         // Basic types don't need to be wrapped
-        if (value instanceof String) return false;
-        if (value instanceof Number) return false;
-        if (value instanceof Boolean) return false;
+        if (value instanceof String || value instanceof Number || value instanceof Boolean) {
+            return false;
+        }
 
         // Types that are converted to strings don't need to be wrapped
-        if (shouldConvertToString(value)) return false;
-
-        // Complex types need to be wrapped
-        return true;
+        return !shouldConvertToString(value);
     }
 }

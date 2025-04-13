@@ -1,7 +1,8 @@
-/*
- * (c) 2022 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2022 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.gwc.repository;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -106,17 +107,38 @@ public class CloudCatalogConfiguration extends CatalogConfiguration {
         Set<String> mimeFormats = defaults.getMimeFormats();
         Set<ParameterFilter> parameterFilters = defaults.getParameterFilters();
 
-        if (null == info.getBlobStoreId()) info.setBlobStoreId(blobStoreId);
-        if (null == info.getCacheWarningSkips()) info.setCacheWarningSkips(cacheWarningSkips);
-        if (0 == info.getExpireCache()) info.setExpireCache(expireCache);
-        if (null == info.getExpireCacheList()) info.setExpireCacheList(expireCacheList);
-        if (0 == info.getExpireClients()) info.setExpireClients(expireClients);
-        if (null == info.getGridSubsets() || info.getGridSubsets().isEmpty()) info.setGridSubsets(gridSubsets);
-        if (0 == info.getGutter()) info.setGutter(gutter);
-        if (0 == info.getMetaTilingX()) info.setMetaTilingX(metaTilingX);
-        if (0 == info.getMetaTilingY()) info.setMetaTilingY(metaTilingY);
-        if (info.getMimeFormats().isEmpty()) info.getMimeFormats().addAll(mimeFormats);
-        if (null == info.getParameterFilters() || info.getParameterFilters().isEmpty())
+        if (null == info.getBlobStoreId()) {
+            info.setBlobStoreId(blobStoreId);
+        }
+        if (null == info.getCacheWarningSkips()) {
+            info.setCacheWarningSkips(cacheWarningSkips);
+        }
+        if (0 == info.getExpireCache()) {
+            info.setExpireCache(expireCache);
+        }
+        if (null == info.getExpireCacheList()) {
+            info.setExpireCacheList(expireCacheList);
+        }
+        if (0 == info.getExpireClients()) {
+            info.setExpireClients(expireClients);
+        }
+        if (null == info.getGridSubsets() || info.getGridSubsets().isEmpty()) {
+            info.setGridSubsets(gridSubsets);
+        }
+        if (0 == info.getGutter()) {
+            info.setGutter(gutter);
+        }
+        if (0 == info.getMetaTilingX()) {
+            info.setMetaTilingX(metaTilingX);
+        }
+        if (0 == info.getMetaTilingY()) {
+            info.setMetaTilingY(metaTilingY);
+        }
+        if (info.getMimeFormats().isEmpty()) {
+            info.getMimeFormats().addAll(mimeFormats);
+        }
+        if (null == info.getParameterFilters() || info.getParameterFilters().isEmpty()) {
             info.setParameterFilters(parameterFilters);
+        }
     }
 }

@@ -1,7 +1,8 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.catalog.plugin;
 
 import java.io.Serializable;
@@ -130,7 +131,9 @@ public @Data class PropertyDiff implements Serializable {
      * @return This {@code PropertyDiff} instance.
      */
     protected Object readResolve() {
-        if (changes == null) changes = new ArrayList<>();
+        if (changes == null) {
+            changes = new ArrayList<>();
+        }
         return this;
     }
 
@@ -283,13 +286,21 @@ public @Data class PropertyDiff implements Serializable {
          * @return {@code true} if the change is a no-op; {@code false} otherwise.
          */
         public boolean isNoChange() {
-            if (Objects.equals(oldValue, newValue)) return true;
+            if (Objects.equals(oldValue, newValue)) {
+                return true;
+            }
 
-            if (isCollectionProperty()) return bothAreNullOrEmpty();
+            if (isCollectionProperty()) {
+                return bothAreNullOrEmpty();
+            }
 
-            if (isA(InternationalString.class)) return isNullInternationalStringOp();
+            if (isA(InternationalString.class)) {
+                return isNullInternationalStringOp();
+            }
 
-            if (isA(CoordinateReferenceSystem.class)) return isSameCrs();
+            if (isA(CoordinateReferenceSystem.class)) {
+                return isSameCrs();
+            }
 
             return false;
         }
@@ -339,10 +350,18 @@ public @Data class PropertyDiff implements Serializable {
          * Checks if an object is null, empty, or represents an empty collection/map/string.
          */
         private boolean isNullOrEmpty(Object o) {
-            if (o == null) return true;
-            if (o instanceof String s) return s.isEmpty();
-            if (o instanceof Collection<?> c) return c.isEmpty();
-            if (o instanceof Map<?, ?> m) return m.isEmpty();
+            if (o == null) {
+                return true;
+            }
+            if (o instanceof String s) {
+                return s.isEmpty();
+            }
+            if (o instanceof Collection<?> c) {
+                return c.isEmpty();
+            }
+            if (o instanceof Map<?, ?> m) {
+                return m.isEmpty();
+            }
             return false;
         }
 
@@ -469,7 +488,9 @@ public @Data class PropertyDiff implements Serializable {
      * @return The unwrapped or rewrapped value, or the original if not a proxy.
      */
     private static Object hanldeProxy(Object value) {
-        if (value == null) return null;
+        if (value == null) {
+            return null;
+        }
         ModificationProxy proxy = ProxyUtils.handler(value, ModificationProxy.class);
         if (null != proxy) {
             Class<? extends Object> type = proxy.getProxyObject().getClass();
@@ -609,8 +630,12 @@ public @Data class PropertyDiff implements Serializable {
          */
         @SuppressWarnings({"unchecked"})
         public static <V> V copySafe(V val) {
-            if (val instanceof Collection<?> c) return (V) copyOf(c);
-            if (val instanceof Map<?, ?> m) return (V) copyOf(m);
+            if (val instanceof Collection<?> c) {
+                return (V) copyOf(c);
+            }
+            if (val instanceof Map<?, ?> m) {
+                return (V) copyOf(m);
+            }
             return val;
         }
 

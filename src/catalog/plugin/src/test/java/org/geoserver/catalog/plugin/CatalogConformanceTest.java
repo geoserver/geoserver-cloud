@@ -1,7 +1,8 @@
-/*
- * (c) 2014 - 2015 Open Source Geospatial Foundation - all rights reserved (c) 2001 - 2013 OpenPlans
- * This code is licensed under the GPL 2.0 license, available at the root application directory.
+/* (c) 2001 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.catalog.plugin;
 
 import static com.google.common.collect.Sets.newHashSet;
@@ -163,8 +164,9 @@ public abstract class CatalogConformanceTest {
 
     public static @BeforeAll void oneTimeSetup() {
         GeoServerExtensionsHelper.setIsSpringContext(false);
-        if (null == GeoServerExtensions.bean("sldHandler"))
+        if (null == GeoServerExtensions.bean("sldHandler")) {
             GeoServerExtensionsHelper.singleton("sldHandler", new SLDHandler(), StyleHandler.class);
+        }
     }
 
     @BeforeEach
@@ -1525,7 +1527,9 @@ public abstract class CatalogConformanceTest {
         assertSame(catalog, l2.getResource().getCatalog());
         StyleInfo defaultStyle = l2.getDefaultStyle();
         defaultStyle = ModificationProxy.unwrap(defaultStyle);
-        if (defaultStyle instanceof StyleInfoImpl impl) assertSame(catalog, impl.getCatalog());
+        if (defaultStyle instanceof StyleInfoImpl impl) {
+            assertSame(catalog, impl.getCatalog());
+        }
     }
 
     @Test
@@ -1697,7 +1701,9 @@ public abstract class CatalogConformanceTest {
         List<DataAccessRule> rules = dao.getRules();
         for (DataAccessRule rule : rules) {
             if (rule.getRoot().equalsIgnoreCase(workspaceName)
-                    && rule.getLayer().equalsIgnoreCase(layerName)) return true;
+                    && rule.getLayer().equalsIgnoreCase(layerName)) {
+                return true;
+            }
         }
 
         return false;

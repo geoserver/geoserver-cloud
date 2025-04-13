@@ -1,7 +1,8 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.event.info;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -87,8 +88,7 @@ public abstract class InfoEvent extends UpdateSequenceEvent {
 
     @Nullable
     public static String resolveNullableId(@Nullable Info object) {
-        if (null == object) return null;
-        return resolveId(object);
+        return null == object ? null : resolveId(object);
     }
 
     @SuppressWarnings("java:S1481")

@@ -1,7 +1,8 @@
-/*
- * (c) 2022 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2022 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.gwc.repository;
 
 import static org.geoserver.cloud.gwc.event.GeoWebCacheEvent.Type.CREATED;
@@ -87,7 +88,9 @@ public class CloudGwcXmlConfiguration extends XMLConfiguration {
 
     @EventListener(BlobStoreEvent.class)
     public boolean onBlobStoreEvent(BlobStoreEvent event) throws Exception {
-        if (isLocal(event)) return false;
+        if (isLocal(event)) {
+            return false;
+        }
 
         final String blobStoreId = event.getBlobStoreId();
         final Optional<BlobStoreInfo> pre = super.getBlobStore(blobStoreId);

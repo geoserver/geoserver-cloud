@@ -1,7 +1,8 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.event.bus;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -20,10 +21,11 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 
 /**
- * Listens to local catalog and configuration change {@link InfoEvent}s produced by this service
- * instance and broadcasts them to the cluster as {@link RemoteGeoServerEvent}, and conversely,
- * listens to incoming {@link RemoteGeoServerEvent}s and publishes their {@link
- * RemoteGeoServerEvent#getEvent() event} payload as local events
+ * Listens to local catalog and configuration change {@link InfoEvent}s produced
+ * by this service instance and broadcasts them to the cluster as
+ * {@link RemoteGeoServerEvent}, and conversely, listens to incoming
+ * {@link RemoteGeoServerEvent}s and publishes their
+ * {@link RemoteGeoServerEvent#getEvent() event} payload as local events
  *
  * @see #publishRemoteEvent(GeoServerEvent)
  * @see #publishLocalEvent(RemoteGeoServerEvent)
@@ -32,16 +34,16 @@ import org.springframework.core.annotation.Order;
 public class RemoteGeoServerEventBridge implements DisposableBean {
 
     /**
-     * Provided event publisher for incoming remote events converted to local events (e.g. {@link
-     * ApplicationEventPublisher#publishEvent})
+     * Provided event publisher for incoming remote events converted to local events
+     * (e.g. {@link ApplicationEventPublisher#publishEvent})
      *
      * @see #publishRemoteEvent(GeoServerEvent)
      */
     private final Consumer<GeoServerEvent> inboundEventPublisher;
 
     /**
-     * Provided event publisher for outgoing remote events converted from local events (e.g. {@link
-     * ApplicationEventPublisher#publishEvent})
+     * Provided event publisher for outgoing remote events converted from local
+     * events (e.g. {@link ApplicationEventPublisher#publishEvent})
      *
      * @see #publishLocalEvent(RemoteGeoServerEvent)
      */
@@ -87,9 +89,10 @@ public class RemoteGeoServerEventBridge implements DisposableBean {
     }
 
     /**
-     * Highest priority listener for incoming {@link RemoteGeoServerEvent} events to resolve the
-     * payload {@link CatalogInfo} properties, as they may come either as {@link ResolvingProxy}
-     * proxies, or {@code null} in case of collection properties.
+     * Highest priority listener for incoming {@link RemoteGeoServerEvent} events to
+     * resolve the payload {@link CatalogInfo} properties, as they may come either
+     * as {@link ResolvingProxy} proxies, or {@code null} in case of collection
+     * properties.
      */
     @EventListener(RemoteGeoServerEvent.class)
     @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -104,8 +107,8 @@ public class RemoteGeoServerEventBridge implements DisposableBean {
     }
 
     /**
-     * Lowest priority listener on a local {@link GeoServerEvent}, publishes a matching {@link
-     * RemoteGeoServerEvent} to the event bus
+     * Lowest priority listener on a local {@link GeoServerEvent}, publishes a
+     * matching {@link RemoteGeoServerEvent} to the event bus
      */
     @EventListener(GeoServerEvent.class)
     @Order(Ordered.LOWEST_PRECEDENCE)
@@ -136,7 +139,7 @@ public class RemoteGeoServerEventBridge implements DisposableBean {
     private void doReceive(RemoteGeoServerEvent incoming) {
         try {
             GeoServerEvent localRemoteEvent = mapper.toLocalRemote(incoming);
-            if (log.isDebugEnabled()) log.debug("publishing as local event {}", incoming.toShortString());
+            log.debug("publishing as local event {}", incoming.toShortString());
             inboundEventPublisher.accept(localRemoteEvent);
         } catch (RuntimeException e) {
             log.error("{}: error accepting remote {}", mapper.localBusServiceId(), incoming, e);
@@ -145,9 +148,7 @@ public class RemoteGeoServerEventBridge implements DisposableBean {
     }
 
     private void logIgnoreLocalRemote(RemoteGeoServerEvent incoming) {
-        if (log.isTraceEnabled())
-            log.trace(
-                    "{}: not broadcasting local-remote event {}", mapper.localBusServiceId(), incoming.toShortString());
+        log.trace("{}: not broadcasting local-remote event {}", mapper.localBusServiceId(), incoming.toShortString());
     }
 
     private void logIgnoreRemoteLocal(GeoServerEvent event) {
@@ -155,14 +156,10 @@ public class RemoteGeoServerEventBridge implements DisposableBean {
     }
 
     private void logReceived(RemoteGeoServerEvent incoming) {
-        if (log.isDebugEnabled()) {
-            log.debug("received remote event {}", incoming.toShortString());
-        }
+        log.debug("received remote event {}", incoming.toShortString());
     }
 
     protected void logOutgoing(RemoteGeoServerEvent remoteEvent) {
-        if (log.isDebugEnabled()) {
-            log.debug("sent remote event {}", remoteEvent.toShortString());
-        }
+        log.debug("sent remote event {}", remoteEvent.toShortString());
     }
 }

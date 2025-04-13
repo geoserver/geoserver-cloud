@@ -1,7 +1,8 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geotools.jackson.databind.filter.dto;
 
 import static java.util.Objects.requireNonNull;
@@ -218,13 +219,16 @@ public class LiteralDeserializer extends JsonDeserializer<Literal> {
      * @param expected expected value
      */
     private void expectFieldName(String value, String expected) {
-        if (!expected.equals(value))
+        if (!expected.equals(value)) {
             throw new IllegalStateException("Expected field name '%s', got '%s'".formatted(expected, value));
+        }
     }
 
     private void expect(JsonToken current, JsonToken... expectedOneOf) {
         for (JsonToken expected : expectedOneOf) {
-            if (current == expected) return;
+            if (current == expected) {
+                return;
+            }
         }
         throw new IllegalStateException("Expected one of %s got %s".formatted(Arrays.toString(expectedOneOf), current));
     }

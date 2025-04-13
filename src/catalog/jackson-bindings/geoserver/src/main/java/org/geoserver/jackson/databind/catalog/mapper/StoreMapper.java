@@ -1,7 +1,8 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.jackson.databind.catalog.mapper;
 
 import java.io.Serializable;
@@ -27,21 +28,33 @@ import org.mapstruct.Mapping;
 @AnnotateWith(value = Generated.class)
 public interface StoreMapper {
     default Store map(StoreInfo o) {
-        if (o == null) return null;
-        if (o instanceof DataStoreInfo ds) return map(ds);
-        if (o instanceof CoverageStoreInfo cs) return map(cs);
-        if (o instanceof WMSStoreInfo wms) return map(wms);
-        if (o instanceof WMTSStoreInfo wmts) return map(wmts);
+        if (o == null) {
+            return null;
+        } else if (o instanceof DataStoreInfo ds) {
+            return map(ds);
+        } else if (o instanceof CoverageStoreInfo cs) {
+            return map(cs);
+        } else if (o instanceof WMSStoreInfo wms) {
+            return map(wms);
+        } else if (o instanceof WMTSStoreInfo wmts) {
+            return map(wmts);
+        }
 
         throw new IllegalArgumentException("Unknown StoreInfo type: " + o);
     }
 
     default StoreInfo map(Store o) {
-        if (o == null) return null;
-        if (o instanceof DataStore ds) return map(ds);
-        if (o instanceof CoverageStore cs) return map(cs);
-        if (o instanceof WMSStore wms) return map(wms);
-        if (o instanceof WMTSStore wmts) return map(wmts);
+        if (o == null) {
+            return null;
+        } else if (o instanceof DataStore ds) {
+            return map(ds);
+        } else if (o instanceof CoverageStore cs) {
+            return map(cs);
+        } else if (o instanceof WMSStore wms) {
+            return map(wms);
+        } else if (o instanceof WMTSStore wmts) {
+            return map(wmts);
+        }
 
         throw new IllegalArgumentException("Unknown Store type: " + o);
     }
@@ -50,16 +63,14 @@ public interface StoreMapper {
      * Convert ConnectionParameters to a standard Serializable map for StoreInfo.
      */
     default Map<String, Serializable> connectionParamsFromDto(ConnectionParameters params) {
-        if (params == null) return new LinkedHashMap<>();
-        return params.toSerializableMap();
+        return (params == null) ? new LinkedHashMap<>() : params.toSerializableMap();
     }
 
     /**
      * Convert a standard Serializable map to ConnectionParameters for Store DTO.
      */
     default ConnectionParameters connectionParamsToDto(Map<String, Serializable> params) {
-        if (params == null) return new ConnectionParameters();
-        return new ConnectionParameters(params);
+        return (params == null) ? new ConnectionParameters() : new ConnectionParameters(params);
     }
 
     @Mapping(target = "error", ignore = true)

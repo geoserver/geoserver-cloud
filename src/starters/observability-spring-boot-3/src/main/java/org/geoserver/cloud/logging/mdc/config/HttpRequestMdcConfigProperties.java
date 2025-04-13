@@ -1,7 +1,8 @@
-/*
- * (c) 2024 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2024 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.logging.mdc.config;
 
 import com.github.f4b6a3.ulid.UlidCreator;
@@ -186,7 +187,9 @@ public class HttpRequestMdcConfigProperties {
      * @return true if the header should be included, false otherwise
      */
     private boolean includeHeader(String headerName) {
-        if ("cookie".equalsIgnoreCase(headerName)) return false;
+        if ("cookie".equalsIgnoreCase(headerName)) {
+            return false;
+        }
         return getHeadersPattern().matcher(headerName).matches();
     }
 
@@ -244,7 +247,9 @@ public class HttpRequestMdcConfigProperties {
     }
 
     public HttpRequestMdcConfigProperties remoteAddr(InetSocketAddress remoteAddr) {
-        if (remoteAddr == null || !isRemoteAddr()) return this;
+        if (remoteAddr == null || !isRemoteAddr()) {
+            return this;
+        }
         return remoteAddr(remoteAddr::toString);
     }
 
@@ -254,7 +259,9 @@ public class HttpRequestMdcConfigProperties {
     }
 
     public HttpRequestMdcConfigProperties remoteHost(InetSocketAddress remoteHost) {
-        if (remoteHost == null || !isRemoteHost()) return this;
+        if (remoteHost == null || !isRemoteHost()) {
+            return this;
+        }
         return remoteHost(remoteHost::toString);
     }
 

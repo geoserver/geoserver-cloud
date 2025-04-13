@@ -1,7 +1,8 @@
-/*
- * (c) 2024 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2024 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.logging.accesslog;
 
 import java.util.ArrayList;
@@ -156,9 +157,13 @@ public class AccessLogFilterConfig {
      * @return the appropriate log level for the URI
      */
     Level getLogLevel(String uri) {
-        if (log.isInfoEnabled() && matches(uri, info)) return Level.INFO;
-        if (log.isDebugEnabled() && matches(uri, debug)) return Level.DEBUG;
-        if (log.isTraceEnabled() && matches(uri, trace)) return Level.TRACE;
+        if (log.isInfoEnabled() && matches(uri, info)) {
+            return Level.INFO;
+        } else if (log.isDebugEnabled() && matches(uri, debug)) {
+            return Level.DEBUG;
+        } else if (log.isTraceEnabled() && matches(uri, trace)) {
+            return Level.TRACE;
+        }
 
         return Level.OFF;
     }
@@ -178,7 +183,9 @@ public class AccessLogFilterConfig {
      * @return true if the request should be logged (matches any pattern), false otherwise
      */
     public boolean shouldLog(java.net.URI uri) {
-        if (uri == null) return false;
+        if (uri == null) {
+            return false;
+        }
 
         String uriString = uri.toString();
         return matches(uriString, info) || matches(uriString, debug) || matches(uriString, trace);

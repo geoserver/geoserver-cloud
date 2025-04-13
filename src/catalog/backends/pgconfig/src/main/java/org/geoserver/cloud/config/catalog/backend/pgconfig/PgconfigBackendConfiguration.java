@@ -1,7 +1,8 @@
-/*
- * (c) 2023 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2023 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.config.catalog.backend.pgconfig;
 
 import java.util.function.Predicate;
@@ -114,8 +115,8 @@ public class PgconfigBackendConfiguration extends GeoServerBackendConfigurer {
         FileSystemResourceStoreCache resourceStoreCache = pgconfigFileSystemResourceStoreCache();
         JdbcTemplate template = template();
         PgconfigLockProvider lockProvider = pgconfigLockProvider();
-        Predicate<String> ignoreDirs = PgconfigResourceStore.defaultIgnoredDirs();
-        return new PgconfigResourceStore(resourceStoreCache, template, lockProvider, ignoreDirs);
+        Predicate<String> localOnlyFilter = PgconfigResourceStore.defaultIgnoredResources();
+        return new PgconfigResourceStore(resourceStoreCache, template, lockProvider, localOnlyFilter);
     }
 
     @Bean

@@ -1,7 +1,8 @@
-/*
- * (c) 2023 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2023 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.backend.pgconfig.catalog.repository;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -197,7 +198,9 @@ public final class CatalogInfoRowMapper<T extends CatalogInfo> implements RowMap
     }
 
     protected <C extends CatalogInfo> C resolveCached(String id, Class<C> clazz, Function<String, C> loader) {
-        if (null == id) return null;
+        if (null == id) {
+            return null;
+        }
         var infoCache = cache(clazz);
         C info = infoCache.get(id);
         if (clazz.isInstance(info)) {
@@ -550,7 +553,9 @@ public final class CatalogInfoRowMapper<T extends CatalogInfo> implements RowMap
     }
 
     protected <V> V decode(String encoded, Class<V> valueType) {
-        if (null == encoded) return null;
+        if (null == encoded) {
+            return null;
+        }
         try {
             return objectMapper.readValue(encoded, valueType);
         } catch (JsonProcessingException e) {

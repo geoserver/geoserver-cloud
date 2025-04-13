@@ -1,7 +1,8 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.jackson.databind.catalog;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -93,16 +94,19 @@ import org.junit.jupiter.api.Test;
 import si.uom.SI;
 
 /**
- * Verifies that {@link Patch patches} can be JSON round-tripped. As a reference, it should cover as
- * much of {@link SharedMappers}, {@link GeoServerValueObjectsMapper}, {@link
- * GeoServerConfigMapper}, and {@link CatalogInfoMapper} as possible.
+ * Verifies that {@link Patch patches} can be JSON round-tripped. As a
+ * reference, it should cover as much of {@link SharedMappers},
+ * {@link GeoServerValueObjectsMapper}, {@link GeoServerConfigMapper}, and
+ * {@link CatalogInfoMapper} as possible.
  */
 @Slf4j
 public abstract class PatchSerializationTest {
 
     protected void print(String logmsg, Object... args) {
         boolean debug = Boolean.getBoolean("debug");
-        if (debug) log.info(logmsg, args);
+        if (debug) {
+            log.info(logmsg, args);
+        }
     }
 
     public ObjectMapper objectMapper;
@@ -796,10 +800,15 @@ public abstract class PatchSerializationTest {
     }
 
     protected String typeName(Object mp) {
-        if (mp == null) return null;
+        if (mp == null) {
+            return null;
+        }
         if (mp instanceof Info info) {
-            if (ProxyUtils.isResolvingProxy(info)) return "ResolvingProxy";
-            if (ProxyUtils.isModificationProxy(info)) return "ModificationProxy";
+            if (ProxyUtils.isResolvingProxy(info)) {
+                return "ResolvingProxy";
+            } else if (ProxyUtils.isModificationProxy(info)) {
+                return "ModificationProxy";
+            }
         }
         return mp.getClass().getCanonicalName();
     }

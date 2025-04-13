@@ -1,7 +1,8 @@
-/*
- * (c) 2024 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2024 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.gwc.backend.pgconfig;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -59,7 +60,9 @@ interface GeoServerTileLayerInfoMapper {
     TileLayerInfo map(GeoServerTileLayerInfo info);
 
     default BoundingBox map(Bounds bbox) {
-        if (bbox == null) return null;
+        if (bbox == null) {
+            return null;
+        }
         return new BoundingBox(bbox.getMinX(), bbox.getMinY(), bbox.getMaxX(), bbox.getMaxY());
     }
 

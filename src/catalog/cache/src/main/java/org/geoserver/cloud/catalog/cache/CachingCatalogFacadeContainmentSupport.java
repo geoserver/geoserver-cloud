@@ -1,7 +1,8 @@
-/*
- * (c) 2024 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2024 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.catalog.cache;
 
 import static org.geoserver.cloud.event.info.ConfigInfoType.RESOURCE;
@@ -118,8 +119,9 @@ class CachingCatalogFacadeContainmentSupport {
 
         evicted |= evict(idKey);
         evicted |= evict(nameKey);
-        if (evicted && doLog)
+        if (evicted && doLog) {
             log.debug("evicted {}[id: {}, name: {}]", type.type().getSimpleName(), id, prefixedName);
+        }
         // regardless of the object being evicted or not, cascade evict any entry referencing it
         referenceCleaner.cascadeEvict(idKey);
         return evicted;
@@ -161,7 +163,9 @@ class CachingCatalogFacadeContainmentSupport {
 
     public <T> T get(Object key, Callable<T> loader) {
         T value = cache.get(key, loader);
-        if (null == value || (value instanceof Collection<?> c && c.isEmpty())) cache.evict(key);
+        if (null == value || (value instanceof Collection<?> c && c.isEmpty())) {
+            cache.evict(key);
+        }
         return value;
     }
 

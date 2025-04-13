@@ -1,7 +1,8 @@
-/*
- * (c) 2020 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2020 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.cloud.catalog.cache;
 
 import java.io.Serializable;
@@ -24,8 +25,9 @@ record ServiceInfoKey(String key, String qualifier) implements Serializable {
     public static ServiceInfoKey byType(WorkspaceInfo ws, Class<? extends ServiceInfo> clazz) {
         String wsId = ws == null ? null : ws.getId();
         String typeName;
-        if (clazz.isInterface()) typeName = clazz.getCanonicalName();
-        else {
+        if (clazz.isInterface()) {
+            typeName = clazz.getCanonicalName();
+        } else {
             Class<?>[] interfaces = clazz.getInterfaces();
             Class<? extends ServiceInfo> mostConcrete = ServiceInfo.class;
             for (Class<?> i : interfaces) {

@@ -1,7 +1,8 @@
-/*
- * (c) 2023 Open Source Geospatial Foundation - all rights reserved This code is licensed under the
- * GPL 2.0 license, available at the root application directory.
+/* (c) 2023 Open Source Geospatial Foundation - all rights reserved
+ * This code is licensed under the GPL 2.0 license, available at the root
+ * application directory.
  */
+
 package org.geoserver.catalog.plugin;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,7 +45,9 @@ class NamespaceInfoLookupTest {
     }
 
     private void addAll(NamespaceInfo... values) {
-        for (NamespaceInfo ns : values) lookup.add(ns);
+        for (NamespaceInfo ns : values) {
+            lookup.add(ns);
+        }
     }
 
     @Test
