@@ -21,6 +21,7 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.util.tester.TagTester;
 import org.apache.wicket.util.tester.WicketTester;
+import org.geoserver.cloud.autoconfigure.extensions.test.ConditionalTestAutoConfiguration;
 import org.geoserver.web.GeoServerApplication;
 import org.geoserver.web.GeoServerHomePage;
 import org.geoserver.web.GeoServerLoginPage;
@@ -191,5 +192,36 @@ class WebUIApplicationTest {
     @Test
     void homePageSelectionModeDefaultsToTEXT() {
         assertThat(System.getProperty("GeoServerHomePage.selectionMode")).isEqualTo("TEXT");
+    }
+
+    /**
+     * Tests the service-specific conditional annotations.
+     *
+     * <p>
+     * Verifies that only the WebUI conditional bean is activated in this service,
+     * based on the geoserver.service.webui.enabled=true property set in bootstrap.yml.
+     * This test relies on the ConditionalTestAutoConfiguration class from the
+     * extensions-core test-jar, which contains beans conditionally activated
+     * based on each GeoServer service type.
+     */
+    @Test
+    void testServiceConditionalAnnotations() {
+        // Access the application context through the app bean
+        var context = app.getApplicationContext();
+
+        // This should exist in WebUI service
+        assertThat(context.containsBean("webUiConditionalBean")).isTrue();
+        if (context.containsBean("webUiConditionalBean")) {
+            ConditionalTestAutoConfiguration.ConditionalTestBean bean =
+                    context.getBean("webUiConditionalBean", ConditionalTestAutoConfiguration.ConditionalTestBean.class);
+            assertThat(bean.getServiceName()).isEqualTo("WebUI");
+        }
+
+        // These should not exist in WebUI service
+        assertThat(context.containsBean("wfsConditionalBean")).isFalse();
+        assertThat(context.containsBean("wcsConditionalBean")).isFalse();
+        assertThat(context.containsBean("wmsConditionalBean")).isFalse();
+        assertThat(context.containsBean("wpsConditionalBean")).isFalse();
+        assertThat(context.containsBean("restConditionalBean")).isFalse();
     }
 }

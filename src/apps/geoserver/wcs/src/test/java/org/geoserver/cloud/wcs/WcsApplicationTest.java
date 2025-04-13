@@ -9,6 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.nio.file.Path;
 import java.util.stream.Stream;
+import org.geoserver.cloud.autoconfigure.extensions.test.ConditionalTestAutoConfiguration;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -177,5 +178,33 @@ class WcsApplicationTest {
 
     protected void expectBean(String name, Class<?> type) {
         assertThat(context.getBean(name)).isInstanceOf(type);
+    }
+
+    /**
+     * Tests the service-specific conditional annotations.
+     *
+     * <p>
+     * Verifies that only the WCS conditional bean is activated in this service,
+     * based on the geoserver.service.wcs.enabled=true property set in bootstrap.yml.
+     * This test relies on the ConditionalTestAutoConfiguration class from the
+     * extensions-core test-jar, which contains beans conditionally activated
+     * based on each GeoServer service type.
+     */
+    @Test
+    void testServiceConditionalAnnotations() {
+        // This should exist in WCS service
+        assertThat(context.containsBean("wcsConditionalBean")).isTrue();
+        if (context.containsBean("wcsConditionalBean")) {
+            ConditionalTestAutoConfiguration.ConditionalTestBean bean =
+                    context.getBean("wcsConditionalBean", ConditionalTestAutoConfiguration.ConditionalTestBean.class);
+            assertThat(bean.getServiceName()).isEqualTo("WCS");
+        }
+
+        // These should not exist in WCS service
+        assertThat(context.containsBean("wmsConditionalBean")).isFalse();
+        assertThat(context.containsBean("wfsConditionalBean")).isFalse();
+        assertThat(context.containsBean("wpsConditionalBean")).isFalse();
+        assertThat(context.containsBean("restConditionalBean")).isFalse();
+        assertThat(context.containsBean("webUiConditionalBean")).isFalse();
     }
 }

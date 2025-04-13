@@ -15,24 +15,20 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 /**
  * Annotation that marks a component to be conditional on the application being
- * the GeoServer Web UI application (containing {@code org.geoserver.web.GeoServerApplication}).
+ * a GeoServer GWC (GeoWebCache) application.
  *
  * <p>
  * This annotation is used to selectively enable components that should only be active
- * in the GeoServer Web UI application, such as UI panels, page components, and related
- * configurations.
- *
- * <p>
- * The condition checks for:
+ * in GeoServer GWC applications. It verifies that:
  * <ul>
- *   <li>The presence of GeoServer core classes ({@link ConditionalOnGeoServer})</li>
- *   <li>The presence of the GeoServer Web UI application class</li>
- *   <li>The {@code geoserver.service.webui.enabled} property is set to {@code true}</li>
+ *   <li>The application has GeoServer core classes ({@link ConditionalOnGeoServer})</li>
+ *   <li>The GeoWebCache service class is available in the classpath</li>
+ *   <li>The {@code geoserver.service.gwc.enabled} property is set to {@code true}</li>
  * </ul>
  *
  * <p>
- * This conditional uses a property-based approach rather than relying solely on class presence
- * to avoid potential issues with bean initialization order during auto-configuration processing.
+ * This conditional uses a property-based approach rather than bean detection to avoid
+ * potential issues with bean initialization order during auto-configuration processing.
  * Each GeoServer service module is responsible for setting its corresponding
  * {@code geoserver.service.[service-name].enabled} property in its bootstrap configuration.
  *
@@ -40,21 +36,24 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
  * Usage example:
  * <pre>{@code
  * @Configuration
- * @ConditionalOnGeoServerWebUI
- * public class WebUISpecificConfiguration {
- *     // Configuration only activated in the Web UI application
+ * @ConditionalOnGeoServerWMS
+ * public class WmsSpecificConfiguration {
+ *     // Configuration only activated in WMS service
  * }
  * }</pre>
  *
  * @see ConditionalOnGeoServer
- * @see ConditionalOnGeoServerWebUIUnavailable
+ * @see ConditionalOnGeoServerWFS
+ * @see ConditionalOnGeoServerWCS
+ * @see ConditionalOnGeoServerWPS
+ * @see ConditionalOnGeoServerWebUI
+ * @see ConditionalOnGeoServerREST
  * @since 2.27.0
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Documented
 @ConditionalOnGeoServer
-// use string class name for optional dependencies
-@ConditionalOnClass(name = "org.geoserver.web.GeoServerApplication")
-@ConditionalOnProperty(name = "geoserver.service.webui.enabled", havingValue = "true", matchIfMissing = false)
-public @interface ConditionalOnGeoServerWebUI {}
+@ConditionalOnClass(org.geowebcache.GeoWebCache.class)
+@ConditionalOnProperty(name = "geoserver.service.gwc.enabled", havingValue = "true", matchIfMissing = false)
+public @interface ConditionalOnGeoServerGWC {}

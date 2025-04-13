@@ -7,6 +7,7 @@ package org.geoserver.cloud.wms.app;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.geoserver.cloud.autoconfigure.extensions.test.ConditionalTestAutoConfiguration;
 import org.geoserver.cloud.autoconfigure.gwc.integration.WMSIntegrationAutoConfiguration.ForwardGetMapToGwcAspect;
 import org.geoserver.cloud.virtualservice.VirtualServiceVerifier;
 import org.geoserver.cloud.wms.controller.GetMapReflectorController;
@@ -80,6 +81,34 @@ abstract class WmsApplicationTest {
     void testKmlIntegration() {
         expectBean("kmlIconsController", KMLIconsController.class);
         expectBean("kmlReflectorController", KMLReflectorController.class);
+    }
+
+    /**
+     * Tests the service-specific conditional annotations.
+     *
+     * <p>
+     * Verifies that only the WMS conditional bean is activated in this service,
+     * based on the geoserver.service.wms.enabled=true property set in bootstrap.yml.
+     * This test relies on the ConditionalTestAutoConfiguration class from the
+     * extensions-core test-jar, which contains beans conditionally activated
+     * based on each GeoServer service type.
+     */
+    @Test
+    void testServiceConditionalAnnotations() {
+        // This should exist in WMS service
+        assertThat(context.containsBean("wmsConditionalBean")).isTrue();
+        if (context.containsBean("wmsConditionalBean")) {
+            ConditionalTestAutoConfiguration.ConditionalTestBean bean =
+                    context.getBean("wmsConditionalBean", ConditionalTestAutoConfiguration.ConditionalTestBean.class);
+            assertThat(bean.getServiceName()).isEqualTo("WMS");
+        }
+
+        // These should not exist in WMS service
+        assertThat(context.containsBean("wfsConditionalBean")).isFalse();
+        assertThat(context.containsBean("wcsConditionalBean")).isFalse();
+        assertThat(context.containsBean("wpsConditionalBean")).isFalse();
+        assertThat(context.containsBean("restConditionalBean")).isFalse();
+        assertThat(context.containsBean("webUiConditionalBean")).isFalse();
     }
 
     protected void expectBean(String name, Class<?> type) {

@@ -223,42 +223,77 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import org.geoserver.config.GeoServer;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
+import org.springframework.boot.test.context.FilteredClassLoader;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
 class <Extension>AutoConfigurationTest {
 
-    private ApplicationContextRunner contextRunner;
-
-    @BeforeEach
-    void setUp() {
-        // Create a mock GeoServer for @ConditionalOnGeoServer
-        var mockGeoServer = mock(GeoServer.class);
+    // Create a common test method to verify conditional activation
+    private void verifyConditionalActivation(
+            ApplicationContextRunner runner,
+            String propertyName,
+            Class<?> componentClass) {
         
-        contextRunner = new ApplicationContextRunner()
-                .withBean("geoServer", GeoServer.class, () -> mockGeoServer)
-                .withConfiguration(AutoConfigurations.of(<Extension>AutoConfiguration.class));
+        // Test without the property set - condition should not activate
+        runner.run(context -> {
+            assertThat(context).doesNotHaveBean(componentClass);
+        });
+        
+        // Test with the property set to false - condition should not activate
+        runner
+                .withPropertyValues(propertyName + "=false")
+                .run(context -> {
+                    assertThat(context).doesNotHaveBean(componentClass);
+                });
+        
+        // Test with the property set to true - condition should activate
+        runner
+                .withPropertyValues(propertyName + "=true")
+                .run(context -> {
+                    assertThat(context).hasSingleBean(componentClass);
+                });
     }
 
     @Test
     void testDisabledByDefault() {
+        var contextRunner = new ApplicationContextRunner()
+                .withBean("geoServer", GeoServer.class, () -> mock(GeoServer.class))
+                .withConfiguration(AutoConfigurations.of(<Extension>AutoConfiguration.class));
+                
         contextRunner.run(context -> {
             assertThat(context).hasNotFailed();
             assertThat(context).doesNotHaveBean(<Extension>AutoConfiguration.class);
-            assertThat(context).getBean(<Extension>ConfigProperties.class).hasFieldOrPropertyWithValue("enabled", false);
+            assertThat(context).getBean(<Extension>ConfigProperties.class)
+                    .hasFieldOrPropertyWithValue("enabled", false);
         });
     }
 
     @Test
-    void testExplicitlyEnabled() {
-        contextRunner
+    void testConditionalActivation() {
+        var contextRunner = new ApplicationContextRunner()
+                .withBean("geoServer", GeoServer.class, () -> mock(GeoServer.class))
+                .withConfiguration(AutoConfigurations.of(<Extension>AutoConfiguration.class));
+                
+        verifyConditionalActivation(
+                contextRunner,
+                "geoserver.extension.<category>.<extension-name>.enabled",
+                <Extension>AutoConfiguration.class);
+    }
+    
+    @Test
+    void testClassCondition() {
+        // Test with required class filtered out
+        new ApplicationContextRunner()
+                .withClassLoader(new FilteredClassLoader(RequiredClass.class))
+                .withBean("geoServer", GeoServer.class, () -> mock(GeoServer.class))
                 .withPropertyValues("geoserver.extension.<category>.<extension-name>.enabled=true")
+                .withConfiguration(AutoConfigurations.of(<Extension>AutoConfiguration.class))
                 .run(context -> {
-                    assertThat(context).hasNotFailed();
-                    assertThat(context).hasSingleBean(<Extension>AutoConfiguration.class);
-                    assertThat(context).hasSingleBean(SomeExtensionBean.class);
+                    // Even with the property set to true, bean should not be created
+                    // when the required class is not available
+                    assertThat(context).doesNotHaveBean(<Extension>AutoConfiguration.class);
                 });
     }
 }
@@ -390,6 +425,34 @@ By following these guidelines, you can create well-structured, testable, and mai
 
 ## Advanced Concepts
 
+### Service-Specific Extensions
+
+For extensions that should only be active when a specific GeoServer service is available (like WMS, WFS, etc.), utilize the service-specific conditional annotations:
+
+```java
+import org.geoserver.cloud.autoconfigure.extensions.ConditionalOnGeoServerWMS;
+
+@Configuration
+@ConditionalOnGeoServerWMS
+public class WmsSpecificExtensionConfiguration {
+    // Beans that only make sense in a WMS service
+}
+```
+
+These conditionals check for:
+1. The required service class on the classpath
+2. A service-specific property being enabled (e.g., `geoserver.service.wms.enabled=true`)
+
+The service properties are automatically set to `true` in each service's bootstrap configuration file, making service detection reliable without requiring explicit bean activation checks.
+
+Available service conditionals:
+- `@ConditionalOnGeoServerWMS` - For WMS service extensions
+- `@ConditionalOnGeoServerWFS` - For WFS service extensions
+- `@ConditionalOnGeoServerWCS` - For WCS service extensions
+- `@ConditionalOnGeoServerWPS` - For WPS service extensions
+- `@ConditionalOnGeoServerREST` - For REST Configuration service extensions
+- `@ConditionalOnGeoServerWebUI` - For Web UI extensions
+
 ### Integration with UI Components
 
 For extensions that integrate with the GeoServer web UI:
@@ -397,6 +460,7 @@ For extensions that integrate with the GeoServer web UI:
 1. Add resources to `src/main/resources/org/geoserver/...`
 2. Implement UI beans (like `LoginFormInfo`) with appropriate priorities
 3. Use the `org.geoserver.web` package structure
+4. Use `@ConditionalOnGeoServerWebUI` to ensure it only activates in the web UI service
 
 ### Extension Priority
 

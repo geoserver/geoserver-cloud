@@ -56,7 +56,9 @@ class GatewaySharedAuthAutoConfigurationTest {
 
     @Test
     void testEnabledServerMode() {
-        runner.withPropertyValues("geoserver.extension.security.gateway-shared-auth.enabled=true")
+        runner.withPropertyValues(
+                        "geoserver.extension.security.gateway-shared-auth.enabled=true",
+                        "geoserver.service.webui.enabled=true")
                 .run(context -> {
                     assertThat(context)
                             .hasNotFailed()
