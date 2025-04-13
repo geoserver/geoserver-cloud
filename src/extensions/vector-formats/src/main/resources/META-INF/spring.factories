@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-org.geoserver.cloud.autoconfigure.vectorformats.DataAccessFactoryFilteringAutoConfiguration
+org.geotools.autoconfigure.vectorformats.DataAccessFactoryFilteringAutoConfiguration
