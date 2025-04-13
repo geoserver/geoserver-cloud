@@ -17,21 +17,46 @@ on:
       - "ci/**"
   pull_request:
     types: [opened, synchronize, reopened]
+    paths:
+      - ".github/workflows/**"
+      - "pom.xml"
+      - "src/**"
+      - "build-tools/**"
+      - "Makefile"
+      - "config"
+      - "acceptance_tests/**"
+      - "ci/**"
+      - "docs/**"
 
 # cancel in-progress jobs or runs for this workflow for the same pr or branch
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+permissions:
+  pull-requests: write
+  contents: read
+
 jobs:
   build:
     name: Build and Analyze
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    # Only run this workflow for PRs from the same repository, not forks
-    # For forks, the sonarcloud-fork-pr.yaml workflow will handle analysis
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    # Run this workflow for pushes and PRs from the same repository
+    # For PRs from forks, the token will be read-only, but at least the workflow will run
+    if: github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]')
+    env:
+      DEBUG_INFO: |-
+        Event type: ${{ github.event_name }}
+        Actor: ${{ github.actor }}
+        PR Head Repo: ${{ github.event.pull_request.head.repo.full_name }}
+        Base Repo: ${{ github.repository }}
+        Is Same Repo: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
     steps:
+    - name: Debug Workflow Conditions
+      run: |
+        echo "$DEBUG_INFO"
+        
     - name: Checkout
       uses: actions/checkout@v4
       with:
@@ -56,13 +81,37 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: |
-        ./mvnw verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-        -Dcoverage \
-        -Dsonar.projectKey=geoserver_geoserver-cloud \
-        -Dsonar.organization=geoserver \
-        -Dmaven.javadoc.skip=true \
-        -ntp \
-        -T1C
+        if [ "${{ github.event_name }}" == "pull_request" ]; then
+          # Pull request-specific analysis
+          echo "Running pull request analysis for PR #${{ github.event.pull_request.number }}"
+          ./mvnw verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+          -Dcoverage \
+          -Dsonar.projectKey=geoserver_geoserver-cloud \
+          -Dsonar.organization=geoserver \
+          -Dsonar.pullrequest.key=${{ github.event.pull_request.number }} \
+          -Dsonar.pullrequest.branch=${{ github.event.pull_request.head.ref }} \
+          -Dsonar.pullrequest.base=${{ github.event.pull_request.base.ref }} \
+          -Dsonar.pullrequest.provider=github \
+          -Dsonar.pullrequest.github.repository=${{ github.repository }} \
+          -Dsonar.scm.provider=git \
+          -Dsonar.verbose=true \
+          -Dmaven.javadoc.skip=true \
+          -ntp \
+          -T1C
+        else
+          # Regular branch analysis
+          echo "Running regular branch analysis for ${{ github.ref }}"
+          ./mvnw verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+          -Dcoverage \
+          -Dsonar.projectKey=geoserver_geoserver-cloud \
+          -Dsonar.organization=geoserver \
+          -Dsonar.branch.name=$(echo ${{ github.ref }} | sed 's|refs/heads/||') \
+          -Dsonar.scm.provider=git \
+          -Dsonar.verbose=true \
+          -Dmaven.javadoc.skip=true \
+          -ntp \
+          -T1C
+        fi
 
     - name: Remove project jars from cached repository
       run: |
