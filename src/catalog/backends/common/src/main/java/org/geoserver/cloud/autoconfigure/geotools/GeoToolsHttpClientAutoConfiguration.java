@@ -72,6 +72,11 @@ import org.springframework.context.annotation.Bean;
 @Slf4j(topic = "org.geotools.autoconfigure.httpclient")
 public class GeoToolsHttpClientAutoConfiguration {
 
+    /**
+     * Updates the
+     * {@link SpringEnvironmentAwareGeoToolsHttpClientFactory#setProxyConfig()
+     * factory config} with the provided configuration properties
+     */
     @Bean
     SpringEnvironmentAwareGeoToolsHttpClientFactory springEnvironmentAwareGeoToolsHttpClientFactory(
             GeoToolsHttpClientProxyConfigurationProperties proxyConfig) {
