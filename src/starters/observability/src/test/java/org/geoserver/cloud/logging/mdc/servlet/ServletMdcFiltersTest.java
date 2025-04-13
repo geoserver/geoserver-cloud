@@ -27,7 +27,6 @@ import org.geoserver.cloud.logging.mdc.config.SpringEnvironmentMdcConfigProperti
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.slf4j.MDC;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.core.env.Environment;
@@ -153,10 +152,6 @@ class ServletMdcFiltersTest {
         // Verify chain was called
         verify(chain).doFilter(request, response);
 
-        // Capture MDC properties set by the filter
-        ArgumentCaptor<String> mdcKeyCaptor = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<String> mdcValueCaptor = ArgumentCaptor.forClass(String.class);
-
         // Here we're assuming that the filter correctly set MDC values. In reality,
         // MDC is a ThreadLocal and we can't easily capture the values set by the filter
         // because the filter calls MDC.put() internally within the same thread.
@@ -164,11 +159,12 @@ class ServletMdcFiltersTest {
 
         Map<String, String> mdcMap = MDC.getCopyOfContextMap();
         if (mdcMap != null) {
-            assertThat(mdcMap).containsEntry("http.request.method", "GET");
-            assertThat(mdcMap).containsEntry("http.request.url", "/test-path");
-            assertThat(mdcMap).containsEntry("http.request.remote-addr", "127.0.0.1");
-            assertThat(mdcMap).containsEntry("http.request.remote-host", "localhost");
-            assertThat(mdcMap).containsKey("http.request.id"); // Request ID is generated
+            assertThat(mdcMap)
+                    .containsEntry("http.request.method", "GET")
+                    .containsEntry("http.request.url", "/test-path")
+                    .containsEntry("http.request.remote-addr", "127.0.0.1")
+                    .containsEntry("http.request.remote-host", "localhost")
+                    .containsKey("http.request.id"); // Request ID is generated
         }
     }
 

@@ -243,7 +243,7 @@ public @Data class Query<T extends Info> {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends CatalogInfo> Query<T> as() {
-        return (Query<T>) this;
+    public <Q extends CatalogInfo> Query<Q> as() {
+        return (Query<Q>) this;
     }
 }

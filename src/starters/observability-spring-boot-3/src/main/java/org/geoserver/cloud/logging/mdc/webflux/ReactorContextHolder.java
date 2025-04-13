@@ -8,6 +8,7 @@ package org.geoserver.cloud.logging.mdc.webflux;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import reactor.core.publisher.Mono;
 
@@ -25,6 +26,7 @@ import reactor.core.publisher.Mono;
  * The MDC data is stored in the Reactor Context under the key {@link #MDC_CONTEXT_KEY}.
  */
 @UtilityClass
+@Slf4j
 public class ReactorContextHolder {
 
     /**
@@ -109,7 +111,7 @@ public class ReactorContextHolder {
             }
         } catch (Exception e) {
             // Just log and continue if there's an issue with MDC
-            System.err.println("Error setting MDC from context: " + e.getMessage());
+            log.error("Error setting MDC from context: " + e.getMessage());
         }
     }
 

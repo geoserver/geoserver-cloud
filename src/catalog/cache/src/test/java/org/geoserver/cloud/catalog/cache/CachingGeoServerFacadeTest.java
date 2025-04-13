@@ -95,7 +95,8 @@ class CachingGeoServerFacadeTest {
 
     public static interface TestService2 extends ServiceInfo {}
 
-    public @BeforeEach void before() {
+    @BeforeEach
+    void before() {
         global = stub(GeoServerInfo.class);
         workspace = stub(WorkspaceInfo.class);
         settings = stub(SettingsInfo.class);

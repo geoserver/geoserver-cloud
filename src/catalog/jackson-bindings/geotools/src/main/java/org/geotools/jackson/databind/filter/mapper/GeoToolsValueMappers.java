@@ -63,6 +63,7 @@ public abstract class GeoToolsValueMappers {
         return s;
     }
 
+    @SuppressWarnings("java:S1168") // returning null if ns == null
     public Map<String, String> map(NamespaceSupport ns) {
         if (ns == null) {
             return null;
@@ -231,7 +232,12 @@ public abstract class GeoToolsValueMappers {
         return s == null || s.isBlank() ? null : Locale.forLanguageTag(s);
     }
 
+    @SuppressWarnings("java:S1168") // returning null if s == null
     public Map<String, String> internationalStringToDto(InternationalString s) {
+        if (s == null) {
+            return null;
+        }
+
         if (s instanceof GrowableInternationalString gs) {
             Set<Locale> locales = gs.getLocales();
             Map<String, String> dto = HashMap.newHashMap(locales.size());
@@ -241,10 +247,6 @@ public abstract class GeoToolsValueMappers {
         if (s instanceof SimpleInternationalString) {
             return Map.of("", s.toString());
         }
-        if (s == null) {
-            return null;
-        }
-
         LoggerFactory.getLogger(getClass())
                 .warn(
                         "Unknown InternationalString implementation: {}. Returning the default value",

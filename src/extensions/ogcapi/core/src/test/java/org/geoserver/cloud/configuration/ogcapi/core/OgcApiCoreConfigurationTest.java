@@ -63,7 +63,7 @@ class OgcApiCoreConfigurationTest {
                 .withBean("catalog", Catalog.class, () -> catalog)
                 .withBean("geoServer", GeoServer.class, () -> geoServer)
                 .withBean(GeoServerResourceLoader.class, () -> loader)
-                .withBean("classpathPublisher", ClasspathPublisher.class, () -> new ClasspathPublisher())
+                .withBean("classpathPublisher", ClasspathPublisher.class, ClasspathPublisher::new)
                 .withConfiguration(UserConfigurations.of(OgcApiCoreConfiguration.class));
     }
 

@@ -102,19 +102,20 @@ class MdcConfigPropertiesTest {
 
         // Verify MDC properties
         Map<String, String> mdcMap = MDC.getCopyOfContextMap();
-        assertThat(mdcMap).isNotNull();
-        assertThat(mdcMap).containsEntry("http.request.method", "GET");
-        assertThat(mdcMap).containsEntry("http.request.url", "/test-path");
-        assertThat(mdcMap).containsEntry("http.request.query-string", "param1=value1&param2=value2");
-        assertThat(mdcMap).containsEntry("http.request.remote-addr", "127.0.0.1");
-        assertThat(mdcMap).containsEntry("http.request.remote-host", "localhost");
-        assertThat(mdcMap).containsEntry("http.request.session.id", "test-session-id");
-        assertThat(mdcMap).containsKey("http.request.id");
-        assertThat(mdcMap).containsKey("http.request.header.User-Agent");
-        assertThat(mdcMap).containsKey("http.request.header.Accept");
-        assertThat(mdcMap).containsKey("http.request.cookie.test-cookie");
-        assertThat(mdcMap).containsKey("http.request.parameter.param1");
-        assertThat(mdcMap).containsKey("http.request.parameter.param2");
+        assertThat(mdcMap)
+                .isNotNull()
+                .containsEntry("http.request.method", "GET")
+                .containsEntry("http.request.url", "/test-path")
+                .containsEntry("http.request.query-string", "param1=value1&param2=value2")
+                .containsEntry("http.request.remote-addr", "127.0.0.1")
+                .containsEntry("http.request.remote-host", "localhost")
+                .containsEntry("http.request.session.id", "test-session-id")
+                .containsKey("http.request.id")
+                .containsKey("http.request.header.User-Agent")
+                .containsKey("http.request.header.Accept")
+                .containsKey("http.request.cookie.test-cookie")
+                .containsKey("http.request.parameter.param1")
+                .containsKey("http.request.parameter.param2");
     }
 
     @Test
@@ -141,11 +142,12 @@ class MdcConfigPropertiesTest {
 
         // Verify MDC properties
         Map<String, String> mdcMap = MDC.getCopyOfContextMap();
-        assertThat(mdcMap).isNotNull();
-        assertThat(mdcMap).containsEntry("application.name", "test-application");
-        assertThat(mdcMap).containsEntry("application.version", "1.0.0");
-        assertThat(mdcMap).containsEntry("application.instance.id", "test-instance-1");
-        assertThat(mdcMap).containsEntry("spring.profiles.active", "test,dev");
+        assertThat(mdcMap)
+                .isNotNull()
+                .containsEntry("application.name", "test-application")
+                .containsEntry("application.version", "1.0.0")
+                .containsEntry("application.instance.id", "test-instance-1")
+                .containsEntry("spring.profiles.active", "test,dev");
     }
 
     @Test
@@ -165,9 +167,10 @@ class MdcConfigPropertiesTest {
 
         // Verify MDC properties
         Map<String, String> mdcMap = MDC.getCopyOfContextMap();
-        assertThat(mdcMap).isNotNull();
-        assertThat(mdcMap).containsEntry("application.name", "test-application");
-        assertThat(mdcMap).doesNotContainKey("application.version");
+        assertThat(mdcMap)
+                .isNotNull()
+                .containsEntry("application.name", "test-application")
+                .doesNotContainKey("application.version");
     }
 
     @Test

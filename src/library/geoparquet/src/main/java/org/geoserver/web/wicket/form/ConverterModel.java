@@ -51,8 +51,7 @@ public class ConverterModel<T> implements IModel<T> {
     public T getObject() {
         Object object = model.getObject();
         // Try to convert using GeoTools Converters
-        T result = Converters.convert(object, targetType);
-        return result;
+        return Converters.convert(object, targetType);
     }
 
     @Override

@@ -38,18 +38,16 @@ class MdcJsonLoggingTest {
             MDC.put("test.id", testId);
             MDC.put("test.name", "Direct MDC Test");
 
-            // Log something with the MDC values
-            System.out.println("Direct test log with ID: " + testId);
-
             // The values should be available via MDC.getCopyOfContextMap()
             Map<String, String> mdcValues = MDC.getCopyOfContextMap();
 
             // Verify MDC values are present
-            assertThat(mdcValues).isNotNull();
-            assertThat(mdcValues).containsKey("test.id");
-            assertThat(mdcValues).containsKey("test.name");
-            assertThat(mdcValues.get("test.id")).isEqualTo(testId);
-            assertThat(mdcValues.get("test.name")).isEqualTo("Direct MDC Test");
+            assertThat(mdcValues)
+                    .isNotNull()
+                    .containsKey("test.id")
+                    .containsKey("test.name")
+                    .containsEntry("test.id", testId)
+                    .containsEntry("test.name", "Direct MDC Test");
         } finally {
             // Always clear MDC when done
             MDC.clear();

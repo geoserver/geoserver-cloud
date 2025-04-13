@@ -5,8 +5,8 @@
 
 package org.geoserver.cloud.app;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.CommandLineRunner;
@@ -48,8 +48,9 @@ import org.springframework.core.env.Environment;
  * @since 1.9.0
  */
 @AutoConfiguration
-@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
+@SuppressWarnings({"java:S115"})
 @ConditionalOnProperty("spring.context.exit")
+@RequiredArgsConstructor
 @Slf4j
 public class ExitOnApplicationEventAutoConfiguration {
 
@@ -85,8 +86,7 @@ public class ExitOnApplicationEventAutoConfiguration {
         onReady
     }
 
-    @Autowired
-    private ApplicationContext appContext;
+    private final ApplicationContext appContext;
 
     @Value("${spring.context.exit}")
     ExitOn exitOn;

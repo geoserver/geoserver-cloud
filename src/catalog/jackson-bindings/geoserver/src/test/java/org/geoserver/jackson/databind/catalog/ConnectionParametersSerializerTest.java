@@ -207,7 +207,7 @@ class ConnectionParametersSerializerTest {
         // Add different path types
         File file = new File("/tmp/testfile.txt");
         URI uri = new URI("http://example.com/data");
-        URL url = new URL("http://example.com/data.json");
+        URL url = new URI("http://example.com/data.json").toURL();
         Path path = Paths.get("/tmp/testpath");
 
         params.put("file", file);

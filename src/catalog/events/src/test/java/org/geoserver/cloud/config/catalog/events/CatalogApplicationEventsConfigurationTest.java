@@ -70,14 +70,16 @@ class CatalogApplicationEventsConfigurationTest {
 
     private CatalogTestData testData;
 
-    public @BeforeEach void before() {
+    @BeforeEach
+    void before() {
         listener.setCaptureEventsOf(GeoServerEvent.class);
         catalog.dispose();
         listener.clear();
         testData = CatalogTestData.empty(() -> catalog, () -> geoserver).initialize();
     }
 
-    public @AfterEach void after() {
+    @AfterEach
+    void after() {
         testData.after();
     }
 

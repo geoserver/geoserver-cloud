@@ -121,6 +121,7 @@ class AccessLogFilterTest {
         verify(servletChain).doFilter(servletRequest, servletResponse);
     }
 
+    @SuppressWarnings("removal")
     @Test
     void testWebfluxFilterWithMatchingUri() {
         // Configure access log to log all paths at info level
@@ -149,6 +150,7 @@ class AccessLogFilterTest {
         StepVerifier.create(result).verifyComplete();
     }
 
+    @SuppressWarnings("removal")
     @Test
     void testWebfluxFilterWithErrorStatus() {
         // Configure access log to log all paths at info level

@@ -28,7 +28,7 @@ class NamespaceInfoLookupTest {
     private CatalogInfoLookup.NamespaceInfoLookup lookup;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         uri11 = create("uri1_1", URI_1);
         uri12 = create("uri1_2", URI_1);
         uri21 = create("uri2_1", URI_2);

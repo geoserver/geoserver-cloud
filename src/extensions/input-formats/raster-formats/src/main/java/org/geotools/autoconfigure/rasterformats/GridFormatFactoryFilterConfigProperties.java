@@ -65,17 +65,17 @@ public class GridFormatFactoryFilterConfigProperties {
         Boolean configuredValue = rasterFormats.get(displayName);
 
         // Default to enabled if not configured
-        boolean enabled = configuredValue != null ? configuredValue : true;
+        boolean enable = configuredValue == null || configuredValue;
 
         // Log at debug level to avoid excessive logging
         if (configuredValue != null) {
             org.slf4j.LoggerFactory.getLogger(GridFormatFactoryFilterConfigProperties.class)
-                    .debug("Format '{}' configured value: {}", displayName, enabled);
+                    .debug("Format '{}' configured value: {}", displayName, enable);
         } else {
             org.slf4j.LoggerFactory.getLogger(GridFormatFactoryFilterConfigProperties.class)
                     .debug("Format '{}' has no configuration, defaulting to enabled", displayName);
         }
 
-        return enabled;
+        return enable;
     }
 }

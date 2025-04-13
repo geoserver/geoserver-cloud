@@ -18,7 +18,8 @@ class FilterMapperTest extends FilterRoundtripTest {
 
     private FilterMapper filterMapper;
 
-    public @BeforeEach void before() {
+    @BeforeEach
+    void before() {
         filterMapper = Mappers.getMapper(FilterMapper.class);
     }
 

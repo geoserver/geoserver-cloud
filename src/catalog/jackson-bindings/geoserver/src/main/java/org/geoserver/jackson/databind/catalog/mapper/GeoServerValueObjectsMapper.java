@@ -199,6 +199,7 @@ public interface GeoServerValueObjectsMapper {
         return dto;
     }
 
+    @SuppressWarnings("java:S1168") // returning null on purpose if dto is null
     default MetadataMap metadataMap(MetadataMapDto dto) {
         if (dto == null) {
             return null;
