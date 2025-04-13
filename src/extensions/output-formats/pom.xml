@@ -11,5 +11,6 @@
   <description>GeoServer output format extensions</description>
   <modules>
     <module>vector-tiles</module>
+    <module>flatgeobuf</module>
   </modules>
 </project>

@@ -126,6 +126,11 @@
         <version>${project.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.geoserver.cloud.extensions</groupId>
+        <artifactId>gs-cloud-extension-flatgeobuf-output-format</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.geoserver.cloud</groupId>
         <artifactId>gs-cloud-spring-boot-starter</artifactId>
         <version>${project.version}</version>

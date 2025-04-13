@@ -10,17 +10,6 @@
   <packaging>jar</packaging>
   <description>Auto-configuration for curated list of supported vector data formats</description>
   <dependencies>
-    <!-- Spring Boot dependencies -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-autoconfigure</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-configuration-processor</artifactId>
-      <optional>true</optional>
-    </dependency>
-
     <dependency>
       <groupId>org.geoserver.cloud.extensions</groupId>
       <artifactId>gs-cloud-extensions-core</artifactId>
@@ -30,6 +19,12 @@
       <groupId>org.geoserver.cloud.catalog.backend</groupId>
       <artifactId>gs-cloud-catalog-backend-common</artifactId>
       <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-configuration-processor</artifactId>
+      <optional>true</optional>
     </dependency>
 
     <!-- GeoTools Core -->
@@ -66,6 +61,14 @@
     <dependency>
       <groupId>org.geoserver.extension</groupId>
       <artifactId>gs-feature-pregeneralized</artifactId>
+    </dependency>
+    <dependency>
+      <!-- 
+        include gt-flatgeobuf independently of gs-flatgeobuf,
+        this is for the data access factory, not the WFS output format
+      -->
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-flatgeobuf</artifactId>
     </dependency>
     <dependency>
       <groupId>org.geoserver.community</groupId>
