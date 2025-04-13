@@ -108,8 +108,9 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
         JdbcTemplate template = container.getTemplate();
         PgconfigLockProvider lockProvider = new PgconfigLockProvider(pgconfigLockRegistry());
         cacheDirectory = tmpDir.newFolder();
+        FileSystemResourceStoreCache cache = FileSystemResourceStoreCache.ofProvidedDirectory(cacheDirectory.toPath());
         store = new PgconfigResourceStore(
-                cacheDirectory.toPath(), template, lockProvider, PgconfigResourceStore.defaultIgnoredDirs());
+                cache, template, lockProvider, PgconfigResourceStore.defaultIgnoredResources());
         setupTestData(template);
     }
 

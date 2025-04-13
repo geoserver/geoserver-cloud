@@ -115,8 +115,8 @@ public class PgconfigBackendConfiguration extends GeoServerBackendConfigurer {
         FileSystemResourceStoreCache resourceStoreCache = pgconfigFileSystemResourceStoreCache();
         JdbcTemplate template = template();
         PgconfigLockProvider lockProvider = pgconfigLockProvider();
-        Predicate<String> ignoreDirs = PgconfigResourceStore.defaultIgnoredDirs();
-        return new PgconfigResourceStore(resourceStoreCache, template, lockProvider, ignoreDirs);
+        Predicate<String> localOnlyFilter = PgconfigResourceStore.defaultIgnoredResources();
+        return new PgconfigResourceStore(resourceStoreCache, template, lockProvider, localOnlyFilter);
     }
 
     @Bean

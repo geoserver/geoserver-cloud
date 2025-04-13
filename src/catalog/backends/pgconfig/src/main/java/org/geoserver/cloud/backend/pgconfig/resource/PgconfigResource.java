@@ -55,7 +55,7 @@ class PgconfigResource implements Resource {
         this.type = type;
         this.path = path;
         this.lastmodified = lastmodified;
-        lastChecked = Instant.now();
+        this.lastChecked = Instant.now();
     }
 
     /**
@@ -98,6 +98,7 @@ class PgconfigResource implements Resource {
         this.type = other.type;
         this.path = other.path;
         this.lastmodified = other.lastmodified;
+        this.lastChecked = Instant.now();
     }
 
     @Override

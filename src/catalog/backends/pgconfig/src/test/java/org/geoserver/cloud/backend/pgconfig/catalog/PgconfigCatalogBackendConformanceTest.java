@@ -12,6 +12,7 @@ import org.geoserver.catalog.plugin.CatalogConformanceTest;
 import org.geoserver.catalog.plugin.CatalogPlugin;
 import org.geoserver.catalog.plugin.CatalogPluginStyleResourcePersister;
 import org.geoserver.cloud.backend.pgconfig.PgconfigBackendBuilder;
+import org.geoserver.cloud.backend.pgconfig.resource.FileSystemResourceStoreCache;
 import org.geoserver.cloud.backend.pgconfig.resource.PgconfigLockProvider;
 import org.geoserver.cloud.backend.pgconfig.resource.PgconfigResourceStore;
 import org.geoserver.cloud.backend.pgconfig.support.PgConfigTestContainer;
@@ -55,9 +56,9 @@ class PgconfigCatalogBackendConformanceTest extends CatalogConformanceTest {
         JdbcTemplate template = container.getTemplate();
         PgconfigLockProvider lockProvider = new PgconfigLockProvider(pgconfigLockRegistry());
         File cacheDirectory = tmpFolder;
-
+        FileSystemResourceStoreCache cache = FileSystemResourceStoreCache.ofProvidedDirectory(cacheDirectory.toPath());
         PgconfigResourceStore resourceStore = new PgconfigResourceStore(
-                cacheDirectory.toPath(), template, lockProvider, PgconfigResourceStore.defaultIgnoredDirs());
+                cache, template, lockProvider, PgconfigResourceStore.defaultIgnoredResources());
 
         var resourceLoader = new PgconfigGeoServerResourceLoader(resourceStore);
         CatalogPlugin catalog = new PgconfigBackendBuilder(container.getDataSource()).createCatalog();
