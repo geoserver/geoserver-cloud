@@ -8,6 +8,57 @@ This auto-configuration module:
 - Provides configuration properties for vector data format filtering
 - Implements a mechanism to filter available DataAccessFactory implementations
 - Enables conditional configuration based on available classes and properties
+- Supports specialized vector data formats like Graticule and FlatGeobuf
+
+## Supported Formats
+
+The module includes support for several vector data formats:
+
+### Standard Data Formats
+- Shapefile
+- PostGIS
+- GeoPackage
+- Oracle
+- SQL Server
+- WFS
+
+### Specialized Data Formats
+- Pre-generalized Features (provides simplified geometries for different scale levels)
+- Graticule (generates latitude/longitude grid lines)
+- FlatGeobuf (efficient binary format with random access)
+
+## Graticule Extension
+
+The Graticule extension allows creating a data store that produces latitude/longitude graticule lines.
+
+### Features
+
+The graticule extension provides:
+- A data store type for creating latitude/longitude grid lines
+- Support for customizable grid spacing
+- Integration with GeoServer Web UI for configuring graticule stores
+
+### Configuration
+
+The Graticule data store is integrated with the vector formats filtering mechanism. It's available by default unless specifically disabled:
+
+```yaml
+geotools.data.filtering:
+  enabled: true
+  vector-formats:
+    "[Graticule]": false  # Set to false to disable
+```
+
+The UI components for the Graticule data store are automatically enabled when the GeoServer Web UI is present and the data store is available.
+
+### Usage
+
+When available, the graticule store type will be listed when adding a new data store in the GeoServer Web UI:
+
+1. Navigate to "Stores" > "Add new Store"
+2. Select "Graticule" from the list of vector data sources
+3. Configure the graticule properties (spacing, etc.)
+4. Use the resulting layer in your maps
 
 ## Usage
 
@@ -41,6 +92,8 @@ geotools.data.filtering:
     "[GeoPackage]": true
     "[Oracle NG]": false
     "[Web Feature Server (NG)]": false
+    "[Graticule]": true
+    "[FlatGeobuf]": true
     "[Generalizing data store]": ${geoserver.extension.pregeneralized.enabled:false}
 ```
 
