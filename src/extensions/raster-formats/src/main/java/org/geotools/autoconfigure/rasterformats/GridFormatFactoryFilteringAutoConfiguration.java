@@ -3,22 +3,21 @@
  * application directory.
  */
 
-package org.geoserver.cloud.autoconfigure.vectorformats;
+package org.geotools.autoconfigure.rasterformats;
 
 import lombok.RequiredArgsConstructor;
 import org.geoserver.cloud.autoconfigure.catalog.backend.core.GeoServerBackendAutoConfiguration;
-import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 
 /**
- * Auto-configuration to enable filtering of GeoTools DataAccessFactory
+ * Auto-configuration to enable filtering of GeoTools GridFormatFactorySpi
  * implementations.
  *
  * <p>
- * This configuration provides fine-grained control over which data formats are
+ * This configuration provides fine-grained control over which raster formats are
  * available in the application, allowing selective enabling/disabling of
  * specific factory implementations using their user-friendly display names.
  *
@@ -28,35 +27,36 @@ import org.springframework.context.annotation.Bean;
  * <pre>
  * geotools.data.filtering:
  *   enabled: true
- *   vector-formats:
- *     "[PostGIS]": true
- *     "[Oracle NG]": false
- *     "[Shapefile]": true
- *     "[Web Feature Server (NG)]": ${my.wfs.enabled:false}
+ *   raster-formats:
+ *     "[ArcGrid]": true
+ *     "[GeoTIFF]": true
+ *     "[ImageMosaic]": false
+ *     "[WorldImage]": true
  * </pre>
  * <p>
- * It works by directly deregistering disabled factories from DataAccessFinder
- * and DataStoreFinder through a BeanPostProcessor that processes the
- * configuration as early as possible in the application startup process.
+ * It works by using reflection to access GridFormatFinder's internal FactoryRegistry
+ * and remove disabled factories. This is done through a BeanPostProcessor that
+ * processes the configuration as early as possible in the application startup process.
  */
 @AutoConfiguration(before = GeoServerBackendAutoConfiguration.class)
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
-@EnableConfigurationProperties(DataAccessFactoryFilterConfigProperties.class)
+@EnableConfigurationProperties(GridFormatFactoryFilterConfigProperties.class)
 @ConditionalOnProperty(
-        name = DataAccessFactoryFilterConfigProperties.ENABLED_PROP,
+        name = GridFormatFactoryFilterConfigProperties.ENABLED_PROP,
         havingValue = "true",
         matchIfMissing = true)
 @RequiredArgsConstructor
-public class DataAccessFactoryFilteringAutoConfiguration {
+public class GridFormatFactoryFilteringAutoConfiguration {
 
     /**
-     * Provides a BeanPostProcessor that will deregister disabled factories.
+     * Provides a GridFormatFactoryFilterProcessor that will deregister disabled factories.
      *
      * @param configProperties the configuration properties
      * @return the bean post processor
      */
     @Bean
-    BeanPostProcessor dataAccessFactoryFilterProcessor(DataAccessFactoryFilterConfigProperties configProperties) {
-        return new DataAccessFactoryFilterProcessor(configProperties);
+    GridFormatFactoryFilterProcessor gridFormatFactoryFilterProcessor(
+            GridFormatFactoryFilterConfigProperties configProperties) {
+        return new GridFormatFactoryFilterProcessor(configProperties);
     }
 }

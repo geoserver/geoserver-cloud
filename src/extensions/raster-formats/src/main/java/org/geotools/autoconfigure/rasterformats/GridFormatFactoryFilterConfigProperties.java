@@ -3,7 +3,7 @@
  * application directory.
  */
 
-package org.geoserver.cloud.autoconfigure.rasterformats;
+package org.geotools.autoconfigure.rasterformats;
 
 import java.util.HashMap;
 import java.util.Map;

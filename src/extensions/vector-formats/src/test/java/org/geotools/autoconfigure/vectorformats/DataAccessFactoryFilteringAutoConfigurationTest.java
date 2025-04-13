@@ -3,7 +3,7 @@
  * application directory.
  */
 
-package org.geoserver.cloud.autoconfigure.vectorformats;
+package org.geotools.autoconfigure.vectorformats;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

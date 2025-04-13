@@ -3,7 +3,7 @@
  * application directory.
  */
 
-package org.geoserver.cloud.autoconfigure.vectorformats;
+package org.geotools.autoconfigure.vectorformats;
 
 import java.util.Iterator;
 import lombok.extern.slf4j.Slf4j;
@@ -11,8 +11,6 @@ import org.geotools.api.data.DataAccessFactory;
 import org.geotools.api.data.DataAccessFinder;
 import org.geotools.api.data.DataStoreFactorySpi;
 import org.geotools.api.data.DataStoreFinder;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 
@@ -25,21 +23,15 @@ import org.springframework.core.annotation.Order;
  * DataAccessFactoryFilterConfigProperties bean is created, which ensures
  * factories are deregistered before any beans that might use them.
  */
-@Slf4j(topic = "org.geoserver.cloud.autoconfigure.vectorformats")
+@Slf4j(topic = "org.geotools.autoconfigure.vectorformats")
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class DataAccessFactoryFilterProcessor implements BeanPostProcessor {
+public class DataAccessFactoryFilterProcessor {
 
     public DataAccessFactoryFilterProcessor(DataAccessFactoryFilterConfigProperties config) {
         // Process immediately in the constructor to ensure it happens before
         // any other beans are initialized, especially CloudGeoServerLoaderProxy
         log.info("Initializing DataAccessFactory filtering");
         processDataAccessFactories(config);
-    }
-
-    @Override
-    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        // No longer need to do anything here since we're processing in the constructor
-        return bean;
     }
 
     /**
@@ -62,15 +54,15 @@ public class DataAccessFactoryFilterProcessor implements BeanPostProcessor {
             // Check if it's enabled by display name
             boolean enabled = config.isFactoryEnabled(displayName);
 
-            if (!enabled) {
+            if (enabled) {
+                log.info("DataAccessFactory factory enabled: {} ({})", displayName, className);
+            } else {
                 DataAccessFinder.deregisterFactory(factory);
                 if (factory instanceof DataStoreFactorySpi dsf) {
                     DataStoreFinder.deregisterFactory(dsf);
                 }
                 log.info("DataAccessFactory factory disabled: {} ({})", displayName, className);
                 disabledCount++;
-            } else {
-                log.debug("DataAccessFactory factory enabled: {} ({})", displayName, className);
             }
         }
 

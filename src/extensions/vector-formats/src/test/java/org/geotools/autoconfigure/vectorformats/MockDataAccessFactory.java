@@ -3,7 +3,7 @@
  * application directory.
  */
 
-package org.geoserver.cloud.autoconfigure.vectorformats;
+package org.geotools.autoconfigure.vectorformats;
 
 /**
  * A simple mock class for testing the filtering system.
