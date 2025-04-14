@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -26,6 +27,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -33,14 +36,17 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.xmlunit.assertj3.XmlAssert;
 
-@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = GeoWebCacheApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @ActiveProfiles("test")
 class GeoWebCacheApplicationTest {
 
+    protected @Autowired ConfigurableApplicationContext context;
+
     @Autowired
-    private TestRestTemplate restTemplate;
+    protected TestRestTemplate restTemplate;
 
     static @TempDir Path datadir;
 
@@ -124,5 +130,18 @@ class GeoWebCacheApplicationTest {
         // see org.geoserver.cloud.gwc.config.services.SeedController
         assertThat(statusCode).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
         assertThat(body).contains("Unknown layer workspace:layer");
+    }
+
+    @Test
+    void wmtsGetCapabilitiesSmokeTest(@LocalServerPort int servicePort) {
+        String url = "http://localhost:%d/gwc/service/wmts?SERVICE=WMTS&REQUEST=GETCAPABILITIES&VERSION=1.1.1"
+                .formatted(servicePort);
+        String caps = restTemplate.getForObject(url, String.class);
+        Map<String, String> nscontext = Map.of("", "http://www.opengis.net/wmts/1.0");
+        XmlAssert.assertThat(caps).withNamespaceContext(nscontext).hasXPath("/:Capabilities");
+    }
+
+    protected void expectBean(String name, Class<?> type) {
+        assertThat(context.getBean(name)).isInstanceOf(type);
     }
 }

@@ -35,9 +35,9 @@ class WmsApplicationDataDirectoryTest extends WmsApplicationTest {
         registry.add("gwc.cache-directory", gwcdir::toAbsolutePath);
     }
 
-    private String baseURL;
+    protected String baseURL;
 
-    private TestRestTemplate restTemplate = new TestRestTemplate("admin", "geoserver");
+    protected TestRestTemplate restTemplate = new TestRestTemplate("admin", "geoserver");
 
     @BeforeEach
     void setUp(@LocalServerPort int servicePort) {
