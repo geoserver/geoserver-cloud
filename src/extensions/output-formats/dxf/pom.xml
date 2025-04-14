@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.geoserver.cloud.extensions</groupId>
+    <artifactId>gs-cloud-extensions-output-formats</artifactId>
+    <version>${revision}</version>
+  </parent>
+  <artifactId>gs-cloud-extension-dxf-output-format</artifactId>
+  <name>DXF Output Format Extension</name>
+  <description>DXF WFS output format for GeoServer Cloud</description>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.geoserver.cloud.extensions</groupId>
+      <artifactId>gs-cloud-extensions-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.extension</groupId>
+      <artifactId>gs-dxf-core</artifactId>
+    </dependency>
+    <dependency>
+      <!-- GeoServer WFS API (needed for conditional annotation) -->
+      <groupId>org.geoserver</groupId>
+      <artifactId>gs-wfs</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.web</groupId>
+      <artifactId>gs-web-core</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-configuration-processor</artifactId>
+      <optional>true</optional>
+    </dependency>
+  </dependencies>
+</project>
