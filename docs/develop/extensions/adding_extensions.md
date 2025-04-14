@@ -41,7 +41,7 @@ src/extensions/
 ```
 
 Where:
-- `<category>` is the functional category (e.g., `security`, `vector-formats`, `output-formats`, etc.)
+- `<category>` is the functional category (e.g., `security`, `input-formats`, `output-formats`, etc.)
 - `<extension-name>` is the specific extension name
 
 ### 2. Configure the Module POM

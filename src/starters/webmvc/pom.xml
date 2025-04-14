@@ -21,7 +21,7 @@
     </dependency>
     <dependency>
       <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-starter-data-formats</artifactId>
+      <artifactId>gs-cloud-starter-input-formats</artifactId>
     </dependency>
     <!-- Web MVC focused dependencies -->
     <dependency>

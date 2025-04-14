@@ -14,8 +14,7 @@
     <module>core</module>
     <module>app-schema</module>
     <module>security</module>
-    <module>vector-formats</module>
-    <module>raster-formats</module>
+    <module>input-formats</module>
     <module>css-styling</module>
     <module>mapbox-styling</module>
     <module>output-formats</module>

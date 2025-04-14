@@ -732,7 +732,7 @@
       <!-- GeoServer Cloud Starters -->
       <dependency>
         <groupId>org.geoserver.cloud</groupId>
-        <artifactId>gs-cloud-starter-data-formats</artifactId>
+        <artifactId>gs-cloud-starter-input-formats</artifactId>
         <version>${revision}</version>
       </dependency>
       <dependency>
