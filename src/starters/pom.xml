@@ -13,7 +13,7 @@
     <module>spring-boot</module>
     <module>spring-boot3</module>
     <module>catalog-backend</module>
-    <module>data-formats</module>
+    <module>input-formats</module>
     <module>spring-cloud</module>
     <module>output-formats</module>
     <module>extensions</module>

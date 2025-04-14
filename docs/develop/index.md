@@ -92,8 +92,8 @@ Each microservice is its own self-contained application, including only the GeoS
         |    |     |_ pgconfig/ ...................... PostgreSQL catalog back-end
         |    |
         |    |_ cache/ ............................... Spring Boot JCache support and auto-configurations for the Catalog
-        |    |_ event-bus/ ........................... Integration layer for events with Spring Cloud Bus
         |    |_ events/ .............................. No-framework object model and runtime for catalog and config application events
+        |    |_ event-bus/ ........................... Integration layer for events with Spring Cloud Bus
         |    |_ jackson-bindings/ .................... Libraries to encode and decode configuration objects as JSON
         |    |     |_ geoserver/ ..................... Jackson bindings for GeoServer Catalog and Config object model
         |    |     |_ geotools/ ...................... Jackson bindings for JTS Geometries and org.opengis.filter.Filter
@@ -106,7 +106,10 @@ Each microservice is its own self-contained application, including only the GeoS
         |    |_ core/ ................................ Core extension module
         |    |_ css-styling/ ......................... CSS Styling extension
         |    |_ mapbox-styling/ ...................... MapBox Styling extension
-        |    |_ raster-formats/ ...................... Raster formats extensions
+        |    |_ input-formats/ ....................... Input format extensions
+        |    |     |_ raster-formats/ ................ Raster formats extensions
+        |    |     |_ vector-formats/ ................ Vector formats extensions
+        |    |
         |    |_ security/ ............................ Security extensions
         |    |     |_ auth-key/ ...................... Auth Key security extension
         |    |     |_ gateway-shared-auth/ ........... Gateway Shared Auth security extension
@@ -116,9 +119,8 @@ Each microservice is its own self-contained application, including only the GeoS
         |    |     |_ ldap/ .......................... LDAP security extension
         |    |
         |    |_ output-formats/ ....................... Output format extensions
-        |    |     |_ vector-tiles/ ................... Vector Tiles extension
-        |    |
-        |    |_ vector-formats/ ....................... Vector formats extensions
+        |          |_ vector-tiles/ ................... Vector Tiles extension
+        |          |_ dxf/ ........................... DXF Vector format extension
         |
         |_ gwc ....................................... GeoWebCache modules
         |    |_ autoconfigure/ ....................... Auto configurations for all GWC functionalities
@@ -137,7 +139,7 @@ Each microservice is its own self-contained application, including only the GeoS
         |
         |_ starters .................................. Spring Boot starters for GeoServer microservices
         |    |_ catalog-backend/ ..................... Groups all supported catalog back-ends
-        |    |_ data-formats/ ........................ Unified starter for all vector and raster data formats
+        |    |_ input-formats/ ....................... Unified starter for all vector and raster input data formats
         |    |_ event-bus/ ........................... Binds Spring Cloud Bus integration layer with a concrete event-bridge
         |    |_ extensions/ .......................... Common extension functionality
         |    |_ output-formats/ ....................... Output format extensions starter

@@ -208,4 +208,4 @@ The filtering system uses different approaches for vector and raster formats:
 - **Raster formats**: Uses a custom FilteringFactoryCreator wrapper around the standard GridFormatFinder registry to filter formats on-the-fly
 
 For more details, refer to the README files in the respective starter modules:
-- Data formats: `src/starters/data-formats/README.md`
+- Input formats: `src/starters/input-formats/README.md`

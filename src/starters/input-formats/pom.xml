@@ -6,9 +6,9 @@
     <artifactId>gs-cloud-starters</artifactId>
     <version>${revision}</version>
   </parent>
-  <artifactId>gs-cloud-starter-data-formats</artifactId>
+  <artifactId>gs-cloud-starter-input-formats</artifactId>
   <packaging>jar</packaging>
-  <description>Unified starter for all supported vector and raster data formats</description>
+  <description>Unified starter for all supported vector and raster input data formats</description>
   <dependencies>
     <!-- Vector data formats -->
     <dependency>
