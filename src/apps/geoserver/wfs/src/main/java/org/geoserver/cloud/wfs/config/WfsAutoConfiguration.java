@@ -17,7 +17,6 @@ import org.springframework.context.annotation.Bean;
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @ImportFilteredResource({
     "jar:gs-wfs-.*!/applicationContext.xml#name=.*",
-    "jar:gs-flatgeobuf-.*!/applicationContext.xml#name=.*",
     "jar:gs-dxf-core-.*!/applicationContext.xml#name=.*"
 })
 public class WfsAutoConfiguration {

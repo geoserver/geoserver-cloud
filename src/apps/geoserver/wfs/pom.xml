@@ -15,6 +15,10 @@
   <dependencies>
     <!-- Inherit common starters from parent pom -->
     <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-starter-output-formats</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.geoserver</groupId>
       <artifactId>gs-wfs</artifactId>
     </dependency>
@@ -22,10 +26,6 @@
       <!-- required by org.geoserver.wfs.response.ShapeZipOutputFormat -->
       <groupId>org.geotools</groupId>
       <artifactId>gt-shapefile</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.geoserver.community</groupId>
-      <artifactId>gs-flatgeobuf</artifactId>
     </dependency>
     <dependency>
       <groupId>org.geoserver.extension</groupId>
