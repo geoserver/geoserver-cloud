@@ -12,5 +12,6 @@
   <modules>
     <module>vector-tiles</module>
     <module>flatgeobuf</module>
+    <module>dxf</module>
   </modules>
 </project>

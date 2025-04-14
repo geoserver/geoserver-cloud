@@ -25,6 +25,11 @@
       <groupId>org.geoserver.cloud.extensions</groupId>
       <artifactId>gs-cloud-extension-flatgeobuf-output-format</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.geoserver.cloud.extensions</groupId>
+      <artifactId>gs-cloud-extension-dxf-output-format</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <!-- Additional output formats can be added here as they are developed -->
   </dependencies>
