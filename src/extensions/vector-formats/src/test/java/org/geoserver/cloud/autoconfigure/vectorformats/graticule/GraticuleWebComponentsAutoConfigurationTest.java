@@ -27,11 +27,16 @@ class GraticuleWebComponentsAutoConfigurationTest {
 
     @Test
     void testConditionalOnGeoServerWebUI() {
-        contextRunner.run(context -> assertThat(context).hasNotFailed().hasBean("graticuleStorePanel"));
+        contextRunner.run(context -> assertThat(context).hasNotFailed().doesNotHaveBean("graticuleStorePanel"));
 
         contextRunner
+                .withPropertyValues("geoserver.service.webui.enabled=true")
                 .withClassLoader(new FilteredClassLoader(GeoServerApplication.class))
                 .run(context -> assertThat(context).hasNotFailed().doesNotHaveBean("graticuleStorePanel"));
+
+        contextRunner
+                .withPropertyValues("geoserver.service.webui.enabled=true")
+                .run(context -> assertThat(context).hasNotFailed().hasBean("graticuleStorePanel"));
     }
 
     @Test

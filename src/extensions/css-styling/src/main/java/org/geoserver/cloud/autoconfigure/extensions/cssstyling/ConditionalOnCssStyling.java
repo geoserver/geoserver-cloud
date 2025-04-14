@@ -11,16 +11,19 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import org.geoserver.cloud.autoconfigure.extensions.ConditionalOnGeoServerWMS;
+import org.geoserver.cloud.autoconfigure.extensions.ConditionalOnGeoServer;
+import org.geoserver.community.css.web.CssHandler;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 /**
- * Composite annotation that combines conditions required for CSS styling support.
+ * Composite annotation that checks if CSS styling is enabled by configuration property.
  *
  * <p>
  * This conditional activates when:
  * <ul>
- *   <li>The GeoServer WMS module is available in the application context</li>
+ *   <li>GeoServer is available</li>
+ *   <li>The CssHandler class is on the classpath</li>
  *   <li>The geoserver.extension.css-styling.enabled property is true (the default)</li>
  * </ul>
  *
@@ -28,15 +31,17 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
  * This annotation can be used on configuration classes or bean methods to make them
  * conditional on CSS styling being enabled.
  *
- * @see ConditionalOnGeoServerWMS
  * @see ConditionalOnProperty
+ * @see ConditionalOnClass
+ * @see ConditionalOnGeoServer
  * @since 2.27.0
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Documented
 @Inherited
-@ConditionalOnGeoServerWMS
+@ConditionalOnGeoServer
+@ConditionalOnClass(CssHandler.class)
 @ConditionalOnProperty(
         name = "geoserver.extension.css-styling.enabled",
         havingValue = "true",

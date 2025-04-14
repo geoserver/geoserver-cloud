@@ -16,8 +16,6 @@ import org.geotools.styling.css.CssParser;
 import org.geotools.util.Version;
 import org.geotools.util.factory.GeoTools;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -33,7 +31,6 @@ import org.springframework.context.annotation.Import;
  * allowing users to define map styles using CSS syntax instead of SLD. It will be activated
  * when the following conditions are met:
  * <ul>
- *   <li>The GeoServer WMS module is available</li>
  *   <li>The CSS handler classes are on the classpath</li>
  *   <li>The geoserver.extension.css-styling.enabled property is true (the default)</li>
  * </ul>
@@ -41,8 +38,8 @@ import org.springframework.context.annotation.Import;
  * <p>
  * The configuration consists of two inner classes:
  * <ul>
- *   <li>Enabled - Imports the CSS extension beans when extension is enabled</li>
- *   <li>Disabled - Provides a disabled module status when extension is disabled</li>
+ *   <li>Enabled - Imports the CSS extension when it's enabled</li>
+ *   <li>Disabled - Provides a disabled module status when extension is explicitly disabled</li>
  * </ul>
  *
  * @since 2.27.0
@@ -55,13 +52,10 @@ import org.springframework.context.annotation.Import;
 public class CssStylingAutoConfiguration {
 
     /**
-     * Configuration class that activates when the CSS styling extension is enabled.
-     * Imports all required beans from the CSS extension's application context.
+     * Configuration class that activates CSS styling extension when enabled.
      */
     @Configuration
     @ConditionalOnCssStyling
-    @ConditionalOnBean(name = "sldHandler")
-    @ConditionalOnClass(CssHandler.class)
     @ImportFilteredResource("jar:gs-css-.*!/applicationContext.xml")
     static class Enabled {
         @PostConstruct
@@ -79,7 +73,6 @@ public class CssStylingAutoConfiguration {
      * {@link ModuleStatus#isEnabled() == false}.
      */
     @Configuration
-    @ConditionalOnBean(name = "sldHandler")
     @ConditionalOnProperty(
             name = "geoserver.extension.css-styling.enabled",
             havingValue = "false",

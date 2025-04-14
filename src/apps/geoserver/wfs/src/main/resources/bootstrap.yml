@@ -7,7 +7,13 @@ server:
   forward-headers-strategy: framework
   servlet.context-path: /
 management.server.port: 8081
-geoserver.base-path: /wfs
+geoserver:
+  base-path: /wfs
+  service:
+    # Fixed per-service value to support conditional activation of extensions.
+    # This property is checked by @ConditionalOnGeoServerWFS
+    wfs:
+      enabled: true
 spring:
   config:
     import:

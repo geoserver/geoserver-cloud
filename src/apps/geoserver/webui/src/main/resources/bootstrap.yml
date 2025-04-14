@@ -13,7 +13,6 @@ server:
         name: JSESSIONID_${spring.application.name}
         http-only: true
 management.server.port: 8081
-geoserver.base-path: /web
 spring:
   config:
     import:
@@ -52,6 +51,12 @@ eureka.client:
   registry-fetch-interval-seconds: 10
 
 geoserver:
+  base-path: /web
+  service:
+    # Fixed per-service value to support conditional activation of extensions.
+    # This property is checked by @ConditionalOnGeoServerWebUI
+    webui:
+      enabled: true
   styling:
     css.enabled: true
   wms:

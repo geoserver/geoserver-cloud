@@ -14,7 +14,6 @@ import org.geoserver.platform.ModuleStatusImpl;
 import org.geotools.util.Version;
 import org.geotools.util.factory.GeoTools;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -23,8 +22,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 /**
- * Auto-configuration for MapBox Styling extension that provides a style handler for MapBox
- * stylesheets.
+ * Auto-configuration for MapBox Styling extension that provides a style handler
+ * for MapBox stylesheets.
  *
  * @since 2.27.0
  */
@@ -37,8 +36,6 @@ public class MapBoxStylingAutoConfiguration {
 
     @Configuration
     @ConditionalOnMapBoxStyling
-    @ConditionalOnBean(name = "sldHandler") // sldHandler is MBStyleHandler's constructor arg
-    @ConditionalOnClass(MBStyleHandler.class)
     @ImportFilteredResource("jar:gs-mbstyle-.*!/applicationContext.xml")
     static class Enabled {
         @PostConstruct
@@ -55,6 +52,7 @@ public class MapBoxStylingAutoConfiguration {
     @ConditionalOnClass(MBStyleHandler.class)
     static class Disabled {
 
+        @SuppressWarnings("java:S6830")
         @Bean(name = "MBStyleExtension")
         ModuleStatus mbStyleDisabledModuleStatus() {
             ModuleStatusImpl mod = new ModuleStatusImpl();

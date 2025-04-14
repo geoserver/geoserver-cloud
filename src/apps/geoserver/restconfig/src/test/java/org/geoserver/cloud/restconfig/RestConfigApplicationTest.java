@@ -14,12 +14,14 @@ import static org.springframework.http.MediaType.APPLICATION_XML;
 import static org.springframework.http.MediaType.TEXT_HTML;
 
 import org.geoserver.catalog.SLDHandler;
+import org.geoserver.cloud.autoconfigure.extensions.test.ConditionalTestAutoConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -30,6 +32,9 @@ abstract class RestConfigApplicationTest {
 
     @Autowired
     private TestRestTemplate restTemplate;
+
+    @Autowired
+    protected ConfigurableApplicationContext context;
 
     @BeforeEach
     void before() {
@@ -98,5 +103,33 @@ abstract class RestConfigApplicationTest {
         ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class);
         assertThat(response.getStatusCode()).isEqualTo(OK);
         assertThat(response.getHeaders().getContentType()).isEqualTo(expected);
+    }
+
+    /**
+     * Tests the service-specific conditional annotations.
+     *
+     * <p>
+     * Verifies that only the REST conditional bean is activated in this service,
+     * based on the geoserver.service.restconfig.enabled=true property set in bootstrap.yml.
+     * This test relies on the ConditionalTestAutoConfiguration class from the
+     * extensions-core test-jar, which contains beans conditionally activated
+     * based on each GeoServer service type.
+     */
+    @Test
+    void testServiceConditionalAnnotations() {
+        // This should exist in REST service
+        assertThat(context.containsBean("restConditionalBean")).isTrue();
+        if (context.containsBean("restConditionalBean")) {
+            ConditionalTestAutoConfiguration.ConditionalTestBean bean =
+                    context.getBean("restConditionalBean", ConditionalTestAutoConfiguration.ConditionalTestBean.class);
+            assertThat(bean.getServiceName()).isEqualTo("REST");
+        }
+
+        // These should not exist in REST service
+        assertThat(context.containsBean("wfsConditionalBean")).isFalse();
+        assertThat(context.containsBean("wcsConditionalBean")).isFalse();
+        assertThat(context.containsBean("wmsConditionalBean")).isFalse();
+        assertThat(context.containsBean("wpsConditionalBean")).isFalse();
+        assertThat(context.containsBean("webUiConditionalBean")).isFalse();
     }
 }

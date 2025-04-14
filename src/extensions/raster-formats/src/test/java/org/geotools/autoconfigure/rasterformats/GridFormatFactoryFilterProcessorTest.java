@@ -35,8 +35,6 @@ class GridFormatFactoryFilterProcessorTest {
         config.setEnabled(true);
 
         Map<String, Boolean> formats = new HashMap<>();
-        formats.put("DisabledExampleFormat", false);
-        formats.put("EnabledExampleFormat", true);
         // Use actual format names that might exist
         formats.put("GeoTIFF", false);
         formats.put("ImageMosaic", false);
@@ -62,7 +60,7 @@ class GridFormatFactoryFilterProcessorTest {
 
         // Just check the number of formats in the configuration
         int configuredFormatsCount = config.getRasterFormats().size();
-        assertThat(configuredFormatsCount).isEqualTo(4);
+        assertThat(configuredFormatsCount).isEqualTo(2);
 
         // Check that the filter was installed - registry should be a FilteringFactoryCreator
         boolean filteringInstalled = checkFilterIsInstalled();

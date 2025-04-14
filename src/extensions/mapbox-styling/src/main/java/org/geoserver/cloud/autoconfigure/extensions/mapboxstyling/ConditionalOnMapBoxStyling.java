@@ -11,14 +11,17 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import org.geoserver.cloud.autoconfigure.extensions.ConditionalOnGeoServerWMS;
+import org.geoserver.cloud.autoconfigure.extensions.ConditionalOnGeoServer;
+import org.geoserver.community.mbstyle.MBStyleHandler;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Documented
 @Inherited
-@ConditionalOnGeoServerWMS
+@ConditionalOnGeoServer
+@ConditionalOnClass(MBStyleHandler.class)
 @ConditionalOnProperty(
         name = "geoserver.extension.mapbox-styling.enabled",
         havingValue = "true",

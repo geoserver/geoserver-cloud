@@ -29,6 +29,15 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
+      <dependency>
+        <!-- For testing service conditional annotations -->
+        <groupId>org.geoserver.cloud.extensions</groupId>
+        <artifactId>gs-cloud-extensions-core</artifactId>
+        <version>${project.version}</version>
+        <classifier>tests</classifier>
+        <type>test-jar</type>
+        <scope>test</scope>
+      </dependency>
     </dependencies>
   </dependencyManagement>
   <dependencies>
@@ -92,6 +101,14 @@
     <dependency>
       <groupId>org.xmlunit</groupId>
       <artifactId>xmlunit-assertj3</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <!-- For testing service conditional annotations -->
+      <groupId>org.geoserver.cloud.extensions</groupId>
+      <artifactId>gs-cloud-extensions-core</artifactId>
+      <classifier>tests</classifier>
+      <type>test-jar</type>
       <scope>test</scope>
     </dependency>
   </dependencies>

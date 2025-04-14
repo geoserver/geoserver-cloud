@@ -12,7 +12,13 @@ server:
     whitelabel:
       enabled: true
 management.server.port: 8081
-geoserver.base-path: /wms
+geoserver:
+  base-path: /wms
+  service:
+    # Fixed per-service value to support conditional activation of extensions.
+    # This property is checked by @ConditionalOnGeoServerWMS
+    wms:
+      enabled: true
 spring:
   config:
     import:

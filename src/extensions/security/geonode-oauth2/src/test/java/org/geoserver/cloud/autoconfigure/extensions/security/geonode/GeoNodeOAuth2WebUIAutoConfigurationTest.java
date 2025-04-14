@@ -111,12 +111,14 @@ class GeoNodeOAuth2WebUIAutoConfigurationTest {
         FilteredClassLoader filteredClassLoader =
                 new FilteredClassLoader(GeoServerApplication.class, AuthenticationFilterPanelInfo.class);
 
-        runner.withClassLoader(filteredClassLoader).run(context -> assertThat(context)
-                .hasNotFailed()
-                .doesNotHaveBean("geoNodeOAuth2AuthPanelInfo")
-                .doesNotHaveBean("geonodeFormLoginButton"));
+        runner.withPropertyValues("geoserver.service.webui.enabled=true")
+                .withClassLoader(filteredClassLoader)
+                .run(context -> assertThat(context)
+                        .hasNotFailed()
+                        .doesNotHaveBean("geoNodeOAuth2AuthPanelInfo")
+                        .doesNotHaveBean("geonodeFormLoginButton"));
 
-        runner.run(context -> assertThat(context)
+        runner.withPropertyValues("geoserver.service.webui.enabled=true").run(context -> assertThat(context)
                 .hasNotFailed()
                 .hasBean("geoNodeOAuth2AuthPanelInfo")
                 .hasBean("geonodeFormLoginButton"));
