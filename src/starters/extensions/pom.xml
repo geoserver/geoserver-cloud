@@ -10,6 +10,21 @@
   <packaging>jar</packaging>
   <description>Spring Boot starter for the GeoServer Cloud curated list of suppported extensions</description>
   <dependencies>
+    <!-- Input format extensions -->
+    <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-starter-input-formats</artifactId>
+    </dependency>
+    <!-- Output format extensions -->
+    <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-starter-output-formats</artifactId>
+    </dependency>
+    <!-- Security starter (includes all security extensions) -->
+    <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-starter-security</artifactId>
+    </dependency>
     <!-- Feature extensions -->
     <dependency>
       <groupId>org.geoserver.cloud.extensions</groupId>
@@ -27,15 +42,9 @@
       <groupId>org.geoserver.cloud.extensions</groupId>
       <artifactId>gs-cloud-extension-importer</artifactId>
     </dependency>
-    <!-- Output format extensions -->
     <dependency>
-      <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-starter-output-formats</artifactId>
-    </dependency>
-    <!-- Security starter (includes all security extensions) -->
-    <dependency>
-      <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-starter-security</artifactId>
+      <groupId>org.geoserver.cloud.extensions</groupId>
+      <artifactId>gs-cloud-extension-ogcapi-features</artifactId>
     </dependency>
   </dependencies>
 </project>

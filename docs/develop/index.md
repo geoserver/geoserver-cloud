@@ -111,6 +111,9 @@ Each microservice is its own self-contained application, including only the GeoS
         |    |     |_ raster-formats/ ................ Raster formats extensions
         |    |     |_ vector-formats/ ................ Vector formats extensions
         |    |
+        |    |_ ogcapi/ ............................... OGC API extensions
+        |    |     |_ features/ ...................... OGC API Features extension
+        |    |
         |    |_ security/ ............................ Security extensions
         |    |     |_ auth-key/ ...................... Auth Key security extension
         |    |     |_ gateway-shared-auth/ ........... Gateway Shared Auth security extension

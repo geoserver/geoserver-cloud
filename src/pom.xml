@@ -823,6 +823,30 @@
         <artifactId>sts</artifactId>
         <version>${aws.version}</version>
       </dependency>
+      <!-- OGC API core dependencies -->
+      <dependency>
+        <groupId>org.geoserver.extension</groupId>
+        <artifactId>gs-ogcapi-core</artifactId>
+        <version>${gs.version}</version>
+        <optional>true</optional>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.extension</groupId>
+        <artifactId>gs-web-ogcapi</artifactId>
+        <version>${gs.version}</version>
+      </dependency>
+      <!-- OGC API Features dependencies -->
+      <dependency>
+        <groupId>org.geoserver.extension</groupId>
+        <artifactId>gs-ogcapi-features</artifactId>
+        <version>${gs.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.extension</groupId>
+        <artifactId>gs-web-features</artifactId>
+        <version>${gs.version}</version>
+      </dependency>
+      <!-- GeoTools dependencies -->
       <dependency>
         <groupId>org.geotools</groupId>
         <artifactId>gt-main</artifactId>
