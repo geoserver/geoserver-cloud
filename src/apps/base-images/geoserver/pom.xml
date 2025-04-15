@@ -13,9 +13,25 @@
       <groupId>org.geoserver.cloud</groupId>
       <artifactId>gs-cloud-spring-factory</artifactId>
     </dependency>
+    <!-- Base Spring Boot integration -->
+    <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-spring-boot-starter</artifactId>
+    </dependency>
+    <!-- Spring Cloud integration -->
+    <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-spring-cloud-starter</artifactId>
+    </dependency>
+    <!-- Web MVC functionality -->
     <dependency>
       <groupId>org.geoserver.cloud</groupId>
       <artifactId>gs-cloud-starter-webmvc</artifactId>
+    </dependency>
+    <!-- Extensions and functionality -->
+    <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-cloud-starter-extensions</artifactId>
     </dependency>
     <dependency>
       <groupId>org.geoserver.cloud</groupId>
@@ -23,15 +39,7 @@
     </dependency>
     <dependency>
       <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-spring-cloud-starter</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.geoserver.cloud</groupId>
-      <artifactId>spring-boot-simplejndi</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-starter-input-formats</artifactId>
+      <artifactId>gs-cloud-starter-observability</artifactId>
     </dependency>
     <dependency>
       <groupId>org.geoserver.cloud.apps</groupId>
