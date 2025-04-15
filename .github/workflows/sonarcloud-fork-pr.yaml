@@ -2,22 +2,29 @@
 
 name: SonarCloud QA (Fork PRs)
 on:
+  # Use pull_request_target (not pull_request) to ensure secrets are available
+  # while running code from forks, which is needed for SonarCloud integration
   pull_request_target:
     types: [opened, synchronize, reopened]
     paths:
-      - ".github/workflows/sonarcloud.yaml"
-      - ".github/workflows/sonarcloud-fork-pr.yaml"
+      - ".github/workflows/**"
       - "pom.xml"
       - "src/**"
+      - "build-tools/**"
       - "Makefile"
       - "config"
       - "acceptance_tests/**"
       - "ci/**"
+      - "docs/**"
 
 # cancel in-progress jobs or runs for this workflow for the same pr
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
   cancel-in-progress: true
+
+permissions:
+  pull-requests: write
+  contents: read
 
 jobs:
   build:
@@ -26,7 +33,18 @@ jobs:
     timeout-minutes: 60
     # Only run this workflow for PRs from forked repositories
     if: github.event.pull_request.head.repo.full_name != github.repository
+    env:
+      DEBUG_INFO: |-
+        Event type: ${{ github.event_name }}
+        Actor: ${{ github.actor }}
+        PR Head Repo: ${{ github.event.pull_request.head.repo.full_name }}
+        Base Repo: ${{ github.repository }}
+        Is Fork: ${{ github.event.pull_request.head.repo.full_name != github.repository }}
     steps:
+    - name: Debug Workflow Conditions
+      run: |
+        echo "$DEBUG_INFO"
+        
     - name: Checkout PR
       uses: actions/checkout@v4
       with:
@@ -54,10 +72,18 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: |
+        echo "Running pull request analysis for forked PR #${{ github.event.pull_request.number }}"
         ./mvnw verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
         -Dcoverage \
         -Dsonar.projectKey=geoserver_geoserver-cloud \
         -Dsonar.organization=geoserver \
+        -Dsonar.pullrequest.key=${{ github.event.pull_request.number }} \
+        -Dsonar.pullrequest.branch=${{ github.event.pull_request.head.ref }} \
+        -Dsonar.pullrequest.base=${{ github.event.pull_request.base.ref }} \
+        -Dsonar.pullrequest.provider=github \
+        -Dsonar.pullrequest.github.repository=${{ github.repository }} \
+        -Dsonar.scm.provider=git \
+        -Dsonar.verbose=true \
         -Dmaven.javadoc.skip=true \
         -ntp \
         -T1C
