@@ -5,11 +5,11 @@
 
 package org.geoserver.cloud.autoconfigure.web.extension;
 
-import org.geoserver.cloud.autoconfigure.web.extension.importer.ImporterAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 
+/**
+ * Auto-configuration for WebUI extensions.
+ * Extensions are now provided via gs-cloud-starter-extensions.
+ */
 @Configuration
-@Import({ImporterAutoConfiguration.class //
-})
 public class ExtensionsAutoConfiguration {}

@@ -116,6 +116,11 @@
       </dependency>
       <dependency>
         <groupId>org.geoserver.cloud.extensions</groupId>
+        <artifactId>gs-cloud-extension-importer</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud.extensions</groupId>
         <artifactId>gs-cloud-extensions-output-formats</artifactId>
         <version>${project.version}</version>
         <type>pom</type>

@@ -18,6 +18,7 @@
     <module>css-styling</module>
     <module>mapbox-styling</module>
     <module>output-formats</module>
+    <module>importer</module>
   </modules>
 
   <dependencies>
