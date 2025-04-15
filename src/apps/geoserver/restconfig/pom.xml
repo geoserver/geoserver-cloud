@@ -67,7 +67,8 @@
       </plugin>
     </plugins>
   </build>
-  <profiles>
+  <!-- Using importer extension via gs-cloud-starter-extensions -->
+  <!-- <profiles>
     <profile>
       <id>importer</id>
       <activation>
@@ -77,7 +78,6 @@
         <dependency>
           <groupId>org.geoserver.importer</groupId>
           <artifactId>gs-importer-rest</artifactId>
-          <!-- exclude data formats, let them be managed by the ones explicitly imported by this module -->
           <exclusions>
             <exclusion>
               <groupId>org.geotools</groupId>
@@ -99,5 +99,5 @@
         </dependency>
       </dependencies>
     </profile>
-  </profiles>
+  </profiles> -->
 </project>

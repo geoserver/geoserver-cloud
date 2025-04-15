@@ -105,6 +105,7 @@ Each microservice is its own self-contained application, including only the GeoS
         |    |_ app-schema/ .......................... Application Schema extension
         |    |_ core/ ................................ Core extension module
         |    |_ css-styling/ ......................... CSS Styling extension
+        |    |_ importer/ ............................ Importer extension
         |    |_ mapbox-styling/ ...................... MapBox Styling extension
         |    |_ input-formats/ ....................... Input format extensions
         |    |     |_ raster-formats/ ................ Raster formats extensions
