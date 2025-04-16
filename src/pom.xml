@@ -26,6 +26,7 @@
     <spring-boot.version>2.7.18</spring-boot.version>
     <spring.version>5.3.39</spring.version>
     <spring.security.version>5.8.16</spring.security.version>
+    <tomcat.version>9.0.104</tomcat.version>
     <jackson.version>2.18.2</jackson.version>
     <gs.version>2.27.0-SNAPSHOT</gs.version>
     <gt.version>33-SNAPSHOT</gt.version>
@@ -86,6 +87,24 @@
         <version>${spring.security.version}</version>
         <type>pom</type>
         <scope>import</scope>
+      </dependency>
+      <dependency>
+        <!-- override spring-boot-starter-web:2.7.18's embedded tomcat 9.0.83 to latest supported version -->
+        <groupId>org.apache.tomcat.embed</groupId>
+        <artifactId>tomcat-embed-core</artifactId>
+        <version>${tomcat.version}</version>
+      </dependency>
+      <dependency>
+        <!-- override spring-boot-starter-web:2.7.18's embedded tomcat 9.0.83 to latest supported version -->
+        <groupId>org.apache.tomcat.embed</groupId>
+        <artifactId>tomcat-embed-el</artifactId>
+        <version>${tomcat.version}</version>
+      </dependency>
+      <dependency>
+        <!-- override spring-boot-starter-web:2.7.18's embedded tomcat 9.0.83 to latest supported version -->
+        <groupId>org.apache.tomcat.embed</groupId>
+        <artifactId>tomcat-embed-websocket</artifactId>
+        <version>${tomcat.version}</version>
       </dependency>
       <dependency>
         <groupId>org.springframework.cloud</groupId>
