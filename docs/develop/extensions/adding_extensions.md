@@ -354,8 +354,6 @@ geoserver:
 
 ## Implementation Details
 
-<Implementation details and dependencies>
-
 ## Real-World Examples
 
 ### Example: Adding a Security Extension
@@ -363,45 +361,49 @@ geoserver:
 Here's a simplified example from adding the GeoServer ACL security extension:
 
 1. **Directory Structure**:
-   ```
-   src/extensions/security/geoserver-acl/
-   ```
+
+ ```
+ src/extensions/security/geoserver-acl/
+ ```
 
 2. **Configuration Properties**:
-   ```java
-   @Data
-   @ConfigurationProperties(prefix = AclConfigProperties.PREFIX)
-   public class AclConfigProperties {
-       public static final String PREFIX = "geoserver.extension.security.acl";
-       public static final String LEGACY_PREFIX = "geoserver.acl";
-       public static final boolean DEFAULT = false;
-       private boolean enabled = DEFAULT;
-   }
-   ```
+
+ ```java
+ @Data
+ @ConfigurationProperties(prefix = AclConfigProperties.PREFIX)
+ public class AclConfigProperties {
+     public static final String PREFIX = "geoserver.extension.security.acl";
+     public static final String LEGACY_PREFIX = "geoserver.acl";
+     public static final boolean DEFAULT = false;
+     private boolean enabled = DEFAULT;
+ }
+ ```
 
 3. **Conditional Annotation**:
-   ```java
-   @ConditionalOnGeoServer
-   @ConditionalOnProperty(
-           prefix = AclConfigProperties.PREFIX,
-           name = "enabled",
-           havingValue = "true",
-           matchIfMissing = AclConfigProperties.DEFAULT)
-   public @interface ConditionalOnAcl {}
-   ```
+
+ ```java
+ @ConditionalOnGeoServer
+ @ConditionalOnProperty(
+         prefix = AclConfigProperties.PREFIX,
+         name = "enabled",
+         havingValue = "true",
+         matchIfMissing = AclConfigProperties.DEFAULT)
+ public @interface ConditionalOnAcl {}
+ ```
 
 4. **Auto-Configuration**:
-   ```java
-   @AutoConfiguration
-   @EnableConfigurationProperties(AclConfigProperties.class)
-   @ConditionalOnAcl
-   public class AclAutoConfiguration {
-       @PostConstruct
-       void log() {
-           log.info("GeoServer ACL extension enabled");
-       }
-   }
-   ```
+
+ ```java
+ @AutoConfiguration
+ @EnableConfigurationProperties(AclConfigProperties.class)
+ @ConditionalOnAcl
+ public class AclAutoConfiguration {
+     @PostConstruct
+     void log() {
+         log.info("GeoServer ACL extension enabled");
+     }
+ }
+ ```
 
 ## Best Practices
 
