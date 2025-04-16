@@ -19,6 +19,7 @@
     <module>mapbox-styling</module>
     <module>output-formats</module>
     <module>importer</module>
+    <module>ogcapi</module>
   </modules>
 
   <dependencies>

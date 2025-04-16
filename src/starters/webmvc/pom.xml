@@ -19,10 +19,6 @@
       <groupId>org.geoserver.cloud</groupId>
       <artifactId>gs-cloud-starter-catalog-backend</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.geoserver.cloud</groupId>
-      <artifactId>gs-cloud-starter-input-formats</artifactId>
-    </dependency>
     <!-- Web MVC focused dependencies -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
