@@ -1018,6 +1018,46 @@
     </dependency>
   </dependencies>
   <build>
+    <resources>
+      <resource>
+        <directory>${basedir}/src/main/java</directory>
+        <includes>
+          <include>**/*.txt</include>
+          <include>**/*.sql</include>
+          <include>**/*.html</include>
+          <include>**/*.xml</include>
+          <include>**/*.utf</include>
+          <include>**/*.properties</include>
+          <include>**/*.template</include>
+          <include>**/*.serialized</include>
+          <include>**/*.xsd</include>
+          <include>META-INF/*.jai</include>
+          <include>META-INF/mailcap</include>
+          <include>META-INF/services/**</include>
+          <include>applicationContext.xml</include>
+          <include>**/*.ftl</include>
+          <include>**/*.css</include>
+          <include>**/*.js</include>
+          <include>**/*.png</include>
+          <include>**/*.gif</include>
+          <include>**/*.sld</include>
+          <include>**/*.ico</include>
+          <include>**/*.json</include>
+          <include>**/*.svg</include>
+        </includes>
+        <excludes>
+          <exclude>**/doc-files/**</exclude>
+          <exclude>org/geotools/resources/i18n/**/*.properties</exclude>
+        </excludes>
+      </resource>
+      <resource>
+        <directory>${basedir}/src/main/resources</directory>
+        <includes>
+          <include>**/*</include>
+        </includes>
+      </resource>
+    </resources>
+
     <pluginManagement>
       <plugins>
         <plugin>
