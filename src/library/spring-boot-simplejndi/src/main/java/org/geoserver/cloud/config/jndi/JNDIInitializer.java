@@ -69,7 +69,7 @@ public class JNDIInitializer implements InitializingBean, DisposableBean {
             return;
         }
 
-        configs.entrySet().forEach(e -> {
+        configs.entrySet().stream().filter(e -> e.getValue().isEnabled()).forEach(e -> {
             String jndiName = toJndiDatasourceName(e.getKey());
             try {
                 HikariDataSource dataSource = (HikariDataSource) initialContext.lookup(jndiName);

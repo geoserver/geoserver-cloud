@@ -17,6 +17,25 @@
     <dependency>
       <groupId>org.geoserver.extension</groupId>
       <artifactId>gs-app-schema-core</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.geoserver</groupId>
+          <artifactId>gs-main</artifactId>
+          <!-- can't add classifier here, but look at https://github.com/geoserver/geoserver/pull/8504 -->
+          <!--classifier>tests</classifier-->
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver</groupId>
+      <artifactId>gs-main</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver</groupId>
+      <artifactId>gs-main</artifactId>
+      <version>${gs.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>
