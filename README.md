@@ -61,6 +61,7 @@ Only a curated selection of the extensive [GeoServer extensions](http://geoserve
     * MBStyle Styling
 * **Input Sources**:
     * GeoPackage
+    * GeoParquet
     * Cloud Optimized GeoTIFF
     * Pre-generalized Features
     * ImagePyramid

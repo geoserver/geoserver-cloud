@@ -15,6 +15,7 @@ This auto-configuration module:
 The module includes support for several vector data formats:
 
 ### Standard Data Formats
+
 - Shapefile
 - PostGIS
 - GeoPackage
@@ -23,9 +24,88 @@ The module includes support for several vector data formats:
 - WFS
 
 ### Specialized Data Formats
-- Pre-generalized Features (provides simplified geometries for different scale levels)
+
+- GeoParquet (columnar storage format for geospatial data)
 - Graticule (generates latitude/longitude grid lines)
 - FlatGeobuf (efficient binary format with random access)
+- Pre-generalized Features (provides simplified geometries for different scale levels)
+
+## Usage
+
+This module is typically used indirectly through the `gs-cloud-starter-vector-formats` starter.
+
+For direct usage, add this module as a dependency:
+
+```xml
+<dependency>
+  <groupId>org.geoserver.cloud.extensions</groupId>
+  <artifactId>gs-cloud-extension-vector-formats</artifactId>
+</dependency>
+```
+
+Vector data format implementations must be provided separately.
+
+## Configuration Properties
+
+The following YAML shows **example** configuration (not defaults). By default, all formats are enabled when no configuration is provided:
+
+```yaml
+geotools.data.filtering:
+  # Master switch for filtering, enabled by default
+  enabled: true
+  
+  # EXAMPLE: Configure specific vector formats by their display names
+  vector-formats:
+    # Use display names with proper escaping for special characters
+    "[Shapefile]": true
+    "[PostGIS]": true
+    "[GeoPackage]": true
+    "[GeoParquet]": true
+    "[Oracle NG]": false
+    "[Web Feature Server (NG)]": false
+    "[Graticule]": true
+    "[FlatGeobuf]": true
+    "[Generalizing data store]": ${geoserver.extension.pregeneralized.enabled:false}
+```
+
+## Auto-configuration Classes
+
+- `DataAccessFactoryFilteringAutoConfiguration`: Main auto-configuration class
+- `DataAccessFactoryFilterConfigProperties`: Configuration properties
+- `DataAccessFactoryFilterProcessor`: Implementation of the filtering mechanism
+
+## GeoParquet Extension
+
+The GeoParquet extension provides support for reading and serving data from GeoParquet files, an open format that builds on Apache Parquet for efficient columnar storage of geospatial data.
+
+### Features
+
+The GeoParquet extension provides:
+- A data store implementation for GeoParquet files and directories
+- Support for local, HTTP/HTTPS, and S3-hosted data sources
+- Handling of Hive-partitioned datasets
+- Geometry simplification for rendering optimization
+- Integration with GeoServer Web UI for configuring GeoParquet stores
+
+### Configuration
+
+The GeoParquet data store is integrated with the vector formats filtering mechanism. It's available by default unless specifically disabled:
+
+```yaml
+geotools.data.filtering:
+  enabled: true
+  vector-formats:
+    "[GeoParquet]": false  # Set to false to disable
+```
+
+### Usage
+
+When available, the GeoParquet store type will be listed when adding a new data store in the GeoServer Web UI:
+
+1. Navigate to "Stores" > "Add new Store"
+2. Select "GeoParquet" from the list of vector data sources
+3. Configure the URI (file://, http://, https://, or s3://) and other parameters
+4. Publish layers from the discovered datasets
 
 ## Graticule Extension
 
@@ -60,45 +140,3 @@ When available, the graticule store type will be listed when adding a new data s
 3. Configure the graticule properties (spacing, etc.)
 4. Use the resulting layer in your maps
 
-## Usage
-
-This module is typically used indirectly through the `gs-cloud-starter-vector-formats` starter.
-
-For direct usage, add this module as a dependency:
-
-```xml
-<dependency>
-  <groupId>org.geoserver.cloud.extensions</groupId>
-  <artifactId>gs-cloud-extension-vector-formats</artifactId>
-</dependency>
-```
-
-Vector data format implementations must be provided separately.
-
-## Configuration Properties
-
-The following YAML shows **example** configuration (not defaults). By default, all formats are enabled when no configuration is provided:
-
-```yaml
-geotools.data.filtering:
-  # Master switch for filtering, enabled by default
-  enabled: true
-  
-  # EXAMPLE: Configure specific vector formats by their display names
-  vector-formats:
-    # Use display names with proper escaping for special characters
-    "[Shapefile]": true
-    "[PostGIS]": true
-    "[GeoPackage]": true
-    "[Oracle NG]": false
-    "[Web Feature Server (NG)]": false
-    "[Graticule]": true
-    "[FlatGeobuf]": true
-    "[Generalizing data store]": ${geoserver.extension.pregeneralized.enabled:false}
-```
-
-## Auto-configuration Classes
-
-- `DataAccessFactoryFilteringAutoConfiguration`: Main auto-configuration class
-- `DataAccessFactoryFilterConfigProperties`: Configuration properties
-- `DataAccessFactoryFilterProcessor`: Implementation of the filtering mechanism
