@@ -76,6 +76,22 @@
     </dependency>
 
     <dependency>
+      <groupId>org.geoserver.community</groupId>
+      <artifactId>gs-geoparquet</artifactId>
+      <version>${gs.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.geotools</groupId>
+          <artifactId>gt-jdbc</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-databind</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
       <!-- optional for configurations that might contribute webui components-->
       <groupId>org.geoserver.web</groupId>
       <artifactId>gs-web-core</artifactId>

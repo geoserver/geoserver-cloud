@@ -24,6 +24,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  *     # Alphabetically sorted factory display names with proper escaping
  *     "[Application Schema DataAccess]": ${geoserver.extension.appschema.enabled:false}
  *     "[GeoPackage]": true
+ *     "[GeoParquet]": true
  *     "[Generalizing data store]": ${geoserver.extension.pregeneralized.enabled:false}
  *     "[Oracle NG]": false
  *     "[PostGIS]": true

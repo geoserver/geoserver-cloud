@@ -1,2 +1,3 @@
 org.geotools.autoconfigure.vectorformats.DataAccessFactoryFilteringAutoConfiguration
 org.geoserver.cloud.autoconfigure.vectorformats.graticule.GraticuleWebComponentsAutoConfiguration
+org.geoserver.cloud.autoconfigure.vectorformats.geoparquet.GeoParquetWebComponentsAutoConfiguration
