@@ -61,7 +61,7 @@ jobs:
 
     - name: Build application packages
       run: |
-        make package
+        make install
 
     - name: Build and push base images
       run: |

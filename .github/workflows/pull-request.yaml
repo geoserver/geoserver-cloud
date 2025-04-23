@@ -110,3 +110,9 @@ jobs:
       if: always()
       run: |
         make clean-acceptance-tests-${{ matrix.catalog }}
+
+    - name: Remove project jars from cached repository
+      if: always()
+      run: |
+        rm -rf ~/.m2/repository/org/geoserver
+        find ~/.m2/repository -name "*SNAPSHOT*" -type d | xargs rm -rf {}
