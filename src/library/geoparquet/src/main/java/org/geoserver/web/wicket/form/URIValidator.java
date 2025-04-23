@@ -282,7 +282,7 @@ public class URIValidator implements IValidator<String> {
             if (fileMustExist) {
                 boolean anyMatch;
                 if (containsGlobPattern) {
-                    anyMatch = anyFileMatchesGlob(validatable, file);
+                    anyMatch = anyFileMatchesGlob(file);
                 } else {
                     anyMatch = Files.exists(file);
                 }
@@ -307,12 +307,11 @@ public class URIValidator implements IValidator<String> {
      *   <li>Returns true if any file matches the pattern, false otherwise
      * </ol>
      *
-     * @param validatable The Wicket validatable object for error reporting
      * @param file The path containing glob patterns to match
      * @return True if at least one file matches the glob pattern, false otherwise
      * @throws IOException If an I/O error occurs while traversing the file tree
      */
-    private boolean anyFileMatchesGlob(IValidatable<String> validatable, Path file) throws IOException {
+    private boolean anyFileMatchesGlob(Path file) throws IOException {
         // Get the file system but don't close it since it's the default file system
         // which should not be closed (FileSystems.getDefault() doesn't need to be closed)
         String syntaxAndPattern = "glob:" + file.toString();
@@ -381,8 +380,7 @@ public class URIValidator implements IValidator<String> {
             }
 
             try {
-                Path result = file.getFileSystem().getPath(basePath);
-                return result;
+                return file.getFileSystem().getPath(basePath);
             } catch (Exception e) {
                 // Unable to create path, fall back to default
             }

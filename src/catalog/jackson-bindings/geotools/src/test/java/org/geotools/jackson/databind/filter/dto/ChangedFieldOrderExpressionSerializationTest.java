@@ -16,7 +16,8 @@ import org.junit.jupiter.api.BeforeAll;
 
 public class ChangedFieldOrderExpressionSerializationTest extends ExpressionSerializationTest {
 
-    public static @BeforeAll void beforeAll() {
+    @BeforeAll
+    static void setUpMapper() {
         objectMapper = ObjectMapperUtil.newObjectMapper();
 
         // use the custom serializer from below to ensure that
@@ -34,6 +35,7 @@ public class ChangedFieldOrderExpressionSerializationTest extends ExpressionSeri
      * is a real scenario in data originating from postgres JSONB columns.
      *
      */
+    @SuppressWarnings("serial")
     private static class ChangedAttributeOrderLiteralSerializer extends LiteralSerializer {
         @Override
         protected void writeCollection(Collection<?> collection, JsonGenerator gen, SerializerProvider provider)

@@ -169,6 +169,7 @@ public class AccessLogWebfluxFilter implements OrderedWebFilter {
             long duration = System.currentTimeMillis() - startTime;
 
             // Get status code if available, or use 0 if not set
+            @SuppressWarnings("removal")
             Integer statusCode = exchange.getResponse().getRawStatusCode();
             if (statusCode == null) {
                 statusCode = 0;

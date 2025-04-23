@@ -345,6 +345,7 @@ public interface ExtendedCatalogFacade extends CatalogFacade {
      * @throws UnsupportedOperationException always, directing users to {@link #update(CatalogInfo, Patch)}.
      * @deprecated since 1.0, for removal; use {@link #update(CatalogInfo, Patch)} instead.
      */
+    @Deprecated(since = "1.0", forRemoval = true)
     @Override
     default void save(LayerInfo layer) {
         throw new UnsupportedOperationException("Expected use of update(CatalogInfo, Patch)");

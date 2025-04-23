@@ -18,7 +18,8 @@ class ExpressionMapperTest extends ExpressionRoundtripTest {
 
     private ExpressionMapper expressions;
 
-    public @BeforeEach void before() {
+    @BeforeEach
+    void before() {
         expressions = Mappers.getMapper(ExpressionMapper.class);
     }
 

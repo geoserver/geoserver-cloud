@@ -10,6 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.gateway.GatewayApplication;
 import org.geoserver.cloud.gateway.filter.TestMdcVerificationFilter;
 import org.geoserver.cloud.logging.mdc.webflux.MDCWebFilter;
@@ -31,6 +32,7 @@ import reactor.test.StepVerifier;
         classes = {GatewayApplication.class, org.geoserver.cloud.gateway.config.TestMdcConfiguration.class},
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles({"test", "json-logs"})
+@Slf4j
 class GatewayMdcPropagationTest {
 
     @LocalServerPort
@@ -55,12 +57,6 @@ class GatewayMdcPropagationTest {
 
     @Test
     void testFiltersAreRegistered() {
-        // Log all registered filters for debugging
-        System.out.println("==== All registered GlobalFilters ====");
-        globalFilters.forEach(
-                filter -> System.out.println("Filter: " + filter.getClass().getName()));
-        System.out.println("=======================================");
-
         // Verify the MDCWebFilter from Spring Boot 3 observability module exists as a bean
         assertThat(applicationContext.getBeanNamesForType(MDCWebFilter.class))
                 .as("MDCWebFilter bean should be registered")
@@ -74,7 +70,7 @@ class GatewayMdcPropagationTest {
                 .isTrue();
 
         // For this test, we just want to ensure our test filter is registered
-        boolean hasTestFilter = globalFilters.stream().anyMatch(filter -> filter instanceof TestMdcVerificationFilter);
+        boolean hasTestFilter = globalFilters.stream().anyMatch(TestMdcVerificationFilter.class::isInstance);
 
         assertThat(hasTestFilter)
                 .as("TestMdcVerificationFilter should be registered")
@@ -92,10 +88,10 @@ class GatewayMdcPropagationTest {
                     if (ctx.hasKey(TestMdcVerificationFilter.MDC_CONTEXT_KEY)) {
                         Map<String, String> mdcMap = ctx.get(TestMdcVerificationFilter.MDC_CONTEXT_KEY);
                         // Log what we got for debugging
-                        System.out.println("MDC context in filter: " + mdcMap);
+                        log.info("MDC context in filter: " + mdcMap);
                     } else {
                         // Just log this instead of failing
-                        System.out.println("No MDC context found in reactor context");
+                        log.info("No MDC context found in reactor context");
                     }
                     return chain.filter(exchange);
                 });
@@ -174,23 +170,23 @@ class GatewayMdcPropagationTest {
 
         // With Spring Boot 3 observability, we expect different log output
         // Look for the verification values that we manually set
-        assertThat(logContent).contains("test.verification");
-        assertThat(logContent).contains("test.requestId");
-        assertThat(logContent).contains("manual-verification");
-
-        // Ensure the TestMdcVerificationFilter message is in the logs
-        assertThat(logContent).contains("MDC context verified in reactor context for request");
+        assertThat(logContent)
+                .contains("test.verification")
+                .contains("test.requestId")
+                .contains("manual-verification")
+                // Ensure the TestMdcVerificationFilter message is in the logs
+                .contains("MDC context verified in reactor context for request");
 
         // Print a summarized view of what MDC properties were captured
         String requestId = testMdcFilter.getMdcByRequestId().keySet().iterator().next();
         Map<String, String> mdcMap = testMdcFilter.getMdcForRequest(requestId);
 
-        System.out.println("======== Verified MDC Properties in Logs ========");
-        System.out.println("Request ID: " + requestId);
-        System.out.println("Captured MDC properties: " + mdcMap.keySet());
-        System.out.println("Http Method: " + mdcMap.get("http.request.method"));
-        System.out.println("Http URL: " + mdcMap.get("http.request.url"));
-        System.out.println("================================================");
+        log.info("======== Verified MDC Properties in Logs ========");
+        log.info("Request ID: " + requestId);
+        log.info("Captured MDC properties: " + mdcMap.keySet());
+        log.info("Http Method: " + mdcMap.get("http.request.method"));
+        log.info("Http URL: " + mdcMap.get("http.request.url"));
+        log.info("================================================");
     }
 
     /**

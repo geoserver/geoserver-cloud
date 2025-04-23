@@ -34,7 +34,8 @@ class PropertyDiffTest {
 
     public CatalogTestData data;
 
-    public @BeforeEach void setup() {
+    @BeforeEach
+    void setup() {
         Catalog catalog = new CatalogPlugin();
         data = CatalogTestData.empty(() -> catalog, () -> null)
                 .initConfig(false)

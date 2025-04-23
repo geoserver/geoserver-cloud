@@ -17,7 +17,8 @@ class ExpressionSerializationTest extends ExpressionRoundtripTest {
 
     protected static ObjectMapper objectMapper;
 
-    public static @BeforeAll void beforeAll() {
+    @BeforeAll
+    static void setUpMapper() {
         objectMapper = ObjectMapperUtil.newObjectMapper();
     }
 

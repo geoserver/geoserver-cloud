@@ -39,7 +39,8 @@ class FilteringXmlBeanDefinitionReaderTest {
      * </code>
      * </pre>
      */
-    public @BeforeEach void before() {
+    @BeforeEach
+    void before() {
         registry = new DefaultListableBeanFactory();
         reader = new FilteringXmlBeanDefinitionReader(registry);
     }

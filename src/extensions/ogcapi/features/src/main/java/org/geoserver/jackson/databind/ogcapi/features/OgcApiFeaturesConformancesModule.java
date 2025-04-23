@@ -102,6 +102,7 @@ public class OgcApiFeaturesConformancesModule extends SimpleModule {
             }
         }
 
+        @SuppressWarnings("java:S3011") // /setAccessible required because method and variable typed don't match
         private void writeAdvancedField(JsonGenerator gen, CQL2Conformance value) throws IOException {
             try {
                 Field field = CQL2Conformance.class.getDeclaredField("advanced");

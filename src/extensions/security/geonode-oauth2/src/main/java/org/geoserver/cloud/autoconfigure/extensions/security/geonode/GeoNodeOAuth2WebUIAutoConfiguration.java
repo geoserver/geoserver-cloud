@@ -26,6 +26,7 @@ import org.springframework.context.annotation.Import;
 @ConditionalOnGeoServerWebUI
 @Import(WebUIComponents.class)
 @Slf4j
+@SuppressWarnings("java:S1118") // public constructor required
 public class GeoNodeOAuth2WebUIAutoConfiguration {
 
     static final String UI_BEANS = "geoNodeOAuth2AuthPanelInfo|geonodeFormLoginButton";

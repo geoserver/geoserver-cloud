@@ -36,7 +36,7 @@ import org.geotools.api.data.DataAccessFactory.Param;
  *
  * @see org.geotools.data.geoparquet.GeoParquetDataStoreFactory
  */
-@SuppressWarnings("serial")
+@SuppressWarnings({"serial", "java:S110"})
 public class GeoParquetDataStoreEditPanel extends StoreEditPanel {
 
     /**

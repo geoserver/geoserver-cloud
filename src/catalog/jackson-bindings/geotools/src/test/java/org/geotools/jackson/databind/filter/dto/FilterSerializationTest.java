@@ -25,7 +25,8 @@ class FilterSerializationTest extends FilterRoundtripTest {
 
     private static ObjectMapper objectMapper;
 
-    public static @BeforeAll void beforeAll() {
+    @BeforeAll
+    static void beforeAll() {
         objectMapper = ObjectMapperUtil.newObjectMapper();
     }
 

@@ -88,7 +88,7 @@ class GsCloudLayerGroupContainmentCacheTest {
     static Path tmpDir;
 
     @BeforeAll
-    public static void setupBaseCatalog() throws Exception {
+    static void setupBaseCatalog() throws Exception {
         GeoServerExtensionsHelper.setIsSpringContext(false);
         catalog = new CatalogImpl();
         catalog.setResourceLoader(new GeoServerResourceLoader());
@@ -152,7 +152,7 @@ class GsCloudLayerGroupContainmentCacheTest {
     }
 
     @BeforeEach
-    public void setupLayerGrups() {
+    void setupLayerGrups() {
         LayerInfo lakes = catalog.getLayerByName(getLayerId(MockData.LAKES));
         LayerInfo forests = catalog.getLayerByName(getLayerId(MockData.FORESTS));
         LayerInfo roads = catalog.getLayerByName(getLayerId(MockData.ROAD_SEGMENTS));
@@ -176,7 +176,7 @@ class GsCloudLayerGroupContainmentCacheTest {
     }
 
     @AfterEach
-    public void clearLayerGroups() {
+    void clearLayerGroups() {
         CascadeDeleteVisitor remover = new CascadeDeleteVisitor(catalog);
         for (LayerGroupInfo lg : catalog.getLayerGroups()) {
             if (catalog.getLayerGroup(lg.getId()) != null) {
