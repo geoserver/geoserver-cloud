@@ -58,7 +58,13 @@ build-image: build-base-images build-image-infrastructure build-image-geoserver
 .PHONY: build-base-images
 build-base-images: package-base-images
 	COMPOSE_DOCKER_CLI_BUILD=0 DOCKER_BUILDKIT=0 TAG=$(TAG) \
-	docker compose -f docker-build/base-images.yml build
+	docker compose -f docker-build/base-images.yml build jre
+	COMPOSE_DOCKER_CLI_BUILD=0 DOCKER_BUILDKIT=0 TAG=$(TAG) \
+	docker compose -f docker-build/base-images.yml build spring-boot
+	COMPOSE_DOCKER_CLI_BUILD=0 DOCKER_BUILDKIT=0 TAG=$(TAG) \
+	docker compose -f docker-build/base-images.yml build spring-boot3
+	COMPOSE_DOCKER_CLI_BUILD=0 DOCKER_BUILDKIT=0 TAG=$(TAG) \
+	docker compose -f docker-build/base-images.yml build geoserver-common
 
 .PHONY: build-image-infrastructure
 build-image-infrastructure: package-infrastructure-images
