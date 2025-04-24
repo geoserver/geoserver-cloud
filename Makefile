@@ -41,6 +41,7 @@ format-java:
 
 .PHONY: install
 install: build-tools
+	./mvnw clean install -DskipTests -ntp -U -T1C -pl src/starters/spring-boot3,src/starters/observability-spring-boot-3 -am
 	./mvnw clean install -DskipTests -ntp -U -T1C
 
 .PHONY: package
@@ -57,7 +58,13 @@ build-image: build-base-images build-image-infrastructure build-image-geoserver
 .PHONY: build-base-images
 build-base-images: package-base-images
 	COMPOSE_DOCKER_CLI_BUILD=0 DOCKER_BUILDKIT=0 TAG=$(TAG) \
-	docker compose -f docker-build/base-images.yml build
+	docker compose -f docker-build/base-images.yml build jre
+	COMPOSE_DOCKER_CLI_BUILD=0 DOCKER_BUILDKIT=0 TAG=$(TAG) \
+	docker compose -f docker-build/base-images.yml build spring-boot
+	COMPOSE_DOCKER_CLI_BUILD=0 DOCKER_BUILDKIT=0 TAG=$(TAG) \
+	docker compose -f docker-build/base-images.yml build spring-boot3
+	COMPOSE_DOCKER_CLI_BUILD=0 DOCKER_BUILDKIT=0 TAG=$(TAG) \
+	docker compose -f docker-build/base-images.yml build geoserver-common
 
 .PHONY: build-image-infrastructure
 build-image-infrastructure: package-infrastructure-images

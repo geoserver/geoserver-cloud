@@ -43,7 +43,7 @@ import org.geotools.util.Version;
 class CloudGWCServiceDescriptionProvider extends ServiceDescriptionProvider {
 
     /** Service type to cross-link between service description and service link description. */
-    public static final String SERVICE_TYPE = "WMTS";
+    public static final String SERVICE_TYPE = GWCServiceDescriptionProvider.SERVICE_TYPE;
 
     private final GWC gwc;
     private final GeoServer geoserver;
@@ -56,6 +56,7 @@ class CloudGWCServiceDescriptionProvider extends ServiceDescriptionProvider {
 
     public CloudGWCServiceDescriptionProvider(
             GWC gwc, GeoServer gs, GoServerWebUIConfigurationProperties staticConfig) {
+        super(SERVICE_TYPE);
         this.gwc = gwc;
         this.geoserver = gs;
         this.staticConfig = staticConfig;
