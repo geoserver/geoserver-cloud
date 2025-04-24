@@ -41,6 +41,7 @@ format-java:
 
 .PHONY: install
 install: build-tools
+	./mvnw clean install -DskipTests -ntp -U -T1C -pl src/starters/spring-boot3,src/starters/observability-spring-boot-3 -am
 	./mvnw clean install -DskipTests -ntp -U -T1C
 
 .PHONY: package
