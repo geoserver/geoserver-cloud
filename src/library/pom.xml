@@ -12,7 +12,6 @@
   <modules>
     <module>spring-factory</module>
     <module>spring-boot-simplejndi</module>
-    <module>geoparquet</module>
   </modules>
   <dependencies>
     <dependency>
