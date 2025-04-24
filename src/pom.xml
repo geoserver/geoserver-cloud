@@ -704,6 +704,11 @@
       </dependency>
       <dependency>
         <groupId>org.geoserver.extension</groupId>
+        <artifactId>gs-inspire</artifactId>
+        <version>${gs.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.extension</groupId>
         <artifactId>gs-feature-pregeneralized</artifactId>
         <version>${gs.version}</version>
       </dependency>
