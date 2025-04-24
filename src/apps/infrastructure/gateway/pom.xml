@@ -24,7 +24,7 @@
     <junit-jupiter.version>5.10.2</junit-jupiter.version>
     <wiremock.version>3.4.2</wiremock.version>
     <guava.version>33.0.0-jre</guava.version>
-    <geoserver.cloud.version>2.27.0-SNAPSHOT</geoserver.cloud.version>
+    <geoserver.cloud.version>${project.version}</geoserver.cloud.version>
     <mainClass>org.geoserver.cloud.gateway.GatewayApplication</mainClass>
     <fmt.skip>false</fmt.skip>
     <spotless.action>apply</spotless.action>
