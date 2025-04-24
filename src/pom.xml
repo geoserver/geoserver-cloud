@@ -28,8 +28,8 @@
     <spring.security.version>5.8.16</spring.security.version>
     <tomcat.version>9.0.104</tomcat.version>
     <jackson.version>2.18.2</jackson.version>
-    <gs.version>2.27.0.0</gs.version>
-    <gt.version>33.0</gt.version>
+    <gs.version>2.27.1-SNAPSHOT</gs.version>
+    <gt.version>33-SNAPSHOT</gt.version>
     <acl.version>2.3.2</acl.version>
     <postgresql.version>42.7.5</postgresql.version>
     <!-- Same netty.version used by geoserver for COG and GWC Azure plugin -->
