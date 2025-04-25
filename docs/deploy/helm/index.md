@@ -4,6 +4,10 @@ This example demonstrates how to deploy a simple **GeoserverCloud** setup in you
 It's a basic setup with the `pgconfig` profile enabled (catalog stored in a database).
 Based on the use of [camptocamp/helm-geoserver-cloud](https://github.com/camptocamp/helm-geoserver-cloud) chart.
 
+## Considerations
+
+Make sure to review this documentation as a reference [README.md](https://github.com/camptocamp/helm-geoserver-cloud/blob/master/examples/README.md) . A local Kubernetes cluster and kubectl are required to run this demo.
+
 ## Steps
 
 ### 1. Update dependencies  
