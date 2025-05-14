@@ -383,7 +383,7 @@ public abstract class GeoServerCatalogModuleTest {
     }
 
     @Test
-    void testLayerGroup() {
+    void testLayerGroupLayerGroupStyle() {
         LayerGroupInfo lg = data.layerGroup1;
         lg.setTitle("LG Title");
         lg.setAbstract("LG abstract");
@@ -406,6 +406,18 @@ public abstract class GeoServerCatalogModuleTest {
 
         lg.setLayerGroupStyles(Arrays.asList(lgs));
 
+        catalogInfoRoundtripTest(lg);
+    }
+
+    @Test
+    void testLayerGroupDefaultStyles() {
+        LayerGroupInfo lg = data.layerGroup1;
+
+        assertThat(lg.getLayers()).isNotEmpty();
+        lg.getStyles().clear();
+        for (int i = 0; i < lg.getLayers().size(); i++) {
+            lg.getStyles().add(null);
+        }
         catalogInfoRoundtripTest(lg);
     }
 
