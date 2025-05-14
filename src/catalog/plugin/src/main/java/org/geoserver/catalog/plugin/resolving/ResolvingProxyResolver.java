@@ -35,6 +35,7 @@ import org.geoserver.catalog.plugin.Patch;
 import org.geoserver.catalog.plugin.forwarding.ResolvingCatalogFacadeDecorator;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
+import org.springframework.util.StringUtils;
 
 /**
  * A {@link UnaryOperator} that resolves {@link ResolvingProxy} references within {@link CatalogInfo} objects.
@@ -394,9 +395,14 @@ public class ResolvingProxyResolver<T> implements UnaryOperator<T> {
 
         for (int i = 0; i < lg.getStyles().size(); i++) {
             StyleInfo s = lg.getStyles().get(i);
-            if (s != null) {
-                lg.getStyles().set(i, resolve(s));
+            ResolvingProxy proxy = org.geoserver.catalog.impl.ProxyUtils.handler(s, ResolvingProxy.class);
+            StyleInfo resolved = s;
+            if (proxy != null && !StringUtils.hasLength(proxy.getRef())) {
+                resolved = null;
+            } else if (s != null) {
+                resolved = resolve(s);
             }
+            lg.getStyles().set(i, resolved);
         }
         lg.setWorkspace(resolve(lg.getWorkspace()));
         lg.setRootLayer(resolve(lg.getRootLayer()));
