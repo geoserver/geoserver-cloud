@@ -7,6 +7,7 @@ package org.geoserver.jackson.databind.catalog.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.util.List;
+import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -23,4 +24,8 @@ public class WMSLayer extends Resource {
     private boolean metadataBBoxRespected;
     private List<String> selectedRemoteFormats;
     private List<String> selectedRemoteStyles;
+    /**
+     * @since 2.28
+     */
+    private Map<String, String> vendorParameters;
 }

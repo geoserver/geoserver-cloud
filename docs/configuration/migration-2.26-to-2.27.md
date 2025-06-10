@@ -1,6 +1,6 @@
-# Migrating from GeoServer Cloud 2.26.2.0 to 2.27.0.0
+# Migrating from GeoServer Cloud 2.26.x to 2.27.0.0
 
-This guide outlines the key configuration changes when upgrading from GeoServer Cloud 2.26.2.0 to 2.27.0.0.
+This guide outlines the key configuration changes when upgrading from GeoServer Cloud 2.26.x to 2.27.0.0.
 
 > **Important Note**: All configuration changes described in this document are already incorporated as the new defaults in each GeoServer Docker image's `/etc/geoserver/geoserver.yml` externalized configuration file. You only need to adjust these settings if you were using custom configurations that differ from the defaults.
 
@@ -10,7 +10,7 @@ This guide outlines the key configuration changes when upgrading from GeoServer 
 
 The most significant change is the reorganization of extension configuration properties under a unified `geoserver.extension` namespace. This improves configuration organization and consistency.
 
-#### Old Structure (2.26.2.0)
+#### Old Structure (2.26.x)
 
 ```yaml
 geoserver:
@@ -73,7 +73,7 @@ geoserver:
 
 The WebUI service configuration for the importer extension has changed:
 
-#### Old Structure (2.26.2.0)
+#### Old Structure (2.26.x)
 
 ```yaml
 geoserver:
@@ -143,7 +143,7 @@ To migrate your custom configuration:
 
 Here's a simplified example of migrating from the old to the new configuration format:
 
-### Old Configuration (2.26.2.0)
+### Old Configuration (2.26.x)
 
 ```yaml
 geoserver:
