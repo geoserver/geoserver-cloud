@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.geotools.jdbc.RegexpValidator;
 import org.geotools.jdbc.VirtualTable;
 import org.geotools.jdbc.VirtualTableParameter;
@@ -24,6 +25,7 @@ import org.locationtech.jts.geom.Polygon;
 /**
  * Test to verify our VirtualTable serialization fixes work correctly
  */
+@Slf4j
 public class VirtualTableSerializationTest {
 
     private ObjectMapper objectMapper;
@@ -59,7 +61,7 @@ public class VirtualTableSerializationTest {
 
         // Serialize to JSON
         String json = objectMapper.writeValueAsString(originalVt);
-        System.out.println("Serialized VirtualTable: " + json);
+        log.info("Serialized VirtualTable: {}", json);
 
         // Deserialize back
         VirtualTable deserializedVt = objectMapper.readValue(json, VirtualTable.class);

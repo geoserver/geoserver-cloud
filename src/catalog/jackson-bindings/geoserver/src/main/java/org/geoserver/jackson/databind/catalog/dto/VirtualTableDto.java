@@ -5,6 +5,14 @@
 
 package org.geoserver.jackson.databind.catalog.dto;
 
+import static org.locationtech.jts.geom.Geometry.TYPENAME_GEOMETRYCOLLECTION;
+import static org.locationtech.jts.geom.Geometry.TYPENAME_LINESTRING;
+import static org.locationtech.jts.geom.Geometry.TYPENAME_MULTILINESTRING;
+import static org.locationtech.jts.geom.Geometry.TYPENAME_MULTIPOINT;
+import static org.locationtech.jts.geom.Geometry.TYPENAME_MULTIPOLYGON;
+import static org.locationtech.jts.geom.Geometry.TYPENAME_POINT;
+import static org.locationtech.jts.geom.Geometry.TYPENAME_POLYGON;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -19,8 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.Data;
-import org.geoserver.jackson.databind.catalog.dto.VirtualTableDto.GeometryTypesDeserializer;
-import org.geoserver.jackson.databind.catalog.dto.VirtualTableDto.GeometryTypesSerializer;
+import lombok.NonNull;
 import org.geotools.jdbc.VirtualTable;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollection;
@@ -63,11 +70,13 @@ public class VirtualTableDto {
 
             gen.writeStartObject();
             for (Map.Entry<String, Class<? extends Geometry>> entry : value.entrySet()) {
-                gen.writeFieldName(entry.getKey());
-                if (entry.getValue() != null) {
-                    gen.writeString(entry.getValue().getSimpleName());
-                } else {
+                String attName = entry.getKey();
+                gen.writeFieldName(attName);
+                Class<? extends Geometry> geomType = entry.getValue();
+                if (geomType == null) {
                     gen.writeNull();
+                } else {
+                    gen.writeString(geomType.getSimpleName());
                 }
             }
             gen.writeEndObject();
@@ -88,37 +97,28 @@ public class VirtualTableDto {
 
             Map<String, Class<? extends Geometry>> result = new HashMap<>();
             for (Map.Entry<String, String> entry : stringMap.entrySet()) {
+                String attName = entry.getKey();
                 String className = entry.getValue();
+                Class<? extends Geometry> geometryClass = null;
                 if (className != null) {
-                    Class<? extends Geometry> geometryClass = getGeometryClass(className);
-                    result.put(entry.getKey(), geometryClass);
-                } else {
-                    result.put(entry.getKey(), null);
+                    geometryClass = getGeometryClass(className);
                 }
+                result.put(attName, geometryClass);
             }
             return result;
         }
 
-        private Class<? extends Geometry> getGeometryClass(String className) {
-            switch (className) {
-                case "Point":
-                    return Point.class;
-                case "LineString":
-                    return LineString.class;
-                case "Polygon":
-                    return Polygon.class;
-                case "MultiPoint":
-                    return MultiPoint.class;
-                case "MultiLineString":
-                    return MultiLineString.class;
-                case "MultiPolygon":
-                    return MultiPolygon.class;
-                case "GeometryCollection":
-                    return GeometryCollection.class;
-                case "Geometry":
-                default:
-                    return Geometry.class;
-            }
+        private Class<? extends Geometry> getGeometryClass(@NonNull String className) {
+            return switch (className) {
+                case TYPENAME_POINT -> Point.class;
+                case TYPENAME_LINESTRING -> LineString.class;
+                case TYPENAME_POLYGON -> Polygon.class;
+                case TYPENAME_MULTIPOINT -> MultiPoint.class;
+                case TYPENAME_MULTILINESTRING -> MultiLineString.class;
+                case TYPENAME_MULTIPOLYGON -> MultiPolygon.class;
+                case TYPENAME_GEOMETRYCOLLECTION -> GeometryCollection.class;
+                default -> Geometry.class;
+            };
         }
     }
 }
