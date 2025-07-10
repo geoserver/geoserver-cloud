@@ -186,6 +186,11 @@ public abstract class Service extends ConfigInfoDto {
          * @since geoserver 2.24.0
          */
         private String csvDateFormat;
+
+        /**
+         * @since geoserver 2.28.0
+         */
+        private boolean disableStoredQueriesManagement;
     }
 
     @Data
