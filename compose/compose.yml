@@ -1,9 +1,12 @@
+volumes:
+  # geowebcache tiles shared volume
+  geowebcache_data:
+  # geoserver data files shared volume (not datadir, data)
+  geoserver_data:
+
 include:
   - ./infra.yml
   
-volumes:
-  geowebcache_data:
-
 x-gs-dependencies: &gs-dependencies
   rabbitmq:
     condition: service_healthy
@@ -17,8 +20,19 @@ x-gs-dependencies: &gs-dependencies
   postgis:
     condition: service_started
     required: true
+  init-test-data:
+    condition: service_completed_successfully
+    required: true
 
 services:
+  init-test-data:
+    image: alpine:3.18.4
+    user: root
+    volumes:
+      - geoserver_data:/mnt/geoserver_data
+      - geowebcache_data:/mnt/geowebcache_data
+      - ./sampledata.tgz:/tmp/sampledata.tgz
+    command: sh -c "chown -R ${GS_USER} /mnt/geoserver_data /mnt/geowebcache_data && cd /mnt/geoserver_data && if [ ! -d sampledata ]; then tar xvzf /tmp/sampledata.tgz && chown -R ${GS_USER} sampledata; fi"
 
   acl:
     image: ${ACL_REPOSITORY}/geoserver-acl:${ACL_TAG}
