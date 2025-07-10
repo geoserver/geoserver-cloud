@@ -7,13 +7,13 @@ from geoservercloud import GeoServerCloud
 
 GEOSERVER_URL = os.getenv("GEOSERVER_URL", "http://gateway:8080/geoserver/cloud")
 RESOURCE_DIR = Path(__file__).parent / "resources"
-# Database connection
-PGHOST = "geodatabase"
-PGPORT = 5432
-PGDATABASE = "geodata"
-PGUSER = "geodata"
-PGPASSWORD = "geodata"
-PGSCHEMA = "test1"
+# Database connection - defaults for container, can be overridden for local testing
+PGHOST = os.getenv("PGHOST", "geodatabase")
+PGPORT = int(os.getenv("PGPORT", "5432"))
+PGDATABASE = os.getenv("PGDATABASE", "geodata")
+PGUSER = os.getenv("PGUSER", "geodata")
+PGPASSWORD = os.getenv("PGPASSWORD", "geodata")
+PGSCHEMA = os.getenv("PGSCHEMA", "test1")
 WORKSPACE = "test_workspace"
 DATASTORE = "test_datastore"
 
