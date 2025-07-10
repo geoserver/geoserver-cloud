@@ -190,8 +190,7 @@ public class GatewaySharedAuthenticationFilter extends GeoServerSecurityFilter
          * header with a delimiter to handle multiple values
          */
         @Override
-        protected Collection<GeoServerRole> getRolesFromHttpAttribute(HttpServletRequest request, String principal) {
-
+        protected Collection<GeoServerRole> getRoles(HttpServletRequest request, String principal) throws IOException {
             GeoServerRoleConverter roleConverter = super.getConverter();
 
             var rolesHeader = getRolesHeaderAttribute();
