@@ -62,13 +62,13 @@ public class StatusCodeWmsExceptionHandler extends WMSServiceExceptionHandler {
 
     @Override
     public void handleServiceException(ServiceException exception, Request request) {
-        setStausCode(exception, request);
+        setStatusCode(exception, request);
         super.handleServiceException(exception, request);
     }
 
-    private void setStausCode(ServiceException exception, Request request) {
+    protected void setStatusCode(ServiceException exception, Request request) {
         if (shallSetStatus(request)) {
-            HttpStatus status = determineStatucCode(exception);
+            HttpStatus status = determineStatusCode(exception);
             HttpServletResponse response = request.getHttpResponse();
             response.setStatus(status.value());
         }
@@ -83,22 +83,31 @@ public class StatusCodeWmsExceptionHandler extends WMSServiceExceptionHandler {
         return propertyResolver.getProperty(ENABLED_PROPERTY, Boolean.class, Boolean.FALSE);
     }
 
-    private HttpStatus determineStatucCode(ServiceException exception) {
-        // RenderedImageMapOutputFormat does not set a ServiceException code in case of
-        // rendering timeout, so check the message:
-        if (exception.getMessage() != null
-                && exception.getMessage().startsWith("This request used more time than allowed")) {
-            /*
-             * The 503 (Service Unavailable) status code indicates that the server is
-             * currently unable to handle the request due to a temporary overload or
-             * scheduled maintenance, which will likely be alleviated after some delay.
-             */
-            return HttpStatus.SERVICE_UNAVAILABLE;
+    private HttpStatus determineStatusCode(ServiceException exception) {
+        final String code = exception.getCode();
+        final String message = exception.getMessage();
+        if (code == null && message != null) {
+            // Some ServiceException do not have code, so check the message instead
+            if (message.startsWith("This request used more time than allowed")) {
+                /*
+                 * RenderedImageMapOutputFormat (rendering timeout)
+                 * The 503 (Service Unavailable) status code indicates that the server is
+                 * currently unable to handle the request due to a temporary overload or
+                 * scheduled maintenance, which will likely be alleviated after some delay.
+                 */
+                return HttpStatus.SERVICE_UNAVAILABLE;
+            } else if (message.contains("Content has been requested in one of the following languages:")) {
+                // Capabilities_1_3_0_Response (the language requested with the query param ACCEPTLANGUAGES is not
+                // supported)
+                return HttpStatus.BAD_REQUEST;
+            }
+        } else if (code != null) {
+            return switch (code) {
+                case MISSING_PARAMETER_VALUE, INVALID_PARAMETER_VALUE, "InvalidCRS" -> HttpStatus.BAD_REQUEST;
+                case SERVICE_UNAVAILABLE, MAX_MEMORY_EXCEEDED -> HttpStatus.SERVICE_UNAVAILABLE;
+                default -> HttpStatus.INTERNAL_SERVER_ERROR;
+            };
         }
-        return switch (exception.getCode()) {
-            case MISSING_PARAMETER_VALUE, INVALID_PARAMETER_VALUE, "InvalidCRS" -> HttpStatus.BAD_REQUEST;
-            case SERVICE_UNAVAILABLE, MAX_MEMORY_EXCEEDED -> HttpStatus.SERVICE_UNAVAILABLE;
-            default -> HttpStatus.INTERNAL_SERVER_ERROR;
-        };
+        return HttpStatus.INTERNAL_SERVER_ERROR;
     }
 }
