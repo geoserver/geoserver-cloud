@@ -1,7 +1,7 @@
 .PHONY: all
 all: install test build-image
 
-TAG=$(shell mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+TAG?=$(shell mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
 
 COSIGN_PASSWORD := $(COSIGN_PASSWORD)
 
@@ -158,14 +158,14 @@ verify-image:
 
 .PHONY: build-acceptance
 build-acceptance:
-	docker build --tag=acceptance:$(TAG) acceptance_tests
+	docker build --tag=geoservercloud/acceptance:latest acceptance_tests
 
 .PHONY: acceptance-tests-datadir
 acceptance-tests-datadir: build-acceptance start-acceptance-tests-datadir run-acceptance-tests-datadir
 
 .PHONY: start-acceptance-tests-datadir
 start-acceptance-tests-datadir:
-	(cd compose/ && ./acceptance_datadir up -d)
+	(cd compose/ && TAG=$(TAG) ./acceptance_datadir up -d)
 
 .PHONY: run-acceptance-tests-datadir
 run-acceptance-tests-datadir:
@@ -173,14 +173,14 @@ run-acceptance-tests-datadir:
 
 .PHONY: clean-acceptance-tests-datadir
 clean-acceptance-tests-datadir:
-	(cd compose/ && ./acceptance_datadir down -v)
+	(cd compose/ && TAG=$(TAG) ./acceptance_datadir down -v)
 
 .PHONY: acceptance-tests-pgconfig
 acceptance-tests-pgconfig: build-acceptance start-acceptance-tests-pgconfig run-acceptance-tests-pgconfig
 
 .PHONY: start-acceptance-tests-pgconfig
 start-acceptance-tests-pgconfig:
-	(cd compose/ && ./acceptance_pgconfig up -d)
+	(cd compose/ && TAG=$(TAG) ./acceptance_pgconfig up -d)
 
 .PHONY: run-acceptance-tests-pgconfig
 run-acceptance-tests-pgconfig:
@@ -188,7 +188,7 @@ run-acceptance-tests-pgconfig:
 
 .PHONY: clean-acceptance-tests-pgconfig
 clean-acceptance-tests-pgconfig:
-	(cd compose/ && ./acceptance_pgconfig down -v)
+	(cd compose/ && TAG=$(TAG) ./acceptance_pgconfig down -v)
 
 .PHONY: acceptance-tests-jdbcconfig
 acceptance-tests-jdbcconfig: build-acceptance start-acceptance-tests-jdbcconfig run-acceptance-tests-jdbcconfig

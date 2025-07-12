@@ -8,6 +8,8 @@ services:
     restart: always
     volumes:
       - ./acceptance_pg_entrypoint:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "5433:5432"  # Expose on port 5433 to avoid conflict with local PostgreSQL
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U geodata"]
       interval: 30s
@@ -22,7 +24,7 @@ services:
           memory: 512M
 
   acceptance:
-    image: acceptance:${TAG}
+    image: geoservercloud/acceptance:latest
     user: ${GS_USER}
     depends_on:
       geodatabase:

@@ -1,5 +1,9 @@
 #/bin/bash
 
+GSUID=$(id -u)
+GSGID=$(id -g)
+
+GS_USER="$GSUID:$GSGID" \
 COMPOSE_PROJECT_NAME=gscloud-acceptance-jdbcconfig \
 docker compose \
 -f compose.yml \

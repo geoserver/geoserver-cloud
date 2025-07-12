@@ -28,8 +28,8 @@ x-geoserver-env: &geoserver_environment
 services:
   init-datadir:
     image: alpine:3.18.4
-    user: ${GS_USER}
-    command: sh -c "cd /opt/app/data_directory; if [ ! -f global.xml ]; then tar xvzf /tmp/datadir.tgz; fi"
+    user: root
+    command: sh -c "cd /opt/app/data_directory; if [ ! -f global.xml ]; then tar xvzf /tmp/datadir.tgz; fi; chown -R ${GS_USER} /opt/app/data_directory"
     volumes:
       - data_directory:/opt/app/data_directory
       - ./catalog-datadir.tgz:/tmp/datadir.tgz
