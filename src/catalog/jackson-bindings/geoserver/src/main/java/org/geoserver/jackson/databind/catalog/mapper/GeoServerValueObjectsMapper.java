@@ -7,6 +7,9 @@ package org.geoserver.jackson.databind.catalog.mapper;
 
 import java.awt.geom.AffineTransform;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import lombok.Generated;
 import org.geoserver.catalog.AttributeTypeInfo;
@@ -37,6 +40,7 @@ import org.geoserver.jackson.databind.catalog.dto.MetadataLink;
 import org.geoserver.jackson.databind.catalog.dto.MetadataMapDto;
 import org.geoserver.jackson.databind.catalog.dto.QueryDto;
 import org.geoserver.jackson.databind.catalog.dto.VirtualTableDto;
+import org.geoserver.jackson.databind.catalog.dto.VirtualTableParameterDto;
 import org.geoserver.jackson.databind.mapper.InfoReferenceMapper;
 import org.geoserver.wfs.GMLInfo;
 import org.geotools.api.coverage.SampleDimensionType;
@@ -49,8 +53,11 @@ import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.jackson.databind.dto.CRS;
 import org.geotools.jackson.databind.filter.dto.Literal;
 import org.geotools.jackson.databind.filter.mapper.GeoToolsValueMappers;
+import org.geotools.jdbc.RegexpValidator;
 import org.geotools.jdbc.VirtualTable;
+import org.geotools.jdbc.VirtualTableParameter;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
+import org.locationtech.jts.geom.Geometry;
 import org.mapstruct.AnnotateWith;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
@@ -178,13 +185,123 @@ public interface GeoServerValueObjectsMapper {
 
     MetadataLinkInfo dtoToInfo(MetadataLink dto);
 
-    VirtualTableDto virtualTableToDto(VirtualTable value);
+    default VirtualTableDto virtualTableToDto(VirtualTable value) {
+        if (value == null) {
+            return null;
+        }
+        VirtualTableDto dto = new VirtualTableDto();
+        dto.setName(value.getName());
+        dto.setSql(value.getSql());
+        dto.setEscapeSql(value.isEscapeSql());
+        dto.setPrimaryKeyColumns(new ArrayList<>(value.getPrimaryKeyColumns()));
+
+        // Map geometry types
+        Map<String, Class<? extends Geometry>> geometryTypesDto = new HashMap<>();
+        value.getGeometries().forEach(geometryName -> {
+            Class<? extends Geometry> geometryType = value.getGeometryType(geometryName);
+            geometryTypesDto.put(geometryName, geometryType);
+        });
+        dto.setGeometryTypes(geometryTypesDto);
+
+        // Map native SRIDs
+        Map<String, Integer> nativeSridsDto = new HashMap<>();
+        value.getGeometries().forEach(geometryName -> {
+            int srid = value.getNativeSrid(geometryName);
+            if (srid != -1) {
+                nativeSridsDto.put(geometryName, srid);
+            }
+        });
+        dto.setNativeSrids(nativeSridsDto);
+
+        // Map dimensions
+        Map<String, Integer> dimensionsDto = new HashMap<>();
+        value.getGeometries().forEach(geometryName -> {
+            int dimension = value.getDimension(geometryName);
+            if (dimension != 2) { // Only store non-default values
+                dimensionsDto.put(geometryName, dimension);
+            }
+        });
+        dto.setDimensions(dimensionsDto);
+
+        // Map parameters
+        Map<String, VirtualTableParameterDto> parametersDto = new HashMap<>();
+        value.getParameterNames().forEach(paramName -> {
+            VirtualTableParameter param = value.getParameter(paramName);
+            if (param != null) {
+                parametersDto.put(paramName, virtualTableParameterToDto(param));
+            }
+        });
+        dto.setParameters(parametersDto);
+
+        return dto;
+    }
 
     default VirtualTable dtoToVirtualTable(VirtualTableDto dto) {
         if (dto == null) {
             return null;
         }
-        return new VirtualTable(dto.getName(), dto.getSql(), dto.isEscapeSql());
+        VirtualTable vt = new VirtualTable(dto.getName(), dto.getSql(), dto.isEscapeSql());
+
+        // Set primary key columns
+        if (dto.getPrimaryKeyColumns() != null) {
+            vt.setPrimaryKeyColumns(new ArrayList<>(dto.getPrimaryKeyColumns()));
+        }
+
+        // Map geometry types, native SRIDs, and dimensions
+        if (dto.getGeometryTypes() != null) {
+            dto.getGeometryTypes().forEach((geometryName, geometryType) -> {
+                if (geometryType != null) {
+                    int nativeSrid =
+                            dto.getNativeSrids() != null ? dto.getNativeSrids().getOrDefault(geometryName, -1) : -1;
+                    int dimension =
+                            dto.getDimensions() != null ? dto.getDimensions().getOrDefault(geometryName, 2) : 2;
+                    vt.addGeometryMetadatata(geometryName, geometryType, nativeSrid, dimension);
+                }
+            });
+        }
+
+        // Map parameters
+        if (dto.getParameters() != null) {
+            dto.getParameters().forEach((paramName, paramDto) -> {
+                VirtualTableParameter param = dtoToVirtualTableParameter(paramDto);
+                if (param != null) {
+                    vt.addParameter(param);
+                }
+            });
+        }
+
+        return vt;
+    }
+
+    default VirtualTableParameterDto virtualTableParameterToDto(VirtualTableParameter param) {
+        if (param == null) {
+            return null;
+        }
+        VirtualTableParameterDto dto = new VirtualTableParameterDto();
+        dto.setName(param.getName());
+        dto.setDefaultValue(param.getDefaultValue());
+
+        // Convert validator to string representation for DTO
+        if (param.getValidator() != null && param.getValidator() instanceof RegexpValidator) {
+            RegexpValidator regexpValidator = (RegexpValidator) param.getValidator();
+            dto.setValidator(regexpValidator.getPattern().pattern());
+        }
+
+        return dto;
+    }
+
+    default VirtualTableParameter dtoToVirtualTableParameter(VirtualTableParameterDto dto) {
+        if (dto == null) {
+            return null;
+        }
+        VirtualTableParameter param = new VirtualTableParameter(dto.getName(), dto.getDefaultValue());
+
+        // Convert validator from DTO string back to proper RegexpValidator
+        if (dto.getValidator() != null && !dto.getValidator().trim().isEmpty()) {
+            param.setValidator(new RegexpValidator(dto.getValidator()));
+        }
+
+        return param;
     }
 
     default MetadataMapDto metadataMap(MetadataMap md) {
