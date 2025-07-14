@@ -79,9 +79,6 @@ services:
     volumes:
       # override with the local copy to test config changes during development
       - $PWD/../config:/etc/geoserver:ro
-    ports:
-      # not needed in production, exposed for local development
-      - 8888:8080
     deploy:
       resources:
         limits:
@@ -97,8 +94,6 @@ services:
     environment:
       JAVA_OPTS: "${JAVA_OPTS_DEFAULT}"
       SPRING_PROFILES_ACTIVE: "${DISCOVERY_SERVER_DEFAULT_PROFILES}"
-    ports:
-      - 8761:8761 # for development, so services can be run from localhost and find the discovery service running on docker
     restart: unless-stopped
     depends_on:
       - config
