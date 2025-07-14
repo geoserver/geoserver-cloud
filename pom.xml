@@ -12,7 +12,7 @@
     <module>src</module>
   </modules>
   <properties>
-    <revision>2.27.2-RC</revision>
+    <revision>2.27.2-SNAPSHOT</revision>
     <fmt.skip>false</fmt.skip>
     <sortpom.skip>${fmt.skip}</sortpom.skip>
     <sortpom.action>sort</sortpom.action>
