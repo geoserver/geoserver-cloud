@@ -15,14 +15,6 @@ services:
     build:
       context: ../src/apps/infrastructure/config/
 
-  admin:
-    extends:
-      file: templates.yml
-      service: multi-platform
-    image: ${REPOSITORY}/geoserver-cloud-admin-server:${TAG}
-    build:
-      context: ../src/apps/infrastructure/admin/
-    
   gateway:
     extends:
       file: templates.yml

@@ -70,7 +70,6 @@ Each microservice is its own self-contained application, including only the GeoS
         |    |     |_ spring-boot3/ .................. Base Spring Boot image (Boot 3.x)
         |    |
         |    |_ infrastructure/ ...................... Infrastructure services
-        |    |     |_ admin/ ......................... Spring-cloud admin service
         |    |     |_ config/ ........................ Spring-cloud config service
         |    |     |_ discovery/...................... Spring-cloud discovery service
         |    |     |_ gateway/ ....................... Spring-cloud gateway service
