@@ -1,80 +1,46 @@
 # for simplicity, use one pgbouncer instance per database
-# postgis -> postgis_pg
-# acldb -> acldb_pg
-# pgconfigdb -> pgconfigdb_pg
+# geodatabase -> geodatabase_pg
 
 services:
-  postgis:
+  geodatabase:
     extends:
       file: templates.yml
       service: pgbouncertemplate
     environment:
-      PGBOUNCER_DATABASE: postgis
-      POSTGRESQL_HOST: postgis_pg
-      POSTGRESQL_DATABASE: postgis
-      POSTGRESQL_USERNAME: postgis
-      POSTGRESQL_PASSWORD: postgis
+      PGBOUNCER_DATABASE: geodatabase
+      POSTGRESQL_HOST: geodatabase_pg
+      POSTGRESQL_DATABASE: geoserver
+      POSTGRESQL_USERNAME: geoserver
+      POSTGRESQL_PASSWORD: geoserver
     depends_on:
-      postgis_pg:
+      geodatabase_pg:
         condition: service_started
     ports:
       - 6432:5432
 
-  acldb:
-    extends:
-      file: templates.yml
-      service: pgbouncertemplate
-    environment:
-      PGBOUNCER_DATABASE: acl
-      POSTGRESQL_HOST: acldb_pg
-      POSTGRESQL_DATABASE: acl
-      POSTGRESQL_USERNAME: acl
-      POSTGRESQL_PASSWORD: acls3cr3t
-    depends_on:
-      acldb_pg:
-        condition: service_started
-    ports:
-      - 7432:5432
-
-  pgconfigdb:
-    extends:
-      file: templates.yml
-      service: pgbouncertemplate
-    environment:
-      PGBOUNCER_DATABASE: pgconfig
-      POSTGRESQL_HOST: pgconfigdb_pg
-      POSTGRESQL_DATABASE: pgconfig
-      POSTGRESQL_USERNAME: pgconfig
-      POSTGRESQL_PASSWORD: pgconfig
-    depends_on:
-      pgconfigdb_pg:
-        condition: service_started
-    ports:
-      - 8432:5432
-
-  postgis_pg:
+  geodatabase_pg:
     extends:
       file: templates.yml
       service: postgistemplate
+    shm_size: 1g
+    environment:
+      POSTGRES_DB: geoserver
+      POSTGRES_USER: geoserver
+      POSTGRES_PASSWORD: geoserver
     volumes:
-      - postgis_data:/var/lib/postgresql/data
+      - ./pg_entrypoint:/docker-entrypoint-initdb.d:ro
+      - geodatabase_data:/var/lib/postgresql/data
     ports:
       - 6433:5432
-
-  acldb_pg:
-    extends:
-      file: templates.yml
-      service: acldbtemplate
-    volumes:
-      - acl_data:/var/lib/postgresql/data
-    ports:
-      - 7433:5432
-
-  pgconfigdb_pg:
-    extends:
-      file: templates.yml
-      service: pgconfigdbtemplate
-    volumes:
-      - pgconfigdb_data:/var/lib/postgresql/data
-    ports:
-      - 8433:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U geoserver"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2g

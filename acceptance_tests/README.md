@@ -63,10 +63,10 @@ cd ../compose
 
 #### Run tests from host machine (full functionality)
 
-**Note:** This requires the geodatabase port to be exposed (port 5433). The acceptance composition now exposes this port automatically.
+**Note:** This requires the geodatabase port to be exposed (port 6432). The acceptance composition now exposes this port automatically.
 
 ```shell
-# Start GeoServer services (geodatabase port 5433 will be exposed)
+# Start GeoServer services (geodatabase port 6432 will be exposed)
 cd ../compose  
 ./acceptance_datadir up -d  # or ./acceptance_pgconfig up -d
 

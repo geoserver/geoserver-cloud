@@ -1,24 +1,34 @@
 volumes:
   #rabbitmq_data: # volume for rabbitmq data, so it doesn't create an anonymous one on each container
-  postgis_data:
-  acl_data:
+  geodatabase_data:
 
 services:
-  postgis:
+  geodatabase:
     extends:
       file: templates.yml
       service: postgistemplate
+    shm_size: 1g
+    environment:
+      POSTGRES_DB: geoserver
+      POSTGRES_USER: geoserver
+      POSTGRES_PASSWORD: geoserver
     volumes:
-      - postgis_data:/var/lib/postgresql/data
+      - ./pg_entrypoint:/docker-entrypoint-initdb.d:ro
+      - geodatabase_data:/var/lib/postgresql/data
     ports:
       - 6432:5432
- 
-  acldb:
-    extends:
-      file: templates.yml
-      service: acldbtemplate
-    volumes:
-      - acl_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U geoserver"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2g
 
   rabbitmq:
     image: rabbitmq:4-management-alpine
@@ -43,22 +53,6 @@ services:
       interval: 15s
       timeout: 30s
       retries: 3
-
-  admin:
-    image: ${REPOSITORY}/geoserver-cloud-admin-server:${TAG}
-    user: ${GS_USER}
-    depends_on:
-      discovery:
-        condition: service_healthy
-    ports:
-      - 9091:8080
-    deploy:
-      mode: replicated
-      replicas: 0
-      resources:
-        limits:
-          cpus: '2.0'
-          memory: 512M
 
   # Sample LDAP server to test LDAP Auth against
   # Go to Authentication -> Authentication Providers -> Add new -> LDAP

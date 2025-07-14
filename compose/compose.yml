@@ -17,7 +17,7 @@ x-gs-dependencies: &gs-dependencies
   acl:
     condition: service_healthy
     required: true
-  postgis:
+  geodatabase:
     condition: service_started
     required: true
   init-test-data:
@@ -38,12 +38,12 @@ services:
     image: ${ACL_REPOSITORY}/geoserver-acl:${ACL_TAG}
     environment:
       # Override default values in the container's /etc/geoserver/acl-service.yml 
-      - PG_HOST=acldb
+      - PG_HOST=geodatabase
       - PG_PORT=5432
-      - PG_DB=acl
+      - PG_DB=geoserver
       - PG_SCHEMA=acl
-      - PG_USERNAME=acl
-      - PG_PASSWORD=acls3cr3t
+      - PG_USERNAME=geoserver
+      - PG_PASSWORD=geoserver
       - 'ACL_USERS_ADMIN_PASSWORD={noop}s3cr3t'
       - 'ACL_USERS_GEOSERVER_PASSWORD={noop}s3cr3t'
       - GEOSERVER_BUS_ENABLED=true
@@ -54,7 +54,7 @@ services:
       #- RABBITMQ_VHOST=""
       #- SPRING_PROFILES_ACTIVE=logging_debug,logging_debug_events
     depends_on:
-      acldb:
+      geodatabase:
         condition: service_started
         required: true
       rabbitmq:
