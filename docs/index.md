@@ -149,7 +149,7 @@ The following diagram depicts the system's general architecture:
 
 # Project Status
 
-Version `2.27.1.0` has been released against a slightly customized GeoServer `2.27.1`
+Version `2.27.2-RC` has been released against a slightly customized GeoServer `2.27.x`
 with some important fixes to allow starting up several GeoServer instances from an empty
 directory or database. We will make sure to contribute those fixes upstream before the final
 release.
