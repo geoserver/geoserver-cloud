@@ -3,16 +3,16 @@
 # Default GeoServer URL
 GEOSERVER_URL=${GEOSERVER_URL:-"http://localhost:9090/geoserver/cloud"}
 
-# Default database connection for local testing (requires geodatabase port exposed on 5433)
+# Default database connection for local testing (requires geodatabase port exposed on 6432)
 PGHOST=${PGHOST:-"localhost"}
-PGPORT=${PGPORT:-"5433"}
-PGDATABASE=${PGDATABASE:-"geodata"}
-PGUSER=${PGUSER:-"geodata"}
-PGPASSWORD=${PGPASSWORD:-"geodata"}
+PGPORT=${PGPORT:-"6432"}
+PGDATABASE=${PGDATABASE:-"acceptance"}
+PGUSER=${PGUSER:-"geoserver"}
+PGPASSWORD=${PGPASSWORD:-"geoserver"}
 PGSCHEMA=${PGSCHEMA:-"test1"}
 
 # Note: This script runs tests from the host machine and requires the geodatabase 
-# port to be exposed (5433). Start services with: ./acceptance_datadir up -d
+# port to be exposed (6432). Start services with: ./acceptance_datadir up -d
 
 # Help function
 show_help() {
@@ -35,7 +35,7 @@ show_help() {
     echo "Environment variables:"
     echo "  GEOSERVER_URL  GeoServer URL (default: http://localhost:9090/geoserver/cloud)"
     echo "  PGHOST         Database host (default: localhost)"
-    echo "  PGPORT         Database port (default: 5433)"
+    echo "  PGPORT         Database port (default: 6432)"
     echo ""
     echo "Examples:"
     echo "  $0                           # Run all tests"

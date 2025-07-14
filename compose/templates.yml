@@ -54,34 +54,6 @@ services:
       POSTGRES_USER: postgis
       POSTGRES_PASSWORD: postgis
       POSTGIS_GDAL_ENABLED_DRIVERS: ENABLE_ALL
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgis"]
-
-  acldbtemplate:
-    extends:
-      service: postgistemplate
-    environment:
-      POSTGRES_DB: acl
-      POSTGRES_USER: acl
-      POSTGRES_PASSWORD: acls3cr3t
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U acl"]
-
-  pgconfigdbtemplate:
-    extends:
-      service: postgrestemplate
-    shm_size: 1g
-    environment:
-      POSTGRES_DB: pgconfig
-      POSTGRES_USER: pgconfig
-      POSTGRES_PASSWORD: pgconfig
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U pgconfig"]
-    deploy:
-      resources:
-        limits:
-          cpus: '4.0'
-          memory: 2G
 
   pgbouncertemplate:
     image: bitnami/pgbouncer:latest

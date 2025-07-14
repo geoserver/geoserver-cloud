@@ -8,7 +8,7 @@ x-volume-mounts: &geoserver_volumes
   - datadir:/opt/app/data_directory
 
 x-gs-dependencies: &gs-dependencies
-  database:
+  geodatabase:
     condition: service_started
   init-sample-data:
     condition: service_completed_successfully
@@ -19,9 +19,10 @@ x-gs-dependencies: &gs-dependencies
 #
 x-geoserver-env: &geoserver_environment
   SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},jdbcconfig"
-  JDBCCONFIG_URL: "${JDBCCONFIG_URL}"
-  JDBCCONFIG_USERNAME: "${JDBCCONFIG_USERNAME}"
-  JDBCCONFIG_PASSWORD: "${JDBCCONFIG_PASSWORD}"
+  JDBCCONFIG_URL: "jdbc:postgresql://geodatabase:5432/geoserver?currentSchema=jdbcconfig"
+  JDBCCONFIG_SCHEMA: jdbcconfig
+  JDBCCONFIG_USERNAME: geoserver
+  JDBCCONFIG_PASSWORD: geoserver
 
 
 services:
@@ -32,24 +33,6 @@ services:
     volumes:
       - datadir:/opt/app/data_directory
       - ./catalog-datadir.tgz:/tmp/datadir.tgz
-
-  database:
-    extends:
-      file: templates.yml
-      service: postgrestemplate
-    environment:
-      POSTGRES_DB: "${JDBCCONFIG_DBNAME}"
-      POSTGRES_USER: "${JDBCCONFIG_USERNAME}"
-      POSTGRES_PASSWORD: "${JDBCCONFIG_PASSWORD}"
-    ports:
-      - 54321:5432
-    volumes:
-      - jdbcconfig_data:/var/lib/postgresql/data
-    deploy:
-      resources:
-        limits:
-          cpus: '2.0'
-          memory: 1G
 
   wfs:
     environment: *geoserver_environment
