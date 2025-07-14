@@ -1,35 +1,9 @@
 services:
-  geodatabase:
-    image: imresamu/postgis:15-3.4
-    environment:
-      POSTGRES_DB: geodata
-      POSTGRES_USER: geodata
-      POSTGRES_PASSWORD: geodata
-    restart: always
-    volumes:
-      - ./acceptance_pg_entrypoint:/docker-entrypoint-initdb.d:ro
-    ports:
-      - "5433:5432"  # Expose on port 5433 to avoid conflict with local PostgreSQL
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U geodata"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    deploy:
-      mode: replicated
-      replicas: 1
-      resources:
-        limits:
-          cpus: "1.0"
-          memory: 512M
-
   acceptance:
     image: geoservercloud/acceptance:latest
     user: ${GS_USER}
     depends_on:
       geodatabase:
-        condition: service_healthy
-      postgis:
         condition: service_healthy
       gateway:
         condition: service_healthy
@@ -68,7 +42,8 @@ services:
         limits:
           cpus: "1.0"
           memory: 512M
-  postgis:
+  geodatabase:
+    shm_size: 128m
     deploy:
       resources:
         limits:
@@ -151,9 +126,3 @@ services:
         limits:
           cpus: "1.0"
           memory: 512M
-  acldb:
-    deploy:
-      resources:
-        limits:
-          cpus: "0.5"
-          memory: 256M

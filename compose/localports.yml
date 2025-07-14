@@ -2,7 +2,12 @@
 # for example, when running the gateway through the IDE 
 # Port numbers match the ones in the `local` spring profile used for development.
 services:
-  # catalog microservice, provides a unified catalog backend to all services
+  config:
+    ports:
+      - 8888:8080 # not needed in production, exposed for local development
+  discovery:
+    ports:
+      - 8761:8761 # for development, so services can be run from localhost and find the discovery service running on docker
   acl:
     ports:
       - 9000:8080
