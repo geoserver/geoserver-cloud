@@ -13,7 +13,6 @@
     <module>discovery</module>
     <module>config</module>
     <module>gateway</module>
-    <module>admin</module>
   </modules>
   <dependencies>
     <dependency>
