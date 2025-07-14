@@ -10,9 +10,9 @@ RESOURCE_DIR = Path(__file__).parent / "resources"
 # Database connection - defaults for container, can be overridden for local testing
 PGHOST = os.getenv("PGHOST", "geodatabase")
 PGPORT = int(os.getenv("PGPORT", "5432"))
-PGDATABASE = os.getenv("PGDATABASE", "geodata")
-PGUSER = os.getenv("PGUSER", "geodata")
-PGPASSWORD = os.getenv("PGPASSWORD", "geodata")
+PGDATABASE = os.getenv("PGDATABASE", "acceptance")
+PGUSER = os.getenv("PGUSER", "geoserver")
+PGPASSWORD = os.getenv("PGPASSWORD", "geoserver")
 PGSCHEMA = os.getenv("PGSCHEMA", "test1")
 WORKSPACE = "test_workspace"
 DATASTORE = "test_datastore"

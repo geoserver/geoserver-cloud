@@ -27,17 +27,6 @@ services:
       retries: 3
       start_period: 5s
   
-  admin:
-    image: alpine:latest
-    entrypoint: ["sh", "-c", "echo 'Admin service is disabled in standalone mode' && tail -f /dev/null"]
-    restart: "no"
-    healthcheck:
-      test: ["CMD-SHELL", "exit 0"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 5s
-  
   # Apply standalone profile to all services
   gateway:
     environment:

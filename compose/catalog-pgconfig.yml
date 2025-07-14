@@ -1,10 +1,7 @@
 name: gscloud_dev_pgconfig
 
-volumes:
-  pgconfigdb_data: # volume for postgresql data, used to store the geoserver config through pgconfig backend
-
 x-gs-dependencies: &gs-dependencies
-  pgconfigdb:
+  geodatabase:
     condition: service_started
     required: true
 
@@ -15,15 +12,6 @@ x-geoserver-env: &geoserver_environment
   SPRING_PROFILES_ACTIVE: "${GEOSERVER_DEFAULT_PROFILES},pgconfig"
 
 services:
-  pgconfigdb:
-    extends:
-      file: templates.yml
-      service: pgconfigdbtemplate
-    volumes:
-      - pgconfigdb_data:/var/lib/postgresql/data
-    ports:
-      - 8432:5432
-
   wfs:
     environment: *geoserver_environment
     depends_on: *gs-dependencies
