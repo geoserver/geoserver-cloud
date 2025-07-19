@@ -1,18 +1,83 @@
-# Define shared environment variables for all services
 x-variables:
   environment: &common_env
     SPRING_PROFILES_ACTIVE: "pgconfig,acl"
     GEOWEBCACHE_CACHE_DIR: /data/geowebcache
-    ACL_URL: http://acl:8080/acl/api
-    ACL_USERNAME: admin
-    ACL_PASSWORD: s3cr3t
-        
+
+    # ============================================================================
+    # DEPLOYMENT MODE CONFIGURATION
+    # ============================================================================
+    # GeoServer Cloud supports two deployment modes:
+    #
+    # 1. CONFIG SERVER MODE (used here):
+    #    - Uses Spring Cloud Config Server for centralized configuration
+    #    - Properties are provided via config server overrides (see below)
+    #    - Enables dynamic scaling and service discovery
+    #    - Best for Docker Compose deployments
+    #
+    # 2. STANDALONE MODE:
+    #    - No config server, each service is self-contained
+    #    - Uncomment the variables below and set them on each GeoServer service
+    #    - Uses Kubernetes Services for service discovery
+    #    - Best for Kubernetes deployments
+    #
+    # To switch to standalone mode:
+    # 1. Uncomment the variables below (in the common_env anchor)
+    # 2. Add them to each GeoServer service (wms, wfs, webui, etc.)
+    # 3. Change SPRING_PROFILES_ACTIVE to include "standalone"
+    # 4. Remove or disable the config and discovery services
+    # ============================================================================
+
+    #ACL_URL: http://acl:8080/acl/api
+    #ACL_USERNAME: admin
+    #ACL_PASSWORD: s3cr3t
+
+    #PGCONFIG_HOST: geoserverdb
+    #PGCONFIG_PORT: 5432
+    #PGCONFIG_DATABASE: geoserver
+    #PGCONFIG_USERNAME: geoserver
+    #PGCONFIG_PASSWORD: geoserver
+    # the schema is created at startup
+    #PGCONFIG_SCHEMA: pgconfig
+
+x-config-server-overrides:
+  environment: &config-server-overrides
+    # ============================================================================
+    # CONFIG SERVER PROPERTY OVERRIDES
+    # ============================================================================
+    # These overrides ensure that all GeoServer services receive the correct
+    # configuration during their bootstrap phase, before they attempt to connect
+    # to databases or other services.
+    #
+    # HOW IT WORKS:
+    # - The config server reads these SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_* variables
+    # - It provides them as property overrides to all client applications
+    # - These values take precedence over default configuration files
+    # - Available during bootstrap phase, solving timing issues
+    #
+    # WHEN TO USE:
+    # - Docker Compose deployments with config server
+    # - When you need centralized configuration management
+    # - When scaling services dynamically
+    #
+    # ALTERNATIVE:
+    # - For Kubernetes: Use ConfigMaps/Secrets with standalone profile instead
+    SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_ACL_URL: http://acl:8080/acl/api
+    SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_ACL_USERNAME: admin
+    SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_ACL_PASSWORD: s3cr3t
+    SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_PGCONFIG_HOST: geoserverdb
+    SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_PGCONFIG_PORT: 5432
+    SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_PGCONFIG_DATABASE: geoserver
+    SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_PGCONFIG_USERNAME: geoserver
+    SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_PGCONFIG_PASSWORD: geoserver
+    SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_PGCONFIG_SCHEMA: pgconfig
+    SPRING_CLOUD_CONFIG_SERVER_OVERRIDES_PGCONFIG_INITIALIZE: true
+
 x-gs-dependencies: &gs-dependencies
   rabbitmq:
     condition: service_healthy
   discovery:
     condition: service_healthy
-  pgconfigdb:
+  geoserverdb:
     condition: service_started
   config:
     condition: service_healthy
@@ -21,24 +86,25 @@ x-gs-dependencies: &gs-dependencies
 
 volumes:
   geowebcache_data: # Stores GeoWebCache tile data
-  pgconfigdb_data:  # Stores PostgreSQL data for pgconfig backend
+  geoserverdb_data:  # Stores PostgreSQL data for pgconfig backend and acl
       
 services:
-  pgconfigdb:
+  geoserverdb:
+    # hosts the ACL service database and the pgconfig catalog backend data
     # use an image with linux/amd64 and linux/arm64 support. Doesn't need to be postgis
     image: imresamu/postgis:17-3.5
     shm_size: 2g
     environment:
-      POSTGRES_DB: pgconfig
-      POSTGRES_USER: pgconfig
-      POSTGRES_PASSWORD: pgconfig
+      POSTGRES_DB: geoserver
+      POSTGRES_USER: geoserver
+      POSTGRES_PASSWORD: geoserver
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U pgconfig"]
+      test: ["CMD-SHELL", "pg_isready -U geoserver"]
       interval: 5s
       timeout: 5s
       retries: 5
     volumes:
-      - pgconfigdb_data:/var/lib/postgresql/data
+      - geoserverdb_data:/var/lib/postgresql/data
     deploy:
       resources:
         limits:
@@ -49,17 +115,18 @@ services:
     image: geoservercloud/geoserver-acl:2.3.2
     user: "1000:1000"
     depends_on:
-      pgconfigdb:
+      geoserverdb:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
     environment:
-      PG_HOST: pgconfigdb
+      PG_HOST: geoserverdb
       PG_PORT: 5432
-      PG_DB: pgconfig
+      PG_DB: geoserver
+      PG_USERNAME: geoserver
+      PG_PASSWORD: geoserver
+      # the schema is created at startup
       PG_SCHEMA: acl
-      PG_USERNAME: pgconfig
-      PG_PASSWORD: pgconfig
       'ACL_USERS_ADMIN_PASSWORD': '{noop}s3cr3t'
       'ACL_USERS_GEOSERVER_PASSWORD': '{noop}s3cr3t'
       GEOSERVER_BUS_ENABLED: true
@@ -98,6 +165,7 @@ services:
     image: geoservercloud/geoserver-cloud-config:2.27.2.0
     user: 1000:1000 # set the userid:groupid the container runs as
     environment:
+      <<: *config-server-overrides
       # default to `native` loading the config embedded in /etc/geoserver
       # use `git` to fetch the config from a git repository, and CONFIG_GIT_URI to change
       # the default repository https://github.com/geoserver/geoserver-cloud-config.git
