@@ -283,6 +283,9 @@ public abstract class AbstractBeanDefinitionVisitor implements BeanDefinitionVis
             if (listItem instanceof RuntimeBeanReference beanRef) {
                 // Use the bean name as parameter - this will be added as a method parameter
                 listCall.append(beanRef.getBeanName());
+            } else if (listItem instanceof org.springframework.beans.factory.config.TypedStringValue stringValue) {
+                // Extract the actual string value from TypedStringValue
+                listCall.append("\"").append(stringValue.getValue()).append("\"");
             } else {
                 // Other types - convert to string for now
                 listCall.append("\"").append(listItem.toString()).append("\"");
