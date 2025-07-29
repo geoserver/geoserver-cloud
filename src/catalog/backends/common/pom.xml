@@ -44,6 +44,12 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-autoconfigure-processor</artifactId>
+    </dependency>
+    <dependency>
+      <!-- Annotation processor dependency - provided scope since it's only needed at compile time -->
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-config-transpiler-processor</artifactId>
+      <version>${revision}</version>
       <optional>true</optional>
     </dependency>
     <dependency>
@@ -54,4 +60,45 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <!-- Enable annotation processing and specify the processor path -->
+          <annotationProcessorPaths>
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+              <version>${lombok.version}</version>
+            </path>
+            <path>
+              <groupId>org.geoserver.cloud</groupId>
+              <artifactId>gs-config-transpiler-processor</artifactId>
+              <version>${revision}</version>
+            </path>
+            <!-- Spring dependencies needed by the annotation processor -->
+            <path>
+              <groupId>org.geoserver</groupId>
+              <artifactId>gs-main</artifactId>
+              <version>${gs.version}</version>
+            </path>
+            <path>
+              <groupId>javax.servlet</groupId>
+              <artifactId>javax.servlet-api</artifactId>
+              <version>4.0.1</version>
+            </path>
+            <path>
+              <groupId>org.springframework</groupId>
+              <artifactId>spring-webmvc</artifactId>
+              <version>${spring.version}</version>
+            </path>
+          </annotationProcessorPaths>
+          <!-- Enable processing of annotations -->
+          <proc>full</proc>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>
