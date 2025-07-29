@@ -30,7 +30,7 @@
     <dependency>
       <groupId>org.geoserver.cloud</groupId>
       <artifactId>gs-config-transpiler-processor</artifactId>
-      <version>${revision}</version>
+      <version>${project.version}</version>
       <scope>provided</scope>
       <optional>true</optional>
     </dependency>
@@ -84,7 +84,7 @@
             <path>
               <groupId>org.geoserver.cloud</groupId>
               <artifactId>gs-config-transpiler-processor</artifactId>
-              <version>${revision}</version>
+              <version>${project.version}</version>
             </path>
             <!-- Spring dependencies needed by the annotation processor -->
             <path>

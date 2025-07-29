@@ -112,7 +112,51 @@ class XmlConfigTranspileProcessorTest {
      * {@literal jar:gs-main-.*!/applicationContext.xml}.
      */
     @Test
-    void testJarPatternProcessing() {
+    void testJarPatternProcessingSingleJar() {
+        // This will test against gs-main JAR that's already on the classpath
+        String sourceCode =
+                """
+                package com.example;
+
+                import org.geoserver.spring.config.annotations.TranspileXmlConfig;
+                import org.springframework.context.annotation.Configuration;
+                import org.springframework.context.annotation.Import;
+
+                @Configuration
+                @TranspileXmlConfig(
+                    locations = {"jar:gs-main-.*!/applicationContext.xml"},
+                     excludes={"advertisedCatalog","updateSequenceListener", "resourceLoader"}
+                )
+                @Import(JarTestConfiguration_Generated.class)
+                public class JarTestConfiguration {
+                }
+                """;
+
+        Compilation compilation = assertCompiles(sourceCode);
+
+        CompilationSubject.assertThat(compilation).generatedSourceFile("com.example.JarTestConfiguration_Generated");
+
+        // Verify generated class contains expected beans from JAR pattern
+        JavaFileObject generatedFile = compilation
+                .generatedSourceFile("com.example.JarTestConfiguration_Generated")
+                .get();
+        String generatedSource = getSourceContent(generatedFile);
+
+        compilation = compilerWithProcessor().compile(generatedFile);
+
+        CompilationSubject.assertThat(compilation).succeeded();
+
+        assertThat(generatedSource)
+                .as("Generated class should have @Configuration")
+                .contains("@Configuration")
+                .as("Should contain extensions bean method")
+                .contains("GeoServerExtensions extensions(")
+                .as("Should contain filterFactory bean method")
+                .contains("FilterFactoryImpl filterFactory(");
+    }
+
+    @Test
+    void testJarPatternProcessingMultipleJars() {
         // This will test against gs-main JAR that's already on the classpath
         String sourceCode =
                 """
@@ -155,6 +199,86 @@ class XmlConfigTranspileProcessorTest {
                 .contains("FilterFactoryImpl filterFactory(");
     }
 
+    @Test
+    void testJarPatternProcessingWfsService() {
+        // This will test against gs-wfs JAR that's already on the classpath
+        String sourceCode =
+                """
+                package com.example;
+
+                import org.geoserver.spring.config.annotations.TranspileXmlConfig;
+                import org.springframework.context.annotation.Configuration;
+                import org.springframework.context.annotation.Import;
+
+                @Configuration
+                @TranspileXmlConfig(
+                    locations = {"jar:gs-wfs-.*!/applicationContext.xml"}
+                )
+                @Import(JarTestConfiguration_Generated.class)
+                public class JarTestConfiguration {
+                }
+                """;
+
+        Compilation compilation = assertCompiles(sourceCode);
+
+        CompilationSubject.assertThat(compilation).generatedSourceFile("com.example.JarTestConfiguration_Generated");
+
+        // Verify generated class contains expected beans from JAR pattern
+        JavaFileObject generatedFile = compilation
+                .generatedSourceFile("com.example.JarTestConfiguration_Generated")
+                .get();
+        String generatedSource = getSourceContent(generatedFile);
+
+        assertThat(generatedSource)
+                .as("Generated class should have @Configuration")
+                .contains("@Configuration")
+                .as("Should contain WFS-specific bean methods")
+                .contains("GML3OutputFormat gml3OutputFormat")
+                .as("Should contain WFS workspace qualifier bean")
+                .contains("WFSWorkspaceQualifier wfsWorkspaceQualifier");
+    }
+
+    @Test
+    void testJarPatternProcessingWmsService() {
+        String sourceCode =
+                """
+                package com.example;
+
+                import org.geoserver.spring.config.annotations.TranspileXmlConfig;
+                import org.springframework.context.annotation.Configuration;
+                import org.springframework.context.annotation.Import;
+                import com.example.wms.WmsConfig;
+
+                @Configuration
+                @TranspileXmlConfig(
+                        locations = "jar:gs-wms-.*!/applicationContext.xml",
+                        targetPackage = "com.example.wms",
+                        targetClass = "WmsConfig",
+                        publicAccess = true,
+                        excludes = {"legendSample", "wmsExceptionHandler"})
+                @Import({
+                    WmsConfig.class
+                })
+                public class WmsAnnotationConfiguration {
+                }
+                """;
+
+        Compilation compilation = assertCompiles(sourceCode);
+
+        // Verify generated class contains expected beans from JAR pattern
+        JavaFileObject generatedFile =
+                compilation.generatedSourceFile("com.example.wms.WmsConfig").get();
+        String generatedSource = getSourceContent(generatedFile);
+
+        System.out.println(generatedSource);
+
+        compilation = compilerWithProcessor().compile(generatedFile);
+
+        CompilationSubject.assertThat(compilation).succeeded();
+
+        // Should generate two separate configuration classes
+        CompilationSubject.assertThat(compilation).generatedSourceFile("com.example.wms.WmsConfig");
+    }
     /**
      * Tests include/exclude regex pattern filtering functionality.
      * <p>
@@ -406,7 +530,7 @@ class XmlConfigTranspileProcessorTest {
      * each, demonstrating the {@literal @Repeatable} annotation functionality.
      */
     @Test
-    void testMultipleAnnotations() {
+    void testMultipleAnnotationsClasspath() {
         String sourceCode =
                 """
                 package com.example;
@@ -436,6 +560,56 @@ class XmlConfigTranspileProcessorTest {
         // Should generate two separate configuration classes
         CompilationSubject.assertThat(compilation).generatedSourceFile("com.example.ProviderConfig");
         CompilationSubject.assertThat(compilation).generatedSourceFile("com.example.ModuleConfig");
+    }
+
+    @Test
+    void testMultipleAnnotationsJars() {
+        String sourceCode =
+                """
+                package com.example;
+
+                import org.geoserver.spring.config.annotations.TranspileXmlConfig;
+                import org.springframework.context.annotation.Configuration;
+                import org.springframework.context.annotation.Import;
+
+                @Configuration
+                @TranspileXmlConfig(
+                        locations = "jar:gs-wms-.*!/applicationContext.xml",
+                        targetPackage = "com.example.wms",
+                        targetClass = "WmsConfig",
+                        publicAccess = true,
+                        excludes = {"legendSample", "wmsExceptionHandler"})
+                @TranspileXmlConfig(
+                        locations = "jar:gs-wfs-.*!/applicationContext.xml",
+                        targetPackage = "com.example.wfs",
+                        targetClass = "WfsConfig",
+                        publicAccess = true,
+                        includes = {
+                            "gml.*OutputFormat",
+                            "bboxKvpParser",
+                            "featureIdKvpParser",
+                            "filter.*_KvpParser",
+                            "cqlKvpParser",
+                            "maxFeatureKvpParser",
+                            "sortByKvpParser",
+                            "xmlConfiguration.*",
+                            "gml[1-9]*SchemaBuilder",
+                            "wfsXsd.*",
+                            "wfsSqlViewKvpParser"
+                        })
+                @Import({
+                    com.example.wms.WmsConfig.class,
+                    com.example.wfs.WfsConfig.class
+                })
+                public class MultipleAnnotationConfiguration {
+                }
+                """;
+
+        Compilation compilation = assertCompiles(sourceCode);
+
+        // Should generate two separate configuration classes
+        CompilationSubject.assertThat(compilation).generatedSourceFile("com.example.wms.WmsConfig");
+        CompilationSubject.assertThat(compilation).generatedSourceFile("com.example.wfs.WfsConfig");
     }
 
     /**

@@ -139,21 +139,6 @@ public class SimpleBeanVisitor extends AbstractBeanDefinitionVisitor {
     }
 
     /**
-     * Sanitize bean name to be a valid Java method identifier.
-     */
-    private String sanitizeBeanName(String beanName) {
-        // Replace non-alphanumeric characters with underscores
-        String sanitized = beanName.replaceAll("[^a-zA-Z0-9_]", "_");
-
-        // Ensure it starts with a letter or underscore
-        if (!Character.isJavaIdentifierStart(sanitized.charAt(0))) {
-            sanitized = "_" + sanitized;
-        }
-
-        return sanitized;
-    }
-
-    /**
      * Generate the method body for simple bean creation.
      */
     private void generateMethodBody(
@@ -188,7 +173,7 @@ public class SimpleBeanVisitor extends AbstractBeanDefinitionVisitor {
                 ClassName paramType = resolveParameterTypeWithInference(
                         beanRef, beanClassName, null, propertyName, null, transpilationContext);
 
-                ParameterSpec.Builder paramBuilder = ParameterSpec.builder(paramType, beanRef)
+                ParameterSpec.Builder paramBuilder = ParameterSpec.builder(paramType, sanitizeBeanName(beanRef))
                         .addAnnotation(AnnotationSpec.builder(Qualifier.class)
                                 .addMember("value", "$S", beanRef)
                                 .build());
@@ -196,7 +181,12 @@ public class SimpleBeanVisitor extends AbstractBeanDefinitionVisitor {
             }
 
             // Create bean instance and set properties
-            methodBuilder.addStatement("$T bean = new $T()", returnType, returnType);
+            if (requiresReflectionForDefaultConstructor(beanClassName)) {
+                // Use reflection for protected/private constructors
+                generateReflectionConstructorCall(methodBuilder, beanClassName, returnType, "bean");
+            } else {
+                methodBuilder.addStatement("$T bean = new $T()", returnType, returnType);
+            }
             generatePropertySetters(
                     methodBuilder,
                     beanDefinition.getPropertyValues(),
@@ -206,7 +196,12 @@ public class SimpleBeanVisitor extends AbstractBeanDefinitionVisitor {
             methodBuilder.addStatement("return bean");
         } else {
             // Simple case: no properties - direct instantiation
-            methodBuilder.addStatement("return new $T()", returnType);
+            if (requiresReflectionForDefaultConstructor(beanClassName)) {
+                // Use reflection for protected/private constructors
+                generateReflectionConstructorCall(methodBuilder, beanClassName, returnType, null);
+            } else {
+                methodBuilder.addStatement("return new $T()", returnType);
+            }
         }
     }
 
@@ -219,20 +214,21 @@ public class SimpleBeanVisitor extends AbstractBeanDefinitionVisitor {
         for (PropertyValue pv : propertyValues.getPropertyValues()) {
             Object value = pv.getValue();
             if (value instanceof RuntimeBeanReference beanRef) {
-                beanReferences.add(beanRef.getBeanName());
+                beanReferences.add(sanitizeBeanName(beanRef.getBeanName()));
             } else if (value instanceof org.springframework.beans.factory.support.ManagedProperties managedProps) {
                 for (Object propVal : managedProps.values()) {
                     String propValStr = extractStringValue(propVal);
                     String simpleBeanRef = extractSimpleSpelBeanReference(propValStr);
                     if (simpleBeanRef != null && !beanReferences.contains(simpleBeanRef)) {
-                        beanReferences.add(simpleBeanRef);
+                        beanReferences.add(sanitizeBeanName(simpleBeanRef));
                     }
                 }
             } else if (value instanceof org.springframework.beans.factory.support.ManagedList<?> managedList) {
                 List<String> listBeanRefs = collectBeanReferencesFromManagedList(managedList);
                 for (String beanRef : listBeanRefs) {
-                    if (!beanReferences.contains(beanRef)) {
-                        beanReferences.add(beanRef);
+                    String sanitizedBeanRef = sanitizeBeanName(beanRef);
+                    if (!beanReferences.contains(sanitizedBeanRef)) {
+                        beanReferences.add(sanitizedBeanRef);
                     }
                 }
             }
@@ -326,8 +322,15 @@ public class SimpleBeanVisitor extends AbstractBeanDefinitionVisitor {
                 // Handle ManagedList (like <list> with bean references for method arguments)
                 methodBuilder.addComment("// Property '" + propertyName + "' uses ManagedList");
 
-                String listCall = generateManagedListCall(managedList);
-                methodBuilder.addStatement("bean.$L($L)", setterName, listCall);
+                // Check if the setter method expects varargs
+                if (isVarargsSetterMethod(setterName, beanClassName)) {
+                    // Generate varargs call: bean.setInterceptors(item1, item2, ...)
+                    generateVarargsSetterCall(methodBuilder, setterName, managedList);
+                } else {
+                    // Generate list call: bean.setProperty(new ArrayList<>(...))
+                    String listCall = generateManagedListCall(managedList);
+                    methodBuilder.addStatement("bean.$L($L)", setterName, listCall);
+                }
             } else if (value instanceof org.springframework.beans.factory.config.BeanDefinitionHolder) {
                 // Nested bean definitions are not supported
                 throw new UnsupportedOperationException(
@@ -431,5 +434,65 @@ public class SimpleBeanVisitor extends AbstractBeanDefinitionVisitor {
             }
         }
         return null;
+    }
+
+    /**
+     * Check if a setter method expects varargs instead of a List parameter.
+     * Uses reflection to examine the method signature.
+     */
+    private boolean isVarargsSetterMethod(String setterName, String beanClassName) {
+        if (beanClassName == null) {
+            return false;
+        }
+
+        try {
+            Class<?> beanClass = Class.forName(beanClassName);
+            java.lang.reflect.Method[] methods = beanClass.getMethods();
+
+            for (java.lang.reflect.Method method : methods) {
+                if (method.getName().equals(setterName) && method.isVarArgs()) {
+                    return true;
+                }
+            }
+        } catch (ClassNotFoundException e) {
+            // If we can't load the class, assume it's not varargs
+            return false;
+        }
+
+        return false;
+    }
+
+    /**
+     * Generate a varargs setter call for ManagedList properties.
+     * Generates: bean.setInterceptors(item1, item2, ...)
+     */
+    private void generateVarargsSetterCall(
+            com.squareup.javapoet.MethodSpec.Builder methodBuilder,
+            String setterName,
+            org.springframework.beans.factory.support.ManagedList<?> managedList) {
+
+        StringBuilder argsBuilder = new StringBuilder();
+        boolean first = true;
+
+        for (Object listItem : managedList) {
+            if (!first) {
+                argsBuilder.append(", ");
+            }
+            first = false;
+
+            if (listItem instanceof org.springframework.beans.factory.config.RuntimeBeanReference beanRef) {
+                // Use sanitized bean name as parameter - this must match the method parameter names
+                String sanitizedBeanName = sanitizeBeanName(beanRef.getBeanName());
+                argsBuilder.append(sanitizedBeanName);
+            } else if (listItem instanceof org.springframework.beans.factory.config.TypedStringValue stringValue) {
+                // Extract the actual string value from TypedStringValue
+                argsBuilder.append("\"").append(stringValue.getValue()).append("\"");
+            } else {
+                // Other types - convert to string for now
+                argsBuilder.append("\"").append(listItem.toString()).append("\"");
+            }
+        }
+
+        methodBuilder.addStatement("bean.$L($L)", setterName, argsBuilder.toString());
     }
 }
