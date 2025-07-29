@@ -304,8 +304,9 @@ public class TypeNameResolver {
     private static TypeResolutionResult inferFromPropertyUsage(
             String dependencyName, BeanDefinition beanDef, TranspilationContext context) {
         if (!beanDef.hasPropertyValues()) {
-            context.printMessage(
-                    javax.tools.Diagnostic.Kind.NOTE, "Bean " + beanDef.getBeanClassName() + " has no property values");
+            //            context.printMessage(
+            //                    javax.tools.Diagnostic.Kind.NOTE, "Bean " + beanDef.getBeanClassName() + " has no
+            // property values");
             return TypeResolutionResult.unresolved("java.lang.Object");
         }
 
