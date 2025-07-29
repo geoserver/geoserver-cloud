@@ -280,13 +280,20 @@ public class ConfigurationClassVisitor {
             // Convert pattern to regex for matching
             String jarNameExpression = jarNamePattern.replaceAll("\\*", ".*");
 
-            if (urlString.matches(".*" + jarNameExpression + ".*")) {
-                context.printMessage(Diagnostic.Kind.NOTE, "Resource matches JAR pattern");
+            // Extract JAR filename from URL for proper matching
+            String jarFileName = urlString.replaceAll(".*/([^/]+\\.jar)!.*", "$1");
+            context.printMessage(Diagnostic.Kind.NOTE, "Extracted JAR filename from direct access: " + jarFileName);
+
+            if (jarFileName.matches(jarNameExpression)) {
+                context.printMessage(Diagnostic.Kind.NOTE, "Resource matches JAR pattern: " + jarNameExpression);
 
                 // Create a Spring Resource wrapper
                 matchingResources.add(new UrlResource(resourceUrl));
             } else {
-                context.printMessage(Diagnostic.Kind.NOTE, "Resource doesn't match JAR pattern: " + jarNamePattern);
+                context.printMessage(
+                        Diagnostic.Kind.NOTE,
+                        "Resource doesn't match JAR pattern. Filename: " + jarFileName + ", Pattern: "
+                                + jarNameExpression);
             }
         } else {
             context.printMessage(
@@ -314,9 +321,19 @@ public class ConfigurationClassVisitor {
 
                         // Check if this matches our JAR pattern
                         String jarNameExpression = jarNamePattern.replaceAll("\\*", ".*");
-                        if (resourceUrlString.contains(jarNameExpression.replace(".*", ""))) {
-                            context.printMessage(Diagnostic.Kind.NOTE, "Resource matches simplified JAR pattern");
+                        // Extract JAR filename from URL for proper matching
+                        String jarFileName = resourceUrlString.replaceAll(".*/([^/]+\\.jar)!.*", "$1");
+                        context.printMessage(Diagnostic.Kind.NOTE, "Extracted JAR filename: " + jarFileName);
+
+                        if (jarFileName.matches(jarNameExpression)) {
+                            context.printMessage(
+                                    Diagnostic.Kind.NOTE, "Resource matches JAR pattern: " + jarNameExpression);
                             matchingResources.add(resource);
+                        } else {
+                            context.printMessage(
+                                    Diagnostic.Kind.NOTE,
+                                    "Resource doesn't match JAR pattern. Filename: " + jarFileName + ", Pattern: "
+                                            + jarNameExpression);
                         }
                     } catch (Exception e) {
                         context.printMessage(Diagnostic.Kind.NOTE, "Error checking resource: " + e.getMessage());

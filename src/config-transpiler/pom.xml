@@ -57,6 +57,11 @@
     </dependency>
     <dependency>
       <groupId>org.geoserver</groupId>
+      <artifactId>gs-wms</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver</groupId>
       <artifactId>gs-wcs1_0</artifactId>
       <scope>test</scope>
     </dependency>
@@ -108,8 +113,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
-          <!-- Disable annotation processing for this module during compilation
-                         to avoid circular dependencies -->
+          <!-- Disable annotation processing for this module during compilation to avoid circular dependencies -->
           <proc>none</proc>
         </configuration>
       </plugin>

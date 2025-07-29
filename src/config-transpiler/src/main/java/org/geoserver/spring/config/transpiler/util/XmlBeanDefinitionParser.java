@@ -67,9 +67,18 @@ public class XmlBeanDefinitionParser {
      */
     public static ParsedXmlResult parseXmlContent(String xmlContent) {
         try {
-            // Wrap XML in root beans element if needed
+            // Add XML prolog if missing and wrap in beans element if needed
             String fullXml = xmlContent.trim();
-            if (!fullXml.startsWith("<?xml") && !fullXml.startsWith("<beans")) {
+
+            // Check if XML prolog is missing
+            boolean needsXmlProlog = !fullXml.startsWith("<?xml");
+
+            // Check if content needs to be wrapped in <beans> element
+            // Look for <beans> tag anywhere in the content (could be after comments/DOCTYPE)
+            boolean needsBeansWrapper = !fullXml.contains("<beans");
+
+            if (needsXmlProlog && needsBeansWrapper) {
+                // Missing both prolog and beans wrapper - add both
                 fullXml =
                         """
                         <?xml version="1.0" encoding="UTF-8"?>
@@ -81,6 +90,9 @@ public class XmlBeanDefinitionParser {
                                 + fullXml + """
                         </beans>
                         """;
+            } else if (needsXmlProlog) {
+                // Missing only the XML prolog - add it without wrapping in beans
+                fullXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + fullXml;
             }
 
             // Use the enhanced XML reader that already handles everything

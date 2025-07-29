@@ -279,13 +279,6 @@
         <groupId>org.geoserver</groupId>
         <artifactId>gs-wfs</artifactId>
         <version>${gs.version}</version>
-        <exclusions>
-          <!-- exclude data formats, let them be managed by the ones explicitly imported by each service -->
-          <exclusion>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-shapefile</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.geoserver</groupId>

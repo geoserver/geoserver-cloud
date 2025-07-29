@@ -30,7 +30,7 @@ public class BeanGenerationContext {
     private final TranspilationContext transpilationContext;
 
     // Bean metadata
-    private final String beanClassName;
+    private String beanClassName; // Lazily resolved to handle parent inheritance
     private final boolean hasConstructorArgs;
     private final boolean hasPropertyValues;
     private final boolean hasFactoryMethod;
@@ -42,7 +42,7 @@ public class BeanGenerationContext {
         // Derive metadata from bean definition
         BeanDefinition beanDefinition =
                 enhancedBeanInfo != null ? enhancedBeanInfo.getBeanDefinition() : builder.beanDefinition;
-        this.beanClassName = deriveBeanClassName(beanDefinition);
+        this.beanClassName = null; // Will be resolved lazily when getBeanClassName() is called
         this.hasConstructorArgs = beanDefinition.hasConstructorArgumentValues();
         this.hasPropertyValues = beanDefinition.hasPropertyValues();
         this.hasFactoryMethod = beanDefinition.getFactoryMethodName() != null;
@@ -82,6 +82,10 @@ public class BeanGenerationContext {
     }
 
     public String getBeanClassName() {
+        if (beanClassName == null) {
+            // Lazy resolution of bean class name including parent inheritance
+            beanClassName = deriveBeanClassName(getBeanDefinition());
+        }
         return beanClassName;
     }
 
@@ -123,6 +127,32 @@ public class BeanGenerationContext {
         String beanClassName = beanDefinition.getBeanClassName();
         if (beanClassName != null) {
             return beanClassName;
+        }
+
+        // Try Spring's ResolvableType first - it handles inheritance properly
+        try {
+            org.springframework.core.ResolvableType resolvableType = beanDefinition.getResolvableType();
+            if (resolvableType != null && resolvableType != org.springframework.core.ResolvableType.NONE) {
+                Class<?> resolvedClass = resolvableType.resolve();
+                if (resolvedClass != null) {
+                    return resolvedClass.getName();
+                }
+            }
+        } catch (Exception e) {
+            // Continue to manual parent resolution
+        }
+
+        // Fallback: Handle bean inheritance - resolve class name from parent bean
+        if (beanDefinition.getParentName() != null && transpilationContext != null) {
+            String parentName = beanDefinition.getParentName();
+            BeanDefinition parentBean = transpilationContext.getBeanDefinition(parentName);
+            if (parentBean != null) {
+                // Recursively resolve parent's class name (handles chained inheritance)
+                String parentClassName = deriveBeanClassName(parentBean);
+                if (parentClassName != null) {
+                    return parentClassName;
+                }
+            }
         }
 
         // Handle factory beans or other special cases

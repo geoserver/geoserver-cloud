@@ -8,7 +8,6 @@ package org.geoserver.cloud.autoconfigure.wms;
 import java.util.List;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.cloud.autoconfigure.gwc.integration.WMSIntegrationAutoConfiguration;
-import org.geoserver.cloud.config.factory.ImportFilteredResource;
 import org.geoserver.cloud.virtualservice.VirtualServiceVerifier;
 import org.geoserver.cloud.wms.app.StatusCodeWmsExceptionHandler;
 import org.geoserver.cloud.wms.controller.GetMapReflectorController;
@@ -17,6 +16,7 @@ import org.geoserver.config.GeoServer;
 import org.geoserver.ows.Dispatcher;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.Service;
+import org.geoserver.spring.config.annotations.TranspileXmlConfig;
 import org.geoserver.wfs.xml.FeatureTypeSchemaBuilder;
 import org.geoserver.wfs.xml.v1_1_0.WFS;
 import org.geoserver.wfs.xml.v1_1_0.WFSConfiguration;
@@ -28,15 +28,44 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.env.PropertyResolver;
 
 // auto-configure before GWC's wms-integration to avoid it precluding to load beans from
 // jar:gs-wms-.*
 @AutoConfiguration(before = WMSIntegrationAutoConfiguration.class)
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
-@ImportFilteredResource({
-    "jar:gs-wms-.*!/applicationContext.xml#name=" + WmsApplicationAutoConfiguration.WMS_BEANS_BLACKLIST,
-    "jar:gs-wfs-.*!/applicationContext.xml#name=" + WmsApplicationAutoConfiguration.WFS_BEANS_WHITELIST
+// @ImportFilteredResource({
+//    "jar:gs-wms-.*!/applicationContext.xml#name=" + WmsApplicationAutoConfiguration.WMS_BEANS_BLACKLIST,
+//    "jar:gs-wfs-.*!/applicationContext.xml#name=" + WmsApplicationAutoConfiguration.WFS_BEANS_WHITELIST
+// })
+@TranspileXmlConfig(
+        locations = "jar:gs-wms-.*!/applicationContext.xml",
+        targetPackage = "org.geoserver.config.gen.wms",
+        targetClass = "GeoServerWmsModuleConfiguration",
+        publicAccess = true,
+        excludes = {"legendSample", "wmsExceptionHandler"})
+@TranspileXmlConfig(
+        locations = "jar:gs-wfs-.*!/applicationContext.xml",
+        targetPackage = "org.geoserver.config.gen.wms",
+        targetClass = "GeoServerWmsModuleWfsDependenciesConfiguration",
+        publicAccess = true,
+        includes = {
+            "gml.*OutputFormat",
+            "bboxKvpParser",
+            "featureIdKvpParser",
+            "filter.*_KvpParser",
+            "cqlKvpParser",
+            "maxFeatureKvpParser",
+            "sortByKvpParser",
+            "xmlConfiguration.*",
+            "gml[1-9]*SchemaBuilder",
+            "wfsXsd.*",
+            "wfsSqlViewKvpParser"
+        })
+@Import({
+    org.geoserver.config.gen.wms.GeoServerWmsModuleConfiguration.class,
+    org.geoserver.config.gen.wms.GeoServerWmsModuleWfsDependenciesConfiguration.class
 })
 public class WmsApplicationAutoConfiguration {
 

@@ -167,6 +167,9 @@ public abstract class AbstractBeanDefinitionVisitor implements BeanDefinitionVis
                 throw new IllegalArgumentException(
                         "Property '" + propertyName + "' expects a float but got: '" + rawValue + "'", e);
             }
+        } else if (propertyType != String.class && hasStringConstructor(propertyType)) {
+            // Property expects a non-String type that can be constructed from a string
+            methodBuilder.addStatement("bean.$L(new $T($S))", setterName, propertyType, rawValue);
         } else {
             // String or other object properties (default case)
             methodBuilder.addStatement("bean.$L($S)", setterName, rawValue);
@@ -262,16 +265,16 @@ public abstract class AbstractBeanDefinitionVisitor implements BeanDefinitionVis
     }
 
     /**
-     * Generate a ManagedList constructor call using List.of() with bean references.
+     * Generate a ManagedList constructor call using ArrayList with bean references.
      * Based on the pattern from the old spring-factory-processor ManagedListHelper.
      * This creates a list constructor argument where bean references become method
-     * parameters.
+     * parameters. Uses ArrayList instead of List.of() for Spring runtime compatibility.
      *
      * @param managedList the ManagedList to process
-     * @return the generated List.of() call string
+     * @return the generated ArrayList construction call string
      */
     protected String generateManagedListCall(org.springframework.beans.factory.support.ManagedList<?> managedList) {
-        StringBuilder listCall = new StringBuilder("(java.util.List) java.util.List.of(");
+        StringBuilder listCall = new StringBuilder("new java.util.ArrayList<>(java.util.List.of(");
 
         boolean first = true;
         for (Object listItem : managedList) {
@@ -281,8 +284,9 @@ public abstract class AbstractBeanDefinitionVisitor implements BeanDefinitionVis
             first = false;
 
             if (listItem instanceof RuntimeBeanReference beanRef) {
-                // Use the bean name as parameter - this will be added as a method parameter
-                listCall.append(beanRef.getBeanName());
+                // Use sanitized bean name as parameter - this must match the method parameter names
+                String sanitizedBeanName = sanitizeBeanName(beanRef.getBeanName());
+                listCall.append(sanitizedBeanName);
             } else if (listItem instanceof org.springframework.beans.factory.config.TypedStringValue stringValue) {
                 // Extract the actual string value from TypedStringValue
                 listCall.append("\"").append(stringValue.getValue()).append("\"");
@@ -291,7 +295,7 @@ public abstract class AbstractBeanDefinitionVisitor implements BeanDefinitionVis
                 listCall.append("\"").append(listItem.toString()).append("\"");
             }
         }
-        listCall.append(")");
+        listCall.append("))");
         return listCall.toString();
     }
 
@@ -308,7 +312,9 @@ public abstract class AbstractBeanDefinitionVisitor implements BeanDefinitionVis
 
         for (Object listItem : managedList) {
             if (listItem instanceof RuntimeBeanReference beanRef) {
-                beanReferences.add(beanRef.getBeanName());
+                beanReferences.add(
+                        beanRef.getBeanName()); // Note: This method returns raw names, callers should sanitize if
+                // needed for JavaPoet
             }
         }
 
@@ -504,5 +510,202 @@ public abstract class AbstractBeanDefinitionVisitor implements BeanDefinitionVis
         }
 
         return bestConstructor;
+    }
+
+    /**
+     * Get the generic element type for a collection constructor parameter.
+     * For example, if the constructor parameter is List&lt;Service&gt;, this returns Service.
+     */
+    protected ClassName getGenericCollectionElementType(
+            int paramIndex, String beanClassName, ConstructorArgumentValues constructorArgs) {
+        if (beanClassName == null) {
+            return null;
+        }
+
+        try {
+            Class<?> beanClass = Class.forName(beanClassName);
+            int argCount = constructorArgs.getArgumentCount();
+            java.lang.reflect.Constructor<?>[] constructors = beanClass.getDeclaredConstructors();
+
+            // Find constructor with matching parameter count
+            for (java.lang.reflect.Constructor<?> constructor : constructors) {
+                if (constructor.getParameterCount() == argCount && paramIndex < constructor.getParameterCount()) {
+                    java.lang.reflect.Type genericType = constructor.getGenericParameterTypes()[paramIndex];
+
+                    // Check if it's a parameterized type (e.g., List<Service>)
+                    if (genericType instanceof java.lang.reflect.ParameterizedType parameterizedType) {
+                        java.lang.reflect.Type[] typeArguments = parameterizedType.getActualTypeArguments();
+                        if (typeArguments.length > 0 && typeArguments[0] instanceof Class<?> elementClass) {
+                            return ClassName.get(elementClass);
+                        }
+                    }
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            // Fall back to null if we can't determine the generic type
+        }
+
+        return null;
+    }
+
+    /**
+     * Sanitize bean name to be a valid Java method identifier.
+     * This method is used by all visitors to ensure consistent bean name sanitization.
+     */
+    protected String sanitizeBeanName(String beanName) {
+        if (beanName == null || beanName.isEmpty()) {
+            return "unknownBean";
+        }
+
+        // Replace non-alphanumeric characters with underscores
+        String sanitized = beanName.replaceAll("[^a-zA-Z0-9_]", "_");
+
+        // Ensure it starts with a letter or underscore (Java identifier rules)
+        if (!Character.isJavaIdentifierStart(sanitized.charAt(0))) {
+            sanitized = "_" + sanitized;
+        }
+
+        // Handle reserved Java keywords
+        if (isJavaReservedWord(sanitized)) {
+            sanitized = sanitized + "_";
+        }
+
+        return sanitized;
+    }
+
+    /**
+     * Check if a type has a constructor that accepts a single String parameter.
+     * This method uses reflection to determine if a non-String type can be constructed from a String.
+     */
+    protected boolean hasStringConstructor(Class<?> type) {
+        if (type == null || type == String.class) {
+            return false;
+        }
+
+        try {
+            // Check for common types that have String constructors
+            if (type.getName().equals("org.geotools.util.Version")) {
+                return true;
+            }
+
+            // Use reflection to check for String constructor
+            type.getConstructor(String.class);
+            return true;
+        } catch (NoSuchMethodException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Check if the default (no-argument) constructor requires reflection-based instantiation.
+     * This is needed for protected or private constructors.
+     */
+    protected boolean requiresReflectionForDefaultConstructor(String beanClassName) {
+        if (beanClassName == null) {
+            return false;
+        }
+
+        try {
+            Class<?> beanClass = Class.forName(beanClassName);
+
+            // Try to get the no-argument constructor
+            java.lang.reflect.Constructor<?> constructor = beanClass.getDeclaredConstructor();
+
+            // Check if constructor is public
+            return !java.lang.reflect.Modifier.isPublic(constructor.getModifiers());
+        } catch (ClassNotFoundException | NoSuchMethodException e) {
+            // If we can't find the class or constructor, assume public access
+            return false;
+        }
+    }
+
+    /**
+     * Generate reflection-based constructor instantiation for no-argument constructors.
+     * This handles protected/private constructors that can't be called directly.
+     *
+     * @param methodBuilder the method builder to add statements to
+     * @param beanClassName the fully qualified class name
+     * @param returnType the return type for casting
+     * @param variableName the variable name to create ("bean" for properties, null for direct return)
+     */
+    protected void generateReflectionConstructorCall(
+            MethodSpec.Builder methodBuilder, String beanClassName, ClassName returnType, String variableName) {
+
+        methodBuilder.addStatement(
+                "java.lang.reflect.Constructor constructor = java.lang.Class.forName($S).getDeclaredConstructor()",
+                beanClassName);
+        methodBuilder.addStatement("constructor.setAccessible(true)");
+
+        if (variableName != null) {
+            // Create variable for property setting
+            methodBuilder.addStatement("$T $L = ($T) constructor.newInstance()", returnType, variableName, returnType);
+        } else {
+            // Direct return
+            methodBuilder.addStatement("return ($T) constructor.newInstance()", returnType);
+        }
+
+        // Add exception to method signature for reflection
+        methodBuilder.addException(ClassName.get(Exception.class));
+    }
+
+    /**
+     * Check if a string is a Java reserved word.
+     */
+    private boolean isJavaReservedWord(String word) {
+        // Common Java reserved words
+        return switch (word) {
+            case "abstract",
+                    "continue",
+                    "for",
+                    "new",
+                    "switch",
+                    "assert",
+                    "default",
+                    "goto",
+                    "package",
+                    "synchronized",
+                    "boolean",
+                    "do",
+                    "if",
+                    "private",
+                    "this",
+                    "break",
+                    "double",
+                    "implements",
+                    "protected",
+                    "throw",
+                    "byte",
+                    "else",
+                    "import",
+                    "public",
+                    "throws",
+                    "case",
+                    "enum",
+                    "instanceof",
+                    "return",
+                    "transient",
+                    "catch",
+                    "extends",
+                    "int",
+                    "short",
+                    "try",
+                    "char",
+                    "final",
+                    "interface",
+                    "static",
+                    "void",
+                    "class",
+                    "finally",
+                    "long",
+                    "strictfp",
+                    "volatile",
+                    "const",
+                    "float",
+                    "native",
+                    "super",
+                    "while" -> true;
+            default -> false;
+        };
     }
 }

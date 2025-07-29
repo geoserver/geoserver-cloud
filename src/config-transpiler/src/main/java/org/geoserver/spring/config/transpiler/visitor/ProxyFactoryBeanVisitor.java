@@ -265,19 +265,4 @@ public class ProxyFactoryBeanVisitor extends AbstractBeanDefinitionVisitor {
                     value.getClass().getSimpleName());
         }
     }
-
-    /**
-     * Sanitize bean name to be a valid Java method identifier.
-     */
-    private String sanitizeBeanName(String beanName) {
-        // Replace non-alphanumeric characters with underscores
-        String sanitized = beanName.replaceAll("[^a-zA-Z0-9_]", "_");
-
-        // Ensure it starts with a letter or underscore
-        if (!Character.isJavaIdentifierStart(sanitized.charAt(0))) {
-            sanitized = "_" + sanitized;
-        }
-
-        return sanitized;
-    }
 }

@@ -246,13 +246,13 @@ class XmlConfigTranspileProcessorMethodGenerationTest {
                           "http://www.opengis.net/wfs",
                           wfsService,
                           new org.geotools.util.Version("1.0.0"),
-                          (java.util.List) java.util.List.of(
+                          new java.util.ArrayList<>(java.util.List.of(
                                   "GetCapabilities",
                                   "DescribeFeatureType",
                                   "GetFeature",
                                   "GetFeatureWithLock",
                                   "LockFeature",
-                                  "Transaction")
+                                  "Transaction"))
                     );
                 }
                 """;
@@ -516,9 +516,9 @@ class XmlConfigTranspileProcessorMethodGenerationTest {
                 """
                 @org.springframework.context.annotation.Bean
                 org.geoserver.security.RESTfulDefinitionSourceProxy restFilterDefinitionMap(
-                    @org.springframework.beans.factory.annotation.Qualifier("defaultRestFilterDefinitionMap") java.lang.Object defaultRestFilterDefinitionMap,
-                    @org.springframework.beans.factory.annotation.Qualifier("workspaceAdminRestDefinitionSource") java.lang.Object workspaceAdminRestDefinitionSource) {
-                  return new org.geoserver.security.RESTfulDefinitionSourceProxy((java.util.List) java.util.List.of(defaultRestFilterDefinitionMap, workspaceAdminRestDefinitionSource));
+                    @org.springframework.beans.factory.annotation.Qualifier("defaultRestFilterDefinitionMap") org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource defaultRestFilterDefinitionMap,
+                    @org.springframework.beans.factory.annotation.Qualifier("workspaceAdminRestDefinitionSource") org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource workspaceAdminRestDefinitionSource) {
+                  return new org.geoserver.security.RESTfulDefinitionSourceProxy(new java.util.ArrayList<>(java.util.List.of(defaultRestFilterDefinitionMap, workspaceAdminRestDefinitionSource)));
                 }
                 """;
 
@@ -777,7 +777,7 @@ class XmlConfigTranspileProcessorMethodGenerationTest {
                   bean.setTargetObject(roleFilter);
                   bean.setTargetMethod("initializeFromConfig");
 
-                  bean.setArguments((java.util.List) java.util.List.of(roleFilterConfig));
+                  bean.setArguments(roleFilterConfig);
                   return bean;
                 }
                 """;
@@ -815,7 +815,7 @@ class XmlConfigTranspileProcessorMethodGenerationTest {
 
                   bean.setStaticMethod("org.geoserver.wfs.xml.SqlViewParamsExtractor.setWfsSqlViewKvpParser");
                   // Property 'arguments' uses ManagedList
-                  bean.setArguments((java.util.List) java.util.List.of(wfsSqlViewKvpParser));
+                  bean.setArguments(wfsSqlViewKvpParser);
                   return bean;
                 }
                 """;
@@ -1082,6 +1082,34 @@ class XmlConfigTranspileProcessorMethodGenerationTest {
         // generated code only has the wfsGetCapabilitiesXmlReader bean, but xmlReader-1.0.0 is required for parsing
         boolean ignoreJavadoc = true;
         testBeanMethodGeneneration("wfsGetCapabilitiesXmlReader", xml, expectedJavaCode, ignoreJavadoc);
+    }
+
+    @Test
+    void testAbstractBeanWithInheritanceNoChildClass() {
+        final String xml =
+                """
+                <!-- Abstract parent bean -->
+                <bean id="xmlReader-1.0.0" class="org.geoserver.wfs.xml.v1_0_0.WfsXmlReader" abstract="true">
+                    <constructor-arg index="1" ref="xmlConfiguration-1.0"/>
+                    <constructor-arg index="2" ref="geoServer"/>
+                </bean>
+                <!-- Child bean that inherits class from parent (no explicit class attribute) -->
+                <bean id="lockFeatureXmlReader" parent="xmlReader-1.0.0">
+                    <constructor-arg value="LockFeature"/>
+                </bean>
+                """;
+        final String expectedJavaCode =
+                """
+                @org.springframework.context.annotation.Bean
+                org.geoserver.wfs.xml.v1_0_0.WfsXmlReader lockFeatureXmlReader(
+                    @org.springframework.beans.factory.annotation.Qualifier("xmlConfiguration-1.0") org.geotools.xsd.Configuration xmlConfiguration_1_0,
+                    @org.springframework.beans.factory.annotation.Qualifier("geoServer") org.geoserver.config.GeoServer geoServer) {
+                  return new org.geoserver.wfs.xml.v1_0_0.WfsXmlReader("LockFeature", xmlConfiguration_1_0, geoServer);
+                }
+                """;
+        // generated code only has the lockFeatureXmlReader bean, but xmlReader-1.0.0 is required for parsing
+        boolean ignoreJavadoc = true;
+        testBeanMethodGeneneration("lockFeatureXmlReader", xml, expectedJavaCode, ignoreJavadoc);
     }
 
     @Test
@@ -1473,6 +1501,86 @@ class XmlConfigTranspileProcessorMethodGenerationTest {
 
         testBeanMethodGeneneration(
                 "capabilitiesCachingHeadersCallback", xml, expectedcapabilitiesCachingHeadersCallbackCode, true);
+    }
+
+    /**
+     * Test case for generic collection parameter type inference.
+     * <p>
+     * This test demonstrates the issue where constructor parameters that are part of a generic collection
+     * (like List&lt;Service&gt;) should infer the correct generic type (Service) for individual bean references,
+     * not fall back to Object.
+     * <p>
+     * When a constructor takes {@code List<Service>} and the XML defines a list with service beans,
+     * each service bean reference should be typed as {@code Service} in the method parameters,
+     * not as {@code Object}.
+     */
+    @Test
+    void testConstructorParameterGenericTypeInference() {
+        final String xml =
+                """
+                <bean id="wfsService-1.0.0" class="org.geoserver.wfs.WfsService"/>
+                <bean id="wfsService-1.1.0" class="org.geoserver.wfs.WfsService"/>
+                <bean id="geoServer" class="org.geoserver.config.impl.GeoServerImpl"/>
+
+                <bean id="wfsExceptionHandler" class="org.geoserver.wfs.response.WfsExceptionHandler">
+                    <constructor-arg>
+                        <list>
+                            <ref bean="wfsService-1.0.0"/>
+                            <ref bean="wfsService-1.1.0"/>
+                        </list>
+                    </constructor-arg>
+                    <constructor-arg ref="geoServer"/>
+                </bean>
+                """;
+
+        // The WfsExceptionHandler constructor is: WfsExceptionHandler(List<Service> services, GeoServer gs)
+        // So the service parameters should be typed as Service (the actual interface), not Object
+        // @Qualifier should use original bean names (with dashes) to match XML config
+        final String expectedJavaCode =
+                """
+                @org.springframework.context.annotation.Bean
+                org.geoserver.wfs.response.WfsExceptionHandler wfsExceptionHandler(
+                    @org.springframework.beans.factory.annotation.Qualifier("geoServer") org.geoserver.config.GeoServer geoServer,
+                    @org.springframework.beans.factory.annotation.Qualifier("wfsService-1.0.0") org.geoserver.platform.Service wfsService_1_0_0,
+                    @org.springframework.beans.factory.annotation.Qualifier("wfsService-1.1.0") org.geoserver.platform.Service wfsService_1_1_0) {
+                  return new org.geoserver.wfs.response.WfsExceptionHandler(new java.util.ArrayList<>(java.util.List.of(wfsService_1_0_0, wfsService_1_1_0)), geoServer);
+                }
+                """;
+
+        testBeanMethodGeneneration("wfsExceptionHandler", xml, expectedJavaCode, true);
+    }
+
+    @Test
+    void testBeanWithVarargsPropertySetter() {
+        final String xml =
+                """
+                <bean id="wfsURLMapping" class="org.geoserver.ows.OWSHandlerMapping">
+                    <property name="interceptors">
+                        <list>
+                            <ref bean="citeComplianceHack"/>
+                            <ref bean="wfsWorkspaceQualifier"/>
+                        </list>
+                    </property>
+                </bean>
+                """;
+
+        // OWSHandlerMapping.setInterceptors(Object... interceptors) expects varargs, not a List
+        // Should generate: bean.setInterceptors(citeComplianceHack, wfsWorkspaceQualifier);
+        // Not: bean.setInterceptors(new ArrayList<>(List.of(citeComplianceHack, wfsWorkspaceQualifier)));
+        final String expectedJavaCode =
+                """
+                @org.springframework.context.annotation.Bean
+                org.geoserver.ows.OWSHandlerMapping wfsURLMapping(
+                    org.geoserver.catalog.Catalog catalog,
+                    @org.springframework.beans.factory.annotation.Qualifier("citeComplianceHack") java.lang.Object citeComplianceHack,
+                    @org.springframework.beans.factory.annotation.Qualifier("wfsWorkspaceQualifier") java.lang.Object wfsWorkspaceQualifier) {
+                  org.geoserver.ows.OWSHandlerMapping bean = new org.geoserver.ows.OWSHandlerMapping(catalog);
+                  bean.setInterceptors(citeComplianceHack, wfsWorkspaceQualifier);
+                  return bean;
+                }
+                """;
+
+        testBeanMethodGeneneration("wfsURLMapping", xml, expectedJavaCode);
     }
 
     /**
