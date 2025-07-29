@@ -417,6 +417,14 @@ public class ConstructorBasedBeanVisitor extends AbstractBeanDefinitionVisitor {
                     ClassName paramTypeClassName =
                             expectedType.isPrimitive() ? getBoxedType(expectedType) : ClassName.get(expectedType);
                     return new ConstructorParameter(index, rawValue, paramTypeClassName, ParameterType.NUMERIC_LITERAL);
+                } else if (expectedType != null
+                        && !expectedType.equals(String.class)
+                        && hasStringConstructor(expectedType)) {
+                    // Constructor expects a non-String type that can be constructed from a string
+                    ClassName paramTypeClassName = ClassName.get(expectedType);
+                    String constructorCall = "new " + expectedType.getName() + "(\"" + rawValue + "\")";
+                    return new ConstructorParameter(
+                            index, constructorCall, paramTypeClassName, ParameterType.CONSTRUCTOR_CALL);
                 } else {
                     // Default to string literal
                     return new ConstructorParameter(
@@ -467,6 +475,24 @@ public class ConstructorBasedBeanVisitor extends AbstractBeanDefinitionVisitor {
          */
         private boolean isSpELExpression(String value) {
             return value != null && value.contains("#{") && value.contains("}");
+        }
+
+        /**
+         * Check if a type has a constructor that accepts a single String parameter.
+         */
+        private boolean hasStringConstructor(Class<?> type) {
+            try {
+                // Check for common types that have String constructors
+                if (type.getName().equals("org.geotools.util.Version")) {
+                    return true;
+                }
+
+                // Use reflection to check for String constructor
+                type.getConstructor(String.class);
+                return true;
+            } catch (NoSuchMethodException e) {
+                return false;
+            }
         }
 
         /**
@@ -580,6 +606,9 @@ public class ConstructorBasedBeanVisitor extends AbstractBeanDefinitionVisitor {
                         break;
                     case CLASS_LITERAL:
                         constructorArgs.add(param.name); // Already includes ".class" suffix
+                        break;
+                    case CONSTRUCTOR_CALL:
+                        constructorArgs.add(param.name); // The name contains the constructor call
                         break;
                     case SPEL_EXPRESSION:
                         // SpEL expressions need casting to the expected type
@@ -1044,6 +1073,7 @@ public class ConstructorBasedBeanVisitor extends AbstractBeanDefinitionVisitor {
         LITERAL_VALUE,
         NUMERIC_LITERAL,
         CLASS_LITERAL,
+        CONSTRUCTOR_CALL,
         SPEL_EXPRESSION,
         IMPLICIT_AUTOWIRED,
         MANAGED_LIST,

@@ -213,6 +213,54 @@ class XmlConfigTranspileProcessorMethodGenerationTest {
     }
 
     @Test
+    void testSimpleBeanWithIndexedSimpleAndListConstructorArguments() {
+        final String xml =
+                """
+                <bean id="wfsService-1.0.0" class="org.geoserver.platform.Service">
+                  <constructor-arg index="0" value="wfs"/>
+                  <constructor-arg index="1" value="http://www.opengis.net/wfs"/>
+                  <constructor-arg index="2" ref="wfsService"/>
+                  <constructor-arg index="3" value="1.0.0"/>
+                  <constructor-arg index="4">
+                    <list>
+                      <value>GetCapabilities</value>
+                      <value>DescribeFeatureType</value>
+                      <value>GetFeature</value>
+                      <value>GetFeatureWithLock</value>
+                      <value>LockFeature</value>
+                      <value>Transaction</value>
+                    </list>
+                  </constructor-arg>
+                </bean>
+                """;
+
+        final String expectedJavaCode =
+                """
+                @org.springframework.context.annotation.Bean(
+                    name = "wfsService-1.0.0"
+                )
+                org.geoserver.platform.Service wfsService_1_0_0(
+                    @org.springframework.beans.factory.annotation.Qualifier("wfsService") java.lang.Object wfsService) {
+                  return new org.geoserver.platform.Service(
+                          "wfs",
+                          "http://www.opengis.net/wfs",
+                          wfsService,
+                          new org.geotools.util.Version("1.0.0"),
+                          (java.util.List) java.util.List.of(
+                                  "GetCapabilities",
+                                  "DescribeFeatureType",
+                                  "GetFeature",
+                                  "GetFeatureWithLock",
+                                  "LockFeature",
+                                  "Transaction")
+                    );
+                }
+                """;
+
+        testBeanMethodGeneneration("wfsService-1.0.0", xml, expectedJavaCode);
+    }
+
+    @Test
     void testBeanWithImplicitConstructorAutowiring() {
         final String xml =
                 """
@@ -1716,9 +1764,12 @@ class XmlConfigTranspileProcessorMethodGenerationTest {
         /**
          * Remove comments from code while preserving structure for JavaParser.
          * Unlike normalizeWhitespace, this preserves line breaks and indentation.
+         * This method is smart about not removing // inside string literals.
          */
         private String removeComments(String code) {
-            return code.replaceAll("//[^\\n]*", "") // Remove single-line comments
+            return code.replaceAll(
+                            "(?m)^\\s*//.*$",
+                            "") // Remove single-line comments (lines starting with optional whitespace + //)
                     .replaceAll("/\\*.*?\\*/", "") // Remove multi-line comments
                     .replace("&#42;", "*") // Decode HTML entity for asterisk
                     .trim();
