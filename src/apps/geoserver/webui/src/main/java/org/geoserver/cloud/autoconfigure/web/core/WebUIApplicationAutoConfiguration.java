@@ -5,7 +5,7 @@
 
 package org.geoserver.cloud.autoconfigure.web.core;
 
-import org.geoserver.cloud.autoconfigure.core.GeoServerWebMvcMainAutoConfiguration;
+import org.geoserver.cloud.autoconfigure.core.GeoServerMainModuleAutoConfiguration;
 import org.geoserver.cloud.autoconfigure.web.demo.DemosAutoConfiguration;
 import org.geoserver.cloud.autoconfigure.web.extension.ExtensionsAutoConfiguration;
 import org.geoserver.cloud.autoconfigure.web.security.SecurityAutoConfiguration;
@@ -23,7 +23,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 
-@AutoConfiguration(after = {GeoServerWebMvcMainAutoConfiguration.class})
+@AutoConfiguration(after = {GeoServerMainModuleAutoConfiguration.class})
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @EnableConfigurationProperties(WebUIConfigurationProperties.class)
 @Import({ //
