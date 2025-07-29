@@ -10,6 +10,7 @@
   <packaging>pom</packaging>
   <name>GeoServer Cloud modules</name>
   <modules>
+    <module>config-transpiler</module>
     <module>library</module>
     <module>catalog</module>
     <module>gwc</module>
