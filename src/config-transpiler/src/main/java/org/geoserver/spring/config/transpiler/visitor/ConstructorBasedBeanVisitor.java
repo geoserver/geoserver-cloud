@@ -10,6 +10,7 @@ import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.lang.model.element.Modifier;
@@ -391,7 +392,8 @@ public class ConstructorBasedBeanVisitor extends AbstractBeanDefinitionVisitor {
                         beanDefinition.getConstructorArgumentValues(),
                         transpilationContext);
 
-                return new ConstructorParameter(index, beanName, paramType, ParameterType.BEAN_REFERENCE);
+                return new ConstructorParameter(
+                        index, sanitizeBeanName(beanName), paramType, ParameterType.BEAN_REFERENCE, null, beanName);
             } else if (value instanceof TypedStringValue stringValue) {
                 String rawValue = stringValue.getValue();
 
@@ -550,7 +552,10 @@ public class ConstructorBasedBeanVisitor extends AbstractBeanDefinitionVisitor {
                     // Explicit bean reference with @Qualifier
                     ParameterSpec.Builder paramBuilder = ParameterSpec.builder(param.paramType, param.name)
                             .addAnnotation(AnnotationSpec.builder(Qualifier.class)
-                                    .addMember("value", "$S", param.name)
+                                    .addMember(
+                                            "value",
+                                            "$S",
+                                            param.originalBeanName != null ? param.originalBeanName : param.name)
                                     .build());
                     methodBuilder.addParameter(paramBuilder.build());
                 } else if (param.type == ParameterType.SPEL_EXPRESSION) {
@@ -632,30 +637,31 @@ public class ConstructorBasedBeanVisitor extends AbstractBeanDefinitionVisitor {
                 }
             }
 
-            // Generate the constructor call
+            // Generate the constructor call using CodeBlock to properly escape parameter names
             if (hasProperties) {
                 // Need to create bean variable for property setting
-                StringBuilder constructorCall = new StringBuilder("$T bean = new $T(");
+                CodeBlock.Builder constructorCall =
+                        CodeBlock.builder().add("$T bean = new $T(", returnType, returnType);
                 for (int i = 0; i < constructorArgs.size(); i++) {
                     if (i > 0) {
-                        constructorCall.append(", ");
+                        constructorCall.add(", ");
                     }
-                    constructorCall.append(constructorArgs.get(i));
+                    constructorCall.add("$L", constructorArgs.get(i));
                 }
-                constructorCall.append(")");
-                methodBuilder.addStatement(constructorCall.toString(), returnType, returnType);
+                constructorCall.add(")");
+                methodBuilder.addStatement(constructorCall.build());
                 // Property setters and return statement will be added later
             } else {
                 // Direct return from constructor
-                StringBuilder constructorCall = new StringBuilder("return new $T(");
+                CodeBlock.Builder constructorCall = CodeBlock.builder().add("return new $T(", returnType);
                 for (int i = 0; i < constructorArgs.size(); i++) {
                     if (i > 0) {
-                        constructorCall.append(", ");
+                        constructorCall.add(", ");
                     }
-                    constructorCall.append(constructorArgs.get(i));
+                    constructorCall.add("$L", constructorArgs.get(i));
                 }
-                constructorCall.append(")");
-                methodBuilder.addStatement(constructorCall.toString(), returnType);
+                constructorCall.add(")");
+                methodBuilder.addStatement(constructorCall.build());
             }
         }
 
@@ -840,6 +846,7 @@ public class ConstructorBasedBeanVisitor extends AbstractBeanDefinitionVisitor {
         /**
          * Collect bean references from property values.
          * Similar to SimpleBeanVisitor.collectPropertyBeanReferences().
+         * Returns original bean names (not sanitized) for use in @Qualifier annotations.
          */
         private List<String> collectPropertyBeanReferences() {
             List<String> beanReferences = new ArrayList<>();
@@ -848,20 +855,21 @@ public class ConstructorBasedBeanVisitor extends AbstractBeanDefinitionVisitor {
                     beanDefinition.getPropertyValues().getPropertyValues()) {
                 Object value = pv.getValue();
                 if (value instanceof org.springframework.beans.factory.config.RuntimeBeanReference beanRef) {
-                    beanReferences.add(beanRef.getBeanName());
+                    beanReferences.add(beanRef.getBeanName()); // Keep original name
                 } else if (value instanceof org.springframework.beans.factory.support.ManagedProperties managedProps) {
                     for (Object propVal : managedProps.values()) {
                         String propValStr = extractStringValue(propVal);
                         String simpleBeanRef = extractSimpleSpelBeanReference(propValStr);
                         if (simpleBeanRef != null && !beanReferences.contains(simpleBeanRef)) {
-                            beanReferences.add(simpleBeanRef);
+                            beanReferences.add(simpleBeanRef); // Keep original name
                         }
                     }
                 } else if (value instanceof org.springframework.beans.factory.support.ManagedList<?> managedList) {
                     List<String> listBeanRefs = collectBeanReferencesFromManagedList(managedList);
                     for (String beanRef : listBeanRefs) {
                         if (!beanReferences.contains(beanRef)) {
-                            beanReferences.add(beanRef);
+                            beanReferences.add(
+                                    beanRef); // Keep original name (base method already returns original names)
                         }
                     }
                 }
@@ -872,6 +880,7 @@ public class ConstructorBasedBeanVisitor extends AbstractBeanDefinitionVisitor {
 
         /**
          * Collect bean references from ManagedList constructor parameters.
+         * Returns original bean names (not sanitized) for use in @Qualifier annotations.
          */
         private List<String> collectManagedListBeanReferences(List<ConstructorParameter> constructorParams) {
             List<String> beanReferences = new ArrayList<>();
@@ -885,7 +894,8 @@ public class ConstructorBasedBeanVisitor extends AbstractBeanDefinitionVisitor {
                     if (param.index < allArgs.size()) {
                         Object value = allArgs.get(param.index).getValue();
                         if (value instanceof org.springframework.beans.factory.support.ManagedList<?> managedList) {
-                            beanReferences.addAll(collectBeanReferencesFromManagedList(managedList));
+                            // Keep original names (base method already returns original names)
+                            collectBeanReferencesFromManagedList(managedList).forEach(beanReferences::add);
                         }
                     }
                 }
@@ -929,13 +939,87 @@ public class ConstructorBasedBeanVisitor extends AbstractBeanDefinitionVisitor {
         }
 
         /**
-         * Add method parameters for ManagedList bean references.
+         * Add method parameters for ManagedList bean references with generic type inference.
          */
         private void addManagedListBeanReferenceParameters(
                 MethodSpec.Builder methodBuilder, List<String> beanReferences) {
+
+            // Map bean references to their inferred types from constructor parameter generic types
+            Map<String, ClassName> beanRefToTypeMap = new HashMap<>();
+            // Map sanitized bean names to their original bean names for @Qualifier annotations
+            Map<String, String> sanitizedToOriginalNameMap = new HashMap<>();
+
+            // Get constructor arguments to analyze generic types
+            ConstructorArgumentValues constructorArgs = beanDefinition.getConstructorArgumentValues();
+            if (constructorArgs != null) {
+                // Check indexed constructor arguments
+                Map<Integer, ConstructorArgumentValues.ValueHolder> indexedArgs =
+                        constructorArgs.getIndexedArgumentValues();
+                for (Map.Entry<Integer, ConstructorArgumentValues.ValueHolder> entry : indexedArgs.entrySet()) {
+                    int index = entry.getKey();
+                    Object value = entry.getValue().getValue();
+
+                    if (value instanceof org.springframework.beans.factory.support.ManagedList<?> managedList) {
+                        // Get the generic element type for this list parameter
+                        ClassName elementType = getGenericCollectionElementType(index, beanClassName, constructorArgs);
+                        if (elementType != null) {
+                            // Apply the generic element type to all bean references in this list
+                            for (Object listItem : managedList) {
+                                if (listItem
+                                        instanceof
+                                        org.springframework.beans.factory.config.RuntimeBeanReference beanRef) {
+                                    String originalBeanName = beanRef.getBeanName();
+                                    String sanitizedBeanName = sanitizeBeanName(originalBeanName);
+                                    // Use sanitized bean name as key to match beanReferences list
+                                    beanRefToTypeMap.put(sanitizedBeanName, elementType);
+                                    // Store mapping from sanitized to original name for @Qualifier
+                                    sanitizedToOriginalNameMap.put(sanitizedBeanName, originalBeanName);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Also check generic (non-indexed) constructor arguments
+                List<ConstructorArgumentValues.ValueHolder> genericArgs = constructorArgs.getGenericArgumentValues();
+                for (int i = 0; i < genericArgs.size(); i++) {
+                    ConstructorArgumentValues.ValueHolder holder = genericArgs.get(i);
+                    Object value = holder.getValue();
+
+                    if (value instanceof org.springframework.beans.factory.support.ManagedList<?> managedList) {
+                        // Get the generic element type for this list parameter
+                        ClassName elementType = getGenericCollectionElementType(i, beanClassName, constructorArgs);
+                        if (elementType != null) {
+                            // Apply the generic element type to all bean references in this list
+                            for (Object listItem : managedList) {
+                                if (listItem
+                                        instanceof
+                                        org.springframework.beans.factory.config.RuntimeBeanReference beanRef) {
+                                    String originalBeanName = beanRef.getBeanName();
+                                    String sanitizedBeanName = sanitizeBeanName(originalBeanName);
+                                    // Use sanitized bean name as key to match beanReferences list
+                                    beanRefToTypeMap.put(sanitizedBeanName, elementType);
+                                    // Store mapping from sanitized to original name for @Qualifier
+                                    sanitizedToOriginalNameMap.put(sanitizedBeanName, originalBeanName);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Add parameters with inferred types
             for (String beanRef : beanReferences) {
-                ClassName paramType = resolveParameterType(beanRef, transpilationContext);
-                ParameterSpec.Builder paramBuilder = ParameterSpec.builder(paramType, beanRef)
+                // beanRef is original bean name, sanitize it for map lookup
+                String sanitizedBeanRef = sanitizeBeanName(beanRef);
+
+                ClassName paramType = beanRefToTypeMap.getOrDefault(
+                        sanitizedBeanRef,
+                        resolveParameterType(beanRef, transpilationContext) // fallback to existing logic
+                        );
+
+                // Use original bean name for @Qualifier
+                ParameterSpec.Builder paramBuilder = ParameterSpec.builder(paramType, sanitizedBeanRef)
                         .addAnnotation(
                                 AnnotationSpec.builder(org.springframework.beans.factory.annotation.Qualifier.class)
                                         .addMember("value", "$S", beanRef)
@@ -951,7 +1035,7 @@ public class ConstructorBasedBeanVisitor extends AbstractBeanDefinitionVisitor {
 
             for (String beanRef : beanReferences) {
                 ClassName paramType = resolveParameterType(beanRef, transpilationContext);
-                ParameterSpec.Builder paramBuilder = ParameterSpec.builder(paramType, beanRef)
+                ParameterSpec.Builder paramBuilder = ParameterSpec.builder(paramType, sanitizeBeanName(beanRef))
                         .addAnnotation(
                                 AnnotationSpec.builder(org.springframework.beans.factory.annotation.Qualifier.class)
                                         .addMember("value", "$S", beanRef)
@@ -978,7 +1062,7 @@ public class ConstructorBasedBeanVisitor extends AbstractBeanDefinitionVisitor {
 
                 if (value instanceof org.springframework.beans.factory.config.RuntimeBeanReference beanRef) {
                     String beanName = beanRef.getBeanName();
-                    methodBuilder.addStatement("bean.$L($N)", setterName, beanName);
+                    methodBuilder.addStatement("bean.$L($N)", setterName, sanitizeBeanName(beanName));
                 } else if (value instanceof org.springframework.beans.factory.config.TypedStringValue stringValue) {
                     String rawValue = stringValue.getValue();
 
@@ -1026,8 +1110,15 @@ public class ConstructorBasedBeanVisitor extends AbstractBeanDefinitionVisitor {
                     // Handle ManagedList (like <list> with bean references for method arguments)
                     methodBuilder.addComment("// Property '" + propertyName + "' uses ManagedList");
 
-                    String listCall = generateManagedListCall(managedList);
-                    methodBuilder.addStatement("bean.$L($L)", setterName, listCall);
+                    // Check if the setter method expects varargs
+                    if (isVarargsSetterMethod(setterName, beanClassName)) {
+                        // Generate varargs call: bean.setInterceptors(item1, item2, ...)
+                        generateVarargsSetterCall(methodBuilder, setterName, managedList);
+                    } else {
+                        // Generate list call: bean.setProperty(new ArrayList<>(...))
+                        String listCall = generateManagedListCall(managedList);
+                        methodBuilder.addStatement("bean.$L($L)", setterName, listCall);
+                    }
                 } else if (value instanceof org.springframework.beans.factory.config.BeanDefinitionHolder) {
                     // Nested bean definitions are not supported
                     throw new UnsupportedOperationException(
@@ -1040,6 +1131,66 @@ public class ConstructorBasedBeanVisitor extends AbstractBeanDefinitionVisitor {
                 }
             }
         }
+
+        /**
+         * Check if a setter method expects varargs instead of a List parameter.
+         * Uses reflection to examine the method signature.
+         */
+        private boolean isVarargsSetterMethod(String setterName, String beanClassName) {
+            if (beanClassName == null) {
+                return false;
+            }
+
+            try {
+                Class<?> beanClass = Class.forName(beanClassName);
+                java.lang.reflect.Method[] methods = beanClass.getMethods();
+
+                for (java.lang.reflect.Method method : methods) {
+                    if (method.getName().equals(setterName) && method.isVarArgs()) {
+                        return true;
+                    }
+                }
+            } catch (ClassNotFoundException e) {
+                // If we can't load the class, assume it's not varargs
+                return false;
+            }
+
+            return false;
+        }
+
+        /**
+         * Generate a varargs setter call for ManagedList properties.
+         * Generates: bean.setInterceptors(item1, item2, ...)
+         */
+        private void generateVarargsSetterCall(
+                MethodSpec.Builder methodBuilder,
+                String setterName,
+                org.springframework.beans.factory.support.ManagedList<?> managedList) {
+
+            StringBuilder argsBuilder = new StringBuilder();
+            boolean first = true;
+
+            for (Object listItem : managedList) {
+                if (!first) {
+                    argsBuilder.append(", ");
+                }
+                first = false;
+
+                if (listItem instanceof org.springframework.beans.factory.config.RuntimeBeanReference beanRef) {
+                    // Use sanitized bean name as parameter - this must match the method parameter names
+                    String sanitizedBeanName = sanitizeBeanName(beanRef.getBeanName());
+                    argsBuilder.append(sanitizedBeanName);
+                } else if (listItem instanceof org.springframework.beans.factory.config.TypedStringValue stringValue) {
+                    // Extract the actual string value from TypedStringValue
+                    argsBuilder.append("\"").append(stringValue.getValue()).append("\"");
+                } else {
+                    // Other types - convert to string for now
+                    argsBuilder.append("\"").append(listItem.toString()).append("\"");
+                }
+            }
+
+            methodBuilder.addStatement("bean.$L($L)", setterName, argsBuilder.toString());
+        }
     }
 
     /**
@@ -1051,17 +1202,29 @@ public class ConstructorBasedBeanVisitor extends AbstractBeanDefinitionVisitor {
         final ClassName paramType;
         final ParameterType type;
         final String spelExpression; // For SpEL expressions, stores the original expression
+        final String originalBeanName; // For bean references, stores the original unsanitized bean name for @Qualifier
 
         ConstructorParameter(int index, String name, ClassName paramType, ParameterType type) {
-            this(index, name, paramType, type, null);
+            this(index, name, paramType, type, null, null);
         }
 
         ConstructorParameter(int index, String name, ClassName paramType, ParameterType type, String spelExpression) {
+            this(index, name, paramType, type, spelExpression, null);
+        }
+
+        ConstructorParameter(
+                int index,
+                String name,
+                ClassName paramType,
+                ParameterType type,
+                String spelExpression,
+                String originalBeanName) {
             this.index = index;
             this.name = name;
             this.paramType = paramType;
             this.type = type;
             this.spelExpression = spelExpression;
+            this.originalBeanName = originalBeanName;
         }
     }
 

@@ -81,9 +81,7 @@ public class XmlToJavaTranspiler {
         } catch (Exception e) {
             messager.printMessage(Diagnostic.Kind.ERROR, "Transpilation failed: " + e.getMessage(), annotatedElement);
             // Log stack trace for debugging in verbose mode
-            if (processingEnv.getOptions().containsKey("debug")) {
-                e.printStackTrace();
-            }
+            e.printStackTrace();
         }
     }
 

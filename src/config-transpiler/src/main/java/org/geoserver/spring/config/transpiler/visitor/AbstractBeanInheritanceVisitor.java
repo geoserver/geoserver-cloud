@@ -397,6 +397,32 @@ public class AbstractBeanInheritanceVisitor extends AbstractBeanDefinitionVisito
             TranspilationContext context) {
 
         String beanClassName = beanContext.getBeanClassName();
+
+        // If child bean doesn't have explicit class, try Spring's ResolvableType first
+        if (beanClassName == null) {
+            try {
+                org.springframework.core.ResolvableType resolvableType =
+                        beanContext.getBeanDefinition().getResolvableType();
+                if (resolvableType != null && resolvableType != org.springframework.core.ResolvableType.NONE) {
+                    Class<?> resolvedClass = resolvableType.resolve();
+                    if (resolvedClass != null) {
+                        beanClassName = resolvedClass.getName();
+                    }
+                }
+            } catch (Exception e) {
+                // Continue to manual parent resolution
+            }
+        }
+
+        // If still null, try manual parent resolution as fallback
+        if (beanClassName == null) {
+            BeanDefinition parentBean =
+                    resolveParentBean(beanContext.getBeanDefinition(), beanContext.getTranspilationContext());
+            if (parentBean != null) {
+                beanClassName = resolveClassNameFromParent(parentBean, beanContext.getTranspilationContext());
+            }
+        }
+
         if (beanClassName == null) {
             methodBuilder.addStatement(
                     "throw new $T($S)", UnsupportedOperationException.class, "No bean class name specified");
@@ -542,6 +568,17 @@ public class AbstractBeanInheritanceVisitor extends AbstractBeanDefinitionVisito
                 if (paramType != null) {
                     beanRefToTypeMap.put(beanName, paramType);
                 }
+            } else if (value instanceof org.springframework.beans.factory.support.ManagedList<?> managedList) {
+                // Handle ManagedList - extract generic type from constructor parameter
+                ClassName elementType = getGenericCollectionElementType(index, beanClassName, constructorArgs);
+                if (elementType != null) {
+                    // Apply the generic element type to all bean references in the list
+                    for (Object listItem : managedList) {
+                        if (listItem instanceof RuntimeBeanReference beanRef) {
+                            beanRefToTypeMap.put(beanRef.getBeanName(), elementType);
+                        }
+                    }
+                }
             }
         }
 
@@ -634,28 +671,76 @@ public class AbstractBeanInheritanceVisitor extends AbstractBeanDefinitionVisito
     }
 
     /**
-     * Sanitize bean name to be a valid Java method identifier.
+     * Resolve class name from parent bean, handling chained inheritance.
+     * This method recursively walks up the parent chain to find the first bean with a class name.
      */
-    private String sanitizeBeanName(String beanName) {
-        // Replace non-alphanumeric characters with underscores
-        String sanitized = beanName.replaceAll("[^a-zA-Z0-9_]", "_");
-
-        // Ensure it starts with a letter or underscore
-        if (!Character.isJavaIdentifierStart(sanitized.charAt(0))) {
-            sanitized = "_" + sanitized;
+    private String resolveClassNameFromParent(BeanDefinition parentBean, TranspilationContext context) {
+        if (parentBean == null) {
+            return null;
         }
 
-        return sanitized;
+        // Check if parent has explicit class name
+        String parentClassName = parentBean.getBeanClassName();
+        if (parentClassName != null) {
+            return parentClassName;
+        }
+
+        // If parent doesn't have class, check its parent (chained inheritance)
+        if (parentBean.getParentName() != null) {
+            BeanDefinition grandParentBean = context.getBeanDefinition(parentBean.getParentName());
+            return resolveClassNameFromParent(grandParentBean, context);
+        }
+
+        return null;
     }
 
     /**
-     * Get return type using TypeNameResolver.
+     * Get return type using Spring's ResolvableType with TypeNameResolver fallback.
      */
     private ClassName getReturnType(BeanGenerationContext beanContext, TranspilationContext context) {
-        TypeNameResolver.TypeResolutionResult result =
-                TypeNameResolver.resolveBeanReturnType(beanContext.getBeanDefinition(), context);
+        BeanDefinition beanDefinition = beanContext.getBeanDefinition();
+
+        // First try Spring's ResolvableType which handles inheritance properly
+        try {
+            org.springframework.core.ResolvableType resolvableType = beanDefinition.getResolvableType();
+            if (resolvableType != null && resolvableType != org.springframework.core.ResolvableType.NONE) {
+                Class<?> resolvedClass = resolvableType.resolve();
+                if (resolvedClass != null) {
+                    return ClassName.get(resolvedClass);
+                }
+            }
+        } catch (Exception e) {
+            // Continue to fallback approaches
+        }
+
+        // Fallback to TypeNameResolver
+        TypeNameResolver.TypeResolutionResult result = TypeNameResolver.resolveBeanReturnType(beanDefinition, context);
 
         if (!result.isResolved()) {
+            // Try to resolve from parent bean if TypeNameResolver failed
+            String resolvedClassName = beanContext.getBeanClassName();
+            if (resolvedClassName == null) {
+                BeanDefinition parentBean = resolveParentBean(beanDefinition, context);
+                if (parentBean != null) {
+                    resolvedClassName = resolveClassNameFromParent(parentBean, context);
+                }
+            }
+
+            if (resolvedClassName != null) {
+                try {
+                    if (resolvedClassName.contains(".")) {
+                        int lastDot = resolvedClassName.lastIndexOf('.');
+                        String packageName = resolvedClassName.substring(0, lastDot);
+                        String simpleName = resolvedClassName.substring(lastDot + 1);
+                        return ClassName.get(packageName, simpleName);
+                    } else {
+                        return ClassName.get("java.lang", resolvedClassName);
+                    }
+                } catch (Exception e) {
+                    // Fall through to Object fallback
+                }
+            }
+
             return ClassName.get(Object.class);
         }
 
