@@ -11,7 +11,6 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import org.geoserver.cloud.autoconfigure.security.ConditionalOnGeoServerSecurityEnabled;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 /**
@@ -36,7 +35,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Documented
 @Inherited
-@ConditionalOnGeoServerSecurityEnabled
 @ConditionalOnProperty(
         name = GatewaySharedAuthConfigProperties.ENABLED_PROP,
         havingValue = "true",

@@ -5,7 +5,6 @@
 
 package org.geoserver.cloud.autoconfigure.extensions.security.gateway.preauth;
 
-import org.geoserver.cloud.autoconfigure.security.ConditionalOnGeoServerSecurityEnabled;
 import org.geoserver.cloud.autoconfigure.security.GeoServerSecurityAutoConfiguration;
 import org.geoserver.cloud.security.gateway.GatewayPreAuthenticationConfiguration;
 import org.geoserver.cloud.security.gateway.GatewayPreAuthenticationConfigurationWebUI;
@@ -19,7 +18,6 @@ import org.springframework.context.annotation.Import;
 // GeoServerSecurityManager calls GeoServerExtensions.extensions(GeoServerSecurityProvider.class)
 @AutoConfiguration(before = GeoServerSecurityAutoConfiguration.class)
 @Import({GatewayPreAuthenticationConfiguration.class, GatewayPreAuthenticationAutoConfiguration.WebUi.class})
-@ConditionalOnGeoServerSecurityEnabled
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 public class GatewayPreAuthenticationAutoConfiguration {
 
