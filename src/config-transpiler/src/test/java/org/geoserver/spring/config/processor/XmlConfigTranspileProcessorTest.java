@@ -146,7 +146,6 @@ class XmlConfigTranspileProcessorTest {
 
         CompilationSubject.assertThat(compilation).succeeded();
 
-        System.err.println(generatedSource);
         assertThat(generatedSource)
                 .as("Generated class should have @Configuration")
                 .contains("@Configuration")
