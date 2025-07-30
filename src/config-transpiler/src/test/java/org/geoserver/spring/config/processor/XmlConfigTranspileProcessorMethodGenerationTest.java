@@ -1021,15 +1021,51 @@ class XmlConfigTranspileProcessorMethodGenerationTest {
                 </bean>
                 """;
 
-        // Nested bean definitions should throw an UnsupportedOperationException
-        UnsupportedOperationException exception = org.junit.jupiter.api.Assertions.assertThrows(
-                UnsupportedOperationException.class,
-                () -> BeanVisitorTestUtils.generateBeanMethodFromXml("advertisedCatalog", xml));
+        final String expectedJavaCode =
+                """
+                @org.springframework.context.annotation.Bean
+                org.geoserver.catalog.impl.AdvertisedCatalog advertisedCatalog(
+                        @org.springframework.beans.factory.annotation.Qualifier("secureCatalog") org.geoserver.catalog.Catalog secureCatalog) {
 
-        assertThat(exception.getMessage())
-                .contains("Nested bean definitions are not supported")
-                .contains("layerGroupVisibilityPolicy")
-                .contains("advertisedCatalog");
+                  org.geoserver.catalog.impl.AdvertisedCatalog bean = new org.geoserver.catalog.impl.AdvertisedCatalog(secureCatalog);
+                  bean.setLayerGroupVisibilityPolicy(org.geoserver.catalog.LayerGroupVisibilityPolicy.HIDE_NEVER);
+                  return bean;
+                }
+                """;
+
+        assertBeanMethod(BeanVisitorTestUtils.generateBeanMethodFromXml("advertisedCatalog", xml))
+                .compilesSuccessfully()
+                .isEquivalentTo(expectedJavaCode);
+    }
+
+    @Test
+    void testSimpleNestedBeanProperties() {
+        final String xml =
+                """
+                <bean id="dimensionFactory" class="org.geoserver.wms.dimension.impl.DimensionDefaultValueSelectionStrategyFactoryImpl">
+                    <property name="featureTimeMinimumStrategy">
+                        <bean class="org.geoserver.wms.dimension.impl.FeatureMinimumValueSelectionStrategyImpl"/>
+                    </property>
+                    <property name="featureTimeMaximumStrategy">
+                        <bean class="org.geoserver.wms.dimension.impl.FeatureMaximumValueSelectionStrategyImpl"/>
+                    </property>
+                </bean>
+                """;
+
+        final String expectedJavaCode =
+                """
+                @org.springframework.context.annotation.Bean
+                org.geoserver.wms.dimension.impl.DimensionDefaultValueSelectionStrategyFactoryImpl dimensionFactory() {
+                  org.geoserver.wms.dimension.impl.DimensionDefaultValueSelectionStrategyFactoryImpl bean = new org.geoserver.wms.dimension.impl.DimensionDefaultValueSelectionStrategyFactoryImpl();
+                  bean.setFeatureTimeMinimumStrategy(new org.geoserver.wms.dimension.impl.FeatureMinimumValueSelectionStrategyImpl());
+                  bean.setFeatureTimeMaximumStrategy(new org.geoserver.wms.dimension.impl.FeatureMaximumValueSelectionStrategyImpl());
+                  return bean;
+                }
+                """;
+
+        assertBeanMethod(BeanVisitorTestUtils.generateBeanMethodFromXml("dimensionFactory", xml))
+                .compilesSuccessfully()
+                .isEquivalentTo(expectedJavaCode);
     }
 
     @Test
