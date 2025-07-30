@@ -747,4 +747,255 @@ public abstract class AbstractBeanDefinitionVisitor implements BeanDefinitionVis
             methodBuilder.addStatement("bean.$L(new $L())", setterName, nestedBeanClassName);
         }
     }
+
+    /**
+     * Generate property setter method calls with proper type conversion.
+     * This unified method handles all property value types and can be used by both
+     * SimpleBeanVisitor and ConstructorBasedBeanVisitor.
+     *
+     * @param methodBuilder the method builder to add statements to
+     * @param propertyValues the Spring PropertyValues to process
+     * @param beanReferences optional list of bean reference parameter names (for SimpleBeanVisitor)
+     * @param beanClassName the bean class name for type introspection
+     * @param beanName the bean name for error messages
+     */
+    protected void generatePropertySetters(
+            MethodSpec.Builder methodBuilder,
+            org.springframework.beans.PropertyValues propertyValues,
+            java.util.List<String> beanReferences,
+            String beanClassName,
+            String beanName) {
+
+        if (propertyValues == null || propertyValues.getPropertyValues().length == 0) {
+            return;
+        }
+
+        int beanRefIndex = 0;
+
+        for (org.springframework.beans.PropertyValue pv : propertyValues.getPropertyValues()) {
+            String propertyName = pv.getName();
+            Object value = pv.getValue();
+
+            // Generate setter method name
+            String setterName = "set" + Character.toUpperCase(propertyName.charAt(0)) + propertyName.substring(1);
+
+            if (value instanceof org.springframework.beans.factory.config.RuntimeBeanReference beanRef) {
+                String referencedBeanName = beanRef.getBeanName();
+
+                if (beanReferences != null && beanRefIndex < beanReferences.size()) {
+                    // SimpleBeanVisitor approach: use pre-collected bean reference parameters by index
+                    methodBuilder.addStatement("bean.$L($N)", setterName, beanReferences.get(beanRefIndex++));
+                } else {
+                    // ConstructorBasedBeanVisitor approach: use sanitized bean name directly
+                    methodBuilder.addStatement("bean.$L($N)", setterName, sanitizeBeanName(referencedBeanName));
+                }
+            } else if (value instanceof org.springframework.beans.factory.config.TypedStringValue stringValue) {
+                String rawValue = stringValue.getValue();
+
+                // Generate the converted value statement based on property type
+                generateTypedPropertySetterCall(methodBuilder, setterName, propertyName, rawValue, beanClassName);
+            } else if (value instanceof org.springframework.beans.factory.support.ManagedProperties managedProps) {
+                // Handle ManagedProperties (like <props>)
+                methodBuilder.addComment("// Property '" + propertyName + "' uses ManagedProperties");
+                methodBuilder.addStatement(
+                        "java.util.Properties $L = new java.util.Properties()", propertyName + "Props");
+
+                for (Object key : managedProps.keySet()) {
+                    Object val = managedProps.get(key);
+
+                    String keyStr = extractStringValue(key);
+                    String valStr = extractStringValue(val);
+
+                    // Check if the value is a simple SpEL bean reference
+                    String simpleBeanRef = extractSimpleSpelBeanReference(valStr);
+                    if (simpleBeanRef != null) {
+                        // Use bean reference parameter variable instead of literal SpEL
+                        methodBuilder.addStatement(
+                                "$L.setProperty($S, $N)", propertyName + "Props", keyStr, simpleBeanRef);
+                    } else {
+                        // Use literal string value
+                        methodBuilder.addStatement("$L.setProperty($S, $S)", propertyName + "Props", keyStr, valStr);
+                    }
+                }
+
+                methodBuilder.addStatement("bean.$L($L)", setterName, propertyName + "Props");
+            } else if (value instanceof org.springframework.beans.factory.support.ManagedMap<?, ?> managedMap) {
+                // Handle ManagedMap (like <map>)
+                methodBuilder.addComment("// Property '" + propertyName + "' uses ManagedMap");
+
+                // Check if this is a Map<Class<?>, Class<?>> based on property type analysis
+                boolean isClassMap = isClassToClassMap(propertyName, beanClassName);
+
+                if (isClassMap) {
+                    // Use raw Map to avoid complex generic issues - the @SuppressWarnings annotation handles this
+                    methodBuilder.addStatement("java.util.Map $L = new java.util.HashMap()", propertyName + "Map");
+                } else {
+                    methodBuilder.addStatement(
+                            "java.util.Map<String, Object> $L = new java.util.HashMap<>()", propertyName + "Map");
+                }
+
+                for (java.util.Map.Entry<?, ?> entry : managedMap.entrySet()) {
+                    String keyStr = extractStringValue(entry.getKey());
+                    String valStr = extractStringValue(entry.getValue());
+
+                    if (isClassMap) {
+                        // Convert strings to Class literals
+                        methodBuilder.addStatement("$L.put($L.class, $L.class)", propertyName + "Map", keyStr, valStr);
+                    } else {
+                        methodBuilder.addStatement("$L.put($S, $S)", propertyName + "Map", keyStr, valStr);
+                    }
+                }
+
+                methodBuilder.addStatement("bean.$L($L)", setterName, propertyName + "Map");
+            } else if (value instanceof org.springframework.beans.factory.support.ManagedList<?> managedList) {
+                // Handle ManagedList (like <list> with bean references for method arguments)
+                methodBuilder.addComment("// Property '" + propertyName + "' uses ManagedList");
+
+                // Check if the setter method expects varargs
+                if (isVarargsSetterMethod(setterName, beanClassName)) {
+                    // Generate varargs call: bean.setInterceptors(item1, item2, ...)
+                    generateVarargsSetterCall(methodBuilder, setterName, managedList);
+                } else {
+                    // Generate list call: bean.setProperty(new ArrayList<>(...))
+                    String listCall = generateManagedListCall(managedList);
+                    methodBuilder.addStatement("bean.$L($L)", setterName, listCall);
+                }
+            } else if (value
+                    instanceof org.springframework.beans.factory.config.BeanDefinitionHolder nestedBeanHolder) {
+                // Handle nested bean definitions
+                generateNestedBeanPropertySetter(methodBuilder, setterName, nestedBeanHolder);
+            } else {
+                // Fallback for other value types
+                methodBuilder.addComment("TODO: Handle property '" + propertyName + "' of type "
+                        + value.getClass().getSimpleName());
+            }
+        }
+    }
+
+    /**
+     * Check if a property expects a Map<Class<?>, Class<?>> by analyzing the property type.
+     * This is needed for properties like CustomEditorConfigurer.customEditors.
+     */
+    protected boolean isClassToClassMap(String propertyName, String beanClassName) {
+        try {
+            Class<?> propertyType = getPropertyType(propertyName, beanClassName);
+
+            // Check if it's a Map type
+            if (java.util.Map.class.isAssignableFrom(propertyType)) {
+                // For now, use a simple heuristic: if the property name contains "editor"
+                // and the bean is CustomEditorConfigurer, assume it's a Class->Class map
+                if (propertyName.toLowerCase().contains("editor") && beanClassName.contains("CustomEditorConfigurer")) {
+                    return true;
+                }
+            }
+
+            return false;
+        } catch (Exception e) {
+            // If we can't determine the type, assume it's not a class map
+            return false;
+        }
+    }
+
+    /**
+     * Check if a setter method expects varargs instead of a List parameter.
+     * Uses reflection to examine the method signature.
+     */
+    protected boolean isVarargsSetterMethod(String setterName, String beanClassName) {
+        if (beanClassName == null) {
+            return false;
+        }
+
+        try {
+            Class<?> beanClass = Class.forName(beanClassName);
+            java.lang.reflect.Method[] methods = beanClass.getMethods();
+
+            for (java.lang.reflect.Method method : methods) {
+                if (method.getName().equals(setterName) && method.isVarArgs()) {
+                    return true;
+                }
+            }
+        } catch (ClassNotFoundException e) {
+            // If we can't load the class, assume it's not varargs
+            return false;
+        }
+
+        return false;
+    }
+
+    /**
+     * Generate a varargs setter call for ManagedList properties.
+     * Generates: bean.setInterceptors(item1, item2, ...)
+     */
+    protected void generateVarargsSetterCall(
+            MethodSpec.Builder methodBuilder,
+            String setterName,
+            org.springframework.beans.factory.support.ManagedList<?> managedList) {
+
+        StringBuilder argsBuilder = new StringBuilder();
+        boolean first = true;
+
+        for (Object listItem : managedList) {
+            if (!first) {
+                argsBuilder.append(", ");
+            }
+            first = false;
+
+            if (listItem instanceof org.springframework.beans.factory.config.RuntimeBeanReference beanRef) {
+                // Use sanitized bean name as parameter - this must match the method parameter names
+                String sanitizedBeanName = sanitizeBeanName(beanRef.getBeanName());
+                argsBuilder.append(sanitizedBeanName);
+            } else if (listItem instanceof org.springframework.beans.factory.config.TypedStringValue stringValue) {
+                // Extract the actual string value from TypedStringValue
+                argsBuilder.append("\"").append(stringValue.getValue()).append("\"");
+            } else {
+                // Other types - convert to string for now
+                argsBuilder.append("\"").append(listItem.toString()).append("\"");
+            }
+        }
+
+        methodBuilder.addStatement("bean.$L($L)", setterName, argsBuilder.toString());
+    }
+
+    /**
+     * Generate an array initialization call for ManagedList constructor arguments.
+     * This creates array syntax like: new String[]{"value1", "value2"}
+     *
+     * @param managedList the ManagedList to process
+     * @param componentType the array component type
+     * @return the generated array initialization string
+     */
+    protected String generateManagedListAsArray(
+            org.springframework.beans.factory.support.ManagedList<?> managedList, Class<?> componentType) {
+
+        String componentTypeName = componentType.getSimpleName();
+        StringBuilder arrayCall =
+                new StringBuilder("new ").append(componentTypeName).append("[]{");
+
+        boolean first = true;
+        for (Object listItem : managedList) {
+            if (!first) {
+                arrayCall.append(", ");
+            }
+            first = false;
+
+            if (listItem instanceof RuntimeBeanReference beanRef) {
+                // Use sanitized bean name as parameter - this must match the method parameter names
+                String sanitizedBeanName = sanitizeBeanName(beanRef.getBeanName());
+                arrayCall.append(sanitizedBeanName);
+            } else if (listItem instanceof org.springframework.beans.factory.config.TypedStringValue stringValue) {
+                // Extract the actual string value from TypedStringValue
+                if (componentType == String.class) {
+                    arrayCall.append("\"").append(stringValue.getValue()).append("\"");
+                } else {
+                    // For non-String types, let the type system handle conversion
+                    arrayCall.append("\"").append(stringValue.getValue()).append("\"");
+                }
+            } else {
+                // Other types - convert to string for now
+                arrayCall.append("\"").append(listItem.toString()).append("\"");
+            }
+        }
+        arrayCall.append("}");
+        return arrayCall.toString();
+    }
 }

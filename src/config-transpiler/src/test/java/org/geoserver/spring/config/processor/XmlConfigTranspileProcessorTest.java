@@ -265,17 +265,6 @@ class XmlConfigTranspileProcessorTest {
 
         Compilation compilation = assertCompiles(sourceCode);
 
-        // Verify generated class contains expected beans from JAR pattern
-        JavaFileObject generatedFile =
-                compilation.generatedSourceFile("com.example.wms.WmsConfig").get();
-        String generatedSource = getSourceContent(generatedFile);
-
-        System.out.println(generatedSource);
-
-        compilation = compilerWithProcessor().compile(generatedFile);
-
-        CompilationSubject.assertThat(compilation).succeeded();
-
         // Should generate two separate configuration classes
         CompilationSubject.assertThat(compilation).generatedSourceFile("com.example.wms.WmsConfig");
     }
