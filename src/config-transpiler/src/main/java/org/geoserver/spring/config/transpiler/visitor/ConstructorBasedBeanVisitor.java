@@ -343,7 +343,10 @@ public class ConstructorBasedBeanVisitor extends AbstractBeanDefinitionVisitor {
 
             // Generate property setters if needed
             if (hasProperties) {
-                generatePropertySetters(methodBuilder);
+                // Use the unified generatePropertySetters method from base class
+                // Pass null for beanReferences to use ConstructorBasedBeanVisitor approach
+                generatePropertySetters(
+                        methodBuilder, beanDefinition.getPropertyValues(), null, beanClassName, beanName);
                 // Add the return statement after property setters
                 methodBuilder.addStatement("return bean");
             }
@@ -412,8 +415,10 @@ public class ConstructorBasedBeanVisitor extends AbstractBeanDefinitionVisitor {
                         && (expectedType == Class.class
                                 || expectedType.getName().equals("java.lang.Class"))) {
                     // Constructor expects a Class parameter - convert string to Class literal
+                    // Convert $ notation to . notation for nested classes (e.g., Outer$Inner -> Outer.Inner)
+                    String classLiteral = rawValue.replace('$', '.') + ".class";
                     return new ConstructorParameter(
-                            index, rawValue + ".class", ClassName.get(Class.class), ParameterType.CLASS_LITERAL);
+                            index, classLiteral, ClassName.get(Class.class), ParameterType.CLASS_LITERAL);
                 } else if (expectedType != null && isNumericType(expectedType)) {
                     // Constructor expects a numeric parameter - convert string to numeric literal
                     ClassName paramTypeClassName =
@@ -434,13 +439,27 @@ public class ConstructorBasedBeanVisitor extends AbstractBeanDefinitionVisitor {
                 }
             } else if (value instanceof org.springframework.beans.factory.support.ManagedList<?> managedList) {
 
-                // Generate List.of() call with bean references - this will be handled specially in constructor
-                // generation
-                return new ConstructorParameter(
-                        index,
-                        generateManagedListCall(managedList),
-                        ClassName.get(java.util.List.class),
-                        ParameterType.MANAGED_LIST);
+                // Check if the constructor parameter expects an array type
+                Class<?> expectedType = getConstructorParameterType(index);
+                if (expectedType != null && expectedType.isArray()) {
+                    // Generate array instead of list
+                    String arrayCall = generateManagedListAsArray(managedList, expectedType.getComponentType());
+                    // For array types, use the component type for ClassName and let the arrayCall handle the array
+                    // syntax
+                    return new ConstructorParameter(
+                            index,
+                            arrayCall,
+                            ClassName.get(expectedType.getComponentType()),
+                            ParameterType.MANAGED_ARRAY);
+                } else {
+                    // Generate List.of() call with bean references - this will be handled specially in constructor
+                    // generation
+                    return new ConstructorParameter(
+                            index,
+                            generateManagedListCall(managedList),
+                            ClassName.get(java.util.List.class),
+                            ParameterType.MANAGED_LIST);
+                }
             } else {
                 // Handle other types
                 return new ConstructorParameter(
@@ -628,6 +647,9 @@ public class ConstructorBasedBeanVisitor extends AbstractBeanDefinitionVisitor {
                         break;
                     case MANAGED_LIST:
                         constructorArgs.add(param.name); // The name contains the List.of() call
+                        break;
+                    case MANAGED_ARRAY:
+                        constructorArgs.add(param.name); // The name contains the array initialization
                         break;
                     case UNSUPPORTED:
                         constructorArgs.add(param.name); // Already includes comment
@@ -1043,153 +1065,6 @@ public class ConstructorBasedBeanVisitor extends AbstractBeanDefinitionVisitor {
                 methodBuilder.addParameter(paramBuilder.build());
             }
         }
-
-        /**
-         * Generate property setter method calls for bean properties.
-         */
-        private void generatePropertySetters(MethodSpec.Builder methodBuilder) {
-            if (!beanDefinition.hasPropertyValues()) {
-                return;
-            }
-
-            for (org.springframework.beans.PropertyValue pv :
-                    beanDefinition.getPropertyValues().getPropertyValues()) {
-                String propertyName = pv.getName();
-                Object value = pv.getValue();
-
-                // Generate setter method name
-                String setterName = "set" + Character.toUpperCase(propertyName.charAt(0)) + propertyName.substring(1);
-
-                if (value instanceof org.springframework.beans.factory.config.RuntimeBeanReference beanRef) {
-                    String beanName = beanRef.getBeanName();
-                    methodBuilder.addStatement("bean.$L($N)", setterName, sanitizeBeanName(beanName));
-                } else if (value instanceof org.springframework.beans.factory.config.TypedStringValue stringValue) {
-                    String rawValue = stringValue.getValue();
-
-                    // Use Spring BeanWrapper-based type conversion like SimpleBeanVisitor
-                    generateTypedPropertySetterCall(methodBuilder, setterName, propertyName, rawValue, beanClassName);
-                } else if (value instanceof org.springframework.beans.factory.support.ManagedProperties managedProps) {
-                    // Handle ManagedProperties (like <props>)
-                    methodBuilder.addComment("// Property '" + propertyName + "' uses ManagedProperties");
-                    methodBuilder.addStatement(
-                            "java.util.Properties $L = new java.util.Properties()", propertyName + "Props");
-
-                    for (Object key : managedProps.keySet()) {
-                        Object val = managedProps.get(key);
-                        String keyStr = extractStringValue(key);
-                        String valStr = extractStringValue(val);
-
-                        // Check if the value is a simple SpEL bean reference
-                        String simpleBeanRef = extractSimpleSpelBeanReference(valStr);
-                        if (simpleBeanRef != null) {
-                            // Use bean reference parameter variable instead of literal SpEL
-                            methodBuilder.addStatement(
-                                    "$L.setProperty($S, $N)", propertyName + "Props", keyStr, simpleBeanRef);
-                        } else {
-                            // Use literal string value
-                            methodBuilder.addStatement(
-                                    "$L.setProperty($S, $S)", propertyName + "Props", keyStr, valStr);
-                        }
-                    }
-
-                    methodBuilder.addStatement("bean.$L($L)", setterName, propertyName + "Props");
-                } else if (value instanceof org.springframework.beans.factory.support.ManagedMap<?, ?> managedMap) {
-                    // Handle ManagedMap (like <map>)
-                    methodBuilder.addComment("// Property '" + propertyName + "' uses ManagedMap");
-                    methodBuilder.addStatement(
-                            "java.util.Map<String, Object> $L = new java.util.HashMap<>()", propertyName + "Map");
-
-                    for (Map.Entry<?, ?> entry : managedMap.entrySet()) {
-                        String keyStr = extractStringValue(entry.getKey());
-                        String valStr = extractStringValue(entry.getValue());
-                        methodBuilder.addStatement("$L.put($S, $S)", propertyName + "Map", keyStr, valStr);
-                    }
-
-                    methodBuilder.addStatement("bean.$L($L)", setterName, propertyName + "Map");
-                } else if (value instanceof org.springframework.beans.factory.support.ManagedList<?> managedList) {
-                    // Handle ManagedList (like <list> with bean references for method arguments)
-                    methodBuilder.addComment("// Property '" + propertyName + "' uses ManagedList");
-
-                    // Check if the setter method expects varargs
-                    if (isVarargsSetterMethod(setterName, beanClassName)) {
-                        // Generate varargs call: bean.setInterceptors(item1, item2, ...)
-                        generateVarargsSetterCall(methodBuilder, setterName, managedList);
-                    } else {
-                        // Generate list call: bean.setProperty(new ArrayList<>(...))
-                        String listCall = generateManagedListCall(managedList);
-                        methodBuilder.addStatement("bean.$L($L)", setterName, listCall);
-                    }
-                } else if (value
-                        instanceof org.springframework.beans.factory.config.BeanDefinitionHolder nestedBeanHolder) {
-                    // Handle nested bean definitions - simple object instantiation
-                    generateNestedBeanPropertySetter(methodBuilder, setterName, nestedBeanHolder);
-                } else {
-                    // Fallback for other value types
-                    methodBuilder.addComment("TODO: Handle property '" + propertyName + "' of type "
-                            + value.getClass().getSimpleName());
-                }
-            }
-        }
-
-        /**
-         * Check if a setter method expects varargs instead of a List parameter.
-         * Uses reflection to examine the method signature.
-         */
-        private boolean isVarargsSetterMethod(String setterName, String beanClassName) {
-            if (beanClassName == null) {
-                return false;
-            }
-
-            try {
-                Class<?> beanClass = Class.forName(beanClassName);
-                java.lang.reflect.Method[] methods = beanClass.getMethods();
-
-                for (java.lang.reflect.Method method : methods) {
-                    if (method.getName().equals(setterName) && method.isVarArgs()) {
-                        return true;
-                    }
-                }
-            } catch (ClassNotFoundException e) {
-                // If we can't load the class, assume it's not varargs
-                return false;
-            }
-
-            return false;
-        }
-
-        /**
-         * Generate a varargs setter call for ManagedList properties.
-         * Generates: bean.setInterceptors(item1, item2, ...)
-         */
-        private void generateVarargsSetterCall(
-                MethodSpec.Builder methodBuilder,
-                String setterName,
-                org.springframework.beans.factory.support.ManagedList<?> managedList) {
-
-            StringBuilder argsBuilder = new StringBuilder();
-            boolean first = true;
-
-            for (Object listItem : managedList) {
-                if (!first) {
-                    argsBuilder.append(", ");
-                }
-                first = false;
-
-                if (listItem instanceof org.springframework.beans.factory.config.RuntimeBeanReference beanRef) {
-                    // Use sanitized bean name as parameter - this must match the method parameter names
-                    String sanitizedBeanName = sanitizeBeanName(beanRef.getBeanName());
-                    argsBuilder.append(sanitizedBeanName);
-                } else if (listItem instanceof org.springframework.beans.factory.config.TypedStringValue stringValue) {
-                    // Extract the actual string value from TypedStringValue
-                    argsBuilder.append("\"").append(stringValue.getValue()).append("\"");
-                } else {
-                    // Other types - convert to string for now
-                    argsBuilder.append("\"").append(listItem.toString()).append("\"");
-                }
-            }
-
-            methodBuilder.addStatement("bean.$L($L)", setterName, argsBuilder.toString());
-        }
     }
 
     /**
@@ -1239,6 +1114,7 @@ public class ConstructorBasedBeanVisitor extends AbstractBeanDefinitionVisitor {
         SPEL_EXPRESSION,
         IMPLICIT_AUTOWIRED,
         MANAGED_LIST,
+        MANAGED_ARRAY,
         UNSUPPORTED
     }
 }
