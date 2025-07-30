@@ -10,10 +10,9 @@
   <packaging>jar</packaging>
   <description>GeoServer OGC API Features extension</description>
   <dependencies>
-    <!-- OGC API core dependencies -->
     <dependency>
       <groupId>org.geoserver.cloud.extensions</groupId>
-      <artifactId>gs-cloud-extension-ogcapi-core</artifactId>
+      <artifactId>gs-cloud-extensions-core</artifactId>
     </dependency>
     <!-- OGC API Features dependencies -->
     <dependency>
