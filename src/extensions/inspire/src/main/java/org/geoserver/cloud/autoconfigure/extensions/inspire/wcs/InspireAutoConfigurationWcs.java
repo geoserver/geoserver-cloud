@@ -5,6 +5,7 @@
 package org.geoserver.cloud.autoconfigure.extensions.inspire.wcs;
 
 import lombok.extern.slf4j.Slf4j;
+import org.geoserver.configuration.extension.inspire.InspireConfigurationWcs;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Import;
 
