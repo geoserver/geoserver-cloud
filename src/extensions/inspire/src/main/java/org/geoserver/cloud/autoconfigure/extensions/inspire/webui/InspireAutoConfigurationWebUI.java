@@ -5,12 +5,13 @@
 package org.geoserver.cloud.autoconfigure.extensions.inspire.webui;
 
 import lombok.extern.slf4j.Slf4j;
+import org.geoserver.configuration.extension.inspire.InspireConfigurationWebUI;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Import;
 
 @AutoConfiguration
+@ConditionalOnInspireWebUI
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @Import(InspireConfigurationWebUI.class)
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.extensions.inspire.webui")
-@ConditionalOnInspireWebUI
 public class InspireAutoConfigurationWebUI {}

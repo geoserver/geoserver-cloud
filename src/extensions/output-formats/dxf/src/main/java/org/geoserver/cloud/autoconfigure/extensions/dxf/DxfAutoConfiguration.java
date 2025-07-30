@@ -9,7 +9,7 @@ import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.autoconfigure.extensions.ConditionalOnGeoServerWFS;
 import org.geoserver.cloud.autoconfigure.extensions.ConditionalOnGeoServerWebUI;
-import org.geoserver.cloud.config.factory.ImportFilteredResource;
+import org.geoserver.configuration.extension.dxf.DxfConfiguration;
 import org.geoserver.platform.ModuleStatus;
 import org.geoserver.platform.ModuleStatusImpl;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -88,11 +88,12 @@ public class DxfAutoConfiguration {
      * When active, it imports the DXF output format beans defined in the
      * extension's applicationContext.xml, allowing WFS GetFeature requests to return
      * data in DXF format.
+     * @see DxfConfiguration
      */
     @Configuration
     @ConditionalOnDxf
     @ConditionalOnGeoServerWFS
-    @ImportFilteredResource("jar:gs-dxf-core-.*!/applicationContext.xml#name=.*")
+    @Import(DxfConfiguration.class)
     public static class DxfOutputFormatConfiguration {}
 
     /**
@@ -110,10 +111,11 @@ public class DxfAutoConfiguration {
      * <p>
      * This demonstrates how a single extension can be required by multiple services
      * to provide a complete user experience.
+     * @see DxfConfiguration
      */
     @Configuration
     @ConditionalOnDxf
     @ConditionalOnGeoServerWebUI
-    @ImportFilteredResource("jar:gs-dxf-core-.*!/applicationContext.xml#name=.*")
+    @Import(DxfConfiguration.class)
     public static class WebUIConfiguration {}
 }
