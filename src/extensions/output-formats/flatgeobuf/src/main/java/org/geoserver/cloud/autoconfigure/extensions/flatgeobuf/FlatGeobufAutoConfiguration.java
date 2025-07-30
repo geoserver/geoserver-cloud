@@ -9,7 +9,7 @@ import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.autoconfigure.extensions.ConditionalOnGeoServerWFS;
 import org.geoserver.cloud.autoconfigure.extensions.ConditionalOnGeoServerWebUI;
-import org.geoserver.cloud.config.factory.ImportFilteredResource;
+import org.geoserver.configuration.community.flatgeobuf.FlatGeobufConfiguration;
 import org.geoserver.platform.ModuleStatus;
 import org.geoserver.platform.ModuleStatusImpl;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -99,11 +99,12 @@ public class FlatGeobufAutoConfiguration {
      * When active, it imports the FlatGeobuf output format beans defined in the
      * extension's applicationContext.xml, allowing WFS GetFeature requests to return
      * data in FlatGeobuf format.
+     * @see FlatGeobufConfiguration
      */
     @Configuration
     @ConditionalOnFlatGeobuf
     @ConditionalOnGeoServerWFS
-    @ImportFilteredResource("jar:gs-flatgeobuf-.*!/applicationContext.xml#name=.*")
+    @Import(FlatGeobufConfiguration.class)
     public static class FlatGeobufOutputFormatConfiguration {}
 
     /**
@@ -121,10 +122,11 @@ public class FlatGeobufAutoConfiguration {
      * <p>
      * This demonstrates how a single extension can be required by multiple services
      * to provide a complete user experience.
+     * @see FlatGeobufConfiguration
      */
     @Configuration
     @ConditionalOnFlatGeobuf
     @ConditionalOnGeoServerWebUI
-    @ImportFilteredResource("jar:gs-flatgeobuf-.*!/applicationContext.xml#name=.*")
+    @Import(FlatGeobufConfiguration.class)
     public static class WebUIConfiguration {}
 }

@@ -10,5 +10,5 @@ org.geoserver.cloud.autoconfigure.catalog.backend.core.DefaultUpdateSequenceAuto
 org.geoserver.cloud.autoconfigure.catalog.backend.core.XstreamServiceLoadersAutoConfiguration,\
 org.geoserver.cloud.autoconfigure.catalog.backend.core.RemoteEventResourcePoolCleanupUpAutoConfiguration,\
 org.geoserver.cloud.autoconfigure.catalog.backend.core.LifecycleEventAutoConfiguration,\
-org.geoserver.cloud.autoconfigure.security.GeoServerSecurityAutoConfiguration,\
+org.geoserver.cloud.autoconfigure.security.GeoServerMainSecurityAutoConfiguration,\
 org.geoserver.cloud.autoconfigure.metrics.catalog.CatalogMetricsAutoConfiguration

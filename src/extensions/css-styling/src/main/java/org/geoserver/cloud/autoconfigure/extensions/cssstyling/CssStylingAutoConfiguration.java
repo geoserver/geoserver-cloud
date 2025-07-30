@@ -8,8 +8,8 @@ package org.geoserver.cloud.autoconfigure.extensions.cssstyling;
 import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.catalog.StyleHandler;
-import org.geoserver.cloud.config.factory.ImportFilteredResource;
 import org.geoserver.community.css.web.CssHandler;
+import org.geoserver.configuration.extension.css.CssConfiguration;
 import org.geoserver.platform.ModuleStatus;
 import org.geoserver.platform.ModuleStatusImpl;
 import org.geotools.styling.css.CssParser;
@@ -45,18 +45,19 @@ import org.springframework.context.annotation.Import;
  * @since 2.27.0
  */
 @AutoConfiguration
-@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.extensions.cssstyling")
 @EnableConfigurationProperties(CssStylingConfigProperties.class)
 @Import(value = {CssStylingAutoConfiguration.Enabled.class, CssStylingAutoConfiguration.Disabled.class})
+@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 public class CssStylingAutoConfiguration {
 
     /**
      * Configuration class that activates CSS styling extension when enabled.
+     * @see CssConfiguration
      */
     @Configuration
     @ConditionalOnCssStyling
-    @ImportFilteredResource("jar:gs-css-.*!/applicationContext.xml")
+    @Import(CssConfiguration.class)
     static class Enabled {
         @PostConstruct
         void log() {

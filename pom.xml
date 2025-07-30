@@ -25,6 +25,11 @@
     <dependencies>
       <dependency>
         <groupId>org.geoserver.cloud</groupId>
+        <artifactId>gs-spring-configuration</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.cloud</groupId>
         <artifactId>gs-cloud-spring-factory</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -150,11 +155,6 @@
         <artifactId>gs-cloud-extensions-ogcapi</artifactId>
         <version>${project.version}</version>
         <type>pom</type>
-      </dependency>
-      <dependency>
-        <groupId>org.geoserver.cloud.extensions</groupId>
-        <artifactId>gs-cloud-extension-ogcapi-core</artifactId>
-        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>org.geoserver.cloud.extensions</groupId>

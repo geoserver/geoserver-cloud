@@ -11,6 +11,7 @@
   <name>GeoServer Cloud modules</name>
   <modules>
     <module>config-transpiler</module>
+    <module>geoserver-configuration</module>
     <module>library</module>
     <module>catalog</module>
     <module>gwc</module>
@@ -896,12 +897,23 @@
         <groupId>org.geoserver.extension</groupId>
         <artifactId>gs-ogcapi-core</artifactId>
         <version>${gs.version}</version>
-        <optional>true</optional>
+        <exclusions>
+          <exclusion>
+            <groupId>org.geoserver.web</groupId>
+            <artifactId>gs-web-core</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.geoserver.extension</groupId>
         <artifactId>gs-web-ogcapi</artifactId>
         <version>${gs.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.geoserver.web</groupId>
+            <artifactId>gs-web-core</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <!-- OGC API Features dependencies -->
       <dependency>

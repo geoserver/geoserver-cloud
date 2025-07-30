@@ -14,6 +14,7 @@ import org.geoserver.cloud.wms.controller.GetMapReflectorController;
 import org.geoserver.cloud.wms.controller.WMSController;
 import org.geoserver.cloud.wms.controller.kml.KMLIconsController;
 import org.geoserver.cloud.wms.controller.kml.KMLReflectorController;
+import org.geoserver.configuration.core.wms.StatusCodeWmsExceptionHandler;
 import org.geoserver.gwc.wms.CachingExtendedCapabilitiesProvider;
 import org.geoserver.ows.FlatKvpParser;
 import org.geoserver.ows.kvp.CQLFilterKvpParser;

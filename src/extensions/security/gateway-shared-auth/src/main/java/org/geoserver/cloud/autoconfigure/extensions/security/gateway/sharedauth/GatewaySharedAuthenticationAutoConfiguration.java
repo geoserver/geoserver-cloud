@@ -6,10 +6,11 @@
 package org.geoserver.cloud.autoconfigure.extensions.security.gateway.sharedauth;
 
 import java.util.Optional;
-import org.geoserver.cloud.autoconfigure.security.GeoServerSecurityAutoConfiguration;
+import org.geoserver.cloud.autoconfigure.security.GeoServerMainSecurityAutoConfiguration;
 import org.geoserver.cloud.security.gateway.sharedauth.GatewaySharedAuthenticationInitializer;
 import org.geoserver.platform.ModuleStatusImpl;
 import org.geoserver.security.GeoServerSecurityManager;
+import org.hsqldb.server.ServerConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -53,9 +54,9 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedA
  * @see ClientConfiguration
  * @since 1.9
  */
-// run before GeoServerSecurityAutoConfiguration so the provider is available when
+// run before GeoServerMainSecurityAutoConfiguration so the provider is available when
 // GeoServerSecurityManager calls GeoServerExtensions.extensions(GeoServerSecurityProvider.class)
-@AutoConfiguration(before = GeoServerSecurityAutoConfiguration.class)
+@AutoConfiguration(before = GeoServerMainSecurityAutoConfiguration.class)
 @EnableConfigurationProperties(GatewaySharedAuthConfigProperties.class)
 @Import({ServerModeConfiguration.class, ClientModeConfiguration.class, DisabledModeConfiguration.class})
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
