@@ -172,6 +172,8 @@ public class MainConfiguration {
 - **Value arguments**: String, numeric, boolean, and class literals
 - **Bean references**: `<constructor-arg ref="beanName">`
 - **List arguments**: `<list>` elements with bean references
+- **Array arguments**: `<list>` elements automatically converted to arrays when constructor expects array types
+- **Nested class handling**: Inner class names with `$` notation converted to `.` notation (e.g., `Outer$Inner.class`)
 - **Type inference**: Automatic parameter type resolution based on constructor signatures
 - **Exception handling**: Proper `throws` clauses for constructors that may fail
 
@@ -179,6 +181,7 @@ public class MainConfiguration {
 
 - **Simple values**: String, numeric, and boolean property values
 - **Bean references**: `<property name="prop" ref="beanName">`
+- **Nested bean definitions**: Inline `<bean>` elements within properties, supporting both FieldRetrievingFactoryBean and simple constructor patterns
 - **Managed collections**: 
   - `<props>` elements converted to `Properties` objects
   - `<map>` elements converted to `HashMap` instances
@@ -494,13 +497,38 @@ org.geoserver.config.GeoServerLoaderProxy geoServerLoader(
 }
 ```
 
+### Bean with Nested Bean Definitions
+
+**XML Input:**
+```xml
+<bean id="dimensionFactory" class="org.geoserver.wms.dimension.impl.DimensionDefaultValueSelectionStrategyFactoryImpl">
+    <property name="featureTimeMinimumStrategy">
+        <bean class="org.geoserver.wms.dimension.impl.FeatureMinimumValueSelectionStrategyImpl"/>
+    </property>
+    <property name="featureTimeMaximumStrategy">
+        <bean class="org.geoserver.wms.dimension.impl.FeatureMaximumValueSelectionStrategyImpl"/>
+    </property>
+</bean>
+```
+
+**Generated Java:**
+```java
+@Bean
+org.geoserver.wms.dimension.impl.DimensionDefaultValueSelectionStrategyFactoryImpl dimensionFactory() {
+    org.geoserver.wms.dimension.impl.DimensionDefaultValueSelectionStrategyFactoryImpl bean = 
+        new org.geoserver.wms.dimension.impl.DimensionDefaultValueSelectionStrategyFactoryImpl();
+    bean.setFeatureTimeMinimumStrategy(new org.geoserver.wms.dimension.impl.FeatureMinimumValueSelectionStrategyImpl());
+    bean.setFeatureTimeMaximumStrategy(new org.geoserver.wms.dimension.impl.FeatureMaximumValueSelectionStrategyImpl());
+    return bean;
+}
+```
+
 ## Limitations
 
 ### Currently Not Supported
 
 The transpiler will throw `UnsupportedOperationException` for these patterns:
 
-- **Nested bean definitions**: Inline `<bean>` elements within properties or constructor arguments
 - **Static factory methods**: `factory-method` attribute for static factory methods  
 - **Bean factory references**: `factory-bean` attribute for instance factory methods
 - **Abstract bean inheritance**: `abstract="true"` and `parent` attributes
@@ -524,8 +552,8 @@ The transpiler will throw `UnsupportedOperationException` for these patterns:
 The transpiler provides clear error messages for unsupported patterns:
 
 ```
-UnsupportedOperationException: Nested bean definitions are not supported. 
-Found nested bean in property 'layerGroupVisibilityPolicy' of bean 'advertisedCatalog'
+UnsupportedOperationException: Static factory methods are not supported. 
+Found factory-method 'createInstance' in bean 'exampleBean'
 ```
 
 This fail-fast approach ensures you know exactly what needs to be addressed before implementing support for additional patterns.
