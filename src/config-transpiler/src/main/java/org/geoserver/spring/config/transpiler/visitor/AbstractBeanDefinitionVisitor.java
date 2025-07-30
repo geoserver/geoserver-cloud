@@ -708,4 +708,43 @@ public abstract class AbstractBeanDefinitionVisitor implements BeanDefinitionVis
             default -> false;
         };
     }
+
+    /**
+     * Generate a property setter call for nested bean definitions.
+     * This handles two patterns:
+     * 1. FieldRetrievingFactoryBean pattern: generates static field references
+     * 2. Simple object constructor pattern: generates direct instantiation
+     */
+    protected void generateNestedBeanPropertySetter(
+            MethodSpec.Builder methodBuilder,
+            String setterName,
+            org.springframework.beans.factory.config.BeanDefinitionHolder nestedBeanHolder) {
+
+        BeanDefinition nestedBeanDefinition = nestedBeanHolder.getBeanDefinition();
+        String nestedBeanClassName = nestedBeanDefinition.getBeanClassName();
+
+        if (nestedBeanClassName == null) {
+            methodBuilder.addComment("// Nested bean has no class name - cannot instantiate");
+            return;
+        }
+
+        // Check if this is a FieldRetrievingFactoryBean
+        if ("org.springframework.beans.factory.config.FieldRetrievingFactoryBean".equals(nestedBeanClassName)) {
+            // Handle FieldRetrievingFactoryBean pattern
+            String beanId = nestedBeanHolder.getBeanName();
+            if (beanId != null
+                    && beanId.contains(".")
+                    && Character.isUpperCase(beanId.charAt(beanId.lastIndexOf('.') + 1))) {
+                // Bean ID looks like: org.geoserver.catalog.LayerGroupVisibilityPolicy.HIDE_NEVER
+                // Generate: bean.setProperty(org.geoserver.catalog.LayerGroupVisibilityPolicy.HIDE_NEVER)
+                methodBuilder.addStatement("bean.$L($L)", setterName, beanId);
+            } else {
+                methodBuilder.addComment("// FieldRetrievingFactoryBean with invalid field reference: " + beanId);
+            }
+        } else {
+            // Handle simple nested beans: generate direct instantiation
+            // This handles the pattern: <property name="prop"><bean class="com.example.Class"/></property>
+            methodBuilder.addStatement("bean.$L(new $L())", setterName, nestedBeanClassName);
+        }
+    }
 }

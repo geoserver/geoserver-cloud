@@ -1119,11 +1119,10 @@ public class ConstructorBasedBeanVisitor extends AbstractBeanDefinitionVisitor {
                         String listCall = generateManagedListCall(managedList);
                         methodBuilder.addStatement("bean.$L($L)", setterName, listCall);
                     }
-                } else if (value instanceof org.springframework.beans.factory.config.BeanDefinitionHolder) {
-                    // Nested bean definitions are not supported
-                    throw new UnsupportedOperationException(
-                            "Nested bean definitions are not supported. Found nested bean in property '" + propertyName
-                                    + "' of bean '" + beanName + "'");
+                } else if (value
+                        instanceof org.springframework.beans.factory.config.BeanDefinitionHolder nestedBeanHolder) {
+                    // Handle nested bean definitions - simple object instantiation
+                    generateNestedBeanPropertySetter(methodBuilder, setterName, nestedBeanHolder);
                 } else {
                     // Fallback for other value types
                     methodBuilder.addComment("TODO: Handle property '" + propertyName + "' of type "
