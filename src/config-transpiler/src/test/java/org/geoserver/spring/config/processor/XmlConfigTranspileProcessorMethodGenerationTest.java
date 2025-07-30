@@ -1069,6 +1069,69 @@ class XmlConfigTranspileProcessorMethodGenerationTest {
     }
 
     @Test
+    void testManagedListToStringArrayConstructorArg() {
+        final String xml =
+                """
+                <bean id="PNG8MapProducer" class="org.geoserver.wms.map.RenderedImageMapOutputFormat">
+                  <constructor-arg>
+                    <value>image/png; mode=8bit</value>
+                  </constructor-arg>
+                  <constructor-arg>
+                    <list>
+                      <value>image/png8</value>
+                      <value>image/png; mode=8bit</value>
+                    </list>
+                  </constructor-arg>
+                  <constructor-arg ref="wms" />
+                  <property name="extension" value="png"/>
+                </bean>
+                """;
+
+        final String expectedJavaCode =
+                """
+                @org.springframework.context.annotation.Bean
+                org.geoserver.wms.map.RenderedImageMapOutputFormat PNG8MapProducer(
+                        @org.springframework.beans.factory.annotation.Qualifier("wms") org.geoserver.wms.WMS wms) {
+
+                  org.geoserver.wms.map.RenderedImageMapOutputFormat bean =
+                          new org.geoserver.wms.map.RenderedImageMapOutputFormat(
+                                  "image/png; mode=8bit",
+                                  new String[]{"image/png8", "image/png; mode=8bit"}, wms
+                              );
+                  bean.setExtension("png");
+                  return bean;
+                }
+                """;
+
+        assertBeanMethod(BeanVisitorTestUtils.generateBeanMethodFromXml("PNG8MapProducer", xml))
+                .compilesSuccessfully()
+                .isEquivalentTo(expectedJavaCode);
+    }
+
+    @Test
+    void testNestedClassConstructorArg() {
+        final String xml =
+                """
+                <bean id="QuantizerMethodKvpParser" class="org.geoserver.ows.kvp.EnumKvpParser">
+                    <constructor-arg value="quantizer"/>
+                    <constructor-arg value="org.geoserver.wms.map.PNGMapResponse$QuantizeMethod"/>
+                </bean>
+                """;
+
+        final String expectedJavaCode =
+                """
+                @org.springframework.context.annotation.Bean
+                org.geoserver.ows.kvp.EnumKvpParser QuantizerMethodKvpParser() {
+                  return new org.geoserver.ows.kvp.EnumKvpParser("quantizer", org.geoserver.wms.map.PNGMapResponse.QuantizeMethod.class);
+                }
+                """;
+
+        assertBeanMethod(BeanVisitorTestUtils.generateBeanMethodFromXml("QuantizerMethodKvpParser", xml))
+                .compilesSuccessfully()
+                .isEquivalentTo(expectedJavaCode);
+    }
+
+    @Test
     void testStaticFactoryMethod() {
         final String xml =
                 """
