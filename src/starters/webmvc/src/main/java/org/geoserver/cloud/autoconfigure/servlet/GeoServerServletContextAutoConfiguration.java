@@ -7,13 +7,13 @@ package org.geoserver.cloud.autoconfigure.servlet;
 
 import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import org.geoserver.cloud.autoconfigure.core.GeoServerMainModuleAutoConfiguration;
+import org.geoserver.cloud.autoconfigure.core.GeoServerMainAutoConfiguration;
 import org.geoserver.cloud.config.servlet.GeoServerServletContextConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Import;
 
-@AutoConfiguration(after = GeoServerMainModuleAutoConfiguration.class)
+@AutoConfiguration(after = GeoServerMainAutoConfiguration.class)
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @ConditionalOnProperty(prefix = "geoserver.servlet", name = "enabled", havingValue = "true", matchIfMissing = true)
 @Import(GeoServerServletContextConfiguration.class)

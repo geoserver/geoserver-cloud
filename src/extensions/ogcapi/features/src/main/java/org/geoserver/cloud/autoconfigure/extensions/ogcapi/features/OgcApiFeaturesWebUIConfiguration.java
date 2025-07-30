@@ -8,8 +8,8 @@ import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.autoconfigure.extensions.ConditionalOnGeoServerWebUI;
 import org.geoserver.cloud.config.factory.ImportFilteredResource;
-import org.geoserver.cloud.configuration.ogcapi.core.OgcApiCoreConfiguration;
-import org.geoserver.cloud.configuration.ogcapi.core.OgcApiCoreWebConfiguration;
+import org.geoserver.configuration.extension.ogcapi.core.OgcApiCoreConfiguration;
+import org.geoserver.configuration.extension.ogcapi.core.OgcApiCoreWebConfiguration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
