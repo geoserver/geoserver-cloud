@@ -48,7 +48,7 @@ class DataDirectoryAutoConfigurationTest {
                     org.geoserver.cloud.autoconfigure.catalog.backend.core
                             .RemoteEventResourcePoolCleanupUpAutoConfiguration.class,
                     //
-                    org.geoserver.cloud.autoconfigure.security.GeoServerSecurityAutoConfiguration.class,
+                    org.geoserver.cloud.autoconfigure.security.GeoServerMainSecurityAutoConfiguration.class,
                     org.geoserver.cloud.autoconfigure.metrics.catalog.CatalogMetricsAutoConfiguration.class,
                     // AutoConfigurations from gs-cloud-catalog-backend-datadir
                     org.geoserver.cloud.autoconfigure.catalog.backend.datadir.DataDirectoryAutoConfiguration.class //
