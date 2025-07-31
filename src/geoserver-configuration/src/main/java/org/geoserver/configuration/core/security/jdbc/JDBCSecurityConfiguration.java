@@ -5,8 +5,9 @@
 
 package org.geoserver.configuration.core.security.jdbc;
 
-import org.geoserver.cloud.config.factory.ImportFilteredResource;
+import org.geoserver.spring.config.annotations.TranspileXmlConfig;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 /**
  * Configuration for the GeoServer JDBC security extension.
@@ -17,6 +18,7 @@ import org.springframework.context.annotation.Configuration;
  * @since 2.27.0.0
  */
 @Configuration
-@ImportFilteredResource("jar:gs-sec-jdbc-.*!/applicationContext.xml")
+@TranspileXmlConfig(locations = "jar:gs-sec-jdbc-.*!/applicationContext.xml")
+@Import(JDBCSecurityConfiguration_Generated.class)
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 public class JDBCSecurityConfiguration {}
