@@ -236,6 +236,11 @@
               <artifactId>gs-wfs</artifactId>
               <version>${gs.version}</version>
             </path>
+            <path>
+              <groupId>org.geoserver.extension</groupId>
+              <artifactId>gs-vectortiles</artifactId>
+              <version>${gs.version}</version>
+            </path>
           </annotationProcessorPaths>
           <!-- Enable processing of annotations -->
           <proc>full</proc>
