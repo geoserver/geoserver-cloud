@@ -4,9 +4,11 @@
  */
 package org.geoserver.configuration.community.flatgeobuf;
 
-import org.geoserver.cloud.config.factory.ImportFilteredResource;
+import org.geoserver.spring.config.annotations.TranspileXmlConfig;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 @Configuration
-@ImportFilteredResource("jar:gs-flatgeobuf-.*!/applicationContext.xml#name=.*")
+@TranspileXmlConfig(locations = "jar:gs-flatgeobuf-.*!/applicationContext.xml")
+@Import(FlatGeobufConfiguration_Generated.class)
 public class FlatGeobufConfiguration {}
