@@ -4,14 +4,13 @@
  */
 package org.geoserver.cloud.autoconfigure.extensions.inspire.wfs;
 
-import lombok.extern.slf4j.Slf4j;
 import org.geoserver.configuration.extension.inspire.InspireConfigurationWfs;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Import;
 
 @AutoConfiguration
-@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @Import(InspireConfigurationWfs.class)
-@Slf4j(topic = "org.geoserver.cloud.autoconfigure.extensions.inspire.wfs")
 @ConditionalOnInspireWfs
-public class InspireAutoConfigurationWfs {}
+@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
+public class InspireAutoConfigurationWfs {
+}

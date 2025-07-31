@@ -11,7 +11,8 @@ import org.springframework.context.annotation.Import;
 /**
  * Configuration class that sets up the INSPIRE extension components.
  *
- * <p>This configuration is only active when the INSPIRE extension is enabled
+ * <p>
+ * This configuration is only active when the INSPIRE extension is enabled
  * through the {@code geoserver.extension.inspire.enabled=true} property.
  *
  * @since 2.27.0.0
@@ -19,6 +20,6 @@ import org.springframework.context.annotation.Import;
 @Configuration
 @TranspileXmlConfig(
         locations = "jar:gs-inspire-.*!/applicationContext.xml",
-        includes = {"inspireWfsExtendedCapsProvider"})
-@Import({InspireCoreConfiguration.class, InspireConfigurationWfs_Generated.class})
-public class InspireConfigurationWfs {}
+        includes = {"InsiperExtension", "languageCallback", "inspireDirManager"})
+@Import(InspireCoreConfiguration_Generated.class)
+public class InspireCoreConfiguration {}
