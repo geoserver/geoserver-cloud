@@ -5,8 +5,9 @@
 
 package org.geoserver.configuration.community.geoparquet;
 
-import org.geoserver.cloud.config.factory.ImportFilteredResource;
+import org.geoserver.spring.config.annotations.TranspileXmlConfig;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 /**
  * Configuration for GeoParquet extension that provides a data store
@@ -15,5 +16,6 @@ import org.springframework.context.annotation.Configuration;
  * @since 2.27.0
  */
 @Configuration
-@ImportFilteredResource("jar:gs-geoparquet-.*!/applicationContext.xml")
+@TranspileXmlConfig(locations = "jar:gs-geoparquet-.*!/applicationContext.xml")
+@Import(GeoParquetWebUIConfiguration_Generated.class)
 public class GeoParquetWebUIConfiguration {}
