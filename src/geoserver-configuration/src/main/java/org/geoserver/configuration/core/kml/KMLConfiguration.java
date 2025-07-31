@@ -5,12 +5,19 @@
 
 package org.geoserver.configuration.core.kml;
 
-import org.geoserver.cloud.config.factory.ImportFilteredResource;
+import org.geoserver.spring.config.annotations.TranspileXmlConfig;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 /**
  * @since 1.0
  */
 @Configuration
-@ImportFilteredResource("jar:gs-kml-.*!/applicationContext.xml#name=^(?!WFSKMLOutputFormat|kmlURLMapping).*$")
+@TranspileXmlConfig(
+        locations = "jar:gs-kml-.*!/applicationContext.xml",
+        excludes = {
+            "WFSKMLOutputFormat", // not used in WMS
+            "kmlURLMapping" // superseded by KMLReflectorController in the AutoConfiguration
+        })
+@Import(KMLConfiguration_Generated.class)
 public class KMLConfiguration {}
