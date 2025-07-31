@@ -6,6 +6,7 @@
 package org.geoserver.configuration.community.security.geonode;
 
 import org.geoserver.spring.config.annotations.TranspileXmlConfig;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
@@ -16,6 +17,9 @@ import org.springframework.context.annotation.Import;
  */
 @Configuration
 // gs-sec-oauth2-core and gs-sec-oauth2-web are transitive but not required for this specific functionality
+// This ComponentScan is the only contribution from gs-sec-oauth2-core. Adding it directly instead of transpiling its
+// applicationContext.xml
+@ComponentScan(basePackages = "org.geoserver.security.oauth2")
 @TranspileXmlConfig(
         locations = "jar:gs-sec-oauth2-geonode-.*!/applicationContext.xml",
         excludes = GeoNodeOAuth2Configuration.UI_BEANS)

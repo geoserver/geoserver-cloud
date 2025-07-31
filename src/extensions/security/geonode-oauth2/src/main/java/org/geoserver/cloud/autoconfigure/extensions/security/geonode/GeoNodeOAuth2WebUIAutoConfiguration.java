@@ -31,9 +31,6 @@ import org.springframework.context.annotation.Import;
 @SuppressWarnings("java:S1118") // public constructor required
 public class GeoNodeOAuth2WebUIAutoConfiguration {
 
-    static final String UI_BEANS = "geoNodeOAuth2AuthPanelInfo|geonodeFormLoginButton";
-    static final String EXCLUDE_UI_BEANS = "#name=^(?!" + UI_BEANS + ").*$";
-
     public GeoNodeOAuth2WebUIAutoConfiguration() {
         log.debug("GeoNode OAuth2 Web UI components activated");
     }
