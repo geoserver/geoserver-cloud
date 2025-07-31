@@ -29,7 +29,7 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Lazy;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @TranspileXmlConfig(
         locations = "jar:gs-main-.*!/applicationSecurityContext.xml",
         excludes = {"authenticationManager", "filterChainProxy"})

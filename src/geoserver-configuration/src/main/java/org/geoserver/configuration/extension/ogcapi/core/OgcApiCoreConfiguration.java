@@ -32,7 +32,7 @@ import org.springframework.web.servlet.handler.SimpleUrlHandlerMapping;
  * auto-configurations, in order to avoid these core OGC API components
  * contributed to unrelated services.
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @TranspileXmlConfig(
         locations = "jar:gs-ogcapi-core-.*!/applicationContext.xml",
         excludes = {

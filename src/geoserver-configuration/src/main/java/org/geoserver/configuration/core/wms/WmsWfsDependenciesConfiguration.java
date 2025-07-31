@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Import;
 /**
  * Configuration to include the {@literal gs-wfs} beans required by {@code gs-wms}, useful when not running a full WFS service
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @TranspileXmlConfig(
         locations = "jar:gs-wfs-.*!/applicationContext.xml",
         includes = {

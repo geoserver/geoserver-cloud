@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Import;
  * @see OgcApiCoreConfiguration
  * @see OgcApiCoreWebConfiguration
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @TranspileXmlConfig(locations = "jar:gs-ogcapi-features-.*!/applicationContext.xml")
 @Import({OgcApiCoreConfiguration.class, OgcApiFeaturesConfiguration_Generated.class})
 public class OgcApiFeaturesConfiguration {}

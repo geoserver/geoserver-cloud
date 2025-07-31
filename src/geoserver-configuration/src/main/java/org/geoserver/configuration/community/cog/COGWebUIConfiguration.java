@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Import;
  * Configuration to enable the COG customized store panel when the web-ui is
  * present.
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @TranspileXmlConfig(
         locations = "jar:gs-cog-.*!/applicationContext.xml",
         includes = {"COGGeoTIFFExclusionFilter", "CogGeotiffStorePanel", "CogSettingsPanel"})

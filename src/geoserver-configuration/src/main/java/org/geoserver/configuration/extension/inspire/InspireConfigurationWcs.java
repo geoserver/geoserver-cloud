@@ -17,7 +17,7 @@ import org.springframework.context.annotation.Import;
  *
  * @since 2.27.0.0
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @TranspileXmlConfig(
         locations = "jar:gs-inspire-.*!/applicationContext.xml",
         includes = {"inspireWcsExtendedCapsProvider"})

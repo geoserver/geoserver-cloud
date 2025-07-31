@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Import;
  *
  * @since 2.27.0
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @TranspileXmlConfig(locations = "jar:gs-geoparquet-.*!/applicationContext.xml")
 @Import(GeoParquetWebUIConfiguration_Generated.class)
 public class GeoParquetWebUIConfiguration {}

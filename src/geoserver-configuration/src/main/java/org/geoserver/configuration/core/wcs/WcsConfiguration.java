@@ -8,7 +8,7 @@ package org.geoserver.configuration.core.wcs;
 import org.geoserver.cloud.config.factory.ImportFilteredResource;
 import org.springframework.context.annotation.Configuration;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @ImportFilteredResource({ //
     "jar:gs-wcs-.*!/applicationContext.xml", //
     "jar:gs-wcs1_0-.*!/applicationContext.xml", //

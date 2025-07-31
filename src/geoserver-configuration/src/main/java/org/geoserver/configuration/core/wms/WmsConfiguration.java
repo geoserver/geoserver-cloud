@@ -24,7 +24,7 @@ import org.springframework.core.env.PropertyResolver;
 /**
  * Transpiled XML configuration from {@literal jar:gs-wms-.*!/applicationContext.xml}
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @TranspileXmlConfig(
         locations = "jar:gs-wms-.*!/applicationContext.xml",
         excludes = {"legendSample", "wmsExceptionHandler"})

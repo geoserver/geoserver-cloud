@@ -8,7 +8,7 @@ import org.geoserver.spring.config.annotations.TranspileXmlConfig;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @TranspileXmlConfig(
         locations = "jar:gs-authkey-.*!/applicationContext.xml",
         excludes = AuthKeyWebUIConfiguration.WEB_UI_BEANS)
