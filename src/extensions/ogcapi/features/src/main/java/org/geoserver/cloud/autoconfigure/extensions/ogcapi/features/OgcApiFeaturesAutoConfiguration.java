@@ -7,13 +7,21 @@ package org.geoserver.cloud.autoconfigure.extensions.ogcapi.features;
 import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.autoconfigure.extensions.ConditionalOnGeoServerWFS;
+import org.geoserver.configuration.extension.ogcapi.core.OgcApiCoreConfiguration;
 import org.geoserver.configuration.extension.ogcapi.features.OgcApiFeaturesConfiguration;
+import org.geoserver.ogcapi.APIDispatcher;
 import org.geoserver.platform.ModuleStatus;
 import org.geoserver.platform.ModuleStatusImpl;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.convert.ApplicationConversionService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.format.support.FormattingConversionService;
+import org.springframework.validation.Validator;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 /**
  * Auto-configuration for OGC API Features extension.
@@ -26,6 +34,7 @@ import org.springframework.context.annotation.Import;
  * </ul>
  */
 @AutoConfiguration
+@EnableWebMvc
 @ConditionalOnOgcApiFeatures
 @ConditionalOnGeoServerWFS
 @EnableConfigurationProperties(OgcApiFeatureConfigProperties.class)
@@ -36,6 +45,30 @@ public class OgcApiFeaturesAutoConfiguration {
     @PostConstruct
     void log() {
         log.info("OGC API Features extension enabled");
+    }
+
+    /**
+     * REVISIT: required by {@link APIDispatcher APIDispatcher.initApplicationContext()} through {@code context.getBean()}
+     * but not available while processing the transpiled configuration class from {@link OgcApiCoreConfiguration}, though it works when using loading through {@literal applicationContext.xml}
+     * <p>
+     * Also added to {@link OgcApiFeaturesWebUIAutoConfiguration}
+     */
+    @Bean
+    @ConditionalOnMissingBean(name = "mvcConversionService")
+    FormattingConversionService mvcConversionService() {
+        return (FormattingConversionService) ApplicationConversionService.getSharedInstance();
+    }
+
+    /**
+     * REVISIT: required by {@link APIDispatcher APIDispatcher.initApplicationContext()} through {@code context.getBean()}
+     * but not available while processing the transpiled configuration class from {@link OgcApiCoreConfiguration}, though it works when using loading through {@literal applicationContext.xml}
+     * <p>
+     * Also added to {@link OgcApiFeaturesWebUIAutoConfiguration}
+     */
+    @Bean
+    @ConditionalOnMissingBean(name = "mvcValidator")
+    Validator mvcValidator(@Qualifier("defaultValidator") Validator defaultValidator) {
+        return defaultValidator;
     }
 
     /**
