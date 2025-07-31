@@ -93,14 +93,48 @@ class XmlConfigTranspileProcessorTest {
                 .generatedSourceFile("com.example.TestConfiguration_Generated")
                 .get();
         String generatedSource = getSourceContent(generatedFile);
-
         assertThat(generatedSource)
                 .as("Generated class should have @Configuration")
                 .contains("@Configuration")
+                .contains("proxyBeanMethods = false")
                 .as("Generated class should contain gsMainModule bean method")
                 .contains("ModuleStatusImpl gsMainModule(")
                 .as("Generated class should contain @Bean annotations")
                 .contains("@Bean");
+    }
+
+    @Test
+    void testProxyBeanMethodsTrue() {
+        String sourceCode =
+                """
+                package com.example;
+
+                import org.geoserver.spring.config.annotations.TranspileXmlConfig;
+                import org.springframework.context.annotation.Configuration;
+                import org.springframework.context.annotation.Import;
+
+                @Configuration
+                @TranspileXmlConfig(
+                    locations = "classpath:test-beans.xml",
+                    proxyBeanMethods = true
+                )
+                @Import(TestConfiguration_Generated.class)
+                public class TestConfiguration {
+                }
+                """;
+
+        Compilation compilation = assertCompiles(sourceCode);
+        CompilationSubject.assertThat(compilation).generatedSourceFile("com.example.TestConfiguration_Generated");
+
+        // Verify the generated source contains expected content
+        JavaFileObject generatedFile = compilation
+                .generatedSourceFile("com.example.TestConfiguration_Generated")
+                .get();
+        String generatedSource = getSourceContent(generatedFile);
+        assertThat(generatedSource)
+                .as("Generated class should have @Configuration")
+                .contains("@Configuration")
+                .doesNotContain("proxyBeanMethods");
     }
 
     /**
@@ -149,6 +183,7 @@ class XmlConfigTranspileProcessorTest {
         assertThat(generatedSource)
                 .as("Generated class should have @Configuration")
                 .contains("@Configuration")
+                .contains("proxyBeanMethods = false")
                 .as("Should contain extensions bean method")
                 .contains("GeoServerExtensions extensions(")
                 .as("Should contain filterFactory bean method")
@@ -193,6 +228,7 @@ class XmlConfigTranspileProcessorTest {
         assertThat(generatedSource)
                 .as("Generated class should have @Configuration")
                 .contains("@Configuration")
+                .contains("proxyBeanMethods = false")
                 .as("Should contain extensions bean method")
                 .contains("GeoServerExtensions extensions(")
                 .as("Should contain filterFactory bean method")
@@ -232,6 +268,7 @@ class XmlConfigTranspileProcessorTest {
         assertThat(generatedSource)
                 .as("Generated class should have @Configuration")
                 .contains("@Configuration")
+                .contains("proxyBeanMethods = false")
                 .as("Should contain WFS-specific bean methods")
                 .contains("GML3OutputFormat gml3OutputFormat")
                 .as("Should contain WFS workspace qualifier bean")

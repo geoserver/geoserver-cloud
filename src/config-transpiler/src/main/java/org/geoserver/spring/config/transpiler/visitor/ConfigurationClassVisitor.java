@@ -86,10 +86,15 @@ public class ConfigurationClassVisitor {
         final Modifier[] classModifiers =
                 context.isPublicAccess() ? new Modifier[] {Modifier.PUBLIC} : new Modifier[0]; // Package-private
 
-        // Create the class builder
+        // Create the class builder with @Configuration annotation
+        AnnotationSpec.Builder configAnnotationBuilder = AnnotationSpec.builder(Configuration.class);
+        if (!context.isProxyBeanMethods()) {
+            configAnnotationBuilder.addMember("proxyBeanMethods", "false");
+        }
+
         TypeSpec.Builder classBuilder = TypeSpec.classBuilder(context.getTargetClassName())
                 .addModifiers(classModifiers)
-                .addAnnotation(Configuration.class);
+                .addAnnotation(configAnnotationBuilder.build());
 
         // Load bean definitions from XML and generate {@code @Bean} methods
         try {
