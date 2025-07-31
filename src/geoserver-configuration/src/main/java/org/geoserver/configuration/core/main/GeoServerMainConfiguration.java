@@ -6,6 +6,7 @@
 package org.geoserver.configuration.core.main;
 
 import org.geoserver.spring.config.annotations.TranspileXmlConfig;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 /** Configuration for GeoServer's main module
@@ -14,6 +15,7 @@ import org.springframework.context.annotation.Import;
  * that shall be provided by the enabled {@link GeoServerBackendConfigurer}, as defined in {@code
  * gs-cloud-catalog-backend-starter}.
  */
+@Configuration(proxyBeanMethods = false)
 @TranspileXmlConfig(
         locations = "jar:gs-main-.*!/applicationContext.xml",
         excludes = {

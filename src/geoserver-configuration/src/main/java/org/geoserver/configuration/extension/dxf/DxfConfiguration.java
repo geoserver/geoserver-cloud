@@ -8,7 +8,7 @@ import org.geoserver.spring.config.annotations.TranspileXmlConfig;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @TranspileXmlConfig(locations = "jar:gs-dxf-core-.*!/applicationContext.xml")
 @Import(DxfConfiguration_Generated.class)
 public class DxfConfiguration {}

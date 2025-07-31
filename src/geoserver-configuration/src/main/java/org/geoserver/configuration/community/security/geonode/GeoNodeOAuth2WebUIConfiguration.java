@@ -26,7 +26,7 @@ import org.springframework.context.annotation.Import;
  *
  * @since 2.27.0
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @TranspileXmlConfig(
         locations = "jar:gs-sec-oauth2-geonode-.*!/applicationContext.xml",
         includes = GeoNodeOAuth2Configuration.UI_BEANS)

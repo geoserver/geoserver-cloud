@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Import;
  *
  * @since 2.27.0
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @TranspileXmlConfig(
         locations = "jar:gs-vectortiles-.*!/applicationContext.xml",
         includes = {"wmsGeoJsonBuilderFactory", "wmsGeoJsonMapOutputFormat"})
