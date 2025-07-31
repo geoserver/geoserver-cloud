@@ -4,9 +4,9 @@
  */
 package org.geoserver.configuration.extension.inspire;
 
-import org.geoserver.cloud.config.factory.ImportFilteredResource;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.geoserver.spring.config.annotations.TranspileXmlConfig;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 /**
  * Configuration class that sets up the INSPIRE extension components.
@@ -17,8 +17,8 @@ import org.springframework.context.annotation.Configuration;
  * @since 2.27.0.0
  */
 @Configuration
-@ConditionalOnClass(name = "org.geoserver.inspire.wms.WMSExtendedCapabilitiesProvider")
-@ImportFilteredResource({
-    "jar:gs-inspire-.*!/applicationContext.xml#name=^(inspireWmsExtendedCapsProvider|languageCallback|inspireDirManager).*$"
-})
+@TranspileXmlConfig(
+        locations = "jar:gs-inspire-.*!/applicationContext.xml",
+        includes = {"inspireWmsExtendedCapsProvider"})
+@Import({InspireCoreConfiguration.class, InspireConfigurationWms_Generated.class})
 public class InspireConfigurationWms {}
