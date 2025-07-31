@@ -434,6 +434,9 @@ public class AbstractBeanInheritanceVisitor extends AbstractBeanDefinitionVisito
                 && (!constructorArgs.getIndexedArgumentValues().isEmpty()
                         || !constructorArgs.getGenericArgumentValues().isEmpty());
 
+        // Add constructor exceptions to method signature
+        addConstructorExceptions(methodBuilder, beanClassName, constructorArgs);
+
         if (hasConstructorArgs) {
             // Generate constructor call with merged arguments
             generateInheritanceConstructorCall(methodBuilder, constructorArgs, beanReferences, returnType, context);
