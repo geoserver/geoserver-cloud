@@ -104,6 +104,16 @@
       <optional>true</optional>
     </dependency>
     <dependency>
+      <groupId>org.geoserver.security</groupId>
+      <artifactId>gs-sec-jdbc</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.web</groupId>
+      <artifactId>gs-web-sec-jdbc</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
       <groupId>org.geoserver.web</groupId>
       <artifactId>gs-web-sec-core</artifactId>
       <optional>true</optional>
