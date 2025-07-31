@@ -6,14 +6,14 @@
 package org.geoserver.cloud.autoconfigure.vectorformats.geoparquet;
 
 import javax.annotation.PostConstruct;
-import lombok.extern.slf4j.Slf4j;
+
 import org.geoserver.cloud.autoconfigure.extensions.ConditionalOnGeoServerWebUI;
-import org.geoserver.cloud.config.factory.ImportFilteredResource;
-import org.geoserver.web.data.resource.DataStorePanelInfo;
-import org.geoserver.web.data.store.StoreEditPanel;
+import org.geoserver.configuration.community.geoparquet.GeoParquetWebUIConfiguration;
 import org.geotools.autoconfigure.vectorformats.DataAccessFactoryFilteringAutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Auto-configuration for GeoParquet extension that provides a data store
@@ -28,40 +28,17 @@ import org.springframework.context.annotation.Bean;
  * </ul>
  *
  * @since 2.27.0
+ * @see GeoParquetWebUIConfiguration
  */
 @AutoConfiguration(after = DataAccessFactoryFilteringAutoConfiguration.class)
 @ConditionalOnGeoParquet
 @ConditionalOnGeoServerWebUI
-@ImportFilteredResource("jar:gs-geoparquet-.*!/applicationContext.xml")
+@Import(GeoParquetWebUIConfiguration.class)
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.vectorformats.geoparquet")
 public class GeoParquetWebComponentsAutoConfiguration {
 
     @PostConstruct
     void log() {
         log.info("GeoParquet WebUI extension installed");
-    }
-
-    /**
-     * <pre>{@code
-     * <bean id="geoParquetDataStorePanel" class="org.geoserver.web.data.resource.DataStorePanelInfo">
-     * <property name="id" value="geoParquetDataStorePanel"/>
-     * <property name="factoryClass" value="org.geotools.data.geoparquet.GeoParquetDataStoreFactory"/>
-     * <property name="iconBase" value="org.geoserver.web.data.store.geoparquet.GeoParquetDataStoreEditPanel"/>
-     * <property name="icon" value="geoparquet-icon.svg" />
-     * <property name="componentClass" value="org.geoserver.web.data.store.geoparquet.GeoParquetDataStoreEditPanel"/>
-     * </bean>
-     * }</pre>
-     */
-    @Bean
-    @SuppressWarnings("unchecked")
-    DataStorePanelInfo geoParquetDataStorePanel() throws ClassNotFoundException {
-        DataStorePanelInfo info = new DataStorePanelInfo();
-        info.setId("geoParquetDataStorePanel");
-        info.setFactoryClass(org.geotools.data.geoparquet.GeoParquetDataStoreFactory.class);
-        info.setIconBase(org.geoserver.web.data.store.geoparquet.GeoParquetDataStoreEditPanel.class);
-        info.setIcon("geoparquet-icon.svg");
-        info.setComponentClass((Class<StoreEditPanel>)
-                Class.forName("org.geoserver.web.data.store.geoparquet.GeoParquetDataStoreEditPanel"));
-        return info;
     }
 }
