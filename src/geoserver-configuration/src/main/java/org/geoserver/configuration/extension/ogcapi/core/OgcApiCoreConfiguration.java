@@ -6,14 +6,15 @@ package org.geoserver.configuration.extension.ogcapi.core;
 
 import java.util.Map;
 import org.geoserver.catalog.Catalog;
-import org.geoserver.cloud.config.factory.ImportFilteredResource;
 import org.geoserver.ogcapi.APIDispatcher;
 import org.geoserver.ogcapi.CloseableIteratorModule;
 import org.geoserver.ows.ClasspathPublisher;
 import org.geoserver.ows.OWSHandlerMapping;
+import org.geoserver.spring.config.annotations.TranspileXmlConfig;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.Ordered;
 import org.springframework.web.servlet.handler.SimpleUrlHandlerMapping;
 
@@ -32,8 +33,10 @@ import org.springframework.web.servlet.handler.SimpleUrlHandlerMapping;
  * contributed to unrelated services.
  */
 @Configuration
-@ImportFilteredResource(
-        "jar:gs-ogcapi-core-.*!/applicationContext.xml#name=^(?!apiURLMapping|apiClasspathPublisherMapping).*$")
+@TranspileXmlConfig(
+        locations = "jar:gs-ogcapi-core-.*!/applicationContext.xml",
+        excludes = {"apiURLMapping", "apiClasspathPublisherMapping"})
+@Import(OgcApiCoreConfiguration_Generated.class)
 public class OgcApiCoreConfiguration {
 
     /**
