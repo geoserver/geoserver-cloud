@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Import;
  *
  * @since 2.27.0.0
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @TranspileXmlConfig(locations = "jar:gs-web-sec-jdbc-.*!/applicationContext.xml")
 @Import({JDBCSecurityConfiguration.class, JDBCSecurityWebUIConfiguration_Generated.class})
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public

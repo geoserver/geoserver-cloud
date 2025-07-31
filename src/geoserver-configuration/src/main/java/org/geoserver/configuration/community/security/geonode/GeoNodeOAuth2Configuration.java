@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Import;
  *
  * @since 2.27.0
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 // gs-sec-oauth2-core and gs-sec-oauth2-web are transitive but not required for this specific functionality
 // This ComponentScan is the only contribution from gs-sec-oauth2-core. Adding it directly instead of transpiling its
 // applicationContext.xml
