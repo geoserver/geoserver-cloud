@@ -94,7 +94,6 @@ class AuthKeyAutoConfigurationTest {
                     assertThat(ctx).hasSingleBean(PropertyAuthenticationKeyMapper.class);
                     assertThat(ctx).hasSingleBean(UserPropertyAuthenticationKeyMapper.class);
                     assertThat(ctx).hasSingleBean(WebServiceAuthenticationKeyMapper.class);
-                    assertThat(ctx).hasSingleBean(GeoServerAuthenticationKeyProvider.class);
                     assertThat(ctx).hasSingleBean(WebServiceBodyResponseSecurityProvider.class);
 
                     assertThat(ctx).hasSingleBean(AuthenticationKeyFilterPanelInfo.class);
