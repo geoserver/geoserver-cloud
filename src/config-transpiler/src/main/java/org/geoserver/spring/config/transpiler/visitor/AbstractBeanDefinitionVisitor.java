@@ -1201,4 +1201,80 @@ public abstract class AbstractBeanDefinitionVisitor implements BeanDefinitionVis
             return false;
         }
     }
+
+    /**
+     * Add constructor exceptions to the method signature based on the constructor that will be called.
+     * This analyzes the target class constructor and adds any checked exceptions to the method builder.
+     *
+     * @param methodBuilder the method builder to add exceptions to
+     * @param beanClassName the fully qualified class name
+     * @param constructorArgs the constructor arguments (null for no-arg constructor)
+     */
+    protected void addConstructorExceptions(
+            MethodSpec.Builder methodBuilder, String beanClassName, ConstructorArgumentValues constructorArgs) {
+
+        if (beanClassName == null) {
+            return;
+        }
+
+        try {
+            Class<?> beanClass = Class.forName(beanClassName);
+            java.lang.reflect.Constructor<?> constructor = findMatchingConstructor(beanClass, constructorArgs);
+
+            if (constructor != null) {
+                // Add all checked exceptions from the constructor
+                for (Class<?> exceptionType : constructor.getExceptionTypes()) {
+                    methodBuilder.addException(ClassName.get(exceptionType));
+                }
+            }
+        } catch (ClassNotFoundException e) {
+            // If we can't load the class, we can't analyze exceptions
+            // This is acceptable as the generated code will still compile if no exceptions are declared
+        }
+    }
+
+    /**
+     * Find the constructor that matches the given constructor arguments.
+     *
+     * @param beanClass the class to search for constructors
+     * @param constructorArgs the constructor arguments (null for no-arg constructor)
+     * @return the matching constructor, or null if not found
+     */
+    private java.lang.reflect.Constructor<?> findMatchingConstructor(
+            Class<?> beanClass, ConstructorArgumentValues constructorArgs) {
+
+        java.lang.reflect.Constructor<?>[] constructors = beanClass.getDeclaredConstructors();
+
+        if (constructorArgs == null || constructorArgs.isEmpty()) {
+            // Look for no-arg constructor
+            for (java.lang.reflect.Constructor<?> constructor : constructors) {
+                if (constructor.getParameterCount() == 0) {
+                    return constructor;
+                }
+            }
+
+            // If no explicit no-arg constructor, try autowiring with the best constructor
+            return findConstructorForAutowiring(beanClass);
+        } else {
+            // Look for constructor with matching parameter count
+            int argCount = constructorArgs.getArgumentCount();
+
+            // First try public constructors
+            for (java.lang.reflect.Constructor<?> constructor : constructors) {
+                if (constructor.getParameterCount() == argCount
+                        && java.lang.reflect.Modifier.isPublic(constructor.getModifiers())) {
+                    return constructor;
+                }
+            }
+
+            // Fall back to any constructor with matching count
+            for (java.lang.reflect.Constructor<?> constructor : constructors) {
+                if (constructor.getParameterCount() == argCount) {
+                    return constructor;
+                }
+            }
+        }
+
+        return null;
+    }
 }

@@ -154,6 +154,9 @@ public class SimpleBeanVisitor extends AbstractBeanDefinitionVisitor {
             return;
         }
 
+        // Add constructor exceptions to method signature (for no-arg constructor)
+        addConstructorExceptions(methodBuilder, beanClassName, null);
+
         boolean hasProperties = beanContext.hasPropertyValues();
 
         if (hasProperties) {
