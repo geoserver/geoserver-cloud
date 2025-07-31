@@ -4,12 +4,13 @@
  */
 package org.geoserver.configuration.extension.authkey;
 
-import org.geoserver.cloud.config.factory.ImportFilteredResource;
+import org.geoserver.spring.config.annotations.TranspileXmlConfig;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 @Configuration
-@ImportFilteredResource(AuthKeyConfiguration.INCLUDE)
-public class AuthKeyConfiguration {
-    static final String EXCLUDE = "authKeyExtension|" + AuthKeyWebUIConfiguration.WEB_UI_BEANS;
-    static final String INCLUDE = "jar:gs-authkey-.*!/applicationContext.xml#name=^(?!" + EXCLUDE + ").*$";
-}
+@TranspileXmlConfig(
+        locations = "jar:gs-authkey-.*!/applicationContext.xml",
+        excludes = AuthKeyWebUIConfiguration.WEB_UI_BEANS)
+@Import(AuthKeyConfiguration_Generated.class)
+public class AuthKeyConfiguration {}
