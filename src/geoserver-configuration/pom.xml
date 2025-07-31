@@ -190,6 +190,11 @@
     </dependency>
     <dependency>
       <groupId>org.geoserver.extension</groupId>
+      <artifactId>gs-inspire</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.extension</groupId>
       <artifactId>gs-mbstyle</artifactId>
       <optional>true</optional>
     </dependency>
@@ -369,6 +374,11 @@
             <path>
               <groupId>org.geoserver.extension</groupId>
               <artifactId>gs-mbstyle</artifactId>
+              <version>${gs.version}</version>
+            </path>
+            <path>
+              <groupId>org.geoserver.extension</groupId>
+              <artifactId>gs-inspire</artifactId>
               <version>${gs.version}</version>
             </path>
           </annotationProcessorPaths>
