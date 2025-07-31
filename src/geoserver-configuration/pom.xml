@@ -144,6 +144,11 @@
       <optional>true</optional>
     </dependency>
     <dependency>
+      <groupId>org.geoserver.extension</groupId>
+      <artifactId>gs-vectortiles</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-process</artifactId>
       <optional>true</optional>
