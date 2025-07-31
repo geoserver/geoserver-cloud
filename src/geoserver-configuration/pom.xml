@@ -261,6 +261,11 @@
               <artifactId>gs-flatgeobuf</artifactId>
               <version>${gs.version}</version>
             </path>
+            <path>
+              <groupId>org.geoserver.community</groupId>
+              <artifactId>gs-geoparquet</artifactId>
+              <version>${gs.version}</version>
+            </path>
           </annotationProcessorPaths>
           <!-- Enable processing of annotations -->
           <proc>full</proc>
