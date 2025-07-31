@@ -12,5 +12,4 @@ import org.springframework.context.annotation.Import;
 @Import(InspireConfigurationWfs.class)
 @ConditionalOnInspireWfs
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
-public class InspireAutoConfigurationWfs {
-}
+public class InspireAutoConfigurationWfs {}
