@@ -6,14 +6,12 @@
 package org.geoserver.cloud.autoconfigure.vectorformats.geoparquet;
 
 import javax.annotation.PostConstruct;
-
+import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.autoconfigure.extensions.ConditionalOnGeoServerWebUI;
 import org.geoserver.configuration.community.geoparquet.GeoParquetWebUIConfiguration;
 import org.geotools.autoconfigure.vectorformats.DataAccessFactoryFilteringAutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Import;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Auto-configuration for GeoParquet extension that provides a data store
