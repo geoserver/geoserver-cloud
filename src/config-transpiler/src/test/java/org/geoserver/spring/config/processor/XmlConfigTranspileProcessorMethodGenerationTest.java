@@ -1762,6 +1762,25 @@ class XmlConfigTranspileProcessorMethodGenerationTest {
         testBeanMethodGeneneration("graticuleStorePanel", xml, expectedJavaCode);
     }
 
+    @Test
+    void testBeanWithConstructorExceptions() {
+        final String xml =
+                """
+                <bean autowire="default" class="org.geoserver.kml.KMLEncoder" id="KMLEncoder" lazy-init="default"/>
+                """;
+
+        // Constructor throws JAXBException and TransformerException - method should declare these
+        final String expectedJavaCode =
+                """
+                @org.springframework.context.annotation.Bean
+                org.geoserver.kml.KMLEncoder KMLEncoder() throws javax.xml.bind.JAXBException, javax.xml.transform.TransformerException {
+                  return new org.geoserver.kml.KMLEncoder();
+                }
+                """;
+
+        testBeanMethodGeneneration("KMLEncoder", xml, expectedJavaCode);
+    }
+
     /**
      * Create a fluent assertion builder for verifying MethodSpec properties
      */
