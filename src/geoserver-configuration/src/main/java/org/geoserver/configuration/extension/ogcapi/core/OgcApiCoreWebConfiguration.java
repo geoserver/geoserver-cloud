@@ -4,7 +4,7 @@
  */
 package org.geoserver.configuration.extension.ogcapi.core;
 
-import org.geoserver.cloud.config.factory.ImportFilteredResource;
+import org.geoserver.spring.config.annotations.TranspileXmlConfig;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
@@ -17,6 +17,6 @@ import org.springframework.context.annotation.Import;
  * contributed to unrelated services.
  */
 @Configuration
-@Import(OgcApiCoreConfiguration.class)
-@ImportFilteredResource({"jar:gs-web-ogcapi-.*!/applicationContext.xml"})
+@TranspileXmlConfig(locations = "jar:gs-web-ogcapi-.*!/applicationContext.xml")
+@Import({OgcApiCoreConfiguration.class, OgcApiCoreWebConfiguration_Generated.class})
 public class OgcApiCoreWebConfiguration {}

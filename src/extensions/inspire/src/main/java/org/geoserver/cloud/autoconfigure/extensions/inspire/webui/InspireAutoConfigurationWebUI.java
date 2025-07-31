@@ -12,5 +12,4 @@ import org.springframework.context.annotation.Import;
 @ConditionalOnInspireWebUI
 @Import(InspireConfigurationWebUI.class)
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
-public class InspireAutoConfigurationWebUI {
-}
+public class InspireAutoConfigurationWebUI {}

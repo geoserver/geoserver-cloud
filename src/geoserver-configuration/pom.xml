@@ -381,6 +381,21 @@
               <artifactId>gs-inspire</artifactId>
               <version>${gs.version}</version>
             </path>
+            <path>
+              <groupId>org.geoserver.extension</groupId>
+              <artifactId>gs-ogcapi-core</artifactId>
+              <version>${gs.version}</version>
+            </path>
+            <path>
+              <groupId>org.geoserver.extension</groupId>
+              <artifactId>gs-web-ogcapi</artifactId>
+              <version>${gs.version}</version>
+            </path>
+            <path>
+              <groupId>org.geoserver.extension</groupId>
+              <artifactId>gs-ogcapi-features</artifactId>
+              <version>${gs.version}</version>
+            </path>
           </annotationProcessorPaths>
           <!-- Enable processing of annotations -->
           <proc>full</proc>
