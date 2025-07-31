@@ -1,2 +1,3 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-org.geoserver.cloud.autoconfigure.extensions.security.jdbc.JDBCSecurityAutoConfiguration
+org.geoserver.cloud.autoconfigure.extensions.security.jdbc.JDBCSecurityAutoConfiguration,\
+org.geoserver.cloud.autoconfigure.extensions.security.jdbc.JDBCSecurityWebUIAutoConfiguration
