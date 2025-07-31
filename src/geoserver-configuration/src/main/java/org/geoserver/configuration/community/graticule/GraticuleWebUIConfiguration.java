@@ -5,8 +5,9 @@
 
 package org.geoserver.configuration.community.graticule;
 
-import org.geoserver.cloud.config.factory.ImportFilteredResource;
+import org.geoserver.spring.config.annotations.TranspileXmlConfig;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 /**
  * Configuration for Graticule extension that provides a data store for
@@ -18,5 +19,6 @@ import org.springframework.context.annotation.Configuration;
  * @since 2.27.0
  */
 @Configuration
-@ImportFilteredResource("jar:gs-graticule-.*!/applicationContext.xml")
+@TranspileXmlConfig(locations = "jar:gs-graticule-.*!/applicationContext.xml")
+@Import(GraticuleWebUIConfiguration_Generated.class)
 public class GraticuleWebUIConfiguration {}

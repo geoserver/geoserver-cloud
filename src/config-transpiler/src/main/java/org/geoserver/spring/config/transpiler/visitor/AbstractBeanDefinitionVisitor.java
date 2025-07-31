@@ -168,12 +168,8 @@ public abstract class AbstractBeanDefinitionVisitor implements BeanDefinitionVis
                         "Property '" + propertyName + "' expects a float but got: '" + rawValue + "'", e);
             }
         } else if (propertyType == Class.class) {
-            // Class properties - use Class.forName() for string-to-class conversion
-            // Cast to handle generic Class types (Class<?> vs Class<T>)
-            methodBuilder.addStatement("bean.$L((Class) java.lang.Class.forName($S))", setterName, rawValue);
-
-            // Add ClassNotFoundException to method signature
-            methodBuilder.addException(ClassName.get(ClassNotFoundException.class));
+            // Class properties - optimize to use .class literal when possible
+            generateOptimizedClassSetter(methodBuilder, setterName, propertyName, rawValue, beanClassName);
         } else if (propertyType != String.class && hasStringConstructor(propertyType)) {
             // Property expects a non-String type that can be constructed from a string
             methodBuilder.addStatement("bean.$L(new $T($S))", setterName, propertyType, rawValue);
@@ -1004,5 +1000,205 @@ public abstract class AbstractBeanDefinitionVisitor implements BeanDefinitionVis
         }
         arrayCall.append("}");
         return arrayCall.toString();
+    }
+
+    /**
+     * Generate an optimized Class property setter call.
+     * Uses .class literal when the class is assignable to the expected type,
+     * otherwise uses Class.forName() with cast to handle type incompatibilities.
+     *
+     * @param methodBuilder the method builder to add statements to
+     * @param setterName    the setter method name
+     * @param propertyName  the property name for error messages
+     * @param className     the fully qualified class name from XML
+     * @param beanClassName the bean class name for reflection
+     */
+    protected void generateOptimizedClassSetter(
+            MethodSpec.Builder methodBuilder,
+            String setterName,
+            String propertyName,
+            String className,
+            String beanClassName) {
+
+        try {
+            // Get detailed type information including generic types
+            SetterTypeInfo typeInfo = getSetterTypeInfo(setterName, beanClassName);
+
+            if (typeInfo == null) {
+                // Fallback if we can't get type info
+                methodBuilder.addStatement("bean.$L((Class) java.lang.Class.forName($S))", setterName, className);
+                methodBuilder.addException(ClassName.get(ClassNotFoundException.class));
+                return;
+            }
+
+            if (typeInfo.isRawClassType()) {
+                // Raw Class type - any class literal works
+                methodBuilder.addStatement("bean.$L($L.class)", setterName, className);
+            } else {
+                // Generic Class<T> type - check if provided class is assignable to the bound
+                Class<?> boundClass = typeInfo.getGenericClassBound();
+                if (boundClass != null && isClassAssignableToGenericBound(className, boundClass)) {
+                    // Use .class literal when the provided class is assignable to the generic bound
+                    methodBuilder.addStatement("bean.$L($L.class)", setterName, className);
+                } else {
+                    // Use Class.forName() with cast for incompatible generic types
+                    methodBuilder.addStatement("bean.$L((Class) java.lang.Class.forName($S))", setterName, className);
+                    methodBuilder.addException(ClassName.get(ClassNotFoundException.class));
+                }
+            }
+        } catch (Exception e) {
+            // Fallback to Class.forName() if we can't determine compatibility
+            methodBuilder.addStatement("bean.$L((Class) java.lang.Class.forName($S))", setterName, className);
+            methodBuilder.addException(ClassName.get(ClassNotFoundException.class));
+        }
+    }
+
+    /**
+     * Check if a class is assignable to a generic bound type.
+     *
+     * @param className the fully qualified class name to check
+     * @param boundClass the generic bound class
+     * @return true if the class is assignable to the bound
+     */
+    private boolean isClassAssignableToGenericBound(String className, Class<?> boundClass) {
+        try {
+            Class<?> providedClass = Class.forName(className);
+            return boundClass.isAssignableFrom(providedClass);
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Get the parameter type of a setter method using reflection.
+     *
+     * @param setterName    the setter method name
+     * @param beanClassName the bean class name
+     * @return the parameter type of the setter method, or null if not found
+     */
+    private Class<?> getSetterParameterType(String setterName, String beanClassName) {
+        SetterTypeInfo typeInfo = getSetterTypeInfo(setterName, beanClassName);
+        return typeInfo != null ? typeInfo.parameterType : null;
+    }
+
+    /**
+     * Get detailed type information for a setter method including generic types.
+     *
+     * @param setterName    the setter method name
+     * @param beanClassName the bean class name
+     * @return detailed type information or null if not found
+     */
+    private SetterTypeInfo getSetterTypeInfo(String setterName, String beanClassName) {
+        if (beanClassName == null) {
+            return null;
+        }
+
+        try {
+            Class<?> beanClass = Class.forName(beanClassName);
+            java.lang.reflect.Method[] methods = beanClass.getMethods();
+
+            for (java.lang.reflect.Method method : methods) {
+                if (method.getName().equals(setterName) && method.getParameterCount() == 1) {
+                    Class<?> parameterType = method.getParameterTypes()[0];
+                    java.lang.reflect.Type genericParameterType = method.getGenericParameterTypes()[0];
+
+                    return new SetterTypeInfo(parameterType, genericParameterType);
+                }
+            }
+        } catch (ClassNotFoundException e) {
+            // Return null to indicate failure
+        }
+
+        return null;
+    }
+
+    /**
+     * Container for setter method type information including generic types.
+     */
+    private static class SetterTypeInfo {
+        final Class<?> parameterType;
+        final java.lang.reflect.Type genericParameterType;
+
+        SetterTypeInfo(Class<?> parameterType, java.lang.reflect.Type genericParameterType) {
+            this.parameterType = parameterType;
+            this.genericParameterType = genericParameterType;
+        }
+
+        /**
+         * Check if this is a generic Class type and return the bound type if available.
+         * For example, Class<DataStoreFactory> returns DataStoreFactory.class
+         */
+        Class<?> getGenericClassBound() {
+            if (parameterType == Class.class
+                    && genericParameterType instanceof java.lang.reflect.ParameterizedType paramType) {
+                java.lang.reflect.Type[] typeArgs = paramType.getActualTypeArguments();
+                if (typeArgs.length == 1 && typeArgs[0] instanceof Class<?> boundClass) {
+                    return boundClass;
+                }
+            }
+            return null;
+        }
+
+        boolean isRawClassType() {
+            if (parameterType != Class.class) {
+                return false;
+            }
+
+            // Check if it's a raw Class type (no generics) or Class<?> (wildcard)
+            if (!(genericParameterType instanceof java.lang.reflect.ParameterizedType)) {
+                return true; // Raw Class type
+            }
+
+            // Check if it's Class<?> (wildcard type)
+            java.lang.reflect.ParameterizedType paramType = (java.lang.reflect.ParameterizedType) genericParameterType;
+            java.lang.reflect.Type[] typeArgs = paramType.getActualTypeArguments();
+            if (typeArgs.length == 1 && typeArgs[0] instanceof java.lang.reflect.WildcardType) {
+                return true; // Class<?> - accepts any class
+            }
+
+            return false;
+        }
+    }
+
+    /**
+     * Check if a class is assignable to the expected parameter type.
+     * This handles generic types by checking raw type compatibility.
+     *
+     * @param className           the fully qualified class name to check
+     * @param expectedParameterType the expected parameter type
+     * @return true if the class is assignable to the parameter type
+     */
+    private boolean isClassAssignableToParameterType(String className, Class<?> expectedParameterType) {
+        try {
+            Class<?> providedClass = Class.forName(className);
+
+            // Handle Class types
+            if (expectedParameterType == Class.class) {
+                // For raw Class type, any Class is assignable
+                return true;
+            }
+
+            // Check if this looks like a generic Class type by examining if the provided class
+            // could be assignable to a potential generic bound
+            if (expectedParameterType.getSimpleName().equals("Class")) {
+                // This indicates a parameterized Class type like Class<SomeType>
+                // We can't get the generic type information at runtime from the parameter type alone,
+                // but we can try to determine if the provided class would be compatible
+
+                // Strategy: Try to create an instance of the expected type using the provided class
+                // and see if it would compile. Since we can't do that here, we'll be conservative
+                // and only return true for cases where we're very confident it will work.
+
+                // For now, be conservative and return false to use Class.forName() with cast
+                // This ensures type safety at the cost of using reflection
+                return false;
+            }
+
+            // For non-Class types, check direct assignability
+            return expectedParameterType.isAssignableFrom(providedClass);
+
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
     }
 }

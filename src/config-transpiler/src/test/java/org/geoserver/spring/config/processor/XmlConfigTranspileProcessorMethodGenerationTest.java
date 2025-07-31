@@ -1714,6 +1714,55 @@ class XmlConfigTranspileProcessorMethodGenerationTest {
     }
 
     /**
+     * Tests optimized Class property handling that minimizes reflection usage.
+     *
+     * <p>This test demonstrates the transpiler's ability to generate efficient code for Class properties
+     * by analyzing the generic type information of setter methods:
+     *
+     * <ul>
+     *   <li><strong>Raw Class or Class&lt;?&gt; types:</strong> Use {@code .class} literals for better performance
+     *       and compile-time safety (e.g., {@code bean.setFactoryClass(DataStoreFactory.class)})</li>
+     *   <li><strong>Generic Class&lt;T&gt; types with incompatible bounds:</strong> Use {@code Class.forName()}
+     *       with cast when the provided class is not assignable to the generic bound
+     *       (e.g., {@code bean.setComponentClass((Class) Class.forName("..."))})</li>
+     * </ul>
+     *
+     * <p>This optimization reduces runtime reflection overhead where possible while maintaining
+     * type safety and compatibility with Spring's XML configuration behavior.
+     */
+    @Test
+    void testBeanWithOptimizedClassProperties() {
+        final String xml =
+                """
+                <bean class="org.geoserver.web.data.resource.DataStorePanelInfo" id="graticuleStorePanel">
+                    <property name="id" value="graticule-ds"/>
+                    <property name="factoryClass" value="org.geotools.data.graticule.GraticuleDataStoreFactory"/>
+                    <property name="iconBase" value="org.geoserver.web.GeoServerApplication"/>
+                    <property name="icon" value="img/icons/geosilk/ruler.png"/>
+                    <property name="componentClass" value="org.geoserver.web.data.store.graticule.GraticuleStoreEditPanel"/>
+                </bean>
+                """;
+
+        // Should use .class literal for assignable types, Class.forName() for incompatible types
+        final String expectedJavaCode =
+                """
+                @org.springframework.context.annotation.Bean
+                org.geoserver.web.data.resource.DataStorePanelInfo graticuleStorePanel()
+                        throws java.lang.ClassNotFoundException {
+                  org.geoserver.web.data.resource.DataStorePanelInfo bean = new org.geoserver.web.data.resource.DataStorePanelInfo();
+                  bean.setId("graticule-ds");
+                  bean.setFactoryClass(org.geotools.data.graticule.GraticuleDataStoreFactory.class);
+                  bean.setIconBase(org.geoserver.web.GeoServerApplication.class);
+                  bean.setIcon("img/icons/geosilk/ruler.png");
+                  bean.setComponentClass((Class) java.lang.Class.forName("org.geoserver.web.data.store.graticule.GraticuleStoreEditPanel"));
+                  return bean;
+                }
+                """;
+
+        testBeanMethodGeneneration("graticuleStorePanel", xml, expectedJavaCode);
+    }
+
+    /**
      * Create a fluent assertion builder for verifying MethodSpec properties
      */
     private BeanMethodAssertion assertBeanMethod(MethodSpec method) {
