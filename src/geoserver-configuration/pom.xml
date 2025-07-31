@@ -281,6 +281,16 @@
               <artifactId>gs-sec-oauth2-geonode</artifactId>
               <version>${gs.version}</version>
             </path>
+            <path>
+              <groupId>org.geoserver.security</groupId>
+              <artifactId>gs-sec-jdbc</artifactId>
+              <version>${gs.version}</version>
+            </path>
+            <path>
+              <groupId>org.geoserver.web</groupId>
+              <artifactId>gs-web-sec-jdbc</artifactId>
+              <version>${gs.version}</version>
+            </path>
           </annotationProcessorPaths>
           <!-- Enable processing of annotations -->
           <proc>full</proc>
