@@ -35,8 +35,13 @@ import org.springframework.web.servlet.handler.SimpleUrlHandlerMapping;
 @Configuration
 @TranspileXmlConfig(
         locations = "jar:gs-ogcapi-core-.*!/applicationContext.xml",
-        excludes = {"apiURLMapping", "apiClasspathPublisherMapping"})
+        excludes = {
+            // "apiDispatcher", // see #apiDispatcher in this class
+            "apiURLMapping",
+            "apiClasspathPublisherMapping"
+        })
 @Import(OgcApiCoreConfiguration_Generated.class)
+// @ImportFilteredResource("jar:gs-ogcapi-core-.*!/applicationContext.xml#name=^(?!apiURLMapping|apiClasspathPublisherMapping).*$")
 public class OgcApiCoreConfiguration {
 
     /**

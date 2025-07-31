@@ -15,6 +15,12 @@ import org.springframework.context.annotation.Import;
  * @see OgcApiCoreWebConfiguration
  */
 @Configuration(proxyBeanMethods = false)
-@Import({OgcApiCoreConfiguration.class, OgcApiCoreWebConfiguration.class})
+@Import({
+    // OgcApiFeaturesConfiguration must be present to provide `APIServiceFactoryBean featuresServiceFactory()`
+    // or it won't show up in the home page
+    OgcApiFeaturesConfiguration.class,
+    OgcApiCoreConfiguration.class,
+    OgcApiCoreWebConfiguration.class
+})
 @ImportFilteredResource("jar:gs-web-features-.*!/applicationContext.xml")
 public class OgcApiFeaturesWebUIConfiguration {}
