@@ -5,12 +5,9 @@
 
 package org.geoserver.configuration.community.security.geonode;
 
-import org.geoserver.security.GeoServerSecurityProvider;
-import org.geoserver.web.GeoServerBasePage;
-import org.geoserver.web.LoginFormInfo;
-import org.geoserver.web.security.oauth2.GeoNodeOAuth2AuthProviderPanelInfo;
-import org.springframework.context.annotation.Bean;
+import org.geoserver.spring.config.annotations.TranspileXmlConfig;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 /**
  * Configuration class that defines the web UI components for GeoNode OAuth2 authentication.
@@ -30,63 +27,9 @@ import org.springframework.context.annotation.Configuration;
  * @since 2.27.0
  */
 @Configuration
+@TranspileXmlConfig(
+        locations = "jar:gs-sec-oauth2-geonode-.*!/applicationContext.xml",
+        includes = GeoNodeOAuth2Configuration.UI_BEANS)
+@Import(GeoNodeOAuth2WebUIConfiguration_Generated.class)
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
-public class GeoNodeOAuth2WebUIConfiguration {
-
-    /**
-     * Creates the GeoNode OAuth2 authentication provider panel info bean.
-     *
-     * <p>
-     * This bean defines the configuration panel that appears in the GeoServer security settings
-     * for the GeoNode OAuth2 authentication provider. It sets properties such as the panel's
-     * ID and localized text keys for titles and descriptions.
-     *
-     * @return The configured GeoNodeOAuth2AuthProviderPanelInfo bean
-     */
-    @Bean
-    GeoNodeOAuth2AuthProviderPanelInfo geoNodeOAuth2AuthPanelInfo() {
-        GeoNodeOAuth2AuthProviderPanelInfo panelInfo = new GeoNodeOAuth2AuthProviderPanelInfo();
-        panelInfo.setId("security.GeoNodeOAuth2AuthProvider");
-        panelInfo.setShortTitleKey("GeoNodeOAuth2AuthProviderPanel.short");
-        panelInfo.setTitleKey("GeoNodeOAuth2AuthProviderPanel.title");
-        panelInfo.setDescriptionKey("GeoNodeOAuth2AuthProviderPanel.description");
-        return panelInfo;
-    }
-
-    /**
-     * Creates the GeoNode login form button bean.
-     *
-     * <p>
-     * This bean defines the GeoNode OAuth2 login button that appears on the GeoServer login page.
-     * It configures properties such as:
-     * <ul>
-     *   <li>Button ID and name</li>
-     *   <li>Description and icon</li>
-     *   <li>The authentication filter class that handles the OAuth2 authentication process</li>
-     *   <li>The login path that initiates the OAuth2 flow</li>
-     * </ul>
-     *
-     * <p>
-     * Note that the component and filter classes are loaded dynamically using Class.forName()
-     * to avoid direct dependencies on the implementation classes.
-     *
-     * @return The configured LoginFormInfo bean for GeoNode OAuth2 authentication
-     * @throws ClassNotFoundException if the required component or filter classes cannot be found
-     */
-    @SuppressWarnings("unchecked")
-    @Bean
-    LoginFormInfo geonodeFormLoginButton() throws ClassNotFoundException {
-        LoginFormInfo loginForm = new LoginFormInfo();
-        loginForm.setId("geonodeFormLoginButton");
-        loginForm.setTitleKey("");
-        loginForm.setDescriptionKey("GeoNodeOAuth2AuthProviderPanel.description");
-        loginForm.setComponentClass((Class<GeoServerBasePage>)
-                Class.forName("org.geoserver.web.security.oauth2.GeoNodeOAuth2AuthProviderPanel"));
-        loginForm.setName("geonode");
-        loginForm.setIcon("geonode.png");
-        loginForm.setFilterClass((Class<GeoServerSecurityProvider>)
-                Class.forName("org.geoserver.security.oauth2.GeoNodeOAuthAuthenticationFilter"));
-        loginForm.setLoginPath("web/j_spring_oauth2_geonode_login");
-        return loginForm;
-    }
-}
+public class GeoNodeOAuth2WebUIConfiguration {}
