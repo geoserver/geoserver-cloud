@@ -167,6 +167,13 @@ public abstract class AbstractBeanDefinitionVisitor implements BeanDefinitionVis
                 throw new IllegalArgumentException(
                         "Property '" + propertyName + "' expects a float but got: '" + rawValue + "'", e);
             }
+        } else if (propertyType == Class.class) {
+            // Class properties - use Class.forName() for string-to-class conversion
+            // Cast to handle generic Class types (Class<?> vs Class<T>)
+            methodBuilder.addStatement("bean.$L((Class) java.lang.Class.forName($S))", setterName, rawValue);
+
+            // Add ClassNotFoundException to method signature
+            methodBuilder.addException(ClassName.get(ClassNotFoundException.class));
         } else if (propertyType != String.class && hasStringConstructor(propertyType)) {
             // Property expects a non-String type that can be constructed from a string
             methodBuilder.addStatement("bean.$L(new $T($S))", setterName, propertyType, rawValue);

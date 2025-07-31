@@ -1682,6 +1682,37 @@ class XmlConfigTranspileProcessorMethodGenerationTest {
         testBeanMethodGeneneration("wfsURLMapping", xml, expectedJavaCode);
     }
 
+    @Test
+    void testBeanWithClassPropertyShouldUseClassForName() {
+        final String xml =
+                """
+                <bean autowire="default" class="org.geoserver.web.data.settings.SettingsPluginPanelInfo" id="CogSettingsPanel" lazy-init="default">
+                    <description>This bean adds the necessary form fields for COG Settings</description>
+                    <property name="id" value="cogSettingsPanel"/>
+                    <property name="titleKey" value="CogSettings"/>
+                    <property name="componentClass" value="org.geoserver.web.data.store.cog.panel.CogSettingsPluginPanel"/>
+                    <property name="priority" value="100"/>
+                </bean>
+                """;
+
+        // The setComponentClass property should use Class.forName() instead of a string
+        final String expectedJavaCode =
+                """
+                @org.springframework.context.annotation.Bean
+                org.geoserver.web.data.settings.SettingsPluginPanelInfo CogSettingsPanel()
+                        throws java.lang.ClassNotFoundException {
+                  org.geoserver.web.data.settings.SettingsPluginPanelInfo bean = new org.geoserver.web.data.settings.SettingsPluginPanelInfo();
+                  bean.setId("cogSettingsPanel");
+                  bean.setTitleKey("CogSettings");
+                  bean.setComponentClass((Class) java.lang.Class.forName("org.geoserver.web.data.store.cog.panel.CogSettingsPluginPanel"));
+                  bean.setPriority(100);
+                  return bean;
+                }
+                """;
+
+        testBeanMethodGeneneration("CogSettingsPanel", xml, expectedJavaCode);
+    }
+
     /**
      * Create a fluent assertion builder for verifying MethodSpec properties
      */

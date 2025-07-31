@@ -5,17 +5,21 @@
 
 package org.geoserver.configuration.community.cog;
 
-import org.geoserver.cloud.config.factory.ImportFilteredResource;
+import org.geoserver.spring.config.annotations.TranspileXmlConfig;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 /**
  * Configuration to enable the COG (Cloud Optimized GeoTIFF) support as raster
  * data format.
  */
 @Configuration
-@ImportFilteredResource("jar:gs-cog-.*!/applicationContext.xml#name=" + COGConfiguration.EXCLUDE_WEBUI_BEANS)
-@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
-public class COGConfiguration {
-
-    static final String EXCLUDE_WEBUI_BEANS = "^(?!" + COGWebUIConfiguration.WEBUI_BEAN_NAMES + ").*$";
-}
+@TranspileXmlConfig(
+        locations = "jar:gs-cog-.*!/applicationContext.xml",
+        // Use org.geoserver.cog as target package because CogEncryptedFieldsProvider is package private
+        targetPackage = "org.geoserver.cog",
+        // publicAccess must be true for this class to import org.geoserver.cog.COGConfiguration_Generated
+        publicAccess = true,
+        excludes = {"COGGeoTIFFExclusionFilter", "CogGeotiffStorePanel", "CogSettingsPanel"})
+@Import(org.geoserver.cog.COGConfiguration_Generated.class)
+public class COGConfiguration {}

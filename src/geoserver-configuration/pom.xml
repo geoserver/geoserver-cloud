@@ -99,6 +99,11 @@
       <optional>true</optional>
     </dependency>
     <dependency>
+      <groupId>org.geoserver.community</groupId>
+      <artifactId>gs-cog-core</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
       <groupId>org.geoserver.extension</groupId>
       <artifactId>gs-wps-core</artifactId>
       <optional>true</optional>
@@ -239,6 +244,11 @@
             <path>
               <groupId>org.geoserver.extension</groupId>
               <artifactId>gs-vectortiles</artifactId>
+              <version>${gs.version}</version>
+            </path>
+            <path>
+              <groupId>org.geoserver.community</groupId>
+              <artifactId>gs-cog-core</artifactId>
               <version>${gs.version}</version>
             </path>
           </annotationProcessorPaths>
