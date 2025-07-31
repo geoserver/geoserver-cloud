@@ -442,6 +442,17 @@
         <version>${gs.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.geoserver.community</groupId>
+        <artifactId>gs-sec-oauth2-geonode</artifactId>
+        <version>${gs.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.geoserver.web</groupId>
+            <artifactId>gs-web-sec-core</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
         <groupId>org.geoserver.security</groupId>
         <artifactId>gs-sec-ldap</artifactId>
         <version>${gs.version}</version>
