@@ -7,6 +7,7 @@ package org.geoserver.cloud.autoconfigure.extensions.security.geonode;
 
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.autoconfigure.extensions.ConditionalOnGeoServerWebUI;
+import org.geoserver.configuration.community.security.geonode.GeoNodeOAuth2WebUIConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Import;
 
@@ -20,12 +21,13 @@ import org.springframework.context.annotation.Import;
  * </p>
  *
  * @since 2.27.0
+ * @see GeoNodeOAuth2WebUIConfiguration
  */
 @AutoConfiguration
 @ConditionalOnGeoNodeOAuth2
 @ConditionalOnGeoServerWebUI
-@Import(WebUIComponents.class)
-@Slf4j
+@Import(GeoNodeOAuth2WebUIConfiguration.class)
+@Slf4j(topic = "org.geoserver.cloud.autoconfigure.extensions.security.geonode")
 @SuppressWarnings("java:S1118") // public constructor required
 public class GeoNodeOAuth2WebUIAutoConfiguration {
 
