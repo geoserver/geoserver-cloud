@@ -4,9 +4,11 @@
  */
 package org.geoserver.configuration.extension.dxf;
 
-import org.geoserver.cloud.config.factory.ImportFilteredResource;
+import org.geoserver.spring.config.annotations.TranspileXmlConfig;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 @Configuration
-@ImportFilteredResource("jar:gs-dxf-core-.*!/applicationContext.xml#name=.*")
+@TranspileXmlConfig(locations = "jar:gs-dxf-core-.*!/applicationContext.xml")
+@Import(DxfConfiguration_Generated.class)
 public class DxfConfiguration {}
