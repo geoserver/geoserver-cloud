@@ -4,9 +4,11 @@
  */
 package org.geoserver.configuration.extension.mbstyle;
 
-import org.geoserver.cloud.config.factory.ImportFilteredResource;
+import org.geoserver.spring.config.annotations.TranspileXmlConfig;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 @Configuration
-@ImportFilteredResource("jar:gs-mbstyle-.*!/applicationContext.xml")
+@TranspileXmlConfig(locations = "jar:gs-mbstyle-.*!/applicationContext.xml")
+@Import(MapboxStyleConfiguration_Generated.class)
 public class MapboxStyleConfiguration {}
