@@ -158,6 +158,31 @@ public @interface TranspileXmlConfig {
     boolean publicAccess() default false;
 
     /**
+     * Whether to enable bean method proxying in the generated {@code @Configuration} class.
+     * Controls the {@code proxyBeanMethods} attribute of the {@code @Configuration} annotation.
+     * <ul>
+     *   <li>{@code false} (default): Disables CGLIB proxying for better performance and startup time</li>
+     *   <li>{@code true}: Enables CGLIB proxying for inter-bean dependencies and singleton enforcement</li>
+     * </ul>
+     *
+     * <p><strong>Performance implications:</strong>
+     * <ul>
+     *   <li>{@code false}: Faster startup, reduced memory usage, no CGLIB proxies</li>
+     *   <li>{@code true}: Slower startup, higher memory usage, but enforces Spring singleton semantics</li>
+     * </ul>
+     *
+     * <p><strong>Safety for generated classes:</strong>
+     * Setting this to {@code false} is generally safe for generated classes since the transpiler
+     * does not generate inter-bean method calls within {@code @Bean} methods. All dependencies
+     * are handled through method parameters and Spring's dependency injection system.
+     *
+     * <p>This defaults to {@code false} (opposite of Spring's default) for better performance in GeoServer Cloud.
+     *
+     * @return {@code false} for no proxying (default), {@code true} for CGLIB proxying
+     */
+    boolean proxyBeanMethods() default false;
+
+    /**
      * Container annotation for multiple {@code @BuildTimeXmlImport} declarations.
      * This allows using multiple {@code @BuildTimeXmlImport} annotations on the same class.
      *

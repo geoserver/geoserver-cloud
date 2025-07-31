@@ -54,7 +54,7 @@ public class BeanVisitorTestUtils {
 
         // Create TranspilationContext for testing
         TranspilationContext context =
-                TranspilationContext.forTesting("org.geoserver.test.generated", "TestConfig", false);
+                TranspilationContext.forTesting("org.geoserver.test.generated", "TestConfig", false, false);
         context.setAllBeanDefinitions(parsed.getBeanDefinitions());
         context.setEnhancedBeanInfos(parsed.getEnhancedBeanInfos());
 

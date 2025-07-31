@@ -50,6 +50,7 @@ public class TranspilationContext {
     private final Pattern[] includePatterns;
     private final Pattern[] excludePatterns;
     private final boolean publicAccess;
+    private final boolean proxyBeanMethods;
 
     // Mutable state populated during transpilation
     private Set<String> processedBeans;
@@ -70,6 +71,7 @@ public class TranspilationContext {
         this.includePatterns = compilePatterns(annotation.includes());
         this.excludePatterns = compilePatterns(annotation.excludes());
         this.publicAccess = annotation.publicAccess();
+        this.proxyBeanMethods = annotation.proxyBeanMethods();
 
         // Initialize mutable state
         this.allBeanDefinitions = new HashMap<>();
@@ -82,7 +84,8 @@ public class TranspilationContext {
      * Test-friendly constructor that doesn't require annotation processor
      * dependencies.
      */
-    private TranspilationContext(String targetPackage, String targetClassName, boolean publicAccess) {
+    private TranspilationContext(
+            String targetPackage, String targetClassName, boolean publicAccess, boolean proxyBeanMethods) {
         this.annotatedElement = null;
         this.annotation = null;
         this.processingEnvironment = null;
@@ -94,6 +97,7 @@ public class TranspilationContext {
         this.includePatterns = new Pattern[] {Pattern.compile(".*")}; // Include all
         this.excludePatterns = new Pattern[0]; // Exclude none
         this.publicAccess = publicAccess;
+        this.proxyBeanMethods = proxyBeanMethods;
 
         // Initialize mutable state
         this.allBeanDefinitions = new HashMap<>();
@@ -137,6 +141,10 @@ public class TranspilationContext {
 
     public boolean isPublicAccess() {
         return publicAccess;
+    }
+
+    public boolean isProxyBeanMethods() {
+        return proxyBeanMethods;
     }
 
     // Mutable state management methods
@@ -344,8 +352,9 @@ public class TranspilationContext {
      * Create a minimal TranspilationContext for testing purposes. This bypasses the
      * annotation processor dependencies that are not available in unit tests.
      */
-    public static TranspilationContext forTesting(String targetPackage, String targetClassName, boolean publicAccess) {
-        return new TranspilationContext(targetPackage, targetClassName, publicAccess);
+    public static TranspilationContext forTesting(
+            String targetPackage, String targetClassName, boolean publicAccess, boolean proxyBeanMethods) {
+        return new TranspilationContext(targetPackage, targetClassName, publicAccess, proxyBeanMethods);
     }
 
     public static class Builder {
