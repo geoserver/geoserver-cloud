@@ -5,11 +5,13 @@
 package org.geoserver.configuration.extension.importer;
 
 import org.geoserver.spring.config.annotations.TranspileXmlConfig;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 /**
  * Configuration for the GeoServer Importer extension.
  */
+@Configuration(proxyBeanMethods = false)
 @TranspileXmlConfig(locations = "jar:gs-importer-core-.*!/applicationContext.xml")
 @Import(ImporterCoreConfiguration_Generated.class)
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
