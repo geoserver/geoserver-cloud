@@ -10,7 +10,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.autoconfigure.extensions.ConditionalOnGeoServerGWC;
 import org.geoserver.cloud.autoconfigure.extensions.ConditionalOnGeoServerWMS;
 import org.geoserver.cloud.autoconfigure.extensions.ConditionalOnGeoServerWebUI;
-import org.geoserver.cloud.config.factory.ImportFilteredResource;
+import org.geoserver.configuration.extension.vectortiles.VectorTilesGeoJsonConfiguration;
+import org.geoserver.configuration.extension.vectortiles.VectorTilesMapBoxConfiguration;
+import org.geoserver.configuration.extension.vectortiles.VectorTilesModuleInfoConfiguration;
+import org.geoserver.configuration.extension.vectortiles.VectorTilesTopoJsonConfiguration;
 import org.geoserver.platform.ModuleStatusImpl;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -53,18 +56,22 @@ import org.springframework.context.annotation.Import;
  * </ul>
  *
  * @since 2.27.0
+ * @see VectorTilesModuleInfoConfiguration
+ * @see VectorTilesMapBoxConfiguration
+ * @see VectorTilesGeoJsonConfiguration
+ * @see VectorTilesTopoJsonConfiguration
  */
 @AutoConfiguration
-@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @ConditionalOnVectorTiles
 @EnableConfigurationProperties(VectorTilesConfigProperties.class)
-@ImportFilteredResource("jar:gs-vectortiles-.*!/applicationContext.xml#name=(VectorTilesExtension)")
 @Import({
+    VectorTilesModuleInfoConfiguration.class,
     VectorTilesAutoConfiguration.WMSConfiguration.class,
     VectorTilesAutoConfiguration.WebUIConfiguration.class,
     VectorTilesAutoConfiguration.GWCConfiguration.class
 })
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.extensions.vectortiles")
+@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 public class VectorTilesAutoConfiguration {
 
     /**
@@ -126,4 +133,19 @@ public class VectorTilesAutoConfiguration {
     @ConditionalOnGeoServerGWC
     @Import({MapBoxConfiguration.class, GeoJsonConfiguration.class, TopoJsonConfiguration.class})
     static class GWCConfiguration {}
+
+    @Configuration
+    @ConditionalOnVectorTilesMapBox
+    @Import(VectorTilesMapBoxConfiguration.class)
+    static class MapBoxConfiguration {}
+
+    @Configuration
+    @ConditionalOnVectorTilesTopoJson
+    @Import(VectorTilesTopoJsonConfiguration.class)
+    static class TopoJsonConfiguration {}
+
+    @Configuration
+    @ConditionalOnVectorTilesGeoJson
+    @Import(VectorTilesGeoJsonConfiguration.class)
+    public class GeoJsonConfiguration {}
 }
