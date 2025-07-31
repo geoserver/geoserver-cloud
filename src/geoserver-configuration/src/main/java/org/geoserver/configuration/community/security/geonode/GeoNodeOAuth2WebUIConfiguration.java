@@ -3,7 +3,7 @@
  * application directory.
  */
 
-package org.geoserver.cloud.autoconfigure.extensions.security.geonode;
+package org.geoserver.configuration.community.security.geonode;
 
 import org.geoserver.security.GeoServerSecurityProvider;
 import org.geoserver.web.GeoServerBasePage;
@@ -30,7 +30,9 @@ import org.springframework.context.annotation.Configuration;
  * @since 2.27.0
  */
 @Configuration
-class WebUIComponents {
+@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
+public class GeoNodeOAuth2WebUIConfiguration {
+
     /**
      * Creates the GeoNode OAuth2 authentication provider panel info bean.
      *
