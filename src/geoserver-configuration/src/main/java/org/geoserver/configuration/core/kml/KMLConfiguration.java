@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Import;
 /**
  * @since 1.0
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @TranspileXmlConfig(
         locations = "jar:gs-kml-.*!/applicationContext.xml",
         excludes = {

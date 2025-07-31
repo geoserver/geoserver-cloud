@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Import;
  * auto-configurations, in order to avoid these core OGC API components
  * contributed to unrelated services.
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @TranspileXmlConfig(locations = "jar:gs-web-ogcapi-.*!/applicationContext.xml")
 @Import({OgcApiCoreConfiguration.class, OgcApiCoreWebConfiguration_Generated.class})
 public class OgcApiCoreWebConfiguration {}

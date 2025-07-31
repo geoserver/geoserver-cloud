@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Import;
 /**
  * Configuration for the Importer Web UI components.
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @TranspileXmlConfig(locations = "jar:gs-importer-web-.*!/applicationContext.xml")
 @Import(ImporterWebUIConfiguration_Generated.class)
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
