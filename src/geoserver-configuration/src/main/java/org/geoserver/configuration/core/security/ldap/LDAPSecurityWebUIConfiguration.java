@@ -5,7 +5,7 @@
 
 package org.geoserver.configuration.core.security.ldap;
 
-import org.geoserver.cloud.config.factory.ImportFilteredResource;
+import org.geoserver.spring.config.annotations.TranspileXmlConfig;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
@@ -19,7 +19,7 @@ import org.springframework.context.annotation.Import;
  * @since 2.27.0.0
  */
 @Configuration
-@Import(LDAPSecurityConfiguration.class)
-@ImportFilteredResource("jar:gs-web-sec-ldap-.*!/applicationContext.xml")
+@TranspileXmlConfig(locations = "jar:gs-web-sec-ldap-.*!/applicationContext.xml")
+@Import({LDAPSecurityConfiguration.class, LDAPSecurityWebUIConfiguration_Generated.class})
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 public class LDAPSecurityWebUIConfiguration {}
