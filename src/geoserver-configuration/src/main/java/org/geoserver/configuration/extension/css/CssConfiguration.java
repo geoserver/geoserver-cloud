@@ -4,9 +4,11 @@
  */
 package org.geoserver.configuration.extension.css;
 
-import org.geoserver.cloud.config.factory.ImportFilteredResource;
+import org.geoserver.spring.config.annotations.TranspileXmlConfig;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 @Configuration
-@ImportFilteredResource("jar:gs-css-.*!/applicationContext.xml")
+@TranspileXmlConfig(locations = "jar:gs-css-.*!/applicationContext.xml")
+@Import(CssConfiguration_Generated.class)
 public class CssConfiguration {}
