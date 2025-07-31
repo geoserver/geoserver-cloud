@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Import;
  * Configuration to enable the COG (Cloud Optimized GeoTIFF) support as raster
  * data format.
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @TranspileXmlConfig(
         locations = "jar:gs-cog-.*!/applicationContext.xml",
         // Use org.geoserver.cog as target package because CogEncryptedFieldsProvider is package private
