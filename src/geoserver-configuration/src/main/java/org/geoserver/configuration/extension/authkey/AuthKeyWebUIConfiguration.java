@@ -4,14 +4,16 @@
  */
 package org.geoserver.configuration.extension.authkey;
 
-import org.geoserver.cloud.config.factory.ImportFilteredResource;
+import org.geoserver.spring.config.annotations.TranspileXmlConfig;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 @Configuration
-@ImportFilteredResource(AuthKeyWebUIConfiguration.INCLUDE)
+@TranspileXmlConfig(
+        locations = "jar:gs-authkey-.*!/applicationContext.xml",
+        includes = AuthKeyWebUIConfiguration.WEB_UI_BEANS)
+@Import(AuthKeyWebUIConfiguration_Generated.class)
 public class AuthKeyWebUIConfiguration {
     static final String WEB_UI_BEANS =
             "authKeyPanelInfo|authKeyRESTRoleServicePanelInfo|authKeyWebServiceBodyResponseUserGroupServicePanelInfo";
-
-    static final String INCLUDE = "jar:gs-authkey-.*!/applicationContext.xml#name=^(" + WEB_UI_BEANS + ").*$";
 }
