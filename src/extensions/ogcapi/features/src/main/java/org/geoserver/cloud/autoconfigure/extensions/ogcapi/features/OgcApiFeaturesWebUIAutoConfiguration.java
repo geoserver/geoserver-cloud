@@ -6,25 +6,25 @@ package org.geoserver.cloud.autoconfigure.extensions.ogcapi.features;
 
 import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import org.geoserver.cloud.autoconfigure.extensions.ConditionalOnGeoServerWFS;
-import org.geoserver.cloud.config.factory.ImportFilteredResource;
-import org.geoserver.configuration.extension.ogcapi.core.OgcApiCoreConfiguration;
+import org.geoserver.cloud.autoconfigure.extensions.ConditionalOnGeoServerWebUI;
+import org.geoserver.configuration.extension.ogcapi.features.OgcApiFeaturesWebUIConfiguration;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 /**
- * Configuration class for OGC API Features, conditional on WFS service.
+ * @see OgcApiFeaturesWebUIConfiguration
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @ConditionalOnOgcApiFeatures
-@ConditionalOnGeoServerWFS
-@Import(OgcApiCoreConfiguration.class)
-@ImportFilteredResource("jar:gs-ogcapi-features-.*!/applicationContext.xml")
+@ConditionalOnGeoServerWebUI
+@EnableConfigurationProperties(OgcApiFeatureConfigProperties.class)
+@Import(OgcApiFeaturesWebUIConfiguration.class)
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.extensions.ogcapi.features")
-class OgcApiFeaturesConfiguration {
+class OgcApiFeaturesWebUIAutoConfiguration {
 
     @PostConstruct
     void log() {
-        log.info("OGC API Features extension enabled");
+        log.info("OGC API Features WEBUI extension enabled");
     }
 }

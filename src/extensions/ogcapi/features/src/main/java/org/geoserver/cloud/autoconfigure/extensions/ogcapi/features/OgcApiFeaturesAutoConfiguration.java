@@ -4,6 +4,10 @@
  */
 package org.geoserver.cloud.autoconfigure.extensions.ogcapi.features;
 
+import javax.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
+import org.geoserver.cloud.autoconfigure.extensions.ConditionalOnGeoServerWFS;
+import org.geoserver.configuration.extension.ogcapi.features.OgcApiFeaturesConfiguration;
 import org.geoserver.platform.ModuleStatus;
 import org.geoserver.platform.ModuleStatusImpl;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -17,17 +21,22 @@ import org.springframework.context.annotation.Import;
  * This auto-configuration class is designed to set up the OGC API Features
  * extension in GeoServer Cloud. It consists of:
  * <ul>
- * <li>Core configuration class that imports the core
- * applicationContext.xml</li>
- * <li>REST configuration class that imports the features
- * applicationContext.xml</li>
+ * <li>Core configuration class that imports the core applicationContext.xml</li>
+ * <li>REST configuration class that imports the features applicationContext.xml</li>
  * </ul>
  */
 @AutoConfiguration
-@EnableConfigurationProperties(OgcApiFeatureConfigProperties.class)
 @ConditionalOnOgcApiFeatures
-@Import({OgcApiFeaturesConfiguration.class, OgcApiFeaturesWebUIConfiguration.class})
+@ConditionalOnGeoServerWFS
+@EnableConfigurationProperties(OgcApiFeatureConfigProperties.class)
+@Import(OgcApiFeaturesConfiguration.class)
+@Slf4j(topic = "org.geoserver.cloud.autoconfigure.extensions.ogcapi.features")
 public class OgcApiFeaturesAutoConfiguration {
+
+    @PostConstruct
+    void log() {
+        log.info("OGC API Features extension enabled");
+    }
 
     /**
      * Creates a ModuleStatus bean for OGC API Features.

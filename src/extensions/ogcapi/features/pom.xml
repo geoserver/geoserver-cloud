@@ -11,6 +11,10 @@
   <description>GeoServer OGC API Features extension</description>
   <dependencies>
     <dependency>
+      <groupId>org.geoserver.cloud</groupId>
+      <artifactId>gs-spring-configuration</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.geoserver.cloud.extensions</groupId>
       <artifactId>gs-cloud-extensions-core</artifactId>
     </dependency>
