@@ -74,6 +74,11 @@
       <optional>true</optional>
     </dependency>
     <dependency>
+      <groupId>org.geoserver.extension</groupId>
+      <artifactId>gs-dxf-wps</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
       <groupId>org.geoserver</groupId>
       <artifactId>gs-wfs</artifactId>
       <optional>true</optional>
@@ -91,6 +96,51 @@
     <dependency>
       <groupId>org.geoserver.web</groupId>
       <artifactId>gs-web-core</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.web</groupId>
+      <artifactId>gs-web-demo</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.web</groupId>
+      <artifactId>gs-web-gwc</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.web</groupId>
+      <artifactId>gs-web-rest</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.web</groupId>
+      <artifactId>gs-web-wcs</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.web</groupId>
+      <artifactId>gs-web-wfs</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.web</groupId>
+      <artifactId>gs-web-wms</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.web</groupId>
+      <artifactId>gs-web-sec-core</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.web</groupId>
+      <artifactId>gs-web-sec-ldap</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.web</groupId>
+      <artifactId>gs-web-sec-jdbc</artifactId>
       <optional>true</optional>
     </dependency>
     <dependency>
@@ -129,23 +179,8 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>org.geoserver.web</groupId>
-      <artifactId>gs-web-sec-jdbc</artifactId>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
       <groupId>org.geoserver.security</groupId>
       <artifactId>gs-sec-ldap</artifactId>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.geoserver.web</groupId>
-      <artifactId>gs-web-sec-ldap</artifactId>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.geoserver.web</groupId>
-      <artifactId>gs-web-sec-core</artifactId>
       <optional>true</optional>
     </dependency>
     <dependency>
@@ -272,6 +307,51 @@
               <version>${gs.version}</version>
             </path>
             <path>
+              <groupId>org.geoserver.web</groupId>
+              <artifactId>gs-web-rest</artifactId>
+              <version>${gs.version}</version>
+            </path>
+            <path>
+              <groupId>org.geoserver.web</groupId>
+              <artifactId>gs-web-demo</artifactId>
+              <version>${gs.version}</version>
+            </path>
+            <path>
+              <groupId>org.geoserver.web</groupId>
+              <artifactId>gs-web-gwc</artifactId>
+              <version>${gs.version}</version>
+            </path>
+            <path>
+              <groupId>org.geoserver.web</groupId>
+              <artifactId>gs-web-wcs</artifactId>
+              <version>${gs.version}</version>
+            </path>
+            <path>
+              <groupId>org.geoserver.web</groupId>
+              <artifactId>gs-web-wfs</artifactId>
+              <version>${gs.version}</version>
+            </path>
+            <path>
+              <groupId>org.geoserver.web</groupId>
+              <artifactId>gs-web-wms</artifactId>
+              <version>${gs.version}</version>
+            </path>
+            <path>
+              <groupId>org.geoserver.web</groupId>
+              <artifactId>gs-web-sec-core</artifactId>
+              <version>${gs.version}</version>
+            </path>
+            <path>
+              <groupId>org.geoserver.web</groupId>
+              <artifactId>gs-web-sec-jdbc</artifactId>
+              <version>${gs.version}</version>
+            </path>
+            <path>
+              <groupId>org.geoserver.web</groupId>
+              <artifactId>gs-web-sec-ldap</artifactId>
+              <version>${gs.version}</version>
+            </path>
+            <path>
               <groupId>org.geoserver</groupId>
               <artifactId>gs-wms</artifactId>
               <version>${gs.version}</version>
@@ -312,11 +392,6 @@
               <version>${gs.version}</version>
             </path>
             <path>
-              <groupId>org.geoserver.web</groupId>
-              <artifactId>gs-web-sec-core</artifactId>
-              <version>${gs.version}</version>
-            </path>
-            <path>
               <groupId>org.geoserver.community</groupId>
               <artifactId>gs-sec-oauth2-geonode</artifactId>
               <version>${gs.version}</version>
@@ -327,18 +402,8 @@
               <version>${gs.version}</version>
             </path>
             <path>
-              <groupId>org.geoserver.web</groupId>
-              <artifactId>gs-web-sec-jdbc</artifactId>
-              <version>${gs.version}</version>
-            </path>
-            <path>
               <groupId>org.geoserver.security</groupId>
               <artifactId>gs-sec-ldap</artifactId>
-              <version>${gs.version}</version>
-            </path>
-            <path>
-              <groupId>org.geoserver.web</groupId>
-              <artifactId>gs-web-sec-ldap</artifactId>
               <version>${gs.version}</version>
             </path>
             <path>
@@ -354,6 +419,11 @@
             <path>
               <groupId>org.geoserver.extension</groupId>
               <artifactId>gs-dxf-core</artifactId>
+              <version>${gs.version}</version>
+            </path>
+            <path>
+              <groupId>org.geoserver.extension</groupId>
+              <artifactId>gs-dxf-wps</artifactId>
               <version>${gs.version}</version>
             </path>
             <path>

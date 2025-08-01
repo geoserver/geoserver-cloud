@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+org.geoserver.cloud.autoconfigure.extensions.dxf.DxfAutoConfiguration,\
+org.geoserver.cloud.autoconfigure.extensions.dxf.DxfWPSAutoConfiguration

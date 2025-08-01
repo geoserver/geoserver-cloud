@@ -7,17 +7,20 @@ package org.geoserver.cloud.wps;
 
 import org.geoserver.catalog.Catalog;
 import org.geoserver.cloud.virtualservice.VirtualServiceVerifier;
-import org.geoserver.configuration.extension.wps.WPSConfiguration;
+import org.geoserver.configuration.core.wcs.WCSConfiguration;
+import org.geoserver.configuration.core.wfs.WFSCoreConfiguration;
+import org.geoserver.configuration.extension.dxf.DxfWpsConfiguration;
+import org.geoserver.configuration.extension.wps.WPSCoreConfiguration;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 /**
- * @see WPSConfiguration
+ * @see WPSCoreConfiguration
  */
 @Configuration
-@Import(WPSConfiguration.class)
+@Import({WPSCoreConfiguration.class, DxfWpsConfiguration.class, WCSConfiguration.class, WFSCoreConfiguration.class})
 public class WpsApplicationConfiguration {
 
     @Bean

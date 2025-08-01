@@ -22,6 +22,9 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 class GeoServerBackendCacheConfigurationTest {
 
     private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+            // must specify type=caffeine, or we get an EhCacheCacheManager due to ehcache being on the classpath
+            // transitive from gt-geotiff -> imageio-ext-cog-streams
+            .withPropertyValues("spring.cache.type: caffeine")
             .withAllowBeanDefinitionOverriding(true)
             .withBean("rawCatalog", CatalogPlugin.class)
             .withBean("geoServer", GeoServerImpl.class)
