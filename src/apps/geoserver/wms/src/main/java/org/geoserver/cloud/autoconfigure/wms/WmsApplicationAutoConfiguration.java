@@ -11,7 +11,7 @@ import org.geoserver.cloud.virtualservice.VirtualServiceVerifier;
 import org.geoserver.cloud.wms.controller.GetMapReflectorController;
 import org.geoserver.cloud.wms.controller.WMSController;
 import org.geoserver.config.GeoServer;
-import org.geoserver.configuration.core.wms.WmsConfiguration;
+import org.geoserver.configuration.core.wms.WMSCoreConfiguration;
 import org.geoserver.configuration.core.wms.WmsWfsDependenciesConfiguration;
 import org.geoserver.ows.Dispatcher;
 import org.geoserver.wfs.xml.FeatureTypeSchemaBuilder;
@@ -24,14 +24,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 
 /**
- * @see WmsConfiguration
+ * @see WMSCoreConfiguration
  * @see WmsWfsDependenciesConfiguration
  */
 // auto-configure before GWC's wms-integration to avoid it precluding to load beans from
 // jar:gs-wms-.*
 @AutoConfiguration(before = WMSIntegrationAutoConfiguration.class)
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
-@Import({WmsConfiguration.class, WmsWfsDependenciesConfiguration.class})
+@Import({WMSCoreConfiguration.class, WmsWfsDependenciesConfiguration.class})
 public class WmsApplicationAutoConfiguration {
 
     @Bean
