@@ -5,7 +5,7 @@
 
 package org.geoserver.cloud.autoconfigure.extensions.security.ldap;
 
-import org.geoserver.configuration.core.security.ldap.LDAPSecurityWebUIConfiguration;
+import org.geoserver.configuration.core.web.sec.WebSecLdapConfiguration;
 import org.geoserver.security.web.auth.AuthenticationFilterPanelInfo;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -25,11 +25,11 @@ import org.springframework.context.annotation.Import;
  * for configuration through the GeoServer web admin interface.
  *
  * @since 2.27.0.0
- * @see LDAPSecurityWebUIConfiguration
+ * @see WebSecLdapConfiguration
  */
 @AutoConfiguration
 @ConditionalOnLDAP
 @ConditionalOnClass(AuthenticationFilterPanelInfo.class)
 @EnableConfigurationProperties(LDAPConfigProperties.class)
-@Import(LDAPSecurityWebUIConfiguration.class)
+@Import(WebSecLdapConfiguration.class)
 public class LDAPSecurityWebUIAutoConfiguration {}
