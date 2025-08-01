@@ -7,17 +7,17 @@ package org.geoserver.cloud.wcs;
 
 import org.geoserver.catalog.Catalog;
 import org.geoserver.cloud.virtualservice.VirtualServiceVerifier;
-import org.geoserver.configuration.core.wcs.WcsConfiguration;
+import org.geoserver.configuration.core.wcs.WCSConfiguration;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 /**
- * @see WcsConfiguration
+ * @see WCSConfiguration
  */
 @Configuration
-@Import(WcsConfiguration.class)
+@Import(WCSConfiguration.class)
 public class WcsApplicationConfiguration {
 
     @Bean

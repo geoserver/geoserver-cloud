@@ -1,5 +1,22 @@
-spring.main.banner-mode: off
-
+spring:
+  main.banner-mode: off
+  # cache implementation to use if `geoserver.backend.caching.enabled: true`
+  # must specify type=caffeine, or we get an EhCacheCacheManager due to ehcache being on the classpath transitive from gt-geotiff -> imageio-ext-cog-streams
+  cache:
+    type: caffeine
+    caffeine:
+      #CaffeineSpec supports parsing configuration off of a string
+      #The string syntax is a series of comma-separated keys or key-value pairs, each corresponding to a Caffeine builder method.
+      #
+      #initialCapacity=[integer]
+      #maximumSize=[long]
+      #maximumWeight=[long]
+      #expireAfterAccess=[duration]
+      #expireAfterWrite=[duration]
+      #refreshAfterWrite=[duration]
+      #softValues: sets Caffeine.softValues.
+      #recordStats: sets Caffeine.recordStats.
+      spec: softValues,initialCapacity=10000,maximumSize=10000,recordStats
 logging:
   level:
     root: WARN
