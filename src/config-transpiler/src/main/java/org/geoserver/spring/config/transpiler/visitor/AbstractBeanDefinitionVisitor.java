@@ -21,6 +21,7 @@ import org.springframework.beans.factory.config.TypedStringValue;
 import org.springframework.beans.factory.support.ManagedMap;
 import org.springframework.beans.factory.support.ManagedProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.util.StringUtils;
 
 /**
  * Abstract base class for bean definition visitors that provides common
@@ -122,6 +123,11 @@ public abstract class AbstractBeanDefinitionVisitor implements BeanDefinitionVis
             String propertyName,
             String rawValue,
             String beanClassName) {
+
+        if (!StringUtils.hasLength(rawValue)) {
+            methodBuilder.addComment("Property %s has empty value, no setter call generated".formatted(propertyName));
+            return;
+        }
 
         // Determine the property type using BeanWrapper introspection (fail fast if not
         // found)
@@ -852,8 +858,6 @@ public abstract class AbstractBeanDefinitionVisitor implements BeanDefinitionVis
                 methodBuilder.addStatement("bean.$L($L)", setterName, propertyName + "Map");
             } else if (value instanceof org.springframework.beans.factory.support.ManagedList<?> managedList) {
                 // Handle ManagedList (like <list> with bean references for method arguments)
-                methodBuilder.addComment("// Property '" + propertyName + "' uses ManagedList");
-
                 // Check if the setter method expects varargs
                 if (isVarargsSetterMethod(setterName, beanClassName)) {
                     // Generate varargs call: bean.setInterceptors(item1, item2, ...)
