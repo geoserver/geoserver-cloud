@@ -25,6 +25,7 @@ import org.springframework.beans.factory.config.TypedStringValue;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
+import org.springframework.util.StringUtils;
 
 /**
  * Visitor for generating {@code @Bean} methods for beans with constructor arguments.
@@ -416,7 +417,12 @@ public class ConstructorBasedBeanVisitor extends AbstractBeanDefinitionVisitor {
                                 || expectedType.getName().equals("java.lang.Class"))) {
                     // Constructor expects a Class parameter - convert string to Class literal
                     // Convert $ notation to . notation for nested classes (e.g., Outer$Inner -> Outer.Inner)
-                    String classLiteral = rawValue.replace('$', '.') + ".class";
+                    String classLiteral;
+                    if (StringUtils.hasLength(rawValue)) {
+                        classLiteral = rawValue.replace('$', '.') + ".class";
+                    } else {
+                        classLiteral = "null";
+                    }
                     return new ConstructorParameter(
                             index, classLiteral, ClassName.get(Class.class), ParameterType.CLASS_LITERAL);
                 } else if (expectedType != null && isNumericType(expectedType)) {
