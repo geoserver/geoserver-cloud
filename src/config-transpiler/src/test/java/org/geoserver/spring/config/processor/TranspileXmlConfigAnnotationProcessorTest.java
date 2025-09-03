@@ -17,8 +17,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 /**
- * Tests for XmlConfigTranspileProcessor annotation processing capabilities.
- *
+ * Tests for {@link TranspileXmlConfigAnnotationProcessor} annotation processing capabilities.
+ *<p>
  * Focuses on testing the processor's ability to handle different annotation
  * configurations: - JAR and classpath URL patterns - Include/exclude filtering
  * - Target package and class naming - Public access control - Multiple
@@ -27,13 +27,13 @@ import org.junit.jupiter.api.io.TempDir;
  * Uses simple bean definitions from GeoServer's main applicationContext.xml for
  * realistic testing.
  */
-class XmlConfigTranspileProcessorTest {
+class TranspileXmlConfigAnnotationProcessorTest {
 
     @TempDir
     Path tempDir;
 
     private Compiler compilerWithProcessor() {
-        return Compiler.javac().withProcessors(new XmlConfigTranspileProcessor());
+        return Compiler.javac().withProcessors(new TranspileXmlConfigAnnotationProcessor());
     }
 
     private Compilation assertCompiles(String sourceCode) {
