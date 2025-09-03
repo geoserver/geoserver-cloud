@@ -10,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnGeoWebCacheEnabled;
 import org.geoserver.cloud.autoconfigure.gwc.core.CacheSeedingWebMapServiceAutoConfiguration.MinimalWebMapServiceAutoConfiguration;
 import org.geoserver.cloud.gwc.config.core.WebMapServiceCacheSeedingConfiguration;
-import org.geoserver.cloud.gwc.config.core.WebMapServiceMinimalConfiguration;
+import org.geoserver.configuration.core.wms.WMSCoreMinimalConfiguration;
 import org.geoserver.gwc.layer.GeoServerTileLayer;
 import org.geoserver.wms.DefaultWebMapService;
 import org.geoserver.wms.WebMapService;
@@ -25,20 +25,26 @@ import org.springframework.context.annotation.Import;
  * and the GeoWebCache-specific decorator exist, as expected by {@link GeoServerTileLayer#seedTile}.
  *
  * @since 1.0
+ * @see WMSCoreMinimalConfiguration
+ * @see WebMapServiceCacheSeedingConfiguration
  */
 @AutoConfiguration
-@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 @ConditionalOnGeoWebCacheEnabled
 @Import({MinimalWebMapServiceAutoConfiguration.class, WebMapServiceCacheSeedingConfiguration.class})
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.gwc.integration")
+@SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 public class CacheSeedingWebMapServiceAutoConfiguration {
 
     public @PostConstruct void log() {
         log.info("GeoWebCache WMS decorator for seeding enabled");
     }
 
+    /**
+     * Conditional configuration to include a {@link WMSCoreMinimalConfiguration minimal WMS service}
+     * for GeoWebcache if there's no {@link DefaultWebMapService} already in the application context.
+     */
     @Configuration
     @ConditionalOnMissingBean(DefaultWebMapService.class)
-    @Import(WebMapServiceMinimalConfiguration.class)
+    @Import(WMSCoreMinimalConfiguration.class)
     static class MinimalWebMapServiceAutoConfiguration {}
 }
