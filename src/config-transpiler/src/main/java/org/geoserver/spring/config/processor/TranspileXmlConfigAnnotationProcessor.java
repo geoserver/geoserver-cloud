@@ -44,7 +44,7 @@ import org.geoserver.spring.config.transpiler.XmlToJavaTranspiler;
     "org.geoserver.spring.config.annotations.TranspileXmlConfig.List"
 })
 @SupportedSourceVersion(SourceVersion.RELEASE_17)
-public class XmlConfigTranspileProcessor extends AbstractProcessor {
+public class TranspileXmlConfigAnnotationProcessor extends AbstractProcessor {
 
     private XmlToJavaTranspiler transpiler;
     private Messager messager;

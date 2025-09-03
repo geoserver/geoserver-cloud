@@ -70,7 +70,7 @@ import org.junit.jupiter.api.io.TempDir;
  *
  * <p><strong>Note:</strong> While these tests use fully qualified names for precise AST validation,
  * the actual generated {@code @Configuration} classes include proper import statements and use
- * simple class names for better readability. See {@link XmlConfigTranspileProcessorTest} for
+ * simple class names for better readability. See {@link TranspileXmlConfigAnnotationProcessorTest} for
  * end-to-end integration tests that validate the complete generated class structure with imports.
  *
  * <h3>Test Categories</h3>
@@ -93,7 +93,7 @@ import org.junit.jupiter.api.io.TempDir;
  * @see BeanVisitorTestUtils#generateBeanMethodFromXml(String, String)
  * @since 2.28.0
  */
-class XmlConfigTranspileProcessorMethodGenerationTest {
+class TranspileXmlConfigAnnotationProcessorMethodGenerationTest {
 
     @TempDir
     Path tempDir;
@@ -2131,7 +2131,7 @@ class XmlConfigTranspileProcessorMethodGenerationTest {
                     .toList();
 
             if (!compilationSuccess) {
-                Logger.getLogger(XmlConfigTranspileProcessorMethodGenerationTest.class.getName())
+                Logger.getLogger(TranspileXmlConfigAnnotationProcessorMethodGenerationTest.class.getName())
                         .warning("compilation failed, errors will be returned: " + errors);
             }
             return errors;
