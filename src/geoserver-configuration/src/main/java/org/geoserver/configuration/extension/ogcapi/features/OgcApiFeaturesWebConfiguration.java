@@ -4,23 +4,26 @@
  */
 package org.geoserver.configuration.extension.ogcapi.features;
 
-import org.geoserver.cloud.config.factory.ImportFilteredResource;
 import org.geoserver.configuration.extension.ogcapi.core.OgcApiCoreConfiguration;
 import org.geoserver.configuration.extension.ogcapi.core.OgcApiCoreWebConfiguration;
+import org.geoserver.spring.config.annotations.TranspileXmlConfig;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 /**
  * @see OgcApiCoreConfiguration
  * @see OgcApiCoreWebConfiguration
+ * @see OgcApiFeaturesConfiguration
+ * @see OgcApiFeaturesWebConfiguration_Generated
  */
 @Configuration(proxyBeanMethods = false)
+@TranspileXmlConfig(locations = "jar:gs-web-features-.*!/applicationContext.xml")
 @Import({
     // OgcApiFeaturesConfiguration must be present to provide `APIServiceFactoryBean featuresServiceFactory()`
     // or it won't show up in the home page
-    OgcApiFeaturesConfiguration.class,
     OgcApiCoreConfiguration.class,
-    OgcApiCoreWebConfiguration.class
+    OgcApiCoreWebConfiguration.class,
+    OgcApiFeaturesConfiguration.class,
+    OgcApiFeaturesWebConfiguration_Generated.class
 })
-@ImportFilteredResource("jar:gs-web-features-.*!/applicationContext.xml")
-public class OgcApiFeaturesWebUIConfiguration {}
+public class OgcApiFeaturesWebConfiguration {}

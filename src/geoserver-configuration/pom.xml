@@ -165,6 +165,11 @@
     </dependency>
     <dependency>
       <groupId>org.geoserver.extension</groupId>
+      <artifactId>gs-web-features</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.extension</groupId>
       <artifactId>gs-web-resource</artifactId>
       <optional>true</optional>
     </dependency>
@@ -479,6 +484,11 @@
             <path>
               <groupId>org.geoserver.extension</groupId>
               <artifactId>gs-ogcapi-features</artifactId>
+              <version>${gs.version}</version>
+            </path>
+            <path>
+              <groupId>org.geoserver.extension</groupId>
+              <artifactId>gs-web-features</artifactId>
               <version>${gs.version}</version>
             </path>
             <path>

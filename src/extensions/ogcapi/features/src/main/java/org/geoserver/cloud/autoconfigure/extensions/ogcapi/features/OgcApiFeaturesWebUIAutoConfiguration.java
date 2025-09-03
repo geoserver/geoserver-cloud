@@ -8,7 +8,7 @@ import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.geoserver.cloud.autoconfigure.extensions.ConditionalOnGeoServerWebUI;
 import org.geoserver.configuration.extension.ogcapi.core.OgcApiCoreConfiguration;
-import org.geoserver.configuration.extension.ogcapi.features.OgcApiFeaturesWebUIConfiguration;
+import org.geoserver.configuration.extension.ogcapi.features.OgcApiFeaturesWebConfiguration;
 import org.geoserver.ogcapi.APIDispatcher;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -21,13 +21,13 @@ import org.springframework.format.support.FormattingConversionService;
 import org.springframework.validation.Validator;
 
 /**
- * @see OgcApiFeaturesWebUIConfiguration
+ * @see OgcApiFeaturesWebConfiguration
  */
 @AutoConfiguration
 @ConditionalOnOgcApiFeatures
 @ConditionalOnGeoServerWebUI
 @EnableConfigurationProperties(OgcApiFeatureConfigProperties.class)
-@Import(OgcApiFeaturesWebUIConfiguration.class)
+@Import(OgcApiFeaturesWebConfiguration.class)
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.extensions.ogcapi.features")
 class OgcApiFeaturesWebUIAutoConfiguration {
 
