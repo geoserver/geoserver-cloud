@@ -5,11 +5,12 @@
 package org.geoserver.cloud.autoconfigure.extensions.inspire.webui;
 
 import org.geoserver.configuration.extension.inspire.InspireConfigurationWebUI;
+import org.geoserver.configuration.extension.inspire.InspireCoreConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Import;
 
 @AutoConfiguration
 @ConditionalOnInspireWebUI
-@Import(InspireConfigurationWebUI.class)
+@Import({InspireCoreConfiguration.class, InspireConfigurationWebUI.class})
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 public class InspireAutoConfigurationWebUI {}
