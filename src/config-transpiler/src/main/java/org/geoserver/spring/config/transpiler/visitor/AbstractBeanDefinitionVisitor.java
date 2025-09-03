@@ -39,6 +39,51 @@ import org.springframework.util.StringUtils;
 public abstract class AbstractBeanDefinitionVisitor implements BeanDefinitionVisitor {
 
     /**
+     * Convert a class name from Spring XML format to the format expected by Class.forName().
+     * For inner classes, Spring XML uses dot notation (e.g., "Outer.Inner") but Class.forName()
+     * expects dollar notation (e.g., "Outer$Inner").
+     */
+    protected String convertToRuntimeClassName(String beanClassName) {
+        if (beanClassName == null) {
+            return null;
+        }
+
+        // Convert any inner class dot notation to dollar notation
+        // This handles cases like "org.geoserver.wps.ppio.GeoJSONPPIO.Geometries"
+        // to "org.geoserver.wps.ppio.GeoJSONPPIO$Geometries"
+        String[] parts = beanClassName.split("\\.");
+        if (parts.length < 2) {
+            return beanClassName; // No package or simple class name
+        }
+
+        // Try to detect if this might be an inner class by checking if any part
+        // after the first uppercase letter could be a class name
+        StringBuilder runtimeClassName = new StringBuilder();
+        boolean foundFirstClass = false;
+
+        for (int i = 0; i < parts.length; i++) {
+            if (i > 0) {
+                String part = parts[i];
+                // If we've found a class-like name and this part starts with uppercase,
+                // it's likely an inner class
+                if (foundFirstClass && Character.isUpperCase(part.charAt(0))) {
+                    runtimeClassName.append("$");
+                } else {
+                    runtimeClassName.append(".");
+                }
+            }
+            runtimeClassName.append(parts[i]);
+
+            // Mark that we've found a class-like name (starts with uppercase)
+            if (!foundFirstClass && Character.isUpperCase(parts[i].charAt(0))) {
+                foundFirstClass = true;
+            }
+        }
+
+        return runtimeClassName.toString();
+    }
+
+    /**
      * Create {@code @Bean} annotation with proper name handling for all bean names
      * (original + aliases). This logic handles both single names and multiple names
      * correctly.
@@ -203,7 +248,7 @@ public abstract class AbstractBeanDefinitionVisitor implements BeanDefinitionVis
 
         try {
             // Load the bean class
-            Class<?> beanClass = Class.forName(beanClassName);
+            Class<?> beanClass = Class.forName(convertToRuntimeClassName(beanClassName));
 
             // Use Java Beans Introspector to analyze properties without instantiation
             BeanInfo beanInfo = Introspector.getBeanInfo(beanClass);
@@ -453,7 +498,7 @@ public abstract class AbstractBeanDefinitionVisitor implements BeanDefinitionVis
         }
 
         try {
-            Class<?> beanClass = Class.forName(beanClassName);
+            Class<?> beanClass = Class.forName(convertToRuntimeClassName(beanClassName));
 
             if (constructorArgs == null || constructorArgs.isEmpty()) {
                 // Handle implicit constructor autowiring
@@ -532,7 +577,7 @@ public abstract class AbstractBeanDefinitionVisitor implements BeanDefinitionVis
         }
 
         try {
-            Class<?> beanClass = Class.forName(beanClassName);
+            Class<?> beanClass = Class.forName(convertToRuntimeClassName(beanClassName));
             int argCount = constructorArgs.getArgumentCount();
             java.lang.reflect.Constructor<?>[] constructors = beanClass.getDeclaredConstructors();
 
@@ -616,7 +661,7 @@ public abstract class AbstractBeanDefinitionVisitor implements BeanDefinitionVis
         }
 
         try {
-            Class<?> beanClass = Class.forName(beanClassName);
+            Class<?> beanClass = Class.forName(convertToRuntimeClassName(beanClassName));
 
             // Try to get the no-argument constructor
             java.lang.reflect.Constructor<?> constructor = beanClass.getDeclaredConstructor();
@@ -913,7 +958,7 @@ public abstract class AbstractBeanDefinitionVisitor implements BeanDefinitionVis
         }
 
         try {
-            Class<?> beanClass = Class.forName(beanClassName);
+            Class<?> beanClass = Class.forName(convertToRuntimeClassName(beanClassName));
             java.lang.reflect.Method[] methods = beanClass.getMethods();
 
             for (java.lang.reflect.Method method : methods) {
@@ -1098,7 +1143,7 @@ public abstract class AbstractBeanDefinitionVisitor implements BeanDefinitionVis
         }
 
         try {
-            Class<?> beanClass = Class.forName(beanClassName);
+            Class<?> beanClass = Class.forName(convertToRuntimeClassName(beanClassName));
             java.lang.reflect.Method[] methods = beanClass.getMethods();
 
             for (java.lang.reflect.Method method : methods) {
@@ -1222,7 +1267,7 @@ public abstract class AbstractBeanDefinitionVisitor implements BeanDefinitionVis
         }
 
         try {
-            Class<?> beanClass = Class.forName(beanClassName);
+            Class<?> beanClass = Class.forName(convertToRuntimeClassName(beanClassName));
             java.lang.reflect.Constructor<?> constructor = findMatchingConstructor(beanClass, constructorArgs);
 
             if (constructor != null) {
