@@ -5,8 +5,9 @@
 
 package org.geoserver.configuration.extension.resourcebrowser;
 
-import org.geoserver.cloud.config.factory.ImportFilteredResource;
+import org.geoserver.spring.config.annotations.TranspileXmlConfig;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 /**
  * Configuration to enable the <a href=
@@ -16,5 +17,6 @@ import org.springframework.context.annotation.Configuration;
  * @see WebToolsAutoConfiguration
  */
 @Configuration(proxyBeanMethods = false)
-@ImportFilteredResource("jar:gs-web-resource-.*!/applicationContext.xml")
+@TranspileXmlConfig(locations = "jar:gs-web-resource-.*!/applicationContext.xml")
+@Import(WebToolsResourceBrowserConfiguration_Generated.class)
 public class WebToolsResourceBrowserConfiguration {}
