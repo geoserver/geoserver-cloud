@@ -7,11 +7,11 @@ package org.geoserver.cloud.autoconfigure.web.tools;
 
 import lombok.Getter;
 import org.geoserver.cloud.autoconfigure.web.core.AbstractWebUIAutoConfiguration;
-import org.geoserver.cloud.autoconfigure.web.tools.WebToolsAutoConfiguration.CatalogBulkLoadToolConfiguration;
-import org.geoserver.cloud.autoconfigure.web.tools.WebToolsAutoConfiguration.ReprojectionConsoleConfiguration;
+import org.geoserver.cloud.autoconfigure.web.tools.WebToolsAutoConfiguration.CatalogBulkLoadToolAutoConfiguration;
+import org.geoserver.cloud.autoconfigure.web.tools.WebToolsAutoConfiguration.ReprojectionConsoleAutoConfiguration;
 import org.geoserver.cloud.autoconfigure.web.tools.WebToolsAutoConfiguration.ResourceBrowserConfiguration;
-import org.geoserver.configuration.core.web.tools.WebToolsCatalogBulkLoadToolConfiguration;
-import org.geoserver.configuration.core.web.tools.WebToolsReprojectionConsoleConfiguration;
+import org.geoserver.configuration.core.web.tools.CatalogBulkLoadToolConfiguration;
+import org.geoserver.configuration.core.web.tools.ReprojectionConsoleConfiguration;
 import org.geoserver.configuration.extension.resourcebrowser.WebToolsResourceBrowserConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -22,8 +22,8 @@ import org.springframework.context.annotation.Import;
 @ConditionalOnProperty(name = "geoserver.web-ui.tools.enabled", havingValue = "true", matchIfMissing = true)
 @Import({
     ResourceBrowserConfiguration.class,
-    CatalogBulkLoadToolConfiguration.class,
-    ReprojectionConsoleConfiguration.class
+    CatalogBulkLoadToolAutoConfiguration.class,
+    ReprojectionConsoleAutoConfiguration.class
 })
 public class WebToolsAutoConfiguration {
 
@@ -47,7 +47,7 @@ public class WebToolsAutoConfiguration {
     }
 
     /**
-     * @see WebToolsReprojectionConsoleConfiguration
+     * @see ReprojectionConsoleConfiguration
      */
     @Configuration(proxyBeanMethods = false)
     @ConditionalOnClass(name = "org.geoserver.web.catalogstresstool.CatalogStressTester")
@@ -55,14 +55,14 @@ public class WebToolsAutoConfiguration {
             name = "geoserver.web-ui.tools.reprojection-console",
             havingValue = "true",
             matchIfMissing = true)
-    @Import(WebToolsReprojectionConsoleConfiguration.class)
-    static class ReprojectionConsoleConfiguration extends AbstractWebUIAutoConfiguration {
+    @Import(ReprojectionConsoleConfiguration.class)
+    static class ReprojectionConsoleAutoConfiguration extends AbstractWebUIAutoConfiguration {
         @Getter
         private final String configPrefix = "geoserver.web-ui.tools.reprojection-console";
     }
 
     /**
-     * @see WebToolsCatalogBulkLoadToolConfiguration
+     * @see CatalogBulkLoadToolAutoConfiguration
      */
     @Configuration(proxyBeanMethods = false)
     @ConditionalOnClass(name = "org.geoserver.web.catalogstresstool.CatalogStressTester")
@@ -70,8 +70,8 @@ public class WebToolsAutoConfiguration {
             name = "geoserver.web-ui.tools.catalog-bulk-load",
             havingValue = "true",
             matchIfMissing = true)
-    @Import(WebToolsCatalogBulkLoadToolConfiguration.class)
-    static class CatalogBulkLoadToolConfiguration extends AbstractWebUIAutoConfiguration {
+    @Import(CatalogBulkLoadToolConfiguration.class)
+    static class CatalogBulkLoadToolAutoConfiguration extends AbstractWebUIAutoConfiguration {
         @Getter
         private final String configPrefix = "geoserver.web-ui.tools.catalog-bulk-load";
     }
