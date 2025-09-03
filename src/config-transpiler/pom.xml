@@ -76,6 +76,11 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.geoserver.extension</groupId>
+      <artifactId>gs-wps-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.geoserver.community</groupId>
       <artifactId>gs-cog-core</artifactId>
       <scope>test</scope>

@@ -78,7 +78,7 @@ public class ConstructorBasedBeanVisitor extends AbstractBeanDefinitionVisitor {
      */
     private boolean requiresImplicitConstructorAutowiring(String beanClassName) {
         try {
-            Class<?> beanClass = Class.forName(beanClassName);
+            Class<?> beanClass = Class.forName(convertToRuntimeClassName(beanClassName));
 
             // First check for default constructor (any visibility)
             try {
@@ -251,7 +251,7 @@ public class ConstructorBasedBeanVisitor extends AbstractBeanDefinitionVisitor {
 
             try {
                 // Use runtime reflection to analyze constructor exceptions
-                Class<?> beanClass = Class.forName(beanClassName);
+                Class<?> beanClass = Class.forName(convertToRuntimeClassName(beanClassName));
 
                 // Determine the constructor we'll be using
                 java.lang.reflect.Constructor<?> targetConstructor = null;
@@ -531,7 +531,7 @@ public class ConstructorBasedBeanVisitor extends AbstractBeanDefinitionVisitor {
             }
 
             try {
-                Class<?> beanClass = Class.forName(beanClassName);
+                Class<?> beanClass = Class.forName(convertToRuntimeClassName(beanClassName));
                 ConstructorArgumentValues constructorArgs = beanDefinition.getConstructorArgumentValues();
 
                 if (constructorArgs.isEmpty()) {
@@ -701,7 +701,7 @@ public class ConstructorBasedBeanVisitor extends AbstractBeanDefinitionVisitor {
             List<ConstructorParameter> parameters = new ArrayList<>();
 
             try {
-                Class<?> beanClass = Class.forName(beanClassName);
+                Class<?> beanClass = Class.forName(convertToRuntimeClassName(beanClassName));
                 java.lang.reflect.Constructor<?> constructor = findConstructorForAutowiring(beanClass);
 
                 if (constructor == null) {
@@ -777,7 +777,7 @@ public class ConstructorBasedBeanVisitor extends AbstractBeanDefinitionVisitor {
          */
         private boolean requiresReflectionBasedInstantiation(List<ConstructorParameter> constructorParams) {
             try {
-                Class<?> beanClass = Class.forName(beanClassName);
+                Class<?> beanClass = Class.forName(convertToRuntimeClassName(beanClassName));
                 java.lang.reflect.Constructor<?> constructor;
 
                 // Check for implicit autowired parameters first
@@ -854,7 +854,7 @@ public class ConstructorBasedBeanVisitor extends AbstractBeanDefinitionVisitor {
             // Generate reflection-based instantiation
             methodBuilder.addStatement(
                     "java.lang.reflect.Constructor constructor = java.lang.Class.forName($S).getDeclaredConstructor($L)",
-                    beanClassName,
+                    convertToRuntimeClassName(beanClassName),
                     parameterTypes.toString());
             methodBuilder.addStatement("constructor.setAccessible(true)");
 

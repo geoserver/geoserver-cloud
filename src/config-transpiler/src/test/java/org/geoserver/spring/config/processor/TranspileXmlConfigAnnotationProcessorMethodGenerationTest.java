@@ -31,6 +31,7 @@ import javax.tools.JavaFileObject;
 import javax.tools.SimpleJavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
+import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerDataDirectory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -1528,6 +1529,34 @@ class TranspileXmlConfigAnnotationProcessorMethodGenerationTest {
     }
 
     @Test
+    void testProtectedConstructorAccessInnerClass() throws Exception {
+        final String xml =
+                """
+                <bean autowire="default" class="org.geoserver.wps.ppio.GeoJSONPPIO.Geometries" id="geoJsonGeometriesPPIO" lazy-init="default">
+                  <constructor-arg ref="geoServer"/>
+                </bean>
+                """;
+
+        Constructor<?> constructor =
+                Class.forName("org.geoserver.wps.ppio.GeoJSONPPIO$Geometries").getDeclaredConstructor(GeoServer.class);
+        assertThat(constructor.accessFlags()).contains(AccessFlag.PROTECTED);
+
+        final String expectedJavaCode =
+                """
+                @org.springframework.context.annotation.Bean
+                org.geoserver.wps.ppio.GeoJSONPPIO.Geometries geoJsonGeometriesPPIO(
+                    @org.springframework.beans.factory.annotation.Qualifier("geoServer") org.geoserver.config.GeoServer geoServer)
+                    throws java.lang.Exception {
+                  java.lang.reflect.Constructor constructor = java.lang.Class.forName("org.geoserver.wps.ppio.GeoJSONPPIO$Geometries").getDeclaredConstructor(org.geoserver.config.GeoServer.class);
+                  constructor.setAccessible(true);
+                  return (org.geoserver.wps.ppio.GeoJSONPPIO.Geometries) constructor.newInstance(geoServer);
+                }
+                """;
+
+        testBeanMethodGeneneration("geoJsonGeometriesPPIO", xml, expectedJavaCode);
+    }
+
+    @Test
     void testProtectedConstructorAccessWithImplicitConstructorAutowiring() throws Exception {
         Constructor<?> constructor = Class.forName("org.geoserver.security.impl.WorkspaceAdminRESTAccessRuleDAO")
                 .getDeclaredConstructor(GeoServerDataDirectory.class);
@@ -1803,6 +1832,11 @@ class TranspileXmlConfigAnnotationProcessorMethodGenerationTest {
             try {
                 String generatedClass = generateTestConfiguration("TestConfiguration", method);
                 errors = compileJavaCode("TestConfiguration.java", generatedClass);
+                if (!errors.isEmpty()) {
+                    Logger.getLogger(TranspileXmlConfigAnnotationProcessorMethodGenerationTest.class.getName())
+                            .severe("Generated code should compile without errors\n Method:\n " + method + "\n Errors: "
+                                    + errors);
+                }
                 assertTrue(errors.isEmpty(), "Generated code should compile without errors. Errors: " + errors);
             } catch (Exception e) {
                 fail("Failed to test compilation: " + errors, e);
