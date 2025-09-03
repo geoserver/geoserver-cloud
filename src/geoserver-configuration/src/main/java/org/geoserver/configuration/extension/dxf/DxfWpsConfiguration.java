@@ -5,11 +5,11 @@
 
 package org.geoserver.configuration.extension.dxf;
 
-import org.geoserver.cloud.config.factory.ImportFilteredResource;
+import org.geoserver.spring.config.annotations.TranspileXmlConfig;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 @Configuration(proxyBeanMethods = false)
-@ImportFilteredResource({"jar:gs-dxf-wps-.*!/applicationContext.xml#name=.*"})
-@Import(DxfConfiguration.class)
+@TranspileXmlConfig(locations = "jar:gs-dxf-wps-.*!/applicationContext.xml")
+@Import({DxfConfiguration.class, DxfWpsConfiguration_Generated.class})
 public class DxfWpsConfiguration {}

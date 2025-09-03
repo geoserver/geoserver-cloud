@@ -5,10 +5,21 @@
 
 package org.geoserver.configuration.core.web.wps;
 
-import org.geoserver.cloud.config.factory.ImportFilteredResource;
+import org.geoserver.configuration.core.web.demo.WCSRequestBuilderConfiguration;
+import org.geoserver.spring.config.annotations.TranspileXmlConfig;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
+/**
+ * Imports the transpiled configuration from {@code gs-web-wps}, except for the {@code wpsRequestBuilder}
+ * bean, which is transpiled to its own configuration class {@link WCSRequestBuilderConfiguration} to allow
+ * disabling it in {@code WebDemosAutoConfiguration}.
+ *
+ * @see WebWPSConfiguration_Generated
+ */
 @Configuration(proxyBeanMethods = false)
-// exclude wpsRequestBuilder, DemosAutoConfiguration takes care of it
-@ImportFilteredResource("jar:gs-web-wps-.*!/applicationContext.xml#name=^(?!wpsRequestBuilder).*$")
+@TranspileXmlConfig(
+        locations = "jar:gs-web-wps-.*!/applicationContext.xml",
+        excludes = {"wpsRequestBuilder"})
+@Import(WebWPSConfiguration_Generated.class)
 public class WebWPSConfiguration {}

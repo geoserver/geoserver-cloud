@@ -5,11 +5,12 @@
 package org.geoserver.cloud.autoconfigure.extensions.inspire.wcs;
 
 import org.geoserver.configuration.extension.inspire.InspireConfigurationWcs;
+import org.geoserver.configuration.extension.inspire.InspireCoreConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Import;
 
 @AutoConfiguration
-@Import(InspireConfigurationWcs.class)
+@Import({InspireCoreConfiguration.class, InspireConfigurationWcs.class})
 @ConditionalOnInspireWcs
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
 public class InspireAutoConfigurationWcs {}

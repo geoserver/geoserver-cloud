@@ -13,6 +13,8 @@ import org.springframework.context.annotation.Import;
  * Transpiled XML configuration from {@literal jar:gs-wfs-.*!/applicationContext.xml}
  * <p>
  * TODO: split into WFSCore/1_0/1_1/2_0Configuration
+ *
+ * @see WFSCoreConfiguration_Generated
  */
 @Configuration(proxyBeanMethods = false)
 @TranspileXmlConfig(locations = "jar:gs-wfs-.*!/applicationContext.xml", publicAccess = true)

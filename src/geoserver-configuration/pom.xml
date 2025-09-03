@@ -129,6 +129,11 @@
       <optional>true</optional>
     </dependency>
     <dependency>
+      <groupId>org.geoserver.extension</groupId>
+      <artifactId>gs-web-wps</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
       <groupId>org.geoserver.web</groupId>
       <artifactId>gs-web-sec-core</artifactId>
       <optional>true</optional>
@@ -334,6 +339,11 @@
             <path>
               <groupId>org.geoserver.web</groupId>
               <artifactId>gs-web-wms</artifactId>
+              <version>${gs.version}</version>
+            </path>
+            <path>
+              <groupId>org.geoserver.extension</groupId>
+              <artifactId>gs-web-wps</artifactId>
               <version>${gs.version}</version>
             </path>
             <path>
