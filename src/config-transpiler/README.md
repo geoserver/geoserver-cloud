@@ -560,7 +560,7 @@ This fail-fast approach ensures you know exactly what needs to be addressed befo
 
 ## Test Suite
 
-The transpiler includes a comprehensive test suite in `src/test/java/org/geoserver/spring/config/processor/XmlConfigTranspileProcessorMethodGenerationTest.java` that covers:
+The transpiler includes a comprehensive test suite in `src/test/java/org/geoserver/spring/config/processor/TranspileXmlConfigAnnotationProcessorMethodGenerationTest.java` that covers:
 
 - **51 passing tests** covering all supported Spring XML patterns
 - **Real GeoServer configurations** extracted from actual applicationContext.xml files  
