@@ -16,12 +16,10 @@ import org.geoserver.config.SettingsInfo;
 import org.geoserver.config.impl.ContactInfoImpl;
 import org.geoserver.config.impl.CoverageAccessInfoImpl;
 import org.geoserver.config.impl.GeoServerInfoImpl;
-import org.geoserver.config.impl.JAIEXTInfoImpl;
 import org.geoserver.config.impl.JAIInfoImpl;
 import org.geoserver.config.impl.LoggingInfoImpl;
 import org.geoserver.config.impl.SettingsInfoImpl;
 import org.geoserver.jackson.databind.config.dto.GeoServer;
-import org.geoserver.jackson.databind.config.dto.JaiDto.JAIEXTInfo;
 import org.geoserver.jackson.databind.config.dto.Logging;
 import org.geoserver.jackson.databind.config.dto.Settings;
 import org.geoserver.ows.util.OwsUtils;
@@ -59,10 +57,6 @@ public class ObjectFacotries {
 
     public @ObjectFactory JAIInfo jaiInfo() {
         return new JAIInfoImpl();
-    }
-
-    public @ObjectFactory org.geoserver.config.JAIEXTInfo jaiExtInfo(JAIEXTInfo source) {
-        return new JAIEXTInfoImpl();
     }
 
     public @ObjectFactory ContactInfo contactInfo() {

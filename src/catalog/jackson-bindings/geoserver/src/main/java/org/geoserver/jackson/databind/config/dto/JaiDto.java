@@ -5,23 +5,17 @@
 
 package org.geoserver.jackson.databind.config.dto;
 
-import java.util.Set;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import org.geoserver.config.JAIInfo;
 
 /** DTO for {@link JAIInfo} */
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 public class JaiDto {
     public enum PngEncoderType {
         JDK,
-        NATIVE,
         PNGJ
-    }
-
-    @Data
-    public static class JAIEXTInfo {
-        private Set<String> JAIOperations;
-        private Set<String> JAIEXTOperations;
     }
 
     private boolean allowInterpolation;
@@ -31,8 +25,4 @@ public class JaiDto {
     private double memoryCapacity;
     private double memoryThreshold;
     private PngEncoderType pngEncoderType;
-    private boolean jpegAcceleration;
-    private boolean allowNativeMosaic;
-    private boolean allowNativeWarp;
-    private JAIEXTInfo JAIEXTInfo;
 }
