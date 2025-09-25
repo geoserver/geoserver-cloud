@@ -62,8 +62,14 @@ class WebUIApplicationTest {
 
     @DynamicPropertySource
     static void setUpDataDir(DynamicPropertyRegistry registry) throws IOException {
-        datadir = Files.createDirectory(tmpdir.resolve("datadir"));
-        var gwcdir = Files.createDirectory(datadir.resolve("gwc"));
+        datadir = tmpdir.resolve("datadir");
+        Path gwcdir = datadir.resolve("gwc");
+        if (!Files.isDirectory(datadir)) {
+            datadir = Files.createDirectory(datadir);
+        }
+        if (!Files.isDirectory(gwcdir)) {
+            datadir = Files.createDirectory(gwcdir);
+        }
         registry.add("geoserver.backend.data-directory.location", datadir::toAbsolutePath);
         registry.add("gwc.cache-directory", gwcdir::toAbsolutePath);
     }
