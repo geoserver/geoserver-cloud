@@ -75,7 +75,6 @@ import org.geoserver.config.SettingsInfo;
 import org.geoserver.config.impl.ContactInfoImpl;
 import org.geoserver.config.impl.CoverageAccessInfoImpl;
 import org.geoserver.config.impl.GeoServerInfoImpl;
-import org.geoserver.config.impl.JAIEXTInfoImpl;
 import org.geoserver.config.impl.JAIInfoImpl;
 import org.geoserver.config.impl.LoggingInfoImpl;
 import org.geoserver.config.impl.ServiceInfoImpl;
@@ -421,15 +420,6 @@ public class CatalogFaker {
     public JAIInfo jaiInfo() {
         JAIInfo jai = new JAIInfoImpl();
         jai.setAllowInterpolation(true);
-        jai.setAllowNativeMosaic(true);
-        jai.setAllowNativeWarp(true);
-
-        JAIEXTInfoImpl jaiext = new JAIEXTInfoImpl();
-        jaiext.setJAIEXTOperations(Collections.singleton("categorize"));
-        jaiext.setJAIOperations(Collections.singleton("band"));
-        jai.setJAIEXTInfo(jaiext);
-
-        jai.setJpegAcceleration(true);
         jai.setMemoryCapacity(4096);
         jai.setMemoryThreshold(0.75);
         jai.setPngEncoderType(PngEncoderType.PNGJ);
