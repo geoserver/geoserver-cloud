@@ -122,6 +122,10 @@ public class CachingTileLayerCatalog extends ForwardingTileLayerCatalog {
         log.info("Cached %,d GeoServerTileLayerInfos in %s".formatted(count, sw.stop()));
     }
 
+    /**
+     * Forces caching of {@code info}, used by {@link #preLoad()} and {@link #save(GeoServerTileLayerInfo)}, otherwise
+     * the cache is populated on demand by the loading functions {@link #loadLayerById(String)} and {@link #loadLayerByName(String)}.
+     */
     private @NonNull GeoServerTileLayerInfo cachePut(@NonNull GeoServerTileLayerInfo info) {
         idCache.put(info.getId(), info);
         namesById.forcePut(info.getId(), info.getName());
