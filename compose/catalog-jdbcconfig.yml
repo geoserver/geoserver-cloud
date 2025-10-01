@@ -54,7 +54,7 @@ services:
     volumes: *geoserver_volumes
     depends_on: *gs-dependencies
 
-  rest:
+  restconfig:
     environment: *geoserver_environment
     volumes: *geoserver_volumes
     depends_on: *gs-dependencies

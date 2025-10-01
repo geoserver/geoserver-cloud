@@ -143,7 +143,7 @@ services:
     deploy:
       replicas: 1
 
-  rest:
+  restconfig:
     image: geoservercloud/geoserver-cloud-rest:2.27.2.0
     extends:
       service: geoserver_template

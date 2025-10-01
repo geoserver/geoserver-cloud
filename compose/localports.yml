@@ -20,7 +20,7 @@ services:
   wcs:
     ports:
       - 9103:8080
-  rest:
+  restconfig:
     ports:
       - 9105:8080
   webui:

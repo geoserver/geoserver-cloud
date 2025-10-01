@@ -31,7 +31,7 @@ services:
     build:
       context: ../src/apps/geoserver/wps/
 
-  rest:
+  restconfig:
     extends:
       file: templates.yml
       service: current-platform

@@ -164,7 +164,7 @@ services:
           cpus: '4.0'
           memory: 2G
 
-  rest:
+  restconfig:
     extends:
       file: templates.yml
       service: gstemplate

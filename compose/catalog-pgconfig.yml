@@ -24,7 +24,7 @@ services:
     environment: *geoserver_environment
     depends_on: *gs-dependencies
 
-  rest:
+  restconfig:
     environment: *geoserver_environment
     depends_on: *gs-dependencies
 

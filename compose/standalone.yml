@@ -80,7 +80,7 @@ services:
         condition: service_healthy
         required: true
   
-  rest:
+  restconfig:
     environment:
       SPRING_PROFILES_INCLUDE: "standalone"
     depends_on:

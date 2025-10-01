@@ -19,7 +19,7 @@ services:
         condition: service_healthy
       gwc:
         condition: service_healthy
-      rest:
+      restconfig:
         condition: service_healthy
       #webui:
       #  condition: service_started
@@ -89,7 +89,7 @@ services:
           memory: 512M
     healthcheck:
       retries: 20
-  rest:
+  restconfig:
     deploy:
       resources:
         limits:
