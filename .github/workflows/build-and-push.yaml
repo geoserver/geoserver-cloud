@@ -61,24 +61,38 @@ jobs:
 
     - name: Build application packages
       run: |
-        make install
+        make package
+
+    - name: Clean up Maven project artifacts
+      run: |
+        rm -rf ~/.m2/repository/org/geoserver
+        find ~/.m2/repository -name "*SNAPSHOT*" -type d -exec rm -rf {} + 2>/dev/null || true
+        echo "Disk space after Maven cleanup:"
+        df -h
 
     - name: Build and push base images
       run: |
         REPACKAGE=false make build-base-images-multiplatform
 
+    - name: Clean up Docker build cache after base images
+      run: |
+        docker buildx prune --force
+        echo "Disk space after base images:"
+        df -h
+
     - name: Build and push images for infra services
       run: |
         REPACKAGE=false make build-image-infrastructure-multiplatform
 
+    - name: Clean up Docker build cache after infra images
+      run: |
+        docker buildx prune --force
+        echo "Disk space after infra images:"
+        df -h
+
     - name: Build and push images for GeoServer services
       run: |
         REPACKAGE=false make build-image-geoserver-multiplatform
-
-    - name: Remove project jars from cached repository
-      run: |
-        rm -rf ~/.m2/repository/org/geoserver
-        find ~/.m2/repository -name "*SNAPSHOT*" -type d | xargs rm -rf {}
 
     - name: Install Cosign
       if: ${{ startsWith(github.ref, 'refs/tags/') }}
