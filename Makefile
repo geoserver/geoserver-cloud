@@ -105,7 +105,7 @@ build-image-geoserver-multiplatform: package-geoserver-images
 .PHONY: package-base-images
 package-base-images:
 ifeq ($(REPACKAGE), true)
-	./mvnw clean package -f src/apps/base-images -DskipTests -T4
+	./mvnw clean package -DskipTests -T1C -nsu -am -pl src/apps/base-images/jre,src/apps/base-images/spring-boot,src/apps/base-images/spring-boot3,src/apps/base-images/geoserver
 else
 	@echo "Not re-packaging base images, assuming the target/*-bin.jar files exist"
 endif
@@ -113,7 +113,7 @@ endif
 .PHONY: package-infrastructure-images
 package-infrastructure-images:
 ifeq ($(REPACKAGE), true)
-	./mvnw clean package -f src/apps/infrastructure -DskipTests -T4
+	./mvnw clean package -DskipTests -T1C -nsu -am -pl src/apps/infrastructure/config,src/apps/infrastructure/discovery,src/apps/infrastructure/gateway
 else
 	@echo "Not re-packaging infra images, assuming the target/*-bin.jar files exist"
 endif
@@ -121,7 +121,7 @@ endif
 .PHONY: package-geoserver-images
 package-geoserver-images:
 ifeq ($(REPACKAGE), true)
-	./mvnw clean package -f src/apps/geoserver -DskipTests -T4
+	./mvnw clean package -DskipTests -T1C -nsu -am -pl src/apps/geoserver/gwc,src/apps/geoserver/restconfig,src/apps/geoserver/wcs,src/apps/geoserver/webui,src/apps/geoserver/wfs,src/apps/geoserver/wms,src/apps/geoserver/wcs,src/apps/geoserver/wps
 else
 	@echo "Not re-packaging geoserver images, assuming the target/*-bin.jar files exist"
 endif
