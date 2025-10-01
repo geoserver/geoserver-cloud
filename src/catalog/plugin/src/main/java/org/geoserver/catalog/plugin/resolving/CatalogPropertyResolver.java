@@ -247,7 +247,14 @@ public class CatalogPropertyResolver<T extends Info> implements UnaryOperator<T>
      */
     private void setCatalog(@NonNull StyleInfo i) {
         if (i instanceof StyleInfoImpl style) {
-            style.setCatalog(catalog());
+            /*
+             * When the style is remote (null id), StyleInfoImpl.getSLD() will check for a null catalog and return null.
+             * Otherwise it'll call ResourcePool.getStyle(StyleInfo) and fail
+             */
+            boolean isRemoteStyle = null == style.getId();
+            if (!isRemoteStyle) {
+                style.setCatalog(catalog());
+            }
         }
     }
 }
