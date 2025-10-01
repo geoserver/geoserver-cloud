@@ -43,4 +43,9 @@ public class Settings extends ConfigInfoDto {
      * @since geoserver 2.22.0
      */
     private boolean useHeadersProxyURL;
+
+    /**
+     * @since 2.28.0
+     */
+    private boolean isShowModifiedUserInAdminList;
 }

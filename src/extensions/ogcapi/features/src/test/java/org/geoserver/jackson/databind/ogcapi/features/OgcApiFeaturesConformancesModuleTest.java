@@ -110,13 +110,13 @@ class OgcApiFeaturesConformancesModuleTest {
     @Test
     void testSerializeDeserializeECQLConformance() throws JsonProcessingException {
         ECQLConformance original = new ECQLConformance();
-        original.setECQL(true);
+        original.setText(true);
 
         String json = mapper.writeValueAsString(original);
-        assertTrue(json.contains("\"ecql\":true"));
+        assertTrue(json.contains("\"text\":true"));
 
         ECQLConformance deserialized = mapper.readValue(json, ECQLConformance.class);
-        assertEquals(true, deserialized.isECQL());
+        assertEquals(true, deserialized.isText());
     }
 
     @Test
