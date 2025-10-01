@@ -201,7 +201,6 @@ public class OgcApiFeaturesConformancesModule extends SimpleModule {
             gen.writeStartObject();
 
             // Write fields directly using getters
-            writeNullSafe(gen, "ecql", value.isECQL());
             writeNullSafe(gen, "text", value.isText());
 
             gen.writeEndObject();
@@ -250,8 +249,8 @@ public class OgcApiFeaturesConformancesModule extends SimpleModule {
                 // Set the appropriate field
                 Boolean value = p.getBooleanValue();
                 switch (fieldName) {
-                    case "ecql" -> conf.setECQL(value);
-                    case "text" -> conf.setText(value);
+                    // "ecql" constant preserved for pre 2.28.0 compatibility
+                    case "ecql", "text" -> conf.setText(value);
                     default -> throw new IllegalArgumentException("Unknown field in ECQLConformance: " + fieldName);
                 }
             }

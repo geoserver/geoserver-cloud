@@ -26,4 +26,8 @@ import lombok.ToString;
 public abstract class CatalogInfoDto extends InfoDto {
     private Date dateCreated;
     private Date dateModified;
+    /**
+     * @since 2.28.0
+     */
+    private String modifiedBy;
 }
