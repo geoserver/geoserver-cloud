@@ -47,6 +47,18 @@ jobs:
         # Sets up docker build command as an alias to docker buildx
         install: true
 
+    - name: Free Disk Space
+      run: |
+        echo "Disk space before cleanup:"
+        df -h
+        sudo rm -rf /usr/share/dotnet
+        sudo rm -rf /usr/local/lib/android
+        sudo rm -rf /opt/ghc
+        sudo rm -rf /opt/hostedtoolcache/CodeQL
+        sudo docker image prune --all --force
+        echo "Disk space after cleanup:"
+        df -h
+
     - name: Checkout
       uses: actions/checkout@v4
       with:
@@ -67,9 +79,21 @@ jobs:
       run: |
         REPACKAGE=false make build-base-images-multiplatform
 
+    - name: Clean up Docker build cache after base images
+      run: |
+        docker buildx prune --force
+        echo "Disk space after base images:"
+        df -h
+
     - name: Build and push images for infra services
       run: |
         REPACKAGE=false make build-image-infrastructure-multiplatform
+
+    - name: Clean up Docker build cache after infra images
+      run: |
+        docker buildx prune --force
+        echo "Disk space after infra images:"
+        df -h
 
     - name: Build and push images for GeoServer services
       run: |
