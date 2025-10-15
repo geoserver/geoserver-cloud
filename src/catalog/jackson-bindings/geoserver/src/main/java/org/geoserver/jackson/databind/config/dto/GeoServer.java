@@ -30,7 +30,7 @@ public class GeoServer extends ConfigInfoDto {
     }
 
     private Settings settings;
-    private JaiDto JAI;
+    private ImageProcessingInfoDto imageProcessing;
     private CoverageAccess coverageAccess;
     private MetadataMapDto metadata;
     private long updateSequence;

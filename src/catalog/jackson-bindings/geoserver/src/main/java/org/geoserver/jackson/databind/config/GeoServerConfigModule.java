@@ -16,7 +16,7 @@ import org.geoserver.cog.CogSettingsStore;
 import org.geoserver.config.ContactInfo;
 import org.geoserver.config.CoverageAccessInfo;
 import org.geoserver.config.GeoServerInfo;
-import org.geoserver.config.JAIInfo;
+import org.geoserver.config.ImageProcessingInfo;
 import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
@@ -28,7 +28,7 @@ import org.geoserver.jackson.databind.config.dto.CogSettingsStoreDto;
 import org.geoserver.jackson.databind.config.dto.Contact;
 import org.geoserver.jackson.databind.config.dto.CoverageAccess;
 import org.geoserver.jackson.databind.config.dto.GeoServer;
-import org.geoserver.jackson.databind.config.dto.JaiDto;
+import org.geoserver.jackson.databind.config.dto.ImageProcessingInfoDto;
 import org.geoserver.jackson.databind.config.dto.Logging;
 import org.geoserver.jackson.databind.config.dto.Service;
 import org.geoserver.jackson.databind.config.dto.Settings;
@@ -113,7 +113,11 @@ public class GeoServerConfigModule extends SimpleModule {
                 CoverageAccess.class,
                 VALUE_MAPPER::coverageAccessInfo);
 
-        addMapperSerializer(JAIInfo.class, VALUE_MAPPER::jaiInfo, JaiDto.class, VALUE_MAPPER::jaiInfo);
+        addMapperSerializer(
+                ImageProcessingInfo.class,
+                VALUE_MAPPER::imageProcessingInfo,
+                ImageProcessingInfoDto.class,
+                VALUE_MAPPER::imageProcessingInfo);
 
         addMapperSerializer(ContactInfo.class, VALUE_MAPPER::contactInfo, Contact.class, VALUE_MAPPER::contactInfo);
 
