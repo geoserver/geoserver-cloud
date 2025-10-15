@@ -67,15 +67,15 @@ import org.geoserver.config.CoverageAccessInfo.QueueType;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.GeoServerInfo.WebUIMode;
-import org.geoserver.config.JAIInfo;
-import org.geoserver.config.JAIInfo.PngEncoderType;
+import org.geoserver.config.ImageProcessingInfo;
+import org.geoserver.config.ImageProcessingInfo.PngEncoderType;
 import org.geoserver.config.LoggingInfo;
 import org.geoserver.config.ResourceErrorHandling;
 import org.geoserver.config.SettingsInfo;
 import org.geoserver.config.impl.ContactInfoImpl;
 import org.geoserver.config.impl.CoverageAccessInfoImpl;
 import org.geoserver.config.impl.GeoServerInfoImpl;
-import org.geoserver.config.impl.JAIInfoImpl;
+import org.geoserver.config.impl.ImageProcessingInfoImpl;
 import org.geoserver.config.impl.LoggingInfoImpl;
 import org.geoserver.config.impl.ServiceInfoImpl;
 import org.geoserver.config.impl.SettingsInfoImpl;
@@ -392,7 +392,7 @@ public class CatalogFaker {
         g.setFeatureTypeCacheSize(1000);
         g.setGlobalServices(true);
         g.setId("GeoServer.global");
-        g.setJAI(jaiInfo());
+        g.setImageProcessing(imageProcessingInfo());
         // don't set lock provider with g.setLockProviderName("testLockProvider") to avoid a warning
         // stack trace that the bean does not exist
         g.setMetadata(metadataMap("k1", Integer.valueOf(1), "k2", "2", "k3", Boolean.FALSE));
@@ -417,8 +417,8 @@ public class CatalogFaker {
         return m;
     }
 
-    public JAIInfo jaiInfo() {
-        JAIInfo jai = new JAIInfoImpl();
+    public ImageProcessingInfo imageProcessingInfo() {
+        ImageProcessingInfoImpl jai = new ImageProcessingInfoImpl();
         jai.setAllowInterpolation(true);
         jai.setMemoryCapacity(4096);
         jai.setMemoryThreshold(0.75);

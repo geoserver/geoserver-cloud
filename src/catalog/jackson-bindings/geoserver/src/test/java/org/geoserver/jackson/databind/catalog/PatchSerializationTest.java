@@ -59,7 +59,7 @@ import org.geoserver.config.CoverageAccessInfo;
 import org.geoserver.config.CoverageAccessInfo.QueueType;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerInfo;
-import org.geoserver.config.JAIInfo;
+import org.geoserver.config.ImageProcessingInfo;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
 import org.geoserver.config.impl.CoverageAccessInfoImpl;
@@ -605,9 +605,9 @@ public abstract class PatchSerializationTest {
     }
 
     @Test
-    void jaiInfo() throws Exception {
-        JAIInfo jaiInfo = data.faker().jaiInfo();
-        testPatch("jaiInfo", jaiInfo);
+    void imageProcessingInfo() throws Exception {
+        ImageProcessingInfo imageProcessingInfo = data.faker().imageProcessingInfo();
+        testPatch("imageProcessingInfo", imageProcessingInfo);
     }
 
     @Test

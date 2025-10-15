@@ -7,12 +7,12 @@ package org.geoserver.jackson.databind.config.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
-import org.geoserver.config.JAIInfo;
+import org.geoserver.config.ImageProcessingInfo;
 
-/** DTO for {@link JAIInfo} */
+/** DTO for {@link ImageProcessingInfo} ({@code JAIInfo} before 2.28.0) */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Data
-public class JaiDto {
+public class ImageProcessingInfoDto {
     public enum PngEncoderType {
         JDK,
         PNGJ

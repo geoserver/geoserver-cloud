@@ -387,7 +387,7 @@ class CatalogRemoteApplicationEventsIT extends BusAmqpIntegrationTests {
         IntStream.range(0, attributes.size()).forEach(i -> {
             AttributeTypeInfo decoded = decodedAtts.get(i);
             AttributeTypeInfo orig = attributes.get(i);
-            assertThat(decoded.equalsIngnoreFeatureType(orig));
+            assertThat(decoded.equalsIgnoreFeatureType(orig));
             assertNotNull(decoded.getFeatureType());
             FeatureTypeInfo expected = ModificationProxy.unwrap(orig.getFeatureType());
             FeatureTypeInfo actual = ModificationProxy.unwrap(decoded.getFeatureType());

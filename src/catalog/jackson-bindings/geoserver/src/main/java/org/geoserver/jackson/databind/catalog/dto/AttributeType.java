@@ -6,9 +6,15 @@
 package org.geoserver.jackson.databind.catalog.dto;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 import lombok.Data;
+import org.geoserver.catalog.AttributeTypeInfo;
+import org.geotools.jackson.databind.dto.NumberRangeDto;
 
+/**
+ * JSON DTO for {@link AttributeTypeInfo}
+ */
 @Data
 public class AttributeType {
     private String name;
@@ -33,4 +39,14 @@ public class AttributeType {
      * @since geoserver 2.23.0
      */
     private Map<String, String> description;
+
+    /**
+     * @since 2.28.0
+     */
+    private List<Object> options;
+
+    /**
+     * @since 2.28.0
+     */
+    private NumberRangeDto range;
 }
