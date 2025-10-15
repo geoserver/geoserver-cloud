@@ -8,6 +8,19 @@
   </parent>
   <artifactId>gwc-cloud-blobstores</artifactId>
   <packaging>jar</packaging>
+  <properties>
+    <testcontainers-fake-gcs-server.version>0.2.0</testcontainers-fake-gcs-server.version>
+  </properties>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>io.aiven</groupId>
+        <artifactId>testcontainers-fake-gcs-server</artifactId>
+        <version>${testcontainers-fake-gcs-server.version}</version>
+        <scope>test</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
   <dependencies>
     <dependency>
       <groupId>org.geoserver.cloud.gwc</groupId>
@@ -22,6 +35,10 @@
       <artifactId>gs-gwc-azure-blob</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.geoserver.community</groupId>
+      <artifactId>gs-gwc-gcs-blob</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.geoserver.web</groupId>
       <artifactId>gs-web-gwc</artifactId>
       <scope>provided</scope>
@@ -30,6 +47,11 @@
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.aiven</groupId>
+      <artifactId>testcontainers-fake-gcs-server</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

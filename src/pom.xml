@@ -640,6 +640,22 @@
       </dependency>
       <dependency>
         <groupId>org.geoserver.community</groupId>
+        <artifactId>gs-gwc-gcs-blob</artifactId>
+        <version>${gs.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.geoserver.web</groupId>
+            <artifactId>gs-web-gwc</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.logging.log4j</groupId>
+            <!-- exclude transitive from com.microsoft.azure:azure-storage-blob:jar:11.0.0 -->
+            <artifactId>log4j-slf4j-impl</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.geoserver.community</groupId>
         <artifactId>gs-flatgeobuf</artifactId>
         <version>${gs.version}</version>
         <exclusions>
@@ -1253,6 +1269,11 @@
       </activation>
       <dependencyManagement>
         <dependencies>
+          <dependency>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>google-cloud-storage</artifactId>
+            <version>2.55.0</version>
+          </dependency>
           <dependency>
             <!-- GeoServer 2.26.x is at 1.79, where spring-boot:2.7.18 is at 1.73 -->
             <groupId>org.bouncycastle</groupId>

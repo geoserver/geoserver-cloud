@@ -7,10 +7,10 @@ package org.geoserver.cloud.autoconfigure.gwc.blobstore;
 
 import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnAzureBlobstoreEnabled;
 import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnGeoServerWebUIEnabled;
-import org.geoserver.cloud.gwc.config.blobstore.AzureBlobstoreConfiguration;
-import org.geoserver.cloud.gwc.config.blobstore.AzureBlobstoreGsWebUIConfiguration;
+import org.geoserver.cloud.autoconfigure.gwc.ConditionalOnGoogleCloudStorageBlobstoreEnabled;
+import org.geoserver.cloud.gwc.config.blobstore.GoogleCloudStoargeBlobStoreGsWebUIConfiguration;
+import org.geoserver.cloud.gwc.config.blobstore.GoogleCloudStorageBlobstoreConfiguration;
 import org.geoserver.gwc.web.blob.BlobStorePage;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -18,23 +18,26 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 /**
- * @see ConditionalOnAzureBlobstoreEnabled
- * @since 1.0
+ * @see ConditionalOnGoogleCloudStorageBlobstoreEnabled
+ * @since 2.28.0
  */
 @AutoConfiguration
 @SuppressWarnings("java:S1118") // Suppress SonarLint warning, constructor needs to be public
-@ConditionalOnAzureBlobstoreEnabled
-@Import({AzureBlobstoreConfiguration.class, AzureBlobstoreAutoConfiguration.GsWebUIAutoConfiguration.class})
+@ConditionalOnGoogleCloudStorageBlobstoreEnabled
+@Import({
+    GoogleCloudStorageBlobstoreConfiguration.class,
+    GoogleCloudStorageBlobstoreAutoConfiguration.GsWebUIAutoConfiguration.class
+})
 @Slf4j(topic = "org.geoserver.cloud.autoconfigure.gwc.blobstore")
-public class AzureBlobstoreAutoConfiguration {
+public class GoogleCloudStorageBlobstoreAutoConfiguration {
 
     public @PostConstruct void log() {
-        log.info("GeoWebCache Azure BlobStore integration enabled");
+        log.info("GeoWebCache Google Cloud Storage BlobStore integration enabled");
     }
 
     @Configuration(proxyBeanMethods = false)
     @ConditionalOnGeoServerWebUIEnabled
     @ConditionalOnClass(BlobStorePage.class)
-    @Import(AzureBlobstoreGsWebUIConfiguration.class)
+    @Import(GoogleCloudStoargeBlobStoreGsWebUIConfiguration.class)
     static class GsWebUIAutoConfiguration {}
 }
