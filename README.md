@@ -63,6 +63,7 @@ Only a curated selection of the extensive [GeoServer extensions](http://geoserve
     * GeoPackage
     * GeoParquet
     * Cloud Optimized GeoTIFF
+    * PMTiles with vector tiles
     * Pre-generalized Features
     * ImagePyramid
 * **Output Formats**:
@@ -72,6 +73,7 @@ Only a curated selection of the extensive [GeoServer extensions](http://geoserve
 * **Tiling Extensions**:
     * S3 Tile Storage
     * Azure Blob Storage
+    * Google Cloud Storage Blob Storage
 * **Miscellaneous**:
     * Importer
     * Resource Browser Tool
@@ -97,7 +99,7 @@ If you're looking for instructions to just get *GeoServer Cloud* up and running 
 
 ## Status
 
-`v2.27.2.0` released on top of GeoServer `2.27.2`.
+`v2.28.0.0` released on top of GeoServer `2.28.0`.
 
 Check out the full [Release Notes](https://github.com/geoserver/geoserver-cloud/releases) for a changelog.
 
