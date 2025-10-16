@@ -21,15 +21,6 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <!-- downgrade netty.version used by spring-boot to the one used by geoserver azure client -->
-        <!-- (software.amazon.awssdk:netty-nio-client:jar:2.9.24) for COG and GWC Azure plugin -->
-        <groupId>io.netty</groupId>
-        <artifactId>netty-bom</artifactId>
-        <version>${netty.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
         <!-- For testing service conditional annotations -->
         <groupId>org.geoserver.cloud.extensions</groupId>
         <artifactId>gs-cloud-extensions-core</artifactId>

@@ -27,21 +27,19 @@
     <spring.version>5.3.39</spring.version>
     <spring.security.version>5.8.16</spring.security.version>
     <tomcat.version>9.0.104</tomcat.version>
-    <jackson.version>2.19.0</jackson.version>
+    <jackson.version>2.19.2</jackson.version>
     <gs.version>2.28.0-SNAPSHOT</gs.version>
     <gt.version>34-SNAPSHOT</gt.version>
     <wicket.version>9.21.0</wicket.version>
     <acl.version>2.3.2</acl.version>
     <postgresql.version>42.7.7</postgresql.version>
-    <!-- Same netty.version used by geoserver for COG and GWC Azure plugin -->
-    <netty.version>4.1.113.Final</netty.version>
     <lombok.version>1.18.30</lombok.version>
     <mapstruct.version>1.6.0.Beta1</mapstruct.version>
     <flyway.version>11.1.0</flyway.version>
+    <tileverse.version>1.1.0</tileverse.version>
     <testcontainers.version>1.19.3</testcontainers.version>
     <fork.javac>true</fork.javac>
     <javac.maxHeapSize>256M</javac.maxHeapSize>
-    <aws.version>2.27.23</aws.version>
     <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     <!-- logstash-logback-encoder:7.4+ requires logback 1.3+ and slf4j 2.0+, only available on spring-boot 3.0+ -->
     <logstash-logback-encoder.version>7.3</logstash-logback-encoder.version>
@@ -234,6 +232,14 @@
           <exclusion>
             <groupId>org.geotools</groupId>
             <artifactId>gt-geotiff</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna-platform</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -765,6 +771,11 @@
         <version>${gs.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.geoserver.community</groupId>
+        <artifactId>gs-pmtiles-store</artifactId>
+        <version>${gs.version}</version>
+      </dependency>
+      <dependency>
         <!-- override 1.2.0 from gt-geoparquet:33-SNAPSHOT -->
         <groupId>org.duckdb</groupId>
         <artifactId>duckdb_jdbc</artifactId>
@@ -818,6 +829,14 @@
             <groupId>org.geoserver.web</groupId>
             <artifactId>gs-web-core</artifactId>
           </exclusion>
+          <exclusion>
+            <!--
+                exclude netty, we don't want all the transitive dependencies, it'll use
+                software.amazon.awssdk:apache-client -> org.apache.httpcomponents:httpclient instead
+            -->
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>netty-nio-client</artifactId>
+          </exclusion>
         </exclusions>
       </dependency>
       <dependency>
@@ -828,6 +847,11 @@
           <exclusion>
             <groupId>org.geoserver.web</groupId>
             <artifactId>gs-web-core</artifactId>
+          </exclusion>
+          <exclusion>
+            <!-- exclude netty, we don't want all the transitive dependencies, will use azure-core-http-jdk-httpclient instead-->
+            <groupId>com.azure</groupId>
+            <artifactId>azure-core-http-netty</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -856,24 +880,6 @@
             <artifactId>gs-web-core</artifactId>
           </exclusion>
         </exclusions>
-      </dependency>
-      <dependency>
-        <!--- Override  old aws version without support for "IAM roles for service accounts" -->
-        <groupId>software.amazon.awssdk</groupId>
-        <artifactId>s3</artifactId>
-        <version>${aws.version}</version>
-      </dependency>
-      <dependency>
-        <!--- Override  old aws version without support for "IAM roles for service accounts" -->
-        <groupId>software.amazon.awssdk</groupId>
-        <artifactId>auth</artifactId>
-        <version>${aws.version}</version>
-      </dependency>
-      <dependency>
-        <!--- Additional dependency required to support "IAM roles for service accounts" -->
-        <groupId>software.amazon.awssdk</groupId>
-        <artifactId>sts</artifactId>
-        <version>${aws.version}</version>
       </dependency>
       <!-- OGC API core dependencies -->
       <dependency>
@@ -1035,6 +1041,13 @@
         <artifactId>system-lambda</artifactId>
         <version>1.2.1</version>
         <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.tileverse</groupId>
+        <artifactId>tileverse-dependencies</artifactId>
+        <version>${tileverse.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -1270,22 +1283,10 @@
       <dependencyManagement>
         <dependencies>
           <dependency>
-            <groupId>com.google.cloud</groupId>
-            <artifactId>google-cloud-storage</artifactId>
-            <version>2.55.0</version>
-          </dependency>
-          <dependency>
             <!-- GeoServer 2.26.x is at 1.79, where spring-boot:2.7.18 is at 1.73 -->
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk18on</artifactId>
             <version>1.79</version>
-          </dependency>
-          <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-bom</artifactId>
-            <version>${netty.version}</version>
-            <type>pom</type>
-            <scope>import</scope>
           </dependency>
           <dependency>
             <groupId>org.locationtech.jts</groupId>
