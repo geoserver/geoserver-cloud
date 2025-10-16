@@ -113,6 +113,8 @@ public interface GeoServerConfigMapper {
 
     @Mapping(target = "id", ignore = true) // set by factory method
     @Mapping(target = "clientProperties", ignore = true)
+    @Mapping(target = "useHeadersProxyURL", ignore = true) // deprecated
+    @Mapping(target = "xmlExternalEntitiesEnabled", ignore = true) // deprecated
     GeoServerInfo toInfo(GeoServer dto);
 
     GeoServer toDto(GeoServerInfo info);

@@ -49,7 +49,7 @@ public abstract class GeoServerConfigModuleTest {
         }
     }
 
-    private ObjectMapper objectMapper;
+    protected ObjectMapper objectMapper;
 
     private Catalog catalog;
     private CatalogTestData testData;
