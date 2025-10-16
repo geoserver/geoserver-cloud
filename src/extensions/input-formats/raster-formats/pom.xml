@@ -54,8 +54,20 @@
       <artifactId>gs-cog-s3</artifactId>
     </dependency>
     <dependency>
+      <!-- alternative http client for gs-cog-s3 replacing software.amazon.awssdk:netty-nio-client -->
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>apache-client</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
       <groupId>org.geoserver.community</groupId>
       <artifactId>gs-cog-azure</artifactId>
+    </dependency>
+    <dependency>
+      <!-- JDK HttpClient for gs-cog-azure to replace the netty client -->
+      <groupId>com.azure</groupId>
+      <artifactId>azure-core-http-jdk-httpclient</artifactId>
     </dependency>
     <dependency>
       <groupId>org.geoserver.community</groupId>
