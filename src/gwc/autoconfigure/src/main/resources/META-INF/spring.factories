@@ -16,5 +16,6 @@ org.geoserver.cloud.autoconfigure.gwc.service.RESTConfigAutoConfiguration,\
 org.geoserver.cloud.autoconfigure.web.gwc.GeoWebCacheUIAutoConfiguration,\
 org.geoserver.cloud.autoconfigure.web.gwc.GeoServerWebUIAutoConfiguration,\
 org.geoserver.cloud.autoconfigure.gwc.blobstore.S3BlobstoreAutoConfiguration,\
-org.geoserver.cloud.autoconfigure.gwc.blobstore.AzureBlobstoreAutoConfiguration
+org.geoserver.cloud.autoconfigure.gwc.blobstore.AzureBlobstoreAutoConfiguration,\
+org.geoserver.cloud.autoconfigure.gwc.blobstore.GoogleCloudStorageBlobstoreAutoConfiguration
 

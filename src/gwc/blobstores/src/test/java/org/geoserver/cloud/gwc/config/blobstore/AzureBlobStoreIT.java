@@ -10,6 +10,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Map;
+import org.apache.commons.io.IOUtils;
 import org.geowebcache.GeoWebCacheEnvironment;
 import org.geowebcache.GeoWebCacheExtensions;
 import org.geowebcache.azure.AzureBlobStore;
@@ -24,7 +25,6 @@ import org.geowebcache.storage.StorageException;
 import org.geowebcache.storage.TileObject;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.support.StaticApplicationContext;
 import org.testcontainers.junit.jupiter.Container;
@@ -35,9 +35,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
  *
  * @see AzuriteContainer
  */
-@Testcontainers
-@Disabled("disabled until https://github.com/GeoWebCache/geowebcache/pull/1298 is merged")
-class AzureBlobStoreTest {
+@Testcontainers(disabledWithoutDocker = true)
+class AzureBlobStoreIT {
 
     @Container
     static AzuriteContainer azurite = new AzuriteContainer();
@@ -104,15 +103,10 @@ class AzureBlobStoreTest {
         TileObject tile = TileObject.createCompleteTileObject(layerName, xyz, gridSetId, format, parameters, blob);
         store.put(tile);
 
-        @SuppressWarnings("unused")
         TileObject query = TileObject.createQueryTileObject(layerName, xyz, gridSetId, format, parameters);
-
-        // can't really test get, see https://github.com/Azure/Azurite/issues/217
-        /*
         assertThat(store.get(query)).isTrue();
         assertThat(query.getBlob()).isNotNull();
         byte[] readContents = IOUtils.toByteArray(query.getBlob().getInputStream());
         assertThat(readContents).isEqualTo(contents);
-        */
     }
 }
