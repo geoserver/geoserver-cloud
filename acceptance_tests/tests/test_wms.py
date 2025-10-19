@@ -17,8 +17,8 @@ def test_create_and_feature_type_and_get_map(db_session, geoserver):
     workspace = datastore = feature_type = "test_create_feature_type"
     geoserver.create_workspace(workspace, set_default_workspace=True)
     geoserver.create_pg_datastore(
-        workspace=workspace,
-        datastore=datastore,
+        workspace_name=workspace,
+        datastore_name=datastore,
         pg_host=PGHOST,
         pg_port=PGPORT,
         pg_db=PGDATABASE,
@@ -27,11 +27,11 @@ def test_create_and_feature_type_and_get_map(db_session, geoserver):
         pg_schema=PGSCHEMA,
         set_default_datastore=True,
     )
-    response = geoserver.create_feature_type(
+    _, status = geoserver.create_feature_type(
         feature_type,
         epsg=2056,
     )
-    assert response.status_code == 201
+    assert status == 201
 
     # Create feature
     db_session.execute(
@@ -69,11 +69,11 @@ def test_get_feature_info(db_session, geoserver):
             "required": False,
         },
     }
-    response = geoserver.create_workspace(workspace, set_default_workspace=True)
-    assert response.status_code == 201
-    response = geoserver.create_pg_datastore(
-        workspace=workspace,
-        datastore=datastore,
+    _, status = geoserver.create_workspace(workspace, set_default_workspace=True)
+    assert status == 201
+    _, status = geoserver.create_pg_datastore(
+        workspace_name=workspace,
+        datastore_name=datastore,
         pg_host=PGHOST,
         pg_port=PGPORT,
         pg_db=PGDATABASE,
@@ -82,11 +82,11 @@ def test_get_feature_info(db_session, geoserver):
         pg_schema=PGSCHEMA,
         set_default_datastore=True,
     )
-    assert response.status_code == 201
-    response = geoserver.create_feature_type(
+    assert status == 201
+    _, status = geoserver.create_feature_type(
         feature_type, attributes=attributes, epsg=2056
     )
-    assert response.status_code == 201
+    assert status == 201
 
     # Create feature
     db_session.execute(
@@ -98,8 +98,8 @@ def test_get_feature_info(db_session, geoserver):
     db_session.commit()
 
     # Test that layer is published
-    response = geoserver.get_request(f"/rest/layers/{workspace}:{feature_type}.json")
-    assert response.status_code == 200
+    _, status = geoserver.get_feature_type(workspace, datastore, feature_type)
+    assert status == 200
 
     # GetFeatureInfo request
     response = geoserver.get_feature_info(
@@ -124,5 +124,5 @@ def test_get_feature_info(db_session, geoserver):
         "properties": {"name": "urn:ogc:def:crs:EPSG::2056"},
     }
 
-    response = geoserver.delete_workspace(workspace)
-    assert response.status_code == 200
+    _, status = geoserver.delete_workspace(workspace)
+    assert status == 200

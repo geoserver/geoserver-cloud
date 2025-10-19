@@ -14,12 +14,9 @@ def geoserver_with_gwc_layers(geoserver):
         capabilities="https://wmts.geo.admin.ch/EPSG/4326/1.0.0/WMTSCapabilities.xml",
     )
     geoserver.create_wmts_layer(WORKSPACE, WMTS_STORE, WMTS_LAYER)
-    geoserver.get_request(
-        f"/rest/workspaces/{WORKSPACE}/wmtsstores/{WMTS_STORE}/layers/{WMTS_LAYER}.json"
-    )
     geoserver.publish_gwc_layer(WORKSPACE, WMTS_LAYER)
     yield geoserver
-    geoserver.delete_request(f"/gwc/rest/layers/{WORKSPACE}:{WMTS_LAYER}")
+    geoserver.delete_gwc_layer(WORKSPACE, WMTS_LAYER)
     geoserver.delete_workspace(WORKSPACE)
 
 
