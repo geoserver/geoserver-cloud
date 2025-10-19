@@ -45,8 +45,8 @@ def geoserver():
     geoserver = GeoServerCloud(GEOSERVER_URL)
     geoserver.recreate_workspace(WORKSPACE, set_default_workspace=True)
     geoserver.create_pg_datastore(
-        workspace=WORKSPACE,
-        datastore=DATASTORE,
+        workspace_name=WORKSPACE,
+        datastore_name=DATASTORE,
         pg_host=PGHOST,
         pg_port=PGPORT,
         pg_db=PGDATABASE,

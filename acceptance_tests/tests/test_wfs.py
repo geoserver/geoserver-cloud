@@ -29,11 +29,11 @@ def test_wfs(geoserver):
             "required": False,
         },
     }
-    response = geoserver.create_workspace(workspace, set_default_workspace=True)
-    assert response.status_code == 201
-    response = geoserver.create_pg_datastore(
-        workspace=workspace,
-        datastore=datastore,
+    _, code = geoserver.create_workspace(workspace, set_default_workspace=True)
+    assert code == 201
+    _, code = geoserver.create_pg_datastore(
+        workspace_name=workspace,
+        datastore_name=datastore,
         pg_host=PGHOST,
         pg_port=PGPORT,
         pg_db=PGDATABASE,
@@ -42,16 +42,19 @@ def test_wfs(geoserver):
         pg_schema=PGSCHEMA,
         set_default_datastore=True,
     )
-    assert response.status_code == 201
-    response = geoserver.create_feature_type(
+    assert code == 201
+    content, code = geoserver.create_feature_type(
         feature_type, attributes=attributes, epsg=2056
     )
-    assert response.status_code == 201
+    assert content == ""
+    assert code == 201
 
     # Post a feature through a WFS request
     with open(f"{RESOURCE_DIR}/wfs_payload.xml") as file:
         data = file.read()
-        response = geoserver.post_request(f"/{workspace}/wfs/", data=data)
+        response = geoserver.rest_service.rest_client.post(
+            f"/{workspace}/wfs/", data=data
+        )
         assert response.status_code == 200
 
     # GetFeature request
@@ -72,5 +75,5 @@ def test_wfs(geoserver):
         "properties": {"name": "urn:ogc:def:crs:EPSG::2056"},
     }
 
-    response = geoserver.delete_workspace(workspace)
-    assert response.status_code == 200
+    _, code = geoserver.delete_workspace(workspace)
+    assert code == 200
