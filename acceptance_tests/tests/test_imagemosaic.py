@@ -27,22 +27,25 @@ def test_create_imagemosaic_local_files():
 
     # Delete and recreate workspace
     geoserver.delete_workspace(workspace)
-    response = geoserver.create_workspace(workspace)
-    assert response.status_code == 201
+    _, status = geoserver.create_workspace(workspace)
+    assert status == 201
 
     # Use direct directory approach (like web UI) instead of individual file URLs
     directory_path = "/opt/geoserver_data/sampledata/ne/pyramid/"
 
     # Create ImageMosaic store directly from directory
-    response = geoserver.put_request(
+    response = geoserver.rest_service.rest_client.put(
         f"/rest/workspaces/{workspace}/coveragestores/{store_name}/external.imagemosaic",
         data=directory_path,
-        headers={"Content-Type": "text/plain"}
+        headers={"Content-Type": "text/plain"},
     )
-    assert response.status_code in [201, 202], f"Failed to create ImageMosaic from directory: {response.text}"
+    assert response.status_code in [
+        201,
+        202,
+    ], f"Failed to create ImageMosaic from directory: {response.text}"
 
     # List available coverages (should be auto-discovered)
-    response = geoserver.get_request(
+    response = geoserver.rest_service.rest_client.get(
         f"/rest/workspaces/{workspace}/coveragestores/{store_name}/coverages.xml?list=all"
     )
     assert response.status_code == 200, f"Failed to list coverages: {response.text}"
@@ -56,7 +59,7 @@ def test_create_imagemosaic_local_files():
     coverage_name = coverage_match.group(1)
 
     # Check if coverage was auto-created (likely scenario)
-    coverage_response = geoserver.get_request(
+    coverage_response = geoserver.rest_service.rest_client.get(
         f"/rest/workspaces/{workspace}/coveragestores/{store_name}/coverages/{coverage_name}.json"
     )
 
@@ -75,7 +78,7 @@ def test_create_imagemosaic_local_files():
     <enabled>true</enabled>
 </coverage>"""
 
-        response = geoserver.post_request(
+        response = geoserver.rest_service.rest_client.post(
             f"/rest/workspaces/{workspace}/coveragestores/{store_name}/coverages",
             data=coverage_xml,
             headers={"Content-Type": "text/xml"}
@@ -83,7 +86,7 @@ def test_create_imagemosaic_local_files():
         assert response.status_code == 201, f"Failed to create coverage: {response.text}"
 
         # Verify the coverage was created
-        response = geoserver.get_request(f"/rest/workspaces/{workspace}/coveragestores/{store_name}/coverages/{coverage_name}.json")
+        response = geoserver.rest_service.rest_client.get(f"/rest/workspaces/{workspace}/coveragestores/{store_name}/coverages/{coverage_name}.json")
         assert response.status_code == 200
 
         coverage_data = response.json()["coverage"]
@@ -92,7 +95,7 @@ def test_create_imagemosaic_local_files():
         assert coverage_data["enabled"] == True
 
     # Test WMS GetMap request (verify local file mosaic works)
-    wms_response = geoserver.get_request(
+    wms_response = geoserver.rest_service.rest_client.get(
         f"/wms?SERVICE=WMS&VERSION=1.1.0&REQUEST=GetMap&LAYERS={workspace}:{coverage_name}&STYLES=&BBOX=-180,-90,180,90&WIDTH=256&HEIGHT=256&FORMAT=image/png&SRS=EPSG:4326"
     )
     assert wms_response.status_code == 200, f"WMS GetMap failed: {wms_response.text}"
@@ -111,8 +114,8 @@ def test_create_imagemosaic_manual_granules():
 
     # Delete and recreate workspace
     geoserver.delete_workspace(workspace)
-    response = geoserver.create_workspace(workspace)
-    assert response.status_code == 201
+    _, status = geoserver.create_workspace(workspace)
+    assert status == 201
 
     # Create temporary directory for mosaic configuration
     with tempfile.TemporaryDirectory() as tmp_dir:
@@ -157,7 +160,7 @@ preparedStatements=false
         with open(zip_file, 'rb') as f:
             zip_data = f.read()
 
-        response = geoserver.put_request(
+        response = geoserver.rest_service.rest_client.put(
             f"/rest/workspaces/{workspace}/coveragestores/{store_name}/file.imagemosaic?configure=none",
             data=zip_data,
             headers={"Content-Type": "application/zip"}
@@ -174,7 +177,7 @@ preparedStatements=false
 
     for granule_path in granule_paths:
         # Use direct file paths (without file:// protocol) for external.imagemosaic
-        response = geoserver.post_request(
+        response = geoserver.rest_service.rest_client.post(
             f"/rest/workspaces/{workspace}/coveragestores/{store_name}/external.imagemosaic",
             data=granule_path,
             headers={"Content-Type": "text/plain"}
@@ -182,7 +185,7 @@ preparedStatements=false
         assert response.status_code in [201, 202], f"Failed to add granule {granule_path}: {response.text}"
 
     # Initialize the store (list available coverages)
-    response = geoserver.get_request(
+    response = geoserver.rest_service.rest_client.get(
         f"/rest/workspaces/{workspace}/coveragestores/{store_name}/coverages.xml?list=all"
     )
     assert response.status_code == 200, f"Failed to list coverages: {response.text}"
@@ -200,7 +203,7 @@ preparedStatements=false
     <enabled>true</enabled>
 </coverage>"""
 
-    response = geoserver.post_request(
+    response = geoserver.rest_service.rest_client.post(
         f"/rest/workspaces/{workspace}/coveragestores/{store_name}/coverages",
         data=coverage_xml,
         headers={"Content-Type": "text/xml"}
@@ -208,7 +211,7 @@ preparedStatements=false
     assert response.status_code == 201, f"Failed to create coverage: {response.text}"
 
     # Verify the coverage was created successfully
-    response = geoserver.get_request(
+    response = geoserver.rest_service.rest_client.get(
         f"/rest/workspaces/{workspace}/coveragestores/{store_name}/coverages/{coverage_name}.json"
     )
     assert response.status_code == 200, f"Failed to get coverage details: {response.text}"
@@ -219,7 +222,7 @@ preparedStatements=false
     assert coverage_data["enabled"] == True
 
     # Test WMS GetMap request (verify manual granule addition works)
-    wms_response = geoserver.get_request(
+    wms_response = geoserver.rest_service.rest_client.get(
         f"/wms?SERVICE=WMS&VERSION=1.1.0&REQUEST=GetMap&LAYERS={workspace}:{coverage_name}&STYLES=&BBOX=-180,-90,180,90&WIDTH=256&HEIGHT=256&FORMAT=image/png&SRS=EPSG:4326"
     )
     assert wms_response.status_code == 200, f"WMS GetMap failed: {wms_response.text}"
@@ -243,8 +246,8 @@ def test_create_imagemosaic_empty_store_with_directory_harvest():
     geoserver.delete_workspace(workspace)
 
     # Step 1: Create workspace
-    response = geoserver.create_workspace(workspace)
-    assert response.status_code == 201, f"Failed to create workspace: {response.text}"
+    content, status = geoserver.create_workspace(workspace)
+    assert status == 201, f"Failed to create workspace: {content}"
 
     # Step 2: Create ImageMosaic store with configuration
     with tempfile.TemporaryDirectory() as tmp_dir:
@@ -289,7 +292,7 @@ preparedStatements=false
         with open(zip_file, 'rb') as f:
             zip_data = f.read()
 
-        response = geoserver.put_request(
+        response = geoserver.rest_service.rest_client.put(
             f"/rest/workspaces/{workspace}/coveragestores/{store_name}/file.imagemosaic?configure=none",
             data=zip_data,
             headers={"Content-Type": "application/zip"}
@@ -299,7 +302,7 @@ preparedStatements=false
     # Step 3: Harvest granules from directory
     harvest_path = "/opt/geoserver_data/sampledata/ne/pyramid/"
 
-    response = geoserver.post_request(
+    response = geoserver.rest_service.rest_client.post(
         f"/rest/workspaces/{workspace}/coveragestores/{store_name}/external.imagemosaic",
         data=harvest_path,
         headers={"Content-Type": "text/plain"}
@@ -307,7 +310,7 @@ preparedStatements=false
     assert response.status_code in [201, 202], f"Failed to harvest directory {harvest_path}: {response.text}"
 
     # Step 4: List available coverages
-    response = geoserver.get_request(
+    response = geoserver.rest_service.rest_client.get(
         f"/rest/workspaces/{workspace}/coveragestores/{store_name}/coverages.xml?list=all"
     )
     assert response.status_code == 200, f"Failed to list coverages: {response.text}"
@@ -325,7 +328,7 @@ preparedStatements=false
     <enabled>true</enabled>
 </coverage>"""
 
-    response = geoserver.post_request(
+    response = geoserver.rest_service.rest_client.post(
         f"/rest/workspaces/{workspace}/coveragestores/{store_name}/coverages",
         data=coverage_xml,
         headers={"Content-Type": "text/xml"}
@@ -333,7 +336,7 @@ preparedStatements=false
     assert response.status_code == 201, f"Layer creation failed: {response.text}"
 
     # Step 6: Verify the coverage was created successfully
-    response = geoserver.get_request(
+    response = geoserver.rest_service.rest_client.get(
         f"/rest/workspaces/{workspace}/coveragestores/{store_name}/coverages/{coverage_name}.json"
     )
     assert response.status_code == 200, f"Failed to get coverage details: {response.text}"
@@ -344,7 +347,7 @@ preparedStatements=false
     assert coverage_data["enabled"] == True
 
     # Step 7: Test WMS GetMap request
-    wms_response = geoserver.get_request(
+    wms_response = geoserver.rest_service.rest_client.get(
         f"/wms?SERVICE=WMS&VERSION=1.1.0&REQUEST=GetMap&LAYERS={workspace}:{coverage_name}"
         f"&STYLES=&BBOX=-180,-90,180,90&WIDTH=256&HEIGHT=256&FORMAT=image/png&SRS=EPSG:4326"
     )
@@ -369,8 +372,8 @@ def test_create_imagemosaic_empty_store_with_single_file_harvest():
     geoserver.delete_workspace(workspace)
 
     # Step 1: Create workspace
-    response = geoserver.create_workspace(workspace)
-    assert response.status_code == 201, f"Failed to create workspace: {response.text}"
+    content, status = geoserver.create_workspace(workspace)
+    assert status == 201, f"Failed to create workspace: {content}"
 
     # Step 2: Create ImageMosaic store
     with tempfile.TemporaryDirectory() as tmp_dir:
@@ -415,7 +418,7 @@ preparedStatements=false
         with open(zip_file, 'rb') as f:
             zip_data = f.read()
 
-        response = geoserver.put_request(
+        response = geoserver.rest_service.rest_client.put(
             f"/rest/workspaces/{workspace}/coveragestores/{store_name}/file.imagemosaic?configure=none",
             data=zip_data,
             headers={"Content-Type": "application/zip"}
@@ -425,7 +428,7 @@ preparedStatements=false
     # Step 3: Harvest single file
     single_file_path = "/opt/geoserver_data/sampledata/ne/NE1_LR_LC_SR_W_DR.tif"
 
-    response = geoserver.post_request(
+    response = geoserver.rest_service.rest_client.post(
         f"/rest/workspaces/{workspace}/coveragestores/{store_name}/external.imagemosaic",
         data=single_file_path,
         headers={"Content-Type": "text/plain"}
@@ -433,7 +436,7 @@ preparedStatements=false
     assert response.status_code in [201, 202], f"Failed to harvest file {single_file_path}: {response.text}"
 
     # Step 4: List and create layer
-    response = geoserver.get_request(
+    response = geoserver.rest_service.rest_client.get(
         f"/rest/workspaces/{workspace}/coveragestores/{store_name}/coverages.xml?list=all"
     )
     assert response.status_code == 200, f"Failed to list coverages: {response.text}"
@@ -446,7 +449,7 @@ preparedStatements=false
     <enabled>true</enabled>
 </coverage>"""
 
-    response = geoserver.post_request(
+    response = geoserver.rest_service.rest_client.post(
         f"/rest/workspaces/{workspace}/coveragestores/{store_name}/coverages",
         data=coverage_xml,
         headers={"Content-Type": "text/xml"}
@@ -454,7 +457,7 @@ preparedStatements=false
     assert response.status_code == 201, f"Layer creation failed: {response.text}"
 
     # Verify WMS works
-    wms_response = geoserver.get_request(
+    wms_response = geoserver.rest_service.rest_client.get(
         f"/wms?SERVICE=WMS&VERSION=1.1.0&REQUEST=GetMap&LAYERS={workspace}:{coverage_name}"
         f"&STYLES=&BBOX=-180,-90,180,90&WIDTH=256&HEIGHT=256&FORMAT=image/png&SRS=EPSG:4326"
     )
@@ -478,8 +481,8 @@ def test_create_imagemosaic_via_xml_store_creation():
     geoserver.delete_workspace(workspace)
 
     # Step 1: Create workspace
-    response = geoserver.create_workspace(workspace)
-    assert response.status_code == 201, f"Failed to create workspace: {response.text}"
+    content, code = geoserver.create_workspace(workspace)
+    assert code == 201, f"Failed to create workspace: {content}"
 
     # Step 2: Create ImageMosaic store via XML store creation
     store_xml = f"""<coverageStore>
@@ -492,7 +495,7 @@ def test_create_imagemosaic_via_xml_store_creation():
     <url>/opt/geoserver_data/sampledata/ne/pyramid/</url>
 </coverageStore>"""
 
-    response = geoserver.post_request(
+    response = geoserver.rest_service.rest_client.post(
         f"/rest/workspaces/{workspace}/coveragestores",
         data=store_xml,
         headers={"Content-Type": "text/xml"}
@@ -500,7 +503,7 @@ def test_create_imagemosaic_via_xml_store_creation():
     assert response.status_code == 201, f"Store creation via XML failed: {response.text}"
 
     # Step 3: List available coverages
-    response = geoserver.get_request(
+    response = geoserver.rest_service.rest_client.get(
         f"/rest/workspaces/{workspace}/coveragestores/{store_name}/coverages.xml?list=all"
     )
     assert response.status_code == 200, f"Failed to list coverages: {response.text}"
@@ -520,7 +523,7 @@ def test_create_imagemosaic_via_xml_store_creation():
     <enabled>true</enabled>
 </coverage>"""
 
-    response = geoserver.post_request(
+    response = geoserver.rest_service.rest_client.post(
         f"/rest/workspaces/{workspace}/coveragestores/{store_name}/coverages",
         data=coverage_xml,
         headers={"Content-Type": "text/xml"}
@@ -528,7 +531,7 @@ def test_create_imagemosaic_via_xml_store_creation():
     assert response.status_code == 201, f"Layer creation failed: {response.text}"
 
     # Verify WMS works
-    wms_response = geoserver.get_request(
+    wms_response = geoserver.rest_service.rest_client.get(
         f"/wms?SERVICE=WMS&VERSION=1.1.0&REQUEST=GetMap&LAYERS={workspace}:{coverage_name}"
         f"&STYLES=&BBOX=-180,-90,180,90&WIDTH=256&HEIGHT=256&FORMAT=image/png&SRS=EPSG:4326"
     )

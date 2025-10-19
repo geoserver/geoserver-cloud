@@ -1,12 +1,31 @@
-from conftest import PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD, PGSCHEMA
+from geoservercloud import GeoServerCloud
+import pytest
+from conftest import (
+    GEOSERVER_URL,
+    PGHOST,
+    PGPORT,
+    PGDATABASE,
+    PGUSER,
+    PGPASSWORD,
+    PGSCHEMA,
+)
+
+WORKSPACE = "test_pg_datastore"
+
+
+@pytest.fixture(scope="function")
+def geoserver():
+    geoserver = GeoServerCloud(url=GEOSERVER_URL)
+    geoserver.create_workspace(WORKSPACE, set_default_workspace=True)
+    yield geoserver
+    geoserver.delete_workspace(WORKSPACE)
 
 
 def test_create_get_and_delete_datastore(geoserver):
-    workspace = datastore = "test_create_pg_datastore"
-    geoserver.create_workspace(workspace)
-    response = geoserver.create_pg_datastore(
-        workspace=workspace,
-        datastore=datastore,
+    datastore = "test_pg_datastore"
+    content, code = geoserver.create_pg_datastore(
+        workspace_name=WORKSPACE,
+        datastore_name=datastore,
         pg_host=PGHOST,
         pg_port=PGPORT,
         pg_db=PGDATABASE,
@@ -15,10 +34,8 @@ def test_create_get_and_delete_datastore(geoserver):
         pg_schema=PGSCHEMA,
         set_default_datastore=True,
     )
-    assert response.status_code == 201
-    response = geoserver.get_request(
-        f"/rest/workspaces/{workspace}/datastores/{datastore}.json"
-    )
-    assert response.status_code == 200
-    response = geoserver.delete_workspace(workspace)
-    assert response.status_code == 200
+    assert content == datastore
+    assert code == 201
+    content, code = geoserver.get_pg_datastore(WORKSPACE, datastore)
+    assert content.get("name") == datastore
+    assert code == 200
