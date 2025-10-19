@@ -13,24 +13,6 @@ WMTS_URL = "https://wmts.geo.admin.ch/EPSG/4326/1.0.0/WMTSCapabilities.xml"
 WMTS_LAYER = "ch.swisstopo.pixelkarte-grau"
 
 
-def create_cascaded_wms_store_payload():
-    return {
-        "wmsStore": {
-            "name": WMS_STORE,
-            "type": "WMS",
-            "enabled": "true",
-            "workspace": {"name": WORKSPACE},
-            "metadata": {"entry": {"@key": "useConnectionPooling", "$": "true"}},
-            "_default": "false",
-            "disableOnConnFailure": "false",
-            "capabilitiesURL": WMS_URL,
-            "maxConnections": 6,
-            "readTimeout": 60,
-            "connectTimeout": 30,
-        }
-    }
-
-
 @pytest.fixture(scope="module")
 def geoserver():
     geoserver = GeoServerCloud(url=GEOSERVER_URL)
@@ -44,23 +26,22 @@ def test_cascaded_wms(geoserver):
     format = "image/jpeg"
 
     # Create WMS store
-    payload = create_cascaded_wms_store_payload()
-    response = geoserver.post_request(
-        f"/rest/workspaces/{WORKSPACE}/wmsstores", json=payload
+    content, status = geoserver.create_wms_store(
+        workspace_name=WORKSPACE,
+        wms_store_name=WMS_STORE,
+        capabilities_url=WMS_URL,
     )
-    assert response.status_code == 201
+    assert content == WMS_STORE
+    assert status == 201
 
     # Publish layer
-    payload = {
-        "wmsLayer": {
-            "name": WMS_LAYER,
-        }
-    }
-    response = geoserver.post_request(
-        f"/rest/workspaces/{WORKSPACE}/wmsstores/{WMS_STORE}/wmslayers",
-        json=payload,
+    content, status = geoserver.create_wms_layer(
+        workspace_name=WORKSPACE,
+        wms_store_name=WMS_STORE,
+        native_layer_name=WMS_LAYER,
     )
-    assert response.status_code == 201
+    assert content == WMS_LAYER
+    assert status == 201
 
     # Perform GetMap request
     response = geoserver.get_map(
@@ -87,34 +68,41 @@ def test_cascaded_wms(geoserver):
     assert data.get("features") == []
 
     # Delete store
-    response = geoserver.delete_request(
-        f"/rest/workspaces/{WORKSPACE}/wmsstores/{WMS_STORE}?recurse=true"
+    content, status = geoserver.delete_wms_store(
+        workspace_name=WORKSPACE, wms_store_name=WMS_STORE
     )
-    assert response.status_code == 200
+    assert content == ""
+    assert status == 200
 
 
 def test_cascaded_wmts(geoserver):
     format = "image/jpeg"
 
     # Create WMTS store
-    response = geoserver.create_wmts_store(
-        WORKSPACE,
-        WMTS_STORE,
-        capabilities="https://wmts.geo.admin.ch/EPSG/4326/1.0.0/WMTSCapabilities.xml",
+    content, status = geoserver.create_wmts_store(
+        workspace_name=WORKSPACE,
+        name=WMTS_STORE,
+        capabilities=WMTS_URL,
     )
-    assert response.status_code == 201
+    assert content == WMTS_STORE
+    assert status == 201
 
     # Publish layer (GeoServer)
-    response = geoserver.create_wmts_layer(WORKSPACE, WMTS_STORE, WMTS_LAYER)
-    assert response.status_code == 201
-    response = geoserver.get_request(
-        f"/rest/workspaces/{WORKSPACE}/wmtsstores/{WMTS_STORE}/layers/{WMTS_LAYER}.json"
+    content, status = geoserver.create_wmts_layer(
+        workspace_name=WORKSPACE,
+        wmts_store=WMTS_STORE,
+        native_layer=WMTS_LAYER,
     )
-    assert response.status_code == 200
+    assert content == WMTS_LAYER
+    assert status == 201
 
     # Publish the layer in GWC
-    response = geoserver.publish_gwc_layer(WORKSPACE, WMTS_LAYER)
-    assert response.status_code == 200
+    content, status = geoserver.publish_gwc_layer(WORKSPACE, WMTS_LAYER)
+    assert content == "layer saved"
+    assert status == 200
+    content, status = geoserver.get_gwc_layer(WORKSPACE, WMTS_LAYER)
+    assert status == 200
+    assert content.get("GeoServerLayer", {}).get("name") == f"{WORKSPACE}:{WMTS_LAYER}"
 
     # Perform GetTile request (GWC)
     response = geoserver.get_tile(
@@ -128,9 +116,12 @@ def test_cascaded_wmts(geoserver):
     assert response.info().get("Content-Type") == format
 
     # Delete layer and store
-    response = geoserver.delete_request(f"/gwc/rest/layers/{WORKSPACE}:{WMTS_LAYER}")
-    assert response.status_code == 200
-    response = geoserver.delete_request(
-        f"/rest/workspaces/{WORKSPACE}/wmtsstores/{WMTS_STORE}?recurse=true"
+    content, code = geoserver.delete_gwc_layer(
+        workspace_name=WORKSPACE, layer=WMTS_LAYER
+    )
+    assert content == f"{WORKSPACE}:{WMTS_LAYER} deleted"
+    assert code == 200
+    response = geoserver.rest_service.rest_client.delete(
+        f"{geoserver.rest_service.rest_endpoints.wmtsstore(WORKSPACE,WMTS_STORE)}?recurse=true",
     )
     assert response.status_code == 200

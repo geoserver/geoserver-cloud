@@ -11,8 +11,8 @@ def _create_imagemosaic(geoserver, workspace, coverage, granules, indexer_conten
     """Helper function to create an ImageMosaic with COG granules"""
     # Delete and recreate workspace
     geoserver.delete_workspace(workspace)
-    response = geoserver.create_workspace(workspace)
-    assert response.status_code == 201
+    _, status = geoserver.create_workspace(workspace)
+    assert status == 201
 
     # Create temporary directory for mosaic files
     with tempfile.TemporaryDirectory() as tmp_dir:
@@ -58,7 +58,7 @@ preparedStatements=false
         with open(zip_file, 'rb') as f:
             zip_data = f.read()
 
-        response = geoserver.put_request(
+        response = geoserver.rest_service.rest_client.put(
             f"/rest/workspaces/{workspace}/coveragestores/{coverage}/file.imagemosaic?configure=none",
             data=zip_data,
             headers={"Content-Type": "application/zip"}
@@ -67,7 +67,7 @@ preparedStatements=false
 
         # Add granules
         for uri in granules:
-            response = geoserver.post_request(
+            response = geoserver.rest_service.rest_client.post(
                 f"/rest/workspaces/{workspace}/coveragestores/{coverage}/remote.imagemosaic",
                 data=uri,
                 headers={"Content-Type": "text/plain"}
@@ -76,7 +76,7 @@ preparedStatements=false
             assert response.status_code in [201, 202]
 
         # Initialize the store (list available coverages)
-        response = geoserver.get_request(
+        response = geoserver.rest_service.rest_client.get(
             f"/rest/workspaces/{workspace}/coveragestores/{coverage}/coverages.xml?list=all"
         )
         assert response.status_code == 200
@@ -93,7 +93,7 @@ preparedStatements=false
     <enabled>true</enabled>
 </coverage>"""
 
-        response = geoserver.post_request(
+        response = geoserver.rest_service.rest_client.post(
             f"/rest/workspaces/{workspace}/coveragestores/{coverage}/coverages",
             data=coverage_xml,
             headers={"Content-Type": "text/xml"}
@@ -101,7 +101,7 @@ preparedStatements=false
         assert response.status_code == 201
 
         # Verify the coverage was created
-        response = geoserver.get_request(f"/rest/workspaces/{workspace}/coveragestores/{coverage}/coverages/{coverage}.json")
+        response = geoserver.rest_service.rest_client.get(f"/rest/workspaces/{workspace}/coveragestores/{coverage}/coverages/{coverage}.json")
         assert response.status_code == 200
 
         # Verify coverage properties
@@ -112,7 +112,7 @@ preparedStatements=false
         assert coverage_data["title"] == title
 
         # Test WMS GetMap request
-        wms_response = geoserver.get_request(
+        wms_response = geoserver.rest_service.rest_client.get(
             f"/wms?SERVICE=WMS&VERSION=1.1.0&REQUEST=GetMap&LAYERS={workspace}:{coverage}&STYLES=&BBOX=-180,-90,180,90&WIDTH=256&HEIGHT=256&FORMAT=image/png&SRS=EPSG:4326"
         )
         assert wms_response.status_code == 200
@@ -172,7 +172,7 @@ Name={coverage}"""
     coverage_data = _create_imagemosaic(geoserver, workspace, coverage, modis_granules, indexer_content, "MODIS Vegetation Index")
 
     # Additional test for time-based query (since MODIS has time dimension)
-    time_wms_response = geoserver.get_request(
+    time_wms_response = geoserver.rest_service.rest_client.get(
         f"/wms?SERVICE=WMS&VERSION=1.1.0&REQUEST=GetMap&LAYERS={workspace}:{coverage}&STYLES=&BBOX=-180,-90,180,90&WIDTH=256&HEIGHT=256&FORMAT=image/png&SRS=EPSG:4326&TIME=2018-01-01"
     )
     assert time_wms_response.status_code == 200

@@ -1,23 +1,26 @@
 def test_create_get_and_delete_workspace(geoserver):
     workspace = "test_create_workspace"
-    response = geoserver.create_workspace(workspace)
-    assert response.status_code == 201
-    response = geoserver.get_request(f"/rest/workspaces/{workspace}.json")
-    assert response.status_code == 200
-    response = geoserver.publish_workspace(workspace)
-    assert response.status_code == 200
-    response = geoserver.delete_workspace(workspace)
-    assert response.status_code == 200
+    content, status = geoserver.create_workspace(workspace)
+    assert content == workspace
+    assert status == 201
+    content, status = geoserver.get_workspace(workspace)
+    assert content == {"name": workspace, "isolated": False}
+    assert status == 200
+    content, status = geoserver.publish_workspace(workspace)
+    assert status == 200
+    content, status = geoserver.delete_workspace(workspace)
+    assert status == 200
 
 
 def test_update_workspace(geoserver):
     workspace = "update_workspace"
-    response = geoserver.create_workspace(workspace, isolated=True)
-    assert response.status_code == 201
-    response = geoserver.get_request(f"/rest/workspaces/{workspace}.json")
-    assert response.json().get("workspace").get("isolated") == True
-    response = geoserver.create_workspace(workspace, isolated=False)
-    assert response.status_code == 200
-    response = geoserver.get_request(f"/rest/workspaces/{workspace}.json")
-    assert response.json().get("workspace").get("isolated") == False
+    content, status = geoserver.create_workspace(workspace, isolated=True)
+    content, status = geoserver.get_workspace(workspace)
+    assert content == {"name": workspace, "isolated": True}
+    assert status == 200
+    content, status = geoserver.create_workspace(workspace, isolated=False)
+    assert content == ""
+    assert status == 200
+    content, status = geoserver.get_workspace(workspace)
+    assert content == {"name": workspace, "isolated": False}
     geoserver.delete_workspace(workspace)
