@@ -28,7 +28,7 @@ def assert_legend(geoserver, style, language, expected_label):
         format="application/json",
         language=language,
         style=style,
-        workspace=WORKSPACE,
+        workspace_name=WORKSPACE,
     )
     try:
         label = response.json()["Legend"][0]["rules"][0]["title"]
@@ -71,14 +71,14 @@ def geoserver_i18n_legend_layer(geoserver):
     geoserver.create_workspace(WORKSPACE, set_default_workspace=True)
     geoserver.create_feature_type("i18n_legend", epsg=2056)
     geoserver.create_style_from_file(
-        "localized_with_default.sld",
+        "localized_with_default",
         f"{RESOURCE_DIR}/localized_with_default.sld",
-        workspace=WORKSPACE,
+        workspace_name=WORKSPACE,
     )
     geoserver.create_style_from_file(
-        "localized_no_default.sld",
+        "localized_no_default",
         f"{RESOURCE_DIR}/localized_no_default.sld",
-        workspace=WORKSPACE,
+        workspace_name=WORKSPACE,
     )
     yield geoserver
 
@@ -102,7 +102,7 @@ def geoserver_i18n_label_layer(geoserver, db_session):
         "label_fr": {"type": "string", "required": False},
     }
     geoserver.create_feature_type(feature_type, attributes=attributes, epsg=2056)
-    geoserver.create_style_from_file(style, file, workspace=WORKSPACE)
+    geoserver.create_style_from_file(style, file, workspace_name=WORKSPACE)
     # Feature with labels in German, French and a default value
     db_session.execute(
         text(
