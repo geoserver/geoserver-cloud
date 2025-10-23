@@ -7,12 +7,12 @@
 name: gscloud_dev_datadir
 
 volumes:
-  data_directory:
   geowebcache_data:
-#    driver_opts:
-#      type: none
-#      o: bind
-#      device: $PWD/catalog-datadir
+  data_directory:
+    driver_opts:
+      type: none
+      o: bind
+      device: $PWD/catalog-datadir
 
 # Append the shared data directory to the geoserver_volumes anchor
 x-volume-mounts: &geoserver_volumes

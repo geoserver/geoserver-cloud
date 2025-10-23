@@ -1,5 +1,7 @@
 #/bin/sh
 
+mkdir -p catalog-datadir
+
 GSUID=$(id -u)
 GSGID=$(id -g)
 
