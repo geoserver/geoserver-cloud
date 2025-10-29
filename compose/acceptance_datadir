@@ -3,6 +3,8 @@
 GSUID=$(id -u)
 GSGID=$(id -g)
 
+mkdir -p catalog-datadir
+
 GS_USER="$GSUID:$GSGID" \
 COMPOSE_PROJECT_NAME=gscloud-acceptance-datadir \
 docker compose \
