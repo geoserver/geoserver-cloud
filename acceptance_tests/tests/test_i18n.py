@@ -1,10 +1,12 @@
 #!/bin/env python
 
 import pytest
-from conftest import RESOURCE_DIR, WORKSPACE
-from lib.utils import compare_images, write_actual_image
+from tests.conftest import RESOURCE_DIR
+from tests.lib.utils import compare_images, write_actual_image
 from requests.exceptions import JSONDecodeError
 from sqlalchemy.sql import text
+
+WORKSPACE = "test_i18n_workspace"
 
 
 def international_title(default=True, de=True, fr=True, it=True, rm=True):
@@ -39,6 +41,23 @@ def assert_legend(geoserver, style, language, expected_label):
 
 
 @pytest.fixture(scope="module")
+def geoserver(geoserver_factory):
+    geoserver = geoserver_factory(WORKSPACE)
+    geoserver.create_pg_datastore(
+        workspace_name=WORKSPACE,
+        datastore_name="i18n_datastore",
+        pg_host="geodatabase",
+        pg_port=5432,
+        pg_db="acceptance",
+        pg_user="geoserver",
+        pg_password="geoserver",
+        pg_schema="test1",
+        set_default_datastore=True,
+    )
+    yield geoserver
+
+
+@pytest.fixture(scope="module")
 def geoserver_with_i18n_layers(geoserver):
 
     # Create feature type with all languages
@@ -68,7 +87,6 @@ def geoserver_default_locale_it(geoserver_with_i18n_layers):
 
 @pytest.fixture(scope="module")
 def geoserver_i18n_legend_layer(geoserver):
-    geoserver.create_workspace(WORKSPACE, set_default_workspace=True)
     geoserver.create_feature_type("i18n_legend", epsg=2056)
     geoserver.create_style_from_file(
         "localized_with_default",

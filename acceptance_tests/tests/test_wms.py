@@ -1,26 +1,24 @@
 import json
 
-from conftest import (
+from tests.conftest import (
     PGDATABASE,
-    PGHOST,
     PGPASSWORD,
-    PGPORT,
     PGSCHEMA,
     PGUSER,
     RESOURCE_DIR,
 )
-from lib.utils import compare_images, write_actual_image
+from tests.lib.utils import compare_images, write_actual_image
 from sqlalchemy.sql import text
 
 
-def test_create_and_feature_type_and_get_map(db_session, geoserver):
+def test_create_and_feature_type_and_get_map(db_session, geoserver_factory):
     workspace = datastore = feature_type = "test_create_feature_type"
-    geoserver.create_workspace(workspace, set_default_workspace=True)
+    geoserver = geoserver_factory(workspace)
     geoserver.create_pg_datastore(
         workspace_name=workspace,
         datastore_name=datastore,
-        pg_host=PGHOST,
-        pg_port=PGPORT,
+        pg_host="geodatabase",
+        pg_port=5432,
         pg_db=PGDATABASE,
         pg_user=PGUSER,
         pg_password=PGPASSWORD,
@@ -54,11 +52,10 @@ def test_create_and_feature_type_and_get_map(db_session, geoserver):
     write_actual_image(response, file_root)
     compare_images(RESOURCE_DIR, file_root)
 
-    geoserver.delete_workspace(workspace)
 
-
-def test_get_feature_info(db_session, geoserver):
+def test_get_feature_info(db_session, geoserver_factory):
     workspace = datastore = feature_type = "test_get_feature_info"
+    geoserver = geoserver_factory(workspace)
     attributes = {
         "geom": {
             "type": "Point",
@@ -69,13 +66,11 @@ def test_get_feature_info(db_session, geoserver):
             "required": False,
         },
     }
-    _, status = geoserver.create_workspace(workspace, set_default_workspace=True)
-    assert status == 201
     _, status = geoserver.create_pg_datastore(
         workspace_name=workspace,
         datastore_name=datastore,
-        pg_host=PGHOST,
-        pg_port=PGPORT,
+        pg_host="geodatabase",
+        pg_port=5432,
         pg_db=PGDATABASE,
         pg_user=PGUSER,
         pg_password=PGPASSWORD,
@@ -123,6 +118,3 @@ def test_get_feature_info(db_session, geoserver):
         "type": "name",
         "properties": {"name": "urn:ogc:def:crs:EPSG::2056"},
     }
-
-    _, status = geoserver.delete_workspace(workspace)
-    assert status == 200

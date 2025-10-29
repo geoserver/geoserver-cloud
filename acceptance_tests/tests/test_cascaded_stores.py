@@ -1,9 +1,5 @@
 import json
 
-import pytest
-from conftest import GEOSERVER_URL
-from geoservercloud import GeoServerCloud
-
 WORKSPACE = "test_cascade"
 WMS_STORE = "test_cascaded_wms_store"
 WMS_URL = "https://wms.geo.admin.ch/?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities"
@@ -13,16 +9,8 @@ WMTS_URL = "https://wmts.geo.admin.ch/EPSG/4326/1.0.0/WMTSCapabilities.xml"
 WMTS_LAYER = "ch.swisstopo.pixelkarte-grau"
 
 
-@pytest.fixture(scope="module")
-def geoserver():
-    geoserver = GeoServerCloud(url=GEOSERVER_URL)
-    geoserver.create_workspace(WORKSPACE, set_default_workspace=True)
-    geoserver.publish_workspace(WORKSPACE)
-    yield geoserver
-    geoserver.delete_workspace(WORKSPACE)
-
-
-def test_cascaded_wms(geoserver):
+def test_cascaded_wms(geoserver_factory):
+    geoserver = geoserver_factory(WORKSPACE)
     format = "image/jpeg"
 
     # Create WMS store
@@ -75,7 +63,8 @@ def test_cascaded_wms(geoserver):
     assert status == 200
 
 
-def test_cascaded_wmts(geoserver):
+def test_cascaded_wmts(geoserver_factory):
+    geoserver = geoserver_factory(WORKSPACE)
     format = "image/jpeg"
 
     # Create WMTS store
