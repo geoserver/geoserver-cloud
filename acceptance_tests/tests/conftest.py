@@ -41,20 +41,19 @@ def db_session(engine):
 
 
 @pytest.fixture(scope="module")
-def geoserver():
-    geoserver = GeoServerCloud(GEOSERVER_URL)
-    geoserver.recreate_workspace(WORKSPACE, set_default_workspace=True)
-    geoserver.create_pg_datastore(
-        workspace_name=WORKSPACE,
-        datastore_name=DATASTORE,
-        pg_host=PGHOST,
-        pg_port=PGPORT,
-        pg_db=PGDATABASE,
-        pg_user=PGUSER,
-        pg_password=PGPASSWORD,
-        pg_schema=PGSCHEMA,
-        set_default_datastore=True,
-    )
-    geoserver.publish_workspace(WORKSPACE)
-    yield geoserver
-    geoserver.delete_workspace(WORKSPACE)
+def geoserver_factory(request):
+    """
+    Factory fixture to create a GeoServerCloud instance with a dedicated workspace.
+    Cleanup (workspace deletion) is handled automatically.
+    """
+
+    def _create(workspace_name):
+        geoserver = GeoServerCloud(url=GEOSERVER_URL)
+        geoserver.create_workspace(workspace_name, set_default_workspace=True)
+        geoserver.publish_workspace(workspace_name)
+
+        # Register cleanup for this workspace
+        request.addfinalizer(lambda: geoserver.delete_workspace(workspace_name))
+        return geoserver
+
+    return _create

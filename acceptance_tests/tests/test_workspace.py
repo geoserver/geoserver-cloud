@@ -1,4 +1,9 @@
-def test_create_get_and_delete_workspace(geoserver):
+from tests.conftest import GEOSERVER_URL
+from geoservercloud import GeoServerCloud
+
+
+def test_create_get_and_delete_workspace():
+    geoserver = GeoServerCloud(GEOSERVER_URL)
     workspace = "test_create_workspace"
     content, status = geoserver.create_workspace(workspace)
     assert content == workspace
@@ -12,7 +17,8 @@ def test_create_get_and_delete_workspace(geoserver):
     assert status == 200
 
 
-def test_update_workspace(geoserver):
+def test_update_workspace():
+    geoserver = GeoServerCloud(GEOSERVER_URL)
     workspace = "update_workspace"
     content, status = geoserver.create_workspace(workspace, isolated=True)
     content, status = geoserver.get_workspace(workspace)

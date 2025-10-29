@@ -1,7 +1,4 @@
-from geoservercloud import GeoServerCloud
-import pytest
-from conftest import (
-    GEOSERVER_URL,
+from tests.conftest import (
     PGHOST,
     PGPORT,
     PGDATABASE,
@@ -13,18 +10,12 @@ from conftest import (
 WORKSPACE = "test_pg_datastore"
 
 
-@pytest.fixture(scope="function")
-def geoserver():
-    geoserver = GeoServerCloud(url=GEOSERVER_URL)
-    geoserver.create_workspace(WORKSPACE, set_default_workspace=True)
-    yield geoserver
-    geoserver.delete_workspace(WORKSPACE)
-
-
-def test_create_get_and_delete_datastore(geoserver):
+def test_create_get_and_delete_datastore(geoserver_factory):
+    workspace = "test_pg_datastore"
     datastore = "test_pg_datastore"
+    geoserver = geoserver_factory(workspace)
     content, code = geoserver.create_pg_datastore(
-        workspace_name=WORKSPACE,
+        workspace_name=workspace,
         datastore_name=datastore,
         pg_host=PGHOST,
         pg_port=PGPORT,
@@ -36,6 +27,6 @@ def test_create_get_and_delete_datastore(geoserver):
     )
     assert content == datastore
     assert code == 201
-    content, code = geoserver.get_pg_datastore(WORKSPACE, datastore)
+    content, code = geoserver.get_pg_datastore(workspace, datastore)
     assert content.get("name") == datastore
     assert code == 200

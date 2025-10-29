@@ -1,16 +1,15 @@
-from conftest import (
+from tests.conftest import (
     PGDATABASE,
-    PGHOST,
     PGPASSWORD,
-    PGPORT,
     PGSCHEMA,
     PGUSER,
     RESOURCE_DIR,
 )
 
 
-def test_wfs(geoserver):
+def test_wfs(geoserver_factory):
     workspace = datastore = feature_type = "test_wfs"
+    geoserver = geoserver_factory(workspace)
     attributes = {
         "geom": {
             "type": "Point",
@@ -29,13 +28,11 @@ def test_wfs(geoserver):
             "required": False,
         },
     }
-    _, code = geoserver.create_workspace(workspace, set_default_workspace=True)
-    assert code == 201
     _, code = geoserver.create_pg_datastore(
         workspace_name=workspace,
         datastore_name=datastore,
-        pg_host=PGHOST,
-        pg_port=PGPORT,
+        pg_host="geodatabase",
+        pg_port=5432,
         pg_db=PGDATABASE,
         pg_user=PGUSER,
         pg_password=PGPASSWORD,
@@ -74,6 +71,3 @@ def test_wfs(geoserver):
         "type": "name",
         "properties": {"name": "urn:ogc:def:crs:EPSG::2056"},
     }
-
-    _, code = geoserver.delete_workspace(workspace)
-    assert code == 200
