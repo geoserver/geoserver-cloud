@@ -5,6 +5,8 @@
 
 package org.geoserver.cloud.catalog.cache;
 
+import java.util.Collection;
+import java.util.List;
 import javax.annotation.Nullable;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +42,9 @@ public class CachingGeoServerFacade extends ForwardingGeoServerFacade {
 
     /** Key used to cache and evict the {@link LoggingInfo global logging} settings object */
     static final String LOGGINGINFO_KEY = "global_Logging";
+
+    /** Key used to cache and evict the {@link #getServices() global services} list */
+    static final String GLOBAL_SERVICES_KEY = "global_services";
 
     private final @NonNull Cache cache;
 
@@ -245,11 +250,37 @@ public class CachingGeoServerFacade extends ForwardingGeoServerFacade {
         return clazz.isInstance(service) ? clazz.cast(service) : null;
     }
 
+    @Override
+    @Cacheable(key = "'" + GLOBAL_SERVICES_KEY + "'", unless = "#result.isEmpty()")
+    public Collection<? extends ServiceInfo> getServices() {
+        return super.getServices();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Collection<? extends ServiceInfo> getServices(WorkspaceInfo workspace) {
+        Object key = CachingGeoServerFacade.servicesByWorkspaceKey(workspace);
+        Collection<? extends ServiceInfo> services;
+        ValueWrapper cached = cache.get(key);
+        if (cached == null) {
+            services = super.getServices(workspace);
+            services = services == null ? List.of() : List.copyOf(services);
+            cache.put(key, services);
+        } else {
+            services = (Collection<? extends ServiceInfo>) cached.get();
+        }
+        return services;
+    }
+
     /**
      * Method used to build a cache key for the {@link SettingsInfo settings} of a given workspace
      */
     public static Object settingsKey(WorkspaceInfo ws) {
         return "settings@" + ws.getId();
+    }
+
+    public static Object servicesByWorkspaceKey(@NonNull WorkspaceInfo ws) {
+        return "services@" + ws.getId();
     }
 
     public static Object serviceByIdKey(String id) {

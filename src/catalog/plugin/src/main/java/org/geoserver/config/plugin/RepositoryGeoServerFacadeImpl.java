@@ -16,6 +16,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.MetadataMap;
@@ -229,15 +230,19 @@ public class RepositoryGeoServerFacadeImpl implements RepositoryGeoServerFacade 
 
     @Override
     public Collection<? extends ServiceInfo> getServices() {
-        List<ServiceInfo> all =
-                repository.getGlobalServices().map(this::resolve).toList();
+        List<ServiceInfo> all;
+        try (Stream<ServiceInfo> globalServices = repository.getGlobalServices()) {
+            all = globalServices.map(this::resolve).toList();
+        }
         return ModificationProxy.createList(all, ServiceInfo.class);
     }
 
     @Override
     public Collection<? extends ServiceInfo> getServices(WorkspaceInfo workspace) {
-        List<ServiceInfo> services =
-                repository.getServicesByWorkspace(workspace).map(this::resolve).toList();
+        List<ServiceInfo> services;
+        try (Stream<ServiceInfo> stream = repository.getServicesByWorkspace(workspace)) {
+            services = stream.map(this::resolve).toList();
+        }
         return ModificationProxy.createList(services, ServiceInfo.class);
     }
 
