@@ -1,16 +1,15 @@
-from conftest import (
+from tests.conftest import (
     PGDATABASE,
-    PGHOST,
     PGPASSWORD,
-    PGPORT,
     PGSCHEMA,
     PGUSER,
     RESOURCE_DIR,
 )
 
 
-def test_wfs(geoserver):
+def test_wfs(geoserver_factory):
     workspace = datastore = feature_type = "test_wfs"
+    geoserver = geoserver_factory(workspace)
     attributes = {
         "geom": {
             "type": "Point",
@@ -29,29 +28,30 @@ def test_wfs(geoserver):
             "required": False,
         },
     }
-    response = geoserver.create_workspace(workspace, set_default_workspace=True)
-    assert response.status_code == 201
-    response = geoserver.create_pg_datastore(
-        workspace=workspace,
-        datastore=datastore,
-        pg_host=PGHOST,
-        pg_port=PGPORT,
+    _, code = geoserver.create_pg_datastore(
+        workspace_name=workspace,
+        datastore_name=datastore,
+        pg_host="geodatabase",
+        pg_port=5432,
         pg_db=PGDATABASE,
         pg_user=PGUSER,
         pg_password=PGPASSWORD,
         pg_schema=PGSCHEMA,
         set_default_datastore=True,
     )
-    assert response.status_code == 201
-    response = geoserver.create_feature_type(
+    assert code == 201
+    content, code = geoserver.create_feature_type(
         feature_type, attributes=attributes, epsg=2056
     )
-    assert response.status_code == 201
+    assert content == ""
+    assert code == 201
 
     # Post a feature through a WFS request
     with open(f"{RESOURCE_DIR}/wfs_payload.xml") as file:
         data = file.read()
-        response = geoserver.post_request(f"/{workspace}/wfs/", data=data)
+        response = geoserver.rest_service.rest_client.post(
+            f"/{workspace}/wfs/", data=data
+        )
         assert response.status_code == 200
 
     # GetFeature request
@@ -71,6 +71,3 @@ def test_wfs(geoserver):
         "type": "name",
         "properties": {"name": "urn:ogc:def:crs:EPSG::2056"},
     }
-
-    response = geoserver.delete_workspace(workspace)
-    assert response.status_code == 200

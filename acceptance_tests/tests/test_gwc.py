@@ -6,21 +6,17 @@ WMTS_LAYER = "ch.swisstopo.swissimage"
 
 
 @pytest.fixture(scope="module")
-def geoserver_with_gwc_layers(geoserver):
-    geoserver.create_workspace(WORKSPACE)
+def geoserver_with_gwc_layers(geoserver_factory):
+    geoserver = geoserver_factory(WORKSPACE)
     geoserver.create_wmts_store(
         WORKSPACE,
         WMTS_STORE,
         capabilities="https://wmts.geo.admin.ch/EPSG/4326/1.0.0/WMTSCapabilities.xml",
     )
     geoserver.create_wmts_layer(WORKSPACE, WMTS_STORE, WMTS_LAYER)
-    geoserver.get_request(
-        f"/rest/workspaces/{WORKSPACE}/wmtsstores/{WMTS_STORE}/layers/{WMTS_LAYER}.json"
-    )
     geoserver.publish_gwc_layer(WORKSPACE, WMTS_LAYER)
     yield geoserver
-    geoserver.delete_request(f"/gwc/rest/layers/{WORKSPACE}:{WMTS_LAYER}")
-    geoserver.delete_workspace(WORKSPACE)
+    geoserver.delete_gwc_layer(WORKSPACE, WMTS_LAYER)
 
 
 def test_tile_cache(geoserver_with_gwc_layers):

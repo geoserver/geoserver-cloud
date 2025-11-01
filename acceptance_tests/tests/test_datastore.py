@@ -1,12 +1,22 @@
-from conftest import PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD, PGSCHEMA
+from tests.conftest import (
+    PGHOST,
+    PGPORT,
+    PGDATABASE,
+    PGUSER,
+    PGPASSWORD,
+    PGSCHEMA,
+)
+
+WORKSPACE = "test_pg_datastore"
 
 
-def test_create_get_and_delete_datastore(geoserver):
-    workspace = datastore = "test_create_pg_datastore"
-    geoserver.create_workspace(workspace)
-    response = geoserver.create_pg_datastore(
-        workspace=workspace,
-        datastore=datastore,
+def test_create_get_and_delete_datastore(geoserver_factory):
+    workspace = "test_pg_datastore"
+    datastore = "test_pg_datastore"
+    geoserver = geoserver_factory(workspace)
+    content, code = geoserver.create_pg_datastore(
+        workspace_name=workspace,
+        datastore_name=datastore,
         pg_host=PGHOST,
         pg_port=PGPORT,
         pg_db=PGDATABASE,
@@ -15,10 +25,8 @@ def test_create_get_and_delete_datastore(geoserver):
         pg_schema=PGSCHEMA,
         set_default_datastore=True,
     )
-    assert response.status_code == 201
-    response = geoserver.get_request(
-        f"/rest/workspaces/{workspace}/datastores/{datastore}.json"
-    )
-    assert response.status_code == 200
-    response = geoserver.delete_workspace(workspace)
-    assert response.status_code == 200
+    assert content == datastore
+    assert code == 201
+    content, code = geoserver.get_pg_datastore(workspace, datastore)
+    assert content.get("name") == datastore
+    assert code == 200
