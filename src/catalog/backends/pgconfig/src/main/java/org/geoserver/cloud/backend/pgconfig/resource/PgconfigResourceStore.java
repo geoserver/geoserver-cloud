@@ -13,7 +13,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.OutputStream;
-import java.sql.Timestamp;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -26,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Delegate;
 import lombok.extern.slf4j.Slf4j;
+import org.geoserver.cloud.backend.pgconfig.catalog.repository.LoggingTemplate;
 import org.geoserver.platform.resource.LockProvider;
 import org.geoserver.platform.resource.Paths;
 import org.geoserver.platform.resource.Resource;
@@ -47,7 +47,7 @@ public class PgconfigResourceStore implements ResourceStore {
     static final long ROOT_ID = 0L;
     static final long UNDEFINED_ID = -1L;
 
-    private final JdbcTemplate template;
+    private final LoggingTemplate template;
     private final FileSystemResourceStoreCache cache;
 
     private @NonNull @Getter @Setter LockProvider lockProvider;
@@ -61,7 +61,7 @@ public class PgconfigResourceStore implements ResourceStore {
             @NonNull JdbcTemplate template,
             @NonNull PgconfigLockProvider lockProvider,
             @NonNull Predicate<String> fileSystemOnlyPathMatcher) {
-        this.template = template;
+        this.template = new LoggingTemplate(template).setLog(log);
         this.lockProvider = lockProvider;
         this.queryMapper = new PgconfigResourceRowMapper(this);
         this.cache = cache;
@@ -200,86 +200,78 @@ public class PgconfigResourceStore implements ResourceStore {
         }
     }
 
+    @Transactional(transactionManager = "pgconfigTransactionManager", propagation = REQUIRED)
+    public PgconfigResource save(@NonNull PgconfigResource resource) {
+        return save(resource, null);
+    }
+
     /**
-     * Creates the resource if it doesn't exist, updates it if it does
+     * Creates the resource if it doesn't exist, updates it if it does.
+     * <p>
+     * Uses PostgreSQL {@code UPSERT (INSERT ... ON CONFLICT ... DO UPDATE)} for atomic operation.
      *
-     * @throws IllegalArgumentException if {@link PgconfigResource#isUndefined()}
+     * @param resource the resource to save
+     * @param contents the content bytes for RESOURCE types, null for DIRECTORY or to keep existing content
+     * @return the updated resource with current database state
+     * @throws IllegalArgumentException if resource type is UNDEFINED
      */
     @Transactional(transactionManager = "pgconfigTransactionManager", propagation = REQUIRED)
-    public void save(@NonNull PgconfigResource resource) {
-        if (resource.isUndefined()) {
+    public PgconfigResource save(@NonNull PgconfigResource resource, byte[] contents) {
+        // Check type field directly without triggering updateState() which would reset it
+        if (resource.type == Type.UNDEFINED) {
             throw new IllegalArgumentException(
                     "Attempting to save a resource of undefined type: %s".formatted(resource));
+        } else if (resource.type == Type.DIRECTORY && contents != null) {
+            throw new IllegalArgumentException(
+                    "Attempting to save a directory resource with contents: %s".formatted(resource));
+        } else if (resource.type == Type.RESOURCE && contents == null) {
+            // Prepare content - use empty byte array for RESOURCE types if null
+            contents = new byte[0];
         }
-        if (resource.exists()) {
-            String sql =
-                    """
-                    UPDATE resourcestore SET parentid = ?, "type" = ?, path = ?
-                    WHERE id = ?;
-                    """;
-            long id = resource.getId();
-            long parentId = resource.getParentId();
-            String type = resource.getType().toString();
-            String path = resource.path();
-            template.update(sql, parentId, type, path, id);
-        } else {
-            PgconfigResource parent = resource.parent().mkdirs();
-            String sql =
-                    """
-                    INSERT INTO resourcestore (parentid, "type", path, content)
-                    VALUES (?, ?, ?, ?)
-                    ON CONFLICT (parentid, path)
-                    DO UPDATE SET
-                        "type" = EXCLUDED."type",
-                        content = EXCLUDED.content;
-                    """;
 
-            long parentId = parent.getId();
-            String type = resource.getType().toString();
-            String path = resource.path();
-            byte[] contents = resource.getType() == Type.DIRECTORY ? null : new byte[0];
+        // Ensure parent directory exists
+        PgconfigResource parent = ensureParentExists(resource);
 
-            template.update(sql, parentId, type, path, contents);
-        }
+        // Use UPSERT for atomic insert-or-update
+        // COALESCE(EXCLUDED.content, resourcestore.content) means:
+        //   - If new content provided (not null) -> use it
+        //   - If new content is null -> keep existing content
+        // This allows metadata-only updates (type, parent) without losing file content
+        String sql =
+                """
+                INSERT INTO resourcestore (parentid, "type", path, content)
+                VALUES (?, ?, ?, ?)
+                ON CONFLICT (parentid, path)
+                DO UPDATE SET
+                    "type" = EXCLUDED."type",
+                    content = COALESCE(EXCLUDED.content, resourcestore.content),
+                    mtime = timezone('UTC'::text, now());
+                """;
+
+        final long parentId = parent.getId();
+        // Access type field directly to avoid triggering updateState()
+        final String type = resource.type.toString();
+        final String path = resource.path();
+
+        template.update(sql, parentId, type, path, contents);
+
+        // Refresh resource with current database state
         PgconfigResource updated = (PgconfigResource) get(resource.path);
         resource.id = updated.getId();
         resource.lastmodified = updated.lastmodified();
         resource.parentId = updated.getParentId();
+        return updated;
     }
 
-    /**
-     * Saves the contents of the given resource
-     *
-     * @return the new resource lastupdated timestamp
-     * @throws IllegalArgumentException if <code>
-     *      {@link PgconfigResource#isDirectory() resource.isDirectory()} || !{@link
-     *     PgconfigResource#exists() resource.exists()}</code>
-     */
-    @Transactional(transactionManager = "pgconfigTransactionManager", propagation = REQUIRED)
-    public long save(@NonNull PgconfigResource resource, byte[] contents) {
-        if (!resource.exists()) {
-            throw new IllegalArgumentException("Resource does not exist: %s".formatted(resource.path()));
-        }
-        if (!resource.isFile()) {
+    private PgconfigResource ensureParentExists(PgconfigResource resource) {
+        PgconfigResource parent = resource.parent();
+        if (parent == null) {
+            // Only root resource has null parent
             throw new IllegalArgumentException(
-                    "Resource is a directory, can't have contents: %s".formatted(resource.path()));
+                    "Cannot save resource with null parent (only root has null parent): %s".formatted(resource.path()));
         }
-        if (null == contents) {
-            contents = new byte[0];
-        }
-        template.update(
-                """
-                UPDATE resourcestore SET content = ? WHERE id = ?
-                """,
-                contents,
-                resource.getId());
-        return getLastmodified(resource.getId());
-    }
-
-    private long getLastmodified(long resourceId) {
-        Timestamp ts =
-                template.queryForObject("SELECT mtime FROM resourcestore WHERE id = ?", Timestamp.class, resourceId);
-        return null == ts ? 0L : ts.getTime();
+        parent = parent.mkdirs();
+        return parent;
     }
 
     /**
@@ -310,7 +302,7 @@ public class PgconfigResourceStore implements ResourceStore {
         Optional<PgconfigResource> indb = findByPath(resource.path());
         indb.ifPresentOrElse(
                 // Resource found in database - copy all properties
-                resource::copy,
+                resource::reset,
                 // Resource not found in database - mark as undefined
                 () -> {
                     resource.type = Type.UNDEFINED;
@@ -341,23 +333,38 @@ public class PgconfigResourceStore implements ResourceStore {
             log.warn("Cannot rename a resource to a descendant of itself ({} to {})", source.path(), target.path());
             return false;
         }
-        final List<PgconfigResource> allChildren = findAllChildren(source);
-        PgconfigResource parent = target.parent().mkdirs();
-        PgconfigResource save = new PgconfigResource(
-                this, source.getId(), parent.getId(), source.getType(), target.path(), source.lastmodified());
-        PgconfigResourceStore.this.save(save);
-        target.copy(save);
-        source.type = Type.UNDEFINED;
 
+        // Ensure target parent directory exists
+        PgconfigResource parent = target.parent().mkdirs();
+
+        // Move the source by updating its path and parent in-place (preserves content and id)
+        final String sql =
+                """
+                UPDATE resourcestore
+                SET parentid = ?, path = ?
+                WHERE id = ?
+                """;
+        template.update(sql, parent.getId(), target.path(), source.getId());
+
+        // Update all children paths recursively
+        final List<PgconfigResource> allChildren = findAllChildren(source);
         final String oldParentPath = source.path();
-        final String newParehtPath = target.path();
+        final String newParentPath = target.path();
         for (var child : allChildren) {
-            String oldPath = child.path().substring(oldParentPath.length());
-            String newPath = newParehtPath + oldPath;
-            String sql = "UPDATE resourcestore SET path = ? WHERE id = ?;";
-            long id = child.getId();
-            template.update(sql, newPath, id);
+            String oldPath = child.path();
+            String relativePath = oldPath.substring(oldParentPath.length());
+            String newPath = newParentPath + relativePath;
+            template.update("UPDATE resourcestore SET path = ? WHERE id = ?", newPath, child.getId());
         }
+
+        // Update source resource to reflect it's been moved (type set to UNDEFINED)
+        source.type = Type.UNDEFINED;
+        source.id = UNDEFINED_ID;
+        source.parentId = UNDEFINED_ID;
+
+        // Update target resource with the moved state
+        PgconfigResource moved = (PgconfigResource) get(target.path());
+        target.reset(moved);
 
         cache.moved(source, target);
         return true;
@@ -484,7 +491,7 @@ public class PgconfigResourceStore implements ResourceStore {
         resource.type = Type.DIRECTORY;
         PgconfigResourceStore.this.save(resource);
         PgconfigResource saved = (PgconfigResource) get(resource.path());
-        resource.copy(saved);
+        resource.reset(saved);
         return resource;
     }
 
@@ -492,21 +499,14 @@ public class PgconfigResourceStore implements ResourceStore {
         if (resource.isDirectory()) {
             throw new IllegalStateException("%s is a directory".formatted(resource.path()));
         }
-        if (resource.isUndefined()) {
-            resource.type = Type.RESOURCE;
-        }
+
+        resource.type = Type.RESOURCE;
+
         return new ByteArrayOutputStream() {
             @Override
             public void close() {
-                if (!resource.exists()) {
-                    String path = resource.path();
-                    PgconfigResourceStore.this.save(resource);
-                    PgconfigResource saved = findByPath(path).orElseThrow();
-                    resource.copy(saved);
-                }
                 byte[] contents = this.toByteArray();
-                long mtime = PgconfigResourceStore.this.save(resource, contents);
-                resource.lastmodified = mtime;
+                PgconfigResourceStore.this.save(resource, contents);
                 cache.dump(resource, new ByteArrayInputStream(contents));
             }
         };
