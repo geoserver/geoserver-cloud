@@ -27,19 +27,19 @@
     <spring.version>5.3.39</spring.version>
     <spring.security.version>5.8.16</spring.security.version>
     <tomcat.version>9.0.104</tomcat.version>
-    <jackson.version>2.19.2</jackson.version>
+    <jackson.version>2.19.4</jackson.version>
     <gs.version>2.28.0-SNAPSHOT</gs.version>
     <gt.version>34-SNAPSHOT</gt.version>
     <wicket.version>9.21.0</wicket.version>
     <acl.version>2.4.0</acl.version>
     <postgresql.version>42.7.7</postgresql.version>
-    <lombok.version>1.18.30</lombok.version>
-    <mapstruct.version>1.6.0.Beta1</mapstruct.version>
-    <flyway.version>11.1.0</flyway.version>
+    <lombok.version>1.18.42</lombok.version>
+    <mapstruct.version>1.6.3</mapstruct.version>
+    <flyway.version>11.16.0</flyway.version>
     <tileverse.version>1.1.0</tileverse.version>
-    <testcontainers.version>1.19.3</testcontainers.version>
+    <testcontainers.version>1.21.3</testcontainers.version>
     <fork.javac>true</fork.javac>
-    <javac.maxHeapSize>256M</javac.maxHeapSize>
+    <javac.maxHeapSize>1G</javac.maxHeapSize>
     <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     <!-- logstash-logback-encoder:7.4+ requires logback 1.3+ and slf4j 2.0+, only available on spring-boot 3.0+ -->
     <logstash-logback-encoder.version>7.3</logstash-logback-encoder.version>
