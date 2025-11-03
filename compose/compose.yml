@@ -29,10 +29,10 @@ services:
     image: alpine:3.18.4
     user: root
     volumes:
-      - geoserver_data:/mnt/geoserver_data
-      - geowebcache_data:/mnt/geowebcache_data
+      - geoserver_data:/opt/geoserver_data
+      - geowebcache_data:/opt/geowebcache_data
       - ./sampledata.tgz:/tmp/sampledata.tgz
-    command: sh -c "chown -R ${GS_USER} /mnt/geoserver_data /mnt/geowebcache_data && cd /mnt/geoserver_data && if [ ! -d sampledata ]; then tar xvzf /tmp/sampledata.tgz && chown -R ${GS_USER} sampledata; fi"
+    command: sh -c "chown -R ${GS_USER} /opt/geoserver_data /opt/geowebcache_data && cd /opt/geoserver_data && if [ ! -d sampledata ]; then tar xvzf /tmp/sampledata.tgz && chown -R ${GS_USER} sampledata; fi"
 
   acl:
     image: ${ACL_REPOSITORY}/geoserver-acl:${ACL_TAG}

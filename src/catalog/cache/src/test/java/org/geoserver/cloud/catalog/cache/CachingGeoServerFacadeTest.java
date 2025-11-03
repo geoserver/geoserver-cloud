@@ -438,6 +438,15 @@ class CachingGeoServerFacadeTest {
     }
 
     @Test
+    void testAddServiceInfo() {
+        testEvictsServiceInfo(service1, () -> caching.add(service1));
+
+        assertNotNull(wsService1.getWorkspace(), "preflight check failure");
+
+        testEvictsServiceInfo(wsService1, () -> caching.add(wsService1));
+    }
+
+    @Test
     void testRemoveServiceInfo() {
         testEvictsServiceInfo(service1, () -> caching.remove(service1));
 
@@ -590,6 +599,97 @@ class CachingGeoServerFacadeTest {
         assertNotNull(cache.get(idKey));
         assertNotNull(cache.get(nameKey));
         assertNotNull(cache.get(typeKey));
+    }
+
+    @Test
+    void testGetServices() {
+        Object globalServicesKey = CachingGeoServerFacade.GLOBAL_SERVICES_KEY;
+
+        assertNull(cache.get(globalServicesKey));
+
+        // First call should hit the underlying facade
+        var services1 = caching.getServices();
+        verify(mock, times(1)).getServices();
+        assertThat(services1).hasSize(2);
+        assertNotNull(cache.get(globalServicesKey));
+
+        // Subsequent calls should return cached value
+        var services2 = caching.getServices();
+        var services3 = caching.getServices();
+        verify(mock, times(1)).getServices(); // Still only called once
+        assertSame(services1, services2);
+        assertSame(services1, services3);
+    }
+
+    @Test
+    void testGetServicesWorkspace() {
+        Object wsServicesKey = CachingGeoServerFacade.servicesByWorkspaceKey(workspace);
+
+        assertNull(cache.get(wsServicesKey));
+
+        // First call should hit the underlying facade
+        var services1 = caching.getServices(workspace);
+        verify(mock, times(1)).getServices(workspace);
+        assertThat(services1).hasSize(2);
+        assertNotNull(cache.get(wsServicesKey));
+
+        // Subsequent calls should return cached value
+        var services2 = caching.getServices(workspace);
+        var services3 = caching.getServices(workspace);
+        verify(mock, times(1)).getServices(workspace); // Still only called once
+        assertSame(services1, services2);
+        assertSame(services1, services3);
+    }
+
+    @Test
+    void testAddServiceInfoEvictsServicesCache() {
+        Object globalServicesKey = CachingGeoServerFacade.GLOBAL_SERVICES_KEY;
+        Object wsServicesKey = CachingGeoServerFacade.servicesByWorkspaceKey(workspace);
+
+        // Populate caches
+        caching.getServices();
+        caching.getServices(workspace);
+        assertNotNull(cache.get(globalServicesKey));
+        assertNotNull(cache.get(wsServicesKey));
+
+        // Add a service should evict all caches
+        caching.add(service1);
+        assertNull(cache.get(globalServicesKey));
+        assertNull(cache.get(wsServicesKey));
+    }
+
+    @Test
+    void testRemoveServiceInfoEvictsServicesCache() {
+        Object globalServicesKey = CachingGeoServerFacade.GLOBAL_SERVICES_KEY;
+        Object wsServicesKey = CachingGeoServerFacade.servicesByWorkspaceKey(workspace);
+
+        // Populate caches
+        caching.getServices();
+        caching.getServices(workspace);
+        assertNotNull(cache.get(globalServicesKey));
+        assertNotNull(cache.get(wsServicesKey));
+
+        // Remove a service should evict all caches
+        caching.remove(service1);
+        assertNull(cache.get(globalServicesKey));
+        assertNull(cache.get(wsServicesKey));
+    }
+
+    @Test
+    void testSaveServiceInfoEvictsServicesCache() {
+        Object globalServicesKey = CachingGeoServerFacade.GLOBAL_SERVICES_KEY;
+        Object wsServicesKey = CachingGeoServerFacade.servicesByWorkspaceKey(workspace);
+
+        // Populate caches
+        caching.getServices();
+        caching.getServices(workspace);
+        assertNotNull(cache.get(globalServicesKey));
+        assertNotNull(cache.get(wsServicesKey));
+
+        // Save a service should evict all caches
+        caching.save(service1);
+        assertNull(cache.get(globalServicesKey));
+        assertNull(cache.get(wsServicesKey));
     }
 
     private <T extends Info> void assertSameTimesN(T info, Supplier<T> query, int times) {
