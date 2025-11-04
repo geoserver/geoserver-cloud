@@ -113,7 +113,7 @@ class PgconfigResourceUpdateStateTest {
         // Use doAnswer instead of when for void methods
         doAnswer(invocation -> {
                     PgconfigResource r = invocation.getArgument(0);
-                    r.copy(updatedResource);
+                    r.reset(updatedResource);
                     return null;
                 })
                 .when(mockStore)

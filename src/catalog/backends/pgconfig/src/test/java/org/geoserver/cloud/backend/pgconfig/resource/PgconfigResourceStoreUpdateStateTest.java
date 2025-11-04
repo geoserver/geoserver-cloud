@@ -49,7 +49,7 @@ class PgconfigResourceStoreUpdateStateTest {
                 new PgconfigResource(store, 2L, 0L, Type.DIRECTORY, "security/rest.properties", 789012L);
 
         // Direct test of copy method
-        resource.copy(updatedResource);
+        resource.reset(updatedResource);
 
         // Verify the resource was updated
         assertEquals(2L, resource.getId());
@@ -105,7 +105,7 @@ class PgconfigResourceStoreUpdateStateTest {
                 store, 1L, 0L, Type.RESOURCE, "security/rest.properties", System.currentTimeMillis());
 
         // Update to file state
-        resource.copy(fileResource);
+        resource.reset(fileResource);
 
         // Verify the resource is now a file
         assertTrue(resource.exists());
@@ -118,7 +118,7 @@ class PgconfigResourceStoreUpdateStateTest {
                 store, 1L, 0L, Type.DIRECTORY, "security/rest.properties", System.currentTimeMillis());
 
         // Update to directory state
-        resource.copy(dirResource);
+        resource.reset(dirResource);
 
         // Verify the resource is now a directory
         assertTrue(resource.exists());

@@ -92,7 +92,7 @@ class PgconfigResource implements Resource {
      * @param other the resource whose state should be copied to this resource
      * @see PgconfigResourceStore#updateState
      */
-    void copy(PgconfigResource other) {
+    void reset(PgconfigResource other) {
         this.id = other.id;
         this.parentId = other.parentId;
         this.type = other.type;

@@ -21,10 +21,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -536,13 +537,16 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
         assertTrue(resourceId > 0);
         long initialLastModified = resource.lastmodified();
 
+        // Sleep briefly to ensure timestamp will be different
+        Thread.sleep(10);
+
         // Update the resource content in the database directly
         JdbcTemplate template = container.getTemplate();
         byte[] updatedContent = "updated=content".getBytes();
+        // Use PostgreSQL's now() to ensure timestamp is in UTC like our save() method
         template.update(
-                "UPDATE resourcestore SET content = ?, mtime = ? WHERE path = ?",
+                "UPDATE resourcestore SET content = ?, mtime = timezone('UTC'::text, now()) WHERE path = ?",
                 updatedContent,
-                new Timestamp(System.currentTimeMillis()),
                 path);
 
         // Force resource state refresh by using reflection to set lastChecked to past
@@ -566,5 +570,33 @@ public class PgconfigResourceTest extends ResourceTheoryTest {
         assertEquals(resourceId, resource.getId());
         assertTrue(resource.exists());
         assertTrue(resource.isFile());
+    }
+
+    @Test
+    public void testWriteNewResource() throws IOException {
+        Resource resource = store.get("security/masterpw/default/passwd");
+        assertEquals(UNDEFINED, resource.getType());
+
+        OutputStream out = resource.out();
+        out.write("test password".getBytes(StandardCharsets.UTF_8));
+        out.close();
+
+        // Verify resource exists and has correct type
+        assertEquals(RESOURCE, resource.getType());
+
+        // Refresh resource from store
+        resource = store.get("security/masterpw/default/passwd");
+        assertEquals(RESOURCE, resource.getType());
+
+        // Verify database content
+        byte[] contents = resource.getContents();
+        assertEquals("test password", new String(contents, StandardCharsets.UTF_8));
+
+        // Verify filesystem cache content
+        File file = resource.file();
+        assertTrue(file.exists());
+        assertTrue(file.isFile());
+        String fileContent = new String(java.nio.file.Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
+        assertEquals("test password", fileContent);
     }
 }

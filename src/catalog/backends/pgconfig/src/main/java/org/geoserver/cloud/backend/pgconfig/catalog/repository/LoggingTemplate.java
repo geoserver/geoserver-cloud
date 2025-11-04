@@ -17,9 +17,12 @@ import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.SneakyThrows;
+import lombok.experimental.Accessors;
 import lombok.experimental.Delegate;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
@@ -32,8 +35,11 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.lang.Nullable;
 
 @RequiredArgsConstructor
-@Slf4j(topic = "org.geoserver.cloud.backend.pgconfig.catalog.repository")
+@Accessors(chain = true)
 public class LoggingTemplate {
+
+    @Setter
+    private Logger log = LoggerFactory.getLogger("org.geoserver.cloud.backend.pgconfig.catalog.repository");
 
     @Getter
     @Delegate
@@ -61,7 +67,7 @@ public class LoggingTemplate {
         logBefore(reqId, sql);
 
         Duration duration = Duration.ZERO;
-        DataAccessException error = null;
+        Exception error = null;
         try {
             final long pre = System.nanoTime();
             try {
@@ -70,7 +76,7 @@ public class LoggingTemplate {
                 long post = System.nanoTime();
                 duration = Duration.ofNanos(post - pre);
             }
-        } catch (DataAccessException e) {
+        } catch (Exception e) {
             error = e;
             throw e;
         } finally {
@@ -95,7 +101,13 @@ public class LoggingTemplate {
         }
     }
 
-    private void logAfter(long reqId, String sql, Duration elapsed, DataAccessException error) {
+    private void logAfter(long reqId, String sql, Duration elapsed, Exception error) {
+        if (error != null) {
+            if (error instanceof org.springframework.dao.EmptyResultDataAccessException) {
+                return;
+            }
+            error.printStackTrace();
+        }
         if (!log.isDebugEnabled()) {
             return;
         }
@@ -109,6 +121,7 @@ public class LoggingTemplate {
         final String errMsg = error == null
                 ? ""
                 : " (ERROR %s: %s)".formatted(error.getClass().getSimpleName(), error.getMessage());
+
         if (error != null && log.isTraceEnabled() && !(error instanceof EmptyResultDataAccessException)) {
             log.trace("after request #{} ({}): '{}'{}", reqId, time, sql, errMsg, error);
         } else {
