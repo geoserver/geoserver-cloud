@@ -137,6 +137,11 @@ services:
       file: templates.yml
       service: gstemplate
     depends_on: *gs-dependencies
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 12G
 
   wcs:
     extends:
